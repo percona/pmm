@@ -80,10 +80,11 @@ type investigationResponse struct {
 	ResolutionSummary string          `json:"resolution_summary"`
 	SourceType        string          `json:"source_type"`
 	SourceRef         string          `json:"source_ref"`
-	NodeName          string          `json:"node_name,omitempty"`
-	ServiceName       string          `json:"service_name,omitempty"`
-	ClusterName       string          `json:"cluster_name,omitempty"`
-	Blocks            []blockResponse `json:"blocks,omitempty"`
+	NodeName           string          `json:"node_name,omitempty"`
+	ServiceName        string          `json:"service_name,omitempty"`
+	ClusterName        string          `json:"cluster_name,omitempty"`
+	ServiceNowTicketID string          `json:"servicenow_ticket_id,omitempty"`
+	Blocks             []blockResponse `json:"blocks,omitempty"`
 }
 
 func investigationToResponse(inv *models.Investigation) investigationResponse {
@@ -101,8 +102,9 @@ func investigationToResponse(inv *models.Investigation) investigationResponse {
 		SummaryDetailed:   inv.SummaryDetailed,
 		RootCauseSummary:  inv.RootCauseSummary,
 		ResolutionSummary: inv.ResolutionSummary,
-		SourceType:        inv.SourceType,
-		SourceRef:         inv.SourceRef,
+		SourceType:         inv.SourceType,
+		SourceRef:          inv.SourceRef,
+		ServiceNowTicketID: inv.ServiceNowTicketID,
 	}
 	if len(inv.Config) > 0 {
 		nodeName, serviceName := configNodeService(inv)

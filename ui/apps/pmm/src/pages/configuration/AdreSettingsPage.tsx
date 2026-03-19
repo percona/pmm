@@ -61,6 +61,11 @@ const AdreSettingsPage: FC = () => {
   const [localReplaceSystemPrompt, setLocalReplaceSystemPrompt] = useState(
     settings?.replaceSystemPrompt ?? settings?.replace_system_prompt ?? false
   );
+  const [localServiceNowURL, setLocalServiceNowURL] = useState(
+    settings?.servicenowUrl ?? settings?.servicenow_url ?? 'https://perconadev.service-now.com/api/pellc/percona_connector/create'
+  );
+  const [localServiceNowAPIKey, setLocalServiceNowAPIKey] = useState('');
+  const [localServiceNowClientToken, setLocalServiceNowClientToken] = useState('');
 
   useEffect(() => {
     if (settings) {
@@ -75,6 +80,9 @@ const AdreSettingsPage: FC = () => {
         settings.qanInsightsPromptDisplay ?? settings.qanInsightsPrompt ?? settings.qan_insights_prompt_display ?? settings.qan_insights_prompt ?? ''
       );
       setLocalReplaceSystemPrompt(settings.replaceSystemPrompt ?? settings.replace_system_prompt ?? false);
+      setLocalServiceNowURL(
+        settings.servicenowUrl ?? settings.servicenow_url ?? 'https://perconadev.service-now.com/api/pellc/percona_connector/create'
+      );
     }
   }, [
     settings?.enabled,
@@ -90,6 +98,7 @@ const AdreSettingsPage: FC = () => {
     settings?.qanInsightsPrompt,
     settings?.qanInsightsPromptDisplay,
     settings?.replaceSystemPrompt,
+    settings?.servicenowUrl,
   ]);
 
   const isAdmin = user?.isPMMAdmin ?? false;
@@ -264,6 +273,47 @@ const AdreSettingsPage: FC = () => {
                     />
                   )}
                 </Stack>
+                <Divider />
+                <Stack gap={2}>
+                  <Typography variant="subtitle1" fontWeight={600}>
+                    ServiceNow Integration
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Configure ServiceNow credentials to enable creating incident tickets from investigation reports.
+                    {(settings?.servicenowConfigured ?? settings?.servicenow_configured) && (
+                      <Chip label="Configured" size="small" color="success" sx={{ ml: 1 }} />
+                    )}
+                  </Typography>
+                  <TextField
+                    label="ServiceNow API URL"
+                    placeholder="https://yourinstance.service-now.com/api/pellc/percona_connector/create"
+                    value={localServiceNowURL}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalServiceNowURL(e.target.value)}
+                    size="small"
+                    fullWidth
+                    helperText="Percona Connector endpoint on your ServiceNow instance"
+                  />
+                  <TextField
+                    label="API Key (x-sn-apikey)"
+                    type="password"
+                    placeholder="Leave empty to keep existing value"
+                    value={localServiceNowAPIKey}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalServiceNowAPIKey(e.target.value)}
+                    size="small"
+                    fullWidth
+                    helperText="ServiceNow API key; leave empty to keep the current value"
+                  />
+                  <TextField
+                    label="Client Token"
+                    type="password"
+                    placeholder="Leave empty to keep existing value"
+                    value={localServiceNowClientToken}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalServiceNowClientToken(e.target.value)}
+                    size="small"
+                    fullWidth
+                    helperText="ServiceNow client token; leave empty to keep the current value"
+                  />
+                </Stack>
                 <Button
                   variant="contained"
                   onClick={() =>
@@ -278,6 +328,9 @@ const AdreSettingsPage: FC = () => {
                         agent_prompt: localAgentPrompt || undefined,
                         qan_insights_prompt: localQanInsightsPrompt || undefined,
                         replace_system_prompt: localReplaceSystemPrompt,
+                        servicenow_url: localServiceNowURL || undefined,
+                        ...(localServiceNowAPIKey ? { servicenow_api_key: localServiceNowAPIKey } : {}),
+                        ...(localServiceNowClientToken ? { servicenow_client_token: localServiceNowClientToken } : {}),
                       } as Partial<AdreSettings> & Record<string, unknown>,
                       {
                         onError: (err: unknown) => {

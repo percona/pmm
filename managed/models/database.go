@@ -1578,6 +1578,9 @@ $yaml$,
 		`CREATE INDEX idx_investigation_comments_investigation_id ON investigation_comments (investigation_id)`,
 		`CREATE INDEX idx_investigation_timeline_events_investigation_id ON investigation_timeline_events (investigation_id)`,
 	},
+	131: {
+		`ALTER TABLE investigations ADD COLUMN IF NOT EXISTS servicenow_ticket_id VARCHAR NOT NULL DEFAULT ''`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

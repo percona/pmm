@@ -120,6 +120,10 @@ type Settings struct {
 		QanInsightsPrompt string `json:"qan_insights_prompt"`
 		// ReplaceSystemPrompt: when true, Holmes uses only the PMM-provided prompt as the system message (replaces Holmes' default prompt).
 		ReplaceSystemPrompt bool `json:"replace_system_prompt"`
+		// ServiceNow integration fields.
+		ServiceNowURL         string `json:"servicenow_url"`
+		ServiceNowAPIKey      string `json:"servicenow_api_key"`
+		ServiceNowClientToken string `json:"servicenow_client_token"`
 	} `json:"adre"`
 
 	Alerting struct {

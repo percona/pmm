@@ -125,6 +125,10 @@ type ChangeSettingsParams struct {
 	AdreQanInsightsPrompt *string
 	// ReplaceSystemPrompt: when true, Holmes uses only the PMM-provided prompt (replaces Holmes' default).
 	ReplaceSystemPrompt *bool
+	// ServiceNow integration fields.
+	ServiceNowURL         *string
+	ServiceNowAPIKey      *string
+	ServiceNowClientToken *string
 }
 
 // SetPMMServerID should be run on start up to generate unique PMM Server ID.
@@ -298,6 +302,15 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	}
 	if params.ReplaceSystemPrompt != nil {
 		settings.Adre.ReplaceSystemPrompt = *params.ReplaceSystemPrompt
+	}
+	if params.ServiceNowURL != nil {
+		settings.Adre.ServiceNowURL = pointer.GetString(params.ServiceNowURL)
+	}
+	if params.ServiceNowAPIKey != nil {
+		settings.Adre.ServiceNowAPIKey = pointer.GetString(params.ServiceNowAPIKey)
+	}
+	if params.ServiceNowClientToken != nil {
+		settings.Adre.ServiceNowClientToken = pointer.GetString(params.ServiceNowClientToken)
 	}
 
 	err = SaveSettings(q, settings)

@@ -50,6 +50,8 @@ export interface Investigation {
   nodeName?: string;
   serviceName?: string;
   clusterName?: string;
+  servicenowTicketId?: string;
+  servicenow_ticket_id?: string;
   blocks?: InvestigationBlock[];
 }
 
@@ -291,4 +293,20 @@ export const postInvestigationRun = async (id: string): Promise<ChatResponse> =>
 export const getInvestigationExportPdfUrl = (id: string): string => {
   const base = typeof window !== 'undefined' ? window.location.origin : '';
   return `${base}/v1/investigations/${id}/export/pdf`;
+};
+
+export interface CreateServiceNowTicketResponse {
+  success: boolean;
+  ticket_id: string;
+  message: string;
+}
+
+export const createServiceNowTicket = async (
+  id: string
+): Promise<CreateServiceNowTicketResponse> => {
+  const res = await api.post<CreateServiceNowTicketResponse>(
+    `/investigations/${id}/servicenow`,
+    {}
+  );
+  return res.data;
 };

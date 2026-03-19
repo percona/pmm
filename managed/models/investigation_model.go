@@ -44,6 +44,7 @@ type Investigation struct {
 	SourceRef         string    `reform:"source_ref"`
 	Tags              []byte    `reform:"tags"`
 	Config            []byte    `reform:"config"`
+	ServiceNowTicketID string  `reform:"servicenow_ticket_id"`
 }
 
 // InvestigationBlock represents a block (section) within an investigation report.

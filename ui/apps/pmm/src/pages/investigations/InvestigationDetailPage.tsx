@@ -14,6 +14,7 @@ import {
   Stack,
   Snackbar,
   TextField,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
@@ -22,6 +23,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { FC, useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Page } from 'components/page';
@@ -36,7 +38,9 @@ import {
   usePatchInvestigation,
   usePatchInvestigationBlock,
   useDeleteInvestigationBlock,
+  useCreateServiceNowTicket,
 } from 'hooks/api/useInvestigations';
+import { useAdreSettings } from 'hooks/api/useAdre';
 import { PMM_NEW_NAV_PATH } from 'lib/constants';
 import { getInvestigationExportPdfUrl } from 'api/investigations';
 import type { InvestigationBlock } from 'api/investigations';
@@ -106,6 +110,8 @@ const InvestigationDetailPage: FC = () => {
   const patchInv = usePatchInvestigation(id ?? '');
   const patchBlock = usePatchInvestigationBlock(id ?? '');
   const deleteBlock = useDeleteInvestigationBlock(id ?? '');
+  const createSNTicket = useCreateServiceNowTicket(id ?? '');
+  const { data: adreSettings } = useAdreSettings();
   const [commentText, setCommentText] = useState('');
   const [chatText, setChatText] = useState('');
   const [copyDone, setCopyDone] = useState(false);
@@ -267,6 +273,44 @@ const InvestigationDetailPage: FC = () => {
           >
             Export PDF
           </Button>
+          {(() => {
+            const ticketId = inv.servicenowTicketId ?? inv.servicenow_ticket_id;
+            const snConfigured = adreSettings?.servicenowConfigured ?? adreSettings?.servicenow_configured ?? false;
+            if (ticketId) {
+              return (
+                <Chip
+                  icon={<CheckCircleOutlineIcon />}
+                  label={`ServiceNow: ${ticketId}`}
+                  color="success"
+                  size="small"
+                  variant="outlined"
+                />
+              );
+            }
+            return (
+              <Tooltip
+                title={snConfigured ? '' : 'Configure ServiceNow in AI Assistant settings'}
+              >
+                <span>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    color="success"
+                    disabled={!snConfigured || createSNTicket.isPending}
+                    onClick={() =>
+                      id &&
+                      createSNTicket.mutate(undefined, {
+                        onError: (err) => showError(`ServiceNow: ${getErrorMessage(err)}`),
+                        onSuccess: (data) => showSuccess(`ServiceNow ticket created: ${data.ticket_id}`),
+                      })
+                    }
+                  >
+                    {createSNTicket.isPending ? 'Creating…' : 'Create ServiceNow Ticket'}
+                  </Button>
+                </span>
+              </Tooltip>
+            );
+          })()}
           <Button
             variant="contained"
             size="small"

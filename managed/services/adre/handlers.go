@@ -81,6 +81,37 @@ func (h *Handlers) checkAdreEnabled(w http.ResponseWriter) (*models.Settings, bo
 	return settings, true
 }
 
+type adreSettingsResponse struct {
+	Enabled                    bool   `json:"enabled"`
+	URL                        string `json:"url"`
+	ChatPrompt                 string `json:"chat_prompt"`
+	InvestigationPrompt        string `json:"investigation_prompt"`
+	ChatPromptDisplay          string `json:"chat_prompt_display"`
+	InvestigationPromptDisplay string `json:"investigation_prompt_display"`
+	DefaultChatMode            string `json:"default_chat_mode"`
+	ChatBackend                string `json:"chat_backend"`
+	ChatHistoryLength          int    `json:"chat_history_length"`
+	AgentPrompt                string `json:"agent_prompt"`
+	AgentPromptDisplay         string `json:"agent_prompt_display"`
+	QanInsightsPrompt          string `json:"qan_insights_prompt"`
+	QanInsightsPromptDisplay   string `json:"qan_insights_prompt_display"`
+	ReplaceSystemPrompt        bool   `json:"replace_system_prompt"`
+	ServiceNowURL              string `json:"servicenow_url"`
+	ServiceNowConfigured       bool   `json:"servicenow_configured"`
+}
+
+func applyAdreSettingsDefaults(r *adreSettingsResponse) {
+	if r.DefaultChatMode == "" {
+		r.DefaultChatMode = "chat"
+	}
+	if r.ChatBackend == "" {
+		r.ChatBackend = "holmesgpt"
+	}
+	if r.ChatHistoryLength <= 0 {
+		r.ChatHistoryLength = 20
+	}
+}
+
 // GetSettings handles GET /v1/adre/settings.
 func (h *Handlers) GetSettings(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
@@ -109,22 +140,7 @@ func (h *Handlers) GetSettings(w http.ResponseWriter, r *http.Request) {
 	if qanInsightsPromptDisplay == "" {
 		qanInsightsPromptDisplay = DefaultQanInsightsPrompt
 	}
-	resp := struct {
-		Enabled                       bool   `json:"enabled"`
-		URL                           string `json:"url"`
-		ChatPrompt                    string `json:"chat_prompt"`
-		InvestigationPrompt           string `json:"investigation_prompt"`
-		ChatPromptDisplay             string `json:"chat_prompt_display"`
-		InvestigationPromptDisplay    string `json:"investigation_prompt_display"`
-		DefaultChatMode               string `json:"default_chat_mode"`
-		ChatBackend                   string `json:"chat_backend"`
-		ChatHistoryLength             int    `json:"chat_history_length"`
-		AgentPrompt                   string `json:"agent_prompt"`
-		AgentPromptDisplay            string `json:"agent_prompt_display"`
-		QanInsightsPrompt             string `json:"qan_insights_prompt"`
-		QanInsightsPromptDisplay      string `json:"qan_insights_prompt_display"`
-		ReplaceSystemPrompt           bool   `json:"replace_system_prompt"`
-	}{
+	resp := adreSettingsResponse{
 		Enabled:                       settings.IsAdreEnabled(),
 		URL:                           settings.GetAdreURL(),
 		ChatPrompt:                    settings.Adre.ChatPrompt,
@@ -139,16 +155,10 @@ func (h *Handlers) GetSettings(w http.ResponseWriter, r *http.Request) {
 		QanInsightsPrompt:            settings.Adre.QanInsightsPrompt,
 		QanInsightsPromptDisplay:     qanInsightsPromptDisplay,
 		ReplaceSystemPrompt:          settings.Adre.ReplaceSystemPrompt,
+		ServiceNowURL:                settings.Adre.ServiceNowURL,
+		ServiceNowConfigured:         settings.Adre.ServiceNowURL != "" && settings.Adre.ServiceNowAPIKey != "" && settings.Adre.ServiceNowClientToken != "",
 	}
-	if resp.DefaultChatMode == "" {
-		resp.DefaultChatMode = "chat"
-	}
-	if resp.ChatBackend == "" {
-		resp.ChatBackend = "holmesgpt"
-	}
-	if resp.ChatHistoryLength <= 0 {
-		resp.ChatHistoryLength = 20
-	}
+	applyAdreSettingsDefaults(&resp)
 	body, err := json.Marshal(resp)
 	if err != nil {
 		h.l.Errorf("Marshal settings: %v", err)
@@ -169,16 +179,19 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var body struct {
-		Enabled              *bool   `json:"enabled"`
-		URL                  *string `json:"url"`
-		ChatPrompt           *string `json:"chat_prompt"`
-		InvestigationPrompt  *string `json:"investigation_prompt"`
-		DefaultChatMode      *string `json:"default_chat_mode"`
-		ChatBackend          *string `json:"chat_backend"`
-		ChatHistoryLength    *int    `json:"chat_history_length"`
-		AgentPrompt          *string `json:"agent_prompt"`
-		QanInsightsPrompt    *string `json:"qan_insights_prompt"`
-		ReplaceSystemPrompt  *bool   `json:"replace_system_prompt"`
+		Enabled               *bool   `json:"enabled"`
+		URL                   *string `json:"url"`
+		ChatPrompt            *string `json:"chat_prompt"`
+		InvestigationPrompt   *string `json:"investigation_prompt"`
+		DefaultChatMode       *string `json:"default_chat_mode"`
+		ChatBackend           *string `json:"chat_backend"`
+		ChatHistoryLength     *int    `json:"chat_history_length"`
+		AgentPrompt           *string `json:"agent_prompt"`
+		QanInsightsPrompt     *string `json:"qan_insights_prompt"`
+		ReplaceSystemPrompt   *bool   `json:"replace_system_prompt"`
+		ServiceNowURL         *string `json:"servicenow_url"`
+		ServiceNowAPIKey      *string `json:"servicenow_api_key"`
+		ServiceNowClientToken *string `json:"servicenow_client_token"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
@@ -187,7 +200,8 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 	hasChange := body.Enabled != nil || body.URL != nil || body.ChatPrompt != nil ||
 		body.InvestigationPrompt != nil || body.DefaultChatMode != nil ||
 		body.ChatBackend != nil || body.ChatHistoryLength != nil || body.AgentPrompt != nil ||
-		body.QanInsightsPrompt != nil || body.ReplaceSystemPrompt != nil
+		body.QanInsightsPrompt != nil || body.ReplaceSystemPrompt != nil ||
+		body.ServiceNowURL != nil || body.ServiceNowAPIKey != nil || body.ServiceNowClientToken != nil
 	if !hasChange {
 		writeJSONError(w, http.StatusBadRequest, "No changes provided")
 		return
@@ -257,6 +271,9 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		AgentPrompt:              body.AgentPrompt,
 		AdreQanInsightsPrompt:    body.QanInsightsPrompt,
 		ReplaceSystemPrompt:      body.ReplaceSystemPrompt,
+		ServiceNowURL:            body.ServiceNowURL,
+		ServiceNowAPIKey:         body.ServiceNowAPIKey,
+		ServiceNowClientToken:    body.ServiceNowClientToken,
 	}
 	if _, err := models.UpdateSettings(h.db, params); err != nil {
 		h.l.Errorf("UpdateSettings: %v", err)
@@ -280,22 +297,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 	if qanInsightsPromptDisplayPost == "" {
 		qanInsightsPromptDisplayPost = DefaultQanInsightsPrompt
 	}
-	resp := struct {
-		Enabled                       bool   `json:"enabled"`
-		URL                           string `json:"url"`
-		ChatPrompt                    string `json:"chat_prompt"`
-		InvestigationPrompt           string `json:"investigation_prompt"`
-		ChatPromptDisplay             string `json:"chat_prompt_display"`
-		InvestigationPromptDisplay    string `json:"investigation_prompt_display"`
-		DefaultChatMode               string `json:"default_chat_mode"`
-		ChatBackend                   string `json:"chat_backend"`
-		ChatHistoryLength             int    `json:"chat_history_length"`
-		AgentPrompt                   string `json:"agent_prompt"`
-		AgentPromptDisplay            string `json:"agent_prompt_display"`
-		QanInsightsPrompt             string `json:"qan_insights_prompt"`
-		QanInsightsPromptDisplay      string `json:"qan_insights_prompt_display"`
-		ReplaceSystemPrompt           bool   `json:"replace_system_prompt"`
-	}{
+	resp := adreSettingsResponse{
 		Enabled:                       settings.IsAdreEnabled(),
 		URL:                           settings.GetAdreURL(),
 		ChatPrompt:                    settings.Adre.ChatPrompt,
@@ -310,16 +312,10 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		QanInsightsPrompt:            settings.Adre.QanInsightsPrompt,
 		QanInsightsPromptDisplay:     qanInsightsPromptDisplayPost,
 		ReplaceSystemPrompt:          settings.Adre.ReplaceSystemPrompt,
+		ServiceNowURL:                settings.Adre.ServiceNowURL,
+		ServiceNowConfigured:         settings.Adre.ServiceNowURL != "" && settings.Adre.ServiceNowAPIKey != "" && settings.Adre.ServiceNowClientToken != "",
 	}
-	if resp.DefaultChatMode == "" {
-		resp.DefaultChatMode = "chat"
-	}
-	if resp.ChatBackend == "" {
-		resp.ChatBackend = "holmesgpt"
-	}
-	if resp.ChatHistoryLength <= 0 {
-		resp.ChatHistoryLength = 20
-	}
+	applyAdreSettingsDefaults(&resp)
 	respBody, err := json.Marshal(resp)
 	if err != nil {
 		h.l.Errorf("Marshal settings: %v", err)

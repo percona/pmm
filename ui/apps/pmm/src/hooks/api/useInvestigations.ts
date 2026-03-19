@@ -13,6 +13,7 @@ import {
   postInvestigationRun,
   patchInvestigationBlock,
   deleteInvestigationBlock,
+  createServiceNowTicket,
   type CreateInvestigationBody,
   type PatchInvestigationBody,
   type CreateCommentBody,
@@ -190,6 +191,18 @@ export const useDeleteInvestigationBlock = (investigationId: string) => {
   return useMutation({
     mutationFn: (blockId: string) =>
       deleteInvestigationBlock(investigationId, blockId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: INVESTIGATIONS_KEYS.detail(investigationId),
+      });
+    },
+  });
+};
+
+export const useCreateServiceNowTicket = (investigationId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => createServiceNowTicket(investigationId),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: INVESTIGATIONS_KEYS.detail(investigationId),

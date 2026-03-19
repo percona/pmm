@@ -29,6 +29,18 @@ export interface AdreSettings {
   /** When true, Holmes uses only the PMM-provided prompt (replaces Holmes' default system prompt). */
   replaceSystemPrompt?: boolean;
   replace_system_prompt?: boolean;
+  /** ServiceNow Percona Connector API URL. */
+  servicenowUrl?: string;
+  servicenow_url?: string;
+  /** ServiceNow API key (x-sn-apikey header). Only sent when saving; backend never exposes the raw value on GET. */
+  servicenowApiKey?: string;
+  servicenow_api_key?: string;
+  /** ServiceNow client token. Only sent when saving. */
+  servicenowClientToken?: string;
+  servicenow_client_token?: string;
+  /** True when URL + API key + client token are all configured server-side. */
+  servicenowConfigured?: boolean;
+  servicenow_configured?: boolean;
 }
 
 export interface AdreModelsResponse {
