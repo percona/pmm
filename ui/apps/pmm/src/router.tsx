@@ -1,5 +1,6 @@
 import React from 'react';
 import { Navigate, createBrowserRouter } from 'react-router-dom';
+import { Settings } from 'pages/settings';
 import { Updates } from 'pages/updates';
 import { UpdateClients } from 'pages/update-clients/UpdateClients';
 import { MainWithNav } from 'components/main/MainWithNav';
@@ -38,6 +39,10 @@ const router = createBrowserRouter(
             {
               path: 'help',
               element: <HelpCenter />,
+            },
+            {
+              path: 'settings',
+              element: <Settings />,
             },
             {
               path: 'rta',
