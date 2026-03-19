@@ -32,7 +32,7 @@ pmm-admin status [FLAGS]
 ### Example output
 
 ```
-Agent ID : /agent_id/abcd1234-5678-90ef-ghij-klmnopqrstuv
+Agent ID : abcd1234-5678-90ef-ghij-klmnopqrstuv
 Node ID  : /node_id/abcd1234-5678-90ef-ghij-klmnopqrstuv
 Node name: db-server-01
 
