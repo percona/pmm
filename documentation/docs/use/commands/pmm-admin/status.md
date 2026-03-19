@@ -77,7 +77,7 @@ pmm-admin status
 Check that PMM Server is running and the URL is correct:
 
 ```bash
-pmm-admin config --server-url=https://admin:admin@192.168.1.100:443
+pmm-admin config --server-url=https://username:password@192.168.1.100:443
 ```
 
 #### Certificate errors
