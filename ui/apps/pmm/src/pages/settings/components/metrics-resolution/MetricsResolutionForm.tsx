@@ -12,7 +12,7 @@ import {
   Typography,
 } from '@mui/material';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import { FC, useEffect } from 'react';
+import { FC, useEffect, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
 import { useUpdateSettings } from 'hooks/api/useSettings';
@@ -41,15 +41,16 @@ interface FormValues {
   hr: string;
 }
 
+const DEFAULT_METRICS = { hr: '5s', mr: '10s', lr: '60s' } as const;
+
 export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
   settings,
 }) => {
   const { mutateAsync: updateSettings, isPending } = useUpdateSettings();
-  const metricsResolutions = settings.metricsResolutions ?? {
-    hr: '5s',
-    mr: '10s',
-    lr: '60s',
-  };
+  const metricsResolutions = useMemo(
+    () => settings.metricsResolutions ?? DEFAULT_METRICS,
+    [settings.metricsResolutions]
+  );
   const preset = getResolutionPreset(metricsResolutions);
   const raw = removeUnits(metricsResolutions);
 
