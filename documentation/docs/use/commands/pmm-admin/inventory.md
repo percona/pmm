@@ -1,4 +1,4 @@
-# Manage inventory and agents with pmm-admin inventory
+# Manage inventory with pmm-admin inventory
 
 Use `pmm-admin inventory` from the command line to list registered services and agents, and modify agent configurations without removing and re-adding services.
 

@@ -1,4 +1,5 @@
-# pmm-admin status and diagnostics
+# Check connection status with pmm-admin
+
 
 Check PMM Client connection status, list monitored services, and create diagnostic archives from the command line using these `pmm-admin` commands.
 

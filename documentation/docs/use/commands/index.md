@@ -8,19 +8,15 @@ You can also perform most of these tasks through the [PMM web interface](https:/
 
 ## Command-line tools
 
-`pmm-admin`
-:   The primary CLI tool for administering PMM. Use it to add and remove database services, check connection status, list monitored services, modify agent configurations, create diagnostic archives, and annotate dashboards. Communicates directly with PMM Server.
+`pmm-admin`: The primary CLI tool for administering PMM. Use it to add and remove database services, check connection status, list monitored services, modify agent configurations, create diagnostic archives, and annotate dashboards. Communicates directly with PMM Server.
 
     `pmm-admin` is installed automatically as part of the [PMM Client](../../../install-pmm/install-pmm-client/index.md) package.
 
     See [`pmm-admin` reference](pmm-admin/pmm-admin.md) for syntax, common flags, and links to all subcommands.
 
-`pmm-agent`
-:   The daemon process that runs on each monitored host. It manages exporters and agents locally, coordinating data collection and communication between PMM Client and PMM Server. 
+`pmm-agent`: The daemon process that runs on each monitored host. It manages exporters and agents locally, coordinating data collection and communication between PMM Client and PMM Server. 
 
     You typically don't interact with pmm-agent directly, `pmm-admin` communicates with PMM Server, which then sends commands to `pmm-agent`. See [Coordinate monitoring agents with pmm-agent](pmm-agent.md) for configuration options and startup flags.
-
-
 
 ## Next steps
  

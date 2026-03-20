@@ -1,4 +1,4 @@
-# Coordinate monitoring agents with pmm-agent
+# Configure the pmm-agent daemon
 
 `pmm-agent` is the daemon process that runs on each monitored host. It manages exporters, collects metrics, and handles communication between your databases and PMM Server. 
 

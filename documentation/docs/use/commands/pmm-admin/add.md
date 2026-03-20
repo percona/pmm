@@ -1,4 +1,4 @@
-# Add database services with pmm-admin
+# Add databases with pmm-admin
 
 Use `pmm-admin add` to add database services to PMM monitoring from the command line. This command supports MySQL, PostgreSQL, MongoDB, Valkey, ProxySQL, and HAProxy.
 
@@ -241,36 +241,27 @@ Connect using `--username` and `--password`. The `--database` flag specifies whi
 
 Secure the connection between PMM and your PostgreSQL instance with TLS:
 
-- `--tls`
-:   Use TLS to connect.
+- `--tls`:   Use TLS to connect.
 
-- `--tls-skip-verify`
-:   Skip certificate validation.
+- `--tls-skip-verify`:   Skip certificate validation.
 
-- `--tls-ca-file`
-:   Path to the CA certificate file.
+- `--tls-ca-file`:   Path to the CA certificate file.
 
-- `--tls-cert-file`
-:   Path to the client certificate file.
+- `--tls-cert-file`:   Path to the client certificate file.
 
-- `--tls-key-file`
-:   Path to the client key file.
+- `--tls-key-file`:   Path to the client key file.
 
 ### Query Analytics options
 
 Control how PMM collects query data for Query Analytics (QAN):
 
-- `--query-source`
-:   Source for collecting queries: `pgstatements` (default), `pgstatmonitor`, or `none`.
+- `--query-source`:   Source for collecting queries: `pgstatements` (default), `pgstatmonitor`, or `none`.
 
-- `--disable-queryexamples`
-:   Disable collection of query examples. Only applies when `--query-source` is set to `pgstatmonitor`. With `pgstatements`, query examples are never collected.
+- `--disable-queryexamples`:   Disable collection of query examples. Only applies when `--query-source` is set to `pgstatmonitor`. With `pgstatements`, query examples are never collected.
 
-- `--max-query-length`
-:   Maximum query length in QAN. Set to `-1` for unlimited, `0` for the default (2048 characters), or a specific number to truncate after that many characters. Do not set to 1, 2, or 3 as these values will cause the PMM agent to terminate.
+- `--max-query-length`:   Maximum query length in QAN. Set to `-1` for unlimited, `0` for the default (2048 characters), or a specific number to truncate after that many characters. Do not set to 1, 2, or 3 as these values will cause the PMM agent to terminate.
 
-- `--comments-parsing`
-:   Enable or disable parsing comments from queries into QAN filter groups: `on` or `off` (default).
+- `--comments-parsing`:   Enable or disable parsing comments from queries into QAN filter groups: `on` or `off` (default).
 
 !!! note
     Query examples are only available with `pgstatmonitor`. With `pgstatements`, query examples are never collected.
@@ -281,45 +272,45 @@ Control how PMM collects query data for Query Analytics (QAN):
 
 - Add PostgreSQL with `pg_stat_statements`:
 
-  ```bash
-  pmm-admin add postgresql \
-    --username=pmm \
-    --password=pass \
-    --query-source=pgstatements \
-    postgres-prod 192.168.1.30:5432
-  ```
+    ```bash
+    pmm-admin add postgresql \
+      --username=pmm \
+      --password=pass \
+      --query-source=pgstatements \
+      postgres-prod 192.168.1.30:5432
+    ```
 
 - Add PostgreSQL with `pg_stat_monitor`:
 
-  ```bash
-  pmm-admin add postgresql \
-    --username=pmm \
-    --password=pass \
-    --query-source=pgstatmonitor \
-    postgres-prod 192.168.1.30:5432
-  ```
+    ```bash
+    pmm-admin add postgresql \
+      --username=pmm \
+      --password=pass \
+      --query-source=pgstatmonitor \
+      postgres-prod 192.168.1.30:5432
+    ```
 
 - Add PostgreSQL without query examples:
 
-  ```bash
-  pmm-admin add postgresql \
-    --username=pmm \
-    --password=pass \
-    --query-source=pgstatmonitor \
-    --disable-queryexamples \
-    postgres-prod 192.168.1.30:5432
-  ```
+    ```bash
+    pmm-admin add postgresql \
+      --username=pmm \
+      --password=pass \
+      --query-source=pgstatmonitor \
+      --disable-queryexamples \
+      postgres-prod 192.168.1.30:5432
+    ```
 
 - Add PostgreSQL with TLS:
 
-  ```bash
-  pmm-admin add postgresql \
-    --username=pmm \
-    --password=pass \
-    --tls \
-    --tls-ca-file=/path/to/ca.pem \
-    postgres-prod 192.168.1.30:5432
-  ```
+    ```bash
+    pmm-admin add postgresql \
+      --username=pmm \
+      --password=pass \
+      --tls \
+      --tls-ca-file=/path/to/ca.pem \
+      postgres-prod 192.168.1.30:5432
+    ```
 
 ## Add MongoDB
 
@@ -336,30 +327,23 @@ Connect using `--username` and `--password`.
 
 Secure the connection between PMM and your MongoDB instance with TLS:
 
-- `--tls`
-:   Use TLS to connect.
+- `--tls`:   Use TLS to connect.
 
-- `--tls-skip-verify`
-:   Skip certificate validation.
+- `--tls-skip-verify`:   Skip certificate validation.
 
-- `--tls-ca-file`
-:   Path to the CA certificate file.
+- `--tls-ca-file`:   Path to the CA certificate file.
 
-- `--tls-certificate-key-file`
-:   Path to the combined certificate/key file.
+- `--tls-certificate-key-file`:   Path to the combined certificate/key file.
 
-- `--tls-certificate-key-file-password`
-:   Password for the certificate/key file.
+- `--tls-certificate-key-file-password`:   Password for the certificate/key file.
 
 ### Query Analytics options
 
 Control how PMM collects query data for Query Analytics (QAN):
 
-- `--query-source`
-:   Source for collecting queries: `profiler` (default), `mongolog`, or `none`.
+- `--query-source`:   Source for collecting queries: `profiler` (default), `mongolog`, or `none`.
 
-- `--max-query-length`
-:   Maximum query length in QAN. Set to `-1` for unlimited, `0` for the default (4096 characters), or a specific number to truncate after that many characters. Do not set to 1, 2, or 3 as these values will cause the PMM agent to terminate.
+- `--max-query-length`:   Maximum query length in QAN. Set to `-1` for unlimited, `0` for the default (4096 characters), or a specific number to truncate after that many characters. Do not set to 1, 2, or 3 as these values will cause the PMM agent to terminate.
 
 ### Collector options
 
@@ -397,97 +381,97 @@ PMM collects metrics at different intervals based on collector performance:
 
 Pass environment variables to the MongoDB exporter using `--agent-env-vars`. Only variables already set in the `pmm-agent` environment will be passed:
 
-```bash
-pmm-admin add mongodb \
-  --username=pmm \
-  --password=pass \
-  --agent-env-vars="LOG_LEVEL,OTHER_VAR" \
-  mongodb-prod 192.168.1.20:27017
-```
+  ```bash
+  pmm-admin add mongodb \
+    --username=pmm \
+    --password=pass \
+    --agent-env-vars="LOG_LEVEL,OTHER_VAR" \
+    mongodb-prod 192.168.1.20:27017
+  ```
 
 ### Examples
 
 - Add MongoDB with default collectors:
 
-  ```bash
-  pmm-admin add mongodb \
-    --username=pmm \
-    --password=pass \
-    mongodb-prod 192.168.1.20:27017
-  ```
+    ```bash
+    pmm-admin add mongodb \
+      --username=pmm \
+      --password=pass \
+      mongodb-prod 192.168.1.20:27017
+    ```
 
 - Add MongoDB with all collectors:
 
-  ```bash
-  pmm-admin add mongodb \
-    --username=pmm \
-    --password=pass \
-    --enable-all-collectors \
-    mongodb-prod 192.168.1.20:27017
-  ```
+    ```bash
+    pmm-admin add mongodb \
+      --username=pmm \
+      --password=pass \
+      --enable-all-collectors \
+      mongodb-prod 192.168.1.20:27017
+    ```
 
 - Add MongoDB with all collectors except topmetrics:
 
-  ```bash
-  pmm-admin add mongodb \
-    --username=pmm \
-    --password=pass \
-    --enable-all-collectors \
-    --disable-collectors=topmetrics \
-    mongodb-prod 192.168.1.20:27017
-  ```
+    ```bash
+    pmm-admin add mongodb \
+      --username=pmm \
+      --password=pass \
+      --enable-all-collectors \
+      --disable-collectors=topmetrics \
+      mongodb-prod 192.168.1.20:27017
+    ```
 
 - Add MongoDB with collection limit:
 
-  ```bash
-  pmm-admin add mongodb \
-    --username=pmm \
-    --password=pass \
-    --enable-all-collectors \
-    --max-collections-limit=500 \
-    mongodb-prod 192.168.1.20:27017
-  ```
+    ```bash
+    pmm-admin add mongodb \
+      --username=pmm \
+      --password=pass \
+      --enable-all-collectors \
+      --max-collections-limit=500 \
+      mongodb-prod 192.168.1.20:27017
+    ```
 
 - Add MongoDB with stats for specific databases:
 
-  ```bash
-  pmm-admin add mongodb \
-    --username=pmm \
-    --password=pass \
-    --enable-all-collectors \
-    --stats-collections=db1,db2.collection1 \
-    mongodb-prod 192.168.1.20:27017
-  ```
+    ```bash
+    pmm-admin add mongodb \
+      --username=pmm \
+      --password=pass \
+      --enable-all-collectors \
+      --stats-collections=db1,db2.collection1 \
+      mongodb-prod 192.168.1.20:27017
+    ```
 
   This collects stats for all collections in `db1` and only `collection1` in `db2`.
 
 - Add MongoDB with cluster name:
 
-  ```bash
-  pmm-admin add mongodb \
-    --username=pmm \
-    --password=pass \
-    --cluster=my-replica-set \
-    mongodb-prod 192.168.1.20:27017
-  ```
+    ```bash
+    pmm-admin add mongodb \
+      --username=pmm \
+      --password=pass \
+      --cluster=my-replica-set \
+      mongodb-prod 192.168.1.20:27017
+    ```
 
 - Add MongoDB with unlimited collections:
 
-  ```bash
-  pmm-admin add mongodb \
-    --username=pmm \
-    --password=pass \
-    --enable-all-collectors \
-    --max-collections-limit=0 \
-    mongodb-prod 192.168.1.20:27017
-  ```
+    ```bash
+    pmm-admin add mongodb \
+      --username=pmm \
+      --password=pass \
+      --enable-all-collectors \
+      --max-collections-limit=0 \
+      mongodb-prod 192.168.1.20:27017
+    ```
 
 ## Add Valkey/Redis
 
-Add a Valkey or Redis instance to monitoring:
-```bash
-pmm-admin add valkey [NAME] [ADDRESS] [FLAGS]
-```
+  Add a Valkey or Redis instance to monitoring:
+  ```bash
+  pmm-admin add valkey [NAME] [ADDRESS] [FLAGS]
+  ```
 
 ### Connection options
 
@@ -565,14 +549,11 @@ pmm-admin add haproxy [NAME] [FLAGS]
 
 ### Connection options
 
-- `--listen-port` *(required)*
-:   Port where HAProxy exposes metrics.
+- `--listen-port` *(required)*:   Port where HAProxy exposes metrics.
 
-- `--scheme`
-:   URI scheme, `http` or `https`.
+- `--scheme`:   URI scheme, `http` or `https`.
 
-- `--metrics-path`
-:   Path to the metrics endpoint. Defaults to `/metrics`.
+- `--metrics-path`:   Path to the metrics endpoint. Defaults to `/metrics`.
 
 Optionally use `--username` and `--password` if your HAProxy metrics endpoint requires authentication.
 
@@ -614,7 +595,7 @@ Add an external Prometheus exporter running on a known port:
 pmm-admin add external [NAME] [ADDRESS] [FLAGS]
 ```
 
-Example:
+For example:
 
 ```bash
   pmm-admin add external \
@@ -631,7 +612,7 @@ Add an external serverless service with a full URL:
 pmm-admin add external-serverless [NAME] [ADDRESS] [FLAGS]
 ```
 
-Example:
+For example:
 
 ```bash
   pmm-admin add external-serverless \
