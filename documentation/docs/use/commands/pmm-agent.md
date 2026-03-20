@@ -74,6 +74,8 @@ PMM manages the configuration file, and it's not recommended to modify it manual
 
 To do this, set the username to `service_token` and add your service token as the password. For more information about service account authorization, see [Service accounts authentication](../../api/authentication.md).
 
+To protect the credentials stored in this file, you can optionally encrypt it. See [Encrypt the PMM Client configuration file](../../admin/security/client_config_encryption.md).
+
 ## USAGE AND EXAMPLES OF `paths-base` FLAG
 
 Since 2.23.0 this flag could be used for easier setup of PMM agent. With this flag the root permissions for PMM client aren't needed anymore and it will be fully working.
