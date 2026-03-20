@@ -1,6 +1,6 @@
 # PMM Client configuration file encryption
 
-The PMM Client configuration file, `pmm-agent.yaml`(../../use/commands/pmm-agent.md) contains sensitive information like PMM Server credentials and API tokens. By default, this file is stored in plain text, which means that users with read access to the filesystem can see these credentials.
+The PMM Client configuration file, [`pmm-agent.yaml`](../../use/commands/pmm-agent.md) contains sensitive information like PMM Server credentials and API tokens. By default, this file is stored in plain text, which means that users with read access to the filesystem can see these credentials.
 
 To protect this data, you can encrypt the configuration file so that its contents are unreadable on disk. 
 
@@ -42,6 +42,7 @@ To encrypt the PMM Client configuration file, generate an RSA private key and pa
         openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:4096 \
           -out /etc/pmm-agent-key.pem
         ```
+ 
 2. Set permissions on the key file:
 
     ```bash
@@ -82,10 +83,6 @@ PMM Client accepts encryption settings as either command-line flags or environme
 | `--config-file-key-file` | `PMM_AGENT_CONFIG_FILE_KEY_FILE` | Path to the RSA private key file. Required to enable encryption. |
 | `--config-file-key-password` | `PMM_AGENT_CONFIG_FILE_KEY_PASSWORD` | Password for the RSA private key. Only needed if the key is password-protected. | 
 
-| Flag | Environment variable | Description |
-|------|---------------------|-------------|
-| `--config-file-key-file` | `PMM_AGENT_CONFIG_FILE_KEY_FILE` | Path to the RSA private key file. Required to enable encryption. |
-| `--config-file-key-password` | `PMM_AGENT_CONFIG_FILE_KEY_PASSWORD` | Password for the RSA private key. Only needed if the key is password-protected. |
 
 ## Deployment examples
 
@@ -121,6 +118,7 @@ PMM Client accepts encryption settings as either command-line flags or environme
     ```
 
 === "Docker/Podman"
+    Mount the encryption key as a read-only volume and pass the encryption settings as environment variables:
 
     ```bash
     docker run -d \
@@ -134,6 +132,7 @@ PMM Client accepts encryption settings as either command-line flags or environme
     ```
 
 === "Kubernetes" 
+    Store the encryption key and password in a Kubernetes secret, then reference them in your deployment:
 
     ```yaml
     apiVersion: v1
@@ -245,18 +244,15 @@ A plain-text file shows readable YAML. An encrypted file shows binary data.
 
 ### "unable to get RSA key from KeyFile"
 
-- Check that the key file path is correct.
-- Verify file permissions (must be readable by the `pmm-agent` user).
-- Confirm the file contains a valid RSA private key in PEM format.
+Check that the key file path is correct and that the file is readable by the `pmm-agent` user. Make sure the file contains a valid RSA private key in PEM format.
 
 ### "pkcs8: incorrect password"
 
-- verify the password is correct.
-- check that `PMM_AGENT_CONFIG_FILE_KEY_PASSWORD` (or `--config-file-key-password`) is set correctly.
+Verify that the password is correct and that `PMM_AGENT_CONFIG_FILE_KEY_PASSWORD` (or `--config-file-key-password`) matches the password used to generate the key.
 
 ### "unable to RSA-unwrap AES key: crypto/rsa: decryption error"
 
-The configuration file was encrypted with a different key, or the file may be corrupted. Restore from backup or regenerate the configuration.
+The configuration file was encrypted with a different key, or the file may be corrupted. Restore from a backup or regenerate the configuration.
 
 ### "no valid private key found in a KeyFile"
 
