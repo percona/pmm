@@ -330,8 +330,67 @@ export function getMarkdownComponents(content: string) {
   );
 
   return {
-    code: ({ children }: { children?: ReactNode }) => (
-      <CodeBlock>{children}</CodeBlock>
+    code: ({
+      inline,
+      children,
+    }: {
+      inline?: boolean;
+      children?: ReactNode;
+    }) => {
+      if (inline) {
+        return (
+          <Box
+            component="code"
+            sx={{
+              px: 0.5,
+              borderRadius: 0.5,
+              fontFamily: 'Roboto Mono, monospace',
+              bgcolor: 'action.hover',
+            }}
+          >
+            {children}
+          </Box>
+        );
+      }
+
+      return <CodeBlock>{children}</CodeBlock>;
+    },
+    table: ({ children }: { children?: ReactNode }) => (
+      <Box sx={{ width: '100%', overflowX: 'auto', my: 1 }}>
+        <Box component="table" sx={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+          {children}
+        </Box>
+      </Box>
+    ),
+    th: ({ children }: { children?: ReactNode }) => (
+      <Box
+        component="th"
+        sx={{
+          textAlign: 'left',
+          px: 1,
+          py: 0.5,
+          border: 1,
+          borderColor: 'divider',
+          bgcolor: 'action.hover',
+          fontWeight: 600,
+        }}
+      >
+        {children}
+      </Box>
+    ),
+    td: ({ children }: { children?: ReactNode }) => (
+      <Box
+        component="td"
+        sx={{
+          px: 1,
+          py: 0.5,
+          border: 1,
+          borderColor: 'divider',
+          verticalAlign: 'top',
+        }}
+      >
+        {children}
+      </Box>
     ),
     a: ({ href, children }: { href?: string; children?: ReactNode }) => {
       const panelKey = href ? parseDashboardLinkToPanelKey(href) : null;

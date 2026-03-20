@@ -131,6 +131,8 @@ type ChangeSettingsParams struct {
 	ServiceNowClientToken *string
 	// DisableRunbooks: when true, chat mode will not call fetch_runbook.
 	DisableRunbooks *bool
+	// PromptMaxBytes defines max prompt size for ADRE prompts.
+	PromptMaxBytes *int
 }
 
 // SetPMMServerID should be run on start up to generate unique PMM Server ID.
@@ -316,6 +318,9 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	}
 	if params.DisableRunbooks != nil {
 		settings.Adre.DisableRunbooks = *params.DisableRunbooks
+	}
+	if params.PromptMaxBytes != nil {
+		settings.Adre.PromptMaxBytes = *params.PromptMaxBytes
 	}
 
 	err = SaveSettings(q, settings)

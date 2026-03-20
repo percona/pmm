@@ -8,8 +8,18 @@ import { getMarkdownComponents } from 'components/adre/adre-chat-markdown';
 
 export const RemediationStepsBlock: FC<{ block: InvestigationBlock }> = ({ block }) => {
   const data = (block.dataJson || {}) as { steps?: string[]; content?: string };
-  const steps = Array.isArray(data.steps) ? data.steps : data.content ? [data.content] : [];
-  const combined = steps.map((step, i) => `${i + 1}. ${step}`).join('\n');
+  const combined = (() => {
+    if (typeof data.content === 'string' && data.content.trim()) {
+      return data.content;
+    }
+    if (Array.isArray(data.steps) && data.steps.length > 0) {
+      return data.steps
+        .filter((step) => typeof step === 'string' && step.trim() !== '')
+        .map((step, i) => `${i + 1}. ${step}`)
+        .join('\n');
+    }
+    return '';
+  })();
   return (
     <Card variant="outlined" sx={{ mb: 2, borderLeft: 4, borderLeftColor: 'success.main' }}>
       {block.title && (

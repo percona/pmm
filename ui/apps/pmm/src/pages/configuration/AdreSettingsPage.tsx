@@ -34,6 +34,10 @@ function isForbiddenError(err: unknown): boolean {
   );
 }
 
+function byteCount(input: string): number {
+  return new TextEncoder().encode(input).length;
+}
+
 const AdreSettingsPage: FC = () => {
   const { user } = useUser();
   const { enqueueSnackbar } = useSnackbar();
@@ -70,6 +74,9 @@ const AdreSettingsPage: FC = () => {
   const [localDisableRunbooks, setLocalDisableRunbooks] = useState(
     settings?.disableRunbooks ?? settings?.disable_runbooks ?? false
   );
+  const [localPromptMaxBytes, setLocalPromptMaxBytes] = useState(
+    settings?.promptMaxBytes ?? settings?.prompt_max_bytes ?? 16 * 1024
+  );
 
   useEffect(() => {
     if (settings) {
@@ -88,6 +95,7 @@ const AdreSettingsPage: FC = () => {
         settings.servicenowUrl ?? settings.servicenow_url ?? 'https://perconadev.service-now.com/api/pellc/percona_connector/create'
       );
       setLocalDisableRunbooks(settings.disableRunbooks ?? settings.disable_runbooks ?? false);
+      setLocalPromptMaxBytes(settings.promptMaxBytes ?? settings.prompt_max_bytes ?? 16 * 1024);
     }
   }, [
     settings?.enabled,
@@ -104,6 +112,8 @@ const AdreSettingsPage: FC = () => {
     settings?.qanInsightsPromptDisplay,
     settings?.replaceSystemPrompt,
     settings?.servicenowUrl,
+    settings?.promptMaxBytes,
+    settings?.prompt_max_bytes,
   ]);
 
   const isAdmin = user?.isPMMAdmin ?? false;
@@ -226,6 +236,16 @@ const AdreSettingsPage: FC = () => {
                     When enabled, the PMM prompt fully replaces Holmes&apos; default system prompt.
                     When disabled, the PMM prompt is appended to Holmes&apos; default.
                   </Typography>
+                  <TextField
+                    label="Prompt max bytes"
+                    type="number"
+                    inputProps={{ min: 1024, max: 65536 }}
+                    value={localPromptMaxBytes}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalPromptMaxBytes(parseInt(e.target.value, 10) || 16 * 1024)}
+                    size="small"
+                    fullWidth
+                    helperText="Allowed range: 1024–65536. Default recommended: 16384."
+                  />
                   {localChatBackend === 'holmes_agent' && (
                     <TextField
                       label="Conversation history length"
@@ -253,7 +273,7 @@ const AdreSettingsPage: FC = () => {
                     fullWidth
                     multiline
                     minRows={3}
-                    helperText="System prompt for Holmes Agent when talking in chat mode"
+                    helperText={`System prompt for Holmes Agent when talking in chat mode (${byteCount(localChatPrompt)} / ${localPromptMaxBytes} bytes)`}
                   />
                   <TextField
                     label="Investigation prompt"
@@ -264,7 +284,7 @@ const AdreSettingsPage: FC = () => {
                     fullWidth
                     multiline
                     minRows={3}
-                    helperText="System prompt for Holmes Agent in investigation mode"
+                    helperText={`System prompt for Holmes Agent in investigation mode (${byteCount(localInvestigationPrompt)} / ${localPromptMaxBytes} bytes)`}
                   />
                   <TextField
                     label="QAN AI Insights prompt"
@@ -275,7 +295,7 @@ const AdreSettingsPage: FC = () => {
                     fullWidth
                     multiline
                     minRows={3}
-                    helperText="Used when analyzing a query from Query Analytics; leave empty for default"
+                    helperText={`Used when analyzing a query from Query Analytics; leave empty for default (${byteCount(localQanInsightsPrompt)} / ${localPromptMaxBytes} bytes)`}
                   />
                   {localChatBackend === 'holmes_agent' && (
                     <TextField
@@ -287,7 +307,7 @@ const AdreSettingsPage: FC = () => {
                       fullWidth
                       multiline
                       minRows={3}
-                      helperText="System prompt when using PMM Agent; leave empty for default"
+                      helperText={`System prompt when using PMM Agent; leave empty for default (${byteCount(localAgentPrompt)} / ${localPromptMaxBytes} bytes)`}
                     />
                   )}
                 </Stack>
@@ -347,6 +367,7 @@ const AdreSettingsPage: FC = () => {
                         qan_insights_prompt: localQanInsightsPrompt || undefined,
                         replace_system_prompt: localReplaceSystemPrompt,
                         disable_runbooks: localDisableRunbooks,
+                        prompt_max_bytes: localPromptMaxBytes,
                         servicenow_url: localServiceNowURL || undefined,
                         ...(localServiceNowAPIKey ? { servicenow_api_key: localServiceNowAPIKey } : {}),
                         ...(localServiceNowClientToken ? { servicenow_client_token: localServiceNowClientToken } : {}),

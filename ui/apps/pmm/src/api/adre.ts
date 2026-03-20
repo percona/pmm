@@ -44,6 +44,9 @@ export interface AdreSettings {
   /** When true, chat mode will not call fetch_runbook or use todowrite_instructions. */
   disableRunbooks?: boolean;
   disable_runbooks?: boolean;
+  /** Max bytes allowed for ADRE prompts. */
+  promptMaxBytes?: number;
+  prompt_max_bytes?: number;
 }
 
 export interface AdreModelsResponse {

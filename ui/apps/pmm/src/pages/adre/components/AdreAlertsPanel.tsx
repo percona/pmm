@@ -141,6 +141,22 @@ export const AdreAlertsPanel: FC<AdreAlertsPanelProps> = ({ alerts: alertsProp }
               {alerts.map((a, index) => {
                 const key = getAlertKey(a, index);
                 const label = (a.labels?.alertname ?? a.annotations?.summary) ?? (a.fingerprint ? String(a.fingerprint) : key);
+                const { nodeName, serviceName } = getAlertMetadataFromLabels(a.labels);
+                const severity = a.labels?.severity ?? a.labels?.Severity ?? '';
+                const schema = a.labels?.schema ?? a.labels?.database ?? '';
+                const queryID = a.labels?.query_id ?? a.labels?.queryid ?? '';
+                const shortFingerprint = (a.labels?.fingerprint ?? a.fingerprint ?? '').toString();
+                const fingerprintHint = shortFingerprint
+                  ? (shortFingerprint.length > 34 ? `${shortFingerprint.slice(0, 34)}…` : shortFingerprint)
+                  : '';
+                const details = [
+                  nodeName && `node=${nodeName}`,
+                  serviceName && `service=${serviceName}`,
+                  schema && `db=${schema}`,
+                  queryID && `qid=${queryID}`,
+                  severity && `sev=${severity}`,
+                  fingerprintHint && `fp=${fingerprintHint}`,
+                ].filter(Boolean).join(' · ');
                 return (
                   <FormControlLabel
                     key={key}
@@ -152,9 +168,16 @@ export const AdreAlertsPanel: FC<AdreAlertsPanelProps> = ({ alerts: alertsProp }
                       />
                     }
                     label={
-                      <Typography variant="caption" sx={{ fontSize: '0.75rem' }}>
-                        {String(label).length > 40 ? `${String(label).slice(0, 40)}…` : label}
-                      </Typography>
+                      <Box>
+                        <Typography variant="caption" sx={{ fontSize: '0.75rem', display: 'block' }}>
+                          {String(label).length > 40 ? `${String(label).slice(0, 40)}…` : label}
+                        </Typography>
+                        {details && (
+                          <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.68rem', display: 'block' }}>
+                            {details}
+                          </Typography>
+                        )}
+                      </Box>
                     }
                     sx={{ m: 0, py: 0.25 }}
                   />

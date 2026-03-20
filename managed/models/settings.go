@@ -36,7 +36,8 @@ const (
 	OtelCollectorEnabledDefault        = true
 	OtelLogsRetentionDaysDefault       = 7
 	AdreEnabledDefault                 = false
-	AdrePromptMaxBytes                 = 4096
+	AdrePromptMaxBytes                 = 16 * 1024
+	AdrePromptMaxBytesHardMax          = 64 * 1024
 	awsPartitionID                     = "aws"
 )
 
@@ -126,6 +127,8 @@ type Settings struct {
 		ServiceNowClientToken string `json:"servicenow_client_token"`
 		// DisableRunbooks: when true, chat mode will not call fetch_runbook or use todowrite_instructions.
 		DisableRunbooks bool `json:"disable_runbooks"`
+		// PromptMaxBytes defines max prompt size for ADRE prompts (bytes).
+		PromptMaxBytes int `json:"prompt_max_bytes"`
 	} `json:"adre"`
 
 	Alerting struct {

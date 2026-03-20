@@ -201,7 +201,12 @@ You MUST always fetch and follow the "alert-triggered-slow-query-analysis" runbo
 Output rules:
 - Do NOT include runbook execution steps, checkmarks, progress indicators, or tool call traces in your output.
 - Do NOT show which runbook was used or list the steps you followed.
-- Output ONLY the final analysis results in this structure:
+- Output ONLY the final analysis results in this structure.
+- Your output MUST start directly with "## Summary" (no intro text before it).
+- Any SQL, EXPLAIN output, SHOW INDEX/CREATE TABLE output, command, or log snippet MUST be inside fenced code blocks.
+- Never output raw table-like text outside fenced code blocks.
+- Use language-tagged code blocks when possible (` + "```sql" + ` for SQL, ` + "```text" + ` for plans/logs).
+- Do not use inline backticks for multi-line snippets.
 
 ## Summary
 Brief overview of the query, its performance characteristics, and the main issue.

@@ -31,6 +31,28 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
+func sanitizeQanInsightsAnalysis(raw string) string {
+	trimmed := strings.TrimSpace(raw)
+	if trimmed == "" {
+		return raw
+	}
+
+	summaryIdx := strings.Index(strings.ToLower(trimmed), "## summary")
+	if summaryIdx <= 0 {
+		return trimmed
+	}
+
+	prefix := strings.ToLower(trimmed[:summaryIdx])
+	if strings.Contains(prefix, "runbook") ||
+		strings.Contains(prefix, "fetch_runbook") ||
+		strings.Contains(prefix, "i found a runbook") ||
+		strings.Contains(prefix, "used it to troubleshoot") {
+		return strings.TrimSpace(trimmed[summaryIdx:])
+	}
+
+	return trimmed
+}
+
 // GrafanaAlertsFetcher fetches firing alerts from Grafana's Alertmanager API.
 type GrafanaAlertsFetcher interface {
 	GetAlertmanagerAlerts(ctx context.Context, authHeaders http.Header) ([]byte, error)
@@ -99,6 +121,7 @@ type adreSettingsResponse struct {
 	ServiceNowURL              string `json:"servicenow_url"`
 	ServiceNowConfigured       bool   `json:"servicenow_configured"`
 	DisableRunbooks            bool   `json:"disable_runbooks"`
+	PromptMaxBytes             int    `json:"prompt_max_bytes"`
 }
 
 func applyAdreSettingsDefaults(r *adreSettingsResponse) {
@@ -110,6 +133,9 @@ func applyAdreSettingsDefaults(r *adreSettingsResponse) {
 	}
 	if r.ChatHistoryLength <= 0 {
 		r.ChatHistoryLength = 20
+	}
+	if r.PromptMaxBytes <= 0 {
+		r.PromptMaxBytes = models.AdrePromptMaxBytes
 	}
 }
 
@@ -142,23 +168,24 @@ func (h *Handlers) GetSettings(w http.ResponseWriter, r *http.Request) {
 		qanInsightsPromptDisplay = DefaultQanInsightsPrompt
 	}
 	resp := adreSettingsResponse{
-		Enabled:                       settings.IsAdreEnabled(),
-		URL:                           settings.GetAdreURL(),
-		ChatPrompt:                    settings.Adre.ChatPrompt,
-		InvestigationPrompt:           settings.Adre.InvestigationPrompt,
-		ChatPromptDisplay:             chatPromptDisplay,
-		InvestigationPromptDisplay:    investigationPromptDisplay,
-		DefaultChatMode:              settings.Adre.DefaultChatMode,
-		ChatBackend:                  settings.Adre.ChatBackend,
-		ChatHistoryLength:            settings.Adre.ChatHistoryLength,
-		AgentPrompt:                  settings.Adre.AgentPrompt,
-		AgentPromptDisplay:           agentPromptDisplay,
-		QanInsightsPrompt:            settings.Adre.QanInsightsPrompt,
-		QanInsightsPromptDisplay:     qanInsightsPromptDisplay,
-		ReplaceSystemPrompt:          settings.Adre.ReplaceSystemPrompt,
-		ServiceNowURL:                settings.Adre.ServiceNowURL,
-		ServiceNowConfigured:         settings.Adre.ServiceNowURL != "" && settings.Adre.ServiceNowAPIKey != "" && settings.Adre.ServiceNowClientToken != "",
-		DisableRunbooks:              settings.Adre.DisableRunbooks,
+		Enabled:                    settings.IsAdreEnabled(),
+		URL:                        settings.GetAdreURL(),
+		ChatPrompt:                 settings.Adre.ChatPrompt,
+		InvestigationPrompt:        settings.Adre.InvestigationPrompt,
+		ChatPromptDisplay:          chatPromptDisplay,
+		InvestigationPromptDisplay: investigationPromptDisplay,
+		DefaultChatMode:            settings.Adre.DefaultChatMode,
+		ChatBackend:                settings.Adre.ChatBackend,
+		ChatHistoryLength:          settings.Adre.ChatHistoryLength,
+		AgentPrompt:                settings.Adre.AgentPrompt,
+		AgentPromptDisplay:         agentPromptDisplay,
+		QanInsightsPrompt:          settings.Adre.QanInsightsPrompt,
+		QanInsightsPromptDisplay:   qanInsightsPromptDisplay,
+		ReplaceSystemPrompt:        settings.Adre.ReplaceSystemPrompt,
+		ServiceNowURL:              settings.Adre.ServiceNowURL,
+		ServiceNowConfigured:       settings.Adre.ServiceNowURL != "" && settings.Adre.ServiceNowAPIKey != "" && settings.Adre.ServiceNowClientToken != "",
+		DisableRunbooks:            settings.Adre.DisableRunbooks,
+		PromptMaxBytes:             settings.Adre.PromptMaxBytes,
 	}
 	applyAdreSettingsDefaults(&resp)
 	body, err := json.Marshal(resp)
@@ -195,6 +222,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		ServiceNowAPIKey      *string `json:"servicenow_api_key"`
 		ServiceNowClientToken *string `json:"servicenow_client_token"`
 		DisableRunbooks       *bool   `json:"disable_runbooks"`
+		PromptMaxBytes        *int    `json:"prompt_max_bytes"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
@@ -205,7 +233,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		body.ChatBackend != nil || body.ChatHistoryLength != nil || body.AgentPrompt != nil ||
 		body.QanInsightsPrompt != nil || body.ReplaceSystemPrompt != nil ||
 		body.ServiceNowURL != nil || body.ServiceNowAPIKey != nil || body.ServiceNowClientToken != nil ||
-		body.DisableRunbooks != nil
+		body.DisableRunbooks != nil || body.PromptMaxBytes != nil
 	if !hasChange {
 		writeJSONError(w, http.StatusBadRequest, "No changes provided")
 		return
@@ -225,12 +253,30 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	if body.ChatPrompt != nil && len(*body.ChatPrompt) > models.AdrePromptMaxBytes {
-		writeJSONError(w, http.StatusBadRequest, fmt.Sprintf("chat_prompt: max %d bytes", models.AdrePromptMaxBytes))
+	currentSettings, err := models.GetSettings(h.db)
+	if err != nil {
+		h.l.Errorf("GetSettings before validate: %v", err)
+		writeJSONError(w, http.StatusInternalServerError, "Failed to get settings")
 		return
 	}
-	if body.InvestigationPrompt != nil && len(*body.InvestigationPrompt) > models.AdrePromptMaxBytes {
-		writeJSONError(w, http.StatusBadRequest, fmt.Sprintf("investigation_prompt: max %d bytes", models.AdrePromptMaxBytes))
+	effectivePromptMaxBytes := currentSettings.Adre.PromptMaxBytes
+	if effectivePromptMaxBytes <= 0 {
+		effectivePromptMaxBytes = models.AdrePromptMaxBytes
+	}
+	if body.PromptMaxBytes != nil {
+		n := *body.PromptMaxBytes
+		if n < 1024 || n > models.AdrePromptMaxBytesHardMax {
+			writeJSONError(w, http.StatusBadRequest, fmt.Sprintf("prompt_max_bytes: must be between 1024 and %d", models.AdrePromptMaxBytesHardMax))
+			return
+		}
+		effectivePromptMaxBytes = n
+	}
+	if body.ChatPrompt != nil && len(*body.ChatPrompt) > effectivePromptMaxBytes {
+		writeJSONError(w, http.StatusBadRequest, fmt.Sprintf("chat_prompt: max %d bytes", effectivePromptMaxBytes))
+		return
+	}
+	if body.InvestigationPrompt != nil && len(*body.InvestigationPrompt) > effectivePromptMaxBytes {
+		writeJSONError(w, http.StatusBadRequest, fmt.Sprintf("investigation_prompt: max %d bytes", effectivePromptMaxBytes))
 		return
 	}
 	if body.DefaultChatMode != nil {
@@ -256,29 +302,30 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	if body.AgentPrompt != nil && len(*body.AgentPrompt) > models.AdrePromptMaxBytes {
-		writeJSONError(w, http.StatusBadRequest, fmt.Sprintf("agent_prompt: max %d bytes", models.AdrePromptMaxBytes))
+	if body.AgentPrompt != nil && len(*body.AgentPrompt) > effectivePromptMaxBytes {
+		writeJSONError(w, http.StatusBadRequest, fmt.Sprintf("agent_prompt: max %d bytes", effectivePromptMaxBytes))
 		return
 	}
-	if body.QanInsightsPrompt != nil && len(*body.QanInsightsPrompt) > models.AdrePromptMaxBytes {
-		writeJSONError(w, http.StatusBadRequest, fmt.Sprintf("qan_insights_prompt: max %d bytes", models.AdrePromptMaxBytes))
+	if body.QanInsightsPrompt != nil && len(*body.QanInsightsPrompt) > effectivePromptMaxBytes {
+		writeJSONError(w, http.StatusBadRequest, fmt.Sprintf("qan_insights_prompt: max %d bytes", effectivePromptMaxBytes))
 		return
 	}
 	params := &models.ChangeSettingsParams{
-		EnableAdre:               body.Enabled,
-		AdreURL:                  body.URL,
-		AdreChatPrompt:           body.ChatPrompt,
-		AdreInvestigationPrompt:  body.InvestigationPrompt,
-		AdreDefaultChatMode:      body.DefaultChatMode,
-		ChatBackend:              body.ChatBackend,
-		ChatHistoryLength:        body.ChatHistoryLength,
-		AgentPrompt:              body.AgentPrompt,
-		AdreQanInsightsPrompt:    body.QanInsightsPrompt,
-		ReplaceSystemPrompt:      body.ReplaceSystemPrompt,
-		ServiceNowURL:            body.ServiceNowURL,
-		ServiceNowAPIKey:         body.ServiceNowAPIKey,
-		ServiceNowClientToken:    body.ServiceNowClientToken,
-		DisableRunbooks:          body.DisableRunbooks,
+		EnableAdre:              body.Enabled,
+		AdreURL:                 body.URL,
+		AdreChatPrompt:          body.ChatPrompt,
+		AdreInvestigationPrompt: body.InvestigationPrompt,
+		AdreDefaultChatMode:     body.DefaultChatMode,
+		ChatBackend:             body.ChatBackend,
+		ChatHistoryLength:       body.ChatHistoryLength,
+		AgentPrompt:             body.AgentPrompt,
+		AdreQanInsightsPrompt:   body.QanInsightsPrompt,
+		ReplaceSystemPrompt:     body.ReplaceSystemPrompt,
+		ServiceNowURL:           body.ServiceNowURL,
+		ServiceNowAPIKey:        body.ServiceNowAPIKey,
+		ServiceNowClientToken:   body.ServiceNowClientToken,
+		DisableRunbooks:         body.DisableRunbooks,
+		PromptMaxBytes:          body.PromptMaxBytes,
 	}
 	if _, err := models.UpdateSettings(h.db, params); err != nil {
 		h.l.Errorf("UpdateSettings: %v", err)
@@ -303,23 +350,24 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		qanInsightsPromptDisplayPost = DefaultQanInsightsPrompt
 	}
 	resp := adreSettingsResponse{
-		Enabled:                       settings.IsAdreEnabled(),
-		URL:                           settings.GetAdreURL(),
-		ChatPrompt:                    settings.Adre.ChatPrompt,
-		InvestigationPrompt:           settings.Adre.InvestigationPrompt,
-		ChatPromptDisplay:             chatPromptDisplay,
-		InvestigationPromptDisplay:    investigationPromptDisplay,
-		DefaultChatMode:              settings.Adre.DefaultChatMode,
-		ChatBackend:                  settings.Adre.ChatBackend,
-		ChatHistoryLength:            settings.Adre.ChatHistoryLength,
-		AgentPrompt:                  settings.Adre.AgentPrompt,
-		AgentPromptDisplay:           agentPromptDisplayPost,
-		QanInsightsPrompt:            settings.Adre.QanInsightsPrompt,
-		QanInsightsPromptDisplay:     qanInsightsPromptDisplayPost,
-		ReplaceSystemPrompt:          settings.Adre.ReplaceSystemPrompt,
-		ServiceNowURL:                settings.Adre.ServiceNowURL,
-		ServiceNowConfigured:         settings.Adre.ServiceNowURL != "" && settings.Adre.ServiceNowAPIKey != "" && settings.Adre.ServiceNowClientToken != "",
-		DisableRunbooks:              settings.Adre.DisableRunbooks,
+		Enabled:                    settings.IsAdreEnabled(),
+		URL:                        settings.GetAdreURL(),
+		ChatPrompt:                 settings.Adre.ChatPrompt,
+		InvestigationPrompt:        settings.Adre.InvestigationPrompt,
+		ChatPromptDisplay:          chatPromptDisplay,
+		InvestigationPromptDisplay: investigationPromptDisplay,
+		DefaultChatMode:            settings.Adre.DefaultChatMode,
+		ChatBackend:                settings.Adre.ChatBackend,
+		ChatHistoryLength:          settings.Adre.ChatHistoryLength,
+		AgentPrompt:                settings.Adre.AgentPrompt,
+		AgentPromptDisplay:         agentPromptDisplayPost,
+		QanInsightsPrompt:          settings.Adre.QanInsightsPrompt,
+		QanInsightsPromptDisplay:   qanInsightsPromptDisplayPost,
+		ReplaceSystemPrompt:        settings.Adre.ReplaceSystemPrompt,
+		ServiceNowURL:              settings.Adre.ServiceNowURL,
+		ServiceNowConfigured:       settings.Adre.ServiceNowURL != "" && settings.Adre.ServiceNowAPIKey != "" && settings.Adre.ServiceNowClientToken != "",
+		DisableRunbooks:            settings.Adre.DisableRunbooks,
+		PromptMaxBytes:             settings.Adre.PromptMaxBytes,
 	}
 	applyAdreSettingsDefaults(&resp)
 	respBody, err := json.Marshal(resp)
@@ -449,8 +497,15 @@ func (h *Handlers) PostChat(w http.ResponseWriter, r *http.Request) {
 		req.BehaviorControls = map[string]bool{
 			"fetch_runbook":          false,
 			"todowrite_instructions": false,
+			"runbook_instructions":   false,
 		}
 	}
+	h.l.WithFields(logrus.Fields{
+		"chat_backend":      cb,
+		"mode":              mode,
+		"disable_runbooks":  settings.Adre.DisableRunbooks,
+		"behavior_controls": req.BehaviorControls,
+	}).Debug("PostChat behavior controls resolved")
 	if cb == "holmes_agent" {
 		req.AdditionalSystemPrompt = resolvePMMAgentPrompt(settings)
 	} else {
@@ -588,12 +643,13 @@ func (h *Handlers) PostQanInsights(w http.ResponseWriter, r *http.Request) {
 		writeJSONError(w, http.StatusBadGateway, err.Error())
 		return
 	}
+	analysis := sanitizeQanInsightsAnalysis(chatResp.Analysis)
 	if body.QueryID != "" {
 		_, err := h.db.Exec(
 			`INSERT INTO qan_insights_cache (id, query_id, service_id, fingerprint, time_from, time_to, analysis, created_at)
 			 VALUES (gen_random_uuid()::text, $1, $2, $3, $4, $5, $6, NOW())
 			 ON CONFLICT (query_id, service_id) DO UPDATE SET analysis = $6, fingerprint = $3, time_from = $4, time_to = $5, created_at = NOW()`,
-			body.QueryID, body.ServiceID, body.Fingerprint, body.TimeFrom, body.TimeTo, chatResp.Analysis,
+			body.QueryID, body.ServiceID, body.Fingerprint, body.TimeFrom, body.TimeTo, analysis,
 		)
 		if err != nil {
 			h.l.Warnf("QanInsights cache upsert: %v", err)
@@ -601,7 +657,7 @@ func (h *Handlers) PostQanInsights(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
-		"analysis":   chatResp.Analysis,
+		"analysis":   analysis,
 		"created_at": time.Now().Format(time.RFC3339),
 		"cached":     false,
 	})
