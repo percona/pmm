@@ -1,4 +1,4 @@
-# PMM Client configuration file encryption
+# Encrypt the PMM Client configuration file
 
 The PMM Client configuration file, [`pmm-agent.yaml`](../../use/commands/pmm-agent.md) contains sensitive information like PMM Server credentials and API tokens. By default, this file is stored in plain text, which means that users with read access to the filesystem can see these credentials.
 
