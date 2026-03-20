@@ -20,6 +20,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -166,5 +167,75 @@ func TestAddServiceExporterTimeout(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, resp.GetValkey())
 		assert.Equal(t, want, resp.GetValkey().GetValkeyExporter().GetTimeout())
+	})
+
+	t.Run("External", func(t *testing.T) {
+		vmdb.On("RequestConfigurationUpdate").Once()
+
+		resp, err := s.AddService(ctx, &managementv1.AddServiceRequest{
+			Service: &managementv1.AddServiceRequest_External{
+				External: &managementv1.AddExternalServiceParams{
+					NodeId:              models.PMMServerNodeID,
+					RunsOnNodeId:        models.PMMServerNodeID,
+					ServiceName:         "mgmt-test-external-timeout",
+					Address:             "127.0.0.1",
+					ListenPort:          42000,
+					Scheme:              "http",
+					MetricsPath:         "/metrics",
+					SkipConnectionCheck: true,
+					MetricsMode:         managementv1.MetricsMode_METRICS_MODE_PULL,
+					Timeout:             want,
+				},
+			},
+		})
+		require.NoError(t, err)
+		require.NotNil(t, resp.GetExternal())
+		assert.Equal(t, want, resp.GetExternal().GetExternalExporter().GetTimeout())
+	})
+
+	t.Run("Azure Database", func(t *testing.T) {
+		_, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+			EnableAzurediscover: pointer.ToBool(true),
+		})
+		require.NoError(t, err)
+
+		state.On("RequestStateUpdate", ctx, models.PMMServerAgentID).Once()
+
+		_, err = s.AddAzureDatabase(ctx, &managementv1.AddAzureDatabaseRequest{
+			Region:                "westeurope",
+			InstanceId:            "mgmt-test-azure-timeout-instance",
+			NodeName:              "mgmt-test-azure-timeout-node",
+			ServiceName:           "mgmt-test-azure-timeout",
+			NodeModel:             "general-purpose",
+			Address:               "127.0.0.1",
+			Port:                  3306,
+			Username:              "root",
+			Password:              "secret",
+			AzureClientId:         "client-id",
+			AzureClientSecret:     "client-secret",
+			AzureTenantId:         "tenant-id",
+			AzureSubscriptionId:   "subscription-id",
+			AzureResourceGroup:    "resource-group",
+			AzureDatabaseExporter: true,
+			SkipConnectionCheck:   true,
+			Type:                  managementv1.DiscoverAzureDatabaseType_DISCOVER_AZURE_DATABASE_TYPE_MYSQL,
+			Timeout:               want,
+		})
+		require.NoError(t, err)
+
+		service, err := models.FindServiceByName(db.Querier, "mgmt-test-azure-timeout")
+		require.NoError(t, err)
+
+		agents, err := models.FindAgents(db.Querier, models.AgentFilters{ServiceID: service.ServiceID})
+		require.NoError(t, err)
+		require.Len(t, agents, 2)
+
+		got := map[models.AgentType]time.Duration{}
+		for _, agent := range agents {
+			got[agent.AgentType] = agent.ExporterOptions.Timeout
+		}
+
+		assert.Equal(t, want.AsDuration(), got[models.AzureDatabaseExporterType])
+		assert.Equal(t, want.AsDuration(), got[models.MySQLdExporterType])
 	})
 }
