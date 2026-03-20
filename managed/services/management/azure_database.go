@@ -261,8 +261,8 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 
 		if req.AzureDatabaseExporter {
 			azureDatabaseExporter, err := models.CreateAgent(tx.Querier, models.AzureDatabaseExporterType, &models.CreateAgentParams{
-				PMMAgentID: models.PMMServerAgentID,
-				ServiceID:  service.ServiceID,
+				PMMAgentID:   models.PMMServerAgentID,
+				ServiceID:    service.ServiceID,
 				AzureOptions: models.AzureOptionsFromRequest(req),
 				ExporterOptions: models.ExporterOptions{
 					Timeout: duration.FromProto(req.Timeout),
