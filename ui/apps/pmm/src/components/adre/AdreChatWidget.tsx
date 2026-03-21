@@ -20,7 +20,7 @@ import rehypeRaw from 'rehype-raw';
 import { useLocation } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 import { useAdreChat, formatTimestamp, type ProgressStep, type ChatMessage } from 'hooks/useAdreChat';
-import { getMarkdownComponents } from 'components/adre/adre-chat-markdown';
+import { getMarkdownComponents, PanelScrollRootProvider } from 'components/adre/adre-chat-markdown';
 
 function buildDashboardContext(pathname: string, search: string): string {
   if (!pathname.includes('/graph/d/')) return '';
@@ -214,6 +214,7 @@ export const AdreChatWidget: FC = () => {
   const [expandedReasoningIdx, setExpandedReasoningIdx] = useState<number | null>(null);
   const [expandedProgressIdx, setExpandedProgressIdx] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [scrollRoot, setScrollRoot] = useState<HTMLElement | null>(null);
   const lastScrollRef = useRef(0);
 
   const isPMMAgent = settings?.chatBackend === 'holmes_agent' && !!settings?.url;
@@ -316,6 +317,7 @@ export const AdreChatWidget: FC = () => {
             </Stack>
           </Stack>
           <Box
+            ref={(el) => setScrollRoot(el)}
             sx={{
               flex: 1,
               overflow: 'auto',
@@ -326,6 +328,7 @@ export const AdreChatWidget: FC = () => {
               gap: 1,
             }}
           >
+            <PanelScrollRootProvider value={scrollRoot}>
             {allMessages.length === 0 ? (
               <Typography color="text.secondary" variant="body2" sx={{ alignSelf: 'center', mt: 2 }}>
                 Ask a question about your database environment...
@@ -348,6 +351,7 @@ export const AdreChatWidget: FC = () => {
               ))
             )}
             <div ref={messagesEndRef} />
+            </PanelScrollRootProvider>
           </Box>
           <Stack direction="row" gap={0.5} sx={{ p: 1 }}>
             <TextField

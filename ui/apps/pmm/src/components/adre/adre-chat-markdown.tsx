@@ -1,11 +1,54 @@
 import { Box, Link, Typography } from '@mui/material';
-import { FC, useState, useEffect, ReactNode, memo } from 'react';
+import { FC, useState, useEffect, useRef, ReactNode, memo, createContext, useContext } from 'react';
 import { CodeBlock } from 'pages/updates/change-log/code-block';
 import { PMM_BASE_PATH, PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
 
 const GRAFANA_RENDER_PATH = '/v1/grafana/render';
 const GRAFANA_RENDER_D_SOLO = '/graph/render/d-solo/';
 const RENDER_IMAGE_TIMEOUT_MS = 60000;
+const PANEL_IMAGE_MAX_CONCURRENT = 3;
+const PANEL_IMAGE_ROOT_MARGIN = '300px';
+
+/** Scroll root for IntersectionObserver (chat scroll container). When null, viewport is used. */
+const PanelScrollRootContext = createContext<HTMLElement | null>(null);
+
+export function usePanelScrollRoot(): HTMLElement | null {
+  return useContext(PanelScrollRootContext);
+}
+
+/** Provider for scroll root; wrap chat message list with this when a scroll container exists. */
+export const PanelScrollRootProvider = PanelScrollRootContext.Provider;
+
+/** Acquire a slot for panel fetch; returns release function. Resolves when a slot is free. */
+function createPanelFetchQueue(maxConcurrent: number) {
+  let inFlight = 0;
+  const waiters: Array<() => void> = [];
+
+  function release() {
+    inFlight = Math.max(0, inFlight - 1);
+    if (waiters.length > 0 && inFlight < maxConcurrent) {
+      const next = waiters.shift();
+      if (next) next();
+    }
+  }
+
+  function acquire(): Promise<() => void> {
+    if (inFlight < maxConcurrent) {
+      inFlight += 1;
+      return Promise.resolve(release);
+    }
+    return new Promise<() => void>((resolve) => {
+      waiters.push(() => {
+        inFlight += 1;
+        resolve(release);
+      });
+    });
+  }
+
+  return { acquire, release };
+}
+
+const panelFetchQueue = createPanelFetchQueue(PANEL_IMAGE_MAX_CONCURRENT);
 
 function toEpochMsOrOriginal(s: string): string {
   if (!s) return s;
@@ -198,25 +241,69 @@ export function clearPanelImageCache() {
   panelImageCache.clear();
 }
 
+const PLACEHOLDER_MIN_HEIGHT = 500;
+
 const GrafanaPanelImageInner: FC<{
   src: string;
   alt: string;
   dashboardHref: string | null;
 }> = ({ src, alt, dashboardHref }) => {
+  const [shouldLoad, setShouldLoad] = useState(false);
   const [state, setState] = useState<'loading' | { status: 'success'; url: string } | { status: 'error'; detail?: string }>('loading');
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const scrollRoot = usePanelScrollRoot();
 
   useEffect(() => {
+    const el = wrapperRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            setShouldLoad(true);
+            break;
+          }
+        }
+      },
+      { root: scrollRoot, rootMargin: PANEL_IMAGE_ROOT_MARGIN, threshold: 0 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [scrollRoot]);
+
+  useEffect(() => {
+    if (!shouldLoad) return;
+
     const cached = panelImageCache.get(src);
     if (cached) {
       setState({ status: 'success', url: cached });
       return;
     }
-    let objectUrl: string | null = null;
+
+    let releaseSlot: (() => void) | null = null;
+    const safeReleaseSlot = () => {
+      if (!releaseSlot) return;
+      const r = releaseSlot;
+      releaseSlot = null;
+      r();
+    };
+    let mounted = true;
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), RENDER_IMAGE_TIMEOUT_MS);
 
-    fetch(src, { credentials: 'include', signal: controller.signal })
+    panelFetchQueue
+      .acquire()
+      .then((release) => {
+        if (!mounted) {
+          release();
+          return null;
+        }
+        releaseSlot = release;
+        setState('loading');
+        return fetch(src, { credentials: 'include', signal: controller.signal });
+      })
       .then(async (res) => {
+        if (!res || !mounted) return null;
         const contentType = res.headers.get('Content-Type') ?? '';
         if (!res.ok) {
           let detail = `HTTP ${res.status}`;
@@ -242,17 +329,47 @@ const GrafanaPanelImageInner: FC<{
         return res.blob();
       })
       .then((blob) => {
-        objectUrl = URL.createObjectURL(blob);
+        if (!mounted || !blob) return;
+        const objectUrl = URL.createObjectURL(blob);
         panelImageCacheSet(src, objectUrl);
         setState({ status: 'success', url: objectUrl });
       })
-      .catch((err) => setState({ status: 'error', detail: err instanceof Error ? err.message : undefined }))
-      .finally(() => clearTimeout(timeoutId));
+      .catch((err) => {
+        if (mounted) setState({ status: 'error', detail: err instanceof Error ? err.message : undefined });
+      })
+      .finally(() => {
+        clearTimeout(timeoutId);
+        safeReleaseSlot();
+      });
 
     return () => {
+      mounted = false;
+      controller.abort();
       clearTimeout(timeoutId);
+      safeReleaseSlot();
     };
-  }, [src]);
+  }, [src, shouldLoad]);
+
+  if (!shouldLoad) {
+    return (
+      <Box
+        ref={wrapperRef}
+        sx={{
+          my: 1,
+          minHeight: PLACEHOLDER_MIN_HEIGHT,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          bgcolor: 'rgba(255,255,255,0.03)',
+          borderRadius: 1,
+        }}
+      >
+        <Typography variant="body2" color="text.secondary">
+          Panel will load when visible
+        </Typography>
+      </Box>
+    );
+  }
 
   if (state === 'loading') {
     return (
