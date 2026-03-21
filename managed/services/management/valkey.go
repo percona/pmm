@@ -64,20 +64,19 @@ func (s *ManagementService) addValkey(ctx context.Context, req *managementv1.Add
 			return err
 		}
 
-		exporterOptions := models.ExporterOptions{
-			ExposeExporter: req.ExposeExporter,
-			PushMetrics:    isPushMode(req.MetricsMode),
-			Timeout:        duration.FromProto(req.Timeout),
-		}
 		row, err := models.CreateAgent(tx.Querier, models.ValkeyExporterType, &models.CreateAgentParams{
-			PMMAgentID:      req.PmmAgentId,
-			ServiceID:       service.ServiceID,
-			Username:        req.Username,
-			Password:        req.Password,
-			TLS:             req.Tls,
-			TLSSkipVerify:   req.TlsSkipVerify,
-			ExporterOptions: exporterOptions,
-			ValkeyOptions:   models.ValkeyOptionsFromRequest(req),
+			PMMAgentID:    req.PmmAgentId,
+			ServiceID:     service.ServiceID,
+			Username:      req.Username,
+			Password:      req.Password,
+			TLS:           req.Tls,
+			TLSSkipVerify: req.TlsSkipVerify,
+			ExporterOptions: models.ExporterOptions{
+				ExposeExporter: req.ExposeExporter,
+				PushMetrics:    isPushMode(req.MetricsMode),
+				Timeout:        duration.FromProto(req.Timeout),
+			},
+			ValkeyOptions: models.ValkeyOptionsFromRequest(req),
 		})
 		if err != nil {
 			return err
