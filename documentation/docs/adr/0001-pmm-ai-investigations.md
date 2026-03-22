@@ -28,3 +28,11 @@ Existing ADRE (HolmesGPT) integration provides the HolmesGPT client and alerts; 
 - Single Incident Detail Page component; report content is data-driven (blocks from API).
 - HolmesGPT is used as a tool; no change to HolmesGPT itself.
 - Operators must run Ollama (or another configured LLM) for Investigations chat and "Run investigation" to work.
+
+## Implementation note (tibi-holmes / current tree)
+
+The shipped UI includes **both** **ADRE Chat** (floating widget) and **Investigations**; ADRE direct chat was not removed.
+
+Investigation **chat** and **run** are implemented against the configured **HolmesGPT** URL (`adre.Client`) and/or the **PMM Agent** (`holmes_agent`) path in PMM settings, not a separate in-repo Ollama orchestrator service. See `managed/services/investigations/chat.go` and [dev/investigations/README.md](https://github.com/percona/pmm/blob/v3/dev/investigations/README.md) for the actual request flow.
+
+End-user overview: [AI features — Investigations](../use/ai-features/investigations.md).

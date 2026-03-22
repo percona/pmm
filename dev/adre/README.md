@@ -9,11 +9,20 @@ ADRE integrates [HolmesGPT](https://holmesgpt.dev) with PMM to provide AI-assist
 
 ## Configuration
 
-1. Enable ADRE in **PMM Settings** (Configuration → Settings → Advanced) or on the ADRE page (admin only)
-2. Set the **HolmesGPT base URL** (e.g. `http://holmesgpt:8080`)
-3. If HolmesGPT requires authentication, include credentials in the URL: `http://user:password@holmesgpt:5050` or `http://:api-key@holmesgpt:5050` (API key as password)
+1. Enable ADRE in **PMM Settings** (Configuration → Settings → Advanced) or on the ADRE / AI Assistant page (admin only).
+2. Set the **HolmesGPT base URL** to a reachable HTTPS (or HTTP in lab) origin, for example `https://holmes.example.internal` — **do not** commit real hosts or secrets to documentation.
+3. If HolmesGPT requires authentication, configure it through **PMM settings** (preferred) or follow HolmesGPT’s documented URL/header patterns. **Never** paste API keys, Grafana tokens, or passwords into public docs or chat logs.
 
-HolmesGPT and PMM must be able to communicate. If using Docker, ensure they share a network or that HolmesGPT is reachable from the PMM host.
+HolmesGPT and PMM must be able to communicate. If using Docker or Kubernetes, ensure network policies and TLS match your security requirements.
+
+### Chat backends (`chat_backend` in PMM settings JSON)
+
+| Value | Meaning |
+| ----- | ------- |
+| `holmesgpt` (default) | PMM proxies chat to the configured **HolmesGPT** base URL. |
+| `holmes_agent` | Chat goes through the **PMM Agent** path with a built-in system prompt (`agent_prompt`) and trimmed history (`chat_history_length`). |
+
+Investigations and QAN insights use the Holmes client against **`Adre.URL`** (HolmesGPT URL), independent of this toggle for the floating chat widget label in the UI.
 
 ## HolmesGPT Configuration
 
@@ -69,7 +78,35 @@ If your MCP server runs inside or alongside PMM, ensure HolmesGPT can reach it (
 
 See [HolmesGPT MCP Servers](https://holmesgpt.dev/data-sources/remote-mcp-servers/).
 
-## Grafana panel render and dashboard links
+## Grafana context in ADRE Chat (PMM UI)
+
+The PMM shell injects **structured Grafana context** into the chat system message when the user is on Grafana routes (`/graph/d/...`, `d-solo`, `explore`, etc.): normalized path, dashboard UID, `viewPanel` when present, `from`/`to`, `var-*` parameters, optional **document title** from the iframe. Implementation: `ui/apps/pmm/src/components/adre/grafana-context.ts` (builds the fragment; `GrafanaProvider` supplies `grafanaDocumentTitle`).
+
+This reduces hallucinated “current panel” answers; models must still follow prompt rules.
+
+## Holmes operator configuration (not shipped inside PMM)
+
+PMM **does not** ship `holmes_config.yaml` or Markdown **runbooks** in the repository. Operators maintain them on the **HolmesGPT** deployment:
+
+- **Toolsets** — Often defined in YAML (custom toolsets) or via **MCP** servers. Point Prometheus/VictoriaMetrics, PMM inventory tools, ClickHouse (QAN/logs), and optional `curl` tools at URLs reachable from Holmes (see [HolmesGPT docs](https://holmesgpt.dev)).
+- **Runbooks** — Markdown files plus a **catalog** (e.g. `catalog.json`) so the `fetch_runbook` tool can load steps. Paths are configured in Holmes, not in PMM.
+- **PMM-facing URLs** — Use a **browser-reachable** PMM base URL for markdown images and Grafana links where Holmes embeds `/v1/grafana/render` or `/graph/...`.
+
+## `GET /v1/grafana/render` (panel image proxy)
+
+Served by **pmm-managed**. Used by Holmes toolsets or scripts to fetch a **PNG** of a dashboard panel or to return **JSON** with URLs for the PMM UI.
+
+**Required query parameters:** `dashboard_uid`, `panel_id`, `from`, `to`.
+
+**Common optional parameters:** `width`, `height`, `format=json` (returns JSON with `image_url` and `dashboard_url` instead of raw PNG), `cache=1` (optional **disk cache** under `/srv/pmm/grafana_render_cache` on the server), `tz`, and any `var-*` Grafana template variables needed for the dashboard (e.g. `var-service_id`).
+
+**Validation:** `dashboard_uid` and `panel_id` must match safe character classes enforced by the handler.
+
+**Auth:** Forwarding uses the caller’s `Authorization` header when calling Grafana’s render path.
+
+For **end-user** documentation, panel-image behaviour is intentionally **not** expanded in MkDocs; this section is for **integrators**.
+
+## Grafana panel render and dashboard links (Holmes / tools)
 
 When Holmes (or a tool) renders a Grafana panel image via PMM’s render API and includes an “Open in Grafana” link in the same message, follow this contract so the UI shows one correct link per panel:
 
@@ -81,13 +118,31 @@ When Holmes (or a tool) renders a Grafana panel image via PMM’s render API and
 
 ## API
 
-PMM proxies requests to HolmesGPT. Endpoints (all require authentication):
+PMM proxies requests to HolmesGPT where noted. Endpoints **require PMM authentication** unless stated otherwise.
 
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | /v1/adre/settings | Get ADRE settings (viewer or admin) |
-| POST | /v1/adre/settings | Update ADRE settings (admin only in UI) |
-| GET | /v1/adre/models | List available models |
-| POST | /v1/adre/chat | Chat (non-streaming or streaming if `stream: true` in body) |
-| GET | /v1/adre/alerts | Firing alerts from Grafana Alertmanager (requires ADRE enabled) |
-| POST | /v1/adre/investigate | Investigate alerts (supports streaming) |
+| GET | /v1/adre/settings | Get ADRE settings (includes `chat_backend`, Holmes URL flags, QAN prompt display fields, ServiceNow configured flag — no secrets in GET) |
+| POST | /v1/adre/settings | Update ADRE settings (admin); may set `servicenow_url`, `servicenow_api_key`, `servicenow_client_token` — store securely |
+| GET | /v1/adre/models | List available models from HolmesGPT when ADRE enabled |
+| POST | /v1/adre/chat | Chat; `stream: true` for SSE streaming; optional `mode` for server-side prompt selection |
+| GET | /v1/adre/alerts | Firing alerts from Grafana Alertmanager (ADRE enabled) |
+| POST | /v1/adre/investigate | Legacy alert investigation helper (streaming supported) |
+| POST | /v1/adre/qan-insights | Body: `service_id`, `query_text` (required); optional `query_id`, `fingerprint`, `time_from`, `time_to`, `force`. Returns analysis JSON; caches by `(query_id, service_id)` when `query_id` set |
+| GET | /v1/adre/qan-insights | Query params: `query_id`, `service_id` — returns cached analysis or 404 |
+| GET | /v1/grafana/render | Panel PNG or JSON (`format=json`); see section above |
+
+**Investigations** live under `/v1/investigations/*` — see [dev/investigations/README.md](../investigations/README.md).
+
+### End-to-end flow (mermaid)
+
+```mermaid
+sequenceDiagram
+  participant User as PMM_UI
+  participant PMM as pmm_managed
+  participant Holmes as HolmesGPT
+  User->>PMM: POST /v1/adre/chat
+  PMM->>Holmes: Chat API
+  Holmes-->>PMM: analysis stream
+  PMM-->>User: SSE or JSON
+```

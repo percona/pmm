@@ -79,3 +79,7 @@ These are usually lightweight, but unusual spikes in volume, latency, or unexpec
 
 !!! warning
     Do not use the default PostgreSQL database for application workloads. PMM monitors it for visibility, but applications should always run on dedicated databases.
+
+## AI-assisted query tuning
+
+When ADRE and HolmesGPT are configured, you can use **[QAN AI Insights](../ai-features/qan-ai-insights.md)** for AI-guided query optimisation and tuning from QAN.
