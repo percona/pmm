@@ -61,12 +61,13 @@ jobs:
         run: cd dashboards/pmm-app && yarn test:ci
 
       - name: Upload unit test coverage
+        if: github.event.pull_request.head.repo.full_name == github.repository
         uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
           fail_ci_if_error: true
           flags: unittests # optional
           name: codecov-umbrella
-          token: ${{ secrets.CODECOV_GRAFANA_DASHBOARDS_TOKEN }}
+          token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
 
   cleanup:
