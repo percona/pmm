@@ -646,7 +646,6 @@ func TestEffectiveDialTimeout(t *testing.T) {
 			models.MongoDBExporterType,
 			models.PostgresExporterType,
 			models.ProxySQLExporterType,
-			models.RDSExporterType,
 			models.AzureDatabaseExporterType,
 			models.ExternalExporterType,
 			models.ValkeyExporterType,

@@ -239,7 +239,6 @@ func TestAgentService(t *testing.T) {
 				{
 					AgentId:     rdsExporter.AgentID,
 					AgentType:   "rds_exporter",
-					Timeout:     durationpb.New(1 * time.Second),
 					PmmAgentId:  "00000000-0000-4000-8000-000000000007",
 					IsConnected: false,
 					CreatedAt:   timestamppb.New(now),

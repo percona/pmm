@@ -1316,6 +1316,31 @@ func TestScrapeConfig(t *testing.T) {
 				assertScrapeConfigsEqual(t, expected[i], actual[i])
 			}
 		})
+
+		t.Run("CustomTimeoutOverridesOnlyWhenSet", func(t *testing.T) {
+			params := []*scrapeConfigParams{
+				{
+					host: "1.1.1.1",
+					agent: &models.Agent{
+						ListenPort:      pointer.ToUint16(12345),
+						ExporterOptions: models.ExporterOptions{Timeout: 7 * time.Second},
+					},
+					metricsResolution: s,
+				},
+				{
+					host:              "2.2.2.2",
+					agent:             &models.Agent{ListenPort: pointer.ToUint16(12345)},
+					metricsResolution: s,
+				},
+			}
+
+			actual := scrapeConfigsForRDSExporter(params)
+			require.Len(t, actual, 4)
+			assert.Equal(t, config.Duration(4500*time.Millisecond), actual[0].ScrapeTimeout)
+			assert.Equal(t, config.Duration(7*time.Second), actual[1].ScrapeTimeout)
+			assert.Equal(t, scrapeTimeout(s.MR), actual[2].ScrapeTimeout)
+			assert.Equal(t, scrapeTimeout(s.LR), actual[3].ScrapeTimeout)
+		})
 	})
 
 	t.Run("scrapeConfigsForExternalExporter", func(t *testing.T) {

@@ -834,7 +834,6 @@ func (a *Agent) EffectiveDialTimeout() time.Duration {
 		MongoDBExporterType,
 		PostgresExporterType,
 		ProxySQLExporterType,
-		RDSExporterType,
 		AzureDatabaseExporterType,
 		ExternalExporterType,
 		ValkeyExporterType:
