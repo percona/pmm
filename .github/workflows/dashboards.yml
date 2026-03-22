@@ -83,7 +83,7 @@ jobs:
         id: changed
         run: |
           git diff --name-only ${{ github.event.pull_request.base.sha }} HEAD \
-            | grep -E '^dashboards/.*\.json$' \
+            | grep -E '^dashboards/dashboards/.*\.json$' \
             | sort -u > changed_dashboards.txt || true
           echo "count=$(wc -l < changed_dashboards.txt | tr -d ' ')" >> $GITHUB_OUTPUT
 
