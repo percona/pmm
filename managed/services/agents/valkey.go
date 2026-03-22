@@ -17,12 +17,15 @@ package agents
 
 import (
 	"sort"
+	"time"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
 )
+
+const defaultValkeyTimeout = 3 * time.Second
 
 // valkeyExporterConfig returns the desired configuration of the valkey_exporter process.
 func valkeyExporterConfig(node *models.Node, service *models.Service, exporter *models.Agent, redactMode redactMode,
@@ -40,11 +43,14 @@ func valkeyExporterConfig(node *models.Node, service *models.Service, exporter *
 		args = append(args, "--web.telemetry-path="+exporter.ExporterOptions.MetricsPath)
 	}
 
-	dnsParams := models.DSNParams{
-		DialTimeout: exporter.EffectiveDialTimeout(),
-	}
+	dnsParams := models.DSNParams{}
 
 	args = append(args, "--redis.addr="+exporter.DSN(service, dnsParams, nil, pmmAgentVersion))
+	timeout := exporter.ExporterOptions.Timeout
+	if timeout == 0 {
+		timeout = defaultValkeyTimeout
+	}
+	args = append(args, "--connection-timeout="+timeout.String())
 	args = withLogLevel(args, exporter.LogLevel, pmmAgentVersion, false)
 	sort.Strings(args)
 
