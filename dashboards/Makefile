@@ -2,6 +2,9 @@ export IMPORT_DASH_HOST = http://127.0.0.1:3000
 export IMPORT_DASH_USERNAME = admin
 export IMPORT_DASH_PASSWORD = admin
 
+CLICKHOUSE_DATASOURCE_VERSION ?= 4.14.1
+POLYSTAT_PANEL_VERSION ?= 2.1.16
+
 release: install build
 
 install:
@@ -35,15 +38,15 @@ install-plugins:
 		--name grafana \
 		--platform="$${PLATFORM:-linux/amd64}" \
 		--entrypoint=/bin/bash \
-		-v "./panels":/var/lib/grafana/plugins \
+		-v "./dashboards/panels":/var/lib/grafana/plugins \
 		grafana/grafana:11.6 \
-		-c "grafana cli --pluginUrl=https://github.com/grafana/clickhouse-datasource/releases/download/v4.14.1/grafana-clickhouse-datasource-4.14.1.linux_amd64.zip plugins install grafana-clickhouse-datasource"
+		-c "grafana cli --pluginUrl=https://github.com/grafana/clickhouse-datasource/releases/download/v$(CLICKHOUSE_DATASOURCE_VERSION)/grafana-clickhouse-datasource-$(CLICKHOUSE_DATASOURCE_VERSION).linux_amd64.zip plugins install grafana-clickhouse-datasource"
 	@echo "Installing grafana-polystat-panel plugin..."
 	@docker run \
 		--rm \
 		--name grafana \
 		--platform="$${PLATFORM:-linux/amd64}" \
 		--entrypoint=/bin/bash \
-		-v "./panels":/var/lib/grafana/plugins \
+		-v "./dashboards/panels":/var/lib/grafana/plugins \
 		grafana/grafana:11.6 \
-		-c "grafana cli --pluginUrl=https://github.com/grafana/grafana-polystat-panel/releases/download/v2.1.16/grafana-polystat-panel-2.1.16.zip plugins install grafana-polystat-panel"
+		-c "grafana cli --pluginUrl=https://github.com/grafana/grafana-polystat-panel/releases/download/v$(POLYSTAT_PANEL_VERSION)/grafana-polystat-panel-$(POLYSTAT_PANEL_VERSION).zip plugins install grafana-polystat-panel"

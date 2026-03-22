@@ -9,6 +9,15 @@
 %define release         23
 %define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
 
+%define clickhouse_datasource_version 4.14.1
+%define polystat_panel_version        2.1.16
+
+%ifarch x86_64
+%define plugin_platform linux_amd64
+%else
+%define plugin_platform linux_arm64
+%endif
+
 Name:		  percona-dashboards
 Version:	%{version}
 Release:	%{rpm_release}
@@ -22,8 +31,8 @@ BuildRequires:	unzip
 Requires:	percona-grafana
 
 Source0:	https://%{provider}/archive/%{commit}/%{repo}-%{shortcommit}.tar.gz
-Source1:	https://github.com/grafana/clickhouse-datasource/releases/download/v4.14.1/grafana-clickhouse-datasource-4.14.1.linux_amd64.zip
-Source2:	https://github.com/grafana/grafana-polystat-panel/releases/download/v2.1.16/grafana-polystat-panel-2.1.16.zip
+Source1:	https://github.com/grafana/clickhouse-datasource/releases/download/v%{clickhouse_datasource_version}/grafana-clickhouse-datasource-%{clickhouse_datasource_version}.%{plugin_platform}.zip
+Source2:	https://github.com/grafana/grafana-polystat-panel/releases/download/v%{polystat_panel_version}/grafana-polystat-panel-%{polystat_panel_version}.zip
 
 %description
 This package provides a set of PMM dashboards for database and system monitoring
