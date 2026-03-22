@@ -317,7 +317,7 @@ export const AdreChatWidget: FC = () => {
             </Stack>
           </Stack>
           <Box
-            ref={(el) => setScrollRoot(el)}
+            ref={(el) => setScrollRoot(el as HTMLElement | null)}
             sx={{
               flex: 1,
               overflow: 'auto',
