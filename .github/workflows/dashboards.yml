@@ -37,8 +37,8 @@ jobs:
           path: dashboards/pmm-app/dist/
           if-no-files-found: error
 
-  unit_tests:
-    name: Unit tests
+  tests:
+    name: Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -70,8 +70,8 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
 
-  cleanup:
-    name: Cleanup check
+  check:
+    name: Check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -117,7 +117,7 @@ jobs:
           fi
 
   workflow_success:
-    needs: [unit_tests, build]
+    needs: [tests, build]
     name: Slack Notification success
     runs-on: ubuntu-latest
     env:
@@ -135,7 +135,7 @@ jobs:
 
   workflow_failure:
     if: ${{ failure() }}
-    needs: [unit_tests, build]
+    needs: [tests, build]
     name: Slack Notification failure
     runs-on: ubuntu-latest
     env:

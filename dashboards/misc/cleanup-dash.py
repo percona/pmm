@@ -87,7 +87,7 @@ def main():
                 issues.append(f"  time.to: {jv(raw_dashboard.get('time', {}).get('to'))} -> {jv(dashboard.get('time', {}).get('to'))}")
             if raw_dashboard.get('id') != dashboard.get('id'):
                 issues.append(f"  id: {jv(raw_dashboard.get('id'))} -> {jv(dashboard.get('id'))}")
-            print(f'Dashboard needs cleanup: {args.dashboard_file}')
+            print(f'Dashboard: {args.dashboard_file}')
             for issue in issues:
                 print(issue)
             exit(1)
