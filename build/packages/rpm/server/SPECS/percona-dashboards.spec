@@ -5,9 +5,8 @@
 %global provider	      github.com/percona/%{repo}
 %global commit		      ad4af6808bcd361284e8eb8cd1f36b1e98e32bce
 %global shortcommit	    %(c=%{commit}; echo ${c:0:7})
-%define build_timestamp %(date -u +"%y%m%d%H%M")
 %define release         23
-%define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
+%define rpm_release     %{release}.%{shortcommit}%{?dist}
 
 %define clickhouse_datasource_version 4.14.1
 %define polystat_panel_version        2.1.16
