@@ -152,11 +152,14 @@ export function useAdreChat() {
 
     try {
       const windowed = getWindowedHistory(history);
-      // Grafana context is sent as dashboard_context; pmm-managed appends it to additional_system_prompt.
-      // Do not rely on role=system in conversation_history — Holmes often uses only additional_system_prompt (especially with replace_system_prompt).
+      // Grafana context: pmm-managed appends dashboard_context to Holmes additional_system_prompt (authoritative for current panel).
+      // HolmesGPT still requires conversation_history[0].role === 'system' (Pydantic ChatRequest); use a short placeholder — not the full Grafana blob.
+      const holmesSystemStub =
+        'You are assisting a PMM user. The server supplies full system instructions and any current Grafana page context via additional_system_prompt.';
       const req = {
         ask: userAsk,
         conversation_history: [
+          { role: 'system', content: holmesSystemStub },
           ...windowed.map((m: ChatMessage) => ({ role: m.role, content: m.content })),
           { role: 'user', content: userAsk },
         ],

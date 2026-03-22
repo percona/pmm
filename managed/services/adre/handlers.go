@@ -414,6 +414,23 @@ func (h *Handlers) GetModels(w http.ResponseWriter, r *http.Request) {
 // maxDashboardContextBytes caps PMM UI Grafana URL context appended to additional_system_prompt (Holmes may ignore role=system in conversation_history when replace_system_prompt is true).
 const maxDashboardContextBytes = 32 * 1024
 
+// holmesChatSystemStub is prepended when conversation_history is non-empty but does not start with role=system (Holmes Pydantic ChatRequest requires it).
+const holmesChatSystemStub = "PMM session. Full system instructions and Grafana context (if any) are provided via additional_system_prompt."
+
+func ensureHolmesLeadingSystemMessage(hist []interface{}) []interface{} {
+	if len(hist) == 0 {
+		return hist
+	}
+	first, ok := hist[0].(map[string]interface{})
+	if !ok {
+		return append([]interface{}{map[string]interface{}{"role": "system", "content": holmesChatSystemStub}}, hist...)
+	}
+	if role, _ := first["role"].(string); role == "system" {
+		return hist
+	}
+	return append([]interface{}{map[string]interface{}{"role": "system", "content": holmesChatSystemStub}}, hist...)
+}
+
 // chatRequestBody is the incoming POST /v1/adre/chat body. Mode is used only server-side to pick the prompt; it is not sent to Holmes.
 type chatRequestBody struct {
 	ChatRequest
@@ -524,6 +541,7 @@ func (h *Handlers) PostChat(w http.ResponseWriter, r *http.Request) {
 		}
 		req.AdditionalSystemPrompt = strings.TrimRight(req.AdditionalSystemPrompt, "\n") + "\n\n" + dc
 	}
+	req.ConversationHistory = ensureHolmesLeadingSystemMessage(req.ConversationHistory)
 	req.ReplaceSystemPrompt = settings.Adre.ReplaceSystemPrompt
 	client := NewClient(settings.GetAdreURL())
 	if req.Stream {
