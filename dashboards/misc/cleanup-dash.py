@@ -71,7 +71,25 @@ def main():
             print('Dashboard is already cleaned up.')
             exit(0)
         else:
-            print('Dashboard needs cleanup.')
+            def jv(v):
+                return json.dumps(v)
+
+            issues = []
+            if raw_dashboard.get('editable') != dashboard.get('editable'):
+                issues.append(f"  editable: {jv(raw_dashboard.get('editable'))} -> {jv(dashboard.get('editable'))}")
+            if raw_dashboard.get('refresh') != dashboard.get('refresh'):
+                issues.append(f"  refresh: {jv(raw_dashboard.get('refresh'))} -> {jv(dashboard.get('refresh'))}")
+            if raw_dashboard.get('timezone') != dashboard.get('timezone'):
+                issues.append(f"  timezone: {jv(raw_dashboard.get('timezone'))} -> {jv(dashboard.get('timezone'))}")
+            if raw_dashboard.get('time', {}).get('from') != dashboard.get('time', {}).get('from'):
+                issues.append(f"  time.from: {jv(raw_dashboard.get('time', {}).get('from'))} -> {jv(dashboard.get('time', {}).get('from'))}")
+            if raw_dashboard.get('time', {}).get('to') != dashboard.get('time', {}).get('to'):
+                issues.append(f"  time.to: {jv(raw_dashboard.get('time', {}).get('to'))} -> {jv(dashboard.get('time', {}).get('to'))}")
+            if raw_dashboard.get('id') != dashboard.get('id'):
+                issues.append(f"  id: {jv(raw_dashboard.get('id'))} -> {jv(dashboard.get('id'))}")
+            print(f'Dashboard needs cleanup: {args.dashboard_file}')
+            for issue in issues:
+                print(issue)
             exit(1)
 
     with open(args.dashboard_file, 'w') as dashboard_file:
