@@ -52,11 +52,11 @@ func scrapeTimeout(interval time.Duration) config.Duration {
 	}
 }
 
-// applyExporterScrapeTimeout sets ScrapeTimeout from agent ExporterOptions.Timeout when set
+// exporterScrapeTimeout sets ScrapeTimeout from agent ExporterOptions.Timeout when set
 // (node / external / RDS scrape of exporter HTTP). By Prometheus rule, scrape_timeout
 // cannot exceed scrape_interval, so PMM caps it at 0.9 of scrape interval:
 // https://prometheus.io/docs/prometheus/latest/configuration/configuration/
-func applyExporterScrapeTimeout(cfg *config.ScrapeConfig, agent *models.Agent) {
+func exporterScrapeTimeout(cfg *config.ScrapeConfig, agent *models.Agent) {
 	if cfg == nil || agent == nil || agent.ExporterOptions.Timeout == 0 {
 		return
 	}
@@ -339,15 +339,15 @@ func scrapeConfigsForNodeExporter(params *scrapeConfigParams) ([]*config.ScrapeC
 
 	var r []*config.ScrapeConfig
 	if hr != nil {
-		applyExporterScrapeTimeout(hr, params.agent)
+		exporterScrapeTimeout(hr, params.agent)
 		r = append(r, hr)
 	}
 	if mr != nil {
-		applyExporterScrapeTimeout(mr, params.agent)
+		exporterScrapeTimeout(mr, params.agent)
 		r = append(r, mr)
 	}
 	if lr != nil {
-		applyExporterScrapeTimeout(lr, params.agent)
+		exporterScrapeTimeout(lr, params.agent)
 		r = append(r, lr)
 	}
 	return r, nil
@@ -613,7 +613,7 @@ func scrapeConfigsForAzureDatabase(s *models.MetricsResolutions, params *scrapeC
 		ScrapeTimeout:  scrapeTimeout(interval),
 		MetricsPath:    "/metrics",
 	}
-	applyExporterScrapeTimeout(cfg, params.agent)
+	exporterScrapeTimeout(cfg, params.agent)
 
 	port := int(*params.agent.ListenPort)
 	hostport := net.JoinHostPort(params.host, strconv.Itoa(port))
@@ -642,7 +642,7 @@ func scrapeConfigsForExternalExporter(s *models.MetricsResolutions, params *scra
 		Scheme:         params.agent.ExporterOptions.MetricsScheme,
 		MetricsPath:    params.agent.ExporterOptions.MetricsPath,
 	}
-	applyExporterScrapeTimeout(cfg, params.agent)
+	exporterScrapeTimeout(cfg, params.agent)
 
 	if pointer.GetString(params.agent.Username) != "" {
 		cfg.HTTPClientConfig.BasicAuth = &config.BasicAuth{

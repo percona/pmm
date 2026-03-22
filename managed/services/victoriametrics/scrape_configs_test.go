@@ -31,7 +31,7 @@ import (
 	"github.com/percona/pmm/version"
 )
 
-func TestApplyExporterScrapeTimeout(t *testing.T) {
+func TestExporterScrapeTimeout(t *testing.T) {
 	t.Parallel()
 
 	interval := 10 * time.Second
@@ -39,7 +39,7 @@ func TestApplyExporterScrapeTimeout(t *testing.T) {
 		t.Parallel()
 		cfg := &config.ScrapeConfig{ScrapeInterval: config.Duration(interval)}
 		agent := &models.Agent{ExporterOptions: models.ExporterOptions{Timeout: 3 * time.Second}}
-		applyExporterScrapeTimeout(cfg, agent)
+		exporterScrapeTimeout(cfg, agent)
 		assert.Equal(t, config.Duration(3*time.Second), cfg.ScrapeTimeout)
 	})
 
@@ -47,7 +47,7 @@ func TestApplyExporterScrapeTimeout(t *testing.T) {
 		t.Parallel()
 		cfg := &config.ScrapeConfig{ScrapeInterval: config.Duration(interval)}
 		agent := &models.Agent{ExporterOptions: models.ExporterOptions{Timeout: 15 * time.Second}}
-		applyExporterScrapeTimeout(cfg, agent)
+		exporterScrapeTimeout(cfg, agent)
 		assert.Equal(t, config.Duration(9*time.Second), cfg.ScrapeTimeout)
 	})
 
@@ -55,7 +55,7 @@ func TestApplyExporterScrapeTimeout(t *testing.T) {
 		t.Parallel()
 		cfg := &config.ScrapeConfig{ScrapeInterval: config.Duration(interval)}
 		agent := &models.Agent{ExporterOptions: models.ExporterOptions{Timeout: 50 * time.Microsecond}}
-		applyExporterScrapeTimeout(cfg, agent)
+		exporterScrapeTimeout(cfg, agent)
 		assert.Equal(t, config.Duration(100*time.Millisecond), cfg.ScrapeTimeout)
 	})
 
@@ -64,13 +64,13 @@ func TestApplyExporterScrapeTimeout(t *testing.T) {
 		cfg := &config.ScrapeConfig{ScrapeInterval: config.Duration(interval), ScrapeTimeout: config.Duration(time.Second)}
 		agent := &models.Agent{ExporterOptions: models.ExporterOptions{Timeout: 2 * time.Second}}
 
-		applyExporterScrapeTimeout(nil, agent)
+		exporterScrapeTimeout(nil, agent)
 		assert.Equal(t, config.Duration(time.Second), cfg.ScrapeTimeout)
 
-		applyExporterScrapeTimeout(cfg, nil)
+		exporterScrapeTimeout(cfg, nil)
 		assert.Equal(t, config.Duration(time.Second), cfg.ScrapeTimeout)
 
-		applyExporterScrapeTimeout(cfg, &models.Agent{ExporterOptions: models.ExporterOptions{}})
+		exporterScrapeTimeout(cfg, &models.Agent{ExporterOptions: models.ExporterOptions{}})
 		assert.Equal(t, config.Duration(time.Second), cfg.ScrapeTimeout)
 	})
 }
