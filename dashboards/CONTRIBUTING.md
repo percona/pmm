@@ -6,23 +6,23 @@ You can also reach us on our [Forums](https://forums.percona.com).
 
 ## Prerequisites
 
-Before submitting code or documentation contributions, you should first complete the following prerequisites.
+Before submitting code contributions or documentation updates, you should first complete the following prerequisites.
 
 ### Sign the CLA
 
-Before you can contribute, we kindly ask you to sign our [Contributor License Agreement](https://cla-assistant.percona.com/percona/grafana-dashboards) (CLA). You can do this using your GitHub account and one click.
+Before you can contribute, we kindly ask you to sign our [Contributor License Agreement](https://cla-assistant.percona.com/percona/pmm) (CLA). You can do this using your GitHub account and one click.
 
 ## Submitting a Bug
 
-If you find a bug in Percona MongoDB Exporter or one of the related projects, you should submit a report to that project's [JIRA](https://jira.percona.com) issue tracker.
+If you find a bug in Percona MongoDB Exporter or one of the related projects, you should submit a report to that project's [JIRA](https://perconadev.atlassian.net) issue tracker.
 
-Your first step should be [to search](https://jira.percona.com/issues/?jql=project=PMM%20AND%20component=MongoDB_Exporter) the existing set of open tickets for a similar report. If you find that someone else has already reported your problem, then you can upvote that report to increase its visibility.
+Your first step should be [to search](https://perconadev.atlassian.net/issues/?jql=project=PMM%20AND%20component=MongoDB_Exporter) the existing set of open tickets for a similar report. If you find that someone else has already reported your problem, then you can upvote that report to increase its visibility.
 
 If there is no existing report, submit a report following these steps:
 
-1. [Sign in to Percona JIRA.](https://jira.percona.com/login.jsp) You will need to create an account if you do not have one.
-2. [Go to the Create Issue screen and select the relevant project.](https://jira.percona.com/secure/CreateIssueDetails!init.jspa?pid=11600&issuetype=1&priority=3&components=11603)
-3. Fill in the fields of Summary, Description, Steps To Reproduce, and Affects Version to the best you can. If the bug corresponds to a crash, attach the stack trace from the logs.
+1. [Sign in to Percona JIRA.](https://perconadev.atlassian.net/login.jsp) You will need to create an account if you do not have one.
+2. [Go to the Create Issue screen.](https://perconadev.atlassian.net/projects/PMM/issues)
+3. Fill in the fields of Summary, Description, Steps To Reproduce, and Affects Version to the best you can. If it is a bug, attach the stack trace from the logs.
 
 An excellent resource is [Elika Etemad's article on filing good bug reports.](http://fantasai.inkedblade.net/style/talks/filing-good-bugs/).
 
@@ -78,7 +78,7 @@ yarn dev
     Example:
 
         git add .
-        git commit -m "PMM-5053 Add a tooltip for Head Block widget for Prometheus Dashboard"
+        git commit -m "PMM-5053 Add a tooltip for Head Block widget on Prometheus Dashboard"
 
 7.  Push your branch into your repository. Check that your branch only contains code relevant to the issue.
 
@@ -94,14 +94,14 @@ yarn dev
 
 ### Code Reviews
 
-9. After submitting your PR please add `pmm-review-fe` team as a reviewer - that would auto assign reviewers to review your PR.
+9. After submitting your PR please add `pmm-review-fe` team as a reviewer - that would auto assign reviewers to your PR.
 
-10. Your Pull Request must pass certain checks, i.e. Jenkins CI, and Contributor License Agreement.
-    You need to open the Contributor License Agreement page, read it, and confirm it.
+10. Your Pull Request must pass certain checks, such as CI linters, and Contributor License Agreement.
+    You need to open the Contributor License Agreement page, read it, and accept it.
 
 11. Wait for our experts to review your code. You may need to answer questions or to address requests for changes.
 
-12. Our Engineers will merge your branch into the release branch by themselves.
+12. Our Engineers will merge your branch into the release branch.
 
 ## After your Pull Request is merged
 
