@@ -37,14 +37,15 @@ func TestValkeyExporterConfig(t *testing.T) {
 		Address: pointer.ToString("1.2.3.4"),
 		Port:    pointer.ToUint16(6379),
 	}
-	exporter := &models.Agent{
-		AgentID:   "agent-id",
-		AgentType: models.ValkeyExporterType,
-		Username:  pointer.ToString("username"),
-		Password:  pointer.ToString("secret"),
-	}
 
 	t.Run("DefaultTimeoutUsesFlag", func(t *testing.T) {
+		t.Parallel()
+		exporter := &models.Agent{
+			AgentID:   "agent-id",
+			AgentType: models.ValkeyExporterType,
+			Username:  pointer.ToString("username"),
+			Password:  pointer.ToString("secret"),
+		}
 		actual := valkeyExporterConfig(node, service, exporter, redactSecrets, pmmAgentVersion)
 		expected := &agentv1.SetStateRequest_AgentProcess{
 			Type:               inventoryv1.AgentType_AGENT_TYPE_VALKEY_EXPORTER,
@@ -63,6 +64,13 @@ func TestValkeyExporterConfig(t *testing.T) {
 	})
 
 	t.Run("CustomTimeoutUsesFlag", func(t *testing.T) {
+		t.Parallel()
+		exporter := &models.Agent{
+			AgentID:   "agent-id",
+			AgentType: models.ValkeyExporterType,
+			Username:  pointer.ToString("username"),
+			Password:  pointer.ToString("secret"),
+		}
 		exporter.ExporterOptions.Timeout = 1500 * time.Millisecond
 
 		actual := valkeyExporterConfig(node, service, exporter, redactSecrets, pmmAgentVersion)
