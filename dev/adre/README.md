@@ -80,9 +80,9 @@ See [HolmesGPT MCP Servers](https://holmesgpt.dev/data-sources/remote-mcp-server
 
 ## Grafana context in ADRE Chat (PMM UI)
 
-The PMM shell injects **structured Grafana context** into the chat system message when the user is on Grafana routes (`/graph/d/...`, `d-solo`, `explore`, etc.): normalized path, dashboard UID, `viewPanel` when present, `from`/`to`, `var-*` parameters, optional **document title** from the iframe. Implementation: `ui/apps/pmm/src/components/adre/grafana-context.ts` (builds the fragment; `GrafanaProvider` supplies `grafanaDocumentTitle`).
+The PMM shell builds **structured Grafana context** when the user is on Grafana routes (`/graph/d/...`, `d-solo`, `explore`, etc.): normalized path, dashboard UID, `viewPanel` when present, `from`/`to`, `var-*` parameters, optional **document title** from the iframe. Implementation: `ui/apps/pmm/src/components/adre/grafana-context.ts` (fragment; `GrafanaProvider` supplies `grafanaDocumentTitle`).
 
-This reduces hallucinated “current panel” answers; models must still follow prompt rules.
+The UI sends it as **`dashboard_context`** on `POST /v1/adre/chat`. **pmm-managed** appends it to Holmes **`additional_system_prompt`** so it is not dropped when Holmes uses `replace_system_prompt` or ignores `role=system` rows in `conversation_history`.
 
 ## Holmes operator configuration (not shipped inside PMM)
 
@@ -125,7 +125,7 @@ PMM proxies requests to HolmesGPT where noted. Endpoints **require PMM authentic
 | GET | /v1/adre/settings | Get ADRE settings (includes `chat_backend`, Holmes URL flags, QAN prompt display fields, ServiceNow configured flag — no secrets in GET) |
 | POST | /v1/adre/settings | Update ADRE settings (admin); may set `servicenow_url`, `servicenow_api_key`, `servicenow_client_token` — store securely |
 | GET | /v1/adre/models | List available models from HolmesGPT when ADRE enabled |
-| POST | /v1/adre/chat | Chat; `stream: true` for SSE streaming; optional `mode` for server-side prompt selection |
+| POST | /v1/adre/chat | Chat; `stream: true` for SSE streaming; optional `mode` for server-side prompt selection; optional `dashboard_context` (Grafana URL context from PMM UI) merged into Holmes `additional_system_prompt` |
 | GET | /v1/adre/alerts | Firing alerts from Grafana Alertmanager (ADRE enabled) |
 | POST | /v1/adre/investigate | Legacy alert investigation helper (streaming supported) |
 | POST | /v1/adre/qan-insights | Body: `service_id`, `query_text` (required); optional `query_id`, `fingerprint`, `time_from`, `time_to`, `force`. Returns analysis JSON; caches by `(query_id, service_id)` when `query_id` set |

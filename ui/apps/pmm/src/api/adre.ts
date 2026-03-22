@@ -61,6 +61,8 @@ export interface AdreChatRequest {
   /** Server resolves prompt from mode; client must not send additionalSystemPrompt. */
   mode?: 'chat' | 'investigation';
   pageContext?: unknown;
+  /** Structured Grafana context; pmm-managed merges into Holmes additional_system_prompt (not dropped when replace_system_prompt is true). */
+  dashboard_context?: string;
 }
 
 export interface AdreChatResponse {

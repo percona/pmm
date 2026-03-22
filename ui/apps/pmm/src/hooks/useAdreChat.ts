@@ -152,19 +152,20 @@ export function useAdreChat() {
 
     try {
       const windowed = getWindowedHistory(history);
-      const systemContent = options?.dashboardContext
-        ? `You are a helpful AI ops assistant for Percona Monitoring and Management (PMM). ${options.dashboardContext}`
-        : 'You are a helpful AI ops assistant for Percona Monitoring and Management (PMM).';
+      // Grafana context is sent as dashboard_context; pmm-managed appends it to additional_system_prompt.
+      // Do not rely on role=system in conversation_history — Holmes often uses only additional_system_prompt (especially with replace_system_prompt).
       const req = {
         ask: userAsk,
         conversation_history: [
-          { role: 'system', content: systemContent },
           ...windowed.map((m: ChatMessage) => ({ role: m.role, content: m.content })),
           { role: 'user', content: userAsk },
         ],
         model: options?.model || undefined,
         stream: true,
         mode: options?.mode,
+        ...(options?.dashboardContext?.trim()
+          ? { dashboard_context: options.dashboardContext.trim() }
+          : {}),
       };
 
       let fullResponse = '';

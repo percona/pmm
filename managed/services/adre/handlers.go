@@ -411,10 +411,15 @@ func (h *Handlers) GetModels(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// maxDashboardContextBytes caps PMM UI Grafana URL context appended to additional_system_prompt (Holmes may ignore role=system in conversation_history when replace_system_prompt is true).
+const maxDashboardContextBytes = 32 * 1024
+
 // chatRequestBody is the incoming POST /v1/adre/chat body. Mode is used only server-side to pick the prompt; it is not sent to Holmes.
 type chatRequestBody struct {
 	ChatRequest
 	Mode *string `json:"mode,omitempty"`
+	// DashboardContext is structured Grafana context from the PMM shell (URL + rules). Merged into AdditionalSystemPrompt before calling Holmes.
+	DashboardContext string `json:"dashboard_context,omitempty"`
 }
 
 // resolvePMMAgentPrompt returns the system prompt for the PMM Agent. Empty settings value uses built-in default.
@@ -512,6 +517,12 @@ func (h *Handlers) PostChat(w http.ResponseWriter, r *http.Request) {
 		req.AdditionalSystemPrompt = resolvePMMAgentPrompt(settings)
 	} else {
 		req.AdditionalSystemPrompt = resolveChatPrompt(settings, mode)
+	}
+	if dc := strings.TrimSpace(body.DashboardContext); dc != "" {
+		if len(dc) > maxDashboardContextBytes {
+			dc = dc[:maxDashboardContextBytes] + "\n... (truncated)"
+		}
+		req.AdditionalSystemPrompt = strings.TrimRight(req.AdditionalSystemPrompt, "\n") + "\n\n" + dc
 	}
 	req.ReplaceSystemPrompt = settings.Adre.ReplaceSystemPrompt
 	client := NewClient(settings.GetAdreURL())
