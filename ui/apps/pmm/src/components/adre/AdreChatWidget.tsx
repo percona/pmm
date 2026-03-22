@@ -20,14 +20,9 @@ import rehypeRaw from 'rehype-raw';
 import { useLocation } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 import { useAdreChat, formatTimestamp, type ProgressStep, type ChatMessage } from 'hooks/useAdreChat';
+import { useGrafana } from 'contexts/grafana';
 import { getMarkdownComponents, PanelScrollRootProvider } from 'components/adre/adre-chat-markdown';
-
-function buildDashboardContext(pathname: string, search: string): string {
-  if (!pathname.includes('/graph/d/')) return '';
-  const fullUrl = `${window.location.origin}${pathname}${search}`;
-
-  return `The user is currently viewing this Grafana dashboard URL: ${fullUrl}. Use the dashboard UID, panel ID (viewPanel param), template variables (var-*), and time range (from/to) from this URL as context for your answer. If the user refers to "this graph" or "this panel", they mean the one in this URL.`;
-}
+import { buildGrafanaDashboardContext } from 'components/adre/grafana-context';
 
 interface ChatMessageBubbleProps {
   msg: ChatMessage & { streaming?: boolean };
@@ -209,6 +204,7 @@ export const AdreChatWidget: FC = () => {
   const { loading, progressSteps, allMessages, settings, response, reasoning, handleSend, clearHistory } = useAdreChat();
   const { enqueueSnackbar } = useSnackbar();
   const location = useLocation();
+  const { grafanaDocumentTitle } = useGrafana();
   const [open, setOpen] = useState(false);
   const [ask, setAsk] = useState('');
   const [expandedReasoningIdx, setExpandedReasoningIdx] = useState<number | null>(null);
@@ -246,9 +242,14 @@ export const AdreChatWidget: FC = () => {
     if (!ask.trim() || !isConfigured) return;
     const userAsk = ask;
     setAsk('');
-    const dashboardContext = buildDashboardContext(location.pathname, location.search);
+    const dashboardContext = buildGrafanaDashboardContext(
+      location.pathname,
+      location.search,
+      window.location.origin,
+      grafanaDocumentTitle,
+    );
     await handleSend(userAsk, { dashboardContext: dashboardContext || undefined });
-  }, [ask, isConfigured, location.pathname, location.search, handleSend]);
+  }, [ask, isConfigured, location.pathname, location.search, handleSend, grafanaDocumentTitle]);
 
   if (!isConfigured) return null;
 

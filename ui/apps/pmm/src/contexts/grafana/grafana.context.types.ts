@@ -5,4 +5,6 @@ export interface GrafanaContextProps {
   isOnGrafanaPage: boolean;
   isFrameLoaded: boolean;
   isFullScreen: boolean;
+  /** Last Grafana document title from iframe (for ADRE chat context). */
+  grafanaDocumentTitle: string | null;
 }

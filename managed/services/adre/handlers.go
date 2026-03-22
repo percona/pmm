@@ -493,11 +493,13 @@ func (h *Handlers) PostChat(w http.ResponseWriter, r *http.Request) {
 		mode = "investigation"
 	}
 	req := &body.ChatRequest
+	// Holmes PromptComponent names (see holmes/core/prompt.py). Invalid keys are ignored by Holmes.
+	// time_runbooks=false removes runbook catalog + _runbook_instructions from the user prompt and
+	// disables runbook sections in the system prompt for this request.
 	if settings.Adre.DisableRunbooks || mode == "chat" {
 		req.BehaviorControls = map[string]bool{
-			"fetch_runbook":          false,
+			"time_runbooks":          false,
 			"todowrite_instructions": false,
-			"runbook_instructions":   false,
 		}
 	}
 	h.l.WithFields(logrus.Fields{

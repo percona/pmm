@@ -126,7 +126,7 @@ type ChatRequest struct {
 	PageContext            interface{}   `json:"page_context,omitempty"`
 	// ReplaceSystemPrompt: when true, Holmes uses only AdditionalSystemPrompt as system message (PMM Agent mode).
 	ReplaceSystemPrompt bool `json:"replace_system_prompt,omitempty"`
-	// BehaviorControls overrides prompt components (e.g. {"todowrite_instructions": false}). Optional.
+	// BehaviorControls overrides Holmes prompt components (e.g. {"time_runbooks": false, "todowrite_instructions": false}). Keys must match holmes/core/prompt.py PromptComponent values. Optional.
 	BehaviorControls map[string]bool `json:"behavior_controls,omitempty"`
 }
 
