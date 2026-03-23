@@ -31,6 +31,16 @@ type LogLevelNoFatalFlags struct {
 	LogLevel LogLevel `name:"log-level" enum:"debug,info,warn,error" default:"warn" help:"Service logging level. One of: [${enum}]. Default: ${default}"`
 }
 
+// LogLevelFatalChangeFlags contains log level flag with "fatal" option for change commands (no default).
+type LogLevelFatalChangeFlags struct {
+	LogLevel *LogLevel `name:"log-level" enum:"debug,info,warn,error,fatal" help:"Service logging level. One of: [${enum}]. Only applied if specified."`
+}
+
+// LogLevelNoFatalChangeFlags contains log level flag without "fatal" option for change commands (no default).
+type LogLevelNoFatalChangeFlags struct {
+	LogLevel *LogLevel `name:"log-level" enum:"debug,info,warn,error" help:"Service logging level. One of: [${enum}]. Only applied if specified."`
+}
+
 // LogLevel is a structure for log level flag.
 type LogLevel string
 
