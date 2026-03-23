@@ -774,7 +774,7 @@ func (s *Server) handleInternalQANToggle(ctx context.Context, q *reform.Querier,
 		return false, fmt.Errorf("internal QAN agent not found")
 	}
 
-	newAgent, err := models.ChangeAgent(q, internalQanAgent.AgentID, &models.ChangeCommonAgentParams{
+	newAgent, err := models.ChangeAgent(q, internalQanAgent.AgentID, &models.ChangeAgentParams{
 		Enabled: enableInternalPgQan,
 	})
 	if err != nil {
