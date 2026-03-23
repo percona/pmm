@@ -60,21 +60,31 @@ const LabelWithTooltip: FC<{
 }> = ({ label, tooltip, link }) => (
   <Stack direction="row" alignItems="center" gap={0.5}>
     <Typography variant="body1">{label}</Typography>
-    <Tooltip title={tooltip} arrow>
+    <Tooltip
+      title={
+        <Typography variant="body2">
+          <Stack gap={0.5} p={1}>
+            <Box>{tooltip}</Box>
+            {link && (
+              <Link
+                href={link}
+                target="_blank"
+                rel="noopener noreferrer"
+                color="inherit"
+                variant="body2"
+              >
+                {Messages.tooltipLinkText}
+              </Link>
+            )}
+          </Stack>
+        </Typography>
+      }
+      arrow
+    >
       <IconButton size="small" sx={{ p: 0.25 }}>
         <InfoOutlinedIcon fontSize="small" />
       </IconButton>
     </Tooltip>
-    {link && (
-      <Link
-        href={link}
-        target="_blank"
-        rel="noopener noreferrer"
-        variant="body2"
-      >
-        {Messages.tooltipLinkText}
-      </Link>
-    )}
   </Stack>
 );
 
@@ -222,14 +232,31 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
           name: 'telemetry' as const,
           label: m.telemetryLabel,
           tooltip: (
-            <Stack gap={0.5}>
+            <Stack
+              gap={1}
+              maxHeight={300}
+              sx={{
+                mr: -1,
+                overflowY: 'scroll',
+                scrollbarColor: 'auto',
+              }}
+            >
               <Typography variant="body2">{m.telemetryTooltip}</Typography>
               <Typography variant="body2">{m.telemetrySummaryTitle}</Typography>
-              {(settings.telemetrySummaries ?? []).map((s) => (
-                <Typography key={s} variant="body2" component="li">
-                  {s}
-                </Typography>
-              ))}
+              <Box
+                component="ul"
+                sx={{
+                  m: 0,
+                  p: 0,
+                  pl: 2,
+                }}
+              >
+                {(settings.telemetrySummaries ?? []).map((s) => (
+                  <Typography key={s} variant="body2" component="li">
+                    {s}
+                  </Typography>
+                ))}
+              </Box>
             </Stack>
           ),
           link: m.telemetryLink,
