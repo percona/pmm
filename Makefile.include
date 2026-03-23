@@ -59,6 +59,9 @@ check-license:        ## Run license header checks against source files
 
 check-all: check-license check    ## Run linter and license checks
 
+check-new:
+	bin/golangci-lint run -c=.golangci.yml --new-from-rev=origin/v3 --new
+
 FILES = $(shell find . -type f -name '*.go')
 
 format:               ## Format source code

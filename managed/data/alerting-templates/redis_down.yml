@@ -1,0 +1,12 @@
+---
+templates:
+  - name: pmm_redis_down
+    version: 1
+    summary: Redis down
+    expr: sum by (service_name, node_name) (redis_up) == bool 0 and on(node_name) pmm_managed_inventory_agents{agent_type="valkey_exporter", disabled="0"}
+    for: 1m
+    severity: critical
+    annotations:
+      summary: Redis down ({{ $labels.service_name }})
+      description: |-
+        Redis {{ $labels.service_name }} on {{ $labels.node_name }} is down.
