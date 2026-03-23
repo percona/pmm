@@ -422,9 +422,6 @@ nav:
           - admin/security/ssl_encryption.md
           - admin/security/grafana_cookies.md
           - admin/security/data_encryption.md
-      - Percona Platform:
-          - configure-pmm/percona_platform/integrate_with_percona_platform.md
-          - configure-pmm/percona_platform/check_percona_platform.md
   - Administer:
       - admin/index.md
       - Manage users:
