@@ -76,7 +76,7 @@ pmm-admin add mysql --username root --password root instance-02 127.0.0.1:3002
 ```
 
 !!! seealso alert alert-info "See also"
-    [`pmm-admin add mysql`](../use/commands/pmm-admin/pmm-admin.md#command-reference)
+    [`pmm-admin add mysql`](../use/commands/pmm-admin/add.md)
 
 ## Can I rename instances?
 
