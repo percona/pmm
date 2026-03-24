@@ -422,6 +422,7 @@ nav:
           - admin/security/ssl_encryption.md
           - admin/security/grafana_cookies.md
           - admin/security/data_encryption.md
+          - admin/security/client_config_encryption.md
   - Administer:
       - admin/index.md
       - Manage users:
