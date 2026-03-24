@@ -2,6 +2,8 @@
 
 ADRE integrates [HolmesGPT](https://holmesgpt.dev) with PMM to provide AI-assisted database reliability analysis, chat, and alert investigation.
 
+This branch targets **HolmesGPT 0.22+**: PMM uses **`POST /api/chat` only** (no `/api/investigate`), and tunes behaviour via **`behavior_controls`** in settings.
+
 ## Prerequisites
 
 - HolmesGPT running in a container (or elsewhere) and reachable from the PMM server
@@ -15,14 +17,17 @@ ADRE integrates [HolmesGPT](https://holmesgpt.dev) with PMM to provide AI-assist
 
 HolmesGPT and PMM must be able to communicate. If using Docker or Kubernetes, ensure network policies and TLS match your security requirements.
 
-### Chat backends (`chat_backend` in PMM settings JSON)
+### Fast vs Investigation (`default_chat_mode`, `mode` on chat)
 
-| Value | Meaning |
-| ----- | ------- |
-| `holmesgpt` (default) | PMM proxies chat to the configured **HolmesGPT** base URL. |
-| `holmes_agent` | Chat goes through the **PMM Agent** path with a built-in system prompt (`agent_prompt`) and trimmed history (`chat_history_length`). |
+The ADRE panel and `POST /v1/adre/chat` use **Fast** (quick answers, minimal runbooks/TodoWrite by default) vs **Investigation** (full investigation behaviour). Differences are driven by Holmes **`behavior_controls`** maps stored in PMM settings (`behavior_controls_fast`, `behavior_controls_investigation`) plus separate **`additional_system_prompt`** texts (`chat_prompt`, `investigation_prompt`). See [Holmes fast mode / prompt controls](https://holmesgpt.dev/dev/reference/http-api/?h=fast#fast-mode--prompt-controls).
 
-Investigations and QAN insights use the Holmes client against **`Adre.URL`** (HolmesGPT URL), independent of this toggle for the floating chat widget label in the UI.
+A third map, **`behavior_controls_format_report`**, applies only to the investigation report formatting pass.
+
+**`adre_max_conversation_messages`** caps how many messages PMM sends as `conversation_history` to Holmes (mitigates context overflow when Holmes fails fast on oversized prompts).
+
+**`ENABLED_PROMPTS` on the Holmes container** can override what the HTTP API is allowed to enable; if operators set it restrictively, PMM behaviour-control toggles may appear ineffective — document this next to AI Assistant settings for your environment.
+
+Investigations and QAN insights call the Holmes client against **`Adre.URL`** only (no separate PMM Agent path).
 
 ## HolmesGPT Configuration
 
@@ -82,7 +87,7 @@ See [HolmesGPT MCP Servers](https://holmesgpt.dev/data-sources/remote-mcp-server
 
 The PMM shell builds **structured Grafana context** when the user is on Grafana routes (`/graph/d/...`, `d-solo`, `explore`, etc.): normalized path, dashboard UID, `viewPanel` when present, `from`/`to`, `var-*` parameters, optional **document title** from the iframe. Implementation: `ui/apps/pmm/src/components/adre/grafana-context.ts` (fragment; `GrafanaProvider` supplies `grafanaDocumentTitle`).
 
-The UI sends it as **`dashboard_context`** on `POST /v1/adre/chat`. **pmm-managed** appends it to Holmes **`additional_system_prompt`** so it is not dropped when Holmes uses `replace_system_prompt` or ignores `role=system` rows in `conversation_history`.
+The UI sends it as **`dashboard_context`** on `POST /v1/adre/chat`. **pmm-managed** appends it to Holmes **`additional_system_prompt`** (alongside the mode-specific prompt).
 
 ## Holmes operator configuration (not shipped inside PMM)
 
@@ -122,12 +127,11 @@ PMM proxies requests to HolmesGPT where noted. Endpoints **require PMM authentic
 
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | /v1/adre/settings | Get ADRE settings (includes `chat_backend`, Holmes URL flags, QAN prompt display fields, ServiceNow configured flag — no secrets in GET) |
+| GET | /v1/adre/settings | Get ADRE settings (Holmes URL, `behavior_controls_*`, prompts, `adre_max_conversation_messages`, QAN prompt display fields, ServiceNow configured flag — no secrets in GET) |
 | POST | /v1/adre/settings | Update ADRE settings (admin); may set `servicenow_url`, `servicenow_api_key`, `servicenow_client_token` — store securely |
 | GET | /v1/adre/models | List available models from HolmesGPT when ADRE enabled |
-| POST | /v1/adre/chat | Chat; `stream: true` for SSE streaming; optional `mode` for server-side prompt selection; optional `dashboard_context` (Grafana URL context from PMM UI) merged into Holmes `additional_system_prompt` |
+| POST | /v1/adre/chat | Chat; `stream: true` for SSE streaming; optional `mode`: `fast` or `investigation` (legacy `chat` treated as `fast`); optional `dashboard_context` merged into Holmes `additional_system_prompt` |
 | GET | /v1/adre/alerts | Firing alerts from Grafana Alertmanager (ADRE enabled) |
-| POST | /v1/adre/investigate | Legacy alert investigation helper (streaming supported) |
 | POST | /v1/adre/qan-insights | Body: `service_id`, `query_text` (required); optional `query_id`, `fingerprint`, `time_from`, `time_to`, `force`. Returns analysis JSON; caches by `(query_id, service_id)` when `query_id` set |
 | GET | /v1/adre/qan-insights | Query params: `query_id`, `service_id` — returns cached analysis or 404 |
 | GET | /v1/grafana/render | Panel PNG or JSON (`format=json`); see section above |

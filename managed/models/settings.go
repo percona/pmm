@@ -38,6 +38,8 @@ const (
 	AdreEnabledDefault                 = false
 	AdrePromptMaxBytes                 = 16 * 1024
 	AdrePromptMaxBytesHardMax          = 64 * 1024
+	// AdreSchemaVersionCurrent is bumped when a one-way ADRE settings migration runs in fillDefaults.
+	AdreSchemaVersionCurrent = 2
 	awsPartitionID                     = "aws"
 )
 
@@ -110,23 +112,22 @@ type Settings struct {
 		URL                 string `json:"url"`
 		ChatPrompt          string `json:"chat_prompt"`
 		InvestigationPrompt string `json:"investigation_prompt"`
-		DefaultChatMode     string `json:"default_chat_mode"`
-		// ChatBackend: "holmesgpt" = direct Holmes Agent; "holmes_agent" = PMM Agent (Holmes with replace_system_prompt).
-		ChatBackend string `json:"chat_backend"`
-		// ChatHistoryLength is the max number of messages to send to the PMM Agent (trimmed from conversation_history). Used when ChatBackend is holmes_agent.
-		ChatHistoryLength int `json:"chat_history_length"`
-		// AgentPrompt is the system prompt for the PMM Agent when ChatBackend is holmes_agent. Empty = use built-in default.
-		AgentPrompt string `json:"agent_prompt"`
+		// DefaultChatMode: "fast" or "investigation" (legacy "chat" is migrated to "fast" in fillDefaults).
+		DefaultChatMode string `json:"default_chat_mode"`
+		// BehaviorControlsFast / Investigation / FormatReport are Holmes behavior_controls maps (see Holmes HTTP API). Empty map uses PMM shipped presets when sending to Holmes.
+		BehaviorControlsFast          map[string]bool `json:"behavior_controls_fast,omitempty"`
+		BehaviorControlsInvestigation map[string]bool `json:"behavior_controls_investigation,omitempty"`
+		BehaviorControlsFormatReport  map[string]bool `json:"behavior_controls_format_report,omitempty"`
+		// AdreMaxConversationMessages caps messages sent in conversation_history to Holmes (0 = default 40).
+		AdreMaxConversationMessages int `json:"adre_max_conversation_messages"`
+		// AdreSchemaVersion bumps when a one-way settings migration runs (e.g. prompt reset).
+		AdreSchemaVersion int `json:"adre_schema_version"`
 		// QanInsightsPrompt is the system prompt for QAN AI Insights (query analytics and optimization). Empty = use built-in default.
 		QanInsightsPrompt string `json:"qan_insights_prompt"`
-		// ReplaceSystemPrompt: when true, Holmes uses only the PMM-provided prompt as the system message (replaces Holmes' default prompt).
-		ReplaceSystemPrompt bool `json:"replace_system_prompt"`
 		// ServiceNow integration fields.
 		ServiceNowURL         string `json:"servicenow_url"`
 		ServiceNowAPIKey      string `json:"servicenow_api_key"`
 		ServiceNowClientToken string `json:"servicenow_client_token"`
-		// DisableRunbooks: when true, chat mode will not call fetch_runbook or use todowrite_instructions.
-		DisableRunbooks bool `json:"disable_runbooks"`
 		// PromptMaxBytes defines max prompt size for ADRE prompts (bytes).
 		PromptMaxBytes int `json:"prompt_max_bytes"`
 	} `json:"adre"`
@@ -314,13 +315,36 @@ func (s *Settings) fillDefaults() {
 	if s.Adre.Enabled == nil {
 		s.Adre.Enabled = pointer.ToBool(AdreEnabledDefault)
 	}
+	if s.Adre.AdreSchemaVersion < AdreSchemaVersionCurrent {
+		// One-way migration: new behavior_controls model, Fast/Investigation prompts reset to built-in defaults (empty = use code defaults).
+		s.Adre.ChatPrompt = ""
+		s.Adre.InvestigationPrompt = ""
+		if s.Adre.DefaultChatMode == "" || s.Adre.DefaultChatMode == "chat" {
+			s.Adre.DefaultChatMode = "fast"
+		}
+		s.Adre.BehaviorControlsFast = map[string]bool{
+			"time_runbooks":          false,
+			"todowrite_instructions": false,
+			"todowrite_reminder":     false,
+		}
+		s.Adre.BehaviorControlsFormatReport = map[string]bool{
+			"time_runbooks":          false,
+			"todowrite_instructions": false,
+			"todowrite_reminder":     false,
+		}
+		s.Adre.BehaviorControlsInvestigation = nil
+		if s.Adre.AdreMaxConversationMessages <= 0 {
+			s.Adre.AdreMaxConversationMessages = 40
+		}
+		s.Adre.AdreSchemaVersion = AdreSchemaVersionCurrent
+	}
 	if s.Adre.DefaultChatMode == "" {
-		s.Adre.DefaultChatMode = "chat"
+		s.Adre.DefaultChatMode = "fast"
 	}
-	if s.Adre.ChatBackend == "" {
-		s.Adre.ChatBackend = "holmesgpt"
+	if s.Adre.DefaultChatMode == "chat" {
+		s.Adre.DefaultChatMode = "fast"
 	}
-	if s.Adre.ChatHistoryLength <= 0 {
-		s.Adre.ChatHistoryLength = 20
+	if s.Adre.AdreMaxConversationMessages <= 0 {
+		s.Adre.AdreMaxConversationMessages = 40
 	}
 }

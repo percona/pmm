@@ -33,6 +33,6 @@ Existing ADRE (HolmesGPT) integration provides the HolmesGPT client and alerts; 
 
 The shipped UI includes **both** **ADRE Chat** (floating widget) and **Investigations**; ADRE direct chat was not removed.
 
-Investigation **chat** and **run** are implemented against the configured **HolmesGPT** URL (`adre.Client`) and/or the **PMM Agent** (`holmes_agent`) path in PMM settings, not a separate in-repo Ollama orchestrator service. See `managed/services/investigations/chat.go` and [dev/investigations/README.md](https://github.com/percona/pmm/blob/v3/dev/investigations/README.md) for the actual request flow.
+Investigation **chat** and **run** are implemented against the configured **HolmesGPT** URL (`adre.Client`) via **`POST /api/chat`**, with prompts and **`behavior_controls`** from PMM settings — not a separate in-repo Ollama orchestrator service. See `managed/services/investigations/chat.go` and [dev/investigations/README.md](https://github.com/percona/pmm/blob/v3/dev/investigations/README.md) for the actual request flow.
 
 End-user overview: [AI features — Investigations](../use/ai-features/investigations.md).

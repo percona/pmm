@@ -22,6 +22,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/adre"
 )
 
@@ -52,16 +53,16 @@ type Section struct {
 	Content string `json:"content"`
 }
 
-// FormatInvestigationReport calls Holmes Chat with replace_system_prompt to convert raw markdown into structured JSON.
-func FormatInvestigationReport(ctx context.Context, client *adre.Client, rawMarkdown string) ([]byte, error) {
+// FormatInvestigationReport calls Holmes Chat to convert raw markdown into structured JSON.
+func FormatInvestigationReport(ctx context.Context, client *adre.Client, settings *models.Settings, rawMarkdown string) ([]byte, error) {
 	ctx, cancel := context.WithTimeout(ctx, formatReportTimeout)
 	defer cancel()
 
 	ask := "Convert the following investigation report into JSON:\n\n```\n" + rawMarkdown + "\n```"
 	req := &adre.ChatRequest{
 		Ask:                    ask,
-		ReplaceSystemPrompt:    true,
 		AdditionalSystemPrompt: adre.InvestigationFormatPrompt,
+		BehaviorControls:       adre.ResolveBehaviorControlsForFormatReport(settings),
 		Stream:                 false,
 	}
 

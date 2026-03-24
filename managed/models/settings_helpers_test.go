@@ -59,9 +59,19 @@ func TestSettings(t *testing.T) {
 		expected.Updates.SnoozeDuration = models.DefaultSnoozeDuration
 		expected.Otel.LogsRetentionDays = pointer.ToInt(models.OtelLogsRetentionDaysDefault)
 		expected.Adre.Enabled = pointer.ToBool(models.AdreEnabledDefault)
-		expected.Adre.DefaultChatMode = "chat"
-		expected.Adre.ChatBackend = "holmesgpt"
-		expected.Adre.ChatHistoryLength = 20
+		expected.Adre.DefaultChatMode = "fast"
+		expected.Adre.AdreSchemaVersion = models.AdreSchemaVersionCurrent
+		expected.Adre.AdreMaxConversationMessages = 40
+		expected.Adre.BehaviorControlsFast = map[string]bool{
+			"time_runbooks":            false,
+			"todowrite_instructions": false,
+			"todowrite_reminder":       false,
+		}
+		expected.Adre.BehaviorControlsFormatReport = map[string]bool{
+			"time_runbooks":            false,
+			"todowrite_instructions": false,
+			"todowrite_reminder":       false,
+		}
 		assert.Equal(t, expected, actual)
 	})
 
@@ -89,9 +99,19 @@ func TestSettings(t *testing.T) {
 		expected.Updates.SnoozeDuration = models.DefaultSnoozeDuration
 		expected.Otel.LogsRetentionDays = pointer.ToInt(models.OtelLogsRetentionDaysDefault)
 		expected.Adre.Enabled = pointer.ToBool(models.AdreEnabledDefault)
-		expected.Adre.DefaultChatMode = "chat"
-		expected.Adre.ChatBackend = "holmesgpt"
-		expected.Adre.ChatHistoryLength = 20
+		expected.Adre.DefaultChatMode = "fast"
+		expected.Adre.AdreSchemaVersion = models.AdreSchemaVersionCurrent
+		expected.Adre.AdreMaxConversationMessages = 40
+		expected.Adre.BehaviorControlsFast = map[string]bool{
+			"time_runbooks":            false,
+			"todowrite_instructions": false,
+			"todowrite_reminder":       false,
+		}
+		expected.Adre.BehaviorControlsFormatReport = map[string]bool{
+			"time_runbooks":            false,
+			"todowrite_instructions": false,
+			"todowrite_reminder":       false,
+		}
 		assert.Equal(t, expected, s)
 	})
 

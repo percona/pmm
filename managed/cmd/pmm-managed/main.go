@@ -217,7 +217,6 @@ func addAdreHandlers(mux *http.ServeMux, db reform.DBTX, grafanaAlertsFetch adre
 	mux.HandleFunc("/v1/adre/models", h.GetModels)
 	mux.HandleFunc("/v1/adre/chat", h.PostChat)
 	mux.HandleFunc("/v1/adre/alerts", h.GetAlerts)
-	mux.HandleFunc("/v1/adre/investigate", h.PostInvestigate)
 	mux.HandleFunc("/v1/adre/qan-insights", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:

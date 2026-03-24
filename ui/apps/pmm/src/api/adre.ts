@@ -1,5 +1,24 @@
 import { api } from './api';
 
+/** Holmes behavior_controls keys supported by PMM (see Holmes HTTP API — fast mode / prompt controls). */
+export const ADRE_BEHAVIOR_CONTROL_KEYS = [
+  'intro',
+  'ask_user',
+  'todowrite_instructions',
+  'todowrite_reminder',
+  'ai_safety',
+  'toolset_instructions',
+  'permission_errors',
+  'general_instructions',
+  'style_guide',
+  'cluster_name',
+  'system_prompt_additions',
+  'files',
+  'time_runbooks',
+] as const;
+
+export type AdreBehaviorControlsMap = Partial<Record<(typeof ADRE_BEHAVIOR_CONTROL_KEYS)[number], boolean>>;
+
 export interface AdreSettings {
   enabled: boolean;
   url: string;
@@ -9,26 +28,25 @@ export interface AdreSettings {
   chatPromptDisplay?: string;
   /** Display value when investigation_prompt is empty (built-in default). */
   investigationPromptDisplay?: string;
-  defaultChatMode?: 'chat' | 'investigation';
-  /** "holmesgpt" = Holmes Agent (direct); "holmes_agent" = PMM Agent (Holmes with replace_system_prompt). */
-  chatBackend?: 'holmesgpt' | 'holmes_agent';
-  /** Max messages sent to PMM Agent (5–100). Used when chatBackend is holmes_agent. */
-  chatHistoryLength?: number;
-  /** System prompt for PMM Agent when chatBackend is holmes_agent. Empty = use built-in default. */
-  agentPrompt?: string;
-  /** Display value when agent_prompt is empty (built-in default). */
-  agentPromptDisplay?: string;
-  /** Backend may return snake_case; frontend may use either. */
-  chat_history_length?: number;
+  /** Default ADRE panel mode when the UI does not override. */
+  defaultChatMode?: 'fast' | 'investigation' | 'chat';
+  default_chat_mode?: string;
+  /** Holmes behavior_controls for Fast mode. Empty {} uses PMM shipped preset when calling Holmes. */
+  behaviorControlsFast?: AdreBehaviorControlsMap;
+  behavior_controls_fast?: Record<string, boolean>;
+  behaviorControlsInvestigation?: AdreBehaviorControlsMap;
+  behavior_controls_investigation?: Record<string, boolean>;
+  behaviorControlsFormatReport?: AdreBehaviorControlsMap;
+  behavior_controls_format_report?: Record<string, boolean>;
+  /** Max messages in conversation_history sent to Holmes (4–200; 0 = server default). */
+  adreMaxConversationMessages?: number;
+  adre_max_conversation_messages?: number;
   /** System prompt for QAN AI Insights. Empty = use built-in default. */
   qanInsightsPrompt?: string;
   /** Display value when qan_insights_prompt is empty (built-in default). */
   qanInsightsPromptDisplay?: string;
   qan_insights_prompt?: string;
   qan_insights_prompt_display?: string;
-  /** When true, Holmes uses only the PMM-provided prompt (replaces Holmes' default system prompt). */
-  replaceSystemPrompt?: boolean;
-  replace_system_prompt?: boolean;
   /** ServiceNow Percona Connector API URL. */
   servicenowUrl?: string;
   servicenow_url?: string;
@@ -41,9 +59,6 @@ export interface AdreSettings {
   /** True when URL + API key + client token are all configured server-side. */
   servicenowConfigured?: boolean;
   servicenow_configured?: boolean;
-  /** When true, chat mode will not call fetch_runbook or use todowrite_instructions. */
-  disableRunbooks?: boolean;
-  disable_runbooks?: boolean;
   /** Max bytes allowed for ADRE prompts. */
   promptMaxBytes?: number;
   prompt_max_bytes?: number;
@@ -58,10 +73,10 @@ export interface AdreChatRequest {
   conversation_history?: unknown[];
   model?: string;
   stream?: boolean;
-  /** Server resolves prompt from mode; client must not send additionalSystemPrompt. */
-  mode?: 'chat' | 'investigation';
+  /** Server resolves prompt and behavior_controls from mode; client must not send additionalSystemPrompt. */
+  mode?: 'fast' | 'investigation' | 'chat';
   pageContext?: unknown;
-  /** Structured Grafana context; pmm-managed merges into Holmes additional_system_prompt (not dropped when replace_system_prompt is true). */
+  /** Structured Grafana context; pmm-managed merges into Holmes additional_system_prompt. */
   dashboard_context?: string;
 }
 
@@ -70,23 +85,6 @@ export interface AdreChatResponse {
   conversationHistory?: unknown[];
   toolCalls?: unknown[];
   followUpActions?: unknown[];
-}
-
-export interface AdreInvestigateRequest {
-  source: string;
-  title: string;
-  description: string;
-  subject?: unknown;
-  context?: unknown;
-  model?: string;
-  stream?: boolean;
-}
-
-export interface AdreInvestigateResponse {
-  analysis: string;
-  sections?: Record<string, string>;
-  toolCalls?: unknown[];
-  instructions?: unknown[];
 }
 
 export interface AdreQanInsightsRequest {
@@ -290,53 +288,6 @@ export function getAlertMetadataFromLabels(
     severity: labels.severity ?? labels.Severity ?? undefined,
   };
 }
-
-export const adreInvestigate = async (
-  body: AdreInvestigateRequest
-): Promise<AdreInvestigateResponse> => {
-  const res = await api.post<AdreInvestigateResponse>('/adre/investigate', body);
-  return res.data;
-};
-
-/** Callback for adreInvestigateStream: receives content chunks and/or reasoning chunks. */
-export type AdreInvestigateStreamCallback = (content?: string, reasoning?: string) => void;
-
-export const adreInvestigateStream = async (
-  body: AdreInvestigateRequest,
-  onChunk: AdreInvestigateStreamCallback
-): Promise<void> => {
-  const response = await fetch('/v1/adre/investigate', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({ ...body, stream: true }),
-  });
-  if (!response.ok) {
-    const err = await response.json().catch(() => ({}));
-    throw new Error(err.error || `Investigate failed: ${response.status}`);
-  }
-  const reader = response.body?.getReader();
-  if (!reader) throw new Error('No response body');
-  const decoder = new TextDecoder();
-  let buffer = '';
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split('\n');
-    buffer = lines.pop() || '';
-    for (const line of lines) {
-      if (line.startsWith('data: ')) {
-        const data = line.slice(6);
-        if (data !== '[DONE]' && data.trim()) {
-          const parsed = parseSSEData(data);
-          if (parsed.content) onChunk(parsed.content);
-          if (parsed.reasoning) onChunk(undefined, parsed.reasoning);
-        }
-      }
-    }
-  }
-};
 
 /** Parses SSE data; returns content and/or reasoning from common Holmes/LLM stream fields. */
 function parseSSEData(data: string): { content?: string; reasoning?: string } {

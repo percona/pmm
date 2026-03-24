@@ -18,6 +18,7 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"maps"
 	"strings"
 	"time"
 
@@ -28,6 +29,32 @@ import (
 
 	"github.com/percona/pmm/managed/utils/validators"
 )
+
+// adreBehaviorControlAllowed keys accepted in ADRE behavior_controls maps (keep in sync with adre.KnownBehaviorControlKeys).
+var adreBehaviorControlAllowed = map[string]struct{}{
+	"intro":                   {},
+	"ask_user":                {},
+	"todowrite_instructions":  {},
+	"todowrite_reminder":      {},
+	"ai_safety":               {},
+	"toolset_instructions":    {},
+	"permission_errors":       {},
+	"general_instructions":    {},
+	"style_guide":             {},
+	"cluster_name":            {},
+	"system_prompt_additions": {},
+	"files":                   {},
+	"time_runbooks":           {},
+}
+
+func validateAdreBehaviorControlsMap(field string, m map[string]bool) error {
+	for k := range m {
+		if _, ok := adreBehaviorControlAllowed[k]; !ok {
+			return errors.Errorf("%s: unknown behavior_controls key %q", field, k)
+		}
+	}
+	return nil
+}
 
 // ErrTxRequired is returned when a transaction is required.
 var ErrTxRequired = errors.New("TxRequired")
@@ -113,24 +140,20 @@ type ChangeSettingsParams struct {
 	AdreChatPrompt *string
 	// AdreInvestigationPrompt is the system prompt for investigation mode. Max 4096 bytes.
 	AdreInvestigationPrompt *string
-	// AdreDefaultChatMode is the default mode when UI does not send one: "chat" or "investigation".
+	// AdreDefaultChatMode is the default mode when UI does not send one: "fast" or "investigation".
 	AdreDefaultChatMode *string
-	// ChatBackend: "holmesgpt" or "holmes_agent".
-	ChatBackend *string
-	// ChatHistoryLength: max messages to send to PMM Agent (5-100). Used when ChatBackend is holmes_agent.
-	ChatHistoryLength *int
-	// AgentPrompt: system prompt for PMM Agent when ChatBackend is holmes_agent. Max AdrePromptMaxBytes.
-	AgentPrompt *string
+	// AdreBehaviorControlsFast / Investigation / FormatReport: Holmes behavior_controls maps. Nil = no change.
+	AdreBehaviorControlsFast          *map[string]bool
+	AdreBehaviorControlsInvestigation *map[string]bool
+	AdreBehaviorControlsFormatReport  *map[string]bool
+	// AdreMaxConversationMessages: cap on conversation_history messages to Holmes (0 = default 40; nil = no change).
+	AdreMaxConversationMessages *int
 	// AdreQanInsightsPrompt: system prompt for QAN AI Insights. Max AdrePromptMaxBytes.
 	AdreQanInsightsPrompt *string
-	// ReplaceSystemPrompt: when true, Holmes uses only the PMM-provided prompt (replaces Holmes' default).
-	ReplaceSystemPrompt *bool
 	// ServiceNow integration fields.
 	ServiceNowURL         *string
 	ServiceNowAPIKey      *string
 	ServiceNowClientToken *string
-	// DisableRunbooks: when true, chat mode will not call fetch_runbook.
-	DisableRunbooks *bool
 	// PromptMaxBytes defines max prompt size for ADRE prompts.
 	PromptMaxBytes *int
 }
@@ -290,22 +313,26 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 		settings.Adre.InvestigationPrompt = pointer.GetString(params.AdreInvestigationPrompt)
 	}
 	if params.AdreDefaultChatMode != nil {
-		settings.Adre.DefaultChatMode = pointer.GetString(params.AdreDefaultChatMode)
+		mode := strings.TrimSpace(pointer.GetString(params.AdreDefaultChatMode))
+		if mode == "chat" {
+			mode = "fast"
+		}
+		settings.Adre.DefaultChatMode = mode
 	}
-	if params.ChatBackend != nil {
-		settings.Adre.ChatBackend = pointer.GetString(params.ChatBackend)
+	if params.AdreBehaviorControlsFast != nil {
+		settings.Adre.BehaviorControlsFast = maps.Clone(*params.AdreBehaviorControlsFast)
 	}
-	if params.ChatHistoryLength != nil {
-		settings.Adre.ChatHistoryLength = *params.ChatHistoryLength
+	if params.AdreBehaviorControlsInvestigation != nil {
+		settings.Adre.BehaviorControlsInvestigation = maps.Clone(*params.AdreBehaviorControlsInvestigation)
 	}
-	if params.AgentPrompt != nil {
-		settings.Adre.AgentPrompt = pointer.GetString(params.AgentPrompt)
+	if params.AdreBehaviorControlsFormatReport != nil {
+		settings.Adre.BehaviorControlsFormatReport = maps.Clone(*params.AdreBehaviorControlsFormatReport)
+	}
+	if params.AdreMaxConversationMessages != nil {
+		settings.Adre.AdreMaxConversationMessages = *params.AdreMaxConversationMessages
 	}
 	if params.AdreQanInsightsPrompt != nil {
 		settings.Adre.QanInsightsPrompt = pointer.GetString(params.AdreQanInsightsPrompt)
-	}
-	if params.ReplaceSystemPrompt != nil {
-		settings.Adre.ReplaceSystemPrompt = *params.ReplaceSystemPrompt
 	}
 	if params.ServiceNowURL != nil {
 		settings.Adre.ServiceNowURL = pointer.GetString(params.ServiceNowURL)
@@ -315,9 +342,6 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	}
 	if params.ServiceNowClientToken != nil {
 		settings.Adre.ServiceNowClientToken = pointer.GetString(params.ServiceNowClientToken)
-	}
-	if params.DisableRunbooks != nil {
-		settings.Adre.DisableRunbooks = *params.DisableRunbooks
 	}
 	if params.PromptMaxBytes != nil {
 		settings.Adre.PromptMaxBytes = *params.PromptMaxBytes
@@ -407,25 +431,31 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 		return errors.Errorf("investigation_prompt: max %d bytes", AdrePromptMaxBytes)
 	}
 	if params.AdreDefaultChatMode != nil {
-		mode := *params.AdreDefaultChatMode
-		if mode != "chat" && mode != "investigation" {
-			return errors.New("default_chat_mode: must be \"chat\" or \"investigation\"")
+		mode := strings.TrimSpace(*params.AdreDefaultChatMode)
+		if mode != "chat" && mode != "fast" && mode != "investigation" {
+			return errors.New(`default_chat_mode: must be "fast" or "investigation"`)
 		}
 	}
-	if params.ChatBackend != nil {
-		cb := strings.TrimSpace(*params.ChatBackend)
-		if cb != "holmesgpt" && cb != "holmes_agent" {
-			return errors.New("chat_backend: must be \"holmesgpt\" or \"holmes_agent\"")
+	if params.AdreMaxConversationMessages != nil {
+		n := *params.AdreMaxConversationMessages
+		if n != 0 && (n < 4 || n > 200) {
+			return errors.New("adre_max_conversation_messages: must be between 4 and 200, or 0 for default")
 		}
 	}
-	if params.ChatHistoryLength != nil {
-		n := *params.ChatHistoryLength
-		if n < 5 || n > 100 {
-			return errors.New("chat_history_length: must be between 5 and 100")
+	if params.AdreBehaviorControlsFast != nil {
+		if err := validateAdreBehaviorControlsMap("behavior_controls_fast", *params.AdreBehaviorControlsFast); err != nil {
+			return err
 		}
 	}
-	if params.AgentPrompt != nil && len(*params.AgentPrompt) > AdrePromptMaxBytes {
-		return errors.Errorf("agent_prompt: max %d bytes", AdrePromptMaxBytes)
+	if params.AdreBehaviorControlsInvestigation != nil {
+		if err := validateAdreBehaviorControlsMap("behavior_controls_investigation", *params.AdreBehaviorControlsInvestigation); err != nil {
+			return err
+		}
+	}
+	if params.AdreBehaviorControlsFormatReport != nil {
+		if err := validateAdreBehaviorControlsMap("behavior_controls_format_report", *params.AdreBehaviorControlsFormatReport); err != nil {
+			return err
+		}
 	}
 	if params.AdreQanInsightsPrompt != nil && len(*params.AdreQanInsightsPrompt) > AdrePromptMaxBytes {
 		return errors.Errorf("qan_insights_prompt: max %d bytes", AdrePromptMaxBytes)

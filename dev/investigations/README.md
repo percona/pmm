@@ -9,12 +9,11 @@ This file is **not** part of the published Percona MkDocs site; it lives next to
 - **ADR-001** — [0001-pmm-ai-investigations.md](../../documentation/docs/adr/0001-pmm-ai-investigations.md) (original orchestrator/Ollama narrative; see note below).
 - **ADR-002** — [0002-investigations-data-model-and-api.md](../../documentation/docs/adr/0002-investigations-data-model-and-api.md) (data model and REST shape).
 
-**Implementation note:** The current **tibi-holmes** line drives investigation **chat** and **run** primarily through **HolmesGPT** (`adre.NewClient(settings.GetAdreURL())`) or the **PMM Agent** path (`holmes_agent` chat backend), using prompts stored in PMM settings (`investigation_prompt`, etc.). A separate Ollama orchestrator process is **not** required for that deployment model. ADR-001 remains historical context; align product docs with the code path you ship.
+**Implementation note:** Investigation **chat** and **run** use **HolmesGPT** only (`adre.NewClient(settings.GetAdreURL())`): `POST /api/chat` with `investigation_prompt`, **`behavior_controls_investigation`**, and (for the formatting pass) **`behavior_controls_format_report`**. A separate Ollama orchestrator process is **not** required for that deployment model. ADR-001 remains historical context; align product docs with the code path you ship.
 
 ## Prerequisites
 
 - **HolmesGPT URL** configured in PMM **AI Assistant / ADRE** settings (`GetAdreURL()` non-empty). Chat and run return HTTP 400 if missing.
-- **Chat backend** `holmesgpt` or `holmes_agent` (validated in handlers).
 
 ## REST API summary
 
@@ -33,7 +32,7 @@ All routes are prefixed with `/v1/investigations`. Authenticate like other PMM A
 | GET/POST | `/v1/investigations/:id/artifacts` | Artifacts |
 | GET/POST | `/v1/investigations/:id/comments` | Comments |
 | GET | `/v1/investigations/:id/messages` | Chat message history |
-| POST | `/v1/investigations/:id/chat` | One chat round (Holmes or PMM Agent) |
+| POST | `/v1/investigations/:id/chat` | One chat round (Holmes `/api/chat`) |
 | POST | `/v1/investigations/:id/run` | Start background **Run investigation** (202 Accepted) |
 | GET | `/v1/investigations/:id/export/pdf` | Download PDF report |
 | POST | `/v1/investigations/:id/servicenow` | Create ServiceNow ticket (requires settings) |
@@ -42,20 +41,18 @@ Details and JSON shapes: **ADR-002** and `managed/services/investigations/handle
 
 ## Chat flow (`POST .../chat`)
 
-1. Load investigation; validate Holmes URL and chat backend.
+1. Load investigation; validate Holmes URL.
 2. Persist the user `message`.
 3. Build `conversation_history` from stored messages (roles `user`, `assistant`, `tool`).
-4. If `chat_backend` is **`holmesgpt`**: call `adre.Client.Chat` with investigation context in the system prompt.
-5. If **`holmes_agent`**: call `adre.RunPMMAgentChatSync` with the same history semantics.
-6. Persist assistant reply; return `{ "content": "..." }`.
+4. Call `adre.Client.Chat` with investigation context, **`behavior_controls_investigation`**, and trimmed history (`adre_max_conversation_messages`).
+5. Persist assistant reply; return `{ "content": "..." }`.
 
 ## Run investigation (`POST .../run`)
 
 Returns **202** immediately; work continues in `runInvestigationBackground`:
 
-1. Calls Holmes **`Investigate`** if available, else falls back to **`Chat`** with a structured ask.
-2. For **`holmes_agent`**, uses a long instruction that drives tools (e.g. `ask_holmes`) and report generation per PMM Agent behaviour.
-3. **`FormatInvestigationReport`** — second LLM pass via `adre.Client` to normalize markdown into JSON sections.
+1. Calls Holmes **`Chat`** (`/api/chat`) with a structured ask, investigation prompt, context, and **`behavior_controls_investigation`**.
+2. **`FormatInvestigationReport`** — second LLM pass via `adre.Client.Chat` with **`behavior_controls_format_report`** to normalize markdown into JSON sections.
 4. **`ParseFormattedReport`** — creates **blocks** and **timeline** rows; updates investigation summary fields.
 
 Timeouts: **5 minutes** for run and chat (see `investigationRunTimeout` / `investigationChatTimeout` in `chat.go`).
@@ -87,7 +84,7 @@ sequenceDiagram
   participant Holmes as HolmesGPT
   UI->>PMM: POST /v1/investigations/:id/run
   PMM-->>UI: 202 Accepted
-  PMM->>Holmes: Investigate or Chat
+  PMM->>Holmes: Chat (/api/chat)
   Holmes-->>PMM: analysis markdown
   PMM->>Holmes: Format report (Chat)
   Holmes-->>PMM: structured JSON

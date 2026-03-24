@@ -6,7 +6,8 @@ import { clearPanelImageCache } from 'components/adre/adre-chat-markdown';
 
 const STORAGE_KEY = 'pmm-adre-chat';
 const CHAT_HISTORY_WINDOW_MS = 24 * 60 * 60 * 1000;
-const CHAT_HISTORY_MAX_MESSAGES = 30;
+/** Align with pmm-managed AdreMaxConversationMessagesDefault (context overflow guard). */
+const CHAT_HISTORY_MAX_MESSAGES = 40;
 
 export type ProgressStep = { id: string; toolName: string; description?: string; status: 'running' | 'done' };
 
@@ -117,7 +118,7 @@ function persistAssistantToHistory(
 
 export interface SendOptions {
   model?: string;
-  mode?: 'chat' | 'investigation';
+  mode?: 'fast' | 'investigation' | 'chat';
   dashboardContext?: string;
 }
 
@@ -156,6 +157,13 @@ export function useAdreChat() {
       // HolmesGPT still requires conversation_history[0].role === 'system' (Pydantic ChatRequest); use a short placeholder — not the full Grafana blob.
       const holmesSystemStub =
         'You are assisting a PMM user. The server supplies full system instructions and any current Grafana page context via additional_system_prompt.';
+      const modeRaw = options?.mode;
+      const mode: 'fast' | 'investigation' | undefined =
+        modeRaw === 'investigation'
+          ? 'investigation'
+          : modeRaw === 'chat' || modeRaw === 'fast'
+            ? 'fast'
+            : undefined;
       const req = {
         ask: userAsk,
         conversation_history: [
@@ -165,7 +173,7 @@ export function useAdreChat() {
         ],
         model: options?.model || undefined,
         stream: true,
-        mode: options?.mode,
+        mode,
         ...(options?.dashboardContext?.trim()
           ? { dashboard_context: options.dashboardContext.trim() }
           : {}),

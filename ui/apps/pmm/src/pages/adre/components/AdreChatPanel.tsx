@@ -6,7 +6,6 @@ import {
   Select,
   Stack,
   TextField,
-  Tooltip,
   Typography,
 } from '@mui/material';
 import ExpandLess from '@mui/icons-material/ExpandLess';
@@ -25,7 +24,7 @@ export const AdreChatPanel: FC = () => {
   const { response, reasoning, loading, progressSteps, allMessages, settings, handleSend } = useAdreChat();
   const [ask, setAsk] = useState('');
   const [model, setModel] = useState('');
-  const [mode, setMode] = useState<'chat' | 'investigation'>('chat');
+  const [mode, setMode] = useState<'fast' | 'investigation'>('fast');
   const [expandedReasoningIdx, setExpandedReasoningIdx] = useState<number | null>(null);
   const [expandedProgressIdx, setExpandedProgressIdx] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -33,11 +32,12 @@ export const AdreChatPanel: FC = () => {
 
   const defaultModeSyncedRef = useRef(false);
   useEffect(() => {
-    if (!defaultModeSyncedRef.current && (settings?.defaultChatMode === 'investigation' || settings?.defaultChatMode === 'chat')) {
+    const dm = settings?.defaultChatMode ?? settings?.default_chat_mode;
+    if (!defaultModeSyncedRef.current && (dm === 'investigation' || dm === 'fast' || dm === 'chat')) {
       defaultModeSyncedRef.current = true;
-      setMode(settings.defaultChatMode);
+      setMode(dm === 'investigation' ? 'investigation' : 'fast');
     }
-  }, [settings?.defaultChatMode]);
+  }, [settings?.defaultChatMode, settings?.default_chat_mode]);
 
   const lastScrollRef = useRef(0);
   const scrollToBottom = useCallback((instant?: boolean) => {
@@ -73,21 +73,21 @@ export const AdreChatPanel: FC = () => {
             <Typography
               component="button"
               variant="body2"
-              onClick={() => setMode('chat')}
+              onClick={() => setMode('fast')}
               sx={{
                 border: 'none',
                 background: 'none',
                 cursor: 'pointer',
                 p: 1,
                 pb: 1.5,
-                color: mode === 'chat' ? 'text.primary' : 'text.secondary',
-                borderBottom: mode === 'chat' ? 2 : 0,
+                color: mode === 'fast' ? 'text.primary' : 'text.secondary',
+                borderBottom: mode === 'fast' ? 2 : 0,
                 borderColor: 'primary.main',
                 mb: -0.5,
                 borderRadius: 0,
               }}
             >
-              Chat
+              Fast
             </Typography>
             <Typography
               component="button"
@@ -109,17 +109,11 @@ export const AdreChatPanel: FC = () => {
               Investigation
             </Typography>
           </Stack>
-          <Tooltip
-            title={
-              settings?.chatBackend === 'holmes_agent' && settings?.url
-                ? 'Chat via PMM Agent'
-                : 'Chat via Holmes Agent'
-            }
-          >
-            <Typography variant="caption" color="text.secondary" sx={{ cursor: 'help' }}>
-              {settings?.chatBackend === 'holmes_agent' && settings?.url ? 'PMM Agent' : 'Holmes Agent'}
+          {settings?.url ? (
+            <Typography variant="caption" color="text.secondary">
+              Holmes
             </Typography>
-          </Tooltip>
+          ) : null}
         </Stack>
         <Select
           value={model}

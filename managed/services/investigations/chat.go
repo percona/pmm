@@ -40,19 +40,7 @@ func (h *Handlers) requireHolmesURL(w http.ResponseWriter, settings *models.Sett
 	return true
 }
 
-func (h *Handlers) requireValidChatBackend(w http.ResponseWriter, settings *models.Settings) bool {
-	cb := settings.Adre.ChatBackend
-	if cb == "" {
-		cb = "holmesgpt"
-	}
-	if cb != "holmesgpt" && cb != "holmes_agent" {
-		writeJSONError(w, http.StatusBadRequest, "Chat backend must be PMM Agent or Holmes Agent. Configure it in AI Assistant Settings.")
-		return false
-	}
-	return true
-}
-
-// PostInvestigationChat handles POST /v1/investigations/:id/chat. Uses Holmes (PMM Agent or Holmes Agent) for one round.
+// PostInvestigationChat handles POST /v1/investigations/:id/chat. Uses Holmes /api/chat for one round.
 func (h *Handlers) PostInvestigationChat(w http.ResponseWriter, r *http.Request, id string) {
 	inv, err := models.GetInvestigationByID(h.db, id)
 	if err != nil || inv == nil {
@@ -81,7 +69,7 @@ func (h *Handlers) PostInvestigationChat(w http.ResponseWriter, r *http.Request,
 		writeJSONError(w, http.StatusInternalServerError, "Failed to get settings")
 		return
 	}
-	if !h.requireHolmesURL(w, settings) || !h.requireValidChatBackend(w, settings) {
+	if !h.requireHolmesURL(w, settings) {
 		return
 	}
 
@@ -136,56 +124,24 @@ func (h *Handlers) PostInvestigationChat(w http.ResponseWriter, r *http.Request,
 		withSystem = append(withSystem, historyForHolmes...)
 		historyForHolmes = withSystem
 	}
+	maxN := adre.MaxConversationMessages(settings)
+	historyForHolmes = adre.TrimConversationHistory(historyForHolmes, maxN)
+	historyForHolmes = adre.EnsureHolmesLeadingSystemMessage(historyForHolmes)
 
-	var lastContent string
-	cb := settings.Adre.ChatBackend
-	if cb == "" {
-		cb = "holmesgpt"
+	req := &adre.ChatRequest{
+		Ask:                    body.Message,
+		ConversationHistory:    historyForHolmes,
+		AdditionalSystemPrompt: systemWithContext,
+		BehaviorControls:       adre.ResolveBehaviorControlsForInvestigation(settings),
+		Stream:                 false,
 	}
-	switch cb {
-	case "holmesgpt":
-		req := &adre.ChatRequest{
-			Ask:                    body.Message,
-			ConversationHistory:    historyForHolmes,
-			AdditionalSystemPrompt: systemWithContext,
-			Stream:                 false,
-		}
-		resp, err := client.Chat(ctx, req)
-		if err != nil {
-			h.l.Errorf("Holmes Chat: %v", err)
-			writeJSONError(w, http.StatusBadGateway, "Chat failed: "+err.Error())
-			return
-		}
-		lastContent = resp.Analysis
-	case "holmes_agent":
-		historyWithToolID := make([]interface{}, 0, len(history))
-		for _, v := range history {
-			m, _ := v.(map[string]interface{})
-			if m != nil && m["role"] == "tool" {
-				// Include tool_call_id for tool messages (PMM Agent sync may expect it).
-				withID := make(map[string]interface{}, len(m)+1)
-				for k, val := range m {
-					withID[k] = val
-				}
-				if _, has := withID["tool_call_id"]; !has {
-					withID["tool_call_id"] = ""
-				}
-				historyWithToolID = append(historyWithToolID, withID)
-			} else {
-				historyWithToolID = append(historyWithToolID, v)
-			}
-		}
-		content, err := adre.RunPMMAgentChatSync(ctx, h.db, h.l, settings, body.Message, historyWithToolID, investigationChatTimeout)
-		if err != nil {
-			h.l.Errorf("PMM Agent Chat: %v", err)
-			writeJSONError(w, http.StatusBadGateway, "Chat failed: "+err.Error())
-			return
-		}
-		lastContent = content
-	default:
-		writeJSONError(w, http.StatusBadRequest, "Chat backend must be PMM Agent or Holmes Agent.")
+	resp, err := client.Chat(ctx, req)
+	if err != nil {
+		h.l.Errorf("Holmes Chat: %v", err)
+		writeJSONError(w, http.StatusBadGateway, "Chat failed: "+err.Error())
 		return
 	}
+	lastContent := resp.Analysis
 
 	assistantMsg := &models.InvestigationMessage{
 		ID:              models.NewInvestigationID(),
@@ -233,7 +189,7 @@ func (h *Handlers) PostInvestigationRun(w http.ResponseWriter, r *http.Request, 
 		writeJSONError(w, http.StatusInternalServerError, "Failed to get settings")
 		return
 	}
-	if !h.requireHolmesURL(w, settings) || !h.requireValidChatBackend(w, settings) {
+	if !h.requireHolmesURL(w, settings) {
 		return
 	}
 
@@ -274,59 +230,25 @@ func (h *Handlers) runInvestigationBackground(id string, _ *models.Investigation
 
 	ctxStr := buildInvestigationContext(inv)
 	adreURL := settings.GetAdreURL()
-	var lastContent string
-	runBackend := settings.Adre.ChatBackend
-	if runBackend == "" {
-		runBackend = "holmesgpt"
+	invPrompt := settings.Adre.InvestigationPrompt
+	if invPrompt == "" {
+		invPrompt = adre.DefaultInvestigationPrompt
 	}
-
+	client := adre.NewClient(adreURL)
+	ask := "Generate the full investigation report for this incident.\n\nContext:\n" + ctxStr
+	chatReq := &adre.ChatRequest{
+		Ask:                    ask,
+		AdditionalSystemPrompt: invPrompt + "\n\nCurrent investigation context:\n" + ctxStr,
+		BehaviorControls:       adre.ResolveBehaviorControlsForInvestigation(settings),
+		Stream:                 false,
+	}
+	var lastContent string
 	var runErr error
-	switch runBackend {
-	case "holmesgpt":
-		invPrompt := settings.Adre.InvestigationPrompt
-		if invPrompt == "" {
-			invPrompt = adre.DefaultInvestigationPrompt
-		}
-		client := adre.NewClient(adreURL)
-		invReq := &adre.InvestigateRequest{
-			Source:                 "pmm-investigation",
-			Title:                  inv.Title,
-			Description:            "Generate the full investigation report based on the context below.",
-			Subject:                map[string]interface{}{},
-			Context:                map[string]interface{}{"investigation_id": id, "time_from": inv.TimeFrom.Format(time.RFC3339), "time_to": inv.TimeTo.Format(time.RFC3339), "summary": inv.Summary, "context_text": ctxStr},
-			AdditionalSystemPrompt: invPrompt,
-		}
-		resp, err := client.Investigate(ctx, invReq)
-		if err != nil && (strings.Contains(err.Error(), "404") || strings.Contains(err.Error(), "Not Found")) {
-			ask := "Generate the full investigation report for this incident.\n\nContext:\n" + ctxStr
-			chatReq := &adre.ChatRequest{
-				Ask:                    ask,
-				ConversationHistory:    nil,
-				AdditionalSystemPrompt: invPrompt + "\n\nCurrent investigation context:\n" + ctxStr,
-				Stream:                 false,
-			}
-			var chatResp *adre.ChatResponse
-			chatResp, err = client.Chat(ctx, chatReq)
-			if err != nil {
-				runErr = fmt.Errorf("Holmes Chat (investigation fallback): %w", err)
-			} else {
-				lastContent = chatResp.Analysis
-			}
-		} else if err != nil {
-			runErr = fmt.Errorf("Holmes Investigate: %w", err)
-		} else {
-			lastContent = resp.Analysis
-		}
-	case "holmes_agent":
-		ask := "Run the full investigation now. Use ask_holmes to gather multiple metrics and panels (QPS, connections, redo log, replication, etc.); do not stop after one metric. Then gather logs and alerts, then call generate_investigation_report with the gathered context. Do not ask for confirmation—execute the investigation immediately.\n\nContext:\n" + ctxStr
-		content, err := adre.RunPMMAgentChatSync(ctx, nil, h.l, settings, ask, nil, investigationRunTimeout)
-		if err != nil {
-			runErr = fmt.Errorf("PMM Agent run: %w", err)
-		} else {
-			lastContent = content
-		}
-	default:
-		runErr = fmt.Errorf("unknown chat backend: %s", runBackend)
+	chatResp, err := client.Chat(ctx, chatReq)
+	if err != nil {
+		runErr = fmt.Errorf("Holmes Chat (investigation run): %w", err)
+	} else {
+		lastContent = chatResp.Analysis
 	}
 
 	if runErr != nil {
@@ -345,8 +267,7 @@ func (h *Handlers) runInvestigationBackground(id string, _ *models.Investigation
 		return
 	}
 
-	client := adre.NewClient(adreURL)
-	formattedJSON, err := FormatInvestigationReport(ctx, client, lastContent)
+	formattedJSON, err := FormatInvestigationReport(ctx, client, settings, lastContent)
 	if err == nil {
 		report, parseErr := ParseFormattedReport(formattedJSON)
 		if parseErr == nil {

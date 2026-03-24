@@ -213,9 +213,8 @@ export const AdreChatWidget: FC = () => {
   const [scrollRoot, setScrollRoot] = useState<HTMLElement | null>(null);
   const lastScrollRef = useRef(0);
 
-  const isPMMAgent = settings?.chatBackend === 'holmes_agent' && !!settings?.url;
   const isConfigured = settings?.enabled && !!settings?.url;
-  const chatViaLabel = isPMMAgent ? 'Chat via PMM Agent' : 'Chat via Holmes Agent';
+  const chatViaLabel = isConfigured ? 'Chat via Holmes' : 'ADRE';
 
   const scrollToBottom = useCallback((instant?: boolean) => {
     const now = Date.now();

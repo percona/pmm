@@ -6,7 +6,7 @@ It is different from [**Investigations**](investigations.md) (structured reports
 
 ## Requirements
 
-- An administrator must **enable ADRE** and set the **HolmesGPT base URL** (or configure the **PMM Agent** chat backend) in PMM settings.
+- An administrator must **enable ADRE** and set the **HolmesGPT base URL** in PMM **AI Assistant** settings.
 - **HolmesGPT** must be reachable from the PMM server over your network. Use HTTPS in production where possible.
 
 ## What gets sent to the backend
@@ -14,14 +14,11 @@ It is different from [**Investigations**](investigations.md) (structured reports
 - Your **messages** and a **short window** of recent chat history.
 - A **system** preamble that includes PMM context. When you are on **Grafana** routes, PMM may attach **current Grafana context** derived from the URL synced with the Grafana iframe (dashboard UID, optional focused panel, time range, template variables, and sometimes the browser tab title). That helps the assistant answer “what am I looking at?” without guessing.
 
-## Backends (conceptual)
+## Fast vs Investigation
 
-| Setting (conceptual) | Behaviour |
-| -------------------- | --------- |
-| **HolmesGPT** (`holmesgpt`) | PMM proxies chat to your HolmesGPT deployment. |
-| **PMM Agent** (`holmes_agent`) | Chat uses the PMM Agent path with a configurable system prompt and history length. |
+The ADRE panel can run in **Fast** or **Investigation** mode. PMM sends Holmes **`behavior_controls`** and an **`additional_system_prompt`** appropriate to the mode (tunable under **Configuration → AI Assistant**). Operators should be aware that the Holmes container environment variable **`ENABLED_PROMPTS`** can override what the API may enable.
 
-Exact field names are documented for operators in the PMM repo: [dev/adre/README.md](https://github.com/percona/pmm/blob/v3/dev/adre/README.md).
+Technical details: [dev/adre/README.md](https://github.com/percona/pmm/blob/v3/dev/adre/README.md) and [Holmes fast mode / prompt controls](https://holmesgpt.dev/dev/reference/http-api/?h=fast#fast-mode--prompt-controls).
 
 ## Good practices
 

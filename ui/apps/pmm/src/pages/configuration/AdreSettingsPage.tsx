@@ -21,6 +21,10 @@ import { FC, useState, useEffect, ChangeEvent, SyntheticEvent } from 'react';
 import { Page } from 'components/page';
 import { useAdreSettings, useUpdateAdreSettings } from 'hooks/api/useAdre';
 import type { AdreSettings } from 'api/adre';
+import {
+  AdreBehaviorControlsBlock,
+  hydrateAdreBehaviorMap,
+} from 'pages/configuration/AdreBehaviorControlsBlock';
 import { useSnackbar } from 'notistack';
 import { useUser } from 'contexts/user';
 import { PMM_SETTINGS_URL } from 'lib/constants';
@@ -38,6 +42,17 @@ function byteCount(input: string): number {
   return new TextEncoder().encode(input).length;
 }
 
+function behaviorFromSettings(
+  s: AdreSettings,
+  camel: keyof AdreSettings,
+  snake: string
+): Record<string, boolean> | undefined {
+  const raw = s as unknown as Record<string, unknown>;
+  const v = raw[camel as string] ?? raw[snake];
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return undefined;
+  return v as Record<string, boolean>;
+}
+
 const AdreSettingsPage: FC = () => {
   const { user } = useUser();
   const { enqueueSnackbar } = useSnackbar();
@@ -45,11 +60,16 @@ const AdreSettingsPage: FC = () => {
   const updateSettings = useUpdateAdreSettings();
   const [localEnabled, setLocalEnabled] = useState(settings?.enabled ?? false);
   const [localUrl, setLocalUrl] = useState(settings?.url ?? '');
-  const [localChatBackend, setLocalChatBackend] = useState<'holmesgpt' | 'holmes_agent'>(
-    (settings?.chatBackend === 'holmes_agent' ? 'holmes_agent' : 'holmesgpt')
+  const [localDefaultChatMode, setLocalDefaultChatMode] = useState<'fast' | 'investigation'>('fast');
+  const [localAdreMaxConversationMessages, setLocalAdreMaxConversationMessages] = useState(40);
+  const [localBehaviorFast, setLocalBehaviorFast] = useState<Record<string, boolean>>(() =>
+    hydrateAdreBehaviorMap(undefined, 'fast')
   );
-  const [localChatHistoryLength, setLocalChatHistoryLength] = useState(
-    settings?.chatHistoryLength ?? settings?.chat_history_length ?? 20
+  const [localBehaviorInvestigation, setLocalBehaviorInvestigation] = useState<Record<string, boolean>>(() =>
+    hydrateAdreBehaviorMap(undefined, 'investigation')
+  );
+  const [localBehaviorFormat, setLocalBehaviorFormat] = useState<Record<string, boolean>>(() =>
+    hydrateAdreBehaviorMap(undefined, 'format')
   );
   const [localChatPrompt, setLocalChatPrompt] = useState(
     settings?.chatPromptDisplay ?? settings?.chatPrompt ?? ''
@@ -57,23 +77,14 @@ const AdreSettingsPage: FC = () => {
   const [localInvestigationPrompt, setLocalInvestigationPrompt] = useState(
     settings?.investigationPromptDisplay ?? settings?.investigationPrompt ?? ''
   );
-  const [localAgentPrompt, setLocalAgentPrompt] = useState(
-    settings?.agentPromptDisplay ?? settings?.agentPrompt ?? ''
-  );
   const [localQanInsightsPrompt, setLocalQanInsightsPrompt] = useState(
     settings?.qanInsightsPromptDisplay ?? settings?.qanInsightsPrompt ?? ''
-  );
-  const [localReplaceSystemPrompt, setLocalReplaceSystemPrompt] = useState(
-    settings?.replaceSystemPrompt ?? settings?.replace_system_prompt ?? false
   );
   const [localServiceNowURL, setLocalServiceNowURL] = useState(
     settings?.servicenowUrl ?? settings?.servicenow_url ?? 'https://perconadev.service-now.com/api/pellc/percona_connector/create'
   );
   const [localServiceNowAPIKey, setLocalServiceNowAPIKey] = useState('');
   const [localServiceNowClientToken, setLocalServiceNowClientToken] = useState('');
-  const [localDisableRunbooks, setLocalDisableRunbooks] = useState(
-    settings?.disableRunbooks ?? settings?.disable_runbooks ?? false
-  );
   const [localPromptMaxBytes, setLocalPromptMaxBytes] = useState(
     settings?.promptMaxBytes ?? settings?.prompt_max_bytes ?? 16 * 1024
   );
@@ -82,39 +93,45 @@ const AdreSettingsPage: FC = () => {
     if (settings) {
       setLocalEnabled(settings.enabled);
       setLocalUrl(settings.url);
-      setLocalChatBackend(settings.chatBackend === 'holmes_agent' ? 'holmes_agent' : 'holmesgpt');
-      setLocalChatHistoryLength(settings.chatHistoryLength ?? (settings as { chat_history_length?: number }).chat_history_length ?? 20);
+      const dm =
+        settings.defaultChatMode ??
+        (settings.default_chat_mode === 'investigation' ? 'investigation' : 'fast');
+      setLocalDefaultChatMode(dm === 'investigation' ? 'investigation' : 'fast');
+      setLocalAdreMaxConversationMessages(
+        settings.adreMaxConversationMessages ??
+          settings.adre_max_conversation_messages ??
+          40
+      );
+      setLocalBehaviorFast(
+        hydrateAdreBehaviorMap(behaviorFromSettings(settings, 'behaviorControlsFast', 'behavior_controls_fast'), 'fast')
+      );
+      setLocalBehaviorInvestigation(
+        hydrateAdreBehaviorMap(
+          behaviorFromSettings(settings, 'behaviorControlsInvestigation', 'behavior_controls_investigation'),
+          'investigation'
+        )
+      );
+      setLocalBehaviorFormat(
+        hydrateAdreBehaviorMap(
+          behaviorFromSettings(settings, 'behaviorControlsFormatReport', 'behavior_controls_format_report'),
+          'format'
+        )
+      );
       setLocalChatPrompt(settings.chatPromptDisplay ?? settings.chatPrompt ?? '');
       setLocalInvestigationPrompt(settings.investigationPromptDisplay ?? settings.investigationPrompt ?? '');
-      setLocalAgentPrompt(settings.agentPromptDisplay ?? settings.agentPrompt ?? '');
       setLocalQanInsightsPrompt(
-        settings.qanInsightsPromptDisplay ?? settings.qanInsightsPrompt ?? settings.qan_insights_prompt_display ?? settings.qan_insights_prompt ?? ''
+        settings.qanInsightsPromptDisplay ??
+          settings.qanInsightsPrompt ??
+          settings.qan_insights_prompt_display ??
+          settings.qan_insights_prompt ??
+          ''
       );
-      setLocalReplaceSystemPrompt(settings.replaceSystemPrompt ?? settings.replace_system_prompt ?? false);
       setLocalServiceNowURL(
         settings.servicenowUrl ?? settings.servicenow_url ?? 'https://perconadev.service-now.com/api/pellc/percona_connector/create'
       );
-      setLocalDisableRunbooks(settings.disableRunbooks ?? settings.disable_runbooks ?? false);
       setLocalPromptMaxBytes(settings.promptMaxBytes ?? settings.prompt_max_bytes ?? 16 * 1024);
     }
-  }, [
-    settings?.enabled,
-    settings?.url,
-    settings?.chatBackend,
-    settings?.chatHistoryLength,
-    settings?.chatPrompt,
-    settings?.chatPromptDisplay,
-    settings?.investigationPrompt,
-    settings?.investigationPromptDisplay,
-    settings?.agentPrompt,
-    settings?.agentPromptDisplay,
-    settings?.qanInsightsPrompt,
-    settings?.qanInsightsPromptDisplay,
-    settings?.replaceSystemPrompt,
-    settings?.servicenowUrl,
-    settings?.promptMaxBytes,
-    settings?.prompt_max_bytes,
-  ]);
+  }, [settings]);
 
   const isAdmin = user?.isPMMAdmin ?? false;
   const isForbidden = isError && isForbiddenError(error);
@@ -195,47 +212,33 @@ const AdreSettingsPage: FC = () => {
                 <Divider />
                 <Stack gap={2}>
                   <Typography variant="subtitle1" fontWeight={600}>
-                    Chat
+                    ADRE panel &amp; Holmes
                   </Typography>
                   <FormControl size="small" fullWidth>
-                    <InputLabel>Chat backend</InputLabel>
+                    <InputLabel>Default mode in ADRE panel</InputLabel>
                     <Select
-                      value={localChatBackend}
-                      label="Chat backend"
-                      onChange={(e: SelectChangeEvent<'holmesgpt' | 'holmes_agent'>) =>
-                        setLocalChatBackend(e.target.value as 'holmesgpt' | 'holmes_agent')
+                      value={localDefaultChatMode}
+                      label="Default mode in ADRE panel"
+                      onChange={(e: SelectChangeEvent<'fast' | 'investigation'>) =>
+                        setLocalDefaultChatMode(e.target.value as 'fast' | 'investigation')
                       }
                     >
-                      <MenuItem value="holmesgpt">Holmes Agent (direct)</MenuItem>
-                      <MenuItem value="holmes_agent">PMM Agent</MenuItem>
+                      <MenuItem value="fast">Fast</MenuItem>
+                      <MenuItem value="investigation">Investigation</MenuItem>
                     </Select>
                   </FormControl>
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={localReplaceSystemPrompt}
-                        onChange={(_e: SyntheticEvent, v: boolean) => setLocalReplaceSystemPrompt(v)}
-                      />
+                  <TextField
+                    label="Max conversation messages to Holmes"
+                    type="number"
+                    inputProps={{ min: 4, max: 200 }}
+                    value={localAdreMaxConversationMessages}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                      setLocalAdreMaxConversationMessages(parseInt(e.target.value, 10) || 40)
                     }
-                    label="Replace Holmes system prompt"
+                    size="small"
+                    fullWidth
+                    helperText="Caps conversation_history size (4–200). Reduces Holmes context-overflow failures."
                   />
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={localDisableRunbooks}
-                        onChange={(_e: SyntheticEvent, v: boolean) => setLocalDisableRunbooks(v)}
-                      />
-                    }
-                    label="Disable Runbooks in chat"
-                  />
-                  <Typography variant="caption" color="text.secondary" sx={{ mt: -1 }}>
-                    When enabled, the AI will not fetch or execute runbooks in chat mode.
-                    Investigation mode keeps runbooks available by default.
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary" sx={{ mt: -1 }}>
-                    When enabled, the PMM prompt fully replaces Holmes&apos; default system prompt.
-                    When disabled, the PMM prompt is appended to Holmes&apos; default.
-                  </Typography>
                   <TextField
                     label="Prompt max bytes"
                     type="number"
@@ -246,45 +249,60 @@ const AdreSettingsPage: FC = () => {
                     fullWidth
                     helperText="Allowed range: 1024–65536. Default recommended: 16384."
                   />
-                  {localChatBackend === 'holmes_agent' && (
-                    <TextField
-                      label="Conversation history length"
-                      type="number"
-                      inputProps={{ min: 5, max: 100 }}
-                      value={localChatHistoryLength}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalChatHistoryLength(parseInt(e.target.value, 10) || 20)}
-                      size="small"
-                      fullWidth
-                      helperText="Max messages sent to PMM Agent (5–100)"
-                    />
-                  )}
                 </Stack>
+                <Divider />
+                <AdreBehaviorControlsBlock
+                  variant="fast"
+                  title="Fast mode — behavior controls"
+                  description="Tuning for the Fast path in the ADRE chat panel (runbooks, TodoWrite, etc.)."
+                  value={localBehaviorFast}
+                  onChange={setLocalBehaviorFast}
+                  onJsonError={(msg) => enqueueSnackbar(msg, { variant: 'error' })}
+                />
+                <Divider />
+                <AdreBehaviorControlsBlock
+                  variant="investigation"
+                  title="Investigation mode — behavior controls"
+                  description="Used for investigation chat and investigation runs. Empty preset means Holmes defaults for omitted keys."
+                  value={localBehaviorInvestigation}
+                  onChange={setLocalBehaviorInvestigation}
+                  onJsonError={(msg) => enqueueSnackbar(msg, { variant: 'error' })}
+                />
+                <Divider />
+                <AdreBehaviorControlsBlock
+                  variant="format"
+                  title="Format investigation report — behavior controls"
+                  description="Used when PMM asks Holmes to turn a raw investigation report into structured JSON."
+                  value={localBehaviorFormat}
+                  onChange={setLocalBehaviorFormat}
+                  onJsonError={(msg) => enqueueSnackbar(msg, { variant: 'error' })}
+                />
                 <Divider />
                 <Stack gap={2}>
                   <Typography variant="subtitle1" fontWeight={600}>
                     Prompts
                   </Typography>
                   <TextField
-                    label="Chat prompt"
-                    placeholder="System prompt for Holmes Agent (chat mode)"
+                    label="Fast mode prompt"
+                    placeholder="Additional system prompt for Fast mode (Holmes additional_system_prompt)"
                     value={localChatPrompt}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalChatPrompt(e.target.value)}
                     size="small"
                     fullWidth
                     multiline
                     minRows={3}
-                    helperText={`System prompt for Holmes Agent when talking in chat mode (${byteCount(localChatPrompt)} / ${localPromptMaxBytes} bytes)`}
+                    helperText={`Fast mode (${byteCount(localChatPrompt)} / ${localPromptMaxBytes} bytes)`}
                   />
                   <TextField
-                    label="Investigation prompt"
-                    placeholder="System prompt for investigations"
+                    label="Investigation mode prompt"
+                    placeholder="Additional system prompt for Investigation mode"
                     value={localInvestigationPrompt}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalInvestigationPrompt(e.target.value)}
                     size="small"
                     fullWidth
                     multiline
                     minRows={3}
-                    helperText={`System prompt for Holmes Agent in investigation mode (${byteCount(localInvestigationPrompt)} / ${localPromptMaxBytes} bytes)`}
+                    helperText={`Investigation mode (${byteCount(localInvestigationPrompt)} / ${localPromptMaxBytes} bytes)`}
                   />
                   <TextField
                     label="QAN AI Insights prompt"
@@ -297,19 +315,6 @@ const AdreSettingsPage: FC = () => {
                     minRows={3}
                     helperText={`Used when analyzing a query from Query Analytics; leave empty for default (${byteCount(localQanInsightsPrompt)} / ${localPromptMaxBytes} bytes)`}
                   />
-                  {localChatBackend === 'holmes_agent' && (
-                    <TextField
-                      label="Agent prompt (PMM Agent)"
-                      placeholder="System prompt for PMM Agent; empty = use built-in default"
-                      value={localAgentPrompt}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalAgentPrompt(e.target.value)}
-                      size="small"
-                      fullWidth
-                      multiline
-                      minRows={3}
-                      helperText={`System prompt when using PMM Agent; leave empty for default (${byteCount(localAgentPrompt)} / ${localPromptMaxBytes} bytes)`}
-                    />
-                  )}
                 </Stack>
                 <Divider />
                 <Stack gap={2}>
@@ -359,14 +364,14 @@ const AdreSettingsPage: FC = () => {
                       {
                         enabled: localEnabled,
                         url: localUrl,
-                        chat_backend: localChatBackend,
-                        chat_history_length: localChatHistoryLength,
+                        default_chat_mode: localDefaultChatMode,
+                        adre_max_conversation_messages: localAdreMaxConversationMessages,
+                        behavior_controls_fast: localBehaviorFast,
+                        behavior_controls_investigation: localBehaviorInvestigation,
+                        behavior_controls_format_report: localBehaviorFormat,
                         chat_prompt: localChatPrompt || undefined,
                         investigation_prompt: localInvestigationPrompt || undefined,
-                        agent_prompt: localAgentPrompt || undefined,
                         qan_insights_prompt: localQanInsightsPrompt || undefined,
-                        replace_system_prompt: localReplaceSystemPrompt,
-                        disable_runbooks: localDisableRunbooks,
                         prompt_max_bytes: localPromptMaxBytes,
                         servicenow_url: localServiceNowURL || undefined,
                         ...(localServiceNowAPIKey ? { servicenow_api_key: localServiceNowAPIKey } : {}),
