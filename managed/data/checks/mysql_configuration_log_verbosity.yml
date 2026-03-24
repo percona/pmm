@@ -37,6 +37,7 @@ checks:
           expire_logs_days = 0
           log_error_verbosity = 0
           log_warnings = 0
+          verbosity_result = None
           is_percona_server, is_community, is_mariadb = False, False, False
           # collect the results from running this advisor
           results = []
