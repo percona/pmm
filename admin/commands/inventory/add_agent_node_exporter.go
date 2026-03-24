@@ -55,12 +55,12 @@ type AddAgentNodeExporterCommand struct {
 
 // RunCmd runs the command for AddAgentNodeExporterCommand.
 func (cmd *AddAgentNodeExporterCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(&cmd.CustomLabels)
 	params := &agents.AddAgentParams{
 		Body: agents.AddAgentBody{
 			NodeExporter: &agents.AddAgentParamsBodyNodeExporter{
 				PMMAgentID:        cmd.PMMAgentID,
-				CustomLabels:      customLabels,
+				CustomLabels:      *customLabels,
 				PushMetrics:       cmd.PushMetrics,
 				ExposeExporter:    cmd.ExposeExporter,
 				DisableCollectors: commands.ParseDisableCollectors(cmd.DisableCollectors),

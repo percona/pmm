@@ -68,13 +68,16 @@ Most options can be set via environment variables (shown in parentheses).
 | `--trace`                              | `PMM_AGENT_TRACE`                   | Enable trace output (implies `--debug`).
 | `-h`, `--help`                         |                                     | Show help (synonym for `pmm-agent help`).
 | `--version`                            |                                     | Show application version, PMM version, time-stamp, git commit hash and branch.
-| `--expose-exporter` | | If you enable this flag, any IP address on the local network and anywhere on the internet can access node exporter endpoints. If the flag is disabled, node exporter endpoints can be accessed only locally.
+| `--expose-exporter` | | If you enable this flag, any IP address on the local network and anywhere on the internet can access node exporter endpoints. If the flag is disabled, node exporter endpoints can be accessed only locally.|
+| `--config-file-key-file` | `PMM_AGENT_CONFIG_FILE_KEY_FILE` | Path to RSA private key for config file encryption. See [Encrypt the PMM Client configuration file](../../admin/security/client_config_encryption.md). |
+| `--config-file-key-password` | `PMM_AGENT_CONFIG_FILE_KEY_PASSWORD` | Password for the RSA private key (if password-protected). |
 
 ## Config file
 
 PMM manages the configuration file, and it's not recommended to modify it manually. However, if necessary, you can make adjustments to specific properties in the config file, such as the username or password used for authorization through service accounts.
 
 To do this, set the username to `service_token` and add your service token as the password. For more information about service account authorization, see [Service accounts authentication](../../api/authentication.md).
+To protect the credentials stored in this file, you can optionally encrypt it. See [Encrypt the PMM Client configuration file](../../admin/security/client_config_encryption.md).
 
 ## Usage and examples of `paths-base` flag
 

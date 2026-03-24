@@ -32,10 +32,10 @@ Username              : {{ .Agent.Username }}
 TLS enabled           : {{ .Agent.TLS }}
 Skip TLS verification : {{ .Agent.TLSSkipVerify }}
 
-Status                : {{ .Agent.Status }}
 Disabled              : {{ .Agent.Disabled }}
-Custom labels         : {{ .Agent.CustomLabels }}
+Custom labels         : {{ formatCustomLabels .Agent.CustomLabels }}
 Collect interval      : {{ .Agent.RtaOptions.CollectInterval }}
+Log level             : {{ formatLogLevel .Agent.LogLevel }}
 `)
 
 type addAgentRTAMongoDBAgentResult struct {
@@ -69,7 +69,7 @@ type AddAgentRTAMongoDBAgentCommand struct {
 
 // RunCmd executes the AddAgentRTAMongoDBAgentCommand and returns the result.
 func (cmd *AddAgentRTAMongoDBAgentCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(&cmd.CustomLabels)
 
 	tlsCertificateKey, err := commands.ReadFile(cmd.TLSCertificateKeyFile)
 	if err != nil {
@@ -88,7 +88,7 @@ func (cmd *AddAgentRTAMongoDBAgentCommand) RunCmd() (commands.Result, error) {
 				ServiceID:                     cmd.ServiceID,
 				Username:                      cmd.Username,
 				Password:                      cmd.Password,
-				CustomLabels:                  customLabels,
+				CustomLabels:                  *customLabels,
 				SkipConnectionCheck:           cmd.SkipConnectionCheck,
 				TLS:                           cmd.TLS,
 				TLSSkipVerify:                 cmd.TLSSkipVerify,
