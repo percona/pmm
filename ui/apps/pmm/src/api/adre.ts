@@ -240,6 +240,12 @@ export const adreChatStream = async (
         }
         continue;
       }
+      // Holmes stream_chat_formatter: event "error" (e.g. rate limit) with JSON { description, msg, error_code, success }.
+      // parseSSEData does not read msg/description, so without this branch the UI would appear to stop with no message.
+      if (lastEvent === 'error') {
+        const text = formatHolmesStreamError(trimmed);
+        throw new Error(text);
+      }
       const parsed = parseSSEData(trimmed);
       if (parsed.content) onChunk(parsed.content);
       if (parsed.reasoning) onChunk(undefined, parsed.reasoning);
@@ -287,6 +293,27 @@ export function getAlertMetadataFromLabels(
       labels.clusterName ?? labels.cluster ?? labels.cluster_name ?? undefined,
     severity: labels.severity ?? labels.Severity ?? undefined,
   };
+}
+
+/** Human-readable text from Holmes SSE error payload (event: error). */
+function formatHolmesStreamError(data: string): string {
+  const trimmed = data.trim();
+  if (!trimmed) return 'Request failed';
+  if (trimmed.startsWith('{')) {
+    try {
+      const o = JSON.parse(trimmed) as Record<string, unknown>;
+      const msg = typeof o.msg === 'string' ? o.msg.trim() : '';
+      const desc = typeof o.description === 'string' ? o.description.trim() : '';
+      const code = o.error_code != null ? String(o.error_code) : '';
+      const parts = [msg, desc].filter((p) => p.length > 0);
+      let out = parts.length > 0 ? parts.join(' — ') : 'Request failed';
+      if (code && !out.includes(code)) out = `${out} (code ${code})`;
+      return out.length > 6000 ? `${out.slice(0, 6000)}…` : out;
+    } catch {
+      return trimmed.length > 6000 ? `${trimmed.slice(0, 6000)}…` : trimmed;
+    }
+  }
+  return trimmed.length > 6000 ? `${trimmed.slice(0, 6000)}…` : trimmed;
 }
 
 /** Parses SSE data; returns content and/or reasoning from common Holmes/LLM stream fields. */
