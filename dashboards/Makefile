@@ -38,7 +38,7 @@ install-plugins:
 		--name grafana \
 		--platform="$${PLATFORM:-linux/amd64}" \
 		--entrypoint=/bin/bash \
-		-v "./dashboards/panels":/var/lib/grafana/plugins \
+		-v "./panels":/var/lib/grafana/plugins \
 		grafana/grafana:11.6 \
 		-c "grafana cli --pluginUrl=https://github.com/grafana/clickhouse-datasource/releases/download/v$(CLICKHOUSE_DATASOURCE_VERSION)/grafana-clickhouse-datasource-$(CLICKHOUSE_DATASOURCE_VERSION).linux_amd64.zip plugins install grafana-clickhouse-datasource"
 	@echo "Installing grafana-polystat-panel plugin..."
@@ -47,6 +47,6 @@ install-plugins:
 		--name grafana \
 		--platform="$${PLATFORM:-linux/amd64}" \
 		--entrypoint=/bin/bash \
-		-v "./dashboards/panels":/var/lib/grafana/plugins \
+		-v "./panels":/var/lib/grafana/plugins \
 		grafana/grafana:11.6 \
 		-c "grafana cli --pluginUrl=https://github.com/grafana/grafana-polystat-panel/releases/download/v$(POLYSTAT_PANEL_VERSION)/grafana-polystat-panel-$(POLYSTAT_PANEL_VERSION).zip plugins install grafana-polystat-panel"
