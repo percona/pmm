@@ -61,7 +61,7 @@ echo %{version} > %{buildroot}%{_datadir}/%{name}/VERSION
 %files
 %license ./dashboards/LICENSE
 %doc ./dashboards/README.md
-%attr(-,pmm,pmm) %{_datadir}/%{name}
+%attr(-,pmm,root) %{_datadir}/%{name}
 
 
 %changelog

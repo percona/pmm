@@ -65,13 +65,13 @@ mv conf/ldap.toml %{buildroot}%{_sysconfdir}/grafana/
 install -d -p %{buildroot}%{_sharedstatedir}/grafana
 
 %files
-%defattr(-, pmm, pmm, -)
+%defattr(-, pmm, root, -)
 %{_datadir}/grafana
 %doc CHANGELOG.md README.md
 %license LICENSE
-%attr(0755, pmm, pmm) %{_sbindir}/grafana
-%attr(0755, pmm, pmm) %{_sbindir}/grafana-server
-%attr(0755, pmm, pmm) %{_bindir}/grafana-cli
+%attr(0755, pmm, root) %{_sbindir}/grafana
+%attr(0755, pmm, root) %{_sbindir}/grafana-server
+%attr(0755, pmm, root) %{_bindir}/grafana-cli
 %{_sysconfdir}/grafana/grafana.ini
 %{_sysconfdir}/grafana/ldap.toml
 %dir %{_sharedstatedir}/grafana
