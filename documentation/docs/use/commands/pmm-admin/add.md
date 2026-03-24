@@ -34,11 +34,14 @@ Control connection settings, TLS, query collection, metric collectors, and servi
 
 | Flag | MySQL | PG | Mongo | Valkey | Proxy | HAProxy |
 |------|:-----:|:--:|:-----:|:------:|:-----:|:-------:|
-| `--tls`<br>(enable TLS for connection) | ✓ | ✓ | ✓ | | ✓ | ✓ |
-| `--tls-skip-verify`<br>(skip certificate verification) | ✓ | ✓ | ✓ | | ✓ | ✓ |
-| `--tls-ca-file`<br>(CA certificate file path) | ✓ | ✓ | ✓ | | ✓ | ✓ |
-| `--tls-cert-file`<br>(client certificate file path) | ✓ | ✓ | ✓ | | ✓ | ✓ |
-| `--tls-key-file`<br>(client key file path) | ✓ | ✓ | ✓ | | ✓ | ✓ |
+| `--tls`<br>(enable TLS for connection) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `--tls-skip-verify`<br>(skip certificate verification) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `--tls-ca`<br>(CA certificate path) | ✓ | | | ✓ | | |
+| `--tls-cert`<br>(client certificate path) | ✓ | | | ✓ | | |
+| `--tls-key`<br>(client key path) | ✓ | | | ✓ | | |
+| `--tls-ca-file`<br>(CA certificate file path) | | ✓ | ✓ | | | ✓ |
+| `--tls-cert-file`<br>(client certificate file path) | | ✓ | ✓ | | | ✓ |
+| `--tls-key-file`<br>(client key file path) | | ✓ | ✓ | | | ✓ |
 
 ### Query Analytics (QAN) flags
 
