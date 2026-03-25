@@ -1,13 +1,25 @@
 # Deploy PMM Server as a Virtual Appliance (OVA)
 
+!!! warning "Deprecation notice"
+    OVF virtual appliance images are deprecated starting with PMM 3.7.0. OVF images will be formally deprecated in PMM 3.8 (expected May 2026) and will no longer be produced after PMM 3.9 (expected July 2026).
+
+    If you currently run PMM on a virtual appliance, plan your migration to a supported deployment method:
+
+    - [Install PMM Server with Docker](../docker/index.md)|(recommended) 
+    - [Install PMM Server with Podman](../podman/index.md)
+    - [Install PMM Server with Helm on Kubernetes](../helm/index.md)
+    
+    Existing OVF deployments will continue to work. You can still update PMM within your current virtual appliance using CLI upgrade methods, but no new OVF images will be released after PMM 3.9.0.
+
 Deploy PMM Server as a pre-configured virtual machine when you need a standalone monitoring solution with minimal setup. The virtual appliance is ideal for environments where container solutions aren't preferred or for evaluation purposes.
 
 ## When to choose OVA deployment
+Choose OVA deployment you: 
 
-- You prefer traditional VM-based deployments over containers
-- You need a solution that works with existing virtualization infrastructure
-- You want minimal configuration steps for quick evaluation
-- Your environment has limited or no internet connectivity
+- prefer traditional VM-based deployments over containers
+- need a solution that works with existing virtualization infrastructure
+- want minimal configuration steps for quick evaluation
+- environment has limited or no internet connectivity
 
 ## Terminology
 
