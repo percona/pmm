@@ -21,6 +21,7 @@ import (
 	"maps"
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
@@ -140,6 +141,10 @@ type ChangeSettingsParams struct {
 	AdreChatPrompt *string
 	// AdreInvestigationPrompt is the system prompt for investigation mode. Max 4096 bytes.
 	AdreInvestigationPrompt *string
+	// AdreChatModel is default Holmes model alias for fast mode chat. Empty uses Holmes default.
+	AdreChatModel *string
+	// AdreInvestigationModel is default Holmes model alias for investigation mode chat. Empty uses Holmes default.
+	AdreInvestigationModel *string
 	// AdreDefaultChatMode is the default mode when UI does not send one: "fast" or "investigation".
 	AdreDefaultChatMode *string
 	// AdreBehaviorControlsFast / Investigation / FormatReport: Holmes behavior_controls maps. Nil = no change.
@@ -312,6 +317,12 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	if params.AdreInvestigationPrompt != nil {
 		settings.Adre.InvestigationPrompt = pointer.GetString(params.AdreInvestigationPrompt)
 	}
+	if params.AdreChatModel != nil {
+		settings.Adre.ChatModel = strings.TrimSpace(pointer.GetString(params.AdreChatModel))
+	}
+	if params.AdreInvestigationModel != nil {
+		settings.Adre.InvestigationModel = strings.TrimSpace(pointer.GetString(params.AdreInvestigationModel))
+	}
 	if params.AdreDefaultChatMode != nil {
 		mode := strings.TrimSpace(pointer.GetString(params.AdreDefaultChatMode))
 		if mode == "chat" {
@@ -436,6 +447,16 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 			return errors.New(`default_chat_mode: must be "fast" or "investigation"`)
 		}
 	}
+	if params.AdreChatModel != nil {
+		if err := validateAdreModelAlias("chat_model", *params.AdreChatModel); err != nil {
+			return err
+		}
+	}
+	if params.AdreInvestigationModel != nil {
+		if err := validateAdreModelAlias("investigation_model", *params.AdreInvestigationModel); err != nil {
+			return err
+		}
+	}
 	if params.AdreMaxConversationMessages != nil {
 		n := *params.AdreMaxConversationMessages
 		if n != 0 && (n < 4 || n > 200) {
@@ -461,6 +482,19 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 		return errors.Errorf("qan_insights_prompt: max %d bytes", AdrePromptMaxBytes)
 	}
 
+	return nil
+}
+
+func validateAdreModelAlias(field, value string) error {
+	v := strings.TrimSpace(value)
+	if len(v) > 256 {
+		return errors.Errorf("%s: max 256 bytes", field)
+	}
+	for _, r := range v {
+		if unicode.IsControl(r) {
+			return errors.Errorf("%s: contains invalid control characters", field)
+		}
+	}
 	return nil
 }
 

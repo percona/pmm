@@ -104,22 +104,24 @@ func (h *Handlers) checkAdreEnabled(w http.ResponseWriter) (*models.Settings, bo
 }
 
 type adreSettingsResponse struct {
-	Enabled                         bool            `json:"enabled"`
-	URL                             string          `json:"url"`
-	ChatPrompt                      string          `json:"chat_prompt"`
-	InvestigationPrompt             string          `json:"investigation_prompt"`
-	ChatPromptDisplay               string          `json:"chat_prompt_display"`
-	InvestigationPromptDisplay      string          `json:"investigation_prompt_display"`
-	DefaultChatMode                 string          `json:"default_chat_mode"`
-	BehaviorControlsFast            map[string]bool `json:"behavior_controls_fast"`
-	BehaviorControlsInvestigation   map[string]bool `json:"behavior_controls_investigation"`
-	BehaviorControlsFormatReport    map[string]bool `json:"behavior_controls_format_report"`
-	AdreMaxConversationMessages     int             `json:"adre_max_conversation_messages"`
-	QanInsightsPrompt               string          `json:"qan_insights_prompt"`
-	QanInsightsPromptDisplay        string          `json:"qan_insights_prompt_display"`
-	ServiceNowURL                   string          `json:"servicenow_url"`
-	ServiceNowConfigured            bool            `json:"servicenow_configured"`
-	PromptMaxBytes                  int             `json:"prompt_max_bytes"`
+	Enabled                       bool            `json:"enabled"`
+	URL                           string          `json:"url"`
+	ChatPrompt                    string          `json:"chat_prompt"`
+	InvestigationPrompt           string          `json:"investigation_prompt"`
+	ChatModel                     string          `json:"chat_model"`
+	InvestigationModel            string          `json:"investigation_model"`
+	ChatPromptDisplay             string          `json:"chat_prompt_display"`
+	InvestigationPromptDisplay    string          `json:"investigation_prompt_display"`
+	DefaultChatMode               string          `json:"default_chat_mode"`
+	BehaviorControlsFast          map[string]bool `json:"behavior_controls_fast"`
+	BehaviorControlsInvestigation map[string]bool `json:"behavior_controls_investigation"`
+	BehaviorControlsFormatReport  map[string]bool `json:"behavior_controls_format_report"`
+	AdreMaxConversationMessages   int             `json:"adre_max_conversation_messages"`
+	QanInsightsPrompt             string          `json:"qan_insights_prompt"`
+	QanInsightsPromptDisplay      string          `json:"qan_insights_prompt_display"`
+	ServiceNowURL                 string          `json:"servicenow_url"`
+	ServiceNowConfigured          bool            `json:"servicenow_configured"`
+	PromptMaxBytes                int             `json:"prompt_max_bytes"`
 }
 
 func applyAdreSettingsDefaults(r *adreSettingsResponse) {
@@ -163,13 +165,15 @@ func (h *Handlers) GetSettings(w http.ResponseWriter, r *http.Request) {
 		URL:                           settings.GetAdreURL(),
 		ChatPrompt:                    settings.Adre.ChatPrompt,
 		InvestigationPrompt:           settings.Adre.InvestigationPrompt,
+		ChatModel:                     settings.Adre.ChatModel,
+		InvestigationModel:            settings.Adre.InvestigationModel,
 		ChatPromptDisplay:             chatPromptDisplay,
 		InvestigationPromptDisplay:    investigationPromptDisplay,
 		DefaultChatMode:               settings.Adre.DefaultChatMode,
 		BehaviorControlsFast:          settings.Adre.BehaviorControlsFast,
 		BehaviorControlsInvestigation: settings.Adre.BehaviorControlsInvestigation,
 		BehaviorControlsFormatReport:  settings.Adre.BehaviorControlsFormatReport,
-		AdreMaxConversationMessages:     settings.Adre.AdreMaxConversationMessages,
+		AdreMaxConversationMessages:   settings.Adre.AdreMaxConversationMessages,
 		QanInsightsPrompt:             settings.Adre.QanInsightsPrompt,
 		QanInsightsPromptDisplay:      qanInsightsPromptDisplay,
 		ServiceNowURL:                 settings.Adre.ServiceNowURL,
@@ -197,27 +201,29 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var body struct {
-		Enabled                         *bool            `json:"enabled"`
-		URL                             *string          `json:"url"`
-		ChatPrompt                      *string          `json:"chat_prompt"`
-		InvestigationPrompt             *string          `json:"investigation_prompt"`
-		DefaultChatMode                 *string          `json:"default_chat_mode"`
-		BehaviorControlsFast            *map[string]bool `json:"behavior_controls_fast"`
-		BehaviorControlsInvestigation   *map[string]bool `json:"behavior_controls_investigation"`
-		BehaviorControlsFormatReport    *map[string]bool `json:"behavior_controls_format_report"`
-		AdreMaxConversationMessages     *int             `json:"adre_max_conversation_messages"`
-		QanInsightsPrompt               *string          `json:"qan_insights_prompt"`
-		ServiceNowURL                   *string          `json:"servicenow_url"`
-		ServiceNowAPIKey                *string          `json:"servicenow_api_key"`
-		ServiceNowClientToken           *string          `json:"servicenow_client_token"`
-		PromptMaxBytes                  *int             `json:"prompt_max_bytes"`
+		Enabled                       *bool            `json:"enabled"`
+		URL                           *string          `json:"url"`
+		ChatPrompt                    *string          `json:"chat_prompt"`
+		InvestigationPrompt           *string          `json:"investigation_prompt"`
+		ChatModel                     *string          `json:"chat_model"`
+		InvestigationModel            *string          `json:"investigation_model"`
+		DefaultChatMode               *string          `json:"default_chat_mode"`
+		BehaviorControlsFast          *map[string]bool `json:"behavior_controls_fast"`
+		BehaviorControlsInvestigation *map[string]bool `json:"behavior_controls_investigation"`
+		BehaviorControlsFormatReport  *map[string]bool `json:"behavior_controls_format_report"`
+		AdreMaxConversationMessages   *int             `json:"adre_max_conversation_messages"`
+		QanInsightsPrompt             *string          `json:"qan_insights_prompt"`
+		ServiceNowURL                 *string          `json:"servicenow_url"`
+		ServiceNowAPIKey              *string          `json:"servicenow_api_key"`
+		ServiceNowClientToken         *string          `json:"servicenow_client_token"`
+		PromptMaxBytes                *int             `json:"prompt_max_bytes"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
 		return
 	}
 	hasChange := body.Enabled != nil || body.URL != nil || body.ChatPrompt != nil ||
-		body.InvestigationPrompt != nil || body.DefaultChatMode != nil ||
+		body.InvestigationPrompt != nil || body.ChatModel != nil || body.InvestigationModel != nil || body.DefaultChatMode != nil ||
 		body.BehaviorControlsFast != nil || body.BehaviorControlsInvestigation != nil || body.BehaviorControlsFormatReport != nil ||
 		body.AdreMaxConversationMessages != nil || body.QanInsightsPrompt != nil ||
 		body.ServiceNowURL != nil || body.ServiceNowAPIKey != nil || body.ServiceNowClientToken != nil ||
@@ -275,6 +281,14 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		}
 		body.DefaultChatMode = &mode
 	}
+	if body.ChatModel != nil {
+		trimmed := strings.TrimSpace(*body.ChatModel)
+		body.ChatModel = &trimmed
+	}
+	if body.InvestigationModel != nil {
+		trimmed := strings.TrimSpace(*body.InvestigationModel)
+		body.InvestigationModel = &trimmed
+	}
 	if body.AdreMaxConversationMessages != nil {
 		n := *body.AdreMaxConversationMessages
 		if n != 0 && (n < 4 || n > 200) {
@@ -309,6 +323,8 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		AdreURL:                           body.URL,
 		AdreChatPrompt:                    body.ChatPrompt,
 		AdreInvestigationPrompt:           body.InvestigationPrompt,
+		AdreChatModel:                     body.ChatModel,
+		AdreInvestigationModel:            body.InvestigationModel,
 		AdreDefaultChatMode:               body.DefaultChatMode,
 		AdreBehaviorControlsFast:          body.BehaviorControlsFast,
 		AdreBehaviorControlsInvestigation: body.BehaviorControlsInvestigation,
@@ -343,6 +359,8 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		URL:                           settings.GetAdreURL(),
 		ChatPrompt:                    settings.Adre.ChatPrompt,
 		InvestigationPrompt:           settings.Adre.InvestigationPrompt,
+		ChatModel:                     settings.Adre.ChatModel,
+		InvestigationModel:            settings.Adre.InvestigationModel,
 		ChatPromptDisplay:             chatPromptDisplay,
 		InvestigationPromptDisplay:    investigationPromptDisplay,
 		DefaultChatMode:               settings.Adre.DefaultChatMode,
@@ -351,7 +369,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		BehaviorControlsFormatReport:  settings.Adre.BehaviorControlsFormatReport,
 		AdreMaxConversationMessages:   settings.Adre.AdreMaxConversationMessages,
 		QanInsightsPrompt:             settings.Adre.QanInsightsPrompt,
-		QanInsightsPromptDisplay:        qanInsightsPromptDisplayPost,
+		QanInsightsPromptDisplay:      qanInsightsPromptDisplayPost,
 		ServiceNowURL:                 settings.Adre.ServiceNowURL,
 		ServiceNowConfigured:          settings.Adre.ServiceNowURL != "" && settings.Adre.ServiceNowAPIKey != "" && settings.Adre.ServiceNowClientToken != "",
 		PromptMaxBytes:                settings.Adre.PromptMaxBytes,
@@ -432,6 +450,16 @@ func resolveQanInsightsPrompt(settings *models.Settings) string {
 	return DefaultQanInsightsPrompt
 }
 
+func resolveChatModel(settings *models.Settings, mode string, reqModel string) string {
+	if model := strings.TrimSpace(reqModel); model != "" {
+		return model
+	}
+	if mode == "investigation" {
+		return strings.TrimSpace(settings.Adre.InvestigationModel)
+	}
+	return strings.TrimSpace(settings.Adre.ChatModel)
+}
+
 // PostChat handles POST /v1/adre/chat. If body has "stream": true, streams the response.
 func (h *Handlers) PostChat(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -473,6 +501,7 @@ func (h *Handlers) PostChat(w http.ResponseWriter, r *http.Request) {
 		mode = "investigation"
 	}
 	req := &body.ChatRequest
+	req.Model = resolveChatModel(settings, mode, req.Model)
 	req.BehaviorControls = ResolveBehaviorControlsForPostChat(settings, mode)
 	h.l.WithFields(logrus.Fields{
 		"mode":              mode,

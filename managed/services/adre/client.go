@@ -107,13 +107,32 @@ func (c *Client) Models(ctx context.Context) ([]string, error) {
 		return nil, fmt.Errorf("HolmesGPT /api/model: %s: %s", resp.Status, string(body))
 	}
 
+	rawBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
 	var out struct {
 		ModelName []string `json:"model_name"`
 	}
-	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
+	if err := json.Unmarshal(rawBody, &out); err == nil {
+		return out.ModelName, nil
+	}
+
+	// Backward compatibility for older Holmes responses where model_name was JSON-encoded as a string.
+	var legacy struct {
+		ModelName string `json:"model_name"`
+	}
+	if err := json.Unmarshal(rawBody, &legacy); err != nil {
 		return nil, err
 	}
-	return out.ModelName, nil
+	if strings.TrimSpace(legacy.ModelName) == "" {
+		return []string{}, nil
+	}
+	var legacyModels []string
+	if err := json.Unmarshal([]byte(legacy.ModelName), &legacyModels); err != nil {
+		return nil, err
+	}
+	return legacyModels, nil
 }
 
 // ChatRequest is the request body for POST /api/chat.
@@ -204,4 +223,3 @@ func (c *Client) ChatStream(ctx context.Context, req *ChatRequest) (io.ReadClose
 	}
 	return resp.Body, nil
 }
-

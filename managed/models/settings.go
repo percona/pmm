@@ -40,7 +40,7 @@ const (
 	AdrePromptMaxBytesHardMax          = 64 * 1024
 	// AdreSchemaVersionCurrent is bumped when a one-way ADRE settings migration runs in fillDefaults.
 	AdreSchemaVersionCurrent = 2
-	awsPartitionID                     = "aws"
+	awsPartitionID           = "aws"
 )
 
 // MetricsResolutions contains standard VictoriaMetrics metrics resolutions.
@@ -112,6 +112,10 @@ type Settings struct {
 		URL                 string `json:"url"`
 		ChatPrompt          string `json:"chat_prompt"`
 		InvestigationPrompt string `json:"investigation_prompt"`
+		// ChatModel is default Holmes model for fast/chat mode. Empty uses Holmes default model.
+		ChatModel string `json:"chat_model"`
+		// InvestigationModel is default Holmes model for investigation mode. Empty uses Holmes default model.
+		InvestigationModel string `json:"investigation_model"`
 		// DefaultChatMode: "fast" or "investigation" (legacy "chat" is migrated to "fast" in fillDefaults).
 		DefaultChatMode string `json:"default_chat_mode"`
 		// BehaviorControlsFast / Investigation / FormatReport are Holmes behavior_controls maps (see Holmes HTTP API). Empty map uses PMM shipped presets when sending to Holmes.

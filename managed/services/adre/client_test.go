@@ -40,6 +40,21 @@ func TestClient_Models(t *testing.T) {
 	assert.Equal(t, []string{"model-a", "model-b"}, models)
 }
 
+func TestClient_Models_LegacyEncodedString(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, "/api/model", r.URL.Path)
+		assert.Equal(t, http.MethodGet, r.Method)
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(`{"model_name":"[\"model-a\",\"model-b\"]"}`))
+	}))
+	defer server.Close()
+
+	client := NewClient(server.URL)
+	models, err := client.Models(context.Background())
+	require.NoError(t, err)
+	assert.Equal(t, []string{"model-a", "model-b"}, models)
+}
+
 func TestClient_Chat(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, "/api/chat", r.URL.Path)

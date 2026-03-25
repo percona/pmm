@@ -24,6 +24,12 @@ export interface AdreSettings {
   url: string;
   chatPrompt?: string;
   investigationPrompt?: string;
+  /** Default Holmes model alias for Fast mode chat. Empty uses Holmes default. */
+  chatModel?: string;
+  chat_model?: string;
+  /** Default Holmes model alias for Investigation mode chat. Empty uses Holmes default. */
+  investigationModel?: string;
+  investigation_model?: string;
   /** Display value when chat_prompt is empty (built-in default). */
   chatPromptDisplay?: string;
   /** Display value when investigation_prompt is empty (built-in default). */

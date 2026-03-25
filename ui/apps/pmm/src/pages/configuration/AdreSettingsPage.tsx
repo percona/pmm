@@ -19,7 +19,7 @@ import {
 } from '@mui/material';
 import { FC, useState, useEffect, ChangeEvent, SyntheticEvent } from 'react';
 import { Page } from 'components/page';
-import { useAdreSettings, useUpdateAdreSettings } from 'hooks/api/useAdre';
+import { useAdreModels, useAdreSettings, useUpdateAdreSettings } from 'hooks/api/useAdre';
 import type { AdreSettings } from 'api/adre';
 import {
   AdreBehaviorControlsBlock,
@@ -57,10 +57,13 @@ const AdreSettingsPage: FC = () => {
   const { user } = useUser();
   const { enqueueSnackbar } = useSnackbar();
   const { data: settings, isLoading, isError, error } = useAdreSettings();
+  const { data: models = [] } = useAdreModels({ enabled: true });
   const updateSettings = useUpdateAdreSettings();
   const [localEnabled, setLocalEnabled] = useState(settings?.enabled ?? false);
   const [localUrl, setLocalUrl] = useState(settings?.url ?? '');
   const [localDefaultChatMode, setLocalDefaultChatMode] = useState<'fast' | 'investigation'>('fast');
+  const [localFastModel, setLocalFastModel] = useState('');
+  const [localInvestigationModel, setLocalInvestigationModel] = useState('');
   const [localAdreMaxConversationMessages, setLocalAdreMaxConversationMessages] = useState(40);
   const [localBehaviorFast, setLocalBehaviorFast] = useState<Record<string, boolean>>(() =>
     hydrateAdreBehaviorMap(undefined, 'fast')
@@ -97,6 +100,8 @@ const AdreSettingsPage: FC = () => {
         settings.defaultChatMode ??
         (settings.default_chat_mode === 'investigation' ? 'investigation' : 'fast');
       setLocalDefaultChatMode(dm === 'investigation' ? 'investigation' : 'fast');
+      setLocalFastModel(settings.chatModel ?? settings.chat_model ?? '');
+      setLocalInvestigationModel(settings.investigationModel ?? settings.investigation_model ?? '');
       setLocalAdreMaxConversationMessages(
         settings.adreMaxConversationMessages ??
           settings.adre_max_conversation_messages ??
@@ -225,6 +230,38 @@ const AdreSettingsPage: FC = () => {
                     >
                       <MenuItem value="fast">Fast</MenuItem>
                       <MenuItem value="investigation">Investigation</MenuItem>
+                    </Select>
+                  </FormControl>
+                  <FormControl size="small" fullWidth>
+                    <InputLabel>Fast mode model</InputLabel>
+                    <Select
+                      value={localFastModel}
+                      label="Fast mode model"
+                      onChange={(e: SelectChangeEvent<string>) => setLocalFastModel(e.target.value)}
+                    >
+                      <MenuItem value="">Holmes default</MenuItem>
+                      {models.map((m) => (
+                        <MenuItem key={`fast-${m}`} value={m}>
+                          {m}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <FormControl size="small" fullWidth>
+                    <InputLabel>Investigation mode model</InputLabel>
+                    <Select
+                      value={localInvestigationModel}
+                      label="Investigation mode model"
+                      onChange={(e: SelectChangeEvent<string>) =>
+                        setLocalInvestigationModel(e.target.value)
+                      }
+                    >
+                      <MenuItem value="">Holmes default</MenuItem>
+                      {models.map((m) => (
+                        <MenuItem key={`investigation-${m}`} value={m}>
+                          {m}
+                        </MenuItem>
+                      ))}
                     </Select>
                   </FormControl>
                   <TextField
@@ -365,6 +402,8 @@ const AdreSettingsPage: FC = () => {
                         enabled: localEnabled,
                         url: localUrl,
                         default_chat_mode: localDefaultChatMode,
+                        chat_model: localFastModel || undefined,
+                        investigation_model: localInvestigationModel || undefined,
                         adre_max_conversation_messages: localAdreMaxConversationMessages,
                         behavior_controls_fast: localBehaviorFast,
                         behavior_controls_investigation: localBehaviorInvestigation,
