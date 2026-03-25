@@ -43,7 +43,7 @@ Follow these steps to upgrade your PMM Server while preserving your monitoring d
     --detach \
     --restart always \
     --publish 443:8443 \
-    --volumes-from pmm-data \
+    --volumes-from pmm-server-old \
     --name pmm-server \
     percona/pmm-server:3
     ```
