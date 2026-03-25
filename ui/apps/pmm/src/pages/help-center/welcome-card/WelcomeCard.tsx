@@ -10,33 +10,23 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import CardActions from '@mui/material/CardActions';
 import Button from '@mui/material/Button';
 
-import { FC, useCallback } from 'react';
+import { FC } from 'react';
 import WelcomeImage from 'assets/welcome-4x.jpg';
 import { Icon } from 'components/icon';
 import { Messages } from './WelcomeCard.messages';
 import { ADD_SERVICE_LINK, WELCOME_CARD_LIST } from './WelcomeCard.constants';
 import { Link } from 'react-router-dom';
-import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
 import AddIcon from '@mui/icons-material/Add';
 import { useUser } from 'contexts/user';
-import { useTour } from 'contexts/tour';
-import { useUpdateUserInfo } from 'hooks/api/useUser';
 import { useServices } from 'hooks/api/useServices';
 import { shouldShowAddService } from './WelcomeCard.utils';
 
 const WelcomeCard: FC = () => {
   const { user } = useUser();
-  const { startTour } = useTour();
-  const { mutate: updateUserInfo } = useUpdateUserInfo();
   const services = useServices({}, { enabled: !!user?.isPMMAdmin });
   const showAddService = shouldShowAddService(services.data);
 
-  const handleDismiss = useCallback(
-    () => updateUserInfo({ productTourCompleted: true }),
-    [updateUserInfo]
-  );
-
-  if (!user || user.info.productTourCompleted) {
+  if (!user) {
     return null;
   }
 
@@ -103,19 +93,8 @@ const WelcomeCard: FC = () => {
         <Typography variant="h6" mb={1}>
           {Messages.ready}
         </Typography>
-        <Typography>
-          {user?.isPMMAdmin ? Messages.tour : Messages.tourNonAdmin}
-        </Typography>
       </CardContent>
       <CardActions sx={{ p: 2, pt: 1 }}>
-        <Button
-          startIcon={<MapOutlinedIcon />}
-          variant="contained"
-          data-testid="welcome-card-start-tour"
-          onClick={() => startTour('product')}
-        >
-          {Messages.startTour}
-        </Button>
         {user?.isPMMAdmin && showAddService && (
           <Button
             startIcon={<AddIcon />}
@@ -126,13 +105,6 @@ const WelcomeCard: FC = () => {
             {Messages.addService}
           </Button>
         )}
-        <Button
-          variant="text"
-          data-testid="welcome-card-dismiss"
-          onClick={handleDismiss}
-        >
-          {Messages.dismiss}
-        </Button>
       </CardActions>
     </Card>
   );

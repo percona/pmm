@@ -61,8 +61,6 @@ export type UserPreferences = GetPreferenceResponse;
 
 export interface UserInfo {
   userId: number;
-  alertingTourCompleted: boolean;
-  productTourCompleted: boolean;
   snoozedAt: string | null;
   snoozeCount: number;
   snoozedPmmVersion: string;

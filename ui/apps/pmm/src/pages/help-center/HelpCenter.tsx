@@ -8,17 +8,13 @@ import { useUser } from 'contexts/user';
 import { HelpCenterCard } from './help-center-card/HelpCenterCard';
 import WelcomeCard from './welcome-card/WelcomeCard';
 import { cardClasses } from '@mui/material/Card';
-import { useTour } from 'contexts/tour';
 
 export const HelpCenter: FC = () => {
   const { user } = useUser();
-  const { startTour } = useTour();
   const cards = useMemo(
     () =>
-      getCardData({
-        startProductTour: () => startTour('product'),
-      }).filter((card) => user?.isPMMAdmin || !card.adminOnly),
-    [user, startTour]
+      getCardData().filter((card) => user?.isPMMAdmin || !card.adminOnly),
+    [user]
   );
 
   return (

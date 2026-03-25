@@ -16,11 +16,7 @@ export const START_ICON = {
   map: 'map',
 };
 
-export const getCardData = ({
-  startProductTour,
-}: {
-  startProductTour: () => void;
-}): HelpCard[] => [
+export const getCardData = (): HelpCard[] => [
   {
     id: CARD_IDS.pmmDocs,
     title: 'PMM documentation',
@@ -94,21 +90,6 @@ export const getCardData = ({
       },
     ],
     adminOnly: true,
-  },
-  {
-    id: CARD_IDS.tips,
-    title: 'Useful tips',
-    description:
-      'Need a refresher? Start the onboarding tour again for useful tips.',
-    adminOnly: false,
-    buttons: [
-      {
-        text: 'Start PMM tour',
-        startIconName: START_ICON.map,
-        dataTestId: 'tips-card-start-product-tour-button',
-        onClick: startProductTour,
-      },
-    ],
   },
   {
     id: CARD_IDS.nextChapter,

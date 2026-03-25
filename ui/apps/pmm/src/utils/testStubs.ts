@@ -27,8 +27,6 @@ export const TEST_USER_ADMIN: User = {
   preferences: {},
   info: {
     userId: 0,
-    productTourCompleted: false,
-    alertingTourCompleted: false,
     snoozedAt: null,
     snoozeCount: 0,
     snoozedPmmVersion: '',
