@@ -19,6 +19,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 	"time"
@@ -30,6 +31,203 @@ import (
 
 	stringsgen "github.com/percona/pmm/utils/strings"
 )
+
+func TestGetAuthUserAnonymousFallback(t *testing.T) {
+	t.Parallel()
+
+	l := logrus.WithField("test", t.Name())
+	ctx := context.Background()
+
+	t.Run("returns anonymous role from frontend settings", func(t *testing.T) {
+		t.Parallel()
+
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			switch r.URL.Path {
+			case "/api/frontend/settings":
+				w.WriteHeader(http.StatusOK)
+				_, _ = fmt.Fprint(w, `{"anonymousEnabled":true,"user":{"orgRole":"Editor"}}`)
+			case "/api/user":
+				w.WriteHeader(http.StatusUnauthorized)
+				_, _ = fmt.Fprint(w, `{"message":"Unauthorized"}`)
+			default:
+				w.WriteHeader(http.StatusNotFound)
+			}
+		}))
+		defer ts.Close()
+
+		c := NewClient(strings.TrimPrefix(ts.URL, "http://"))
+
+		u, err := c.getAuthUser(ctx, http.Header{}, l)
+		require.NoError(t, err)
+		assert.Equal(t, editor, u.role)
+		assert.Equal(t, 0, u.userID)
+	})
+
+	t.Run("no anonymous fallback when credentials are present", func(t *testing.T) {
+		t.Parallel()
+
+		settingsCalled := false
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			switch r.URL.Path {
+			case "/api/frontend/settings":
+				settingsCalled = true
+				w.WriteHeader(http.StatusOK)
+				_, _ = fmt.Fprint(w, `{"anonymousEnabled":true,"user":{"orgRole":"Admin"}}`)
+			case "/api/user":
+				w.WriteHeader(http.StatusUnauthorized)
+				_, _ = fmt.Fprint(w, `{"message":"Invalid username or password"}`)
+			default:
+				w.WriteHeader(http.StatusNotFound)
+			}
+		}))
+		defer ts.Close()
+
+		c := NewClient(strings.TrimPrefix(ts.URL, "http://"))
+		headers := http.Header{}
+		headers.Set("Authorization", "Basic YmFkOnBhc3M=")
+
+		u, err := c.getAuthUser(ctx, headers, l)
+		require.Error(t, err)
+		assert.Equal(t, none, u.role)
+		assert.False(t, settingsCalled)
+	})
+
+	t.Run("no fallback when anonymous is disabled", func(t *testing.T) {
+		t.Parallel()
+
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			switch r.URL.Path {
+			case "/api/frontend/settings":
+				w.WriteHeader(http.StatusOK)
+				_, _ = fmt.Fprint(w, `{"anonymousEnabled":false}`)
+			case "/api/user":
+				w.WriteHeader(http.StatusUnauthorized)
+				_, _ = fmt.Fprint(w, `{"message":"Unauthorized"}`)
+			default:
+				w.WriteHeader(http.StatusNotFound)
+			}
+		}))
+		defer ts.Close()
+
+		c := NewClient(strings.TrimPrefix(ts.URL, "http://"))
+
+		u, err := c.getAuthUser(ctx, http.Header{}, l)
+		require.Error(t, err)
+		assert.Equal(t, none, u.role)
+	})
+}
+
+func TestCurrentUserAnonymousFallback(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	t.Run("GetCurrentUser uses anonymous fallback", func(t *testing.T) {
+		t.Parallel()
+
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			switch r.URL.Path {
+			case "/api/frontend/settings":
+				w.WriteHeader(http.StatusOK)
+				_, _ = fmt.Fprint(w, `{"anonymousEnabled":true,"anonymousOrgRole":"Viewer","user":{"orgId":1,"orgName":"Main Org."}}`)
+			case "/api/user":
+				w.WriteHeader(http.StatusUnauthorized)
+				_, _ = fmt.Fprint(w, `{"message":"Unauthorized"}`)
+			default:
+				w.WriteHeader(http.StatusNotFound)
+			}
+		}))
+		defer ts.Close()
+
+		c := NewClient(strings.TrimPrefix(ts.URL, "http://"))
+		user, err := c.GetCurrentUser(ctx, http.Header{})
+		require.NoError(t, err)
+		assert.Equal(t, "anonymous", user.Login)
+		assert.Equal(t, 1, user.OrgID)
+		assert.True(t, user.IsAnonymous)
+	})
+
+	t.Run("GetCurrentUserOrgs returns role from frontend settings", func(t *testing.T) {
+		t.Parallel()
+
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			switch r.URL.Path {
+			case "/api/frontend/settings":
+				w.WriteHeader(http.StatusOK)
+				_, _ = fmt.Fprint(w, `{"anonymousEnabled":true,"anonymousOrgRole":"Editor","user":{"orgId":1,"orgName":"Main Org."}}`)
+			case "/api/user":
+				w.WriteHeader(http.StatusUnauthorized)
+				_, _ = fmt.Fprint(w, `{"message":"Unauthorized"}`)
+			case "/api/user/orgs":
+				w.WriteHeader(http.StatusUnauthorized)
+				_, _ = fmt.Fprint(w, `{"message":"Unauthorized"}`)
+			default:
+				w.WriteHeader(http.StatusNotFound)
+			}
+		}))
+		defer ts.Close()
+
+		c := NewClient(strings.TrimPrefix(ts.URL, "http://"))
+		orgs, err := c.GetCurrentUserOrgs(ctx, http.Header{})
+		user, err := c.GetCurrentUser(ctx, http.Header{})
+		require.NoError(t, err)
+		require.Len(t, orgs, 1)
+		assert.Equal(t, "Editor", orgs[0].Role)
+		assert.Equal(t, 1, orgs[0].OrgID)
+		assert.True(t, user.IsAnonymous)
+
+	})
+
+	t.Run("GetCurrentUserOrgs returns empty when anonymous role missing", func(t *testing.T) {
+		t.Parallel()
+
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			switch r.URL.Path {
+			case "/api/frontend/settings":
+				w.WriteHeader(http.StatusOK)
+				_, _ = fmt.Fprint(w, `{"anonymousEnabled":true}`)
+			case "/api/user/orgs":
+				w.WriteHeader(http.StatusUnauthorized)
+				_, _ = fmt.Fprint(w, `{"message":"Unauthorized"}`)
+			default:
+				w.WriteHeader(http.StatusNotFound)
+			}
+		}))
+		defer ts.Close()
+
+		c := NewClient(strings.TrimPrefix(ts.URL, "http://"))
+		orgs, err := c.GetCurrentUserOrgs(ctx, http.Header{})
+		require.NoError(t, err)
+		assert.Empty(t, orgs)
+	})
+
+	t.Run("GetCurrentUser does not fallback when credentials are present", func(t *testing.T) {
+		t.Parallel()
+
+		settingsCalled := false
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			switch r.URL.Path {
+			case "/api/frontend/settings":
+				settingsCalled = true
+				w.WriteHeader(http.StatusOK)
+				_, _ = fmt.Fprint(w, `{"anonymousEnabled":true,"anonymousOrgRole":"Viewer"}`)
+			case "/api/user":
+				w.WriteHeader(http.StatusUnauthorized)
+				_, _ = fmt.Fprint(w, `{"message":"Invalid username or password"}`)
+			default:
+				w.WriteHeader(http.StatusNotFound)
+			}
+		}))
+		defer ts.Close()
+
+		c := NewClient(strings.TrimPrefix(ts.URL, "http://"))
+		headers := http.Header{}
+		headers.Set("Authorization", "Basic YmFkOnBhc3M=")
+		_, err := c.GetCurrentUser(ctx, headers)
+		require.Error(t, err)
+		assert.False(t, settingsCalled)
+	})
+}
 
 func TestClient(t *testing.T) {
 	logrus.SetLevel(logrus.TraceLevel)
