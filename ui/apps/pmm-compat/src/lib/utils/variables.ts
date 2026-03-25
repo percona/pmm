@@ -81,7 +81,7 @@ export const cleanupVariables = (urlWithLinks: string) => {
   const [base, params] = urlWithLinks.split('?');
 
   if (params) {
-    const variables = params.split('&').filter(filterVariable).join('&');
+    const variables = params.split('&').filter(filterVariable).map(fixVariables).join('&');
 
     return base + '?' + variables;
   }
@@ -103,4 +103,12 @@ const filterVariable = (param: string) => {
   }
 
   return true;
+};
+
+const fixVariables = (param: string) => {
+  if (param.startsWith('timezone=') && param.endsWith('=true')) {
+    return param.replace('=true', '');
+  }
+
+  return param;
 };
