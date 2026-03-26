@@ -30,13 +30,22 @@ import rehypeRaw from 'rehype-raw';
 import { useAdreModels } from 'hooks/api/useAdre';
 import { useAdreChat, formatTimestamp, type ProgressStep } from 'hooks/useAdreChat';
 import { getMarkdownComponents } from 'components/adre/adre-chat-markdown';
+import {
+  loadAdreChatUiPreferences,
+  saveAdreChatUiPreferences,
+  defaultChatModeFromSettings,
+} from 'utils/adreChatUiPreferences';
 
 export const AdreChatPanel: FC = () => {
-  const { data: models = [] } = useAdreModels();
+  const { data: models = [], status: modelsQueryStatus } = useAdreModels();
   const { response, reasoning, loading, progressSteps, allMessages, settings, chatError, handleSend } = useAdreChat();
   const [ask, setAsk] = useState('');
   const [model, setModel] = useState('');
-  const [mode, setMode] = useState<'fast' | 'investigation'>('fast');
+  const [mode, setMode] = useState<'fast' | 'investigation'>(() => {
+    const p = loadAdreChatUiPreferences();
+    if (p.mode === 'fast' || p.mode === 'investigation') return p.mode;
+    return 'investigation';
+  });
   const [modelMenuOpen, setModelMenuOpen] = useState(false);
   const [expandedReasoningIdx, setExpandedReasoningIdx] = useState<number | null>(null);
   const [expandedProgressIdx, setExpandedProgressIdx] = useState<number | null>(null);
@@ -44,14 +53,39 @@ export const AdreChatPanel: FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const modelAnchorRef = useRef<HTMLDivElement>(null);
 
-  const defaultModeSyncedRef = useRef(false);
+  const skipServerDefaultModeRef = useRef(
+    (() => {
+      const p = loadAdreChatUiPreferences();
+      return p.mode === 'fast' || p.mode === 'investigation';
+    })()
+  );
   useEffect(() => {
-    const dm = settings?.defaultChatMode ?? settings?.default_chat_mode;
-    if (!defaultModeSyncedRef.current && (dm === 'investigation' || dm === 'fast' || dm === 'chat')) {
-      defaultModeSyncedRef.current = true;
-      setMode(dm === 'investigation' ? 'investigation' : 'fast');
+    if (skipServerDefaultModeRef.current) return;
+    if (settings === undefined) return;
+    const dm = settings.defaultChatMode ?? settings.default_chat_mode;
+    setMode(defaultChatModeFromSettings(typeof dm === 'string' ? dm : undefined));
+  }, [settings]);
+  const modelHydratedRef = useRef(false);
+  useEffect(() => {
+    if (modelHydratedRef.current || modelsQueryStatus !== 'success') return;
+    modelHydratedRef.current = true;
+    const p = loadAdreChatUiPreferences();
+    if (p.model && models.includes(p.model)) {
+      setModel(p.model);
+    } else if (p.model) {
+      saveAdreChatUiPreferences({ removeModel: true });
     }
-  }, [settings?.defaultChatMode, settings?.default_chat_mode]);
+  }, [models, modelsQueryStatus]);
+
+  const setModePersist = useCallback((value: 'fast' | 'investigation') => {
+    setMode(value);
+    saveAdreChatUiPreferences({ mode: value });
+  }, []);
+
+  const setModelPersist = useCallback((value: string) => {
+    setModel(value);
+    saveAdreChatUiPreferences({ model: value });
+  }, []);
 
   const lastScrollRef = useRef(0);
   const scrollToBottom = useCallback((instant?: boolean) => {
@@ -308,7 +342,7 @@ export const AdreChatPanel: FC = () => {
                   size="small"
                   onChange={(_, value: 'fast' | 'investigation' | null) => {
                     if (!value || loading) return;
-                    setMode(value);
+                    setModePersist(value);
                   }}
                   aria-label="Chat mode"
                 >
@@ -363,7 +397,7 @@ export const AdreChatPanel: FC = () => {
                             <MenuItem
                               selected={model === ''}
                               onClick={() => {
-                                setModel('');
+                                setModelPersist('');
                                 setModelMenuOpen(false);
                               }}
                             >
@@ -374,7 +408,7 @@ export const AdreChatPanel: FC = () => {
                                 key={m}
                                 selected={model === m}
                                 onClick={() => {
-                                  setModel(m);
+                                  setModelPersist(m);
                                   setModelMenuOpen(false);
                                 }}
                               >

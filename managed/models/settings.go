@@ -116,7 +116,7 @@ type Settings struct {
 		ChatModel string `json:"chat_model"`
 		// InvestigationModel is default Holmes model for investigation mode. Empty uses Holmes default model.
 		InvestigationModel string `json:"investigation_model"`
-		// DefaultChatMode: "fast" or "investigation" (legacy "chat" is migrated to "fast" in fillDefaults).
+		// DefaultChatMode: "fast" or "investigation" (empty defaults to "investigation"; legacy "chat" mapped to "fast" in fillDefaults).
 		DefaultChatMode string `json:"default_chat_mode"`
 		// BehaviorControlsFast / Investigation / FormatReport are Holmes behavior_controls maps (see Holmes HTTP API). Empty map uses PMM shipped presets when sending to Holmes.
 		BehaviorControlsFast          map[string]bool `json:"behavior_controls_fast,omitempty"`
@@ -326,7 +326,7 @@ func (s *Settings) fillDefaults() {
 		s.Adre.ChatPrompt = ""
 		s.Adre.InvestigationPrompt = ""
 		if s.Adre.DefaultChatMode == "" || s.Adre.DefaultChatMode == "chat" {
-			s.Adre.DefaultChatMode = "fast"
+			s.Adre.DefaultChatMode = "investigation"
 		}
 		s.Adre.BehaviorControlsFast = map[string]bool{
 			"time_runbooks":          false,
@@ -345,7 +345,7 @@ func (s *Settings) fillDefaults() {
 		s.Adre.AdreSchemaVersion = AdreSchemaVersionCurrent
 	}
 	if s.Adre.DefaultChatMode == "" {
-		s.Adre.DefaultChatMode = "fast"
+		s.Adre.DefaultChatMode = "investigation"
 	}
 	if s.Adre.DefaultChatMode == "chat" {
 		s.Adre.DefaultChatMode = "fast"

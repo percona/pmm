@@ -59,7 +59,7 @@ func TestSettings(t *testing.T) {
 		expected.Updates.SnoozeDuration = models.DefaultSnoozeDuration
 		expected.Otel.LogsRetentionDays = pointer.ToInt(models.OtelLogsRetentionDaysDefault)
 		expected.Adre.Enabled = pointer.ToBool(models.AdreEnabledDefault)
-		expected.Adre.DefaultChatMode = "fast"
+		expected.Adre.DefaultChatMode = "investigation"
 		expected.Adre.AdreSchemaVersion = models.AdreSchemaVersionCurrent
 		expected.Adre.AdreMaxConversationMessages = 40
 		expected.Adre.BehaviorControlsFast = map[string]bool{
@@ -99,7 +99,7 @@ func TestSettings(t *testing.T) {
 		expected.Updates.SnoozeDuration = models.DefaultSnoozeDuration
 		expected.Otel.LogsRetentionDays = pointer.ToInt(models.OtelLogsRetentionDaysDefault)
 		expected.Adre.Enabled = pointer.ToBool(models.AdreEnabledDefault)
-		expected.Adre.DefaultChatMode = "fast"
+		expected.Adre.DefaultChatMode = "investigation"
 		expected.Adre.AdreSchemaVersion = models.AdreSchemaVersionCurrent
 		expected.Adre.AdreMaxConversationMessages = 40
 		expected.Adre.BehaviorControlsFast = map[string]bool{

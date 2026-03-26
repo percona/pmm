@@ -61,7 +61,7 @@ const AdreSettingsPage: FC = () => {
   const updateSettings = useUpdateAdreSettings();
   const [localEnabled, setLocalEnabled] = useState(settings?.enabled ?? false);
   const [localUrl, setLocalUrl] = useState(settings?.url ?? '');
-  const [localDefaultChatMode, setLocalDefaultChatMode] = useState<'fast' | 'investigation'>('fast');
+  const [localDefaultChatMode, setLocalDefaultChatMode] = useState<'fast' | 'investigation'>('investigation');
   const [localFastModel, setLocalFastModel] = useState('');
   const [localInvestigationModel, setLocalInvestigationModel] = useState('');
   const [localQanInsightsModel, setLocalQanInsightsModel] = useState('');
