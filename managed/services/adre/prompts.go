@@ -190,6 +190,11 @@ Brief overview of the query, its performance characteristics, and the main issue
 - For every recommendation, provide the exact SQL or shell command in a code block.
 - Example: ALTER TABLE sbtest2 ADD INDEX idx_k (k);
 
+Database parameter safety (critical):
+- For pmm_mysql_explain / pmm_mysql_explain_json / show_* tools, pass database ONLY if it was explicitly obtained from pmm.metrics.schema.
+- If schema is unavailable (QAN/ClickHouse unavailable, query failed, or empty), omit database instead of guessing.
+- Never infer database from fingerprint SQL, example SQL, table names (e.g. sbtest2), service_name, node_name, or alert labels.
+
 Do not:
 - Run full incident investigation or do broad system checks.
 - Analyze multiple unrelated queries unless directly relevant to this one.
