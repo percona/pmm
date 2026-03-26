@@ -49,8 +49,6 @@ const (
 	defaultClickhouseAddr               = "127.0.0.1:9000"
 	defaultClickhouseUser               = "default"
 	defaultClickhousePassword           = "clickhouse"
-	otelCollectorConfigPath             = "/srv/otelcol/config.yaml"
-	otelCollectorConfigDir              = "/srv/otelcol"
 	defaultVMSearchMaxQueryLen          = "1MB"
 	defaultVMSearchLatencyOffset        = "5s"
 	defaultVMSearchMaxUniqueTimeseries  = "100000000"
@@ -222,7 +220,7 @@ func (s *Service) reload(name string) error {
 }
 
 // marshalConfig marshals supervisord program configuration.
-func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settings, ssoDetails *models.PerconaSSODetails) ([]byte, error) {
+func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settings) ([]byte, error) {
 	clickhouseDatabase := envvars.GetEnv("PMM_CLICKHOUSE_DATABASE", defaultClickhouseDatabase)
 	clickhouseAddr := envvars.GetEnv("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
 	clickhouseAddrPair := strings.SplitN(clickhouseAddr, ":", 2) //nolint:mnd
@@ -254,7 +252,6 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"VMURL":                        s.vmParams.URL(),
 		"ExternalVM":                   s.vmParams.ExternalVM(),
 		"NomadEnabled":                 settings.IsNomadEnabled(),
-		"OtelCollectorEnabled":         settings.IsOtelCollectorEnabled(),
 		"InterfaceToBind":              envvars.GetInterfaceToBind(),
 		"ClickhouseAddr":               clickhouseAddr,
 		"ClickhouseDatabase":           clickhouseDatabase,
@@ -263,7 +260,6 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"ClickhouseUser":               clickhouseUser,
 		"ClickhousePassword":           clickhousePassword,
 		"PMMServerHost":                "",
-		"PerconaSSODetails":            nil,
 	}
 
 	s.addPostgresParams(templateParams)
@@ -279,16 +275,6 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 			return nil, errors.Wrap(err, "failed to parse PMM public address.") //nolint:revive
 		}
 		templateParams["PMMServerHost"] = publicURL.Host
-	}
-	if ssoDetails != nil {
-		u, err := url.Parse(ssoDetails.IssuerURL)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to parse host of IssuerURL")
-		}
-		templateParams["PerconaSSODetails"] = ssoDetails
-		templateParams["PMMServerAddress"] = settings.PMMPublicAddress
-		templateParams["PMMServerID"] = settings.PMMServerID
-		templateParams["IssuerDomain"] = u.Host
 	}
 
 	var buf bytes.Buffer
@@ -375,9 +361,7 @@ func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
 }
 
 // UpdateConfiguration updates VictoriaMetrics, Grafana and qan-api2 configurations, restarting them if needed.
-// When otelConfigContent is not nil and OTEL is enabled, that content is written to the otel-collector config file;
-// when nil, receiver-only YAML is built internally (e.g. for main.go before server is up).
-func (s *Service) UpdateConfiguration(settings *models.Settings, ssoDetails *models.PerconaSSODetails, otelConfigContent *string) error {
+func (s *Service) UpdateConfiguration(settings *models.Settings) error {
 	if s.supervisorctlPath == "" {
 		s.l.Errorf("supervisorctl not found, configuration updates are disabled.")
 		return nil
@@ -413,16 +397,8 @@ func (s *Service) UpdateConfiguration(settings *models.Settings, ssoDetails *mod
 			}
 			continue
 		}
-		if tmpl.Name() == "otel-collector" && !settings.IsOtelCollectorEnabled() {
-			e := os.Remove(filepath.Join(s.configDir, tmpl.Name()+".ini"))
-			if e != nil && !errors.Is(e, fs.ErrNotExist) {
-				s.l.Warnf("Failed to remove %s config when disabled: %s.", tmpl.Name(), e)
-			}
-			_ = os.Remove(otelCollectorConfigPath)
-			continue
-		}
 
-		b, e := s.marshalConfig(tmpl, settings, ssoDetails)
+		b, e := s.marshalConfig(tmpl, settings)
 		if e != nil {
 			s.l.Errorf("Failed to marshal config: %s.", e)
 			err = e
@@ -433,62 +409,8 @@ func (s *Service) UpdateConfiguration(settings *models.Settings, ssoDetails *mod
 			err = e
 			continue
 		}
-		if tmpl.Name() == "otel-collector" && settings.IsOtelCollectorEnabled() {
-			if e := s.writeOtelCollectorConfig(settings, otelConfigContent); e != nil {
-				s.l.Warnf("Failed to write otel-collector config: %s.", e)
-			} else if e := s.RestartSupervisedService("otel-collector"); e != nil {
-				s.l.Warnf("Failed to restart otel-collector: %s.", e)
-			}
-		}
 	}
 	return err
-}
-
-// writeOtelCollectorConfig writes the server-side otel-collector YAML config to /srv/otelcol/config.yaml.
-// When content is not nil it is written as-is; otherwise receiver-only YAML is built (for main.go / fallback).
-func (s *Service) writeOtelCollectorConfig(settings *models.Settings, content *string) error {
-	var yamlContent string
-	if content != nil && *content != "" {
-		yamlContent = *content
-	} else {
-		clickhouseAddr := envvars.GetEnv("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
-		clickhouseUser := envvars.GetEnv("PMM_CLICKHOUSE_USER", defaultClickhouseUser)
-		clickhousePassword := envvars.GetEnv("PMM_CLICKHOUSE_PASSWORD", defaultClickhousePassword)
-		retentionDays := settings.GetOtelLogsRetentionDays()
-		yamlContent = buildOtelCollectorConfigYAML(clickhouseAddr, clickhouseUser, clickhousePassword, retentionDays)
-	}
-
-	if err := os.MkdirAll(otelCollectorConfigDir, 0o755); err != nil {
-		return errors.WithStack(err)
-	}
-
-	dir := filepath.Dir(otelCollectorConfigPath)
-	tmpFile, err := os.CreateTemp(dir, ".otelcol-config-*.yaml")
-	if err != nil {
-		return errors.Wrapf(err, "create temp file in %s", dir)
-	}
-	tmpPath := tmpFile.Name()
-	defer func() { _ = os.Remove(tmpPath) }()
-
-	if _, err = tmpFile.WriteString(yamlContent); err != nil {
-		_ = tmpFile.Close()
-		return errors.WithStack(err)
-	}
-	if err = tmpFile.Sync(); err != nil {
-		_ = tmpFile.Close()
-		return errors.WithStack(err)
-	}
-	if err = tmpFile.Chmod(0o644); err != nil {
-		_ = tmpFile.Close()
-		return errors.WithStack(err)
-	}
-	if err = tmpFile.Close(); err != nil {
-		return errors.WithStack(err)
-	}
-	if err = os.Rename(tmpPath, otelCollectorConfigPath); err != nil {
-		return errors.Wrapf(err, "rename %s to %s", tmpPath, otelCollectorConfigPath)
-	}
-	return nil
 }
 
 // StartSupervisedService starts given service.
@@ -503,13 +425,6 @@ func (s *Service) StopSupervisedService(serviceName string) error {
 	return err
 }
 
-// RestartSupervisedService restarts given service so it picks up config changes.
-func (s *Service) RestartSupervisedService(serviceName string) error {
-	_, err := s.supervisorctl("restart", serviceName)
-	return err
-}
-
-//nolint:lll
 var templates = template.Must(template.New("").Option("missingkey=error").Parse(`
 
 {{define "victoriametrics"}}
@@ -627,18 +542,6 @@ command =
         {{- if .PMMServerHost}}
         cfg:default.server.domain="{{ .PMMServerHost }}"
         {{- end}}
-        {{- if .PerconaSSODetails}}
-        cfg:default.auth.generic_oauth.enabled=true
-        cfg:default.auth.generic_oauth.name="Percona Account"
-        cfg:default.auth.generic_oauth.client_id="{{ .PerconaSSODetails.GrafanaClientID }}"
-        cfg:default.auth.generic_oauth.scopes="openid profile email offline_access percona"
-        cfg:default.auth.generic_oauth.auth_url="{{ .PerconaSSODetails.IssuerURL }}/authorize"
-        cfg:default.auth.generic_oauth.token_url="{{ .PerconaSSODetails.IssuerURL }}/token"
-        cfg:default.auth.generic_oauth.api_url="{{ .PerconaSSODetails.IssuerURL }}/userinfo"
-        cfg:default.auth.generic_oauth.role_attribute_path="(contains(portal_admin_orgs[*], '{{ .PerconaSSODetails.OrganizationID }}') || contains(pmm_demo_ids[*], '{{ .PMMServerID }}')) && 'Admin' || 'Viewer'"
-        cfg:default.auth.generic_oauth.use_pkce="true"
-        cfg:default.auth.oauth_allow_insecure_email_lookup="true"
-        {{- end}}
 environment =
     PMM_POSTGRES_ADDR="{{ .PostgresAddr }}",
     PMM_POSTGRES_DBNAME="{{ .PostgresDBName }}",
@@ -652,9 +555,6 @@ environment =
     PMM_CLICKHOUSE_PORT="{{ .ClickhousePort }}",
     PMM_CLICKHOUSE_USER="{{ .ClickhouseUser }}",
     PMM_CLICKHOUSE_PASSWORD="{{ .ClickhousePassword }}",
-    {{- if .PerconaSSODetails}}
-    GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"
-    {{- end}}
     {{- if .HAEnabled}}
     GF_UNIFIED_ALERTING_HA_LISTEN_ADDRESS="0.0.0.0:{{ .GrafanaGossipPort }}",
     GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS="{{ .HAAdvertiseAddress }}:{{ .GrafanaGossipPort }}",
@@ -684,22 +584,6 @@ startsecs = 1
 stopsignal = INT
 stopwaitsecs = 300
 stdout_logfile = /srv/logs/nomad-server.log
-stdout_logfile_maxbytes = 10MB
-stdout_logfile_backups = 3
-redirect_stderr = true
-{{end}}
-
-{{define "otel-collector"}}
-[program:otel-collector]
-priority = 6
-command = /usr/local/percona/pmm/tools/otelcol-contrib --config=/srv/otelcol/config.yaml
-autorestart = true
-autostart = false
-startretries = 10
-startsecs = 1
-stopsignal = INT
-stopwaitsecs = 60
-stdout_logfile = /srv/logs/otel-collector.log
 stdout_logfile_maxbytes = 10MB
 stdout_logfile_backups = 3
 redirect_stderr = true

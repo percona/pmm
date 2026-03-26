@@ -1,4 +1,4 @@
-import { ManagedService } from 'types/services.types';
+import { VersionedService } from 'types/services.types';
 import {
   ClusterSelectionState,
   ServiceOption,
@@ -40,15 +40,15 @@ export const getClusterSelectionState = (
  * Build service options from available services
  */
 export const getServiceOptions = (
-  services: ManagedService[] | RealtimeSession[]
+  services: VersionedService[] | RealtimeSession[]
 ): ServiceOption[] => {
   if (services.length === 0) {
     return [];
   }
 
   // Group services by cluster
-  const clusterMap = new Map<string, (ManagedService | RealtimeSession)[]>();
-  const standaloneServices: (ManagedService | RealtimeSession)[] = [];
+  const clusterMap = new Map<string, (VersionedService | RealtimeSession)[]>();
+  const standaloneServices: (VersionedService | RealtimeSession)[] = [];
 
   services.forEach((service) => {
     let clusterName = '';
