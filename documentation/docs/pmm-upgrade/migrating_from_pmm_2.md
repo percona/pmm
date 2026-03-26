@@ -1,26 +1,53 @@
 # Migrate PMM 2 to PMM 3
 
-PMM 2 is no longer actively developed. For new features, security updates and ongoing support, you'll need to migrate to PMM 3.
+If you are still running PMM 2, plan your migration now. PMM 2 is no longer actively developed and does not receive new features or security updates.
 
-PMM 3 delivers significant architectural changes that require a gradual transition from PMM 2. The migration process keeps your existing monitoring data and configurations, ensuring monitoring continuity. You can migrate to PMM 3 automatically using the automated migration script (recommended), or manually, following step-by-step instructions.
+Migration support ends with PMM 3.12. After that, migrating from PMM 2 will require a fresh PMM 3 installation and re-registering all your monitored services.
 
-We recommend beginning your evaluation of PMM 3 in a test environment for a smooth transition. To gradually migrate to PMM 3:
+## Migration path
+
+Migrations from PMM 2.x follow a two-step upgrade path through PMM 3.7.0, which serves as the designated stepping-stone version:
+
+```
+PMM 2.x > PMM 2.44.1 > PMM 3.7 > latest PMM 3.x
+```
 
 ## Step 1: Create a backup before any changes
 
 Migration involves significant architectural changes that cannot be reversed without a backup. 
 Before proceeding with migration, you must [create a complete backup](../install-pmm/install-pmm-server/deployment-options/docker/backup_container.md) of your current PMM 2 deployment. 
 
-## Step 1: Upgrade PMM 2 Server to the latest version
+## Step 2: Upgrade to the latest PMM 2 release
 
-Before migrating PMM 2 to PMM 3, ensure your PMM 2 Server is running the latest version:
-{.power-number}
+Before migrating to PMM 3, ensure your PMM 2 Server is running PMM 2.44.1 (the final PMM 2 release). Migration is only tested and supported from this version.
 
-1. From the **Home** page, scroll to the **PMM Upgrade** panel and click the Refresh button to check for updates manually.
-2. If an update is available, click the **Update** button to install the latest PMM 2 version.
-3. Verify that the update was successful by checking the version number after the update completes.
+=== "From the UI"
+    {.power-number}
 
-## Step 2: Migrate PMM 2 Server to PMM 3
+    1. From the **Home** page, scroll to the **PMM Upgrade** panel and click **Refresh** to check for updates.
+    2. If an update is available, click **Update** to install PMM 2.44.1.
+    3. Verify the version number shows 2.44.1.
+
+=== "Using Docker"
+    {.power-number}
+
+    1. Stop and remove the current container:
+    ```sh
+        docker stop pmm-server && docker rm pmm-server
+    ```
+    2. Pull the latest PMM 2 image:
+    ```sh
+        docker pull percona/pmm-server:2
+    ```
+    3. Run the updated container with your existing volume:
+    ```sh
+        docker run -d -v pmm-data:/srv -p 443:443 --name pmm-server --restart always percona/pmm-server:2
+    ```
+    4. Verify the version shows 2.44.1 in the PMM UI.
+
+## Step 3: Migrate PMM 2.44.1 to PMM 3.7.0
+
+Once your server is running PMM 2.44.1, migrate to PMM 3.7.0 using one of the methods below:
 
 === "Automated Docker migration (Recommended)"
     Use this upgrade script for a simplified migration process.
@@ -31,20 +58,20 @@ Before migrating PMM 2 to PMM 3, ensure your PMM 2 Server is running the latest 
 	curl -o get-pmm.sh https://www.percona.com/get/pmm
 	```
     2. Make the script executable: 
-        ```sh
-        chmod +x get-pmm.sh
-        ```
+    ```sh
+    chmod +x get-pmm.sh
+    ```
     3. Run the migration script with the `-b` flag to create a backup of your PMM2 instance before the migration:
 
-        ```sh
-        ./get-pmm.sh -n <container-name> -b
-        ```
+    ```sh
+    ./get-pmm.sh -n <container-name> -b
+    ```
     4. Note the backup volume name displayed during the migration (e.g., `pmm-data-2025-01-16-165135`) so that you can restore this backup if needed.
 
     5. Check additional script options:
-        ```sh
-        ./get-pmm.sh -h
-        ```
+    ```sh
+    ./get-pmm.sh -h
+    ```
     !!! note alert alert-primary "Restore PMM 2 backup"
         If you need to revert to the PMM 2 instance, restore the backup created above:
         { .power-number}
@@ -276,20 +303,25 @@ Before migrating PMM 2 to PMM 3, ensure your PMM 2 Server is running the latest 
             1. Access old instance via SSH.
             2. Start services: `supervisorctl start all`.
             3. Update client configurations to point to old instance.
+## Step 4: Upgrade PMM 3.7 to the latest version
 
-## Step 3: Migrate PMM 2 Clients to PMM 3
+Once you have successfully migrated to PMM 3.7, upgrade to the latest PMM release using the standard upgrade method for your deployment:
+
+- [Upgrade PMM Server using Docker](upgrade_docker.md)
+- [Upgrade PMM Server using Podman](upgrade_podman.md)
+- [Upgrade PMM Server using Helm](upgrade_helm.md)
+
+## Step 5: Migrate PMM 2 Clients to PMM 3
 
 !!! caution alert alert-warning "Important"
-<<<<<<< HEAD
     PMM 2 Clients are deprecated. Compatibility with PMM Server 3.4.0 and later is not guaranteed, and transitional support will be removed in a future release. Upgrade to PMM 3 Client as soon as possible to ensure full functionality.
-=======
+
     PMM 3 Server provides limited support for PMM 2 Clients (metrics and Query Analytics only).
->>>>>>> doc_3.6.0
 
 Depending on your initial installation method, update PMM Clients using your operating system's package manager or using a tarball.
 For detailed instructions, see the [Upgrade PMM Client topic](../pmm-upgrade/upgrade_client.md).
 
-## Step 4: Migrate your API keys to service accounts
+## Step 6: Migrate your API keys to service accounts
 
 PMM 3 replaces API keys with service accounts to enhance security and simplify access management. You can trigger this API key conversion from the UI or from the CLI.
 

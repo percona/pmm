@@ -1,5 +1,8 @@
 # Configure environment variables for PMM Server (Virtual machines: AMI/OVF)
 
+!!! warning "Deprecation notice"
+    OVF virtual appliance deployment is deprecated starting with PMM 3.7.0 and will be removed in PMM 3.9.0 (expected July 2026). If you currently run PMM on a virtual appliance, [migrate to a supported deployment method](index.md).
+
 Set up environment variables in the `systemd` environment file to customize performance, storage, features, and other settings without modifying the container directly. Use these instructions if you have PMM Server running on:
 
 - **AWS AMI instances**: EC2 instances deployed from AWS Marketplace
