@@ -119,6 +119,7 @@ type adreSettingsResponse struct {
 	AdreMaxConversationMessages   int             `json:"adre_max_conversation_messages"`
 	QanInsightsPrompt             string          `json:"qan_insights_prompt"`
 	QanInsightsPromptDisplay      string          `json:"qan_insights_prompt_display"`
+	QanInsightsModel              string          `json:"qan_insights_model"`
 	ServiceNowURL                 string          `json:"servicenow_url"`
 	ServiceNowConfigured          bool            `json:"servicenow_configured"`
 	PromptMaxBytes                int             `json:"prompt_max_bytes"`
@@ -176,6 +177,7 @@ func (h *Handlers) GetSettings(w http.ResponseWriter, r *http.Request) {
 		AdreMaxConversationMessages:   settings.Adre.AdreMaxConversationMessages,
 		QanInsightsPrompt:             settings.Adre.QanInsightsPrompt,
 		QanInsightsPromptDisplay:      qanInsightsPromptDisplay,
+		QanInsightsModel:              settings.Adre.QanInsightsModel,
 		ServiceNowURL:                 settings.Adre.ServiceNowURL,
 		ServiceNowConfigured:          settings.Adre.ServiceNowURL != "" && settings.Adre.ServiceNowAPIKey != "" && settings.Adre.ServiceNowClientToken != "",
 		PromptMaxBytes:                settings.Adre.PromptMaxBytes,
@@ -213,6 +215,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		BehaviorControlsFormatReport  *map[string]bool `json:"behavior_controls_format_report"`
 		AdreMaxConversationMessages   *int             `json:"adre_max_conversation_messages"`
 		QanInsightsPrompt             *string          `json:"qan_insights_prompt"`
+		QanInsightsModel              *string          `json:"qan_insights_model"`
 		ServiceNowURL                 *string          `json:"servicenow_url"`
 		ServiceNowAPIKey              *string          `json:"servicenow_api_key"`
 		ServiceNowClientToken         *string          `json:"servicenow_client_token"`
@@ -225,7 +228,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 	hasChange := body.Enabled != nil || body.URL != nil || body.ChatPrompt != nil ||
 		body.InvestigationPrompt != nil || body.ChatModel != nil || body.InvestigationModel != nil || body.DefaultChatMode != nil ||
 		body.BehaviorControlsFast != nil || body.BehaviorControlsInvestigation != nil || body.BehaviorControlsFormatReport != nil ||
-		body.AdreMaxConversationMessages != nil || body.QanInsightsPrompt != nil ||
+		body.AdreMaxConversationMessages != nil || body.QanInsightsPrompt != nil || body.QanInsightsModel != nil ||
 		body.ServiceNowURL != nil || body.ServiceNowAPIKey != nil || body.ServiceNowClientToken != nil ||
 		body.PromptMaxBytes != nil
 	if !hasChange {
@@ -289,6 +292,10 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		trimmed := strings.TrimSpace(*body.InvestigationModel)
 		body.InvestigationModel = &trimmed
 	}
+	if body.QanInsightsModel != nil {
+		trimmed := strings.TrimSpace(*body.QanInsightsModel)
+		body.QanInsightsModel = &trimmed
+	}
 	if body.AdreMaxConversationMessages != nil {
 		n := *body.AdreMaxConversationMessages
 		if n != 0 && (n < 4 || n > 200) {
@@ -331,6 +338,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		AdreBehaviorControlsFormatReport:  body.BehaviorControlsFormatReport,
 		AdreMaxConversationMessages:       body.AdreMaxConversationMessages,
 		AdreQanInsightsPrompt:             body.QanInsightsPrompt,
+		AdreQanInsightsModel:              body.QanInsightsModel,
 		ServiceNowURL:                     body.ServiceNowURL,
 		ServiceNowAPIKey:                  body.ServiceNowAPIKey,
 		ServiceNowClientToken:             body.ServiceNowClientToken,
@@ -370,6 +378,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		AdreMaxConversationMessages:   settings.Adre.AdreMaxConversationMessages,
 		QanInsightsPrompt:             settings.Adre.QanInsightsPrompt,
 		QanInsightsPromptDisplay:      qanInsightsPromptDisplayPost,
+		QanInsightsModel:              settings.Adre.QanInsightsModel,
 		ServiceNowURL:                 settings.Adre.ServiceNowURL,
 		ServiceNowConfigured:          settings.Adre.ServiceNowURL != "" && settings.Adre.ServiceNowAPIKey != "" && settings.Adre.ServiceNowClientToken != "",
 		PromptMaxBytes:                settings.Adre.PromptMaxBytes,
@@ -639,6 +648,7 @@ func (h *Handlers) PostQanInsights(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 	chatResp, err := client.Chat(ctx, &ChatRequest{
 		Ask:                    userMessage,
+		Model:                  strings.TrimSpace(settings.Adre.QanInsightsModel),
 		AdditionalSystemPrompt: resolveQanInsightsPrompt(settings),
 		PageContext:            pageContext,
 		Stream:                 false,

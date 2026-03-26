@@ -155,6 +155,8 @@ type ChangeSettingsParams struct {
 	AdreMaxConversationMessages *int
 	// AdreQanInsightsPrompt: system prompt for QAN AI Insights. Max AdrePromptMaxBytes.
 	AdreQanInsightsPrompt *string
+	// AdreQanInsightsModel is default Holmes model alias for QAN AI Insights. Empty uses Holmes default.
+	AdreQanInsightsModel *string
 	// ServiceNow integration fields.
 	ServiceNowURL         *string
 	ServiceNowAPIKey      *string
@@ -345,6 +347,9 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	if params.AdreQanInsightsPrompt != nil {
 		settings.Adre.QanInsightsPrompt = pointer.GetString(params.AdreQanInsightsPrompt)
 	}
+	if params.AdreQanInsightsModel != nil {
+		settings.Adre.QanInsightsModel = strings.TrimSpace(pointer.GetString(params.AdreQanInsightsModel))
+	}
 	if params.ServiceNowURL != nil {
 		settings.Adre.ServiceNowURL = pointer.GetString(params.ServiceNowURL)
 	}
@@ -454,6 +459,11 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 	}
 	if params.AdreInvestigationModel != nil {
 		if err := validateAdreModelAlias("investigation_model", *params.AdreInvestigationModel); err != nil {
+			return err
+		}
+	}
+	if params.AdreQanInsightsModel != nil {
+		if err := validateAdreModelAlias("qan_insights_model", *params.AdreQanInsightsModel); err != nil {
 			return err
 		}
 	}

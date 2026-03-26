@@ -373,13 +373,16 @@ func TestSettings(t *testing.T) {
 		t.Run("ADRE per-mode models", func(t *testing.T) {
 			fastModel := "openai/gpt-4o-mini"
 			investigationModel := "anthropic/claude-opus-4-6"
+			qanInsightsModel := "openai/gpt-4.1"
 			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
 				AdreChatModel:          &fastModel,
 				AdreInvestigationModel: &investigationModel,
+				AdreQanInsightsModel:   &qanInsightsModel,
 			})
 			require.NoError(t, err)
 			assert.Equal(t, fastModel, ns.Adre.ChatModel)
 			assert.Equal(t, investigationModel, ns.Adre.InvestigationModel)
+			assert.Equal(t, qanInsightsModel, ns.Adre.QanInsightsModel)
 
 			invalid := "bad\nmodel"
 			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
@@ -388,6 +391,12 @@ func TestSettings(t *testing.T) {
 			var errInvalidArgument *models.InvalidArgumentError
 			assert.True(t, errors.As(err, &errInvalidArgument))
 			assert.Contains(t, err.Error(), "chat_model: contains invalid control characters")
+
+			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+				AdreQanInsightsModel: &invalid,
+			})
+			assert.True(t, errors.As(err, &errInvalidArgument))
+			assert.Contains(t, err.Error(), "qan_insights_model: contains invalid control characters")
 		})
 	})
 }

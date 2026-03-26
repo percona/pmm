@@ -49,10 +49,13 @@ export interface AdreSettings {
   adre_max_conversation_messages?: number;
   /** System prompt for QAN AI Insights. Empty = use built-in default. */
   qanInsightsPrompt?: string;
+  /** Default Holmes model alias for QAN AI Insights. Empty uses Holmes default. */
+  qanInsightsModel?: string;
   /** Display value when qan_insights_prompt is empty (built-in default). */
   qanInsightsPromptDisplay?: string;
   qan_insights_prompt?: string;
   qan_insights_prompt_display?: string;
+  qan_insights_model?: string;
   /** ServiceNow Percona Connector API URL. */
   servicenowUrl?: string;
   servicenow_url?: string;

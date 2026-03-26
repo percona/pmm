@@ -64,6 +64,7 @@ const AdreSettingsPage: FC = () => {
   const [localDefaultChatMode, setLocalDefaultChatMode] = useState<'fast' | 'investigation'>('fast');
   const [localFastModel, setLocalFastModel] = useState('');
   const [localInvestigationModel, setLocalInvestigationModel] = useState('');
+  const [localQanInsightsModel, setLocalQanInsightsModel] = useState('');
   const [localAdreMaxConversationMessages, setLocalAdreMaxConversationMessages] = useState(40);
   const [localBehaviorFast, setLocalBehaviorFast] = useState<Record<string, boolean>>(() =>
     hydrateAdreBehaviorMap(undefined, 'fast')
@@ -102,6 +103,7 @@ const AdreSettingsPage: FC = () => {
       setLocalDefaultChatMode(dm === 'investigation' ? 'investigation' : 'fast');
       setLocalFastModel(settings.chatModel ?? settings.chat_model ?? '');
       setLocalInvestigationModel(settings.investigationModel ?? settings.investigation_model ?? '');
+      setLocalQanInsightsModel(settings.qanInsightsModel ?? settings.qan_insights_model ?? '');
       setLocalAdreMaxConversationMessages(
         settings.adreMaxConversationMessages ??
           settings.adre_max_conversation_messages ??
@@ -264,6 +266,23 @@ const AdreSettingsPage: FC = () => {
                       ))}
                     </Select>
                   </FormControl>
+                  <FormControl size="small" fullWidth>
+                    <InputLabel>QAN Insights model</InputLabel>
+                    <Select
+                      value={localQanInsightsModel}
+                      label="QAN Insights model"
+                      onChange={(e: SelectChangeEvent<string>) =>
+                        setLocalQanInsightsModel(e.target.value)
+                      }
+                    >
+                      <MenuItem value="">Holmes default</MenuItem>
+                      {models.map((m) => (
+                        <MenuItem key={`qan-insights-${m}`} value={m}>
+                          {m}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
                   <TextField
                     label="Max conversation messages to Holmes"
                     type="number"
@@ -404,6 +423,7 @@ const AdreSettingsPage: FC = () => {
                         default_chat_mode: localDefaultChatMode,
                         chat_model: localFastModel || undefined,
                         investigation_model: localInvestigationModel || undefined,
+                        qan_insights_model: localQanInsightsModel || undefined,
                         adre_max_conversation_messages: localAdreMaxConversationMessages,
                         behavior_controls_fast: localBehaviorFast,
                         behavior_controls_investigation: localBehaviorInvestigation,

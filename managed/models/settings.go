@@ -128,6 +128,8 @@ type Settings struct {
 		AdreSchemaVersion int `json:"adre_schema_version"`
 		// QanInsightsPrompt is the system prompt for QAN AI Insights (query analytics and optimization). Empty = use built-in default.
 		QanInsightsPrompt string `json:"qan_insights_prompt"`
+		// QanInsightsModel is default Holmes model for QAN AI Insights. Empty uses Holmes default model.
+		QanInsightsModel string `json:"qan_insights_model"`
 		// ServiceNow integration fields.
 		ServiceNowURL         string `json:"servicenow_url"`
 		ServiceNowAPIKey      string `json:"servicenow_api_key"`
