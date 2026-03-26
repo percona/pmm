@@ -7,13 +7,11 @@ export const CARD_IDS = {
   forum: 'forum',
   pmmDump: 'pmm-dump',
   pmmLogs: 'pmm-logs',
-  tips: 'tips',
   nextChapter: 'next-chapter',
 };
 
 export const START_ICON = {
   download: 'download',
-  map: 'map',
 };
 
 export const getCardData = (): HelpCard[] => [
@@ -21,7 +19,7 @@ export const getCardData = (): HelpCard[] => [
     id: CARD_IDS.pmmDocs,
     title: 'PMM documentation',
     description:
-      'From setup to troubleshooting, you’ll find step-by-step instructions, tips, and best practices to get the most out of PMM.',
+      'From setup to troubleshooting, you’ll find step-by-step instructions, and best practices to get the most out of PMM.',
     buttons: [
       {
         text: 'View docs',
