@@ -3,7 +3,7 @@ applyTo: agent/**
 ---
 # pmm-agent Development Guidelines
 
-> **Parent guide**: [PMM_AGENTS.md](../../PMM_AGENTS.md) — product overview, architecture, domain model, global conventions
+> **Parent guide**: [AGENTS.md](../../AGENTS.md) — product overview, architecture, domain model, global conventions
 > **Related**: [managed.instructions.md](managed.instructions.md) (server backend) · [api.instructions.md](api.instructions.md) (API definitions) · [admin.instructions.md](admin.instructions.md) (CLI)
 
 **pmm-agent** is the client-side monitoring agent for PMM. It runs on every monitored host, managing metric exporters as child processes, running built-in QAN and Real-Time Analytics (RTA) collectors in-process, executing on-demand actions (explain, PT summary), and performing backup/restore jobs. It communicates with pmm-managed on the PMM Server over a persistent bidirectional gRPC stream.

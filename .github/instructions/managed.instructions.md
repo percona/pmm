@@ -3,7 +3,7 @@ applyTo: managed/**
 ---
 # pmm-managed Development Guidelines
 
-> **Parent guide**: [PMM_AGENTS.md](../../PMM_AGENTS.md) — product overview, architecture, domain model, global conventions
+> **Parent guide**: [AGENTS.md](../../AGENTS.md) — product overview, architecture, domain model, global conventions
 > **Related**: [api.instructions.md](api.instructions.md) (API definitions) · [agent.instructions.md](agent.instructions.md) (client agent) · [qan-api2.instructions.md](qan-api2.instructions.md) (QAN backend)
 
 **pmm-managed** is the core backend service of PMM Server. It manages configuration of server-side components (VictoriaMetrics, Grafana, QAN, VMAlert, Alertmanager), maintains the inventory of monitored nodes/services/agents, orchestrates backups, runs advisor checks, handles HA consensus, and exposes gRPC/REST APIs consumed by pmm-admin, pmm-agent, and the UI.

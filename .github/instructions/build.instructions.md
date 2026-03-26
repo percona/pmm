@@ -3,7 +3,7 @@ applyTo: build/**
 ---
 # PMM Build and Packaging Guidelines
 
-> **Parent guide**: [PMM_AGENTS.md](../../PMM_AGENTS.md) — product overview, architecture, domain model, global conventions
+> **Parent guide**: [AGENTS.md](../../AGENTS.md) — product overview, architecture, domain model, global conventions
 
 The `/build` directory contains everything needed to build, package, and distribute PMM Server and PMM Client as Docker images, RPM/DEB packages, and cloud machine images (AMI, OVA, Azure, DigitalOcean).
 

@@ -3,7 +3,7 @@ applyTo: ui/**
 ---
 # PMM UI Development Guidelines
 
-> **Parent guide**: [PMM_AGENTS.md](../../PMM_AGENTS.md) — product overview, architecture, domain model, global conventions
+> **Parent guide**: [AGENTS.md](../../AGENTS.md) — product overview, architecture, domain model, global conventions
 > **Related**: [api.instructions.md](api.instructions.md) (API definitions consumed by UI) · [managed.instructions.md](managed.instructions.md) (server backend)
 
 The `/ui` directory contains the PMM web frontend — a React/TypeScript application that provides the primary user interface for Percona Monitoring and Management. It runs inside a Grafana iframe on PMM Server and also hosts standalone pages for updates, RTA, and help.

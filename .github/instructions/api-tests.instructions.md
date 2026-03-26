@@ -3,7 +3,7 @@ applyTo: api-tests/**
 ---
 # PMM API Tests Development Guidelines
 
-> **Parent guide**: [PMM_AGENTS.md](../../PMM_AGENTS.md) — product overview, architecture, domain model, global conventions
+> **Parent guide**: [AGENTS.md](../../AGENTS.md) — product overview, architecture, domain model, global conventions
 > **Related**: [api.instructions.md](api.instructions.md) (API definitions and generated clients used by tests) · [managed.instructions.md](managed.instructions.md) (server-side implementation being tested)
 
 The `/api-tests` directory contains **integration tests** for PMM APIs. These tests run against a **live PMM Server** and verify end-to-end API behavior using the generated Go HTTP clients from Swagger specs.

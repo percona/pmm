@@ -1,6 +1,6 @@
 # PMM AI Agent Instructions — Claude Code Entry Point
 
-Read [PMM_AGENTS.md](PMM_AGENTS.md) for the complete PMM development guide, including product overview, architecture, domain model, tech stack, and global conventions.
+Read [AGENTS.md](AGENTS.md) for the complete PMM development guide, including product overview, architecture, domain model, tech stack, and global conventions.
 
 ## Component Guides
 
