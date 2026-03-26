@@ -4,7 +4,6 @@ import ForumOutlined from '@mui/icons-material/ForumOutlined';
 import DatasetOutlined from '@mui/icons-material/DatasetOutlined';
 import NorthEast from '@mui/icons-material/NorthEast';
 import SaveAlt from '@mui/icons-material/SaveAlt';
-import MapOutlined from '@mui/icons-material/MapOutlined';
 import { FC, ReactNode, useCallback } from 'react';
 import { CARD_IDS, START_ICON } from '../HelpCenter.constants';
 import { HelpCenterCardProps } from './HelpCenterCard.types';
@@ -33,8 +32,6 @@ export const HelpCenterCard: FC<HelpCenterCardProps> = ({ card }) => {
     switch (iconName) {
       case START_ICON.download:
         return <SaveAlt />;
-      case START_ICON.map:
-        return <MapOutlined />;
       default:
         return null;
     }
