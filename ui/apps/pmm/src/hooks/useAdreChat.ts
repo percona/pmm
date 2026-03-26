@@ -128,6 +128,7 @@ export function useAdreChat() {
   const [response, setResponse] = useState(() => loadFromStorage().response);
   const [reasoning, setReasoning] = useState(() => loadFromStorage().reasoning);
   const [loading, setLoading] = useState(false);
+  const [chatError, setChatError] = useState<string | null>(null);
   const [progressSteps, setProgressSteps] = useState<ProgressStep[]>([]);
   const [history, setHistory] = useState<ChatMessage[]>(() => loadFromStorage().history);
   const streamStartTimeRef = useRef<number | null>(null);
@@ -142,6 +143,7 @@ export function useAdreChat() {
     if (!userAsk) return;
 
     setLoading(true);
+    setChatError(null);
     setResponse('');
     setReasoning('');
     setProgressSteps([]);
@@ -218,7 +220,10 @@ export function useAdreChat() {
       setResponse('');
       setReasoning('');
     } catch (err) {
-      enqueueSnackbar(err instanceof Error ? err.message : 'Chat request failed', { variant: 'error' });
+      const rawMessage = err instanceof Error ? err.message : 'Chat request failed';
+      const normalizedMessage = normalizeChatError(rawMessage);
+      setChatError(normalizedMessage);
+      enqueueSnackbar(normalizedMessage, { variant: 'error' });
     } finally {
       setLoading(false);
       setProgressSteps([]);
@@ -246,6 +251,7 @@ export function useAdreChat() {
     setHistory([]);
     setResponse('');
     setReasoning('');
+    setChatError(null);
     setProgressSteps([]);
     progressStepsRef.current = [];
     clearPanelImageCache();
@@ -262,9 +268,24 @@ export function useAdreChat() {
     progressSteps,
     allMessages,
     settings,
+    chatError,
     handleSend,
     clearHistory,
   };
+}
+
+function normalizeChatError(message: string): string {
+  const text = message.toLowerCase();
+  if (
+    text.includes('token') ||
+    text.includes('context window') ||
+    text.includes('too large to return') ||
+    text.includes('maximum allowed tokens')
+  ) {
+    return 'Token/context limit reached. Narrow scope (service/time window), reduce Prometheus range/max_points, or retry in smaller steps.';
+  }
+
+  return message;
 }
 
 export function formatTimestamp(ts: number): string {

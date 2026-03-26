@@ -1,16 +1,28 @@
 import {
+  Alert,
   Box,
+  Button,
+  ButtonGroup,
+  ClickAwayListener,
   Collapse,
-  IconButton,
+  Grow,
   MenuItem,
-  Select,
+  MenuList,
+  Paper,
+  Popper,
+  IconButton,
   Stack,
   TextField,
+  ToggleButton,
+  ToggleButtonGroup,
+  Tooltip,
   Typography,
 } from '@mui/material';
+import HelpOutline from '@mui/icons-material/HelpOutline';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import Send from '@mui/icons-material/Send';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { FC, useState, useCallback, useEffect, useRef } from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -21,14 +33,16 @@ import { getMarkdownComponents } from 'components/adre/adre-chat-markdown';
 
 export const AdreChatPanel: FC = () => {
   const { data: models = [] } = useAdreModels();
-  const { response, reasoning, loading, progressSteps, allMessages, settings, handleSend } = useAdreChat();
+  const { response, reasoning, loading, progressSteps, allMessages, settings, chatError, handleSend } = useAdreChat();
   const [ask, setAsk] = useState('');
   const [model, setModel] = useState('');
   const [mode, setMode] = useState<'fast' | 'investigation'>('fast');
+  const [modelMenuOpen, setModelMenuOpen] = useState(false);
   const [expandedReasoningIdx, setExpandedReasoningIdx] = useState<number | null>(null);
   const [expandedProgressIdx, setExpandedProgressIdx] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const modelAnchorRef = useRef<HTMLDivElement>(null);
 
   const defaultModeSyncedRef = useRef(false);
   useEffect(() => {
@@ -65,73 +79,12 @@ export const AdreChatPanel: FC = () => {
     await handleSend(userAsk, { model: model || undefined, mode });
   }, [ask, model, mode, handleSend]);
 
+  const selectedModelLabel = model || 'Default';
+
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1} sx={{ mb: 1, px: 0 }}>
-        <Stack direction="row" alignItems="center" gap={2}>
-          <Stack direction="row" sx={{ borderBottom: 1, borderColor: 'divider' }}>
-            <Typography
-              component="button"
-              variant="body2"
-              onClick={() => setMode('fast')}
-              sx={{
-                border: 'none',
-                background: 'none',
-                cursor: 'pointer',
-                p: 1,
-                pb: 1.5,
-                color: mode === 'fast' ? 'text.primary' : 'text.secondary',
-                borderBottom: mode === 'fast' ? 2 : 0,
-                borderColor: 'primary.main',
-                mb: -0.5,
-                borderRadius: 0,
-              }}
-            >
-              Fast
-            </Typography>
-            <Typography
-              component="button"
-              variant="body2"
-              onClick={() => setMode('investigation')}
-              sx={{
-                border: 'none',
-                background: 'none',
-                cursor: 'pointer',
-                p: 1,
-                pb: 1.5,
-                color: mode === 'investigation' ? 'text.primary' : 'text.secondary',
-                borderBottom: mode === 'investigation' ? 2 : 0,
-                borderColor: 'primary.main',
-                mb: -0.5,
-                borderRadius: 0,
-              }}
-            >
-              Investigation
-            </Typography>
-          </Stack>
-          {settings?.url ? (
-            <Typography variant="caption" color="text.secondary">
-              Holmes
-            </Typography>
-          ) : null}
-        </Stack>
-        <Select
-          value={model}
-          onChange={(e: { target: { value: string } }) => setModel(e.target.value)}
-          size="small"
-          displayEmpty
-          sx={{ minWidth: 120, fontSize: '0.8125rem' }}
-          renderValue={(v) => v || 'Default'}
-        >
-          <MenuItem value="">Default</MenuItem>
-          {models.map((m: string) => (
-            <MenuItem key={m} value={m}>
-              {m}
-            </MenuItem>
-          ))}
-        </Select>
-      </Stack>
         <Stack gap={1} sx={{ flex: 1, minHeight: 0 }}>
+          {chatError ? <Alert severity="error">{chatError}</Alert> : null}
           <Box
             ref={containerRef}
             id="messages-container"
@@ -347,16 +300,94 @@ export const AdreChatPanel: FC = () => {
                 },
               }}
             />
-            <Stack direction="row" justifyContent="flex-end" sx={{ mt: 0.5 }}>
-              <IconButton
-                size="small"
-                onClick={onSend}
-                disabled={loading || !ask.trim()}
-                sx={{ color: 'primary.main' }}
-                aria-label="Send"
-              >
-                <Send />
-              </IconButton>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mt: 0.75 }}>
+              <Stack direction="row" alignItems="center" gap={0.5}>
+                <ToggleButtonGroup
+                  value={mode}
+                  exclusive
+                  size="small"
+                  onChange={(_, value: 'fast' | 'investigation' | null) => {
+                    if (!value || loading) return;
+                    setMode(value);
+                  }}
+                  aria-label="Chat mode"
+                >
+                  <ToggleButton value="fast" disabled={loading}>
+                    Fast
+                  </ToggleButton>
+                  <ToggleButton value="investigation" disabled={loading}>
+                    Investigation
+                  </ToggleButton>
+                </ToggleButtonGroup>
+                <Tooltip
+                  title={
+                    <Box>
+                      <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+                        Chat Mode
+                      </Typography>
+                      <Typography variant="body2">Fast: quick answers, lighter analysis.</Typography>
+                      <Typography variant="body2">Investigation: deeper analysis with runbooks and Todo steps.</Typography>
+                    </Box>
+                  }
+                  placement="top"
+                >
+                  <IconButton size="small" sx={{ color: 'text.secondary' }}>
+                    <HelpOutline fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              </Stack>
+              <Box ref={modelAnchorRef}>
+                <ButtonGroup variant="contained" size="small" disableElevation>
+                  <Button
+                    onClick={onSend}
+                    disabled={loading || !ask.trim()}
+                    startIcon={<Send fontSize="small" />}
+                  >
+                    {`Send (${selectedModelLabel})`}
+                  </Button>
+                  <Button
+                    size="small"
+                    onClick={() => setModelMenuOpen((open) => !open)}
+                    disabled={loading}
+                    aria-label="Select model"
+                  >
+                    <ArrowDropDownIcon />
+                  </Button>
+                </ButtonGroup>
+                <Popper open={modelMenuOpen} anchorEl={modelAnchorRef.current} transition placement="top-end">
+                  {({ TransitionProps }) => (
+                    <Grow {...TransitionProps}>
+                      <Paper elevation={6}>
+                        <ClickAwayListener onClickAway={() => setModelMenuOpen(false)}>
+                          <MenuList autoFocusItem={modelMenuOpen} dense>
+                            <MenuItem
+                              selected={model === ''}
+                              onClick={() => {
+                                setModel('');
+                                setModelMenuOpen(false);
+                              }}
+                            >
+                              Default
+                            </MenuItem>
+                            {models.map((m: string) => (
+                              <MenuItem
+                                key={m}
+                                selected={model === m}
+                                onClick={() => {
+                                  setModel(m);
+                                  setModelMenuOpen(false);
+                                }}
+                              >
+                                {m}
+                              </MenuItem>
+                            ))}
+                          </MenuList>
+                        </ClickAwayListener>
+                      </Paper>
+                    </Grow>
+                  )}
+                </Popper>
+              </Box>
             </Stack>
           </Stack>
         </Stack>

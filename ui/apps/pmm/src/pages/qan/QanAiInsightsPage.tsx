@@ -4,6 +4,13 @@ import {
   Card,
   CardContent,
   CircularProgress,
+  Divider,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   Stack,
   TextField,
   Typography,
@@ -41,6 +48,69 @@ function formatCacheTimestamp(iso: string): string {
   }
 }
 
+type AnalysisSection = { title: string; content: string };
+
+function parseAnalysisSections(raw: string): AnalysisSection[] {
+  const text = raw.trim();
+  if (!text) return [];
+
+  const markdownHeadings = text.match(/^##\s+.+$/gm);
+  if (markdownHeadings && markdownHeadings.length > 0) {
+    const sections: AnalysisSection[] = [];
+    const re = /^##\s+(.+)$/gm;
+    const matches = [...text.matchAll(re)];
+    for (let i = 0; i < matches.length; i += 1) {
+      const start = matches[i].index ?? 0;
+      const nextStart = matches[i + 1]?.index ?? text.length;
+      const title = matches[i][1].trim();
+      const content = text.slice(start + matches[i][0].length, nextStart).trim();
+      sections.push({ title, content });
+    }
+    return sections;
+  }
+
+  const lines = text.split('\n');
+  const marker = /^\s*(?:[-*•]\s*)?(Summary|Evidence|Recommendations?|EXPLAIN output|SHOW INDEX|SHOW CREATE TABLE)\s*:?\s*$/i;
+  const sections: AnalysisSection[] = [];
+  let currentTitle = 'Analysis';
+  let buffer: string[] = [];
+
+  for (const line of lines) {
+    const m = line.match(marker);
+    if (m) {
+      if (buffer.join('\n').trim()) {
+        sections.push({ title: currentTitle, content: buffer.join('\n').trim() });
+      }
+      currentTitle = m[1].trim();
+      buffer = [];
+    } else {
+      buffer.push(line);
+    }
+  }
+  if (buffer.join('\n').trim()) {
+    sections.push({ title: currentTitle, content: buffer.join('\n').trim() });
+  }
+
+  return sections.length > 0 ? sections : [{ title: 'Analysis', content: text }];
+}
+
+function parsePipeTable(text: string): string[][] {
+  const rows = text
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.includes('|'))
+    .map((line) => line.split('|').map((cell) => cell.trim()).filter((cell) => cell.length > 0))
+    .filter((cells) => cells.length > 1);
+  if (rows.length < 2) return [];
+
+  return rows.filter((r) => !r.every((c) => /^-+$/.test(c)));
+}
+
+function isStructuredSection(title: string): boolean {
+  const t = title.toLowerCase();
+  return t.includes('explain') || t.includes('show index') || t.includes('show create table');
+}
+
 const QanAiInsightsPage: FC = () => {
   const [searchParams] = useSearchParams();
   const [analysis, setAnalysis] = useState<string | null>(null);
@@ -71,6 +141,7 @@ const QanAiInsightsPage: FC = () => {
   const timeTo = getParam(searchParams, 'to');
 
   const hasContext = Boolean(serviceId.trim() && queryText.trim());
+  const analysisSections = analysis ? parseAnalysisSections(analysis) : [];
 
   const runAnalysis = (force: boolean) => {
     setLoading(true);
@@ -187,44 +258,91 @@ const QanAiInsightsPage: FC = () => {
         )}
 
         {!loading && analysis !== null && (
-          <Card variant="outlined">
-            <CardContent>
-              <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
-                <Stack>
-                  <Typography variant="subtitle1" fontWeight={600}>
-                    Analysis
-                  </Typography>
-                  {cachedAt && (
-                    <Typography variant="caption" color="text.secondary">
-                      Last analyzed: {formatCacheTimestamp(cachedAt)}
+          <Stack gap={1.25}>
+            <Card variant="outlined">
+              <CardContent>
+                <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
+                  <Stack>
+                    <Typography variant="subtitle1" fontWeight={600}>
+                      AI Insights
                     </Typography>
-                  )}
+                    {cachedAt && (
+                      <Typography variant="caption" color="text.secondary">
+                        Last analyzed: {formatCacheTimestamp(cachedAt)}
+                      </Typography>
+                    )}
+                  </Stack>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    startIcon={<RefreshIcon />}
+                    onClick={() => runAnalysis(true)}
+                    disabled={loading}
+                  >
+                    Re-run Analysis
+                  </Button>
                 </Stack>
-                <Button
-                  variant="outlined"
-                  size="small"
-                  startIcon={<RefreshIcon />}
-                  onClick={() => runAnalysis(true)}
-                  disabled={loading}
-                >
-                  Re-run Analysis
-                </Button>
-              </Stack>
-              <Typography
-                component="div"
-                variant="body2"
-                sx={{ '& p': { mb: 1 }, '& pre': { overflow: 'auto' } }}
-              >
-                <Markdown
-                  remarkPlugins={[remarkGfm]}
-                  rehypePlugins={[rehypeRaw]}
-                  components={getMarkdownComponents(analysis ?? '')}
-                >
-                  {analysis}
-                </Markdown>
-              </Typography>
-            </CardContent>
-          </Card>
+                <Divider />
+              </CardContent>
+            </Card>
+
+            {analysisSections.map((section, idx) => {
+              const tableRows = parsePipeTable(section.content);
+              const showTable = tableRows.length >= 2 && isStructuredSection(section.title);
+
+              return (
+                <Card variant="outlined" key={`${section.title}-${idx}`}>
+                  <CardContent>
+                    <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>
+                      {section.title}
+                    </Typography>
+                    {showTable ? (
+                      <TableContainer>
+                        <Table size="small">
+                          <TableHead>
+                            <TableRow>
+                              {tableRows[0].map((h, i) => (
+                                <TableCell key={`${h}-${i}`} sx={{ fontWeight: 600 }}>
+                                  {h}
+                                </TableCell>
+                              ))}
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {tableRows.slice(1).map((row, rowIdx) => (
+                              <TableRow key={rowIdx}>
+                                {row.map((cell, i) => (
+                                  <TableCell key={`${rowIdx}-${i}`}>
+                                    <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
+                                      {cell}
+                                    </Typography>
+                                  </TableCell>
+                                ))}
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+                    ) : (
+                      <Typography
+                        component="div"
+                        variant="body2"
+                        sx={{ '& p': { mb: 1 }, '& pre': { overflow: 'auto' } }}
+                      >
+                        <Markdown
+                          remarkPlugins={[remarkGfm]}
+                          rehypePlugins={[rehypeRaw]}
+                          components={getMarkdownComponents(section.content)}
+                        >
+                          {section.content}
+                        </Markdown>
+                      </Typography>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </Stack>
         )}
 
         {!hasUrlContext && !loading && (
