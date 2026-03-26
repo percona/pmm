@@ -10,5 +10,4 @@ export const Messages = {
   },
   ready: 'Ready to begin?',
   addService: 'Add service',
-  dismiss: 'Dismiss message',
 };
