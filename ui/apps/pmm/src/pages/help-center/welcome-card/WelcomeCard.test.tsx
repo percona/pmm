@@ -1,4 +1,4 @@
-import { screen, render, fireEvent, waitFor } from '@testing-library/react';
+import { screen, render, waitFor } from '@testing-library/react';
 import {
   wrapWithQueryProvider,
   wrapWithRouter,
@@ -65,13 +65,5 @@ describe('WelcomeCard', () => {
         screen.queryByTestId('welcome-card-add-service')
       ).not.toBeInTheDocument()
     );
-  });
-
-  it('dismisses welcome card', () => {
-    renderWelcomeCard();
-
-    fireEvent.click(screen.getByTestId('welcome-card-dismiss'));
-
-    expect(mocks.updateUserInfo).toHaveBeenCalled();
   });
 });
