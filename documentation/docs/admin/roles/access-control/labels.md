@@ -47,7 +47,7 @@ You can add standard or custom labels while adding a service to monitoring in PM
 
 === "Using pmm-admin"
 
-    You can also add standard and custom labels using [pmm-admin](../../../use/commands/pmm-admin/pmm-admin.md).
+    You can also add standard and custom labels using [pmm-admin](../../../use/commands/pmm-admin.md).
 
 ## Modifying existing labels
 PMM allows modifying certain standard labels after a service is created:
