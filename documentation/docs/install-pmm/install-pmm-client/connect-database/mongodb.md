@@ -24,53 +24,53 @@ Role privileges depend on:
 
 ### Create monitoring role
 
-After connecting to your MongoDB instance, create a custom role with the privileges required for metric collection, working with Query Analytics (QAN) and optionally creating/restoring backups:
+After connecting to your MongoDB instance, create custom role with the privileges required for metric collection, working with Query Analytics (QAN) and optionally creating/restoring backups:
   
-#### Minimum privileges
+!!! caution alert alert-warning "Important"
+    Values for username (`user`) and password (`pwd`) are examples. Replace them before using these code snippets.
 
-This role grants the essential minimum privileges needed for monitoring and QAN:
-
-```javascript
-db.getSiblingDB("admin").createRole({
-"role": "pmmMonitor",
-"privileges": [
-    {
-    "resource": { "db": "", "collection": "" },
-    "actions": [ "dbHash", "find", "listIndexes", "listCollections", "collStats", "dbStats", "indexStats" ]
-    },
-    {
-    "resource": { "db": "", "collection": "system.version" },
-    "actions": [ "find" ]
-    },
-    {
-    "resource": { "db": "", "collection": "system.profile" },
-    "actions": [ "dbStats", "collStats", "indexStats" ]
-    }         
-],
-"roles": [ ]
-})
-```
-        
-#### Full backup management privileges
-
-If you plan to use PMM's backup features, also create a role with full backup management privileges:
-
-```javascript
-db.getSiblingDB("admin").createRole({
-    "role": "pbmAnyAction",
+=== "Minimum privileges"
+    This role grants the essential minimum privileges needed for monitoring and QAN:
+    ```javascript
+    db.getSiblingDB("admin").createRole({
+    "role": "pmmMonitor",
     "privileges": [
-    {
-        "resource": { "anyResource": true  },
-        "actions": [ "anyAction" ]
-    }
+        {
+        "resource": { "db": "", "collection": "" },
+        "actions": [ "dbHash", "find", "listIndexes", "listCollections", "collStats", "dbStats", "indexStats" ]
+        },
+        {
+        "resource": { "db": "", "collection": "system.version" },
+        "actions": [ "find" ]
+        },
+        {
+        "resource": { "db": "", "collection": "system.profile" },
+        "actions": [ "dbStats", "collStats", "indexStats" ]
+        }         
     ],
-    "roles": []
-});
-```
+    "roles": [ ]
+    })
+    ```
+        
+=== "Full backup management privileges"
+    If you plan to use PMM's backup features, create a role with full backup management privileges:
+
+    ```javascript
+    db.getSiblingDB("admin").createRole({
+        "role": "pbmAnyAction",
+        "privileges": [
+        {
+            "resource": { "anyResource": true  },
+            "actions": [ "anyAction" ]
+        }
+        ],
+        "roles": []
+    });
+    ```
 
 ### Create user and assign created role
 
-After creating the custom roles, create the PMM user and assign the roles based on your MongoDB version and requirements:
+After creating the role, create the PMM user and assign role based on your MongoDB version and requirements:
 
 === "MongoDB 8.0+ (Standard)"
     MongoDB 8.0 introduced stricter security for direct shard access. For MongoDB 8.0 and later, the PMM user also requires the `directShardOperations` role to collect complete metrics from all cluster components:
@@ -349,7 +349,7 @@ After configuring your database server, add a MongoDB service using either the u
         --password=your_secure_password \
         --host=127.0.0.1 \
         --port=27017 \        
-        --cluster=my_cluster_or_rs_name \
+        --cluster=my_cluster_name \
         --enable-all-collectors        
         ```
 
@@ -360,7 +360,7 @@ After configuring your database server, add a MongoDB service using either the u
         --password=your_secure_password \
         --host=127.0.0.1 \
         --port=27017 \        
-        --cluster=my_cluster_or_rs_name \
+        --cluster=my_cluster_name \
         --enable-all-collectors \      
         --tls-skip-verify        
         ```     
@@ -372,7 +372,7 @@ After configuring your database server, add a MongoDB service using either the u
         --password=your_secure_password \
         --host=127.0.0.1 \
         --port=27017 \        
-        --cluster=my_cluster_or_rs_name \
+        --cluster=my_cluster_name \
         --enable-all-collectors \      
         --query-source=mongolog         
         ```        
@@ -390,15 +390,15 @@ After configuring your database server, add a MongoDB service using either the u
         --tls-ca-file=/path/to/ca.pem \
         --authentication-mechanism=MONGODB-X509 \
         --authentication-database=$external \
-        --cluster=my_cluster_or_rs_name \
+        --cluster=my_cluster_name \
         --enable-all-collectors        
         ```
     
     When successful, PMM Client will print `MongoDB Service added` with the service's ID and name. Use the `--environment` and `--custom-labels` options to set tags for the service to help identify them.
 
     !!! hint alert alert-success "Tips"
-        - When adding members of a replica set or sharded cluster, ensure to add each node using the same `--cluster my_cluster_or_rs_name`. This allows the [MongoDB Cluster Summary](../../../reference/dashboards/dashboard-mongodb-cluster-summary.md) and [MongoDB ReplSetSummary](../../../reference/dashboards/dashboard-mongodb-replset-summary.md) dashboards to populate correctly. 
-        - PMM does not gather collection and index metrics if it detects you have more than 200 collections, in order to limit the resource consumption. Check the [advanced options](../../../use/commands/pmm-admin/add.md#collector-options) section if you want to modify this behaviour. 
+        - When adding nodes to a sharded cluster, ensure to add each node using the same `--cluster mycluster` option. This allows the [MongoDB Cluster Summary](../../../reference/dashboards/dashboard-mongodb-cluster-summary.md) dashboard to populate correctly. 
+        - PMM does not gather collection and index metrics if it detects you have more than 200 collections, in order to limit the resource consumption. Check the [advanced options](../../../use/commands/pmm-admin.md#advanced-options) section if you want to modify this behaviour. 
         - When running mongos routers in containers, specify the `diagnosticDataCollectionDirectoryPath` to ensure that pmm-agent can properly capture mongos metrics. For example: `mongos --setParameter diagnosticDataCollectionDirectoryPath=/var/log/mongo/mongos.diagnostic.data/`
         
 
@@ -492,7 +492,7 @@ If you need to remove MongoDB service from PMM, follow these steps:
 
 ## Related topics
 
-- [`pmm-admin add mongodb`](../../../use/commands/pmm-admin/add.md)
+- [`pmm-admin add mongodb`](../../../use/commands/pmm-admin.md#database-commands)
 - [Troubleshooting connection difficulties]
 
 [MongoDB]: https://www.mongodb.com/
@@ -501,5 +501,5 @@ If you need to remove MongoDB service from PMM, follow these steps:
 [YAML]: http://yaml.org/spec/
 [MONGODB_CONFIG_OP_PROF]: https://docs.mongodb.com/manual/reference/configuration-options/#operationprofiling-options
 [PSMDB_RATELIMIT]: https://www.percona.com/doc/percona-server-for-mongodb/LATEST/rate-limit.html#enabling-the-rate-limit
-[PMM_ADMIN_MAN_PAGE]: ../../../use/commands/pmm-admin/add.md
+[PMM_ADMIN_MAN_PAGE]: ../../../use/commands/pmm-admin.md#database-commands
 [Troubleshooting connection difficulties]: ../../../troubleshoot/config_issues.md#connection-difficulties
