@@ -2,19 +2,22 @@ import { DataLinkBuiltInVars, locationUtil, textUtil, urlUtil } from '@grafana/d
 import { config, getTemplateSrv } from '@grafana/runtime';
 import { DashboardLink } from '@grafana/schema';
 
+/**
+ * Needs to be in sync with public/app/features/panel/panellinks/link_srv.ts LinkSrv.getLinkUrl
+ */
 const getLinkUrl = (link: Partial<DashboardLink>) => {
-  let params: { [key: string]: any } = {};
+  let url = link.url ?? '';
 
   if (link.keepTime) {
-    params[`\$${DataLinkBuiltInVars.keepTime}`] = true;
+    url = urlUtil.appendQueryToUrl(url, `\$${DataLinkBuiltInVars.keepTime}`);
   }
 
   if (link.includeVars) {
-    params[`\$${DataLinkBuiltInVars.includeVars}`] = true;
+    url = urlUtil.appendQueryToUrl(url, `\$${DataLinkBuiltInVars.includeVars}`);
   }
 
-  let url = locationUtil.assureBaseUrl(urlUtil.appendQueryToUrl(link.url || '', urlUtil.toUrlParams(params)));
   url = getTemplateSrv().replace(url);
+  url = locationUtil.assureBaseUrl(url);
 
   return config.disableSanitizeHtml ? url : textUtil.sanitizeUrl(url);
 };
@@ -81,7 +84,7 @@ export const cleanupVariables = (urlWithLinks: string) => {
   const [base, params] = urlWithLinks.split('?');
 
   if (params) {
-    const variables = params.split('&').filter(filterVariable).map(fixVariables).join('&');
+    const variables = params.split('&').filter(filterVariable).join('&');
 
     return base + '?' + variables;
   }
@@ -103,12 +106,4 @@ const filterVariable = (param: string) => {
   }
 
   return true;
-};
-
-const fixVariables = (param: string) => {
-  if (param.startsWith('timezone=') && param.endsWith('=true')) {
-    return param.replace('=true', '');
-  }
-
-  return param;
 };
