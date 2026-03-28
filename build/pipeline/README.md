@@ -28,7 +28,7 @@ docker run -d --name minio -p 9000:9000 -p 9001:9001 \
 # Install and configure mc (Minio client)
 brew install minio/stable/mc  # macOS
 mc alias set pmm http://localhost:9000 minioadmin minioadmin
-mc mb pmm/pmm-build-cache
+mc mb pmm/cache
 
 # Populate cache (see Cache Maintenance section for details)
 ```
@@ -108,8 +108,8 @@ Built from external Git repositories:
 | `OUTPUT_DIR` | Output directory for artifacts | `./output` |
 | `PACKAGE_DIR` | Output directory for tarball packages | `./package` |
 | `MINIO_ENDPOINT` | Minio S3 endpoint URL | `http://localhost:9000` |
-| `MINIO_BUCKET` | Minio bucket name | `pmm-build-cache` |
-| `MINIO_CACHE_PREFIX` | Cache prefix in bucket | `repo-cache` |
+| `MINIO_BUCKET` | Minio bucket name | `cache` |
+| `MINIO_CACHE_PREFIX` | Cache prefix in bucket | `repos` |
 
 ### Component Versions (.env file)
 
@@ -191,7 +191,7 @@ brew install minio/stable/mc  # macOS
 mc alias set pmm http://localhost:9000 minioadmin minioadmin
 
 # Create bucket
-mc mb pmm/pmm-build-cache
+mc mb pmm/cache
 ```
 
 ### Minio Configuration
@@ -200,8 +200,8 @@ Configure Minio access via environment variables or `.env` file:
 
 ```bash
 MINIO_ENDPOINT=http://localhost:9000
-MINIO_BUCKET=pmm-build-cache
-MINIO_CACHE_PREFIX=repo-cache
+MINIO_BUCKET=cache
+MINIO_CACHE_PREFIX=repos
 ```
 
 ### Cache Targets
@@ -267,7 +267,7 @@ for repo in *.git; do
 done
 
 # Upload to Minio
-mc mirror --overwrite . pmm/pmm-build-cache/repo-cache/
+mc mirror --overwrite . pmm/cache/repos/
 ```
 
 **Recommended**: Set up a scheduled job (e.g., daily cron) to keep the cache fresh.
@@ -282,8 +282,8 @@ brew install minio/stable/mc  # macOS
 
 **Error: Failed to download cache from Minio**
 - Ensure Minio container is running: `docker ps | grep minio`
-- Check Minio endpoint: `mc ls pmm/pmm-build-cache/`
-- Verify bucket exists: `mc mb pmm/pmm-build-cache`
+- Check Minio endpoint: `mc ls pmm/cache/`
+- Verify bucket exists: `mc mb pmm/cache`
 - Populate cache: See Cache Maintenance section above
 
 ## Directory Structure

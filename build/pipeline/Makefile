@@ -1,6 +1,10 @@
 # Makefile for building PMM components using Docker
 
-.PHONY: help build build-all build-client build-client-tarball build-client-docker build-server client server all build-dynamic build-arm64 clean clean-cache clean-volumes clean-all builder-image build-server-docker push-client-docker gitmodules download-cache
+.PHONY: help build build-all build-client build-client-tarball build-client-docker build-server client server all build-dynamic build-arm64 clean clean-cache clean-volumes clean-all builder-image build-server-docker push-client-docker gitmodules download-cache update-cache ensure-builder build-pmm-managed check-minio
+
+# Determine directory paths regardless of where make is invoked from
+PIPELINE_DIR := $(dir $(abspath $(firstword $(MAKEFILE_LIST))))
+BUILD_ROOT := $(abspath $(PIPELINE_DIR)/..)
 
 # Build script location
 BUILD_SCRIPT := ./scripts/build-component
@@ -31,6 +35,7 @@ help:
 	@echo ""
 	@echo "Cache Management:"
 	@echo "  make download-cache           - Download repository cache from Minio"
+	@echo "  make update-cache             - Fetch upstream changes and upload to Minio"
 	@echo "  make clean-cache              - Remove local cache directory"
 	@echo "  make clean-volumes            - Remove Docker cache volumes"
 	@echo "  make clean-all                - Remove cache, volumes, and build artifacts"
@@ -55,7 +60,7 @@ help:
 	@echo "  PLATFORM          - Docker platform: linux/amd64 or linux/arm64"
 	@echo "  SERVER_PLATFORMS  - Server platforms: linux/amd64,linux/arm64 or linux/amd64 (default: linux/amd64)"
 	@echo "  MINIO_ENDPOINT    - Minio endpoint (default: http://localhost:9000)"
-	@echo "  MINIO_BUCKET      - Minio bucket name (default: pmm-build-cache)"
+	@echo "  MINIO_BUCKET      - Minio bucket name (default: cache)"
 	@echo "  OUTPUT_DIR        - Output directory (default: ./output)"
 	@echo ""
 	@echo "Examples:"
@@ -79,9 +84,13 @@ SERVER_PLATFORMS ?= linux/amd64
 GO_VERSION ?= 1.25
 
 # Minio S3 cache configuration
-MINIO_ENDPOINT ?= http://localhost:9000
-MINIO_BUCKET ?= pmm-build-cache
-MINIO_CACHE_PREFIX ?= repo-cache
+# On macOS/Docker Desktop use the magic hostname; on Linux query the bridge gateway.
+_IS_DARWIN            := $(filter Darwin,$(shell uname -s))
+_DOCKER_HOST_BRIDGE   := $(shell docker network inspect bridge --format='{{(index .IPAM.Config 0).Gateway}}' 2>/dev/null)
+_DOCKER_HOST_INTERNAL := $(if $(_IS_DARWIN),host.docker.internal,$(if $(_DOCKER_HOST_BRIDGE),$(_DOCKER_HOST_BRIDGE),$(error Cannot determine Docker bridge gateway. Is Docker running?)))
+MINIO_ENDPOINT ?= http://$(_DOCKER_HOST_INTERNAL):9000
+MINIO_BUCKET ?= cache
+MINIO_CACHE_PREFIX ?= repos
 CACHE_DIR := $(CURDIR)/.cache
 REPO_CACHE_DIR := $(CACHE_DIR)/repos
 
@@ -98,9 +107,9 @@ export MINIO_BUCKET
 export CACHE_DIR
 
 # Docker configuration
-CLIENT_DOCKERFILE ?= Dockerfile.client
+CLIENT_DOCKERFILE ?= $(PIPELINE_DIR)/Dockerfile.client
 CLIENT_DOCKER_TAG ?= perconalab/pmm-client:$(PMM_VERSION)
-SERVER_DOCKERFILE ?= Dockerfile.server
+SERVER_DOCKERFILE ?= $(PIPELINE_DIR)/Dockerfile.server
 SERVER_DOCKER_TAG ?= perconalab/pmm-server:$(PMM_VERSION)
 
 export CLIENT_DOCKERFILE
@@ -202,17 +211,28 @@ server: build-server
 
 all: build-all
 
+# Verify mc is installed and MinIO is reachable
+check-minio:
+	@if ! command -v mc >/dev/null 2>&1; then \
+		echo "Error: mc (MinIO client) is not installed"; \
+		echo "See: https://min.io/docs/minio/linux/reference/minio-mc.html"; \
+		exit 1; \
+	fi
+	@echo "Checking MinIO connectivity at $(MINIO_ENDPOINT)..."
+	@if ! mc ls pmm/$(MINIO_BUCKET) >/dev/null 2>&1; then \
+		echo "Error: Cannot reach MinIO at $(MINIO_ENDPOINT)"; \
+		echo "Make sure the MinIO container is running and the 'pmm' alias is configured:"; \
+		echo "  mc alias set pmm $(MINIO_ENDPOINT) <access-key> <secret-key>"; \
+		exit 1; \
+	fi
+	@echo "MinIO is reachable"
+
 # Download repository cache from Minio (mandatory - fails if unavailable)
-download-cache:
+download-cache: check-minio
 	@echo "Downloading repository cache from Minio..."
 	@echo "Endpoint: $(MINIO_ENDPOINT)"
 	@echo "Bucket: $(MINIO_BUCKET)/$(MINIO_CACHE_PREFIX)"
 	@mkdir -p $(REPO_CACHE_DIR)
-	@if ! command -v mc >/dev/null 2>&1; then \
-		echo "Error: mc (minio client) is not installed"; \
-		echo "See: https://min.io/docs/minio/linux/reference/minio-mc.html"; \
-		exit 1; \
-	fi
 	@echo "Syncing cache from Minio..."
 	@mc mirror --overwrite pmm/$(MINIO_BUCKET)/$(MINIO_CACHE_PREFIX) $(REPO_CACHE_DIR) || \
 		(echo "Error: Failed to download cache from Minio" && exit 1)
@@ -223,6 +243,18 @@ download-cache:
 	@echo "Cache download complete"
 	@echo "Cached repositories:"
 	@ls -lh $(REPO_CACHE_DIR)
+
+# Fetch upstream changes into local bare repos and upload the updated cache to Minio
+update-cache: check-minio download-cache
+	@echo "Fetching upstream changes for all cached repositories..."
+	@for repo in $(REPO_CACHE_DIR)/*.git; do \
+		echo "Updating $$repo..."; \
+		git -C "$$repo" fetch --all --prune || { echo "Error: failed to fetch $$repo"; exit 1; }; \
+	done
+	@echo "Uploading updated cache to Minio..."
+	@mc mirror --overwrite $(REPO_CACHE_DIR) pmm/$(MINIO_BUCKET)/$(MINIO_CACHE_PREFIX) || \
+		(echo "Error: Failed to upload cache to Minio" && exit 1)
+	@echo "Cache update complete"
 
 # Clean local cache
 clean-cache:
@@ -249,7 +281,7 @@ clean-all: clean-cache clean-volumes clean
 # Build gitmodules parser binary
 gitmodules:
 	@echo "Building gitmodules parser..."
-	@cd scripts && \
+	@cd $(PIPELINE_DIR)/scripts && \
 		go mod init github.com/percona/pmm/gitmodules 2>/dev/null || true && \
 		go mod tidy && \
 		go build -o gitmodules gitmodules.go && \
@@ -266,7 +298,7 @@ build-server-docker:
 		echo "Run 'make build-client-tarball' first to create the tarball"; \
 	fi
 	@git rev-parse HEAD > gitCommit
-	@cd .. && docker buildx build \
+	@docker buildx build \
 		--platform $(SERVER_PLATFORMS) \
 		--progress plain \
 		--build-arg BUILD_DATE="$$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
@@ -276,9 +308,9 @@ build-server-docker:
 		--build-arg VM_REF="$(VM_REF)" \
 		--build-arg DASHBOARDS_REF="$(DASHBOARDS_REF)" \
 		--build-arg PMM_DUMP_REF="$(PMM_DUMP_REF)" \
-		-f pipeline/$(SERVER_DOCKERFILE) \
+		-f $(SERVER_DOCKERFILE) \
 		-t $(SERVER_DOCKER_TAG) \
-		.
+		$(BUILD_ROOT)
 	@rm -f pmm-client.tar.gz gitCommit
 	@echo "Docker image built successfully!"
 
@@ -287,3 +319,28 @@ push-client-docker:
 	@echo "Building and pushing PMM Client Docker image..."
 	@PUSH_DOCKER=1 $(CLIENT_DOCKER_SCRIPT)
 	@echo "Docker image pushed successfully!"
+
+BUILDX_BUILDER ?= pmm-s3-builder
+
+# Ensure a buildx builder with the docker-container driver exists and is running.
+# The default "docker" driver does not support remote cache backends (s3, registry, etc.).
+ensure-builder:
+	@docker buildx inspect $(BUILDX_BUILDER) >/dev/null 2>&1 || \
+		docker buildx create --name $(BUILDX_BUILDER) --driver docker-container
+	@docker buildx inspect $(BUILDX_BUILDER) --bootstrap >/dev/null
+
+build-pmm-managed: ensure-builder check-minio update-cache download-cache
+	@docker buildx build \
+			--builder $(BUILDX_BUILDER) \
+			--target pmm-managed-builder \
+			--cache-from type=s3,region=us-east-1,bucket=$(MINIO_BUCKET),endpoint_url=$(MINIO_ENDPOINT),access_key_id=$(MINIO_ACCESS_KEY),secret_access_key=$(MINIO_SECRET_KEY),use_path_style=true \
+			--cache-to   type=s3,region=us-east-1,bucket=$(MINIO_BUCKET),endpoint_url=$(MINIO_ENDPOINT),access_key_id=$(MINIO_ACCESS_KEY),secret_access_key=$(MINIO_SECRET_KEY),mode=max,use_path_style=true \
+			--build-arg PMM_REF=$(PMM_REF) \
+			--build-arg TARGETARCH=$(GOARCH) \
+			--progress plain \
+			-f $(SERVER_DOCKERFILE) \
+			$(BUILD_ROOT)
+	@docker buildx stop $(BUILDX_BUILDER)
+
+check:
+	@echo "Current directory: $(CURDIR)"

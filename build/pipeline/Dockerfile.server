@@ -24,9 +24,9 @@ RUN apt-get update && apt-get install -y git make
 # Build pmm-managed
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
-    --mount=type=bind,source=./pipeline/.cache/repos/pmm.git,target=/repo-cache/pmm.git,readonly \
+    --mount=type=bind,source=./pipeline/.cache/repos/pmm.git,target=/repos/pmm.git,readonly \
     echo "Using cached pmm repository..." && \
-    git clone /repo-cache/pmm.git /build/pmm && \
+    git clone /repos/pmm.git /build/pmm && \
     cd /build/pmm && \
     git checkout ${PMM_REF} && \
     make -C managed release GOARCH=${TARGETARCH}
@@ -59,9 +59,9 @@ RUN apt-get update && apt-get install -y git make
 # Build pmm-dump
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
-    --mount=type=bind,source=./pipeline/.cache/repos/pmm-dump.git,target=/repo-cache/pmm-dump.git,readonly \
+    --mount=type=bind,source=./pipeline/.cache/repos/pmm-dump.git,target=/repos/pmm-dump.git,readonly \
     echo "Using cached pmm-dump repository..." && \
-    git clone /repo-cache/pmm-dump.git /build/pmm-dump && \
+    git clone /repos/pmm-dump.git /build/pmm-dump && \
     cd /build/pmm-dump && \
     git checkout ${PMM_DUMP_REF} && \
     CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} make build
@@ -69,7 +69,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 #
 # Stage 3: Build Grafana Go binaries
 #
-FROM --platform=$TARGETPLATFORM golang:1.25 AS grafana-go-builder
+FROM --platform=$BUILDPLATFORM golang:1.25 AS grafana-go-builder
 
 ARG TARGETARCH
 ARG GRAFANA_REF
@@ -82,9 +82,9 @@ RUN apt-get update && apt-get install -y git make
 # Build Grafana Go binaries (native build, no cross-compilation due to CGO/SQLite)
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
-    --mount=type=bind,source=./pipeline/.cache/repos/grafana.git,target=/repo-cache/grafana.git,readonly \
+    --mount=type=bind,source=./pipeline/.cache/repos/grafana.git,target=/repos/grafana.git,readonly \
     echo "Using cached grafana repository..." && \
-    git clone /repo-cache/grafana.git /build/grafana && \
+    git clone /repos/grafana.git /build/grafana && \
     cd /build/grafana && \
     git checkout ${GRAFANA_REF} && \
     sed -i "s/unknown-dev/11.6.4/" pkg/build/git.go && \
@@ -106,9 +106,9 @@ RUN apt-get update && apt-get install -y git make
 # Build VictoriaMetrics binaries
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
-    --mount=type=bind,source=./pipeline/.cache/repos/VictoriaMetrics.git,target=/repo-cache/VictoriaMetrics.git,readonly \
+    --mount=type=bind,source=./pipeline/.cache/repos/VictoriaMetrics.git,target=/repos/VictoriaMetrics.git,readonly \
     echo "Using cached VictoriaMetrics repository..." && \
-    git clone /repo-cache/VictoriaMetrics.git /build/VictoriaMetrics && \
+    git clone /repos/VictoriaMetrics.git /build/VictoriaMetrics && \
     cd /build/VictoriaMetrics && \
     git checkout ${VM_REF} && \
     GOARCH=${TARGETARCH} PKG_TAG=${VM_REF} BUILDINFO_TAG=${VM_REF} make victoria-metrics-pure vmalert-pure
@@ -129,9 +129,9 @@ ENV NODE_OPTIONS="--max-old-space-size=4096"
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN --mount=type=cache,target=/root/.npm \
-    --mount=type=bind,source=./pipeline/.cache/repos/grafana.git,target=/repo-cache/grafana.git,readonly \
+    --mount=type=bind,source=./pipeline/.cache/repos/grafana.git,target=/repos/grafana.git,readonly \
     echo "Using cached grafana repository..." && \
-    git clone /repo-cache/grafana.git . && \
+    git clone /repos/grafana.git . && \
     git checkout ${GRAFANA_REF} && \
     npm install -g grunt-cli && \
     make deps-js && \
@@ -155,18 +155,18 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 # Build percona-dashboards
 RUN --mount=type=cache,target=/root/.npm \
-    --mount=type=bind,source=./pipeline/.cache/repos/grafana-dashboards.git,target=/repo-cache/grafana-dashboards.git,readonly \
+    --mount=type=bind,source=./pipeline/.cache/repos/grafana-dashboards.git,target=/repos/grafana-dashboards.git,readonly \
     echo "Using cached grafana-dashboards repository..." && \
-    git clone /repo-cache/grafana-dashboards.git . && \
+    git clone /repos/grafana-dashboards.git . && \
     git checkout ${DASHBOARDS_REF} && \
     make release
 
 # Build PMM UI
 WORKDIR /pmm-ui
 RUN --mount=type=cache,target=/root/.npm \
-    --mount=type=bind,source=./pipeline/.cache/repos/pmm.git,target=/repo-cache/pmm.git,readonly \
+    --mount=type=bind,source=./pipeline/.cache/repos/pmm.git,target=/repos/pmm.git,readonly \
     echo "Using cached pmm repository..." && \
-    git clone /repo-cache/pmm.git . && \
+    git clone /repos/pmm.git . && \
     git checkout ${PMM_REF} && \
     cd ui && \
     make release
