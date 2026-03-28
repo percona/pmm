@@ -5,9 +5,21 @@ package realtimeanalytics.v1;
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
+import "inventory/v1/services.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "realtimeanalytics/v1/query.proto";
 import "validate/validate.proto";
+
+// Services related messages
+
+message ListServicesRequest {
+  // Return only services filtered by service type.
+  inventory.v1.ServiceType service_type = 1;
+}
+
+message ListServicesResponse {
+  repeated inventory.v1.MongoDBService mongodb = 1;
+}
 
 // Session related messages
 
@@ -94,6 +106,15 @@ message SearchQueriesResponse {
 
 // RealtimeAnalyticsService provides public API for managing Real-Time Analytics Sessions and Queries.
 service RealtimeAnalyticsService {
+  // ListServices returns a list of Services that support Real-Time Analytics filtered by type.
+  rpc ListServices(ListServicesRequest) returns (ListServicesResponse) {
+    option (google.api.http) = {get: "/v1/realtimeanalytics/services"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Services that support Real-Time Analytics"
+      description: "Returns a list of Services that support Real-Time Analytics filtered by type."
+    };
+  }
+
   // ListSessions returns the list of currently running Real-Time Analytics Sessions.
   rpc ListSessions(ListSessionsRequest) returns (ListSessionsResponse) {
     option (google.api.http) = {get: "/v1/realtimeanalytics/sessions"};
