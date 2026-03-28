@@ -287,5 +287,13 @@ service:
       receivers: ` + receiversYaml + `
       processors: ` + pipelineProcessors + `
       exporters: [otlp_http]
+    traces:
+      receivers: ` + receiversYaml + `
+      processors: ` + pipelineProcessors + `
+      exporters: [otlp_http]
+    metrics:
+      receivers: ` + receiversYaml + `
+      processors: ` + pipelineProcessors + `
+      exporters: [otlp_http]
 `
 }

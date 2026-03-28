@@ -1,0 +1,73 @@
+// Command ebpf-otlp-stub sends minimal OTLP traces to PMM Server for Phase 1 pipeline validation (no eBPF).
+//
+// Example:
+//
+//	PMM_OTLP_URL=https://127.0.0.1:8443/otlp/v1/traces PMM_OTLP_INSECURE=1 go run ./managed/cmd/ebpf-otlp-stub
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	"time"
+
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
+	"go.opentelemetry.io/otel/sdk/resource"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+)
+
+func main() {
+	if err := run(context.Background()); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+}
+
+func run(ctx context.Context) error {
+	endpoint := os.Getenv("PMM_OTLP_URL")
+	if endpoint == "" {
+		return fmt.Errorf("set PMM_OTLP_URL to OTLP HTTP traces endpoint (e.g. https://pmm.example:8443/otlp/v1/traces)")
+	}
+	opts := []otlptracehttp.Option{otlptracehttp.WithEndpointURL(endpoint)}
+	if os.Getenv("PMM_OTLP_INSECURE") == "1" {
+		opts = append(opts, otlptracehttp.WithInsecure())
+	}
+	exp, err := otlptracehttp.New(ctx, opts...)
+	if err != nil {
+		return err
+	}
+	res, err := resource.New(ctx,
+		resource.WithAttributes(
+			attribute.String("service.name", "ebpf-otlp-stub"),
+			attribute.String("pmm.node_id", getenv("PMM_NODE_ID", "stub-node")),
+			attribute.String("pmm.agent_id", getenv("PMM_AGENT_ID", "stub-agent")),
+			attribute.String("net.peer.name", getenv("PMM_PEER", "db.example:3306")),
+			attribute.String("db.system", getenv("PMM_DB_SYSTEM", "mysql")),
+			attribute.String("pmm.component_role", "app"),
+		),
+	)
+	if err != nil {
+		return err
+	}
+	tp := sdktrace.NewTracerProvider(sdktrace.WithBatcher(exp), sdktrace.WithResource(res))
+	otel.SetTracerProvider(tp)
+	defer func() { _ = tp.Shutdown(ctx) }()
+
+	tr := tp.Tracer("pmm.ebpf.stub")
+	_, span := tr.Start(ctx, "db.mysql.query")
+	span.SetAttributes(
+		attribute.String("pmm.map_edge_target", getenv("PMM_MAP_TARGET", "mysql-primary")),
+	)
+	span.End()
+	time.Sleep(2 * time.Second)
+	return nil
+}
+
+func getenv(k, def string) string {
+	if v := os.Getenv(k); v != "" {
+		return v
+	}
+	return def
+}

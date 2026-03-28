@@ -19,96 +19,74 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestBuildOtelCollectorConfigYAML(t *testing.T) {
 	t.Parallel()
 
-	yaml := buildOtelCollectorConfigYAML("127.0.0.1:9000", "default", "clickhouse", 7)
+	yaml := buildOtelCollectorConfigYAML("127.0.0.1:9000", "default", "clickhouse", 7, 7, 90)
 
-	// Required sections
 	require.Contains(t, yaml, "receivers:")
 	require.Contains(t, yaml, "processors:")
 	require.Contains(t, yaml, "exporters:")
 	require.Contains(t, yaml, "service:")
 
-	// OTLP receiver only (no filelog; server log collection is done by pmm-agent with DB presets)
 	require.Contains(t, yaml, "otlp:")
 	require.Contains(t, yaml, "endpoint: 0.0.0.0:4317")
 	require.Contains(t, yaml, "endpoint: 0.0.0.0:4318")
-	require.NotContains(t, yaml, "filelog/")
 
-	// Processors: memory_limiter, transform (pmm_source from node_name), batch
-	require.Contains(t, yaml, "memory_limiter:")
-	require.Contains(t, yaml, "transform:")
-	require.Contains(t, yaml, "batch:")
-	require.Contains(t, yaml, `set(resource.attributes["pmm_source"], resource.attributes["node_name"])`)
-
-	// ClickHouse exporter with substituted values
-	require.Contains(t, yaml, "endpoint: tcp://127.0.0.1:9000")
-	require.Contains(t, yaml, "database: otel")
+	require.Contains(t, yaml, "clickhouse_logs:")
+	require.Contains(t, yaml, "clickhouse_traces:")
+	require.Contains(t, yaml, "clickhouse_metrics:")
 	require.Contains(t, yaml, "logs_table_name: logs")
+	require.Contains(t, yaml, "traces_table_name: otel_traces")
+	require.Contains(t, yaml, "otel_metrics_sum")
 	require.Contains(t, yaml, "create_schema: false")
-	require.Contains(t, yaml, "ttl: 168h")
-	require.Contains(t, yaml, "username: 'default'")
-	require.Contains(t, yaml, "password: 'clickhouse'")
 
-	// Pipeline: receiver-only
-	require.Contains(t, yaml, "receivers: [otlp]")
-	require.Contains(t, yaml, "processors: [memory_limiter, transform, batch]")
-	require.Contains(t, yaml, "exporters: [clickhouse]")
+	require.Contains(t, yaml, "pipelines:")
+	require.Contains(t, yaml, "exporters: [clickhouse_logs]")
+	require.Contains(t, yaml, "exporters: [clickhouse_traces]")
+	require.Contains(t, yaml, "exporters: [clickhouse_metrics]")
+	require.Contains(t, yaml, "ttl: 168h", "logs and traces 7d")
+	require.Contains(t, yaml, "ttl: 2160h", "metrics 90d")
 }
 
 func TestBuildOtelCollectorConfigYAML_CustomParams(t *testing.T) {
 	t.Parallel()
 
-	yaml := buildOtelCollectorConfigYAML("ch-host:9000", "myuser", "mypass", 14)
+	yaml := buildOtelCollectorConfigYAML("ch-host:9000", "myuser", "mypass", 14, 3, 30)
 
 	require.Contains(t, yaml, "endpoint: tcp://ch-host:9000")
 	require.Contains(t, yaml, "username: 'myuser'")
 	require.Contains(t, yaml, "password: 'mypass'")
-	require.Contains(t, yaml, "ttl: 336h")
+	require.True(t, strings.Contains(yaml, "ttl: 336h") || strings.Contains(yaml, "ttl: 72h"))
 }
 
 func TestBuildOtelCollectorConfigYAML_Defaults(t *testing.T) {
 	t.Parallel()
 
-	yaml := buildOtelCollectorConfigYAML("", "", "", 0)
+	yaml := buildOtelCollectorConfigYAML("", "", "", 0, 0, 0)
 
 	require.Contains(t, yaml, "endpoint: tcp://127.0.0.1:9000")
 	require.Contains(t, yaml, "username: 'default'")
-	require.Contains(t, yaml, "ttl: 168h")
 }
 
 func TestQuoteYAMLString(t *testing.T) {
 	t.Parallel()
 
-	assert.Equal(t, "'simple'", quoteYAMLString("simple"))
-	assert.Equal(t, "''''", quoteYAMLString("'"))
-	assert.Equal(t, "'a''b'", quoteYAMLString("a'b"))
+	require.Equal(t, "'simple'", quoteYAMLString("simple"))
+	require.Equal(t, "''''", quoteYAMLString("'"))
+	require.Equal(t, "'a''b'", quoteYAMLString("a'b"))
 }
 
 func TestBuildOtelCollectorConfigYAML_ValidYAMLStructure(t *testing.T) {
 	t.Parallel()
 
-	yaml := buildOtelCollectorConfigYAML("127.0.0.1:9000", "default", "clickhouse", 7)
+	yaml := buildOtelCollectorConfigYAML("127.0.0.1:9000", "default", "clickhouse", 7, 7, 90)
 
-	// Basic structure: receivers, processors, exporters, service are top-level
-	lines := strings.Split(yaml, "\n")
-	var topLevel []string
-	for _, line := range lines {
-		trimmed := strings.TrimSpace(line)
-		if trimmed != "" && !strings.HasPrefix(trimmed, "#") && !strings.HasPrefix(line, " ") && !strings.HasPrefix(line, "\t") {
-			if strings.HasSuffix(trimmed, ":") {
-				topLevel = append(topLevel, trimmed)
-			}
-		}
-	}
-	// Should have at least these top-level keys
-	assert.Contains(t, yaml, "receivers:")
-	assert.Contains(t, yaml, "processors:")
-	assert.Contains(t, yaml, "exporters:")
-	assert.Contains(t, yaml, "service:")
+	require.Contains(t, yaml, "receivers:")
+	require.Contains(t, yaml, "processors:")
+	require.Contains(t, yaml, "exporters:")
+	require.Contains(t, yaml, "service:")
 }

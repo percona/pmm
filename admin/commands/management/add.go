@@ -30,6 +30,7 @@ type AddCommand struct {
 	Valkey             AddValkeyCommand             `cmd:"" name:"valkey" help:"Add Valkey to monitoring"`
 	ProxySQL           AddProxySQLCommand           `cmd:"" name:"proxysql" help:"Add ProxySQL to monitoring"`
 	Otel               AddOtelCommand               `cmd:"" name:"otel" help:"Add OTEL Collector for log collection (and later traces, profiles)"`
+	EbpfTelemetry      AddEbpfTelemetryCommand      `cmd:"" name:"ebpf-telemetry" help:"Add eBPF/OTEL telemetry collector (OTLP to PMM; Phase 1 pipeline labels)"`
 }
 
 // AddCommonFlags is used by Kong for CLI flags and commands.

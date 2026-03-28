@@ -21,22 +21,78 @@ import (
 )
 
 // buildOtelCollectorConfigYAML returns the server-side otel-collector config YAML.
-// Receiver only: OTLP (for agents), transform (pmm_source from node_name), batch, ClickHouse exporter.
-// All log collection (including server logs) is done by pmm-agent using DB-driven presets.
-// Endpoint must be the ClickHouse address with port (e.g. "127.0.0.1:9000"); it will be prefixed with "tcp://".
-func buildOtelCollectorConfigYAML(endpoint, username, password string, retentionDays int) string {
+// OTLP receives logs, traces, and metrics; separate ClickHouse exporter instances apply TTL per signal.
+// logRetentionDays, spanRetentionDays, metricsRetentionDays control exporter TTL (table-level TTL also set in PMM DDL).
+func buildOtelCollectorConfigYAML(endpoint, username, password string, logRetentionDays, spanRetentionDays, metricsRetentionDays int) string {
 	if endpoint == "" {
 		endpoint = "127.0.0.1:9000"
 	}
 	if username == "" {
 		username = "default"
 	}
-	if retentionDays <= 0 {
-		retentionDays = 7
+	if logRetentionDays <= 0 {
+		logRetentionDays = 7
+	}
+	if spanRetentionDays <= 0 {
+		spanRetentionDays = 7
+	}
+	if metricsRetentionDays <= 0 {
+		metricsRetentionDays = 90
 	}
 	chEndpoint := "tcp://" + endpoint
-	// Exporter ttl uses Go time.Duration: only ns, us, ms, s, m, h are valid (no "d" for days).
-	ttl := fmt.Sprintf("%dh", retentionDays*24)
+	logsTTL := fmt.Sprintf("%dh", logRetentionDays*24)
+	tracesTTL := fmt.Sprintf("%dh", spanRetentionDays*24)
+	metricsTTL := fmt.Sprintf("%dh", metricsRetentionDays*24)
+
+	// Exporter blocks: create_schema false — PMM-managed applies DDL (otel.logs, otel.otel_traces, otel.otel_metrics_sum, ...).
+	exporters := fmt.Sprintf(`exporters:
+  clickhouse_logs:
+    endpoint: %s
+    database: otel
+    username: %s
+    password: %s
+    logs_table_name: logs
+    create_schema: false
+    ttl: %s
+    timeout: 5s
+    retry_on_failure:
+      enabled: true
+      initial_interval: 5s
+      max_interval: 30s
+      max_elapsed_time: 300s
+  clickhouse_traces:
+    endpoint: %s
+    database: otel
+    username: %s
+    password: %s
+    traces_table_name: otel_traces
+    create_schema: false
+    ttl: %s
+    timeout: 5s
+    retry_on_failure:
+      enabled: true
+      initial_interval: 5s
+      max_interval: 30s
+      max_elapsed_time: 300s
+  clickhouse_metrics:
+    endpoint: %s
+    database: otel
+    username: %s
+    password: %s
+    create_schema: false
+    ttl: %s
+    timeout: 5s
+    metrics_tables:
+      sum:
+        name: otel_metrics_sum
+    retry_on_failure:
+      enabled: true
+      initial_interval: 5s
+      max_interval: 30s
+      max_elapsed_time: 300s
+`, chEndpoint, quoteYAMLString(username), quoteYAMLString(password), logsTTL,
+		chEndpoint, quoteYAMLString(username), quoteYAMLString(password), tracesTTL,
+		chEndpoint, quoteYAMLString(username), quoteYAMLString(password), metricsTTL)
 
 	return `# Managed by pmm-managed. DO NOT EDIT.
 receivers:
@@ -58,27 +114,21 @@ processors:
     timeout: 1s
     send_batch_size: 1024
     send_batch_max_size: 2048
-exporters:
-  clickhouse:
-    endpoint: ` + chEndpoint + `
-    database: otel
-    username: ` + quoteYAMLString(username) + `
-    password: ` + quoteYAMLString(password) + `
-    logs_table_name: logs
-    create_schema: false
-    ttl: ` + ttl + `
-    timeout: 5s
-    retry_on_failure:
-      enabled: true
-      initial_interval: 5s
-      max_interval: 30s
-      max_elapsed_time: 300s
+` + exporters + `
 service:
   pipelines:
     logs:
       receivers: [otlp]
       processors: [memory_limiter, transform, batch]
-      exporters: [clickhouse]
+      exporters: [clickhouse_logs]
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [clickhouse_traces]
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [clickhouse_metrics]
 `
 }
 
