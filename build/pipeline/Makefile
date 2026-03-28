@@ -81,7 +81,7 @@ BUILD_TYPE ?= static
 GOARCH ?= amd64
 PLATFORM ?= linux/amd64
 SERVER_PLATFORMS ?= linux/amd64
-GO_VERSION ?= 1.25
+GO_VERSION ?= 1.26
 
 # Minio S3 cache configuration
 # On macOS/Docker Desktop use the magic hostname; on Linux query the bridge gateway.
@@ -163,9 +163,18 @@ build-arm64:
 	$(call check_component,build-arm64)
 	@$(MAKE) build GOARCH=arm64 COMPONENT=$(COMPONENT)
 
-# Build PMM Client (all client components + Docker image)
 build-client:
 	@echo "Building PMM Client..."
+	@echo ""
+	@$(MAKE) build-client-binaries
+	@echo ""
+	@$(MAKE) build-client-tarball
+	@echo ""
+	@$(MAKE) build-client-docker
+
+# Build PMM Client binaries (all client components)
+build-client-binaries:
+	@echo "Building PMM Client binaries..."
 	@mkdir -p $(OUTPUT_DIR)
 	@for component in $(ALL_COMPONENTS); do \
 		echo ""; \
@@ -205,7 +214,7 @@ build-all:
 	@echo "All components built successfully!"
 
 # Convenience shortcuts
-client: build-client build-client-docker build-client-tarball
+client: build-client
 
 server: build-server
 
@@ -305,6 +314,7 @@ build-server-docker: ensure-builder check-minio update-cache download-cache
 		--cache-from type=s3,region=us-east-1,bucket=$(MINIO_BUCKET),endpoint_url=$(MINIO_ENDPOINT),access_key_id=$(MINIO_ACCESS_KEY),secret_access_key=$(MINIO_SECRET_KEY),use_path_style=true \
 		--cache-to   type=s3,region=us-east-1,bucket=$(MINIO_BUCKET),endpoint_url=$(MINIO_ENDPOINT),access_key_id=$(MINIO_ACCESS_KEY),secret_access_key=$(MINIO_SECRET_KEY),mode=max,use_path_style=true \
 		--build-arg BUILD_DATE="$$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
+		--build-arg GO_VERSION="$(GO_VERSION)" \
 		--build-arg VERSION="$(PMM_VERSION)" \
 		--build-arg PMM_REF="$(PMM_REF)" \
 		--build-arg GRAFANA_REF="$(GRAFANA_REF)" \

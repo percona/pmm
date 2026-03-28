@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # Build arguments for git commits and versions
+ARG GO_VERSION=1.26
 ARG PMM_REF=v3
 ARG GRAFANA_REF=v3
 ARG VM_REF=pmm-6401-v1.138.0
@@ -11,7 +12,7 @@ ARG TARGETARCH=amd64
 #
 # Stage 1: Build pmm-managed and related components
 #
-FROM --platform=$BUILDPLATFORM golang:1.25 AS pmm-managed-builder
+FROM --platform=$BUILDPLATFORM golang:${GO_VERSION} AS pmm-managed-builder
 
 ARG TARGETARCH
 ARG PMM_REF
@@ -46,7 +47,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 #
 # Stage 2: Build pmm-dump
 #
-FROM --platform=$BUILDPLATFORM golang:1.25 AS pmm-dump-builder
+FROM --platform=$BUILDPLATFORM golang:${GO_VERSION} AS pmm-dump-builder
 
 ARG TARGETARCH
 ARG PMM_DUMP_REF
@@ -69,7 +70,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 #
 # Stage 3: Build Grafana Go binaries
 #
-FROM --platform=$BUILDPLATFORM golang:1.25 AS grafana-go-builder
+FROM --platform=$BUILDPLATFORM golang:${GO_VERSION} AS grafana-go-builder
 
 ARG TARGETARCH
 ARG GRAFANA_REF
@@ -117,7 +118,7 @@ RUN --mount=type=cache,target=/root/.npm \
 #
 # Stage 5: Build VictoriaMetrics binaries
 #
-FROM --platform=$BUILDPLATFORM golang:1.25 AS victoriametrics-builder
+FROM --platform=$BUILDPLATFORM golang:${GO_VERSION} AS victoriametrics-builder
 
 ARG TARGETARCH
 ARG VM_REF

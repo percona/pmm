@@ -26,7 +26,7 @@ OUTPUT_DIR="${OUTPUT_DIR:-$(realpath "$SCRIPT_DIR/../output")}"
 # Docker image and volumes
 BUILDER_IMAGE="pmm-builder:latest"
 BUILDER_DOCKERFILE="$(realpath "${SCRIPT_DIR}/../Dockerfile.builder")"
-GO_VERSION="${GO_VERSION:-1.25}"
+GO_VERSION="${GO_VERSION:-1.26}"
 GOMOD_CACHE_VOL="pmm-mod"
 BUILD_CACHE_VOL="pmm-build"
 SOURCE_CACHE_VOL="pmm-source"
@@ -71,7 +71,8 @@ EOF
 build_builder_image() {
     if ! docker image inspect "${BUILDER_IMAGE}" >/dev/null 2>&1; then
         echo "Building pmm-builder image..."
-        docker build \
+        docker buildx build \
+            --load \
             --platform "${PLATFORM}" \
             --build-arg GO_VERSION="${GO_VERSION}" \
             --progress=plain \
