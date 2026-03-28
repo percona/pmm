@@ -91,32 +91,9 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     make build-go
 
 #
-# Stage 4: Build VictoriaMetrics binaries
+# Stage 4: Build Grafana UI assets
 #
-FROM --platform=$BUILDPLATFORM golang:1.25 AS victoriametrics-builder
-
-ARG TARGETARCH
-ARG VM_REF
-
-WORKDIR /build
-
-# Install build dependencies
-RUN apt-get update && apt-get install -y git make
-
-# Build VictoriaMetrics binaries
-RUN --mount=type=cache,target=/go/pkg/mod \
-    --mount=type=cache,target=/root/.cache/go-build \
-    --mount=type=bind,source=./pipeline/.cache/repos/VictoriaMetrics.git,target=/repos/VictoriaMetrics.git,readonly \
-    echo "Using cached VictoriaMetrics repository..." && \
-    git clone /repos/VictoriaMetrics.git /build/VictoriaMetrics && \
-    cd /build/VictoriaMetrics && \
-    git checkout ${VM_REF} && \
-    GOARCH=${TARGETARCH} PKG_TAG=${VM_REF} BUILDINFO_TAG=${VM_REF} make victoria-metrics-pure vmalert-pure
-
-#
-# Stage 5: Build Grafana UI assets
-#
-FROM node:22 AS grafana-builder
+FROM node:22 AS grafana-ui-builder
 
 ARG GRAFANA_REF
 
@@ -136,6 +113,29 @@ RUN --mount=type=cache,target=/root/.npm \
     npm install -g grunt-cli && \
     make deps-js && \
     make build-js
+
+#
+# Stage 5: Build VictoriaMetrics binaries
+#
+FROM --platform=$BUILDPLATFORM golang:1.25 AS victoriametrics-builder
+
+ARG TARGETARCH
+ARG VM_REF
+
+WORKDIR /build
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y git make
+
+# Build VictoriaMetrics binaries
+RUN --mount=type=cache,target=/go/pkg/mod \
+  --mount=type=cache,target=/root/.cache/go-build \
+  --mount=type=bind,source=./pipeline/.cache/repos/VictoriaMetrics.git,target=/repos/VictoriaMetrics.git,readonly \
+  echo "Using cached VictoriaMetrics repository..." && \
+  git clone /repos/VictoriaMetrics.git /build/VictoriaMetrics && \
+  cd /build/VictoriaMetrics && \
+  git checkout ${VM_REF} && \
+  GOARCH=${TARGETARCH} PKG_TAG=${VM_REF} BUILDINFO_TAG=${VM_REF} make victoria-metrics-pure vmalert-pure
 
 #
 # Stage 6: Build PMM UI and percona-dashboards
@@ -243,41 +243,42 @@ COPY --from=victoriametrics-builder --chown=root:root --chmod=0755 /build/Victor
 COPY --from=victoriametrics-builder --chown=root:root --chmod=0755 /build/VictoriaMetrics/bin/vmalert-pure /usr/sbin/vmalert
 
 # Copy Grafana assets with pmm:pmm ownership
-COPY --from=grafana-builder --chown=pmm:pmm /grafana/public /usr/share/grafana/public
-COPY --from=grafana-builder --chown=pmm:pmm /grafana/conf /usr/share/grafana/conf
-COPY --from=grafana-builder --chown=pmm:pmm /grafana/tools /usr/share/grafana/tools
+COPY --from=grafana-ui-builder --chown=pmm:root /grafana/public /usr/share/grafana/public
+COPY --from=grafana-ui-builder --chown=pmm:root /grafana/conf /usr/share/grafana/conf
+COPY --from=grafana-ui-builder --chown=pmm:root /grafana/tools /usr/share/grafana/tools
 
 # Copy Grafana configuration files
-COPY --from=grafana-builder --chown=pmm:pmm /grafana/conf/sample.ini /etc/grafana/grafana.ini
-COPY --from=grafana-builder --chown=pmm:pmm /grafana/conf/ldap.toml /etc/grafana/ldap.toml
+COPY --from=grafana-ui-builder --chown=pmm:root /grafana/conf/sample.ini /etc/grafana/grafana.ini
+COPY --from=grafana-ui-builder --chown=pmm:root /grafana/conf/ldap.toml /etc/grafana/ldap.toml
 
 # Copy pmm-managed data assets with pmm:root ownership
-COPY --from=pmm-managed-builder --chown=pmm:pmm /build/pmm/api/swagger /usr/share/pmm-managed/swagger
+COPY --from=pmm-managed-builder --chown=pmm:root /build/pmm/api/swagger /usr/share/pmm-managed/swagger
 COPY --from=pmm-managed-builder --chown=pmm:root --chmod=0644 /build/pmm/managed/data/advisors/*.yml /usr/local/percona/advisors/
 COPY --from=pmm-managed-builder --chown=pmm:root --chmod=0644 /build/pmm/managed/data/checks/*.yml /usr/local/percona/checks/
 COPY --from=pmm-managed-builder --chown=pmm:root --chmod=0644 /build/pmm/managed/data/alerting-templates/*.yml /usr/local/percona/alerting-templates/
 
-# Copy PMM UI and dashboards with pmm:pmm ownership
-COPY --from=dashboards-builder --chown=pmm:pmm /pmm-ui/ui/apps/pmm/dist /usr/share/pmm-ui
-COPY --from=dashboards-builder --chown=pmm:pmm /pmm-ui/ui/apps/pmm-compat/dist /usr/share/percona-dashboards/panels/pmm-compat-app
-COPY --from=dashboards-builder --chown=pmm:pmm /dashboards/panels /usr/share/percona-dashboards/
-COPY --from=dashboards-builder --chown=pmm:pmm /dashboards/pmm-app/dist /usr/share/percona-dashboards/panels/pmm-app
+# Copy PMM UI and dashboards with pmm:root ownership
+COPY --from=dashboards-builder --chown=pmm:root /pmm-ui/ui/apps/pmm/dist /usr/share/pmm-ui
+COPY --from=dashboards-builder --chown=pmm:root /pmm-ui/ui/apps/pmm-compat/dist /usr/share/percona-dashboards/panels/pmm-compat-app
+COPY --from=dashboards-builder --chown=pmm:root /dashboards/panels /usr/share/percona-dashboards/
+COPY --from=dashboards-builder --chown=pmm:root /dashboards/pmm-app/dist /usr/share/percona-dashboards/panels/pmm-app
 
 # Create VERSION file for percona-dashboards
 RUN echo "${VERSION}" > /usr/share/percona-dashboards/VERSION && \
-    chown pmm:pmm /usr/share/percona-dashboards/VERSION
+    chown pmm:root /usr/share/percona-dashboards/VERSION
 
 # Generate VERSION.json for introspection
-RUN echo "{ \
-  \"pmm-managed\": \"${PMM_REF}\", \
-  \"qan-api2\": \"${PMM_REF}\", \
-  \"vmproxy\": \"${PMM_REF}\", \
-  \"grafana\": \"${GRAFANA_REF}\", \
-  \"victoriametrics\": \"${VM_REF}\", \
-  \"percona-dashboards\": \"${DASHBOARDS_REF}\", \
-  \"pmm-dump\": \"${PMM_DUMP_REF}\" \
-}" > /usr/share/pmm-server/VERSION.json && \
-    chmod 0644 /usr/share/pmm-server/VERSION.json
+RUN cat <<EOF > /usr/share/pmm-server/VERSION.json && chmod 0644 /usr/share/pmm-server/VERSION.json
+{
+  "pmm-managed": "${PMM_REF}",
+  "qan-api2": "${PMM_REF}",
+  "vmproxy": "${PMM_REF}",
+  "grafana": "${GRAFANA_REF}",
+  "victoriametrics": "${VM_REF}",
+  "percona-dashboards": "${DASHBOARDS_REF}",
+  "pmm-dump": "${PMM_DUMP_REF}"
+}
+EOF
 
 # Copy Ansible playbooks and run configuration
 COPY docker/server/entrypoint.sh /opt/entrypoint.sh
@@ -298,7 +299,7 @@ LABEL org.opencontainers.image.vendor="Percona LLC"
 LABEL org.opencontainers.image.version=${VERSION}
 LABEL com.percona.pmm=true
 
-USER 1000
+USER pmm
 
 VOLUME [ "/srv" ]
 
