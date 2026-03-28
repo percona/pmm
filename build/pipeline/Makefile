@@ -289,18 +289,21 @@ gitmodules:
 	@echo "gitmodules binary built successfully at scripts/gitmodules"
 
 # Build PMM Server Docker image
-build-server-docker:
+build-server-docker: ensure-builder check-minio update-cache download-cache
 	@echo "Building PMM Server Docker image..."
 	@if [ -f "$(PACKAGE_DIR)/pmm-client-$(PMM_VERSION).tar.gz" ]; then \
 		cp "$(PACKAGE_DIR)/pmm-client-$(PMM_VERSION).tar.gz" pmm-client.tar.gz; \
 	else \
-		echo "Warning: pmm-client tarball not found at $(PACKAGE_DIR)/pmm-client-$(PMM_VERSION).tar.gz"; \
+		echo "Error: pmm-client tarball not found at $(PACKAGE_DIR)/pmm-client-$(PMM_VERSION).tar.gz"; \
 		echo "Run 'make build-client-tarball' first to create the tarball"; \
+		exit 1; \
 	fi
-	@git rev-parse HEAD > gitCommit
 	@docker buildx build \
+		--builder $(BUILDX_BUILDER) \
 		--platform $(SERVER_PLATFORMS) \
 		--progress plain \
+		--cache-from type=s3,region=us-east-1,bucket=$(MINIO_BUCKET),endpoint_url=$(MINIO_ENDPOINT),access_key_id=$(MINIO_ACCESS_KEY),secret_access_key=$(MINIO_SECRET_KEY),use_path_style=true \
+		--cache-to   type=s3,region=us-east-1,bucket=$(MINIO_BUCKET),endpoint_url=$(MINIO_ENDPOINT),access_key_id=$(MINIO_ACCESS_KEY),secret_access_key=$(MINIO_SECRET_KEY),mode=max,use_path_style=true \
 		--build-arg BUILD_DATE="$$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
 		--build-arg VERSION="$(PMM_VERSION)" \
 		--build-arg PMM_REF="$(PMM_REF)" \
@@ -311,7 +314,7 @@ build-server-docker:
 		-f $(SERVER_DOCKERFILE) \
 		-t $(SERVER_DOCKER_TAG) \
 		$(BUILD_ROOT)
-	@rm -f pmm-client.tar.gz gitCommit
+	@rm -f pmm-client.tar.gz
 	@echo "Docker image built successfully!"
 
 # Build and push PMM Client Docker image
@@ -339,8 +342,6 @@ build-pmm-managed: ensure-builder check-minio update-cache download-cache
 			--build-arg TARGETARCH=$(GOARCH) \
 			--progress plain \
 			-f $(SERVER_DOCKERFILE) \
+			-t pmm-managed:latest \
 			$(BUILD_ROOT)
 	@docker buildx stop $(BUILDX_BUILDER)
-
-check:
-	@echo "Current directory: $(CURDIR)"

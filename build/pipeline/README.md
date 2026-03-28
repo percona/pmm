@@ -188,7 +188,7 @@ brew install minio/stable/mc  # macOS
 # Or for Linux: https://min.io/docs/minio/linux/reference/minio-mc.html
 
 # Configure alias
-mc alias set pmm http://localhost:9000 minioadmin minioadmin
+mc alias set pmm http://127.0.0.1:9000 minioadmin minioadmin
 
 # Create bucket
 mc mb pmm/cache
@@ -199,7 +199,7 @@ mc mb pmm/cache
 Configure Minio access via environment variables or `.env` file:
 
 ```bash
-MINIO_ENDPOINT=http://localhost:9000
+MINIO_ENDPOINT=http://127.0.0.1:9000
 MINIO_BUCKET=cache
 MINIO_CACHE_PREFIX=repos
 ```
@@ -230,11 +230,11 @@ The `.cache/repos/` directory contains bare Git repositories:
 ```
 .cache/
 └── repos/
-    ├── pmm.git/
-    ├── pmm-dump.git/
+    ├── grafana-dashboards.git/
     ├── grafana.git/
-    ├── VictoriaMetrics.git/
-    └── grafana-dashboards.git/
+    ├── pmm-dump.git/
+    ├── pmm.git/
+    └── VictoriaMetrics.git/
 ```
 
 These are mounted read-only into Docker build stages to speed up builds.

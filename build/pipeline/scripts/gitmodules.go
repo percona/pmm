@@ -18,7 +18,6 @@ package main
 
 import (
 	"fmt"
-	"log/slog"
 	"os"
 	"strings"
 
@@ -27,7 +26,7 @@ import (
 
 func main() {
 	if len(os.Args) < 4 { //nolint:mnd
-		slog.Error("Usage: <gitmodules-file> <component> <field>", "program", os.Args[0])
+		fmt.Fprintf(os.Stderr, "Usage: %s <gitmodules-file> <component> <field>\n", os.Args[0])
 		os.Exit(1)
 	}
 
@@ -37,7 +36,7 @@ func main() {
 
 	cfg, err := ini.Load(gitmodulesFile)
 	if err != nil {
-		slog.Error("Failed to load .gitmodules", "error", err)
+		fmt.Fprintf(os.Stderr, "Failed to load .gitmodules: %v\n", err)
 		os.Exit(1)
 	}
 
@@ -45,12 +44,11 @@ func main() {
 	sectionName := fmt.Sprintf("submodule \"%s\"", component)
 	section := cfg.Section(sectionName)
 	if section == nil {
-		slog.Error("Component not found in .gitmodules", "component", component)
-		slog.Info("Available submodules:")
-
+		fmt.Fprintf(os.Stderr, "Component not found in .gitmodules: %s\n", component)
+		fmt.Fprintln(os.Stderr, "Available submodules:")
 		for _, sec := range cfg.Sections() {
 			if strings.HasPrefix(sec.Name(), "submodule") {
-				slog.Info(sec.Name())
+				fmt.Fprintln(os.Stderr, sec.Name())
 			}
 		}
 		os.Exit(1)
@@ -59,9 +57,9 @@ func main() {
 	// Get the requested field (url, branch, or tag)
 	value := section.Key(field).String()
 	if value == "" {
-		slog.Error("Field not found for component", "field", field, "component", component)
+		fmt.Fprintf(os.Stderr, "Field '%s' not found for component '%s'\n", field, component)
 		os.Exit(1)
 	}
 
-	slog.Info(value)
+	fmt.Println(value)
 }

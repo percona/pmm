@@ -283,7 +283,6 @@ EOF
 # Copy Ansible playbooks and run configuration
 COPY docker/server/entrypoint.sh /opt/entrypoint.sh
 COPY ansible /opt/ansible
-COPY pipeline/gitCommit /tmp/gitCommit
 
 RUN --mount=type=bind,source=pipeline/pmm-client.tar.gz,target=/tmp/pmm-client.tar.gz \
     install -T -p -m 644 /opt/ansible/ansible.cfg /etc/ansible/ansible.cfg && \
