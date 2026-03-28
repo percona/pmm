@@ -3,7 +3,7 @@
 # Build arguments for git commits and versions
 ARG PMM_REF=v3
 ARG GRAFANA_REF=v3
-ARG VM_REF=pmm-6401-v1.114.0
+ARG VM_REF=pmm-6401-v1.138.0
 ARG DASHBOARDS_REF=main
 ARG PMM_DUMP_REF=main
 ARG TARGETARCH=amd64
@@ -21,16 +21,15 @@ WORKDIR /build
 # Install build dependencies
 RUN apt-get update && apt-get install -y git make
 
-# Build pmm-managed binaries
+# Build pmm-managed
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=bind,source=./pipeline/.cache/repos/pmm.git,target=/repo-cache/pmm.git,readonly \
-    echo "Using cached pmm repository from Minio..." && \
+    echo "Using cached pmm repository..." && \
     git clone /repo-cache/pmm.git /build/pmm && \
     cd /build/pmm && \
     git checkout ${PMM_REF} && \
-    cd managed && \
-    make release GOARCH=${TARGETARCH}
+    make -C managed release GOARCH=${TARGETARCH}
 
 # Build qan-api2
 RUN --mount=type=cache,target=/go/pkg/mod \
@@ -61,7 +60,7 @@ RUN apt-get update && apt-get install -y git make
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=bind,source=./pipeline/.cache/repos/pmm-dump.git,target=/repo-cache/pmm-dump.git,readonly \
-    echo "Using cached pmm-dump repository from Minio..." && \
+    echo "Using cached pmm-dump repository..." && \
     git clone /repo-cache/pmm-dump.git /build/pmm-dump && \
     cd /build/pmm-dump && \
     git checkout ${PMM_DUMP_REF} && \
@@ -84,7 +83,7 @@ RUN apt-get update && apt-get install -y git make
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=bind,source=./pipeline/.cache/repos/grafana.git,target=/repo-cache/grafana.git,readonly \
-    echo "Using cached grafana repository from Minio..." && \
+    echo "Using cached grafana repository..." && \
     git clone /repo-cache/grafana.git /build/grafana && \
     cd /build/grafana && \
     git checkout ${GRAFANA_REF} && \
@@ -108,7 +107,7 @@ RUN apt-get update && apt-get install -y git make
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=bind,source=./pipeline/.cache/repos/VictoriaMetrics.git,target=/repo-cache/VictoriaMetrics.git,readonly \
-    echo "Using cached VictoriaMetrics repository from Minio..." && \
+    echo "Using cached VictoriaMetrics repository..." && \
     git clone /repo-cache/VictoriaMetrics.git /build/VictoriaMetrics && \
     cd /build/VictoriaMetrics && \
     git checkout ${VM_REF} && \
@@ -131,7 +130,7 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN --mount=type=cache,target=/root/.npm \
     --mount=type=bind,source=./pipeline/.cache/repos/grafana.git,target=/repo-cache/grafana.git,readonly \
-    echo "Using cached grafana repository from Minio..." && \
+    echo "Using cached grafana repository..." && \
     git clone /repo-cache/grafana.git . && \
     git checkout ${GRAFANA_REF} && \
     npm install -g grunt-cli && \
@@ -157,7 +156,7 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 # Build percona-dashboards
 RUN --mount=type=cache,target=/root/.npm \
     --mount=type=bind,source=./pipeline/.cache/repos/grafana-dashboards.git,target=/repo-cache/grafana-dashboards.git,readonly \
-    echo "Using cached grafana-dashboards repository from Minio..." && \
+    echo "Using cached grafana-dashboards repository..." && \
     git clone /repo-cache/grafana-dashboards.git . && \
     git checkout ${DASHBOARDS_REF} && \
     make release
@@ -166,7 +165,7 @@ RUN --mount=type=cache,target=/root/.npm \
 WORKDIR /pmm-ui
 RUN --mount=type=cache,target=/root/.npm \
     --mount=type=bind,source=./pipeline/.cache/repos/pmm.git,target=/repo-cache/pmm.git,readonly \
-    echo "Using cached pmm repository from Minio..." && \
+    echo "Using cached pmm repository..." && \
     git clone /repo-cache/pmm.git . && \
     git checkout ${PMM_REF} && \
     cd ui && \
