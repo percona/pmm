@@ -70,3 +70,6 @@ vmagent_commit_hash=bcd5d31b54598dfb3c43420c2b3abe4f0a812493
 redis_exporter_commit_hash=1f3d89a11af0f0fd10f4f6e56b24a1687ae85776
 # https://github.com/hashicorp/nomad/releases/tag/v1.11.3
 nomad_commit_hash=173ab08a0210789da531847c4ce3c3518f7fb34b
+# OpenTelemetry Collector Contrib (prebuilt binary for PMM client/server OTEL)
+# https://github.com/open-telemetry/opentelemetry-collector-releases/releases/tag/v0.148.0
+otelcol_contrib_version=0.148.0
