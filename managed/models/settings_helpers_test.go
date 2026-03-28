@@ -58,6 +58,8 @@ func TestSettings(t *testing.T) {
 		}
 		expected.Updates.SnoozeDuration = models.DefaultSnoozeDuration
 		expected.Otel.LogsRetentionDays = pointer.ToInt(models.OtelLogsRetentionDaysDefault)
+		expected.Otel.TracesRetentionDays = pointer.ToInt(models.OtelTracesRetentionDaysDefault)
+		expected.Otel.MetricsRetentionDays = pointer.ToInt(models.OtelClickHouseMetricsRetentionDaysDefault)
 		assert.Equal(t, expected, actual)
 	})
 
@@ -83,6 +85,8 @@ func TestSettings(t *testing.T) {
 		}
 		expected.Updates.SnoozeDuration = models.DefaultSnoozeDuration
 		expected.Otel.LogsRetentionDays = pointer.ToInt(models.OtelLogsRetentionDaysDefault)
+		expected.Otel.TracesRetentionDays = pointer.ToInt(models.OtelTracesRetentionDaysDefault)
+		expected.Otel.MetricsRetentionDays = pointer.ToInt(models.OtelClickHouseMetricsRetentionDaysDefault)
 		assert.Equal(t, expected, s)
 	})
 

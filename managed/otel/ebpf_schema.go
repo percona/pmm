@@ -11,12 +11,9 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"net/url"
 
 	_ "github.com/ClickHouse/clickhouse-go/v2" // register ClickHouse driver
 	"github.com/sirupsen/logrus"
-
-	"github.com/percona/pmm/managed/utils/envvars"
 )
 
 // EnsureOtelTracesMetricsAndServiceMapTables creates ClickHouse tables used by the OTEL ClickHouse exporter
@@ -167,20 +164,4 @@ SETTINGS index_granularity = 8192, ttl_only_drop_parts = 1`
 
 	logrus.Debug("OTEL schema: service map rollup tables ensured")
 	return nil
-}
-
-// EnsureOtelTracesMetricsAndServiceMapTablesFromEnv uses PMM ClickHouse env vars (same as EnsureOtelSchemaFromEnv).
-func EnsureOtelTracesMetricsAndServiceMapTablesFromEnv(ctx context.Context, spanRetentionDays, metricRetentionDays int) {
-	addr := envvars.GetEnv("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
-	username := envvars.GetEnv("PMM_CLICKHOUSE_USER", defaultClickhouseUser)
-	password := envvars.GetEnv("PMM_CLICKHOUSE_PASSWORD", defaultClickhousePassword)
-	chURI := url.URL{
-		Scheme: "tcp",
-		User:   url.UserPassword(username, password),
-		Host:   addr,
-		Path:   "/default",
-	}
-	if err := EnsureOtelTracesMetricsAndServiceMapTables(ctx, chURI.String(), spanRetentionDays, metricRetentionDays); err != nil {
-		logrus.WithError(err).Warn("Failed to ensure OTEL traces/metrics/service map ClickHouse tables")
-	}
 }

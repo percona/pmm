@@ -36,6 +36,8 @@ const (
 	presetRaw         = "raw"
 )
 
+var presetNameSanitizer = regexp.MustCompile(`[^a-zA-Z0-9_]+`)
+
 // logSourceEntry matches the JSON stored in custom_labels["log_sources"].
 type logSourceEntry struct {
 	Path   string `json:"path"`
@@ -72,7 +74,7 @@ func getLogSourcesFromAgent(row *models.Agent) ([]logSourceEntry, error) {
 
 // sanitizePresetName returns a safe receiver id suffix (alphanumeric and underscore only).
 func sanitizePresetName(name string) string {
-	return regexp.MustCompile(`[^a-zA-Z0-9_]+`).ReplaceAllString(name, "_")
+	return presetNameSanitizer.ReplaceAllString(name, "_")
 }
 
 // otelResourceAttributes returns resource attributes (agent_id, node_id, service_name, etc.) for the OTEL collector

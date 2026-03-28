@@ -24,18 +24,20 @@ import (
 
 // Default values for settings. These values are used when settings are not set.
 const (
-	AdvisorsEnabledDefault             = true
-	AlertingEnabledDefault             = true
-	TelemetryEnabledDefault            = true
-	UpdatesEnabledDefault              = true
-	BackupManagementEnabledDefault     = true
-	VictoriaMetricsCacheEnabledDefault = false
-	AzureDiscoverEnabledDefault        = false
-	AccessControlEnabledDefault        = false
-	InternalPgQANEnabledDefault        = false
-	OtelCollectorEnabledDefault        = true
-	OtelLogsRetentionDaysDefault       = 7
-	awsPartitionID                     = "aws"
+	AdvisorsEnabledDefault                    = true
+	AlertingEnabledDefault                    = true
+	TelemetryEnabledDefault                   = true
+	UpdatesEnabledDefault                     = true
+	BackupManagementEnabledDefault            = true
+	VictoriaMetricsCacheEnabledDefault        = false
+	AzureDiscoverEnabledDefault               = false
+	AccessControlEnabledDefault               = false
+	InternalPgQANEnabledDefault               = false
+	OtelCollectorEnabledDefault               = true
+	OtelLogsRetentionDaysDefault              = 7
+	OtelTracesRetentionDaysDefault            = 7
+	OtelClickHouseMetricsRetentionDaysDefault = 90
+	awsPartitionID                            = "aws"
 )
 
 // MetricsResolutions contains standard VictoriaMetrics metrics resolutions.
@@ -95,10 +97,14 @@ type Settings struct {
 		Enabled *bool `json:"enabled"`
 	}
 
-	// Otel collector on server (receives OTLP from agents); log retention for otel.logs in ClickHouse.
+	// Otel collector on server (receives OTLP from agents); retention for OTEL ClickHouse tables.
 	Otel struct {
 		CollectorEnabled  *bool `json:"collector_enabled"`
 		LogsRetentionDays *int  `json:"logs_retention_days"`
+		// TracesRetentionDays is TTL for otel.otel_traces (and trace TTL in server otel-collector exporters).
+		TracesRetentionDays *int `json:"traces_retention_days"`
+		// MetricsRetentionDays is TTL for otel.otel_metrics_sum (and sum-metric TTL in server otel-collector exporters).
+		MetricsRetentionDays *int `json:"metrics_retention_days"`
 	} `json:"otel"`
 
 	Alerting struct {
@@ -215,6 +221,22 @@ func (s *Settings) GetOtelLogsRetentionDays() int {
 	return OtelLogsRetentionDaysDefault
 }
 
+// GetOtelTracesRetentionDays returns the TTL in days for otel.otel_traces in ClickHouse.
+func (s *Settings) GetOtelTracesRetentionDays() int {
+	if s.Otel.TracesRetentionDays != nil && *s.Otel.TracesRetentionDays > 0 {
+		return *s.Otel.TracesRetentionDays
+	}
+	return OtelTracesRetentionDaysDefault
+}
+
+// GetOtelMetricsRetentionDays returns the TTL in days for otel.otel_metrics_sum in ClickHouse.
+func (s *Settings) GetOtelMetricsRetentionDays() int {
+	if s.Otel.MetricsRetentionDays != nil && *s.Otel.MetricsRetentionDays > 0 {
+		return *s.Otel.MetricsRetentionDays
+	}
+	return OtelClickHouseMetricsRetentionDaysDefault
+}
+
 // AdvisorsRunIntervals represents intervals between Advisors checks.
 type AdvisorsRunIntervals struct {
 	StandardInterval time.Duration `json:"standard_interval"`
@@ -263,5 +285,11 @@ func (s *Settings) fillDefaults() {
 
 	if s.Otel.LogsRetentionDays == nil || (s.Otel.LogsRetentionDays != nil && *s.Otel.LogsRetentionDays <= 0) {
 		s.Otel.LogsRetentionDays = pointer.ToInt(OtelLogsRetentionDaysDefault)
+	}
+	if s.Otel.TracesRetentionDays == nil || (s.Otel.TracesRetentionDays != nil && *s.Otel.TracesRetentionDays <= 0) {
+		s.Otel.TracesRetentionDays = pointer.ToInt(OtelTracesRetentionDaysDefault)
+	}
+	if s.Otel.MetricsRetentionDays == nil || (s.Otel.MetricsRetentionDays != nil && *s.Otel.MetricsRetentionDays <= 0) {
+		s.Otel.MetricsRetentionDays = pointer.ToInt(OtelClickHouseMetricsRetentionDaysDefault)
 	}
 }

@@ -61,11 +61,11 @@ func (cmd *AddOtelCommand) RunCmd() (commands.Result, error) {
 		pmmAgentID = status.AgentID
 	}
 
-	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(&cmd.CustomLabels)
 
 	body := &agents.AddAgentParamsBodyOtelCollector{
 		PMMAgentID:   pmmAgentID,
-		CustomLabels: customLabels,
+		CustomLabels: *customLabels,
 	}
 	if cmd.LogSources != "" {
 		// Parse path:preset pairs.

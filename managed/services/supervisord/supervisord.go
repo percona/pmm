@@ -449,7 +449,7 @@ func (s *Service) ensureOtelClickHouseSchemas(settings *models.Settings) {
 	if err := otel.EnsureOtelSchema(ctx, dsn, settings.GetOtelLogsRetentionDays()); err != nil {
 		s.l.Warnf("Failed to ensure OTEL logs ClickHouse schema: %s.", err)
 	}
-	if err := otel.EnsureOtelTracesMetricsAndServiceMapTables(ctx, dsn, 7, 90); err != nil {
+	if err := otel.EnsureOtelTracesMetricsAndServiceMapTables(ctx, dsn, settings.GetOtelTracesRetentionDays(), settings.GetOtelMetricsRetentionDays()); err != nil {
 		s.l.Warnf("Failed to ensure OTEL traces/metrics/service map ClickHouse schema: %s.", err)
 	}
 }
@@ -458,7 +458,7 @@ func (s *Service) writeOtelCollectorConfigFile(settings *models.Settings) error 
 	addr := envvars.GetEnv("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
 	username := envvars.GetEnv("PMM_CLICKHOUSE_USER", defaultClickhouseUser)
 	password := envvars.GetEnv("PMM_CLICKHOUSE_PASSWORD", defaultClickhousePassword)
-	yaml := buildOtelCollectorConfigYAML(addr, username, password, settings.GetOtelLogsRetentionDays(), 7, 90)
+	yaml := buildOtelCollectorConfigYAML(addr, username, password, settings.GetOtelLogsRetentionDays(), settings.GetOtelTracesRetentionDays(), settings.GetOtelMetricsRetentionDays())
 	if err := os.MkdirAll(filepath.Dir(otelCollectorConfigPath), 0o755); err != nil { //nolint:mnd
 		return errors.Wrap(err, "mkdir otelcol")
 	}

@@ -10,21 +10,14 @@ package advisor_service
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-  "context"
-  "fmt"
-  "net/http"
-  "time"
+	"context"
+	"net/http"
+	"time"
 
-  "github.com/go-openapi/errors"
-  "github.com/go-openapi/runtime"
-  cr "github.com/go-openapi/runtime/client"
-  "github.com/go-openapi/strfmt"
-  "github.com/go-openapi/swag"
-  "github.com/go-openapi/validate"
-
-  	"github.com/percona/pmm/api/advisors/v1/json/client/advisor_service"
-	"github.com/percona/pmm/api/advisors/v1/json/models"
-  
+	"github.com/go-openapi/errors"
+	"github.com/go-openapi/runtime"
+	cr "github.com/go-openapi/runtime/client"
+	"github.com/go-openapi/strfmt"
 )
 
 // NewChangeAdvisorChecksParams creates a new ChangeAdvisorChecksParams object,
