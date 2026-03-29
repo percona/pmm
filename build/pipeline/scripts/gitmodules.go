@@ -24,6 +24,7 @@ import (
 	"gopkg.in/ini.v1"
 )
 
+//nolint:forbidigo
 func main() {
 	if len(os.Args) < 4 { //nolint:mnd
 		fmt.Fprintf(os.Stderr, "Usage: %s <gitmodules-file> <component> <field>\n", os.Args[0])

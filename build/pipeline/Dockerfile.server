@@ -28,79 +28,18 @@ RUN --mount=type=cache,target=/var/cache/dnf \
         iproute \
         nss_wrapper
 
-# Create groups
-RUN groupadd -g 1000 pmm && \
-    groupadd -g 1001 nginx && \
-    groupadd -g 1002 clickhouse
-
-# Create users
-RUN useradd -u 1000 -g pmm -d /home/pmm -s /usr/bin/bash -c "PMM Server user" pmm && \
-    useradd -u 1001 -g nginx -d /dev/null -s /sbin/nologin -c "Nginx user" nginx && \
-    useradd -u 1002 -g clickhouse -d /dev/null -s /sbin/nologin -c "Clickhouse server user" clickhouse
-
-# Create directories with OpenShift-compatible permissions
-RUN mkdir -p /srv /srv/prometheus/rules /etc/grafana /srv/clickhouse /srv/logs \
-             /srv/backup /srv/victoriametrics/data /usr/share/pmm-server \
-             /var/lib/cloud/scripts/per-once /var/lib/cloud/scripts/per-boot \
-             /usr/local/percona/advisors /usr/local/percona/checks /usr/local/percona/alerting-templates \
-             /var/lib/grafana && \
-    chown -R pmm:root /srv /etc/grafana /usr/share/pmm-server /usr/local/percona /var/lib/grafana && \
-    chmod -R 0775 /srv /etc/grafana /usr/share/pmm-server /srv/logs
-
-# Copy Go binaries from individual builder stages with root:root ownership
-ARG TARGETARCH
-COPY --chown=root:root --chmod=0755 pipeline/output/server/pmm-managed/bin/pmm-managed /usr/sbin/pmm-managed
-COPY --chown=root:root --chmod=0755 pipeline/output/server/pmm-managed/bin/pmm-encryption-rotation /usr/sbin/pmm-encryption-rotation
-COPY --chown=root:root --chmod=0755 pipeline/output/server/pmm-managed/bin/pmm-managed-init /usr/sbin/pmm-managed-init
-COPY --chown=root:root --chmod=0755 pipeline/output/server/pmm-managed/bin/pmm-managed-starlark /usr/sbin/pmm-managed-starlark
-COPY --chown=root:root --chmod=0755 pipeline/output/server/pmm-managed/bin/qan-api2 /usr/sbin/percona-qan-api2
-COPY --chown=root:root --chmod=0755 pipeline/output/server/pmm-managed/bin/vmproxy /usr/sbin/vmproxy
-COPY --chown=root:root --chmod=0755 pipeline/output/server/pmm-dump/pmm-dump /usr/sbin/pmm-dump
-COPY --chown=root:root --chmod=0755 pipeline/output/server/grafana-go/grafana-server /usr/sbin/grafana-server
-COPY --chown=root:root --chmod=0755 pipeline/output/server/grafana-go/grafana /usr/sbin/grafana
-COPY --chown=root:root --chmod=0755 pipeline/output/server/grafana-go/grafana-cli /usr/bin/grafana-cli
-COPY --chown=root:root --chmod=0755 pipeline/output/server/victoriametrics/victoria-metrics-pure /usr/sbin/victoriametrics
-COPY --chown=root:root --chmod=0755 pipeline/output/server/victoriametrics/vmalert-pure /usr/sbin/vmalert
-
-# Copy Grafana assets
-COPY --chown=pmm:root pipeline/output/server/grafana-ui/public /usr/share/grafana/public
-COPY --chown=pmm:root pipeline/output/server/grafana-ui/conf /usr/share/grafana/conf
-COPY --chown=pmm:root pipeline/output/server/grafana-ui/tools /usr/share/grafana/tools
-
-# Copy Grafana configuration files
-COPY --chown=pmm:root pipeline/output/server/grafana-ui/conf/sample.ini /etc/grafana/grafana.ini
-COPY --chown=pmm:root pipeline/output/server/grafana-ui/conf/ldap.toml /etc/grafana/ldap.toml
-
-# Copy pmm-managed data assets with pmm:root ownership
-COPY --chown=pmm:root pipeline/output/server/pmm-managed/data/swagger /usr/share/pmm-managed/swagger
-COPY --chown=pmm:root --chmod=0644 pipeline/output/server/pmm-managed/data/advisors/ /usr/local/percona/advisors/
-COPY --chown=pmm:root --chmod=0644 pipeline/output/server/pmm-managed/data/checks/ /usr/local/percona/checks/
-COPY --chown=pmm:root --chmod=0644 pipeline/output/server/pmm-managed/data/alerting-templates/ /usr/local/percona/alerting-templates/
-
-# Copy PMM UI assets
-COPY --chown=pmm:root pipeline/output/server/pmm-ui/pmm-dist /usr/share/pmm-ui
-COPY --chown=pmm:root pipeline/output/server/pmm-ui/pmm-compat-dist /usr/share/percona-dashboards/panels/pmm-compat-app
-
-# Copy percona-dashboards panels
-COPY --chown=pmm:root pipeline/output/server/pmm-dashboards/panels /usr/share/percona-dashboards/
-COPY --chown=pmm:root pipeline/output/server/pmm-dashboards/pmm-app-dist /usr/share/percona-dashboards/panels/pmm-app
-
-# Create VERSION file for percona-dashboards
-RUN echo "${VERSION}" > /usr/share/percona-dashboards/VERSION && \
-    chown pmm:root /usr/share/percona-dashboards/VERSION
-
-# Copy pre-generated VERSION.json (produced by 'make generate-version-json')
-COPY --chown=root:root --chmod=0644 pipeline/output/server/version.json /usr/share/pmm-server/VERSION.json
-
 # Copy Ansible playbooks and run configuration
 COPY docker/server/entrypoint.sh /opt/entrypoint.sh
 COPY ansible /opt/ansible
 
 RUN --mount=type=bind,source=pipeline/pmm-client.tar.gz,target=/tmp/pmm-client.tar.gz \
+    --mount=type=bind,source=pipeline/output/server,target=/opt/pmm-staging \
     install -T -p -m 644 /opt/ansible/ansible.cfg /etc/ansible/ansible.cfg && \
     install -T -p -m 644 /opt/ansible/hosts /etc/ansible/hosts && \
     ansible-playbook -vvv /opt/ansible/pmm-docker/main.yml && \
     ansible-playbook -vvv /opt/ansible/pmm-docker/post-build.yml && \
+    echo "${VERSION}" > /usr/share/percona-dashboards/VERSION && \
+    chown 1000:0 /usr/share/percona-dashboards/VERSION && \
     sed -i '/^assumeyes/d' /etc/dnf/dnf.conf
 
 LABEL org.opencontainers.image.created=${BUILD_DATE}
