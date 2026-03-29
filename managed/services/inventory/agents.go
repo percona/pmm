@@ -1816,6 +1816,17 @@ func (as *AgentsService) AddOtelCollector(ctx context.Context, p *inventoryv1.Ad
 	if p == nil {
 		return nil, status.Error(codes.InvalidArgument, "params are required")
 	}
+	existing, err := models.FindAgents(as.db.Querier, models.AgentFilters{
+		PMMAgentID: p.PmmAgentId,
+		AgentType:  pointer.To(models.OtelCollectorType),
+	})
+	if err != nil {
+		return nil, err
+	}
+	if len(existing) > 0 {
+		return nil, status.Errorf(codes.AlreadyExists, "An otel_collector agent already exists for pmm-agent %q; use ChangeAgent to update it.", p.PmmAgentId)
+	}
+
 	customLabels := make(map[string]string)
 	if p.CustomLabels != nil {
 		for k, v := range p.CustomLabels {
@@ -1942,6 +1953,134 @@ func (as *AgentsService) AddOtelCollector(ctx context.Context, p *inventoryv1.Ad
 		},
 	}
 	return res, nil
+}
+
+// ChangeOtelCollector updates the single otel_collector agent: merges custom labels (except reserved keys)
+// and merges log sources (last wins per path).
+func (as *AgentsService) ChangeOtelCollector(ctx context.Context, agentID string, p *inventoryv1.ChangeOtelCollectorParams) (*inventoryv1.ChangeAgentResponse, error) {
+	if p == nil {
+		return nil, status.Error(codes.InvalidArgument, "params are required")
+	}
+
+	const labelLogSources = "log_sources"
+	const labelLogFilePaths = "log_file_paths"
+
+	var out *inventoryv1.OtelCollector
+	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		q := tx.Querier
+		row, err := models.FindAgentByID(q, agentID)
+		if err != nil {
+			return err
+		}
+		if row.AgentType != models.OtelCollectorType {
+			return status.Errorf(codes.InvalidArgument, "Expected otel_collector agent type, got %s.", row.AgentType)
+		}
+
+		for k := range p.MergeLabels {
+			if k == labelLogSources || k == labelLogFilePaths {
+				return status.Errorf(codes.InvalidArgument, "merge_labels must not use reserved key %q (use add_log_sources instead)", k)
+			}
+		}
+
+		if p.Enable != nil {
+			row.Disabled = !*p.Enable
+		}
+
+		labels, err := row.GetCustomLabels()
+		if err != nil {
+			return err
+		}
+		if labels == nil {
+			labels = make(map[string]string)
+		}
+		for k, v := range p.MergeLabels {
+			labels[k] = v
+		}
+		if p.RemoveLegacyLogFilePaths {
+			delete(labels, labelLogFilePaths)
+		}
+
+		if len(p.AddLogSources) > 0 {
+			var cur []logSourceEntry
+			if s := labels[labelLogSources]; s != "" {
+				if err := json.Unmarshal([]byte(s), &cur); err != nil {
+					return status.Errorf(codes.Internal, "invalid log_sources JSON on agent: %v", err)
+				}
+			} else if s := labels[labelLogFilePaths]; s != "" {
+				for _, path := range strings.Split(s, ",") {
+					path = strings.TrimSpace(path)
+					if path != "" {
+						cur = append(cur, logSourceEntry{Path: path, Preset: "raw"})
+					}
+				}
+			}
+			byPath := make(map[string]int)
+			for i := range cur {
+				byPath[cur[i].Path] = i
+			}
+			for _, ls := range p.AddLogSources {
+				if ls == nil || ls.Path == "" {
+					continue
+				}
+				preset := ls.Preset
+				if preset == "" {
+					preset = "raw"
+				}
+				if preset != "raw" {
+					presetRow, perr := models.FindLogParserPresetByName(q, preset)
+					if perr != nil {
+						return perr
+					}
+					if presetRow == nil {
+						return status.Errorf(codes.InvalidArgument, "unknown log parser preset %q", preset)
+					}
+				}
+				entry := logSourceEntry{Path: ls.Path, Preset: preset}
+				if idx, ok := byPath[ls.Path]; ok {
+					cur[idx] = entry
+				} else {
+					byPath[ls.Path] = len(cur)
+					cur = append(cur, entry)
+				}
+			}
+			raw, mErr := json.Marshal(cur)
+			if mErr != nil {
+				return mErr
+			}
+			labels[labelLogSources] = string(raw)
+			delete(labels, labelLogFilePaths)
+		}
+
+		if err := row.SetCustomLabels(labels); err != nil {
+			return err
+		}
+
+		encrypted := pointer.To(models.EncryptAgent(*row))
+		if err := q.Update(encrypted); err != nil {
+			return err
+		}
+		decrypted := pointer.To(models.DecryptAgent(*encrypted))
+		aa, err := services.ToAPIAgent(q, decrypted)
+		if err != nil {
+			return err
+		}
+		var ok bool
+		out, ok = aa.(*inventoryv1.OtelCollector)
+		if !ok {
+			return status.Error(codes.Internal, "unexpected agent type after otel_collector change")
+		}
+		return nil
+	})
+	if e != nil {
+		return nil, e
+	}
+
+	as.state.RequestStateUpdate(ctx, out.PmmAgentId)
+	return &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_OtelCollector{
+			OtelCollector: out,
+		},
+	}, nil
 }
 
 // ChangeRTAMongoDBAgent updates MongoDB Real-Time Analytics Agent with given parameters.

@@ -927,6 +927,7 @@ message ChangeAgentRequest {
     ChangeNomadAgentParams nomad_agent = 15;
     ChangeValkeyExporterParams valkey_exporter = 16;
     ChangeRTAMongoDBAgentParams rta_mongodb_agent = 18;
+    ChangeOtelCollectorParams otel_collector = 19;
   }
 }
 
@@ -951,6 +952,7 @@ message ChangeAgentResponse {
     NomadAgent nomad_agent = 15;
     ValkeyExporter valkey_exporter = 16;
     RTAMongoDBAgent rta_mongodb_agent = 18;
+    OtelCollector otel_collector = 19;
   }
 }
 
@@ -2002,6 +2004,18 @@ message AddOtelCollectorParams {
   map<string, string> custom_labels = 2;
   repeated string log_file_paths = 3; // Deprecated: use log_sources for per-path preset. If log_sources is empty, these are used with preset "raw".
   repeated LogSource log_sources = 4;
+}
+
+// ChangeOtelCollectorParams patches the single otel_collector agent per pmm-agent (merge_labels must not use keys log_sources or log_file_paths).
+message ChangeOtelCollectorParams {
+  // Enable this Agent. Agents are enabled by default when they get added.
+  optional bool enable = 1;
+  // Keys to merge into custom labels (overwrite per key). Reserved keys log_sources and log_file_paths are rejected.
+  map<string, string> merge_labels = 2;
+  // Append or update log sources; same path appears twice — last preset wins.
+  repeated LogSource add_log_sources = 3;
+  // If true, remove legacy log_file_paths label when present.
+  bool remove_legacy_log_file_paths = 4;
 }
 
 message ChangeRTAMongoDBAgentParams {

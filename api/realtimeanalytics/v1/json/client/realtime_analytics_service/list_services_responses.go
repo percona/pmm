@@ -104,6 +104,7 @@ func (o *ListServicesOK) GetPayload() *ListServicesOKBody {
 }
 
 func (o *ListServicesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListServicesOKBody)
 
 	// response payload
@@ -177,6 +178,7 @@ func (o *ListServicesDefault) GetPayload() *ListServicesDefaultBody {
 }
 
 func (o *ListServicesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListServicesDefaultBody)
 
 	// response payload
@@ -192,6 +194,7 @@ ListServicesDefaultBody list services default body
 swagger:model ListServicesDefaultBody
 */
 type ListServicesDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -261,7 +264,9 @@ func (o *ListServicesDefaultBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *ListServicesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -281,6 +286,7 @@ func (o *ListServicesDefaultBody) contextValidateDetails(ctx context.Context, fo
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -309,6 +315,7 @@ ListServicesDefaultBodyDetailsItems0 list services default body details items0
 swagger:model ListServicesDefaultBodyDetailsItems0
 */
 type ListServicesDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -320,6 +327,7 @@ type ListServicesDefaultBodyDetailsItems0 struct {
 func (o *ListServicesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -357,6 +365,7 @@ func (o *ListServicesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error 
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o ListServicesDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -420,6 +429,7 @@ ListServicesOKBody list services OK body
 swagger:model ListServicesOKBody
 */
 type ListServicesOKBody struct {
+
 	// mongodb
 	Mongodb []*ListServicesOKBodyMongodbItems0 `json:"mongodb"`
 }
@@ -483,7 +493,9 @@ func (o *ListServicesOKBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *ListServicesOKBody) contextValidateMongodb(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Mongodb); i++ {
+
 		if o.Mongodb[i] != nil {
 
 			if swag.IsZero(o.Mongodb[i]) { // not required
@@ -503,6 +515,7 @@ func (o *ListServicesOKBody) contextValidateMongodb(ctx context.Context, formats
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -531,6 +544,7 @@ ListServicesOKBodyMongodbItems0 MongoDBService represents a generic MongoDB inst
 swagger:model ListServicesOKBodyMongodbItems0
 */
 type ListServicesOKBodyMongodbItems0 struct {
+
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 

@@ -7,7 +7,7 @@
 - Grafana service map MVP (Node Graph target; tabular / trace-derived edges acceptable for early builds).
 - Proxy legs as first-class network entities: HAProxy, ProxySQL, pgBouncer, mongos (role tags + edges).
 - Patroni (and similar) as **control-plane markers** (failover windows), not deep parser metrics.
-- `pmm-admin management add ebpf-telemetry` (wraps OTEL collector agent with Phase 1 labels).
+- `pmm-admin management add otel ebpf` (merges Phase 1 eBPF labels on the single node OTEL collector).
 
 ## Phase 2 (explicitly out of scope for Phase 1)
 

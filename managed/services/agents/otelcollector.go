@@ -284,6 +284,9 @@ exporters:
       insecure_skip_verify: {{ .server_insecure }}
 
 service:
+  telemetry:
+    metrics:
+      level: none
   pipelines:
     logs:
       receivers: ` + receiversYaml + `

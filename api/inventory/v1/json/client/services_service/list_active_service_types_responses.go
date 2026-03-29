@@ -105,6 +105,7 @@ func (o *ListActiveServiceTypesOK) GetPayload() *ListActiveServiceTypesOKBody {
 }
 
 func (o *ListActiveServiceTypesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListActiveServiceTypesOKBody)
 
 	// response payload
@@ -178,6 +179,7 @@ func (o *ListActiveServiceTypesDefault) GetPayload() *ListActiveServiceTypesDefa
 }
 
 func (o *ListActiveServiceTypesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListActiveServiceTypesDefaultBody)
 
 	// response payload
@@ -193,6 +195,7 @@ ListActiveServiceTypesDefaultBody list active service types default body
 swagger:model ListActiveServiceTypesDefaultBody
 */
 type ListActiveServiceTypesDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -262,7 +265,9 @@ func (o *ListActiveServiceTypesDefaultBody) ContextValidate(ctx context.Context,
 }
 
 func (o *ListActiveServiceTypesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -282,6 +287,7 @@ func (o *ListActiveServiceTypesDefaultBody) contextValidateDetails(ctx context.C
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -310,6 +316,7 @@ ListActiveServiceTypesDefaultBodyDetailsItems0 list active service types default
 swagger:model ListActiveServiceTypesDefaultBodyDetailsItems0
 */
 type ListActiveServiceTypesDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -321,6 +328,7 @@ type ListActiveServiceTypesDefaultBodyDetailsItems0 struct {
 func (o *ListActiveServiceTypesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -358,6 +366,7 @@ func (o *ListActiveServiceTypesDefaultBodyDetailsItems0) UnmarshalJSON(data []by
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o ListActiveServiceTypesDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -421,6 +430,7 @@ ListActiveServiceTypesOKBody list active service types OK body
 swagger:model ListActiveServiceTypesOKBody
 */
 type ListActiveServiceTypesOKBody struct {
+
 	// service types
 	ServiceTypes []*string `json:"service_types"`
 }

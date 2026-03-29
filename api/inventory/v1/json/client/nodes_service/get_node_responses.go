@@ -104,6 +104,7 @@ func (o *GetNodeOK) GetPayload() *GetNodeOKBody {
 }
 
 func (o *GetNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetNodeOKBody)
 
 	// response payload
@@ -177,6 +178,7 @@ func (o *GetNodeDefault) GetPayload() *GetNodeDefaultBody {
 }
 
 func (o *GetNodeDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetNodeDefaultBody)
 
 	// response payload
@@ -192,6 +194,7 @@ GetNodeDefaultBody get node default body
 swagger:model GetNodeDefaultBody
 */
 type GetNodeDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -261,7 +264,9 @@ func (o *GetNodeDefaultBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *GetNodeDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -281,6 +286,7 @@ func (o *GetNodeDefaultBody) contextValidateDetails(ctx context.Context, formats
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -309,6 +315,7 @@ GetNodeDefaultBodyDetailsItems0 get node default body details items0
 swagger:model GetNodeDefaultBodyDetailsItems0
 */
 type GetNodeDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -320,6 +327,7 @@ type GetNodeDefaultBodyDetailsItems0 struct {
 func (o *GetNodeDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -357,6 +365,7 @@ func (o *GetNodeDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o GetNodeDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -420,6 +429,7 @@ GetNodeOKBody get node OK body
 swagger:model GetNodeOKBody
 */
 type GetNodeOKBody struct {
+
 	// container
 	Container *GetNodeOKBodyContainer `json:"container,omitempty"`
 
@@ -612,6 +622,7 @@ func (o *GetNodeOKBody) ContextValidate(ctx context.Context, formats strfmt.Regi
 }
 
 func (o *GetNodeOKBody) contextValidateContainer(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Container != nil {
 
 		if swag.IsZero(o.Container) { // not required
@@ -636,6 +647,7 @@ func (o *GetNodeOKBody) contextValidateContainer(ctx context.Context, formats st
 }
 
 func (o *GetNodeOKBody) contextValidateGeneric(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Generic != nil {
 
 		if swag.IsZero(o.Generic) { // not required
@@ -660,6 +672,7 @@ func (o *GetNodeOKBody) contextValidateGeneric(ctx context.Context, formats strf
 }
 
 func (o *GetNodeOKBody) contextValidateRemote(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Remote != nil {
 
 		if swag.IsZero(o.Remote) { // not required
@@ -684,6 +697,7 @@ func (o *GetNodeOKBody) contextValidateRemote(ctx context.Context, formats strfm
 }
 
 func (o *GetNodeOKBody) contextValidateRemoteAzureDatabase(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.RemoteAzureDatabase != nil {
 
 		if swag.IsZero(o.RemoteAzureDatabase) { // not required
@@ -708,6 +722,7 @@ func (o *GetNodeOKBody) contextValidateRemoteAzureDatabase(ctx context.Context, 
 }
 
 func (o *GetNodeOKBody) contextValidateRemoteRDS(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.RemoteRDS != nil {
 
 		if swag.IsZero(o.RemoteRDS) { // not required
@@ -754,6 +769,7 @@ GetNodeOKBodyContainer ContainerNode represents a Docker container.
 swagger:model GetNodeOKBodyContainer
 */
 type GetNodeOKBodyContainer struct {
+
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -821,6 +837,7 @@ GetNodeOKBodyGeneric GenericNode represents a bare metal server or virtual machi
 swagger:model GetNodeOKBodyGeneric
 */
 type GetNodeOKBodyGeneric struct {
+
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -885,6 +902,7 @@ GetNodeOKBodyRemote RemoteNode represents generic remote Node. It's a node where
 swagger:model GetNodeOKBodyRemote
 */
 type GetNodeOKBodyRemote struct {
+
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -940,6 +958,7 @@ GetNodeOKBodyRemoteAzureDatabase RemoteAzureDatabaseNode represents remote Azure
 swagger:model GetNodeOKBodyRemoteAzureDatabase
 */
 type GetNodeOKBodyRemoteAzureDatabase struct {
+
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -995,6 +1014,7 @@ GetNodeOKBodyRemoteRDS RemoteRDSNode represents remote RDS Node. Agents can't ru
 swagger:model GetNodeOKBodyRemoteRDS
 */
 type GetNodeOKBodyRemoteRDS struct {
+
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 

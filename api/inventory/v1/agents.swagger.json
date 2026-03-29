@@ -330,6 +330,9 @@
         },
         "rta_mongodb_agent": {
           "$ref": "#/definitions/v1ChangeRTAMongoDBAgentParams"
+        },
+        "otel_collector": {
+          "$ref": "#/definitions/v1ChangeOtelCollectorParams"
         }
       }
     },
@@ -1808,6 +1811,9 @@
         },
         "rta_mongodb_agent": {
           "$ref": "#/definitions/v1RTAMongoDBAgent"
+        },
+        "otel_collector": {
+          "$ref": "#/definitions/v1OtelCollector"
         }
       }
     },
@@ -2166,6 +2172,36 @@
           "description": "Enable this Agent. Agents are enabled by default when they get added."
         }
       }
+    },
+    "v1ChangeOtelCollectorParams": {
+      "type": "object",
+      "properties": {
+        "enable": {
+          "type": "boolean",
+          "x-nullable": true,
+          "description": "Enable this Agent. Agents are enabled by default when they get added."
+        },
+        "merge_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Keys to merge into custom labels (overwrite per key). Reserved keys log_sources and log_file_paths are rejected."
+        },
+        "add_log_sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1LogSource"
+          },
+          "description": "Append or update log sources; same path appears twice — last preset wins."
+        },
+        "remove_legacy_log_file_paths": {
+          "type": "boolean",
+          "description": "If true, remove legacy log_file_paths label when present."
+        }
+      },
+      "description": "ChangeOtelCollectorParams patches the single otel_collector agent per pmm-agent (merge_labels must not use keys log_sources or log_file_paths)."
     },
     "v1ChangePostgresExporterParams": {
       "type": "object",

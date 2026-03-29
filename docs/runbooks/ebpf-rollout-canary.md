@@ -7,7 +7,7 @@
 
 ## Canary steps
 
-1. **Enable on one host** — `pmm-admin management add ebpf-telemetry` (or `add otel` with OTLP-only config). Confirm agent connects and no sustained scrape errors.
+1. **Enable on one host** — `pmm-admin management add otel ebpf` (or `add otel traces` / `add otel logs` as needed). Confirm agent connects and no sustained scrape errors.
 2. **Stub validation** — from a workstation with CA trust, run `go run ./managed/cmd/ebpf-otlp-stub` with `PMM_OTLP_URL` pointing at `https://<pmm>/otlp/v1/traces` and `PMM_OTLP_INSECURE=1` only on lab systems. Verify rows in `otel.otel_traces`.
 3. **SLO spot-check** — watch collector queue depth / dropped batches; target **&lt; 1%** drops over 30 minutes at expected QPS.
 4. **Expand** — repeat per cluster / node pool; document kernel version and BTF availability per image.
