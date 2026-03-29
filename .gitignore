@@ -5,7 +5,6 @@
 # Temprorary build files
 /api/nginx/*.pem
 bin/
-pmm-client.tar.gz
 !/documentation/resources/bin/
 
 # System Files
@@ -41,15 +40,14 @@ build.log
 packer.log
 ci.yml
 
-/api-tests/pmm-api-tests-output.txt
-/api-tests/pmm-api-tests-junit-report.xml
+pmm-api-tests-output.txt
+pmm-api-tests-junit-report.xml
 
 encryption.key
 
 /tmp/
 settings.json
 GEMINI.md
-RTA-Jira-Tasks-Summary.md
 
 # PMM Demo backups (it would increase repository size significantly)
 dev/clickhouse-backups/

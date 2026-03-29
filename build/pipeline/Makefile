@@ -391,6 +391,7 @@ build-server-docker: ensure-builder
 		-t $(SERVER_DOCKER_TAG) \
 		$(BUILD_ROOT)
 	@rm -f pmm-client.tar.gz
+	@docker buildx stop $(BUILDX_BUILDER) 2>/dev/null || true
 	@echo "Docker image built successfully!"
 
 # Build and push PMM Client Docker image
@@ -571,9 +572,24 @@ build-server-components:
 		build-grafana-go build-victoriametrics
 	@echo ""
 	@echo "Building server component images (Node stages sequentially)..."
-	@$(MAKE) build-grafana-ui
-	@$(MAKE) build-pmm-dashboards
-	@$(MAKE) build-pmm-ui
+	@$(PIPELINE_DIR)/scripts/check-ui-cache \
+	    "grafana" "$(GRAFANA_REF)" \
+	    "$(REPO_CACHE_DIR)/grafana.git" \
+	    "$(SERVER_OUTPUT_DIR)/grafana-ui" \
+	    "$(SERVER_OUTPUT_DIR)/version.json" \
+	  && $(MAKE) build-grafana-ui || true
+	@$(PIPELINE_DIR)/scripts/check-ui-cache \
+	    "pmm-dashboards" "$(DASHBOARDS_REF)" \
+	    "$(REPO_CACHE_DIR)/grafana-dashboards.git" \
+	    "$(SERVER_OUTPUT_DIR)/pmm-dashboards" \
+	    "$(SERVER_OUTPUT_DIR)/version.json" \
+	  && $(MAKE) build-pmm-dashboards || true
+	@$(PIPELINE_DIR)/scripts/check-ui-cache \
+	    "pmm" "$(PMM_REF)" \
+	    "$(REPO_CACHE_DIR)/pmm.git" \
+	    "$(SERVER_OUTPUT_DIR)/pmm-ui" \
+	    "$(SERVER_OUTPUT_DIR)/version.json" \
+	  && $(MAKE) build-pmm-ui || true
 	@echo "All server component images built successfully"
 
 # Remove intermediate server artifact images
