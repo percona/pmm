@@ -1,0 +1,35 @@
+# syntax=docker/dockerfile:1
+# Build pmm-managed, qan-api2, and vmproxy
+
+ARG GO_VERSION=latest
+FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}
+
+ARG TARGETARCH
+ARG PMM_REF
+
+WORKDIR /build
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y git make
+
+# Build pmm-managed
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    --mount=type=bind,source=./pipeline/.cache/repos/pmm.git,target=/repos/pmm.git,readonly \
+    echo "Using cached pmm repository..." && \
+    git clone /repos/pmm.git /build/pmm && \
+    cd /build/pmm && \
+    git checkout ${PMM_REF} && \
+    make -C managed release GOARCH=${TARGETARCH}
+
+# Build qan-api2
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    cd /build/pmm/qan-api2 && \
+    make release GOARCH=${TARGETARCH}
+
+# Build vmproxy
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    cd /build/pmm/vmproxy && \
+    make release GOARCH=${TARGETARCH}

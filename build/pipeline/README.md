@@ -104,7 +104,7 @@ Built from external Git repositories:
 | `GOARCH` | Target architecture: `amd64` or `arm64` | `amd64` |
 | `PLATFORM` | Docker platform: `linux/amd64` or `linux/arm64` | `linux/amd64` |
 | `SERVER_PLATFORMS` | Server build platforms (comma-separated) | `linux/amd64` |
-| `GO_VERSION` | Go version for builder image | `1.25` |
+| `GO_VERSION` | Go version for builder image | `1.26` |
 | `OUTPUT_DIR` | Output directory for artifacts | `./output` |
 | `PACKAGE_DIR` | Output directory for tarball packages | `./package` |
 | `MINIO_ENDPOINT` | Minio S3 endpoint URL | `http://localhost:9000` |
@@ -291,17 +291,24 @@ brew install minio/stable/mc  # macOS
 ```
 build/
 ├── pipeline/
-│   ├── Makefile              # Main build targets
-│   ├── README.md             # This file
-│   ├── Dockerfile.client     # PMM Client Docker image
-│   ├── Dockerfile.server     # PMM Server Docker image (multi-stage)
-│   ├── Dockerfile.builder    # PMM Builder base image
-│   ├── output/               # Build artifacts (created)
-│   └── package/              # Tarballs (created)
+│   ├── Makefile                  # Main build targets
+│   ├── README.md                 # This file
+│   ├── Dockerfile.client         # PMM Client Docker image
+│   ├── Dockerfile.server         # PMM Server assembly (references pre-built images)
+│   ├── Dockerfile.builder        # pmm-builder image for client component builds
+│   ├── Dockerfile.pmm-managed    # Builds pmm-managed, qan-api2, vmproxy
+│   ├── Dockerfile.pmm-dump       # Builds pmm-dump
+│   ├── Dockerfile.grafana-go     # Builds Grafana backend binaries
+│   ├── Dockerfile.grafana-ui     # Builds Grafana UI assets
+│   ├── Dockerfile.victoriametrics # Builds victoria-metrics and vmalert
+│   ├── Dockerfile.pmm-dashboards # Builds percona-dashboards panels
+│   ├── Dockerfile.pmm-ui         # Builds PMM UI assets
+│   ├── output/                   # Build artifacts (created)
+│   └── package/                  # Tarballs (created)
 └── scripts/
-    ├── build-component       # Component build script
-    ├── package-tarball       # Tarball packaging script
-    └── build-client-docker   # Client Docker build script
+    ├── build-component           # Component build script
+    ├── package-tarball           # Tarball packaging script
+    └── build-client-docker       # Client Docker build script
 ```
 
 ## Build Targets
@@ -358,10 +365,10 @@ cd build/pipeline
 make server
 ```
 
-This builds the PMM Server Docker image using a multi-stage build that:
-1. Builds all Go binaries (pmm-managed, qan-api2, vmproxy, Grafana, VictoriaMetrics)
-2. Builds all Node.js assets (Grafana UI, PMM UI, percona-dashboards)
-3. Creates a runtime image with all components installed
+This builds the PMM Server Docker image using a split build that:
+1. Builds Go components in parallel: pmm-managed/qan-api2/vmproxy, pmm-dump, Grafana backend, VictoriaMetrics
+2. Builds Node.js assets sequentially (to avoid network saturation): Grafana UI, PMM UI, percona-dashboards
+3. Assembles a runtime image from the individually built component images
 
 **Default Architecture:** `linux/amd64`
 

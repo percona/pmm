@@ -1,6 +1,6 @@
 # Makefile for building PMM components using Docker
 
-.PHONY: help build build-all build-client build-client-tarball build-client-docker build-server client server all build-dynamic build-arm64 clean clean-cache clean-volumes clean-all builder-image build-server-docker push-client-docker gitmodules download-cache update-cache ensure-builder build-pmm-managed check-minio
+.PHONY: help build build-all build-client build-client-tarball build-client-docker build-server client server all build-dynamic build-arm64 clean clean-cache clean-volumes clean-all builder-image build-server-docker push-client-docker gitmodules download-cache update-cache ensure-builder check-minio build-server-components build-artifact-pmm-managed build-artifact-pmm-dump build-artifact-grafana-go build-artifact-grafana-ui build-artifact-victoriametrics build-artifact-pmm-dashboards build-artifact-pmm-ui clean-server-artifacts
 
 # Determine directory paths regardless of where make is invoked from
 PIPELINE_DIR := $(dir $(abspath $(firstword $(MAKEFILE_LIST))))
@@ -74,7 +74,6 @@ help:
 
 # Configuration
 include .env
-export
 
 PMM_VERSION ?= $(shell curl -fsSL https://raw.githubusercontent.com/Percona-Lab/pmm-submodules/refs/heads/v3/VERSION 2>/dev/null || echo "dev")
 BUILD_TYPE ?= static
@@ -94,6 +93,17 @@ MINIO_CACHE_PREFIX ?= repos
 CACHE_DIR := $(CURDIR)/.cache
 REPO_CACHE_DIR := $(CACHE_DIR)/repos
 
+# S3 cache flags (reused across all artifact builds)
+S3_CACHE_FROM := type=s3,region=us-east-1,bucket=$(MINIO_BUCKET),endpoint_url=$(MINIO_ENDPOINT),access_key_id=$(MINIO_ACCESS_KEY),secret_access_key=$(MINIO_SECRET_KEY),use_path_style=true
+S3_CACHE_TO   := type=s3,region=us-east-1,bucket=$(MINIO_BUCKET),endpoint_url=$(MINIO_ENDPOINT),access_key_id=$(MINIO_ACCESS_KEY),secret_access_key=$(MINIO_SECRET_KEY),mode=max,use_path_style=true
+# Docker configuration
+CLIENT_DOCKERFILE ?= $(PIPELINE_DIR)/Dockerfile.client
+CLIENT_DOCKER_TAG ?= perconalab/pmm-client:$(PMM_VERSION)
+SERVER_DOCKERFILE ?= $(PIPELINE_DIR)/Dockerfile.server
+SERVER_DOCKER_TAG ?= perconalab/pmm-server:$(PMM_VERSION)
+BUILDX_BUILDER ?= pmm-s3-builder
+PMM_BUILD_TAG ?= $(PMM_VERSION)
+
 export PMM_VERSION
 export BUILD_TYPE
 export GOARCH
@@ -105,13 +115,6 @@ export PACKAGE_DIR
 export MINIO_ENDPOINT
 export MINIO_BUCKET
 export CACHE_DIR
-
-# Docker configuration
-CLIENT_DOCKERFILE ?= $(PIPELINE_DIR)/Dockerfile.client
-CLIENT_DOCKER_TAG ?= perconalab/pmm-client:$(PMM_VERSION)
-SERVER_DOCKERFILE ?= $(PIPELINE_DIR)/Dockerfile.server
-SERVER_DOCKER_TAG ?= perconalab/pmm-server:$(PMM_VERSION)
-
 export CLIENT_DOCKERFILE
 export CLIENT_DOCKER_TAG
 export SERVER_DOCKERFILE
@@ -198,8 +201,8 @@ build-client-tarball:
 	@$(PACKAGE_SCRIPT)
 
 # Build PMM Server (Docker image with all server components)
-build-server: download-cache
-	@echo "Building PMM Server..."
+build-server: download-cache build-server-components
+	@echo "Assembling PMM Server Docker image..."
 	@$(MAKE) build-server-docker
 	@echo ""
 	@echo "PMM Server built successfully!"
@@ -297,8 +300,8 @@ gitmodules:
 		rm -f go.mod go.sum
 	@echo "gitmodules binary built successfully at scripts/gitmodules"
 
-# Build PMM Server Docker image
-build-server-docker: ensure-builder check-minio update-cache download-cache
+# Build PMM Server Docker image (assembly stage only — references pre-built artifact images)
+build-server-docker: ensure-builder
 	@echo "Building PMM Server Docker image..."
 	@if [ -f "$(PACKAGE_DIR)/pmm-client-$(PMM_VERSION).tar.gz" ]; then \
 		cp "$(PACKAGE_DIR)/pmm-client-$(PMM_VERSION).tar.gz" pmm-client.tar.gz; \
@@ -308,13 +311,13 @@ build-server-docker: ensure-builder check-minio update-cache download-cache
 		exit 1; \
 	fi
 	@docker buildx build \
+		--load \
 		--builder $(BUILDX_BUILDER) \
 		--platform $(SERVER_PLATFORMS) \
 		--progress plain \
-		--cache-from type=s3,region=us-east-1,bucket=$(MINIO_BUCKET),endpoint_url=$(MINIO_ENDPOINT),access_key_id=$(MINIO_ACCESS_KEY),secret_access_key=$(MINIO_SECRET_KEY),use_path_style=true \
-		--cache-to   type=s3,region=us-east-1,bucket=$(MINIO_BUCKET),endpoint_url=$(MINIO_ENDPOINT),access_key_id=$(MINIO_ACCESS_KEY),secret_access_key=$(MINIO_SECRET_KEY),mode=max,use_path_style=true \
+		--cache-from $(S3_CACHE_FROM) --cache-to $(S3_CACHE_TO) \
+		--build-arg PMM_BUILD_TAG="$(PMM_BUILD_TAG)" \
 		--build-arg BUILD_DATE="$$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
-		--build-arg GO_VERSION="$(GO_VERSION)" \
 		--build-arg VERSION="$(PMM_VERSION)" \
 		--build-arg PMM_REF="$(PMM_REF)" \
 		--build-arg GRAFANA_REF="$(GRAFANA_REF)" \
@@ -333,8 +336,6 @@ push-client-docker:
 	@PUSH_DOCKER=1 $(CLIENT_DOCKER_SCRIPT)
 	@echo "Docker image pushed successfully!"
 
-BUILDX_BUILDER ?= pmm-s3-builder
-
 # Ensure a buildx builder with the docker-container driver exists and is running.
 # The default "docker" driver does not support remote cache backends (s3, registry, etc.).
 ensure-builder:
@@ -342,16 +343,120 @@ ensure-builder:
 		docker buildx create --name $(BUILDX_BUILDER) --driver docker-container
 	@docker buildx inspect $(BUILDX_BUILDER) --bootstrap >/dev/null
 
-build-pmm-managed: ensure-builder check-minio update-cache download-cache
-	@docker buildx build \
-			--builder $(BUILDX_BUILDER) \
-			--target pmm-managed-builder \
-			--cache-from type=s3,region=us-east-1,bucket=$(MINIO_BUCKET),endpoint_url=$(MINIO_ENDPOINT),access_key_id=$(MINIO_ACCESS_KEY),secret_access_key=$(MINIO_SECRET_KEY),use_path_style=true \
-			--cache-to   type=s3,region=us-east-1,bucket=$(MINIO_BUCKET),endpoint_url=$(MINIO_ENDPOINT),access_key_id=$(MINIO_ACCESS_KEY),secret_access_key=$(MINIO_SECRET_KEY),mode=max,use_path_style=true \
-			--build-arg PMM_REF=$(PMM_REF) \
-			--build-arg TARGETARCH=$(GOARCH) \
-			--progress plain \
-			-f $(SERVER_DOCKERFILE) \
-			-t pmm-managed:latest \
-			$(BUILD_ROOT)
-	@docker buildx stop $(BUILDX_BUILDER)
+# ---------------------------------------------------------------------------
+# Individual server component builds (each produces a local Docker image)
+# ---------------------------------------------------------------------------
+
+build-artifact-pmm-managed: ensure-builder
+	@echo "Building pmm-managed artifact image..."
+	@docker buildx build --load \
+		--builder $(BUILDX_BUILDER) \
+		--cache-from $(S3_CACHE_FROM) --cache-to $(S3_CACHE_TO) \
+		--build-arg GO_VERSION=$(GO_VERSION) \
+		--build-arg PMM_REF=$(PMM_REF) \
+		--build-arg TARGETARCH=$(GOARCH) \
+		--progress plain \
+		-f $(PIPELINE_DIR)/Dockerfile.pmm-managed \
+		-t pmm-build/pmm-managed:$(PMM_BUILD_TAG) \
+		$(BUILD_ROOT)
+
+build-artifact-pmm-dump: ensure-builder
+	@echo "Building pmm-dump artifact image..."
+	@docker buildx build --load \
+		--builder $(BUILDX_BUILDER) \
+		--cache-from $(S3_CACHE_FROM) --cache-to $(S3_CACHE_TO) \
+		--build-arg GO_VERSION=$(GO_VERSION) \
+		--build-arg PMM_DUMP_REF=$(PMM_DUMP_REF) \
+		--build-arg TARGETARCH=$(GOARCH) \
+		--progress plain \
+		-f $(PIPELINE_DIR)/Dockerfile.pmm-dump \
+		-t pmm-build/pmm-dump:$(PMM_BUILD_TAG) \
+		$(BUILD_ROOT)
+
+build-artifact-grafana-go: ensure-builder
+	@echo "Building grafana-go artifact image..."
+	@docker buildx build --load \
+		--builder $(BUILDX_BUILDER) \
+		--cache-from $(S3_CACHE_FROM) --cache-to $(S3_CACHE_TO) \
+		--build-arg GO_VERSION=$(GO_VERSION) \
+		--build-arg GRAFANA_REF=$(GRAFANA_REF) \
+		--build-arg TARGETARCH=$(GOARCH) \
+		--progress plain \
+		-f $(PIPELINE_DIR)/Dockerfile.grafana-go \
+		-t pmm-build/grafana-go:$(PMM_BUILD_TAG) \
+		$(BUILD_ROOT)
+
+build-artifact-grafana-ui: ensure-builder
+	@echo "Building grafana-ui artifact image..."
+	@docker buildx build --load \
+		--builder $(BUILDX_BUILDER) \
+		--cache-from $(S3_CACHE_FROM) --cache-to $(S3_CACHE_TO) \
+		--build-arg GRAFANA_REF=$(GRAFANA_REF) \
+		--progress plain \
+		-f $(PIPELINE_DIR)/Dockerfile.grafana-ui \
+		-t pmm-build/grafana-ui:$(PMM_BUILD_TAG) \
+		$(BUILD_ROOT)
+
+build-artifact-victoriametrics: ensure-builder
+	@echo "Building victoriametrics artifact image..."
+	@docker buildx build --load \
+		--builder $(BUILDX_BUILDER) \
+		--cache-from $(S3_CACHE_FROM) --cache-to $(S3_CACHE_TO) \
+		--build-arg GO_VERSION=$(GO_VERSION) \
+		--build-arg VM_REF=$(VM_REF) \
+		--build-arg TARGETARCH=$(GOARCH) \
+		--progress plain \
+		-f $(PIPELINE_DIR)/Dockerfile.victoriametrics \
+		-t pmm-build/victoriametrics:$(PMM_BUILD_TAG) \
+		$(BUILD_ROOT)
+
+build-artifact-pmm-dashboards: ensure-builder
+	@echo "Building pmm-dashboards artifact image..."
+	@docker buildx build --load \
+		--builder $(BUILDX_BUILDER) \
+		--cache-from $(S3_CACHE_FROM) --cache-to $(S3_CACHE_TO) \
+		--build-arg DASHBOARDS_REF=$(DASHBOARDS_REF) \
+		--progress plain \
+		-f $(PIPELINE_DIR)/Dockerfile.pmm-dashboards \
+		-t pmm-build/pmm-dashboards:$(PMM_BUILD_TAG) \
+		$(BUILD_ROOT)
+
+build-artifact-pmm-ui: ensure-builder
+	@echo "Building pmm-ui artifact image..."
+	@docker buildx build --load \
+		--builder $(BUILDX_BUILDER) \
+		--cache-from $(S3_CACHE_FROM) --cache-to $(S3_CACHE_TO) \
+		--build-arg PMM_REF=$(PMM_REF) \
+		--progress plain \
+		-f $(PIPELINE_DIR)/Dockerfile.pmm-ui \
+		-t pmm-build/pmm-ui:$(PMM_BUILD_TAG) \
+		$(BUILD_ROOT)
+
+# ---------------------------------------------------------------------------
+# Orchestration: Go builds in parallel, then Node builds sequentially
+# ---------------------------------------------------------------------------
+
+build-server-components:
+	@echo "Building server component images (Go stages in parallel)..."
+	@$(MAKE) -j4 build-artifact-pmm-managed build-artifact-pmm-dump \
+		build-artifact-grafana-go build-artifact-victoriametrics
+	@echo ""
+	@echo "Building server component images (Node stages sequentially)..."
+	@$(MAKE) build-artifact-grafana-ui
+	@$(MAKE) build-artifact-pmm-dashboards
+	@$(MAKE) build-artifact-pmm-ui
+	@echo "All server component images built successfully"
+
+# Remove intermediate server artifact images
+clean-server-artifacts:
+	@echo "Removing server artifact images..."
+	@docker rmi \
+		pmm-build/pmm-managed:$(PMM_BUILD_TAG) \
+		pmm-build/pmm-dump:$(PMM_BUILD_TAG) \
+		pmm-build/grafana-go:$(PMM_BUILD_TAG) \
+		pmm-build/grafana-ui:$(PMM_BUILD_TAG) \
+		pmm-build/victoriametrics:$(PMM_BUILD_TAG) \
+		pmm-build/pmm-dashboards:$(PMM_BUILD_TAG) \
+		pmm-build/pmm-ui:$(PMM_BUILD_TAG) \
+		2>/dev/null || true
+	@echo "Server artifact images removed"

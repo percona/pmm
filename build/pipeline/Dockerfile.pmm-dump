@@ -1,0 +1,23 @@
+# syntax=docker/dockerfile:1
+# Build pmm-dump
+
+ARG GO_VERSION=latest
+FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}
+
+ARG TARGETARCH
+ARG PMM_DUMP_REF
+
+WORKDIR /build
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y git make
+
+# Build pmm-dump
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    --mount=type=bind,source=./pipeline/.cache/repos/pmm-dump.git,target=/repos/pmm-dump.git,readonly \
+    echo "Using cached pmm-dump repository..." && \
+    git clone /repos/pmm-dump.git /build/pmm-dump && \
+    cd /build/pmm-dump && \
+    git checkout ${PMM_DUMP_REF} && \
+    CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} make build

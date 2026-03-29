@@ -8,16 +8,26 @@ The build pipeline uses a custom Docker image (`pmm-builder`) based on `golang:l
 
 ### Core Components
 
-1. **Dockerfile.builder** - Defines the pmm-builder image with Go and build dependencies (zip, git, make, gcc)
-2. **scripts/build-component** - Main build orchestration script
-3. **scripts/gitmodules.go** - Parser for .gitmodules configuration
-4. **Makefile** - Build targets and convenience commands
-5. **README.md** - User-facing documentation
+1. **Dockerfile.builder** - Defines the pmm-builder image for client component builds
+2. **Dockerfile.server** - Assembly-only Dockerfile; references pre-built component images
+3. **Dockerfile.pmm-managed** - Builds pmm-managed, qan-api2, vmproxy (Go)
+4. **Dockerfile.pmm-dump** - Builds pmm-dump (Go)
+5. **Dockerfile.grafana-go** - Builds Grafana backend binaries (Go)
+6. **Dockerfile.grafana-ui** - Builds Grafana UI assets (Node)
+7. **Dockerfile.victoriametrics** - Builds victoria-metrics and vmalert (Go)
+8. **Dockerfile.pmm-dashboards** - Builds percona-dashboards panels (Node)
+9. **Dockerfile.pmm-ui** - Builds PMM UI assets (Node)
+10. **scripts/build-component** - Main build orchestration script for client builds
+11. **scripts/gitmodules.go** - Parser for .gitmodules configuration
+12. **Makefile** - Build targets and convenience commands
+13. **README.md** - User-facing documentation
 
 ### Design Principles
 
 - **Volume Caching** - Use Docker volumes for Go modules and build artifacts
-- **Single Source of Truth** - Component metadata from pmm-submodules/.gitmodules
+- **Single Source of Truth** - Component metadata from pmm-submodules/.gitmodules; `GO_VERSION` defined once in Makefile and passed as `--build-arg` to all component Dockerfiles
+- **Explicit REF args** - All `*_REF` build args in component Dockerfiles have no defaults; they must be passed via `--build-arg`. Omitting one causes an immediate build failure at `git checkout`
+- **Split server Dockerfiles** - Each server component has its own Dockerfile. Go components build in parallel (`-j4`); Node components build sequentially to avoid npm network saturation
 - **Platform Awareness** - Explicit --platform flags to avoid warnings
 - **Minimal Containers** - Run as root in golang image, no permission issues
 
@@ -26,7 +36,7 @@ The build pipeline uses a custom Docker image (`pmm-builder`) based on `golang:l
 ### Dockerfile.builder
 
 ```dockerfile
-ARG GO_VERSION=1.25
+ARG GO_VERSION=latest
 FROM golang:${GO_VERSION}
 ```
 
@@ -124,7 +134,7 @@ PMM_VERSION="${PMM_VERSION}"             # Version string
 ```makefile
 WORKSPACE_COMPONENTS := pmm-admin pmm-agent
 EXTERNAL_COMPONENTS := node_exporter mysqld_exporter ...
-GO_VERSION ?= 1.25
+GO_VERSION ?= 1.26
 PLATFORM ?= linux/amd64
 OUTPUT_DIR ?= ./output
 PACKAGE_DIR ?= ./package
@@ -394,7 +404,7 @@ make build COMPONENT=mysqld_exporter
 
 When extending the build pipeline:
 
-1. **Parallel builds** - Consider GNU parallel or xargs for build-all
+1. **Layer reduction** - Add a collector stage to reduce runtime image layers from ~35 to ~8
 2. **Build matrix** - Multiple architectures/build types in one command
 3. **Artifact signing** - Add GPG signing step
 4. **Image scanning** - Security scan of pmm-builder image

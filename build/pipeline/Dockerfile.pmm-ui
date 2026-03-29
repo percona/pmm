@@ -1,0 +1,23 @@
+# syntax=docker/dockerfile:1
+# Build PMM UI assets
+
+FROM node:22
+
+ARG PMM_REF
+
+WORKDIR /pmm-ui
+
+# Increase Node.js heap size for large builds
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
+# Install git
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+
+# Build PMM UI
+RUN --mount=type=cache,target=/root/.npm \
+    --mount=type=bind,source=./pipeline/.cache/repos/pmm.git,target=/repos/pmm.git,readonly \
+    echo "Using cached pmm repository..." && \
+    git clone /repos/pmm.git . && \
+    git checkout ${PMM_REF} && \
+    cd ui && \
+    make release
