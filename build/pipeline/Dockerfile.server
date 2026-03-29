@@ -1,17 +1,8 @@
 # syntax=docker/dockerfile:1
-
-#
-# Runtime image
-#
 FROM oraclelinux:9-slim
 
 ARG VERSION
 ARG BUILD_DATE
-ARG PMM_REF
-ARG GRAFANA_REF
-ARG VM_REF
-ARG DASHBOARDS_REF
-ARG PMM_DUMP_REF
 
 ENV LANG=en_US.utf8
 ENV GF_PLUGIN_DIR=/srv/grafana/plugins
@@ -98,18 +89,8 @@ COPY --chown=pmm:root pipeline/output/server/pmm-dashboards/pmm-app-dist /usr/sh
 RUN echo "${VERSION}" > /usr/share/percona-dashboards/VERSION && \
     chown pmm:root /usr/share/percona-dashboards/VERSION
 
-# Generate VERSION.json for introspection
-RUN cat <<EOF > /usr/share/pmm-server/VERSION.json && chmod 0644 /usr/share/pmm-server/VERSION.json
-{
-  "pmm-managed": "${PMM_REF}",
-  "pmm-qan": "${PMM_REF}",
-  "pmm-vmproxy": "${PMM_REF}",
-  "grafana": "${GRAFANA_REF}",
-  "victoriametrics": "${VM_REF}",
-  "pmm-dashboards": "${DASHBOARDS_REF}",
-  "pmm-dump": "${PMM_DUMP_REF}"
-}
-EOF
+# Copy pre-generated VERSION.json (produced by 'make generate-version-json')
+COPY --chown=root:root --chmod=0644 pipeline/output/server/version.json /usr/share/pmm-server/VERSION.json
 
 # Copy Ansible playbooks and run configuration
 COPY docker/server/entrypoint.sh /opt/entrypoint.sh

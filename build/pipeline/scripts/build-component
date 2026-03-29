@@ -22,6 +22,9 @@ BUILD_TYPE="${BUILD_TYPE:-static}"
 GOARCH="${GOARCH:-amd64}"
 PLATFORM="${PLATFORM:-linux/amd64}"
 OUTPUT_DIR="${OUTPUT_DIR:-$(realpath "$SCRIPT_DIR/../output")}"
+# Native platform of the build host — containers run natively for speed;
+# Go cross-compiles for GOARCH independently.
+HOST_ARCH="$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')"
 
 # Docker image and volumes
 BUILDER_IMAGE="pmm-builder:latest"
@@ -29,7 +32,8 @@ BUILDER_DOCKERFILE="$(realpath "${SCRIPT_DIR}/../Dockerfile.builder")"
 GO_VERSION="${GO_VERSION:-1.26}"
 GOMOD_CACHE_VOL="pmm-mod"
 BUILD_CACHE_VOL="pmm-build"
-SOURCE_CACHE_VOL="pmm-source"
+# Bare-repo cache directory — populated by 'make populate-cache' / 'make download-cache'
+REPO_CACHE_DIR="${REPO_CACHE_DIR:-$(realpath "${SCRIPT_DIR}/../.cache/repos")}"
 
 # .gitmodules URL
 GITMODULES_URL="https://raw.githubusercontent.com/Percona-Lab/pmm-submodules/refs/heads/v3/.gitmodules"
@@ -72,10 +76,10 @@ build_builder_image() {
     if ! docker image inspect "${BUILDER_IMAGE}" >/dev/null 2>&1; then
         echo "Building pmm-builder image..."
         docker buildx build \
-            --load \
-            --platform "${PLATFORM}" \
+            --platform linux/amd64,linux/arm64 \
             --build-arg GO_VERSION="${GO_VERSION}" \
             --progress=plain \
+            --load \
             -t "${BUILDER_IMAGE}" \
             -f "${BUILDER_DOCKERFILE}" \
             "$(dirname "${BUILDER_DOCKERFILE}")"
@@ -89,9 +93,6 @@ create_volumes() {
     fi
     if ! docker volume inspect "${BUILD_CACHE_VOL}" >/dev/null 2>&1; then
         docker volume create "${BUILD_CACHE_VOL}"
-    fi
-    if ! docker volume inspect "${SOURCE_CACHE_VOL}" >/dev/null 2>&1; then
-        docker volume create "${SOURCE_CACHE_VOL}"
     fi
 }
 
@@ -120,26 +121,33 @@ setup_gitmodules() {
 build_workspace_component() {
     local component=$1
     local subdir
-    
+
     # Determine subdirectory based on component name
     case "${component}" in
         pmm-admin) subdir="admin" ;;
         pmm-agent) subdir="agent" ;;
-        *) 
+        *)
             echo "Error: Unknown workspace component '${component}'" >&2
             return 1
             ;;
     esac
-    
+
     echo "Building workspace component: ${component} (${BUILD_TYPE}, ${GOARCH})"
-    
+
     mkdir -p "${OUTPUT_DIR}"
-    
-    # Build command depends on component
+
+    # Build command and CGO setting depend on component.
+    # pmm-agent uses CGO_ENABLED=1 with -static linking, so the container must
+    # run on the target architecture (GOARCH) to get a matching gcc toolchain.
+    # pmm-admin is CGO_ENABLED=0 and can run on the native host arch.
     local build_cmd
+    local cgo_enabled
+    local container_arch
     case "${component}" in
         pmm-admin)
             build_cmd="make -C /workspace/${subdir} release PMM_RELEASE_PATH=/output"
+            cgo_enabled=0
+            container_arch="${HOST_ARCH}"
             ;;
         pmm-agent)
             if [ "${BUILD_TYPE}" = "dynamic" ]; then
@@ -147,17 +155,19 @@ build_workspace_component() {
             else
                 build_cmd="make -C /workspace/${subdir} release PMM_RELEASE_PATH=/output"
             fi
+            cgo_enabled=1
+            container_arch="${GOARCH}"
             ;;
     esac
-    
+
     docker run --rm \
-        --platform "${PLATFORM}" \
+        --platform "linux/${container_arch}" \
         -v "${WORKSPACE_DIR}:/workspace:ro" \
         -v "${OUTPUT_DIR}:/output" \
         -v "${GOMOD_CACHE_VOL}:/go/pkg/mod" \
         -v "${BUILD_CACHE_VOL}:/root/.cache/go-build" \
         -e GOCACHE=/root/.cache/go-build \
-        -e CGO_ENABLED=0 \
+        -e CGO_ENABLED="${cgo_enabled}" \
         -e GOOS=linux \
         -e GOARCH="${GOARCH}" \
         -e PMM_RELEASE_VERSION="${PMM_VERSION}" \
@@ -168,7 +178,7 @@ build_workspace_component() {
         -w /workspace \
         "${BUILDER_IMAGE}" \
         bash -c "${build_cmd}"
-    
+
     echo "Build complete! Artifacts saved to ${OUTPUT_DIR}"
     ls -lh "${OUTPUT_DIR}"
 }
@@ -177,20 +187,31 @@ get_component_info() {
     local component=$1
     local field=$2
     local gitmodules_bin="${SCRIPT_DIR}/gitmodules"
-    
+
+    # For the 'branch' field, check the corresponding *_REF env var first so
+    # that .env acts as the single source of truth (same values drive both the
+    # build and VERSION.json).  If the env var is empty/unset, fall through to
+    # .gitmodules as before.
+    if [ "$field" = "branch" ]; then
+        local env_var
+        env_var="$(echo "${component}" | tr '[:lower:]-' '[:upper:]_')_REF"
+        local env_val="${!env_var:-}"
+        if [ -n "$env_val" ]; then
+            echo "$env_val"
+            return
+        fi
+    fi
+
     # Try to get value from .gitmodules using gitmodules binary
     local value
     value=$("${gitmodules_bin}" "${GITMODULES_FILE}" "${component}" "${field}" 2>/dev/null || true)
-    
-    # Fallback for components not in .gitmodules
+
+    # Fallback for components not in .gitmodules (URL only; branch handled above)
     if [ -z "$value" ]; then
         case "${component}_${field}" in
             redis_exporter_url) echo "https://github.com/oliver006/redis_exporter.git" ;;
-            redis_exporter_branch) echo "${REDIS_EXPORTER_REF}" ;;
             vmagent_url) echo "https://github.com/VictoriaMetrics/VictoriaMetrics.git" ;;
-            vmagent_branch) echo "${VMAGENT_REF}" ;;
             nomad_url) echo "https://github.com/hashicorp/nomad.git" ;;
-            nomad_branch) echo "${NOMAD_REF}" ;;
             *) echo "" ;;
         esac
     else
@@ -218,6 +239,10 @@ build_external_component() {
         return 1
     fi
     
+    # Most external components are CGO_ENABLED=0 and run natively on HOST_ARCH.
+    # vmagent uses CGO_ENABLED=1 and needs gcc matching the target arch (GOARCH).
+    local container_arch="${HOST_ARCH}"
+
     echo "Building external component: ${component} (${BUILD_TYPE}, ${GOARCH})"
     echo "Repository: ${url}"
     echo "Reference: ${ref}"
@@ -257,9 +282,11 @@ build_external_component() {
             ;;
         vmagent)
             build_cmd="make vmagent-linux-amd64 && cp bin/vmagent-linux-amd64 /output/vmagent"
+            container_arch="${GOARCH}"
             ;;
         nomad)
             build_cmd="env CGO_ENABLED=0 TARGETS=linux_${GOARCH} make deps release && cp pkg/linux_${GOARCH}/nomad /output/"
+            container_arch="${GOARCH}"
             ;;
         percona-toolkit)
             build_cmd="mkdir -p /output && \
@@ -270,51 +297,33 @@ build_external_component() {
             ;;
     esac
     
-    # Build script to run inside container
-    local clone_and_build
-    local src_dir="/build/source/${component}"
-    
-    if grep -qE '^[0-9a-f]{7,40}$' <<< "${ref}"; then
-        # Commit hash - need full clone
-        clone_and_build="
-            if [ -d ${src_dir}/.git ]; then
-                echo 'Reusing cached repository...'
-                cd ${src_dir}
-                git clean -fdx
-                git fetch origin
-                git checkout ${ref}
-            else
-                echo 'Cloning repository...'
-                git clone ${url} ${src_dir}
-                cd ${src_dir}
-                git checkout ${ref}
-            fi
-            ${build_cmd}
-        "
-    else
-        # Branch or tag - can use shallow clone
-        clone_and_build="
-            if [ -d ${src_dir}/.git ]; then
-                echo 'Reusing cached repository...'
-                cd ${src_dir}
-                git clean -fdx
-                git fetch --depth 1 origin ${ref}
-                git checkout FETCH_HEAD
-            else
-                echo 'Cloning repository...'
-                git clone --depth 1 --branch ${ref} ${url} ${src_dir}
-                cd ${src_dir}
-            fi
-            ${build_cmd}
-        "
+    # Derive bare repo cache name from URL
+    # e.g. https://github.com/percona/node_exporter -> node_exporter.git
+    local bare_name
+    bare_name="$(basename "${url}")"
+    [[ "${bare_name}" != *.git ]] && bare_name="${bare_name}.git"
+    local bare_repo_path="${REPO_CACHE_DIR}/${bare_name}"
+
+    if [ ! -d "${bare_repo_path}" ]; then
+        echo "Error: bare repo cache not found at ${bare_repo_path}" >&2
+        echo "Run 'make populate-cache' (first time) or 'make download-cache' to populate it." >&2
+        return 1
     fi
-    
+
+    echo "Using cached bare repo: ${bare_name}"
+    local clone_and_build="
+        set -e
+        git clone /repos/${bare_name} /build/${component}
+        cd /build/${component}
+        git checkout ${ref}
+        ${build_cmd}
+    "
     docker run --rm \
-        --platform "${PLATFORM}" \
+        --platform "linux/${container_arch}" \
+        -v "${bare_repo_path}:/repos/${bare_name}:ro" \
         -v "${OUTPUT_DIR}:/output" \
         -v "${GOMOD_CACHE_VOL}:/go/pkg/mod" \
         -v "${BUILD_CACHE_VOL}:/root/.cache/go-build" \
-        -v "${SOURCE_CACHE_VOL}:/build/source" \
         -e GOCACHE=/root/.cache/go-build \
         -e CGO_ENABLED=0 \
         -e GOOS=linux \

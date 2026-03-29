@@ -298,18 +298,36 @@ Four Docker volumes provide caching:
 
 1. **pmm-mod** (`/go/pkg/mod`) - Go modules, shared across all Go builds
 2. **pmm-build** (`/root/.cache/go-build`) - Go build cache, shared across all Go builds
-3. **pmm-yarn** (`/usr/local/share/.cache/yarn`) - Yarn package cache for Node.js server builds
-   (grafana-ui, pmm-dashboards, pmm-ui)
-4. **pmm-source** (`/build/source`) - Git repository clones for **client** component builds
-   (managed by the `build-component` script, not used by server `build-artifact-*` targets)
+3. **pmm-yarn** (`/usr/local/share/.cache/yarn`) - Yarn package cache for Node.js server builds (grafana-ui, pmm-dashboards, pmm-ui)
 
-Client external components use smart clone/update logic:
-- First build: Clone the repository
-- Subsequent builds: Run `git clean -fdx`, fetch latest, and checkout
-- Each component gets its own subdirectory: `/build/source/${component}`
+Both server and client builds require bare repos to be present in `REPO_CACHE_DIR` (`.cache/repos/`) — populated from Minio by `make download-cache`. A missing bare repo is a hard failure in both cases; there is no internet-clone fallback like there was in the old build system.
 
-Server builds clone sources at build time from read-only bare-repo mounts
-(`$(REPO_CACHE_DIR)/<repo>.git`) and do not persist the working tree between runs.
+| Bare repo | Used by |
+|-----------|--------|
+| `pmm.git` | server (pmm-managed, qan-api2, vmproxy, UI) |
+| `pmm-dump.git` | server |
+| `grafana.git` | server (grafana-go, grafana-ui) |
+| `VictoriaMetrics.git` | server + client (vmagent) |
+| `grafana-dashboards.git` | server |
+| `node_exporter.git` | client |
+| `mysqld_exporter.git` | client |
+| `mongodb_exporter.git` | client |
+| `postgres_exporter.git` | client |
+| `proxysql_exporter.git` | client |
+| `rds_exporter.git` | client |
+| `azure_metrics_exporter.git` | client |
+| `redis_exporter.git` | client |
+| `nomad.git` | client |
+| `percona-toolkit.git` | client |
+
+Use `make populate-cache` to clone all missing repos from upstream, then `make update-cache` to push
+them to Minio. `make download-cache` syncs the full set from Minio before any build.
+
+Cache is persistent across builds. Clear with:
+```bash
+make clean-volumes  # Warning: destroys all Go/Yarn caches!
+make clean-cache    # Warning: removes all bare repos!
+```
 
 Cache is persistent across builds. Clear with:
 ```bash

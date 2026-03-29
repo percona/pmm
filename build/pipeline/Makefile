@@ -1,6 +1,6 @@
 # Makefile for building PMM components using Docker
 
-.PHONY: help build build-all build-client build-client-tarball build-client-docker build-server client server all build-dynamic build-arm64 clean clean-cache clean-volumes clean-all builder-image build-server-docker push-client-docker gitmodules download-cache update-cache ensure-builder ensure-pmm-builder ensure-build-volumes check-minio build-server-components build-artifact-pmm-managed build-artifact-pmm-dump build-artifact-grafana-go build-artifact-grafana-ui build-artifact-victoriametrics build-artifact-pmm-dashboards build-artifact-pmm-ui clean-server-artifacts
+.PHONY: help build
 
 # Determine directory paths regardless of where make is invoked from
 PIPELINE_DIR := $(dir $(abspath $(firstword $(MAKEFILE_LIST))))
@@ -36,6 +36,7 @@ help:
 	@echo "Cache Management:"
 	@echo "  make download-cache           - Download repository cache from Minio"
 	@echo "  make update-cache             - Fetch upstream changes and upload to Minio"
+	@echo "  make populate-cache           - Clone any missing bare repos from upstream (first-time setup)"
 	@echo "  make clean-cache              - Remove local cache directory"
 	@echo "  make clean-volumes            - Remove Docker cache volumes"
 	@echo "  make clean-all                - Remove cache, volumes, and build artifacts"
@@ -96,6 +97,29 @@ MINIO_CACHE_PREFIX ?= repos
 CACHE_DIR := $(CURDIR)/.cache
 REPO_CACHE_DIR := $(CACHE_DIR)/repos
 
+# Bare repository URLs used by populate-cache and update-cache.
+# Keys are the bare directory names stored in REPO_CACHE_DIR; values are the upstream clone URLs.
+# Server-side repos:
+SERVER_REPO_URLS := \
+	pmm.git=https://github.com/percona/pmm.git \
+	pmm-dump.git=https://github.com/percona/pmm-dump.git \
+	grafana.git=https://github.com/percona/grafana.git \
+	VictoriaMetrics.git=https://github.com/VictoriaMetrics/VictoriaMetrics.git \
+	grafana-dashboards.git=https://github.com/percona/grafana-dashboards.git
+# Client external component repos (vmagent re-uses VictoriaMetrics.git above):
+CLIENT_REPO_URLS := \
+	node_exporter.git=https://github.com/percona/node_exporter.git \
+	mysqld_exporter.git=https://github.com/percona/mysqld_exporter.git \
+	mongodb_exporter.git=https://github.com/percona/mongodb_exporter.git \
+	postgres_exporter.git=https://github.com/percona/postgres_exporter.git \
+	proxysql_exporter.git=https://github.com/percona/proxysql_exporter.git \
+	rds_exporter.git=https://github.com/percona/rds_exporter.git \
+	azure_metrics_exporter.git=https://github.com/percona/azure_metrics_exporter.git \
+	redis_exporter.git=https://github.com/oliver006/redis_exporter.git \
+	nomad.git=https://github.com/hashicorp/nomad.git \
+	percona-toolkit.git=https://github.com/percona/percona-toolkit.git
+ALL_REPO_URLS := $(SERVER_REPO_URLS) $(CLIENT_REPO_URLS)
+
 # S3 cache flags (reused across all artifact builds)
 S3_CACHE_FROM := type=s3,region=us-east-1,bucket=$(MINIO_BUCKET),endpoint_url=$(MINIO_ENDPOINT),access_key_id=$(MINIO_ACCESS_KEY),secret_access_key=$(MINIO_SECRET_KEY),use_path_style=true
 S3_CACHE_TO   := type=s3,region=us-east-1,bucket=$(MINIO_BUCKET),endpoint_url=$(MINIO_ENDPOINT),access_key_id=$(MINIO_ACCESS_KEY),secret_access_key=$(MINIO_SECRET_KEY),mode=max,use_path_style=true
@@ -121,10 +145,27 @@ export PACKAGE_DIR
 export MINIO_ENDPOINT
 export MINIO_BUCKET
 export CACHE_DIR
+export REPO_CACHE_DIR
 export CLIENT_DOCKERFILE
 export CLIENT_DOCKER_TAG
 export SERVER_DOCKERFILE
 export SERVER_DOCKER_TAG
+export PMM_REF
+export GRAFANA_REF
+export VM_REF
+export DASHBOARDS_REF
+export PMM_DUMP_REF
+export NODE_EXPORTER_REF
+export MYSQLD_EXPORTER_REF
+export MONGODB_EXPORTER_REF
+export POSTGRES_EXPORTER_REF
+export PROXYSQL_EXPORTER_REF
+export RDS_EXPORTER_REF
+export AZURE_METRICS_EXPORTER_REF
+export REDIS_EXPORTER_REF
+export VMAGENT_REF
+export NOMAD_REF
+export PERCONA_TOOLKIT_REF
 
 # Component lists
 WORKSPACE_COMPONENTS := pmm-admin pmm-agent
@@ -135,11 +176,12 @@ ALL_COMPONENTS := $(WORKSPACE_COMPONENTS) $(EXTERNAL_COMPONENTS)
 
 # Build the pmm-builder Docker image
 builder-image:
-	@echo "Building pmm-builder image..."
-	@docker build \
-		--platform linux/$(HOST_ARCH) \
+	@echo "Building pmm-builder image (linux/amd64 + linux/arm64)..."
+	@docker buildx build \
+		--platform linux/amd64,linux/arm64 \
 		--build-arg GO_VERSION=$(GO_VERSION) \
 		--progress plain \
+		--load \
 		-t pmm-builder:latest \
 		-f Dockerfile.builder \
 		.
@@ -175,15 +217,15 @@ build-arm64:
 build-client:
 	@echo "Building PMM Client..."
 	@echo ""
-	@$(MAKE) build-client-binaries
+	@$(MAKE) build-client-components
 	@echo ""
 	@$(MAKE) build-client-tarball
 	@echo ""
 	@$(MAKE) build-client-docker
 
-# Build PMM Client binaries (all client components)
-build-client-binaries:
-	@echo "Building PMM Client binaries..."
+# Build PMM Client components (all client components)
+build-client-components: ensure-pmm-builder ensure-build-volumes
+	@echo "Building PMM Client components..."
 	@mkdir -p $(OUTPUT_DIR)
 	@for component in $(ALL_COMPONENTS); do \
 		echo ""; \
@@ -208,6 +250,7 @@ build-client-tarball:
 
 # Build PMM Server (Docker image with all server components)
 build-server: download-cache build-server-components
+	@$(MAKE) generate-version-json
 	@echo "Assembling PMM Server Docker image..."
 	@$(MAKE) build-server-docker
 	@echo ""
@@ -274,6 +317,26 @@ update-cache: check-minio download-cache
 		(echo "Error: Failed to upload cache to Minio" && exit 1)
 	@echo "Cache update complete"
 
+# Clone any bare repos that are missing from the local cache directory.
+# Skips repos that already exist. Useful for first-time setup or when adding new components.
+# Run 'make update-cache' afterwards to fetch latest commits and push to Minio.
+populate-cache:
+	@echo "Populating bare-repo cache from upstream (skipping repos that already exist)..."
+	@mkdir -p $(REPO_CACHE_DIR)
+	@for item in $(ALL_REPO_URLS); do \
+		name=$${item%%=*}; \
+		url=$${item##*=}; \
+		dest="$(REPO_CACHE_DIR)/$$name"; \
+		if [ -d "$$dest" ]; then \
+			echo "  $$name — already exists, skipping"; \
+		else \
+			echo "Cloning $$name from $$url ..."; \
+			git clone --bare "$$url" "$$dest"; \
+			mkdir -p "$$dest/refs/heads" "$$dest/refs/tags" "$$dest/refs/remotes"; \
+		fi; \
+	done
+	@echo "Cache populated. Run 'make update-cache' to fetch latest commits and push to Minio."
+
 # Clean local cache
 clean-cache:
 	@echo "Removing local cache..."
@@ -324,11 +387,6 @@ build-server-docker: ensure-builder
 		--cache-from $(S3_CACHE_FROM) --cache-to $(S3_CACHE_TO) \
 		--build-arg BUILD_DATE="$$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
 		--build-arg VERSION="$(PMM_VERSION)" \
-		--build-arg PMM_REF="$(PMM_REF)" \
-		--build-arg GRAFANA_REF="$(GRAFANA_REF)" \
-		--build-arg VM_REF="$(VM_REF)" \
-		--build-arg DASHBOARDS_REF="$(DASHBOARDS_REF)" \
-		--build-arg PMM_DUMP_REF="$(PMM_DUMP_REF)" \
 		-f $(SERVER_DOCKERFILE) \
 		-t $(SERVER_DOCKER_TAG) \
 		$(BUILD_ROOT)
@@ -340,6 +398,12 @@ push-client-docker:
 	@echo "Building and pushing PMM Client Docker image..."
 	@PUSH_DOCKER=1 $(CLIENT_DOCKER_SCRIPT)
 	@echo "Docker image pushed successfully!"
+
+# Generate VERSION.json with all component git refs and write it to the server output dir.
+# Runs after build-server-components so the output directory already exists.
+generate-version-json:
+	@echo "Generating VERSION.json..."
+	@$(PIPELINE_DIR)/scripts/generate-version-json
 
 # Ensure a buildx builder with the docker-container driver exists and is running.
 # The default "docker" driver does not support remote cache backends (s3, registry, etc.).
@@ -362,7 +426,7 @@ ensure-build-volumes:
 # Individual server component builds (each produces a local Docker image)
 # ---------------------------------------------------------------------------
 
-build-artifact-pmm-managed: ensure-pmm-builder ensure-build-volumes
+build-pmm-managed: ensure-pmm-builder ensure-build-volumes
 	@echo "Building pmm-managed binaries..."
 	@mkdir -p \
 		$(SERVER_OUTPUT_DIR)/pmm-managed/bin \
@@ -392,7 +456,7 @@ build-artifact-pmm-managed: ensure-pmm-builder ensure-build-volumes
 			cp /build/pmm/managed/data/checks/*.yml /output/data/checks/; \
 			cp /build/pmm/managed/data/alerting-templates/*.yml /output/data/alerting-templates/"
 
-build-artifact-pmm-dump: ensure-pmm-builder ensure-build-volumes
+build-pmm-dump: ensure-pmm-builder ensure-build-volumes
 	@echo "Building pmm-dump binary..."
 	@mkdir -p $(SERVER_OUTPUT_DIR)/pmm-dump
 	@docker run --rm \
@@ -409,7 +473,7 @@ build-artifact-pmm-dump: ensure-pmm-builder ensure-build-volumes
 			CGO_ENABLED=0 GOOS=linux GOARCH=$(GOARCH) make build; \
 			cp pmm-dump /output/"
 
-build-artifact-grafana-go: ensure-build-volumes
+build-grafana-go: ensure-build-volumes
 	@echo "Building Grafana Go binaries..."
 	@mkdir -p $(SERVER_OUTPUT_DIR)/grafana-go
 	@docker run --rm \
@@ -427,7 +491,7 @@ build-artifact-grafana-go: ensure-build-volumes
 			make build-go; \
 			cp bin/linux-$(GOARCH)/grafana-server bin/linux-$(GOARCH)/grafana bin/linux-$(GOARCH)/grafana-cli /output/"
 
-build-artifact-grafana-ui: ensure-build-volumes
+build-grafana-ui: ensure-build-volumes
 	@echo "Building Grafana UI assets..."
 	@mkdir -p $(SERVER_OUTPUT_DIR)/grafana-ui
 	@docker run --rm \
@@ -443,7 +507,7 @@ build-artifact-grafana-ui: ensure-build-volumes
 			make deps-js && make build-js; \
 			cp -r public conf tools /output/"
 
-build-artifact-victoriametrics: ensure-pmm-builder ensure-build-volumes
+build-victoriametrics: ensure-pmm-builder ensure-build-volumes
 	@echo "Building VictoriaMetrics binaries..."
 	@mkdir -p $(SERVER_OUTPUT_DIR)/victoriametrics
 	@docker run --rm \
@@ -460,7 +524,7 @@ build-artifact-victoriametrics: ensure-pmm-builder ensure-build-volumes
 			make victoria-metrics-pure vmalert-pure PKG_TAG=$(VM_REF) BUILDINFO_TAG=$(VM_REF); \
 			cp bin/victoria-metrics-pure bin/vmalert-pure /output/"
 
-build-artifact-pmm-dashboards: ensure-build-volumes
+build-pmm-dashboards: ensure-build-volumes
 	@echo "Building PMM dashboards assets..."
 	@mkdir -p $(SERVER_OUTPUT_DIR)/pmm-dashboards
 	@docker run --rm \
@@ -476,7 +540,7 @@ build-artifact-pmm-dashboards: ensure-build-volumes
 			cp -r /build/dashboards/panels /output/panels; \
 			cp -r /build/dashboards/pmm-app/dist /output/pmm-app-dist"
 
-build-artifact-pmm-ui: ensure-build-volumes
+build-pmm-ui: ensure-build-volumes
 	@echo "Building PMM UI assets..."
 	@mkdir -p $(SERVER_OUTPUT_DIR)/pmm-ui
 	@docker run --rm \
@@ -498,13 +562,13 @@ build-artifact-pmm-ui: ensure-build-volumes
 
 build-server-components:
 	@echo "Building server component images (Go stages in parallel)..."
-	@$(MAKE) -j4 build-artifact-pmm-managed build-artifact-pmm-dump \
-		build-artifact-grafana-go build-artifact-victoriametrics
+	@$(MAKE) -j4 build-pmm-managed build-pmm-dump \
+		build-grafana-go build-victoriametrics
 	@echo ""
 	@echo "Building server component images (Node stages sequentially)..."
-	@$(MAKE) build-artifact-grafana-ui
-	@$(MAKE) build-artifact-pmm-dashboards
-	@$(MAKE) build-artifact-pmm-ui
+	@$(MAKE) build-grafana-ui
+	@$(MAKE) build-pmm-dashboards
+	@$(MAKE) build-pmm-ui
 	@echo "All server component images built successfully"
 
 # Remove intermediate server artifact images

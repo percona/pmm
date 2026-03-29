@@ -15,7 +15,7 @@ The `.env` file contains git refs for all external dependencies (Grafana, Victor
 
 ### Minio Requirement for Server Builds
 
-PMM Server builds require a local Minio instance for repository cache. See [Cache Management](#cache-management) section for setup instructions.
+PMM Server and Client builds require a local Minio instance for repository cache. See [Cache Management](#cache-management) section for setup instructions.
 
 Quick Minio setup:
 
@@ -171,8 +171,8 @@ PMM uses **Minio S3** for persistent build cache storage across ephemeral build 
 ### Cache Strategy
 
 - **One-way sync**: Cache is downloaded from Minio to local disk before builds
-- **No upload**: Local cache is never synced back to avoid conflicts between parallel builds  
-- **Mandatory**: Builds fail if Minio cache is unavailable (no graceful fallback)
+- **No upload**: Local cache is never synced back to avoid conflicts between parallel builds
+- **Mandatory**: Both server and client builds fail hard if the bare repo cache is unavailable — no internet fallback
 - **Cache maintenance**: A separate process/job maintains the Minio cache (see Cache Maintenance below)
 
 ### Local Minio Setup
@@ -217,7 +217,13 @@ MINIO_CACHE_PREFIX=repos
 ### Cache Targets
 
 ```bash
-# Download repository cache from Minio (mandatory for server builds)
+# Clone any missing bare repos directly from upstream (first-time / new component setup)
+make populate-cache
+
+# Fetch latest upstream commits and push everything to Minio
+make update-cache
+
+# Download repository cache from Minio (mandatory for server and client builds)
 make download-cache
 
 # Build server (downloads cache first, fails if Minio unavailable)
@@ -235,19 +241,31 @@ make clean-all
 
 ### Cache Structure
 
-The `.cache/repos/` directory contains bare Git repositories:
+The `.cache/repos/` directory contains bare Git repositories for all components:
 
 ```
 .cache/
 └── repos/
-    ├── grafana-dashboards.git/
-    ├── grafana.git/
-    ├── pmm-dump.git/
-    ├── pmm.git/
-    └── VictoriaMetrics.git/
+    ├── azure_metrics_exporter.git/    # client
+    ├── grafana-dashboards.git/        # server
+    ├── grafana.git/                   # server
+    ├── mongodb_exporter.git/          # client
+    ├── mysqld_exporter.git/           # client
+    ├── node_exporter.git/             # client
+    ├── nomad.git/                     # client
+    ├── percona-toolkit.git/           # client
+    ├── pmm-dump.git/                  # server
+    ├── pmm.git/                       # server + UI
+    ├── postgres_exporter.git/         # client
+    ├── proxysql_exporter.git/         # client
+    ├── rds_exporter.git/              # client
+    ├── redis_exporter.git/            # client
+    └── VictoriaMetrics.git/           # server + vmagent
 ```
 
-These are mounted read-only into Docker build stages to speed up builds.
+Server builds mount these repos read-only into each `docker run` build container.
+Client builds (`build-component`) also require them — a missing bare repo is a hard failure,
+consistent with server build behaviour.
 
 **Note:** The `download-cache` Make target automatically fixes bare repository structure by creating empty `refs` subdirectories. This is necessary because some sync tools (like `mc mirror`) don't preserve empty directories.
 
@@ -255,16 +273,30 @@ These are mounted read-only into Docker build stages to speed up builds.
 
 To populate or update the Minio cache (run from a dedicated maintenance job, not build agents):
 
+> **Shortcut:** `make populate-cache` clones any missing repos automatically, then `make update-cache` fetches the latest commits and pushes everything to Minio.
+
 ```bash
 # Create cache directory
 mkdir -p /tmp/pmm-cache-update && cd /tmp/pmm-cache-update
 
 # Clone repositories as bare for efficiency
-git clone --bare https://github.com/percona/pmm.git  pmm.git
+# Server components:
+git clone --bare https://github.com/percona/pmm.git pmm.git
 git clone --bare https://github.com/percona/pmm-dump.git pmm-dump.git
 git clone --bare https://github.com/percona/grafana.git grafana.git
 git clone --bare https://github.com/VictoriaMetrics/VictoriaMetrics.git VictoriaMetrics.git
 git clone --bare https://github.com/percona/grafana-dashboards.git grafana-dashboards.git
+# Client components (vmagent uses VictoriaMetrics.git above):
+git clone --bare https://github.com/percona/node_exporter.git node_exporter.git
+git clone --bare https://github.com/percona/mysqld_exporter.git mysqld_exporter.git
+git clone --bare https://github.com/percona/mongodb_exporter.git mongodb_exporter.git
+git clone --bare https://github.com/percona/postgres_exporter.git postgres_exporter.git
+git clone --bare https://github.com/percona/proxysql_exporter.git proxysql_exporter.git
+git clone --bare https://github.com/percona/rds_exporter.git rds_exporter.git
+git clone --bare https://github.com/percona/azure_metrics_exporter.git azure_metrics_exporter.git
+git clone --bare https://github.com/oliver006/redis_exporter.git redis_exporter.git
+git clone --bare https://github.com/hashicorp/nomad.git nomad.git
+git clone --bare https://github.com/percona/percona-toolkit.git percona-toolkit.git
 
 # Fix bare repository structure (git requires refs directories to exist)
 for repo in *.git; do
