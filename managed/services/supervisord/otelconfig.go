@@ -44,9 +44,11 @@ func buildOtelCollectorConfigYAML(endpoint, username, password string, logRetent
 	tracesTTL := fmt.Sprintf("%dh", spanRetentionDays*24)
 	metricsTTL := fmt.Sprintf("%dh", metricsRetentionDays*24)
 
-	// Exporter blocks: create_schema false — PMM-managed applies DDL (otel.logs, otel.otel_traces, otel.otel_metrics_sum, ...).
+	// Exporter blocks: component type is "clickhouse"; multiple instances use type/name keys (e.g. clickhouse/logs).
+	// Underscore-only keys like "clickhouse_logs" are invalid — the loader treats them as unknown types.
+	// create_schema false — PMM-managed applies DDL (otel.logs, otel.otel_traces, otel.otel_metrics_sum, ...).
 	exporters := fmt.Sprintf(`exporters:
-  clickhouse_logs:
+  clickhouse/logs:
     endpoint: %s
     database: otel
     username: %s
@@ -60,7 +62,7 @@ func buildOtelCollectorConfigYAML(endpoint, username, password string, logRetent
       initial_interval: 5s
       max_interval: 30s
       max_elapsed_time: 300s
-  clickhouse_traces:
+  clickhouse/traces:
     endpoint: %s
     database: otel
     username: %s
@@ -74,7 +76,7 @@ func buildOtelCollectorConfigYAML(endpoint, username, password string, logRetent
       initial_interval: 5s
       max_interval: 30s
       max_elapsed_time: 300s
-  clickhouse_metrics:
+  clickhouse/metrics:
     endpoint: %s
     database: otel
     username: %s
@@ -120,15 +122,15 @@ service:
     logs:
       receivers: [otlp]
       processors: [memory_limiter, transform, batch]
-      exporters: [clickhouse_logs]
+      exporters: [clickhouse/logs]
     traces:
       receivers: [otlp]
       processors: [memory_limiter, batch]
-      exporters: [clickhouse_traces]
+      exporters: [clickhouse/traces]
     metrics:
       receivers: [otlp]
       processors: [memory_limiter, batch]
-      exporters: [clickhouse_metrics]
+      exporters: [clickhouse/metrics]
 `
 }
 

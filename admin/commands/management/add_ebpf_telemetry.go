@@ -25,13 +25,14 @@ type AddEbpfTelemetryCommand struct {
 }
 
 // RunCmd sets default custom labels and delegates to AddOtelCommand.
+// Label keys must match PMM inventory rules (alphanumeric + underscore; no dots) — see models.prepareLabels.
 func (cmd *AddEbpfTelemetryCommand) RunCmd() (commands.Result, error) {
 	labels := cmd.CustomLabels
 	if labels == nil {
 		labels = make(map[string]string)
 	}
-	if labels["pmm.ebpf.pipeline"] == "" {
-		labels["pmm.ebpf.pipeline"] = "v1"
+	if labels["pmm_ebpf_pipeline"] == "" {
+		labels["pmm_ebpf_pipeline"] = "v1"
 	}
 	cmd.AddOtelCommand.CustomLabels = labels
 	return cmd.AddOtelCommand.RunCmd()

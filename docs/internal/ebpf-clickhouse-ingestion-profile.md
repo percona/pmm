@@ -6,7 +6,7 @@ Aligned with PMM server OTEL collector → ClickHouse (`otel` database).
 
 - Receivers: OTLP gRPC `:4317`, HTTP `:4318`.
 - Processors: `memory_limiter`, `transform` (logs only), `batch` (1s / 1024–2048).
-- Exporters: three ClickHouse exporters — `clickhouse_logs`, `clickhouse_traces`, `clickhouse_metrics` — `create_schema: false` (PMM-managed DDL).
+- Exporters: three ClickHouse exporter instances — `clickhouse/logs`, `clickhouse/traces`, `clickhouse/metrics` (OTEL component type `clickhouse` with distinct names) — `create_schema: false` (PMM-managed DDL).
 
 ## TTL
 
