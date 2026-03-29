@@ -130,7 +130,7 @@ func otelCollectorConfig(row *models.Agent, q *reform.Querier) *agentv1.SetState
         endpoint: 0.0.0.0:4317
       http:
         endpoint: 0.0.0.0:4318
-` + baseOtelConfigYaml([]string{"otlp"}, resourceAttrs)
+` + baseOtelConfigYaml([]string{"otlp"}, []string{"otlp"}, resourceAttrs)
 		tdp := models.TemplateDelimsPair()
 		return &agentv1.SetStateRequest_AgentProcess{
 			Type:               inventoryv1.AgentType_AGENT_TYPE_OTEL_COLLECTOR,
@@ -199,7 +199,7 @@ func otelCollectorConfig(row *models.Agent, q *reform.Querier) *agentv1.SetState
 	}
 	sort.Strings(receivers)
 	receivers = append(receivers, "otlp")
-	configYaml += baseOtelConfigYaml(receivers, resourceAttrs)
+	configYaml += baseOtelConfigYaml(receivers, []string{"otlp"}, resourceAttrs)
 
 	tdp := models.TemplateDelimsPair()
 	return &agentv1.SetStateRequest_AgentProcess{
@@ -235,11 +235,15 @@ func quoteYAMLAttrValue(v string) string {
 	return b.String()
 }
 
-// baseOtelConfigYaml returns processors, exporters, and service.pipelines with the given receivers.
+// baseOtelConfigYaml returns processors, exporters, and service.pipelines.
+// logPipelineReceivers lists receivers for the logs pipeline (OTLP plus any filelog/* receivers).
+// tracesMetricsReceivers lists receivers for traces and metrics only — must not include filelog,
+// which emits logs only and cannot be wired into traces or metrics pipelines.
 // If resourceAttrs is non-nil and non-empty, a resource processor is added to set PMM context (agent_id, node_id, etc.)
 // so logs in ClickHouse match VictoriaMetrics labels.
-func baseOtelConfigYaml(receivers []string, resourceAttrs map[string]string) string {
-	receiversYaml := "[" + strings.Join(receivers, ", ") + "]"
+func baseOtelConfigYaml(logPipelineReceivers, tracesMetricsReceivers []string, resourceAttrs map[string]string) string {
+	logReceiversYaml := "[" + strings.Join(logPipelineReceivers, ", ") + "]"
+	tracesMetricsReceiversYaml := "[" + strings.Join(tracesMetricsReceivers, ", ") + "]"
 
 	processorsBlock := `  memory_limiter:
     check_interval: 1s
@@ -289,15 +293,15 @@ service:
       level: none
   pipelines:
     logs:
-      receivers: ` + receiversYaml + `
+      receivers: ` + logReceiversYaml + `
       processors: ` + pipelineProcessors + `
       exporters: [otlp_http]
     traces:
-      receivers: ` + receiversYaml + `
+      receivers: ` + tracesMetricsReceiversYaml + `
       processors: ` + pipelineProcessors + `
       exporters: [otlp_http]
     metrics:
-      receivers: ` + receiversYaml + `
+      receivers: ` + tracesMetricsReceiversYaml + `
       processors: ` + pipelineProcessors + `
       exporters: [otlp_http]
 `
