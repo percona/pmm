@@ -399,8 +399,7 @@ push-client-docker:
 	@PUSH_DOCKER=1 $(CLIENT_DOCKER_SCRIPT)
 	@echo "Docker image pushed successfully!"
 
-# Generate VERSION.json with all component git refs and write it to the server output dir.
-# Runs after build-server-components so the output directory already exists.
+# Generate VERSION.json with all component git refs.
 generate-version-json:
 	@echo "Generating VERSION.json..."
 	@$(PIPELINE_DIR)/scripts/generate-version-json
@@ -500,6 +499,7 @@ build-grafana-ui: ensure-build-volumes
 		-v $(SERVER_OUTPUT_DIR)/grafana-ui:/output \
 		-v $(YARN_CACHE_VOL):/yarn-cache \
 		-e YARN_CACHE_FOLDER=/yarn-cache \
+		-e YARN_GLOBAL_FOLDER=/yarn-cache \
 		-e NODE_OPTIONS="--max-old-space-size=4096" \
 		node:22 bash -c "\
 			set -e; npm install -g grunt-cli; \
@@ -534,6 +534,7 @@ build-pmm-dashboards: ensure-build-volumes
 		-v $(SERVER_OUTPUT_DIR)/pmm-dashboards:/output \
 		-v $(YARN_CACHE_VOL):/yarn-cache \
 		-e YARN_CACHE_FOLDER=/yarn-cache \
+		-e YARN_GLOBAL_FOLDER=/yarn-cache \
 		-e NODE_OPTIONS="--max-old-space-size=4096" \
 		node:22 bash -c "\
 			set -e; git clone /repos/grafana-dashboards.git /build/dashboards; \
@@ -551,6 +552,7 @@ build-pmm-ui: ensure-build-volumes
 		-v $(SERVER_OUTPUT_DIR)/pmm-ui:/output \
 		-v $(YARN_CACHE_VOL):/yarn-cache \
 		-e YARN_CACHE_FOLDER=/yarn-cache \
+		-e YARN_GLOBAL_FOLDER=/yarn-cache \
 		-e NODE_OPTIONS="--max-old-space-size=4096" \
 		node:22 bash -c "\
 			set -e; git clone /repos/pmm.git /build/pmm-ui; \
