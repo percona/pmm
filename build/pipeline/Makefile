@@ -498,7 +498,8 @@ build-grafana-ui: ensure-build-volumes
 		--platform linux/$(HOST_ARCH) \
 		-v $(REPO_CACHE_DIR)/grafana.git:/repos/grafana.git:ro \
 		-v $(SERVER_OUTPUT_DIR)/grafana-ui:/output \
-		-v $(YARN_CACHE_VOL):/usr/local/share/.cache/yarn \
+		-v $(YARN_CACHE_VOL):/yarn-cache \
+		-e YARN_CACHE_FOLDER=/yarn-cache \
 		-e NODE_OPTIONS="--max-old-space-size=4096" \
 		node:22 bash -c "\
 			set -e; npm install -g grunt-cli; \
@@ -531,7 +532,8 @@ build-pmm-dashboards: ensure-build-volumes
 		--platform linux/$(HOST_ARCH) \
 		-v $(REPO_CACHE_DIR)/grafana-dashboards.git:/repos/grafana-dashboards.git:ro \
 		-v $(SERVER_OUTPUT_DIR)/pmm-dashboards:/output \
-		-v $(YARN_CACHE_VOL):/usr/local/share/.cache/yarn \
+		-v $(YARN_CACHE_VOL):/yarn-cache \
+		-e YARN_CACHE_FOLDER=/yarn-cache \
 		-e NODE_OPTIONS="--max-old-space-size=4096" \
 		node:22 bash -c "\
 			set -e; git clone /repos/grafana-dashboards.git /build/dashboards; \
@@ -547,7 +549,8 @@ build-pmm-ui: ensure-build-volumes
 		--platform linux/$(HOST_ARCH) \
 		-v $(REPO_CACHE_DIR)/pmm.git:/repos/pmm.git:ro \
 		-v $(SERVER_OUTPUT_DIR)/pmm-ui:/output \
-		-v $(YARN_CACHE_VOL):/usr/local/share/.cache/yarn \
+		-v $(YARN_CACHE_VOL):/yarn-cache \
+		-e YARN_CACHE_FOLDER=/yarn-cache \
 		-e NODE_OPTIONS="--max-old-space-size=4096" \
 		node:22 bash -c "\
 			set -e; git clone /repos/pmm.git /build/pmm-ui; \
