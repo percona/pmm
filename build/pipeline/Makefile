@@ -1,6 +1,6 @@
 # Makefile for building PMM components using Docker
 
-.PHONY: help build build-all build-client build-client-tarball build-client-docker build-server client server all build-dynamic build-arm64 clean clean-cache clean-volumes clean-all builder-image build-server-docker push-client-docker gitmodules download-cache update-cache ensure-builder check-minio build-server-components build-artifact-pmm-managed build-artifact-pmm-dump build-artifact-grafana-go build-artifact-grafana-ui build-artifact-victoriametrics build-artifact-pmm-dashboards build-artifact-pmm-ui clean-server-artifacts
+.PHONY: help build build-all build-client build-client-tarball build-client-docker build-server client server all build-dynamic build-arm64 clean clean-cache clean-volumes clean-all builder-image build-server-docker push-client-docker gitmodules download-cache update-cache ensure-builder ensure-pmm-builder ensure-build-volumes check-minio build-server-components build-artifact-pmm-managed build-artifact-pmm-dump build-artifact-grafana-go build-artifact-grafana-ui build-artifact-victoriametrics build-artifact-pmm-dashboards build-artifact-pmm-ui clean-server-artifacts
 
 # Determine directory paths regardless of where make is invoked from
 PIPELINE_DIR := $(dir $(abspath $(firstword $(MAKEFILE_LIST))))
@@ -79,6 +79,9 @@ PMM_VERSION ?= $(shell curl -fsSL https://raw.githubusercontent.com/Percona-Lab/
 BUILD_TYPE ?= static
 GOARCH ?= amd64
 PLATFORM ?= linux/amd64
+# Native platform of the build host — containers run natively for speed;
+# Go cross-compiles for GOARCH independently.
+HOST_ARCH := $(shell uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')
 SERVER_PLATFORMS ?= linux/amd64
 GO_VERSION ?= 1.26
 
@@ -102,7 +105,10 @@ CLIENT_DOCKER_TAG ?= perconalab/pmm-client:$(PMM_VERSION)
 SERVER_DOCKERFILE ?= $(PIPELINE_DIR)/Dockerfile.server
 SERVER_DOCKER_TAG ?= perconalab/pmm-server:$(PMM_VERSION)
 BUILDX_BUILDER ?= pmm-s3-builder
-PMM_BUILD_TAG ?= $(PMM_VERSION)
+GOMOD_CACHE_VOL  ?= pmm-mod
+BUILD_CACHE_VOL  ?= pmm-build
+YARN_CACHE_VOL   ?= pmm-yarn
+SERVER_OUTPUT_DIR := $(PIPELINE_DIR)output/server
 
 export PMM_VERSION
 export BUILD_TYPE
@@ -131,7 +137,7 @@ ALL_COMPONENTS := $(WORKSPACE_COMPONENTS) $(EXTERNAL_COMPONENTS)
 builder-image:
 	@echo "Building pmm-builder image..."
 	@docker build \
-		--platform $(PLATFORM) \
+		--platform linux/$(HOST_ARCH) \
 		--build-arg GO_VERSION=$(GO_VERSION) \
 		--progress plain \
 		-t pmm-builder:latest \
@@ -283,7 +289,7 @@ clean:
 # Clean Docker volumes
 clean-volumes:
 	@echo "Removing Docker volumes..."
-	@docker volume rm pmm-mod pmm-build 2>/dev/null || true
+	@docker volume rm pmm-mod pmm-build pmm-yarn 2>/dev/null || true
 	@echo "Volumes removed"
 
 # Full clean (cache + volumes + output)
@@ -316,7 +322,6 @@ build-server-docker: ensure-builder
 		--platform $(SERVER_PLATFORMS) \
 		--progress plain \
 		--cache-from $(S3_CACHE_FROM) --cache-to $(S3_CACHE_TO) \
-		--build-arg PMM_BUILD_TAG="$(PMM_BUILD_TAG)" \
 		--build-arg BUILD_DATE="$$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
 		--build-arg VERSION="$(PMM_VERSION)" \
 		--build-arg PMM_REF="$(PMM_REF)" \
@@ -343,94 +348,149 @@ ensure-builder:
 		docker buildx create --name $(BUILDX_BUILDER) --driver docker-container
 	@docker buildx inspect $(BUILDX_BUILDER) --bootstrap >/dev/null
 
+# Ensure pmm-builder image exists (used for docker run-based component builds)
+ensure-pmm-builder:
+	@docker image inspect pmm-builder:latest >/dev/null 2>&1 || $(MAKE) builder-image
+
+# Ensure Docker volumes exist for Go module, build, and Yarn caches
+ensure-build-volumes:
+	@docker volume inspect $(GOMOD_CACHE_VOL)  >/dev/null 2>&1 || docker volume create $(GOMOD_CACHE_VOL)
+	@docker volume inspect $(BUILD_CACHE_VOL)  >/dev/null 2>&1 || docker volume create $(BUILD_CACHE_VOL)
+	@docker volume inspect $(YARN_CACHE_VOL)   >/dev/null 2>&1 || docker volume create $(YARN_CACHE_VOL)
+
 # ---------------------------------------------------------------------------
 # Individual server component builds (each produces a local Docker image)
 # ---------------------------------------------------------------------------
 
-build-artifact-pmm-managed: ensure-builder
-	@echo "Building pmm-managed artifact image..."
-	@docker buildx build --load \
-		--builder $(BUILDX_BUILDER) \
-		--cache-from $(S3_CACHE_FROM) --cache-to $(S3_CACHE_TO) \
-		--build-arg GO_VERSION=$(GO_VERSION) \
-		--build-arg PMM_REF=$(PMM_REF) \
-		--build-arg TARGETARCH=$(GOARCH) \
-		--progress plain \
-		-f $(PIPELINE_DIR)/Dockerfile.pmm-managed \
-		-t pmm-build/pmm-managed:$(PMM_BUILD_TAG) \
-		$(BUILD_ROOT)
+build-artifact-pmm-managed: ensure-pmm-builder ensure-build-volumes
+	@echo "Building pmm-managed binaries..."
+	@mkdir -p \
+		$(SERVER_OUTPUT_DIR)/pmm-managed/bin \
+		$(SERVER_OUTPUT_DIR)/pmm-managed/data/swagger \
+		$(SERVER_OUTPUT_DIR)/pmm-managed/data/advisors \
+		$(SERVER_OUTPUT_DIR)/pmm-managed/data/checks \
+		$(SERVER_OUTPUT_DIR)/pmm-managed/data/alerting-templates
+	@docker run --rm \
+		--platform linux/$(HOST_ARCH) \
+		-v $(REPO_CACHE_DIR)/pmm.git:/repos/pmm.git:ro \
+		-v $(SERVER_OUTPUT_DIR)/pmm-managed:/output \
+		-v $(GOMOD_CACHE_VOL):/go/pkg/mod \
+		-v $(BUILD_CACHE_VOL):/root/.cache/go-build \
+		-e GOCACHE=/root/.cache/go-build \
+		-e GOARCH=$(GOARCH) \
+		pmm-builder:latest bash -c "\
+			set -e; git clone /repos/pmm.git /build/pmm; \
+			cd /build/pmm; git checkout $(PMM_REF); \
+			make -C managed release GOARCH=$(GOARCH); \
+			cd /build/pmm/qan-api2 && make release GOARCH=$(GOARCH); \
+			cd /build/pmm/vmproxy && make release GOARCH=$(GOARCH); \
+			cp /build/pmm/bin/pmm-managed /build/pmm/bin/pmm-encryption-rotation \
+			   /build/pmm/bin/pmm-managed-init /build/pmm/bin/pmm-managed-starlark \
+			   /build/pmm/bin/qan-api2 /build/pmm/bin/vmproxy /output/bin/; \
+			cp -r /build/pmm/api/swagger/. /output/data/swagger/; \
+			cp /build/pmm/managed/data/advisors/*.yml /output/data/advisors/; \
+			cp /build/pmm/managed/data/checks/*.yml /output/data/checks/; \
+			cp /build/pmm/managed/data/alerting-templates/*.yml /output/data/alerting-templates/"
 
-build-artifact-pmm-dump: ensure-builder
-	@echo "Building pmm-dump artifact image..."
-	@docker buildx build --load \
-		--builder $(BUILDX_BUILDER) \
-		--cache-from $(S3_CACHE_FROM) --cache-to $(S3_CACHE_TO) \
-		--build-arg GO_VERSION=$(GO_VERSION) \
-		--build-arg PMM_DUMP_REF=$(PMM_DUMP_REF) \
-		--build-arg TARGETARCH=$(GOARCH) \
-		--progress plain \
-		-f $(PIPELINE_DIR)/Dockerfile.pmm-dump \
-		-t pmm-build/pmm-dump:$(PMM_BUILD_TAG) \
-		$(BUILD_ROOT)
+build-artifact-pmm-dump: ensure-pmm-builder ensure-build-volumes
+	@echo "Building pmm-dump binary..."
+	@mkdir -p $(SERVER_OUTPUT_DIR)/pmm-dump
+	@docker run --rm \
+		--platform linux/$(HOST_ARCH) \
+		-v $(REPO_CACHE_DIR)/pmm-dump.git:/repos/pmm-dump.git:ro \
+		-v $(SERVER_OUTPUT_DIR)/pmm-dump:/output \
+		-v $(GOMOD_CACHE_VOL):/go/pkg/mod \
+		-v $(BUILD_CACHE_VOL):/root/.cache/go-build \
+		-e GOCACHE=/root/.cache/go-build \
+		-e GOARCH=$(GOARCH) \
+		pmm-builder:latest bash -c "\
+			set -e; git clone /repos/pmm-dump.git /build/pmm-dump; \
+			cd /build/pmm-dump; git checkout $(PMM_DUMP_REF); \
+			CGO_ENABLED=0 GOOS=linux GOARCH=$(GOARCH) make build; \
+			cp pmm-dump /output/"
 
-build-artifact-grafana-go: ensure-builder
-	@echo "Building grafana-go artifact image..."
-	@docker buildx build --load \
-		--builder $(BUILDX_BUILDER) \
-		--cache-from $(S3_CACHE_FROM) --cache-to $(S3_CACHE_TO) \
-		--build-arg GO_VERSION=$(GO_VERSION) \
-		--build-arg GRAFANA_REF=$(GRAFANA_REF) \
-		--build-arg TARGETARCH=$(GOARCH) \
-		--progress plain \
-		-f $(PIPELINE_DIR)/Dockerfile.grafana-go \
-		-t pmm-build/grafana-go:$(PMM_BUILD_TAG) \
-		$(BUILD_ROOT)
+build-artifact-grafana-go: ensure-build-volumes
+	@echo "Building Grafana Go binaries..."
+	@mkdir -p $(SERVER_OUTPUT_DIR)/grafana-go
+	@docker run --rm \
+		--platform linux/$(GOARCH) \
+		-v $(REPO_CACHE_DIR)/grafana.git:/repos/grafana.git:ro \
+		-v $(SERVER_OUTPUT_DIR)/grafana-go:/output \
+		-v $(GOMOD_CACHE_VOL):/go/pkg/mod \
+		-v $(BUILD_CACHE_VOL):/root/.cache/go-build \
+		-e GOCACHE=/root/.cache/go-build \
+		-e GOARCH=$(GOARCH) \
+		golang:$(GO_VERSION) bash -c "\
+			set -e; git clone /repos/grafana.git /build/grafana; \
+			cd /build/grafana; git checkout $(GRAFANA_REF); \
+			sed -i 's/unknown-dev/11.6.4/' pkg/build/git.go; \
+			make build-go; \
+			cp bin/linux-$(GOARCH)/grafana-server bin/linux-$(GOARCH)/grafana bin/linux-$(GOARCH)/grafana-cli /output/"
 
-build-artifact-grafana-ui: ensure-builder
-	@echo "Building grafana-ui artifact image..."
-	@docker buildx build --load \
-		--builder $(BUILDX_BUILDER) \
-		--cache-from $(S3_CACHE_FROM) --cache-to $(S3_CACHE_TO) \
-		--build-arg GRAFANA_REF=$(GRAFANA_REF) \
-		--progress plain \
-		-f $(PIPELINE_DIR)/Dockerfile.grafana-ui \
-		-t pmm-build/grafana-ui:$(PMM_BUILD_TAG) \
-		$(BUILD_ROOT)
+build-artifact-grafana-ui: ensure-build-volumes
+	@echo "Building Grafana UI assets..."
+	@mkdir -p $(SERVER_OUTPUT_DIR)/grafana-ui
+	@docker run --rm \
+		--platform linux/$(HOST_ARCH) \
+		-v $(REPO_CACHE_DIR)/grafana.git:/repos/grafana.git:ro \
+		-v $(SERVER_OUTPUT_DIR)/grafana-ui:/output \
+		-v $(YARN_CACHE_VOL):/usr/local/share/.cache/yarn \
+		-e NODE_OPTIONS="--max-old-space-size=4096" \
+		node:22 bash -c "\
+			set -e; npm install -g grunt-cli; \
+			git clone /repos/grafana.git /build/grafana; \
+			cd /build/grafana; git checkout $(GRAFANA_REF); \
+			make deps-js && make build-js; \
+			cp -r public conf tools /output/"
 
-build-artifact-victoriametrics: ensure-builder
-	@echo "Building victoriametrics artifact image..."
-	@docker buildx build --load \
-		--builder $(BUILDX_BUILDER) \
-		--cache-from $(S3_CACHE_FROM) --cache-to $(S3_CACHE_TO) \
-		--build-arg GO_VERSION=$(GO_VERSION) \
-		--build-arg VM_REF=$(VM_REF) \
-		--build-arg TARGETARCH=$(GOARCH) \
-		--progress plain \
-		-f $(PIPELINE_DIR)/Dockerfile.victoriametrics \
-		-t pmm-build/victoriametrics:$(PMM_BUILD_TAG) \
-		$(BUILD_ROOT)
+build-artifact-victoriametrics: ensure-pmm-builder ensure-build-volumes
+	@echo "Building VictoriaMetrics binaries..."
+	@mkdir -p $(SERVER_OUTPUT_DIR)/victoriametrics
+	@docker run --rm \
+		--platform linux/$(HOST_ARCH) \
+		-v $(REPO_CACHE_DIR)/VictoriaMetrics.git:/repos/VictoriaMetrics.git:ro \
+		-v $(SERVER_OUTPUT_DIR)/victoriametrics:/output \
+		-v $(GOMOD_CACHE_VOL):/go/pkg/mod \
+		-v $(BUILD_CACHE_VOL):/root/.cache/go-build \
+		-e GOCACHE=/root/.cache/go-build \
+		-e GOARCH=$(GOARCH) \
+		pmm-builder:latest bash -c "\
+			set -e; git clone /repos/VictoriaMetrics.git /build/VictoriaMetrics; \
+			cd /build/VictoriaMetrics; git checkout $(VM_REF); \
+			make victoria-metrics-pure vmalert-pure PKG_TAG=$(VM_REF) BUILDINFO_TAG=$(VM_REF); \
+			cp bin/victoria-metrics-pure bin/vmalert-pure /output/"
 
-build-artifact-pmm-dashboards: ensure-builder
-	@echo "Building pmm-dashboards artifact image..."
-	@docker buildx build --load \
-		--builder $(BUILDX_BUILDER) \
-		--cache-from $(S3_CACHE_FROM) --cache-to $(S3_CACHE_TO) \
-		--build-arg DASHBOARDS_REF=$(DASHBOARDS_REF) \
-		--progress plain \
-		-f $(PIPELINE_DIR)/Dockerfile.pmm-dashboards \
-		-t pmm-build/pmm-dashboards:$(PMM_BUILD_TAG) \
-		$(BUILD_ROOT)
+build-artifact-pmm-dashboards: ensure-build-volumes
+	@echo "Building PMM dashboards assets..."
+	@mkdir -p $(SERVER_OUTPUT_DIR)/pmm-dashboards
+	@docker run --rm \
+		--platform linux/$(HOST_ARCH) \
+		-v $(REPO_CACHE_DIR)/grafana-dashboards.git:/repos/grafana-dashboards.git:ro \
+		-v $(SERVER_OUTPUT_DIR)/pmm-dashboards:/output \
+		-v $(YARN_CACHE_VOL):/usr/local/share/.cache/yarn \
+		-e NODE_OPTIONS="--max-old-space-size=4096" \
+		node:22 bash -c "\
+			set -e; git clone /repos/grafana-dashboards.git /build/dashboards; \
+			cd /build/dashboards; git checkout $(DASHBOARDS_REF); \
+			make release; \
+			cp -r /build/dashboards/panels /output/panels; \
+			cp -r /build/dashboards/pmm-app/dist /output/pmm-app-dist"
 
-build-artifact-pmm-ui: ensure-builder
-	@echo "Building pmm-ui artifact image..."
-	@docker buildx build --load \
-		--builder $(BUILDX_BUILDER) \
-		--cache-from $(S3_CACHE_FROM) --cache-to $(S3_CACHE_TO) \
-		--build-arg PMM_REF=$(PMM_REF) \
-		--progress plain \
-		-f $(PIPELINE_DIR)/Dockerfile.pmm-ui \
-		-t pmm-build/pmm-ui:$(PMM_BUILD_TAG) \
-		$(BUILD_ROOT)
+build-artifact-pmm-ui: ensure-build-volumes
+	@echo "Building PMM UI assets..."
+	@mkdir -p $(SERVER_OUTPUT_DIR)/pmm-ui
+	@docker run --rm \
+		--platform linux/$(HOST_ARCH) \
+		-v $(REPO_CACHE_DIR)/pmm.git:/repos/pmm.git:ro \
+		-v $(SERVER_OUTPUT_DIR)/pmm-ui:/output \
+		-v $(YARN_CACHE_VOL):/usr/local/share/.cache/yarn \
+		-e NODE_OPTIONS="--max-old-space-size=4096" \
+		node:22 bash -c "\
+			set -e; git clone /repos/pmm.git /build/pmm-ui; \
+			cd /build/pmm-ui; git checkout $(PMM_REF); \
+			cd ui && make release; \
+			cp -r /build/pmm-ui/ui/apps/pmm/dist /output/pmm-dist; \
+			cp -r /build/pmm-ui/ui/apps/pmm-compat/dist /output/pmm-compat-dist"
 
 # ---------------------------------------------------------------------------
 # Orchestration: Go builds in parallel, then Node builds sequentially
@@ -451,12 +511,8 @@ build-server-components:
 clean-server-artifacts:
 	@echo "Removing server artifact images..."
 	@docker rmi \
-		pmm-build/pmm-managed:$(PMM_BUILD_TAG) \
-		pmm-build/pmm-dump:$(PMM_BUILD_TAG) \
-		pmm-build/grafana-go:$(PMM_BUILD_TAG) \
-		pmm-build/grafana-ui:$(PMM_BUILD_TAG) \
-		pmm-build/victoriametrics:$(PMM_BUILD_TAG) \
 		pmm-build/pmm-dashboards:$(PMM_BUILD_TAG) \
 		pmm-build/pmm-ui:$(PMM_BUILD_TAG) \
 		2>/dev/null || true
+	@rm -rf $(SERVER_OUTPUT_DIR)/{victoriametrics,pmm-managed,pmm-dump,grafana-go,grafana-ui}
 	@echo "Server artifact images removed"

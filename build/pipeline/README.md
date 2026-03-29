@@ -1,6 +1,6 @@
 # PMM Build Pipeline
 
-Docker-based build system for PMM components using a custom `pmm-builder` image based on `golang:latest`.
+Docker-based build system for PMM components. Server components are each built with `docker run`, outputting artifacts directly to the host via Docker volumes. The final server image is assembled in a single-stage `FROM oraclelinux:9-slim` Dockerfile using BuildKit.
 
 ## Setup
 
@@ -105,6 +105,10 @@ Built from external Git repositories:
 | `PLATFORM` | Docker platform: `linux/amd64` or `linux/arm64` | `linux/amd64` |
 | `SERVER_PLATFORMS` | Server build platforms (comma-separated) | `linux/amd64` |
 | `GO_VERSION` | Go version for builder image | `1.26` |
+| `HOST_ARCH` | Native arch of build host (pure-Go/Node containers run natively) | auto-detected |
+| `GOMOD_CACHE_VOL` | Docker volume for Go module cache | `pmm-mod` |
+| `BUILD_CACHE_VOL` | Docker volume for Go build cache | `pmm-build` |
+| `YARN_CACHE_VOL` | Docker volume for Yarn package cache | `pmm-yarn` |
 | `OUTPUT_DIR` | Output directory for artifacts | `./output` |
 | `PACKAGE_DIR` | Output directory for tarball packages | `./package` |
 | `MINIO_ENDPOINT` | Minio S3 endpoint URL | `http://localhost:9000` |
@@ -133,10 +137,16 @@ Component versions are managed via the `.env` file. Copy `.env.example` to `.env
 The build system:
 
 1. **Builds the pmm-builder Docker image** (if not already present) based on `golang:latest`
-2. **Creates Docker volumes** for caching Go modules and build artifacts
+2. **Creates Docker volumes** for caching Go modules, build cache, and Yarn packages
 3. **Fetches component metadata** from `.gitmodules` in pmm-submodules repository
-4. **Runs builds in containers** using the pmm-builder image
-5. **Outputs artifacts** to the configured output directory
+4. **Runs server component builds** using `docker run` — each component writes artifacts to
+   `output/server/<component>/` on the host via a volume mount:
+   - **pmm-managed, pmm-dump, VictoriaMetrics**: `pmm-builder:latest` (pure Go, CGO disabled)
+   - **grafana-go**: `golang:$(GO_VERSION)` (CGO enabled for SQLite; runs at target `GOARCH`)
+   - **grafana-ui, pmm-dashboards, pmm-ui**: `node:22` with shared Yarn cache
+5. **Assembles the server runtime image** from the host-side artifacts using
+   `docker buildx build` (BuildKit with S3 layer cache)
+6. **Outputs artifacts** to the configured output directory
 
 ### Workspace Components
 
@@ -294,16 +304,17 @@ build/
 │   ├── Makefile                  # Main build targets
 │   ├── README.md                 # This file
 │   ├── Dockerfile.client         # PMM Client Docker image
-│   ├── Dockerfile.server         # PMM Server assembly (references pre-built images)
-│   ├── Dockerfile.builder        # pmm-builder image for client component builds
-│   ├── Dockerfile.pmm-managed    # Builds pmm-managed, qan-api2, vmproxy
-│   ├── Dockerfile.pmm-dump       # Builds pmm-dump
-│   ├── Dockerfile.grafana-go     # Builds Grafana backend binaries
-│   ├── Dockerfile.grafana-ui     # Builds Grafana UI assets
-│   ├── Dockerfile.victoriametrics # Builds victoria-metrics and vmalert
-│   ├── Dockerfile.pmm-dashboards # Builds percona-dashboards panels
-│   ├── Dockerfile.pmm-ui         # Builds PMM UI assets
-│   ├── output/                   # Build artifacts (created)
+│   ├── Dockerfile.server         # PMM Server assembly (copies host-built artifacts)
+│   ├── Dockerfile.builder        # pmm-builder image for Go component builds
+│   ├── output/
+│   │   └── server/               # Per-component artifact directories (created by builds)
+│   │       ├── pmm-managed/      # 6 Go binaries + swagger + YAML data dirs
+│   │       ├── pmm-dump/         # pmm-dump binary
+│   │       ├── grafana-go/       # grafana-server, grafana, grafana-cli
+│   │       ├── grafana-ui/       # public/, conf/, tools/
+│   │       ├── victoriametrics/  # victoria-metrics-pure, vmalert-pure
+│   │       ├── pmm-dashboards/   # panels/, pmm-app-dist/
+│   │       └── pmm-ui/           # pmm-dist/, pmm-compat-dist/
 │   └── package/                  # Tarballs (created)
 └── scripts/
     ├── build-component           # Component build script
@@ -316,7 +327,7 @@ build/
 ### Main Targets
 
 - **`make client`** - Builds all client components, Docker image, and tarball
-- **`make server`** - Builds the PMM Server Docker image using multi-stage build
+- **`make server`** - Builds the PMM Server Docker image
 - **`make all`** - Builds both client and server
 
 ### Client Build Targets
@@ -365,24 +376,25 @@ cd build/pipeline
 make server
 ```
 
-This builds the PMM Server Docker image using a split build that:
-1. Builds Go components in parallel: pmm-managed/qan-api2/vmproxy, pmm-dump, Grafana backend, VictoriaMetrics
-2. Builds Node.js assets sequentially (to avoid network saturation): Grafana UI, PMM UI, percona-dashboards
-3. Assembles a runtime image from the individually built component images
+This builds the PMM Server Docker image via a two-phase process:
+
+**Phase 1 — component builds** (all `docker run`, no BuildKit):
+1. Go components built in parallel (`-j4`): pmm-managed/qan-api2/vmproxy, pmm-dump, Grafana backend, VictoriaMetrics
+2. Node.js assets built sequentially (to avoid Yarn network saturation): Grafana UI, PMM UI, percona-dashboards
+
+Each component writes its artifacts to `output/server/<component>/` on the host. Pure-Go and Node containers run natively at `HOST_ARCH` (auto-detected from `uname -m`); Go cross-compiles for `GOARCH` independently. grafana-go (needs CGO/SQLite) runs at `--platform linux/$(GOARCH)` instead.
+
+**Phase 2 — image assembly** (`docker buildx build` with BuildKit S3 layer cache):
+- Copies host-side artifacts into a single `FROM oraclelinux:9-slim` image
 
 **Default Architecture:** `linux/amd64`
 
-The server builds for `linux/amd64` by default, regardless of your host platform. To build for a different architecture:
+Set `GOARCH=arm64` to cross-compile binaries for ARM64:
 
 ```bash
 # Build for ARM64
-make server SERVER_PLATFORMS=linux/arm64
-
-# Build for multiple architectures (multi-arch image)
-make server SERVER_PLATFORMS=linux/amd64,linux/arm64
+make server GOARCH=arm64 SERVER_PLATFORMS=linux/arm64
 ```
-
-**Note:** The Dockerfile uses `--platform=$BUILDPLATFORM` for build stages, allowing fast native builds even when cross-compiling the final image.
 
 ### Build Everything
 

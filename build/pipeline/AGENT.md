@@ -4,30 +4,33 @@ This document provides comprehensive guidelines for AI agents working with the P
 
 ## Architecture Overview
 
-The build pipeline uses a custom Docker image (`pmm-builder`) based on `golang:latest` to build both workspace components (from the percona/pmm repository) and external components (from other Git repositories).
+The build pipeline uses `docker run` for all server component builds, outputting artifacts directly to the host via Docker volumes. Client components are built with a custom `pmm-builder` image. Different images are used for different server components depending on their requirements.
 
 ### Core Components
 
-1. **Dockerfile.builder** - Defines the pmm-builder image for client component builds
-2. **Dockerfile.server** - Assembly-only Dockerfile; references pre-built component images
-3. **Dockerfile.pmm-managed** - Builds pmm-managed, qan-api2, vmproxy (Go)
-4. **Dockerfile.pmm-dump** - Builds pmm-dump (Go)
-5. **Dockerfile.grafana-go** - Builds Grafana backend binaries (Go)
-6. **Dockerfile.grafana-ui** - Builds Grafana UI assets (Node)
-7. **Dockerfile.victoriametrics** - Builds victoria-metrics and vmalert (Go)
-8. **Dockerfile.pmm-dashboards** - Builds percona-dashboards panels (Node)
-9. **Dockerfile.pmm-ui** - Builds PMM UI assets (Node)
-10. **scripts/build-component** - Main build orchestration script for client builds
-11. **scripts/gitmodules.go** - Parser for .gitmodules configuration
-12. **Makefile** - Build targets and convenience commands
-13. **README.md** - User-facing documentation
+1. **Dockerfile.builder** - Defines the `pmm-builder` image (golang-based) for Go component builds
+2. **Dockerfile.server** - Assembly-only Dockerfile; copies pre-built artifacts from host paths
+3. **scripts/build-component** - Main build orchestration script for client builds
+4. **scripts/gitmodules.go** - Parser for .gitmodules configuration
+5. **Makefile** - Build targets and convenience commands
+6. **README.md** - User-facing documentation
+
+> **Note:** All server components are built via `docker run` (no component Dockerfiles). Each
+> `build-artifact-*` target in the Makefile runs a container, clones the source from a local
+> bare-repo cache, builds, and copies artifacts to `output/server/<component>/` on the host.
+> Dockerfile.server then assembles the runtime image from those host-side paths.
 
 ### Design Principles
 
 - **Volume Caching** - Use Docker volumes for Go modules and build artifacts
 - **Single Source of Truth** - Component metadata from pmm-submodules/.gitmodules; `GO_VERSION` defined once in Makefile and passed as `--build-arg` to all component Dockerfiles
 - **Explicit REF args** - All `*_REF` build args in component Dockerfiles have no defaults; they must be passed via `--build-arg`. Omitting one causes an immediate build failure at `git checkout`
-- **Split server Dockerfiles** - Each server component has its own Dockerfile. Go components build in parallel (`-j4`); Node components build sequentially to avoid npm network saturation
+- **Split server builds** - All server components are built independently via `docker run`, writing artifacts to `output/server/<component>/` on the host:
+  - **pmm-managed, pmm-dump, VictoriaMetrics**: `pmm-builder:latest` (pure Go, `CGO_ENABLED=0`), run at `HOST_ARCH` for native speed; Go cross-compiles for `GOARCH`
+  - **grafana-go**: `golang:$(GO_VERSION)` (CGO enabled, has gcc for `go-sqlite3`), runs at `--platform linux/$(GOARCH)` so sqlite3's C code compiles natively for the target arch
+  - **grafana-ui, pmm-dashboards, pmm-ui**: `node:22` (git included), run at `HOST_ARCH`; Yarn cache at `/usr/local/share/.cache/yarn` shared via `YARN_CACHE_VOL`
+  - **BuildKit** (`docker buildx build`) is used **only** for the final `build-server-docker` step (OracleLinux runtime image assembly with S3 layer cache)
+  - Node components build sequentially to avoid Yarn network saturation
 - **Platform Awareness** - Explicit --platform flags to avoid warnings
 - **Minimal Containers** - Run as root in golang image, no permission issues
 
@@ -135,8 +138,14 @@ PMM_VERSION="${PMM_VERSION}"             # Version string
 WORKSPACE_COMPONENTS := pmm-admin pmm-agent
 EXTERNAL_COMPONENTS := node_exporter mysqld_exporter ...
 GO_VERSION ?= 1.26
-PLATFORM ?= linux/amd64
-OUTPUT_DIR ?= ./output
+HOST_ARCH  := $(shell uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')  # native host arch
+GOARCH     ?= amd64          # target architecture for compiled binaries
+PLATFORM   ?= linux/amd64   # used by client builds
+GOMOD_CACHE_VOL ?= pmm-mod  # Docker volume: Go module cache
+BUILD_CACHE_VOL ?= pmm-build # Docker volume: Go build cache
+YARN_CACHE_VOL  ?= pmm-yarn  # Docker volume: Yarn package cache
+SERVER_OUTPUT_DIR := $(PIPELINE_DIR)output/server
+OUTPUT_DIR  ?= ./output
 PACKAGE_DIR ?= ./package
 ```
 
@@ -285,16 +294,22 @@ PLATFORM=linux/arm64 make build COMPONENT=pmm-admin
 
 ## Caching Strategy
 
-Three volumes provide caching:
+Four Docker volumes provide caching:
 
-1. **pmm-mod** (`/go/pkg/mod`) - Go modules, shared across all builds
-2. **pmm-build** (`/root/.cache/go-build`) - Go build cache, shared across all builds
-3. **pmm-source** (`/build/source`) - Git repository clones for external components
+1. **pmm-mod** (`/go/pkg/mod`) - Go modules, shared across all Go builds
+2. **pmm-build** (`/root/.cache/go-build`) - Go build cache, shared across all Go builds
+3. **pmm-yarn** (`/usr/local/share/.cache/yarn`) - Yarn package cache for Node.js server builds
+   (grafana-ui, pmm-dashboards, pmm-ui)
+4. **pmm-source** (`/build/source`) - Git repository clones for **client** component builds
+   (managed by the `build-component` script, not used by server `build-artifact-*` targets)
 
-External components use smart clone/update logic:
+Client external components use smart clone/update logic:
 - First build: Clone the repository
 - Subsequent builds: Run `git clean -fdx`, fetch latest, and checkout
 - Each component gets its own subdirectory: `/build/source/${component}`
+
+Server builds clone sources at build time from read-only bare-repo mounts
+(`$(REPO_CACHE_DIR)/<repo>.git`) and do not persist the working tree between runs.
 
 Cache is persistent across builds. Clear with:
 ```bash
@@ -404,11 +419,10 @@ make build COMPONENT=mysqld_exporter
 
 When extending the build pipeline:
 
-1. **Layer reduction** - Add a collector stage to reduce runtime image layers from ~35 to ~8
-2. **Build matrix** - Multiple architectures/build types in one command
-3. **Artifact signing** - Add GPG signing step
-4. **Image scanning** - Security scan of pmm-builder image
-5. **Build metrics** - Timing and size tracking
+1. **Build matrix** - Multiple architectures/build types in one command
+2. **Artifact signing** - Add GPG signing step
+3. **Image scanning** - Security scan of pmm-builder image
+4. **Build metrics** - Timing and size tracking
 
 ## References
 
