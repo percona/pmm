@@ -28,6 +28,7 @@ import (
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/otel"
 )
 
 const (
@@ -193,7 +194,7 @@ func otelCollectorConfig(row *models.Agent, q *reform.Querier) *agentv1.SetState
 		configYaml += fmt.Sprintf("  %s:\n    include: [%s]\n    start_at: end\n", receiverID, strings.Join(quoted, ", "))
 		if preset != presetRaw {
 			if yaml, ok := presetYAML[preset]; ok && yaml != "" {
-				configYaml += "    operators:\n" + yaml + "\n"
+				configYaml += "    operators:\n" + otel.IndentYAML(yaml, "      ")
 			}
 		}
 	}

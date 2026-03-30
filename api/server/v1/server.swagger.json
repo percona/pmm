@@ -40,6 +40,162 @@
         ]
       }
     },
+    "/v1/server/log-parser-presets": {
+      "get": {
+        "summary": "List OTEL log parser presets",
+        "description": "Returns all rows from log_parser_presets.",
+        "operationId": "ListLogParserPresets",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListLogParserPresetsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "ServerService"
+        ]
+      },
+      "post": {
+        "summary": "Add OTEL log parser preset",
+        "description": "Creates a custom log parser preset.",
+        "operationId": "AddLogParserPreset",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1AddLogParserPresetResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1AddLogParserPresetRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ServerService"
+        ]
+      }
+    },
+    "/v1/server/log-parser-presets/{id}": {
+      "get": {
+        "summary": "Get OTEL log parser preset",
+        "description": "Returns one log parser preset.",
+        "operationId": "GetLogParserPreset",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetLogParserPresetResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ServerService"
+        ]
+      },
+      "delete": {
+        "summary": "Remove OTEL log parser preset",
+        "description": "Deletes a non-built-in preset when it is not in use.",
+        "operationId": "RemoveLogParserPreset",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1RemoveLogParserPresetResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ServerService"
+        ]
+      },
+      "put": {
+        "summary": "Change OTEL log parser preset",
+        "description": "Updates description and/or operator YAML for any preset.",
+        "operationId": "ChangeLogParserPreset",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ChangeLogParserPresetResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ServerServiceChangeLogParserPresetBody"
+            }
+          }
+        ],
+        "tags": [
+          "ServerService"
+        ]
+      }
+    },
     "/v1/server/readyz": {
       "get": {
         "summary": "Check server readiness",
@@ -311,6 +467,19 @@
     }
   },
   "definitions": {
+    "ServerServiceChangeLogParserPresetBody": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "operator_yaml": {
+          "type": "string",
+          "x-nullable": true
+        }
+      }
+    },
     "commonStringArray": {
       "type": "object",
       "properties": {
@@ -353,6 +522,28 @@
         }
       }
     },
+    "v1AddLogParserPresetRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "operator_yaml": {
+          "type": "string"
+        }
+      }
+    },
+    "v1AddLogParserPresetResponse": {
+      "type": "object",
+      "properties": {
+        "preset": {
+          "$ref": "#/definitions/v1LogParserPreset"
+        }
+      }
+    },
     "v1AdvisorRunIntervals": {
       "type": "object",
       "properties": {
@@ -370,6 +561,14 @@
         }
       },
       "description": "AdvisorRunIntervals represents intervals between each run of Advisor checks."
+    },
+    "v1ChangeLogParserPresetResponse": {
+      "type": "object",
+      "properties": {
+        "preset": {
+          "$ref": "#/definitions/v1LogParserPreset"
+        }
+      }
     },
     "v1ChangeSettingsRequest": {
       "type": "object",
@@ -515,6 +714,14 @@
         }
       }
     },
+    "v1GetLogParserPresetResponse": {
+      "type": "object",
+      "properties": {
+        "preset": {
+          "$ref": "#/definitions/v1LogParserPreset"
+        }
+      }
+    },
     "v1GetReadOnlySettingsResponse": {
       "type": "object",
       "properties": {
@@ -552,6 +759,47 @@
           "description": "Last check time."
         }
       }
+    },
+    "v1ListLogParserPresetsResponse": {
+      "type": "object",
+      "properties": {
+        "presets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1LogParserPreset"
+          }
+        }
+      }
+    },
+    "v1LogParserPreset": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "operator_yaml": {
+          "type": "string"
+        },
+        "built_in": {
+          "type": "boolean"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "description": "LogParserPreset is one row in PostgreSQL log_parser_presets (OTEL filelog operator YAML)."
     },
     "v1MetricsResolutions": {
       "type": "object",
@@ -612,6 +860,9 @@
     "v1ReadinessResponse": {
       "type": "object",
       "description": "This probe is available without authentication, so it should not contain any data."
+    },
+    "v1RemoveLogParserPresetResponse": {
+      "type": "object"
     },
     "v1Settings": {
       "type": "object",

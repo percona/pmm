@@ -1485,6 +1485,30 @@ $yaml$,
 			NOW()
 		)`,
 	},
+	130: {
+		// Syslog / journal-style line: ISO8601 host tag[pid]: message (mysqld[8794], (mysqled)[9049], systemd[1], CRON[123], …).
+		`INSERT INTO log_parser_presets (id, name, description, operator_yaml, built_in, created_at, updated_at) VALUES (
+			'syslog_mysql_systemd',
+			'syslog_mysql_systemd',
+			'Syslog/journal line: ISO8601 host tag[pid]: message (e.g. mysqld[8794], systemd[1], (mysqled)[9049], CRON[1])',
+			$yaml$- type: regex_parser
+  regex: '^(?P<timestamp>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2}))\s+(?P<host>\S+)\s+(?P<tag>\S+):\s*(?P<message>.*)$'
+  parse_from: body
+  parse_to: attributes
+- type: time_parser
+  parse_from: attributes.timestamp
+  layout: '2006-01-02T15:04:05.999999999Z07:00'
+  layout_type: gotime
+  on_error: send
+- type: move
+  from: attributes.message
+  to: body
+$yaml$,
+			true,
+			NOW(),
+			NOW()
+		)`,
+	},
 	117: {
 		`DROP TABLE IF EXISTS percona_sso_details`,
 	},
