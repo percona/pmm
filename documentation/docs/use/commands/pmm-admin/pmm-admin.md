@@ -19,7 +19,7 @@ Use `pmm-admin` to:
 Run `pmm-admin` commands in this format:
 
 ```bash
-pmm-admin [FLAGS] COMMAND [COMMAND-FLAGS] [ARGUMENTS]
+pmm-admin COMMAND [COMMAND-FLAGS] [ARGUMENTS] [FLAGS]
 ```
 
 ## Quick start
