@@ -6,7 +6,7 @@ declare POSTGRES_DATA_DIR="${POSTGRES_DATA_DIR:-/srv/postgres14}"
 declare POSTGRES_PASSWORD_FILE="${POSTGRES_PASSWORD_FILE:-/srv/.postgres_password}"
 
 ensure_postgres_password() {
-    # This check is meant to verify if the data directory is empty.
+    # This check is to verify if the data directory is empty.
     if [ ! -f "$POSTGRES_DATA_DIR/PG_VERSION" ]; then
         return
     fi
@@ -19,8 +19,6 @@ ensure_postgres_password() {
 
     echo "Generating postgres superuser password..."
     POSTGRES_PASSWORD=$(openssl rand -hex 16)
-    echo -n "$POSTGRES_PASSWORD" > "$POSTGRES_PASSWORD_FILE"
-    chmod 600 "$POSTGRES_PASSWORD_FILE"
 
     if ! /usr/pgsql-14/bin/pg_ctl status -D "$POSTGRES_DATA_DIR" > /dev/null 2>&1; then
         /usr/pgsql-14/bin/pg_ctl start -D "$POSTGRES_DATA_DIR" -o "-c logging_collector=off"
@@ -29,6 +27,9 @@ ensure_postgres_password() {
 
     PGPASSWORD="$POSTGRES_PASSWORD" /usr/bin/psql -U postgres -h /run/postgresql -d postgres \
         -c "ALTER USER postgres WITH PASSWORD '${POSTGRES_PASSWORD}'"
+
+    echo -n "$POSTGRES_PASSWORD" > "$POSTGRES_PASSWORD_FILE"
+    chmod 600 "$POSTGRES_PASSWORD_FILE"
 
     if [ "$STARTED" -eq 1 ]; then
         /usr/pgsql-14/bin/pg_ctl stop -D "$POSTGRES_DATA_DIR"
