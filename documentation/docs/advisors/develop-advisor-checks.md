@@ -39,8 +39,6 @@ PMM uses Alertmanager API to get information about failed checks and show them o
 ## Format for checks
 Advisor checks use the following format:
 
-??? note alert alert-info "Checks format"
-
     ```yaml
     ---
     checks:
