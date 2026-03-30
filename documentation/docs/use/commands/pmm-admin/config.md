@@ -272,4 +272,4 @@ If a node or service name is specified, it takes precedence over the auto-detect
 - [`pmm-admin` command overview](../pmm-admin/pmm-admin.md)
 - [Add database services to monitoring](../pmm-admin/add.md)
 - [Modify agent configurations to manage inventory](../pmm-admin/inventory.md)
-- [Check connection status and troubleshoot](../pmm-admin/inventory.md)
+- [Check connection status and troubleshoot](../pmm-admin/status.md)

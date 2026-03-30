@@ -143,7 +143,7 @@ See [Troubleshoot update](../troubleshoot/upgrade_issues.md).
 PMM protects an exporter's output from unauthorized access by adding an authorization layer. To access an exporter, you can use `pmm` as a user name and the Agent ID as a password. You can find the Agent ID corresponding to a given exporter by running `pmm-admin list`.
 
 !!! seealso alert alert-info "See also"
-    [`pmm-admin list`](../use/commands/pmm-admin/pmm-admin.md#command-reference)
+    [`pmm-admin list`](../use/commands/pmm-admin/status.md#pmm-admin-list)
 
 ## How to provision PMM Server with non-default admin password?
 
