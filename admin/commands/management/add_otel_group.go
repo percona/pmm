@@ -15,6 +15,9 @@
 package management
 
 // AddOtelCommandGroup groups subcommands that create or update the single otel_collector per pmm-agent.
+//
+// TODO(otel): Add `pmm-admin remove otel` (symmetric to `add otel`, e.g. logs-only vs whole collector) — planned soon.
+// Until then, remove the otel_collector agent with `pmm-admin inventory remove agent <agent-id>`.
 type AddOtelCommandGroup struct {
 	Logs   AddOtelLogsCommand   `cmd:"" name:"logs" help:"Add or update log file sources on the node OTEL collector"`
 	Ebpf   AddOtelEbpfCommand   `cmd:"" name:"ebpf" help:"Enable eBPF pipeline labels on the node OTEL collector (OTLP export unchanged)"`
