@@ -71,7 +71,7 @@ Register this node with PMM Server. Use this when setting up PMM Client for the 
 ### Syntax
 
 ```bash
-pmm-admin register [FLAGS] [node-address] [node-type] [node-name]
+pmm-admin register [<node-address> [<node-type> [<node-name>]]] [FLAGS]
 ```
 
 ### Flags
