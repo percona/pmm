@@ -50,7 +50,7 @@ Use the **Auto-refresh** drop-down to adjust how often the view updates. By defa
 
 Click **Pause** to freeze the current view. This lets you investigate a specific operation without it disappearing when the next refresh happens.
 
-While paused, the display stops updating but the RTA agent continues collecting data in the background. Click **Pause** again to resume, or use **Auto-refresh** for a one-time update while staying paused.
+While paused, the display stops updating but the RTA agent continues collecting data in the background. Click **Resume** or use **Auto-refresh** for a one-time update while staying paused.
 
 ### Share your view
 
