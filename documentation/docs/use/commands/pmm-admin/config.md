@@ -25,7 +25,7 @@ Run this after installing PMM Client or when changing server connection details.
 ### Syntax
 
 ```bash
-pmm-admin config [FLAGS] [node-address] [node-type] [node-name]
+pmm-admin config [<node-address> [<node-type> [<node-name>]]] [FLAGS]
 ```
 
 ### Flags
