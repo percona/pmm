@@ -22,7 +22,8 @@ Control connection settings, TLS, query collection, metric collectors, and servi
 |------|:-----:|:--:|:-----:|:------:|:-----:|:-------:|
 | `--username`<br>(database username) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `--password`<br>(database password) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `--address`<br>(host and port) | ✓ | | | | | |
+| `--host`<br>(hostname or IP) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `--port`<br>(port number) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `--socket`<br>(Unix socket path) | ✓ | | | | | |
 | `--database`<br>(database name) | | ✓ | | | | |
 | `--extra-dsn`<br>(additional DSN parameters) | ✓ | | | | | |
@@ -99,7 +100,8 @@ Connect to MySQL using TCP or socket:
 
 | Flag | Description | Default |
 |------|-------------|---------|
-| `--address` | MySQL address and port | `127.0.0.1:3306` |
+| `--host` | MySQL hostname or IP | `127.0.0.1` |
+| `--port` | MySQL port | `3306` |
 | `--socket` | Path to MySQL socket | |
 | `--username` | MySQL username | |
 | `--password` | MySQL password | |
@@ -236,7 +238,7 @@ pmm-admin add postgresql [NAME] [ADDRESS] [FLAGS]
 
 ### Connection options
 
-Connect using `--username` and `--password`. The `--database` flag specifies which database to connect to (defaults to `postgres`).
+Connect using `--host`, `--port`, `--username`, and `--password`. The `--database` flag specifies which database to connect to (defaults to `postgres`).
 
 ### TLS options
 
@@ -318,7 +320,7 @@ pmm-admin add mongodb [NAME] [ADDRESS] [FLAGS]
 
 ### Connection options
 
-Connect using `--username` and `--password`.
+Connect using `--host`, `--port`, `--username`, and `--password`.
 
 ### TLS options
 
@@ -469,7 +471,7 @@ pmm-admin add valkey [NAME] [ADDRESS] [FLAGS]
 
 ### Connection options
 
-Connect using `--username` and `--password`. Use `--tls` and `--tls-skip-verify` to secure the connection with TLS.
+Connect using `--host`, `--port`, `--username`, and `--password`. Use `--tls` and `--tls-skip-verify` to secure the connection with TLS.
 
 ### Examples
 
@@ -514,7 +516,7 @@ pmm-admin add proxysql [NAME] [ADDRESS] [FLAGS]
 
 ### Connection options
 
-Connect using `--username` and `--password` for the ProxySQL admin interface. Use `--tls` and `--tls-skip-verify` to secure the connection.
+Connect using `--host`, `--port`, `--username`, and `--password` for the ProxySQL admin interface. Use `--tls` and `--tls-skip-verify` to secure the connection.
 
 Use `--disable-collectors` with a comma-separated list to exclude specific collectors from monitoring.
 
