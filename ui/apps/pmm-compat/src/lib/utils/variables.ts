@@ -3,7 +3,7 @@ import { config, getTemplateSrv } from '@grafana/runtime';
 import { DashboardLink } from '@grafana/schema';
 
 /**
- * Needs to be in sync with public/app/features/panel/panellinks/link_srv.ts LinkSrv.getLinkUrl
+ * Needs to be in sync with public/app/features/panel/panellinks/link_srv.ts LinkSrv.getLinkUrl in grafana repository
  */
 const getLinkUrl = (link: Partial<DashboardLink>) => {
   let url = link.url ?? '';
