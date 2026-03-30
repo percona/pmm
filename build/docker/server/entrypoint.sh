@@ -131,14 +131,12 @@ elif is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES"; then
     echo "Skipping embedded PostgreSQL migration (builtin PostgreSQL is disabled)."
 else
     mkdir -p /run/postgresql
+    chmod 750 "$POSTGRES_DATA_DIR" || true
     bash /opt/ansible/roles/postgres/files/postgres-migration
 fi
 
 echo "Generating self-signed certificates for nginx..."
 bash /var/lib/cloud/scripts/per-boot/generate-ssl-certificate > /dev/null 2>&1
-
-# Ensure POSTGRES_DATA_DIR has the correct permissions
-chmod 750 "$POSTGRES_DATA_DIR" || true
 
 echo "Checking nginx configuration..."
 if ! nginx -t -e /dev/stdout; then
