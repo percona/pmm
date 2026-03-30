@@ -14,26 +14,25 @@ ensure_postgres_password() {
         return
     fi
 
-    echo "Generating postgres superuser password for existing data directory..."
-    declare POSTGRES_PASSWORD
+    local POSTGRES_PASSWORD
+    local STARTED=0
+
+    echo "Generating postgres superuser password..."
     POSTGRES_PASSWORD=$(openssl rand -hex 16)
     echo -n "$POSTGRES_PASSWORD" > "$POSTGRES_PASSWORD_FILE"
     chmod 600 "$POSTGRES_PASSWORD_FILE"
 
-    local started=0
     if ! /usr/pgsql-14/bin/pg_ctl status -D "$POSTGRES_DATA_DIR" > /dev/null 2>&1; then
         /usr/pgsql-14/bin/pg_ctl start -D "$POSTGRES_DATA_DIR" -o "-c logging_collector=off"
-        started=1
+        STARTED=1
     fi
 
     PGPASSWORD="$POSTGRES_PASSWORD" /usr/bin/psql -U postgres -h /run/postgresql -d postgres \
         -c "ALTER USER postgres WITH PASSWORD '${POSTGRES_PASSWORD}'"
 
-    if [ "$started" -eq 1 ]; then
+    if [ "$STARTED" -eq 1 ]; then
         /usr/pgsql-14/bin/pg_ctl stop -D "$POSTGRES_DATA_DIR"
     fi
-
-    unset POSTGRES_PASSWORD
 }
 
 update_pg_hba_auth() {

@@ -130,6 +130,7 @@ if is_enabled "$PMM_HA_ENABLE"; then
 elif is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES"; then
     echo "Skipping embedded PostgreSQL migration (builtin PostgreSQL is disabled)."
 else
+    mkdir -p /run/postgresql
     bash /opt/ansible/roles/postgres/files/postgres-migration
 fi
 
