@@ -35,13 +35,13 @@ pmm-admin status
 ### Add a MySQL database
 
 ```bash
-pmm-admin add mysql --username=pmm --password=pass mysql-prod 192.168.1.10:3306
+pmm-admin add mysql mysql-prod 192.168.1.10:3306 --username=pmm --password=pass
 ```
 
 ### Add a MongoDB database
 
 ```bash
-pmm-admin add mongodb --username=pmm --password=pass mongodb-prod 192.168.1.20:27017
+pmm-admin add mongodb mongodb-prod 192.168.1.20:27017 --username=pmm --password=pass
 ```
 
 ### List monitored services

@@ -91,11 +91,11 @@ Get the agent ID from the inventory list:
 pmm-admin inventory list agents
 ```
 
-Look for the agent ID in the output (format: `/agent_id/...`):
+Look for the agent ID in the output:
 
 ```
 Agent type                  Status      Metrics Mode      Agent ID                              Service ID
-mongodb_exporter            Running     push              /agent_id/12345-67890                 /service_id/abc123
+mongodb_exporter            Running     push             12345-67890                 abc123
 ```
 
 You can also use `pmm-admin list` to see agents alongside their services.
@@ -155,21 +155,21 @@ You can also use `pmm-admin list` to see agents alongside their services.
 - Update the MongoDB password for a running agent:
 
     ```bash
-    pmm-admin inventory change agent mongodb-exporter /agent_id/12345-67890 \
+    pmm-admin inventory change agent mongodb-exporter 12345-67890 \
       --password=new_secret_pass
     ```
 
 - Add custom labels to an agent:
 
     ```bash
-    pmm-admin inventory change agent mongodb-exporter /agent_id/12345-67890 \
+    pmm-admin inventory change agent mongodb-exporter 12345-67890 \
       --custom-labels=env=production,team=backend
     ```
 
 - Update credentials and labels together:
 
     ```bash
-    pmm-admin inventory change agent mongodb-exporter /agent_id/12345-67890 \
+    pmm-admin inventory change agent mongodb-exporter 12345-67890 \
       --password=new_secret_pass \
       --custom-labels=env=production
     ```
@@ -177,42 +177,42 @@ You can also use `pmm-admin list` to see agents alongside their services.
 - Enable all MongoDB collectors:
 
     ```bash
-    pmm-admin inventory change agent mongodb-exporter /agent_id/12345-67890 \
+    pmm-admin inventory change agent mongodb-exporter 12345-67890 \
       --enable-all-collectors
     ```
 
 - Disable a specific collector:
 
     ```bash
-    pmm-admin inventory change agent mongodb-exporter /agent_id/12345-67890 \
+    pmm-admin inventory change agent mongodb-exporter 12345-67890 \
       --disable-collectors=topmetrics
     ```
 
 - Change collection limit:
 
     ```bash
-    pmm-admin inventory change agent mongodb-exporter /agent_id/12345-67890 \
+    pmm-admin inventory change agent mongodb-exporter 12345-67890 \
       --max-collections-limit=500
     ```
 
 - Update stats collections:
 
     ```bash
-    pmm-admin inventory change agent mongodb-exporter /agent_id/12345-67890 \
+    pmm-admin inventory change agent mongodb-exporter 12345-67890 \
       --stats-collections=db1,db2.collection1
     ```
 
 - Disable an agent (stops metric collection without removing it):
 
     ```bash
-    pmm-admin inventory change agent mongodb-exporter /agent_id/12345-67890 \
+    pmm-admin inventory change agent mongodb-exporter 12345-67890 \
       --disable
     ```
 
 - Re-enable a disabled agent:
 
     ```bash
-    pmm-admin inventory change agent mongodb-exporter /agent_id/12345-67890 \
+    pmm-admin inventory change agent mongodb-exporter 12345-67890 \
       --enable
     ```
 

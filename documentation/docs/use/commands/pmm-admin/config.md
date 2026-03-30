@@ -109,8 +109,8 @@ pmm-admin register [FLAGS] [node-address] [node-type] [node-name]
 
     ```bash
     pmm-admin register \
-      --server-url=https://admin:admin@192.168.1.100:443 \
-      node-name db-server-01
+      db-server-01 \
+      --server-url=https://admin:admin@192.168.1.100:443
     ```
 
 - Register a container node:
@@ -166,7 +166,7 @@ Where `SERVICE_TYPE` is one of: `mysql`, `postgresql`, `mongodb`, `valkey`, `pro
 - Remove a service by ID:
 
   ```bash
-  pmm-admin remove mysql --service-id=/service_id/abc123
+  pmm-admin remove mysql --service-id=abc123
   ```
 
 - Force removal when service is unreachable:

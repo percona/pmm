@@ -34,7 +34,7 @@ pmm-admin status [FLAGS]
 
 ```
 Agent ID : abcd1234-5678-90ef-ghij-klmnopqrstuv
-Node ID  : /node_id/abcd1234-5678-90ef-ghij-klmnopqrstuv
+Node ID  : abcd1234-5678-90ef-ghij-klmnopqrstuv
 Node name: db-server-01
 
 PMM Server:
@@ -125,15 +125,15 @@ pmm-admin list [FLAGS]
 ```
 Service type        Service name        Address and port        Service ID
 MySQL               mysql-prod          192.168.1.10:3306       abc123
-MongoDB             mongodb-prod        192.168.1.20:27017      /service_id/def456
-PostgreSQL          postgres-prod       192.168.1.30:5432       /service_id/ghi789
+MongoDB             mongodb-prod        192.168.1.20:27017      def456
+PostgreSQL          postgres-prod       192.168.1.30:5432       ghi789
 
 Agent type                  Status      Metrics Mode      Agent ID                              Service ID
-pmm_agent                   Connected                     /agent_id/xyz789
-node_exporter               Running     push              /agent_id/node123
-mysqld_exporter             Running     push              /agent_id/mysql123                    /service_id/abc123
-mongodb_exporter            Running     push              /agent_id/mongo123                    /service_id/def456
-postgres_exporter           Running     push              /agent_id/pg123                       /service_id/ghi789
+pmm_agent                   Connected                     xyz789
+node_exporter               Running     push              node123
+mysqld_exporter             Running     push              mysql123                    abc123
+mongodb_exporter            Running     push              mongo123                    def456
+postgres_exporter           Running     push              pg123                       ghi789
 ```
 
 ### Interpret agent status
