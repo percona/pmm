@@ -150,15 +150,12 @@ func (m *MongoDBRTA) Run(ctx context.Context) {
 					// If context is done, we don't send anything to the channel.
 					return
 				default:
-					change := agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING}
 					if len(rtaQueryBucket) != 0 {
 						// If we have data, send it to the channel.
 						// If not, send only status without data to avoid triggering
 						// unnecessary processing in the receiver.
-						change.RTAQueriesBucket = rtaQueryBucket
+						m.changes <- agents.Change{RTAQueriesBucket: rtaQueryBucket}
 					}
-
-					m.changes <- change
 				}
 			}(ctx)
 		}
