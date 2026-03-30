@@ -23,6 +23,8 @@ If Watchtower is not installed, the UI upgrade options will not be available. Se
     Since Watchtower is no longer actively maintained, new installations should use CLI or container-based upgrade methods instead.
 
 ## Upgrade process
+To upgrade PMM Server from the web interface:
+{.power-number}
 
 1. Go to **Configuration > Updates** in your PMM web interface. Here you can check the current PMM Server version, the timestamp of the last update check, and whether your instance is up to date.
 2. Click **Check Updates now**. If an update is available, click the **Update now** button to install the latest version.
