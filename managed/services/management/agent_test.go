@@ -150,13 +150,14 @@ func TestAgentService(t *testing.T) {
 
 			expected := []*agentv1.UniversalAgent{
 				{
-					AgentId:     pgExporterID,
-					AgentType:   "postgres_exporter",
-					PmmAgentId:  models.PMMServerAgentID,
-					IsConnected: false,
-					CreatedAt:   timestamppb.New(now),
-					UpdatedAt:   timestamppb.New(now),
-					Username:    "postgres",
+					AgentId:       pgExporterID,
+					AgentType:     "postgres_exporter",
+					PmmAgentId:    models.PMMServerAgentID,
+					IsConnected:   false,
+					CreatedAt:     timestamppb.New(now),
+					UpdatedAt:     timestamppb.New(now),
+					Username:      "postgres",
+					IsPasswordSet: true,
 					PostgresqlOptions: &agentv1.UniversalAgent_PostgreSQLOptions{
 						IsSslKeySet: false,
 					},
@@ -166,13 +167,14 @@ func TestAgentService(t *testing.T) {
 					CommentsParsingDisabled: true,
 				},
 				{
-					AgentId:     pgStatStatementID,
-					AgentType:   "qan-postgresql-pgstatements-agent",
-					PmmAgentId:  models.PMMServerAgentID,
-					IsConnected: false,
-					CreatedAt:   timestamppb.New(now),
-					UpdatedAt:   timestamppb.New(now),
-					Username:    "postgres",
+					AgentId:       pgStatStatementID,
+					AgentType:     "qan-postgresql-pgstatements-agent",
+					PmmAgentId:    models.PMMServerAgentID,
+					IsConnected:   false,
+					CreatedAt:     timestamppb.New(now),
+					UpdatedAt:     timestamppb.New(now),
+					Username:      "postgres",
+					IsPasswordSet: true,
 					PostgresqlOptions: &agentv1.UniversalAgent_PostgreSQLOptions{
 						IsSslKeySet: false,
 					},
