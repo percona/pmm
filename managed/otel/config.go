@@ -27,8 +27,9 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// indentYAML prefixes each line of block with indent so it can be nested under a YAML key.
-func indentYAML(block, indent string) string {
+// IndentYAML prefixes each line of block with indent so it can be nested under a YAML key
+// (e.g. filelog receiver operators under "operators:").
+func IndentYAML(block, indent string) string {
 	if block == "" {
 		return ""
 	}
@@ -129,7 +130,7 @@ func BuildServerOtelConfigYAML(q *reform.Querier, endpoint, username, password s
 		receiversYaml.WriteString("    start_at: beginning\n")
 		if preset.OperatorYAML != "" {
 			receiversYaml.WriteString("    operators:\n")
-			receiversYaml.WriteString(indentYAML(preset.OperatorYAML, "      "))
+			receiversYaml.WriteString(IndentYAML(preset.OperatorYAML, "      "))
 		}
 	}
 

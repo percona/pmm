@@ -30,14 +30,14 @@ import (
 
 func TestIndentYAML(t *testing.T) {
 	t.Run("empty", func(t *testing.T) {
-		assert.Equal(t, "", indentYAML("", "  "))
+		assert.Equal(t, "", IndentYAML("", "  "))
 	})
 	t.Run("single_line", func(t *testing.T) {
-		assert.Equal(t, "    - type: foo\n", indentYAML("- type: foo", "    "))
+		assert.Equal(t, "    - type: foo\n", IndentYAML("- type: foo", "    "))
 	})
 	t.Run("multi_line", func(t *testing.T) {
 		block := "- type: key_value_parser\n  parse_from: body\n"
-		got := indentYAML(block, "      ")
+		got := IndentYAML(block, "      ")
 		assert.True(t, strings.HasPrefix(got, "      - type: key_value_parser"))
 		assert.Contains(t, got, "        parse_from: body")
 	})

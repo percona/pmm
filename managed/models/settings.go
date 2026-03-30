@@ -24,20 +24,22 @@ import (
 
 // Default values for settings. These values are used when settings are not set.
 const (
-	AdvisorsEnabledDefault             = true
-	AlertingEnabledDefault             = true
-	TelemetryEnabledDefault            = true
-	UpdatesEnabledDefault              = true
-	BackupManagementEnabledDefault     = true
-	VictoriaMetricsCacheEnabledDefault = false
-	AzureDiscoverEnabledDefault        = false
-	AccessControlEnabledDefault        = false
-	InternalPgQANEnabledDefault        = false
-	OtelCollectorEnabledDefault        = true
-	OtelLogsRetentionDaysDefault       = 7
-	AdreEnabledDefault                 = false
-	AdrePromptMaxBytes                 = 16 * 1024
-	AdrePromptMaxBytesHardMax          = 64 * 1024
+	AdvisorsEnabledDefault                    = true
+	AlertingEnabledDefault                    = true
+	TelemetryEnabledDefault                   = true
+	UpdatesEnabledDefault                     = true
+	BackupManagementEnabledDefault            = true
+	VictoriaMetricsCacheEnabledDefault        = false
+	AzureDiscoverEnabledDefault               = false
+	AccessControlEnabledDefault               = false
+	InternalPgQANEnabledDefault               = false
+	OtelCollectorEnabledDefault               = true
+	OtelLogsRetentionDaysDefault              = 7
+	OtelTracesRetentionDaysDefault            = 7
+	OtelClickHouseMetricsRetentionDaysDefault = 90
+	AdreEnabledDefault                        = false
+	AdrePromptMaxBytes                        = 16 * 1024
+	AdrePromptMaxBytesHardMax                 = 64 * 1024
 	// AdreSchemaVersionCurrent is bumped when a one-way ADRE settings migration runs in fillDefaults.
 	AdreSchemaVersionCurrent = 2
 	awsPartitionID           = "aws"
@@ -100,10 +102,14 @@ type Settings struct {
 		Enabled *bool `json:"enabled"`
 	}
 
-	// Otel collector on server (receives OTLP from agents); log retention for otel.logs in ClickHouse.
+	// Otel collector on server (receives OTLP from agents); retention for OTEL ClickHouse tables.
 	Otel struct {
 		CollectorEnabled  *bool `json:"collector_enabled"`
 		LogsRetentionDays *int  `json:"logs_retention_days"`
+		// TracesRetentionDays is TTL for otel.otel_traces (and trace TTL in server otel-collector exporters).
+		TracesRetentionDays *int `json:"traces_retention_days"`
+		// MetricsRetentionDays is TTL for otel.otel_metrics_sum (and sum-metric TTL in server otel-collector exporters).
+		MetricsRetentionDays *int `json:"metrics_retention_days"`
 	} `json:"otel"`
 
 	// Adre (Autonomous Database Reliability Engineer) / HolmesGPT integration.
@@ -268,6 +274,22 @@ func (s *Settings) GetAdreURL() string {
 	return s.Adre.URL
 }
 
+// GetOtelTracesRetentionDays returns the TTL in days for otel.otel_traces in ClickHouse.
+func (s *Settings) GetOtelTracesRetentionDays() int {
+	if s.Otel.TracesRetentionDays != nil && *s.Otel.TracesRetentionDays > 0 {
+		return *s.Otel.TracesRetentionDays
+	}
+	return OtelTracesRetentionDaysDefault
+}
+
+// GetOtelMetricsRetentionDays returns the TTL in days for otel.otel_metrics_sum in ClickHouse.
+func (s *Settings) GetOtelMetricsRetentionDays() int {
+	if s.Otel.MetricsRetentionDays != nil && *s.Otel.MetricsRetentionDays > 0 {
+		return *s.Otel.MetricsRetentionDays
+	}
+	return OtelClickHouseMetricsRetentionDaysDefault
+}
+
 // AdvisorsRunIntervals represents intervals between Advisors checks.
 type AdvisorsRunIntervals struct {
 	StandardInterval time.Duration `json:"standard_interval"`
@@ -281,17 +303,17 @@ func (s *Settings) fillDefaults() {
 	// no default for Telemetry UUID - it set by telemetry service
 
 	if s.MetricsResolutions.HR == 0 {
-		s.MetricsResolutions.HR = 5 * time.Second
+		s.MetricsResolutions.HR = 5 * time.Second //nolint:mnd
 	}
 	if s.MetricsResolutions.MR == 0 {
-		s.MetricsResolutions.MR = 10 * time.Second
+		s.MetricsResolutions.MR = 10 * time.Second //nolint:mnd
 	}
 	if s.MetricsResolutions.LR == 0 {
-		s.MetricsResolutions.LR = 60 * time.Second
+		s.MetricsResolutions.LR = 60 * time.Second //nolint:mnd
 	}
 
 	if s.DataRetention == 0 {
-		s.DataRetention = 30 * 24 * time.Hour
+		s.DataRetention = 30 * 24 * time.Hour //nolint:mnd
 	}
 
 	if len(s.AWSPartitions) == 0 {
@@ -299,15 +321,15 @@ func (s *Settings) fillDefaults() {
 	}
 
 	if s.SaaS.AdvisorRunIntervals.RareInterval == 0 {
-		s.SaaS.AdvisorRunIntervals.RareInterval = 78 * time.Hour
+		s.SaaS.AdvisorRunIntervals.RareInterval = 78 * time.Hour //nolint:mnd
 	}
 
 	if s.SaaS.AdvisorRunIntervals.StandardInterval == 0 {
-		s.SaaS.AdvisorRunIntervals.StandardInterval = 24 * time.Hour
+		s.SaaS.AdvisorRunIntervals.StandardInterval = 24 * time.Hour //nolint:mnd
 	}
 
 	if s.SaaS.AdvisorRunIntervals.FrequentInterval == 0 {
-		s.SaaS.AdvisorRunIntervals.FrequentInterval = 4 * time.Hour
+		s.SaaS.AdvisorRunIntervals.FrequentInterval = 4 * time.Hour //nolint:mnd
 	}
 
 	if s.Updates.SnoozeDuration == 0 {
@@ -316,6 +338,12 @@ func (s *Settings) fillDefaults() {
 
 	if s.Otel.LogsRetentionDays == nil || (s.Otel.LogsRetentionDays != nil && *s.Otel.LogsRetentionDays <= 0) {
 		s.Otel.LogsRetentionDays = pointer.ToInt(OtelLogsRetentionDaysDefault)
+	}
+	if s.Otel.TracesRetentionDays == nil || (s.Otel.TracesRetentionDays != nil && *s.Otel.TracesRetentionDays <= 0) {
+		s.Otel.TracesRetentionDays = pointer.ToInt(OtelTracesRetentionDaysDefault)
+	}
+	if s.Otel.MetricsRetentionDays == nil || (s.Otel.MetricsRetentionDays != nil && *s.Otel.MetricsRetentionDays <= 0) {
+		s.Otel.MetricsRetentionDays = pointer.ToInt(OtelClickHouseMetricsRetentionDaysDefault)
 	}
 
 	if s.Adre.Enabled == nil {

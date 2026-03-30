@@ -390,7 +390,7 @@ func GetPlatformAddress() (string, error) {
 	}
 
 	if _, err := url.Parse(address); err != nil {
-		return "", errors.Errorf("invalid percona platform address: %s", err)
+		return "", errors.Errorf("invalid Percona Platform address: %s", err)
 	}
 
 	logrus.Infof("Using Percona Platform address: %s.", address)

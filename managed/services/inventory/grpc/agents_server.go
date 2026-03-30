@@ -287,6 +287,8 @@ func (s *agentsServer) ChangeAgent(ctx context.Context, req *inventoryv1.ChangeA
 		return s.s.ChangeNomadAgent(ctx, agentID, req.GetNomadAgent())
 	case *inventoryv1.ChangeAgentRequest_RtaMongodbAgent:
 		return s.s.ChangeRTAMongoDBAgent(ctx, agentID, req.GetRtaMongodbAgent())
+	case *inventoryv1.ChangeAgentRequest_OtelCollector:
+		return s.s.ChangeOtelCollector(ctx, agentID, req.GetOtelCollector())
 	default:
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid agent type %T", req.Agent))
 	}

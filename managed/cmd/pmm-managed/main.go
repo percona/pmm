@@ -560,7 +560,10 @@ type setupDeps struct {
 
 // setup performs setup tasks that depend on database.
 func setup(ctx context.Context, deps *setupDeps) bool {
-	// log and ignore validation errors; fail on critical errors
+	l := reform.NewPrintfLogger(deps.l.Debugf)
+	db := reform.NewDB(deps.sqlDB, postgresql.Dialect, l)
+
+	// log and ignore validation errors; fail on other errors
 	deps.l.Infof("Updating settings...")
 	env := os.Environ()
 	sort.Strings(env)
@@ -576,10 +579,13 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 	}
 
 	deps.l.Infof("Updating supervisord configuration...")
-	// Use server.UpdateConfigurations so OTEL config is built with BuildServerOtelConfigYAML (filelog + presets).
-	// Direct supervisord.UpdateConfiguration(..., nil) would write receiver-only OTEL config.
-	var err error
-	if err = deps.server.UpdateConfigurations(ctx); err != nil {
+	settings, err := models.GetSettings(db.Querier)
+	if err != nil {
+		deps.l.Warnf("Failed to get settings: %s.", err)
+		return false
+	}
+	err = deps.supervisord.UpdateConfiguration(settings)
+	if err != nil {
 		deps.l.Warnf("Failed to update supervisord configuration: %s.", err)
 		return false
 	}
@@ -1109,25 +1115,7 @@ func main() { //nolint:maintidx,cyclop
 		server:      server,
 		l:           logrus.WithField("component", "setup"),
 	}
-	if setup(ctx, deps) {
-		go func() {
-			const postSetupAttempts = 5
-			const postSetupDelay = 2 * time.Second
-			for i := 0; i < postSetupAttempts; i++ {
-				if ctx.Err() != nil {
-					return
-				}
-				if err := deps.server.UpdateConfigurations(ctx); err != nil {
-					deps.l.Warnf("Post-setup UpdateConfigurations attempt %d failed: %v", i+1, err)
-				}
-				if i < postSetupAttempts-1 {
-					sleepCtx, sleepCancel := context.WithTimeout(ctx, postSetupDelay)
-					<-sleepCtx.Done()
-					sleepCancel()
-				}
-			}
-		}()
-	} else {
+	if !setup(ctx, deps) {
 		go func() {
 			const delay = 2 * time.Second
 			for {

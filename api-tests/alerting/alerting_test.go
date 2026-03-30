@@ -477,6 +477,7 @@ func TestListTemplatesAPI(t *testing.T) {
 
 				templateNames[name] = struct{}{}
 			}
+
 			t.Cleanup(func() {
 				for name := range templateNames {
 					deleteTemplate(t, client, name)

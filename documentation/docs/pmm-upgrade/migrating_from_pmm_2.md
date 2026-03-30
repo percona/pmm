@@ -280,11 +280,7 @@ Before migrating PMM 2 to PMM 3, ensure your PMM 2 Server is running the latest 
 ## Step 3: Migrate PMM 2 Clients to PMM 3
 
 !!! caution alert alert-warning "Important"
-<<<<<<< HEAD
     PMM 2 Clients are deprecated. Compatibility with PMM Server 3.4.0 and later is not guaranteed, and transitional support will be removed in a future release. Upgrade to PMM 3 Client as soon as possible to ensure full functionality.
-=======
-    PMM 3 Server provides limited support for PMM 2 Clients (metrics and Query Analytics only).
->>>>>>> doc_3.6.0
 
 Depending on your initial installation method, update PMM Clients using your operating system's package manager or using a tarball.
 For detailed instructions, see the [Upgrade PMM Client topic](../pmm-upgrade/upgrade_client.md).

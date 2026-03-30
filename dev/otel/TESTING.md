@@ -13,14 +13,14 @@
 From the machine where pmm-agent runs:
 
 ```bash
-# Use local pmm-agent (default)
-pmm-admin add otel
+# OTLP-only collector (e.g. before adding log files)
+pmm-admin management add otel ebpf
 
-# With log files (e.g. MySQL error log)
-pmm-admin add otel --log-file-paths=/var/log/mysql/error.log
+# With log files (e.g. MySQL error log); merges into the single node collector
+pmm-admin management add otel logs --log-file-paths=/var/log/mysql/error.log
 
 # With custom labels
-pmm-admin add otel --custom-labels=env=prod,team=db
+pmm-admin management add otel logs --custom-labels=env=prod,team=db
 ```
 
 Check that the agent is listed and the collector process is running (e.g. `pmm-admin list` or Inventory API).

@@ -58,6 +58,8 @@ func TestSettings(t *testing.T) {
 		}
 		expected.Updates.SnoozeDuration = models.DefaultSnoozeDuration
 		expected.Otel.LogsRetentionDays = pointer.ToInt(models.OtelLogsRetentionDaysDefault)
+		expected.Otel.TracesRetentionDays = pointer.ToInt(models.OtelTracesRetentionDaysDefault)
+		expected.Otel.MetricsRetentionDays = pointer.ToInt(models.OtelClickHouseMetricsRetentionDaysDefault)
 		expected.Adre.Enabled = pointer.ToBool(models.AdreEnabledDefault)
 		expected.Adre.DefaultChatMode = "investigation"
 		expected.Adre.AdreSchemaVersion = models.AdreSchemaVersionCurrent
@@ -98,6 +100,8 @@ func TestSettings(t *testing.T) {
 		}
 		expected.Updates.SnoozeDuration = models.DefaultSnoozeDuration
 		expected.Otel.LogsRetentionDays = pointer.ToInt(models.OtelLogsRetentionDaysDefault)
+		expected.Otel.TracesRetentionDays = pointer.ToInt(models.OtelTracesRetentionDaysDefault)
+		expected.Otel.MetricsRetentionDays = pointer.ToInt(models.OtelClickHouseMetricsRetentionDaysDefault)
 		expected.Adre.Enabled = pointer.ToBool(models.AdreEnabledDefault)
 		expected.Adre.DefaultChatMode = "investigation"
 		expected.Adre.AdreSchemaVersion = models.AdreSchemaVersionCurrent

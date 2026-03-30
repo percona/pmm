@@ -44,7 +44,7 @@ func TestServer(t *testing.T) {
 		t.Helper()
 		var r mockSupervisordService
 		r.Test(t)
-		r.On("UpdateConfiguration", mock.Anything, mock.Anything, mock.Anything).Return(nil)
+		r.On("UpdateConfiguration", mock.Anything).Return(nil)
 
 		var mvmdb mockPrometheusService
 		mvmdb.Test(t)

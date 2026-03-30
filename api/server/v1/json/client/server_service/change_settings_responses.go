@@ -104,6 +104,7 @@ func (o *ChangeSettingsOK) GetPayload() *ChangeSettingsOKBody {
 }
 
 func (o *ChangeSettingsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ChangeSettingsOKBody)
 
 	// response payload
@@ -177,6 +178,7 @@ func (o *ChangeSettingsDefault) GetPayload() *ChangeSettingsDefaultBody {
 }
 
 func (o *ChangeSettingsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ChangeSettingsDefaultBody)
 
 	// response payload
@@ -192,6 +194,7 @@ ChangeSettingsBody change settings body
 swagger:model ChangeSettingsBody
 */
 type ChangeSettingsBody struct {
+
 	// enable updates
 	EnableUpdates *bool `json:"enable_updates,omitempty"`
 
@@ -352,6 +355,7 @@ func (o *ChangeSettingsBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *ChangeSettingsBody) contextValidateAdvisorRunIntervals(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.AdvisorRunIntervals != nil {
 
 		if swag.IsZero(o.AdvisorRunIntervals) { // not required
@@ -376,6 +380,7 @@ func (o *ChangeSettingsBody) contextValidateAdvisorRunIntervals(ctx context.Cont
 }
 
 func (o *ChangeSettingsBody) contextValidateAWSPartitions(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.AWSPartitions != nil {
 
 		if swag.IsZero(o.AWSPartitions) { // not required
@@ -400,6 +405,7 @@ func (o *ChangeSettingsBody) contextValidateAWSPartitions(ctx context.Context, f
 }
 
 func (o *ChangeSettingsBody) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MetricsResolutions != nil {
 
 		if swag.IsZero(o.MetricsResolutions) { // not required
@@ -446,6 +452,7 @@ ChangeSettingsDefaultBody change settings default body
 swagger:model ChangeSettingsDefaultBody
 */
 type ChangeSettingsDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -515,7 +522,9 @@ func (o *ChangeSettingsDefaultBody) ContextValidate(ctx context.Context, formats
 }
 
 func (o *ChangeSettingsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -535,6 +544,7 @@ func (o *ChangeSettingsDefaultBody) contextValidateDetails(ctx context.Context, 
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -647,6 +657,7 @@ ChangeSettingsDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized pr
 swagger:model ChangeSettingsDefaultBodyDetailsItems0
 */
 type ChangeSettingsDefaultBodyDetailsItems0 struct {
+
 	// A URL/resource name that uniquely identifies the type of the serialized
 	// protocol buffer message. This string must contain at least
 	// one "/" character. The last segment of the URL's path must represent
@@ -685,6 +696,7 @@ type ChangeSettingsDefaultBodyDetailsItems0 struct {
 func (o *ChangeSettingsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// A URL/resource name that uniquely identifies the type of the serialized
 		// protocol buffer message. This string must contain at least
 		// one "/" character. The last segment of the URL's path must represent
@@ -749,6 +761,7 @@ func (o *ChangeSettingsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) erro
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o ChangeSettingsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// A URL/resource name that uniquely identifies the type of the serialized
 		// protocol buffer message. This string must contain at least
 		// one "/" character. The last segment of the URL's path must represent
@@ -839,6 +852,7 @@ ChangeSettingsOKBody change settings OK body
 swagger:model ChangeSettingsOKBody
 */
 type ChangeSettingsOKBody struct {
+
 	// settings
 	Settings *ChangeSettingsOKBodySettings `json:"settings,omitempty"`
 }
@@ -895,6 +909,7 @@ func (o *ChangeSettingsOKBody) ContextValidate(ctx context.Context, formats strf
 }
 
 func (o *ChangeSettingsOKBody) contextValidateSettings(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Settings != nil {
 
 		if swag.IsZero(o.Settings) { // not required
@@ -941,6 +956,7 @@ ChangeSettingsOKBodySettings Settings represents PMM Server settings.
 swagger:model ChangeSettingsOKBodySettings
 */
 type ChangeSettingsOKBodySettings struct {
+
 	// True if updates are enabled.
 	UpdatesEnabled bool `json:"updates_enabled,omitempty"`
 
@@ -1082,6 +1098,7 @@ func (o *ChangeSettingsOKBodySettings) ContextValidate(ctx context.Context, form
 }
 
 func (o *ChangeSettingsOKBodySettings) contextValidateAdvisorRunIntervals(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.AdvisorRunIntervals != nil {
 
 		if swag.IsZero(o.AdvisorRunIntervals) { // not required
@@ -1106,6 +1123,7 @@ func (o *ChangeSettingsOKBodySettings) contextValidateAdvisorRunIntervals(ctx co
 }
 
 func (o *ChangeSettingsOKBodySettings) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MetricsResolutions != nil {
 
 		if swag.IsZero(o.MetricsResolutions) { // not required
@@ -1152,6 +1170,7 @@ ChangeSettingsOKBodySettingsAdvisorRunIntervals AdvisorRunIntervals represents i
 swagger:model ChangeSettingsOKBodySettingsAdvisorRunIntervals
 */
 type ChangeSettingsOKBodySettingsAdvisorRunIntervals struct {
+
 	// Standard check interval.
 	StandardInterval string `json:"standard_interval,omitempty"`
 
@@ -1195,6 +1214,7 @@ ChangeSettingsOKBodySettingsMetricsResolutions MetricsResolutions represents Pro
 swagger:model ChangeSettingsOKBodySettingsMetricsResolutions
 */
 type ChangeSettingsOKBodySettingsMetricsResolutions struct {
+
 	// High resolution. Should have a suffix in JSON: 1s, 1m, 1h.
 	Hr string `json:"hr,omitempty"`
 
@@ -1238,6 +1258,7 @@ ChangeSettingsParamsBodyAWSPartitions A wrapper for a string array. This type al
 swagger:model ChangeSettingsParamsBodyAWSPartitions
 */
 type ChangeSettingsParamsBodyAWSPartitions struct {
+
 	// values
 	Values []string `json:"values"`
 }
@@ -1275,6 +1296,7 @@ ChangeSettingsParamsBodyAdvisorRunIntervals AdvisorRunIntervals represents inter
 swagger:model ChangeSettingsParamsBodyAdvisorRunIntervals
 */
 type ChangeSettingsParamsBodyAdvisorRunIntervals struct {
+
 	// Standard check interval.
 	StandardInterval string `json:"standard_interval,omitempty"`
 
@@ -1318,6 +1340,7 @@ ChangeSettingsParamsBodyMetricsResolutions MetricsResolutions represents Prometh
 swagger:model ChangeSettingsParamsBodyMetricsResolutions
 */
 type ChangeSettingsParamsBodyMetricsResolutions struct {
+
 	// High resolution. Should have a suffix in JSON: 1s, 1m, 1h.
 	Hr string `json:"hr,omitempty"`
 

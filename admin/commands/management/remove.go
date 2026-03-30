@@ -39,6 +39,8 @@ func (res *removeServiceResult) String() string {
 }
 
 // RemoveCommand is used by Kong for CLI flags and commands.
+//
+// TODO(otel): `pmm-admin remove otel` is not implemented yet (planned soon); OTEL teardown today is via inventory.
 type RemoveCommand struct {
 	ServiceType string `arg:"" enum:"${serviceTypesEnum}" help:"Service type, one of: ${enum}"`
 	ServiceName string `arg:"" default:"" help:"Service name"`
@@ -87,7 +89,7 @@ func (cmd *RemoveCommand) RunCmd() (commands.Result, error) {
 			serviceID = servicesRes.Payload.External[0].ServiceID
 		}
 		if serviceID == "" {
-			//nolint:revive,golint
+			//nolint:revive
 			return nil, errors.New(`We could not find a service associated with the local node. Please provide "Service ID" or "Service name".`)
 		}
 	case cmd.ServiceName != "" && cmd.ServiceID == "":

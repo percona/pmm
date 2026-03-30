@@ -104,6 +104,7 @@ func (o *RemoveScheduledBackupOK) GetPayload() any {
 }
 
 func (o *RemoveScheduledBackupOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
@@ -175,6 +176,7 @@ func (o *RemoveScheduledBackupDefault) GetPayload() *RemoveScheduledBackupDefaul
 }
 
 func (o *RemoveScheduledBackupDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(RemoveScheduledBackupDefaultBody)
 
 	// response payload
@@ -190,6 +192,7 @@ RemoveScheduledBackupDefaultBody remove scheduled backup default body
 swagger:model RemoveScheduledBackupDefaultBody
 */
 type RemoveScheduledBackupDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -259,7 +262,9 @@ func (o *RemoveScheduledBackupDefaultBody) ContextValidate(ctx context.Context, 
 }
 
 func (o *RemoveScheduledBackupDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -279,6 +284,7 @@ func (o *RemoveScheduledBackupDefaultBody) contextValidateDetails(ctx context.Co
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -307,6 +313,7 @@ RemoveScheduledBackupDefaultBodyDetailsItems0 remove scheduled backup default bo
 swagger:model RemoveScheduledBackupDefaultBodyDetailsItems0
 */
 type RemoveScheduledBackupDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -318,6 +325,7 @@ type RemoveScheduledBackupDefaultBodyDetailsItems0 struct {
 func (o *RemoveScheduledBackupDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -355,6 +363,7 @@ func (o *RemoveScheduledBackupDefaultBodyDetailsItems0) UnmarshalJSON(data []byt
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o RemoveScheduledBackupDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}

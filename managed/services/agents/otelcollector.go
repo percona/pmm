@@ -28,6 +28,7 @@ import (
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/otel"
 )
 
 const (
@@ -35,6 +36,8 @@ const (
 	logSourcesLabel   = "log_sources"
 	presetRaw         = "raw"
 )
+
+var presetNameSanitizer = regexp.MustCompile(`[^a-zA-Z0-9_]+`)
 
 // logSourceEntry matches the JSON stored in custom_labels["log_sources"].
 type logSourceEntry struct {
@@ -72,7 +75,7 @@ func getLogSourcesFromAgent(row *models.Agent) ([]logSourceEntry, error) {
 
 // sanitizePresetName returns a safe receiver id suffix (alphanumeric and underscore only).
 func sanitizePresetName(name string) string {
-	return regexp.MustCompile(`[^a-zA-Z0-9_]+`).ReplaceAllString(name, "_")
+	return presetNameSanitizer.ReplaceAllString(name, "_")
 }
 
 // otelResourceAttributes returns resource attributes (agent_id, node_id, service_name, etc.) for the OTEL collector
@@ -128,7 +131,7 @@ func otelCollectorConfig(row *models.Agent, q *reform.Querier) *agentv1.SetState
         endpoint: 0.0.0.0:4317
       http:
         endpoint: 0.0.0.0:4318
-` + baseOtelConfigYaml([]string{"otlp"}, resourceAttrs)
+` + baseOtelConfigYaml([]string{"otlp"}, []string{"otlp"}, resourceAttrs)
 		tdp := models.TemplateDelimsPair()
 		return &agentv1.SetStateRequest_AgentProcess{
 			Type:               inventoryv1.AgentType_AGENT_TYPE_OTEL_COLLECTOR,
@@ -191,13 +194,13 @@ func otelCollectorConfig(row *models.Agent, q *reform.Querier) *agentv1.SetState
 		configYaml += fmt.Sprintf("  %s:\n    include: [%s]\n    start_at: end\n", receiverID, strings.Join(quoted, ", "))
 		if preset != presetRaw {
 			if yaml, ok := presetYAML[preset]; ok && yaml != "" {
-				configYaml += "    operators:\n" + yaml + "\n"
+				configYaml += "    operators:\n" + otel.IndentYAML(yaml, "      ")
 			}
 		}
 	}
 	sort.Strings(receivers)
 	receivers = append(receivers, "otlp")
-	configYaml += baseOtelConfigYaml(receivers, resourceAttrs)
+	configYaml += baseOtelConfigYaml(receivers, []string{"otlp"}, resourceAttrs)
 
 	tdp := models.TemplateDelimsPair()
 	return &agentv1.SetStateRequest_AgentProcess{
@@ -233,11 +236,15 @@ func quoteYAMLAttrValue(v string) string {
 	return b.String()
 }
 
-// baseOtelConfigYaml returns processors, exporters, and service.pipelines with the given receivers.
+// baseOtelConfigYaml returns processors, exporters, and service.pipelines.
+// logPipelineReceivers lists receivers for the logs pipeline (OTLP plus any filelog/* receivers).
+// tracesMetricsReceivers lists receivers for traces and metrics only — must not include filelog,
+// which emits logs only and cannot be wired into traces or metrics pipelines.
 // If resourceAttrs is non-nil and non-empty, a resource processor is added to set PMM context (agent_id, node_id, etc.)
 // so logs in ClickHouse match VictoriaMetrics labels.
-func baseOtelConfigYaml(receivers []string, resourceAttrs map[string]string) string {
-	receiversYaml := "[" + strings.Join(receivers, ", ") + "]"
+func baseOtelConfigYaml(logPipelineReceivers, tracesMetricsReceivers []string, resourceAttrs map[string]string) string {
+	logReceiversYaml := "[" + strings.Join(logPipelineReceivers, ", ") + "]"
+	tracesMetricsReceiversYaml := "[" + strings.Join(tracesMetricsReceivers, ", ") + "]"
 
 	processorsBlock := `  memory_limiter:
     check_interval: 1s
@@ -282,9 +289,20 @@ exporters:
       insecure_skip_verify: {{ .server_insecure }}
 
 service:
+  telemetry:
+    metrics:
+      level: none
   pipelines:
     logs:
-      receivers: ` + receiversYaml + `
+      receivers: ` + logReceiversYaml + `
+      processors: ` + pipelineProcessors + `
+      exporters: [otlp_http]
+    traces:
+      receivers: ` + tracesMetricsReceiversYaml + `
+      processors: ` + pipelineProcessors + `
+      exporters: [otlp_http]
+    metrics:
+      receivers: ` + tracesMetricsReceiversYaml + `
       processors: ` + pipelineProcessors + `
       exporters: [otlp_http]
 `

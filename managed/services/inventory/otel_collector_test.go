@@ -1,0 +1,91 @@
+// Copyright (C) 2026 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+package inventory
+
+import (
+	"encoding/json"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	"github.com/percona/pmm/managed/models"
+)
+
+func TestOtelCollectorDuplicateAddAndChange(t *testing.T) {
+	_, as, _, teardown, ctx, _ := setup(t)
+	t.Cleanup(func() { teardown(t) })
+
+	as.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true)
+	as.r.(*mockAgentsRegistry).On("IsConnected", "00000000-0000-4000-8000-000000000005").Return(true)
+	as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, mock.AnythingOfType("string")).Return()
+
+	pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
+		RunsOnNodeId: models.PMMServerNodeID,
+	})
+	require.NoError(t, err)
+	pmmAgentID := pmmAgent.GetPmmAgent().AgentId
+
+	otelResp, err := as.AddOtelCollector(ctx, &inventoryv1.AddOtelCollectorParams{
+		PmmAgentId:   pmmAgentID,
+		CustomLabels: map[string]string{"tier": "test"},
+	})
+	require.NoError(t, err)
+	otelID := otelResp.GetOtelCollector().AgentId
+	require.Contains(t, otelResp.GetOtelCollector().CustomLabels, "tier")
+	assert.Equal(t, "test", otelResp.GetOtelCollector().CustomLabels["tier"])
+
+	_, err = as.AddOtelCollector(ctx, &inventoryv1.AddOtelCollectorParams{
+		PmmAgentId: pmmAgentID,
+	})
+	require.Error(t, err)
+	assert.Equal(t, codes.AlreadyExists, status.Convert(err).Code())
+
+	ch, err := as.ChangeOtelCollector(ctx, otelID, &inventoryv1.ChangeOtelCollectorParams{
+		MergeLabels: map[string]string{"extra": "1"},
+		AddLogSources: []*inventoryv1.LogSource{
+			{Path: "/var/log/one.log", Preset: "raw"},
+			{Path: "/var/log/two.log", Preset: "raw"},
+		},
+	})
+	require.NoError(t, err)
+	labels := ch.GetOtelCollector().CustomLabels
+	assert.Equal(t, "test", labels["tier"])
+	assert.Equal(t, "1", labels["extra"])
+	var sources []struct {
+		Path   string `json:"path"`
+		Preset string `json:"preset"`
+	}
+	require.NoError(t, json.Unmarshal([]byte(labels["log_sources"]), &sources))
+	require.Len(t, sources, 2)
+
+	ch2, err := as.ChangeOtelCollector(ctx, otelID, &inventoryv1.ChangeOtelCollectorParams{
+		AddLogSources: []*inventoryv1.LogSource{
+			{Path: "/var/log/one.log", Preset: "raw"},
+		},
+	})
+	require.NoError(t, err)
+	require.NoError(t, json.Unmarshal([]byte(ch2.GetOtelCollector().CustomLabels["log_sources"]), &sources))
+	require.Len(t, sources, 2)
+
+	_, err = as.ChangeOtelCollector(ctx, otelID, &inventoryv1.ChangeOtelCollectorParams{
+		MergeLabels: map[string]string{"log_sources": "nope"},
+	})
+	require.Error(t, err)
+	assert.Equal(t, codes.InvalidArgument, status.Convert(err).Code())
+
+	_, err = as.ChangeOtelCollector(ctx, "00000000-0000-4000-8000-000000000006", &inventoryv1.ChangeOtelCollectorParams{
+		MergeLabels: map[string]string{"x": "y"},
+	})
+	require.Error(t, err)
+	assert.Equal(t, codes.InvalidArgument, status.Convert(err).Code())
+}

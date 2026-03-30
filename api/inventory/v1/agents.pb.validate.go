@@ -3021,6 +3021,7 @@ func (m *ChangeCommonAgentParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -3049,6 +3050,7 @@ func (m *ChangeCommonAgentParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -7699,6 +7701,47 @@ func (m *ChangeAgentRequest) validate(all bool) error {
 			}
 		}
 
+	case *ChangeAgentRequest_OtelCollector:
+		if v == nil {
+			err := ChangeAgentRequestValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetOtelCollector()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "OtelCollector",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "OtelCollector",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetOtelCollector()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentRequestValidationError{
+					field:  "OtelCollector",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	default:
 		_ = v // ensures v is used
 	}
@@ -8503,6 +8546,47 @@ func (m *ChangeAgentResponse) validate(all bool) error {
 			}
 		}
 
+	case *ChangeAgentResponse_OtelCollector:
+		if v == nil {
+			err := ChangeAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetOtelCollector()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "OtelCollector",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "OtelCollector",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetOtelCollector()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentResponseValidationError{
+					field:  "OtelCollector",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	default:
 		_ = v // ensures v is used
 	}
@@ -8879,6 +8963,7 @@ func (m *ChangeNodeExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -8907,10 +8992,19 @@ func (m *ChangeNodeExporterParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
 		// no validation rules for EnablePushMetrics
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
+	if m.ExposeExporter != nil {
+		// no validation rules for ExposeExporter
 	}
 
 	if len(errors) > 0 {
@@ -9212,6 +9306,7 @@ func (m *ChangeMySQLdExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -9240,10 +9335,59 @@ func (m *ChangeMySQLdExporterParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
 		// no validation rules for EnablePushMetrics
+	}
+
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.TlsCert != nil {
+		// no validation rules for TlsCert
+	}
+
+	if m.TlsKey != nil {
+		// no validation rules for TlsKey
+	}
+
+	if m.TablestatsGroupTableLimit != nil {
+		// no validation rules for TablestatsGroupTableLimit
+	}
+
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
+	}
+
+	if m.AgentPassword != nil {
+		// no validation rules for AgentPassword
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
+	if m.ExposeExporter != nil {
+		// no validation rules for ExposeExporter
 	}
 
 	if len(errors) > 0 {
@@ -9402,6 +9546,8 @@ func (m *AddMongoDBExporterParams) validate(all bool) error {
 
 	// no validation rules for ExposeExporter
 
+	// no validation rules for EnableAllCollectors
+
 	if len(errors) > 0 {
 		return AddMongoDBExporterParamsMultiError(errors)
 	}
@@ -9538,6 +9684,7 @@ func (m *ChangeMongoDBExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -9566,10 +9713,71 @@ func (m *ChangeMongoDBExporterParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
 		// no validation rules for EnablePushMetrics
+	}
+
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.TlsCertificateKey != nil {
+		// no validation rules for TlsCertificateKey
+	}
+
+	if m.TlsCertificateKeyFilePassword != nil {
+		// no validation rules for TlsCertificateKeyFilePassword
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
+	}
+
+	if m.AuthenticationMechanism != nil {
+		// no validation rules for AuthenticationMechanism
+	}
+
+	if m.AuthenticationDatabase != nil {
+		// no validation rules for AuthenticationDatabase
+	}
+
+	if m.AgentPassword != nil {
+		// no validation rules for AgentPassword
+	}
+
+	if m.CollectionsLimit != nil {
+		// no validation rules for CollectionsLimit
+	}
+
+	if m.EnableAllCollectors != nil {
+		// no validation rules for EnableAllCollectors
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
+	if m.ExposeExporter != nil {
+		// no validation rules for ExposeExporter
 	}
 
 	if len(errors) > 0 {
@@ -9872,6 +10080,7 @@ func (m *ChangePostgresExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -9900,10 +10109,63 @@ func (m *ChangePostgresExporterParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
 		// no validation rules for EnablePushMetrics
+	}
+
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.TlsCert != nil {
+		// no validation rules for TlsCert
+	}
+
+	if m.TlsKey != nil {
+		// no validation rules for TlsKey
+	}
+
+	if m.AgentPassword != nil {
+		// no validation rules for AgentPassword
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
+	if m.AutoDiscoveryLimit != nil {
+		// no validation rules for AutoDiscoveryLimit
+	}
+
+	if m.ExposeExporter != nil {
+		// no validation rules for ExposeExporter
+	}
+
+	if m.MaxExporterConnections != nil {
+		// no validation rules for MaxExporterConnections
 	}
 
 	if len(errors) > 0 {
@@ -10196,6 +10458,7 @@ func (m *ChangeProxySQLExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -10224,10 +10487,39 @@ func (m *ChangeProxySQLExporterParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
 		// no validation rules for EnablePushMetrics
+	}
+
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.AgentPassword != nil {
+		// no validation rules for AgentPassword
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
+	if m.ExposeExporter != nil {
+		// no validation rules for ExposeExporter
 	}
 
 	if len(errors) > 0 {
@@ -10532,6 +10824,7 @@ func (m *ChangeQANMySQLPerfSchemaAgentParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -10560,10 +10853,59 @@ func (m *ChangeQANMySQLPerfSchemaAgentParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
 		// no validation rules for EnablePushMetrics
+	}
+
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.TlsCert != nil {
+		// no validation rules for TlsCert
+	}
+
+	if m.TlsKey != nil {
+		// no validation rules for TlsKey
+	}
+
+	if m.MaxQueryLength != nil {
+		// no validation rules for MaxQueryLength
+	}
+
+	if m.DisableQueryExamples != nil {
+		// no validation rules for DisableQueryExamples
+	}
+
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
+	}
+
+	if m.DisableCommentsParsing != nil {
+		// no validation rules for DisableCommentsParsing
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
 	}
 
 	if len(errors) > 0 {
@@ -10869,6 +11211,7 @@ func (m *ChangeQANMySQLSlowlogAgentParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -10897,10 +11240,63 @@ func (m *ChangeQANMySQLSlowlogAgentParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
 		// no validation rules for EnablePushMetrics
+	}
+
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.TlsCert != nil {
+		// no validation rules for TlsCert
+	}
+
+	if m.TlsKey != nil {
+		// no validation rules for TlsKey
+	}
+
+	if m.MaxQueryLength != nil {
+		// no validation rules for MaxQueryLength
+	}
+
+	if m.DisableQueryExamples != nil {
+		// no validation rules for DisableQueryExamples
+	}
+
+	if m.MaxSlowlogFileSize != nil {
+		// no validation rules for MaxSlowlogFileSize
+	}
+
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
+	}
+
+	if m.DisableCommentsParsing != nil {
+		// no validation rules for DisableCommentsParsing
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
 	}
 
 	if len(errors) > 0 {
@@ -11195,6 +11591,7 @@ func (m *ChangeQANMongoDBProfilerAgentParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -11223,10 +11620,55 @@ func (m *ChangeQANMongoDBProfilerAgentParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
 		// no validation rules for EnablePushMetrics
+	}
+
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.TlsCertificateKey != nil {
+		// no validation rules for TlsCertificateKey
+	}
+
+	if m.TlsCertificateKeyFilePassword != nil {
+		// no validation rules for TlsCertificateKeyFilePassword
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.MaxQueryLength != nil {
+		// no validation rules for MaxQueryLength
+	}
+
+	if m.AuthenticationMechanism != nil {
+		// no validation rules for AuthenticationMechanism
+	}
+
+	if m.AuthenticationDatabase != nil {
+		// no validation rules for AuthenticationDatabase
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
 	}
 
 	if len(errors) > 0 {
@@ -11521,6 +11963,7 @@ func (m *ChangeQANMongoDBMongologAgentParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -11549,10 +11992,55 @@ func (m *ChangeQANMongoDBMongologAgentParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
 		// no validation rules for EnablePushMetrics
+	}
+
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.TlsCertificateKey != nil {
+		// no validation rules for TlsCertificateKey
+	}
+
+	if m.TlsCertificateKeyFilePassword != nil {
+		// no validation rules for TlsCertificateKeyFilePassword
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.MaxQueryLength != nil {
+		// no validation rules for MaxQueryLength
+	}
+
+	if m.AuthenticationMechanism != nil {
+		// no validation rules for AuthenticationMechanism
+	}
+
+	if m.AuthenticationDatabase != nil {
+		// no validation rules for AuthenticationDatabase
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
 	}
 
 	if len(errors) > 0 {
@@ -11856,6 +12344,7 @@ func (m *ChangeQANPostgreSQLPgStatementsAgentParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -11884,10 +12373,51 @@ func (m *ChangeQANPostgreSQLPgStatementsAgentParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
 		// no validation rules for EnablePushMetrics
+	}
+
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.DisableCommentsParsing != nil {
+		// no validation rules for DisableCommentsParsing
+	}
+
+	if m.MaxQueryLength != nil {
+		// no validation rules for MaxQueryLength
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.TlsCert != nil {
+		// no validation rules for TlsCert
+	}
+
+	if m.TlsKey != nil {
+		// no validation rules for TlsKey
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
 	}
 
 	if len(errors) > 0 {
@@ -12193,6 +12723,7 @@ func (m *ChangeQANPostgreSQLPgStatMonitorAgentParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -12221,10 +12752,55 @@ func (m *ChangeQANPostgreSQLPgStatMonitorAgentParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
 		// no validation rules for EnablePushMetrics
+	}
+
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.MaxQueryLength != nil {
+		// no validation rules for MaxQueryLength
+	}
+
+	if m.DisableQueryExamples != nil {
+		// no validation rules for DisableQueryExamples
+	}
+
+	if m.DisableCommentsParsing != nil {
+		// no validation rules for DisableCommentsParsing
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.TlsCert != nil {
+		// no validation rules for TlsCert
+	}
+
+	if m.TlsKey != nil {
+		// no validation rules for TlsKey
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
 	}
 
 	if len(errors) > 0 {
@@ -12505,6 +13081,7 @@ func (m *ChangeRDSExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -12533,10 +13110,31 @@ func (m *ChangeRDSExporterParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
 		// no validation rules for EnablePushMetrics
+	}
+
+	if m.AwsAccessKey != nil {
+		// no validation rules for AwsAccessKey
+	}
+
+	if m.AwsSecretKey != nil {
+		// no validation rules for AwsSecretKey
+	}
+
+	if m.DisableBasicMetrics != nil {
+		// no validation rules for DisableBasicMetrics
+	}
+
+	if m.DisableEnhancedMetrics != nil {
+		// no validation rules for DisableEnhancedMetrics
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
 	}
 
 	if len(errors) > 0 {
@@ -12815,6 +13413,7 @@ func (m *ChangeExternalExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -12843,10 +13442,27 @@ func (m *ChangeExternalExporterParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
 		// no validation rules for EnablePushMetrics
+	}
+
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Scheme != nil {
+		// no validation rules for Scheme
+	}
+
+	if m.MetricsPath != nil {
+		// no validation rules for MetricsPath
+	}
+
+	if m.ListenPort != nil {
+		// no validation rules for ListenPort
 	}
 
 	if len(errors) > 0 {
@@ -13141,6 +13757,7 @@ func (m *ChangeAzureDatabaseExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -13169,10 +13786,35 @@ func (m *ChangeAzureDatabaseExporterParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
 		// no validation rules for EnablePushMetrics
+	}
+
+	if m.AzureClientId != nil {
+		// no validation rules for AzureClientId
+	}
+
+	if m.AzureClientSecret != nil {
+		// no validation rules for AzureClientSecret
+	}
+
+	if m.AzureTenantId != nil {
+		// no validation rules for AzureTenantId
+	}
+
+	if m.AzureSubscriptionId != nil {
+		// no validation rules for AzureSubscriptionId
+	}
+
+	if m.AzureResourceGroup != nil {
+		// no validation rules for AzureResourceGroup
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
 	}
 
 	if len(errors) > 0 {
@@ -13441,6 +14083,8 @@ func (m *AddValkeyExporterParams) validate(all bool) error {
 
 	// no validation rules for ExposeExporter
 
+	// no validation rules for LogLevel
+
 	if len(errors) > 0 {
 		return AddValkeyExporterParamsMultiError(errors)
 	}
@@ -13585,6 +14229,7 @@ func (m *ChangeValkeyExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -13613,10 +14258,62 @@ func (m *ChangeValkeyExporterParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
 		// no validation rules for EnablePushMetrics
+	}
+
+	if m.Username != nil {
+
+		if utf8.RuneCountInString(m.GetUsername()) < 1 {
+			err := ChangeValkeyExporterParamsValidationError{
+				field:  "Username",
+				reason: "value length must be at least 1 runes",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.TlsCert != nil {
+		// no validation rules for TlsCert
+	}
+
+	if m.TlsKey != nil {
+		// no validation rules for TlsKey
+	}
+
+	if m.AgentPassword != nil {
+		// no validation rules for AgentPassword
+	}
+
+	if m.ExposeExporter != nil {
+		// no validation rules for ExposeExporter
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
 	}
 
 	if len(errors) > 0 {
@@ -13764,8 +14461,6 @@ func (m *AddRTAMongoDBAgentParams) validate(all bool) error {
 	// no validation rules for SkipConnectionCheck
 
 	// no validation rules for AuthenticationMechanism
-
-	// no validation rules for AuthenticationDatabase
 
 	if all {
 		switch v := interface{}(m.GetRtaOptions()).(type) {
@@ -14137,6 +14832,150 @@ var _ interface {
 	ErrorName() string
 } = AddOtelCollectorParamsValidationError{}
 
+// Validate checks the field values on ChangeOtelCollectorParams with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ChangeOtelCollectorParams) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ChangeOtelCollectorParams with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ChangeOtelCollectorParamsMultiError, or nil if none found.
+func (m *ChangeOtelCollectorParams) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ChangeOtelCollectorParams) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for MergeLabels
+
+	for idx, item := range m.GetAddLogSources() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeOtelCollectorParamsValidationError{
+						field:  fmt.Sprintf("AddLogSources[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeOtelCollectorParamsValidationError{
+						field:  fmt.Sprintf("AddLogSources[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeOtelCollectorParamsValidationError{
+					field:  fmt.Sprintf("AddLogSources[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	// no validation rules for RemoveLegacyLogFilePaths
+
+	if m.Enable != nil {
+		// no validation rules for Enable
+	}
+
+	if len(errors) > 0 {
+		return ChangeOtelCollectorParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+// ChangeOtelCollectorParamsMultiError is an error wrapping multiple validation
+// errors returned by ChangeOtelCollectorParams.ValidateAll() if the
+// designated constraints aren't met.
+type ChangeOtelCollectorParamsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ChangeOtelCollectorParamsMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ChangeOtelCollectorParamsMultiError) AllErrors() []error { return m }
+
+// ChangeOtelCollectorParamsValidationError is the validation error returned by
+// ChangeOtelCollectorParams.Validate if the designated constraints aren't met.
+type ChangeOtelCollectorParamsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ChangeOtelCollectorParamsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ChangeOtelCollectorParamsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ChangeOtelCollectorParamsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ChangeOtelCollectorParamsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ChangeOtelCollectorParamsValidationError) ErrorName() string {
+	return "ChangeOtelCollectorParamsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ChangeOtelCollectorParamsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sChangeOtelCollectorParams.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ChangeOtelCollectorParamsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ChangeOtelCollectorParamsValidationError{}
+
 // Validate checks the field values on ChangeRTAMongoDBAgentParams with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -14159,40 +14998,12 @@ func (m *ChangeRTAMongoDBAgentParams) validate(all bool) error {
 
 	var errors []error
 
-	if all {
-		switch v := interface{}(m.GetRtaOptions()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeRTAMongoDBAgentParamsValidationError{
-					field:  "RtaOptions",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeRTAMongoDBAgentParamsValidationError{
-					field:  "RtaOptions",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetRtaOptions()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangeRTAMongoDBAgentParamsValidationError{
-				field:  "RtaOptions",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
 	if m.Enable != nil {
 		// no validation rules for Enable
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -14221,6 +15032,76 @@ func (m *ChangeRTAMongoDBAgentParams) validate(all bool) error {
 				}
 			}
 		}
+
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.TlsCertificateKey != nil {
+		// no validation rules for TlsCertificateKey
+	}
+
+	if m.TlsCertificateKeyFilePassword != nil {
+		// no validation rules for TlsCertificateKeyFilePassword
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.AuthenticationMechanism != nil {
+		// no validation rules for AuthenticationMechanism
+	}
+
+	if m.RtaOptions != nil {
+
+		if all {
+			switch v := interface{}(m.GetRtaOptions()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeRTAMongoDBAgentParamsValidationError{
+						field:  "RtaOptions",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeRTAMongoDBAgentParamsValidationError{
+						field:  "RtaOptions",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRtaOptions()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeRTAMongoDBAgentParamsValidationError{
+					field:  "RtaOptions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	}
 
 	if len(errors) > 0 {
