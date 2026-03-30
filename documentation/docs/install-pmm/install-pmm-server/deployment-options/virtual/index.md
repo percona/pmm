@@ -1,6 +1,6 @@
 # Deploy PMM Server as a Virtual Appliance (Deprecated)
 
-OVF virtual appliance deployment is deprecated starting with PMM 3.7.0 and will be removed in PMM 3.9.0 (expected July 2026). If you currently run PMM on a virtual appliance, [migrate to a supported deployment method](#migrate-from-ovf) before that date.
+OVF virtual appliance deployment is deprecated starting with PMM 3.7.0 and will be removed in PMM 3.9.0 (expected July 2026). If you currently run PMM on a virtual appliance, migrate to a supported deployment method before that date.
 
 ### Before you migrate
 
@@ -24,7 +24,6 @@ Once your new PMM Server is running, complete these steps to finish the migratio
 
 1. Re-register all PMM clients to the new server by updating each monitored host. Replace <NEW_PMM_SERVER_IP> with the address of your new PMM Server and update the credentials as needed:
 
-pmm-admin config --server-url=https://admin:admin@<NEW_PMM_SERVER_IP>:443 --server-insecure-tls
 ```bash
 pmm-admin config --server-url=https://admin:admin@<NEW_PMM_SERVER_IP>:443 --server-insecure-tls
 ```
@@ -41,6 +40,20 @@ pmm-admin config --server-url=https://admin:admin@<NEW_PMM_SERVER_IP>:443 --serv
     Historical metrics from the OVF deployment are not automatically transferred to the new server. If you need to preserve historical data, consider running both instances in parallel until the old data ages out of your retention window.
 
 ## Terminology
+
+When working with the PMM Server virtual appliance, it's helpful to understand these terms:
+
+- **Host**: The desktop or server machine running the hypervisor
+- **Hypervisor**: Software (e.g., VirtualBox) that runs the guest OS as a virtual machine
+- **Guest VM**: Virtual machine running PMM Server (Oracle Linux 9.3)
+
+## OVA file details
+
+| Item | Value |
+|------|-------|
+| Download page | https://www.percona.com/downloads/pmm/{{release}}/ova |
+| File name | `pmm-server-{{release}}.ova` |
+| VM name | `pmm-Server-{{release_date}}-N` (`N`=build number) |
 
 ## VM specifications
 
