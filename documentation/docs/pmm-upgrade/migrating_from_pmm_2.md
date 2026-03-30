@@ -280,7 +280,11 @@ Before migrating PMM 2 to PMM 3, ensure your PMM 2 Server is running the latest 
 ## Step 3: Migrate PMM 2 Clients to PMM 3
 
 !!! caution alert alert-warning "Important"
-    PMM 3 Server provides limited support for PMM 2 Clients (metrics and Query Analytics only). This support will be removed in PMM 3.3.
+<<<<<<< HEAD
+    PMM 2 Clients are deprecated. Compatibility with PMM Server 3.4.0 and later is not guaranteed, and transitional support will be removed in a future release. Upgrade to PMM 3 Client as soon as possible to ensure full functionality.
+=======
+    PMM 3 Server provides limited support for PMM 2 Clients (metrics and Query Analytics only).
+>>>>>>> doc_3.6.0
 
 Depending on your initial installation method, update PMM Clients using your operating system's package manager or using a tarball.
 For detailed instructions, see the [Upgrade PMM Client topic](../pmm-upgrade/upgrade_client.md).
@@ -295,7 +299,7 @@ PMM 3 replaces API keys with service accounts to enhance security and simplify a
     Be sure to replace `admin:admin` with your credentials and update the server address to match your PMM Server address (the same URL you use to access the PMM web interface):
 
     ```sh
-    curl -X POST -k https://YOUR PMM SERVER ADDRESS/graph/api/serviceaccounts/migrate \
+    curl -X POST -k https://<pmm-server-address>/graph/api/serviceaccounts/migrate \
     -u admin:admin \
     -H "Content-Type: application/json"
     ```
@@ -312,7 +316,7 @@ PMM 3 replaces API keys with service accounts to enhance security and simplify a
 
 ### Verify the conversion
 	
-To verify that API keys were successfully migrated, go to **Administration > Users and Access > Service Accounts**, where you can check the list of service accounts available and confirm that the **API Keys** menu is no longer displayed.
+To verify that API keys were successfully migrated, go to **Users and Access > Service accounts**, where you can check the list of service accounts available and confirm that the **API Keys** menu is no longer displayed.
 
 If any API keys fail to migrate, you can either: 
 
@@ -324,10 +328,9 @@ If any API keys fail to migrate, you can either:
 After you finish migrating PMM:
 {.power-number}
 
-1. Verify that all PMM Clients are up to date by checking **PMM Configuration > Updates**.
-2. Confirm all previously monitored services are reporting correctly to the new PMM 3 Server by reviewing **Configuration > PMM Inventory > Services**.
+1. Verify that all PMM Clients are up to date by checking **Configuration > Updates**.
+2. Confirm all previously monitored services are reporting correctly to the new PMM 3 Server by reviewing **Inventory > Services**.
 3. Check the dashboards to make sure you're receiving the metrics and QAN data.
-
 
 ### Variables for migrating from PMM v2 to PMM v3
 

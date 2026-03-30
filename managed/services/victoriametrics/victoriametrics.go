@@ -18,6 +18,7 @@ package victoriametrics
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -29,7 +30,6 @@ import (
 
 	"github.com/AlekSi/pointer"
 	config "github.com/percona/promconfig"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 	"google.golang.org/grpc/codes"
@@ -62,15 +62,16 @@ type Service struct {
 
 	params *models.VictoriaMetricsParams
 
-	l        *logrus.Entry
-	reloadCh chan struct{}
+	l         *logrus.Entry
+	reloadCh  chan struct{}
+	haService haService
 }
 
 // NewVictoriaMetrics creates new VictoriaMetrics service.
-func NewVictoriaMetrics(scrapeConfigPath string, db *reform.DB, params *models.VictoriaMetricsParams) (*Service, error) {
+func NewVictoriaMetrics(scrapeConfigPath string, db *reform.DB, params *models.VictoriaMetricsParams, haService haService) (*Service, error) {
 	u, err := url.Parse(params.URL())
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return &Service{
@@ -81,6 +82,7 @@ func NewVictoriaMetrics(scrapeConfigPath string, db *reform.DB, params *models.V
 		params:           params,
 		l:                logrus.WithField("component", "victoriametrics"),
 		reloadCh:         make(chan struct{}, 1),
+		haService:        haService,
 	}, nil
 }
 
@@ -100,7 +102,7 @@ func (svc *Service) Run(ctx context.Context) {
 	}
 
 	// reloadCh, configuration update loop, and RequestConfigurationUpdate method ensure that configuration
-	// is reloaded when requested, but several requests are batched together to avoid too often reloads.
+	// is reloaded when requested, but several requests are batched together to avoid too frequent reloads.
 	// That allows the caller to just call RequestConfigurationUpdate when it seems fit.
 	if cap(svc.reloadCh) != 1 {
 		panic("reloadCh should have capacity 1")
@@ -139,9 +141,34 @@ func (svc *Service) RequestConfigurationUpdate() {
 	}
 }
 
+// ForceConfigurationUpdate triggers immediate synchronous configuration update,
+// bypassing the batch delay. Use this for critical updates like port changes.
+func (svc *Service) ForceConfigurationUpdate(ctx context.Context) error {
+	svc.l.Debug("ForceConfigurationUpdate: triggering immediate configuration update")
+	return svc.updateConfiguration(ctx)
+}
+
+// Start is called when this node becomes the leader in HA mode.
+func (svc *Service) Start(_ context.Context) error { //nolint:unparam
+	svc.l.Info("Became leader, triggering configuration update to include external agents")
+	svc.RequestConfigurationUpdate()
+	return nil
+}
+
+// Stop is called when this node loses leadership in HA mode.
+func (svc *Service) Stop() {
+	svc.l.Info("Lost leadership, triggering configuration update to exclude external agents")
+	svc.RequestConfigurationUpdate()
+}
+
+// ID returns the service identifier.
+func (svc *Service) ID() string {
+	return "victoriametrics"
+}
+
 // updateConfiguration updates VictoriaMetrics configuration.
 func (svc *Service) updateConfiguration(ctx context.Context) error {
-	if svc.params.ExternalVM() {
+	if svc.params.ExternalVM() && !svc.haService.Params().Enabled {
 		return nil
 	}
 	start := time.Now()
@@ -170,22 +197,22 @@ func (svc *Service) reload(ctx context.Context) error {
 	u.Path = path.Join(u.Path, "-", "reload")
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	resp, err := svc.client.Do(req)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	defer resp.Body.Close() //nolint:errcheck,gosec,nolintlint
 
 	b, err := io.ReadAll(resp.Body)
 	svc.l.Debugf("VM reload: %s", b)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	if resp.StatusCode != http.StatusNoContent && resp.StatusCode != http.StatusOK {
-		return errors.Errorf("expected 204, got %d", resp.StatusCode)
+		return fmt.Errorf("expected 204, got %d", resp.StatusCode)
 	}
 	return nil
 }
@@ -220,7 +247,7 @@ func (svc *Service) marshalConfig(base *config.Config) ([]byte, error) {
 
 	b, err := yaml.Marshal(cfg)
 	if err != nil {
-		return nil, errors.Wrap(err, "can't marshal VictoriaMetrics configuration file")
+		return nil, fmt.Errorf("can't marshal VictoriaMetrics configuration file: %w", err)
 	}
 
 	b = append([]byte("# Managed by pmm-managed. DO NOT EDIT.\n---\n"), b...)
@@ -228,14 +255,14 @@ func (svc *Service) marshalConfig(base *config.Config) ([]byte, error) {
 	return b, nil
 }
 
-// validateConfig validates given configuration with `victoriametrics -dryRun`.
+// validateConfig validates given configuration with `victoriametrics -promscrape.config.dryRun`.
 func (svc *Service) validateConfig(ctx context.Context, cfg []byte) error {
 	f, err := os.CreateTemp("", "pmm-managed-config-victoriametrics-")
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	if _, err = f.Write(cfg); err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	defer func() {
 		_ = f.Close()
@@ -250,11 +277,11 @@ func (svc *Service) validateConfig(ctx context.Context, cfg []byte) error {
 	if err != nil {
 		svc.l.Errorf("%s", b)
 		s := string(b)
-		if m := checkFailedRE.FindStringSubmatch(s); len(m) == 2 {
+		if m := checkFailedRE.FindStringSubmatch(s); len(m) == 2 { //nolint:mnd
 			return status.Error(codes.Aborted, m[1])
 		}
 
-		return errors.Wrap(err, s)
+		return fmt.Errorf("can't validate VictoriaMetrics configuration: %w", err)
 	}
 	svc.l.Debugf("%s", b)
 
@@ -265,7 +292,7 @@ func (svc *Service) validateConfig(ctx context.Context, cfg []byte) error {
 	b, err = cmd.CombinedOutput()
 	if err != nil {
 		s := string(b)
-		if m := checkFailedRE.FindStringSubmatch(s); len(m) == 2 {
+		if m := checkFailedRE.FindStringSubmatch(s); len(m) == 2 { //nolint:mnd
 			svc.l.Warnf("VictoriaMetrics scrape configuration contains unsupported params: %s", m[1])
 		} else {
 			svc.l.Warnf("VictoriaMetrics scrape configuration contains unsupported params: %s", b)
@@ -281,12 +308,12 @@ func (svc *Service) validateConfig(ctx context.Context, cfg []byte) error {
 func (svc *Service) configAndReload(ctx context.Context, b []byte) error {
 	oldCfg, err := os.ReadFile(svc.scrapeConfigPath)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	fi, err := os.Stat(svc.scrapeConfigPath)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	// restore old content and reload in case of error
@@ -308,7 +335,7 @@ func (svc *Service) configAndReload(ctx context.Context, b []byte) error {
 
 	restore = true
 	if err = os.WriteFile(svc.scrapeConfigPath, b, fi.Mode()); err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	if err = svc.reload(ctx); err != nil {
 		return err
@@ -326,6 +353,12 @@ func (svc *Service) populateConfig(cfg *config.Config) error {
 		if err != nil {
 			return err
 		}
+
+		pmmServerNodeName := models.PMMServerNodeID
+		if svc.haService.Params().Enabled {
+			pmmServerNodeName = svc.haService.Params().NodeID
+		}
+
 		resolutions := settings.MetricsResolutions
 		if cfg.GlobalConfig.ScrapeInterval == 0 {
 			cfg.GlobalConfig.ScrapeInterval = config.Duration(resolutions.LR)
@@ -333,17 +366,20 @@ func (svc *Service) populateConfig(cfg *config.Config) error {
 		if cfg.GlobalConfig.ScrapeTimeout == 0 {
 			cfg.GlobalConfig.ScrapeTimeout = ScrapeTimeout(resolutions.LR)
 		}
-		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVictoriaMetrics(svc.l, resolutions.HR, svc.params))
-		if svc.params.ExternalVM() {
+		if !svc.params.ExternalVM() && !svc.haService.Params().Enabled {
+			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVictoriaMetrics(svc.l, resolutions.HR, svc.params))
+		}
+		if svc.params.ExternalVM() && !svc.haService.Params().Enabled {
 			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForInternalVMAgent(resolutions.HR, svc.baseURL.Host))
 		}
-		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVMAlert(resolutions.HR))
-		AddInternalServicesToScrape(cfg, resolutions)
+		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVMAlert(resolutions.HR, pmmServerNodeName))
+		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, addInternalServicesToScrape(resolutions, svc, pmmServerNodeName)...)
 		if pointer.GetBool(settings.Nomad.Enabled) {
-			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs,
-				scrapeConfigForNomadServer(resolutions.MR))
+			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForNomadServer(resolutions.MR, pmmServerNodeName))
 		}
-		return AddScrapeConfigs(svc.l, cfg, tx.Querier, &resolutions, nil, false)
+		// In HA mode, skip external exporter agents if this node is not the leader
+		skipExternalAgents := !svc.haService.IsLeader()
+		return AddScrapeConfigs(svc.l, cfg, tx.Querier, &resolutions, nil, false, skipExternalAgents)
 	})
 }
 
@@ -390,7 +426,7 @@ func scrapeConfigForInternalVMAgent(interval time.Duration, target string) *conf
 }
 
 // scrapeConfigForVMAlert returns scrape config for VMAlert in Prometheus format.
-func scrapeConfigForVMAlert(interval time.Duration) *config.ScrapeConfig {
+func scrapeConfigForVMAlert(interval time.Duration, pmmServerNodeName string) *config.ScrapeConfig {
 	return &config.ScrapeConfig{
 		JobName:        "vmalert",
 		ScrapeInterval: config.Duration(interval),
@@ -400,7 +436,7 @@ func scrapeConfigForVMAlert(interval time.Duration) *config.ScrapeConfig {
 			StaticConfigs: []*config.Group{
 				{
 					Targets: []string{"127.0.0.1:8880"},
-					Labels:  map[string]string{"instance": "pmm-server"},
+					Labels:  map[string]string{"instance": pmmServerNodeName},
 				},
 			},
 		},
@@ -408,18 +444,20 @@ func scrapeConfigForVMAlert(interval time.Duration) *config.ScrapeConfig {
 }
 
 // BuildScrapeConfigForVMAgent builds scrape configuration for given pmm-agent.
-func (svc *Service) BuildScrapeConfigForVMAgent(pmmAgentID string) ([]byte, error) {
+func (svc *Service) BuildScrapeConfigForVMAgent(ctx context.Context, pmmAgentID string) ([]byte, error) {
 	if pmmAgentID == models.PMMServerAgentID {
 		return svc.buildVMConfig()
 	}
 	var cfg config.Config
-	e := svc.db.InTransaction(func(tx *reform.TX) error {
+	e := svc.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		settings, err := models.GetSettings(tx)
 		if err != nil {
 			return err
 		}
 		s := settings.MetricsResolutions
-		return AddScrapeConfigs(svc.l, &cfg, tx.Querier, &s, pointer.ToString(pmmAgentID), true)
+		// In HA mode, skip ExternalExporter agents if this node is not the leader
+		skipExternalExporter := !svc.haService.IsLeader()
+		return AddScrapeConfigs(svc.l, &cfg, tx.Querier, &s, pointer.ToString(pmmAgentID), true, skipExternalExporter)
 	})
 	if e != nil {
 		return nil, e
@@ -438,21 +476,21 @@ func (svc *Service) IsReady(ctx context.Context) error {
 	u.Path = path.Join(u.Path, "health")
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	resp, err := svc.client.Do(req)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
-	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
+	defer resp.Body.Close() //nolint:errcheck
 
 	b, err := io.ReadAll(resp.Body)
 	svc.l.Debugf("VM health: %s", b)
 	if err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("can't read VM health response: %w", err)
 	}
 	if resp.StatusCode != http.StatusOK {
-		return errors.Errorf("expected 200, got %d", resp.StatusCode)
+		return fmt.Errorf("expected 200 from VM health endpoint, got %d", resp.StatusCode)
 	}
 
 	return nil

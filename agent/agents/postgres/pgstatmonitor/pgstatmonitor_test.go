@@ -101,8 +101,8 @@ func TestPGStatMonitorSchema(t *testing.T) {
 	defer sqlDB.Close() //nolint:errcheck
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-	engineVersion := tests.PostgreSQLVersion(t, sqlDB)
-	if !supportedVersion(engineVersion) || !extensionExists(db) {
+	majorVersion, _ := tests.PostgreSQLVersion(t, sqlDB)
+	if !supportedVersion(majorVersion) || !extensionExists(db) {
 		t.Skip()
 	}
 
@@ -147,7 +147,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		"$341, $342, $343, $3 ..."
 
 	var digests map[string]string
-	switch engineVersion {
+	switch majorVersion {
 	case "11":
 		digests = map[string]string{
 			selectAllCountries:     "8055E3FCBD5A55B1",
@@ -551,36 +551,42 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				Tables: []string{fmt.Sprintf("public.%s", tableName)},
 			},
 			Postgresql: &agentv1.MetricsBucket_PostgreSQL{
-				MSharedBlkReadTimeCnt: float32(n),
-				MSharedBlkReadTimeSum: actual.Postgresql.MSharedBlkReadTimeSum,
-				MLocalBlkReadTimeCnt:  actual.Postgresql.MLocalBlkReadTimeCnt,
-				MLocalBlkReadTimeSum:  actual.Postgresql.MLocalBlkReadTimeSum,
-				MSharedBlksReadCnt:    actual.Postgresql.MSharedBlksReadCnt,
-				MSharedBlksReadSum:    actual.Postgresql.MSharedBlksReadSum,
-				MSharedBlksWrittenCnt: actual.Postgresql.MSharedBlksWrittenCnt,
-				MSharedBlksWrittenSum: actual.Postgresql.MSharedBlksWrittenSum,
-				MSharedBlksDirtiedCnt: actual.Postgresql.MSharedBlksDirtiedCnt,
-				MSharedBlksDirtiedSum: actual.Postgresql.MSharedBlksDirtiedSum,
-				MSharedBlksHitCnt:     actual.Postgresql.MSharedBlksHitCnt,
-				MSharedBlksHitSum:     actual.Postgresql.MSharedBlksHitSum,
-				MRowsCnt:              float32(n),
-				MRowsSum:              float32(n),
-				MCpuUserTimeCnt:       actual.Postgresql.MCpuUserTimeCnt,
-				MCpuUserTimeSum:       actual.Postgresql.MCpuUserTimeSum,
-				MCpuSysTimeCnt:        actual.Postgresql.MCpuSysTimeCnt,
-				MCpuSysTimeSum:        actual.Postgresql.MCpuSysTimeSum,
-				CmdType:               insertCMDType,
-				HistogramItems:        actual.Postgresql.HistogramItems,
-				MPlansCallsSum:        actual.Postgresql.MPlansCallsSum,
-				MPlansCallsCnt:        actual.Postgresql.MPlansCallsCnt,
-				MPlanTimeCnt:          actual.Postgresql.MPlanTimeCnt,
-				MPlanTimeSum:          actual.Postgresql.MPlanTimeSum,
-				MPlanTimeMin:          actual.Postgresql.MPlanTimeMin,
-				MPlanTimeMax:          actual.Postgresql.MPlanTimeMax,
-				MWalBytesCnt:          actual.Postgresql.MWalBytesCnt,
-				MWalBytesSum:          actual.Postgresql.MWalBytesSum,
-				MWalRecordsSum:        actual.Postgresql.MWalRecordsSum,
-				MWalRecordsCnt:        actual.Postgresql.MWalRecordsCnt,
+				MSharedBlkReadTimeCnt:       float32(n),
+				MSharedBlkReadTimeSum:       actual.Postgresql.MSharedBlkReadTimeSum,
+				MLocalBlkReadTimeCnt:        actual.Postgresql.MLocalBlkReadTimeCnt,
+				MLocalBlkReadTimeSum:        actual.Postgresql.MLocalBlkReadTimeSum,
+				MSharedBlksReadCnt:          actual.Postgresql.MSharedBlksReadCnt,
+				MSharedBlksReadSum:          actual.Postgresql.MSharedBlksReadSum,
+				MSharedBlksWrittenCnt:       actual.Postgresql.MSharedBlksWrittenCnt,
+				MSharedBlksWrittenSum:       actual.Postgresql.MSharedBlksWrittenSum,
+				MSharedBlksDirtiedCnt:       actual.Postgresql.MSharedBlksDirtiedCnt,
+				MSharedBlksDirtiedSum:       actual.Postgresql.MSharedBlksDirtiedSum,
+				MSharedBlksHitCnt:           actual.Postgresql.MSharedBlksHitCnt,
+				MSharedBlksHitSum:           actual.Postgresql.MSharedBlksHitSum,
+				MRowsCnt:                    float32(n),
+				MRowsSum:                    float32(n),
+				MCpuUserTimeCnt:             actual.Postgresql.MCpuUserTimeCnt,
+				MCpuUserTimeSum:             actual.Postgresql.MCpuUserTimeSum,
+				MCpuSysTimeCnt:              actual.Postgresql.MCpuSysTimeCnt,
+				MCpuSysTimeSum:              actual.Postgresql.MCpuSysTimeSum,
+				CmdType:                     insertCMDType,
+				HistogramItems:              actual.Postgresql.HistogramItems,
+				MPlansCallsSum:              actual.Postgresql.MPlansCallsSum,
+				MPlansCallsCnt:              actual.Postgresql.MPlansCallsCnt,
+				MPlanTimeCnt:                actual.Postgresql.MPlanTimeCnt,
+				MPlanTimeSum:                actual.Postgresql.MPlanTimeSum,
+				MPlanTimeMin:                actual.Postgresql.MPlanTimeMin,
+				MPlanTimeMax:                actual.Postgresql.MPlanTimeMax,
+				MWalBytesCnt:                actual.Postgresql.MWalBytesCnt,
+				MWalBytesSum:                actual.Postgresql.MWalBytesSum,
+				MWalRecordsSum:              actual.Postgresql.MWalRecordsSum,
+				MWalRecordsCnt:              actual.Postgresql.MWalRecordsCnt,
+				MWalBuffersFullCnt:          actual.Postgresql.MWalBuffersFullCnt,
+				MWalBuffersFullSum:          actual.Postgresql.MWalBuffersFullSum,
+				MParallelWorkersToLaunchCnt: actual.Postgresql.MParallelWorkersToLaunchCnt,
+				MParallelWorkersToLaunchSum: actual.Postgresql.MParallelWorkersToLaunchSum,
+				MParallelWorkersLaunchedCnt: actual.Postgresql.MParallelWorkersLaunchedCnt,
+				MParallelWorkersLaunchedSum: actual.Postgresql.MParallelWorkersLaunchedSum,
 			},
 		}
 		tests.AssertBucketsEqual(t, expected, actual)

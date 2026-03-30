@@ -20,6 +20,7 @@ export interface User {
   isPMMAdmin: boolean;
   orgs: UserOrg[];
   info: UserInfo;
+  preferences: UserPreferences;
 }
 
 // comes from grafana
@@ -44,9 +45,19 @@ export interface UserOrg {
   role: OrgRole;
 }
 
-export interface UpdatePreferencesBody {
-  theme: ColorMode;
+export interface GetPreferenceResponse {
+  theme?: ColorMode;
+  homeDashboardUID?: string;
+  timezone?: string;
 }
+
+export interface UpdatePreferencesBody {
+  theme?: ColorMode;
+  homeDashboardUID?: string;
+  timezone?: string;
+}
+
+export type UserPreferences = GetPreferenceResponse;
 
 export interface UserInfo {
   userId: number;

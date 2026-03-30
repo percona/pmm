@@ -4,6 +4,11 @@ set -o errexit
 declare PMM_DISTRIBUTION_METHOD="${PMM_DISTRIBUTION_METHOD:-docker}"
 declare CURRENT_GID CURRENT_UID CURRENT_USER
 
+# Returns 0 (true) if the given variable is set to "1" or "true".
+is_enabled() { [ "$1" = "1" ] || [ "$1" = "true" ]; }
+declare POSTGRES_DATA_DIR="/srv/postgres14"
+declare POSTGRES_PASSWORD_FILE="/srv/.postgres_password"
+
 # Get current user info - handle cases where user doesn't exist in passwd
 CURRENT_UID=$(id -u)
 CURRENT_GID=$(id -g)
@@ -31,49 +36,47 @@ if [ "$CURRENT_UID" != "1000" ] || [ "$CURRENT_GID" != "0" ]; then
         exit 1
     fi
 
-    if [ -n "$NSS_WRAPPER_LIB" ]; then
-        echo "Setting up NSS wrapper..."
-        declare NSS_WRAPPER_PASSWD NSS_WRAPPER_GROUP
-        # Set up NSS wrapper for arbitrary UID support
-        NSS_WRAPPER_PASSWD=$(mktemp)
-        NSS_WRAPPER_GROUP=$(mktemp)
-        export NSS_WRAPPER_PASSWD NSS_WRAPPER_GROUP
+    echo "Setting up NSS wrapper..."
+    declare NSS_WRAPPER_PASSWD NSS_WRAPPER_GROUP
+    # Set up NSS wrapper for arbitrary UID support
+    NSS_WRAPPER_PASSWD=$(mktemp)
+    NSS_WRAPPER_GROUP=$(mktemp)
+    export NSS_WRAPPER_PASSWD NSS_WRAPPER_GROUP
 
-        # Cleanup temp files on exit
-        cleanup_nss_wrapper() {
-            [ -f "$NSS_WRAPPER_PASSWD" ] && rm -f "$NSS_WRAPPER_PASSWD"
-            [ -f "$NSS_WRAPPER_GROUP" ] && rm -f "$NSS_WRAPPER_GROUP"
-        }
-        trap cleanup_nss_wrapper EXIT
+    # Cleanup temp files on exit
+    cleanup_nss_wrapper() {
+        [ -f "$NSS_WRAPPER_PASSWD" ] && rm -f "$NSS_WRAPPER_PASSWD"
+        [ -f "$NSS_WRAPPER_GROUP" ] && rm -f "$NSS_WRAPPER_GROUP"
+    }
+    trap cleanup_nss_wrapper EXIT
 
-        # Copy existing passwd and group entries
-        cat /etc/passwd > "$NSS_WRAPPER_PASSWD"
-        cat /etc/group > "$NSS_WRAPPER_GROUP"
+    # Copy existing passwd and group entries
+    cat /etc/passwd > "$NSS_WRAPPER_PASSWD"
+    cat /etc/group > "$NSS_WRAPPER_GROUP"
 
-        # Add current user if not exists (suppress errors if NSS wrapper is not yet active)
-        if ! getent passwd "$CURRENT_UID" > /dev/null 2>&1; then
-            echo "${CURRENT_USER}:x:${CURRENT_UID}:${CURRENT_GID}:PMM User:/srv:/bin/bash" >> "$NSS_WRAPPER_PASSWD"
-        fi
-
-        # Add current group if not exists (suppress errors if NSS wrapper is not yet active)
-        if ! getent group "$CURRENT_GID" > /dev/null 2>&1; then
-            echo "${CURRENT_USER}:x:${CURRENT_GID}:" >> "$NSS_WRAPPER_GROUP"
-        fi
-
-        # Fix LD_PRELOAD assignment to avoid leading colon
-        if [ -n "$LD_PRELOAD" ]; then
-            export LD_PRELOAD="$NSS_WRAPPER_LIB:$LD_PRELOAD"
-        else
-            export LD_PRELOAD="$NSS_WRAPPER_LIB"
-        fi
-        echo "NSS wrapper enabled with $NSS_WRAPPER_LIB"
+    # Add current user if not exists (suppress errors if NSS wrapper is not yet active)
+    if ! getent passwd "$CURRENT_UID" > /dev/null 2>&1; then
+        echo "${CURRENT_USER}:x:${CURRENT_UID}:${CURRENT_GID}:PMM User:/srv:/bin/bash" >> "$NSS_WRAPPER_PASSWD"
     fi
+
+    # Add current group if not exists (suppress errors if NSS wrapper is not yet active)
+    if ! getent group "$CURRENT_GID" > /dev/null 2>&1; then
+        echo "${CURRENT_USER}:x:${CURRENT_GID}:" >> "$NSS_WRAPPER_GROUP"
+    fi
+
+    # Fix LD_PRELOAD assignment to avoid leading colon
+    if [ -n "$LD_PRELOAD" ]; then
+        export LD_PRELOAD="$NSS_WRAPPER_LIB:$LD_PRELOAD"
+    else
+        export LD_PRELOAD="$NSS_WRAPPER_LIB"
+    fi
+    echo "NSS wrapper enabled with $NSS_WRAPPER_LIB"
 fi
 
 # Check /usr/share/pmm-server directory on every start
 echo "Checking /usr/share/pmm-server directory structure..."
 # Still ensure critical directories exist, but don't create empty ones
-if [ ! -d "/usr/share/pmm-server/nginx" ]; then 
+if [ ! -d "/usr/share/pmm-server/nginx" ]; then
     echo "Creating nginx temp directories..."
     mkdir -p /usr/share/pmm-server/nginx/{client_temp,proxy_temp,fastcgi_temp,uwsgi_temp,scgi_temp}
 fi
@@ -93,30 +96,89 @@ if [ ! -f "$DIST_FILE" ]; then
     mkdir -p /srv/grafana/plugins
     cp -r /usr/share/percona-dashboards/panels/* /srv/grafana/plugins
 
-    echo "Initializing Postgres..."
-    install -d -m 750 /srv/postgres14
-    /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth=trust --username=postgres
+    if is_enabled "$PMM_HA_ENABLE"; then
+        echo "Skipping embedded PostgreSQL initialization in HA mode."
+    elif is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES"; then
+        echo "Skipping embedded PostgreSQL initialization (builtin PostgreSQL is disabled)."
+    else
+        echo "Initializing Postgres..."
+        install -d -m 750 "$POSTGRES_DATA_DIR"
 
-    echo "Enabling pg_stat_statements extension for PostgreSQL..."
-    /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14
-    /usr/bin/psql postgres postgres -c 'CREATE EXTENSION pg_stat_statements SCHEMA public'
-    /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
+        # Generate a random password for postgres superuser
+        declare POSTGRES_PASSWORD
+        POSTGRES_PASSWORD=$(openssl rand -hex 16)
+
+        # Store the password securely with restricted permissions
+        echo -n "$POSTGRES_PASSWORD" > "$POSTGRES_PASSWORD_FILE"
+        chmod 600 "$POSTGRES_PASSWORD_FILE"
+
+        # Initialize database with password authentication
+        /usr/pgsql-14/bin/initdb -D "$POSTGRES_DATA_DIR" --auth-host=scram-sha-256 --auth-local=trust --username=postgres --pwfile="$POSTGRES_PASSWORD_FILE"
+
+        echo "Enabling pg_stat_statements extension for PostgreSQL..."
+        /usr/pgsql-14/bin/pg_ctl start -D "$POSTGRES_DATA_DIR" -o "-c logging_collector=off"
+        PGPASSWORD="$POSTGRES_PASSWORD" /usr/bin/psql -U postgres -h /run/postgresql -d postgres -c 'CREATE EXTENSION pg_stat_statements SCHEMA public'
+        /usr/pgsql-14/bin/pg_ctl stop -D "$POSTGRES_DATA_DIR"
+
+        # Clean up password from environment
+        unset POSTGRES_PASSWORD
+    fi
+fi
+
+if is_enabled "$PMM_HA_ENABLE"; then
+    echo "Skipping embedded PostgreSQL migration in HA mode."
+elif is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES"; then
+    echo "Skipping embedded PostgreSQL migration (builtin PostgreSQL is disabled)."
+else
+    bash /opt/ansible/roles/postgres/files/postgres-migration
 fi
 
 echo "Generating self-signed certificates for nginx..."
-bash /var/lib/cloud/scripts/per-boot/generate-ssl-certificate
+bash /var/lib/cloud/scripts/per-boot/generate-ssl-certificate > /dev/null 2>&1
 
-# Ensure /srv/postgres14 has the correct permissions
-chmod 750 /srv/postgres14 || true
+# Ensure POSTGRES_DATA_DIR has the correct permissions
+chmod 750 "$POSTGRES_DATA_DIR" || true
 
 echo "Checking nginx configuration..."
-if ! nginx -t; then
+if ! nginx -t -e /dev/stdout; then
     echo "Nginx configuration test failed, exiting..."
     exit 1
 fi
 
 # pmm-managed-init validates environment variables.
 pmm-managed-init
+
+declare AGENT_CONFIG_DIR="/usr/local/percona/pmm/config"
+declare AGENT_ID=pmm-server
+
+if is_enabled "$PMM_HA_ENABLE"; then
+    echo "High Availability mode is enabled."
+    if [ -f "$AGENT_CONFIG_DIR/pmm-agent.yaml" ]; then
+        rm -f "$AGENT_CONFIG_DIR/pmm-agent.yaml"
+    fi
+
+    AGENT_CONFIG_DIR="/srv/pmm-agent/config"
+    if [ ! -d "$AGENT_CONFIG_DIR" ]; then
+        echo "Creating pmm-agent config directory..."
+        install -d -m 770 "$AGENT_CONFIG_DIR"
+    fi
+
+    AGENT_ID="$(uuidgen)"
+fi
+
+if [ ! -f "$AGENT_CONFIG_DIR/pmm-agent.yaml" ]; then
+  echo "Creating pmm-agent configuration..."
+  pmm-agent setup \
+      --config-file="$AGENT_CONFIG_DIR/pmm-agent.yaml" \
+      --skip-registration \
+      --id="$AGENT_ID" \
+      --paths-tempdir=/srv/pmm-agent/tmp \
+      --paths-nomad-data-dir=/srv/nomad/data \
+      --server-address=127.0.0.1:8443 \
+      --server-insecure-tls
+fi
+
+unset AGENT_CONFIG_DIR AGENT_ID
 
 # Start supervisor in foreground
 exec supervisord -n -c /etc/supervisord.conf

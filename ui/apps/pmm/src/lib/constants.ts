@@ -2,7 +2,8 @@ import { AdvisorFamily, AdvisorInterval } from 'types/advisors.types';
 import { ServiceType } from 'types/services.types';
 
 export const PMM_TITLE = 'Percona Monitoring and Management';
-export const PMM_NEW_NAV_PATH = '/next';
+// todo: remove completely in a follow up to reduce current scope
+export const PMM_NEW_NAV_PATH = '';
 export const GRAFANA_SUB_PATH = '/graph';
 export const PMM_BASE_PATH = `/pmm-ui${PMM_NEW_NAV_PATH}`;
 export const PMM_NEW_NAV_GRAFANA_PATH = `${PMM_NEW_NAV_PATH}${GRAFANA_SUB_PATH}`;
@@ -41,9 +42,17 @@ export const ALL_SERVICE_TYPES = [
   ServiceType.mysql,
   ServiceType.posgresql,
   ServiceType.proxysql,
+  ServiceType.valkey,
 ];
 
 // 5 seconds
 export const SHOW_UPDATE_INFO_DELAY_MS = 5000;
 // 1 hour
 export const SHOW_UPDATE_MODAL_AFTER_MS = 60 * 60 * 1000;
+
+export const DOCS_URLS = {
+  qan: 'https://per.co.na/QAN',
+  forums: 'https://per.co.na/PMM3_forums',
+};
+
+export const TIME_FORMAT = 'yyyy-MM-dd HH:mm:ss';

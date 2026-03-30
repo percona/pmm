@@ -82,7 +82,7 @@ func (u *StateUpdater) UpdateAgentsState(ctx context.Context) error {
 		return errors.Wrap(err, "cannot find pmmAgentsIDs for AgentsState update")
 	}
 	var wg sync.WaitGroup
-	limiter := make(chan struct{}, 10)
+	limiter := make(chan struct{}, 10) //nolint:mnd
 	for _, pmmAgentID := range pmmAgents {
 		wg.Add(1)
 		limiter <- struct{}{}
@@ -140,7 +140,7 @@ func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent *pmmAgen
 }
 
 // sendSetStateRequest sends SetStateRequest to given pmm-agent.
-func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentInfo) error { //nolint:cyclop
+func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentInfo) error { //nolint:cyclop,maintidx
 	l := logger.Get(ctx)
 	start := time.Now()
 	defer func() {
@@ -165,6 +165,8 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 	filters := models.AgentFilters{
 		PMMAgentID:  agent.id,
 		IgnoreNomad: !settings.IsNomadEnabled(),
+		// fetch enabled only
+		Disabled: pointer.To(false),
 	}
 	agents, err := models.FindAgents(u.db.Querier, filters)
 	if err != nil {
@@ -180,15 +182,11 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 	agentProcesses := make(map[string]*agentv1.SetStateRequest_AgentProcess)
 	builtinAgents := make(map[string]*agentv1.SetStateRequest_BuiltinAgent)
 	for _, row := range agents {
-		if row.Disabled {
-			continue
-		}
-
 		switch row.AgentType {
 		case models.PMMAgentType:
 			continue
 		case models.VMAgentType:
-			scrapeCfg, err := u.vmdb.BuildScrapeConfigForVMAgent(agent.id)
+			scrapeCfg, err := u.vmdb.BuildScrapeConfigForVMAgent(ctx, agent.id)
 			if err != nil {
 				return errors.Wrapf(err, "cannot get agent scrape config for agent: %s", agent.id)
 			}
@@ -241,7 +239,8 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		case models.MySQLdExporterType, models.MongoDBExporterType, models.PostgresExporterType, models.ProxySQLExporterType,
 			models.ValkeyExporterType, models.QANMySQLPerfSchemaAgentType, models.QANMySQLSlowlogAgentType,
 			models.QANMongoDBProfilerAgentType, models.QANMongoDBMongologAgentType,
-			models.QANPostgreSQLPgStatementsAgentType, models.QANPostgreSQLPgStatMonitorAgentType:
+			models.QANPostgreSQLPgStatementsAgentType, models.QANPostgreSQLPgStatMonitorAgentType,
+			models.RTAMongoDBAgentType:
 			service, err := models.FindServiceByID(u.db.Querier, pointer.GetString(row.ServiceID))
 			if err != nil {
 				return err
@@ -282,6 +281,8 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 				builtinAgents[row.AgentID] = qanPostgreSQLPgStatementsAgentConfig(service, row, pmmAgentVersion)
 			case models.QANPostgreSQLPgStatMonitorAgentType:
 				builtinAgents[row.AgentID] = qanPostgreSQLPgStatMonitorAgentConfig(service, row, pmmAgentVersion)
+			case models.RTAMongoDBAgentType:
+				builtinAgents[row.AgentID] = rtaMongoDBAgentConfig(service, row, pmmAgentVersion)
 			}
 
 		default:

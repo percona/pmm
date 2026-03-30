@@ -5149,6 +5149,145 @@
         }
       }
     },
+    "/v1/ha/nodes": {
+      "get": {
+        "description": "Returns a list of all nodes in the High Availability cluster with their current status and roles.",
+        "tags": [
+          "HAService"
+        ],
+        "summary": "List HA Nodes",
+        "operationId": "ListNodesMixin12",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "nodes": {
+                  "description": "List of nodes in the HA cluster.",
+                  "type": "array",
+                  "items": {
+                    "description": "HANode represents a single node in the HA cluster.",
+                    "type": "object",
+                    "properties": {
+                      "node_name": {
+                        "description": "Human-readable name of the node.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "role": {
+                        "description": "NodeRole represents the role of a node in the HA cluster.",
+                        "type": "string",
+                        "default": "NODE_ROLE_UNSPECIFIED",
+                        "enum": [
+                          "NODE_ROLE_UNSPECIFIED",
+                          "NODE_ROLE_LEADER",
+                          "NODE_ROLE_FOLLOWER"
+                        ],
+                        "x-order": 1
+                      },
+                      "status": {
+                        "description": "Current status of the node from MemberList.",
+                        "type": "string",
+                        "x-order": 2
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/ha/status": {
+      "get": {
+        "description": "Returns whether High Availability mode is enabled or disabled.",
+        "tags": [
+          "HAService"
+        ],
+        "summary": "HA Status",
+        "operationId": "Status",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "description": "Status of HA mode: \"Enabled\" or \"Disabled\".",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/inventory/agents": {
       "get": {
         "description": "Returns a list of all Agents.",
@@ -5196,7 +5335,8 @@
               "AGENT_TYPE_EXTERNAL_EXPORTER",
               "AGENT_TYPE_RDS_EXPORTER",
               "AGENT_TYPE_AZURE_DATABASE_EXPORTER",
-              "AGENT_TYPE_NOMAD_AGENT"
+              "AGENT_TYPE_NOMAD_AGENT",
+              "AGENT_TYPE_RTA_MONGODB_AGENT"
             ],
             "type": "string",
             "default": "AGENT_TYPE_UNSPECIFIED",
@@ -5685,7 +5825,7 @@
                         "x-order": 13
                       },
                       "enable_all_collectors": {
-                        "description": "Enable All collectors.",
+                        "description": "Enable all collectors.",
                         "type": "boolean",
                         "x-order": 14
                       },
@@ -5735,6 +5875,14 @@
                           }
                         },
                         "x-order": 18
+                      },
+                      "environment_variable_names": {
+                        "description": "Environment variable names passed to the exporter.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 19
                       }
                     }
                   },
@@ -6770,6 +6918,22 @@
                         "description": "Skip TLS certificate and hostname verification.",
                         "type": "boolean",
                         "x-order": 12
+                      },
+                      "status": {
+                        "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                        "type": "string",
+                        "default": "AGENT_STATUS_UNSPECIFIED",
+                        "enum": [
+                          "AGENT_STATUS_UNSPECIFIED",
+                          "AGENT_STATUS_STARTING",
+                          "AGENT_STATUS_INITIALIZATION_ERROR",
+                          "AGENT_STATUS_RUNNING",
+                          "AGENT_STATUS_WAITING",
+                          "AGENT_STATUS_STOPPING",
+                          "AGENT_STATUS_DONE",
+                          "AGENT_STATUS_UNKNOWN"
+                        ],
+                        "x-order": 13
                       }
                     }
                   },
@@ -7190,6 +7354,102 @@
                     }
                   },
                   "x-order": 17
+                },
+                "rta_mongodb_agent": {
+                  "type": "array",
+                  "items": {
+                    "description": "RTAMongoDBAgent runs within pmm-agent and sends MongoDB Real-Time Query Analytics data to the PMM Server.",
+                    "type": "object",
+                    "properties": {
+                      "agent_id": {
+                        "description": "Unique agent identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "pmm_agent_id": {
+                        "description": "The pmm-agent identifier which runs this instance.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "disabled": {
+                        "description": "Desired Agent status: enabled (false) or disabled (true).",
+                        "type": "boolean",
+                        "x-order": 2
+                      },
+                      "service_id": {
+                        "description": "Service identifier.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "username": {
+                        "description": "MongoDB username for getting profiler data.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "tls": {
+                        "description": "Use TLS for database connections.",
+                        "type": "boolean",
+                        "x-order": 5
+                      },
+                      "tls_skip_verify": {
+                        "description": "Skip TLS certificate and hostname validation.",
+                        "type": "boolean",
+                        "x-order": 6
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 7
+                      },
+                      "rta_options": {
+                        "description": "RTAOptions holds Real-Time Query Analytics agent options.",
+                        "type": "object",
+                        "properties": {
+                          "collect_interval": {
+                            "description": "Query collect interval (default 2s is set by server).",
+                            "type": "string",
+                            "x-order": 0
+                          }
+                        },
+                        "x-order": 8
+                      },
+                      "status": {
+                        "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                        "type": "string",
+                        "default": "AGENT_STATUS_UNSPECIFIED",
+                        "enum": [
+                          "AGENT_STATUS_UNSPECIFIED",
+                          "AGENT_STATUS_STARTING",
+                          "AGENT_STATUS_INITIALIZATION_ERROR",
+                          "AGENT_STATUS_RUNNING",
+                          "AGENT_STATUS_WAITING",
+                          "AGENT_STATUS_STOPPING",
+                          "AGENT_STATUS_DONE",
+                          "AGENT_STATUS_UNKNOWN"
+                        ],
+                        "x-order": 9
+                      },
+                      "log_level": {
+                        "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                        "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "LOG_LEVEL_UNSPECIFIED",
+                        "enum": [
+                          "LOG_LEVEL_UNSPECIFIED",
+                          "LOG_LEVEL_FATAL",
+                          "LOG_LEVEL_ERROR",
+                          "LOG_LEVEL_WARN",
+                          "LOG_LEVEL_INFO",
+                          "LOG_LEVEL_DEBUG"
+                        ],
+                        "x-order": 10
+                      }
+                    }
+                  },
+                  "x-order": 18
                 }
               }
             }
@@ -7551,6 +7811,19 @@
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 19
+                    },
+                    "environment_variable_names": {
+                      "description": "Environment variable names to pass to the exporter.\nValues will be resolved from pmm-agent's environment when starting the exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 20
+                    },
+                    "enable_all_collectors": {
+                      "description": "Enable all collectors.",
+                      "type": "boolean",
+                      "x-order": 21
                     }
                   },
                   "x-order": 3
@@ -8013,9 +8286,9 @@
                       "x-order": 8
                     },
                     "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                       "type": "integer",
                       "format": "int32",
-                      "title": "Limit query length in QAN (default: server-defined; -1: no limit)",
                       "x-order": 9
                     },
                     "disable_query_examples": {
@@ -8634,9 +8907,120 @@
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 14
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-order": 15
                     }
                   },
                   "x-order": 15
+                },
+                "rta_mongodb_agent": {
+                  "type": "object",
+                  "properties": {
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "username": {
+                      "description": "MongoDB username for getting queries data.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "password": {
+                      "description": "MongoDB password for getting queries data.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 4
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-order": 5
+                    },
+                    "tls": {
+                      "description": "MongoDB specific options.\nUse TLS for database connections.",
+                      "type": "boolean",
+                      "x-order": 6
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-order": 7
+                    },
+                    "tls_certificate_key": {
+                      "description": "Client certificate and key.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "tls_certificate_key_file_password": {
+                      "description": "Password for decrypting tls_certificate_key.",
+                      "type": "string",
+                      "x-order": 9
+                    },
+                    "tls_ca": {
+                      "description": "Certificate Authority certificate chain.",
+                      "type": "string",
+                      "x-order": 10
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-order": 11
+                    },
+                    "authentication_mechanism": {
+                      "description": "Authentication mechanism.\nSee https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism\nfor details.",
+                      "type": "string",
+                      "x-order": 12
+                    },
+                    "rta_options": {
+                      "description": "RTAOptions holds Real-Time Query Analytics agent options.",
+                      "type": "object",
+                      "properties": {
+                        "collect_interval": {
+                          "description": "Query collect interval (default 2s is set by server).",
+                          "type": "string",
+                          "x-order": 0
+                        }
+                      },
+                      "x-order": 13
+                    }
+                  },
+                  "x-order": 16
                 }
               }
             }
@@ -9064,7 +9448,7 @@
                       "x-order": 13
                     },
                     "enable_all_collectors": {
-                      "description": "Enable All collectors.",
+                      "description": "Enable all collectors.",
                       "type": "boolean",
                       "x-order": 14
                     },
@@ -9114,6 +9498,14 @@
                         }
                       },
                       "x-order": 18
+                    },
+                    "environment_variable_names": {
+                      "description": "Environment variable names passed to the exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 19
                     }
                   },
                   "x-order": 3
@@ -9483,6 +9875,22 @@
                       "description": "Skip TLS certificate and hostname verification.",
                       "type": "boolean",
                       "x-order": 12
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "AGENT_STATUS_UNSPECIFIED",
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_INITIALIZATION_ERROR",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
+                      ],
+                      "x-order": 13
                     }
                   },
                   "x-order": 6
@@ -10481,6 +10889,99 @@
                     }
                   },
                   "x-order": 15
+                },
+                "rta_mongodb_agent": {
+                  "description": "RTAMongoDBAgent runs within pmm-agent and sends MongoDB Real-Time Query Analytics data to the PMM Server.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique agent identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "username": {
+                      "description": "MongoDB username for getting profiler data.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-order": 6
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 7
+                    },
+                    "rta_options": {
+                      "description": "RTAOptions holds Real-Time Query Analytics agent options.",
+                      "type": "object",
+                      "properties": {
+                        "collect_interval": {
+                          "description": "Query collect interval (default 2s is set by server).",
+                          "type": "string",
+                          "x-order": 0
+                        }
+                      },
+                      "x-order": 8
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "AGENT_STATUS_UNSPECIFIED",
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_INITIALIZATION_ERROR",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
+                      ],
+                      "x-order": 9
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-order": 10
+                    }
+                  },
+                  "x-order": 16
                 }
               }
             }
@@ -11002,7 +11503,7 @@
                       "x-order": 13
                     },
                     "enable_all_collectors": {
-                      "description": "Enable All collectors.",
+                      "description": "Enable all collectors.",
                       "type": "boolean",
                       "x-order": 14
                     },
@@ -11052,6 +11553,14 @@
                         }
                       },
                       "x-order": 18
+                    },
+                    "environment_variable_names": {
+                      "description": "Environment variable names passed to the exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 19
                     }
                   },
                   "x-order": 4
@@ -12060,6 +12569,22 @@
                       "description": "Skip TLS certificate and hostname verification.",
                       "type": "boolean",
                       "x-order": 12
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "AGENT_STATUS_UNSPECIFIED",
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_INITIALIZATION_ERROR",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
+                      ],
+                      "x-order": 13
                     }
                   },
                   "x-order": 13
@@ -12467,6 +12992,99 @@
                     }
                   },
                   "x-order": 17
+                },
+                "rta_mongodb_agent": {
+                  "description": "RTAMongoDBAgent runs within pmm-agent and sends MongoDB Real-Time Query Analytics data to the PMM Server.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique agent identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "username": {
+                      "description": "MongoDB username for getting profiler data.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-order": 6
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 7
+                    },
+                    "rta_options": {
+                      "description": "RTAOptions holds Real-Time Query Analytics agent options.",
+                      "type": "object",
+                      "properties": {
+                        "collect_interval": {
+                          "description": "Query collect interval (default 2s is set by server).",
+                          "type": "string",
+                          "x-order": 0
+                        }
+                      },
+                      "x-order": 8
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "AGENT_STATUS_UNSPECIFIED",
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_INITIALIZATION_ERROR",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
+                      ],
+                      "x-order": 9
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-order": 10
+                    }
+                  },
+                  "x-order": 18
                 }
               }
             }
@@ -12576,6 +13194,36 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "disable_collectors": {
+                      "description": "List of collector names to disable in this exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 4
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-nullable": true,
+                      "x-order": 5
+                    },
+                    "expose_exporter": {
+                      "description": "Expose the node_exporter process on all public interfaces.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 6
                     }
                   },
                   "x-order": 0
@@ -12631,6 +13279,97 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "username": {
+                      "description": "MySQL username for scraping metrics.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "password": {
+                      "description": "MySQL password for scraping metrics.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 5
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 6
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 7
+                    },
+                    "tls_ca": {
+                      "description": "Certificate Authority certificate chain.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 8
+                    },
+                    "tls_cert": {
+                      "description": "Client certificate.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 9
+                    },
+                    "tls_key": {
+                      "description": "Password for decrypting tls_cert.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 10
+                    },
+                    "tablestats_group_table_limit": {
+                      "description": "Tablestats group collectors will be disabled if there are more than that number of tables.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-nullable": true,
+                      "x-order": 11
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 12
+                    },
+                    "disable_collectors": {
+                      "description": "List of collector names to disable in this exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 13
+                    },
+                    "agent_password": {
+                      "description": "Custom password for exporter endpoint /metrics.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 14
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-nullable": true,
+                      "x-order": 15
+                    },
+                    "expose_exporter": {
+                      "description": "Optionally expose the exporter process on all public interfaces.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 16
                     }
                   },
                   "x-order": 1
@@ -12686,6 +13425,123 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "username": {
+                      "description": "MongoDB username for scraping metrics.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "password": {
+                      "description": "MongoDB password for scraping metrics.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 5
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 6
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 7
+                    },
+                    "tls_certificate_key": {
+                      "description": "Client certificate and key.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 8
+                    },
+                    "tls_certificate_key_file_password": {
+                      "description": "Password for decrypting tls_certificate_key.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 9
+                    },
+                    "tls_ca": {
+                      "description": "Certificate Authority certificate chain.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 10
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 11
+                    },
+                    "disable_collectors": {
+                      "description": "List of collector names to disable in this exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 12
+                    },
+                    "authentication_mechanism": {
+                      "description": "Authentication mechanism.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 13
+                    },
+                    "authentication_database": {
+                      "description": "Authentication database.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 14
+                    },
+                    "agent_password": {
+                      "description": "Custom password for exporter endpoint /metrics.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 15
+                    },
+                    "stats_collections": {
+                      "type": "array",
+                      "title": "List of collections to get stats from. Can use *",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 16
+                    },
+                    "collections_limit": {
+                      "type": "integer",
+                      "format": "int32",
+                      "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server is less than this value. 0: no limit",
+                      "x-nullable": true,
+                      "x-order": 17
+                    },
+                    "enable_all_collectors": {
+                      "description": "Enable all collectors.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 18
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-nullable": true,
+                      "x-order": 19
+                    },
+                    "expose_exporter": {
+                      "description": "Optionally expose the exporter process on all public interfaces.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 20
                     }
                   },
                   "x-order": 2
@@ -12741,6 +13597,104 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "username": {
+                      "description": "PostgreSQL username for scraping metrics.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "password": {
+                      "description": "PostgreSQL password for scraping metrics.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 5
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 6
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 7
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 8
+                    },
+                    "disable_collectors": {
+                      "description": "List of collector names to disable in this exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
+                    "tls_ca": {
+                      "description": "TLS CA certificate.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 10
+                    },
+                    "tls_cert": {
+                      "description": "TLS Certificate.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 11
+                    },
+                    "tls_key": {
+                      "description": "TLS Certificate Key.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 12
+                    },
+                    "agent_password": {
+                      "description": "Custom password for exporter endpoint /metrics.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 13
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-nullable": true,
+                      "x-order": 14
+                    },
+                    "auto_discovery_limit": {
+                      "description": "Limit of databases for auto-discovery.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-nullable": true,
+                      "x-order": 15
+                    },
+                    "expose_exporter": {
+                      "description": "Optionally expose the exporter process on all public interfaces.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 16
+                    },
+                    "max_exporter_connections": {
+                      "description": "Maximum number of connections that exporter can open to the database instance.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-nullable": true,
+                      "x-order": 17
                     }
                   },
                   "x-order": 3
@@ -12796,6 +13750,66 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "username": {
+                      "description": "ProxySQL username for scraping metrics.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "password": {
+                      "description": "ProxySQL password for scraping metrics.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 5
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 6
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 7
+                    },
+                    "disable_collectors": {
+                      "description": "List of collector names to disable in this exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 8
+                    },
+                    "agent_password": {
+                      "description": "Custom password for exporter endpoint /metrics.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 9
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-nullable": true,
+                      "x-order": 10
+                    },
+                    "expose_exporter": {
+                      "description": "Optionally expose the exporter process on all public interfaces.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 11
                     }
                   },
                   "x-order": 4
@@ -12851,6 +13865,31 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "username": {
+                      "description": "HTTP basic auth username for collecting metrics.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "scheme": {
+                      "description": "Scheme to generate URI to exporter metrics endpoints.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 5
+                    },
+                    "metrics_path": {
+                      "description": "Path under which metrics are exposed, used to generate URI.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 6
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-nullable": true,
+                      "x-order": 7
                     }
                   },
                   "x-order": 5
@@ -12906,6 +13945,46 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "aws_access_key": {
+                      "description": "AWS Access Key.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "aws_secret_key": {
+                      "description": "AWS Secret Key.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 5
+                    },
+                    "disable_basic_metrics": {
+                      "description": "Disable basic metrics.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 6
+                    },
+                    "disable_enhanced_metrics": {
+                      "description": "Disable enhanced metrics.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 7
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-nullable": true,
+                      "x-order": 8
                     }
                   },
                   "x-order": 6
@@ -12961,6 +14040,52 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "azure_client_id": {
+                      "type": "string",
+                      "title": "Azure client ID",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "azure_client_secret": {
+                      "type": "string",
+                      "title": "Azure client secret",
+                      "x-nullable": true,
+                      "x-order": 5
+                    },
+                    "azure_tenant_id": {
+                      "type": "string",
+                      "title": "Azure tenant ID",
+                      "x-nullable": true,
+                      "x-order": 6
+                    },
+                    "azure_subscription_id": {
+                      "type": "string",
+                      "title": "Azure subscription ID",
+                      "x-nullable": true,
+                      "x-order": 7
+                    },
+                    "azure_resource_group": {
+                      "description": "Azure resource group.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 8
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-nullable": true,
+                      "x-order": 9
                     }
                   },
                   "x-order": 7
@@ -13016,6 +14141,89 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "username": {
+                      "description": "MySQL username for getting performance data.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "password": {
+                      "description": "MySQL password for getting performance data.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 5
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 6
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 7
+                    },
+                    "tls_ca": {
+                      "description": "Certificate Authority certificate chain.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 8
+                    },
+                    "tls_cert": {
+                      "description": "Client certificate.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 9
+                    },
+                    "tls_key": {
+                      "description": "Password for decrypting tls_cert.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 10
+                    },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-nullable": true,
+                      "x-order": 11
+                    },
+                    "disable_query_examples": {
+                      "description": "Disable query examples.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 12
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 13
+                    },
+                    "disable_comments_parsing": {
+                      "description": "Disable parsing comments from queries and showing them in QAN.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 14
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-nullable": true,
+                      "x-order": 15
                     }
                   },
                   "x-order": 8
@@ -13071,6 +14279,96 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "username": {
+                      "description": "MySQL username for getting slowlog data.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "password": {
+                      "description": "MySQL password for getting slowlog data.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 5
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 6
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 7
+                    },
+                    "tls_ca": {
+                      "description": "Certificate Authority certificate chain.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 8
+                    },
+                    "tls_cert": {
+                      "description": "Client certificate.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 9
+                    },
+                    "tls_key": {
+                      "description": "Password for decrypting tls_cert.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 10
+                    },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-nullable": true,
+                      "x-order": 11
+                    },
+                    "disable_query_examples": {
+                      "description": "Disable query examples.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 12
+                    },
+                    "max_slowlog_file_size": {
+                      "description": "Rotate slowlog file at this size if \u003e 0.",
+                      "type": "string",
+                      "format": "int64",
+                      "x-nullable": true,
+                      "x-order": 13
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 14
+                    },
+                    "disable_comments_parsing": {
+                      "description": "Disable parsing comments from queries and showing them in QAN.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 15
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-nullable": true,
+                      "x-order": 16
                     }
                   },
                   "x-order": 9
@@ -13126,6 +14424,83 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "username": {
+                      "description": "MongoDB username for getting profile data.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "password": {
+                      "description": "MongoDB password for getting profile data.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 5
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 6
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 7
+                    },
+                    "tls_certificate_key": {
+                      "description": "Client certificate and key.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 8
+                    },
+                    "tls_certificate_key_file_password": {
+                      "description": "Password for decrypting tls_certificate_key.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 9
+                    },
+                    "tls_ca": {
+                      "description": "Certificate Authority certificate chain.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 10
+                    },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-nullable": true,
+                      "x-order": 11
+                    },
+                    "authentication_mechanism": {
+                      "description": "Authentication mechanism.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 12
+                    },
+                    "authentication_database": {
+                      "description": "Authentication database.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 13
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-nullable": true,
+                      "x-order": 14
                     }
                   },
                   "x-order": 10
@@ -13181,6 +14556,83 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "username": {
+                      "description": "MongoDB username for getting mongolog data.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "password": {
+                      "description": "MongoDB password for getting mongolog data.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 5
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 6
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 7
+                    },
+                    "tls_certificate_key": {
+                      "description": "Client certificate and key.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 8
+                    },
+                    "tls_certificate_key_file_password": {
+                      "description": "Password for decrypting tls_certificate_key.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 9
+                    },
+                    "tls_ca": {
+                      "description": "Certificate Authority certificate chain.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 10
+                    },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-nullable": true,
+                      "x-order": 11
+                    },
+                    "authentication_mechanism": {
+                      "description": "Authentication mechanism.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 12
+                    },
+                    "authentication_database": {
+                      "description": "Authentication database.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 13
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-nullable": true,
+                      "x-order": 14
                     }
                   },
                   "x-order": 11
@@ -13236,6 +14688,77 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "username": {
+                      "description": "PostgreSQL username for getting pg stat statements data.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "password": {
+                      "description": "PostgreSQL password for getting pg stat statements data.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 5
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 6
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 7
+                    },
+                    "disable_comments_parsing": {
+                      "description": "Disable parsing comments from queries and showing them in QAN.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 8
+                    },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-nullable": true,
+                      "x-order": 9
+                    },
+                    "tls_ca": {
+                      "description": "TLS CA certificate.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 10
+                    },
+                    "tls_cert": {
+                      "description": "TLS Certificate.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 11
+                    },
+                    "tls_key": {
+                      "description": "TLS Certificate Key.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 12
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-nullable": true,
+                      "x-order": 13
                     }
                   },
                   "x-order": 12
@@ -13291,6 +14814,83 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "username": {
+                      "description": "PostgreSQL username for getting pg stat monitor data.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "password": {
+                      "description": "PostgreSQL password for getting pg stat monitor data.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 5
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 6
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 7
+                    },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-nullable": true,
+                      "x-order": 8
+                    },
+                    "disable_query_examples": {
+                      "description": "Disable query examples.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 9
+                    },
+                    "disable_comments_parsing": {
+                      "description": "Disable parsing comments from queries and showing them in QAN.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 10
+                    },
+                    "tls_ca": {
+                      "description": "TLS CA certificate.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 11
+                    },
+                    "tls_cert": {
+                      "description": "TLS Certificate.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 12
+                    },
+                    "tls_key": {
+                      "description": "TLS Certificate Key.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 13
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-nullable": true,
+                      "x-order": 14
                     }
                   },
                   "x-order": 13
@@ -13358,9 +14958,191 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "username": {
+                      "description": "Valkey username for scraping metrics.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "password": {
+                      "description": "Valkey password for scraping metrics.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 5
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 6
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 7
+                    },
+                    "disable_collectors": {
+                      "description": "List of collector names to disable in this exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 8
+                    },
+                    "tls_ca": {
+                      "description": "TLS CA certificate.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 9
+                    },
+                    "tls_cert": {
+                      "description": "TLS Certifcate.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 10
+                    },
+                    "tls_key": {
+                      "description": "TLS Certificate Key.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 11
+                    },
+                    "agent_password": {
+                      "description": "Custom password for exporter endpoint /metrics.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 12
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-nullable": true,
+                      "x-order": 13
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-nullable": true,
+                      "x-order": 14
                     }
                   },
                   "x-order": 15
+                },
+                "rta_mongodb_agent": {
+                  "type": "object",
+                  "properties": {
+                    "enable": {
+                      "description": "Enable this Agent. Agents are enabled by default when they get added.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 0
+                    },
+                    "custom_labels": {
+                      "description": "A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.",
+                      "type": "object",
+                      "properties": {
+                        "values": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "x-order": 0
+                        }
+                      },
+                      "x-nullable": true,
+                      "x-order": 1
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-nullable": true,
+                      "x-order": 2
+                    },
+                    "username": {
+                      "description": "MongoDB username for getting profile data.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 3
+                    },
+                    "password": {
+                      "description": "MongoDB password for getting profile data.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 5
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 6
+                    },
+                    "tls_certificate_key": {
+                      "description": "Client certificate and key.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 7
+                    },
+                    "tls_certificate_key_file_password": {
+                      "description": "Password for decrypting tls_certificate_key.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 8
+                    },
+                    "tls_ca": {
+                      "description": "Certificate Authority certificate chain.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 9
+                    },
+                    "authentication_mechanism": {
+                      "description": "Authentication mechanism.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 10
+                    },
+                    "rta_options": {
+                      "description": "RTAOptions holds Real-Time Query Analytics agent options.",
+                      "type": "object",
+                      "properties": {
+                        "collect_interval": {
+                          "description": "Query collect interval (default 2s is set by server).",
+                          "type": "string",
+                          "x-order": 0
+                        }
+                      },
+                      "x-nullable": true,
+                      "x-order": 11
+                    }
+                  },
+                  "x-order": 16
                 }
               }
             }
@@ -13753,7 +15535,7 @@
                       "x-order": 13
                     },
                     "enable_all_collectors": {
-                      "description": "Enable All collectors.",
+                      "description": "Enable all collectors.",
                       "type": "boolean",
                       "x-order": 14
                     },
@@ -13803,6 +15585,14 @@
                         }
                       },
                       "x-order": 18
+                    },
+                    "environment_variable_names": {
+                      "description": "Environment variable names passed to the exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 19
                     }
                   },
                   "x-order": 2
@@ -14172,6 +15962,22 @@
                       "description": "Skip TLS certificate and hostname verification.",
                       "type": "boolean",
                       "x-order": 12
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "AGENT_STATUS_UNSPECIFIED",
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_INITIALIZATION_ERROR",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
+                      ],
+                      "x-order": 13
                     }
                   },
                   "x-order": 5
@@ -15218,6 +17024,99 @@
                     }
                   },
                   "x-order": 15
+                },
+                "rta_mongodb_agent": {
+                  "description": "RTAMongoDBAgent runs within pmm-agent and sends MongoDB Real-Time Query Analytics data to the PMM Server.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique agent identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "username": {
+                      "description": "MongoDB username for getting profiler data.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-order": 6
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 7
+                    },
+                    "rta_options": {
+                      "description": "RTAOptions holds Real-Time Query Analytics agent options.",
+                      "type": "object",
+                      "properties": {
+                        "collect_interval": {
+                          "description": "Query collect interval (default 2s is set by server).",
+                          "type": "string",
+                          "x-order": 0
+                        }
+                      },
+                      "x-order": 8
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "AGENT_STATUS_UNSPECIFIED",
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_INITIALIZATION_ERROR",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
+                      ],
+                      "x-order": 9
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-order": 10
+                    }
+                  },
+                  "x-order": 16
                 }
               }
             }
@@ -15480,6 +17379,11 @@
                           "type": "string"
                         },
                         "x-order": 8
+                      },
+                      "is_pmm_server_node": {
+                        "description": "True if this node is a PMM Server node (HA mode).",
+                        "type": "boolean",
+                        "x-order": 9
                       }
                     }
                   },
@@ -15543,6 +17447,11 @@
                           "type": "string"
                         },
                         "x-order": 9
+                      },
+                      "is_pmm_server_node": {
+                        "description": "True if this node is a PMM Server node (HA mode).",
+                        "type": "boolean",
+                        "x-order": 10
                       }
                     }
                   },
@@ -16029,6 +17938,11 @@
                         "type": "string"
                       },
                       "x-order": 8
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -16089,6 +18003,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 10
                     }
                   },
                   "x-order": 1
@@ -16344,6 +18263,11 @@
                         "type": "string"
                       },
                       "x-order": 8
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -16404,6 +18328,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 10
                     }
                   },
                   "x-order": 1
@@ -17083,6 +19012,17 @@
                         "description": "Group name of external service.",
                         "type": "string",
                         "x-order": 7
+                      },
+                      "address": {
+                        "description": "Access address (DNS name or IP).",
+                        "type": "string",
+                        "x-order": 8
+                      },
+                      "port": {
+                        "description": "Access port.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 9
                       }
                     }
                   },
@@ -17964,6 +19904,17 @@
                       "description": "Group name of external service.",
                       "type": "string",
                       "x-order": 7
+                    },
+                    "address": {
+                      "description": "Access address (DNS name or IP).",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "port": {
+                      "description": "Access port.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 9
                     }
                   },
                   "x-order": 5
@@ -18468,6 +20419,17 @@
                       "description": "Group name of external service.",
                       "type": "string",
                       "x-order": 7
+                    },
+                    "address": {
+                      "description": "Access address (DNS name or IP).",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "port": {
+                      "description": "Access port.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 9
                     }
                   },
                   "x-order": 5
@@ -19014,6 +20976,17 @@
                       "description": "Group name of external service.",
                       "type": "string",
                       "x-order": 7
+                    },
+                    "address": {
+                      "description": "Access address (DNS name or IP).",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "port": {
+                      "description": "Access port.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 9
                     }
                   },
                   "x-order": 5
@@ -19621,6 +21594,18 @@
                       "valkey_options": {
                         "type": "object",
                         "x-order": 40
+                      },
+                      "rta_options": {
+                        "description": "RTAOptions holds Real-Time Query Analytics agent options.",
+                        "type": "object",
+                        "properties": {
+                          "collect_interval": {
+                            "description": "Query collect interval (default 2s is set by server).",
+                            "type": "string",
+                            "x-order": 0
+                          }
+                        },
+                        "x-order": 41
                       }
                     }
                   },
@@ -20024,6 +22009,11 @@
                         "description": "Instance ID for cloud providers (e.g. AWS RDS).",
                         "type": "string",
                         "x-order": 17
+                      },
+                      "is_pmm_server_node": {
+                        "description": "True if this node is a PMM Server node (HA mode).",
+                        "type": "boolean",
+                        "x-order": 18
                       }
                     }
                   },
@@ -20247,6 +22237,11 @@
                         "type": "string"
                       },
                       "x-order": 8
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -20307,6 +22302,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 10
                     }
                   },
                   "x-order": 1
@@ -20566,6 +22566,11 @@
                       "description": "Instance ID for cloud providers (e.g. AWS RDS).",
                       "type": "string",
                       "x-order": 17
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 18
                     }
                   },
                   "x-order": 0
@@ -21143,6 +23148,18 @@
                             "valkey_options": {
                               "type": "object",
                               "x-order": 40
+                            },
+                            "rta_options": {
+                              "description": "RTAOptions holds Real-Time Query Analytics agent options.",
+                              "type": "object",
+                              "properties": {
+                                "collect_interval": {
+                                  "description": "Query collect interval (default 2s is set by server).",
+                                  "type": "string",
+                                  "x-order": 0
+                                }
+                              },
+                              "x-order": 41
                             }
                           }
                         },
@@ -21743,6 +23760,19 @@
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 32
+                    },
+                    "environment_variable_names": {
+                      "description": "Environment variable names to pass to the exporter.\nValues will be resolved from pmm-agent's environment when starting the exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 33
+                    },
+                    "rta_mongodb_agent": {
+                      "description": "If true, adds Real-Time Analytics agent for the provided service.",
+                      "type": "boolean",
+                      "x-order": 34
                     }
                   },
                   "x-order": 1
@@ -23646,7 +25676,7 @@
                           "x-order": 13
                         },
                         "enable_all_collectors": {
-                          "description": "Enable All collectors.",
+                          "description": "Enable all collectors.",
                           "type": "boolean",
                           "x-order": 14
                         },
@@ -23696,6 +25726,14 @@
                             }
                           },
                           "x-order": 18
+                        },
+                        "environment_variable_names": {
+                          "description": "Environment variable names passed to the exporter.",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "x-order": 19
                         }
                       },
                       "x-order": 1
@@ -23883,6 +25921,99 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "rta_mongodb_agent": {
+                      "description": "RTAMongoDBAgent runs within pmm-agent and sends MongoDB Real-Time Query Analytics data to the PMM Server.",
+                      "type": "object",
+                      "properties": {
+                        "agent_id": {
+                          "description": "Unique agent identifier.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "pmm_agent_id": {
+                          "description": "The pmm-agent identifier which runs this instance.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "disabled": {
+                          "description": "Desired Agent status: enabled (false) or disabled (true).",
+                          "type": "boolean",
+                          "x-order": 2
+                        },
+                        "service_id": {
+                          "description": "Service identifier.",
+                          "type": "string",
+                          "x-order": 3
+                        },
+                        "username": {
+                          "description": "MongoDB username for getting profiler data.",
+                          "type": "string",
+                          "x-order": 4
+                        },
+                        "tls": {
+                          "description": "Use TLS for database connections.",
+                          "type": "boolean",
+                          "x-order": 5
+                        },
+                        "tls_skip_verify": {
+                          "description": "Skip TLS certificate and hostname validation.",
+                          "type": "boolean",
+                          "x-order": 6
+                        },
+                        "custom_labels": {
+                          "description": "Custom user-assigned labels.",
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "x-order": 7
+                        },
+                        "rta_options": {
+                          "description": "RTAOptions holds Real-Time Query Analytics agent options.",
+                          "type": "object",
+                          "properties": {
+                            "collect_interval": {
+                              "description": "Query collect interval (default 2s is set by server).",
+                              "type": "string",
+                              "x-order": 0
+                            }
+                          },
+                          "x-order": 8
+                        },
+                        "status": {
+                          "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                          "type": "string",
+                          "default": "AGENT_STATUS_UNSPECIFIED",
+                          "enum": [
+                            "AGENT_STATUS_UNSPECIFIED",
+                            "AGENT_STATUS_STARTING",
+                            "AGENT_STATUS_INITIALIZATION_ERROR",
+                            "AGENT_STATUS_RUNNING",
+                            "AGENT_STATUS_WAITING",
+                            "AGENT_STATUS_STOPPING",
+                            "AGENT_STATUS_DONE",
+                            "AGENT_STATUS_UNKNOWN"
+                          ],
+                          "x-order": 9
+                        },
+                        "log_level": {
+                          "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                          "type": "string",
+                          "title": "Log level for exporters",
+                          "default": "LOG_LEVEL_UNSPECIFIED",
+                          "enum": [
+                            "LOG_LEVEL_UNSPECIFIED",
+                            "LOG_LEVEL_FATAL",
+                            "LOG_LEVEL_ERROR",
+                            "LOG_LEVEL_WARN",
+                            "LOG_LEVEL_INFO",
+                            "LOG_LEVEL_DEBUG"
+                          ],
+                          "x-order": 10
+                        }
+                      },
+                      "x-order": 4
                     }
                   },
                   "x-order": 1
@@ -24659,6 +26790,22 @@
                           "description": "Skip TLS certificate and hostname verification.",
                           "type": "boolean",
                           "x-order": 12
+                        },
+                        "status": {
+                          "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                          "type": "string",
+                          "default": "AGENT_STATUS_UNSPECIFIED",
+                          "enum": [
+                            "AGENT_STATUS_UNSPECIFIED",
+                            "AGENT_STATUS_STARTING",
+                            "AGENT_STATUS_INITIALIZATION_ERROR",
+                            "AGENT_STATUS_RUNNING",
+                            "AGENT_STATUS_WAITING",
+                            "AGENT_STATUS_STOPPING",
+                            "AGENT_STATUS_DONE",
+                            "AGENT_STATUS_UNKNOWN"
+                          ],
+                          "x-order": 13
                         }
                       },
                       "x-order": 1
@@ -24715,6 +26862,17 @@
                           "description": "Group name of external service.",
                           "type": "string",
                           "x-order": 7
+                        },
+                        "address": {
+                          "description": "Access address (DNS name or IP).",
+                          "type": "string",
+                          "x-order": 8
+                        },
+                        "port": {
+                          "description": "Access port.",
+                          "type": "integer",
+                          "format": "int64",
+                          "x-order": 9
                         }
                       },
                       "x-order": 0
@@ -24808,6 +26966,22 @@
                           "description": "Skip TLS certificate and hostname verification.",
                           "type": "boolean",
                           "x-order": 12
+                        },
+                        "status": {
+                          "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                          "type": "string",
+                          "default": "AGENT_STATUS_UNSPECIFIED",
+                          "enum": [
+                            "AGENT_STATUS_UNSPECIFIED",
+                            "AGENT_STATUS_STARTING",
+                            "AGENT_STATUS_INITIALIZATION_ERROR",
+                            "AGENT_STATUS_RUNNING",
+                            "AGENT_STATUS_WAITING",
+                            "AGENT_STATUS_STOPPING",
+                            "AGENT_STATUS_DONE",
+                            "AGENT_STATUS_UNKNOWN"
+                          ],
+                          "x-order": 13
                         }
                       },
                       "x-order": 1
@@ -26465,583 +28639,6 @@
         }
       }
     },
-    "/v1/platform/contact": {
-      "get": {
-        "description": "Fetch the contact details of the customer success employee handling the Percona customer account.",
-        "tags": [
-          "PlatformService"
-        ],
-        "summary": "Get Contact Information",
-        "operationId": "GetContactInformation",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "customer_success": {
-                  "description": "CustomerSuccess contains the contanct details of the customer success employee assigned to a customer's account.",
-                  "type": "object",
-                  "properties": {
-                    "name": {
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "email": {
-                      "type": "string",
-                      "x-order": 1
-                    }
-                  },
-                  "x-order": 0
-                },
-                "new_ticket_url": {
-                  "description": "URL to open a new support ticket.",
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": {}
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/platform/organization/entitlements": {
-      "get": {
-        "description": "Fetch entitlements available to the Portal organization that the PMM server is connected to.",
-        "tags": [
-          "PlatformService"
-        ],
-        "summary": "Search Organization Entitlements",
-        "operationId": "SearchOrganizationEntitlements",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "entitlements": {
-                  "type": "array",
-                  "items": {
-                    "description": "OrganizationEntitlement contains information about Organization entitlement.",
-                    "type": "object",
-                    "properties": {
-                      "number": {
-                        "description": "Entitlement number.",
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "name": {
-                        "description": "Entitlement name.",
-                        "type": "string",
-                        "x-order": 1
-                      },
-                      "summary": {
-                        "description": "Entitlement short summary.",
-                        "type": "string",
-                        "x-order": 2
-                      },
-                      "tier": {
-                        "description": "Entitlement tier.",
-                        "type": "string",
-                        "x-nullable": true,
-                        "x-order": 3
-                      },
-                      "total_units": {
-                        "description": "Total units covered by this entitlement.",
-                        "type": "string",
-                        "x-nullable": true,
-                        "x-order": 4
-                      },
-                      "unlimited_units": {
-                        "description": "Flag indicates that unlimited units are covered.",
-                        "type": "boolean",
-                        "x-nullable": true,
-                        "x-order": 5
-                      },
-                      "support_level": {
-                        "description": "Support level covered by this entitlement.",
-                        "type": "string",
-                        "x-nullable": true,
-                        "x-order": 6
-                      },
-                      "software_families": {
-                        "description": "Percona product families covered by this entitlement.",
-                        "type": "array",
-                        "items": {
-                          "type": "string"
-                        },
-                        "x-order": 7
-                      },
-                      "start_date": {
-                        "description": "Entitlement start data.\nNote: only date is used here but not time.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 8
-                      },
-                      "end_date": {
-                        "description": "Entitlement end date.\nNote: only date is used here but not time.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 9
-                      },
-                      "platform": {
-                        "description": "Platform indicates platform specific entitlements.",
-                        "type": "object",
-                        "properties": {
-                          "security_advisor": {
-                            "description": "Flag indicates that security advisors are covered by this entitlement.",
-                            "type": "string",
-                            "x-nullable": true,
-                            "x-order": 0
-                          },
-                          "config_advisor": {
-                            "description": "Flag indicates that config advisors are covered by this entitlement.",
-                            "type": "string",
-                            "x-nullable": true,
-                            "x-order": 1
-                          }
-                        },
-                        "x-order": 10
-                      }
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": {}
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/platform/organization/tickets": {
-      "get": {
-        "description": "Fetch support tickets belonging to the Percona Portal Organization that the PMM server is connected to.",
-        "tags": [
-          "PlatformService"
-        ],
-        "summary": "Search Organization Tickets",
-        "operationId": "SearchOrganizationTickets",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "tickets": {
-                  "description": "Support tickets belonging to the Percona Portal Organization.",
-                  "type": "array",
-                  "items": {
-                    "description": "OrganizationTicket contains information about the support ticket.",
-                    "type": "object",
-                    "properties": {
-                      "number": {
-                        "description": "Ticket number.",
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "short_description": {
-                        "description": "Ticket short description.",
-                        "type": "string",
-                        "x-order": 1
-                      },
-                      "priority": {
-                        "description": "Ticket priority.",
-                        "type": "string",
-                        "x-order": 2
-                      },
-                      "state": {
-                        "description": "Ticket state.",
-                        "type": "string",
-                        "x-order": 3
-                      },
-                      "create_time": {
-                        "description": "Ticket creation time.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 4
-                      },
-                      "department": {
-                        "description": "Department.",
-                        "type": "string",
-                        "x-order": 5
-                      },
-                      "requester": {
-                        "description": "Ticket requester.",
-                        "type": "string",
-                        "x-order": 6
-                      },
-                      "task_type": {
-                        "description": "Task type.",
-                        "type": "string",
-                        "x-order": 7
-                      },
-                      "url": {
-                        "description": "Ticket url.",
-                        "type": "string",
-                        "x-order": 8
-                      }
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": {}
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/platform/server": {
-      "get": {
-        "description": "Return PMM server ID and name.",
-        "tags": [
-          "PlatformService"
-        ],
-        "summary": "Get Server Info",
-        "operationId": "ServerInfo",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "pmm_server_name": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "pmm_server_id": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "pmm_server_telemetry_id": {
-                  "type": "string",
-                  "x-order": 2
-                },
-                "connected_to_portal": {
-                  "type": "boolean",
-                  "x-order": 3
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": {}
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/platform/user": {
-      "get": {
-        "description": "Check if the current user is logged in with their Percona Account.",
-        "tags": [
-          "PlatformService"
-        ],
-        "summary": "Get User Status",
-        "operationId": "UserStatus",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "is_platform_user": {
-                  "type": "boolean",
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": {}
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/platform:connect": {
-      "post": {
-        "description": "Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.",
-        "tags": [
-          "PlatformService"
-        ],
-        "summary": "Connect PMM Server",
-        "operationId": "Connect",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "server_name": {
-                  "description": "User defined human readable PMM Server Name.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "personal_access_token": {
-                  "description": "Personal Access Token that the user obtains from Percona Portal.",
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": {}
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/platform:disconnect": {
-      "post": {
-        "description": "Disconnect a PMM server from the organization created on Percona Portal.",
-        "tags": [
-          "PlatformService"
-        ],
-        "summary": "Disconnect PMM Server",
-        "operationId": "Disconnect",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "force": {
-                  "type": "boolean",
-                  "title": "Forces the cleanup process for connected PMM instances regardless of the Portal API response",
-                  "x-order": 0
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": {}
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/qan/health": {
       "get": {
         "description": "Returns readiness of QAN API2 service.",
@@ -27937,11 +29534,29 @@
                               "format": "float",
                               "x-order": 74
                             },
+                            "m_wal_buffers_full_sum_per_sec": {
+                              "description": "Total number of times WAL buffers become full.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 75
+                            },
+                            "m_parallel_workers_to_launch_sum_per_sec": {
+                              "description": "Total number of parallel workers to launch.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 76
+                            },
+                            "m_parallel_workers_launched_sum_per_sec": {
+                              "description": "Total number of parallel workers launched.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 77
+                            },
                             "m_plan_time_sum_per_sec": {
                               "description": "Plan time in per seconds.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 75
+                              "x-order": 78
                             }
                           }
                         },
@@ -29311,11 +30926,29 @@
                         "format": "float",
                         "x-order": 74
                       },
+                      "m_wal_buffers_full_sum_per_sec": {
+                        "description": "Total number of times WAL buffers become full.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 75
+                      },
+                      "m_parallel_workers_to_launch_sum_per_sec": {
+                        "description": "Total number of parallel workers to launch.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 76
+                      },
+                      "m_parallel_workers_launched_sum_per_sec": {
+                        "description": "Total number of parallel workers launched.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 77
+                      },
                       "m_plan_time_sum_per_sec": {
                         "description": "Plan time in per seconds.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 75
+                        "x-order": 78
                       }
                     }
                   },
@@ -29431,6 +31064,619 @@
                   "x-order": 5
                 }
               }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/realtimeanalytics/queries:search": {
+      "post": {
+        "description": "Returns list of currently running Database queries in a particular services",
+        "tags": [
+          "RealtimeAnalyticsService"
+        ],
+        "summary": "List Running Database Queries in a particular services",
+        "operationId": "SearchQueries",
+        "parameters": [
+          {
+            "description": "SearchQueriesRequest contains optional filters for listing active Real-Time Analytics session Queries.",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "SearchQueriesRequest contains optional filters for listing active Real-Time Analytics session Queries.",
+              "type": "object",
+              "properties": {
+                "service_ids": {
+                  "description": "Optional filter by Service identifiers.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 0
+                },
+                "limit": {
+                  "description": "Optional limit the number of queries in response.",
+                  "type": "string",
+                  "format": "int64",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "SearchQueriesResponse returns the list of currently active Real-Time Analytics session Queries.",
+              "type": "object",
+              "properties": {
+                "queries": {
+                  "description": "List of active Real-Time Analytics session Queries.",
+                  "type": "array",
+                  "items": {
+                    "description": "QueryData represents a single Real-Time Analytics query data point.\nIt includes general query information and a payload for database-specific details.",
+                    "type": "object",
+                    "properties": {
+                      "service_id": {
+                        "description": "PMM Service identifier that reported the query.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "service_name": {
+                        "description": "PMM Service name that reported the query.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "query_id": {
+                        "description": "Unique identifier for the query.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "query_text": {
+                        "description": "The text of the query.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "query_raw_json": {
+                        "description": "Raw JSON representation of the query.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "query_execution_duration": {
+                        "description": "Current query current execution time.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "query_collect_time": {
+                        "description": "Timestamp when the query data was collected by Real-Time Analytics agent.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 6
+                      },
+                      "client_address": {
+                        "description": "Client address (host:port).",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "mongo_db_payload": {
+                        "description": "QueryMongoDBData holds MongoDB-specific Real-Time Analytics query information.",
+                        "type": "object",
+                        "properties": {
+                          "db_instance_address": {
+                            "description": "MongoDB instance address(host:port) that processing the query.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "client_app_name": {
+                            "description": "Client application name from the MongoDB query.",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "database_name": {
+                            "description": "Database name.",
+                            "type": "string",
+                            "x-order": 2
+                          },
+                          "collection": {
+                            "description": "Collection name.",
+                            "type": "string",
+                            "x-order": 3
+                          },
+                          "operation": {
+                            "description": "Query operation (\"find\", \"aggregate\", \"update\", etc).",
+                            "type": "string",
+                            "x-order": 4
+                          },
+                          "operation_start_time": {
+                            "description": "The start time of the operation.",
+                            "type": "string",
+                            "format": "date-time",
+                            "x-order": 5
+                          },
+                          "username": {
+                            "description": "MongoDB user name associated with the query.",
+                            "type": "string",
+                            "x-order": 6
+                          },
+                          "plan_summary": {
+                            "description": "Indicates if an index (COLLSCAN vs IXSCAN) was utilized in the query.",
+                            "type": "string",
+                            "x-order": 7
+                          }
+                        },
+                        "x-order": 8
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/realtimeanalytics/services": {
+      "get": {
+        "description": "Returns a list of Services that support Real-Time Analytics filtered by type.",
+        "tags": [
+          "RealtimeAnalyticsService"
+        ],
+        "summary": "List Services that support Real-Time Analytics",
+        "operationId": "ListServicesMixin11",
+        "parameters": [
+          {
+            "enum": [
+              "SERVICE_TYPE_UNSPECIFIED",
+              "SERVICE_TYPE_MYSQL_SERVICE",
+              "SERVICE_TYPE_MONGODB_SERVICE",
+              "SERVICE_TYPE_POSTGRESQL_SERVICE",
+              "SERVICE_TYPE_VALKEY_SERVICE",
+              "SERVICE_TYPE_PROXYSQL_SERVICE",
+              "SERVICE_TYPE_HAPROXY_SERVICE",
+              "SERVICE_TYPE_EXTERNAL_SERVICE"
+            ],
+            "type": "string",
+            "default": "SERVICE_TYPE_UNSPECIFIED",
+            "description": "Return only services filtered by service type.",
+            "name": "service_type",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "mongodb": {
+                  "type": "array",
+                  "items": {
+                    "description": "MongoDBService represents a generic MongoDB instance.",
+                    "type": "object",
+                    "properties": {
+                      "service_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "service_name": {
+                        "description": "Unique across all Services user-defined name.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "node_id": {
+                        "description": "Node identifier where this instance runs.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "address": {
+                        "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "port": {
+                        "description": "Access port.\nPort is required when the address present.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 4
+                      },
+                      "socket": {
+                        "description": "Access unix socket.\nAddress (and port) or socket is required.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "environment": {
+                        "description": "Environment name.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "cluster": {
+                        "description": "Cluster name.",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "replication_set": {
+                        "description": "Replication set name.",
+                        "type": "string",
+                        "x-order": 8
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 9
+                      },
+                      "version": {
+                        "description": "MongoDB version.",
+                        "type": "string",
+                        "x-order": 10
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/realtimeanalytics/sessions": {
+      "get": {
+        "description": "Returns the list of all currently running Real-Time Analytics sessions with their details including service, cluster and status information.",
+        "tags": [
+          "RealtimeAnalyticsService"
+        ],
+        "summary": "List Running Real-Time Analytics Sessions",
+        "operationId": "ListSessions",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optional filter by cluster name.",
+            "name": "cluster_name",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "ListSessionsResponse returns the list of currently active Real-Time Analytics Sessions.",
+              "type": "object",
+              "properties": {
+                "sessions": {
+                  "description": "List of active Real-Time Analytics Sessions.",
+                  "type": "array",
+                  "items": {
+                    "description": "Session represents an active Real-Time Analytics session.",
+                    "type": "object",
+                    "properties": {
+                      "service_id": {
+                        "description": "Service identifier that has enabled Real-Time Analytics session.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "service_name": {
+                        "description": "Service name.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "cluster_name": {
+                        "description": "Cluster name the service belongs to.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "start_time": {
+                        "description": "Timestamp when the Real-Time Analytics session started.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 3
+                      },
+                      "collect_interval": {
+                        "description": "Query collect interval.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "status": {
+                        "description": "Status represents actual Real-Time Analytics session status.\n\n - SESSION_STATUS_ERROR: Session encountered an error.\n - SESSION_STATUS_RUNNING: Session is running.\n - SESSION_STATUS_DOWN: Session has been stopped or disabled.",
+                        "type": "string",
+                        "default": "SESSION_STATUS_UNSPECIFIED",
+                        "enum": [
+                          "SESSION_STATUS_UNSPECIFIED",
+                          "SESSION_STATUS_ERROR",
+                          "SESSION_STATUS_RUNNING",
+                          "SESSION_STATUS_DOWN"
+                        ],
+                        "x-order": 5
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/realtimeanalytics/sessions:start": {
+      "post": {
+        "description": "Start Real-Time Analytics session for a specified service.",
+        "tags": [
+          "RealtimeAnalyticsService"
+        ],
+        "summary": "Start Real-Time Analytics session",
+        "operationId": "StartSession",
+        "parameters": [
+          {
+            "description": "StartSessionRequest contains parameters for starting Real-Time Analytics session.",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "StartSessionRequest contains parameters for starting Real-Time Analytics session.",
+              "type": "object",
+              "properties": {
+                "service_id": {
+                  "description": "Required service identifier the Real-Time Analytics session shall be started for.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "StartSessionResponse is the response for starting Real-Time Analytics session.",
+              "type": "object",
+              "properties": {
+                "session": {
+                  "description": "Session represents an active Real-Time Analytics session.",
+                  "type": "object",
+                  "properties": {
+                    "service_id": {
+                      "description": "Service identifier that has enabled Real-Time Analytics session.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_name": {
+                      "description": "Service name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "cluster_name": {
+                      "description": "Cluster name the service belongs to.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "start_time": {
+                      "description": "Timestamp when the Real-Time Analytics session started.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 3
+                    },
+                    "collect_interval": {
+                      "description": "Query collect interval.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "status": {
+                      "description": "Status represents actual Real-Time Analytics session status.\n\n - SESSION_STATUS_ERROR: Session encountered an error.\n - SESSION_STATUS_RUNNING: Session is running.\n - SESSION_STATUS_DOWN: Session has been stopped or disabled.",
+                      "type": "string",
+                      "default": "SESSION_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "SESSION_STATUS_UNSPECIFIED",
+                        "SESSION_STATUS_ERROR",
+                        "SESSION_STATUS_RUNNING",
+                        "SESSION_STATUS_DOWN"
+                      ],
+                      "x-order": 5
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/realtimeanalytics/sessions:stop": {
+      "post": {
+        "description": "Stop Real-Time Analytics session for a specified service.",
+        "tags": [
+          "RealtimeAnalyticsService"
+        ],
+        "summary": "Stop Real-Time Analytics session",
+        "operationId": "StopSession",
+        "parameters": [
+          {
+            "description": "StopSessionRequest contains parameters for stopping Real-Time Analytics session.",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "StopSessionRequest contains parameters for stopping Real-Time Analytics session.",
+              "type": "object",
+              "properties": {
+                "service_id": {
+                  "description": "Required service identifier the Real-Time Analytics session shall be stopped for.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "StopSessionResponse is the response for stopping Real-Time Analytics session.\n\nEmpty response for now.",
+              "type": "object"
             }
           },
           "default": {
@@ -29690,7 +31936,6 @@
                       "x-order": 6
                     },
                     "platform_email": {
-                      "description": "Percona Platform user's email, if this PMM instance is linked to the Platform.",
                       "type": "string",
                       "x-order": 7
                     },
@@ -30019,7 +32264,6 @@
                       "x-order": 6
                     },
                     "platform_email": {
-                      "description": "Percona Platform user's email, if this PMM instance is linked to the Platform.",
                       "type": "string",
                       "x-order": 7
                     },
@@ -31103,7 +33347,10 @@
       "name": "QANService"
     },
     {
-      "name": "PlatformService"
+      "name": "RealtimeAnalyticsService"
+    },
+    {
+      "name": "HAService"
     }
   ],
   "x-readme": {

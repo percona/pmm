@@ -190,12 +190,13 @@ func TestNodeHelpers(t *testing.T) {
 			CreatedAt: now,
 			UpdatedAt: now,
 		}, {
-			NodeID:    models.PMMServerNodeID,
-			NodeType:  models.GenericNodeType,
-			NodeName:  "pmm-server",
-			Address:   "127.0.0.1",
-			CreatedAt: now,
-			UpdatedAt: now,
+			NodeID:          models.PMMServerNodeID,
+			NodeType:        models.GenericNodeType,
+			NodeName:        "pmm-server",
+			Address:         "127.0.0.1",
+			CreatedAt:       now,
+			UpdatedAt:       now,
+			IsPMMServerNode: true,
 		}}
 		require.Equal(t, expected, nodes)
 	})

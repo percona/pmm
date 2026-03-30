@@ -40,29 +40,31 @@ func ToAPINode(node *models.Node) (inventoryv1.Node, error) { //nolint:ireturn
 	switch node.NodeType {
 	case models.GenericNodeType:
 		return &inventoryv1.GenericNode{
-			NodeId:       node.NodeID,
-			NodeName:     node.NodeName,
-			MachineId:    pointer.GetString(node.MachineID),
-			Distro:       node.Distro,
-			NodeModel:    node.NodeModel,
-			Region:       pointer.GetString(node.Region),
-			Az:           node.AZ,
-			CustomLabels: labels,
-			Address:      node.Address,
+			NodeId:          node.NodeID,
+			NodeName:        node.NodeName,
+			MachineId:       pointer.GetString(node.MachineID),
+			Distro:          node.Distro,
+			NodeModel:       node.NodeModel,
+			Region:          pointer.GetString(node.Region),
+			Az:              node.AZ,
+			CustomLabels:    labels,
+			Address:         node.Address,
+			IsPmmServerNode: node.IsPMMServerNode,
 		}, nil
 
 	case models.ContainerNodeType:
 		return &inventoryv1.ContainerNode{
-			NodeId:        node.NodeID,
-			NodeName:      node.NodeName,
-			MachineId:     pointer.GetString(node.MachineID),
-			ContainerId:   pointer.GetString(node.ContainerID),
-			ContainerName: pointer.GetString(node.ContainerName),
-			NodeModel:     node.NodeModel,
-			Region:        pointer.GetString(node.Region),
-			Az:            node.AZ,
-			CustomLabels:  labels,
-			Address:       node.Address,
+			NodeId:          node.NodeID,
+			NodeName:        node.NodeName,
+			MachineId:       pointer.GetString(node.MachineID),
+			ContainerId:     pointer.GetString(node.ContainerID),
+			ContainerName:   pointer.GetString(node.ContainerName),
+			NodeModel:       node.NodeModel,
+			Region:          pointer.GetString(node.Region),
+			Az:              node.AZ,
+			CustomLabels:    labels,
+			Address:         node.Address,
+			IsPmmServerNode: node.IsPMMServerNode,
 		}, nil
 
 	case models.RemoteNodeType:
@@ -195,6 +197,16 @@ func ToAPIService(service *models.Service) (inventoryv1.Service, error) { //noli
 		}, nil
 
 	case models.ExternalServiceType:
+		var address string
+		if service.Address != nil {
+			address = *service.Address
+		}
+
+		var port uint32
+		if service.Port != nil {
+			port = uint32(*service.Port)
+		}
+
 		return &inventoryv1.ExternalService{
 			ServiceId:      service.ServiceID,
 			ServiceName:    service.ServiceName,
@@ -204,6 +216,8 @@ func ToAPIService(service *models.Service) (inventoryv1.Service, error) { //noli
 			ReplicationSet: service.ReplicationSet,
 			CustomLabels:   labels,
 			Group:          service.ExternalGroup,
+			Address:        address,
+			Port:           port,
 		}, nil
 
 	default:
@@ -364,6 +378,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			CustomLabels:           labels,
 			Tls:                    agent.TLS,
 			TlsSkipVerify:          agent.TLSSkipVerify,
+			MaxQueryLength:         agent.QANOptions.MaxQueryLength,
 			QueryExamplesDisabled:  agent.QANOptions.QueryExamplesDisabled,
 			DisableCommentsParsing: agent.QANOptions.CommentsParsingDisabled,
 			MaxSlowlogFileSize:     agent.QANOptions.MaxQueryLogSize,
@@ -500,6 +515,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			ProcessExecPath:    processExecPath,
 			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 			TlsSkipVerify:      agent.TLSSkipVerify,
+			Status:             inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
 		}, nil
 
 	case models.AzureDatabaseExporterType:
@@ -512,6 +528,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			Status:                      inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
 			ListenPort:                  uint32(pointer.GetUint16(agent.ListenPort)),
 			CustomLabels:                labels,
+			PushMetricsEnabled:          agent.ExporterOptions.PushMetrics,
 			ProcessExecPath:             processExecPath,
 			LogLevel:                    inventoryv1.LogLevelAPIValue(agent.LogLevel),
 			MetricsResolutions:          ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
@@ -556,9 +573,38 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 		}
 		return exporter, nil
 
+	case models.RTAMongoDBAgentType:
+		return &inventoryv1.RTAMongoDBAgent{
+			AgentId:       agent.AgentID,
+			PmmAgentId:    pointer.GetString(agent.PMMAgentID),
+			ServiceId:     serviceID,
+			Username:      pointer.GetString(agent.Username),
+			Disabled:      agent.Disabled,
+			Status:        inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
+			CustomLabels:  labels,
+			Tls:           agent.TLS,
+			TlsSkipVerify: agent.TLSSkipVerify,
+			LogLevel:      inventoryv1.LogLevelAPIValue(agent.LogLevel),
+			RtaOptions:    ToAPIRTAOptions(&agent.RTAOptions),
+		}, nil
+
 	default:
 		panic(fmt.Errorf("cannot convert unknown agent type %s", agent.AgentType))
 	}
+}
+
+// ToAPIRTAOptions converts RTAOptions database model to API model.
+func ToAPIRTAOptions(rtaOptions *models.RTAOptions) *inventoryv1.RTAOptions {
+	if pointer.Get(rtaOptions).IsEmpty() {
+		return nil
+	}
+
+	apiRTAOptions := &inventoryv1.RTAOptions{}
+	if rtaOptions.CollectInterval != nil {
+		apiRTAOptions.CollectInterval = durationpb.New(*rtaOptions.CollectInterval)
+	}
+	// Add more fields here when RTAOptions gets extended.
+	return apiRTAOptions
 }
 
 // ConvertMetricsResolutions converts MetricsResolutions from model to API.

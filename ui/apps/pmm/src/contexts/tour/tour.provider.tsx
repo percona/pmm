@@ -19,7 +19,7 @@ import { getAlertingTourSteps } from './steps/alerting.steps';
 import { TourCloseButton } from 'components/tour-close-button';
 import { useNavigation } from 'contexts/navigation';
 import { useLocation } from 'react-router-dom';
-import useTheme from '@mui/material/styles/useTheme';
+import { useTheme } from '@mui/material/styles';
 
 export const TourProvider: FC<PropsWithChildren> = ({ children }) => {
   const theme = useTheme();
@@ -96,7 +96,9 @@ export const TourProvider: FC<PropsWithChildren> = ({ children }) => {
           currentStep={currentStep}
           setCurrentStep={setCurrentStep}
           onClickClose={endTour}
-          onClickMask={endTour}
+          onClickMask={() => {
+            // Prevent tour from closing when clicking on backdrop
+          }}
           position="right"
           components={{
             Badge: () => null,
@@ -114,7 +116,7 @@ export const TourProvider: FC<PropsWithChildren> = ({ children }) => {
             maskArea: (props) => ({
               ...props,
               width: tourName === 'alerting' ? DRAWER_WIDTH - 22 : DRAWER_WIDTH,
-              rx: theme.shape.borderRadius,
+              rx: Number(theme.shape.borderRadius),
             }),
             popover: (props) => ({
               ...props,

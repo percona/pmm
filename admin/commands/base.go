@@ -24,6 +24,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"regexp"
+	"sort"
 	"strings"
 	"text/template"
 
@@ -136,7 +137,11 @@ func GetError(err ErrorResponse) Error {
 
 // ParseTemplate parses the input text into a template.Template.
 func ParseTemplate(text string) *template.Template {
-	t := template.New("").Option("missingkey=error")
+	funcMap := template.FuncMap{
+		"formatLogLevel":     FormatLogLevel,
+		"formatCustomLabels": FormatCustomLabels,
+	}
+	t := template.New("").Funcs(funcMap).Option("missingkey=error")
 	return template.Must(t.Parse(strings.TrimSpace(text)))
 }
 
@@ -150,12 +155,15 @@ func RenderTemplate(t *template.Template, data interface{}) string {
 	return strings.TrimSpace(buf.String()) + "\n"
 }
 
-var customLabelRE = regexp.MustCompile(`^([a-zA-Z_][a-zA-Z0-9_]*)=([^='", ]+)$`) //nolint:unused,varcheck
-
 // ParseKeyValuePair parses values in key-value pair flags (e.g --custom-labels and --extra-dsn-params).
-func ParseKeyValuePair(labels map[string]string) map[string]string {
+func ParseKeyValuePair(labels *map[string]string) *map[string]string {
+	if labels == nil {
+		return nil
+	}
+
 	result := make(map[string]string)
-	for k, v := range labels {
+
+	for k, v := range *labels {
 		v = strings.TrimSpace(v)
 		if v == "" {
 			continue
@@ -163,7 +171,8 @@ func ParseKeyValuePair(labels map[string]string) map[string]string {
 
 		result[k] = v
 	}
-	return result
+
+	return &result
 }
 
 // ParseDisableCollectors parses --disable-collectors flag value.
@@ -184,6 +193,31 @@ func ParseDisableCollectors(collectors []string) []string {
 	return disableCollectors
 }
 
+// ValidateEnvironmentVariableNames validates environment variable names.
+func ValidateEnvironmentVariableNames(varNames []string) ([]string, error) {
+	if len(varNames) == 0 {
+		return nil, nil
+	}
+
+	result := make([]string, 0, len(varNames))
+	validNamePattern := regexp.MustCompile(`^[A-Z_][A-Z0-9_]*$`)
+
+	for _, name := range varNames {
+		name = strings.TrimSpace(name)
+		if name == "" {
+			return nil, fmt.Errorf("environment variable name cannot be empty")
+		}
+
+		if !validNamePattern.MatchString(name) {
+			return nil, fmt.Errorf("invalid environment variable name: %s (must match [A-Z_][A-Z0-9_]*)", name)
+		}
+
+		result = append(result, name)
+	}
+
+	return result, nil
+}
+
 // ReadFile reads file from filepath if filepath is not empty.
 func ReadFile(filePath string) (string, error) {
 	if filePath == "" {
@@ -196,6 +230,42 @@ func ReadFile(filePath string) (string, error) {
 	}
 
 	return string(content), nil
+}
+
+// FormatLogLevel formats log level for display by removing LOG_LEVEL_ prefix and converting to lowercase.
+func FormatLogLevel(logLevel string) string {
+	if logLevel == "" {
+		return ""
+	}
+
+	logLevel = strings.TrimPrefix(logLevel, "LOG_LEVEL_")
+
+	return strings.ToLower(logLevel)
+}
+
+// FormatCustomLabels formats custom labels for display in a user-friendly way.
+func FormatCustomLabels(labels any) string {
+	if labels == nil {
+		return "(none)"
+	}
+
+	if labelMap, ok := labels.(map[string]string); ok {
+		if len(labelMap) == 0 {
+			return "(none)"
+		}
+
+		var pairs []string
+
+		for key, value := range labelMap {
+			pairs = append(pairs, fmt.Sprintf("%s=%s", key, value))
+		}
+
+		sort.Strings(pairs)
+
+		return strings.Join(pairs, ", ")
+	}
+
+	return fmt.Sprintf("%v", labels)
 }
 
 // UsageTemplate is default kingping's usage template with tweaks:

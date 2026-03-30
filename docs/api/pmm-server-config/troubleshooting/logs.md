@@ -1,8 +1,10 @@
 ---
 title: Logs
 slug: pmm-server-logs
-categorySlug: pmm-server-maintenance
-parentDocSlug: pmm-server-troubleshooting
+category:
+  uri: pmm-server-maintenance
+parent:
+  uri: pmm-server-troubleshooting
 ---
 Download the logs and components configuration to troubleshoot any issues with the PMM Server.
 
@@ -18,7 +20,7 @@ PMM Server offers three ways to access and download logs:
    - Unlimited, full log: `https://<pmm-server>/v1/server/logs.zip?line-count=-1`
 3. Through the UI, by selecting the **Help > PMM Logs** option from the main menu.
   If you need to share logs with Percona Support via an SFTP server, you can also use the **PMM Dump** option from the Help menu to generate a compressed tarball file with an export of your PMM metrics and QAN data.
-  For more information, see [Export PMM data with PMM Dump](https://docs.percona.com/percona-monitoring-and-management/how-to/PMM_dump.html) topic in the product documentation.
+  For more information, see [Export PMM data with PMM Dump](https://docs.percona.com/percona-monitoring-and-management/3/troubleshoot/pmm_dump.html) topic in the product documentation.
 
 ## Log structure
 

@@ -1,18 +1,11 @@
 %undefine _missing_build_ids_terminate_build
 
-%define copying() \
-%if 0%{?fedora} >= 21 || 0%{?rhel} >= 7 \
-%license %{*} \
-%else \
-%doc %{*} \
-%endif
-
 %global repo            VictoriaMetrics
 %global provider        github.com/VictoriaMetrics/%{repo}
-%global commit          pmm-6401-v1.114.0
+%global commit          pmm-6401-v1.138.0
 
 Name:           percona-victoriametrics
-Version:        1.114.0
+Version:        1.138.0
 Release:        1%{?dist}
 Summary:        VictoriaMetrics monitoring solution and time series database
 License:        Apache-2.0
@@ -50,6 +43,18 @@ install -D -p -m 0755 ./bin/vmalert-pure %{buildroot}%{_sbindir}/vmalert
 
 
 %changelog
+* Wed Mar 18 2026 Alex Demidoff <alexander.demidoff@percona.com> - 1.138.0-1
+- upgrade victoriametrics to 1.138.0 release
+
+* Thu Mar 12 2026 Alex Demidoff <alexander.demidoff@percona.com> - 1.137.0-1
+- upgrade victoriametrics to 1.137.0 release
+
+* Mon Feb 2 2026 Alex Demidoff <alexander.demidoff@percona.com> - 1.134.0-1
+- upgrade victoriametrics to 1.134.0 release
+
+* Fri Jan 30 2025 Alex Demidoff <alexander.demidoff@percona.com> - 1.114.0-2
+- upgrade victoriametrics to 1.114.0 release
+
 * Mon Apr 7 2025 Nurlan Moldomurov <nurlan.moldomurov@percona.com> - 1.114.0-1
 - upgrade victoriametrics to 1.114.0 release
 
