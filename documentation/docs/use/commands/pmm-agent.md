@@ -1,18 +1,22 @@
-# pmm-agent - PMM Client agent
+# Configure the pmm-agent daemon
+
+`pmm-agent` is the daemon process that runs on each monitored host. It manages exporters, collects metrics, and handles communication between your databases and PMM Server. 
+
+You typically don't interact with pmm-agent directly, `pmm-admin` communicates with PMM Server, which then sends commands to `pmm-agent`. 
 
 ## NAME
 
-`pmm-agent` - The PMM Client daemon program.
+`pmm-agent`: The PMM Client daemon program.
 
-## SYNOPSIS
+## Syntax
 
 `pmm-agent [command] [options]`
 
-## DESCRIPTION
+## Description
 
 `pmm-agent`, part of the PMM Client package, runs as a daemon process on all monitored hosts.
 
-## COMMANDS
+## Commands
 
 `pmm-agent run`
 : Run pmm-agent (default).
@@ -23,7 +27,7 @@
 `pmm-agent help [command]`
 : Show help (for command) and exit.
 
-## OPTIONS AND ENVIRONMENT
+## Options and environment
 
 Most options can be set via environment variables (shown in parentheses).
 
@@ -68,7 +72,7 @@ Most options can be set via environment variables (shown in parentheses).
 | `--config-file-key-file` | `PMM_AGENT_CONFIG_FILE_KEY_FILE` | Path to RSA private key for config file encryption. See [Encrypt the PMM Client configuration file](../../admin/security/client_config_encryption.md). |
 | `--config-file-key-password` | `PMM_AGENT_CONFIG_FILE_KEY_PASSWORD` | Password for the RSA private key (if password-protected). |
 
-## CONFIG FILE
+## Config file
 
 PMM manages the configuration file, and it's not recommended to modify it manually. However, if necessary, you can make adjustments to specific properties in the config file, such as the username or password used for authorization through service accounts.
 
@@ -76,7 +80,7 @@ To do this, set the username to `service_token` and add your service token as th
 
 To protect the credentials stored in this file, you can optionally encrypt the PMM Client configuration file. See [Encrypt the PMM Client configuration file](../../admin/security/client_config_encryption.md).
 
-## USAGE AND EXAMPLES OF `paths-base` FLAG
+## Usage and examples of `paths-base` flag
 
 Since 2.23.0 this flag could be used for easier setup of PMM agent. With this flag the root permissions for PMM client aren't needed anymore and it will be fully working.
 

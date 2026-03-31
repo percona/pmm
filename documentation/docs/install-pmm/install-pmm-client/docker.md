@@ -161,7 +161,7 @@ To confirm your node is being monitored:
 
 ## Add monitoring services
 
-After installing PMM Client, you add database services to monitor with the [`pmm-admin`](../../use/commands/pmm-admin.md) command. 
+After installing PMM Client, you add database services to monitor with the [`pmm-admin`](../../use/commands/pmm-admin/pmm-admin.md) command. 
 
 When running PMM Client in Docker, use the `PMM_AGENT_PRERUN_SCRIPT` argument to pass a script containing any required `pmm-admin add DATABASE [FLAGS] [NAME] [ADDRESS]` commands. The `pmm-agent` runs the script automatically after registering with PMM Server. For example:
 
