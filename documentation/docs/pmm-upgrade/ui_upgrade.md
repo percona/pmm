@@ -11,7 +11,7 @@
 
 PMM Server and Client components are installed and updated separately.
 
-PMM3 Server can run natively, as a Docker image, a virtual appliance, or an AWS cloud instance. While each environment has its own specific installation and update steps, you can also upgrade from the PMM web interface using Watchtower. 
+PMM 3 Server can run natively, as a Docker image, a virtual appliance, or an AWS cloud instance. While each environment has its own specific installation and update steps, you can also upgrade from the PMM web interface using Watchtower. 
 
 However, since this method is deprecated, we recommend switching to a manual upgrade workflow as described above.
 
