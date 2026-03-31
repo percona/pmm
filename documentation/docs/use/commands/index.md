@@ -4,7 +4,7 @@ PMM provides two command-line tools for managing your monitoring setup from the 
 
 Use these tools to add databases, configure agents, check status, and troubleshoot issues without leaving the command line.
 
-You can also perform most of these tasks through the [PMM web interface](https://docs.percona.com/percona-monitoring-and-management/get-started/interface.html) or the [PMM API](../../api/index.md).
+You can also perform most of these tasks through the [PMM web interface](../../reference/ui/ui_components.md) or the [PMM API](../../api/index.md).
 
 ## Command-line tools
 
