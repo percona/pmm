@@ -66,6 +66,23 @@ The PMM Server virtual appliance comes pre-configured with the following specifi
 
 ## System requirements
 
+For optimal performance, we recommend:
+
+=== "Minimum (1-30 nodes)"
+    - **CPU**: 4 cores
+    - **Memory**: 8 GB
+    - **Disk**: 100 GB
+
+=== "Recommended (31-100 nodes)"
+    - **CPU**: 8 cores
+    - **Memory**: 16 GB
+    - **Disk**: 200 GB
+
+=== "Large (100+ nodes)"
+    - **CPU**: 16+ cores
+    - **Memory**: 32+ GB
+    - **Disk**: 500+ GB
+
 ## Hypervisor compatibility
 
 The PMM Server OVA is compatible with VirtualBox 6.0 and later.
