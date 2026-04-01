@@ -141,7 +141,7 @@ PMM supports HA via **Raft consensus** (`services/ha/`):
 - Wrap errors: `fmt.Errorf("descriptive context: %w", err)`
 - Return early on errors to avoid deep nesting
 - Use `errors.Is()` / `errors.As()` for error type checking
-- Use standard `errors` package (not `github.com/pkg/errors`)
+- For new or updated code, prefer the standard `errors` package over `github.com/pkg/errors` (existing uses may remain until refactored)
 - Use structured logging: `s.l.WithField("key", value).Error("message")`
 - Pass `*logrus.Entry` (not `*logrus.Logger`)
 - Use RESTful conventions in proto HTTP annotations
