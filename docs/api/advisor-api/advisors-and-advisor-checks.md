@@ -5,6 +5,6 @@ category:
   uri: advisor-api
 position: 1
 privacy:
-  view: private
+  view: anyone_with_link
 ---
 
