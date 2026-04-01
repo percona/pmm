@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Documentation">
+        <meta name="description" content="pmm-agent is the daemon process that runs on each monitored host. It manages exporters, collects metrics, and handles communication between your databases and PMM Server.">
       
       
         <meta name="author" content="Percona LLC">
@@ -16,7 +16,7 @@
         <link rel="canonical" href="https://docs.percona.com/percona-monitoring-and-management/3/use/commands/pmm-agent.html">
       
       
-        <link rel="prev" href="pmm-admin.html">
+        <link rel="prev" href="pmm-admin/status.html">
       
       
         <link rel="next" href="../../reference/dashboards/dashboard-home.html">
@@ -26,11 +26,11 @@
       
       
       <link rel="icon" href="../../assets/pmm-fav.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>pmm-agent - PMM Client agent - Percona Monitoring and Management</title>
+        <title>pmm-agent - Percona Monitoring and Management</title>
       
     
     
@@ -94,7 +94,7 @@
                  
                  
                  <meta property="og:type" content="website" />
-                 <meta property="og:title" content="Percona Monitoring and Management - pmm-agent - PMM Client agent" />
+                 <meta property="og:title" content="Percona Monitoring and Management - pmm-agent" />
                  <meta property="og:image" content="https://docs.percona.com/percona-monitoring-and-management/images/PMM.png">
                  <meta property="og:url" content="https://docs.percona.com/percona-monitoring-and-management/">
               
@@ -117,7 +117,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#pmm-agent-pmm-client-agent" class="md-skip">
+        <a href="#configure-the-pmm-agent-daemon" class="md-skip">
           Skip to content
         </a>
       
@@ -192,7 +192,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              pmm-agent - PMM Client agent
+              pmm-agent
             
           </span>
         </div>
@@ -2602,6 +2602,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install-pmm/install-pmm-client/kubernetes.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Install on Kubernetes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -4372,91 +4400,7 @@
   <span class="md-ellipsis">
     
   
-    About Query Analytics (QAN)
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../qan/mysql.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Query Analytics with MySQL
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../qan/qan_mongo.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Query Analytics for MongoDB
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../qan/share_link.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Share a link for Query Analytics
+    About Query Analytics
   
 
     
@@ -4485,10 +4429,85 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_6_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_6_2" >
         
           
-          <label class="md-nav__link" for="__nav_6_6_5" id="__nav_6_6_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_6_2" id="__nav_6_6_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stored metrics
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_6_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_6_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Stored metrics
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../qan/QAN-stored-metrics.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QAN Stored metrics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_6_2_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_6_2_2" id="__nav_6_6_2_2_label" tabindex="0">
             
   
   
@@ -4506,8 +4525,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_6_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_6_5">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_6_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_6_2_2">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -4559,7 +4578,7 @@
   <span class="md-ellipsis">
     
   
-    QAN Filters panel
+    Filters panel
   
 
     
@@ -4604,6 +4623,98 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../qan/mysql.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stored metrics for MySQL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../qan/qan_mongo.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stored metrics for MongoDB
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../qan/QAN-realtime-analytics.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Real-time analytics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -9955,61 +10066,6 @@
 
               
             
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_6" >
-        
-          
-          <label class="md-nav__link" for="__nav_7_6" id="__nav_7_6_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Percona Platform
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_7_6">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Percona Platform
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
               
                 
   
@@ -10017,42 +10073,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../configure-pmm/percona_platform/integrate_with_percona_platform.html" class="md-nav__link">
+      <a href="../../admin/security/client_config_encryption.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Integrate PMM with Percona Platform
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../configure-pmm/percona_platform/check_percona_platform.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Connect PMM to Percona Platform
+    Encrypt the PMM Client configuration file
   
 
     
@@ -11550,6 +11578,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../troubleshoot/exporter_issues.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exporter issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../troubleshoot/alerting_issues.html" class="md-nav__link">
         
   
@@ -11752,6 +11808,34 @@
     
   
     Release notes index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../release-notes/3.7.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PMM 3.7.0 (2026-04-01)
   
 
     
@@ -12567,15 +12651,62 @@
   
   
   
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13_1_6_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_13_1_6_2" id="__nav_13_1_6_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pmm-admin
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_13_1_6_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_13_1_6_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    pmm-admin
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
-      <a href="pmm-admin.html" class="md-nav__link">
+      <a href="pmm-admin/pmm-admin.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    pmm-admin - PMM administration tool
+    pmm-admin overview
   
 
     
@@ -12584,6 +12715,126 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="pmm-admin/add.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Add database services
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="pmm-admin/inventory.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Manage inventory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="pmm-admin/config.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration commands
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="pmm-admin/status.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Status and diagnostics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -12612,7 +12863,7 @@
   <span class="md-ellipsis">
     
   
-    pmm-agent - PMM Client agent
+    pmm-agent
   
 
     
@@ -12630,7 +12881,7 @@
   <span class="md-ellipsis">
     
   
-    pmm-agent - PMM Client agent
+    pmm-agent
   
 
     
@@ -12667,10 +12918,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#synopsis" class="md-nav__link">
+  <a href="#syntax" class="md-nav__link">
     <span class="md-ellipsis">
       
-        SYNOPSIS
+        Syntax
       
     </span>
   </a>
@@ -12681,7 +12932,7 @@
   <a href="#description" class="md-nav__link">
     <span class="md-ellipsis">
       
-        DESCRIPTION
+        Description
       
     </span>
   </a>
@@ -12692,7 +12943,7 @@
   <a href="#commands" class="md-nav__link">
     <span class="md-ellipsis">
       
-        COMMANDS
+        Commands
       
     </span>
   </a>
@@ -12703,7 +12954,7 @@
   <a href="#options-and-environment" class="md-nav__link">
     <span class="md-ellipsis">
       
-        OPTIONS AND ENVIRONMENT
+        Options and environment
       
     </span>
   </a>
@@ -12714,7 +12965,7 @@
   <a href="#config-file" class="md-nav__link">
     <span class="md-ellipsis">
       
-        CONFIG FILE
+        Config file
       
     </span>
   </a>
@@ -12725,7 +12976,7 @@
   <a href="#usage-and-examples-of-paths-base-flag" class="md-nav__link">
     <span class="md-ellipsis">
       
-        USAGE AND EXAMPLES OF paths-base FLAG
+        Usage and examples of paths-base flag
       
     </span>
   </a>
@@ -15894,10 +16145,10 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
       
         <li class="md-nav__item">
-  <a href="#synopsis" class="md-nav__link">
+  <a href="#syntax" class="md-nav__link">
     <span class="md-ellipsis">
       
-        SYNOPSIS
+        Syntax
       
     </span>
   </a>
@@ -15908,7 +16159,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   <a href="#description" class="md-nav__link">
     <span class="md-ellipsis">
       
-        DESCRIPTION
+        Description
       
     </span>
   </a>
@@ -15919,7 +16170,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   <a href="#commands" class="md-nav__link">
     <span class="md-ellipsis">
       
-        COMMANDS
+        Commands
       
     </span>
   </a>
@@ -15930,7 +16181,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   <a href="#options-and-environment" class="md-nav__link">
     <span class="md-ellipsis">
       
-        OPTIONS AND ENVIRONMENT
+        Options and environment
       
     </span>
   </a>
@@ -15941,7 +16192,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   <a href="#config-file" class="md-nav__link">
     <span class="md-ellipsis">
       
-        CONFIG FILE
+        Config file
       
     </span>
   </a>
@@ -15952,7 +16203,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   <a href="#usage-and-examples-of-paths-base-flag" class="md-nav__link">
     <span class="md-ellipsis">
       
-        USAGE AND EXAMPLES OF paths-base FLAG
+        Usage and examples of paths-base flag
       
     </span>
   </a>
@@ -15994,14 +16245,16 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   
 
 
-<h1 id="pmm-agent-pmm-client-agent">pmm-agent - PMM Client agent<a class="headerlink" href="#pmm-agent-pmm-client-agent" title="Permanent link">&para;</a></h1>
+<h1 id="configure-the-pmm-agent-daemon">Configure the pmm-agent daemon<a class="headerlink" href="#configure-the-pmm-agent-daemon" title="Permanent link">&para;</a></h1>
+<p><code>pmm-agent</code> is the daemon process that runs on each monitored host. It manages exporters, collects metrics, and handles communication between your databases and PMM Server. </p>
+<p>You typically don&rsquo;t interact with pmm-agent directly, <code>pmm-admin</code> communicates with PMM Server, which then sends commands to <code>pmm-agent</code>. </p>
 <h2 id="name">NAME<a class="headerlink" href="#name" title="Permanent link">&para;</a></h2>
-<p><code>pmm-agent</code> - The PMM Client daemon program.</p>
-<h2 id="synopsis">SYNOPSIS<a class="headerlink" href="#synopsis" title="Permanent link">&para;</a></h2>
+<p><code>pmm-agent</code>: The PMM Client daemon program.</p>
+<h2 id="syntax">Syntax<a class="headerlink" href="#syntax" title="Permanent link">&para;</a></h2>
 <p><code>pmm-agent [command] [options]</code></p>
-<h2 id="description">DESCRIPTION<a class="headerlink" href="#description" title="Permanent link">&para;</a></h2>
+<h2 id="description">Description<a class="headerlink" href="#description" title="Permanent link">&para;</a></h2>
 <p><code>pmm-agent</code>, part of the PMM Client package, runs as a daemon process on all monitored hosts.</p>
-<h2 id="commands">COMMANDS<a class="headerlink" href="#commands" title="Permanent link">&para;</a></h2>
+<h2 id="commands">Commands<a class="headerlink" href="#commands" title="Permanent link">&para;</a></h2>
 <dl>
 <dt><code>pmm-agent run</code></dt>
 <dd>Run pmm-agent (default).</dd>
@@ -16010,7 +16263,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <dt><code>pmm-agent help [command]</code></dt>
 <dd>Show help (for command) and exit.</dd>
 </dl>
-<h2 id="options-and-environment">OPTIONS AND ENVIRONMENT<a class="headerlink" href="#options-and-environment" title="Permanent link">&para;</a></h2>
+<h2 id="options-and-environment">Options and environment<a class="headerlink" href="#options-and-environment" title="Permanent link">&para;</a></h2>
 <p>Most options can be set via environment variables (shown in parentheses).</p>
 <table>
 <thead>
@@ -16201,12 +16454,23 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <td></td>
 <td>If you enable this flag, any IP address on the local network and anywhere on the internet can access node exporter endpoints. If the flag is disabled, node exporter endpoints can be accessed only locally.</td>
 </tr>
+<tr>
+<td><code>--config-file-key-file</code></td>
+<td><code>PMM_AGENT_CONFIG_FILE_KEY_FILE</code></td>
+<td>Path to RSA private key for config file encryption. See <a href="../../admin/security/client_config_encryption.html">Encrypt the PMM Client configuration file</a>.</td>
+</tr>
+<tr>
+<td><code>--config-file-key-password</code></td>
+<td><code>PMM_AGENT_CONFIG_FILE_KEY_PASSWORD</code></td>
+<td>Password for the RSA private key (if password-protected).</td>
+</tr>
 </tbody>
 </table>
-<h2 id="config-file">CONFIG FILE<a class="headerlink" href="#config-file" title="Permanent link">&para;</a></h2>
+<h2 id="config-file">Config file<a class="headerlink" href="#config-file" title="Permanent link">&para;</a></h2>
 <p>PMM manages the configuration file, and it&rsquo;s not recommended to modify it manually. However, if necessary, you can make adjustments to specific properties in the config file, such as the username or password used for authorization through service accounts.</p>
 <p>To do this, set the username to <code>service_token</code> and add your service token as the password. For more information about service account authorization, see <a href="../../api/authentication.html">Service accounts authentication</a>.</p>
-<h2 id="usage-and-examples-of-paths-base-flag">USAGE AND EXAMPLES OF <code>paths-base</code> FLAG<a class="headerlink" href="#usage-and-examples-of-paths-base-flag" title="Permanent link">&para;</a></h2>
+<p>To protect the credentials stored in this file, you can optionally encrypt the PMM Client configuration file. See <a href="../../admin/security/client_config_encryption.html">Encrypt the PMM Client configuration file</a>.</p>
+<h2 id="usage-and-examples-of-paths-base-flag">Usage and examples of <code>paths-base</code> flag<a class="headerlink" href="#usage-and-examples-of-paths-base-flag" title="Permanent link">&para;</a></h2>
 <p>Since 2.23.0 this flag could be used for easier setup of PMM agent. With this flag the root permissions for PMM client aren&rsquo;t needed anymore and it will be fully working.</p>
 <p><strong>Examples:</strong></p>
 <ul>
@@ -16336,7 +16600,7 @@ Flag <code>--paths-base</code> will set path for all exporters and tools, but ea
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="December 18, 2024 14:22:49 UTC">December 18, 2024</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 1, 2026 14:08:36 UTC">April 1, 2026</span>
   </span>
 
     

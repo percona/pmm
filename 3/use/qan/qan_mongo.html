@@ -19,18 +19,18 @@
         <link rel="prev" href="mysql.html">
       
       
-        <link rel="next" href="share_link.html">
+        <link rel="next" href="QAN-realtime-analytics.html">
       
       
         
       
       
       <link rel="icon" href="../../assets/pmm-fav.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>Query Analytics for MongoDB - Percona Monitoring and Management</title>
+        <title>Stored metrics for MongoDB - Percona Monitoring and Management</title>
       
     
     
@@ -94,7 +94,7 @@
                  
                  
                  <meta property="og:type" content="website" />
-                 <meta property="og:title" content="Percona Monitoring and Management - Query Analytics for MongoDB" />
+                 <meta property="og:title" content="Percona Monitoring and Management - Stored metrics for MongoDB" />
                  <meta property="og:image" content="https://docs.percona.com/percona-monitoring-and-management/images/PMM.png">
                  <meta property="og:url" content="https://docs.percona.com/percona-monitoring-and-management/">
               
@@ -117,7 +117,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#query-analytics-for-mongodb" class="md-skip">
+        <a href="#stored-metrics-for-mongodb" class="md-skip">
           Skip to content
         </a>
       
@@ -192,7 +192,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Query Analytics for MongoDB
+              Stored metrics for MongoDB
             
           </span>
         </div>
@@ -2602,6 +2602,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install-pmm/install-pmm-client/kubernetes.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Install on Kubernetes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -4376,7 +4404,7 @@
   <span class="md-ellipsis">
     
   
-    About Query Analytics (QAN)
+    About Query Analytics
   
 
     
@@ -4389,6 +4417,55 @@
   
 
               
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_6_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6_6_2" id="__nav_6_6_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stored metrics
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_6_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6_6_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Stored metrics
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
             
               
                 
@@ -4397,80 +4474,14 @@
   
   
     <li class="md-nav__item">
-      <a href="mysql.html" class="md-nav__link">
+      <a href="QAN-stored-metrics.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Query Analytics with MySQL
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-      <a href="qan_mongo.html" class="md-nav__link md-nav__link--active">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Query Analytics for MongoDB
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="share_link.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Share a link for Query Analytics
+    QAN Stored metrics
   
 
     
@@ -4499,10 +4510,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_6_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_6_2_2" >
         
           
-          <label class="md-nav__link" for="__nav_6_6_5" id="__nav_6_6_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_6_2_2" id="__nav_6_6_2_2_label" tabindex="0">
             
   
   
@@ -4520,8 +4531,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_6_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_6_5">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_6_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_6_2_2">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -4573,7 +4584,7 @@
   <span class="md-ellipsis">
     
   
-    QAN Filters panel
+    Filters panel
   
 
     
@@ -4618,6 +4629,108 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="mysql.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stored metrics for MySQL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="qan_mongo.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stored metrics for MongoDB
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="QAN-realtime-analytics.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Real-time analytics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -9969,61 +10082,6 @@
 
               
             
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_6" >
-        
-          
-          <label class="md-nav__link" for="__nav_7_6" id="__nav_7_6_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Percona Platform
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_7_6">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Percona Platform
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
               
                 
   
@@ -10031,42 +10089,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../configure-pmm/percona_platform/integrate_with_percona_platform.html" class="md-nav__link">
+      <a href="../../admin/security/client_config_encryption.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Integrate PMM with Percona Platform
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../configure-pmm/percona_platform/check_percona_platform.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Connect PMM to Percona Platform
+    Encrypt the PMM Client configuration file
   
 
     
@@ -11564,6 +11594,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../troubleshoot/exporter_issues.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exporter issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../troubleshoot/alerting_issues.html" class="md-nav__link">
         
   
@@ -11766,6 +11824,34 @@
     
   
     Release notes index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../release-notes/3.7.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PMM 3.7.0 (2026-04-01)
   
 
     
@@ -12575,15 +12661,62 @@
   
   
   
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13_1_6_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_13_1_6_2" id="__nav_13_1_6_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pmm-admin
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_13_1_6_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_13_1_6_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    pmm-admin
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
-      <a href="../commands/pmm-admin.html" class="md-nav__link">
+      <a href="../commands/pmm-admin/pmm-admin.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    pmm-admin - PMM administration tool
+    pmm-admin overview
   
 
     
@@ -12604,6 +12737,126 @@
   
   
     <li class="md-nav__item">
+      <a href="../commands/pmm-admin/add.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Add database services
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../commands/pmm-admin/inventory.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Manage inventory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../commands/pmm-admin/config.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration commands
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../commands/pmm-admin/status.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Status and diagnostics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../commands/pmm-agent.html" class="md-nav__link">
         
   
@@ -12611,7 +12864,7 @@
   <span class="md-ellipsis">
     
   
-    pmm-agent - PMM Client agent
+    pmm-agent
   
 
     
@@ -15771,11 +16024,13 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   
 
 
-<h1 id="query-analytics-for-mongodb">Query Analytics for MongoDB<a class="headerlink" href="#query-analytics-for-mongodb" title="Permanent link">&para;</a></h1>
+<h1 id="stored-metrics-for-mongodb">Stored metrics for MongoDB<a class="headerlink" href="#stored-metrics-for-mongodb" title="Permanent link">&para;</a></h1>
 <p>MongoDB is conceptually different from relational database management systems, such as MySQL and MariaDB.</p>
 <p>Relational database management systems store data in tables that represent single entities. Complex objects are represented by linking tables.</p>
 <p>In contrast, MongoDB uses the concept of a document where all essential information for a complex object is stored in one place.</p>
 <p>Query Analytics can monitor MongoDB queries. Although MongoDB is not a relational database management system, you analyze its databases and collections in the same interface using the same tools.</p>
+<p>Query Analytics stored metrics captures completed MongoDB queries so you can review past performance and find queries to optimize.</p>
+<p>For real-time monitoring of currently executing MongoDB operations, see <a href="QAN-realtime-analytics.html">Real-time Query Analytics</a>.</p>
 
 
 
@@ -15798,7 +16053,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="December 18, 2024 14:22:49 UTC">December 18, 2024</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 1, 2026 14:08:36 UTC">April 1, 2026</span>
   </span>
 
     

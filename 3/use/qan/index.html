@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="The Query Analytics dashboard shows how queries are executed and where they spend their time. It helps you analyze database queries over time, optimize database performance, and find and remedy the source of problems.">
+        <meta name="description" content="Query Analytics (QAN) helps you find and fix slow queries. Use it to identify performance bottlenecks, understand query patterns, and track optimization progress.">
       
       
         <meta name="author" content="Percona LLC">
@@ -19,18 +19,18 @@
         <link rel="prev" href="../dashboards-panels/annotate/annotate.html">
       
       
-        <link rel="next" href="mysql.html">
+        <link rel="next" href="QAN-stored-metrics.html">
       
       
         
       
       
       <link rel="icon" href="../../assets/pmm-fav.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>About Query Analytics (QAN) - Percona Monitoring and Management</title>
+        <title>About Query Analytics - Percona Monitoring and Management</title>
       
     
     
@@ -94,7 +94,7 @@
                  
                  
                  <meta property="og:type" content="website" />
-                 <meta property="og:title" content="Percona Monitoring and Management - About Query Analytics (QAN)" />
+                 <meta property="og:title" content="Percona Monitoring and Management - About Query Analytics" />
                  <meta property="og:image" content="https://docs.percona.com/percona-monitoring-and-management/images/PMM.png">
                  <meta property="og:url" content="https://docs.percona.com/percona-monitoring-and-management/">
               
@@ -117,7 +117,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#about-query-analytics-qan" class="md-skip">
+        <a href="#about-query-analytics" class="md-skip">
           Skip to content
         </a>
       
@@ -192,7 +192,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              About Query Analytics (QAN)
+              About Query Analytics
             
           </span>
         </div>
@@ -2602,6 +2602,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install-pmm/install-pmm-client/kubernetes.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Install on Kubernetes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -4385,7 +4413,7 @@
   <span class="md-ellipsis">
     
   
-    About Query Analytics (QAN)
+    About Query Analytics
   
 
     
@@ -4403,7 +4431,7 @@
   <span class="md-ellipsis">
     
   
-    About Query Analytics (QAN)
+    About Query Analytics
   
 
     
@@ -4429,6 +4457,29 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#stored-metrics-and-real-time-qan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stored metrics and Real-time QAN
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Stored metrics and Real-time QAN">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#real-time-vs-stored-metrics-capabilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Real-time vs. Stored metrics capabilities
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#requirements-for-profiler" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4438,15 +4489,9 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#requirements-for-mongolog" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Requirements for Mongolog
-      
-    </span>
-  </a>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -4501,30 +4546,24 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#qan-for-pmm-servers-internal-postgresql" class="md-nav__link">
+  <a href="#troubleshooting" class="md-nav__link">
     <span class="md-ellipsis">
       
-        QAN for PMM Server's internal PostgreSQL
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="QAN for PMM Server&#39;s internal PostgreSQL">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#enable-qan-for-pmm-server" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Enable QAN for PMM Server
+        Troubleshooting
       
     </span>
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
+      
+        <li class="md-nav__item">
+  <a href="#get-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Get started
+      
+    </span>
+  </a>
   
 </li>
       
@@ -4543,15 +4582,26 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="mysql.html" class="md-nav__link">
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
         
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_6_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_6_2" id="__nav_6_6_2_label" tabindex="0">
+            
   
   
   <span class="md-ellipsis">
     
   
-    Query Analytics with MySQL
+    Stored metrics
   
 
     
@@ -4559,11 +4609,19 @@
   
   
 
-      </a>
-    </li>
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_6_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_6_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Stored metrics
   
 
-              
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
             
               
                 
@@ -4572,42 +4630,14 @@
   
   
     <li class="md-nav__item">
-      <a href="qan_mongo.html" class="md-nav__link">
+      <a href="QAN-stored-metrics.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Query Analytics for MongoDB
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="share_link.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Share a link for Query Analytics
+    QAN Stored metrics
   
 
     
@@ -4636,10 +4666,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_6_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_6_2_2" >
         
           
-          <label class="md-nav__link" for="__nav_6_6_5" id="__nav_6_6_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_6_2_2" id="__nav_6_6_2_2_label" tabindex="0">
             
   
   
@@ -4657,8 +4687,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_6_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_6_5">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_6_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_6_2_2">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -4710,7 +4740,7 @@
   <span class="md-ellipsis">
     
   
-    QAN Filters panel
+    Filters panel
   
 
     
@@ -4755,6 +4785,98 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="mysql.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stored metrics for MySQL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="qan_mongo.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stored metrics for MongoDB
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="QAN-realtime-analytics.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Real-time analytics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -10106,61 +10228,6 @@
 
               
             
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_6" >
-        
-          
-          <label class="md-nav__link" for="__nav_7_6" id="__nav_7_6_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Percona Platform
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_7_6">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Percona Platform
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
               
                 
   
@@ -10168,42 +10235,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../configure-pmm/percona_platform/integrate_with_percona_platform.html" class="md-nav__link">
+      <a href="../../admin/security/client_config_encryption.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Integrate PMM with Percona Platform
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../configure-pmm/percona_platform/check_percona_platform.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Connect PMM to Percona Platform
+    Encrypt the PMM Client configuration file
   
 
     
@@ -11701,6 +11740,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../troubleshoot/exporter_issues.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exporter issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../troubleshoot/alerting_issues.html" class="md-nav__link">
         
   
@@ -11903,6 +11970,34 @@
     
   
     Release notes index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../release-notes/3.7.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PMM 3.7.0 (2026-04-01)
   
 
     
@@ -12712,15 +12807,62 @@
   
   
   
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13_1_6_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_13_1_6_2" id="__nav_13_1_6_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pmm-admin
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_13_1_6_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_13_1_6_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    pmm-admin
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
-      <a href="../commands/pmm-admin.html" class="md-nav__link">
+      <a href="../commands/pmm-admin/pmm-admin.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    pmm-admin - PMM administration tool
+    pmm-admin overview
   
 
     
@@ -12741,6 +12883,126 @@
   
   
     <li class="md-nav__item">
+      <a href="../commands/pmm-admin/add.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Add database services
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../commands/pmm-admin/inventory.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Manage inventory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../commands/pmm-admin/config.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration commands
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../commands/pmm-admin/status.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Status and diagnostics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../commands/pmm-agent.html" class="md-nav__link">
         
   
@@ -12748,7 +13010,7 @@
   <span class="md-ellipsis">
     
   
-    pmm-agent - PMM Client agent
+    pmm-agent
   
 
     
@@ -15893,6 +16155,29 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#stored-metrics-and-real-time-qan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stored metrics and Real-time QAN
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Stored metrics and Real-time QAN">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#real-time-vs-stored-metrics-capabilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Real-time vs. Stored metrics capabilities
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#requirements-for-profiler" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -15902,15 +16187,9 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#requirements-for-mongolog" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Requirements for Mongolog
-      
-    </span>
-  </a>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -15965,30 +16244,24 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
       
         <li class="md-nav__item">
-  <a href="#qan-for-pmm-servers-internal-postgresql" class="md-nav__link">
+  <a href="#troubleshooting" class="md-nav__link">
     <span class="md-ellipsis">
       
-        QAN for PMM Server's internal PostgreSQL
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="QAN for PMM Server&#39;s internal PostgreSQL">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#enable-qan-for-pmm-server" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Enable QAN for PMM Server
+        Troubleshooting
       
     </span>
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
+      
+        <li class="md-nav__item">
+  <a href="#get-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Get started
+      
+    </span>
+  </a>
   
 </li>
       
@@ -16016,49 +16289,87 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   
 
 
-<h1 id="about-query-analytics-qan">About Query Analytics (QAN)<a class="headerlink" href="#about-query-analytics-qan" title="Permanent link">&para;</a></h1>
-<p>The Query Analytics dashboard shows how queries are executed and where they spend their time. It helps you analyze database queries over time, optimize database performance, and find and remedy the source of problems.</p>
+<h1 id="about-query-analytics">About Query Analytics<a class="headerlink" href="#about-query-analytics" title="Permanent link">&para;</a></h1>
+<p>Query Analytics (QAN) helps you find and fix slow queries. Use it to identify performance bottlenecks, understand query patterns, and track optimization progress.</p>
 <p><img alt="!image" src="../../images/PMM_Query_Analytics.jpg" /></p>
-<p>Query Analytics supports MySQL, MongoDB and PostgreSQL with the following minimum requirements:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">MySQL requirements</label><label for="__tabbed_1_2">PostgreSQL requirements</label><label for="__tabbed_1_3">MongoDB requirements</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
+<h2 id="stored-metrics-and-real-time-qan">Stored metrics and Real-time QAN<a class="headerlink" href="#stored-metrics-and-real-time-qan" title="Permanent link">&para;</a></h2>
+<p>Query Analytics offers two ways to analyze queries:</p>
 <ul>
-<li>MySQL 5.1 or later (if using the slow query log)</li>
-<li>MySQL 5.6.9 or later (if using Performance Schema)</li>
-<li>Percona Server 5.6+ (all Performance Schema and slow log features)</li>
-<li>MariaDB 5.2+ (for user statistics), 10.0+ (for Performance Schema)</li>
+<li>
+<p><strong>Stored metrics</strong>: Choose stored metrics when you want to  analyze completed queries to identify patterns, find slow queries, and track optimization progress over time. </p>
+</li>
+<li>
+<p><strong>Real-time</strong>: Choose real-time when you need to identify problematic operations during an active incident.  </p>
+</li>
 </ul>
-<p>Some limitations and tuning options apply only when using MySQL’s Performance Schema.<br />
-See <a href="mysql.html#limitations-with-performance-schema">Query Analytics with MySQL</a>.</p>
-</div>
-<div class="tabbed-block">
-<ul>
-<li>PostgreSQL 11 or later</li>
-<li><code>pg_stat_monitor</code> extension (recommended) or <code>pg_stat_statements</code> extension</li>
-<li>Appropriate <code>shared_preload_libraries</code> configuration</li>
-<li>Superuser privileges for PMM monitoring account</li>
-</ul>
-</div>
-<div class="tabbed-block">
-<ul>
-<li>MongoDB 6.0 or later (4.4+ may work with limited features)</li>
-</ul>
+<h3 id="real-time-vs-stored-metrics-capabilities">Real-time vs. Stored metrics capabilities<a class="headerlink" href="#real-time-vs-stored-metrics-capabilities" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Real-time Analytics (RTA)</th>
+<th>Stored metrics (QAN)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Data type</strong></td>
+<td>Currently executing queries</td>
+<td>Completed queries</td>
+</tr>
+<tr>
+<td><strong>Purpose</strong></td>
+<td>Live troubleshooting</td>
+<td>Performance optimization</td>
+</tr>
+<tr>
+<td><strong>Time range</strong></td>
+<td>Live data (updates every 1-5 seconds)</td>
+<td>Historical data (configurable retention)</td>
+</tr>
+<tr>
+<td><strong>Use case</strong></td>
+<td>Spot problematic operations during incidents</td>
+<td>Analyze trends and optimize past performance</td>
+</tr>
+<tr>
+<td><strong>Database support</strong></td>
+<td>MongoDB (Technical Preview)</td>
+<td>MySQL, PostgreSQL, MongoDB</td>
+</tr>
+<tr>
+<td><strong>Data retention</strong></td>
+<td>Temporary (refreshes with new data)</td>
+<td>Persistent (stored for analysis)</td>
+</tr>
+<tr>
+<td><strong>Refresh rate</strong></td>
+<td>Live updates (1-5 seconds, configurable)</td>
+<td>Historical snapshots</td>
+</tr>
+<tr>
+<td><strong>Query details</strong></td>
+<td>Raw operation data from <code>db.currentOp()</code> (no aggregation, grouping, or processing)</td>
+<td>Aggregated metrics and query fingerprints</td>
+</tr>
+<tr>
+<td><strong>Best for</strong></td>
+<td>&ldquo;What&rsquo;s slowing down my database right now?&rdquo;</td>
+<td>&ldquo;Which queries should I optimize?&rdquo;</td>
+</tr>
+</tbody>
+</table>
 <h3 id="requirements-for-profiler">Requirements for Profiler<a class="headerlink" href="#requirements-for-profiler" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Profiling enabled for Query Analytics</li>
-<li>Appropriate user roles: <code>clusterMonitor</code>, <code>read</code> (local), and custom monitoring roles. For MongoDB 8.0+: Additional <code>directShardOperations</code> role required for sharded clusters</li>
-</ul>
-<h3 id="requirements-for-mongolog">Requirements for Mongolog<a class="headerlink" href="#requirements-for-mongolog" title="Permanent link">&para;</a></h3>
-<ul>
-<li>MongoDB configured to log slow operations to a file</li>
-<li>MongoDB server has write permissions to the log directory and file</li>
-<li>PMM agent has read permissions to the MongoDB log file</li>
-<li>Appropriate user roles: <code>clusterMonitor</code>, or custom monitoring roles (<code>getCmdLineOpts</code> privilege on <code>{ cluster: true }</code>)</li>
-</ul>
-</div>
-</div>
-</div>
+<div class="highlight"><pre><span></span><code>- Profiling enabled for Query Analytics
+- Appropriate user roles: `clusterMonitor`, `read` (local), and custom monitoring roles. For MongoDB 8.0+: Additional `directShardOperations` role required for sharded clusters
+
+### Requirements for Mongolog
+
+- MongoDB configured to log slow operations to a file
+- MongoDB server has write permissions to the log directory and file
+- PMM agent has read permissions to the MongoDB log file
+- Appropriate user roles: `clusterMonitor`, or custom monitoring roles (`getCmdLineOpts` privilege on `{ cluster: true }`)
+</code></pre></div>
 <h2 id="dashboard-components">Dashboard components<a class="headerlink" href="#dashboard-components" title="Permanent link">&para;</a></h2>
 <p>Query Analytics displays metrics in both visual and numeric form. Performance-related characteristics appear as plotted graphics with summaries.</p>
 <h2 id="dashboard-layout">Dashboard layout<a class="headerlink" href="#dashboard-layout" title="Permanent link">&para;</a></h2>
@@ -16078,22 +16389,13 @@ See <a href="mysql.html#limitations-with-performance-schema">Query Analytics wit
 <li>filter dropdown options are dynamically restricted based on user permissions</li>
 <li>data visibility is controlled through Prometheus-style label selectors</li>
 </ul>
-<h2 id="qan-for-pmm-servers-internal-postgresql">QAN for PMM Server&rsquo;s internal PostgreSQL<a class="headerlink" href="#qan-for-pmm-servers-internal-postgresql" title="Permanent link">&para;</a></h2>
-<p>By default, Query Analytics (QAN) hides queries from PMM Server’s internal PostgreSQL database. This avoids clutter and keeps the focus on your monitored databases.</p>
-<p>Enable QAN for PMM Server when you need to troubleshoot performance issues, check resource usage, or ensure that applications are not using the default <code>postgres</code> database instead of dedicated databases. This is particularly useful in <a href="../../install-pmm/HA.html">High Availability (HA) deployments</a> where monitoring system health is essential.</p>
-<h3 id="enable-qan-for-pmm-server">Enable QAN for PMM Server<a class="headerlink" href="#enable-qan-for-pmm-server" title="Permanent link">&para;</a></h3>
-<p class="power-number">To include PMM Server’s own queries in QAN, enable the feature in the settings:</p>
-<ol>
-<li>Go to <strong>PMM Configuration &gt; Settings &gt; Advanced Settings</strong>.</li>
-<li>Switch on the <strong>QAN for PMM Server</strong> option.</li>
-<li>Open <strong>PMM Query Analytics (QAN)</strong> from the main menu and filter by the <code>pmm-server-postgresql</code> service to view queries.</li>
-</ol>
-<p>When enabled, QAN displays queries related to PMM’s internal operations—such as inventory, settings, advisor checks, alerts, backups, and authentication. </p>
-<p>These are usually lightweight, but unusual spikes in volume, latency, or unexpected queries may indicate performance issues or misuse of the database.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Do not use the default PostgreSQL database for application workloads. PMM monitors it for visibility, but applications should always run on dedicated databases.</p>
-</div>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<p>If you experience Query Analytics performance issues in low-memory environments (less than 16 GB RAM), see <a href="../../troubleshoot/qan_issues.html#clickhouse-memory-issues-in-low-memory-environments">ClickHouse memory issues</a>.</p>
+<h2 id="get-started">Get started<a class="headerlink" href="#get-started" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="QAN-stored-metrics.html">Stored metrics QAN</a> </li>
+<li><a href="QAN-realtime-analytics.html">Real-time analytics for MongoDB</a> </li>
+</ul>
 
 
 
@@ -16116,7 +16418,7 @@ See <a href="mysql.html#limitations-with-performance-schema">Query Analytics wit
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="March 16, 2026 14:15:50 UTC">March 16, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 1, 2026 14:08:36 UTC">April 1, 2026</span>
   </span>
 
     

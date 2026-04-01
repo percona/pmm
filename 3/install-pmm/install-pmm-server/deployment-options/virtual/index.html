@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Deploy PMM Server as a pre-configured virtual machine when you need a standalone monitoring solution with minimal setup. The virtual appliance is ideal for environments where container solutions aren’t preferred or for evaluation purposes.">
+        <meta name="description" content="Documentation">
       
       
         <meta name="author" content="Percona LLC">
@@ -26,7 +26,7 @@
       
       
       <link rel="icon" href="../../../../assets/pmm-fav.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -117,7 +117,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#deploy-pmm-server-as-a-virtual-appliance-ova" class="md-skip">
+        <a href="#deploy-pmm-server-as-a-virtual-appliance-deprecated" class="md-skip">
           Skip to content
         </a>
       
@@ -1829,13 +1829,52 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#when-to-choose-ova-deployment" class="md-nav__link">
+  <a href="#end-of-support-for-ovf-deployment" class="md-nav__link">
     <span class="md-ellipsis">
       
-        When to choose OVA deployment
+        End of support for OVF deployment
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="End of support for OVF deployment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#before-you-migrate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before you migrate
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#choose-your-target-deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Choose your target deployment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#after-deploying-the-new-pmm-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        After deploying the new PMM Server
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1910,17 +1949,6 @@
     <span class="md-ellipsis">
       
         Default users
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#next-steps" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Next steps
       
     </span>
   </a>
@@ -2745,6 +2773,34 @@
     
   
     Install on Docker
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../install-pmm-client/kubernetes.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Install on Kubernetes
   
 
     
@@ -4528,91 +4584,7 @@
   <span class="md-ellipsis">
     
   
-    About Query Analytics (QAN)
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../use/qan/mysql.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Query Analytics with MySQL
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../use/qan/qan_mongo.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Query Analytics for MongoDB
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../use/qan/share_link.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Share a link for Query Analytics
+    About Query Analytics
   
 
     
@@ -4641,10 +4613,85 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_6_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_6_2" >
         
           
-          <label class="md-nav__link" for="__nav_6_6_5" id="__nav_6_6_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_6_2" id="__nav_6_6_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stored metrics
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_6_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_6_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Stored metrics
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../use/qan/QAN-stored-metrics.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QAN Stored metrics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_6_2_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_6_2_2" id="__nav_6_6_2_2_label" tabindex="0">
             
   
   
@@ -4662,8 +4709,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_6_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_6_5">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_6_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_6_2_2">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -4715,7 +4762,7 @@
   <span class="md-ellipsis">
     
   
-    QAN Filters panel
+    Filters panel
   
 
     
@@ -4760,6 +4807,98 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../use/qan/mysql.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stored metrics for MySQL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../use/qan/qan_mongo.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stored metrics for MongoDB
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../use/qan/QAN-realtime-analytics.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Real-time analytics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -10111,61 +10250,6 @@
 
               
             
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_6" >
-        
-          
-          <label class="md-nav__link" for="__nav_7_6" id="__nav_7_6_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Percona Platform
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_7_6">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Percona Platform
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
               
                 
   
@@ -10173,42 +10257,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../configure-pmm/percona_platform/integrate_with_percona_platform.html" class="md-nav__link">
+      <a href="../../../../admin/security/client_config_encryption.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Integrate PMM with Percona Platform
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../configure-pmm/percona_platform/check_percona_platform.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Connect PMM to Percona Platform
+    Encrypt the PMM Client configuration file
   
 
     
@@ -11706,6 +11762,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../troubleshoot/exporter_issues.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exporter issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../troubleshoot/alerting_issues.html" class="md-nav__link">
         
   
@@ -11908,6 +11992,34 @@
     
   
     Release notes index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../release-notes/3.7.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PMM 3.7.0 (2026-04-01)
   
 
     
@@ -12717,15 +12829,62 @@
   
   
   
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13_1_6_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_13_1_6_2" id="__nav_13_1_6_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pmm-admin
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_13_1_6_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_13_1_6_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    pmm-admin
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
-      <a href="../../../../use/commands/pmm-admin.html" class="md-nav__link">
+      <a href="../../../../use/commands/pmm-admin/pmm-admin.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    pmm-admin - PMM administration tool
+    pmm-admin overview
   
 
     
@@ -12746,6 +12905,126 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../use/commands/pmm-admin/add.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Add database services
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../use/commands/pmm-admin/inventory.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Manage inventory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../use/commands/pmm-admin/config.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration commands
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../use/commands/pmm-admin/status.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Status and diagnostics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../use/commands/pmm-agent.html" class="md-nav__link">
         
   
@@ -12753,7 +13032,7 @@
   <span class="md-ellipsis">
     
   
-    pmm-agent - PMM Client agent
+    pmm-agent
   
 
     
@@ -15898,13 +16177,52 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#when-to-choose-ova-deployment" class="md-nav__link">
+  <a href="#end-of-support-for-ovf-deployment" class="md-nav__link">
     <span class="md-ellipsis">
       
-        When to choose OVA deployment
+        End of support for OVF deployment
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="End of support for OVF deployment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#before-you-migrate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before you migrate
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#choose-your-target-deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Choose your target deployment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#after-deploying-the-new-pmm-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        After deploying the new PMM Server
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -15985,17 +16303,6 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#next-steps" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Next steps
-      
-    </span>
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -16020,15 +16327,48 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   
 
 
-<h1 id="deploy-pmm-server-as-a-virtual-appliance-ova">Deploy PMM Server as a Virtual Appliance (OVA)<a class="headerlink" href="#deploy-pmm-server-as-a-virtual-appliance-ova" title="Permanent link">&para;</a></h1>
-<p>Deploy PMM Server as a pre-configured virtual machine when you need a standalone monitoring solution with minimal setup. The virtual appliance is ideal for environments where container solutions aren&rsquo;t preferred or for evaluation purposes.</p>
-<h2 id="when-to-choose-ova-deployment">When to choose OVA deployment<a class="headerlink" href="#when-to-choose-ova-deployment" title="Permanent link">&para;</a></h2>
+<h1 id="deploy-pmm-server-as-a-virtual-appliance-deprecated">Deploy PMM Server as a Virtual Appliance (Deprecated)<a class="headerlink" href="#deploy-pmm-server-as-a-virtual-appliance-deprecated" title="Permanent link">&para;</a></h1>
+<h2 id="end-of-support-for-ovf-deployment">End of support for OVF deployment<a class="headerlink" href="#end-of-support-for-ovf-deployment" title="Permanent link">&para;</a></h2>
+<p>OVF virtual appliance deployment is deprecated starting with PMM 3.7.0 and will be removed in PMM 3.9.0 (expected July 2026). If you currently run PMM on a virtual appliance, migrate to a supported deployment method before that date.</p>
+<h3 id="before-you-migrate">Before you migrate<a class="headerlink" href="#before-you-migrate" title="Permanent link">&para;</a></h3>
+<p class="power-number">Your PMM Server stores monitoring data, dashboards, alert configurations, and user settings. To preserve this data during migration:</p>
+<ol>
+<li>Note your current PMM Server version. Run <code>pmm-admin status</code> on any connected client or check <strong>Configuration &gt; Updates</strong> in the PMM UI.</li>
+<li>Document your connected databases. Go to <strong>Configuration &gt; Inventory</strong> in the PMM UI and record all monitored services, their connection parameters, and any custom labels.</li>
+<li>Export custom dashboards. If you have created or modified dashboards, export them as JSON from the Grafana UI (<strong>Dashboard &gt; Share &gt; Export</strong>).</li>
+<li>Back up alert rules and contact points. Note any custom alert templates, notification channels, and silences you have configured.</li>
+</ol>
+<h3 id="choose-your-target-deployment">Choose your target deployment<a class="headerlink" href="#choose-your-target-deployment" title="Permanent link">&para;</a></h3>
 <ul>
-<li>You prefer traditional VM-based deployments over containers</li>
-<li>You need a solution that works with existing virtualization infrastructure</li>
-<li>You want minimal configuration steps for quick evaluation</li>
-<li>Your environment has limited or no internet connectivity</li>
+<li><strong><a href="../docker/index.html">Docker</a> (recommended)</strong>: simplest migration path with minimal operational change</li>
+<li><strong><a href="../podman/index.html">Podman</a></strong>: rootless containers for security-sensitive environments</li>
+<li><strong><a href="../helm/index.html">Helm</a></strong>: Kubernetes-native deployment with high availability support</li>
 </ul>
+<h3 id="after-deploying-the-new-pmm-server">After deploying the new PMM Server<a class="headerlink" href="#after-deploying-the-new-pmm-server" title="Permanent link">&para;</a></h3>
+<p class="power-number">Once your new PMM Server is running, complete these steps to finish the migration:</p>
+<ol>
+<li>
+<p><a href="../../../install-pmm-client/package_manager.html#step-2-install-pmm-client">Configure each PMM Client</a> to point to the new server using service accounts:
+<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>config<span class="w"> </span>--server-insecure-tls<span class="w"> </span>--server-url<span class="o">=</span>https://service_token:&lt;YOUR_GLSA_TOKEN&gt;@&lt;NEW_PMM_SERVER_IP&gt;:443
+</code></pre></div></p>
+</li>
+<li>
+<p>Verify data is flowing by logging into the new PMM Server UI and confirming that all monitored services appear in <strong>Configuration &gt; Inventory</strong> with current metrics on dashboards.</p>
+</li>
+<li>
+<p>Restore any custom dashboards by importing the exported JSON files via <strong>Dashboards &gt; New &gt; Import</strong> in the Grafana UI.</p>
+</li>
+<li>
+<p>Recreate alert rules and contact points on the new server to match your previous setup.</p>
+</li>
+<li>
+<p>Decommission the OVF instance once everything is confirmed working.</p>
+</li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Historical metrics from the OVF deployment are not automatically transferred to the new server. If you need to preserve historical data, consider running both instances in parallel until the old data ages out of your retention window.</p>
+</div>
 <h2 id="terminology">Terminology<a class="headerlink" href="#terminology" title="Permanent link">&para;</a></h2>
 <p>When working with the PMM Server virtual appliance, it&rsquo;s helpful to understand these terms:</p>
 <ul>
@@ -16047,20 +16387,20 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <tbody>
 <tr>
 <td>Download page</td>
-<td>https://www.percona.com/downloads/pmm/3.6.0/ova</td>
+<td>https://www.percona.com/downloads/pmm/3.7.0/ova</td>
 </tr>
 <tr>
 <td>File name</td>
-<td><code>pmm-server-3.6.0.ova</code></td>
+<td><code>pmm-server-3.7.0.ova</code></td>
 </tr>
 <tr>
 <td>VM name</td>
-<td><code>pmm-Server-2026-02-05-N</code> (<code>N</code>=build number)</td>
+<td><code>pmm-Server-2026-04-01-N</code> (<code>N</code>=build number)</td>
 </tr>
 </tbody>
 </table>
 <h2 id="vm-specifications">VM specifications<a class="headerlink" href="#vm-specifications" title="Permanent link">&para;</a></h2>
-<p>The PMM Server virtual appliance comes pre-configured with these specifications:</p>
+<p>The PMM Server virtual appliance comes pre-configured with the following specifications. You can adjust CPU and memory resources after deployment to match your monitoring needs.</p>
 <table>
 <thead>
 <tr>
@@ -16095,10 +16435,6 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </tr>
 </tbody>
 </table>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>You can adjust CPU and memory resources after deployment to match your monitoring needs.</p>
-</div>
 <h2 id="system-requirements">System requirements<a class="headerlink" href="#system-requirements" title="Permanent link">&para;</a></h2>
 <p>For optimal performance, we recommend:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Minimum (1-30 nodes)</label><label for="__tabbed_1_2">Recommended (31-100 nodes)</label><label for="__tabbed_1_3">Large (100+ nodes)</label></div>
@@ -16127,7 +16463,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </div>
 </div>
 <h2 id="hypervisor-compatibility">Hypervisor compatibility<a class="headerlink" href="#hypervisor-compatibility" title="Permanent link">&para;</a></h2>
-<p>The PMM Server OVA is compatible with VirtualBox 6.0 and later. </p>
+<p>The PMM Server OVA is compatible with VirtualBox 6.0 and later.</p>
 <h2 id="network-requirements">Network requirements<a class="headerlink" href="#network-requirements" title="Permanent link">&para;</a></h2>
 <p>Ensure your network environment allows:</p>
 <ul>
@@ -16144,13 +16480,6 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <li><strong>root</strong> (default password: <code>percona</code>)</li>
 </ul>
 <p>Change these default passwords to strong, unique passwords during your first login to prevent unauthorized access.</p>
-<h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
-<p>After reviewing the requirements:</p>
-<ul>
-<li><a href="download_ova.html">Download the PMM Server OVA file</a></li>
-<li><a href="virtualbox.html">Deploy on VirtualBox</a></li>
-<li><a href="env_var.html">Configure environment variables</a> to customize PMM Server behavior</li>
-</ul>
 
 
 
@@ -16173,7 +16502,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="February 5, 2026 14:46:56 UTC">February 5, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 1, 2026 14:08:36 UTC">April 1, 2026</span>
   </span>
 
     

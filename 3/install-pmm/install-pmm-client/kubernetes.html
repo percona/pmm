@@ -7,30 +7,30 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="To connect your PMM Server to Percona Platform, copy your personal access token from Platform Portal and paste it into PMM. You will find your access token in Platform Portal as part of your user profile page.">
+        <meta name="description" content="Deploy the PMM Client Docker image as a Kubernetes pod to monitor your databases without installing software on your host system.">
       
       
         <meta name="author" content="Percona LLC">
       
       
-        <link rel="canonical" href="https://docs.percona.com/percona-monitoring-and-management/3/configure-pmm/percona_platform/check_percona_platform.html">
+        <link rel="canonical" href="https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/kubernetes.html">
       
       
-        <link rel="prev" href="integrate_with_percona_platform.html">
+        <link rel="prev" href="docker.html">
       
       
-        <link rel="next" href="../../admin/index.html">
+        <link rel="next" href="connect-database/index.html">
       
       
         
       
       
       <link rel="icon" href="../../assets/pmm-fav.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>Connect PMM to Percona Platform - Percona Monitoring and Management</title>
+        <title>Install on Kubernetes - Percona Monitoring and Management</title>
       
     
     
@@ -94,7 +94,7 @@
                  
                  
                  <meta property="og:type" content="website" />
-                 <meta property="og:title" content="Percona Monitoring and Management - Connect PMM to Percona Platform" />
+                 <meta property="og:title" content="Percona Monitoring and Management - Install on Kubernetes" />
                  <meta property="og:image" content="https://docs.percona.com/percona-monitoring-and-management/images/PMM.png">
                  <meta property="og:url" content="https://docs.percona.com/percona-monitoring-and-management/">
               
@@ -117,7 +117,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#connect-pmm-to-percona-platform" class="md-skip">
+        <a href="#run-pmm-client-as-a-kubernetes-pod" class="md-skip">
           Skip to content
         </a>
       
@@ -192,7 +192,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Connect PMM to Percona Platform
+              Install on Kubernetes
             
           </span>
         </div>
@@ -548,18 +548,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
           <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
@@ -580,7 +582,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -598,7 +600,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/index.html" class="md-nav__link">
+      <a href="../index.html" class="md-nav__link">
         
   
   
@@ -673,7 +675,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/plan-pmm-installation/choose-deployment.html" class="md-nav__link">
+      <a href="../plan-pmm-installation/choose-deployment.html" class="md-nav__link">
         
   
   
@@ -701,7 +703,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/plan-pmm-installation/hardware_and_system.html" class="md-nav__link">
+      <a href="../plan-pmm-installation/hardware_and_system.html" class="md-nav__link">
         
   
   
@@ -729,7 +731,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/plan-pmm-installation/network_and_firewall.html" class="md-nav__link">
+      <a href="../plan-pmm-installation/network_and_firewall.html" class="md-nav__link">
         
   
   
@@ -812,7 +814,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-server/index.html" class="md-nav__link">
+      <a href="../install-pmm-server/index.html" class="md-nav__link">
         
   
   
@@ -840,7 +842,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-server/prerequisites.html" class="md-nav__link">
+      <a href="../install-pmm-server/prerequisites.html" class="md-nav__link">
         
   
   
@@ -962,7 +964,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-server/deployment-options/docker/index.html" class="md-nav__link">
+      <a href="../install-pmm-server/deployment-options/docker/index.html" class="md-nav__link">
         
   
   
@@ -990,7 +992,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-server/deployment-options/docker/easy-install.html" class="md-nav__link">
+      <a href="../install-pmm-server/deployment-options/docker/easy-install.html" class="md-nav__link">
         
   
   
@@ -1065,7 +1067,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-server/deployment-options/docker/run_with_vol.html" class="md-nav__link">
+      <a href="../install-pmm-server/deployment-options/docker/run_with_vol.html" class="md-nav__link">
         
   
   
@@ -1093,7 +1095,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-server/deployment-options/docker/run_with_host_dir.html" class="md-nav__link">
+      <a href="../install-pmm-server/deployment-options/docker/run_with_host_dir.html" class="md-nav__link">
         
   
   
@@ -1176,7 +1178,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-server/deployment-options/docker/env_var.html" class="md-nav__link">
+      <a href="../install-pmm-server/deployment-options/docker/env_var.html" class="md-nav__link">
         
   
   
@@ -1204,7 +1206,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-server/deployment-options/docker/preview_env_var.html" class="md-nav__link">
+      <a href="../install-pmm-server/deployment-options/docker/preview_env_var.html" class="md-nav__link">
         
   
   
@@ -1232,7 +1234,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-server/deployment-options/docker/isolated_hosts.html" class="md-nav__link">
+      <a href="../install-pmm-server/deployment-options/docker/isolated_hosts.html" class="md-nav__link">
         
   
   
@@ -1315,7 +1317,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-server/deployment-options/docker/backup_container.html" class="md-nav__link">
+      <a href="../install-pmm-server/deployment-options/docker/backup_container.html" class="md-nav__link">
         
   
   
@@ -1343,7 +1345,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-server/deployment-options/docker/restore_container.html" class="md-nav__link">
+      <a href="../install-pmm-server/deployment-options/docker/restore_container.html" class="md-nav__link">
         
   
   
@@ -1371,7 +1373,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-server/deployment-options/docker/remove_container.html" class="md-nav__link">
+      <a href="../install-pmm-server/deployment-options/docker/remove_container.html" class="md-nav__link">
         
   
   
@@ -1399,7 +1401,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-server/deployment-options/docker/upgrade_container.html" class="md-nav__link">
+      <a href="../install-pmm-server/deployment-options/docker/upgrade_container.html" class="md-nav__link">
         
   
   
@@ -1490,7 +1492,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-server/deployment-options/podman/index.html" class="md-nav__link">
+      <a href="../install-pmm-server/deployment-options/podman/index.html" class="md-nav__link">
         
   
   
@@ -1565,7 +1567,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-server/deployment-options/podman/backup_container_podman.html" class="md-nav__link">
+      <a href="../install-pmm-server/deployment-options/podman/backup_container_podman.html" class="md-nav__link">
         
   
   
@@ -1593,7 +1595,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-server/deployment-options/podman/restore_container_podman.html" class="md-nav__link">
+      <a href="../install-pmm-server/deployment-options/podman/restore_container_podman.html" class="md-nav__link">
         
   
   
@@ -1621,7 +1623,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-server/deployment-options/podman/remove_container_podman.html" class="md-nav__link">
+      <a href="../install-pmm-server/deployment-options/podman/remove_container_podman.html" class="md-nav__link">
         
   
   
@@ -1759,7 +1761,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-server/deployment-options/virtual/index.html" class="md-nav__link">
+      <a href="../install-pmm-server/deployment-options/virtual/index.html" class="md-nav__link">
         
   
   
@@ -1787,7 +1789,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-server/deployment-options/virtual/download_ova.html" class="md-nav__link">
+      <a href="../install-pmm-server/deployment-options/virtual/download_ova.html" class="md-nav__link">
         
   
   
@@ -1815,7 +1817,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-server/deployment-options/virtual/virtualbox.html" class="md-nav__link">
+      <a href="../install-pmm-server/deployment-options/virtual/virtualbox.html" class="md-nav__link">
         
   
   
@@ -1898,7 +1900,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-server/deployment-options/aws/plan_aws.html" class="md-nav__link">
+      <a href="../install-pmm-server/deployment-options/aws/plan_aws.html" class="md-nav__link">
         
   
   
@@ -1926,7 +1928,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-server/deployment-options/aws/deploy_aws.html" class="md-nav__link">
+      <a href="../install-pmm-server/deployment-options/aws/deploy_aws.html" class="md-nav__link">
         
   
   
@@ -1954,7 +1956,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-server/deployment-options/aws/configure_aws.html" class="md-nav__link">
+      <a href="../install-pmm-server/deployment-options/aws/configure_aws.html" class="md-nav__link">
         
   
   
@@ -2037,7 +2039,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-server/deployment-options/virtual/env_var.html" class="md-nav__link">
+      <a href="../install-pmm-server/deployment-options/virtual/env_var.html" class="md-nav__link">
         
   
   
@@ -2065,7 +2067,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-server/deployment-options/virtual/login_UI.html" class="md-nav__link">
+      <a href="../install-pmm-server/deployment-options/virtual/login_UI.html" class="md-nav__link">
         
   
   
@@ -2093,7 +2095,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-server/deployment-options/virtual/remove_virtual_machine.html" class="md-nav__link">
+      <a href="../install-pmm-server/deployment-options/virtual/remove_virtual_machine.html" class="md-nav__link">
         
   
   
@@ -2121,7 +2123,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-server/deployment-options/virtual/ssh.html" class="md-nav__link">
+      <a href="../install-pmm-server/deployment-options/virtual/ssh.html" class="md-nav__link">
         
   
   
@@ -2212,7 +2214,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-server/deployment-options/helm/index.html" class="md-nav__link">
+      <a href="../install-pmm-server/deployment-options/helm/index.html" class="md-nav__link">
         
   
   
@@ -2287,7 +2289,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-server/deployment-options/helm/backup_container_helm.html" class="md-nav__link">
+      <a href="../install-pmm-server/deployment-options/helm/backup_container_helm.html" class="md-nav__link">
         
   
   
@@ -2315,7 +2317,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-server/deployment-options/helm/restore_container_helm.html" class="md-nav__link">
+      <a href="../install-pmm-server/deployment-options/helm/restore_container_helm.html" class="md-nav__link">
         
   
   
@@ -2372,18 +2374,20 @@
                 
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4" checked>
         
           
           <label class="md-nav__link" for="__nav_5_4" id="__nav_5_4_label" tabindex="0">
@@ -2404,7 +2408,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_4_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_4_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5_4">
             <span class="md-nav__icon md-icon"></span>
             
@@ -2422,7 +2426,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-client/index.html" class="md-nav__link">
+      <a href="index.html" class="md-nav__link">
         
   
   
@@ -2450,7 +2454,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-client/prerequisites.html" class="md-nav__link">
+      <a href="prerequisites.html" class="md-nav__link">
         
   
   
@@ -2475,18 +2479,20 @@
                 
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_3" checked>
         
           
           <label class="md-nav__link" for="__nav_5_4_3" id="__nav_5_4_3_label" tabindex="0">
@@ -2507,7 +2513,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_4_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_4_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5_4_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -2525,7 +2531,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-client/package_manager.html" class="md-nav__link">
+      <a href="package_manager.html" class="md-nav__link">
         
   
   
@@ -2553,7 +2559,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-client/binary_package.html" class="md-nav__link">
+      <a href="binary_package.html" class="md-nav__link">
         
   
   
@@ -2581,7 +2587,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-client/docker.html" class="md-nav__link">
+      <a href="docker.html" class="md-nav__link">
         
   
   
@@ -2597,6 +2603,181 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Install on Kubernetes
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="kubernetes.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Install on Kubernetes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation-and-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installation and setup
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Installation and setup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deploy-pmm-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deploy PMM Client
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#view-your-monitored-node" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        View your monitored node
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#failed-to-register-pmm-agent-on-pmm-server-connection-refused" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Failed to register pmm-agent on PMM Server: connection refused
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pod-stuck-in-pending-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pod stuck in Pending state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#view-pmm-client-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        View PMM Client logs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -2711,7 +2892,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-client/connect-database/index.html" class="md-nav__link">
+      <a href="connect-database/index.html" class="md-nav__link">
         
   
   
@@ -2739,7 +2920,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-client/connect-database/mysql/mysql.html" class="md-nav__link">
+      <a href="connect-database/mysql/mysql.html" class="md-nav__link">
         
   
   
@@ -2767,7 +2948,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-client/connect-database/mongodb.html" class="md-nav__link">
+      <a href="connect-database/mongodb.html" class="md-nav__link">
         
   
   
@@ -2795,7 +2976,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-client/connect-database/postgresql.html" class="md-nav__link">
+      <a href="connect-database/postgresql.html" class="md-nav__link">
         
   
   
@@ -2823,7 +3004,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-client/connect-database/valkey-redis.html" class="md-nav__link">
+      <a href="connect-database/valkey-redis.html" class="md-nav__link">
         
   
   
@@ -2906,7 +3087,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-client/connect-database/aws.html" class="md-nav__link">
+      <a href="connect-database/aws.html" class="md-nav__link">
         
   
   
@@ -2934,7 +3115,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-client/connect-database/azure.html" class="md-nav__link">
+      <a href="connect-database/azure.html" class="md-nav__link">
         
   
   
@@ -2962,7 +3143,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-client/connect-database/google.html" class="md-nav__link">
+      <a href="connect-database/google.html" class="md-nav__link">
         
   
   
@@ -3045,7 +3226,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-client/connect-database/linux.html" class="md-nav__link">
+      <a href="connect-database/linux.html" class="md-nav__link">
         
   
   
@@ -3073,7 +3254,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-client/connect-database/remote.html" class="md-nav__link">
+      <a href="connect-database/remote.html" class="md-nav__link">
         
   
   
@@ -3156,7 +3337,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-client/connect-database/haproxy.html" class="md-nav__link">
+      <a href="connect-database/haproxy.html" class="md-nav__link">
         
   
   
@@ -3184,7 +3365,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-client/connect-database/proxysql.html" class="md-nav__link">
+      <a href="connect-database/proxysql.html" class="md-nav__link">
         
   
   
@@ -3267,7 +3448,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-client/connect-database/external.html" class="md-nav__link">
+      <a href="connect-database/external.html" class="md-nav__link">
         
   
   
@@ -3366,7 +3547,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/HA.html" class="md-nav__link">
+      <a href="../HA.html" class="md-nav__link">
         
   
   
@@ -3394,7 +3575,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/HA-docker.html" class="md-nav__link">
+      <a href="../HA-docker.html" class="md-nav__link">
         
   
   
@@ -3422,7 +3603,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/HA-kubernetes-single-instance.html" class="md-nav__link">
+      <a href="../HA-kubernetes-single-instance.html" class="md-nav__link">
         
   
   
@@ -3497,7 +3678,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/HA-clustered.html" class="md-nav__link">
+      <a href="../HA-clustered.html" class="md-nav__link">
         
   
   
@@ -3525,7 +3706,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-HA-clustered.html" class="md-nav__link">
+      <a href="../install-HA-clustered.html" class="md-nav__link">
         
   
   
@@ -4372,91 +4553,7 @@
   <span class="md-ellipsis">
     
   
-    About Query Analytics (QAN)
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../use/qan/mysql.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Query Analytics with MySQL
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../use/qan/qan_mongo.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Query Analytics for MongoDB
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../use/qan/share_link.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Share a link for Query Analytics
+    About Query Analytics
   
 
     
@@ -4485,10 +4582,85 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_6_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_6_2" >
         
           
-          <label class="md-nav__link" for="__nav_6_6_5" id="__nav_6_6_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_6_2" id="__nav_6_6_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stored metrics
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_6_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_6_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Stored metrics
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../use/qan/QAN-stored-metrics.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QAN Stored metrics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_6_2_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_6_2_2" id="__nav_6_6_2_2_label" tabindex="0">
             
   
   
@@ -4506,8 +4678,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_6_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_6_5">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_6_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_6_2_2">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -4559,7 +4731,7 @@
   <span class="md-ellipsis">
     
   
-    QAN Filters panel
+    Filters panel
   
 
     
@@ -4604,6 +4776,98 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../use/qan/mysql.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stored metrics for MySQL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../use/qan/qan_mongo.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stored metrics for MongoDB
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../use/qan/QAN-realtime-analytics.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Real-time analytics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -9641,20 +9905,18 @@
       
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
         
           
           <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
@@ -9675,7 +9937,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_7">
             <span class="md-nav__icon md-icon"></span>
             
@@ -9693,7 +9955,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../configure.html" class="md-nav__link">
+      <a href="../../configure-pmm/configure.html" class="md-nav__link">
         
   
   
@@ -9721,7 +9983,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../metrics_res.html" class="md-nav__link">
+      <a href="../../configure-pmm/metrics_res.html" class="md-nav__link">
         
   
   
@@ -9749,7 +10011,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced_settings.html" class="md-nav__link">
+      <a href="../../configure-pmm/advanced_settings.html" class="md-nav__link">
         
   
   
@@ -9777,7 +10039,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-server/deployment-options/virtual/ssh.html" class="md-nav__link">
+      <a href="../install-pmm-server/deployment-options/virtual/ssh.html" class="md-nav__link">
         
   
   
@@ -9957,63 +10219,6 @@
 
               
             
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_6" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_7_6" id="__nav_7_6_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Percona Platform
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_6_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_7_6">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Percona Platform
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
               
                 
   
@@ -10021,14 +10226,14 @@
   
   
     <li class="md-nav__item">
-      <a href="integrate_with_percona_platform.html" class="md-nav__link">
+      <a href="../../admin/security/client_config_encryption.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Integrate PMM with Percona Platform
+    Encrypt the PMM Client configuration file
   
 
     
@@ -10037,148 +10242,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Connect PMM to Percona Platform
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="check_percona_platform.html" class="md-nav__link md-nav__link--active">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Connect PMM to Percona Platform
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#token-validity" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Token validity
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#check-percona-portal-entitlements" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Check Percona Portal entitlements
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Check Percona Portal entitlements">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#disconnect-a-pmm-instance" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Disconnect a PMM instance
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Disconnect a PMM instance">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#disconnecting-instances-as-an-admin" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Disconnecting instances as an Admin
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#sign-into-pmm-with-your-percona-account" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Sign into PMM with your Percona Account
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -11668,6 +11731,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../troubleshoot/exporter_issues.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exporter issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../troubleshoot/alerting_issues.html" class="md-nav__link">
         
   
@@ -11870,6 +11961,34 @@
     
   
     Release notes index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../release-notes/3.7.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PMM 3.7.0 (2026-04-01)
   
 
     
@@ -12679,15 +12798,62 @@
   
   
   
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13_1_6_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_13_1_6_2" id="__nav_13_1_6_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pmm-admin
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_13_1_6_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_13_1_6_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    pmm-admin
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
-      <a href="../../use/commands/pmm-admin.html" class="md-nav__link">
+      <a href="../../use/commands/pmm-admin/pmm-admin.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    pmm-admin - PMM administration tool
+    pmm-admin overview
   
 
     
@@ -12708,6 +12874,126 @@
   
   
     <li class="md-nav__item">
+      <a href="../../use/commands/pmm-admin/add.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Add database services
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../use/commands/pmm-admin/inventory.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Manage inventory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../use/commands/pmm-admin/config.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration commands
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../use/commands/pmm-admin/status.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Status and diagnostics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../use/commands/pmm-agent.html" class="md-nav__link">
         
   
@@ -12715,7 +13001,7 @@
   <span class="md-ellipsis">
     
   
-    pmm-agent - PMM Client agent
+    pmm-agent
   
 
     
@@ -15809,7 +16095,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
                       <div data-banner="data-banner" class="edit-contrib-banner">
   <div class="banner-content">
     <!-- Edit link centered -->
-    <a href="https://github.com/percona/pmm/edit/v3/documentation/docs/configure-pmm/percona_platform/check_percona_platform.md" title="Edit this page on GitHub" class="edit-page-link">
+    <a href="https://github.com/percona/pmm/edit/v3/documentation/docs/install-pmm/install-pmm-client/kubernetes.md" title="Edit this page on GitHub" class="edit-page-link">
       <span class="edit-page-icon">
         
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
@@ -15860,10 +16146,10 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#token-validity" class="md-nav__link">
+  <a href="#prerequisites" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Token validity
+        Prerequisites
       
     </span>
   </a>
@@ -15871,34 +16157,22 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
       
         <li class="md-nav__item">
-  <a href="#check-percona-portal-entitlements" class="md-nav__link">
+  <a href="#installation-and-setup" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Check Percona Portal entitlements
+        Installation and setup
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Check Percona Portal entitlements">
+    <nav class="md-nav" aria-label="Installation and setup">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#disconnect-a-pmm-instance" class="md-nav__link">
+  <a href="#deploy-pmm-client" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Disconnect a PMM instance
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Disconnect a PMM instance">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#disconnecting-instances-as-an-admin" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Disconnecting instances as an Admin
+        Deploy PMM Client
       
     </span>
   </a>
@@ -15909,20 +16183,65 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     </nav>
   
 </li>
-        
-      </ul>
-    </nav>
+      
+        <li class="md-nav__item">
+  <a href="#view-your-monitored-node" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        View your monitored node
+      
+    </span>
+  </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#sign-into-pmm-with-your-percona-account" class="md-nav__link">
+  <a href="#troubleshooting" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Sign into PMM with your Percona Account
+        Troubleshooting
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#failed-to-register-pmm-agent-on-pmm-server-connection-refused" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Failed to register pmm-agent on PMM Server: connection refused
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pod-stuck-in-pending-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pod stuck in Pending state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#view-pmm-client-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        View PMM Client logs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -15950,44 +16269,368 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   
 
 
-<h1 id="connect-pmm-to-percona-platform">Connect PMM to Percona Platform<a class="headerlink" href="#connect-pmm-to-percona-platform" title="Permanent link">&para;</a></h1>
-<div class="admonition caution alert alert-warning">
-<p class="admonition-title">Percona Platform deprecation</p>
-<p><strong>Percona Platform is deprecated as of PMM 3.5.0 and will be discontinued with PMM 3.7.0 (March 2026).</strong></p>
-<p>All advisors and alert templates are now built directly into PMM as free, offline features. Platform connectivity, Percona Account sign-in, and account information features (Entitlements and Support tickets) in PMM will be removed. </p>
-<p><a href="../../admin/manage-users/edit_users.html#migrate-from-percona-account-authentication-deprecated">Migrate to a supported authentication method</a> before March 2026.</p>
-<p><strong>Need help?</strong> Contact <a href="https://www.percona.com/services/support">Percona Support</a> for migration assistance.</p>
+<h1 id="run-pmm-client-as-a-kubernetes-pod">Run PMM Client as a Kubernetes pod<a class="headerlink" href="#run-pmm-client-as-a-kubernetes-pod" title="Permanent link">&para;</a></h1>
+<p>Deploy the <a href="https://hub.docker.com/r/percona/pmm-client/tags/">PMM Client Docker image</a> as a Kubernetes pod to monitor your databases without installing software on your host system. </p>
+<p>This deployment approach provides:</p>
+<ul>
+<li>automatic architecture detection (x86_64/ARM64)</li>
+<li>consistent environment across different operating systems</li>
+<li>simplified setup and configuration</li>
+<li><a href="../install-pmm-server/deployment-options/docker/env_var.html#configure-vmagent-variables">centralized configuration management</a> via PMM Server</li>
+</ul>
+<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
+<p class="power-number">Before deploying PMM Client:</p>
+<ol>
+<li>
+<p>Install <a href="https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/">kubectl</a>.</p>
+</li>
+<li>
+<p>Check <a href="prerequisites.html">system requirements</a> to ensure your environment meets the minimum criteria.</p>
+</li>
+<li>
+<p><a href="../install-pmm-server/index.html">Install and configure PMM Server</a> as you&rsquo;ll need its IP address or hostname to configure the Client.</p>
+</li>
+<li>
+<p><a href="../plan-pmm-installation/network_and_firewall.html">Set up firewall rules</a> to allow communication between PMM Client and PMM Server.</p>
+</li>
+<li>
+<p><a href="prerequisites.html#database-monitoring-requirements">Create database monitoring users</a> with appropriate permissions for the databases you plan to monitor.</p>
+</li>
+</ol>
+<h2 id="installation-and-setup">Installation and setup<a class="headerlink" href="#installation-and-setup" title="Permanent link">&para;</a></h2>
+<h3 id="deploy-pmm-client">Deploy PMM Client<a class="headerlink" href="#deploy-pmm-client" title="Permanent link">&para;</a></h3>
+<p>Choose your deployment approach:</p>
+<ul>
+<li><strong>Standalone</strong>: Deploy PMM Client as a dedicated pod to monitor external databases</li>
+<li><strong>Sidecar</strong>: Deploy PMM Client alongside a database in the same pod </li>
+</ul>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Deploy PMM Client as a Standalone container</label><label for="__tabbed_1_2">Deploy PMM Client as a Sidecar container</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p class="power-number">Follow these steps to deploy PMM Client using <code>kubectl</code>:</p>
+<ol>
+<li>
+<p>(Optional) Create a namespace for the deployment and set it as the default namespace:</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>create<span class="w"> </span>namespace<span class="w"> </span>pmm-client-test
+kubectl<span class="w"> </span>config<span class="w"> </span>set-context<span class="w"> </span>--current<span class="w"> </span>--namespace<span class="o">=</span>pmm-client-test
+</code></pre></div>
+</li>
+<li>
+<p>Create <code>pmm-client-volume.yaml</code> to define persistent storage for PMM Client data between pod restarts:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PersistentVolume</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pmm-client-pv</span>
+<span class="w">  </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">storageClassName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">manual</span>
+<span class="w">  </span><span class="nt">capacity</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">storage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10Gi</span>
+<span class="w">  </span><span class="nt">accessModes</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ReadWriteOnce</span>
+<span class="w">  </span><span class="nt">hostPath</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/mnt/data&quot;</span>
+<span class="nn">---</span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PersistentVolumeClaim</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pmm-client-pvc</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">storageClassName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">manual</span>
+<span class="w">  </span><span class="nt">accessModes</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ReadWriteOnce</span>
+<span class="w">  </span><span class="nt">resources</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">requests</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">storage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10Gi</span>
+</code></pre></div>
+</li>
+<li>
+<p>Create the resources defined in <code>pmm-client-volume.yaml</code></p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>pmm-client-volume.yaml
+</code></pre></div>
+</li>
+<li>
+<p>Create a Secret to store PMM Server credentials. Replace <code>admin</code> password if you changed it during PMM Server setup:</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>create<span class="w"> </span>secret<span class="w"> </span>generic<span class="w"> </span>pmm-secret<span class="w"> </span><span class="se">\</span>
+--from-literal<span class="o">=</span><span class="nv">PMM_AGENT_SERVER_USERNAME</span><span class="o">=</span>admin<span class="w"> </span><span class="se">\</span>
+--from-literal<span class="o">=</span><span class="nv">PMM_AGENT_SERVER_PASSWORD</span><span class="o">=</span>admin
+</code></pre></div>
+</li>
+<li>
+<p>Create <code>pmm-client-pod.yaml</code> to define a Pod running PMM Client. Replace <code>X.X.X.X</code> with the IP address of your PMM Server:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Deployment</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pmm-client</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">selector</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">matchLabels</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pmm-client</span>
+<span class="w">  </span><span class="nt">strategy</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Recreate</span>
+<span class="w">  </span><span class="nt">template</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pmm-client</span>
+<span class="w">    </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">containers</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pmm-client</span>
+<span class="w">          </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">percona/pmm-client:3</span>
+<span class="w">          </span><span class="nt">volumeMounts</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pmm-client-storage</span>
+<span class="w">              </span><span class="nt">mountPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/usr/local/percona/pmm/tmp</span>
+<span class="w">          </span><span class="nt">env</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PMM_AGENT_SERVER_ADDRESS</span>
+<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">X.X.X.X:443</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PMM_AGENT_SERVER_USERNAME</span>
+<span class="w">              </span><span class="nt">valueFrom</span><span class="p">:</span>
+<span class="w">                </span><span class="nt">secretKeyRef</span><span class="p">:</span>
+<span class="w">                  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pmm-secret</span>
+<span class="w">                  </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PMM_AGENT_SERVER_USERNAME</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PMM_AGENT_SERVER_PASSWORD</span>
+<span class="w">              </span><span class="nt">valueFrom</span><span class="p">:</span>
+<span class="w">                </span><span class="nt">secretKeyRef</span><span class="p">:</span>
+<span class="w">                  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pmm-secret</span>
+<span class="w">                  </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PMM_AGENT_SERVER_PASSWORD</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PMM_AGENT_SERVER_INSECURE_TLS</span>
+<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1&quot;</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PMM_AGENT_CONFIG_FILE</span>
+<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">config/pmm-agent.yaml</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PMM_AGENT_SETUP</span>
+<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1&quot;</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PMM_AGENT_SETUP_FORCE</span>
+<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1&quot;</span>
+<span class="w">      </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pmm-client-storage</span>
+<span class="w">          </span><span class="nt">persistentVolumeClaim</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">claimName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pmm-client-pvc</span>
+</code></pre></div>
+<div class="admonition warning alert alert-warning">
+<p class="admonition-title">Security note</p>
+<p>The <code>PMM_AGENT_SERVER_INSECURE_TLS=1</code> setting disables TLS certificate verification. For production environments, configure proper TLS certificates and remove this setting.</p>
 </div>
-<p>To connect your PMM Server to Percona Platform, copy your personal access token from Platform Portal and paste it into PMM. You will find your access token in Platform Portal as part of your user profile page.</p>
-<h2 id="token-validity">Token validity<a class="headerlink" href="#token-validity" title="Permanent link">&para;</a></h2>
-<p>For security reasons, access tokens expire after 30 minutes. Make sure to paste the code before that, or generate a new one if it expires.</p>
-<p class="power-number">To connect your PMM Server to Percona Platform:</p>
-<ol>
-<li>In PMM, go to <strong>Configuration &gt; Settings &gt; Percona Platform</strong> tab to fill in the <strong>Connect PMM to Percona Portal</strong> form.</li>
-<li>The <strong>PMM Server ID</strong> field is automatically populated with the ID identified for your PMM instance. Enter the name of your PMM instance and click <strong>Get token</strong> to go to Percona Platform Portal and generate your access token.</li>
-<li>Log into Percona Platform using your Percona Account (if you don&rsquo;t have an active current session).</li>
-<li>On the <strong>Profile Settings page</strong>, copy the code from the <strong>Percona Platform Access Token</strong> field.</li>
-<li>Back into PMM, paste the Access Token into the <strong>Percona Platform Access Token</strong> field, and click  <strong>Connect</strong>.</li>
+</li>
+<li>
+<p>Deploy PMM Client pod and configure the <a href="../../use/commands/pmm-agent.html">pmm-agent</a> in Setup mode to connect to PMM Server:</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>pmm-client-pod.yaml
+</code></pre></div>
+</li>
 </ol>
-<p>To confirm that you have successfully connected the server and check the list of all servers currently connected to an organization, go to <a href="https://portal.percona.com">Percona Platform</a> &gt; <strong>Dashboard</strong> tab and click <strong>View Instances</strong> next to the <strong>Connect your PMM</strong> step.</p>
-<h2 id="check-percona-portal-entitlements">Check Percona Portal entitlements<a class="headerlink" href="#check-percona-portal-entitlements" title="Permanent link">&para;</a></h2>
-<p>After connecting to the Percona Platform, PMM has access to <a href="../../alert/templates_list.html">additional alert templates</a>, <a href="../../advisors/advisor-details.html">Advisor checks</a>, and account information. See <a href="integrate_with_percona_platform.html">Check Percona Portal account information</a>.</p>
-<h3 id="disconnect-a-pmm-instance">Disconnect a PMM instance<a class="headerlink" href="#disconnect-a-pmm-instance" title="Permanent link">&para;</a></h3>
-<p>Disconnect a PMM instance when you want to unlink it from your Percona Platform organization or stop monitoring it there.</p>
-<p>To disconnect a PMM Server, go to <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 15.5A3.5 3.5 0 0 1 8.5 12 3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5m7.43-2.53c.04-.32.07-.64.07-.97s-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.39-1.06-.73-1.69-.98l-.37-2.65A.506.506 0 0 0 14 2h-4c-.25 0-.46.18-.5.42l-.37 2.65c-.63.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.57 11c-.04.34-.07.67-.07 1s.03.65.07.97l-2.11 1.66c-.19.15-.25.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.06.74 1.69.99l.37 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.37-2.65c.63-.26 1.17-.59 1.69-.99l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64z"/></svg></span> <strong>Configuration &gt; Settings &gt; Percona Platform</strong> and click <strong>Disconnect</strong>.</p>
-<h4 id="disconnecting-instances-as-an-admin">Disconnecting instances as an Admin<a class="headerlink" href="#disconnecting-instances-as-an-admin" title="Permanent link">&para;</a></h4>
-<p>In situations where you are not able to disconnect servers yourself, ask your PMM Admin to disconnect the server for you. For example, you may not be able to disconnect servers when PMM is moved to a network segment without outbound connections to public networks.</p>
-<p>If you cannot disconnect servers yourself, ask your PMM Admin to disconnect the server for you. For example, you may not be able to disconnect servers when PMM is moved to a network segment without outbound connections to public networks.</p>
-<p>If you are a PMM Admin, you can terminate any connections to Percona Platform, even if you are not logged into PMM with a Percona Account. However, we recommend logging in with a Percona Account before disconnecting servers, as this will automatically remove the disconnected servers from Percona Platform as well. </p>
-<p>If you do disconnect servers without being connected with a Percona Account, you&rsquo;ll have to manually remove the unavailable servers from Percona Platform. This ensures that your list of connected PMM instances stays up-to-date in Percona Platform. </p>
-<p>To do this, go to <a href="https://portal.percona.com/login">PMM instances</a>, and remove any servers that you have already disconnected from PMM.</p>
-<h2 id="sign-into-pmm-with-your-percona-account">Sign into PMM with your Percona Account<a class="headerlink" href="#sign-into-pmm-with-your-percona-account" title="Permanent link">&para;</a></h2>
-<p class="power-number">Once you&rsquo;ve successfully connected your PMM instance to the Percona Platform, you can also sign into PMM using your Percona Account:</p>
+<div class="admonition hint alert-success">
+<p class="admonition-title">Important</p>
+<p>You can set the container environment variable <code>PMM_AGENT_PRERUN_SCRIPT</code> to a shell script to automatically add services to PMM for monitoring.</p>
+</div>
+</div>
+<div class="tabbed-block">
+<p class="power-number">Follow these steps to deploy PMM Client as a Sidecar container to a MySQL container using <code>kubectl</code>:</p>
 <ol>
-<li>Log out of your existing PMM session.</li>
-<li>On the PMM login screen, click <strong>Sign in with Percona Account</strong>.
- If you have an active Percona Account session on the same browser, PMM will log you in automatically. Otherwise, enter your Percona Account credentials to start a new session.</li>
+<li>
+<p>(Optional) Create a namespace named <code>pmm-client-test</code> for the deployment and set it as the default namespace:</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>create<span class="w"> </span>namespace<span class="w"> </span>pmm-client-test
+kubectl<span class="w"> </span>config<span class="w"> </span>set-context<span class="w"> </span>--current<span class="w"> </span>--namespace<span class="o">=</span>pmm-client-test
+</code></pre></div>
+</li>
+<li>
+<p>Create <code>mysql-pmm-client-volume.yaml</code> to define persistent storage for storing PMM Client and MySQL data between pod restarts:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PersistentVolume</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pmm-client-pv</span>
+<span class="w">  </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">storageClassName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">manual</span>
+<span class="w">  </span><span class="nt">capacity</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">storage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10Gi</span>
+<span class="w">  </span><span class="nt">accessModes</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ReadWriteOnce</span>
+<span class="w">  </span><span class="nt">hostPath</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/mnt/data/pmm-client&quot;</span>
+<span class="nn">---</span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PersistentVolumeClaim</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pmm-client-pvc</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">storageClassName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">manual</span>
+<span class="w">  </span><span class="nt">accessModes</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ReadWriteOnce</span>
+<span class="w">  </span><span class="nt">resources</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">requests</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">storage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10Gi</span>
+<span class="nn">---</span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PersistentVolume</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mysql-pv-volume</span>
+<span class="w">  </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">storageClassName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">manual</span>
+<span class="w">  </span><span class="nt">capacity</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">storage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20Gi</span>
+<span class="w">  </span><span class="nt">accessModes</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ReadWriteOnce</span>
+<span class="w">  </span><span class="nt">hostPath</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/mnt/data/mysql&quot;</span>
+<span class="nn">---</span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PersistentVolumeClaim</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mysql-pv-claim</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">storageClassName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">manual</span>
+<span class="w">  </span><span class="nt">accessModes</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ReadWriteOnce</span>
+<span class="w">  </span><span class="nt">resources</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">requests</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">storage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20Gi</span>
+</code></pre></div>
+</li>
+<li>
+<p>Create the resources defined in <code>mysql-pmm-client-volume.yaml</code></p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>mysql-pmm-client-volume.yaml
+</code></pre></div>
+</li>
+<li>
+<p>Create a Secret to store the credentials for PMM Server authentication. Update <code>PMM_AGENT_SERVER_PASSWORD</code> value if you changed the default <code>admin</code> password during setup:</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>create<span class="w"> </span>secret<span class="w"> </span>generic<span class="w"> </span>pmm-secret<span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>--from-literal<span class="o">=</span><span class="nv">PMM_AGENT_SERVER_USERNAME</span><span class="o">=</span>admin<span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>--from-literal<span class="o">=</span><span class="nv">PMM_AGENT_SERVER_PASSWORD</span><span class="o">=</span>admin
+</code></pre></div>
+</li>
+<li>
+<p>Create a Secret to store the MySQL root password:</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>create<span class="w"> </span>secret<span class="w"> </span>generic<span class="w"> </span>mysql-secret<span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>--from-literal<span class="o">=</span><span class="nv">MYSQL_ROOT_PASSWORD</span><span class="o">=</span>very_secure_password
+</code></pre></div>
+</li>
+<li>
+<p>Create <code>mysql-pmm-client-pod.yaml</code> to define a Pod running MySQL 9.0 container with a PMM Client container running as Sidecar. Replace <code>X.X.X.X</code> with the IP address of your PMM Server:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Deployment</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mysql</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">selector</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">matchLabels</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mysql</span>
+<span class="w">  </span><span class="nt">strategy</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Recreate</span>
+<span class="w">  </span><span class="nt">template</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mysql</span>
+<span class="w">    </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">containers</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mysql</span>
+<span class="w">          </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mysql:9</span>
+<span class="w">          </span><span class="nt">resources</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">          </span><span class="nt">env</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MYSQL_ROOT_PASSWORD</span>
+<span class="w">              </span><span class="nt">valueFrom</span><span class="p">:</span>
+<span class="w">                </span><span class="nt">secretKeyRef</span><span class="p">:</span>
+<span class="w">                  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mysql-secret</span>
+<span class="w">                  </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MYSQL_ROOT_PASSWORD</span>
+<span class="w">          </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">containerPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3306</span>
+<span class="w">              </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mysql</span>
+<span class="w">          </span><span class="nt">volumeMounts</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mysql-persistent-storage</span>
+<span class="w">              </span><span class="nt">mountPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/var/lib/mysql</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pmm-client</span>
+<span class="w">          </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">percona/pmm-client:3</span>
+<span class="w">          </span><span class="nt">env</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PMM_AGENT_SERVER_ADDRESS</span>
+<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">X.X.X.X:443</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PMM_AGENT_SERVER_USERNAME</span>
+<span class="w">              </span><span class="nt">valueFrom</span><span class="p">:</span>
+<span class="w">                </span><span class="nt">secretKeyRef</span><span class="p">:</span>
+<span class="w">                  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pmm-secret</span>
+<span class="w">                  </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PMM_AGENT_SERVER_USERNAME</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PMM_AGENT_SERVER_PASSWORD</span>
+<span class="w">              </span><span class="nt">valueFrom</span><span class="p">:</span>
+<span class="w">                </span><span class="nt">secretKeyRef</span><span class="p">:</span>
+<span class="w">                  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pmm-secret</span>
+<span class="w">                  </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PMM_AGENT_SERVER_PASSWORD</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MYSQL_ROOT_PASSWORD</span>
+<span class="w">              </span><span class="nt">valueFrom</span><span class="p">:</span>
+<span class="w">                </span><span class="nt">secretKeyRef</span><span class="p">:</span>
+<span class="w">                  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mysql-secret</span>
+<span class="w">                  </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MYSQL_ROOT_PASSWORD</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PMM_AGENT_SERVER_INSECURE_TLS</span>
+<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1&quot;</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PMM_AGENT_CONFIG_FILE</span>
+<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">config/pmm-agent.yaml</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PMM_AGENT_SETUP</span>
+<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1&quot;</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PMM_AGENT_SETUP_FORCE</span>
+<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1&quot;</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PMM_AGENT_SIDECAR</span>
+<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1&quot;</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PMM_AGENT_PRERUN_SCRIPT</span>
+<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;pmm-admin</span><span class="nv"> </span><span class="s">status</span><span class="nv"> </span><span class="s">--wait=10s;</span><span class="nv"> </span><span class="s">pmm-admin</span><span class="nv"> </span><span class="s">add</span><span class="nv"> </span><span class="s">mysql</span><span class="nv"> </span><span class="s">--username=root</span><span class="nv"> </span><span class="s">--password=${MYSQL_ROOT_PASSWORD}</span><span class="nv"> </span><span class="s">--query-source=perfschema&quot;</span>
+<span class="w">      </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mysql-persistent-storage</span>
+<span class="w">          </span><span class="nt">persistentVolumeClaim</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">claimName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mysql-pv-claim</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pmm-client-storage</span>
+<span class="w">          </span><span class="nt">persistentVolumeClaim</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">claimName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pmm-client-pvc</span>
+</code></pre></div>
+<div class="admonition warning alert alert-warning">
+<p class="admonition-title">Security note</p>
+<p>The <code>PMM_AGENT_SERVER_INSECURE_TLS=1</code> setting disables TLS certificate verification. For production environments, configure proper TLS certificates and remove this setting.</p>
+</div>
+</li>
+<li>
+<p>Deploy MySQL and PMM Client pod:</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>mysql-pmm-client-pod.yaml
+</code></pre></div>
+</li>
 </ol>
+</div>
+</div>
+</div>
+<h2 id="view-your-monitored-node">View your monitored node<a class="headerlink" href="#view-your-monitored-node" title="Permanent link">&para;</a></h2>
+<p class="power-number">To confirm your node is being monitored:</p>
+<ol>
+<li>
+<p>Go to the main menu and select <strong>Operating System (OS) &gt; Overview</strong>.</p>
+</li>
+<li>
+<p>In the <strong>Node Names</strong> drop-down menu, select the node you recently registered.</p>
+</li>
+<li>
+<p>Modify the time range to view the relevant data for your selected node.</p>
+</li>
+</ol>
+<div class="admonition danger alert alert-danger">
+<p class="admonition-title">Danger</p>
+<p><code>pmm-agent.yaml</code> contains sensitive credentials and should not be shared.</p>
+</div>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="failed-to-register-pmm-agent-on-pmm-server-connection-refused">Failed to register pmm-agent on PMM Server: connection refused<a class="headerlink" href="#failed-to-register-pmm-agent-on-pmm-server-connection-refused" title="Permanent link">&para;</a></h3>
+<p>If you get <code>Failed to register pmm-agent on PMM Server: connection refused</code>, this typically means that the IP address is incorrect or the PMM Server is unreachable. Verify:</p>
+<ul>
+<li>The <code>PMM_AGENT_SERVER_ADDRESS</code> value is correct</li>
+<li>PMM Server is running and accessible</li>
+<li>Firewall rules allow traffic on port <code>443</code></li>
+</ul>
+<h3 id="pod-stuck-in-pending-state">Pod stuck in Pending state<a class="headerlink" href="#pod-stuck-in-pending-state" title="Permanent link">&para;</a></h3>
+<p>Check if the <code>PersistentVolume</code> was created successfully:</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>pv
+kubectl<span class="w"> </span>get<span class="w"> </span>pvc
+kubectl<span class="w"> </span>describe<span class="w"> </span>pvc<span class="w"> </span>pmm-client-pvc
+</code></pre></div>
+<h3 id="view-pmm-client-logs">View PMM Client logs<a class="headerlink" href="#view-pmm-client-logs" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Standalone deployment</span>
+kubectl<span class="w"> </span>logs<span class="w"> </span>-l<span class="w"> </span><span class="nv">app</span><span class="o">=</span>pmm-client
+
+<span class="c1"># Sidecar deployment</span>
+kubectl<span class="w"> </span>logs<span class="w"> </span>-l<span class="w"> </span><span class="nv">app</span><span class="o">=</span>mysql<span class="w"> </span>-c<span class="w"> </span>pmm-client
+</code></pre></div>
 
 
 
@@ -16010,7 +16653,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="February 5, 2026 14:46:56 UTC">February 5, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="March 30, 2026 13:19:22 UTC">March 30, 2026</span>
   </span>
 
     
@@ -16020,7 +16663,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Created">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="December 18, 2024 14:22:49 UTC">December 18, 2024</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="March 30, 2026 13:19:22 UTC">March 30, 2026</span>
   </span>
 
     
