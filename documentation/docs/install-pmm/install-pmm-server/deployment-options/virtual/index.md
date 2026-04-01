@@ -22,11 +22,11 @@ Your PMM Server stores monitoring data, dashboards, alert configurations, and us
 Once your new PMM Server is running, complete these steps to finish the migration:
 {.power-number}
 
-1. [Configure each PMM Client](../install-pmm/install-pmm-client/package_manager.md#configure-pmm-client) to point to the new server using service accounts.
+1. [Configure each PMM Client](../install-pmm/install-pmm-client/package_manager.md#configure-pmm-client) to point to the new server using service accounts:
 
-```bash
-pmm-admin config --server-url=https://admin:admin@<NEW_PMM_SERVER_IP>:443 --server-insecure-tls
-```
+    ```bash
+    pmm-admin config --server-insecure-tls --server-url=https://service_token:<YOUR_GLSA_TOKEN>@<NEW_PMM_SERVER_IP>:443
+    ```
 
 2. Verify data is flowing by logging into the new PMM Server UI and confirming that all monitored services appear in **Configuration > Inventory** with current metrics on dashboards.
 
