@@ -107,6 +107,8 @@ declare module "@mui/material/Paper" {
   }
 }
 
+const fontDisplay = "'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif";
+
 // Color Primitives — Shared across all themes
 export const primitives = {
   brand: {
@@ -519,132 +521,144 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
   },
   typography: {
     h1: {
+      fontFamily: fontDisplay,
       fontWeight: 600,
-      fontFamily: "'Poppins', sans-serif",
       [BaseTheme.breakpoints.down("sm")]: {
-        fontSize: "32px",
+        fontSize: "2rem",
+        letterSpacing: "-0.04rem",
       },
       [BaseTheme.breakpoints.up("sm")]: {
-        fontSize: "48px",
+        fontSize: "3rem",
+        letterSpacing: "-0.06rem",
       },
+      lineHeight: "1.0625",
     },
     h2: {
+      fontFamily: fontDisplay,
       fontWeight: 600,
-      fontFamily: "'Poppins', sans-serif",
       [BaseTheme.breakpoints.down("sm")]: {
-        fontSize: "29px",
+        fontSize: "1.8125rem",
+        letterSpacing: "-0.01813rem",
       },
       [BaseTheme.breakpoints.up("sm")]: {
-        fontSize: "40px",
+        fontSize: "2.5rem",
+        letterSpacing: "-0.025rem",
       },
+      lineHeight: "1.0625",
     },
     h3: {
+      fontFamily: fontDisplay,
       fontWeight: 600,
-      fontFamily: "'Poppins', sans-serif",
       [BaseTheme.breakpoints.down("sm")]: {
-        fontSize: "26px",
+        fontSize: "1.625rem",
       },
       [BaseTheme.breakpoints.up("sm")]: {
-        fontSize: "33px",
+        fontSize: "2.0625rem",
       },
+      lineHeight: "1.0625",
     },
     h4: {
+      fontFamily: fontDisplay,
       fontWeight: 600,
-      fontFamily: "'Poppins', sans-serif",
       [BaseTheme.breakpoints.down("sm")]: {
-        fontSize: "23px",
+        fontSize: "1.4375rem",
       },
       [BaseTheme.breakpoints.up("sm")]: {
-        fontSize: "28px",
+        fontSize: "1.75rem",
       },
+      lineHeight: "1.0625",
     },
     h5: {
+      fontFamily: fontDisplay,
       fontWeight: 600,
-      fontFamily: "'Poppins', sans-serif",
-      lineHeight: "22.5px",
       [BaseTheme.breakpoints.down("sm")]: {
-        fontSize: "20px",
+        fontSize: "1.25rem",
       },
       [BaseTheme.breakpoints.up("sm")]: {
-        fontSize: "23px",
+        fontSize: "1.4375rem",
       },
+      lineHeight: "1.125",
     },
     h6: {
+      fontFamily: fontDisplay,
       fontWeight: 600,
-      fontFamily: "'Poppins', sans-serif",
       [BaseTheme.breakpoints.down("sm")]: {
-        fontSize: "18px",
+        fontSize: "1.125rem",
       },
       [BaseTheme.breakpoints.up("sm")]: {
-        fontSize: "19px",
+        fontSize: "1.1875rem",
       },
-    },
-    subtitle1: {
-      fontWeight: 600,
-      fontSize: "19px",
-      lineHeight: "1",
-    },
-    subtitle2: {
-      fontWeight: 600,
-      fontSize: "16px",
-      lineHeight: "22px",
-    },
-    overline: {
-      fontFamily: "'Poppins', sans-serif",
-      fontWeight: 800,
-      fontSize: "12px",
-    },
-    sectionHeading: {
-      fontFamily: "'Poppins', sans-serif",
-      fontWeight: 700,
-      fontSize: "14px",
-      lineHeight: "17.5px",
+      lineHeight: "1.25",
     },
     subHead1: {
-      fontWeight: 600,
-      fontSize: "19px",
-      lineHeight: "26.13px",
+      fontWeight: 500,
+      fontSize: "1.1875rem",
+      lineHeight: "1.125",
     },
     subHead2: {
-      fontWeight: 600,
-      fontSize: "16px",
-      lineHeight: "22px",
-    },
-    helperText: {
-      fontWeight: 450,
-      fontSize: "12px",
-      lineHeight: "15px",
-    },
-    menuText: {
       fontWeight: 500,
-      fontSize: "16px",
-      lineHeight: "20px",
+      fontSize: "1rem",
+      lineHeight: "1.25",
+    },
+    overline: {
+      fontFamily: fontDisplay,
+      fontWeight: 700,
+      fontSize: "0.75rem",
+      lineHeight: "1.125",
+      letterSpacing: "0.03rem",
+      textTransform: "uppercase",
+    },
+    sectionHeading: {
+      fontFamily: fontDisplay,
+      fontWeight: 700,
+      fontSize: "0.875rem",
+      lineHeight: "1.25",
+      letterSpacing: "0.00875rem",
     },
     body1: {
       fontWeight: 400,
-      fontSize: "16px",
+      fontSize: "1rem",
+      lineHeight: "1.375",
     },
     body2: {
       fontWeight: 400,
-      fontSize: "14px",
+      fontSize: "0.875rem",
+      lineHeight: "1.5",
     },
     caption: {
       fontWeight: 400,
-      fontSize: "13px",
+      fontSize: "0.8125rem",
+      lineHeight: "1.375",
     },
     button: {
-      fontFamily: "'Poppins', sans-serif",
+      fontWeight: 600,
+      fontFamily: fontDisplay,
+      fontSize: "0.9375rem",
+      lineHeight: "1.0625",
       textTransform: "none",
-      lineHeight: "1",
-      letterSpacing: "0.025em",
+    },
+    menuText: {
+      fontFamily: fontDisplay,
+      fontWeight: 600,
+      fontSize: "0.875rem",
+      lineHeight: "1.25",
     },
     inputText: {
-      fontSize: "16px",
       fontWeight: 400,
+      fontSize: "1rem",
+      lineHeight: "1.5",
     },
     inputLabel: {
-      fontSize: "12px",
       fontWeight: 500,
+      fontSize: "0.75rem",
+      lineHeight: "1",
+      letterSpacing: "0.0075rem",
+    },
+    helperText: {
+      fontWeight: 450,
+      fontSize: "0.75rem",
+      lineHeight: "1.25",
+      letterSpacing: "0.0075rem",
     },
   },
   shadows: [

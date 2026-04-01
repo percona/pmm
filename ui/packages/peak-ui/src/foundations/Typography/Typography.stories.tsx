@@ -1,372 +1,189 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Typography, TypographyProps } from '@mui/material';
+import { Typography, type TypographyProps } from '@mui/material';
 
 const meta = {
   title: 'Foundations/Typography',
   parameters: {
-    layout: 'centered',
+    layout: 'padded',
   },
 } satisfies Meta;
 
 export default meta;
 type Story = StoryObj<TypographyProps>;
 
-export const H1: Story = {
-  parameters: {
-    docs: {
-      source: {
-        code: '<Typography variant="h1">Disregard and contempt</Typography>',
-      },
-    },
-  },
-
-  render: function Render() {
-    return (
-      <>
-        <Typography variant='h1'>
-          Disregard and contempt
-        </Typography>
-      </>
-    );
-  },
+const labelStyle = {
+  display: 'block',
+  fontSize: '0.875rem',
+  fontFamily: '"Roboto Mono", monospace',
+  opacity: 0.5,
+  marginBottom: '0.25rem',
 };
 
-export const H2: Story = {
-  parameters: {
-    docs: {
-      source: {
-        code: '<Typography variant="h2">Whereas disregard and contempt for human rights</Typography>',
-      },
-    },
-  },
-
-  render: function Render() {
-    return (
-      <>
-        <Typography variant='h2'>
-          Whereas disregard and contempt for human rights
-        </Typography>
-      </>
-    );
-  },
+const stackStyle = {
+  display: 'flex',
+  flexDirection: 'column' as const,
+  gap: '2rem',
 };
 
-export const H3: Story = {
-  parameters: {
-    docs: {
-      source: {
-        code: '<Typography variant="h3">Whereas disregard and contempt for human rights have resulted</Typography>',
-      },
-    },
-  },
+/* ── Headings ─────────────────────────────────────── */
 
-  render: function Render() {
-    return (
-      <>
-        <Typography variant='h3'>
-          Whereas disregard and contempt for human rights have resulted
-        </Typography>
-      </>
-    );
-  },
+const headingVariants = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'] as const;
+
+const headingSamples: Record<(typeof headingVariants)[number], string> = {
+  h1: 'Critical Thinking',
+  h2: 'Education Cultivates Empathy',
+  h3: 'Knowledge Empowers Us To Shape Our Destiny',
+  h4: 'Investment In Knowledge Consistently Pays The Best Interest',
+  h5: 'Reading Unlocks Doors To New Worlds And Perspectives',
+  h6: 'Learning Happens When We Are Engaged And Excited',
 };
 
-export const H4: Story = {
-  parameters: {
-    docs: {
-      source: {
-        code: '<Typography variant="h4">No one shall be held in slavery or servitude; slavery and the slave trade shall be prohibited</Typography>',
-      },
-    },
-  },
-
-  render: function Render() {
-    return (
-      <>
-        <Typography variant='h4'>
-          No one shall be held in slavery or servitude; slavery and the slave trade shall be prohibited
-        </Typography>
-      </>
-    );
-  },
+export const HeadingsShowcase: Story = {
+  tags: ['!dev'],
+  render: () => (
+    <div style={stackStyle}>
+      {headingVariants.map((v) => (
+        <div key={v}>
+          <span style={labelStyle}>{v}</span>
+          <Typography variant={v}>{headingSamples[v]}</Typography>
+        </div>
+      ))}
+    </div>
+  ),
 };
 
-export const H5: Story = {
-  parameters: {
-    docs: {
-      source: {
-        code: '<Typography variant="h5">No one shall be held in slavery or servitude; slavery and the slave trade shall be prohibited in all their forms</Typography>',
-      },
+export const Headings: Story = {
+  args: {
+    variant: 'h1',
+    children: headingSamples.h1,
+  },
+  argTypes: {
+    variant: {
+      control: 'select',
+      options: [...headingVariants],
     },
+    children: { control: 'text' },
   },
-
-  render: function Render() {
-    return (
-      <>
-        <Typography variant='h5'>
-          No one shall be held in slavery or servitude; slavery and the slave trade shall be prohibited in all their forms
-        </Typography>
-      </>
-    );
-  },
+  render: (args) => (
+    <Typography variant={args.variant}>{args.children}</Typography>
+  ),
 };
 
-export const H6: Story = {
-  parameters: {
-    docs: {
-      source: {
-        code: '<Typography variant="h6">Everyone has the right to an effective remedy by the competent national tribunals for acts violating the fundamental rights granted him by the constitution or by law</Typography>',
-      },
-    },
-  },
+/* ── Titling ──────────────────────────────────────── */
 
-  render: function Render() {
-    return (
-      <>
-        <Typography variant='h6'>
-          Everyone has the right to an effective remedy by the competent national tribunals for acts violating the fundamental rights granted him by the constitution or by law
-        </Typography>
-      </>
-    );
-  },
+const titlingVariants = ['subHead1', 'subHead2', 'overline', 'sectionHeading'] as const;
+
+const titlingSamples: Record<(typeof titlingVariants)[number], string> = {
+  subHead1: 'Education is the passport to the future and the key to unlocking the world. Students thrive when teachers actively inspire and challenge them.',
+  subHead2: 'Critical thinking is the essential compass for navigating a complex world. Every focused lesson learned is a significant step toward personal growth. Technology provides new, borderless avenues for global learning and connection.',
+  overline: 'Critical Thinking',
+  sectionHeading: 'Education Is The Passport',
 };
 
-export const Subhead1: Story = {
-  parameters: {
-    docs: {
-      source: {
-        code: '<Typography variant="subHead1">Everyone has the right to an effective remedy by the competent national tribunals for acts violating the fundamental rights granted him by the constitution or by law.</Typography>',
-      },
-    },
-  },
-
-  render: function Render() {
-    return (
-      <>
-        <Typography variant='subHead1'>
-          Everyone has the right to an effective remedy by the competent national tribunals for acts violating the fundamental rights granted him by the constitution or by law.
-        </Typography>
-      </>
-    );
-  },
+export const TitlingShowcase: Story = {
+  tags: ['!dev'],
+  render: () => (
+    <div style={stackStyle}>
+      {titlingVariants.map((v) => (
+        <div key={v}>
+          <span style={labelStyle}>{v}</span>
+          <Typography variant={v}>{titlingSamples[v]}</Typography>
+        </div>
+      ))}
+    </div>
+  ),
 };
 
-export const Subhead2: Story = {
-  parameters: {
-    docs: {
-      source: {
-        code: '<Typography variant="subHead2">No one shall be subjected to arbitrary arrest, detention or exile. Everyone is entitled in full equality to a fair and public hearing by an independent and impartial tribunal, in the determination of his rights and obligations and of any criminal charge against him.</Typography>',
-      },
+export const Titling: Story = {
+  args: {
+    variant: 'subHead1' as TypographyProps['variant'],
+    children: titlingSamples.subHead1,
+  },
+  argTypes: {
+    variant: {
+      control: 'select',
+      options: [...titlingVariants],
     },
+    children: { control: 'text' },
   },
-
-  render: function Render() {
-    return (
-      <>
-        <Typography variant='subHead2'>
-          No one shall be subjected to arbitrary arrest, detention or exile. Everyone is entitled in full equality to a fair and public hearing by an independent and impartial tribunal, in the determination of his rights and obligations and of any criminal charge against him.
-        </Typography>
-      </>
-    );
-  },
+  render: (args) => (
+    <Typography variant={args.variant}>{args.children}</Typography>
+  ),
 };
 
-export const Overline: Story = {
-  parameters: {
-    docs: {
-      source: {
-        code: '<Typography variant="overline">Everyone has the right to an effective remedy</Typography>',
-      },
-    },
-  },
+/* ── Body ─────────────────────────────────────────── */
 
-  render: function Render() {
-    return (
-      <>
-        <Typography variant='overline'>
-          Everyone has the right to an effective remedy
-        </Typography>
-      </>
-    );
-  },
+const bodyVariants = ['body1', 'body2', 'caption'] as const;
+
+const bodySample =
+  'An investment in knowledge consistently pays the best interest. The thoughtful pursuit of wisdom is a challenging, lifelong adventure. Every focused lesson learned is a significant step toward personal growth. Knowledge empowers individuals to confidently shape their own destiny. The thoughtful pursuit of wisdom is a challenging, lifelong adventure. A holistic education cultivates vital empathy and deep understanding. Learning is a continuous, lifelong journey, not a static destination.';
+
+export const BodyShowcase: Story = {
+  tags: ['!dev'],
+  render: () => (
+    <div style={stackStyle}>
+      {bodyVariants.map((v) => (
+        <div key={v}>
+          <span style={labelStyle}>{v}</span>
+          <Typography variant={v}>{bodySample}</Typography>
+        </div>
+      ))}
+    </div>
+  ),
 };
 
-export const SectionHeading: Story = {
-  parameters: {
-    docs: {
-      source: {
-        code: '<Typography variant="sectionHeading">Everyone is entitled in full equality to a fair and public hearing.</Typography>',
-      },
+export const Body: Story = {
+  name: 'Body styles',
+  args: {
+    variant: 'body1',
+    children: bodySample,
+  },
+  argTypes: {
+    variant: {
+      control: 'select',
+      options: [...bodyVariants],
     },
+    children: { control: 'text' },
   },
-
-  render: function Render() {
-    return (
-      <>
-        <Typography variant='sectionHeading'>
-          Everyone is entitled in full equality to a fair and public hearing.
-        </Typography>
-      </>
-    );
-  },
+  render: (args) => (
+    <Typography variant={args.variant}>{args.children}</Typography>
+  ),
 };
 
-export const Body1: Story = {
-  parameters: {
-    docs: {
-      source: {
-        code: '<Typography variant="body1">No one shall be subjected to arbitrary arrest, detention or exile. Everyone is entitled in full equality to a fair and public hearing by an independent and impartial tribunal, in the determination of his rights and obligations and of any criminal charge against him. No one shall be subjected to arbitrary interference with his privacy, family, home or correspondence, nor to attacks upon his honour and reputation. Everyone has the right to the protection of the law against such interference or attacks.</Typography>',
-      },
-    },
-  },
+/* ── Component text styles ────────────────────────── */
 
-  render: function Render() {
-    return (
-      <>
-        <Typography variant='body1'>
-          No one shall be subjected to arbitrary arrest, detention or exile. Everyone is entitled in full equality to a fair and public hearing by an independent and impartial tribunal, in the determination of his rights and obligations and of any criminal charge against him. No one shall be subjected to arbitrary interference with his privacy, family, home or correspondence, nor to attacks upon his honour and reputation. Everyone has the right to the protection of the law against such interference or attacks.
-        </Typography>
-      </>
-    );
-  },
+const componentVariants = ['button', 'menuText', 'inputText', 'inputLabel', 'helperText'] as const;
+
+const componentSample = 'Select database';
+
+export const ComponentStylesShowcase: Story = {
+  tags: ['!dev'],
+  render: () => (
+    <div style={stackStyle}>
+      {componentVariants.map((v) => (
+        <div key={v}>
+          <span style={labelStyle}>{v}</span>
+          <Typography variant={v}>{componentSample}</Typography>
+        </div>
+      ))}
+    </div>
+  ),
 };
 
-export const Body2: Story = {
-  parameters: {
-    docs: {
-      source: {
-        code: '<Typography variant="body2">No one shall be subjected to arbitrary arrest, detention or exile. Everyone is entitled in full equality to a fair and public hearing by an independent and impartial tribunal, in the determination of his rights and obligations and of any criminal charge against him. No one shall be subjected to arbitrary interference with his privacy, family, home or correspondence, nor to attacks upon his honour and reputation. Everyone has the right to the protection of the law against such interference or attacks.</Typography>',
-      },
+export const ComponentStyles: Story = {
+  name: 'Component text styles',
+  args: {
+    variant: 'button',
+    children: componentSample,
+  },
+  argTypes: {
+    variant: {
+      control: 'select',
+      options: [...componentVariants],
     },
+    children: { control: 'text' },
   },
-
-  render: function Render() {
-    return (
-      <>
-        <Typography variant='body2'>
-          No one shall be subjected to arbitrary arrest, detention or exile. Everyone is entitled in full equality to a fair and public hearing by an independent and impartial tribunal, in the determination of his rights and obligations and of any criminal charge against him. No one shall be subjected to arbitrary interference with his privacy, family, home or correspondence, nor to attacks upon his honour and reputation. Everyone has the right to the protection of the law against such interference or attacks.
-        </Typography>
-      </>
-    );
-  },
-};
-
-export const Caption: Story = {
-  parameters: {
-    docs: {
-      source: {
-        code: '<Typography variant="caption">No one shall be subjected to arbitrary arrest, detention or exile. Everyone is entitled in full equality to a fair and public hearing by an independent and impartial tribunal, in the determination of his rights and obligations and of any criminal charge against him. No one shall be subjected to arbitrary interference with his privacy, family, home or correspondence, nor to attacks upon his honour and reputation. Everyone has the right to the protection of the law against such interference or attacks.</Typography>',
-      },
-    },
-  },
-
-  render: function Render() {
-    return (
-      <>
-        <Typography variant='caption'>
-          No one shall be subjected to arbitrary arrest, detention or exile. Everyone is entitled in full equality to a fair and public hearing by an independent and impartial tribunal, in the determination of his rights and obligations and of any criminal charge against him. No one shall be subjected to arbitrary interference with his privacy, family, home or correspondence, nor to attacks upon his honour and reputation. Everyone has the right to the protection of the law against such interference or attacks.
-        </Typography>
-      </>
-    );
-  },
-};
-
-export const Button: Story = {
-  parameters: {
-    docs: {
-      source: {
-        code: '<Typography variant="button">Whereas recognition</Typography>',
-      },
-    },
-  },
-
-  render: function Render() {
-    return (
-      <>
-        <Typography variant='button'>
-          Whereas recognition
-        </Typography>
-      </>
-    );
-  },
-};
-
-export const MenuText: Story = {
-  parameters: {
-    docs: {
-      source: {
-        code: '<Typography variant="menuText">Whereas recognition</Typography>',
-      },
-    },
-  },
-
-  render: function Render() {
-    return (
-      <>
-        <Typography variant='menuText'>
-          Whereas recognition
-        </Typography>
-      </>
-    );
-  },
-};
-
-export const InputText: Story = {
-  parameters: {
-    docs: {
-      source: {
-        code: '<Typography variant="inputText">Whereas recognition</Typography>',
-      },
-    },
-  },
-
-  render: function Render() {
-    return (
-      <>
-        <Typography variant='inputText'>
-          Whereas recognition
-        </Typography>
-      </>
-    );
-  },
-};
-
-export const InputLabel: Story = {
-  parameters: {
-    docs: {
-      source: {
-        code: '<Typography variant="inputLabel">Whereas recognition</Typography>',
-      },
-    },
-  },
-
-  render: function Render() {
-    return (
-      <>
-        <Typography variant='inputLabel'>
-          Whereas recognition
-        </Typography>
-      </>
-    );
-  },
-};
-
-export const HelperText: Story = {
-  parameters: {
-    docs: {
-      source: {
-        code: '<Typography variant="helperText">Whereas recognition</Typography>',
-      },
-    },
-  },
-
-  render: function Render() {
-    return (
-      <>
-        <Typography variant='helperText'>
-          Whereas recognition
-        </Typography>
-      </>
-    );
-  },
+  render: (args) => (
+    <Typography variant={args.variant}>{args.children}</Typography>
+  ),
 };
