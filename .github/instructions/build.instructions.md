@@ -5,7 +5,7 @@ applyTo: build/**
 
 > **Parent guide**: [AGENTS.md](../../AGENTS.md) — product overview, architecture, domain model, global conventions
 
-The `/build` directory contains everything needed to build, package, and distribute PMM Server and PMM Client as Docker images, RPM/DEB packages, and cloud machine images (AMI, OVA, Azure, DigitalOcean).
+The `/build` directory contains everything needed to build, package, and distribute PMM Server and PMM Client as Docker images, RPM/DEB packages, and cloud machine images (AMI, OVA).
 
 ## Architecture
 
@@ -20,7 +20,6 @@ The `/build` directory contains everything needed to build, package, and distrib
 | PMM Client DEB | DEB | `packages/deb/` |
 | PMM Server AMI | AWS AMI | `packer/pmm.json` |
 | PMM Server OVA | VirtualBox OVF | `packer/pmm.json` |
-| PMM Server Azure | Azure image | `packer/pmm.json` |
 
 ### Build Pipeline
 
@@ -62,17 +61,13 @@ Source code (Go, TypeScript)
 
 Builds machine images for multiple platforms:
 - **amazon-ebs** — AWS AMI
-- **azure-arm** — Azure managed image
 - **virtualbox-ovf** — OVA for on-premises
-- **digitalocean** — DigitalOcean snapshot
 
 ### Make Targets
 
 ```bash
 make pmm-ami              # Build AWS AMI
 make pmm-ovf              # Build VirtualBox OVA
-make pmm-azure            # Build Azure image
-make pmm-digitalocean     # Build DigitalOcean image
 make rpmbuild-el9         # Build RPM build environment image
 ```
 
