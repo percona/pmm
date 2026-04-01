@@ -1,8 +1,8 @@
-import { ColorModeContext } from '@percona/design';
 import { useContext, useRef } from 'react';
 import { useUpdatePreferences } from './api/useUser';
 import messenger from 'lib/messenger';
 import { ColorMode, MessageType } from '@pmm/shared';
+import { ColorModeContext } from '@percona/percona-ui';
 
 function normalizeMode(v: unknown): ColorMode {
   if (typeof v === 'string' && v.toLowerCase() === 'dark') return 'dark';
@@ -62,6 +62,7 @@ export const useColorMode = () => {
       try {
         await updatePreferences({ theme: next });
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.warn('[useColorMode] Failed to persist theme:', err);
       }
     }
@@ -74,6 +75,7 @@ export const useColorMode = () => {
           payload: { mode: next },
         });
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.warn('[useSetTheme] Failed to send CHANGE_THEME message:', err);
       }
     }

@@ -197,6 +197,7 @@ nav:
               - Install with Package Manager: install-pmm/install-pmm-client/package_manager.md
               - Install from binaries: install-pmm/install-pmm-client/binary_package.md
               - Install on Docker: install-pmm/install-pmm-client/docker.md
+              - Install on Kubernetes: install-pmm/install-pmm-client/kubernetes.md
           - Configure monitoring:
               - Database monitoring:
                   - Overview: install-pmm/install-pmm-client/connect-database/index.md
@@ -551,7 +552,7 @@ nav:
               - reference/dashboards/dashboard-mongodb-inmemory-details.md
               - reference/dashboards/dashboard-mongodb-mmapv1-details.md
               - reference/dashboards/dashboard-mongodb-wiredtiger-details.md
-              - reference/dashboards/dashboard-mongodb-PBM-details.md
+              - reference/dashboards/dashboard-mongodb-backup-details.md
           - PostgreSQL dashboards:
               - reference/dashboards/dashboard-postgresql-checkpoints-buffers-wal-usage.md
               - reference/dashboards/dashboard-postgresql-instance-summary.md

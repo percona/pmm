@@ -134,6 +134,13 @@ func (svc *Service) RequestConfigurationUpdate() {
 	}
 }
 
+// ForceConfigurationUpdate triggers immediate synchronous configuration update,
+// bypassing the batch delay. Use this for critical updates like port changes.
+func (svc *Service) ForceConfigurationUpdate(ctx context.Context) error {
+	svc.l.Debug("ForceConfigurationUpdate: triggering immediate configuration update")
+	return svc.updateConfiguration(ctx)
+}
+
 // updateConfiguration reads alerts configuration from file
 // compares it with cached and replace if needed.
 func (svc *Service) updateConfiguration(ctx context.Context) error {

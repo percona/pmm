@@ -31,10 +31,12 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/percona/pmm/agent/agents"
 	"github.com/percona/pmm/agent/agents/mongodb/mongolog"
 	mongoprofiler "github.com/percona/pmm/agent/agents/mongodb/profiler"
+	mongorta "github.com/percona/pmm/agent/agents/mongodb/realtimeanalytics"
 	"github.com/percona/pmm/agent/agents/mysql/perfschema"
 	"github.com/percona/pmm/agent/agents/mysql/slowlog"
 	"github.com/percona/pmm/agent/agents/noop"
@@ -47,6 +49,13 @@ import (
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	agentlocal "github.com/percona/pmm/api/agentlocal/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
+)
+
+const (
+	changesBufferSize     = 100
+	qanRequestsBufferSize = 100
+	rtaRequestsBufferSize = 100
 )
 
 // configGetter allows for getting a config.
@@ -63,6 +72,7 @@ type Supervisor struct {
 	portsRegistry  *portsRegistry
 	changes        chan *agentv1.StateChangedRequest
 	qanRequests    chan *agentv1.QANCollectRequest
+	rtaRequests    chan *rtav1.CollectRequest
 	l              *logrus.Entry
 
 	rw             sync.RWMutex
@@ -98,14 +108,16 @@ type builtinAgentInfo struct {
 // Supervisor is gracefully stopped when context passed to NewSupervisor is canceled.
 // Changes of Agent statuses are reported via Changes() channel which must be read until it is closed.
 // QAN data is sent to QANRequests() channel which must be read until it is closed.
+// RTA data is sent to RTARequests() channel which must be read until it is closed.
 func NewSupervisor(ctx context.Context, av agentVersioner, cfg configGetter) *Supervisor {
 	return &Supervisor{
 		ctx:            ctx,
 		agentVersioner: av,
 		cfg:            cfg,
 		portsRegistry:  newPortsRegistry(cfg.Get().Ports.Min, cfg.Get().Ports.Max, nil),
-		changes:        make(chan *agentv1.StateChangedRequest, 100),
-		qanRequests:    make(chan *agentv1.QANCollectRequest, 100),
+		changes:        make(chan *agentv1.StateChangedRequest, changesBufferSize),
+		qanRequests:    make(chan *agentv1.QANCollectRequest, qanRequestsBufferSize),
+		rtaRequests:    make(chan *rtav1.CollectRequest, rtaRequestsBufferSize),
 		l:              logrus.WithField("component", "supervisor"),
 
 		agentProcesses: make(map[string]*agentProcessInfo),
@@ -210,6 +222,11 @@ func (s *Supervisor) Changes() <-chan *agentv1.StateChangedRequest {
 // QANRequests returns channel with Agent's QAN Collect requests.
 func (s *Supervisor) QANRequests() <-chan *agentv1.QANCollectRequest {
 	return s.qanRequests
+}
+
+// RTARequests returns channel with Agent's RTA Collect requests.
+func (s *Supervisor) RTARequests() <-chan *rtav1.CollectRequest {
+	return s.rtaRequests
 }
 
 // SetState starts or updates all agents placed in args and stops all agents not placed in args, but already run.
@@ -418,7 +435,7 @@ func filter(existing, ap map[string]agentv1.AgentParams) ([]string, []string, []
 	return toStart, toRestart, toStop
 }
 
-//nolint:golint,stylecheck,revive
+//nolint:revive
 const (
 	type_TEST_SLEEP       inventoryv1.AgentType = 998 // process
 	type_TEST_NOOP        inventoryv1.AgentType = 999 // built-in
@@ -633,6 +650,16 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 		}
 		agent, err = pgstatmonitor.New(params, l)
 
+	case inventoryv1.AgentType_AGENT_TYPE_RTA_MONGODB_AGENT:
+		params := &mongorta.Params{
+			DSN:             dsn,
+			AgentID:         agentID,
+			ServiceID:       builtinAgent.ServiceId,
+			ServiceName:     builtinAgent.ServiceName,
+			CollectInterval: builtinAgent.RtaOptions.GetCollectInterval().AsDuration(),
+		}
+		agent, err = mongorta.New(params, l)
+
 	case type_TEST_NOOP:
 		agent = noop.New()
 
@@ -648,6 +675,8 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 	go pprof.Do(ctx, pprof.Labels("agentID", agentID, "type", agentType), agent.Run)
 
 	go func() {
+		rtaBucketLastCollectTime := timestamppb.New(time.Now()).AsTime()
+
 		for change := range agent.Changes() {
 			if change.Status != inventoryv1.AgentStatus_AGENT_STATUS_UNSPECIFIED {
 				s.storeLastStatus(agentID, change.Status)
@@ -658,9 +687,29 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 				}
 			}
 			if change.MetricsBucket != nil {
-				l.Infof("Sending %d buckets.", len(change.MetricsBucket))
+				l.Infof("Sending %d metrics buckets.", len(change.MetricsBucket))
 				s.qanRequests <- &agentv1.QANCollectRequest{
 					MetricsBucket: change.MetricsBucket,
+				}
+			}
+
+			if len(change.RTAQueriesBucket) != 0 {
+				// It may appear that buckets in channel are not in order of their collection.
+				// This may happen because of some bucket is huge and takes a lot of time to process,
+				// so the next one is already collected and sent to channel.
+				// We check that collect time of the next bucket is not earlier than the prev one.
+				// See MongoDBRTA.collectCurrentOps() for details.
+				currentBucketCollectTime := change.RTAQueriesBucket[0].QueryCollectTime.AsTime()
+				if rtaBucketLastCollectTime.After(currentBucketCollectTime) {
+					continue
+				}
+
+				l.Infof("Sending %d RTA queries buckets.", len(change.RTAQueriesBucket))
+
+				rtaBucketLastCollectTime = currentBucketCollectTime
+
+				s.rtaRequests <- &rtav1.CollectRequest{
+					Queries: change.RTAQueriesBucket,
 				}
 			}
 		}
@@ -827,6 +876,7 @@ func (s *Supervisor) stopAll() {
 
 	s.l.Infof("Done.")
 	close(s.qanRequests)
+	close(s.rtaRequests)
 	close(s.changes)
 }
 

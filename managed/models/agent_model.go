@@ -32,9 +32,9 @@ import (
 	"github.com/go-sql-driver/mysql"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
-	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/reform.v1"
 
+	"github.com/percona/pmm/managed/utils/crypto/bcrypt"
 	"github.com/percona/pmm/version"
 )
 
@@ -78,7 +78,16 @@ const (
 	VMAgentType                         AgentType = "vmagent"
 	NomadAgentType                      AgentType = "nomad-agent"
 	ValkeyExporterType                  AgentType = "valkey_exporter"
+	RTAMongoDBAgentType                 AgentType = "rta-mongodb-agent"
 )
+
+// GetRTAAgentTypes returns all Real-Time Analytics Agent types.
+func GetRTAAgentTypes() []AgentType {
+	return []AgentType{
+		RTAMongoDBAgentType,
+		// Add more types here once they are implemented.
+	}
+}
 
 var v2_42 = version.MustParse("2.42.0-0")
 
@@ -297,6 +306,35 @@ func (c ValkeyOptions) IsEmpty() bool {
 		c.SSLKey == ""
 }
 
+// RTAOptions represents structure for Real-Time Analytics options.
+type RTAOptions struct {
+	// Queries collection interval for this agent.
+	CollectInterval *time.Duration `json:"collect_interval,omitempty"`
+}
+
+// Value implements database/sql/driver.Valuer interface. Should be defined on the value.
+func (c RTAOptions) Value() (driver.Value, error) { return jsonValue(c) }
+
+// Scan implements database/sql.Scanner interface. Should be defined on the pointer.
+func (c *RTAOptions) Scan(src any) error { return jsonScan(c, src) }
+
+// IsEmpty returns true if all RTAOptions fields are unset or have zero values, otherwise returns false.
+func (c RTAOptions) IsEmpty() bool {
+	return c.CollectInterval == nil
+}
+
+// Merge merges non-zero values from opts into c.
+func (c *RTAOptions) Merge(opts *RTAOptions) {
+	if pointer.Get(opts).IsEmpty() {
+		return
+	}
+
+	if opts.CollectInterval != nil {
+		c.CollectInterval = opts.CollectInterval
+	}
+	// Add new fields here.
+}
+
 // Agent represents Agent as stored in database.
 //
 //reform:agents
@@ -329,6 +367,7 @@ type Agent struct {
 
 	ExporterOptions ExporterOptions `reform:"exporter_options"`
 	QANOptions      QANOptions      `reform:"qan_options"`
+	RTAOptions      RTAOptions      `reform:"rta_options"`
 
 	AWSOptions        AWSOptions        `reform:"aws_options"`
 	AzureOptions      AzureOptions      `reform:"azure_options"`
@@ -613,7 +652,7 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 
 		return cfg.FormatDSN()
 
-	case QANMongoDBProfilerAgentType, QANMongoDBMongologAgentType, MongoDBExporterType:
+	case QANMongoDBProfilerAgentType, QANMongoDBMongologAgentType, MongoDBExporterType, RTAMongoDBAgentType:
 		q := make(url.Values)
 		if dsnParams.DialTimeout != 0 {
 			q.Set("connectTimeoutMS", strconv.Itoa(int(dsnParams.DialTimeout/time.Millisecond)))
@@ -856,7 +895,7 @@ func (s Agent) Files() map[string]string {
 		return nil
 	case ProxySQLExporterType:
 		return nil
-	case QANMongoDBProfilerAgentType, QANMongoDBMongologAgentType, MongoDBExporterType:
+	case QANMongoDBProfilerAgentType, QANMongoDBMongologAgentType, MongoDBExporterType, RTAMongoDBAgentType:
 		files := make(map[string]string)
 		if s.MongoDBOptions.TLSCa != "" {
 			files[caFilePlaceholder] = s.MongoDBOptions.TLSCa

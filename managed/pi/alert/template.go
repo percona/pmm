@@ -20,12 +20,16 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"sync"
 
 	"github.com/percona/promconfig"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 
 	"github.com/percona/pmm/managed/pi/common"
 )
+
+var tiersDeprecationWarned sync.Map
 
 type templates struct {
 	Templates []Template `yaml:"templates"`
@@ -98,6 +102,8 @@ type Template struct {
 	Severity    common.Severity     `yaml:"severity"`              // required
 	Labels      map[string]string   `yaml:"labels,omitempty"`      // optional
 	Annotations map[string]string   `yaml:"annotations,omitempty"` // optional
+	// TODO: Tiers field is deprecated and must be removed in PMM v4.
+	Tiers []string `yaml:"tiers,omitempty"` // optional
 }
 
 // Validate validates template.
@@ -118,6 +124,17 @@ func (r *Template) Validate() error {
 
 	if r.Expr == "" {
 		return errors.New("template expression is empty")
+	}
+
+	// Log deprecation warning for tiers field (once per template name)
+	if len(r.Tiers) != 0 {
+		if _, warned := tiersDeprecationWarned.LoadOrStore(r.Name, true); !warned {
+			logrus.WithFields(logrus.Fields{
+				"component": "alert/template",
+				"template":  r.Name,
+				"tiers":     r.Tiers,
+			}).Warn("The 'tiers' field in alert templates is deprecated and will be removed in PMM v4. Please update your templates.")
+		}
 	}
 
 	err = r.validateParams()
