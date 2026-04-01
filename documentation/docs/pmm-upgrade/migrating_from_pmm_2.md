@@ -342,7 +342,7 @@ How you upgrade depends on how your PMM Server was set up:
     pmm-admin unregister
     ```
     2. [Upgrade to PMM 3 Client](../pmm-upgrade/upgrade_client.md).
-    3. [Configure the PMM 3 Client](../install-pmm/install-pmm-client/package_manager.md#configure-pmm-client) to connect to your PMM Server using service accounts.
+    3. [Configure the PMM 3 Client](../install-pmm/install-pmm-client/package_manager.md#step-2-install-pmm-client) to connect to your PMM Server using service accounts.
 
 ## Step 6: Migrate your API keys to service accounts
 
