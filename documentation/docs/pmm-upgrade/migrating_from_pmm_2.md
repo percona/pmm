@@ -1,10 +1,10 @@
 # Migrate PMM 2 to PMM 3
 
-If you are still running PMM 2, plan your migration now. PMM 2 is no longer actively developed and does not receive new features or security updates.
+If you are still running PMM 2, plan your migration now. PMM 2 reached end of life on October 31, 2025 and no longer receives new features, security updates, or bug fixes.
 
-Starting with PMM 3.8, direct migration from PMM 2.x to the latest PMM 3.x version will be deprecated and may not work as expected. If you migrate after PMM 3.8 and run into issues, you can still use PMM 3.7 as a stepping stone since this is the last version where migration from PMM 2.x has been fully tested.
+Starting with PMM 3.8.0, direct migration from PMM 2.x to the latest PMM 3.x version will be deprecated and may not work as expected. If you migrate after PMM 3.8.0 and run into issues, you can still use PMM 3.7 as a stepping stone since this is the last version where migration from PMM 2.x has been fully tested.
 
-This two-step path will only be available through PMM 3.12. After PMM 3.13 (expected January 2027), you will no longer be able to migrate from PMM 2.x at all.
+This two-step path will only be available through PMM 3.12.0 After PMM 3.13.0 (expected January 2027), you will no longer be able to migrate from PMM 2.x at all.
 
 ## Migration path
 
@@ -67,7 +67,7 @@ Once your server is running PMM 2.44.1, try migrating directly to the latest PMM
     ```sh
     chmod +x get-pmm.sh
     ```
-    3. Run the migration script with the `-b` flag to create a backup of your PMM2 instance before the migration:
+    3. Run the migration script with the `-b` flag to create a backup of your PMM 2 instance before the migration:
     ```sh
     ./get-pmm.sh -n <container-name> -b
     ```
@@ -310,7 +310,7 @@ Once your server is running PMM 2.44.1, try migrating directly to the latest PMM
 
 If the migration succeeds, skip to [Step 5: Migrate PMM 2 Clients to PMM 3](#step-5-migrate-pmm-2-clients-to-pmm-3)
 
-## Step 4: If direct migration fails, migrate through PMM 3.7
+## Step 4: If direct migration fails, migrate through PMM 3.7.0
 
 If Step 3 didn't work, restore your PMM 2 backup from Step 1, then repeat the same migration steps but use the PMM 3.7.0 image tag instead:
 
@@ -360,7 +360,7 @@ PMM 3 replaces API keys with service accounts to enhance security and simplify a
     -u admin:admin \
     -H "Content-Type: application/json"
     ```
-        
+
     The response will display the migration details:
     !!! example "Expected output"
         ```
