@@ -1,63 +1,116 @@
-# Deploy PMM Server as a Virtual Appliance (deprecated)
+# Deploy PMM Server as a Virtual Appliance (Deprecated)
+
+## End of support for OVF deployment
 
 OVF virtual appliance deployment is deprecated starting with PMM 3.7.0 and will be removed in PMM 3.9.0 (expected July 2026). If you currently run PMM on a virtual appliance, migrate to a supported deployment method before that date.
 
-## Migrate from OVF
+### Before you migrate
 
-=== "Docker (recommended)"
-    The simplest way to migrate is to export your existing PMM Server container and reimport it in your new Docker environment. This preserves all your monitoring data, dashboards, alert configurations, and user settings.
-    {.power-number}
+Your PMM Server stores monitoring data, dashboards, alert configurations, and user settings. To preserve this data during migration:
+{.power-number}
 
-    1. SSH into your OVF instance.
+1. Note your current PMM Server version. Run `pmm-admin status` on any connected client or check **Configuration > Updates** in the PMM UI.
+2. Document your connected databases. Go to **Configuration > Inventory** in the PMM UI and record all monitored services, their connection parameters, and any custom labels.
+3. Export custom dashboards. If you have created or modified dashboards, export them as JSON from the Grafana UI (**Dashboard > Share > Export**).
+4. Back up alert rules and contact points. Note any custom alert templates, notification channels, and silences you have configured.
 
-    2. Stop the PMM Server container:
-    ```sh
-    docker stop pmm-server
-    ```
+### Choose your target deployment
 
-    3. Export the container to a file. Save it to a directory that is accessible from your host machine:
-    ```sh
-    docker export -o pmm-server.docker pmm-server
-    ```
+- **[Docker](../docker/index.md) (recommended)**: simplest migration path with minimal operational change
+- **[Podman](../podman/index.md)**: rootless containers for security-sensitive environments
+- **[Helm](../helm/index.md)**: Kubernetes-native deployment with high availability support
 
-    4. Copy the exported file to the host where you want to run PMM Server going forward.
+### After deploying the new PMM Server
+Once your new PMM Server is running, complete these steps to finish the migration:
+{.power-number}
 
-    5. On the new host, import the image from the file:
-    ```sh
-    docker import pmm-server.docker --platform=linux/amd64 percona/pmm-server:backup
-    ```
+1. Re-register all PMM clients to the new server by updating each monitored host. Replace <NEW_PMM_SERVER_IP> with the address of your new PMM Server and update the credentials as needed:
 
-    6. Launch the container using the imported image:
-    ```sh
-    docker run -d --name pmm-server -p 443:8443 -v pmm-data:/srv percona/pmm-server:backup
-    ```
+pmm-admin config --server-url=https://admin:admin@<NEW_PMM_SERVER_IP>:443 --server-insecure-tls
+```bash
+pmm-admin config --server-url=https://admin:admin@<NEW_PMM_SERVER_IP>:443 --server-insecure-tls
+```
 
-    7. Verify that PMM Server is running and all your data is intact by logging into the PMM UI.
+2. Verify data is flowing by logging into the new PMM Server UI and confirming that all monitored services appear in **Configuration > Inventory** with current metrics on dashboards.
 
-    8. [Configure each PMM Client](../../../install-pmm-client/package_manager.md#step-4-register-the-node) to point to the new server using your service account token and new server address:
-    ```bash
-    pmm-admin config --server-insecure-tls --server-url=https://service_token:<YOUR_GLSA_TOKEN>@<NEW_PMM_SERVER_IP>:443
-    ```
+3. Restore any custom dashboards by importing the exported JSON files via **Dashboards > New > Import** in the Grafana UI.
 
-    9. Decommission the OVF instance once everything is confirmed working.
+4. Recreate alert rules and contact points on the new server to match your previous setup.
 
-=== "Podman or Kubernetes"
-    If Docker is not an option, you can migrate to [Podman](../podman/index.md) or [Kubernetes/Helm](../helm/index.md). Since this method does not carry over your data automatically, document your current setup before starting:
-    {.power-number}
+5. Decommission the OVF instance once everything is confirmed working.
 
-    1. Note your current PMM Server version by running `pmm-admin status` on any connected client or checking **Configuration > Updates** in the PMM UI.
-    2. Document your connected databases by going to **Configuration > Inventory** in the PMM UI and recording all monitored services, their connection parameters, and any custom labels.
-    3. Export custom dashboards as JSON from the Grafana UI (**Dashboard > Share > Export**).
-    4. Back up alert rules and contact points, including any custom alert templates, notification channels, and silences.
-    5. Deploy a new PMM Server using [Podman](../podman/index.md) or [Helm](../helm/index.md).
-    6. [Configure each PMM Client](../../../install-pmm-client/package_manager.md#configure-pmm-client) to point to the new server using your service account token and new server address:
-    ```bash
-    pmm-admin config --server-insecure-tls --server-url=https://service_token:<YOUR_GLSA_TOKEN>@<NEW_PMM_SERVER_IP>:443
-    ```
-    7. Verify data is flowing by logging into the new PMM Server UI and confirming that all monitored services appear in **Configuration > Inventory** with current metrics on dashboards.
-    8. Restore any custom dashboards by importing the exported JSON files via **Dashboards > New > Import** in the Grafana UI.
-    9. Recreate alert rules and contact points on the new server to match your previous setup.
-    10. Decommission the OVF instance once everything is confirmed working.
+!!! note
+    Historical metrics from the OVF deployment are not automatically transferred to the new server. If you need to preserve historical data, consider running both instances in parallel until the old data ages out of your retention window.
 
-    !!! note
-        Historical metrics from the OVF deployment are not automatically transferred. If you need to preserve historical data, consider running both instances in parallel until the old data ages out of your retention window.
+## Terminology
+
+When working with the PMM Server virtual appliance, it's helpful to understand these terms:
+
+- **Host**: The desktop or server machine running the hypervisor
+- **Hypervisor**: Software (e.g., VirtualBox) that runs the guest OS as a virtual machine
+- **Guest VM**: Virtual machine running PMM Server (Oracle Linux 9.3)
+
+## OVA file details
+
+| Item | Value |
+|------|-------|
+| Download page | https://www.percona.com/downloads/pmm/{{release}}/ova |
+| File name | `pmm-server-{{release}}.ova` |
+| VM name | `pmm-Server-{{release_date}}-N` (`N`=build number) |
+
+## VM specifications
+
+The PMM Server virtual appliance comes pre-configured with the following specifications. You can adjust CPU and memory resources after deployment to match your monitoring needs.
+
+| Component | Value |
+|-----------|-------|
+| OS | Oracle Linux 9.3 |
+| CPU | 1 |
+| Base memory | 4096 MB |
+| Disks | LVM, 2 physical volumes |
+| Disk 1 (`sda`) | VMDK (SCSI, 40 GB) |
+| Disk 2 (`sdb`) | VMDK (SCSI, 400 GB) |
+
+
+## System requirements
+
+For optimal performance, we recommend:
+
+=== "Minimum (1-30 nodes)"
+    - **CPU**: 4 cores
+    - **Memory**: 8 GB
+    - **Disk**: 100 GB
+
+=== "Recommended (31-100 nodes)"
+    - **CPU**: 8 cores
+    - **Memory**: 16 GB
+    - **Disk**: 200 GB
+
+=== "Large (100+ nodes)"
+    - **CPU**: 16+ cores
+    - **Memory**: 32+ GB
+    - **Disk**: 500+ GB
+
+## Hypervisor compatibility
+
+The PMM Server OVA is compatible with VirtualBox 6.0 and later.
+
+## Network requirements
+
+Ensure your network environment allows:
+
+- Outbound internet access for updates (optional)
+- Access to monitored database instances
+- Access from client browsers to the PMM Server web interface
+- Standard ports: 443 (HTTPS), 80 (HTTP, redirects to HTTPS)
+
+See [Network and firewall requirements](../../../plan-pmm-installation/network_and_firewall.md) for full details.
+
+## Default users
+
+PMM Server comes with two pre-configured user accounts that you must secure immediately after installation:
+
+- **admin** (default password: `admin`)
+- **root** (default password: `percona`)
+
+Change these default passwords to strong, unique passwords during your first login to prevent unauthorized access.
