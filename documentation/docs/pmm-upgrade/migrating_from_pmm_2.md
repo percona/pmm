@@ -326,25 +326,23 @@ Once you're running PMM 3.7.0, upgrade to the latest version using the standard 
 
 ## Step 5: Migrate PMM 2 Clients to PMM 3
 
-PMM 3 Server provides limited support for PMM 2 Clients (metrics and Query Analytics only).
+PMM 3 Server provides limited support for PMM 2 Clients (metrics and Query Analytics only). Upgrade to PMM 3 Client as soon as possible to ensure full functionality.
 
-How you upgrade your PMM Clients depends on how your server was set up:
+How you upgrade depends on how your PMM Server was set up:
 
-=== "Migrated server from PMM 2 to PMM 3"
-    If you migrated your PMM 2 Server to PMM 3 (following Step 3 or Step 4 above), the server automatically removed legacy prefixes from all inventory records during migration. You can upgrade each PMM Client from v2 to v3 directly without unregistering first.
+=== "Server migrated from PMM 2 to PMM 3"
+    If you migrated your PMM 2 Server to PMM 3 (following Step 3 or Step 4), the server automatically removed legacy inventory prefixes during migration. You can [upgrade each PMM Client from v2 to v3 directly](../pmm-upgrade/upgrade_client.md) without unregistering first.
 
-    For upgrade instructions, see [Upgrade PMM Client](../pmm-upgrade/upgrade_client.md).
-
-=== "Added PMM 2 Client to a PMM 3 Server"
-    If you added a PMM 2 Client to a PMM 3 Server that was not itself migrated from v2, the prefix migration does not happen automatically. You must unregister the client before upgrading:
+=== "PMM 2 Client added to a fresh PMM 3 Server"
+    If you added a PMM 2 Client to a PMM 3 Server that was not migrated from v2, inventory prefixes are not removed automatically. Unregister the client before upgrading:
     {.power-number}
 
     1. Unregister the PMM 2 Client:
     ```sh
-        pmm-admin unregister
+    pmm-admin unregister
     ```
-    2. Upgrade to PMM 3 Client. See [Upgrade PMM Client](../pmm-upgrade/upgrade_client.md).
-    3. [Configure the PMM 3 Client](../install-pmm/install-pmm-client/package_manager.md#configure-pmm-client) to connect to the PMM 3 Server using service accounts.
+    2. [Upgrade to PMM 3 Client](../pmm-upgrade/upgrade_client.md).
+    3. [Configure the PMM 3 Client](../install-pmm/install-pmm-client/package_manager.md#configure-pmm-client) to connect to your PMM Server using service accounts.
 
 ## Step 6: Migrate your API keys to service accounts
 
