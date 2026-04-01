@@ -34,22 +34,6 @@ Client (Grafana / API)
 - `X-Forwarded-For` is stripped
 - Missing `User-Agent` is set to empty
 
-## Directory Structure
-
-```
-vmproxy/
-├── main.go              # CLI (Kong), configuration, server startup
-├── main_test.go         # Integration tests
-├── proxy/
-│   ├── proxy.go         # Reverse proxy: director, filter injection, URL rewriting
-│   └── proxy_test.go    # Unit tests
-├── Makefile             # build, test targets
-├── README.md
-└── LICENSE
-```
-
-This is one of PMM's simplest components — just two source files plus tests.
-
 ## Configuration
 
 CLI flags (using **Kong**):

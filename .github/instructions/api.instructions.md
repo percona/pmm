@@ -28,39 +28,6 @@ The `/api` directory is the **single source of truth** for all PMM APIs. It cont
 - **go-swagger** — generates typed Go HTTP clients from Swagger specs
 - Dependencies: `buf.build/envoyproxy/protoc-gen-validate`, `googleapis`, `grpc-gateway`
 
-## Directory Structure
-
-```
-api/
-├── buf.yaml, buf.gen.yaml, buf.lock     # Buf configuration
-├── Makefile                              # gen, clean, init, serve targets
-├── README.md
-├── common/                               # Shared types (common.proto, metrics_resolutions.proto)
-│
-├── server/v1/                            # Server settings, version, updates
-├── user/v1/                              # User CRUD
-├── inventory/v1/                         # Nodes, Services, Agents inventory
-├── management/v1/                        # Add/remove services (MySQL, PostgreSQL, MongoDB, etc.)
-├── actions/v1/                           # On-demand actions (explain, PT summary)
-├── advisors/v1/                          # Advisor checks
-├── alerting/v1/                          # Alert templates and rules
-├── backup/v1/                            # Backup, locations, restore
-├── dump/v1beta1/                         # PMM dump (beta)
-├── accesscontrol/v1beta1/                # Role-based access control (beta)
-├── qan/v1/                               # Query analytics
-├── realtimeanalytics/v1/                 # Real-time analytics sessions
-├── ha/v1beta1/                           # High availability (beta)
-├── uievents/v1/                          # UI event tracking
-├── platform/v1/                          # Percona Platform integration
-│
-├── agent/v1/                             # Agent ↔ Server protocol (internal)
-├── agent/pb/                             # Agent internal message types
-├── agentlocal/v1/                        # Agent local status API
-│
-├── swagger/                              # Swagger UI and bundled docs
-└── nginx/                                # nginx config for serving docs
-```
-
 ### Per-Domain Layout
 
 Each domain directory typically contains:

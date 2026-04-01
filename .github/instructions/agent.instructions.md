@@ -32,63 +32,6 @@ The `client` package maintains a persistent bidirectional gRPC stream (`Agent.Co
 
 `agentlocal` exposes a local gRPC + JSON API for status, Prometheus metrics, pprof debug endpoints, and config reload.
 
-## Directory Structure
-
-```
-agent/
-├── main.go                        # Entry point (kingpin CLI)
-├── cmd/pmm-agent-entrypoint/      # Container entrypoint binary
-├── commands/
-│   ├── run.go                     # Main run loop: client + supervisor + runner lifecycle
-│   └── setup.go                   # Agent registration with PMM Server
-├── config/
-│   ├── config.go                  # Config struct, CLI flags, YAML loading
-│   └── storage.go                 # Thread-safe config access (Get/Reload)
-├── client/
-│   ├── client.go                  # gRPC connection to PMM Server, message routing
-│   └── channel/
-│       ├── channel.go             # Bidirectional gRPC channel abstraction
-│       └── rta_channel.go         # RTA client-streaming channel
-├── agentlocal/
-│   └── agent_local.go             # Local status API (gRPC + JSON gateway)
-├── agents/
-│   ├── supervisor/
-│   │   ├── supervisor.go          # Central agent lifecycle manager
-│   │   └── ports_registry.go      # Dynamic port allocation for exporters
-│   ├── process/
-│   │   ├── process.go             # External process wrapper with state machine
-│   │   └── process_logger.go      # Structured logging for child processes
-│   ├── mysql/
-│   │   ├── perfschema/            # QAN: MySQL performance_schema collector
-│   │   └── slowlog/               # QAN: MySQL slow log collector
-│   │       └── parser/            # Slow log parser
-│   ├── postgres/
-│   │   ├── pgstatstatements/      # QAN: pg_stat_statements collector
-│   │   └── pgstatmonitor/         # QAN: pg_stat_monitor collector
-│   ├── mongodb/
-│   │   ├── profiler/              # QAN: MongoDB profiler collector
-│   │   ├── mongolog/              # QAN: MongoDB log collector
-│   │   ├── realtimeanalytics/     # RTA: MongoDB real-time analytics
-│   │   └── shared/                # Shared MongoDB utilities (sender, aggregator, fingerprinter)
-│   └── noop/                      # Test no-op agent implementation
-├── runner/
-│   ├── runner.go                  # Action and job execution coordinator
-│   ├── actions/                   # Short-lived actions (explain, show create table, PT summary)
-│   └── jobs/                      # Long-lived backup/restore jobs (MySQL, MongoDB via PBM)
-├── connectionchecker/             # Database connection verification
-├── connectionuptime/              # Connection uptime tracking
-├── serviceinfobroker/             # Service version and metadata discovery
-├── versioner/                     # Exporter binary version parsing
-├── tailog/                        # Log tail ring buffer
-├── tlshelpers/                    # TLS helpers (MySQL, Valkey certificates)
-├── queryparser/                   # SQL/NoSQL query normalization
-└── utils/
-    ├── templates/                 # Go template renderer for DSN and config files
-    ├── backoff/                   # Exponential backoff implementation
-    ├── version/                   # Database version string parsing
-    └── tests/                     # Test utilities (DB connections, log helpers)
-```
-
 ## Key Packages and Responsibilities
 
 | Package | Responsibility |

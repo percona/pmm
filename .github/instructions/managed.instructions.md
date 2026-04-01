@@ -47,64 +47,6 @@ All services are composed and wired in `managed/cmd/pmm-managed/main.go`.
 
 gRPC server implementations live in `services/*/grpc/` subdirectories. They delegate to the parent service package for business logic.
 
-## Directory Structure
-
-```
-managed/
-├── cmd/
-│   ├── pmm-managed/               # Main server binary — bootstrap, wiring, startup
-│   ├── pmm-managed-init/          # Init/bootstrap helper
-│   ├── pmm-managed-starlark/      # Starlark script runner for advisor checks
-│   └── pmm-encryption-rotation/   # DB encryption key rotation tool
-├── data/
-│   ├── advisors/                  # Advisor definitions (YAML)
-│   ├── checks/                    # Check definitions (MySQL, MongoDB, PostgreSQL)
-│   └── alerting-templates/        # Alert rule templates
-├── models/
-│   ├── *_model.go                 # Domain model structs with reform tags
-│   ├── *_reform.go                # Generated reform ORM code (DO NOT EDIT)
-│   ├── *_helpers.go               # CRUD operations and query helpers
-│   └── database.go                # Schema migrations (117+ versions), OpenDB, SetupDB
-├── services/
-│   ├── agents/                    # Agent registry, lifecycle, bidirectional gRPC handler
-│   │   ├── grpc/                  # Agent gRPC server implementation
-│   │   └── channel/               # Agent communication channel
-│   ├── inventory/                 # Nodes, Services, Agents inventory CRUD
-│   │   └── grpc/                  # Inventory gRPC servers
-│   ├── management/                # High-level add/remove operations
-│   │   ├── grpc/                  # Management gRPC servers
-│   │   ├── backup/                # Backup management service
-│   │   └── dump/                  # PMM dump service
-│   ├── server/                    # Server settings, version, logs, updates
-│   ├── backup/                    # Backup orchestration, compatibility, PBM PITR
-│   ├── checks/                    # Advisor check execution (Starlark)
-│   ├── alerting/                  # Alert template management
-│   ├── victoriametrics/           # VictoriaMetrics scrape config generation
-│   ├── vmalert/                   # VMAlert rules management
-│   ├── grafana/                   # Grafana HTTP API client
-│   ├── qan/                       # QAN API client (forwards to qan-api2)
-│   ├── supervisord/               # Supervisord config generation and process control
-│   ├── scheduler/                 # Scheduled tasks (backup schedules)
-│   ├── ha/                        # High Availability (Raft consensus, gossip, leader election)
-│   ├── telemetry/                 # Telemetry collection and reporting
-│   ├── realtimeanalytics/         # Real-Time Analytics session management
-│   ├── user/                      # User preferences service
-│   ├── versioncache/              # Software version cache
-│   ├── minio/                     # MinIO/S3 client for backup storage
-│   └── config/                    # YAML config loader (deprecated)
-├── pi/                            # Percona Intelligence integration
-│   ├── alert/                     # Alert parameter handling
-│   └── common/                    # Shared PI types
-├── utils/
-│   ├── envvars/                   # PMM_* environment variable parsing
-│   ├── encryption/                # Database column-level encryption
-│   ├── interceptors/              # gRPC middleware (auth, logging, error mapping)
-│   ├── platform/                  # Percona Platform API client
-│   ├── clean/                     # Cleanup jobs
-│   └── distribution/              # Linux distribution detection
-└── testdata/                      # Test fixtures (pg/, victoriametrics/, updater/)
-```
-
 ## Domain Model
 
 ### Core Entities (PostgreSQL, reform ORM)

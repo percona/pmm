@@ -33,43 +33,6 @@ PMM UI / API clients
 | 9922 | HTTP/JSON | gRPC-Gateway REST API |
 | 9933 | HTTP | Debug endpoints (`/debug/metrics`, `/debug/pprof`, `/debug/vars`) |
 
-## Directory Structure
-
-```
-qan-api2/
-├── main.go                       # Entry point: flags, DB setup, server startup
-├── db.go                         # ClickHouse connection, migration runner, partition management
-├── Makefile.clickhouse            # ClickHouse-specific make targets
-├── docker-compose.yaml            # Dev environment
-├── .env                           # Default env vars for docker-compose
-├── migrations/
-│   ├── migrations.go             # golang-migrate runner, cluster readiness checks
-│   └── sql/                      # 22 ClickHouse migrations (up/down SQL files)
-│       ├── 01_init.up.sql
-│       ├── ...
-│       └── 22_pg_stat_monitor_23.up.sql
-├── models/
-│   ├── base.go                   # Base model types
-│   ├── metrics.go                # Metric names and sparkline queries
-│   ├── reporter.go               # Report SQL builder (dynamic queries via text/template)
-│   └── data_ingestion.go         # MetricsBucket: batched insert into ClickHouse
-├── services/
-│   ├── analytics/                # QANService implementation
-│   │   ├── base.go               # Service struct and constructor
-│   │   ├── filters.go            # GetFilters
-│   │   ├── profile.go            # GetReport
-│   │   ├── object_details.go     # GetMetrics, GetQueryExample, GetLabels
-│   │   └── metrics_names.go      # GetNames
-│   └── receiver/
-│       └── receiver.go           # CollectorService implementation (data ingestion)
-├── utils/
-│   ├── interceptors/             # gRPC middleware
-│   └── templatefs/               # Embedded SQL template filesystem
-├── cmd/
-│   └── clickhouse_migrate/       # Standalone migration runner for backup/restore
-└── test_data/                    # JSON test fixtures
-```
-
 ## Domain Model
 
 ### Core Data: `metrics` Table (ClickHouse)

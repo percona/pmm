@@ -37,52 +37,6 @@ Tests are grouped by API domain, mirroring the `/api` directory structure:
 | `server/` | Server API | Version, auth, settings |
 | `user/` | User API | User preferences |
 
-## Directory Structure
-
-```
-api-tests/
-├── init.go                     # Test initialization, PMM Server URL flag
-├── helpers.go                  # Shared test utilities (node/service creation, cleanup)
-├── Makefile                    # Run targets (run, run-dev, run-race)
-├── Dockerfile                  # Docker image for running tests in CI
-├── docker-compose.yml          # Dev environment
-├── README.md
-├── alerting/
-│   └── alerting_test.go
-├── backup/
-│   ├── backup_test.go
-│   └── locations_test.go
-├── inventory/
-│   ├── agents_test.go          # Agent-type-specific tests
-│   ├── agents_*_test.go
-│   ├── nodes_test.go
-│   ├── services_test.go
-│   └── helpers.go
-├── management/
-│   ├── mysql_test.go
-│   ├── postgresql_test.go
-│   ├── mongodb_test.go
-│   ├── proxysql_test.go
-│   ├── haproxy_test.go
-│   ├── external_test.go
-│   ├── annotation_test.go
-│   ├── action/
-│   │   ├── explain_test.go
-│   │   └── ptsummary_test.go
-│   └── services/
-│       └── agent_test.go
-├── server/
-│   ├── version_test.go
-│   ├── auth_test.go
-│   └── settings_test.go
-├── user/
-│   └── snooze_test.go
-├── testdata/                   # Test fixtures (alert templates, etc.)
-└── tools/
-    ├── go.mod
-    └── tools.go                # go-junit-report for CI output
-```
-
 ## Running Tests
 
 ### Prerequisites
