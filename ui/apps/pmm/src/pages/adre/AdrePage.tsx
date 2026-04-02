@@ -139,6 +139,8 @@ const AdrePage: FC = () => {
           color: 'text.primary',
           flex: 1,
           minHeight: 0,
+          display: 'flex',
+          flexDirection: 'column',
           m: -2,
           mt: -3,
           mb: -3,
@@ -155,13 +157,37 @@ const AdrePage: FC = () => {
         <Stack
           direction={{ xs: 'column', md: alerts.length > 0 ? 'row' : 'column' }}
           gap={2}
-          sx={{ flex: 1, minHeight: 0 }}
+          sx={{
+            flex: 1,
+            minHeight: 0,
+            alignItems: 'stretch',
+            overflow: 'hidden',
+          }}
         >
-          <Box sx={{ flex: alerts.length > 0 ? 2 : 1, minWidth: 0 }}>
+          <Box
+            sx={{
+              flex: alerts.length > 0 ? 2 : 1,
+              minWidth: 0,
+              minHeight: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+            }}
+          >
             <AdreChatPanel />
           </Box>
           {alerts.length > 0 && (
-            <Box sx={{ flex: '0 0 260px', minWidth: 0 }}>
+            <Box
+              sx={{
+                flex: '0 0 260px',
+                minWidth: 0,
+                minHeight: 0,
+                maxHeight: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden',
+              }}
+            >
               <AdreAlertsPanel alerts={alerts as AlertItem[]} />
             </Box>
           )}

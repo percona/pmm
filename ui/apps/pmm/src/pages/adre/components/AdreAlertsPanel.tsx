@@ -123,21 +123,21 @@ export const AdreAlertsPanel: FC<AdreAlertsPanelProps> = ({ alerts: alertsProp }
         borderColor: 'rgba(255,255,255,0.12)',
       }}
     >
-      <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+      <Typography variant="subtitle2" color="text.secondary" sx={{ flexShrink: 0, mb: 1 }}>
         Firing alerts ({alerts.length})
       </Typography>
       <Stack gap={1} sx={{ flex: 1, minHeight: 0 }}>
-        {loadingAlerts ? (
-          <Typography variant="caption" color="text.secondary">
-            Loading...
-          </Typography>
-        ) : alerts.length === 0 ? (
-          <Typography variant="caption" color="text.secondary">
-            No firing alerts.
-          </Typography>
-        ) : (
-          <FormGroup sx={{ gap: 0 }}>
-            <Box sx={{ flex: 1, minHeight: 0, maxHeight: '100%', overflow: 'auto' }}>
+        <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+          {loadingAlerts ? (
+            <Typography variant="caption" color="text.secondary">
+              Loading...
+            </Typography>
+          ) : alerts.length === 0 ? (
+            <Typography variant="caption" color="text.secondary">
+              No firing alerts.
+            </Typography>
+          ) : (
+            <FormGroup sx={{ gap: 0 }}>
               {alerts.map((a, index) => {
                 const key = getAlertKey(a, index);
                 const label = (a.labels?.alertname ?? a.annotations?.summary) ?? (a.fingerprint ? String(a.fingerprint) : key);
@@ -183,15 +183,15 @@ export const AdreAlertsPanel: FC<AdreAlertsPanelProps> = ({ alerts: alertsProp }
                   />
                 );
               })}
-            </Box>
-          </FormGroup>
-        )}
+            </FormGroup>
+          )}
+        </Box>
         <Button
           variant="contained"
           size="small"
           onClick={handleStartInvestigation}
           disabled={createMutation.isPending || selected.size === 0}
-          sx={{ mt: 0.5 }}
+          sx={{ mt: 0.5, flexShrink: 0 }}
         >
           {createMutation.isPending ? 'Creating...' : 'Start investigation'}
         </Button>

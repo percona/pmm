@@ -679,7 +679,8 @@ func (h *Handlers) PostQanInsights(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// GetQanInsights handles GET /v1/adre/qan-insights. Returns cached analysis for a query+service pair, or 404 if not cached.
+// GetQanInsights handles GET /v1/adre/qan-insights. Returns cached analysis for a query+service pair.
+// Cache miss is HTTP 200 with cached:false and empty analysis (not 404) so browsers and axios do not treat a normal miss as a failed request.
 func (h *Handlers) GetQanInsights(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
@@ -706,7 +707,11 @@ func (h *Handlers) GetQanInsights(w http.ResponseWriter, r *http.Request) {
 	}
 	defer rows.Close()
 	if !rows.Next() {
-		writeJSONError(w, http.StatusNotFound, "No cached analysis found")
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"analysis": "",
+			"cached":   false,
+		})
 		return
 	}
 	var analysis string

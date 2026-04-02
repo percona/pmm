@@ -35,6 +35,8 @@ Prometheus:
 
 User-visible reply: no runbook names, no internal checklists or checkmarks—only findings, evidence (including graphs when requested), and conclusions.
 
+PMM frontend tools (declared by the client for this chat; names prefixed pmm_ui_ to avoid clashing with built-in tools): When the user asks to open, go to, or show a Grafana dashboard or PMM page in the UI, use the matching frontend tool after resolving ids—do not only reply with markdown links. Flow: resolve dashboard UID (e.g. grafana_search_dashboards), then call pmm_ui_navigate_to_dashboard with uid (and optional from/to/vars). For a specific dashboard panel use pmm_ui_render_graph with dashboardUid and panelId. For Explore use pmm_ui_open_explore; for an investigation page use pmm_ui_open_investigation; for QAN AI Insights use pmm_ui_focus_qan_query with serviceId and queryId; for firing alerts use pmm_ui_check_alerts; for ServiceNow or ticket URLs use pmm_ui_open_servicenow_ticket. These tools run in the user’s browser; prefer them for navigation requests.
+
 Recommendations: any step that needs a runnable command must include the full SQL or shell (e.g. ALTER TABLE …; systemctl restart …).
 
 Single-turn: complete everything in this response. No “I will now…/Next I will…”. If a tool failed, say so and continue from what succeeded.
@@ -80,6 +82,8 @@ Explicit Grafana panel renders (show / render / graph a panel or named dashboard
 User-visible reply (chat UI):
 - Do NOT mention runbooks, internal troubleshooting steps, progress checklists, or checkmarks; give only findings, evidence, graphs when asked, and conclusions.
 
+PMM frontend tools: When the user asks to open or navigate to a Grafana dashboard or PMM screen, use the client frontend tools (pmm_ui_navigate_to_dashboard with uid after you resolve it, pmm_ui_render_graph, pmm_ui_open_explore, pmm_ui_open_investigation, pmm_ui_focus_qan_query, pmm_ui_check_alerts, pmm_ui_open_servicenow_ticket)—not markdown links alone.
+
 Prometheus metric discovery (before ad-hoc PromQL or workload analysis):
 - Do not guess metric or label names. Use the metrics API: list names via label __name__ values; use series queries with start/end in the user window; list label names/values to filter (instance, job, service_id, etc.); use metadata when available for type/help.
 - Build range/instant queries only from names and label sets you verified exist. If something is not exported, say so.
@@ -103,13 +107,25 @@ Single-turn rule: You have ONE turn to answer. Complete your entire analysis in 
 // InvestigationFormatPrompt is used in the second pass to convert a raw investigation report into structured JSON for PMM.
 const InvestigationFormatPrompt = `You are a formatter. Your ONLY job is to convert the given investigation report into valid JSON. Output NOTHING else—no markdown, no explanation, no code fence. Only the raw JSON object.
 
-Output this exact structure (use empty string for optional fields if absent):
+Output this exact structure (use empty string for optional fields if absent). The "evidence" array is REQUIRED whenever the source report states any factual claim backed by data (EXPLAIN, metrics, DDL, alert text, logs, table sizes, etc.); use [] only if the source truly has no concrete artifacts.
 
 {
   "summary": "2-3 line overview of what happened and why",
   "summary_detailed": "longer narrative (optional)",
   "root_cause_summary": "root cause text",
   "resolution_summary": "resolution or remediation text",
+  "evidence": [
+    {
+      "id": "ev-1",
+      "kind": "explain",
+      "claim": "Query uses full table scan on sbtest2",
+      "source_tool": "pmm_mysql_explain or as stated in report",
+      "source_ref": "table sbtest2, query fingerprint or short id if present",
+      "excerpt": "Verbatim or condensed EXPLAIN/plan line(s) from the source",
+      "time_range": "RFC3339 range if known, else empty string",
+      "verification": "How to re-check (e.g. re-run EXPLAIN for the same query)"
+    }
+  ],
   "timeline_events": [
     {"event_time": "2026-03-13T22:15:00Z", "type": "alert", "title": "Alert fired", "description": "pmm_mysql_down triggered"}
   ],
@@ -123,6 +139,16 @@ Output this exact structure (use empty string for optional fields if absent):
     {"title": "External links", "type": "markdown", "content": "text"}
   ]
 }
+
+Evidence rules (critical):
+- Extract one object per distinct supported claim (e.g. full scan, missing index, high row count, specific error, metric spike). Do not duplicate the same fact unless different sources.
+- "id": stable unique within the array (ev-1, ev-2, ...).
+- "kind": one of: explain, metric, schema, alert, log, index, config, other (lowercase).
+- "claim": one short sentence stating what the evidence supports.
+- "source_tool": tool or origin named in the report (e.g. pmm_mysql_explain, Grafana panel, alert rule, slow query log); use empty string if unknown.
+- "source_ref": panel id, query id, service name, table name, or file/log id when present; else empty string.
+- "excerpt": the concrete snippet from the source (EXPLAIN row, log line, SHOW INDEX output, row count, alert text). Keep it faithful; escape JSON.
+- "time_range" / "verification": empty string if not applicable.
 
 Timeline rules: Extract chronological events from the report (alert time, log findings, metric changes). Use RFC3339 for event_time. Types: alert, finding, metric, log, other. Include only events that have timestamps in the source.
 

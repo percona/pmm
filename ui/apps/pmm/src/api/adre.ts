@@ -115,23 +115,6 @@ export interface AdreQanInsightsResponse {
   cached?: boolean;
 }
 
-export interface AdreCreateServiceNowFromInsightsRequest {
-  serviceId: string;
-  queryText: string;
-  analysis: string;
-  queryId?: string;
-  fingerprint?: string;
-  timeFrom?: string;
-  timeTo?: string;
-}
-
-export interface AdreCreateServiceNowFromInsightsResponse {
-  success: boolean;
-  ticket_id: string;
-  ticket_number?: string;
-  message: string;
-}
-
 export const getAdreSettings = async (): Promise<AdreSettings> => {
   const res = await api.get<AdreSettings>('/adre/settings');
   return res.data;
@@ -175,24 +158,6 @@ export const getQanInsightsCache = async (
   } catch {
     return null;
   }
-};
-
-export const createServiceNowFromQanInsights = async (
-  body: AdreCreateServiceNowFromInsightsRequest
-): Promise<AdreCreateServiceNowFromInsightsResponse> => {
-  const res = await api.post<AdreCreateServiceNowFromInsightsResponse>(
-    '/adre/qan-insights/servicenow',
-    {
-      service_id: body.serviceId,
-      query_text: body.queryText,
-      analysis: body.analysis,
-      ...(body.queryId ? { query_id: body.queryId } : {}),
-      ...(body.fingerprint ? { fingerprint: body.fingerprint } : {}),
-      ...(body.timeFrom ? { time_from: body.timeFrom } : {}),
-      ...(body.timeTo ? { time_to: body.timeTo } : {}),
-    }
-  );
-  return res.data;
 };
 
 /** Callback for adreChatStream: receives content chunks and/or reasoning chunks. */

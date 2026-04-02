@@ -16,15 +16,13 @@ import {
   Typography,
 } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { FC, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { Page } from 'components/page';
-import { adreQanInsights, createServiceNowFromQanInsights, getQanInsightsCache } from 'api/adre';
+import { adreQanInsights, getQanInsightsCache } from 'api/adre';
 import { getMarkdownComponents } from 'components/adre/adre-chat-markdown';
 
 const RUNNING_MESSAGE =
@@ -121,8 +119,6 @@ const QanAiInsightsPage: FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [manualServiceId, setManualServiceId] = useState('');
   const [manualQueryText, setManualQueryText] = useState('');
-  const [creatingTicket, setCreatingTicket] = useState(false);
-  const [ticketNumber, setTicketNumber] = useState<string | null>(null);
   const runOnceRef = useRef(false);
   const mountedRef = useRef(true);
 
@@ -209,34 +205,6 @@ const QanAiInsightsPage: FC = () => {
     runAnalysis(false);
   };
 
-  const handleCopy = async () => {
-    if (!analysis) return;
-    await navigator.clipboard.writeText(analysis);
-  };
-
-  const handleCreateTicket = async () => {
-    if (!analysis || !serviceId.trim() || !queryText.trim()) return;
-    setCreatingTicket(true);
-    setError(null);
-    try {
-      const res = await createServiceNowFromQanInsights({
-        serviceId: serviceId.trim(),
-        queryText: queryText.trim(),
-        analysis,
-        queryId: queryId || undefined,
-        fingerprint: fingerprint || undefined,
-        timeFrom: timeFrom || undefined,
-        timeTo: timeTo || undefined,
-      });
-      setTicketNumber(res.ticket_number || res.ticket_id);
-    } catch (err) {
-      const e = err as Error & { response?: { data?: { error?: string } } };
-      setError(e?.response?.data?.error ?? e?.message ?? 'Failed to create ServiceNow ticket');
-    } finally {
-      setCreatingTicket(false);
-    }
-  };
-
   return (
     <Page title="QAN AI Insights">
       <Stack gap={2} sx={{ maxWidth: 900 }}>
@@ -304,41 +272,16 @@ const QanAiInsightsPage: FC = () => {
                       </Typography>
                     )}
                   </Stack>
-                  <Stack direction="row" gap={1}>
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      startIcon={<ContentCopyIcon />}
-                      onClick={() => void handleCopy()}
-                    >
-                      Copy
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      color="success"
-                      startIcon={<CheckCircleOutlineIcon />}
-                      onClick={() => void handleCreateTicket()}
-                      disabled={creatingTicket}
-                    >
-                      {creatingTicket ? 'Creating…' : 'Create ServiceNow Ticket'}
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      startIcon={<RefreshIcon />}
-                      onClick={() => runAnalysis(true)}
-                      disabled={loading}
-                    >
-                      Re-run Analysis
-                    </Button>
-                  </Stack>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    startIcon={<RefreshIcon />}
+                    onClick={() => runAnalysis(true)}
+                    disabled={loading}
+                  >
+                    Re-run Analysis
+                  </Button>
                 </Stack>
-                {ticketNumber && (
-                  <Typography variant="caption" color="success.main" sx={{ display: 'block', mb: 1 }}>
-                    ServiceNow ticket created: {ticketNumber}
-                  </Typography>
-                )}
                 <Divider />
               </CardContent>
             </Card>

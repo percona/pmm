@@ -4,6 +4,9 @@ import { useAdreSettings } from 'hooks/api/useAdre';
 import { useSnackbar } from 'notistack';
 import { clearPanelImageCache } from 'components/adre/adre-chat-markdown';
 import { PMM_BASE_PATH, PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
+import { compactAdreAlertsForToolResult } from 'utils/adreAlertsCompact';
+import { PMM_ADRE_FRONTEND_TOOLS } from 'utils/adreFrontendTools';
+import { stripQanServiceId } from 'utils/qanServiceId';
 
 const STORAGE_KEY = 'pmm-adre-chat';
 const CHAT_HISTORY_WINDOW_MS = 24 * 60 * 60 * 1000;
@@ -177,6 +180,7 @@ export function useAdreChat() {
         model: options?.model || undefined,
         stream: true,
         mode,
+        frontend_tools: PMM_ADRE_FRONTEND_TOOLS,
         ...(options?.dashboardContext?.trim()
           ? { dashboard_context: options.dashboardContext.trim() }
           : {}),
@@ -288,10 +292,50 @@ export function useAdreChat() {
   };
 }
 
+/** Pre-`pmm_ui_` names still accepted if Holmes uses an older tool list. */
+const LEGACY_PMM_FRONTEND_TOOLS: Record<string, string> = {
+  navigate_to_dashboard: 'pmm_ui_navigate_to_dashboard',
+  open_explore: 'pmm_ui_open_explore',
+  open_investigation: 'pmm_ui_open_investigation',
+  focus_qan_query: 'pmm_ui_focus_qan_query',
+  open_servicenow_ticket: 'pmm_ui_open_servicenow_ticket',
+  check_alerts: 'pmm_ui_check_alerts',
+  render_graph: 'pmm_ui_render_graph',
+};
+
+function resolvePmmFrontendToolName(name: string): string {
+  return LEGACY_PMM_FRONTEND_TOOLS[name] ?? name;
+}
+
+/** If the model already URL-encoded Explore `left`, avoid double-encoding (% → %25). */
+function exploreLeftQueryParam(raw: string): string {
+  const s = String(raw ?? '');
+  if (!s) return '';
+  if (/%[0-9A-Fa-f]{2}/.test(s)) return s;
+  return encodeURIComponent(s);
+}
+
+/** Holmes may emit snake_case arguments; handlers expect camelCase. */
+function normalizeFrontendToolArgs(raw: Record<string, unknown>): Record<string, unknown> {
+  const a = { ...raw };
+  const copy = (from: string, to: string) => {
+    if (a[to] == null && a[from] != null) a[to] = a[from];
+  };
+  copy('service_id', 'serviceId');
+  copy('query_id', 'queryId');
+  copy('dashboard_uid', 'dashboardUid');
+  copy('panel_id', 'panelId');
+  copy('ticket_id', 'ticketId');
+  copy('instance_url', 'instanceUrl');
+  copy('investigation_id', 'investigationId');
+  return a;
+}
+
 async function executeFrontendTool(
   toolName: string,
   args: Record<string, unknown>
 ): Promise<Record<string, unknown>> {
+  const argsNorm = normalizeFrontendToolArgs(args);
   const audit = (outcome: 'success' | 'denied' | 'error', details?: Record<string, unknown>) => {
     try {
       const key = 'pmm-adre-frontend-tool-audit';
@@ -301,7 +345,7 @@ async function executeFrontendTool(
         ts: new Date().toISOString(),
         tool: toolName,
         outcome,
-        args_hash: hashString(JSON.stringify(args)),
+        args_hash: hashString(JSON.stringify(argsNorm)),
         ...details,
       });
       localStorage.setItem(key, JSON.stringify(arr.slice(-200)));
@@ -311,36 +355,40 @@ async function executeFrontendTool(
   };
 
   try {
-    switch (toolName) {
-      case 'navigate_to_dashboard': {
-        const uid = String(args.uid ?? '').trim();
+    const resolvedTool = resolvePmmFrontendToolName(toolName);
+    switch (resolvedTool) {
+      case 'pmm_ui_navigate_to_dashboard': {
+        const uid = String(argsNorm.uid ?? '').trim();
         if (!uid) return { ok: false, error: 'uid is required' };
         const params = new URLSearchParams();
-        if (args.from) params.set('from', String(args.from));
-        if (args.to) params.set('to', String(args.to));
-        const vars = args.vars && typeof args.vars === 'object' ? (args.vars as Record<string, unknown>) : {};
+        if (argsNorm.from) params.set('from', String(argsNorm.from));
+        if (argsNorm.to) params.set('to', String(argsNorm.to));
+        const vars =
+          argsNorm.vars && typeof argsNorm.vars === 'object'
+            ? (argsNorm.vars as Record<string, unknown>)
+            : {};
         Object.entries(vars).forEach(([k, v]) => params.set(`var-${k}`, String(v)));
         const q = params.toString();
         window.open(`/graph/d/${uid}${q ? `?${q}` : ''}`, '_self');
         audit('success');
         return { ok: true };
       }
-      case 'open_explore': {
-        const query = encodeURIComponent(String(args.query ?? ''));
-        window.open(`/graph/explore?left=${query}`, '_self');
+      case 'pmm_ui_open_explore': {
+        const left = exploreLeftQueryParam(String(argsNorm.query ?? ''));
+        window.open(`/graph/explore?left=${left}`, '_self');
         audit('success');
         return { ok: true };
       }
-      case 'open_investigation': {
-        const id = String(args.id ?? '').trim();
+      case 'pmm_ui_open_investigation': {
+        const id = String(argsNorm.id ?? '').trim();
         if (!id) return { ok: false, error: 'id is required' };
         window.open(`${PMM_BASE_PATH}/investigations/${encodeURIComponent(id)}`, '_self');
         audit('success');
         return { ok: true };
       }
-      case 'focus_qan_query': {
-        const serviceId = String(args.serviceId ?? '');
-        const queryId = String(args.queryId ?? '');
+      case 'pmm_ui_focus_qan_query': {
+        const serviceId = stripQanServiceId(String(argsNorm.serviceId ?? ''));
+        const queryId = String(argsNorm.queryId ?? '');
         window.open(
           `${PMM_BASE_PATH}/qan/ai-insights?service_id=${encodeURIComponent(serviceId)}&query_id=${encodeURIComponent(queryId)}`,
           '_self'
@@ -348,10 +396,10 @@ async function executeFrontendTool(
         audit('success');
         return { ok: true };
       }
-      case 'open_servicenow_ticket': {
-        const directUrl = String(args.url ?? '').trim();
-        const ticketId = String(args.ticketId ?? '').trim();
-        const instanceUrl = String(args.instanceUrl ?? '').trim();
+      case 'pmm_ui_open_servicenow_ticket': {
+        const directUrl = String(argsNorm.url ?? '').trim();
+        const ticketId = String(argsNorm.ticketId ?? '').trim();
+        const instanceUrl = String(argsNorm.instanceUrl ?? '').trim();
         const approved = window.confirm('AI requested opening/creating a ServiceNow ticket. Continue?');
         if (!approved) {
           audit('denied');
@@ -369,7 +417,7 @@ async function executeFrontendTool(
           audit('success', { mode: 'instance_ticket' });
           return { ok: true };
         }
-        const invID = String(args.investigationId ?? '').trim();
+        const invID = String(argsNorm.investigationId ?? '').trim();
         if (!invID) {
           audit('error', { error: 'missing URL/ticketId context' });
           return { ok: false, error: 'url or (ticketId + instanceUrl) is required' };
@@ -378,18 +426,19 @@ async function executeFrontendTool(
         audit('success', { mode: 'fallback_investigation' });
         return { ok: true };
       }
-      case 'check_alerts': {
-        const data = await getAdreAlerts();
-        audit('success');
-        return { ok: true, alerts: data };
+      case 'pmm_ui_check_alerts': {
+        const raw = await getAdreAlerts();
+        const { value, truncated } = compactAdreAlertsForToolResult(raw);
+        audit('success', { truncated });
+        return { ok: true, alerts: value, ...(truncated && { truncated: true }) };
       }
-      case 'render_graph': {
-        const panelId = String(args.panelId ?? '').trim();
-        const dashboardUID = String(args.dashboardUid ?? '').trim();
+      case 'pmm_ui_render_graph': {
+        const panelId = String(argsNorm.panelId ?? '').trim();
+        const dashboardUID = String(argsNorm.dashboardUid ?? '').trim();
         if (panelId && dashboardUID) {
           const params = new URLSearchParams();
-          if (args.from) params.set('from', String(args.from));
-          if (args.to) params.set('to', String(args.to));
+          if (argsNorm.from) params.set('from', String(argsNorm.from));
+          if (argsNorm.to) params.set('to', String(argsNorm.to));
           window.open(
             `${PMM_NEW_NAV_GRAFANA_PATH}/d/${encodeURIComponent(dashboardUID)}?viewPanel=${encodeURIComponent(panelId)}${params.toString() ? `&${params.toString()}` : ''}`,
             '_self'
@@ -402,7 +451,7 @@ async function executeFrontendTool(
       }
       default:
         audit('error', { error: 'unknown tool' });
-        return { ok: false, error: `unknown frontend tool: ${toolName}` };
+        return { ok: false, error: `unknown frontend tool: ${toolName} (resolved: ${resolvedTool})` };
     }
   } catch (e) {
     audit('error', { error: e instanceof Error ? e.message : 'execution failed' });

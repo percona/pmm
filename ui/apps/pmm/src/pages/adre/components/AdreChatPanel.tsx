@@ -116,7 +116,7 @@ export const AdreChatPanel: FC = () => {
   const selectedModelLabel = model || 'Default';
 
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
         <Stack gap={1} sx={{ flex: 1, minHeight: 0 }}>
           {chatError ? <Alert severity="error">{chatError}</Alert> : null}
           <Box
