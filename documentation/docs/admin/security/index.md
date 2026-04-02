@@ -8,3 +8,5 @@ Taking the following precautions will ensure that you are truly secure:
 - [SSL encryption with trusted certificates](../../admin/security/ssl_encryption.md) to secure traffic between clients and server;
 
 - [Grafana HTTPS secure cookies](../../admin/security/grafana_cookies.md)
+- [Encrypt the PMM Client configuration file](client_config_encryption.md) to protect stored credentials on client hosts
+

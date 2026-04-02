@@ -1,5 +1,9 @@
 # Access the PMM Server Virtual Appliance web interface
 
+
+!!! warning "OVF support ending in PMM 3.9.0"
+    OVF virtual appliance deployment is deprecated starting with PMM 3.7.0 and will be removed in PMM 3.9.0 (expected July 2026). If you currently run PMM on a virtual appliance, [migrate to a supported deployment method](index.md).
+
 After deploying your PMM Server as a virtual appliance (OVA), access its web interface to set up administrator credentials, verify connectivity, and prepare your monitoring environment.
 
 To log in to the PMM user interface:
