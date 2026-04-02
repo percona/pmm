@@ -33,7 +33,7 @@
   "resolutions": {
     "esbuild": "~0.25.0",
     "cross-spawn": "~7.0.5",
-    "brace-expansion": "~1.1.12",
+    "brace-expansion": "~1.1.13",
     "nanoid": "~3.3.8",
     "@remix-run/router": "1.23.2",
     "rollup": "^4.59.0",
