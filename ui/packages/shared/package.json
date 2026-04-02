@@ -51,7 +51,7 @@
     "rollup-plugin-dts": "^6.1.0",
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "rollup-plugin-postcss": "^4.0.2",
-    "ts-jest": "^29.3.2",
+    "ts-jest": "^29.4.9",
     "typescript": "^5.2.2"
   },
   "peerDependencies": {
