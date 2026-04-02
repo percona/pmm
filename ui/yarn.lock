@@ -753,13 +753,13 @@
   dependencies:
     tslib "^2.8.0"
 
-"@grafana/data@11.6.13", "@grafana/data@^11.6.13":
-  version "11.6.13"
-  resolved "https://registry.yarnpkg.com/@grafana/data/-/data-11.6.13.tgz#2f45dc96e98639cdb700269092ffb7411f8f2ee9"
-  integrity sha512-mwXUGeUoV9LZ7bT8IHzjU0iC69F6Pksgz/s0IlKNgTCT6IAtvNOc/ZQcItgQ9FUkomDZmtJ46CU7znf4SRasHg==
+"@grafana/data@11.6.14", "@grafana/data@^11.6.14":
+  version "11.6.14"
+  resolved "https://registry.yarnpkg.com/@grafana/data/-/data-11.6.14.tgz#3a72bb9b415b0601e28bcadea8dfc3c1f51807dc"
+  integrity sha512-Nsjq1A9m6LbsKsKvOgvAk9Wq7RGjy0V4N9d5YsSnzMwCiw/ov2wblR2bcDpy95uF8KaDTIR2Gf40nJaOYksPMA==
   dependencies:
     "@braintree/sanitize-url" "7.0.1"
-    "@grafana/schema" "11.6.13"
+    "@grafana/schema" "11.6.14"
     "@types/d3-interpolate" "^3.0.0"
     "@types/string-hash" "1.1.3"
     d3-interpolate "3.0.1"
@@ -783,10 +783,10 @@
     uplot "1.6.31"
     xss "^1.0.14"
 
-"@grafana/e2e-selectors@11.6.13":
-  version "11.6.13"
-  resolved "https://registry.yarnpkg.com/@grafana/e2e-selectors/-/e2e-selectors-11.6.13.tgz#b9659dd585f99cb4564ac23d7136c6b4fb327ed6"
-  integrity sha512-adGpmBPe0JMO3CjI1YR7+MMUx3OSene+xg8x0xtkP4etM+meM4bP3FEU+71H7BQSePl1fNhP48N6krXwRiYBEA==
+"@grafana/e2e-selectors@11.6.14":
+  version "11.6.14"
+  resolved "https://registry.yarnpkg.com/@grafana/e2e-selectors/-/e2e-selectors-11.6.14.tgz#16a10ae5b3c245304a53819e5a1a261abf89c5a1"
+  integrity sha512-NacUwvgjzbdUI9ylO1+1LA3I2PZ2qRG99E8KbfuiO4MriXTePRa/a/rzrrzDQijZil8QHN0pSlHZNOrZDP8oAQ==
   dependencies:
     "@grafana/tsconfig" "^2.0.0"
     semver "^7.7.0"
@@ -834,16 +834,16 @@
     uuid "^11.0.2"
     yaml "^2.3.4"
 
-"@grafana/runtime@^11.6.13":
-  version "11.6.13"
-  resolved "https://registry.yarnpkg.com/@grafana/runtime/-/runtime-11.6.13.tgz#1d2c2b00333c86710a25a9885061fd04bc1b520f"
-  integrity sha512-mQ3FS2OUgBjJs3jGY3chkOb/tVC838wg6S2pO4JIl/su5cIl24gjaq3Q6pf9/FRp0At8mfkhSVmL93GLdcpscw==
+"@grafana/runtime@^11.6.14":
+  version "11.6.14"
+  resolved "https://registry.yarnpkg.com/@grafana/runtime/-/runtime-11.6.14.tgz#a39c81eb9559b21a36c17ca78d2177f21cf34b7c"
+  integrity sha512-pFH9vi4DgGV8/6cEKur08CvDlKuvAFf5upgL8BR6m5+Byc977AGIIJYbmHl96dqHBNtHIlp2vnQMJGx48I8r9w==
   dependencies:
-    "@grafana/data" "11.6.13"
-    "@grafana/e2e-selectors" "11.6.13"
+    "@grafana/data" "11.6.14"
+    "@grafana/e2e-selectors" "11.6.14"
     "@grafana/faro-web-sdk" "^1.13.2"
-    "@grafana/schema" "11.6.13"
-    "@grafana/ui" "11.6.13"
+    "@grafana/schema" "11.6.14"
+    "@grafana/ui" "11.6.14"
     history "4.10.1"
     lodash "^4.17.23"
     react-loading-skeleton "3.5.0"
@@ -851,10 +851,10 @@
     rxjs "7.8.1"
     tslib "2.8.1"
 
-"@grafana/schema@11.6.13", "@grafana/schema@^11.6.13":
-  version "11.6.13"
-  resolved "https://registry.yarnpkg.com/@grafana/schema/-/schema-11.6.13.tgz#dbdd742ee93c6db0498fbc1aaac871dab562c79c"
-  integrity sha512-qL3ahwQnScaLFmswmnxpbS2Mn3I6uL6c1hn/AkcVX40mu2fdWccGZOXHc7s3AKagRnc5VZtPCmDRVMGngUvUBg==
+"@grafana/schema@11.6.14", "@grafana/schema@^11.6.14":
+  version "11.6.14"
+  resolved "https://registry.yarnpkg.com/@grafana/schema/-/schema-11.6.14.tgz#77501c09375493ebed4496243e3d0daa5d43e370"
+  integrity sha512-YTqgYekb7kiu5NEoQxKF8czJ6QIARmMkCi9cNcynHqYpcDLOv5pg5Q0QtKgiiqHjlYoEeCV6iejdB4hXxzB+VA==
   dependencies:
     tslib "2.8.1"
 
@@ -863,19 +863,19 @@
   resolved "https://registry.yarnpkg.com/@grafana/tsconfig/-/tsconfig-2.0.1.tgz#231d46e996e53cd04367da850c03f1ef1170484c"
   integrity sha512-yGNQWQDlxFfklzMfk0i8qnDqKOvIGc0Aqe62zLS4LTqptkhnyLEVsdaVmX99m3QFOcBiiFn8scREDzGeF2iNvQ==
 
-"@grafana/ui@11.6.13", "@grafana/ui@^11.6.13":
-  version "11.6.13"
-  resolved "https://registry.yarnpkg.com/@grafana/ui/-/ui-11.6.13.tgz#f4d9946380d001991e6def3e25040b6124a2c54c"
-  integrity sha512-+BXlTAUiKHNKmB2pf/Nf9H8t2wrcqAv6x7GFATCrMMEAHik+yBKJeivcnQJfqzP+9MYIQr8RUZLH2mmvU5cZHA==
+"@grafana/ui@11.6.14", "@grafana/ui@^11.6.14":
+  version "11.6.14"
+  resolved "https://registry.yarnpkg.com/@grafana/ui/-/ui-11.6.14.tgz#5a4021d0fca2ac569c55dd726a168f9efb158eba"
+  integrity sha512-aldRucGsFM8cqcQxRGYkqvGLtOgdjEIHtVAYUHeqC1Yzi2KUVhqbgRrNgCHJuJDG8tOHZHUmpM445keB3+HQQg==
   dependencies:
     "@emotion/css" "11.13.5"
     "@emotion/react" "11.14.0"
     "@emotion/serialize" "1.3.3"
     "@floating-ui/react" "0.27.5"
-    "@grafana/data" "11.6.13"
-    "@grafana/e2e-selectors" "11.6.13"
+    "@grafana/data" "11.6.14"
+    "@grafana/e2e-selectors" "11.6.14"
     "@grafana/faro-web-sdk" "^1.13.2"
-    "@grafana/schema" "11.6.13"
+    "@grafana/schema" "11.6.14"
     "@hello-pangea/dnd" "17.0.0"
     "@leeoniya/ufuzzy" "1.0.18"
     "@monaco-editor/react" "4.6.0"
@@ -10200,8 +10200,16 @@ string-template@~0.2.1:
   resolved "https://registry.yarnpkg.com/string-template/-/string-template-0.2.1.tgz#42932e598a352d01fc22ec3367d9d84eec6c9add"
   integrity sha512-Yptehjogou2xm4UJbxJ4CxgZx12HBfeystp0y3x7s4Dj32ltVVG1Gg8YhKjHZkHicuKpZX/ffilA8505VbUbpw==
 
-"string-width-cjs@npm:string-width@^4.2.0", string-width@^4.1.0, string-width@^4.2.0, string-width@^4.2.3:
-  name string-width-cjs
+"string-width-cjs@npm:string-width@^4.2.0":
+  version "4.2.3"
+  resolved "https://registry.yarnpkg.com/string-width/-/string-width-4.2.3.tgz#269c7117d27b05ad2e536830a8ec895ef9c6d010"
+  integrity sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==
+  dependencies:
+    emoji-regex "^8.0.0"
+    is-fullwidth-code-point "^3.0.0"
+    strip-ansi "^6.0.1"
+
+string-width@^4.1.0, string-width@^4.2.0, string-width@^4.2.3:
   version "4.2.3"
   resolved "https://registry.yarnpkg.com/string-width/-/string-width-4.2.3.tgz#269c7117d27b05ad2e536830a8ec895ef9c6d010"
   integrity sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==
@@ -10291,7 +10299,14 @@ stringify-entities@^4.0.0:
     character-entities-html4 "^2.0.0"
     character-entities-legacy "^3.0.0"
 
-"strip-ansi-cjs@npm:strip-ansi@^6.0.1", strip-ansi@^6.0.0, strip-ansi@^6.0.1:
+"strip-ansi-cjs@npm:strip-ansi@^6.0.1":
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/strip-ansi/-/strip-ansi-6.0.1.tgz#9e26c63d30f53443e9489495b2105d37b67a85d9"
+  integrity sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==
+  dependencies:
+    ansi-regex "^5.0.1"
+
+strip-ansi@^6.0.0, strip-ansi@^6.0.1:
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/strip-ansi/-/strip-ansi-6.0.1.tgz#9e26c63d30f53443e9489495b2105d37b67a85d9"
   integrity sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==
@@ -11386,8 +11401,16 @@ wordwrap@^1.0.0:
   resolved "https://registry.yarnpkg.com/wordwrap/-/wordwrap-1.0.0.tgz#27584810891456a4171c8d0226441ade90cbcaeb"
   integrity sha512-gvVzJFlPycKc5dZN4yPkP8w7Dc37BtP1yczEneOb4uq34pXZcvrtRTmWV8W+Ume+XCxKgbjM+nevkyFPMybd4Q==
 
-"wrap-ansi-cjs@npm:wrap-ansi@^7.0.0", wrap-ansi@^7.0.0:
-  name wrap-ansi-cjs
+"wrap-ansi-cjs@npm:wrap-ansi@^7.0.0":
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/wrap-ansi/-/wrap-ansi-7.0.0.tgz#67e145cff510a6a6984bdf1152911d69d2eb9e43"
+  integrity sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==
+  dependencies:
+    ansi-styles "^4.0.0"
+    string-width "^4.1.0"
+    strip-ansi "^6.0.0"
+
+wrap-ansi@^7.0.0:
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/wrap-ansi/-/wrap-ansi-7.0.0.tgz#67e145cff510a6a6984bdf1152911d69d2eb9e43"
   integrity sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==
@@ -11462,14 +11485,14 @@ yallist@^3.0.2:
   integrity sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==
 
 yaml@^1.10.0, yaml@^1.10.2:
-  version "1.10.2"
-  resolved "https://registry.yarnpkg.com/yaml/-/yaml-1.10.2.tgz#2301c5ffbf12b467de8da2333a459e29e7920e4b"
-  integrity sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg==
+  version "1.10.3"
+  resolved "https://registry.yarnpkg.com/yaml/-/yaml-1.10.3.tgz#76e407ed95c42684fb8e14641e5de62fe65bbcb3"
+  integrity sha512-vIYeF1u3CjlhAFekPPAk2h/Kv4T3mAkMox5OymRiJQB0spDP10LHvt+K7G9Ny6NuuMAb25/6n1qyUjAcGNf/AA==
 
 yaml@^2.3.4:
-  version "2.8.2"
-  resolved "https://registry.yarnpkg.com/yaml/-/yaml-2.8.2.tgz#5694f25eca0ce9c3e7a9d9e00ce0ddabbd9e35c5"
-  integrity sha512-mplynKqc1C2hTVYxd0PU2xQAc22TI1vShAYGksCCfxbn/dFwnHTNi1bvYsBTkhdUNtGIf5xNOg938rrSSYvS9A==
+  version "2.8.3"
+  resolved "https://registry.yarnpkg.com/yaml/-/yaml-2.8.3.tgz#a0d6bd2efb3dd03c59370223701834e60409bd7d"
+  integrity sha512-AvbaCLOO2Otw/lW5bmh9d/WEdcDFdQp2Z2ZUH3pX9U2ihyUY0nvLv7J6TrWowklRGPYbB/IuIMfYgxaCPg5Bpg==
 
 yargs-parser@^21.1.1:
   version "21.1.1"

@@ -5,7 +5,7 @@ category:
   uri: pmm-server-maintenance
 position: 2
 privacy:
-  view: private
+  view: anyone_with_link
 ---
 
 This section will explain how to configure your PMM Server to get the most out of its functionality.
