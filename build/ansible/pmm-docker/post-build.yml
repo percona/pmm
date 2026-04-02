@@ -34,6 +34,11 @@
       environment:
         PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
+    - name: Remove postgres password file so each container generates a unique one
+      file:
+        path: /srv/.postgres_password
+        state: absent
+
     - name: Stop supervisord service
       command: supervisorctl shutdown
       become: true
