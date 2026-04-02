@@ -131,7 +131,6 @@ Relationships:
 | [percona/azure_metrics_exporter](https://github.com/percona/azure_metrics_exporter) | Azure database metrics exporter |
 | [percona/pmm-ui-tests](https://github.com/percona/pmm-ui-tests) | End-to-end UI tests |
 | [percona/pmm-qa](https://github.com/percona/pmm-qa) | QA automation and CLI tests |
-| [percona/pmm-doc](https://github.com/percona/pmm-doc) | PMM documentation source |
 | [Percona-Lab/pmm-submodules](https://github.com/Percona-Lab/pmm-submodules) | Feature build orchestration |
 
 ## Tech Stack
