@@ -1,8 +1,9 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { adreChatStream, type AdreStreamProgressEvent } from 'api/adre';
+import { adreChatStream, getAdreAlerts, type AdreStreamProgressEvent } from 'api/adre';
 import { useAdreSettings } from 'hooks/api/useAdre';
 import { useSnackbar } from 'notistack';
 import { clearPanelImageCache } from 'components/adre/adre-chat-markdown';
+import { PMM_BASE_PATH, PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
 
 const STORAGE_KEY = 'pmm-adre-chat';
 const CHAT_HISTORY_WINDOW_MS = 24 * 60 * 60 * 1000;
@@ -203,6 +204,19 @@ export function useAdreChat() {
           setResponse(fullResponse);
         },
         onProgress: handleProgress,
+        onFrontendToolsRequired: async ({ pending_frontend_tool_calls }) => {
+          const results: Array<{ tool_call_id: string; tool_name: string; result: string }> = [];
+          for (const call of pending_frontend_tool_calls) {
+            const result = await executeFrontendTool(call.tool_name, call.arguments ?? {});
+            results.push({
+              tool_call_id: call.tool_call_id,
+              tool_name: call.tool_name,
+              result: JSON.stringify(result),
+            });
+          }
+
+          return results;
+        },
       });
 
       const finalProgressSteps = progressStepsRef.current;
@@ -272,6 +286,136 @@ export function useAdreChat() {
     handleSend,
     clearHistory,
   };
+}
+
+async function executeFrontendTool(
+  toolName: string,
+  args: Record<string, unknown>
+): Promise<Record<string, unknown>> {
+  const audit = (outcome: 'success' | 'denied' | 'error', details?: Record<string, unknown>) => {
+    try {
+      const key = 'pmm-adre-frontend-tool-audit';
+      const raw = localStorage.getItem(key);
+      const arr = raw ? (JSON.parse(raw) as Array<Record<string, unknown>>) : [];
+      arr.push({
+        ts: new Date().toISOString(),
+        tool: toolName,
+        outcome,
+        args_hash: hashString(JSON.stringify(args)),
+        ...details,
+      });
+      localStorage.setItem(key, JSON.stringify(arr.slice(-200)));
+    } catch {
+      // ignore audit persistence failures
+    }
+  };
+
+  try {
+    switch (toolName) {
+      case 'navigate_to_dashboard': {
+        const uid = String(args.uid ?? '').trim();
+        if (!uid) return { ok: false, error: 'uid is required' };
+        const params = new URLSearchParams();
+        if (args.from) params.set('from', String(args.from));
+        if (args.to) params.set('to', String(args.to));
+        const vars = args.vars && typeof args.vars === 'object' ? (args.vars as Record<string, unknown>) : {};
+        Object.entries(vars).forEach(([k, v]) => params.set(`var-${k}`, String(v)));
+        const q = params.toString();
+        window.open(`/graph/d/${uid}${q ? `?${q}` : ''}`, '_self');
+        audit('success');
+        return { ok: true };
+      }
+      case 'open_explore': {
+        const query = encodeURIComponent(String(args.query ?? ''));
+        window.open(`/graph/explore?left=${query}`, '_self');
+        audit('success');
+        return { ok: true };
+      }
+      case 'open_investigation': {
+        const id = String(args.id ?? '').trim();
+        if (!id) return { ok: false, error: 'id is required' };
+        window.open(`${PMM_BASE_PATH}/investigations/${encodeURIComponent(id)}`, '_self');
+        audit('success');
+        return { ok: true };
+      }
+      case 'focus_qan_query': {
+        const serviceId = String(args.serviceId ?? '');
+        const queryId = String(args.queryId ?? '');
+        window.open(
+          `${PMM_BASE_PATH}/qan/ai-insights?service_id=${encodeURIComponent(serviceId)}&query_id=${encodeURIComponent(queryId)}`,
+          '_self'
+        );
+        audit('success');
+        return { ok: true };
+      }
+      case 'open_servicenow_ticket': {
+        const directUrl = String(args.url ?? '').trim();
+        const ticketId = String(args.ticketId ?? '').trim();
+        const instanceUrl = String(args.instanceUrl ?? '').trim();
+        const approved = window.confirm('AI requested opening/creating a ServiceNow ticket. Continue?');
+        if (!approved) {
+          audit('denied');
+          return { ok: false, error: 'user denied action' };
+        }
+        if (directUrl) {
+          window.open(directUrl, '_blank', 'noopener,noreferrer');
+          audit('success', { mode: 'direct_url' });
+          return { ok: true };
+        }
+        if (ticketId && instanceUrl) {
+          const base = instanceUrl.replace(/\/+$/, '');
+          const snURL = `${base}/nav_to.do?uri=incident.do?sys_id=${encodeURIComponent(ticketId)}`;
+          window.open(snURL, '_blank', 'noopener,noreferrer');
+          audit('success', { mode: 'instance_ticket' });
+          return { ok: true };
+        }
+        const invID = String(args.investigationId ?? '').trim();
+        if (!invID) {
+          audit('error', { error: 'missing URL/ticketId context' });
+          return { ok: false, error: 'url or (ticketId + instanceUrl) is required' };
+        }
+        window.open(`${PMM_BASE_PATH}/investigations/${encodeURIComponent(invID)}`, '_self');
+        audit('success', { mode: 'fallback_investigation' });
+        return { ok: true };
+      }
+      case 'check_alerts': {
+        const data = await getAdreAlerts();
+        audit('success');
+        return { ok: true, alerts: data };
+      }
+      case 'render_graph': {
+        const panelId = String(args.panelId ?? '').trim();
+        const dashboardUID = String(args.dashboardUid ?? '').trim();
+        if (panelId && dashboardUID) {
+          const params = new URLSearchParams();
+          if (args.from) params.set('from', String(args.from));
+          if (args.to) params.set('to', String(args.to));
+          window.open(
+            `${PMM_NEW_NAV_GRAFANA_PATH}/d/${encodeURIComponent(dashboardUID)}?viewPanel=${encodeURIComponent(panelId)}${params.toString() ? `&${params.toString()}` : ''}`,
+            '_self'
+          );
+          audit('success', { rendered: true, mode: 'panel_focus' });
+          return { ok: true, rendered: true };
+        }
+        audit('success', { rendered: false });
+        return { ok: true, rendered: false, reason: 'Missing dashboardUid/panelId for graph rendering' };
+      }
+      default:
+        audit('error', { error: 'unknown tool' });
+        return { ok: false, error: `unknown frontend tool: ${toolName}` };
+    }
+  } catch (e) {
+    audit('error', { error: e instanceof Error ? e.message : 'execution failed' });
+    return { ok: false, error: e instanceof Error ? e.message : 'execution failed' };
+  }
+}
+
+function hashString(input: string): string {
+  let h = 5381;
+  for (let i = 0; i < input.length; i++) {
+    h = (h * 33) ^ input.charCodeAt(i);
+  }
+  return `h${(h >>> 0).toString(16)}`;
 }
 
 function normalizeChatError(message: string): string {

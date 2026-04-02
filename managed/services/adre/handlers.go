@@ -16,6 +16,7 @@
 package adre
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -720,6 +721,102 @@ func (h *Handlers) GetQanInsights(w http.ResponseWriter, r *http.Request) {
 		"analysis":   analysis,
 		"created_at": createdAt.Format(time.RFC3339),
 		"cached":     true,
+	})
+}
+
+// PostQanInsightsServiceNow handles POST /v1/adre/qan-insights/servicenow.
+func (h *Handlers) PostQanInsightsServiceNow(w http.ResponseWriter, r *http.Request) {
+	settings, ok := h.checkAdreEnabled(w)
+	if !ok {
+		return
+	}
+	if settings.Adre.ServiceNowURL == "" || settings.Adre.ServiceNowAPIKey == "" || settings.Adre.ServiceNowClientToken == "" {
+		writeJSONError(w, http.StatusBadRequest, "ServiceNow is not configured. Set URL, API key, and client token in AI Assistant settings.")
+		return
+	}
+
+	var body struct {
+		ServiceID   string `json:"service_id"`
+		QueryText   string `json:"query_text"`
+		Analysis    string `json:"analysis"`
+		QueryID     string `json:"query_id"`
+		Fingerprint string `json:"fingerprint"`
+		TimeFrom    string `json:"time_from"`
+		TimeTo      string `json:"time_to"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
+		return
+	}
+	body.ServiceID = strings.TrimSpace(body.ServiceID)
+	body.QueryText = strings.TrimSpace(body.QueryText)
+	body.Analysis = strings.TrimSpace(body.Analysis)
+	if body.ServiceID == "" || body.QueryText == "" || body.Analysis == "" {
+		writeJSONError(w, http.StatusBadRequest, "service_id, query_text and analysis are required")
+		return
+	}
+
+	description := fmt.Sprintf(
+		"## QAN AI Insight\n\nService: %s\nQuery ID: %s\nFingerprint: %s\nTime: %s -> %s\n\n### Query\n%s\n\n### Analysis\n%s",
+		body.ServiceID, body.QueryID, body.Fingerprint, body.TimeFrom, body.TimeTo, body.QueryText, body.Analysis,
+	)
+	payload := map[string]string{
+		"client_token":      settings.Adre.ServiceNowClientToken,
+		"short_description": fmt.Sprintf("QAN AI Insight: %s", body.ServiceID),
+		"description":       description,
+		"ticket_type":       "incident",
+	}
+	reqBody, err := json.Marshal(payload)
+	if err != nil {
+		writeJSONError(w, http.StatusInternalServerError, "Failed to build request")
+		return
+	}
+	req, err := http.NewRequestWithContext(r.Context(), http.MethodPost, settings.Adre.ServiceNowURL, bytes.NewReader(reqBody))
+	if err != nil {
+		writeJSONError(w, http.StatusInternalServerError, "Failed to build request")
+		return
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("x-sn-apikey", settings.Adre.ServiceNowAPIKey)
+	client := &http.Client{Timeout: 30 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		writeJSONError(w, http.StatusBadGateway, "ServiceNow request failed: "+err.Error())
+		return
+	}
+	defer resp.Body.Close()
+	respBody, _ := io.ReadAll(resp.Body)
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		writeJSONError(w, http.StatusBadGateway, fmt.Sprintf("ServiceNow returned HTTP %d", resp.StatusCode))
+		return
+	}
+	var parsed struct {
+		Result struct {
+			Success      bool   `json:"success"`
+			TicketID     string `json:"ticket_id"`
+			Message      string `json:"message"`
+			ErrorMessage string `json:"error_message"`
+		} `json:"result"`
+	}
+	if err := json.Unmarshal(respBody, &parsed); err != nil {
+		writeJSONError(w, http.StatusBadGateway, "Invalid ServiceNow response")
+		return
+	}
+	if !parsed.Result.Success {
+		msg := parsed.Result.ErrorMessage
+		if msg == "" {
+			msg = parsed.Result.Message
+		}
+		writeJSONError(w, http.StatusBadGateway, "ServiceNow error: "+msg)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
+		"success":       true,
+		"ticket_id":     parsed.Result.TicketID,
+		"ticket_number": parsed.Result.TicketID,
+		"message":       parsed.Result.Message,
 	})
 }
 

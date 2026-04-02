@@ -65,48 +65,56 @@ func getBlockAndCheckInvestigation(db *reform.DB, investigationID, blockID strin
 // Response DTOs and conversion helpers.
 
 type investigationResponse struct {
-	ID                string          `json:"id"`
-	Title             string          `json:"title"`
-	Status            string          `json:"status"`
-	Severity          string          `json:"severity"`
-	CreatedAt         string          `json:"created_at"`
-	UpdatedAt         string          `json:"updated_at"`
-	CreatedBy         string          `json:"created_by"`
-	TimeFrom          string          `json:"time_from"`
-	TimeTo            string          `json:"time_to"`
-	Summary           string          `json:"summary"`
-	SummaryDetailed   string          `json:"summary_detailed"`
-	RootCauseSummary  string          `json:"root_cause_summary"`
-	ResolutionSummary string          `json:"resolution_summary"`
-	SourceType        string          `json:"source_type"`
-	SourceRef         string          `json:"source_ref"`
-	NodeName           string          `json:"node_name,omitempty"`
-	ServiceName        string          `json:"service_name,omitempty"`
-	ClusterName        string          `json:"cluster_name,omitempty"`
+	ID                     string          `json:"id"`
+	Title                  string          `json:"title"`
+	Status                 string          `json:"status"`
+	Severity               string          `json:"severity"`
+	CreatedAt              string          `json:"created_at"`
+	UpdatedAt              string          `json:"updated_at"`
+	CreatedBy              string          `json:"created_by"`
+	TimeFrom               string          `json:"time_from"`
+	TimeTo                 string          `json:"time_to"`
+	Summary                string          `json:"summary"`
+	SummaryDetailed        string          `json:"summary_detailed"`
+	RootCauseSummary       string          `json:"root_cause_summary"`
+	ResolutionSummary      string          `json:"resolution_summary"`
+	SourceType             string          `json:"source_type"`
+	SourceRef              string          `json:"source_ref"`
+	NodeName               string          `json:"node_name,omitempty"`
+	ServiceName            string          `json:"service_name,omitempty"`
+	ClusterName            string          `json:"cluster_name,omitempty"`
 	ServiceNowTicketID     string          `json:"servicenow_ticket_id,omitempty"`
 	ServiceNowTicketNumber string          `json:"servicenow_ticket_number,omitempty"`
+	Confidence             string          `json:"confidence"`
+	ConfidenceScore        int             `json:"confidence_score"`
+	ConfidenceRationale    string          `json:"confidence_rationale"`
+	Evidence               []EvidenceEntry `json:"evidence"`
 	Blocks                 []blockResponse `json:"blocks,omitempty"`
 }
 
 func investigationToResponse(inv *models.Investigation) investigationResponse {
 	resp := investigationResponse{
-		ID:                inv.ID,
-		Title:             inv.Title,
-		Status:            inv.Status,
-		Severity:          inv.Severity,
-		CreatedAt:         formatTime(inv.CreatedAt),
-		UpdatedAt:         formatTime(inv.UpdatedAt),
-		CreatedBy:         inv.CreatedBy,
-		TimeFrom:          formatTime(inv.TimeFrom),
-		TimeTo:            formatTime(inv.TimeTo),
-		Summary:           inv.Summary,
-		SummaryDetailed:   inv.SummaryDetailed,
-		RootCauseSummary:  inv.RootCauseSummary,
-		ResolutionSummary: inv.ResolutionSummary,
-		SourceType:         inv.SourceType,
-		SourceRef:          inv.SourceRef,
+		ID:                     inv.ID,
+		Title:                  inv.Title,
+		Status:                 inv.Status,
+		Severity:               inv.Severity,
+		CreatedAt:              formatTime(inv.CreatedAt),
+		UpdatedAt:              formatTime(inv.UpdatedAt),
+		CreatedBy:              inv.CreatedBy,
+		TimeFrom:               formatTime(inv.TimeFrom),
+		TimeTo:                 formatTime(inv.TimeTo),
+		Summary:                inv.Summary,
+		SummaryDetailed:        inv.SummaryDetailed,
+		RootCauseSummary:       inv.RootCauseSummary,
+		ResolutionSummary:      inv.ResolutionSummary,
+		SourceType:             inv.SourceType,
+		SourceRef:              inv.SourceRef,
 		ServiceNowTicketID:     inv.ServiceNowTicketID,
 		ServiceNowTicketNumber: inv.ServiceNowTicketNumber,
+		Confidence:             "medium",
+		ConfidenceScore:        0,
+		ConfidenceRationale:    "",
+		Evidence:               []EvidenceEntry{},
 	}
 	if len(inv.Config) > 0 {
 		nodeName, serviceName := configNodeService(inv)
@@ -116,10 +124,29 @@ func investigationToResponse(inv *models.Investigation) investigationResponse {
 		if serviceName != "" {
 			resp.ServiceName = serviceName
 		}
-		var cfg map[string]string
+		var cfg map[string]interface{}
 		if err := json.Unmarshal(inv.Config, &cfg); err == nil {
-			if v := cfg["cluster_name"]; v != "" {
+			if v, _ := cfg["cluster_name"].(string); v != "" {
 				resp.ClusterName = v
+			}
+			if raw, ok := cfg["confidence"]; ok && raw != nil {
+				b, _ := json.Marshal(raw)
+				var cp struct {
+					Band      string          `json:"band"`
+					Score     int             `json:"score"`
+					Rationale string          `json:"rationale"`
+					Evidence  []EvidenceEntry `json:"evidence"`
+				}
+				if err := json.Unmarshal(b, &cp); err == nil {
+					if cp.Band != "" {
+						resp.Confidence = cp.Band
+					}
+					resp.ConfidenceScore = cp.Score
+					resp.ConfidenceRationale = cp.Rationale
+					if cp.Evidence != nil {
+						resp.Evidence = cp.Evidence
+					}
+				}
 			}
 		}
 	}
@@ -131,11 +158,13 @@ func configNodeService(inv *models.Investigation) (nodeName, serviceName string)
 	if len(inv.Config) == 0 {
 		return "", ""
 	}
-	var cfg map[string]string
+	var cfg map[string]interface{}
 	if err := json.Unmarshal(inv.Config, &cfg); err != nil {
 		return "", ""
 	}
-	return cfg["node_name"], cfg["service_name"]
+	n, _ := cfg["node_name"].(string)
+	s, _ := cfg["service_name"].(string)
+	return n, s
 }
 
 type blockResponse struct {

@@ -31,6 +31,17 @@ export interface InvestigationBlock {
   updatedAt: string;
 }
 
+export interface InvestigationEvidenceEntry {
+  id: string;
+  kind: string;
+  claim: string;
+  source_tool: string;
+  source_ref: string;
+  excerpt: string;
+  time_range: string;
+  verification: string;
+}
+
 export interface Investigation {
   id: string;
   title: string;
@@ -54,6 +65,10 @@ export interface Investigation {
   servicenow_ticket_id?: string;
   servicenowTicketNumber?: string;
   servicenow_ticket_number?: string;
+  confidence: 'high' | 'medium' | 'low';
+  confidenceScore: number;
+  confidenceRationale: string;
+  evidence: InvestigationEvidenceEntry[];
   blocks?: InvestigationBlock[];
 }
 

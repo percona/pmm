@@ -87,6 +87,9 @@ export interface AdreChatRequest {
   pageContext?: unknown;
   /** Structured Grafana context; pmm-managed merges into Holmes additional_system_prompt. */
   dashboard_context?: string;
+  frontend_tools?: unknown[];
+  frontend_tool_results?: unknown[];
+  tool_decisions?: unknown[];
 }
 
 export interface AdreChatResponse {
@@ -110,6 +113,23 @@ export interface AdreQanInsightsResponse {
   analysis: string;
   created_at?: string;
   cached?: boolean;
+}
+
+export interface AdreCreateServiceNowFromInsightsRequest {
+  serviceId: string;
+  queryText: string;
+  analysis: string;
+  queryId?: string;
+  fingerprint?: string;
+  timeFrom?: string;
+  timeTo?: string;
+}
+
+export interface AdreCreateServiceNowFromInsightsResponse {
+  success: boolean;
+  ticket_id: string;
+  ticket_number?: string;
+  message: string;
 }
 
 export const getAdreSettings = async (): Promise<AdreSettings> => {
@@ -157,6 +177,24 @@ export const getQanInsightsCache = async (
   }
 };
 
+export const createServiceNowFromQanInsights = async (
+  body: AdreCreateServiceNowFromInsightsRequest
+): Promise<AdreCreateServiceNowFromInsightsResponse> => {
+  const res = await api.post<AdreCreateServiceNowFromInsightsResponse>(
+    '/adre/qan-insights/servicenow',
+    {
+      service_id: body.serviceId,
+      query_text: body.queryText,
+      analysis: body.analysis,
+      ...(body.queryId ? { query_id: body.queryId } : {}),
+      ...(body.fingerprint ? { fingerprint: body.fingerprint } : {}),
+      ...(body.timeFrom ? { time_from: body.timeFrom } : {}),
+      ...(body.timeTo ? { time_to: body.timeTo } : {}),
+    }
+  );
+  return res.data;
+};
+
 /** Callback for adreChatStream: receives content chunks and/or reasoning chunks. */
 export type AdreChatStreamCallback = (content?: string, reasoning?: string) => void;
 
@@ -173,6 +211,14 @@ export interface AdreStreamProgressEvent {
 export interface AdreChatStreamOptions {
   onChunk: AdreChatStreamCallback;
   onProgress?: (event: AdreStreamProgressEvent) => void;
+  onFrontendToolsRequired?: (payload: {
+    pending_frontend_tool_calls: Array<{
+      tool_call_id: string;
+      tool_name: string;
+      arguments?: Record<string, unknown>;
+    }>;
+    conversation_history: unknown[];
+  }) => Promise<Array<{ tool_call_id: string; tool_name: string; result: string }>>;
 }
 
 export const adreChatStream = async (
@@ -184,6 +230,8 @@ export const adreChatStream = async (
       ? onChunkOrOptions
       : onChunkOrOptions.onChunk;
   const onProgress = typeof onChunkOrOptions === 'function' ? undefined : onChunkOrOptions.onProgress;
+  const onFrontendToolsRequired =
+    typeof onChunkOrOptions === 'function' ? undefined : onChunkOrOptions.onFrontendToolsRequired;
 
   const response = await fetch('/v1/adre/chat', {
     method: 'POST',
@@ -254,6 +302,50 @@ export const adreChatStream = async (
       if (lastEvent === 'error') {
         const text = formatHolmesStreamError(trimmed);
         throw new Error(text);
+      }
+      if (lastEvent === 'approval_required' && trimmed.startsWith('{')) {
+        try {
+          const o = JSON.parse(trimmed) as {
+            pending_approvals?: Array<{
+              tool_call_id: string;
+              tool_name: string;
+            }>;
+            pending_frontend_tool_calls?: Array<{
+              tool_call_id: string;
+              tool_name: string;
+              arguments?: Record<string, unknown>;
+            }>;
+            conversation_history?: unknown[];
+          };
+          if (onFrontendToolsRequired && (o.pending_frontend_tool_calls?.length ?? 0) > 0) {
+            const results = await onFrontendToolsRequired({
+              pending_frontend_tool_calls: o.pending_frontend_tool_calls ?? [],
+              conversation_history: o.conversation_history ?? [],
+            });
+            await adreChatStream(
+              {
+                ...body,
+                stream: true,
+                conversation_history: o.conversation_history ?? [],
+                frontend_tool_results: results,
+              },
+              onChunkOrOptions
+            );
+            return;
+          }
+          if ((o.pending_approvals?.length ?? 0) > 0) {
+            const names = (o.pending_approvals ?? [])
+              .map((a) => a.tool_name)
+              .filter(Boolean)
+              .join(', ');
+            throw new Error(
+              `Approval required for backend tool(s): ${names || 'unknown'}. Interactive approval flow is not supported in PMM chat stream yet.`
+            );
+          }
+        } catch (e) {
+          if (e instanceof Error) throw e;
+          // ignore parse errors
+        }
       }
       const parsed = parseSSEData(trimmed);
       if (parsed.content) onChunk(parsed.content);

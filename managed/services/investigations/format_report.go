@@ -30,12 +30,28 @@ const formatReportTimeout = 120 * time.Second
 
 // FormattedReport is the parsed output from the format step.
 type FormattedReport struct {
-	Summary           string          `json:"summary"`
-	SummaryDetailed   string          `json:"summary_detailed"`
-	RootCauseSummary  string          `json:"root_cause_summary"`
-	ResolutionSummary string          `json:"resolution_summary"`
-	TimelineEvents    []TimelineEvent `json:"timeline_events"`
-	Sections          []Section       `json:"sections"`
+	Summary             string          `json:"summary"`
+	SummaryDetailed     string          `json:"summary_detailed"`
+	RootCauseSummary    string          `json:"root_cause_summary"`
+	ResolutionSummary   string          `json:"resolution_summary"`
+	Confidence          string          `json:"confidence"`
+	ConfidenceScore     int             `json:"confidence_score"`
+	ConfidenceRationale string          `json:"confidence_rationale"`
+	Evidence            []EvidenceEntry `json:"evidence"`
+	TimelineEvents      []TimelineEvent `json:"timeline_events"`
+	Sections            []Section       `json:"sections"`
+}
+
+// EvidenceEntry maps a claim to concrete source evidence.
+type EvidenceEntry struct {
+	ID           string `json:"id"`
+	Kind         string `json:"kind"`
+	Claim        string `json:"claim"`
+	SourceTool   string `json:"source_tool"`
+	SourceRef    string `json:"source_ref"`
+	Excerpt      string `json:"excerpt"`
+	TimeRange    string `json:"time_range"`
+	Verification string `json:"verification"`
 }
 
 // TimelineEvent is a chronological event extracted from the report.
@@ -109,7 +125,16 @@ func ParseFormattedReport(jsonBytes []byte) (*FormattedReport, error) {
 	if err := json.Unmarshal(jsonBytes, &fr); err != nil {
 		return nil, err
 	}
-	// Allow empty summary/root_cause/resolution; sections may be empty
+	if fr.ConfidenceScore < 0 || fr.ConfidenceScore > 100 {
+		fr.ConfidenceScore = 0
+	}
+	if fr.Confidence == "" {
+		fr.Confidence = "medium"
+	}
+	if fr.Evidence == nil {
+		fr.Evidence = []EvidenceEntry{}
+	}
+	fr.Confidence, fr.ConfidenceScore, fr.ConfidenceRationale = ComputeConfidence(fr)
 	return &fr, nil
 }
 
@@ -151,3 +176,93 @@ func parseRemediationSteps(content string) []string {
 }
 
 var numberPrefixRe = regexp.MustCompile(`^\s*\d+[.)]\s*|^\s*[-*•]\s*`)
+
+// ComputeConfidence calculates deterministic confidence from report content.
+func ComputeConfidence(fr FormattedReport) (band string, score int, rationale string) {
+	score = 50
+
+	// Evidence quality (+0..25)
+	evidenceN := len(fr.Evidence)
+	if evidenceN > 4 {
+		evidenceN = 4
+	}
+	score += evidenceN * 5
+	if hasAtLeastTwoEvidenceKinds(fr.Evidence) {
+		score += 5
+	}
+
+	// Coverage/completeness (+0..15)
+	if strings.TrimSpace(fr.RootCauseSummary) != "" &&
+		strings.TrimSpace(fr.ResolutionSummary) != "" &&
+		strings.TrimSpace(fr.Summary) != "" {
+		score += 10
+	}
+	if len(fr.TimelineEvents) >= 2 && hasTwoValidTimelineEvents(fr.TimelineEvents) {
+		score += 5
+	}
+
+	// Uncertainty penalties (-0..40)
+	text := strings.ToLower(fr.Summary + "\n" + fr.SummaryDetailed + "\n" + fr.RootCauseSummary)
+	if strings.Contains(text, "inconclusive") || strings.Contains(text, "unable to determine") {
+		score -= 15
+	}
+	if strings.Contains(text, "possible causes") || strings.Contains(text, "multiple causes") {
+		score -= 10
+	}
+	if len(fr.Evidence) == 0 {
+		score -= 10
+	}
+	if strings.Contains(text, "might be") || strings.Contains(text, "could be") {
+		score -= 5
+	}
+
+	if score < 0 {
+		score = 0
+	}
+	if score > 100 {
+		score = 100
+	}
+
+	switch {
+	case score >= 75:
+		band = "high"
+	case score >= 45:
+		band = "medium"
+	default:
+		band = "low"
+	}
+	rationale = "Computed from evidence count/diversity, report completeness, and uncertainty signals."
+	return band, score, rationale
+}
+
+func hasAtLeastTwoEvidenceKinds(e []EvidenceEntry) bool {
+	kinds := map[string]struct{}{}
+	for _, it := range e {
+		k := strings.TrimSpace(it.Kind)
+		if k == "" {
+			continue
+		}
+		kinds[k] = struct{}{}
+		if len(kinds) >= 2 {
+			return true
+		}
+	}
+	return false
+}
+
+func hasTwoValidTimelineEvents(events []TimelineEvent) bool {
+	valid := 0
+	for _, ev := range events {
+		if strings.TrimSpace(ev.EventTime) == "" {
+			continue
+		}
+		if _, err := time.Parse(time.RFC3339, ev.EventTime); err != nil {
+			continue
+		}
+		valid++
+		if valid >= 2 {
+			return true
+		}
+	}
+	return false
+}

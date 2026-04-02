@@ -137,7 +137,7 @@ export const AdreAlertsPanel: FC<AdreAlertsPanelProps> = ({ alerts: alertsProp }
           </Typography>
         ) : (
           <FormGroup sx={{ gap: 0 }}>
-            <Box sx={{ maxHeight: 150, overflow: 'auto' }}>
+            <Box sx={{ flex: 1, minHeight: 0, maxHeight: '100%', overflow: 'auto' }}>
               {alerts.map((a, index) => {
                 const key = getAlertKey(a, index);
                 const label = (a.labels?.alertname ?? a.annotations?.summary) ?? (a.fingerprint ? String(a.fingerprint) : key);

@@ -18,6 +18,7 @@ import {
   Typography,
 } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import DataObjectIcon from '@mui/icons-material/DataObject';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
@@ -121,6 +122,7 @@ const InvestigationDetailPage: FC = () => {
   const [snackMessage, setSnackMessage] = useState<string | null>(null);
   const [snackSeverity, setSnackSeverity] = useState<'error' | 'success'>('error');
   const [fetchedAlertMeta, setFetchedAlertMeta] = useState<AlertMetadataFromLabels>({});
+  const [showEvidence, setShowEvidence] = useState(false);
   const prevStatusRef = useRef<string | undefined>();
 
   useEffect(() => {
@@ -194,6 +196,55 @@ const InvestigationDetailPage: FC = () => {
         onSuccess: () => setCommentText(''),
       }
     );
+  };
+
+  const handleCopyMarkdown = async () => {
+    if (!inv) return;
+    const blocks = [...(inv.blocks ?? [])].sort((a, b) => a.position - b.position);
+    const blockText = blocks
+      .map((b) => {
+        const content = (b.dataJson as { content?: string; steps?: string[] } | undefined);
+        if (content?.content) return `## ${b.title || b.type}\n${content.content}`;
+        if (Array.isArray(content?.steps)) {
+          return `## ${b.title || b.type}\n${content.steps.map((s, i) => `${i + 1}. ${s}`).join('\n')}`;
+        }
+        return '';
+      })
+      .filter(Boolean)
+      .join('\n\n');
+    const md = [
+      `# ${inv.title || 'Investigation'}`,
+      `Status: ${inv.status}`,
+      `Confidence: ${inv.confidence} (${inv.confidenceScore ?? 0})`,
+      inv.summary ? `\n## Summary\n${inv.summary}` : '',
+      inv.rootCauseSummary ? `\n## Root cause\n${inv.rootCauseSummary}` : '',
+      inv.resolutionSummary ? `\n## Resolution\n${inv.resolutionSummary}` : '',
+      blockText ? `\n## Report\n${blockText}` : '',
+    ]
+      .filter(Boolean)
+      .join('\n');
+    await navigator.clipboard.writeText(md);
+    showSuccess('Copied markdown');
+  };
+
+  const handleCopyEvidenceJson = async () => {
+    if (!inv) return;
+    const payload = {
+      id: inv.id,
+      title: inv.title,
+      status: inv.status,
+      confidence: inv.confidence,
+      confidenceScore: inv.confidenceScore ?? 0,
+      confidenceRationale: inv.confidenceRationale ?? '',
+      evidence: inv.evidence ?? [],
+      summary: inv.summary,
+      rootCauseSummary: inv.rootCauseSummary,
+      resolutionSummary: inv.resolutionSummary,
+      timeFrom: inv.timeFrom,
+      timeTo: inv.timeTo,
+    };
+    await navigator.clipboard.writeText(JSON.stringify(payload, null, 2));
+    showSuccess('Copied JSON evidence bundle');
   };
 
   const handleSendChat = () => {
@@ -289,6 +340,12 @@ const InvestigationDetailPage: FC = () => {
           >
             Export PDF
           </Button>
+          <Button size="small" startIcon={<ContentCopyIcon />} onClick={() => void handleCopyMarkdown()}>
+            Copy markdown
+          </Button>
+          <Button size="small" startIcon={<DataObjectIcon />} onClick={() => void handleCopyEvidenceJson()}>
+            Copy JSON evidence
+          </Button>
           {(() => {
             const ticketId = inv.servicenowTicketId ?? inv.servicenow_ticket_id;
             const ticketNumber = inv.servicenowTicketNumber ?? inv.servicenow_ticket_number;
@@ -376,6 +433,47 @@ const InvestigationDetailPage: FC = () => {
           </Card>
         </>
       )}
+      <Card variant="outlined" sx={{ mb: 2 }}>
+        <CardContent>
+          <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
+            <Typography variant="subtitle2">
+              Confidence: {(inv.confidence || 'medium').toUpperCase()} ({inv.confidenceScore ?? 0})
+            </Typography>
+            <Button size="small" onClick={() => setShowEvidence((v) => !v)}>
+              {showEvidence ? 'Hide evidence map' : `Show evidence map (${inv.evidence?.length ?? 0})`}
+            </Button>
+          </Stack>
+          {!!inv.confidenceRationale && (
+            <Typography variant="body2" color="text.secondary" sx={{ mb: showEvidence ? 1 : 0 }}>
+              {inv.confidenceRationale}
+            </Typography>
+          )}
+          {showEvidence &&
+            (inv.evidence?.length ? (
+              <Stack spacing={1}>
+                {inv.evidence.map((e, idx) => (
+                  <Card key={`${e.id || idx}`} variant="outlined">
+                    <CardContent>
+                      <Typography variant="subtitle2">{e.claim || 'Claim'}</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {e.kind} · {e.source_tool} · {e.source_ref}
+                      </Typography>
+                      {!!e.excerpt && (
+                        <Typography variant="body2" sx={{ mt: 0.5, whiteSpace: 'pre-wrap' }}>
+                          {e.excerpt}
+                        </Typography>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </Stack>
+            ) : (
+              <Typography variant="body2" color="text.secondary">
+                No evidence entries available.
+              </Typography>
+            ))}
+        </CardContent>
+      </Card>
 
       {/* Metadata row */}
       <Stack direction="row" flexWrap="wrap" gap={2} sx={{ mb: 2 }}>
@@ -534,6 +632,12 @@ const InvestigationDetailPage: FC = () => {
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
               size="small"
+              onKeyDown={(e) => {
+                if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                  e.preventDefault();
+                  handleAddComment();
+                }
+              }}
             />
             <Button
               variant="contained"
@@ -595,6 +699,12 @@ const InvestigationDetailPage: FC = () => {
               value={chatText}
               onChange={(e) => setChatText(e.target.value)}
               size="small"
+              onKeyDown={(e) => {
+                if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                  e.preventDefault();
+                  handleSendChat();
+                }
+              }}
             />
             <Button
               variant="contained"

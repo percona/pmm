@@ -27,6 +27,13 @@ import (
 	"github.com/percona/pmm/managed/services/adre"
 )
 
+type confidencePayload struct {
+	Band      string          `json:"band"`
+	Score     int             `json:"score"`
+	Rationale string          `json:"rationale"`
+	Evidence  []EvidenceEntry `json:"evidence"`
+}
+
 const (
 	investigationRunTimeout  = 5 * time.Minute
 	investigationChatTimeout = 5 * time.Minute
@@ -275,6 +282,19 @@ func (h *Handlers) runInvestigationBackground(id string, _ *models.Investigation
 			inv.SummaryDetailed = report.SummaryDetailed
 			inv.RootCauseSummary = report.RootCauseSummary
 			inv.ResolutionSummary = report.ResolutionSummary
+			cfg := map[string]interface{}{}
+			if len(inv.Config) > 0 {
+				_ = json.Unmarshal(inv.Config, &cfg)
+			}
+			cfg["confidence"] = confidencePayload{
+				Band:      report.Confidence,
+				Score:     report.ConfidenceScore,
+				Rationale: report.ConfidenceRationale,
+				Evidence:  report.Evidence,
+			}
+			if b, err := json.Marshal(cfg); err == nil {
+				inv.Config = b
+			}
 			if err := models.DeleteInvestigationBlocksForInvestigation(h.db, id); err != nil {
 				h.l.Warnf("DeleteInvestigationBlocksForInvestigation: %v", err)
 			}
@@ -283,7 +303,15 @@ func (h *Handlers) runInvestigationBackground(id string, _ *models.Investigation
 			}
 			for pos, sec := range report.Sections {
 				blockType := sec.Type
-				if blockType != BlockTypeMarkdown && blockType != BlockTypeFinding && blockType != BlockTypeRemediationSteps {
+				switch blockType {
+				case BlockTypeMarkdown,
+					BlockTypeFinding,
+					BlockTypeRemediationSteps,
+					BlockTypeQueryResult,
+					BlockTypeLogsView,
+					BlockTypeSinglePanel,
+					BlockTypePanelGroup:
+				default:
 					blockType = BlockTypeMarkdown
 				}
 				dataJSON := buildBlockDataJSON(blockType, sec.Content)
