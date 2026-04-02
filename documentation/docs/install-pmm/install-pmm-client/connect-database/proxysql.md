@@ -24,6 +24,9 @@ pmm-admin add proxysql --username=pmm --password=pmm
 
 Replace `pmm` with the credentials for your ProxySQL administration interface. For security, configure a dedicated read-only monitoring account using the [`admin-stats_credentials`](https://proxysql.com/documentation/global-variables/admin-variables/#admin-stats_credentials) variable in ProxySQL.
 
+!!! warning
+    The monitoring user needs admin read-only permissions in ProxySQL to collect runtime server metrics. Without these permissions, PMM will skip runtime server metrics collection.
+
 You can append two optional positional arguments: a service name and a service address. If omitted, PMM uses `<node>-proxysql` and `127.0.0.1:6032` as defaults.
 
 ## Example output

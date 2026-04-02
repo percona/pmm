@@ -1,7 +1,7 @@
 ---
 title: Authentication
 slug: authentication
-parent:
+category:
   uri: welcome
 position: 1
 ---
