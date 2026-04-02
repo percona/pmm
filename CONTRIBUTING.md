@@ -53,7 +53,6 @@ This project is built from several repositories:
 ### QA, Testing and Documentation
 * [percona/pmm-ui-tests](https://github.com/percona/pmm-ui-tests)
 * [percona/pmm-qa](https://github.com/percona/pmm-qa)
-* [percona/pmm-doc](https://github.com/percona/pmm-doc)
 
 ## API Reference Documentation
 
