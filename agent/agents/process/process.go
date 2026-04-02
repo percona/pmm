@@ -23,12 +23,15 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 
 	"github.com/percona/pmm/agent/utils/backoff"
 	"github.com/percona/pmm/agent/utils/templates"
+	extensionsv1 "github.com/percona/pmm/api/extensions/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/utils/pdeathsig"
 )
 
@@ -82,7 +85,10 @@ type Params struct {
 func (p *Params) String() string {
 	res := p.Path + " " + strings.Join(p.Args, " ")
 	if len(p.Env) != 0 {
-		res += " (environment: " + strings.Join(p.Env, ", ") + ")"
+		printEnv := lo.Map(p.Env, func(item string, _ int) string {
+			return logger.RedactString(item, extensionsv1.RedactType_REDACT_TYPE_DSN)
+		})
+		res += " (environment: " + strings.Join(printEnv, ", ") + ")"
 	}
 
 	return res

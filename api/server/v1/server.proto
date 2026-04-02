@@ -3,6 +3,7 @@ syntax = "proto3";
 package server.v1;
 
 import "common/common.proto";
+import "extensions/v1/redact.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
@@ -106,14 +107,14 @@ message StartUpdateRequest {
 
 message StartUpdateResponse {
   // Authentication token for getting update statuses.
-  string auth_token = 1;
+  string auth_token = 1 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Progress log offset.
   uint32 log_offset = 2;
 }
 
 message UpdateStatusRequest {
   // Authentication token.
-  string auth_token = 1;
+  string auth_token = 1 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Progress log offset.
   uint32 log_offset = 2;
 }
