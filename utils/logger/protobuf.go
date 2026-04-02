@@ -26,20 +26,20 @@ import (
 	extensionsv1 "github.com/percona/pmm/api/extensions/v1"
 )
 
-// messagePlan is the plan for redacting a message, which contains the information
+// A messagePlan is the plan for redacting a message, which contains the information
 // of which fields in this particular message are sensitive and how to redact them.
 // NOTE: messagePlan only contains the information of the current-level message(md),
 // not for nested messages(md) in fields, because we will also reflect on nested messages(md) when we redact them,
 // and cache their plans as well.
 type messagePlan struct {
-	// sensitive maps field number to its redact type, only for fields annotated with our custom "sensitive" option.
+	// A sensitive maps field number to its redact type, only for fields annotated with our custom "sensitive" option.
 	// We use field number instead of field name for better performance,
 	// as we can directly get the field value by number from protoreflect.Message.
 	sensitive map[protoreflect.FieldNumber]extensionsv1.RedactType
 }
 
 var (
-	// messagePlan is cached by message descriptor full name, which is unique in protobuf world.
+	// A messagePlan is cached by message descriptor full name, which is unique in protobuf world.
 	// The cache value is *messagePlan if there are sensitive fields in this message(md),
 	// or nil if there is no sensitive field in this message(md).
 	// We use sync.Map for concurrent access, as protobuf messages can be redacted in multiple goroutines.
@@ -47,7 +47,7 @@ var (
 	// because we will also reflect on nested messages(md) when we redact them, and cache their plans as well.
 	planCache sync.Map // map[protoreflect.FullName]*messagePlan
 
-	// maskedString is used to replace sensitive string fields
+	// A maskedString is used to replace sensitive string fields
 	maskedString = "***REDACTED***"
 )
 
