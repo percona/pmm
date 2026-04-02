@@ -2,8 +2,10 @@ import { FC } from 'react';
 import { PageProps } from './Page.types';
 import {
   Alert,
+  Box,
   Card,
   CardActions,
+  Divider,
   Link,
   Stack,
   Typography,
@@ -28,9 +30,9 @@ export const Page: FC<PageProps> = ({
     <Stack
       sx={{
         flex: 1,
-        width: {
-          md: 'auto',
-          lg: fullWidth ? '100%' : 1000,
+        width: '100%',
+        maxWidth: {
+          lg: 1000,
         },
         p: {
           xs: 2,
@@ -45,21 +47,24 @@ export const Page: FC<PageProps> = ({
     >
       {topBar}
       {!!title && <Typography variant="h2">{title}</Typography>}
-      {user?.isAuthorized ? (
-        children
-      ) : (
-        <Card variant="outlined" sx={{ p: 2 }}>
-          <Alert severity="error" sx={{ mb: 1 }}>
-            {Messages.noAcccess}
-          </Alert>
-          <CardActions>
-            <Typography>
-              {Messages.goBack}
-              <Link href={PMM_HOME_URL}>{Messages.home}</Link>
-            </Typography>
-          </CardActions>
-        </Card>
-      )}
+      <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        {user?.isAuthorized ? (
+          children
+        ) : (
+          <Card variant="outlined" sx={{ p: 2 }}>
+            <Alert severity="error" sx={{ mb: 1 }}>
+              {Messages.noAcccess}
+            </Alert>
+            <CardActions>
+              <Typography>
+                {Messages.goBack}
+                <Link href={PMM_HOME_URL}>{Messages.home}</Link>
+              </Typography>
+            </CardActions>
+          </Card>
+        )}
+      </Box>
+      <Divider />
       {footer !== undefined ? footer : <Footer />}
     </Stack>
   );

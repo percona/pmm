@@ -1,9 +1,11 @@
-import { FC, useCallback, useEffect, useState } from 'react';
+import { FC, useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigation } from 'contexts/navigation';
 import { NavigationHeading } from './nav-heading';
 import { Drawer } from './drawer';
 import { NavItem } from './nav-item';
 import List from '@mui/material/List';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 import { findActiveNavItem } from 'utils/navigation.utils';
 import { useLocation } from 'react-router-dom';
 import { NavItem as NavItemType } from 'types/navigation.types';
@@ -13,6 +15,9 @@ export const Sidebar: FC = () => {
   const [activeItem, setActiveItem] = useState<NavItemType>(navTree[0]);
   const [animating, setAnimating] = useState(false);
   const location = useLocation();
+  const theme = useTheme();
+  const isNarrow = useMediaQuery(theme.breakpoints.down('md'));
+  const prevPathnameRef = useRef(location.pathname);
 
   const toggleSidebar = useCallback(() => {
     setNavOpen(!navOpen);
@@ -34,6 +39,13 @@ export const Sidebar: FC = () => {
       setActiveItem(activeItem);
     }
   }, [navTree, location.pathname]);
+
+  useEffect(() => {
+    if (prevPathnameRef.current !== location.pathname && isNarrow) {
+      setNavOpen(false);
+    }
+    prevPathnameRef.current = location.pathname;
+  }, [location.pathname, isNarrow, setNavOpen]);
 
   return (
     <Drawer

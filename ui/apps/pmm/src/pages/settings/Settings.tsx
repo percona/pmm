@@ -28,10 +28,12 @@ export const Settings: FC = () => {
 
   return (
     <Page title={Messages.title} fullWidth>
-      <Stack gap={3}>
+      <Stack gap={3} sx={{ flex: 1 }}>
         <Tabs
           value={tab}
           onChange={(_, value: TabValue) => setTab(value)}
+          variant="scrollable"
+          scrollButtons="auto"
           sx={{ borderBottom: 1, borderColor: 'divider' }}
         >
           <Tab
@@ -51,7 +53,7 @@ export const Settings: FC = () => {
           />
         </Tabs>
 
-        <Box sx={{ py: 2 }}>
+        <Box sx={{ py: 2, flex: 1 }}>
           {tab === 'advanced' && <AdvancedSettingsForm settings={settings} />}
           {tab === 'ssh' && <SshKeyForm settings={settings} />}
           {tab === 'metrics' && <MetricsResolutionForm settings={settings} />}
