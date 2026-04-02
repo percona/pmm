@@ -11,6 +11,7 @@ import {
   getSettings,
   updateSettings,
 } from 'api/settings';
+import messenger from 'lib/messenger';
 import {
   FrontendSettings,
   Settings,
@@ -54,6 +55,9 @@ export const useUpdateSettings = (
     ...options,
     onSuccess: (data, variables, onMutate, context) => {
       void queryClient.invalidateQueries({ queryKey: SETTINGS_QUERY_KEY });
+      messenger.sendMessage({
+        type: 'SETTINGS_CHANGED',
+      });
       options?.onSuccess?.(data, variables, onMutate, context);
     },
   });
