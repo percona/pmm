@@ -11,7 +11,7 @@ require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.44.0
 	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/alecthomas/kingpin/v2 v2.4.0
-	github.com/alecthomas/kong v1.14.0
+	github.com/alecthomas/kong v1.15.0
 	github.com/alecthomas/units v0.0.0-20240927000941-0f3dac36c52b
 	github.com/aws/aws-sdk-go-v2 v1.41.4
 	github.com/aws/aws-sdk-go-v2/config v1.32.7
