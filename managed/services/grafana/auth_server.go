@@ -22,7 +22,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/http/httputil"
 	"net/url"
 	"path"
 	"strings"
@@ -205,57 +204,9 @@ func (s *AuthServer) Run(ctx context.Context) {
 
 // ServeHTTP serves internal location /auth_request for both authentication subrequests
 // and subsequent normal requests.
+// Headless build: grants admin access to all requests without contacting Grafana.
 func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	if s.l.Logger.GetLevel() >= logrus.DebugLevel {
-		b, err := httputil.DumpRequest(req, true)
-		if err != nil {
-			s.l.Errorf("Failed to dump request: %v.", err)
-		}
-		s.l.Debugf("Request:\n%s", b)
-	}
-
-	if err := extractOriginalRequest(req); err != nil {
-		s.l.Warnf("Failed to parse request: %s.", err)
-		rw.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	l := s.l.WithField("req", fmt.Sprintf("%s %s", req.Method, req.URL.Path))
-	// TODO l := logger.Get(ctx) once we have it after https://jira.percona.com/browse/PMM-4326
-
-	// fail-safe
-	ctx, cancel := context.WithTimeout(req.Context(), 3*time.Second)
-	defer cancel()
-
-	authUser, err := s.authenticate(ctx, req, l)
-	if err != nil {
-		// copy grpc-gateway behavior: set correct codes, set both "error" and "message"
-		m := map[string]any{
-			"code":    int(err.code),
-			"error":   err.message,
-			"message": err.message,
-		}
-		s.returnError(rw, m, l)
-		return
-	}
-
-	var userID int
-	if authUser != nil {
-		userID = authUser.userID
-	}
-
-	if err := s.maybeAddLBACFilters(ctx, rw, req, userID, l); err != nil {
-		// copy grpc-gateway behavior: set correct codes, set both "error" and "message"
-		m := map[string]any{
-			"code":    int(codes.Internal),
-			"error":   "Internal server error.",
-			"message": "Internal server error.",
-		}
-		l.Errorf("Failed to add VMProxy filters: %s", err)
-
-		s.returnError(rw, m, l)
-		return
-	}
+	rw.WriteHeader(http.StatusOK)
 }
 
 func (s *AuthServer) returnError(rw http.ResponseWriter, msg map[string]any, l *logrus.Entry) {

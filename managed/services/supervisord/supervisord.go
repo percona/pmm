@@ -20,7 +20,6 @@ import (
 	"bufio"
 	"bytes"
 	"context"
-	"fmt"
 	"io/fs"
 	"net/url"
 	"os"
@@ -318,17 +317,6 @@ func (s *Service) addPostgresParams(templateParams map[string]interface{}) {
 
 func (s *Service) addClusterParams(templateParams map[string]interface{}) {
 	templateParams["HAEnabled"] = s.haParams.Enabled
-	if s.haParams.Enabled {
-		templateParams["GrafanaGossipPort"] = s.haParams.GrafanaGossipPort
-		templateParams["HAAdvertiseAddress"] = s.haParams.AdvertiseAddress
-		nodes := make([]string, len(s.haParams.Nodes))
-		for i, node := range s.haParams.Nodes {
-			nodes[i] = fmt.Sprintf("%s:%d", node, s.haParams.GrafanaGossipPort)
-		}
-		templateParams["HANodes"] = strings.Join(nodes, ",")
-	}
-	// - GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS=172.20.0.5:9095
-	// - GF_UNIFIED_ALERTING_HA_PEERS=pmm-server-active:9095,pmm-server-passive:9095
 }
 
 // saveConfigAndReload saves given supervisord program configuration to file and reloads it.
@@ -538,62 +526,6 @@ stopwaitsecs = 10
 stdout_logfile = /srv/logs/qan-api2.log
 stdout_logfile_maxbytes = 10MB
 stdout_logfile_backups = 3
-redirect_stderr = true
-{{end}}
-
-{{define "grafana"}}
-[program:grafana]
-priority = 3
-command =
-    /usr/sbin/grafana server
-        --homepath=/usr/share/grafana
-        --config=/etc/grafana/grafana.ini
-        {{- if .PMMServerHost}}
-        cfg:default.server.domain="{{ .PMMServerHost }}"
-        {{- end}}
-        {{- if .PerconaSSODetails}}
-        cfg:default.auth.generic_oauth.enabled=true
-        cfg:default.auth.generic_oauth.name="Percona Account"
-        cfg:default.auth.generic_oauth.client_id="{{ .PerconaSSODetails.GrafanaClientID }}"
-        cfg:default.auth.generic_oauth.scopes="openid profile email offline_access percona"
-        cfg:default.auth.generic_oauth.auth_url="{{ .PerconaSSODetails.IssuerURL }}/authorize"
-        cfg:default.auth.generic_oauth.token_url="{{ .PerconaSSODetails.IssuerURL }}/token"
-        cfg:default.auth.generic_oauth.api_url="{{ .PerconaSSODetails.IssuerURL }}/userinfo"
-        cfg:default.auth.generic_oauth.role_attribute_path="(contains(portal_admin_orgs[*], '{{ .PerconaSSODetails.OrganizationID }}') || contains(pmm_demo_ids[*], '{{ .PMMServerID }}')) && 'Admin' || 'Viewer'"
-        cfg:default.auth.generic_oauth.use_pkce="true"
-        cfg:default.auth.oauth_allow_insecure_email_lookup="true"
-        {{- end}}
-environment =
-    PMM_POSTGRES_ADDR="{{ .PostgresAddr }}",
-    PMM_POSTGRES_DBNAME="{{ .PostgresDBName }}",
-    PMM_POSTGRES_USERNAME="{{ .PostgresDBUsername }}",
-    PMM_POSTGRES_DBPASSWORD="{{ .PostgresDBPassword }}",
-    PMM_POSTGRES_SSL_MODE="{{ .PostgresSSLMode }}",
-    PMM_POSTGRES_SSL_CA_PATH="{{ .PostgresSSLCAPath }}",
-    PMM_POSTGRES_SSL_KEY_PATH="{{ .PostgresSSLKeyPath }}",
-    PMM_POSTGRES_SSL_CERT_PATH="{{ .PostgresSSLCertPath }}",
-    PMM_CLICKHOUSE_HOST="{{ .ClickhouseHost }}",
-    PMM_CLICKHOUSE_PORT="{{ .ClickhousePort }}",
-    PMM_CLICKHOUSE_USER="{{ .ClickhouseUser }}",
-    PMM_CLICKHOUSE_PASSWORD="{{ .ClickhousePassword }}",
-    {{- if .PerconaSSODetails}}
-    GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"
-    {{- end}}
-    {{- if .HAEnabled}}
-    GF_UNIFIED_ALERTING_HA_LISTEN_ADDRESS="0.0.0.0:{{ .GrafanaGossipPort }}",
-    GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS="{{ .HAAdvertiseAddress }}:{{ .GrafanaGossipPort }}",
-    GF_UNIFIED_ALERTING_HA_PEERS="{{ .HANodes }}"
-    {{- end}}
-directory = /usr/share/grafana
-autorestart = true
-autostart = true
-startretries = 10
-startsecs = 1
-stopsignal = TERM
-stopwaitsecs = 300
-stdout_logfile = /srv/logs/grafana.log
-stdout_logfile_maxbytes = 50MB
-stdout_logfile_backups = 2
 redirect_stderr = true
 {{end}}
 

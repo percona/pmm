@@ -1,122 +1,129 @@
 #!/bin/bash
+# PMM Server Headless - Entrypoint
+#
+# Handles first-run initialization (PostgreSQL, SSL) and starts supervisord.
+# Supports arbitrary UID via NSS wrapper for OpenShift/Kubernetes.
+
 set -o errexit
+set -o pipefail
 
-declare PMM_DISTRIBUTION_METHOD="${PMM_DISTRIBUTION_METHOD:-docker}"
-declare CURRENT_GID CURRENT_UID CURRENT_USER
+PMM_DISTRIBUTION_METHOD="${PMM_DISTRIBUTION_METHOD:-docker}"
+DIST_FILE="/srv/pmm-distribution"
 
-# Get current user info - handle cases where user doesn't exist in passwd
+log_info()  { echo "[INFO]  $(date -Iseconds) $*"; }
+log_warn()  { echo "[WARN]  $(date -Iseconds) $*" >&2; }
+log_error() { echo "[ERROR] $(date -Iseconds) $*" >&2; }
+
 CURRENT_UID=$(id -u)
 CURRENT_GID=$(id -g)
-if whoami &> /dev/null; then
-    CURRENT_USER=$(whoami)
-else
-    CURRENT_USER="user-${CURRENT_UID}"
-fi
-echo "Running as UID ${CURRENT_UID}"
+CURRENT_USER=$(whoami 2>/dev/null || echo "user-${CURRENT_UID}")
+
+log_info "Starting PMM Server (headless)"
+log_info "Running as UID:GID ${CURRENT_UID}:${CURRENT_GID}"
 
 if [ ! -w /srv ]; then
-    echo "FATAL: /srv is not writable for ${CURRENT_USER} user." >&2
-    echo "Please make sure that /srv is owned by uid ${CURRENT_UID} and gid ${CURRENT_GID} and try again." >&2
-    echo "You can change ownership by running: sudo chown -R ${CURRENT_UID}:${CURRENT_GID} /srv" >&2
+    log_error "/srv is not writable for ${CURRENT_USER}"
+    log_error "Fix: chown -R ${CURRENT_UID}:${CURRENT_GID} /srv"
     exit 1
 fi
 
+# NSS wrapper for arbitrary UID support (OpenShift)
 if [ "$CURRENT_UID" != "1000" ] || [ "$CURRENT_GID" != "0" ]; then
-    echo "Running as UID:GID $CURRENT_UID:$CURRENT_GID, setting up for arbitrary UID..."
+    log_info "Setting up NSS wrapper for arbitrary UID support"
 
-    # Try NSS wrapper first if available
-    declare NSS_WRAPPER_LIB="/usr/lib64/libnss_wrapper.so"
-    if [ ! -f "$NSS_WRAPPER_LIB" ]; then
-        echo "Fatal: NSS wrapper library not found at $NSS_WRAPPER_LIB, exiting..."
-        exit 1
-    fi
-
-    if [ -n "$NSS_WRAPPER_LIB" ]; then
-        echo "Setting up NSS wrapper..."
-        declare NSS_WRAPPER_PASSWD NSS_WRAPPER_GROUP
-        # Set up NSS wrapper for arbitrary UID support
+    NSS_WRAPPER_LIB="/usr/lib64/libnss_wrapper.so"
+    if [ -f "$NSS_WRAPPER_LIB" ]; then
         NSS_WRAPPER_PASSWD=$(mktemp)
         NSS_WRAPPER_GROUP=$(mktemp)
         export NSS_WRAPPER_PASSWD NSS_WRAPPER_GROUP
 
-        # Cleanup temp files on exit
-        cleanup_nss_wrapper() {
-            [ -f "$NSS_WRAPPER_PASSWD" ] && rm -f "$NSS_WRAPPER_PASSWD"
-            [ -f "$NSS_WRAPPER_GROUP" ] && rm -f "$NSS_WRAPPER_GROUP"
+        cleanup_nss() {
+            rm -f "$NSS_WRAPPER_PASSWD" "$NSS_WRAPPER_GROUP" 2>/dev/null || true
         }
-        trap cleanup_nss_wrapper EXIT
+        trap cleanup_nss EXIT
 
-        # Copy existing passwd and group entries
         cat /etc/passwd > "$NSS_WRAPPER_PASSWD"
         cat /etc/group > "$NSS_WRAPPER_GROUP"
 
-        # Add current user if not exists (suppress errors if NSS wrapper is not yet active)
         if ! getent passwd "$CURRENT_UID" > /dev/null 2>&1; then
             echo "${CURRENT_USER}:x:${CURRENT_UID}:${CURRENT_GID}:PMM User:/srv:/bin/bash" >> "$NSS_WRAPPER_PASSWD"
         fi
-
-        # Add current group if not exists (suppress errors if NSS wrapper is not yet active)
         if ! getent group "$CURRENT_GID" > /dev/null 2>&1; then
-            echo "${CURRENT_USER}:x:${CURRENT_GID}:" >> "$NSS_WRAPPER_GROUP"
+            echo "pmmgroup:x:${CURRENT_GID}:" >> "$NSS_WRAPPER_GROUP"
         fi
 
-        # Fix LD_PRELOAD assignment to avoid leading colon
-        if [ -n "$LD_PRELOAD" ]; then
-            export LD_PRELOAD="$NSS_WRAPPER_LIB:$LD_PRELOAD"
-        else
-            export LD_PRELOAD="$NSS_WRAPPER_LIB"
-        fi
-        echo "NSS wrapper enabled with $NSS_WRAPPER_LIB"
+        export LD_PRELOAD="${NSS_WRAPPER_LIB}${LD_PRELOAD:+:$LD_PRELOAD}"
+        log_info "NSS wrapper enabled"
+    else
+        log_warn "NSS wrapper library not found, arbitrary UID may not work correctly"
     fi
 fi
 
-# Check /usr/share/pmm-server directory on every start
-echo "Checking /usr/share/pmm-server directory structure..."
-# Still ensure critical directories exist, but don't create empty ones
-if [ ! -d "/usr/share/pmm-server/nginx" ]; then 
-    echo "Creating nginx temp directories..."
-    mkdir -p /usr/share/pmm-server/nginx/{client_temp,proxy_temp,fastcgi_temp,uwsgi_temp,scgi_temp}
-fi
+log_info "Ensuring directory structure"
+mkdir -p /usr/share/pmm-server/nginx/{client_temp,proxy_temp,fastcgi_temp,uwsgi_temp,scgi_temp}
+mkdir -p /srv/{logs,nginx,postgres14,clickhouse,victoriametrics,backup,prometheus/rules}
+mkdir -p /srv/pmm-agent/tmp
+mkdir -p /run/supervisor
+chmod 770 /srv/pmm-agent/tmp 2>/dev/null || true
 
-if [ ! -d "/srv/pmm-agent/tmp" ]; then
-    echo "Creating pmm-agent temp directory..."
-    install -d -m 770 /srv/pmm-agent/tmp
-fi
-
-# Initialize /srv if empty
-declare DIST_FILE=/srv/pmm-distribution
+# First-run initialization
 if [ ! -f "$DIST_FILE" ]; then
+    log_info "First run detected - initializing /srv"
     echo -n "$PMM_DISTRIBUTION_METHOD" > "$DIST_FILE"
-    echo "Initializing /srv..."
-    mkdir -p /srv/{backup,clickhouse,grafana,logs,nginx,prometheus,victoriametrics}
-    echo "Copying grafana plugins and the VERSION file..."
-    mkdir -p /srv/grafana/plugins
-    cp -r /usr/share/percona-dashboards/panels/* /srv/grafana/plugins
 
-    echo "Initializing Postgres..."
-    install -d -m 750 /srv/postgres14
+    log_info "Initializing PostgreSQL"
     /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth=trust --username=postgres
 
-    echo "Enabling pg_stat_statements extension for PostgreSQL..."
-    /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14
-    /usr/bin/psql postgres postgres -c 'CREATE EXTENSION pg_stat_statements SCHEMA public'
-    /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
+    log_info "Starting PostgreSQL to enable extensions"
+    /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -w -t 30 -l /srv/logs/postgresql14.log
+
+    /usr/pgsql-14/bin/psql -h /tmp -U postgres -c 'CREATE EXTENSION IF NOT EXISTS pg_stat_statements SCHEMA public'
+    /usr/pgsql-14/bin/psql -h /tmp -U postgres -c "CREATE USER \"pmm-managed\" WITH PASSWORD 'pmm-managed'"
+    /usr/pgsql-14/bin/psql -h /tmp -U postgres -c "CREATE DATABASE \"pmm-managed\" OWNER \"pmm-managed\""
+    /usr/pgsql-14/bin/psql -h /tmp -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE \"pmm-managed\" TO \"pmm-managed\""
+
+    /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14 -w -t 30
+
+    log_info "PostgreSQL initialized"
 fi
 
-echo "Generating self-signed certificates for nginx..."
-bash /var/lib/cloud/scripts/per-boot/generate-ssl-certificate
+chmod 750 /srv/postgres14 2>/dev/null || true
 
-# Ensure /srv/postgres14 has the correct permissions
-chmod 750 /srv/postgres14 || true
+# SSL certificates
+log_info "Generating SSL certificates"
+mkdir -p /srv/nginx
 
-echo "Checking nginx configuration..."
-if ! nginx -t; then
-    echo "Nginx configuration test failed, exiting..."
+if [ ! -f /srv/nginx/dhparam.pem ]; then
+    cp /etc/nginx/ssl/dhparam.pem /srv/nginx/dhparam.pem
+fi
+
+if [ ! -f /srv/nginx/ca-certs.pem ]; then
+    cp /etc/nginx/ssl/ca-certs.pem /srv/nginx/ca-certs.pem
+fi
+
+if [ ! -f /srv/nginx/certificate.conf ]; then
+    cp /etc/nginx/ssl/certificate.conf /srv/nginx/certificate.conf
+fi
+
+if [ ! -f /srv/nginx/certificate.key ] || [ ! -f /srv/nginx/certificate.crt ]; then
+    log_info "Creating self-signed SSL certificate"
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+        -extensions v3_req \
+        -keyout /srv/nginx/certificate.key \
+        -out /srv/nginx/certificate.crt \
+        -config /srv/nginx/certificate.conf
+fi
+
+log_info "Validating nginx configuration"
+if ! nginx -t 2>&1; then
+    log_error "Nginx configuration test failed"
     exit 1
 fi
 
-# pmm-managed-init validates environment variables.
-pmm-managed-init
+log_info "Running pmm-managed-init"
+if [ -x /usr/sbin/pmm-managed-init ]; then
+    /usr/sbin/pmm-managed-init || log_warn "pmm-managed-init returned non-zero (may be expected)"
+fi
 
-# Start supervisor in foreground
-exec supervisord -n -c /etc/supervisord.conf
+log_info "Starting supervisord"
+exec /usr/local/bin/supervisord -n -c /etc/supervisord.conf

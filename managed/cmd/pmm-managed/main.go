@@ -788,11 +788,7 @@ func main() { //nolint:maintidx,cyclop
 	}
 	pmmdb.DSN.Params = q.Encode()
 
-	grafanadb := ds.GrafanaDBSelect
-	grafanadb.DSN.Scheme = "postgres"
-	grafanadb.DSN.Host = *postgresAddrF
-	grafanadb.DSN.DB = "grafana"
-	grafanadb.DSN.Params = q.Encode()
+	// grafanadb telemetry datasource removed - headless build has no Grafana database
 
 	chURI := url.URL{
 		Scheme: "tcp",
