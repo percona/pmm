@@ -1,27 +1,17 @@
-import {
-  Button,
-  IconButton,
-  Link,
-  Stack,
-  TextField,
-  Tooltip,
-  Typography,
-} from '@mui/material';
+import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import Link from '@mui/material/Link';
+import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { FC, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
 import { useUpdateSettings } from 'hooks/api/useSettings';
-import { Settings } from 'types/settings.types';
 import { Messages } from '../../Settings.messages';
-
-interface SshKeyFormProps {
-  settings: Settings;
-}
-
-interface FormValues {
-  sshKey: string;
-}
+import { SshKeyFormProps, SshKeyFormValues } from './SshKeyForm.types';
 
 export const SshKeyForm: FC<SshKeyFormProps> = ({ settings }) => {
   const { mutateAsync: updateSettings, isPending } = useUpdateSettings();
@@ -30,7 +20,7 @@ export const SshKeyForm: FC<SshKeyFormProps> = ({ settings }) => {
     handleSubmit,
     reset,
     formState: { isDirty },
-  } = useForm<FormValues>({
+  } = useForm<SshKeyFormValues>({
     defaultValues: { sshKey: settings.sshKey ?? '' },
   });
 
@@ -38,18 +28,22 @@ export const SshKeyForm: FC<SshKeyFormProps> = ({ settings }) => {
     reset({ sshKey: settings.sshKey ?? '' });
   }, [settings.sshKey, reset]);
 
-  const onSubmit = async (values: FormValues) => {
-    try {
-      await updateSettings({ sshKey: values.sshKey });
-      enqueueSnackbar(Messages.service.success, { variant: 'success' });
-      reset({ sshKey: values.sshKey });
-    } catch (error) {
-      enqueueSnackbar(
-        error instanceof Error ? error.message : Messages.unauthorized,
-        { variant: 'error' }
-      );
-    }
-  };
+  const onSubmit = async (values: SshKeyFormValues) =>
+    await updateSettings(
+      { sshKey: values.sshKey },
+      {
+        onSuccess: () => {
+          enqueueSnackbar(Messages.service.success, { variant: 'success' });
+          reset({ sshKey: values.sshKey });
+        },
+        onError: (error) => {
+          enqueueSnackbar(
+            error instanceof Error ? error.message : Messages.unauthorized,
+            { variant: 'error' }
+          );
+        },
+      }
+    );
 
   const { label, link, tooltip, action } = Messages.ssh;
   const { tooltipLinkText } = Messages;

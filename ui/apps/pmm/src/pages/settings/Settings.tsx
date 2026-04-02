@@ -1,4 +1,8 @@
-import { Box, CircularProgress, Stack, Tab, Tabs } from '@mui/material';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
+import Stack from '@mui/material/Stack';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
 import { FC, useState } from 'react';
 import { Page } from 'components/page';
 import { useSettings } from 'hooks/api/useSettings';
@@ -6,8 +10,7 @@ import { SshKeyForm } from './components/ssh-key/SshKeyForm';
 import { MetricsResolutionForm } from './components/metrics-resolution/MetricsResolutionForm';
 import { AdvancedSettingsForm } from './components/advanced/AdvancedSettingsForm';
 import { Messages } from './Settings.messages';
-
-type TabValue = 'ssh' | 'metrics' | 'advanced';
+import { TabValue } from './Settings.types';
 
 export const Settings: FC = () => {
   const [tab, setTab] = useState<TabValue>('advanced');

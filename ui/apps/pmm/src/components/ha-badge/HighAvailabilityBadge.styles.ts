@@ -20,8 +20,8 @@ export const getStyles = (theme: Theme) => ({
         : theme.palette.error.dark,
     backgroundColor:
       theme.palette.mode === 'light'
-      ? theme.palette.error.surface
-      : theme.palette.error.dark,
+        ? theme.palette.error.surface
+        : theme.palette.error.dark,
     transition: 'none',
   },
   down: {

@@ -1,4 +1,3 @@
-// doesn't yet have the complete response
 export interface ReadonlySettings {
   updatesEnabled: boolean;
   telemetryEnabled: boolean;
@@ -16,7 +15,7 @@ export interface MetricsResolutions {
   lr: string;
 }
 
-export interface AdvisorRunIntervalsSettings {
+export interface AdvisorRunIntervals {
   rareInterval: string;
   standardInterval: string;
   frequentInterval: string;
@@ -31,9 +30,11 @@ export interface Settings extends ReadonlySettings {
   metricsResolutions?: MetricsResolutions;
   dataRetention?: string;
   sshKey?: string;
-  advisorRunIntervals?: AdvisorRunIntervalsSettings;
+  awsPartitions?: string[];
+  advisorRunIntervals?: AdvisorRunIntervals;
   telemetrySummaries?: string[];
   enableInternalPgQan?: boolean;
+  defaultRoleId?: number;
 }
 
 /** Payload for PUT /server/settings - partial updates supported */
@@ -45,21 +46,23 @@ export interface UpdateSettingsPayload {
   enableTelemetry?: boolean;
   enableAlerting?: boolean;
   enableAdvisor?: boolean;
-  advisorRunIntervals?: {
-    rareInterval: string;
-    standardInterval: string;
-    frequentInterval: string;
-  };
+  advisorRunIntervals?: AdvisorRunIntervals;
   enableBackupManagement?: boolean;
   enableAzurediscover?: boolean;
   enableUpdates?: boolean;
   enableAccessControl?: boolean;
   enableInternalPgQan?: boolean;
+  awsPartitions?: string[];
+  updateSnoozeDuration?: string;
 }
 
 export interface FrontendSettings extends GetFrontendSettingsResponse {}
 
 export interface GetSettingsResponse {
+  settings: Settings;
+}
+
+export interface ChangeSettingsResponse {
   settings: Settings;
 }
 

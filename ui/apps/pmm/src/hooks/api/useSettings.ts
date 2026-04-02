@@ -45,9 +45,7 @@ export const useFrontendSettings = (
   });
 
 export const useUpdateSettings = (
-  options?: Partial<
-    UseMutationOptions<Settings, Error, UpdateSettingsPayload>
-  >
+  options?: Partial<UseMutationOptions<Settings, Error, UpdateSettingsPayload>>
 ) => {
   const queryClient = useQueryClient();
 

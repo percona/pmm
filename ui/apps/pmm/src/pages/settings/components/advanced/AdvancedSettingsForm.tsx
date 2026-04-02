@@ -1,23 +1,20 @@
-import {
-  Alert,
-  Box,
-  Button,
-  FormControlLabel,
-  IconButton,
-  Link,
-  Stack,
-  Switch,
-  TextField,
-  Tooltip,
-  Typography,
-} from '@mui/material';
+import Alert from '@mui/material/Alert';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import IconButton from '@mui/material/IconButton';
+import Link from '@mui/material/Link';
+import Stack from '@mui/material/Stack';
+import Switch from '@mui/material/Switch';
+import TextField from '@mui/material/TextField';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import LinkIcon from '@mui/icons-material/Link';
 import { FC, useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
 import { useUpdateSettings } from 'hooks/api/useSettings';
-import { Settings } from 'types/settings.types';
 import { Messages } from '../../Settings.messages';
 import {
   MAX_DAYS,
@@ -32,32 +29,17 @@ import {
   convertHoursStringToSeconds,
   convertSecondsToDays,
 } from './Advanced.utils';
+import {
+  AdvancedSettingsFormProps,
+  AdvancedSettingsFormValues,
+  LabelWithTooltipProps,
+} from './AdvancedSettingsForm.types';
 
-interface AdvancedSettingsFormProps {
-  settings: Settings;
-}
-
-interface FormValues {
-  retention: string;
-  telemetry: boolean;
-  updates: boolean;
-  alerting: boolean;
-  backup: boolean;
-  enableInternalPgQan: boolean;
-  publicAddress: string;
-  stt: boolean;
-  rareInterval: string;
-  standardInterval: string;
-  frequentInterval: string;
-  azureDiscover: boolean;
-  accessControl: boolean;
-}
-
-const LabelWithTooltip: FC<{
-  label: string;
-  tooltip: React.ReactNode;
-  link?: string;
-}> = ({ label, tooltip, link }) => (
+const LabelWithTooltip: FC<LabelWithTooltipProps> = ({
+  label,
+  tooltip,
+  link,
+}) => (
   <Stack direction="row" alignItems="center" gap={0.5}>
     <Typography variant="body1">{label}</Typography>
     <Tooltip
@@ -101,7 +83,7 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
     watch,
     setValue,
     formState: { isDirty, errors },
-  } = useForm<FormValues>({
+  } = useForm<AdvancedSettingsFormValues>({
     defaultValues: {
       retention: String(
         convertSecondsToDays(settings.dataRetention ?? '86400s') || '1'
@@ -141,17 +123,17 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
     });
   }, [settings, reset]);
 
-  const onSubmit = async (values: FormValues) => {
-    try {
-      const retentionNum = parseFloat(values.retention);
-      const dataRetention = `${Math.round(retentionNum * SECONDS_IN_DAY)}s`;
-      const sttCheckIntervals = {
-        rareInterval: `${convertHoursStringToSeconds(values.rareInterval)}s`,
-        standardInterval: `${convertHoursStringToSeconds(values.standardInterval)}s`,
-        frequentInterval: `${convertHoursStringToSeconds(values.frequentInterval)}s`,
-      };
+  const onSubmit = async (values: AdvancedSettingsFormValues) => {
+    const retentionNum = parseFloat(values.retention);
+    const dataRetention = `${Math.round(retentionNum * SECONDS_IN_DAY)}s`;
+    const sttCheckIntervals = {
+      rareInterval: `${convertHoursStringToSeconds(values.rareInterval)}s`,
+      standardInterval: `${convertHoursStringToSeconds(values.standardInterval)}s`,
+      frequentInterval: `${convertHoursStringToSeconds(values.frequentInterval)}s`,
+    };
 
-      await updateSettings({
+    await updateSettings(
+      {
         dataRetention,
         pmmPublicAddress: values.publicAddress,
         enableTelemetry: values.telemetry,
@@ -163,15 +145,20 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
         advisorRunIntervals: values.stt ? sttCheckIntervals : undefined,
         enableAzurediscover: values.azureDiscover,
         enableAccessControl: values.accessControl,
-      });
-      enqueueSnackbar(Messages.service.success, { variant: 'success' });
-      reset(values);
-    } catch (error) {
-      enqueueSnackbar(
-        error instanceof Error ? error.message : Messages.unauthorized,
-        { variant: 'error' }
-      );
-    }
+      },
+      {
+        onSuccess: () => {
+          enqueueSnackbar(Messages.service.success, { variant: 'success' });
+          reset(values);
+        },
+        onError: (error) => {
+          enqueueSnackbar(
+            error instanceof Error ? error.message : Messages.unauthorized,
+            { variant: 'error' }
+          );
+        },
+      }
+    );
   };
 
   const { action } = Messages.advanced;
@@ -217,7 +204,9 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
               type="number"
               error={!!fieldState.error}
               helperText={fieldState.error?.message}
-              inputProps={{ min: MIN_DAYS, max: MAX_DAYS, step: 1 }}
+              slotProps={{
+                htmlInput: { min: MIN_DAYS, max: MAX_DAYS, step: 1 },
+              }}
               sx={{ width: 120 }}
             />
           )}
@@ -376,7 +365,9 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
                   disabled={!sttEnabled}
                   error={!!fieldState.error}
                   helperText={fieldState.error?.message}
-                  inputProps={{ min: MIN_STT_CHECK_INTERVAL, step: 0.1 }}
+                  slotProps={{
+                    htmlInput: { min: MIN_STT_CHECK_INTERVAL, step: 0.1 },
+                  }}
                   sx={{ width: 100 }}
                 />
                 <Typography variant="body2" color="text.secondary">

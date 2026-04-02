@@ -11,9 +11,18 @@ export const MIN_STT_CHECK_INTERVAL = 0.1;
 export const STT_CHECK_INTERVAL_STEP = 0.1;
 
 export const STT_CHECK_INTERVALS = [
-  { label: Messages.advanced.sttRareIntervalLabel, name: 'rareInterval' as const },
-  { label: Messages.advanced.sttStandardIntervalLabel, name: 'standardInterval' as const },
-  { label: Messages.advanced.sttFrequentIntervalLabel, name: 'frequentInterval' as const },
+  {
+    label: Messages.advanced.sttRareIntervalLabel,
+    name: 'rareInterval' as const,
+  },
+  {
+    label: Messages.advanced.sttStandardIntervalLabel,
+    name: 'standardInterval' as const,
+  },
+  {
+    label: Messages.advanced.sttFrequentIntervalLabel,
+    name: 'frequentInterval' as const,
+  },
 ];
 
 export const TECHNICAL_PREVIEW_DOC_URL = 'https://per.co.na/pmm-feature-status';

@@ -70,7 +70,6 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     items.push(NAV_QAN);
 
     if (user && settings) {
-
       if (settings.frontend.exploreEnabled && user.isEditor) {
         items.push(addExplore(settings.frontend));
       }

@@ -7,13 +7,19 @@ import {
 
 const replaceS = (r: string) => r.replace(/s$/, '');
 
-export const removeUnits = (r: MetricsResolutions): { lr: string; mr: string; hr: string } => ({
+export const removeUnits = (
+  r: MetricsResolutions
+): { lr: string; mr: string; hr: string } => ({
   lr: replaceS(r.lr),
   mr: replaceS(r.mr),
   hr: replaceS(r.hr),
 });
 
-export const addUnits = (r: { lr: string; mr: string; hr: string }): MetricsResolutions => ({
+export const addUnits = (r: {
+  lr: string;
+  mr: string;
+  hr: string;
+}): MetricsResolutions => ({
   lr: `${r.lr}s`,
   mr: `${r.mr}s`,
   hr: `${r.hr}s`,

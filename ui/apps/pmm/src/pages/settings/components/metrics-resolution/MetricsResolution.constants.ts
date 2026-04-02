@@ -1,7 +1,12 @@
 import { Messages } from '../../Settings.messages';
 import { MetricsResolutions } from 'types/settings.types';
 
-export const RESOLUTION_PRESETS = ['rare', 'standard', 'frequent', 'custom'] as const;
+export const RESOLUTION_PRESETS = [
+  'rare',
+  'standard',
+  'frequent',
+  'custom',
+] as const;
 export type ResolutionPreset = (typeof RESOLUTION_PRESETS)[number];
 
 export const resolutionOptions: { value: ResolutionPreset; label: string }[] = [

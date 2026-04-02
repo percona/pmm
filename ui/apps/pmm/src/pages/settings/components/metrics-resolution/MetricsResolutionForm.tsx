@@ -1,22 +1,20 @@
-import {
-  Button,
-  FormControl,
-  FormControlLabel,
-  IconButton,
-  Link,
-  Radio,
-  RadioGroup,
-  Stack,
-  TextField,
-  Tooltip,
-  Typography,
-} from '@mui/material';
+import Button from '@mui/material/Button';
+import FormControl from '@mui/material/FormControl';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import IconButton from '@mui/material/IconButton';
+import Link from '@mui/material/Link';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { FC, useEffect, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
 import { useUpdateSettings } from 'hooks/api/useSettings';
-import { MetricsResolutions, Settings } from 'types/settings.types';
+import { MetricsResolutions } from 'types/settings.types';
 import { Messages } from '../../Settings.messages';
 import {
   defaultResolutions,
@@ -29,17 +27,10 @@ import {
   getResolutionPreset,
   removeUnits,
 } from './MetricsResolution.utils';
-
-interface MetricsResolutionFormProps {
-  settings: Settings;
-}
-
-interface FormValues {
-  preset: 'rare' | 'standard' | 'frequent' | 'custom';
-  lr: string;
-  mr: string;
-  hr: string;
-}
+import {
+  MetricsResolutionFormProps,
+  MetricsResolutionFormValues,
+} from './MetricsResolutionForm.types';
 
 const DEFAULT_METRICS = { hr: '5s', mr: '10s', lr: '60s' } as const;
 
@@ -61,7 +52,7 @@ export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
     watch,
     setValue,
     formState: { isDirty, errors },
-  } = useForm<FormValues>({
+  } = useForm<MetricsResolutionFormValues>({
     defaultValues: {
       preset,
       lr: raw.lr,
@@ -91,27 +82,32 @@ export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
     }
   }, [currentPreset, setValue]);
 
-  const onSubmit = async (values: FormValues) => {
-    try {
-      const payload: MetricsResolutions = addUnits({
-        lr: values.lr,
-        mr: values.mr,
-        hr: values.hr,
-      });
-      await updateSettings({ metricsResolutions: payload });
-      enqueueSnackbar(Messages.service.success, { variant: 'success' });
-      reset({
-        preset: values.preset,
-        lr: values.lr,
-        mr: values.mr,
-        hr: values.hr,
-      });
-    } catch (error) {
-      enqueueSnackbar(
-        error instanceof Error ? error.message : Messages.unauthorized,
-        { variant: 'error' }
-      );
-    }
+  const onSubmit = async (values: MetricsResolutionFormValues) => {
+    const payload: MetricsResolutions = addUnits({
+      lr: values.lr,
+      mr: values.mr,
+      hr: values.hr,
+    });
+    await updateSettings(
+      { metricsResolutions: payload },
+      {
+        onSuccess: () => {
+          enqueueSnackbar(Messages.service.success, { variant: 'success' });
+          reset({
+            preset: values.preset,
+            lr: values.lr,
+            mr: values.mr,
+            hr: values.hr,
+          });
+        },
+        onError: (error) => {
+          enqueueSnackbar(
+            error instanceof Error ? error.message : Messages.unauthorized,
+            { variant: 'error' }
+          );
+        },
+      }
+    );
   };
 
   const { label, link, tooltip, action, intervals } = Messages.metrics;
@@ -191,7 +187,9 @@ export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
               disabled={currentPreset !== 'custom'}
               error={!!fieldState.error}
               helperText={fieldState.error?.message}
-              inputProps={{ min: RESOLUTION_MIN, max: RESOLUTION_MAX }}
+              slotProps={{
+                htmlInput: { min: RESOLUTION_MIN, max: RESOLUTION_MAX },
+              }}
               data-testid="metrics-resolution-lr"
               sx={{ minWidth: 120 }}
             />
@@ -209,7 +207,9 @@ export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
               disabled={currentPreset !== 'custom'}
               error={!!fieldState.error}
               helperText={fieldState.error?.message}
-              inputProps={{ min: RESOLUTION_MIN, max: RESOLUTION_MAX }}
+              slotProps={{
+                htmlInput: { min: RESOLUTION_MIN, max: RESOLUTION_MAX },
+              }}
               data-testid="metrics-resolution-mr"
               sx={{ minWidth: 120 }}
             />
@@ -227,7 +227,9 @@ export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
               disabled={currentPreset !== 'custom'}
               error={!!fieldState.error}
               helperText={fieldState.error?.message}
-              inputProps={{ min: RESOLUTION_MIN, max: RESOLUTION_MAX }}
+              slotProps={{
+                htmlInput: { min: RESOLUTION_MIN, max: RESOLUTION_MAX },
+              }}
               data-testid="metrics-resolution-hr"
               sx={{ minWidth: 120 }}
             />

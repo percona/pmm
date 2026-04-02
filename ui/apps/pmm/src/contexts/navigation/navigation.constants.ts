@@ -633,7 +633,10 @@ export const NAV_CONFIGURATION: NavItem = {
       id: 'configuration-settings',
       text: 'Settings',
       url: `${PMM_NEW_NAV_PATH}/settings`,
-      matches: [`${PMM_NEW_NAV_PATH}/settings`, `${PMM_NEW_NAV_PATH}/settings/*`],
+      matches: [
+        `${PMM_NEW_NAV_PATH}/settings`,
+        `${PMM_NEW_NAV_PATH}/settings/*`,
+      ],
     },
     {
       id: 'updates',
