@@ -1,0 +1,110 @@
+# -- Image pull secrets for private registries
+# Create with: kubectl create secret docker-registry do-registry \
+#   --docker-server=registry.digitalocean.com --docker-username=<token> --docker-password=<token> -n pmm
+imagePullSecrets: []
+  # - name: do-registry
+
+# -- Global settings
+global:
+  storageClass: ""
+
+# -- PMM Server
+pmmServer:
+  image:
+    repository: registry.digitalocean.com/microserv-testing/pmm-headless
+    tag: v1
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: "2"
+      memory: 4Gi
+  persistence:
+    data:
+      enabled: true
+      size: 10Gi
+      storageClass: ""
+    victoriametrics:
+      size: 50Gi
+      storageClass: ""
+    clickhouse:
+      size: 20Gi
+      storageClass: ""
+  dataRetention: "30d"
+  env: {}
+  service:
+    type: ClusterIP
+    # For DO public LB with TLS passthrough:
+    #   type: LoadBalancer
+    #   annotations:
+    #     service.beta.kubernetes.io/do-loadbalancer-tls-passthrough: "true"
+    annotations: {}
+
+# -- TLS via cert-manager
+tls:
+  # Requires cert-manager CRDs:
+  #   kubectl apply -f https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.yaml
+  enabled: false
+  selfSignedCA: true
+  issuerRef:
+    name: ""
+    kind: Issuer
+    group: cert-manager.io
+  certificate:
+    duration: 8760h    # 1 year
+    renewBefore: 720h  # 30 days
+    ipAddresses: []
+
+# -- Perses visualization
+perses:
+  image:
+    repository: persesdev/perses
+    tag: v0.47.1
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# -- Alertmanager
+alertmanager:
+  image:
+    repository: prom/alertmanager
+    tag: v0.27.0
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  config:
+    global:
+      resolveTimeout: 5m
+    routes:
+      - match:
+          severity: critical
+        receiver: pagerduty
+      - match:
+          severity: warning
+        receiver: slack
+    slack:
+      enabled: false
+      apiUrl: "https://hooks.slack.com/services/REPLACE_ME"
+      channel: "#alerts"
+      sendResolved: true
+    pagerduty:
+      enabled: false
+      serviceKey: "REPLACE_ME"
+      sendResolved: true
+
+# -- NetworkPolicy
+networkPolicy:
+  enabled: true
+  additionalIngressCIDRs: []

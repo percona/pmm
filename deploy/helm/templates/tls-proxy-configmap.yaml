@@ -1,0 +1,22 @@
+{{- if .Values.tls.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "pmm-headless.fullname" . }}-tls-proxy
+  labels:
+    {{- include "pmm-headless.labels" . | nindent 4 }}
+data:
+  nginx.conf: |
+    worker_processes 1;
+    error_log /dev/stderr warn;
+    events { worker_connections 1024; }
+    stream {
+      server {
+        listen 9443 ssl;
+        ssl_certificate     /etc/nginx/ssl/tls.crt;
+        ssl_certificate_key /etc/nginx/ssl/tls.key;
+        ssl_protocols       TLSv1.2 TLSv1.3;
+        proxy_pass 127.0.0.1:8080;
+      }
+    }
+{{- end }}

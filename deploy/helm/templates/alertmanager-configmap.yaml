@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "pmm-headless.fullname" . }}-alertmanager
+  labels:
+    {{- include "pmm-headless.labels" . | nindent 4 }}
+data:
+  alertmanager.yml: |
+    global:
+      resolve_timeout: {{ .Values.alertmanager.config.global.resolveTimeout }}
+
+    route:
+      group_by: ['alertname', 'cluster', 'service']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 4h
+      receiver: default
+      {{- $enabledRoutes := list }}
+      {{- range .Values.alertmanager.config.routes }}
+        {{- if or (and (eq .receiver "slack") $.Values.alertmanager.config.slack.enabled) (and (eq .receiver "pagerduty") $.Values.alertmanager.config.pagerduty.enabled) }}
+          {{- $enabledRoutes = append $enabledRoutes . }}
+        {{- end }}
+      {{- end }}
+      {{- if $enabledRoutes }}
+      routes:
+        {{- range $enabledRoutes }}
+        - match:
+            {{- range $k, $v := .match }}
+            {{ $k }}: {{ $v }}
+            {{- end }}
+          receiver: {{ .receiver }}
+        {{- end }}
+      {{- end }}
+
+    receivers:
+      - name: default
+      {{- if .Values.alertmanager.config.slack.enabled }}
+      - name: slack
+        slack_configs:
+          - api_url: {{ .Values.alertmanager.config.slack.apiUrl | quote }}
+            channel: {{ .Values.alertmanager.config.slack.channel | quote }}
+            send_resolved: {{ .Values.alertmanager.config.slack.sendResolved }}
+            title: '{{`{{ template "slack.default.title" . }}`}}'
+            text: >-
+              {{`{{ range .Alerts }}*{{ .Labels.alertname }}*
+              {{ .Annotations.summary }}
+              {{ end }}`}}
+      {{- end }}
+      {{- if .Values.alertmanager.config.pagerduty.enabled }}
+      - name: pagerduty
+        pagerduty_configs:
+          - service_key: {{ .Values.alertmanager.config.pagerduty.serviceKey | quote }}
+            send_resolved: {{ .Values.alertmanager.config.pagerduty.sendResolved }}
+      {{- end }}

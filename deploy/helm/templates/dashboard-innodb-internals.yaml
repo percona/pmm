@@ -1,0 +1,270 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "pmm-headless.fullname" . }}-dash-innodb
+  labels:
+    {{- include "pmm-headless.labels" . | nindent 4 }}
+data:
+  innodb-internals.json: |
+    {
+      "kind": "Dashboard",
+      "metadata": {
+        "name": "innodb-internals",
+        "project": "default"
+      },
+      "spec": {
+        "display": { "name": "InnoDB Internals" },
+        "variables": [
+          {
+            "kind": "ListVariable",
+            "spec": {
+              "display": { "name": "Instance", "hidden": false },
+              "name": "instance",
+              "allowAllValue": true,
+              "allowMultiple": true,
+              "plugin": {
+                "kind": "PrometheusLabelValuesVariable",
+                "spec": {
+                  "datasource": {
+                    "kind": "PrometheusDatasource",
+                    "name": "VictoriaMetrics"
+                  },
+                  "labelName": "instance",
+                  "matchers": ["mysql_global_status_innodb_buffer_pool_pages_total"]
+                }
+              }
+            }
+          }
+        ],
+        "panels": {
+          "buffer_pool_usage": {
+            "kind": "Panel",
+            "spec": {
+              "display": { "name": "Buffer Pool Usage %" },
+              "plugin": {
+                "kind": "TimeSeriesChart",
+                "spec": {
+                  "yAxis": { "label": "%" }
+                }
+              },
+              "queries": [
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "100 * (mysql_global_status_innodb_buffer_pool_pages_data{instance=~\"$instance\"} / mysql_global_status_innodb_buffer_pool_pages_total{instance=~\"$instance\"})",
+                        "seriesNameFormat": "{{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "buffer_pool_free_pages": {
+            "kind": "Panel",
+            "spec": {
+              "display": { "name": "Buffer Pool Free Pages" },
+              "plugin": {
+                "kind": "TimeSeriesChart",
+                "spec": {
+                  "yAxis": { "label": "pages" }
+                }
+              },
+              "queries": [
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "mysql_global_status_innodb_buffer_pool_pages_free{instance=~\"$instance\"}",
+                        "seriesNameFormat": "{{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "row_reads": {
+            "kind": "Panel",
+            "spec": {
+              "display": { "name": "Row Reads (rate)" },
+              "plugin": {
+                "kind": "TimeSeriesChart",
+                "spec": {
+                  "yAxis": { "label": "rows/s" }
+                }
+              },
+              "queries": [
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "rate(mysql_global_status_innodb_rows_read{instance=~\"$instance\"}[5m])",
+                        "seriesNameFormat": "read {{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "row_writes": {
+            "kind": "Panel",
+            "spec": {
+              "display": { "name": "Row Inserts / Updates / Deletes (rate)" },
+              "plugin": {
+                "kind": "TimeSeriesChart",
+                "spec": {
+                  "yAxis": { "label": "rows/s" }
+                }
+              },
+              "queries": [
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "rate(mysql_global_status_innodb_rows_inserted{instance=~\"$instance\"}[5m])",
+                        "seriesNameFormat": "insert {{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                },
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "rate(mysql_global_status_innodb_rows_updated{instance=~\"$instance\"}[5m])",
+                        "seriesNameFormat": "update {{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                },
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "rate(mysql_global_status_innodb_rows_deleted{instance=~\"$instance\"}[5m])",
+                        "seriesNameFormat": "delete {{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "deadlocks": {
+            "kind": "Panel",
+            "spec": {
+              "display": { "name": "Deadlocks (rate)" },
+              "plugin": {
+                "kind": "TimeSeriesChart",
+                "spec": {
+                  "yAxis": { "label": "per second" }
+                }
+              },
+              "queries": [
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "rate(mysql_global_status_innodb_deadlocks{instance=~\"$instance\"}[5m])",
+                        "seriesNameFormat": "{{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "row_lock_waits": {
+            "kind": "Panel",
+            "spec": {
+              "display": { "name": "Row Lock Waits (rate)" },
+              "plugin": {
+                "kind": "TimeSeriesChart",
+                "spec": {
+                  "yAxis": { "label": "per second" }
+                }
+              },
+              "queries": [
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "rate(mysql_global_status_innodb_row_lock_waits{instance=~\"$instance\"}[5m])",
+                        "seriesNameFormat": "{{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "layouts": [
+          {
+            "kind": "Grid",
+            "spec": {
+              "display": { "title": "InnoDB Internals" },
+              "items": [
+                { "x": 0, "y": 0,  "width": 6, "height": 6, "content": { "$ref": "#/spec/panels/buffer_pool_usage" } },
+                { "x": 6, "y": 0,  "width": 6, "height": 6, "content": { "$ref": "#/spec/panels/buffer_pool_free_pages" } },
+                { "x": 0, "y": 6,  "width": 6, "height": 6, "content": { "$ref": "#/spec/panels/row_reads" } },
+                { "x": 6, "y": 6,  "width": 6, "height": 6, "content": { "$ref": "#/spec/panels/row_writes" } },
+                { "x": 0, "y": 12, "width": 6, "height": 6, "content": { "$ref": "#/spec/panels/deadlocks" } },
+                { "x": 6, "y": 12, "width": 6, "height": 6, "content": { "$ref": "#/spec/panels/row_lock_waits" } }
+              ]
+            }
+          }
+        ]
+      }
+    }

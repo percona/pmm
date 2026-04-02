@@ -1,0 +1,19 @@
+apiVersion: v2
+name: pmm-headless
+description: >-
+  Headless PMM Server (no Grafana/Auth) with Perses visualization
+  and Alertmanager, designed for a dedicated Management Cluster.
+type: application
+version: 0.2.0
+appVersion: "3.5.0-do.1"
+keywords:
+  - pmm
+  - monitoring
+  - mysql
+  - percona
+  - victoriametrics
+  - perses
+  - alertmanager
+home: https://github.com/digitalocean/pmm-headless
+maintainers:
+  - name: Platform Engineering

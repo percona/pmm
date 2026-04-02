@@ -1,0 +1,15 @@
+{{- if .Values.pmmServer.persistence.data.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "pmm-headless.fullname" . }}-data
+  labels:
+    {{- include "pmm-headless.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  {{- include "pmm-headless.storageClass" (dict "component" .Values.pmmServer.persistence.data "global" .Values.global) | nindent 2 }}
+  resources:
+    requests:
+      storage: {{ .Values.pmmServer.persistence.data.size }}
+{{- end }}

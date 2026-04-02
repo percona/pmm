@@ -1,0 +1,50 @@
+===========================================================
+  PMM Headless — Management Cluster Stack
+===========================================================
+
+PMM Server : {{ include "pmm-headless.fullname" . }}.{{ .Release.Namespace }}.svc:443
+Perses UI  : {{ include "pmm-headless.fullname" . }}-perses.{{ .Release.Namespace }}.svc:8080
+Alertmanager: {{ include "pmm-headless.fullname" . }}-alertmanager.{{ .Release.Namespace }}.svc:9093
+
+All services are ClusterIP. Use kubectl port-forward to access:
+
+  kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "pmm-headless.fullname" . }}-perses 8080:8080
+
+VictoriaMetrics endpoint (internal):
+  http://{{ include "pmm-headless.fullname" . }}.{{ .Release.Namespace }}/prometheus
+
+{{- if .Values.tls.enabled }}
+
+TLS is ENABLED. The cert-manager Certificate is stored in secret:
+  {{ include "pmm-headless.fullname" . }}-tls
+{{- end }}
+
+{{- if .Values.networkPolicy.enabled }}
+
+NetworkPolicy is ENABLED. Only pods labelled app: pmm-client,
+app: perses, or app: alertmanager can reach the PMM namespace.
+{{- end }}
+
+{{- if eq .Values.pmmServer.service.type "LoadBalancer" }}
+
+===========================================================
+  Connecting Workload Clusters
+===========================================================
+
+PMM Server LB: {{ .Values.pmmServer.service.type }} (port 443 -> 8443)
+
+To onboard a new Percona MySQL cluster:
+
+  1. Create the DOKS cluster:
+     perconactl cluster create --name "<name>" --cluster_type mysql --version "8" ...
+
+  2. Get kubeconfig:
+     perconactl cluster get-kubeconfig --cluster-uuid <uuid> -e <env> -r <region>
+
+  3. Edit workload-cluster/percona-mysql-cr.yaml (set name, storage, backup bucket)
+
+  4. Run the onboarding script:
+     ./workload-cluster/onboard.sh <kubeconfig-path> workload-cluster/percona-mysql-cr.yaml
+
+  The CR template has pmm.serverHost pre-configured. Metrics flow automatically.
+{{- end }}

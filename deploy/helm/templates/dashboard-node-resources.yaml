@@ -1,0 +1,364 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "pmm-headless.fullname" . }}-dash-node-resources
+  labels:
+    {{- include "pmm-headless.labels" . | nindent 4 }}
+data:
+  node-resources.json: |
+    {
+      "kind": "Dashboard",
+      "metadata": {
+        "name": "node-resources",
+        "project": "default"
+      },
+      "spec": {
+        "display": { "name": "Node Resources" },
+        "variables": [
+          {
+            "kind": "ListVariable",
+            "spec": {
+              "display": { "name": "Instance", "hidden": false },
+              "name": "instance",
+              "allowAllValue": true,
+              "allowMultiple": true,
+              "plugin": {
+                "kind": "PrometheusLabelValuesVariable",
+                "spec": {
+                  "datasource": {
+                    "kind": "PrometheusDatasource",
+                    "name": "VictoriaMetrics"
+                  },
+                  "labelName": "instance",
+                  "matchers": ["node_cpu_seconds_total"]
+                }
+              }
+            }
+          }
+        ],
+        "panels": {
+          "cpu_usage": {
+            "kind": "Panel",
+            "spec": {
+              "display": { "name": "CPU Usage %" },
+              "plugin": {
+                "kind": "TimeSeriesChart",
+                "spec": {
+                  "yAxis": { "label": "%" }
+                }
+              },
+              "queries": [
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\",instance=~\"$instance\"}[5m])) * 100)",
+                        "seriesNameFormat": "{{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "cpu_saturation": {
+            "kind": "Panel",
+            "spec": {
+              "display": { "name": "CPU Load Average (1m / 5m / 15m)" },
+              "plugin": {
+                "kind": "TimeSeriesChart",
+                "spec": {
+                  "yAxis": { "label": "load" }
+                }
+              },
+              "queries": [
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "node_load1{instance=~\"$instance\"}",
+                        "seriesNameFormat": "1m {{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                },
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "node_load5{instance=~\"$instance\"}",
+                        "seriesNameFormat": "5m {{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                },
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "node_load15{instance=~\"$instance\"}",
+                        "seriesNameFormat": "15m {{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "memory_usage": {
+            "kind": "Panel",
+            "spec": {
+              "display": { "name": "Memory Usage %" },
+              "plugin": {
+                "kind": "TimeSeriesChart",
+                "spec": {
+                  "yAxis": { "label": "%" }
+                }
+              },
+              "queries": [
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "100 * (1 - node_memory_MemAvailable_bytes{instance=~\"$instance\"} / node_memory_MemTotal_bytes{instance=~\"$instance\"})",
+                        "seriesNameFormat": "{{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "memory_absolute": {
+            "kind": "Panel",
+            "spec": {
+              "display": { "name": "Memory Used / Total (GiB)" },
+              "plugin": {
+                "kind": "TimeSeriesChart",
+                "spec": {
+                  "yAxis": { "label": "GiB" }
+                }
+              },
+              "queries": [
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "(node_memory_MemTotal_bytes{instance=~\"$instance\"} - node_memory_MemAvailable_bytes{instance=~\"$instance\"}) / 1073741824",
+                        "seriesNameFormat": "used {{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                },
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "node_memory_MemTotal_bytes{instance=~\"$instance\"} / 1073741824",
+                        "seriesNameFormat": "total {{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "disk_usage": {
+            "kind": "Panel",
+            "spec": {
+              "display": { "name": "Disk Usage % (rootfs)" },
+              "plugin": {
+                "kind": "TimeSeriesChart",
+                "spec": {
+                  "yAxis": { "label": "%" }
+                }
+              },
+              "queries": [
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "100 - (node_filesystem_avail_bytes{instance=~\"$instance\",mountpoint=\"/\",fstype!=\"tmpfs\"} / node_filesystem_size_bytes{instance=~\"$instance\",mountpoint=\"/\",fstype!=\"tmpfs\"} * 100)",
+                        "seriesNameFormat": "{{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "disk_io": {
+            "kind": "Panel",
+            "spec": {
+              "display": { "name": "Disk I/O (read / write bytes/s)" },
+              "plugin": {
+                "kind": "TimeSeriesChart",
+                "spec": {
+                  "yAxis": { "label": "bytes/s" }
+                }
+              },
+              "queries": [
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "rate(node_disk_read_bytes_total{instance=~\"$instance\"}[5m])",
+                        "seriesNameFormat": "read {{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                },
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "rate(node_disk_written_bytes_total{instance=~\"$instance\"}[5m])",
+                        "seriesNameFormat": "write {{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "network_rx": {
+            "kind": "Panel",
+            "spec": {
+              "display": { "name": "Network Receive (bytes/s)" },
+              "plugin": {
+                "kind": "TimeSeriesChart",
+                "spec": {
+                  "yAxis": { "label": "bytes/s" }
+                }
+              },
+              "queries": [
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "rate(node_network_receive_bytes_total{instance=~\"$instance\",device!~\"lo|veth.*|docker.*|br-.*\"}[5m])",
+                        "seriesNameFormat": "{{`{{device}}`}} {{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "network_tx": {
+            "kind": "Panel",
+            "spec": {
+              "display": { "name": "Network Transmit (bytes/s)" },
+              "plugin": {
+                "kind": "TimeSeriesChart",
+                "spec": {
+                  "yAxis": { "label": "bytes/s" }
+                }
+              },
+              "queries": [
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "rate(node_network_transmit_bytes_total{instance=~\"$instance\",device!~\"lo|veth.*|docker.*|br-.*\"}[5m])",
+                        "seriesNameFormat": "{{`{{device}}`}} {{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "layouts": [
+          {
+            "kind": "Grid",
+            "spec": {
+              "display": { "title": "Node Resources" },
+              "items": [
+                { "x": 0, "y": 0,  "width": 6, "height": 6, "content": { "$ref": "#/spec/panels/cpu_usage" } },
+                { "x": 6, "y": 0,  "width": 6, "height": 6, "content": { "$ref": "#/spec/panels/cpu_saturation" } },
+                { "x": 0, "y": 6,  "width": 6, "height": 6, "content": { "$ref": "#/spec/panels/memory_usage" } },
+                { "x": 6, "y": 6,  "width": 6, "height": 6, "content": { "$ref": "#/spec/panels/memory_absolute" } },
+                { "x": 0, "y": 12, "width": 4, "height": 6, "content": { "$ref": "#/spec/panels/disk_usage" } },
+                { "x": 4, "y": 12, "width": 8, "height": 6, "content": { "$ref": "#/spec/panels/disk_io" } },
+                { "x": 0, "y": 18, "width": 6, "height": 6, "content": { "$ref": "#/spec/panels/network_rx" } },
+                { "x": 6, "y": 18, "width": 6, "height": 6, "content": { "$ref": "#/spec/panels/network_tx" } }
+              ]
+            }
+          }
+        ]
+      }
+    }

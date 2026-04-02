@@ -1,0 +1,238 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "pmm-headless.fullname" . }}-dash-mysql-overview
+  labels:
+    {{- include "pmm-headless.labels" . | nindent 4 }}
+data:
+  mysql-instance-overview.json: |
+    {
+      "kind": "Dashboard",
+      "metadata": {
+        "name": "mysql-instance-overview",
+        "project": "default"
+      },
+      "spec": {
+        "display": { "name": "MySQL Instance Overview" },
+        "variables": [
+          {
+            "kind": "ListVariable",
+            "spec": {
+              "display": { "name": "Instance", "hidden": false },
+              "name": "instance",
+              "allowAllValue": true,
+              "allowMultiple": true,
+              "plugin": {
+                "kind": "PrometheusLabelValuesVariable",
+                "spec": {
+                  "datasource": {
+                    "kind": "PrometheusDatasource",
+                    "name": "VictoriaMetrics"
+                  },
+                  "labelName": "instance",
+                  "matchers": ["mysql_up"]
+                }
+              }
+            }
+          }
+        ],
+        "panels": {
+          "threads_connected": {
+            "kind": "Panel",
+            "spec": {
+              "display": { "name": "Threads Connected" },
+              "plugin": {
+                "kind": "TimeSeriesChart",
+                "spec": {
+                  "yAxis": { "label": "threads" }
+                }
+              },
+              "queries": [
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "mysql_global_status_threads_connected{instance=~\"$instance\"}",
+                        "seriesNameFormat": "{{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "threads_running": {
+            "kind": "Panel",
+            "spec": {
+              "display": { "name": "Threads Running" },
+              "plugin": {
+                "kind": "TimeSeriesChart",
+                "spec": {
+                  "yAxis": { "label": "threads" }
+                }
+              },
+              "queries": [
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "mysql_global_status_threads_running{instance=~\"$instance\"}",
+                        "seriesNameFormat": "{{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "qps": {
+            "kind": "Panel",
+            "spec": {
+              "display": { "name": "Queries Per Second" },
+              "plugin": {
+                "kind": "TimeSeriesChart",
+                "spec": {
+                  "yAxis": { "label": "qps" }
+                }
+              },
+              "queries": [
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "rate(mysql_global_status_queries{instance=~\"$instance\"}[5m])",
+                        "seriesNameFormat": "{{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "slow_queries": {
+            "kind": "Panel",
+            "spec": {
+              "display": { "name": "Slow Queries Rate" },
+              "plugin": {
+                "kind": "TimeSeriesChart",
+                "spec": {
+                  "yAxis": { "label": "per second" }
+                }
+              },
+              "queries": [
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "rate(mysql_global_status_slow_queries{instance=~\"$instance\"}[5m])",
+                        "seriesNameFormat": "{{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "uptime": {
+            "kind": "Panel",
+            "spec": {
+              "display": { "name": "Uptime (hours)" },
+              "plugin": {
+                "kind": "StatChart",
+                "spec": {
+                  "calculation": "last"
+                }
+              },
+              "queries": [
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "mysql_global_status_uptime{instance=~\"$instance\"} / 3600",
+                        "seriesNameFormat": "{{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "questions_rate": {
+            "kind": "Panel",
+            "spec": {
+              "display": { "name": "Questions Rate" },
+              "plugin": {
+                "kind": "TimeSeriesChart",
+                "spec": {
+                  "yAxis": { "label": "per second" }
+                }
+              },
+              "queries": [
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "rate(mysql_global_status_questions{instance=~\"$instance\"}[5m])",
+                        "seriesNameFormat": "{{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "layouts": [
+          {
+            "kind": "Grid",
+            "spec": {
+              "display": { "title": "MySQL Instance Overview" },
+              "items": [
+                { "x": 0,  "y": 0, "width": 4,  "height": 4, "content": { "$ref": "#/spec/panels/uptime" } },
+                { "x": 4,  "y": 0, "width": 4,  "height": 4, "content": { "$ref": "#/spec/panels/threads_connected" } },
+                { "x": 8,  "y": 0, "width": 4,  "height": 4, "content": { "$ref": "#/spec/panels/threads_running" } },
+                { "x": 0,  "y": 4, "width": 4,  "height": 6, "content": { "$ref": "#/spec/panels/qps" } },
+                { "x": 4,  "y": 4, "width": 4,  "height": 6, "content": { "$ref": "#/spec/panels/slow_queries" } },
+                { "x": 8,  "y": 4, "width": 4,  "height": 6, "content": { "$ref": "#/spec/panels/questions_rate" } }
+              ]
+            }
+          }
+        ]
+      }
+    }

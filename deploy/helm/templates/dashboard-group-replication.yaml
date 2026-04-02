@@ -1,0 +1,238 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "pmm-headless.fullname" . }}-dash-group-replication
+  labels:
+    {{- include "pmm-headless.labels" . | nindent 4 }}
+data:
+  group-replication-status.json: |
+    {
+      "kind": "Dashboard",
+      "metadata": {
+        "name": "group-replication-status",
+        "project": "default"
+      },
+      "spec": {
+        "display": { "name": "MySQL Group Replication Status" },
+        "variables": [
+          {
+            "kind": "ListVariable",
+            "spec": {
+              "display": { "name": "Instance", "hidden": false },
+              "name": "instance",
+              "allowAllValue": true,
+              "allowMultiple": true,
+              "plugin": {
+                "kind": "PrometheusLabelValuesVariable",
+                "spec": {
+                  "datasource": {
+                    "kind": "PrometheusDatasource",
+                    "name": "VictoriaMetrics"
+                  },
+                  "labelName": "instance",
+                  "matchers": ["mysql_perf_schema_replication_group_member_stats_count_transactions_in_queue"]
+                }
+              }
+            }
+          }
+        ],
+        "panels": {
+          "member_state": {
+            "kind": "Panel",
+            "spec": {
+              "display": { "name": "GR Member State (1=ONLINE)" },
+              "plugin": {
+                "kind": "StatChart",
+                "spec": {
+                  "calculation": "last"
+                }
+              },
+              "queries": [
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "mysql_perf_schema_replication_group_members_member_state{instance=~\"$instance\",member_state=\"ONLINE\"}",
+                        "seriesNameFormat": "{{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "transactions_in_queue": {
+            "kind": "Panel",
+            "spec": {
+              "display": { "name": "Apply Queue (Tx in Queue)" },
+              "plugin": {
+                "kind": "TimeSeriesChart",
+                "spec": {
+                  "yAxis": { "label": "transactions" }
+                }
+              },
+              "queries": [
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "mysql_perf_schema_replication_group_member_stats_count_transactions_in_queue{instance=~\"$instance\"}",
+                        "seriesNameFormat": "{{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "conflicts_detected": {
+            "kind": "Panel",
+            "spec": {
+              "display": { "name": "Conflicts Detected (rate)" },
+              "plugin": {
+                "kind": "TimeSeriesChart",
+                "spec": {
+                  "yAxis": { "label": "per second" }
+                }
+              },
+              "queries": [
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "rate(mysql_perf_schema_replication_group_member_stats_count_conflicts_detected{instance=~\"$instance\"}[5m])",
+                        "seriesNameFormat": "{{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "transactions_remote_applied": {
+            "kind": "Panel",
+            "spec": {
+              "display": { "name": "Remote Tx Applied (rate)" },
+              "plugin": {
+                "kind": "TimeSeriesChart",
+                "spec": {
+                  "yAxis": { "label": "per second" }
+                }
+              },
+              "queries": [
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "rate(mysql_perf_schema_replication_group_member_stats_count_transactions_remote_applied{instance=~\"$instance\"}[5m])",
+                        "seriesNameFormat": "{{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "transactions_local_proposed": {
+            "kind": "Panel",
+            "spec": {
+              "display": { "name": "Local Tx Proposed (rate)" },
+              "plugin": {
+                "kind": "TimeSeriesChart",
+                "spec": {
+                  "yAxis": { "label": "per second" }
+                }
+              },
+              "queries": [
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "rate(mysql_perf_schema_replication_group_member_stats_count_transactions_local_proposed{instance=~\"$instance\"}[5m])",
+                        "seriesNameFormat": "{{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "transactions_checked": {
+            "kind": "Panel",
+            "spec": {
+              "display": { "name": "Tx Checked (certification)" },
+              "plugin": {
+                "kind": "TimeSeriesChart",
+                "spec": {
+                  "yAxis": { "label": "per second" }
+                }
+              },
+              "queries": [
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "rate(mysql_perf_schema_replication_group_member_stats_count_transactions_rows_validating{instance=~\"$instance\"}[5m])",
+                        "seriesNameFormat": "{{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "layouts": [
+          {
+            "kind": "Grid",
+            "spec": {
+              "display": { "title": "Group Replication" },
+              "items": [
+                { "x": 0,  "y": 0, "width": 12, "height": 4, "content": { "$ref": "#/spec/panels/member_state" } },
+                { "x": 0,  "y": 4, "width": 6,  "height": 6, "content": { "$ref": "#/spec/panels/transactions_in_queue" } },
+                { "x": 6,  "y": 4, "width": 6,  "height": 6, "content": { "$ref": "#/spec/panels/conflicts_detected" } },
+                { "x": 0,  "y": 10, "width": 4, "height": 6, "content": { "$ref": "#/spec/panels/transactions_remote_applied" } },
+                { "x": 4,  "y": 10, "width": 4, "height": 6, "content": { "$ref": "#/spec/panels/transactions_local_proposed" } },
+                { "x": 8,  "y": 10, "width": 4, "height": 6, "content": { "$ref": "#/spec/panels/transactions_checked" } }
+              ]
+            }
+          }
+        ]
+      }
+    }

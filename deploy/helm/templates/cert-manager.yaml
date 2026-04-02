@@ -1,0 +1,72 @@
+{{- if .Values.tls.enabled }}
+{{- if .Values.tls.selfSignedCA }}
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ include "pmm-headless.fullname" . }}-selfsigned
+  labels:
+    {{- include "pmm-headless.labels" . | nindent 4 }}
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "pmm-headless.fullname" . }}-ca
+  labels:
+    {{- include "pmm-headless.labels" . | nindent 4 }}
+spec:
+  isCA: true
+  commonName: pmm-headless-ca
+  secretName: {{ include "pmm-headless.fullname" . }}-ca
+  duration: 87600h
+  issuerRef:
+    name: {{ include "pmm-headless.fullname" . }}-selfsigned
+    kind: Issuer
+    group: cert-manager.io
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ include "pmm-headless.fullname" . }}-ca-issuer
+  labels:
+    {{- include "pmm-headless.labels" . | nindent 4 }}
+spec:
+  ca:
+    secretName: {{ include "pmm-headless.fullname" . }}-ca
+{{- end }}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "pmm-headless.fullname" . }}-tls
+  labels:
+    {{- include "pmm-headless.labels" . | nindent 4 }}
+spec:
+  secretName: {{ include "pmm-headless.fullname" . }}-tls
+  duration: {{ .Values.tls.certificate.duration }}
+  renewBefore: {{ .Values.tls.certificate.renewBefore }}
+  commonName: {{ include "pmm-headless.fullname" . }}
+  dnsNames:
+    - {{ include "pmm-headless.fullname" . }}
+    - {{ include "pmm-headless.fullname" . }}.{{ .Release.Namespace }}
+    - {{ include "pmm-headless.fullname" . }}.{{ .Release.Namespace }}.svc
+    - {{ include "pmm-headless.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
+  {{- with .Values.tls.certificate.ipAddresses }}
+  ipAddresses:
+    {{- range . }}
+    - {{ . | quote }}
+    {{- end }}
+  {{- end }}
+  issuerRef:
+    {{- if .Values.tls.selfSignedCA }}
+    name: {{ include "pmm-headless.fullname" . }}-ca-issuer
+    kind: Issuer
+    group: cert-manager.io
+    {{- else }}
+    name: {{ .Values.tls.issuerRef.name }}
+    kind: {{ .Values.tls.issuerRef.kind }}
+    group: {{ .Values.tls.issuerRef.group }}
+    {{- end }}
+{{- end }}

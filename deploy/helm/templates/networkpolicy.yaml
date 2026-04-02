@@ -1,0 +1,65 @@
+{{- if .Values.networkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "pmm-headless.fullname" . }}-default-deny
+  labels:
+    {{- include "pmm-headless.labels" . | nindent 4 }}
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+  ingress: []
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "pmm-headless.fullname" . }}-allow-pmm-client
+  labels:
+    {{- include "pmm-headless.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app: pmm-server
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: pmm-client
+        {{- range .Values.networkPolicy.additionalIngressCIDRs }}
+        - ipBlock:
+            cidr: {{ . }}
+        {{- end }}
+      ports:
+        - protocol: TCP
+          port: 8080
+        - protocol: TCP
+          port: 8443
+    {{- if eq .Values.pmmServer.service.type "LoadBalancer" }}
+    - ports:
+        - protocol: TCP
+          port: 8443
+    {{- end }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "pmm-headless.fullname" . }}-allow-dns
+  labels:
+    {{- include "pmm-headless.labels" . | nindent 4 }}
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to: []
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    - to:
+        - podSelector: {}
+{{- end }}

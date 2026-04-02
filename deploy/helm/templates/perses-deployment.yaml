@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "pmm-headless.fullname" . }}-perses
+  labels:
+    {{- include "pmm-headless.labels" . | nindent 4 }}
+    app: perses
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "pmm-headless.selectorLabels" . | nindent 6 }}
+      app: perses
+  template:
+    metadata:
+      labels:
+        {{- include "pmm-headless.selectorLabels" . | nindent 8 }}
+        app: perses
+      annotations:
+        checksum/provisioning: {{ include (print $.Template.BasePath "/perses-provisioning-configmap.yaml") . | sha256sum }}
+        checksum/dashboards: {{ include (print $.Template.BasePath "/dashboard-mysql-instance-overview.yaml") . | sha256sum }}
+    spec:
+      containers:
+        - name: perses
+          image: "{{ .Values.perses.image.repository }}:{{ .Values.perses.image.tag }}"
+          imagePullPolicy: {{ .Values.perses.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: PERSES_PROVISIONING_FOLDERS_0
+              value: "/etc/perses/provisioning"
+            - name: PERSES_PROVISIONING_FOLDERS_1
+              value: "/etc/perses/dashboards"
+          volumeMounts:
+            - name: provisioning
+              mountPath: /etc/perses/provisioning
+            - name: dashboards
+              mountPath: /etc/perses/dashboards
+          resources:
+            {{- toYaml .Values.perses.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: provisioning
+          configMap:
+            name: {{ include "pmm-headless.fullname" . }}-perses-provisioning
+        - name: dashboards
+          projected:
+            sources:
+              - configMap:
+                  name: {{ include "pmm-headless.fullname" . }}-dash-mysql-overview
+              - configMap:
+                  name: {{ include "pmm-headless.fullname" . }}-dash-group-replication
+              - configMap:
+                  name: {{ include "pmm-headless.fullname" . }}-dash-innodb
+              - configMap:
+                  name: {{ include "pmm-headless.fullname" . }}-dash-connections
+              - configMap:
+                  name: {{ include "pmm-headless.fullname" . }}-dash-node-resources

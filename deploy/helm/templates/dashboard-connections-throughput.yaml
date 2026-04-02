@@ -1,0 +1,302 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "pmm-headless.fullname" . }}-dash-connections
+  labels:
+    {{- include "pmm-headless.labels" . | nindent 4 }}
+data:
+  connections-throughput.json: |
+    {
+      "kind": "Dashboard",
+      "metadata": {
+        "name": "connections-throughput",
+        "project": "default"
+      },
+      "spec": {
+        "display": { "name": "Connections & Throughput" },
+        "variables": [
+          {
+            "kind": "ListVariable",
+            "spec": {
+              "display": { "name": "Instance", "hidden": false },
+              "name": "instance",
+              "allowAllValue": true,
+              "allowMultiple": true,
+              "plugin": {
+                "kind": "PrometheusLabelValuesVariable",
+                "spec": {
+                  "datasource": {
+                    "kind": "PrometheusDatasource",
+                    "name": "VictoriaMetrics"
+                  },
+                  "labelName": "instance",
+                  "matchers": ["mysql_global_variables_max_connections"]
+                }
+              }
+            }
+          }
+        ],
+        "panels": {
+          "max_connections_headroom": {
+            "kind": "Panel",
+            "spec": {
+              "display": { "name": "Max Connections Headroom" },
+              "plugin": {
+                "kind": "TimeSeriesChart",
+                "spec": {
+                  "yAxis": { "label": "available" }
+                }
+              },
+              "queries": [
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "mysql_global_variables_max_connections{instance=~\"$instance\"} - mysql_global_status_threads_connected{instance=~\"$instance\"}",
+                        "seriesNameFormat": "headroom {{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                },
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "mysql_global_variables_max_connections{instance=~\"$instance\"}",
+                        "seriesNameFormat": "max {{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "connection_utilization": {
+            "kind": "Panel",
+            "spec": {
+              "display": { "name": "Connection Utilization %" },
+              "plugin": {
+                "kind": "TimeSeriesChart",
+                "spec": {
+                  "yAxis": { "label": "%" }
+                }
+              },
+              "queries": [
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "100 * mysql_global_status_threads_connected{instance=~\"$instance\"} / mysql_global_variables_max_connections{instance=~\"$instance\"}",
+                        "seriesNameFormat": "{{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "bytes_sent": {
+            "kind": "Panel",
+            "spec": {
+              "display": { "name": "Bytes Sent (rate)" },
+              "plugin": {
+                "kind": "TimeSeriesChart",
+                "spec": {
+                  "yAxis": { "label": "bytes/s" }
+                }
+              },
+              "queries": [
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "rate(mysql_global_status_bytes_sent{instance=~\"$instance\"}[5m])",
+                        "seriesNameFormat": "{{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "bytes_received": {
+            "kind": "Panel",
+            "spec": {
+              "display": { "name": "Bytes Received (rate)" },
+              "plugin": {
+                "kind": "TimeSeriesChart",
+                "spec": {
+                  "yAxis": { "label": "bytes/s" }
+                }
+              },
+              "queries": [
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "rate(mysql_global_status_bytes_received{instance=~\"$instance\"}[5m])",
+                        "seriesNameFormat": "{{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "qps_breakdown": {
+            "kind": "Panel",
+            "spec": {
+              "display": { "name": "QPS Breakdown (SELECT / INSERT / UPDATE / DELETE)" },
+              "plugin": {
+                "kind": "TimeSeriesChart",
+                "spec": {
+                  "yAxis": { "label": "per second" }
+                }
+              },
+              "queries": [
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "rate(mysql_global_status_com_select{instance=~\"$instance\"}[5m])",
+                        "seriesNameFormat": "SELECT {{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                },
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "rate(mysql_global_status_com_insert{instance=~\"$instance\"}[5m])",
+                        "seriesNameFormat": "INSERT {{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                },
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "rate(mysql_global_status_com_update{instance=~\"$instance\"}[5m])",
+                        "seriesNameFormat": "UPDATE {{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                },
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "rate(mysql_global_status_com_delete{instance=~\"$instance\"}[5m])",
+                        "seriesNameFormat": "DELETE {{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "aborted_connections": {
+            "kind": "Panel",
+            "spec": {
+              "display": { "name": "Aborted Connections (rate)" },
+              "plugin": {
+                "kind": "TimeSeriesChart",
+                "spec": {
+                  "yAxis": { "label": "per second" }
+                }
+              },
+              "queries": [
+                {
+                  "kind": "TimeSeriesQuery",
+                  "spec": {
+                    "plugin": {
+                      "kind": "PrometheusTimeSeriesQuery",
+                      "spec": {
+                        "datasource": {
+                          "kind": "PrometheusDatasource",
+                          "name": "VictoriaMetrics"
+                        },
+                        "query": "rate(mysql_global_status_aborted_connects{instance=~\"$instance\"}[5m])",
+                        "seriesNameFormat": "{{`{{instance}}`}}"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "layouts": [
+          {
+            "kind": "Grid",
+            "spec": {
+              "display": { "title": "Connections & Throughput" },
+              "items": [
+                { "x": 0, "y": 0,  "width": 6, "height": 6, "content": { "$ref": "#/spec/panels/max_connections_headroom" } },
+                { "x": 6, "y": 0,  "width": 6, "height": 6, "content": { "$ref": "#/spec/panels/connection_utilization" } },
+                { "x": 0, "y": 6,  "width": 6, "height": 6, "content": { "$ref": "#/spec/panels/bytes_sent" } },
+                { "x": 6, "y": 6,  "width": 6, "height": 6, "content": { "$ref": "#/spec/panels/bytes_received" } },
+                { "x": 0, "y": 12, "width": 8, "height": 6, "content": { "$ref": "#/spec/panels/qps_breakdown" } },
+                { "x": 8, "y": 12, "width": 4, "height": 6, "content": { "$ref": "#/spec/panels/aborted_connections" } }
+              ]
+            }
+          }
+        ]
+      }
+    }

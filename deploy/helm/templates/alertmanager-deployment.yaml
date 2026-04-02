@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "pmm-headless.fullname" . }}-alertmanager
+  labels:
+    {{- include "pmm-headless.labels" . | nindent 4 }}
+    app: alertmanager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "pmm-headless.selectorLabels" . | nindent 6 }}
+      app: alertmanager
+  template:
+    metadata:
+      labels:
+        {{- include "pmm-headless.selectorLabels" . | nindent 8 }}
+        app: alertmanager
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/alertmanager-configmap.yaml") . | sha256sum }}
+    spec:
+      containers:
+        - name: alertmanager
+          image: "{{ .Values.alertmanager.image.repository }}:{{ .Values.alertmanager.image.tag }}"
+          imagePullPolicy: {{ .Values.alertmanager.image.pullPolicy }}
+          args:
+            - "--config.file=/etc/alertmanager/alertmanager.yml"
+            - "--storage.path=/alertmanager"
+          ports:
+            - name: http
+              containerPort: 9093
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: /etc/alertmanager
+            - name: storage
+              mountPath: /alertmanager
+          resources:
+            {{- toYaml .Values.alertmanager.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /-/healthy
+              port: 9093
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /-/ready
+              port: 9093
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "pmm-headless.fullname" . }}-alertmanager
+        - name: storage
+          emptyDir: {}

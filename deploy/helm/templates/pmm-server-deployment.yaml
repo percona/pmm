@@ -1,0 +1,136 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "pmm-headless.fullname" . }}
+  labels:
+    {{- include "pmm-headless.labels" . | nindent 4 }}
+    app: pmm-server
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "pmm-headless.selectorLabels" . | nindent 6 }}
+      app: pmm-server
+  template:
+    metadata:
+      labels:
+        {{- include "pmm-headless.selectorLabels" . | nindent 8 }}
+        app: pmm-server
+      {{- if .Values.tls.enabled }}
+      annotations:
+        checksum/tls-proxy-config: {{ include (print $.Template.BasePath "/tls-proxy-configmap.yaml") . | sha256sum }}
+      {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+        runAsGroup: 0
+      containers:
+        {{- if .Values.tls.enabled }}
+        - name: tls-proxy
+          image: nginx:1.27-alpine
+          ports:
+            - name: tls
+              containerPort: 9443
+              protocol: TCP
+          volumeMounts:
+            - name: tls-certs
+              mountPath: /etc/nginx/ssl
+              readOnly: true
+            - name: tls-proxy-config
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+              readOnly: true
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          livenessProbe:
+            tcpSocket:
+              port: 9443
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket:
+              port: 9443
+            initialDelaySeconds: 3
+            periodSeconds: 5
+        {{- end }}
+        - name: pmm-server
+          image: "{{ .Values.pmmServer.image.repository }}:{{ .Values.pmmServer.image.tag }}"
+          imagePullPolicy: {{ .Values.pmmServer.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: https
+              containerPort: 8443
+              protocol: TCP
+          env:
+            - name: PMM_DISTRIBUTION_METHOD
+              value: "kubernetes"
+            - name: PERCONA_TELEMETRY_DISABLE
+              value: "1"
+            - name: DATA_RETENTION
+              value: {{ .Values.pmmServer.dataRetention | quote }}
+            {{- range $key, $val := .Values.pmmServer.env }}
+            - name: {{ $key }}
+              value: {{ $val | quote }}
+            {{- end }}
+          volumeMounts:
+            {{- if .Values.pmmServer.persistence.data.enabled }}
+            - name: pmm-data
+              mountPath: /srv
+            {{- end }}
+            - name: pmm-vm-data
+              mountPath: /srv/victoriametrics/data
+            - name: pmm-clickhouse-data
+              mountPath: /srv/clickhouse
+          resources:
+            {{- toYaml .Values.pmmServer.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /v1/server/readyz
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /v1/server/readyz
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            timeoutSeconds: 3
+      volumes:
+        {{- if .Values.pmmServer.persistence.data.enabled }}
+        - name: pmm-data
+          persistentVolumeClaim:
+            claimName: {{ include "pmm-headless.fullname" . }}-data
+        {{- end }}
+        - name: pmm-vm-data
+          persistentVolumeClaim:
+            claimName: {{ include "pmm-headless.fullname" . }}-vm-data
+        - name: pmm-clickhouse-data
+          persistentVolumeClaim:
+            claimName: {{ include "pmm-headless.fullname" . }}-clickhouse-data
+        {{- if .Values.tls.enabled }}
+        - name: tls-certs
+          secret:
+            secretName: {{ include "pmm-headless.fullname" . }}-tls
+        - name: tls-proxy-config
+          configMap:
+            name: {{ include "pmm-headless.fullname" . }}-tls-proxy
+        {{- end }}
