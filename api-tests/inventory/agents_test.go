@@ -79,13 +79,26 @@ func TestAgents(t *testing.T) {
 		mySqldExporterID := mySqldExporter.MysqldExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, mySqldExporterID)
 
-		res, err := client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{Context: pmmapitests.Context})
+		// Use filtered calls to avoid a TOCTOU race: an unfiltered ListAgents iterates over
+		// all agents in the DB and converts them one by one; between the query and the
+		// conversion loop a parallel test may delete a pmm_agent that an external exporter
+		// (created with push_metrics) still references, causing a spurious 404.
+		resByAgent, err := client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
+			PMMAgentID: pointer.ToString(pmmAgentID),
+			Context:    pmmapitests.Context,
+		})
 		require.NoError(t, err)
-		require.NotNil(t, res)
-		require.NotEmpty(t, res.Payload.MysqldExporter, "There should be at least one service")
+		require.NotNil(t, resByAgent)
+		require.NotEmpty(t, resByAgent.Payload.MysqldExporter, "There should be at least one service")
+		assertMySQLExporterExists(t, resByAgent, mySqldExporterID)
 
-		assertMySQLExporterExists(t, res, mySqldExporterID)
-		assertPMMAgentExists(t, res, pmmAgentID)
+		resByNode, err := client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
+			NodeID:  pointer.ToString(nodeID),
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		require.NotNil(t, resByNode)
+		assertPMMAgentExists(t, resByNode, pmmAgentID)
 	})
 
 	t.Run("FilterList", func(t *testing.T) {
