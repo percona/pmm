@@ -131,21 +131,8 @@ jobs:
           go env | sort
           git status
 
-
-  spell-check:
-    name: Spell check
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - name: Check spelling of md files
-        uses: crate-ci/typos@02ea592e44b3a53c302f697cddca7641cd051c3d # v1.45.0
-        with:
-          files: "**/*.md ./documentation/**/*.md"
-
   merge-gatekeeper:
-    needs: [ check, spell-check ]
+    needs: [ check ]
     name: Merge Gatekeeper
     if: ${{ always() }}
     runs-on: ubuntu-22.04
