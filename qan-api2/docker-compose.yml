@@ -25,27 +25,30 @@ services:
       - 9000:9000
 
   pmm-client:
+    image: percona/pmm-client:3
+    platform: linux/amd64
     container_name: pmm-client
-    image: centos
     depends_on:
-      - pmm-server
-      - sysbench-ps
-    command: >
-      bash -c "
-        yum install https://repo.percona.com/yum/percona-release-latest.noarch.rpm -y
-        percona-release disable all
-        percona-release enable pmm3-client testing
-        yum update -y
-        yum install pmm-client -y
-        pmm-agent setup --config-file=/usr/local/percona/pmm/config/pmm-agent.yaml --server-address=pmm-server:443 --server-insecure-tls --server-username=admin --server-password=admin
-        nohup pmm-agent --config-file=/usr/local/percona/pmm/config/pmm-agent.yaml &
-        sleep 60
-        pmm-admin add mysql --cluster=cl1 --environment=dev --custom-labels='app=wp1'  --username=root --password=secret --query-source=slowlog MySQLSlowLog ps:3306
+      pmm-server:
+        condition: service_healthy
+      sysbench-ps:
+        condition: service_started
+    environment:
+      PMM_AGENT_SERVER_ADDRESS: pmm-server:8443
+      PMM_AGENT_SERVER_USERNAME: admin
+      PMM_AGENT_SERVER_PASSWORD: admin
+      PMM_AGENT_SERVER_INSECURE_TLS: 1
+      PMM_AGENT_CONFIG_FILE: config/pmm-agent.yaml
+      PMM_AGENT_SETUP: 1
+      PMM_AGENT_SETUP_FORCE: 1
+      PMM_AGENT_SIDECAR: 1
+      PMM_AGENT_PRERUN_SCRIPT: |
+        pmm-admin status --wait=10s
+        pmm-admin add mysql --cluster=cl1 --environment=dev --custom-labels='app=wp1' --username=root --password=secret --query-source=slowlog MySQLSlowLog ps:3306
         pmm-admin add mysql --cluster=cl2 --environment=prod --custom-labels='app=wp2' --username=root --password=secret --query-source=perfschema MySQLPerfSchema ps:3306
-        tail -f /dev/null
-      "
     volumes:
       - logs-directory:/var/log/mysql
+
 
   ps:
     image: percona/percona-server:latest

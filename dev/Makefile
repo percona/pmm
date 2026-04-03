@@ -4,9 +4,9 @@ default: help
 
 help:                 ## Display this help message
 	@echo "Please use \`make <target>\`, where <target> is one of the following:"
-	@grep -h '^[a-zA-Z]' $(MAKEFILE_LIST) | awk -F ':.*## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
+	@grep -h '^[a-zA-Z]' $(MAKEFILE_LIST) | awk -F ':.*## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}' | sort
 	@echo
-	@echo Check docker-compose.yml to see which environment variables are available.
+	@echo For developers: check docker-compose.yml to see which environment variables are available.
 
 init:                 ## Install tools
 	rm -rf bin/*
@@ -38,7 +38,7 @@ gen: clean            ## Generate files
 clean:                ## Remove generated files
 	make -C api clean
 
-gen-mocks:
+gen-mocks:						## Generate mocks for API
 	find . -name mock_*.go -delete
 	./bin/mockery --config .mockery.yaml
 
@@ -59,7 +59,7 @@ check-license:        ## Run license header checks against source files
 
 check-all: check-license check    ## Run linter and license checks
 
-check-new:
+check-new:           ## Run linters only against new code since v3 branch point
 	bin/golangci-lint run -c=.golangci.yml --new-from-rev=origin/v3 --new
 
 FILES = $(shell find . -type f -name '*.go')
@@ -74,5 +74,5 @@ serve:                ## Serve API documentation with nginx
 	nginx -p . -c api/nginx/nginx.conf
 
 GOLANG_CI_LINT_RUN_OPTS=--fix
-prepare-pr: gen check-all
+prepare-pr: gen check-all  ## Run all checks and generate files
 	go mod tidy

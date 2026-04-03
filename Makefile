@@ -1,11 +1,11 @@
 # Host Makefile.
 
-include Makefile.include
--include documentation/Makefile
+.DEFAULT_GOAL := help
 
-ifeq ($(PROFILES),)
-PROFILES := 'pmm'
-endif
+-include documentation/Makefile
+-include dev/Makefile
+
+PROFILES ?= pmm
 
 env-up: 							## Start devcontainer
 	COMPOSE_PROFILES=$(PROFILES) \
@@ -19,24 +19,24 @@ env-update-image:					## Pull latest dev image
 	COMPOSE_PROFILES=$(PROFILES) \
 	docker compose pull
 
-env-compose-up: env-update-image
+env-compose-up: env-update-image  ## Pull the image, then start devcontainer waiting for it to be ready
 	COMPOSE_PROFILES=$(PROFILES) \
-	docker compose up --detach --renew-anon-volumes --remove-orphans --wait --wait-timeout 100
+	docker compose up -d --renew-anon-volumes --remove-orphans --wait --wait-timeout 100
 
-env-devcontainer:
+env-devcontainer:     ## Provision devcontainer (run this after `make env-up` or `make env-compose-up`)
 	docker exec -it --workdir=/root/go/src/github.com/percona/pmm --user root pmm-server python .devcontainer/setup.py
 
 env-down:							## Stop devcontainer
 	COMPOSE_PROFILES=$(PROFILES) \
 	docker compose down --remove-orphans
 
-env-remove:
+env-remove:           ## Stop devcontainer and remove volumes
 	COMPOSE_PROFILES=$(PROFILES) \
 	docker compose down --volumes --remove-orphans
 
 TARGET ?= _bash
 
-env:								## Run `make TARGET` in devcontainer (`make env TARGET=help`); TARGET defaults to bash
+env:								    ## Run `make TARGET` in devcontainer (`make env TARGET=help`); TARGET defaults to bash
 	COMPOSE_PROFILES=$(PROFILES) \
 	docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-server make $(TARGET)
 
@@ -44,5 +44,5 @@ env-root:								## Run `make TARGET` in devcontainer (`make env-root TARGET=hel
 	COMPOSE_PROFILES=$(PROFILES) \
 	docker exec -it --workdir=/root/go/src/github.com/percona/pmm --user root pmm-server make $(TARGET)
 
-rotate-encryption: 							## Rotate encryption key
+rotate-encryption:      ## Rotate encryption key
 	go run ./encryption-rotation/main.go
