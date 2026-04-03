@@ -26,7 +26,6 @@ services:
 
   pmm-client:
     image: percona/pmm-client:3
-    platform: linux/amd64
     container_name: pmm-client
     depends_on:
       pmm-server:

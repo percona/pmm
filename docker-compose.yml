@@ -7,8 +7,6 @@ services:
     platform: linux/amd64
     container_name: pmm-server
     hostname: pmm-server
-    networks:
-      - ${PMM_NETWORK:-default}
     environment:
       - GF_SECURITY_ADMIN_USER=${PMM_ADMIN_USER:-admin}
       - GF_SECURITY_ADMIN_PASSWORD=${PMM_ADMIN_PASSWORD:-admin}
@@ -28,28 +26,135 @@ services:
       # - PMM_DISABLE_BUILTIN_POSTGRES=1
       - AWS_ACCESS_KEY=${AWS_ACCESS_KEY:-}
       - AWS_SECRET_KEY=${AWS_SECRET_KEY:-}
-      # - GF_RENDERING_SERVER_URL=http://renderer:8081/render
-      # - GF_RENDERING_CALLBACK_URL=https://pmm-server:8443/graph/
     ports:
       - ${PMM_PORT_HTTPS:-443}:8443
     volumes:
       - pmm-data:/srv
-
-  renderer:
-    profiles:
-      - renderer
-    image: grafana/grafana-image-renderer:latest
-    container_name: renderer
-    environment:
-      - RENDERING_VERBOSE_LOGGING=true
-      - RENDERING_DUMPIO=true
-      - IGNORE_HTTPS_ERRORS=true
-      - LOG_LEVEL=debug
-    ports:
-      - 8081:8081
     networks:
       - ${PMM_NETWORK:-default}
+
+  pmm-client:
+    profiles:
+      - pmm
+    image: percona/pmm-client:3
+    container_name: pmm-client
+    depends_on:
+      pmm-server:
+        condition: service_healthy
+      sysbench-ps:
+        condition: service_started
+    environment:
+      PMM_AGENT_SERVER_ADDRESS: pmm-server:8443
+      PMM_AGENT_SERVER_USERNAME: admin
+      PMM_AGENT_SERVER_PASSWORD: admin
+      PMM_AGENT_SERVER_INSECURE_TLS: 1
+      PMM_AGENT_CONFIG_FILE: config/pmm-agent.yaml
+      PMM_AGENT_SETUP: 1
+      PMM_AGENT_SETUP_FORCE: 1
+      PMM_AGENT_SIDECAR: 1
+      PMM_AGENT_PRERUN_SCRIPT: |
+        pmm-admin status --wait=10s
+        pmm-admin add mysql --cluster=cl1 --environment=dev --custom-labels='app=wp1' --username=root --password=secret --query-source=slowlog MySQLSlowLog ps:3306
+        pmm-admin add mysql --cluster=cl2 --environment=prod --custom-labels='app=wp2' --username=root --password=secret --query-source=perfschema MySQLPerfSchema ps:3306
+    volumes:
+      - logs-directory:/var/log/mysql:ro
+    networks:
+      - ${PMM_NETWORK:-default}
+
+  logs-init:
+    profiles:
+      - pmm
+    image: percona/percona-server:latest
+    container_name: logs-init
+    user: root
+    volumes:
+      - logs-directory:/var/log/mysql
+    command: chown mysql:mysql /var/log/mysql
+    networks:
+      - ${PMM_NETWORK:-default}
+
+  ps:
+    profiles:
+      - pmm
+    image: percona/percona-server:latest
+    container_name: ps
+    depends_on:
+      logs-init:
+        condition: service_completed_successfully
+    environment:
+     - MYSQL_ROOT_PASSWORD=secret
+    ports:
+     - 3306:3306
+    volumes:
+      - ./dev/my.cnf:/etc/my.cnf
+      - ./dev/mysql.logrotate:/etc/logrotate.d/mysql
+      - logs-directory:/var/log/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-psecret"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - ${PMM_NETWORK:-default}
+
+  postgres:
+    profiles:
+      - pmm
+    image: postgres
+    container_name: postgres
+    environment:
+     - POSTGRES_USER=postgres
+     - POSTGRES_PASSWORD=secret
+    ports:
+     - 5432:5432
+    networks:
+      - ${PMM_NETWORK:-default}
+
+  mongo:
+    profiles:
+      - pmm
+    image: mongo
+    container_name: mongo
+    environment:
+     - MONGO_INITDB_ROOT_USERNAME=mongo
+     - MONGO_INITDB_ROOT_PASSWORD=secret
+    ports:
+     - 27017:27017
+    networks:
+      - ${PMM_NETWORK:-default}
+
+  ps-init:
+    profiles:
+      - pmm
+    image: percona/percona-server:latest
+    container_name: ps-init
+    depends_on:
+      ps:
+        condition: service_healthy
+    command: mysql -h ps -u root -psecret -e "CREATE DATABASE IF NOT EXISTS sbtest;"
+    networks:
+      - ${PMM_NETWORK:-default}
+
+  sysbench-ps:
+    profiles:
+      - pmm
+    image: perconalab/sysbench
+    platform: linux/amd64
+    container_name: sysbench-ps
+    depends_on:
+      ps-init:
+        condition: service_completed_successfully
+      pmm-server:
+        condition: service_healthy
+    command: bash /sysbench-ps.sh
+    networks:
+      - ${PMM_NETWORK:-default}
+    volumes:
+      - ./dev/sysbench-ps.sh:/sysbench-ps.sh
 
 volumes:
   pmm-data:
     name: pmm-data
+  logs-directory:
+    name: logs-directory
