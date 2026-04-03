@@ -126,10 +126,10 @@ export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
       gap={2}
     >
       <Stack>
-        <Typography variant="h6">
+        <Typography variant="h6" sx={{ maxWidth: 640 }}>
           {label}
         </Typography>
-        <Typography variant="body2">
+        <Typography variant="body2" sx={{ maxWidth: 640 }}>
           {tooltip}
           {' '}
           <Link
@@ -147,7 +147,7 @@ export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
         name="preset"
         control={control}
         render={({ field }) => (
-          <FormControl sx={{ mb: 2 }}>
+          <FormControl sx={{ mb: 1 }}>
             <RadioGroup {...field} row sx={{ columnGap: 2, rowGap: 1 }}>
               {resolutionOptions.map((opt) => (
                 <FormControlLabel
@@ -162,7 +162,7 @@ export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
         )}
       />
 
-      <Stack direction="row" columnGap={2} rowGap={3} flexWrap="wrap" mb={4}>
+      <Stack direction="row" columnGap={2} rowGap={3} flexWrap="wrap" mb={2}>
         <Controller
           name="lr"
           control={control}
@@ -180,6 +180,7 @@ export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
               }}
               data-testid="metrics-resolution-lr"
               sx={{ minWidth: 80, maxWidth: 120 }}
+              size="small"
             />
           )}
         />
@@ -200,6 +201,7 @@ export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
               }}
               data-testid="metrics-resolution-mr"
               sx={{ minWidth: 80, maxWidth: 120 }}
+              size="small"
             />
           )}
         />
@@ -220,20 +222,36 @@ export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
               }}
               data-testid="metrics-resolution-hr"
               sx={{ minWidth: 80, maxWidth: 120 }}
+              size="small"
             />
           )}
         />
       </Stack>
 
-      <Button
-        type="submit"
-        variant="contained"
-        disabled={!isDirty || isPending || Object.keys(errors).length > 0}
-        data-testid="metrics-resolution-submit"
-        sx={{ alignSelf: 'flex-start' }}
+      <Stack
+        sx={{
+          position: 'sticky',
+          bottom: 0,
+          py: 2,
+          bgcolor: 'background.default',
+          borderTop: 1,
+          borderColor: 'divider',
+          mt: 'auto',
+          zIndex: 1,
+          boxShadow: (theme) =>
+            `-8px 0 0 0 ${theme.palette.background.default}, 30px 0 0 0 ${theme.palette.background.default}`,
+        }}
       >
-        {isPending ? 'Applying...' : action}
-      </Button>
+        <Button
+          type="submit"
+          variant="contained"
+          disabled={!isDirty || isPending || Object.keys(errors).length > 0}
+          data-testid="metrics-resolution-submit"
+          sx={{ alignSelf: 'flex-start' }}
+        >
+          {isPending ? 'Applying...' : action}
+        </Button>
+      </Stack>
     </Stack>
   );
 };

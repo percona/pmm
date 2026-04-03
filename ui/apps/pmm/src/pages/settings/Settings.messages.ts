@@ -8,11 +8,12 @@ export const Messages = {
   advanced: {
     action: 'Apply changes',
     retentionLabel: 'Data retention',
-    retentionTooltip: 'This is the value for how long data will be stored.',
+    retentionTooltip: 'The value for how long data will be stored.',
     retentionUnits: 'days',
     retentionLink: 'https://per.co.na/data_retention',
     telemetryLabel: 'Telemetry',
     telemetryLink: 'https://per.co.na/telemetry',
+    telemetryDialogLink: 'What we collect',
     telemetryTooltip:
       'Option to send usage data back to Percona to let us make our product better.',
     telemetrySummaryTitle:
@@ -22,14 +23,12 @@ export const Messages = {
     updatesTooltip:
       'Option to check new versions and ability to update PMM from UI.',
     advisorsLabel: 'Advisors',
-    sttRareIntervalLabel: 'Rare interval',
-    sttStandardIntervalLabel: 'Standard interval',
-    sttFrequentIntervalLabel: 'Frequent interval',
-    sttCheckIntervalsLabel: 'Execution Intervals',
-    sttCheckIntervalTooltip: 'Interval between check runs',
-    sttCheckIntervalUnit: 'hours',
+    sttRareIntervalLabel: 'Rare',
+    sttStandardIntervalLabel: 'Standard',
+    sttFrequentIntervalLabel: 'Frequent',
+    sttCheckIntervalTooltip: 'Execution intervals between check runs, in hours.',
     advisorsLink: 'https://per.co.na/advisors',
-    advisorsTooltip: 'Enable Advisors and get updated checks from Percona.',
+    advisorsTooltip: 'Enable Advisors to get automated insights and recommendations to help you uncover problems before they become larger issues.',
     azureDiscoverLabel: 'Microsoft Azure monitoring',
     azureDiscoverTooltip:
       'Option to enable/disable Microsoft Azure DB instances discovery and monitoring',
@@ -37,8 +36,8 @@ export const Messages = {
     accessControl: 'Access control',
     accessControlTooltip: 'Option to enable/disable Access control.',
     accessControlLink: 'https://per.co.na/roles_permissions',
-    publicAddressLabel: 'Public Address',
-    publicAddressTooltip: 'Public Address to this PMM server.',
+    publicAddressLabel: 'Public address',
+    publicAddressTooltip: 'The address or hostname PMM Server will be accessible at.',
     publicAddressButton: 'Get from browser',
     alertingLabel: 'Percona Alerting',
     alertingTooltip: 'Option to enable/disable Percona Alerting features.',
@@ -52,7 +51,10 @@ export const Messages = {
     enableInternalPgQanLink: 'https://per.co.na/qan-pmm-server',
     technicalPreviewLegend: 'Technical preview features',
     technicalPreviewDescription:
-      'These are technical preview features, not recommended to be used in production environments. Read more about feature status',
+      'These are technical preview features, ',
+    technicalPreviewWarning: 'not recommended',
+    technicalPreviewDescriptionSuffix:
+      ' to be used in production environments. Read more about feature status',
     technicalPreviewLinkText: 'here',
   },
   metrics: {
@@ -73,7 +75,7 @@ export const Messages = {
     tooltip: 'Define how frequently the data will be collected, in seconds.',
   },
   ssh: {
-    action: 'Apply SSH key',
+    action: 'Apply changes',
     label: 'SSH key',
     link: 'https://per.co.na/ssh_key',
     tooltip: 'Public SSH key to let you login into the server using SSH.',

@@ -1,11 +1,9 @@
 import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
-import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import { FC, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
@@ -53,53 +51,61 @@ export const SshKeyForm: FC<SshKeyFormProps> = ({ settings }) => {
       component="form"
       onSubmit={handleSubmit(onSubmit)}
       gap={2}
-      maxWidth={600}
     >
-      <Stack direction="row" alignItems="center" gap={1}>
-        <Typography variant="body1" fontWeight={500}>
-          {label}
-        </Typography>
-        <Tooltip
-          title={
-            <Stack gap={0.5}>
-              <Typography variant="body2">{tooltip}</Typography>
-              <Link
-                href={link}
-                target="_blank"
-                rel="noopener noreferrer"
-                color="inherit"
-                sx={{ textDecoration: 'underline' }}
-              >
-                {tooltipLinkText}
-              </Link>
-            </Stack>
-          }
-          arrow
-        >
-          <IconButton size="small" aria-label={tooltip} sx={{ p: 0.5 }}>
-            <InfoOutlinedIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
+      <Stack gap={1} mb={2}>
+        <Stack maxWidth={640}>
+          <Typography variant="h6">
+            {label}
+          </Typography>
+          <Typography variant="body2">
+            {tooltip}
+            {' '}
+            <Link
+              href={link}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {tooltipLinkText}
+              <ArrowOutwardIcon sx={{ fontSize: 14 }} />
+            </Link>
+          </Typography>
+        </Stack>
+        <Stack >
+          <TextField
+            {...register('sshKey')}
+            multiline
+            minRows={4}
+            placeholder="ssh-rsa AAAA..."
+            data-testid="ssh-key-input"
+            disabled={isPending}
+          />
+        </Stack>
       </Stack>
 
-      <TextField
-        {...register('sshKey')}
-        multiline
-        minRows={4}
-        placeholder="ssh-rsa AAAA..."
-        fullWidth
-        data-testid="ssh-key-input"
-        disabled={isPending}
-      />
-
-      <Button
-        type="submit"
-        variant="contained"
-        disabled={!isDirty || isPending}
-        data-testid="ssh-key-submit"
+      <Stack
+        sx={{
+          position: 'sticky',
+          bottom: 0,
+          py: 2,
+          bgcolor: 'background.default',
+          borderTop: 1,
+          borderColor: 'divider',
+          mt: 'auto',
+          zIndex: 1,
+          boxShadow: (theme) =>
+            `-8px 0 0 0 ${theme.palette.background.default}, 30px 0 0 0 ${theme.palette.background.default}`,
+        }}
       >
-        {isPending ? 'Applying...' : action}
-      </Button>
+        <Button
+          type="submit"
+          variant="contained"
+          disabled={!isDirty || isPending}
+          data-testid="ssh-key-submit"
+          sx={{ alignSelf: 'flex-start' }}
+        >
+          {isPending ? 'Applying...' : action}
+        </Button>
+      </Stack>
     </Stack>
   );
 };

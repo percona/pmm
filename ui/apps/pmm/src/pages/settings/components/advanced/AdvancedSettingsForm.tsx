@@ -1,6 +1,7 @@
-import Alert from '@mui/material/Alert';
-import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import IconButton from '@mui/material/IconButton';
 import Link from '@mui/material/Link';
@@ -9,9 +10,12 @@ import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
+import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
+import CloseIcon from '@mui/icons-material/Close';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import LinkIcon from '@mui/icons-material/Link';
-import { FC, useEffect } from 'react';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import WarningIcon from '@mui/icons-material/Warning';
+import { FC, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
 import { useUpdateSettings } from 'hooks/api/useSettings';
@@ -40,30 +44,29 @@ const LabelWithTooltip: FC<LabelWithTooltipProps> = ({
   tooltip,
   link,
 }) => (
-  <Stack direction="row" alignItems="center" gap={0.5}>
+  <Stack direction="row" alignItems="center">
     <Typography variant="body1">{label}</Typography>
     <Tooltip
       title={
-        <Typography variant="body2">
-          <Stack gap={0.5} p={1}>
-            <Box>{tooltip}</Box>
+        <Typography variant="caption">
+            {tooltip}
+            {' '}
             {link && (
               <Link
                 href={link}
                 target="_blank"
                 rel="noopener noreferrer"
                 color="inherit"
-                variant="body2"
+                sx={{ textDecorationColor: 'inherit' }}
               >
                 {Messages.tooltipLinkText}
               </Link>
             )}
-          </Stack>
         </Typography>
       }
       arrow
     >
-      <IconButton size="small" sx={{ p: 0.25 }}>
+      <IconButton size="small">
         <InfoOutlinedIcon fontSize="small" />
       </IconButton>
     </Tooltip>
@@ -104,6 +107,7 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
   });
 
   const sttEnabled = watch('stt');
+  const [telemetryDialogOpen, setTelemetryDialogOpen] = useState(false);
 
   useEffect(() => {
     reset({
@@ -183,225 +187,295 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
     <Stack
       component="form"
       onSubmit={handleSubmit(onSubmit)}
-      gap={2}
-      maxWidth={{ xs: '100%', md: 600 }}
+      gap={5}
     >
-      <Stack direction="row" alignItems="center" gap={1}>
-        <LabelWithTooltip
-          label={m.retentionLabel}
-          tooltip={m.retentionTooltip}
-          link={m.retentionLink}
-        />
-      </Stack>
-      <Stack direction="row" alignItems="center" gap={2}>
-        <Controller
-          name="retention"
-          control={control}
-          rules={{ validate: validateRetention }}
-          render={({ field, fieldState }) => (
-            <TextField
-              {...field}
-              type="number"
-              error={!!fieldState.error}
-              helperText={fieldState.error?.message}
-              slotProps={{
-                htmlInput: { min: MIN_DAYS, max: MAX_DAYS, step: 1 },
-              }}
-              sx={{ width: 120 }}
-            />
-          )}
-        />
-        <Typography variant="body2" color="text.secondary">
-          {m.retentionUnits}
-        </Typography>
-      </Stack>
-
-      {[
-        {
-          name: 'telemetry' as const,
-          label: m.telemetryLabel,
-          tooltip: (
-            <Stack
-              gap={1}
-              maxHeight={300}
-              sx={{
-                mr: -1,
-                overflowY: 'scroll',
-                scrollbarColor: 'auto',
-              }}
-            >
-              <Typography variant="body2">{m.telemetryTooltip}</Typography>
-              <Typography variant="body2">{m.telemetrySummaryTitle}</Typography>
-              <Box
-                component="ul"
-                sx={{
-                  m: 0,
-                  p: 0,
-                  pl: 2,
-                }}
-              >
-                {(settings.telemetrySummaries ?? []).map((s) => (
-                  <Typography key={s} variant="body2" component="li">
-                    {s}
-                  </Typography>
-                ))}
-              </Box>
-            </Stack>
-          ),
-          link: m.telemetryLink,
-        },
-        {
-          name: 'updates' as const,
-          label: m.updatesLabel,
-          tooltip: m.updatesTooltip,
-          link: m.updatesLink,
-        },
-        {
-          name: 'alerting' as const,
-          label: m.alertingLabel,
-          tooltip: m.alertingTooltip,
-          link: m.alertingLink,
-        },
-        {
-          name: 'backup' as const,
-          label: m.backupLabel,
-          tooltip: m.backupTooltip,
-          link: m.backupLink,
-        },
-        {
-          name: 'enableInternalPgQan' as const,
-          label: m.enableInternalPgQanLabel,
-          tooltip: m.enableInternalPgQanTooltip,
-          link: m.enableInternalPgQanLink,
-        },
-      ].map(({ name, label, tooltip, link }) => (
-        <Controller
-          key={name}
-          name={name}
-          control={control}
-          render={({ field }) => (
-            <FormControlLabel
-              control={<Switch {...field} checked={field.value} />}
-              label={
-                <LabelWithTooltip label={label} tooltip={tooltip} link={link} />
-              }
-            />
-          )}
-        />
-      ))}
-
-      <Stack direction="row" alignItems="center" gap={1}>
-        <LabelWithTooltip
-          label={m.publicAddressLabel}
-          tooltip={m.publicAddressTooltip}
-        />
-      </Stack>
-      <Stack direction="row" gap={1} alignItems="center">
-        <Controller
-          name="publicAddress"
-          control={control}
-          render={({ field }) => (
-            <TextField
-              {...field}
-              fullWidth
-              size="small"
-              placeholder="https://..."
-            />
-          )}
-        />
-        <Button
-          type="button"
-          variant="outlined"
-          startIcon={<LinkIcon />}
-          onClick={() =>
-            setValue('publicAddress', window.location.host, {
-              shouldDirty: true,
-            })
-          }
-          sx={{
-            width: 250,
-          }}
-        >
-          {m.publicAddressButton}
-        </Button>
-      </Stack>
-
-      <Controller
-        name="stt"
-        control={control}
-        render={({ field }) => (
-          <FormControlLabel
-            control={<Switch {...field} checked={field.value} />}
-            label={
-              <LabelWithTooltip
-                label={m.advisorsLabel}
-                tooltip={m.advisorsTooltip}
-                link={m.advisorsLink}
-              />
-            }
-          />
-        )}
-      />
-
-      <Stack direction="row" alignItems="center" gap={1}>
-        <LabelWithTooltip
-          label={m.sttCheckIntervalsLabel}
-          tooltip={m.sttCheckIntervalTooltip}
-        />
-      </Stack>
-      <Stack direction="row" gap={2} flexWrap="wrap">
-        {STT_CHECK_INTERVALS.map(({ name, label }) => (
+      <Stack gap={1}>
+        <Stack maxWidth={640}>
+          <Typography variant="h6">
+            {m.publicAddressLabel}
+          </Typography>
+          <Typography variant="body2">
+            {m.publicAddressTooltip}
+          </Typography>
+        </Stack>
+        <Stack direction="row" flexWrap="wrap" gap={2} alignItems="center">
           <Controller
-            key={name}
-            name={name}
+            name="publicAddress"
             control={control}
-            rules={{ validate: validateInterval }}
-            render={({ field, fieldState }) => (
-              <Stack direction="row" alignItems="center" gap={1}>
-                <TextField
-                  {...field}
-                  label={label}
-                  type="number"
-                  disabled={!sttEnabled}
-                  error={!!fieldState.error}
-                  helperText={fieldState.error?.message}
-                  slotProps={{
-                    htmlInput: { min: MIN_STT_CHECK_INTERVAL, step: 0.1 },
-                  }}
-                  sx={{ width: 100 }}
-                />
-                <Typography variant="body2" color="text.secondary">
-                  {m.sttCheckIntervalUnit}
-                </Typography>
-              </Stack>
+            render={({ field }) => (
+              <TextField
+                {...field}
+                size="small"
+                placeholder="https://..."
+                sx={{ flex: 1, minWidth: 240 }}
+              />
             )}
           />
-        ))}
+          <Button
+            type="button"
+            variant="text"
+            startIcon={<ContentCopyIcon />}
+            onClick={() =>
+              setValue('publicAddress', window.location.host, {
+                shouldDirty: true,
+              })
+            }
+          >
+            {m.publicAddressButton}
+          </Button>
+        </Stack>
       </Stack>
 
-      <Box
-        component="fieldset"
-        sx={{
-          border: 1,
-          borderColor: 'divider',
-          borderRadius: 1,
-          p: 2,
-        }}
-      >
-        <Typography component="legend" variant="subtitle2" sx={{ px: 1 }}>
-          {m.technicalPreviewLegend}
-        </Typography>
-        <Alert severity="info" sx={{ mt: 1, mb: 2 }}>
-          {m.technicalPreviewDescription}{' '}
+      <Stack gap={1}>
+        <Stack maxWidth={640}>
+          <Typography variant="h6">
+            {m.retentionLabel}
+          </Typography>
+          <Typography variant="body2">
+            {m.retentionTooltip}
+            {' '}
+            <Link
+              href={m.retentionLink}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {Messages.tooltipLinkText}
+              <ArrowOutwardIcon sx={{ fontSize: 14 }} />
+            </Link>
+          </Typography>
+        </Stack>
+        <Stack direction="row" alignItems="baseline" gap={1}>
+          <Controller
+            name="retention"
+            control={control}
+            rules={{ validate: validateRetention }}
+            render={({ field, fieldState }) => (
+              <TextField
+                {...field}
+                type="number"
+                error={!!fieldState.error}
+                helperText={fieldState.error?.message}
+                slotProps={{
+                  htmlInput: { min: MIN_DAYS, max: MAX_DAYS, step: 1 },
+                }}
+                sx={{ minWidth: 120, maxWidth: 240 }}
+                size="small"
+              />
+            )}
+          />
+          <Typography variant="body1" color="text.secondary">
+            {m.retentionUnits}
+          </Typography>
+        </Stack>
+      </Stack>
+
+      <Stack gap={1}>
+        <Stack maxWidth={640}>
+          <Typography variant="h6">
+            {m.telemetryLabel}
+          </Typography>
+          <Typography variant="body2">
+            {m.telemetryTooltip}
+            {' '}
+            <Link
+              href={m.telemetryLink}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {Messages.tooltipLinkText}
+              <ArrowOutwardIcon sx={{ fontSize: 14 }} />
+            </Link>
+          </Typography>
+        </Stack>
+        <Stack direction="row" alignItems="center" gap={1}>
+          <Controller
+            name="telemetry"
+            control={control}
+            render={({ field }) => (
+              <FormControlLabel
+                control={<Switch {...field} checked={field.value} />}
+                label={m.telemetryLabel}
+                sx={{ mr: 0 }}
+              />
+            )}
+          />
           <Link
-            href={TECHNICAL_PREVIEW_DOC_URL}
-            target="_blank"
-            rel="noreferrer"
+            component="button"
+            type="button"
+            variant="body1"
+            onClick={() => setTelemetryDialogOpen(true)}
           >
-            {m.technicalPreviewLinkText}
+            {m.telemetryDialogLink}
           </Link>
-        </Alert>
+        </Stack>
+        <Dialog
+          open={telemetryDialogOpen}
+          onClose={() => setTelemetryDialogOpen(false)}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle>
+            {m.telemetryLabel}
+            <IconButton
+              aria-label="close"
+              size='medium'
+              onClick={() => setTelemetryDialogOpen(false)}
+              sx={{ position: 'absolute', right: 8, top: 8 }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent>
+            <Typography variant="body1" mb={2}>
+              {m.telemetrySummaryTitle}
+            </Typography>
+            {(settings.telemetrySummaries ?? []).map((s) => (
+              <Typography key={s} variant="body1" component="li" sx={{ ml: 3 }}>
+                {s}
+              </Typography>
+            ))}
+          </DialogContent>
+        </Dialog>
+      </Stack>
+
+      <Stack gap={2}>
+        <Stack maxWidth={640}>
+          <Typography variant="h6">
+            Feature management
+          </Typography>
+          <Typography variant="body2">
+            Enable or disable core PMM capabilities. Turning off unused features can help conserve system resources and simplify your navigation menu.
+          </Typography>
+        </Stack>
+        <Stack gap={2}>
+          {[
+            {
+              name: 'updates' as const,
+              label: m.updatesLabel,
+              tooltip: m.updatesTooltip,
+              link: m.updatesLink,
+            },
+            {
+              name: 'alerting' as const,
+              label: m.alertingLabel,
+              tooltip: m.alertingTooltip,
+              link: m.alertingLink,
+            },
+            {
+              name: 'backup' as const,
+              label: m.backupLabel,
+              tooltip: m.backupTooltip,
+              link: m.backupLink,
+            },
+            {
+              name: 'enableInternalPgQan' as const,
+              label: m.enableInternalPgQanLabel,
+              tooltip: m.enableInternalPgQanTooltip,
+              link: m.enableInternalPgQanLink,
+            },
+          ].map(({ name, label, tooltip, link }) => (
+            <Controller
+              key={name}
+              name={name}
+              control={control}
+              render={({ field }) => (
+                <FormControlLabel
+                  control={<Switch {...field} checked={field.value} />}
+                  label={
+                    <LabelWithTooltip label={label} tooltip={tooltip} link={link} />
+                  }
+                />
+              )}
+            />
+          ))}
+        </Stack>
+      </Stack>
+
+      <Stack gap={1}>
         <Stack gap={1}>
+          <Stack maxWidth={640}>
+            <Typography variant="h6">
+              {m.advisorsLabel}
+            </Typography>
+            <Typography variant="body2">
+              {m.advisorsTooltip}
+              {' '}
+              <Link
+                href={m.advisorsLink}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {Messages.tooltipLinkText}
+                <ArrowOutwardIcon sx={{ fontSize: 14 }} />
+              </Link>
+            </Typography>
+          </Stack>
+          <Controller
+            name="stt"
+            control={control}
+            render={({ field }) => (
+              <FormControlLabel
+                control={<Switch {...field} checked={field.value} />}
+                label={m.advisorsLabel}
+              />
+            )}
+          />
+        </Stack>
+        {sttEnabled && (
+          <Stack gap={2}>
+            <Typography variant="body1" sx={{ maxWidth: 640 }}>
+              {m.sttCheckIntervalTooltip}
+            </Typography>
+            <Stack direction="row" columnGap={2} rowGap={3} flexWrap="wrap">
+              {STT_CHECK_INTERVALS.map(({ name, label }) => (
+                <Controller
+                  key={name}
+                  name={name}
+                  control={control}
+                  rules={{ validate: validateInterval }}
+                  render={({ field, fieldState }) => (
+                    <TextField
+                      {...field}
+                      label={label}
+                      type="number"
+                      error={!!fieldState.error}
+                      helperText={fieldState.error?.message}
+                      slotProps={{
+                        htmlInput: { min: MIN_STT_CHECK_INTERVAL, step: 0.1 },
+                      }}
+                      size="small"
+                      sx={{ minWidth: 80, maxWidth: 120 }}
+                    />
+                  )}
+                />
+              ))}
+            </Stack>
+          </Stack>
+        )}
+      </Stack>
+
+      <Stack gap={2}>
+        <Stack maxWidth={640}>
+          <Typography variant="h6">
+            <WarningIcon color="warning" sx={{ fontSize: 26, verticalAlign: '-6px' }} /> {m.technicalPreviewLegend}
+          </Typography>
+          <Typography variant="body2">
+            {m.technicalPreviewDescription}
+            <strong>{m.technicalPreviewWarning}</strong>
+            {m.technicalPreviewDescriptionSuffix}
+            {' '}
+            <Link
+              href={TECHNICAL_PREVIEW_DOC_URL}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {m.technicalPreviewLinkText}
+              <ArrowOutwardIcon sx={{ fontSize: 14 }} />
+            </Link>
+            {'.'}
+          </Typography>
+        </Stack>
+        <Stack gap={2}>
           <Controller
             name="azureDiscover"
             control={control}
@@ -435,16 +509,32 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
             )}
           />
         </Stack>
-      </Box>
+      </Stack>
 
-      <Button
-        type="submit"
-        variant="contained"
-        disabled={!isDirty || isPending || Object.keys(errors).length > 0}
-        data-testid="advanced-settings-submit"
+      <Stack
+        sx={{
+          position: 'sticky',
+          bottom: 0,
+          py: 2,
+          bgcolor: 'background.default',
+          borderTop: 1,
+          borderColor: 'divider',
+          mt: 'auto',
+          zIndex: 1,
+          boxShadow: (theme) =>
+            `-8px 0 0 0 ${theme.palette.background.default}, 30px 0 0 0 ${theme.palette.background.default}`,
+        }}
       >
-        {isPending ? 'Applying...' : action}
-      </Button>
+        <Button
+          type="submit"
+          variant="contained"
+          disabled={!isDirty || isPending || Object.keys(errors).length > 0}
+          data-testid="advanced-settings-submit"
+          sx={{ alignSelf: 'flex-start' }}
+        >
+          {isPending ? 'Applying...' : action}
+        </Button>
+      </Stack>
     </Stack>
   );
 };
