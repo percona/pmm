@@ -65,6 +65,8 @@ jobs:
               container_name: pmm-server
               environment:
                 - PMM_DEBUG=1
+                - PMM_ENABLE_TELEMETRY=0
+                - PMM_DEV_PERCONA_PLATFORM_ADDRESS=https://check-dev.percona.com
               ports:
                 - 443:8443
               volumes:
