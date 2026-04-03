@@ -287,7 +287,7 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
             </Link>
           </Typography>
         </Stack>
-        <Stack direction="row" alignItems="center" gap={1}>
+        <Stack direction="row" alignItems="center" gap={0.5}>
           <Controller
             name="telemetry"
             control={control}
@@ -299,6 +299,7 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
               />
             )}
           />
+          {'—'}
           <Link
             component="button"
             type="button"
@@ -313,6 +314,7 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
           onClose={() => setTelemetryDialogOpen(false)}
           maxWidth="sm"
           fullWidth
+          slotProps={{ paper: { elevation: 1 } }}
         >
           <DialogTitle>
             {m.telemetryLabel}
@@ -516,13 +518,13 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
           position: 'sticky',
           bottom: 0,
           py: 2,
-          bgcolor: 'background.default',
+          bgcolor: 'background.paper',
           borderTop: 1,
           borderColor: 'divider',
           mt: 'auto',
           zIndex: 1,
           boxShadow: (theme) =>
-            `-8px 0 0 0 ${theme.palette.background.default}, 30px 0 0 0 ${theme.palette.background.default}`,
+            `-8px 0 0 0 ${theme.palette.background.paper}, 30px 0 0 0 ${theme.palette.background.paper}`,
         }}
       >
         <Button

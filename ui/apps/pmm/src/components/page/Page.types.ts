@@ -5,4 +5,5 @@ export interface PageProps extends PropsWithChildren {
   footer?: ReactNode;
   topBar?: ReactNode;
   fullWidth?: boolean;
+  surface?: 'default' | 'paper';
 }

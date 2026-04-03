@@ -6,6 +6,7 @@ import {
   Card,
   CardActions,
   Divider,
+  GlobalStyles,
   Link,
   Stack,
   Typography,
@@ -22,12 +23,25 @@ export const Page: FC<PageProps> = ({
   footer,
   children,
   fullWidth,
+  surface,
 }) => {
   const { user } = useUser();
   updateDocumentTitle(title);
 
   return (
-    <Stack
+    <>
+      {surface && (
+        <GlobalStyles
+          styles={(theme) => ({
+            'html, body': {
+              backgroundColor: surface === 'paper'
+                ? theme.palette.background.paper
+                : theme.palette.background.default,
+            },
+          })}
+        />
+      )}
+      <Stack
       sx={{
         flex: 1,
         width: '100%',
@@ -67,5 +81,6 @@ export const Page: FC<PageProps> = ({
       <Divider />
       {footer !== undefined ? footer : <Footer />}
     </Stack>
+    </>
   );
 };

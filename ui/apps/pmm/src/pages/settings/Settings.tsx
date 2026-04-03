@@ -27,7 +27,7 @@ export const Settings: FC = () => {
   }
 
   return (
-    <Page title={Messages.title} fullWidth>
+    <Page title={Messages.title} fullWidth surface="paper">
       <Stack gap={3} sx={{ flex: 1 }}>
         <Tabs
           value={tab}

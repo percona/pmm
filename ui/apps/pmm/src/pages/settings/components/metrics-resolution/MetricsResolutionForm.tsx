@@ -233,13 +233,13 @@ export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
           position: 'sticky',
           bottom: 0,
           py: 2,
-          bgcolor: 'background.default',
+          bgcolor: 'background.paper',
           borderTop: 1,
           borderColor: 'divider',
           mt: 'auto',
           zIndex: 1,
           boxShadow: (theme) =>
-            `-8px 0 0 0 ${theme.palette.background.default}, 30px 0 0 0 ${theme.palette.background.default}`,
+            `-8px 0 0 0 ${theme.palette.background.paper}, 30px 0 0 0 ${theme.palette.background.paper}`,
         }}
       >
         <Button
