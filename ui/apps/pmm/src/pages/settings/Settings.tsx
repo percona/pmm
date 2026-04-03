@@ -13,7 +13,7 @@ import { Messages } from './Settings.messages';
 import { TabValue } from './Settings.types';
 
 export const Settings: FC = () => {
-  const [tab, setTab] = useState<TabValue>('advanced');
+  const [tab, setTab] = useState<TabValue>('metrics');
   const { data: settings, isLoading } = useSettings();
 
   if (isLoading || !settings) {
@@ -37,6 +37,11 @@ export const Settings: FC = () => {
           sx={{ borderBottom: 1, borderColor: 'divider' }}
         >
           <Tab
+            data-testid="settings-tab-metrics"
+            value="metrics"
+            label={Messages.tabs.metrics}
+          />
+          <Tab
             data-testid="settings-tab-advanced"
             value="advanced"
             label={Messages.tabs.advanced}
@@ -46,17 +51,12 @@ export const Settings: FC = () => {
             value="ssh"
             label={Messages.tabs.ssh}
           />
-          <Tab
-            data-testid="settings-tab-metrics"
-            value="metrics"
-            label={Messages.tabs.metrics}
-          />
         </Tabs>
 
-        <Box sx={{ py: 2, flex: 1 }}>
+        <Box sx={{ flex: 1 }}>
+          {tab === 'metrics' && <MetricsResolutionForm settings={settings} />}
           {tab === 'advanced' && <AdvancedSettingsForm settings={settings} />}
           {tab === 'ssh' && <SshKeyForm settings={settings} />}
-          {tab === 'metrics' && <MetricsResolutionForm settings={settings} />}
         </Box>
       </Stack>
     </Page>

@@ -1,15 +1,13 @@
 import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import IconButton from '@mui/material/IconButton';
 import Link from '@mui/material/Link';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
-import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import { FC, useEffect, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
@@ -126,41 +124,31 @@ export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
       component="form"
       onSubmit={handleSubmit(onSubmit)}
       gap={2}
-      maxWidth={600}
     >
-      <Stack direction="row" alignItems="center" gap={1}>
-        <Typography variant="body1" fontWeight={500}>
+      <Stack>
+        <Typography variant="h6">
           {label}
         </Typography>
-        <Tooltip
-          title={
-            <Stack gap={0.5}>
-              <Typography variant="body2">{tooltip}</Typography>
-              <Link
-                href={link}
-                target="_blank"
-                rel="noopener noreferrer"
-                color="inherit"
-                sx={{ textDecoration: 'underline' }}
-              >
-                {tooltipLinkText}
-              </Link>
-            </Stack>
-          }
-          arrow
-        >
-          <IconButton size="small" aria-label={tooltip} sx={{ p: 0.5 }}>
-            <InfoOutlinedIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
+        <Typography variant="body2">
+          {tooltip}
+          {' '}
+          <Link
+            href={link}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {tooltipLinkText}
+            <ArrowOutwardIcon sx={{ fontSize: 14 }} />
+          </Link>
+        </Typography>
       </Stack>
 
       <Controller
         name="preset"
         control={control}
         render={({ field }) => (
-          <FormControl>
-            <RadioGroup {...field} row>
+          <FormControl sx={{ mb: 2 }}>
+            <RadioGroup {...field} row sx={{ columnGap: 2, rowGap: 1 }}>
               {resolutionOptions.map((opt) => (
                 <FormControlLabel
                   key={opt.value}
@@ -174,7 +162,7 @@ export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
         )}
       />
 
-      <Stack direction="row" gap={2} flexWrap="wrap">
+      <Stack direction="row" columnGap={2} rowGap={3} flexWrap="wrap" mb={4}>
         <Controller
           name="lr"
           control={control}
@@ -191,7 +179,7 @@ export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
                 htmlInput: { min: RESOLUTION_MIN, max: RESOLUTION_MAX },
               }}
               data-testid="metrics-resolution-lr"
-              sx={{ minWidth: 120 }}
+              sx={{ minWidth: 80, maxWidth: 120 }}
             />
           )}
         />
@@ -211,7 +199,7 @@ export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
                 htmlInput: { min: RESOLUTION_MIN, max: RESOLUTION_MAX },
               }}
               data-testid="metrics-resolution-mr"
-              sx={{ minWidth: 120 }}
+              sx={{ minWidth: 80, maxWidth: 120 }}
             />
           )}
         />
@@ -231,7 +219,7 @@ export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
                 htmlInput: { min: RESOLUTION_MIN, max: RESOLUTION_MAX },
               }}
               data-testid="metrics-resolution-hr"
-              sx={{ minWidth: 120 }}
+              sx={{ minWidth: 80, maxWidth: 120 }}
             />
           )}
         />
@@ -242,6 +230,7 @@ export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
         variant="contained"
         disabled={!isDirty || isPending || Object.keys(errors).length > 0}
         data-testid="metrics-resolution-submit"
+        sx={{ alignSelf: 'flex-start' }}
       >
         {isPending ? 'Applying...' : action}
       </Button>

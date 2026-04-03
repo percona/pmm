@@ -41,7 +41,7 @@ export const Page: FC<PageProps> = ({
           md: fullWidth ? 4 : undefined,
         },
         mx: 'auto',
-        gap: 3,
+        gap: 2,
         mt: 1,
       }}
     >

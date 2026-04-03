@@ -1,9 +1,9 @@
 export const Messages = {
   title: 'Settings',
   tabs: {
-    ssh: 'SSH Key',
-    metrics: 'Metrics Resolution',
-    advanced: 'Advanced Settings',
+    ssh: 'SSH key',
+    metrics: 'Metrics resolution',
+    advanced: 'Advanced settings',
   },
   advanced: {
     action: 'Apply changes',
@@ -57,7 +57,7 @@ export const Messages = {
   },
   metrics: {
     action: 'Apply changes',
-    label: 'Metrics resolution, sec',
+    label: 'Metrics resolution',
     link: 'https://per.co.na/metrics_resolution',
     options: {
       rare: 'Rare',
@@ -70,7 +70,7 @@ export const Messages = {
       medium: 'Medium',
       high: 'High',
     },
-    tooltip: 'This setting defines how frequently the data will be collected.',
+    tooltip: 'Define how frequently the data will be collected, in seconds.',
   },
   ssh: {
     action: 'Apply SSH key',
