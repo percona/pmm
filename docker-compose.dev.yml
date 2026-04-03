@@ -77,13 +77,12 @@ services:
       - ${PMM_PORT_CH_HTTP:-8123}:8123
     volumes:
       - ./:/root/go/src/github.com/percona/pmm
-      - ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro # substitute Makefile in devcontainer
       - ./managed/testdata/updater/:/home/pmm/.config/systemd/user/
       - ./dev/clickhouse-config.xml:/etc/clickhouse-server/config.xml:ro # Dev clickhouse config for backups/restore
       # caching
       - go-modules:/root/go/pkg/mod
       - go-cache:/root/.cache
-      - srv:/srv
+      - pmm-data:/srv
       # mount advisor files for easy development
       - ./managed/data/advisors/:/usr/local/percona/advisors/
       - ./managed/data/checks/:/usr/local/percona/checks/
@@ -130,4 +129,4 @@ services:
 volumes:
   go-modules:
   go-cache:
-  srv:
+  pmm-data:
