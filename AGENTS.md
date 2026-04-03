@@ -230,7 +230,8 @@ All long-running daemons expose on `127.0.0.1`:
 ## Key Files to Reference
 
 - `Makefile`, `Makefile.include` — build and development targets
-- `docker-compose.yml` — development environment (PMM Server, renderer, watchtower)
+- `docker-compose.dev.yml` — development environment (PMM Server, renderer, watchtower)
+- `docker-compose.yml` — community/quickstart compose (stable image, minimal config)
 - `go.mod` — Go module definition
 - `.golangci.yml` — linter configuration
 - `.mockery.yaml` — mock generation configuration

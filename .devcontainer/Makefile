@@ -1,7 +1,5 @@
 # Devcontainer Makefile.
 
-include Makefile.include
-
 release-dev-managed:              ## Build pmm-managed
 	make -C managed release-dev
 
@@ -20,7 +18,7 @@ _bash:
 
 PMM_RELEASE_PATH ?= ./bin
 
-run-managed-ci: release-dev-managed    ## Replace pmm-managed from build, restart (used in CI)	supervisorctl stop pmm-managed
+run-managed-ci: release-dev-managed    ## Replace pmm-managed from build, restart (used in CI)
 	supervisorctl stop pmm-managed
 	truncate -s 0 /srv/logs/pmm-managed.log
 	cp $(PMM_RELEASE_PATH)/pmm-managed /usr/sbin/pmm-managed
@@ -58,9 +56,6 @@ run-qan: run-qan-ci	                ## Replace qan-api2 from build, restart and 
 
 run-all: run-agent-ci run-managed-ci run-qan-ci run-vmproxy-ci	## Run all go services
 
-run: run-all                         ## Aliased to "run-all"
-	echo "run is aliased to run-all"
-
 # TODO https://jira.percona.com/browse/PMM-3484, see maincover_test.go
 # run-race-cover: install-race    ## Run pmm-managed with race detector and collect coverage information.
 # 	go test -coverpkg="github.com/percona/pmm/managed/..." \
@@ -69,13 +64,13 @@ run: run-all                         ## Aliased to "run-all"
 # 			-race -c -o bin/pmm-managed.test
 # 	bin/pmm-managed.test -test.coverprofile=cover.out -test.run=TestMainCover $(RUN_FLAGS)
 
-psql:                           ## Open database for the pmm-managed instance in psql shell
+psql-managed:                   ## Open database for the pmm-managed instance in psql shell
 	env PGPASSWORD=pmm-managed psql -U pmm-managed pmm-managed
 
-psql-test:                      ## Open database used in unit tests in psql shell
-	env psql -U postgres pmm-managed-dev
+psql-managed-dev:               ## Open database used in unit tests in psql shell
+	psql -U postgres pmm-managed-dev
 
-dlv/attach:                     ## Attach Delve to `pmm-managed`
+dlv-attach:                     ## Attach Delve to `pmm-managed`
 	dlv --listen=:2345 --headless=true --api-version=2 --continue=true --accept-multiclient attach $(shell pgrep pmm-managed)
 
 refresh-swagger:                ## Refresh swagger files

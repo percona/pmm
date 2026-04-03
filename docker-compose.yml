@@ -12,11 +12,6 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER=${PMM_ADMIN_USER:-admin}
       - GF_SECURITY_ADMIN_PASSWORD=${PMM_ADMIN_PASSWORD:-admin}
-      - GF_EMAILS_WELCOME_EMAIL_ON_SIGN_UP=1
-      - GF_SMTP_ENABLED=1
-      - GF_SMTP_HOST=mail-server:1025
-      - GF_SMTP_FROM_NAME=${GF_SMTP_FROM_NAME:-Percona}
-      - GF_SMTP_FROM_ADDRESS=${GF_SMTP_FROM_ADDRESS:-admin@percona.com}
       - PMM_ENABLE_ACCESS_CONTROL=${PMM_ENABLE_ACCESS_CONTROL:-1}
       - PMM_PUBLIC_ADDRESS=${PMM_PUBLIC_ADDRESS:-localhost}
       - PMM_ENABLE_INTERNAL_PG_QAN=${PMM_ENABLE_INTERNAL_PG_QAN:-0}
@@ -39,17 +34,6 @@ services:
       - ${PMM_PORT_HTTPS:-443}:8443
     volumes:
       - pmm-data:/srv
-
-  mail-server:
-    profiles:
-      - pmm
-    image: axllent/mailpit
-    container_name: mail-server
-    hostname: mail-server
-    ports:
-      - 8025:8025 # Web UI - http://localhost:8025
-    networks:
-      - ${PMM_NETWORK:-default}
 
   renderer:
     profiles:

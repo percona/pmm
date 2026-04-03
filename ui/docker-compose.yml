@@ -25,7 +25,7 @@ services:
       # - ../../grafana-dashboards/pmm-app/dist:/srv/grafana/plugins/pmm-app
       # Mount repo so you can run the backend built from this codebase
       # - ..:/root/go/src/github.com/percona/pmm
-      # - ../Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro
+      # (no Makefile override needed — root Makefile already includes .devcontainer/Makefile)
       # should be followed by running:
       # docker exec -u root -it pmm-server bash -c 'cd /root/go/src/github.com/percona/pmm && make run-agent'
       # docker exec -u root -it pmm-server bash -c 'cd /root/go/src/github.com/percona/pmm && make run-managed'

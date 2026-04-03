@@ -33,12 +33,12 @@ jobs:
     timeout-minutes: 30
 
     env:
-      PMM_SERVER_IMAGE: perconalab/pmm-server:3-dev-latest
+      # PMM_SERVER_IMAGE: perconalab/pmm-server:3-dev-container
+      PMM_SERVER_IMAGE: ghcr.io/percona/pmm:3-dev-container
       AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
       AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
       PMM_DEV_OAUTH_CLIENT_ID: ${{ secrets.OAUTH_PMM_CLIENT_ID }}
       PMM_DEV_OAUTH_CLIENT_SECRET: ${{ secrets.OAUTH_PMM_CLIENT_SECRET }}
-      PMM_CONTAINER: ghcr.io/percona/pmm:3-dev-container
 
     steps:
       - name: Check out code
@@ -76,8 +76,7 @@ jobs:
             -v ./managed/data/advisors/:/usr/local/percona/advisors/ \
             -v ./managed/data/checks/:/usr/local/percona/checks/ \
             -v ./managed/data/alerting-templates/:/usr/local/percona/alerting-templates/ \
-            -v ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro \
-            ${PMM_CONTAINER:-perconalab/pmm-server:3-dev-container}
+            ${PMM_SERVER_IMAGE}
           sleep 20
           docker exec -t pmm-server id
           docker logs pmm-server
