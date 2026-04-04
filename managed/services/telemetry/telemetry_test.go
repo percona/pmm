@@ -172,7 +172,7 @@ func TestRunTelemetryService(t *testing.T) {
 				start:               tt.fields.start,
 				config:              tt.fields.config,
 				dsRegistry:          registry,
-				pmmVersion:          "",
+				pmmVersion:          tt.fields.pmmVersion,
 				os:                  tt.fields.os,
 				sDistributionMethod: 0,
 				tDistributionMethod: 0,

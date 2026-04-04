@@ -18,6 +18,7 @@ package telemetry
 
 import (
 	"context"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -103,10 +104,17 @@ func (s *Service) LocateTelemetryDataSource(name string) (DataSource, error) {
 	return s.dsRegistry.LocateTelemetryDataSource(name)
 }
 
-// Run start sending telemetry to SaaS.
+// releaseVersionRe matches only clean release versions like "3.7.0" or "3.7".
+var releaseVersionRe = regexp.MustCompile(`^\d+\.\d+(\.\d+)?$`)
+
+// Run sends telemetry.
 func (s *Service) Run(ctx context.Context) {
 	if !s.config.Enabled {
 		s.l.Warn("service is disabled, skip Run")
+		return
+	}
+
+	if !releaseVersionRe.MatchString(s.pmmVersion) {
 		return
 	}
 
