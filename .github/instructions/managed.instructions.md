@@ -3,7 +3,7 @@ applyTo: managed/**
 ---
 # pmm-managed Development Guidelines
 
-- **Parent guide**: [AGENTS.md](../AGENTS.md) — product overview, architecture, domain model, global conventions
+- **Parent guide**: [AGENTS.md](../../AGENTS.md) — product overview, architecture, domain model, global conventions
 - **Related**: 
   - [api.instructions.md](api.instructions.md) (API definitions) 
   - [agent.instructions.md](agent.instructions.md) (client agent) 
@@ -180,7 +180,7 @@ PMM supports HA via **Raft consensus** (`services/ha/`):
 
 ## Code Generation
 
-1. **Protocol Buffers** — `make gen` from repo root
+1. **Protocol Buffers** — `make gen`, followed by `make format` (from project root)
 2. **reform** — `//go:generate ../../bin/reform` on model files
 3. **mockery** — mock generation per `.mockery.yaml`
 4. **swagger** — API docs from proto annotations
