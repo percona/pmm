@@ -1,4 +1,12 @@
 ---
+# Usage:
+#  minimal suite (server, client, mysql + sysbench):
+#    docker compose --profile pmm up -d
+#  with QAN overrides (dev image + external ClickHouse):
+#    docker compose -f docker-compose.yml -f qan-api2/docker-compose.yml --profile pmm up -d
+#  full suite (server, client, postgres, mongo, mysql + sysbench, external clickhouse):
+#    docker compose -f docker-compose.yml -f qan-api2/docker-compose.yml --profile pmm --profile postgres --profile mongo up -d
+# Note: database ports are initially disabled since the communication takes place on a shared bridge network.
 services:
   pmm-server:
     profiles:
@@ -7,6 +15,7 @@ services:
     platform: linux/amd64
     container_name: pmm-server
     hostname: pmm-server
+    restart: always
     environment:
       - GF_SECURITY_ADMIN_USER=${PMM_ADMIN_USER:-admin}
       - GF_SECURITY_ADMIN_PASSWORD=${PMM_ADMIN_PASSWORD:-admin}
@@ -14,24 +23,25 @@ services:
       - PMM_PUBLIC_ADDRESS=${PMM_PUBLIC_ADDRESS:-localhost}
       - PMM_ENABLE_INTERNAL_PG_QAN=${PMM_ENABLE_INTERNAL_PG_QAN:-0}
       - PMM_DEBUG=${PMM_DEBUG:-0}
+      # To enable an external ClickHouse database
       # - PMM_CLICKHOUSE_ADDR=127.0.0.1:9000
       # - PMM_CLICKHOUSE_DATABASE=pmm
       # - PMM_CLICKHOUSE_USER=default
       # - PMM_CLICKHOUSE_PASSWORD=<password>
       # - PMM_DISABLE_BUILTIN_CLICKHOUSE=1
+      # To enable an external PostgreSQL database
       # - PMM_POSTGRES_ADDR=pg
       # - PMM_POSTGRES_DBNAME=pmm-managed
       # - PMM_POSTGRES_USERNAME=pmm-managed
       # - PMM_POSTGRES_DBPASSWORD=<password>
       # - PMM_DISABLE_BUILTIN_POSTGRES=1
+      # To be able to discover RDS databases via UI
       - AWS_ACCESS_KEY=${AWS_ACCESS_KEY:-}
       - AWS_SECRET_KEY=${AWS_SECRET_KEY:-}
     ports:
       - ${PMM_PORT_HTTPS:-443}:8443
     volumes:
       - pmm-data:/srv
-    networks:
-      - ${PMM_NETWORK:-default}
 
   pmm-client:
     profiles:
@@ -43,6 +53,12 @@ services:
         condition: service_healthy
       sysbench-ps:
         condition: service_started
+      postgres:
+        condition: service_started
+        required: false
+      mongo:
+        condition: service_started
+        required: false
     environment:
       PMM_AGENT_SERVER_ADDRESS: pmm-server:8443
       PMM_AGENT_SERVER_USERNAME: admin
@@ -54,75 +70,28 @@ services:
       PMM_AGENT_SIDECAR: 1
       PMM_AGENT_PRERUN_SCRIPT: |
         pmm-admin status --wait=10s
-        pmm-admin add mysql --cluster=cl1 --environment=dev --custom-labels='app=wp1' --username=root --password=secret --query-source=slowlog MySQLSlowLog ps:3306
-        pmm-admin add mysql --cluster=cl2 --environment=prod --custom-labels='app=wp2' --username=root --password=secret --query-source=perfschema MySQLPerfSchema ps:3306
-    volumes:
-      - logs-directory:/var/log/mysql:ro
-    networks:
-      - ${PMM_NETWORK:-default}
-
-  logs-init:
-    profiles:
-      - pmm
-    image: percona/percona-server:latest
-    container_name: logs-init
-    user: root
-    volumes:
-      - logs-directory:/var/log/mysql
-    command: chown mysql:mysql /var/log/mysql
-    networks:
-      - ${PMM_NETWORK:-default}
+        pmm-admin add mysql --cluster=dev-cluster --environment=dev --custom-labels='app=test-app' --username=root --password=secret --query-source=perfschema mysql-dev ps:3306
+        pmm-admin add postgresql --username=postgres --password=secret postgres-dev postgres:5432 || true
+        pmm-admin add mongodb --username=mongo --password=secret mongo-dev mongo:27017 || true
 
   ps:
     profiles:
       - pmm
     image: percona/percona-server:latest
     container_name: ps
-    depends_on:
-      logs-init:
-        condition: service_completed_successfully
     environment:
      - MYSQL_ROOT_PASSWORD=secret
-    ports:
-     - 3306:3306
-    volumes:
-      - ./dev/my.cnf:/etc/my.cnf
-      - ./dev/mysql.logrotate:/etc/logrotate.d/mysql
-      - logs-directory:/var/log/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-psecret"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-P", "3306", "-u", "root", "-psecret"]
       interval: 10s
       timeout: 5s
       retries: 10
       start_period: 30s
-    networks:
-      - ${PMM_NETWORK:-default}
-
-  postgres:
-    profiles:
-      - pmm
-    image: postgres
-    container_name: postgres
-    environment:
-     - POSTGRES_USER=postgres
-     - POSTGRES_PASSWORD=secret
-    ports:
-     - 5432:5432
-    networks:
-      - ${PMM_NETWORK:-default}
-
-  mongo:
-    profiles:
-      - pmm
-    image: mongo
-    container_name: mongo
-    environment:
-     - MONGO_INITDB_ROOT_USERNAME=mongo
-     - MONGO_INITDB_ROOT_PASSWORD=secret
-    ports:
-     - 27017:27017
-    networks:
-      - ${PMM_NETWORK:-default}
+    volumes:
+      - ./dev/my.cnf:/etc/my.cnf
+      - ./dev/mysql.logrotate:/etc/logrotate.d/mysql
+    # ports:
+    #  - 3306:3306
 
   ps-init:
     profiles:
@@ -133,8 +102,38 @@ services:
       ps:
         condition: service_healthy
     command: mysql -h ps -u root -psecret -e "CREATE DATABASE IF NOT EXISTS sbtest;"
-    networks:
-      - ${PMM_NETWORK:-default}
+
+  postgres:
+    profiles:
+      - postgres
+    image: postgres:18
+    container_name: postgres
+    command: >
+      -c shared_preload_libraries=pg_stat_statements
+      -c track_activity_query_size=2048
+      -c pg_stat_statements.track=all
+      -c pg_stat_statements.max=10000
+      -c pg_stat_statements.track=all
+      -c pg_stat_statements.save=off
+      -c track_io_timing=on
+    environment:
+     - POSTGRES_USER=postgres
+     - POSTGRES_PASSWORD=secret
+    volumes:
+      - ./dev/init-pg.sql:/docker-entrypoint-initdb.d/init-pg.sql
+    # ports:
+    #  - 5432:5432
+
+  mongo:
+    profiles:
+      - mongo
+    image: mongo:8-noble
+    container_name: mongo
+    environment:
+     - MONGO_INITDB_ROOT_USERNAME=mongo
+     - MONGO_INITDB_ROOT_PASSWORD=secret
+    # ports:
+    #  - 27017:27017
 
   sysbench-ps:
     profiles:
@@ -148,13 +147,9 @@ services:
       pmm-server:
         condition: service_healthy
     command: bash /sysbench-ps.sh
-    networks:
-      - ${PMM_NETWORK:-default}
     volumes:
       - ./dev/sysbench-ps.sh:/sysbench-ps.sh
 
 volumes:
   pmm-data:
     name: pmm-data
-  logs-directory:
-    name: logs-directory

@@ -1,18 +1,27 @@
 ---
+# See usage instructions in the root docker-compose.yml.
 services:
 
   pmm-server:
+    profiles:
+      - pmm    
     container_name: pmm-server
     image: perconalab/pmm-server:3-dev-latest
-    ports:
-      - 443:8443
-      - 19000:9000
-      - 9933:9933
     restart: always
+    depends_on:
+      ch:
+        condition: service_healthy    
+    environment:
+      - PMM_CLICKHOUSE_ADDR=ch:9000
+      - PMM_CLICKHOUSE_DATABASE=pmm
+      - PMM_CLICKHOUSE_USER=default
+      - PMM_CLICKHOUSE_PASSWORD=clickhouse
+      - PMM_DISABLE_BUILTIN_CLICKHOUSE=1
 
   ch:
+    profiles:
+      - pmm    
     image: clickhouse/clickhouse-server:25.3.6.56
-    platform: linux/amd64
     container_name: ch-server
     environment:
       - CLICKHOUSE_USER=default
@@ -21,127 +30,11 @@ services:
       nofile:
         soft: 262144
         hard: 262144
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8123/ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     ports:
       - 9000:9000
-
-  pmm-client:
-    image: percona/pmm-client:3
-    container_name: pmm-client
-    depends_on:
-      pmm-server:
-        condition: service_healthy
-      sysbench-ps:
-        condition: service_started
-    environment:
-      PMM_AGENT_SERVER_ADDRESS: pmm-server:8443
-      PMM_AGENT_SERVER_USERNAME: admin
-      PMM_AGENT_SERVER_PASSWORD: admin
-      PMM_AGENT_SERVER_INSECURE_TLS: 1
-      PMM_AGENT_CONFIG_FILE: config/pmm-agent.yaml
-      PMM_AGENT_SETUP: 1
-      PMM_AGENT_SETUP_FORCE: 1
-      PMM_AGENT_SIDECAR: 1
-      PMM_AGENT_PRERUN_SCRIPT: |
-        pmm-admin status --wait=10s
-        pmm-admin add mysql --cluster=cl1 --environment=dev --custom-labels='app=wp1' --username=root --password=secret --query-source=slowlog MySQLSlowLog ps:3306
-        pmm-admin add mysql --cluster=cl2 --environment=prod --custom-labels='app=wp2' --username=root --password=secret --query-source=perfschema MySQLPerfSchema ps:3306
-    volumes:
-      - logs-directory:/var/log/mysql
-
-
-  ps:
-    image: percona/percona-server:latest
-    container_name: ps
-    environment:
-     - MYSQL_ROOT_PASSWORD=secret
-    ports:
-     - 3306:3306
-    volumes:
-      - logs-directory:/var/log/mysql
-      - ${PWD}/my.cnf:/etc/my.cnf
-      - ${PWD}/mysql.logrotate:/etc/logrotate.d/mysql
-
-  postgres:
-    image: postgres
-    environment:
-     - POSTGRES_USER=postgres
-     - POSTGRES_PASSWORD=secret
-    ports:
-     - "5432:5432"
-
-  mongo:
-    image: mongo
-    environment:
-     - MONGO_INITDB_ROOT_USERNAME=mongo
-     - MONGO_INITDB_ROOT_PASSWORD=secret
-    ports:
-     - "27017:27017"
-
-  sysbench-ps:
-    container_name: sysbench-ps
-    image: perconalab/sysbench
-    depends_on:
-     - ps
-    command: >
-        bash -c "
-            set -o xtrace
-            sleep 120
-            mysql \
-                --host=ps \
-                --port=3306 \
-                --user=root \
-                --password=secret \
-                -e 'CREATE DATABASE IF NOT EXISTS sbtest; SET GLOBAL slow_query_log_file = \"/var/log/mysql/mysql-slow.log\"; SET GLOBAL slow_query_log = \"ON\";  SET GLOBAL slow_query_log_always_write_time = 0;'
-            sysbench \
-                --db-driver=mysql \
-                --mysql-host=ps \
-                --mysql-port=3306 \
-                --mysql-user=root \
-                --mysql-password=secret \
-                --mysql-db=sbtest \
-                --mysql-table-engine=innodb \
-                --oltp-table-size=1000000 \
-                /usr/share/sysbench/tests/include/oltp_legacy/oltp.lua \
-                prepare
-            sysbench \
-                --rate=200 \
-                --threads=64 \
-                --report-interval=10 \
-                --time=0 \
-                --events=0 \
-                --rand-type=pareto \
-                --db-driver=mysql \
-                --mysql-host=ps \
-                --mysql-port=3306 \
-                --mysql-user=root \
-                --mysql-password=secret \
-                --mysql-db=sbtest \
-                --mysql-table-engine=innodb \
-                --oltp-reconnect \
-                --oltp-table-size=1000000 \
-                /usr/share/sysbench/tests/include/oltp_legacy/select.lua \
-                run
-        "
-
-  sysbench-pstpcc:
-    image: perconalab/sysbench
-    depends_on:
-     - ps
-    command: >
-        bash -c "
-            set -o xtrace
-            sleep 200
-            mysql \
-                --host=ps \
-                --port=3306 \
-                --user=root \
-                --password=secret \
-                -e 'CREATE DATABASE IF NOT EXISTS sbtest; SET GLOBAL slow_query_log_file = \"/var/log/mysql/mysql-slow.log\"; SET GLOBAL slow_query_log = \"ON\";  SET GLOBAL slow_query_log_always_write_time = 0;'
-            cd /sysbench/sysbench-tpcc
-           ./tpcc.lua --mysql-host=ps --mysql-port=3306 --mysql-user=root --mysql-password=secret --mysql-db=sbtest --time=300 --threads=64 --report-interval=1 --tables=10 --scale=100 --db-driver=mysql prepare
-           ./tpcc.lua --mysql-host=ps --mysql-port=3306 --mysql-user=root --mysql-password=secret --mysql-db=sbtest --time=300 --threads=64 --report-interval=1 --tables=10 --scale=100 --db-driver=mysql run
-        "
-
-volumes:
-  logs-directory:
-    name: logs-directory
