@@ -2,16 +2,19 @@
 
 .PHONY: help build
 
+SHELL := bash
+.SHELLFLAGS := -o pipefail -c
+
 # Determine directory paths regardless of where make is invoked from
 PIPELINE_DIR := $(dir $(abspath $(firstword $(MAKEFILE_LIST))))
-BUILD_ROOT := $(abspath $(PIPELINE_DIR)/..)
+BUILD_ROOT := $(abspath $(PIPELINE_DIR)..)
 
 # Build script location
-BUILD_SCRIPT := $(PIPELINE_DIR)scripts/build-component
-PACKAGE_SCRIPT := $(PIPELINE_DIR)scripts/package-tarball
-CLIENT_DOCKER_SCRIPT := $(PIPELINE_DIR)scripts/build-client-docker
-OUTPUT_DIR ?= $(PIPELINE_DIR)output
-PACKAGE_DIR ?= $(PIPELINE_DIR)package
+BUILD_SCRIPT := $(PIPELINE_DIR)/scripts/build-component
+PACKAGE_SCRIPT := $(PIPELINE_DIR)/scripts/package-tarball
+CLIENT_DOCKER_SCRIPT := $(PIPELINE_DIR)/scripts/build-client-docker
+OUTPUT_DIR ?= $(PIPELINE_DIR)/output
+PACKAGE_DIR ?= $(PIPELINE_DIR)/package
 
 # Default target
 help:
@@ -86,6 +89,7 @@ PLATFORM ?= linux/amd64
 HOST_ARCH := $(shell uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')
 SERVER_PLATFORMS ?= linux/amd64
 GO_VERSION ?= 1.26
+LOG_FILE ?= $(PIPELINE_DIR)/build.log
 
 # Minio S3 cache configuration
 # On macOS/Docker Desktop use the magic hostname; on Linux query the bridge gateway.
@@ -134,6 +138,7 @@ BUILD_CACHE_VOL  ?= pmm-build
 YARN_CACHE_VOL   ?= pmm-yarn
 SERVER_OUTPUT_DIR := $(PIPELINE_DIR)output/server
 
+export LOG_FILE
 export PMM_VERSION
 export BUILD_TYPE
 export GOARCH
@@ -231,6 +236,9 @@ build-arm64:
 	@$(MAKE) build GOARCH=arm64 COMPONENT=$(COMPONENT)
 
 build-client:
+ifeq ($(LOGGING),)
+	@$(MAKE) LOGGING=1 build-client 2>&1 | tee -a "$(LOG_FILE)"
+else
 	@echo "Building PMM Client..."
 	@echo ""
 	@$(MAKE) build-client-components
@@ -238,6 +246,7 @@ build-client:
 	@$(MAKE) build-client-tarball
 	@echo ""
 	@$(MAKE) build-client-docker
+endif
 
 # Build PMM Client components (all client components)
 build-client-components: ensure-pmm-builder ensure-build-volumes
@@ -265,21 +274,31 @@ build-client-tarball:
 	@$(PACKAGE_SCRIPT)
 
 # Build PMM Server (Docker image with all server components)
-build-server: download-cache build-server-components
+build-server:
+ifeq ($(LOGGING),)
+	@$(MAKE) LOGGING=1 build-server 2>&1 | tee -a "$(LOG_FILE)"
+else
+	@$(MAKE) download-cache
+	@$(MAKE) build-server-components
 	@$(MAKE) generate-version-json
 	@echo "Assembling PMM Server Docker image..."
 	@$(MAKE) build-server-docker
 	@echo ""
 	@echo "PMM Server built successfully!"
+endif
 
 # Build all components (client + server)
 build-all:
+ifeq ($(LOGGING),)
+	@$(MAKE) LOGGING=1 build-all 2>&1 | tee -a "$(LOG_FILE)"
+else
 	@echo "Building all PMM components (client + server)..."
 	@$(MAKE) build-client
 	@echo ""
 	@$(MAKE) build-server
 	@echo ""
 	@echo "All components built successfully!"
+endif
 
 # Convenience shortcuts
 client: build-client
@@ -607,3 +626,6 @@ clean-server-artifacts:
 		2>/dev/null || true
 	@rm -rf $(SERVER_OUTPUT_DIR)/{victoriametrics,pmm-managed,pmm-dump,grafana-go,grafana-ui}
 	@echo "Server artifact images removed"
+
+check:
+	@echo "PIPELINE_DIR: $(PIPELINE_DIR)"
