@@ -78,7 +78,6 @@ _run:
 env-up:                         ## Run ClickHouse, MySQL Server and sysbench containers. Create pmm DB in ClickHouse
 	mkdir -p logs
 	docker compose up -d $(DCFLAGS) --force-recreate --renew-anon-volumes --remove-orphans ch sysbench-ps
-	# docker compose up $(DCFLAGS) ch sysbench-pstpcc
 	sleep 60
 	docker exec ch-server clickhouse client -h 127.0.0.1 --password=clickhouse --query="CREATE DATABASE IF NOT EXISTS pmm;"
 

@@ -144,7 +144,4 @@ services:
 
 volumes:
   logs-directory:
-    driver_opts:
-      type: volume
-      device: ${PWD}/logs
-      o: bind
+    name: logs-directory

@@ -3,8 +3,11 @@ applyTo: managed/**
 ---
 # pmm-managed Development Guidelines
 
-> **Parent guide**: [AGENTS.md](../../AGENTS.md) — product overview, architecture, domain model, global conventions
-> **Related**: [api.instructions.md](api.instructions.md) (API definitions) · [agent.instructions.md](agent.instructions.md) (client agent) · [qan-api2.instructions.md](qan-api2.instructions.md) (QAN backend)
+- **Parent guide**: [AGENTS.md](../AGENTS.md) — product overview, architecture, domain model, global conventions
+- **Related**: 
+  - [api.instructions.md](api.instructions.md) (API definitions) 
+  - [agent.instructions.md](agent.instructions.md) (client agent) 
+  - [qan-api2.instructions.md](qan-api2.instructions.md) (QAN backend)
 
 **pmm-managed** is the core backend service of PMM Server. It manages configuration of server-side components (VictoriaMetrics, Grafana, QAN, VMAlert, Alertmanager), maintains the inventory of monitored nodes/services/agents, orchestrates backups, runs advisor checks, handles HA consensus, and exposes gRPC/REST APIs consumed by pmm-admin, pmm-agent, and the UI.
 
@@ -195,4 +198,4 @@ Always run `make gen` after modifying `.proto` files, reform models, or interfac
 - `managed/services/ha/` — HA/Raft implementation
 - `managed/utils/envvars/parser.go` — environment variable parsing
 - `docker-compose.dev.yml` — development environment
-- `Makefile`, `Makefile.include` — build and development targets
+- `Makefile` — build and development targets
