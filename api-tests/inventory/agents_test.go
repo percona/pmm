@@ -92,13 +92,14 @@ func TestAgents(t *testing.T) {
 		require.NotEmpty(t, resByAgent.Payload.MysqldExporter, "There should be at least one service")
 		assertMySQLExporterExists(t, resByAgent, mySqldExporterID)
 
-		resByNode, err := client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-			NodeID:  pointer.ToString(nodeID),
+		resAgent, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
+			AgentID: pmmAgentID,
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
-		require.NotNil(t, resByNode)
-		assertPMMAgentExists(t, resByNode, pmmAgentID)
+		require.NotNil(t, resAgent)
+		require.NotNil(t, resAgent.Payload.PMMAgent)
+		assert.Equal(t, pmmAgentID, resAgent.Payload.PMMAgent.AgentID)
 	})
 
 	t.Run("FilterList", func(t *testing.T) {
