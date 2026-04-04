@@ -8,4 +8,3 @@ package/
 # Temporary build files
 pmm-client.tar.gz
 gitCommit
-scripts/gitmodules

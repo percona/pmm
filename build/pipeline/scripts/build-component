@@ -35,10 +35,6 @@ BUILD_CACHE_VOL="pmm-build"
 # Bare-repo cache directory — populated by 'make populate-cache' / 'make download-cache'
 REPO_CACHE_DIR="${REPO_CACHE_DIR:-$(realpath "${SCRIPT_DIR}/../.cache/repos")}"
 
-# .gitmodules URL
-GITMODULES_URL="https://raw.githubusercontent.com/Percona-Lab/pmm-submodules/refs/heads/v3/.gitmodules"
-GITMODULES_FILE="/tmp/.gitmodules"
-
 # Component lists (must match Makefile)
 WORKSPACE_COMPONENTS="pmm-admin pmm-agent"
 EXTERNAL_COMPONENTS="node_exporter mysqld_exporter mongodb_exporter postgres_exporter proxysql_exporter rds_exporter azure_metrics_exporter redis_exporter vmagent nomad percona-toolkit"
@@ -93,28 +89,6 @@ create_volumes() {
     fi
     if ! docker volume inspect "${BUILD_CACHE_VOL}" >/dev/null 2>&1; then
         docker volume create "${BUILD_CACHE_VOL}"
-    fi
-}
-
-setup_gitmodules() {
-    local gitmodules_bin="${SCRIPT_DIR}/gitmodules"
-    
-    # Build gitmodules binary if not exists
-    if [ ! -f "${gitmodules_bin}" ]; then
-        echo "Building gitmodules parser..."
-        ( 
-            cd "${SCRIPT_DIR}" && \
-            go mod init github.com/percona/pmm/gitmodules && \
-            go mod tidy -v && \
-            go build -o gitmodules gitmodules.go && \
-            rm go.{mod,sum}
-        )
-    fi
-    
-    # Download .gitmodules if not exists
-    if [ ! -f "${GITMODULES_FILE}" ]; then
-        echo "Downloading .gitmodules..."
-        curl -fsSL "${GITMODULES_URL}" -o "${GITMODULES_FILE}"
     fi
 }
 
@@ -183,59 +157,22 @@ build_workspace_component() {
     ls -lh "${OUTPUT_DIR}"
 }
 
-get_component_info() {
-    local component=$1
-    local field=$2
-    local gitmodules_bin="${SCRIPT_DIR}/gitmodules"
-
-    # For the 'branch' field, check the corresponding *_REF env var first so
-    # that .env acts as the single source of truth (same values drive both the
-    # build and VERSION.json).  If the env var is empty/unset, fall through to
-    # .gitmodules as before.
-    if [ "$field" = "branch" ]; then
-        local env_var
-        env_var="$(echo "${component}" | tr '[:lower:]-' '[:upper:]_')_REF"
-        local env_val="${!env_var:-}"
-        if [ -n "$env_val" ]; then
-            echo "$env_val"
-            return
-        fi
-    fi
-
-    # Try to get value from .gitmodules using gitmodules binary
-    local value
-    value=$("${gitmodules_bin}" "${GITMODULES_FILE}" "${component}" "${field}" 2>/dev/null || true)
-
-    # Fallback for components not in .gitmodules (URL only; branch handled above)
-    if [ -z "$value" ]; then
-        case "${component}_${field}" in
-            redis_exporter_url) echo "https://github.com/oliver006/redis_exporter.git" ;;
-            vmagent_url) echo "https://github.com/VictoriaMetrics/VictoriaMetrics.git" ;;
-            nomad_url) echo "https://github.com/hashicorp/nomad.git" ;;
-            *) echo "" ;;
-        esac
-    else
-        echo "$value"
-    fi
-}
-
 build_external_component() {
     local component=$1
     local url
     local ref
     
-    # Get URL and ref from .gitmodules
-    url=$(get_component_info "${component}" "url")
-    ref=$(get_component_info "${component}" "branch")
-    
-    # Try tag if branch is empty
-    if [ -z "$ref" ]; then
-        ref=$(get_component_info "${component}" "tag")
-    fi
-    
-    # Final fallback
-    if [ -z "$url" ] || [ -z "$ref" ]; then
-        echo "Error: Could not determine URL or ref for ${component}" >&2
+    # Resolve URL and ref from .env variables (e.g. node_exporter → NODE_EXPORTER_URL / _REF).
+    local env_prefix
+    env_prefix="$(echo "${component}" | tr '[:lower:]-' '[:upper:]_')"
+    local env_url="${env_prefix}_URL"
+    local env_ref="${env_prefix}_REF"
+    url="${!env_url:-}"
+    ref="${!env_ref:-}"
+
+    if [ -z "${url}" ] || [ -z "${ref}" ]; then
+        echo "Error: ${env_url} or ${env_ref} is not set in .env" >&2
+        echo "Run 'scripts/migrate-from-submodules' to populate missing values." >&2
         return 1
     fi
     
@@ -353,7 +290,6 @@ echo ""
 
 build_builder_image
 create_volumes
-setup_gitmodules
 
 # Check if component is a workspace component
 if echo " ${WORKSPACE_COMPONENTS} " | grep -q " ${COMPONENT} "; then

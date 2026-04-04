@@ -7,11 +7,11 @@ PIPELINE_DIR := $(dir $(abspath $(firstword $(MAKEFILE_LIST))))
 BUILD_ROOT := $(abspath $(PIPELINE_DIR)/..)
 
 # Build script location
-BUILD_SCRIPT := ./scripts/build-component
-PACKAGE_SCRIPT := ./scripts/package-tarball
-CLIENT_DOCKER_SCRIPT := ./scripts/build-client-docker
-OUTPUT_DIR ?= $(CURDIR)/output
-PACKAGE_DIR ?= $(CURDIR)/package
+BUILD_SCRIPT := $(PIPELINE_DIR)scripts/build-component
+PACKAGE_SCRIPT := $(PIPELINE_DIR)scripts/package-tarball
+CLIENT_DOCKER_SCRIPT := $(PIPELINE_DIR)scripts/build-client-docker
+OUTPUT_DIR ?= $(PIPELINE_DIR)output
+PACKAGE_DIR ?= $(PIPELINE_DIR)package
 
 # Default target
 help:
@@ -43,7 +43,6 @@ help:
 	@echo ""
 	@echo "Utility Targets:"
 	@echo "  make builder-image            - Build the pmm-builder Docker image"
-	@echo "  make gitmodules               - Build gitmodules parser binary"
 	@echo "  make clean                    - Remove output directory"
 	@echo ""
 	@echo "Workspace Components:"
@@ -76,7 +75,9 @@ help:
 # Configuration
 include .env
 
-PMM_VERSION ?= $(shell curl -fsSL https://raw.githubusercontent.com/Percona-Lab/pmm-submodules/refs/heads/v3/VERSION 2>/dev/null || echo "dev")
+ifeq ($(PMM_VERSION),)
+$(error Fatal: PMM_VERSION is not set, exiting...)
+endif
 BUILD_TYPE ?= static
 GOARCH ?= amd64
 PLATFORM ?= linux/amd64
@@ -104,8 +105,7 @@ SERVER_REPO_URLS := \
 	pmm.git=https://github.com/percona/pmm.git \
 	pmm-dump.git=https://github.com/percona/pmm-dump.git \
 	grafana.git=https://github.com/percona/grafana.git \
-	VictoriaMetrics.git=https://github.com/VictoriaMetrics/VictoriaMetrics.git \
-	grafana-dashboards.git=https://github.com/percona/grafana-dashboards.git
+	VictoriaMetrics.git=https://github.com/VictoriaMetrics/VictoriaMetrics.git
 # Client external component repos (vmagent re-uses VictoriaMetrics.git above):
 CLIENT_REPO_URLS := \
 	node_exporter.git=https://github.com/percona/node_exporter.git \
@@ -150,21 +150,37 @@ export CLIENT_DOCKERFILE
 export CLIENT_DOCKER_TAG
 export SERVER_DOCKERFILE
 export SERVER_DOCKER_TAG
+export PMM_URL
 export PMM_REF
+export PMM_UI_REF
+export PMM_DASHBOARDS_REF
+export GRAFANA_URL
 export GRAFANA_REF
+export VM_URL
 export VM_REF
-export DASHBOARDS_REF
+export PMM_DUMP_URL
 export PMM_DUMP_REF
+export NODE_EXPORTER_URL
 export NODE_EXPORTER_REF
+export MYSQLD_EXPORTER_URL
 export MYSQLD_EXPORTER_REF
+export MONGODB_EXPORTER_URL
 export MONGODB_EXPORTER_REF
+export POSTGRES_EXPORTER_URL
 export POSTGRES_EXPORTER_REF
+export PROXYSQL_EXPORTER_URL
 export PROXYSQL_EXPORTER_REF
+export RDS_EXPORTER_URL
 export RDS_EXPORTER_REF
+export AZURE_METRICS_EXPORTER_URL
 export AZURE_METRICS_EXPORTER_REF
+export REDIS_EXPORTER_URL
 export REDIS_EXPORTER_REF
+export VMAGENT_URL
 export VMAGENT_REF
+export NOMAD_URL
 export NOMAD_REF
+export PERCONA_TOOLKIT_URL
 export PERCONA_TOOLKIT_REF
 
 # Component lists
@@ -359,16 +375,6 @@ clean-volumes:
 clean-all: clean-cache clean-volumes clean
 	@echo "All caches and build artifacts cleaned"
 
-# Build gitmodules parser binary
-gitmodules:
-	@echo "Building gitmodules parser..."
-	@cd $(PIPELINE_DIR)/scripts && \
-		go mod init github.com/percona/pmm/gitmodules 2>/dev/null || true && \
-		go mod tidy && \
-		go build -o gitmodules gitmodules.go && \
-		rm -f go.mod go.sum
-	@echo "gitmodules binary built successfully at scripts/gitmodules"
-
 # Build PMM Server Docker image (assembly stage only — references pre-built artifact images)
 build-server-docker: ensure-builder
 	@echo "Building PMM Server Docker image..."
@@ -531,18 +537,18 @@ build-pmm-dashboards: ensure-build-volumes
 	@mkdir -p $(SERVER_OUTPUT_DIR)/pmm-dashboards
 	@docker run --rm \
 		--platform linux/$(HOST_ARCH) \
-		-v $(REPO_CACHE_DIR)/grafana-dashboards.git:/repos/grafana-dashboards.git:ro \
+		-v $(REPO_CACHE_DIR)/pmm.git:/repos/pmm.git:ro \
 		-v $(SERVER_OUTPUT_DIR)/pmm-dashboards:/output \
 		-v $(YARN_CACHE_VOL):/yarn-cache \
 		-e YARN_CACHE_FOLDER=/yarn-cache \
 		-e YARN_GLOBAL_FOLDER=/yarn-cache \
 		-e NODE_OPTIONS="--max-old-space-size=4096" \
 		node:22 bash -c "\
-			set -e; git clone /repos/grafana-dashboards.git /build/dashboards; \
-			cd /build/dashboards; git checkout $(DASHBOARDS_REF); \
-			make release; \
-			cp -r /build/dashboards/panels /output/panels; \
-			cp -r /build/dashboards/pmm-app/dist /output/pmm-app-dist"
+			set -e; git clone /repos/pmm.git /build/pmm; \
+			cd /build/pmm; git checkout $(PMM_DASHBOARDS_REF); \
+			cd dashboards && make release; \
+			cp -r panels /output/panels; \
+			cp -r pmm-app/dist /output/pmm-app-dist"
 
 build-pmm-ui: ensure-build-volumes
 	@echo "Building PMM UI assets..."
@@ -557,7 +563,7 @@ build-pmm-ui: ensure-build-volumes
 		-e NODE_OPTIONS="--max-old-space-size=4096" \
 		node:22 bash -c "\
 			set -e; git clone /repos/pmm.git /build/pmm-ui; \
-			cd /build/pmm-ui; git checkout $(PMM_REF); \
+			cd /build/pmm-ui; git checkout $(PMM_UI_REF); \
 			cd ui && make release; \
 			cp -r /build/pmm-ui/ui/apps/pmm/dist /output/pmm-dist; \
 			cp -r /build/pmm-ui/ui/apps/pmm-compat/dist /output/pmm-compat-dist"
@@ -579,13 +585,13 @@ build-server-components:
 	    "$(SERVER_OUTPUT_DIR)/version.json" \
 	  && $(MAKE) build-grafana-ui || true
 	@$(PIPELINE_DIR)/scripts/check-ui-cache \
-	    "pmm-dashboards" "$(DASHBOARDS_REF)" \
-	    "$(REPO_CACHE_DIR)/grafana-dashboards.git" \
+	    "pmm-dashboards" "$(PMM_DASHBOARDS_REF)" \
+	    "$(REPO_CACHE_DIR)/pmm.git" \
 	    "$(SERVER_OUTPUT_DIR)/pmm-dashboards" \
 	    "$(SERVER_OUTPUT_DIR)/version.json" \
 	  && $(MAKE) build-pmm-dashboards || true
 	@$(PIPELINE_DIR)/scripts/check-ui-cache \
-	    "pmm" "$(PMM_REF)" \
+	    "pmm" "$(PMM_UI_REF)" \
 	    "$(REPO_CACHE_DIR)/pmm.git" \
 	    "$(SERVER_OUTPUT_DIR)/pmm-ui" \
 	    "$(SERVER_OUTPUT_DIR)/version.json" \

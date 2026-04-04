@@ -11,7 +11,7 @@ The build pipeline uses `docker run` for all server component builds, outputting
 1. **Dockerfile.builder** - Defines the `pmm-builder` image (golang-based) for Go component builds
 2. **Dockerfile.server** - Assembly-only Dockerfile; copies pre-built artifacts from host paths
 3. **scripts/build-component** - Main build orchestration script for client builds
-4. **scripts/gitmodules.go** - Parser for .gitmodules configuration
+4. **.env** - Single source of truth for all component URLs, refs, and PMM_VERSION
 5. **Makefile** - Build targets and convenience commands
 6. **README.md** - User-facing documentation
 
@@ -23,7 +23,7 @@ The build pipeline uses `docker run` for all server component builds, outputting
 ### Design Principles
 
 - **Volume Caching** - Use Docker volumes for Go modules and build artifacts
-- **Single Source of Truth** - Component metadata from pmm-submodules/.gitmodules; `GO_VERSION` defined once in Makefile and passed as `--build-arg` to all component Dockerfiles
+- **Single Source of Truth** - All component URLs, git refs, and `PMM_VERSION` live in `.env`. Run `scripts/migrate-from-submodules` once to populate from percona/pmm-submodules. `GO_VERSION` is defined once in Makefile and passed as `--build-arg` to all component Dockerfiles
 - **Explicit REF args** - All `*_REF` build args in component Dockerfiles have no defaults; they must be passed via `--build-arg`. Omitting one causes an immediate build failure at `git checkout`
 - **Split server builds** - All server components are built independently via `docker run`, writing artifacts to `output/server/<component>/` on the host:
   - **pmm-managed, pmm-dump, VictoriaMetrics**: `pmm-builder:latest` (pure Go, `CGO_ENABLED=0`), run at `HOST_ARCH` for native speed; Go cross-compiles for `GOARCH`
@@ -60,10 +60,8 @@ FROM golang:${GO_VERSION}
 **Key Functions**:
 - `build_builder_image()` - Ensures pmm-builder image exists
 - `create_volumes()` - Creates Docker volumes for caching
-- `setup_gitmodules()` - Downloads .gitmodules and builds parser
-- `build_workspace_component()` - Builds pmm-admin/pmm-agent
-- `build_external_component()` - Clones and builds external components
-- `get_component_info()` - Fetches metadata from .gitmodules
+- `build_workspace_component()` - Builds pmm-admin/pmm-agent from the monorepo
+- `build_external_component()` - Clones and builds external components using `*_URL` / `*_REF` from `.env`
 
 **Key Variables**:
 ```bash
@@ -78,16 +76,6 @@ PLATFORM="${PLATFORM:-linux/amd64}"
 - Adding new external components (update component lists and build commands)
 - Changing Docker volume paths
 - Modifying build environment variables
-
-### scripts/gitmodules.go
-
-**Purpose**: Parse .gitmodules INI file  
-**Usage**: `./gitmodules <file> <component> <field>`  
-**Returns**: URL or branch/tag for a component
-
-**When to modify**:
-- Changing .gitmodules location or format
-- Adding new fields to parse
 
 ### scripts/package-tarball
 
@@ -188,12 +176,7 @@ case "${component}" in
 
 1. Add to `EXTERNAL_COMPONENTS` in both Makefile and `build-component`
 
-2. Add to `.gitmodules` in pmm-submodules repository (preferred), OR add fallback in `get_component_info()`:
-```bash
-case "${component}_${field}" in
-    new_exporter_url) echo "https://github.com/..." ;;
-    new_exporter_branch) echo "main" ;;
-```
+2. Add `NEW_EXPORTER_URL` and `NEW_EXPORTER_REF` to `.env` (and `.env.example`).
 
 3. Add build command in `build_external_component()`:
 ```bash
@@ -238,7 +221,7 @@ Volume paths are critical for caching:
 
 - **Don't hardcode version numbers** - use `latest` for flexibility
 - **Don't use --user flag** - golang image runs as root, no permission issues
-- **Don't modify .gitmodules locally** - it's fetched from pmm-submodules
+- **Don't add runtime network fetches** - all URLs and refs must come from `.env`, not fetched at build time
 - **Don't assume volumes are writable** - they're created as root, but golang image handles this
 - **Don't use complex shell features** - keep it POSIX-compatible when possible
 - **Don't nest Make calls** unnecessarily - use $(call) for reusable functions
@@ -304,11 +287,10 @@ Both server and client builds require bare repos to be present in `REPO_CACHE_DI
 
 | Bare repo | Used by |
 |-----------|--------|
-| `pmm.git` | server (pmm-managed, qan-api2, vmproxy, UI) |
+| `pmm.git` | server (pmm-managed, qan-api2, vmproxy, UI, dashboards) |
 | `pmm-dump.git` | server |
 | `grafana.git` | server (grafana-go, grafana-ui) |
 | `VictoriaMetrics.git` | server + client (vmagent) |
-| `grafana-dashboards.git` | server |
 | `node_exporter.git` | client |
 | `mysqld_exporter.git` | client |
 | `mongodb_exporter.git` | client |
@@ -336,15 +318,24 @@ make clean-volumes  # Warning: destroys all caches!
 
 ## Component Metadata
 
-Component URLs and refs come from pmm-submodules/.gitmodules:
-```ini
-[submodule "sources/mysqld_exporter"]
-    path = sources/mysqld_exporter
-    url = https://github.com/percona/mysqld_exporter
-    branch = main
-```
+All component URLs and git refs are stored in `.env` as `<PREFIX>_URL` and `<PREFIX>_REF` pairs
+(e.g. `NODE_EXPORTER_URL`, `NODE_EXPORTER_REF`). `PMM_VERSION` is also stored there.
 
-Fallback values in `get_component_info()` for components not in .gitmodules.
+The `percona/pmm` monorepo contains three independently versioned sub-trees, each with its
+own ref variable pointing at the same `pmm.git` bare repo:
+
+| Variable | Sub-tree | Build target |
+|---|---|---|
+| `PMM_REF` | Backend (`managed/`, `qan-api2/`, `vmproxy/`) | `build-pmm-managed` |
+| `PMM_UI_REF` | Frontend (`ui/`) | `build-pmm-ui` |
+| `PMM_DASHBOARDS_REF` | Dashboards (`dashboards/`) | `build-pmm-dashboards` |
+
+Most of the time all three are the same commit, but separate frontend or dashboards PRs can
+set `PMM_UI_REF` / `PMM_DASHBOARDS_REF` to a different branch without touching the backend.
+
+Run `scripts/migrate-from-submodules` once to populate empty values from the legacy
+percona/pmm-submodules repository. After that the build has no network dependency on
+pmm-submodules.
 
 ## Make Target Patterns
 
@@ -394,18 +385,19 @@ make build COMPONENT=pmm-admin  # Should be fast on second run
 
 ## Troubleshooting
 
-### "No PMM_VERSION specified"
+### "PMM_VERSION is not set"
 
-Set in Makefile or environment:
+Either run the migration script or set it directly in `.env`:
 ```bash
-PMM_VERSION=3.0.0 make build COMPONENT=pmm-admin
+scripts/migrate-from-submodules   # fetches from pmm-submodules once
+# — or —
+echo "PMM_VERSION=3.2.0" >> build/pipeline/.env
 ```
 
-Default fetches from pmm-submodules VERSION file.
+### "NODE_EXPORTER_URL or NODE_EXPORTER_REF is not set in .env"
 
-### "Could not determine URL or ref"
-
-Component not in .gitmodules. Add fallback in `get_component_info()` or update pmm-submodules.
+The component's URL or ref is missing from `.env`. Run `scripts/migrate-from-submodules`
+or add the values manually.
 
 ### Permission denied in volumes
 
@@ -446,4 +438,3 @@ When extending the build pipeline:
 
 - Main docs: [README.md](README.md)
 - Project guidelines: [../../.github/copilot-instructions.md](../../.github/copilot-instructions.md)
-- pmm-submodules: https://github.com/Percona-Lab/pmm-submodules

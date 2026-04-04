@@ -247,7 +247,6 @@ The `.cache/repos/` directory contains bare Git repositories for all components:
 .cache/
 └── repos/
     ├── azure_metrics_exporter.git/    # client
-    ├── grafana-dashboards.git/        # server
     ├── grafana.git/                   # server
     ├── mongodb_exporter.git/          # client
     ├── mysqld_exporter.git/           # client
@@ -277,7 +276,7 @@ To populate or update the Minio cache (run from a dedicated maintenance job, not
 
 ```bash
 # Create cache directory
-mkdir -p /tmp/pmm-cache-update && cd /tmp/pmm-cache-update
+mkdir -p /tmp/pmm-cache && cd /tmp/pmm-cache
 
 # Clone repositories as bare for efficiency
 # Server components:
@@ -285,7 +284,6 @@ git clone --bare https://github.com/percona/pmm.git pmm.git
 git clone --bare https://github.com/percona/pmm-dump.git pmm-dump.git
 git clone --bare https://github.com/percona/grafana.git grafana.git
 git clone --bare https://github.com/VictoriaMetrics/VictoriaMetrics.git VictoriaMetrics.git
-git clone --bare https://github.com/percona/grafana-dashboards.git grafana-dashboards.git
 # Client components (vmagent uses VictoriaMetrics.git above):
 git clone --bare https://github.com/percona/node_exporter.git node_exporter.git
 git clone --bare https://github.com/percona/mysqld_exporter.git mysqld_exporter.git

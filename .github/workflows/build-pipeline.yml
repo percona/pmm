@@ -1,0 +1,34 @@
+name: Build Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Build target: all | client | server'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - client
+          - server
+      pr_number:
+        description: 'PR number (informational — used for logging)'
+        required: false
+        default: ''
+
+jobs:
+  build:
+    name: Build PMM (${{ github.event.inputs.target }})
+    # Requires a self-hosted runner with Docker + Minio configured.
+    # Adjust the runner label once the build infrastructure is in place.
+    runs-on: [self-hosted, pmm-builder]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build
+        run: |
+          cd build/pipeline
+          make build-${{ github.event.inputs.target }}

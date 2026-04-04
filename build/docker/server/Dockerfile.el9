@@ -19,7 +19,8 @@ RUN --mount=type=cache,target=/var/cache/dnf \
                         ansible-collection-ansible-posix \
                         glibc-langpack-en \
                         dnf \
-                        vi
+                        vi && \
+                        dnf -y remove microdnf
 
 COPY entrypoint.sh /opt/entrypoint.sh
 COPY ansible /opt/ansible

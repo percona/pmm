@@ -3,7 +3,7 @@
 #
 # All *_REF variables and PMM_VERSION are exported by the Makefile before
 # this script is called, so they are available in the environment.
-# Empty ref vars fall back to the upstream pmm-submodules/.gitmodules file.
+# Populate missing values by running 'scripts/migrate-from-submodules' first.
 #
 # Usage: called via 'make generate-version-json'; not intended for direct invocation.
 
@@ -13,37 +13,19 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OUTPUT_DIR="${SERVER_OUTPUT_DIR:-$(realpath "${SCRIPT_DIR}/../output/server")}"
 OUTPUT_FILE="${OUTPUT_DIR}/version.json"
 
-GITMODULES_URL="https://raw.githubusercontent.com/Percona-Lab/pmm-submodules/refs/heads/v3/.gitmodules"
-GITMODULES_FILE="${TMPDIR:-/tmp}/.pmm-gitmodules"
-GITMODULES_BIN="${SCRIPT_DIR}/gitmodules"
 REPO_CACHE_DIR="${REPO_CACHE_DIR:-$(realpath "${SCRIPT_DIR}/../.cache/repos")}"
 
-# Fetch .gitmodules once upfront so get_ref can use it without repeated downloads.
-curl -fsSL "${GITMODULES_URL}" -o "${GITMODULES_FILE}"
-
-# get_ref <env_var_name> [gitmodules_submodule_name]
-# Returns the resolved, whitespace-stripped ref (branch/tag/commit).
-# Falls back to .gitmodules branch/tag when the env var is empty.
+# get_ref <env_var_name>
+# Returns the whitespace-stripped value of the variable.
+# Exits with an error if the variable is empty.
 get_ref() {
     local env_var="$1"
-    local gitm_name="${2:-}"
-
     local val="${!env_var:-}"
-    # Strip leading/trailing whitespace (guards against .env inline comments)
     val="$(echo "${val}" | xargs 2>/dev/null || echo "${val}")"
 
-    if [ -n "${val}" ]; then
-        echo "${val}"
-        return
-    fi
-
-    if [ -n "${gitm_name}" ]; then
-        val="$("${GITMODULES_BIN}" "${GITMODULES_FILE}" "${gitm_name}" "branch" 2>/dev/null || true)"
-        val="$(echo "${val}" | xargs 2>/dev/null || echo "${val}")"
-        if [ -z "${val}" ]; then
-            val="$("${GITMODULES_BIN}" "${GITMODULES_FILE}" "${gitm_name}" "tag" 2>/dev/null || true)"
-            val="$(echo "${val}" | xargs 2>/dev/null || echo "${val}")"
-        fi
+    if [ -z "${val}" ]; then
+        echo "Error: ${env_var} is not set — run 'scripts/migrate-from-submodules' to populate .env" >&2
+        exit 1
     fi
 
     echo "${val}"
@@ -80,26 +62,31 @@ mkdir -p "${OUTPUT_DIR}"
 
 PMM_VERSION="${PMM_VERSION:-}"
 PMM_VERSION="$(echo "${PMM_VERSION}" | xargs 2>/dev/null || echo "${PMM_VERSION}")"
+if [ -z "${PMM_VERSION}" ]; then
+    echo "Error: PMM_VERSION is not set — run 'scripts/migrate-from-submodules' to populate .env" >&2
+    exit 1
+fi
 
 cat > "${OUTPUT_FILE}" <<EOF
 {
   "version": "${PMM_VERSION}",
-  "pmm": "$(resolve_commit "$(get_ref PMM_REF pmm)" "pmm.git")",
-  "grafana": "$(resolve_commit "$(get_ref GRAFANA_REF grafana)" "grafana.git")",
+  "pmm": "$(resolve_commit "$(get_ref PMM_REF)" "pmm.git")",
+  "grafana": "$(resolve_commit "$(get_ref GRAFANA_REF)" "grafana.git")",
   "victoriametrics": "$(resolve_commit "$(get_ref VM_REF)" "VictoriaMetrics.git")",
-  "pmm-dashboards": "$(resolve_commit "$(get_ref DASHBOARDS_REF grafana-dashboards)" "grafana-dashboards.git")",
-  "pmm-dump": "$(resolve_commit "$(get_ref PMM_DUMP_REF pmm-dump)" "pmm-dump.git")",
-  "node-exporter": "$(resolve_commit "$(get_ref NODE_EXPORTER_REF node_exporter)" "node_exporter.git")",
-  "mysqld-exporter": "$(resolve_commit "$(get_ref MYSQLD_EXPORTER_REF mysqld_exporter)" "mysqld_exporter.git")",
-  "mongodb-exporter": "$(resolve_commit "$(get_ref MONGODB_EXPORTER_REF mongodb_exporter)" "mongodb_exporter.git")",
-  "postgres-exporter": "$(resolve_commit "$(get_ref POSTGRES_EXPORTER_REF postgres_exporter)" "postgres_exporter.git")",
-  "proxysql-exporter": "$(resolve_commit "$(get_ref PROXYSQL_EXPORTER_REF proxysql_exporter)" "proxysql_exporter.git")",
-  "rds-exporter": "$(resolve_commit "$(get_ref RDS_EXPORTER_REF rds_exporter)" "rds_exporter.git")",
-  "azure-metrics-exporter": "$(resolve_commit "$(get_ref AZURE_METRICS_EXPORTER_REF azure_metrics_exporter)" "azure_metrics_exporter.git")",
+  "pmm-ui": "$(resolve_commit "$(get_ref PMM_UI_REF)" "pmm.git")",
+  "pmm-dashboards": "$(resolve_commit "$(get_ref PMM_DASHBOARDS_REF)" "pmm.git")",
+  "pmm-dump": "$(resolve_commit "$(get_ref PMM_DUMP_REF)" "pmm-dump.git")",
+  "node-exporter": "$(resolve_commit "$(get_ref NODE_EXPORTER_REF)" "node_exporter.git")",
+  "mysqld-exporter": "$(resolve_commit "$(get_ref MYSQLD_EXPORTER_REF)" "mysqld_exporter.git")",
+  "mongodb-exporter": "$(resolve_commit "$(get_ref MONGODB_EXPORTER_REF)" "mongodb_exporter.git")",
+  "postgres-exporter": "$(resolve_commit "$(get_ref POSTGRES_EXPORTER_REF)" "postgres_exporter.git")",
+  "proxysql-exporter": "$(resolve_commit "$(get_ref PROXYSQL_EXPORTER_REF)" "proxysql_exporter.git")",
+  "rds-exporter": "$(resolve_commit "$(get_ref RDS_EXPORTER_REF)" "rds_exporter.git")",
+  "azure-metrics-exporter": "$(resolve_commit "$(get_ref AZURE_METRICS_EXPORTER_REF)" "azure_metrics_exporter.git")",
   "redis-exporter": "$(resolve_commit "$(get_ref REDIS_EXPORTER_REF)" "redis_exporter.git")",
   "vmagent": "$(resolve_commit "$(get_ref VMAGENT_REF)" "VictoriaMetrics.git")",
   "nomad": "$(resolve_commit "$(get_ref NOMAD_REF)" "nomad.git")",
-  "percona-toolkit": "$(resolve_commit "$(get_ref PERCONA_TOOLKIT_REF percona-toolkit)" "percona-toolkit.git")"
+  "percona-toolkit": "$(resolve_commit "$(get_ref PERCONA_TOOLKIT_REF)" "percona-toolkit.git")"
 }
 EOF
 

@@ -21,12 +21,8 @@ RUN --mount=type=cache,target=/var/cache \
         ansible-collection-ansible-posix \
         glibc-langpack-en \
         dnf \
-        vi \
-        fontconfig \
-        python3-pip \
-        rsync \
-        iproute \
-        nss_wrapper
+        vi && \
+        dnf -y remove microdnf
 
 # Copy Ansible playbooks and run configuration
 COPY docker/server/entrypoint.sh /opt/entrypoint.sh
