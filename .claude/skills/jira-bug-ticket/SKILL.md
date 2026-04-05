@@ -14,30 +14,30 @@ PMM components: QAN, Alerting, Backup, Inventory, UI, pmm-agent, pmm-managed, pm
 
 ## Description Fields
 
-**Steps to reproduce:**
+**Steps to reproduce**
 Numbered, minimal steps to reliably trigger the bug. Include PMM version, database type/version, and deployment method (Docker/OVF/AMI) when relevant.
 
-**Actual result:**
+**Actual result**
 What happens — include error messages, HTTP status codes, or log snippets verbatim.
 
-**Expected result:**
+**Expected result**
 What should happen according to documentation or intended behavior.
 
-**User impact:**
+**User impact**
 Who is affected (all users, specific DB type, specific deployment), severity (data loss, degraded monitoring, cosmetic), and whether it blocks a workflow.
 
-**Workaround:**
+**Workaround**
 Temporary steps users can take to avoid the issue, or "None known."
 
-**Details (+screenshots, whole logs):**
+**Details (+screenshots, whole logs)**
 Attach screenshots, full log excerpts (not truncated) including PMM components logs, relevant config, and `pmm-admin status` / `pmm-admin list` output.
 
 ## Additional Fields
 
-**How to document:**
+**How to document**
 Brief note for the technical writer — does this need a Known Issues entry, a docs update, or a release note? Reference the affected docs page if known.
 
-**How to test:**
+**How to test**
 Concrete verification steps for QA. Include: preconditions, test data setup, exact actions, and pass/fail criteria. Mention if it's automatable and which test suite it belongs to (api-tests, pmm-ui-tests, pmm-qa).
 
 ## Classification
