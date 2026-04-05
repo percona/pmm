@@ -39,6 +39,8 @@ Most options can be set via environment variables (shown in parentheses).
 | `--server-insecure-tls`                | `PMM_AGENT_SERVER_INSECURE_TLS`     | Skip PMM Server TLS certificate validation.
 | `--az=AZ`                              | `PMM_AGENT_SETUP_AZ`                | Node availability zone.
 | `--config-file=path_to/pmm-agent.yaml` | `PMM_AGENT_CONFIG_FILE`             | Configuration file path and name.
+| `--config-file-key-file`               | `PMM_AGENT_CONFIG_FILE_KEY_FILE`    | Path to RSA private key for config file encryption. See [Encrypt the PMM Client configuration file](../../admin/security/client_config_encryption.md).
+| `--config-file-key-password`           | `PMM_AGENT_CONFIG_FILE_KEY_PASSWORD`| Password for the RSA private key (if password-protected).
 | `--container-id=CONTAINER-ID`          | `PMM_AGENT_SETUP_CONTAINER_ID`      | Container ID.
 | `--container-name=CONTAINER-NAME`      | `PMM_AGENT_SETUP_CONTAINER_NAME`    | Container name.
 | `--debug`                              | `PMM_AGENT_DEBUG`                   | Enable debug output.
@@ -50,7 +52,7 @@ Most options can be set via environment variables (shown in parentheses).
 | `--machine-id=machine-id`              | `PMM_AGENT_SETUP_MACHINE_ID`        | Node machine ID (default is auto-detected).
 | `--metrics-mode=auto`                  | `PMM_AGENT_SETUP_METRICS_MODE`      | Metrics flow mode for agents node-exporter. Can be `push` (agent will push metrics), `pull` (server scrapes metrics from agent) or `auto` (chosen by server).
 | `--node-model=NODE-MODEL`              | `PMM_AGENT_SETUP_NODE_MODEL`        | Node model.
-| `--proc-mounts-path=PATH`              | `PMM_AGENT_SETUP_PROC_MOUNTS_PATH`  | Path to the `proc/mounts` file used by the `node_exporter`. |
+| `--proc-mounts-path=PATH`              | `PMM_AGENT_SETUP_PROC_MOUNTS_PATH`  | Path to the `proc/mounts` file used by the `node_exporter`.
 | `--expose-exporter` | | If you enable this flag, any IP address on the local network and anywhere on the internet can access node exporter endpoints. If the flag is disabled, node exporter endpoints can be accessed only locally.|
 | `--paths-base=PATH`                    | `PMM_AGENT_PATHS_BASE`              | Base path for PMM client, where all binaries, tools and collectors are located. If not set, default is `/usr/local/percona/pmm`.
 | `--paths-exporters_base=PATH`          | `PMM_AGENT_PATHS_EXPORTERS_BASE`    | Base path for exporters to use. If not set, or set to a relative path, uses value of `--paths-base` prepended to it.
