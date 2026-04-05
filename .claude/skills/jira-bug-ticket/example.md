@@ -10,31 +10,29 @@ Steps to reproduce:
 4. Restart the PMM Server container (`docker restart pmm-server`)
 5. Navigate back to Alerting > Alert Rules
 
-Actual result
+Actual result:
 The custom rule is no longer listed. No error in the UI. Server logs show:
 `level=error msg="failed to restore rule" err="rule file not found"`
 
-Expected result
+Expected result:
 Custom alerting rules persist across PMM Server restarts.
 
-User impact
+User impact:
 All users who create custom alerting rules lose them on restart. High severity — silent data loss of monitoring configuration.
 
-Workaround
+Workaround:
 Export rules via API (`GET /v1/alerting/rules`) before restart and re-import after.
 
-Details
+Details:
 - PMM 3.1.0, Docker deployment
 - See attached pmm-managed.log and screenshot of empty rules page
 
-How to document
+How to document:
 Add to Known Issues for 3.1.0. Update "Alerting" docs page with a note about backup/export before restart.
 
-How to test
+How to test:
 1. Create 3 alert rules (1 built-in template, 1 custom PromQL, 1 with labels)
 2. Restart PMM Server
 3. Verify all 3 rules are present and functional
-
-Automatable
-Yes, extend api-tests/alerting suite.
+Automatable: yes, extend api-tests/alerting suite.
 ```
