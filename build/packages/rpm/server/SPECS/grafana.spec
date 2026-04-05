@@ -22,9 +22,6 @@ Source0:        https://github.com/percona/grafana/archive/%{commit}.tar.gz
 ExclusiveArch:  %{ix86} x86_64 %{arm}
 
 BuildRequires: fontconfig
-%if 0%{?rhel} < 9
-BuildRequires: nodejs-grunt-cli
-%endif
 
 %description
 Grafana is an open source, feature rich metrics dashboard and graph editor for
@@ -34,9 +31,7 @@ Graphite, InfluxDB & OpenTSDB.
 %setup -q -n grafana-%{commit}
 rm -rf Godeps
 sed -i "s/unknown-dev/%{grafana_version}/" pkg/build/git.go
-%if 0%{?rhel} >= 9
-    sudo npm install -g grunt-cli
-%endif
+sudo npm install -g grunt-cli
 
 %build
 mkdir -p _build/src
@@ -65,13 +60,13 @@ mv conf/ldap.toml %{buildroot}%{_sysconfdir}/grafana/
 install -d -p %{buildroot}%{_sharedstatedir}/grafana
 
 %files
-%defattr(-, pmm, pmm, -)
+%defattr(-, pmm, root, -)
 %{_datadir}/grafana
 %doc CHANGELOG.md README.md
 %license LICENSE
-%attr(0755, pmm, pmm) %{_sbindir}/grafana
-%attr(0755, pmm, pmm) %{_sbindir}/grafana-server
-%attr(0755, pmm, pmm) %{_bindir}/grafana-cli
+%attr(0755, pmm, root) %{_sbindir}/grafana
+%attr(0755, pmm, root) %{_sbindir}/grafana-server
+%attr(0755, pmm, root) %{_bindir}/grafana-cli
 %{_sysconfdir}/grafana/grafana.ini
 %{_sysconfdir}/grafana/ldap.toml
 %dir %{_sharedstatedir}/grafana
