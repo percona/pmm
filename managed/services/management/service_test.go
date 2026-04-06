@@ -44,7 +44,7 @@ func TestServiceService(t *testing.T) {
 		setup := func(t *testing.T) (context.Context, *ManagementService, func(t *testing.T), *mockPrometheusService) { //nolint:unparam
 			t.Helper()
 
-			ctx := logger.Set(context.Background(), t.Name())
+			ctx := logger.Set(t.Context(), t.Name())
 			uuid.SetRand(&tests.IDReader{})
 
 			sqlDB := testdb.Open(t, models.SetupFixtures, nil)
@@ -279,7 +279,7 @@ func TestServiceService(t *testing.T) {
 		setup := func(t *testing.T) (context.Context, *ManagementService, func(t *testing.T), *mockPrometheusService) { //nolint:unparam
 			t.Helper()
 
-			ctx := logger.Set(context.Background(), t.Name())
+			ctx := logger.Set(t.Context(), t.Name())
 			uuid.SetRand(&tests.IDReader{})
 
 			sqlDB := testdb.Open(t, models.SetupFixtures, nil)

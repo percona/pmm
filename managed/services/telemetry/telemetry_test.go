@@ -158,7 +158,7 @@ func TestRunTelemetryService(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			ctx, cancel := context.WithTimeout(context.Background(), tt.testTimeout)
+			ctx, cancel := context.WithTimeout(t.Context(), tt.testTimeout)
 			defer cancel()
 
 			serviceConfig := getServiceConfig(pgHostPort, qanDSN, vmDSN)
