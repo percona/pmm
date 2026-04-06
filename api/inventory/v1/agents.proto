@@ -1001,7 +1001,7 @@ message ChangeNodeExporterParams {
   // Expose the node_exporter process on all public interfaces.
   optional bool expose_exporter = 7;
   // Connection timeout for exporter (if set).
-  google.protobuf.Duration connection_timeout = 8;
+  optional google.protobuf.Duration connection_timeout = 8;
 }
 
 // Add/Change MySQLdExporter
@@ -1085,7 +1085,7 @@ message ChangeMySQLdExporterParams {
   // Optionally expose the exporter process on all public interfaces.
   optional bool expose_exporter = 17;
   // Connection timeout for exporter (if set).
-  google.protobuf.Duration connection_timeout = 18;
+  optional google.protobuf.Duration connection_timeout = 18;
 }
 
 // Add/Change MongoDBExporter
@@ -1187,7 +1187,7 @@ message ChangeMongoDBExporterParams {
   // Optionally expose the exporter process on all public interfaces.
   optional bool expose_exporter = 21;
   // Connection timeout for exporter (if set).
-  google.protobuf.Duration connection_timeout = 22;
+  optional google.protobuf.Duration connection_timeout = 22;
 }
 
 // Add/Change PostgresExporter
@@ -1271,7 +1271,7 @@ message ChangePostgresExporterParams {
   // Maximum number of connections that exporter can open to the database instance.
   optional int32 max_exporter_connections = 18;
   // Connection timeout for exporter (if set).
-  google.protobuf.Duration connection_timeout = 19;
+  optional google.protobuf.Duration connection_timeout = 19;
 }
 
 // Add/Change ProxySQLExporter
@@ -1333,7 +1333,7 @@ message ChangeProxySQLExporterParams {
   // Optionally expose the exporter process on all public interfaces.
   optional bool expose_exporter = 12;
   // Connection timeout for exporter (if set).
-  google.protobuf.Duration connection_timeout = 13;
+  optional google.protobuf.Duration connection_timeout = 13;
 }
 
 // Add/Change QANMySQLPerfSchemaAgent
@@ -1804,7 +1804,7 @@ message ChangeRDSExporterParams {
   // Log level for exporter.
   optional LogLevel log_level = 9;
   // Connection timeout for exporter (if set).
-  google.protobuf.Duration connection_timeout = 10;
+  optional google.protobuf.Duration connection_timeout = 10;
 }
 
 // Add/Change ExternalExporter
@@ -1855,7 +1855,7 @@ message ChangeExternalExporterParams {
   // Listen port for scraping metrics.
   optional uint32 listen_port = 8;
   // Connection timeout for exporter (if set).
-  google.protobuf.Duration connection_timeout = 9;
+  optional google.protobuf.Duration connection_timeout = 9;
 }
 
 // Add/Change AzureDatabaseExporter
@@ -1911,7 +1911,7 @@ message ChangeAzureDatabaseExporterParams {
   // Log level for exporter.
   optional LogLevel log_level = 11;
   // Connection timeout for exporter (if set).
-  google.protobuf.Duration connection_timeout = 12;
+  optional google.protobuf.Duration connection_timeout = 12;
 }
 
 message ChangeNomadAgentParams {
@@ -1990,7 +1990,7 @@ message ChangeValkeyExporterParams {
   // Log level for exporter.
   optional LogLevel log_level = 15;
   // Connection timeout for exporter (if set).
-  google.protobuf.Duration connection_timeout = 16;
+  optional google.protobuf.Duration connection_timeout = 16;
 }
 
 // Add/Change RTAMongoDBAgent
