@@ -1,5 +1,8 @@
 # Deploy PMM Server on VirtualBox
 
+!!! warning "OVF support ending in PMM 3.9.0"
+    OVF virtual appliance deployment (including VirtualBox) is deprecated starting with PMM 3.7.0 and will be removed in PMM 3.9.0 (expected July 2026). Migrate to [Docker](../docker/index.md) or another supported deployment method.
+
 Import the PMM Server OVA file into Oracle VirtualBox to create a virtual machine for your monitoring environment.
 
 ## Prerequisites

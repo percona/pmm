@@ -9,10 +9,8 @@
 
 Choose your preferred upgrade method based on your setup:
 
-* [Upgrade PMM Server from the UI](ui_upgrade.md)
-
 * [Upgrade PMM Client](upgrade_client.md)
-
 * [Upgrade PMM Server using Docker](upgrade_docker.md)
-
-* [Migrate from PMM 2](migrating_from_pmm_2.md)
+* [Upgrade PMM Server using Helm](upgrade_helm.md)
+* [Upgrade PMM Server from the UI](ui_upgrade.md) (deprecated)
+* [Migrate from PMM 2](migrating_from_pmm_2.md) (direct migration deprecated)
