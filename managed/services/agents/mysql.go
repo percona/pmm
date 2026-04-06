@@ -242,7 +242,6 @@ func buildMyCnfConfig(service *models.Service, agent *models.Agent, files map[st
 	tdp := agent.TemplateDelimiters(service)
 
 	var configBuffer bytes.Buffer
-	connectSec := max(1, int(agent.EffectiveDialTimeout().Seconds()))
 	myCnfParams := struct {
 		User                    string
 		Password                string
@@ -260,7 +259,7 @@ func buildMyCnfConfig(service *models.Service, agent *models.Agent, files map[st
 		Password:       pointer.GetString(agent.Password),
 		Host:           pointer.GetString(service.Address),
 		Port:           int(pointer.GetUint16(service.Port)),
-		ConnectTimeout: connectSec,
+		ConnectTimeout: max(1, int(agent.EffectiveDialTimeout().Seconds())),
 	}
 
 	if files["tlsCa"] != "" {
