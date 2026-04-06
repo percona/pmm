@@ -213,7 +213,7 @@ func (s *PostgresExporterConfigTestSuite) TestDialTimeoutRemoteRDSDefault() {
 	s.exporter.ExporterOptions = models.ExporterOptions{}
 	s.exporter.AzureOptions = models.AzureOptions{}
 	s.exporter.PostgreSQLOptions = models.PostgreSQLOptions{}
-	s.expected.Env[0] = "DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=2&sslmode=disable"
+	s.expected.Env[0] = "DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=5&sslmode=disable"
 
 	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, redactSecrets, s.pmmAgentVersion)
 	s.NoError(err)
@@ -225,7 +225,7 @@ func (s *PostgresExporterConfigTestSuite) TestDialTimeoutRemoteRDSCustom() {
 	s.exporter.ExporterOptions = models.ExporterOptions{ConnectionTimeout: 8 * time.Second}
 	s.exporter.AzureOptions = models.AzureOptions{}
 	s.exporter.PostgreSQLOptions = models.PostgreSQLOptions{}
-	s.expected.Env[0] = "DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=2&sslmode=disable"
+	s.expected.Env[0] = "DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=8&sslmode=disable"
 
 	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, redactSecrets, s.pmmAgentVersion)
 	s.NoError(err)
@@ -236,7 +236,7 @@ func (s *PostgresExporterConfigTestSuite) TestDialTimeoutAzureDefault() {
 	s.exporter.ExporterOptions = models.ExporterOptions{}
 	s.exporter.AzureOptions = models.AzureOptions{ClientID: "azure-client"}
 	s.exporter.PostgreSQLOptions = models.PostgreSQLOptions{}
-	s.expected.Env[0] = "DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=2&sslmode=disable"
+	s.expected.Env[0] = "DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=5&sslmode=disable"
 
 	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, redactSecrets, s.pmmAgentVersion)
 	s.NoError(err)
