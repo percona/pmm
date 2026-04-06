@@ -721,7 +721,7 @@ type CreateExternalExporterParams struct {
 	CustomLabels  map[string]string
 	PushMetrics   bool
 	TLSSkipVerify bool
-	// Timeout for exporter connection (nanoseconds). Optional.
+	// Connection timeout for exporter (if set).
 	ConnectionTimeout time.Duration
 }
 
