@@ -36,6 +36,7 @@ import (
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/platform"
 	"github.com/percona/pmm/utils/logger"
+	"github.com/percona/pmm/version"
 )
 
 const (
@@ -125,7 +126,7 @@ func (s *Service) LocateTelemetryDataSource(name string) (DataSource, error) {
 	return s.dsRegistry.LocateTelemetryDataSource(name)
 }
 
-// Run start sending telemetry to SaaS.
+// Run sends telemetry.
 func (s *Service) Run(ctx context.Context) {
 	if !s.config.Enabled {
 		s.l.Warn("service is disabled, skip Run")
@@ -155,6 +156,12 @@ func (s *Service) Run(ctx context.Context) {
 
 		if !s.config.Reporting.Send {
 			s.l.Info("Sending telemetry is disabled.")
+			return
+		}
+
+		p, err := version.Parse(s.pmmVersion)
+		// do not send telemetry if this is a feature build, match only clean release versions like "3.7.1"
+		if err != nil || p.Rest != "" {
 			return
 		}
 
@@ -331,6 +338,9 @@ func (s *Service) prepareReport(ctx context.Context) *telemetryv1.GenericReport 
 func (s *Service) locateDataSources(telemetryConfig []Config) map[DataSourceName]DataSource {
 	dataSources := make(map[DataSourceName]DataSource)
 	for _, telemetry := range telemetryConfig {
+		if telemetry.Source == "" {
+			continue
+		}
 		ds, err := s.LocateTelemetryDataSource(telemetry.Source)
 		if err != nil {
 			s.l.Debugf("Failed to lookup telemetry datasource for [%s]:[%s]", telemetry.Source, telemetry.ID)
