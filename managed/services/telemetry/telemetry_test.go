@@ -214,11 +214,11 @@ func TestRunSkipsNonReleaseVersion(t *testing.T) {
 			defer cancel()
 
 			s := Service{
-				l:          logrus.NewEntry(logger),
-				config:     getTestConfig(true, "VM", 50*time.Millisecond),
-				pmmVersion: tt.version,
+				l:            logrus.NewEntry(logger),
+				config:       getTestConfig(true, "VM", 50*time.Millisecond),
+				pmmVersion:   tt.version,
 				portalClient: &mockSender,
-				sendCh:     make(chan *telemetryv1.GenericReport, sendChSize),
+				sendCh:       make(chan *telemetryv1.GenericReport, sendChSize),
 			}
 			s.Run(ctx)
 		})
