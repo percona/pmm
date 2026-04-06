@@ -12450,6 +12450,7 @@
                     "connection_timeout": {
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
+                      "x-nullable": true,
                       "x-order": 7
                     }
                   },
@@ -12601,6 +12602,7 @@
                     "connection_timeout": {
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
+                      "x-nullable": true,
                       "x-order": 17
                     }
                   },
@@ -12778,6 +12780,7 @@
                     "connection_timeout": {
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
+                      "x-nullable": true,
                       "x-order": 21
                     }
                   },
@@ -12936,6 +12939,7 @@
                     "connection_timeout": {
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
+                      "x-nullable": true,
                       "x-order": 18
                     }
                   },
@@ -13056,6 +13060,7 @@
                     "connection_timeout": {
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
+                      "x-nullable": true,
                       "x-order": 12
                     }
                   },
@@ -13141,6 +13146,7 @@
                     "connection_timeout": {
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
+                      "x-nullable": true,
                       "x-order": 8
                     }
                   },
@@ -13241,6 +13247,7 @@
                     "connection_timeout": {
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
+                      "x-nullable": true,
                       "x-order": 9
                     }
                   },
@@ -13347,6 +13354,7 @@
                     "connection_timeout": {
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
+                      "x-nullable": true,
                       "x-order": 10
                     }
                   },
@@ -14302,6 +14310,7 @@
                     "connection_timeout": {
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
+                      "x-nullable": true,
                       "x-order": 15
                     }
                   },

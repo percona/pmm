@@ -5619,7 +5619,7 @@ type ChangeNodeExporterParams struct {
 	// Expose the node_exporter process on all public interfaces.
 	ExposeExporter *bool `protobuf:"varint,7,opt,name=expose_exporter,json=exposeExporter,proto3,oneof" json:"expose_exporter,omitempty"`
 	// Connection timeout for exporter (if set).
-	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,8,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,8,opt,name=connection_timeout,json=connectionTimeout,proto3,oneof" json:"connection_timeout,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -5956,7 +5956,7 @@ type ChangeMySQLdExporterParams struct {
 	// Optionally expose the exporter process on all public interfaces.
 	ExposeExporter *bool `protobuf:"varint,17,opt,name=expose_exporter,json=exposeExporter,proto3,oneof" json:"expose_exporter,omitempty"`
 	// Connection timeout for exporter (if set).
-	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,18,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,18,opt,name=connection_timeout,json=connectionTimeout,proto3,oneof" json:"connection_timeout,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -6409,7 +6409,7 @@ type ChangeMongoDBExporterParams struct {
 	// Optionally expose the exporter process on all public interfaces.
 	ExposeExporter *bool `protobuf:"varint,21,opt,name=expose_exporter,json=exposeExporter,proto3,oneof" json:"expose_exporter,omitempty"`
 	// Connection timeout for exporter (if set).
-	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,22,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,22,opt,name=connection_timeout,json=connectionTimeout,proto3,oneof" json:"connection_timeout,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -6844,7 +6844,7 @@ type ChangePostgresExporterParams struct {
 	// Maximum number of connections that exporter can open to the database instance.
 	MaxExporterConnections *int32 `protobuf:"varint,18,opt,name=max_exporter_connections,json=maxExporterConnections,proto3,oneof" json:"max_exporter_connections,omitempty"`
 	// Connection timeout for exporter (if set).
-	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,19,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,19,opt,name=connection_timeout,json=connectionTimeout,proto3,oneof" json:"connection_timeout,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -7201,7 +7201,7 @@ type ChangeProxySQLExporterParams struct {
 	// Optionally expose the exporter process on all public interfaces.
 	ExposeExporter *bool `protobuf:"varint,12,opt,name=expose_exporter,json=exposeExporter,proto3,oneof" json:"expose_exporter,omitempty"`
 	// Connection timeout for exporter (if set).
-	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,13,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,13,opt,name=connection_timeout,json=connectionTimeout,proto3,oneof" json:"connection_timeout,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -9576,7 +9576,7 @@ type ChangeRDSExporterParams struct {
 	// Log level for exporter.
 	LogLevel *LogLevel `protobuf:"varint,9,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
 	// Connection timeout for exporter (if set).
-	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,10,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,10,opt,name=connection_timeout,json=connectionTimeout,proto3,oneof" json:"connection_timeout,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -9835,7 +9835,7 @@ type ChangeExternalExporterParams struct {
 	// Listen port for scraping metrics.
 	ListenPort *uint32 `protobuf:"varint,8,opt,name=listen_port,json=listenPort,proto3,oneof" json:"listen_port,omitempty"`
 	// Connection timeout for exporter (if set).
-	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,9,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,9,opt,name=connection_timeout,json=connectionTimeout,proto3,oneof" json:"connection_timeout,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -10109,7 +10109,7 @@ type ChangeAzureDatabaseExporterParams struct {
 	// Log level for exporter.
 	LogLevel *LogLevel `protobuf:"varint,11,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
 	// Connection timeout for exporter (if set).
-	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,12,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,12,opt,name=connection_timeout,json=connectionTimeout,proto3,oneof" json:"connection_timeout,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -10488,7 +10488,7 @@ type ChangeValkeyExporterParams struct {
 	// Log level for exporter.
 	LogLevel *LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
 	// Connection timeout for exporter (if set).
-	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,16,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,16,opt,name=connection_timeout,json=connectionTimeout,proto3,oneof" json:"connection_timeout,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -11623,7 +11623,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x12connection_timeout\x18\a \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xae\x04\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xca\x04\n" +
 	"\x18ChangeNodeExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -11631,14 +11631,15 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x13metrics_resolutions\x18\x04 \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x12-\n" +
 	"\x12disable_collectors\x18\x05 \x03(\tR\x11disableCollectors\x128\n" +
 	"\tlog_level\x18\x06 \x01(\x0e2\x16.inventory.v1.LogLevelH\x03R\blogLevel\x88\x01\x01\x12,\n" +
-	"\x0fexpose_exporter\x18\a \x01(\bH\x04R\x0eexposeExporter\x88\x01\x01\x12H\n" +
-	"\x12connection_timeout\x18\b \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeoutB\t\n" +
+	"\x0fexpose_exporter\x18\a \x01(\bH\x04R\x0eexposeExporter\x88\x01\x01\x12M\n" +
+	"\x12connection_timeout\x18\b \x01(\v2\x19.google.protobuf.DurationH\x05R\x11connectionTimeout\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\f\n" +
 	"\n" +
 	"_log_levelB\x12\n" +
-	"\x10_expose_exporter\"\x8f\b\n" +
+	"\x10_expose_exporterB\x15\n" +
+	"\x13_connection_timeout\"\x8f\b\n" +
 	"\x17AddMySQLdExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -11667,7 +11668,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aA\n" +
 	"\x13ExtraDsnParamsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe3\b\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xff\b\n" +
 	"\x1aChangeMySQLdExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -11687,8 +11688,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x12disable_collectors\x18\x0e \x03(\tR\x11disableCollectors\x12*\n" +
 	"\x0eagent_password\x18\x0f \x01(\tH\fR\ragentPassword\x88\x01\x01\x128\n" +
 	"\tlog_level\x18\x10 \x01(\x0e2\x16.inventory.v1.LogLevelH\rR\blogLevel\x88\x01\x01\x12,\n" +
-	"\x0fexpose_exporter\x18\x11 \x01(\bH\x0eR\x0eexposeExporter\x88\x01\x01\x12H\n" +
-	"\x12connection_timeout\x18\x12 \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeoutB\t\n" +
+	"\x0fexpose_exporter\x18\x11 \x01(\bH\x0eR\x0eexposeExporter\x88\x01\x01\x12M\n" +
+	"\x12connection_timeout\x18\x12 \x01(\v2\x19.google.protobuf.DurationH\x0fR\x11connectionTimeout\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\v\n" +
@@ -11705,7 +11706,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0f_agent_passwordB\f\n" +
 	"\n" +
 	"_log_levelB\x12\n" +
-	"\x10_expose_exporter\"\xa5\t\n" +
+	"\x10_expose_exporterB\x15\n" +
+	"\x13_connection_timeout\"\xa5\t\n" +
 	"\x18AddMongoDBExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -11735,7 +11737,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x12connection_timeout\x18\x17 \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe7\v\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x83\f\n" +
 	"\x1bChangeMongoDBExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -11759,8 +11761,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x11collections_limit\x18\x12 \x01(\x05H\x0eR\x10collectionsLimit\x88\x01\x01\x127\n" +
 	"\x15enable_all_collectors\x18\x13 \x01(\bH\x0fR\x13enableAllCollectors\x88\x01\x01\x128\n" +
 	"\tlog_level\x18\x14 \x01(\x0e2\x16.inventory.v1.LogLevelH\x10R\blogLevel\x88\x01\x01\x12,\n" +
-	"\x0fexpose_exporter\x18\x15 \x01(\bH\x11R\x0eexposeExporter\x88\x01\x01\x12H\n" +
-	"\x12connection_timeout\x18\x16 \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeoutB\t\n" +
+	"\x0fexpose_exporter\x18\x15 \x01(\bH\x11R\x0eexposeExporter\x88\x01\x01\x12M\n" +
+	"\x12connection_timeout\x18\x16 \x01(\v2\x19.google.protobuf.DurationH\x12R\x11connectionTimeout\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\v\n" +
@@ -11779,7 +11781,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x16_enable_all_collectorsB\f\n" +
 	"\n" +
 	"_log_levelB\x12\n" +
-	"\x10_expose_exporter\"\x96\a\n" +
+	"\x10_expose_exporterB\x15\n" +
+	"\x13_connection_timeout\"\x96\a\n" +
 	"\x19AddPostgresExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -11805,7 +11808,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x12connection_timeout\x18\x13 \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xaa\t\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc6\t\n" +
 	"\x1cChangePostgresExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -11826,8 +11829,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelH\fR\blogLevel\x88\x01\x01\x125\n" +
 	"\x14auto_discovery_limit\x18\x10 \x01(\x05H\rR\x12autoDiscoveryLimit\x88\x01\x01\x12,\n" +
 	"\x0fexpose_exporter\x18\x11 \x01(\bH\x0eR\x0eexposeExporter\x88\x01\x01\x12=\n" +
-	"\x18max_exporter_connections\x18\x12 \x01(\x05H\x0fR\x16maxExporterConnections\x88\x01\x01\x12H\n" +
-	"\x12connection_timeout\x18\x13 \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeoutB\t\n" +
+	"\x18max_exporter_connections\x18\x12 \x01(\x05H\x0fR\x16maxExporterConnections\x88\x01\x01\x12M\n" +
+	"\x12connection_timeout\x18\x13 \x01(\v2\x19.google.protobuf.DurationH\x10R\x11connectionTimeout\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\v\n" +
@@ -11845,7 +11848,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"_log_levelB\x17\n" +
 	"\x15_auto_discovery_limitB\x12\n" +
 	"\x10_expose_exporterB\x1b\n" +
-	"\x19_max_exporter_connections\"\xdf\x05\n" +
+	"\x19_max_exporter_connectionsB\x15\n" +
+	"\x13_connection_timeout\"\xdf\x05\n" +
 	"\x19AddProxySQLExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -11866,7 +11870,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x12connection_timeout\x18\x0e \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xad\x06\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc9\x06\n" +
 	"\x1cChangeProxySQLExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -11880,8 +11884,9 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0eagent_password\x18\n" +
 	" \x01(\tH\aR\ragentPassword\x88\x01\x01\x128\n" +
 	"\tlog_level\x18\v \x01(\x0e2\x16.inventory.v1.LogLevelH\bR\blogLevel\x88\x01\x01\x12,\n" +
-	"\x0fexpose_exporter\x18\f \x01(\bH\tR\x0eexposeExporter\x88\x01\x01\x12H\n" +
-	"\x12connection_timeout\x18\r \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeoutB\t\n" +
+	"\x0fexpose_exporter\x18\f \x01(\bH\tR\x0eexposeExporter\x88\x01\x01\x12M\n" +
+	"\x12connection_timeout\x18\r \x01(\v2\x19.google.protobuf.DurationH\n" +
+	"R\x11connectionTimeout\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\v\n" +
@@ -11892,7 +11897,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0f_agent_passwordB\f\n" +
 	"\n" +
 	"_log_levelB\x12\n" +
-	"\x10_expose_exporter\"\x97\a\n" +
+	"\x10_expose_exporterB\x15\n" +
+	"\x13_connection_timeout\"\x97\a\n" +
 	" AddQANMySQLPerfSchemaAgentParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -12255,7 +12261,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x12connection_timeout\x18\v \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe7\x05\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x83\x06\n" +
 	"\x17ChangeRDSExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -12265,9 +12271,9 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0eaws_secret_key\x18\x06 \x01(\tH\x04R\fawsSecretKey\x88\x01\x01\x127\n" +
 	"\x15disable_basic_metrics\x18\a \x01(\bH\x05R\x13disableBasicMetrics\x88\x01\x01\x12=\n" +
 	"\x18disable_enhanced_metrics\x18\b \x01(\bH\x06R\x16disableEnhancedMetrics\x88\x01\x01\x128\n" +
-	"\tlog_level\x18\t \x01(\x0e2\x16.inventory.v1.LogLevelH\aR\blogLevel\x88\x01\x01\x12H\n" +
+	"\tlog_level\x18\t \x01(\x0e2\x16.inventory.v1.LogLevelH\aR\blogLevel\x88\x01\x01\x12M\n" +
 	"\x12connection_timeout\x18\n" +
-	" \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeoutB\t\n" +
+	" \x01(\v2\x19.google.protobuf.DurationH\bR\x11connectionTimeout\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\x11\n" +
@@ -12276,7 +12282,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x16_disable_basic_metricsB\x1b\n" +
 	"\x19_disable_enhanced_metricsB\f\n" +
 	"\n" +
-	"_log_level\"\xc1\x04\n" +
+	"_log_levelB\x15\n" +
+	"\x13_connection_timeout\"\xc1\x04\n" +
 	"\x19AddExternalExporterParams\x12.\n" +
 	"\x0fruns_on_node_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\frunsOnNodeId\x12\x1d\n" +
 	"\n" +
@@ -12294,7 +12301,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x12connection_timeout\x18\r \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xbe\x04\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xda\x04\n" +
 	"\x1cChangeExternalExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -12304,15 +12311,16 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x06scheme\x18\x06 \x01(\tH\x04R\x06scheme\x88\x01\x01\x12&\n" +
 	"\fmetrics_path\x18\a \x01(\tH\x05R\vmetricsPath\x88\x01\x01\x12$\n" +
 	"\vlisten_port\x18\b \x01(\rH\x06R\n" +
-	"listenPort\x88\x01\x01\x12H\n" +
-	"\x12connection_timeout\x18\t \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeoutB\t\n" +
+	"listenPort\x88\x01\x01\x12M\n" +
+	"\x12connection_timeout\x18\t \x01(\v2\x19.google.protobuf.DurationH\aR\x11connectionTimeout\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\v\n" +
 	"\t_usernameB\t\n" +
 	"\a_schemeB\x0f\n" +
 	"\r_metrics_pathB\x0e\n" +
-	"\f_listen_port\"\x99\x06\n" +
+	"\f_listen_portB\x15\n" +
+	"\x13_connection_timeout\"\x99\x06\n" +
 	"\x1eAddAzureDatabaseExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12 \n" +
@@ -12331,7 +12339,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x12connection_timeout\x18\r \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb8\x06\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd4\x06\n" +
 	"!ChangeAzureDatabaseExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -12342,8 +12350,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0fazure_tenant_id\x18\a \x01(\tH\x05R\razureTenantId\x88\x01\x01\x127\n" +
 	"\x15azure_subscription_id\x18\b \x01(\tH\x06R\x13azureSubscriptionId\x88\x01\x01\x125\n" +
 	"\x14azure_resource_group\x18\t \x01(\tH\aR\x12azureResourceGroup\x88\x01\x01\x128\n" +
-	"\tlog_level\x18\v \x01(\x0e2\x16.inventory.v1.LogLevelH\bR\blogLevel\x88\x01\x01\x12H\n" +
-	"\x12connection_timeout\x18\f \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeoutB\t\n" +
+	"\tlog_level\x18\v \x01(\x0e2\x16.inventory.v1.LogLevelH\bR\blogLevel\x88\x01\x01\x12M\n" +
+	"\x12connection_timeout\x18\f \x01(\v2\x19.google.protobuf.DurationH\tR\x11connectionTimeout\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\x12\n" +
@@ -12353,7 +12361,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x16_azure_subscription_idB\x17\n" +
 	"\x15_azure_resource_groupB\f\n" +
 	"\n" +
-	"_log_level\"@\n" +
+	"_log_levelB\x15\n" +
+	"\x13_connection_timeout\"@\n" +
 	"\x16ChangeNomadAgentParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01B\t\n" +
 	"\a_enable\"\xa7\x06\n" +
@@ -12380,7 +12389,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x12connection_timeout\x18\x11 \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb2\a\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xce\a\n" +
 	"\x1aChangeValkeyExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -12398,8 +12407,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0eagent_password\x18\r \x01(\tH\n" +
 	"R\ragentPassword\x88\x01\x01\x12,\n" +
 	"\x0fexpose_exporter\x18\x0e \x01(\bH\vR\x0eexposeExporter\x88\x01\x01\x128\n" +
-	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelH\fR\blogLevel\x88\x01\x01\x12H\n" +
-	"\x12connection_timeout\x18\x10 \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeoutB\t\n" +
+	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelH\fR\blogLevel\x88\x01\x01\x12M\n" +
+	"\x12connection_timeout\x18\x10 \x01(\v2\x19.google.protobuf.DurationH\rR\x11connectionTimeout\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\v\n" +
@@ -12414,7 +12423,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0f_agent_passwordB\x12\n" +
 	"\x10_expose_exporterB\f\n" +
 	"\n" +
-	"_log_level\"\xef\x05\n" +
+	"_log_levelB\x15\n" +
+	"\x13_connection_timeout\"\xef\x05\n" +
 	"\x18AddRTAMongoDBAgentParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +

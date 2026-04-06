@@ -17,6 +17,8 @@ package inventory
 import (
 	"fmt"
 
+	"github.com/AlekSi/pointer"
+
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/inventory/v1/json/client"
 	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
@@ -89,7 +91,7 @@ func (cmd *ChangeAgentExternalExporterCommand) RunCmd() (commands.Result, error)
 		Scheme:            cmd.MetricsScheme,
 		MetricsPath:       cmd.MetricsPath,
 		EnablePushMetrics: cmd.PushMetrics,
-		ConnectionTimeout: cmd.ConnectionTimeout,
+		ConnectionTimeout: pointer.ToString(cmd.ConnectionTimeout),
 	}
 
 	if customLabels != nil {

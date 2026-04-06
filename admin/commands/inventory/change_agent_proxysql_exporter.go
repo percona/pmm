@@ -17,6 +17,8 @@ package inventory
 import (
 	"fmt"
 
+	"github.com/AlekSi/pointer"
+
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/pkg/flags"
 	"github.com/percona/pmm/api/inventory/v1/json/client"
@@ -106,7 +108,7 @@ func (cmd *ChangeAgentProxysqlExporterCommand) RunCmd() (commands.Result, error)
 		ExposeExporter:    cmd.ExposeExporter,
 		EnablePushMetrics: cmd.PushMetrics,
 		LogLevel:          convertLogLevelPtr(cmd.LogLevel),
-		ConnectionTimeout: cmd.ConnectionTimeout,
+		ConnectionTimeout: pointer.ToString(cmd.ConnectionTimeout),
 	}
 
 	if customLabels != nil {
