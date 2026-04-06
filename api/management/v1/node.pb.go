@@ -250,9 +250,9 @@ type RegisterNodeRequest struct {
 	// AWS instance ID.
 	InstanceId string `protobuf:"bytes,17,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
 	// Connection timeout for exporter (if set).
-	Timeout       *durationpb.Duration `protobuf:"bytes,18,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,18,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *RegisterNodeRequest) Reset() {
@@ -404,9 +404,9 @@ func (x *RegisterNodeRequest) GetInstanceId() string {
 	return ""
 }
 
-func (x *RegisterNodeRequest) GetTimeout() *durationpb.Duration {
+func (x *RegisterNodeRequest) GetConnectionTimeout() *durationpb.Duration {
 	if x != nil {
-		return x.Timeout
+		return x.ConnectionTimeout
 	}
 	return nil
 }
@@ -1130,7 +1130,7 @@ const file_management_v1_node_proto_rawDesc = "" +
 	" \x03(\v2..management.v1.AddNodeParams.CustomLabelsEntryR\fcustomLabels\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xa2\x06\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb7\x06\n" +
 	"\x13RegisterNodeRequest\x123\n" +
 	"\tnode_type\x18\x01 \x01(\x0e2\x16.inventory.v1.NodeTypeR\bnodeType\x12$\n" +
 	"\tnode_name\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\bnodeName\x12\x18\n" +
@@ -1154,8 +1154,8 @@ const file_management_v1_node_proto_rawDesc = "" +
 	"\x0eagent_password\x18\x0f \x01(\tR\ragentPassword\x12'\n" +
 	"\x0fexpose_exporter\x18\x10 \x01(\bR\x0eexposeExporter\x12\x1f\n" +
 	"\vinstance_id\x18\x11 \x01(\tR\n" +
-	"instanceId\x123\n" +
-	"\atimeout\x18\x12 \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1a?\n" +
+	"instanceId\x12H\n" +
+	"\x12connection_timeout\x18\x12 \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xfd\x01\n" +
@@ -1273,7 +1273,7 @@ var file_management_v1_node_proto_depIdxs = []int32{
 	16, // 2: management.v1.RegisterNodeRequest.node_type:type_name -> inventory.v1.NodeType
 	12, // 3: management.v1.RegisterNodeRequest.custom_labels:type_name -> management.v1.RegisterNodeRequest.CustomLabelsEntry
 	17, // 4: management.v1.RegisterNodeRequest.metrics_mode:type_name -> management.v1.MetricsMode
-	18, // 5: management.v1.RegisterNodeRequest.timeout:type_name -> google.protobuf.Duration
+	18, // 5: management.v1.RegisterNodeRequest.connection_timeout:type_name -> google.protobuf.Duration
 	19, // 6: management.v1.RegisterNodeResponse.generic_node:type_name -> inventory.v1.GenericNode
 	20, // 7: management.v1.RegisterNodeResponse.container_node:type_name -> inventory.v1.ContainerNode
 	21, // 8: management.v1.RegisterNodeResponse.pmm_agent:type_name -> inventory.v1.PMMAgent

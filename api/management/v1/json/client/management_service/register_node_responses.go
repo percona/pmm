@@ -250,7 +250,7 @@ type RegisterNodeBody struct {
 	InstanceID string `json:"instance_id,omitempty"`
 
 	// Connection timeout for exporter (if set).
-	Timeout string `json:"timeout,omitempty"`
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 }
 
 // Validate validates this register node body

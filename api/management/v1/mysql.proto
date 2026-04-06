@@ -92,7 +92,7 @@ message AddMySQLServiceParams {
   // extra DSN parameters to be used for connecting to MySQL.
   map<string, string> extra_dsn_params = 33;
   // Connection timeout for exporter (if set).
-  google.protobuf.Duration timeout = 34;
+  google.protobuf.Duration connection_timeout = 34;
 }
 
 message MySQLServiceResult {

@@ -378,9 +378,9 @@ type AddAzureDatabaseRequest struct {
 	// Azure database resource type (mysql, maria, postgres)
 	Type DiscoverAzureDatabaseType `protobuf:"varint,25,opt,name=type,proto3,enum=management.v1.DiscoverAzureDatabaseType" json:"type,omitempty"`
 	// Connection timeout for exporter (if set).
-	Timeout       *durationpb.Duration `protobuf:"bytes,26,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,26,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *AddAzureDatabaseRequest) Reset() {
@@ -588,9 +588,9 @@ func (x *AddAzureDatabaseRequest) GetType() DiscoverAzureDatabaseType {
 	return DiscoverAzureDatabaseType_DISCOVER_AZURE_DATABASE_TYPE_UNSPECIFIED
 }
 
-func (x *AddAzureDatabaseRequest) GetTimeout() *durationpb.Duration {
+func (x *AddAzureDatabaseRequest) GetConnectionTimeout() *durationpb.Duration {
 	if x != nil {
-		return x.Timeout
+		return x.ConnectionTimeout
 	}
 	return nil
 }
@@ -656,7 +656,7 @@ const file_management_v1_azure_proto_rawDesc = "" +
 	"node_model\x18\n" +
 	" \x01(\tR\tnodeModel\"\x85\x01\n" +
 	"\x1dDiscoverAzureDatabaseResponse\x12d\n" +
-	"\x17azure_database_instance\x18\x01 \x03(\v2,.management.v1.DiscoverAzureDatabaseInstanceR\x15azureDatabaseInstance\"\xcb\t\n" +
+	"\x17azure_database_instance\x18\x01 \x03(\v2,.management.v1.DiscoverAzureDatabaseInstanceR\x15azureDatabaseInstance\"\xe0\t\n" +
 	"\x17AddAzureDatabaseRequest\x12\x1f\n" +
 	"\x06region\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06region\x12\x0e\n" +
 	"\x02az\x18\x02 \x01(\tR\x02az\x12(\n" +
@@ -685,8 +685,8 @@ const file_management_v1_azure_proto_rawDesc = "" +
 	"\x0ftls_skip_verify\x18\x16 \x01(\bR\rtlsSkipVerify\x124\n" +
 	"\x16disable_query_examples\x18\x17 \x01(\bR\x14disableQueryExamples\x12?\n" +
 	"\x1ctablestats_group_table_limit\x18\x18 \x01(\x05R\x19tablestatsGroupTableLimit\x12<\n" +
-	"\x04type\x18\x19 \x01(\x0e2(.management.v1.DiscoverAzureDatabaseTypeR\x04type\x123\n" +
-	"\atimeout\x18\x1a \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1a?\n" +
+	"\x04type\x18\x19 \x01(\x0e2(.management.v1.DiscoverAzureDatabaseTypeR\x04type\x12H\n" +
+	"\x12connection_timeout\x18\x1a \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x1a\n" +
@@ -730,7 +730,7 @@ var file_management_v1_azure_proto_depIdxs = []int32{
 	2, // 1: management.v1.DiscoverAzureDatabaseResponse.azure_database_instance:type_name -> management.v1.DiscoverAzureDatabaseInstance
 	6, // 2: management.v1.AddAzureDatabaseRequest.custom_labels:type_name -> management.v1.AddAzureDatabaseRequest.CustomLabelsEntry
 	0, // 3: management.v1.AddAzureDatabaseRequest.type:type_name -> management.v1.DiscoverAzureDatabaseType
-	7, // 4: management.v1.AddAzureDatabaseRequest.timeout:type_name -> google.protobuf.Duration
+	7, // 4: management.v1.AddAzureDatabaseRequest.connection_timeout:type_name -> google.protobuf.Duration
 	5, // [5:5] is the sub-list for method output_type
 	5, // [5:5] is the sub-list for method input_type
 	5, // [5:5] is the sub-list for extension type_name

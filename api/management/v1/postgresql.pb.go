@@ -103,9 +103,9 @@ type AddPostgreSQLServiceParams struct {
 	// Maximum number of connections that exporter can open to the database instance.
 	MaxExporterConnections int32 `protobuf:"varint,33,opt,name=max_exporter_connections,json=maxExporterConnections,proto3" json:"max_exporter_connections,omitempty"`
 	// Connection timeout for exporter (if set).
-	Timeout       *durationpb.Duration `protobuf:"bytes,34,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,34,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *AddPostgreSQLServiceParams) Reset() {
@@ -369,9 +369,9 @@ func (x *AddPostgreSQLServiceParams) GetMaxExporterConnections() int32 {
 	return 0
 }
 
-func (x *AddPostgreSQLServiceParams) GetTimeout() *durationpb.Duration {
+func (x *AddPostgreSQLServiceParams) GetConnectionTimeout() *durationpb.Duration {
 	if x != nil {
-		return x.Timeout
+		return x.ConnectionTimeout
 	}
 	return nil
 }
@@ -457,7 +457,7 @@ var File_management_v1_postgresql_proto protoreflect.FileDescriptor
 
 const file_management_v1_postgresql_proto_rawDesc = "" +
 	"\n" +
-	"\x1emanagement/v1/postgresql.proto\x12\rmanagement.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\x8c\f\n" +
+	"\x1emanagement/v1/postgresql.proto\x12\rmanagement.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xa1\f\n" +
 	"\x1aAddPostgreSQLServiceParams\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x127\n" +
@@ -493,8 +493,8 @@ const file_management_v1_postgresql_proto_rawDesc = "" +
 	"\tlog_level\x18\x1e \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x120\n" +
 	"\x14auto_discovery_limit\x18\x1f \x01(\x05R\x12autoDiscoveryLimit\x12'\n" +
 	"\x0fexpose_exporter\x18  \x01(\bR\x0eexposeExporter\x128\n" +
-	"\x18max_exporter_connections\x18! \x01(\x05R\x16maxExporterConnections\x123\n" +
-	"\atimeout\x18\" \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1a?\n" +
+	"\x18max_exporter_connections\x18! \x01(\x05R\x16maxExporterConnections\x12H\n" +
+	"\x12connection_timeout\x18\" \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb0\x03\n" +
@@ -540,7 +540,7 @@ var file_management_v1_postgresql_proto_depIdxs = []int32{
 	2,  // 1: management.v1.AddPostgreSQLServiceParams.custom_labels:type_name -> management.v1.AddPostgreSQLServiceParams.CustomLabelsEntry
 	4,  // 2: management.v1.AddPostgreSQLServiceParams.metrics_mode:type_name -> management.v1.MetricsMode
 	5,  // 3: management.v1.AddPostgreSQLServiceParams.log_level:type_name -> inventory.v1.LogLevel
-	6,  // 4: management.v1.AddPostgreSQLServiceParams.timeout:type_name -> google.protobuf.Duration
+	6,  // 4: management.v1.AddPostgreSQLServiceParams.connection_timeout:type_name -> google.protobuf.Duration
 	7,  // 5: management.v1.PostgreSQLServiceResult.service:type_name -> inventory.v1.PostgreSQLService
 	8,  // 6: management.v1.PostgreSQLServiceResult.postgres_exporter:type_name -> inventory.v1.PostgresExporter
 	9,  // 7: management.v1.PostgreSQLServiceResult.qan_postgresql_pgstatements_agent:type_name -> inventory.v1.QANPostgreSQLPgStatementsAgent

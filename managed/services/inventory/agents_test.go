@@ -147,19 +147,19 @@ func TestAgents(t *testing.T) {
 			require.NoError(t, err)
 
 			actualAgent, err := as.AddMySQLdExporter(ctx, &inventoryv1.AddMySQLdExporterParams{
-				PmmAgentId: pmmAgentID,
-				ServiceId:  ms.ServiceId,
-				Username:   "username",
-				Timeout:    durationpb.New(11 * time.Second),
+				PmmAgentId:        pmmAgentID,
+				ServiceId:         ms.ServiceId,
+				Username:          "username",
+				ConnectionTimeout: durationpb.New(11 * time.Second),
 			})
 			require.NoError(t, err)
 			expectedMySQLdExporter = &inventoryv1.MySQLdExporter{
-				AgentId:    "00000000-0000-4000-8000-000000000008",
-				PmmAgentId: "00000000-0000-4000-8000-000000000005",
-				ServiceId:  ms.ServiceId,
-				Username:   "username",
-				Status:     inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
-				Timeout:    durationpb.New(11 * time.Second),
+				AgentId:           "00000000-0000-4000-8000-000000000008",
+				PmmAgentId:        "00000000-0000-4000-8000-000000000005",
+				ServiceId:         ms.ServiceId,
+				Username:          "username",
+				Status:            inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
+				ConnectionTimeout: durationpb.New(11 * time.Second),
 			}
 			assert.Equal(t, expectedMySQLdExporter, actualAgent.GetMysqldExporter())
 
@@ -231,19 +231,19 @@ func TestAgents(t *testing.T) {
 			require.NoError(t, err)
 
 			actualAgent, err := as.AddPostgresExporter(ctx, &inventoryv1.AddPostgresExporterParams{
-				PmmAgentId: pmmAgentID,
-				ServiceId:  ps.ServiceId,
-				Username:   "username",
-				Timeout:    durationpb.New(13 * time.Second),
+				PmmAgentId:        pmmAgentID,
+				ServiceId:         ps.ServiceId,
+				Username:          "username",
+				ConnectionTimeout: durationpb.New(13 * time.Second),
 			})
 			require.NoError(t, err)
 			expectedPostgresExporter = &inventoryv1.PostgresExporter{
-				AgentId:    "00000000-0000-4000-8000-00000000000d",
-				PmmAgentId: pmmAgentID,
-				ServiceId:  ps.ServiceId,
-				Username:   "username",
-				Status:     inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
-				Timeout:    durationpb.New(13 * time.Second),
+				AgentId:           "00000000-0000-4000-8000-00000000000d",
+				PmmAgentId:        pmmAgentID,
+				ServiceId:         ps.ServiceId,
+				Username:          "username",
+				Status:            inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
+				ConnectionTimeout: durationpb.New(13 * time.Second),
 			}
 			assert.Equal(t, expectedPostgresExporter, actualAgent.GetPostgresExporter())
 

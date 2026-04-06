@@ -111,9 +111,9 @@ type AddMongoDBServiceParams struct {
 	// If true, adds Real-Time Analytics agent for the provided service.
 	RtaMongodbAgent bool `protobuf:"varint,37,opt,name=rta_mongodb_agent,json=rtaMongodbAgent,proto3" json:"rta_mongodb_agent,omitempty"`
 	// Connection timeout for exporter (if set).
-	Timeout       *durationpb.Duration `protobuf:"bytes,38,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,38,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *AddMongoDBServiceParams) Reset() {
@@ -391,9 +391,9 @@ func (x *AddMongoDBServiceParams) GetRtaMongodbAgent() bool {
 	return false
 }
 
-func (x *AddMongoDBServiceParams) GetTimeout() *durationpb.Duration {
+func (x *AddMongoDBServiceParams) GetConnectionTimeout() *durationpb.Duration {
 	if x != nil {
-		return x.Timeout
+		return x.ConnectionTimeout
 	}
 	return nil
 }
@@ -478,7 +478,7 @@ var File_management_v1_mongodb_proto protoreflect.FileDescriptor
 
 const file_management_v1_mongodb_proto_rawDesc = "" +
 	"\n" +
-	"\x1bmanagement/v1/mongodb.proto\x12\rmanagement.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xa2\r\n" +
+	"\x1bmanagement/v1/mongodb.proto\x12\rmanagement.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xb7\r\n" +
 	"\x17AddMongoDBServiceParams\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x127\n" +
@@ -516,8 +516,8 @@ const file_management_v1_mongodb_proto_rawDesc = "" +
 	"\tlog_level\x18! \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12'\n" +
 	"\x0fexpose_exporter\x18\" \x01(\bR\x0eexposeExporter\x12<\n" +
 	"\x1aenvironment_variable_names\x18$ \x03(\tR\x18environmentVariableNames\x12*\n" +
-	"\x11rta_mongodb_agent\x18% \x01(\bR\x0frtaMongodbAgent\x123\n" +
-	"\atimeout\x18& \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1a?\n" +
+	"\x11rta_mongodb_agent\x18% \x01(\bR\x0frtaMongodbAgent\x12H\n" +
+	"\x12connection_timeout\x18& \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\b\x10\tR\x17query_examples_disabled\"\x95\x03\n" +
@@ -564,7 +564,7 @@ var file_management_v1_mongodb_proto_depIdxs = []int32{
 	2,  // 1: management.v1.AddMongoDBServiceParams.custom_labels:type_name -> management.v1.AddMongoDBServiceParams.CustomLabelsEntry
 	4,  // 2: management.v1.AddMongoDBServiceParams.metrics_mode:type_name -> management.v1.MetricsMode
 	5,  // 3: management.v1.AddMongoDBServiceParams.log_level:type_name -> inventory.v1.LogLevel
-	6,  // 4: management.v1.AddMongoDBServiceParams.timeout:type_name -> google.protobuf.Duration
+	6,  // 4: management.v1.AddMongoDBServiceParams.connection_timeout:type_name -> google.protobuf.Duration
 	7,  // 5: management.v1.MongoDBServiceResult.service:type_name -> inventory.v1.MongoDBService
 	8,  // 6: management.v1.MongoDBServiceResult.mongodb_exporter:type_name -> inventory.v1.MongoDBExporter
 	9,  // 7: management.v1.MongoDBServiceResult.qan_mongodb_profiler:type_name -> inventory.v1.QANMongoDBProfilerAgent

@@ -911,7 +911,7 @@ type ListServicesOKBodyServicesItems0AgentsItems0 struct {
 	ValkeyOptions any `json:"valkey_options,omitempty"`
 
 	// Connection timeout for exporter (if set).
-	Timeout string `json:"timeout,omitempty"`
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// azure options
 	AzureOptions *ListServicesOKBodyServicesItems0AgentsItems0AzureOptions `json:"azure_options,omitempty"`

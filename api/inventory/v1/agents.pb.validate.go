@@ -438,11 +438,11 @@ func (m *NodeExporter) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetTimeout()).(type) {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, NodeExporterValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -450,16 +450,16 @@ func (m *NodeExporter) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, NodeExporterValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTimeout()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return NodeExporterValidationError{
-				field:  "Timeout",
+				field:  "ConnectionTimeout",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -637,11 +637,11 @@ func (m *MySQLdExporter) validate(all bool) error {
 	// no validation rules for ExtraDsnParams
 
 	if all {
-		switch v := interface{}(m.GetTimeout()).(type) {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, MySQLdExporterValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -649,16 +649,16 @@ func (m *MySQLdExporter) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, MySQLdExporterValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTimeout()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return MySQLdExporterValidationError{
-				field:  "Timeout",
+				field:  "ConnectionTimeout",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -827,11 +827,11 @@ func (m *MongoDBExporter) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetTimeout()).(type) {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, MongoDBExporterValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -839,16 +839,16 @@ func (m *MongoDBExporter) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, MongoDBExporterValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTimeout()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return MongoDBExporterValidationError{
-				field:  "Timeout",
+				field:  "ConnectionTimeout",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -1017,11 +1017,11 @@ func (m *PostgresExporter) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetTimeout()).(type) {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, PostgresExporterValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -1029,16 +1029,16 @@ func (m *PostgresExporter) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, PostgresExporterValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTimeout()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return PostgresExporterValidationError{
-				field:  "Timeout",
+				field:  "ConnectionTimeout",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -1203,11 +1203,11 @@ func (m *ProxySQLExporter) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetTimeout()).(type) {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ProxySQLExporterValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -1215,16 +1215,16 @@ func (m *ProxySQLExporter) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, ProxySQLExporterValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTimeout()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ProxySQLExporterValidationError{
-				field:  "Timeout",
+				field:  "ConnectionTimeout",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -1387,11 +1387,11 @@ func (m *ValkeyExporter) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetTimeout()).(type) {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ValkeyExporterValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -1399,16 +1399,16 @@ func (m *ValkeyExporter) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, ValkeyExporterValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTimeout()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ValkeyExporterValidationError{
-				field:  "Timeout",
+				field:  "ConnectionTimeout",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -2641,11 +2641,11 @@ func (m *RDSExporter) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetTimeout()).(type) {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, RDSExporterValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -2653,16 +2653,16 @@ func (m *RDSExporter) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, RDSExporterValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTimeout()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return RDSExporterValidationError{
-				field:  "Timeout",
+				field:  "ConnectionTimeout",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -2824,11 +2824,11 @@ func (m *ExternalExporter) validate(all bool) error {
 	// no validation rules for Status
 
 	if all {
-		switch v := interface{}(m.GetTimeout()).(type) {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ExternalExporterValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -2836,16 +2836,16 @@ func (m *ExternalExporter) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, ExternalExporterValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTimeout()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ExternalExporterValidationError{
-				field:  "Timeout",
+				field:  "ConnectionTimeout",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -3006,11 +3006,11 @@ func (m *AzureDatabaseExporter) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetTimeout()).(type) {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AzureDatabaseExporterValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -3018,16 +3018,16 @@ func (m *AzureDatabaseExporter) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, AzureDatabaseExporterValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTimeout()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AzureDatabaseExporterValidationError{
-				field:  "Timeout",
+				field:  "ConnectionTimeout",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -8736,11 +8736,11 @@ func (m *AddNodeExporterParams) validate(all bool) error {
 	// no validation rules for ExposeExporter
 
 	if all {
-		switch v := interface{}(m.GetTimeout()).(type) {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddNodeExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -8748,16 +8748,16 @@ func (m *AddNodeExporterParams) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, AddNodeExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTimeout()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddNodeExporterParamsValidationError{
-				field:  "Timeout",
+				field:  "ConnectionTimeout",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -8896,11 +8896,11 @@ func (m *ChangeNodeExporterParams) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetTimeout()).(type) {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeNodeExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -8908,16 +8908,16 @@ func (m *ChangeNodeExporterParams) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, ChangeNodeExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTimeout()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeNodeExporterParamsValidationError{
-				field:  "Timeout",
+				field:  "ConnectionTimeout",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -9135,11 +9135,11 @@ func (m *AddMySQLdExporterParams) validate(all bool) error {
 	// no validation rules for ExtraDsnParams
 
 	if all {
-		switch v := interface{}(m.GetTimeout()).(type) {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddMySQLdExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -9147,16 +9147,16 @@ func (m *AddMySQLdExporterParams) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, AddMySQLdExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTimeout()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddMySQLdExporterParamsValidationError{
-				field:  "Timeout",
+				field:  "ConnectionTimeout",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -9295,11 +9295,11 @@ func (m *ChangeMySQLdExporterParams) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetTimeout()).(type) {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeMySQLdExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -9307,16 +9307,16 @@ func (m *ChangeMySQLdExporterParams) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, ChangeMySQLdExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTimeout()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeMySQLdExporterParamsValidationError{
-				field:  "Timeout",
+				field:  "ConnectionTimeout",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -9569,11 +9569,11 @@ func (m *AddMongoDBExporterParams) validate(all bool) error {
 	// no validation rules for EnableAllCollectors
 
 	if all {
-		switch v := interface{}(m.GetTimeout()).(type) {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddMongoDBExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -9581,16 +9581,16 @@ func (m *AddMongoDBExporterParams) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, AddMongoDBExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTimeout()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddMongoDBExporterParamsValidationError{
-				field:  "Timeout",
+				field:  "ConnectionTimeout",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -9729,11 +9729,11 @@ func (m *ChangeMongoDBExporterParams) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetTimeout()).(type) {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeMongoDBExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -9741,16 +9741,16 @@ func (m *ChangeMongoDBExporterParams) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, ChangeMongoDBExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTimeout()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeMongoDBExporterParamsValidationError{
-				field:  "Timeout",
+				field:  "ConnectionTimeout",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -10021,11 +10021,11 @@ func (m *AddPostgresExporterParams) validate(all bool) error {
 	// no validation rules for MaxExporterConnections
 
 	if all {
-		switch v := interface{}(m.GetTimeout()).(type) {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddPostgresExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -10033,16 +10033,16 @@ func (m *AddPostgresExporterParams) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, AddPostgresExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTimeout()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddPostgresExporterParamsValidationError{
-				field:  "Timeout",
+				field:  "ConnectionTimeout",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -10181,11 +10181,11 @@ func (m *ChangePostgresExporterParams) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetTimeout()).(type) {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangePostgresExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -10193,16 +10193,16 @@ func (m *ChangePostgresExporterParams) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, ChangePostgresExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTimeout()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangePostgresExporterParamsValidationError{
-				field:  "Timeout",
+				field:  "ConnectionTimeout",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -10455,11 +10455,11 @@ func (m *AddProxySQLExporterParams) validate(all bool) error {
 	// no validation rules for ExposeExporter
 
 	if all {
-		switch v := interface{}(m.GetTimeout()).(type) {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddProxySQLExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -10467,16 +10467,16 @@ func (m *AddProxySQLExporterParams) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, AddProxySQLExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTimeout()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddProxySQLExporterParamsValidationError{
-				field:  "Timeout",
+				field:  "ConnectionTimeout",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -10615,11 +10615,11 @@ func (m *ChangeProxySQLExporterParams) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetTimeout()).(type) {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeProxySQLExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -10627,16 +10627,16 @@ func (m *ChangeProxySQLExporterParams) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, ChangeProxySQLExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTimeout()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeProxySQLExporterParamsValidationError{
-				field:  "Timeout",
+				field:  "ConnectionTimeout",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -13122,11 +13122,11 @@ func (m *AddRDSExporterParams) validate(all bool) error {
 	// no validation rules for LogLevel
 
 	if all {
-		switch v := interface{}(m.GetTimeout()).(type) {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddRDSExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -13134,16 +13134,16 @@ func (m *AddRDSExporterParams) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, AddRDSExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTimeout()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddRDSExporterParamsValidationError{
-				field:  "Timeout",
+				field:  "ConnectionTimeout",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -13282,11 +13282,11 @@ func (m *ChangeRDSExporterParams) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetTimeout()).(type) {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeRDSExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -13294,16 +13294,16 @@ func (m *ChangeRDSExporterParams) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, ChangeRDSExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTimeout()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeRDSExporterParamsValidationError{
-				field:  "Timeout",
+				field:  "ConnectionTimeout",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -13510,11 +13510,11 @@ func (m *AddExternalExporterParams) validate(all bool) error {
 	// no validation rules for TlsSkipVerify
 
 	if all {
-		switch v := interface{}(m.GetTimeout()).(type) {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddExternalExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -13522,16 +13522,16 @@ func (m *AddExternalExporterParams) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, AddExternalExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTimeout()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddExternalExporterParamsValidationError{
-				field:  "Timeout",
+				field:  "ConnectionTimeout",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -13670,11 +13670,11 @@ func (m *ChangeExternalExporterParams) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetTimeout()).(type) {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeExternalExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -13682,16 +13682,16 @@ func (m *ChangeExternalExporterParams) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, ChangeExternalExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTimeout()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeExternalExporterParamsValidationError{
-				field:  "Timeout",
+				field:  "ConnectionTimeout",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -13908,11 +13908,11 @@ func (m *AddAzureDatabaseExporterParams) validate(all bool) error {
 	// no validation rules for LogLevel
 
 	if all {
-		switch v := interface{}(m.GetTimeout()).(type) {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddAzureDatabaseExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -13920,16 +13920,16 @@ func (m *AddAzureDatabaseExporterParams) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, AddAzureDatabaseExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTimeout()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddAzureDatabaseExporterParamsValidationError{
-				field:  "Timeout",
+				field:  "ConnectionTimeout",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -14070,11 +14070,11 @@ func (m *ChangeAzureDatabaseExporterParams) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetTimeout()).(type) {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeAzureDatabaseExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -14082,16 +14082,16 @@ func (m *ChangeAzureDatabaseExporterParams) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, ChangeAzureDatabaseExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTimeout()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeAzureDatabaseExporterParamsValidationError{
-				field:  "Timeout",
+				field:  "ConnectionTimeout",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -14430,11 +14430,11 @@ func (m *AddValkeyExporterParams) validate(all bool) error {
 	// no validation rules for LogLevel
 
 	if all {
-		switch v := interface{}(m.GetTimeout()).(type) {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddValkeyExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -14442,16 +14442,16 @@ func (m *AddValkeyExporterParams) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, AddValkeyExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTimeout()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddValkeyExporterParamsValidationError{
-				field:  "Timeout",
+				field:  "ConnectionTimeout",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -14598,11 +14598,11 @@ func (m *ChangeValkeyExporterParams) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetTimeout()).(type) {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeValkeyExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -14610,16 +14610,16 @@ func (m *ChangeValkeyExporterParams) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, ChangeValkeyExporterParamsValidationError{
-					field:  "Timeout",
+					field:  "ConnectionTimeout",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTimeout()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeValkeyExporterParamsValidationError{
-				field:  "Timeout",
+				field:  "ConnectionTimeout",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}

@@ -71,7 +71,7 @@ message RegisterNodeRequest {
   // AWS instance ID.
   string instance_id = 17;
   // Connection timeout for exporter (if set).
-  google.protobuf.Duration timeout = 18;
+  google.protobuf.Duration connection_timeout = 18;
 }
 
 message RegisterNodeResponse {

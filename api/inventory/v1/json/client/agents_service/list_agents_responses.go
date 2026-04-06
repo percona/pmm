@@ -1787,7 +1787,7 @@ type ListAgentsOKBodyAzureDatabaseExporterItems0 struct {
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// Connection timeout for exporter (if set).
-	Timeout string `json:"timeout,omitempty"`
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ListAgentsOKBodyAzureDatabaseExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -2105,7 +2105,7 @@ type ListAgentsOKBodyExternalExporterItems0 struct {
 	Status *string `json:"status,omitempty"`
 
 	// Connection timeout for exporter (if set).
-	Timeout string `json:"timeout,omitempty"`
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ListAgentsOKBodyExternalExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -2387,7 +2387,7 @@ type ListAgentsOKBodyMongodbExporterItems0 struct {
 	EnvironmentVariableNames []string `json:"environment_variable_names"`
 
 	// Connection timeout for exporter (if set).
-	Timeout string `json:"timeout,omitempty"`
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ListAgentsOKBodyMongodbExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -2737,7 +2737,7 @@ type ListAgentsOKBodyMysqldExporterItems0 struct {
 	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
 
 	// Connection timeout for exporter (if set).
-	Timeout string `json:"timeout,omitempty"`
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ListAgentsOKBodyMysqldExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -3052,7 +3052,7 @@ type ListAgentsOKBodyNodeExporterItems0 struct {
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 
 	// Connection timeout for exporter (if set).
-	Timeout string `json:"timeout,omitempty"`
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ListAgentsOKBodyNodeExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -3564,7 +3564,7 @@ type ListAgentsOKBodyPostgresExporterItems0 struct {
 	MaxExporterConnections int32 `json:"max_exporter_connections,omitempty"`
 
 	// Connection timeout for exporter (if set).
-	Timeout string `json:"timeout,omitempty"`
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ListAgentsOKBodyPostgresExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -3891,7 +3891,7 @@ type ListAgentsOKBodyProxysqlExporterItems0 struct {
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 
 	// Connection timeout for exporter (if set).
-	Timeout string `json:"timeout,omitempty"`
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ListAgentsOKBodyProxysqlExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -5517,7 +5517,7 @@ type ListAgentsOKBodyRDSExporterItems0 struct {
 	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
 
 	// Connection timeout for exporter (if set).
-	Timeout string `json:"timeout,omitempty"`
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ListAgentsOKBodyRDSExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -6270,7 +6270,7 @@ type ListAgentsOKBodyValkeyExporterItems0 struct {
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 
 	// Connection timeout for exporter (if set).
-	Timeout string `json:"timeout,omitempty"`
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ListAgentsOKBodyValkeyExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`

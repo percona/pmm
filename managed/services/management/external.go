@@ -101,17 +101,17 @@ func (s *ManagementService) addExternal(ctx context.Context, req *managementv1.A
 		}
 
 		params := &models.CreateExternalExporterParams{
-			RunsOnNodeID:  runsOnNodeID,
-			ServiceID:     service.ServiceID,
-			Username:      req.Username,
-			Password:      req.Password,
-			Scheme:        req.Scheme,
-			MetricsPath:   req.MetricsPath,
-			ListenPort:    req.ListenPort,
-			CustomLabels:  req.CustomLabels,
-			PushMetrics:   isPushMode(req.MetricsMode),
-			TLSSkipVerify: req.TlsSkipVerify,
-			Timeout:       duration.FromProto(req.Timeout),
+			RunsOnNodeID:      runsOnNodeID,
+			ServiceID:         service.ServiceID,
+			Username:          req.Username,
+			Password:          req.Password,
+			Scheme:            req.Scheme,
+			MetricsPath:       req.MetricsPath,
+			ListenPort:        req.ListenPort,
+			CustomLabels:      req.CustomLabels,
+			PushMetrics:       isPushMode(req.MetricsMode),
+			TLSSkipVerify:     req.TlsSkipVerify,
+			ConnectionTimeout: duration.FromProto(req.ConnectionTimeout),
 		}
 		row, err := models.CreateExternalExporter(tx.Querier, params)
 		if err != nil {

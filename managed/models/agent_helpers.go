@@ -669,7 +669,7 @@ func CreateNodeExporter(q *reform.Querier,
 	disableCollectors []string,
 	agentPassword *string,
 	logLevel string,
-	timeout time.Duration,
+	connectionTimeout time.Duration,
 ) (*Agent, error) {
 	// TODO merge into CreateAgent
 
@@ -692,7 +692,7 @@ func CreateNodeExporter(q *reform.Querier,
 			ExposeExporter:     exposeExporter,
 			PushMetrics:        pushMetrics,
 			DisabledCollectors: disableCollectors,
-			Timeout:            timeout,
+			ConnectionTimeout:  connectionTimeout,
 		},
 		LogLevel: pointer.ToStringOrNil(logLevel),
 	}
@@ -722,7 +722,7 @@ type CreateExternalExporterParams struct {
 	PushMetrics   bool
 	TLSSkipVerify bool
 	// Timeout for exporter connection (nanoseconds). Optional.
-	Timeout time.Duration
+	ConnectionTimeout time.Duration
 }
 
 // CreateExternalExporter creates ExternalExporter.
@@ -780,10 +780,10 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 		Password:     pointer.ToStringOrNil(params.Password),
 		ListenPort:   pointer.ToUint16(uint16(params.ListenPort)),
 		ExporterOptions: ExporterOptions{
-			PushMetrics:   params.PushMetrics,
-			MetricsPath:   metricsPath,
-			MetricsScheme: scheme,
-			Timeout:       params.Timeout,
+			PushMetrics:       params.PushMetrics,
+			MetricsPath:       metricsPath,
+			MetricsScheme:     scheme,
+			ConnectionTimeout: params.ConnectionTimeout,
 		},
 		TLSSkipVerify: params.TLSSkipVerify,
 	}
@@ -1031,7 +1031,7 @@ type ChangeExporterOptions struct {
 	MetricsScheme      *string
 	MetricsPath        *string
 	MetricsResolutions *ChangeMetricsResolutionsParams
-	Timeout            time.Duration
+	ConnectionTimeout  time.Duration
 }
 
 // ChangeQANOptions contains QANOptions fields that can be changed.
@@ -1193,7 +1193,7 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 			row.ExporterOptions.MetricsPath = *params.ExporterOptions.MetricsPath
 		}
 
-		row.ExporterOptions.Timeout = params.ExporterOptions.Timeout
+		row.ExporterOptions.ConnectionTimeout = params.ExporterOptions.ConnectionTimeout
 	}
 
 	// Update database connection fields

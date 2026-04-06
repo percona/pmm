@@ -56,7 +56,7 @@ type AddAgentRDSExporterCommand struct {
 	DisableBasicMetrics    bool              `help:"Disable basic metrics"`
 	DisableEnhancedMetrics bool              `help:"Disable enhanced metrics"`
 	PushMetrics            bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
-	Timeout                string            `help:"Connection timeout to use for exporter (e.g. 1s, 500ms)"`
+	ConnectionTimeout      string            `help:"Connection timeout to use for exporter (e.g. 1s, 500ms)"`
 
 	flags.LogLevelFatalFlags
 }
@@ -77,7 +77,7 @@ func (cmd *AddAgentRDSExporterCommand) RunCmd() (commands.Result, error) {
 				DisableEnhancedMetrics: cmd.DisableEnhancedMetrics,
 				PushMetrics:            cmd.PushMetrics,
 				LogLevel:               cmd.LogLevelFatalFlags.LogLevel.EnumValue(),
-				Timeout:                cmd.Timeout,
+				ConnectionTimeout:      cmd.ConnectionTimeout,
 			},
 		},
 		Context: commands.Ctx,

@@ -1646,7 +1646,7 @@ type AddServiceOKBodyExternalExternalExporter struct {
 	Status *string `json:"status,omitempty"`
 
 	// Connection timeout for exporter (if set).
-	Timeout string `json:"timeout,omitempty"`
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyExternalExternalExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -2130,7 +2130,7 @@ type AddServiceOKBodyHaproxyExternalExporter struct {
 	Status *string `json:"status,omitempty"`
 
 	// Connection timeout for exporter (if set).
-	Timeout string `json:"timeout,omitempty"`
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyHaproxyExternalExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -2801,7 +2801,7 @@ type AddServiceOKBodyMongodbMongodbExporter struct {
 	EnvironmentVariableNames []string `json:"environment_variable_names"`
 
 	// Connection timeout for exporter (if set).
-	Timeout string `json:"timeout,omitempty"`
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyMongodbMongodbExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -4221,7 +4221,7 @@ type AddServiceOKBodyMysqlMysqldExporter struct {
 	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
 
 	// Connection timeout for exporter (if set).
-	Timeout string `json:"timeout,omitempty"`
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyMysqlMysqldExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -5363,7 +5363,7 @@ type AddServiceOKBodyPostgresqlPostgresExporter struct {
 	MaxExporterConnections int32 `json:"max_exporter_connections,omitempty"`
 
 	// Connection timeout for exporter (if set).
-	Timeout string `json:"timeout,omitempty"`
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyPostgresqlPostgresExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -6353,7 +6353,7 @@ type AddServiceOKBodyProxysqlProxysqlExporter struct {
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 
 	// Connection timeout for exporter (if set).
-	Timeout string `json:"timeout,omitempty"`
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyProxysqlProxysqlExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -7354,7 +7354,7 @@ type AddServiceOKBodyRDSMysqldExporter struct {
 	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
 
 	// Connection timeout for exporter (if set).
-	Timeout string `json:"timeout,omitempty"`
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyRDSMysqldExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -7821,7 +7821,7 @@ type AddServiceOKBodyRDSPostgresqlExporter struct {
 	MaxExporterConnections int32 `json:"max_exporter_connections,omitempty"`
 
 	// Connection timeout for exporter (if set).
-	Timeout string `json:"timeout,omitempty"`
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyRDSPostgresqlExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -8584,7 +8584,7 @@ type AddServiceOKBodyRDSRDSExporter struct {
 	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
 
 	// Connection timeout for exporter (if set).
-	Timeout string `json:"timeout,omitempty"`
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyRDSRDSExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -9135,7 +9135,7 @@ type AddServiceOKBodyValkeyValkeyExporter struct {
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 
 	// Connection timeout for exporter (if set).
-	Timeout string `json:"timeout,omitempty"`
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyValkeyValkeyExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -9410,7 +9410,7 @@ type AddServiceParamsBodyExternal struct {
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Connection timeout for exporter (if set).
-	Timeout string `json:"timeout,omitempty"`
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// add node
 	AddNode *AddServiceParamsBodyExternalAddNode `json:"add_node,omitempty"`
@@ -10144,7 +10144,7 @@ type AddServiceParamsBodyMongodb struct {
 	RtaMongodbAgent bool `json:"rta_mongodb_agent,omitempty"`
 
 	// Connection timeout for exporter (if set).
-	Timeout string `json:"timeout,omitempty"`
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// add node
 	AddNode *AddServiceParamsBodyMongodbAddNode `json:"add_node,omitempty"`
@@ -10596,7 +10596,7 @@ type AddServiceParamsBodyMysql struct {
 	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
 
 	// Connection timeout for exporter (if set).
-	Timeout string `json:"timeout,omitempty"`
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// add node
 	AddNode *AddServiceParamsBodyMysqlAddNode `json:"add_node,omitempty"`
@@ -11044,7 +11044,7 @@ type AddServiceParamsBodyPostgresql struct {
 	MaxExporterConnections int32 `json:"max_exporter_connections,omitempty"`
 
 	// Connection timeout for exporter (if set).
-	Timeout string `json:"timeout,omitempty"`
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// add node
 	AddNode *AddServiceParamsBodyPostgresqlAddNode `json:"add_node,omitempty"`
@@ -11459,7 +11459,7 @@ type AddServiceParamsBodyProxysql struct {
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 
 	// Connection timeout for exporter (if set).
-	Timeout string `json:"timeout,omitempty"`
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// add node
 	AddNode *AddServiceParamsBodyProxysqlAddNode `json:"add_node,omitempty"`
@@ -11908,7 +11908,7 @@ type AddServiceParamsBodyRDS struct {
 	MaxPostgresqlExporterConnections int32 `json:"max_postgresql_exporter_connections,omitempty"`
 
 	// Connection timeout for exporter (if set).
-	Timeout string `json:"timeout,omitempty"`
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 }
 
 // Validate validates this add service params body RDS
@@ -12129,7 +12129,7 @@ type AddServiceParamsBodyValkey struct {
 	AgentPassword string `json:"agent_password,omitempty"`
 
 	// Connection timeout for exporter (if set).
-	Timeout string `json:"timeout,omitempty"`
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// add node
 	AddNode *AddServiceParamsBodyValkeyAddNode `json:"add_node,omitempty"`

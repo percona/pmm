@@ -274,7 +274,7 @@ type AddAzureDatabaseBody struct {
 	Type *string `json:"type,omitempty"`
 
 	// Connection timeout for exporter (if set).
-	Timeout string `json:"timeout,omitempty"`
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 }
 
 // Validate validates this add azure database body

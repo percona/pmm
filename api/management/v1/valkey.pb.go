@@ -85,9 +85,9 @@ type AddValkeyServiceParams struct {
 	// Custom password for exporter endpoint /metrics.
 	AgentPassword string `protobuf:"bytes,24,opt,name=agent_password,json=agentPassword,proto3" json:"agent_password,omitempty"`
 	// Connection timeout for exporter (if set).
-	Timeout       *durationpb.Duration `protobuf:"bytes,25,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,25,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *AddValkeyServiceParams) Reset() {
@@ -288,9 +288,9 @@ func (x *AddValkeyServiceParams) GetAgentPassword() string {
 	return ""
 }
 
-func (x *AddValkeyServiceParams) GetTimeout() *durationpb.Duration {
+func (x *AddValkeyServiceParams) GetConnectionTimeout() *durationpb.Duration {
 	if x != nil {
-		return x.Timeout
+		return x.ConnectionTimeout
 	}
 	return nil
 }
@@ -351,7 +351,7 @@ var File_management_v1_valkey_proto protoreflect.FileDescriptor
 
 const file_management_v1_valkey_proto_rawDesc = "" +
 	"\n" +
-	"\x1amanagement/v1/valkey.proto\x12\rmanagement.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xaa\b\n" +
+	"\x1amanagement/v1/valkey.proto\x12\rmanagement.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xbf\b\n" +
 	"\x16AddValkeyServiceParams\x12#\n" +
 	"\anode_id\x18\x01 \x01(\tB\n" +
 	"\xfaB\ar\x05\x10\x01\xd0\x01\x01R\x06nodeId\x12'\n" +
@@ -380,8 +380,8 @@ const file_management_v1_valkey_proto_rawDesc = "" +
 	"\x06tls_ca\x18\x15 \x01(\tR\x05tlsCa\x12\x19\n" +
 	"\btls_cert\x18\x16 \x01(\tR\atlsCert\x12\x17\n" +
 	"\atls_key\x18\x17 \x01(\tR\x06tlsKey\x12%\n" +
-	"\x0eagent_password\x18\x18 \x01(\tR\ragentPassword\x123\n" +
-	"\atimeout\x18\x19 \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1a?\n" +
+	"\x0eagent_password\x18\x18 \x01(\tR\ragentPassword\x12H\n" +
+	"\x12connection_timeout\x18\x19 \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x93\x01\n" +
@@ -422,7 +422,7 @@ var file_management_v1_valkey_proto_depIdxs = []int32{
 	2, // 1: management.v1.AddValkeyServiceParams.custom_labels:type_name -> management.v1.AddValkeyServiceParams.CustomLabelsEntry
 	4, // 2: management.v1.AddValkeyServiceParams.metrics_mode:type_name -> management.v1.MetricsMode
 	5, // 3: management.v1.AddValkeyServiceParams.log_level:type_name -> inventory.v1.LogLevel
-	6, // 4: management.v1.AddValkeyServiceParams.timeout:type_name -> google.protobuf.Duration
+	6, // 4: management.v1.AddValkeyServiceParams.connection_timeout:type_name -> google.protobuf.Duration
 	7, // 5: management.v1.ValkeyServiceResult.service:type_name -> inventory.v1.ValkeyService
 	8, // 6: management.v1.ValkeyServiceResult.valkey_exporter:type_name -> inventory.v1.ValkeyExporter
 	7, // [7:7] is the sub-list for method output_type

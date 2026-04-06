@@ -72,9 +72,9 @@ func (s *ManagementService) addValkey(ctx context.Context, req *managementv1.Add
 			TLS:           req.Tls,
 			TLSSkipVerify: req.TlsSkipVerify,
 			ExporterOptions: models.ExporterOptions{
-				ExposeExporter: req.ExposeExporter,
-				PushMetrics:    isPushMode(req.MetricsMode),
-				Timeout:        duration.FromProto(req.Timeout),
+				ExposeExporter:    req.ExposeExporter,
+				PushMetrics:       isPushMode(req.MetricsMode),
+				ConnectionTimeout: duration.FromProto(req.ConnectionTimeout),
 			},
 			ValkeyOptions: models.ValkeyOptionsFromRequest(req),
 		})

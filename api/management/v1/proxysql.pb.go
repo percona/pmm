@@ -81,9 +81,9 @@ type AddProxySQLServiceParams struct {
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `protobuf:"varint,23,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
 	// Connection timeout for exporter (if set).
-	Timeout       *durationpb.Duration `protobuf:"bytes,24,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,24,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *AddProxySQLServiceParams) Reset() {
@@ -270,9 +270,9 @@ func (x *AddProxySQLServiceParams) GetExposeExporter() bool {
 	return false
 }
 
-func (x *AddProxySQLServiceParams) GetTimeout() *durationpb.Duration {
+func (x *AddProxySQLServiceParams) GetConnectionTimeout() *durationpb.Duration {
 	if x != nil {
-		return x.Timeout
+		return x.ConnectionTimeout
 	}
 	return nil
 }
@@ -333,7 +333,7 @@ var File_management_v1_proxysql_proto protoreflect.FileDescriptor
 
 const file_management_v1_proxysql_proto_rawDesc = "" +
 	"\n" +
-	"\x1cmanagement/v1/proxysql.proto\x12\rmanagement.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\x83\b\n" +
+	"\x1cmanagement/v1/proxysql.proto\x12\rmanagement.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\x98\b\n" +
 	"\x18AddProxySQLServiceParams\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x127\n" +
@@ -358,8 +358,8 @@ const file_management_v1_proxysql_proto_rawDesc = "" +
 	"\x12disable_collectors\x18\x14 \x03(\tR\x11disableCollectors\x12%\n" +
 	"\x0eagent_password\x18\x15 \x01(\tR\ragentPassword\x123\n" +
 	"\tlog_level\x18\x16 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12'\n" +
-	"\x0fexpose_exporter\x18\x17 \x01(\bR\x0eexposeExporter\x123\n" +
-	"\atimeout\x18\x18 \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1a?\n" +
+	"\x0fexpose_exporter\x18\x17 \x01(\bR\x0eexposeExporter\x12H\n" +
+	"\x12connection_timeout\x18\x18 \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x9d\x01\n" +
@@ -400,7 +400,7 @@ var file_management_v1_proxysql_proto_depIdxs = []int32{
 	2, // 1: management.v1.AddProxySQLServiceParams.custom_labels:type_name -> management.v1.AddProxySQLServiceParams.CustomLabelsEntry
 	4, // 2: management.v1.AddProxySQLServiceParams.metrics_mode:type_name -> management.v1.MetricsMode
 	5, // 3: management.v1.AddProxySQLServiceParams.log_level:type_name -> inventory.v1.LogLevel
-	6, // 4: management.v1.AddProxySQLServiceParams.timeout:type_name -> google.protobuf.Duration
+	6, // 4: management.v1.AddProxySQLServiceParams.connection_timeout:type_name -> google.protobuf.Duration
 	7, // 5: management.v1.ProxySQLServiceResult.service:type_name -> inventory.v1.ProxySQLService
 	8, // 6: management.v1.ProxySQLServiceResult.proxysql_exporter:type_name -> inventory.v1.ProxySQLExporter
 	7, // [7:7] is the sub-list for method output_type

@@ -357,9 +357,9 @@ type AddRDSServiceParams struct {
 	// Maximum number of exporter connections to PostgreSQL instance.
 	MaxPostgresqlExporterConnections int32 `protobuf:"varint,33,opt,name=max_postgresql_exporter_connections,json=maxPostgresqlExporterConnections,proto3" json:"max_postgresql_exporter_connections,omitempty"`
 	// Connection timeout for exporter (if set).
-	Timeout       *durationpb.Duration `protobuf:"bytes,35,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,35,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *AddRDSServiceParams) Reset() {
@@ -630,9 +630,9 @@ func (x *AddRDSServiceParams) GetMaxPostgresqlExporterConnections() int32 {
 	return 0
 }
 
-func (x *AddRDSServiceParams) GetTimeout() *durationpb.Duration {
+func (x *AddRDSServiceParams) GetConnectionTimeout() *durationpb.Duration {
 	if x != nil {
-		return x.Timeout
+		return x.ConnectionTimeout
 	}
 	return nil
 }
@@ -757,7 +757,7 @@ const file_management_v1_rds_proto_rawDesc = "" +
 	"\x0eaws_access_key\x18\x01 \x01(\tR\fawsAccessKey\x12$\n" +
 	"\x0eaws_secret_key\x18\x02 \x01(\tR\fawsSecretKey\"^\n" +
 	"\x13DiscoverRDSResponse\x12G\n" +
-	"\rrds_instances\x18\x01 \x03(\v2\".management.v1.DiscoverRDSInstanceR\frdsInstances\"\xd3\f\n" +
+	"\rrds_instances\x18\x01 \x03(\v2\".management.v1.DiscoverRDSInstanceR\frdsInstances\"\xe8\f\n" +
 	"\x13AddRDSServiceParams\x12\x1f\n" +
 	"\x06region\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06region\x12\x0e\n" +
 	"\x02az\x18\x02 \x01(\tR\x02az\x12(\n" +
@@ -796,8 +796,8 @@ const file_management_v1_rds_proto_rawDesc = "" +
 	"\bdatabase\x18\x1e \x01(\tR\bdatabase\x120\n" +
 	"\x14auto_discovery_limit\x18\x1f \x01(\x05R\x12autoDiscoveryLimit\x128\n" +
 	"\x18disable_comments_parsing\x18  \x01(\bR\x16disableCommentsParsing\x12M\n" +
-	"#max_postgresql_exporter_connections\x18! \x01(\x05R maxPostgresqlExporterConnections\x123\n" +
-	"\atimeout\x18# \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1a?\n" +
+	"#max_postgresql_exporter_connections\x18! \x01(\x05R maxPostgresqlExporterConnections\x12H\n" +
+	"\x12connection_timeout\x18# \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd3\x04\n" +
@@ -860,7 +860,7 @@ var file_management_v1_rds_proto_depIdxs = []int32{
 	0,  // 2: management.v1.AddRDSServiceParams.engine:type_name -> management.v1.DiscoverRDSEngine
 	6,  // 3: management.v1.AddRDSServiceParams.custom_labels:type_name -> management.v1.AddRDSServiceParams.CustomLabelsEntry
 	7,  // 4: management.v1.AddRDSServiceParams.metrics_mode:type_name -> management.v1.MetricsMode
-	8,  // 5: management.v1.AddRDSServiceParams.timeout:type_name -> google.protobuf.Duration
+	8,  // 5: management.v1.AddRDSServiceParams.connection_timeout:type_name -> google.protobuf.Duration
 	9,  // 6: management.v1.RDSServiceResult.node:type_name -> inventory.v1.RemoteRDSNode
 	10, // 7: management.v1.RDSServiceResult.rds_exporter:type_name -> inventory.v1.RDSExporter
 	11, // 8: management.v1.RDSServiceResult.mysql:type_name -> inventory.v1.MySQLService

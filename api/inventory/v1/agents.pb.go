@@ -413,9 +413,9 @@ type NodeExporter struct {
 	// Metrics resolution for this agent.
 	MetricsResolutions *common.MetricsResolutions `protobuf:"bytes,15,opt,name=metrics_resolutions,json=metricsResolutions,proto3" json:"metrics_resolutions,omitempty"`
 	// Connection timeout for exporter (if set).
-	Timeout       *durationpb.Duration `protobuf:"bytes,16,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,16,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *NodeExporter) Reset() {
@@ -532,9 +532,9 @@ func (x *NodeExporter) GetMetricsResolutions() *common.MetricsResolutions {
 	return nil
 }
 
-func (x *NodeExporter) GetTimeout() *durationpb.Duration {
+func (x *NodeExporter) GetConnectionTimeout() *durationpb.Duration {
 	if x != nil {
-		return x.Timeout
+		return x.ConnectionTimeout
 	}
 	return nil
 }
@@ -591,9 +591,9 @@ type MySQLdExporter struct {
 	// Extra DSN parameters for MySQL connection.
 	ExtraDsnParams map[string]string `protobuf:"bytes,27,rep,name=extra_dsn_params,json=extraDsnParams,proto3" json:"extra_dsn_params,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Connection timeout for exporter (if set).
-	Timeout       *durationpb.Duration `protobuf:"bytes,28,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,28,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *MySQLdExporter) Reset() {
@@ -787,9 +787,9 @@ func (x *MySQLdExporter) GetExtraDsnParams() map[string]string {
 	return nil
 }
 
-func (x *MySQLdExporter) GetTimeout() *durationpb.Duration {
+func (x *MySQLdExporter) GetConnectionTimeout() *durationpb.Duration {
 	if x != nil {
-		return x.Timeout
+		return x.ConnectionTimeout
 	}
 	return nil
 }
@@ -839,9 +839,9 @@ type MongoDBExporter struct {
 	// Environment variable names passed to the exporter.
 	EnvironmentVariableNames []string `protobuf:"bytes,29,rep,name=environment_variable_names,json=environmentVariableNames,proto3" json:"environment_variable_names,omitempty"`
 	// Connection timeout for exporter (if set).
-	Timeout       *durationpb.Duration `protobuf:"bytes,30,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,30,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *MongoDBExporter) Reset() {
@@ -1014,9 +1014,9 @@ func (x *MongoDBExporter) GetEnvironmentVariableNames() []string {
 	return nil
 }
 
-func (x *MongoDBExporter) GetTimeout() *durationpb.Duration {
+func (x *MongoDBExporter) GetConnectionTimeout() *durationpb.Duration {
 	if x != nil {
-		return x.Timeout
+		return x.ConnectionTimeout
 	}
 	return nil
 }
@@ -1061,9 +1061,9 @@ type PostgresExporter struct {
 	// Metrics resolution for this agent.
 	MetricsResolutions *common.MetricsResolutions `protobuf:"bytes,27,opt,name=metrics_resolutions,json=metricsResolutions,proto3" json:"metrics_resolutions,omitempty"`
 	// Connection timeout for exporter (if set).
-	Timeout       *durationpb.Duration `protobuf:"bytes,28,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,28,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *PostgresExporter) Reset() {
@@ -1222,9 +1222,9 @@ func (x *PostgresExporter) GetMetricsResolutions() *common.MetricsResolutions {
 	return nil
 }
 
-func (x *PostgresExporter) GetTimeout() *durationpb.Duration {
+func (x *PostgresExporter) GetConnectionTimeout() *durationpb.Duration {
 	if x != nil {
-		return x.Timeout
+		return x.ConnectionTimeout
 	}
 	return nil
 }
@@ -1265,9 +1265,9 @@ type ProxySQLExporter struct {
 	// Metrics resolution for this agent.
 	MetricsResolutions *common.MetricsResolutions `protobuf:"bytes,25,opt,name=metrics_resolutions,json=metricsResolutions,proto3" json:"metrics_resolutions,omitempty"`
 	// Connection timeout for exporter (if set).
-	Timeout       *durationpb.Duration `protobuf:"bytes,26,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,26,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *ProxySQLExporter) Reset() {
@@ -1412,9 +1412,9 @@ func (x *ProxySQLExporter) GetMetricsResolutions() *common.MetricsResolutions {
 	return nil
 }
 
-func (x *ProxySQLExporter) GetTimeout() *durationpb.Duration {
+func (x *ProxySQLExporter) GetConnectionTimeout() *durationpb.Duration {
 	if x != nil {
-		return x.Timeout
+		return x.ConnectionTimeout
 	}
 	return nil
 }
@@ -1453,9 +1453,9 @@ type ValkeyExporter struct {
 	// Metrics resolution for this agent.
 	MetricsResolutions *common.MetricsResolutions `protobuf:"bytes,24,opt,name=metrics_resolutions,json=metricsResolutions,proto3" json:"metrics_resolutions,omitempty"`
 	// Connection timeout for exporter (if set).
-	Timeout       *durationpb.Duration `protobuf:"bytes,25,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,25,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *ValkeyExporter) Reset() {
@@ -1593,9 +1593,9 @@ func (x *ValkeyExporter) GetMetricsResolutions() *common.MetricsResolutions {
 	return nil
 }
 
-func (x *ValkeyExporter) GetTimeout() *durationpb.Duration {
+func (x *ValkeyExporter) GetConnectionTimeout() *durationpb.Duration {
 	if x != nil {
-		return x.Timeout
+		return x.ConnectionTimeout
 	}
 	return nil
 }
@@ -2830,9 +2830,9 @@ type RDSExporter struct {
 	// Metrics resolution for this agent.
 	MetricsResolutions *common.MetricsResolutions `protobuf:"bytes,26,opt,name=metrics_resolutions,json=metricsResolutions,proto3" json:"metrics_resolutions,omitempty"`
 	// Connection timeout for exporter (if set).
-	Timeout       *durationpb.Duration `protobuf:"bytes,27,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,27,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *RDSExporter) Reset() {
@@ -2970,9 +2970,9 @@ func (x *RDSExporter) GetMetricsResolutions() *common.MetricsResolutions {
 	return nil
 }
 
-func (x *RDSExporter) GetTimeout() *durationpb.Duration {
+func (x *RDSExporter) GetConnectionTimeout() *durationpb.Duration {
 	if x != nil {
-		return x.Timeout
+		return x.ConnectionTimeout
 	}
 	return nil
 }
@@ -3009,9 +3009,9 @@ type ExternalExporter struct {
 	// Actual Agent status.
 	Status AgentStatus `protobuf:"varint,14,opt,name=status,proto3,enum=inventory.v1.AgentStatus" json:"status,omitempty"`
 	// Connection timeout for exporter (if set).
-	Timeout       *durationpb.Duration `protobuf:"bytes,15,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,15,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *ExternalExporter) Reset() {
@@ -3142,9 +3142,9 @@ func (x *ExternalExporter) GetStatus() AgentStatus {
 	return AgentStatus_AGENT_STATUS_UNSPECIFIED
 }
 
-func (x *ExternalExporter) GetTimeout() *durationpb.Duration {
+func (x *ExternalExporter) GetConnectionTimeout() *durationpb.Duration {
 	if x != nil {
-		return x.Timeout
+		return x.ConnectionTimeout
 	}
 	return nil
 }
@@ -3179,9 +3179,9 @@ type AzureDatabaseExporter struct {
 	// Metrics resolution for this agent.
 	MetricsResolutions *common.MetricsResolutions `protobuf:"bytes,15,opt,name=metrics_resolutions,json=metricsResolutions,proto3" json:"metrics_resolutions,omitempty"`
 	// Connection timeout for exporter (if set).
-	Timeout       *durationpb.Duration `protobuf:"bytes,16,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,16,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *AzureDatabaseExporter) Reset() {
@@ -3305,9 +3305,9 @@ func (x *AzureDatabaseExporter) GetMetricsResolutions() *common.MetricsResolutio
 	return nil
 }
 
-func (x *AzureDatabaseExporter) GetTimeout() *durationpb.Duration {
+func (x *AzureDatabaseExporter) GetConnectionTimeout() *durationpb.Duration {
 	if x != nil {
-		return x.Timeout
+		return x.ConnectionTimeout
 	}
 	return nil
 }
@@ -5518,9 +5518,9 @@ type AddNodeExporterParams struct {
 	// Expose the node_exporter process on all public interfaces
 	ExposeExporter bool `protobuf:"varint,6,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
 	// Connection timeout for exporter (if set).
-	Timeout       *durationpb.Duration `protobuf:"bytes,7,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,7,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *AddNodeExporterParams) Reset() {
@@ -5595,9 +5595,9 @@ func (x *AddNodeExporterParams) GetExposeExporter() bool {
 	return false
 }
 
-func (x *AddNodeExporterParams) GetTimeout() *durationpb.Duration {
+func (x *AddNodeExporterParams) GetConnectionTimeout() *durationpb.Duration {
 	if x != nil {
-		return x.Timeout
+		return x.ConnectionTimeout
 	}
 	return nil
 }
@@ -5619,9 +5619,9 @@ type ChangeNodeExporterParams struct {
 	// Expose the node_exporter process on all public interfaces.
 	ExposeExporter *bool `protobuf:"varint,7,opt,name=expose_exporter,json=exposeExporter,proto3,oneof" json:"expose_exporter,omitempty"`
 	// Connection timeout for exporter (if set).
-	Timeout       *durationpb.Duration `protobuf:"bytes,8,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,8,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *ChangeNodeExporterParams) Reset() {
@@ -5703,9 +5703,9 @@ func (x *ChangeNodeExporterParams) GetExposeExporter() bool {
 	return false
 }
 
-func (x *ChangeNodeExporterParams) GetTimeout() *durationpb.Duration {
+func (x *ChangeNodeExporterParams) GetConnectionTimeout() *durationpb.Duration {
 	if x != nil {
-		return x.Timeout
+		return x.ConnectionTimeout
 	}
 	return nil
 }
@@ -5751,9 +5751,9 @@ type AddMySQLdExporterParams struct {
 	// Extra DSN parameters for MySQL connection.
 	ExtraDsnParams map[string]string `protobuf:"bytes,18,rep,name=extra_dsn_params,json=extraDsnParams,proto3" json:"extra_dsn_params,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Connection timeout for exporter (if set).
-	Timeout       *durationpb.Duration `protobuf:"bytes,19,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,19,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *AddMySQLdExporterParams) Reset() {
@@ -5912,9 +5912,9 @@ func (x *AddMySQLdExporterParams) GetExtraDsnParams() map[string]string {
 	return nil
 }
 
-func (x *AddMySQLdExporterParams) GetTimeout() *durationpb.Duration {
+func (x *AddMySQLdExporterParams) GetConnectionTimeout() *durationpb.Duration {
 	if x != nil {
-		return x.Timeout
+		return x.ConnectionTimeout
 	}
 	return nil
 }
@@ -5956,9 +5956,9 @@ type ChangeMySQLdExporterParams struct {
 	// Optionally expose the exporter process on all public interfaces.
 	ExposeExporter *bool `protobuf:"varint,17,opt,name=expose_exporter,json=exposeExporter,proto3,oneof" json:"expose_exporter,omitempty"`
 	// Connection timeout for exporter (if set).
-	Timeout       *durationpb.Duration `protobuf:"bytes,18,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,18,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *ChangeMySQLdExporterParams) Reset() {
@@ -6110,9 +6110,9 @@ func (x *ChangeMySQLdExporterParams) GetExposeExporter() bool {
 	return false
 }
 
-func (x *ChangeMySQLdExporterParams) GetTimeout() *durationpb.Duration {
+func (x *ChangeMySQLdExporterParams) GetConnectionTimeout() *durationpb.Duration {
 	if x != nil {
-		return x.Timeout
+		return x.ConnectionTimeout
 	}
 	return nil
 }
@@ -6168,9 +6168,9 @@ type AddMongoDBExporterParams struct {
 	// Enable all collectors.
 	EnableAllCollectors bool `protobuf:"varint,22,opt,name=enable_all_collectors,json=enableAllCollectors,proto3" json:"enable_all_collectors,omitempty"`
 	// Connection timeout for exporter (if set).
-	Timeout       *durationpb.Duration `protobuf:"bytes,23,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,23,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *AddMongoDBExporterParams) Reset() {
@@ -6357,9 +6357,9 @@ func (x *AddMongoDBExporterParams) GetEnableAllCollectors() bool {
 	return false
 }
 
-func (x *AddMongoDBExporterParams) GetTimeout() *durationpb.Duration {
+func (x *AddMongoDBExporterParams) GetConnectionTimeout() *durationpb.Duration {
 	if x != nil {
-		return x.Timeout
+		return x.ConnectionTimeout
 	}
 	return nil
 }
@@ -6409,9 +6409,9 @@ type ChangeMongoDBExporterParams struct {
 	// Optionally expose the exporter process on all public interfaces.
 	ExposeExporter *bool `protobuf:"varint,21,opt,name=expose_exporter,json=exposeExporter,proto3,oneof" json:"expose_exporter,omitempty"`
 	// Connection timeout for exporter (if set).
-	Timeout       *durationpb.Duration `protobuf:"bytes,22,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,22,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *ChangeMongoDBExporterParams) Reset() {
@@ -6591,9 +6591,9 @@ func (x *ChangeMongoDBExporterParams) GetExposeExporter() bool {
 	return false
 }
 
-func (x *ChangeMongoDBExporterParams) GetTimeout() *durationpb.Duration {
+func (x *ChangeMongoDBExporterParams) GetConnectionTimeout() *durationpb.Duration {
 	if x != nil {
-		return x.Timeout
+		return x.ConnectionTimeout
 	}
 	return nil
 }
@@ -6637,9 +6637,9 @@ type AddPostgresExporterParams struct {
 	// Maximum number of connections that exporter can open to the database instance.
 	MaxExporterConnections int32 `protobuf:"varint,18,opt,name=max_exporter_connections,json=maxExporterConnections,proto3" json:"max_exporter_connections,omitempty"`
 	// Connection timeout for exporter (if set).
-	Timeout       *durationpb.Duration `protobuf:"bytes,19,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,19,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *AddPostgresExporterParams) Reset() {
@@ -6798,9 +6798,9 @@ func (x *AddPostgresExporterParams) GetMaxExporterConnections() int32 {
 	return 0
 }
 
-func (x *AddPostgresExporterParams) GetTimeout() *durationpb.Duration {
+func (x *AddPostgresExporterParams) GetConnectionTimeout() *durationpb.Duration {
 	if x != nil {
-		return x.Timeout
+		return x.ConnectionTimeout
 	}
 	return nil
 }
@@ -6844,9 +6844,9 @@ type ChangePostgresExporterParams struct {
 	// Maximum number of connections that exporter can open to the database instance.
 	MaxExporterConnections *int32 `protobuf:"varint,18,opt,name=max_exporter_connections,json=maxExporterConnections,proto3,oneof" json:"max_exporter_connections,omitempty"`
 	// Connection timeout for exporter (if set).
-	Timeout       *durationpb.Duration `protobuf:"bytes,19,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,19,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *ChangePostgresExporterParams) Reset() {
@@ -7005,9 +7005,9 @@ func (x *ChangePostgresExporterParams) GetMaxExporterConnections() int32 {
 	return 0
 }
 
-func (x *ChangePostgresExporterParams) GetTimeout() *durationpb.Duration {
+func (x *ChangePostgresExporterParams) GetConnectionTimeout() *durationpb.Duration {
 	if x != nil {
-		return x.Timeout
+		return x.ConnectionTimeout
 	}
 	return nil
 }
@@ -7041,9 +7041,9 @@ type AddProxySQLExporterParams struct {
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `protobuf:"varint,13,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
 	// Connection timeout for exporter (if set).
-	Timeout       *durationpb.Duration `protobuf:"bytes,14,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,14,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *AddProxySQLExporterParams) Reset() {
@@ -7167,9 +7167,9 @@ func (x *AddProxySQLExporterParams) GetExposeExporter() bool {
 	return false
 }
 
-func (x *AddProxySQLExporterParams) GetTimeout() *durationpb.Duration {
+func (x *AddProxySQLExporterParams) GetConnectionTimeout() *durationpb.Duration {
 	if x != nil {
-		return x.Timeout
+		return x.ConnectionTimeout
 	}
 	return nil
 }
@@ -7201,9 +7201,9 @@ type ChangeProxySQLExporterParams struct {
 	// Optionally expose the exporter process on all public interfaces.
 	ExposeExporter *bool `protobuf:"varint,12,opt,name=expose_exporter,json=exposeExporter,proto3,oneof" json:"expose_exporter,omitempty"`
 	// Connection timeout for exporter (if set).
-	Timeout       *durationpb.Duration `protobuf:"bytes,13,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,13,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *ChangeProxySQLExporterParams) Reset() {
@@ -7320,9 +7320,9 @@ func (x *ChangeProxySQLExporterParams) GetExposeExporter() bool {
 	return false
 }
 
-func (x *ChangeProxySQLExporterParams) GetTimeout() *durationpb.Duration {
+func (x *ChangeProxySQLExporterParams) GetConnectionTimeout() *durationpb.Duration {
 	if x != nil {
-		return x.Timeout
+		return x.ConnectionTimeout
 	}
 	return nil
 }
@@ -9443,9 +9443,9 @@ type AddRDSExporterParams struct {
 	// Log level for exporter.
 	LogLevel LogLevel `protobuf:"varint,10,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
 	// Connection timeout for exporter (if set).
-	Timeout       *durationpb.Duration `protobuf:"bytes,11,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,11,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *AddRDSExporterParams) Reset() {
@@ -9548,9 +9548,9 @@ func (x *AddRDSExporterParams) GetLogLevel() LogLevel {
 	return LogLevel_LOG_LEVEL_UNSPECIFIED
 }
 
-func (x *AddRDSExporterParams) GetTimeout() *durationpb.Duration {
+func (x *AddRDSExporterParams) GetConnectionTimeout() *durationpb.Duration {
 	if x != nil {
-		return x.Timeout
+		return x.ConnectionTimeout
 	}
 	return nil
 }
@@ -9576,9 +9576,9 @@ type ChangeRDSExporterParams struct {
 	// Log level for exporter.
 	LogLevel *LogLevel `protobuf:"varint,9,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
 	// Connection timeout for exporter (if set).
-	Timeout       *durationpb.Duration `protobuf:"bytes,10,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,10,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *ChangeRDSExporterParams) Reset() {
@@ -9674,9 +9674,9 @@ func (x *ChangeRDSExporterParams) GetLogLevel() LogLevel {
 	return LogLevel_LOG_LEVEL_UNSPECIFIED
 }
 
-func (x *ChangeRDSExporterParams) GetTimeout() *durationpb.Duration {
+func (x *ChangeRDSExporterParams) GetConnectionTimeout() *durationpb.Duration {
 	if x != nil {
-		return x.Timeout
+		return x.ConnectionTimeout
 	}
 	return nil
 }
@@ -9704,9 +9704,9 @@ type AddExternalExporterParams struct {
 	// Skip TLS certificate and hostname verification.
 	TlsSkipVerify bool `protobuf:"varint,12,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3" json:"tls_skip_verify,omitempty"`
 	// Connection timeout for exporter (if set).
-	Timeout       *durationpb.Duration `protobuf:"bytes,13,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,13,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *AddExternalExporterParams) Reset() {
@@ -9809,9 +9809,9 @@ func (x *AddExternalExporterParams) GetTlsSkipVerify() bool {
 	return false
 }
 
-func (x *AddExternalExporterParams) GetTimeout() *durationpb.Duration {
+func (x *AddExternalExporterParams) GetConnectionTimeout() *durationpb.Duration {
 	if x != nil {
-		return x.Timeout
+		return x.ConnectionTimeout
 	}
 	return nil
 }
@@ -9835,9 +9835,9 @@ type ChangeExternalExporterParams struct {
 	// Listen port for scraping metrics.
 	ListenPort *uint32 `protobuf:"varint,8,opt,name=listen_port,json=listenPort,proto3,oneof" json:"listen_port,omitempty"`
 	// Connection timeout for exporter (if set).
-	Timeout       *durationpb.Duration `protobuf:"bytes,9,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,9,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *ChangeExternalExporterParams) Reset() {
@@ -9926,9 +9926,9 @@ func (x *ChangeExternalExporterParams) GetListenPort() uint32 {
 	return 0
 }
 
-func (x *ChangeExternalExporterParams) GetTimeout() *durationpb.Duration {
+func (x *ChangeExternalExporterParams) GetConnectionTimeout() *durationpb.Duration {
 	if x != nil {
-		return x.Timeout
+		return x.ConnectionTimeout
 	}
 	return nil
 }
@@ -9960,9 +9960,9 @@ type AddAzureDatabaseExporterParams struct {
 	// Log level for exporter.
 	LogLevel LogLevel `protobuf:"varint,12,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
 	// Connection timeout for exporter (if set).
-	Timeout       *durationpb.Duration `protobuf:"bytes,13,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,13,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *AddAzureDatabaseExporterParams) Reset() {
@@ -10079,9 +10079,9 @@ func (x *AddAzureDatabaseExporterParams) GetLogLevel() LogLevel {
 	return LogLevel_LOG_LEVEL_UNSPECIFIED
 }
 
-func (x *AddAzureDatabaseExporterParams) GetTimeout() *durationpb.Duration {
+func (x *AddAzureDatabaseExporterParams) GetConnectionTimeout() *durationpb.Duration {
 	if x != nil {
-		return x.Timeout
+		return x.ConnectionTimeout
 	}
 	return nil
 }
@@ -10109,9 +10109,9 @@ type ChangeAzureDatabaseExporterParams struct {
 	// Log level for exporter.
 	LogLevel *LogLevel `protobuf:"varint,11,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
 	// Connection timeout for exporter (if set).
-	Timeout       *durationpb.Duration `protobuf:"bytes,12,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,12,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *ChangeAzureDatabaseExporterParams) Reset() {
@@ -10214,9 +10214,9 @@ func (x *ChangeAzureDatabaseExporterParams) GetLogLevel() LogLevel {
 	return LogLevel_LOG_LEVEL_UNSPECIFIED
 }
 
-func (x *ChangeAzureDatabaseExporterParams) GetTimeout() *durationpb.Duration {
+func (x *ChangeAzureDatabaseExporterParams) GetConnectionTimeout() *durationpb.Duration {
 	if x != nil {
-		return x.Timeout
+		return x.ConnectionTimeout
 	}
 	return nil
 }
@@ -10301,9 +10301,9 @@ type AddValkeyExporterParams struct {
 	// Log level for exporter.
 	LogLevel LogLevel `protobuf:"varint,16,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
 	// Connection timeout for exporter (if set).
-	Timeout       *durationpb.Duration `protobuf:"bytes,17,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,17,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *AddValkeyExporterParams) Reset() {
@@ -10448,9 +10448,9 @@ func (x *AddValkeyExporterParams) GetLogLevel() LogLevel {
 	return LogLevel_LOG_LEVEL_UNSPECIFIED
 }
 
-func (x *AddValkeyExporterParams) GetTimeout() *durationpb.Duration {
+func (x *AddValkeyExporterParams) GetConnectionTimeout() *durationpb.Duration {
 	if x != nil {
-		return x.Timeout
+		return x.ConnectionTimeout
 	}
 	return nil
 }
@@ -10488,9 +10488,9 @@ type ChangeValkeyExporterParams struct {
 	// Log level for exporter.
 	LogLevel *LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
 	// Connection timeout for exporter (if set).
-	Timeout       *durationpb.Duration `protobuf:"bytes,16,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,16,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *ChangeValkeyExporterParams) Reset() {
@@ -10628,9 +10628,9 @@ func (x *ChangeValkeyExporterParams) GetLogLevel() LogLevel {
 	return LogLevel_LOG_LEVEL_UNSPECIFIED
 }
 
-func (x *ChangeValkeyExporterParams) GetTimeout() *durationpb.Duration {
+func (x *ChangeValkeyExporterParams) GetConnectionTimeout() *durationpb.Duration {
 	if x != nil {
-		return x.Timeout
+		return x.ConnectionTimeout
 	}
 	return nil
 }
@@ -11067,7 +11067,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	" \x01(\x0e2\x19.inventory.v1.AgentStatusR\x06status\x12*\n" +
 	"\x11process_exec_path\x18\v \x01(\tR\x0fprocessExecPath\x12\x1f\n" +
 	"\vlisten_port\x18\f \x01(\rR\n" +
-	"listenPortJ\x04\b\x04\x10\x05\"\xbe\x05\n" +
+	"listenPortJ\x04\b\x04\x10\x05\"\xd3\x05\n" +
 	"\fNodeExporter\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
@@ -11083,11 +11083,11 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x11process_exec_path\x18\f \x01(\tR\x0fprocessExecPath\x123\n" +
 	"\tlog_level\x18\r \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12'\n" +
 	"\x0fexpose_exporter\x18\x0e \x01(\bR\x0eexposeExporter\x12K\n" +
-	"\x13metrics_resolutions\x18\x0f \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x123\n" +
-	"\atimeout\x18\x10 \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1a?\n" +
+	"\x13metrics_resolutions\x18\x0f \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x12H\n" +
+	"\x12connection_timeout\x18\x10 \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xbf\t\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd4\t\n" +
 	"\x0eMySQLdExporter\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
@@ -11116,14 +11116,14 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\tlog_level\x18\x18 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12'\n" +
 	"\x0fexpose_exporter\x18\x19 \x01(\bR\x0eexposeExporter\x12K\n" +
 	"\x13metrics_resolutions\x18\x1a \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x12Z\n" +
-	"\x10extra_dsn_params\x18\x1b \x03(\v20.inventory.v1.MySQLdExporter.ExtraDsnParamsEntryR\x0eextraDsnParams\x123\n" +
-	"\atimeout\x18\x1c \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1a?\n" +
+	"\x10extra_dsn_params\x18\x1b \x03(\v20.inventory.v1.MySQLdExporter.ExtraDsnParamsEntryR\x0eextraDsnParams\x12H\n" +
+	"\x12connection_timeout\x18\x1c \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aA\n" +
 	"\x13ExtraDsnParamsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x85\b\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x9a\b\n" +
 	"\x0fMongoDBExporter\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
@@ -11148,11 +11148,11 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\tlog_level\x18\x1a \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12'\n" +
 	"\x0fexpose_exporter\x18\x1b \x01(\bR\x0eexposeExporter\x12K\n" +
 	"\x13metrics_resolutions\x18\x1c \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x12<\n" +
-	"\x1aenvironment_variable_names\x18\x1d \x03(\tR\x18environmentVariableNames\x123\n" +
-	"\atimeout\x18\x1e \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1a?\n" +
+	"\x1aenvironment_variable_names\x18\x1d \x03(\tR\x18environmentVariableNames\x12H\n" +
+	"\x12connection_timeout\x18\x1e \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xa7\a\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xbc\a\n" +
 	"\x10PostgresExporter\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
@@ -11175,11 +11175,11 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x14auto_discovery_limit\x18\x18 \x01(\x05R\x12autoDiscoveryLimit\x12'\n" +
 	"\x0fexpose_exporter\x18\x19 \x01(\bR\x0eexposeExporter\x128\n" +
 	"\x18max_exporter_connections\x18\x1a \x01(\x05R\x16maxExporterConnections\x12K\n" +
-	"\x13metrics_resolutions\x18\x1b \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x123\n" +
-	"\atimeout\x18\x1c \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1a?\n" +
+	"\x13metrics_resolutions\x18\x1b \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x12H\n" +
+	"\x12connection_timeout\x18\x1c \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xbb\x06\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd0\x06\n" +
 	"\x10ProxySQLExporter\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
@@ -11200,11 +11200,11 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x11process_exec_path\x18\x16 \x01(\tR\x0fprocessExecPath\x123\n" +
 	"\tlog_level\x18\x17 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12'\n" +
 	"\x0fexpose_exporter\x18\x18 \x01(\bR\x0eexposeExporter\x12K\n" +
-	"\x13metrics_resolutions\x18\x19 \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x123\n" +
-	"\atimeout\x18\x1a \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1a?\n" +
+	"\x13metrics_resolutions\x18\x19 \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x12H\n" +
+	"\x12connection_timeout\x18\x1a \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x82\x06\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x97\x06\n" +
 	"\x0eValkeyExporter\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
@@ -11224,8 +11224,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"listenPort\x12*\n" +
 	"\x11process_exec_path\x18\x16 \x01(\tR\x0fprocessExecPath\x12'\n" +
 	"\x0fexpose_exporter\x18\x17 \x01(\bR\x0eexposeExporter\x12K\n" +
-	"\x13metrics_resolutions\x18\x18 \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x123\n" +
-	"\atimeout\x18\x19 \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1a?\n" +
+	"\x13metrics_resolutions\x18\x18 \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x12H\n" +
+	"\x12connection_timeout\x18\x19 \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xa9\a\n" +
@@ -11387,7 +11387,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\tlog_level\x18\x16 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc5\x06\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xda\x06\n" +
 	"\vRDSExporter\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
@@ -11406,11 +11406,11 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x11process_exec_path\x18\x17 \x01(\tR\x0fprocessExecPath\x123\n" +
 	"\tlog_level\x18\x18 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x120\n" +
 	"\x14auto_discovery_limit\x18\x19 \x01(\x05R\x12autoDiscoveryLimit\x12K\n" +
-	"\x13metrics_resolutions\x18\x1a \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x123\n" +
-	"\atimeout\x18\x1b \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1a?\n" +
+	"\x13metrics_resolutions\x18\x1a \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x12H\n" +
+	"\x12connection_timeout\x18\x1b \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xda\x05\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xef\x05\n" +
 	"\x10ExternalExporter\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12%\n" +
 	"\x0fruns_on_node_id\x18\x02 \x01(\tR\frunsOnNodeId\x12\x1a\n" +
@@ -11428,11 +11428,11 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x11process_exec_path\x18\v \x01(\tR\x0fprocessExecPath\x12K\n" +
 	"\x13metrics_resolutions\x18\f \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x12&\n" +
 	"\x0ftls_skip_verify\x18\r \x01(\bR\rtlsSkipVerify\x121\n" +
-	"\x06status\x18\x0e \x01(\x0e2\x19.inventory.v1.AgentStatusR\x06status\x123\n" +
-	"\atimeout\x18\x0f \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1a?\n" +
+	"\x06status\x18\x0e \x01(\x0e2\x19.inventory.v1.AgentStatusR\x06status\x12H\n" +
+	"\x12connection_timeout\x18\x0f \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x95\x06\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xaa\x06\n" +
 	"\x15AzureDatabaseExporter\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
@@ -11449,8 +11449,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x14push_metrics_enabled\x18\f \x01(\bR\x12pushMetricsEnabled\x12*\n" +
 	"\x11process_exec_path\x18\r \x01(\tR\x0fprocessExecPath\x123\n" +
 	"\tlog_level\x18\x0e \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12K\n" +
-	"\x13metrics_resolutions\x18\x0f \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x123\n" +
-	"\atimeout\x18\x10 \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1a?\n" +
+	"\x13metrics_resolutions\x18\x0f \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x12H\n" +
+	"\x12connection_timeout\x18\x10 \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xaa\x02\n" +
@@ -11611,7 +11611,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\rcustom_labels\x18\x02 \x03(\v21.inventory.v1.AddPMMAgentParams.CustomLabelsEntryR\fcustomLabels\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc4\x03\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd9\x03\n" +
 	"\x15AddNodeExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12Z\n" +
@@ -11619,11 +11619,11 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\fpush_metrics\x18\x03 \x01(\bR\vpushMetrics\x12-\n" +
 	"\x12disable_collectors\x18\x04 \x03(\tR\x11disableCollectors\x123\n" +
 	"\tlog_level\x18\x05 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12'\n" +
-	"\x0fexpose_exporter\x18\x06 \x01(\bR\x0eexposeExporter\x123\n" +
-	"\atimeout\x18\a \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1a?\n" +
+	"\x0fexpose_exporter\x18\x06 \x01(\bR\x0eexposeExporter\x12H\n" +
+	"\x12connection_timeout\x18\a \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x99\x04\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xae\x04\n" +
 	"\x18ChangeNodeExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -11631,14 +11631,14 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x13metrics_resolutions\x18\x04 \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x12-\n" +
 	"\x12disable_collectors\x18\x05 \x03(\tR\x11disableCollectors\x128\n" +
 	"\tlog_level\x18\x06 \x01(\x0e2\x16.inventory.v1.LogLevelH\x03R\blogLevel\x88\x01\x01\x12,\n" +
-	"\x0fexpose_exporter\x18\a \x01(\bH\x04R\x0eexposeExporter\x88\x01\x01\x123\n" +
-	"\atimeout\x18\b \x01(\v2\x19.google.protobuf.DurationR\atimeoutB\t\n" +
+	"\x0fexpose_exporter\x18\a \x01(\bH\x04R\x0eexposeExporter\x88\x01\x01\x12H\n" +
+	"\x12connection_timeout\x18\b \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeoutB\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\f\n" +
 	"\n" +
 	"_log_levelB\x12\n" +
-	"\x10_expose_exporter\"\xfa\a\n" +
+	"\x10_expose_exporter\"\x8f\b\n" +
 	"\x17AddMySQLdExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -11660,14 +11660,14 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0eagent_password\x18\x0f \x01(\tR\ragentPassword\x123\n" +
 	"\tlog_level\x18\x10 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12'\n" +
 	"\x0fexpose_exporter\x18\x11 \x01(\bR\x0eexposeExporter\x12c\n" +
-	"\x10extra_dsn_params\x18\x12 \x03(\v29.inventory.v1.AddMySQLdExporterParams.ExtraDsnParamsEntryR\x0eextraDsnParams\x123\n" +
-	"\atimeout\x18\x13 \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1a?\n" +
+	"\x10extra_dsn_params\x18\x12 \x03(\v29.inventory.v1.AddMySQLdExporterParams.ExtraDsnParamsEntryR\x0eextraDsnParams\x12H\n" +
+	"\x12connection_timeout\x18\x13 \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aA\n" +
 	"\x13ExtraDsnParamsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xce\b\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe3\b\n" +
 	"\x1aChangeMySQLdExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -11687,8 +11687,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x12disable_collectors\x18\x0e \x03(\tR\x11disableCollectors\x12*\n" +
 	"\x0eagent_password\x18\x0f \x01(\tH\fR\ragentPassword\x88\x01\x01\x128\n" +
 	"\tlog_level\x18\x10 \x01(\x0e2\x16.inventory.v1.LogLevelH\rR\blogLevel\x88\x01\x01\x12,\n" +
-	"\x0fexpose_exporter\x18\x11 \x01(\bH\x0eR\x0eexposeExporter\x88\x01\x01\x123\n" +
-	"\atimeout\x18\x12 \x01(\v2\x19.google.protobuf.DurationR\atimeoutB\t\n" +
+	"\x0fexpose_exporter\x18\x11 \x01(\bH\x0eR\x0eexposeExporter\x88\x01\x01\x12H\n" +
+	"\x12connection_timeout\x18\x12 \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeoutB\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\v\n" +
@@ -11705,7 +11705,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0f_agent_passwordB\f\n" +
 	"\n" +
 	"_log_levelB\x12\n" +
-	"\x10_expose_exporter\"\x90\t\n" +
+	"\x10_expose_exporter\"\xa5\t\n" +
 	"\x18AddMongoDBExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -11731,11 +11731,11 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\tlog_level\x18\x13 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12'\n" +
 	"\x0fexpose_exporter\x18\x14 \x01(\bR\x0eexposeExporter\x12<\n" +
 	"\x1aenvironment_variable_names\x18\x15 \x03(\tR\x18environmentVariableNames\x122\n" +
-	"\x15enable_all_collectors\x18\x16 \x01(\bR\x13enableAllCollectors\x123\n" +
-	"\atimeout\x18\x17 \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1a?\n" +
+	"\x15enable_all_collectors\x18\x16 \x01(\bR\x13enableAllCollectors\x12H\n" +
+	"\x12connection_timeout\x18\x17 \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd2\v\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe7\v\n" +
 	"\x1bChangeMongoDBExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -11759,8 +11759,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x11collections_limit\x18\x12 \x01(\x05H\x0eR\x10collectionsLimit\x88\x01\x01\x127\n" +
 	"\x15enable_all_collectors\x18\x13 \x01(\bH\x0fR\x13enableAllCollectors\x88\x01\x01\x128\n" +
 	"\tlog_level\x18\x14 \x01(\x0e2\x16.inventory.v1.LogLevelH\x10R\blogLevel\x88\x01\x01\x12,\n" +
-	"\x0fexpose_exporter\x18\x15 \x01(\bH\x11R\x0eexposeExporter\x88\x01\x01\x123\n" +
-	"\atimeout\x18\x16 \x01(\v2\x19.google.protobuf.DurationR\atimeoutB\t\n" +
+	"\x0fexpose_exporter\x18\x15 \x01(\bH\x11R\x0eexposeExporter\x88\x01\x01\x12H\n" +
+	"\x12connection_timeout\x18\x16 \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeoutB\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\v\n" +
@@ -11779,7 +11779,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x16_enable_all_collectorsB\f\n" +
 	"\n" +
 	"_log_levelB\x12\n" +
-	"\x10_expose_exporter\"\x81\a\n" +
+	"\x10_expose_exporter\"\x96\a\n" +
 	"\x19AddPostgresExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -11801,11 +11801,11 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x120\n" +
 	"\x14auto_discovery_limit\x18\x10 \x01(\x05R\x12autoDiscoveryLimit\x12'\n" +
 	"\x0fexpose_exporter\x18\x11 \x01(\bR\x0eexposeExporter\x128\n" +
-	"\x18max_exporter_connections\x18\x12 \x01(\x05R\x16maxExporterConnections\x123\n" +
-	"\atimeout\x18\x13 \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1a?\n" +
+	"\x18max_exporter_connections\x18\x12 \x01(\x05R\x16maxExporterConnections\x12H\n" +
+	"\x12connection_timeout\x18\x13 \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x95\t\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xaa\t\n" +
 	"\x1cChangePostgresExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -11826,8 +11826,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelH\fR\blogLevel\x88\x01\x01\x125\n" +
 	"\x14auto_discovery_limit\x18\x10 \x01(\x05H\rR\x12autoDiscoveryLimit\x88\x01\x01\x12,\n" +
 	"\x0fexpose_exporter\x18\x11 \x01(\bH\x0eR\x0eexposeExporter\x88\x01\x01\x12=\n" +
-	"\x18max_exporter_connections\x18\x12 \x01(\x05H\x0fR\x16maxExporterConnections\x88\x01\x01\x123\n" +
-	"\atimeout\x18\x13 \x01(\v2\x19.google.protobuf.DurationR\atimeoutB\t\n" +
+	"\x18max_exporter_connections\x18\x12 \x01(\x05H\x0fR\x16maxExporterConnections\x88\x01\x01\x12H\n" +
+	"\x12connection_timeout\x18\x13 \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeoutB\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\v\n" +
@@ -11845,7 +11845,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"_log_levelB\x17\n" +
 	"\x15_auto_discovery_limitB\x12\n" +
 	"\x10_expose_exporterB\x1b\n" +
-	"\x19_max_exporter_connections\"\xca\x05\n" +
+	"\x19_max_exporter_connections\"\xdf\x05\n" +
 	"\x19AddProxySQLExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -11862,11 +11862,11 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	" \x03(\tR\x11disableCollectors\x12%\n" +
 	"\x0eagent_password\x18\v \x01(\tR\ragentPassword\x123\n" +
 	"\tlog_level\x18\f \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12'\n" +
-	"\x0fexpose_exporter\x18\r \x01(\bR\x0eexposeExporter\x123\n" +
-	"\atimeout\x18\x0e \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1a?\n" +
+	"\x0fexpose_exporter\x18\r \x01(\bR\x0eexposeExporter\x12H\n" +
+	"\x12connection_timeout\x18\x0e \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x98\x06\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xad\x06\n" +
 	"\x1cChangeProxySQLExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -11880,8 +11880,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0eagent_password\x18\n" +
 	" \x01(\tH\aR\ragentPassword\x88\x01\x01\x128\n" +
 	"\tlog_level\x18\v \x01(\x0e2\x16.inventory.v1.LogLevelH\bR\blogLevel\x88\x01\x01\x12,\n" +
-	"\x0fexpose_exporter\x18\f \x01(\bH\tR\x0eexposeExporter\x88\x01\x01\x123\n" +
-	"\atimeout\x18\r \x01(\v2\x19.google.protobuf.DurationR\atimeoutB\t\n" +
+	"\x0fexpose_exporter\x18\f \x01(\bH\tR\x0eexposeExporter\x88\x01\x01\x12H\n" +
+	"\x12connection_timeout\x18\r \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeoutB\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\v\n" +
@@ -12238,7 +12238,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\n" +
 	"\b_tls_keyB\f\n" +
 	"\n" +
-	"_log_level\"\xfa\x04\n" +
+	"_log_level\"\x8f\x05\n" +
 	"\x14AddRDSExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12 \n" +
@@ -12251,11 +12251,11 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x18disable_enhanced_metrics\x18\b \x01(\bR\x16disableEnhancedMetrics\x12!\n" +
 	"\fpush_metrics\x18\t \x01(\bR\vpushMetrics\x123\n" +
 	"\tlog_level\x18\n" +
-	" \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x123\n" +
-	"\atimeout\x18\v \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1a?\n" +
+	" \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12H\n" +
+	"\x12connection_timeout\x18\v \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd2\x05\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe7\x05\n" +
 	"\x17ChangeRDSExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -12265,9 +12265,9 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0eaws_secret_key\x18\x06 \x01(\tH\x04R\fawsSecretKey\x88\x01\x01\x127\n" +
 	"\x15disable_basic_metrics\x18\a \x01(\bH\x05R\x13disableBasicMetrics\x88\x01\x01\x12=\n" +
 	"\x18disable_enhanced_metrics\x18\b \x01(\bH\x06R\x16disableEnhancedMetrics\x88\x01\x01\x128\n" +
-	"\tlog_level\x18\t \x01(\x0e2\x16.inventory.v1.LogLevelH\aR\blogLevel\x88\x01\x01\x123\n" +
-	"\atimeout\x18\n" +
-	" \x01(\v2\x19.google.protobuf.DurationR\atimeoutB\t\n" +
+	"\tlog_level\x18\t \x01(\x0e2\x16.inventory.v1.LogLevelH\aR\blogLevel\x88\x01\x01\x12H\n" +
+	"\x12connection_timeout\x18\n" +
+	" \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeoutB\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\x11\n" +
@@ -12276,7 +12276,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x16_disable_basic_metricsB\x1b\n" +
 	"\x19_disable_enhanced_metricsB\f\n" +
 	"\n" +
-	"_log_level\"\xac\x04\n" +
+	"_log_level\"\xc1\x04\n" +
 	"\x19AddExternalExporterParams\x12.\n" +
 	"\x0fruns_on_node_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\frunsOnNodeId\x12\x1d\n" +
 	"\n" +
@@ -12290,11 +12290,11 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\rcustom_labels\x18\n" +
 	" \x03(\v29.inventory.v1.AddExternalExporterParams.CustomLabelsEntryR\fcustomLabels\x12!\n" +
 	"\fpush_metrics\x18\v \x01(\bR\vpushMetrics\x12&\n" +
-	"\x0ftls_skip_verify\x18\f \x01(\bR\rtlsSkipVerify\x123\n" +
-	"\atimeout\x18\r \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1a?\n" +
+	"\x0ftls_skip_verify\x18\f \x01(\bR\rtlsSkipVerify\x12H\n" +
+	"\x12connection_timeout\x18\r \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xa9\x04\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xbe\x04\n" +
 	"\x1cChangeExternalExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -12304,15 +12304,15 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x06scheme\x18\x06 \x01(\tH\x04R\x06scheme\x88\x01\x01\x12&\n" +
 	"\fmetrics_path\x18\a \x01(\tH\x05R\vmetricsPath\x88\x01\x01\x12$\n" +
 	"\vlisten_port\x18\b \x01(\rH\x06R\n" +
-	"listenPort\x88\x01\x01\x123\n" +
-	"\atimeout\x18\t \x01(\v2\x19.google.protobuf.DurationR\atimeoutB\t\n" +
+	"listenPort\x88\x01\x01\x12H\n" +
+	"\x12connection_timeout\x18\t \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeoutB\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\v\n" +
 	"\t_usernameB\t\n" +
 	"\a_schemeB\x0f\n" +
 	"\r_metrics_pathB\x0e\n" +
-	"\f_listen_port\"\x84\x06\n" +
+	"\f_listen_port\"\x99\x06\n" +
 	"\x1eAddAzureDatabaseExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12 \n" +
@@ -12327,11 +12327,11 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x15skip_connection_check\x18\n" +
 	" \x01(\bR\x13skipConnectionCheck\x12!\n" +
 	"\fpush_metrics\x18\v \x01(\bR\vpushMetrics\x123\n" +
-	"\tlog_level\x18\f \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x123\n" +
-	"\atimeout\x18\r \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1a?\n" +
+	"\tlog_level\x18\f \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12H\n" +
+	"\x12connection_timeout\x18\r \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xa3\x06\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb8\x06\n" +
 	"!ChangeAzureDatabaseExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -12342,8 +12342,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0fazure_tenant_id\x18\a \x01(\tH\x05R\razureTenantId\x88\x01\x01\x127\n" +
 	"\x15azure_subscription_id\x18\b \x01(\tH\x06R\x13azureSubscriptionId\x88\x01\x01\x125\n" +
 	"\x14azure_resource_group\x18\t \x01(\tH\aR\x12azureResourceGroup\x88\x01\x01\x128\n" +
-	"\tlog_level\x18\v \x01(\x0e2\x16.inventory.v1.LogLevelH\bR\blogLevel\x88\x01\x01\x123\n" +
-	"\atimeout\x18\f \x01(\v2\x19.google.protobuf.DurationR\atimeoutB\t\n" +
+	"\tlog_level\x18\v \x01(\x0e2\x16.inventory.v1.LogLevelH\bR\blogLevel\x88\x01\x01\x12H\n" +
+	"\x12connection_timeout\x18\f \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeoutB\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\x12\n" +
@@ -12356,7 +12356,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"_log_level\"@\n" +
 	"\x16ChangeNomadAgentParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01B\t\n" +
-	"\a_enable\"\x92\x06\n" +
+	"\a_enable\"\xa7\x06\n" +
 	"\x17AddValkeyExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12'\n" +
@@ -12376,11 +12376,11 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\atls_key\x18\r \x01(\tR\x06tlsKey\x12%\n" +
 	"\x0eagent_password\x18\x0e \x01(\tR\ragentPassword\x12'\n" +
 	"\x0fexpose_exporter\x18\x0f \x01(\bR\x0eexposeExporter\x123\n" +
-	"\tlog_level\x18\x10 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x123\n" +
-	"\atimeout\x18\x11 \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1a?\n" +
+	"\tlog_level\x18\x10 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12H\n" +
+	"\x12connection_timeout\x18\x11 \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x9d\a\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb2\a\n" +
 	"\x1aChangeValkeyExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -12398,8 +12398,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0eagent_password\x18\r \x01(\tH\n" +
 	"R\ragentPassword\x88\x01\x01\x12,\n" +
 	"\x0fexpose_exporter\x18\x0e \x01(\bH\vR\x0eexposeExporter\x88\x01\x01\x128\n" +
-	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelH\fR\blogLevel\x88\x01\x01\x123\n" +
-	"\atimeout\x18\x10 \x01(\v2\x19.google.protobuf.DurationR\atimeoutB\t\n" +
+	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelH\fR\blogLevel\x88\x01\x01\x12H\n" +
+	"\x12connection_timeout\x18\x10 \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeoutB\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\v\n" +
@@ -12642,32 +12642,32 @@ var file_inventory_v1_agents_proto_depIdxs = []int32{
 	108, // 4: inventory.v1.NodeExporter.status:type_name -> inventory.v1.AgentStatus
 	109, // 5: inventory.v1.NodeExporter.log_level:type_name -> inventory.v1.LogLevel
 	110, // 6: inventory.v1.NodeExporter.metrics_resolutions:type_name -> common.MetricsResolutions
-	111, // 7: inventory.v1.NodeExporter.timeout:type_name -> google.protobuf.Duration
+	111, // 7: inventory.v1.NodeExporter.connection_timeout:type_name -> google.protobuf.Duration
 	70,  // 8: inventory.v1.MySQLdExporter.custom_labels:type_name -> inventory.v1.MySQLdExporter.CustomLabelsEntry
 	108, // 9: inventory.v1.MySQLdExporter.status:type_name -> inventory.v1.AgentStatus
 	109, // 10: inventory.v1.MySQLdExporter.log_level:type_name -> inventory.v1.LogLevel
 	110, // 11: inventory.v1.MySQLdExporter.metrics_resolutions:type_name -> common.MetricsResolutions
 	71,  // 12: inventory.v1.MySQLdExporter.extra_dsn_params:type_name -> inventory.v1.MySQLdExporter.ExtraDsnParamsEntry
-	111, // 13: inventory.v1.MySQLdExporter.timeout:type_name -> google.protobuf.Duration
+	111, // 13: inventory.v1.MySQLdExporter.connection_timeout:type_name -> google.protobuf.Duration
 	72,  // 14: inventory.v1.MongoDBExporter.custom_labels:type_name -> inventory.v1.MongoDBExporter.CustomLabelsEntry
 	108, // 15: inventory.v1.MongoDBExporter.status:type_name -> inventory.v1.AgentStatus
 	109, // 16: inventory.v1.MongoDBExporter.log_level:type_name -> inventory.v1.LogLevel
 	110, // 17: inventory.v1.MongoDBExporter.metrics_resolutions:type_name -> common.MetricsResolutions
-	111, // 18: inventory.v1.MongoDBExporter.timeout:type_name -> google.protobuf.Duration
+	111, // 18: inventory.v1.MongoDBExporter.connection_timeout:type_name -> google.protobuf.Duration
 	73,  // 19: inventory.v1.PostgresExporter.custom_labels:type_name -> inventory.v1.PostgresExporter.CustomLabelsEntry
 	108, // 20: inventory.v1.PostgresExporter.status:type_name -> inventory.v1.AgentStatus
 	109, // 21: inventory.v1.PostgresExporter.log_level:type_name -> inventory.v1.LogLevel
 	110, // 22: inventory.v1.PostgresExporter.metrics_resolutions:type_name -> common.MetricsResolutions
-	111, // 23: inventory.v1.PostgresExporter.timeout:type_name -> google.protobuf.Duration
+	111, // 23: inventory.v1.PostgresExporter.connection_timeout:type_name -> google.protobuf.Duration
 	74,  // 24: inventory.v1.ProxySQLExporter.custom_labels:type_name -> inventory.v1.ProxySQLExporter.CustomLabelsEntry
 	108, // 25: inventory.v1.ProxySQLExporter.status:type_name -> inventory.v1.AgentStatus
 	109, // 26: inventory.v1.ProxySQLExporter.log_level:type_name -> inventory.v1.LogLevel
 	110, // 27: inventory.v1.ProxySQLExporter.metrics_resolutions:type_name -> common.MetricsResolutions
-	111, // 28: inventory.v1.ProxySQLExporter.timeout:type_name -> google.protobuf.Duration
+	111, // 28: inventory.v1.ProxySQLExporter.connection_timeout:type_name -> google.protobuf.Duration
 	75,  // 29: inventory.v1.ValkeyExporter.custom_labels:type_name -> inventory.v1.ValkeyExporter.CustomLabelsEntry
 	108, // 30: inventory.v1.ValkeyExporter.status:type_name -> inventory.v1.AgentStatus
 	110, // 31: inventory.v1.ValkeyExporter.metrics_resolutions:type_name -> common.MetricsResolutions
-	111, // 32: inventory.v1.ValkeyExporter.timeout:type_name -> google.protobuf.Duration
+	111, // 32: inventory.v1.ValkeyExporter.connection_timeout:type_name -> google.protobuf.Duration
 	76,  // 33: inventory.v1.QANMySQLPerfSchemaAgent.custom_labels:type_name -> inventory.v1.QANMySQLPerfSchemaAgent.CustomLabelsEntry
 	108, // 34: inventory.v1.QANMySQLPerfSchemaAgent.status:type_name -> inventory.v1.AgentStatus
 	109, // 35: inventory.v1.QANMySQLPerfSchemaAgent.log_level:type_name -> inventory.v1.LogLevel
@@ -12697,16 +12697,16 @@ var file_inventory_v1_agents_proto_depIdxs = []int32{
 	108, // 59: inventory.v1.RDSExporter.status:type_name -> inventory.v1.AgentStatus
 	109, // 60: inventory.v1.RDSExporter.log_level:type_name -> inventory.v1.LogLevel
 	110, // 61: inventory.v1.RDSExporter.metrics_resolutions:type_name -> common.MetricsResolutions
-	111, // 62: inventory.v1.RDSExporter.timeout:type_name -> google.protobuf.Duration
+	111, // 62: inventory.v1.RDSExporter.connection_timeout:type_name -> google.protobuf.Duration
 	86,  // 63: inventory.v1.ExternalExporter.custom_labels:type_name -> inventory.v1.ExternalExporter.CustomLabelsEntry
 	110, // 64: inventory.v1.ExternalExporter.metrics_resolutions:type_name -> common.MetricsResolutions
 	108, // 65: inventory.v1.ExternalExporter.status:type_name -> inventory.v1.AgentStatus
-	111, // 66: inventory.v1.ExternalExporter.timeout:type_name -> google.protobuf.Duration
+	111, // 66: inventory.v1.ExternalExporter.connection_timeout:type_name -> google.protobuf.Duration
 	87,  // 67: inventory.v1.AzureDatabaseExporter.custom_labels:type_name -> inventory.v1.AzureDatabaseExporter.CustomLabelsEntry
 	108, // 68: inventory.v1.AzureDatabaseExporter.status:type_name -> inventory.v1.AgentStatus
 	109, // 69: inventory.v1.AzureDatabaseExporter.log_level:type_name -> inventory.v1.LogLevel
 	110, // 70: inventory.v1.AzureDatabaseExporter.metrics_resolutions:type_name -> common.MetricsResolutions
-	111, // 71: inventory.v1.AzureDatabaseExporter.timeout:type_name -> google.protobuf.Duration
+	111, // 71: inventory.v1.AzureDatabaseExporter.connection_timeout:type_name -> google.protobuf.Duration
 	112, // 72: inventory.v1.ChangeCommonAgentParams.custom_labels:type_name -> common.StringMap
 	110, // 73: inventory.v1.ChangeCommonAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
 	0,   // 74: inventory.v1.ListAgentsRequest.agent_type:type_name -> inventory.v1.AgentType
@@ -12819,40 +12819,40 @@ var file_inventory_v1_agents_proto_depIdxs = []int32{
 	88,  // 181: inventory.v1.AddPMMAgentParams.custom_labels:type_name -> inventory.v1.AddPMMAgentParams.CustomLabelsEntry
 	89,  // 182: inventory.v1.AddNodeExporterParams.custom_labels:type_name -> inventory.v1.AddNodeExporterParams.CustomLabelsEntry
 	109, // 183: inventory.v1.AddNodeExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	111, // 184: inventory.v1.AddNodeExporterParams.timeout:type_name -> google.protobuf.Duration
+	111, // 184: inventory.v1.AddNodeExporterParams.connection_timeout:type_name -> google.protobuf.Duration
 	112, // 185: inventory.v1.ChangeNodeExporterParams.custom_labels:type_name -> common.StringMap
 	110, // 186: inventory.v1.ChangeNodeExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
 	109, // 187: inventory.v1.ChangeNodeExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	111, // 188: inventory.v1.ChangeNodeExporterParams.timeout:type_name -> google.protobuf.Duration
+	111, // 188: inventory.v1.ChangeNodeExporterParams.connection_timeout:type_name -> google.protobuf.Duration
 	90,  // 189: inventory.v1.AddMySQLdExporterParams.custom_labels:type_name -> inventory.v1.AddMySQLdExporterParams.CustomLabelsEntry
 	109, // 190: inventory.v1.AddMySQLdExporterParams.log_level:type_name -> inventory.v1.LogLevel
 	91,  // 191: inventory.v1.AddMySQLdExporterParams.extra_dsn_params:type_name -> inventory.v1.AddMySQLdExporterParams.ExtraDsnParamsEntry
-	111, // 192: inventory.v1.AddMySQLdExporterParams.timeout:type_name -> google.protobuf.Duration
+	111, // 192: inventory.v1.AddMySQLdExporterParams.connection_timeout:type_name -> google.protobuf.Duration
 	112, // 193: inventory.v1.ChangeMySQLdExporterParams.custom_labels:type_name -> common.StringMap
 	110, // 194: inventory.v1.ChangeMySQLdExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
 	109, // 195: inventory.v1.ChangeMySQLdExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	111, // 196: inventory.v1.ChangeMySQLdExporterParams.timeout:type_name -> google.protobuf.Duration
+	111, // 196: inventory.v1.ChangeMySQLdExporterParams.connection_timeout:type_name -> google.protobuf.Duration
 	92,  // 197: inventory.v1.AddMongoDBExporterParams.custom_labels:type_name -> inventory.v1.AddMongoDBExporterParams.CustomLabelsEntry
 	109, // 198: inventory.v1.AddMongoDBExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	111, // 199: inventory.v1.AddMongoDBExporterParams.timeout:type_name -> google.protobuf.Duration
+	111, // 199: inventory.v1.AddMongoDBExporterParams.connection_timeout:type_name -> google.protobuf.Duration
 	112, // 200: inventory.v1.ChangeMongoDBExporterParams.custom_labels:type_name -> common.StringMap
 	110, // 201: inventory.v1.ChangeMongoDBExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
 	109, // 202: inventory.v1.ChangeMongoDBExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	111, // 203: inventory.v1.ChangeMongoDBExporterParams.timeout:type_name -> google.protobuf.Duration
+	111, // 203: inventory.v1.ChangeMongoDBExporterParams.connection_timeout:type_name -> google.protobuf.Duration
 	93,  // 204: inventory.v1.AddPostgresExporterParams.custom_labels:type_name -> inventory.v1.AddPostgresExporterParams.CustomLabelsEntry
 	109, // 205: inventory.v1.AddPostgresExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	111, // 206: inventory.v1.AddPostgresExporterParams.timeout:type_name -> google.protobuf.Duration
+	111, // 206: inventory.v1.AddPostgresExporterParams.connection_timeout:type_name -> google.protobuf.Duration
 	112, // 207: inventory.v1.ChangePostgresExporterParams.custom_labels:type_name -> common.StringMap
 	110, // 208: inventory.v1.ChangePostgresExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
 	109, // 209: inventory.v1.ChangePostgresExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	111, // 210: inventory.v1.ChangePostgresExporterParams.timeout:type_name -> google.protobuf.Duration
+	111, // 210: inventory.v1.ChangePostgresExporterParams.connection_timeout:type_name -> google.protobuf.Duration
 	94,  // 211: inventory.v1.AddProxySQLExporterParams.custom_labels:type_name -> inventory.v1.AddProxySQLExporterParams.CustomLabelsEntry
 	109, // 212: inventory.v1.AddProxySQLExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	111, // 213: inventory.v1.AddProxySQLExporterParams.timeout:type_name -> google.protobuf.Duration
+	111, // 213: inventory.v1.AddProxySQLExporterParams.connection_timeout:type_name -> google.protobuf.Duration
 	112, // 214: inventory.v1.ChangeProxySQLExporterParams.custom_labels:type_name -> common.StringMap
 	110, // 215: inventory.v1.ChangeProxySQLExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
 	109, // 216: inventory.v1.ChangeProxySQLExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	111, // 217: inventory.v1.ChangeProxySQLExporterParams.timeout:type_name -> google.protobuf.Duration
+	111, // 217: inventory.v1.ChangeProxySQLExporterParams.connection_timeout:type_name -> google.protobuf.Duration
 	95,  // 218: inventory.v1.AddQANMySQLPerfSchemaAgentParams.custom_labels:type_name -> inventory.v1.AddQANMySQLPerfSchemaAgentParams.CustomLabelsEntry
 	109, // 219: inventory.v1.AddQANMySQLPerfSchemaAgentParams.log_level:type_name -> inventory.v1.LogLevel
 	96,  // 220: inventory.v1.AddQANMySQLPerfSchemaAgentParams.extra_dsn_params:type_name -> inventory.v1.AddQANMySQLPerfSchemaAgentParams.ExtraDsnParamsEntry
@@ -12887,30 +12887,30 @@ var file_inventory_v1_agents_proto_depIdxs = []int32{
 	109, // 249: inventory.v1.ChangeQANPostgreSQLPgStatMonitorAgentParams.log_level:type_name -> inventory.v1.LogLevel
 	103, // 250: inventory.v1.AddRDSExporterParams.custom_labels:type_name -> inventory.v1.AddRDSExporterParams.CustomLabelsEntry
 	109, // 251: inventory.v1.AddRDSExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	111, // 252: inventory.v1.AddRDSExporterParams.timeout:type_name -> google.protobuf.Duration
+	111, // 252: inventory.v1.AddRDSExporterParams.connection_timeout:type_name -> google.protobuf.Duration
 	112, // 253: inventory.v1.ChangeRDSExporterParams.custom_labels:type_name -> common.StringMap
 	110, // 254: inventory.v1.ChangeRDSExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
 	109, // 255: inventory.v1.ChangeRDSExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	111, // 256: inventory.v1.ChangeRDSExporterParams.timeout:type_name -> google.protobuf.Duration
+	111, // 256: inventory.v1.ChangeRDSExporterParams.connection_timeout:type_name -> google.protobuf.Duration
 	104, // 257: inventory.v1.AddExternalExporterParams.custom_labels:type_name -> inventory.v1.AddExternalExporterParams.CustomLabelsEntry
-	111, // 258: inventory.v1.AddExternalExporterParams.timeout:type_name -> google.protobuf.Duration
+	111, // 258: inventory.v1.AddExternalExporterParams.connection_timeout:type_name -> google.protobuf.Duration
 	112, // 259: inventory.v1.ChangeExternalExporterParams.custom_labels:type_name -> common.StringMap
 	110, // 260: inventory.v1.ChangeExternalExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	111, // 261: inventory.v1.ChangeExternalExporterParams.timeout:type_name -> google.protobuf.Duration
+	111, // 261: inventory.v1.ChangeExternalExporterParams.connection_timeout:type_name -> google.protobuf.Duration
 	105, // 262: inventory.v1.AddAzureDatabaseExporterParams.custom_labels:type_name -> inventory.v1.AddAzureDatabaseExporterParams.CustomLabelsEntry
 	109, // 263: inventory.v1.AddAzureDatabaseExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	111, // 264: inventory.v1.AddAzureDatabaseExporterParams.timeout:type_name -> google.protobuf.Duration
+	111, // 264: inventory.v1.AddAzureDatabaseExporterParams.connection_timeout:type_name -> google.protobuf.Duration
 	112, // 265: inventory.v1.ChangeAzureDatabaseExporterParams.custom_labels:type_name -> common.StringMap
 	110, // 266: inventory.v1.ChangeAzureDatabaseExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
 	109, // 267: inventory.v1.ChangeAzureDatabaseExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	111, // 268: inventory.v1.ChangeAzureDatabaseExporterParams.timeout:type_name -> google.protobuf.Duration
+	111, // 268: inventory.v1.ChangeAzureDatabaseExporterParams.connection_timeout:type_name -> google.protobuf.Duration
 	106, // 269: inventory.v1.AddValkeyExporterParams.custom_labels:type_name -> inventory.v1.AddValkeyExporterParams.CustomLabelsEntry
 	109, // 270: inventory.v1.AddValkeyExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	111, // 271: inventory.v1.AddValkeyExporterParams.timeout:type_name -> google.protobuf.Duration
+	111, // 271: inventory.v1.AddValkeyExporterParams.connection_timeout:type_name -> google.protobuf.Duration
 	112, // 272: inventory.v1.ChangeValkeyExporterParams.custom_labels:type_name -> common.StringMap
 	110, // 273: inventory.v1.ChangeValkeyExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
 	109, // 274: inventory.v1.ChangeValkeyExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	111, // 275: inventory.v1.ChangeValkeyExporterParams.timeout:type_name -> google.protobuf.Duration
+	111, // 275: inventory.v1.ChangeValkeyExporterParams.connection_timeout:type_name -> google.protobuf.Duration
 	107, // 276: inventory.v1.AddRTAMongoDBAgentParams.custom_labels:type_name -> inventory.v1.AddRTAMongoDBAgentParams.CustomLabelsEntry
 	109, // 277: inventory.v1.AddRTAMongoDBAgentParams.log_level:type_name -> inventory.v1.LogLevel
 	14,  // 278: inventory.v1.AddRTAMongoDBAgentParams.rta_options:type_name -> inventory.v1.RTAOptions

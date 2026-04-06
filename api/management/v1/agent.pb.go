@@ -174,9 +174,9 @@ type UniversalAgent struct {
 	// Real-Time Analytics options.
 	RtaOptions *v1.RTAOptions `protobuf:"bytes,42,opt,name=rta_options,json=rtaOptions,proto3" json:"rta_options,omitempty"`
 	// Connection timeout for exporter (if set).
-	Timeout       *durationpb.Duration `protobuf:"bytes,43,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,43,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *UniversalAgent) Reset() {
@@ -503,9 +503,9 @@ func (x *UniversalAgent) GetRtaOptions() *v1.RTAOptions {
 	return nil
 }
 
-func (x *UniversalAgent) GetTimeout() *durationpb.Duration {
+func (x *UniversalAgent) GetConnectionTimeout() *durationpb.Duration {
 	if x != nil {
-		return x.Timeout
+		return x.ConnectionTimeout
 	}
 	return nil
 }
@@ -1099,7 +1099,7 @@ var File_management_v1_agent_proto protoreflect.FileDescriptor
 
 const file_management_v1_agent_proto_rawDesc = "" +
 	"\n" +
-	"\x19management/v1/agent.proto\x12\rmanagement.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\"\xff\x18\n" +
+	"\x19management/v1/agent.proto\x12\rmanagement.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\"\x94\x19\n" +
 	"\x0eUniversalAgent\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x121\n" +
 	"\x15is_agent_password_set\x18\x02 \x01(\bR\x12isAgentPasswordSet\x12\x1d\n" +
@@ -1151,8 +1151,8 @@ const file_management_v1_agent_proto_rawDesc = "" +
 	"\x0fexpose_exporter\x18( \x01(\bR\x0eexposeExporter\x12R\n" +
 	"\x0evalkey_options\x18) \x01(\v2+.management.v1.UniversalAgent.ValkeyOptionsR\rvalkeyOptions\x129\n" +
 	"\vrta_options\x18* \x01(\v2\x18.inventory.v1.RTAOptionsR\n" +
-	"rtaOptions\x123\n" +
-	"\atimeout\x18+ \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1a\xe0\x01\n" +
+	"rtaOptions\x12H\n" +
+	"\x12connection_timeout\x18+ \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a\xe0\x01\n" +
 	"\fMySQLOptions\x12#\n" +
 	"\x0eis_tls_key_set\x18\x01 \x01(\bR\visTlsKeySet\x12h\n" +
 	"\x10extra_dsn_params\x18\x02 \x03(\v2>.management.v1.UniversalAgent.MySQLOptions.ExtraDsnParamsEntryR\x0eextraDsnParams\x1aA\n" +
@@ -1252,7 +1252,7 @@ var file_management_v1_agent_proto_depIdxs = []int32{
 	14, // 7: management.v1.UniversalAgent.updated_at:type_name -> google.protobuf.Timestamp
 	11, // 8: management.v1.UniversalAgent.valkey_options:type_name -> management.v1.UniversalAgent.ValkeyOptions
 	16, // 9: management.v1.UniversalAgent.rta_options:type_name -> inventory.v1.RTAOptions
-	17, // 10: management.v1.UniversalAgent.timeout:type_name -> google.protobuf.Duration
+	17, // 10: management.v1.UniversalAgent.connection_timeout:type_name -> google.protobuf.Duration
 	1,  // 11: management.v1.ListAgentsResponse.agents:type_name -> management.v1.UniversalAgent
 	0,  // 12: management.v1.AgentVersions.severity:type_name -> management.v1.UpdateSeverity
 	4,  // 13: management.v1.ListAgentVersionsResponse.agent_versions:type_name -> management.v1.AgentVersions

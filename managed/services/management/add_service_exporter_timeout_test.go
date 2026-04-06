@@ -91,13 +91,13 @@ func TestAddServiceExporterTimeout(t *testing.T) {
 					Username:            "root",
 					SkipConnectionCheck: true,
 					MetricsMode:         managementv1.MetricsMode_METRICS_MODE_PULL,
-					Timeout:             want,
+					ConnectionTimeout:   want,
 				},
 			},
 		})
 		require.NoError(t, err)
 		require.NotNil(t, resp.GetMysql())
-		assert.Equal(t, want, resp.GetMysql().GetMysqldExporter().GetTimeout())
+		assert.Equal(t, want, resp.GetMysql().GetMysqldExporter().GetConnectionTimeout())
 	})
 
 	t.Run("PostgreSQL", func(t *testing.T) {
@@ -115,13 +115,13 @@ func TestAddServiceExporterTimeout(t *testing.T) {
 					Username:            "postgres",
 					SkipConnectionCheck: true,
 					MetricsMode:         managementv1.MetricsMode_METRICS_MODE_PULL,
-					Timeout:             want,
+					ConnectionTimeout:   want,
 				},
 			},
 		})
 		require.NoError(t, err)
 		require.NotNil(t, resp.GetPostgresql())
-		assert.Equal(t, want, resp.GetPostgresql().GetPostgresExporter().GetTimeout())
+		assert.Equal(t, want, resp.GetPostgresql().GetPostgresExporter().GetConnectionTimeout())
 	})
 
 	t.Run("ProxySQL", func(t *testing.T) {
@@ -138,13 +138,13 @@ func TestAddServiceExporterTimeout(t *testing.T) {
 					Username:            "admin",
 					SkipConnectionCheck: true,
 					MetricsMode:         managementv1.MetricsMode_METRICS_MODE_PULL,
-					Timeout:             want,
+					ConnectionTimeout:   want,
 				},
 			},
 		})
 		require.NoError(t, err)
 		require.NotNil(t, resp.GetProxysql())
-		assert.Equal(t, want, resp.GetProxysql().GetProxysqlExporter().GetTimeout())
+		assert.Equal(t, want, resp.GetProxysql().GetProxysqlExporter().GetConnectionTimeout())
 	})
 
 	t.Run("Valkey", func(t *testing.T) {
@@ -160,13 +160,13 @@ func TestAddServiceExporterTimeout(t *testing.T) {
 					PmmAgentId:          models.PMMServerAgentID,
 					SkipConnectionCheck: true,
 					MetricsMode:         managementv1.MetricsMode_METRICS_MODE_PULL,
-					Timeout:             want,
+					ConnectionTimeout:   want,
 				},
 			},
 		})
 		require.NoError(t, err)
 		require.NotNil(t, resp.GetValkey())
-		assert.Equal(t, want, resp.GetValkey().GetValkeyExporter().GetTimeout())
+		assert.Equal(t, want, resp.GetValkey().GetValkeyExporter().GetConnectionTimeout())
 	})
 
 	t.Run("External", func(t *testing.T) {
@@ -184,13 +184,13 @@ func TestAddServiceExporterTimeout(t *testing.T) {
 					MetricsPath:         "/metrics",
 					SkipConnectionCheck: true,
 					MetricsMode:         managementv1.MetricsMode_METRICS_MODE_PULL,
-					Timeout:             want,
+					ConnectionTimeout:   want,
 				},
 			},
 		})
 		require.NoError(t, err)
 		require.NotNil(t, resp.GetExternal())
-		assert.Equal(t, want, resp.GetExternal().GetExternalExporter().GetTimeout())
+		assert.Equal(t, want, resp.GetExternal().GetExternalExporter().GetConnectionTimeout())
 	})
 
 	t.Run("Azure Database", func(t *testing.T) {
@@ -219,7 +219,7 @@ func TestAddServiceExporterTimeout(t *testing.T) {
 			AzureDatabaseExporter: true,
 			SkipConnectionCheck:   true,
 			Type:                  managementv1.DiscoverAzureDatabaseType_DISCOVER_AZURE_DATABASE_TYPE_MYSQL,
-			Timeout:               want,
+			ConnectionTimeout:     want,
 		})
 		require.NoError(t, err)
 
@@ -232,7 +232,7 @@ func TestAddServiceExporterTimeout(t *testing.T) {
 
 		got := map[models.AgentType]time.Duration{}
 		for _, agent := range agents {
-			got[agent.AgentType] = agent.ExporterOptions.Timeout
+			got[agent.AgentType] = agent.ExporterOptions.ConnectionTimeout
 		}
 
 		assert.Equal(t, want.AsDuration(), got[models.AzureDatabaseExporterType])

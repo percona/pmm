@@ -71,7 +71,7 @@ type ChangeAgentNodeExporterCommand struct {
 	PushMetrics       *bool    `help:"Enable push metrics with vmagent"`
 	ExposeExporter    *bool    `help:"Expose the exporter process on all public interfaces"`
 	DisableCollectors []string `help:"List of collector names to disable"`
-	Timeout           string   `help:"Connection timeout to use for exporter (e.g. 1s, 500ms)"`
+	ConnectionTimeout string   `help:"Connection timeout to use for exporter (e.g. 1s, 500ms)"`
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
@@ -90,7 +90,7 @@ func (cmd *ChangeAgentNodeExporterCommand) RunCmd() (commands.Result, error) {
 		DisableCollectors: cmd.DisableCollectors,
 		ExposeExporter:    cmd.ExposeExporter,
 		LogLevel:          convertLogLevelPtr(cmd.LogLevel),
-		Timeout:           cmd.Timeout,
+		ConnectionTimeout: cmd.ConnectionTimeout,
 	}
 
 	if customLabels != nil {

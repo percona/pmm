@@ -51,17 +51,17 @@ func (res *addAgentExternalExporterResult) String() string {
 
 // AddAgentExternalExporterCommand is used by Kong for CLI flags and commands.
 type AddAgentExternalExporterCommand struct {
-	RunsOnNodeID  string            `required:"" help:"Node identifier where this instance runs"`
-	ServiceID     string            `required:"" help:"Service identifier"`
-	Username      string            `help:"HTTP Basic auth username for scraping metrics"`
-	Password      string            `help:"HTTP Basic auth password for scraping metrics"`
-	Scheme        string            `help:"Scheme to generate URI to exporter metrics endpoints (http, https)"`
-	MetricsPath   string            `help:"Path under which metrics are exposed, used to generate URI"`
-	ListenPort    int64             `required:"" placeholder:"port" help:"Listen port for scraping metrics"`
-	CustomLabels  map[string]string `mapsep:"," help:"Custom user-assigned labels"`
-	PushMetrics   bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
-	TLSSkipVerify bool              `help:"Skip TLS certificate verification"`
-	Timeout       string            `help:"Connection timeout to use for exporter (e.g. 1s, 500ms)"`
+	RunsOnNodeID      string            `required:"" help:"Node identifier where this instance runs"`
+	ServiceID         string            `required:"" help:"Service identifier"`
+	Username          string            `help:"HTTP Basic auth username for scraping metrics"`
+	Password          string            `help:"HTTP Basic auth password for scraping metrics"`
+	Scheme            string            `help:"Scheme to generate URI to exporter metrics endpoints (http, https)"`
+	MetricsPath       string            `help:"Path under which metrics are exposed, used to generate URI"`
+	ListenPort        int64             `required:"" placeholder:"port" help:"Listen port for scraping metrics"`
+	CustomLabels      map[string]string `mapsep:"," help:"Custom user-assigned labels"`
+	PushMetrics       bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
+	TLSSkipVerify     bool              `help:"Skip TLS certificate verification"`
+	ConnectionTimeout string            `help:"Connection timeout to use for exporter (e.g. 1s, 500ms)"`
 }
 
 // RunCmd executes the AddAgentExternalExporterCommand and returns the result.
@@ -75,17 +75,17 @@ func (cmd *AddAgentExternalExporterCommand) RunCmd() (commands.Result, error) {
 	params := &agents.AddAgentParams{
 		Body: agents.AddAgentBody{
 			ExternalExporter: &agents.AddAgentParamsBodyExternalExporter{
-				RunsOnNodeID:  cmd.RunsOnNodeID,
-				ServiceID:     cmd.ServiceID,
-				Username:      cmd.Username,
-				Password:      cmd.Password,
-				Scheme:        cmd.Scheme,
-				MetricsPath:   cmd.MetricsPath,
-				ListenPort:    cmd.ListenPort,
-				CustomLabels:  pointer.Get(customLabels),
-				PushMetrics:   cmd.PushMetrics,
-				TLSSkipVerify: cmd.TLSSkipVerify,
-				Timeout:       cmd.Timeout,
+				RunsOnNodeID:      cmd.RunsOnNodeID,
+				ServiceID:         cmd.ServiceID,
+				Username:          cmd.Username,
+				Password:          cmd.Password,
+				Scheme:            cmd.Scheme,
+				MetricsPath:       cmd.MetricsPath,
+				ListenPort:        cmd.ListenPort,
+				CustomLabels:      pointer.Get(customLabels),
+				PushMetrics:       cmd.PushMetrics,
+				TLSSkipVerify:     cmd.TLSSkipVerify,
+				ConnectionTimeout: cmd.ConnectionTimeout,
 			},
 		},
 		Context: commands.Ctx,

@@ -63,7 +63,7 @@ type AddValkeyCommand struct {
 	TLSKeyFile          string            `name:"tls-key" help:"Path to client key file"`
 	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	ExposeExporter      bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
-	Timeout             string            `help:"Connection timeout to use for exporter (e.g. 1s, 500ms)"`
+	ConnectionTimeout   string            `help:"Connection timeout to use for exporter (e.g. 1s, 500ms)"`
 
 	AddCommonFlags
 	flags.MetricsModeFlags
@@ -153,14 +153,14 @@ func (cmd *AddValkeyCommand) RunCmd() (commands.Result, error) {
 
 				SkipConnectionCheck: cmd.SkipConnectionCheck,
 
-				TLS:           cmd.TLS,
-				TLSSkipVerify: cmd.TLSSkipVerify,
-				TLSCa:         tlsCa,
-				TLSCert:       tlsCert,
-				TLSKey:        tlsKey,
-				MetricsMode:   cmd.MetricsModeFlags.MetricsMode.EnumValue(),
-				LogLevel:      cmd.LogLevelNoFatalFlags.LogLevel.EnumValue(),
-				Timeout:       cmd.Timeout,
+				TLS:               cmd.TLS,
+				TLSSkipVerify:     cmd.TLSSkipVerify,
+				TLSCa:             tlsCa,
+				TLSCert:           tlsCert,
+				TLSKey:            tlsKey,
+				MetricsMode:       cmd.MetricsModeFlags.MetricsMode.EnumValue(),
+				LogLevel:          cmd.LogLevelNoFatalFlags.LogLevel.EnumValue(),
+				ConnectionTimeout: cmd.ConnectionTimeout,
 			},
 		},
 		Context: commands.Ctx,

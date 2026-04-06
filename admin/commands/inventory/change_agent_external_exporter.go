@@ -65,11 +65,11 @@ type ChangeAgentExternalExporterCommand struct {
 	Username *string `help:"Username for the external exporter"`
 
 	// External-specific options
-	ListenPort    *int64  `help:"Listen port for the external exporter"`
-	MetricsScheme *string `help:"Metrics scheme (http or https)"`
-	MetricsPath   *string `help:"Metrics path"`
-	PushMetrics   *bool   `help:"Enable push metrics with vmagent"`
-	Timeout       string  `help:"Connection timeout to use for exporter (e.g. 1s, 500ms)"`
+	ListenPort        *int64  `help:"Listen port for the external exporter"`
+	MetricsScheme     *string `help:"Metrics scheme (http or https)"`
+	MetricsPath       *string `help:"Metrics path"`
+	PushMetrics       *bool   `help:"Enable push metrics with vmagent"`
+	ConnectionTimeout string  `help:"Connection timeout to use for exporter (e.g. 1s, 500ms)"`
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
@@ -89,7 +89,7 @@ func (cmd *ChangeAgentExternalExporterCommand) RunCmd() (commands.Result, error)
 		Scheme:            cmd.MetricsScheme,
 		MetricsPath:       cmd.MetricsPath,
 		EnablePushMetrics: cmd.PushMetrics,
-		Timeout:           cmd.Timeout,
+		ConnectionTimeout: cmd.ConnectionTimeout,
 	}
 
 	if customLabels != nil {

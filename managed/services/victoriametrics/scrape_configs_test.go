@@ -38,7 +38,7 @@ func TestExporterScrapeTimeout(t *testing.T) {
 	t.Run("uses ExporterOptions.Timeout when within cap", func(t *testing.T) {
 		t.Parallel()
 		cfg := &config.ScrapeConfig{ScrapeInterval: config.Duration(interval)}
-		agent := &models.Agent{ExporterOptions: models.ExporterOptions{Timeout: 3 * time.Second}}
+		agent := &models.Agent{ExporterOptions: models.ExporterOptions{ConnectionTimeout: 3 * time.Second}}
 		exporterScrapeTimeout(cfg, agent)
 		assert.Equal(t, config.Duration(3*time.Second), cfg.ScrapeTimeout)
 	})
@@ -46,7 +46,7 @@ func TestExporterScrapeTimeout(t *testing.T) {
 	t.Run("caps at 90% of scrape interval", func(t *testing.T) {
 		t.Parallel()
 		cfg := &config.ScrapeConfig{ScrapeInterval: config.Duration(interval)}
-		agent := &models.Agent{ExporterOptions: models.ExporterOptions{Timeout: 15 * time.Second}}
+		agent := &models.Agent{ExporterOptions: models.ExporterOptions{ConnectionTimeout: 15 * time.Second}}
 		exporterScrapeTimeout(cfg, agent)
 		assert.Equal(t, config.Duration(9*time.Second), cfg.ScrapeTimeout)
 	})
@@ -54,7 +54,7 @@ func TestExporterScrapeTimeout(t *testing.T) {
 	t.Run("floors at 100ms", func(t *testing.T) {
 		t.Parallel()
 		cfg := &config.ScrapeConfig{ScrapeInterval: config.Duration(interval)}
-		agent := &models.Agent{ExporterOptions: models.ExporterOptions{Timeout: 50 * time.Microsecond}}
+		agent := &models.Agent{ExporterOptions: models.ExporterOptions{ConnectionTimeout: 50 * time.Microsecond}}
 		exporterScrapeTimeout(cfg, agent)
 		assert.Equal(t, config.Duration(100*time.Millisecond), cfg.ScrapeTimeout)
 	})
@@ -62,7 +62,7 @@ func TestExporterScrapeTimeout(t *testing.T) {
 	t.Run("no-op when cfg or agent nil or timeout zero", func(t *testing.T) {
 		t.Parallel()
 		cfg := &config.ScrapeConfig{ScrapeInterval: config.Duration(interval), ScrapeTimeout: config.Duration(time.Second)}
-		agent := &models.Agent{ExporterOptions: models.ExporterOptions{Timeout: 2 * time.Second}}
+		agent := &models.Agent{ExporterOptions: models.ExporterOptions{ConnectionTimeout: 2 * time.Second}}
 
 		exporterScrapeTimeout(nil, agent)
 		assert.Equal(t, config.Duration(time.Second), cfg.ScrapeTimeout)
@@ -1323,7 +1323,7 @@ func TestScrapeConfig(t *testing.T) {
 					host: "1.1.1.1",
 					agent: &models.Agent{
 						ListenPort:      pointer.ToUint16(12345),
-						ExporterOptions: models.ExporterOptions{Timeout: 7 * time.Second},
+						ExporterOptions: models.ExporterOptions{ConnectionTimeout: 7 * time.Second},
 					},
 					metricsResolution: s,
 				},

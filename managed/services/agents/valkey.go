@@ -46,11 +46,11 @@ func valkeyExporterConfig(node *models.Node, service *models.Service, exporter *
 	dnsParams := models.DSNParams{}
 
 	args = append(args, "--redis.addr="+exporter.DSN(service, dnsParams, nil, pmmAgentVersion))
-	timeout := exporter.ExporterOptions.Timeout
-	if timeout == 0 {
-		timeout = defaultValkeyTimeout
+	connectionTimeout := exporter.ExporterOptions.ConnectionTimeout
+	if connectionTimeout == 0 {
+		connectionTimeout = defaultValkeyTimeout
 	}
-	args = append(args, "--connection-timeout="+timeout.String())
+	args = append(args, "--connection-timeout="+connectionTimeout.String())
 	args = withLogLevel(args, exporter.LogLevel, pmmAgentVersion, false)
 	sort.Strings(args)
 

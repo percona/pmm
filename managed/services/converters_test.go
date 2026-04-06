@@ -121,7 +121,7 @@ func TestToAPIAgent(t *testing.T) {
 						TableCountTablestatsGroupLimit: 1000,
 					},
 					ExporterOptions: models.ExporterOptions{
-						Timeout: 9 * time.Second,
+						ConnectionTimeout: 9 * time.Second,
 					},
 				},
 			},
@@ -133,7 +133,7 @@ func TestToAPIAgent(t *testing.T) {
 				Disabled:                  false,
 				Status:                    inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 				TablestatsGroupTableLimit: 1000,
-				Timeout:                   durationpb.New(9 * time.Second),
+				ConnectionTimeout:         durationpb.New(9 * time.Second),
 			},
 			wantErr: nil,
 		},

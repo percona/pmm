@@ -173,7 +173,7 @@ func (as *AgentsService) AddNodeExporter(ctx context.Context, p *inventoryv1.Add
 	var agent *inventoryv1.NodeExporter
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		row, err := models.CreateNodeExporter(tx.Querier, p.PmmAgentId, p.CustomLabels, p.PushMetrics, p.ExposeExporter,
-			p.DisableCollectors, nil, services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR), duration.FromProto(p.Timeout))
+			p.DisableCollectors, nil, services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR), duration.FromProto(p.ConnectionTimeout))
 		if err != nil {
 			return err
 		}
@@ -248,7 +248,7 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, p *inventoryv1.A
 			PushMetrics:        p.PushMetrics,
 			DisabledCollectors: p.DisableCollectors,
 			ExposeExporter:     p.ExposeExporter,
-			Timeout:            duration.FromProto(p.Timeout),
+			ConnectionTimeout:  duration.FromProto(p.ConnectionTimeout),
 		}
 		params := &models.CreateAgentParams{
 			PMMAgentID:      p.PmmAgentId,
@@ -333,7 +333,7 @@ func (as *AgentsService) ChangeMySQLdExporter(ctx context.Context, agentID strin
 		DisabledCollectors: p.DisableCollectors,
 		ExposeExporter:     p.ExposeExporter,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
-		Timeout:            duration.FromProto(p.Timeout),
+		ConnectionTimeout:  duration.FromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)
@@ -372,7 +372,7 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, p *inventoryv1.
 				PushMetrics:        p.PushMetrics,
 				DisabledCollectors: p.DisableCollectors,
 				ExposeExporter:     p.ExposeExporter,
-				Timeout:            duration.FromProto(p.Timeout),
+				ConnectionTimeout:  duration.FromProto(p.ConnectionTimeout),
 			},
 			LogLevel: services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		}
@@ -454,7 +454,7 @@ func (as *AgentsService) ChangeMongoDBExporter(
 		DisabledCollectors: p.DisableCollectors,
 		ExposeExporter:     p.ExposeExporter,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
-		Timeout:            duration.FromProto(p.Timeout),
+		ConnectionTimeout:  duration.FromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)
@@ -708,7 +708,7 @@ func (as *AgentsService) AddPostgresExporter(ctx context.Context, p *inventoryv1
 			PushMetrics:        p.PushMetrics,
 			DisabledCollectors: p.DisableCollectors,
 			ExposeExporter:     p.ExposeExporter,
-			Timeout:            duration.FromProto(p.Timeout),
+			ConnectionTimeout:  duration.FromProto(p.ConnectionTimeout),
 		}
 		params := &models.CreateAgentParams{
 			PMMAgentID:        p.PmmAgentId,
@@ -790,7 +790,7 @@ func (as *AgentsService) ChangePostgresExporter(ctx context.Context, agentID str
 		DisabledCollectors: p.DisableCollectors,
 		ExposeExporter:     p.ExposeExporter,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
-		Timeout:            duration.FromProto(p.Timeout),
+		ConnectionTimeout:  duration.FromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)
@@ -814,9 +814,9 @@ func (as *AgentsService) AddValkeyExporter(ctx context.Context, p *inventoryv1.A
 	var agent *inventoryv1.ValkeyExporter
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		exporterOptions := models.ExporterOptions{
-			PushMetrics:    p.PushMetrics,
-			ExposeExporter: p.ExposeExporter,
-			Timeout:        duration.FromProto(p.Timeout),
+			PushMetrics:       p.PushMetrics,
+			ExposeExporter:    p.ExposeExporter,
+			ConnectionTimeout: duration.FromProto(p.ConnectionTimeout),
 		}
 		params := &models.CreateAgentParams{
 			PMMAgentID:      p.PmmAgentId,
@@ -899,7 +899,7 @@ func (as *AgentsService) ChangeValkeyExporter(ctx context.Context, agentID strin
 		DisabledCollectors: p.DisableCollectors,
 		ExposeExporter:     p.ExposeExporter,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
-		Timeout:            duration.FromProto(p.Timeout),
+		ConnectionTimeout:  duration.FromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)
@@ -1140,7 +1140,7 @@ func (as *AgentsService) AddProxySQLExporter(ctx context.Context, p *inventoryv1
 			PushMetrics:        p.PushMetrics,
 			DisabledCollectors: p.DisableCollectors,
 			ExposeExporter:     p.ExposeExporter,
-			Timeout:            duration.FromProto(p.Timeout),
+			ConnectionTimeout:  duration.FromProto(p.ConnectionTimeout),
 		}
 		params := &models.CreateAgentParams{
 			PMMAgentID:      p.PmmAgentId,
@@ -1215,7 +1215,7 @@ func (as *AgentsService) ChangeProxySQLExporter(ctx context.Context, agentID str
 		DisabledCollectors: p.DisableCollectors,
 		ExposeExporter:     p.ExposeExporter,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
-		Timeout:            duration.FromProto(p.Timeout),
+		ConnectionTimeout:  duration.FromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)
@@ -1555,17 +1555,17 @@ func (as *AgentsService) AddExternalExporter(ctx context.Context, p *inventoryv1
 
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateExternalExporterParams{
-			RunsOnNodeID:  p.RunsOnNodeId,
-			ServiceID:     p.ServiceId,
-			Username:      p.Username,
-			Password:      p.Password,
-			Scheme:        p.Scheme,
-			MetricsPath:   p.MetricsPath,
-			ListenPort:    p.ListenPort,
-			CustomLabels:  p.CustomLabels,
-			PushMetrics:   p.PushMetrics,
-			TLSSkipVerify: p.TlsSkipVerify,
-			Timeout:       duration.FromProto(p.Timeout),
+			RunsOnNodeID:      p.RunsOnNodeId,
+			ServiceID:         p.ServiceId,
+			Username:          p.Username,
+			Password:          p.Password,
+			Scheme:            p.Scheme,
+			MetricsPath:       p.MetricsPath,
+			ListenPort:        p.ListenPort,
+			CustomLabels:      p.CustomLabels,
+			PushMetrics:       p.PushMetrics,
+			TLSSkipVerify:     p.TlsSkipVerify,
+			ConnectionTimeout: duration.FromProto(p.ConnectionTimeout),
 		}
 		row, err := models.CreateExternalExporter(tx.Querier, params)
 		if err != nil {

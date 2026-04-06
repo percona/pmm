@@ -144,7 +144,7 @@ message UniversalAgent {
   // Real-Time Analytics options.
   inventory.v1.RTAOptions rta_options = 42;
   // Connection timeout for exporter (if set).
-  google.protobuf.Duration timeout = 43;
+  google.protobuf.Duration connection_timeout = 43;
 }
 
 message ListAgentsRequest {

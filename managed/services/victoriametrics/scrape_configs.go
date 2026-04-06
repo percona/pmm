@@ -57,12 +57,12 @@ func scrapeTimeout(interval time.Duration) config.Duration {
 // cannot exceed scrape_interval, so PMM caps it at 0.9 of scrape interval:
 // https://prometheus.io/docs/prometheus/latest/configuration/configuration/
 func exporterScrapeTimeout(cfg *config.ScrapeConfig, agent *models.Agent) {
-	if cfg == nil || agent == nil || agent.ExporterOptions.Timeout == 0 {
+	if cfg == nil || agent == nil || agent.ExporterOptions.ConnectionTimeout == 0 {
 		return
 	}
 	interval := time.Duration(cfg.ScrapeInterval)
 	maxT := time.Duration(float64(interval) * exporterScrapeIntervalCap)
-	t := min(agent.ExporterOptions.Timeout, maxT)
+	t := min(agent.ExporterOptions.ConnectionTimeout, maxT)
 	t = max(t, exporterScrapeTimeoutFloorMs*time.Millisecond)
 	cfg.ScrapeTimeout = config.Duration(t)
 }
@@ -578,8 +578,8 @@ func scrapeConfigsForRDSExporter(params []*scrapeConfigParams) []*config.ScrapeC
 			hostportMap[hostport] = &rdsHost{res: p.metricsResolution}
 		}
 		h := hostportMap[hostport]
-		if p.agent.ExporterOptions.Timeout > h.maxExporter {
-			h.maxExporter = p.agent.ExporterOptions.Timeout
+		if p.agent.ExporterOptions.ConnectionTimeout > h.maxExporter {
+			h.maxExporter = p.agent.ExporterOptions.ConnectionTimeout
 		}
 	}
 
