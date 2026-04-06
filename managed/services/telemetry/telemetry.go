@@ -338,6 +338,9 @@ func (s *Service) prepareReport(ctx context.Context) *telemetryv1.GenericReport 
 func (s *Service) locateDataSources(telemetryConfig []Config) map[DataSourceName]DataSource {
 	dataSources := make(map[DataSourceName]DataSource)
 	for _, telemetry := range telemetryConfig {
+		if telemetry.Source == "" {
+			continue
+		}
 		ds, err := s.LocateTelemetryDataSource(telemetry.Source)
 		if err != nil {
 			s.l.Debugf("Failed to lookup telemetry datasource for [%s]:[%s]", telemetry.Source, telemetry.ID)
