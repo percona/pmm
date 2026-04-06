@@ -159,7 +159,7 @@ func (cmd *AddValkeyCommand) RunCmd() (commands.Result, error) {
 				TLSCert:           tlsCert,
 				TLSKey:            tlsKey,
 				MetricsMode:       cmd.MetricsModeFlags.MetricsMode.EnumValue(),
-				LogLevel:          cmd.LogLevelNoFatalFlags.LogLevel.EnumValue(),
+				LogLevel:          cmd.LogLevel.EnumValue(),
 				ConnectionTimeout: cmd.ConnectionTimeout,
 			},
 		},
