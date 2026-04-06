@@ -18,7 +18,6 @@ package telemetry
 
 import (
 	"context"
-	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -35,6 +34,7 @@ import (
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/platform"
+	"github.com/percona/pmm/version"
 )
 
 const (
@@ -104,9 +104,6 @@ func (s *Service) LocateTelemetryDataSource(name string) (DataSource, error) {
 	return s.dsRegistry.LocateTelemetryDataSource(name)
 }
 
-// releaseVersionRe matches only clean release versions like "3.7.0" or "3.7".
-var releaseVersionRe = regexp.MustCompile(`^\d+\.\d+(\.\d+)?$`)
-
 // Run sends telemetry.
 func (s *Service) Run(ctx context.Context) {
 	if !s.config.Enabled {
@@ -114,7 +111,9 @@ func (s *Service) Run(ctx context.Context) {
 		return
 	}
 
-	if !releaseVersionRe.MatchString(s.pmmVersion) {
+	p, err := version.Parse(s.pmmVersion)
+	// match only clean release versions like "3.7.1" and skip feature builds
+	if err != nil || p.Rest != "" {
 		return
 	}
 

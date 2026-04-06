@@ -74,7 +74,7 @@ func TestRunTelemetryService(t *testing.T) {
 	}
 	const (
 		testSourceName = "VM"
-		pmmVersion     = "2.29"
+		pmmVersion     = "2.29.0"
 	)
 
 	now := time.Now()
