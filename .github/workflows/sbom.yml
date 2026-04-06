@@ -16,13 +16,13 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Create SBOM for PMM
-        uses: anchore/sbom-action@17ae1740179002c89186b61233e0f892c3118b11 # v0.23.0
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
         with:
           file: go.mod
           artifact-name: pmm.spdx.json
 
       - name: Publish SBOM for PMM
-        uses: anchore/sbom-action/publish-sbom@17ae1740179002c89186b61233e0f892c3118b11 # v0.23.0
+        uses: anchore/sbom-action/publish-sbom@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
         with:
           sbom-artifact-match: ".*\\.spdx\\.json$"
 
@@ -33,12 +33,12 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Create SBOM for vmproxy
-        uses: anchore/sbom-action@17ae1740179002c89186b61233e0f892c3118b11 # v0.23.0
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
         with:
           path: ./vmproxy
           artifact-name: vmproxy.spdx.json
 
       - name: Publish SBOM for vmproxy
-        uses: anchore/sbom-action/publish-sbom@17ae1740179002c89186b61233e0f892c3118b11 # v0.23.0
+        uses: anchore/sbom-action/publish-sbom@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
         with:
           sbom-artifact-match: ".*\\.spdx\\.json$"

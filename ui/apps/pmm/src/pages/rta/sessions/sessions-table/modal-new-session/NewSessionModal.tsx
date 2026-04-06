@@ -1,8 +1,9 @@
 import DialogContent from '@mui/material/DialogContent';
 import Typography from '@mui/material/Typography';
-import { Dialog, DialogTitle } from '@percona/ui-lib';
+import { Dialog, DialogTitle } from '@percona/percona-ui';
 import { FC } from 'react';
 import { Messages } from './NewSessionModal.messages';
+import { Messages as RtaMessages } from '../../../messages';
 import Stack from '@mui/material/Stack';
 import Link from '@mui/material/Link';
 import { DOCS_URLS } from 'lib/constants';
@@ -40,7 +41,7 @@ const NewSessionModal: FC<Props> = ({ open, onClose, onSuccess }) => (
       <RealtimeSelectionForm onSuccess={onSuccess} />
       <Stack direction="column" gap={1}>
         <Typography variant="body2" color="text.secondary" textAlign="center">
-          {Messages.disclaimer}
+          {RtaMessages.disclaimer}
         </Typography>
         <Stack justifyContent="center" flexDirection="row" gap={2}>
           <Link

@@ -1,4 +1,4 @@
-import type { ModalProps as MuiModalProps } from '@mui/material/Modal/Modal';
+import type { ModalProps as MuiModalProps } from '@mui/material';
 
 export interface ModalProps extends MuiModalProps {
   title: string;

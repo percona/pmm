@@ -1,6 +1,6 @@
 import { type MRT_Row } from 'material-react-table';
 import { MaterialReactTableProps } from 'material-react-table';
-import { Table } from '@percona/ui-lib';
+import { Table } from '@percona/percona-ui';
 import { FC } from 'react';
 import { QueryData } from 'types/rta.types';
 import { OVERVIEW_TABLE_COLUMNS } from './OverviewTable.constants';

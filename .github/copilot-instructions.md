@@ -1,47 +1,17 @@
-# PMM Development Guide for AI Agents
+# PMM AI Agent Instructions — GitHub Copilot Entry Point
 
-## Purpose
+Read [AGENTS.md](../AGENTS.md) at the repository root for the complete PMM development guide, including product overview, architecture, domain model, tech stack, and global conventions.
 
-These files provide structured guidelines for AI coding agents working with the PMM codebase. They help agents understand:
-- The overall repository structure and component organization
-- Component-specific development patterns and conventions
-- Best practices for contributing to PMM
+## Component Guides
 
-The goal is to improve AI agent effectiveness when making code changes, reviewing code, or providing guidance on PMM development.
+When working on a specific component, also read the relevant guide from this directory:
 
-## Project Overview
-
-Percona Monitoring and Management (PMM) is an open-source database monitoring solution with a client-server architecture. This is a **monorepository** containing multiple PMM Components, APIs, documentation, and build scripts.
-
-Every component is written in Go, with the exception of the UI, which is based on TypeScript. Each component has its own directory at the root of the repository.
-
-### Core Components
-
-- **pmm-managed** (`/managed`) - Backend service managing PMM Server configuration, exposes gRPC/REST APIs
-- **pmm-agent** (`/agent`) - Client-side agent that runs exporters and collects metrics via VMAgent
-- **pmm-admin** (`/admin`) - CLI tool for managing monitored services, wraps pmm-agent functionality
-- **qan-api2** (`/qan-api2`) - Query Analytics API service
-- **APIs** (`/api`) - Protobuf definitions and generated clients for all services
-- **API Tests** (`/api-tests`) - Integration tests for PMM APIs
-- **UI** (`/ui`) - React-based PMM frontend
-- **VMProxy** (`/vmproxy`) - VMProxy is a stateless reverse proxy for VictoriaMetrics
-- **Utils** (`/utils`) - Shared utility libraries for PMM components
-- **API Documentation** (`/docs`) - PMM API documentation
-- **Documentation** (`/documentation`) - Documentation source files
-
-### Other Directories
-- **build** (`/build`) - Build scripts and Dockerfiles
-- **scripts** (`/scripts`) - Utility scripts for development and maintenance
-
-# AI Agent Instructions
-
-The following guidelines are intended to help AI coding agents contribute effectively to the PMM codebase. 
-
-## Component-Specific Guidelines
-
-Each PMM component can have its own `AGENT.md` file in its respective directory, providing detailed development guidelines specific to that component. This file serves as a general overview and points to these component-specific instructions.
-
-Currently available component guidelines:
-- [managed/AGENT.md](../managed/AGENT.md) - Comprehensive AI-driven `pmm-managed` development guidelines
-
-Additional components may add their own `AGENT.md` files as needed (e.g., `agent/AGENT.md`, `ui/AGENT.md`, etc.).
+- [managed.instructions.md](instructions/managed.instructions.md) — pmm-managed server backend (`managed/**`)
+- [agent.instructions.md](instructions/agent.instructions.md) — pmm-agent client agent (`agent/**`)
+- [admin.instructions.md](instructions/admin.instructions.md) — pmm-admin CLI (`admin/**`)
+- [api.instructions.md](instructions/api.instructions.md) — Protobuf API definitions (`api/**`)
+- [qan-api2.instructions.md](instructions/qan-api2.instructions.md) — Query Analytics API (`qan-api2/**`)
+- [vmproxy.instructions.md](instructions/vmproxy.instructions.md) — VictoriaMetrics proxy (`vmproxy/**`)
+- [ui.instructions.md](instructions/ui.instructions.md) — React frontend (`ui/**`)
+- [api-tests.instructions.md](instructions/api-tests.instructions.md) — API integration tests (`api-tests/**`)
+- [build.instructions.md](instructions/build.instructions.md) — Build and packaging (`build/**`)

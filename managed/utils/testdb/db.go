@@ -20,6 +20,8 @@ import (
 	"context"
 	"database/sql"
 	"math/rand"
+	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -29,9 +31,21 @@ import (
 )
 
 const (
-	username, password = "postgres", ""
-	testDatabase       = "pmm-managed-dev"
+	username     = "postgres"
+	testDatabase = "pmm-managed-dev"
+
+	// Variable postgresPasswordFile defines the file where the generated PostgreSQL password is stored.
+	postgresPasswordFile = "/srv/.postgres_password" //nolint:gosec
 )
+
+// postgresPassword returns the PostgreSQL password, reading it from the password file if available.
+func postgresPassword() string {
+	data, err := os.ReadFile(postgresPasswordFile)
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(data))
+}
 
 // Open recreates testing PostgreSQL database and returns an open connection to it.
 func Open(tb testing.TB, setupFixtures models.SetupFixturesMode, migrationVersion *int) *sql.DB {
@@ -40,7 +54,7 @@ func Open(tb testing.TB, setupFixtures models.SetupFixturesMode, migrationVersio
 	setupParams := models.SetupDBParams{
 		Address:  "127.0.0.1:5432",
 		Username: username,
-		Password: password,
+		Password: postgresPassword(),
 	}
 
 	db, err := models.OpenDB(setupParams)
@@ -75,9 +89,9 @@ func SetupDB(tb testing.TB, db *sql.DB, setupFixtures models.SetupFixturesMode, 
 		// Uncomment to see all setup queries:
 		// Logf: tb.Logf,
 		Address:          models.DefaultPostgreSQLAddr,
-		Name:             newName(11),
+		Name:             newName(11), //nolint:mnd
 		Username:         username,
-		Password:         password,
+		Password:         postgresPassword(),
 		SetupFixtures:    setupFixtures,
 		MigrationVersion: migrationVersion,
 	}

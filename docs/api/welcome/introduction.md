@@ -1,7 +1,7 @@
 ---
 title: Introduction
 slug: introduction
-parent:
+category:
   uri: welcome
 position: 0
 ---

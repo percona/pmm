@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"strings"
 
-	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func parseCommand(raw bson.Raw) string {
