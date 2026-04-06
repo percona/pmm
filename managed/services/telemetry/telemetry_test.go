@@ -185,6 +185,46 @@ func TestRunTelemetryService(t *testing.T) {
 	}
 }
 
+func TestRunSkipsNonReleaseVersion(t *testing.T) {
+	t.Parallel()
+
+	logger := logrus.StandardLogger()
+	logger.SetLevel(logrus.DebugLevel)
+
+	tests := []struct {
+		version string
+	}{
+		{"3.0.0-rc1"},
+		{"3.0.0-beta2"},
+		{"3.0.0-dev"},
+		{"not-a-version"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.version, func(t *testing.T) {
+			t.Parallel()
+
+			var mockSender mockSender
+			mockSender.Test(t)
+			t.Cleanup(func() {
+				mockSender.AssertNotCalled(t, "SendTelemetry")
+			})
+
+			ctx, cancel := context.WithTimeout(t.Context(), 200*time.Millisecond)
+			defer cancel()
+
+			s := Service{
+				l:          logrus.NewEntry(logger),
+				config:     getTestConfig(true, "VM", 50*time.Millisecond),
+				pmmVersion: tt.version,
+				portalClient: &mockSender,
+				sendCh:     make(chan *telemetryv1.GenericReport, sendChSize),
+			}
+			s.Run(ctx)
+		})
+	}
+}
+
 func getServiceConfig(pgPortHost string, qanDSN string, vmDSN string) ServiceConfig {
 	serviceConfig := ServiceConfig{
 		Enabled:      true,
