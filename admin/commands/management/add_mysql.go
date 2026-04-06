@@ -242,7 +242,7 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 				TablestatsGroupTableLimit: tablestatsGroupTableLimit,
 				MetricsMode:               cmd.MetricsModeFlags.MetricsMode.EnumValue(),
 				DisableCollectors:         commands.ParseDisableCollectors(cmd.DisableCollectors),
-				LogLevel:                  cmd.LogLevelNoFatalFlags.LogLevel.EnumValue(),
+				LogLevel:                  cmd.LogLevel.EnumValue(),
 				ConnectionTimeout:         cmd.ConnectionTimeout,
 			},
 		},

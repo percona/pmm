@@ -83,7 +83,7 @@ func (cmd *AddAgentProxysqlExporterCommand) RunCmd() (commands.Result, error) {
 				PushMetrics:         cmd.PushMetrics,
 				ExposeExporter:      cmd.ExposeExporter,
 				DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
-				LogLevel:            cmd.LogLevelFatalFlags.LogLevel.EnumValue(),
+				LogLevel:            cmd.LogLevel.EnumValue(),
 				ConnectionTimeout:   cmd.ConnectionTimeout,
 			},
 		},

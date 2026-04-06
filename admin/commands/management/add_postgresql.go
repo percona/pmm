@@ -213,7 +213,7 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 				DisableCollectors:      commands.ParseDisableCollectors(cmd.DisableCollectors),
 				AutoDiscoveryLimit:     cmd.AutoDiscoveryLimit,
 				MaxExporterConnections: cmd.MaxExporterConnections,
-				LogLevel:               cmd.LogLevelNoFatalFlags.LogLevel.EnumValue(),
+				LogLevel:               cmd.LogLevel.EnumValue(),
 				ConnectionTimeout:      cmd.ConnectionTimeout,
 			},
 		},

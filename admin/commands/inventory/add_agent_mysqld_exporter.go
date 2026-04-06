@@ -153,7 +153,7 @@ func (cmd *AddAgentMysqldExporterCommand) RunCmd() (commands.Result, error) {
 				PushMetrics:               cmd.PushMetrics,
 				ExposeExporter:            cmd.ExposeExporter,
 				DisableCollectors:         commands.ParseDisableCollectors(cmd.DisableCollectors),
-				LogLevel:                  cmd.LogLevelNoFatalFlags.LogLevel.EnumValue(),
+				LogLevel:                  cmd.LogLevel.EnumValue(),
 				ConnectionTimeout:         cmd.ConnectionTimeout,
 			},
 		},

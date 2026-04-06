@@ -203,7 +203,7 @@ func (cmd *AddMongoDBCommand) RunCmd() (commands.Result, error) {
 				DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
 				StatsCollections:    commands.ParseDisableCollectors(cmd.StatsCollections),
 				CollectionsLimit:    cmd.CollectionsLimit,
-				LogLevel:            cmd.LogLevelFatalFlags.LogLevel.EnumValue(),
+				LogLevel:            cmd.LogLevel.EnumValue(),
 				ConnectionTimeout:   cmd.ConnectionTimeout,
 			},
 		},

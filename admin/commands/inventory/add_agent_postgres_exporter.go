@@ -118,7 +118,7 @@ func (cmd *AddAgentPostgresExporterCommand) RunCmd() (commands.Result, error) {
 				TLSCa:             tlsCa,
 				TLSCert:           tlsCert,
 				TLSKey:            tlsKey,
-				LogLevel:          cmd.LogLevelNoFatalFlags.LogLevel.EnumValue(),
+				LogLevel:          cmd.LogLevel.EnumValue(),
 				ConnectionTimeout: cmd.ConnectionTimeout,
 			},
 		},
