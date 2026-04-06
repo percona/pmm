@@ -23,6 +23,7 @@ import (
 	"time"
 
 	_ "github.com/ClickHouse/clickhouse-go/v2"
+	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	pmmv1 "github.com/percona/saas/gen/telemetry/events/pmm"
 	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
 	"github.com/sirupsen/logrus"
@@ -190,6 +191,10 @@ func TestRunSkipsNonReleaseVersion(t *testing.T) {
 
 	logger := logrus.StandardLogger()
 	logger.SetLevel(logrus.DebugLevel)
+	logEntry := logrus.NewEntry(logger)
+
+	// Settings JSON with a pre-existing UUID so makeMetric won't attempt an UPDATE.
+	settingsJSON := []byte(`{"telemetry":{"uuid":"00000000-0000-0000-0000-000000000001"}}`)
 
 	tests := []struct {
 		version string
@@ -210,17 +215,35 @@ func TestRunSkipsNonReleaseVersion(t *testing.T) {
 				mockSender.AssertNotCalled(t, "SendTelemetry")
 			})
 
-			ctx, cancel := context.WithTimeout(t.Context(), 200*time.Millisecond)
+			sqlDB, dbMock, err := sqlmock.New()
+			require.NoError(t, err)
+			t.Cleanup(func() { sqlDB.Close() })
+			db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+
+			// doSend calls models.GetSettings(s.db) before prepareReport.
+			dbMock.ExpectQuery("SELECT settings FROM settings").
+				WillReturnRows(sqlmock.NewRows([]string{"settings"}).AddRow(settingsJSON))
+			// prepareReport → makeMetric runs a transaction with the same query.
+			dbMock.ExpectBegin()
+			dbMock.ExpectQuery("SELECT settings FROM settings").
+				WillReturnRows(sqlmock.NewRows([]string{"settings"}).AddRow(settingsJSON))
+			dbMock.ExpectCommit()
+
+			ctx, cancel := context.WithTimeout(t.Context(), 100*time.Millisecond)
 			defer cancel()
 
 			s := Service{
-				l:            logrus.NewEntry(logger),
-				config:       getTestConfig(true, "VM", 50*time.Millisecond),
+				db:           db,
+				l:            logEntry,
+				config:       getTestConfig(true, "VM", 10*time.Second), // long interval: only SendOnStart fires
 				pmmVersion:   tt.version,
+				dus:          getDistributionUtilService(t, logEntry),
 				portalClient: &mockSender,
 				sendCh:       make(chan *telemetryv1.GenericReport, sendChSize),
 			}
 			s.Run(ctx)
+
+			require.NoError(t, dbMock.ExpectationsWereMet())
 		})
 	}
 }

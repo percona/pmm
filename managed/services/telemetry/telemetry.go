@@ -133,12 +133,6 @@ func (s *Service) Run(ctx context.Context) {
 		return
 	}
 
-	p, err := version.Parse(s.pmmVersion)
-	// match only clean release versions like "3.7.1" and skip feature builds
-	if err != nil || p.Rest != "" {
-		return
-	}
-
 	ticker := time.NewTicker(s.config.Reporting.Interval)
 	defer ticker.Stop()
 
@@ -162,6 +156,12 @@ func (s *Service) Run(ctx context.Context) {
 
 		if !s.config.Reporting.Send {
 			s.l.Info("Sending telemetry is disabled.")
+			return
+		}
+
+		p, err := version.Parse(s.pmmVersion)
+		// do not send telemetry if this is a feature build, match only clean release versions like "3.7.1"
+		if err != nil || p.Rest != "" {
 			return
 		}
 
