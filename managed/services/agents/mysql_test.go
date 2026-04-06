@@ -108,14 +108,14 @@ func TestMySQLdExporterConfig(t *testing.T) {
 		exporter.Password = nil
 		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
-		assert.Equal(t, "DATA_SOURCE_NAME=username@tcp(1.2.3.4:3306)/?timeout=1s", actual.Env[0])
+		assert.Equal(t, "DATA_SOURCE_NAME=username@tcp(1.2.3.4:3306)/?timeout=2s", actual.Env[0])
 	})
 
 	t.Run("EmptyUsername", func(t *testing.T) {
 		exporter.Username = nil
 		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
-		assert.Equal(t, "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?timeout=1s", actual.Env[0])
+		assert.Equal(t, "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?timeout=2s", actual.Env[0])
 	})
 
 	t.Run("SSLEnabled", func(t *testing.T) {
@@ -126,7 +126,7 @@ func TestMySQLdExporterConfig(t *testing.T) {
 			TLSKey:  "content-of-tls-key",
 		}
 		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
-		expected := "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?timeout=1s&tls=custom"
+		expected := "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?timeout=2s&tls=custom"
 		assert.Equal(t, expected, actual.Env[0])
 		expectedFiles := map[string]string{
 			"tlsCa":   exporter.MySQLOptions.TLSCa,
@@ -219,7 +219,7 @@ func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 		},
 		Env: []string{
-			"DATA_SOURCE_NAME=username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:3306)/?timeout=1s&tls=custom",
+			"DATA_SOURCE_NAME=username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:3306)/?timeout=2s&tls=custom",
 			"HTTP_AUTH=pmm:agent-id",
 		},
 		RedactWords: []string{"s3cur3 p@$$w0r4.", "content-of-tls-key"},
@@ -239,14 +239,14 @@ func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 		exporter.Password = nil
 		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
-		assert.Equal(t, "DATA_SOURCE_NAME=username@tcp(1.2.3.4:3306)/?timeout=1s&tls=custom", actual.Env[0])
+		assert.Equal(t, "DATA_SOURCE_NAME=username@tcp(1.2.3.4:3306)/?timeout=2s&tls=custom", actual.Env[0])
 	})
 
 	t.Run("EmptyUsername", func(t *testing.T) {
 		exporter.Username = nil
 		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
-		assert.Equal(t, "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?timeout=1s&tls=custom", actual.Env[0])
+		assert.Equal(t, "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?timeout=2s&tls=custom", actual.Env[0])
 	})
 
 	t.Run("V236_EnablesPluginCollector", func(t *testing.T) {
@@ -326,7 +326,7 @@ func TestMySQLdExporterConfigDisabledCollectors(t *testing.T) {
 			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 		},
 		Env: []string{
-			"DATA_SOURCE_NAME=username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:3306)/?timeout=1s",
+			"DATA_SOURCE_NAME=username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:3306)/?timeout=2s",
 			"HTTP_AUTH=pmm:agent-id",
 		},
 		RedactWords: []string{"s3cur3 p@$$w0r4."},
@@ -412,7 +412,7 @@ func TestMySQLdExporterConfigMySQL8Support(t *testing.T) {
 			},
 			RedactWords: []string{"s3cur3 p@$$w0r4.", "agent-password", "content-of-tls-key"},
 			TextFiles: map[string]string{
-				"myCnf":     "[client]\nhost=1.2.3.4\nport=3306\nuser=username\npassword=s3cur3 p@$$w0r4.\n\nconnect_timeout=1\nssl-ca={{ .TextFiles.tlsCa }}\nssl-cert={{ .TextFiles.tlsCert }}\nssl-key={{ .TextFiles.tlsKey }}\n\n",
+				"myCnf":     "[client]\nhost=1.2.3.4\nport=3306\nuser=username\npassword=s3cur3 p@$$w0r4.\n\nconnect_timeout=2\nssl-ca={{ .TextFiles.tlsCa }}\nssl-cert={{ .TextFiles.tlsCert }}\nssl-key={{ .TextFiles.tlsKey }}\n\n",
 				"tlsCa":     "content-of-tls-ca",
 				"tlsCert":   "content-of-tls-certificate-key",
 				"tlsKey":    "content-of-tls-key",
@@ -477,7 +477,7 @@ func TestMySQLdExporterConfigMySQL8Support(t *testing.T) {
 			},
 			RedactWords: []string{"agent-password", "content-of-tls-key"},
 			TextFiles: map[string]string{
-				"myCnf":     "[client]\nhost=1.2.3.4\nport=3306\nuser=username\n\n\nconnect_timeout=1\nssl-ca={{ .TextFiles.tlsCa }}\nssl-cert={{ .TextFiles.tlsCert }}\nssl-key={{ .TextFiles.tlsKey }}\n\n",
+				"myCnf":     "[client]\nhost=1.2.3.4\nport=3306\nuser=username\n\n\nconnect_timeout=2\nssl-ca={{ .TextFiles.tlsCa }}\nssl-cert={{ .TextFiles.tlsCert }}\nssl-key={{ .TextFiles.tlsKey }}\n\n",
 				"tlsCa":     "content-of-tls-ca",
 				"tlsCert":   "content-of-tls-certificate-key",
 				"tlsKey":    "content-of-tls-key",
@@ -540,7 +540,7 @@ func TestMySQLdExporterConfigMySQL8Support(t *testing.T) {
 				"--web.config.file={{ .TextFiles.webConfig }}",
 			},
 			TextFiles: map[string]string{
-				"myCnf":     "[client]\nhost=1.2.3.4\nport=3306\n\npassword=s3cur3 p@$$w0r4.\n\nconnect_timeout=1\n\n\n\n\n",
+				"myCnf":     "[client]\nhost=1.2.3.4\nport=3306\n\npassword=s3cur3 p@$$w0r4.\n\nconnect_timeout=2\n\n\n\n\n",
 				"webConfig": "basic_auth_users:\n    pmm: agent-password\n",
 			},
 		}

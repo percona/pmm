@@ -638,7 +638,7 @@ func TestEffectiveDialTimeout(t *testing.T) {
 		assert.Equal(t, custom, a.EffectiveDialTimeout())
 	})
 
-	t.Run("exporter agent types default to 1s", func(t *testing.T) {
+	t.Run("exporter agent types default to 2s", func(t *testing.T) {
 		t.Parallel()
 		for _, typ := range []models.AgentType{
 			models.NodeExporterType,
@@ -653,7 +653,7 @@ func TestEffectiveDialTimeout(t *testing.T) {
 			t.Run(string(typ), func(t *testing.T) {
 				t.Parallel()
 				a := &models.Agent{AgentType: typ}
-				assert.Equal(t, time.Second, a.EffectiveDialTimeout())
+				assert.Equal(t, 2*time.Second, a.EffectiveDialTimeout())
 			})
 		}
 	})
