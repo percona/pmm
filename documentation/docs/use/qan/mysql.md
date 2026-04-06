@@ -1,8 +1,7 @@
-# Query Analytics with MySQL
+# Stored metrics for MySQL
+This topic covers limitations and tuning options specific to MySQL in QAN Stored metrics.
 
-## Limitations with Performance Schema
-
-### Missing query examples in MySQL Performance Schema
+## Missing query examples in MySQL Performance Schema
 
 When using MySQL's Performance Schema as the query source, you may encounter the message *“Sorry, no examples found”* in the QAN dashboard. This typically occurs due to the way MySQL handles query sampling and can be influenced by the volume of unique queries, and Performance Schema settings.
 

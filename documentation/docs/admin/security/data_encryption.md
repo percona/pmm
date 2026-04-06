@@ -52,3 +52,7 @@ Once the rotation tool has completed, a new encryption key will be generated and
 - Always keep a secure backup of your encryption key, especially when using `PMM_ENCRYPTION_KEY_PATH`, as it is critical to PMM’s data decryption process.
 - In containerized environments, ensure `PMM_ENCRYPTION_KEY_PATH` is persistently set in the container configuration to avoid issues during restarts.
 - Test the encryption key rotation process in a staging environment before applying it in production to minimize potential downtime or configuration issues.
+
+## See also
+
+[Encrypt the PMM Client configuration file](client_config_encryption.md)

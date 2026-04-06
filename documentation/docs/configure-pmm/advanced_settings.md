@@ -47,7 +47,7 @@ Advisors are sets of checks grouped by functionality that run a range of databas
 
 The findings are reported on the **Advisors > Advisor Insights** page, and an overview is displayed on the Home dashboard.
 
-The Advisors option is enabled by default. Checks are re-fetched and rerun at intervals.
+The Advisors toggle is enabled by default and located in the **Execution intervals** section. Checks are re-fetched and rerun at the intervals configured there.
 
 See [Working with Advisor checks](../advisors/advisors.md).
 
