@@ -42,7 +42,6 @@
     "lodash": "^4.17.23",
     "immutable": "^5.1.5",
     "dompurify": "^3.2.7",
-    "minimatch": "^9.0.6",
     "serialize-javascript": "^7.0.3"
   },
   "prettier": "@percona/prettier-config"
