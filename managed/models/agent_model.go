@@ -51,12 +51,12 @@ const (
 	// AgentStatusUnknown indicates we know nothing about agent because it is not connected.
 	AgentStatusUnknown = "AGENT_STATUS_UNKNOWN"
 	// AgentStatusDone indicates thay the agent has either been stopped or disabled.
-	agentStatusDone                 = "AGENT_STATUS_DONE"
-	tcp                             = "tcp"
-	trueStr                         = "true"
-	unix                            = "unix"
-	skipVerify                      = "skip-verify"
-	effectiveDialTimeoutFallbackSec = 2
+	agentStatusDone            = "AGENT_STATUS_DONE"
+	tcp                        = "tcp"
+	trueStr                    = "true"
+	unix                       = "unix"
+	skipVerify                 = "skip-verify"
+	defaultExporterDialTimeout = 1 * time.Second
 )
 
 // Agent types (in the same order as in agents.proto).
@@ -823,20 +823,7 @@ func (a *Agent) EffectiveDialTimeout() time.Duration {
 		return a.ExporterOptions.Timeout
 	}
 
-	switch a.AgentType {
-	case NodeExporterType,
-		MySQLdExporterType,
-		MongoDBExporterType,
-		PostgresExporterType,
-		ProxySQLExporterType,
-		AzureDatabaseExporterType,
-		ExternalExporterType,
-		ValkeyExporterType:
-		return 1 * time.Second
-	default:
-	}
-
-	return time.Duration(effectiveDialTimeoutFallbackSec) * time.Second
+	return defaultExporterDialTimeout
 }
 
 // ExporterURL composes URL to an external exporter.
