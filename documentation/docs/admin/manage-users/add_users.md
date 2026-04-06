@@ -2,7 +2,7 @@
 
 Adding users with basic authentication (username and password stored in PMM) from **Administration > Users and access > Users** tab.
 
-If your organization uses LDAP, OAuth, SAML, or other authentication methods, users are managed through your external authentication system. See [available authentication methods](edit_users.md#available-authentication-methods) for more information.
+If your organization uses LDAP, OAuth, SAML, or other authentication methods, users are managed through your external authentication system. See [authentication methods](../../reference/ui/log_in.md) for more information.
 
 To add a new user in PMM:
 {.power-number}

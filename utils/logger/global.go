@@ -23,13 +23,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// SetupGlobalLogger configures logrus.StandardLogger() to enable multiline-friendly formatter
-// in both development (with terminal) and production (without terminal) with default prettyfier.
-func SetupGlobalLogger() {
-	logrus.SetFormatter(&logrus.TextFormatter{
+// GetLoggerFormatter returns instance of TextFormatter with predefined parameters.
+func GetLoggerFormatter() *logrus.TextFormatter {
+	return &logrus.TextFormatter{
 		FullTimestamp:   true,
 		TimestampFormat: "2006-01-02T15:04:05.000-07:00",
-
 		CallerPrettyfier: func(f *runtime.Frame) (string, string) {
 			_, function := filepath.Split(f.Function)
 
@@ -41,5 +39,11 @@ func SetupGlobalLogger() {
 
 			return function, file
 		},
-	})
+	}
+}
+
+// SetupGlobalLogger configures logrus.StandardLogger() to enable multiline-friendly formatter
+// in both development (with terminal) and production (without terminal) with default prettyfier.
+func SetupGlobalLogger() {
+	logrus.SetFormatter(GetLoggerFormatter())
 }
