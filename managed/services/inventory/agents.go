@@ -258,7 +258,7 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, p *inventoryv1.A
 			PushMetrics:        p.PushMetrics,
 			DisabledCollectors: p.DisableCollectors,
 			ExposeExporter:     p.ExposeExporter,
-			ConnectionTimeout:  duration.FromProto(p.ConnectionTimeout),
+			ConnectionTimeout:  optionalDurationFromProto(p.ConnectionTimeout),
 		}
 		params := &models.CreateAgentParams{
 			PMMAgentID:      p.PmmAgentId,
@@ -382,7 +382,7 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, p *inventoryv1.
 				PushMetrics:        p.PushMetrics,
 				DisabledCollectors: p.DisableCollectors,
 				ExposeExporter:     p.ExposeExporter,
-				ConnectionTimeout:  duration.FromProto(p.ConnectionTimeout),
+				ConnectionTimeout:  optionalDurationFromProto(p.ConnectionTimeout),
 			},
 			LogLevel: services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		}
@@ -718,7 +718,7 @@ func (as *AgentsService) AddPostgresExporter(ctx context.Context, p *inventoryv1
 			PushMetrics:        p.PushMetrics,
 			DisabledCollectors: p.DisableCollectors,
 			ExposeExporter:     p.ExposeExporter,
-			ConnectionTimeout:  duration.FromProto(p.ConnectionTimeout),
+			ConnectionTimeout:  optionalDurationFromProto(p.ConnectionTimeout),
 		}
 		params := &models.CreateAgentParams{
 			PMMAgentID:        p.PmmAgentId,
@@ -826,7 +826,7 @@ func (as *AgentsService) AddValkeyExporter(ctx context.Context, p *inventoryv1.A
 		exporterOptions := models.ExporterOptions{
 			PushMetrics:       p.PushMetrics,
 			ExposeExporter:    p.ExposeExporter,
-			ConnectionTimeout: duration.FromProto(p.ConnectionTimeout),
+			ConnectionTimeout: optionalDurationFromProto(p.ConnectionTimeout),
 		}
 		params := &models.CreateAgentParams{
 			PMMAgentID:      p.PmmAgentId,
@@ -1150,7 +1150,7 @@ func (as *AgentsService) AddProxySQLExporter(ctx context.Context, p *inventoryv1
 			PushMetrics:        p.PushMetrics,
 			DisabledCollectors: p.DisableCollectors,
 			ExposeExporter:     p.ExposeExporter,
-			ConnectionTimeout:  duration.FromProto(p.ConnectionTimeout),
+			ConnectionTimeout:  optionalDurationFromProto(p.ConnectionTimeout),
 		}
 		params := &models.CreateAgentParams{
 			PMMAgentID:      p.PmmAgentId,

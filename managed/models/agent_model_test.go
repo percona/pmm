@@ -632,7 +632,7 @@ func TestEffectiveDialTimeout(t *testing.T) {
 		a := &models.Agent{
 			AgentType: models.QANMySQLPerfSchemaAgentType,
 			ExporterOptions: models.ExporterOptions{
-				ConnectionTimeout: custom,
+				ConnectionTimeout: &custom,
 			},
 		}
 		assert.Equal(t, custom, a.EffectiveDialTimeout())

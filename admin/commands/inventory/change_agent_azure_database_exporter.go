@@ -102,7 +102,7 @@ func (cmd *ChangeAgentAzureDatabaseExporterCommand) RunCmd() (commands.Result, e
 		AzureResourceGroup:  cmd.AzureResourceGroup,
 		EnablePushMetrics:   cmd.PushMetrics,
 		LogLevel:            convertLogLevelPtr(cmd.LogLevel),
-		ConnectionTimeout:   pointer.ToString(cmd.ConnectionTimeout),
+		ConnectionTimeout:   pointer.ToStringOrNil(cmd.ConnectionTimeout),
 	}
 
 	if customLabels != nil {

@@ -322,7 +322,7 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				},
 				ExporterOptions: models.ExporterOptions{
 					PushMetrics:       isPushMode(metricsMode),
-					ConnectionTimeout: duration.FromProto(req.ConnectionTimeout),
+					ConnectionTimeout: pointer.ToDuration(duration.FromProto(req.ConnectionTimeout)),
 				},
 			})
 			if err != nil {

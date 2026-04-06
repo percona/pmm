@@ -232,7 +232,7 @@ func TestAddServiceExporterTimeout(t *testing.T) {
 
 		got := map[models.AgentType]time.Duration{}
 		for _, agent := range agents {
-			got[agent.AgentType] = agent.ExporterOptions.ConnectionTimeout
+			got[agent.AgentType] = pointer.GetDuration(agent.ExporterOptions.ConnectionTimeout)
 		}
 
 		assert.Equal(t, want.AsDuration(), got[models.AzureDatabaseExporterType])

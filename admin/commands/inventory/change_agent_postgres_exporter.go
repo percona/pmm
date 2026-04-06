@@ -148,7 +148,7 @@ func (cmd *ChangeAgentPostgresExporterCommand) RunCmd() (commands.Result, error)
 		AutoDiscoveryLimit:     cmd.AutoDiscoveryLimit,
 		MaxExporterConnections: cmd.MaxExporterConnections,
 		LogLevel:               convertLogLevelPtr(cmd.LogLevel),
-		ConnectionTimeout:      pointer.ToString(cmd.ConnectionTimeout),
+		ConnectionTimeout:      pointer.ToStringOrNil(cmd.ConnectionTimeout),
 	}
 
 	if customLabels != nil {

@@ -92,7 +92,7 @@ func (cmd *ChangeAgentNodeExporterCommand) RunCmd() (commands.Result, error) {
 		DisableCollectors: cmd.DisableCollectors,
 		ExposeExporter:    cmd.ExposeExporter,
 		LogLevel:          convertLogLevelPtr(cmd.LogLevel),
-		ConnectionTimeout: pointer.ToString(cmd.ConnectionTimeout),
+		ConnectionTimeout: pointer.ToStringOrNil(cmd.ConnectionTimeout),
 	}
 
 	if customLabels != nil {

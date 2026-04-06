@@ -91,7 +91,7 @@ func (cmd *ChangeAgentExternalExporterCommand) RunCmd() (commands.Result, error)
 		Scheme:            cmd.MetricsScheme,
 		MetricsPath:       cmd.MetricsPath,
 		EnablePushMetrics: cmd.PushMetrics,
-		ConnectionTimeout: pointer.ToString(cmd.ConnectionTimeout),
+		ConnectionTimeout: pointer.ToStringOrNil(cmd.ConnectionTimeout),
 	}
 
 	if customLabels != nil {

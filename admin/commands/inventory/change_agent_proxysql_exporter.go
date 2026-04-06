@@ -108,7 +108,7 @@ func (cmd *ChangeAgentProxysqlExporterCommand) RunCmd() (commands.Result, error)
 		ExposeExporter:    cmd.ExposeExporter,
 		EnablePushMetrics: cmd.PushMetrics,
 		LogLevel:          convertLogLevelPtr(cmd.LogLevel),
-		ConnectionTimeout: pointer.ToString(cmd.ConnectionTimeout),
+		ConnectionTimeout: pointer.ToStringOrNil(cmd.ConnectionTimeout),
 	}
 
 	if customLabels != nil {

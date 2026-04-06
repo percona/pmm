@@ -121,7 +121,7 @@ func TestToAPIAgent(t *testing.T) {
 						TableCountTablestatsGroupLimit: 1000,
 					},
 					ExporterOptions: models.ExporterOptions{
-						ConnectionTimeout: 9 * time.Second,
+						ConnectionTimeout: pointer.ToDuration(9 * time.Second),
 					},
 				},
 			},

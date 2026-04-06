@@ -108,8 +108,8 @@ type ExporterOptions struct {
 	MetricsResolutions *MetricsResolutions `json:"metrics_resolutions"`
 	MetricsPath        string              `json:"metrics_path"`
 	MetricsScheme      string              `json:"metrics_scheme"`
-	// Connection timeout for exporter (in nanoseconds). Optional.
-	ConnectionTimeout time.Duration `json:"connection_timeout"`
+	// Connection timeout for exporter. Optional.
+	ConnectionTimeout *time.Duration `json:"connection_timeout"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
@@ -125,7 +125,7 @@ func (c ExporterOptions) IsEmpty() bool {
 		len(c.DisabledCollectors) == 0 &&
 		c.MetricsResolutions == nil &&
 		c.MetricsPath == "" &&
-		c.MetricsScheme == "" && c.ConnectionTimeout == 0
+		c.MetricsScheme == "" && c.ConnectionTimeout == nil || *c.ConnectionTimeout == 0
 }
 
 // QANOptions represents structure for special QAN options.
@@ -819,8 +819,8 @@ func (a *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 
 // EffectiveDialTimeout returns the timeout configured for this agent's exporter.
 func (a *Agent) EffectiveDialTimeout() time.Duration {
-	if a.ExporterOptions.ConnectionTimeout != 0 {
-		return a.ExporterOptions.ConnectionTimeout
+	if pointer.GetDuration(a.ExporterOptions.ConnectionTimeout) != 0 {
+		return *a.ExporterOptions.ConnectionTimeout
 	}
 
 	return defaultDialTimeout

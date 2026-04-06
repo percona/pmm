@@ -102,7 +102,7 @@ func (cmd *ChangeAgentRDSExporterCommand) RunCmd() (commands.Result, error) {
 		DisableEnhancedMetrics: cmd.DisableEnhancedMetrics,
 		EnablePushMetrics:      cmd.PushMetrics,
 		LogLevel:               convertLogLevelPtr(cmd.LogLevel),
-		ConnectionTimeout:      pointer.ToString(cmd.ConnectionTimeout),
+		ConnectionTimeout:      pointer.ToStringOrNil(cmd.ConnectionTimeout),
 	}
 
 	if customLabels != nil {

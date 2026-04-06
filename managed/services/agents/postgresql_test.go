@@ -222,7 +222,7 @@ func (s *PostgresExporterConfigTestSuite) TestDialTimeoutRemoteRDSDefault() {
 
 func (s *PostgresExporterConfigTestSuite) TestDialTimeoutRemoteRDSCustom() {
 	s.node.NodeType = models.RemoteRDSNodeType
-	s.exporter.ExporterOptions = models.ExporterOptions{ConnectionTimeout: 8 * time.Second}
+	s.exporter.ExporterOptions = models.ExporterOptions{ConnectionTimeout: pointer.ToDuration(8 * time.Second)}
 	s.exporter.AzureOptions = models.AzureOptions{}
 	s.exporter.PostgreSQLOptions = models.PostgreSQLOptions{}
 	s.expected.Env[0] = "DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=8&sslmode=disable"
@@ -244,7 +244,7 @@ func (s *PostgresExporterConfigTestSuite) TestDialTimeoutAzureDefault() {
 }
 
 func (s *PostgresExporterConfigTestSuite) TestDialTimeoutAzureCustom() {
-	s.exporter.ExporterOptions = models.ExporterOptions{ConnectionTimeout: 4 * time.Second}
+	s.exporter.ExporterOptions = models.ExporterOptions{ConnectionTimeout: pointer.ToDuration(4 * time.Second)}
 	s.exporter.AzureOptions = models.AzureOptions{ClientID: "azure-client"}
 	s.exporter.PostgreSQLOptions = models.PostgreSQLOptions{}
 	s.expected.Env[0] = "DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=4&sslmode=disable"

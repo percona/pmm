@@ -692,7 +692,7 @@ func CreateNodeExporter(q *reform.Querier,
 			ExposeExporter:     exposeExporter,
 			PushMetrics:        pushMetrics,
 			DisabledCollectors: disableCollectors,
-			ConnectionTimeout:  connectionTimeout,
+			ConnectionTimeout:  &connectionTimeout,
 		},
 		LogLevel: pointer.ToStringOrNil(logLevel),
 	}
@@ -783,7 +783,7 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 			PushMetrics:       params.PushMetrics,
 			MetricsPath:       metricsPath,
 			MetricsScheme:     scheme,
-			ConnectionTimeout: params.ConnectionTimeout,
+			ConnectionTimeout: &params.ConnectionTimeout,
 		},
 		TLSSkipVerify: params.TLSSkipVerify,
 	}
@@ -1194,7 +1194,7 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 		}
 
 		if params.ExporterOptions.ConnectionTimeout != nil {
-			row.ExporterOptions.ConnectionTimeout = *params.ExporterOptions.ConnectionTimeout
+			row.ExporterOptions.ConnectionTimeout = params.ExporterOptions.ConnectionTimeout
 		}
 	}
 

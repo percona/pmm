@@ -71,7 +71,7 @@ func TestValkeyExporterConfig(t *testing.T) {
 			Username:  pointer.ToString("username"),
 			Password:  pointer.ToString("secret"),
 		}
-		exporter.ExporterOptions.ConnectionTimeout = 1500 * time.Millisecond
+		exporter.ExporterOptions.ConnectionTimeout = pointer.ToDuration(1500 * time.Millisecond)
 
 		actual := valkeyExporterConfig(node, service, exporter, redactSecrets, pmmAgentVersion)
 		require.Contains(t, actual.Args, "--connection-timeout=1.5s")

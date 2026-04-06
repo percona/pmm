@@ -19,6 +19,8 @@ import (
 	"sort"
 	"time"
 
+	"github.com/AlekSi/pointer"
+
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
@@ -47,8 +49,8 @@ func valkeyExporterConfig(node *models.Node, service *models.Service, exporter *
 
 	args = append(args, "--redis.addr="+exporter.DSN(service, dnsParams, nil, pmmAgentVersion))
 	connectionTimeout := exporter.ExporterOptions.ConnectionTimeout
-	if connectionTimeout == 0 {
-		connectionTimeout = defaultValkeyTimeout
+	if pointer.GetDuration(connectionTimeout) == 0 {
+		connectionTimeout = pointer.ToDuration(defaultValkeyTimeout)
 	}
 	args = append(args, "--connection-timeout="+connectionTimeout.String())
 	args = withLogLevel(args, exporter.LogLevel, pmmAgentVersion, false)
