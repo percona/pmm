@@ -20,10 +20,12 @@ import (
 	"context"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/AlekSi/pointer"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/api/common"
@@ -57,6 +59,14 @@ func NewAgentsService(db *reform.DB, r agentsRegistry, state agentsStateUpdater,
 		cc:    cc,
 		sib:   sib,
 	}
+}
+
+func optionalDurationFromProto(d *durationpb.Duration) *time.Duration {
+	if d == nil {
+		return nil
+	}
+
+	return pointer.ToDuration(duration.FromProto(d))
 }
 
 func toInventoryAgent(q *reform.Querier, row *models.Agent, registry agentsRegistry) (inventoryv1.Agent, error) { //nolint:ireturn
@@ -333,7 +343,7 @@ func (as *AgentsService) ChangeMySQLdExporter(ctx context.Context, agentID strin
 		DisabledCollectors: p.DisableCollectors,
 		ExposeExporter:     p.ExposeExporter,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
-		ConnectionTimeout:  duration.FromProto(p.ConnectionTimeout),
+		ConnectionTimeout:  optionalDurationFromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)
@@ -454,7 +464,7 @@ func (as *AgentsService) ChangeMongoDBExporter(
 		DisabledCollectors: p.DisableCollectors,
 		ExposeExporter:     p.ExposeExporter,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
-		ConnectionTimeout:  duration.FromProto(p.ConnectionTimeout),
+		ConnectionTimeout:  optionalDurationFromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)
@@ -790,7 +800,7 @@ func (as *AgentsService) ChangePostgresExporter(ctx context.Context, agentID str
 		DisabledCollectors: p.DisableCollectors,
 		ExposeExporter:     p.ExposeExporter,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
-		ConnectionTimeout:  duration.FromProto(p.ConnectionTimeout),
+		ConnectionTimeout:  optionalDurationFromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)
@@ -899,7 +909,7 @@ func (as *AgentsService) ChangeValkeyExporter(ctx context.Context, agentID strin
 		DisabledCollectors: p.DisableCollectors,
 		ExposeExporter:     p.ExposeExporter,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
-		ConnectionTimeout:  duration.FromProto(p.ConnectionTimeout),
+		ConnectionTimeout:  optionalDurationFromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)
@@ -1215,7 +1225,7 @@ func (as *AgentsService) ChangeProxySQLExporter(ctx context.Context, agentID str
 		DisabledCollectors: p.DisableCollectors,
 		ExposeExporter:     p.ExposeExporter,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
-		ConnectionTimeout:  duration.FromProto(p.ConnectionTimeout),
+		ConnectionTimeout:  optionalDurationFromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)

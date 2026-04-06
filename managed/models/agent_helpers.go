@@ -1031,7 +1031,7 @@ type ChangeExporterOptions struct {
 	MetricsScheme      *string
 	MetricsPath        *string
 	MetricsResolutions *ChangeMetricsResolutionsParams
-	ConnectionTimeout  time.Duration
+	ConnectionTimeout  *time.Duration
 }
 
 // ChangeQANOptions contains QANOptions fields that can be changed.
@@ -1193,7 +1193,9 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 			row.ExporterOptions.MetricsPath = *params.ExporterOptions.MetricsPath
 		}
 
-		row.ExporterOptions.ConnectionTimeout = params.ExporterOptions.ConnectionTimeout
+		if params.ExporterOptions.ConnectionTimeout != nil {
+			row.ExporterOptions.ConnectionTimeout = *params.ExporterOptions.ConnectionTimeout
+		}
 	}
 
 	// Update database connection fields
