@@ -1,6 +1,4 @@
-import { jest, describe, it, expect, beforeEach } from '@jest/globals';
-
-// Mock Grafana modules to avoid loading ESM-only deps (marked, react-calendar, etc.) in Jest
+// Mock Grafana modules to avoid loading ESM-only deps in Jest
 jest.mock('@grafana/data', () => ({
   DataLinkBuiltInVars: { keepTime: 'keepTime', includeVars: 'includeVars' },
   locationUtil: { assureBaseUrl: (url: string) => url },
