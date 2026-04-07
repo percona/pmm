@@ -35,7 +35,7 @@ import (
 	"github.com/percona/pmm/utils/logger"
 )
 
-// Verifies management AddService paths persist ExporterOptions.Timeout (dial / scrape timeout API).
+// Verifies management AddService paths persist ExporterOptions.ConnectionTimeout (dial / scrape timeout API).
 func TestAddServiceExporterTimeout(t *testing.T) {
 	uuid.SetRand(&tests.IDReader{})
 	defer uuid.SetRand(nil)

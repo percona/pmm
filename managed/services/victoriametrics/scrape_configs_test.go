@@ -35,7 +35,7 @@ func TestExporterScrapeTimeout(t *testing.T) {
 	t.Parallel()
 
 	interval := 10 * time.Second
-	t.Run("uses ExporterOptions.Timeout when within cap", func(t *testing.T) {
+	t.Run("uses ExporterOptions.ConnectionTimeout when within cap", func(t *testing.T) {
 		t.Parallel()
 		cfg := &config.ScrapeConfig{ScrapeInterval: config.Duration(interval)}
 		agent := &models.Agent{ExporterOptions: models.ExporterOptions{ConnectionTimeout: pointer.ToDuration(3 * time.Second)}}

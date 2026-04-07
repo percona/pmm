@@ -131,7 +131,7 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 		PostgreSQLSupportsSSLSNI: !pmmAgentVersion.Less(postgresSSLSniVersion),
 	}
 
-	// Remote RDS / Azure: default 5s dial unless the user set ExporterOptions.Timeout.
+	// Remote RDS / Azure: default 5s dial unless the user set ExporterOptions.ConnectionTimeout.
 	switch {
 	case exporter.AzureOptions.ClientID != "":
 		if pointer.GetDuration(exporter.ExporterOptions.ConnectionTimeout) != 0 {

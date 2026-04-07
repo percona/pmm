@@ -627,7 +627,7 @@ func TestEffectiveDialTimeout(t *testing.T) {
 	t.Parallel()
 
 	custom := 7 * time.Second
-	t.Run("explicit ExporterOptions.Timeout", func(t *testing.T) {
+	t.Run("explicit ExporterOptions.ConnectionTimeout", func(t *testing.T) {
 		t.Parallel()
 		a := &models.Agent{
 			AgentType: models.QANMySQLPerfSchemaAgentType,
