@@ -224,6 +224,7 @@ func (as *AgentsService) ChangeNodeExporter(ctx context.Context, agentID string,
 		DisabledCollectors: p.DisableCollectors,
 		ExposeExporter:     p.ExposeExporter,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
+		ConnectionTimeout:  optionalDurationFromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)

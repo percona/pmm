@@ -113,9 +113,36 @@ func TestAgents(t *testing.T) {
 					Enable: pointer.ToBool(false),
 					// passing an empty map to remove custom labels
 					CustomLabels: &common.StringMap{},
+					ConnectionTimeout: durationpb.New(7 * time.Second),
 					MetricsResolutions: &common.MetricsResolutions{
 						Hr: durationpb.New(10 * time.Second),
 					},
+				},
+			)
+			require.NoError(t, err)
+			expectedNodeExporter = &inventoryv1.NodeExporter{
+				AgentId:    "00000000-0000-4000-8000-000000000006",
+				PmmAgentId: "00000000-0000-4000-8000-000000000005",
+				Disabled:   true,
+				Status:     inventoryv1.AgentStatus_AGENT_STATUS_DONE,
+				ConnectionTimeout: durationpb.New(7 * time.Second),
+				MetricsResolutions: &common.MetricsResolutions{
+					Hr: durationpb.New(10 * time.Second),
+				},
+			}
+			assert.Equal(t, expectedNodeExporter, actualNodeExporter.GetNodeExporter())
+
+			actualAgent, err := as.Get(ctx, "00000000-0000-4000-8000-000000000006")
+			require.NoError(t, err)
+			assert.Equal(t, expectedNodeExporter, actualAgent.(*inventoryv1.NodeExporter))
+		})
+
+		t.Run("ChangeNodeExporterClearConnectionTimeout", func(t *testing.T) {
+			actualNodeExporter, err := as.ChangeNodeExporter(
+				ctx,
+				"00000000-0000-4000-8000-000000000006",
+				&inventoryv1.ChangeNodeExporterParams{
+					ConnectionTimeout: durationpb.New(0),
 				},
 			)
 			require.NoError(t, err)
