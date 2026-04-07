@@ -272,8 +272,8 @@ func scrapeConfigForRDSExporter(intervalName string, interval time.Duration, hos
 	}
 	if exporterTimeout > 0 {
 		maxT := time.Duration(float64(interval) * exporterScrapeIntervalCap)
-		t := min(exporterTimeout, maxT)
-		t = max(t, exporterScrapeTimeoutFloorMs*time.Millisecond)
+		t := max(exporterTimeout, exporterScrapeTimeoutFloorMs*time.Millisecond)
+		t = min(t, maxT)
 		cfg.ScrapeTimeout = config.Duration(t)
 	}
 	return cfg
