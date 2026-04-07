@@ -99,7 +99,9 @@ message AddMongoDBServiceParams {
   // If true, adds Real-Time Analytics agent for the provided service.
   bool rta_mongodb_agent = 37;
   // Connection timeout for exporter (if set).
-  google.protobuf.Duration connection_timeout = 38;
+  google.protobuf.Duration connection_timeout = 38 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 message MongoDBServiceResult {

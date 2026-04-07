@@ -735,6 +735,33 @@ func TestAgentHelpers(t *testing.T) {
 			require.NoError(t, err)
 			assert.Equal(t, "https", persistedAgent.ExporterOptions.MetricsScheme)
 			assert.Equal(t, "/custom-metrics", persistedAgent.ExporterOptions.MetricsPath)
+
+			// Test setting and then clearing connection timeout back to default/unset.
+			agent, err = models.ChangeAgent(q, "A5", &models.ChangeAgentParams{
+				ExporterOptions: &models.ChangeExporterOptions{
+					ConnectionTimeout: pointer.ToDuration(7 * time.Second),
+				},
+			})
+			require.NoError(t, err)
+			require.NotNil(t, agent.ExporterOptions.ConnectionTimeout)
+			assert.Equal(t, 7*time.Second, *agent.ExporterOptions.ConnectionTimeout)
+
+			persistedAgent, err = models.FindAgentByID(q, "A5")
+			require.NoError(t, err)
+			require.NotNil(t, persistedAgent.ExporterOptions.ConnectionTimeout)
+			assert.Equal(t, 7*time.Second, *persistedAgent.ExporterOptions.ConnectionTimeout)
+
+			agent, err = models.ChangeAgent(q, "A5", &models.ChangeAgentParams{
+				ExporterOptions: &models.ChangeExporterOptions{
+					ConnectionTimeout: pointer.ToDuration(0),
+				},
+			})
+			require.NoError(t, err)
+			assert.Nil(t, agent.ExporterOptions.ConnectionTimeout)
+
+			persistedAgent, err = models.FindAgentByID(q, "A5")
+			require.NoError(t, err)
+			assert.Nil(t, persistedAgent.ExporterOptions.ConnectionTimeout)
 		})
 
 		t.Run("ChangeMetricsResolutions", func(t *testing.T) {

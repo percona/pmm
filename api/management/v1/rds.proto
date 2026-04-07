@@ -120,7 +120,9 @@ message AddRDSServiceParams {
   // Maximum number of exporter connections to PostgreSQL instance.
   int32 max_postgresql_exporter_connections = 33;
   // Connection timeout for exporter (if set).
-  google.protobuf.Duration connection_timeout = 35;
+  google.protobuf.Duration connection_timeout = 35 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 message RDSServiceResult {

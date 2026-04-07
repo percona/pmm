@@ -150,14 +150,14 @@ func TestAgentService(t *testing.T) {
 
 			expected := []*agentv1.UniversalAgent{
 				{
-					AgentId:           pgExporterID,
-					AgentType:         "postgres_exporter",
-					PmmAgentId:        models.PMMServerAgentID,
-					IsConnected:       false,
-					CreatedAt:         timestamppb.New(now),
-					UpdatedAt:         timestamppb.New(now),
-					Username:          "postgres",
-					IsPasswordSet:     true,
+					AgentId:       pgExporterID,
+					AgentType:     "postgres_exporter",
+					PmmAgentId:    models.PMMServerAgentID,
+					IsConnected:   false,
+					CreatedAt:     timestamppb.New(now),
+					UpdatedAt:     timestamppb.New(now),
+					Username:      "postgres",
+					IsPasswordSet: true,
 					PostgresqlOptions: &agentv1.UniversalAgent_PostgreSQLOptions{
 						IsSslKeySet: false,
 					},
@@ -167,14 +167,14 @@ func TestAgentService(t *testing.T) {
 					CommentsParsingDisabled: true,
 				},
 				{
-					AgentId:           pgStatStatementID,
-					AgentType:         "qan-postgresql-pgstatements-agent",
-					PmmAgentId:        models.PMMServerAgentID,
-					IsConnected:       false,
-					CreatedAt:         timestamppb.New(now),
-					UpdatedAt:         timestamppb.New(now),
-					Username:          "postgres",
-					IsPasswordSet:     true,
+					AgentId:       pgStatStatementID,
+					AgentType:     "qan-postgresql-pgstatements-agent",
+					PmmAgentId:    models.PMMServerAgentID,
+					IsConnected:   false,
+					CreatedAt:     timestamppb.New(now),
+					UpdatedAt:     timestamppb.New(now),
+					Username:      "postgres",
+					IsPasswordSet: true,
 					PostgresqlOptions: &agentv1.UniversalAgent_PostgreSQLOptions{
 						IsSslKeySet: false,
 					},
@@ -185,12 +185,12 @@ func TestAgentService(t *testing.T) {
 					Disabled:                true,
 				},
 				{
-					AgentId:           models.PMMServerAgentID,
-					AgentType:         "pmm-agent",
-					RunsOnNodeId:      models.PMMServerAgentID,
-					IsConnected:       true,
-					CreatedAt:         timestamppb.New(now),
-					UpdatedAt:         timestamppb.New(now),
+					AgentId:      models.PMMServerAgentID,
+					AgentType:    "pmm-agent",
+					RunsOnNodeId: models.PMMServerAgentID,
+					IsConnected:  true,
+					CreatedAt:    timestamppb.New(now),
+					UpdatedAt:    timestamppb.New(now),
 				},
 			}
 
@@ -284,15 +284,15 @@ func TestAgentService(t *testing.T) {
 
 			expected := []*agentv1.UniversalAgent{
 				{
-					AgentId:           azureExporter.AgentID,
-					AgentType:         "azure_database_exporter",
-					PmmAgentId:        "00000000-0000-4000-8000-000000000007",
-					IsConnected:       false,
-					CreatedAt:         timestamppb.New(now),
-					UpdatedAt:         timestamppb.New(now),
-					ServiceId:         "00000000-0000-4000-8000-000000000006",
-					Status:            "AGENT_STATUS_UNKNOWN",
-					AzureOptions:      &agentv1.UniversalAgent_AzureOptions{},
+					AgentId:      azureExporter.AgentID,
+					AgentType:    "azure_database_exporter",
+					PmmAgentId:   "00000000-0000-4000-8000-000000000007",
+					IsConnected:  false,
+					CreatedAt:    timestamppb.New(now),
+					UpdatedAt:    timestamppb.New(now),
+					ServiceId:    "00000000-0000-4000-8000-000000000006",
+					Status:       "AGENT_STATUS_UNKNOWN",
+					AzureOptions: &agentv1.UniversalAgent_AzureOptions{},
 				},
 			}
 			assert.Equal(t, expected, response.Agents)
@@ -338,16 +338,16 @@ func TestAgentService(t *testing.T) {
 
 			expected := []*agentv1.UniversalAgent{
 				{
-					AgentId:           rtaAgent.AgentID,
-					AgentType:         "rta-mongodb-agent",
-					PmmAgentId:        "00000000-0000-4000-8000-000000000007",
-					IsConnected:       false,
-					CreatedAt:         timestamppb.New(now),
-					UpdatedAt:         timestamppb.New(now),
-					ServiceId:         "00000000-0000-4000-8000-000000000006",
-					Status:            "AGENT_STATUS_UNKNOWN",
-					Username:          "test-user",
-					IsPasswordSet:     true,
+					AgentId:       rtaAgent.AgentID,
+					AgentType:     "rta-mongodb-agent",
+					PmmAgentId:    "00000000-0000-4000-8000-000000000007",
+					IsConnected:   false,
+					CreatedAt:     timestamppb.New(now),
+					UpdatedAt:     timestamppb.New(now),
+					ServiceId:     "00000000-0000-4000-8000-000000000006",
+					Status:        "AGENT_STATUS_UNKNOWN",
+					Username:      "test-user",
+					IsPasswordSet: true,
 					RtaOptions: &inventoryv1.RTAOptions{
 						CollectInterval: durationpb.New(2 * time.Second),
 					},

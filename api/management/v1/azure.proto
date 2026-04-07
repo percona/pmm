@@ -111,7 +111,9 @@ message AddAzureDatabaseRequest {
   // Azure database resource type (mysql, maria, postgres)
   DiscoverAzureDatabaseType type = 25;
   // Connection timeout for exporter (if set).
-  google.protobuf.Duration connection_timeout = 26;
+  google.protobuf.Duration connection_timeout = 26 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 message AddAzureDatabaseResponse {}

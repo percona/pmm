@@ -65,7 +65,9 @@ message AddExternalServiceParams {
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 19;
   // Connection timeout for exporter (if set).
-  google.protobuf.Duration connection_timeout = 20;
+  google.protobuf.Duration connection_timeout = 20 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 message ExternalServiceResult {

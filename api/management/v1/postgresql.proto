@@ -88,7 +88,9 @@ message AddPostgreSQLServiceParams {
   // Maximum number of connections that exporter can open to the database instance.
   int32 max_exporter_connections = 33;
   // Connection timeout for exporter (if set).
-  google.protobuf.Duration connection_timeout = 34;
+  google.protobuf.Duration connection_timeout = 34 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 message PostgreSQLServiceResult {

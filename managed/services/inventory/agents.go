@@ -66,7 +66,7 @@ func optionalDurationFromProto(d *durationpb.Duration) *time.Duration {
 		return nil
 	}
 
-	return pointer.ToDuration(duration.FromProto(d))
+	return pointer.ToDurationOrNil(d.AsDuration())
 }
 
 func toInventoryAgent(q *reform.Querier, row *models.Agent, registry agentsRegistry) (inventoryv1.Agent, error) { //nolint:ireturn

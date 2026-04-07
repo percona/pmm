@@ -457,7 +457,7 @@ var File_management_v1_postgresql_proto protoreflect.FileDescriptor
 
 const file_management_v1_postgresql_proto_rawDesc = "" +
 	"\n" +
-	"\x1emanagement/v1/postgresql.proto\x12\rmanagement.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xa1\f\n" +
+	"\x1emanagement/v1/postgresql.proto\x12\rmanagement.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xab\f\n" +
 	"\x1aAddPostgreSQLServiceParams\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x127\n" +
@@ -493,8 +493,8 @@ const file_management_v1_postgresql_proto_rawDesc = "" +
 	"\tlog_level\x18\x1e \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x120\n" +
 	"\x14auto_discovery_limit\x18\x1f \x01(\x05R\x12autoDiscoveryLimit\x12'\n" +
 	"\x0fexpose_exporter\x18  \x01(\bR\x0eexposeExporter\x128\n" +
-	"\x18max_exporter_connections\x18! \x01(\x05R\x16maxExporterConnections\x12H\n" +
-	"\x12connection_timeout\x18\" \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
+	"\x18max_exporter_connections\x18! \x01(\x05R\x16maxExporterConnections\x12R\n" +
+	"\x12connection_timeout\x18\" \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb0\x03\n" +

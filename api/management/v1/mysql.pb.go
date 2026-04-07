@@ -461,7 +461,7 @@ var File_management_v1_mysql_proto protoreflect.FileDescriptor
 
 const file_management_v1_mysql_proto_rawDesc = "" +
 	"\n" +
-	"\x19management/v1/mysql.proto\x12\rmanagement.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xf0\f\n" +
+	"\x19management/v1/mysql.proto\x12\rmanagement.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xfa\f\n" +
 	"\x15AddMySQLServiceParams\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x127\n" +
@@ -497,8 +497,8 @@ const file_management_v1_mysql_proto_rawDesc = "" +
 	"\x0eagent_password\x18\x1e \x01(\tR\ragentPassword\x123\n" +
 	"\tlog_level\x18\x1f \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12'\n" +
 	"\x0fexpose_exporter\x18  \x01(\bR\x0eexposeExporter\x12b\n" +
-	"\x10extra_dsn_params\x18! \x03(\v28.management.v1.AddMySQLServiceParams.ExtraDsnParamsEntryR\x0eextraDsnParams\x12H\n" +
-	"\x12connection_timeout\x18\" \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
+	"\x10extra_dsn_params\x18! \x03(\v28.management.v1.AddMySQLServiceParams.ExtraDsnParamsEntryR\x0eextraDsnParams\x12R\n" +
+	"\x12connection_timeout\x18\" \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aA\n" +
