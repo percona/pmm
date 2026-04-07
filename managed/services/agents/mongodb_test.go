@@ -694,9 +694,9 @@ func TestNewMongodbExporterConfig(t *testing.T) {
 		exporter.ExporterOptions = models.ExporterOptions{
 			ConnectionTimeout: pointer.ToDuration(1 * time.Minute),
 		}
-		actual, err := mongodbExporterConfig(node, mongodb, exporter, redactSecrets, pmmAgentVersion)
+		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
-		assert.Equal(t, "MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:27017/?connectTimeoutMS=60000&directConnection=true&serverSelectionTimeoutMS=60000", actual.Env[0])
+		assert.Equal(t, "MONGODB_URI=mongodb://1.2.3.4:27017/?connectTimeoutMS=60000&directConnection=true&serverSelectionTimeoutMS=60000", actual.Env[0])
 	})
 }
 
