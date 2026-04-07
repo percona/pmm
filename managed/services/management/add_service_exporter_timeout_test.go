@@ -238,4 +238,59 @@ func TestAddServiceExporterTimeout(t *testing.T) {
 		assert.Equal(t, want.AsDuration(), got[models.AzureDatabaseExporterType])
 		assert.Equal(t, want.AsDuration(), got[models.MySQLdExporterType])
 	})
+
+	t.Run("RDS MySQL", func(t *testing.T) {
+		state.On("RequestStateUpdate", ctx, models.PMMServerAgentID).Once()
+
+		resp, err := s.addRDS(ctx, &managementv1.AddRDSServiceParams{
+			Region:              "us-east-1",
+			Az:                  "us-east-1b",
+			InstanceId:          "mgmt-test-rds-mysql-timeout",
+			NodeModel:           "db.t3.micro",
+			Address:             "mgmt-test-rds-mysql-timeout.example.com",
+			Port:                3306,
+			Engine:              managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_MYSQL,
+			Username:            "root",
+			Password:            "secret",
+			AwsAccessKey:        "access-key",
+			AwsSecretKey:        "secret-key",
+			RdsExporter:         true,
+			SkipConnectionCheck: true,
+			MetricsMode:         managementv1.MetricsMode_METRICS_MODE_PULL,
+			ConnectionTimeout:   want,
+		})
+		require.NoError(t, err)
+		require.NotNil(t, resp.GetRds())
+		assert.Equal(t, want, resp.GetRds().GetRdsExporter().GetConnectionTimeout())
+		assert.Equal(t, want, resp.GetRds().GetMysqldExporter().GetConnectionTimeout())
+	})
+
+	t.Run("RDS PostgreSQL", func(t *testing.T) {
+		state.On("RequestStateUpdate", ctx, models.PMMServerAgentID).Once()
+
+		resp, err := s.addRDS(ctx, &managementv1.AddRDSServiceParams{
+			Region:                          "us-east-1",
+			Az:                              "us-east-1b",
+			InstanceId:                      "mgmt-test-rds-pg-timeout",
+			NodeModel:                       "db.t3.micro",
+			Address:                         "mgmt-test-rds-pg-timeout.example.com",
+			Port:                            5432,
+			Engine:                          managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_POSTGRESQL,
+			Database:                        "postgres",
+			Username:                        "postgres",
+			Password:                        "secret",
+			AwsAccessKey:                    "access-key",
+			AwsSecretKey:                    "secret-key",
+			RdsExporter:                     true,
+			SkipConnectionCheck:             true,
+			MetricsMode:                     managementv1.MetricsMode_METRICS_MODE_PULL,
+			ConnectionTimeout:               want,
+			AutoDiscoveryLimit:              10,
+			MaxPostgresqlExporterConnections: 15,
+		})
+		require.NoError(t, err)
+		require.NotNil(t, resp.GetRds())
+		assert.Equal(t, want, resp.GetRds().GetRdsExporter().GetConnectionTimeout())
+		assert.Equal(t, want, resp.GetRds().GetPostgresqlExporter().GetConnectionTimeout())
+	})
 }
