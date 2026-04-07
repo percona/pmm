@@ -153,7 +153,6 @@ func mysqldExporterConfig(
 	// MySQL client connection timeout is configured in whole seconds, so round up
 	// once here and reuse the normalized value for both my.cnf and legacy DSN paths.
 	roundedConnectionTimeout := time.Second * time.Duration(max(1, int(math.Ceil(exporter.EffectiveDialTimeout().Seconds()))))
-	exporter.ExporterOptions.ConnectionTimeout = pointer.ToDuration(roundedConnectionTimeout)
 
 	if pmmAgentVersion.IsFeatureSupported(version.MysqlExporterV0_17_2) {
 		if textFiles == nil {
@@ -161,7 +160,7 @@ func mysqldExporterConfig(
 		}
 		res.TextFiles = textFiles
 
-		cfg, err := buildMyCnfConfig(service, exporter, textFiles)
+		cfg, err := buildMyCnfConfig(service, exporter, textFiles, roundedConnectionTimeout)
 		if err != nil {
 			return nil, err
 		}
@@ -173,7 +172,7 @@ func mysqldExporterConfig(
 		}
 	} else {
 		env := []string{
-			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, models.DSNParams{DialTimeout: exporter.EffectiveDialTimeout(), Database: ""}, nil, pmmAgentVersion)),
+			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, models.DSNParams{DialTimeout: roundedConnectionTimeout, Database: ""}, nil, pmmAgentVersion)),
 			fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.GetAgentPassword()),
 		}
 		res.Env = env
@@ -240,7 +239,7 @@ const myCnfTemplate = `[client]
 `
 
 // buildMyCnfConfig builds my.cnf configuration for MySQL connection.
-func buildMyCnfConfig(service *models.Service, agent *models.Agent, files map[string]string) (string, error) {
+func buildMyCnfConfig(service *models.Service, agent *models.Agent, files map[string]string, connectTimeout time.Duration) (string, error) {
 	tmpl, err := template.New("myCnf").Parse(myCnfTemplate)
 	if err != nil {
 		return "", fmt.Errorf("failed to parse myCnf template: %w", err)
@@ -265,7 +264,7 @@ func buildMyCnfConfig(service *models.Service, agent *models.Agent, files map[st
 		Password:       pointer.GetString(agent.Password),
 		Host:           pointer.GetString(service.Address),
 		Port:           int(pointer.GetUint16(service.Port)),
-		ConnectTimeout: max(1, int(agent.EffectiveDialTimeout().Seconds())),
+		ConnectTimeout: max(1, int(connectTimeout.Seconds())),
 	}
 
 	if files["tlsCa"] != "" {
