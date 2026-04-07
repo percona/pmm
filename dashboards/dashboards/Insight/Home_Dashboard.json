@@ -55,8 +55,60 @@
   "editable": false,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "links": [],
-  "liveNow": false,
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "doc",
+      "includeVars": true,
+      "keepTime": true,
+      "tags": [],
+      "targetBlank": false,
+      "title": "Home",
+      "tooltip": "",
+      "type": "link",
+      "url": "/graph/d/pmm-home/home-dashboard"
+    },
+    {
+      "asDropdown": false,
+      "icon": "dashboard",
+      "includeVars": true,
+      "keepTime": true,
+      "tags": [],
+      "targetBlank": false,
+      "title": "Query Analytics",
+      "tooltip": "",
+      "type": "link",
+      "url": "/graph/d/pmm-qan/pmm-query-analytics"
+    },
+    {
+      "asDropdown": true,
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": true,
+      "tags": [
+        "Services"
+      ],
+      "targetBlank": false,
+      "title": "Services",
+      "tooltip": "",
+      "type": "dashboards",
+      "url": ""
+    },
+    {
+      "asDropdown": true,
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": true,
+      "tags": [
+        "PMM"
+      ],
+      "targetBlank": false,
+      "title": "PMM",
+      "tooltip": "",
+      "type": "dashboards",
+      "url": ""
+    }
+  ],
   "panels": [
     {
       "collapsed": false,
@@ -75,6 +127,7 @@
       "datasource": {
         "type": "prometheus"
       },
+      "description": "Shows how many monitored database endpoints or scrape targets exist per technology. This can be higher than Monitored DB Instances when one service has multiple nodes or exporters.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -93,7 +146,97 @@
           },
           "unit": "none"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "MySQL"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "MySQL Instances Overview",
+                    "url": "/graph/d/mysql-instance-overview/mysql-instances-overview?$__url_time_range"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "MongoDB"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "MongoDB Instances Overview",
+                    "url": "/graph/d/mongodb-instance-overview/mongodb-instances-overview?$__url_time_range"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "PostgreSQL"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "PostgreSQL Instances Overview",
+                    "url": "/graph/d/postgresql-instance-overview/postgresql-instances-overview?$__url_time_range"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ProxySQL"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "ProxySQL Instance Summary",
+                    "url": "/graph/d/proxysql-instance-summary/proxysql-instance-summary?$__url_time_range"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Valkey"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Valkey Overview",
+                    "url": "/graph/d/valkey-overview/valkey-redis-overview?$__url_time_range"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 4,
@@ -180,6 +323,7 @@
     },
     {
       "datasource": "Metrics",
+      "description": "Shows how many distinct logical database services exist per technology. Unlike Monitored DB Services, this panel deduplicates multiple monitored endpoints that belong to the same service.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -312,7 +456,7 @@
     },
     {
       "datasource": "Metrics",
-      "description": "",
+      "description": "Counts monitored infrastructure nodes that match the current dashboard filters.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -581,6 +725,7 @@
     },
     {
       "datasource": "Metrics",
+      "description": "Shows the total active database connections across monitored database technologies.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -905,7 +1050,7 @@
     },
     {
       "datasource": "Metrics",
-      "description": "",
+      "description": "Shows total memory capacity including swap across the filtered nodes.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1002,7 +1147,7 @@
     },
     {
       "datasource": "Metrics",
-      "description": "",
+      "description": "Shows total filesystem capacity across the filtered nodes.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1097,6 +1242,7 @@
     },
     {
       "datasource": "Metrics",
+      "description": "Shows aggregate disk read throughput across the filtered nodes.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1193,6 +1339,7 @@
     },
     {
       "datasource": "Metrics",
+      "description": "Shows aggregate disk write throughput across the filtered nodes.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1291,6 +1438,7 @@
     },
     {
       "datasource": "Metrics",
+      "description": "Shows the total number of virtual CPUs across the filtered nodes.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1405,6 +1553,7 @@
     },
     {
       "datasource": "Metrics",
+      "description": "Displays the current PMM version status and whether an upgrade is available.",
       "fieldConfig": {
         "defaults": {},
         "overrides": []
@@ -3847,8 +3996,8 @@
       "panels": [
         {
           "datasource": "Metrics",
-          "description": "",
-          "fieldConfig": {
+      "description": "Shows total filesystem capacity across the filtered nodes.",
+      "fieldConfig": {
             "defaults": {
               "custom": {
                 "align": "auto",
