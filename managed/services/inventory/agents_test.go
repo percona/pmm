@@ -300,6 +300,65 @@ func TestAgents(t *testing.T) {
 			assert.Equal(t, expectedExternalExporter, actualAgent.GetExternalExporter())
 		})
 
+		t.Run("ChangeExternalExporterConnectionTimeout", func(t *testing.T) {
+			as.vmdb.(*mockPrometheusService).On("RequestConfigurationUpdate").Return()
+			as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, models.PMMServerNodeID)
+
+			actualAgent, err := as.ChangeExternalExporter(
+				ctx,
+				"00000000-0000-4000-8000-00000000000e",
+				&inventoryv1.ChangeExternalExporterParams{
+					ConnectionTimeout: durationpb.New(17 * time.Second),
+				},
+			)
+			require.NoError(t, err)
+			expectedExternalExporter = &inventoryv1.ExternalExporter{
+				AgentId:            "00000000-0000-4000-8000-00000000000e",
+				RunsOnNodeId:       models.PMMServerNodeID,
+				ServiceId:          ps.ServiceId,
+				Username:           "username",
+				Scheme:             "http",
+				MetricsPath:        "/metrics",
+				ListenPort:         9222,
+				Status:             inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
+				ConnectionTimeout:  durationpb.New(17 * time.Second),
+			}
+			assert.Equal(t, expectedExternalExporter, actualAgent.GetExternalExporter())
+
+			exporter, err := as.Get(ctx, "00000000-0000-4000-8000-00000000000e")
+			require.NoError(t, err)
+			assert.Equal(t, expectedExternalExporter, exporter.(*inventoryv1.ExternalExporter))
+		})
+
+		t.Run("ChangeExternalExporterClearConnectionTimeout", func(t *testing.T) {
+			as.vmdb.(*mockPrometheusService).On("RequestConfigurationUpdate").Return()
+			as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, models.PMMServerNodeID)
+
+			actualAgent, err := as.ChangeExternalExporter(
+				ctx,
+				"00000000-0000-4000-8000-00000000000e",
+				&inventoryv1.ChangeExternalExporterParams{
+					ConnectionTimeout: durationpb.New(0),
+				},
+			)
+			require.NoError(t, err)
+			expectedExternalExporter = &inventoryv1.ExternalExporter{
+				AgentId:      "00000000-0000-4000-8000-00000000000e",
+				RunsOnNodeId: models.PMMServerNodeID,
+				ServiceId:    ps.ServiceId,
+				Username:     "username",
+				Scheme:       "http",
+				MetricsPath:  "/metrics",
+				ListenPort:   9222,
+				Status:       inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
+			}
+			assert.Equal(t, expectedExternalExporter, actualAgent.GetExternalExporter())
+
+			exporter, err := as.Get(ctx, "00000000-0000-4000-8000-00000000000e")
+			require.NoError(t, err)
+			assert.Equal(t, expectedExternalExporter, exporter.(*inventoryv1.ExternalExporter))
+		})
+
 		t.Run("AddValkeyExporter", func(t *testing.T) {
 			var err error
 			valkey, err = ss.AddValkey(ctx, &models.AddDBMSServiceParams{

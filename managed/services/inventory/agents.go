@@ -1627,6 +1627,7 @@ func (as *AgentsService) ChangeExternalExporter(ctx context.Context, agentID str
 		MetricsScheme:      p.Scheme,
 		MetricsPath:        p.MetricsPath,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
+		ConnectionTimeout:  optionalDurationFromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)
