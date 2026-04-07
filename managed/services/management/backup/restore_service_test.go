@@ -16,7 +16,6 @@
 package backup
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -36,7 +35,7 @@ import (
 )
 
 func TestRestoreServiceGetLogs(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
@@ -194,7 +193,7 @@ func TestRestoreBackupErrors(t *testing.T) {
 			backupError := fmt.Errorf("error: %w", tc.backupError)
 			backupService.On("RestoreBackup", mock.Anything, "serviceID1", "artifactID1", mock.Anything).
 				Return("", backupError).Once()
-			ctx := context.Background()
+			ctx := t.Context()
 			resp, err := restoreSvc.RestoreBackup(ctx, &backupv1.RestoreBackupRequest{
 				ServiceId:  "serviceID1",
 				ArtifactId: "artifactID1",

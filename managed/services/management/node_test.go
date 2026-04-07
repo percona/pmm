@@ -48,7 +48,7 @@ func TestNodeService(t *testing.T) {
 		setup := func(t *testing.T) (context.Context, *ManagementService, func(t *testing.T)) {
 			t.Helper()
 
-			ctx := logger.Set(context.Background(), t.Name())
+			ctx := logger.Set(t.Context(), t.Name())
 			uuid.SetRand(&tests.IDReader{})
 
 			sqlDB := testdb.Open(t, models.SetupFixtures, nil)
@@ -241,7 +241,7 @@ func TestNodeService(t *testing.T) {
 				return now
 			}
 
-			ctx := logger.Set(context.Background(), t.Name())
+			ctx := logger.Set(t.Context(), t.Name())
 			uuid.SetRand(&tests.IDReader{})
 
 			sqlDB := testdb.Open(t, models.SetupFixtures, nil)
@@ -462,7 +462,7 @@ func TestNodeService(t *testing.T) {
 			models.Now = func() time.Time {
 				return now
 			}
-			ctx := logger.Set(context.Background(), t.Name())
+			ctx := logger.Set(t.Context(), t.Name())
 			uuid.SetRand(&tests.IDReader{})
 
 			sqlDB := testdb.Open(t, models.SetupFixtures, nil)
