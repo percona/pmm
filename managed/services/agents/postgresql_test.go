@@ -22,7 +22,6 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
@@ -242,7 +241,7 @@ func (s *PostgresExporterConfigTestSuite) TestDialTimeoutRoundsUpSubSecondCustom
 	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, redactSecrets, s.pmmAgentVersion)
 	s.NoError(err)
 	s.Require().Equal(s.expected.Env, actual.Env)
-	require.NotNil(s.T(), s.exporter.ExporterOptions.ConnectionTimeout)
+	s.Require().NotNil(s.exporter.ExporterOptions.ConnectionTimeout)
 	s.Equal(1500*time.Millisecond, *s.exporter.ExporterOptions.ConnectionTimeout)
 }
 
@@ -266,7 +265,7 @@ func (s *PostgresExporterConfigTestSuite) TestDialTimeoutAzureRoundsUpSubSecondC
 	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, redactSecrets, s.pmmAgentVersion)
 	s.NoError(err)
 	s.Require().Equal(s.expected.Env, actual.Env)
-	require.NotNil(s.T(), s.exporter.ExporterOptions.ConnectionTimeout)
+	s.Require().NotNil(s.exporter.ExporterOptions.ConnectionTimeout)
 	s.Equal(1500*time.Millisecond, *s.exporter.ExporterOptions.ConnectionTimeout)
 }
 
