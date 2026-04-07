@@ -664,3 +664,29 @@ func TestEffectiveDialTimeout(t *testing.T) {
 		assert.Equal(t, 2*time.Second, a.EffectiveDialTimeout())
 	})
 }
+
+func TestExporterOptionsIsEmpty(t *testing.T) {
+	t.Parallel()
+
+	t.Run("nil connection timeout is empty", func(t *testing.T) {
+		t.Parallel()
+
+		assert.True(t, (models.ExporterOptions{}).IsEmpty())
+	})
+
+	t.Run("zero connection timeout is empty", func(t *testing.T) {
+		t.Parallel()
+
+		assert.True(t, (models.ExporterOptions{
+			ConnectionTimeout: pointer.ToDuration(0),
+		}).IsEmpty())
+	})
+
+	t.Run("non-zero connection timeout is not empty", func(t *testing.T) {
+		t.Parallel()
+
+		assert.False(t, (models.ExporterOptions{
+			ConnectionTimeout: pointer.ToDuration(time.Second),
+		}).IsEmpty())
+	})
+}

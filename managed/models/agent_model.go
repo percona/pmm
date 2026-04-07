@@ -125,7 +125,8 @@ func (c ExporterOptions) IsEmpty() bool {
 		len(c.DisabledCollectors) == 0 &&
 		c.MetricsResolutions == nil &&
 		c.MetricsPath == "" &&
-		c.MetricsScheme == "" && c.ConnectionTimeout == nil || *c.ConnectionTimeout == 0
+		c.MetricsScheme == "" &&
+		pointer.GetDuration(c.ConnectionTimeout) == 0
 }
 
 // QANOptions represents structure for special QAN options.
