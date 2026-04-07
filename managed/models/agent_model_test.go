@@ -638,17 +638,17 @@ func TestEffectiveDialTimeout(t *testing.T) {
 		assert.Equal(t, custom, a.EffectiveDialTimeout())
 	})
 
-	t.Run("exporter agent types default to 2s", func(t *testing.T) {
+	t.Run("exporter with connection timeout supports", func(t *testing.T) {
 		t.Parallel()
+
+		// Keep only exporters that use EffectiveDialTimeout in runtime DSN/config generation.
+		// Scrape-timeout-only exporters (node, RDS, Azure, external) and exporters with their
+		// own timeout handling (Valkey) are covered in dedicated agent / scrape-config tests.
 		for _, typ := range []models.AgentType{
-			models.NodeExporterType,
 			models.MySQLdExporterType,
 			models.MongoDBExporterType,
 			models.PostgresExporterType,
 			models.ProxySQLExporterType,
-			models.AzureDatabaseExporterType,
-			models.ExternalExporterType,
-			models.ValkeyExporterType,
 		} {
 			t.Run(string(typ), func(t *testing.T) {
 				t.Parallel()
