@@ -22,6 +22,7 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
@@ -232,6 +233,19 @@ func (s *PostgresExporterConfigTestSuite) TestDialTimeoutRemoteRDSCustom() {
 	s.Require().Equal(s.expected.Env, actual.Env)
 }
 
+func (s *PostgresExporterConfigTestSuite) TestDialTimeoutRoundsUpSubSecondCustom() {
+	s.exporter.ExporterOptions = models.ExporterOptions{ConnectionTimeout: pointer.ToDuration(1500 * time.Millisecond)}
+	s.exporter.AzureOptions = models.AzureOptions{}
+	s.exporter.PostgreSQLOptions = models.PostgreSQLOptions{}
+	s.expected.Env[0] = "DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=2&sslmode=disable"
+
+	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, redactSecrets, s.pmmAgentVersion)
+	s.NoError(err)
+	s.Require().Equal(s.expected.Env, actual.Env)
+	require.NotNil(s.T(), s.exporter.ExporterOptions.ConnectionTimeout)
+	s.Equal(1500*time.Millisecond, *s.exporter.ExporterOptions.ConnectionTimeout)
+}
+
 func (s *PostgresExporterConfigTestSuite) TestDialTimeoutAzureDefault() {
 	s.exporter.ExporterOptions = models.ExporterOptions{}
 	s.exporter.AzureOptions = models.AzureOptions{ClientID: "azure-client"}
@@ -241,6 +255,19 @@ func (s *PostgresExporterConfigTestSuite) TestDialTimeoutAzureDefault() {
 	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, redactSecrets, s.pmmAgentVersion)
 	s.NoError(err)
 	s.Require().Equal(s.expected.Env, actual.Env)
+}
+
+func (s *PostgresExporterConfigTestSuite) TestDialTimeoutAzureRoundsUpSubSecondCustom() {
+	s.exporter.ExporterOptions = models.ExporterOptions{ConnectionTimeout: pointer.ToDuration(1500 * time.Millisecond)}
+	s.exporter.AzureOptions = models.AzureOptions{ClientID: "azure-client"}
+	s.exporter.PostgreSQLOptions = models.PostgreSQLOptions{}
+	s.expected.Env[0] = "DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=2&sslmode=disable"
+
+	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, redactSecrets, s.pmmAgentVersion)
+	s.NoError(err)
+	s.Require().Equal(s.expected.Env, actual.Env)
+	require.NotNil(s.T(), s.exporter.ExporterOptions.ConnectionTimeout)
+	s.Equal(1500*time.Millisecond, *s.exporter.ExporterOptions.ConnectionTimeout)
 }
 
 func (s *PostgresExporterConfigTestSuite) TestDialTimeoutAzureCustom() {
