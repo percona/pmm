@@ -1661,7 +1661,8 @@ func (as *AgentsService) AddAzureDatabaseExporter(ctx context.Context, p *invent
 			NodeID:       p.NodeId,
 			CustomLabels: p.CustomLabels,
 			ExporterOptions: models.ExporterOptions{
-				PushMetrics: p.PushMetrics,
+				PushMetrics:       p.PushMetrics,
+				ConnectionTimeout: optionalDurationFromProto(p.ConnectionTimeout),
 			},
 			AzureOptions: models.AzureOptionsFromRequest(p),
 			LogLevel:     services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
@@ -1718,6 +1719,7 @@ func (as *AgentsService) ChangeAzureDatabaseExporter(
 	params.ExporterOptions = &models.ChangeExporterOptions{
 		PushMetrics:        p.EnablePushMetrics,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
+		ConnectionTimeout:  optionalDurationFromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)
