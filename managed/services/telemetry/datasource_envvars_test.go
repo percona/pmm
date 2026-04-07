@@ -33,7 +33,7 @@ func TestEnvVarsDatasource(t *testing.T) {
 
 	type testEnvVars map[string]string
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 	logger := logrus.StandardLogger()
 	logger.SetLevel(logrus.DebugLevel)
 	logEntry := logrus.NewEntry(logger)

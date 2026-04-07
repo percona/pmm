@@ -16,7 +16,6 @@
 package qan
 
 import (
-	"context"
 	"fmt"
 	"reflect"
 	"testing"
@@ -42,7 +41,7 @@ func TestClient(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 	reformL := sqlmetrics.NewReform("test", "test", t.Logf)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
-	ctx := logger.Set(context.Background(), t.Name())
+	ctx := logger.Set(t.Context(), t.Name())
 	defer func() {
 		assert.NoError(t, sqlDB.Close())
 		assert.Equal(t, 18, reformL.Requests())
@@ -467,7 +466,7 @@ func TestClientPerformance(t *testing.T) {
 		require.NoError(t, db.Insert(str), "%+v", str)
 	}
 
-	ctx := logger.Set(context.Background(), t.Name())
+	ctx := logger.Set(t.Context(), t.Name())
 	c := &mockQanCollectorClient{}
 	c.Test(t)
 	c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeOf(&qanpb.CollectRequest{}).String())).Return(&qanpb.CollectResponse{}, nil)

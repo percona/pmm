@@ -122,7 +122,7 @@ func TestServices_StartAllServices(t *testing.T) {
 		require.NoError(t, s.Add(svc1))
 		require.NoError(t, s.Add(svc2))
 
-		ctx := context.Background()
+		ctx := t.Context()
 		s.StartAllServices(ctx)
 
 		time.Sleep(50 * time.Millisecond)
@@ -144,7 +144,7 @@ func TestServices_StartAllServices(t *testing.T) {
 
 		require.NoError(t, s.Add(svc))
 
-		ctx := context.Background()
+		ctx := t.Context()
 		s.StartAllServices(ctx)
 
 		time.Sleep(50 * time.Millisecond)
@@ -170,7 +170,7 @@ func TestServices_StartAllServices(t *testing.T) {
 
 		require.NoError(t, s.Add(svc))
 
-		ctx := context.Background()
+		ctx := t.Context()
 		s.StartAllServices(ctx)
 
 		select {
@@ -199,7 +199,7 @@ func TestServices_StartAllServices(t *testing.T) {
 
 		require.NoError(t, s.Add(svc))
 
-		ctx := context.Background()
+		ctx := t.Context()
 		s.StartAllServices(ctx)
 
 		time.Sleep(50 * time.Millisecond)
@@ -224,7 +224,7 @@ func TestServices_StopAllServices(t *testing.T) {
 		require.NoError(t, s.Add(svc1))
 		require.NoError(t, s.Add(svc2))
 
-		ctx := context.Background()
+		ctx := t.Context()
 		s.StartAllServices(ctx)
 
 		time.Sleep(50 * time.Millisecond)
@@ -243,7 +243,7 @@ func TestServices_StopAllServices(t *testing.T) {
 
 		require.NoError(t, s.Add(svc))
 
-		ctx := context.Background()
+		ctx := t.Context()
 		s.StartAllServices(ctx)
 
 		time.Sleep(50 * time.Millisecond)
@@ -322,7 +322,7 @@ func TestServices_Wait(t *testing.T) {
 
 		require.NoError(t, s.Add(svc))
 
-		ctx := context.Background()
+		ctx := t.Context()
 		s.StartAllServices(ctx)
 
 		time.Sleep(50 * time.Millisecond)
