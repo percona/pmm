@@ -62,8 +62,8 @@ func exporterScrapeTimeout(cfg *config.ScrapeConfig, agent *models.Agent) {
 	}
 	interval := time.Duration(cfg.ScrapeInterval)
 	maxT := time.Duration(float64(interval) * exporterScrapeIntervalCap)
-	t := min(*agent.ExporterOptions.ConnectionTimeout, maxT)
-	t = max(t, exporterScrapeTimeoutFloorMs*time.Millisecond)
+	t := max(*agent.ExporterOptions.ConnectionTimeout, exporterScrapeTimeoutFloorMs*time.Millisecond)
+	t = min(t, maxT)
 	cfg.ScrapeTimeout = config.Duration(t)
 }
 

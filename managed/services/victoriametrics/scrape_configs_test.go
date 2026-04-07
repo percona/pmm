@@ -59,6 +59,14 @@ func TestExporterScrapeTimeout(t *testing.T) {
 		assert.Equal(t, config.Duration(100*time.Millisecond), cfg.ScrapeTimeout)
 	})
 
+	t.Run("keeps timeout capped for tiny intervals", func(t *testing.T) {
+		t.Parallel()
+		cfg := &config.ScrapeConfig{ScrapeInterval: config.Duration(50 * time.Millisecond)}
+		agent := &models.Agent{ExporterOptions: models.ExporterOptions{ConnectionTimeout: pointer.ToDuration(time.Second)}}
+		exporterScrapeTimeout(cfg, agent)
+		assert.Equal(t, config.Duration(45*time.Millisecond), cfg.ScrapeTimeout)
+	})
+
 	t.Run("no-op when cfg or agent nil or timeout zero", func(t *testing.T) {
 		t.Parallel()
 		cfg := &config.ScrapeConfig{ScrapeInterval: config.Duration(interval), ScrapeTimeout: config.Duration(time.Second)}
