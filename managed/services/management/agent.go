@@ -175,11 +175,8 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 	ua.MetricsScheme = agent.ExporterOptions.MetricsScheme
 	ua.PushMetrics = agent.ExporterOptions.PushMetrics
 	ua.ExposeExporter = agent.ExporterOptions.ExposeExporter
-	// RDS exporter has no default timeout to expose here.
-	// Keep it unset unless the user explicitly configured one;
-	// runtime timeout is derived from scrape config.
-	if agent.AgentType != models.RDSExporterType || pointer.GetDuration(agent.ExporterOptions.ConnectionTimeout) != 0 {
-		ua.ConnectionTimeout = durationpb.New(agent.EffectiveDialTimeout())
+	if pointer.GetDuration(agent.ExporterOptions.ConnectionTimeout) != 0 {
+		ua.ConnectionTimeout = durationpb.New(*agent.ExporterOptions.ConnectionTimeout)
 	}
 
 	// QAN options
