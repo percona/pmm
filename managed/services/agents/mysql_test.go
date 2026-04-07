@@ -17,6 +17,7 @@ package agents
 
 import (
 	"testing"
+	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
@@ -547,5 +548,59 @@ func TestMySQLdExporterConfigMySQL8Support(t *testing.T) {
 
 		require.NoError(t, err)
 		assert.Equal(t, expected, actual)
+	})
+}
+
+func TestMySQLdExporterConfigRoundsUpConnectionTimeout(t *testing.T) {
+	t.Parallel()
+
+	node := &models.Node{
+		Address: "1.2.3.4",
+	}
+	service := &models.Service{
+		Address: pointer.ToString("1.2.3.4"),
+		Port:    pointer.ToUint16(3306),
+	}
+
+	t.Run("myCnf", func(t *testing.T) {
+		t.Parallel()
+
+		exporter := &models.Agent{
+			AgentID:       "agent-id",
+			AgentType:     models.MySQLdExporterType,
+			Username:      pointer.ToString("username"),
+			AgentPassword: pointer.ToString("agent-password"),
+			ExporterOptions: models.ExporterOptions{
+				ConnectionTimeout: pointer.ToDuration(1500 * time.Millisecond),
+			},
+		}
+
+		actual, err := mysqldExporterConfig(node, service, exporter, exposeSecrets, version.MustParse("3.2.0"))
+		require.NoError(t, err)
+		require.NotNil(t, exporter.ExporterOptions.ConnectionTimeout)
+		assert.Equal(t, 2*time.Second, *exporter.ExporterOptions.ConnectionTimeout)
+		require.Contains(t, actual.TextFiles, "myCnf")
+		assert.Contains(t, actual.TextFiles["myCnf"], "connect_timeout=2\n")
+	})
+
+	t.Run("legacy dsn", func(t *testing.T) {
+		t.Parallel()
+
+		exporter := &models.Agent{
+			AgentID:       "agent-id",
+			AgentType:     models.MySQLdExporterType,
+			Username:      pointer.ToString("username"),
+			AgentPassword: pointer.ToString("agent-password"),
+			ExporterOptions: models.ExporterOptions{
+				ConnectionTimeout: pointer.ToDuration(1500 * time.Millisecond),
+			},
+		}
+
+		actual, err := mysqldExporterConfig(node, service, exporter, exposeSecrets, version.MustParse("2.21.0"))
+		require.NoError(t, err)
+		require.NotNil(t, exporter.ExporterOptions.ConnectionTimeout)
+		assert.Equal(t, 2*time.Second, *exporter.ExporterOptions.ConnectionTimeout)
+		require.Len(t, actual.Env, 2)
+		assert.Contains(t, actual.Env[0], "timeout=2s")
 	})
 }

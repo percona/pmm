@@ -18,6 +18,7 @@ package agents
 import (
 	"bytes"
 	"fmt"
+	"math"
 	"sort"
 	"text/template"
 	"time"
@@ -148,6 +149,11 @@ func mysqldExporterConfig(
 		Args:               args,
 		TextFiles:          textFiles,
 	}
+
+	// MySQL client connection timeout is configured in whole seconds, so round up
+	// once here and reuse the normalized value for both my.cnf and legacy DSN paths.
+	roundedConnectionTimeout := time.Second * time.Duration(max(1, int(math.Ceil(exporter.EffectiveDialTimeout().Seconds()))))
+	exporter.ExporterOptions.ConnectionTimeout = pointer.ToDuration(roundedConnectionTimeout)
 
 	if pmmAgentVersion.IsFeatureSupported(version.MysqlExporterV0_17_2) {
 		if textFiles == nil {
