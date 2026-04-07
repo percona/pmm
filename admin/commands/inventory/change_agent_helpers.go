@@ -14,9 +14,7 @@
 
 package inventory
 
-import (
-	"github.com/percona/pmm/admin/pkg/flags"
-)
+import "github.com/percona/pmm/admin/pkg/flags"
 
 // Helper function to convert log level pointer to API enum for change commands.
 func convertLogLevelPtr(level *flags.LogLevel) *string {
