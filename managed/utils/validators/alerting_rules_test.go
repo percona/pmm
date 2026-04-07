@@ -16,7 +16,6 @@
 package validators
 
 import (
-	"context"
 	"strings"
 	"testing"
 
@@ -26,7 +25,7 @@ import (
 func TestValidateAlertingRules(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	t.Run("Valid", func(t *testing.T) {
 		t.Parallel()
