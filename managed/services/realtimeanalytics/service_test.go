@@ -27,6 +27,7 @@ import (
 	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
 	grpc_gateway "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -132,7 +133,7 @@ func TestListServices(t *testing.T) {
 	svc := NewService(db, registry, stateUpdater, store)
 
 	t.Run("list all supported services", func(t *testing.T) {
-		resp, err := svc.ListServices(context.Background(), &rtav1.ListServicesRequest{})
+		resp, err := svc.ListServices(t.Context(), &rtav1.ListServicesRequest{})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		require.Len(t, resp.Mongodb, 1)
@@ -140,7 +141,7 @@ func TestListServices(t *testing.T) {
 	})
 
 	t.Run("filter by supported mongodbService type", func(t *testing.T) {
-		resp, err := svc.ListServices(context.Background(), &rtav1.ListServicesRequest{
+		resp, err := svc.ListServices(t.Context(), &rtav1.ListServicesRequest{
 			ServiceType: inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
 		})
 		require.NoError(t, err)
@@ -150,7 +151,7 @@ func TestListServices(t *testing.T) {
 	})
 
 	t.Run("filter by unsupported mongodbService type", func(t *testing.T) {
-		_, err := svc.ListServices(context.Background(), &rtav1.ListServicesRequest{
+		_, err := svc.ListServices(t.Context(), &rtav1.ListServicesRequest{
 			ServiceType: inventoryv1.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE,
 		})
 		require.Error(t, err)
@@ -186,7 +187,7 @@ func TestListServices(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		resp, err := svc.ListServices(context.Background(), &rtav1.ListServicesRequest{})
+		resp, err := svc.ListServices(t.Context(), &rtav1.ListServicesRequest{})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		// Only the first mongodbService should be listed
@@ -240,7 +241,7 @@ func TestListSessions(t *testing.T) {
 		rtaAgent.Status = inventoryv1.AgentStatus_name[int32(inventoryv1.AgentStatus_AGENT_STATUS_RUNNING)]
 		err = db.Update(rtaAgent)
 
-		resp, err := svc.ListSessions(context.Background(), &rtav1.ListSessionsRequest{})
+		resp, err := svc.ListSessions(t.Context(), &rtav1.ListSessionsRequest{})
 		require.NoError(t, err)
 		require.Len(t, resp.Sessions, 1)
 
@@ -256,11 +257,11 @@ func TestListSessions(t *testing.T) {
 		registry.On("IsConnected", pmmAgent.AgentID).Return(true)
 		svc := NewService(db, registry, stateUpdater, store)
 
-		resp, err := svc.ListSessions(context.Background(), &rtav1.ListSessionsRequest{ClusterName: "test-cluster"})
+		resp, err := svc.ListSessions(t.Context(), &rtav1.ListSessionsRequest{ClusterName: "test-cluster"})
 		require.NoError(t, err)
 		require.Len(t, resp.Sessions, 1)
 
-		resp, err = svc.ListSessions(context.Background(), &rtav1.ListSessionsRequest{ClusterName: "absent-cluster"})
+		resp, err = svc.ListSessions(t.Context(), &rtav1.ListSessionsRequest{ClusterName: "absent-cluster"})
 		require.NoError(t, err)
 		require.Empty(t, resp.Sessions)
 	})
@@ -270,7 +271,7 @@ func TestListSessions(t *testing.T) {
 		registry.On("IsConnected", pmmAgent.AgentID).Return(false)
 		svc := NewService(db, registry, stateUpdater, store)
 
-		resp, err := svc.ListSessions(context.Background(), &rtav1.ListSessionsRequest{})
+		resp, err := svc.ListSessions(t.Context(), &rtav1.ListSessionsRequest{})
 		require.NoError(t, err)
 		require.Len(t, resp.Sessions, 1)
 		assert.Equal(t, rtav1.SessionStatus_SESSION_STATUS_UNSPECIFIED, resp.Sessions[0].Status)
@@ -317,13 +318,13 @@ func TestStartSession(t *testing.T) {
 	registry.On("IsConnected", pmmAgent.AgentID).Return(true)
 
 	stateUpdater := newMockAgentsStateUpdater(t)
-	stateUpdater.On("RequestStateUpdate", context.Background(), pmmAgent.AgentID).Return()
+	stateUpdater.On("RequestStateUpdate", mock.Anything, pmmAgent.AgentID).Return()
 
 	store := NewStore()
 	svc := NewService(db, registry, stateUpdater, store)
 
 	t.Run("start session for single service", func(t *testing.T) {
-		resp, err := svc.StartSession(context.Background(), &rtav1.StartSessionRequest{
+		resp, err := svc.StartSession(t.Context(), &rtav1.StartSessionRequest{
 			ServiceId: service1.ServiceID,
 		})
 		require.NoError(t, err)
@@ -343,14 +344,14 @@ func TestStartSession(t *testing.T) {
 
 	t.Run("idempotent start session", func(t *testing.T) {
 		// Enable twice
-		resp1, err := svc.StartSession(context.Background(), &rtav1.StartSessionRequest{
+		resp1, err := svc.StartSession(t.Context(), &rtav1.StartSessionRequest{
 			ServiceId: service1.ServiceID,
 		})
 		require.NoError(t, err)
 		assert.NotNil(t, resp1)
 		assert.NotNil(t, resp1.Session.StartTime)
 
-		resp2, err := svc.StartSession(context.Background(), &rtav1.StartSessionRequest{
+		resp2, err := svc.StartSession(t.Context(), &rtav1.StartSessionRequest{
 			ServiceId: service1.ServiceID,
 		})
 		require.NoError(t, err)
@@ -390,7 +391,7 @@ func TestStartSession(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		resp, err := svc.StartSession(context.Background(), &rtav1.StartSessionRequest{
+		resp, err := svc.StartSession(t.Context(), &rtav1.StartSessionRequest{
 			ServiceId: service2.ServiceID,
 		})
 		require.NoError(t, err)
@@ -409,7 +410,7 @@ func TestStartSession(t *testing.T) {
 	})
 
 	t.Run("error on non-existent service", func(t *testing.T) {
-		_, err := svc.StartSession(context.Background(), &rtav1.StartSessionRequest{
+		_, err := svc.StartSession(t.Context(), &rtav1.StartSessionRequest{
 			ServiceId: "absent-service",
 		})
 		require.Error(t, err)
@@ -424,7 +425,7 @@ func TestStartSession(t *testing.T) {
 			Port:        pointer.ToUint16(27017),
 		})
 		require.NoError(t, err)
-		_, err = svc.StartSession(context.Background(), &rtav1.StartSessionRequest{
+		_, err = svc.StartSession(t.Context(), &rtav1.StartSessionRequest{
 			ServiceId: service2.ServiceID,
 		})
 		require.Error(t, err)
@@ -441,7 +442,7 @@ func TestStartSession(t *testing.T) {
 			Port:        pointer.ToUint16(27017),
 		})
 		require.NoError(t, err)
-		_, err = svc.StartSession(context.Background(), &rtav1.StartSessionRequest{
+		_, err = svc.StartSession(t.Context(), &rtav1.StartSessionRequest{
 			ServiceId: service3.ServiceID,
 		})
 		require.Error(t, err)
@@ -483,7 +484,7 @@ func TestStartSession(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		_, err = svc.StartSession(context.Background(), &rtav1.StartSessionRequest{
+		_, err = svc.StartSession(t.Context(), &rtav1.StartSessionRequest{
 			ServiceId: serviceOld.ServiceID,
 		})
 		require.Error(t, err)
@@ -548,13 +549,13 @@ func TestStopSession(t *testing.T) {
 
 	registry := newMockAgentsRegistry(t)
 	stateUpdater := newMockAgentsStateUpdater(t)
-	stateUpdater.On("RequestStateUpdate", context.Background(), pmmAgent.AgentID).Return()
+	stateUpdater.On("RequestStateUpdate", mock.Anything, pmmAgent.AgentID).Return()
 
 	store := NewStore()
 	svc := NewService(db, registry, stateUpdater, store)
 
 	t.Run("stop session for single service", func(t *testing.T) {
-		resp, err := svc.StopSession(context.Background(), &rtav1.StopSessionRequest{
+		resp, err := svc.StopSession(t.Context(), &rtav1.StopSessionRequest{
 			ServiceId: service1.ServiceID,
 		})
 		require.NoError(t, err)
@@ -573,13 +574,13 @@ func TestStopSession(t *testing.T) {
 
 	t.Run("idempotent stop session", func(t *testing.T) {
 		// Enable twice
-		resp, err := svc.StopSession(context.Background(), &rtav1.StopSessionRequest{
+		resp, err := svc.StopSession(t.Context(), &rtav1.StopSessionRequest{
 			ServiceId: service2.ServiceID,
 		})
 		require.NoError(t, err)
 		assert.NotNil(t, resp)
 
-		resp, err = svc.StopSession(context.Background(), &rtav1.StopSessionRequest{
+		resp, err = svc.StopSession(t.Context(), &rtav1.StopSessionRequest{
 			ServiceId: service2.ServiceID,
 		})
 		require.NoError(t, err)
@@ -597,7 +598,7 @@ func TestStopSession(t *testing.T) {
 	})
 
 	t.Run("error on non-existent service", func(t *testing.T) {
-		_, err = svc.StopSession(context.Background(), &rtav1.StopSessionRequest{
+		_, err = svc.StopSession(t.Context(), &rtav1.StopSessionRequest{
 			ServiceId: "absent-service",
 		})
 		require.Error(t, err)
@@ -624,7 +625,7 @@ func TestStopSession(t *testing.T) {
 		require.NoError(t, err)
 
 		// Call disable on service that has no RTA agent yet
-		resp, err := svc.StopSession(context.Background(), &rtav1.StopSessionRequest{
+		resp, err := svc.StopSession(t.Context(), &rtav1.StopSessionRequest{
 			ServiceId: service3.ServiceID,
 		})
 		require.NoError(t, err)
@@ -648,7 +649,7 @@ func TestStopSession(t *testing.T) {
 			Port:        pointer.ToUint16(27017),
 		})
 		require.NoError(t, err)
-		_, err = svc.StopSession(context.Background(), &rtav1.StopSessionRequest{
+		_, err = svc.StopSession(t.Context(), &rtav1.StopSessionRequest{
 			ServiceId: service2.ServiceID,
 		})
 		require.Error(t, err)
@@ -703,7 +704,7 @@ func TestSearchQueries(t *testing.T) {
 	t.Run("search all queries for service1", func(t *testing.T) {
 		t.Parallel()
 
-		ctx := grpc.NewContextWithServerTransportStream(context.Background(), &grpc_gateway.ServerTransportStream{})
+		ctx := grpc.NewContextWithServerTransportStream(t.Context(), &grpc_gateway.ServerTransportStream{})
 		resp, err := svc.SearchQueries(ctx, &rtav1.SearchQueriesRequest{
 			ServiceIds: []string{service1.ServiceID},
 		})
@@ -723,7 +724,7 @@ func TestSearchQueries(t *testing.T) {
 	t.Run("search all queries for service2", func(t *testing.T) {
 		t.Parallel()
 
-		ctx := grpc.NewContextWithServerTransportStream(context.Background(), &grpc_gateway.ServerTransportStream{})
+		ctx := grpc.NewContextWithServerTransportStream(t.Context(), &grpc_gateway.ServerTransportStream{})
 		resp, err := svc.SearchQueries(ctx, &rtav1.SearchQueriesRequest{
 			ServiceIds: []string{service2.ServiceID},
 		})
@@ -738,7 +739,7 @@ func TestSearchQueries(t *testing.T) {
 	t.Run("search all queries for both services", func(t *testing.T) {
 		t.Parallel()
 
-		ctx := grpc.NewContextWithServerTransportStream(context.Background(), &grpc_gateway.ServerTransportStream{})
+		ctx := grpc.NewContextWithServerTransportStream(t.Context(), &grpc_gateway.ServerTransportStream{})
 		resp, err := svc.SearchQueries(ctx, &rtav1.SearchQueriesRequest{
 			ServiceIds: []string{service1.ServiceID, service2.ServiceID},
 		})
@@ -761,7 +762,7 @@ func TestSearchQueries(t *testing.T) {
 	t.Run("search all queries for absent service", func(t *testing.T) {
 		t.Parallel()
 
-		ctx := grpc.NewContextWithServerTransportStream(context.Background(), &grpc_gateway.ServerTransportStream{})
+		ctx := grpc.NewContextWithServerTransportStream(t.Context(), &grpc_gateway.ServerTransportStream{})
 		_, err := svc.SearchQueries(ctx, &rtav1.SearchQueriesRequest{
 			ServiceIds: []string{"absent-service"},
 		})
@@ -772,7 +773,7 @@ func TestSearchQueries(t *testing.T) {
 	t.Run("one of the services is absent", func(t *testing.T) {
 		t.Parallel()
 
-		ctx := grpc.NewContextWithServerTransportStream(context.Background(), &grpc_gateway.ServerTransportStream{})
+		ctx := grpc.NewContextWithServerTransportStream(t.Context(), &grpc_gateway.ServerTransportStream{})
 		_, err := svc.SearchQueries(ctx, &rtav1.SearchQueriesRequest{
 			ServiceIds: []string{service1.ServiceID, "absent-service"},
 		})
@@ -867,7 +868,7 @@ func TestService_Collect(t *testing.T) {
 	client, cleanup := getTestClient(t)
 	defer cleanup()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
 	defer cancel()
 
 	streamCtx := agentv1.AddAgentConnectMetadata(ctx, &agentv1.AgentConnectMetadata{
