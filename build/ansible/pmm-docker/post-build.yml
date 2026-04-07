@@ -56,4 +56,12 @@
       shell: find /usr/share/pmm-server -mindepth 1 -maxdepth 1 -print0 | xargs -0 rm -rf --
 
     - name: Clean /srv directory for fresh initialization on first start
-      shell: find /srv -mindepth 1 -maxdepth 1 -print0 | xargs -0 rm -rf --
+      file:
+        path: /srv
+        state: "{{ item }}"
+        owner: pmm
+        group: root
+        mode: 0775
+      loop:
+        - absent
+        - directory
