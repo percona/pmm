@@ -18,8 +18,8 @@ package telemetry
 import (
 	"context"
 
-	pmmv1 "github.com/percona/saas/gen/telemetry/events/pmm"
-	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
+	pmmv1 "github.com/percona/platform/gen/telemetry/events/pmm"
+	telemetryv1 "github.com/percona/platform/gen/telemetry/generic"
 
 	serverv1 "github.com/percona/pmm/api/server/v1"
 )
