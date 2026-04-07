@@ -48,7 +48,7 @@ func scrapeTimeout(interval time.Duration) config.Duration {
 	case interval <= 2*time.Second:
 		return config.Duration(time.Second)
 	default:
-		return config.Duration(float64(interval) * 0.9) //nolint:mnd
+		return config.Duration(float64(interval) * exporterScrapeIntervalCap)
 	}
 }
 
