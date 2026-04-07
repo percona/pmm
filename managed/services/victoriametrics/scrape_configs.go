@@ -52,9 +52,10 @@ func scrapeTimeout(interval time.Duration) config.Duration {
 	}
 }
 
-// exporterScrapeTimeout sets ScrapeTimeout from agent ExporterOptions.ConnectionTimeout when set
-// (node / external / RDS scrape of exporter HTTP). By Prometheus rule, scrape_timeout
-// cannot exceed scrape_interval, so PMM caps it at 0.9 of scrape interval:
+// exporterScrapeTimeout overrides ScrapeTimeout from agent ExporterOptions.ConnectionTimeout when set.
+// Used for exporter HTTP scrapes where ConnectionTimeout is treated as Prometheus scrape timeout.
+// PMM floors custom values to 100ms and caps them at 0.9 of scrape interval so scrape_timeout
+// stays within Prometheus constraints and avoids unusably small values:
 // https://prometheus.io/docs/prometheus/latest/configuration/configuration/
 func exporterScrapeTimeout(cfg *config.ScrapeConfig, agent *models.Agent) {
 	if cfg == nil || agent == nil || agent.ExporterOptions.ConnectionTimeout == nil || *agent.ExporterOptions.ConnectionTimeout == 0 {
