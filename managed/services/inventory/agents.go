@@ -1477,7 +1477,8 @@ func (as *AgentsService) AddRDSExporter(ctx context.Context, p *inventoryv1.AddR
 			NodeID:       p.NodeId,
 			CustomLabels: p.CustomLabels,
 			ExporterOptions: models.ExporterOptions{
-				PushMetrics: p.PushMetrics,
+				PushMetrics:       p.PushMetrics,
+				ConnectionTimeout: optionalDurationFromProto(p.ConnectionTimeout),
 			},
 			AWSOptions: models.AWSOptions{
 				AWSAccessKey:               p.AwsAccessKey,
@@ -1539,6 +1540,7 @@ func (as *AgentsService) ChangeRDSExporter(ctx context.Context, agentID string, 
 	params.ExporterOptions = &models.ChangeExporterOptions{
 		PushMetrics:        p.EnablePushMetrics,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
+		ConnectionTimeout:  optionalDurationFromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)

@@ -543,9 +543,44 @@ func TestAgents(t *testing.T) {
 			AwsAccessKey: "EXAMPLE_ACCESS_KEY",
 			AwsSecretKey: "EXAMPLE_SECRET_KEY",
 			CustomLabels: map[string]string{"baz": "qux"},
+			ConnectionTimeout: durationpb.New(19 * time.Second),
 		})
 		require.NoError(t, err)
 		expectedAgent := &inventoryv1.RDSExporter{
+			AgentId:           "00000000-0000-4000-8000-000000000006",
+			PmmAgentId:        "pmm-server",
+			NodeId:            "00000000-0000-4000-8000-000000000005",
+			AwsAccessKey:      "EXAMPLE_ACCESS_KEY",
+			CustomLabels:      map[string]string{"baz": "qux"},
+			Status:            inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
+			ConnectionTimeout: durationpb.New(19 * time.Second),
+		}
+		assert.Equal(t, expectedAgent, agent.GetRdsExporter())
+
+		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "pmm-server")
+
+		changedAgent, err := as.ChangeRDSExporter(ctx, "00000000-0000-4000-8000-000000000006", &inventoryv1.ChangeRDSExporterParams{
+			ConnectionTimeout: durationpb.New(23 * time.Second),
+		})
+		require.NoError(t, err)
+		expectedAgent = &inventoryv1.RDSExporter{
+			AgentId:           "00000000-0000-4000-8000-000000000006",
+			PmmAgentId:        "pmm-server",
+			NodeId:            "00000000-0000-4000-8000-000000000005",
+			AwsAccessKey:      "EXAMPLE_ACCESS_KEY",
+			CustomLabels:      map[string]string{"baz": "qux"},
+			Status:            inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
+			ConnectionTimeout: durationpb.New(23 * time.Second),
+		}
+		assert.Equal(t, expectedAgent, changedAgent.GetRdsExporter())
+
+		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "pmm-server")
+
+		changedAgent, err = as.ChangeRDSExporter(ctx, "00000000-0000-4000-8000-000000000006", &inventoryv1.ChangeRDSExporterParams{
+			ConnectionTimeout: durationpb.New(0),
+		})
+		require.NoError(t, err)
+		expectedAgent = &inventoryv1.RDSExporter{
 			AgentId:      "00000000-0000-4000-8000-000000000006",
 			PmmAgentId:   "pmm-server",
 			NodeId:       "00000000-0000-4000-8000-000000000005",
@@ -553,7 +588,7 @@ func TestAgents(t *testing.T) {
 			CustomLabels: map[string]string{"baz": "qux"},
 			Status:       inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 		}
-		assert.Equal(t, expectedAgent, agent.GetRdsExporter())
+		assert.Equal(t, expectedAgent, changedAgent.GetRdsExporter())
 	})
 
 	t.Run("AddExternalExporter", func(t *testing.T) {
@@ -858,6 +893,7 @@ func TestAgents(t *testing.T) {
 			AwsSecretKey: "EXAMPLE_SECRET_KEY",
 			CustomLabels: map[string]string{"baz": "qux"},
 			PushMetrics:  true,
+			ConnectionTimeout: durationpb.New(29 * time.Second),
 		})
 		require.NoError(t, err)
 		expectedAgent := &inventoryv1.RDSExporter{
@@ -868,6 +904,7 @@ func TestAgents(t *testing.T) {
 			CustomLabels:       map[string]string{"baz": "qux"},
 			PushMetricsEnabled: true,
 			Status:             inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
+			ConnectionTimeout:  durationpb.New(29 * time.Second),
 		}
 		assert.Equal(t, expectedAgent, agent.GetRdsExporter())
 	})
