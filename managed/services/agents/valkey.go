@@ -45,9 +45,9 @@ func valkeyExporterConfig(node *models.Node, service *models.Service, exporter *
 		args = append(args, "--web.telemetry-path="+exporter.ExporterOptions.MetricsPath)
 	}
 
-	dnsParams := models.DSNParams{}
+	dsnParams := models.DSNParams{}
 
-	args = append(args, "--redis.addr="+exporter.DSN(service, dnsParams, nil, pmmAgentVersion))
+	args = append(args, "--redis.addr="+exporter.DSN(service, dsnParams, nil, pmmAgentVersion))
 	connectionTimeout := exporter.ExporterOptions.ConnectionTimeout
 	if pointer.GetDuration(connectionTimeout) == 0 {
 		connectionTimeout = pointer.ToDuration(defaultValkeyTimeout)
