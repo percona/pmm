@@ -48,7 +48,7 @@ func TestProfile(t *testing.T) {
 	t.Parallel()
 	t.Run("Profile test", func(t *testing.T) {
 		// Create a new context
-		ctx := context.Background()
+		ctx := t.Context()
 		profileBytes, err := Profile(ctx, 1*time.Second)
 
 		assert.NoError(t, err)
@@ -67,7 +67,7 @@ func TestProfile(t *testing.T) {
 
 	t.Run("Profile break test", func(t *testing.T) {
 		t.Parallel()
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
+		ctx, cancel := context.WithTimeout(t.Context(), time.Second*30)
 		go func() {
 			profileBytes, err := Profile(ctx, 30*time.Second)
 			assert.Empty(t, profileBytes)
@@ -85,7 +85,7 @@ func TestTrace(t *testing.T) {
 	t.Parallel()
 	t.Run("Trace test", func(t *testing.T) {
 		// Create a new context
-		ctx := context.Background()
+		ctx := t.Context()
 		traceBytes, err := Trace(ctx, 1*time.Second)
 
 		assert.NoError(t, err)
@@ -95,7 +95,7 @@ func TestTrace(t *testing.T) {
 	t.Run("Trace break test", func(t *testing.T) {
 		t.Parallel()
 		// Create a new context
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
+		ctx, cancel := context.WithTimeout(t.Context(), time.Second*30)
 		go func() {
 			traceBytes, err := Trace(ctx, 30*time.Second)
 			assert.Empty(t, traceBytes)

@@ -92,13 +92,16 @@ func TestAgents(t *testing.T) {
 		require.NotEmpty(t, resByAgent.Payload.MysqldExporter, "There should be at least one service")
 		assertMySQLExporterExists(t, resByAgent, mySqldExporterID)
 
-		resByNode, err := client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-			NodeID:  pointer.ToString(nodeID),
-			Context: pmmapitests.Context,
+		// pmmAgents use runs_on_node_id (not node_id), so no NodeID filter returns them.
+		// Filter by agent type instead: pmmAgent conversion has no secondary DB lookups,
+		// so it is immune to the TOCTOU race that affects external exporters.
+		resByType, err := client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
+			AgentType: pointer.ToString(types.AgentTypePMMAgent),
+			Context:   pmmapitests.Context,
 		})
 		require.NoError(t, err)
-		require.NotNil(t, resByNode)
-		assertPMMAgentExists(t, resByNode, pmmAgentID)
+		require.NotNil(t, resByType)
+		assertPMMAgentExists(t, resByType, pmmAgentID)
 	})
 
 	t.Run("FilterList", func(t *testing.T) {
