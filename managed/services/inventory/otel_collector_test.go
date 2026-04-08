@@ -88,4 +88,11 @@ func TestOtelCollectorDuplicateAddAndChange(t *testing.T) {
 	})
 	require.Error(t, err)
 	assert.Equal(t, codes.InvalidArgument, status.Convert(err).Code())
+
+	chEmpty, err := as.ChangeOtelCollector(ctx, otelID, &inventoryv1.ChangeOtelCollectorParams{
+		MergeLabels: map[string]string{"tier": ""},
+	})
+	require.NoError(t, err)
+	_, hasTier := chEmpty.GetOtelCollector().CustomLabels["tier"]
+	assert.False(t, hasTier)
 }

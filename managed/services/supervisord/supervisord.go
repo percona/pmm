@@ -446,11 +446,15 @@ func (s *Service) ensureOtelClickHouseSchemas(settings *models.Settings) {
 		Path:   "/default",
 	}
 	dsn := chURI.String()
+	otel.WaitForClickhouseClusterReady(ctx, dsn)
 	if err := otel.EnsureOtelSchema(ctx, dsn, settings.GetOtelLogsRetentionDays()); err != nil {
 		s.l.Warnf("Failed to ensure OTEL logs ClickHouse schema: %s.", err)
 	}
 	if err := otel.EnsureOtelTracesMetricsAndServiceMapTables(ctx, dsn, settings.GetOtelTracesRetentionDays(), settings.GetOtelMetricsRetentionDays()); err != nil {
 		s.l.Warnf("Failed to ensure OTEL traces/metrics/service map ClickHouse schema: %s.", err)
+	}
+	if err := otel.EnsureOtelCorootHelperTables(ctx, dsn, settings.GetOtelLogsRetentionDays(), settings.GetOtelTracesRetentionDays()); err != nil {
+		s.l.Warnf("Failed to ensure OTEL Coroot helper ClickHouse tables: %s.", err)
 	}
 }
 

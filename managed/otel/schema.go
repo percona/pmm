@@ -48,20 +48,21 @@ func EnsureOtelSchema(ctx context.Context, dsn string, retentionDays int) error 
 
 	db.SetConnMaxLifetime(0)
 
-	if _, err := db.ExecContext(ctx, "CREATE DATABASE IF NOT EXISTS otel"); err != nil {
-		return fmt.Errorf("create database otel: %w", err)
+	if err := ensureOtelDatabase(ctx, db); err != nil {
+		return err
 	}
 	logrus.Debug("OTEL schema: database otel ensured")
 
+	tableEngine := TableEngine()
 	createTable := fmt.Sprintf(`CREATE TABLE IF NOT EXISTS otel.logs
 (
     Timestamp DateTime64(9) CODEC(Delta(8), ZSTD(1)),
     TimestampTime DateTime DEFAULT toDateTime(Timestamp),
     TraceId String CODEC(ZSTD(1)),
     SpanId String CODEC(ZSTD(1)),
-    TraceFlags UInt8,
+    TraceFlags UInt32 CODEC(ZSTD(1)),
     SeverityText LowCardinality(String) CODEC(ZSTD(1)),
-    SeverityNumber UInt8,
+    SeverityNumber Int32 CODEC(ZSTD(1)),
     ServiceName LowCardinality(String) CODEC(ZSTD(1)),
     Body String CODEC(ZSTD(1)),
     ResourceSchemaUrl LowCardinality(String) CODEC(ZSTD(1)),
@@ -72,14 +73,18 @@ func EnsureOtelSchema(ctx context.Context, dsn string, retentionDays int) error 
     ScopeAttributes Map(LowCardinality(String), String) CODEC(ZSTD(1)),
     LogAttributes Map(LowCardinality(String), String) CODEC(ZSTD(1)),
     INDEX idx_trace_id TraceId TYPE bloom_filter(0.001) GRANULARITY 1,
-    INDEX idx_body Body TYPE tokenbf_v1(32768, 3, 0) GRANULARITY 8
+    INDEX idx_body Body TYPE tokenbf_v1(32768, 3, 0) GRANULARITY 8,
+    INDEX idx_res_attr_key mapKeys(ResourceAttributes) TYPE bloom_filter(0.01) GRANULARITY 1,
+    INDEX idx_res_attr_value mapValues(ResourceAttributes) TYPE bloom_filter(0.01) GRANULARITY 1,
+    INDEX idx_log_attr_key mapKeys(LogAttributes) TYPE bloom_filter(0.01) GRANULARITY 1,
+    INDEX idx_log_attr_value mapValues(LogAttributes) TYPE bloom_filter(0.01) GRANULARITY 1
 )
-ENGINE = MergeTree
+ENGINE = %s
 PARTITION BY toDate(TimestampTime)
 PRIMARY KEY (ServiceName, TimestampTime)
-ORDER BY (ServiceName, TimestampTime, Timestamp)
+ORDER BY (ServiceName, TimestampTime, Timestamp, TraceId)
 TTL TimestampTime + toIntervalDay(%d)
-SETTINGS index_granularity = 8192, ttl_only_drop_parts = 1`, retentionDays)
+SETTINGS index_granularity = 8192, ttl_only_drop_parts = 1`, tableEngine, retentionDays)
 
 	if _, err := db.ExecContext(ctx, createTable); err != nil {
 		return fmt.Errorf("create table otel.logs: %w", err)
@@ -100,7 +105,9 @@ func EnsureOtelSchemaFromEnv(ctx context.Context, retentionDays int) {
 		Host:   addr,
 		Path:   "/default",
 	}
-	if err := EnsureOtelSchema(ctx, chURI.String(), retentionDays); err != nil {
+	dsn := chURI.String()
+	WaitForClickhouseClusterReady(ctx, dsn)
+	if err := EnsureOtelSchema(ctx, dsn, retentionDays); err != nil {
 		logrus.WithError(err).Warn("Failed to ensure OTEL ClickHouse schema")
 	}
 }

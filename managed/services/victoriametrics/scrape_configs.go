@@ -47,6 +47,25 @@ func scrapeTimeout(interval time.Duration) config.Duration {
 	}
 }
 
+func scrapeConfigForCorootNodeAgent(interval time.Duration, target, otelCollectorAgentID string) *config.ScrapeConfig {
+	return &config.ScrapeConfig{
+		JobName:        "coroot_node_agent",
+		ScrapeInterval: config.Duration(interval),
+		ScrapeTimeout:  scrapeTimeout(interval),
+		MetricsPath:    "/metrics",
+		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
+			StaticConfigs: []*config.Group{{
+				Targets: []string{target},
+				Labels: map[string]string{
+					"instance":   otelCollectorAgentID,
+					"agent_id":   otelCollectorAgentID,
+					"agent_type": "coroot_node_agent",
+				},
+			}},
+		},
+	}
+}
+
 func scrapeConfigForClickhouse(mr time.Duration, pmmServerNodeName string) *config.ScrapeConfig {
 	return &config.ScrapeConfig{
 		JobName:        "clickhouse",

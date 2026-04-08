@@ -1994,6 +1994,10 @@ func (as *AgentsService) ChangeOtelCollector(ctx context.Context, agentID string
 			labels = make(map[string]string)
 		}
 		for k, v := range p.MergeLabels {
+			if v == "" {
+				delete(labels, k)
+				continue
+			}
 			labels[k] = v
 		}
 		if p.RemoveLegacyLogFilePaths {
