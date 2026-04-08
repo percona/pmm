@@ -17,7 +17,6 @@
 package models_test
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
 	"testing"
@@ -328,7 +327,7 @@ func TestDatabaseMigrations(t *testing.T) {
 		defer sqlDB.Close() //nolint:errcheck
 
 		// Insert dummy node in DB
-		_, err := sqlDB.ExecContext(context.Background(),
+		_, err := sqlDB.ExecContext(t.Context(),
 			`INSERT INTO
 			nodes(node_id, node_type, node_name, distro, node_model, az, address, created_at, updated_at)
 			VALUES
@@ -337,7 +336,7 @@ func TestDatabaseMigrations(t *testing.T) {
 		require.NoError(t, err)
 
 		// Insert dummy agent in DB
-		_, err = sqlDB.ExecContext(context.Background(),
+		_, err = sqlDB.ExecContext(t.Context(),
 			`INSERT INTO
 			agents(agent_id, agent_type, runs_on_node_id, created_at, updated_at, disabled, status, tls, tls_skip_verify, query_examples_disabled, max_query_log_size, table_count_tablestats_group_limit, rds_basic_metrics_disabled, rds_enhanced_metrics_disabled, push_metrics)
 			VALUES

@@ -47,10 +47,10 @@ PMM Server includes the following tools:
 
 - Metrics Monitor provides a historical view of metrics that are critical to a MySQL or MongoDB server instance. It includes the following:
 
-  - [VictoriaMetrics](https://github.com/VictoriaMetrics/VictoriaMetrics), a scalable time-series database. 
+  - [VictoriaMetrics](https://github.com/VictoriaMetrics/VictoriaMetrics) is a scalable time-series database. 
   - [ClickHouse](https://clickhouse.com) is a third-party column-oriented database that facilitates the Query Analytics functionality.
-  - [Grafana](http://docs.grafana.org) is a third-party dashboard and graph builder for visualizing data aggregated (by VictoriaMetrics or Prometheus) in an intuitive web interface.
-  - [Percona Dashboards](https://github.com/percona/grafana-dashboards) is a set of dashboards for Grafana developed by Percona.
+  - [Grafana](http://docs.grafana.org) is a third-party dashboard and graph engine for visualizing data aggregated in an intuitive web interface.
+  - [PMM Dashboards](https://github.com/percona/pmm/tree/v3/dashboards) is a set of metrics dashboards developed by Percona.
 
 ### PMM Client
 
@@ -69,6 +69,8 @@ The PMM Client package consists of the following:
 - `mongodb_exporter` is an exporter that collects MongoDB server metrics.
 
 - `postgres_exporter` is an exporter that collects PostgreSQL performance metrics.
+
+- `valkey_exporter` is an exporter that collects Valkey and Redis performance metrics.
 
 - `proxysql_exporter` is an exporter that collects ProxySQL performance metrics.
 

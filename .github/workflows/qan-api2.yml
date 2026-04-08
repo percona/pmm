@@ -10,6 +10,7 @@ on:
       - v[0-9]+.[0-9]+.[0-9]+*
     paths-ignore:
       - "documentation/**"
+      - "dashboards/**"
 
   pull_request:
     paths-ignore:
@@ -18,6 +19,7 @@ on:
       - "api-tests/**"
       - "docs/**"
       - "documentation/**"
+      - "dashboards/**"
       - "managed/**"
       - "update/**"
       - "vmproxy/**"

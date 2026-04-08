@@ -16,7 +16,6 @@
 package backup
 
 import (
-	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -476,7 +475,7 @@ func TestFindArtifactCompatibleServices(t *testing.T) {
 				dropRecords(&artifact)
 			})
 
-			res, err := cSvc.FindArtifactCompatibleServices(context.Background(), test.artifactIDToSearch)
+			res, err := cSvc.FindArtifactCompatibleServices(t.Context(), test.artifactIDToSearch)
 
 			if test.errString != "" {
 				assert.ErrorContains(t, err, test.errString)
@@ -618,7 +617,7 @@ func TestFindArtifactCompatibleServices(t *testing.T) {
 			dropRecords(&ssvModel, &artifactModel)
 		})
 
-		res, err := cSvc.FindArtifactCompatibleServices(context.Background(), "test_artifact_id")
+		res, err := cSvc.FindArtifactCompatibleServices(t.Context(), "test_artifact_id")
 		assert.NoError(t, err)
 		assert.ElementsMatch(t, []*models.Service{serviceModel, &svsData4.service}, res)
 	})

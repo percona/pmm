@@ -16,7 +16,6 @@
 package grafana
 
 import (
-	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -67,7 +66,7 @@ func TestNextPrefix(t *testing.T) {
 func TestAuthServerAuthenticate(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
+	ctx := t.Context()
 	c := NewClient("127.0.0.1:3000")
 	s := NewAuthServer(c, nil)
 
@@ -185,7 +184,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 func TestServerClientConnection(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
+	ctx := t.Context()
 	c := NewClient("127.0.0.1:3000")
 	s := NewAuthServer(c, nil)
 
@@ -219,7 +218,7 @@ func TestServerClientConnection(t *testing.T) {
 		headersMD := metadata.New(map[string]string{
 			"Authorization": "Basic YWRtaW46YWRtaW4=",
 		})
-		ctx := metadata.NewIncomingContext(context.Background(), headersMD)
+		ctx := metadata.NewIncomingContext(t.Context(), headersMD)
 		_, serviceToken, err := c.CreateServiceAccount(ctx, nodeName, true)
 		require.NoError(t, err)
 		defer func() {
@@ -249,7 +248,7 @@ func TestServerClientConnection(t *testing.T) {
 }
 
 func TestAuthServerAddVMGatewayToken(t *testing.T) {
-	ctx := logger.Set(context.Background(), t.Name())
+	ctx := logger.Set(t.Context(), t.Name())
 	uuid.SetRand(&tests.IDReader{})
 
 	sqlDB := testdb.Open(t, models.SetupFixtures, nil)

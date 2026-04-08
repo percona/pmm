@@ -78,7 +78,7 @@ func setup(t *testing.T, connect func(*Channel) error, expected ...error) (agent
 		assert.NoError(t, err)
 	}()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(t.Context(), 3*time.Second)
 
 	// make client and channel
 	opts := []grpc.DialOption{
