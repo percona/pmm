@@ -20,12 +20,16 @@ import (
 	"net/http"
 	"net/url"
 	"testing"
+	"time"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
 )
+
+// Under full-suite load, /ping and /v1/server/readyz can briefly return 503/500 while components catch up.
+const readinessProbeTimeout = 30 * time.Second
+const readinessProbeInterval = 200 * time.Millisecond
 
 func TestReadyz(t *testing.T) {
 	t.Parallel()
@@ -47,15 +51,29 @@ func TestReadyz(t *testing.T) {
 
 			// Use a dedicated client to avoid interference from other parallel tests
 			client := &http.Client{}
-			req, _ := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
-			resp, err := client.Do(req)
-			require.NoError(t, err)
-			defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
-			b, err := io.ReadAll(resp.Body)
-			require.NoError(t, err)
-			assert.Equal(t, 200, resp.StatusCode, "response:\n%s", b)
-			assert.Equal(t, "{}", string(b))
+			var lastStatus int
+			var lastBody []byte
+			require.Eventually(t, func() bool {
+				req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
+				if err != nil {
+					return false
+				}
+				resp, err := client.Do(req)
+				if err != nil {
+					return false
+				}
+				defer func() { _ = resp.Body.Close() }() //nolint:errcheck
+				b, err := io.ReadAll(resp.Body)
+				if err != nil {
+					return false
+				}
+				lastStatus = resp.StatusCode
+				lastBody = append([]byte(nil), b...)
+				return resp.StatusCode == http.StatusOK && string(b) == "{}"
+			}, readinessProbeTimeout, readinessProbeInterval,
+				"GET %s expected HTTP 200 and body {}; last status=%d body=%s",
+				uri.String(), lastStatus, lastBody)
 		})
 	}
 }
