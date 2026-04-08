@@ -955,6 +955,25 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
         }),
       },
     },
+    MuiLink: {
+      styleOverrides: {
+        root: {
+          color: tokens.text.sky,
+          textDecorationColor: tokens.text.sky,
+          '&:hover': {
+            opacity: 0.8,
+          },
+          '&:active': {
+            opacity: 0.6,
+          },
+          '&:focus-visible': {
+            outline: `2px solid ${tokens.text.sky}`,
+            outlineOffset: '2px',
+            borderRadius: '2px',
+          },
+        }
+      }
+    },
     MuiAccordion: {
       styleOverrides: {
         root: ({ theme }) => ({

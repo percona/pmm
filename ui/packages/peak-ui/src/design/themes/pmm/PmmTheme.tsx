@@ -223,14 +223,6 @@ const pmmThemeOptions = (mode: PaletteMode): ThemeOptions => {
           }),
         },
       },
-      MuiLink: {
-        styleOverrides: {
-          root: {
-            color: tokens.text.sky,
-            textDecorationColor: tokens.text.sky,
-          }
-        }
-      },
       MuiDialogTitle: {
         styleOverrides: {
           root: {
@@ -242,13 +234,6 @@ const pmmThemeOptions = (mode: PaletteMode): ThemeOptions => {
         styleOverrides: {
           root: {
             paddingTop: 0,
-          }
-        }
-      },
-      MuiPaper: {
-        styleOverrides: {
-          root: {
-            backgroundColor: tokens.surfaces.elevation0,
           }
         }
       }
