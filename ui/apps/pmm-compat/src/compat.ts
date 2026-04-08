@@ -23,6 +23,7 @@ import { isWithinIframe, getLinkWithVariables } from 'lib/utils';
 import { documentTitleObserver, updateBodyClassByLocation } from 'lib/utils/document';
 import { isFirstLogin, updateIsFirstLogin, isUserLoggedIn } from 'lib/utils/login';
 import { ServiceAddedEvent, ServiceDeletedEvent, SettingsUpdatedEvent, TimeZoneUpdatedEvent } from 'lib/events';
+import { handleExternalLinks } from 'compat/links';
 
 export const initialize = () => {
   // Image renderer (headless Chrome) loads the panel URL directly. Skip all compat logic so the dashboard renders normally.
@@ -180,4 +181,6 @@ export const initialize = () => {
       type: 'TIMEZONE_CHANGED',
     });
   });
+
+  handleExternalLinks();
 };
