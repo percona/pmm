@@ -63,10 +63,10 @@ rotate-encryption:    ## Rotate encryption key
 	go run ./encryption-rotation/main.go
 
 release:              ## Build release versions of all components
-	make -C agent release
-	make -C admin release
-	make -C managed release
-	make -C qan-api2 release
+	$(MAKE) -C agent release
+	$(MAKE) -C admin release
+	$(MAKE) -C managed release
+	$(MAKE) -C qan-api2 release
 
 gen: clean            ## Generate files
 	make -C api gen
