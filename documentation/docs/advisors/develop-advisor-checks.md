@@ -39,9 +39,6 @@ PMM uses Alertmanager API to get information about failed checks and show them o
 ## Format for checks
 Advisor checks use the following format:
 
-??? note alert alert-info "Checks format"
-
-    {% raw %}
     ```yaml
     ---
     checks:
@@ -58,21 +55,21 @@ Advisor checks use the following format:
             query: VARIABLES
 
           - type: METRICS_INSTANT
-            query: mysql_global_status_uptime{service_name=~"{{.ServiceName}}"}
+            query: mysql_global_status_uptime{service_name=~"{% raw %}{{.ServiceName}}{% endraw %}"}
 
           - type: METRICS_INSTANT
-            query: mysql_global_status_uptime{service_name=~"{{.ServiceName}}"}
+            query: mysql_global_status_uptime{service_name=~"{% raw %}{{.ServiceName}}{% endraw %}"}
             parameters:
               lookback: 5m
 
           - type: METRICS_RANGE
-            query: avg by (node_name) (avg_over_time(node_load1{node_name=~"{{.NodeName}}"}[5m]))
+            query: avg by (node_name) (avg_over_time(node_load1{node_name=~"{% raw %}{{.NodeName}}{% endraw %}"}[5m]))
             parameters:
               range: 15m
               step: 5m
 
           - type: METRICS_RANGE
-            query: avg by (node_name) (avg_over_time(node_load1{node_name=~"{{.NodeName}}"}[5m]))
+            query: avg by (node_name) (avg_over_time(node_load1{node_name=~"{% raw %}{{.NodeName}}{% endraw %}"}[5m]))
             parameters:
               lookback: 5m
               range: 15m
@@ -151,7 +148,6 @@ Advisor checks use the following format:
 
               return results
     ```
-    {% endraw %}
 
 ## Checks script
 
