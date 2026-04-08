@@ -38,7 +38,8 @@ help:
 	@echo ""
 	@echo "Cache Management:"
 	@echo "  make download-cache           - Download repository cache from Minio"
-	@echo "  make update-cache             - Fetch upstream changes and upload to Minio"
+	@echo "  make update-cache             - Fetch required refs and upload to Minio (fast, per-build)"
+	@echo "  make sync-cache               - Full fetch + prune stale branches + upload to Minio (slow, periodic)"
 	@echo "  make populate-cache           - Clone any missing bare repos from upstream (first-time setup)"
 	@echo "  make clean-cache              - Remove local cache directory"
 	@echo "  make clean-volumes            - Remove Docker cache volumes"
@@ -123,6 +124,27 @@ CLIENT_REPO_URLS := \
 	nomad.git=https://github.com/hashicorp/nomad.git \
 	percona-toolkit.git=https://github.com/percona/percona-toolkit.git
 ALL_REPO_URLS := $(SERVER_REPO_URLS) $(CLIENT_REPO_URLS)
+
+# repo.git=REF pairs for targeted fetching in update-cache.
+# VictoriaMetrics.git and pmm.git each appear more than once (multiple components share the same repo).
+REPO_FETCH_REFS := \
+	pmm.git=$(PMM_REF) \
+	pmm.git=$(PMM_UI_REF) \
+	pmm.git=$(PMM_DASHBOARDS_REF) \
+	grafana.git=$(GRAFANA_REF) \
+	VictoriaMetrics.git=$(VM_REF) \
+	VictoriaMetrics.git=$(VMAGENT_REF) \
+	pmm-dump.git=$(PMM_DUMP_REF) \
+	node_exporter.git=$(NODE_EXPORTER_REF) \
+	mysqld_exporter.git=$(MYSQLD_EXPORTER_REF) \
+	mongodb_exporter.git=$(MONGODB_EXPORTER_REF) \
+	postgres_exporter.git=$(POSTGRES_EXPORTER_REF) \
+	proxysql_exporter.git=$(PROXYSQL_EXPORTER_REF) \
+	rds_exporter.git=$(RDS_EXPORTER_REF) \
+	azure_metrics_exporter.git=$(AZURE_METRICS_EXPORTER_REF) \
+	redis_exporter.git=$(REDIS_EXPORTER_REF) \
+	nomad.git=$(NOMAD_REF) \
+	percona-toolkit.git=$(PERCONA_TOOLKIT_REF)
 
 # S3 cache flags (reused across all artifact builds)
 S3_CACHE_FROM := type=s3,region=us-east-1,bucket=$(MINIO_BUCKET),endpoint_url=$(MINIO_ENDPOINT),access_key_id=$(MINIO_ACCESS_KEY),secret_access_key=$(MINIO_SECRET_KEY),use_path_style=true
@@ -278,7 +300,7 @@ build-server:
 ifeq ($(LOGGING),)
 	@$(MAKE) LOGGING=1 build-server 2>&1 | tee -a "$(LOG_FILE)"
 else
-	@$(MAKE) download-cache
+	@$(MAKE) update-cache
 	@$(MAKE) build-server-components
 	@$(MAKE) generate-version-json
 	@echo "Assembling PMM Server Docker image..."
@@ -342,15 +364,38 @@ download-cache: check-minio
 
 # Fetch upstream changes into local bare repos and upload the updated cache to Minio
 update-cache: check-minio download-cache
-	@echo "Fetching upstream changes for all cached repositories..."
-	@for repo in $(REPO_CACHE_DIR)/*.git; do \
-		echo "Updating $$repo..."; \
-		git -C "$$repo" fetch --all --prune || { echo "Error: failed to fetch $$repo"; exit 1; }; \
+	@echo "Fetching required refs from upstream..."
+	@for item in $(REPO_FETCH_REFS); do \
+		repo=$${item%%=*}; \
+		ref=$${item##*=}; \
+		dest="$(REPO_CACHE_DIR)/$$repo"; \
+		[ -d "$$dest" ] || continue; \
+		git -C "$$dest" config remote.origin.fetch '+refs/heads/*:refs/heads/*' 2>/dev/null || true; \
+		echo "  $$repo: fetching $$ref..."; \
+		git -C "$$dest" fetch origin "$$ref" || { echo "Error: failed to fetch $$ref from $$repo"; exit 1; }; \
 	done
 	@echo "Uploading updated cache to Minio..."
 	@mc mirror --overwrite $(REPO_CACHE_DIR) pmm/$(MINIO_BUCKET)/$(MINIO_CACHE_PREFIX) || \
 		(echo "Error: Failed to upload cache to Minio" && exit 1)
 	@echo "Cache update complete"
+
+# Full fetch + prune stale branches across all bare repos, then upload to Minio.
+# Run periodically (e.g. on a CI schedule) to remove branches deleted from upstream.
+# Slower than update-cache because it fetches all refs, not just the ones in .env.
+sync-cache: check-minio download-cache
+	@echo "Syncing all bare repos from upstream (fetch --prune)..."
+	@for item in $(ALL_REPO_URLS); do \
+		name=$${item%%=*}; \
+		dest="$(REPO_CACHE_DIR)/$$name"; \
+		[ -d "$$dest" ] || continue; \
+		git -C "$$dest" config remote.origin.fetch '+refs/heads/*:refs/heads/*' 2>/dev/null || true; \
+		echo "  $$name: fetching all branches, pruning stale..."; \
+		git -C "$$dest" fetch --prune origin '+refs/heads/*:refs/heads/*' || { echo "Error: failed to sync $$name"; exit 1; }; \
+	done
+	@echo "Uploading pruned cache to Minio..."
+	@mc mirror --overwrite $(REPO_CACHE_DIR) pmm/$(MINIO_BUCKET)/$(MINIO_CACHE_PREFIX) || \
+		(echo "Error: Failed to upload cache to Minio" && exit 1)
+	@echo "Sync complete"
 
 # Clone any bare repos that are missing from the local cache directory.
 # Skips repos that already exist. Useful for first-time setup or when adding new components.
@@ -367,6 +412,7 @@ populate-cache:
 		else \
 			echo "Cloning $$name from $$url ..."; \
 			git clone --bare "$$url" "$$dest"; \
+			git -C "$$dest" config remote.origin.fetch '+refs/heads/*:refs/heads/*'; \
 			mkdir -p "$$dest/refs/heads" "$$dest/refs/tags" "$$dest/refs/remotes"; \
 		fi; \
 	done
@@ -397,10 +443,8 @@ clean-all: clean-cache clean-volumes clean
 # Build PMM Server Docker image (assembly stage only — references pre-built artifact images)
 build-server-docker: ensure-builder
 	@echo "Building PMM Server Docker image..."
-	@if [ -f "$(PACKAGE_DIR)/pmm-client-$(PMM_VERSION).tar.gz" ]; then \
-		cp "$(PACKAGE_DIR)/pmm-client-$(PMM_VERSION).tar.gz" pmm-client.tar.gz; \
-	else \
-		echo "Error: pmm-client tarball not found at $(PACKAGE_DIR)/pmm-client-$(PMM_VERSION).tar.gz"; \
+	@if [ ! -f "$(PACKAGE_DIR)/pmm-client.tar.gz" ]; then \
+		echo "Error: pmm-client tarball not found at $(PACKAGE_DIR)/pmm-client.tar.gz"; \
 		echo "Run 'make build-client-tarball' first to create the tarball"; \
 		exit 1; \
 	fi
@@ -415,7 +459,6 @@ build-server-docker: ensure-builder
 		-f $(SERVER_DOCKERFILE) \
 		-t $(SERVER_DOCKER_TAG) \
 		$(BUILD_ROOT)
-	@rm -f pmm-client.tar.gz
 	@docker buildx stop $(BUILDX_BUILDER) 2>/dev/null || true
 	@echo "Docker image built successfully!"
 
@@ -593,10 +636,9 @@ build-pmm-ui: ensure-build-volumes
 
 build-server-components:
 	@echo "Building server component images (Go stages in parallel)..."
-	@$(MAKE) -j4 build-pmm-managed build-pmm-dump \
-		build-grafana-go build-victoriametrics
+	@$(MAKE) -j4 build-pmm-managed build-pmm-dump build-victoriametrics build-grafana-go
 	@echo ""
-	@echo "Building server component images (Node stages sequentially)..."
+	@echo "Building server component images sequentially..."
 	@$(PIPELINE_DIR)/scripts/check-ui-cache \
 	    "grafana" "$(GRAFANA_REF)" \
 	    "$(REPO_CACHE_DIR)/grafana.git" \
@@ -626,6 +668,3 @@ clean-server-artifacts:
 		2>/dev/null || true
 	@rm -rf $(SERVER_OUTPUT_DIR)/{victoriametrics,pmm-managed,pmm-dump,grafana-go,grafana-ui}
 	@echo "Server artifact images removed"
-
-check:
-	@echo "PIPELINE_DIR: $(PIPELINE_DIR)"

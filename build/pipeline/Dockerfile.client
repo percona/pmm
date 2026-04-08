@@ -18,6 +18,7 @@ RUN --mount=type=cache,target=/var/cache/dnf \
     perl-Time-HiRes \
     perl-IO-Socket-SSL \
     perl-TermReadKey \
+    && ls -la /var/cache/dnf \
     && microdnf clean all
 
 RUN groupadd -g 1002 pmm-agent && \
@@ -25,12 +26,10 @@ RUN groupadd -g 1002 pmm-agent && \
             -d /usr/local/percona/pmm \
             -c "PMM Client User" pmm-agent
 
-RUN --mount=type=bind,source=../pmm-client.tar.gz,target=/app/pmm-client.tar.gz \
-    tar -xzf /app/pmm-client.tar.gz -C /tmp \
-    && cd /tmp/pmm-client* \
-    && env PMM_USER=pmm-agent PMM_GROUP=root ./install_tarball \
-    && cd /tmp \
-    && rm -rf /tmp/pmm-client*
+RUN --mount=type=bind,source=package,target=/packages \
+    tar -xzf /packages/pmm-client.tar.gz -C /tmp \
+    && PMM_USER=pmm-agent PMM_GROUP=root /tmp/pmm-client/install_tarball \
+    && rm -rf /tmp/pmm-client
 
 COPY LICENSE /licenses/
 

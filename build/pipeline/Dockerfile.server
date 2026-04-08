@@ -29,14 +29,16 @@ COPY docker/server/entrypoint.sh /opt/entrypoint.sh
 COPY ansible /opt/ansible
 
 RUN --mount=type=cache,target=/var/cache \
-    --mount=type=bind,source=pipeline/pmm-client.tar.gz,target=/tmp/pmm-client.tar.gz \
+    --mount=type=bind,source=pipeline/package,target=/tmp/packages \
     --mount=type=bind,source=pipeline/output/server,target=/opt/pmm-staging \
+    cp /tmp/packages/pmm-client.tar.gz /tmp/pmm-client.tar.gz && \
     install -T -p -m 644 /opt/ansible/ansible.cfg /etc/ansible/ansible.cfg && \
     install -T -p -m 644 /opt/ansible/hosts /etc/ansible/hosts && \
     install -d /usr/share/percona-dashboards && \
     echo "${VERSION}" | install -m 0644 /dev/stdin /usr/share/percona-dashboards/VERSION && \
     ansible-playbook -vvv /opt/ansible/pmm-docker/main.yml && \
     ansible-playbook -vvv /opt/ansible/pmm-docker/post-build.yml && \
+    rm -f /tmp/pmm-client.tar.gz && \
     sed -i '/^assumeyes/d' /etc/dnf/dnf.conf
 
 LABEL org.opencontainers.image.created=${BUILD_DATE}

@@ -11,11 +11,11 @@
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
 ENV_FILE="${SCRIPT_DIR}/../.env"
 BRANCH="v3"
 
-while [[ $# -gt 0 ]]; do
+while [ $# -gt 0 ]; do
     case "$1" in
         --branch) BRANCH="$2"; shift 2 ;;
         *) echo "Unknown argument: $1" >&2; exit 1 ;;
@@ -112,7 +112,7 @@ declare -A NAME_TO_PREFIX=(
     ["pmm"]="PMM"
     ["grafana"]="GRAFANA"
     ["VictoriaMetrics"]="VM"
-["pmm-dump"]="PMM_DUMP"
+    ["pmm-dump"]="PMM_DUMP"
     ["node_exporter"]="NODE_EXPORTER"
     ["mysqld_exporter"]="MYSQLD_EXPORTER"
     ["mongodb_exporter"]="MONGODB_EXPORTER"

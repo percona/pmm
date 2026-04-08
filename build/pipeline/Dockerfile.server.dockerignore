@@ -1,14 +1,13 @@
 # Paths are relative to BUILD_ROOT (build/).
 # The Dockerfile.server only needs:
-#   pipeline/output/server/   - built component artifacts
-#   pipeline/pmm-client.tar.gz - client tarball (bind-mounted in RUN)
-#   docker/server/             - entrypoint script
-#   ansible/                   - Ansible playbooks
+#   pipeline/output/server/  - built component artifacts
+#   pipeline/package/        - pmm-client tarball (bind-mounted in RUN)
+#   docker/server/           - entrypoint script
+#   ansible/                 - Ansible playbooks
 
 # Exclude pipeline subdirs that are not part of the image
 pipeline/.cache/
 pipeline/scripts/
-pipeline/package/
 pipeline/output/client/
 
 # Exclude pipeline metadata/config files
@@ -18,7 +17,6 @@ pipeline/.env.example
 pipeline/.gitignore
 pipeline/AGENT.md
 pipeline/README.md
-pipeline/SERVER-BUILD.md
 pipeline/Dockerfile.builder
 pipeline/Dockerfile.client
 

@@ -10,7 +10,6 @@ SCRIPT_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
 PIPELINE_DIR="$(dirname "${SCRIPT_DIR}")"
 PMM_VERSION="${PMM_VERSION:?No PMM_VERSION specified}"
 PACKAGE_DIR="${PACKAGE_DIR:-${PIPELINE_DIR}/package}"
-DOCKER_BUILD_DIR="${PIPELINE_DIR}"
 
 # Docker configuration
 DOCKERFILE="${DOCKERFILE:-Dockerfile.client}"
@@ -18,11 +17,11 @@ DOCKER_TAG="${DOCKER_TAG:-perconalab/pmm-client:${PMM_VERSION}}"
 PLATFORM="${PLATFORM:-linux/amd64}"
 
 # Package name
-PACKAGE_NAME="pmm-client-${PMM_VERSION}"
+PACKAGE_NAME="pmm-client"
 TARBALL="${PACKAGE_DIR}/${PACKAGE_NAME}.tar.gz"
 
 usage() {
-    cat <<EOF
+  cat <<EOF
 Usage: $0
 
 Build PMM Client Docker image from tarball.
@@ -38,7 +37,7 @@ Examples:
   $0
   DOCKER_TAG=myregistry/pmm-client:latest $0
 EOF
-    exit 1
+  exit 1
 }
 
 echo "PMM Client Docker Builder"
@@ -48,46 +47,43 @@ echo "Tarball: ${TARBALL}"
 echo "Dockerfile: ${DOCKERFILE}"
 echo "Docker Tag: ${DOCKER_TAG}"
 echo "Platform: ${PLATFORM}"
-echo "Docker script dir: ${DOCKER_BUILD_DIR}"
+echo "Docker script dir: ${PIPELINE_DIR}"
 echo ""
 
 # Check if tarball exists
 if [ ! -f "${TARBALL}" ]; then
-    echo "Error: Tarball not found: ${TARBALL}"
-    echo "Please run 'make package-tarball' first"
-    exit 1
+  echo "Error: tarball not found: ${TARBALL}"
+  echo "Please run 'make package-tarball' first"
+  exit 1
 fi
 
 # Check if Dockerfile exists
-if [ ! -f "${DOCKER_BUILD_DIR}/${DOCKERFILE}" ]; then
-    echo "Error: Dockerfile not found: ${DOCKER_BUILD_DIR}/${DOCKERFILE}"
-    exit 1
+if [ ! -f "${PIPELINE_DIR}/${DOCKERFILE}" ]; then
+  echo "Error: Dockerfile not found: ${PIPELINE_DIR}/${DOCKERFILE}"
+  exit 1
 fi
 
-# Copy tarball to Docker build context
-echo "Copying files to Docker build context..."
-cp "${TARBALL}" "${DOCKER_BUILD_DIR}/pmm-client.tar.gz"
-cp "${PIPELINE_DIR}/../docker/client/LICENSE" "${DOCKER_BUILD_DIR}/LICENSE"
+cp "${PIPELINE_DIR}/../docker/client/LICENSE" "${PIPELINE_DIR}/LICENSE"
+
+trap cleanup EXIT
 
 # Build Docker image
 echo "Building Docker image..."
 docker buildx build \
-    --platform "${PLATFORM}" \
-    --build-arg BUILD_DATE="$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
-    --build-arg VERSION="${PMM_VERSION}" \
-    --build-arg RELEASE="$(date +%s)" \
-    --progress=plain \
-    --load \
-    -f "${DOCKER_BUILD_DIR}/${DOCKERFILE}" \
-    -t "${DOCKER_TAG}" \
-    "${DOCKER_BUILD_DIR}"
+  --platform "${PLATFORM}" \
+  --build-arg BUILD_DATE="$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
+  --build-arg VERSION="${PMM_VERSION}" \
+  --build-arg RELEASE="$(date +%s)" \
+  --progress=plain \
+  --load \
+  -f "${PIPELINE_DIR}/${DOCKERFILE}" \
+  -t "${DOCKER_TAG}" \
+  "${PIPELINE_DIR}"
 
-echo "Docker image built successfully: ${DOCKER_TAG}"
-
-# Clean up
-echo "Cleaning up..."
-rm -f "${DOCKER_BUILD_DIR}/pmm-client.tar.gz"
-rm -f "${DOCKER_BUILD_DIR}/LICENSE"
+cleanup() {
+  echo "Cleaning up..."
+  rm -f "${PIPELINE_DIR}/LICENSE"
+}
 
 echo ""
 echo "Build complete!"
