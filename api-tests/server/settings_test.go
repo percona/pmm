@@ -1,3 +1,5 @@
+//go:build settings
+
 // Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
