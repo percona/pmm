@@ -36,7 +36,7 @@ import (
 
 //nolint:paralleltest
 func TestAccessControlService(t *testing.T) {
-	ctx := logger.Set(context.Background(), t.Name())
+	ctx := logger.Set(t.Context(), t.Name())
 	uuid.SetRand(&tests.IDReader{})
 
 	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
