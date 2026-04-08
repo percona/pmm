@@ -59,7 +59,6 @@ require (
 	github.com/prometheus/prometheus v0.310.0
 	github.com/ramr/go-reaper v0.3.1
 	github.com/robfig/cron/v3 v3.0.1
-	github.com/samber/lo v1.53.0
 	github.com/sirupsen/logrus v1.9.4
 	github.com/stretchr/objx v0.5.2
 	github.com/stretchr/testify v1.11.1

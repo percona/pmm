@@ -47,7 +47,7 @@ var (
 	// because we will also reflect on nested messages(md) when we redact them, and cache their plans as well.
 	planCache sync.Map // map[protoreflect.FullName]*messagePlan
 
-	// A maskedString is used to replace sensitive string fields
+	// A maskedString is used to replace sensitive string fields.
 	maskedString = "***REDACTED***"
 )
 
@@ -182,13 +182,14 @@ func RedactString(s string, rt extensionsv1.RedactType) string {
 
 func maskString(s string) string {
 	n := len(s)
-	if n == 0 {
+	switch {
+	case n == 0:
 		return s
-	}
-	if n <= 4 { //nolint:mnd
+	case n <= 4: //nolint:mnd
 		return maskedString
+	default:
+		return s[:2] + maskedString + s[n-2:]
 	}
-	return s[:2] + maskedString + s[n-2:]
 }
 
 func maskDSN(s string) string {
