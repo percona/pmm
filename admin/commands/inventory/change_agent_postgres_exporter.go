@@ -89,7 +89,7 @@ type ChangeAgentPostgresExporterCommand struct {
 	PushMetrics            *bool    `help:"Enable push metrics with vmagent"`
 	AutoDiscoveryLimit     *int32   `help:"Auto-discovery limit"`
 	MaxExporterConnections *int32   `help:"Maximum number of connections that exporter can make to PostgreSQL instance"`
-	ConnectionTimeout      string   `help:"Connection timeout to use for exporter (e.g. 1s, 500ms)"`
+	ConnectionTimeout      string   `help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`

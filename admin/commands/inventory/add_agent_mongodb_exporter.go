@@ -67,7 +67,7 @@ type AddAgentMongodbExporterCommand struct {
 	DisableCollectors             []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	StatsCollections              []string          `help:"Collections for collstats & indexstats"`
 	CollectionsLimit              int32             `name:"max-collections-limit" placeholder:"number" help:"Disable collstats & indexstats if there are more than <n> collections"` //nolint:lll
-	ConnectionTimeout             string            `help:"Connection timeout to use for exporter (e.g. 1s, 500ms)"`
+	ConnectionTimeout             string            `help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 
 	flags.LogLevelFatalFlags
 }

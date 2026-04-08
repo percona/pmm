@@ -56,7 +56,7 @@ type AddAgentRDSExporterCommand struct {
 	DisableBasicMetrics    bool              `help:"Disable basic metrics"`
 	DisableEnhancedMetrics bool              `help:"Disable enhanced metrics"`
 	PushMetrics            bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
-	ConnectionTimeout      string            `help:"Connection timeout to use for exporter (e.g. 1s, 500ms)"`
+	ConnectionTimeout      string            `help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 
 	flags.LogLevelFatalFlags
 }

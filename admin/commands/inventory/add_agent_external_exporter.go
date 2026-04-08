@@ -61,7 +61,7 @@ type AddAgentExternalExporterCommand struct {
 	CustomLabels      map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	PushMetrics       bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
 	TLSSkipVerify     bool              `help:"Skip TLS certificate verification"`
-	ConnectionTimeout string            `help:"Connection timeout to use for exporter (e.g. 1s, 500ms)"`
+	ConnectionTimeout string            `help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 }
 
 // RunCmd executes the AddAgentExternalExporterCommand and returns the result.

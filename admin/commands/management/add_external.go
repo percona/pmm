@@ -70,7 +70,7 @@ type AddExternalCommand struct {
 	Group               string            `default:"${externalDefaultGroupExporter}" help:"Group name of external service (default: ${externalDefaultGroupExporter})"`
 	SkipConnectionCheck bool              `help:"Skip exporter connection checks"`
 	TLSSkipVerify       bool              `help:"Skip TLS certificate verification"`
-	ConnectionTimeout   string            `help:"Connection timeout to use for exporter (e.g. 1s, 500ms)"`
+	ConnectionTimeout   string            `help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 
 	flags.MetricsModeFlags
 }

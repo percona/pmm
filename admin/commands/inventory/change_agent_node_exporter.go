@@ -73,7 +73,7 @@ type ChangeAgentNodeExporterCommand struct {
 	PushMetrics       *bool    `help:"Enable push metrics with vmagent"`
 	ExposeExporter    *bool    `help:"Expose the exporter process on all public interfaces"`
 	DisableCollectors []string `help:"List of collector names to disable"`
-	ConnectionTimeout string   `help:"Connection timeout to use for exporter (e.g. 1s, 500ms)"`
+	ConnectionTimeout string   `help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`

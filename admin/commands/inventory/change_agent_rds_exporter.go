@@ -81,7 +81,7 @@ type ChangeAgentRDSExporterCommand struct {
 
 	// Exporter options
 	PushMetrics       *bool  `help:"Enable push metrics with vmagent"`
-	ConnectionTimeout string `help:"Connection timeout to use for exporter (e.g. 1s, 500ms)"`
+	ConnectionTimeout string `help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
