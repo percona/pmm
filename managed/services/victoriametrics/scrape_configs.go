@@ -52,6 +52,12 @@ func scrapeTimeout(interval time.Duration) config.Duration {
 	}
 }
 
+func boundedExporterScrapeTimeout(interval, timeout time.Duration) time.Duration {
+	maxT := time.Duration(float64(interval) * exporterScrapeIntervalCap)
+	timeout = max(timeout, exporterScrapeTimeoutFloorMs*time.Millisecond)
+	return min(timeout, maxT)
+}
+
 // exporterScrapeTimeout overrides ScrapeTimeout from agent ExporterOptions.ConnectionTimeout when set.
 // Used for exporter HTTP scrapes where ConnectionTimeout is treated as Prometheus scrape timeout.
 // PMM floors custom values to 100ms and caps them at 0.9 of scrape interval. For very
@@ -62,11 +68,9 @@ func exporterScrapeTimeout(cfg *config.ScrapeConfig, agent *models.Agent) {
 	if cfg == nil || agent == nil || agent.ExporterOptions.ConnectionTimeout == nil || *agent.ExporterOptions.ConnectionTimeout == 0 {
 		return
 	}
-	interval := time.Duration(cfg.ScrapeInterval)
-	maxT := time.Duration(float64(interval) * exporterScrapeIntervalCap)
-	t := max(*agent.ExporterOptions.ConnectionTimeout, exporterScrapeTimeoutFloorMs*time.Millisecond)
-	t = min(t, maxT)
-	cfg.ScrapeTimeout = config.Duration(t)
+	cfg.ScrapeTimeout = config.Duration(
+		boundedExporterScrapeTimeout(time.Duration(cfg.ScrapeInterval), *agent.ExporterOptions.ConnectionTimeout),
+	)
 }
 
 func scrapeConfigForClickhouse(mr time.Duration, pmmServerNodeName string) *config.ScrapeConfig {
@@ -273,10 +277,7 @@ func scrapeConfigForRDSExporter(intervalName string, interval time.Duration, hos
 		},
 	}
 	if exporterTimeout > 0 {
-		maxT := time.Duration(float64(interval) * exporterScrapeIntervalCap)
-		t := max(exporterTimeout, exporterScrapeTimeoutFloorMs*time.Millisecond)
-		t = min(t, maxT)
-		cfg.ScrapeTimeout = config.Duration(t)
+		cfg.ScrapeTimeout = config.Duration(boundedExporterScrapeTimeout(interval, exporterTimeout))
 	}
 	return cfg
 }
