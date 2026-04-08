@@ -814,14 +814,11 @@ type grafanaHealthResponse struct {
 func (c *Client) IsReady(ctx context.Context) error {
 	var status grafanaHealthResponse
 	if err := c.do(ctx, http.MethodGet, "/api/health", "", nil, nil, &status); err != nil {
-		// since we don't return the error to the user, log it to help debugging
-		logrus.Errorf("grafana status check failed: %s", err)
-		return fmt.Errorf("cannot reach Grafana API")
+		return fmt.Errorf("grafana health check failed: %v", err)
 	}
 
 	if strings.ToLower(status.Database) != "ok" {
-		logrus.Errorf("grafana is up but the database is not ok. Database status is %s", status.Database)
-		return fmt.Errorf("grafana is running with errors")
+		return fmt.Errorf("grafana health check failure: database status is %s", status.Database)
 	}
 
 	return nil
