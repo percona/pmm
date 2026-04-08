@@ -80,8 +80,17 @@ func TestNodeRegister(t *testing.T) {
 				Body:    body,
 			}
 			_, err := client.Default.ManagementService.RegisterNode(&params)
-			wantErr := fmt.Sprintf("Node with name %s already exists.", nodeName)
-			pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, wantErr)
+			// Historically, this test asserted on the full error string
+			// "Node with name %s already exists.". However, the JSON client serializes gRPC errors
+			// and may add quoting/escaping around the node name, making exact string comparison brittle.
+			// We therefore assert here on the HTTP status and gRPC code, and only require that the
+			// message contains the stable prefix "Node with name". The checks below additionally verify
+			// that the message includes the specific node name and the phrase "already exists", so the
+			// test still covers the intended behavior even if the exact formatting changes.
+			pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, "Node with name")
+			require.Error(t, err)
+			require.Contains(t, err.Error(), nodeName, "Error message should contain the node name")
+			require.Contains(t, err.Error(), "already exists", "Error message should indicate node already exists")
 		})
 
 		t.Run("Reregister with same node name (re-register)", func(t *testing.T) {

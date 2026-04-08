@@ -37,17 +37,18 @@ func TestReadyz(t *testing.T) {
 		t.Run(path, func(t *testing.T) {
 			t.Parallel()
 
-			// make a BaseURL without authentication
-			baseURL, err := url.Parse(pmmapitests.BaseURL.String())
-			require.NoError(t, err)
+			// Copy BaseURL to avoid race conditions when accessing it concurrently
+			baseURL := *pmmapitests.BaseURL
 			baseURL.User = nil
 
 			uri := baseURL.ResolveReference(&url.URL{
 				Path: path,
 			})
 
+			// Use a dedicated client to avoid interference from other parallel tests
+			client := &http.Client{}
 			req, _ := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
-			resp, err := http.DefaultClient.Do(req)
+			resp, err := client.Do(req)
 			require.NoError(t, err)
 			defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 

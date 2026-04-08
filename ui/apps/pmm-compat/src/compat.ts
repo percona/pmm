@@ -9,6 +9,7 @@ import {
   isRenderingServer,
 } from '@pmm/shared';
 import {
+  GRAFANA_DOCKED_LOCAL_STORAGE_KEY,
   GRAFANA_DOCKED_MENU_OPEN_LOCAL_STORAGE_KEY,
   GRAFANA_LOGIN_PATH,
   GRAFANA_SUB_PATH,
@@ -23,6 +24,7 @@ import { isWithinIframe, getLinkWithVariables } from 'lib/utils';
 import { documentTitleObserver, updateBodyClassByLocation } from 'lib/utils/document';
 import { isFirstLogin, updateIsFirstLogin, isUserLoggedIn } from 'lib/utils/login';
 import { ServiceAddedEvent, ServiceDeletedEvent, SettingsUpdatedEvent, TimeZoneUpdatedEvent } from 'lib/events';
+import { handleExternalLinks } from 'compat/links';
 
 export const initialize = () => {
   // Image renderer (headless Chrome) loads the panel URL directly. Skip all compat logic so the dashboard renders normally.
@@ -66,6 +68,7 @@ export const initialize = () => {
 
   // Ensure docked menu is closed in the iframe
   localStorage.setItem(GRAFANA_DOCKED_MENU_OPEN_LOCAL_STORAGE_KEY, 'false');
+  localStorage.setItem(GRAFANA_DOCKED_LOCAL_STORAGE_KEY, 'false');
 
   updateBodyClassByLocation(window.location);
   applyCustomStyles();
@@ -180,4 +183,6 @@ export const initialize = () => {
       type: 'TIMEZONE_CHANGED',
     });
   });
+
+  handleExternalLinks();
 };
