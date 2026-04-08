@@ -814,7 +814,7 @@ type grafanaHealthResponse struct {
 func (c *Client) IsReady(ctx context.Context) error {
 	var status grafanaHealthResponse
 	if err := c.do(ctx, http.MethodGet, "/api/health", "", nil, nil, &status); err != nil {
-		return fmt.Errorf("grafana health check failed: %v", err)
+		return fmt.Errorf("grafana health check failed: %w", err)
 	}
 
 	if strings.ToLower(status.Database) != "ok" {
