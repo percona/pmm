@@ -23,7 +23,9 @@ jobs:
         with:
           node-version: "22"
           cache: "yarn"
-          cache-dependency-path: dashboards/pmm-app/yarn.lock
+          cache-dependency-path: |
+            dashboards/pmm-app/yarn.lock
+            dashboards/pmm-service-map/yarn.lock
 
       - name: Install deps
         run: make -C dashboards install
@@ -35,7 +37,9 @@ jobs:
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: build-dist
-          path: dashboards/pmm-app/dist/
+          path: |
+            dashboards/pmm-app/dist/
+            dashboards/pmm-service-map/dist/
           if-no-files-found: error
 
   tests:
@@ -50,7 +54,9 @@ jobs:
         with:
           node-version: "22"
           cache: "yarn"
-          cache-dependency-path: dashboards/pmm-app/yarn.lock
+          cache-dependency-path: |
+            dashboards/pmm-app/yarn.lock
+            dashboards/pmm-service-map/yarn.lock
     
       - name: Install deps
         run: make -C dashboards install

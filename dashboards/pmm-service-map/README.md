@@ -25,7 +25,16 @@ yarn install
 yarn build
 ```
 
-## Deploy to PMM
+## Ship in PMM Server
+
+The panel is built and installed with the rest of Percona dashboards:
+
+- `make -C dashboards release` builds `pmm-app` and `pmm-service-map`.
+- The `percona-dashboards` RPM copies `dashboards/pmm-service-map/dist` to `/usr/share/percona-dashboards/panels/pmm-service-map-panel`.
+- On first start, `entrypoint.sh` copies `/usr/share/percona-dashboards/panels/*` to `/srv/grafana/plugins/`.
+- `grafana.ini` lists `pmm-service-map-panel` under `allow_loading_unsigned_plugins`.
+
+## Manual deploy (testing only)
 
 ```bash
 tar -czf pmm-service-map-panel.tar.gz -C dist .

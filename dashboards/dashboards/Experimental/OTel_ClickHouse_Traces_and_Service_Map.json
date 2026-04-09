@@ -1,22 +1,4 @@
 {
-  "__inputs": [
-    {
-      "name": "the_datasource",
-      "label": "ClickHouse (otel.otel_traces)",
-      "description": "Select your Grafana ClickHouse datasource. On import, Grafana will prompt you to map it.",
-      "type": "datasource",
-      "pluginId": "grafana-clickhouse-datasource",
-      "pluginName": "ClickHouse"
-    },
-    {
-      "name": "the_metrics_datasource",
-      "label": "Prometheus / VictoriaMetrics",
-      "description": "Select your Prometheus-compatible datasource for rr_connection_* recording rules.",
-      "type": "datasource",
-      "pluginId": "prometheus",
-      "pluginName": "Prometheus"
-    }
-  ],
   "__elements": {},
   "__requires": [
     {
@@ -99,7 +81,7 @@
       }
     ]
   },
-  "description": "OpenTelemetry traces in ClickHouse (otel.otel_traces). Assumes: Timestamp (DateTime/DateTime64), Duration in nanoseconds, SpanAttributes as Map (use JSON functions if your column is String). Adjust StatusCode / SpanKind literals if your exporter normalizes differently.\n\nOverview counts use $__timeFilter(Timestamp): they are totals inside the dashboard time range only (not monotonic all-time counters).\n\nThe Traces panel uses the official Grafana ClickHouse datasource trace mode (queryType traces, format 3)—the same pattern as Percona’s opentelemetry-clickhouse dashboard—not Tempo/Jaeger. Set Trace ID from the top variable or click a TraceId in the tables below. If your table has no ResourceAttributes column, edit the Traces panel SQL and replace the serviceTags expression with CAST([], 'Array(Map(String, String))') AS serviceTags.",
+  "description": "OpenTelemetry traces in ClickHouse (otel.otel_traces). Uses PMM-provisioned datasources **ClickHouse-OTEL** (default database `otel`) and **Metrics** (VictoriaMetrics/Prometheus). Assumes: Timestamp (DateTime/DateTime64), Duration in nanoseconds, SpanAttributes as Map (use JSON functions if your column is String). Adjust StatusCode / SpanKind literals if your exporter normalizes differently.\n\nOverview counts use $__timeFilter(Timestamp): they are totals inside the dashboard time range only (not monotonic all-time counters).\n\nThe Traces panel uses the official Grafana ClickHouse datasource trace mode (queryType traces, format 3)—the same pattern as Percona’s opentelemetry-clickhouse dashboard—not Tempo/Jaeger. Set Trace ID from the top variable or click a TraceId in the tables below. If your table has no ResourceAttributes column, edit the Traces panel SQL and replace the serviceTags expression with CAST([], 'Array(Map(String, String))') AS serviceTags.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -116,7 +98,7 @@
       "type": "row"
     },
     {
-      "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+      "datasource": "ClickHouse-OTEL",
       "description": "Number of span rows with Timestamp in the selected dashboard time range. Compare to “Distinct traces” to see average spans per trace. Not a cumulative counter unless your query ignores the time filter.",
       "fieldConfig": {
         "defaults": {
@@ -143,7 +125,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+          "datasource": "ClickHouse-OTEL",
           "editorType": "sql",
           "format": 1,
           "meta": {
@@ -165,7 +147,7 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+      "datasource": "ClickHouse-OTEL",
       "description": "Distinct TraceId values in the selected time range. Useful with “Spans in time range” for spans-per-trace; shrink the range to see if load is bursty vs steady.",
       "fieldConfig": {
         "defaults": {
@@ -192,7 +174,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+          "datasource": "ClickHouse-OTEL",
           "editorType": "sql",
           "format": 1,
           "meta": {
@@ -214,7 +196,7 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+      "datasource": "ClickHouse-OTEL",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -255,7 +237,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+          "datasource": "ClickHouse-OTEL",
           "editorType": "sql",
           "format": 1,
           "meta": {
@@ -277,7 +259,7 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+      "datasource": "ClickHouse-OTEL",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -310,7 +292,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+          "datasource": "ClickHouse-OTEL",
           "editorType": "sql",
           "format": 1,
           "meta": {
@@ -351,7 +333,7 @@
       "type": "pmm-service-map-panel"
     },
     {
-      "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+      "datasource": "ClickHouse-OTEL",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -404,7 +386,7 @@
       },
       "targets": [
         {
-          "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+          "datasource": "ClickHouse-OTEL",
           "editorType": "sql",
           "format": 0,
           "meta": {
@@ -426,7 +408,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+      "datasource": "ClickHouse-OTEL",
       "description": "Uses the dashboard time picker. After drilling from throughput, the range is ~2 minutes; otherwise it follows whatever range you selected. Limit 200 rows.",
       "fieldConfig": {
         "defaults": {
@@ -477,7 +459,7 @@
       },
       "targets": [
         {
-          "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+          "datasource": "ClickHouse-OTEL",
           "editorType": "sql",
           "format": 1,
           "meta": {
@@ -507,7 +489,7 @@
       "type": "row"
     },
     {
-      "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+      "datasource": "ClickHouse-OTEL",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -552,7 +534,7 @@
       },
       "targets": [
         {
-          "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+          "datasource": "ClickHouse-OTEL",
           "editorType": "sql",
           "format": 0,
           "meta": {
@@ -574,7 +556,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+      "datasource": "ClickHouse-OTEL",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -619,7 +601,7 @@
       },
       "targets": [
         {
-          "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+          "datasource": "ClickHouse-OTEL",
           "editorType": "sql",
           "format": 0,
           "meta": {
@@ -649,7 +631,7 @@
       "type": "row"
     },
     {
-      "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+      "datasource": "ClickHouse-OTEL",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -684,7 +666,7 @@
       },
       "targets": [
         {
-          "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+          "datasource": "ClickHouse-OTEL",
           "editorType": "sql",
           "format": 1,
           "meta": {
@@ -706,7 +688,7 @@
       "type": "bargauge"
     },
     {
-      "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+      "datasource": "ClickHouse-OTEL",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -741,7 +723,7 @@
       },
       "targets": [
         {
-          "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+          "datasource": "ClickHouse-OTEL",
           "editorType": "sql",
           "format": 1,
           "meta": {
@@ -763,7 +745,7 @@
       "type": "bargauge"
     },
     {
-      "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+      "datasource": "ClickHouse-OTEL",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -799,7 +781,7 @@
       },
       "targets": [
         {
-          "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+          "datasource": "ClickHouse-OTEL",
           "editorType": "sql",
           "format": 1,
           "meta": {
@@ -829,7 +811,7 @@
       "type": "row"
     },
     {
-      "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+      "datasource": "ClickHouse-OTEL",
       "description": "Service map built from trace parent->child edges in ClickHouse. Edge stats show calls, RPS, p95 latency, and error rate. This view does not include eBPF TCP bytes/connectivity; add rr_connection_* metrics from VictoriaMetrics for that.",
       "fieldConfig": {
         "defaults": {},
@@ -862,7 +844,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+          "datasource": "ClickHouse-OTEL",
           "editorType": "sql",
           "format": 1,
           "hide": false,
@@ -881,7 +863,7 @@
           "refId": "A"
         },
         {
-          "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+          "datasource": "ClickHouse-OTEL",
           "editorType": "sql",
           "format": 1,
           "hide": false,
@@ -904,7 +886,7 @@
       "type": "nodeGraph"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${the_metrics_datasource}" },
+      "datasource": "Metrics",
       "description": "Connection edges from recording rules. This panel is Prometheus/VictoriaMetrics-backed and uses rr_connection_* metrics.",
       "fieldConfig": {
         "defaults": {
@@ -946,7 +928,7 @@
       "pluginVersion": "11.0.0",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${the_metrics_datasource}" },
+          "datasource": "Metrics",
           "editorMode": "code",
           "expr": "label_replace((\n  label_replace(sum by (app_id) (rr_connection_l7_requests), \"id\", \"$1\", \"app_id\", \"(.*)\")\n  OR\n  label_replace(sum by (destination) (rr_connection_l7_requests), \"id\", \"$1\", \"destination\", \"(.*)\")\n), \"title\", \"$1\", \"id\", \"(.*)\")",
           "format": "table",
@@ -956,7 +938,7 @@
           "refId": "A"
         },
         {
-          "datasource": { "type": "prometheus", "uid": "${the_metrics_datasource}" },
+          "datasource": "Metrics",
           "editorMode": "code",
           "expr": "label_join(sum by (source, target) (label_replace(label_replace(rr_connection_l7_requests, \"source\", \"$1\", \"app_id\", \"(.*)\"), \"target\", \"$1\", \"destination\", \"(.*)\")), \"id\", \"→\", \"source\", \"target\")",
           "format": "table",
@@ -987,7 +969,7 @@
       "type": "nodeGraph"
     },
     {
-      "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+      "datasource": "ClickHouse-OTEL",
       "description": "Edge drilldown. Set by clicking an edge in either map panel.",
       "fieldConfig": {
         "defaults": {
@@ -1020,7 +1002,7 @@
       },
       "targets": [
         {
-          "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+          "datasource": "ClickHouse-OTEL",
           "editorType": "sql",
           "format": 1,
           "queryType": "table",
@@ -1032,7 +1014,7 @@
       "type": "table"
     },
     {
-      "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+      "datasource": "ClickHouse-OTEL",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -1063,7 +1045,7 @@
       },
       "targets": [
         {
-          "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+          "datasource": "ClickHouse-OTEL",
           "editorType": "sql",
           "format": 1,
           "meta": {
@@ -1086,7 +1068,7 @@
       "type": "table"
     },
     {
-      "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+      "datasource": "ClickHouse-OTEL",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -1117,7 +1099,7 @@
       },
       "targets": [
         {
-          "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+          "datasource": "ClickHouse-OTEL",
           "editorType": "sql",
           "format": 1,
           "meta": {
@@ -1148,7 +1130,7 @@
       "type": "row"
     },
     {
-      "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+      "datasource": "ClickHouse-OTEL",
       "description": "Native Grafana Traces visualization fed by ClickHouse (grafana-clickhouse-datasource queryType=traces). Enter Trace ID above or click a TraceId in the tables below. duration is ns→ms via multiply(Duration, 1e-6).",
       "gridPos": { "h": 14, "w": 24, "x": 0, "y": 71 },
       "id": 20,
@@ -1202,7 +1184,7 @@
             "queryType": "traces",
             "table": "otel_traces"
           },
-          "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+          "datasource": "ClickHouse-OTEL",
           "editorType": "sql",
           "format": 3,
           "meta": {
@@ -1225,7 +1207,7 @@
       "type": "traces"
     },
     {
-      "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+      "datasource": "ClickHouse-OTEL",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -1276,7 +1258,7 @@
       },
       "targets": [
         {
-          "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+          "datasource": "ClickHouse-OTEL",
           "editorType": "sql",
           "format": 1,
           "meta": {
@@ -1298,7 +1280,7 @@
       "type": "table"
     },
     {
-      "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+      "datasource": "ClickHouse-OTEL",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -1349,7 +1331,7 @@
       },
       "targets": [
         {
-          "datasource": { "type": "grafana-clickhouse-datasource", "uid": "${the_datasource}" },
+          "datasource": "ClickHouse-OTEL",
           "editorType": "sql",
           "format": 1,
           "meta": {
@@ -1413,6 +1395,6 @@
   "timezone": "browser",
   "title": "OTEL traces — ClickHouse (otel.otel_traces)",
   "uid": "otel-traces-clickhouse",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }
