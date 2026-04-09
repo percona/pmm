@@ -21,7 +21,7 @@ on:
     inputs:
       BRANCH:
         description: "The branch to pull API tests from"
-        default: "main"
+        default: "v3"
         required: true
         type: string      
       PMM_SERVER_IMAGE:
@@ -40,7 +40,7 @@ jobs:
     env:
       PMM_URL: https://admin:admin@127.0.0.1
       BRANCH: ${{ github.event.inputs.BRANCH || 'v3' }}
-      PMM_SERVER_IMAGE: ${{ github.event.inputs.PMM_SERVER_IMAGE || 'ghcr.io/percona/pmm:3-dev-container' }}
+      PMM_SERVER_IMAGE: ${{ github.event.inputs.PMM_SERVER_IMAGE || 'perconalab/pmm-server:3-dev-latest' }}
 
     steps:
       - name: Check out code
@@ -57,7 +57,6 @@ jobs:
 
       - name: Run PMM Server
         run: |
-          docker volume create pmm-data
           cat <<-EOF > compose.yml
           services:
             pmm-server:
@@ -65,14 +64,15 @@ jobs:
               container_name: pmm-server
               environment:
                 - PMM_DEBUG=1
-                - PMM_ENABLE_TELEMETRY=0
                 - PMM_DEV_PERCONA_PLATFORM_ADDRESS=https://check-dev.percona.com
-                - PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY=RWTg+ZmCCjt7O8eWeAmTLAqW+1ozUbpRSKSwNTmO+exlS5KEIPYWuYdX
               ports:
                 - 443:8443
               volumes:
                 - pmm-data:/srv
                 - ./managed/testdata/checks:/srv/checks
+          volumes:
+            pmm-data:
+              name: pmm-data
           EOF
 
           # Run it and wait until it's healthy
