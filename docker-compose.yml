@@ -1,12 +1,21 @@
 ---
+# Purpose: Spin up a fully wired PMM stack on a local machine with one command, including a monitored 
+#  database workload, to get a sense of PMM working end-to-end without any manual configuration.
+#
 # Usage:
-#  minimal suite (server, client, mysql + sysbench):
-#    docker compose --profile pmm up -d
-#  with QAN overrides (dev image + external ClickHouse):
-#    docker compose -f docker-compose.yml -f qan-api2/docker-compose.yml --profile pmm up -d
-#  external clickhouse use case (server, client, postgres, mongo, mysql + sysbench, external clickhouse):
-#    docker compose -f docker-compose.yml -f qan-api2/docker-compose.yml --profile pmm --profile postgres --profile mongo up -d
-# Note: database ports are initially disabled since the communication takes place on a shared bridge network.
+#  1. Minimal suite (server, client, mysql + sysbench), where sysbench is used to generate load on MySQL:
+#     docker compose --profile pmm up -d
+#  2. Full suite (server, client, postgres, mongo, mysql + sysbench):
+#     docker compose -f docker-compose.yml --profile pmm --profile postgres --profile mongo up -d
+#  3. Full suite + external clickhouse (server, client, postgres, mongo, mysql + sysbench, external ClickHouse):
+#     docker compose -f docker-compose.yml -f qan-api2/docker-compose.yml --profile pmm --profile postgres --profile mongo up -d
+#
+# Configuration: copy .env.example to .env and adjust variables (image tag, ports, credentials, AWS keys, etc.).
+#  Docker Compose loads .env automatically — no extra flags needed.
+#
+# Note: database ports are intentionally not mapped to the host since the communication takes place on a shared bridge network.
+#
+
 services:
   pmm-server:
     profiles:
@@ -90,8 +99,6 @@ services:
     volumes:
       - ./dev/my.cnf:/etc/my.cnf
       - ./dev/mysql.logrotate:/etc/logrotate.d/mysql
-    # ports:
-    #  - 3306:3306
 
   ps-init:
     profiles:
@@ -121,8 +128,6 @@ services:
      - POSTGRES_PASSWORD=secret
     volumes:
       - ./dev/init-pg.sql:/docker-entrypoint-initdb.d/init-pg.sql
-    # ports:
-    #  - 5432:5432
 
   mongo:
     profiles:
@@ -132,8 +137,6 @@ services:
     environment:
      - MONGO_INITDB_ROOT_USERNAME=mongo
      - MONGO_INITDB_ROOT_PASSWORD=secret
-    # ports:
-    #  - 27017:27017
 
   sysbench-ps:
     profiles:
