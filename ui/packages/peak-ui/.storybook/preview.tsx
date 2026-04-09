@@ -57,6 +57,7 @@ const preview: Preview = {
         items: [
           { value: "base", icon: "circlehollow", title: "Base theme" },
           { value: "pmm", icon: "hearthollow", title: "PMM theme" },
+          { value: "sep", icon: "database", title: "SEP theme" },
         ],
         showName: true,
         dynamicTitle: true,
