@@ -2104,7 +2104,7 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@openfeature/core@^1.9.0":
+"@openfeature/core@^1.9.0", "@openfeature/core@^1.9.2":
   version "1.9.2"
   resolved "https://registry.yarnpkg.com/@openfeature/core/-/core-1.9.2.tgz#ec49e1e0e5d6bd5bf9b13f63ea5e410f7bc823e0"
   integrity sha512-0lX0xYTflLrjiYNlareYmdV98xEddR5+PhcuoGvH+BMIqpZ2icAC7us9Uv86KRVqofXvpAUwpP32wgqmtUFs8Q==
