@@ -30,6 +30,7 @@ export const getLabelStyles = ({ v1: { typography, spacing, colors } }: GrafanaT
 export const getCheckboxStyles = (theme: GrafanaTheme2) => {
   const labelStyles = getLabelStyles(theme);
   const checkboxSize = '16px';
+  const { main: primaryMain, shade: primaryShade, contrastText: primaryContrastText } =
 
   return {
     label: cx(
@@ -54,11 +55,10 @@ export const getCheckboxStyles = (theme: GrafanaTheme2) => {
         ${getFocusCss(theme)}
       }
       &:checked + span {
-        background: blue;
-        background: ${theme.colors.primary.main};
+        background: ${primaryMain};
         border: none;
         &:hover {
-          background: ${theme.colors.primary.shade};
+          background: ${primaryShade};
         }
         &:after {
           content: '';
@@ -67,7 +67,7 @@ export const getCheckboxStyles = (theme: GrafanaTheme2) => {
           top: 1px;
           width: 6px;
           height: 12px;
-          border: solid ${theme.colors.primary.contrastText};
+          border: solid ${primaryContrastText};
           border-width: 0 3px 3px 0;
           transform: rotate(45deg);
         }
