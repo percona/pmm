@@ -18,3 +18,8 @@ pmm-app/video/
 pmm-app/pr.browsers.json
 pmm-app/tests/output/
 srv
+
+# pmm-service-map Grafana panel plugin (node_modules covered above)
+pmm-service-map/dist/
+pmm-service-map/*.tar.gz
+pmm-service-map/coverage/

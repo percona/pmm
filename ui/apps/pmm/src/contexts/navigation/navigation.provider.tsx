@@ -21,6 +21,7 @@ import { useSettings } from 'contexts/settings';
 import {
   NAV_BACKUPS,
   NAV_DIVIDERS,
+  NAV_EBPF,
   NAV_HELP,
   NAV_INVESTIGATIONS,
   NAV_ADRE,
@@ -68,6 +69,8 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     items.push(NAV_DIVIDERS.home);
 
     items.push(...addDashboardItems(currentServiceTypes, folders, user));
+
+    items.push(NAV_EBPF);
 
     items.push(NAV_QAN);
 

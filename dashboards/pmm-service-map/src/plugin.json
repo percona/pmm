@@ -1,0 +1,22 @@
+{
+  "type": "panel",
+  "name": "Service Map",
+  "id": "pmm-service-map-panel",
+  "info": {
+    "description": "Interactive service topology map with synchronized trace table",
+    "author": {
+      "name": "Percona"
+    },
+    "keywords": ["service-map", "topology", "traces", "pmm"],
+    "logos": {
+      "small": "img/logo.svg",
+      "large": "img/logo.svg"
+    },
+    "version": "%VERSION%",
+    "updated": "%TODAY%"
+  },
+  "dependencies": {
+    "grafanaDependency": ">=12.0.0",
+    "plugins": []
+  }
+}

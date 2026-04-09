@@ -378,6 +378,20 @@ export const NAV_VALKEY: NavItem = {
 //
 // QAN
 //
+//
+// eBPF — OTel traces & service map (dashboard bundled with PMM dashboards)
+//
+export const NAV_EBPF: NavItem = {
+  id: 'ebpf',
+  icon: 'network',
+  text: 'eBPF',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/otel-traces-clickhouse`,
+  matches: [
+    `${PMM_NEW_NAV_GRAFANA_PATH}/d/otel-traces-clickhouse`,
+    `${PMM_NEW_NAV_GRAFANA_PATH}/d/otel-traces-clickhouse/*`,
+  ],
+};
+
 export const NAV_QAN: NavItem = {
   id: 'qan',
   icon: 'qan',
