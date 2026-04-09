@@ -4,7 +4,7 @@
 #    docker compose --profile pmm up -d
 #  with QAN overrides (dev image + external ClickHouse):
 #    docker compose -f docker-compose.yml -f qan-api2/docker-compose.yml --profile pmm up -d
-#  full suite (server, client, postgres, mongo, mysql + sysbench, external clickhouse):
+#  external clickhouse use case (server, client, postgres, mongo, mysql + sysbench, external clickhouse):
 #    docker compose -f docker-compose.yml -f qan-api2/docker-compose.yml --profile pmm --profile postgres --profile mongo up -d
 # Note: database ports are initially disabled since the communication takes place on a shared bridge network.
 services:
