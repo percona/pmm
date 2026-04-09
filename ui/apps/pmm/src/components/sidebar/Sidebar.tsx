@@ -1,4 +1,4 @@
-import { FC, useCallback, useEffect, useRef, useState } from 'react';
+import { FC, useCallback, useEffect, useState } from 'react';
 import { useNavigation } from 'contexts/navigation';
 import { NavigationHeading } from './nav-heading';
 import { Drawer } from './drawer';
@@ -17,7 +17,6 @@ export const Sidebar: FC = () => {
   const location = useLocation();
   const theme = useTheme();
   const isNarrow = useMediaQuery(theme.breakpoints.down('md'));
-  const prevPathnameRef = useRef(location.pathname);
 
   const toggleSidebar = useCallback(() => {
     setNavOpen(!navOpen);
@@ -40,12 +39,12 @@ export const Sidebar: FC = () => {
     }
   }, [navTree, location.pathname]);
 
-  useEffect(() => {
-    if (prevPathnameRef.current !== location.pathname && isNarrow) {
+  const handleNavItemClick = () => {
+    // autoclose sidebar when layout is narrow
+    if (isNarrow) {
       setNavOpen(false);
     }
-    prevPathnameRef.current = location.pathname;
-  }, [location.pathname, isNarrow, setNavOpen]);
+  };
 
   return (
     <Drawer
@@ -75,6 +74,7 @@ export const Sidebar: FC = () => {
             item={item}
             activeItem={activeItem}
             drawerOpen={navOpen}
+            onClick={handleNavItemClick}
           />
         ))}
       </List>

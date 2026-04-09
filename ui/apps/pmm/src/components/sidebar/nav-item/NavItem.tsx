@@ -26,6 +26,7 @@ const NavItem: FC<NavItemProps> = ({
   item,
   drawerOpen,
   level = 0,
+  onClick,
 }) => {
   const active = useMemo(
     () => activeItem === item || hasChildMatch(item, activeItem),
@@ -145,6 +146,7 @@ const NavItem: FC<NavItemProps> = ({
                 activeItem={activeItem}
                 drawerOpen={drawerOpen}
                 level={level + 1}
+                onClick={onClick}
               />
             ))}
           </List>
@@ -209,6 +211,7 @@ const NavItem: FC<NavItemProps> = ({
           ]}
           selected={active}
           {...linkProps}
+          onClick={onClick}
           data-testid={dataTestid}
           data-navlevel={level}
         >
