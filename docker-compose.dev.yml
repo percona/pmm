@@ -17,7 +17,6 @@ services:
       - GF_SMTP_HOST=mail-server:1025
       - GF_SMTP_FROM_NAME=${GF_SMTP_FROM_NAME:-Percona}
       - GF_SMTP_FROM_ADDRESS=${GF_SMTP_FROM_ADDRESS:-admin@percona.com}
-      - REVIEWDOG_GITHUB_API_TOKEN=${REVIEWDOG_GITHUB_API_TOKEN:-}
       - PMM_RELEASE_PATH=/root/go/bin
       - PMM_ENABLE_ACCESS_CONTROL=${PMM_ENABLE_ACCESS_CONTROL:-0}
       - PMM_WATCHTOWER_HOST=${PMM_WATCHTOWER_HOST:-http://watchtower:8080}
@@ -105,7 +104,7 @@ services:
 
   mail-server:
     profiles:
-      - pmm
+      - mail-server
     image: axllent/mailpit
     container_name: mail-server
     hostname: mail-server
@@ -128,7 +127,7 @@ services:
 
   watchtower:
     profiles:
-      - pmm
+      - watchtower
     image: ${WATCHTOWER_IMAGE:-perconalab/watchtower}
     container_name: watchtower
     environment:
