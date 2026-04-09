@@ -1,5 +1,19 @@
 ---
 services:
+  pmm-server:
+    image: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:3-dev-latest}
+    container_name: pmm-server
+    ports:
+      - "127.0.0.1:443:8443"
+    environment:
+      - PMM_DEBUG=1
+      # for local development
+      - PMM_DEV_ADVISOR_CHECKS_FILE=/srv/checks/custom-checks.yml
+      # for check-dev
+      # - PMM_DEV_PERCONA_PLATFORM_ADDRESS=check-dev.percona.com:443
+    volumes:
+      - ./testdata/checks:/srv/checks
+
   test_db:
     image: aleksi/test_db:1.1.0
     container_name: pmm-agent_test_db

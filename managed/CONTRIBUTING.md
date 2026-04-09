@@ -73,9 +73,9 @@ The `make env-up` command starts PMM Server but doesn't configure any database i
 1. Clone the pmm-admin [repo](https://github.com/percona/pmm-admin/) and install it by running `make install`.
 2. Clone the pmm-agent [repo](https://github.com/percona/pmm-agent).
 3.  Run database instances to be monitored. You can either run your own or use the [`docker-compose.yml`](https://github.com/percona/pmm-agent/blob/master/docker-compose.yml) file provided by pmm-agent to run MySQL, PostgreSQL, and MongoDB containers using `make env-up` in the pmm-agent repo (make sure to comment out the `pmm-server` service in the docker-compose file since we are already running pmm-managed in devcontainer).
-4. Open another shell session and `cd` into the pmm-agent repo, run `make setup-dev` and `make run-all` to set up and run pmm-agent and connect it to pmm-managed
+4. Open another shell session and `cd` into the pmm-agent repo, run `make setup-dev` and `make run` to set up and run pmm-agent and connect it to pmm-managed
 5. In another shell, use pmm-admin to add agents to the database instances and start monitoring them using `pmm-admin add mysql --username=root --password=root-password`, `pmm-admin add postgresql --username=pmm-agent --password=pmm-agent-password`, and `pmm-admin add mongodb --username=root --password=root-password`.
-6. Once pmm-managed has started monitoring the databases, log in to the web client in your browser to verify. The number of monitored instances will have increased.
+6. Once pmm-managed has started monitoring the databases. Log in to the web client in your browser to verify. The number of monitored instances will have increased.
 
 ## Working with Advisors
 
@@ -84,7 +84,7 @@ Advisors are automated checks in PMM that analyze monitored environments and pro
 To get started:
 
 1. Set up the devcontainer using `make env-up`.
-2. Enter the container with `make env`, then run your changes with `make run-all`.
+2. Enter the container with `make env`, then run your changes with `make run`.
 3. [Add instances for monitoring](#add-instances-for-monitoring) so Advisors have databases to check. 
 4. Verify results in the PMM dashboard. Any failed Advisor checks will appear there.
 5. [Develop or update Advisors](https://docs.percona.com/percona-monitoring-and-management/3/advisors/develop-advisor-checks.html) as needed.
@@ -130,7 +130,7 @@ Alert Templates are located in the `data/templates` folder. If you want to contr
 
 # Internals
 
-There are two makefiles: `Makefile` (host/root) and `.devcontainer/Makefile` (container targets). The root Makefile includes `.devcontainer/Makefile`, so all targets are available in one place. Container-specific targets (`run-managed`, `run-agent`, `psql-managed`, etc.) are only meaningful when running inside the devcontainer via `make env TARGET=target-name`.
+There are three makefiles: `Makefile` (host), `Makefile.devcontainer`, and `Makefile.include`. `Makefile.devcontainer` is mounted on top of `Makefile` inside the devcontainer (see `docker-compose.yml`) to enable `make env TARGET=target-name` usage.
 
 Devcontainer initialization code is located in `.devcontainer/setup.py`. It provisions several binaries required for code development.
 

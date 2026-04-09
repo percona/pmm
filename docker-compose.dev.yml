@@ -10,50 +10,40 @@ services:
     environment:
       - AWS_ACCESS_KEY=${AWS_ACCESS_KEY:-}
       - AWS_SECRET_KEY=${AWS_SECRET_KEY:-}
-      - GF_EMAILS_WELCOME_EMAIL_ON_SIGN_UP=1
-      - GF_SMTP_ENABLED=1
-      - GF_SMTP_HOST=mail-server:1025
-      - GF_SMTP_FROM_NAME=${GF_SMTP_FROM_NAME:-Percona}
-      - GF_SMTP_FROM_ADDRESS=${GF_SMTP_FROM_ADDRESS:-admin@percona.com}
-      - PMM_RELEASE_PATH=/root/go/bin
-      - PMM_ENABLE_ACCESS_CONTROL=${PMM_ENABLE_ACCESS_CONTROL:-0}
-      - PMM_WATCHTOWER_HOST=${PMM_WATCHTOWER_HOST:-http://watchtower:8080}
-      - PMM_WATCHTOWER_TOKEN=${PMM_WATCHTOWER_TOKEN:-INSECURE_TOKEN}
-      - PMM_ENABLE_NOMAD=${PMM_ENABLE_NOMAD:-0}
+      - PMM_ENABLE_ACCESS_CONTROL=${PMM_ENABLE_ACCESS_CONTROL:-}
+      - PMM_ENABLE_NOMAD=${PMM_ENABLE_NOMAD:-}
+      - PMM_ENABLE_INTERNAL_PG_QAN=${PMM_ENABLE_INTERNAL_PG_QAN:-}
       - PMM_PUBLIC_ADDRESS=${PMM_PUBLIC_ADDRESS:-localhost}
-      - PMM_RELEASE_VERSION=3.7.1
-      - GO_VERSION=1.25.x
-      - PMM_ENABLE_INTERNAL_PG_QAN=${PMM_ENABLE_INTERNAL_PG_QAN:-1}
-      # - PMM_DISTRIBUTION_METHOD=${PMM_DISTRIBUTION_METHOD:-docker}
-      # - PMM_DEV_UPDATE_DOCKER_IMAGE=${PMM_DEV_UPDATE_DOCKER_IMAGE:-}
-      # - PMM_DEV_PERCONA_PLATFORM_ADDRESS=https://check.localhost
-      # - PMM_DEV_PERCONA_PLATFORM_INSECURE=1
-      # - PMM_DEV_TELEMETRY_INTERVAL=10s
-      # - PMM_DEV_TELEMETRY_DISABLE_START_DELAY=1
-      # - PMM_DEV_TELEMETRY_RETRY_BACKOFF=10s
-      # - PMM_CLICKHOUSE_ADDR=127.0.0.1:9000
-      # - PMM_CLICKHOUSE_DATABASE=pmm
-      # - PMM_CLICKHOUSE_USER=default
-      # - PMM_CLICKHOUSE_PASSWORD=<password>
-      # - PMM_CLICKHOUSE_IS_CLUSTER=1
-      # - PMM_CLICKHOUSE_CLUSTER_NAME=pmmclickhouse
-      # - PMM_DEBUG=1
-      # - PMM_DEV_ADVISOR_CHECKS_FILE=/srv/checks/local-checks.yml
-      # - PMM_POSTGRES_ADDR=pg
-      # - PMM_POSTGRES_DBNAME=pmm-managed
-      # - PMM_POSTGRES_USERNAME=pmm-managed
-      # - PMM_POSTGRES_DBPASSWORD=<password>
-      # - PMM_POSTGRES_SSL_MODE=verify-full
-      # - PMM_POSTGRES_SSL_CA_PATH=/tmp/certs/root.crt
-      # - PMM_POSTGRES_SSL_KEY_PATH=/tmp/certs/pmm-managed.key
-      # - PMM_POSTGRES_SSL_CERT_PATH=/tmp/certs/pmm-managed.crt
-      # - PMM_DISABLE_BUILTIN_POSTGRES=1
+      - PMM_DEV_UPDATE_DOCKER_IMAGE=${PMM_DEV_UPDATE_DOCKER_IMAGE:-}
+      - PMM_RELEASE_PATH=${PMM_RELEASE_PATH:-/root/go/bin}
+      - PMM_RELEASE_VERSION=${PMM_RELEASE_VERSION:-}
+      - GO_VERSION=${GO_VERSION:-}
+      - PMM_DEV_PERCONA_PLATFORM_ADDRESS=${PMM_DEV_PERCONA_PLATFORM_ADDRESS:-}
+      - PMM_DEV_PERCONA_PLATFORM_INSECURE=${PMM_DEV_PERCONA_PLATFORM_INSECURE:-}
+      - PMM_DEV_TELEMETRY_INTERVAL=${PMM_DEV_TELEMETRY_INTERVAL:-}
+      - PMM_DEV_TELEMETRY_DISABLE_START_DELAY=${PMM_DEV_TELEMETRY_DISABLE_START_DELAY:-}
+      - PMM_DEV_TELEMETRY_DISABLE_SEND=${PMM_DEV_TELEMETRY_DISABLE_SEND:-}
+      - PMM_DEV_TELEMETRY_RETRY_BACKOFF=${PMM_DEV_TELEMETRY_RETRY_BACKOFF:-}
+      - PMM_DEBUG=${PMM_DEBUG:-}
+      - PMM_DEV_ADVISOR_CHECKS_FILE=${PMM_DEV_ADVISOR_CHECKS_FILE:-}
+      - PMM_POSTGRES_ADDR=${PMM_POSTGRES_ADDR:-}
+      - PMM_POSTGRES_DBNAME=${PMM_POSTGRES_DBNAME:-}
+      - PMM_POSTGRES_USERNAME=${PMM_POSTGRES_USERNAME:-}
+      - PMM_POSTGRES_DBPASSWORD=${PMM_POSTGRES_DBPASSWORD:-}
+      - PMM_POSTGRES_SSL_MODE=${PMM_POSTGRES_SSL_MODE:-}
+      - PMM_POSTGRES_SSL_CA_PATH=${PMM_POSTGRES_SSL_CA_PATH:-}
+      - PMM_POSTGRES_SSL_KEY_PATH=${PMM_POSTGRES_SSL_KEY_PATH:-}
+      - PMM_POSTGRES_SSL_CERT_PATH=${PMM_POSTGRES_SSL_CERT_PATH:-}
+      - PMM_DISABLE_BUILTIN_POSTGRES=${PMM_DISABLE_BUILTIN_POSTGRES:-}
+      - PMM_WATCHTOWER_HOST=${PMM_WATCHTOWER_HOST:-}
+      - PMM_WATCHTOWER_TOKEN=${PMM_WATCHTOWER_TOKEN:-}
       - GF_RENDERING_SERVER_URL=http://renderer:8081/render
       - GF_RENDERING_CALLBACK_URL=https://pmm-server:8443/graph/
-      # - GF_DATABASE_SSL_MODE=verify-full
-      # - GF_DATABASE_CA_CERT_PATH=/tmp/certs/root.crt
-      # - GF_DATABASE_CLIENT_KEY_PATH=/tmp/certs/grafana.key
-      # - GF_DATABASE_CLIENT_CERT_PATH=/tmp/certs/grafana.crt
+      - GF_EMAILS_WELCOME_EMAIL_ON_SIGN_UP=${GF_EMAILS_WELCOME_EMAIL_ON_SIGN_UP:-}
+      - GF_SMTP_ENABLED=${GF_SMTP_ENABLED:-}
+      - GF_SMTP_HOST=${GF_SMTP_HOST:-}
+      - GF_SMTP_FROM_NAME=${GF_SMTP_FROM_NAME:-}
+      - GF_SMTP_FROM_ADDRESS=${GF_SMTP_FROM_ADDRESS:-}
 
     # enable for delve
     # cap_add:
@@ -74,7 +64,7 @@ services:
       # VM
       - ${PMM_PORT_VM:-9090}:9090
       # CH
-      - ${PMM_PORT_CH_TCP:-19000}:9000
+      - ${PMM_PORT_CH_TCP:-9000}:9000
       - ${PMM_PORT_CH_HTTP:-8123}:8123
     volumes:
       - ./:/root/go/src/github.com/percona/pmm
@@ -89,16 +79,6 @@ services:
       - ./managed/data/advisors/:/usr/local/percona/advisors/
       - ./managed/data/checks/:/usr/local/percona/checks/
       - ./managed/data/alerting-templates/:/usr/local/percona/alerting-templates/
-      # grafana
-      #  - "../grafana:/workspace"
-      #  - "../grafana/public:/usr/share/grafana/public"
-      #  - "../grafana/conf/grafana.local-dev.ini:/usr/share/grafana/conf/defaults.ini"
-      # command: >
-      #   bash -c "
-      #     # script you want to run before entrypoint, e.g.
-      #     bash /tmp/wait-for-it.sh -t 30 some-service:some-port --
-      #     /opt/entrypoint.sh
-      #   "
 
   mail-server:
     profiles:
@@ -110,6 +90,8 @@ services:
       - 8025:8025 # Web UI - http://localhost:8025
 
   renderer:
+    profiles:
+      - renderer
     image: grafana/grafana-image-renderer:latest
     environment:
       - RENDERING_VERBOSE_LOGGING=true
@@ -125,13 +107,13 @@ services:
     image: ${WATCHTOWER_IMAGE:-perconalab/watchtower}
     container_name: watchtower
     environment:
-      - WATCHTOWER_HTTP_LISTEN_PORT=8080
-      - WATCHTOWER_HTTP_API_UPDATE=1
+      - WATCHTOWER_HTTP_LISTEN_PORT=${WATCHTOWER_HTTP_LISTEN_PORT:-8080}
+      - WATCHTOWER_HTTP_API_UPDATE=${WATCHTOWER_HTTP_API_UPDATE:-1}
       - WATCHTOWER_HTTP_API_TOKEN=${PMM_WATCHTOWER_TOKEN:-INSECURE_TOKEN}
       - WATCHTOWER_NO_RESTART=${WATCHTOWER_NO_RESTART:-0}
     hostname: watchtower
     volumes:
-      - ${DOCKER_PATH:-/var/run/docker.sock}:/var/run/docker.sock
+      - ${WATCHTOWER_DOCKER_PATH:-/var/run/docker.sock}:/var/run/docker.sock
 
 volumes:
   go-modules:
