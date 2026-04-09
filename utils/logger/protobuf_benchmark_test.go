@@ -20,6 +20,7 @@ import (
 	"testing"
 	"time"
 
+	"google.golang.org/protobuf/encoding/prototext"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/durationpb"
 
@@ -92,12 +93,22 @@ func getSensitiveMessages(tb testing.TB, n int32) proto.Message {
 	}
 }
 
-func BenchmarkRedactMessageSetStateRequest(b *testing.B) {
+func BenchmarkFormatWithRedactionSetStateRequest(b *testing.B) {
 	msg := getSensitiveMessages(b, 5)
 	b.ReportAllocs()
 	b.ResetTimer()
 
 	for b.Loop() {
-		_ = RedactMessage(msg)
+		_ = prototext.Format(RedactMessage(msg))
+	}
+}
+
+func BenchmarkFormatWithoutRedactionSetStateRequest(b *testing.B) {
+	msg := getSensitiveMessages(b, 5)
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	for b.Loop() {
+		_ = prototext.Format(msg)
 	}
 }
