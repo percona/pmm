@@ -16,7 +16,6 @@
 package backup
 
 import (
-	"context"
 	"testing"
 	"time"
 
@@ -68,7 +67,7 @@ func setup(t *testing.T, q *reform.Querier, serviceType models.ServiceType, serv
 }
 
 func TestPerformBackup(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 
 	t.Cleanup(func() {
@@ -242,7 +241,7 @@ func TestPerformBackup(t *testing.T) {
 }
 
 func TestRestoreBackup(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 
 	t.Cleanup(func() {
@@ -480,7 +479,7 @@ func TestRestoreBackup(t *testing.T) {
 }
 
 func TestCheckArtifactModePreconditions(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 
 	t.Cleanup(func() {

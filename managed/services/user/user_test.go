@@ -50,7 +50,7 @@ func TestSnoozeUpdate(t *testing.T) {
 	}()
 
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-	ctx := logger.Set(context.Background(), t.Name())
+	ctx := logger.Set(t.Context(), t.Name())
 	userID := 123
 
 	setup := func(t *testing.T) (*Service, *mockGrafanaClient, func()) {
