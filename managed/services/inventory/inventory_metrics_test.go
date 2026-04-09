@@ -36,7 +36,7 @@ func TestNewInventoryMetricsCollector(t *testing.T) {
 	t.Run("Metrics returns inventory metrics", func(t *testing.T) {
 		client := http.Client{}
 
-		ctx, cancelCtx := context.WithTimeout(context.Background(), 3*time.Second)
+		ctx, cancelCtx := context.WithTimeout(t.Context(), 3*time.Second)
 		defer cancelCtx()
 
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "http://localhost:7773/debug/metrics", nil)

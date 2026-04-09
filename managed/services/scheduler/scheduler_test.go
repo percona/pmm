@@ -79,7 +79,7 @@ func TestService(t *testing.T) {
 	}
 
 	t.Run("invalid cron expression", func(t *testing.T) {
-		ctx, cancel := context.WithCancel(context.Background())
+		ctx, cancel := context.WithCancel(t.Context())
 		defer cancel()
 		scheduler, service, location := setup(t, ctx, models.MongoDBServiceType, "mongo_service")
 
@@ -106,7 +106,7 @@ func TestService(t *testing.T) {
 	})
 
 	t.Run("normal", func(t *testing.T) {
-		ctx, cancel := context.WithCancel(context.Background())
+		ctx, cancel := context.WithCancel(t.Context())
 		defer cancel()
 		scheduler, service, location := setup(t, ctx, models.MongoDBServiceType, "mongo_service")
 
