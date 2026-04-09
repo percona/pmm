@@ -33,18 +33,18 @@ services:
       - PMM_ENABLE_INTERNAL_PG_QAN=${PMM_ENABLE_INTERNAL_PG_QAN:-0}
       - PMM_DEBUG=${PMM_DEBUG:-0}
       # To enable an external ClickHouse database
-      # - PMM_CLICKHOUSE_ADDR=127.0.0.1:9000
-      # - PMM_CLICKHOUSE_DATABASE=pmm
-      # - PMM_CLICKHOUSE_USER=default
-      # - PMM_CLICKHOUSE_PASSWORD=<password>
-      # - PMM_DISABLE_BUILTIN_CLICKHOUSE=1
+      - PMM_CLICKHOUSE_ADDR=${PMM_CLICKHOUSE_ADDR:-}
+      - PMM_CLICKHOUSE_DATABASE=${PMM_CLICKHOUSE_DATABASE:-}
+      - PMM_CLICKHOUSE_USER=${PMM_CLICKHOUSE_USER:-default}
+      - PMM_CLICKHOUSE_PASSWORD=${PMM_CLICKHOUSE_PASSWORD:-clickhouse}
+      - PMM_DISABLE_BUILTIN_CLICKHOUSE=${PMM_DISABLE_BUILTIN_CLICKHOUSE:-}
       # To enable an external PostgreSQL database
-      # - PMM_POSTGRES_ADDR=pg
-      # - PMM_POSTGRES_DBNAME=pmm-managed
-      # - PMM_POSTGRES_USERNAME=pmm-managed
-      # - PMM_POSTGRES_DBPASSWORD=<password>
-      # - PMM_DISABLE_BUILTIN_POSTGRES=1
-      # To be able to discover RDS databases via UI
+      - PMM_POSTGRES_ADDR=${PMM_POSTGRES_ADDR:-}
+      - PMM_POSTGRES_DBNAME=${PMM_POSTGRES_DBNAME:-}
+      - PMM_POSTGRES_USERNAME=${PMM_POSTGRES_USERNAME:-}
+      - PMM_POSTGRES_DBPASSWORD=${PMM_POSTGRES_DBPASSWORD:-}
+      - PMM_DISABLE_BUILTIN_POSTGRES=${PMM_DISABLE_BUILTIN_POSTGRES:-}
+      # To discover RDS databases via UI
       - AWS_ACCESS_KEY=${AWS_ACCESS_KEY:-}
       - AWS_SECRET_KEY=${AWS_SECRET_KEY:-}
     ports:
@@ -132,7 +132,7 @@ services:
   mongo:
     profiles:
       - mongo
-    image: mongo:8-noble
+    image: mongo:8
     container_name: mongo
     environment:
      - MONGO_INITDB_ROOT_USERNAME=mongo

@@ -9,20 +9,20 @@ services:
     image: perconalab/pmm-server:3-dev-latest
     restart: always
     depends_on:
-      ch:
+      clickhouse:
         condition: service_healthy    
     environment:
-      - PMM_CLICKHOUSE_ADDR=ch:9000
+      - PMM_CLICKHOUSE_ADDR=clickhouse:9000
       - PMM_CLICKHOUSE_DATABASE=pmm
       - PMM_CLICKHOUSE_USER=default
       - PMM_CLICKHOUSE_PASSWORD=clickhouse
       - PMM_DISABLE_BUILTIN_CLICKHOUSE=1
 
-  ch:
+  clickhouse:
     profiles:
       - pmm    
     image: clickhouse/clickhouse-server:25.3.6.56
-    container_name: ch-server
+    container_name: clickhouse
     environment:
       - CLICKHOUSE_USER=default
       - CLICKHOUSE_PASSWORD=clickhouse
