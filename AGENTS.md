@@ -1,14 +1,5 @@
 # PMM Development Guide for AI Agents
 
-<!-- SINGLE ENTRY POINT for all AI coding assistants (Claude Code, Cursor, GitHub Copilot, etc.)
-     Compatibility shims that point here:
-       - CLAUDE.md              (Claude Code auto-discovery)
-       - .cursorrules           (Cursor auto-discovery)
-       - .github/copilot-instructions.md  (GitHub Copilot auto-discovery)
-     Component-specific guides:
-       - .github/instructions/<component>.instructions.md  (GitHub Copilot applyTo scoping)
-     Last reviewed: 2026-04 -->
-
 ## Maintaining This Document
 
 This file is read by every AI agent at session start. **You are responsible for keeping it accurate.** After completing work, check whether any of these apply:
@@ -21,7 +12,7 @@ This file is read by every AI agent at session start. **You are responsible for 
 - Changed architecture or data-flow (new pipeline, changed communication protocol)
 - Changed the development environment (`docker-compose.yml`, `.devcontainer/`)
 
-If any apply, update the relevant sections of this file and bump the `Last reviewed` date in the HTML comment at the top. Also update the matching component guide in `.github/instructions/` if one exists for the affected area.
+If any apply, update the relevant sections of this file. Also update the matching component guide in `.github/instructions/` if one exists for the affected area.
 
 Do **not** update this file for routine code changes (bug fixes, minor feature implementation) that don't alter the repo's structure or conventions.
 
