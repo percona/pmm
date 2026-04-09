@@ -4,7 +4,7 @@
 #
 # Usage:
 #  1. Minimal suite (server, client, mysql + sysbench), where sysbench is used to generate load on MySQL:
-#     docker compose --profile pmm up -d
+#     docker compose -f docker-compose.yml --profile pmm up -d
 #  2. Full suite (server, client, postgres, mongo, mysql + sysbench):
 #     docker compose -f docker-compose.yml --profile pmm --profile postgres --profile mongo up -d
 #  3. Full suite + external clickhouse (server, client, postgres, mongo, mysql + sysbench, external ClickHouse):
@@ -26,12 +26,12 @@ services:
     hostname: pmm-server
     restart: always
     environment:
-      - GF_SECURITY_ADMIN_USER=${PMM_ADMIN_USER:-admin}
-      - GF_SECURITY_ADMIN_PASSWORD=${PMM_ADMIN_PASSWORD:-admin}
-      - PMM_ENABLE_ACCESS_CONTROL=${PMM_ENABLE_ACCESS_CONTROL:-1}
+      - GF_SECURITY_ADMIN_USER=${PMM_ADMIN_USER:-}
+      - GF_SECURITY_ADMIN_PASSWORD=${PMM_ADMIN_PASSWORD:-}
+      - PMM_ENABLE_ACCESS_CONTROL=${PMM_ENABLE_ACCESS_CONTROL:-}
       - PMM_PUBLIC_ADDRESS=${PMM_PUBLIC_ADDRESS:-localhost}
-      - PMM_ENABLE_INTERNAL_PG_QAN=${PMM_ENABLE_INTERNAL_PG_QAN:-0}
-      - PMM_DEBUG=${PMM_DEBUG:-0}
+      - PMM_ENABLE_INTERNAL_PG_QAN=${PMM_ENABLE_INTERNAL_PG_QAN:-}
+      - PMM_DEBUG=${PMM_DEBUG:-}
       # To enable an external ClickHouse database
       - PMM_CLICKHOUSE_ADDR=${PMM_CLICKHOUSE_ADDR:-}
       - PMM_CLICKHOUSE_DATABASE=${PMM_CLICKHOUSE_DATABASE:-}
