@@ -27,6 +27,8 @@ init: cleanup-bin     ## Install tools
 	# Install golangci-lint
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(BIN) v2.6.2 # Version should match specified in CI
 
+## DEVELOPMENT
+
 PROFILES ?= pmm
 COMPOSE_FILE ?= docker-compose.dev.yml
 
@@ -95,6 +97,7 @@ gen-mocks:						## Generate mocks for API
 	find . -name mock_*.go -delete
 	$(BIN)/mockery --config .mockery.yaml
 
+## TESTING
 test-common:          ## Run tests from API (and other shared) packages only (i.e it ignores directories that are explicitly listed)
 	go test $(shell go list ./... | grep -v -e admin -e agent -e managed -e api-tests -e qan-api2 -e update)
 
