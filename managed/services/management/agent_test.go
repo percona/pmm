@@ -51,7 +51,7 @@ func setup(t *testing.T) (context.Context, *ManagementService, func(t *testing.T
 		return now
 	}
 
-	ctx := logger.Set(context.Background(), t.Name())
+	ctx := logger.Set(t.Context(), t.Name())
 	uuid.SetRand(&tests.IDReader{})
 
 	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
