@@ -25,7 +25,7 @@ There is no linter or test runner configured in package.json scripts.
 ### Design System (`src/design/`)
 
 - **ThemeContextProvider** — wraps MUI's `ThemeProvider` with light/dark mode toggle via React context (`ColorModeContext`). Persists color mode to localStorage.
-- **Themes** — two theme variants:
+- **Themes** — three theme variants:
   - `base` — default Percona theme (`src/design/themes/base/`)
   - `pmm` — PMM (Percona Monitoring and Management) theme (`src/design/themes/pmm/`)
   - `sep` — SEP (Services Enablement Platform) theme (`src/design/themes/sep/`)
@@ -72,4 +72,4 @@ The `scripts/tokensync/` workflow syncs Figma design tokens into theme TypeScrip
 
 ## Storybook
 
-Storybook supports theme switching (base/pmm) and color mode switching (light/dark) via toolbar globals. Stories are organized: Introduction → Foundations (Colors, Typography, Icons) → Components.
+Storybook supports theme switching (base/pmm/sep) and color mode switching (light/dark) via toolbar globals. Stories are organized: Introduction → Foundations (Colors, Typography, Icons) → Components.
