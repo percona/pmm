@@ -42,25 +42,3 @@ func TestOptionalFromProto(t *testing.T) {
 		}
 	})
 }
-
-func TestFromProto(t *testing.T) {
-	t.Parallel()
-
-	t.Run("nil", func(t *testing.T) {
-		t.Parallel()
-
-		assert.Zero(t, FromProto(nil))
-	})
-
-	t.Run("valid", func(t *testing.T) {
-		t.Parallel()
-
-		assert.Equal(t, 7*time.Second, FromProto(durationpb.New(7*time.Second)))
-	})
-
-	t.Run("invalid", func(t *testing.T) {
-		t.Parallel()
-
-		assert.Zero(t, FromProto(&durationpb.Duration{Seconds: 1, Nanos: -1}))
-	})
-}

@@ -669,7 +669,7 @@ func CreateNodeExporter(q *reform.Querier,
 	disableCollectors []string,
 	agentPassword *string,
 	logLevel string,
-	connectionTimeout time.Duration,
+	connectionTimeout *time.Duration,
 ) (*Agent, error) {
 	// TODO merge into CreateAgent
 
@@ -692,7 +692,7 @@ func CreateNodeExporter(q *reform.Querier,
 			ExposeExporter:     exposeExporter,
 			PushMetrics:        pushMetrics,
 			DisabledCollectors: disableCollectors,
-			ConnectionTimeout:  pointer.ToDurationOrNil(connectionTimeout),
+			ConnectionTimeout:  pointer.ToDurationOrNil(pointer.GetDuration(connectionTimeout)),
 		},
 		LogLevel: pointer.ToStringOrNil(logLevel),
 	}
@@ -722,7 +722,7 @@ type CreateExternalExporterParams struct {
 	PushMetrics   bool
 	TLSSkipVerify bool
 	// Connection timeout for exporter (if set).
-	ConnectionTimeout time.Duration
+	ConnectionTimeout *time.Duration
 }
 
 // CreateExternalExporter creates ExternalExporter.
@@ -783,7 +783,7 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 			PushMetrics:       params.PushMetrics,
 			MetricsPath:       metricsPath,
 			MetricsScheme:     scheme,
-			ConnectionTimeout: pointer.ToDurationOrNil(params.ConnectionTimeout),
+			ConnectionTimeout: pointer.ToDurationOrNil(pointer.GetDuration(params.ConnectionTimeout)),
 		},
 		TLSSkipVerify: params.TLSSkipVerify,
 	}

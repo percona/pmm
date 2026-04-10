@@ -514,6 +514,21 @@ func TestAgentHelpers(t *testing.T) {
 				UpdatedAt: now,
 			}, agent)
 		})
+		t.Run("With connection timeout", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			connectionTimeout := 3 * time.Second
+			agent, err := models.CreateExternalExporter(q, &models.CreateExternalExporterParams{
+				RunsOnNodeID:      "N1",
+				ServiceID:         "S1",
+				ListenPort:        9104,
+				ConnectionTimeout: pointer.ToDuration(connectionTimeout),
+			})
+			require.NoError(t, err)
+			require.NotNil(t, agent.ExporterOptions.ConnectionTimeout)
+			assert.Equal(t, connectionTimeout, *agent.ExporterOptions.ConnectionTimeout)
+		})
 		t.Run("Invalid listen port", func(t *testing.T) {
 			q, teardown := setup(t)
 			defer teardown(t)

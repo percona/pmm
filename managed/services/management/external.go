@@ -111,7 +111,7 @@ func (s *ManagementService) addExternal(ctx context.Context, req *managementv1.A
 			CustomLabels:      req.CustomLabels,
 			PushMetrics:       isPushMode(req.MetricsMode),
 			TLSSkipVerify:     req.TlsSkipVerify,
-			ConnectionTimeout: duration.FromProto(req.ConnectionTimeout),
+			ConnectionTimeout: duration.OptionalFromProto(req.ConnectionTimeout),
 		}
 		row, err := models.CreateExternalExporter(tx.Querier, params)
 		if err != nil {

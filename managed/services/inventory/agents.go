@@ -173,7 +173,7 @@ func (as *AgentsService) AddNodeExporter(ctx context.Context, p *inventoryv1.Add
 	var agent *inventoryv1.NodeExporter
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		row, err := models.CreateNodeExporter(tx.Querier, p.PmmAgentId, p.CustomLabels, p.PushMetrics, p.ExposeExporter,
-			p.DisableCollectors, nil, services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR), duration.FromProto(p.ConnectionTimeout))
+			p.DisableCollectors, nil, services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR), duration.OptionalFromProto(p.ConnectionTimeout))
 		if err != nil {
 			return err
 		}
@@ -1568,7 +1568,7 @@ func (as *AgentsService) AddExternalExporter(ctx context.Context, p *inventoryv1
 			CustomLabels:      p.CustomLabels,
 			PushMetrics:       p.PushMetrics,
 			TLSSkipVerify:     p.TlsSkipVerify,
-			ConnectionTimeout: duration.FromProto(p.ConnectionTimeout),
+			ConnectionTimeout: duration.OptionalFromProto(p.ConnectionTimeout),
 		}
 		row, err := models.CreateExternalExporter(tx.Querier, params)
 		if err != nil {
