@@ -33,9 +33,32 @@ export const plugin = new PanelPlugin<ServiceMapOptions>(ServiceMapPanel).setPan
       })
       .addNumberInput({
         path: 'minEdgeWeight',
-        name: 'Min edge RPS',
-        description: 'Hide edges below this RPS threshold',
+        name: 'Min edge RPS (no TCP bytes)',
+        description:
+          'Hide edges with RPS below this value only when both TCP byte rates are zero. Does not remove TCP-only edges.',
         defaultValue: DEFAULT_OPTIONS.minEdgeWeight,
+        settings: { min: 0, step: 0.1 },
+      })
+      .addBooleanSwitch({
+        path: 'groupByPod',
+        name: 'Group by pod (default)',
+        description:
+          'Initial value for the on-panel View → Group by pod toggle. The toggle on the service map overrides this for the current session.',
+        defaultValue: DEFAULT_OPTIONS.groupByPod,
+      })
+      .addBooleanSwitch({
+        path: 'hideWeakEdges',
+        name: 'Hide weak edges (default)',
+        description:
+          'Initial value for the View → Hide weak edges toggle. Toggle on the map overrides for the current session. Uses Weak edge max RPS from options.',
+        defaultValue: DEFAULT_OPTIONS.hideWeakEdges,
+      })
+      .addNumberInput({
+        path: 'weakEdgeMaxRps',
+        name: 'Weak edge max RPS',
+        description:
+          'With “Hide weak healthy edges”: minimum L7 req/s to keep a green edge. Edges with rps=0 (TCP-only) are never hidden by this.',
+        defaultValue: DEFAULT_OPTIONS.weakEdgeMaxRps,
         settings: { min: 0, step: 0.1 },
       })
       .addSelect({
@@ -89,6 +112,13 @@ export const plugin = new PanelPlugin<ServiceMapOptions>(ServiceMapPanel).setPan
         name: 'Destination label overrides (JSON)',
         description:
           'Optional map of exact destination string to label, e.g. {"34.120.177.193:443":"Public API"}. Overrides built-in rules.',
+        defaultValue: '',
+      })
+      .addTextInput({
+        path: 'clusterTcpPorts',
+        name: 'TCP port filter (optional)',
+        description:
+          'Comma-separated ports: when set, only TCP byte/failed metrics to those destination ports are drawn (L7 unchanged). Example for Galera/ PXC: 4567,4568,4444. Empty = all TCP.',
         defaultValue: '',
       });
   }

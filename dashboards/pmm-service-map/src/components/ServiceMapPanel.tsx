@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState, type MouseEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
 import { PanelProps } from '@grafana/data';
 import { css } from '@emotion/css';
 import {
@@ -15,8 +15,10 @@ import {
 import '@xyflow/react/dist/style.css';
 
 import { ServiceMapData, ServiceMapOptions, SelectedEdge, SelectedNode, TraceFilter, DEFAULT_OPTIONS } from '../types';
-import { NamespaceFilter } from './NamespaceFilter';
+import { MapFiltersBar } from './MapFiltersBar';
 import { parseAppId, formatNodeLabel } from '../data/parseAppId';
+import { aggregateByPod, getChildContainerNodesForPod, listContainerAppIdsForPod, podId } from '../data/podAggregate';
+import { filterPodToContainerAppIdsByNamespaces, filterServiceMapByPodSubstring } from '../data/filterByPodName';
 import { getFriendlyExternalLabel } from '../data/friendlyExternalLabels';
 import { useServiceMapData } from '../data/useServiceMapData';
 import { useGraphLayout } from './graph/useGraphLayout';
@@ -65,6 +67,10 @@ const st = {
     min-height: 100px;
     max-height: 45%;
     flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
   `,
   loading: css`
     display: flex;
@@ -73,6 +79,18 @@ const st = {
     height: 100%;
     color: #666;
     font-size: 14px;
+  `,
+  layoutOverlay: css`
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(11, 11, 24, 0.42);
+    z-index: 4;
+    pointer-events: none;
+    font-size: 12px;
+    color: #9090b0;
   `,
   error: css`
     display: flex;
@@ -138,11 +156,31 @@ export function ServiceMapPanel({ options, width, height, timeRange }: PanelProp
       kubernetesApiClusterIPs: options.kubernetesApiClusterIPs ?? DEFAULT_OPTIONS.kubernetesApiClusterIPs,
       kubernetesApiserverEndpointIPs: options.kubernetesApiserverEndpointIPs ?? DEFAULT_OPTIONS.kubernetesApiserverEndpointIPs,
       destinationLabelOverrides: options.destinationLabelOverrides ?? DEFAULT_OPTIONS.destinationLabelOverrides,
+      groupByPod: options.groupByPod ?? DEFAULT_OPTIONS.groupByPod,
+      hideWeakEdges: options.hideWeakEdges ?? DEFAULT_OPTIONS.hideWeakEdges,
+      weakEdgeMaxRps: options.weakEdgeMaxRps ?? DEFAULT_OPTIONS.weakEdgeMaxRps,
     }),
     [options, namespaceRenameMap]
   );
 
-  const { data, loading, error } = useServiceMapData(resolvedOptions, timeRange);
+  /** On-panel View toggles; initialized from panel options, then session-local until refresh. */
+  const [groupByPod, setGroupByPod] = useState<boolean>(
+    () => resolvedOptions.groupByPod ?? DEFAULT_OPTIONS.groupByPod ?? true
+  );
+  const [hideWeakEdges, setHideWeakEdges] = useState<boolean>(
+    () => resolvedOptions.hideWeakEdges ?? DEFAULT_OPTIONS.hideWeakEdges ?? true
+  );
+
+  const mapViewOptions = useMemo(
+    () => ({
+      ...resolvedOptions,
+      groupByPod,
+      hideWeakEdges,
+    }),
+    [resolvedOptions, groupByPod, hideWeakEdges]
+  );
+
+  const { data, loading, error } = useServiceMapData(mapViewOptions, timeRange);
 
   const dataWithFriendly = useMemo((): ServiceMapData | null => {
     if (!data) {
@@ -166,8 +204,12 @@ export function ServiceMapPanel({ options, width, height, timeRange }: PanelProp
   /** Empty Set = all namespaces */
   const [nsPick, setNsPick] = useState<Set<string>>(() => new Set());
 
-  const filteredData = useMemo(() => {
-    if (!dataWithFriendly || nsPick.size === 0) {
+  /** Namespace-filtered container-level graph (before pod aggregation). */
+  const containerDataFiltered = useMemo(() => {
+    if (!dataWithFriendly) {
+      return null;
+    }
+    if (nsPick.size === 0) {
       return dataWithFriendly;
     }
     const filteredNodes = dataWithFriendly.nodes.filter((n) => nsPick.has(n.parsed.namespace));
@@ -179,14 +221,46 @@ export function ServiceMapPanel({ options, width, height, timeRange }: PanelProp
       connectedIds.add(e.target);
     }
     const allNodes = dataWithFriendly.nodes.filter((n) => connectedIds.has(n.id));
+    const podToContainerAppIds = filterPodToContainerAppIdsByNamespaces(
+      dataWithFriendly.podToContainerAppIds,
+      nsPick
+    );
     return {
       nodes: allNodes,
       edges: filteredEdges,
       namespaces: dataWithFriendly.namespaces,
+      podToContainerAppIds,
     };
   }, [dataWithFriendly, nsPick]);
 
-  const { layout, layoutLoading } = useGraphLayout(filteredData, resolvedOptions);
+  /** Immediate value for the pod search input (debounced for graph updates to avoid focus loss). */
+  const [podFilterInput, setPodFilterInput] = useState('');
+  const [podNameFilterApplied, setPodNameFilterApplied] = useState('');
+  useEffect(() => {
+    const t = window.setTimeout(() => setPodNameFilterApplied(podFilterInput), 320);
+    return () => window.clearTimeout(t);
+  }, [podFilterInput]);
+
+  /** Substring filter: matching nodes only; edges require both endpoints to match. */
+  const dataAfterPodFilter = useMemo(() => {
+    if (!containerDataFiltered) {
+      return null;
+    }
+    return filterServiceMapByPodSubstring(containerDataFiltered, podNameFilterApplied);
+  }, [containerDataFiltered, podNameFilterApplied]);
+
+  /** Graph passed to ELK / React Flow */
+  const filteredData = useMemo(() => {
+    if (!dataAfterPodFilter || !containerDataFiltered) {
+      return null;
+    }
+    if (!groupByPod) {
+      return dataAfterPodFilter;
+    }
+    return aggregateByPod(dataAfterPodFilter, mapViewOptions, containerDataFiltered);
+  }, [dataAfterPodFilter, groupByPod, mapViewOptions, containerDataFiltered]);
+
+  const { layout, layoutLoading } = useGraphLayout(filteredData, mapViewOptions);
 
   const [selectedEdge, setSelectedEdge] = useState<SelectedEdge | null>(null);
   const [selectedNode, setSelectedNode] = useState<SelectedNode | null>(null);
@@ -246,7 +320,7 @@ export function ServiceMapPanel({ options, width, height, timeRange }: PanelProp
 
   const handleNodeClick = useCallback(
     (_event: MouseEvent, node: Node) => {
-      if (!filteredData || node.type === 'namespaceGroup') {
+      if (!filteredData || !containerDataFiltered || node.type === 'namespaceGroup') {
         return;
       }
       const isToggleOff = highlightedNodeId === node.id;
@@ -269,16 +343,40 @@ export function ServiceMapPanel({ options, width, height, timeRange }: PanelProp
         const parsed = filteredData.nodes.find((n) => n.id === e.target)?.parsed ?? parseAppId(e.target);
         return formatNodeLabel(parsed, resolvedOptions.labelMode);
       });
+      const label = formatNodeLabel(svcNode.parsed, resolvedOptions.labelMode);
+
+      let internalSamePodEdgesHidden: number | undefined;
+      const traceServiceNames = groupByPod
+        ? listContainerAppIdsForPod(svcNode.id, containerDataFiltered)
+        : undefined;
+      const childContainers = groupByPod
+        ? getChildContainerNodesForPod(svcNode.id, containerDataFiltered)
+        : undefined;
+      if (groupByPod) {
+        internalSamePodEdgesHidden = containerDataFiltered.edges.filter(
+          (e) => podId(e.source) === podId(e.target) && podId(e.source) === svcNode.id
+        ).length;
+      }
+
       setSelectedNode({
         id: node.id,
-        label: formatNodeLabel(svcNode.parsed, resolvedOptions.labelMode),
+        label,
         node: svcNode,
         outgoingEdges: outgoing,
         outgoingLabels,
+        traceServiceNames: traceServiceNames && traceServiceNames.length > 0 ? traceServiceNames : undefined,
+        childContainers,
+        internalSamePodEdgesHidden,
       });
       setTraceFilter('all');
     },
-    [filteredData, resolvedOptions.labelMode, highlightedNodeId]
+    [
+      filteredData,
+      containerDataFiltered,
+      resolvedOptions.labelMode,
+      groupByPod,
+      highlightedNodeId,
+    ]
   );
 
   const handlePaneClick = useCallback(() => {
@@ -290,6 +388,13 @@ export function ServiceMapPanel({ options, width, height, timeRange }: PanelProp
   const handleCloseSidebar = useCallback(() => {
     setSelectedEdge(null);
     setSelectedNode(null);
+  }, []);
+
+  const clearSelectionAndRefit = useCallback(() => {
+    setSelectedEdge(null);
+    setSelectedNode(null);
+    setHighlightedNodeId(null);
+    hasInitialFit.current = false;
   }, []);
 
   const styledEdges = useMemo(() => {
@@ -343,9 +448,35 @@ export function ServiceMapPanel({ options, width, height, timeRange }: PanelProp
     });
   }, [layout, highlightedNodeId]);
 
-  if (loading || layoutLoading) {
+  const namespaces = dataWithFriendly?.namespaces ?? [];
+
+  const filterBars = (
+    <MapFiltersBar
+      groupByPod={groupByPod}
+      hideWeakEdges={hideWeakEdges}
+      onGroupByPodChange={(next) => {
+        setGroupByPod(next);
+        clearSelectionAndRefit();
+      }}
+      onHideWeakEdgesChange={(next) => {
+        setHideWeakEdges(next);
+        clearSelectionAndRefit();
+      }}
+      namespaces={namespaces}
+      nsSelected={nsPick}
+      onNsChange={(next) => {
+        setNsPick(next);
+        clearSelectionAndRefit();
+      }}
+      podNameFilter={podFilterInput}
+      onPodNameFilterChange={setPodFilterInput}
+    />
+  );
+
+  if (loading) {
     return (
       <div className={st.root} style={{ width, height }}>
+        {filterBars}
         <div className={st.loading}>Loading service map...</div>
       </div>
     );
@@ -354,37 +485,51 @@ export function ServiceMapPanel({ options, width, height, timeRange }: PanelProp
   if (error) {
     return (
       <div className={st.root} style={{ width, height }}>
+        {filterBars}
         <div className={st.error}>{error}</div>
       </div>
     );
   }
 
-  if (!layout || !filteredData || filteredData.nodes.length === 0) {
+  if (!filteredData || filteredData.nodes.length === 0) {
+    const unfilteredCount = dataWithFriendly?.nodes.length ?? 0;
+    const filterExcludesAll = nsPick.size > 0 && unfilteredCount > 0;
+    const podFilterActive = podNameFilterApplied.trim().length > 0;
+    const podFilterExcludesAll = podFilterActive && unfilteredCount > 0 && !filterExcludesAll;
+    const emptyMsg = filterExcludesAll
+      ? 'No services match the selected namespace filter. Click "All" to show every namespace.'
+      : podFilterExcludesAll
+        ? 'No workloads match this pod name filter. Clear the Pod field or try another substring.'
+        : 'No service data to display. If metrics exist in Explore, try Namespaces → All and confirm the panel Prometheus datasource matches VM.';
     return (
       <div className={st.root} style={{ width, height }}>
-        <div className={st.loading}>No service data available. Check that recording rules are active.</div>
+        {filterBars}
+        <div className={st.loading}>{emptyMsg}</div>
       </div>
     );
   }
 
-  const namespaces = dataWithFriendly?.namespaces ?? [];
+  if (!layout) {
+    if (layoutLoading) {
+      return (
+        <div className={st.root} style={{ width, height }}>
+          {filterBars}
+          <div className={st.loading}>Computing layout…</div>
+        </div>
+      );
+    }
+    return (
+      <div className={st.root} style={{ width, height }}>
+        {filterBars}
+        <div className={st.error}>Graph layout could not be computed. Try refreshing the dashboard.</div>
+      </div>
+    );
+  }
 
   return (
     <div className={st.root} style={{ width, height }}>
       <ArrowMarkers />
-      {namespaces.length >= 1 && (
-        <NamespaceFilter
-          namespaces={namespaces}
-          selected={nsPick}
-          onChange={(next) => {
-            setNsPick(next);
-            setSelectedEdge(null);
-            setSelectedNode(null);
-            setHighlightedNodeId(null);
-            hasInitialFit.current = false;
-          }}
-        />
-      )}
+      {filterBars}
       <div className={st.topArea}>
         <div className={st.graphArea}>
           <ReactFlow
@@ -398,6 +543,8 @@ export function ServiceMapPanel({ options, width, height, timeRange }: PanelProp
             onInit={handleInit}
             minZoom={0.1}
             maxZoom={3}
+            nodesFocusable={false}
+            autoPanOnNodeFocus={false}
             proOptions={{ hideAttribution: true }}
             defaultEdgeOptions={{ type: 'serviceEdge' }}
           >
@@ -407,6 +554,9 @@ export function ServiceMapPanel({ options, width, height, timeRange }: PanelProp
               style={{ background: '#1a1a2e', borderColor: '#3a3a5a', borderRadius: 8 }}
             />
           </ReactFlow>
+          {layoutLoading && (
+            <div className={st.layoutOverlay}>Updating layout…</div>
+          )}
         </div>
         {selectedEdge && (
           <EdgeDetailSidebar

@@ -1,6 +1,9 @@
 import { DataFrame, FieldType } from '@grafana/data';
 import { parseAppId } from './parseAppId';
-import { HealthStatus, ServiceEdge, ServiceMapData, ServiceNode, ServiceMapOptions } from '../types';
+import { computeHealth } from './mapHealth';
+import { podId, shouldHideWeakGreenEdge } from './podAggregate';
+import { pickListenWorkloadId } from './listenMapHelpers';
+import { ServiceEdge, ServiceMapData, ServiceNode, ServiceMapOptions } from '../types';
 
 interface RawEdgeAcc {
   rps: number;
@@ -9,19 +12,6 @@ interface RawEdgeAcc {
   bytesIn: number;
   bytesOut: number;
   tcpFailed: number;
-}
-
-function computeHealth(errPct: number, tcpFailed: number, totalRps: number, opts: ServiceMapOptions): HealthStatus {
-  if (totalRps <= 0 && tcpFailed <= 0) {
-    return 'unknown';
-  }
-  if (errPct >= opts.errorRedThreshold || tcpFailed > 0) {
-    return 'red';
-  }
-  if (errPct >= opts.errorAmberThreshold) {
-    return 'amber';
-  }
-  return 'green';
 }
 
 interface LabeledRow {
@@ -36,17 +26,28 @@ interface LabeledRow {
 function extractLabeledSeries(frames: DataFrame[]): LabeledRow[] {
   const rows: LabeledRow[] = [];
   for (const frame of frames) {
-    const valueField = frame.fields.find((f) => f.type === FieldType.number);
-    if (!valueField || frame.length === 0) {
+    if (frame.length === 0) {
       continue;
     }
-    const app = valueField.labels?.['app_id'] ?? valueField.labels?.['app'] ?? '';
-    const dest = valueField.labels?.['destination'] ?? valueField.labels?.['dest'] ?? '';
-    const actualDest = valueField.labels?.['actual_destination'] ?? '';
-    const proto = valueField.labels?.['proto'] ?? '';
-    const status = valueField.labels?.['status'] ?? '';
-    for (let i = 0; i < frame.length; i++) {
-      rows.push({ app, dest, actualDest, proto, status, value: valueField.values[i] as number });
+    // Grafana Prometheus often returns one DataFrame with many numeric fields (one per series).
+    // fields.find(FieldType.number) keeps only the first series and drops the rest → empty map.
+    const valueFields = frame.fields.filter((f) => f.type === FieldType.number);
+    for (const valueField of valueFields) {
+      const app =
+        valueField.labels?.['container_id'] ??
+        valueField.labels?.['app_id'] ??
+        valueField.labels?.['app'] ??
+        '';
+      const dest = valueField.labels?.['destination'] ?? valueField.labels?.['dest'] ?? '';
+      const actualDest = valueField.labels?.['actual_destination'] ?? '';
+      const proto = valueField.labels?.['proto'] ?? '';
+      const status = valueField.labels?.['status'] ?? '';
+      for (let i = 0; i < frame.length; i++) {
+        const v = valueField.values[i] as number;
+        if (typeof v === 'number' && !Number.isNaN(v)) {
+          rows.push({ app, dest, actualDest, proto, status, value: v });
+        }
+      }
     }
   }
   return rows;
@@ -59,17 +60,43 @@ function extractLabeledSeries(frames: DataFrame[]): LabeledRow[] {
 export function buildIpToAppIdMap(frames: DataFrame[]): Map<string, string> {
   const map = new Map<string, string>();
   for (const frame of frames) {
-    const valueField = frame.fields.find((f) => f.type === FieldType.number);
-    if (!valueField) {
-      continue;
-    }
-    const listenAddr = valueField.labels?.['listen_addr'] ?? '';
-    const appId = valueField.labels?.['app_id'] ?? '';
-    if (listenAddr && appId && !map.has(listenAddr)) {
-      map.set(listenAddr, appId);
+    const valueFields = frame.fields.filter((f) => f.type === FieldType.number);
+    for (const valueField of valueFields) {
+      const listenAddr = valueField.labels?.['listen_addr'] ?? '';
+      const appId = pickListenWorkloadId(valueField.labels as Record<string, string | undefined>);
+      if (listenAddr && appId && !map.has(listenAddr)) {
+        map.set(listenAddr, appId);
+      }
     }
   }
   return map;
+}
+
+/** Parse :port from an ip:port or [ipv6]:port tail (best-effort for Coroot dest strings). */
+export function destinationPort(dest: string): string | null {
+  if (!dest) {
+    return null;
+  }
+  const colon = dest.lastIndexOf(':');
+  if (colon <= 0 || colon === dest.length - 1) {
+    return null;
+  }
+  return dest.slice(colon + 1);
+}
+
+function tcpRowMatchesPortAllowlist(dest: string, actualDest: string, allowed: Set<string> | null): boolean {
+  if (!allowed || allowed.size === 0) {
+    return true;
+  }
+  const p1 = destinationPort(dest);
+  const p2 = destinationPort(actualDest);
+  if (p1 && allowed.has(p1)) {
+    return true;
+  }
+  if (p2 && allowed.has(p2)) {
+    return true;
+  }
+  return false;
 }
 
 function resolveIp(ip: string, ipMap: Map<string, string>): string | null {
@@ -117,6 +144,59 @@ function resolveDestination(dest: string, actualDest: string, ipMap: Map<string,
   return dest;
 }
 
+/**
+ * Collect every k8s container app_id seen in raw series (sources, resolved destinations, listen map).
+ * Sidecars that never appear as graph nodes still show up here when present in labels.
+ */
+function collectPodToContainerAppIds(
+  rows: LabeledRow[],
+  ipMap: Map<string, string>,
+  resolveDest: (dest: string, actualDest: string) => string
+): Record<string, string[]> {
+  const bucket = new Map<string, Set<string>>();
+
+  function addIfContainerPath(fullId: string) {
+    if (!fullId || !fullId.startsWith('/k8s/')) {
+      return;
+    }
+    const pid = podId(fullId);
+    if (pid === fullId) {
+      return;
+    }
+    let set = bucket.get(pid);
+    if (!set) {
+      set = new Set();
+      bucket.set(pid, set);
+    }
+    set.add(fullId);
+  }
+
+  for (const row of rows) {
+    addIfContainerPath(row.app);
+    addIfContainerPath(resolveDest(row.dest, row.actualDest));
+  }
+  for (const appId of ipMap.values()) {
+    addIfContainerPath(appId);
+  }
+
+  const out: Record<string, string[]> = {};
+  for (const [pid, set] of bucket) {
+    out[pid] = Array.from(set).sort();
+  }
+  return out;
+}
+
+function parseTcpPortAllowlist(raw: string | undefined): Set<string> | null {
+  if (!raw?.trim()) {
+    return null;
+  }
+  const ports = raw
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return ports.length === 0 ? null : new Set(ports);
+}
+
 export function transformToServiceMap(
   requestFrames: DataFrame[],
   latencyFrames: DataFrame[],
@@ -126,19 +206,13 @@ export function transformToServiceMap(
   ipMap: Map<string, string>,
   opts: ServiceMapOptions
 ): ServiceMapData {
+  const tcpPortAllow = parseTcpPortAllowlist(opts.clusterTcpPorts);
+
   const edgeMap = new Map<string, RawEdgeAcc>();
-  const nodeIds = new Set<string>();
 
   function addToEdge(app: string, dest: string, actualDest: string): string {
     const resolvedDest = resolveDestination(dest, actualDest, ipMap);
-    const key = `${app}→${resolvedDest}`;
-    if (app) {
-      nodeIds.add(app);
-    }
-    if (resolvedDest) {
-      nodeIds.add(resolvedDest);
-    }
-    return key;
+    return `${app}→${resolvedDest}`;
   }
 
   function getOrCreateEdge(key: string): RawEdgeAcc {
@@ -178,35 +252,42 @@ export function transformToServiceMap(
   // TCP bytes sent
   const sentRows = extractLabeledSeries(bytesSentFrames);
   for (const row of sentRows) {
-    const key = addToEdge(row.app, row.dest, row.actualDest);
-    const acc = edgeMap.get(key);
-    if (acc) {
-      acc.bytesOut += row.value;
+    if (!tcpRowMatchesPortAllowlist(row.dest, row.actualDest, tcpPortAllow)) {
+      continue;
     }
+    const key = addToEdge(row.app, row.dest, row.actualDest);
+    const acc = getOrCreateEdge(key);
+    acc.bytesOut += row.value;
   }
 
   // TCP bytes received
   const recvRows = extractLabeledSeries(bytesRecvFrames);
   for (const row of recvRows) {
-    const key = addToEdge(row.app, row.dest, row.actualDest);
-    const acc = edgeMap.get(key);
-    if (acc) {
-      acc.bytesIn += row.value;
+    if (!tcpRowMatchesPortAllowlist(row.dest, row.actualDest, tcpPortAllow)) {
+      continue;
     }
+    const key = addToEdge(row.app, row.dest, row.actualDest);
+    const acc = getOrCreateEdge(key);
+    acc.bytesIn += row.value;
   }
 
   // TCP failed
   const failRows = extractLabeledSeries(tcpFailedFrames);
   for (const row of failRows) {
-    const key = addToEdge(row.app, row.dest, row.actualDest);
-    const acc = edgeMap.get(key);
-    if (acc) {
-      acc.tcpFailed += row.value;
+    if (!tcpRowMatchesPortAllowlist(row.dest, row.actualDest, tcpPortAllow)) {
+      continue;
     }
+    const key = addToEdge(row.app, row.dest, row.actualDest);
+    const acc = getOrCreateEdge(key);
+    acc.tcpFailed += row.value;
   }
 
-  // Build edges — skip self-loops and below-threshold edges
-  const edges: ServiceEdge[] = [];
+  const allLabelRows: LabeledRow[] = reqRows.concat(latRows, sentRows, recvRows, failRows);
+  const resolveDestBound = (dest: string, actualDest: string) => resolveDestination(dest, actualDest, ipMap);
+  const podToContainerAppIds = collectPodToContainerAppIds(allLabelRows, ipMap, resolveDestBound);
+
+  // Build edges — skip self-loops and below-threshold edges (no TCP bytes and low RPS)
+  const edgesAll: ServiceEdge[] = [];
   for (const [key, acc] of edgeMap.entries()) {
     if (acc.rps < opts.minEdgeWeight && acc.bytesOut === 0 && acc.bytesIn === 0) {
       continue;
@@ -216,7 +297,7 @@ export function transformToServiceMap(
       continue;
     }
     const errPct = acc.rps > 0 ? (acc.errRps / acc.rps) * 100 : 0;
-    edges.push({
+    edgesAll.push({
       id: key,
       source,
       target,
@@ -230,7 +311,9 @@ export function transformToServiceMap(
     });
   }
 
-  // Aggregate node-level metrics from edges
+  const edges = edgesAll.filter((e) => !shouldHideWeakGreenEdge(e, opts));
+
+  // Aggregate node-level metrics from visible edges only
   const nodeMetrics = new Map<string, {
     outRps: number; inRps: number;
     outErrRps: number; inErrRps: number;
@@ -247,8 +330,15 @@ export function transformToServiceMap(
     return nm;
   }
 
+  const visibleNodeIds = new Set<string>();
   for (const e of edges) {
     const edgeErrRps = e.rps > 0 ? (e.errPct / 100) * e.rps : 0;
+    if (e.source) {
+      visibleNodeIds.add(e.source);
+    }
+    if (e.target) {
+      visibleNodeIds.add(e.target);
+    }
 
     const sm = getOrInitNode(e.source);
     sm.outRps += e.rps;
@@ -263,10 +353,10 @@ export function transformToServiceMap(
     tm.bytesIn += e.bytesIn;
   }
 
-  // Build nodes
+  // Build nodes (only endpoints that appear on at least one visible edge)
   const nodes: ServiceNode[] = [];
   const namespaceSet = new Set<string>();
-  for (const id of nodeIds) {
+  for (const id of visibleNodeIds) {
     const parsed = parseAppId(id);
     namespaceSet.add(parsed.namespace);
     const nm = nodeMetrics.get(id) ?? {
@@ -292,5 +382,6 @@ export function transformToServiceMap(
     nodes,
     edges,
     namespaces: Array.from(namespaceSet).sort(),
+    podToContainerAppIds,
   };
 }

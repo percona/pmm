@@ -15,6 +15,8 @@ interface ServiceNodeData {
   namespace: string;
   bytesIn: number;
   bytesOut: number;
+  groupByPod?: boolean;
+  podChildContainerCount?: number;
   [key: string]: unknown;
 }
 
@@ -133,6 +135,7 @@ const styles = {
 export const ServiceNode = memo(function ServiceNode({ data }: NodeProps) {
   const {
     label, rps, errPct, p95Ms, health, fullId, namespace, bytesIn, bytesOut,
+    groupByPod, podChildContainerCount,
   } = data as unknown as ServiceNodeData;
   const color = HEALTH_COLORS[health] || HEALTH_COLORS.unknown;
   const [hovered, setHovered] = useState(false);
@@ -171,6 +174,11 @@ export const ServiceNode = memo(function ServiceNode({ data }: NodeProps) {
           <div style={{ fontWeight: 700, color: '#fff', marginBottom: 2, fontSize: 12 }}>{label}</div>
           {namespace && namespace !== 'external' && (
             <div style={{ color: '#888', fontSize: 10, marginBottom: 4 }}>{fullId}</div>
+          )}
+          {groupByPod && (podChildContainerCount ?? 0) > 1 && (
+            <div style={{ color: '#a0a0c8', fontSize: 10, marginBottom: 4 }}>
+              {podChildContainerCount} containers — click for detail
+            </div>
           )}
           {(bytesIn > 0 || bytesOut > 0) && (
             <div style={{ color: '#888', fontSize: 10 }}>

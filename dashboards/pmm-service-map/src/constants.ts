@@ -5,8 +5,8 @@ export const HEALTH_COLORS = {
   unknown: '#8E8E8E',
 } as const;
 
-export const NODE_WIDTH = 180;
-export const NODE_HEIGHT = 60;
+export const NODE_WIDTH = 240;
+export const NODE_HEIGHT = 72;
 export const GROUP_PADDING = 40;
 
 export const EDGE_MIN_WIDTH = 1;

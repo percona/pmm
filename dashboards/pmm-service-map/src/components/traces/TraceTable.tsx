@@ -21,6 +21,8 @@ const s = {
   container: css`
     display: flex;
     flex-direction: column;
+    height: 100%;
+    min-height: 0;
     overflow: hidden;
     background: #0e0e1c;
     border-top: 1px solid #2a2a3a;
@@ -39,7 +41,10 @@ const s = {
   `,
   tableWrap: css`
     flex: 1;
-    overflow: auto;
+    min-height: 0;
+    overflow-x: auto;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     padding: 0 14px 14px;
   `,
   table: css`

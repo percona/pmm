@@ -1,0 +1,262 @@
+# PMM Service Map — rr_connection_* from coroot-node-agent metrics (see coroot/constructor/queries.go).
+#
+# IMPORTANT — duplicate rule names:
+# - vmalert loads ALL /srv/prometheus/rules/*.yml. A second file that also defines
+#   `record: rr_connection_l7_requests` (e.g. HTTP-only test rules) will OVERRIDE this
+#   merge and you will only see HTTP (or whatever the last file defines).
+# - Use EITHER this full file OR a minimal test file — not both. Remove ad-hoc
+#   `service-map.yml` overrides that redefine rr_connection_* when using this file.
+#
+# DNS is excluded: Coroot aggregates DNS by domain/request_type, not destination/actual_destination.
+#
+# Each rr_connection_* rule is ONE self-contained expr (or-chain of label_replace chains) so
+# the merge cannot depend on intermediate recording rules being present or ordered.
+
+groups:
+  - name: pmm_service_map
+    interval: 30s
+    rules:
+      # --- L7 request rate (all protocols Coroot exposes as container_*_total counters) ---
+      - record: rr_connection_l7_requests
+        expr: |
+          (
+            label_replace(
+              label_replace(
+                sum by (container_id, destination, actual_destination, status) (rate(container_http_requests_total[5m])),
+                "proto", "http", "destination", ".+"),
+              "app_id", "$1", "container_id", "(.+)"
+            )
+          )
+          or
+          (
+            label_replace(
+              label_replace(
+                sum by (container_id, destination, actual_destination, status) (rate(container_postgres_queries_total[5m])),
+                "proto", "postgres", "destination", ".+"),
+              "app_id", "$1", "container_id", "(.+)"
+            )
+          )
+          or
+          (
+            label_replace(
+              label_replace(
+                sum by (container_id, destination, actual_destination, status) (rate(container_redis_queries_total[5m])),
+                "proto", "redis", "destination", ".+"),
+              "app_id", "$1", "container_id", "(.+)"
+            )
+          )
+          or
+          (
+            label_replace(
+              label_replace(
+                sum by (container_id, destination, actual_destination, status) (rate(container_memcached_queries_total[5m])),
+                "proto", "memcached", "destination", ".+"),
+              "app_id", "$1", "container_id", "(.+)"
+            )
+          )
+          or
+          (
+            label_replace(
+              label_replace(
+                sum by (container_id, destination, actual_destination, status) (rate(container_mysql_queries_total[5m])),
+                "proto", "mysql", "destination", ".+"),
+              "app_id", "$1", "container_id", "(.+)"
+            )
+          )
+          or
+          (
+            label_replace(
+              label_replace(
+                sum by (container_id, destination, actual_destination, status) (rate(container_mongo_queries_total[5m])),
+                "proto", "mongo", "destination", ".+"),
+              "app_id", "$1", "container_id", "(.+)"
+            )
+          )
+          or
+          (
+            label_replace(
+              label_replace(
+                sum by (container_id, destination, actual_destination, status) (rate(container_kafka_requests_total[5m])),
+                "proto", "kafka", "destination", ".+"),
+              "app_id", "$1", "container_id", "(.+)"
+            )
+          )
+          or
+          (
+            label_replace(
+              label_replace(
+                sum by (container_id, destination, actual_destination, status) (rate(container_cassandra_queries_total[5m])),
+                "proto", "cassandra", "destination", ".+"),
+              "app_id", "$1", "container_id", "(.+)"
+            )
+          )
+          or
+          (
+            label_replace(
+              label_replace(
+                sum by (container_id, destination, actual_destination, status) (rate(container_clickhouse_queries_total[5m])),
+                "proto", "clickhouse", "destination", ".+"),
+              "app_id", "$1", "container_id", "(.+)"
+            )
+          )
+          or
+          (
+            label_replace(
+              label_replace(
+                sum by (container_id, destination, actual_destination, status) (rate(container_zookeeper_requests_total[5m])),
+                "proto", "zookeeper", "destination", ".+"),
+              "app_id", "$1", "container_id", "(.+)"
+            )
+          )
+          or
+          (
+            label_replace(
+              label_replace(
+                sum by (container_id, destination, actual_destination, status) (rate(container_foundationdb_requests_total[5m])),
+                "proto", "foundationdb", "destination", ".+"),
+              "app_id", "$1", "container_id", "(.+)"
+            )
+          )
+          or
+          (
+            label_replace(
+              label_replace(
+                sum by (container_id, destination, actual_destination, status) (rate(container_rabbitmq_messages_total[5m])),
+                "proto", "rabbitmq", "destination", ".+"),
+              "app_id", "$1", "container_id", "(.+)"
+            )
+          )
+          or
+          (
+            label_replace(
+              label_replace(
+                sum by (container_id, destination, actual_destination, status) (rate(container_nats_messages_total[5m])),
+                "proto", "nats", "destination", ".+"),
+              "app_id", "$1", "container_id", "(.+)"
+            )
+          )
+
+      - record: rr_connection_tcp_bytes_sent
+        expr: |
+          label_replace(
+            sum by (container_id, destination, actual_destination) (rate(container_net_tcp_bytes_sent_total[5m])),
+            "app_id", "$1", "container_id", "(.+)"
+          )
+      - record: rr_connection_tcp_bytes_received
+        expr: |
+          label_replace(
+            sum by (container_id, destination, actual_destination) (rate(container_net_tcp_bytes_received_total[5m])),
+            "app_id", "$1", "container_id", "(.+)"
+          )
+      - record: rr_connection_tcp_failed
+        expr: |
+          label_replace(
+            sum by (container_id, destination, actual_destination) (rate(container_net_tcp_failed_connects_total[5m])),
+            "app_id", "$1", "container_id", "(.+)"
+          )
+
+  - name: pmm_service_map_l7_latency
+    interval: 30s
+    rules:
+      # L7 latency sums (histogram _sum counters) — protocols from l7Latency() in queries.go.
+      # RabbitMQ/NATS use l7ReqWithMethod for counts only; no matching container_*_duration_seconds_total_sum in Coroot.
+      - record: rr_connection_l7_latency
+        expr: |
+          (
+            label_replace(
+              label_replace(
+                sum by (container_id, destination, actual_destination) (rate(container_http_requests_duration_seconds_total_sum[5m])),
+                "proto", "http", "destination", ".+"),
+              "app_id", "$1", "container_id", "(.+)"
+            )
+          )
+          or
+          (
+            label_replace(
+              label_replace(
+                sum by (container_id, destination, actual_destination) (rate(container_postgres_queries_duration_seconds_total_sum[5m])),
+                "proto", "postgres", "destination", ".+"),
+              "app_id", "$1", "container_id", "(.+)"
+            )
+          )
+          or
+          (
+            label_replace(
+              label_replace(
+                sum by (container_id, destination, actual_destination) (rate(container_redis_queries_duration_seconds_total_sum[5m])),
+                "proto", "redis", "destination", ".+"),
+              "app_id", "$1", "container_id", "(.+)"
+            )
+          )
+          or
+          (
+            label_replace(
+              label_replace(
+                sum by (container_id, destination, actual_destination) (rate(container_memcached_queries_duration_seconds_total_sum[5m])),
+                "proto", "memcached", "destination", ".+"),
+              "app_id", "$1", "container_id", "(.+)"
+            )
+          )
+          or
+          (
+            label_replace(
+              label_replace(
+                sum by (container_id, destination, actual_destination) (rate(container_mysql_queries_duration_seconds_total_sum[5m])),
+                "proto", "mysql", "destination", ".+"),
+              "app_id", "$1", "container_id", "(.+)"
+            )
+          )
+          or
+          (
+            label_replace(
+              label_replace(
+                sum by (container_id, destination, actual_destination) (rate(container_mongo_queries_duration_seconds_total_sum[5m])),
+                "proto", "mongo", "destination", ".+"),
+              "app_id", "$1", "container_id", "(.+)"
+            )
+          )
+          or
+          (
+            label_replace(
+              label_replace(
+                sum by (container_id, destination, actual_destination) (rate(container_kafka_requests_duration_seconds_total_sum[5m])),
+                "proto", "kafka", "destination", ".+"),
+              "app_id", "$1", "container_id", "(.+)"
+            )
+          )
+          or
+          (
+            label_replace(
+              label_replace(
+                sum by (container_id, destination, actual_destination) (rate(container_cassandra_queries_duration_seconds_total_sum[5m])),
+                "proto", "cassandra", "destination", ".+"),
+              "app_id", "$1", "container_id", "(.+)"
+            )
+          )
+          or
+          (
+            label_replace(
+              label_replace(
+                sum by (container_id, destination, actual_destination) (rate(container_clickhouse_queries_duration_seconds_total_sum[5m])),
+                "proto", "clickhouse", "destination", ".+"),
+              "app_id", "$1", "container_id", "(.+)"
+            )
+          )
+          or
+          (
+            label_replace(
+              label_replace(
+                sum by (container_id, destination, actual_destination) (rate(container_zookeeper_requests_duration_seconds_total_sum[5m])),
+                "proto", "zookeeper", "destination", ".+"),
+              "app_id", "$1", "container_id", "(.+)"
+            )
+          )
+          or
+          (
+            label_replace(
+              label_replace(
+                sum by (container_id, destination, actual_destination) (rate(container_foundationdb_requests_duration_seconds_total_sum[5m])),
+                "proto", "foundationdb", "destination", ".+"),
+              "app_id", "$1", "container_id", "(.+)"
+            )
+          )

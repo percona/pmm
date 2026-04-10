@@ -3,7 +3,17 @@ export interface ServiceMapOptions {
   clickhouseDatasource: string;
   errorAmberThreshold: number;
   errorRedThreshold: number;
+  /**
+   * Drop edges with RPS below this when they carry no TCP byte rates (bytes in/out both zero).
+   * TCP-only traffic uses bytes and is not removed by this alone.
+   */
   minEdgeWeight: number;
+  /** Collapse /k8s/ns/pod/container nodes to /k8s/ns/pod */
+  groupByPod?: boolean;
+  /** Hide healthy low-RPS HTTP edges (see weakEdgeMaxRps); TCP-only edges are kept */
+  hideWeakEdges?: boolean;
+  /** With hideWeakEdges: minimum L7 req/s to keep a green edge (rps must be > 0) */
+  weakEdgeMaxRps?: number;
   labelMode: 'name' | 'namespace-name' | 'raw';
   namespaceRenameMap: Record<string, string>;
   /** Grafana dashboard UID for OTLP traces (ClickHouse) — trace links open this dashboard */
@@ -25,6 +35,13 @@ export interface ServiceMapOptions {
    * Example: {"34.120.177.193:443":"GCP API"}
    */
   destinationLabelOverrides: string;
+  /**
+   * Comma-separated destination ports: when non-empty, only TCP metrics (bytes sent/received, failed)
+   * whose destination or actual_destination port matches are included. L7 edges are unchanged.
+   * Example for Percona XtraDB Cluster / Galera: 4567,4568,4444 (gcomm / IST / SST).
+   * Leave empty to include all TCP edges (subject to min edge weight / weak-edge rules).
+   */
+  clusterTcpPorts?: string;
 }
 
 export const DEFAULT_OPTIONS: ServiceMapOptions = {
@@ -33,6 +50,9 @@ export const DEFAULT_OPTIONS: ServiceMapOptions = {
   errorAmberThreshold: 1,
   errorRedThreshold: 5,
   minEdgeWeight: 0,
+  groupByPod: true,
+  hideWeakEdges: true,
+  weakEdgeMaxRps: 1,
   labelMode: 'name',
   namespaceRenameMap: {},
   tracesDashboardUid: 'otel-traces-clickhouse',
@@ -40,6 +60,7 @@ export const DEFAULT_OPTIONS: ServiceMapOptions = {
   kubernetesApiClusterIPs: '10.96.0.1,10.100.0.1,172.20.0.1',
   kubernetesApiserverEndpointIPs: '',
   destinationLabelOverrides: '',
+  clusterTcpPorts: '',
 };
 
 export interface ParsedAppId {
@@ -62,6 +83,8 @@ export interface ServiceNode {
   bytesIn: number;
   bytesOut: number;
   health: HealthStatus;
+  /** With groupByPod: containers merged into this pod node */
+  podChildContainerCount?: number;
 }
 
 export interface ServiceEdge {
@@ -81,6 +104,11 @@ export interface ServiceMapData {
   nodes: ServiceNode[];
   edges: ServiceEdge[];
   namespaces: string[];
+  /**
+   * Every container app_id seen in metric labels for each pod id (includes sidecars with no edges).
+   * Used for accurate container counts and trace service name lists when grouped by pod.
+   */
+  podToContainerAppIds?: Record<string, string[]>;
 }
 
 export interface TraceRow {
@@ -112,4 +140,10 @@ export interface SelectedNode {
   node: ServiceNode;
   outgoingEdges: ServiceEdge[];
   outgoingLabels: string[];
+  /** Set when groupByPod and this node is a pod aggregate — OTel ServiceName values */
+  traceServiceNames?: string[];
+  /** Containers under this pod (from ungrouped data) */
+  childContainers?: ServiceNode[];
+  /** Pod-level view: same-pod container↔container edges not drawn */
+  internalSamePodEdgesHidden?: number;
 }

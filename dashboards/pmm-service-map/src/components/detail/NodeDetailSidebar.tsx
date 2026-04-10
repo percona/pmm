@@ -1,6 +1,7 @@
 import { css } from '@emotion/css';
 import { HEALTH_COLORS } from '../../constants';
 import { SelectedNode } from '../../types';
+import { formatNodeLabel } from '../../data/parseAppId';
 
 interface Props {
   node: SelectedNode;
@@ -107,7 +108,7 @@ const s = {
 };
 
 export function NodeDetailSidebar({ node, onClose }: Props) {
-  const { node: n, outgoingEdges, outgoingLabels } = node;
+  const { node: n, outgoingEdges, outgoingLabels, childContainers, internalSamePodEdgesHidden } = node;
   const color = HEALTH_COLORS[n.health];
 
   const totalRps = outgoingEdges.reduce((sum, e) => sum + e.rps, 0);
@@ -139,6 +140,37 @@ export function NodeDetailSidebar({ node, onClose }: Props) {
           <span className={s.metricValue}>{n.p95Ms.toFixed(1)} ms</span>
         </div>
       </div>
+
+      {childContainers && childContainers.length > 0 && (
+        <div className={s.section}>
+          <div className={s.sectionLabel}>Containers ({childContainers.length})</div>
+          {childContainers.map((c) => {
+            const cColor = HEALTH_COLORS[c.health];
+            return (
+              <div key={c.id} className={s.edgeItem}>
+                <div className={s.edgeTarget}>
+                  <span className={s.healthDot(cColor)} />
+                  {formatNodeLabel(c.parsed, 'name')}
+                </div>
+                <div className={s.edgeMetrics}>
+                  <span>{formatRps(c.rps)} req/s</span>
+                  <span style={{ color: c.errPct > 0 ? HEALTH_COLORS.red : '#999' }}>
+                    {c.errPct.toFixed(1)}% err
+                  </span>
+                  <span>{c.p95Ms.toFixed(1)} ms</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {internalSamePodEdgesHidden != null && internalSamePodEdgesHidden > 0 && (
+        <div style={{ fontSize: 10, color: '#777', lineHeight: 1.4 }}>
+          Pod view hides {internalSamePodEdgesHidden} same-pod container↔container edge
+          {internalSamePodEdgesHidden === 1 ? '' : 's'} (turn off Group by pod to see them).
+        </div>
+      )}
 
       <div className={s.section}>
         <div className={s.sectionLabel}>

@@ -1,8 +1,26 @@
 import { useEffect, useState } from 'react';
 import { getDataSourceSrv } from '@grafana/runtime';
-import { DataFrame, type DataSourceApi, DataQueryRequest, TimeRange } from '@grafana/data';
+import { DataFrame, FieldType, type DataSourceApi, DataQueryRequest, TimeRange } from '@grafana/data';
 import { ServiceMapData, ServiceMapOptions } from '../types';
+import { mergeContainerIdsIntoPodMap } from './containerInventory';
 import { transformToServiceMap, buildIpToAppIdMap } from './transform';
+
+function extractContainerIdsFromInfoFrames(frames: DataFrame[]): string[] {
+  const out = new Set<string>();
+  for (const frame of frames) {
+    if (frame.length === 0) {
+      continue;
+    }
+    const valueFields = frame.fields.filter((f) => f.type === FieldType.number);
+    for (const vf of valueFields) {
+      const cid = vf.labels?.['container_id'];
+      if (cid) {
+        out.add(cid);
+      }
+    }
+  }
+  return Array.from(out).sort();
+}
 
 const QUERIES = [
   { refId: 'requests', expr: 'sum by (app_id, destination, actual_destination, proto, status) (rr_connection_l7_requests)' },
@@ -11,6 +29,8 @@ const QUERIES = [
   { refId: 'bytesRecv', expr: 'sum by (app_id, destination, actual_destination) (rr_connection_tcp_bytes_received)' },
   { refId: 'tcpFailed', expr: 'sum by (app_id, destination, actual_destination) (rr_connection_tcp_failed)' },
   { refId: 'listenInfo', expr: 'container_net_tcp_listen_info' },
+  /** Full container inventory (sidecars without TCP listeners still appear). */
+  { refId: 'containerInfo', expr: 'count by (container_id) (container_info)' },
 ];
 
 async function runPromQuery(
@@ -65,7 +85,7 @@ export function useServiceMapData(
 
         const ipMap = buildIpToAppIdMap(results[5]);
 
-        const mapData = transformToServiceMap(
+        const base = transformToServiceMap(
           results[0], // requests
           results[1], // latency
           results[2], // bytesSent
@@ -74,6 +94,12 @@ export function useServiceMapData(
           ipMap,
           options
         );
+
+        const inventoryIds = extractContainerIdsFromInfoFrames(results[6] ?? []);
+        const mapData: ServiceMapData = {
+          ...base,
+          podToContainerAppIds: mergeContainerIdsIntoPodMap(base.podToContainerAppIds, inventoryIds),
+        };
 
         setData(mapData);
       } catch (err) {
@@ -91,7 +117,16 @@ export function useServiceMapData(
     return () => {
       cancelled = true;
     };
-  }, [options.promDatasource, options.errorAmberThreshold, options.errorRedThreshold, options.minEdgeWeight, timeRange]);
+  }, [
+    options.promDatasource,
+    options.errorAmberThreshold,
+    options.errorRedThreshold,
+    options.minEdgeWeight,
+    options.hideWeakEdges,
+    options.weakEdgeMaxRps,
+    options.clusterTcpPorts,
+    timeRange,
+  ]);
 
   return { data, loading, error };
 }

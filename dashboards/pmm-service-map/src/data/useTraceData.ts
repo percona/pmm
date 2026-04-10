@@ -3,15 +3,27 @@ import { getDataSourceSrv } from '@grafana/runtime';
 import { DataFrame, DataQueryRequest, TimeRange } from '@grafana/data';
 import { SelectedEdge, SelectedNode, TraceFilter, TraceRow } from '../types';
 import { SLOW_THRESHOLD_MS, TRACE_LIMIT } from '../constants';
+import {
+  buildNodeTraceServiceWhereClause,
+  collectNodeTraceNameIds,
+  expandOtelServiceNameCandidates,
+  expandTraceSearchTokens,
+} from './traceSql';
 
 function escapeSql(s: string): string {
   return s.replace(/'/g, "''");
 }
 
 function buildEdgeSQL(edge: SelectedEdge, filter: TraceFilter): string {
-  const src = escapeSql(edge.sourceAppId || edge.source);
-  const tgt = escapeSql(edge.targetAppId || edge.target);
-  let where = `ServiceName IN ('${src}', '${tgt}')`;
+  const expanded = expandOtelServiceNameCandidates([
+    edge.sourceAppId || edge.source,
+    edge.targetAppId || edge.target,
+  ]);
+  const uniq = [...new Set(expanded.filter(Boolean))].slice(0, 200);
+  let where =
+    uniq.length > 0
+      ? `ServiceName IN (${uniq.map((id) => `'${escapeSql(id)}'`).join(', ')})`
+      : '1 = 0';
 
   if (filter === 'errors') {
     where = `${where} AND StatusCode IN ('Error', 'STATUS_CODE_ERROR', '2')`;
@@ -36,13 +48,15 @@ LIMIT ${TRACE_LIMIT}
 }
 
 function buildNodeSQL(node: SelectedNode, filter: TraceFilter): string {
-  const svc = escapeSql(node.id);
-  let where = `ServiceName = '${svc}'`;
+  const ids = collectNodeTraceNameIds(node);
+  const expanded = expandOtelServiceNameCandidates(ids);
+  const tokens = expandTraceSearchTokens(expanded);
+  let where = buildNodeTraceServiceWhereClause(expanded, tokens);
 
   if (filter === 'errors') {
-    where = `${where} AND StatusCode IN ('Error', 'STATUS_CODE_ERROR', '2')`;
+    where = `(${where}) AND StatusCode IN ('Error', 'STATUS_CODE_ERROR', '2')`;
   } else if (filter === 'slow') {
-    where = `${where} AND Duration > ${SLOW_THRESHOLD_MS * 1_000_000}`;
+    where = `(${where}) AND Duration > ${SLOW_THRESHOLD_MS * 1_000_000}`;
   }
 
   return `
@@ -55,7 +69,7 @@ SELECT
   Duration / 1000000 AS duration_ms
 FROM otel.otel_traces
 WHERE $__timeFilter(Timestamp)
-  AND (${where})
+  AND ${where}
 ORDER BY Timestamp DESC
 LIMIT ${TRACE_LIMIT}
   `.trim();
@@ -106,6 +120,10 @@ export function useTraceData(
   const [error, setError] = useState<string | null>(null);
 
   const hasSelection = !!selectedEdge || !!selectedNode;
+  const nodeTraceKey =
+    !selectedNode
+      ? ''
+      : `${selectedNode.id}\x1f${(selectedNode.traceServiceNames ?? []).join('\x1f')}`;
 
   useEffect(() => {
     if (!hasSelection) {
@@ -161,7 +179,15 @@ export function useTraceData(
     return () => {
       cancelled = true;
     };
-  }, [selectedEdge?.source, selectedEdge?.target, selectedNode?.id, filter, clickhouseDatasource, timeRange, hasSelection]);
+  }, [
+    selectedEdge?.source,
+    selectedEdge?.target,
+    nodeTraceKey,
+    filter,
+    clickhouseDatasource,
+    timeRange,
+    hasSelection,
+  ]);
 
   return { traces, loading, error };
 }

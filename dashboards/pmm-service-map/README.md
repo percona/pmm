@@ -18,6 +18,8 @@ Interactive service topology map panel for Percona Monitoring and Management.
 - **Prometheus / VictoriaMetrics**: For `rr_connection_l7_requests`, `rr_connection_l7_latency`, `rr_connection_tcp_bytes_sent`, `rr_connection_tcp_bytes_received`, `rr_connection_tcp_failed`
 - **ClickHouse**: For `otel.otel_traces`
 
+Default **recording rules** that map [coroot-node-agent](https://github.com/coroot/coroot-node-agent) `container_*` metrics to `rr_connection_*` ship with the PMM Server image as `/srv/prometheus/rules/pmm-service-map.recording-rules.yml` (vmalert loads `/srv/prometheus/rules/*.yml`). User-defined alerting rules in the UI still go to `pmm.rules.yml` only. After replacing a volume, ensure that file is still present (rebuild image or restore from backup); coroot must be scraped (e.g. `pmm_coroot_metrics_listen` on the `otel_collector` agent).
+
 ## Build
 
 ```bash

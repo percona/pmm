@@ -37,6 +37,7 @@ export function useGraphLayout(
 
     async function computeLayout() {
       const nsRename = options.namespaceRenameMap ?? {};
+      const groupByPod = options.groupByPod ?? true;
 
       // Group nodes by namespace
       const nsByNs = new Map<string, string[]>();
@@ -78,9 +79,10 @@ export function useGraphLayout(
         edges: elkEdges,
         layoutOptions: {
           'elk.algorithm': 'layered',
+          /** Prefer left-to-right layers; wider spacing reduces vertical stacking within a namespace. */
           'elk.direction': 'RIGHT',
-          'elk.spacing.nodeNode': '30',
-          'elk.layered.spacing.nodeNodeBetweenLayers': '60',
+          'elk.spacing.nodeNode': '48',
+          'elk.layered.spacing.nodeNodeBetweenLayers': '110',
           'elk.layered.crossingMinimization.strategy': 'LAYER_SWEEP',
           'elk.hierarchyHandling': 'INCLUDE_CHILDREN',
         },
@@ -119,6 +121,7 @@ export function useGraphLayout(
               if (!svcNode) {
                 continue;
               }
+              const label = formatNodeLabel(svcNode.parsed, options.labelMode);
               rfNodes.push({
                 id: child.id,
                 type: 'serviceNode',
@@ -126,7 +129,7 @@ export function useGraphLayout(
                 parentId: group.id,
                 extent: 'parent' as const,
                 data: {
-                  label: formatNodeLabel(svcNode.parsed, options.labelMode),
+                  label,
                   rps: svcNode.rps,
                   errPct: svcNode.errPct,
                   p95Ms: svcNode.p95Ms,
@@ -135,6 +138,8 @@ export function useGraphLayout(
                   namespace: svcNode.parsed.namespace,
                   bytesIn: svcNode.bytesIn,
                   bytesOut: svcNode.bytesOut,
+                  groupByPod,
+                  podChildContainerCount: svcNode.podChildContainerCount ?? 0,
                 },
               });
             }
@@ -142,23 +147,23 @@ export function useGraphLayout(
         }
 
         for (const e of data!.edges) {
-          const srcNode = data!.nodes.find((n) => n.id === e.source);
-          const tgtNode = data!.nodes.find((n) => n.id === e.target);
-          rfEdges.push({
-            id: e.id,
-            source: e.source,
-            target: e.target,
-            type: 'serviceEdge',
-            data: {
-              rps: e.rps,
-              errPct: e.errPct,
-              p95Ms: e.p95Ms,
-              bytesIn: e.bytesIn,
-              bytesOut: e.bytesOut,
-              health: e.health,
-              sourceLabel: srcNode ? formatNodeLabel(srcNode.parsed, options.labelMode) : e.source,
-              targetLabel: tgtNode ? formatNodeLabel(tgtNode.parsed, options.labelMode) : e.target,
-            },
+            const srcNode = data!.nodes.find((n) => n.id === e.source);
+            const tgtNode = data!.nodes.find((n) => n.id === e.target);
+            rfEdges.push({
+              id: e.id,
+              source: e.source,
+              target: e.target,
+              type: 'serviceEdge',
+              data: {
+                rps: e.rps,
+                errPct: e.errPct,
+                p95Ms: e.p95Ms,
+                bytesIn: e.bytesIn,
+                bytesOut: e.bytesOut,
+                health: e.health,
+                sourceLabel: srcNode ? formatNodeLabel(srcNode.parsed, options.labelMode) : e.source,
+                targetLabel: tgtNode ? formatNodeLabel(tgtNode.parsed, options.labelMode) : e.target,
+              },
             style: {
               strokeWidth: edgeWidth(e.rps),
               stroke: HEALTH_COLORS[e.health],
@@ -180,7 +185,7 @@ export function useGraphLayout(
     return () => {
       cancelled = true;
     };
-  }, [data, options.labelMode, options.namespaceRenameMap]);
+  }, [data, options.labelMode, options.namespaceRenameMap, options.groupByPod]);
 
   return { layout, layoutLoading };
 }
