@@ -265,7 +265,7 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 				ServiceID:    service.ServiceID,
 				AzureOptions: models.AzureOptionsFromRequest(req),
 				ExporterOptions: models.ExporterOptions{
-					ConnectionTimeout: pointer.ToDuration(duration.FromProto(req.ConnectionTimeout)),
+					ConnectionTimeout: duration.OptionalFromProto(req.ConnectionTimeout),
 				},
 			})
 			if err != nil {
@@ -282,7 +282,7 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 			TLS:           req.Tls,
 			TLSSkipVerify: req.TlsSkipVerify,
 			ExporterOptions: models.ExporterOptions{
-				ConnectionTimeout: pointer.ToDuration(duration.FromProto(req.ConnectionTimeout)),
+				ConnectionTimeout: duration.OptionalFromProto(req.ConnectionTimeout),
 			},
 			MySQLOptions: models.MySQLOptions{
 				TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,

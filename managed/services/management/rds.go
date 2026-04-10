@@ -322,7 +322,7 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				},
 				ExporterOptions: models.ExporterOptions{
 					PushMetrics:       isPushMode(metricsMode),
-					ConnectionTimeout: pointer.ToDuration(duration.FromProto(req.ConnectionTimeout)),
+					ConnectionTimeout: duration.OptionalFromProto(req.ConnectionTimeout),
 				},
 			})
 			if err != nil {
@@ -367,7 +367,7 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				TLSSkipVerify: req.TlsSkipVerify,
 				ExporterOptions: models.ExporterOptions{
 					PushMetrics:       isPushMode(metricsMode),
-					ConnectionTimeout: pointer.ToDuration(duration.FromProto(req.ConnectionTimeout)),
+					ConnectionTimeout: duration.OptionalFromProto(req.ConnectionTimeout),
 				},
 				MySQLOptions: models.MySQLOptions{
 					TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
@@ -449,7 +449,7 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				TLSSkipVerify: req.TlsSkipVerify,
 				ExporterOptions: models.ExporterOptions{
 					PushMetrics:       isPushMode(metricsMode),
-					ConnectionTimeout: pointer.ToDuration(duration.FromProto(req.ConnectionTimeout)),
+					ConnectionTimeout: duration.OptionalFromProto(req.ConnectionTimeout),
 				},
 				MySQLOptions: models.MySQLOptions{
 					TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,

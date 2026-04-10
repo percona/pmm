@@ -20,12 +20,10 @@ import (
 	"context"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/AlekSi/pointer"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/durationpb"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/api/common"
@@ -59,14 +57,6 @@ func NewAgentsService(db *reform.DB, r agentsRegistry, state agentsStateUpdater,
 		cc:    cc,
 		sib:   sib,
 	}
-}
-
-func optionalDurationFromProto(d *durationpb.Duration) *time.Duration {
-	if d == nil {
-		return nil
-	}
-
-	return pointer.ToDuration(d.AsDuration())
 }
 
 func toInventoryAgent(q *reform.Querier, row *models.Agent, registry agentsRegistry) (inventoryv1.Agent, error) { //nolint:ireturn
@@ -224,7 +214,7 @@ func (as *AgentsService) ChangeNodeExporter(ctx context.Context, agentID string,
 		DisabledCollectors: p.DisableCollectors,
 		ExposeExporter:     p.ExposeExporter,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
-		ConnectionTimeout:  optionalDurationFromProto(p.ConnectionTimeout),
+		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)
@@ -259,7 +249,7 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, p *inventoryv1.A
 			PushMetrics:        p.PushMetrics,
 			DisabledCollectors: p.DisableCollectors,
 			ExposeExporter:     p.ExposeExporter,
-			ConnectionTimeout:  optionalDurationFromProto(p.ConnectionTimeout),
+			ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 		}
 		params := &models.CreateAgentParams{
 			PMMAgentID:      p.PmmAgentId,
@@ -344,7 +334,7 @@ func (as *AgentsService) ChangeMySQLdExporter(ctx context.Context, agentID strin
 		DisabledCollectors: p.DisableCollectors,
 		ExposeExporter:     p.ExposeExporter,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
-		ConnectionTimeout:  optionalDurationFromProto(p.ConnectionTimeout),
+		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)
@@ -383,7 +373,7 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, p *inventoryv1.
 				PushMetrics:        p.PushMetrics,
 				DisabledCollectors: p.DisableCollectors,
 				ExposeExporter:     p.ExposeExporter,
-				ConnectionTimeout:  optionalDurationFromProto(p.ConnectionTimeout),
+				ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 			},
 			LogLevel: services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		}
@@ -465,7 +455,7 @@ func (as *AgentsService) ChangeMongoDBExporter(
 		DisabledCollectors: p.DisableCollectors,
 		ExposeExporter:     p.ExposeExporter,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
-		ConnectionTimeout:  optionalDurationFromProto(p.ConnectionTimeout),
+		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)
@@ -719,7 +709,7 @@ func (as *AgentsService) AddPostgresExporter(ctx context.Context, p *inventoryv1
 			PushMetrics:        p.PushMetrics,
 			DisabledCollectors: p.DisableCollectors,
 			ExposeExporter:     p.ExposeExporter,
-			ConnectionTimeout:  optionalDurationFromProto(p.ConnectionTimeout),
+			ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 		}
 		params := &models.CreateAgentParams{
 			PMMAgentID:        p.PmmAgentId,
@@ -801,7 +791,7 @@ func (as *AgentsService) ChangePostgresExporter(ctx context.Context, agentID str
 		DisabledCollectors: p.DisableCollectors,
 		ExposeExporter:     p.ExposeExporter,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
-		ConnectionTimeout:  optionalDurationFromProto(p.ConnectionTimeout),
+		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)
@@ -827,7 +817,7 @@ func (as *AgentsService) AddValkeyExporter(ctx context.Context, p *inventoryv1.A
 		exporterOptions := models.ExporterOptions{
 			PushMetrics:       p.PushMetrics,
 			ExposeExporter:    p.ExposeExporter,
-			ConnectionTimeout: optionalDurationFromProto(p.ConnectionTimeout),
+			ConnectionTimeout: duration.OptionalFromProto(p.ConnectionTimeout),
 		}
 		params := &models.CreateAgentParams{
 			PMMAgentID:      p.PmmAgentId,
@@ -910,7 +900,7 @@ func (as *AgentsService) ChangeValkeyExporter(ctx context.Context, agentID strin
 		DisabledCollectors: p.DisableCollectors,
 		ExposeExporter:     p.ExposeExporter,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
-		ConnectionTimeout:  optionalDurationFromProto(p.ConnectionTimeout),
+		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)
@@ -1151,7 +1141,7 @@ func (as *AgentsService) AddProxySQLExporter(ctx context.Context, p *inventoryv1
 			PushMetrics:        p.PushMetrics,
 			DisabledCollectors: p.DisableCollectors,
 			ExposeExporter:     p.ExposeExporter,
-			ConnectionTimeout:  optionalDurationFromProto(p.ConnectionTimeout),
+			ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 		}
 		params := &models.CreateAgentParams{
 			PMMAgentID:      p.PmmAgentId,
@@ -1226,7 +1216,7 @@ func (as *AgentsService) ChangeProxySQLExporter(ctx context.Context, agentID str
 		DisabledCollectors: p.DisableCollectors,
 		ExposeExporter:     p.ExposeExporter,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
-		ConnectionTimeout:  optionalDurationFromProto(p.ConnectionTimeout),
+		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)
@@ -1478,7 +1468,7 @@ func (as *AgentsService) AddRDSExporter(ctx context.Context, p *inventoryv1.AddR
 			CustomLabels: p.CustomLabels,
 			ExporterOptions: models.ExporterOptions{
 				PushMetrics:       p.PushMetrics,
-				ConnectionTimeout: optionalDurationFromProto(p.ConnectionTimeout),
+				ConnectionTimeout: duration.OptionalFromProto(p.ConnectionTimeout),
 			},
 			AWSOptions: models.AWSOptions{
 				AWSAccessKey:               p.AwsAccessKey,
@@ -1540,7 +1530,7 @@ func (as *AgentsService) ChangeRDSExporter(ctx context.Context, agentID string, 
 	params.ExporterOptions = &models.ChangeExporterOptions{
 		PushMetrics:        p.EnablePushMetrics,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
-		ConnectionTimeout:  optionalDurationFromProto(p.ConnectionTimeout),
+		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)
@@ -1629,7 +1619,7 @@ func (as *AgentsService) ChangeExternalExporter(ctx context.Context, agentID str
 		MetricsScheme:      p.Scheme,
 		MetricsPath:        p.MetricsPath,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
-		ConnectionTimeout:  optionalDurationFromProto(p.ConnectionTimeout),
+		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)
@@ -1662,7 +1652,7 @@ func (as *AgentsService) AddAzureDatabaseExporter(ctx context.Context, p *invent
 			CustomLabels: p.CustomLabels,
 			ExporterOptions: models.ExporterOptions{
 				PushMetrics:       p.PushMetrics,
-				ConnectionTimeout: optionalDurationFromProto(p.ConnectionTimeout),
+				ConnectionTimeout: duration.OptionalFromProto(p.ConnectionTimeout),
 			},
 			AzureOptions: models.AzureOptionsFromRequest(p),
 			LogLevel:     services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
@@ -1719,7 +1709,7 @@ func (as *AgentsService) ChangeAzureDatabaseExporter(
 	params.ExporterOptions = &models.ChangeExporterOptions{
 		PushMetrics:        p.EnablePushMetrics,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
-		ConnectionTimeout:  optionalDurationFromProto(p.ConnectionTimeout),
+		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)

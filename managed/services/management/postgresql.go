@@ -69,7 +69,7 @@ func (s *ManagementService) addPostgreSQL(ctx context.Context, req *managementv1
 			ExposeExporter:     req.ExposeExporter,
 			PushMetrics:        isPushMode(req.MetricsMode),
 			DisabledCollectors: req.DisableCollectors,
-			ConnectionTimeout:  pointer.ToDuration(duration.FromProto(req.ConnectionTimeout)),
+			ConnectionTimeout:  duration.OptionalFromProto(req.ConnectionTimeout),
 		}
 		row, err := models.CreateAgent(tx.Querier, models.PostgresExporterType, &models.CreateAgentParams{
 			PMMAgentID:        req.PmmAgentId,
