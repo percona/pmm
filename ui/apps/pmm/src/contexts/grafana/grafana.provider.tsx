@@ -36,6 +36,7 @@ const isBrowser = () =>
 export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   const navigationType = useNavigationType();
   const location = useLocation();
+  const isGrafanaPageRef = useRef<boolean>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -48,6 +49,7 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
 
   const src = location.pathname.replace(PMM_NEW_NAV_PATH, '');
   const isGrafanaPage = src.startsWith(GRAFANA_SUB_PATH);
+  isGrafanaPageRef.current = isGrafanaPage;
 
   const [isLoaded, setIsLoaded] = useState(false);
   const frameRef = useRef<HTMLIFrameElement>(null);
@@ -89,7 +91,11 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
     messenger.addListener({
       type: 'LOCATION_CHANGE',
       onMessage: ({ payload: location }: LocationChangeMessage) => {
-        if (!location) {
+        if (
+          !location ||
+          // dont navigate if we are not on grafana page
+          !isGrafanaPageRef.current
+        ) {
           return;
         }
 
