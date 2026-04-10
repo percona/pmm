@@ -1,11 +1,12 @@
 import { Box, Button, IconButton } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import { DeleteOutlineOutlined as DeleteOutlineOutlinedIcon } from '@mui/icons-material';
-import { FieldError, useFieldArray, useFormContext } from 'react-hook-form';
+import { Control, FieldError, useFieldArray, useFormContext } from 'react-hook-form';
 import TextInput from '../text';
 
 interface MultipleTextInputProps {
   fieldName: string;
+  control?: Control;
   onRemove?: (nrOfFields: number) => void;
   onChange?: (
     nrOfFields: number,
@@ -16,14 +17,15 @@ interface MultipleTextInputProps {
 
 const MultipleTextInput = ({
   fieldName,
+  control: controlProp,
   onRemove,
   onChange,
 }: MultipleTextInputProps) => {
-  const {
-    control,
-    formState: { errors },
-    watch,
-  } = useFormContext();
+  const formContext = useFormContext();
+  const control = controlProp ?? formContext?.control;
+  const errors = formContext?.formState?.errors;
+  const watch = formContext?.watch;
+
   const { fields, append, remove } = useFieldArray({
     control,
     name: fieldName,
@@ -51,7 +53,7 @@ const MultipleTextInput = ({
     onRemove?.(fields.length);
   };
 
-  const fieldValues = watch(fieldName) || [];
+  const fieldValues = watch?.(fieldName) || [];
   const hasEmptyFields = fieldValues.some(
     (field: { key: string; value: string }) => {
       return !field.key && !field.value;
