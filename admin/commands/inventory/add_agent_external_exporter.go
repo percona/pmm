@@ -17,6 +17,7 @@ package inventory
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/AlekSi/pointer"
 
@@ -61,7 +62,7 @@ type AddAgentExternalExporterCommand struct {
 	CustomLabels      map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	PushMetrics       bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
 	TLSSkipVerify     bool              `help:"Skip TLS certificate verification"`
-	ConnectionTimeout string            `help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
+	ConnectionTimeout *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 }
 
 // RunCmd executes the AddAgentExternalExporterCommand and returns the result.
@@ -85,7 +86,7 @@ func (cmd *AddAgentExternalExporterCommand) RunCmd() (commands.Result, error) {
 				CustomLabels:      pointer.Get(customLabels),
 				PushMetrics:       cmd.PushMetrics,
 				TLSSkipVerify:     cmd.TLSSkipVerify,
-				ConnectionTimeout: cmd.ConnectionTimeout,
+				ConnectionTimeout: pointer.Get(commands.DurationString(cmd.ConnectionTimeout)),
 			},
 		},
 		Context: commands.Ctx,

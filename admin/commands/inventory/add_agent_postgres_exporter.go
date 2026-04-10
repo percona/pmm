@@ -15,6 +15,10 @@
 package inventory
 
 import (
+	"time"
+
+	"github.com/AlekSi/pointer"
+
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/pkg/flags"
 	"github.com/percona/pmm/api/inventory/v1/json/client"
@@ -67,7 +71,7 @@ type AddAgentPostgresExporterCommand struct {
 	TLSKeyFile             string            `help:"TLS certificate key file"`
 	AutoDiscoveryLimit     int32             `default:"0" placeholder:"NUMBER" help:"Auto-discovery will be disabled if there are more than that number of databases (default: server-defined, -1: always disabled)"`
 	MaxExporterConnections int32             `default:"0" placeholder:"NUMBER" help:"Maximum number of connections that exporter can make to PostgreSQL instance (default: server-defined)"`
-	ConnectionTimeout      string            `help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
+	ConnectionTimeout      *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 
 	flags.LogLevelNoFatalFlags
 }
@@ -119,7 +123,7 @@ func (cmd *AddAgentPostgresExporterCommand) RunCmd() (commands.Result, error) {
 				TLSCert:           tlsCert,
 				TLSKey:            tlsKey,
 				LogLevel:          cmd.LogLevel.EnumValue(),
-				ConnectionTimeout: cmd.ConnectionTimeout,
+				ConnectionTimeout: pointer.Get(commands.DurationString(cmd.ConnectionTimeout)),
 			},
 		},
 		Context: commands.Ctx,

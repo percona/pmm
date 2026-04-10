@@ -15,6 +15,10 @@
 package inventory
 
 import (
+	"time"
+
+	"github.com/AlekSi/pointer"
+
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/pkg/flags"
 	"github.com/percona/pmm/api/inventory/v1/json/client"
@@ -56,7 +60,7 @@ type AddAgentRDSExporterCommand struct {
 	DisableBasicMetrics    bool              `help:"Disable basic metrics"`
 	DisableEnhancedMetrics bool              `help:"Disable enhanced metrics"`
 	PushMetrics            bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
-	ConnectionTimeout      string            `help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
+	ConnectionTimeout      *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 
 	flags.LogLevelFatalFlags
 }
@@ -77,7 +81,7 @@ func (cmd *AddAgentRDSExporterCommand) RunCmd() (commands.Result, error) {
 				DisableEnhancedMetrics: cmd.DisableEnhancedMetrics,
 				PushMetrics:            cmd.PushMetrics,
 				LogLevel:               cmd.LogLevel.EnumValue(),
-				ConnectionTimeout:      cmd.ConnectionTimeout,
+				ConnectionTimeout:      pointer.Get(commands.DurationString(cmd.ConnectionTimeout)),
 			},
 		},
 		Context: commands.Ctx,

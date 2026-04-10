@@ -16,6 +16,9 @@ package management
 
 import (
 	"fmt"
+	"time"
+
+	"github.com/AlekSi/pointer"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
@@ -76,7 +79,7 @@ type AddPostgreSQLCommand struct {
 	ExposeExporter         bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
 	AutoDiscoveryLimit     int32             `placeholder:"NUMBER" help:"Auto-discovery will be disabled if there are more than that number of databases (default: server-defined, -1: always disabled)"`
 	MaxExporterConnections int32             `placeholder:"NUMBER" help:"Maximum number of connections to PostgreSQL instance that exporter can use (default: server-defined)"`
-	ConnectionTimeout      string            `help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
+	ConnectionTimeout      *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 
 	AddCommonFlags
 	flags.MetricsModeFlags
@@ -214,7 +217,7 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 				AutoDiscoveryLimit:     cmd.AutoDiscoveryLimit,
 				MaxExporterConnections: cmd.MaxExporterConnections,
 				LogLevel:               cmd.LogLevel.EnumValue(),
-				ConnectionTimeout:      cmd.ConnectionTimeout,
+				ConnectionTimeout:      pointer.Get(commands.DurationString(cmd.ConnectionTimeout)),
 			},
 		},
 		Context: commands.Ctx,

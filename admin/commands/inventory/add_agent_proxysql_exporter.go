@@ -15,6 +15,10 @@
 package inventory
 
 import (
+	"time"
+
+	"github.com/AlekSi/pointer"
+
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/pkg/flags"
 	"github.com/percona/pmm/api/inventory/v1/json/client"
@@ -60,7 +64,7 @@ type AddAgentProxysqlExporterCommand struct {
 	PushMetrics         bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
 	ExposeExporter      bool              `help:"Expose the address of the exporter publicly on 0.0.0.0"`
 	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
-	ConnectionTimeout   string            `help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
+	ConnectionTimeout   *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 
 	flags.LogLevelFatalFlags
 }
@@ -84,7 +88,7 @@ func (cmd *AddAgentProxysqlExporterCommand) RunCmd() (commands.Result, error) {
 				ExposeExporter:      cmd.ExposeExporter,
 				DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
 				LogLevel:            cmd.LogLevel.EnumValue(),
-				ConnectionTimeout:   cmd.ConnectionTimeout,
+				ConnectionTimeout:   pointer.Get(commands.DurationString(cmd.ConnectionTimeout)),
 			},
 		},
 		Context: commands.Ctx,
