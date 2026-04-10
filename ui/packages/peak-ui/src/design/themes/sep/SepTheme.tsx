@@ -6,7 +6,6 @@ import { listItemIconClasses } from "@mui/material/ListItemIcon";
 import { listItemButtonClasses } from "@mui/material/ListItemButton";
 
 import baseThemeOptions, {
-  primitives,
   semanticTokensLight,
   semanticTokensDark,
 } from "../base";
