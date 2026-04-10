@@ -6,4 +6,10 @@ export interface ApiErrorResponse {
   message: string;
 }
 
+declare module 'axios' {
+  export interface AxiosRequestConfig {
+    disableNotifications?: boolean | ((error: AxiosError) => boolean);
+  }
+}
+
 export interface ApiError extends AxiosError<ApiErrorResponse> {}
