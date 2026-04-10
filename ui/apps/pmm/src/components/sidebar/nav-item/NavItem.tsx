@@ -63,6 +63,20 @@ const NavItem: FC<NavItemProps> = ({
     if (drawerOpen) {
       setIsOpen(true);
     }
+
+    if (onClick) {
+      onClick();
+    }
+  };
+
+  const handleItemClick = () => {
+    if (linkProps.onClick) {
+      linkProps.onClick();
+    }
+
+    if (onClick) {
+      onClick();
+    }
   };
 
   if (item.children?.length) {
@@ -146,7 +160,7 @@ const NavItem: FC<NavItemProps> = ({
                 activeItem={activeItem}
                 drawerOpen={drawerOpen}
                 level={level + 1}
-                onClick={onClick}
+                onClick={handleItemClick}
               />
             ))}
           </List>
@@ -211,7 +225,7 @@ const NavItem: FC<NavItemProps> = ({
           ]}
           selected={active}
           {...linkProps}
-          onClick={onClick}
+          onClick={handleItemClick}
           data-testid={dataTestid}
           data-navlevel={level}
         >
