@@ -29,5 +29,5 @@ func OptionalFromProto(d *durationpb.Duration) *time.Duration {
 		return nil
 	}
 
-	return pointer.ToDuration(d.AsDuration())
+	return pointer.To(d.AsDuration())
 }
