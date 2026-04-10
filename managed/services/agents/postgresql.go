@@ -137,13 +137,13 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 	// Remote RDS / Azure: default 5s dial unless the user set ExporterOptions.ConnectionTimeout.
 	switch {
 	case exporter.AzureOptions.ClientID != "":
-		if pointer.GetDuration(exporter.ExporterOptions.ConnectionTimeout) != 0 {
+		if exporter.ExporterOptions.ConnectionTimeout != nil {
 			roundedConnectionTimeout = *exporter.ExporterOptions.ConnectionTimeout
 		} else {
 			roundedConnectionTimeout = postgresRemoteCloudDefaultDialTimeout
 		}
 	case node.NodeType == models.RemoteRDSNodeType:
-		if pointer.GetDuration(exporter.ExporterOptions.ConnectionTimeout) != 0 {
+		if exporter.ExporterOptions.ConnectionTimeout != nil {
 			roundedConnectionTimeout = *exporter.ExporterOptions.ConnectionTimeout
 		} else {
 			roundedConnectionTimeout = postgresRemoteCloudDefaultDialTimeout

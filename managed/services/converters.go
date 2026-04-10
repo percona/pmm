@@ -273,7 +273,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			ExposeExporter:     agent.ExporterOptions.ExposeExporter,
 			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 		}
-		if pointer.GetDuration(agent.ExporterOptions.ConnectionTimeout) != 0 {
+		if agent.ExporterOptions.ConnectionTimeout != nil {
 			exporter.ConnectionTimeout = durationpb.New(*agent.ExporterOptions.ConnectionTimeout)
 		}
 		return exporter, nil
@@ -301,7 +301,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			MetricsResolutions:        ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 			ExtraDsnParams:            agent.MySQLOptions.ExtraDSNParams,
 		}
-		if pointer.GetDuration(agent.ExporterOptions.ConnectionTimeout) != 0 {
+		if agent.ExporterOptions.ConnectionTimeout != nil {
 			exporter.ConnectionTimeout = durationpb.New(*agent.ExporterOptions.ConnectionTimeout)
 		}
 		return exporter, nil
@@ -325,7 +325,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			ExposeExporter:     agent.ExporterOptions.ExposeExporter,
 			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 		}
-		if pointer.GetDuration(agent.ExporterOptions.ConnectionTimeout) != 0 {
+		if agent.ExporterOptions.ConnectionTimeout != nil {
 			exporter.ConnectionTimeout = durationpb.New(*agent.ExporterOptions.ConnectionTimeout)
 		}
 		exporter.StatsCollections = agent.MongoDBOptions.StatsCollections
@@ -353,7 +353,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			ExposeExporter:     agent.ExporterOptions.ExposeExporter,
 			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 		}
-		if pointer.GetDuration(agent.ExporterOptions.ConnectionTimeout) != 0 {
+		if agent.ExporterOptions.ConnectionTimeout != nil {
 			exporter.ConnectionTimeout = durationpb.New(*agent.ExporterOptions.ConnectionTimeout)
 		}
 		exporter.AutoDiscoveryLimit = pointer.GetInt32(agent.PostgreSQLOptions.AutoDiscoveryLimit)
@@ -451,7 +451,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			ExposeExporter:     agent.ExporterOptions.ExposeExporter,
 			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 		}
-		if pointer.GetDuration(agent.ExporterOptions.ConnectionTimeout) != 0 {
+		if agent.ExporterOptions.ConnectionTimeout != nil {
 			exporter.ConnectionTimeout = durationpb.New(*agent.ExporterOptions.ConnectionTimeout)
 		}
 		return exporter, nil
@@ -508,7 +508,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			LogLevel:                inventoryv1.LogLevelAPIValue(agent.LogLevel),
 			MetricsResolutions:      ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 		}
-		if pointer.GetDuration(agent.ExporterOptions.ConnectionTimeout) != 0 {
+		if agent.ExporterOptions.ConnectionTimeout != nil {
 			exporter.ConnectionTimeout = durationpb.New(*agent.ExporterOptions.ConnectionTimeout)
 		}
 		return exporter, nil
@@ -537,7 +537,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			TlsSkipVerify:      agent.TLSSkipVerify,
 			Status:             inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
 		}
-		if pointer.GetDuration(agent.ExporterOptions.ConnectionTimeout) != 0 {
+		if agent.ExporterOptions.ConnectionTimeout != nil {
 			ext.ConnectionTimeout = durationpb.New(*agent.ExporterOptions.ConnectionTimeout)
 		}
 		return ext, nil
@@ -557,7 +557,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			LogLevel:                    inventoryv1.LogLevelAPIValue(agent.LogLevel),
 			MetricsResolutions:          ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 		}
-		if pointer.GetDuration(agent.ExporterOptions.ConnectionTimeout) != 0 {
+		if agent.ExporterOptions.ConnectionTimeout != nil {
 			exporter.ConnectionTimeout = durationpb.New(*agent.ExporterOptions.ConnectionTimeout)
 		}
 		return exporter, nil
@@ -599,7 +599,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			ExposeExporter:     agent.ExporterOptions.ExposeExporter,
 			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 		}
-		if pointer.GetDuration(agent.ExporterOptions.ConnectionTimeout) != 0 {
+		if agent.ExporterOptions.ConnectionTimeout != nil {
 			exporter.ConnectionTimeout = durationpb.New(*agent.ExporterOptions.ConnectionTimeout)
 		}
 		return exporter, nil

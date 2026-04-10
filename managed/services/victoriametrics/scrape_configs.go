@@ -65,7 +65,7 @@ func boundedExporterScrapeTimeout(interval, timeout time.Duration) time.Duration
 // below 100ms to satisfy Prometheus scrape_timeout constraints:
 // https://prometheus.io/docs/prometheus/latest/configuration/configuration/
 func exporterScrapeTimeout(cfg *config.ScrapeConfig, agent *models.Agent) {
-	if cfg == nil || agent == nil || agent.ExporterOptions.ConnectionTimeout == nil || *agent.ExporterOptions.ConnectionTimeout == 0 {
+	if cfg == nil || agent == nil || agent.ExporterOptions.ConnectionTimeout == nil {
 		return
 	}
 	cfg.ScrapeTimeout = config.Duration(

@@ -821,7 +821,7 @@ func (a *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 // EffectiveDialTimeout returns the timeout configured for this agent's exporter.
 // Only for exporters that have connection timeout support in DSN/config generation.
 func (a *Agent) EffectiveDialTimeout() time.Duration {
-	if pointer.GetDuration(a.ExporterOptions.ConnectionTimeout) != 0 {
+	if a.ExporterOptions.ConnectionTimeout != nil {
 		return *a.ExporterOptions.ConnectionTimeout
 	}
 
