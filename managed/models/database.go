@@ -1943,6 +1943,24 @@ type agentConfig struct {
 	ID string `yaml:"id"`
 }
 
+func runPMMAgentSetupHA(pmmAgentID string) error {
+	args := []string{
+		"setup",
+		"--config-file", AgentConfigFilePath,
+		"--server-address", "127.0.0.1:8443",
+		"--id", pmmAgentID,
+		"--skip-registration",
+		"--server-insecure-tls",
+	}
+	cmd := exec.Command("pmm-agent", args...) //nolint:gosec
+	logrus.Debugf("Running: pmm-agent %s", strings.Join(cmd.Args, " "))
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("error setting up pmm-agent: %w: %s", err, output)
+	}
+	return nil
+}
+
 func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 	agentID := uuid.New().String()
 	nodeID := uuid.New().String()
@@ -1979,24 +1997,57 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 		}
 	}
 
-	args := []string{
-		"setup",
-		"--config-file", AgentConfigFilePath,
-		"--server-address", "127.0.0.1:8443",
-		"--id", agentID,
-		"--skip-registration",
-		"--server-insecure-tls",
-	}
-	cmd := exec.Command("pmm-agent", args...) //nolint:gosec
-	logrus.Debugf("Running: pmm-agent %s", strings.Join(cmd.Args, " "))
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("error setting up pmm-agent: %w: %s", err, output)
-	}
-
 	labels := map[string]string{
 		"cluster":     "pmm",
 		"environment": "pmm",
+	}
+
+	// Shared inventory DB may already contain this HA node (e.g. replaced pod with a fresh PVC while
+	// the hostname / HANodeID is unchanged). Re-use the existing node and pmm-agent IDs so local
+	// pmm-agent setup matches inventory; otherwise createNodeWithID fails with AlreadyExists.
+	existingNode, err := FindNodeByName(q, params.HANodeID)
+	if err == nil {
+		pmmAgents, ferr := FindPMMAgentsRunningOnNode(q, existingNode.NodeID)
+		if ferr != nil {
+			return ferr
+		}
+		if len(pmmAgents) == 0 {
+			return fmt.Errorf("node %q (ID %s) exists in inventory but has no pmm-agent", params.HANodeID, existingNode.NodeID)
+		}
+		if len(pmmAgents) > 1 {
+			logrus.Warnf("Multiple pmm-agents on HA node %q; using %s", params.HANodeID, pmmAgents[0].AgentID)
+		}
+		existingPmmAgentID := pmmAgents[0].AgentID
+
+		if err := runPMMAgentSetupHA(existingPmmAgentID); err != nil {
+			return err
+		}
+
+		nodeExporters, err := FindAgents(q, AgentFilters{
+			PMMAgentID: existingPmmAgentID,
+			AgentType:  pointer.To(NodeExporterType),
+		})
+		if err != nil {
+			return err
+		}
+		if len(nodeExporters) == 0 {
+			if _, err := CreateNodeExporter(q, existingPmmAgentID, labels, false, false, []string{}, nil, ""); err != nil {
+				return err
+			}
+		}
+
+		PMMServerAgentID = existingPmmAgentID
+		logrus.Infof("Set PMMServerAgentID to (adopted existing HA inventory): %s", PMMServerAgentID)
+		PMMServerNodeID = existingNode.NodeID
+		logrus.Infof("Set PMMServerNodeID to (adopted existing HA inventory): %s", PMMServerNodeID)
+		return nil
+	}
+	if status.Code(err) != codes.NotFound {
+		return err
+	}
+
+	if err := runPMMAgentSetupHA(agentID); err != nil {
+		return err
 	}
 
 	node, err := createNodeWithID(q, nodeID, GenericNodeType, &CreateNodeParams{
