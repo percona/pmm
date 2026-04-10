@@ -116,6 +116,7 @@ var rules = map[string]role{
 	"/v1/realtimeanalytics/sessions:start": admin,
 	"/v1/realtimeanalytics/sessions:stop":  admin,
 	"/v1/realtimeanalytics/sessions":       viewer,
+	"/v1/realtimeanalytics/services":       viewer,
 	"/v1/realtimeanalytics/queries:search": viewer,
 
 	// "/auth_request"  has auth_request disabled in nginx config
