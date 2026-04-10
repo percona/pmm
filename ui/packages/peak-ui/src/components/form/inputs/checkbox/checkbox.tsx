@@ -13,7 +13,8 @@ const Checkbox = ({
   checkboxProps,
   disabled,
 }: CheckboxProps) => {
-  const { control: contextControl } = useFormContext();
+  const formContext = useFormContext();
+  const contextControl = formContext?.control;
 
   const content = (
     <Controller
