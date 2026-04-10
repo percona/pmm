@@ -6,7 +6,7 @@ services:
     profiles:
       - pmm    
     container_name: pmm-server
-    image: perconalab/pmm-server:3-dev-latest
+    image: percona/pmm-server:3
     restart: always
     depends_on:
       clickhouse:

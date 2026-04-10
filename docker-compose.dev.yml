@@ -14,8 +14,8 @@ services:
       - PMM_ENABLE_NOMAD=${PMM_ENABLE_NOMAD:-}
       - PMM_ENABLE_INTERNAL_PG_QAN=${PMM_ENABLE_INTERNAL_PG_QAN:-}
       - PMM_PUBLIC_ADDRESS=${PMM_PUBLIC_ADDRESS:-localhost}
-      - PMM_DEV_UPDATE_DOCKER_IMAGE=${PMM_DEV_UPDATE_DOCKER_IMAGE:-}
       - PMM_RELEASE_PATH=${PMM_RELEASE_PATH:-/root/go/bin}
+      - PMM_DEV_UPDATE_DOCKER_IMAGE=${PMM_DEV_UPDATE_DOCKER_IMAGE:-}
       - PMM_RELEASE_VERSION=${PMM_RELEASE_VERSION:-}
       - GO_VERSION=${GO_VERSION:-}
       - PMM_DEV_PERCONA_PLATFORM_ADDRESS=${PMM_DEV_PERCONA_PLATFORM_ADDRESS:-}
@@ -108,12 +108,12 @@ services:
       - watchtower
     image: ${WATCHTOWER_IMAGE:-perconalab/watchtower}
     container_name: watchtower
+    hostname: watchtower
     environment:
       - WATCHTOWER_HTTP_LISTEN_PORT=${WATCHTOWER_HTTP_LISTEN_PORT:-8080}
       - WATCHTOWER_HTTP_API_UPDATE=${WATCHTOWER_HTTP_API_UPDATE:-1}
       - WATCHTOWER_HTTP_API_TOKEN=${PMM_WATCHTOWER_TOKEN:-INSECURE_TOKEN}
       - WATCHTOWER_NO_RESTART=${WATCHTOWER_NO_RESTART:-0}
-    hostname: watchtower
     volumes:
       - ${WATCHTOWER_DOCKER_PATH:-/var/run/docker.sock}:/var/run/docker.sock
 
