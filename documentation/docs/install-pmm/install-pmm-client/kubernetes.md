@@ -107,6 +107,15 @@ Choose your deployment approach:
               labels:
                 app: pmm-client
             spec:
+              initContainers:
+                - name: set-tmp-permissions
+                  image: busybox
+                  command: ["sh", "-c", "chown -R 1002:0 /usr/local/percona/pmm/tmp"]
+                  securityContext:
+                    runAsUser: 0
+                  volumeMounts:
+                    - name: pmm-client-storage
+                      mountPath: /usr/local/percona/pmm/tmp            
               containers:
                 - name: pmm-client
                   image: percona/pmm-client:3

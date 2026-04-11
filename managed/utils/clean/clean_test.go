@@ -82,7 +82,7 @@ func TestCleaner(t *testing.T) {
 		db, q, teardown := setup(t)
 		defer teardown(t)
 
-		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+		ctx, cancel := context.WithTimeout(t.Context(), 1*time.Second)
 		defer cancel()
 
 		c := New(db)
