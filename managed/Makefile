@@ -1,31 +1,13 @@
-default: help
+PROJECT_NAME  := pmm-managed
+BUILD_SOURCE  := ./cmd/...
+TEST_FLAGS    ?= -timeout=180s
+TEST_PARALLEL := -p 1
 
-help:                           ## Display this help message
-	@echo "Please use \`make <target>\` where <target> is one of:"
-	@grep -h '^[a-zA-Z]' $(MAKEFILE_LIST) | \
-		awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
-	@echo
-
-# `cut` is used to remove first `v` from `git describe` output
-PMM_RELEASE_PATH ?= ../bin
-PMM_RELEASE_VERSION ?= $(shell git describe --always | cut -b2-)
-PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
-PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
-PMM_RELEASE_BRANCH ?= $(shell git describe --always --contains --all)
-
-PMM_LD_FLAGS = -ldflags " \
-			-X 'github.com/percona/pmm/version.ProjectName=pmm-managed' \
-			-X 'github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
-			-X 'github.com/percona/pmm/version.PMMVersion=$(PMM_RELEASE_VERSION)' \
-			-X 'github.com/percona/pmm/version.Timestamp=$(PMM_RELEASE_TIMESTAMP)' \
-			-X 'github.com/percona/pmm/version.FullCommit=$(PMM_RELEASE_FULLCOMMIT)' \
-			-X 'github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
-			"
+include ../go.mk
 
 IS_ARM        := $(filter arm64,$(shell uname -m))
 PMM_RACE_FLAG ?= $(if $(IS_ARM),,-race)
 
-PMM_TEST_FLAGS ?= -timeout=180s
 PMM_TEST_RUN_UPDATE ?= 0
 PMM_TEST_FILES ?= ./...
 
@@ -39,23 +21,23 @@ pi-validate:              ## Validate Percona Intelligence advisors and checks
 	go run ./cmd/pi-validator/main.go advisors --advisors.dir ./data/advisors/ --checks.dir ./data/checks/
 
 release:                        ## Build pmm-managed release binaries
-	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/...
+	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/...
 
 release-encryption-rotation:                        ## Build PMM encryption rotation tool
-	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/pmm-encryption-rotation/...
+	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/pmm-encryption-rotation/...
 
 release-starlark:
-	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/pmm-managed-starlark/...
+	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/pmm-managed-starlark/...
 	$(PMM_RELEASE_PATH)/pmm-managed-starlark --version
 
 release-dev:										## Build pmm-managed binaries for development
-	go build $(PMM_RACE_FLAG) -gcflags="all=-N -l" -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/...
+	go build $(PMM_RACE_FLAG) -gcflags="all=-N -l" -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/...
 
 test:                           ## Run tests
-	go test $(PMM_TEST_FLAGS) -p 1 -race $(PMM_TEST_FILES)
+	go test $(TEST_FLAGS) -p 1 -race $(PMM_TEST_FILES)
 
 test-cover:                     ## Run tests and collect per-package coverage information
-	go test $(PMM_TEST_FLAGS) -p 1 -race -coverprofile=cover.out -covermode=atomic -coverpkg=$(PMM_TEST_FILES) $(PMM_TEST_FILES)
+	go test $(TEST_FLAGS) -p 1 -race -coverprofile=cover.out -covermode=atomic -coverpkg=$(PMM_TEST_FILES) $(PMM_TEST_FILES)
 
 test-update:                   ## Run pmm update test
 	PMM_TEST_RUN_UPDATE=1 go test -timeout=600s -v -p 1 -race ./services/supervisord -run ^TestDevContainer/Update$$

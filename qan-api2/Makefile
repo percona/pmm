@@ -1,31 +1,15 @@
 # PMM Demo benchmark
 include Makefile.clickhouse
 
-default: help
+PROJECT_NAME  := qan-api2
+COVERAGE_MODE := count
 
-help:                           ## Display this help message
-	@echo "Please use \`make <target>\` where <target> is one of:"
-	@grep '^[a-zA-Z]' $(MAKEFILE_LIST) | \
-	    awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
-
-# `cut` is used to remove the leading `v` from the version
-PMM_RELEASE_PATH ?= ../bin
-PMM_RELEASE_VERSION ?= $(shell git describe --always --dirty | cut -b2-)
-PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
-PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
-PMM_RELEASE_BRANCH ?= $(shell git describe --always --contains --all)
+include ../go.mk
 
 PMM_CONTAINER ?= pmm-server
 
 release:                        ## Build qan-api2 release binary
-	env CGO_ENABLED=0 go build -v -o $(PMM_RELEASE_PATH)/qan-api2 -ldflags " \
-		-X 'github.com/percona/pmm/version.ProjectName=qan-api2' \
-		-X 'github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
-		-X 'github.com/percona/pmm/version.PMMVersion=$(PMM_RELEASE_VERSION)' \
-		-X 'github.com/percona/pmm/version.Timestamp=$(PMM_RELEASE_TIMESTAMP)' \
-		-X 'github.com/percona/pmm/version.FullCommit=$(PMM_RELEASE_FULLCOMMIT)' \
-		-X 'github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
-		"
+	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/qan-api2 .
 
 install:                        ## Install qan-api2 binary
 	go install -v ./...
