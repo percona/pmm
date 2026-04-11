@@ -91,3 +91,4 @@ cat > "${OUTPUT_FILE}" <<EOF
 EOF
 
 echo "VERSION.json written to ${OUTPUT_FILE}"
+cat "${OUTPUT_FILE}"

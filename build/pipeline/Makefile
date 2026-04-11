@@ -1,6 +1,6 @@
 # Makefile for building PMM components using Docker
 
-.PHONY: help build
+.PHONY: $(MAKECMDGOALS)
 
 SHELL := bash
 .SHELLFLAGS := -o pipefail -c
@@ -510,6 +510,7 @@ build-pmm-managed: ensure-pmm-builder ensure-build-volumes
 		-v $(BUILD_CACHE_VOL):/root/.cache/go-build \
 		-e GOCACHE=/root/.cache/go-build \
 		-e GOARCH=$(GOARCH) \
+		-e PMM_RELEASE_VERSION=$(PMM_VERSION) \
 		pmm-builder:latest bash -c "\
 			set -e; git clone /repos/pmm.git /build/pmm; \
 			cd /build/pmm; git checkout $(PMM_REF); \
