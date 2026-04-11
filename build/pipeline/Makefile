@@ -154,10 +154,10 @@ CLIENT_DOCKERFILE ?= $(PIPELINE_DIR)/Dockerfile.client
 CLIENT_DOCKER_TAG ?= perconalab/pmm-client:$(PMM_VERSION)
 SERVER_DOCKERFILE ?= $(PIPELINE_DIR)/Dockerfile.server
 SERVER_DOCKER_TAG ?= perconalab/pmm-server:$(PMM_VERSION)
-BUILDX_BUILDER ?= pmm-s3-builder
-GOMOD_CACHE_VOL  ?= pmm-mod
-BUILD_CACHE_VOL  ?= pmm-build
-YARN_CACHE_VOL   ?= pmm-yarn
+BUILDX_BUILDER    ?= pmm-s3-builder
+GOMOD_CACHE_VOL   ?= pmm-mod
+BUILD_CACHE_VOL   ?= pmm-build
+YARN_CACHE_VOL    ?= pmm-yarn
 SERVER_OUTPUT_DIR := $(PIPELINE_DIR)output/server
 
 export LOG_FILE
