@@ -47,7 +47,6 @@ pmm-api() {
     --platform linux/amd64 \
     --name pmm-api-tests \
     -e PMM_SERVER_URl=https://admin:admin@127.0.0.1 \
-    -e PMM_RUN_UPDATE_TEST=0 \
     -e PMM_RUN_ADVISOR_TESTS=0 \
     -e PMM_SERVER_INSECURE_TLS=1 \
     -v pmm-gomod:/go/pkg/mod \

@@ -126,7 +126,6 @@ func init() {
 	traceF := flag.Bool("pmm.trace", false, "Enable trace output [PMM_TRACE].")
 	serverURLF := flag.String("pmm.server-url", "https://admin:admin@localhost/", "PMM Server URL [PMM_SERVER_URL].")
 	serverInsecureTLSF := flag.Bool("pmm.server-insecure-tls", false, "Skip PMM Server TLS certificate validation [PMM_SERVER_INSECURE_TLS].")
-	runUpdateTestF := flag.Bool("pmm.run-update-test", false, "Run PMM Server update test [PMM_RUN_UPDATE_TEST].")
 
 	// FIXME we should rethink it once https://jira.percona.com/browse/PMM-5106 is implemented
 	runAdvisorsTestF := flag.Bool("pmm.run-advisor-tests", false, "Run Advisor tests that require connected clients [PMM_RUN_ADVISOR_TESTS].")
@@ -139,7 +138,6 @@ func init() {
 		"PMM_TRACE":               flag.Lookup("pmm.trace"),
 		"PMM_SERVER_URL":          flag.Lookup("pmm.server-url"),
 		"PMM_SERVER_INSECURE_TLS": flag.Lookup("pmm.server-insecure-tls"),
-		"PMM_RUN_UPDATE_TEST":     flag.Lookup("pmm.run-update-test"),
 		"PMM_RUN_ADVISOR_TESTS":   flag.Lookup("pmm.run-advisor-tests"),
 	} {
 		env, ok := os.LookupEnv(envVar)
@@ -159,7 +157,6 @@ func init() {
 		logrus.SetReportCaller(true)
 	}
 	Debug = *debugF || *traceF
-	RunUpdateTest = *runUpdateTestF
 	RunAdvisorTests = *runAdvisorsTestF
 
 	var cancel context.CancelFunc
