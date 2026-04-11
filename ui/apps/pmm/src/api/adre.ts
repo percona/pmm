@@ -307,39 +307,40 @@ export const adreChatStream = async (
   }
 };
 
+/** API JSON uses snake_case; axios-case-converter exposes camelCase on the client. */
 export interface AdreConversation {
   id: number;
   title: string;
-  created_at: string;
-  updated_at: string;
-  last_message_at: string;
+  createdAt: string;
+  updatedAt: string;
+  lastMessageAt: string;
 }
 
 export interface AdreMessageRow {
   id: number;
-  conversation_id: number;
+  conversationId: number;
   role: string;
   content: string;
-  created_at: string;
+  createdAt: string;
   model?: string;
-  tool_name?: string;
-  tool_result_json?: unknown;
+  toolName?: string;
+  toolResultJson?: unknown;
 }
 
 export interface AdreSearchHit {
-  message_id: number;
-  conversation_id: number;
+  messageId: number;
+  conversationId: number;
   role: string;
   snippet: string;
-  created_at: string;
+  createdAt: string;
 }
 
 export const listAdreConversations = async (params?: {
   limit?: number;
   cursor?: string;
   q?: string;
-}): Promise<{ conversations: AdreConversation[]; next_cursor?: string }> => {
-  const res = await api.get<{ conversations: AdreConversation[]; next_cursor?: string }>('/adre/conversations', {
+}): Promise<{ conversations: AdreConversation[]; nextCursor?: string }> => {
+  const res = await api.get<{ conversations: AdreConversation[]; nextCursor?: string }>('/adre/conversations', {
     params,
   });
   return res.data;

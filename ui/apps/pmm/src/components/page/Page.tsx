@@ -14,7 +14,7 @@ import { PMM_HOME_URL } from 'lib/constants';
 import { Footer } from 'components/footer';
 import { updateDocumentTitle } from 'utils/document.utils';
 
-export const Page: FC<PageProps> = ({ title, topBar, footer, children }) => {
+export const Page: FC<PageProps> = ({ title, topBar, footer, children, fullWidth }) => {
   const { user } = useUser();
   updateDocumentTitle(title);
 
@@ -22,16 +22,24 @@ export const Page: FC<PageProps> = ({ title, topBar, footer, children }) => {
     <Stack
       sx={(theme) => ({
         flex: 1,
-        [theme.breakpoints.up('lg')]: {
-          width: 1000,
-        },
-        width: {
-          md: 'auto',
-        },
+        ...(fullWidth
+          ? {
+              width: '100%',
+              maxWidth: '100%',
+              alignSelf: 'stretch',
+            }
+          : {
+              [theme.breakpoints.up('lg')]: {
+                width: 1000,
+              },
+              width: {
+                md: 'auto',
+              },
+            }),
         p: {
           xs: 2,
         },
-        mx: 'auto',
+        mx: fullWidth ? 0 : 'auto',
         gap: 3,
         mt: 1,
       })}

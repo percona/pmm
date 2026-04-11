@@ -52,10 +52,13 @@ export const AdreChatPanel: FC = () => {
     conversations,
     conversationsLoading,
     newChat,
+    deleteConversation,
     selectConversation,
     searchHits,
     searchLoading,
     runSearch,
+    scrollToMessageId,
+    clearScrollToMessage,
   } = useAdreChat();
   const [ask, setAsk] = useState('');
   const [model, setModel] = useState('');
@@ -124,6 +127,20 @@ export const AdreChatPanel: FC = () => {
     return () => cancelAnimationFrame(id);
   }, []);
 
+  useEffect(() => {
+    if (scrollToMessageId == null || !containerRef.current) return;
+    const timer = window.setTimeout(() => {
+      const root = containerRef.current;
+      if (!root) return;
+      const el = root.querySelector(`[data-adre-msg-id="${scrollToMessageId}"]`);
+      if (el instanceof HTMLElement) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      clearScrollToMessage();
+    }, 150);
+    return () => window.clearTimeout(timer);
+  }, [scrollToMessageId, allMessages.length, clearScrollToMessage]);
+
   const onSend = useCallback(async () => {
     if (!ask.trim()) return;
     const userAsk = ask;
@@ -162,6 +179,7 @@ export const AdreChatPanel: FC = () => {
           searchHits={searchHits}
           searchLoading={searchLoading}
           onNewChat={newChat}
+          onDeleteConversation={deleteConversation}
           onSelectConversation={selectConversation}
           onSearch={runSearch}
         />
@@ -173,8 +191,7 @@ export const AdreChatPanel: FC = () => {
             id="messages-container"
             sx={{
               flex: 1,
-              minHeight: 280,
-              maxHeight: '70vh',
+              minHeight: 0,
               overflow: 'auto',
               p: 2,
               display: 'flex',
@@ -192,7 +209,8 @@ export const AdreChatPanel: FC = () => {
               <Box sx={{ maxWidth: '100%', width: '100%', alignSelf: 'center', display: 'flex', flexDirection: 'column', gap: 2 }}>
               {allMessages.map((msg, idx) => (
                 <Box
-                  key={idx}
+                  key={msg.serverMessageId ?? `row-${idx}`}
+                  data-adre-msg-id={msg.serverMessageId != null ? String(msg.serverMessageId) : undefined}
                   sx={{
                     display: 'flex',
                     justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',

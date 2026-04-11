@@ -3,12 +3,14 @@ import {
   adreChatStream,
   getAdreAlerts,
   createAdreConversation,
+  deleteAdreConversation,
   listAdreConversations,
   getAdreMessages,
   searchAdreMessages,
   type AdreStreamProgressEvent,
   type AdreConversation,
   type AdreSearchHit,
+  type AdreMessageRow,
 } from 'api/adre';
 import { useAdreSettings } from 'hooks/api/useAdre';
 import { useSnackbar } from 'notistack';
@@ -29,16 +31,19 @@ export interface ChatMessage {
   timestamp?: number;
   reasoning?: string;
   progressSteps?: ProgressStep[];
+  /** Persisted message id from PMM API (for scroll-to from search). */
+  serverMessageId?: number;
 }
 
-function mapServerRowsToChat(messages: { role: string; content: string; created_at: string }[]): ChatMessage[] {
+function mapServerRowsToChat(messages: AdreMessageRow[]): ChatMessage[] {
   const out: ChatMessage[] = [];
   for (const m of messages) {
     if (m.role !== 'user' && m.role !== 'assistant') continue;
     out.push({
       role: m.role as 'user' | 'assistant',
       content: m.content,
-      timestamp: new Date(m.created_at).getTime(),
+      timestamp: new Date(m.createdAt).getTime(),
+      serverMessageId: m.id,
     });
   }
   return out;
@@ -64,6 +69,8 @@ export function useAdreChat() {
   const [conversationsLoading, setConversationsLoading] = useState(false);
   const [searchHits, setSearchHits] = useState<AdreSearchHit[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
+  /** After loading history, AdreChatPanel scrolls to this server message id, then clears. */
+  const [scrollToMessageId, setScrollToMessageId] = useState<number | null>(null);
   const streamStartTimeRef = useRef<number | null>(null);
   const progressStepsRef = useRef<ProgressStep[]>([]);
 
@@ -85,7 +92,12 @@ export function useAdreChat() {
   }, []);
 
   const selectConversation = useCallback(
-    async (id: number) => {
+    async (id: number, options?: { focusMessageId?: number }) => {
+      if (typeof id !== 'number' || Number.isNaN(id)) {
+        enqueueSnackbar('Invalid conversation', { variant: 'error' });
+        return;
+      }
+      setScrollToMessageId(options?.focusMessageId ?? null);
       setConversationId(id);
       try {
         sessionStorage.setItem(SESSION_CONV_ID_KEY, String(id));
@@ -99,10 +111,13 @@ export function useAdreChat() {
         await loadMessagesFor(id);
       } catch {
         enqueueSnackbar('Failed to load messages', { variant: 'error' });
+        setScrollToMessageId(null);
       }
     },
     [loadMessagesFor, enqueueSnackbar]
   );
+
+  const clearScrollToMessage = useCallback(() => setScrollToMessageId(null), []);
 
   const newChat = useCallback(async () => {
     try {
@@ -122,6 +137,27 @@ export function useAdreChat() {
       enqueueSnackbar(e instanceof Error ? e.message : 'Failed to start chat', { variant: 'error' });
     }
   }, [enqueueSnackbar, refreshConversations]);
+
+  const deleteConversation = useCallback(
+    async (id: number) => {
+      if (!window.confirm('Delete this conversation? This cannot be undone.')) return;
+      try {
+        await deleteAdreConversation(id);
+        await refreshConversations();
+        if (conversationId === id) {
+          try {
+            sessionStorage.removeItem(SESSION_CONV_ID_KEY);
+          } catch {
+            /* ignore */
+          }
+          await newChat();
+        }
+      } catch (e) {
+        enqueueSnackbar(e instanceof Error ? e.message : 'Failed to delete conversation', { variant: 'error' });
+      }
+    },
+    [conversationId, enqueueSnackbar, refreshConversations, newChat]
+  );
 
   /** Invalidates stale async work when the effect re-runs (e.g. React Strict Mode remount or ADRE disabled). */
   const adreInitGenRef = useRef(0);
@@ -336,7 +372,10 @@ export function useAdreChat() {
     conversationsLoading,
     refreshConversations,
     newChat,
+    deleteConversation,
     selectConversation,
+    scrollToMessageId,
+    clearScrollToMessage,
     searchHits,
     searchLoading,
     runSearch,

@@ -132,7 +132,7 @@ const AdrePage: FC = () => {
   }
 
   return (
-    <Page title="">
+    <Page title="" fullWidth>
       <Box
         sx={{
           bgcolor: '#212121',
@@ -144,7 +144,8 @@ const AdrePage: FC = () => {
           m: -2,
           mt: -3,
           mb: -3,
-          p: 3,
+          px: { xs: 1, sm: 2 },
+          py: 2,
           '& .MuiCard-root': {
             bgcolor: '#212121',
             borderColor: 'rgba(255,255,255,0.12)',

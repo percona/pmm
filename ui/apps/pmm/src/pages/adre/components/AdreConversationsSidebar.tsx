@@ -1,4 +1,5 @@
 import Add from '@mui/icons-material/Add';
+import DeleteOutline from '@mui/icons-material/DeleteOutline';
 import Search from '@mui/icons-material/Search';
 import {
   Box,
@@ -8,15 +9,18 @@ import {
   IconButton,
   InputAdornment,
   List,
+  ListItem,
   ListItemButton,
   ListItemText,
   Stack,
   TextField,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import { type AdreConversation, type AdreSearchHit } from 'api/adre';
 import { formatTimestamp } from 'hooks/useAdreChat';
 import { useDebouncedAdreMessageSearch } from 'hooks/useDebouncedAdreMessageSearch';
+import { formatAdreSearchSnippet } from 'utils/adreSearchSnippet';
 import { FC, useCallback } from 'react';
 
 export interface AdreConversationsSidebarProps {
@@ -26,7 +30,8 @@ export interface AdreConversationsSidebarProps {
   searchHits: AdreSearchHit[];
   searchLoading: boolean;
   onNewChat: () => void | Promise<void>;
-  onSelectConversation: (id: number) => void | Promise<void>;
+  onDeleteConversation: (id: number) => void | Promise<void>;
+  onSelectConversation: (id: number, options?: { focusMessageId?: number }) => void | Promise<void>;
   onSearch: (q: string) => void | Promise<void>;
 }
 
@@ -37,6 +42,7 @@ export const AdreConversationsSidebar: FC<AdreConversationsSidebarProps> = ({
   searchHits,
   searchLoading,
   onNewChat,
+  onDeleteConversation,
   onSelectConversation,
   onSearch,
 }) => {
@@ -46,7 +52,7 @@ export const AdreConversationsSidebar: FC<AdreConversationsSidebarProps> = ({
 
   const onHitClick = useCallback(
     (hit: AdreSearchHit) => {
-      void onSelectConversation(hit.conversation_id);
+      void onSelectConversation(hit.conversationId, { focusMessageId: hit.messageId });
       clearQuery();
     },
     [onSelectConversation, clearQuery]
@@ -108,22 +114,43 @@ export const AdreConversationsSidebar: FC<AdreConversationsSidebarProps> = ({
               {conversations.map((c) => {
                 const label = c.title?.trim() || `Chat ${c.id}`;
                 const sub =
-                  c.last_message_at || c.updated_at
-                    ? formatTimestamp(new Date(c.last_message_at || c.updated_at).getTime())
+                  c.lastMessageAt || c.updatedAt
+                    ? formatTimestamp(new Date(c.lastMessageAt || c.updatedAt).getTime())
                     : '';
                 return (
-                  <ListItemButton
+                  <ListItem
                     key={c.id}
-                    selected={c.id === conversationId}
-                    onClick={() => void onSelectConversation(c.id)}
+                    disablePadding
+                    secondaryAction={
+                      <Tooltip title="Delete conversation">
+                        <IconButton
+                          edge="end"
+                          size="small"
+                          aria-label={`Delete conversation ${label}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            void onDeleteConversation(c.id);
+                          }}
+                          sx={{ color: 'text.secondary', mr: 0.5 }}
+                        >
+                          <DeleteOutline fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    }
                   >
-                    <ListItemText
-                    primary={label}
-                    secondary={sub}
-                    primaryTypographyProps={{ noWrap: true, variant: 'body2' }}
-                    secondaryTypographyProps={{ variant: 'caption' }}
-                  />
-                </ListItemButton>
+                    <ListItemButton
+                      selected={c.id === conversationId}
+                      onClick={() => void onSelectConversation(c.id)}
+                      sx={{ pr: 6 }}
+                    >
+                      <ListItemText
+                        primary={label}
+                        secondary={sub}
+                        primaryTypographyProps={{ noWrap: true, variant: 'body2' }}
+                        secondaryTypographyProps={{ variant: 'caption' }}
+                      />
+                    </ListItemButton>
+                  </ListItem>
                 );
               })}
             </List>
@@ -140,19 +167,19 @@ export const AdreConversationsSidebar: FC<AdreConversationsSidebarProps> = ({
             <List dense disablePadding>
               {searchHits.map((hit) => (
                 <ListItemButton
-                  key={`${hit.conversation_id}-${hit.message_id}`}
-                  selected={hit.conversation_id === conversationId}
+                  key={`${hit.conversationId}-${hit.messageId}`}
+                  selected={hit.conversationId === conversationId}
                   onClick={() => onHitClick(hit)}
                   sx={{ alignItems: 'flex-start', py: 1 }}
                 >
                   <ListItemText
                     primaryTypographyProps={{ variant: 'body2', sx: { wordBreak: 'break-word' } }}
                     secondaryTypographyProps={{ variant: 'caption' }}
-                    primary={hit.snippet}
+                    primary={formatAdreSearchSnippet(hit.snippet)}
                     secondary={
-                      hit.created_at
-                        ? `Conv #${hit.conversation_id} · ${formatTimestamp(new Date(hit.created_at).getTime())}`
-                        : `Conv #${hit.conversation_id}`
+                      hit.createdAt
+                        ? `Conv #${hit.conversationId} · ${formatTimestamp(new Date(hit.createdAt).getTime())}`
+                        : `Conv #${hit.conversationId}`
                     }
                   />
                 </ListItemButton>
