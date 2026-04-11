@@ -73,7 +73,7 @@ jobs:
             -v ./managed/data/advisors/:/usr/local/percona/advisors/ \
             -v ./managed/data/checks/:/usr/local/percona/checks/ \
             -v ./managed/data/alerting-templates/:/usr/local/percona/alerting-templates/ \
-            -v ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro \
+            -v ./.devcontainer/Makefile:/root/go/src/github.com/percona/pmm/Makefile:ro \
             ${PMM_SERVER_IMAGE}
           sleep 20
           docker exec -t pmm-server id

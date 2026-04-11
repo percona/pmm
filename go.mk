@@ -24,11 +24,11 @@ TEST_PKGS     ?= ./...
 COVERAGE_MODE ?= atomic
 
 # Release metadata. `cut -b2-` strips the leading `v` from git describe.
-PMM_RELEASE_PATH      ?= ../bin
-PMM_RELEASE_VERSION   ?= $(shell git describe --always --dirty | cut -b2-)
-PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
+PMM_RELEASE_PATH       ?= ../bin
+PMM_RELEASE_VERSION    ?= $(shell git describe --always --dirty | cut -b2-)
+PMM_RELEASE_TIMESTAMP  ?= $(shell date '+%s')
 PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
-PMM_RELEASE_BRANCH    ?= $(shell git describe --always --contains --all)
+PMM_RELEASE_BRANCH     ?= $(shell git describe --always --contains --all)
 
 # Go binary install path.
 ifeq ($(GOBIN),)
