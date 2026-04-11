@@ -1,5 +1,5 @@
 
-.PHONY: default init release gen test clean all
+.PHONY: $(MAKECMDGOALS)
 default: help
 
 help:                 ## Display this help message
@@ -12,8 +12,9 @@ init:                 ## Install tools
 	rm -rf bin/*
 	cd tools && go generate -x -tags=tools
 
-	# Install golangci-lint
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v2.6.2 # Version should match specified in CI
+	# Install golangci-lint (pinned to prevent dependabot from attempting to update it)
+	# Version should match the one specified in .workflows/main.yml
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v2.6.2
 
 release:              ## Build release versions of all components
 	make -C agent release

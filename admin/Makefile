@@ -26,7 +26,7 @@ clean:                          ## Remove generated files
 	find . -name *_reform.go -delete
 
 env-up:                         ## Start development environment
-	docker compose up --force-recreate --abort-on-container-exit --renew-anon-volumes --remove-orphans
+	COMPOSE_PROFILES=pmm $(env-up)
 
 env-down:                       ## Stop development environment
-	docker compose down --volumes --remove-orphans
+	COMPOSE_PROFILES=pmm $(env-down)

@@ -2,13 +2,14 @@
 #
 # Include from component Makefiles after setting required variables:
 #
-#   PROJECT_NAME  (required) — version.ProjectName value, e.g. pmm-admin
-#   BINARY_NAME   — output binary name        (default: PROJECT_NAME)
-#   BUILD_SOURCE  — go build source path       (default: .)
-#   TEST_FLAGS    — go test flags              (default: -timeout=30s)
-#   TEST_PKGS     — packages to test           (default: ./...)
-#   TEST_PARALLEL — parallelism flag, e.g. -p 1 (default: empty)
-#   COVERAGE_MODE — -covermode value           (default: atomic)
+#   PROJECT_NAME     — version.ProjectName value (required), e.g. pmm-admin
+#   BINARY_NAME      — output binary name                      (default: PROJECT_NAME)
+#   BUILD_SOURCE     — go build source path                    (default: .)
+#   TEST_FLAGS       — go test flags                           (default: -timeout=30s)
+#   TEST_PKGS        — packages to test                        (default: ./...)
+#   TEST_PARALLEL    — parallelism flag, e.g. -p 1             (default: empty)
+#   COVERAGE_MODE    — -covermode value                        (default: atomic)
+#   COMPOSE_PROFILES - comma-separated Docker Compose profiles (default: pmm)
 #
 # Canned recipes for use in component targets:
 #   $(go-release)      — CGO_ENABLED=0 go build to PMM_RELEASE_PATH
@@ -17,11 +18,13 @@
 #   $(go-test)         — go test -race
 #   $(go-test-cover)   — go test -race with coverage
 
+REPO_ROOT     := $(patsubst %/,%,$(dir $(lastword $(MAKEFILE_LIST))))
 BINARY_NAME   ?= $(PROJECT_NAME)
 BUILD_SOURCE  ?= .
 TEST_FLAGS    ?= -timeout=30s
 TEST_PKGS     ?= ./...
 COVERAGE_MODE ?= atomic
+COMPOSE_PROFILES ?= pmm
 
 # Release metadata. `cut -b2-` strips the leading `v` from git describe.
 PMM_RELEASE_PATH       ?= ../bin
@@ -67,6 +70,14 @@ endef
 
 define go-test-cover
 go test $(TEST_FLAGS) $(TEST_PARALLEL) -race -coverprofile=cover.out -covermode=$(COVERAGE_MODE) -coverpkg=$(TEST_PKGS) $(TEST_PKGS)
+endef
+
+define env-up
+docker compose -f $(REPO_ROOT)/docker-compose.dev.yml up -d --wait --wait-timeout 100 --force-recreate --renew-anon-volumes
+endef
+
+define env-down
+docker compose -f $(REPO_ROOT)/docker-compose.dev.yml down --volumes --remove-orphans
 endef
 
 ## Default target and help

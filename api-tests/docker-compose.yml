@@ -47,6 +47,8 @@ services:
       - ./testdata/mysql:/mysql
 
   mongo:
+    profiles:
+      - mongo
     image: ${MONGO_IMAGE:-percona/percona-server-mongodb:6}
     container_name: pmm-agent_mongo
     command: --profile 2
@@ -55,6 +57,8 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=root-password
 
   postgres:
+    profiles:
+      - postgres
     image: ${POSTGRES_IMAGE:-postgres:14}
     container_name: pmm-agent_postgres
     command: >
@@ -73,7 +77,6 @@ services:
 
   pmm-client-mysql:
     image: percona/pmm-client:3
-    platform: "linux/amd64"
     container_name: pmm-client-mysql
     depends_on:
       pmm-server:
