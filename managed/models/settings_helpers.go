@@ -163,6 +163,8 @@ type ChangeSettingsParams struct {
 	ServiceNowClientToken *string
 	// PromptMaxBytes defines max prompt size for ADRE prompts.
 	PromptMaxBytes *int
+	// AdreChatRetentionDays: automatic purge of ADRE chats (days, 0 = never). Nil = no change.
+	AdreChatRetentionDays *int
 }
 
 // SetPMMServerID should be run on start up to generate unique PMM Server ID.
@@ -362,6 +364,9 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	if params.PromptMaxBytes != nil {
 		settings.Adre.PromptMaxBytes = *params.PromptMaxBytes
 	}
+	if params.AdreChatRetentionDays != nil {
+		settings.Adre.AdreChatRetentionDays = pointer.ToInt(*params.AdreChatRetentionDays)
+	}
 
 	err = SaveSettings(q, settings)
 	if err != nil {
@@ -490,6 +495,12 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 	}
 	if params.AdreQanInsightsPrompt != nil && len(*params.AdreQanInsightsPrompt) > AdrePromptMaxBytes {
 		return errors.Errorf("qan_insights_prompt: max %d bytes", AdrePromptMaxBytes)
+	}
+	if params.AdreChatRetentionDays != nil {
+		n := *params.AdreChatRetentionDays
+		if n < 0 || n > 36500 {
+			return errors.New("adre_chat_retention_days: must be between 0 and 36500")
+		}
 	}
 
 	return nil

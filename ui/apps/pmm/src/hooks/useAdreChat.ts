@@ -1,5 +1,15 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { adreChatStream, getAdreAlerts, type AdreStreamProgressEvent } from 'api/adre';
+import {
+  adreChatStream,
+  getAdreAlerts,
+  createAdreConversation,
+  listAdreConversations,
+  getAdreMessages,
+  searchAdreMessages,
+  type AdreStreamProgressEvent,
+  type AdreConversation,
+  type AdreSearchHit,
+} from 'api/adre';
 import { useAdreSettings } from 'hooks/api/useAdre';
 import { useSnackbar } from 'notistack';
 import { clearPanelImageCache } from 'components/adre/adre-chat-markdown';
@@ -8,10 +18,8 @@ import { compactAdreAlertsForToolResult } from 'utils/adreAlertsCompact';
 import { PMM_ADRE_FRONTEND_TOOLS } from 'utils/adreFrontendTools';
 import { stripQanServiceId } from 'utils/qanServiceId';
 
-const STORAGE_KEY = 'pmm-adre-chat';
-const CHAT_HISTORY_WINDOW_MS = 24 * 60 * 60 * 1000;
-/** Align with pmm-managed AdreMaxConversationMessagesDefault (context overflow guard). */
-const CHAT_HISTORY_MAX_MESSAGES = 40;
+/** Resume active conversation after navigation (not legacy chat import). */
+const SESSION_CONV_ID_KEY = 'pmm-adre-active-conversation-id';
 
 export type ProgressStep = { id: string; toolName: string; description?: string; status: 'running' | 'done' };
 
@@ -23,101 +31,17 @@ export interface ChatMessage {
   progressSteps?: ProgressStep[];
 }
 
-function isValidProgressStep(s: unknown): s is ProgressStep {
-  return (
-    typeof s === 'object' &&
-    s != null &&
-    typeof (s as ProgressStep).id === 'string' &&
-    typeof (s as ProgressStep).toolName === 'string' &&
-    ((s as ProgressStep).description === undefined || typeof (s as ProgressStep).description === 'string') &&
-    ((s as ProgressStep).status === 'running' || (s as ProgressStep).status === 'done')
-  );
-}
-
-function getWindowedHistory(history: ChatMessage[]): ChatMessage[] {
-  if (history.length === 0) return [];
-  const newestTs = Math.max(...history.map((m) => m.timestamp ?? 0));
-  const cutoff = newestTs - CHAT_HISTORY_WINDOW_MS;
-  const windowed = history.filter((m) => (m.timestamp ?? 0) >= cutoff);
-  if (windowed.length <= CHAT_HISTORY_MAX_MESSAGES) return windowed;
-
-  return windowed.slice(-CHAT_HISTORY_MAX_MESSAGES);
-}
-
-function loadFromStorage(): { response: string; reasoning: string; history: ChatMessage[] } {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw) as {
-        response?: string;
-        reasoning?: string;
-        history?: unknown[];
-      };
-      const rawHistory = Array.isArray(parsed.history)
-        ? (parsed.history as unknown[]).filter((m): m is ChatMessage => {
-            if (!m || typeof m !== 'object' || typeof (m as ChatMessage).content !== 'string') return false;
-            const role = (m as ChatMessage).role;
-            if (role !== 'user' && role !== 'assistant') return false;
-            const steps = (m as ChatMessage).progressSteps;
-            if (steps !== undefined && (!Array.isArray(steps) || !steps.every(isValidProgressStep))) return false;
-
-            return true;
-          })
-        : [];
-      const normalizedHistory = rawHistory.map((m) => {
-        if (m.progressSteps?.length) {
-          const steps = m.progressSteps.filter(isValidProgressStep);
-
-          return { ...m, progressSteps: steps.length > 0 ? steps : undefined };
-        }
-
-        return m;
-      });
-      const history = getWindowedHistory(normalizedHistory);
-
-      return {
-        response: typeof parsed.response === 'string' ? parsed.response : '',
-        reasoning: typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
-        history,
-      };
-    }
-  } catch {
-    // ignore
+function mapServerRowsToChat(messages: { role: string; content: string; created_at: string }[]): ChatMessage[] {
+  const out: ChatMessage[] = [];
+  for (const m of messages) {
+    if (m.role !== 'user' && m.role !== 'assistant') continue;
+    out.push({
+      role: m.role as 'user' | 'assistant',
+      content: m.content,
+      timestamp: new Date(m.created_at).getTime(),
+    });
   }
-
-  return { response: '', reasoning: '', history: [] };
-}
-
-function saveToStorage(response: string, reasoning: string, history: ChatMessage[]) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ response, reasoning, history }));
-  } catch {
-    // ignore
-  }
-}
-
-function persistAssistantToHistory(
-  userContent: string,
-  assistantContent: string,
-  assistantReasoning: string,
-  progressSteps: ProgressStep[] = []
-): void {
-  const { history } = loadFromStorage();
-  const last = history[history.length - 1];
-  const hasUserMsg = last?.role === 'user' && last?.content === userContent;
-  const assistantMsg: ChatMessage = {
-    role: 'assistant',
-    content: assistantContent,
-    timestamp: Date.now(),
-    reasoning: assistantReasoning || undefined,
-    ...(progressSteps.length > 0 && { progressSteps }),
-  };
-  const toAppend: ChatMessage[] = hasUserMsg
-    ? [assistantMsg]
-    : [{ role: 'user', content: userContent, timestamp: Date.now() }, assistantMsg];
-  const updatedHistory = [...history, ...toAppend];
-  const windowed = getWindowedHistory(updatedHistory);
-  saveToStorage('', '', windowed);
+  return out;
 }
 
 export interface SendOptions {
@@ -129,126 +53,252 @@ export interface SendOptions {
 export function useAdreChat() {
   const { data: settings } = useAdreSettings();
   const { enqueueSnackbar } = useSnackbar();
-  const [response, setResponse] = useState(() => loadFromStorage().response);
-  const [reasoning, setReasoning] = useState(() => loadFromStorage().reasoning);
+  const [response, setResponse] = useState('');
+  const [reasoning, setReasoning] = useState('');
   const [loading, setLoading] = useState(false);
   const [chatError, setChatError] = useState<string | null>(null);
   const [progressSteps, setProgressSteps] = useState<ProgressStep[]>([]);
-  const [history, setHistory] = useState<ChatMessage[]>(() => loadFromStorage().history);
+  const [history, setHistory] = useState<ChatMessage[]>([]);
+  const [conversationId, setConversationId] = useState<number | null>(null);
+  const [conversations, setConversations] = useState<AdreConversation[]>([]);
+  const [conversationsLoading, setConversationsLoading] = useState(false);
+  const [searchHits, setSearchHits] = useState<AdreSearchHit[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
   const streamStartTimeRef = useRef<number | null>(null);
   const progressStepsRef = useRef<ProgressStep[]>([]);
 
-  useEffect(() => {
-    saveToStorage(response, reasoning, history);
-  }, [response, reasoning, history]);
-
-  const handleSend = useCallback(async (ask: string, options?: SendOptions) => {
-    const userAsk = ask.trim();
-    if (!userAsk) return;
-
-    setLoading(true);
-    setChatError(null);
-    setResponse('');
-    setReasoning('');
-    setProgressSteps([]);
-    progressStepsRef.current = [];
-    streamStartTimeRef.current = Date.now();
-
-    const userTimestamp = Date.now();
-    setHistory((prev: ChatMessage[]) => [...prev, { role: 'user', content: userAsk, timestamp: userTimestamp }]);
-
+  const refreshConversations = useCallback(async () => {
+    setConversationsLoading(true);
     try {
-      const windowed = getWindowedHistory(history);
-      // Grafana context: pmm-managed appends dashboard_context to Holmes additional_system_prompt (authoritative for current panel).
-      // HolmesGPT still requires conversation_history[0].role === 'system' (Pydantic ChatRequest); use a short placeholder — not the full Grafana blob.
-      const holmesSystemStub =
-        'You are assisting a PMM user. The server supplies full system instructions and any current Grafana page context via additional_system_prompt.';
-      const modeRaw = options?.mode;
-      const mode: 'fast' | 'investigation' | undefined =
-        modeRaw === 'investigation'
-          ? 'investigation'
-          : modeRaw === 'chat' || modeRaw === 'fast'
-            ? 'fast'
-            : undefined;
-      const req = {
-        ask: userAsk,
-        conversation_history: [
-          { role: 'system', content: holmesSystemStub },
-          ...windowed.map((m: ChatMessage) => ({ role: m.role, content: m.content })),
-          { role: 'user', content: userAsk },
-        ],
-        model: options?.model || undefined,
-        stream: true,
-        mode,
-        frontend_tools: PMM_ADRE_FRONTEND_TOOLS,
-        ...(options?.dashboardContext?.trim()
-          ? { dashboard_context: options.dashboardContext.trim() }
-          : {}),
-      };
+      const { conversations: rows } = await listAdreConversations({ limit: 50 });
+      setConversations(rows ?? []);
+    } catch {
+      /* ignore list errors */
+    } finally {
+      setConversationsLoading(false);
+    }
+  }, []);
 
-      let fullResponse = '';
-      let fullReasoning = '';
-      const handleProgress = (event: AdreStreamProgressEvent) => {
-        if (event.type === 'start_tool') {
-          const next = [...progressStepsRef.current, { id: event.id, toolName: event.toolName, description: event.description, status: 'running' as const }];
-          progressStepsRef.current = next;
-          setProgressSteps(next);
-        } else {
-          const next = progressStepsRef.current.map((s: ProgressStep) => (s.id === event.id ? { ...s, status: 'done' as const } : s));
-          progressStepsRef.current = next;
-          setProgressSteps(next);
-        }
-      };
+  const loadMessagesFor = useCallback(async (id: number) => {
+    const { messages } = await getAdreMessages(id, { limit: 100 });
+    setHistory(mapServerRowsToChat(messages));
+  }, []);
 
-      await adreChatStream(req, {
-        onChunk: (contentChunk, reasoningChunk) => {
-          if (contentChunk) fullResponse += contentChunk;
-          if (reasoningChunk) fullReasoning += reasoningChunk;
-          setReasoning(fullReasoning);
-          setResponse(fullResponse);
-        },
-        onProgress: handleProgress,
-        onFrontendToolsRequired: async ({ pending_frontend_tool_calls }) => {
-          const results: Array<{ tool_call_id: string; tool_name: string; result: string }> = [];
-          for (const call of pending_frontend_tool_calls) {
-            const result = await executeFrontendTool(call.tool_name, call.arguments ?? {});
-            results.push({
-              tool_call_id: call.tool_call_id,
-              tool_name: call.tool_name,
-              result: JSON.stringify(result),
-            });
-          }
-
-          return results;
-        },
-      });
-
-      const finalProgressSteps = progressStepsRef.current;
-      persistAssistantToHistory(userAsk, fullResponse, fullReasoning, finalProgressSteps);
-      setHistory((prev: ChatMessage[]) => [
-        ...prev,
-        {
-          role: 'assistant',
-          content: fullResponse,
-          timestamp: Date.now(),
-          reasoning: fullReasoning || undefined,
-          ...(finalProgressSteps.length > 0 && { progressSteps: finalProgressSteps }),
-        },
-      ]);
+  const selectConversation = useCallback(
+    async (id: number) => {
+      setConversationId(id);
+      try {
+        sessionStorage.setItem(SESSION_CONV_ID_KEY, String(id));
+      } catch {
+        /* ignore */
+      }
       setResponse('');
       setReasoning('');
-    } catch (err) {
-      const rawMessage = err instanceof Error ? err.message : 'Chat request failed';
-      const normalizedMessage = normalizeChatError(rawMessage);
-      setChatError(normalizedMessage);
-      enqueueSnackbar(normalizedMessage, { variant: 'error' });
-    } finally {
-      setLoading(false);
+      setChatError(null);
+      try {
+        await loadMessagesFor(id);
+      } catch {
+        enqueueSnackbar('Failed to load messages', { variant: 'error' });
+      }
+    },
+    [loadMessagesFor, enqueueSnackbar]
+  );
+
+  const newChat = useCallback(async () => {
+    try {
+      const c = await createAdreConversation();
+      setConversationId(c.id);
+      try {
+        sessionStorage.setItem(SESSION_CONV_ID_KEY, String(c.id));
+      } catch {
+        /* ignore */
+      }
+      setHistory([]);
+      setResponse('');
+      setReasoning('');
+      setChatError(null);
+      await refreshConversations();
+    } catch (e) {
+      enqueueSnackbar(e instanceof Error ? e.message : 'Failed to start chat', { variant: 'error' });
+    }
+  }, [enqueueSnackbar, refreshConversations]);
+
+  /** Invalidates stale async work when the effect re-runs (e.g. React Strict Mode remount or ADRE disabled). */
+  const adreInitGenRef = useRef(0);
+  useEffect(() => {
+    if (!settings?.enabled) {
+      if (settings !== undefined) {
+        adreInitGenRef.current++;
+      }
+      return;
+    }
+    const gen = ++adreInitGenRef.current;
+    (async () => {
+      try {
+        const raw = sessionStorage.getItem(SESSION_CONV_ID_KEY);
+        if (raw) {
+          const id = parseInt(raw, 10);
+          if (!Number.isNaN(id)) {
+            await selectConversation(id);
+            if (gen !== adreInitGenRef.current) return;
+            await refreshConversations();
+            return;
+          }
+        }
+        const c = await createAdreConversation();
+        if (gen !== adreInitGenRef.current) return;
+        setConversationId(c.id);
+        try {
+          sessionStorage.setItem(SESSION_CONV_ID_KEY, String(c.id));
+        } catch {
+          /* ignore */
+        }
+        setHistory([]);
+        await refreshConversations();
+        if (gen !== adreInitGenRef.current) return;
+      } catch {
+        if (gen !== adreInitGenRef.current) return;
+        enqueueSnackbar('Failed to initialize chat', { variant: 'error' });
+      }
+    })();
+  }, [settings?.enabled, selectConversation, refreshConversations, enqueueSnackbar]);
+
+  const runSearch = useCallback(
+    async (q: string) => {
+      const t = q.trim();
+      if (!t) {
+        setSearchHits([]);
+        setSearchLoading(false);
+        return;
+      }
+      setSearchLoading(true);
+      try {
+        const { hits } = await searchAdreMessages(t, 30);
+        setSearchHits(hits ?? []);
+      } catch {
+        enqueueSnackbar('Search failed', { variant: 'error' });
+      } finally {
+        setSearchLoading(false);
+      }
+    },
+    [enqueueSnackbar]
+  );
+
+  const handleSend = useCallback(
+    async (ask: string, options?: SendOptions) => {
+      const userAsk = ask.trim();
+      if (!userAsk) return;
+      if (conversationId == null) {
+        enqueueSnackbar('No active conversation', { variant: 'warning' });
+        return;
+      }
+
+      setLoading(true);
+      setChatError(null);
+      setResponse('');
+      setReasoning('');
       setProgressSteps([]);
       progressStepsRef.current = [];
-      streamStartTimeRef.current = null;
-    }
-  }, [history, enqueueSnackbar]);
+      streamStartTimeRef.current = Date.now();
+
+      const userTimestamp = Date.now();
+      setHistory((prev: ChatMessage[]) => [...prev, { role: 'user', content: userAsk, timestamp: userTimestamp }]);
+
+      try {
+        const modeRaw = options?.mode;
+        const mode: 'fast' | 'investigation' | undefined =
+          modeRaw === 'investigation'
+            ? 'investigation'
+            : modeRaw === 'chat' || modeRaw === 'fast'
+              ? 'fast'
+              : undefined;
+        const req = {
+          ask: userAsk,
+          conversation_id: conversationId,
+          model: options?.model || undefined,
+          stream: true,
+          mode,
+          frontend_tools: PMM_ADRE_FRONTEND_TOOLS,
+          ...(options?.dashboardContext?.trim()
+            ? { dashboard_context: options.dashboardContext.trim() }
+            : {}),
+        };
+
+        let fullResponse = '';
+        let fullReasoning = '';
+        const handleProgress = (event: AdreStreamProgressEvent) => {
+          if (event.type === 'start_tool') {
+            const next = [
+              ...progressStepsRef.current,
+              { id: event.id, toolName: event.toolName, description: event.description, status: 'running' as const },
+            ];
+            progressStepsRef.current = next;
+            setProgressSteps(next);
+          } else {
+            const next = progressStepsRef.current.map((s: ProgressStep) =>
+              s.id === event.id ? { ...s, status: 'done' as const } : s
+            );
+            progressStepsRef.current = next;
+            setProgressSteps(next);
+          }
+        };
+
+        await adreChatStream(req, {
+          onChunk: (contentChunk, reasoningChunk) => {
+            if (contentChunk) fullResponse += contentChunk;
+            if (reasoningChunk) fullReasoning += reasoningChunk;
+            setReasoning(fullReasoning);
+            setResponse(fullResponse);
+          },
+          onProgress: handleProgress,
+          onFrontendToolsRequired: async ({ pending_frontend_tool_calls }) => {
+            const results: Array<{ tool_call_id: string; tool_name: string; result: string }> = [];
+            for (const call of pending_frontend_tool_calls) {
+              const result = await executeFrontendTool(call.tool_name, call.arguments ?? {});
+              results.push({
+                tool_call_id: call.tool_call_id,
+                tool_name: call.tool_name,
+                result: JSON.stringify(result),
+              });
+            }
+
+            return results;
+          },
+        });
+
+        const finalProgressSteps = progressStepsRef.current;
+        setHistory((prev: ChatMessage[]) => [
+          ...prev,
+          {
+            role: 'assistant',
+            content: fullResponse,
+            timestamp: Date.now(),
+            reasoning: fullReasoning || undefined,
+            ...(finalProgressSteps.length > 0 && { progressSteps: finalProgressSteps }),
+          },
+        ]);
+        setResponse('');
+        setReasoning('');
+        void refreshConversations();
+      } catch (err) {
+        const rawMessage = err instanceof Error ? err.message : 'Chat request failed';
+        const normalizedMessage = normalizeChatError(rawMessage);
+        setChatError(normalizedMessage);
+        enqueueSnackbar(normalizedMessage, { variant: 'error' });
+        try {
+          await loadMessagesFor(conversationId);
+        } catch {
+          /* ignore */
+        }
+      } finally {
+        setLoading(false);
+        setProgressSteps([]);
+        progressStepsRef.current = [];
+        streamStartTimeRef.current = null;
+      }
+    },
+    [conversationId, enqueueSnackbar, refreshConversations, loadMessagesFor]
+  );
 
   const allMessages: (ChatMessage & { streaming?: boolean })[] = [
     ...history,
@@ -266,17 +316,9 @@ export function useAdreChat() {
   ];
 
   const clearHistory = useCallback(() => {
-    setHistory([]);
-    setResponse('');
-    setReasoning('');
-    setChatError(null);
-    setProgressSteps([]);
-    progressStepsRef.current = [];
+    void newChat();
     clearPanelImageCache();
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch { /* ignore */ }
-  }, []);
+  }, [newChat]);
 
   return {
     history,
@@ -289,6 +331,15 @@ export function useAdreChat() {
     chatError,
     handleSend,
     clearHistory,
+    conversationId,
+    conversations,
+    conversationsLoading,
+    refreshConversations,
+    newChat,
+    selectConversation,
+    searchHits,
+    searchLoading,
+    runSearch,
   };
 }
 

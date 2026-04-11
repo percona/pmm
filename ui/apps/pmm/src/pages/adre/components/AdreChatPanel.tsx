@@ -29,6 +29,7 @@ import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { useAdreModels } from 'hooks/api/useAdre';
 import { useAdreChat, formatTimestamp, type ProgressStep } from 'hooks/useAdreChat';
+import { AdreConversationsSidebar } from './AdreConversationsSidebar';
 import { getMarkdownComponents } from 'components/adre/adre-chat-markdown';
 import {
   loadAdreChatUiPreferences,
@@ -38,7 +39,24 @@ import {
 
 export const AdreChatPanel: FC = () => {
   const { data: models = [], status: modelsQueryStatus } = useAdreModels();
-  const { response, reasoning, loading, progressSteps, allMessages, settings, chatError, handleSend } = useAdreChat();
+  const {
+    response,
+    reasoning,
+    loading,
+    progressSteps,
+    allMessages,
+    settings,
+    chatError,
+    handleSend,
+    conversationId,
+    conversations,
+    conversationsLoading,
+    newChat,
+    selectConversation,
+    searchHits,
+    searchLoading,
+    runSearch,
+  } = useAdreChat();
   const [ask, setAsk] = useState('');
   const [model, setModel] = useState('');
   const [mode, setMode] = useState<'fast' | 'investigation'>(() => {
@@ -116,8 +134,39 @@ export const AdreChatPanel: FC = () => {
   const selectedModelLabel = model || 'Default';
 
   return (
-    <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-        <Stack gap={1} sx={{ flex: 1, minHeight: 0 }}>
+    <Box
+      sx={{
+        flex: 1,
+        minHeight: 0,
+        display: 'flex',
+        flexDirection: { xs: 'column', md: 'row' },
+        gap: { xs: 1, md: 0 },
+        overflow: 'hidden',
+      }}
+    >
+      <Box
+        sx={{
+          flex: { xs: '0 0 auto', md: '0 0 260px' },
+          minWidth: { md: 260 },
+          maxHeight: { xs: 'min(36vh, 220px)', md: 'none' },
+          minHeight: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+        }}
+      >
+        <AdreConversationsSidebar
+          conversationId={conversationId}
+          conversations={conversations}
+          loading={conversationsLoading}
+          searchHits={searchHits}
+          searchLoading={searchLoading}
+          onNewChat={newChat}
+          onSelectConversation={selectConversation}
+          onSearch={runSearch}
+        />
+      </Box>
+      <Stack gap={1} sx={{ flex: 1, minHeight: 0, minWidth: 0, overflow: 'hidden' }}>
           {chatError ? <Alert severity="error">{chatError}</Alert> : null}
           <Box
             ref={containerRef}
@@ -424,7 +473,7 @@ export const AdreChatPanel: FC = () => {
               </Box>
             </Stack>
           </Stack>
-        </Stack>
+      </Stack>
     </Box>
   );
 };

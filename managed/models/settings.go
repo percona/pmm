@@ -40,6 +40,8 @@ const (
 	AdreEnabledDefault                        = false
 	AdrePromptMaxBytes                        = 16 * 1024
 	AdrePromptMaxBytesHardMax                 = 64 * 1024
+	// AdreChatRetentionDaysDefault is the automatic ADRE chat retention when unset in settings (days).
+	AdreChatRetentionDaysDefault = 365
 	// AdreSchemaVersionCurrent is bumped when a one-way ADRE settings migration runs in fillDefaults.
 	AdreSchemaVersionCurrent = 2
 	awsPartitionID           = "aws"
@@ -142,6 +144,8 @@ type Settings struct {
 		ServiceNowClientToken string `json:"servicenow_client_token"`
 		// PromptMaxBytes defines max prompt size for ADRE prompts (bytes).
 		PromptMaxBytes int `json:"prompt_max_bytes"`
+		// AdreChatRetentionDays deletes ADRE chat threads with last_message_at older than this many days (0 = never auto-purge). Nil in JSON defaults in fillDefaults.
+		AdreChatRetentionDays *int `json:"adre_chat_retention_days"`
 	} `json:"adre"`
 
 	Alerting struct {
@@ -274,6 +278,14 @@ func (s *Settings) GetAdreURL() string {
 	return s.Adre.URL
 }
 
+// GetAdreChatRetentionDays returns automatic ADRE chat retention in days (0 = no automatic purge).
+func (s *Settings) GetAdreChatRetentionDays() int {
+	if s.Adre.AdreChatRetentionDays != nil {
+		return *s.Adre.AdreChatRetentionDays
+	}
+	return AdreChatRetentionDaysDefault
+}
+
 // GetOtelTracesRetentionDays returns the TTL in days for otel.otel_traces in ClickHouse.
 func (s *Settings) GetOtelTracesRetentionDays() int {
 	if s.Otel.TracesRetentionDays != nil && *s.Otel.TracesRetentionDays > 0 {
@@ -380,5 +392,8 @@ func (s *Settings) fillDefaults() {
 	}
 	if s.Adre.AdreMaxConversationMessages <= 0 {
 		s.Adre.AdreMaxConversationMessages = 40
+	}
+	if s.Adre.AdreChatRetentionDays == nil {
+		s.Adre.AdreChatRetentionDays = pointer.ToInt(AdreChatRetentionDaysDefault)
 	}
 }

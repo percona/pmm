@@ -152,10 +152,11 @@ type ChatRequest struct {
 
 // ChatResponse is the response from POST /api/chat.
 type ChatResponse struct {
-	Analysis            string        `json:"analysis"`
-	ConversationHistory []interface{} `json:"conversation_history,omitempty"`
-	ToolCalls           []interface{} `json:"tool_calls,omitempty"`
-	FollowUpActions     []interface{} `json:"follow_up_actions,omitempty"`
+	Analysis            string          `json:"analysis"`
+	ConversationHistory []interface{}   `json:"conversation_history,omitempty"`
+	ToolCalls           []interface{}   `json:"tool_calls,omitempty"`
+	FollowUpActions     []interface{}   `json:"follow_up_actions,omitempty"`
+	Metadata            json.RawMessage `json:"metadata,omitempty"`
 }
 
 // Chat sends a chat request to HolmesGPT (non-streaming).

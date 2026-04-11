@@ -79,6 +79,8 @@ export interface AdreModelsResponse {
 
 export interface AdreChatRequest {
   ask: string;
+  /** Required by pmm-managed; server loads trimmed history from PostgreSQL. */
+  conversation_id?: number;
   conversation_history?: unknown[];
   model?: string;
   stream?: boolean;
@@ -90,13 +92,6 @@ export interface AdreChatRequest {
   frontend_tools?: unknown[];
   frontend_tool_results?: unknown[];
   tool_decisions?: unknown[];
-}
-
-export interface AdreChatResponse {
-  analysis: string;
-  conversationHistory?: unknown[];
-  toolCalls?: unknown[];
-  followUpActions?: unknown[];
 }
 
 export interface AdreQanInsightsRequest {
@@ -130,13 +125,6 @@ export const updateAdreSettings = async (
 export const getAdreModels = async (): Promise<string[]> => {
   const res = await api.get<AdreModelsResponse>('/adre/models');
   return res.data.modelName || [];
-};
-
-export const adreChat = async (
-  body: AdreChatRequest
-): Promise<AdreChatResponse> => {
-  const res = await api.post<AdreChatResponse>('/adre/chat', body);
-  return res.data;
 };
 
 export const adreQanInsights = async (
@@ -317,6 +305,81 @@ export const adreChatStream = async (
       if (parsed.reasoning) onChunk(undefined, parsed.reasoning);
     }
   }
+};
+
+export interface AdreConversation {
+  id: number;
+  title: string;
+  created_at: string;
+  updated_at: string;
+  last_message_at: string;
+}
+
+export interface AdreMessageRow {
+  id: number;
+  conversation_id: number;
+  role: string;
+  content: string;
+  created_at: string;
+  model?: string;
+  tool_name?: string;
+  tool_result_json?: unknown;
+}
+
+export interface AdreSearchHit {
+  message_id: number;
+  conversation_id: number;
+  role: string;
+  snippet: string;
+  created_at: string;
+}
+
+export const listAdreConversations = async (params?: {
+  limit?: number;
+  cursor?: string;
+  q?: string;
+}): Promise<{ conversations: AdreConversation[]; next_cursor?: string }> => {
+  const res = await api.get<{ conversations: AdreConversation[]; next_cursor?: string }>('/adre/conversations', {
+    params,
+  });
+  return res.data;
+};
+
+export const createAdreConversation = async (body?: { title?: string }): Promise<AdreConversation> => {
+  const res = await api.post<AdreConversation>('/adre/conversations', body ?? {});
+  return res.data;
+};
+
+export const patchAdreConversation = async (
+  id: number,
+  body: { title: string }
+): Promise<{ id: number; title: string; updated_at: string }> => {
+  const res = await api.patch(`/adre/conversations/${id}`, body);
+  return res.data;
+};
+
+export const deleteAdreConversation = async (id: number): Promise<void> => {
+  await api.delete(`/adre/conversations/${id}`);
+};
+
+export const getAdreMessages = async (
+  conversationId: number,
+  params?: { limit?: number; before?: number; after?: number }
+): Promise<{ messages: AdreMessageRow[] }> => {
+  const res = await api.get<{ messages: AdreMessageRow[] }>(`/adre/conversations/${conversationId}/messages`, {
+    params,
+  });
+  return res.data;
+};
+
+export const searchAdreMessages = async (
+  q: string,
+  limit?: number
+): Promise<{ hits: AdreSearchHit[] }> => {
+  const res = await api.get<{ hits: AdreSearchHit[] }>('/adre/messages/search', {
+    params: { q, limit },
+  });
+  return res.data;
 };
 
 export const getAdreAlerts = async (): Promise<unknown> => {

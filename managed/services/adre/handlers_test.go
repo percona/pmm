@@ -48,6 +48,10 @@ func (m *mockGrafanaAlertsFetcher) GetAlertmanagerAlerts(_ context.Context, _ ht
 	return []byte("[]"), nil
 }
 
+func (m *mockGrafanaAlertsFetcher) GetCurrentUserLogin(_ context.Context, _ http.Header) (string, error) {
+	return "testuser", nil
+}
+
 func TestHandlers_GetSettings(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	defer func() { require.NoError(t, sqlDB.Close()) }()
@@ -160,6 +164,100 @@ func TestHandlers_GetModels_AdreEnabled_NoURL(t *testing.T) {
 	var errBody map[string]string
 	require.NoError(t, json.NewDecoder(rec.Body).Decode(&errBody))
 	assert.Contains(t, errBody["error"], "HolmesGPT URL")
+}
+
+func TestHandlers_ListConversations_Empty(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	defer func() { require.NoError(t, sqlDB.Close()) }()
+	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+
+	h := NewHandlers(db, &mockGrafanaAlertsFetcher{})
+	req := httptest.NewRequest(http.MethodGet, "/v1/adre/conversations", nil)
+	rec := httptest.NewRecorder()
+	h.ListConversations(rec, req)
+
+	require.Equal(t, http.StatusOK, rec.Code)
+	var body struct {
+		Conversations []interface{} `json:"conversations"`
+		NextCursor    string        `json:"next_cursor"`
+	}
+	require.NoError(t, json.NewDecoder(rec.Body).Decode(&body))
+	assert.Empty(t, body.Conversations)
+	assert.Empty(t, body.NextCursor)
+}
+
+func TestHandlers_CreateAndListConversations(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	defer func() { require.NoError(t, sqlDB.Close()) }()
+	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+
+	h := NewHandlers(db, &mockGrafanaAlertsFetcher{})
+	createReq := httptest.NewRequest(http.MethodPost, "/v1/adre/conversations", bytes.NewReader([]byte("{}")))
+	rec := httptest.NewRecorder()
+	h.CreateConversation(rec, createReq)
+	require.Equal(t, http.StatusCreated, rec.Code)
+	var created struct {
+		ID int64 `json:"id"`
+	}
+	require.NoError(t, json.NewDecoder(rec.Body).Decode(&created))
+	require.NotZero(t, created.ID)
+
+	listReq := httptest.NewRequest(http.MethodGet, "/v1/adre/conversations", nil)
+	listRec := httptest.NewRecorder()
+	h.ListConversations(listRec, listReq)
+	require.Equal(t, http.StatusOK, listRec.Code)
+	var listBody struct {
+		Conversations []map[string]interface{} `json:"conversations"`
+	}
+	require.NoError(t, json.NewDecoder(listRec.Body).Decode(&listBody))
+	require.Len(t, listBody.Conversations, 1)
+}
+
+func TestHandlers_SearchMessages_MissingQuery(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	defer func() { require.NoError(t, sqlDB.Close()) }()
+	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+
+	h := NewHandlers(db, &mockGrafanaAlertsFetcher{})
+	req := httptest.NewRequest(http.MethodGet, "/v1/adre/messages/search", nil)
+	rec := httptest.NewRecorder()
+	h.SearchMessages(rec, req)
+	assert.Equal(t, http.StatusBadRequest, rec.Code)
+}
+
+func TestHandlers_SearchMessages_EmptyHits(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	defer func() { require.NoError(t, sqlDB.Close()) }()
+	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+
+	h := NewHandlers(db, &mockGrafanaAlertsFetcher{})
+	req := httptest.NewRequest(http.MethodGet, "/v1/adre/messages/search?q=nonexistenttermxyz", nil)
+	rec := httptest.NewRecorder()
+	h.SearchMessages(rec, req)
+	require.Equal(t, http.StatusOK, rec.Code)
+	var body struct {
+		Hits []interface{} `json:"hits"`
+	}
+	require.NoError(t, json.NewDecoder(rec.Body).Decode(&body))
+	assert.Empty(t, body.Hits)
+}
+
+func TestHandlers_PostChat_MissingConversationID(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	defer func() { require.NoError(t, sqlDB.Close()) }()
+	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+	_, err := models.UpdateSettings(db, &models.ChangeSettingsParams{
+		EnableAdre: pointer.ToBool(true),
+		AdreURL:    pointer.ToString("http://holmes:8080"),
+	})
+	require.NoError(t, err)
+
+	h := NewHandlers(db, &mockGrafanaAlertsFetcher{})
+	req := httptest.NewRequest(http.MethodPost, "/v1/adre/chat", bytes.NewReader([]byte(`{"ask":"hello"}`)))
+	req.Header.Set("Content-Type", "application/json")
+	rec := httptest.NewRecorder()
+	h.PostChat(rec, req)
+	assert.Equal(t, http.StatusBadRequest, rec.Code)
 }
 
 func TestHandlers_GetAlerts(t *testing.T) {

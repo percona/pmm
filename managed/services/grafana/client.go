@@ -262,6 +262,22 @@ func (c *Client) GetUserID(ctx context.Context) (int, error) {
 	return int(userID), nil
 }
 
+// GetCurrentUserLogin returns Grafana /api/user login (or uid:N fallback) for the given auth headers.
+func (c *Client) GetCurrentUserLogin(ctx context.Context, authHeaders http.Header) (string, error) {
+	var m map[string]interface{}
+	err := c.do(ctx, http.MethodGet, "/api/user", "", authHeaders, nil, &m)
+	if err != nil {
+		return "", err
+	}
+	if login, ok := m["login"].(string); ok && login != "" {
+		return login, nil
+	}
+	if id, ok := m["id"].(float64); ok {
+		return fmt.Sprintf("uid:%d", int(id)), nil
+	}
+	return "", errors.New("Grafana user login not available")
+}
+
 var emptyUser = authUser{
 	role:   none,
 	userID: 0,

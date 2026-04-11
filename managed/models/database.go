@@ -1625,6 +1625,36 @@ $yaml$,
 	135: {
 		`DROP TABLE IF EXISTS percona_sso_details`,
 	},
+	136: {
+		`CREATE TABLE adre_conversations (
+			id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+			title VARCHAR(50) NOT NULL DEFAULT 'New chat',
+			created_by VARCHAR NOT NULL,
+			created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+			updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+			last_message_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+			metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb
+		)`,
+		`CREATE INDEX idx_adre_conversations_created_by_last_msg ON adre_conversations (created_by, last_message_at DESC)`,
+		`CREATE TABLE adre_messages (
+			id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+			conversation_id BIGINT NOT NULL REFERENCES adre_conversations(id) ON DELETE CASCADE,
+			role VARCHAR NOT NULL,
+			content TEXT NOT NULL DEFAULT '',
+			tool_name VARCHAR NOT NULL DEFAULT '',
+			tool_result_json JSONB,
+			model VARCHAR NOT NULL DEFAULT '',
+			prompt_tokens INTEGER,
+			completion_tokens INTEGER,
+			total_tokens INTEGER,
+			created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+			content_tsv tsvector GENERATED ALWAYS AS (
+				to_tsvector('simple', coalesce(content,'') || ' ' || coalesce(tool_result_json::text,''))
+			) STORED
+		)`,
+		`CREATE INDEX idx_adre_messages_conv_created ON adre_messages (conversation_id, created_at)`,
+		`CREATE INDEX idx_adre_messages_content_tsv ON adre_messages USING gin (content_tsv)`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

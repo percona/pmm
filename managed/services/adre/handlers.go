@@ -54,11 +54,6 @@ func sanitizeQanInsightsAnalysis(raw string) string {
 	return trimmed
 }
 
-// GrafanaAlertsFetcher fetches firing alerts from Grafana's Alertmanager API.
-type GrafanaAlertsFetcher interface {
-	GetAlertmanagerAlerts(ctx context.Context, authHeaders http.Header) ([]byte, error)
-}
-
 const (
 	adreDisabledMsg  = "ADRE is disabled. Enable it in Settings."
 	adreURLNotSetMsg = "HolmesGPT URL is not configured. Set it in Settings."
@@ -66,21 +61,25 @@ const (
 
 // Handlers provides HTTP handlers for the ADRE proxy API.
 type Handlers struct {
-	db                 reform.DBTX
-	grafanaAlertsFetch GrafanaAlertsFetcher
-	reqTimeout         time.Duration
-	streamTimeout      time.Duration
-	l                  *logrus.Entry
+	db            *reform.DB
+	grafana       GrafanaAuth
+	streams       *ActiveChatStreams
+	searchLimiter *SearchRateLimiter
+	reqTimeout    time.Duration
+	streamTimeout time.Duration
+	l             *logrus.Entry
 }
 
 // NewHandlers creates new ADRE HTTP handlers.
-func NewHandlers(db reform.DBTX, grafanaAlertsFetch GrafanaAlertsFetcher) *Handlers {
+func NewHandlers(db *reform.DB, grafana GrafanaAuth) *Handlers {
 	return &Handlers{
-		db:                 db,
-		grafanaAlertsFetch: grafanaAlertsFetch,
-		reqTimeout:         5 * time.Minute,
-		streamTimeout:      5 * time.Minute,
-		l:                  logrus.WithField("component", "adre-handlers"),
+		db:            db,
+		grafana:       grafana,
+		streams:       NewActiveChatStreams(),
+		searchLimiter: NewSearchRateLimiter(),
+		reqTimeout:    5 * time.Minute,
+		streamTimeout: 5 * time.Minute,
+		l:             logrus.WithField("component", "adre-handlers"),
 	}
 }
 
@@ -124,6 +123,7 @@ type adreSettingsResponse struct {
 	ServiceNowURL                 string          `json:"servicenow_url"`
 	ServiceNowConfigured          bool            `json:"servicenow_configured"`
 	PromptMaxBytes                int             `json:"prompt_max_bytes"`
+	AdreChatRetentionDays         int             `json:"adre_chat_retention_days"`
 }
 
 func applyAdreSettingsDefaults(r *adreSettingsResponse) {
@@ -135,6 +135,9 @@ func applyAdreSettingsDefaults(r *adreSettingsResponse) {
 	}
 	if r.AdreMaxConversationMessages <= 0 {
 		r.AdreMaxConversationMessages = AdreMaxConversationMessagesDefault
+	}
+	if r.AdreChatRetentionDays < 0 {
+		r.AdreChatRetentionDays = models.AdreChatRetentionDaysDefault
 	}
 }
 
@@ -182,6 +185,7 @@ func (h *Handlers) GetSettings(w http.ResponseWriter, r *http.Request) {
 		ServiceNowURL:                 settings.Adre.ServiceNowURL,
 		ServiceNowConfigured:          settings.Adre.ServiceNowURL != "" && settings.Adre.ServiceNowAPIKey != "" && settings.Adre.ServiceNowClientToken != "",
 		PromptMaxBytes:                settings.Adre.PromptMaxBytes,
+		AdreChatRetentionDays:         settings.GetAdreChatRetentionDays(),
 	}
 	applyAdreSettingsDefaults(&resp)
 	body, err := json.Marshal(resp)
@@ -221,6 +225,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		ServiceNowAPIKey              *string          `json:"servicenow_api_key"`
 		ServiceNowClientToken         *string          `json:"servicenow_client_token"`
 		PromptMaxBytes                *int             `json:"prompt_max_bytes"`
+		AdreChatRetentionDays         *int             `json:"adre_chat_retention_days"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
@@ -231,7 +236,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		body.BehaviorControlsFast != nil || body.BehaviorControlsInvestigation != nil || body.BehaviorControlsFormatReport != nil ||
 		body.AdreMaxConversationMessages != nil || body.QanInsightsPrompt != nil || body.QanInsightsModel != nil ||
 		body.ServiceNowURL != nil || body.ServiceNowAPIKey != nil || body.ServiceNowClientToken != nil ||
-		body.PromptMaxBytes != nil
+		body.PromptMaxBytes != nil || body.AdreChatRetentionDays != nil
 	if !hasChange {
 		writeJSONError(w, http.StatusBadRequest, "No changes provided")
 		return
@@ -326,6 +331,13 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		writeJSONError(w, http.StatusBadRequest, fmt.Sprintf("qan_insights_prompt: max %d bytes", effectivePromptMaxBytes))
 		return
 	}
+	if body.AdreChatRetentionDays != nil {
+		n := *body.AdreChatRetentionDays
+		if n < 0 || n > 36500 {
+			writeJSONError(w, http.StatusBadRequest, "adre_chat_retention_days: must be between 0 and 36500")
+			return
+		}
+	}
 	params := &models.ChangeSettingsParams{
 		EnableAdre:                        body.Enabled,
 		AdreURL:                           body.URL,
@@ -344,6 +356,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		ServiceNowAPIKey:                  body.ServiceNowAPIKey,
 		ServiceNowClientToken:             body.ServiceNowClientToken,
 		PromptMaxBytes:                    body.PromptMaxBytes,
+		AdreChatRetentionDays:             body.AdreChatRetentionDays,
 	}
 	if _, err := models.UpdateSettings(h.db, params); err != nil {
 		h.l.Errorf("UpdateSettings: %v", err)
@@ -383,6 +396,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		ServiceNowURL:                 settings.Adre.ServiceNowURL,
 		ServiceNowConfigured:          settings.Adre.ServiceNowURL != "" && settings.Adre.ServiceNowAPIKey != "" && settings.Adre.ServiceNowClientToken != "",
 		PromptMaxBytes:                settings.Adre.PromptMaxBytes,
+		AdreChatRetentionDays:         settings.GetAdreChatRetentionDays(),
 	}
 	applyAdreSettingsDefaults(&resp)
 	respBody, err := json.Marshal(resp)
@@ -428,15 +442,6 @@ func (h *Handlers) GetModels(w http.ResponseWriter, r *http.Request) {
 
 // maxDashboardContextBytes caps PMM UI Grafana URL context appended to additional_system_prompt.
 const maxDashboardContextBytes = 32 * 1024
-
-// chatRequestBody is the incoming POST /v1/adre/chat body. Mode is used only server-side to pick prompt and behavior_controls; it is not sent to Holmes.
-type chatRequestBody struct {
-	ChatRequest
-	// Mode: "fast" or "investigation". Legacy "chat" is treated as "fast".
-	Mode *string `json:"mode,omitempty"`
-	// DashboardContext is structured Grafana context from the PMM shell (URL + rules). Merged into AdditionalSystemPrompt before calling Holmes.
-	DashboardContext string `json:"dashboard_context,omitempty"`
-}
 
 // resolveChatPrompt returns the additional_system_prompt for chat from settings and mode. Empty settings value uses built-in default.
 func resolveChatPrompt(settings *models.Settings, mode string) string {
@@ -490,8 +495,10 @@ func (h *Handlers) PostChat(w http.ResponseWriter, r *http.Request) {
 		writeJSONError(w, http.StatusBadRequest, adreURLNotSetMsg)
 		return
 	}
+	dec := json.NewDecoder(r.Body)
+	dec.UseNumber()
 	var body chatRequestBody
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+	if err := dec.Decode(&body); err != nil {
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
 		return
 	}
@@ -511,71 +518,12 @@ func (h *Handlers) PostChat(w http.ResponseWriter, r *http.Request) {
 		mode = "investigation"
 	}
 	req := &body.ChatRequest
-	req.Model = resolveChatModel(settings, mode, req.Model)
 	req.BehaviorControls = ResolveBehaviorControlsForPostChat(settings, mode)
 	h.l.WithFields(logrus.Fields{
 		"mode":              mode,
 		"behavior_controls": req.BehaviorControls,
 	}).Debug("PostChat behavior controls resolved")
-	req.AdditionalSystemPrompt = resolveChatPrompt(settings, mode)
-	if dc := strings.TrimSpace(body.DashboardContext); dc != "" {
-		if len(dc) > maxDashboardContextBytes {
-			dc = dc[:maxDashboardContextBytes] + "\n... (truncated)"
-		}
-		req.AdditionalSystemPrompt = strings.TrimRight(req.AdditionalSystemPrompt, "\n") + "\n\n" + dc
-	}
-	maxMsgs := MaxConversationMessages(settings)
-	req.ConversationHistory = TrimConversationHistory(req.ConversationHistory, maxMsgs)
-	req.ConversationHistory = EnsureHolmesLeadingSystemMessage(req.ConversationHistory)
-	client := NewClient(settings.GetAdreURL())
-	if req.Stream {
-		ctx, cancel := context.WithTimeout(r.Context(), h.streamTimeout)
-		defer cancel()
-		streamBody, err := client.ChatStream(ctx, req)
-		if err != nil {
-			h.l.Warnf("HolmesGPT ChatStream: %v", err)
-			writeJSONError(w, http.StatusBadGateway, err.Error())
-			return
-		}
-		defer streamBody.Close()
-		w.Header().Set("Content-Type", "text/event-stream")
-		w.Header().Set("Cache-Control", "no-cache")
-		w.Header().Set("Connection", "keep-alive")
-		flusher, ok := w.(http.Flusher)
-		if !ok {
-			http.Error(w, "Streaming not supported", http.StatusInternalServerError)
-			return
-		}
-		buf := make([]byte, 32*1024)
-		for {
-			n, err := streamBody.Read(buf)
-			if n > 0 {
-				if _, werr := w.Write(buf[:n]); werr != nil {
-					h.l.Warnf("ChatStream write: %v", werr)
-					return
-				}
-				flusher.Flush()
-			}
-			if err != nil {
-				if err != io.EOF {
-					h.l.Warnf("ChatStream read: %v", err)
-				}
-				return
-			}
-		}
-	}
-	ctx, cancel := context.WithTimeout(r.Context(), h.reqTimeout)
-	defer cancel()
-	resp, err := client.Chat(ctx, req)
-	if err != nil {
-		h.l.Warnf("HolmesGPT Chat: %v", err)
-		writeJSONError(w, http.StatusBadGateway, err.Error())
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(resp); err != nil {
-		h.l.Errorf("Encode chat: %v", err)
-	}
+	h.postChatWithPersistence(w, r, settings, &body)
 }
 
 // PostQanInsights handles POST /v1/adre/qan-insights. Runs query analytics and optimization via Holmes (non-streaming).
@@ -844,7 +792,7 @@ func (h *Handlers) GetAlerts(w http.ResponseWriter, r *http.Request) {
 	if v := r.Header.Get("Cookie"); v != "" {
 		authHeaders.Set("Cookie", v)
 	}
-	raw, err := h.grafanaAlertsFetch.GetAlertmanagerAlerts(ctx, authHeaders)
+	raw, err := h.grafana.GetAlertmanagerAlerts(ctx, authHeaders)
 	if err != nil {
 		h.l.Warnf("Grafana Alertmanager alerts: %v", err)
 		writeJSONError(w, http.StatusBadGateway, fmt.Sprintf("Failed to fetch alerts: %v", err))
