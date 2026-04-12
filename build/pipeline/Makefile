@@ -100,6 +100,7 @@ LOG_FILE ?= $(PIPELINE_DIR)/build.log
 
 CACHE_DIR := $(CURDIR)/.cache
 REPO_CACHE_DIR := $(CACHE_DIR)/repos
+STAMP_DIR := $(CACHE_DIR)/stamps
 
 # Bare repository URLs used by populate-cache and update-cache.
 # Keys are the bare directory names stored in REPO_CACHE_DIR; values are the upstream clone URLs.
@@ -167,6 +168,7 @@ export PACKAGE_DIR
 export WORKSPACE_DIR
 export CACHE_DIR
 export REPO_CACHE_DIR
+export STAMP_DIR
 export CLIENT_DOCKERFILE
 export CLIENT_DOCKER_TAG
 export SERVER_DOCKERFILE
@@ -493,116 +495,164 @@ build-pmm-managed: ensure-pmm-builder ensure-build-volumes
 			cp /build/pmm/managed/data/alerting-templates/*.yml /output/data/alerting-templates/"
 
 build-pmm-dump: ensure-pmm-builder ensure-build-volumes
-	@echo "Building pmm-dump binary..."
-	@mkdir -p $(SERVER_OUTPUT_DIR)/pmm-dump
-	@docker run --rm \
-		--platform linux/$(HOST_ARCH) \
-		-v $(REPO_CACHE_DIR)/pmm-dump.git:/repos/pmm-dump.git:ro \
-		-v $(SERVER_OUTPUT_DIR)/pmm-dump:/output \
-		-v $(GOMOD_CACHE_VOL):/go/pkg/mod \
-		-v $(BUILD_CACHE_VOL):/root/.cache/go-build \
-		-e GOCACHE=/root/.cache/go-build \
-		-e GOARCH=$(GOARCH) \
-		pmm-builder:latest bash -c "\
-			set -e; git config --global --add safe.directory /repos/pmm-dump.git; \
-			git clone /repos/pmm-dump.git /build/pmm-dump; \
-			cd /build/pmm-dump; git checkout $(PMM_DUMP_REF); \
-			CGO_ENABLED=0 GOOS=linux GOARCH=$(GOARCH) make build; \
-			cp pmm-dump /output/"
+	@if $(PIPELINE_DIR)/scripts/check-build-cache \
+	    "pmm-dump" "$(PMM_DUMP_REF)" \
+	    "$(REPO_CACHE_DIR)/pmm-dump.git" \
+	    "$(SERVER_OUTPUT_DIR)/pmm-dump" \
+	    "$(STAMP_DIR)"; then \
+	  echo "Building pmm-dump binary..."; \
+	  mkdir -p $(SERVER_OUTPUT_DIR)/pmm-dump; \
+	  docker run --rm \
+	    --platform linux/$(HOST_ARCH) \
+	    -v $(REPO_CACHE_DIR)/pmm-dump.git:/repos/pmm-dump.git:ro \
+	    -v $(SERVER_OUTPUT_DIR)/pmm-dump:/output \
+	    -v $(GOMOD_CACHE_VOL):/go/pkg/mod \
+	    -v $(BUILD_CACHE_VOL):/root/.cache/go-build \
+	    -e GOCACHE=/root/.cache/go-build \
+	    -e GOARCH=$(GOARCH) \
+	    pmm-builder:latest bash -c "\
+	      set -e; git config --global --add safe.directory /repos/pmm-dump.git; \
+	      git clone /repos/pmm-dump.git /build/pmm-dump; \
+	      cd /build/pmm-dump; git checkout $(PMM_DUMP_REF); \
+	      CGO_ENABLED=0 GOOS=linux GOARCH=$(GOARCH) make build; \
+	      cp pmm-dump /output/"; \
+	  _hash=$$(git -C "$(REPO_CACHE_DIR)/pmm-dump.git" rev-parse "$(PMM_DUMP_REF)^{commit}" 2>/dev/null || echo "$(PMM_DUMP_REF)"); \
+	  mkdir -p "$(STAMP_DIR)"; echo "$$_hash" > "$(STAMP_DIR)/pmm-dump.hash"; \
+	fi
 
 build-grafana-go: ensure-build-volumes
-	@echo "Building Grafana Go binaries..."
-	@mkdir -p $(SERVER_OUTPUT_DIR)/grafana-go
-	@docker run --rm \
-		--platform linux/$(GOARCH) \
-		-v $(REPO_CACHE_DIR)/grafana.git:/repos/grafana.git:ro \
-		-v $(SERVER_OUTPUT_DIR)/grafana-go:/output \
-		-v $(GOMOD_CACHE_VOL):/go/pkg/mod \
-		-v $(BUILD_CACHE_VOL):/root/.cache/go-build \
-		-e GOCACHE=/root/.cache/go-build \
-		-e GOARCH=$(GOARCH) \
-		golang:$(GO_VERSION) bash -c "\
-			set -e; git config --global --add safe.directory /repos/grafana.git; \
-			git clone /repos/grafana.git /build/grafana; \
-			cd /build/grafana; git checkout $(GRAFANA_REF); \
-			sed -i 's/unknown-dev/11.6.4/' pkg/build/git.go; \
-			make build-go; \
-			cp bin/linux-$(GOARCH)/grafana-server bin/linux-$(GOARCH)/grafana bin/linux-$(GOARCH)/grafana-cli /output/"
+	@if $(PIPELINE_DIR)/scripts/check-build-cache \
+	    "grafana-go" "$(GRAFANA_REF)" \
+	    "$(REPO_CACHE_DIR)/grafana.git" \
+	    "$(SERVER_OUTPUT_DIR)/grafana-go" \
+	    "$(STAMP_DIR)"; then \
+	  echo "Building Grafana Go binaries..."; \
+	  mkdir -p $(SERVER_OUTPUT_DIR)/grafana-go; \
+	  docker run --rm \
+	    --platform linux/$(GOARCH) \
+	    -v $(REPO_CACHE_DIR)/grafana.git:/repos/grafana.git:ro \
+	    -v $(SERVER_OUTPUT_DIR)/grafana-go:/output \
+	    -v $(GOMOD_CACHE_VOL):/go/pkg/mod \
+	    -v $(BUILD_CACHE_VOL):/root/.cache/go-build \
+	    -e GOCACHE=/root/.cache/go-build \
+	    -e GOARCH=$(GOARCH) \
+	    golang:$(GO_VERSION) bash -c "\
+	      set -e; git config --global --add safe.directory /repos/grafana.git; \
+	      git clone /repos/grafana.git /build/grafana; \
+	      cd /build/grafana; git checkout $(GRAFANA_REF); \
+	      sed -i 's/unknown-dev/11.6.4/' pkg/build/git.go; \
+	      make build-go; \
+	      cp bin/linux-$(GOARCH)/grafana-server bin/linux-$(GOARCH)/grafana bin/linux-$(GOARCH)/grafana-cli /output/"; \
+	  _hash=$$(git -C "$(REPO_CACHE_DIR)/grafana.git" rev-parse "$(GRAFANA_REF)^{commit}" 2>/dev/null || echo "$(GRAFANA_REF)"); \
+	  mkdir -p "$(STAMP_DIR)"; echo "$$_hash" > "$(STAMP_DIR)/grafana-go.hash"; \
+	fi
 
 build-grafana-ui: ensure-build-volumes
-	@echo "Building Grafana UI assets..."
-	@mkdir -p $(SERVER_OUTPUT_DIR)/grafana-ui
-	@docker run --rm \
-		--platform linux/$(HOST_ARCH) \
-		-v $(REPO_CACHE_DIR)/grafana.git:/repos/grafana.git:ro \
-		-v $(SERVER_OUTPUT_DIR)/grafana-ui:/output \
-		-v $(YARN_CACHE_VOL):/yarn-cache \
-		-e YARN_CACHE_FOLDER=/yarn-cache \
-		-e YARN_GLOBAL_FOLDER=/yarn-cache \
-		-e NODE_OPTIONS="--max-old-space-size=4096" \
-		node:22 bash -c "\
-			set -e; npm install -g grunt-cli; \
-			git config --global --add safe.directory /repos/grafana.git; \
-			git clone /repos/grafana.git /build/grafana; \
-			cd /build/grafana; git checkout $(GRAFANA_REF); \
-			make deps-js && make build-js; \
-			cp -r public conf tools /output/"
+	@if $(PIPELINE_DIR)/scripts/check-build-cache \
+	    "grafana-ui" "$(GRAFANA_REF)" \
+	    "$(REPO_CACHE_DIR)/grafana.git" \
+	    "$(SERVER_OUTPUT_DIR)/grafana-ui" \
+	    "$(STAMP_DIR)"; then \
+	  echo "Building Grafana UI assets..."; \
+	  mkdir -p $(SERVER_OUTPUT_DIR)/grafana-ui; \
+	  docker run --rm \
+	    --platform linux/$(HOST_ARCH) \
+	    -v $(REPO_CACHE_DIR)/grafana.git:/repos/grafana.git:ro \
+	    -v $(SERVER_OUTPUT_DIR)/grafana-ui:/output \
+	    -v $(YARN_CACHE_VOL):/yarn-cache \
+	    -e YARN_CACHE_FOLDER=/yarn-cache \
+	    -e YARN_GLOBAL_FOLDER=/yarn-cache \
+	    -e NODE_OPTIONS="--max-old-space-size=4096" \
+	    node:22 bash -c "\
+	      set -e; npm install -g grunt-cli; \
+	      git config --global --add safe.directory /repos/grafana.git; \
+	      git clone /repos/grafana.git /build/grafana; \
+	      cd /build/grafana; git checkout $(GRAFANA_REF); \
+	      make deps-js && make build-js; \
+	      cp -r public conf tools /output/"; \
+	  _hash=$$(git -C "$(REPO_CACHE_DIR)/grafana.git" rev-parse "$(GRAFANA_REF)^{commit}" 2>/dev/null || echo "$(GRAFANA_REF)"); \
+	  mkdir -p "$(STAMP_DIR)"; echo "$$_hash" > "$(STAMP_DIR)/grafana-ui.hash"; \
+	fi
 
 build-victoriametrics: ensure-pmm-builder ensure-build-volumes
-	@echo "Building VictoriaMetrics binaries..."
-	@mkdir -p $(SERVER_OUTPUT_DIR)/victoriametrics
-	@docker run --rm \
-		--platform linux/$(HOST_ARCH) \
-		-v $(REPO_CACHE_DIR)/VictoriaMetrics.git:/repos/VictoriaMetrics.git:ro \
-		-v $(SERVER_OUTPUT_DIR)/victoriametrics:/output \
-		-v $(GOMOD_CACHE_VOL):/go/pkg/mod \
-		-v $(BUILD_CACHE_VOL):/root/.cache/go-build \
-		-e GOCACHE=/root/.cache/go-build \
-		-e GOARCH=$(GOARCH) \
-		pmm-builder:latest bash -c "\
-			set -e; git config --global --add safe.directory /repos/VictoriaMetrics.git; \
-			git clone /repos/VictoriaMetrics.git /build/VictoriaMetrics; \
-			cd /build/VictoriaMetrics; git checkout $(VM_REF); \
-			make victoria-metrics-pure vmalert-pure PKG_TAG=$(VM_REF) BUILDINFO_TAG=$(VM_REF); \
-			cp bin/victoria-metrics-pure bin/vmalert-pure /output/"
+	@if $(PIPELINE_DIR)/scripts/check-build-cache \
+	    "victoriametrics" "$(VM_REF)" \
+	    "$(REPO_CACHE_DIR)/VictoriaMetrics.git" \
+	    "$(SERVER_OUTPUT_DIR)/victoriametrics" \
+	    "$(STAMP_DIR)"; then \
+	  echo "Building VictoriaMetrics binaries..."; \
+	  mkdir -p $(SERVER_OUTPUT_DIR)/victoriametrics; \
+	  docker run --rm \
+	    --platform linux/$(HOST_ARCH) \
+	    -v $(REPO_CACHE_DIR)/VictoriaMetrics.git:/repos/VictoriaMetrics.git:ro \
+	    -v $(SERVER_OUTPUT_DIR)/victoriametrics:/output \
+	    -v $(GOMOD_CACHE_VOL):/go/pkg/mod \
+	    -v $(BUILD_CACHE_VOL):/root/.cache/go-build \
+	    -e GOCACHE=/root/.cache/go-build \
+	    -e GOARCH=$(GOARCH) \
+	    pmm-builder:latest bash -c "\
+	      set -e; git config --global --add safe.directory /repos/VictoriaMetrics.git; \
+	      git clone /repos/VictoriaMetrics.git /build/VictoriaMetrics; \
+	      cd /build/VictoriaMetrics; git checkout $(VM_REF); \
+	      make victoria-metrics-pure vmalert-pure PKG_TAG=$(VM_REF) BUILDINFO_TAG=$(VM_REF); \
+	      cp bin/victoria-metrics-pure bin/vmalert-pure /output/"; \
+	  _hash=$$(git -C "$(REPO_CACHE_DIR)/VictoriaMetrics.git" rev-parse "$(VM_REF)^{commit}" 2>/dev/null || echo "$(VM_REF)"); \
+	  mkdir -p "$(STAMP_DIR)"; echo "$$_hash" > "$(STAMP_DIR)/victoriametrics.hash"; \
+	fi
 
 build-pmm-dashboards: ensure-build-volumes
-	@echo "Building PMM dashboards assets..."
-	@mkdir -p $(SERVER_OUTPUT_DIR)/pmm-dashboards
-	@docker run --rm \
-		--platform linux/$(HOST_ARCH) \
-		-v $(REPO_CACHE_DIR)/pmm.git:/repos/pmm.git:ro \
-		-v $(SERVER_OUTPUT_DIR)/pmm-dashboards:/output \
-		-v $(YARN_CACHE_VOL):/yarn-cache \
-		-e YARN_CACHE_FOLDER=/yarn-cache \
-		-e YARN_GLOBAL_FOLDER=/yarn-cache \
-		-e NODE_OPTIONS="--max-old-space-size=4096" \
-		node:22 bash -c "\
-			set -e; git config --global --add safe.directory /repos/pmm.git; \
-			git clone /repos/pmm.git /build/pmm; \
-			cd /build/pmm; git checkout $(PMM_DASHBOARDS_REF); \
-			cd dashboards && make release; \
-			cp -r panels /output/panels; \
-			cp -r pmm-app/dist /output/pmm-app-dist"
+	@if $(PIPELINE_DIR)/scripts/check-build-cache \
+	    "pmm-dashboards" "$(PMM_DASHBOARDS_REF)" \
+	    "$(REPO_CACHE_DIR)/pmm.git" \
+	    "$(SERVER_OUTPUT_DIR)/pmm-dashboards" \
+	    "$(STAMP_DIR)"; then \
+	  echo "Building PMM dashboards assets..."; \
+	  mkdir -p $(SERVER_OUTPUT_DIR)/pmm-dashboards; \
+	  docker run --rm \
+	    --platform linux/$(HOST_ARCH) \
+	    -v $(REPO_CACHE_DIR)/pmm.git:/repos/pmm.git:ro \
+	    -v $(SERVER_OUTPUT_DIR)/pmm-dashboards:/output \
+	    -v $(YARN_CACHE_VOL):/yarn-cache \
+	    -e YARN_CACHE_FOLDER=/yarn-cache \
+	    -e YARN_GLOBAL_FOLDER=/yarn-cache \
+	    -e NODE_OPTIONS="--max-old-space-size=4096" \
+	    node:22 bash -c "\
+	      set -e; git config --global --add safe.directory /repos/pmm.git; \
+	      git clone /repos/pmm.git /build/pmm; \
+	      cd /build/pmm; git checkout $(PMM_DASHBOARDS_REF); \
+	      cd dashboards && make release; \
+	      cp -r panels /output/panels; \
+	      cp -r pmm-app/dist /output/pmm-app-dist"; \
+	  _hash=$$(git -C "$(REPO_CACHE_DIR)/pmm.git" rev-parse "$(PMM_DASHBOARDS_REF)^{commit}" 2>/dev/null || echo "$(PMM_DASHBOARDS_REF)"); \
+	  mkdir -p "$(STAMP_DIR)"; echo "$$_hash" > "$(STAMP_DIR)/pmm-dashboards.hash"; \
+	fi
 
 build-pmm-ui: ensure-build-volumes
-	@echo "Building PMM UI assets..."
-	@mkdir -p $(SERVER_OUTPUT_DIR)/pmm-ui
-	@docker run --rm \
-		--platform linux/$(HOST_ARCH) \
-		-v $(REPO_CACHE_DIR)/pmm.git:/repos/pmm.git:ro \
-		-v $(SERVER_OUTPUT_DIR)/pmm-ui:/output \
-		-v $(YARN_CACHE_VOL):/yarn-cache \
-		-e YARN_CACHE_FOLDER=/yarn-cache \
-		-e YARN_GLOBAL_FOLDER=/yarn-cache \
-		-e NODE_OPTIONS="--max-old-space-size=4096" \
-		node:22 bash -c "\
-			set -e; git config --global --add safe.directory /repos/pmm.git; \
-			git clone /repos/pmm.git /build/pmm-ui; \
-			cd /build/pmm-ui; git checkout $(PMM_UI_REF); \
-			cd ui && make release; \
-			cp -r /build/pmm-ui/ui/apps/pmm/dist /output/pmm-dist; \
-			cp -r /build/pmm-ui/ui/apps/pmm-compat/dist /output/pmm-compat-dist"
+	@if $(PIPELINE_DIR)/scripts/check-build-cache \
+	    "pmm-ui" "$(PMM_UI_REF)" \
+	    "$(REPO_CACHE_DIR)/pmm.git" \
+	    "$(SERVER_OUTPUT_DIR)/pmm-ui" \
+	    "$(STAMP_DIR)"; then \
+	  echo "Building PMM UI assets..."; \
+	  mkdir -p $(SERVER_OUTPUT_DIR)/pmm-ui; \
+	  docker run --rm \
+	    --platform linux/$(HOST_ARCH) \
+	    -v $(REPO_CACHE_DIR)/pmm.git:/repos/pmm.git:ro \
+	    -v $(SERVER_OUTPUT_DIR)/pmm-ui:/output \
+	    -v $(YARN_CACHE_VOL):/yarn-cache \
+	    -e YARN_CACHE_FOLDER=/yarn-cache \
+	    -e YARN_GLOBAL_FOLDER=/yarn-cache \
+	    -e NODE_OPTIONS="--max-old-space-size=4096" \
+	    node:22 bash -c "\
+	      set -e; git config --global --add safe.directory /repos/pmm.git; \
+	      git clone /repos/pmm.git /build/pmm-ui; \
+	      cd /build/pmm-ui; git checkout $(PMM_UI_REF); \
+	      cd ui && make release; \
+	      cp -r /build/pmm-ui/ui/apps/pmm/dist /output/pmm-dist; \
+	      cp -r /build/pmm-ui/ui/apps/pmm-compat/dist /output/pmm-compat-dist"; \
+	  _hash=$$(git -C "$(REPO_CACHE_DIR)/pmm.git" rev-parse "$(PMM_UI_REF)^{commit}" 2>/dev/null || echo "$(PMM_UI_REF)"); \
+	  mkdir -p "$(STAMP_DIR)"; echo "$$_hash" > "$(STAMP_DIR)/pmm-ui.hash"; \
+	fi
 
 # ---------------------------------------------------------------------------
 # Orchestration: Go builds in parallel, then Node builds sequentially
@@ -612,25 +662,10 @@ build-server-components:
 	@echo "Building server component images (Go stages in parallel)..."
 	@$(MAKE) -j4 build-pmm-managed build-pmm-dump build-victoriametrics build-grafana-go
 	@echo ""
-	@echo "Building server component images sequentially..."
-	@$(PIPELINE_DIR)/scripts/check-ui-cache \
-	    "grafana" "$(GRAFANA_REF)" \
-	    "$(REPO_CACHE_DIR)/grafana.git" \
-	    "$(SERVER_OUTPUT_DIR)/grafana-ui" \
-	    "$(SERVER_OUTPUT_DIR)/version.json" \
-	  && $(MAKE) build-grafana-ui || true
-	@$(PIPELINE_DIR)/scripts/check-ui-cache \
-	    "pmm-dashboards" "$(PMM_DASHBOARDS_REF)" \
-	    "$(REPO_CACHE_DIR)/pmm.git" \
-	    "$(SERVER_OUTPUT_DIR)/pmm-dashboards" \
-	    "$(SERVER_OUTPUT_DIR)/version.json" \
-	  && $(MAKE) build-pmm-dashboards || true
-	@$(PIPELINE_DIR)/scripts/check-ui-cache \
-	    "pmm" "$(PMM_UI_REF)" \
-	    "$(REPO_CACHE_DIR)/pmm.git" \
-	    "$(SERVER_OUTPUT_DIR)/pmm-ui" \
-	    "$(SERVER_OUTPUT_DIR)/version.json" \
-	  && $(MAKE) build-pmm-ui || true
+	@echo "Building server component images (Node stages sequentially)..."
+	@$(MAKE) build-grafana-ui
+	@$(MAKE) build-pmm-dashboards
+	@$(MAKE) build-pmm-ui
 	@echo "All server component images built successfully"
 
 # Remove intermediate server artifact images

@@ -291,6 +291,12 @@ build_external_component() {
         return 1
     fi
 
+    # Check build cache — skip if ref unchanged and artifacts present
+    local stamp_dir="${CACHE_DIR:-$(dirname "${SCRIPT_DIR}")/.cache}/stamps"
+    if ! "${SCRIPT_DIR}/check-build-cache" "${component}" "${ref}" "${bare_repo_path}" "${OUTPUT_DIR}" "${stamp_dir}"; then
+        return 0
+    fi
+
     echo "Using cached bare repo: ${bare_name}"
     local clone_and_build="
         set -e
@@ -313,7 +319,13 @@ build_external_component() {
         -w /build \
         "${BUILDER_IMAGE}" \
         bash -c "${clone_and_build}"
-    
+
+    # Write build stamp after successful build
+    local _hash
+    _hash="$(git -C "${bare_repo_path}" rev-parse "${ref}^{commit}" 2>/dev/null || echo "${ref}")"
+    mkdir -p "${stamp_dir}"
+    echo "${_hash}" > "${stamp_dir}/${component}.hash"
+
     echo "Build complete! Artifacts saved to ${OUTPUT_DIR}"
     ls -lh "${OUTPUT_DIR}"
 }

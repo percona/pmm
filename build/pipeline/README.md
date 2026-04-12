@@ -155,6 +155,7 @@ PMM uses a **local bare-repo cache** to avoid cloning from upstream on every bui
 - **Mandatory**: Both server and client builds fail hard if the bare repo cache is missing — no internet fallback at build time
 - **First-time setup**: Run `make populate-cache` to clone all repos from upstream
 - **Per-build refresh**: `make update-cache` fetches only the refs listed in `.env`
+- **Artifact caching**: Each component's resolved commit hash is stored in `.cache/stamps/<component>.hash` after a successful build. On the next run, if the hash matches and output artifacts exist, the build is skipped. Monorepo components (pmm-managed, pmm-admin, pmm-agent) always rebuild — path-aware caching for those is planned separately
 
 ### Cache Targets
 
@@ -187,21 +188,27 @@ The `.cache/repos/` directory contains bare Git repositories for all components:
 
 ```
 .cache/
-└── repos/
-    ├── azure_metrics_exporter.git/    # client
-    ├── grafana.git/                   # server
-    ├── mongodb_exporter.git/          # client
-    ├── mysqld_exporter.git/           # client
-    ├── node_exporter.git/             # client
-    ├── nomad.git/                     # client
-    ├── percona-toolkit.git/           # client
-    ├── pmm-dump.git/                  # server
-    ├── pmm.git/                       # server + UI
-    ├── postgres_exporter.git/         # client
-    ├── proxysql_exporter.git/         # client
-    ├── rds_exporter.git/              # client
-    ├── redis_exporter.git/            # client
-    └── VictoriaMetrics.git/           # server + vmagent
+├── repos/
+│   ├── azure_metrics_exporter.git/    # client
+│   ├── grafana.git/                   # server
+│   ├── mongodb_exporter.git/          # client
+│   ├── mysqld_exporter.git/           # client
+│   ├── node_exporter.git/             # client
+│   ├── nomad.git/                     # client
+│   ├── percona-toolkit.git/           # client
+│   ├── pmm-dump.git/                  # server
+│   ├── pmm.git/                       # server + UI
+│   ├── postgres_exporter.git/         # client
+│   ├── proxysql_exporter.git/         # client
+│   ├── rds_exporter.git/              # client
+│   ├── redis_exporter.git/            # client
+│   └── VictoriaMetrics.git/           # server + vmagent
+└── stamps/                            # commit-hash stamps for artifact caching
+    ├── pmm-dump.hash
+    ├── grafana-go.hash
+    ├── grafana-ui.hash
+    ├── victoriametrics.hash
+    └── ...
 ```
 
 Server builds mount these repos read-only into each `docker run` build container.
@@ -238,6 +245,7 @@ build/
 │   └── package/                  # Tarballs (created)
 └── scripts/
     ├── build-component           # Component build script
+    ├── check-build-cache         # Stamp-based build cache check
     ├── package-tarball           # Tarball packaging script
     └── build-client-docker       # Client Docker build script
 ```

@@ -277,11 +277,15 @@ PLATFORM=linux/arm64 make build COMPONENT=pmm-admin
 
 ## Caching Strategy
 
+### Docker Volumes
+
 Four Docker volumes provide caching:
 
 1. **pmm-mod** (`/go/pkg/mod`) - Go modules, shared across all Go builds
 2. **pmm-build** (`/root/.cache/go-build`) - Go build cache, shared across all Go builds
 3. **pmm-yarn** (`/usr/local/share/.cache/yarn`) - Yarn package cache for Node.js server builds (grafana-ui, pmm-dashboards, pmm-ui)
+
+### Bare Repo Cache
 
 Both server and client builds require bare repos to be present in `REPO_CACHE_DIR` (`.cache/repos/`) — populated by `make populate-cache` and kept current by `make update-cache`. A missing bare repo is a hard failure in both cases; there is no internet-clone fallback like there was in the old build system.
 
@@ -305,15 +309,17 @@ Both server and client builds require bare repos to be present in `REPO_CACHE_DI
 Use `make populate-cache` to clone all missing repos from upstream, then `make update-cache` to fetch
 the required refs. `make sync-cache` does a full fetch with pruning across all repos.
 
-Cache is persistent across builds. Clear with:
-```bash
-make clean-volumes  # Warning: destroys all Go/Yarn caches!
-make clean-cache    # Warning: removes all bare repos!
-```
+### Artifact Caching (Stamp Files)
+
+Each non-monorepo component stores its resolved commit hash in `.cache/stamps/<component>.hash` after a successful build. On the next run, `scripts/check-build-cache` compares the current ref's commit hash against the stamp; if they match and the output directory is non-empty, the build is skipped.
+
+- **Server**: pmm-dump, grafana-go, grafana-ui, victoriametrics, pmm-dashboards, pmm-ui use stamp-based caching. pmm-managed always rebuilds (monorepo — path-aware caching planned separately).
+- **Client**: All external components (exporters, vmagent, nomad, percona-toolkit) use stamp-based caching. Workspace components (pmm-admin, pmm-agent) always rebuild (monorepo).
 
 Cache is persistent across builds. Clear with:
 ```bash
-make clean-volumes  # Warning: destroys all caches!
+make clean-volumes  # Warning: destroys all Go/Yarn caches!
+make clean-cache    # Warning: removes all bare repos and stamp files!
 ```
 
 ## Component Metadata
