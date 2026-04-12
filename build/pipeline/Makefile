@@ -344,7 +344,7 @@ update-cache:
 		[ -d "$$dest" ] || continue; \
 		git -C "$$dest" config remote.origin.fetch '+refs/heads/*:refs/heads/*' 2>/dev/null || true; \
 		echo "  $$repo: fetching $$ref..."; \
-		git -C "$$dest" fetch origin "$$ref" || { echo "Error: failed to fetch $$ref from $$repo"; exit 1; }; \
+		git -C "$$dest" fetch origin "$$ref:$$ref" || { echo "Error: failed to fetch $$ref from $$repo"; exit 1; }; \
 	done
 	@echo "Cache update complete"
 
@@ -463,14 +463,19 @@ ensure-build-volumes:
 # ---------------------------------------------------------------------------
 
 build-pmm-managed: ensure-pmm-builder ensure-build-volumes
-	@echo "Building pmm-managed binaries..."
-	@mkdir -p \
+	@if $(PIPELINE_DIR)/scripts/check-build-cache \
+	    "pmm-managed" "$(PMM_REF)" \
+	    "$(REPO_CACHE_DIR)/pmm.git" \
+	    "$(SERVER_OUTPUT_DIR)/pmm-managed" \
+	    "$(STAMP_DIR)"; then \
+	  echo "Building pmm-managed binaries..."; \
+	  mkdir -p \
 		$(SERVER_OUTPUT_DIR)/pmm-managed/bin \
 		$(SERVER_OUTPUT_DIR)/pmm-managed/data/swagger \
 		$(SERVER_OUTPUT_DIR)/pmm-managed/data/advisors \
 		$(SERVER_OUTPUT_DIR)/pmm-managed/data/checks \
-		$(SERVER_OUTPUT_DIR)/pmm-managed/data/alerting-templates
-	@docker run --rm \
+		$(SERVER_OUTPUT_DIR)/pmm-managed/data/alerting-templates; \
+	  docker run --rm \
 		--platform linux/$(HOST_ARCH) \
 		-v $(REPO_CACHE_DIR)/pmm.git:/repos/pmm.git:ro \
 		-v $(SERVER_OUTPUT_DIR)/pmm-managed:/output \
@@ -492,7 +497,10 @@ build-pmm-managed: ensure-pmm-builder ensure-build-volumes
 			cp -r /build/pmm/api/swagger/. /output/data/swagger/; \
 			cp /build/pmm/managed/data/advisors/*.yml /output/data/advisors/; \
 			cp /build/pmm/managed/data/checks/*.yml /output/data/checks/; \
-			cp /build/pmm/managed/data/alerting-templates/*.yml /output/data/alerting-templates/"
+			cp /build/pmm/managed/data/alerting-templates/*.yml /output/data/alerting-templates/"; \
+	  hash=$$(git -C "$(REPO_CACHE_DIR)/pmm.git" rev-parse "$(PMM_REF)^{commit}" 2>/dev/null || echo "$(PMM_REF)"); \
+	  mkdir -p "$(STAMP_DIR)"; echo "$$hash" > "$(STAMP_DIR)/pmm-managed.hash"; \
+	fi
 
 build-pmm-dump: ensure-pmm-builder ensure-build-volumes
 	@if $(PIPELINE_DIR)/scripts/check-build-cache \
