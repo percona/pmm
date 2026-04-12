@@ -101,8 +101,8 @@ Built from external Git repositories:
 |----------|-------------|---------|
 | `PMM_VERSION` | Version to build | From `VERSION` file |
 | `BUILD_TYPE` | Build type: `static` or `dynamic` | `static` |
-| `GOARCH` | Target architecture: `amd64` or `arm64` | `amd64` |
-| `PLATFORM` | Docker platform: `linux/amd64` or `linux/arm64` | `linux/amd64` |
+| `GOARCH` | Target architecture: `amd64` or `arm64` | Host arch (auto-detected) |
+| `PLATFORM` | Docker platform: `linux/amd64` or `linux/arm64` | `linux/$HOST_ARCH` |
 | `SERVER_PLATFORMS` | Server build platforms (comma-separated) | `linux/amd64` |
 | `GO_VERSION` | Go version for builder image | `1.26` |
 | `HOST_ARCH` | Native arch of build host (pure-Go/Node containers run natively) | auto-detected |

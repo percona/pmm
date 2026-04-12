@@ -60,8 +60,8 @@ help:
 	@echo "Environment Variables:"
 	@echo "  PMM_VERSION       - Version to build (default: from VERSION file)"
 	@echo "  BUILD_TYPE        - Build type: static or dynamic (default: static)"
-	@echo "  GOARCH            - Target architecture: amd64 or arm64 (default: amd64)"
-	@echo "  PLATFORM          - Docker platform: linux/amd64 or linux/arm64"
+	@echo "  GOARCH            - Target architecture: amd64 or arm64 (default: host arch)"
+	@echo "  PLATFORM          - Docker platform: linux/amd64 or linux/arm64 (default: host platform)"
 	@echo "  SERVER_PLATFORMS  - Server platforms: linux/amd64,linux/arm64 or linux/amd64 (default: linux/amd64)"
 	@echo "  MINIO_ENDPOINT    - Minio endpoint (default: http://localhost:9000)"
 	@echo "  MINIO_BUCKET      - Minio bucket name (default: cache)"
@@ -83,11 +83,11 @@ ifeq ($(PMM_VERSION),)
 $(error Fatal: PMM_VERSION is not set, exiting...)
 endif
 BUILD_TYPE ?= static
-GOARCH ?= amd64
-PLATFORM ?= linux/amd64
 # Native platform of the build host — containers run natively for speed;
 # Go cross-compiles for GOARCH independently.
 HOST_ARCH := $(shell uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')
+GOARCH ?= $(HOST_ARCH)
+PLATFORM ?= linux/$(HOST_ARCH)
 SERVER_PLATFORMS ?= linux/amd64
 GO_VERSION ?= 1.26
 LOG_FILE ?= $(PIPELINE_DIR)/build.log
@@ -219,9 +219,9 @@ ALL_COMPONENTS := $(WORKSPACE_COMPONENTS) $(EXTERNAL_COMPONENTS)
 
 # Build the pmm-builder Docker image
 builder-image:
-	@echo "Building pmm-builder image (linux/amd64 + linux/arm64)..."
+	@echo "Building pmm-builder image (linux/$(HOST_ARCH))..."
 	@docker buildx build \
-		--platform linux/amd64,linux/arm64 \
+		--platform linux/$(HOST_ARCH) \
 		--build-arg GO_VERSION=$(GO_VERSION) \
 		--progress plain \
 		--load \

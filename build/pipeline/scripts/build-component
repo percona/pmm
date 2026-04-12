@@ -19,12 +19,12 @@ fi
 
 PMM_VERSION="${PMM_VERSION:?No PMM_VERSION specified}"
 BUILD_TYPE="${BUILD_TYPE:-static}"
-GOARCH="${GOARCH:-amd64}"
-PLATFORM="${PLATFORM:-linux/amd64}"
-OUTPUT_DIR="${OUTPUT_DIR:-$(realpath "$SCRIPT_DIR/../output")}"
 # Native platform of the build host — containers run natively for speed;
 # Go cross-compiles for GOARCH independently.
 HOST_ARCH="$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')"
+GOARCH="${GOARCH:-${HOST_ARCH}}"
+PLATFORM="${PLATFORM:-linux/${HOST_ARCH}}"
+OUTPUT_DIR="${OUTPUT_DIR:-$(realpath "$SCRIPT_DIR/../output")}"
 
 # Docker image and volumes
 BUILDER_IMAGE="pmm-builder:latest"
@@ -72,7 +72,7 @@ build_builder_image() {
     if ! docker image inspect "${BUILDER_IMAGE}" >/dev/null 2>&1; then
         echo "Building pmm-builder image..."
         docker buildx build \
-            --platform linux/amd64,linux/arm64 \
+            --platform "linux/${HOST_ARCH}" \
             --build-arg GO_VERSION="${GO_VERSION}" \
             --progress=plain \
             --load \

@@ -13,6 +13,7 @@ RUN apt-get update && \
 # Set up Go environment
 ENV CGO_ENABLED=0
 ENV GOOS=linux
-ENV GOARCH=amd64
+ARG TARGETARCH=amd64
+ENV GOARCH=${TARGETARCH}
 
 WORKDIR /build
