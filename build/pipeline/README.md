@@ -237,19 +237,27 @@ After bootstrap, `~/build/` (or your chosen directory) contains everything:
 ├── Makefile                      # Main build targets
 ├── Dockerfile.builder            # pmm-builder image for Go component builds
 ├── Dockerfile.client             # PMM Client Docker image
-├── Dockerfile.server             # PMM Server assembly (copies host-built artifacts)
+├── Dockerfile.server             # PMM Server Docker image
+├── Dockerfile.server.dockerignore
+├── .env.example                  # Template for .env
 ├── .env                          # Component URLs, refs, PMM_VERSION
 ├── scripts/
 │   ├── build-component           # Component build script
-│   ├── check-build-cache         # Stamp-based build cache check
-│   ├── package-tarball           # Tarball packaging script
 │   ├── build-client-docker       # Client Docker build script
+│   ├── check-build-cache         # Stamp-based build cache check
+│   ├── generate-version-json     # Writes version metadata JSON
+│   ├── migrate-from-submodules   # Populates .env from pmm-submodules
+│   ├── package-tarball           # Tarball packaging script
 │   └── install_tarball           # Client installation script (packaged into tarball)
 ├── ansible/                      # Ansible playbooks (for server image)
 ├── docker/                       # Docker entrypoints and support files
 ├── packages/                     # Packaging configs (systemd, deb, rpm)
-├── output/
-│   ├── client/                   # Client component binaries
+├── package/                      # Tarball staging + final archive (created by build)
+│   ├── pmm-client/               # Staging directory (binaries, configs, query files)
+│   └── pmm-client.tar.gz         # Final client tarball
+├── output/                       # Build artifacts (created by build)
+│   ├── <client binaries>         # pmm-admin, pmm-agent, exporters, etc.
+│   ├── queries/                  # Exporter query files (YAML, .prom)
 │   └── server/                   # Per-component server artifact directories
 │       ├── pmm-managed/          # 6 Go binaries + swagger + YAML data dirs
 │       ├── pmm-dump/             # pmm-dump binary
@@ -258,7 +266,6 @@ After bootstrap, `~/build/` (or your chosen directory) contains everything:
 │       ├── victoriametrics/      # victoria-metrics-pure, vmalert-pure
 │       ├── pmm-dashboards/       # panels/, pmm-app-dist/
 │       └── pmm-ui/               # pmm-dist/, pmm-compat-dist/
-├── package/                      # Tarballs (created by build)
 └── .cache/
     ├── repos/                    # Bare Git repo cache
     └── stamps/                   # Commit-hash stamps for artifact caching

@@ -138,7 +138,7 @@ download_build_files() {
 
     local src="${tmpdir}/pmm/build"
 
-    # Copy pipeline files that are missing (Dockerfiles, Makefile, .env.example).
+    # Copy pipeline files (Dockerfiles, Makefile, .env.example).
     for f in Makefile Dockerfile.builder Dockerfile.client Dockerfile.server \
              Dockerfile.server.dockerignore .env.example; do
         if [ ! -f "${PIPELINE_DIR}/${f}" ]; then
@@ -147,7 +147,7 @@ download_build_files() {
         fi
     done
 
-    # Copy build scripts that are missing.
+    # Copy build scripts.
     mkdir -p "${SCRIPT_DIR}"
     for f in build-component build-client-docker package-tarball \
              generate-version-json check-build-cache migrate-from-submodules; do
