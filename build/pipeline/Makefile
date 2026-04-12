@@ -478,7 +478,8 @@ build-pmm-managed: ensure-pmm-builder ensure-build-volumes
 		-e GOARCH=$(GOARCH) \
 		-e PMM_RELEASE_VERSION=$(PMM_VERSION) \
 		pmm-builder:latest bash -c "\
-			set -e; git clone /repos/pmm.git /build/pmm; \
+			set -e; git config --global --add safe.directory /repos/pmm.git; \
+			git clone /repos/pmm.git /build/pmm; \
 			cd /build/pmm; git checkout $(PMM_REF); \
 			make -C managed release GOARCH=$(GOARCH); \
 			cd /build/pmm/qan-api2 && make release GOARCH=$(GOARCH); \
@@ -503,7 +504,8 @@ build-pmm-dump: ensure-pmm-builder ensure-build-volumes
 		-e GOCACHE=/root/.cache/go-build \
 		-e GOARCH=$(GOARCH) \
 		pmm-builder:latest bash -c "\
-			set -e; git clone /repos/pmm-dump.git /build/pmm-dump; \
+			set -e; git config --global --add safe.directory /repos/pmm-dump.git; \
+			git clone /repos/pmm-dump.git /build/pmm-dump; \
 			cd /build/pmm-dump; git checkout $(PMM_DUMP_REF); \
 			CGO_ENABLED=0 GOOS=linux GOARCH=$(GOARCH) make build; \
 			cp pmm-dump /output/"
@@ -520,7 +522,8 @@ build-grafana-go: ensure-build-volumes
 		-e GOCACHE=/root/.cache/go-build \
 		-e GOARCH=$(GOARCH) \
 		golang:$(GO_VERSION) bash -c "\
-			set -e; git clone /repos/grafana.git /build/grafana; \
+			set -e; git config --global --add safe.directory /repos/grafana.git; \
+			git clone /repos/grafana.git /build/grafana; \
 			cd /build/grafana; git checkout $(GRAFANA_REF); \
 			sed -i 's/unknown-dev/11.6.4/' pkg/build/git.go; \
 			make build-go; \
@@ -539,6 +542,7 @@ build-grafana-ui: ensure-build-volumes
 		-e NODE_OPTIONS="--max-old-space-size=4096" \
 		node:22 bash -c "\
 			set -e; npm install -g grunt-cli; \
+			git config --global --add safe.directory /repos/grafana.git; \
 			git clone /repos/grafana.git /build/grafana; \
 			cd /build/grafana; git checkout $(GRAFANA_REF); \
 			make deps-js && make build-js; \
@@ -556,7 +560,8 @@ build-victoriametrics: ensure-pmm-builder ensure-build-volumes
 		-e GOCACHE=/root/.cache/go-build \
 		-e GOARCH=$(GOARCH) \
 		pmm-builder:latest bash -c "\
-			set -e; git clone /repos/VictoriaMetrics.git /build/VictoriaMetrics; \
+			set -e; git config --global --add safe.directory /repos/VictoriaMetrics.git; \
+			git clone /repos/VictoriaMetrics.git /build/VictoriaMetrics; \
 			cd /build/VictoriaMetrics; git checkout $(VM_REF); \
 			make victoria-metrics-pure vmalert-pure PKG_TAG=$(VM_REF) BUILDINFO_TAG=$(VM_REF); \
 			cp bin/victoria-metrics-pure bin/vmalert-pure /output/"
@@ -573,7 +578,8 @@ build-pmm-dashboards: ensure-build-volumes
 		-e YARN_GLOBAL_FOLDER=/yarn-cache \
 		-e NODE_OPTIONS="--max-old-space-size=4096" \
 		node:22 bash -c "\
-			set -e; git clone /repos/pmm.git /build/pmm; \
+			set -e; git config --global --add safe.directory /repos/pmm.git; \
+			git clone /repos/pmm.git /build/pmm; \
 			cd /build/pmm; git checkout $(PMM_DASHBOARDS_REF); \
 			cd dashboards && make release; \
 			cp -r panels /output/panels; \
@@ -591,7 +597,8 @@ build-pmm-ui: ensure-build-volumes
 		-e YARN_GLOBAL_FOLDER=/yarn-cache \
 		-e NODE_OPTIONS="--max-old-space-size=4096" \
 		node:22 bash -c "\
-			set -e; git clone /repos/pmm.git /build/pmm-ui; \
+			set -e; git config --global --add safe.directory /repos/pmm.git; \
+			git clone /repos/pmm.git /build/pmm-ui; \
 			cd /build/pmm-ui; git checkout $(PMM_UI_REF); \
 			cd ui && make release; \
 			cp -r /build/pmm-ui/ui/apps/pmm/dist /output/pmm-dist; \
