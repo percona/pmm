@@ -6,8 +6,8 @@ SHELL := bash
 .SHELLFLAGS := -o pipefail -c
 
 # Determine directory paths regardless of where make is invoked from
-PIPELINE_DIR := $(dir $(abspath $(firstword $(MAKEFILE_LIST))))
-BUILD_ROOT := $(abspath $(PIPELINE_DIR)..)
+PIPELINE_DIR := $(patsubst %/,%,$(dir $(abspath $(firstword $(MAKEFILE_LIST)))))
+BUILD_ROOT := $(abspath $(PIPELINE_DIR)/..)
 # Workspace root is auto-detected for local dev (full repo checkout); left empty
 # for CI/bootstrap builds where workspace components clone from the bare cache.
 ifneq ($(wildcard $(BUILD_ROOT)/go.mod),)
@@ -167,7 +167,7 @@ BUILDX_BUILDER    ?= pmm-s3-builder
 GOMOD_CACHE_VOL   ?= pmm-mod
 BUILD_CACHE_VOL   ?= pmm-build
 YARN_CACHE_VOL    ?= pmm-yarn
-SERVER_OUTPUT_DIR := $(PIPELINE_DIR)output/server
+SERVER_OUTPUT_DIR := $(PIPELINE_DIR)/output/server
 
 export LOG_FILE
 export PMM_VERSION

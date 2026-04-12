@@ -160,6 +160,7 @@ build_workspace_component() {
         volume_args+=(-v "${bare_repo_path}:/repos/${bare_name}:ro")
         full_build_cmd="
             set -e
+            git config --global --add safe.directory /repos/${bare_name}
             git clone /repos/${bare_name} /workspace
             cd /workspace
             git checkout ${pmm_ref}
@@ -293,6 +294,7 @@ build_external_component() {
     echo "Using cached bare repo: ${bare_name}"
     local clone_and_build="
         set -e
+        git config --global --add safe.directory /repos/${bare_name}
         git clone /repos/${bare_name} /build/${component}
         cd /build/${component}
         git checkout ${ref}
