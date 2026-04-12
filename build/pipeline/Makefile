@@ -568,16 +568,12 @@ build-grafana-ui: ensure-build-volumes
 	    -v $(REPO_CACHE_DIR)/grafana.git:/repos/grafana.git:ro \
 	    -v $(SERVER_OUTPUT_DIR)/grafana-ui:/output \
 	    -v $(YARN_CACHE_VOL):/yarn-cache \
+	    -v $(PIPELINE_DIR)/scripts/entrypoints/build-grafana-ui:/entrypoint.sh:ro \
 	    -e YARN_CACHE_FOLDER=/yarn-cache \
 	    -e YARN_GLOBAL_FOLDER=/yarn-cache \
 	    -e NODE_OPTIONS="--max-old-space-size=8192" \
-	    node:22 bash -c "\
-	      set -e; npm install -g grunt-cli; \
-	      git config --global --add safe.directory /repos/grafana.git; \
-	      git clone /repos/grafana.git /build/grafana; \
-	      cd /build/grafana; git checkout $(GRAFANA_REF); \
-	      make deps-js && make build-js; \
-	      cp -r public conf tools /output/"; \
+	    -e REF=$(GRAFANA_REF) \
+	    node:22 bash /entrypoint.sh; \
 	  hash=$$(git -C "$(REPO_CACHE_DIR)/grafana.git" rev-parse "$(GRAFANA_REF)^{commit}" 2>/dev/null || echo "$(GRAFANA_REF)"); \
 	  mkdir -p "$(STAMP_DIR)"; echo "$$hash" > "$(STAMP_DIR)/grafana-ui.hash"; \
 	fi
@@ -620,26 +616,16 @@ build-pmm-dashboards: ensure-build-volumes
 	    --platform linux/$(HOST_ARCH) \
 	    -v $(REPO_CACHE_DIR)/pmm.git:/repos/pmm.git:ro \
 	    -v $(SERVER_OUTPUT_DIR)/pmm-dashboards:/output \
+	    -v $(PIPELINE_DIR)/scripts/entrypoints/build-dashboards:/entrypoint.sh:ro \
 	    -v $(YARN_CACHE_VOL):/yarn-cache \
 	    -e YARN_CACHE_FOLDER=/yarn-cache \
 	    -e YARN_GLOBAL_FOLDER=/yarn-cache \
 	    -e NODE_OPTIONS="--max-old-space-size=8192" \
-	    node:22 bash -c "\
-	      set -e; git config --global --add safe.directory /repos/pmm.git; \
-	      git clone /repos/pmm.git /build/pmm; \
-	      cd /build/pmm; git checkout $(PMM_DASHBOARDS_REF); \
-	      cd dashboards && make release; \
-	      apt-get update -qq && apt-get install -y -qq unzip >/dev/null; \
-	      mkdir -p /output/panels/pmm-app; \
-	      cp -a pmm-app/dist /output/panels/pmm-app/dist; \
-	      echo \"Installing grafana-clickhouse-datasource v$(CLICKHOUSE_DATASOURCE_VERSION)...\"; \
-	      curl -fsSL -o /tmp/clickhouse.zip \
-	        \"https://github.com/grafana/clickhouse-datasource/releases/download/v$(CLICKHOUSE_DATASOURCE_VERSION)/grafana-clickhouse-datasource-$(CLICKHOUSE_DATASOURCE_VERSION).linux_$(HOST_ARCH).zip\"; \
-	      unzip -qo /tmp/clickhouse.zip -d /output/panels; \
-	      echo \"Installing grafana-polystat-panel v$(POLYSTAT_PANEL_VERSION)...\"; \
-	      curl -fsSL -o /tmp/polystat.zip \
-	        \"https://github.com/grafana/grafana-polystat-panel/releases/download/v$(POLYSTAT_PANEL_VERSION)/grafana-polystat-panel-$(POLYSTAT_PANEL_VERSION).zip\"; \
-	      unzip -qo /tmp/polystat.zip -d /output/panels"; \
+	    -e REF=$(PMM_DASHBOARDS_REF) \
+	    -e CLICKHOUSE_DATASOURCE_VERSION=$(CLICKHOUSE_DATASOURCE_VERSION) \
+	    -e POLYSTAT_PANEL_VERSION=$(POLYSTAT_PANEL_VERSION) \
+	    -e HOST_ARCH=$(HOST_ARCH) \
+	    node:22 bash /entrypoint.sh; \
 	  hash=$$(git -C "$(REPO_CACHE_DIR)/pmm.git" rev-parse "$(PMM_DASHBOARDS_REF)^{commit}" 2>/dev/null || echo "$(PMM_DASHBOARDS_REF)"); \
 	  mkdir -p "$(STAMP_DIR)"; echo "$$hash" > "$(STAMP_DIR)/pmm-dashboards.hash"; \
 	fi
@@ -659,14 +645,10 @@ build-pmm-ui: ensure-build-volumes
 	    -v $(YARN_CACHE_VOL):/yarn-cache \
 	    -e YARN_CACHE_FOLDER=/yarn-cache \
 	    -e YARN_GLOBAL_FOLDER=/yarn-cache \
+	    -v $(PIPELINE_DIR)/scripts/entrypoints/build-ui:/entrypoint.sh:ro \
 	    -e NODE_OPTIONS="--max-old-space-size=8192" \
-	    node:22 bash -c "\
-	      set -e; git config --global --add safe.directory /repos/pmm.git; \
-	      git clone /repos/pmm.git /build/pmm-ui; \
-	      cd /build/pmm-ui; git checkout $(PMM_UI_REF); \
-	      cd ui && make release; \
-	      cp -r /build/pmm-ui/ui/apps/pmm/dist /output/pmm-dist; \
-	      cp -r /build/pmm-ui/ui/apps/pmm-compat/dist /output/pmm-compat-dist"; \
+	    -e REF=$(PMM_UI_REF) \
+	    node:22 bash /entrypoint.sh; \
 	  hash=$$(git -C "$(REPO_CACHE_DIR)/pmm.git" rev-parse "$(PMM_UI_REF)^{commit}" 2>/dev/null || echo "$(PMM_UI_REF)"); \
 	  mkdir -p "$(STAMP_DIR)"; echo "$$hash" > "$(STAMP_DIR)/pmm-ui.hash"; \
 	fi

@@ -1,0 +1,18 @@
+#!/bin/bash
+# Entrypoint for building Grafana UI assets inside a container.
+# Runs inside node:22 with /repos/grafana.git mounted read-only and /output as writable.
+#
+# Required env vars:
+#   REF   git ref to checkout
+
+set -euo pipefail
+
+: "${REF:?REF is required}"
+
+npm install -g grunt-cli
+git config --global --add safe.directory /repos/grafana.git
+git clone /repos/grafana.git /build/grafana
+cd /build/grafana
+git checkout "${REF}"
+make deps-js && make build-js
+cp -r public conf tools /output/

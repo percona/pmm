@@ -1,0 +1,43 @@
+#!/bin/bash
+# Entrypoint for building PMM dashboards inside a container.
+# Runs inside node:22 with /repos/pmm.git mounted read-only and /output as writable.
+#
+# Required env vars:
+#   REF                           git ref to checkout
+#   CLICKHOUSE_DATASOURCE_VERSION version of the ClickHouse datasource plugin
+#   POLYSTAT_PANEL_VERSION        version of the Polystat panel plugin
+#   HOST_ARCH                     target architecture (amd64 or arm64)
+
+set -euo pipefail
+
+: "${REF:?REF is required}"
+: "${CLICKHOUSE_DATASOURCE_VERSION:?CLICKHOUSE_DATASOURCE_VERSION is required}"
+: "${POLYSTAT_PANEL_VERSION:?POLYSTAT_PANEL_VERSION is required}"
+: "${HOST_ARCH:?HOST_ARCH is required}"
+
+# Clone and build dashboards
+git config --global --add safe.directory /repos/pmm.git
+git clone /repos/pmm.git /build/pmm
+cd /build/pmm
+git checkout "${REF}"
+cd dashboards
+make release
+
+# Install unzip (not included in node:22 base image)
+apt-get update -qq && apt-get install -y -qq unzip >/dev/null
+
+# Copy built PMM dashboards
+mkdir -p /output/panels/pmm-app
+cp -a pmm-app/dist /output/panels/pmm-app/dist
+
+# Install Grafana ClickHouse datasource plugin
+echo "Installing grafana-clickhouse-datasource v${CLICKHOUSE_DATASOURCE_VERSION}..."
+curl -fsSL -o /tmp/clickhouse.zip \
+    "https://github.com/grafana/clickhouse-datasource/releases/download/v${CLICKHOUSE_DATASOURCE_VERSION}/grafana-clickhouse-datasource-${CLICKHOUSE_DATASOURCE_VERSION}.linux_${HOST_ARCH}.zip"
+unzip -qo /tmp/clickhouse.zip -d /output/panels
+
+# Install Grafana Polystat panel plugin
+echo "Installing grafana-polystat-panel v${POLYSTAT_PANEL_VERSION}..."
+curl -fsSL -o /tmp/polystat.zip \
+    "https://github.com/grafana/grafana-polystat-panel/releases/download/v${POLYSTAT_PANEL_VERSION}/grafana-polystat-panel-${POLYSTAT_PANEL_VERSION}.zip"
+unzip -qo /tmp/polystat.zip -d /output/panels
