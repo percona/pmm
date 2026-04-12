@@ -56,14 +56,6 @@
     group: root
     mode: 0775
 
-- name: Copy grafana-start.sh wrapper script
-  copy:
-    src: grafana-start.sh
-    dest: /usr/local/sbin/grafana-start.sh
-    owner: pmm
-    group: root
-    mode: 0755
-
 - name: Copy *.ini files for PMM components
   copy:
     src: "{{ item }}"

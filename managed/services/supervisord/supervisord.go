@@ -535,7 +535,13 @@ redirect_stderr = true
 {{define "grafana"}}
 [program:grafana]
 priority = 3
-command = /usr/local/sbin/grafana-start.sh{{if .PMMServerHost}} cfg:default.server.domain="{{ .PMMServerHost }}"{{end}}
+command =
+    /usr/sbin/grafana server
+        --homepath=/usr/share/grafana
+        --config=/etc/grafana/grafana.ini
+        {{- if .PMMServerHost}}
+        cfg:default.server.domain="{{ .PMMServerHost }}"
+        {{- end}}
 environment =
     PMM_POSTGRES_ADDR="{{ .PostgresAddr }}",
     PMM_POSTGRES_DBNAME="{{ .PostgresDBName }}",
