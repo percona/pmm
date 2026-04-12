@@ -171,7 +171,7 @@ make populate-cache
 # Fetch required refs from upstream into local bare repos
 make update-cache
 
-# Full fetch + prune stale branches (slow, run periodically)
+# Prune stale branches + fetch required refs (run periodically)
 make sync-cache
 
 # Build server (runs update-cache automatically)

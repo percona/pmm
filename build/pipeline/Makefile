@@ -42,7 +42,7 @@ help:
 	@echo "Cache Management:"
 	@echo "  make populate-cache           - Clone any missing bare repos from upstream (first-time setup)"
 	@echo "  make update-cache             - Fetch required refs from upstream into local bare repos"
-	@echo "  make sync-cache               - Full fetch + prune stale branches (slow, periodic)"
+	@echo "  make sync-cache               - Prune stale branches + fetch required refs"
 	@echo "  make clean-cache              - Remove local cache directory"
 	@echo "  make clean-volumes            - Remove Docker cache volumes"
 	@echo "  make clean-all                - Remove cache, volumes, and build artifacts"
@@ -343,23 +343,22 @@ update-cache:
 	done
 	@echo "Cache update complete"
 
-# Full fetch + prune stale branches across all bare repos.
-# Run periodically to remove branches deleted from upstream.
-# Slower than update-cache because it fetches all refs, not just the ones in .env.
+# Prune stale branches from all bare repos, then fetch the refs listed in .env.
+# Run periodically to remove branches deleted from upstream without fetching every branch.
 sync-cache:
 	@if [ ! -d "$(REPO_CACHE_DIR)" ]; then \
 		echo "Cache directory not found, running populate-cache first..."; \
 		$(MAKE) populate-cache; \
 	fi
-	@echo "Syncing all bare repos from upstream (fetch --prune)..."
+	@echo "Pruning stale refs from bare repos..."
 	@for item in $(ALL_REPO_URLS); do \
 		name=$${item%%=*}; \
 		dest="$(REPO_CACHE_DIR)/$$name"; \
 		[ -d "$$dest" ] || continue; \
-		git -C "$$dest" config remote.origin.fetch '+refs/heads/*:refs/heads/*' 2>/dev/null || true; \
-		echo "  $$name: fetching all branches, pruning stale..."; \
-		git -C "$$dest" fetch --prune origin '+refs/heads/*:refs/heads/*' || { echo "Error: failed to sync $$name"; exit 1; }; \
+		echo "  $$name: pruning stale refs..."; \
+		git -C "$$dest" remote prune origin || { echo "Error: failed to prune $$name"; exit 1; }; \
 	done
+	@$(MAKE) update-cache
 	@echo "Sync complete"
 
 # Clone any bare repos that are missing from the local cache directory.
