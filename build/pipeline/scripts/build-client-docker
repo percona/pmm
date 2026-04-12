@@ -63,7 +63,7 @@ if [ ! -f "${PIPELINE_DIR}/${DOCKERFILE}" ]; then
   exit 1
 fi
 
-cp "${PIPELINE_DIR}/../docker/client/LICENSE" "${PIPELINE_DIR}/LICENSE"
+cp "${PIPELINE_DIR}/docker/client/LICENSE" "${PIPELINE_DIR}/LICENSE"
 
 trap cleanup EXIT
 

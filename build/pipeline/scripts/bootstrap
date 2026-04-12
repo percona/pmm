@@ -10,16 +10,16 @@ set -euo pipefail
 
 # When piped (curl | bash), BASH_SOURCE[0] is empty — create ~/build.
 if [ -n "${BASH_SOURCE[0]:-}" ] && [ -f "${BASH_SOURCE[0]}" ]; then
-    BASH_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
+    # Script lives at <pipeline_dir>/scripts/bootstrap — go up two levels.
+    PIPELINE_DIR="$(realpath "$(dirname "$(dirname "${BASH_SOURCE[0]}")")")"
 else
-    BASH_DIR="${HOME}/build"
-    if [ -d "${BASH_DIR}" ] && [ -n "$(ls -A "${BASH_DIR}")" ]; then
-        echo "Error: ${BASH_DIR} already exists and is not empty. Remove it or run bootstrap from that directory." >&2
+    PIPELINE_DIR="${HOME}/build"
+    if [ -d "${PIPELINE_DIR}" ] && [ -n "$(ls -A "${PIPELINE_DIR}")" ]; then
+        echo "Error: ${PIPELINE_DIR} already exists and is not empty. Remove it or run bootstrap from that directory." >&2
         exit 1
     fi
-    mkdir -p "${BASH_DIR}"
+    mkdir -p "${PIPELINE_DIR}"
 fi
-PIPELINE_DIR="${BASH_DIR}"
 SCRIPT_DIR="${PIPELINE_DIR}/scripts"
 
 # Defaults
@@ -30,7 +30,6 @@ GIT_REF="v3"
 TOTAL_STEPS=5
 
 PMM_REPO_URL="https://github.com/percona/pmm.git"
-BUILD_ROOT="$(dirname "${PIPELINE_DIR}")"
 
 usage() {
     cat <<EOF
@@ -159,14 +158,20 @@ download_build_files() {
         fi
     done
 
-    # Copy sibling directories needed by the build (ansible, docker, packages, scripts).
-    # These live in BUILD_ROOT (parent of PIPELINE_DIR).
-    for dir in ansible docker packages scripts; do
-        if [ ! -d "${BUILD_ROOT}/${dir}" ]; then
-            cp -r "${src}/${dir}" "${BUILD_ROOT}/${dir}"
+    # Copy sibling directories needed by the build into PIPELINE_DIR.
+    for dir in ansible docker packages; do
+        if [ ! -d "${PIPELINE_DIR}/${dir}" ]; then
+            cp -r "${src}/${dir}" "${PIPELINE_DIR}/${dir}"
             log_info "Installed ${dir}/"
         fi
     done
+
+    # Copy install_tarball from the legacy scripts directory (used by package-tarball).
+    if [ ! -f "${SCRIPT_DIR}/install_tarball" ]; then
+        cp "${src}/scripts/install_tarball" "${SCRIPT_DIR}/install_tarball"
+        chmod +x "${SCRIPT_DIR}/install_tarball"
+        log_info "Installed scripts/install_tarball"
+    fi
 
     rm -rf "${tmpdir}"
     trap - EXIT

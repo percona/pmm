@@ -397,7 +397,7 @@ Either run the migration script or set it directly in `.env`:
 ```bash
 scripts/migrate-from-submodules   # fetches from pmm-submodules once
 # — or —
-echo "PMM_VERSION=3.2.0" >> build/pipeline/.env
+echo "PMM_VERSION=3.2.0" >> ~/build/.env
 ```
 
 ### "NODE_EXPORTER_URL or NODE_EXPORTER_REF is not set in .env"
@@ -417,9 +417,12 @@ Add `--platform "${PLATFORM}"` to docker command.
 
 Minimal example:
 ```yaml
+- name: Bootstrap
+  run: ./build/pipeline/scripts/bootstrap --skip-cache
+
 - name: Build Components
   run: |
-    cd build/pipeline
+    cd ~/build
     make build-all
   env:
     PMM_VERSION: ${{ github.ref_name }}
@@ -427,6 +430,7 @@ Minimal example:
 
 For specific components:
 ```bash
+cd ~/build
 make build COMPONENT=pmm-admin
 make build COMPONENT=mysqld_exporter
 ```

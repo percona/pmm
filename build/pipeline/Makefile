@@ -7,16 +7,10 @@ SHELL := bash
 
 # Determine directory paths regardless of where make is invoked from
 PIPELINE_DIR := $(patsubst %/,%,$(dir $(abspath $(firstword $(MAKEFILE_LIST)))))
-BUILD_ROOT := $(abspath $(PIPELINE_DIR)/..)
-# Workspace root is auto-detected for local dev (full repo checkout); left empty
-# for CI/bootstrap builds where workspace components clone from the bare cache.
-ifneq ($(wildcard $(BUILD_ROOT)/go.mod),)
-WORKSPACE_DIR ?= $(BUILD_ROOT)
-else ifneq ($(wildcard $(abspath $(BUILD_ROOT)/..)/go.mod),)
-WORKSPACE_DIR ?= $(abspath $(BUILD_ROOT)/..)
-else
+# Workspace root — set manually when building workspace components from a local
+# repo checkout: make build COMPONENT=pmm-admin WORKSPACE_DIR=/path/to/pmm
+# Left empty for CI/bootstrap builds (source is cloned from the bare cache).
 WORKSPACE_DIR ?=
-endif
 
 # Build script location
 BUILD_SCRIPT := $(PIPELINE_DIR)/scripts/build-component
@@ -300,6 +294,8 @@ ifeq ($(LOGGING),)
 else
 	@$(MAKE) update-cache
 	@$(MAKE) build-server-components
+	@$(MAKE) build-client-components
+	@$(MAKE) build-client-tarball
 	@$(MAKE) generate-version-json
 	@echo "Assembling PMM Server Docker image..."
 	@$(MAKE) build-server-docker
@@ -426,7 +422,7 @@ build-server-docker: ensure-builder
 		--build-arg VERSION="$(PMM_VERSION)" \
 		-f $(SERVER_DOCKERFILE) \
 		-t $(SERVER_DOCKER_TAG) \
-		$(BUILD_ROOT)
+		$(PIPELINE_DIR)
 	@docker buildx stop $(BUILDX_BUILDER) 2>/dev/null || true
 	@echo "Docker image built successfully!"
 

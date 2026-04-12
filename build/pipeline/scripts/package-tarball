@@ -8,10 +8,6 @@ set -o nounset
 # Default values
 SCRIPT_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
 PIPELINE_DIR="$(dirname "${SCRIPT_DIR}")"
-# BUILD_ROOT is the parent of the pipeline directory.
-# In a full repo checkout: <root>/build/ (packages/, docker/, scripts/ are here).
-# In CI/bootstrap: <home>/  (bootstrap copies these dirs as siblings of the pipeline dir).
-BUILD_ROOT="$(dirname "${PIPELINE_DIR}")"
 PMM_VERSION="${PMM_VERSION:?No PMM_VERSION specified}"
 OUTPUT_DIR="${OUTPUT_DIR:-${PIPELINE_DIR}/output}"
 PACKAGE_DIR="${PACKAGE_DIR:-${PIPELINE_DIR}/package}"
@@ -86,16 +82,16 @@ done
 
 echo "Copying the configuration files..."
 # Copy config files
-cp "${BUILD_ROOT}/packages/config/pmm-agent.service" "${PACKAGE_ROOT}/config/"
-cp "${BUILD_ROOT}/docker/client/LICENSE" "${PIPELINE_DIR}/"
+cp "${PIPELINE_DIR}/packages/config/pmm-agent.service" "${PACKAGE_ROOT}/config/"
+cp "${PIPELINE_DIR}/docker/client/LICENSE" "${PIPELINE_DIR}/"
 
 echo "Copying Debian packaging files..."
 # Copy debian packaging files
-cp -r "${BUILD_ROOT}/packages/deb/"* "${PACKAGE_ROOT}/debian/"
+cp -r "${PIPELINE_DIR}/packages/deb/"* "${PACKAGE_ROOT}/debian/"
 
 echo "Copying RPM spec file..."
 # Copy RPM spec file
-cp "${BUILD_ROOT}/packages/rpm/client/pmm-client.spec" "${PACKAGE_ROOT}/rpm/"
+cp "${PIPELINE_DIR}/packages/rpm/client/pmm-client.spec" "${PACKAGE_ROOT}/rpm/"
 
 echo "Copying query files and other assets..."
 # Copy query files from OUTPUT_DIR/queries
@@ -122,7 +118,7 @@ echo "${PMM_VERSION}" > "${PACKAGE_ROOT}/VERSION"
 
 # Copy install_tarball script
 echo "Copying install_tarball script..."
-cp "${BUILD_ROOT}/scripts/install_tarball" "${PACKAGE_ROOT}/"
+cp "${PIPELINE_DIR}/scripts/install_tarball" "${PACKAGE_ROOT}/"
 chmod +x "${PACKAGE_ROOT}/install_tarball"
 
 echo "Creating tarball..."

@@ -4,23 +4,28 @@ Docker-based build system for PMM components. Server components are each built w
 
 ## Setup
 
-Before building, copy the example environment file and customize if needed:
+Use the bootstrap script to set up the build environment. It downloads all
+required files, populates the bare-repo cache, and creates `.env`:
 
 ```bash
-cd build/pipeline
-cp .env.example .env
+# From a fresh machine (curl | bash):
+curl -sSL https://raw.githubusercontent.com/percona/pmm/v3/build/pipeline/scripts/bootstrap | bash
+
+# Or from a repo checkout:
+./build/pipeline/scripts/bootstrap
 ```
 
-The `.env` file contains git refs for all external dependencies (Grafana, VictoriaMetrics, exporters, etc.). You can modify these to build with different versions.
+The build environment is created in `~/build/`. Customize `.env` to change
+component versions (git refs for Grafana, VictoriaMetrics, exporters, etc.).
 
-### Repository Cache for Server Builds
+### Repository Cache
 
-PMM Server and Client builds require a local bare-repo cache. Run `make populate-cache` once to clone all upstream repositories, then `make update-cache` before each build to fetch the latest refs. See [Cache Management](#cache-management) for details.
+PMM builds require a local bare-repo cache. The bootstrap script runs `make populate-cache` automatically. Before subsequent builds, run `make update-cache` to fetch the latest refs. See [Cache Management](#cache-management) for details.
 
 ## Quick Start
 
 ```bash
-cd build/pipeline
+cd ~/build
 
 # Build all PMM Client components (binaries only)
 make build-client
@@ -225,29 +230,38 @@ make update-cache     # fetches required refs
 
 ## Directory Structure
 
+After bootstrap, `~/build/` (or your chosen directory) contains everything:
+
 ```
-build/
-├── pipeline/
-│   ├── Makefile                  # Main build targets
-│   ├── README.md                 # This file
-│   ├── Dockerfile.client         # PMM Client Docker image
-│   ├── Dockerfile.server         # PMM Server assembly (copies host-built artifacts)
-│   ├── Dockerfile.builder        # pmm-builder image for Go component builds
-│   ├── output/
-│   │   └── server/               # Per-component artifact directories (created by builds)
-│   │       ├── pmm-managed/      # 6 Go binaries + swagger + YAML data dirs
-│   │       ├── pmm-dump/         # pmm-dump binary
-│   │       ├── grafana-go/       # grafana-server, grafana, grafana-cli
-│   │       ├── grafana-ui/       # public/, conf/, tools/
-│   │       ├── victoriametrics/  # victoria-metrics-pure, vmalert-pure
-│   │       ├── pmm-dashboards/   # panels/, pmm-app-dist/
-│   │       └── pmm-ui/           # pmm-dist/, pmm-compat-dist/
-│   └── package/                  # Tarballs (created)
-└── scripts/
-    ├── build-component           # Component build script
-    ├── check-build-cache         # Stamp-based build cache check
-    ├── package-tarball           # Tarball packaging script
-    └── build-client-docker       # Client Docker build script
+~/build/                          # PIPELINE_DIR (all-in-one)
+├── Makefile                      # Main build targets
+├── Dockerfile.builder            # pmm-builder image for Go component builds
+├── Dockerfile.client             # PMM Client Docker image
+├── Dockerfile.server             # PMM Server assembly (copies host-built artifacts)
+├── .env                          # Component URLs, refs, PMM_VERSION
+├── scripts/
+│   ├── build-component           # Component build script
+│   ├── check-build-cache         # Stamp-based build cache check
+│   ├── package-tarball           # Tarball packaging script
+│   ├── build-client-docker       # Client Docker build script
+│   └── install_tarball           # Client installation script (packaged into tarball)
+├── ansible/                      # Ansible playbooks (for server image)
+├── docker/                       # Docker entrypoints and support files
+├── packages/                     # Packaging configs (systemd, deb, rpm)
+├── output/
+│   ├── client/                   # Client component binaries
+│   └── server/                   # Per-component server artifact directories
+│       ├── pmm-managed/          # 6 Go binaries + swagger + YAML data dirs
+│       ├── pmm-dump/             # pmm-dump binary
+│       ├── grafana-go/           # grafana-server, grafana, grafana-cli
+│       ├── grafana-ui/           # public/, conf/, tools/
+│       ├── victoriametrics/      # victoria-metrics-pure, vmalert-pure
+│       ├── pmm-dashboards/       # panels/, pmm-app-dist/
+│       └── pmm-ui/               # pmm-dist/, pmm-compat-dist/
+├── package/                      # Tarballs (created by build)
+└── .cache/
+    ├── repos/                    # Bare Git repo cache
+    └── stamps/                   # Commit-hash stamps for artifact caching
 ```
 
 ## Build Targets
@@ -287,7 +301,7 @@ build/
 ### Build PMM Client
 
 ```bash
-cd build/pipeline
+cd ~/build
 make client
 ```
 
@@ -300,7 +314,7 @@ This will:
 ### Build PMM Server
 
 ```bash
-cd build/pipeline
+cd ~/build
 make server
 ```
 
@@ -327,14 +341,14 @@ make server GOARCH=arm64 SERVER_PLATFORMS=linux/arm64
 ### Build Everything
 
 ```bash
-cd build/pipeline
+cd ~/build
 make all
 ```
 
 ### Build pmm-admin
 
 ```bash
-cd build/pipeline
+cd ~/build
 make build COMPONENT=pmm-admin
 ```
 
@@ -389,10 +403,12 @@ Check `OUTPUT_DIR` (default: `./output`). Verify the build completed successfull
 ## CI/CD Integration
 
 ```yaml
+- name: Bootstrap build environment
+  run: ./build/pipeline/scripts/bootstrap --skip-cache
+
 - name: Build PMM Components
   run: |
-    cd build/pipeline
-    make volumes
+    cd ~/build
     make build-all
   env:
     PMM_VERSION: ${{ github.ref_name }}
