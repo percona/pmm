@@ -126,3 +126,6 @@
   file:
     state: absent
     path: /srv/pmm-update.json
+
+- name: Keep pmm-init process running so supervisorctl status exits with 0
+  command: sleep infinity
