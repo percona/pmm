@@ -46,10 +46,9 @@ help:
 	@echo "  make push-client-docker       - Build and push PMM Client Docker image"
 	@echo ""
 	@echo "Cache Management:"
-	@echo "  make download-cache           - Download repository cache from Minio"
-	@echo "  make update-cache             - Fetch required refs and upload to Minio (fast, per-build)"
-	@echo "  make sync-cache               - Full fetch + prune stale branches + upload to Minio (slow, periodic)"
 	@echo "  make populate-cache           - Clone any missing bare repos from upstream (first-time setup)"
+	@echo "  make update-cache             - Fetch required refs from upstream into local bare repos"
+	@echo "  make sync-cache               - Full fetch + prune stale branches (slow, periodic)"
 	@echo "  make clean-cache              - Remove local cache directory"
 	@echo "  make clean-volumes            - Remove Docker cache volumes"
 	@echo "  make clean-all                - Remove cache, volumes, and build artifacts"
@@ -72,8 +71,6 @@ help:
 	@echo "  GOARCH            - Target architecture: amd64 or arm64 (default: host arch)"
 	@echo "  PLATFORM          - Docker platform: linux/amd64 or linux/arm64 (default: host platform)"
 	@echo "  SERVER_PLATFORMS  - Server platforms: linux/amd64,linux/arm64 or linux/amd64 (default: linux/amd64)"
-	@echo "  MINIO_ENDPOINT    - Minio endpoint (default: http://localhost:9000)"
-	@echo "  MINIO_BUCKET      - Minio bucket name (default: cache)"
 	@echo "  OUTPUT_DIR        - Output directory (default: ./output)"
 	@echo ""
 	@echo "Examples:"
@@ -81,7 +78,7 @@ help:
 	@echo "  make build-dynamic COMPONENT=mongodb_exporter"
 	@echo "  make build-arm64 COMPONENT=pmm-agent"
 	@echo "  make server SERVER_PLATFORMS=linux/amd64"
-	@echo "  make download-cache"
+	@echo "  make populate-cache"
 	@echo "  make build-all"
 	@echo ""
 
@@ -101,14 +98,6 @@ SERVER_PLATFORMS ?= linux/amd64
 GO_VERSION ?= 1.26
 LOG_FILE ?= $(PIPELINE_DIR)/build.log
 
-# Minio S3 cache configuration
-# On macOS/Docker Desktop use the magic hostname; on Linux query the bridge gateway.
-_IS_DARWIN            := $(filter Darwin,$(shell uname -s))
-_DOCKER_HOST_BRIDGE   := $(shell docker network inspect bridge --format='{{(index .IPAM.Config 0).Gateway}}' 2>/dev/null)
-_DOCKER_HOST_INTERNAL := $(if $(_IS_DARWIN),host.docker.internal,$(if $(_DOCKER_HOST_BRIDGE),$(_DOCKER_HOST_BRIDGE),$(error Cannot determine Docker bridge gateway. Is Docker running?)))
-MINIO_ENDPOINT ?= http://$(_DOCKER_HOST_INTERNAL):9000
-MINIO_BUCKET ?= cache
-MINIO_CACHE_PREFIX ?= repos
 CACHE_DIR := $(CURDIR)/.cache
 REPO_CACHE_DIR := $(CACHE_DIR)/repos
 
@@ -155,15 +144,12 @@ REPO_FETCH_REFS := \
 	nomad.git=$(NOMAD_REF) \
 	percona-toolkit.git=$(PERCONA_TOOLKIT_REF)
 
-# S3 cache flags (reused across all artifact builds)
-S3_CACHE_FROM := type=s3,region=us-east-1,bucket=$(MINIO_BUCKET),endpoint_url=$(MINIO_ENDPOINT),access_key_id=$(MINIO_ACCESS_KEY),secret_access_key=$(MINIO_SECRET_KEY),use_path_style=true
-S3_CACHE_TO   := type=s3,region=us-east-1,bucket=$(MINIO_BUCKET),endpoint_url=$(MINIO_ENDPOINT),access_key_id=$(MINIO_ACCESS_KEY),secret_access_key=$(MINIO_SECRET_KEY),mode=max,use_path_style=true
 # Docker configuration
 CLIENT_DOCKERFILE ?= $(PIPELINE_DIR)/Dockerfile.client
 CLIENT_DOCKER_TAG ?= perconalab/pmm-client:$(PMM_VERSION)
 SERVER_DOCKERFILE ?= $(PIPELINE_DIR)/Dockerfile.server
 SERVER_DOCKER_TAG ?= perconalab/pmm-server:$(PMM_VERSION)
-BUILDX_BUILDER    ?= pmm-s3-builder
+BUILDX_BUILDER    ?= pmm-builder
 GOMOD_CACHE_VOL   ?= pmm-mod
 BUILD_CACHE_VOL   ?= pmm-build
 YARN_CACHE_VOL    ?= pmm-yarn
@@ -179,8 +165,6 @@ export GO_VERSION
 export OUTPUT_DIR
 export PACKAGE_DIR
 export WORKSPACE_DIR
-export MINIO_ENDPOINT
-export MINIO_BUCKET
 export CACHE_DIR
 export REPO_CACHE_DIR
 export CLIENT_DOCKERFILE
@@ -342,49 +326,13 @@ server: build-server
 
 all: build-all
 
-# Verify mc is installed and MinIO is reachable
-check-minio:
-	@if ! command -v mc >/dev/null 2>&1; then \
-		echo "Error: mc (MinIO client) is not installed"; \
-		echo "See: https://min.io/docs/minio/linux/reference/minio-mc.html"; \
-		exit 1; \
+# Fetch required refs from upstream into local bare repos.
+# Runs populate-cache first if the cache directory is missing.
+update-cache:
+	@if [ ! -d "$(REPO_CACHE_DIR)" ]; then \
+		echo "Cache directory not found, running populate-cache first..."; \
+		$(MAKE) populate-cache; \
 	fi
-	@echo "Checking MinIO connectivity at $(MINIO_ENDPOINT)..."
-	@if ! mc ls pmm/$(MINIO_BUCKET) >/dev/null 2>&1; then \
-		echo "Error: Cannot reach MinIO at $(MINIO_ENDPOINT)"; \
-		echo "Make sure the MinIO container is running and the 'pmm' alias is configured:"; \
-		echo "  mc alias set pmm $(MINIO_ENDPOINT) <access-key> <secret-key>"; \
-		exit 1; \
-	fi
-	@echo "MinIO is reachable"
-
-# Download repository cache from Minio (mandatory - fails if unavailable)
-download-cache: check-minio
-	@echo "Downloading repository cache from Minio..."
-	@echo "Endpoint: $(MINIO_ENDPOINT)"
-	@echo "Bucket: $(MINIO_BUCKET)/$(MINIO_CACHE_PREFIX)"
-	@mkdir -p $(REPO_CACHE_DIR)
-	@echo "Syncing cache from Minio..."
-	@mc mirror --overwrite pmm/$(MINIO_BUCKET)/$(MINIO_CACHE_PREFIX) $(REPO_CACHE_DIR) || \
-		(echo "Error: Failed to download cache from Minio" && exit 1)
-	@echo "Fixing bare repository structure..."
-	@for repo in $(REPO_CACHE_DIR)/*.git; do \
-		mkdir -p "$$repo/refs/heads" "$$repo/refs/tags" "$$repo/refs/remotes"; \
-	done
-	@echo "Cache download complete"
-	@echo "Cached repositories:"
-	@ls -lh $(REPO_CACHE_DIR)
-
-# Upload local bare-repo cache to Minio (no download, no fetch — just push what's on disk).
-# Used by bootstrap after populate-cache on a fresh setup.
-upload-cache: check-minio
-	@echo "Uploading local cache to Minio..."
-	@mc mirror --overwrite $(REPO_CACHE_DIR) pmm/$(MINIO_BUCKET)/$(MINIO_CACHE_PREFIX) || \
-		(echo "Error: Failed to upload cache to Minio" && exit 1)
-	@echo "Cache upload complete"
-
-# Fetch upstream changes into local bare repos and upload the updated cache to Minio
-update-cache: check-minio download-cache
 	@echo "Fetching required refs from upstream..."
 	@for item in $(REPO_FETCH_REFS); do \
 		repo=$${item%%=*}; \
@@ -395,15 +343,16 @@ update-cache: check-minio download-cache
 		echo "  $$repo: fetching $$ref..."; \
 		git -C "$$dest" fetch origin "$$ref" || { echo "Error: failed to fetch $$ref from $$repo"; exit 1; }; \
 	done
-	@echo "Uploading updated cache to Minio..."
-	@mc mirror --overwrite $(REPO_CACHE_DIR) pmm/$(MINIO_BUCKET)/$(MINIO_CACHE_PREFIX) || \
-		(echo "Error: Failed to upload cache to Minio" && exit 1)
 	@echo "Cache update complete"
 
-# Full fetch + prune stale branches across all bare repos, then upload to Minio.
-# Run periodically (e.g. on a CI schedule) to remove branches deleted from upstream.
+# Full fetch + prune stale branches across all bare repos.
+# Run periodically to remove branches deleted from upstream.
 # Slower than update-cache because it fetches all refs, not just the ones in .env.
-sync-cache: check-minio download-cache
+sync-cache:
+	@if [ ! -d "$(REPO_CACHE_DIR)" ]; then \
+		echo "Cache directory not found, running populate-cache first..."; \
+		$(MAKE) populate-cache; \
+	fi
 	@echo "Syncing all bare repos from upstream (fetch --prune)..."
 	@for item in $(ALL_REPO_URLS); do \
 		name=$${item%%=*}; \
@@ -413,14 +362,11 @@ sync-cache: check-minio download-cache
 		echo "  $$name: fetching all branches, pruning stale..."; \
 		git -C "$$dest" fetch --prune origin '+refs/heads/*:refs/heads/*' || { echo "Error: failed to sync $$name"; exit 1; }; \
 	done
-	@echo "Uploading pruned cache to Minio..."
-	@mc mirror --overwrite $(REPO_CACHE_DIR) pmm/$(MINIO_BUCKET)/$(MINIO_CACHE_PREFIX) || \
-		(echo "Error: Failed to upload cache to Minio" && exit 1)
 	@echo "Sync complete"
 
 # Clone any bare repos that are missing from the local cache directory.
 # Skips repos that already exist. Useful for first-time setup or when adding new components.
-# Run 'make update-cache' afterwards to fetch latest commits and push to Minio.
+# Run 'make update-cache' afterwards to fetch latest commits.
 populate-cache:
 	@echo "Populating bare-repo cache from upstream (skipping repos that already exist)..."
 	@mkdir -p $(REPO_CACHE_DIR)
@@ -437,7 +383,7 @@ populate-cache:
 			mkdir -p "$$dest/refs/heads" "$$dest/refs/tags" "$$dest/refs/remotes"; \
 		fi; \
 	done
-	@echo "Cache populated. Run 'make update-cache' to fetch latest commits and push to Minio."
+	@echo "Cache populated. Run 'make update-cache' to fetch latest commits."
 
 # Clean local cache
 clean-cache:
@@ -474,7 +420,6 @@ build-server-docker: ensure-builder
 		--builder $(BUILDX_BUILDER) \
 		--platform $(SERVER_PLATFORMS) \
 		--progress plain \
-		--cache-from $(S3_CACHE_FROM) --cache-to $(S3_CACHE_TO) \
 		--build-arg BUILD_DATE="$$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
 		--build-arg VERSION="$(PMM_VERSION)" \
 		-f $(SERVER_DOCKERFILE) \
@@ -495,7 +440,7 @@ generate-version-json:
 	@$(PIPELINE_DIR)/scripts/generate-version-json
 
 # Ensure a buildx builder with the docker-container driver exists and is running.
-# The default "docker" driver does not support remote cache backends (s3, registry, etc.).
+# The docker-container driver is required for multi-platform builds.
 ensure-builder:
 	@docker buildx inspect $(BUILDX_BUILDER) >/dev/null 2>&1 || \
 		docker buildx create --name $(BUILDX_BUILDER) --driver docker-container

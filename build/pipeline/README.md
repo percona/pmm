@@ -13,25 +13,9 @@ cp .env.example .env
 
 The `.env` file contains git refs for all external dependencies (Grafana, VictoriaMetrics, exporters, etc.). You can modify these to build with different versions.
 
-### Minio Requirement for Server Builds
+### Repository Cache for Server Builds
 
-PMM Server and Client builds require a local Minio instance for repository cache. See [Cache Management](#cache-management) section for setup instructions.
-
-Quick Minio setup:
-
-```bash
-# Start Minio container
-docker run -d --name minio -p 9000:9000 -p 9001:9001 \
-  -e MINIO_ROOT_USER=minioadmin -e MINIO_ROOT_PASSWORD=minioadmin \
-  minio/minio server /data --console-address ":9001"
-
-# Install and configure mc (Minio client)
-brew install minio/stable/mc  # macOS
-mc alias set pmm http://localhost:9000 minioadmin minioadmin
-mc mb pmm/cache
-
-# Populate cache (see Cache Maintenance section for details)
-```
+PMM Server and Client builds require a local bare-repo cache. Run `make populate-cache` once to clone all upstream repositories, then `make update-cache` before each build to fetch the latest refs. See [Cache Management](#cache-management) for details.
 
 ## Quick Start
 
@@ -111,9 +95,6 @@ Built from external Git repositories:
 | `YARN_CACHE_VOL` | Docker volume for Yarn package cache | `pmm-yarn` |
 | `OUTPUT_DIR` | Output directory for artifacts | `./output` |
 | `PACKAGE_DIR` | Output directory for tarball packages | `./package` |
-| `MINIO_ENDPOINT` | Minio S3 endpoint URL | `http://localhost:9000` |
-| `MINIO_BUCKET` | Minio bucket name | `cache` |
-| `MINIO_CACHE_PREFIX` | Cache prefix in bucket | `repos` |
 
 ### Component Versions (.env file)
 
@@ -145,7 +126,7 @@ The build system:
    - **grafana-go**: `golang:$(GO_VERSION)` (CGO enabled for SQLite; runs at target `GOARCH`)
    - **grafana-ui, pmm-dashboards, pmm-ui**: `node:22` with shared Yarn cache
 5. **Assembles the server runtime image** from the host-side artifacts using
-   `docker buildx build` (BuildKit with S3 layer cache)
+   `docker buildx build` (BuildKit)
 6. **Outputs artifacts** to the configured output directory
 
 ### Workspace Components
@@ -166,67 +147,28 @@ make build COMPONENT=mysqld_exporter
 
 ## Cache Management
 
-PMM uses **Minio S3** for persistent build cache storage across ephemeral build agents.
+PMM uses a **local bare-repo cache** to avoid cloning from upstream on every build.
 
 ### Cache Strategy
 
-- **One-way sync**: Cache is downloaded from Minio to local disk before builds
-- **No upload**: Local cache is never synced back to avoid conflicts between parallel builds
-- **Mandatory**: Both server and client builds fail hard if the bare repo cache is unavailable — no internet fallback
-- **Cache maintenance**: A separate process/job maintains the Minio cache (see Cache Maintenance below)
-
-### Local Minio Setup
-
-Start a local Minio container for development:
-
-```bash
-docker run -d \
-  --name minio \
-  -p 9000:9000 \
-  -p 9001:9001 \
-  -e MINIO_ROOT_USER=minioadmin \
-  -e MINIO_ROOT_PASSWORD=minioadmin \
-  -v minio-data:/data \
-  minio/minio server /data --console-address ":9001"
-```
-
-Configure Minio client (mc):
-
-```bash
-# Install mc
-brew install minio/stable/mc  # macOS
-# Or for Linux: https://min.io/docs/minio/linux/reference/minio-mc.html
-
-# Configure alias
-mc alias set pmm http://127.0.0.1:9000 minioadmin minioadmin
-
-# Create bucket
-mc mb pmm/cache
-```
-
-### Minio Configuration
-
-Configure Minio access via environment variables or `.env` file:
-
-```bash
-MINIO_ENDPOINT=http://127.0.0.1:9000
-MINIO_BUCKET=cache
-MINIO_CACHE_PREFIX=repos
-```
+- **Local disk only**: Bare Git repositories live in `.cache/repos/` and are mounted read-only into build containers
+- **Mandatory**: Both server and client builds fail hard if the bare repo cache is missing — no internet fallback at build time
+- **First-time setup**: Run `make populate-cache` to clone all repos from upstream
+- **Per-build refresh**: `make update-cache` fetches only the refs listed in `.env`
 
 ### Cache Targets
 
 ```bash
-# Clone any missing bare repos directly from upstream (first-time / new component setup)
+# Clone any missing bare repos from upstream (first-time / new component setup)
 make populate-cache
 
-# Fetch latest upstream commits and push everything to Minio
+# Fetch required refs from upstream into local bare repos
 make update-cache
 
-# Download repository cache from Minio (mandatory for server and client builds)
-make download-cache
+# Full fetch + prune stale branches (slow, run periodically)
+make sync-cache
 
-# Build server (downloads cache first, fails if Minio unavailable)
+# Build server (runs update-cache automatically)
 make server
 
 # Clean local cache only
@@ -266,65 +208,13 @@ Server builds mount these repos read-only into each `docker run` build container
 Client builds (`build-component`) also require them — a missing bare repo is a hard failure,
 consistent with server build behaviour.
 
-**Note:** The `download-cache` Make target automatically fixes bare repository structure by creating empty `refs` subdirectories. This is necessary because some sync tools (like `mc mirror`) don't preserve empty directories.
-
-### Cache Maintenance (for build administrators)
-
-To populate or update the Minio cache (run from a dedicated maintenance job, not build agents):
-
-> **Shortcut:** `make populate-cache` clones any missing repos automatically, then `make update-cache` fetches the latest commits and pushes everything to Minio.
-
-```bash
-# Create cache directory
-mkdir -p /tmp/pmm-cache && cd /tmp/pmm-cache
-
-# Clone repositories as bare for efficiency
-# Server components:
-git clone --bare https://github.com/percona/pmm.git pmm.git
-git clone --bare https://github.com/percona/pmm-dump.git pmm-dump.git
-git clone --bare https://github.com/percona/grafana.git grafana.git
-git clone --bare https://github.com/VictoriaMetrics/VictoriaMetrics.git VictoriaMetrics.git
-# Client components (vmagent uses VictoriaMetrics.git above):
-git clone --bare https://github.com/percona/node_exporter.git node_exporter.git
-git clone --bare https://github.com/percona/mysqld_exporter.git mysqld_exporter.git
-git clone --bare https://github.com/percona/mongodb_exporter.git mongodb_exporter.git
-git clone --bare https://github.com/percona/postgres_exporter.git postgres_exporter.git
-git clone --bare https://github.com/percona/proxysql_exporter.git proxysql_exporter.git
-git clone --bare https://github.com/percona/rds_exporter.git rds_exporter.git
-git clone --bare https://github.com/percona/azure_metrics_exporter.git azure_metrics_exporter.git
-git clone --bare https://github.com/oliver006/redis_exporter.git redis_exporter.git
-git clone --bare https://github.com/hashicorp/nomad.git nomad.git
-git clone --bare https://github.com/percona/percona-toolkit.git percona-toolkit.git
-
-# Fix bare repository structure (git requires refs directories to exist)
-for repo in *.git; do
-    mkdir -p "$repo/refs/heads" "$repo/refs/tags" "$repo/refs/remotes"
-done
-
-# Update existing bare repositories (if refreshing cache)
-for repo in *.git; do
-    cd "$repo" && git fetch --all --prune && cd ..
-done
-
-# Upload to Minio
-mc mirror --overwrite . pmm/cache/repos/
-```
-
-**Recommended**: Set up a scheduled job (e.g., daily cron) to keep the cache fresh.
-
 ### Troubleshooting
 
-**Error: mc is not installed**
+**Error: bare repo cache not found**
 ```bash
-brew install minio/stable/mc  # macOS
-# Or see: https://min.io/docs/minio/linux/reference/minio-mc.html
+make populate-cache   # clones all repos from upstream
+make update-cache     # fetches required refs
 ```
-
-**Error: Failed to download cache from Minio**
-- Ensure Minio container is running: `docker ps | grep minio`
-- Check Minio endpoint: `mc ls pmm/cache/`
-- Verify bucket exists: `mc mb pmm/cache`
-- Populate cache: See Cache Maintenance section above
 
 ## Directory Structure
 
@@ -414,7 +304,7 @@ This builds the PMM Server Docker image via a two-phase process:
 
 Each component writes its artifacts to `output/server/<component>/` on the host. Pure-Go and Node containers run natively at `HOST_ARCH` (auto-detected from `uname -m`); Go cross-compiles for `GOARCH` independently. grafana-go (needs CGO/SQLite) runs at `--platform linux/$(GOARCH)` instead.
 
-**Phase 2 — image assembly** (`docker buildx build` with BuildKit S3 layer cache):
+**Phase 2 — image assembly** (`docker buildx build` with BuildKit):
 - Copies host-side artifacts into a single `FROM oraclelinux:9-slim` image
 
 **Default Architecture:** `linux/amd64`

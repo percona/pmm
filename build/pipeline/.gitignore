@@ -2,7 +2,7 @@
 output/
 package/
 
-# Local cache directory (synced from Minio)
+# Local bare-repo cache
 .cache/
 
 # Temporary build files

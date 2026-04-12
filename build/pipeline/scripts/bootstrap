@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # bootstrap — zero-to-build setup for the PMM build pipeline.
 #
-# Checks prerequisites, starts Minio, installs mc, configures cache,
+# Checks prerequisites, downloads build files, populates bare-repo cache,
 # and optionally kicks off a build.
 #
 # Usage: bootstrap [--target client|server|all] [--migrate] [--skip-cache] [--help]
@@ -27,7 +27,7 @@ BUILD_TARGET=""
 RUN_MIGRATE=false
 SKIP_CACHE=false
 GIT_REF="v3"
-TOTAL_STEPS=8
+TOTAL_STEPS=5
 
 PMM_REPO_URL="https://github.com/percona/pmm.git"
 BUILD_ROOT="$(dirname "${PIPELINE_DIR}")"
@@ -36,8 +36,8 @@ usage() {
     cat <<EOF
 Usage: $(basename "$0") [OPTIONS]
 
-Set up the PMM build pipeline from scratch: check prerequisites, start Minio,
-install mc, populate the bare-repo cache, and optionally kick off a build.
+Set up the PMM build pipeline from scratch: check prerequisites, download build
+files, populate the bare-repo cache, and optionally kick off a build.
 
 Options:
   --target <client|server|all>   Build target after setup (default: skip build)
@@ -187,12 +187,6 @@ setup_env() {
         fi
         cp "${PIPELINE_DIR}/.env.example" "${PIPELINE_DIR}/.env"
         log_info "Created .env from .env.example"
-
-        # Replace placeholder Minio credentials with defaults
-        sed -i.bak 's/MINIO_ACCESS_KEY=<ACCESS_KEY>/MINIO_ACCESS_KEY=minioadmin/' "${PIPELINE_DIR}/.env"
-        sed -i.bak 's/MINIO_SECRET_KEY=<SECRET_KEY>/MINIO_SECRET_KEY=minioadmin/' "${PIPELINE_DIR}/.env"
-        rm -f "${PIPELINE_DIR}/.env.bak"
-        log_info "Set default Minio credentials (minioadmin/minioadmin)"
     fi
 
     if [ "${RUN_MIGRATE}" = true ]; then
@@ -207,10 +201,6 @@ setup_env() {
     source "${PIPELINE_DIR}/.env"
     set +o allexport
 
-    MINIO_ACCESS_KEY="${MINIO_ACCESS_KEY:-minioadmin}"
-    MINIO_SECRET_KEY="${MINIO_SECRET_KEY:-minioadmin}"
-    MINIO_BUCKET="${MINIO_BUCKET:-cache}"
-
     # Warn if REFs are empty (common when .env was just copied from .env.example)
     if [ -z "${PMM_VERSION:-}" ]; then
         log_warn "PMM_VERSION is empty in .env"
@@ -220,153 +210,17 @@ setup_env() {
     fi
 }
 
-# ── Step 4: Start Minio ────────────────────────────────────────────────────
-
-start_minio() {
-    log_step 4 "Starting Minio..."
-
-    local state
-    state="$(docker inspect --format='{{.State.Running}}' minio 2>/dev/null || echo "missing")"
-
-    case "${state}" in
-        true)
-            log_info "Minio container is already running"
-            ;;
-        false)
-            echo "    Minio container exists but is stopped, restarting..."
-            docker start minio >/dev/null
-            log_info "Minio container restarted"
-            ;;
-        *)
-            echo "    Creating Minio container..."
-            docker run -d --name minio \
-                -p 9000:9000 -p 9001:9001 \
-                -e MINIO_ROOT_USER="${MINIO_ACCESS_KEY}" \
-                -e MINIO_ROOT_PASSWORD="${MINIO_SECRET_KEY}" \
-                -v minio-data:/data \
-                minio/minio server /data --console-address ":9001" >/dev/null
-            log_info "Minio container created"
-            ;;
-    esac
-
-    # Wait for Minio to become healthy
-    echo "    Waiting for Minio to be ready..."
-    local attempts=0
-    while [ ${attempts} -lt 15 ]; do
-        if curl -sf http://localhost:9000/minio/health/live >/dev/null 2>&1; then
-            log_info "Minio is healthy"
-            return
-        fi
-        attempts=$((attempts + 1))
-        sleep 1
-    done
-    log_err "Minio did not become healthy within 15 seconds"
-    echo "    Check: docker logs minio"
-    exit 1
-}
-
-# ── Step 5: Install mc ─────────────────────────────────────────────────────
-
-install_mc() {
-    log_step 5 "Installing mc (Minio client)..."
-
-    # Check if MinIO's mc is already available
-    if command -v mc >/dev/null 2>&1 && mc --version 2>&1 | grep -q "mc version"; then
-        log_info "mc is already installed ($(mc --version 2>&1 | head -1))"
-        return
-    fi
-
-    local os arch
-    os="$(uname -s)"
-    arch="$(uname -m)"
-
-    case "${arch}" in
-        x86_64)        arch="amd64" ;;
-        aarch64|arm64) arch="arm64" ;;
-        *) log_err "Unsupported architecture: ${arch}"; exit 1 ;;
-    esac
-
-    case "${os}" in
-        Darwin)
-            if command -v brew >/dev/null 2>&1; then
-                echo "    Installing mc via Homebrew..."
-                brew install minio/stable/mc
-                log_info "mc installed via Homebrew"
-                return
-            fi
-            os="darwin"
-            ;;
-        Linux)
-            os="linux"
-            ;;
-        *)
-            log_err "Unsupported OS: ${os}"
-            exit 1
-            ;;
-    esac
-
-    # Direct binary download
-    local mc_url="https://dl.min.io/client/mc/release/${os}-${arch}/mc"
-    local mc_dir="${HOME}/.local/bin"
-    local mc_path="${mc_dir}/mc"
-
-    echo "    Downloading mc from ${mc_url}..."
-    mkdir -p "${mc_dir}"
-    curl -fsSL "${mc_url}" -o "${mc_path}"
-    chmod +x "${mc_path}"
-    log_info "mc installed to ${mc_path}"
-
-    # Ensure it's on PATH for this session
-    if ! echo "${PATH}" | tr ':' '\n' | grep -qx "${mc_dir}"; then
-        export PATH="${mc_dir}:${PATH}"
-        log_warn "${mc_dir} is not in your PATH"
-        echo "    Add it to your shell profile: export PATH=\"\${HOME}/.local/bin:\${PATH}\""
-    fi
-}
-
-# ── Step 6: Configure mc alias and bucket ───────────────────────────────────
-
-configure_mc_alias() {
-    log_step 6 "Configuring mc alias and bucket"
-
-    mc alias set pmm "http://localhost:9000" "${MINIO_ACCESS_KEY}" "${MINIO_SECRET_KEY}" >/dev/null
-    log_info "mc alias 'pmm' configured"
-
-    mc mb --ignore-existing "pmm/${MINIO_BUCKET}" >/dev/null 2>&1
-    log_info "Bucket '${MINIO_BUCKET}' is ready"
-}
-
-# ── Step 7: Populate cache ──────────────────────────────────────────────────
+# ── Step 4: Populate cache ──────────────────────────────────────────────────
 
 populate_cache() {
     if [ "${SKIP_CACHE}" = true ]; then
-        log_step 7 "Populating repository cache (skipped: --skip-cache)"
+        log_step 4 "Populating repository cache (skipped: --skip-cache)"
         return
     fi
 
-    log_step 7 "Populating repository cache"
+    log_step 4 "Populating repository cache"
     echo "    This clones 14 bare repos from upstream (first run may take a while)..."
     make -C "${PIPELINE_DIR}" populate-cache
-}
-
-# ── Step 8: Upload cache to Minio ──────────────────────────────────────────
-
-upload_cache() {
-    if [ "${SKIP_CACHE}" = true ]; then
-        log_step 8 "Uploading cache to Minio (skipped: --skip-cache)"
-        return
-    fi
-
-    log_step 8 "Uploading cache to Minio"
-    local cache_dir="${PIPELINE_DIR}/.cache/repos"
-    if [ ! -d "${cache_dir}" ]; then
-        log_warn "No cache directory found at ${cache_dir}, nothing to upload"
-        return
-    fi
-    # shellcheck disable=SC2012
-    log_info "Uploading $(ls "${cache_dir}" | wc -l | tr -d ' ') repos to pmm/${MINIO_BUCKET}/repos..."
-    mc mirror --overwrite "${cache_dir}" "pmm/${MINIO_BUCKET}/repos"
-    log_info "Cache uploaded to Minio"
 }
 
 # ── Optional: Build ────────────────────────────────────────────────────────
@@ -376,8 +230,7 @@ run_build() {
         return
     fi
 
-    echo ""
-    echo "==> Starting build: ${BUILD_TARGET}"
+    log_step 5 "Starting build: ${BUILD_TARGET}"
     make -C "${PIPELINE_DIR}" "build-${BUILD_TARGET}"
 }
 
@@ -390,11 +243,7 @@ main() {
     check_prerequisites
     download_build_files
     setup_env
-    start_minio
-    install_mc
-    configure_mc_alias
     populate_cache
-    upload_cache
     run_build
 
     echo ""

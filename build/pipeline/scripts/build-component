@@ -34,7 +34,7 @@ BUILDER_DOCKERFILE="$(realpath "${SCRIPT_DIR}/../Dockerfile.builder")"
 GO_VERSION="${GO_VERSION:-1.26}"
 GOMOD_CACHE_VOL="pmm-mod"
 BUILD_CACHE_VOL="pmm-build"
-# Bare-repo cache directory — populated by 'make populate-cache' / 'make download-cache'
+# Bare-repo cache directory — populated by 'make populate-cache'
 REPO_CACHE_DIR="${REPO_CACHE_DIR:-$(realpath "${SCRIPT_DIR}/../.cache/repos")}"
 
 # Component lists (must match Makefile)
@@ -152,7 +152,7 @@ build_workspace_component() {
 
         if [ ! -d "${bare_repo_path}" ]; then
             echo "Error: bare repo cache not found at ${bare_repo_path}" >&2
-            echo "Run 'make populate-cache' or 'make download-cache' first." >&2
+            echo "Run 'make populate-cache' first." >&2
             return 1
         fi
 
@@ -287,7 +287,7 @@ build_external_component() {
 
     if [ ! -d "${bare_repo_path}" ]; then
         echo "Error: bare repo cache not found at ${bare_repo_path}" >&2
-        echo "Run 'make populate-cache' (first time) or 'make download-cache' to populate it." >&2
+        echo "Run 'make populate-cache' to populate it." >&2
         return 1
     fi
 

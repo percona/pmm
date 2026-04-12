@@ -29,7 +29,7 @@ The build pipeline uses `docker run` for all server component builds, outputting
   - **pmm-managed, pmm-dump, VictoriaMetrics**: `pmm-builder:latest` (pure Go, `CGO_ENABLED=0`), run at `HOST_ARCH` for native speed; Go cross-compiles for `GOARCH`
   - **grafana-go**: `golang:$(GO_VERSION)` (CGO enabled, has gcc for `go-sqlite3`), runs at `--platform linux/$(GOARCH)` so sqlite3's C code compiles natively for the target arch
   - **grafana-ui, pmm-dashboards, pmm-ui**: `node:22` (git included), run at `HOST_ARCH`; Yarn cache at `/usr/local/share/.cache/yarn` shared via `YARN_CACHE_VOL`
-  - **BuildKit** (`docker buildx build`) is used **only** for the final `build-server-docker` step (OracleLinux runtime image assembly with S3 layer cache)
+  - **BuildKit** (`docker buildx build`) is used **only** for the final `build-server-docker` step (OracleLinux runtime image assembly)
   - Node components build sequentially to avoid Yarn network saturation
 - **Platform Awareness** - Explicit --platform flags to avoid warnings
 - **Minimal Containers** - Run as root in golang image, no permission issues
@@ -283,7 +283,7 @@ Four Docker volumes provide caching:
 2. **pmm-build** (`/root/.cache/go-build`) - Go build cache, shared across all Go builds
 3. **pmm-yarn** (`/usr/local/share/.cache/yarn`) - Yarn package cache for Node.js server builds (grafana-ui, pmm-dashboards, pmm-ui)
 
-Both server and client builds require bare repos to be present in `REPO_CACHE_DIR` (`.cache/repos/`) — populated from Minio by `make download-cache`. A missing bare repo is a hard failure in both cases; there is no internet-clone fallback like there was in the old build system.
+Both server and client builds require bare repos to be present in `REPO_CACHE_DIR` (`.cache/repos/`) — populated by `make populate-cache` and kept current by `make update-cache`. A missing bare repo is a hard failure in both cases; there is no internet-clone fallback like there was in the old build system.
 
 | Bare repo | Used by |
 |-----------|--------|
@@ -302,8 +302,8 @@ Both server and client builds require bare repos to be present in `REPO_CACHE_DI
 | `nomad.git` | client |
 | `percona-toolkit.git` | client |
 
-Use `make populate-cache` to clone all missing repos from upstream, then `make update-cache` to push
-them to Minio. `make download-cache` syncs the full set from Minio before any build.
+Use `make populate-cache` to clone all missing repos from upstream, then `make update-cache` to fetch
+the required refs. `make sync-cache` does a full fetch with pruning across all repos.
 
 Cache is persistent across builds. Clear with:
 ```bash
