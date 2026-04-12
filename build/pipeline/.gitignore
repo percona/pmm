@@ -1,6 +1,6 @@
 # Build outputs
 output/
-package/
+tarball/
 
 # Local bare-repo cache
 .cache/

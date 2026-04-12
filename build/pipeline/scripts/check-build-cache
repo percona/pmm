@@ -31,14 +31,14 @@ STAMP_FILE="${STAMP_DIR}/${COMPONENT}.hash"
 
 # Always build if output directory is missing or empty
 if [ ! -d "$OUTPUT_DIR" ] || [ -z "$(ls -A "$OUTPUT_DIR" 2>/dev/null)" ]; then
-    echo "[$COMPONENT] Output dir missing or empty — building." >&2
-    exit 0
+  echo "[$COMPONENT] Output dir missing or empty — building." >&2
+  exit 0
 fi
 
 # Always build if there is no previous stamp file
 if [ ! -f "$STAMP_FILE" ]; then
-    echo "[$COMPONENT] No previous build stamp — building." >&2
-    exit 0
+  echo "[$COMPONENT] No previous build stamp — building." >&2
+  exit 0
 fi
 
 # Resolve the ref to a full commit hash using the local bare repo.
@@ -46,27 +46,27 @@ fi
 # consistent with what `git checkout` (no argument) does in the build containers.
 CURRENT_HASH=""
 if [ -d "$BARE_REPO" ]; then
-    if [ -n "$REF" ]; then
-        CURRENT_HASH=$(git -C "$BARE_REPO" rev-parse "${REF}^{commit}" 2>/dev/null || echo "")
-    fi
-    if [ -z "$CURRENT_HASH" ]; then
-        CURRENT_HASH=$(git -C "$BARE_REPO" rev-parse HEAD 2>/dev/null || echo "")
-    fi
+  if [ -n "$REF" ]; then
+    CURRENT_HASH=$(git -C "$BARE_REPO" rev-parse "${REF}^{commit}" 2>/dev/null || echo "")
+  fi
+  if [ -z "$CURRENT_HASH" ]; then
+    CURRENT_HASH=$(git -C "$BARE_REPO" rev-parse HEAD 2>/dev/null || echo "")
+  fi
 else
-    CURRENT_HASH="$REF"
+  CURRENT_HASH="$REF"
 fi
 
 if [ -z "$CURRENT_HASH" ]; then
-    echo "[$COMPONENT] Could not resolve ref '${REF}' — building." >&2
-    exit 0
+  echo "[$COMPONENT] Could not resolve ref '${REF}' — building." >&2
+  exit 0
 fi
 
 # Read the cached hash from the stamp file
-CACHED_HASH=$(tr -d '[:space:]' < "$STAMP_FILE" 2>/dev/null || echo "")
+CACHED_HASH=$(tr -d '[:space:]' <"$STAMP_FILE" 2>/dev/null || echo "")
 
 if [ -n "$CACHED_HASH" ] && [ "$CURRENT_HASH" = "$CACHED_HASH" ]; then
-    echo "[$COMPONENT] Commit hash unchanged (${CURRENT_HASH:0:12}) — skipping build." >&2
-    exit 1
+  echo "[$COMPONENT] Commit hash unchanged (${CURRENT_HASH:0:12}) — skipping build." >&2
+  exit 1
 fi
 
 echo "[$COMPONENT] Hash changed (current=${CURRENT_HASH:0:12}, cached=${CACHED_HASH:0:12}) — building." >&2

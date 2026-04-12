@@ -99,7 +99,7 @@ Built from external Git repositories:
 | `BUILD_CACHE_VOL` | Docker volume for Go build cache | `pmm-build` |
 | `YARN_CACHE_VOL` | Docker volume for Yarn package cache | `pmm-yarn` |
 | `OUTPUT_DIR` | Output directory for artifacts | `./output` |
-| `PACKAGE_DIR` | Output directory for tarball packages | `./package` |
+| `PACKAGE_DIR` | Output directory for tarball packages | `./tarball` |
 
 ### Component Versions (.env file)
 
@@ -252,7 +252,7 @@ After bootstrap, `~/build/` (or your chosen directory) contains everything:
 ├── ansible/                      # Ansible playbooks (for server image)
 ├── docker/                       # Docker entrypoints and support files
 ├── packages/                     # Packaging configs (systemd, deb, rpm)
-├── package/                      # Tarball staging + final archive (created by build)
+├── tarball/                      # Tarball staging + final archive (created by build)
 │   ├── pmm-client/               # Staging directory (binaries, configs, query files)
 │   └── pmm-client.tar.gz         # Final client tarball
 ├── output/                       # Build artifacts (created by build)
@@ -316,7 +316,7 @@ This will:
 1. Build all client components (pmm-admin, pmm-agent, exporters)
 2. Create the PMM Client Docker image
 3. Generate the PMM Client tarball package
-4. Output artifacts to `./output/` and `./package/`
+4. Output artifacts to `./output/` and `./tarball/`
 
 ### Build PMM Server
 
@@ -380,7 +380,7 @@ make build-client
 make build-client-tarball
 ```
 
-The tarball will be created at `./package/pmm-client-${VERSION}.tar.gz` with the following structure:
+The tarball will be created at `./tarball/pmm-client-${VERSION}.tar.gz` with the following structure:
 
 ```
 pmm-client-${VERSION}/

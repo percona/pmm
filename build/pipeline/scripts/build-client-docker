@@ -9,7 +9,7 @@ set -o nounset
 SCRIPT_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
 PIPELINE_DIR="$(dirname "${SCRIPT_DIR}")"
 PMM_VERSION="${PMM_VERSION:?No PMM_VERSION specified}"
-PACKAGE_DIR="${PACKAGE_DIR:-${PIPELINE_DIR}/package}"
+PACKAGE_DIR="${PACKAGE_DIR:-${PIPELINE_DIR}/tarball}"
 
 # Docker configuration
 DOCKERFILE="${DOCKERFILE:-Dockerfile.client}"
@@ -28,7 +28,7 @@ Build PMM Client Docker image from tarball.
 
 Environment Variables:
   PMM_VERSION    - Version to build (required)
-  PACKAGE_DIR    - Directory containing tarball (default: ../package)
+  PACKAGE_DIR    - Directory containing tarball (default: ../tarball)
   DOCKERFILE     - Dockerfile name (default: Dockerfile.client)
   DOCKER_TAG     - Docker tag (default: perconalab/pmm-client:\${PMM_VERSION})
   PLATFORM       - Docker platform (default: linux/amd64)

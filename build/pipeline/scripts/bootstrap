@@ -10,15 +10,15 @@ set -euo pipefail
 
 # When piped (curl | bash), BASH_SOURCE[0] is empty — create ~/build.
 if [ -n "${BASH_SOURCE[0]:-}" ] && [ -f "${BASH_SOURCE[0]}" ]; then
-    # Script lives at <pipeline_dir>/scripts/bootstrap — go up two levels.
-    PIPELINE_DIR="$(realpath "$(dirname "$(dirname "${BASH_SOURCE[0]}")")")"
+  # Script lives at <pipeline_dir>/scripts/bootstrap — go up two levels.
+  PIPELINE_DIR="$(realpath "$(dirname "$(dirname "${BASH_SOURCE[0]}")")")"
 else
-    PIPELINE_DIR="${HOME}/build"
-    if [ -d "${PIPELINE_DIR}" ] && [ -n "$(ls -A "${PIPELINE_DIR}")" ]; then
-        echo "Error: ${PIPELINE_DIR} already exists and is not empty. Remove it or run bootstrap from that directory." >&2
-        exit 1
-    fi
-    mkdir -p "${PIPELINE_DIR}"
+  PIPELINE_DIR="${HOME}/build"
+  if [ -d "${PIPELINE_DIR}" ] && [ -n "$(ls -A "${PIPELINE_DIR}")" ]; then
+    echo "Error: ${PIPELINE_DIR} already exists and is not empty. Remove it or run bootstrap from that directory." >&2
+    exit 1
+  fi
+  mkdir -p "${PIPELINE_DIR}"
 fi
 SCRIPT_DIR="${PIPELINE_DIR}/scripts"
 
@@ -32,7 +32,7 @@ TOTAL_STEPS=5
 PMM_REPO_URL="https://github.com/percona/pmm.git"
 
 usage() {
-    cat <<EOF
+  cat <<EOF
 Usage: $(basename "$0") [OPTIONS]
 
 Set up the PMM build pipeline from scratch: check prerequisites, download build
@@ -51,212 +51,225 @@ Examples:
   $(basename "$0") --target client          # setup + build client
   $(basename "$0") --skip-cache --target server  # setup (no cache) + build server
 EOF
-    exit 0
+  exit 0
 }
 
 # ── Argument parsing ────────────────────────────────────────────────────────
 
 while [ $# -gt 0 ]; do
-    case "$1" in
-        --target)
-            BUILD_TARGET="$2"
-            case "${BUILD_TARGET}" in
-                client|server|all) ;;
-                *) echo "Error: --target must be one of: client, server, all" >&2; exit 1 ;;
-            esac
-            shift 2
-            ;;
-        --ref)
-            GIT_REF="$2"; shift 2
-            ;;
-        --migrate)   RUN_MIGRATE=true; shift ;;
-        --skip-cache) SKIP_CACHE=true; shift ;;
-        --help)      usage ;;
-        *) echo "Unknown argument: $1" >&2; exit 1 ;;
-    esac
+  case "$1" in
+    --target)
+      BUILD_TARGET="$2"
+      case "${BUILD_TARGET}" in
+        client | server | all) ;;
+        *)
+          echo "Error: --target must be one of: client, server, all" >&2
+          exit 1
+          ;;
+      esac
+      shift 2
+      ;;
+    --ref)
+      GIT_REF="$2"
+      shift 2
+      ;;
+    --migrate)
+      RUN_MIGRATE=true
+      shift
+      ;;
+    --skip-cache)
+      SKIP_CACHE=true
+      shift
+      ;;
+    --help) usage ;;
+    *)
+      echo "Unknown argument: $1" >&2
+      exit 1
+      ;;
+  esac
 done
 
 # ── Helpers ─────────────────────────────────────────────────────────────────
 
 log_step() {
-    local n="$1" msg="$2"
-    echo ""
-    echo "==> [${n}/${TOTAL_STEPS}] ${msg}"
+  local n="$1" msg="$2"
+  echo ""
+  echo "==> [${n}/${TOTAL_STEPS}] ${msg}"
 }
 
 log_info() { echo "$(date -Iseconds)    INFO: $*"; }
 log_warn() { echo "$(date -Iseconds)    WARN: $*"; }
-log_err()  { echo "$(date -Iseconds)    ERROR: $*" >&2; }
+log_err() { echo "$(date -Iseconds)    ERROR: $*" >&2; }
 
 # ── Step 1: Prerequisites ──────────────────────────────────────────────────
 
 check_prerequisites() {
-    log_step 1 "Checking prerequisites"
+  log_step 1 "Checking prerequisites"
 
-    if ! command -v docker >/dev/null 2>&1; then
-        log_err "docker is not installed"
-        echo "    Install Docker: https://docs.docker.com/get-docker/"
-        exit 1
-    fi
-    log_info "docker found ($(docker --version))"
+  if ! command -v docker >/dev/null 2>&1; then
+    log_err "docker is not installed"
+    echo "    Install Docker: https://docs.docker.com/get-docker/"
+    exit 1
+  fi
+  log_info "docker found ($(docker --version))"
 
-    if ! command -v git >/dev/null 2>&1; then
-        log_err "git is not installed"
-        exit 1
-    fi
-    log_info "git found ($(git --version))"
+  if ! command -v git >/dev/null 2>&1; then
+    log_err "git is not installed"
+    exit 1
+  fi
+  log_info "git found ($(git --version))"
 
-    if ! docker info >/dev/null 2>&1; then
-        log_err "Docker daemon is not running"
-        echo "    Start Docker Desktop (macOS) or the docker service (Linux)"
-        exit 1
-    fi
-    log_info "Docker daemon is running"
+  if ! docker info >/dev/null 2>&1; then
+    log_err "Docker daemon is not running"
+    echo "    Start Docker Desktop (macOS) or the docker service (Linux)"
+    exit 1
+  fi
+  log_info "Docker daemon is running"
 }
 
 # ── Step 2: Download build files ───────────────────────────────────────────
 
 download_build_files() {
-    log_step 2 "Downloading build files"
+  log_step 2 "Downloading build files"
 
-    # If Dockerfile.builder exists, assume all build files are present
-    # (either from a full repo clone or a previous bootstrap run).
-    if [ -f "${PIPELINE_DIR}/Dockerfile.builder" ]; then
-        log_info "Build files already present"
-        return
+  # If Dockerfile.builder exists, assume all build files are present
+  # (either from a full repo clone or a previous bootstrap run).
+  if [ -f "${PIPELINE_DIR}/Dockerfile.builder" ]; then
+    log_info "Build files already present"
+    return
+  fi
+
+  log_info "Fetching build/ directory from ${PMM_REPO_URL} (ref: ${GIT_REF})..."
+  local tmpdir
+  tmpdir="$(mktemp -d)"
+  # shellcheck disable=SC2064
+  trap "rm -rf '${tmpdir}'" EXIT
+
+  git clone --depth 1 --branch "${GIT_REF}" --sparse --filter=blob:none \
+    "${PMM_REPO_URL}" "${tmpdir}/pmm"
+  git -C "${tmpdir}/pmm" sparse-checkout set build/
+
+  local src="${tmpdir}/pmm/build"
+
+  # Copy pipeline files (Dockerfiles, Makefile, .env.example).
+  for f in Makefile Dockerfile.builder Dockerfile.client Dockerfile.server \
+    Dockerfile.server.dockerignore .env.example; do
+    if [ ! -f "${PIPELINE_DIR}/${f}" ]; then
+      cp "${src}/pipeline/${f}" "${PIPELINE_DIR}/${f}"
+      log_info "Installed ${f}"
     fi
+  done
 
-    log_info "Fetching build/ directory from ${PMM_REPO_URL} (ref: ${GIT_REF})..."
-    local tmpdir
-    tmpdir="$(mktemp -d)"
-    # shellcheck disable=SC2064
-    trap "rm -rf '${tmpdir}'" EXIT
-
-    git clone --depth 1 --branch "${GIT_REF}" --sparse --filter=blob:none \
-        "${PMM_REPO_URL}" "${tmpdir}/pmm"
-    git -C "${tmpdir}/pmm" sparse-checkout set build/
-
-    local src="${tmpdir}/pmm/build"
-
-    # Copy pipeline files (Dockerfiles, Makefile, .env.example).
-    for f in Makefile Dockerfile.builder Dockerfile.client Dockerfile.server \
-             Dockerfile.server.dockerignore .env.example; do
-        if [ ! -f "${PIPELINE_DIR}/${f}" ]; then
-            cp "${src}/pipeline/${f}" "${PIPELINE_DIR}/${f}"
-            log_info "Installed ${f}"
-        fi
-    done
-
-    # Copy build scripts.
-    mkdir -p "${SCRIPT_DIR}"
-    for f in build-component build-client-docker package-tarball \
-             generate-version-json check-build-cache migrate-from-submodules; do
-        if [ ! -f "${SCRIPT_DIR}/${f}" ]; then
-            cp "${src}/pipeline/scripts/${f}" "${SCRIPT_DIR}/${f}"
-            chmod +x "${SCRIPT_DIR}/${f}"
-            log_info "Installed scripts/${f}"
-        fi
-    done
-
-    # Copy sibling directories needed by the build into PIPELINE_DIR.
-    for dir in ansible docker packages; do
-        if [ ! -d "${PIPELINE_DIR}/${dir}" ]; then
-            cp -r "${src}/${dir}" "${PIPELINE_DIR}/${dir}"
-            log_info "Installed ${dir}/"
-        fi
-    done
-
-    # Copy install_tarball from the legacy scripts directory (used by package-tarball).
-    if [ ! -f "${SCRIPT_DIR}/install_tarball" ]; then
-        cp "${src}/scripts/install_tarball" "${SCRIPT_DIR}/install_tarball"
-        chmod +x "${SCRIPT_DIR}/install_tarball"
-        log_info "Installed scripts/install_tarball"
+  # Copy build scripts.
+  mkdir -p "${SCRIPT_DIR}"
+  for f in build-component build-client-docker package-tarball \
+    generate-version-json check-build-cache migrate-from-submodules; do
+    if [ ! -f "${SCRIPT_DIR}/${f}" ]; then
+      cp "${src}/pipeline/scripts/${f}" "${SCRIPT_DIR}/${f}"
+      chmod +x "${SCRIPT_DIR}/${f}"
+      log_info "Installed scripts/${f}"
     fi
+  done
 
-    rm -rf "${tmpdir}"
-    trap - EXIT
-    log_info "Build files downloaded"
+  # Copy sibling directories needed by the build into PIPELINE_DIR.
+  for dir in ansible docker packages; do
+    if [ ! -d "${PIPELINE_DIR}/${dir}" ]; then
+      cp -r "${src}/${dir}" "${PIPELINE_DIR}/${dir}"
+      log_info "Installed ${dir}/"
+    fi
+  done
+
+  # Copy install_tarball from the legacy scripts directory (used by package-tarball).
+  if [ ! -f "${SCRIPT_DIR}/install_tarball" ]; then
+    cp "${src}/scripts/install_tarball" "${SCRIPT_DIR}/install_tarball"
+    chmod +x "${SCRIPT_DIR}/install_tarball"
+    log_info "Installed scripts/install_tarball"
+  fi
+
+  rm -rf "${tmpdir}"
+  trap - EXIT
+  log_info "Build files downloaded"
 }
 
 # ── Step 3: .env setup ─────────────────────────────────────────────────────
 
 setup_env() {
-    log_step 3 "Setting up .env"
+  log_step 3 "Setting up .env"
 
-    if [ -f "${PIPELINE_DIR}/.env" ]; then
-        log_info ".env already exists"
-    else
-        if [ ! -f "${PIPELINE_DIR}/.env.example" ]; then
-            log_err ".env.example not found in ${PIPELINE_DIR}"
-            exit 1
-        fi
-        cp "${PIPELINE_DIR}/.env.example" "${PIPELINE_DIR}/.env"
-        log_info "Created .env from .env.example"
+  if [ -f "${PIPELINE_DIR}/.env" ]; then
+    log_info ".env already exists"
+  else
+    if [ ! -f "${PIPELINE_DIR}/.env.example" ]; then
+      log_err ".env.example not found in ${PIPELINE_DIR}"
+      exit 1
     fi
+    cp "${PIPELINE_DIR}/.env.example" "${PIPELINE_DIR}/.env"
+    log_info "Created .env from .env.example"
+  fi
 
-    if [ "${RUN_MIGRATE}" = true ]; then
-        echo "    Running migrate-from-submodules..."
-        "${SCRIPT_DIR}/migrate-from-submodules"
-        log_info "Migration complete"
+  if [ "${RUN_MIGRATE}" = true ]; then
+    echo "    Running migrate-from-submodules..."
+    "${SCRIPT_DIR}/migrate-from-submodules"
+    log_info "Migration complete"
+  fi
+
+  # Source .env
+  set -o allexport
+  # shellcheck source=/dev/null
+  source "${PIPELINE_DIR}/.env"
+  set +o allexport
+
+  # Warn if REFs are empty (common when .env was just copied from .env.example)
+  if [ -z "${PMM_VERSION:-}" ]; then
+    log_warn "PMM_VERSION is empty in .env"
+    if [ "${RUN_MIGRATE}" = false ]; then
+      echo "    Run with --migrate to populate from pmm-submodules, or edit .env manually"
     fi
-
-    # Source .env
-    set -o allexport
-    # shellcheck source=/dev/null
-    source "${PIPELINE_DIR}/.env"
-    set +o allexport
-
-    # Warn if REFs are empty (common when .env was just copied from .env.example)
-    if [ -z "${PMM_VERSION:-}" ]; then
-        log_warn "PMM_VERSION is empty in .env"
-        if [ "${RUN_MIGRATE}" = false ]; then
-            echo "    Run with --migrate to populate from pmm-submodules, or edit .env manually"
-        fi
-    fi
+  fi
 }
 
 # ── Step 4: Populate cache ──────────────────────────────────────────────────
 
 populate_cache() {
-    if [ "${SKIP_CACHE}" = true ]; then
-        log_step 4 "Populating repository cache (skipped: --skip-cache)"
-        return
-    fi
+  if [ "${SKIP_CACHE}" = true ]; then
+    log_step 4 "Populating repository cache (skipped: --skip-cache)"
+    return
+  fi
 
-    log_step 4 "Populating repository cache"
-    echo "    This clones 14 bare repos from upstream (first run may take a while)..."
-    make -C "${PIPELINE_DIR}" populate-cache
+  log_step 4 "Populating repository cache"
+  echo "    This clones 14 bare repos from upstream (first run may take a while)..."
+  make -C "${PIPELINE_DIR}" populate-cache
 }
 
 # ── Optional: Build ────────────────────────────────────────────────────────
 
 run_build() {
-    if [ -z "${BUILD_TARGET}" ]; then
-        return
-    fi
+  if [ -z "${BUILD_TARGET}" ]; then
+    return
+  fi
 
-    log_step 5 "Starting build: ${BUILD_TARGET}"
-    make -C "${PIPELINE_DIR}" "build-${BUILD_TARGET}"
+  log_step 5 "Starting build: ${BUILD_TARGET}"
+  make -C "${PIPELINE_DIR}" "build-${BUILD_TARGET}"
 }
 
 # ── Main ────────────────────────────────────────────────────────────────────
 
 main() {
-    echo "PMM Build Pipeline Bootstrap"
-    echo "============================"
+  echo "PMM Build Pipeline Bootstrap"
+  echo "============================"
 
-    check_prerequisites
-    download_build_files
-    setup_env
-    populate_cache
-    run_build
+  check_prerequisites
+  download_build_files
+  setup_env
+  populate_cache
+  run_build
 
-    echo ""
-    echo "Bootstrap complete!"
-    echo "You can now run builds with:"
-    echo "  cd ${PIPELINE_DIR} && make client   # build PMM Client"
-    echo "  cd ${PIPELINE_DIR} && make server   # build PMM Server"
-    echo "  cd ${PIPELINE_DIR} && make all      # build everything"
+  echo ""
+  echo "Bootstrap complete!"
+  echo "You can now run builds with:"
+  echo "  cd ${PIPELINE_DIR} && make client   # build PMM Client"
+  echo "  cd ${PIPELINE_DIR} && make server   # build PMM Server"
+  echo "  cd ${PIPELINE_DIR} && make all      # build everything"
 }
 
 main "$@"

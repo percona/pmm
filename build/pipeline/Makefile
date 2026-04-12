@@ -17,7 +17,7 @@ BUILD_SCRIPT := $(PIPELINE_DIR)/scripts/build-component
 PACKAGE_SCRIPT := $(PIPELINE_DIR)/scripts/package-tarball
 CLIENT_DOCKER_SCRIPT := $(PIPELINE_DIR)/scripts/build-client-docker
 OUTPUT_DIR ?= $(PIPELINE_DIR)/output
-PACKAGE_DIR ?= $(PIPELINE_DIR)/package
+PACKAGE_DIR ?= $(PIPELINE_DIR)/tarball
 
 # Default target
 help:

@@ -98,7 +98,7 @@ pmm-client-${VERSION}/
 **Key Variables**:
 ```bash
 OUTPUT_DIR="${OUTPUT_DIR:-./output}"     # Source binaries
-PACKAGE_DIR="${PACKAGE_DIR:-./package}"  # Output location
+PACKAGE_DIR="${PACKAGE_DIR:-./tarball}"  # Output location
 PMM_VERSION="${PMM_VERSION}"             # Version string
 ```
 
@@ -134,7 +134,7 @@ BUILD_CACHE_VOL ?= pmm-build # Docker volume: Go build cache
 YARN_CACHE_VOL  ?= pmm-yarn  # Docker volume: Yarn package cache
 SERVER_OUTPUT_DIR := $(PIPELINE_DIR)output/server
 OUTPUT_DIR  ?= ./output
-PACKAGE_DIR ?= ./package
+PACKAGE_DIR ?= ./tarball
 ```
 
 **When to modify**:

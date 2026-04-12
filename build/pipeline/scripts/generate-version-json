@@ -19,16 +19,16 @@ REPO_CACHE_DIR="${REPO_CACHE_DIR:-$(realpath "${SCRIPT_DIR}/../.cache/repos")}"
 # Returns the whitespace-stripped value of the variable.
 # Exits with an error if the variable is empty.
 get_ref() {
-    local env_var="$1"
-    local val="${!env_var:-}"
-    val="$(echo "${val}" | xargs 2>/dev/null || echo "${val}")"
+  local env_var="$1"
+  local val="${!env_var:-}"
+  val="$(echo "${val}" | xargs 2>/dev/null || echo "${val}")"
 
-    if [ -z "${val}" ]; then
-        echo "Error: ${env_var} is not set — run 'scripts/migrate-from-submodules' to populate .env" >&2
-        exit 1
-    fi
+  if [ -z "${val}" ]; then
+    echo "Error: ${env_var} is not set — run 'scripts/migrate-from-submodules' to populate .env" >&2
+    exit 1
+  fi
 
-    echo "${val}"
+  echo "${val}"
 }
 
 # resolve_commit <ref> <bare_repo_filename>
@@ -36,26 +36,26 @@ get_ref() {
 # local bare-repo cache. Falls back to the original ref if resolution fails
 # (e.g. repo not yet cached or ref not found).
 resolve_commit() {
-    local ref="$1"
-    local bare_repo="$2"
-    local bare_path="${REPO_CACHE_DIR}/${bare_repo}"
+  local ref="$1"
+  local bare_repo="$2"
+  local bare_path="${REPO_CACHE_DIR}/${bare_repo}"
 
-    if [ -z "${ref}" ]; then
-        echo ""
-        return
+  if [ -z "${ref}" ]; then
+    echo ""
+    return
+  fi
+
+  if [ -d "${bare_path}" ]; then
+    local hash
+    hash="$(git -C "${bare_path}" rev-parse "${ref}^{commit}" 2>/dev/null || true)"
+    if [ -n "${hash}" ]; then
+      echo "${hash}"
+      return
     fi
+  fi
 
-    if [ -d "${bare_path}" ]; then
-        local hash
-        hash="$(git -C "${bare_path}" rev-parse "${ref}^{commit}" 2>/dev/null || true)"
-        if [ -n "${hash}" ]; then
-            echo "${hash}"
-            return
-        fi
-    fi
-
-    # Fallback: already a hash, or repo not cached yet
-    echo "${ref}"
+  # Fallback: already a hash, or repo not cached yet
+  echo "${ref}"
 }
 
 mkdir -p "${OUTPUT_DIR}"
@@ -63,11 +63,11 @@ mkdir -p "${OUTPUT_DIR}"
 PMM_VERSION="${PMM_VERSION:-}"
 PMM_VERSION="$(echo "${PMM_VERSION}" | xargs 2>/dev/null || echo "${PMM_VERSION}")"
 if [ -z "${PMM_VERSION}" ]; then
-    echo "Error: PMM_VERSION is not set — run 'scripts/migrate-from-submodules' to populate .env" >&2
-    exit 1
+  echo "Error: PMM_VERSION is not set — run 'scripts/migrate-from-submodules' to populate .env" >&2
+  exit 1
 fi
 
-cat > "${OUTPUT_FILE}" <<EOF
+cat >"${OUTPUT_FILE}" <<EOF
 {
   "version": "${PMM_VERSION}",
   "pmm": "$(resolve_commit "$(get_ref PMM_REF)" "pmm.git")",
