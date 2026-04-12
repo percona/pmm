@@ -9,7 +9,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
-PIPELINE_DIR="$(dirname "${SCRIPT_DIR}")"
+PIPELINE_DIR="${SCRIPT_DIR}"
 
 # Defaults
 BUILD_TARGET=""
@@ -94,6 +94,24 @@ check_prerequisites() {
         exit 1
     fi
     log_ok "Docker daemon is running"
+
+    if [ ! -f ".env.example" ]; then
+        log_ok "Downloading .env.example from upstream..."
+        if ! curl -fsSL "https://raw.githubusercontent.com/percona/pmm/e6e1516f39fb2b46bc3e9c740902ab3ae39e20a9/build/pipeline/.env.example" -o "${PIPELINE_DIR}/.env.example"; then
+            log_err "Failed to download .env.example"
+            exit 1
+        fi
+        log_ok ".env.example downloaded"
+    fi
+
+    if [ ! -f "Makefile" ]; then
+        log_ok "Downloading Makefile from upstream..."
+        if ! curl -fsSL "https://raw.githubusercontent.com/percona/pmm/e61516f39fb2b46bc3e9c740902ab3ae39e20a9/build/pipeline/Makefile" -o "${PIPELINE_DIR}/Makefile"; then
+            log_err "Failed to download Makefile"
+            exit 1
+        fi
+        log_ok "Makefile downloaded"
+    fi
 }
 
 # ── Step 2: .env setup ─────────────────────────────────────────────────────
