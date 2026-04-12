@@ -269,6 +269,7 @@ build-arm64:
 
 build-client:
 ifeq ($(LOGGING),)
+	@: > "$(LOG_FILE)"
 	@$(MAKE) LOGGING=1 build-client 2>&1 | tee -a "$(LOG_FILE)"
 else
 	@echo "Building PMM Client..."
@@ -308,6 +309,7 @@ build-client-tarball:
 # Build PMM Server (Docker image with all server components)
 build-server:
 ifeq ($(LOGGING),)
+	@: > "$(LOG_FILE)"
 	@$(MAKE) LOGGING=1 build-server 2>&1 | tee -a "$(LOG_FILE)"
 else
 	@$(MAKE) update-cache
@@ -322,6 +324,7 @@ endif
 # Build all components (client + server)
 build-all:
 ifeq ($(LOGGING),)
+	@: > "$(LOG_FILE)"
 	@$(MAKE) LOGGING=1 build-all 2>&1 | tee -a "$(LOG_FILE)"
 else
 	@echo "Building all PMM components (client + server)..."

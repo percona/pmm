@@ -128,7 +128,7 @@ chmod +x "${PACKAGE_ROOT}/install_tarball"
 echo "Creating tarball..."
 declare XATTRS=""
 [ "$(uname -s)" = "Darwin" ] && XATTRS="--no-xattrs"
-tar -czf "${PACKAGE_DIR}/${PACKAGE_NAME}.tar.gz" "$XATTRS" -C "${PACKAGE_DIR}" "${PACKAGE_NAME}"
+tar -czf "${PACKAGE_DIR}/${PACKAGE_NAME}.tar.gz" ${XATTRS} -C "${PACKAGE_DIR}" "${PACKAGE_NAME}"
 
 echo ""
 echo "Package created successfully!"
