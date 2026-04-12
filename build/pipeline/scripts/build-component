@@ -8,7 +8,9 @@ set -o nounset
 # Default values
 COMPONENT="${1:-}"
 SCRIPT_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
-WORKSPACE_DIR="${WORKSPACE_DIR:-$(git rev-parse --show-toplevel)}"
+# Workspace root set by the Makefile when running inside a full repo checkout.
+# Left empty for CI/bootstrap builds where source is cloned from the bare cache.
+WORKSPACE_DIR="${WORKSPACE_DIR:-}"
 
 # Load environment variables from .env file
 if [ -f "${SCRIPT_DIR}/../.env" ]; then
@@ -134,9 +136,50 @@ build_workspace_component() {
             ;;
     esac
 
+    # Two modes:
+    # 1. Local dev: WORKSPACE_DIR points to a full repo checkout — mount it directly.
+    # 2. CI/bootstrap: no local checkout — clone from pmm.git bare cache inside the container.
+    local volume_args=()
+    local full_build_cmd
+
+    if [ -n "${WORKSPACE_DIR}" ] && [ -d "${WORKSPACE_DIR}/${subdir}" ]; then
+        volume_args+=(-v "${WORKSPACE_DIR}:/workspace:ro")
+        full_build_cmd="${build_cmd}"
+    else
+        local pmm_ref="${PMM_REF:?PMM_REF must be set in .env for workspace component builds}"
+        local bare_name="pmm.git"
+        local bare_repo_path="${REPO_CACHE_DIR}/${bare_name}"
+
+        if [ ! -d "${bare_repo_path}" ]; then
+            echo "Error: bare repo cache not found at ${bare_repo_path}" >&2
+            echo "Run 'make populate-cache' or 'make download-cache' first." >&2
+            return 1
+        fi
+
+        echo "No local workspace — cloning from cache (pmm.git @ ${pmm_ref})"
+        volume_args+=(-v "${bare_repo_path}:/repos/${bare_name}:ro")
+        full_build_cmd="
+            set -e
+            git clone /repos/${bare_name} /workspace
+            cd /workspace
+            git checkout ${pmm_ref}
+            ${build_cmd}
+        "
+    fi
+
+    local fullcommit
+    local branch
+    if [ -n "${WORKSPACE_DIR}" ] && [ -d "${WORKSPACE_DIR}/.git" ]; then
+        fullcommit="$(git -C "${WORKSPACE_DIR}" rev-parse HEAD 2>/dev/null || echo "unknown")"
+        branch="$(git -C "${WORKSPACE_DIR}" describe --always --contains --all 2>/dev/null || echo "unknown")"
+    else
+        fullcommit="${PMM_REF:-unknown}"
+        branch="${PMM_REF:-unknown}"
+    fi
+
     docker run --rm \
         --platform "linux/${container_arch}" \
-        -v "${WORKSPACE_DIR}:/workspace:ro" \
+        "${volume_args[@]}" \
         -v "${OUTPUT_DIR}:/output" \
         -v "${GOMOD_CACHE_VOL}:/go/pkg/mod" \
         -v "${BUILD_CACHE_VOL}:/root/.cache/go-build" \
@@ -147,11 +190,11 @@ build_workspace_component() {
         -e PMM_RELEASE_VERSION="${PMM_VERSION}" \
         -e PMM_RELEASE_TIMESTAMP="$(date '+%s')" \
         -e PMM_RELEASE_PATH=/output \
-        -e PMM_RELEASE_FULLCOMMIT="$(git -C "${WORKSPACE_DIR}" rev-parse HEAD 2>/dev/null || echo "unknown")" \
-        -e PMM_RELEASE_BRANCH="$(git -C "${WORKSPACE_DIR}" describe --always --contains --all 2>/dev/null || echo "unknown")" \
+        -e PMM_RELEASE_FULLCOMMIT="${fullcommit}" \
+        -e PMM_RELEASE_BRANCH="${branch}" \
         -w /workspace \
         "${BUILDER_IMAGE}" \
-        bash -c "${build_cmd}"
+        bash -c "${full_build_cmd}"
 
     echo "Build complete! Artifacts saved to ${OUTPUT_DIR}"
     ls -lh "${OUTPUT_DIR}"

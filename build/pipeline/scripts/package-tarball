@@ -8,7 +8,10 @@ set -o nounset
 # Default values
 SCRIPT_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
 PIPELINE_DIR="$(dirname "${SCRIPT_DIR}")"
-WORKSPACE_DIR="${WORKSPACE_DIR:-$(git rev-parse --show-toplevel)}"
+# BUILD_ROOT is the parent of the pipeline directory.
+# In a full repo checkout: <root>/build/ (packages/, docker/, scripts/ are here).
+# In CI/bootstrap: <home>/  (bootstrap copies these dirs as siblings of the pipeline dir).
+BUILD_ROOT="$(dirname "${PIPELINE_DIR}")"
 PMM_VERSION="${PMM_VERSION:?No PMM_VERSION specified}"
 OUTPUT_DIR="${OUTPUT_DIR:-${PIPELINE_DIR}/output}"
 PACKAGE_DIR="${PACKAGE_DIR:-${PIPELINE_DIR}/package}"
@@ -83,25 +86,16 @@ done
 
 echo "Copying the configuration files..."
 # Copy config files
-cp "${WORKSPACE_DIR}/build/packages/config/pmm-agent.service" "${PACKAGE_ROOT}/config/"
-cp "${WORKSPACE_DIR}/build/docker/client/LICENSE" "${PIPELINE_DIR}/"
+cp "${BUILD_ROOT}/packages/config/pmm-agent.service" "${PACKAGE_ROOT}/config/"
+cp "${BUILD_ROOT}/docker/client/LICENSE" "${PIPELINE_DIR}/"
 
 echo "Copying Debian packaging files..."
 # Copy debian packaging files
-cp "${WORKSPACE_DIR}/build/packages/deb/compat" "${PACKAGE_ROOT}/debian/"
-cp "${WORKSPACE_DIR}/build/packages/deb/control" "${PACKAGE_ROOT}/debian/"
-cp "${WORKSPACE_DIR}/build/packages/deb/copyright" "${PACKAGE_ROOT}/debian/"
-cp "${WORKSPACE_DIR}/build/packages/deb/files" "${PACKAGE_ROOT}/debian/"
-cp "${WORKSPACE_DIR}/build/packages/deb/install" "${PACKAGE_ROOT}/debian/"
-cp "${WORKSPACE_DIR}/build/packages/deb/links" "${PACKAGE_ROOT}/debian/"
-cp "${WORKSPACE_DIR}/build/packages/deb/postinst" "${PACKAGE_ROOT}/debian/"
-cp "${WORKSPACE_DIR}/build/packages/deb/postrm" "${PACKAGE_ROOT}/debian/"
-cp "${WORKSPACE_DIR}/build/packages/deb/preinst" "${PACKAGE_ROOT}/debian/"
-cp "${WORKSPACE_DIR}/build/packages/deb/rules" "${PACKAGE_ROOT}/debian/"
+cp -r "${BUILD_ROOT}/packages/deb/"* "${PACKAGE_ROOT}/debian/"
 
 echo "Copying RPM spec file..."
 # Copy RPM spec file
-cp "${WORKSPACE_DIR}/build/packages/rpm/client/pmm-client.spec" "${PACKAGE_ROOT}/rpm/"
+cp "${BUILD_ROOT}/packages/rpm/client/pmm-client.spec" "${PACKAGE_ROOT}/rpm/"
 
 echo "Copying query files and other assets..."
 # Copy query files from OUTPUT_DIR/queries
@@ -128,7 +122,7 @@ echo "${PMM_VERSION}" > "${PACKAGE_ROOT}/VERSION"
 
 # Copy install_tarball script
 echo "Copying install_tarball script..."
-cp "${WORKSPACE_DIR}/build/scripts/install_tarball" "${PACKAGE_ROOT}/"
+cp "${BUILD_ROOT}/scripts/install_tarball" "${PACKAGE_ROOT}/"
 chmod +x "${PACKAGE_ROOT}/install_tarball"
 
 echo "Creating tarball..."

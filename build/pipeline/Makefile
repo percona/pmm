@@ -8,7 +8,15 @@ SHELL := bash
 # Determine directory paths regardless of where make is invoked from
 PIPELINE_DIR := $(dir $(abspath $(firstword $(MAKEFILE_LIST))))
 BUILD_ROOT := $(abspath $(PIPELINE_DIR)..)
-WORKSPACE_DIR := $(shell git rev-parse --show-toplevel)
+# Workspace root is auto-detected for local dev (full repo checkout); left empty
+# for CI/bootstrap builds where workspace components clone from the bare cache.
+ifneq ($(wildcard $(BUILD_ROOT)/go.mod),)
+WORKSPACE_DIR ?= $(BUILD_ROOT)
+else ifneq ($(wildcard $(abspath $(BUILD_ROOT)/..)/go.mod),)
+WORKSPACE_DIR ?= $(abspath $(BUILD_ROOT)/..)
+else
+WORKSPACE_DIR ?=
+endif
 
 # Build script location
 BUILD_SCRIPT := $(PIPELINE_DIR)/scripts/build-component
