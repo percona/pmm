@@ -106,7 +106,7 @@ check_prerequisites() {
 
     if [ ! -f "Makefile" ]; then
         log_ok "Downloading Makefile from upstream..."
-        if ! curl -fsSL "https://raw.githubusercontent.com/percona/pmm/e61516f39fb2b46bc3e9c740902ab3ae39e20a9/build/pipeline/Makefile" -o "${PIPELINE_DIR}/Makefile"; then
+        if ! curl -fsSL "https://raw.githubusercontent.com/percona/pmm/e6e1516f39fb2b46bc3e9c740902ab3ae39e20a9/build/pipeline/Makefile" -o "${PIPELINE_DIR}/Makefile"; then
             log_err "Failed to download Makefile"
             exit 1
         fi
@@ -299,7 +299,7 @@ upload_cache() {
     fi
 
     log_step 7 "Uploading cache to Minio"
-    make -C "${PIPELINE_DIR}" update-cache
+    make -C "${PIPELINE_DIR}" upload-cache
 }
 
 # ── Optional: Build ────────────────────────────────────────────────────────

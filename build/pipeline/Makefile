@@ -362,6 +362,14 @@ download-cache: check-minio
 	@echo "Cached repositories:"
 	@ls -lh $(REPO_CACHE_DIR)
 
+# Upload local bare-repo cache to Minio (no download, no fetch — just push what's on disk).
+# Used by bootstrap after populate-cache on a fresh setup.
+upload-cache: check-minio
+	@echo "Uploading local cache to Minio..."
+	@mc mirror --overwrite $(REPO_CACHE_DIR) pmm/$(MINIO_BUCKET)/$(MINIO_CACHE_PREFIX) || \
+		(echo "Error: Failed to upload cache to Minio" && exit 1)
+	@echo "Cache upload complete"
+
 # Fetch upstream changes into local bare repos and upload the updated cache to Minio
 update-cache: check-minio download-cache
 	@echo "Fetching required refs from upstream..."
