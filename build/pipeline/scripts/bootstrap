@@ -8,14 +8,29 @@
 
 set -euo pipefail
 
-SCRIPT_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
-PIPELINE_DIR="${SCRIPT_DIR}"
+# When piped (curl | bash), BASH_SOURCE[0] is empty — create ~/build.
+if [ -n "${BASH_SOURCE[0]:-}" ] && [ -f "${BASH_SOURCE[0]}" ]; then
+    BASH_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
+else
+    BASH_DIR="${HOME}/build"
+    if [ -d "${BASH_DIR}" ]; then
+        echo "Error: ${BASH_DIR} already exists. Remove it or run bootstrap from that directory." >&2
+        exit 1
+    fi
+    mkdir -p "${BASH_DIR}"
+fi
+PIPELINE_DIR="${BASH_DIR}"
+SCRIPT_DIR="${PIPELINE_DIR}/scripts"
 
 # Defaults
 BUILD_TARGET=""
 RUN_MIGRATE=false
 SKIP_CACHE=false
-TOTAL_STEPS=7
+GIT_REF="v3"
+TOTAL_STEPS=8
+
+PMM_REPO_URL="https://github.com/percona/pmm.git"
+BUILD_ROOT="$(dirname "${PIPELINE_DIR}")"
 
 usage() {
     cat <<EOF
@@ -27,6 +42,7 @@ install mc, populate the bare-repo cache, and optionally kick off a build.
 Options:
   --target <client|server|all>   Build target after setup (default: skip build)
   --migrate                      Run migrate-from-submodules to populate .env
+  --ref <branch|tag|sha>         Git ref to download build files from (default: v3)
   --skip-cache                   Skip cache population and upload
   --help                         Show this help
 
@@ -50,6 +66,9 @@ while [ $# -gt 0 ]; do
                 *) echo "Error: --target must be one of: client, server, all" >&2; exit 1 ;;
             esac
             shift 2
+            ;;
+        --ref)
+            GIT_REF="$2"; shift 2
             ;;
         --migrate)   RUN_MIGRATE=true; shift ;;
         --skip-cache) SKIP_CACHE=true; shift ;;
@@ -94,30 +113,70 @@ check_prerequisites() {
         exit 1
     fi
     log_info "Docker daemon is running"
-
-    if [ ! -f ".env.example" ]; then
-        log_info "Downloading .env.example from upstream..."
-        if ! curl -fsSL "https://raw.githubusercontent.com/percona/pmm/e6e1516f39fb2b46bc3e9c740902ab3ae39e20a9/build/pipeline/.env.example" -o "${PIPELINE_DIR}/.env.example"; then
-            log_err "Failed to download .env.example"
-            exit 1
-        fi
-        log_info ".env.example downloaded"
-    fi
-
-    if [ ! -f "Makefile" ]; then
-        log_info "Downloading Makefile from upstream..."
-        if ! curl -fsSL "https://raw.githubusercontent.com/percona/pmm/e6e1516f39fb2b46bc3e9c740902ab3ae39e20a9/build/pipeline/Makefile" -o "${PIPELINE_DIR}/Makefile"; then
-            log_err "Failed to download Makefile"
-            exit 1
-        fi
-        log_info "Makefile downloaded"
-    fi
 }
 
-# ── Step 2: .env setup ─────────────────────────────────────────────────────
+# ── Step 2: Download build files ───────────────────────────────────────────
+
+download_build_files() {
+    log_step 2 "Downloading build files"
+
+    # If Dockerfile.builder exists, assume all build files are present
+    # (either from a full repo clone or a previous bootstrap run).
+    if [ -f "${PIPELINE_DIR}/Dockerfile.builder" ]; then
+        log_info "Build files already present"
+        return
+    fi
+
+    log_info "Fetching build/ directory from ${PMM_REPO_URL} (ref: ${GIT_REF})..."
+    local tmpdir
+    tmpdir="$(mktemp -d)"
+    # shellcheck disable=SC2064
+    trap "rm -rf '${tmpdir}'" EXIT
+
+    git clone --depth 1 --branch "${GIT_REF}" --sparse --filter=blob:none \
+        "${PMM_REPO_URL}" "${tmpdir}/pmm"
+    git -C "${tmpdir}/pmm" sparse-checkout set build/
+
+    local src="${tmpdir}/pmm/build"
+
+    # Copy pipeline files that are missing (Dockerfiles, Makefile, .env.example).
+    for f in Makefile Dockerfile.builder Dockerfile.client Dockerfile.server \
+             Dockerfile.server.dockerignore .env.example; do
+        if [ ! -f "${PIPELINE_DIR}/${f}" ]; then
+            cp "${src}/pipeline/${f}" "${PIPELINE_DIR}/${f}"
+            log_info "Installed ${f}"
+        fi
+    done
+
+    # Copy build scripts that are missing.
+    mkdir -p "${SCRIPT_DIR}"
+    for f in build-component build-client-docker package-tarball \
+             generate-version-json check-ui-cache migrate-from-submodules; do
+        if [ ! -f "${SCRIPT_DIR}/${f}" ]; then
+            cp "${src}/pipeline/scripts/${f}" "${SCRIPT_DIR}/${f}"
+            chmod +x "${SCRIPT_DIR}/${f}"
+            log_info "Installed scripts/${f}"
+        fi
+    done
+
+    # Copy sibling directories needed by the build (ansible, docker, packages, scripts).
+    # These live in BUILD_ROOT (parent of PIPELINE_DIR).
+    for dir in ansible docker packages scripts; do
+        if [ ! -d "${BUILD_ROOT}/${dir}" ]; then
+            cp -r "${src}/${dir}" "${BUILD_ROOT}/${dir}"
+            log_info "Installed ${dir}/"
+        fi
+    done
+
+    rm -rf "${tmpdir}"
+    trap - EXIT
+    log_info "Build files downloaded"
+}
+
+# ── Step 3: .env setup ─────────────────────────────────────────────────────
 
 setup_env() {
-    log_step 2 "Setting up .env"
+    log_step 3 "Setting up .env"
 
     if [ -f "${PIPELINE_DIR}/.env" ]; then
         log_info ".env already exists"
@@ -161,10 +220,10 @@ setup_env() {
     fi
 }
 
-# ── Step 3: Start Minio ────────────────────────────────────────────────────
+# ── Step 4: Start Minio ────────────────────────────────────────────────────
 
 start_minio() {
-    log_step 3 "Starting Minio..."
+    log_step 4 "Starting Minio..."
 
     local state
     state="$(docker inspect --format='{{.State.Running}}' minio 2>/dev/null || echo "missing")"
@@ -206,10 +265,10 @@ start_minio() {
     exit 1
 }
 
-# ── Step 4: Install mc ─────────────────────────────────────────────────────
+# ── Step 5: Install mc ─────────────────────────────────────────────────────
 
 install_mc() {
-    log_step 4 "Installing mc (Minio client)..."
+    log_step 5 "Installing mc (Minio client)..."
 
     # Check if MinIO's mc is already available
     if command -v mc >/dev/null 2>&1 && mc --version 2>&1 | grep -q "mc version"; then
@@ -265,10 +324,10 @@ install_mc() {
     fi
 }
 
-# ── Step 5: Configure mc alias and bucket ───────────────────────────────────
+# ── Step 6: Configure mc alias and bucket ───────────────────────────────────
 
 configure_mc_alias() {
-    log_step 5 "Configuring mc alias and bucket"
+    log_step 6 "Configuring mc alias and bucket"
 
     mc alias set pmm "http://localhost:9000" "${MINIO_ACCESS_KEY}" "${MINIO_SECRET_KEY}" >/dev/null
     log_info "mc alias 'pmm' configured"
@@ -277,28 +336,28 @@ configure_mc_alias() {
     log_info "Bucket '${MINIO_BUCKET}' is ready"
 }
 
-# ── Step 6: Populate cache ──────────────────────────────────────────────────
+# ── Step 7: Populate cache ──────────────────────────────────────────────────
 
 populate_cache() {
     if [ "${SKIP_CACHE}" = true ]; then
-        log_step 6 "Populating repository cache (skipped: --skip-cache)"
+        log_step 7 "Populating repository cache (skipped: --skip-cache)"
         return
     fi
 
-    log_step 6 "Populating repository cache"
+    log_step 7 "Populating repository cache"
     echo "    This clones 14 bare repos from upstream (first run may take a while)..."
     make -C "${PIPELINE_DIR}" populate-cache
 }
 
-# ── Step 7: Upload cache to Minio ──────────────────────────────────────────
+# ── Step 8: Upload cache to Minio ──────────────────────────────────────────
 
 upload_cache() {
     if [ "${SKIP_CACHE}" = true ]; then
-        log_step 7 "Uploading cache to Minio (skipped: --skip-cache)"
+        log_step 8 "Uploading cache to Minio (skipped: --skip-cache)"
         return
     fi
 
-    log_step 7 "Uploading cache to Minio"
+    log_step 8 "Uploading cache to Minio"
     local cache_dir="${PIPELINE_DIR}/.cache/repos"
     if [ ! -d "${cache_dir}" ]; then
         log_warn "No cache directory found at ${cache_dir}, nothing to upload"
@@ -329,6 +388,7 @@ main() {
     echo "============================"
 
     check_prerequisites
+    download_build_files
     setup_env
     start_minio
     install_mc
