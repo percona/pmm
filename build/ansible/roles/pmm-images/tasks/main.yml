@@ -162,10 +162,7 @@
     - { src: pmm-compat-dist, dest: /usr/share/percona-dashboards/panels/pmm-compat-app }
 
 - name: Install percona-dashboards assets
-  command: cp -rT /opt/pmm-staging/pmm-dashboards/{{ item.src }} {{ item.dest }}
-  loop:
-    - { src: panels, dest: /usr/share/percona-dashboards/panels }
-    - { src: pmm-app-dist, dest: /usr/share/percona-dashboards/panels/pmm-app }
+  command: cp -rT /opt/pmm-staging/pmm-dashboards/panels /usr/share/percona-dashboards/panels
 
 - name: Install VERSION.json
   copy:

@@ -92,6 +92,11 @@ SERVER_PLATFORMS ?= linux/amd64
 GO_VERSION ?= 1.26
 LOG_FILE ?= $(PIPELINE_DIR)/build.log
 
+# Grafana plugin versions — sourced from the dashboards RPM spec.
+DASHBOARDS_SPEC := $(PIPELINE_DIR)/packages/rpm/server/SPECS/percona-dashboards.spec
+CLICKHOUSE_DATASOURCE_VERSION := $(shell sed -n 's/^%define clickhouse_datasource_version //p' $(DASHBOARDS_SPEC))
+POLYSTAT_PANEL_VERSION        := $(shell sed -n 's/^%define polystat_panel_version *//p' $(DASHBOARDS_SPEC))
+
 CACHE_DIR := $(CURDIR)/.cache
 REPO_CACHE_DIR := $(CACHE_DIR)/repos
 STAMP_DIR := $(CACHE_DIR)/stamps
@@ -511,8 +516,8 @@ build-pmm-dump: ensure-pmm-builder ensure-build-volumes
 	      cd /build/pmm-dump; git checkout $(PMM_DUMP_REF); \
 	      CGO_ENABLED=0 GOOS=linux GOARCH=$(GOARCH) make build; \
 	      cp pmm-dump /output/"; \
-	  _hash=$$(git -C "$(REPO_CACHE_DIR)/pmm-dump.git" rev-parse "$(PMM_DUMP_REF)^{commit}" 2>/dev/null || echo "$(PMM_DUMP_REF)"); \
-	  mkdir -p "$(STAMP_DIR)"; echo "$$_hash" > "$(STAMP_DIR)/pmm-dump.hash"; \
+	  hash=$$(git -C "$(REPO_CACHE_DIR)/pmm-dump.git" rev-parse "$(PMM_DUMP_REF)^{commit}" 2>/dev/null || echo "$(PMM_DUMP_REF)"); \
+	  mkdir -p "$(STAMP_DIR)"; echo "$$hash" > "$(STAMP_DIR)/pmm-dump.hash"; \
 	fi
 
 build-grafana-go: ensure-build-volumes
@@ -538,8 +543,8 @@ build-grafana-go: ensure-build-volumes
 	      sed -i 's/unknown-dev/11.6.4/' pkg/build/git.go; \
 	      make build-go; \
 	      cp bin/linux-$(GOARCH)/grafana-server bin/linux-$(GOARCH)/grafana bin/linux-$(GOARCH)/grafana-cli /output/"; \
-	  _hash=$$(git -C "$(REPO_CACHE_DIR)/grafana.git" rev-parse "$(GRAFANA_REF)^{commit}" 2>/dev/null || echo "$(GRAFANA_REF)"); \
-	  mkdir -p "$(STAMP_DIR)"; echo "$$_hash" > "$(STAMP_DIR)/grafana-go.hash"; \
+	  hash=$$(git -C "$(REPO_CACHE_DIR)/grafana.git" rev-parse "$(GRAFANA_REF)^{commit}" 2>/dev/null || echo "$(GRAFANA_REF)"); \
+	  mkdir -p "$(STAMP_DIR)"; echo "$$hash" > "$(STAMP_DIR)/grafana-go.hash"; \
 	fi
 
 build-grafana-ui: ensure-build-volumes
@@ -557,7 +562,7 @@ build-grafana-ui: ensure-build-volumes
 	    -v $(YARN_CACHE_VOL):/yarn-cache \
 	    -e YARN_CACHE_FOLDER=/yarn-cache \
 	    -e YARN_GLOBAL_FOLDER=/yarn-cache \
-	    -e NODE_OPTIONS="--max-old-space-size=4096" \
+	    -e NODE_OPTIONS="--max-old-space-size=8192" \
 	    node:22 bash -c "\
 	      set -e; npm install -g grunt-cli; \
 	      git config --global --add safe.directory /repos/grafana.git; \
@@ -565,8 +570,8 @@ build-grafana-ui: ensure-build-volumes
 	      cd /build/grafana; git checkout $(GRAFANA_REF); \
 	      make deps-js && make build-js; \
 	      cp -r public conf tools /output/"; \
-	  _hash=$$(git -C "$(REPO_CACHE_DIR)/grafana.git" rev-parse "$(GRAFANA_REF)^{commit}" 2>/dev/null || echo "$(GRAFANA_REF)"); \
-	  mkdir -p "$(STAMP_DIR)"; echo "$$_hash" > "$(STAMP_DIR)/grafana-ui.hash"; \
+	  hash=$$(git -C "$(REPO_CACHE_DIR)/grafana.git" rev-parse "$(GRAFANA_REF)^{commit}" 2>/dev/null || echo "$(GRAFANA_REF)"); \
+	  mkdir -p "$(STAMP_DIR)"; echo "$$hash" > "$(STAMP_DIR)/grafana-ui.hash"; \
 	fi
 
 build-victoriametrics: ensure-pmm-builder ensure-build-volumes
@@ -591,8 +596,8 @@ build-victoriametrics: ensure-pmm-builder ensure-build-volumes
 	      cd /build/VictoriaMetrics; git checkout $(VM_REF); \
 	      make victoria-metrics-pure vmalert-pure PKG_TAG=$(VM_REF) BUILDINFO_TAG=$(VM_REF); \
 	      cp bin/victoria-metrics-pure bin/vmalert-pure /output/"; \
-	  _hash=$$(git -C "$(REPO_CACHE_DIR)/VictoriaMetrics.git" rev-parse "$(VM_REF)^{commit}" 2>/dev/null || echo "$(VM_REF)"); \
-	  mkdir -p "$(STAMP_DIR)"; echo "$$_hash" > "$(STAMP_DIR)/victoriametrics.hash"; \
+	  hash=$$(git -C "$(REPO_CACHE_DIR)/VictoriaMetrics.git" rev-parse "$(VM_REF)^{commit}" 2>/dev/null || echo "$(VM_REF)"); \
+	  mkdir -p "$(STAMP_DIR)"; echo "$$hash" > "$(STAMP_DIR)/victoriametrics.hash"; \
 	fi
 
 build-pmm-dashboards: ensure-build-volumes
@@ -610,16 +615,25 @@ build-pmm-dashboards: ensure-build-volumes
 	    -v $(YARN_CACHE_VOL):/yarn-cache \
 	    -e YARN_CACHE_FOLDER=/yarn-cache \
 	    -e YARN_GLOBAL_FOLDER=/yarn-cache \
-	    -e NODE_OPTIONS="--max-old-space-size=4096" \
+	    -e NODE_OPTIONS="--max-old-space-size=8192" \
 	    node:22 bash -c "\
 	      set -e; git config --global --add safe.directory /repos/pmm.git; \
 	      git clone /repos/pmm.git /build/pmm; \
 	      cd /build/pmm; git checkout $(PMM_DASHBOARDS_REF); \
 	      cd dashboards && make release; \
-	      cp -r panels /output/panels; \
-	      cp -r pmm-app/dist /output/pmm-app-dist"; \
-	  _hash=$$(git -C "$(REPO_CACHE_DIR)/pmm.git" rev-parse "$(PMM_DASHBOARDS_REF)^{commit}" 2>/dev/null || echo "$(PMM_DASHBOARDS_REF)"); \
-	  mkdir -p "$(STAMP_DIR)"; echo "$$_hash" > "$(STAMP_DIR)/pmm-dashboards.hash"; \
+	      apt-get update -qq && apt-get install -y -qq unzip >/dev/null; \
+	      mkdir -p /output/panels/pmm-app; \
+	      cp -a pmm-app/dist /output/panels/pmm-app/dist; \
+	      echo \"Installing grafana-clickhouse-datasource v$(CLICKHOUSE_DATASOURCE_VERSION)...\"; \
+	      curl -fsSL -o /tmp/clickhouse.zip \
+	        \"https://github.com/grafana/clickhouse-datasource/releases/download/v$(CLICKHOUSE_DATASOURCE_VERSION)/grafana-clickhouse-datasource-$(CLICKHOUSE_DATASOURCE_VERSION).linux_$(HOST_ARCH).zip\"; \
+	      unzip -qo /tmp/clickhouse.zip -d /output/panels; \
+	      echo \"Installing grafana-polystat-panel v$(POLYSTAT_PANEL_VERSION)...\"; \
+	      curl -fsSL -o /tmp/polystat.zip \
+	        \"https://github.com/grafana/grafana-polystat-panel/releases/download/v$(POLYSTAT_PANEL_VERSION)/grafana-polystat-panel-$(POLYSTAT_PANEL_VERSION).zip\"; \
+	      unzip -qo /tmp/polystat.zip -d /output/panels"; \
+	  hash=$$(git -C "$(REPO_CACHE_DIR)/pmm.git" rev-parse "$(PMM_DASHBOARDS_REF)^{commit}" 2>/dev/null || echo "$(PMM_DASHBOARDS_REF)"); \
+	  mkdir -p "$(STAMP_DIR)"; echo "$$hash" > "$(STAMP_DIR)/pmm-dashboards.hash"; \
 	fi
 
 build-pmm-ui: ensure-build-volumes
@@ -637,7 +651,7 @@ build-pmm-ui: ensure-build-volumes
 	    -v $(YARN_CACHE_VOL):/yarn-cache \
 	    -e YARN_CACHE_FOLDER=/yarn-cache \
 	    -e YARN_GLOBAL_FOLDER=/yarn-cache \
-	    -e NODE_OPTIONS="--max-old-space-size=4096" \
+	    -e NODE_OPTIONS="--max-old-space-size=8192" \
 	    node:22 bash -c "\
 	      set -e; git config --global --add safe.directory /repos/pmm.git; \
 	      git clone /repos/pmm.git /build/pmm-ui; \
@@ -645,8 +659,8 @@ build-pmm-ui: ensure-build-volumes
 	      cd ui && make release; \
 	      cp -r /build/pmm-ui/ui/apps/pmm/dist /output/pmm-dist; \
 	      cp -r /build/pmm-ui/ui/apps/pmm-compat/dist /output/pmm-compat-dist"; \
-	  _hash=$$(git -C "$(REPO_CACHE_DIR)/pmm.git" rev-parse "$(PMM_UI_REF)^{commit}" 2>/dev/null || echo "$(PMM_UI_REF)"); \
-	  mkdir -p "$(STAMP_DIR)"; echo "$$_hash" > "$(STAMP_DIR)/pmm-ui.hash"; \
+	  hash=$$(git -C "$(REPO_CACHE_DIR)/pmm.git" rev-parse "$(PMM_UI_REF)^{commit}" 2>/dev/null || echo "$(PMM_UI_REF)"); \
+	  mkdir -p "$(STAMP_DIR)"; echo "$$hash" > "$(STAMP_DIR)/pmm-ui.hash"; \
 	fi
 
 # ---------------------------------------------------------------------------
