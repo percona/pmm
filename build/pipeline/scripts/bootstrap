@@ -66,7 +66,7 @@ log_step() {
     echo "==> [${n}/${TOTAL_STEPS}] ${msg}"
 }
 
-log_ok()   { echo "$(date -Iseconds)    INFO: $*"; }
+log_info() { echo "$(date -Iseconds)    INFO: $*"; }
 log_warn() { echo "$(date -Iseconds)    WARN: $*"; }
 log_err()  { echo "$(date -Iseconds)    ERROR: $*" >&2; }
 
@@ -80,37 +80,37 @@ check_prerequisites() {
         echo "    Install Docker: https://docs.docker.com/get-docker/"
         exit 1
     fi
-    log_ok "docker found ($(docker --version))"
+    log_info "docker found ($(docker --version))"
 
     if ! command -v git >/dev/null 2>&1; then
         log_err "git is not installed"
         exit 1
     fi
-    log_ok "git found ($(git --version))"
+    log_info "git found ($(git --version))"
 
     if ! docker info >/dev/null 2>&1; then
         log_err "Docker daemon is not running"
         echo "    Start Docker Desktop (macOS) or the docker service (Linux)"
         exit 1
     fi
-    log_ok "Docker daemon is running"
+    log_info "Docker daemon is running"
 
     if [ ! -f ".env.example" ]; then
-        log_ok "Downloading .env.example from upstream..."
+        log_info "Downloading .env.example from upstream..."
         if ! curl -fsSL "https://raw.githubusercontent.com/percona/pmm/e6e1516f39fb2b46bc3e9c740902ab3ae39e20a9/build/pipeline/.env.example" -o "${PIPELINE_DIR}/.env.example"; then
             log_err "Failed to download .env.example"
             exit 1
         fi
-        log_ok ".env.example downloaded"
+        log_info ".env.example downloaded"
     fi
 
     if [ ! -f "Makefile" ]; then
-        log_ok "Downloading Makefile from upstream..."
+        log_info "Downloading Makefile from upstream..."
         if ! curl -fsSL "https://raw.githubusercontent.com/percona/pmm/e6e1516f39fb2b46bc3e9c740902ab3ae39e20a9/build/pipeline/Makefile" -o "${PIPELINE_DIR}/Makefile"; then
             log_err "Failed to download Makefile"
             exit 1
         fi
-        log_ok "Makefile downloaded"
+        log_info "Makefile downloaded"
     fi
 }
 
@@ -120,26 +120,26 @@ setup_env() {
     log_step 2 "Setting up .env"
 
     if [ -f "${PIPELINE_DIR}/.env" ]; then
-        log_ok ".env already exists"
+        log_info ".env already exists"
     else
         if [ ! -f "${PIPELINE_DIR}/.env.example" ]; then
             log_err ".env.example not found in ${PIPELINE_DIR}"
             exit 1
         fi
         cp "${PIPELINE_DIR}/.env.example" "${PIPELINE_DIR}/.env"
-        log_ok "Created .env from .env.example"
+        log_info "Created .env from .env.example"
 
         # Replace placeholder Minio credentials with defaults
         sed -i.bak 's/MINIO_ACCESS_KEY=<ACCESS_KEY>/MINIO_ACCESS_KEY=minioadmin/' "${PIPELINE_DIR}/.env"
         sed -i.bak 's/MINIO_SECRET_KEY=<SECRET_KEY>/MINIO_SECRET_KEY=minioadmin/' "${PIPELINE_DIR}/.env"
         rm -f "${PIPELINE_DIR}/.env.bak"
-        log_ok "Set default Minio credentials (minioadmin/minioadmin)"
+        log_info "Set default Minio credentials (minioadmin/minioadmin)"
     fi
 
     if [ "${RUN_MIGRATE}" = true ]; then
         echo "    Running migrate-from-submodules..."
         "${SCRIPT_DIR}/migrate-from-submodules"
-        log_ok "Migration complete"
+        log_info "Migration complete"
     fi
 
     # Source .env
@@ -164,19 +164,19 @@ setup_env() {
 # ── Step 3: Start Minio ────────────────────────────────────────────────────
 
 start_minio() {
-    log_step 3 "Starting Minio"
+    log_step 3 "Starting Minio..."
 
     local state
     state="$(docker inspect --format='{{.State.Running}}' minio 2>/dev/null || echo "missing")"
 
     case "${state}" in
         true)
-            log_ok "Minio container is already running"
+            log_info "Minio container is already running"
             ;;
         false)
             echo "    Minio container exists but is stopped, restarting..."
             docker start minio >/dev/null
-            log_ok "Minio container restarted"
+            log_info "Minio container restarted"
             ;;
         *)
             echo "    Creating Minio container..."
@@ -186,7 +186,7 @@ start_minio() {
                 -e MINIO_ROOT_PASSWORD="${MINIO_SECRET_KEY}" \
                 -v minio-data:/data \
                 minio/minio server /data --console-address ":9001" >/dev/null
-            log_ok "Minio container created"
+            log_info "Minio container created"
             ;;
     esac
 
@@ -195,7 +195,7 @@ start_minio() {
     local attempts=0
     while [ ${attempts} -lt 15 ]; do
         if curl -sf http://localhost:9000/minio/health/live >/dev/null 2>&1; then
-            log_ok "Minio is healthy"
+            log_info "Minio is healthy"
             return
         fi
         attempts=$((attempts + 1))
@@ -209,11 +209,11 @@ start_minio() {
 # ── Step 4: Install mc ─────────────────────────────────────────────────────
 
 install_mc() {
-    log_step 4 "Installing mc (Minio client)"
+    log_step 4 "Installing mc (Minio client)..."
 
     # Check if MinIO's mc is already available
     if command -v mc >/dev/null 2>&1 && mc --version 2>&1 | grep -q "mc version"; then
-        log_ok "mc is already installed ($(mc --version 2>&1 | head -1))"
+        log_info "mc is already installed ($(mc --version 2>&1 | head -1))"
         return
     fi
 
@@ -232,7 +232,7 @@ install_mc() {
             if command -v brew >/dev/null 2>&1; then
                 echo "    Installing mc via Homebrew..."
                 brew install minio/stable/mc
-                log_ok "mc installed via Homebrew"
+                log_info "mc installed via Homebrew"
                 return
             fi
             os="darwin"
@@ -255,7 +255,7 @@ install_mc() {
     mkdir -p "${mc_dir}"
     curl -fsSL "${mc_url}" -o "${mc_path}"
     chmod +x "${mc_path}"
-    log_ok "mc installed to ${mc_path}"
+    log_info "mc installed to ${mc_path}"
 
     # Ensure it's on PATH for this session
     if ! echo "${PATH}" | tr ':' '\n' | grep -qx "${mc_dir}"; then
@@ -271,10 +271,10 @@ configure_mc_alias() {
     log_step 5 "Configuring mc alias and bucket"
 
     mc alias set pmm "http://localhost:9000" "${MINIO_ACCESS_KEY}" "${MINIO_SECRET_KEY}" >/dev/null
-    log_ok "mc alias 'pmm' configured"
+    log_info "mc alias 'pmm' configured"
 
     mc mb --ignore-existing "pmm/${MINIO_BUCKET}" >/dev/null 2>&1
-    log_ok "Bucket '${MINIO_BUCKET}' is ready"
+    log_info "Bucket '${MINIO_BUCKET}' is ready"
 }
 
 # ── Step 6: Populate cache ──────────────────────────────────────────────────
@@ -299,7 +299,15 @@ upload_cache() {
     fi
 
     log_step 7 "Uploading cache to Minio"
-    make -C "${PIPELINE_DIR}" upload-cache
+    local cache_dir="${PIPELINE_DIR}/.cache/repos"
+    if [ ! -d "${cache_dir}" ]; then
+        log_warn "No cache directory found at ${cache_dir}, nothing to upload"
+        return
+    fi
+    # shellcheck disable=SC2012
+    log_info "Uploading $(ls "${cache_dir}" | wc -l | tr -d ' ') repos to pmm/${MINIO_BUCKET}/repos..."
+    mc mirror --overwrite "${cache_dir}" "pmm/${MINIO_BUCKET}/repos"
+    log_info "Cache uploaded to Minio"
 }
 
 # ── Optional: Build ────────────────────────────────────────────────────────
