@@ -13,8 +13,8 @@ if [ -n "${BASH_SOURCE[0]:-}" ] && [ -f "${BASH_SOURCE[0]}" ]; then
     BASH_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
 else
     BASH_DIR="${HOME}/build"
-    if [ -d "${BASH_DIR}" ]; then
-        echo "Error: ${BASH_DIR} already exists. Remove it or run bootstrap from that directory." >&2
+    if [ -d "${BASH_DIR}" ] && [ -n "$(ls -A "${BASH_DIR}")" ]; then
+        echo "Error: ${BASH_DIR} already exists and is not empty. Remove it or run bootstrap from that directory." >&2
         exit 1
     fi
     mkdir -p "${BASH_DIR}"
