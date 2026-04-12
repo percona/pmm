@@ -8,7 +8,7 @@ set -o nounset
 # Default values
 COMPONENT="${1:-}"
 SCRIPT_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
-WORKSPACE_DIR="$(realpath "$SCRIPT_DIR/../../..")"
+WORKSPACE_DIR="${WORKSPACE_DIR:-$(git rev-parse --show-toplevel)}"
 
 # Load environment variables from .env file
 if [ -f "${SCRIPT_DIR}/../.env" ]; then

@@ -8,6 +8,7 @@ SHELL := bash
 # Determine directory paths regardless of where make is invoked from
 PIPELINE_DIR := $(dir $(abspath $(firstword $(MAKEFILE_LIST))))
 BUILD_ROOT := $(abspath $(PIPELINE_DIR)..)
+WORKSPACE_DIR := $(shell git rev-parse --show-toplevel)
 
 # Build script location
 BUILD_SCRIPT := $(PIPELINE_DIR)/scripts/build-component
@@ -169,6 +170,7 @@ export SERVER_PLATFORMS
 export GO_VERSION
 export OUTPUT_DIR
 export PACKAGE_DIR
+export WORKSPACE_DIR
 export MINIO_ENDPOINT
 export MINIO_BUCKET
 export CACHE_DIR
