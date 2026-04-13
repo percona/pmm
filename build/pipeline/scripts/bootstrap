@@ -4,7 +4,7 @@
 # Checks prerequisites, downloads build files, populates bare-repo cache,
 # and optionally kicks off a build.
 #
-# Usage: bootstrap [--target client|server|all] [--migrate] [--skip-cache] [--help]
+# Usage: bootstrap [--ref <branch|tag|sha>] [--target client|server|all] [--migrate] [--skip-cache] [--help]
 
 set -euo pipefail
 
@@ -27,6 +27,7 @@ BUILD_TARGET=""
 RUN_MIGRATE=false
 SKIP_CACHE=false
 GIT_REF="v3"
+REF_EXPLICIT=false
 TOTAL_STEPS=5
 
 PMM_REPO_URL="https://github.com/percona/pmm.git"
@@ -71,6 +72,7 @@ while [ $# -gt 0 ]; do
       ;;
     --ref)
       GIT_REF="$2"
+      REF_EXPLICIT=true
       shift 2
       ;;
     --migrate)
@@ -99,7 +101,23 @@ log_step() {
 
 log_info() { echo "$(date -Iseconds)    INFO: $*"; }
 log_warn() { echo "$(date -Iseconds)    WARN: $*"; }
-log_err() { echo "$(date -Iseconds)    ERROR: $*" >&2; }
+log_err()  { echo "$(date -Iseconds)   ERROR: $*" >&2; }
+
+# set_env_var <key> <value>
+# Sets KEY=VALUE in .env, overwriting any existing value (or appending if absent).
+set_env_var() {
+  local key="$1" value="$2"
+  local file="${PIPELINE_DIR}/.env"
+  if grep -qE "^${key}=" "${file}" 2>/dev/null; then
+    local tmp
+    tmp="$(mktemp)"
+    sed "s|^${key}=.*|${key}=${value}|" "${file}" >"${tmp}"
+    mv "${tmp}" "${file}"
+  else
+    echo "${key}=${value}" >>"${file}"
+  fi
+  log_info "  ${key}=${value}"
+}
 
 # ── Step 1: Prerequisites ──────────────────────────────────────────────────
 
@@ -217,6 +235,15 @@ setup_env() {
     log_info "Running migrate-from-submodules..."
     "${SCRIPT_DIR}/migrate-from-submodules"
     log_info "Migration complete"
+  fi
+
+  # If --ref was passed explicitly, pin PMM_REF/PMM_UI_REF/PMM_DASHBOARDS_REF to it.
+  # These three live in the same percona/pmm repo, so they should track the build ref.
+  if [ "${REF_EXPLICIT}" = true ]; then
+    log_info "Pinning PMM_REF / PMM_UI_REF / PMM_DASHBOARDS_REF to --ref (${GIT_REF})"
+    set_env_var "PMM_REF" "${GIT_REF}"
+    set_env_var "PMM_UI_REF" "${GIT_REF}"
+    set_env_var "PMM_DASHBOARDS_REF" "${GIT_REF}"
   fi
 
   # Source .env
