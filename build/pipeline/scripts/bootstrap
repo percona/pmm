@@ -159,7 +159,7 @@ download_build_files() {
   # If Dockerfile.builder exists, assume all build files are present
   # (either from a full repo clone or a previous bootstrap run).
   if [ -f "${PIPELINE_DIR}/Dockerfile.builder" ]; then
-    log_info "Build files already present"
+    log_info "  Build files already present"
     return
   fi
 
@@ -212,7 +212,7 @@ download_build_files() {
 
   rm -rf "${tmpdir}"
   trap - EXIT
-  log_info "Build files downloaded"
+  log_info " Build files downloaded"
 }
 
 # ── Step 3: .env setup ─────────────────────────────────────────────────────
@@ -234,7 +234,7 @@ setup_env() {
   if [ "${RUN_MIGRATE}" = true ]; then
     log_info "Running migrate-from-submodules..."
     "${SCRIPT_DIR}/migrate-from-submodules"
-    log_info "Migration complete"
+    log_info "  Migration complete"
   fi
 
   # If --ref was passed explicitly, pin PMM_REF/PMM_UI_REF/PMM_DASHBOARDS_REF to it.
@@ -300,9 +300,9 @@ main() {
   echo ""
   log_info "Bootstrap complete!"
   log_info "You can now run builds with:"
-  log_info "  cd ${PIPELINE_DIR} && make client   # build PMM Client"
-  log_info "  cd ${PIPELINE_DIR} && make server   # build PMM Server"
-  log_info "  cd ${PIPELINE_DIR} && make all      # build everything"
+  log_info "  cd ${PIPELINE_DIR} && make client   # build PMM Client (tarball + Docker image)"
+  log_info "  cd ${PIPELINE_DIR} && make server   # build PMM Server (Docker image)"
+  log_info "  cd ${PIPELINE_DIR} && make all      # build both (client + server)"
 }
 
 main "$@"

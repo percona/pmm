@@ -344,7 +344,7 @@ update-cache:
 		[ -d "$$dest" ] || continue; \
 		git -C "$$dest" config remote.origin.fetch '+refs/heads/*:refs/heads/*' 2>/dev/null || true; \
 		echo "  $$repo: fetching $$ref..."; \
-		git -C "$$dest" fetch origin "$$ref:$$ref" || { echo "Error: failed to fetch $$ref from $$repo"; exit 1; }; \
+		git -C "$$dest" fetch --force origin "+$$ref:$$ref" || { echo "Error: failed to fetch $$ref from $$repo"; exit 1; }; \
 	done
 	@echo "Cache update complete"
 
