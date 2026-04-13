@@ -71,16 +71,12 @@ This is typically caused by incorrect ownership on the Docker volume used by PMM
 1. Fix the ownership of the volume data directory:
 
     ```sh
-    sudo chown -R 1000:0 /srv
+    docker exec pmm-server supervisorctl stop all
+    docker exec --user root pmm-server chown -R 1000:0 /srv
+    docker exec pmm-server supervisorctl start all
     ```
 
-    Then restart the container:
-
-    ```sh
-    docker restart pmm-server
-    ```
-
-    If the container starts successfully, no further steps are needed.
+    If PMM becomes functional, no further steps are needed.
 
 2. If the problem persists, stop and remove the PMM Server container:
 
