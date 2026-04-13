@@ -65,6 +65,18 @@ When you initiate an update in the UI with Podman:
 - Watchtower detects the change and pulls the new image
 - Systemd handles container replacement automatically
 
+!!! warning "Log driver compatibility"
+    When running PMM Server under a systemd service with Podman, the default log driver is `journald`. This makes container logs persistent and queryable via `journalctl`.
+
+    Do **not** use `--log-driver passthrough`. Podman's `passthrough` driver passes the host's stdio file descriptors directly into the container, which makes `/dev/stdin`, `/dev/stdout`, and `/dev/stderr` unavailable inside the container. PMM Server uses `/dev/stderr` in its nginx configuration, so the startup configuration check will fail with:
+
+    ```
+    [emerg] open() "/dev/stderr" failed (6: No such device or address)
+    nginx: configuration file /etc/nginx/nginx.conf test failed
+    ```
+
+    Supported log drivers: `journald` (recommended — logs are persistent and visible via `journalctl -u pmm-server`) and `none` (disables logging entirely).
+
 === "Installation with UI updates"
     This method enables updates through the PMM web interface using Watchtower and systemd services. When you initiate an update in the UI, PMM Server updates its image reference, prompting Watchtower to pull the new image. 
 
@@ -227,7 +239,6 @@ For information on manually upgrading, see [Upgrade PMM Server using Podman](../
 <div hidden>
 ```sh
 # first pull can take time
-sleep 80
 timeout 60 podman wait --condition=running pmm-server
 ```
 </div>
