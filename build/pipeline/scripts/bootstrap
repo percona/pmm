@@ -63,7 +63,7 @@ while [ $# -gt 0 ]; do
       case "${BUILD_TARGET}" in
         client | server | all) ;;
         *)
-          echo "Error: --target must be one of: client, server, all" >&2
+          log_error " --target must be one of: client, server, all" >&2
           exit 1
           ;;
       esac
@@ -94,7 +94,7 @@ done
 log_step() {
   local n="$1" msg="$2"
   echo ""
-  echo "==> [${n}/${TOTAL_STEPS}] ${msg}"
+  log_info "==> [${n}/${TOTAL_STEPS}] ${msg}"
 }
 
 log_info() { echo "$(date -Iseconds)    INFO: $*"; }
@@ -104,11 +104,11 @@ log_err() { echo "$(date -Iseconds)    ERROR: $*" >&2; }
 # ── Step 1: Prerequisites ──────────────────────────────────────────────────
 
 check_prerequisites() {
-  log_step 1 "Checking prerequisites"
+  log_step 1 "Checking prerequisites..."
 
   if ! command -v docker >/dev/null 2>&1; then
     log_err "docker is not installed"
-    echo "    Install Docker: https://docs.docker.com/get-docker/"
+    log_info "    Install Docker: https://docs.docker.com/get-docker/"
     exit 1
   fi
   log_info "docker found ($(docker --version))"
@@ -119,9 +119,15 @@ check_prerequisites() {
   fi
   log_info "git found ($(git --version))"
 
+  if ! command -v make >/dev/null 2>&1; then
+    log_err "make is not installed"
+    exit 1
+  fi
+  log_info "make found ($(make --version | head -n 1))"
+
   if ! docker info >/dev/null 2>&1; then
     log_err "Docker daemon is not running"
-    echo "    Start Docker Desktop (macOS) or the docker service (Linux)"
+    log_info "    Start Docker Desktop (macOS) or the docker service (Linux)"
     exit 1
   fi
   log_info "Docker daemon is running"
@@ -208,7 +214,7 @@ setup_env() {
   fi
 
   if [ "${RUN_MIGRATE}" = true ]; then
-    echo "    Running migrate-from-submodules..."
+    log_info "    Running migrate-from-submodules..."
     "${SCRIPT_DIR}/migrate-from-submodules"
     log_info "Migration complete"
   fi
@@ -223,7 +229,7 @@ setup_env() {
   if [ -z "${PMM_VERSION:-}" ]; then
     log_warn "PMM_VERSION is empty in .env"
     if [ "${RUN_MIGRATE}" = false ]; then
-      echo "    Run with --migrate to populate from pmm-submodules, or edit .env manually"
+      log_info "    Run with --migrate to populate from pmm-submodules, or edit .env manually"
     fi
   fi
 }
@@ -236,8 +242,8 @@ populate_cache() {
     return
   fi
 
-  log_step 4 "Populating repository cache"
-  echo "    This clones 14 bare repos from upstream (first run may take a while)..."
+  log_step 4 "Populating repository cache..."
+  log_info "    This clones 14 bare repos from upstream (first run may take a while)"
   make -C "${PIPELINE_DIR}" populate-cache
 }
 
@@ -255,8 +261,8 @@ run_build() {
 # ── Main ────────────────────────────────────────────────────────────────────
 
 main() {
-  echo "PMM Build Pipeline Bootstrap"
-  echo "============================"
+  log_info "PMM Build Pipeline Bootstrap"
+  log_info "============================"
 
   check_prerequisites
   download_build_files
@@ -265,11 +271,11 @@ main() {
   run_build
 
   echo ""
-  echo "Bootstrap complete!"
-  echo "You can now run builds with:"
-  echo "  cd ${PIPELINE_DIR} && make client   # build PMM Client"
-  echo "  cd ${PIPELINE_DIR} && make server   # build PMM Server"
-  echo "  cd ${PIPELINE_DIR} && make all      # build everything"
+  log_info "Bootstrap complete!"
+  log_info "You can now run builds with:"
+  log_info "  cd ${PIPELINE_DIR} && make client   # build PMM Client"
+  log_info "  cd ${PIPELINE_DIR} && make server   # build PMM Server"
+  log_info "  cd ${PIPELINE_DIR} && make all      # build everything"
 }
 
 main "$@"
