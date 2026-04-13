@@ -187,11 +187,24 @@ download_build_files() {
   # Copy build scripts.
   mkdir -p "${SCRIPT_DIR}"
   for f in build-component build-client-docker package-tarball \
-    generate-version-json check-build-cache manage-cache migrate-from-submodules; do
+    generate-version-json check-build-cache manage-cache migrate-from-submodules \
+    build-pmm-managed build-pmm-dump build-grafana-go build-grafana-ui \
+    build-victoriametrics build-pmm-dashboards build-pmm-ui; do
     if [ ! -f "${SCRIPT_DIR}/${f}" ]; then
       cp "${src}/pipeline/scripts/${f}" "${SCRIPT_DIR}/${f}"
       chmod +x "${SCRIPT_DIR}/${f}"
       log_info "Installed scripts/${f}"
+    fi
+  done
+
+  # Copy in-container entrypoint scripts used by the server-component builds.
+  mkdir -p "${SCRIPT_DIR}/entrypoints"
+  for f in build-pmm-managed build-pmm-dump build-grafana-go build-grafana-ui \
+    build-victoriametrics build-pmm-dashboards build-pmm-ui; do
+    if [ ! -f "${SCRIPT_DIR}/entrypoints/${f}" ]; then
+      cp "${src}/pipeline/scripts/entrypoints/${f}" "${SCRIPT_DIR}/entrypoints/${f}"
+      chmod +x "${SCRIPT_DIR}/entrypoints/${f}"
+      log_info "Installed scripts/entrypoints/${f}"
     fi
   done
 

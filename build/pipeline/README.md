@@ -242,13 +242,29 @@ After bootstrap, `~/build/` (or your chosen directory) contains everything:
 ├── .env.example                  # Template for .env
 ├── .env                          # Component URLs, refs, PMM_VERSION
 ├── scripts/
-│   ├── build-component           # Component build script
+│   ├── bootstrap                 # Sets up PIPELINE_DIR from a fresh checkout
+│   ├── build-component           # Client/workspace component build script
 │   ├── build-client-docker       # Client Docker build script
+│   ├── build-grafana-go          # Server: Grafana Go binaries
+│   ├── build-grafana-ui          # Server: Grafana UI assets
+│   ├── build-pmm-dashboards      # Server: PMM dashboards + Grafana plugins
+│   ├── build-pmm-dump            # Server: pmm-dump binary
+│   ├── build-pmm-managed         # Server: pmm-managed + qan-api2 + vmproxy
+│   ├── build-pmm-ui              # Server: PMM UI assets
+│   ├── build-victoriametrics     # Server: victoria-metrics-pure + vmalert-pure
 │   ├── check-build-cache         # Stamp-based build cache check
 │   ├── generate-version-json     # Writes version metadata JSON
+│   ├── manage-cache              # Populate/update/sync bare-repo cache
 │   ├── migrate-from-submodules   # Populates .env from pmm-submodules
 │   ├── package-tarball           # Tarball packaging script
-│   └── install_tarball           # Client installation script (packaged into tarball)
+│   └── entrypoints/              # In-container build steps for each server component
+│       ├── build-grafana-go
+│       ├── build-grafana-ui
+│       ├── build-pmm-dashboards
+│       ├── build-pmm-dump
+│       ├── build-pmm-managed
+│       ├── build-pmm-ui
+│       └── build-victoriametrics
 ├── ansible/                      # Ansible playbooks (for server image)
 ├── docker/                       # Docker entrypoints and support files
 ├── packages/                     # Packaging configs (systemd, deb, rpm)
