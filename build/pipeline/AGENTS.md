@@ -311,9 +311,9 @@ the required refs. `make sync-cache` does a full fetch with pruning across all r
 
 ### Artifact Caching (Stamp Files)
 
-Each non-monorepo component stores its resolved commit hash in `.cache/stamps/<component>.hash` after a successful build. On the next run, `scripts/check-build-cache` compares the current ref's commit hash against the stamp; if they match and the output directory is non-empty, the build is skipped.
+Each cacheable component stores a resolved hash in `.cache/stamps/<component>.hash` after a successful build. On the next run, `scripts/check-build-cache` recomputes the hash and compares it against the stamp; if they match and the output directory is non-empty, the build is skipped. By default the hash is the commit SHA of the component ref. Components living inside a monorepo can pass one or more subpaths as trailing arguments to `check-build-cache`, in which case the cache key becomes the colon-joined git tree/blob hashes of `REF:<subpath>` — so unrelated commits to the repo do not invalidate the cache. `pmm-ui` is keyed on the `ui/` subtree; `pmm-dashboards` is keyed on the `dashboards/` subtree plus the RPM spec that pins the Grafana plugin versions.
 
-- **Server**: pmm-dump, grafana-go, grafana-ui, victoriametrics, pmm-dashboards, pmm-ui use stamp-based caching. pmm-managed always rebuilds (monorepo — path-aware caching planned separately).
+- **Server**: pmm-dump, grafana-go, grafana-ui, victoriametrics use commit-hash caching. pmm-ui and pmm-dashboards use subtree-hash caching within the pmm monorepo. pmm-managed always rebuilds (monorepo — path-aware caching planned separately).
 - **Client**: All external components (exporters, vmagent, nomad, percona-toolkit) use stamp-based caching. Workspace components (pmm-admin, pmm-agent) always rebuild (monorepo).
 
 Cache is persistent across builds. Clear with:

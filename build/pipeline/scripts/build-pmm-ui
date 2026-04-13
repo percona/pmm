@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Build PMM UI assets into output/server/pmm-ui/.
-# Skips the build if the commit for PMM_UI_REF has not changed since the last run.
+# Skips the build if the content of the ui/ subtree at PMM_UI_REF has not
+# changed since the last run. Uses the git tree hash of ui/ (not the commit
+# hash), so commits that don't touch ui/ do not invalidate the cache.
 
 set -euo pipefail
 
@@ -27,8 +29,11 @@ COMPONENT="pmm-ui"
 BARE="${REPO_CACHE_DIR}/pmm.git"
 OUTPUT="${SERVER_OUTPUT_DIR}/${COMPONENT}"
 ENTRYPOINT="${SCRIPT_DIR}/entrypoints/build-${COMPONENT}"
+# pmm-ui lives inside the pmm monorepo; key the cache on the ui/ tree hash so
+# unrelated commits to the repo don't force a rebuild.
+SUBPATH="ui"
 
-if ! "${SCRIPT_DIR}/check-build-cache" "${COMPONENT}" "${PMM_UI_REF}" "${BARE}" "${OUTPUT}" "${STAMP_DIR}"; then
+if ! "${SCRIPT_DIR}/check-build-cache" "${COMPONENT}" "${PMM_UI_REF}" "${BARE}" "${OUTPUT}" "${STAMP_DIR}" "${SUBPATH}"; then
   exit 0
 fi
 
@@ -47,6 +52,6 @@ docker run --rm \
   -e REF="${PMM_UI_REF}" \
   node:22 bash /entrypoint.sh
 
-hash="$(git -C "${BARE}" rev-parse "${PMM_UI_REF}^{commit}" 2>/dev/null || echo "${PMM_UI_REF}")"
+hash="$(git -C "${BARE}" rev-parse "${PMM_UI_REF}:${SUBPATH}" 2>/dev/null || echo "${PMM_UI_REF}")"
 mkdir -p "${STAMP_DIR}"
 echo "${hash}" >"${STAMP_DIR}/${COMPONENT}.hash"

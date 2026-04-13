@@ -225,7 +225,7 @@ download_build_files() {
 
   rm -rf "${tmpdir}"
   trap - EXIT
-  log_info " Build files downloaded"
+  log_info "  Build files downloaded"
 }
 
 # ── Step 3: .env setup ─────────────────────────────────────────────────────

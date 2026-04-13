@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # Build PMM dashboards + Grafana plugins into output/server/pmm-dashboards/.
-# Skips the build if the commit for PMM_DASHBOARDS_REF has not changed since the last run.
+# Skips the build if the content of the dashboards/ subtree and the plugin
+# version spec file at PMM_DASHBOARDS_REF have not changed since the last run.
+# Uses git tree/blob hashes (not the commit hash) so commits that don't touch
+# these paths do not invalidate the cache.
 
 set -euo pipefail
 
@@ -34,8 +37,13 @@ COMPONENT="pmm-dashboards"
 BARE="${REPO_CACHE_DIR}/pmm.git"
 OUTPUT="${SERVER_OUTPUT_DIR}/${COMPONENT}"
 ENTRYPOINT="${SCRIPT_DIR}/entrypoints/build-${COMPONENT}"
+# pmm-dashboards lives inside the pmm monorepo. Key the cache on:
+#   - the dashboards/ subtree (main build inputs), and
+#   - the RPM spec file that supplies the Grafana plugin versions (so a bump
+#     to CLICKHOUSE_DATASOURCE_VERSION / POLYSTAT_PANEL_VERSION invalidates).
+SUBPATHS=(dashboards build/packages/rpm/server/SPECS/percona-dashboards.spec)
 
-if ! "${SCRIPT_DIR}/check-build-cache" "${COMPONENT}" "${PMM_DASHBOARDS_REF}" "${BARE}" "${OUTPUT}" "${STAMP_DIR}"; then
+if ! "${SCRIPT_DIR}/check-build-cache" "${COMPONENT}" "${PMM_DASHBOARDS_REF}" "${BARE}" "${OUTPUT}" "${STAMP_DIR}" "${SUBPATHS[@]}"; then
   exit 0
 fi
 
@@ -57,6 +65,10 @@ docker run --rm \
   -e HOST_ARCH="${HOST_ARCH}" \
   node:22 bash /entrypoint.sh
 
-hash="$(git -C "${BARE}" rev-parse "${PMM_DASHBOARDS_REF}^{commit}" 2>/dev/null || echo "${PMM_DASHBOARDS_REF}")"
+parts=()
+for p in "${SUBPATHS[@]}"; do
+  parts+=("$(git -C "${BARE}" rev-parse "${PMM_DASHBOARDS_REF}:${p}" 2>/dev/null || echo "${PMM_DASHBOARDS_REF}")")
+done
+hash=$(IFS=:; echo "${parts[*]}")
 mkdir -p "${STAMP_DIR}"
 echo "${hash}" >"${STAMP_DIR}/${COMPONENT}.hash"

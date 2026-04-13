@@ -6,7 +6,7 @@
 # If both match AND the output directory is non-empty, the build can be skipped.
 #
 # Usage:
-#   check-build-cache <component> <ref> <bare-repo-path> <output-dir> <stamp-dir>
+#   check-build-cache <component> <ref> <bare-repo-path> <output-dir> <stamp-dir> [subpath...]
 #
 # Arguments:
 #   component     Component name             (e.g. "pmm-dump", "node_exporter")
@@ -14,6 +14,13 @@
 #   bare-repo     Path to the local bare repo (e.g. .cache/repos/grafana.git)
 #   output-dir    Component output directory  (e.g. output/server/grafana-ui)
 #   stamp-dir     Directory for stamp files   (e.g. .cache/stamps)
+#   subpath...    Optional: one or more paths within the repo. When provided,
+#                 the cache key is built from the git tree/blob hashes of
+#                 REF:<subpath> for each path (joined with ':'), instead of the
+#                 commit hash. Useful for components living inside a monorepo
+#                 (e.g. "ui" for pmm-ui, or "dashboards" plus a version spec
+#                 file for pmm-dashboards), so unrelated commits to the repo
+#                 do not invalidate the cache.
 #
 # Exit codes:
 #   0 — build is needed  (cache miss, missing output, or changed hash)
@@ -26,6 +33,8 @@ REF="$2"
 BARE_REPO="$3"
 OUTPUT_DIR="$4"
 STAMP_DIR="$5"
+shift 5
+SUBPATHS=("$@")
 
 STAMP_FILE="${STAMP_DIR}/${COMPONENT}.hash"
 
@@ -41,16 +50,34 @@ if [ ! -f "$STAMP_FILE" ]; then
   exit 0
 fi
 
-# Resolve the ref to a full commit hash using the local bare repo.
+# Resolve the ref to a hash using the local bare repo.
+# - Without SUBPATHS: the commit hash of REF (whole-repo cache key).
+# - With SUBPATHS:    for each path, resolve REF:<path> to its tree/blob hash
+#                     and join the results with ':'. The result changes iff
+#                     any of those paths' contents change at the given ref.
 # When REF is empty (not set in .env), fall back to HEAD of the bare repo —
 # consistent with what `git checkout` (no argument) does in the build containers.
 CURRENT_HASH=""
 if [ -d "$BARE_REPO" ]; then
-  if [ -n "$REF" ]; then
-    CURRENT_HASH=$(git -C "$BARE_REPO" rev-parse "${REF}^{commit}" 2>/dev/null || echo "")
-  fi
-  if [ -z "$CURRENT_HASH" ]; then
-    CURRENT_HASH=$(git -C "$BARE_REPO" rev-parse HEAD 2>/dev/null || echo "")
+  resolve_ref="${REF:-HEAD}"
+  if [ "${#SUBPATHS[@]}" -gt 0 ]; then
+    parts=()
+    for p in "${SUBPATHS[@]}"; do
+      h=$(git -C "$BARE_REPO" rev-parse "${resolve_ref}:${p}" 2>/dev/null || echo "")
+      if [ -z "$h" ]; then
+        echo "[$COMPONENT] Could not resolve path '${p}' at ref '${resolve_ref}' — building." >&2
+        exit 0
+      fi
+      parts+=("$h")
+    done
+    CURRENT_HASH=$(IFS=:; echo "${parts[*]}")
+  else
+    if [ -n "$REF" ]; then
+      CURRENT_HASH=$(git -C "$BARE_REPO" rev-parse "${REF}^{commit}" 2>/dev/null || echo "")
+    fi
+    if [ -z "$CURRENT_HASH" ]; then
+      CURRENT_HASH=$(git -C "$BARE_REPO" rev-parse HEAD 2>/dev/null || echo "")
+    fi
   fi
 else
   CURRENT_HASH="$REF"
