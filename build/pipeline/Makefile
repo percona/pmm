@@ -227,6 +227,15 @@ builder-image:
 		.
 	@echo "pmm-builder image built successfully"
 
+# Re-invoke a top-level build target with logging enabled, time the run, and
+# print "<target> completed in HH:MM:SS" at the finish line (always — even on
+# failure). Pipefail is on (.SHELLFLAGS), so the inner make's exit status is
+# preserved.
+# Usage: $(call time_target,build-client)
+define time_target
+@set -o pipefail; : > "$(LOG_FILE)"; start=$$(date +%s); $(MAKE) LOGGING=1 $(1) 2>&1 | tee -a "$(LOG_FILE)"; status=$$?; elapsed=$$(($$(date +%s) - start)); printf '\n$(1) completed in %02d:%02d:%02d (hh:mm:ss)\n' $$((elapsed/3600)) $$(((elapsed%3600)/60)) $$((elapsed%60)) | tee -a "$(LOG_FILE)"; exit $$status
+endef
+
 # Component validation
 define check_component
 	@if [ -z "$(COMPONENT)" ]; then \
@@ -256,8 +265,7 @@ build-arm64:
 
 build-client:
 ifeq ($(LOGGING),)
-	@: > "$(LOG_FILE)"
-	@$(MAKE) LOGGING=1 build-client 2>&1 | tee -a "$(LOG_FILE)"
+	$(call time_target,build-client)
 else
 	@echo "Building PMM Client..."
 	@echo ""
@@ -296,8 +304,7 @@ build-client-tarball:
 # Build PMM Server (Docker image with all server components)
 build-server:
 ifeq ($(LOGGING),)
-	@: > "$(LOG_FILE)"
-	@$(MAKE) LOGGING=1 build-server 2>&1 | tee -a "$(LOG_FILE)"
+	$(call time_target,build-server)
 else
 	@$(MAKE) update-cache
 	@$(MAKE) build-server-components
@@ -313,8 +320,7 @@ endif
 # Build all components (client + server)
 build-all:
 ifeq ($(LOGGING),)
-	@: > "$(LOG_FILE)"
-	@$(MAKE) LOGGING=1 build-all 2>&1 | tee -a "$(LOG_FILE)"
+	$(call time_target,build-all)
 else
 	@echo "Building all PMM components (client + server)..."
 	@$(MAKE) build-client
