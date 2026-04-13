@@ -187,7 +187,7 @@ download_build_files() {
   # Copy build scripts.
   mkdir -p "${SCRIPT_DIR}"
   for f in build-component build-client-docker package-tarball \
-    generate-version-json check-build-cache migrate-from-submodules; do
+    generate-version-json check-build-cache manage-cache migrate-from-submodules; do
     if [ ! -f "${SCRIPT_DIR}/${f}" ]; then
       cp "${src}/pipeline/scripts/${f}" "${SCRIPT_DIR}/${f}"
       chmod +x "${SCRIPT_DIR}/${f}"

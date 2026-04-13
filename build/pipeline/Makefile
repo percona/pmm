@@ -155,6 +155,8 @@ BUILD_CACHE_VOL   ?= pmm-build
 YARN_CACHE_VOL    ?= pmm-yarn
 SERVER_OUTPUT_DIR := $(PIPELINE_DIR)/output/server
 
+export ALL_REPO_URLS
+export REPO_FETCH_REFS
 export LOG_FILE
 export PMM_VERSION
 export BUILD_TYPE
@@ -332,60 +334,18 @@ all: build-all
 # Fetch required refs from upstream into local bare repos.
 # Runs populate-cache first if the cache directory is missing.
 update-cache:
-	@if [ ! -d "$(REPO_CACHE_DIR)" ]; then \
-		echo "Cache directory not found, running populate-cache first..."; \
-		$(MAKE) populate-cache; \
-	fi
-	@echo "Fetching required refs from upstream..."
-	@for item in $(REPO_FETCH_REFS); do \
-		repo=$${item%%=*}; \
-		ref=$${item##*=}; \
-		dest="$(REPO_CACHE_DIR)/$$repo"; \
-		[ -d "$$dest" ] || continue; \
-		git -C "$$dest" config remote.origin.fetch '+refs/heads/*:refs/heads/*' 2>/dev/null || true; \
-		echo "  $$repo: fetching $$ref..."; \
-		git -C "$$dest" fetch --force origin "+$$ref:$$ref" || { echo "Error: failed to fetch $$ref from $$repo"; exit 1; }; \
-	done
-	@echo "Cache update complete"
+	@$(PIPELINE_DIR)/scripts/manage-cache update
 
 # Prune stale branches from all bare repos, then fetch the refs listed in .env.
 # Run periodically to remove branches deleted from upstream without fetching every branch.
 sync-cache:
-	@if [ ! -d "$(REPO_CACHE_DIR)" ]; then \
-		echo "Cache directory not found, running populate-cache first..."; \
-		$(MAKE) populate-cache; \
-	fi
-	@echo "Pruning stale refs from bare repos..."
-	@for item in $(ALL_REPO_URLS); do \
-		name=$${item%%=*}; \
-		dest="$(REPO_CACHE_DIR)/$$name"; \
-		[ -d "$$dest" ] || continue; \
-		echo "  $$name: pruning stale refs..."; \
-		git -C "$$dest" remote prune origin || { echo "Error: failed to prune $$name"; exit 1; }; \
-	done
-	@$(MAKE) update-cache
-	@echo "Sync complete"
+	@$(PIPELINE_DIR)/scripts/manage-cache sync
 
 # Clone any bare repos that are missing from the local cache directory.
 # Skips repos that already exist. Useful for first-time setup or when adding new components.
 # Run 'make update-cache' afterwards to fetch latest commits.
 populate-cache:
-	@echo "Populating bare-repo cache from upstream (skipping repos that already exist)..."
-	@mkdir -p $(REPO_CACHE_DIR)
-	@for item in $(ALL_REPO_URLS); do \
-		name=$${item%%=*}; \
-		url=$${item##*=}; \
-		dest="$(REPO_CACHE_DIR)/$$name"; \
-		if [ -d "$$dest" ]; then \
-			echo "  $$name — already exists, skipping"; \
-		else \
-			echo "Cloning $$name from $$url ..."; \
-			git clone --bare "$$url" "$$dest"; \
-			git -C "$$dest" config remote.origin.fetch '+refs/heads/*:refs/heads/*'; \
-			mkdir -p "$$dest/refs/heads" "$$dest/refs/tags" "$$dest/refs/remotes"; \
-		fi; \
-	done
-	@echo "Cache populated. Run 'make update-cache' to fetch latest commits."
+	@$(PIPELINE_DIR)/scripts/manage-cache populate
 
 # Clean local cache
 clean-cache:

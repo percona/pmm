@@ -1,0 +1,136 @@
+#!/usr/bin/env bash
+# manage-cache — populate, update, and sync the bare-repo build cache.
+#
+# Usage: manage-cache <populate|update|sync>
+#
+# Required environment variables:
+#   REPO_CACHE_DIR    Path to the cache directory holding bare repos.
+#   ALL_REPO_URLS     Space-separated list of "<bare-dir>=<clone-url>" pairs.
+#   REPO_FETCH_REFS   Space-separated list of "<bare-dir>=<ref>" pairs
+#                     (only required for `update` and `sync`).
+
+set -euo pipefail
+
+log_info() { echo "Info: $*"; }
+log_err()  { echo "Error: $*" >&2; }
+
+require_env() {
+  local var="$1"
+  if [ -z "${!var:-}" ]; then
+    log_err "${var} is not set"
+    exit 1
+  fi
+}
+
+# populate — clone any bare repos that are missing from the cache directory.
+# Skips repos that already exist. Safe to re-run.
+populate() {
+  require_env REPO_CACHE_DIR
+  require_env ALL_REPO_URLS
+
+  log_info "Populating bare-repo cache from upstream (skipping repos that already exist)..."
+  mkdir -p "${REPO_CACHE_DIR}"
+
+  local item name url dest
+  for item in ${ALL_REPO_URLS}; do
+    name=${item%%=*}
+    url=${item##*=}
+    dest="${REPO_CACHE_DIR}/${name}"
+    if [ -d "${dest}" ]; then
+      log_info "  ${name} — already exists, skipping"
+      continue
+    fi
+    log_info "Cloning ${name} from ${url} ..."
+    git clone --bare "${url}" "${dest}"
+    git -C "${dest}" config remote.origin.fetch '+refs/heads/*:refs/heads/*'
+    mkdir -p "${dest}/refs/heads" "${dest}/refs/tags" "${dest}/refs/remotes"
+  done
+  log_info "Cache populated. Run 'make update-cache' to fetch latest commits."
+}
+
+# update — fetch required refs from upstream into the local bare repos.
+# Auto-runs populate first if the cache directory is missing.
+# Resolves each ref to refs/heads/<ref> or refs/tags/<ref> on the remote so
+# branches and annotated tags both land in the correct local namespace, and
+# uses --force so force-pushed branches still update cleanly.
+update() {
+  require_env REPO_CACHE_DIR
+  require_env REPO_FETCH_REFS
+
+  if [ ! -d "${REPO_CACHE_DIR}" ]; then
+    log_info "Cache directory not found, running populate first..."
+    populate
+  fi
+
+  log_info "Fetching required refs from upstream..."
+  local item repo ref dest remote_ref
+  for item in ${REPO_FETCH_REFS}; do
+    repo=${item%%=*}
+    ref=${item##*=}
+    dest="${REPO_CACHE_DIR}/${repo}"
+    [ -d "${dest}" ] || continue
+
+    git -C "${dest}" config remote.origin.fetch '+refs/heads/*:refs/heads/*' 2>/dev/null || true
+
+    log_info "  ${repo}: fetching ${ref}..."
+    remote_ref=$(git -C "${dest}" ls-remote --refs origin "refs/heads/${ref}" "refs/tags/${ref}" 2>/dev/null | awk '{print $2}' | head -1)
+    if [ -z "${remote_ref}" ]; then
+      log_err "ref ${ref} not found in ${repo} (no matching branch or tag)"
+      exit 1
+    fi
+    if ! git -C "${dest}" fetch --force origin "+${remote_ref}:${remote_ref}"; then
+      log_err "failed to fetch ${ref} from ${repo}"
+      exit 1
+    fi
+  done
+  log_info "Cache update complete"
+}
+
+# sync — prune stale refs from every bare repo, then run update.
+# Used to remove branches that have been deleted upstream without fetching
+# every branch on every build.
+sync() {
+  require_env REPO_CACHE_DIR
+  require_env ALL_REPO_URLS
+
+  if [ ! -d "${REPO_CACHE_DIR}" ]; then
+    log_info "Cache directory not found, running populate first..."
+    populate
+  fi
+
+  log_info "Pruning stale refs from bare repos..."
+  local item name dest
+  for item in ${ALL_REPO_URLS}; do
+    name=${item%%=*}
+    dest="${REPO_CACHE_DIR}/${name}"
+    [ -d "${dest}" ] || continue
+    log_info "  ${name}: pruning stale refs..."
+    if ! git -C "${dest}" remote prune origin; then
+      log_err "failed to prune ${name}"
+      exit 1
+    fi
+  done
+
+  update
+  log_info "Sync complete"
+}
+
+main() {
+  if [ $# -ne 1 ]; then
+    echo "Usage: $(basename "$0") <populate|update|sync>" >&2
+    exit 1
+  fi
+
+  case "$1" in
+    populate) populate ;;
+    update)   update ;;
+    sync)     sync ;;
+    *)
+      log_err "unknown subcommand: $1"
+      echo "Usage: $(basename "$0") <populate|update|sync>" >&2
+      exit 1
+      ;;
+  esac
+}
+
+main "$@"
