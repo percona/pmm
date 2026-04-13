@@ -1,0 +1,27 @@
+#!/bin/bash
+# Entrypoint for building Grafana Go binaries inside a container.
+# Runs inside golang:* with /repos/grafana.git mounted read-only and /output writable.
+#
+# Required env vars:
+#   REF     git ref to checkout
+#   GOARCH  target Go architecture (amd64 or arm64)
+
+set -euo pipefail
+
+: "${REF:?REF is required}"
+: "${GOARCH:?GOARCH is required}"
+
+git config --global --add safe.directory /repos/grafana.git
+git clone /repos/grafana.git /build/grafana
+cd /build/grafana
+git checkout "${REF}"
+
+# Replace the default "unknown-dev" version marker with the real Grafana version.
+sed -i 's/unknown-dev/11.6.4/' pkg/build/git.go
+
+make build-go
+
+cp "bin/linux-${GOARCH}/grafana-server" \
+   "bin/linux-${GOARCH}/grafana" \
+   "bin/linux-${GOARCH}/grafana-cli" \
+   /output/

@@ -429,195 +429,25 @@ ensure-build-volumes:
 # ---------------------------------------------------------------------------
 
 build-pmm-managed: ensure-pmm-builder ensure-build-volumes
-	@if $(PIPELINE_DIR)/scripts/check-build-cache \
-	    "pmm-managed" "$(PMM_REF)" \
-	    "$(REPO_CACHE_DIR)/pmm.git" \
-	    "$(SERVER_OUTPUT_DIR)/pmm-managed" \
-	    "$(STAMP_DIR)"; then \
-	  echo "Building pmm-managed binaries..."; \
-	  mkdir -p \
-		$(SERVER_OUTPUT_DIR)/pmm-managed/bin \
-		$(SERVER_OUTPUT_DIR)/pmm-managed/data/swagger \
-		$(SERVER_OUTPUT_DIR)/pmm-managed/data/advisors \
-		$(SERVER_OUTPUT_DIR)/pmm-managed/data/checks \
-		$(SERVER_OUTPUT_DIR)/pmm-managed/data/alerting-templates; \
-	  docker run --rm \
-		--platform linux/$(HOST_ARCH) \
-		-v $(REPO_CACHE_DIR)/pmm.git:/repos/pmm.git:ro \
-		-v $(SERVER_OUTPUT_DIR)/pmm-managed:/output \
-		-v $(GOMOD_CACHE_VOL):/go/pkg/mod \
-		-v $(BUILD_CACHE_VOL):/root/.cache/go-build \
-		-e GOCACHE=/root/.cache/go-build \
-		-e GOARCH=$(GOARCH) \
-		-e PMM_RELEASE_VERSION=$(PMM_VERSION) \
-		pmm-builder:latest bash -c "\
-			set -e; git config --global --add safe.directory /repos/pmm.git; \
-			git clone /repos/pmm.git /build/pmm; \
-			cd /build/pmm; git checkout $(PMM_REF); \
-			make -C managed release GOARCH=$(GOARCH); \
-			cd /build/pmm/qan-api2 && make release GOARCH=$(GOARCH); \
-			cd /build/pmm/vmproxy && make release GOARCH=$(GOARCH); \
-			cp /build/pmm/bin/pmm-managed /build/pmm/bin/pmm-encryption-rotation \
-			   /build/pmm/bin/pmm-managed-init /build/pmm/bin/pmm-managed-starlark \
-			   /build/pmm/bin/qan-api2 /build/pmm/bin/vmproxy /output/bin/; \
-			cp -r /build/pmm/api/swagger/. /output/data/swagger/; \
-			cp /build/pmm/managed/data/advisors/*.yml /output/data/advisors/; \
-			cp /build/pmm/managed/data/checks/*.yml /output/data/checks/; \
-			cp /build/pmm/managed/data/alerting-templates/*.yml /output/data/alerting-templates/"; \
-	  hash=$$(git -C "$(REPO_CACHE_DIR)/pmm.git" rev-parse "$(PMM_REF)^{commit}" 2>/dev/null || echo "$(PMM_REF)"); \
-	  mkdir -p "$(STAMP_DIR)"; echo "$$hash" > "$(STAMP_DIR)/pmm-managed.hash"; \
-	fi
+	@$(PIPELINE_DIR)/scripts/build-pmm-managed
 
 build-pmm-dump: ensure-pmm-builder ensure-build-volumes
-	@if $(PIPELINE_DIR)/scripts/check-build-cache \
-	    "pmm-dump" "$(PMM_DUMP_REF)" \
-	    "$(REPO_CACHE_DIR)/pmm-dump.git" \
-	    "$(SERVER_OUTPUT_DIR)/pmm-dump" \
-	    "$(STAMP_DIR)"; then \
-	  echo "Building pmm-dump binary..."; \
-	  mkdir -p $(SERVER_OUTPUT_DIR)/pmm-dump; \
-	  docker run --rm \
-	    --platform linux/$(HOST_ARCH) \
-	    -v $(REPO_CACHE_DIR)/pmm-dump.git:/repos/pmm-dump.git:ro \
-	    -v $(SERVER_OUTPUT_DIR)/pmm-dump:/output \
-	    -v $(GOMOD_CACHE_VOL):/go/pkg/mod \
-	    -v $(BUILD_CACHE_VOL):/root/.cache/go-build \
-	    -e GOCACHE=/root/.cache/go-build \
-	    -e GOARCH=$(GOARCH) \
-	    pmm-builder:latest bash -c "\
-	      set -e; git config --global --add safe.directory /repos/pmm-dump.git; \
-	      git clone /repos/pmm-dump.git /build/pmm-dump; \
-	      cd /build/pmm-dump; git checkout $(PMM_DUMP_REF); \
-	      CGO_ENABLED=0 GOOS=linux GOARCH=$(GOARCH) make build; \
-	      cp pmm-dump /output/"; \
-	  hash=$$(git -C "$(REPO_CACHE_DIR)/pmm-dump.git" rev-parse "$(PMM_DUMP_REF)^{commit}" 2>/dev/null || echo "$(PMM_DUMP_REF)"); \
-	  mkdir -p "$(STAMP_DIR)"; echo "$$hash" > "$(STAMP_DIR)/pmm-dump.hash"; \
-	fi
+	@$(PIPELINE_DIR)/scripts/build-pmm-dump
 
 build-grafana-go: ensure-build-volumes
-	@if $(PIPELINE_DIR)/scripts/check-build-cache \
-	    "grafana-go" "$(GRAFANA_REF)" \
-	    "$(REPO_CACHE_DIR)/grafana.git" \
-	    "$(SERVER_OUTPUT_DIR)/grafana-go" \
-	    "$(STAMP_DIR)"; then \
-	  echo "Building Grafana Go binaries..."; \
-	  mkdir -p $(SERVER_OUTPUT_DIR)/grafana-go; \
-	  docker run --rm \
-	    --platform linux/$(GOARCH) \
-	    -v $(REPO_CACHE_DIR)/grafana.git:/repos/grafana.git:ro \
-	    -v $(SERVER_OUTPUT_DIR)/grafana-go:/output \
-	    -v $(GOMOD_CACHE_VOL):/go/pkg/mod \
-	    -v $(BUILD_CACHE_VOL):/root/.cache/go-build \
-	    -e GOCACHE=/root/.cache/go-build \
-	    -e GOARCH=$(GOARCH) \
-	    golang:$(GO_VERSION) bash -c "\
-	      set -e; git config --global --add safe.directory /repos/grafana.git; \
-	      git clone /repos/grafana.git /build/grafana; \
-	      cd /build/grafana; git checkout $(GRAFANA_REF); \
-	      sed -i 's/unknown-dev/11.6.4/' pkg/build/git.go; \
-	      make build-go; \
-	      cp bin/linux-$(GOARCH)/grafana-server bin/linux-$(GOARCH)/grafana bin/linux-$(GOARCH)/grafana-cli /output/"; \
-	  hash=$$(git -C "$(REPO_CACHE_DIR)/grafana.git" rev-parse "$(GRAFANA_REF)^{commit}" 2>/dev/null || echo "$(GRAFANA_REF)"); \
-	  mkdir -p "$(STAMP_DIR)"; echo "$$hash" > "$(STAMP_DIR)/grafana-go.hash"; \
-	fi
+	@$(PIPELINE_DIR)/scripts/build-grafana-go
 
 build-grafana-ui: ensure-build-volumes
-	@if $(PIPELINE_DIR)/scripts/check-build-cache \
-	    "grafana-ui" "$(GRAFANA_REF)" \
-	    "$(REPO_CACHE_DIR)/grafana.git" \
-	    "$(SERVER_OUTPUT_DIR)/grafana-ui" \
-	    "$(STAMP_DIR)"; then \
-	  echo "Building Grafana UI assets..."; \
-	  mkdir -p $(SERVER_OUTPUT_DIR)/grafana-ui; \
-	  docker run --rm \
-	    --platform linux/$(HOST_ARCH) \
-	    -v $(REPO_CACHE_DIR)/grafana.git:/repos/grafana.git:ro \
-	    -v $(SERVER_OUTPUT_DIR)/grafana-ui:/output \
-	    -v $(YARN_CACHE_VOL):/yarn-cache \
-	    -v $(PIPELINE_DIR)/scripts/entrypoints/build-grafana-ui:/entrypoint.sh:ro \
-	    -e YARN_CACHE_FOLDER=/yarn-cache \
-	    -e YARN_GLOBAL_FOLDER=/yarn-cache \
-	    -e NODE_OPTIONS="--max-old-space-size=8192" \
-	    -e REF=$(GRAFANA_REF) \
-	    node:22 bash /entrypoint.sh; \
-	  hash=$$(git -C "$(REPO_CACHE_DIR)/grafana.git" rev-parse "$(GRAFANA_REF)^{commit}" 2>/dev/null || echo "$(GRAFANA_REF)"); \
-	  mkdir -p "$(STAMP_DIR)"; echo "$$hash" > "$(STAMP_DIR)/grafana-ui.hash"; \
-	fi
+	@$(PIPELINE_DIR)/scripts/build-grafana-ui
 
 build-victoriametrics: ensure-pmm-builder ensure-build-volumes
-	@if $(PIPELINE_DIR)/scripts/check-build-cache \
-	    "victoriametrics" "$(VM_REF)" \
-	    "$(REPO_CACHE_DIR)/VictoriaMetrics.git" \
-	    "$(SERVER_OUTPUT_DIR)/victoriametrics" \
-	    "$(STAMP_DIR)"; then \
-	  echo "Building VictoriaMetrics binaries..."; \
-	  mkdir -p $(SERVER_OUTPUT_DIR)/victoriametrics; \
-	  docker run --rm \
-	    --platform linux/$(HOST_ARCH) \
-	    -v $(REPO_CACHE_DIR)/VictoriaMetrics.git:/repos/VictoriaMetrics.git:ro \
-	    -v $(SERVER_OUTPUT_DIR)/victoriametrics:/output \
-	    -v $(GOMOD_CACHE_VOL):/go/pkg/mod \
-	    -v $(BUILD_CACHE_VOL):/root/.cache/go-build \
-	    -e GOCACHE=/root/.cache/go-build \
-	    -e GOARCH=$(GOARCH) \
-	    pmm-builder:latest bash -c "\
-	      set -e; git config --global --add safe.directory /repos/VictoriaMetrics.git; \
-	      git clone /repos/VictoriaMetrics.git /build/VictoriaMetrics; \
-	      cd /build/VictoriaMetrics; git checkout $(VM_REF); \
-	      make victoria-metrics-pure vmalert-pure PKG_TAG=$(VM_REF) BUILDINFO_TAG=$(VM_REF); \
-	      cp bin/victoria-metrics-pure bin/vmalert-pure /output/"; \
-	  hash=$$(git -C "$(REPO_CACHE_DIR)/VictoriaMetrics.git" rev-parse "$(VM_REF)^{commit}" 2>/dev/null || echo "$(VM_REF)"); \
-	  mkdir -p "$(STAMP_DIR)"; echo "$$hash" > "$(STAMP_DIR)/victoriametrics.hash"; \
-	fi
+	@$(PIPELINE_DIR)/scripts/build-victoriametrics
 
 build-pmm-dashboards: ensure-build-volumes
-	@if $(PIPELINE_DIR)/scripts/check-build-cache \
-	    "pmm-dashboards" "$(PMM_DASHBOARDS_REF)" \
-	    "$(REPO_CACHE_DIR)/pmm.git" \
-	    "$(SERVER_OUTPUT_DIR)/pmm-dashboards" \
-	    "$(STAMP_DIR)"; then \
-	  echo "Building PMM dashboards assets..."; \
-	  mkdir -p $(SERVER_OUTPUT_DIR)/pmm-dashboards; \
-	  docker run --rm \
-	    --platform linux/$(HOST_ARCH) \
-	    -v $(REPO_CACHE_DIR)/pmm.git:/repos/pmm.git:ro \
-	    -v $(SERVER_OUTPUT_DIR)/pmm-dashboards:/output \
-	    -v $(PIPELINE_DIR)/scripts/entrypoints/build-dashboards:/entrypoint.sh:ro \
-	    -v $(YARN_CACHE_VOL):/yarn-cache \
-	    -e YARN_CACHE_FOLDER=/yarn-cache \
-	    -e YARN_GLOBAL_FOLDER=/yarn-cache \
-	    -e NODE_OPTIONS="--max-old-space-size=8192" \
-	    -e REF=$(PMM_DASHBOARDS_REF) \
-	    -e CLICKHOUSE_DATASOURCE_VERSION=$(CLICKHOUSE_DATASOURCE_VERSION) \
-	    -e POLYSTAT_PANEL_VERSION=$(POLYSTAT_PANEL_VERSION) \
-	    -e HOST_ARCH=$(HOST_ARCH) \
-	    node:22 bash /entrypoint.sh; \
-	  hash=$$(git -C "$(REPO_CACHE_DIR)/pmm.git" rev-parse "$(PMM_DASHBOARDS_REF)^{commit}" 2>/dev/null || echo "$(PMM_DASHBOARDS_REF)"); \
-	  mkdir -p "$(STAMP_DIR)"; echo "$$hash" > "$(STAMP_DIR)/pmm-dashboards.hash"; \
-	fi
+	@$(PIPELINE_DIR)/scripts/build-pmm-dashboards
 
 build-pmm-ui: ensure-build-volumes
-	@if $(PIPELINE_DIR)/scripts/check-build-cache \
-	    "pmm-ui" "$(PMM_UI_REF)" \
-	    "$(REPO_CACHE_DIR)/pmm.git" \
-	    "$(SERVER_OUTPUT_DIR)/pmm-ui" \
-	    "$(STAMP_DIR)"; then \
-	  echo "Building PMM UI assets..."; \
-	  mkdir -p $(SERVER_OUTPUT_DIR)/pmm-ui; \
-	  docker run --rm \
-	    --platform linux/$(HOST_ARCH) \
-	    -v $(REPO_CACHE_DIR)/pmm.git:/repos/pmm.git:ro \
-	    -v $(SERVER_OUTPUT_DIR)/pmm-ui:/output \
-	    -v $(YARN_CACHE_VOL):/yarn-cache \
-	    -e YARN_CACHE_FOLDER=/yarn-cache \
-	    -e YARN_GLOBAL_FOLDER=/yarn-cache \
-	    -v $(PIPELINE_DIR)/scripts/entrypoints/build-ui:/entrypoint.sh:ro \
-	    -e NODE_OPTIONS="--max-old-space-size=8192" \
-	    -e REF=$(PMM_UI_REF) \
-	    node:22 bash /entrypoint.sh; \
-	  hash=$$(git -C "$(REPO_CACHE_DIR)/pmm.git" rev-parse "$(PMM_UI_REF)^{commit}" 2>/dev/null || echo "$(PMM_UI_REF)"); \
-	  mkdir -p "$(STAMP_DIR)"; echo "$$hash" > "$(STAMP_DIR)/pmm-ui.hash"; \
-	fi
+	@$(PIPELINE_DIR)/scripts/build-pmm-ui
 
 # ---------------------------------------------------------------------------
 # Orchestration: Go builds in parallel, then Node builds sequentially

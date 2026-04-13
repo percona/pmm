@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+# Build pmm-managed + qan-api2 + vmproxy binaries and data into output/server/pmm-managed/.
+# Skips the build if the commit for PMM_REF has not changed since the last run.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PIPELINE_DIR="$(dirname "${SCRIPT_DIR}")"
+
+# Source .env so the script is usable standalone (not just via make).
+if [ -f "${PIPELINE_DIR}/.env" ]; then
+  set -o allexport
+  # shellcheck disable=SC1091
+  source "${PIPELINE_DIR}/.env"
+  set +o allexport
+fi
+
+HOST_ARCH="$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')"
+GOARCH="${GOARCH:-${HOST_ARCH}}"
+PMM_VERSION="${PMM_VERSION:?PMM_VERSION must be set}"
+PMM_REF="${PMM_REF:?PMM_REF must be set}"
+
+CACHE_DIR="${CACHE_DIR:-${PIPELINE_DIR}/.cache}"
+REPO_CACHE_DIR="${REPO_CACHE_DIR:-${CACHE_DIR}/repos}"
+STAMP_DIR="${STAMP_DIR:-${CACHE_DIR}/stamps}"
+SERVER_OUTPUT_DIR="${SERVER_OUTPUT_DIR:-${PIPELINE_DIR}/output/server}"
+GOMOD_CACHE_VOL="${GOMOD_CACHE_VOL:-pmm-mod}"
+BUILD_CACHE_VOL="${BUILD_CACHE_VOL:-pmm-build}"
+
+COMPONENT="pmm-managed"
+BARE="${REPO_CACHE_DIR}/pmm.git"
+OUTPUT="${SERVER_OUTPUT_DIR}/${COMPONENT}"
+ENTRYPOINT="${SCRIPT_DIR}/entrypoints/build-${COMPONENT}"
+
+if ! "${SCRIPT_DIR}/check-build-cache" "${COMPONENT}" "${PMM_REF}" "${BARE}" "${OUTPUT}" "${STAMP_DIR}"; then
+  exit 0
+fi
+
+echo "Building ${COMPONENT} binaries..."
+mkdir -p \
+  "${OUTPUT}/bin" \
+  "${OUTPUT}/data/swagger" \
+  "${OUTPUT}/data/advisors" \
+  "${OUTPUT}/data/checks" \
+  "${OUTPUT}/data/alerting-templates"
+
+docker run --rm \
+  --platform "linux/${HOST_ARCH}" \
+  -v "${BARE}:/repos/pmm.git:ro" \
+  -v "${OUTPUT}:/output" \
+  -v "${GOMOD_CACHE_VOL}:/go/pkg/mod" \
+  -v "${BUILD_CACHE_VOL}:/root/.cache/go-build" \
+  -v "${ENTRYPOINT}:/entrypoint.sh:ro" \
+  -e GOCACHE=/root/.cache/go-build \
+  -e GOARCH="${GOARCH}" \
+  -e REF="${PMM_REF}" \
+  -e PMM_RELEASE_VERSION="${PMM_VERSION}" \
+  pmm-builder:latest bash /entrypoint.sh
+
+hash="$(git -C "${BARE}" rev-parse "${PMM_REF}^{commit}" 2>/dev/null || echo "${PMM_REF}")"
+mkdir -p "${STAMP_DIR}"
+echo "${hash}" >"${STAMP_DIR}/${COMPONENT}.hash"

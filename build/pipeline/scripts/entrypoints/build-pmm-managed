@@ -1,0 +1,36 @@
+#!/bin/bash
+# Entrypoint for building pmm-managed + qan-api2 + vmproxy inside a container.
+# Runs inside pmm-builder with /repos/pmm.git mounted read-only and /output writable.
+#
+# Required env vars:
+#   REF                   git ref to checkout
+#   GOARCH                target Go architecture (amd64 or arm64)
+#   PMM_RELEASE_VERSION   version string embedded in the binaries
+
+set -euo pipefail
+
+: "${REF:?REF is required}"
+: "${GOARCH:?GOARCH is required}"
+: "${PMM_RELEASE_VERSION:?PMM_RELEASE_VERSION is required}"
+
+git config --global --add safe.directory /repos/pmm.git
+git clone /repos/pmm.git /build/pmm
+cd /build/pmm
+git checkout "${REF}"
+
+make -C managed release GOARCH="${GOARCH}"
+cd /build/pmm/qan-api2 && make release GOARCH="${GOARCH}"
+cd /build/pmm/vmproxy && make release GOARCH="${GOARCH}"
+
+cp /build/pmm/bin/pmm-managed \
+   /build/pmm/bin/pmm-encryption-rotation \
+   /build/pmm/bin/pmm-managed-init \
+   /build/pmm/bin/pmm-managed-starlark \
+   /build/pmm/bin/qan-api2 \
+   /build/pmm/bin/vmproxy \
+   /output/bin/
+
+cp -r /build/pmm/api/swagger/. /output/data/swagger/
+cp /build/pmm/managed/data/advisors/*.yml /output/data/advisors/
+cp /build/pmm/managed/data/checks/*.yml /output/data/checks/
+cp /build/pmm/managed/data/alerting-templates/*.yml /output/data/alerting-templates/

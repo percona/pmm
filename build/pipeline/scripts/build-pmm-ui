@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# Build PMM UI assets into output/server/pmm-ui/.
+# Skips the build if the commit for PMM_UI_REF has not changed since the last run.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PIPELINE_DIR="$(dirname "${SCRIPT_DIR}")"
+
+if [ -f "${PIPELINE_DIR}/.env" ]; then
+  set -o allexport
+  # shellcheck disable=SC1091
+  source "${PIPELINE_DIR}/.env"
+  set +o allexport
+fi
+
+HOST_ARCH="$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')"
+PMM_UI_REF="${PMM_UI_REF:?PMM_UI_REF must be set}"
+
+CACHE_DIR="${CACHE_DIR:-${PIPELINE_DIR}/.cache}"
+REPO_CACHE_DIR="${REPO_CACHE_DIR:-${CACHE_DIR}/repos}"
+STAMP_DIR="${STAMP_DIR:-${CACHE_DIR}/stamps}"
+SERVER_OUTPUT_DIR="${SERVER_OUTPUT_DIR:-${PIPELINE_DIR}/output/server}"
+YARN_CACHE_VOL="${YARN_CACHE_VOL:-pmm-yarn}"
+
+COMPONENT="pmm-ui"
+BARE="${REPO_CACHE_DIR}/pmm.git"
+OUTPUT="${SERVER_OUTPUT_DIR}/${COMPONENT}"
+ENTRYPOINT="${SCRIPT_DIR}/entrypoints/build-${COMPONENT}"
+
+if ! "${SCRIPT_DIR}/check-build-cache" "${COMPONENT}" "${PMM_UI_REF}" "${BARE}" "${OUTPUT}" "${STAMP_DIR}"; then
+  exit 0
+fi
+
+echo "Building PMM UI assets..."
+mkdir -p "${OUTPUT}"
+
+docker run --rm \
+  --platform "linux/${HOST_ARCH}" \
+  -v "${BARE}:/repos/pmm.git:ro" \
+  -v "${OUTPUT}:/output" \
+  -v "${YARN_CACHE_VOL}:/yarn-cache" \
+  -v "${ENTRYPOINT}:/entrypoint.sh:ro" \
+  -e YARN_CACHE_FOLDER=/yarn-cache \
+  -e YARN_GLOBAL_FOLDER=/yarn-cache \
+  -e NODE_OPTIONS="--max-old-space-size=8192" \
+  -e REF="${PMM_UI_REF}" \
+  node:22 bash /entrypoint.sh
+
+hash="$(git -C "${BARE}" rev-parse "${PMM_UI_REF}^{commit}" 2>/dev/null || echo "${PMM_UI_REF}")"
+mkdir -p "${STAMP_DIR}"
+echo "${hash}" >"${STAMP_DIR}/${COMPONENT}.hash"
