@@ -15,7 +15,7 @@ if [ -n "${BASH_SOURCE[0]:-}" ] && [ -f "${BASH_SOURCE[0]}" ]; then
 else
   PIPELINE_DIR="${HOME}/build"
   if [ -d "${PIPELINE_DIR}" ] && [ -n "$(ls -A "${PIPELINE_DIR}")" ]; then
-    echo "Error: ${PIPELINE_DIR} already exists and is not empty. Remove it or run bootstrap from that directory." >&2
+    log_err "${PIPELINE_DIR} already exists and is not empty. Remove it or run bootstrap from that directory." >&2
     exit 1
   fi
   mkdir -p "${PIPELINE_DIR}"
@@ -63,7 +63,7 @@ while [ $# -gt 0 ]; do
       case "${BUILD_TARGET}" in
         client | server | all) ;;
         *)
-          log_error " --target must be one of: client, server, all" >&2
+          log_err "--target must be one of: client, server, all" >&2
           exit 1
           ;;
       esac
@@ -107,11 +107,11 @@ check_prerequisites() {
   log_step 1 "Checking prerequisites..."
 
   if ! command -v docker >/dev/null 2>&1; then
-    log_err "docker is not installed"
-    log_info "    Install Docker: https://docs.docker.com/get-docker/"
+    log_err "Docker is not installed"
+    log_info "Install Docker: https://docs.docker.com/get-docker/"
     exit 1
   fi
-  log_info "docker found ($(docker --version))"
+  log_info "Docker found ($(docker --version))"
 
   if ! command -v git >/dev/null 2>&1; then
     log_err "git is not installed"
@@ -127,7 +127,7 @@ check_prerequisites() {
 
   if ! docker info >/dev/null 2>&1; then
     log_err "Docker daemon is not running"
-    log_info "    Start Docker Desktop (macOS) or the docker service (Linux)"
+    log_info "Start Docker Desktop (macOS) or the docker service (Linux)"
     exit 1
   fi
   log_info "Docker daemon is running"
@@ -214,7 +214,7 @@ setup_env() {
   fi
 
   if [ "${RUN_MIGRATE}" = true ]; then
-    log_info "    Running migrate-from-submodules..."
+    log_info "Running migrate-from-submodules..."
     "${SCRIPT_DIR}/migrate-from-submodules"
     log_info "Migration complete"
   fi
@@ -229,7 +229,7 @@ setup_env() {
   if [ -z "${PMM_VERSION:-}" ]; then
     log_warn "PMM_VERSION is empty in .env"
     if [ "${RUN_MIGRATE}" = false ]; then
-      log_info "    Run with --migrate to populate from pmm-submodules, or edit .env manually"
+      log_info "Run with --migrate to populate from pmm-submodules, or edit .env manually"
     fi
   fi
 }
@@ -243,7 +243,7 @@ populate_cache() {
   fi
 
   log_step 4 "Populating repository cache..."
-  log_info "    This clones 14 bare repos from upstream (first run may take a while)"
+  log_info "This clones 14 bare repos from upstream (first run may take a while)"
   make -C "${PIPELINE_DIR}" populate-cache
 }
 
