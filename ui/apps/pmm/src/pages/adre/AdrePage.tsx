@@ -1,6 +1,7 @@
 import { Alert, Box, Button, Card, CardContent, FormControlLabel, Link, Stack, Switch, TextField, Typography } from '@mui/material';
 import { FC, useState, useEffect } from 'react';
 import { Page } from 'components/page';
+import { HEADER_HEIGHT } from 'components/main/header/Header.constants';
 import { useAdreSettings, useAdreAlerts, useUpdateAdreSettings } from 'hooks/api/useAdre';
 import { useUser } from 'contexts/user';
 import { PMM_SETTINGS_URL } from 'lib/constants';
@@ -132,20 +133,21 @@ const AdrePage: FC = () => {
   }
 
   return (
-    <Page title="" fullWidth>
+    <Page title="" fullWidth footer={null}>
       <Box
         sx={{
           bgcolor: '#212121',
           color: 'text.primary',
           flex: 1,
+          height: `calc(100dvh - ${HEADER_HEIGHT}px - 56px)`,
+          maxHeight: `calc(100dvh - ${HEADER_HEIGHT}px - 56px)`,
           minHeight: 0,
           display: 'flex',
           flexDirection: 'column',
-          m: -2,
-          mt: -3,
-          mb: -3,
           px: { xs: 1, sm: 2 },
           py: 2,
+          borderRadius: 1,
+          overflow: 'hidden',
           '& .MuiCard-root': {
             bgcolor: '#212121',
             borderColor: 'rgba(255,255,255,0.12)',
