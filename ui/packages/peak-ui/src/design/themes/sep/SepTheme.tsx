@@ -172,7 +172,7 @@ const sepThemeOptions = (mode: PaletteMode): ThemeOptions => {
         styleOverrides: {
           root: () => ({
             color: sepBrand.white,
-            backgroundColor: sepBrand.black,
+            backgroundColor: primary.main,
           }),
         },
       },
