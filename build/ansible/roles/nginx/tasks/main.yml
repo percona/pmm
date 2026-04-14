@@ -88,3 +88,11 @@
     group: root
     owner: pmm
     mode: 0644
+
+- name: Copy one-step PMM client installer script
+  copy:
+    src: install-pmm-client.sh
+    dest: /usr/share/pmm-server/static/install-pmm-client.sh
+    group: root
+    owner: pmm
+    mode: 0755
