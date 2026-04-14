@@ -16,8 +16,6 @@
 package adre
 
 import (
-	"strings"
-
 	"github.com/percona/pmm/managed/models"
 )
 
@@ -27,15 +25,10 @@ func AdreMessagesToHolmesHistory(msgs []models.AdreMessage) []interface{} {
 	for _, m := range msgs {
 		switch m.Role {
 		case "tool":
-			content := strings.TrimSpace(m.Content)
-			if content == "" && len(m.ToolResultJSON) > 0 {
-				content = string(m.ToolResultJSON)
-			}
-			out = append(out, map[string]interface{}{
-				"role":    "tool",
-				"content": content,
-				"name":    m.ToolName,
-			})
+			// Do not replay persisted tool rows into conversation_history.
+			// OpenAI (and LiteLLM) require each role=tool message to follow an assistant message
+			// that includes matching tool_calls; we only persist plain assistant text plus
+			// separate tool result rows, so replaying "tool" here causes 400 errors.
 		default:
 			out = append(out, map[string]interface{}{
 				"role":    m.Role,
