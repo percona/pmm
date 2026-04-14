@@ -28,7 +28,7 @@ YARN_CACHE_VOL="${YARN_CACHE_VOL:-pmm-yarn}"
 COMPONENT="pmm-ui"
 BARE="${REPO_CACHE_DIR}/pmm.git"
 OUTPUT="${SERVER_OUTPUT_DIR}/${COMPONENT}"
-ENTRYPOINT="${SCRIPT_DIR}/entrypoints/build-${COMPONENT}"
+ENTRYPOINT="${SCRIPT_DIR}/entrypoints/${COMPONENT}"
 # pmm-ui lives inside the pmm monorepo; key the cache on the ui/ tree hash so
 # unrelated commits to the repo don't force a rebuild.
 SUBPATH="ui"

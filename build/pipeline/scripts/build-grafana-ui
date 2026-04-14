@@ -26,7 +26,7 @@ YARN_CACHE_VOL="${YARN_CACHE_VOL:-pmm-yarn}"
 COMPONENT="grafana-ui"
 BARE="${REPO_CACHE_DIR}/grafana.git"
 OUTPUT="${SERVER_OUTPUT_DIR}/${COMPONENT}"
-ENTRYPOINT="${SCRIPT_DIR}/entrypoints/build-${COMPONENT}"
+ENTRYPOINT="${SCRIPT_DIR}/entrypoints/${COMPONENT}"
 
 if ! "${SCRIPT_DIR}/check-build-cache" "${COMPONENT}" "${GRAFANA_REF}" "${BARE}" "${OUTPUT}" "${STAMP_DIR}"; then
   exit 0

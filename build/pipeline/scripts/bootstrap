@@ -199,8 +199,8 @@ download_build_files() {
 
   # Copy in-container entrypoint scripts used by the server-component builds.
   mkdir -p "${SCRIPT_DIR}/entrypoints"
-  for f in build-pmm-managed build-pmm-dump build-grafana-go build-grafana-ui \
-    build-victoriametrics build-pmm-dashboards build-pmm-ui; do
+  for f in pmm-managed pmm-dump grafana-go grafana-ui \
+    victoriametrics pmm-dashboards pmm-ui; do
     if [ ! -f "${SCRIPT_DIR}/entrypoints/${f}" ]; then
       cp "${src}/pipeline/scripts/entrypoints/${f}" "${SCRIPT_DIR}/entrypoints/${f}"
       chmod +x "${SCRIPT_DIR}/entrypoints/${f}"

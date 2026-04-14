@@ -36,7 +36,7 @@ POLYSTAT_PANEL_VERSION="${POLYSTAT_PANEL_VERSION:-$(sed -n 's/^%define polystat_
 COMPONENT="pmm-dashboards"
 BARE="${REPO_CACHE_DIR}/pmm.git"
 OUTPUT="${SERVER_OUTPUT_DIR}/${COMPONENT}"
-ENTRYPOINT="${SCRIPT_DIR}/entrypoints/build-${COMPONENT}"
+ENTRYPOINT="${SCRIPT_DIR}/entrypoints/${COMPONENT}"
 # pmm-dashboards lives inside the pmm monorepo. Key the cache on:
 #   - the dashboards/ subtree (main build inputs), and
 #   - the RPM spec file that supplies the Grafana plugin versions (so a bump

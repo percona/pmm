@@ -258,13 +258,13 @@ After bootstrap, `~/build/` (or your chosen directory) contains everything:
 │   ├── migrate-from-submodules   # Populates .env from pmm-submodules
 │   ├── package-tarball           # Tarball packaging script
 │   └── entrypoints/              # In-container build steps for each server component
-│       ├── build-grafana-go
-│       ├── build-grafana-ui
-│       ├── build-pmm-dashboards
-│       ├── build-pmm-dump
-│       ├── build-pmm-managed
-│       ├── build-pmm-ui
-│       └── build-victoriametrics
+│       ├── grafana-go
+│       ├── grafana-ui
+│       ├── pmm-dashboards
+│       ├── pmm-dump
+│       ├── pmm-managed
+│       ├── pmm-ui
+│       └── victoriametrics
 ├── ansible/                      # Ansible playbooks (for server image)
 ├── docker/                       # Docker entrypoints and support files
 ├── packages/                     # Packaging configs (systemd, deb, rpm)

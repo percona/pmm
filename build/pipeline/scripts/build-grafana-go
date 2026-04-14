@@ -29,7 +29,7 @@ BUILD_CACHE_VOL="${BUILD_CACHE_VOL:-pmm-build}"
 COMPONENT="grafana-go"
 BARE="${REPO_CACHE_DIR}/grafana.git"
 OUTPUT="${SERVER_OUTPUT_DIR}/${COMPONENT}"
-ENTRYPOINT="${SCRIPT_DIR}/entrypoints/build-${COMPONENT}"
+ENTRYPOINT="${SCRIPT_DIR}/entrypoints/${COMPONENT}"
 
 if ! "${SCRIPT_DIR}/check-build-cache" "${COMPONENT}" "${GRAFANA_REF}" "${BARE}" "${OUTPUT}" "${STAMP_DIR}"; then
   exit 0

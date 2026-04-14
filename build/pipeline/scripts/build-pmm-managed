@@ -30,7 +30,7 @@ BUILD_CACHE_VOL="${BUILD_CACHE_VOL:-pmm-build}"
 COMPONENT="pmm-managed"
 BARE="${REPO_CACHE_DIR}/pmm.git"
 OUTPUT="${SERVER_OUTPUT_DIR}/${COMPONENT}"
-ENTRYPOINT="${SCRIPT_DIR}/entrypoints/build-${COMPONENT}"
+ENTRYPOINT="${SCRIPT_DIR}/entrypoints/${COMPONENT}"
 
 if ! "${SCRIPT_DIR}/check-build-cache" "${COMPONENT}" "${PMM_REF}" "${BARE}" "${OUTPUT}" "${STAMP_DIR}"; then
   exit 0
