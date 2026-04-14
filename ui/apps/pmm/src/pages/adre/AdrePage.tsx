@@ -139,6 +139,10 @@ const AdrePage: FC = () => {
           bgcolor: '#212121',
           color: 'text.primary',
           flex: 1,
+          width: '100%',
+          maxWidth: '100%',
+          minWidth: 0,
+          boxSizing: 'border-box',
           height: `calc(100dvh - ${HEADER_HEIGHT}px - 56px)`,
           maxHeight: `calc(100dvh - ${HEADER_HEIGHT}px - 56px)`,
           minHeight: 0,
@@ -163,15 +167,19 @@ const AdrePage: FC = () => {
           sx={{
             flex: 1,
             minHeight: 0,
+            minWidth: 0,
+            width: '100%',
+            maxWidth: '100%',
             alignItems: 'stretch',
             overflow: 'hidden',
           }}
         >
           <Box
             sx={{
-              flex: alerts.length > 0 ? 2 : 1,
+              flex: alerts.length > 0 ? '2 1 0%' : 1,
               minWidth: 0,
               minHeight: 0,
+              maxWidth: '100%',
               display: 'flex',
               flexDirection: 'column',
               overflow: 'hidden',
@@ -182,7 +190,9 @@ const AdrePage: FC = () => {
           {alerts.length > 0 && (
             <Box
               sx={{
-                flex: '0 0 260px',
+                flex: { xs: '1 1 auto', md: '0 1 clamp(200px, 24vw, 280px)' },
+                width: { xs: '100%', md: 'auto' },
+                maxWidth: { xs: '100%', md: 'min(280px, 32vw)' },
                 minWidth: 0,
                 minHeight: 0,
                 maxHeight: '100%',

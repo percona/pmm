@@ -155,6 +155,9 @@ export const AdreChatPanel: FC = () => {
       sx={{
         flex: 1,
         minHeight: 0,
+        width: '100%',
+        maxWidth: '100%',
+        minWidth: 0,
         display: 'flex',
         flexDirection: { xs: 'column', md: 'row' },
         gap: { xs: 1, md: 0 },
@@ -163,8 +166,13 @@ export const AdreChatPanel: FC = () => {
     >
       <Box
         sx={{
-          flex: { xs: '0 0 auto', md: '0 0 260px' },
-          minWidth: { md: 260 },
+          flex: {
+            xs: '0 0 auto',
+            md: '0 1 clamp(200px, 22vw, 260px)',
+          },
+          width: { md: 'clamp(200px, 22vw, 260px)' },
+          maxWidth: { xs: '100%', md: '260px' },
+          minWidth: 0,
           maxHeight: { xs: 'min(36vh, 220px)', md: 'none' },
           minHeight: 0,
           display: 'flex',
@@ -192,7 +200,9 @@ export const AdreChatPanel: FC = () => {
             sx={{
               flex: 1,
               minHeight: 0,
-              overflow: 'auto',
+              minWidth: 0,
+              overflowY: 'auto',
+              overflowX: 'hidden',
               p: 2,
               display: 'flex',
               flexDirection: 'column',
@@ -206,7 +216,17 @@ export const AdreChatPanel: FC = () => {
                 Ask a question about your database environment...
               </Typography>
             ) : (
-              <Box sx={{ maxWidth: '100%', width: '100%', alignSelf: 'center', display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Box
+                sx={{
+                  maxWidth: '100%',
+                  width: '100%',
+                  minWidth: 0,
+                  alignSelf: 'center',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 2,
+                }}
+              >
               {allMessages.map((msg, idx) => (
                 <Box
                   key={msg.serverMessageId ?? `row-${idx}`}
@@ -215,11 +235,14 @@ export const AdreChatPanel: FC = () => {
                     display: 'flex',
                     justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
                     alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                    maxWidth: '85%',
+                    maxWidth: '100%',
+                    minWidth: 0,
                   }}
                 >
                   <Box
                     sx={{
+                      maxWidth: { xs: '92%', sm: '88%', md: '85%' },
+                      minWidth: 0,
                       px: 2,
                       py: 1.5,
                       borderRadius: 2,
@@ -245,9 +268,11 @@ export const AdreChatPanel: FC = () => {
                       {msg.timestamp ? ` · ${formatTimestamp(msg.timestamp)}` : ''}
                     </Typography>
                     {msg.role === 'user' ? (
-                      <Typography sx={{ whiteSpace: 'pre-wrap' }}>{msg.content}</Typography>
+                      <Typography sx={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
+                        {msg.content}
+                      </Typography>
                     ) : (
-                      <Box>
+                      <Box sx={{ minWidth: 0, overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
                         {(msg.reasoning ?? (msg.streaming && reasoning)) && (
                           <>
                             <IconButton
@@ -383,7 +408,7 @@ export const AdreChatPanel: FC = () => {
             )}
             <div ref={messagesEndRef} />
           </Box>
-          <Stack>
+          <Stack sx={{ minWidth: 0, flexShrink: 0 }}>
             <TextField
               size="small"
               placeholder="Message ADRE..."
@@ -401,8 +426,15 @@ export const AdreChatPanel: FC = () => {
                 },
               }}
             />
-            <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mt: 0.75 }}>
-              <Stack direction="row" alignItems="center" gap={0.5}>
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+              flexWrap="wrap"
+              gap={1}
+              sx={{ mt: 0.75, minWidth: 0, rowGap: 1 }}
+            >
+              <Stack direction="row" alignItems="center" gap={0.5} sx={{ minWidth: 0, flexWrap: 'wrap' }}>
                 <ToggleButtonGroup
                   value={mode}
                   exclusive
@@ -437,7 +469,7 @@ export const AdreChatPanel: FC = () => {
                   </IconButton>
                 </Tooltip>
               </Stack>
-              <Box ref={modelAnchorRef}>
+              <Box ref={modelAnchorRef} sx={{ flexShrink: 0, minWidth: 0 }}>
                 <ButtonGroup variant="contained" size="small" disableElevation>
                   <Button
                     onClick={onSend}

@@ -116,11 +116,15 @@ export const AdreAlertsPanel: FC<AdreAlertsPanelProps> = ({ alerts: alertsProp }
     <Box
       sx={{
         height: '100%',
+        width: '100%',
+        maxWidth: '100%',
+        minWidth: 0,
         display: 'flex',
         flexDirection: 'column',
         p: 1.5,
         borderLeft: 1,
         borderColor: 'rgba(255,255,255,0.12)',
+        boxSizing: 'border-box',
       }}
     >
       <Typography variant="subtitle2" color="text.secondary" sx={{ flexShrink: 0, mb: 1 }}>
@@ -168,18 +172,35 @@ export const AdreAlertsPanel: FC<AdreAlertsPanelProps> = ({ alerts: alertsProp }
                       />
                     }
                     label={
-                      <Box>
-                        <Typography variant="caption" sx={{ fontSize: '0.75rem', display: 'block' }}>
+                      <Box sx={{ minWidth: 0, maxWidth: '100%', overflow: 'hidden' }}>
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            fontSize: '0.75rem',
+                            display: 'block',
+                            overflowWrap: 'anywhere',
+                            wordBreak: 'break-word',
+                          }}
+                        >
                           {String(label).length > 40 ? `${String(label).slice(0, 40)}…` : label}
                         </Typography>
                         {details && (
-                          <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.68rem', display: 'block' }}>
+                          <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            sx={{
+                              fontSize: '0.68rem',
+                              display: 'block',
+                              overflowWrap: 'anywhere',
+                              wordBreak: 'break-word',
+                            }}
+                          >
                             {details}
                           </Typography>
                         )}
                       </Box>
                     }
-                    sx={{ m: 0, py: 0.25 }}
+                    sx={{ m: 0, py: 0.25, alignItems: 'flex-start', maxWidth: '100%' }}
                   />
                 );
               })}

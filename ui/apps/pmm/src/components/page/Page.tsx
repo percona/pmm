@@ -26,7 +26,10 @@ export const Page: FC<PageProps> = ({ title, topBar, footer, children, fullWidth
           ? {
               width: '100%',
               maxWidth: '100%',
+              minWidth: 0,
               alignSelf: 'stretch',
+              overflowX: 'hidden',
+              boxSizing: 'border-box',
             }
           : {
               [theme.breakpoints.up('lg')]: {
