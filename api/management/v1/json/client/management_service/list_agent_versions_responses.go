@@ -8,7 +8,6 @@ package management_service
 import (
 	"context"
 	"encoding/json"
-	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -26,7 +25,7 @@ type ListAgentVersionsReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ListAgentVersionsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
+func (o *ListAgentVersionsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
 		result := NewListAgentVersionsOK()
@@ -105,10 +104,11 @@ func (o *ListAgentVersionsOK) GetPayload() *ListAgentVersionsOKBody {
 }
 
 func (o *ListAgentVersionsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListAgentVersionsOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -178,10 +178,11 @@ func (o *ListAgentVersionsDefault) GetPayload() *ListAgentVersionsDefaultBody {
 }
 
 func (o *ListAgentVersionsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListAgentVersionsDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -193,6 +194,7 @@ ListAgentVersionsDefaultBody list agent versions default body
 swagger:model ListAgentVersionsDefaultBody
 */
 type ListAgentVersionsDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -229,15 +231,11 @@ func (o *ListAgentVersionsDefaultBody) validateDetails(formats strfmt.Registry) 
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ListAgentVersions default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("ListAgentVersions default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -262,7 +260,9 @@ func (o *ListAgentVersionsDefaultBody) ContextValidate(ctx context.Context, form
 }
 
 func (o *ListAgentVersionsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -270,18 +270,15 @@ func (o *ListAgentVersionsDefaultBody) contextValidateDetails(ctx context.Contex
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ListAgentVersions default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("ListAgentVersions default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -310,17 +307,19 @@ ListAgentVersionsDefaultBodyDetailsItems0 list agent versions default body detai
 swagger:model ListAgentVersionsDefaultBodyDetailsItems0
 */
 type ListAgentVersionsDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
 	// list agent versions default body details items0
-	ListAgentVersionsDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	ListAgentVersionsDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
 func (o *ListAgentVersionsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -341,9 +340,9 @@ func (o *ListAgentVersionsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) e
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]any)
+		result := make(map[string]interface{})
 		for k, v := range stage2 {
-			var toadd any
+			var toadd interface{}
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -358,6 +357,7 @@ func (o *ListAgentVersionsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) e
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o ListAgentVersionsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -421,6 +421,7 @@ ListAgentVersionsOKBody list agent versions OK body
 swagger:model ListAgentVersionsOKBody
 */
 type ListAgentVersionsOKBody struct {
+
 	// List of Agent versions.
 	AgentVersions []*ListAgentVersionsOKBodyAgentVersionsItems0 `json:"agent_versions"`
 }
@@ -451,15 +452,11 @@ func (o *ListAgentVersionsOKBody) validateAgentVersions(formats strfmt.Registry)
 
 		if o.AgentVersions[i] != nil {
 			if err := o.AgentVersions[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listAgentVersionsOk" + "." + "agent_versions" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("listAgentVersionsOk" + "." + "agent_versions" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -484,7 +481,9 @@ func (o *ListAgentVersionsOKBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *ListAgentVersionsOKBody) contextValidateAgentVersions(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.AgentVersions); i++ {
+
 		if o.AgentVersions[i] != nil {
 
 			if swag.IsZero(o.AgentVersions[i]) { // not required
@@ -492,18 +491,15 @@ func (o *ListAgentVersionsOKBody) contextValidateAgentVersions(ctx context.Conte
 			}
 
 			if err := o.AgentVersions[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listAgentVersionsOk" + "." + "agent_versions" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("listAgentVersionsOk" + "." + "agent_versions" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -532,6 +528,7 @@ ListAgentVersionsOKBodyAgentVersionsItems0 list agent versions OK body agent ver
 swagger:model ListAgentVersionsOKBodyAgentVersionsItems0
 */
 type ListAgentVersionsOKBodyAgentVersionsItems0 struct {
+
 	// Agent ID.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -563,7 +560,7 @@ func (o *ListAgentVersionsOKBodyAgentVersionsItems0) Validate(formats strfmt.Reg
 	return nil
 }
 
-var listAgentVersionsOkBodyAgentVersionsItems0TypeSeverityPropEnum []any
+var listAgentVersionsOkBodyAgentVersionsItems0TypeSeverityPropEnum []interface{}
 
 func init() {
 	var res []string

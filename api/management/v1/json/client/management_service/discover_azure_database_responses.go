@@ -8,7 +8,6 @@ package management_service
 import (
 	"context"
 	"encoding/json"
-	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -26,7 +25,7 @@ type DiscoverAzureDatabaseReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *DiscoverAzureDatabaseReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
+func (o *DiscoverAzureDatabaseReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
 		result := NewDiscoverAzureDatabaseOK()
@@ -105,10 +104,11 @@ func (o *DiscoverAzureDatabaseOK) GetPayload() *DiscoverAzureDatabaseOKBody {
 }
 
 func (o *DiscoverAzureDatabaseOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(DiscoverAzureDatabaseOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -178,10 +178,11 @@ func (o *DiscoverAzureDatabaseDefault) GetPayload() *DiscoverAzureDatabaseDefaul
 }
 
 func (o *DiscoverAzureDatabaseDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(DiscoverAzureDatabaseDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -193,6 +194,7 @@ DiscoverAzureDatabaseBody DiscoverAzureDatabaseRequest discover azure databases 
 swagger:model DiscoverAzureDatabaseBody
 */
 type DiscoverAzureDatabaseBody struct {
+
 	// Azure client ID.
 	AzureClientID string `json:"azure_client_id,omitempty"`
 
@@ -239,6 +241,7 @@ DiscoverAzureDatabaseDefaultBody discover azure database default body
 swagger:model DiscoverAzureDatabaseDefaultBody
 */
 type DiscoverAzureDatabaseDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -275,15 +278,11 @@ func (o *DiscoverAzureDatabaseDefaultBody) validateDetails(formats strfmt.Regist
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("DiscoverAzureDatabase default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("DiscoverAzureDatabase default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -308,7 +307,9 @@ func (o *DiscoverAzureDatabaseDefaultBody) ContextValidate(ctx context.Context, 
 }
 
 func (o *DiscoverAzureDatabaseDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -316,18 +317,15 @@ func (o *DiscoverAzureDatabaseDefaultBody) contextValidateDetails(ctx context.Co
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("DiscoverAzureDatabase default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("DiscoverAzureDatabase default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -356,17 +354,19 @@ DiscoverAzureDatabaseDefaultBodyDetailsItems0 discover azure database default bo
 swagger:model DiscoverAzureDatabaseDefaultBodyDetailsItems0
 */
 type DiscoverAzureDatabaseDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
 	// discover azure database default body details items0
-	DiscoverAzureDatabaseDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	DiscoverAzureDatabaseDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
 func (o *DiscoverAzureDatabaseDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -387,9 +387,9 @@ func (o *DiscoverAzureDatabaseDefaultBodyDetailsItems0) UnmarshalJSON(data []byt
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]any)
+		result := make(map[string]interface{})
 		for k, v := range stage2 {
-			var toadd any
+			var toadd interface{}
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -404,6 +404,7 @@ func (o *DiscoverAzureDatabaseDefaultBodyDetailsItems0) UnmarshalJSON(data []byt
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o DiscoverAzureDatabaseDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -467,6 +468,7 @@ DiscoverAzureDatabaseOKBody DiscoverAzureDatabaseResponse discover azure databas
 swagger:model DiscoverAzureDatabaseOKBody
 */
 type DiscoverAzureDatabaseOKBody struct {
+
 	// azure database instance
 	AzureDatabaseInstance []*DiscoverAzureDatabaseOKBodyAzureDatabaseInstanceItems0 `json:"azure_database_instance"`
 }
@@ -497,15 +499,11 @@ func (o *DiscoverAzureDatabaseOKBody) validateAzureDatabaseInstance(formats strf
 
 		if o.AzureDatabaseInstance[i] != nil {
 			if err := o.AzureDatabaseInstance[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("discoverAzureDatabaseOk" + "." + "azure_database_instance" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("discoverAzureDatabaseOk" + "." + "azure_database_instance" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -530,7 +528,9 @@ func (o *DiscoverAzureDatabaseOKBody) ContextValidate(ctx context.Context, forma
 }
 
 func (o *DiscoverAzureDatabaseOKBody) contextValidateAzureDatabaseInstance(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.AzureDatabaseInstance); i++ {
+
 		if o.AzureDatabaseInstance[i] != nil {
 
 			if swag.IsZero(o.AzureDatabaseInstance[i]) { // not required
@@ -538,18 +538,15 @@ func (o *DiscoverAzureDatabaseOKBody) contextValidateAzureDatabaseInstance(ctx c
 			}
 
 			if err := o.AzureDatabaseInstance[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("discoverAzureDatabaseOk" + "." + "azure_database_instance" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("discoverAzureDatabaseOk" + "." + "azure_database_instance" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -578,6 +575,7 @@ DiscoverAzureDatabaseOKBodyAzureDatabaseInstanceItems0 DiscoverAzureDatabaseInst
 swagger:model DiscoverAzureDatabaseOKBodyAzureDatabaseInstanceItems0
 */
 type DiscoverAzureDatabaseOKBodyAzureDatabaseInstanceItems0 struct {
+
 	// Azure database instance ID.
 	InstanceID string `json:"instance_id,omitempty"`
 
@@ -599,19 +597,19 @@ type DiscoverAzureDatabaseOKBodyAzureDatabaseInstanceItems0 struct {
 	// Environment tag.
 	Environment string `json:"environment,omitempty"`
 
-	// DiscoverAzureDatabaseType describes supported Azure Database instance engines.
-	//
-	//  - DISCOVER_AZURE_DATABASE_TYPE_MYSQL: MySQL type: microsoft.dbformysql or MariaDB type: microsoft.dbformariadb
-	//  - DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL: PostgreSQL type: microsoft.dbformysql
-	// Enum: ["DISCOVER_AZURE_DATABASE_TYPE_UNSPECIFIED","DISCOVER_AZURE_DATABASE_TYPE_MYSQL","DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL"]
-	Type *string `json:"type,omitempty"`
-
 	// Azure database availability zone.
 	Az string `json:"az,omitempty"`
 
 	// Represents a purchasable Stock Keeping Unit (SKU) under a product.
 	// https://docs.microsoft.com/en-us/partner-center/develop/product-resources#sku.
 	NodeModel string `json:"node_model,omitempty"`
+
+	// DiscoverAzureDatabaseType describes supported Azure Database instance engines.
+	//
+	//  - DISCOVER_AZURE_DATABASE_TYPE_MYSQL: MySQL type: microsoft.dbformysql or MariaDB type: microsoft.dbformariadb
+	//  - DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL: PostgreSQL type: microsoft.dbformysql
+	// Enum: ["DISCOVER_AZURE_DATABASE_TYPE_UNSPECIFIED","DISCOVER_AZURE_DATABASE_TYPE_MYSQL","DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL"]
+	Type *string `json:"type,omitempty"`
 }
 
 // Validate validates this discover azure database OK body azure database instance items0
@@ -628,7 +626,7 @@ func (o *DiscoverAzureDatabaseOKBodyAzureDatabaseInstanceItems0) Validate(format
 	return nil
 }
 
-var discoverAzureDatabaseOkBodyAzureDatabaseInstanceItems0TypeTypePropEnum []any
+var discoverAzureDatabaseOkBodyAzureDatabaseInstanceItems0TypeTypePropEnum []interface{}
 
 func init() {
 	var res []string

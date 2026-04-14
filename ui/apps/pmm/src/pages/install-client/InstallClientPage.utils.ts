@@ -1,6 +1,21 @@
 export type Technology = 'mysql' | 'postgresql' | 'mongodb' | 'valkey';
 export type CredentialsMode = 'prompt' | 'env' | 'flags';
 
+/**
+ * Builds PMM_SERVER_URL for install scripts. Token is percent-encoded in the userinfo.
+ * `pmmHost` is hostname or hostname:port (defaults to current page host when empty).
+ */
+export function buildPmmServerURL(pmmHost: string, token: string): string {
+  const authority =
+    pmmHost.trim() ||
+    (typeof window !== 'undefined' ? window.location.host : 'localhost');
+  const t = token.trim();
+  if (!t) {
+    return `https://service_token:<TOKEN>@${authority}`;
+  }
+  return `https://service_token:${encodeURIComponent(t)}@${authority}`;
+}
+
 export interface InstallCommandOptions {
   installerUrl: string;
   technology: Technology;

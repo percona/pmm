@@ -48,6 +48,8 @@ var ErrFailedToGetToken = errors.New("failed to get the user token")
 const (
 	pmmServiceTokenName          = "pmm-agent-st" //nolint:gosec
 	pmmServiceAccountName        = "pmm-agent-sa" //nolint:gosec
+	pmmInstallServiceTokenPrefix = "pmm-install-st" //nolint:gosec
+	pmmInstallServiceAccountName = "pmm-install-sa" //nolint:gosec
 	defaultDialTimeout           = 3 * time.Second
 	defaultKeepAliveTimeout      = 30 * time.Second
 	defaultIdleConnTimeout       = 90 * time.Second
@@ -427,6 +429,67 @@ func (c *Client) CreateServiceAccount(ctx context.Context, nodeName string, rere
 	return serviceAccountID, serviceToken, nil
 }
 
+// CreateNodeInstallToken creates a Grafana service account and a short-lived token (secondsToLive) for PMM Client install scripts.
+func (c *Client) CreateNodeInstallToken(ctx context.Context, uniqueSuffix string, ttlSeconds int64) (int64, string, time.Time, error) {
+	authHeaders, err := auth.GetHeadersFromContext(ctx)
+	if err != nil {
+		return 0, "", time.Time{}, err
+	}
+	if ttlSeconds <= 0 {
+		return 0, "", time.Time{}, errors.New("ttlSeconds must be positive")
+	}
+
+	saID, err := c.createInstallServiceAccount(ctx, uniqueSuffix, authHeaders)
+	if err != nil {
+		return 0, "", time.Time{}, err
+	}
+
+	_, tok, err := c.createInstallServiceToken(ctx, saID, uniqueSuffix, ttlSeconds, authHeaders)
+	if err != nil {
+		return 0, "", time.Time{}, err
+	}
+
+	return int64(saID), tok, time.Now().Add(time.Duration(ttlSeconds) * time.Second), nil
+}
+
+func (c *Client) createInstallServiceAccount(ctx context.Context, uniqueSuffix string, authHeaders http.Header) (int, error) {
+	serviceAccountName := fmt.Sprintf("%s-%s", pmmInstallServiceAccountName, uniqueSuffix)
+	return c.createServiceAccountNamed(ctx, serviceAccountName, admin, false, authHeaders)
+}
+
+func (c *Client) createInstallServiceToken(
+	ctx context.Context,
+	serviceAccountID int,
+	uniqueSuffix string,
+	ttlSeconds int64,
+	authHeaders http.Header,
+) (int, string, error) {
+	tokenName := fmt.Sprintf("%s-%s", pmmInstallServiceTokenPrefix, uniqueSuffix)
+	b, err := json.Marshal(struct {
+		Name          string `json:"name"`
+		Role          string `json:"role"`
+		SecondsToLive int64  `json:"secondsToLive"`
+	}{
+		Name:          tokenName,
+		Role:          admin.String(),
+		SecondsToLive: ttlSeconds,
+	})
+	if err != nil {
+		return 0, "", errors.WithStack(err)
+	}
+
+	var m map[string]interface{}
+	if err = c.do(ctx, "POST", fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, b, &m); err != nil {
+		return 0, "", err
+	}
+	serviceTokenKey, ok := m["key"].(string)
+	if !ok {
+		return 0, "", errors.Errorf("grafana token response missing key: %#v", m)
+	}
+
+	return 0, serviceTokenKey, nil
+}
+
 // DeleteServiceAccount deletes service account by current service token.
 func (c *Client) DeleteServiceAccount(ctx context.Context, nodeName string, force bool) (string, error) {
 	authHeaders, err := auth.GetHeadersFromContext(ctx)
@@ -633,7 +696,12 @@ func (c *Client) createServiceAccount(ctx context.Context, role role, nodeName s
 	}
 
 	serviceAccountName := fmt.Sprintf("%s-%s", pmmServiceAccountName, nodeName)
-	b, err := json.Marshal(serviceAccount{Name: serviceAccountName, Role: role.String(), Force: reregister})
+	return c.createServiceAccountNamed(ctx, serviceAccountName, role, reregister, authHeaders)
+}
+
+// createServiceAccountNamed POSTs a service account and PATCHes orgId to 1.
+func (c *Client) createServiceAccountNamed(ctx context.Context, serviceAccountName string, role role, force bool, authHeaders http.Header) (int, error) {
+	b, err := json.Marshal(serviceAccount{Name: serviceAccountName, Role: role.String(), Force: force})
 	if err != nil {
 		return 0, errors.WithStack(err)
 	}

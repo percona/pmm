@@ -8,7 +8,6 @@ package management_service
 import (
 	"context"
 	"encoding/json"
-	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -26,7 +25,7 @@ type DiscoverRDSReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *DiscoverRDSReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
+func (o *DiscoverRDSReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
 		result := NewDiscoverRDSOK()
@@ -105,10 +104,11 @@ func (o *DiscoverRDSOK) GetPayload() *DiscoverRDSOKBody {
 }
 
 func (o *DiscoverRDSOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(DiscoverRDSOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -178,10 +178,11 @@ func (o *DiscoverRDSDefault) GetPayload() *DiscoverRDSDefaultBody {
 }
 
 func (o *DiscoverRDSDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(DiscoverRDSDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -193,6 +194,7 @@ DiscoverRDSBody discover RDS body
 swagger:model DiscoverRDSBody
 */
 type DiscoverRDSBody struct {
+
 	// AWS Access key. Optional.
 	AWSAccessKey string `json:"aws_access_key,omitempty"`
 
@@ -233,6 +235,7 @@ DiscoverRDSDefaultBody discover RDS default body
 swagger:model DiscoverRDSDefaultBody
 */
 type DiscoverRDSDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -269,15 +272,11 @@ func (o *DiscoverRDSDefaultBody) validateDetails(formats strfmt.Registry) error 
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("DiscoverRDS default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("DiscoverRDS default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -302,7 +301,9 @@ func (o *DiscoverRDSDefaultBody) ContextValidate(ctx context.Context, formats st
 }
 
 func (o *DiscoverRDSDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -310,18 +311,15 @@ func (o *DiscoverRDSDefaultBody) contextValidateDetails(ctx context.Context, for
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("DiscoverRDS default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("DiscoverRDS default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -350,17 +348,19 @@ DiscoverRDSDefaultBodyDetailsItems0 discover RDS default body details items0
 swagger:model DiscoverRDSDefaultBodyDetailsItems0
 */
 type DiscoverRDSDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
 	// discover RDS default body details items0
-	DiscoverRDSDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	DiscoverRDSDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
 func (o *DiscoverRDSDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -381,9 +381,9 @@ func (o *DiscoverRDSDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]any)
+		result := make(map[string]interface{})
 		for k, v := range stage2 {
-			var toadd any
+			var toadd interface{}
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -398,6 +398,7 @@ func (o *DiscoverRDSDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o DiscoverRDSDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -461,6 +462,7 @@ DiscoverRDSOKBody discover RDS OK body
 swagger:model DiscoverRDSOKBody
 */
 type DiscoverRDSOKBody struct {
+
 	// rds instances
 	RDSInstances []*DiscoverRDSOKBodyRDSInstancesItems0 `json:"rds_instances"`
 }
@@ -491,15 +493,11 @@ func (o *DiscoverRDSOKBody) validateRDSInstances(formats strfmt.Registry) error 
 
 		if o.RDSInstances[i] != nil {
 			if err := o.RDSInstances[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("discoverRdsOk" + "." + "rds_instances" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("discoverRdsOk" + "." + "rds_instances" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -524,7 +522,9 @@ func (o *DiscoverRDSOKBody) ContextValidate(ctx context.Context, formats strfmt.
 }
 
 func (o *DiscoverRDSOKBody) contextValidateRDSInstances(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.RDSInstances); i++ {
+
 		if o.RDSInstances[i] != nil {
 
 			if swag.IsZero(o.RDSInstances[i]) { // not required
@@ -532,18 +532,15 @@ func (o *DiscoverRDSOKBody) contextValidateRDSInstances(ctx context.Context, for
 			}
 
 			if err := o.RDSInstances[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("discoverRdsOk" + "." + "rds_instances" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("discoverRdsOk" + "." + "rds_instances" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -572,6 +569,7 @@ DiscoverRDSOKBodyRDSInstancesItems0 DiscoverRDSInstance models an unique RDS ins
 swagger:model DiscoverRDSOKBodyRDSInstancesItems0
 */
 type DiscoverRDSOKBodyRDSInstancesItems0 struct {
+
 	// AWS region.
 	Region string `json:"region,omitempty"`
 
@@ -590,12 +588,12 @@ type DiscoverRDSOKBodyRDSInstancesItems0 struct {
 	// Access port.
 	Port int64 `json:"port,omitempty"`
 
+	// Engine version.
+	EngineVersion string `json:"engine_version,omitempty"`
+
 	// DiscoverRDSEngine describes supported RDS instance engines.
 	// Enum: ["DISCOVER_RDS_ENGINE_UNSPECIFIED","DISCOVER_RDS_ENGINE_MYSQL","DISCOVER_RDS_ENGINE_POSTGRESQL"]
 	Engine *string `json:"engine,omitempty"`
-
-	// Engine version.
-	EngineVersion string `json:"engine_version,omitempty"`
 }
 
 // Validate validates this discover RDS OK body RDS instances items0
@@ -612,7 +610,7 @@ func (o *DiscoverRDSOKBodyRDSInstancesItems0) Validate(formats strfmt.Registry) 
 	return nil
 }
 
-var discoverRdsOkBodyRdsInstancesItems0TypeEnginePropEnum []any
+var discoverRdsOkBodyRdsInstancesItems0TypeEnginePropEnum []interface{}
 
 func init() {
 	var res []string

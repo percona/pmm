@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { useMemo, useState } from 'react';
 import {
   Alert,
@@ -16,8 +17,10 @@ import {
   Typography,
 } from '@mui/material';
 import { Page } from 'components/page';
+import { createNodeInstallToken } from 'api/installToken';
 import {
   buildInstallCommand,
+  buildPmmServerURL,
   CredentialsMode,
   Technology,
 } from './InstallClientPage.utils';
@@ -39,18 +42,15 @@ export const InstallClientPage = () => {
   const [dbAuthDB, setDbAuthDB] = useState('');
   const [dbServiceName, setDbServiceName] = useState('');
   const [copied, setCopied] = useState(false);
+  const [genLoading, setGenLoading] = useState(false);
+  const [genError, setGenError] = useState<string | null>(null);
 
   const installerUrl = useMemo(
     () => `${window.location.origin}/pmm-static/install-pmm-client.sh`,
     []
   );
 
-  const serverURL = useMemo(() => {
-    if (!token.trim()) {
-      return `https://service_token:<TOKEN>@${pmmHost || '<pmm-host>'}:443`;
-    }
-    return `https://service_token:${token.trim()}@${pmmHost || 'localhost'}:443`;
-  }, [token, pmmHost]);
+  const serverURL = useMemo(() => buildPmmServerURL(pmmHost, token), [pmmHost, token]);
 
   const command = useMemo(
     () =>
@@ -94,6 +94,24 @@ export const InstallClientPage = () => {
     await navigator.clipboard.writeText(command);
     setCopied(true);
     window.setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleGenerateToken = async () => {
+    setGenError(null);
+    setGenLoading(true);
+    try {
+      const res = await createNodeInstallToken(technology, 0);
+      setToken(res.token);
+    } catch (e: unknown) {
+      let msg = 'Failed to create token';
+      if (axios.isAxiosError(e)) {
+        const data = e.response?.data as { message?: string } | undefined;
+        msg = data?.message ?? e.message;
+      }
+      setGenError(msg);
+    } finally {
+      setGenLoading(false);
+    }
   };
 
   return (
@@ -145,7 +163,7 @@ export const InstallClientPage = () => {
                 label="PMM host"
                 value={pmmHost}
                 onChange={(e) => setPmmHost(e.target.value)}
-                helperText="Used to build PMM_SERVER_URL"
+                helperText="Hostname or hostname:port for PMM_SERVER_URL (defaults to this page if empty)"
               />
               <TextField
                 fullWidth
@@ -155,6 +173,20 @@ export const InstallClientPage = () => {
                 onChange={(e) => setToken(e.target.value)}
                 helperText="Used only to render command locally in browser"
               />
+            </Stack>
+            <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems="flex-start">
+              <Button
+                variant="outlined"
+                onClick={handleGenerateToken}
+                disabled={genLoading}
+              >
+                {genLoading ? 'Generating…' : 'Generate short-lived token'}
+              </Button>
+              {genError && (
+                <Alert severity="error" sx={{ flex: 1 }}>
+                  {genError}
+                </Alert>
+              )}
             </Stack>
 
             <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>

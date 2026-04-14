@@ -8,7 +8,6 @@ package management_service
 import (
 	"context"
 	"encoding/json"
-	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,7 +24,7 @@ type AddAnnotationReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *AddAnnotationReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
+func (o *AddAnnotationReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
 		result := NewAddAnnotationOK()
@@ -56,7 +55,7 @@ AddAnnotationOK describes a response with status code 200, with default header v
 A successful response.
 */
 type AddAnnotationOK struct {
-	Payload any
+	Payload interface{}
 }
 
 // IsSuccess returns true when this add annotation Ok response has a 2xx status code
@@ -99,13 +98,14 @@ func (o *AddAnnotationOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/annotations][%d] addAnnotationOk %s", 200, payload)
 }
 
-func (o *AddAnnotationOK) GetPayload() any {
+func (o *AddAnnotationOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *AddAnnotationOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -175,10 +175,11 @@ func (o *AddAnnotationDefault) GetPayload() *AddAnnotationDefaultBody {
 }
 
 func (o *AddAnnotationDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddAnnotationDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -190,6 +191,7 @@ AddAnnotationBody AddAnnotationRequest is a params to add new annotation.
 swagger:model AddAnnotationBody
 */
 type AddAnnotationBody struct {
+
 	// An annotation description. Required.
 	Text string `json:"text,omitempty"`
 
@@ -236,6 +238,7 @@ AddAnnotationDefaultBody add annotation default body
 swagger:model AddAnnotationDefaultBody
 */
 type AddAnnotationDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -272,15 +275,11 @@ func (o *AddAnnotationDefaultBody) validateDetails(formats strfmt.Registry) erro
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("AddAnnotation default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("AddAnnotation default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -305,7 +304,9 @@ func (o *AddAnnotationDefaultBody) ContextValidate(ctx context.Context, formats 
 }
 
 func (o *AddAnnotationDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -313,18 +314,15 @@ func (o *AddAnnotationDefaultBody) contextValidateDetails(ctx context.Context, f
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("AddAnnotation default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("AddAnnotation default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -353,17 +351,19 @@ AddAnnotationDefaultBodyDetailsItems0 add annotation default body details items0
 swagger:model AddAnnotationDefaultBodyDetailsItems0
 */
 type AddAnnotationDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
 	// add annotation default body details items0
-	AddAnnotationDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	AddAnnotationDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
 func (o *AddAnnotationDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -384,9 +384,9 @@ func (o *AddAnnotationDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]any)
+		result := make(map[string]interface{})
 		for k, v := range stage2 {
-			var toadd any
+			var toadd interface{}
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -401,6 +401,7 @@ func (o *AddAnnotationDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o AddAnnotationDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}

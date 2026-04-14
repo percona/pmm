@@ -1,5 +1,9 @@
 import { describe, expect, test } from 'vitest';
-import { buildInstallCommand, InstallCommandOptions } from './InstallClientPage.utils';
+import {
+  buildInstallCommand,
+  buildPmmServerURL,
+  InstallCommandOptions,
+} from './InstallClientPage.utils';
 
 const baseOptions: InstallCommandOptions = {
   installerUrl: 'https://pmm.example.com/pmm-static/install-pmm-client.sh',
@@ -18,6 +22,20 @@ const baseOptions: InstallCommandOptions = {
   dbAuthDB: '',
   dbServiceName: 'node-mysql',
 };
+
+describe('buildPmmServerURL', () => {
+  test('uses placeholder when token empty', () => {
+    expect(buildPmmServerURL('pmm.example.com:8443', '')).toBe(
+      'https://service_token:<TOKEN>@pmm.example.com:8443'
+    );
+  });
+
+  test('percent-encodes token in userinfo', () => {
+    expect(buildPmmServerURL('h:1', 'a:b@c')).toBe(
+      'https://service_token:a%3Ab%40c@h:1'
+    );
+  });
+});
 
 describe('buildInstallCommand', () => {
   test('omits DB password in prompt mode', () => {

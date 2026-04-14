@@ -188,6 +188,17 @@ service ManagementService {
       description: "Gets a single Node by ID."
     };
   }
+  // CreateNodeInstallToken mints a short-lived Grafana token for PMM Client installation scripts (no inventory rows).
+  rpc CreateNodeInstallToken(CreateNodeInstallTokenRequest) returns (CreateNodeInstallTokenResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/nodes:installToken"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Create Node Install Token"
+      description: "Creates a short-lived Grafana service account token for PMM Client install."
+    };
+  }
   // MySQL: adds MySQL Service and starts several Agents.
   // It automatically adds a service to inventory, which is running on provided "node_id",
   // then adds "mysqld_exporter", and "qan_mysql_perfschema" agents

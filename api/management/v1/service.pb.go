@@ -7,17 +7,15 @@
 package managementv1
 
 import (
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
-
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
+	v1 "github.com/percona/pmm/api/inventory/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-
-	v1 "github.com/percona/pmm/api/inventory/v1"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -919,7 +917,7 @@ const file_management_v1_service_proto_rawDesc = "" +
 	"\fservice_type\x18\x02 \x01(\x0e2\x19.inventory.v1.ServiceTypeR\vserviceType\x12%\n" +
 	"\x0eexternal_group\x18\x03 \x01(\tR\rexternalGroup\"S\n" +
 	"\x14ListServicesResponse\x12;\n" +
-	"\bservices\x18\x01 \x03(\v2\x1f.management.v1.UniversalServiceR\bservices2\xa2\x13\n" +
+	"\bservices\x18\x01 \x03(\v2\x1f.management.v1.UniversalServiceR\bservices2\xb4\x15\n" +
 	"\x11ManagementService\x12\xac\x01\n" +
 	"\rAddAnnotation\x12#.management.v1.AddAnnotationRequest\x1a$.management.v1.AddAnnotationResponse\"P\x92A(\x12\x11Add an Annotation\x1a\x13Adds an annotation.\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/v1/management/annotations\x12\x9b\x01\n" +
 	"\n" +
@@ -929,7 +927,8 @@ const file_management_v1_service_proto_rawDesc = "" +
 	"\x0eUnregisterNode\x12$.management.v1.UnregisterNodeRequest\x1a%.management.v1.UnregisterNodeResponse\"^\x92A5\x12\x11Unregister a Node\x1a Unregisters a Node and pmm-agent\x82\xd3\xe4\x93\x02 *\x1e/v1/management/nodes/{node_id}\x12\x95\x01\n" +
 	"\tListNodes\x12\x1f.management.v1.ListNodesRequest\x1a .management.v1.ListNodesResponse\"E\x92A&\x12\n" +
 	"List Nodes\x1a\x18Lists Nodes with filter.\x82\xd3\xe4\x93\x02\x16\x12\x14/v1/management/nodes\x12\x98\x01\n" +
-	"\aGetNode\x12\x1d.management.v1.GetNodeRequest\x1a\x1e.management.v1.GetNodeResponse\"N\x92A%\x12\bGet Node\x1a\x19Gets a single Node by ID.\x82\xd3\xe4\x93\x02 \x12\x1e/v1/management/nodes/{node_id}\x12\xb2\x01\n" +
+	"\aGetNode\x12\x1d.management.v1.GetNodeRequest\x1a\x1e.management.v1.GetNodeResponse\"N\x92A%\x12\bGet Node\x1a\x19Gets a single Node by ID.\x82\xd3\xe4\x93\x02 \x12\x1e/v1/management/nodes/{node_id}\x12\x8f\x02\n" +
+	"\x16CreateNodeInstallToken\x12,.management.v1.CreateNodeInstallTokenRequest\x1a-.management.v1.CreateNodeInstallTokenResponse\"\x97\x01\x92Ah\x12\x19Create Node Install Token\x1aKCreates a short-lived Grafana service account token for PMM Client install.\x82\xd3\xe4\x93\x02&:\x01*\"!/v1/management/nodes:installToken\x12\xb2\x01\n" +
 	"\n" +
 	"AddService\x12 .management.v1.AddServiceRequest\x1a!.management.v1.AddServiceResponse\"_\x92A:\x12\rAdd a Service\x1a)Adds a service and starts several agents.\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/v1/management/services\x12\xb0\x01\n" +
 	"\fListServices\x12\".management.v1.ListServicesRequest\x1a#.management.v1.ListServicesResponse\"W\x92A5\x12\rList Services\x1a$Returns a filtered list of Services.\x82\xd3\xe4\x93\x02\x19\x12\x17/v1/management/services\x12\xaf\x01\n" +
@@ -951,61 +950,60 @@ func file_management_v1_service_proto_rawDescGZIP() []byte {
 	return file_management_v1_service_proto_rawDescData
 }
 
-var (
-	file_management_v1_service_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_management_v1_service_proto_msgTypes  = make([]protoimpl.MessageInfo, 8)
-	file_management_v1_service_proto_goTypes   = []any{
-		(UniversalService_Status)(0),          // 0: management.v1.UniversalService.Status
-		(*AddServiceRequest)(nil),             // 1: management.v1.AddServiceRequest
-		(*AddServiceResponse)(nil),            // 2: management.v1.AddServiceResponse
-		(*RemoveServiceRequest)(nil),          // 3: management.v1.RemoveServiceRequest
-		(*RemoveServiceResponse)(nil),         // 4: management.v1.RemoveServiceResponse
-		(*UniversalService)(nil),              // 5: management.v1.UniversalService
-		(*ListServicesRequest)(nil),           // 6: management.v1.ListServicesRequest
-		(*ListServicesResponse)(nil),          // 7: management.v1.ListServicesResponse
-		nil,                                   // 8: management.v1.UniversalService.CustomLabelsEntry
-		(*AddMySQLServiceParams)(nil),         // 9: management.v1.AddMySQLServiceParams
-		(*AddMongoDBServiceParams)(nil),       // 10: management.v1.AddMongoDBServiceParams
-		(*AddPostgreSQLServiceParams)(nil),    // 11: management.v1.AddPostgreSQLServiceParams
-		(*AddProxySQLServiceParams)(nil),      // 12: management.v1.AddProxySQLServiceParams
-		(*AddHAProxyServiceParams)(nil),       // 13: management.v1.AddHAProxyServiceParams
-		(*AddExternalServiceParams)(nil),      // 14: management.v1.AddExternalServiceParams
-		(*AddRDSServiceParams)(nil),           // 15: management.v1.AddRDSServiceParams
-		(*AddValkeyServiceParams)(nil),        // 16: management.v1.AddValkeyServiceParams
-		(*MySQLServiceResult)(nil),            // 17: management.v1.MySQLServiceResult
-		(*MongoDBServiceResult)(nil),          // 18: management.v1.MongoDBServiceResult
-		(*PostgreSQLServiceResult)(nil),       // 19: management.v1.PostgreSQLServiceResult
-		(*ProxySQLServiceResult)(nil),         // 20: management.v1.ProxySQLServiceResult
-		(*HAProxyServiceResult)(nil),          // 21: management.v1.HAProxyServiceResult
-		(*ExternalServiceResult)(nil),         // 22: management.v1.ExternalServiceResult
-		(*RDSServiceResult)(nil),              // 23: management.v1.RDSServiceResult
-		(*ValkeyServiceResult)(nil),           // 24: management.v1.ValkeyServiceResult
-		(v1.ServiceType)(0),                   // 25: inventory.v1.ServiceType
-		(*timestamppb.Timestamp)(nil),         // 26: google.protobuf.Timestamp
-		(*UniversalAgent)(nil),                // 27: management.v1.UniversalAgent
-		(*AddAnnotationRequest)(nil),          // 28: management.v1.AddAnnotationRequest
-		(*ListAgentsRequest)(nil),             // 29: management.v1.ListAgentsRequest
-		(*ListAgentVersionsRequest)(nil),      // 30: management.v1.ListAgentVersionsRequest
-		(*RegisterNodeRequest)(nil),           // 31: management.v1.RegisterNodeRequest
-		(*UnregisterNodeRequest)(nil),         // 32: management.v1.UnregisterNodeRequest
-		(*ListNodesRequest)(nil),              // 33: management.v1.ListNodesRequest
-		(*GetNodeRequest)(nil),                // 34: management.v1.GetNodeRequest
-		(*DiscoverRDSRequest)(nil),            // 35: management.v1.DiscoverRDSRequest
-		(*DiscoverAzureDatabaseRequest)(nil),  // 36: management.v1.DiscoverAzureDatabaseRequest
-		(*AddAzureDatabaseRequest)(nil),       // 37: management.v1.AddAzureDatabaseRequest
-		(*AddAnnotationResponse)(nil),         // 38: management.v1.AddAnnotationResponse
-		(*ListAgentsResponse)(nil),            // 39: management.v1.ListAgentsResponse
-		(*ListAgentVersionsResponse)(nil),     // 40: management.v1.ListAgentVersionsResponse
-		(*RegisterNodeResponse)(nil),          // 41: management.v1.RegisterNodeResponse
-		(*UnregisterNodeResponse)(nil),        // 42: management.v1.UnregisterNodeResponse
-		(*ListNodesResponse)(nil),             // 43: management.v1.ListNodesResponse
-		(*GetNodeResponse)(nil),               // 44: management.v1.GetNodeResponse
-		(*DiscoverRDSResponse)(nil),           // 45: management.v1.DiscoverRDSResponse
-		(*DiscoverAzureDatabaseResponse)(nil), // 46: management.v1.DiscoverAzureDatabaseResponse
-		(*AddAzureDatabaseResponse)(nil),      // 47: management.v1.AddAzureDatabaseResponse
-	}
-)
-
+var file_management_v1_service_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_management_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_management_v1_service_proto_goTypes = []any{
+	(UniversalService_Status)(0),           // 0: management.v1.UniversalService.Status
+	(*AddServiceRequest)(nil),              // 1: management.v1.AddServiceRequest
+	(*AddServiceResponse)(nil),             // 2: management.v1.AddServiceResponse
+	(*RemoveServiceRequest)(nil),           // 3: management.v1.RemoveServiceRequest
+	(*RemoveServiceResponse)(nil),          // 4: management.v1.RemoveServiceResponse
+	(*UniversalService)(nil),               // 5: management.v1.UniversalService
+	(*ListServicesRequest)(nil),            // 6: management.v1.ListServicesRequest
+	(*ListServicesResponse)(nil),           // 7: management.v1.ListServicesResponse
+	nil,                                    // 8: management.v1.UniversalService.CustomLabelsEntry
+	(*AddMySQLServiceParams)(nil),          // 9: management.v1.AddMySQLServiceParams
+	(*AddMongoDBServiceParams)(nil),        // 10: management.v1.AddMongoDBServiceParams
+	(*AddPostgreSQLServiceParams)(nil),     // 11: management.v1.AddPostgreSQLServiceParams
+	(*AddProxySQLServiceParams)(nil),       // 12: management.v1.AddProxySQLServiceParams
+	(*AddHAProxyServiceParams)(nil),        // 13: management.v1.AddHAProxyServiceParams
+	(*AddExternalServiceParams)(nil),       // 14: management.v1.AddExternalServiceParams
+	(*AddRDSServiceParams)(nil),            // 15: management.v1.AddRDSServiceParams
+	(*AddValkeyServiceParams)(nil),         // 16: management.v1.AddValkeyServiceParams
+	(*MySQLServiceResult)(nil),             // 17: management.v1.MySQLServiceResult
+	(*MongoDBServiceResult)(nil),           // 18: management.v1.MongoDBServiceResult
+	(*PostgreSQLServiceResult)(nil),        // 19: management.v1.PostgreSQLServiceResult
+	(*ProxySQLServiceResult)(nil),          // 20: management.v1.ProxySQLServiceResult
+	(*HAProxyServiceResult)(nil),           // 21: management.v1.HAProxyServiceResult
+	(*ExternalServiceResult)(nil),          // 22: management.v1.ExternalServiceResult
+	(*RDSServiceResult)(nil),               // 23: management.v1.RDSServiceResult
+	(*ValkeyServiceResult)(nil),            // 24: management.v1.ValkeyServiceResult
+	(v1.ServiceType)(0),                    // 25: inventory.v1.ServiceType
+	(*timestamppb.Timestamp)(nil),          // 26: google.protobuf.Timestamp
+	(*UniversalAgent)(nil),                 // 27: management.v1.UniversalAgent
+	(*AddAnnotationRequest)(nil),           // 28: management.v1.AddAnnotationRequest
+	(*ListAgentsRequest)(nil),              // 29: management.v1.ListAgentsRequest
+	(*ListAgentVersionsRequest)(nil),       // 30: management.v1.ListAgentVersionsRequest
+	(*RegisterNodeRequest)(nil),            // 31: management.v1.RegisterNodeRequest
+	(*UnregisterNodeRequest)(nil),          // 32: management.v1.UnregisterNodeRequest
+	(*ListNodesRequest)(nil),               // 33: management.v1.ListNodesRequest
+	(*GetNodeRequest)(nil),                 // 34: management.v1.GetNodeRequest
+	(*CreateNodeInstallTokenRequest)(nil),  // 35: management.v1.CreateNodeInstallTokenRequest
+	(*DiscoverRDSRequest)(nil),             // 36: management.v1.DiscoverRDSRequest
+	(*DiscoverAzureDatabaseRequest)(nil),   // 37: management.v1.DiscoverAzureDatabaseRequest
+	(*AddAzureDatabaseRequest)(nil),        // 38: management.v1.AddAzureDatabaseRequest
+	(*AddAnnotationResponse)(nil),          // 39: management.v1.AddAnnotationResponse
+	(*ListAgentsResponse)(nil),             // 40: management.v1.ListAgentsResponse
+	(*ListAgentVersionsResponse)(nil),      // 41: management.v1.ListAgentVersionsResponse
+	(*RegisterNodeResponse)(nil),           // 42: management.v1.RegisterNodeResponse
+	(*UnregisterNodeResponse)(nil),         // 43: management.v1.UnregisterNodeResponse
+	(*ListNodesResponse)(nil),              // 44: management.v1.ListNodesResponse
+	(*GetNodeResponse)(nil),                // 45: management.v1.GetNodeResponse
+	(*CreateNodeInstallTokenResponse)(nil), // 46: management.v1.CreateNodeInstallTokenResponse
+	(*DiscoverRDSResponse)(nil),            // 47: management.v1.DiscoverRDSResponse
+	(*DiscoverAzureDatabaseResponse)(nil),  // 48: management.v1.DiscoverAzureDatabaseResponse
+	(*AddAzureDatabaseResponse)(nil),       // 49: management.v1.AddAzureDatabaseResponse
+}
 var file_management_v1_service_proto_depIdxs = []int32{
 	9,  // 0: management.v1.AddServiceRequest.mysql:type_name -> management.v1.AddMySQLServiceParams
 	10, // 1: management.v1.AddServiceRequest.mongodb:type_name -> management.v1.AddMongoDBServiceParams
@@ -1038,27 +1036,29 @@ var file_management_v1_service_proto_depIdxs = []int32{
 	32, // 28: management.v1.ManagementService.UnregisterNode:input_type -> management.v1.UnregisterNodeRequest
 	33, // 29: management.v1.ManagementService.ListNodes:input_type -> management.v1.ListNodesRequest
 	34, // 30: management.v1.ManagementService.GetNode:input_type -> management.v1.GetNodeRequest
-	1,  // 31: management.v1.ManagementService.AddService:input_type -> management.v1.AddServiceRequest
-	6,  // 32: management.v1.ManagementService.ListServices:input_type -> management.v1.ListServicesRequest
-	35, // 33: management.v1.ManagementService.DiscoverRDS:input_type -> management.v1.DiscoverRDSRequest
-	36, // 34: management.v1.ManagementService.DiscoverAzureDatabase:input_type -> management.v1.DiscoverAzureDatabaseRequest
-	37, // 35: management.v1.ManagementService.AddAzureDatabase:input_type -> management.v1.AddAzureDatabaseRequest
-	3,  // 36: management.v1.ManagementService.RemoveService:input_type -> management.v1.RemoveServiceRequest
-	38, // 37: management.v1.ManagementService.AddAnnotation:output_type -> management.v1.AddAnnotationResponse
-	39, // 38: management.v1.ManagementService.ListAgents:output_type -> management.v1.ListAgentsResponse
-	40, // 39: management.v1.ManagementService.ListAgentVersions:output_type -> management.v1.ListAgentVersionsResponse
-	41, // 40: management.v1.ManagementService.RegisterNode:output_type -> management.v1.RegisterNodeResponse
-	42, // 41: management.v1.ManagementService.UnregisterNode:output_type -> management.v1.UnregisterNodeResponse
-	43, // 42: management.v1.ManagementService.ListNodes:output_type -> management.v1.ListNodesResponse
-	44, // 43: management.v1.ManagementService.GetNode:output_type -> management.v1.GetNodeResponse
-	2,  // 44: management.v1.ManagementService.AddService:output_type -> management.v1.AddServiceResponse
-	7,  // 45: management.v1.ManagementService.ListServices:output_type -> management.v1.ListServicesResponse
-	45, // 46: management.v1.ManagementService.DiscoverRDS:output_type -> management.v1.DiscoverRDSResponse
-	46, // 47: management.v1.ManagementService.DiscoverAzureDatabase:output_type -> management.v1.DiscoverAzureDatabaseResponse
-	47, // 48: management.v1.ManagementService.AddAzureDatabase:output_type -> management.v1.AddAzureDatabaseResponse
-	4,  // 49: management.v1.ManagementService.RemoveService:output_type -> management.v1.RemoveServiceResponse
-	37, // [37:50] is the sub-list for method output_type
-	24, // [24:37] is the sub-list for method input_type
+	35, // 31: management.v1.ManagementService.CreateNodeInstallToken:input_type -> management.v1.CreateNodeInstallTokenRequest
+	1,  // 32: management.v1.ManagementService.AddService:input_type -> management.v1.AddServiceRequest
+	6,  // 33: management.v1.ManagementService.ListServices:input_type -> management.v1.ListServicesRequest
+	36, // 34: management.v1.ManagementService.DiscoverRDS:input_type -> management.v1.DiscoverRDSRequest
+	37, // 35: management.v1.ManagementService.DiscoverAzureDatabase:input_type -> management.v1.DiscoverAzureDatabaseRequest
+	38, // 36: management.v1.ManagementService.AddAzureDatabase:input_type -> management.v1.AddAzureDatabaseRequest
+	3,  // 37: management.v1.ManagementService.RemoveService:input_type -> management.v1.RemoveServiceRequest
+	39, // 38: management.v1.ManagementService.AddAnnotation:output_type -> management.v1.AddAnnotationResponse
+	40, // 39: management.v1.ManagementService.ListAgents:output_type -> management.v1.ListAgentsResponse
+	41, // 40: management.v1.ManagementService.ListAgentVersions:output_type -> management.v1.ListAgentVersionsResponse
+	42, // 41: management.v1.ManagementService.RegisterNode:output_type -> management.v1.RegisterNodeResponse
+	43, // 42: management.v1.ManagementService.UnregisterNode:output_type -> management.v1.UnregisterNodeResponse
+	44, // 43: management.v1.ManagementService.ListNodes:output_type -> management.v1.ListNodesResponse
+	45, // 44: management.v1.ManagementService.GetNode:output_type -> management.v1.GetNodeResponse
+	46, // 45: management.v1.ManagementService.CreateNodeInstallToken:output_type -> management.v1.CreateNodeInstallTokenResponse
+	2,  // 46: management.v1.ManagementService.AddService:output_type -> management.v1.AddServiceResponse
+	7,  // 47: management.v1.ManagementService.ListServices:output_type -> management.v1.ListServicesResponse
+	47, // 48: management.v1.ManagementService.DiscoverRDS:output_type -> management.v1.DiscoverRDSResponse
+	48, // 49: management.v1.ManagementService.DiscoverAzureDatabase:output_type -> management.v1.DiscoverAzureDatabaseResponse
+	49, // 50: management.v1.ManagementService.AddAzureDatabase:output_type -> management.v1.AddAzureDatabaseResponse
+	4,  // 51: management.v1.ManagementService.RemoveService:output_type -> management.v1.RemoveServiceResponse
+	38, // [38:52] is the sub-list for method output_type
+	24, // [24:38] is the sub-list for method input_type
 	24, // [24:24] is the sub-list for extension type_name
 	24, // [24:24] is the sub-list for extension extendee
 	0,  // [0:24] is the sub-list for field type_name

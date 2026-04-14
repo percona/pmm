@@ -8,7 +8,6 @@ package management_service
 import (
 	"context"
 	"encoding/json"
-	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -26,7 +25,7 @@ type RegisterNodeReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *RegisterNodeReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
+func (o *RegisterNodeReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
 		result := NewRegisterNodeOK()
@@ -105,10 +104,11 @@ func (o *RegisterNodeOK) GetPayload() *RegisterNodeOKBody {
 }
 
 func (o *RegisterNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(RegisterNodeOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -178,10 +178,11 @@ func (o *RegisterNodeDefault) GetPayload() *RegisterNodeDefaultBody {
 }
 
 func (o *RegisterNodeDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(RegisterNodeDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -193,9 +194,6 @@ RegisterNodeBody register node body
 swagger:model RegisterNodeBody
 */
 type RegisterNodeBody struct {
-	// NodeType describes supported Node types.
-	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]
-	NodeType *string `json:"node_type,omitempty"`
 
 	// A user-defined name unique across all Nodes.
 	NodeName string `json:"node_name,omitempty"`
@@ -230,13 +228,6 @@ type RegisterNodeBody struct {
 	// If true, and Node with that name already exist, it will be removed with all dependent Services and Agents.
 	Reregister bool `json:"reregister,omitempty"`
 
-	// MetricsMode defines desired metrics mode for agent,
-	// it can be pull, push or auto mode chosen by server.
-	//
-	//  - METRICS_MODE_UNSPECIFIED: Auto
-	// Enum: ["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]
-	MetricsMode *string `json:"metrics_mode,omitempty"`
-
 	// List of collector names to disable in this exporter.
 	DisableCollectors []string `json:"disable_collectors"`
 
@@ -248,17 +239,28 @@ type RegisterNodeBody struct {
 
 	// AWS instance ID.
 	InstanceID string `json:"instance_id,omitempty"`
+
+	// MetricsMode defines desired metrics mode for agent,
+	// it can be pull, push or auto mode chosen by server.
+	//
+	//  - METRICS_MODE_UNSPECIFIED: Auto
+	// Enum: ["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]
+	MetricsMode *string `json:"metrics_mode,omitempty"`
+
+	// NodeType describes supported Node types.
+	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]
+	NodeType *string `json:"node_type,omitempty"`
 }
 
 // Validate validates this register node body
 func (o *RegisterNodeBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateNodeType(formats); err != nil {
+	if err := o.validateMetricsMode(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateMetricsMode(formats); err != nil {
+	if err := o.validateNodeType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -268,7 +270,52 @@ func (o *RegisterNodeBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var registerNodeBodyTypeNodeTypePropEnum []any
+var registerNodeBodyTypeMetricsModePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		registerNodeBodyTypeMetricsModePropEnum = append(registerNodeBodyTypeMetricsModePropEnum, v)
+	}
+}
+
+const (
+
+	// RegisterNodeBodyMetricsModeMETRICSMODEUNSPECIFIED captures enum value "METRICS_MODE_UNSPECIFIED"
+	RegisterNodeBodyMetricsModeMETRICSMODEUNSPECIFIED string = "METRICS_MODE_UNSPECIFIED"
+
+	// RegisterNodeBodyMetricsModeMETRICSMODEPULL captures enum value "METRICS_MODE_PULL"
+	RegisterNodeBodyMetricsModeMETRICSMODEPULL string = "METRICS_MODE_PULL"
+
+	// RegisterNodeBodyMetricsModeMETRICSMODEPUSH captures enum value "METRICS_MODE_PUSH"
+	RegisterNodeBodyMetricsModeMETRICSMODEPUSH string = "METRICS_MODE_PUSH"
+)
+
+// prop value enum
+func (o *RegisterNodeBody) validateMetricsModeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, registerNodeBodyTypeMetricsModePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *RegisterNodeBody) validateMetricsMode(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsMode) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateMetricsModeEnum("body"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var registerNodeBodyTypeNodeTypePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -322,51 +369,6 @@ func (o *RegisterNodeBody) validateNodeType(formats strfmt.Registry) error {
 	return nil
 }
 
-var registerNodeBodyTypeMetricsModePropEnum []any
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		registerNodeBodyTypeMetricsModePropEnum = append(registerNodeBodyTypeMetricsModePropEnum, v)
-	}
-}
-
-const (
-
-	// RegisterNodeBodyMetricsModeMETRICSMODEUNSPECIFIED captures enum value "METRICS_MODE_UNSPECIFIED"
-	RegisterNodeBodyMetricsModeMETRICSMODEUNSPECIFIED string = "METRICS_MODE_UNSPECIFIED"
-
-	// RegisterNodeBodyMetricsModeMETRICSMODEPULL captures enum value "METRICS_MODE_PULL"
-	RegisterNodeBodyMetricsModeMETRICSMODEPULL string = "METRICS_MODE_PULL"
-
-	// RegisterNodeBodyMetricsModeMETRICSMODEPUSH captures enum value "METRICS_MODE_PUSH"
-	RegisterNodeBodyMetricsModeMETRICSMODEPUSH string = "METRICS_MODE_PUSH"
-)
-
-// prop value enum
-func (o *RegisterNodeBody) validateMetricsModeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, registerNodeBodyTypeMetricsModePropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *RegisterNodeBody) validateMetricsMode(formats strfmt.Registry) error {
-	if swag.IsZero(o.MetricsMode) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateMetricsModeEnum("body"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // ContextValidate validates this register node body based on context it is used
 func (o *RegisterNodeBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
@@ -395,6 +397,7 @@ RegisterNodeDefaultBody register node default body
 swagger:model RegisterNodeDefaultBody
 */
 type RegisterNodeDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -431,15 +434,11 @@ func (o *RegisterNodeDefaultBody) validateDetails(formats strfmt.Registry) error
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("RegisterNode default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("RegisterNode default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -464,7 +463,9 @@ func (o *RegisterNodeDefaultBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *RegisterNodeDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -472,18 +473,15 @@ func (o *RegisterNodeDefaultBody) contextValidateDetails(ctx context.Context, fo
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("RegisterNode default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("RegisterNode default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -512,17 +510,19 @@ RegisterNodeDefaultBodyDetailsItems0 register node default body details items0
 swagger:model RegisterNodeDefaultBodyDetailsItems0
 */
 type RegisterNodeDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
 	// register node default body details items0
-	RegisterNodeDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	RegisterNodeDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
 func (o *RegisterNodeDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -543,9 +543,9 @@ func (o *RegisterNodeDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error 
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]any)
+		result := make(map[string]interface{})
 		for k, v := range stage2 {
-			var toadd any
+			var toadd interface{}
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -560,6 +560,7 @@ func (o *RegisterNodeDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error 
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o RegisterNodeDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -623,6 +624,7 @@ RegisterNodeOKBody register node OK body
 swagger:model RegisterNodeOKBody
 */
 type RegisterNodeOKBody struct {
+
 	// Token represents token for vmagent auth config.
 	Token string `json:"token,omitempty"`
 
@@ -668,15 +670,11 @@ func (o *RegisterNodeOKBody) validateContainerNode(formats strfmt.Registry) erro
 
 	if o.ContainerNode != nil {
 		if err := o.ContainerNode.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("registerNodeOk" + "." + "container_node")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("registerNodeOk" + "." + "container_node")
 			}
-
 			return err
 		}
 	}
@@ -691,15 +689,11 @@ func (o *RegisterNodeOKBody) validateGenericNode(formats strfmt.Registry) error 
 
 	if o.GenericNode != nil {
 		if err := o.GenericNode.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("registerNodeOk" + "." + "generic_node")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("registerNodeOk" + "." + "generic_node")
 			}
-
 			return err
 		}
 	}
@@ -714,15 +708,11 @@ func (o *RegisterNodeOKBody) validatePMMAgent(formats strfmt.Registry) error {
 
 	if o.PMMAgent != nil {
 		if err := o.PMMAgent.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("registerNodeOk" + "." + "pmm_agent")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("registerNodeOk" + "." + "pmm_agent")
 			}
-
 			return err
 		}
 	}
@@ -753,6 +743,7 @@ func (o *RegisterNodeOKBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *RegisterNodeOKBody) contextValidateContainerNode(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.ContainerNode != nil {
 
 		if swag.IsZero(o.ContainerNode) { // not required
@@ -760,15 +751,11 @@ func (o *RegisterNodeOKBody) contextValidateContainerNode(ctx context.Context, f
 		}
 
 		if err := o.ContainerNode.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("registerNodeOk" + "." + "container_node")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("registerNodeOk" + "." + "container_node")
 			}
-
 			return err
 		}
 	}
@@ -777,6 +764,7 @@ func (o *RegisterNodeOKBody) contextValidateContainerNode(ctx context.Context, f
 }
 
 func (o *RegisterNodeOKBody) contextValidateGenericNode(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.GenericNode != nil {
 
 		if swag.IsZero(o.GenericNode) { // not required
@@ -784,15 +772,11 @@ func (o *RegisterNodeOKBody) contextValidateGenericNode(ctx context.Context, for
 		}
 
 		if err := o.GenericNode.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("registerNodeOk" + "." + "generic_node")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("registerNodeOk" + "." + "generic_node")
 			}
-
 			return err
 		}
 	}
@@ -801,6 +785,7 @@ func (o *RegisterNodeOKBody) contextValidateGenericNode(ctx context.Context, for
 }
 
 func (o *RegisterNodeOKBody) contextValidatePMMAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.PMMAgent != nil {
 
 		if swag.IsZero(o.PMMAgent) { // not required
@@ -808,15 +793,11 @@ func (o *RegisterNodeOKBody) contextValidatePMMAgent(ctx context.Context, format
 		}
 
 		if err := o.PMMAgent.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("registerNodeOk" + "." + "pmm_agent")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("registerNodeOk" + "." + "pmm_agent")
 			}
-
 			return err
 		}
 	}
@@ -847,6 +828,7 @@ RegisterNodeOKBodyContainerNode ContainerNode represents a Docker container.
 swagger:model RegisterNodeOKBodyContainerNode
 */
 type RegisterNodeOKBodyContainerNode struct {
+
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -914,6 +896,7 @@ RegisterNodeOKBodyGenericNode GenericNode represents a bare metal server or virt
 swagger:model RegisterNodeOKBodyGenericNode
 */
 type RegisterNodeOKBodyGenericNode struct {
+
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -978,6 +961,7 @@ RegisterNodeOKBodyPMMAgent PMMAgent runs on Generic or Container Node.
 swagger:model RegisterNodeOKBodyPMMAgent
 */
 type RegisterNodeOKBodyPMMAgent struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 

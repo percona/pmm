@@ -8,7 +8,6 @@ package managementv1
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -20,19 +19,20 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ManagementService_AddAnnotation_FullMethodName         = "/management.v1.ManagementService/AddAnnotation"
-	ManagementService_ListAgents_FullMethodName            = "/management.v1.ManagementService/ListAgents"
-	ManagementService_ListAgentVersions_FullMethodName     = "/management.v1.ManagementService/ListAgentVersions"
-	ManagementService_RegisterNode_FullMethodName          = "/management.v1.ManagementService/RegisterNode"
-	ManagementService_UnregisterNode_FullMethodName        = "/management.v1.ManagementService/UnregisterNode"
-	ManagementService_ListNodes_FullMethodName             = "/management.v1.ManagementService/ListNodes"
-	ManagementService_GetNode_FullMethodName               = "/management.v1.ManagementService/GetNode"
-	ManagementService_AddService_FullMethodName            = "/management.v1.ManagementService/AddService"
-	ManagementService_ListServices_FullMethodName          = "/management.v1.ManagementService/ListServices"
-	ManagementService_DiscoverRDS_FullMethodName           = "/management.v1.ManagementService/DiscoverRDS"
-	ManagementService_DiscoverAzureDatabase_FullMethodName = "/management.v1.ManagementService/DiscoverAzureDatabase"
-	ManagementService_AddAzureDatabase_FullMethodName      = "/management.v1.ManagementService/AddAzureDatabase"
-	ManagementService_RemoveService_FullMethodName         = "/management.v1.ManagementService/RemoveService"
+	ManagementService_AddAnnotation_FullMethodName          = "/management.v1.ManagementService/AddAnnotation"
+	ManagementService_ListAgents_FullMethodName             = "/management.v1.ManagementService/ListAgents"
+	ManagementService_ListAgentVersions_FullMethodName      = "/management.v1.ManagementService/ListAgentVersions"
+	ManagementService_RegisterNode_FullMethodName           = "/management.v1.ManagementService/RegisterNode"
+	ManagementService_UnregisterNode_FullMethodName         = "/management.v1.ManagementService/UnregisterNode"
+	ManagementService_ListNodes_FullMethodName              = "/management.v1.ManagementService/ListNodes"
+	ManagementService_GetNode_FullMethodName                = "/management.v1.ManagementService/GetNode"
+	ManagementService_CreateNodeInstallToken_FullMethodName = "/management.v1.ManagementService/CreateNodeInstallToken"
+	ManagementService_AddService_FullMethodName             = "/management.v1.ManagementService/AddService"
+	ManagementService_ListServices_FullMethodName           = "/management.v1.ManagementService/ListServices"
+	ManagementService_DiscoverRDS_FullMethodName            = "/management.v1.ManagementService/DiscoverRDS"
+	ManagementService_DiscoverAzureDatabase_FullMethodName  = "/management.v1.ManagementService/DiscoverAzureDatabase"
+	ManagementService_AddAzureDatabase_FullMethodName       = "/management.v1.ManagementService/AddAzureDatabase"
+	ManagementService_RemoveService_FullMethodName          = "/management.v1.ManagementService/RemoveService"
 )
 
 // ManagementServiceClient is the client API for ManagementService service.
@@ -55,6 +55,8 @@ type ManagementServiceClient interface {
 	ListNodes(ctx context.Context, in *ListNodesRequest, opts ...grpc.CallOption) (*ListNodesResponse, error)
 	// GetNode returns a single Node by ID.
 	GetNode(ctx context.Context, in *GetNodeRequest, opts ...grpc.CallOption) (*GetNodeResponse, error)
+	// CreateNodeInstallToken mints a short-lived Grafana token for PMM Client installation scripts (no inventory rows).
+	CreateNodeInstallToken(ctx context.Context, in *CreateNodeInstallTokenRequest, opts ...grpc.CallOption) (*CreateNodeInstallTokenResponse, error)
 	// AddService adds a Service and starts several Agents.
 	AddService(ctx context.Context, in *AddServiceRequest, opts ...grpc.CallOption) (*AddServiceResponse, error)
 	// ListServices returns a list of Services with a rich set of properties.
@@ -147,6 +149,16 @@ func (c *managementServiceClient) GetNode(ctx context.Context, in *GetNodeReques
 	return out, nil
 }
 
+func (c *managementServiceClient) CreateNodeInstallToken(ctx context.Context, in *CreateNodeInstallTokenRequest, opts ...grpc.CallOption) (*CreateNodeInstallTokenResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateNodeInstallTokenResponse)
+	err := c.cc.Invoke(ctx, ManagementService_CreateNodeInstallToken_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *managementServiceClient) AddService(ctx context.Context, in *AddServiceRequest, opts ...grpc.CallOption) (*AddServiceResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(AddServiceResponse)
@@ -227,6 +239,8 @@ type ManagementServiceServer interface {
 	ListNodes(context.Context, *ListNodesRequest) (*ListNodesResponse, error)
 	// GetNode returns a single Node by ID.
 	GetNode(context.Context, *GetNodeRequest) (*GetNodeResponse, error)
+	// CreateNodeInstallToken mints a short-lived Grafana token for PMM Client installation scripts (no inventory rows).
+	CreateNodeInstallToken(context.Context, *CreateNodeInstallTokenRequest) (*CreateNodeInstallTokenResponse, error)
 	// AddService adds a Service and starts several Agents.
 	AddService(context.Context, *AddServiceRequest) (*AddServiceResponse, error)
 	// ListServices returns a list of Services with a rich set of properties.
@@ -252,51 +266,42 @@ type UnimplementedManagementServiceServer struct{}
 func (UnimplementedManagementServiceServer) AddAnnotation(context.Context, *AddAnnotationRequest) (*AddAnnotationResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method AddAnnotation not implemented")
 }
-
 func (UnimplementedManagementServiceServer) ListAgents(context.Context, *ListAgentsRequest) (*ListAgentsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListAgents not implemented")
 }
-
 func (UnimplementedManagementServiceServer) ListAgentVersions(context.Context, *ListAgentVersionsRequest) (*ListAgentVersionsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListAgentVersions not implemented")
 }
-
 func (UnimplementedManagementServiceServer) RegisterNode(context.Context, *RegisterNodeRequest) (*RegisterNodeResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method RegisterNode not implemented")
 }
-
 func (UnimplementedManagementServiceServer) UnregisterNode(context.Context, *UnregisterNodeRequest) (*UnregisterNodeResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method UnregisterNode not implemented")
 }
-
 func (UnimplementedManagementServiceServer) ListNodes(context.Context, *ListNodesRequest) (*ListNodesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListNodes not implemented")
 }
-
 func (UnimplementedManagementServiceServer) GetNode(context.Context, *GetNodeRequest) (*GetNodeResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetNode not implemented")
 }
-
+func (UnimplementedManagementServiceServer) CreateNodeInstallToken(context.Context, *CreateNodeInstallTokenRequest) (*CreateNodeInstallTokenResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateNodeInstallToken not implemented")
+}
 func (UnimplementedManagementServiceServer) AddService(context.Context, *AddServiceRequest) (*AddServiceResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method AddService not implemented")
 }
-
 func (UnimplementedManagementServiceServer) ListServices(context.Context, *ListServicesRequest) (*ListServicesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListServices not implemented")
 }
-
 func (UnimplementedManagementServiceServer) DiscoverRDS(context.Context, *DiscoverRDSRequest) (*DiscoverRDSResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method DiscoverRDS not implemented")
 }
-
 func (UnimplementedManagementServiceServer) DiscoverAzureDatabase(context.Context, *DiscoverAzureDatabaseRequest) (*DiscoverAzureDatabaseResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method DiscoverAzureDatabase not implemented")
 }
-
 func (UnimplementedManagementServiceServer) AddAzureDatabase(context.Context, *AddAzureDatabaseRequest) (*AddAzureDatabaseResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method AddAzureDatabase not implemented")
 }
-
 func (UnimplementedManagementServiceServer) RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method RemoveService not implemented")
 }
@@ -447,6 +452,24 @@ func _ManagementService_GetNode_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ManagementService_CreateNodeInstallToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateNodeInstallTokenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ManagementServiceServer).CreateNodeInstallToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ManagementService_CreateNodeInstallToken_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ManagementServiceServer).CreateNodeInstallToken(ctx, req.(*CreateNodeInstallTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ManagementService_AddService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddServiceRequest)
 	if err := dec(in); err != nil {
@@ -589,6 +612,10 @@ var ManagementService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetNode",
 			Handler:    _ManagementService_GetNode_Handler,
+		},
+		{
+			MethodName: "CreateNodeInstallToken",
+			Handler:    _ManagementService_CreateNodeInstallToken_Handler,
 		},
 		{
 			MethodName: "AddService",

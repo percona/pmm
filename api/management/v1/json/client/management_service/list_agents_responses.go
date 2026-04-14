@@ -8,7 +8,6 @@ package management_service
 import (
 	"context"
 	"encoding/json"
-	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -26,7 +25,7 @@ type ListAgentsReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ListAgentsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
+func (o *ListAgentsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
 		result := NewListAgentsOK()
@@ -105,10 +104,11 @@ func (o *ListAgentsOK) GetPayload() *ListAgentsOKBody {
 }
 
 func (o *ListAgentsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListAgentsOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -178,10 +178,11 @@ func (o *ListAgentsDefault) GetPayload() *ListAgentsDefaultBody {
 }
 
 func (o *ListAgentsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListAgentsDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -193,6 +194,7 @@ ListAgentsDefaultBody list agents default body
 swagger:model ListAgentsDefaultBody
 */
 type ListAgentsDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -229,15 +231,11 @@ func (o *ListAgentsDefaultBody) validateDetails(formats strfmt.Registry) error {
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ListAgents default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("ListAgents default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -262,7 +260,9 @@ func (o *ListAgentsDefaultBody) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *ListAgentsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -270,18 +270,15 @@ func (o *ListAgentsDefaultBody) contextValidateDetails(ctx context.Context, form
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ListAgents default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("ListAgents default" + "." + "details" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -310,17 +307,19 @@ ListAgentsDefaultBodyDetailsItems0 list agents default body details items0
 swagger:model ListAgentsDefaultBodyDetailsItems0
 */
 type ListAgentsDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
 	// list agents default body details items0
-	ListAgentsDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	ListAgentsDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
 func (o *ListAgentsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -341,9 +340,9 @@ func (o *ListAgentsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]any)
+		result := make(map[string]interface{})
 		for k, v := range stage2 {
-			var toadd any
+			var toadd interface{}
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -358,6 +357,7 @@ func (o *ListAgentsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o ListAgentsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -421,6 +421,7 @@ ListAgentsOKBody list agents OK body
 swagger:model ListAgentsOKBody
 */
 type ListAgentsOKBody struct {
+
 	// List of Agents.
 	Agents []*ListAgentsOKBodyAgentsItems0 `json:"agents"`
 }
@@ -451,15 +452,11 @@ func (o *ListAgentsOKBody) validateAgents(formats strfmt.Registry) error {
 
 		if o.Agents[i] != nil {
 			if err := o.Agents[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listAgentsOk" + "." + "agents" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("listAgentsOk" + "." + "agents" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
@@ -484,7 +481,9 @@ func (o *ListAgentsOKBody) ContextValidate(ctx context.Context, formats strfmt.R
 }
 
 func (o *ListAgentsOKBody) contextValidateAgents(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Agents); i++ {
+
 		if o.Agents[i] != nil {
 
 			if swag.IsZero(o.Agents[i]) { // not required
@@ -492,18 +491,15 @@ func (o *ListAgentsOKBody) contextValidateAgents(ctx context.Context, formats st
 			}
 
 			if err := o.Agents[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
+				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listAgentsOk" + "." + "agents" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
+				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("listAgentsOk" + "." + "agents" + "." + strconv.Itoa(i))
 				}
-
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -532,6 +528,7 @@ ListAgentsOKBodyAgentsItems0 list agents OK body agents items0
 swagger:model ListAgentsOKBodyAgentsItems0
 */
 type ListAgentsOKBodyAgentsItems0 struct {
+
 	// Unique agent identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -562,12 +559,6 @@ type ListAgentsOKBodyAgentsItems0 struct {
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
-
-	// Log level for exporters
-	//
-	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
-	LogLevel *string `json:"log_level,omitempty"`
 
 	// Limit query length in QAN.
 	MaxQueryLength int32 `json:"max_query_length,omitempty"`
@@ -647,11 +638,14 @@ type ListAgentsOKBodyAgentsItems0 struct {
 	// True if an exporter agent is exposed on all host addresses.
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 
-	// valkey options
-	ValkeyOptions any `json:"valkey_options,omitempty"`
-
 	// azure options
 	AzureOptions *ListAgentsOKBodyAgentsItems0AzureOptions `json:"azure_options,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
 
 	// mongo db options
 	MongoDBOptions *ListAgentsOKBodyAgentsItems0MongoDBOptions `json:"mongo_db_options,omitempty"`
@@ -664,6 +658,9 @@ type ListAgentsOKBodyAgentsItems0 struct {
 
 	// rta options
 	RtaOptions *ListAgentsOKBodyAgentsItems0RtaOptions `json:"rta_options,omitempty"`
+
+	// valkey options
+	ValkeyOptions interface{} `json:"valkey_options,omitempty"`
 }
 
 // Validate validates this list agents OK body agents items0
@@ -674,15 +671,15 @@ func (o *ListAgentsOKBodyAgentsItems0) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := o.validateLogLevel(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := o.validateUpdatedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := o.validateAzureOptions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -720,7 +717,38 @@ func (o *ListAgentsOKBodyAgentsItems0) validateCreatedAt(formats strfmt.Registry
 	return nil
 }
 
-var listAgentsOkBodyAgentsItems0TypeLogLevelPropEnum []any
+func (o *ListAgentsOKBodyAgentsItems0) validateUpdatedAt(formats strfmt.Registry) error {
+	if swag.IsZero(o.UpdatedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("updated_at", "body", "date-time", o.UpdatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *ListAgentsOKBodyAgentsItems0) validateAzureOptions(formats strfmt.Registry) error {
+	if swag.IsZero(o.AzureOptions) { // not required
+		return nil
+	}
+
+	if o.AzureOptions != nil {
+		if err := o.AzureOptions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("azure_options")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("azure_options")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+var listAgentsOkBodyAgentsItems0TypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -774,41 +802,6 @@ func (o *ListAgentsOKBodyAgentsItems0) validateLogLevel(formats strfmt.Registry)
 	return nil
 }
 
-func (o *ListAgentsOKBodyAgentsItems0) validateUpdatedAt(formats strfmt.Registry) error {
-	if swag.IsZero(o.UpdatedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("updated_at", "body", "date-time", o.UpdatedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *ListAgentsOKBodyAgentsItems0) validateAzureOptions(formats strfmt.Registry) error {
-	if swag.IsZero(o.AzureOptions) { // not required
-		return nil
-	}
-
-	if o.AzureOptions != nil {
-		if err := o.AzureOptions.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
-				return ve.ValidateName("azure_options")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
-				return ce.ValidateName("azure_options")
-			}
-
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (o *ListAgentsOKBodyAgentsItems0) validateMongoDBOptions(formats strfmt.Registry) error {
 	if swag.IsZero(o.MongoDBOptions) { // not required
 		return nil
@@ -816,15 +809,11 @@ func (o *ListAgentsOKBodyAgentsItems0) validateMongoDBOptions(formats strfmt.Reg
 
 	if o.MongoDBOptions != nil {
 		if err := o.MongoDBOptions.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("mongo_db_options")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("mongo_db_options")
 			}
-
 			return err
 		}
 	}
@@ -839,15 +828,11 @@ func (o *ListAgentsOKBodyAgentsItems0) validateMysqlOptions(formats strfmt.Regis
 
 	if o.MysqlOptions != nil {
 		if err := o.MysqlOptions.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("mysql_options")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("mysql_options")
 			}
-
 			return err
 		}
 	}
@@ -862,15 +847,11 @@ func (o *ListAgentsOKBodyAgentsItems0) validatePostgresqlOptions(formats strfmt.
 
 	if o.PostgresqlOptions != nil {
 		if err := o.PostgresqlOptions.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("postgresql_options")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("postgresql_options")
 			}
-
 			return err
 		}
 	}
@@ -885,15 +866,11 @@ func (o *ListAgentsOKBodyAgentsItems0) validateRtaOptions(formats strfmt.Registr
 
 	if o.RtaOptions != nil {
 		if err := o.RtaOptions.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("rta_options")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("rta_options")
 			}
-
 			return err
 		}
 	}
@@ -932,6 +909,7 @@ func (o *ListAgentsOKBodyAgentsItems0) ContextValidate(ctx context.Context, form
 }
 
 func (o *ListAgentsOKBodyAgentsItems0) contextValidateAzureOptions(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.AzureOptions != nil {
 
 		if swag.IsZero(o.AzureOptions) { // not required
@@ -939,15 +917,11 @@ func (o *ListAgentsOKBodyAgentsItems0) contextValidateAzureOptions(ctx context.C
 		}
 
 		if err := o.AzureOptions.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("azure_options")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("azure_options")
 			}
-
 			return err
 		}
 	}
@@ -956,6 +930,7 @@ func (o *ListAgentsOKBodyAgentsItems0) contextValidateAzureOptions(ctx context.C
 }
 
 func (o *ListAgentsOKBodyAgentsItems0) contextValidateMongoDBOptions(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MongoDBOptions != nil {
 
 		if swag.IsZero(o.MongoDBOptions) { // not required
@@ -963,15 +938,11 @@ func (o *ListAgentsOKBodyAgentsItems0) contextValidateMongoDBOptions(ctx context
 		}
 
 		if err := o.MongoDBOptions.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("mongo_db_options")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("mongo_db_options")
 			}
-
 			return err
 		}
 	}
@@ -980,6 +951,7 @@ func (o *ListAgentsOKBodyAgentsItems0) contextValidateMongoDBOptions(ctx context
 }
 
 func (o *ListAgentsOKBodyAgentsItems0) contextValidateMysqlOptions(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MysqlOptions != nil {
 
 		if swag.IsZero(o.MysqlOptions) { // not required
@@ -987,15 +959,11 @@ func (o *ListAgentsOKBodyAgentsItems0) contextValidateMysqlOptions(ctx context.C
 		}
 
 		if err := o.MysqlOptions.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("mysql_options")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("mysql_options")
 			}
-
 			return err
 		}
 	}
@@ -1004,6 +972,7 @@ func (o *ListAgentsOKBodyAgentsItems0) contextValidateMysqlOptions(ctx context.C
 }
 
 func (o *ListAgentsOKBodyAgentsItems0) contextValidatePostgresqlOptions(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.PostgresqlOptions != nil {
 
 		if swag.IsZero(o.PostgresqlOptions) { // not required
@@ -1011,15 +980,11 @@ func (o *ListAgentsOKBodyAgentsItems0) contextValidatePostgresqlOptions(ctx cont
 		}
 
 		if err := o.PostgresqlOptions.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("postgresql_options")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("postgresql_options")
 			}
-
 			return err
 		}
 	}
@@ -1028,6 +993,7 @@ func (o *ListAgentsOKBodyAgentsItems0) contextValidatePostgresqlOptions(ctx cont
 }
 
 func (o *ListAgentsOKBodyAgentsItems0) contextValidateRtaOptions(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.RtaOptions != nil {
 
 		if swag.IsZero(o.RtaOptions) { // not required
@@ -1035,15 +1001,11 @@ func (o *ListAgentsOKBodyAgentsItems0) contextValidateRtaOptions(ctx context.Con
 		}
 
 		if err := o.RtaOptions.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
+			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("rta_options")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
+			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("rta_options")
 			}
-
 			return err
 		}
 	}
@@ -1074,6 +1036,7 @@ ListAgentsOKBodyAgentsItems0AzureOptions list agents OK body agents items0 azure
 swagger:model ListAgentsOKBodyAgentsItems0AzureOptions
 */
 type ListAgentsOKBodyAgentsItems0AzureOptions struct {
+
 	// Azure client ID.
 	ClientID string `json:"client_id,omitempty"`
 
@@ -1123,6 +1086,7 @@ ListAgentsOKBodyAgentsItems0MongoDBOptions list agents OK body agents items0 mon
 swagger:model ListAgentsOKBodyAgentsItems0MongoDBOptions
 */
 type ListAgentsOKBodyAgentsItems0MongoDBOptions struct {
+
 	// True if TLS certificate is set.
 	IsTLSCertificateKeySet bool `json:"is_tls_certificate_key_set,omitempty"`
 
@@ -1178,6 +1142,7 @@ ListAgentsOKBodyAgentsItems0MysqlOptions list agents OK body agents items0 mysql
 swagger:model ListAgentsOKBodyAgentsItems0MysqlOptions
 */
 type ListAgentsOKBodyAgentsItems0MysqlOptions struct {
+
 	// True if TLS key is set.
 	IsTLSKeySet bool `json:"is_tls_key_set,omitempty"`
 
@@ -1218,6 +1183,7 @@ ListAgentsOKBodyAgentsItems0PostgresqlOptions list agents OK body agents items0 
 swagger:model ListAgentsOKBodyAgentsItems0PostgresqlOptions
 */
 type ListAgentsOKBodyAgentsItems0PostgresqlOptions struct {
+
 	// True if TLS key is set.
 	IsSslKeySet bool `json:"is_ssl_key_set,omitempty"`
 
@@ -1261,6 +1227,7 @@ ListAgentsOKBodyAgentsItems0RtaOptions RTAOptions holds Real-Time Query Analytic
 swagger:model ListAgentsOKBodyAgentsItems0RtaOptions
 */
 type ListAgentsOKBodyAgentsItems0RtaOptions struct {
+
 	// Query collect interval (default 2s is set by server).
 	CollectInterval string `json:"collect_interval,omitempty"`
 }

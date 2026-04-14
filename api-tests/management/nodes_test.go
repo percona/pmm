@@ -445,3 +445,19 @@ func TestNodeRegister(t *testing.T) {
 		require.Nil(t, registerOK)
 	})
 }
+
+func TestCreateNodeInstallToken(t *testing.T) {
+	t.Parallel()
+
+	params := mservice.CreateNodeInstallTokenParams{
+		Context: pmmapitests.Context,
+		Body: mservice.CreateNodeInstallTokenBody{
+			Technology: "mysql",
+		},
+	}
+	ok, err := client.Default.ManagementService.CreateNodeInstallToken(&params)
+	require.NoError(t, err)
+	require.NotNil(t, ok)
+	require.NotNil(t, ok.Payload)
+	assert.NotEmpty(t, ok.Payload.Token)
+}

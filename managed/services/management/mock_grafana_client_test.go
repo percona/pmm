@@ -77,6 +77,31 @@ func (_m *mockGrafanaClient) CreateServiceAccount(ctx context.Context, noneName 
 	return r0, r1, r2
 }
 
+// CreateNodeInstallToken provides a mock function for install-token flow.
+func (_m *mockGrafanaClient) CreateNodeInstallToken(ctx context.Context, uniqueSuffix string, ttlSeconds int64) (int64, string, time.Time, error) {
+	ret := _m.Called(ctx, uniqueSuffix, ttlSeconds)
+
+	var r0 int64
+	var r1 string
+	var r2 time.Time
+	var r3 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, int64) (int64, string, time.Time, error)); ok {
+		return rf(ctx, uniqueSuffix, ttlSeconds)
+	}
+	if ret.Get(0) != nil {
+		r0 = ret.Get(0).(int64)
+	}
+	if ret.Get(1) != nil {
+		r1 = ret.Get(1).(string)
+	}
+	if ret.Get(2) != nil {
+		r2 = ret.Get(2).(time.Time)
+	}
+	r3 = ret.Error(3)
+
+	return r0, r1, r2, r3
+}
+
 // DeleteServiceAccount provides a mock function with given fields: ctx, noneName, force
 func (_m *mockGrafanaClient) DeleteServiceAccount(ctx context.Context, noneName string, force bool) (string, error) {
 	ret := _m.Called(ctx, noneName, force)
