@@ -1,4 +1,4 @@
-import { CircularProgress, Stack } from '@mui/material';
+import { Box, CircularProgress, Stack } from '@mui/material';
 import { Outlet } from 'react-router-dom';
 import { useBootstrap } from 'hooks/utils/useBootstrap';
 import { Sidebar } from 'components/sidebar';
@@ -31,11 +31,22 @@ export const MainWithNav = () => {
   }
 
   return (
-    <Stack direction="row" flex={1}>
+    <Stack direction="row" flex={1} sx={{ minHeight: 0, minWidth: 0 }}>
       {!isFullScreen && !isRenderingServer() && <Sidebar />}
-      <Stack flex={1} direction="column">
+      <Stack flex={1} direction="column" sx={{ minHeight: 0, minWidth: 0 }}>
         {!isFullScreen && <Header />}
-        <Outlet />
+        <Box
+          sx={{
+            flex: 1,
+            minHeight: 0,
+            minWidth: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'auto',
+          }}
+        >
+          <Outlet />
+        </Box>
         <GrafanaPage />
       </Stack>
       <DelayedRender delay={SHOW_UPDATE_INFO_DELAY_MS}>

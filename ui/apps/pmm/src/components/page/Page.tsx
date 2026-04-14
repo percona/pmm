@@ -2,6 +2,7 @@ import { FC } from 'react';
 import { PageProps } from './Page.types';
 import {
   Alert,
+  Box,
   Card,
   CardActions,
   Link,
@@ -22,13 +23,15 @@ export const Page: FC<PageProps> = ({ title, topBar, footer, children, fullWidth
     <Stack
       sx={(theme) => ({
         flex: 1,
+        minHeight: 0,
+        flexDirection: 'column',
         ...(fullWidth
           ? {
               width: '100%',
               maxWidth: '100%',
               minWidth: 0,
               alignSelf: 'stretch',
-              overflowX: 'hidden',
+              overflow: 'hidden',
               boxSizing: 'border-box',
             }
           : {
@@ -39,18 +42,35 @@ export const Page: FC<PageProps> = ({ title, topBar, footer, children, fullWidth
                 md: 'auto',
               },
             }),
-        p: {
-          xs: 2,
-        },
+        p: fullWidth
+          ? { xs: 0.5, sm: 1 }
+          : {
+              xs: 2,
+            },
         mx: fullWidth ? 0 : 'auto',
-        gap: 3,
-        mt: 1,
+        gap: fullWidth ? 0 : 3,
+        mt: fullWidth ? 0 : 1,
       })}
     >
       {topBar}
       {!!title && <Typography variant="h2">{title}</Typography>}
       {user?.isAuthorized ? (
-        children
+        fullWidth ? (
+          <Box
+            sx={{
+              flex: 1,
+              minHeight: 0,
+              minWidth: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+            }}
+          >
+            {children}
+          </Box>
+        ) : (
+          children
+        )
       ) : (
         <Card variant="outlined" sx={{ p: 2 }}>
           <Alert severity="error" sx={{ mb: 1 }}>

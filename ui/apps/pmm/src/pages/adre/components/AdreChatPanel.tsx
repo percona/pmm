@@ -23,7 +23,7 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import Send from '@mui/icons-material/Send';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import { FC, useState, useCallback, useEffect, useRef } from 'react';
+import { FC, useState, useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
@@ -73,6 +73,8 @@ export const AdreChatPanel: FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const modelAnchorRef = useRef<HTMLDivElement>(null);
+  /** After scrolling to a search hit, skip one "pin to bottom" so we do not jump away from the hit. */
+  const skipPinToBottomOnceRef = useRef(false);
 
   const skipServerDefaultModeRef = useRef(
     (() => {
@@ -108,37 +110,40 @@ export const AdreChatPanel: FC = () => {
     saveAdreChatUiPreferences({ model: value });
   }, []);
 
-  const lastScrollRef = useRef(0);
-  const scrollToBottom = useCallback((instant?: boolean) => {
-    const now = Date.now();
-    if (!instant && now - lastScrollRef.current < 200) return;
-    lastScrollRef.current = now;
-    messagesEndRef.current?.scrollIntoView({ behavior: instant ? 'auto' : 'smooth' });
-  }, []);
+  /** Keep view pinned to latest messages: instant jump (no smooth scroll through history on load/refresh). */
+  useLayoutEffect(() => {
+    if (scrollToMessageId != null) {
+      return;
+    }
+    if (skipPinToBottomOnceRef.current) {
+      skipPinToBottomOnceRef.current = false;
+      return;
+    }
+    const el = containerRef.current;
+    if (!el || allMessages.length === 0) {
+      return;
+    }
+    el.scrollTop = el.scrollHeight;
+  }, [
+    conversationId,
+    allMessages.length,
+    response,
+    reasoning,
+    loading,
+    scrollToMessageId,
+  ]);
 
-  useEffect(() => {
-    scrollToBottom(loading);
-  }, [allMessages.length, response, reasoning, loading, scrollToBottom]);
-
-  useEffect(() => {
-    const id = requestAnimationFrame(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
-    });
-    return () => cancelAnimationFrame(id);
-  }, []);
-
-  useEffect(() => {
-    if (scrollToMessageId == null || !containerRef.current) return;
-    const timer = window.setTimeout(() => {
-      const root = containerRef.current;
-      if (!root) return;
-      const el = root.querySelector(`[data-adre-msg-id="${scrollToMessageId}"]`);
-      if (el instanceof HTMLElement) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-      clearScrollToMessage();
-    }, 150);
-    return () => window.clearTimeout(timer);
+  useLayoutEffect(() => {
+    if (scrollToMessageId == null || !containerRef.current) {
+      return;
+    }
+    const root = containerRef.current;
+    const el = root.querySelector(`[data-adre-msg-id="${scrollToMessageId}"]`);
+    if (el instanceof HTMLElement) {
+      el.scrollIntoView({ behavior: 'auto', block: 'center' });
+      skipPinToBottomOnceRef.current = true;
+    }
+    clearScrollToMessage();
   }, [scrollToMessageId, allMessages.length, clearScrollToMessage]);
 
   const onSend = useCallback(async () => {

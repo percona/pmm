@@ -1,7 +1,6 @@
 import { Alert, Box, Button, Card, CardContent, FormControlLabel, Link, Stack, Switch, TextField, Typography } from '@mui/material';
 import { FC, useState, useEffect } from 'react';
 import { Page } from 'components/page';
-import { HEADER_HEIGHT } from 'components/main/header/Header.constants';
 import { useAdreSettings, useAdreAlerts, useUpdateAdreSettings } from 'hooks/api/useAdre';
 import { useUser } from 'contexts/user';
 import { PMM_SETTINGS_URL } from 'lib/constants';
@@ -142,14 +141,11 @@ const AdrePage: FC = () => {
           width: '100%',
           maxWidth: '100%',
           minWidth: 0,
-          boxSizing: 'border-box',
-          height: `calc(100dvh - ${HEADER_HEIGHT}px - 56px)`,
-          maxHeight: `calc(100dvh - ${HEADER_HEIGHT}px - 56px)`,
           minHeight: 0,
+          boxSizing: 'border-box',
           display: 'flex',
           flexDirection: 'column',
-          px: { xs: 1, sm: 2 },
-          py: 2,
+          py: 0.5,
           borderRadius: 1,
           overflow: 'hidden',
           '& .MuiCard-root': {
@@ -176,7 +172,7 @@ const AdrePage: FC = () => {
         >
           <Box
             sx={{
-              flex: alerts.length > 0 ? '2 1 0%' : 1,
+              flex: '1 1 0%',
               minWidth: 0,
               minHeight: 0,
               maxWidth: '100%',
@@ -190,9 +186,9 @@ const AdrePage: FC = () => {
           {alerts.length > 0 && (
             <Box
               sx={{
-                flex: { xs: '1 1 auto', md: '0 1 clamp(200px, 24vw, 280px)' },
-                width: { xs: '100%', md: 'auto' },
-                maxWidth: { xs: '100%', md: 'min(280px, 32vw)' },
+                flex: { xs: '0 0 auto', md: '0 0 260px' },
+                width: { xs: '100%', md: 260 },
+                maxWidth: '100%',
                 minWidth: 0,
                 minHeight: 0,
                 maxHeight: '100%',
