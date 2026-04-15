@@ -10,15 +10,6 @@
 - name: List installed gpg keys
   command: ls -la /etc/pki/rpm-gpg
 
-# Local yum repo for building pmm server docker image in autobuild jobs
-- name: Add a local YUM repository
-  yum_repository:
-    name: local
-    description: Local YUM repository - x86_64
-    baseurl: file:///tmp/RPMS
-    gpgcheck: no
-    enabled: no
-
 - name: Update OS packages
   dnf:
     name: "*"
@@ -96,18 +87,107 @@
     - /var/lib/cloud/scripts/per-once
     - /var/lib/cloud/scripts/per-boot
 
-- name: Install PMM Server components
-  dnf:
-    name:
-      - percona-grafana
-      - percona-victoriametrics
-      - percona-qan-api2
-      - percona-dashboards
-      - pmm-managed
-      - pmm-dump
-      - vmproxy
-    state: installed
-    enablerepo: local
+- name: Create server component directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: pmm
+    group: root
+    mode: 0775
+  loop:
+    - /usr/share/grafana
+    - /usr/share/pmm-managed
+    - /usr/share/pmm-ui
+    - /usr/share/percona-dashboards
+    - /usr/share/percona-dashboards/panels
+    - /usr/local/percona
+    - /usr/local/percona/advisors
+    - /usr/local/percona/checks
+    - /usr/local/percona/alerting-templates
+    - /var/lib/grafana
+
+- name: Install Go binaries
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: "0755"
+    remote_src: yes
+  loop:
+    - { src: /opt/pmm-staging/pmm-managed/bin/pmm-managed, dest: /usr/sbin/pmm-managed }
+    - { src: /opt/pmm-staging/pmm-managed/bin/pmm-encryption-rotation, dest: /usr/sbin/pmm-encryption-rotation }
+    - { src: /opt/pmm-staging/pmm-managed/bin/pmm-managed-init, dest: /usr/sbin/pmm-managed-init }
+    - { src: /opt/pmm-staging/pmm-managed/bin/pmm-managed-starlark, dest: /usr/sbin/pmm-managed-starlark }
+    - { src: /opt/pmm-staging/pmm-managed/bin/qan-api2, dest: /usr/sbin/percona-qan-api2 }
+    - { src: /opt/pmm-staging/pmm-managed/bin/vmproxy, dest: /usr/sbin/vmproxy }
+    - { src: /opt/pmm-staging/pmm-dump/pmm-dump, dest: /usr/sbin/pmm-dump }
+    - { src: /opt/pmm-staging/grafana-go/grafana-server, dest: /usr/sbin/grafana-server }
+    - { src: /opt/pmm-staging/grafana-go/grafana, dest: /usr/sbin/grafana }
+    - { src: /opt/pmm-staging/grafana-go/grafana-cli, dest: /usr/bin/grafana-cli }
+    - { src: /opt/pmm-staging/victoriametrics/victoria-metrics-pure, dest: /usr/sbin/victoriametrics }
+    - { src: /opt/pmm-staging/victoriametrics/vmalert-pure, dest: /usr/sbin/vmalert }
+
+- name: Install Grafana UI assets
+  command: cp -rT /opt/pmm-staging/grafana-ui/{{ item.src }} /usr/share/grafana/{{ item.dest }}
+  loop:
+    - { src: public, dest: public }
+    - { src: conf, dest: conf }
+    - { src: tools, dest: tools }
+
+- name: Install Grafana configuration files
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: pmm
+    group: root
+    mode: "0644"
+    remote_src: yes
+  loop:
+    - { src: /opt/pmm-staging/grafana-ui/conf/sample.ini, dest: /etc/grafana/grafana.ini }
+    - { src: /opt/pmm-staging/grafana-ui/conf/ldap.toml, dest: /etc/grafana/ldap.toml }
+
+- name: Install pmm-managed data assets
+  command: cp -rT /opt/pmm-staging/pmm-managed/data/{{ item.src }} {{ item.dest }}
+  loop:
+    - { src: swagger, dest: /usr/share/pmm-managed/swagger }
+    - { src: advisors, dest: /usr/local/percona/advisors }
+    - { src: checks, dest: /usr/local/percona/checks }
+    - { src: alerting-templates, dest: /usr/local/percona/alerting-templates }
+
+- name: Install PMM UI assets
+  command: cp -rT /opt/pmm-staging/pmm-ui/{{ item.src }} {{ item.dest }}
+  loop:
+    - { src: pmm-dist, dest: /usr/share/pmm-ui }
+    - { src: pmm-compat-dist, dest: /usr/share/percona-dashboards/panels/pmm-compat-app }
+
+- name: Install percona-dashboards assets
+  command: cp -rT /opt/pmm-staging/pmm-dashboards/panels /usr/share/percona-dashboards/panels
+
+- name: Install VERSION.json
+  copy:
+    src: /opt/pmm-staging/version.json
+    dest: /usr/share/pmm-server/VERSION.json
+    owner: root
+    group: root
+    mode: "0644"
+    remote_src: yes
+
+- name: Set ownership on pmm-owned assets
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: pmm
+    group: root
+    recurse: yes
+  loop:
+    - /usr/share/grafana
+    - /usr/share/pmm-managed
+    - /usr/share/pmm-ui
+    - /usr/share/percona-dashboards
+    - /usr/local/percona
+
+
 
 - name: Configure grafana
   include_role:

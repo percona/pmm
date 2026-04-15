@@ -209,6 +209,17 @@ download_build_files() {
     fi
   done
 
+  # Overlay pipeline-specific overrides on top of the base directories above.
+  # Files under build/pipeline/<dir>/... replace files at the same relative path
+  # in ${PIPELINE_DIR}/<dir>/... (pipeline builds consume staged artifacts from
+  # /opt/pmm-staging rather than RPMs, so e.g. ansible tasks differ).
+  for dir in ansible docker packages; do
+    if [ -d "${src}/pipeline/${dir}" ]; then
+      cp -rf "${src}/pipeline/${dir}/." "${PIPELINE_DIR}/${dir}/"
+      log_info "Applied pipeline overrides under ${dir}/"
+    fi
+  done
+
   # Copy install_tarball from the legacy scripts directory (used by package-tarball).
   if [ ! -f "${SCRIPT_DIR}/install_tarball" ]; then
     cp "${src}/scripts/install_tarball" "${SCRIPT_DIR}/install_tarball"
