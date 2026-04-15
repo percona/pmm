@@ -51,7 +51,8 @@
 ##      make download-clickhouse-backup
 ##      make restore-clickhouse-backup
 ##      make bench
-.PHONY: download-clickhouse-backup restore-clickhouse-backup bench bench-filters bench-report bench-metrics bench-example
+
+.PHONY: $(MAKECMDGOALS)
 # Since the ClickHouse backup can come from a different migration state (e.g., created when the latest migration was 21),
 # and the current latest migration is 22, we need to ensure that the remaining migrations are applied
 # to make the system fully functional after restore.
@@ -76,7 +77,10 @@ CLICKHOUSE_PASSWORD ?= clickhouse
 restore-clickhouse-backup: 
 	docker exec pmm-server clickhouse-client --user=$(CLICKHOUSE_USER) --password=$(CLICKHOUSE_PASSWORD) --query="DROP DATABASE IF EXISTS pmm";
 	docker exec pmm-server clickhouse-client --user=$(CLICKHOUSE_USER) --password=$(CLICKHOUSE_PASSWORD) --query="RESTORE DATABASE pmm FROM Disk('backup', '$(BACKUP_NAME)')";
-	docker exec -u root pmm-server go run /root/go/src/github.com/percona/pmm/qan-api2/clickhouse_migrate/main.go --last-migration $(BACKUP_LAST_MIGRATION) --user CLICKHOUSE_USER=$(CLICKHOUSE_USER) --password CLICKHOUSE_PASSWORD=$(CLICKHOUSE_PASSWORD)
+	docker exec -u root pmm-server go run /root/go/src/github.com/percona/pmm/qan-api2/clickhouse_migrate/main.go \
+		--last-migration $(BACKUP_LAST_MIGRATION) \
+		--user CLICKHOUSE_USER=$(CLICKHOUSE_USER) \
+		--password CLICKHOUSE_PASSWORD=$(CLICKHOUSE_PASSWORD)
 #
 # Default time periods for benchmarking.
 # NOTE: These defaults are aligned with the default demo backup (BACKUP_NAME=20260120).

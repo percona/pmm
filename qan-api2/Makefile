@@ -1,9 +1,8 @@
 # PMM Demo benchmark
-include Makefile.clickhouse
-
 PROJECT_NAME  := qan-api2
 COVERAGE_MODE := count
 
+include Makefile.mk
 include ../go.mk
 
 PMM_CONTAINER ?= pmm-server
@@ -47,7 +46,7 @@ test-race:                      ## Run tests with race detector
 test-cover:                     ## Run tests and collect coverage information
 	go test -coverprofile=cover.out -covermode=count ./...
 
-RUN_FLAGS = ## -todo-use-kingpin-for-flags
+RUN_FLAGS =
 
 run: install _run               ## Run qan-api2
 
@@ -73,6 +72,7 @@ env-down:                       ## Remove docker containers
 	docker compose down --volumes
 	rm -rf logs
 
+# TODO: move to .devcontainer/Makefile
 pmm-env-up:                     ## Run PMM server, MySQL Server and sysbench containers
 	docker compose up -d --force-recreate --renew-anon-volumes --remove-orphans $(PMM_CONTAINER)
 	docker exec $(PMM_CONTAINER) sed -i 's|<!-- <listen_host>0.0.0.0</listen_host> -->|<listen_host>0.0.0.0</listen_host>|g' /etc/clickhouse-server/config.xml
@@ -84,6 +84,7 @@ pmm-env-up:                     ## Run PMM server, MySQL Server and sysbench con
 	docker exec $(PMM_CONTAINER) supervisorctl start qan-api2
 	cat fixture/metrics.part_*.json | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test --password=clickhouse --query="INSERT INTO metrics FORMAT JSONEachRow"
 
+# TODO: move to .devcontainer/Makefile
 deploy:
 	GOOS=linux GOARCH=amd64 make release
 	docker exec $(PMM_CONTAINER) supervisorctl stop qan-api2
