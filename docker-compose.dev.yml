@@ -117,6 +117,8 @@ services:
       - ./dev/sysbench-ps.sh:/sysbench-ps.sh
 
   postgres:
+    profiles:
+      - postgres
     image: ${POSTGRES_IMAGE:-postgres:14}
     container_name: pmm-agent_postgres
     command: >

@@ -35,6 +35,9 @@ gen-init:
 	mkdir tmp-mysql
 	../bin/reform-db -db-driver=mysql -db-source='root:root-password@tcp(127.0.0.1:3306)/performance_schema' init tmp-mysql
 
+go-mod-download:                ## Download Go modules
+	$(go-mod-download)
+
 install:                        ## Install pmm-agent binary
 	go build -v -ldflags "$(VERSION_FLAGS)" -o $(GOBIN)/pmm-agent
 

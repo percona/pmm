@@ -37,12 +37,10 @@ PMM_RELEASE_PATH       ?= ../bin
 PMM_RELEASE_VERSION    ?= $(shell git describe --always --dirty | cut -b2-)
 PMM_RELEASE_TIMESTAMP  ?= $(shell date '+%s')
 PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
-PMM_RELEASE_BRANCH     ?= $(shell git describe --always --contains --all)
+PMM_RELEASE_BRANCH     ?= $(or $(GITHUB_HEAD_REF),$(GITHUB_REF_NAME),$(shell git rev-parse --abbrev-ref HEAD))
 
 # Go binary install path.
-ifeq ($(GOBIN),)
-	GOBIN := $(shell go env GOPATH)/bin
-endif
+GOBIN := $(or $(GOBIN),$(shell go env GOPATH)/bin)
 
 # Version linker flags (raw, without -ldflags wrapper).
 # Components that need custom linking (e.g. static builds) can use this directly.
@@ -78,6 +76,10 @@ define go-test-cover
 go test $(TEST_FLAGS) $(TEST_PARALLEL) -race -coverprofile=cover.out -covermode=$(COVERAGE_MODE) -coverpkg=$(TEST_PKGS) $(TEST_PKGS)
 endef
 
+define go-mod-download
+go mod download -x
+endef
+
 .PHONY: $(MAKECMDGOALS)
 
 ## Default target and help
@@ -96,4 +98,4 @@ help:                           ## Display this help message
 # 2. Move all services located in docker-compose.yml files to the top-level docker-compose.yml, 
 # and use profiles to control which services are started in each environment (devcontainer, CI, etc.)
 # 3. Remove all docker-compose.yml files except the top-level one
-# 4. 
+# 	 Out of scope: docker-compose-pg-load.yml

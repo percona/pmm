@@ -49,13 +49,13 @@ jobs:
           #   + older supported MongoDB versions
           #   + older supported PostgreSQL versions
           #   + 3-dev-latest PMM Server
-          # - MYSQL_IMAGE=mariadb:5.5
-          # - MYSQL_IMAGE=mariadb:10.0
-          # - MYSQL_IMAGE=mariadb:10.1
+          # - MYSQL_IMAGE=mariadb:11.2
+          # - MYSQL_IMAGE=mariadb:11.4
+          # - MYSQL_IMAGE=mariadb:11.5
 
-          - { mysql: 'mariadb:11.2', mongo: 'percona/percona-server-mongodb:5.0', postgres: 'postgres:17', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
-          - { mysql: 'mariadb:11.4', mongo: 'percona/percona-server-mongodb:6.0', postgres: 'perconalab/percona-distribution-postgresql:13', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
-          - { mysql: 'mariadb:11.5', mongo: 'percona/percona-server-mongodb:7.0', postgres: 'postgres:18', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
+          - { mysql: 'mariadb:11.2', mongo: 'percona/percona-server-mongodb:6.0', postgres: 'postgres:17', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
+          - { mysql: 'mariadb:11.4', mongo: 'percona/percona-server-mongodb:7.0', postgres: 'perconalab/percona-distribution-postgresql:13', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
+          - { mysql: 'mariadb:11.5', mongo: 'percona/percona-server-mongodb:8.0', postgres: 'postgres:18', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
 
     continue-on-error: true
 
@@ -66,9 +66,9 @@ jobs:
       PMM_SERVER_IMAGE: ${{ matrix.images.pmm_server }}
       PG_PRELOADED_LIBS: ${{ matrix.images.pg_libs }}
 
-    defaults:
-      run:
-        working-directory: ${{ github.workspace }}/agent
+    # defaults:
+    #   run:
+    #     working-directory: ${{ github.workspace }}/agent
 
     steps:
       - name: Check out code
@@ -97,23 +97,24 @@ jobs:
           restore-keys: ${{ runner.os }}-go-modules-
 
       - name: Download Go modules
-        run: go mod download -x
+        run: |
+          make -C agent go-mod-download
 
       - name: Build and install
-        run: make install
+        run: make -C agent install
 
       - name: Launch containers
         env:
           ENV_UP_FLAGS: "--detach"
-        run: make env-up
+        run: PROFILES=pmm,mysql,postgres,mongo make env-up
 
       - name: Run tests
-        run: make test-cover
+        run: make -C agent test-cover
 
       - name: Upload coverage results
         uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         with:
-          files: cover.out
+          files: agent/cover.out
           flags: agent
           env_vars: MYSQL_IMAGE,MONGO_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
           fail_ci_if_error: false
@@ -135,9 +136,6 @@ jobs:
     name: Build PMM Agent with GSSAPI support
     runs-on: ubuntu-22.04
     continue-on-error: false
-    defaults:
-      run:
-        working-directory: ${{ github.workspace }}/agent
 
     steps:
       - name: Check out code
@@ -171,7 +169,7 @@ jobs:
           restore-keys: ${{ runner.os }}-go-modules-
 
       - name: Download Go modules
-        run: go mod download -x
+        run: make -C agent go-mod-download
 
       - name: Build PMM Agent
-        run: make release-gssapi
+        run: make -C agent release-gssapi
