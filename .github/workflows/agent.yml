@@ -97,8 +97,7 @@ jobs:
           restore-keys: ${{ runner.os }}-go-modules-
 
       - name: Download Go modules
-        run: |
-          make -C agent go-mod-download
+        run: make -C agent go-mod-download
 
       - name: Build and install
         run: make -C agent install
@@ -106,7 +105,7 @@ jobs:
       - name: Launch containers
         run: |
           cp .env.dev.example .env
-          PROFILES=pmm,mysql,postgres,mongo make -C agent env-up
+          PROFILES=pmm,mysql,postgres,mongo,mongo-tls,mongo-repl,mongo-repl-tls make -C agent env-up
 
       - name: Run tests
         run: make -C agent test-cover

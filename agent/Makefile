@@ -90,18 +90,18 @@ _run:
 	pmm-agent $(RUN_FLAGS)
 
 env-up:                         ## Start development environment
-	rm -fr testdata
-	# to make slowlog rotation tests work
+	rm -rf testdata
+# Prep bind-mounted testdata dirs referenced by docker-compose.dev.yml.
+# mongod runs as uid 999 inside the container and needs the log dir to exist and be writable.
 	mkdir -p testdata/mysql/slowlogs
-	# to make mongolog tests work
 	mkdir -p testdata/mongo/var/log/mongodb
 	touch testdata/mongo/var/log/mongodb/mongo.log testdata/mongo/var/log/mongodb/mongo_tls.log
 	chmod -R 0777 testdata
-
-	$(env-up)
+	$(MAKE) -C .. env-up
 
 env-down:                       ## Stop development environment
-	docker compose down $(ENV_DOWN_FLAGS)
+	rm -rf testdata/mysql/slowlogs testdata/mongo/var/log/mongodb
+	$(MAKE) -C .. env-down
 
 setup-dev: install              ## Run pmm-agent setup in development environment
 	pmm-agent setup $(RUN_FLAGS) --server-insecure-tls --server-address=127.0.0.1:${PMM_DEV_SERVER_PORT} --server-username=admin --server-password=admin --paths-exporters_base=$(GOPATH)/bin --force

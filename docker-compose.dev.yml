@@ -165,11 +165,11 @@ services:
     volumes:
       - ./testdata/mongo/var/log/mongodb:/var/log/mongodb
 
-  mongo-with-tls:
+  mongo-tls:
     profiles:
-      - mongo-with-tls
+      - mongo-tls
     image: ${MONGO_IMAGE:-percona/percona-server-mongodb:6.0}
-    container_name: mongo-with-tls
+    container_name: mongo-tls
     command:
       - --profile=2
       - --tlsMode=requireTLS
