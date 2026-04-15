@@ -17,7 +17,9 @@ const RadioGroup = ({
   isRequired = false,
   options,
 }: RadioGroupProps) => {
-  const { control: contextControl } = useFormContext();
+  const formContext = useFormContext();
+  const contextControl = formContext?.control;
+
   const content = (
     <Controller
       name={name}

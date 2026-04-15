@@ -66,14 +66,14 @@
     "@mui/utils": "^7.3.7",
     "@mui/x-date-pickers": "^7.6.2",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.50.0"
   },
   "dependencies": {
     "@fontsource/poppins": "^5.2.7",
     "@fontsource/roboto": "^5.2.9",
     "@fontsource/roboto-mono": "^5.2.8",
     "material-react-table": "^1.15.1",
-    "react-hook-form": "^7.68.0",
     "react-is": "18.3.1"
   },
   "description": "Percona UI lib",

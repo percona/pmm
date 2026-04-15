@@ -22,7 +22,9 @@ function AutoCompleteInput<T>({
   tooltipText,
   onChange,
 }: AutoCompleteInputProps<T>) {
-  const { control: contextControl } = useFormContext();
+  const formContext = useFormContext();
+  const contextControl = formContext?.control;
+
   const { helperText, ...restTextFieldProps } = textFieldProps;
   const { sx, ...restAutocompleteProps } = autoCompleteProps;
 

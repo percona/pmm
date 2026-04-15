@@ -12,7 +12,9 @@ const SwitchInput = ({
   formControlLabelProps,
   switchFieldProps = {},
 }: SwitchInputProps) => {
-  const { control: contextControl } = useFormContext();
+  const formContext = useFormContext();
+  const contextControl = formContext?.control;
+
   const { onChange, ...restSwitchFieldProps } = switchFieldProps;
   return (
     <FormControlLabel
