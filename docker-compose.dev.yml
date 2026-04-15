@@ -24,10 +24,10 @@ services:
     ports:
       - ${PMM_PORT_HTTPS:-443}:8443
       - ${PMM_PORT_DELVE:-2345}:2345
-      - ${PMM_PORT_PG:-5432}:5432
-      - ${PMM_PORT_VM:-9090}:9090
-      - ${PMM_PORT_CH_TCP:-9000}:9000
-      - ${PMM_PORT_CH_HTTP:-8123}:8123
+      # - ${PMM_PORT_PG:-5432}:5432
+      # - ${PMM_PORT_VM:-9090}:9090
+      # - ${PMM_PORT_CH_TCP:-9000}:9000
+      # - ${PMM_PORT_CH_HTTP:-8123}:8123
     working_dir: /root/go/src/github.com/percona/pmm
     volumes:
       - ./:/root/go/src/github.com/percona/pmm
@@ -55,6 +55,8 @@ services:
     container_name: pmm-client
     depends_on:
       pmm-server:
+        condition: service_healthy
+      ps:
         condition: service_healthy
       sysbench-ps:
         condition: service_started
@@ -120,7 +122,7 @@ services:
     profiles:
       - postgres
     image: ${POSTGRES_IMAGE:-postgres:14}
-    container_name: pmm-agent_postgres
+    container_name: postgres
     command: >
       -c shared_preload_libraries='${PG_PRELOADED_LIBS:-pg_stat_statements}'
       -c track_activity_query_size=2048
