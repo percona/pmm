@@ -132,29 +132,29 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 		PostgreSQLSupportsSSLSNI: !pmmAgentVersion.Less(postgresSSLSniVersion),
 	}
 
-	var roundedConnectionTimeout time.Duration
+	var connectionTimeout time.Duration
 
 	// Remote RDS / Azure: default 5s dial unless the user set ExporterOptions.ConnectionTimeout.
 	switch {
 	case exporter.AzureOptions.ClientID != "":
 		if exporter.ExporterOptions.ConnectionTimeout != nil {
-			roundedConnectionTimeout = *exporter.ExporterOptions.ConnectionTimeout
+			connectionTimeout = *exporter.ExporterOptions.ConnectionTimeout
 		} else {
-			roundedConnectionTimeout = postgresRemoteCloudDefaultDialTimeout
+			connectionTimeout = postgresRemoteCloudDefaultDialTimeout
 		}
 	case node.NodeType == models.RemoteRDSNodeType:
 		if exporter.ExporterOptions.ConnectionTimeout != nil {
-			roundedConnectionTimeout = *exporter.ExporterOptions.ConnectionTimeout
+			connectionTimeout = *exporter.ExporterOptions.ConnectionTimeout
 		} else {
-			roundedConnectionTimeout = postgresRemoteCloudDefaultDialTimeout
+			connectionTimeout = postgresRemoteCloudDefaultDialTimeout
 		}
 	default:
-		roundedConnectionTimeout = exporter.EffectiveDialTimeout()
+		connectionTimeout = exporter.EffectiveDialTimeout()
 	}
 	// PostgreSQL uses whole-second connection timeout values, so round up once here
 	// before rendering the connection string to avoid truncating sub-second values to 0.
-	roundedConnectionTimeout = time.Second * time.Duration(max(1, int(math.Ceil(roundedConnectionTimeout.Seconds()))))
-	dsnParams.DialTimeout = roundedConnectionTimeout
+	connectionTimeout = time.Second * time.Duration(max(1, int(math.Ceil(connectionTimeout.Seconds()))))
+	dsnParams.DialTimeout = connectionTimeout
 
 	res := &agentv1.SetStateRequest_AgentProcess{
 		Type:               inventoryv1.AgentType_AGENT_TYPE_POSTGRES_EXPORTER,
