@@ -57,6 +57,7 @@ const (
 	unix               = "unix"
 	skipVerify         = "skip-verify"
 	defaultDialTimeout = 2 * time.Second
+	valkeyDialTimeout  = 3 * time.Second
 )
 
 // Agent types (in the same order as in agents.proto).
@@ -819,13 +820,21 @@ func (a *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 }
 
 // EffectiveDialTimeout returns the database connection timeout for DSN generation.
-// Used by: MySQL, MongoDB, PostgreSQL (non-cloud), ProxySQL exporters.
-// Not used by:
-// Valkey, PostgreSQL RDS/Azure: have different defaults in their packages
-// node/rds/azure/external exporters: only scrape timeout (90% of interval)
+// Returns ExporterOptions.ConnectionTimeout if set, otherwise default based on agent type.
+//
+// Defaults: mysqld/mongodb/proxysql/postgres (2s), valkey (3s).
+//
+// postgres on RDS/Azure uses 5s default but handled in postgresql.go (needs Node context).
+//
+// Exporters without DB connection (node, rds, azure, external) don't use this.
+// Their ConnectionTimeout affects only scrape timeout via exporterScrapeTimeout().
 func (a *Agent) EffectiveDialTimeout() time.Duration {
 	if a.ExporterOptions.ConnectionTimeout != nil {
 		return *a.ExporterOptions.ConnectionTimeout
+	}
+
+	if a.AgentType == ValkeyExporterType {
+		return valkeyDialTimeout
 	}
 
 	return defaultDialTimeout

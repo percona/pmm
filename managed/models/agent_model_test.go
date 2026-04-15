@@ -637,12 +637,9 @@ func TestEffectiveDialTimeout(t *testing.T) {
 		require.Equal(t, custom, a.EffectiveDialTimeout())
 	})
 
-	t.Run("exporter with connection timeout supports", func(t *testing.T) {
+	t.Run("exporters with 2s default", func(t *testing.T) {
 		t.Parallel()
 
-		// Keep only exporters that use EffectiveDialTimeout in runtime DSN/config generation.
-		// Scrape-timeout-only exporters (node, RDS, Azure, external) and exporters with their
-		// own timeout handling (Valkey) are covered in dedicated agent / scrape-config tests.
 		for _, typ := range []models.AgentType{
 			models.MySQLdExporterType,
 			models.MongoDBExporterType,
@@ -655,6 +652,12 @@ func TestEffectiveDialTimeout(t *testing.T) {
 				require.Equal(t, 2*time.Second, a.EffectiveDialTimeout())
 			})
 		}
+	})
+
+	t.Run("valkey_exporter returns 3s default", func(t *testing.T) {
+		t.Parallel()
+		a := &models.Agent{AgentType: models.ValkeyExporterType}
+		require.Equal(t, 3*time.Second, a.EffectiveDialTimeout())
 	})
 
 	t.Run("non-exporter agent falls back to 2s", func(t *testing.T) {
