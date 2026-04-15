@@ -12,7 +12,9 @@ const TextInput = ({
   isRequired,
   formHelperTextProps = {},
 }: TextInputProps) => {
-  const { control: contextControl } = useFormContext();
+  const formContext = useFormContext();
+  const contextControl = formContext?.control;
+
   const { sx: textFieldPropsSx, onChange, ...restFieldProps } = textFieldProps;
   const { sx: formHelperTextPropsSx } = formHelperTextProps;
 

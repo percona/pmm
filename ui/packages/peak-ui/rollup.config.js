@@ -36,6 +36,7 @@ export default [
       "@mui/icons-material",
       "@emotion/react",
       "@emotion/styled",
+      "react-hook-form",
     ],
   },
   {

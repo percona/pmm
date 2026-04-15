@@ -22,7 +22,8 @@ const SelectInput = ({
   loading,
   children,
 }: SelectInputProps) => {
-  const { control: contextControl } = useFormContext();
+  const formContext = useFormContext();
+  const contextControl = formContext?.control;
 
   return (
     <FormControl
