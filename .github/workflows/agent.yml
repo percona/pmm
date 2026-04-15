@@ -129,6 +129,7 @@ jobs:
           go env | sort
           git status
           docker compose logs
+          docker logs mongo
           docker compose ps -a
 
 
