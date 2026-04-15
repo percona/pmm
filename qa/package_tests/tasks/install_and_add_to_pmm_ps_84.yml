@@ -1,0 +1,130 @@
+# This task installs and starts Percona Server 8.4 on CentOS and Debian/Ubuntu
+#
+# Task adjustments are handled by parent playbook vars:
+#             var "port_flag"      :  to access agent with custom port
+#                                     ex: port_flag: "--pmm-agent-listen-port={{ custom_port }}"
+#
+
+- name: set password for mysql
+  set_fact:
+    mysql_password: "UfY9s73Gx~!?@#$%^&*(){}[]<>|/:;,.-_+="
+
+- name: enable ps-84 release repo
+  include_tasks: ./enable_repo.yml
+  vars:
+    only: yes
+    package: "ps-84-lts"
+    repository: "{{ ps_repository | default('release') }}"
+
+- name: install Percona Server deb packages
+  apt:
+    name: "{{ packages }}"
+    update_cache: yes
+    state: latest
+  vars:
+    packages_base:
+      - percona-server-server{{ pro_suf | default('') }}
+      - percona-server-test{{ pro_suf | default('') }}
+      - percona-server{{ pro_suf | default('') }}-dbg
+      - percona-server{{ pro_suf | default('') }}-source
+      - percona-server-client{{ pro_suf | default('') }}
+      - percona-server-rocksdb{{ pro_suf | default('') }}
+      - percona-mysql-router{{ pro_suf | default('') }}
+    percona_server_js_pkg: "percona-server-js{{ pro_suf | default('') }}"
+    packages: "{{ packages_base + (install_percona_server_js | default(true) | bool | ternary([percona_server_js_pkg], [])) }}"
+  when: ansible_os_family == "Debian"
+  environment:
+    PERCONA_TELEMETRY_URL: "https://check-dev.percona.com/v1/telemetry/GenericReport"
+
+- name: get list of enabled dnf modules on centos 8
+  command: dnf module list --enabled
+  register: enabled_dnf_modules
+  when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int >= 8
+
+- name: list enabled dnf modules on centos 8
+  debug:
+    var: enabled_dnf_modules
+  when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int >= 8
+
+- name: disable the mysql module on RHEL/CentOS 8
+  command: yum module disable mysql -y
+  when: ansible_os_family == "RedHat" and ansible_distribution_major_version == "8"
+
+- name: disable the mariadb module on RHEL/CentOS 8
+  command: yum module disable mariadb -y
+  when: ansible_os_family == "RedHat" and ansible_distribution_major_version == "8"
+
+- name: install Percona Server rpm packages
+  yum:
+    allowerasing: "{{ allowerasing_value | default (false) }}"
+    name: "{{ packages }}"
+    state: latest
+    disablerepo: "epel"
+    update_cache: yes
+  vars:
+    packages_base:
+      - percona-server-server{{ pro_suf | default('') }}
+      - percona-mysql-router{{ pro_suf | default('') }}
+      - percona-server-client{{ pro_suf | default('') }}
+      - percona-server-test{{ pro_suf | default('') }}
+      - percona-server{{ pro_suf | default('') }}-debuginfo
+      - percona-server-devel{{ pro_suf | default('') }}
+      - percona-server-rocksdb{{ pro_suf | default('') }}
+    percona_server_js_pkg: "percona-server-js{{ pro_suf | default('') }}"
+    packages: "{{ packages_base + (install_percona_server_js | default(true) | bool | ternary([percona_server_js_pkg], [])) }}"
+    when: ansible_os_family == "RedHat"
+    environment:
+      PERCONA_TELEMETRY_URL: "https://check-dev.percona.com/v1/telemetry/GenericReport"
+
+- name: start mysql service
+  service: name=mysql state=started
+
+- name: start mysql service with service command
+  when: ansible_os_family == "RedHat" and ansible_distribution_major_version == "6"
+  command: service mysql start
+
+- name: start mysql service with systemctl command
+  when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int >= 7
+  command: systemctl start mysql
+
+- name: set root password on centos
+  when: ansible_os_family == "RedHat"
+  shell: |
+    init_pass=$(grep "temporary password" /var/log/mysqld.log | awk '{print $NF}' | tail -1)
+    mysql --connect-expired-password -uroot --password="$init_pass" -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ mysql_password }}';"
+    cp ../templates/my_57.j2 /root/.my.cnf
+
+- name: copy .my.cnf with credentials on centos
+  when: ansible_os_family == "RedHat"
+  template: src=../templates/my_57.j2
+    dest=/root/.my.cnf
+    mode=0640 owner=root group=root
+
+- name: add mysql instance for monitoring
+  when: ansible_os_family == "RedHat"
+  command: >-
+    pmm-admin add mysql {{ port_flag if port_flag is defined else '' }}
+    --password={{ mysql_password }} --service-name={{ mysql_service_name }} --query-source=perfschema 
+    {{ '' if agent_password is not defined or '/agent_id/' in agent_password else '--agent-password=%s' | format(agent_password) }}
+
+- name: add mysql instance for monitoring via socket
+  when: ansible_os_family != "RedHat"
+  command: >-
+    pmm-admin add mysql {{ port_flag if port_flag is defined else '' }}
+    --socket=/var/run/mysqld/mysqld.sock --service-name={{ mysql_service_name }} --query-source=perfschema
+    {{ '' if agent_password is not defined or '/agent_id/' in agent_password else '--agent-password=%s' | format(agent_password) }}
+
+- name: "Validate pmm-admin list output contains 'MySQL'"
+  include_tasks: ./verify_pmm-admin_list_contains.yml
+  vars:
+    expected: "MySQL"
+
+- name: "Wait for 'mysqld_exporter' is Running"
+  include_tasks: ./wait_exporter_is_running.yml
+  vars:
+    process_name: "mysqld_exporter"
+
+- name: "Wait for 'mysql_perfschema_agent' is Running"
+  include_tasks: ./wait_exporter_is_running.yml
+  vars:
+    process_name: "mysql_perfschema_agent"

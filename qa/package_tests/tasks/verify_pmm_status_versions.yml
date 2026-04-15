@@ -1,0 +1,76 @@
+# This task performs PMM Client version verification from "pmm-admin status" and
+# "pmm-admin status" commands output
+#
+# Task adjustments are handled by parent playbook vars:
+#             var "port_flag"      :  to access agent with custom port
+#                                     ex: port_flag: "--pmm-agent-listen-port={{ custom_port }}"
+#
+- name: Grep pmm-admin status output
+  shell: "pmm-admin status {{ port_flag if port_flag is defined else '' }}"
+  register: pmm_admin_status
+
+- block:
+    - name: Assert pmm-agent is connected to server
+      assert:
+        that:
+          - "'Failed to get PMM Agent status from local pmm-agent' not in pmm_admin_status.stdout"
+          - "'Connected' in pmm_admin_status.stdout"
+        fail_msg: "pmm-agent is not connected to server!"
+        success_msg: "pmm-agent is connected to server"
+
+    - name: "Wait for 'nomad_agent' is Running"
+      include_tasks: ./wait_exporter_is_running.yml
+      vars:
+        process_name: "nomad_agent"
+      when: pmm_version is version('3.2.0', '>=')
+
+    - name: "Verify PMM Server nomad endpoint"
+      shell: |
+        curl --insecure --location --request GET "https://{{ pmm_server_address }}/nomad/v1/nodes" \
+          --header 'Content-Type: application/json' \
+          --user admin:{{ pmm_server_password }}
+      register: nomad_endpoint
+      when: pmm_version is version('3.2.0', '>=')
+
+    - set_fact:
+        nomad_endpoint: "{{ nomad_endpoint.stdout | from_json }}"
+      when: pmm_version is version('3.2.0', '>=')
+
+    - name: Find non-local Nomad nodes
+      set_fact:
+        non_local_node: "{{ nomad_endpoint | selectattr('Address', 'ne', '127.0.0.1') | list }}"
+      when: pmm_version is version('3.2.0', '>=')
+
+    - name: Fail if non-local Nomad node is not found
+      fail:
+        msg: "No non-local Nomad node (Address != 127.0.0.1) was found."
+      when:
+        - pmm_version is version('3.2.0', '>=')
+        - non_local_node is not defined or non_local_node is none or non_local_node | length == 0
+
+    - name: Grep PMM Admin version from pmm-admin status output
+      shell: "echo \"{{ pmm_admin_status.stdout }}\" | grep pmm-admin | awk -F' ' '{print $3}'"
+      register: pmm_admin_version
+
+    - name: Assert <pmm-admin> version({{ pmm_admin_version.stdout }}) from "status"  is "{{ pmm_version }}"
+      assert:
+        that:
+          - "pmm_version in pmm_admin_version.stdout"
+        fail_msg: "pmm-admin version is not {{ pmm_version }}!"
+        success_msg: "pmm-admin version is {{ pmm_admin_version.stdout }}!"
+
+    - name: Grep PMM Agent version from pmm-admin status output
+      shell: "echo \"{{ pmm_admin_status.stdout }}\"  | grep pmm-agent | awk -F' ' '{print $3}'"
+      register: pmm_agent_version
+
+    - name: Assert <pmm-agent> version({{ pmm_agent_version.stdout }}) from "status" is "{{ pmm_version }}"
+      assert:
+        that:
+          - "pmm_version in pmm_agent_version.stdout"
+        fail_msg: "pmm-agent version is not {{ pmm_version }}, but pmm version is: ${{ pmm_agent_version.stdout }}!"
+        success_msg: "pmm-agent version is {{ pmm_agent_version.stdout }}!"
+  rescue:
+    - name: Print pmm-admin status on fail
+      debug:
+        msg: "{{ pmm_admin_status.stdout }}"
+      failed_when: true

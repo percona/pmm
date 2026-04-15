@@ -1,0 +1,32 @@
+# Assertion wrapper for readability’s sake.
+# This task verifies that specified string is present in the "pmm-admin list" command's output
+#
+# Task arguments are handled by parent playbook vars:
+#         var "port_flag"    : to access agent with custom port
+#                               ex: port_flag: "--pmm-agent-listen-port={{ custom_port }}"
+#         var "expected"     : string argument to search
+#                               ex: expected: "MySQL"
+#
+#   must be called with "expected" variable, ex:
+#  - name: some name for the task
+#    include_tasks: ../tasks/verify_pmm-admin_list_contains.yml
+#    vars:
+#      expected: "string to search and assert"
+#
+
+- name: Set pmm-admin list output
+  shell: "pmm-admin list {{ port_flag if port_flag is defined else '' }}"
+  register: list_output
+
+- block:
+    - name: "Validate pmm-admin list output contains '{{ expected }}'"
+      assert:
+        that:
+          - expected in list_output.stdout
+        fail_msg: "'{{ expected }}' not found in pmm-admin list output!"
+        success_msg: "'{{ expected }}' found in pmm-admin list output"
+  rescue:
+    - name: Print pmm-admin list output on fail
+      debug:
+        msg: "{{ list_output.stdout }}"
+      failed_when: true

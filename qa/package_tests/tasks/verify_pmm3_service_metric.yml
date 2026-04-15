@@ -1,0 +1,92 @@
+# This task verifies that specified exporter has specified metric and it's value
+#
+# Task adjustments are handled by parent playbook vars:
+#         var "port_flag"      :  to access agent with custom port
+#                                 ex: port_flag: "--pmm-agent-listen-port={{ custom_port }}"
+#         var "agent_password"  :  password for specified username to authenticate to exporter
+#
+#   must be called with "include_tasks" and "with_items:" or "loop:", ex:
+#  - name: some name for the task
+#    include_tasks: ../tasks/verify_pmm3_metric.yml
+#    loop:
+#      - { service_name: 'pgsql_socket_{{ instance_ip }}', metric_name: 'pg_up{collector=\"\exporter\"\}', metric_value: 1 }
+#
+- block:
+  - name: Set empty port_flag
+    when: port_flag is not defined
+    set_fact:
+      port_flag: ""
+
+  - set_fact:
+      agent_password: ""
+    when: item.agent_password is not defined
+
+  - set_fact:
+      agent_password: "{{ item.agent_password }}"
+    when: item.agent_password is defined
+
+  - name: Set pmm-admin list output
+    shell: "pmm-admin list {{ port_flag }}"
+    register: list_output
+
+  - block:
+    - name: "{{ item.service_name }}: grep Service ID"
+      shell: "echo '{{ list_output.stdout }}' | grep {{ item.service_name }} | awk -F' ' '{print $4}'"
+      register: service_id
+
+    - name: "{{ item.service_name }}: grep Agent ID"
+      shell: "echo '{{ list_output.stdout }}' | grep '{{ service_id.stdout }}' | awk '/_exporter/ {print $4}'"
+      register: service_agent_id
+
+    - set_fact:
+        agent_id: "{{ service_agent_id.stdout }}"
+
+    - name: "{{ item.service_name }}:: grep exporter port"
+      shell: "echo '{{ list_output.stdout }}' | grep '{{ agent_id }}' | awk '/_exporter/ {print $NF}'"
+      register: exporter_port
+
+    - set_fact:
+        agent_password: "{{ agent_id }}"
+      when: item.agent_password is not defined
+
+    - name: "{{ item.service_name }}: curl metric with no auth"
+      shell: "curl -s 'http://127.0.0.1:{{ exporter_port.stdout }}/metrics' | grep -q '{{ item.metric }}'"
+      register: metric_without_auth
+      ignore_errors: yes
+
+    - name: "{{ item.service_name }}: assert metrics cannot be accessed without authentication"
+      assert:
+        that:
+          - metric_without_auth.stdout.find(item.metric) == -1
+        fail_msg: "Authentication for exporter Broken, metrics fetched without basic auth!"
+        success_msg: "{{ item.service_name }}: metrics are not accessible without auth"
+
+    - block:
+        - name: "{{ item.service_name }}: curl metric with auth token pmm:{{ agent_password }}"
+          shell: "curl -s -u 'pmm:{{ agent_password }}' 'http://127.0.0.1:{{ exporter_port.stdout }}/metrics' | grep '{{ item.metric }}'"
+          register: metric_with_auth
+          until: metric_with_auth.rc == 0
+          delay: "{{ delay | default(10, true) }}"
+          retries: "{{ retries | default(10, true) }}"
+        - name: "{{ item.service_name }}: assert metric is received"
+          debug:
+            msg: "{{ item.service_name }}: metric received!"
+        - set_fact:
+            agent_password: ""
+          when: agent_password | length > 0 or '/agent_id/' in agent_password
+      rescue:
+        - name: Waiting failed
+          debug:
+            msg: "'{{ item.metric }}' is not found!"
+          failed_when: true
+
+    rescue:
+      - name: Print pmm-admin list output on fail
+        debug:
+          msg: "{{ list_output.stdout }}"
+        failed_when: true
+
+  rescue:
+  - name: Generate PMM summary on failure
+    command: "pmm-admin summary --filename /pmm/package-testing/pmm-summary.zip {{ port_flag }}"
+    failed_when: true

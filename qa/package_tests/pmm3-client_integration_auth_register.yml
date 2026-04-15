@@ -1,0 +1,187 @@
+---
+# This playbook does following:
+#   enables Percona testing repository
+#   installs the latest version of PMM2 client
+#   does PMM-T1267 test
+#
+- hosts: all
+  become: true
+  become_method: sudo
+  vars:
+    pmm_server_address: "{{ lookup('env', 'PMM_SERVER_IP') }}"
+    pmm_server_password: "{{ lookup('env', 'ADMIN_PASSWORD') | default('admin', true) }}"
+    test_repo: "{{ lookup('env', 'install_repo') }}"
+    test_package: "{{ lookup('env', 'install_package') | default('pmm3-client', true)}}"
+    metrics_mode: "{{ lookup('env', 'METRICS_MODE') | default('auto', true) }}"
+    pmm_version: "{{ lookup('env', 'PMM_VERSION') }}"
+    cmd_admin_list: "pmm-admin list"
+    pmm_auth_password: "pmm-pass"
+
+  tasks:
+  - name: Register Instance IP
+    shell: echo $(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')
+    register: instance_ip
+
+  - name: Register Instance IP as a variable
+    set_fact:
+      instance_ip: "{{ instance_ip.stdout }}"
+
+  - set_fact:
+      rnd: "{{ 1000 | random }}"
+    run_once: yes
+
+  - name: Set Integrations list
+    include_tasks: ../tasks/pmm3-client_test_enabled_db_arm.yml
+    when: ansible_architecture == "aarch64"
+
+  - name: Set Integrations list
+    include_tasks: ../tasks/pmm3-client_test_enabled_db.yml
+    when: ansible_architecture != "aarch64"
+
+  - name: Setup environment
+    include_tasks: ../tasks/pmm3_client_test_prepare.yml
+
+  - name: update apt repositories
+    when: test_repo == "release" and ansible_os_family == "Debian"
+    command: apt-get update -y
+    become: true
+
+  - name: update repo for redhat
+    when: test_repo == "release" and ansible_os_family == "RedHat"
+    shell: yum update -y
+    become: true
+
+### install pmm-client
+  - name: Install PMM client new deb packages
+    when: ansible_os_family == "Debian"
+    shell: |
+      sudo apt-get update
+      sudo apt-get install pmm-client
+
+  - name: Install PMM client new rpm packages
+    when: ansible_os_family == "RedHat"
+    shell: |
+      sudo yum -y update
+      sudo yum -y install pmm-client
+
+  - name: check that PMM client version is correct
+    include_tasks: ../tasks/verify_pmm_client_version.yml
+
+### Setup pmm client
+  - name: configure pmm client to connect to server in push/auto Mode
+    when: lookup('env', 'metrics_mode') == "push" or lookup('env', 'metrics_mode') == ""
+    shell: pmm-admin config --force --debug --server-insecure-tls --metrics-mode=auto --server-url=https://admin:{{ pmm_server_password }}@{{ pmm_server_address }} {{ instance_ip }} generic node_{{ instance_ip }} --agent-password={{ pmm_auth_password }}
+
+  - name: configure pmm client to connect to server in pull Mode
+    when: lookup('env', 'metrics_mode') == "pull"
+    shell: pmm-admin config --force --server-insecure-tls --metrics-mode=pull --server-url=https://admin:{{ pmm_server_password }}@{{ pmm_server_address }} {{ instance_ip }} generic node_{{ instance_ip }} --agent-password={{ pmm_auth_password }}
+
+  - name: register pmm client exporter password
+    shell: pmm-admin register --force --agent-password={{ pmm_auth_password }}
+
+  - name: restart pmm-agent
+    command: "pkill -f pmm-agent"
+    become: yes
+
+  - name: wait for pmm_agent status from pmm-admin list
+    shell: pmm-admin list | grep pmm_agent | awk -F' ' '{print $2}'
+    register: pmm_agent_status
+    until: pmm_agent_status.stdout.find('Connected') != -1
+    delay: 1
+    retries: 5
+
+### start PS
+  - set_fact:
+      mysql_service_name: "mysql_{{ instance_ip }}_{{ ansible_distribution }}_{{ ansible_distribution_major_version }}"
+#      mysql_service_name: "mysql_{{ rnd }}_{{ instance_ip }}"
+
+  - name: Install and start Percona Server 5.7
+    when: '"ps-5.7" in enabled_db'
+    include_tasks: ../tasks/install_and_add_to_pmm_ps_57.yml
+
+  - name: Install and start Percona Server 8.0
+    when: '"ps-8.0" in enabled_db'
+    include_tasks: ../tasks/install_and_add_to_pmm_ps_80.yml
+
+  - name: Install and start Percona Server 8.4
+    when: '"ps-8.4" in enabled_db'
+    include_tasks: ../tasks/install_and_add_to_pmm_ps_84.yml
+
+  - name: Verify if Metric Endpoint with Auth works for Mysqld Exporter
+    when: '"ps-" in enabled_db | join("")'
+    include_tasks: ../tasks/verify_pmm3_metric.yml
+    loop:
+      - { service_name: '{{ mysql_service_name }}', metric: 'mysql_up 1' }
+## end PS
+
+### start PSMDB
+  - set_fact:
+      mongo_service_name: "mongodb_{{ instance_ip }}_{{ ansible_distribution }}_{{ ansible_distribution_major_version }}"
+      mongo_socket_service_name: "mongodb_socket_{{ instance_ip }}_{{ ansible_distribution }}_{{ ansible_distribution_major_version }}"
+#      mongo_service_name: "mongodb_{{ rnd }}_{{ instance_ip }}"
+
+  - name: Install and start Percona Server MongoDB
+    when: '"psmdb-" in enabled_db | join("")'
+    include_tasks: ../tasks/install_and_add_to_pmm_psmdb.yml
+    vars:
+      psmdb_to_test:  "{{ enabled_db | select('match', '^psmdb-*') | join('') }}"
+
+  - name: Verify MongoDB Exporter metric endpoint with Auth(including service with socket)
+    when: '"psmdb-" in enabled_db | join("")'
+    include_tasks: ../tasks/verify_pmm3_metric.yml
+    loop:
+      - { service_name: '{{ mongo_service_name }}', metric: 'mongodb_up.* 1' }
+      - { service_name: '{{ mongo_socket_service_name }}', metric: 'mongodb_up.* 1' }
+### end PSMDB
+
+### start PDPGSQL
+  - set_fact:
+      pgsql_service_name: "pgsql_{{ instance_ip }}_{{ ansible_distribution }}_{{ ansible_distribution_major_version }}"
+      pgsql_socket_service_name: "pgsql_socket_{{ instance_ip }}_{{ ansible_distribution }}_{{ ansible_distribution_major_version }}"
+
+  - name: Install and start Percona Server PostgreSQL
+    when: '"pg-" in enabled_db | join("")'
+    include_tasks: ../tasks/install_and_add_to_pmm_pdpgsql.yml
+    vars:
+      pg_to_test: "{{ enabled_db | select('match', '^pg-*') | join('') }}"
+
+  - name: Verify Postgres Exporter metric endpoint with Auth works
+    when: '"pg-" in enabled_db | join("")'
+    include_tasks: ../tasks/verify_pmm3_metric.yml
+    vars:
+      retries: 3
+      delay: 10
+    loop:
+      - { service_name: '{{ pgsql_service_name }}', metric: 'pg_up{collector="custom_query.hr"} 1' }
+      - { service_name: '{{ pgsql_service_name }}', metric: 'pg_up{collector="custom_query.lr"} 1' }
+      - { service_name: '{{ pgsql_service_name }}', metric: 'pg_up{collector="custom_query.mr"} 1' }
+      - { service_name: '{{ pgsql_service_name }}', metric: 'pg_up{collector="exporter"} 1' }
+      - { service_name: '{{ pgsql_socket_service_name }}', metric: 'pg_up{collector="custom_query.hr"} 1' }
+      - { service_name: '{{ pgsql_socket_service_name }}', metric: 'pg_up{collector="custom_query.lr"} 1' }
+      - { service_name: '{{ pgsql_socket_service_name }}', metric: 'pg_up{collector="custom_query.mr"} 1' }
+      - { service_name: '{{ pgsql_socket_service_name }}', metric: 'pg_up{collector="exporter"} 1' }
+### end PG
+
+### start Valkey
+  - set_fact:
+      valkey_service_name: "valkey_{{ instance_ip }}_{{ ansible_distribution }}_{{ ansible_distribution_major_version }}"
+
+  - name: Install and start Valkey
+    when: '"valkey-" in enabled_db | join("")'
+    include_tasks: ../tasks/install_and_add_to_pmm_valkey.yml
+    vars:
+      valkey_to_test: "{{ enabled_db | select('match', '^valkey-*') | join('') }}"
+
+  - name: Verify if Metric Endpoint with Auth works for Mysqld Exporter
+    when: '"valkey-" in enabled_db | join("")'
+    include_tasks: ../tasks/verify_pmm3_service_metric.yml
+    loop:
+      - { service_name: '{{ valkey_service_name }}', metric: 'redis_up 1' }
+### end Valkey
+
+  - set_fact:
+      agent_password: "{{ pmm_auth_password }}"
+
+### verifications
+  - name: Perform standard verifications set for PMM Client
+    include_tasks: ../tasks/verifications_set_for_pmm3_client.yml

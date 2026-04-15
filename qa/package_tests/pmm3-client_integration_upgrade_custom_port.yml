@@ -1,0 +1,257 @@
+---
+# Advanced package upgrade test with custom port listening:
+#   prepare Percona Repository and software
+#   install PMM old client deb/rpm
+#   perform correct setup with custom port listening
+#   setup PS, PSMDB and PDPGSQL;
+#   install PMM the latest client deb/rpm
+#   verify versions, exporters still work, metrics, etc.
+#
+- hosts: all
+  become: true
+  become_method: sudo
+  vars:
+    pmm_server_address: "{{ lookup('env', 'PMM_SERVER_IP') }}"
+    pmm_server_password: "{{ lookup('env', 'ADMIN_PASSWORD') | default('admin', true) }}"
+    test_package: "{{ lookup('env', 'install_package') | default('pmm3-client', true)}}"
+    test_repo: "{{ lookup('env', 'install_repo') }}"
+    metrics_mode: "{{ lookup('env', 'METRICS_MODE') | default('auto', true) }}"
+    pmm_version: "{{ lookup('env', 'PMM_VERSION') }}"
+    custom_port: 17788
+    port_flag: "--pmm-agent-listen-port={{ custom_port }}"
+    cmd_admin_list: "pmm-admin list {{ port_flag }}"
+    tarball_link: "{{ lookup('env', 'TARBALL_LINK') }}"
+    install_path: "/usr/local/percona/pmm"
+
+  tasks:
+  - name: Register Instance IP
+    shell: echo $(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')
+    register: instance_ip
+
+  - name: Register Instance IP as a variable
+    set_fact:
+      instance_ip: "{{ instance_ip.stdout }}"
+
+  - name: Set Integrations list
+    include_tasks: ../tasks/pmm3-client_test_enabled_db_arm.yml
+    when: ansible_architecture == "aarch64"
+
+  - name: Set Integrations list
+    include_tasks: ../tasks/pmm3-client_test_enabled_db.yml
+    when: ansible_architecture != "aarch64"
+
+  - name: include tasks for test env setup
+    include_tasks: ../tasks/pmm3_client_test_prepare.yml
+
+  - set_fact:
+      rnd: "{{ 1000 | random }}"
+    run_once: yes
+
+### Detect and install(tarball) old version to update
+  - name: Detect and save release version
+    shell: "wget -q https://registry.hub.docker.com/v2/repositories/percona/pmm-client/tags -O - | jq -r .results[].name | grep -v latest | sort -V | tail -n1"
+    register: latest_release
+
+### enable pmm3-client release and install old version to update
+  - name: Enable pmm3-client release repo
+    include_tasks: ../tasks/enable_repo.yml
+    vars:
+      only: yes
+      package: "pmm3-client"
+      repository: "release"
+
+  - name: Detect and save release minor version
+    when: test_repo == "release"
+    shell: "wget -q https://registry.hub.docker.com/v2/repositories/percona/pmm-client/tags -O - | jq -r .results[].name  | grep -v latest | sort -V | tail -n1 | awk -F. '{print $2}'"
+    register: pmm_release_minor_version
+
+  - name: Grep previous release PMM Client version from yum list
+    when: test_repo == "release" and ansible_os_family == "RedHat"
+    shell: "yum list pmm-client --showduplicates | grep 3.{{ pmm_release_minor_version.stdout | int -1 }} | tail -n1 | awk '{print $2}'"
+    register: pmm_old_version_rpm
+
+  - name: Grep previous release PMM Client version from apt list
+    when: test_repo == "release" and ansible_os_family == "Debian"
+    shell: "apt-cache madison pmm-client | grep 3.{{ pmm_release_minor_version.stdout | int -1 }} | head -n1 | awk '{print $3}'"
+    register: pmm_old_version_deb
+
+  - name: Set PMM Client package name with old version to install for apt
+    set_fact:
+      pmm_client_old: "pmm-client={{ pmm_old_version_deb.stdout }}"
+    when: test_repo == "release" and ansible_os_family == 'Debian'
+
+  - name: Set PMM Client package name with old version to install for yum
+    when: test_repo == "release" and ansible_os_family == "RedHat"
+    set_fact:
+      pmm_client_old: "pmm-client-{{ pmm_old_version_rpm.stdout }}"
+
+  - name: Set PMM Client package name to install
+    when: test_repo != "main"
+    set_fact:
+      pmm_client_old: "pmm-client"
+
+  - name: Print old version
+    ansible.builtin.debug:
+      msg: "Installing old version: '{{ pmm_client_old }}'"
+
+  - name: Install PMM client old deb packages
+    when: ansible_os_family == "Debian"
+    apt: name={{ pmm_client_old }} update_cache=yes state=present
+
+  - name: Install PMM client old rpm packages
+    when: ansible_os_family == "RedHat"
+    yum: name={{ pmm_client_old }} state=present
+
+### Setup PMM Client
+  - name: Use "pmm-admin config" to connect pmm client to server
+    shell: >-
+      pmm-agent setup --config-file={{ install_path }}/config/pmm-agent.yaml --force --server-insecure-tls
+      --server-address={{ pmm_server_address }}
+      --listen-port={{ custom_port }}
+      --metrics-mode={{ metrics_mode }}
+      --server-username=admin
+      --server-password={{ pmm_server_password }}
+      {{ instance_ip }} generic node2_{{ instance_ip }}
+
+  - name: Start agent
+    shell: pmm-agent --debug --config-file={{ install_path }}/config/pmm-agent.yaml > pmm-agent.log 2>&1 &
+
+  - name: Verify that config generated with the custom port listening
+    shell: "cat {{ install_path }}/config/pmm-agent.yaml | grep -o -c '{{ custom_port }}' | grep '1'"
+    become: yes
+
+  - name: Kill pmm-agent process
+    command: "pkill -f pmm-agent"
+    become: yes
+
+  - name: Wait for pmm-agent to be connected to server
+    shell: "{{ cmd_admin_list }} | grep pmm_agent | awk -F' ' '{print $2}'"
+    register: pmm_agent_status
+    until: pmm_agent_status.stdout.find('Connected') != -1
+    delay: 1
+    retries: 5
+
+  - name: Store old PID of PMM Agent
+    shell: "ps -C pmm-agent -o pid="
+    register: old_pid_pmm_agent
+
+  - name: Store new PID of PMM Agent
+    set_fact:
+      old_pid_pmm_agent: "{{ old_pid_pmm_agent.stdout | trim }}"
+
+### start PS
+  - set_fact:
+      mysql_service_name: "mysql_{{ instance_ip }}_{{ ansible_distribution }}_{{ ansible_distribution_major_version }}"
+#      mysql_service_name: "mysql_{{ rnd }}_{{ instance_ip }}"
+
+  - name: Install and start Percona Server 5.7
+    when: '"ps-5.7" in enabled_db'
+    include_tasks: ../tasks/install_and_add_to_pmm_ps_57.yml
+
+  - name: Install and start Percona Server 8.0
+    when: '"ps-8.0" in enabled_db'
+    include_tasks: ../tasks/install_and_add_to_pmm_ps_80.yml
+
+  - name: Install and start Percona Server 8.4
+    when: '"ps-8.4" in enabled_db'
+    include_tasks: ../tasks/install_and_add_to_pmm_ps_84.yml
+
+  - name: Verify if Metric Endpoint with Auth works for Mysqld Exporter
+    when: '"ps-" in enabled_db | join("")'
+    include_tasks: ../tasks/verify_pmm3_metric.yml
+    loop:
+      - { service_name: '{{ mysql_service_name }}', metric: 'mysql_up 1' }
+## end PS
+
+### start PSMDB
+  - set_fact:
+      mongo_service_name: "mongodb_{{ instance_ip }}_{{ ansible_distribution }}_{{ ansible_distribution_major_version }}"
+      mongo_socket_service_name: "mongodb_socket_{{ instance_ip }}_{{ ansible_distribution }}_{{ ansible_distribution_major_version }}"
+#      mongo_service_name: "mongodb_{{ rnd }}_{{ instance_ip }}"
+
+  - name: Install and start Percona Server MongoDB
+    when: '"psmdb-" in enabled_db | join("")'
+    include_tasks: ../tasks/install_and_add_to_pmm_psmdb.yml
+    vars:
+      psmdb_to_test:  "{{ enabled_db | select('match', '^psmdb-*') | join('') }}"
+
+  - name: Verify MongoDB Exporter metric endpoint with Auth(including service with socket)
+    when: '"psmdb-" in enabled_db | join("")'
+    include_tasks: ../tasks/verify_pmm3_metric.yml
+    loop:
+      - { service_name: '{{ mongo_service_name }}', metric: 'mongodb_up.* 1' }
+      - { service_name: '{{ mongo_socket_service_name }}', metric: 'mongodb_up.* 1' }
+### end PSMDB
+
+### start PDPGSQL
+  - set_fact:
+      pgsql_service_name: "pgsql_{{ instance_ip }}_{{ ansible_distribution }}_{{ ansible_distribution_major_version }}"
+      pgsql_socket_service_name: "pgsql_socket_{{ instance_ip }}_{{ ansible_distribution }}_{{ ansible_distribution_major_version }}"
+
+  - name: Install and start Percona Server PostgreSQL
+    when: '"pg-" in enabled_db | join("")'
+    include_tasks: ../tasks/install_and_add_to_pmm_pdpgsql.yml
+    vars:
+      pg_to_test: "{{ enabled_db | select('match', '^pg-*') | join('') }}"
+
+  - name: Verify Postgres Exporter metric endpoint with Auth works(including service with socket)
+    when: '"pg-" in enabled_db | join("")'
+    include_tasks: ../tasks/verify_pmm3_metric.yml
+    vars:
+      retries: 3
+      delay: 10
+    loop:
+      - { service_name: '{{ pgsql_service_name }}', metric: 'pg_up{collector="custom_query.hr"} 1' }
+      - { service_name: '{{ pgsql_service_name }}', metric: 'pg_up{collector="custom_query.lr"} 1' }
+      - { service_name: '{{ pgsql_service_name }}', metric: 'pg_up{collector="custom_query.mr"} 1' }
+      - { service_name: '{{ pgsql_service_name }}', metric: 'pg_up{collector="exporter"} 1' }
+      - { service_name: '{{ pgsql_socket_service_name }}', metric: 'pg_up{collector="custom_query.hr"} 1' }
+      - { service_name: '{{ pgsql_socket_service_name }}', metric: 'pg_up{collector="custom_query.lr"} 1' }
+      - { service_name: '{{ pgsql_socket_service_name }}', metric: 'pg_up{collector="custom_query.mr"} 1' }
+      - { service_name: '{{ pgsql_socket_service_name }}', metric: 'pg_up{collector="exporter"} 1' }
+### end PG
+
+### start Valkey
+  - set_fact:
+      valkey_service_name: "valkey_{{ instance_ip }}_{{ ansible_distribution }}_{{ ansible_distribution_major_version }}"
+
+  - name: Install and start Valkey
+    when: '"valkey-" in enabled_db | join("")'
+    include_tasks: ../tasks/install_and_add_to_pmm_valkey.yml
+    vars:
+      valkey_to_test: "{{ enabled_db | select('match', '^valkey-*') | join('') }}"
+
+  - name: Verify if Metric Endpoint with Auth works for Mysqld Exporter
+    when: '"valkey-" in enabled_db | join("")'
+    include_tasks: ../tasks/verify_pmm3_service_metric.yml
+    loop:
+      - { service_name: '{{ valkey_service_name }}', metric: 'redis_up 1' }
+### end Valkey
+
+### Upgrade PMM Client package
+  - name: Store old PID of PMM Agent
+    shell: "ps -C pmm-agent -o pid="
+    register: old_pid_pmm_agent
+
+  - name: Store new PID of PMM Agent
+    set_fact:
+      old_pid_pmm_agent: "{{ old_pid_pmm_agent.stdout | trim }}"
+
+  - name: Enable {{ test_package }} {{ test_repo }} repo
+    include_tasks: ../tasks/enable_repo.yml
+    vars:
+      only: yes
+      package: "{{ test_package }}"
+      repository: "{{ test_repo }}"
+
+  - name: Upgrade PMM client to the latest deb packages
+    when: ansible_os_family == "Debian"
+    apt: name=pmm-client update_cache=yes state=latest
+
+  - name: Upgrade PMM client to the latest rpm packages
+    when: ansible_os_family == "RedHat"
+    yum: name=pmm-client state=latest
+
+### Verifications after upgrade
+  - name: Perform standard verifications set for PMM Client
+    include_tasks: ../tasks/verifications_set_for_pmm3_client_after_upgrade.yml

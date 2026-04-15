@@ -1,0 +1,143 @@
+# Final assertions suite after PMM Client has been upgraded
+#
+- name: "Verify PMM client version is {{ pmm_version }}"
+  include_tasks: ./verify_pmm_client_version.yml
+
+- name: Verify that PMM client version is correct
+  include_tasks: ./verify_pmm_status_versions.yml
+
+- name: Verify pmm3-client files
+  include_tasks: ./verify_pmm3_client_files.yml
+
+- name: Verify config paths-base is correct after upgrade client
+  include_tasks: ./verify_pmm3_client_config.yml
+
+- name: Get "pmm-admin list" output
+  command: "pmm-admin list {{ port_flag if port_flag is defined else '' }}"
+  register: list_output
+
+- name: Assert if the pmm-admin list contains MongoDB instance
+  when: '"psmdb-" in enabled_db | join("")'
+  assert:
+    that:
+      - "'MongoDB' in list_output.stdout"
+
+- name: Assert if the pmm-admin list contains MySQL
+  when: '"ps-" in enabled_db | join("") and (mongodb_connection_type | default("")) != "gssapi"'
+  assert:
+    that:
+      - "'MySQL' in list_output.stdout"
+
+- name: "Wait for 'node_exporter' is Running"
+  include_tasks: ../tasks/wait_exporter_is_running.yml
+  vars:
+    process_name: "node_exporter"
+
+- name: "Wait for 'vmagent' is Running"
+  include_tasks: ../tasks/wait_exporter_is_running.yml
+  vars:
+    process_name: "vmagent"
+
+- name: "Validate 'postgresql_pgstatements_agent' is Running"
+  when: '"pg-" in enabled_db | join("") and (mongodb_connection_type | default("")) != "gssapi"'
+  include_tasks: ../tasks/verify_exporter_status.yml
+  vars:
+    process_name: "postgresql_pgstatements_agent"
+
+- name: "Wait for 'postgres_exporter' is Running"
+  when: '"pg-" in enabled_db | join("") and (mongodb_connection_type | default("")) != "gssapi"'
+  include_tasks: ../tasks/wait_exporter_is_running.yml
+  vars:
+    process_name: "postgres_exporter"
+
+- name: Verify Metric Endpoint with Auth works for Node Exporter
+  include_tasks: ../tasks/verify_pmm3_metric.yml
+  loop:
+    - { service_name: 'node_exporter', metric: 'node_textfile_scrape_error 0' }
+
+- name: Verify MongoDB Exporter metric endpoint with Auth(including service with socket)
+  when: '"psmdb-" in enabled_db | join("") and (mongodb_connection_type | default("")) != "gssapi"'
+  include_tasks: ../tasks/verify_pmm3_service_metric.yml
+  loop:
+    - { service_name: '{{ mongo_service_name }}', metric: 'mongodb_up.* 1' }
+    - { service_name: '{{ mongo_socket_service_name }}', metric: 'mongodb_up.* 1' }
+
+- name: Verify MongoDB Exporter metric endpoint with Auth(including service with socket)
+  when: '"psmdb-" in enabled_db | join("") and (mongodb_connection_type | default("")) == "gssapi"'
+  include_tasks: ../tasks/verify_pmm3_service_metric.yml
+  loop:
+    - { service_name: '{{ mongo_service_name }}', metric: 'mongodb_up.* 1' }
+
+- name: Verify if Metric Endpoint with Auth works for MysqlD Exporter
+  when: '"ps-" in enabled_db | join("") and (mongodb_connection_type | default("")) != "gssapi"'
+  include_tasks: ../tasks/verify_pmm3_metric.yml
+  loop:
+    - { service_name: '{{ mysql_service_name }}', metric: 'mysql_up 1' }
+
+- name: Verify Postgres Exporter metric endpoint with Auth works
+  when: '"pg-" in enabled_db | join("") and (mongodb_connection_type | default("")) != "gssapi"'
+  include_tasks: ../tasks/verify_pmm3_service_metric.yml
+  vars:
+    retries: 3
+    delay: 10
+  loop:
+    - { service_name: '{{ pgsql_service_name }}', metric: 'pg_up{collector="custom_query.hr"} 1' }
+    - { service_name: '{{ pgsql_service_name }}', metric: 'pg_up{collector="custom_query.lr"} 1' }
+    - { service_name: '{{ pgsql_service_name }}', metric: 'pg_up{collector="custom_query.mr"} 1' }
+    - { service_name: '{{ pgsql_service_name }}', metric: 'pg_up{collector="exporter"} 1' }
+    - { service_name: '{{ pgsql_socket_service_name }}', metric: 'pg_up{collector="custom_query.hr"} 1' }
+    - { service_name: '{{ pgsql_socket_service_name }}', metric: 'pg_up{collector="custom_query.lr"} 1' }
+    - { service_name: '{{ pgsql_socket_service_name }}', metric: 'pg_up{collector="custom_query.mr"} 1' }
+    - { service_name: '{{ pgsql_socket_service_name }}', metric: 'pg_up{collector="exporter"} 1' }
+
+  #TODO: improve verify_exporter_port_output.yml to work without socket service removal
+- name: Remove MongoDB Socket service to verify Port output in pmm-admin list commands
+  when: '"psmdb-" in enabled_db | join("") and (mongodb_connection_type | default("")) != "gssapi"'
+  command: pmm-admin remove mongodb {{ mongo_socket_service_name }} {{ port_flag if port_flag is defined else '' }}
+
+  #TODO: improve verify_exporter_port_output.yml to work without socket service removal
+- name: Remove PostgreSQL Socket service to verify Port output in pmm-admin list commands
+  when: '"pg-" in enabled_db | join("") and (mongodb_connection_type | default("")) != "gssapi"'
+  command: pmm-admin remove postgresql {{ pgsql_socket_service_name }} {{ port_flag if port_flag is defined else '' }}
+
+- name: Parse and set PMM minor version
+  shell: "pmm-admin --version {{ port_flag if port_flag is defined else '' }} 2>&1| grep ^Version | awk -F. '{print $2}'"
+  register: pmm_agent_minor_version
+
+- name: Include Exporters Port in output checks for 2.29.0+
+  when: pmm_agent_minor_version.stdout | int >= 29 and (mongodb_connection_type | default("")) != "gssapi"
+  include_tasks: ../tasks/verify_exporter_port_output.yml
+  loop: "{{ ex_list|select|list }}"
+  vars:
+    ex_list:
+      - vmagent
+      - node_exporter
+      - "{{ ('ps-' in enabled_db | join('')) | ternary('mysqld_exporter','') }}"
+      - "{{ ('psmdb-' in enabled_db | join('')) | ternary('mongodb_exporter','') }}"
+      - "{{ ('pg-' in enabled_db | join('')) | ternary('postgres_exporter','') }}"
+
+- name: Include Exporters Port in output checks for 2.29.0+
+  when: pmm_agent_minor_version.stdout | int >= 29 and (mongodb_connection_type | default("")) == "gssapi"
+  include_tasks: ../tasks/verify_exporter_port_output.yml
+  loop: "{{ ex_list|select|list }}"
+  vars:
+    ex_list:
+      - vmagent
+      - node_exporter
+      - "{{ ('psmdb-' in enabled_db | join('')) | ternary('mongodb_exporter','') }}"
+
+- name: Get new PID of PMM Agent
+  shell: "ps -C pmm-agent -o pid="
+  register: new_pid_pmm_agent
+
+- name: Store new PID of PMM Agent
+  set_fact:
+    new_pid_pmm_agent: "{{ new_pid_pmm_agent.stdout | trim }}"
+
+- debug: var=new_pid_pmm_agent
+- debug: var=old_pid_pmm_agent
+
+- name: Fail if pmm agent is not restarted.
+  fail:
+    msg: "PMM Agent was not restarted. Old PID is: {{ old_pid_pmm_agent }} New PID is: {{ new_pid_pmm_agent }}"
+  when: old_pid_pmm_agent == new_pid_pmm_agent

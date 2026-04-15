@@ -1,0 +1,51 @@
+---
+# Basic test:
+#   prepare Percona Repository and software
+#   install PMM client deb/rpm
+#   perform correct setup
+#   verify versions
+#
+- hosts: all
+  become: true
+  become_method: sudo
+  vars:
+    pmm_server_address: "{{ lookup('env', 'PMM_SERVER_IP') }}"
+    pmm_server_password: "{{ lookup('env', 'ADMIN_PASSWORD') | default('admin', true) }}"
+    test_package: "{{ lookup('env', 'install_package') | default('pmm3-client', true)}}"
+    test_repo: "{{ lookup('env', 'install_repo') }}"
+    metrics_mode: "{{ lookup('env', 'METRICS_MODE') | default('auto', true) }}"
+    pmm_version: "{{ lookup('env', 'PMM_VERSION') | regex_search('\\S(.*\\S)?') }}"
+
+  tasks:
+  - name: Register Instance IP
+    shell: echo $(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')
+    register: instance_ip
+
+  - name: Register Instance IP as a variable
+    set_fact:
+      instance_ip: "{{ instance_ip.stdout }}"
+
+  - name: Setup environment
+    include_tasks: ../tasks/pmm3_client_test_prepare.yml
+
+### install pmm3-client
+  - name: Install PMM client deb packages
+    when: ansible_os_family == "Debian"
+    apt: name=pmm-client update_cache=yes state=latest
+
+  - name: Install PMM client rpm packages
+    when: ansible_os_family == "RedHat"
+    yum: name=pmm-client state=latest
+
+  - name: Check that PMM Client version is correct
+    include_tasks: ../tasks/verify_pmm_client_version.yml
+
+### Setup PMM Client
+  - name: Use "pmm-admin config" to connect pmm client to server
+    shell: pmm-admin config --force --debug --server-insecure-tls --metrics-mode={{ metrics_mode }} --server-url=https://admin:{{ pmm_server_password }}@{{ pmm_server_address }} {{ instance_ip }} generic node_{{ instance_ip }}
+
+  - name: Check that PMM client version is correct
+    include_tasks: ../tasks/verify_pmm_status_versions.yml
+
+  - name: Check pmm3-client files
+    include_tasks: ../tasks/verify_pmm3_client_files.yml

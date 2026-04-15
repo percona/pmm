@@ -1,0 +1,41 @@
+# This task installs and starts Percona Server MongoDB on Oracle Linux and Debian/Ubuntu
+#
+# Task adjustments are handled by parent playbook vars:
+#             var "port_flag"      :  to access agent with custom port
+#                                     ex: port_flag: "--pmm-agent-listen-port={{ custom_port }}"
+#
+- name: Download install_setup_psmdb.yml
+  get_url:
+    url: https://raw.githubusercontent.com/Percona-QA/psmdb-testing/main/pbm/tasks/install_setup_psmdb.yml
+    dest: /tmp
+    mode: 0777
+
+- name: enable psmdb repo
+  include_tasks: ./enable_repo.yml
+  vars:
+    package: "{{ psmdb_to_test }}"
+    repository: "{{ psmdb_repository | default('release') }}"
+
+- name: Run install_setup_psmdb.yml
+  include_tasks: /tmp/install_setup_psmdb.yml
+
+- name: add mongodb metrics to monitoring with agent_pass
+  command: >-
+    pmm-admin add mongodb {{ port_flag if port_flag is defined else '' }} --service-name={{ mongo_service_name }}
+    {{ '' if vars['agent_password'] is not defined or '/agent_id/' in vars['agent_password'] else '--agent-password=%s' | format(vars['agent_password']) }}
+
+- name: add mongodb metrics to monitoring using socket
+  command: >-
+    pmm-admin add mongodb {{ port_flag if port_flag is defined else '' }} --socket=/tmp/mongodb-27017.sock
+    --service-name={{ mongo_socket_service_name }}
+    {{ '' if vars['agent_password'] is not defined or '/agent_id/' in vars['agent_password'] else '--agent-password=%s' | format(vars['agent_password']) }}
+
+- name: "Validate pmm-admin list output contains 'MongoDB'"
+  include_tasks: ./verify_pmm-admin_list_contains.yml
+  vars:
+    expected: "MongoDB"
+
+- name: "Wait for 'mongodb_exporter' is Running"
+  include_tasks: ./wait_exporter_is_running.yml
+  vars:
+    process_name: "mongodb_exporter"

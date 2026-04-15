@@ -1,0 +1,104 @@
+---
+# Basic tarball test:
+#   prepare Percona Repository and software
+#   install PMM client from tarball
+#   perform wrong setup
+#   perform correct setup
+#   verify versions etc.
+#
+- hosts: all
+  become: true
+  become_method: sudo
+  vars:
+    pmm_server_address: "{{ lookup('env', 'PMM_SERVER_IP') | default('127.0.0.1', true)}}"
+    pmm_server_password: "{{ lookup('env', 'ADMIN_PASSWORD') | default('admin', true) }}"
+    test_package: "{{ lookup('env', 'install_package') | default('pmm3-client', true)}}"
+    test_repo: "{{ lookup('env', 'install_repo') }}"
+    metrics_mode: "{{ lookup('env', 'METRICS_MODE') | default('auto', true) }}"
+    pmm_version: "{{ lookup('env', 'PMM_VERSION') }}"
+    custom_path: "/pmm-client-custom-path"
+    tarball_link: "{{ lookup('env', 'TARBALL_LINK') }}"
+    agent_password: "pmm-pass"
+
+  tasks:
+  - name: Register Instance IP
+    shell: echo $(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')
+    register: instance_ip
+
+  - name: Register Instance IP as a variable
+    set_fact:
+      instance_ip: "{{ instance_ip.stdout }}"
+
+  - name: Set Databases list
+    set_fact:
+      enabled_db: ""
+
+  - name: include tasks for test env setup
+    include_tasks: ../tasks/pmm3_client_test_prepare.yml
+
+### install PMM Client from tarball
+  - name: install pmm3-client tarball to custom path
+    command: "../scripts/pmm3_client_install_tarball.sh -v {{ (tarball_link | length > 0) | ternary(tarball_link, pmm_version) }} -p {{ custom_path }}"
+
+  - name: check that PMM client version is correct
+    include_tasks: ../tasks/verify_pmm_client_version.yml
+
+### TODO unskip after https://perconadev.atlassian.net/browse/PMM-13827 is done
+### Setup PMM Client(wrong)
+#  - name: Use pmm-agent setup to configure pmm client with wrong path-base
+#    shell: >-
+#      pmm-agent setup --config-file={{ custom_path }}/config/pmm-agent.yaml --force --server-insecure-tls
+#      --server-address={{ pmm_server_address }}
+#      --metrics-mode={{ metrics_mode }}
+#      --server-username=admin
+#      --server-password={{ pmm_server_password }}
+#      --agent-password={{ agent_password }}
+#      --paths-base=/wrong_folder/ {{ instance_ip }} generic node_{{ instance_ip }}
+#
+#  - name: Start agent
+#    shell: pmm-agent --config-file={{ custom_path }}/config/pmm-agent.yaml > pmm-agent.log 2>&1 &
+#
+#  - name: "Wait for 'node_exporter' is Done"
+#    shell: pmm-admin list | grep 'node_exporter' | awk -F' ' '{print $2}'
+#    register: node_exporter_status
+#    until: node_exporter_status.stdout.find('Done') != -1
+#    delay: 5
+#    retries: 5
+#
+#  - name: Assert pmm-agent.log contains the error about wrong base path
+#    shell: cat pmm-agent.log | grep 'no such file or directory'
+
+### Setup PMM Client
+  - name: Use pmm-agent setup to configure pmm client to connect to server
+    shell: >-
+      pmm-agent setup --config-file={{ custom_path }}/config/pmm-agent.yaml --force --server-insecure-tls
+      --server-address={{ pmm_server_address }}
+      --metrics-mode={{ metrics_mode }}
+      --server-username=admin
+      --server-password={{ pmm_server_password }}
+      --paths-base={{ custom_path }}/
+      --agent-password={{ agent_password }}
+      {{ instance_ip }} generic node2_{{ instance_ip }}
+
+  - name: Start agent
+    shell: pmm-agent --debug --config-file={{ custom_path }}/config/pmm-agent.yaml > pmm-agent.log 2>&1 &
+
+  - name: "Wait for 'node_exporter' is Running"
+    shell: pmm-admin list | grep 'node_exporter' | awk -F' ' '{print $2}'
+    register: node_exporter_status
+    until: node_exporter_status.stdout.find('Running') != -1
+    delay: 5
+    retries: 5
+
+  - name: Check if the configuration generated with paths-base is using the custom path
+    include_tasks: ../tasks/verify_pmm3_client_config.yml
+    vars:
+      pmm_client_version: "{{ pmm_version }}"
+
+### verifications
+  - name: Set correct pass for node exporter
+    set_fact:
+      agent_password: "pmm-pass"
+
+  - name: Perform standard verifications set for PMM Client
+    include_tasks: ../tasks/verifications_set_for_pmm3_client.yml

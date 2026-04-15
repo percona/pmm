@@ -1,0 +1,54 @@
+# Encapsulates "enabled_db" variable initialization
+
+- name: Set Databases list for arm
+  set_fact:
+    enabled_db: "{{ db_list|select|list }}"
+  vars:
+    db_list:
+# Debian
+## Percona Server for MySQL
+      - "{{ (ansible_distribution == 'Debian' and ansible_distribution_major_version|int == 11) | ternary('ps-8.4','') }}"
+      - "{{ (ansible_distribution == 'Debian' and ansible_distribution_major_version|int == 12) | ternary('ps-8.4','') }}"
+      - "{{ (ansible_distribution == 'Debian' and ansible_distribution_major_version|int == 13) | ternary('ps-8.0','') }}"
+## Percona Server for MongoDB
+#      - "{{ (ansible_distribution == 'Debian' and ansible_distribution_major_version|int == 11) | ternary('psmdb-70','') }}"
+#      - "{{ (ansible_distribution == 'Debian' and ansible_distribution_major_version|int == 12) | ternary('psmdb-80','') }}"
+#      - "{{ (ansible_distribution == 'Debian' and ansible_distribution_major_version|int == 13) | ternary('psmdb-80','') }}"
+## Percona distribution for Postgresql
+      - "{{ (ansible_distribution == 'Debian' and ansible_distribution_major_version|int == 11) | ternary('pg-18','') }}"
+      - "{{ (ansible_distribution == 'Debian' and ansible_distribution_major_version|int == 12) | ternary('pg-18','') }}"
+      - "{{ (ansible_distribution == 'Debian' and ansible_distribution_major_version|int == 13) | ternary('pg-18','') }}"
+## Valkey
+      - "{{ (ansible_distribution == 'Debian' and ansible_distribution_major_version|int == 11) | ternary('valkey-8','') }}"
+      - "{{ (ansible_distribution == 'Debian' and ansible_distribution_major_version|int == 12) | ternary('valkey-8','') }}"
+#      - "{{ (ansible_distribution == 'Debian' and ansible_distribution_major_version|int == 13) | ternary('valkey-8','') }}"
+# Ubuntu
+## Percona Server for MySQL
+      - "{{ (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version|int == 22) | ternary('ps-8.4','') }}"
+      - "{{ (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version|int == 24) | ternary('ps-8.4','') }}"
+## Percona Server for MongoDB
+      - "{{ (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version|int == 22) | ternary('psmdb-80','') }}"
+      - "{{ (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version|int == 24) | ternary('psmdb-80','') }}"
+## Percona distribution for Postgresql
+      - "{{ (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version|int == 22) | ternary('pg-18','') }}"
+      - "{{ (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version|int == 24) | ternary('pg-18','') }}"
+## Valkey
+      - "{{ (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version|int == 22) | ternary('valkey-8','') }}"
+#      - "{{ (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version|int == 24) | ternary('valkey-8','') }}"
+# RedHat
+## Percona Server for MySQL
+      - "{{ (ansible_os_family == 'RedHat' and ansible_distribution != 'Amazon' and ansible_distribution_major_version|int == 8) | ternary('ps-8.4','') }}"
+      - "{{ (ansible_os_family == 'RedHat' and ansible_distribution != 'Amazon' and ansible_distribution_major_version|int == 9) | ternary('ps-8.4','') }}"
+      - "{{ (ansible_os_family == 'RedHat' and ansible_distribution != 'Amazon' and ansible_distribution_major_version|int == 10) | ternary('ps-8.4','') }}"
+## Percona Server for MongoDB
+      - "{{ (ansible_os_family == 'RedHat' and ansible_distribution != 'Amazon' and ansible_distribution_major_version|int == 8) | ternary('psmdb-80','') }}"
+      - "{{ (ansible_os_family == 'RedHat' and ansible_distribution != 'Amazon' and ansible_distribution_major_version|int == 9) | ternary('psmdb-80','') }}"
+#      - "{{ (ansible_os_family == 'RedHat' and ansible_distribution != 'Amazon' and ansible_distribution_major_version|int == 10) | ternary('psmdb-80','') }}"
+## Percona distribution for Postgresql
+      - "{{ (ansible_os_family == 'RedHat' and ansible_distribution != 'Amazon' and ansible_distribution_major_version|int == 8) | ternary('pg-18','') }}"
+      - "{{ (ansible_os_family == 'RedHat' and ansible_distribution != 'Amazon' and ansible_distribution_major_version|int == 9) | ternary('pg-18','') }}"
+      - "{{ (ansible_os_family == 'RedHat' and ansible_distribution != 'Amazon' and ansible_distribution_major_version|int == 10) | ternary('pg-18','') }}"
+## Valkey
+      - "{{ (ansible_os_family == 'RedHat' and ansible_distribution != 'Amazon' and ansible_distribution_major_version|int == 8) | ternary('valkey-8','') }}"
+      - "{{ (ansible_os_family == 'RedHat' and ansible_distribution != 'Amazon' and ansible_distribution_major_version|int == 9) | ternary('valkey-8','') }}"
+#      - "{{ (ansible_os_family == 'RedHat' and ansible_distribution != 'Amazon' and ansible_distribution_major_version|int == 10) | ternary('valkey-8','') }}"

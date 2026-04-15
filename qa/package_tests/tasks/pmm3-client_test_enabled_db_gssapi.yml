@@ -1,0 +1,19 @@
+# Encapsulates "enabled_db" variable initialization
+
+- name: Set Databases list
+  set_fact:
+    enabled_db: "{{ db_list|select|list }}"
+  vars:
+    db_list:
+      - "{{ (ansible_distribution != 'Amazon') | ternary('ps-8.0','') }}"
+      - "{{ (ansible_distribution == 'Debian') | ternary('ps-8.0','') }}"
+      - "{{ (ansible_distribution == 'Ubuntu') | ternary('ps-8.0','') }}"
+      - "{{ (ansible_os_family == 'RedHat' and ansible_distribution != 'Amazon') | ternary('ps-8.0','') }}"
+      - "{{ (ansible_distribution == 'Debian') | ternary('psmdb-80','') }}"
+      - "{{ (ansible_distribution == 'Ubuntu') | ternary('psmdb-80','') }}"
+      - "{{ (ansible_os_family == 'RedHat') | ternary('psmdb-80','') }}"
+      - "{{ (ansible_distribution == 'Debian') | ternary('pg-17','') }}"
+      - "{{ (ansible_distribution == 'Ubuntu') | ternary('pg-17','') }}"
+      - "{{ (ansible_os_family == 'RedHat' and ansible_distribution != 'Amazon') | ternary('pg-17','') }}"
+
+

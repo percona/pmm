@@ -1,0 +1,58 @@
+# This task contains common actions for the PMM Client all tests at preparation stage
+
+- name: Removing Percona Release package
+  include_tasks: ./remove_percona_repository.yml
+
+- name: Install EPEL and GPG
+  when: ansible_os_family == "RedHat"
+  include_tasks: ./install_epel.yml
+
+- name: Install GPG key on Debian
+  shell: |
+    gpg --keyserver keyserver.ubuntu.com --recv-keys 93C4A3FD7BB9C367
+    gpg --export --armor 93C4A3FD7BB9C367 | tee /etc/apt/trusted.gpg.d/ansible.gpg
+  when: ansible_distribution == "Debian"
+
+- name: Allow release-info to change for apt repositories
+  when: ansible_os_family == "Debian" and ansible_distribution_release == "buster"
+  command: apt-get update -y --allow-releaseinfo-change
+
+- name: Install percona-release package
+  include_tasks: install_percona-release.yml
+
+- name: Install needed packages for Debian/Ubuntu (with retry)
+  shell: apt-get install -y wget gnupg jq acl
+  register: install_result
+  until: install_result.rc == 0
+  retries: 5
+  delay: 10
+  when: ansible_os_family == "Debian"
+
+- name: Install needed packages for RHEL 7
+  when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int <= 7
+  yum:
+    name: "{{ packages }}"
+    state: latest
+  vars:
+    packages:
+      - libselinux-python
+      - wget
+      - jq # for exporter end point metric fetch
+
+- name: Install needed packages for RHEL 8+
+  when: ansible_os_family == "RedHat" and ansible_distribution_major_version|int >= 8
+  yum:
+    name: "{{ packages }}"
+    state: latest
+  vars:
+    packages:
+      - unzip
+      - wget
+      - jq # for exporter end point metric fetch
+ 
+- name: enable {{ test_package }} {{ test_repo }} repo
+  include_tasks: ./enable_repo.yml
+  vars:
+    only: yes
+    package: "{{ test_package }}"
+    repository: "{{ test_repo }}"

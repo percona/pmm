@@ -1,0 +1,80 @@
+# Final assertions suite for PMM Client components
+#
+- name: Check pmm3-client files
+  include_tasks: ./verify_pmm3_client_files.yml
+
+- name: "Wait for 'node_exporter' is Running"
+  include_tasks: ./wait_exporter_is_running.yml
+  vars:
+    process_name: "node_exporter"
+
+- name: Verify Node Exporter metric endpoint with Auth works
+  include_tasks: ./verify_pmm3_metric.yml
+  vars:
+    retries: 3
+    delay: 10
+  loop:
+    - { service_name: 'node_exporter', metric: 'node_textfile_scrape_error 0' }
+
+- name: "Wait for 'vmagent' is Running"
+  include_tasks: ./wait_exporter_is_running.yml
+  vars:
+    process_name: "vmagent"
+
+- name: "Validate 'postgresql_pgstatements_agent' is Running"
+  when: '"pg-" in enabled_db | join("") and (mongodb_connection_type | default("")) != "gssapi"'
+  include_tasks: ./verify_exporter_status.yml
+  vars:
+    process_name: "postgresql_pgstatements_agent"
+
+- name: "Wait for 'postgres_exporter' is Running"
+  when: '"pg-" in enabled_db | join("") and (mongodb_connection_type | default("")) != "gssapi"'
+  include_tasks: ./wait_exporter_is_running.yml
+  vars:
+    process_name: "postgres_exporter"
+
+- name: "Wait for 'nomad_agent' is Running"
+  include_tasks: ./wait_exporter_is_running.yml
+  vars:
+    process_name: "nomad_agent"
+
+### PMM-6592 verifications
+- name: Parse and set PMM minor version
+  shell: "pmm-admin --version | grep ^Version | awk -F. '{print $2}'"
+  register: pmm_agent_minor_version
+
+  #TODO: improve verify_exporter_port_output.yml to work without socket service removal
+- name: Remove MongoDB Socket service to verify Port output in pmm-admin list commands
+  when: '"psmdb-" in enabled_db | join("") and (mongodb_connection_type | default("")) != "gssapi"'
+  command: pmm-admin remove mongodb {{ mongo_socket_service_name }} {{ port_flag if port_flag is defined else '' }}
+
+  #TODO: improve verify_exporter_port_output.yml to work without socket service removal
+- name: Remove PostgreSQL Socket service to verify Port output in pmm-admin list commands
+  when: '"pg-" in enabled_db | join("") and (mongodb_connection_type | default("")) != "gssapi"'
+  command: pmm-admin remove postgresql {{ pgsql_socket_service_name }} {{ port_flag if port_flag is defined else '' }}
+
+- name: Remove Valkey service to verify Port output in pmm-admin list commands
+  when: '"valkey-" in enabled_db | join("") and (mongodb_connection_type | default("")) != "gssapi"'
+  command: pmm-admin remove valkey {{ valkey_service_name }} {{ port_flag if port_flag is defined else '' }}
+
+- name: Validate Exporters Port in output for 2.29.0+
+  include_tasks: ./verify_exporter_port_output.yml
+  when: '(mongodb_connection_type | default("")) != "gssapi"'
+  loop: "{{ ex_list|select|list }}"
+  vars:
+    ex_list:
+      - vmagent
+      - node_exporter
+      - "{{ ('ps-' in enabled_db | join('')) | ternary('mysqld_exporter','') }}"
+      - "{{ ('psmdb-' in enabled_db | join('')) | ternary('mongodb_exporter','') }}"
+      - "{{ ('pg-' in enabled_db | join('')) | ternary('postgres_exporter','') }}"
+
+- name: Validate Exporters Port in output for 2.29.0+
+  include_tasks: ./verify_exporter_port_output.yml
+  when: '(mongodb_connection_type | default("")) == "gssapi"'
+  loop: "{{ ex_list|select|list }}"
+  vars:
+    ex_list:
+      - vmagent
+      - node_exporter
+      - "{{ ('psmdb-' in enabled_db | join('')) | ternary('mongodb_exporter','') }}"

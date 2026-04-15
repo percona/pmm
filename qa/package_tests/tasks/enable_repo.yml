@@ -1,0 +1,41 @@
+# Encapsulates Percona Release enable(-only) specified repo for specified percona distribution
+# NOTE!!!!
+# Task does NOT install or uninstalls anything. "percona-release" have to be installed outside
+#
+# Task arguments are handled by parent playbook vars:
+#         var "only"         : boolean argument to perform "enable-only"
+#                               ex: only: true || yes || false || no
+#         var "package"      : any supported product, ex: psmdb-60, pmm2-client
+#         var "repository"   : release || testing || experimental
+#         var "clear_cache"  : boolean argument to run cache update
+#                               ex: only: true || yes || false || no
+#
+- set_fact:
+    suffix_only: "{{ (only is defined and only|bool) | ternary ('-only', '') }}"
+    repository: "{{ (repository is defined) | ternary (repository, '') }}"
+    clear_cache: "{{ (clear_cache is defined) | ternary (clear_cache, 'false') }}"
+
+- name: percona-release enable{{ suffix_only }} {{ package }} {{ repository }}
+  command: percona-release enable{{ suffix_only }} {{ package }} {{ repository }}
+  become: true
+
+- name: Clean and update package cache
+  shell: |
+    {{ ansible_pkg_mgr }} clean all
+    {{ ansible_pkg_mgr }} makecache
+  when:
+    - ansible_facts['distribution'] in ["RedHat", "CentOS", "OracleLinux", "Amazon"]
+
+- name: Update apt repo
+  when: ansible_os_family == "Debian"
+  shell: apt-get update -y
+  register: update_result
+  until: update_result.rc == 0
+  retries: 5
+  delay: 10
+
+- name: Update yum repo Centos 7
+  shell: yum update -y --skip-broken
+  when:
+    - ansible_facts['distribution'] in ["RedHat", "CentOS", "OracleLinux", "Amazon"]
+    - ansible_facts['distribution_major_version'] | int <= 7

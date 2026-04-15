@@ -1,0 +1,128 @@
+---
+# This playbook does following:
+#   enables Percona main repository
+#   installs previous version of PMM client and PT
+#   enables Percona testing repository
+#   upgrades PMM client and PT to the latest version
+#   does some tests
+#
+- hosts: all
+  become: true
+  become_method: sudo
+  vars:
+    pmm_server_address: "{{ lookup('env', 'PMM_SERVER_IP') }}"
+    pmm_server_password: "{{ lookup('env', 'ADMIN_PASSWORD') | default('admin', true) }}"
+    test_repo: "{{ lookup('env', 'install_repo') }}"
+    metrics_mode: "{{ lookup('env', 'METRICS_MODE') | default('auto', true) }}"
+    pmm_version: "{{ lookup('env', 'PMM_VERSION') }}"
+    test_package: "{{ lookup('env', 'install_package') | default('pmm3-client', true)}}"
+
+  tasks:
+  - name: Register Instance IP
+    shell: echo $(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')
+    register: instance_ip
+
+  - name: Register Instance IP as a variable
+    set_fact:
+      instance_ip: "{{ instance_ip.stdout }}"
+
+  - name: Set Databases list
+    set_fact:
+      enabled_db: ""
+
+  - name: Setup environment
+    include_tasks: ../tasks/pmm3_client_test_prepare.yml
+
+### enable pmm3-client release and install old version to update
+  - name: Enable pmm3-client release repo
+    include_tasks: ../tasks/enable_repo.yml
+    vars:
+      only: yes
+      package: "pmm3-client"
+      repository: "release"
+
+  - name: Detect and save release minor version
+    when: test_repo == "release"
+    shell: "wget -q https://registry.hub.docker.com/v2/repositories/percona/pmm-client/tags -O - | jq -r .results[].name  | grep -v latest | sort -V | tail -n1 | awk -F. '{print $2}'"
+    register: pmm_release_minor_version
+
+  - name: Grep previous release PMM Client version from yum list
+    when: test_repo == "release" and ansible_os_family == "RedHat"
+    shell: "yum list pmm-client --showduplicates | grep 3.{{ pmm_release_minor_version.stdout | int -1 }} | tail -n1 | awk '{print $2}'"
+    register: pmm_old_version_rpm
+
+  - name: Grep previous release PMM Client version from apt list
+    when: test_repo == "release" and ansible_os_family == "Debian"
+    shell: "apt-cache madison pmm-client | grep 3.{{ pmm_release_minor_version.stdout | int -1 }} | head -n1 | awk '{print $3}'"
+    register: pmm_old_version_deb
+
+  - name: Set PMM Client package name with old version to install for apt
+    set_fact:
+      pmm_client_old: "pmm-client={{ pmm_old_version_deb.stdout }}"
+    when: test_repo == "release" and ansible_os_family == 'Debian'
+
+  - name: Set PMM Client package name with old version to install for yum
+    when: test_repo == "release" and ansible_os_family == "RedHat"
+    set_fact:
+      pmm_client_old: "pmm-client-{{ pmm_old_version_rpm.stdout }}"
+
+  - name: Set PMM Client package name to install
+    when: test_repo != "main"
+    set_fact:
+      pmm_client_old: "pmm-client"
+
+  - name: Print old version
+    ansible.builtin.debug:
+      msg: "Installing old version: '{{ pmm_client_old }}'"
+
+  - name: Install PMM client old deb packages
+    when: ansible_os_family == "Debian"
+    apt: name={{ pmm_client_old }} update_cache=yes state=present
+
+  - name: Install PMM client old rpm packages
+    when: ansible_os_family == "RedHat"
+    yum: name={{ pmm_client_old }} state=present
+
+### Setup PMM Client
+  - name: Use "pmm-admin config" to connect pmm client to server
+    shell: pmm-admin config --force --server-insecure-tls --metrics-mode={{ metrics_mode }} --server-url=https://admin:{{ pmm_server_password }}@{{ pmm_server_address }} {{ instance_ip }} generic node_{{ instance_ip }}
+
+  - name: Grep pmm-admin status output
+    shell: "pmm-admin status"
+    register: pmm_admin_status
+  - debug: var=pmm_admin_status.stdout
+
+  - name: Assert pmm-agent is connected to server
+    assert:
+      that:
+        - "'Connected' in pmm_admin_status.stdout"
+      fail_msg: "pmm-agent is not connected to server!"
+      success_msg: "pmm-agent is connected to server"
+
+### Upgrade PMM Client package
+  - name: Store old PID of PMM Agent
+    shell: "ps -C pmm-agent -o pid="
+    register: old_pid_pmm_agent
+
+  - name: Store new PID of PMM Agent
+    set_fact:
+      old_pid_pmm_agent: "{{ old_pid_pmm_agent.stdout | trim }}"
+
+  - name: Enable {{ test_package }} {{ test_repo }} repo
+    include_tasks: ../tasks/enable_repo.yml
+    vars:
+      only: yes
+      package: "{{ test_package }}"
+      repository: "{{ test_repo }}"
+
+  - name: Upgrade PMM client to the latest deb packages
+    when: ansible_os_family == "Debian"
+    apt: name=pmm-client update_cache=yes state=latest
+
+  - name: Upgrade PMM client to the latest rpm packages
+    when: ansible_os_family == "RedHat"
+    yum: name=pmm-client state=latest
+
+### Verifications after upgrade
+  - name: Perform standard verifications set for PMM Client
+    include_tasks: ../tasks/verifications_set_for_pmm3_client_after_upgrade.yml

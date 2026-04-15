@@ -1,0 +1,58 @@
+# Verification task to check config file contains all required parameters with "path base"
+#
+# Task adjustments are handled by parent playbook vars:
+#             var "custom_path"      :  user defined installation folder
+#
+- set_fact:
+    path_base: "{{ (custom_path is defined) | ternary(custom_path, '/usr/local/percona/pmm') }}"
+
+- set_fact:
+    pmm_client_version: "{{ (pmm_client_version is defined) | ternary(pmm_client_version, lookup('env', 'PMM_VERSION')) }}"
+
+- set_fact:
+    pmm_client_version: "{{ pmm_client_version.stdout.split('-')[0] }}"
+  when:
+    - pmm_client_version is defined
+    - pmm_client_version is mapping
+
+# TODO: remove it in favor of inline string destruct, eg.: pmm_version.split('.')[1]
+- name: Parse and set PMM minor version
+  shell: "pmm-admin --version | grep ^Version | awk -F. '{print $2}'"
+  register: minor_version
+
+- set_fact:
+    expected_params: "{{ params_list|select|list }}"
+  vars:
+    params_list:
+      - "paths_base: {{ path_base }}"
+      - "exporters_base: {{ path_base }}/exporters"
+      - "node_exporter: {{ path_base }}/exporters/node_exporter"
+      - "mysqld_exporter: {{ path_base }}/exporters/mysqld_exporter"
+      - "mongodb_exporter: {{ path_base }}/exporters/mongodb_exporter"
+      - "postgres_exporter: {{ path_base }}/exporters/postgres_exporter"
+      - "proxysql_exporter: {{ path_base }}/exporters/proxysql_exporter"
+      - "rds_exporter: {{ path_base }}/exporters/rds_exporter"
+      - "azure_exporter: {{ path_base }}/exporters/azure_exporter"
+      - "vmagent: {{ path_base }}/exporters/vmagent"
+      - "tempdir: {{ path_base }}/tmp"
+      - "pt_summary: {{ path_base }}/tools/pt-summary"
+      - "pt_pg_summary: {{ path_base }}/tools/pt-pg-summary"
+      - "pt_mysql_summary: {{ path_base }}/tools/pt-mysql-summary"
+      - "pt_mongodb_summary: {{ path_base }}/tools/pt-mongodb-summary"
+      - "nomad: {{ path_base }}/tools/nomad"
+      - "nomad_data_dir: {{ path_base }}/data/nomad"
+      - "{{ 'valkey_exporter: ' ~ path_base ~ '/exporters/valkey_exporter' if pmm_client_version is version('3.5.0', '>=') else None }}"
+
+- name: Check if the configuration generated with paths-base is using the custom path
+  shell: cat {{path_base}}/config/pmm-agent.yaml | grep "{{path_base}}"
+  register: config_grep
+  become: yes
+
+- name: "Verify all expected params are present in \"{{path_base}}/config/pmm-agent.yaml\""
+  when: missing_in_config | length > 0 or extra_in_config | length > 0
+  fail:
+    msg: "Found {{ (missing_in_config | length > 0) | ternary('missing parameters: `' ~ missing_in_config | join(', ') ~ '`; ','') }}
+    {{ (extra_in_config | length > 0) | ternary('unexpected params: `' ~ extra_in_config | join(', ') ~ '`','') }}"
+  vars:
+    missing_in_config: "{{ expected_params | difference(config_grep.stdout_lines | map('trim')) }}"
+    extra_in_config: "{{ config_grep.stdout_lines | map('trim') | difference(expected_params) }}"
