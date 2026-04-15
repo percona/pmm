@@ -4,7 +4,7 @@
 # Checks prerequisites, downloads build files, populates bare-repo cache,
 # and optionally kicks off a build.
 #
-# Usage: bootstrap [--ref <branch|tag|sha>] [--target client|server|all] [--migrate] [--skip-cache] [--help]
+# Usage: bootstrap [--ref <branch|tag|sha>] [--target client|server|all] [--skip-cache] [--help]
 
 set -euo pipefail
 
@@ -24,7 +24,6 @@ SCRIPT_DIR="${PIPELINE_DIR}/scripts"
 
 # Defaults
 BUILD_TARGET=""
-RUN_MIGRATE=false
 SKIP_CACHE=false
 GIT_REF="v3"
 REF_EXPLICIT=false
@@ -41,14 +40,12 @@ files, populate the bare-repo cache, and optionally kick off a build.
 
 Options:
   --target <client|server|all>   Build target after setup (default: skip build)
-  --migrate                      Run migrate-from-submodules to populate .env
   --ref <branch|tag|sha>         Git ref to download build files from (default: v3)
   --skip-cache                   Skip cache population and upload
   --help                         Show this help
 
 Examples:
   $(basename "$0")                          # setup only
-  $(basename "$0") --migrate                # setup + populate .env from pmm-submodules
   $(basename "$0") --target client          # setup + build client
   $(basename "$0") --skip-cache --target server  # setup (no cache) + build server
 EOF
@@ -74,10 +71,6 @@ while [ $# -gt 0 ]; do
       GIT_REF="$2"
       REF_EXPLICIT=true
       shift 2
-      ;;
-    --migrate)
-      RUN_MIGRATE=true
-      shift
       ;;
     --skip-cache)
       SKIP_CACHE=true
@@ -244,11 +237,9 @@ setup_env() {
     log_info "Created .env from .env.example"
   fi
 
-  if [ "${RUN_MIGRATE}" = true ]; then
-    log_info "Running migrate-from-submodules..."
-    "${SCRIPT_DIR}/migrate-from-submodules"
-    log_info "  Migration complete"
-  fi
+  log_info "Populating .env from pmm-submodules..."
+  "${SCRIPT_DIR}/migrate-from-submodules"
+  log_info "  Migration complete"
 
   # If --ref was passed explicitly, pin PMM_REF/PMM_UI_REF/PMM_DASHBOARDS_REF to it.
   # These three live in the same percona/pmm repo, so they should track the build ref.
@@ -265,12 +256,9 @@ setup_env() {
   source "${PIPELINE_DIR}/.env"
   set +o allexport
 
-  # Warn if REFs are empty (common when .env was just copied from .env.example)
+  # Warn if PMM_VERSION is still empty after migration (e.g. network issue).
   if [ -z "${PMM_VERSION:-}" ]; then
-    log_warn "PMM_VERSION is empty in .env"
-    if [ "${RUN_MIGRATE}" = false ]; then
-      log_info "Run with --migrate to populate from pmm-submodules, or edit .env manually"
-    fi
+    log_warn "PMM_VERSION is empty in .env — check migrate-from-submodules output above"
   fi
 }
 
