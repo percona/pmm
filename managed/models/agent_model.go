@@ -818,8 +818,11 @@ func (a *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 	}
 }
 
-// EffectiveDialTimeout returns the timeout configured for this agent's exporter.
-// Only for exporters that have connection timeout support in DSN/config generation.
+// EffectiveDialTimeout returns the database connection timeout for DSN generation.
+// Used by: MySQL, MongoDB, PostgreSQL (non-cloud), ProxySQL exporters.
+// Not used by:
+// Valkey, PostgreSQL RDS/Azure: have different defaults in their packages
+// node/rds/azure/external exporters: only scrape timeout (90% of interval)
 func (a *Agent) EffectiveDialTimeout() time.Duration {
 	if a.ExporterOptions.ConnectionTimeout != nil {
 		return *a.ExporterOptions.ConnectionTimeout
