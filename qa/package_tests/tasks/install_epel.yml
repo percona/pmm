@@ -1,0 +1,23 @@
+# Install EPEL and required GPG
+#
+- name: install GPG key for epel {{ ansible_distribution_major_version }}
+  when: ansible_os_family == "RedHat" and not (ansible_distribution == "Amazon")
+  rpm_key:
+    state: present
+    key: https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}
+
+- name: install GPG key for Percona repos
+  when: ansible_os_family == "RedHat" and (ansible_distribution_major_version|int == 8 or ansible_distribution_major_version|int == 9)
+  rpm_key:
+    state: present
+    key: https://repo.percona.com/yum/RPM-GPG-KEY-Percona
+
+- name: install GPG key for Percona repos PACKAGING 
+  rpm_key:
+    state: present
+    key: https://repo.percona.com/yum/PERCONA-PACKAGING-KEY
+  when: ansible_os_family == "RedHat" and ansible_distribution_major_version >= "8"
+  
+- name: setup epel {{ ansible_distribution_major_version }} repo
+  when: ansible_os_family == "RedHat" and not (ansible_distribution == "Amazon")
+  yum: name=https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm state=present

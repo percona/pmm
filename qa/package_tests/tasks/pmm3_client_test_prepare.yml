@@ -5,7 +5,7 @@
 
 - name: Install EPEL and GPG
   when: ansible_os_family == "RedHat"
-  include_tasks: ./install_epel.yml
+  include_tasks: ./tasks/install_epel.yml
 
 - name: Install GPG key on Debian
   shell: |
