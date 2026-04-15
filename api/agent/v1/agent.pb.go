@@ -3794,7 +3794,7 @@ type SetStateRequest_BuiltinAgent struct {
 
 func (x *SetStateRequest_BuiltinAgent) Reset() {
 	*x = SetStateRequest_BuiltinAgent{}
-	mi := &file_agent_v1_agent_proto_msgTypes[45]
+	mi := &file_agent_v1_agent_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3806,7 +3806,7 @@ func (x *SetStateRequest_BuiltinAgent) String() string {
 func (*SetStateRequest_BuiltinAgent) ProtoMessage() {}
 
 func (x *SetStateRequest_BuiltinAgent) ProtoReflect() protoreflect.Message {
-	mi := &file_agent_v1_agent_proto_msgTypes[45]
+	mi := &file_agent_v1_agent_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3819,7 +3819,7 @@ func (x *SetStateRequest_BuiltinAgent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetStateRequest_BuiltinAgent.ProtoReflect.Descriptor instead.
 func (*SetStateRequest_BuiltinAgent) Descriptor() ([]byte, []int) {
-	return file_agent_v1_agent_proto_rawDescGZIP(), []int{7, 2}
+	return file_agent_v1_agent_proto_rawDescGZIP(), []int{7, 1}
 }
 
 func (x *SetStateRequest_BuiltinAgent) GetType() v1.AgentType {
@@ -6670,10 +6670,7 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"\x12env_variable_names\x18\b \x03(\tR\x10envVariableNames\x1a<\n" +
 	"\x0eTextFilesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1ai\n" +
-	"\x13AgentProcessesEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12<\n" +
-	"\x05value\x18\x02 \x01(\v2&.agent.v1.SetStateRequest.AgentProcessR\x05value:\x028\x01\x1a\xfa\x04\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a\xfa\x04\n" +
 	"\fBuiltinAgent\x12+\n" +
 	"\x04type\x18\x01 \x01(\x0e2\x17.inventory.v1.AgentTypeR\x04type\x12\x10\n" +
 	"\x03dsn\x18\x02 \x01(\tR\x03dsn\x12(\n" +
@@ -6694,7 +6691,10 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"\fservice_name\x18\r \x01(\tR\vserviceName\x1a6\n" +
 	"\bEnvEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1ah\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1ai\n" +
+	"\x13AgentProcessesEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12<\n" +
+	"\x05value\x18\x02 \x01(\v2&.agent.v1.SetStateRequest.AgentProcessR\x05value:\x028\x01\x1ah\n" +
 	"\x12BuiltinAgentsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12<\n" +
 	"\x05value\x18\x02 \x01(\v2&.agent.v1.SetStateRequest.BuiltinAgentR\x05value:\x028\x01\"\x12\n" +
@@ -7159,8 +7159,8 @@ var (
 		(*ServerMessage)(nil),                         // 43: agent.v1.ServerMessage
 		nil,                                           // 44: agent.v1.TextFiles.FilesEntry
 		(*SetStateRequest_AgentProcess)(nil),          // 45: agent.v1.SetStateRequest.AgentProcess
-		nil,                                           // 46: agent.v1.SetStateRequest.AgentProcessesEntry
-		(*SetStateRequest_BuiltinAgent)(nil),          // 47: agent.v1.SetStateRequest.BuiltinAgent
+		(*SetStateRequest_BuiltinAgent)(nil),          // 46: agent.v1.SetStateRequest.BuiltinAgent
+		nil,                                           // 47: agent.v1.SetStateRequest.AgentProcessesEntry
 		nil,                                           // 48: agent.v1.SetStateRequest.BuiltinAgentsEntry
 		nil,                                           // 49: agent.v1.SetStateRequest.AgentProcess.TextFilesEntry
 		nil,                                           // 50: agent.v1.SetStateRequest.BuiltinAgent.EnvEntry
@@ -7226,7 +7226,7 @@ var file_agent_v1_agent_proto_depIdxs = []int32{
 	94,  // 1: agent.v1.Pong.current_time:type_name -> google.protobuf.Timestamp
 	95,  // 2: agent.v1.QANCollectRequest.metrics_bucket:type_name -> agent.v1.MetricsBucket
 	96,  // 3: agent.v1.StateChangedRequest.status:type_name -> inventory.v1.AgentStatus
-	46,  // 4: agent.v1.SetStateRequest.agent_processes:type_name -> agent.v1.SetStateRequest.AgentProcessesEntry
+	47,  // 4: agent.v1.SetStateRequest.agent_processes:type_name -> agent.v1.SetStateRequest.AgentProcessesEntry
 	48,  // 5: agent.v1.SetStateRequest.builtin_agents:type_name -> agent.v1.SetStateRequest.BuiltinAgentsEntry
 	94,  // 6: agent.v1.QueryActionValue.timestamp:type_name -> google.protobuf.Timestamp
 	12,  // 7: agent.v1.QueryActionValue.slice:type_name -> agent.v1.QueryActionSlice
@@ -7320,12 +7320,12 @@ var file_agent_v1_agent_proto_depIdxs = []int32{
 	28,  // 95: agent.v1.ServerMessage.service_info:type_name -> agent.v1.ServiceInfoRequest
 	100, // 96: agent.v1.SetStateRequest.AgentProcess.type:type_name -> inventory.v1.AgentType
 	49,  // 97: agent.v1.SetStateRequest.AgentProcess.text_files:type_name -> agent.v1.SetStateRequest.AgentProcess.TextFilesEntry
-	45,  // 98: agent.v1.SetStateRequest.AgentProcessesEntry.value:type_name -> agent.v1.SetStateRequest.AgentProcess
-	100, // 99: agent.v1.SetStateRequest.BuiltinAgent.type:type_name -> inventory.v1.AgentType
-	2,   // 100: agent.v1.SetStateRequest.BuiltinAgent.text_files:type_name -> agent.v1.TextFiles
-	50,  // 101: agent.v1.SetStateRequest.BuiltinAgent.env:type_name -> agent.v1.SetStateRequest.BuiltinAgent.EnvEntry
-	101, // 102: agent.v1.SetStateRequest.BuiltinAgent.rta_options:type_name -> inventory.v1.RTAOptions
-	47,  // 103: agent.v1.SetStateRequest.BuiltinAgentsEntry.value:type_name -> agent.v1.SetStateRequest.BuiltinAgent
+	100, // 98: agent.v1.SetStateRequest.BuiltinAgent.type:type_name -> inventory.v1.AgentType
+	2,   // 99: agent.v1.SetStateRequest.BuiltinAgent.text_files:type_name -> agent.v1.TextFiles
+	50,  // 100: agent.v1.SetStateRequest.BuiltinAgent.env:type_name -> agent.v1.SetStateRequest.BuiltinAgent.EnvEntry
+	101, // 101: agent.v1.SetStateRequest.BuiltinAgent.rta_options:type_name -> inventory.v1.RTAOptions
+	45,  // 102: agent.v1.SetStateRequest.AgentProcessesEntry.value:type_name -> agent.v1.SetStateRequest.AgentProcess
+	46,  // 103: agent.v1.SetStateRequest.BuiltinAgentsEntry.value:type_name -> agent.v1.SetStateRequest.BuiltinAgent
 	11,  // 104: agent.v1.QueryActionMap.MapEntry.value:type_name -> agent.v1.QueryActionValue
 	0,   // 105: agent.v1.StartActionRequest.MySQLExplainParams.output_format:type_name -> agent.v1.MysqlExplainOutputFormat
 	2,   // 106: agent.v1.StartActionRequest.MySQLExplainParams.tls_files:type_name -> agent.v1.TextFiles
