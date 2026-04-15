@@ -106,7 +106,9 @@ jobs:
       - name: Launch containers
         env:
           ENV_UP_FLAGS: "--detach"
-        run: PROFILES=pmm,mysql,postgres,mongo make env-up
+        run: |
+          cp .env.dev.example .env
+          PROFILES=pmm,mysql,postgres,mongo make env-up
 
       - name: Run tests
         run: make -C agent test-cover
