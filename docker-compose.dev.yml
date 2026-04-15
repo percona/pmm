@@ -82,16 +82,18 @@ services:
     volumes:
       - ./:/root/go/src/github.com/percona/pmm
       - ./managed/testdata/updater/:/home/pmm/.config/systemd/user/
-      # Dev clickhouse config for backup/restore
+      # clickhouse config for backup/restore
       - ./dev/clickhouse-config.xml:/etc/clickhouse-server/config.xml:ro
       # caching
       - go-modules:/root/go/pkg/mod
       - go-cache:/root/.cache
       - pmm-data:/srv
-      # mount advisor files for easy development
+      # custom advisor files
       - ./managed/data/advisors/:/usr/local/percona/advisors/
       - ./managed/data/checks/:/usr/local/percona/checks/
       - ./managed/data/alerting-templates/:/usr/local/percona/alerting-templates/
+      # nginx config overrides
+      - ./dev/nginx/conf.d:/etc/nginx/conf.d:ro
 
   mail-server:
     profiles:
