@@ -824,7 +824,7 @@ func (a *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 //
 // Defaults: mysqld/mongodb/proxysql/postgres (2s), valkey (3s).
 //
-// postgres on RDS/Azure uses 5s default but handled in postgresql.go (needs Node context).
+// Postgres on RDS/Azure uses 5s default but handled in postgresql.go (needs Node context).
 //
 // Exporters without DB connection (node, rds, azure, external) don't use this.
 // Their ConnectionTimeout affects only scrape timeout via exporterScrapeTimeout().
