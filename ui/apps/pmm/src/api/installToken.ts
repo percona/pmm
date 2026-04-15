@@ -12,12 +12,9 @@ export async function createNodeInstallToken(
   technology: string,
   ttlSeconds = 0
 ): Promise<CreateNodeInstallTokenResponse> {
-  return api.post<CreateNodeInstallTokenResponse, { ttlSeconds: number; technology: string }>(
-    MANAGEMENT_CREATE_NODE_INSTALL_TOKEN,
-    {
-      ttlSeconds,
-      technology,
-    },
-    true
-  );
+  const res = await api.post<CreateNodeInstallTokenResponse>(MANAGEMENT_CREATE_NODE_INSTALL_TOKEN, {
+    ttlSeconds,
+    technology,
+  });
+  return res.data;
 }
