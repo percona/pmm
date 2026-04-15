@@ -93,7 +93,7 @@ services:
       - ./managed/data/checks/:/usr/local/percona/checks/
       - ./managed/data/alerting-templates/:/usr/local/percona/alerting-templates/
       # nginx config overrides
-      - ./dev/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./build/ansible/roles/nginx/files/conf.d/pmm.conf:/etc/nginx/conf.d/pmm.conf:ro
 
   mail-server:
     profiles:
