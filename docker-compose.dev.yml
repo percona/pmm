@@ -102,7 +102,7 @@ services:
     container_name: mail-server
     hostname: mail-server
     ports:
-      - 8025:8025 # Web UI - http://localhost:8025
+      - ${PMM_PORT_MAIL_SERVER_UI:-8025}:8025 # Web UI - http://localhost:8025
 
   renderer:
     profiles:
@@ -114,7 +114,7 @@ services:
       - IGNORE_HTTPS_ERRORS=true
       - LOG_LEVEL=debug
     ports:
-      - 8081:8081
+      - ${PMM_PORT_RENDERER:-8081}:8081
 
   watchtower:
     profiles:
