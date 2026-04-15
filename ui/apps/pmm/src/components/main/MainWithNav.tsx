@@ -13,7 +13,7 @@ import Header from './header/Header';
 
 export const MainWithNav = () => {
   const { isReady } = useBootstrap();
-  const { isFullScreen } = useGrafana();
+  const { isFullScreen, isOnGrafanaPage } = useGrafana();
 
   if (!isReady) {
     return (
@@ -41,7 +41,7 @@ export const MainWithNav = () => {
             minHeight: 0,
             minWidth: 0,
             width: '100%',
-            display: 'flex',
+            display: isOnGrafanaPage ? 'none' : 'flex',
             flexDirection: 'column',
             overflow: 'auto',
           }}
