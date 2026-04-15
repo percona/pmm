@@ -1,0 +1,16 @@
+# This task performs PMM Client version verification from "pmm-admin --version" output
+#
+# Task adjustments are handled by parent playbook vars:
+#             var "port_flag"      :  to access agent with custom port
+#                                     ex: port_flag: "--pmm-agent-listen-port={{ custom_port }}"
+#
+- name: Grep PMM Admin version from pmm-admin --version output
+  shell: "pmm-admin --version {{ port_flag if port_flag is defined else '' }} 2>&1|grep ^Version | awk -F ' ' '{print $2}'"
+  register: pmm_client_version
+
+- name: Assert PMM Admin version from "--version" output ({{ pmm_client_version.stdout }}) equals expected "{{ pmm_version }}"
+  assert:
+    that:
+      - "pmm_version in pmm_client_version.stdout"
+    fail_msg: "pmm-admin version is '{{ pmm_client_version.stdout }}' but expected '{{ pmm_version }}'"
+    success_msg: "pmm-admin version is '{{ pmm_client_version.stdout }}'"
