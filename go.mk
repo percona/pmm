@@ -10,6 +10,8 @@
 #   TEST_PARALLEL    — parallelism flag, e.g. -p 1             (default: empty)
 #   COVERAGE_MODE    — -covermode value                        (default: atomic)
 #   COMPOSE_PROFILES - comma-separated Docker Compose profiles (default: pmm)
+#   ENV_UP_FLAGS     — docker compose up flags for env-up      (default: --force-recreate --renew-anon-volumes --remove-orphans)
+#   ENV_DOWN_FLAGS   — docker compose down flags for env-down  (default: --volumes --remove-orphans)
 #
 # Canned recipes for use in component targets:
 #   $(go-release)      — CGO_ENABLED=0 go build to PMM_RELEASE_PATH
@@ -25,6 +27,10 @@ TEST_FLAGS    ?= -timeout=30s
 TEST_PKGS     ?= ./...
 COVERAGE_MODE ?= atomic
 COMPOSE_PROFILES ?= pmm
+
+# Shared docker compose flags for env-up / env-down targets.
+ENV_UP_FLAGS   ?= --force-recreate --renew-anon-volumes --remove-orphans
+ENV_DOWN_FLAGS ?= --volumes --remove-orphans
 
 # Release metadata. `cut -b2-` strips the leading `v` from git describe.
 PMM_RELEASE_PATH       ?= ../bin

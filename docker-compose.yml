@@ -5,10 +5,9 @@
 # Usage:
 #  1. Minimal suite (server, client, mysql + sysbench), where sysbench is used to generate load on MySQL:
 #     docker compose -f docker-compose.yml --profile pmm up -d
+#
 #  2. Full suite (server, client, postgres, mongo, mysql + sysbench):
 #     docker compose -f docker-compose.yml --profile pmm --profile postgres --profile mongo up -d
-#  3. Full suite + external clickhouse (server, client, postgres, mongo, mysql + sysbench, external ClickHouse):
-#     docker compose -f docker-compose.yml -f qan-api2/docker-compose.yml --profile pmm --profile postgres --profile mongo up -d
 #
 # Configuration: copy .env.example to .env and adjust variables (image tag, ports, credentials, AWS keys, etc.).
 #  Docker Compose loads .env automatically — no extra flags needed.
@@ -90,6 +89,7 @@ services:
     container_name: ps
     environment:
      - MYSQL_ROOT_PASSWORD=secret
+     - MYSQL_DATABASE=sbtest
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-P", "3306", "-u", "root", "-psecret"]
       interval: 10s
@@ -99,16 +99,6 @@ services:
     volumes:
       - ./dev/my.cnf:/etc/my.cnf
       - ./dev/mysql.logrotate:/etc/logrotate.d/mysql
-
-  ps-init:
-    profiles:
-      - pmm
-    image: percona/percona-server:latest
-    container_name: ps-init
-    depends_on:
-      ps:
-        condition: service_healthy
-    command: mysql -h ps -u root -psecret -e "CREATE DATABASE IF NOT EXISTS sbtest;"
 
   postgres:
     profiles:
@@ -145,8 +135,8 @@ services:
     platform: linux/amd64
     container_name: sysbench-ps
     depends_on:
-      ps-init:
-        condition: service_completed_successfully
+      ps:
+        condition: service_healthy
       pmm-server:
         condition: service_healthy
     command: bash /sysbench-ps.sh

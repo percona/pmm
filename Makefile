@@ -14,7 +14,7 @@ env-up:               ## Start devcontainer
 
 env-down:             ## Stop devcontainer
 	COMPOSE_PROFILES=$(PROFILES) \
-	docker compose -f docker-compose.dev.yml down --volumes --remove-orphans
+	docker compose -f docker-compose.dev.yml down $(ENV_DOWN_FLAGS)
 
 env-pull:     ## Pull latest images
 	COMPOSE_PROFILES=$(PROFILES) \

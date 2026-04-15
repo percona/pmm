@@ -95,8 +95,10 @@ services:
       # PMM_AGENT_PRERUN_SCRIPT: "pmm-admin status --wait=10s; pmm-admin add mysql --username=pmm-agent --password=pmm-agent-password --host=pmm-agent_mysql --port=3306"
 
   sysbench:
+    profiles:
+      - sysbench
     image: perconalab/sysbench
-    container_name: pmm-agent_sysbench
+    container_name: sysbench
 
 volumes:
   test_db_mysql:
