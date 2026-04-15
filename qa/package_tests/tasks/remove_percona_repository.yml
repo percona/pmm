@@ -1,0 +1,20 @@
+# This removes any percona repositories on the system
+#
+- name: remove the Percona apt main repository
+  when: ansible_os_family == "Debian"
+  apt: name=percona-release state=absent
+
+- name: remove the Percona yum repositories
+  when: ansible_os_family == "RedHat"
+  yum: name=percona-release state=absent
+
+- name: remove saved repo files in yum
+  when: ansible_os_family == "RedHat"
+  file: path={{ item }} state=absent
+  with_items:
+    - /etc/yum.repos.d/percona-release.repo
+    - /etc/yum.repos.d/percona-release.repo.rpmsave
+    - /etc/yum.repos.d/percona-original-release.repo
+    - /etc/yum.repos.d/percona-original-release.repo.rpmsave
+    - /etc/yum.repos.d/percona-original-testing.repo
+    - /etc/yum.repos.d/percona-original-testing.repo.rpmsave
