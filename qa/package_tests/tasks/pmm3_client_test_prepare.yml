@@ -18,7 +18,7 @@
   command: apt-get update -y --allow-releaseinfo-change
 
 - name: Install percona-release package
-  include_tasks: install_percona-release.yml
+  include_tasks: ./tasks/install_percona-release.yml
 
 - name: Install needed packages for Debian/Ubuntu (with retry)
   shell: apt-get install -y wget gnupg jq acl
