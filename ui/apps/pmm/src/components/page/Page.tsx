@@ -29,8 +29,11 @@ export const Page: FC<PageProps> = ({ title, topBar, footer, children, fullWidth
           ? {
               width: '100%',
               maxWidth: '100%',
+              height: '100%',
+              maxHeight: '100%',
               minWidth: 0,
               alignSelf: 'stretch',
+              alignItems: 'stretch',
               overflow: 'hidden',
               boxSizing: 'border-box',
             }
@@ -61,6 +64,8 @@ export const Page: FC<PageProps> = ({ title, topBar, footer, children, fullWidth
               flex: 1,
               minHeight: 0,
               minWidth: 0,
+              height: '100%',
+              maxHeight: '100%',
               display: 'flex',
               flexDirection: 'column',
               overflow: 'hidden',

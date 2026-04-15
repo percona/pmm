@@ -26,14 +26,19 @@ const Providers: FC<PropsWithChildren> = () => (
                 <TourProvider>
                   <GlobalStyles
                     styles={{
-                      'html, body, div#root': {
-                        minHeight: '100vh',
+                      html: {
+                        height: '100%',
+                      },
+                      body: {
+                        margin: 0,
+                        height: '100%',
+                        minHeight: '100%',
                       },
                       'div#root': {
                         display: 'flex',
-                        flex: 1,
                         flexDirection: 'column',
-                        minHeight: 0,
+                        height: '100%',
+                        minHeight: '100dvh',
                         width: '100%',
                       },
                     }}
@@ -44,6 +49,7 @@ const Providers: FC<PropsWithChildren> = () => (
                       flex: 1,
                       minHeight: 0,
                       minWidth: 0,
+                      height: '100%',
                       display: 'flex',
                       flexDirection: 'column',
                       width: '100%',

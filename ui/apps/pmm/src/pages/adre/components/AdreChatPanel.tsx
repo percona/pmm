@@ -226,7 +226,7 @@ export const AdreChatPanel: FC = () => {
                   maxWidth: '100%',
                   width: '100%',
                   minWidth: 0,
-                  alignSelf: 'center',
+                  alignSelf: 'stretch',
                   display: 'flex',
                   flexDirection: 'column',
                   gap: 2,

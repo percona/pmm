@@ -140,6 +140,8 @@ const AdrePage: FC = () => {
           flex: 1,
           width: '100%',
           maxWidth: '100%',
+          height: '100%',
+          maxHeight: '100%',
           minWidth: 0,
           minHeight: 0,
           boxSizing: 'border-box',

@@ -31,15 +31,16 @@ export const MainWithNav = () => {
   }
 
   return (
-    <Stack direction="row" flex={1} sx={{ minHeight: 0, minWidth: 0 }}>
+    <Stack direction="row" flex={1} sx={{ minHeight: 0, minWidth: 0, height: '100%', width: '100%' }}>
       {!isFullScreen && !isRenderingServer() && <Sidebar />}
-      <Stack flex={1} direction="column" sx={{ minHeight: 0, minWidth: 0 }}>
+      <Stack flex={1} direction="column" sx={{ minHeight: 0, minWidth: 0, height: '100%', width: '100%' }}>
         {!isFullScreen && <Header />}
         <Box
           sx={{
-            flex: 1,
+            flex: '1 1 0%',
             minHeight: 0,
             minWidth: 0,
+            width: '100%',
             display: 'flex',
             flexDirection: 'column',
             overflow: 'auto',
