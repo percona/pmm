@@ -33,15 +33,15 @@
       instance_ip: "{{ instance_ip.stdout }}"
 
   - name: Set Integrations list
-    include_tasks: ../tasks/pmm3-client_test_enabled_db_arm.yml
+    include_tasks: ./tasks/pmm3-client_test_enabled_db_arm.yml
     when: ansible_architecture == "aarch64"
 
   - name: Set Integrations list
-    include_tasks: ../tasks/pmm3-client_test_enabled_db.yml
+    include_tasks: ./tasks/pmm3-client_test_enabled_db.yml
     when: ansible_architecture != "aarch64"
 
   - name: include tasks for test env setup
-    include_tasks: ../tasks/pmm3_client_test_prepare.yml
+    include_tasks: ./tasks/pmm3_client_test_prepare.yml
 
   - set_fact:
       rnd: "{{ 1000 | random }}"
@@ -54,7 +54,7 @@
 
 ### enable pmm3-client release and install old version to update
   - name: Enable pmm3-client release repo
-    include_tasks: ../tasks/enable_repo.yml
+    include_tasks: ./tasks/enable_repo.yml
     vars:
       only: yes
       package: "pmm3-client"
@@ -146,19 +146,19 @@
 
   - name: Install and start Percona Server 5.7
     when: '"ps-5.7" in enabled_db'
-    include_tasks: ../tasks/install_and_add_to_pmm_ps_57.yml
+    include_tasks: ./tasks/install_and_add_to_pmm_ps_57.yml
 
   - name: Install and start Percona Server 8.0
     when: '"ps-8.0" in enabled_db'
-    include_tasks: ../tasks/install_and_add_to_pmm_ps_80.yml
+    include_tasks: ./tasks/install_and_add_to_pmm_ps_80.yml
 
   - name: Install and start Percona Server 8.4
     when: '"ps-8.4" in enabled_db'
-    include_tasks: ../tasks/install_and_add_to_pmm_ps_84.yml
+    include_tasks: ./tasks/install_and_add_to_pmm_ps_84.yml
 
   - name: Verify if Metric Endpoint with Auth works for Mysqld Exporter
     when: '"ps-" in enabled_db | join("")'
-    include_tasks: ../tasks/verify_pmm3_metric.yml
+    include_tasks: ./tasks/verify_pmm3_metric.yml
     loop:
       - { service_name: '{{ mysql_service_name }}', metric: 'mysql_up 1' }
 ## end PS
@@ -171,13 +171,13 @@
 
   - name: Install and start Percona Server MongoDB
     when: '"psmdb-" in enabled_db | join("")'
-    include_tasks: ../tasks/install_and_add_to_pmm_psmdb.yml
+    include_tasks: ./tasks/install_and_add_to_pmm_psmdb.yml
     vars:
       psmdb_to_test:  "{{ enabled_db | select('match', '^psmdb-*') | join('') }}"
 
   - name: Verify MongoDB Exporter metric endpoint with Auth(including service with socket)
     when: '"psmdb-" in enabled_db | join("")'
-    include_tasks: ../tasks/verify_pmm3_metric.yml
+    include_tasks: ./tasks/verify_pmm3_metric.yml
     loop:
       - { service_name: '{{ mongo_service_name }}', metric: 'mongodb_up.* 1' }
       - { service_name: '{{ mongo_socket_service_name }}', metric: 'mongodb_up.* 1' }
@@ -190,13 +190,13 @@
 
   - name: Install and start Percona Server PostgreSQL
     when: '"pg-" in enabled_db | join("")'
-    include_tasks: ../tasks/install_and_add_to_pmm_pdpgsql.yml
+    include_tasks: ./tasks/install_and_add_to_pmm_pdpgsql.yml
     vars:
       pg_to_test: "{{ enabled_db | select('match', '^pg-*') | join('') }}"
 
   - name: Verify Postgres Exporter metric endpoint with Auth works(including service with socket)
     when: '"pg-" in enabled_db | join("")'
-    include_tasks: ../tasks/verify_pmm3_metric.yml
+    include_tasks: ./tasks/verify_pmm3_metric.yml
     vars:
       retries: 3
       delay: 10
@@ -217,13 +217,13 @@
 
   - name: Install and start Valkey
     when: '"valkey-" in enabled_db | join("")'
-    include_tasks: ../tasks/install_and_add_to_pmm_valkey.yml
+    include_tasks: ./tasks/install_and_add_to_pmm_valkey.yml
     vars:
       valkey_to_test: "{{ enabled_db | select('match', '^valkey-*') | join('') }}"
 
   - name: Verify if Metric Endpoint with Auth works for Mysqld Exporter
     when: '"valkey-" in enabled_db | join("")'
-    include_tasks: ../tasks/verify_pmm3_service_metric.yml
+    include_tasks: ./tasks/verify_pmm3_service_metric.yml
     loop:
       - { service_name: '{{ valkey_service_name }}', metric: 'redis_up 1' }
 ### end Valkey
@@ -238,7 +238,7 @@
       old_pid_pmm_agent: "{{ old_pid_pmm_agent.stdout | trim }}"
 
   - name: Enable {{ test_package }} {{ test_repo }} repo
-    include_tasks: ../tasks/enable_repo.yml
+    include_tasks: ./tasks/enable_repo.yml
     vars:
       only: yes
       package: "{{ test_package }}"
@@ -254,4 +254,4 @@
 
 ### Verifications after upgrade
   - name: Perform standard verifications set for PMM Client
-    include_tasks: ../tasks/verifications_set_for_pmm3_client_after_upgrade.yml
+    include_tasks: ./tasks/verifications_set_for_pmm3_client_after_upgrade.yml

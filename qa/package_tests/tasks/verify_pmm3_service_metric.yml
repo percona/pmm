@@ -7,7 +7,7 @@
 #
 #   must be called with "include_tasks" and "with_items:" or "loop:", ex:
 #  - name: some name for the task
-#    include_tasks: ../tasks/verify_pmm3_metric.yml
+#    include_tasks: ./tasks/verify_pmm3_metric.yml
 #    loop:
 #      - { service_name: 'pgsql_socket_{{ instance_ip }}', metric_name: 'pg_up{collector=\"\exporter\"\}', metric_value: 1 }
 #

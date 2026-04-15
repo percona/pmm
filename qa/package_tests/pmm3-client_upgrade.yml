@@ -31,11 +31,11 @@
       enabled_db: ""
 
   - name: Setup environment
-    include_tasks: ../tasks/pmm3_client_test_prepare.yml
+    include_tasks: ./tasks/pmm3_client_test_prepare.yml
 
 ### enable pmm3-client release and install old version to update
   - name: Enable pmm3-client release repo
-    include_tasks: ../tasks/enable_repo.yml
+    include_tasks: ./tasks/enable_repo.yml
     vars:
       only: yes
       package: "pmm3-client"
@@ -109,7 +109,7 @@
       old_pid_pmm_agent: "{{ old_pid_pmm_agent.stdout | trim }}"
 
   - name: Enable {{ test_package }} {{ test_repo }} repo
-    include_tasks: ../tasks/enable_repo.yml
+    include_tasks: ./tasks/enable_repo.yml
     vars:
       only: yes
       package: "{{ test_package }}"
@@ -125,4 +125,4 @@
 
 ### Verifications after upgrade
   - name: Perform standard verifications set for PMM Client
-    include_tasks: ../tasks/verifications_set_for_pmm3_client_after_upgrade.yml
+    include_tasks: ./tasks/verifications_set_for_pmm3_client_after_upgrade.yml

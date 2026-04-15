@@ -9,7 +9,7 @@
 #
 #   must be called with "expected" variable, ex:
 #  - name: some name for the task
-#    include_tasks: ../tasks/verify_pmm-admin_list_contains.yml
+#    include_tasks: ./tasks/verify_pmm-admin_list_contains.yml
 #    vars:
 #      expected: "string to search and assert"
 #

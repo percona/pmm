@@ -29,54 +29,54 @@
       - "'MySQL' in list_output.stdout"
 
 - name: "Wait for 'node_exporter' is Running"
-  include_tasks: ../tasks/wait_exporter_is_running.yml
+  include_tasks: ./tasks/wait_exporter_is_running.yml
   vars:
     process_name: "node_exporter"
 
 - name: "Wait for 'vmagent' is Running"
-  include_tasks: ../tasks/wait_exporter_is_running.yml
+  include_tasks: ./tasks/wait_exporter_is_running.yml
   vars:
     process_name: "vmagent"
 
 - name: "Validate 'postgresql_pgstatements_agent' is Running"
   when: '"pg-" in enabled_db | join("") and (mongodb_connection_type | default("")) != "gssapi"'
-  include_tasks: ../tasks/verify_exporter_status.yml
+  include_tasks: ./tasks/verify_exporter_status.yml
   vars:
     process_name: "postgresql_pgstatements_agent"
 
 - name: "Wait for 'postgres_exporter' is Running"
   when: '"pg-" in enabled_db | join("") and (mongodb_connection_type | default("")) != "gssapi"'
-  include_tasks: ../tasks/wait_exporter_is_running.yml
+  include_tasks: ./tasks/wait_exporter_is_running.yml
   vars:
     process_name: "postgres_exporter"
 
 - name: Verify Metric Endpoint with Auth works for Node Exporter
-  include_tasks: ../tasks/verify_pmm3_metric.yml
+  include_tasks: ./tasks/verify_pmm3_metric.yml
   loop:
     - { service_name: 'node_exporter', metric: 'node_textfile_scrape_error 0' }
 
 - name: Verify MongoDB Exporter metric endpoint with Auth(including service with socket)
   when: '"psmdb-" in enabled_db | join("") and (mongodb_connection_type | default("")) != "gssapi"'
-  include_tasks: ../tasks/verify_pmm3_service_metric.yml
+  include_tasks: ./tasks/verify_pmm3_service_metric.yml
   loop:
     - { service_name: '{{ mongo_service_name }}', metric: 'mongodb_up.* 1' }
     - { service_name: '{{ mongo_socket_service_name }}', metric: 'mongodb_up.* 1' }
 
 - name: Verify MongoDB Exporter metric endpoint with Auth(including service with socket)
   when: '"psmdb-" in enabled_db | join("") and (mongodb_connection_type | default("")) == "gssapi"'
-  include_tasks: ../tasks/verify_pmm3_service_metric.yml
+  include_tasks: ./tasks/verify_pmm3_service_metric.yml
   loop:
     - { service_name: '{{ mongo_service_name }}', metric: 'mongodb_up.* 1' }
 
 - name: Verify if Metric Endpoint with Auth works for MysqlD Exporter
   when: '"ps-" in enabled_db | join("") and (mongodb_connection_type | default("")) != "gssapi"'
-  include_tasks: ../tasks/verify_pmm3_metric.yml
+  include_tasks: ./tasks/verify_pmm3_metric.yml
   loop:
     - { service_name: '{{ mysql_service_name }}', metric: 'mysql_up 1' }
 
 - name: Verify Postgres Exporter metric endpoint with Auth works
   when: '"pg-" in enabled_db | join("") and (mongodb_connection_type | default("")) != "gssapi"'
-  include_tasks: ../tasks/verify_pmm3_service_metric.yml
+  include_tasks: ./tasks/verify_pmm3_service_metric.yml
   vars:
     retries: 3
     delay: 10
@@ -106,7 +106,7 @@
 
 - name: Include Exporters Port in output checks for 2.29.0+
   when: pmm_agent_minor_version.stdout | int >= 29 and (mongodb_connection_type | default("")) != "gssapi"
-  include_tasks: ../tasks/verify_exporter_port_output.yml
+  include_tasks: ./tasks/verify_exporter_port_output.yml
   loop: "{{ ex_list|select|list }}"
   vars:
     ex_list:
@@ -118,7 +118,7 @@
 
 - name: Include Exporters Port in output checks for 2.29.0+
   when: pmm_agent_minor_version.stdout | int >= 29 and (mongodb_connection_type | default("")) == "gssapi"
-  include_tasks: ../tasks/verify_exporter_port_output.yml
+  include_tasks: ./tasks/verify_exporter_port_output.yml
   loop: "{{ ex_list|select|list }}"
   vars:
     ex_list:
