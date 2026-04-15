@@ -72,19 +72,22 @@ define go-test-cover
 go test $(TEST_FLAGS) $(TEST_PARALLEL) -race -coverprofile=cover.out -covermode=$(COVERAGE_MODE) -coverpkg=$(TEST_PKGS) $(TEST_PKGS)
 endef
 
-define env-up
-docker compose -f $(REPO_ROOT)/docker-compose.dev.yml up -d --wait --wait-timeout 100 --force-recreate --renew-anon-volumes
-endef
-
-define env-down
-docker compose -f $(REPO_ROOT)/docker-compose.dev.yml down --volumes --remove-orphans
-endef
+.PHONY: $(MAKECMDGOALS)
 
 ## Default target and help
-
 default: help
 
 help:                           ## Display this help message
 	@echo "Please use \`make <target>\` where <target> is one of:"
 	@grep -h '^[a-zA-Z]' $(MAKEFILE_LIST) | \
 		awk -F ':.*?## ' 'NF==2 {a[$$1] = sprintf("  %-26s%s", $$1, $$2)} END {for (k in a) print a[k]}' | sort
+	@echo
+	@echo Check .env.dev.example to see which environment variables are available.
+
+
+# PLAN:
+# 1. Move all env-up, env-down target to the top-level Makefile
+# 2. Move all services located in docker-compose.yml files to the top-level docker-compose.yml, 
+# and use profiles to control which services are started in each environment (devcontainer, CI, etc.)
+# 3. Remove all docker-compose.yml files except the top-level one
+# 4. 

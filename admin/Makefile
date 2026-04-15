@@ -24,9 +24,3 @@ gen: clean                      ## Generate files
 
 clean:                          ## Remove generated files
 	find . -name *_reform.go -delete
-
-env-up:                         ## Start development environment
-	COMPOSE_PROFILES=pmm $(env-up)
-
-env-down:                       ## Stop development environment
-	COMPOSE_PROFILES=pmm $(env-down)

@@ -1,5 +1,6 @@
 # Host Makefile.
 
+include go.mk
 include Makefile.include
 -include documentation/Makefile
 
@@ -7,32 +8,17 @@ ifeq ($(PROFILES),)
 PROFILES := 'pmm'
 endif
 
-env-up: 							## Start devcontainer
+env-up:               ## Start devcontainer
 	COMPOSE_PROFILES=$(PROFILES) \
-	docker compose up -d --wait --wait-timeout 100
+	docker compose -f docker-compose.dev.yml up -d --wait --wait-timeout 100
 
-env-up-rebuild: env-update-image	## Rebuild and start devcontainer. Useful for custom $PMM_SERVER_IMAGE
+env-down:             ## Stop devcontainer
 	COMPOSE_PROFILES=$(PROFILES) \
-	docker compose up --build -d
+	docker compose -f docker-compose.dev.yml down --volumes --remove-orphans
 
-env-update-image:					## Pull latest dev image
+env-pull:     ## Pull latest images
 	COMPOSE_PROFILES=$(PROFILES) \
-	docker compose pull
-
-env-compose-up: env-update-image
-	COMPOSE_PROFILES=$(PROFILES) \
-	docker compose up --detach --renew-anon-volumes --remove-orphans --wait --wait-timeout 100
-
-env-devcontainer:
-	docker exec -it --workdir=/root/go/src/github.com/percona/pmm --user root pmm-server python .devcontainer/setup.py
-
-env-down:							## Stop devcontainer
-	COMPOSE_PROFILES=$(PROFILES) \
-	docker compose down --remove-orphans
-
-env-remove:
-	COMPOSE_PROFILES=$(PROFILES) \
-	docker compose down --volumes --remove-orphans
+	docker compose -f docker-compose.dev.yml pull
 
 TARGET ?= _bash
 

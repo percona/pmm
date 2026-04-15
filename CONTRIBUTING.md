@@ -115,7 +115,7 @@ Since PMM has a lot of components, we will mention only three big parts of it.
 ### PMM Server
 
 * Clone [pmm repository](https://github.com/percona/pmm)
-* Run `make env-up` to start development container. This will be slow on first run, all subsequent runs will be order of magnitude faster, because development container will be reused. From time to time it is recommended to rebuild the container to pull the latest changes by running `make env-up-rebuild`.
+* Run `make env-up` to start development container. This will be slow on first run, all subsequent runs will much faster, because the container image will be reused. It is recommended to pull the most recent image from time to time so things don't get stale.
 * To run pmm-managed with your code changes, just run `make run-managed`. It updates `pmm-managed` running in the container.
 
 ### PMM Client
@@ -153,7 +153,7 @@ Each repository mentioned above has its own set of unit tests, as well as its ow
 
 ### API tests
 
-API tests are part of the PMM repository and can be found in [api-tests directory](https://github.com/percona/pmm/tree/main/api-tests). API tests run inside of an active PMM Server container.
+API tests are part of the PMM repository and can be found in [api-tests directory](https://github.com/percona/pmm/tree/v3/api-tests). API tests run inside of an active PMM Server container.
 
 ### End-to-end (E2E) tests
 

@@ -228,7 +228,6 @@ All long-running daemons expose on `127.0.0.1`:
 | Target | Purpose |
 |--------|---------|
 | `make env-up` | Start development container (PMM Server) |
-| `make env-up-rebuild` | Rebuild development container from scratch |
 | `make gen` | Generate all code (protobuf, reform, mocks, format) |
 | `make check` | Run linters (buf, golangci-lint, go-sumtype) |
 | `make format` | Format code (gofumpt, goimports, gci) |
