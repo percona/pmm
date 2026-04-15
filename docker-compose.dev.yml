@@ -162,8 +162,8 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=root-password
-    # volumes:
-    #   - ./testdata/mongo/var/log/mongodb:/var/log/mongodb
+    volumes:
+      - ./testdata/mongo/var/log/mongodb:/var/log/mongodb
 
   mongo-with-tls:
     profiles:

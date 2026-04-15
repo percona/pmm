@@ -98,7 +98,7 @@ env-up:                         ## Start development environment
 	touch testdata/mongo/var/log/mongodb/mongo.log testdata/mongo/var/log/mongodb/mongo_tls.log
 	chmod -R 0777 testdata
 
-	docker compose up $(ENV_UP_FLAGS)
+	$(env-up)
 
 env-down:                       ## Stop development environment
 	docker compose down $(ENV_DOWN_FLAGS)

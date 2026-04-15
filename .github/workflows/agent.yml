@@ -106,7 +106,7 @@ jobs:
       - name: Launch containers
         run: |
           cp .env.dev.example .env
-          PROFILES=pmm,mysql,postgres,mongo make env-up
+          PROFILES=pmm,mysql,postgres,mongo make -C agent env-up
 
       - name: Run tests
         run: make -C agent test-cover
@@ -131,7 +131,6 @@ jobs:
           docker compose logs
           docker logs mongo
           docker compose ps -a
-
 
   build-gssapi:
     name: Build PMM Agent with GSSAPI support
