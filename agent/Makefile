@@ -90,17 +90,17 @@ _run:
 	pmm-agent $(RUN_FLAGS)
 
 env-up:                         ## Start development environment
-	rm -rf testdata
+	rm -rf ../testdata
 # Prep bind-mounted testdata dirs referenced by docker-compose.dev.yml.
 # mongod runs as uid 999 inside the container and needs the log dir to exist and be writable.
-	mkdir -p testdata/mysql/slowlogs
-	mkdir -p testdata/mongo/var/log/mongodb
-	touch testdata/mongo/var/log/mongodb/mongo.log testdata/mongo/var/log/mongodb/mongo_tls.log
-	chmod -R 0777 testdata
+	mkdir -p ../testdata/mysql/slowlogs
+	mkdir -p ../testdata/mongo/var/log/mongodb
+	touch ../testdata/mongo/var/log/mongodb/{mongo.log,mongo_tls.log}
+	chmod -R 0777 ../testdata
 	$(MAKE) -C .. env-up
 
 env-down:                       ## Stop development environment
-	rm -rf testdata/mysql/slowlogs testdata/mongo/var/log/mongodb
+	rm -rf ../testdata
 	$(MAKE) -C .. env-down
 
 setup-dev: install              ## Run pmm-agent setup in development environment
