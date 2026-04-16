@@ -1,0 +1,45 @@
+- name: Debug selected Valkey version
+  debug:
+    var: valkey_to_test
+
+- name: Set password for valkey
+  set_fact:
+    valkey_password: "UfY9s73Gx~!?@#$%^&*(){}[]<>|/:;,.-_+="
+
+- name: Enable Valkey repository
+  shell: percona-release enable valkey experimental
+
+- name: Install Valkey on Debian based systems
+  shell: "{{item}}"
+  with_items:
+    - apt update
+    - apt install -y valkey
+  become: yes
+  when: ansible_os_family == "Debian"
+
+- name: Install Valkey on Red Hat based systems
+  shell: "{{item}}"
+  with_items:
+    - dnf install -y valkey
+    - systemctl start valkey
+  become: yes
+  when: ansible_os_family == "RedHat"
+
+- name: Set password for valkey
+  shell: valkey-cli CONFIG SET requirepass '{{ valkey_password }}'
+  become: yes
+
+- name: Add valkey instance for monitoring
+  command: >-
+    pmm-admin add valkey {{ port_flag if port_flag is defined else '' }} --username=default --password="{{ valkey_password }}" --service-name={{ valkey_service_name }}
+    {{ '' if agent_password is not defined or '/agent_id/' in agent_password else '--agent-password=%s' | format(agent_password) }}
+
+- name: "Validate pmm-admin list output contains 'MySQL'"
+  include_tasks: ./verify_pmm-admin_list_contains.yml
+  vars:
+    expected: "Valkey"
+
+- name: "Wait for 'mysqld_exporter' is Running"
+  include_tasks: ./wait_exporter_is_running.yml
+  vars:
+    process_name: "valkey_exporter"
