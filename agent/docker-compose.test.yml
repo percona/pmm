@@ -136,11 +136,10 @@ services:
   valkey:
     image: valkey/valkey:8.1
     container_name: pmm-agent_valkey
-    command: ["valkey-server", "/etc/valkey/valkey.conf"]
+    command: ["valkey-server", "--requirepass", "pmm-agent_password"]
     ports:
       - "127.0.0.1:6379:6379"
     volumes:
-      - ${PWD}/utils/tests/testdata/valkey:/etc/valkey/
       - test_db_valkey:/docker-entrypoint-initdb.d/
 
   sysbench:
