@@ -98,7 +98,7 @@ env-up:                         ## Start development environment
 	mkdir -p testdata/mongo/var/log/mongodb
 	touch testdata/mongo/var/log/mongodb/mongo.log testdata/mongo/var/log/mongodb/mongo_tls.log
 	chmod -R 0777 testdata
-	docker compose -f docker-compose.test.yml up $(ENV_UP_FLAGS)
+	docker compose -f docker-compose.test.yml up -d $(ENV_UP_FLAGS)
 
 env-down:                       ## Stop development environment
 	rm -fr testdata

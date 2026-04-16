@@ -103,8 +103,6 @@ jobs:
         run: make install
 
       - name: Launch containers
-        env:
-          ENV_UP_FLAGS: "--detach"
         run: make env-up
 
       - name: Run tests
