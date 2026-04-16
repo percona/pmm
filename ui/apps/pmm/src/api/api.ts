@@ -24,7 +24,7 @@ export const addApiErrorInterceptor = () => {
       (error: AxiosError<{ message?: string }>) => {
         if (
           error.response &&
-          error.response.status >= 400 
+          error.response.status >= 400
         ) {
           let message = error.response.data?.message ?? DEFAULT_ERROR_MESSAGE;
           let notificationsDisabled =
