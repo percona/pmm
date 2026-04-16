@@ -1,0 +1,145 @@
+# This task installs and starts PostgreSQL on CentOS and Debian/Ubuntu
+#
+# Task adjustments are handled by parent playbook vars:
+#             var "port_flag"      :  to access agent with custom port
+#                                     ex: port_flag: "--pmm-agent-listen-port={{ custom_port }}"
+#
+- set_fact:
+    pg_version: "{{ pg_to_test.split('-')[1] }}"
+#    pgsql_password: "UfY9s73Gx~!?@#$%^&*(){}[]<>|/:;,.-_+="
+    pgsql_password: "temp_password"
+
+- name: Install Perl (IPC::RUN) on RedHat linux 8
+  shell: |
+    dnf config-manager --set-enabled ol8_codeready_builder
+    dnf install perl-IPC-Run -y
+  when: ansible_os_family == "RedHat" and ansible_distribution_major_version == "8"
+  ignore_errors: yes
+
+- name: Install Perl (IPC::RUN) on RedHat linux 9
+  shell: |
+    dnf config-manager --set-enabled ol9_codeready_builder
+    dnf install perl-IPC-Run -y
+  when: ansible_os_family == "RedHat" and ansible_distribution_major_version == "9"
+  ignore_errors: yes
+
+- name: Install Perl (IPC::RUN) on Rocky linux 8
+  shell: |
+    sudo dnf install dnf-plugins-core
+    sudo dnf module enable llvm-toolset
+    sudo dnf config-manager --set-enabled powertools
+  when: ansible_distribution == "Rocky" and ansible_distribution_major_version == "8"
+  ignore_errors: yes
+
+- name: Install Perl (IPC::RUN) on Rocky linux 9
+  shell: |
+    dnf install dnf-plugins-core
+    dnf module enable llvm-toolset
+    dnf config-manager --set-enabled crb
+    dnf install perl-IPC-Run -y
+  when: ansible_distribution == "Rocky" and ansible_distribution_major_version | int >= 9
+  ignore_errors: yes
+
+- name: Download install_ppg.yml
+  get_url:
+    url: "https://raw.githubusercontent.com/Percona-QA/ppg-testing/main/tasks/install_ppg{{ pg_version }}.yml"
+    dest: /tmp
+    mode: 0777
+
+- name: Enable postgresql repository
+  command: "percona-release setup -y ppg-{{ pg_version }}"
+
+- name: Run install_ppg.yml
+  include_tasks: /tmp/install_ppg{{ pg_version }}.yml
+  vars:
+    pg_version_to_install: "{{ pg_version }}"
+
+- name: Initialize Postgres RHEL
+  command: /usr/pgsql-{{ pg_version }}/bin/postgresql-{{ pg_version }}-setup initdb
+  environment:
+    PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+  when: ansible_os_family == "RedHat"
+
+- name: Start Postgres RHEL
+  service:
+    name: postgresql-{{ pg_version }}
+    state: started
+    enabled: true
+  when: ansible_os_family == "RedHat"
+
+- name: Start postgresql service for Debian based
+  service:
+    name: postgresql
+    state: started
+    enabled: true
+  when: ansible_os_family == "Debian" and ansible_distribution_release != 'xenial'
+
+- name: Change Postgresql Password
+  shell: sudo -u postgres psql -c "ALTER USER postgres PASSWORD '{{ pgsql_password }}';"
+
+- name: setup postgresql pg_stat_statements for Debian based Systems
+  shell: "{{item}}"
+  with_items:
+    - chmod a+w /etc/postgresql/{{ pg_version }}/main/postgresql.conf
+    - echo "shared_preload_libraries = 'pg_stat_statements'" >> /etc/postgresql/{{ pg_version }}/main/postgresql.conf
+    - cat /etc/postgresql/{{ pg_version }}/main/postgresql.conf | grep "pg_stat_statements"
+  become: yes
+  when: ansible_os_family == "Debian"
+
+- name: setup postgresql pg_stat_statements for redhat based systems
+  shell: "{{item}}"
+  with_items:
+    - chmod a+w /var/lib/pgsql/{{ pg_version }}/data/postgresql.conf
+    - echo "shared_preload_libraries = 'pg_stat_statements'" >> /var/lib/pgsql/{{ pg_version }}/data/postgresql.conf
+    - cat /var/lib/pgsql/{{ pg_version }}/data/postgresql.conf | grep "pg_stat_statements"
+  become: yes
+  when: ansible_os_family == "RedHat"
+
+- name: Enable Socket Based Connection for pgsql via pgsql configuration for debian based systems
+  command: sed -i 's/local   all             postgres                                peer/local   all             postgres                                trust/' /etc/postgresql/{{ pg_version }}/main/pg_hba.conf
+  become: yes
+  when: ansible_os_family == "Debian"
+
+- name: Enable Socket Based Connection for pgsql via pgsql configuration for redhat based systems
+  command: sed -i 's/local   all             all                                     peer/local   all             all                                     trust/' /var/lib/pgsql/{{ pg_version }}/data/pg_hba.conf
+  become: yes
+  when: ansible_os_family == "RedHat"
+
+- name: Start Postgres RHEL
+  service:
+    name: postgresql-{{ pg_version }}
+    state: restarted
+    enabled: true
+  when: ansible_os_family == "RedHat"
+
+- name: Start postgresql service for Debian based
+  service:
+    name: postgresql
+    state: restarted
+    enabled: true
+  when: ansible_os_family == "Debian" and ansible_distribution_release != 'xenial'
+
+- name: Create Extension pg_stat_statements
+  shell: sudo -u postgres psql -c "create extension pg_stat_statements;"
+
+- name: add postgresql metrics to monitoring
+  command: >-
+    pmm-admin add postgresql {{ port_flag if port_flag is defined else '' }}
+    --password={{ pgsql_password }} --service-name={{ pgsql_service_name }} --query-source="pgstatements"
+    {{ '' if agent_password is not defined or '/agent_id/' in agent_password else '--agent-password=%s' | format(agent_password) }}
+
+- name: add postgresql metrics to monitoring via socket
+  command: >-
+    pmm-admin add postgresql {{ port_flag if port_flag is defined else '' }} --socket /var/run/postgresql/
+    --username=postgres --service-name={{ pgsql_socket_service_name }} --query-source="pgstatements"
+    {{ '' if agent_password is not defined or '/agent_id/' in agent_password else '--agent-password=%s' | format(agent_password) }}
+
+- name: "Validate pmm-admin list output contains 'PostgreSQL'"
+  include_tasks: ./verify_pmm-admin_list_contains.yml
+  vars:
+    expected: "PostgreSQL"
+
+- name: "Wait for 'postgres_exporter' is Running"
+  include_tasks: ./wait_exporter_is_running.yml
+  vars:
+    process_name: "postgres_exporter"
