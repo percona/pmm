@@ -32,10 +32,10 @@ Download and install PMM Server using `cURL` or `wget`:
 ??? info "What does the script do?"
      This script does the following:
 
-    - Installs Docker if it is not already installed on your system.
-    - Stops and renames any currently running PMM Server Docker container from `pmm-server` to `pmm-server-{timestamp}`. This old pmm-server container is not a recoverable backup.
-    - Pulls and runs the latest PMM Server Docker image.
-    - Can run in Interactive mode to change the default settings:
+    - installs Docker if it is not already installed on your system.
+    - stops and renames any currently running PMM Server Docker container from `pmm-server` to `pmm-server-{timestamp}`. This old pmm-server container is not a recoverable backup.
+    - pulls and runs the latest PMM Server Docker image.
+    - can run in Interactive mode to change the default settings:
 
     ```sh
        curl -fsSLO https://www.percona.com/get/pmm (or wget https://www.percona.com/get/pmm) 
@@ -59,13 +59,13 @@ This two-step approach resolves most installation issues, especially on Rocky Li
 
 If the PMM Server container keeps restarting and `docker logs pmm-server` shows:
 
-```
+```text
 FATAL: /srv is not writable for pmm user.
-Please make sure that /srv is owned by uid 1000 and gid 0 and try again.
+Make sure that /srv is owned by uid 1000 and gid 0 and try again.
 You can change ownership by running: sudo chown -R 1000:0 /srv
 ```
 
-This is typically caused by incorrect ownership on the Docker volume used by PMM. To resolve this:
+Incorrect ownership of the PMM Docker volume typically causes this error. To fix it:
 {.power-number}
 
 1. Fix the ownership of the volume data directory:
@@ -76,7 +76,7 @@ This is typically caused by incorrect ownership on the Docker volume used by PMM
     docker exec pmm-server supervisorctl start all
     ```
 
-    If PMM becomes functional, no further steps are needed.
+    If PMM starts working, you don't need to do anything else.
 
 2. If the problem persists, stop and remove the PMM Server container:
 
@@ -90,8 +90,8 @@ This is typically caused by incorrect ownership on the Docker volume used by PMM
     docker volume rm pmm-data
     ```
 
-    !!! warning
-        This permanently deletes all PMM data stored in the volume, including dashboards, metrics history, and configuration. Only proceed if you intend to start fresh.
+    !!! warning "Data loss"
+        This permanently deletes all PMM data in the volume, including dashboards, metrics history, and configuration. Continue only if you want to start from scratch.
 
 4. Run the Easy-install script again:
 
@@ -99,16 +99,22 @@ This is typically caused by incorrect ownership on the Docker volume used by PMM
     curl -fsSL https://www.percona.com/get/pmm | bash
     ```
 
-If the problem still persists, remove all unused Docker objects (containers, images, volumes, and networks) and try again:
+If the problem persists, remove all unused Docker objects (containers, images, and networks), and try again:
 
 ```sh
 docker system prune -a
 ```
 
-!!! warning
-    This removes **all** unused Docker resources on the host, not just those related to PMM. Only run this command if you are sure no other Docker workloads are affected.
+To remove unused volumes as well, run:
+
+```sh
+docker system prune -a --volumes
+```
+
+!!! warning "Affects all Docker workloads"
+    These commands remove unused Docker resources on the host, not just those related to PMM. Only run them if you are sure no other Docker workloads are affected.
 
 ### Next steps
-After deploying PMM Server successfully, continue by setting up PMM Client:
+After you deploy PMM Server, set up PMM Client:
 
 [Install PMM Client :material-arrow-right:](../../../install-pmm-client/index.md){.md-button}
