@@ -95,7 +95,7 @@ env-up:                         ## Start development environment
 # mongod runs as uid 999 inside the container and needs the log dir to exist and be writable.
 	mkdir -p ../testdata/mysql/slowlogs
 	mkdir -p ../testdata/mongo/var/log/mongodb
-	touch ../testdata/mongo/var/log/mongodb/{mongo.log,mongo_tls.log}
+	touch ../testdata/mongo/var/log/mongodb/mongo.log ../testdata/mongo/var/log/mongodb/mongo_tls.log
 	chmod -R 0777 ../testdata
 	$(MAKE) -C .. env-up
 
