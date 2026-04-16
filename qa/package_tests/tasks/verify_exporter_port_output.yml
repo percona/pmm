@@ -1,0 +1,68 @@
+# This playbook performs checks per PMM-6592:
+#   pmm-admin list output shows exporters ports
+#   pmm-admin status output shows exporters ports
+#   pmm-admin inventory list agents output shows exporters ports
+#   reassigned port is reflected in output
+#
+#   must be called with "include_tasks" and "with_items:" or "loop:", ex:
+#  - name: some name for the task
+#    include_tasks: ../tasks/verify_exporter_port_output.yml
+#    loop:
+#      - vmagent
+#      - node_exporter
+#      - postgres_exporter
+#      - mongodb_exporter
+#      - mysqld_exporter
+#
+- block:
+    - name: "{{ item }}: grep port from ps aux"
+      shell: "ps aux | grep -v grep | grep {{ item }} | grep -o 'isten[^[:space:]]*' | awk -F':' '{ print $2; }' | tail -1"
+      register: port_from_ps
+      until: port_from_ps.stdout | length > 3
+      delay: 2
+      retries: 5
+    - name: "{{ item }}: port found!"
+      debug:
+        msg: "{{ item }} port is <{{port_from_ps.stdout}}>"
+  rescue:
+    - shell: "ps aux | grep -v grep | grep {{ item }} "
+      register: ps_aux
+    - name: "{{ item }}: Failed to get port from ps aux!"
+      debug:
+        msg: "{{ ps_aux.stdout }}"
+      failed_when: true
+
+- name: "{{ item }}: get port from pmm-admin list output"
+  shell: "pmm-admin list {{ port_flag if port_flag is defined else '' }}| awk '/{{ item }}/ {print $NF}'"
+  register: list_port_output
+
+- name: "{{ item }}: assert port output is tha same in ps and pmm-admin list"
+  assert:
+    that:
+      - port_from_ps.stdout == list_port_output.stdout
+    fail_msg: "{{ port_from_ps.stdout }} != {{ list_port_output.stdout }}"
+    success_msg: "Success: {{ port_from_ps.stdout }} == {{ list_port_output.stdout }}"
+
+- name: "{{ item }}: get port from pmm-admin status output"
+  shell: "pmm-admin status {{ port_flag if port_flag is defined else '' }}| awk '/{{ item }}/ {print $NF}'"
+  register: status_port_output
+
+- name: "{{ item }}: assert port output is tha same in ps and pmm-admin status"
+  assert:
+    that:
+      - port_from_ps.stdout == status_port_output.stdout
+    fail_msg: 'ps-port: "{{ port_from_ps.stdout }}" != status-port: "{{ status_port_output.stdout }}"'
+    success_msg: "Success: {{ port_from_ps.stdout }} == {{ status_port_output.stdout }}"
+
+- name: "{{ item }}: get port from pmm-admin inventory list agents output"
+  shell: "pmm-admin inventory list agents {{ port_flag if port_flag is defined else '' }}| awk '/{{ item }}/ {print $NF}'"
+  register: inventory_list_agents_port_output
+  when: item != "vmagent"
+
+- name: "{{ item }}: assert port output is tha same in ps and pmm-admin inventory list agents"
+  assert:
+    that:
+      - port_from_ps.stdout in inventory_list_agents_port_output.stdout
+    fail_msg: "{{ port_from_ps.stdout }} present in {{ inventory_list_agents_port_output.stdout }}"
+    success_msg: "Success: {{ port_from_ps.stdout }} present in {{ inventory_list_agents_port_output.stdout }}"
+  when: item != "vmagent"
