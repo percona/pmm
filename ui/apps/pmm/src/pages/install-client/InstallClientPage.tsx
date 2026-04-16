@@ -30,7 +30,7 @@ export const InstallClientPage = () => {
   const [credentialsMode, setCredentialsMode] = useState<CredentialsMode>('prompt');
   const [token, setToken] = useState('');
   const [pmmHost, setPmmHost] = useState(() => window.location.host);
-  const [insecureTLS, setInsecureTLS] = useState(false);
+  const [insecureTLS, setInsecureTLS] = useState(true);
   const [registerForce, setRegisterForce] = useState(false);
   const [nodeName, setNodeName] = useState('');
   const [nodeAddress, setNodeAddress] = useState('');

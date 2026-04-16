@@ -10,7 +10,7 @@ const baseOptions: InstallCommandOptions = {
   technology: 'mysql',
   credentialsMode: 'prompt',
   serverURL: 'https://service_token:GLSA@pmm.example.com:443',
-  insecureTLS: false,
+  insecureTLS: true,
   registerForce: false,
   nodeName: '',
   nodeAddress: '',
@@ -42,7 +42,16 @@ describe('buildInstallCommand', () => {
     const cmd = buildInstallCommand(baseOptions);
     expect(cmd).toContain("TECH='mysql'");
     expect(cmd).not.toContain('DB_PASSWORD=');
-    expect(cmd).toContain('sudo env');
+    expect(cmd).toContain('sudo -E env');
+    expect(cmd).toContain('curl -fsSLk');
+    expect(cmd).toContain('bash -s --');
+    expect(cmd).toContain('--pmm-server-insecure-tls');
+  });
+
+  test('omits insecure TLS flag when disabled', () => {
+    const cmd = buildInstallCommand({ ...baseOptions, insecureTLS: false });
+    expect(cmd).not.toContain('--pmm-server-insecure-tls');
+    expect(cmd).toContain('bash -s --');
   });
 
   test('includes DB credentials in env mode', () => {
@@ -62,10 +71,13 @@ describe('buildInstallCommand', () => {
       technology: 'postgresql',
       dbName: 'postgres',
     });
-    expect(cmd).toContain('sudo bash -s --');
+    expect(cmd).toContain('sudo -E bash -s --');
+    expect(cmd).toContain('curl -fsSLk');
+    expect(cmd).toContain("--pmm-server-url 'https://service_token:GLSA@pmm.example.com:443'");
     expect(cmd).toContain("--tech 'postgresql'");
     expect(cmd).toContain("--db-password 'secret'");
     expect(cmd).toContain("--db-name 'postgres'");
+    expect(cmd).toContain('--pmm-server-insecure-tls');
   });
 
   test('includes mongodb auth db only for mongodb', () => {

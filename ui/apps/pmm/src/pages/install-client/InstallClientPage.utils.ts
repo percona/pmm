@@ -38,22 +38,27 @@ export const shellEscape = (value: string): string =>
   `'${value.replace(/'/g, `'\\''`)}'`;
 
 export const buildInstallCommand = (opts: InstallCommandOptions): string => {
+  const curl = `curl -fsSLk ${shellEscape(opts.installerUrl)}`;
+
   const envVars: string[] = [
     `PMM_SERVER_URL=${shellEscape(opts.serverURL)}`,
     `TECH=${shellEscape(opts.technology)}`,
   ];
 
-  if (opts.insecureTLS) {
-    envVars.push('PMM_SERVER_INSECURE_TLS=1');
-  }
-  if (opts.registerForce) {
-    envVars.push('PMM_REGISTER_FORCE=1');
-  }
   if (opts.nodeName.trim()) {
     envVars.push(`NODE_NAME=${shellEscape(opts.nodeName.trim())}`);
   }
   if (opts.nodeAddress.trim()) {
     envVars.push(`NODE_ADDRESS=${shellEscape(opts.nodeAddress.trim())}`);
+  }
+
+  /** Passed after \`bash -s --\` (matches install-pmm-client.sh). */
+  const scriptFlags: string[] = [];
+  if (opts.insecureTLS) {
+    scriptFlags.push('--pmm-server-insecure-tls');
+  }
+  if (opts.registerForce) {
+    scriptFlags.push('--force');
   }
 
   if (opts.credentialsMode === 'env') {
@@ -81,7 +86,10 @@ export const buildInstallCommand = (opts: InstallCommandOptions): string => {
   }
 
   if (opts.credentialsMode === 'flags') {
-    const flags: string[] = [`--tech ${shellEscape(opts.technology)}`];
+    const flags: string[] = [
+      `--pmm-server-url ${shellEscape(opts.serverURL)}`,
+      `--tech ${shellEscape(opts.technology)}`,
+    ];
 
     if (opts.nodeName.trim()) {
       flags.push(`--node-name ${shellEscape(opts.nodeName.trim())}`);
@@ -93,7 +101,7 @@ export const buildInstallCommand = (opts: InstallCommandOptions): string => {
       flags.push('--pmm-server-insecure-tls');
     }
     if (opts.registerForce) {
-      flags.push('--register-force');
+      flags.push('--force');
     }
     if (opts.dbUser.trim()) {
       flags.push(`--db-user ${shellEscape(opts.dbUser.trim())}`);
@@ -118,17 +126,23 @@ export const buildInstallCommand = (opts: InstallCommandOptions): string => {
     }
 
     return [
-      `curl -fsSL ${shellEscape(opts.installerUrl)} | sudo bash -s -- \\`,
-      `  --pmm-server-url ${shellEscape(opts.serverURL)} \\`,
+      `${curl} | sudo -E bash -s -- \\`,
       `  ${flags.join(' \\\n  ')}`,
     ].join('\n');
   }
 
-  return [
-    `curl -fsSL ${shellEscape(opts.installerUrl)} | sudo env \\`,
-    ...envVars.map((item, index) => {
-      const suffix = index === envVars.length - 1 ? ' bash' : ' \\';
-      return `  ${item}${suffix}`;
-    }),
-  ].join('\n');
+  const lines: string[] = [`${curl} | sudo -E env \\`];
+  envVars.forEach((item) => {
+    lines.push(`  ${item} \\`);
+  });
+  if (scriptFlags.length === 0) {
+    lines.push('bash -s --');
+  } else {
+    lines.push('bash -s -- \\');
+    scriptFlags.forEach((flag, index) => {
+      const isLast = index === scriptFlags.length - 1;
+      lines.push(isLast ? `  ${flag}` : `  ${flag} \\`);
+    });
+  }
+  return lines.join('\n');
 };

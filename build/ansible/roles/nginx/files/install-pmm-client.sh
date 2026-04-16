@@ -19,9 +19,9 @@ Global options:
   --pmm-server-url URL          PMM server URL (supports service_token userinfo)
   --pmm-server-insecure-tls     Use --server-insecure-tls for pmm-admin config
   --tech TECH                   One of: mysql, postgresql, mongodb, valkey
-  --node-name NAME              Node name for pmm-admin register
-  --node-address ADDRESS        Node address for pmm-admin register
-  --register-force              Re-register node with --force
+  --node-name NAME              Node name for pmm-admin config
+  --node-address ADDRESS        Node address for pmm-admin config
+  --force                       Pass --force to pmm-admin config (removes existing node name and its services on the server, then registers again)
 
 Generic DB options (mapped per technology):
   --db-user USER
@@ -44,7 +44,7 @@ PMM_SERVER_INSECURE_TLS="${PMM_SERVER_INSECURE_TLS:-0}"
 TECH="${TECH:-}"
 NODE_NAME="${NODE_NAME:-}"
 NODE_ADDRESS="${NODE_ADDRESS:-}"
-PMM_REGISTER_FORCE="${PMM_REGISTER_FORCE:-0}"
+PMM_CONFIG_FORCE="${PMM_CONFIG_FORCE:-0}"
 
 DB_USER="${DB_USER:-}"
 DB_PASSWORD="${DB_PASSWORD:-}"
@@ -116,8 +116,8 @@ while [[ $# -gt 0 ]]; do
       NODE_ADDRESS="${2:-}"
       shift 2
       ;;
-    --register-force)
-      PMM_REGISTER_FORCE=1
+    --force)
+      PMM_CONFIG_FORCE=1
       shift
       ;;
     --db-user)
@@ -164,7 +164,7 @@ done
 
 require_root() {
   if [[ "${EUID}" -ne 0 ]]; then
-    error "Run this script as root (for package installation). Example: curl ... | sudo env ... bash"
+    error "Run this script as root (for package installation). Example: curl -fsSLk ... | sudo -E env ... bash -s --"
   fi
 }
 
@@ -172,6 +172,7 @@ prompt_if_empty() {
   local var_name="$1"
   local prompt_label="$2"
   local secret="${3:-0}"
+  local hint="${4:-}"
   local value="${!var_name:-}"
 
   if [[ -n "${value}" ]]; then
@@ -186,14 +187,42 @@ prompt_if_empty() {
   fi
 
   if [[ -z "${value}" ]]; then
-    error "${prompt_label} is required."
+    if [[ -n "${hint}" ]]; then
+      error "${prompt_label} is required. ${hint}"
+    else
+      error "${prompt_label} is required."
+    fi
   fi
 
   printf -v "${var_name}" '%s' "${value}"
 }
 
 detect_os_family() {
-  if [[ -f /etc/redhat-release ]] || [[ -f /etc/centos-release ]]; then
+  if [[ -f /etc/os-release ]]; then
+    # shellcheck source=/dev/null
+    . /etc/os-release
+    case "${ID:-}" in
+      debian|ubuntu|linuxmint|kali|pop|astra)
+        echo "debian"
+        return
+        ;;
+      fedora|rhel|centos|rocky|almalinux|ol|amzn|virtuozzo|vzlinux|mageia)
+        echo "el"
+        return
+        ;;
+    esac
+    case ",${ID_LIKE:-}," in
+      *,debian*|*,ubuntu*)
+        echo "debian"
+        return
+        ;;
+      *,rhel*|*,fedora*|*,centos*)
+        echo "el"
+        return
+        ;;
+    esac
+  fi
+  if [[ -f /etc/redhat-release ]] || [[ -f /etc/centos-release ]] || [[ -f /etc/fedora-release ]]; then
     echo "el"
     return
   fi
@@ -201,7 +230,7 @@ detect_os_family() {
     echo "debian"
     return
   fi
-  error "Unsupported OS. Supported families: RHEL/CentOS/Rocky/Oracle Linux and Debian/Ubuntu."
+  error "Unsupported OS. Supported families: RHEL/CentOS/Rocky/Fedora/Amazon Linux/Oracle Linux (RPM) and Debian/Ubuntu (DEB)."
 }
 
 install_percona_repo_el() {
@@ -256,9 +285,46 @@ install_pmm_client() {
   apt-get install -y pmm-client
 }
 
+# When stdin is not a terminal (e.g. curl ... | bash), prompts cannot be used for DB
+# credentials. Fail before pmm-admin config so we do not register the node and then fail on add.
+require_db_creds_before_config_if_noninteractive() {
+  if [[ -t 0 ]]; then
+    return 0
+  fi
+
+  apply_generic_inputs
+
+  local hint='This install is non-interactive (stdin is not a terminal, e.g. curl ... | bash), so database credentials cannot be prompted. Set them before the agent registers with PMM Server: use --db-user and --db-password, or DB_USER and DB_PASSWORD (include them in sudo env if you use sudo env; use sudo -E to preserve exports).'
+
+  case "${TECH}" in
+    mysql)
+      if [[ -z "${MYSQL_USERNAME}" || -z "${MYSQL_PASSWORD}" ]]; then
+        error "MySQL username and password are required for non-interactive runs. ${hint}"
+      fi
+      ;;
+    postgresql)
+      if [[ -z "${POSTGRESQL_USERNAME}" || -z "${POSTGRESQL_PASSWORD}" ]]; then
+        error "PostgreSQL username and password are required for non-interactive runs. ${hint}"
+      fi
+      ;;
+    mongodb)
+      if [[ -z "${MONGODB_USERNAME}" || -z "${MONGODB_PASSWORD}" ]]; then
+        error "MongoDB username and password are required for non-interactive runs. ${hint}"
+      fi
+      ;;
+    valkey)
+      if [[ -z "${VALKEY_PASSWORD}" ]]; then
+        error "Valkey password is required for non-interactive runs (use --db-password or DB_PASSWORD / VALKEY_PASSWORD). ${hint}"
+      fi
+      ;;
+  esac
+}
+
 configure_pmm_agent() {
   prompt_if_empty PMM_SERVER_URL "PMM server URL (example: https://service_token:GLSA_TOKEN@pmm.example.com:443)" 1
   prompt_if_empty TECH "Technology to add (mysql/postgresql/mongodb/valkey)"
+
+  require_db_creds_before_config_if_noninteractive
 
   local config_cmd=(pmm-admin config "--server-url=${PMM_SERVER_URL}")
   if [[ "${PMM_SERVER_INSECURE_TLS}" == "1" || "${PMM_SERVER_INSECURE_TLS}" == "true" ]]; then
@@ -270,23 +336,12 @@ configure_pmm_agent() {
   if [[ -n "${NODE_NAME}" ]]; then
     config_cmd+=("generic" "${NODE_NAME}")
   fi
+  if [[ "${PMM_CONFIG_FORCE}" == "1" || "${PMM_CONFIG_FORCE}" == "true" ]]; then
+    config_cmd+=(--force)
+  fi
 
   log "Running pmm-admin config..."
   "${config_cmd[@]}"
-
-  local register_cmd=(pmm-admin register)
-  if [[ -n "${NODE_ADDRESS}" ]]; then
-    register_cmd+=("${NODE_ADDRESS}")
-  fi
-  if [[ -n "${NODE_NAME}" ]]; then
-    register_cmd+=("generic" "${NODE_NAME}")
-  fi
-  if [[ "${PMM_REGISTER_FORCE}" == "1" || "${PMM_REGISTER_FORCE}" == "true" ]]; then
-    register_cmd+=(--force)
-  fi
-
-  log "Running pmm-admin register..."
-  "${register_cmd[@]}"
 }
 
 apply_generic_inputs() {
@@ -335,8 +390,9 @@ apply_generic_inputs() {
 }
 
 add_mysql() {
-  prompt_if_empty MYSQL_USERNAME "MySQL username"
-  prompt_if_empty MYSQL_PASSWORD "MySQL password" 1
+  local db_cred_hint='Use --db-user and --db-password, or set DB_USER and DB_PASSWORD (MYSQL_* overrides if set). If you use sudo env, list DB_USER and DB_PASSWORD there; exports in your shell are not passed to the script.'
+  prompt_if_empty MYSQL_USERNAME "MySQL username" 0 "${db_cred_hint}"
+  prompt_if_empty MYSQL_PASSWORD "MySQL password" 1 "${db_cred_hint}"
   MYSQL_ADDRESS="${MYSQL_ADDRESS:-${MYSQL_HOST:-127.0.0.1}:${MYSQL_PORT:-3306}}"
   MYSQL_SERVICE_NAME="${MYSQL_SERVICE_NAME:-$(hostname)-mysql}"
   local cmd=(pmm-admin add mysql "${MYSQL_SERVICE_NAME}" "${MYSQL_ADDRESS}" "--username=${MYSQL_USERNAME}" "--password=${MYSQL_PASSWORD}")
@@ -348,8 +404,9 @@ add_mysql() {
 }
 
 add_postgresql() {
-  prompt_if_empty POSTGRESQL_USERNAME "PostgreSQL username"
-  prompt_if_empty POSTGRESQL_PASSWORD "PostgreSQL password" 1
+  local db_cred_hint='Use --db-user and --db-password, or set DB_USER and DB_PASSWORD (POSTGRESQL_* overrides if set). If you use sudo env, list DB_USER and DB_PASSWORD there; exports in your shell are not passed to the script.'
+  prompt_if_empty POSTGRESQL_USERNAME "PostgreSQL username" 0 "${db_cred_hint}"
+  prompt_if_empty POSTGRESQL_PASSWORD "PostgreSQL password" 1 "${db_cred_hint}"
   POSTGRESQL_ADDRESS="${POSTGRESQL_ADDRESS:-${POSTGRESQL_HOST:-127.0.0.1}:${POSTGRESQL_PORT:-5432}}"
   POSTGRESQL_SERVICE_NAME="${POSTGRESQL_SERVICE_NAME:-$(hostname)-postgresql}"
   local cmd=(pmm-admin add postgresql "${POSTGRESQL_SERVICE_NAME}" "${POSTGRESQL_ADDRESS}" "--username=${POSTGRESQL_USERNAME}" "--password=${POSTGRESQL_PASSWORD}")
@@ -364,8 +421,9 @@ add_postgresql() {
 }
 
 add_mongodb() {
-  prompt_if_empty MONGODB_USERNAME "MongoDB username"
-  prompt_if_empty MONGODB_PASSWORD "MongoDB password" 1
+  local db_cred_hint='Use --db-user and --db-password, or set DB_USER and DB_PASSWORD (MONGODB_* overrides if set). If you use sudo env, list DB_USER and DB_PASSWORD there; exports in your shell are not passed to the script.'
+  prompt_if_empty MONGODB_USERNAME "MongoDB username" 0 "${db_cred_hint}"
+  prompt_if_empty MONGODB_PASSWORD "MongoDB password" 1 "${db_cred_hint}"
   MONGODB_ADDRESS="${MONGODB_ADDRESS:-${MONGODB_HOST:-127.0.0.1}:${MONGODB_PORT:-27017}}"
   MONGODB_SERVICE_NAME="${MONGODB_SERVICE_NAME:-$(hostname)-mongodb}"
   local cmd=(pmm-admin add mongodb "${MONGODB_SERVICE_NAME}" "${MONGODB_ADDRESS}" "--username=${MONGODB_USERNAME}" "--password=${MONGODB_PASSWORD}")
@@ -380,7 +438,8 @@ add_mongodb() {
 }
 
 add_valkey() {
-  prompt_if_empty VALKEY_PASSWORD "Valkey password" 1
+  local db_cred_hint='Use --db-password or DB_PASSWORD (VALKEY_PASSWORD overrides if set). If you use sudo env, list DB_PASSWORD there; exports in your shell are not passed to the script.'
+  prompt_if_empty VALKEY_PASSWORD "Valkey password" 1 "${db_cred_hint}"
   VALKEY_ADDRESS="${VALKEY_ADDRESS:-${VALKEY_HOST:-127.0.0.1}:${VALKEY_PORT:-6379}}"
   VALKEY_SERVICE_NAME="${VALKEY_SERVICE_NAME:-$(hostname)-valkey}"
   local cmd=(pmm-admin add valkey "${VALKEY_SERVICE_NAME}" "${VALKEY_ADDRESS}" "--password=${VALKEY_PASSWORD}")
