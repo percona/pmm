@@ -1,0 +1,23 @@
+# This task verifies that specified exporter or agent is present in the
+# "pmm-admin list" command's output and have "Running" status
+#
+# Task adjustments are handled by parent playbook vars:
+#             var "port_flag"      :  to access agent with custom port
+#                                     ex: port_flag: "--pmm-agent-listen-port={{ custom_port }}"
+#           TODO: add arguments doc and make task loop compatible
+#
+- name: set empty port_flag
+  when: port_flag is not defined
+  set_fact:
+    port_flag: ""
+
+- name: Grep {{ process_name }} status
+  shell: "pmm-admin list {{ port_flag }} | grep '{{ process_name }}' | awk -F' ' '{print $2}'"
+  register: last_status
+
+- name: Validate {{ process_name }} status is Running
+  assert:
+    that:
+      - "'Running' in last_status.stdout"
+    fail_msg: "{{ process_name }} status is {{ last_status.stdout }}!"
+    success_msg: "{{ process_name }} is Running"
