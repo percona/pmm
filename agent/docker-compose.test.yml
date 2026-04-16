@@ -21,9 +21,7 @@ services:
       - test_db_mysql:/test_db/mysql/world:ro
       - test_db_postgres:/test_db/postgresql/world:ro
 
-  # It is essential to have an extra directory `/slowlogs/` between host and container;
-  # and to not have a trailing slash at `./testdata/mysql`.
-  # Otherwise, MySQL in Docker for Mac completely locks during/after slowlog rotation tests.
+  # It is essential to have an extra directory `/slowlogs/` between host and container.
   mysql:
     image: ${MYSQL_IMAGE:-percona:5.7}
     platform: linux/amd64
@@ -113,6 +111,7 @@ services:
 
   postgres:
     image: ${POSTGRES_IMAGE:-postgres:14}
+    platform: linux/amd64
     container_name: pmm-agent_postgres
     command: >
       -c shared_preload_libraries='${PG_PRELOADED_LIBS:-pg_stat_statements}'
@@ -143,6 +142,8 @@ services:
       - test_db_valkey:/docker-entrypoint-initdb.d/
 
   sysbench:
+    profiles:
+      - sysbench
     image: perconalab/sysbench
     container_name: pmm-agent_sysbench
 
