@@ -115,6 +115,6 @@ docker system prune -a --volumes
     These commands remove unused Docker resources on the host, not just those related to PMM. Only run them if you are sure no other Docker workloads are affected.
 
 ### Next steps
-After you deploy PMM Server, set up PMM Client:
+After PMM Server is set up successfully, set up PMM Client:
 
 [Install PMM Client :material-arrow-right:](../../../install-pmm-client/index.md){.md-button}
