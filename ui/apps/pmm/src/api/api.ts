@@ -42,6 +42,7 @@ export const addApiErrorInterceptor = () => {
 
             enqueueSnackbar(message, {
               variant: 'error',
+              preventDuplicate: true,
             });
           }
         }
