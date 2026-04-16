@@ -8,6 +8,7 @@ import {
   CardContent,
   FormControl,
   FormControlLabel,
+  FormHelperText,
   InputLabel,
   MenuItem,
   Select,
@@ -27,7 +28,7 @@ import {
 
 export const InstallClientPage = () => {
   const [technology, setTechnology] = useState<Technology>('mysql');
-  const [credentialsMode, setCredentialsMode] = useState<CredentialsMode>('prompt');
+  const [credentialsMode, setCredentialsMode] = useState<CredentialsMode>('env');
   const [token, setToken] = useState('');
   const [pmmHost, setPmmHost] = useState(() => window.location.host);
   const [insecureTLS, setInsecureTLS] = useState(true);
@@ -120,8 +121,10 @@ export const InstallClientPage = () => {
         <CardContent>
           <Stack spacing={2}>
             <Alert severity="info">
-              Choose installation options, then copy and run the generated command
-              on your database node.
+              Choose installation options, then copy and run the generated command on your database
+              node. The usual <code>curl … | bash</code> form has no interactive terminal on stdin, so
+              use env variables or flags for database credentials unless you save the script and run it
+              from a real shell.
             </Alert>
             <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
               <FormControl fullWidth>
@@ -150,10 +153,17 @@ export const InstallClientPage = () => {
                     setCredentialsMode(e.target.value as CredentialsMode)
                   }
                 >
-                  <MenuItem value="prompt">Prompt on node (recommended)</MenuItem>
-                  <MenuItem value="env">Include env variables</MenuItem>
+                  <MenuItem value="env">Include env variables (recommended for curl | bash)</MenuItem>
                   <MenuItem value="flags">Pass as script flags</MenuItem>
+                  <MenuItem value="prompt">
+                    Prompt on node (TTY only — save script and run in a terminal, not curl | bash)
+                  </MenuItem>
                 </Select>
+                <FormHelperText>
+                  Piping from curl gives the script stdin, not your keyboard; prompts only work when
+                  stdin is a terminal (e.g. download the script, then{' '}
+                  <code>sudo bash ./install-pmm-client.sh …</code>).
+                </FormHelperText>
               </FormControl>
             </Stack>
 
@@ -207,7 +217,7 @@ export const InstallClientPage = () => {
             <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
               <TextField
                 fullWidth
-                label="DB user (optional in prompt mode)"
+                label="DB user (optional)"
                 value={dbUser}
                 onChange={(e) => setDbUser(e.target.value)}
               />
@@ -299,10 +309,6 @@ export const InstallClientPage = () => {
               </Button>
             </Box>
             {copied && <Alert severity="success">Command copied.</Alert>}
-            <Alert severity="warning">
-              Passwords in command-line args or env vars may be visible in shell
-              history. Use prompt mode when possible.
-            </Alert>
           </Stack>
         </CardContent>
       </Card>

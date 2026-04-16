@@ -14,12 +14,21 @@ const baseOptions: InstallCommandOptions = {
   registerForce: false,
   nodeName: '',
   nodeAddress: '',
+  dbUser: '',
+  dbPassword: '',
+  dbHost: '',
+  dbPort: '',
+  dbName: '',
+  dbAuthDB: '',
+  dbServiceName: '',
+};
+
+const optionsWithDb: InstallCommandOptions = {
+  ...baseOptions,
   dbUser: 'pmm',
   dbPassword: 'secret',
   dbHost: '127.0.0.1',
   dbPort: '3306',
-  dbName: '',
-  dbAuthDB: '',
   dbServiceName: 'node-mysql',
 };
 
@@ -38,14 +47,24 @@ describe('buildPmmServerURL', () => {
 });
 
 describe('buildInstallCommand', () => {
-  test('omits DB password in prompt mode', () => {
+  test('omits DB env in prompt mode when DB fields are empty', () => {
     const cmd = buildInstallCommand(baseOptions);
     expect(cmd).toContain("TECH='mysql'");
     expect(cmd).not.toContain('DB_PASSWORD=');
+    expect(cmd).not.toContain('DB_USER=');
     expect(cmd).toContain('sudo -E env');
     expect(cmd).toContain('curl -fsSLk');
     expect(cmd).toContain('bash -s --');
     expect(cmd).toContain('--pmm-server-insecure-tls');
+  });
+
+  test('includes DB env in prompt mode when optional DB fields are set', () => {
+    const cmd = buildInstallCommand(optionsWithDb);
+    expect(cmd).toContain("DB_USER='pmm'");
+    expect(cmd).toContain("DB_PASSWORD='secret'");
+    expect(cmd).toContain("DB_HOST='127.0.0.1'");
+    expect(cmd).toContain("DB_PORT='3306'");
+    expect(cmd).toContain("DB_SERVICE_NAME='node-mysql'");
   });
 
   test('omits insecure TLS flag when disabled', () => {
@@ -56,7 +75,7 @@ describe('buildInstallCommand', () => {
 
   test('includes DB credentials in env mode', () => {
     const cmd = buildInstallCommand({
-      ...baseOptions,
+      ...optionsWithDb,
       credentialsMode: 'env',
     });
     expect(cmd).toContain("DB_USER='pmm'");
@@ -66,7 +85,7 @@ describe('buildInstallCommand', () => {
 
   test('uses flags mode and includes db args', () => {
     const cmd = buildInstallCommand({
-      ...baseOptions,
+      ...optionsWithDb,
       credentialsMode: 'flags',
       technology: 'postgresql',
       dbName: 'postgres',
@@ -82,13 +101,13 @@ describe('buildInstallCommand', () => {
 
   test('includes mongodb auth db only for mongodb', () => {
     const mongodb = buildInstallCommand({
-      ...baseOptions,
+      ...optionsWithDb,
       credentialsMode: 'env',
       technology: 'mongodb',
       dbAuthDB: 'admin',
     });
     const mysql = buildInstallCommand({
-      ...baseOptions,
+      ...optionsWithDb,
       credentialsMode: 'env',
       technology: 'mysql',
       dbAuthDB: 'admin',

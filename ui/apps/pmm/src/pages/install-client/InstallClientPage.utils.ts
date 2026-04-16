@@ -61,7 +61,20 @@ export const buildInstallCommand = (opts: InstallCommandOptions): string => {
     scriptFlags.push('--force');
   }
 
-  if (opts.credentialsMode === 'env') {
+  const emitDbEnvVars =
+    opts.credentialsMode === 'env' ||
+    (opts.credentialsMode === 'prompt' &&
+      Boolean(
+        opts.dbUser.trim() ||
+          opts.dbPassword.trim() ||
+          opts.dbHost.trim() ||
+          opts.dbPort.trim() ||
+          opts.dbServiceName.trim() ||
+          opts.dbName.trim() ||
+          opts.dbAuthDB.trim()
+      ));
+
+  if (emitDbEnvVars) {
     if (opts.dbUser.trim()) {
       envVars.push(`DB_USER=${shellEscape(opts.dbUser.trim())}`);
     }
