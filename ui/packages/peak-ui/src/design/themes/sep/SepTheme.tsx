@@ -4,6 +4,7 @@ import { listItemTextClasses } from "@mui/material/ListItemText";
 import { iconButtonClasses } from "@mui/material/IconButton";
 import { listItemIconClasses } from "@mui/material/ListItemIcon";
 import { listItemButtonClasses } from "@mui/material/ListItemButton";
+import { typographyClasses } from "@mui/material/Typography";
 
 import baseThemeOptions, {
   semanticTokensLight,
@@ -219,6 +220,10 @@ const sepThemeOptions = (mode: PaletteMode): ThemeOptions => {
 
             [`.${listItemTextClasses.root} *`]: {
               fontFamily: "Poppins",
+            },
+
+            [`.${typographyClasses.root}`]: {
+              fontSize: "0.875rem",
             },
 
             [`.${iconButtonClasses.root}:hover`]: {
