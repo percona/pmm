@@ -66,9 +66,9 @@ jobs:
       PMM_SERVER_IMAGE: ${{ matrix.images.pmm_server }}
       PG_PRELOADED_LIBS: ${{ matrix.images.pg_libs }}
 
-    # defaults:
-    #   run:
-    #     working-directory: ${{ github.workspace }}/agent
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}/agent
 
     steps:
       - name: Check out code
@@ -97,23 +97,23 @@ jobs:
           restore-keys: ${{ runner.os }}-go-modules-
 
       - name: Download Go modules
-        run: make -C agent go-mod-download
+        run: go mod download -x
 
       - name: Build and install
-        run: make -C agent install
+        run: make install
 
       - name: Launch containers
-        run: |
-          cp .env.dev.example .env
-          PROFILES=pmm,mysql,postgres,mongo,mongo-tls,mongo-repl,mongo-repl-tls make -C agent env-up
+        env:
+          ENV_UP_FLAGS: "--detach"
+        run: make env-up
 
       - name: Run tests
-        run: make -C agent test-cover
+        run: make test-cover
 
       - name: Upload coverage results
         uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         with:
-          files: agent/cover.out
+          files: cover.out
           flags: agent
           env_vars: MYSQL_IMAGE,MONGO_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
           fail_ci_if_error: false
@@ -128,13 +128,16 @@ jobs:
           go env | sort
           git status
           docker compose logs
-          docker logs mongo
           docker compose ps -a
 
   build-gssapi:
     name: Build PMM Agent with GSSAPI support
     runs-on: ubuntu-22.04
     continue-on-error: false
+
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}/agent
 
     steps:
       - name: Check out code
@@ -168,7 +171,7 @@ jobs:
           restore-keys: ${{ runner.os }}-go-modules-
 
       - name: Download Go modules
-        run: make -C agent go-mod-download
+        run: go mod download -x
 
       - name: Build PMM Agent
-        run: make -C agent release-gssapi
+        run: make release-gssapi

@@ -90,30 +90,31 @@ _run:
 	pmm-agent $(RUN_FLAGS)
 
 env-up:                         ## Start development environment
-	rm -rf ../testdata
-# Prep bind-mounted testdata dirs referenced by docker-compose.dev.yml.
-# mongod runs as uid 999 inside the container and needs the log dir to exist and be writable.
-	mkdir -p ../testdata/mysql/slowlogs
-	mkdir -p ../testdata/mongo/var/log/mongodb
-	touch ../testdata/mongo/var/log/mongodb/mongo.log ../testdata/mongo/var/log/mongodb/mongo_tls.log
-	chmod -R 0777 ../testdata
-	$(MAKE) -C .. env-up
+	rm -fr testdata
+	# to make slowlog rotation tests work
+	mkdir -p testdata/mysql/slowlogs
+	# to make mongolog tests work
+	# mongod runs as uid 999 inside the container and needs the log dir to exist and be writable.
+	mkdir -p testdata/mongo/var/log/mongodb
+	touch testdata/mongo/var/log/mongodb/mongo.log testdata/mongo/var/log/mongodb/mongo_tls.log
+	chmod -R 0777 testdata
+	docker compose -f docker-compose.test.yml up $(ENV_UP_FLAGS)
 
 env-down:                       ## Stop development environment
-	rm -rf ../testdata
-	$(MAKE) -C .. env-down
+	rm -fr testdata
+	docker compose -f docker-compose.test.yml down $(ENV_DOWN_FLAGS)
 
 setup-dev: install              ## Run pmm-agent setup in development environment
 	pmm-agent setup $(RUN_FLAGS) --server-insecure-tls --server-address=127.0.0.1:${PMM_DEV_SERVER_PORT} --server-username=admin --server-password=admin --paths-exporters_base=$(GOPATH)/bin --force
 
 env-mysql:                      ## Run mysql client
-	docker exec -ti mysql mysql --host=127.0.0.1 --user=root --password=root-password
+	docker exec -ti pmm-agent_mysql mysql --host=127.0.0.1 --user=root --password=root-password
 
 env-mongo:                      ## Run mongo client
-	docker exec -ti mongo mongo --username=root --password=root-password
+	docker exec -ti pmm-agent_mongo mongo --username=root --password=root-password
 
 env-psql:                       ## Run psql client
-	docker exec -ti postgres env PGPASSWORD=pmm-agent-password psql --username=pmm-agent
+	docker exec -ti pmm-agent_postgres env PGPASSWORD=pmm-agent-password psql --username=pmm-agent
 
 env-sysbench:
 	docker compose exec --workdir=/sysbench/sysbench-tpcc sysbench ./tpcc.lua \
