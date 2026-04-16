@@ -202,27 +202,17 @@ detect_os_family() {
     # shellcheck source=/dev/null
     . /etc/os-release
     case "${ID:-}" in
-      debian|ubuntu|linuxmint|kali|pop|astra)
+      debian|ubuntu)
         echo "debian"
         return
         ;;
-      fedora|rhel|centos|rocky|almalinux|ol|amzn|virtuozzo|vzlinux|mageia)
-        echo "el"
-        return
-        ;;
-    esac
-    case ",${ID_LIKE:-}," in
-      *,debian*|*,ubuntu*)
-        echo "debian"
-        return
-        ;;
-      *,rhel*|*,fedora*|*,centos*)
+      rhel|ol|amzn)
         echo "el"
         return
         ;;
     esac
   fi
-  if [[ -f /etc/redhat-release ]] || [[ -f /etc/centos-release ]] || [[ -f /etc/fedora-release ]]; then
+  if [[ -f /etc/redhat-release ]] || [[ -f /etc/oracle-release ]]; then
     echo "el"
     return
   fi
@@ -230,7 +220,7 @@ detect_os_family() {
     echo "debian"
     return
   fi
-  error "Unsupported OS. Supported families: RHEL/CentOS/Rocky/Fedora/Amazon Linux/Oracle Linux (RPM) and Debian/Ubuntu (DEB)."
+  error "Unsupported OS. Supported 64-bit Linux: Debian, Ubuntu (DEB) and RHEL, Oracle Linux, Amazon Linux (RPM)."
 }
 
 install_percona_repo_el() {
