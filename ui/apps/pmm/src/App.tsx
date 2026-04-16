@@ -11,6 +11,7 @@ import {
 } from '@percona/percona-ui';
 import { ThemeClass } from 'components/theme-class';
 import { useEffect } from 'react';
+import type { ComponentType } from 'react';
 import { addApiErrorInterceptor, removeApiErrorInterceptor } from 'api/api';
 
 const queryClient = new QueryClient({
@@ -43,12 +44,12 @@ const App = () => {
           // If we need actions, we can add them to our custom component via useSnackbar(): https://notistack.com/features/customization#custom-component
           Components={{
             success:
-              NotistackMuiSnackbar as React.ComponentType<CustomContentProps>,
+              NotistackMuiSnackbar as ComponentType<CustomContentProps>,
             error:
-              NotistackMuiSnackbar as React.ComponentType<CustomContentProps>,
-            info: NotistackMuiSnackbar as React.ComponentType<CustomContentProps>,
+              NotistackMuiSnackbar as ComponentType<CustomContentProps>,
+            info: NotistackMuiSnackbar as ComponentType<CustomContentProps>,
             warning:
-              NotistackMuiSnackbar as React.ComponentType<CustomContentProps>,
+              NotistackMuiSnackbar as ComponentType<CustomContentProps>,
           }}
           // Render the snackbar on the right side of the screen to not interfere with navigation
           anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
