@@ -12,6 +12,7 @@ import { RealtimeSessionsPage } from 'pages/rta/sessions';
 import { Redirect } from 'components/redirect';
 import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
+import { AlertsPage } from 'pages/alerting/alerts';
 
 const router = createBrowserRouter(
   [
@@ -38,6 +39,15 @@ const router = createBrowserRouter(
             {
               path: 'help',
               element: <HelpCenter />,
+            },
+            {
+              path: 'alerting',
+              children: [
+                {
+                  path: 'node-alerts',
+                  element: <AlertsPage />,
+                },
+              ],
             },
             {
               path: 'rta',
