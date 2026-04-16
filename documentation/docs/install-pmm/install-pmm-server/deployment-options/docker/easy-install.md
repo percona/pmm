@@ -78,7 +78,7 @@ Incorrect ownership of the PMM Docker volume typically causes this error. To fix
 
     If PMM starts working, you don't need to do anything else.
 
-2. If the problem persists, stop and remove the PMM Server container:
+2. (If the problem persists) Stop and remove the PMM Server container:
 
     ```sh
     docker stop pmm-server && docker rm pmm-server
@@ -99,7 +99,7 @@ Incorrect ownership of the PMM Docker volume typically causes this error. To fix
     curl -fsSL https://www.percona.com/get/pmm | bash
     ```
 
-If the problem persists, remove all unused Docker objects (containers, images, and networks), and try again:
+5. (If the problem persists) Remove all unused Docker objects (containers, images, and networks), and try again:
 
 ```sh
 docker system prune -a
