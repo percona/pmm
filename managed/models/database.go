@@ -1432,6 +1432,21 @@ func initWithRoot(params SetupDBParams) error {
 			return fmt.Errorf("failed to update password for user %s: %w", params.Username, err)
 		}
 	}
+
+	// PostgreSQL 15+ revoked the default CREATE privilege on the public schema from PUBLIC.
+	// This must be granted explicitly so database migrations can create tables.
+	// The grant must run connected to the target database, not the postgres database.
+	dbTarget, err := OpenDB(SetupDBParams{Address: params.Address, Name: params.Name, Username: "postgres", Password: string(passwordBytes)})
+	if err != nil {
+		return fmt.Errorf("failed to open database %s for schema grant: %w", params.Name, err)
+	}
+	defer dbTarget.Close() //nolint:errcheck
+
+	_, err = dbTarget.Exec(fmt.Sprintf(`GRANT CREATE ON SCHEMA public TO "%s"`, params.Username))
+	if err != nil {
+		return fmt.Errorf("failed to grant CREATE on schema public to %s: %w", params.Username, err)
+	}
+
 	return nil
 }
 
