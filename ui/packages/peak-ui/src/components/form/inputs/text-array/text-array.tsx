@@ -27,15 +27,16 @@ const TextArray = ({
   fieldKey,
   label,
   placeholder,
+  control: controlProp,
   handleBlur,
   onRemove = () => {},
 }: TextArrayProps) => {
-  const {
-    control,
-    formState: { errors },
-    watch,
-    trigger,
-  } = useFormContext();
+  const formContext = useFormContext();
+  const control = controlProp ?? formContext?.control;
+  const errors = formContext?.formState?.errors;
+  const watch = formContext?.watch;
+  const trigger = formContext?.trigger;
+
   const { fields, append, remove } = useFieldArray({
     control,
     name: fieldName,
@@ -91,9 +92,9 @@ const TextArray = ({
 
               InputProps: {
                 onChange: () => {
-                  const initialFieldValue = watch(
+                  const initialFieldValue = watch?.(
                     `${fieldName}.${index}.${fieldKey}`
-                  );
+                  ) || [];
                   defaultFields[index][fieldKey] = initialFieldValue;
                 },
                 onBlur: handleBlur
@@ -112,7 +113,7 @@ const TextArray = ({
                       onClick={() => {
                         remove(index);
                         onRemove(index);
-                        trigger(fieldName);
+                        trigger?.(fieldName);
                       }}
                     >
                       <DeleteOutlineOutlinedIcon />
