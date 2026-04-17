@@ -14,12 +14,13 @@
 // limitations under the License.
 import { ToggleButtonGroupProps } from '@mui/material';
 import { LabeledContentProps } from '../../../labeled-content';
-import { UseControllerProps } from 'react-hook-form';
+import { Control, UseControllerProps } from 'react-hook-form';
 
 export type ToggleButtonGroupInputProps = {
   name: string;
   label?: string;
   labelProps?: LabeledContentProps;
+  control?: Control;
   controllerProps?: UseControllerProps;
   toggleButtonGroupProps?: ToggleButtonGroupProps;
   children: React.ReactNode;
