@@ -205,7 +205,7 @@ func buildInfoAssertions(t *testing.T, b []byte) { //nolint:thelper
 	objxM := convertToObjxMap(t, b)
 	assert.InEpsilon(t, 1.0, objxM.Get("ok").Data(), 0.0001)
 	assert.Equal(t, "mozjs", objxM.Get("javascriptEngine").Data())
-	assert.Equal(t, "x86_64", objxM.Get("buildEnvironment.distarch").Data())
+	assert.Contains(t, []string{"x86_64", "aarch64"}, objxM.Get("buildEnvironment.distarch").Data())
 }
 
 func getDiagnosticDataAssertions(t *testing.T, b []byte) { //nolint:thelper

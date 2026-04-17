@@ -44,12 +44,13 @@ install:                        ## Install pmm-agent binary
 install-race:                   ## Install pmm-agent binary with race detector
 	go build -v -ldflags "$(VERSION_FLAGS)" -race -o $(GOBIN)/pmm-agent
 
-test-cover:                     ## Run tests and collect coverage information
+test-cover: install             ## Run tests and collect coverage information
+	$(MAKE) env-up
 	$(go-test-cover)
 
 test: install                   ## Run tests
 	$(MAKE) env-up
-	$(MAKE) test-cover
+	$(go-test)
 
 fuzz-slowlog-parser:            ## Run fuzzer for agents/mysql/slowlog/parser package
 	# go get -u github.com/dvyukov/go-fuzz/go-fuzz github.com/dvyukov/go-fuzz/go-fuzz-build

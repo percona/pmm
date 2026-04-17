@@ -4,6 +4,9 @@ services:
     image: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:3-dev-latest}
     container_name: pmm-server
     platform: linux/amd64
+    depends_on:
+      mysql:
+        condition: service_healthy
     ports:
       - "127.0.0.1:443:8443"
     environment:
@@ -39,9 +42,16 @@ services:
       - MYSQL_USER=pmm-agent
       - MYSQL_PASSWORD=pmm-agent-password
       - UMASK=0777  # for slowlog file
+      - PERCONA_TELEMETRY_DISABLE=1
     depends_on:
       test_db:
         condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "MYSQL_PWD=$$MYSQL_ROOT_PASSWORD mysqladmin ping -u root"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     volumes:
       - test_db_mysql:/docker-entrypoint-initdb.d/:ro
       - ./testdata/mysql:/mysql

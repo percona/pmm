@@ -69,7 +69,7 @@ go build -v $(LD_FLAGS) -race -o $(GOBIN)/$(BINARY_NAME) $(BUILD_SOURCE)
 endef
 
 define go-test
-go test $(TEST_FLAGS) $(TEST_PARALLEL) -race $(TEST_PKGS)
+go test $(TEST_FLAGS) $(TEST_PARALLEL) -race -count 1 $(TEST_PKGS)
 endef
 
 define go-test-cover
