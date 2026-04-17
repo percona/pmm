@@ -43,7 +43,7 @@
 
 ### install PMM Client from tarball
   - name: setup pmm3-client artifacts for custom path
-    command: "../scripts/pmm3_client_install_tarball.sh -l -v {{ (tarball_link | length > 0) | ternary(tarball_link, pmm_version) }}"
+    command: "./scripts/pmm3_client_install_tarball.sh -l -v {{ (tarball_link | length > 0) | ternary(tarball_link, pmm_version) }}"
 
   - name: check that PMM client version is correct
     include_tasks: ./tasks/verify_pmm_client_version.yml

@@ -41,7 +41,7 @@
       var: tarball_link
 
   - name: install pmm3-client tarball
-    command: "../scripts/pmm3_client_install_tarball.sh -v {{ (tarball_link | length > 0) | ternary(tarball_link, pmm_version) }}"
+    command: "./scripts/pmm3_client_install_tarball.sh -v {{ (tarball_link | length > 0) | ternary(tarball_link, pmm_version) }}"
 
   - name: check that PMM client version is correct
     include_tasks: ./tasks/verify_pmm_client_version.yml

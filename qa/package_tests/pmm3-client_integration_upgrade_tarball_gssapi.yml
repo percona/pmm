@@ -48,7 +48,7 @@
 
 ### install PMM Client from tarball
   - name: install pmm3-client tarball to custom path
-    command: "../scripts/pmm3_client_install_tarball.sh -v {{ old_tarball_link }}"
+    command: "./scripts/pmm3_client_install_tarball.sh -v {{ old_tarball_link }}"
 
 ### Setup PMM Client
   - name: Use pmm-agent setup to configure pmm client to connect to server
@@ -96,7 +96,7 @@
 
 ### Upgrade PMM Client package
   - name: install pmm3-client tarball to custom path
-    command: "../scripts/pmm3_client_install_tarball.sh -v {{ (tarball_link | length > 0) | ternary(tarball_link, pmm_version) }} -u"
+    command: "./scripts/pmm3_client_install_tarball.sh -v {{ (tarball_link | length > 0) | ternary(tarball_link, pmm_version) }} -u"
 
   - name: Stop pmm-agent process
     command: "pkill -f pmm-agent"
