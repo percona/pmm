@@ -8,12 +8,17 @@ import { ToggleButtonGroupInputProps } from "./toggle-button-group.types";
 const ToggleButtonGroupInput = ({
   name,
   label,
+  control: controlProp,
   controllerProps,
   labelProps,
   toggleButtonGroupProps = {},
   children,
 }: ToggleButtonGroupInputProps) => {
-  const { control, setValue } = useFormContext();
+
+  const formContext = useFormContext();
+  const setValue = formContext?.setValue;
+  const control = controlProp ?? formContext?.control;
+
   const {
     sx: toggleButtonGroupSxProp,
     onChange: toggleButtonGroupOnChange = () => {},
@@ -53,7 +58,7 @@ const ToggleButtonGroupInput = ({
                 event,
                 isNumber ? event.target.valueAsNumber : event.target.value
               );
-              setValue(name, value, { shouldTouch: true });
+              setValue?.(name, value, { shouldTouch: true });
             }
           }}
           {...toggleButtonGroupRestProps}

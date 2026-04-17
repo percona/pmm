@@ -10,7 +10,8 @@ const DateTimePickerInput = <T extends PickerValidDate>({
   controllerProps,
   ...dateTimePickerProps
 }: DateTimePickerInputProps<T>) => {
-  const { control: contextControl } = useFormContext();
+  const formContext = useFormContext();
+  const contextControl = formContext?.control;
 
   return (
     <Controller
