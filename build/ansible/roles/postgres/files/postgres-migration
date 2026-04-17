@@ -67,6 +67,8 @@ upgrade_pg14_to_pg18() {
         -c "CREATE ROLE \"pmm-managed\" LOGIN PASSWORD 'pmm-managed'"
     "$PG18_BIN/psql" -h /run/postgresql -U postgres -d postgres \
         -c "CREATE DATABASE \"pmm-managed\" OWNER \"pmm-managed\""
+    "$PG18_BIN/psql" -h /run/postgresql -U postgres -d pmm-managed \
+        -c "GRANT CREATE ON SCHEMA public TO \"pmm-managed\""
     echo "Restoring pmm-managed database..."
     "$PG18_BIN/psql" -h /run/postgresql -U postgres -d pmm-managed \
         -f "${BACKUP_DIR}/pg18-upgrade-pmm-managed.sql"
@@ -77,6 +79,8 @@ upgrade_pg14_to_pg18() {
             -c "CREATE ROLE grafana LOGIN PASSWORD 'grafana'"
         "$PG18_BIN/psql" -h /run/postgresql -U postgres -d postgres \
             -c "CREATE DATABASE grafana OWNER grafana"
+        "$PG18_BIN/psql" -h /run/postgresql -U postgres -d grafana \
+            -c "GRANT CREATE ON SCHEMA public TO grafana"
         echo "Restoring grafana database..."
         "$PG18_BIN/psql" -h /run/postgresql -U postgres -d grafana \
             -f "${BACKUP_DIR}/pg18-upgrade-grafana.sql"
