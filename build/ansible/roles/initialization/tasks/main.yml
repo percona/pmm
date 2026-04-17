@@ -81,6 +81,17 @@
         when: not ansible_check_mode
         environment:
           PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
+
+      - name: Grant CREATE on public schema to grafana user
+        postgresql_privs:
+          database: grafana
+          privs: CREATE
+          type: schema
+          objs: public
+          roles: grafana
+          login_user: postgres
+        environment:
+          PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
     when:
       - lookup('env','GF_DATABASE_URL') == ''
       - lookup('env','GF_DATABASE_HOST') == ''

@@ -101,6 +101,17 @@
   environment:
     PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
+- name: Grant CREATE on public schema to pmm-managed user
+  postgresql_privs:
+    database: pmm-managed
+    privs: CREATE
+    type: schema
+    objs: public
+    roles: pmm-managed
+    login_user: postgres
+  environment:
+    PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
+
 - name: Create pg_stat_statements extension
   postgresql_ext:
     db: postgres
@@ -125,6 +136,17 @@
     expires: infinity
     state: present
   when: not ansible_check_mode
+  environment:
+    PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
+
+- name: Grant CREATE on public schema to grafana user
+  postgresql_privs:
+    database: grafana
+    privs: CREATE
+    type: schema
+    objs: public
+    roles: grafana
+    login_user: postgres
   environment:
     PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
