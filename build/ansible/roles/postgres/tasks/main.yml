@@ -1,8 +1,17 @@
 ---
+- name: Add PostgreSQL 14 YUM repository
+  yum_repository:
+    name: percona-ppg-14
+    description: PostgreSQL 14 YUM repository
+    baseurl: http://repo.percona.com/ppg-14/yum/release/$releasever/RPMS/$basearch/
+    gpgcheck: yes
+    enabled: yes
+    gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
+
 - name: Add PostgreSQL 18 YUM repository
   yum_repository:
     name: percona-ppg-18
-    description: PostgreSQL YUM repository
+    description: PostgreSQL 18 YUM repository
     baseurl: http://repo.percona.com/ppg-18/yum/release/$releasever/RPMS/$basearch/
     gpgcheck: yes
     enabled: yes
