@@ -110,13 +110,14 @@ environment = ANSIBLE_CONFIG="/opt/ansible/ansible.cfg"
 [program:postgresql]
 priority = 1
 command =
-    /usr/pgsql-14/bin/postgres
-        -D /srv/postgres14
+    /usr/pgsql-18/bin/postgres
+        -D /srv/postgres18
         -c shared_preload_libraries=pg_stat_statements
         -c pg_stat_statements.max=10000
         -c pg_stat_statements.track=all
         -c pg_stat_statements.save=off
         -c logging_collector=off
+        -c max_connections=2000
 autorestart = true
 autostart = true
 startretries = 10
@@ -125,7 +126,7 @@ stopsignal = INT  ; Fast Shutdown mode
 stopwaitsecs = 300
 ; postgresql.conf contains settings to log to stdout,
 ; so we delegate logfile management to supervisord
-stdout_logfile = /srv/logs/postgresql14.log
+stdout_logfile = /srv/logs/postgresql18.log
 stdout_logfile_maxbytes = 30MB
 stdout_logfile_backups = 2
 redirect_stderr = true

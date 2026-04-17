@@ -28,7 +28,7 @@ datasources:
     sslRootCertFile: ${PMM_POSTGRES_SSL_CA_PATH}
     sslKeyFile: ${PMM_POSTGRES_SSL_KEY_PATH}
     sslCertFile: ${PMM_POSTGRES_SSL_CERT_PATH}
-    postgresVersion: "1100"
+    postgresVersion: "1800"
     sslmode: ${PMM_POSTGRES_SSL_MODE}
   secureJsonData:
     password: ${PMM_POSTGRES_DBPASSWORD}
