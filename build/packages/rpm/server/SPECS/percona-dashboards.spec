@@ -1,32 +1,42 @@
 %global debug_package   %{nil}
 %global __strip         /bin/true
 
-%global repo		grafana-dashboards
-%global provider	github.com/percona/%{repo}
-%global import_path	%{provider}
-%global commit		ad4af6808bcd361284e8eb8cd1f36b1e98e32bce
-%global shortcommit	%(c=%{commit}; echo ${c:0:7})
+%global repo		        pmm
+%global provider	      github.com/percona/%{repo}
+%global commit		      ad4af6808bcd361284e8eb8cd1f36b1e98e32bce
+%global shortcommit	    %(c=%{commit}; echo ${c:0:7})
 %define build_timestamp %(date -u +"%y%m%d%H%M")
-%define release         22
+%define release         23
 %define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
 
-Name:		percona-dashboards
+%define clickhouse_datasource_version 4.14.1
+%define polystat_panel_version        2.1.16
+
+%ifarch x86_64
+%define plugin_platform linux_amd64
+%else
+%define plugin_platform linux_arm64
+%endif
+
+Name:		  percona-dashboards
 Version:	%{version}
 Release:	%{rpm_release}
-Summary:	Grafana dashboards for monitoring
+Summary:	Percona dashboards for monitoring
 
 License:	AGPLv3
-URL:		https://%{provider}
-Source0:	https://%{provider}/archive/%{commit}/%{repo}-%{shortcommit}.tar.gz
+URL:		  https://%{provider}
 
 BuildRequires:	nodejs
+BuildRequires:	unzip
 Requires:	percona-grafana
-Provides:	percona-grafana-dashboards = %{version}-%{release}
+
+Source0:	https://%{provider}/archive/%{commit}/%{repo}-%{shortcommit}.tar.gz
+Source1:	https://github.com/grafana/clickhouse-datasource/releases/download/v%{clickhouse_datasource_version}/grafana-clickhouse-datasource-%{clickhouse_datasource_version}.%{plugin_platform}.zip
+Source2:	https://github.com/grafana/grafana-polystat-panel/releases/download/v%{polystat_panel_version}/grafana-polystat-panel-%{polystat_panel_version}.zip
 
 %description
-This is a set of Grafana dashboards for database and system monitoring
+This package provides a set of PMM dashboards for database and system monitoring
 using VictoriaMetrics datasource.
-This package is part of Percona Monitoring and Management.
 
 
 %prep
@@ -36,25 +46,29 @@ This package is part of Percona Monitoring and Management.
 %build
 node -v
 npm version
-make release
+make -C dashboards release
 
 
 %install
-install -d %{buildroot}%{_datadir}/%{name}
 install -d %{buildroot}%{_datadir}/%{name}/panels/pmm-app
 
-cp -a ./panels %{buildroot}%{_datadir}/%{name}
-cp -a ./pmm-app/dist %{buildroot}%{_datadir}/%{name}/panels/pmm-app
+# cp -a ./dashboards/panels %{buildroot}%{_datadir}/%{name}
+cp -a ./dashboards/pmm-app/dist %{buildroot}%{_datadir}/%{name}/panels/pmm-app
+unzip -q %{SOURCE1} -d %{buildroot}%{_datadir}/%{name}/panels
+unzip -q %{SOURCE2} -d %{buildroot}%{_datadir}/%{name}/panels
 echo %{version} > %{buildroot}%{_datadir}/%{name}/VERSION
 
 
 %files
-%license LICENSE
-%doc README.md LICENSE
-%attr(-,pmm,pmm) %{_datadir}/%{name}
+%license ./dashboards/LICENSE
+%doc ./dashboards/README.md
+%attr(-,pmm,root) %{_datadir}/%{name}
 
 
 %changelog
+* Tue Mar 17 2026 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-23
+- PMM-14837 Move dashboards to the monorepo
+
 * Tue Jul 23 2024 Nurlan Moldomurov <nurlan.moldomurov@percona.com> - 3.0.0-22
 - PMM-13053 Remove /setup page
 

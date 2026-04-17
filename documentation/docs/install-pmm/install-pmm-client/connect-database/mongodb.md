@@ -398,7 +398,7 @@ After configuring your database server, add a MongoDB service using either the u
 
     !!! hint alert alert-success "Tips"
         - When adding members of a replica set or sharded cluster, ensure to add each node using the same `--cluster my_cluster_or_rs_name`. This allows the [MongoDB Cluster Summary](../../../reference/dashboards/dashboard-mongodb-cluster-summary.md) and [MongoDB ReplSetSummary](../../../reference/dashboards/dashboard-mongodb-replset-summary.md) dashboards to populate correctly. 
-        - PMM does not gather collection and index metrics if it detects you have more than 200 collections, in order to limit the resource consumption. Check the [advanced options](../../../use/commands/pmm-admin.md#advanced-options) section if you want to modify this behaviour. 
+        - PMM does not gather collection and index metrics if it detects you have more than 200 collections, in order to limit the resource consumption. Check the [advanced options](../../../use/commands/pmm-admin/add.md#collector-options) section if you want to modify this behaviour. 
         - When running mongos routers in containers, specify the `diagnosticDataCollectionDirectoryPath` to ensure that pmm-agent can properly capture mongos metrics. For example: `mongos --setParameter diagnosticDataCollectionDirectoryPath=/var/log/mongo/mongos.diagnostic.data/`
         
 
@@ -492,7 +492,7 @@ If you need to remove MongoDB service from PMM, follow these steps:
 
 ## Related topics
 
-- [`pmm-admin add mongodb`](../../../use/commands/pmm-admin.md#database-commands)
+- [`pmm-admin add mongodb`](../../../use/commands/pmm-admin/add.md)
 - [Troubleshooting connection difficulties]
 
 [MongoDB]: https://www.mongodb.com/
@@ -501,5 +501,5 @@ If you need to remove MongoDB service from PMM, follow these steps:
 [YAML]: http://yaml.org/spec/
 [MONGODB_CONFIG_OP_PROF]: https://docs.mongodb.com/manual/reference/configuration-options/#operationprofiling-options
 [PSMDB_RATELIMIT]: https://www.percona.com/doc/percona-server-for-mongodb/LATEST/rate-limit.html#enabling-the-rate-limit
-[PMM_ADMIN_MAN_PAGE]: ../../../use/commands/pmm-admin.md#database-commands
+[PMM_ADMIN_MAN_PAGE]: ../../../use/commands/pmm-admin/add.md
 [Troubleshooting connection difficulties]: ../../../troubleshoot/config_issues.md#connection-difficulties

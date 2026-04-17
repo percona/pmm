@@ -16,7 +16,6 @@
 package backup
 
 import (
-	"context"
 	"fmt"
 	"path"
 	"strings"
@@ -83,7 +82,7 @@ func TestPitrMetaFromFileName(t *testing.T) {
 }
 
 func TestGetPITROplogs(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	location := &models.BackupLocation{
 		S3Config: &models.S3LocationConfig{
 			Endpoint:     "https://s3.us-west-2.amazonaws.com",
@@ -497,7 +496,7 @@ func printTTL(tlns ...Timeline) string {
 }
 
 func TestGetPITRFiles(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	S3Config := models.S3LocationConfig{
 		Endpoint:     "https://s3.us-west-2.amazonaws.com",
 		AccessKey:    "access_key",
