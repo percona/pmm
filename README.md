@@ -29,7 +29,6 @@ See the [PMM Documentation](https://docs.percona.com/percona-monitoring-and-mana
 * Spot critical performance issues faster, understand the root cause of incidents better and troubleshoot them more efficiently.
 * Zoom-in, drill-down database performance from node to single query levels. Perform in-depth troubleshooting and performance optimization.
 * Built-in Advisors run regular checks of the databases connected to PMM. The checks identify and alert you of potential security threats, performance degradation, data loss and data corruption.
-* Backup and restore databases up to a specific moment with Point-in-Time-Recovery.
 
 ## Architecture
 
@@ -41,7 +40,7 @@ See the [PMM Documentation](https://docs.percona.com/percona-monitoring-and-mana
 
 ## Installation
 
-There are numbers of installation methods, please check our [About PMM installation](https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/index.html) documentation page.
+There are different installation methods, please check our [About PMM installation](https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/index.html) documentation page.
 
 But in a nutshell:
 
@@ -61,7 +60,7 @@ $ docker run --detach --restart always \
   --name pmm-server \
   percona/pmm-server:3
 ```
-4. Start a web browser and in the address bar enter the server name or IP address of the PMM server host.
+4. Start a web browser and type the server name or IP address of the PMM server host (defaults to https://localhost).
 
 <img src="./documentation/docs/images/PMM_Login.png" width="280" alt="PMM Login Page" />
 
