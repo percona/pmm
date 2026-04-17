@@ -52,7 +52,7 @@ When working with the PMM Server virtual appliance, it's helpful to understand t
 
 | Item | Value |
 |------|-------|
-| Download page | https://downloads.percona.com/downloads/pmm3/{{release}}/ova/pmm-server-{{release}}.ova?_gl=1*s6e6m5*_gcl_au*MTQyNTc4OTAzNy4xNzc2MjQxNTQ1 |
+| Download page | https://downloads.percona.com/downloads/pmm3/{{release}}/ova/pmm-server-{{release}}.ova |
 | File name | `pmm-server-{{release}}.ova` |
 | VM name | `pmm-Server-{{release_date}}-N` (`N`=build number) |
 
