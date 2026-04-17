@@ -47,7 +47,7 @@ install-race:                   ## Install pmm-agent binary with race detector
 test-cover:                     ## Run tests and collect coverage information
 	$(go-test-cover)
 
-test: install              ## Run tests
+test: install                   ## Run tests
 	$(MAKE) env-up
 	$(MAKE) test-cover
 
@@ -109,13 +109,13 @@ setup-dev: install              ## Run pmm-agent setup in development environmen
 	pmm-agent setup $(RUN_FLAGS) --server-insecure-tls --server-address=127.0.0.1:${PMM_DEV_SERVER_PORT} --server-username=admin --server-password=admin --paths-exporters_base=$(GOPATH)/bin --force
 
 env-mysql:                      ## Run mysql client
-	docker exec -ti pmm-agent_mysql mysql --host=127.0.0.1 --user=root --password=root-password
+	docker exec -ti mysql mysql --host=127.0.0.1 --user=root --password=root-password
 
 env-mongo:                      ## Run mongo client
-	docker exec -ti pmm-agent_mongo mongo --username=root --password=root-password
+	docker exec -ti mongo mongo --username=root --password=root-password
 
 env-psql:                       ## Run psql client
-	docker exec -ti pmm-agent_postgres env PGPASSWORD=pmm-agent-password psql --username=pmm-agent
+	docker exec -ti postgres env PGPASSWORD=pmm-agent-password psql --username=pmm-agent
 
 env-sysbench:
 	docker compose exec --workdir=/sysbench/sysbench-tpcc sysbench ./tpcc.lua \
