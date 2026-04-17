@@ -1,0 +1,14 @@
+/var/log/mysql/mysql-slow.log {
+    daily
+    missingok
+    rotate 7
+    compress
+    delaycompress
+    notifempty
+    sharedscripts
+    postrotate
+        if [ -f /var/run/mysqld/mysqld.pid ]; then
+            kill -HUP $(cat /var/run/mysqld/mysqld.pid)
+        fi
+    endscript
+}
