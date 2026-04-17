@@ -1,9 +1,9 @@
 ---
-- name: Add PostgreSQL 14 YUM repository
+- name: Add PostgreSQL 18 YUM repository
   yum_repository:
-    name: percona-ppg-14
+    name: percona-ppg-18
     description: PostgreSQL YUM repository
-    baseurl: http://repo.percona.com/ppg-14/yum/release/$releasever/RPMS/$basearch/
+    baseurl: http://repo.percona.com/ppg-18/yum/release/$releasever/RPMS/$basearch/
     gpgcheck: yes
     enabled: yes
     gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
@@ -13,6 +13,9 @@
     - not ansible_check_mode
   dnf:
     name:
+      - percona-postgresql18-server
+      - percona-postgresql18-contrib
+      - percona-postgresql18
       - percona-postgresql14-server
       - percona-postgresql14-contrib
       - percona-postgresql14
@@ -29,7 +32,7 @@
 
 - name: Create Postgres log file
   file:
-    path: /srv/logs/postgresql14.log
+    path: /srv/logs/postgresql18.log
     state: touch
     force: yes
     group: root
@@ -38,7 +41,7 @@
 
 - name: Create Postgres data dir
   file:
-    path: /srv/postgres14
+    path: /srv/postgres18
     state: directory
     owner: pmm
     group: root
@@ -58,13 +61,13 @@
     mode: 0600
 
 - name: Initialize Postgres database with password authentication
-  command: /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth-host=scram-sha-256 --auth-local=trust --username=postgres --pwfile=/srv/.postgres_password
+  command: /usr/pgsql-18/bin/initdb -D /srv/postgres18 --auth-host=scram-sha-256 --auth-local=trust --username=postgres --pwfile=/srv/.postgres_password
   become: true
   become_user: pmm
   become_method: su
 
 - name: Start Postgres database without supervisor
-  command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -o "-c logging_collector=off"
+  command: /usr/pgsql-18/bin/pg_ctl start -D /srv/postgres18 -o "-c logging_collector=off"
   become: true
   become_user: pmm
   become_method: su
@@ -120,8 +123,8 @@
   command: grafana cli --homepath=/usr/share/grafana --config=/etc/grafana/grafana.ini admin data-migration encrypt-datasource-passwords
   changed_when: true
 
-- name: Stop Postgres 14 database
-  command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
+- name: Stop Postgres 18 database
+  command: /usr/pgsql-18/bin/pg_ctl stop -D /srv/postgres18
   become: true
   become_user: pmm
   become_method: su

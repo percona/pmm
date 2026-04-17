@@ -73,14 +73,11 @@ def setup():
     """Runs various setup commands."""
     run_commands([
         # allow connecting from any host, needed to connect from host to PG running in docker
-        "sed -i -e \"s/#listen_addresses = 'localhost'/listen_addresses = '*'/\" /srv/postgres14/postgresql.conf",
+        "sed -i -e \"s/#listen_addresses = 'localhost'/listen_addresses = '*'/\" /srv/postgres18/postgresql.conf",
         # Turns fsync off. Create database operations with fsync on are very slow on Ubuntu.
         # Having fsync off in dev environment is fine.
-        "sed -i -e \"s/#fsync = on/fsync = off/\" /srv/postgres14/postgresql.conf",
-        # Configure pg_hba.conf for password authentication from all hosts (dev environment only)
-        # Note: In dev, we allow both trust and scram-sha-256 for convenience        
-        "echo 'host    all         all     0.0.0.0/0     trust' >> /srv/postgres14/pg_hba.conf",
-        "echo 'host    all         all     0.0.0.0/0     scram-sha-256' >> /srv/postgres14/pg_hba.conf",
+        "sed -i -e \"s/#fsync = on/fsync = off/\" /srv/postgres18/postgresql.conf",
+        "echo 'host    all         all     0.0.0.0/0     trust' >> /srv/postgres18/pg_hba.conf",
         # "supervisorctl restart postgresql",
     ])
 
