@@ -206,20 +206,20 @@ func init() {
 	actionsClient.Default = actionsClient.New(transport, nil)
 	userClient.Default = userClient.New(transport, nil)
 
+	// do not run tests if server is not available
 	serverReadyErr := retryWithBackoff(Context, 10, func() error {
-		// do not run tests if server is not available
 		_, err = serverClient.Default.ServerService.Readiness(&server_service.ReadinessParams{
 			Context: Context,
 		})
 		if err != nil {
-			return fmt.Errorf("failed to pass the server readiness probe: %v", err)
+			return fmt.Errorf("failed to pass the server readiness probe: %w", err)
 		}
 
 		_, err = userClient.Default.UserService.GetUser(&user_service.GetUserParams{
 			Context: Context,
 		})
 		if err != nil {
-			return fmt.Errorf("failed to get user details: %v", err)
+			return fmt.Errorf("failed to get user details: %w", err)
 		}
 		return nil
 	})
