@@ -317,7 +317,7 @@ func retryWithBackoff(ctx context.Context, attempts int, fn func() error) error 
 
 func backoff(attempt int) time.Duration {
 	d := time.Duration(1<<attempt) * time.Second
-	return min(d, 5*time.Second) //nolint:mnd
+	return min(d, 5*time.Second)
 }
 
 // check interfaces.
