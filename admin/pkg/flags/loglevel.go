@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package flags provides common flags and helpers for it.
 package flags
 
 import (
