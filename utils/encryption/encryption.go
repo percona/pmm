@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package config
+// Package encryption handles encryption and decryption of data using hybrid RSA + AES-GCM scheme.
+package encryption
 
 import (
 	"crypto/aes"

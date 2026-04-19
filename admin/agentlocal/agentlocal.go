@@ -85,6 +85,7 @@ type Status struct {
 	ServerLatency    time.Duration `json:"server_latency,omitempty"`
 
 	ConnectionUptime float32 `json:"connection_uptime"`
+	ConfigFilepath   string  `json:"config_filepath,omitempty"`
 }
 
 // AgentStatus represents the status of the agent.
@@ -185,5 +186,6 @@ func GetStatus(requestNetworkInfo NetworkInfo) (*Status, error) {
 		ServerLatency:    latency,
 
 		ConnectionUptime: p.ConnectionUptime,
+		ConfigFilepath:   p.ConfigFilepath,
 	}, err
 }

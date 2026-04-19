@@ -118,6 +118,42 @@ func TestServerStatus(t *testing.T) {
 		}
 		assert.Equal(t, expected, actual)
 	})
+
+	t.Run("encrypted config redacts credentials", func(t *testing.T) {
+		agentInfo, supervisor, client, _ := setup(t)
+		defer supervisor.AssertExpectations(t)
+		defer client.AssertExpectations(t)
+
+		cfgStorage := config.NewStorage(&config.Config{
+			ID: "00000000-0000-4000-8000-000000000001",
+			Server: config.Server{
+				Address:  "127.0.0.1:8443",
+				Username: "username",
+				Password: "password",
+			},
+			Encryption: config.Encryption{
+				KeyFile: "/some/key.pem",
+			},
+		})
+		logStore := tailog.NewStore(500)
+		s := NewServer(cfgStorage, supervisor, client, "/some/dir/pmm-agent.yaml", logStore)
+
+		actual, err := s.Status(t.Context(), &agentlocal.StatusRequest{GetNetworkInfo: false})
+		require.NoError(t, err)
+		expected := &agentlocal.StatusResponse{
+			AgentId:      "00000000-0000-4000-8000-000000000001",
+			RunsOnNodeId: "00000000-0000-4000-8000-000000000003",
+			ServerInfo: &agentlocal.ServerInfo{
+				Url:       "https://username:***@127.0.0.1:8443/",
+				Version:   "2.0.0-dev",
+				Connected: true,
+			},
+			AgentsInfo:       agentInfo,
+			ConnectionUptime: 100.00,
+			ConfigFilepath:   "/some/dir/pmm-agent.yaml",
+		}
+		assert.Equal(t, expected, actual)
+	})
 }
 
 func TestGetZipFile(t *testing.T) {

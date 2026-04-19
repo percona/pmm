@@ -334,7 +334,7 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 		return configFileF, err
 	}
 	l.Infof("Loading configuration file %s.", configFileF)
-	fileCfg, err := loadFromFile(configFileF, &cfg.Encryption)
+	fileCfg, err := LoadFromFile(configFileF, &cfg.Encryption)
 	if err != nil {
 		return configFileF, err
 	}
@@ -525,11 +525,11 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 	return app, configFileF
 }
 
-// loadFromFile loads configuration from file.
+// LoadFromFile loads configuration from file.
 // As a special case, if file does not exist, it returns ConfigFileDoesNotExistError.
 // Other errors are returned if file exists, but configuration can't be loaded due to permission problems,
 // YAML parsing problems, etc.
-func loadFromFile(path string, enc *Encryption) (*Config, error) {
+func LoadFromFile(path string, enc *Encryption) (*Config, error) {
 	if _, err := os.Stat(path); errors.Is(err, fs.ErrNotExist) {
 		return nil, ConfigFileDoesNotExistError(path)
 	}

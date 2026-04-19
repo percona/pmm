@@ -147,8 +147,16 @@ func (s *Server) Status(ctx context.Context, req *agentlocal.StatusRequest) (*ag
 	var serverInfo *agentlocal.ServerInfo
 	cfg := s.cfg.Get()
 	if u := cfg.Server.URL(); u != nil {
+		// When the config file is encrypted, redact credentials from the URL
+		// to avoid leaking them via the unauthenticated local API.
+		// When the config is plaintext, the credentials are already readable
+		// on disk, so exposing them here doesn't add risk.
+		serverURL := u.String()
+		if cfg.Encryption.KeyFile != "" {
+			serverURL = cfg.Server.FilteredURL()
+		}
 		serverInfo = &agentlocal.ServerInfo{
-			Url:         u.String(),
+			Url:         serverURL,
 			InsecureTls: cfg.Server.InsecureTLS,
 			Connected:   connected,
 			Version:     md.ServerVersion,

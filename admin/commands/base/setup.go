@@ -29,9 +29,11 @@ import (
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/pkg/flags"
+	agentconfig "github.com/percona/pmm/agent/config"
 	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
 	managementClient "github.com/percona/pmm/api/management/v1/json/client"
 	serverClient "github.com/percona/pmm/api/server/v1/json/client"
+	"github.com/percona/pmm/utils/encryption"
 	"github.com/percona/pmm/utils/tlsconfig"
 )
 
@@ -70,6 +72,9 @@ func SetupClients(ctx context.Context, globalFlags *flags.GlobalFlags) {
 		}
 		globalFlags.ServerURL, _ = url.Parse(status.ServerURL)
 		globalFlags.SkipTLSCertificateCheck = status.ServerInsecureTLS
+
+		// The Status URL has redacted credentials. Read the agent config file to get real credentials.
+		mergeCredsFromAgentConfig(globalFlags, status.ConfigFilepath)
 	} else {
 		if globalFlags.ServerURL.Path == "" {
 			globalFlags.ServerURL.Path = "/"
@@ -129,4 +134,51 @@ func SetupClients(ctx context.Context, globalFlags *flags.GlobalFlags) {
 	inventoryClient.Default.SetTransport(transport)
 	managementClient.Default.SetTransport(transport)
 	serverClient.Default.SetTransport(transport)
+}
+
+// mergeCredsFromAgentConfig reads the pmm-agent configuration file and merges
+// server credentials into globalFlags.ServerURL. When pmm-agent uses config file
+// encryption, the /local/Status endpoint returns a redacted URL (password masked).
+// This function reads the config file directly to obtain the real credentials.
+func mergeCredsFromAgentConfig(globalFlags *flags.GlobalFlags, statusConfigFilepath string) {
+	// If the URL already has a non-redacted password, the config is not encrypted
+	// and the Status endpoint returned full credentials — nothing to do.
+	if u := globalFlags.ServerURL.User; u != nil {
+		if password, ok := u.Password(); ok && password != "***" {
+			return
+		}
+	}
+	configFile := globalFlags.AgentConfigFile
+	if configFile == "" {
+		configFile = statusConfigFilepath
+	}
+	if configFile == "" {
+		logrus.Warn("Agent config file path is not available; cannot read server credentials. " +
+			"Use --agent-config-file or --server-url flag.")
+		return
+	}
+
+	var enc *encryption.Encryption
+	if globalFlags.AgentConfigKeyFile != "" {
+		enc = &encryption.Encryption{
+			KeyFile:         globalFlags.AgentConfigKeyFile,
+			KeyFilePassword: globalFlags.AgentConfigKeyPassword,
+		}
+	}
+
+	cfg, err := agentconfig.LoadFromFile(configFile, enc)
+	if err != nil {
+		logrus.Warnf("Failed to read agent config file %s: %s. "+
+			"Use --server-url flag to specify PMM Server URL with credentials.", configFile, err)
+		return
+	}
+
+	serverURL := cfg.Server.URL()
+	if serverURL == nil {
+		logrus.Warn("Agent config file has no server address configured.")
+		return
+	}
+
+	// Merge credentials from the config file into the URL obtained from Status.
+	globalFlags.ServerURL.User = serverURL.User
 }
