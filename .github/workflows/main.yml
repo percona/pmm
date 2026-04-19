@@ -35,7 +35,7 @@ jobs:
       - name: Read tool versions
         id: versions
         run: |
-          source dev/VERSIONS
+          source build/VERSIONS
           echo "golangci_lint_version=${GOLANGCI_LINT_VERSION}" >> $GITHUB_OUTPUT
 
       - name: Set up Go release
