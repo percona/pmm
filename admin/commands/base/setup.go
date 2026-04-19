@@ -73,7 +73,6 @@ func SetupClients(ctx context.Context, globalFlags *flags.GlobalFlags) {
 		globalFlags.ServerURL, _ = url.Parse(status.ServerURL)
 		globalFlags.SkipTLSCertificateCheck = status.ServerInsecureTLS
 
-		// The Status URL has redacted credentials. Read the agent config file to get real credentials.
 		mergeCredsFromAgentConfig(globalFlags, status.ConfigFilepath)
 	} else {
 		if globalFlags.ServerURL.Path == "" {
@@ -106,7 +105,7 @@ func SetupClients(ctx context.Context, globalFlags *flags.GlobalFlags) {
 	transport.Context = ctx
 
 	// set error handlers for nginx responses if pmm-managed is down
-	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, _ interface{}) error {
+	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, _ any) error {
 		b, _ := io.ReadAll(reader)
 		return nginxError(string(b))
 	})
@@ -138,13 +137,12 @@ func SetupClients(ctx context.Context, globalFlags *flags.GlobalFlags) {
 
 // mergeCredsFromAgentConfig reads the pmm-agent configuration file and merges
 // server credentials into globalFlags.ServerURL. When pmm-agent uses config file
-// encryption, the /local/Status endpoint returns a redacted URL (password masked).
-// This function reads the config file directly to obtain the real credentials.
+// encryption, the /local/Status endpoint returns a redacted URL.
+// This method reads the config file directly to obtain the real credentials.
 func mergeCredsFromAgentConfig(globalFlags *flags.GlobalFlags, statusConfigFilepath string) {
-	// If the URL already has a non-redacted password, the config is not encrypted
-	// and the Status endpoint returned full credentials — nothing to do.
+	// Skip the file read when Status already returned full credentials (plaintext config case).
 	if u := globalFlags.ServerURL.User; u != nil {
-		if password, ok := u.Password(); ok && password != "***" {
+		if password, ok := u.Password(); ok && password != agentconfig.RedactedPassword {
 			return
 		}
 	}
@@ -179,6 +177,5 @@ func mergeCredsFromAgentConfig(globalFlags *flags.GlobalFlags, statusConfigFilep
 		return
 	}
 
-	// Merge credentials from the config file into the URL obtained from Status.
 	globalFlags.ServerURL.User = serverURL.User
 }

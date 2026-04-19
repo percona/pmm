@@ -74,6 +74,10 @@ func (s *Server) URL() *url.URL {
 	}
 }
 
+// RedactedPassword is the placeholder used in URLs returned by FilteredURL when a password is set.
+// Consumers (e.g. pmm-admin) compare against this value to detect that credentials are redacted.
+const RedactedPassword = "***"
+
 // FilteredURL returns URL with redacted password.
 func (s *Server) FilteredURL() string {
 	u := s.URL()
@@ -82,11 +86,11 @@ func (s *Server) FilteredURL() string {
 	}
 
 	if _, ps := u.User.Password(); ps {
-		u.User = url.UserPassword(u.User.Username(), "***")
+		u.User = url.UserPassword(u.User.Username(), RedactedPassword)
 	}
 
 	// unescape ***; url.unescape and url.encodeUserPassword are not exported, so use strings.Replace
-	return strings.ReplaceAll(u.String(), ":%2A%2A%2A@", ":***@")
+	return strings.ReplaceAll(u.String(), ":%2A%2A%2A@", ":"+RedactedPassword+"@")
 }
 
 // Paths represents binary paths configuration.
