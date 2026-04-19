@@ -4,11 +4,11 @@
   become: true
   vars:
     docker_compose_version: "2.26.1"
-    kubectl_version: "1.35.0"
-    doctl_version: "1.148.0"
+    kubectl_version: "1.35.3"
+    doctl_version: "1.155.0"
     node_version: "22.x"
-    eksctl_version: "0.221.0"
-    helm_version: "3.20.0"
+    eksctl_version: "0.225.0"
+    helm_version: "3.20.2"
 
   tasks:
     - name: Detect vm architecture
