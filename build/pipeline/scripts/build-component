@@ -35,7 +35,7 @@ GO_VERSION="${GO_VERSION:-1.26}"
 GOMOD_CACHE_VOL="pmm-mod"
 BUILD_CACHE_VOL="pmm-build"
 # Bare-repo cache directory — populated by 'make populate-cache'
-REPO_CACHE_DIR="${REPO_CACHE_DIR:-$(realpath "${SCRIPT_DIR}/../.cache/repos")}"
+REPO_CACHE_DIR="${REPO_CACHE_DIR:-$(realpath "${SCRIPT_DIR}/../cache/repos")}"
 
 # Component lists (must match Makefile)
 WORKSPACE_COMPONENTS="pmm-admin pmm-agent"
@@ -292,7 +292,7 @@ build_external_component() {
   fi
 
   # Check build cache — skip if ref unchanged and artifacts present
-  local stamp_dir="${CACHE_DIR:-$(dirname "${SCRIPT_DIR}")/.cache}/stamps"
+  local stamp_dir="${CACHE_DIR:-$(dirname "${SCRIPT_DIR}")/cache}/stamps"
   if ! "${SCRIPT_DIR}/check-build-cache" "${component}" "${ref}" "${bare_repo_path}" "${OUTPUT_DIR}" "${stamp_dir}"; then
     return 0
   fi

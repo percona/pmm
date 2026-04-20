@@ -11,9 +11,9 @@
 # Arguments:
 #   component     Component name             (e.g. "pmm-dump", "node_exporter")
 #   ref           Branch, tag, or commit hash (e.g. value of GRAFANA_REF)
-#   bare-repo     Path to the local bare repo (e.g. .cache/repos/grafana.git)
+#   bare-repo     Path to the local bare repo (e.g. cache/repos/grafana.git)
 #   output-dir    Component output directory  (e.g. output/server/grafana-ui)
-#   stamp-dir     Directory for stamp files   (e.g. .cache/stamps)
+#   stamp-dir     Directory for stamp files   (e.g. cache/stamps)
 #   subpath...    Optional: one or more paths within the repo. When provided,
 #                 the cache key is built from the git tree/blob hashes of
 #                 REF:<subpath> for each path (joined with ':'), instead of the

@@ -13,7 +13,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OUTPUT_DIR="${SERVER_OUTPUT_DIR:-$(realpath "${SCRIPT_DIR}/../output/server")}"
 OUTPUT_FILE="${OUTPUT_DIR}/version.json"
 
-REPO_CACHE_DIR="${REPO_CACHE_DIR:-$(realpath "${SCRIPT_DIR}/../.cache/repos")}"
+REPO_CACHE_DIR="${REPO_CACHE_DIR:-$(realpath "${SCRIPT_DIR}/../cache/repos")}"
 
 # get_ref <env_var_name>
 # Returns the whitespace-stripped value of the variable.

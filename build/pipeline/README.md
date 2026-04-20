@@ -156,11 +156,11 @@ PMM uses a **local bare-repo cache** to avoid cloning from upstream on every bui
 
 ### Cache Strategy
 
-- **Local disk only**: Bare Git repositories live in `.cache/repos/` and are mounted read-only into build containers
+- **Local disk only**: Bare Git repositories live in `cache/repos/` and are mounted read-only into build containers
 - **Mandatory**: Both server and client builds fail hard if the bare repo cache is missing — no internet fallback at build time
 - **First-time setup**: Run `make populate-cache` to clone all repos from upstream
 - **Per-build refresh**: `make update-cache` fetches only the refs listed in `.env`
-- **Artifact caching**: Each component's resolved commit hash is stored in `.cache/stamps/<component>.hash` after a successful build. On the next run, if the hash matches and output artifacts exist, the build is skipped. Monorepo components (pmm-managed, pmm-admin, pmm-agent) always rebuild — path-aware caching for those is planned separately
+- **Artifact caching**: Each component's resolved commit hash is stored in `cache/stamps/<component>.hash` after a successful build. On the next run, if the hash matches and output artifacts exist, the build is skipped. Monorepo components (pmm-managed, pmm-admin, pmm-agent) always rebuild — path-aware caching for those is planned separately
 
 ### Cache Targets
 
@@ -189,10 +189,10 @@ make clean-all
 
 ### Cache Structure
 
-The `.cache/repos/` directory contains bare Git repositories for all components:
+The `cache/repos/` directory contains bare Git repositories for all components:
 
 ```
-.cache/
+cache/
 ├── repos/
 │   ├── azure_metrics_exporter.git/    # client
 │   ├── grafana.git/                   # server
@@ -282,7 +282,7 @@ After bootstrap, `~/build/` (or your chosen directory) contains everything:
 │       ├── victoriametrics/      # victoria-metrics-pure, vmalert-pure
 │       ├── pmm-dashboards/       # panels/, pmm-app-dist/
 │       └── pmm-ui/               # pmm-dist/, pmm-compat-dist/
-└── .cache/
+└── cache/
     ├── repos/                    # Bare Git repo cache
     └── stamps/                   # Commit-hash stamps for artifact caching
 ```

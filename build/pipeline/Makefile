@@ -97,7 +97,7 @@ DASHBOARDS_SPEC := $(PIPELINE_DIR)/packages/rpm/server/SPECS/percona-dashboards.
 CLICKHOUSE_DATASOURCE_VERSION := $(shell sed -n 's/^%define clickhouse_datasource_version //p' $(DASHBOARDS_SPEC))
 POLYSTAT_PANEL_VERSION        := $(shell sed -n 's/^%define polystat_panel_version *//p' $(DASHBOARDS_SPEC))
 
-CACHE_DIR := $(CURDIR)/.cache
+CACHE_DIR := $(CURDIR)/cache
 REPO_CACHE_DIR := $(CACHE_DIR)/repos
 STAMP_DIR := $(CACHE_DIR)/stamps
 

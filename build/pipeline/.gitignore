@@ -3,7 +3,7 @@ output/
 tarball/
 
 # Local bare-repo cache
-.cache/
+cache/
 
 # Temporary build files
 
