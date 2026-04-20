@@ -37,21 +37,21 @@ To use ClickHouse as an external database instance, provide the following enviro
 To use ClickHouse as an external database instance, run PMM in docker or podman with the specified variables for external ClickHouse:
 
 ```sh
--e PMM_CLICKHOUSE_ADDR=$CH_HOST:$CH_PORT
--e PMM_CLICKHOUSE_DATABASE=$CH_DATABASE
--e PMM_CLICKHOUSE_USER=$CH_USER
--e PMM_CLICKHOUSE_PASSWORD=$CH_PASSWORD
+-e PMM_CLICKHOUSE_ADDR=<hostname>:<port>
+-e PMM_CLICKHOUSE_DATABASE=<database-name>
+-e PMM_CLICKHOUSE_USER=<username>
+-e PMM_CLICKHOUSE_PASSWORD=<password>
 -e PMM_DISABLE_BUILTIN_CLICKHOUSE=1
 ```
 
 Alternatively, you can use the `PMM_CLICKHOUSE_HOST` and `PMM_CLICKHOUSE_PORT` variables instead of `PMM_CLICKHOUSE_ADDR`.
 
 ```sh
--e PMM_CLICKHOUSE_HOST=$CH_HOST
--e PMM_CLICKHOUSE_PORT=$CH_PORT
--e PMM_CLICKHOUSE_DATABASE=$CH_DATABASE
--e PMM_CLICKHOUSE_USER=$CH_USER
--e PMM_CLICKHOUSE_PASSWORD=$CH_PASSWORD
+-e PMM_CLICKHOUSE_HOST=<hostname>
+-e PMM_CLICKHOUSE_PORT=<port>
+-e PMM_CLICKHOUSE_DATABASE=<database-name>
+-e PMM_CLICKHOUSE_USER=<username>
+-e PMM_CLICKHOUSE_PASSWORD=<password>
 -e PMM_DISABLE_BUILTIN_CLICKHOUSE=1
 ```
 
