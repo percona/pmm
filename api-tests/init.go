@@ -43,7 +43,9 @@ import (
 	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
 	managementClient "github.com/percona/pmm/api/management/v1/json/client"
 	serverClient "github.com/percona/pmm/api/server/v1/json/client"
+	"github.com/percona/pmm/api/server/v1/json/client/server_service"
 	userClient "github.com/percona/pmm/api/user/v1/json/client"
+	"github.com/percona/pmm/api/user/v1/json/client/user_service"
 	"github.com/percona/pmm/utils/tlsconfig"
 )
 
@@ -205,10 +207,28 @@ func init() {
 	userClient.Default = userClient.New(transport, nil)
 
 	// do not run tests if server is not available
-	_, err = serverClient.Default.ServerService.Readiness(nil)
-	if err != nil {
-		logrus.Fatalf("Failed to pass the server readiness probe: %s", err)
+	serverReadyErr := retryWithBackoff(Context, 10, func() error {
+		_, err = serverClient.Default.ServerService.Readiness(&server_service.ReadinessParams{
+			Context: Context,
+		})
+		if err != nil {
+			return fmt.Errorf("failed to pass the server readiness probe: %w", err)
+		}
+
+		_, err = userClient.Default.UserService.GetUser(&user_service.GetUserParams{
+			Context: Context,
+		})
+		if err != nil {
+			return fmt.Errorf("failed to get user details: %w", err)
+		}
+		return nil
+	})
+
+	if serverReadyErr != nil {
+		logrus.Fatalf("PMM Server is not ready: %s", serverReadyErr)
 	}
+
+	logrus.Info("PMM Server is ready.")
 }
 
 // check interfaces.
