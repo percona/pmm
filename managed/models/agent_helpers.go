@@ -692,7 +692,7 @@ func CreateNodeExporter(q *reform.Querier,
 			ExposeExporter:     exposeExporter,
 			PushMetrics:        pushMetrics,
 			DisabledCollectors: disableCollectors,
-			ConnectionTimeout:  pointer.ToDurationOrNil(pointer.GetDuration(connectionTimeout)),
+			ConnectionTimeout:  connectionTimeout,
 		},
 		LogLevel: pointer.ToStringOrNil(logLevel),
 	}
@@ -783,7 +783,7 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 			PushMetrics:       params.PushMetrics,
 			MetricsPath:       metricsPath,
 			MetricsScheme:     scheme,
-			ConnectionTimeout: pointer.ToDurationOrNil(pointer.GetDuration(params.ConnectionTimeout)),
+			ConnectionTimeout: params.ConnectionTimeout,
 		},
 		TLSSkipVerify: params.TLSSkipVerify,
 	}
