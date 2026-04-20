@@ -16305,6 +16305,16 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <td>Configuration file path and name.</td>
 </tr>
 <tr>
+<td><code>--config-file-key-file</code></td>
+<td><code>PMM_AGENT_CONFIG_FILE_KEY_FILE</code></td>
+<td>Path to RSA private key for config file encryption. See <a href="../../admin/security/client_config_encryption.html">Encrypt the PMM Client configuration file</a>.</td>
+</tr>
+<tr>
+<td><code>--config-file-key-password</code></td>
+<td><code>PMM_AGENT_CONFIG_FILE_KEY_PASSWORD</code></td>
+<td>Password for the RSA private key (if password-protected).</td>
+</tr>
+<tr>
 <td><code>--container-id=CONTAINER-ID</code></td>
 <td><code>PMM_AGENT_SETUP_CONTAINER_ID</code></td>
 <td>Container ID.</td>
@@ -16358,6 +16368,16 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <td><code>--node-model=NODE-MODEL</code></td>
 <td><code>PMM_AGENT_SETUP_NODE_MODEL</code></td>
 <td>Node model.</td>
+</tr>
+<tr>
+<td><code>--proc-mounts-path=PATH</code></td>
+<td><code>PMM_AGENT_SETUP_PROC_MOUNTS_PATH</code></td>
+<td>Path to the <code>proc/mounts</code> file used by the <code>node_exporter</code>.</td>
+</tr>
+<tr>
+<td><code>--expose-exporter</code></td>
+<td></td>
+<td>If you enable this flag, any IP address on the local network and anywhere on the internet can access node exporter endpoints. If the flag is disabled, node exporter endpoints can be accessed only locally.</td>
 </tr>
 <tr>
 <td><code>--paths-base=PATH</code></td>
@@ -16440,29 +16460,14 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <td>Enable trace output (implies <code>--debug</code>).</td>
 </tr>
 <tr>
-<td><code>-h</code>, <code>--help</code></td>
-<td></td>
-<td>Show help (synonym for <code>pmm-agent help</code>).</td>
-</tr>
-<tr>
 <td><code>--version</code></td>
 <td></td>
 <td>Show application version, PMM version, time-stamp, git commit hash and branch.</td>
 </tr>
 <tr>
-<td><code>--expose-exporter</code></td>
+<td><code>-h</code>, <code>--help</code></td>
 <td></td>
-<td>If you enable this flag, any IP address on the local network and anywhere on the internet can access node exporter endpoints. If the flag is disabled, node exporter endpoints can be accessed only locally.</td>
-</tr>
-<tr>
-<td><code>--config-file-key-file</code></td>
-<td><code>PMM_AGENT_CONFIG_FILE_KEY_FILE</code></td>
-<td>Path to RSA private key for config file encryption. See <a href="../../admin/security/client_config_encryption.html">Encrypt the PMM Client configuration file</a>.</td>
-</tr>
-<tr>
-<td><code>--config-file-key-password</code></td>
-<td><code>PMM_AGENT_CONFIG_FILE_KEY_PASSWORD</code></td>
-<td>Password for the RSA private key (if password-protected).</td>
+<td>Show help (synonym for <code>pmm-agent help</code>).</td>
 </tr>
 </tbody>
 </table>
@@ -16600,7 +16605,7 @@ Flag <code>--paths-base</code> will set path for all exporters and tools, but ea
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 1, 2026 14:08:36 UTC">April 1, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 20, 2026 11:32:02 UTC">April 20, 2026</span>
   </span>
 
     
