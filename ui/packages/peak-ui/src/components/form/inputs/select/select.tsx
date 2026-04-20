@@ -39,7 +39,7 @@ const SelectInput = ({
           <Select
             {...field}
             label={label}
-            labelId="demo-simple-select-label"
+            labelId={`${name}-input-label`}
             variant="outlined"
             error={error !== undefined}
             data-testid={`select-${kebabize(name)}-button`}
