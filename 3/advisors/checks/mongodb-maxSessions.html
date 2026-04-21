@@ -16166,7 +16166,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <p>This advisor warms if the maximum number of sessions set in the <strong>maxSessions</strong> parameter exceeds the default value of <strong>1000000</strong>. You can set the <strong>maxSessions</strong> only on database startup.</p>
 <p>This is relevant because setting a too high number of sessions can negatively impact the performance.</p>
 <p>The parameter also needs to be set at the configuration file.</p>
-<p>To avoid performance issues, see <a href="https://www.percona.com/blog/2021/06/03/mongodb-message-cannot-add-session-into-the-cache-toomanylogicalsessions">The (In)famous MongoDB Message blogpost</a> to check and set the right value for your environment.</p>
+<p>To avoid performance issues, see <a href="https://www.percona.com/blog/mongodb-message-cannot-add-session-into-the-cache-toomanylogicalsessions/">The (In)famous MongoDB Message blogpost</a> to check and set the right value for your environment.</p>
 <h2 id="rule">Rule<a class="headerlink" href="#rule" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code># to fetch the value
 db.adminCommand( { getCmdLineOpts: 1  } )
@@ -16175,7 +16175,7 @@ db.adminCommand( { getCmdLineOpts: 1  } )
 <p>Instead of increasing <strong>maxSessions</strong>, reduce the setting of the <strong>logicalSessionRefreshMillis</strong> parameter from the default interval of 5 minutes to 2 minutes, for example. You can tweak the time suitable for your environment by setting and checking the performance of open sessions.</p>
 <p>Make sure to remove the idle sessions from cache to make room for the new ones and keep the number of sessions reaching its maximum setting mostly.  </p>
 <p>See <a href="https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.logicalSessionRefreshMillis">logicalSessionRefreshMillis</a> in the MongoDB documentation. </p>
-<p>To avoid performance issues, see <a href="https://www.percona.com/blog/2021/06/03/mongodb-message-cannot-add-session-into-the-cache-toomanylogicalsessions">The (In)famous MongoDB Message blogpost</a> to check and set the right values for your environment. You can adjust the max number of sessions and the cache refreshment interval for both your <code>mongod</code> and <code>mongos</code> nodes.</p>
+<p>To avoid performance issues, see <a href="https://www.percona.com/blog/mongodb-message-cannot-add-session-into-the-cache-toomanylogicalsessions/">The (In)famous MongoDB Message blogpost</a> to check and set the right values for your environment. You can adjust the max number of sessions and the cache refreshment interval for both your <code>mongod</code> and <code>mongos</code> nodes.</p>
 <h2 id="need-more-support-from-percona">Need more support from Percona?<a class="headerlink" href="#need-more-support-from-percona" title="Permanent link">&para;</a></h2>
 <p>Percona experts bring years of experience in tackling tough database performance issues and design challenges.</p>
 <div data-tf-live="01JKGYABNVYHQ8A91QNW69A9TP"></div>
@@ -16202,7 +16202,7 @@ db.adminCommand( { getCmdLineOpts: 1  } )
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 3, 2025 10:33:16 UTC">November 3, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 21, 2026 10:38:45 UTC">April 21, 2026</span>
   </span>
 
     
