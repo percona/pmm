@@ -131,24 +131,8 @@ jobs:
           go env | sort
           git status
 
-  merge-gatekeeper:
-    needs: [ check ]
-    name: Merge Gatekeeper
-    if: ${{ always() }}
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Run Merge Gatekeeper
-        uses: upsidr/merge-gatekeeper@09af7a82c1666d0e64d2bd8c01797a0bcfd3bb5d # v1.2.1
-        with:
-          self: Merge Gatekeeper
-          token: ${{ secrets.GITHUB_TOKEN }}
-          interval: 45
-          timeout: 1200
-          ignored: "linkspector"
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-
   workflow_success:
-    needs: [ merge-gatekeeper ]
+    needs: [ check ]
     name: Slack Notification success
     runs-on: ubuntu-22.04
     env:
@@ -166,7 +150,7 @@ jobs:
 
   workflow_failure:
     if: ${{ failure() }}
-    needs: [ merge-gatekeeper ]
+    needs: [ check ]
     name: Slack Notification failure
     runs-on: ubuntu-22.04
     env:
