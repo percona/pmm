@@ -79,13 +79,29 @@ func TestAgents(t *testing.T) {
 		mySqldExporterID := mySqldExporter.MysqldExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, mySqldExporterID)
 
-		res, err := client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{Context: pmmapitests.Context})
+		// Use filtered calls to avoid a TOCTOU race: an unfiltered ListAgents iterates over
+		// all agents in the DB and converts them one by one; between the query and the
+		// conversion loop a parallel test may delete a pmm_agent that an external exporter
+		// (created with push_metrics) still references, causing a spurious 404.
+		resByAgent, err := client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
+			PMMAgentID: pointer.ToString(pmmAgentID),
+			Context:    pmmapitests.Context,
+		})
 		require.NoError(t, err)
-		require.NotNil(t, res)
-		require.NotEmpty(t, res.Payload.MysqldExporter, "There should be at least one service")
+		require.NotNil(t, resByAgent)
+		require.NotEmpty(t, resByAgent.Payload.MysqldExporter, "There should be at least one service")
+		assertMySQLExporterExists(t, resByAgent, mySqldExporterID)
 
-		assertMySQLExporterExists(t, res, mySqldExporterID)
-		assertPMMAgentExists(t, res, pmmAgentID)
+		// pmmAgents use runs_on_node_id (not node_id), so no NodeID filter returns them.
+		// Filter by agent type instead: pmmAgent conversion has no secondary DB lookups,
+		// so it is immune to the TOCTOU race that affects external exporters.
+		resByType, err := client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
+			AgentType: pointer.ToString(types.AgentTypePMMAgent),
+			Context:   pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		require.NotNil(t, resByType)
+		assertPMMAgentExists(t, resByType, pmmAgentID)
 	})
 
 	t.Run("FilterList", func(t *testing.T) {

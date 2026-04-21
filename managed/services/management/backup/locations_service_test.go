@@ -16,7 +16,6 @@
 package backup
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -36,7 +35,7 @@ import (
 )
 
 func TestCreateBackupLocation(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
@@ -101,7 +100,7 @@ func TestCreateBackupLocation(t *testing.T) {
 }
 
 func TestListBackupLocations(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
@@ -172,7 +171,7 @@ func TestListBackupLocations(t *testing.T) {
 }
 
 func TestChangeBackupLocation(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
@@ -272,7 +271,7 @@ func TestChangeBackupLocation(t *testing.T) {
 }
 
 func TestRemoveBackupLocation(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
@@ -327,7 +326,7 @@ func TestRemoveBackupLocation(t *testing.T) {
 }
 
 func TestVerifyBackupLocationValidation(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 

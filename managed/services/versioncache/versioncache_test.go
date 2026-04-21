@@ -143,7 +143,7 @@ func TestVersionCache(t *testing.T) {
 		// the test is finished, but make a universal mock for all the other version updates.
 		versionerMock.On("GetVersions", agentID1, softwares).Return(versions2, nil)
 
-		ctx, cancel := context.WithCancel(context.Background())
+		ctx, cancel := context.WithCancel(t.Context())
 
 		serviceCheckInterval = time.Second
 		minCheckInterval = 0

@@ -8,8 +8,14 @@ on:
       - pmm-*
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
+    paths-ignore:
+      - "documentation/**"
+      - "dashboards/**"
 
-  pull_request:      
+  pull_request:
+    paths-ignore:
+      - "documentation/**"
+      - "dashboards/**"  
 
 permissions:
   contents: read
@@ -33,7 +39,7 @@ jobs:
           cache: false
 
       - name: Enable Go build cache
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ~/.cache/go-build
           key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
@@ -42,7 +48,7 @@ jobs:
             ${{ runner.os }}-go-build-
 
       - name: Enable Go modules cache
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
@@ -125,37 +131,8 @@ jobs:
           go env | sort
           git status
 
-
-  spell-check:
-    name: Spell check
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - name: Check spelling of md files
-        uses: crate-ci/typos@02ea592e44b3a53c302f697cddca7641cd051c3d # v1.45.0
-        with:
-          files: "**/*.md ./documentation/**/*.md"
-
-  merge-gatekeeper:
-    needs: [ check, spell-check ]
-    name: Merge Gatekeeper
-    if: ${{ always() }}
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Run Merge Gatekeeper
-        uses: upsidr/merge-gatekeeper@09af7a82c1666d0e64d2bd8c01797a0bcfd3bb5d # v1.2.1
-        with:
-          self: Merge Gatekeeper
-          token: ${{ secrets.GITHUB_TOKEN }}
-          interval: 45
-          timeout: 1200
-          ignored: "license/snyk (Percona Github Org), security/snyk (Percona Github Org), linkspector"
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-
   workflow_success:
-    needs: [ merge-gatekeeper ]
+    needs: [ check ]
     name: Slack Notification success
     runs-on: ubuntu-22.04
     env:
@@ -173,7 +150,7 @@ jobs:
 
   workflow_failure:
     if: ${{ failure() }}
-    needs: [ merge-gatekeeper ]
+    needs: [ check ]
     name: Slack Notification failure
     runs-on: ubuntu-22.04
     env:

@@ -91,7 +91,7 @@ func setup(t *testing.T) (*ServicesService, *AgentsService, *NodesService, func(
 		NewAgentsService(db, r, state, vmdb, cc, sib, as),
 		NewNodesService(db, r, state, vmdb),
 		teardown,
-		logger.Set(context.Background(), t.Name()),
+		logger.Set(t.Context(), t.Name()),
 		vmdb
 }
 

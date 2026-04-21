@@ -37,6 +37,7 @@ import (
 )
 
 func TestSettings(t *testing.T) {
+	t.Cleanup(func() { restoreSettingsDefaults(t) })
 	t.Run("GetSettings", func(t *testing.T) {
 		res, err := serverClient.Default.ServerService.GetSettings(nil)
 		require.NoError(t, err)
@@ -725,19 +726,19 @@ func TestSettings(t *testing.T) {
 							t.Logf("Response:\n%s", b)
 						}
 						b, err = io.ReadAll(resp.Body)
-						assert.NoError(t, err)
+						require.NoError(t, err)
 						resp.Body.Close() //nolint:errcheck
 
 						if get == "" {
-							assert.Equal(t, 400, resp.StatusCode, "response:\n%s", b)
+							require.Equal(t, 400, resp.StatusCode, "response:\n%s", b)
 							return
 						}
-						assert.Equal(t, 200, resp.StatusCode, "response:\n%s", b)
+						require.Equal(t, 200, resp.StatusCode, "response:\n%s", b)
 
 						p.Settings.MetricsResolutions.LR = ""
 						err = json.Unmarshal(b, &p)
 						require.NoError(t, err)
-						assert.Equal(t, get, p.Settings.MetricsResolutions.LR, "Change")
+						require.Equal(t, get, p.Settings.MetricsResolutions.LR, "Change")
 
 						req, err = http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, getURI.String(), nil)
 						require.NoError(t, err)

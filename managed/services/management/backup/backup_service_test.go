@@ -16,7 +16,6 @@
 package backup
 
 import (
-	"context"
 	"fmt"
 	"testing"
 	"time"
@@ -112,7 +111,7 @@ func TestStartBackup(t *testing.T) {
 				backupError := fmt.Errorf("error: %w", tc.backupError)
 				backupService.On("PerformBackup", mock.Anything, mock.Anything).
 					Return("", backupError).Once()
-				ctx := context.Background()
+				ctx := t.Context()
 				resp, err := backupSvc.StartBackup(ctx, &backupv1.StartBackupRequest{
 					ServiceId:     *agent.ServiceID,
 					LocationId:    "locationID",
@@ -156,7 +155,7 @@ func TestStartBackup(t *testing.T) {
 		require.NoError(t, err)
 
 		t.Run("starting mongodb physical snapshot is successful", func(t *testing.T) {
-			ctx := context.Background()
+			ctx := t.Context()
 			backupService := &mockBackupService{}
 			mockedPbmPITRService := &mockPbmPITRService{}
 			backupSvc := NewBackupsService(db, backupService, nil, nil, nil, mockedPbmPITRService)
@@ -174,7 +173,7 @@ func TestStartBackup(t *testing.T) {
 		})
 
 		t.Run("check folder and artifact name", func(t *testing.T) {
-			ctx := context.Background()
+			ctx := t.Context()
 			backupService := &mockBackupService{}
 			mockedPbmPITRService := &mockPbmPITRService{}
 
@@ -251,7 +250,7 @@ func TestStartBackup(t *testing.T) {
 }
 
 func TestScheduledBackups(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	t.Cleanup(func() {
@@ -386,7 +385,7 @@ func TestScheduledBackups(t *testing.T) {
 		agent := setup(t, db.Querier, models.MongoDBServiceType, t.Name(), "cluster")
 
 		t.Run("PITR unsupported for physical model", func(t *testing.T) {
-			ctx := context.Background()
+			ctx := t.Context()
 			schedulerService := &mockScheduleService{}
 			mockedPbmPITRService := &mockPbmPITRService{}
 			backupSvc := NewBackupsService(db, nil, nil, schedulerService, nil, mockedPbmPITRService)
@@ -407,7 +406,7 @@ func TestScheduledBackups(t *testing.T) {
 		})
 
 		t.Run("normal", func(t *testing.T) {
-			ctx := context.Background()
+			ctx := t.Context()
 			schedulerService := &mockScheduleService{}
 			mockedPbmPITRService := &mockPbmPITRService{}
 			backupSvc := NewBackupsService(db, nil, nil, schedulerService, nil, mockedPbmPITRService)
@@ -428,7 +427,7 @@ func TestScheduledBackups(t *testing.T) {
 }
 
 func TestGetLogs(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	backupService := &mockBackupService{}
@@ -506,7 +505,7 @@ func TestGetLogs(t *testing.T) {
 }
 
 func TestListPitrTimeranges(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
