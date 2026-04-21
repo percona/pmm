@@ -68,7 +68,7 @@ You can change ownership by running: sudo chown -R 1000:0 /srv
 Incorrect ownership of the PMM Docker volume typically causes this error. To fix it:
 {.power-number}
 
-1. Fix the ownership of the volume data directory:
+1. Fix ownership inside the PMM Server container:
 
     ```sh
     docker exec pmm-server supervisorctl stop all
