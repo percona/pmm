@@ -942,7 +942,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 	}
 
 	exporterOptions := params.ExporterOptions
-	if pointer.GetDuration(exporterOptions.ConnectionTimeout) == 0 {
+	if pointer.Get(exporterOptions.ConnectionTimeout) == 0 {
 		exporterOptions.ConnectionTimeout = nil
 	}
 
@@ -1193,7 +1193,7 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 			row.ExporterOptions.MetricsPath = *params.ExporterOptions.MetricsPath
 		}
 
-		if pointer.GetDuration(params.ExporterOptions.ConnectionTimeout) == 0 {
+		if pointer.Get(params.ExporterOptions.ConnectionTimeout) == 0 {
 			row.ExporterOptions.ConnectionTimeout = nil
 		} else {
 			row.ExporterOptions.ConnectionTimeout = params.ExporterOptions.ConnectionTimeout

@@ -138,7 +138,7 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 	switch {
 	case exporter.AzureOptions.ClientID != "",
 		node.NodeType == models.RemoteRDSNodeType:
-		connectionTimeout = pointer.GetDuration(exporter.ExporterOptions.ConnectionTimeout)
+		connectionTimeout = pointer.Get(exporter.ExporterOptions.ConnectionTimeout)
 		if connectionTimeout == 0 {
 			connectionTimeout = postgresCloudConnectionTimeout
 		}
