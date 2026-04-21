@@ -1570,7 +1570,7 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 		return err
 	}
 
-	if _, err = CreateNodeExporter(q, agent.AgentID, labels, false, false, []string{}, nil, "", nil); err != nil {
+	if _, err = CreateNodeExporter(q, agent.AgentID, labels, false, false, []string{}, nil, ""); err != nil {
 		return err
 	}
 
@@ -1601,7 +1601,7 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 	if _, err = createPMMAgentWithID(q, PMMServerAgentID, node.NodeID, nil); err != nil {
 		return err
 	}
-	if _, err = CreateNodeExporter(q, PMMServerAgentID, nil, false, false, []string{}, nil, "", nil); err != nil {
+	if _, err = CreateNodeExporter(q, PMMServerAgentID, nil, false, false, []string{}, nil, ""); err != nil {
 		return err
 	}
 

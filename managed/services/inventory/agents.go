@@ -173,7 +173,7 @@ func (as *AgentsService) AddNodeExporter(ctx context.Context, p *inventoryv1.Add
 	var agent *inventoryv1.NodeExporter
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		row, err := models.CreateNodeExporter(tx.Querier, p.PmmAgentId, p.CustomLabels, p.PushMetrics, p.ExposeExporter,
-			p.DisableCollectors, nil, services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR), nil)
+			p.DisableCollectors, nil, services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR))
 		if err != nil {
 			return err
 		}
