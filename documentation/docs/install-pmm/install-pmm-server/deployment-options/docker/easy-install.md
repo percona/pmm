@@ -35,7 +35,7 @@ Download and install PMM Server using `cURL` or `wget`:
     - installs Docker if it is not already installed on your system.
     - stops and renames any currently running PMM Server Docker container from `pmm-server` to `pmm-server-{timestamp}`. This old pmm-server container is not a recoverable backup.
     - pulls and runs the latest PMM Server Docker image.
-    - can run in Interactive mode to change the default settings:
+    - supports interactive mode, which lets you review and change default settings:
 
     ```sh
        curl -fsSLO https://www.percona.com/get/pmm (or wget https://www.percona.com/get/pmm) 
@@ -101,15 +101,15 @@ Incorrect ownership of the PMM Docker volume typically causes this error. To fix
 
 5. (If the problem persists) Remove all unused Docker objects (containers, images, and networks), and try again:
 
-```sh
-docker system prune -a
-```
+    ```sh
+    docker system prune -a
+    ```
 
-To remove unused volumes as well, run:
+6. (Optional) To remove unused volumes as well, run:
 
-```sh
-docker system prune -a --volumes
-```
+    ```sh
+    docker system prune -a --volumes
+    ```
 
 !!! warning "Affects all Docker workloads"
     These commands remove unused Docker resources on the host, not just those related to PMM. Only run them if you are sure no other Docker workloads are affected.
