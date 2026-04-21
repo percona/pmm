@@ -819,6 +819,10 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStat
 		processParams.Args[i] = string(b)
 	}
 
+	if agentProcess.Type == inventoryv1.AgentType_AGENT_TYPE_NODE_EXPORTER && cfg.ProcMountsPath != "" {
+		processParams.Args = append(processParams.Args, "--collector.filesystem.proc-mounts-path="+cfg.ProcMountsPath)
+	}
+
 	env := make([]string, len(agentProcess.Env))
 	for i, e := range agentProcess.Env {
 		b, err := tr.RenderTemplate("env", e, templateParams)
