@@ -496,7 +496,7 @@ If you need to remove MongoDB service from PMM, follow these steps:
 - [Troubleshooting connection difficulties]
 
 [MongoDB]: https://www.mongodb.com/
-[Percona Server for MongoDB]: https://www.percona.com/software/mongodb/percona-server-for-mongodb
+[Percona Server for MongoDB]: https://docs.percona.com/percona-server-for-mongodb/
 [profiling feature]: https://docs.mongodb.com/manual/tutorial/manage-the-database-profiler/
 [YAML]: http://yaml.org/spec/
 [MONGODB_CONFIG_OP_PROF]: https://docs.mongodb.com/manual/reference/configuration-options/#operationprofiling-options
