@@ -3,7 +3,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Stack from '@mui/material/Stack';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
-import { FC, useState } from 'react';
+import { FC } from 'react';
 import { Page } from 'components/page';
 import { useSettings } from 'hooks/api/useSettings';
 import { SshKeyForm } from './components/ssh-key/SshKeyForm';
@@ -11,10 +11,12 @@ import { MetricsResolutionForm } from './components/metrics-resolution/MetricsRe
 import { AdvancedSettingsForm } from './components/advanced/AdvancedSettingsForm';
 import { Messages } from './Settings.messages';
 import { TabValue } from './Settings.types';
+import { useNavigate, useParams } from 'react-router-dom';
 
 export const Settings: FC = () => {
-  const [tab, setTab] = useState<TabValue>('metrics');
+  const { tab = 'metrics' } = useParams();
   const { data: settings, isLoading } = useSettings();
+  const navigate = useNavigate();
 
   if (isLoading || !settings) {
     return (
@@ -25,6 +27,8 @@ export const Settings: FC = () => {
       </Page>
     );
   }
+
+  const setTab = (value: TabValue) => navigate(`/settings/${value}`);
 
   return (
     <Page title={Messages.title} fullWidth surface="paper">

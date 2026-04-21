@@ -6,9 +6,9 @@ export const Messages = {
     advanced: 'Advanced settings',
   },
   advanced: {
-    action: 'Apply changes',
     retentionLabel: 'Data retention',
-    retentionTooltip: 'How long PMM keeps collected data. Older data is automatically deleted.',
+    retentionTooltip:
+      'How long PMM keeps collected data. Older data is automatically deleted.',
     retentionUnits: 'days',
     retentionLink: 'https://per.co.na/data_retention',
     telemetryLabel: 'Telemetry',
@@ -26,39 +26,42 @@ export const Messages = {
     sttRareIntervalLabel: 'Rare',
     sttStandardIntervalLabel: 'Standard',
     sttFrequentIntervalLabel: 'Frequent',
-    sttCheckIntervalTooltip: 'How often Advisor checks run. Lower values catch issues faster but increase resource usage.',
+    sttCheckIntervalTooltip:
+      'How often Advisor checks run. Lower values catch issues faster but increase resource usage.',
     advisorsLink: 'https://per.co.na/advisors',
-    advisorsTooltip: 'Run automated checks to identify potential database performance and configuration issues.',
+    advisorsTooltip:
+      'Run automated checks to identify potential database performance and configuration issues.',
     azureDiscoverLabel: 'Microsoft Azure monitoring',
     azureDiscoverTooltip:
       'Option to enable/disable Microsoft Azure DB instances discovery and monitoring',
     azureDiscoverLink: 'https://per.co.na/azure_monitoring',
     accessControl: 'Access control',
-    accessControlTooltip: 'Restrict data visibility based on user roles and labels.',
+    accessControlTooltip:
+      'Restrict data visibility based on user roles and labels.',
     accessControlLink: 'https://per.co.na/roles_permissions',
     publicAddressLabel: 'Public address',
-    publicAddressTooltip: 'The address or hostname PMM Server will be accessible at.',
+    publicAddressTooltip:
+      'The address or hostname PMM Server will be accessible at.',
     publicAddressButton: 'Get from browser',
     alertingLabel: 'Percona Alerting',
     alertingTooltip: 'Option to enable/disable Percona Alerting features.',
     alertingLink: 'https://per.co.na/alerting',
     backupLabel: 'Backup Management',
-    backupTooltip: 'Enable scheduled and on-demand backups for supported databases.',
+    backupTooltip:
+      'Enable scheduled and on-demand backups for supported databases.',
     backupLink: 'https://per.co.na/backup_management',
     enableInternalPgQanLabel: 'QAN for PMM Server',
     enableInternalPgQanTooltip:
       "Displays queries from PMM Server's internal PostgreSQL database in Query Analytics (QAN). Enable to troubleshoot PMM Server's database performance alongside your monitored instances.",
     enableInternalPgQanLink: 'https://per.co.na/qan-pmm-server',
     technicalPreviewLegend: 'Technical preview features',
-    technicalPreviewDescription:
-      'These are technical preview features, ',
+    technicalPreviewDescription: 'These are technical preview features, ',
     technicalPreviewWarning: 'not recommended',
     technicalPreviewDescriptionSuffix:
       ' to be used in production environments. Read more about feature status',
-    technicalPreviewLinkText: 'here',
+    technicalPreviewLinkText: 'here.',
   },
   metrics: {
-    action: 'Apply changes',
     label: 'Metrics resolution',
     link: 'https://per.co.na/metrics_resolution',
     options: {
@@ -72,17 +75,25 @@ export const Messages = {
       medium: 'Medium',
       high: 'High',
     },
-    tooltip: 'How often PMM collects metrics, in seconds. Lower values provide more detail but use more resources.',
+    tooltip:
+      'How often PMM collects metrics, in seconds. Lower values provide more detail but use more resources.',
+    validation: {
+      required: 'Required',
+      minMax: (min: number, max: number) => `Must be between ${min} and ${max}`,
+    },
   },
   ssh: {
-    action: 'Apply changes',
     label: 'SSH key',
     link: 'https://per.co.na/ssh_key',
-    tooltip: 'Paste your public SSH key (ssh-rsa format) to enable SSH access to PMM Server.',
+    tooltip:
+      'Paste your public SSH key (ssh-rsa format) to enable SSH access to PMM Server.',
+    placeholder: 'ssh-rsa AAAA...',
   },
   service: {
     success: 'Settings updated',
   },
   tooltipLinkText: 'Read more',
   unauthorized: 'Insufficient access permissions.',
+  applyChanges: 'Apply changes',
+  applying: 'Applying...',
 };

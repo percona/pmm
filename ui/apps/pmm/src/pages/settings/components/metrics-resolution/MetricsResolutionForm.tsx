@@ -1,15 +1,7 @@
-import Button from '@mui/material/Button';
-import FormControl from '@mui/material/FormControl';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Link from '@mui/material/Link';
-import Radio from '@mui/material/Radio';
-import RadioGroup from '@mui/material/RadioGroup';
 import Stack from '@mui/material/Stack';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
-import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
+import { TextInput, RadioGroup } from '@percona/percona-ui';
 import { FC, useEffect, useMemo } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
 import { useUpdateSettings } from 'hooks/api/useSettings';
 import { MetricsResolutions } from 'types/settings.types';
@@ -19,6 +11,7 @@ import {
   resolutionOptions,
   RESOLUTION_MAX,
   RESOLUTION_MIN,
+  DEFAULT_METRICS,
 } from './MetricsResolution.constants';
 import {
   addUnits,
@@ -29,28 +22,22 @@ import {
   MetricsResolutionFormProps,
   MetricsResolutionFormValues,
 } from './MetricsResolutionForm.types';
-
-const DEFAULT_METRICS = { hr: '5s', mr: '10s', lr: '60s' } as const;
+import { SettingsFieldLabel } from '../settings-field-label';
+import { SettingsSubmitButton } from '../settings-submit-button';
+import { formControlClasses } from '@mui/material/FormControl';
 
 export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
   settings,
 }) => {
-  const { mutateAsync: updateSettings, isPending } = useUpdateSettings();
+  const { mutateAsync: updateSettings } = useUpdateSettings();
   const metricsResolutions = useMemo(
-    () => settings.metricsResolutions ?? DEFAULT_METRICS,
-    [settings.metricsResolutions]
+    () => settings?.metricsResolutions ?? DEFAULT_METRICS,
+    [settings?.metricsResolutions]
   );
   const preset = getResolutionPreset(metricsResolutions);
   const raw = removeUnits(metricsResolutions);
 
-  const {
-    control,
-    handleSubmit,
-    reset,
-    watch,
-    setValue,
-    formState: { isDirty, errors },
-  } = useForm<MetricsResolutionFormValues>({
+  const methods = useForm<MetricsResolutionFormValues>({
     defaultValues: {
       preset,
       lr: raw.lr,
@@ -59,26 +46,26 @@ export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
     },
   });
 
-  const currentPreset = watch('preset');
+  const currentPreset = methods.watch('preset');
 
   useEffect(() => {
-    reset({
+    methods.reset({
       preset: getResolutionPreset(metricsResolutions),
       ...removeUnits(metricsResolutions),
     });
-  }, [metricsResolutions, reset]);
+  }, [metricsResolutions, methods.reset]);
 
   useEffect(() => {
     if (currentPreset && currentPreset !== 'custom') {
       const idx = resolutionOptions.findIndex((o) => o.value === currentPreset);
       if (idx >= 0) {
         const def = removeUnits(defaultResolutions[idx]);
-        setValue('lr', def.lr, { shouldDirty: false });
-        setValue('mr', def.mr, { shouldDirty: false });
-        setValue('hr', def.hr, { shouldDirty: false });
+        methods.setValue('lr', def.lr, { shouldDirty: false });
+        methods.setValue('mr', def.mr, { shouldDirty: false });
+        methods.setValue('hr', def.hr, { shouldDirty: false });
       }
     }
-  }, [currentPreset, setValue]);
+  }, [currentPreset, methods.setValue]);
 
   const onSubmit = async (values: MetricsResolutionFormValues) => {
     const payload: MetricsResolutions = addUnits({
@@ -91,7 +78,7 @@ export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
       {
         onSuccess: () => {
           enqueueSnackbar(Messages.service.success, { variant: 'success' });
-          reset({
+          methods.reset({
             preset: values.preset,
             lr: values.lr,
             mr: values.mr,
@@ -108,150 +95,97 @@ export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
     );
   };
 
-  const { label, link, tooltip, action, intervals } = Messages.metrics;
-  const { tooltipLinkText } = Messages;
-
   const validateNumber = (v: string) => {
     const n = parseInt(v, 10);
-    if (isNaN(n) || v === '') return 'Required';
-    if (n < RESOLUTION_MIN || n > RESOLUTION_MAX)
-      return `Must be between ${RESOLUTION_MIN} and ${RESOLUTION_MAX}`;
+
+    if (isNaN(n) || v === '') {
+      return validation.required;
+    }
+
+    if (n < RESOLUTION_MIN || n > RESOLUTION_MAX) {
+      return validation.minMax(RESOLUTION_MIN, RESOLUTION_MAX);
+    }
+
     return true;
   };
 
+  const { label, link, tooltip, intervals, validation } = Messages.metrics;
+
   return (
-    <Stack
-      component="form"
-      onSubmit={handleSubmit(onSubmit)}
-      gap={2}
-    >
-      <Stack>
-        <Typography variant="h6" sx={{ maxWidth: 640 }}>
-          {label}
-        </Typography>
-        <Typography variant="body2" sx={{ maxWidth: 640 }}>
-          {tooltip}
-          {' '}
-          <Link
-            href={link}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {tooltipLinkText}
-            <ArrowOutwardIcon sx={{ fontSize: 14 }} />
-          </Link>
-        </Typography>
-      </Stack>
-
-      <Controller
-        name="preset"
-        control={control}
-        render={({ field }) => (
-          <FormControl sx={{ mb: 1 }}>
-            <RadioGroup {...field} row sx={{ columnGap: 2, rowGap: 1 }}>
-              {resolutionOptions.map((opt) => (
-                <FormControlLabel
-                  key={opt.value}
-                  value={opt.value}
-                  control={<Radio />}
-                  label={opt.label}
-                />
-              ))}
-            </RadioGroup>
-          </FormControl>
-        )}
-      />
-
-      <Stack direction="row" columnGap={2} rowGap={3} flexWrap="wrap" mb={2}>
-        <Controller
-          name="lr"
-          control={control}
-          rules={{ validate: validateNumber }}
-          render={({ field, fieldState }) => (
-            <TextField
-              {...field}
-              label={intervals.low}
-              type="number"
-              disabled={currentPreset !== 'custom'}
-              error={!!fieldState.error}
-              helperText={fieldState.error?.message}
-              slotProps={{
-                htmlInput: { min: RESOLUTION_MIN, max: RESOLUTION_MAX },
-              }}
-              data-testid="metrics-resolution-lr"
-              sx={{ minWidth: 80, maxWidth: 120 }}
-              size="small"
-            />
-          )}
+    <FormProvider {...methods}>
+      <Stack component="form" onSubmit={methods.handleSubmit(onSubmit)} gap={2}>
+        <SettingsFieldLabel
+          label={label}
+          description={tooltip}
+          readMoreLink={link}
         />
-        <Controller
-          name="mr"
-          control={control}
-          rules={{ validate: validateNumber }}
-          render={({ field, fieldState }) => (
-            <TextField
-              {...field}
-              label={intervals.medium}
-              type="number"
-              disabled={currentPreset !== 'custom'}
-              error={!!fieldState.error}
-              helperText={fieldState.error?.message}
-              slotProps={{
-                htmlInput: { min: RESOLUTION_MIN, max: RESOLUTION_MAX },
-              }}
-              data-testid="metrics-resolution-mr"
-              sx={{ minWidth: 80, maxWidth: 120 }}
-              size="small"
-            />
-          )}
-        />
-        <Controller
-          name="hr"
-          control={control}
-          rules={{ validate: validateNumber }}
-          render={({ field, fieldState }) => (
-            <TextField
-              {...field}
-              label={intervals.high}
-              type="number"
-              disabled={currentPreset !== 'custom'}
-              error={!!fieldState.error}
-              helperText={fieldState.error?.message}
-              slotProps={{
-                htmlInput: { min: RESOLUTION_MIN, max: RESOLUTION_MAX },
-              }}
-              data-testid="metrics-resolution-hr"
-              sx={{ minWidth: 80, maxWidth: 120 }}
-              size="small"
-            />
-          )}
-        />
-      </Stack>
 
-      <Stack
-        sx={{
-          position: 'sticky',
-          bottom: 0,
-          py: 2,
-          bgcolor: 'background.paper',
-          borderTop: 1,
-          borderColor: 'divider',
-          mt: 'auto',
-          zIndex: 1,
-          boxShadow: (theme) =>
-            `-8px 0 0 0 ${theme.palette.background.paper}, 30px 0 0 0 ${theme.palette.background.paper}`,
-        }}
-      >
-        <Button
-          type="submit"
-          variant="contained"
-          disabled={!isDirty || isPending || Object.keys(errors).length > 0}
-          data-testid="metrics-resolution-submit"
-          sx={{ alignSelf: 'flex-start' }}
+        <RadioGroup
+          name="preset"
+          options={resolutionOptions}
+          radioGroupFieldProps={{
+            row: true,
+            sx: { columnGap: 2, rowGap: 1, mb: 1 },
+          }}
+        />
+
+        <Stack
+          direction="row"
+          columnGap={2}
+          rowGap={3}
+          flexWrap="wrap"
+          mb={2}
+          sx={{
+            [`.${formControlClasses.root}`]: {
+              margin: 0,
+            },
+          }}
         >
-          {isPending ? 'Applying...' : action}
-        </Button>
+          <TextInput
+            name="lr"
+            label={intervals.low}
+            controllerProps={{ rules: { validate: validateNumber } }}
+            textFieldProps={{
+              type: 'number',
+              disabled: currentPreset !== 'custom',
+              slotProps: {
+                htmlInput: { min: RESOLUTION_MIN, max: RESOLUTION_MAX },
+              },
+              sx: { minWidth: 80, maxWidth: 120 },
+              size: 'small',
+            }}
+          />
+          <TextInput
+            name="mr"
+            label={intervals.medium}
+            controllerProps={{ rules: { validate: validateNumber } }}
+            textFieldProps={{
+              type: 'number',
+              disabled: currentPreset !== 'custom',
+              slotProps: {
+                htmlInput: { min: RESOLUTION_MIN, max: RESOLUTION_MAX },
+              },
+              sx: { minWidth: 80, maxWidth: 120 },
+              size: 'small',
+            }}
+          />
+          <TextInput
+            name="hr"
+            label={intervals.high}
+            controllerProps={{ rules: { validate: validateNumber } }}
+            textFieldProps={{
+              type: 'number',
+              disabled: currentPreset !== 'custom',
+              slotProps: {
+                htmlInput: { min: RESOLUTION_MIN, max: RESOLUTION_MAX },
+              },
+              sx: { minWidth: 80, maxWidth: 120 },
+              size: 'small',
+            }}
+          />
+        </Stack>
+        <SettingsSubmitButton />
       </Stack>
-    </Stack>
+    </FormProvider>
   );
 };

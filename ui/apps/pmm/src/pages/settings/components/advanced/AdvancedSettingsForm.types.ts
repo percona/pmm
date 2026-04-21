@@ -20,8 +20,3 @@ export interface AdvancedSettingsFormValues {
   accessControl: boolean;
 }
 
-export interface LabelWithTooltipProps {
-  label: string;
-  tooltip: React.ReactNode;
-  link?: string;
-}

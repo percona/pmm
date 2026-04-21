@@ -41,7 +41,7 @@ const router = createBrowserRouter(
               element: <HelpCenter />,
             },
             {
-              path: 'settings',
+              path: 'settings/:tab?',
               element: <Settings />,
             },
             {
