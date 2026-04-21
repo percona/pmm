@@ -19,26 +19,24 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/durationpb"
 )
 
 func TestOptionalFromProto(t *testing.T) {
 	t.Run("nil", func(t *testing.T) {
-		assert.Nil(t, OptionalFromProto(nil))
+		require.Nil(t, OptionalFromProto(nil))
 	})
 
 	t.Run("zero", func(t *testing.T) {
 		actual := OptionalFromProto(durationpb.New(0))
-		if assert.NotNil(t, actual) {
-			assert.Equal(t, time.Duration(0), *actual)
-		}
+		require.NotNil(t, actual)
+		require.Equal(t, time.Duration(0), *actual)
 	})
 
 	t.Run("non-zero", func(t *testing.T) {
 		actual := OptionalFromProto(durationpb.New(1500 * time.Millisecond))
-		if assert.NotNil(t, actual) {
-			assert.Equal(t, 1500*time.Millisecond, *actual)
-		}
+		require.NotNil(t, actual)
+		require.Equal(t, 1500*time.Millisecond, *actual)
 	})
 }
