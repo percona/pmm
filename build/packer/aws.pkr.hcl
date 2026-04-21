@@ -14,8 +14,7 @@ packer {
 source "amazon-ebs" "amd-agent" {
   ami_name              = "Jenkins Agent AL amd64"
   instance_type         = "t3.xlarge"
-  # TODO: revert to false after we make sure that the new AMI works fine.
-  # force_deregister      = true
+  force_deregister      = true
   force_delete_snapshot = true
   region                = "us-east-2"
   source_ami_filter {
@@ -61,8 +60,7 @@ source "amazon-ebs" "amd-agent" {
 source "amazon-ebs" "arm-agent" {
   ami_name              = "Jenkins Agent AL arm64"
   instance_type         = "t4g.xlarge"
-  # TODO: revert to false after we make sure that the new AMI works fine.
-  # force_deregister      = true
+  force_deregister      = true
   force_delete_snapshot = true
   region                = "us-east-2"
   source_ami_filter {
