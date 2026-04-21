@@ -22,6 +22,7 @@
     "@fontsource/poppins": "^5.0.15",
     "@fontsource/roboto": "^5.0.14",
     "@fontsource/roboto-mono": "^5.0.18",
+    "@hookform/resolvers": "^5.2.2",
     "@mui/icons-material": "^7.3.7",
     "@mui/material": "^7.3.7",
     "@mui/x-date-pickers": "^7.5.0",
@@ -42,7 +43,8 @@
     "react-syntax-highlighter": "^16.1.0",
     "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.0",
-    "vite-plugin-svgr": "^4.3.0"
+    "vite-plugin-svgr": "^4.3.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@percona/prettier-config": "^1.1.0",

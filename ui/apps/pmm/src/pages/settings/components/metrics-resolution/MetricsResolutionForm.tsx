@@ -1,6 +1,7 @@
 import Stack from '@mui/material/Stack';
 import { TextInput, RadioGroup } from '@percona/percona-ui';
 import { FC, useEffect, useMemo } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { FormProvider, useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
 import { useUpdateSettings } from 'hooks/api/useSettings';
@@ -18,10 +19,11 @@ import {
   getResolutionPreset,
   removeUnits,
 } from './MetricsResolution.utils';
+import { MetricsResolutionFormProps } from './MetricsResolutionForm.types';
 import {
-  MetricsResolutionFormProps,
+  metricsResolutionSchema,
   MetricsResolutionFormValues,
-} from './MetricsResolutionForm.types';
+} from './MetricsResolutionForm.schema';
 import { SettingsFieldLabel } from '../settings-field-label';
 import { SettingsSubmitButton } from '../settings-submit-button';
 import { formControlClasses } from '@mui/material/FormControl';
@@ -29,30 +31,25 @@ import { formControlClasses } from '@mui/material/FormControl';
 export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
   settings,
 }) => {
+  console.log('settings', settings);
   const { mutateAsync: updateSettings } = useUpdateSettings();
   const metricsResolutions = useMemo(
     () => settings?.metricsResolutions ?? DEFAULT_METRICS,
     [settings?.metricsResolutions]
   );
   const preset = getResolutionPreset(metricsResolutions);
-  const raw = removeUnits(metricsResolutions);
+  const { lr, mr, hr } = removeUnits(metricsResolutions);
 
   const methods = useForm<MetricsResolutionFormValues>({
-    defaultValues: {
-      preset,
-      lr: raw.lr,
-      mr: raw.mr,
-      hr: raw.hr,
-    },
+    resolver: zodResolver(metricsResolutionSchema),
+    defaultValues: { preset, lr, mr, hr },
   });
 
   const currentPreset = methods.watch('preset');
 
   useEffect(() => {
-    methods.reset({
-      preset: getResolutionPreset(metricsResolutions),
-      ...removeUnits(metricsResolutions),
-    });
+    const raw = removeUnits(metricsResolutions);
+    methods.reset({ preset: getResolutionPreset(metricsResolutions), ...raw });
   }, [metricsResolutions, methods.reset]);
 
   useEffect(() => {
@@ -95,21 +92,7 @@ export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
     );
   };
 
-  const validateNumber = (v: string) => {
-    const n = parseInt(v, 10);
-
-    if (isNaN(n) || v === '') {
-      return validation.required;
-    }
-
-    if (n < RESOLUTION_MIN || n > RESOLUTION_MAX) {
-      return validation.minMax(RESOLUTION_MIN, RESOLUTION_MAX);
-    }
-
-    return true;
-  };
-
-  const { label, link, tooltip, intervals, validation } = Messages.metrics;
+  const { label, link, tooltip, intervals } = Messages.metrics;
 
   return (
     <FormProvider {...methods}>
@@ -144,7 +127,6 @@ export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
           <TextInput
             name="lr"
             label={intervals.low}
-            controllerProps={{ rules: { validate: validateNumber } }}
             textFieldProps={{
               type: 'number',
               disabled: currentPreset !== 'custom',
@@ -158,7 +140,6 @@ export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
           <TextInput
             name="mr"
             label={intervals.medium}
-            controllerProps={{ rules: { validate: validateNumber } }}
             textFieldProps={{
               type: 'number',
               disabled: currentPreset !== 'custom',
@@ -172,7 +153,6 @@ export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
           <TextInput
             name="hr"
             label={intervals.high}
-            controllerProps={{ rules: { validate: validateNumber } }}
             textFieldProps={{
               type: 'number',
               disabled: currentPreset !== 'custom',
