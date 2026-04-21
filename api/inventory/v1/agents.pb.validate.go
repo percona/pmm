@@ -437,6 +437,35 @@ func (m *NodeExporter) validate(all bool) error {
 		}
 	}
 
+	if all {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, NodeExporterValidationError{
+					field:  "ConnectionTimeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, NodeExporterValidationError{
+					field:  "ConnectionTimeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return NodeExporterValidationError{
+				field:  "ConnectionTimeout",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return NodeExporterMultiError(errors)
 	}
@@ -2611,6 +2640,35 @@ func (m *RDSExporter) validate(all bool) error {
 		}
 	}
 
+	if all {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, RDSExporterValidationError{
+					field:  "ConnectionTimeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, RDSExporterValidationError{
+					field:  "ConnectionTimeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return RDSExporterValidationError{
+				field:  "ConnectionTimeout",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return RDSExporterMultiError(errors)
 	}
@@ -2765,6 +2823,35 @@ func (m *ExternalExporter) validate(all bool) error {
 
 	// no validation rules for Status
 
+	if all {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ExternalExporterValidationError{
+					field:  "ConnectionTimeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ExternalExporterValidationError{
+					field:  "ConnectionTimeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ExternalExporterValidationError{
+				field:  "ConnectionTimeout",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return ExternalExporterMultiError(errors)
 	}
@@ -2912,6 +2999,35 @@ func (m *AzureDatabaseExporter) validate(all bool) error {
 		if err := v.Validate(); err != nil {
 			return AzureDatabaseExporterValidationError{
 				field:  "MetricsResolutions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, AzureDatabaseExporterValidationError{
+					field:  "ConnectionTimeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, AzureDatabaseExporterValidationError{
+					field:  "ConnectionTimeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return AzureDatabaseExporterValidationError{
+				field:  "ConnectionTimeout",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -8619,6 +8735,36 @@ func (m *AddNodeExporterParams) validate(all bool) error {
 
 	// no validation rules for ExposeExporter
 
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = AddNodeExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := AddNodeExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
 	if len(errors) > 0 {
 		return AddNodeExporterParamsMultiError(errors)
 	}
@@ -8747,6 +8893,36 @@ func (m *ChangeNodeExporterParams) validate(all bool) error {
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
+		}
+	}
+
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = ChangeNodeExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := ChangeNodeExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
 		}
 	}
 
@@ -12955,6 +13131,36 @@ func (m *AddRDSExporterParams) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = AddRDSExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := AddRDSExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
 	if len(errors) > 0 {
 		return AddRDSExporterParamsMultiError(errors)
 	}
@@ -13083,6 +13289,36 @@ func (m *ChangeRDSExporterParams) validate(all bool) error {
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
+		}
+	}
+
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = ChangeRDSExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := ChangeRDSExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
 		}
 	}
 
@@ -13285,6 +13521,36 @@ func (m *AddExternalExporterParams) validate(all bool) error {
 
 	// no validation rules for TlsSkipVerify
 
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = AddExternalExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := AddExternalExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
 	if len(errors) > 0 {
 		return AddExternalExporterParamsMultiError(errors)
 	}
@@ -13413,6 +13679,36 @@ func (m *ChangeExternalExporterParams) validate(all bool) error {
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
+		}
+	}
+
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = ChangeExternalExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := ChangeExternalExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
 		}
 	}
 
@@ -13625,6 +13921,36 @@ func (m *AddAzureDatabaseExporterParams) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = AddAzureDatabaseExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := AddAzureDatabaseExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
 	if len(errors) > 0 {
 		return AddAzureDatabaseExporterParamsMultiError(errors)
 	}
@@ -13755,6 +14081,36 @@ func (m *ChangeAzureDatabaseExporterParams) validate(all bool) error {
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
+		}
+	}
+
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = ChangeAzureDatabaseExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := ChangeAzureDatabaseExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
 		}
 	}
 

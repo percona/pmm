@@ -321,7 +321,8 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 					RDSEnhancedMetricsDisabled: req.DisableEnhancedMetrics,
 				},
 				ExporterOptions: models.ExporterOptions{
-					PushMetrics: isPushMode(metricsMode),
+					PushMetrics:       isPushMode(metricsMode),
+					ConnectionTimeout: duration.OptionalFromProto(req.ConnectionTimeout),
 				},
 			})
 			if err != nil {

@@ -14,6 +14,7 @@ import (
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 
 	v1 "github.com/percona/pmm/api/inventory/v1"
@@ -247,9 +248,11 @@ type RegisterNodeRequest struct {
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `protobuf:"varint,16,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
 	// AWS instance ID.
-	InstanceId    string `protobuf:"bytes,17,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	InstanceId string `protobuf:"bytes,17,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,18,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *RegisterNodeRequest) Reset() {
@@ -399,6 +402,13 @@ func (x *RegisterNodeRequest) GetInstanceId() string {
 		return x.InstanceId
 	}
 	return ""
+}
+
+func (x *RegisterNodeRequest) GetConnectionTimeout() *durationpb.Duration {
+	if x != nil {
+		return x.ConnectionTimeout
+	}
+	return nil
 }
 
 type RegisterNodeResponse struct {
@@ -1103,7 +1113,7 @@ var File_management_v1_node_proto protoreflect.FileDescriptor
 
 const file_management_v1_node_proto_rawDesc = "" +
 	"\n" +
-	"\x18management/v1/node.proto\x12\rmanagement.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x19inventory/v1/agents.proto\x1a\x18inventory/v1/nodes.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x17validate/validate.proto\"\xc8\x03\n" +
+	"\x18management/v1/node.proto\x12\rmanagement.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x19inventory/v1/agents.proto\x1a\x18inventory/v1/nodes.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x17validate/validate.proto\"\xc8\x03\n" +
 	"\rAddNodeParams\x123\n" +
 	"\tnode_type\x18\x01 \x01(\x0e2\x16.inventory.v1.NodeTypeR\bnodeType\x12$\n" +
 	"\tnode_name\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\bnodeName\x12\x1d\n" +
@@ -1120,7 +1130,7 @@ const file_management_v1_node_proto_rawDesc = "" +
 	" \x03(\v2..management.v1.AddNodeParams.CustomLabelsEntryR\fcustomLabels\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xed\x05\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc1\x06\n" +
 	"\x13RegisterNodeRequest\x123\n" +
 	"\tnode_type\x18\x01 \x01(\x0e2\x16.inventory.v1.NodeTypeR\bnodeType\x12$\n" +
 	"\tnode_name\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\bnodeName\x12\x18\n" +
@@ -1144,7 +1154,8 @@ const file_management_v1_node_proto_rawDesc = "" +
 	"\x0eagent_password\x18\x0f \x01(\tR\ragentPassword\x12'\n" +
 	"\x0fexpose_exporter\x18\x10 \x01(\bR\x0eexposeExporter\x12\x1f\n" +
 	"\vinstance_id\x18\x11 \x01(\tR\n" +
-	"instanceId\x1a?\n" +
+	"instanceId\x12R\n" +
+	"\x12connection_timeout\x18\x12 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xfd\x01\n" +
@@ -1248,10 +1259,11 @@ var (
 		nil,                            // 15: management.v1.UniversalNode.CustomLabelsEntry
 		(v1.NodeType)(0),               // 16: inventory.v1.NodeType
 		(MetricsMode)(0),               // 17: management.v1.MetricsMode
-		(*v1.GenericNode)(nil),         // 18: inventory.v1.GenericNode
-		(*v1.ContainerNode)(nil),       // 19: inventory.v1.ContainerNode
-		(*v1.PMMAgent)(nil),            // 20: inventory.v1.PMMAgent
-		(*timestamppb.Timestamp)(nil),  // 21: google.protobuf.Timestamp
+		(*durationpb.Duration)(nil),    // 18: google.protobuf.Duration
+		(*v1.GenericNode)(nil),         // 19: inventory.v1.GenericNode
+		(*v1.ContainerNode)(nil),       // 20: inventory.v1.ContainerNode
+		(*v1.PMMAgent)(nil),            // 21: inventory.v1.PMMAgent
+		(*timestamppb.Timestamp)(nil),  // 22: google.protobuf.Timestamp
 	}
 )
 
@@ -1261,23 +1273,24 @@ var file_management_v1_node_proto_depIdxs = []int32{
 	16, // 2: management.v1.RegisterNodeRequest.node_type:type_name -> inventory.v1.NodeType
 	12, // 3: management.v1.RegisterNodeRequest.custom_labels:type_name -> management.v1.RegisterNodeRequest.CustomLabelsEntry
 	17, // 4: management.v1.RegisterNodeRequest.metrics_mode:type_name -> management.v1.MetricsMode
-	18, // 5: management.v1.RegisterNodeResponse.generic_node:type_name -> inventory.v1.GenericNode
-	19, // 6: management.v1.RegisterNodeResponse.container_node:type_name -> inventory.v1.ContainerNode
-	20, // 7: management.v1.RegisterNodeResponse.pmm_agent:type_name -> inventory.v1.PMMAgent
-	15, // 8: management.v1.UniversalNode.custom_labels:type_name -> management.v1.UniversalNode.CustomLabelsEntry
-	21, // 9: management.v1.UniversalNode.created_at:type_name -> google.protobuf.Timestamp
-	21, // 10: management.v1.UniversalNode.updated_at:type_name -> google.protobuf.Timestamp
-	0,  // 11: management.v1.UniversalNode.status:type_name -> management.v1.UniversalNode.Status
-	14, // 12: management.v1.UniversalNode.agents:type_name -> management.v1.UniversalNode.Agent
-	13, // 13: management.v1.UniversalNode.services:type_name -> management.v1.UniversalNode.Service
-	16, // 14: management.v1.ListNodesRequest.node_type:type_name -> inventory.v1.NodeType
-	6,  // 15: management.v1.ListNodesResponse.nodes:type_name -> management.v1.UniversalNode
-	6,  // 16: management.v1.GetNodeResponse.node:type_name -> management.v1.UniversalNode
-	17, // [17:17] is the sub-list for method output_type
-	17, // [17:17] is the sub-list for method input_type
-	17, // [17:17] is the sub-list for extension type_name
-	17, // [17:17] is the sub-list for extension extendee
-	0,  // [0:17] is the sub-list for field type_name
+	18, // 5: management.v1.RegisterNodeRequest.connection_timeout:type_name -> google.protobuf.Duration
+	19, // 6: management.v1.RegisterNodeResponse.generic_node:type_name -> inventory.v1.GenericNode
+	20, // 7: management.v1.RegisterNodeResponse.container_node:type_name -> inventory.v1.ContainerNode
+	21, // 8: management.v1.RegisterNodeResponse.pmm_agent:type_name -> inventory.v1.PMMAgent
+	15, // 9: management.v1.UniversalNode.custom_labels:type_name -> management.v1.UniversalNode.CustomLabelsEntry
+	22, // 10: management.v1.UniversalNode.created_at:type_name -> google.protobuf.Timestamp
+	22, // 11: management.v1.UniversalNode.updated_at:type_name -> google.protobuf.Timestamp
+	0,  // 12: management.v1.UniversalNode.status:type_name -> management.v1.UniversalNode.Status
+	14, // 13: management.v1.UniversalNode.agents:type_name -> management.v1.UniversalNode.Agent
+	13, // 14: management.v1.UniversalNode.services:type_name -> management.v1.UniversalNode.Service
+	16, // 15: management.v1.ListNodesRequest.node_type:type_name -> inventory.v1.NodeType
+	6,  // 16: management.v1.ListNodesResponse.nodes:type_name -> management.v1.UniversalNode
+	6,  // 17: management.v1.GetNodeResponse.node:type_name -> management.v1.UniversalNode
+	18, // [18:18] is the sub-list for method output_type
+	18, // [18:18] is the sub-list for method input_type
+	18, // [18:18] is the sub-list for extension type_name
+	18, // [18:18] is the sub-list for extension extendee
+	0,  // [0:18] is the sub-list for field type_name
 }
 
 func init() { file_management_v1_node_proto_init() }

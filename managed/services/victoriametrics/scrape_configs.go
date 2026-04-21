@@ -37,14 +37,40 @@ func ScrapeTimeout(interval time.Duration) config.Duration {
 	return scrapeTimeout(interval)
 }
 
+const (
+	exporterScrapeIntervalCap    = 0.9
+	exporterScrapeTimeoutFloorMs = 100
+)
+
 // scrapeTimeout returns default scrape timeout for given scrape interval.
 func scrapeTimeout(interval time.Duration) config.Duration {
 	switch {
 	case interval <= 2*time.Second:
 		return config.Duration(time.Second)
 	default:
-		return config.Duration(float64(interval) * 0.9) //nolint:mnd
+		return config.Duration(float64(interval) * exporterScrapeIntervalCap)
 	}
+}
+
+func boundedExporterScrapeTimeout(interval, timeout time.Duration) time.Duration {
+	maxT := time.Duration(float64(interval) * exporterScrapeIntervalCap)
+	timeout = max(timeout, exporterScrapeTimeoutFloorMs*time.Millisecond)
+	return min(timeout, maxT)
+}
+
+// exporterScrapeTimeout overrides ScrapeTimeout from agent ExporterOptions.ConnectionTimeout when set.
+// Used for exporter HTTP scrapes where ConnectionTimeout is treated as Prometheus scrape timeout.
+// PMM floors custom values to 100ms and caps them at 0.9 of scrape interval. For very
+// small intervals the cap takes precedence, so the effective timeout may still end up
+// below 100ms to satisfy Prometheus scrape_timeout constraints:
+// https://prometheus.io/docs/prometheus/latest/configuration/configuration/
+func exporterScrapeTimeout(cfg *config.ScrapeConfig, agent *models.Agent) {
+	if cfg == nil || agent == nil || agent.ExporterOptions.ConnectionTimeout == nil {
+		return
+	}
+	cfg.ScrapeTimeout = config.Duration(
+		boundedExporterScrapeTimeout(time.Duration(cfg.ScrapeInterval), *agent.ExporterOptions.ConnectionTimeout),
+	)
 }
 
 func scrapeConfigForClickhouse(mr time.Duration, pmmServerNodeName string) *config.ScrapeConfig {
@@ -236,9 +262,9 @@ func scrapeConfigForStandardExporter(intervalName string, interval time.Duration
 }
 
 // scrapeConfigForRDSExporter returns scrape config for single rds_exporter configuration.
-func scrapeConfigForRDSExporter(intervalName string, interval time.Duration, hostport string, metricsPath string) *config.ScrapeConfig {
+func scrapeConfigForRDSExporter(intervalName string, interval time.Duration, hostport string, metricsPath string, exporterTimeout time.Duration) *config.ScrapeConfig {
 	jobName := fmt.Sprintf("rds_exporter_%s_%s-%s", strings.Map(jobNameMapping, hostport), intervalName, interval)
-	return &config.ScrapeConfig{
+	cfg := &config.ScrapeConfig{
 		JobName:        jobName,
 		ScrapeInterval: config.Duration(interval),
 		ScrapeTimeout:  scrapeTimeout(interval),
@@ -250,6 +276,10 @@ func scrapeConfigForRDSExporter(intervalName string, interval time.Duration, hos
 			}},
 		},
 	}
+	if exporterTimeout > 0 {
+		cfg.ScrapeTimeout = config.Duration(boundedExporterScrapeTimeout(interval, exporterTimeout))
+	}
+	return cfg
 }
 
 func scrapeConfigsForNodeExporter(params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
@@ -312,12 +342,15 @@ func scrapeConfigsForNodeExporter(params *scrapeConfigParams) ([]*config.ScrapeC
 
 	var r []*config.ScrapeConfig
 	if hr != nil {
+		exporterScrapeTimeout(hr, params.agent)
 		r = append(r, hr)
 	}
 	if mr != nil {
+		exporterScrapeTimeout(mr, params.agent)
 		r = append(r, mr)
 	}
 	if lr != nil {
+		exporterScrapeTimeout(lr, params.agent)
 		r = append(r, lr)
 	}
 	return r, nil
@@ -536,11 +569,21 @@ func scrapeConfigsForProxySQLExporter(params *scrapeConfigParams) ([]*config.Scr
 }
 
 func scrapeConfigsForRDSExporter(params []*scrapeConfigParams) []*config.ScrapeConfig {
-	hostportMap := make(map[string]*models.MetricsResolutions, len(params))
+	type rdsHost struct {
+		res         *models.MetricsResolutions
+		maxExporter time.Duration
+	}
+	hostportMap := make(map[string]*rdsHost, len(params))
 	for _, p := range params {
 		port := int(*p.agent.ListenPort)
 		hostport := net.JoinHostPort(p.host, strconv.Itoa(port))
-		hostportMap[hostport] = p.metricsResolution
+		if _, ok := hostportMap[hostport]; !ok {
+			hostportMap[hostport] = &rdsHost{res: p.metricsResolution}
+		}
+		h := hostportMap[hostport]
+		if pointer.GetDuration(p.agent.ExporterOptions.ConnectionTimeout) > h.maxExporter {
+			h.maxExporter = *p.agent.ExporterOptions.ConnectionTimeout
+		}
 	}
 
 	hostports := make([]string, 0, len(hostportMap))
@@ -551,9 +594,9 @@ func scrapeConfigsForRDSExporter(params []*scrapeConfigParams) []*config.ScrapeC
 
 	r := make([]*config.ScrapeConfig, 0, len(hostports)*2) //nolint:mnd
 	for _, hostport := range hostports {
-		metricsResolutions := hostportMap[hostport]
-		mr := scrapeConfigForRDSExporter("mr", metricsResolutions.MR, hostport, "/enhanced")
-		lr := scrapeConfigForRDSExporter("lr", metricsResolutions.LR, hostport, "/basic")
+		h := hostportMap[hostport]
+		mr := scrapeConfigForRDSExporter("mr", h.res.MR, hostport, "/enhanced", h.maxExporter)
+		lr := scrapeConfigForRDSExporter("lr", h.res.LR, hostport, "/basic", h.maxExporter)
 		r = append(r, mr, lr)
 	}
 
@@ -573,6 +616,7 @@ func scrapeConfigsForAzureDatabase(s *models.MetricsResolutions, params *scrapeC
 		ScrapeTimeout:  scrapeTimeout(interval),
 		MetricsPath:    "/metrics",
 	}
+	exporterScrapeTimeout(cfg, params.agent)
 
 	port := int(*params.agent.ListenPort)
 	hostport := net.JoinHostPort(params.host, strconv.Itoa(port))
@@ -601,6 +645,7 @@ func scrapeConfigsForExternalExporter(s *models.MetricsResolutions, params *scra
 		Scheme:         params.agent.ExporterOptions.MetricsScheme,
 		MetricsPath:    params.agent.ExporterOptions.MetricsPath,
 	}
+	exporterScrapeTimeout(cfg, params.agent)
 
 	if pointer.GetString(params.agent.Username) != "" {
 		cfg.HTTPClientConfig.BasicAuth = &config.BasicAuth{

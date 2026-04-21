@@ -959,6 +959,11 @@
                   "description": "AWS instance ID.",
                   "type": "string",
                   "x-order": 16
+                },
+                "connection_timeout": {
+                  "description": "Connection timeout for exporter (if set).",
+                  "type": "string",
+                  "x-order": 17
                 }
               }
             }
@@ -3386,6 +3391,11 @@
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
                       "x-order": 18
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 19
                     }
                   },
                   "x-order": 5
@@ -5645,6 +5655,11 @@
                             "AGENT_STATUS_UNKNOWN"
                           ],
                           "x-order": 13
+                        },
+                        "connection_timeout": {
+                          "description": "Connection timeout for exporter (if set).",
+                          "type": "string",
+                          "x-order": 14
                         }
                       },
                       "x-order": 1
@@ -5821,6 +5836,11 @@
                             "AGENT_STATUS_UNKNOWN"
                           ],
                           "x-order": 13
+                        },
+                        "connection_timeout": {
+                          "description": "Connection timeout for exporter (if set).",
+                          "type": "string",
+                          "x-order": 14
                         }
                       },
                       "x-order": 1
@@ -6002,6 +6022,11 @@
                             }
                           },
                           "x-order": 14
+                        },
+                        "connection_timeout": {
+                          "description": "Connection timeout for exporter (if set).",
+                          "type": "string",
+                          "x-order": 15
                         }
                       },
                       "x-order": 1
