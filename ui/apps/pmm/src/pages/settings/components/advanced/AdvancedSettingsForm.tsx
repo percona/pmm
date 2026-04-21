@@ -12,6 +12,7 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import WarningIcon from '@mui/icons-material/Warning';
 import { TextInput, SwitchInput } from '@percona/percona-ui';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { FC, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
@@ -32,10 +33,11 @@ import {
   convertHoursStringToSeconds,
   convertSecondsToDays,
 } from './Advanced.utils';
+import { AdvancedSettingsFormProps } from './AdvancedSettingsForm.types';
 import {
-  AdvancedSettingsFormProps,
   AdvancedSettingsFormValues,
-} from './AdvancedSettingsForm.types';
+  advancedSettingsSchema,
+} from './AdvancedSettingsForm.schema';
 import { SettingsFieldLabel } from '../settings-field-label';
 import { SettingsSubmitButton } from '../settings-submit-button';
 import { formControlClasses } from '@mui/material/FormControl';
@@ -48,6 +50,7 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
   const intervals = convertCheckIntervalsToHours(settings.advisorRunIntervals);
 
   const methods = useForm<AdvancedSettingsFormValues>({
+    resolver: zodResolver(advancedSettingsSchema),
     defaultValues: {
       retention: String(
         convertSecondsToDays(
@@ -134,21 +137,6 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
 
   const m = Messages.advanced;
 
-  const validateRetention = (v: string) => {
-    const n = parseFloat(v);
-    if (isNaN(n) || v === '') return 'Required';
-    if (n < MIN_DAYS || n > MAX_DAYS)
-      return `Must be between ${MIN_DAYS} and ${MAX_DAYS}`;
-    return true;
-  };
-
-  const validateInterval = (v: string) => {
-    const n = parseFloat(v);
-    if (isNaN(n) || v === '') return 'Required';
-    if (n < MIN_STT_CHECK_INTERVAL) return `Min ${MIN_STT_CHECK_INTERVAL}`;
-    return true;
-  };
-
   return (
     <FormProvider {...methods}>
       <Stack
@@ -199,7 +187,6 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
           <Stack direction="row" alignItems="baseline" gap={1}>
             <TextInput
               name="retention"
-              controllerProps={{ rules: { validate: validateRetention } }}
               textFieldProps={{
                 type: 'number',
                 slotProps: {
@@ -362,7 +349,6 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
                     key={name}
                     name={name}
                     label={label}
-                    controllerProps={{ rules: { validate: validateInterval } }}
                     textFieldProps={{
                       type: 'number',
                       slotProps: {

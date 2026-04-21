@@ -6,6 +6,12 @@ export const Messages = {
     advanced: 'Advanced settings',
   },
   advanced: {
+    validation: {
+      required: 'Required',
+      retentionRange: (min: number, max: number) =>
+        `Must be between ${min} and ${max}`,
+      intervalMin: (min: number) => `Min ${min}`,
+    },
     retentionLabel: 'Data retention',
     retentionTooltip:
       'How long PMM keeps collected data. Older data is automatically deleted.',
