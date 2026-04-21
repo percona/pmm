@@ -15,6 +15,7 @@ export interface DateTimePickerInputProps<T extends PickerValidDate>
   control?: Control;
   controllerProps?: UseControllerProps;
   name: string;
+  onBlur?: React.FocusEventHandler<HTMLDivElement>;
   /**
    * Shortcut for common value shapes stored in form state.
    * - 'date'       → identity (form state holds a `Date`). **Default.**
