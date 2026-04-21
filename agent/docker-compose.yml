@@ -11,7 +11,6 @@ services:
       - PMM_DEV_ADVISOR_CHECKS_FILE=/srv/checks/custom-checks.yml
       # for check-dev
       # - PMM_DEV_PERCONA_PLATFORM_ADDRESS=check-dev.percona.com:443
-      # - PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY=RWTg+ZmCCjt7O8eWeAmTLAqW+1ozUbpRSKSwNTmO+exlS5KEIPYWuYdX
     volumes:
       - ./testdata/checks:/srv/checks
 
@@ -45,7 +44,7 @@ services:
       - ./testdata/mysql:/mysql
 
   mongo:
-    image: ${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
+    image: ${MONGO_IMAGE:-percona/percona-server-mongodb:6.0}
     container_name: pmm-agent_mongo
     command:
       - --profile=2
@@ -60,7 +59,7 @@ services:
       - ./testdata/mongo/var/log/mongodb:/var/log/mongodb
 
   mongo_with_tls:
-    image: ${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
+    image: ${MONGO_IMAGE:-percona/percona-server-mongodb:6.0}
     container_name: pmm-agent_mongo_with_tls
     command:
       - --profile=2
@@ -78,17 +77,17 @@ services:
       - ./testdata/mongo/var/log/mongodb:/var/log/mongodb
 
   mongonoauth:
-    image: ${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
+    image: ${MONGO_IMAGE:-percona/percona-server-mongodb:6.0}
     container_name: pmm-agent_mongonoauth
     command: --profile=2 -bind_ip=0.0.0.0 --noauth
     ports:
       - "127.0.0.1:27019:27017"
 
   mongo_repl:
-    image: ${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
+    image: ${MONGO_IMAGE:-percona/percona-server-mongodb:6.0}
     container_name: pmm-agent_mongorepl
     environment:
-      - MONGO_IMAGE=${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
+      - MONGO_IMAGE=${MONGO_IMAGE:-percona/percona-server-mongodb:6.0}
     volumes:
       - ./testscripts/:/scripts
     command: /scripts/mongo_repl.sh
@@ -97,11 +96,11 @@ services:
       - "127.0.0.1:27021:27021"
 
   mongo_repl_with_tls:
-    image: ${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
+    image: ${MONGO_IMAGE:-percona/percona-server-mongodb:6.0}
     container_name: pmm-agent_mongorepl_with_tls
     command: /scripts/mongo_repl_with_tls.sh
     environment:
-      - MONGO_IMAGE=${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
+      - MONGO_IMAGE=${MONGO_IMAGE:-percona/percona-server-mongodb:6.0}
     ports:
       - "127.0.0.1:27022:27022"
       - "127.0.0.1:27023:27023"
@@ -110,7 +109,7 @@ services:
       - ${PWD}/utils/tests/testdata/mongodb:/etc/tls/certificates
 
   postgres:
-    image: ${POSTGRES_IMAGE:-postgres:11}
+    image: ${POSTGRES_IMAGE:-postgres:14}
     container_name: pmm-agent_postgres
     command: >
       -c shared_preload_libraries='${PG_PRELOADED_LIBS:-pg_stat_statements}'

@@ -1,13 +1,20 @@
 # PMM Development Guide for AI Agents
 
-<!-- SINGLE ENTRY POINT for all AI coding assistants (Claude Code, Cursor, GitHub Copilot, etc.)
-     Compatibility shims that point here:
-       - CLAUDE.md              (Claude Code auto-discovery)
-       - .cursorrules           (Cursor auto-discovery)
-       - .github/copilot-instructions.md  (GitHub Copilot auto-discovery)
-     Component-specific guides:
-       - .github/instructions/<component>.instructions.md  (GitHub Copilot applyTo scoping)
-     Last reviewed: 2026-03 -->
+## Maintaining This Document
+
+This file is read by every AI agent at session start. **You are responsible for keeping it accurate.** After completing work, check whether any of these apply:
+
+- Added, removed, or renamed a top-level directory or component
+- Added or removed a component guide in `.github/instructions/`
+- Changed the tech stack (new dependency in `go.mod`, new tool, removed technology)
+- Changed build targets in `Makefile` / `Makefile.include`
+- Changed global conventions (code style, error handling, testing patterns)
+- Changed architecture or data-flow (new pipeline, changed communication protocol)
+- Changed the development environment (`docker-compose.yml`, `.devcontainer/`)
+
+If any apply, update the relevant sections of this file. Also update the matching component guide in `.github/instructions/` if one exists for the affected area.
+
+Do **not** update this file for routine code changes (bug fixes, minor feature implementation) that don't alter the repo's structure or conventions.
 
 ## How This Documentation Is Organized
 
@@ -26,6 +33,8 @@ Each PMM component has a dedicated guide with architecture, directory structure,
 | **qan-api2** (query analytics) | [qan-api2.instructions.md](.github/instructions/qan-api2.instructions.md) | `qan-api2/**` |
 | **vmproxy** (VictoriaMetrics proxy) | [vmproxy.instructions.md](.github/instructions/vmproxy.instructions.md) | `vmproxy/**` |
 | **UI** (React frontend) | [ui.instructions.md](.github/instructions/ui.instructions.md) | `ui/**` |
+| **Dashboards** (Grafana dashboard definitions) | [dashboards.instructions.md](.github/instructions/dashboards.instructions.md) | `dashboards/dashboards/**` |
+| **QAN App** (Grafana plugin & QAN panel) | [qan-app.instructions.md](.github/instructions/qan-app.instructions.md) | `dashboards/pmm-app/**` |
 | **API Tests** (integration tests) | [api-tests.instructions.md](.github/instructions/api-tests.instructions.md) | `api-tests/**` |
 | **Build & Packaging** | [build.instructions.md](.github/instructions/build.instructions.md) | `build/**` |
 
@@ -102,6 +111,8 @@ Relationships:
 | `/qan-api2` | qan-api2 | Query Analytics API: ClickHouse ingestion and analytics | [qan-api2.instructions.md](.github/instructions/qan-api2.instructions.md) |
 | `/vmproxy` | vmproxy | VictoriaMetrics reverse proxy with LBAC filtering | [vmproxy.instructions.md](.github/instructions/vmproxy.instructions.md) |
 | `/ui` | UI | React/TypeScript PMM frontend (Vite, MUI, TanStack Query) | [ui.instructions.md](.github/instructions/ui.instructions.md) |
+| `/dashboards/dashboards` | Grafana Dashboards | Grafana dashboard JSON definitions for MySQL, MongoDB, PostgreSQL, OS, and more | [dashboards.instructions.md](.github/instructions/dashboards.instructions.md) |
+| `/dashboards/pmm-app` | QAN App | Grafana application plugin bundling dashboards and the Query Analytics panel | [qan-app.instructions.md](.github/instructions/qan-app.instructions.md) |
 | `/api-tests` | API Tests | Integration tests against live PMM Server | [api-tests.instructions.md](.github/instructions/api-tests.instructions.md) |
 | `/build` | Build & Packaging | Docker, RPM/DEB, Packer, Ansible | [build.instructions.md](.github/instructions/build.instructions.md) |
 
@@ -120,7 +131,6 @@ Relationships:
 
 | Repository | Purpose |
 |------------|---------|
-| [percona/grafana-dashboards](https://github.com/percona/grafana-dashboards) | PMM Grafana dashboards for database monitoring |
 | [percona/grafana](https://github.com/percona/grafana) | Percona's Grafana fork with PMM customizations |
 | [percona/node_exporter](https://github.com/percona/node_exporter) | Machine-level metrics exporter |
 | [percona/mysqld_exporter](https://github.com/percona/mysqld_exporter) | MySQL server metrics exporter |
@@ -230,7 +240,8 @@ All long-running daemons expose on `127.0.0.1`:
 ## Key Files to Reference
 
 - `Makefile`, `Makefile.include` — build and development targets
-- `docker-compose.yml` — development environment (PMM Server, renderer, watchtower)
+- `docker-compose.dev.yml` — development environment (PMM Server, renderer, watchtower)
+- `docker-compose.yml` — community/quickstart compose (stable image, minimal config)
 - `go.mod` — Go module definition
 - `.golangci.yml` — linter configuration
 - `.mockery.yaml` — mock generation configuration
