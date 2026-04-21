@@ -17,6 +17,7 @@ package agents
 
 import (
 	"fmt"
+	"math"
 	"sort"
 	"strconv"
 	"strings"
@@ -30,6 +31,8 @@ import (
 	"github.com/percona/pmm/managed/utils/collectors"
 	"github.com/percona/pmm/version"
 )
+
+const postgresRemoteCloudDefaultDialTimeout = 5 * time.Second
 
 var (
 	postgresExporterAutodiscoveryVersion = version.MustParse("2.15.99")
@@ -125,21 +128,27 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 	sort.Strings(args)
 
 	dsnParams := models.DSNParams{
-		DialTimeout:              1 * time.Second,
 		Database:                 service.DatabaseName,
 		PostgreSQLSupportsSSLSNI: !pmmAgentVersion.Less(postgresSSLSniVersion),
 	}
 
-	// On AWS and Azure, we need to have a higher value for DialTimeout to avoid connection issues
+	var connectionTimeout time.Duration
 
-	// TODO: refactor with https://perconadev.atlassian.net/browse/PMM-12832
-	if node.NodeType == models.RemoteRDSNodeType {
-		dsnParams.DialTimeout = 5 * time.Second
+	// Remote RDS / Azure: default 5s dial unless the user set ExporterOptions.ConnectionTimeout.
+	switch {
+	case exporter.AzureOptions.ClientID != "",
+		node.NodeType == models.RemoteRDSNodeType:
+		connectionTimeout = pointer.GetDuration(exporter.ExporterOptions.ConnectionTimeout)
+		if connectionTimeout == 0 {
+			connectionTimeout = postgresRemoteCloudDefaultDialTimeout
+		}
+	default:
+		connectionTimeout = exporter.EffectiveDialTimeout()
 	}
-
-	if exporter.AzureOptions.ClientID != "" {
-		dsnParams.DialTimeout = 5 * time.Second
-	}
+	// PostgreSQL uses whole-second connection timeout values, so round up once here
+	// before rendering the connection string to avoid truncating sub-second values to 0.
+	connectionTimeout = time.Second * time.Duration(max(1, int(math.Ceil(connectionTimeout.Seconds()))))
+	dsnParams.DialTimeout = connectionTimeout
 
 	res := &agentv1.SetStateRequest_AgentProcess{
 		Type:               inventoryv1.AgentType_AGENT_TYPE_POSTGRES_EXPORTER,

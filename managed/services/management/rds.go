@@ -39,6 +39,7 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/duration"
 	"github.com/percona/pmm/utils/logger"
 )
 
@@ -320,7 +321,8 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 					RDSEnhancedMetricsDisabled: req.DisableEnhancedMetrics,
 				},
 				ExporterOptions: models.ExporterOptions{
-					PushMetrics: isPushMode(metricsMode),
+					PushMetrics:       isPushMode(metricsMode),
+					ConnectionTimeout: duration.OptionalFromProto(req.ConnectionTimeout),
 				},
 			})
 			if err != nil {
@@ -364,7 +366,8 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				TLS:           req.Tls,
 				TLSSkipVerify: req.TlsSkipVerify,
 				ExporterOptions: models.ExporterOptions{
-					PushMetrics: isPushMode(metricsMode),
+					PushMetrics:       isPushMode(metricsMode),
+					ConnectionTimeout: duration.OptionalFromProto(req.ConnectionTimeout),
 				},
 				MySQLOptions: models.MySQLOptions{
 					TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
@@ -445,7 +448,8 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				TLS:           req.Tls,
 				TLSSkipVerify: req.TlsSkipVerify,
 				ExporterOptions: models.ExporterOptions{
-					PushMetrics: isPushMode(metricsMode),
+					PushMetrics:       isPushMode(metricsMode),
+					ConnectionTimeout: duration.OptionalFromProto(req.ConnectionTimeout),
 				},
 				MySQLOptions: models.MySQLOptions{
 					TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,

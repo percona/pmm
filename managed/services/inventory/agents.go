@@ -30,6 +30,7 @@ import (
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/duration"
 	"github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/utils/logger"
 )
@@ -172,7 +173,7 @@ func (as *AgentsService) AddNodeExporter(ctx context.Context, p *inventoryv1.Add
 	var agent *inventoryv1.NodeExporter
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		row, err := models.CreateNodeExporter(tx.Querier, p.PmmAgentId, p.CustomLabels, p.PushMetrics, p.ExposeExporter,
-			p.DisableCollectors, nil, services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR))
+			p.DisableCollectors, nil, services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR), duration.OptionalFromProto(p.ConnectionTimeout))
 		if err != nil {
 			return err
 		}
@@ -213,6 +214,7 @@ func (as *AgentsService) ChangeNodeExporter(ctx context.Context, agentID string,
 		DisabledCollectors: p.DisableCollectors,
 		ExposeExporter:     p.ExposeExporter,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
+		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)
@@ -243,22 +245,24 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, p *inventoryv1.A
 	}
 	mysqlOptions.TableCountTablestatsGroupLimit = p.TablestatsGroupTableLimit
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		exporterOptions := models.ExporterOptions{
+			PushMetrics:        p.PushMetrics,
+			DisabledCollectors: p.DisableCollectors,
+			ExposeExporter:     p.ExposeExporter,
+			ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
+		}
 		params := &models.CreateAgentParams{
-			PMMAgentID:    p.PmmAgentId,
-			ServiceID:     p.ServiceId,
-			Username:      p.Username,
-			Password:      p.Password,
-			AgentPassword: p.AgentPassword,
-			CustomLabels:  p.CustomLabels,
-			TLS:           p.Tls,
-			TLSSkipVerify: p.TlsSkipVerify,
-			ExporterOptions: models.ExporterOptions{
-				PushMetrics:        p.PushMetrics,
-				DisabledCollectors: p.DisableCollectors,
-				ExposeExporter:     p.ExposeExporter,
-			},
-			MySQLOptions: mysqlOptions,
-			LogLevel:     services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
+			PMMAgentID:      p.PmmAgentId,
+			ServiceID:       p.ServiceId,
+			Username:        p.Username,
+			Password:        p.Password,
+			AgentPassword:   p.AgentPassword,
+			CustomLabels:    p.CustomLabels,
+			TLS:             p.Tls,
+			TLSSkipVerify:   p.TlsSkipVerify,
+			ExporterOptions: exporterOptions,
+			MySQLOptions:    mysqlOptions,
+			LogLevel:        services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
 		}
 		var err error
 		row, err = models.CreateAgent(tx.Querier, models.MySQLdExporterType, params)
@@ -330,6 +334,7 @@ func (as *AgentsService) ChangeMySQLdExporter(ctx context.Context, agentID strin
 		DisabledCollectors: p.DisableCollectors,
 		ExposeExporter:     p.ExposeExporter,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
+		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)
@@ -368,6 +373,7 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, p *inventoryv1.
 				PushMetrics:        p.PushMetrics,
 				DisabledCollectors: p.DisableCollectors,
 				ExposeExporter:     p.ExposeExporter,
+				ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 			},
 			LogLevel: services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		}
@@ -449,6 +455,7 @@ func (as *AgentsService) ChangeMongoDBExporter(
 		DisabledCollectors: p.DisableCollectors,
 		ExposeExporter:     p.ExposeExporter,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
+		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)
@@ -698,20 +705,22 @@ func (as *AgentsService) ChangeQANMySQLSlowlogAgent(ctx context.Context, agentID
 func (as *AgentsService) AddPostgresExporter(ctx context.Context, p *inventoryv1.AddPostgresExporterParams) (*inventoryv1.AddAgentResponse, error) {
 	var agent *inventoryv1.PostgresExporter
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		exporterOptions := models.ExporterOptions{
+			PushMetrics:        p.PushMetrics,
+			DisabledCollectors: p.DisableCollectors,
+			ExposeExporter:     p.ExposeExporter,
+			ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
+		}
 		params := &models.CreateAgentParams{
-			PMMAgentID:    p.PmmAgentId,
-			ServiceID:     p.ServiceId,
-			Username:      p.Username,
-			Password:      p.Password,
-			AgentPassword: p.AgentPassword,
-			CustomLabels:  p.CustomLabels,
-			TLS:           p.Tls,
-			TLSSkipVerify: p.TlsSkipVerify,
-			ExporterOptions: models.ExporterOptions{
-				PushMetrics:        p.PushMetrics,
-				DisabledCollectors: p.DisableCollectors,
-				ExposeExporter:     p.ExposeExporter,
-			},
+			PMMAgentID:        p.PmmAgentId,
+			ServiceID:         p.ServiceId,
+			Username:          p.Username,
+			Password:          p.Password,
+			AgentPassword:     p.AgentPassword,
+			CustomLabels:      p.CustomLabels,
+			TLS:               p.Tls,
+			TLSSkipVerify:     p.TlsSkipVerify,
+			ExporterOptions:   exporterOptions,
 			PostgreSQLOptions: models.PostgreSQLOptionsFromRequest(p),
 			LogLevel:          services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
 		}
@@ -782,6 +791,7 @@ func (as *AgentsService) ChangePostgresExporter(ctx context.Context, agentID str
 		DisabledCollectors: p.DisableCollectors,
 		ExposeExporter:     p.ExposeExporter,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
+		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)
@@ -804,21 +814,23 @@ func (as *AgentsService) ChangePostgresExporter(ctx context.Context, agentID str
 func (as *AgentsService) AddValkeyExporter(ctx context.Context, p *inventoryv1.AddValkeyExporterParams) (*inventoryv1.AddAgentResponse, error) {
 	var agent *inventoryv1.ValkeyExporter
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		exporterOptions := models.ExporterOptions{
+			PushMetrics:       p.PushMetrics,
+			ExposeExporter:    p.ExposeExporter,
+			ConnectionTimeout: duration.OptionalFromProto(p.ConnectionTimeout),
+		}
 		params := &models.CreateAgentParams{
-			PMMAgentID:    p.PmmAgentId,
-			ServiceID:     p.ServiceId,
-			Username:      p.Username,
-			Password:      p.Password,
-			AgentPassword: p.AgentPassword,
-			CustomLabels:  p.CustomLabels,
-			TLS:           p.Tls,
-			TLSSkipVerify: p.TlsSkipVerify,
-			LogLevel:      services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
-			ExporterOptions: models.ExporterOptions{
-				PushMetrics:    p.PushMetrics,
-				ExposeExporter: p.ExposeExporter,
-			},
-			ValkeyOptions: models.ValkeyOptionsFromRequest(p),
+			PMMAgentID:      p.PmmAgentId,
+			ServiceID:       p.ServiceId,
+			Username:        p.Username,
+			Password:        p.Password,
+			AgentPassword:   p.AgentPassword,
+			CustomLabels:    p.CustomLabels,
+			TLS:             p.Tls,
+			TLSSkipVerify:   p.TlsSkipVerify,
+			LogLevel:        services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
+			ExporterOptions: exporterOptions,
+			ValkeyOptions:   models.ValkeyOptionsFromRequest(p),
 		}
 		row, err := models.CreateAgent(tx.Querier, models.ValkeyExporterType, params)
 		if err != nil {
@@ -888,6 +900,7 @@ func (as *AgentsService) ChangeValkeyExporter(ctx context.Context, agentID strin
 		DisabledCollectors: p.DisableCollectors,
 		ExposeExporter:     p.ExposeExporter,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
+		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)
@@ -1124,21 +1137,23 @@ func (as *AgentsService) ChangeQANMongoDBMongologAgent(ctx context.Context, agen
 func (as *AgentsService) AddProxySQLExporter(ctx context.Context, p *inventoryv1.AddProxySQLExporterParams) (*inventoryv1.AddAgentResponse, error) {
 	var agent *inventoryv1.ProxySQLExporter
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		exporterOptions := models.ExporterOptions{
+			PushMetrics:        p.PushMetrics,
+			DisabledCollectors: p.DisableCollectors,
+			ExposeExporter:     p.ExposeExporter,
+			ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
+		}
 		params := &models.CreateAgentParams{
-			PMMAgentID:    p.PmmAgentId,
-			ServiceID:     p.ServiceId,
-			Username:      p.Username,
-			Password:      p.Password,
-			AgentPassword: p.AgentPassword,
-			CustomLabels:  p.CustomLabels,
-			TLS:           p.Tls,
-			TLSSkipVerify: p.TlsSkipVerify,
-			ExporterOptions: models.ExporterOptions{
-				PushMetrics:        p.PushMetrics,
-				DisabledCollectors: p.DisableCollectors,
-				ExposeExporter:     p.ExposeExporter,
-			},
-			LogLevel: services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+			PMMAgentID:      p.PmmAgentId,
+			ServiceID:       p.ServiceId,
+			Username:        p.Username,
+			Password:        p.Password,
+			AgentPassword:   p.AgentPassword,
+			CustomLabels:    p.CustomLabels,
+			TLS:             p.Tls,
+			TLSSkipVerify:   p.TlsSkipVerify,
+			ExporterOptions: exporterOptions,
+			LogLevel:        services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		}
 		row, err := models.CreateAgent(tx.Querier, models.ProxySQLExporterType, params)
 		if err != nil {
@@ -1201,6 +1216,7 @@ func (as *AgentsService) ChangeProxySQLExporter(ctx context.Context, agentID str
 		DisabledCollectors: p.DisableCollectors,
 		ExposeExporter:     p.ExposeExporter,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
+		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)
@@ -1451,7 +1467,8 @@ func (as *AgentsService) AddRDSExporter(ctx context.Context, p *inventoryv1.AddR
 			NodeID:       p.NodeId,
 			CustomLabels: p.CustomLabels,
 			ExporterOptions: models.ExporterOptions{
-				PushMetrics: p.PushMetrics,
+				PushMetrics:       p.PushMetrics,
+				ConnectionTimeout: duration.OptionalFromProto(p.ConnectionTimeout),
 			},
 			AWSOptions: models.AWSOptions{
 				AWSAccessKey:               p.AwsAccessKey,
@@ -1513,6 +1530,7 @@ func (as *AgentsService) ChangeRDSExporter(ctx context.Context, agentID string, 
 	params.ExporterOptions = &models.ChangeExporterOptions{
 		PushMetrics:        p.EnablePushMetrics,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
+		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)
@@ -1537,18 +1555,20 @@ func (as *AgentsService) AddExternalExporter(ctx context.Context, p *inventoryv1
 		agent      *inventoryv1.ExternalExporter
 		PMMAgentID *string
 	)
+
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateExternalExporterParams{
-			RunsOnNodeID:  p.RunsOnNodeId,
-			ServiceID:     p.ServiceId,
-			Username:      p.Username,
-			Password:      p.Password,
-			Scheme:        p.Scheme,
-			MetricsPath:   p.MetricsPath,
-			ListenPort:    p.ListenPort,
-			CustomLabels:  p.CustomLabels,
-			PushMetrics:   p.PushMetrics,
-			TLSSkipVerify: p.TlsSkipVerify,
+			RunsOnNodeID:      p.RunsOnNodeId,
+			ServiceID:         p.ServiceId,
+			Username:          p.Username,
+			Password:          p.Password,
+			Scheme:            p.Scheme,
+			MetricsPath:       p.MetricsPath,
+			ListenPort:        p.ListenPort,
+			CustomLabels:      p.CustomLabels,
+			PushMetrics:       p.PushMetrics,
+			TLSSkipVerify:     p.TlsSkipVerify,
+			ConnectionTimeout: duration.OptionalFromProto(p.ConnectionTimeout),
 		}
 		row, err := models.CreateExternalExporter(tx.Querier, params)
 		if err != nil {
@@ -1599,6 +1619,7 @@ func (as *AgentsService) ChangeExternalExporter(ctx context.Context, agentID str
 		MetricsScheme:      p.Scheme,
 		MetricsPath:        p.MetricsPath,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
+		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)
@@ -1630,7 +1651,8 @@ func (as *AgentsService) AddAzureDatabaseExporter(ctx context.Context, p *invent
 			NodeID:       p.NodeId,
 			CustomLabels: p.CustomLabels,
 			ExporterOptions: models.ExporterOptions{
-				PushMetrics: p.PushMetrics,
+				PushMetrics:       p.PushMetrics,
+				ConnectionTimeout: duration.OptionalFromProto(p.ConnectionTimeout),
 			},
 			AzureOptions: models.AzureOptionsFromRequest(p),
 			LogLevel:     services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
@@ -1687,6 +1709,7 @@ func (as *AgentsService) ChangeAzureDatabaseExporter(
 	params.ExporterOptions = &models.ChangeExporterOptions{
 		PushMetrics:        p.EnablePushMetrics,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
+		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)

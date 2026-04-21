@@ -16,6 +16,7 @@ package inventory
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/inventory/v1/json/client"
@@ -65,10 +66,11 @@ type ChangeAgentExternalExporterCommand struct {
 	Username *string `help:"Username for the external exporter"`
 
 	// External-specific options
-	ListenPort    *int64  `help:"Listen port for the external exporter"`
-	MetricsScheme *string `help:"Metrics scheme (http or https)"`
-	MetricsPath   *string `help:"Metrics path"`
-	PushMetrics   *bool   `help:"Enable push metrics with vmagent"`
+	ListenPort        *int64         `help:"Listen port for the external exporter"`
+	MetricsScheme     *string        `help:"Metrics scheme (http or https)"`
+	MetricsPath       *string        `help:"Metrics path"`
+	PushMetrics       *bool          `help:"Enable push metrics with vmagent"`
+	ConnectionTimeout *time.Duration `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
@@ -88,6 +90,7 @@ func (cmd *ChangeAgentExternalExporterCommand) RunCmd() (commands.Result, error)
 		Scheme:            cmd.MetricsScheme,
 		MetricsPath:       cmd.MetricsPath,
 		EnablePushMetrics: cmd.PushMetrics,
+		ConnectionTimeout: commands.DurationString(cmd.ConnectionTimeout),
 	}
 
 	if customLabels != nil {

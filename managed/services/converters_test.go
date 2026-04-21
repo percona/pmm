@@ -54,6 +54,15 @@ func TestToAPIAgent(t *testing.T) {
 	pmmAgent, err := models.CreatePMMAgent(db.Querier, node.NodeID, nil)
 	require.NoError(t, err)
 
+	mysqlService, err := models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
+		ServiceName: "test-mysql",
+		NodeID:      node.NodeID,
+		Address:     pointer.ToString("127.0.0.1"),
+		Port:        pointer.ToUint16(3306),
+		Cluster:     "test-cluster",
+	})
+	require.NoError(t, err)
+
 	type args struct {
 		q     *reform.Querier
 		agent *models.Agent
@@ -93,6 +102,38 @@ func TestToAPIAgent(t *testing.T) {
 				TlsSkipVerify: true,
 				Status:        inventoryv1.AgentStatus_AGENT_STATUS_RUNNING,
 				RtaOptions:    &inventoryv1.RTAOptions{CollectInterval: durationpb.New(2 * time.Second)},
+			},
+			wantErr: nil,
+		},
+		{
+			name: "mysqld exporter with ExporterOptions timeout",
+			args: args{
+				q: db.Querier,
+				agent: &models.Agent{
+					AgentID:    "mysqld-agent-1",
+					PMMAgentID: &pmmAgent.AgentID,
+					ServiceID:  &mysqlService.ServiceID,
+					AgentType:  models.MySQLdExporterType,
+					Disabled:   false,
+					Username:   pointer.To("exporter-user"),
+					Status:     inventoryv1.AgentStatus_name[int32(inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN)],
+					MySQLOptions: models.MySQLOptions{
+						TableCountTablestatsGroupLimit: 1000,
+					},
+					ExporterOptions: models.ExporterOptions{
+						ConnectionTimeout: pointer.ToDuration(9 * time.Second),
+					},
+				},
+			},
+			want: &inventoryv1.MySQLdExporter{
+				AgentId:                   "mysqld-agent-1",
+				PmmAgentId:                pmmAgent.AgentID,
+				ServiceId:                 mysqlService.ServiceID,
+				Username:                  "exporter-user",
+				Disabled:                  false,
+				Status:                    inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
+				TablestatsGroupTableLimit: 1000,
+				ConnectionTimeout:         durationpb.New(9 * time.Second),
 			},
 			wantErr: nil,
 		},

@@ -31,6 +31,7 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/duration"
 	"github.com/percona/pmm/utils/logger"
 )
 
@@ -263,6 +264,9 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 				PMMAgentID:   models.PMMServerAgentID,
 				ServiceID:    service.ServiceID,
 				AzureOptions: models.AzureOptionsFromRequest(req),
+				ExporterOptions: models.ExporterOptions{
+					ConnectionTimeout: duration.OptionalFromProto(req.ConnectionTimeout),
+				},
 			})
 			if err != nil {
 				return err
@@ -277,6 +281,9 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 			Password:      req.Password,
 			TLS:           req.Tls,
 			TLSSkipVerify: req.TlsSkipVerify,
+			ExporterOptions: models.ExporterOptions{
+				ConnectionTimeout: duration.OptionalFromProto(req.ConnectionTimeout),
+			},
 			MySQLOptions: models.MySQLOptions{
 				TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
 			},

@@ -64,7 +64,7 @@ func mongodbExporterConfig(node *models.Node, service *models.Service, exporter 
 		return nil, err
 	}
 	env := []string{
-		fmt.Sprintf("MONGODB_URI=%s", exporter.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: database}, tdp, pmmAgentVersion)),
+		fmt.Sprintf("MONGODB_URI=%s", exporter.DSN(service, models.DSNParams{DialTimeout: exporter.EffectiveDialTimeout(), Database: database}, tdp, pmmAgentVersion)),
 	}
 
 	res := &agentv1.SetStateRequest_AgentProcess{

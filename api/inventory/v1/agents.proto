@@ -129,6 +129,8 @@ message NodeExporter {
   bool expose_exporter = 14;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 15;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 16;
 }
 
 // MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.
@@ -186,6 +188,8 @@ message MySQLdExporter {
   common.MetricsResolutions metrics_resolutions = 26;
   // Extra DSN parameters for MySQL connection.
   map<string, string> extra_dsn_params = 27;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 28;
 }
 
 // MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
@@ -236,6 +240,8 @@ message MongoDBExporter {
   common.MetricsResolutions metrics_resolutions = 28;
   // Environment variable names passed to the exporter.
   repeated string environment_variable_names = 29;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 30;
 }
 
 // PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
@@ -281,6 +287,8 @@ message PostgresExporter {
   int32 max_exporter_connections = 26;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 27;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 28;
 }
 
 // ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
@@ -322,6 +330,8 @@ message ProxySQLExporter {
   bool expose_exporter = 24;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 25;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 26;
 }
 
 // ValkeyExporter runs on Generic or Container Node and exposes Valkey Service metrics.
@@ -361,6 +371,8 @@ message ValkeyExporter {
   bool expose_exporter = 23;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 24;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 25;
 }
 
 // QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
@@ -677,6 +689,8 @@ message RDSExporter {
   int32 auto_discovery_limit = 25;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 26;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 27;
 }
 
 // ExternalExporter runs on any Node type, including Remote Node.
@@ -709,6 +723,8 @@ message ExternalExporter {
   bool tls_skip_verify = 13;
   // Actual Agent status.
   AgentStatus status = 14;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 15;
 }
 
 // AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.
@@ -744,6 +760,8 @@ message AzureDatabaseExporter {
   LogLevel log_level = 14;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 15;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 16;
 }
 
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.
@@ -963,6 +981,10 @@ message AddNodeExporterParams {
   LogLevel log_level = 5;
   // Expose the node_exporter process on all public interfaces
   bool expose_exporter = 6;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 7 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 message ChangeNodeExporterParams {
@@ -980,6 +1002,10 @@ message ChangeNodeExporterParams {
   optional LogLevel log_level = 6;
   // Expose the node_exporter process on all public interfaces.
   optional bool expose_exporter = 7;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 8 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 // Add/Change MySQLdExporter
@@ -1023,6 +1049,10 @@ message AddMySQLdExporterParams {
   bool expose_exporter = 17;
   // Extra DSN parameters for MySQL connection.
   map<string, string> extra_dsn_params = 18;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 19 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 message ChangeMySQLdExporterParams {
@@ -1060,6 +1090,10 @@ message ChangeMySQLdExporterParams {
   optional LogLevel log_level = 16;
   // Optionally expose the exporter process on all public interfaces.
   optional bool expose_exporter = 17;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 18 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 // Add/Change MongoDBExporter
@@ -1113,6 +1147,10 @@ message AddMongoDBExporterParams {
   repeated string environment_variable_names = 21;
   // Enable all collectors.
   bool enable_all_collectors = 22;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 23 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 message ChangeMongoDBExporterParams {
@@ -1158,6 +1196,10 @@ message ChangeMongoDBExporterParams {
   optional LogLevel log_level = 20;
   // Optionally expose the exporter process on all public interfaces.
   optional bool expose_exporter = 21;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 22 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 // Add/Change PostgresExporter
@@ -1199,6 +1241,10 @@ message AddPostgresExporterParams {
   bool expose_exporter = 17;
   // Maximum number of connections that exporter can open to the database instance.
   int32 max_exporter_connections = 18;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 19 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 message ChangePostgresExporterParams {
@@ -1238,6 +1284,10 @@ message ChangePostgresExporterParams {
   optional bool expose_exporter = 17;
   // Maximum number of connections that exporter can open to the database instance.
   optional int32 max_exporter_connections = 18;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 19 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 // Add/Change ProxySQLExporter
@@ -1269,6 +1319,10 @@ message AddProxySQLExporterParams {
   LogLevel log_level = 12;
   // Optionally expose the exporter process on all public interfaces
   bool expose_exporter = 13;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 14 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 message ChangeProxySQLExporterParams {
@@ -1296,6 +1350,10 @@ message ChangeProxySQLExporterParams {
   optional LogLevel log_level = 11;
   // Optionally expose the exporter process on all public interfaces.
   optional bool expose_exporter = 12;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 13 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 // Add/Change QANMySQLPerfSchemaAgent
@@ -1742,6 +1800,10 @@ message AddRDSExporterParams {
   bool push_metrics = 9;
   // Log level for exporter.
   LogLevel log_level = 10;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 11 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 message ChangeRDSExporterParams {
@@ -1763,6 +1825,10 @@ message ChangeRDSExporterParams {
   optional bool disable_enhanced_metrics = 8;
   // Log level for exporter.
   optional LogLevel log_level = 9;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 10 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 // Add/Change ExternalExporter
@@ -1791,6 +1857,10 @@ message AddExternalExporterParams {
   bool push_metrics = 11;
   // Skip TLS certificate and hostname verification.
   bool tls_skip_verify = 12;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 13 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 message ChangeExternalExporterParams {
@@ -1810,6 +1880,10 @@ message ChangeExternalExporterParams {
   optional string metrics_path = 7;
   // Listen port for scraping metrics.
   optional uint32 listen_port = 8;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 9 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 // Add/Change AzureDatabaseExporter
@@ -1839,6 +1913,10 @@ message AddAzureDatabaseExporterParams {
   bool push_metrics = 11;
   // Log level for exporter.
   LogLevel log_level = 12;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 13 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 message ChangeAzureDatabaseExporterParams {
@@ -1862,6 +1940,10 @@ message ChangeAzureDatabaseExporterParams {
   optional string azure_resource_group = 9;
   // Log level for exporter.
   optional LogLevel log_level = 11;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 12 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 message ChangeNomadAgentParams {
@@ -1904,6 +1986,10 @@ message AddValkeyExporterParams {
   bool expose_exporter = 15;
   // Log level for exporter.
   LogLevel log_level = 16;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 17 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 message ChangeValkeyExporterParams {
@@ -1937,6 +2023,10 @@ message ChangeValkeyExporterParams {
   optional bool expose_exporter = 14;
   // Log level for exporter.
   optional LogLevel log_level = 15;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 16 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 // Add/Change RTAMongoDBAgent

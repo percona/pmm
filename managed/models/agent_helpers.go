@@ -669,6 +669,7 @@ func CreateNodeExporter(q *reform.Querier,
 	disableCollectors []string,
 	agentPassword *string,
 	logLevel string,
+	connectionTimeout *time.Duration,
 ) (*Agent, error) {
 	// TODO merge into CreateAgent
 
@@ -691,6 +692,7 @@ func CreateNodeExporter(q *reform.Querier,
 			ExposeExporter:     exposeExporter,
 			PushMetrics:        pushMetrics,
 			DisabledCollectors: disableCollectors,
+			ConnectionTimeout:  connectionTimeout,
 		},
 		LogLevel: pointer.ToStringOrNil(logLevel),
 	}
@@ -719,6 +721,8 @@ type CreateExternalExporterParams struct {
 	CustomLabels  map[string]string
 	PushMetrics   bool
 	TLSSkipVerify bool
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout *time.Duration
 }
 
 // CreateExternalExporter creates ExternalExporter.
@@ -765,6 +769,7 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 	if metricsPath == "" {
 		metricsPath = "/metrics"
 	}
+
 	row := &Agent{
 		PMMAgentID:   pmmAgentID,
 		AgentID:      id,
@@ -775,9 +780,10 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 		Password:     pointer.ToStringOrNil(params.Password),
 		ListenPort:   pointer.ToUint16(uint16(params.ListenPort)),
 		ExporterOptions: ExporterOptions{
-			PushMetrics:   params.PushMetrics,
-			MetricsPath:   metricsPath,
-			MetricsScheme: scheme,
+			PushMetrics:       params.PushMetrics,
+			MetricsPath:       metricsPath,
+			MetricsScheme:     scheme,
+			ConnectionTimeout: params.ConnectionTimeout,
 		},
 		TLSSkipVerify: params.TLSSkipVerify,
 	}
@@ -940,6 +946,11 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		}
 	}
 
+	exporterOptions := params.ExporterOptions
+	if pointer.GetDuration(exporterOptions.ConnectionTimeout) == 0 {
+		exporterOptions.ConnectionTimeout = nil
+	}
+
 	row := &Agent{
 		AgentID:           id,
 		AgentType:         agentType,
@@ -951,7 +962,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		AgentPassword:     pointer.ToStringOrNil(params.AgentPassword),
 		TLS:               params.TLS,
 		TLSSkipVerify:     params.TLSSkipVerify,
-		ExporterOptions:   params.ExporterOptions,
+		ExporterOptions:   exporterOptions,
 		QANOptions:        params.QANOptions,
 		AWSOptions:        params.AWSOptions,
 		AzureOptions:      params.AzureOptions,
@@ -1025,6 +1036,7 @@ type ChangeExporterOptions struct {
 	MetricsScheme      *string
 	MetricsPath        *string
 	MetricsResolutions *ChangeMetricsResolutionsParams
+	ConnectionTimeout  *time.Duration
 }
 
 // ChangeQANOptions contains QANOptions fields that can be changed.
@@ -1184,6 +1196,14 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 		}
 		if params.ExporterOptions.MetricsPath != nil {
 			row.ExporterOptions.MetricsPath = *params.ExporterOptions.MetricsPath
+		}
+
+		if params.ExporterOptions.ConnectionTimeout != nil {
+			if pointer.GetDuration(params.ExporterOptions.ConnectionTimeout) == 0 {
+				row.ExporterOptions.ConnectionTimeout = nil
+			} else {
+				row.ExporterOptions.ConnectionTimeout = params.ExporterOptions.ConnectionTimeout
+			}
 		}
 	}
 
