@@ -100,17 +100,17 @@ Incorrect ownership of the PMM Docker volume typically causes this error. To fix
     curl -fsSL https://www.percona.com/get/pmm | bash
     ```
 
-If the problem persists, remove all unused Docker objects (containers, images, and networks), and try again:
+5. If the problem persists, remove all unused Docker objects (containers, images, and networks), and try again:
 
-```sh
-docker system prune -a
-```
+    ```sh
+    docker system prune -a
+    ```
 
-To remove unused volumes as well, run:
+    To remove unused volumes as well, run:
 
-```sh
-docker system prune -a --volumes
-```
+    ```sh
+    docker system prune -a --volumes
+    ```
 
 !!! warning "Affects all Docker workloads"
     These commands remove unused Docker resources on the host, not just those related to PMM. Only run them if you are sure no other Docker workloads are affected.
