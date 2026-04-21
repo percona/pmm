@@ -21,7 +21,7 @@ export const SshKeyForm: FC<SshKeyFormProps> = ({ settings }) => {
 
   useEffect(() => {
     methods.reset({ sshKey: settings.sshKey ?? '' });
-  }, [settings.sshKey, methods.reset]);
+  }, [settings.sshKey, methods]);
 
   const onSubmit = async (values: SshKeyFormValues) =>
     await updateSettings(

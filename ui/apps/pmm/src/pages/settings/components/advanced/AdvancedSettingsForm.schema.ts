@@ -1,6 +1,10 @@
 import { z } from 'zod';
 import { Messages } from '../../Settings.messages';
-import { MAX_DAYS, MIN_DAYS, MIN_STT_CHECK_INTERVAL } from './Advanced.constants';
+import {
+  MAX_DAYS,
+  MIN_DAYS,
+  MIN_STT_CHECK_INTERVAL,
+} from './Advanced.constants';
 
 const { required, retentionRange, intervalMin } = Messages.advanced.validation;
 

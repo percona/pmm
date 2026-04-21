@@ -31,7 +31,6 @@ import { formControlClasses } from '@mui/material/FormControl';
 export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
   settings,
 }) => {
-  console.log('settings', settings);
   const { mutateAsync: updateSettings } = useUpdateSettings();
   const metricsResolutions = useMemo(
     () => settings?.metricsResolutions ?? DEFAULT_METRICS,
@@ -50,7 +49,7 @@ export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
   useEffect(() => {
     const raw = removeUnits(metricsResolutions);
     methods.reset({ preset: getResolutionPreset(metricsResolutions), ...raw });
-  }, [metricsResolutions, methods.reset]);
+  }, [metricsResolutions, methods]);
 
   useEffect(() => {
     if (currentPreset && currentPreset !== 'custom') {
@@ -62,7 +61,7 @@ export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
         methods.setValue('hr', def.hr, { shouldDirty: false });
       }
     }
-  }, [currentPreset, methods.setValue]);
+  }, [currentPreset, methods]);
 
   const onSubmit = async (values: MetricsResolutionFormValues) => {
     const payload: MetricsResolutions = addUnits({

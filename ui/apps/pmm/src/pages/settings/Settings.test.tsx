@@ -14,13 +14,7 @@ describe('Settings', () => {
   });
 
   it('shows loading state when settings are not yet loaded', () => {
-    render(
-      <TestWrapper>
-        {wrapWithQueryProvider(
-          <Settings />
-        )}
-      </TestWrapper>
-    );
+    render(<TestWrapper>{wrapWithQueryProvider(<Settings />)}</TestWrapper>);
 
     expect(screen.getByTestId('settings-loading')).toBeInTheDocument();
   });
