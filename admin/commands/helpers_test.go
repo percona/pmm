@@ -18,7 +18,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestDurationString(t *testing.T) {
@@ -27,7 +27,7 @@ func TestDurationString(t *testing.T) {
 	t.Run("nil", func(t *testing.T) {
 		t.Parallel()
 
-		assert.Equal(t, "", DurationString(nil))
+		require.Empty(t, DurationString(nil))
 	})
 
 	for _, testCase := range []struct {
@@ -54,7 +54,7 @@ func TestDurationString(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, testCase.expected, DurationString(&testCase.value))
+			require.Equal(t, testCase.expected, DurationString(&testCase.value))
 		})
 	}
 }
