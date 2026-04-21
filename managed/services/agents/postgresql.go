@@ -32,7 +32,7 @@ import (
 	"github.com/percona/pmm/version"
 )
 
-const postgresRemoteCloudDefaultDialTimeout = 5 * time.Second
+const postgresCloudConnectionTimeout = 5 * time.Second
 
 var (
 	postgresExporterAutodiscoveryVersion = version.MustParse("2.15.99")
@@ -134,13 +134,13 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 
 	var connectionTimeout time.Duration
 
-	// Remote RDS / Azure: default 5s dial unless the user set ExporterOptions.ConnectionTimeout.
+	// Remote RDS / Azure: default use postgresCloudConnectionTimeout dial unless the user set ExporterOptions.ConnectionTimeout.
 	switch {
 	case exporter.AzureOptions.ClientID != "",
 		node.NodeType == models.RemoteRDSNodeType:
 		connectionTimeout = pointer.GetDuration(exporter.ExporterOptions.ConnectionTimeout)
 		if connectionTimeout == 0 {
-			connectionTimeout = postgresRemoteCloudDefaultDialTimeout
+			connectionTimeout = postgresCloudConnectionTimeout
 		}
 	default:
 		connectionTimeout = exporter.EffectiveDialTimeout()

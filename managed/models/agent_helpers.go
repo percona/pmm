@@ -1193,12 +1193,10 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 			row.ExporterOptions.MetricsPath = *params.ExporterOptions.MetricsPath
 		}
 
-		if params.ExporterOptions.ConnectionTimeout != nil {
-			if pointer.GetDuration(params.ExporterOptions.ConnectionTimeout) == 0 {
-				row.ExporterOptions.ConnectionTimeout = nil
-			} else {
-				row.ExporterOptions.ConnectionTimeout = params.ExporterOptions.ConnectionTimeout
-			}
+		if pointer.GetDuration(params.ExporterOptions.ConnectionTimeout) == 0 {
+			row.ExporterOptions.ConnectionTimeout = nil
+		} else {
+			row.ExporterOptions.ConnectionTimeout = params.ExporterOptions.ConnectionTimeout
 		}
 	}
 

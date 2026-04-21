@@ -152,7 +152,7 @@ func mysqldExporterConfig(
 
 	// MySQL client connection timeout is configured in whole seconds, so round up
 	// once here and reuse the normalized value for both my.cnf and legacy DSN paths.
-	roundedConnectionTimeout := time.Second * time.Duration(max(1, int(math.Ceil(exporter.EffectiveDialTimeout().Seconds()))))
+	connectionTimeout := time.Second * time.Duration(max(1, int(math.Ceil(exporter.EffectiveDialTimeout().Seconds()))))
 
 	if pmmAgentVersion.IsFeatureSupported(version.MysqlExporterV0_17_2) {
 		if textFiles == nil {
@@ -160,7 +160,7 @@ func mysqldExporterConfig(
 		}
 		res.TextFiles = textFiles
 
-		cfg, err := buildMyCnfConfig(service, exporter, textFiles, roundedConnectionTimeout)
+		cfg, err := buildMyCnfConfig(service, exporter, textFiles, connectionTimeout)
 		if err != nil {
 			return nil, err
 		}
@@ -172,7 +172,7 @@ func mysqldExporterConfig(
 		}
 	} else {
 		env := []string{
-			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, models.DSNParams{DialTimeout: roundedConnectionTimeout, Database: ""}, nil, pmmAgentVersion)),
+			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, models.DSNParams{DialTimeout: connectionTimeout, Database: ""}, nil, pmmAgentVersion)),
 			fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.GetAgentPassword()),
 		}
 		res.Env = env

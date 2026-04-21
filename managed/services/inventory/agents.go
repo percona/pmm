@@ -1552,7 +1552,6 @@ func (as *AgentsService) AddExternalExporter(ctx context.Context, p *inventoryv1
 		agent      *inventoryv1.ExternalExporter
 		PMMAgentID *string
 	)
-
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateExternalExporterParams{
 			RunsOnNodeID:  p.RunsOnNodeId,
