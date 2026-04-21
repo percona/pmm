@@ -173,7 +173,7 @@ func (as *AgentsService) AddNodeExporter(ctx context.Context, p *inventoryv1.Add
 	var agent *inventoryv1.NodeExporter
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		row, err := models.CreateNodeExporter(tx.Querier, p.PmmAgentId, p.CustomLabels, p.PushMetrics, p.ExposeExporter,
-			p.DisableCollectors, nil, services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR), duration.OptionalFromProto(p.ConnectionTimeout))
+			p.DisableCollectors, nil, services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR), nil)
 		if err != nil {
 			return err
 		}
@@ -214,7 +214,6 @@ func (as *AgentsService) ChangeNodeExporter(ctx context.Context, agentID string,
 		DisabledCollectors: p.DisableCollectors,
 		ExposeExporter:     p.ExposeExporter,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
-		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)
@@ -1467,8 +1466,7 @@ func (as *AgentsService) AddRDSExporter(ctx context.Context, p *inventoryv1.AddR
 			NodeID:       p.NodeId,
 			CustomLabels: p.CustomLabels,
 			ExporterOptions: models.ExporterOptions{
-				PushMetrics:       p.PushMetrics,
-				ConnectionTimeout: duration.OptionalFromProto(p.ConnectionTimeout),
+				PushMetrics: p.PushMetrics,
 			},
 			AWSOptions: models.AWSOptions{
 				AWSAccessKey:               p.AwsAccessKey,
@@ -1530,7 +1528,6 @@ func (as *AgentsService) ChangeRDSExporter(ctx context.Context, agentID string, 
 	params.ExporterOptions = &models.ChangeExporterOptions{
 		PushMetrics:        p.EnablePushMetrics,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
-		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)
@@ -1558,17 +1555,16 @@ func (as *AgentsService) AddExternalExporter(ctx context.Context, p *inventoryv1
 
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateExternalExporterParams{
-			RunsOnNodeID:      p.RunsOnNodeId,
-			ServiceID:         p.ServiceId,
-			Username:          p.Username,
-			Password:          p.Password,
-			Scheme:            p.Scheme,
-			MetricsPath:       p.MetricsPath,
-			ListenPort:        p.ListenPort,
-			CustomLabels:      p.CustomLabels,
-			PushMetrics:       p.PushMetrics,
-			TLSSkipVerify:     p.TlsSkipVerify,
-			ConnectionTimeout: duration.OptionalFromProto(p.ConnectionTimeout),
+			RunsOnNodeID:  p.RunsOnNodeId,
+			ServiceID:     p.ServiceId,
+			Username:      p.Username,
+			Password:      p.Password,
+			Scheme:        p.Scheme,
+			MetricsPath:   p.MetricsPath,
+			ListenPort:    p.ListenPort,
+			CustomLabels:  p.CustomLabels,
+			PushMetrics:   p.PushMetrics,
+			TLSSkipVerify: p.TlsSkipVerify,
 		}
 		row, err := models.CreateExternalExporter(tx.Querier, params)
 		if err != nil {
@@ -1619,7 +1615,6 @@ func (as *AgentsService) ChangeExternalExporter(ctx context.Context, agentID str
 		MetricsScheme:      p.Scheme,
 		MetricsPath:        p.MetricsPath,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
-		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)
@@ -1651,8 +1646,7 @@ func (as *AgentsService) AddAzureDatabaseExporter(ctx context.Context, p *invent
 			NodeID:       p.NodeId,
 			CustomLabels: p.CustomLabels,
 			ExporterOptions: models.ExporterOptions{
-				PushMetrics:       p.PushMetrics,
-				ConnectionTimeout: duration.OptionalFromProto(p.ConnectionTimeout),
+				PushMetrics: p.PushMetrics,
 			},
 			AzureOptions: models.AzureOptionsFromRequest(p),
 			LogLevel:     services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
@@ -1709,7 +1703,6 @@ func (as *AgentsService) ChangeAzureDatabaseExporter(
 	params.ExporterOptions = &models.ChangeExporterOptions{
 		PushMetrics:        p.EnablePushMetrics,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
-		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)

@@ -721,8 +721,6 @@ type CreateExternalExporterParams struct {
 	CustomLabels  map[string]string
 	PushMetrics   bool
 	TLSSkipVerify bool
-	// Connection timeout for exporter (if set).
-	ConnectionTimeout *time.Duration
 }
 
 // CreateExternalExporter creates ExternalExporter.
@@ -780,10 +778,9 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 		Password:     pointer.ToStringOrNil(params.Password),
 		ListenPort:   pointer.ToUint16(uint16(params.ListenPort)),
 		ExporterOptions: ExporterOptions{
-			PushMetrics:       params.PushMetrics,
-			MetricsPath:       metricsPath,
-			MetricsScheme:     scheme,
-			ConnectionTimeout: params.ConnectionTimeout,
+			PushMetrics:   params.PushMetrics,
+			MetricsPath:   metricsPath,
+			MetricsScheme: scheme,
 		},
 		TLSSkipVerify: params.TLSSkipVerify,
 	}

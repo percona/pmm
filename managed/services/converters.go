@@ -273,9 +273,6 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			ExposeExporter:     agent.ExporterOptions.ExposeExporter,
 			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 		}
-		if agent.ExporterOptions.ConnectionTimeout != nil {
-			exporter.ConnectionTimeout = durationpb.New(*agent.ExporterOptions.ConnectionTimeout)
-		}
 		return exporter, nil
 
 	case models.MySQLdExporterType:
@@ -508,9 +505,6 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			LogLevel:                inventoryv1.LogLevelAPIValue(agent.LogLevel),
 			MetricsResolutions:      ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 		}
-		if agent.ExporterOptions.ConnectionTimeout != nil {
-			exporter.ConnectionTimeout = durationpb.New(*agent.ExporterOptions.ConnectionTimeout)
-		}
 		return exporter, nil
 
 	case models.ExternalExporterType:
@@ -537,9 +531,6 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			TlsSkipVerify:      agent.TLSSkipVerify,
 			Status:             inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
 		}
-		if agent.ExporterOptions.ConnectionTimeout != nil {
-			ext.ConnectionTimeout = durationpb.New(*agent.ExporterOptions.ConnectionTimeout)
-		}
 		return ext, nil
 
 	case models.AzureDatabaseExporterType:
@@ -556,9 +547,6 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			ProcessExecPath:             processExecPath,
 			LogLevel:                    inventoryv1.LogLevelAPIValue(agent.LogLevel),
 			MetricsResolutions:          ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
-		}
-		if agent.ExporterOptions.ConnectionTimeout != nil {
-			exporter.ConnectionTimeout = durationpb.New(*agent.ExporterOptions.ConnectionTimeout)
 		}
 		return exporter, nil
 

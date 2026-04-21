@@ -16,7 +16,6 @@ package inventory
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/pkg/flags"
@@ -69,10 +68,9 @@ type ChangeAgentNodeExporterCommand struct {
 	Enable *bool `help:"Enable or disable the agent"`
 
 	// Exporter options
-	PushMetrics       *bool          `help:"Enable push metrics with vmagent"`
-	ExposeExporter    *bool          `help:"Expose the exporter process on all public interfaces"`
-	DisableCollectors []string       `help:"List of collector names to disable"`
-	ConnectionTimeout *time.Duration `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
+	PushMetrics       *bool    `help:"Enable push metrics with vmagent"`
+	ExposeExporter    *bool    `help:"Expose the exporter process on all public interfaces"`
+	DisableCollectors []string `help:"List of collector names to disable"`
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
@@ -91,7 +89,6 @@ func (cmd *ChangeAgentNodeExporterCommand) RunCmd() (commands.Result, error) {
 		DisableCollectors: cmd.DisableCollectors,
 		ExposeExporter:    cmd.ExposeExporter,
 		LogLevel:          convertLogLevelPtr(cmd.LogLevel),
-		ConnectionTimeout: commands.DurationString(cmd.ConnectionTimeout),
 	}
 
 	if customLabels != nil {

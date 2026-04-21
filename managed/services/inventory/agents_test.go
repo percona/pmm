@@ -112,37 +112,10 @@ func TestAgents(t *testing.T) {
 				&inventoryv1.ChangeNodeExporterParams{
 					Enable: pointer.ToBool(false),
 					// passing an empty map to remove custom labels
-					CustomLabels:      &common.StringMap{},
-					ConnectionTimeout: durationpb.New(7 * time.Second),
+					CustomLabels: &common.StringMap{},
 					MetricsResolutions: &common.MetricsResolutions{
 						Hr: durationpb.New(10 * time.Second),
 					},
-				},
-			)
-			require.NoError(t, err)
-			expectedNodeExporter = &inventoryv1.NodeExporter{
-				AgentId:           "00000000-0000-4000-8000-000000000006",
-				PmmAgentId:        "00000000-0000-4000-8000-000000000005",
-				Disabled:          true,
-				Status:            inventoryv1.AgentStatus_AGENT_STATUS_DONE,
-				ConnectionTimeout: durationpb.New(7 * time.Second),
-				MetricsResolutions: &common.MetricsResolutions{
-					Hr: durationpb.New(10 * time.Second),
-				},
-			}
-			assert.Equal(t, expectedNodeExporter, actualNodeExporter.GetNodeExporter())
-
-			actualAgent, err := as.Get(ctx, "00000000-0000-4000-8000-000000000006")
-			require.NoError(t, err)
-			assert.Equal(t, expectedNodeExporter, actualAgent.(*inventoryv1.NodeExporter))
-		})
-
-		t.Run("ChangeNodeExporterClearConnectionTimeout", func(t *testing.T) {
-			actualNodeExporter, err := as.ChangeNodeExporter(
-				ctx,
-				"00000000-0000-4000-8000-000000000006",
-				&inventoryv1.ChangeNodeExporterParams{
-					ConnectionTimeout: durationpb.New(0),
 				},
 			)
 			require.NoError(t, err)
@@ -298,65 +271,6 @@ func TestAgents(t *testing.T) {
 				Status:       inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 			}
 			assert.Equal(t, expectedExternalExporter, actualAgent.GetExternalExporter())
-		})
-
-		t.Run("ChangeExternalExporterConnectionTimeout", func(t *testing.T) {
-			as.vmdb.(*mockPrometheusService).On("RequestConfigurationUpdate").Return()
-			as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, models.PMMServerNodeID)
-
-			actualAgent, err := as.ChangeExternalExporter(
-				ctx,
-				"00000000-0000-4000-8000-00000000000e",
-				&inventoryv1.ChangeExternalExporterParams{
-					ConnectionTimeout: durationpb.New(17 * time.Second),
-				},
-			)
-			require.NoError(t, err)
-			expectedExternalExporter = &inventoryv1.ExternalExporter{
-				AgentId:           "00000000-0000-4000-8000-00000000000e",
-				RunsOnNodeId:      models.PMMServerNodeID,
-				ServiceId:         ps.ServiceId,
-				Username:          "username",
-				Scheme:            "http",
-				MetricsPath:       "/metrics",
-				ListenPort:        9222,
-				Status:            inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
-				ConnectionTimeout: durationpb.New(17 * time.Second),
-			}
-			assert.Equal(t, expectedExternalExporter, actualAgent.GetExternalExporter())
-
-			exporter, err := as.Get(ctx, "00000000-0000-4000-8000-00000000000e")
-			require.NoError(t, err)
-			assert.Equal(t, expectedExternalExporter, exporter.(*inventoryv1.ExternalExporter))
-		})
-
-		t.Run("ChangeExternalExporterClearConnectionTimeout", func(t *testing.T) {
-			as.vmdb.(*mockPrometheusService).On("RequestConfigurationUpdate").Return()
-			as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, models.PMMServerNodeID)
-
-			actualAgent, err := as.ChangeExternalExporter(
-				ctx,
-				"00000000-0000-4000-8000-00000000000e",
-				&inventoryv1.ChangeExternalExporterParams{
-					ConnectionTimeout: durationpb.New(0),
-				},
-			)
-			require.NoError(t, err)
-			expectedExternalExporter = &inventoryv1.ExternalExporter{
-				AgentId:      "00000000-0000-4000-8000-00000000000e",
-				RunsOnNodeId: models.PMMServerNodeID,
-				ServiceId:    ps.ServiceId,
-				Username:     "username",
-				Scheme:       "http",
-				MetricsPath:  "/metrics",
-				ListenPort:   9222,
-				Status:       inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
-			}
-			assert.Equal(t, expectedExternalExporter, actualAgent.GetExternalExporter())
-
-			exporter, err := as.Get(ctx, "00000000-0000-4000-8000-00000000000e")
-			require.NoError(t, err)
-			assert.Equal(t, expectedExternalExporter, exporter.(*inventoryv1.ExternalExporter))
 		})
 
 		t.Run("AddValkeyExporter", func(t *testing.T) {
@@ -538,47 +452,40 @@ func TestAgents(t *testing.T) {
 		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "pmm-server")
 
 		agent, err := as.AddRDSExporter(ctx, &inventoryv1.AddRDSExporterParams{
-			PmmAgentId:        "pmm-server",
-			NodeId:            node.NodeId,
-			AwsAccessKey:      "EXAMPLE_ACCESS_KEY",
-			AwsSecretKey:      "EXAMPLE_SECRET_KEY",
-			CustomLabels:      map[string]string{"baz": "qux"},
-			ConnectionTimeout: durationpb.New(19 * time.Second),
+			PmmAgentId:   "pmm-server",
+			NodeId:       node.NodeId,
+			AwsAccessKey: "EXAMPLE_ACCESS_KEY",
+			AwsSecretKey: "EXAMPLE_SECRET_KEY",
+			CustomLabels: map[string]string{"baz": "qux"},
 		})
 		require.NoError(t, err)
 		expectedAgent := &inventoryv1.RDSExporter{
-			AgentId:           "00000000-0000-4000-8000-000000000006",
-			PmmAgentId:        "pmm-server",
-			NodeId:            "00000000-0000-4000-8000-000000000005",
-			AwsAccessKey:      "EXAMPLE_ACCESS_KEY",
-			CustomLabels:      map[string]string{"baz": "qux"},
-			Status:            inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
-			ConnectionTimeout: durationpb.New(19 * time.Second),
+			AgentId:      "00000000-0000-4000-8000-000000000006",
+			PmmAgentId:   "pmm-server",
+			NodeId:       "00000000-0000-4000-8000-000000000005",
+			AwsAccessKey: "EXAMPLE_ACCESS_KEY",
+			CustomLabels: map[string]string{"baz": "qux"},
+			Status:       inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 		}
 		assert.Equal(t, expectedAgent, agent.GetRdsExporter())
 
 		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "pmm-server")
 
-		changedAgent, err := as.ChangeRDSExporter(ctx, "00000000-0000-4000-8000-000000000006", &inventoryv1.ChangeRDSExporterParams{
-			ConnectionTimeout: durationpb.New(23 * time.Second),
-		})
+		changedAgent, err := as.ChangeRDSExporter(ctx, "00000000-0000-4000-8000-000000000006", &inventoryv1.ChangeRDSExporterParams{})
 		require.NoError(t, err)
 		expectedAgent = &inventoryv1.RDSExporter{
-			AgentId:           "00000000-0000-4000-8000-000000000006",
-			PmmAgentId:        "pmm-server",
-			NodeId:            "00000000-0000-4000-8000-000000000005",
-			AwsAccessKey:      "EXAMPLE_ACCESS_KEY",
-			CustomLabels:      map[string]string{"baz": "qux"},
-			Status:            inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
-			ConnectionTimeout: durationpb.New(23 * time.Second),
+			AgentId:      "00000000-0000-4000-8000-000000000006",
+			PmmAgentId:   "pmm-server",
+			NodeId:       "00000000-0000-4000-8000-000000000005",
+			AwsAccessKey: "EXAMPLE_ACCESS_KEY",
+			CustomLabels: map[string]string{"baz": "qux"},
+			Status:       inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 		}
 		assert.Equal(t, expectedAgent, changedAgent.GetRdsExporter())
 
 		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "pmm-server")
 
-		changedAgent, err = as.ChangeRDSExporter(ctx, "00000000-0000-4000-8000-000000000006", &inventoryv1.ChangeRDSExporterParams{
-			ConnectionTimeout: durationpb.New(0),
-		})
+		changedAgent, err = as.ChangeRDSExporter(ctx, "00000000-0000-4000-8000-000000000006", &inventoryv1.ChangeRDSExporterParams{})
 		require.NoError(t, err)
 		expectedAgent = &inventoryv1.RDSExporter{
 			AgentId:      "00000000-0000-4000-8000-000000000006",
@@ -887,13 +794,12 @@ func TestAgents(t *testing.T) {
 		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "pmm-server")
 
 		agent, err := as.AddRDSExporter(ctx, &inventoryv1.AddRDSExporterParams{
-			PmmAgentId:        "pmm-server",
-			NodeId:            node.NodeId,
-			AwsAccessKey:      "EXAMPLE_ACCESS_KEY",
-			AwsSecretKey:      "EXAMPLE_SECRET_KEY",
-			CustomLabels:      map[string]string{"baz": "qux"},
-			PushMetrics:       true,
-			ConnectionTimeout: durationpb.New(29 * time.Second),
+			PmmAgentId:   "pmm-server",
+			NodeId:       node.NodeId,
+			AwsAccessKey: "EXAMPLE_ACCESS_KEY",
+			AwsSecretKey: "EXAMPLE_SECRET_KEY",
+			CustomLabels: map[string]string{"baz": "qux"},
+			PushMetrics:  true,
 		})
 		require.NoError(t, err)
 		expectedAgent := &inventoryv1.RDSExporter{
@@ -904,7 +810,6 @@ func TestAgents(t *testing.T) {
 			CustomLabels:       map[string]string{"baz": "qux"},
 			PushMetricsEnabled: true,
 			Status:             inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
-			ConnectionTimeout:  durationpb.New(29 * time.Second),
 		}
 		assert.Equal(t, expectedAgent, agent.GetRdsExporter())
 	})

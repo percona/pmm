@@ -264,9 +264,6 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 				PMMAgentID:   models.PMMServerAgentID,
 				ServiceID:    service.ServiceID,
 				AzureOptions: models.AzureOptionsFromRequest(req),
-				ExporterOptions: models.ExporterOptions{
-					ConnectionTimeout: duration.OptionalFromProto(req.ConnectionTimeout),
-				},
 			})
 			if err != nil {
 				return err

@@ -33,7 +33,6 @@ import (
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/auth"
-	"github.com/percona/pmm/managed/utils/duration"
 )
 
 // RegisterNode performs the registration of a new node.
@@ -115,7 +114,7 @@ func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.
 		res.PmmAgent = a.(*inventoryv1.PMMAgent) //nolint:forcetypeassert
 
 		_, err = models.CreateNodeExporter(tx.Querier, pmmAgent.AgentID, nil, isPushMode(req.MetricsMode), req.ExposeExporter,
-			req.DisableCollectors, pointer.ToStringOrNil(req.AgentPassword), "", duration.OptionalFromProto(req.ConnectionTimeout))
+			req.DisableCollectors, pointer.ToStringOrNil(req.AgentPassword), "", nil)
 		if err != nil {
 			return err
 		}

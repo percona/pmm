@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package management.v1;
 
-import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "inventory/v1/agents.proto";
 import "inventory/v1/nodes.proto";
@@ -70,10 +69,6 @@ message RegisterNodeRequest {
   bool expose_exporter = 16;
   // AWS instance ID.
   string instance_id = 17;
-  // Connection timeout for exporter (if set).
-  google.protobuf.Duration connection_timeout = 18 [(validate.rules).duration = {
-    gte: {seconds: 0}
-  }];
 }
 
 message RegisterNodeResponse {

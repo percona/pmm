@@ -26,7 +26,6 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
-	"github.com/percona/pmm/managed/utils/duration"
 )
 
 // AddExternal adds an external service based on the provided request.
@@ -101,17 +100,16 @@ func (s *ManagementService) addExternal(ctx context.Context, req *managementv1.A
 		}
 
 		params := &models.CreateExternalExporterParams{
-			RunsOnNodeID:      runsOnNodeID,
-			ServiceID:         service.ServiceID,
-			Username:          req.Username,
-			Password:          req.Password,
-			Scheme:            req.Scheme,
-			MetricsPath:       req.MetricsPath,
-			ListenPort:        req.ListenPort,
-			CustomLabels:      req.CustomLabels,
-			PushMetrics:       isPushMode(req.MetricsMode),
-			TLSSkipVerify:     req.TlsSkipVerify,
-			ConnectionTimeout: duration.OptionalFromProto(req.ConnectionTimeout),
+			RunsOnNodeID:  runsOnNodeID,
+			ServiceID:     service.ServiceID,
+			Username:      req.Username,
+			Password:      req.Password,
+			Scheme:        req.Scheme,
+			MetricsPath:   req.MetricsPath,
+			ListenPort:    req.ListenPort,
+			CustomLabels:  req.CustomLabels,
+			PushMetrics:   isPushMode(req.MetricsMode),
+			TLSSkipVerify: req.TlsSkipVerify,
 		}
 		row, err := models.CreateExternalExporter(tx.Querier, params)
 		if err != nil {

@@ -169,30 +169,6 @@ func TestAddServiceExporterTimeout(t *testing.T) {
 		assert.Equal(t, want, resp.GetValkey().GetValkeyExporter().GetConnectionTimeout())
 	})
 
-	t.Run("External", func(t *testing.T) {
-		vmdb.On("RequestConfigurationUpdate").Once()
-
-		resp, err := s.AddService(ctx, &managementv1.AddServiceRequest{
-			Service: &managementv1.AddServiceRequest_External{
-				External: &managementv1.AddExternalServiceParams{
-					NodeId:              models.PMMServerNodeID,
-					RunsOnNodeId:        models.PMMServerNodeID,
-					ServiceName:         "mgmt-test-external-timeout",
-					Address:             "127.0.0.1",
-					ListenPort:          42000,
-					Scheme:              "http",
-					MetricsPath:         "/metrics",
-					SkipConnectionCheck: true,
-					MetricsMode:         managementv1.MetricsMode_METRICS_MODE_PULL,
-					ConnectionTimeout:   want,
-				},
-			},
-		})
-		require.NoError(t, err)
-		require.NotNil(t, resp.GetExternal())
-		assert.Equal(t, want, resp.GetExternal().GetExternalExporter().GetConnectionTimeout())
-	})
-
 	t.Run("Azure Database", func(t *testing.T) {
 		_, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
 			EnableAzurediscover: pointer.ToBool(true),
@@ -235,7 +211,7 @@ func TestAddServiceExporterTimeout(t *testing.T) {
 			got[agent.AgentType] = pointer.GetDuration(agent.ExporterOptions.ConnectionTimeout)
 		}
 
-		assert.Equal(t, want.AsDuration(), got[models.AzureDatabaseExporterType])
+		assert.Zero(t, got[models.AzureDatabaseExporterType])
 		assert.Equal(t, want.AsDuration(), got[models.MySQLdExporterType])
 	})
 
@@ -261,7 +237,6 @@ func TestAddServiceExporterTimeout(t *testing.T) {
 		})
 		require.NoError(t, err)
 		require.NotNil(t, resp.GetRds())
-		assert.Equal(t, want, resp.GetRds().GetRdsExporter().GetConnectionTimeout())
 		assert.Equal(t, want, resp.GetRds().GetMysqldExporter().GetConnectionTimeout())
 	})
 
@@ -290,7 +265,6 @@ func TestAddServiceExporterTimeout(t *testing.T) {
 		})
 		require.NoError(t, err)
 		require.NotNil(t, resp.GetRds())
-		assert.Equal(t, want, resp.GetRds().GetRdsExporter().GetConnectionTimeout())
 		assert.Equal(t, want, resp.GetRds().GetPostgresqlExporter().GetConnectionTimeout())
 	})
 }

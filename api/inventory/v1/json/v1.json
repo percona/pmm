@@ -273,11 +273,6 @@
                           }
                         },
                         "x-order": 11
-                      },
-                      "connection_timeout": {
-                        "description": "Connection timeout for exporter (if set).",
-                        "type": "string",
-                        "x-order": 12
                       }
                     }
                   },
@@ -1686,11 +1681,6 @@
                           "AGENT_STATUS_UNKNOWN"
                         ],
                         "x-order": 13
-                      },
-                      "connection_timeout": {
-                        "description": "Connection timeout for exporter (if set).",
-                        "type": "string",
-                        "x-order": 14
                       }
                     }
                   },
@@ -1819,11 +1809,6 @@
                           }
                         },
                         "x-order": 14
-                      },
-                      "connection_timeout": {
-                        "description": "Connection timeout for exporter (if set).",
-                        "type": "string",
-                        "x-order": 15
                       }
                     }
                   },
@@ -1941,11 +1926,6 @@
                           }
                         },
                         "x-order": 12
-                      },
-                      "connection_timeout": {
-                        "description": "Connection timeout for exporter (if set).",
-                        "type": "string",
-                        "x-order": 13
                       }
                     }
                   },
@@ -2341,11 +2321,6 @@
                       "type": "boolean",
                       "title": "Expose the node_exporter process on all public interfaces",
                       "x-order": 5
-                    },
-                    "connection_timeout": {
-                      "description": "Connection timeout for exporter (if set).",
-                      "type": "string",
-                      "x-order": 6
                     }
                   },
                   "x-order": 1
@@ -2882,11 +2857,6 @@
                       "description": "Skip TLS certificate and hostname verification.",
                       "type": "boolean",
                       "x-order": 9
-                    },
-                    "connection_timeout": {
-                      "description": "Connection timeout for exporter (if set).",
-                      "type": "string",
-                      "x-order": 10
                     }
                   },
                   "x-order": 6
@@ -2956,11 +2926,6 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 9
-                    },
-                    "connection_timeout": {
-                      "description": "Connection timeout for exporter (if set).",
-                      "type": "string",
-                      "x-order": 10
                     }
                   },
                   "x-order": 7
@@ -3040,11 +3005,6 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 11
-                    },
-                    "connection_timeout": {
-                      "description": "Connection timeout for exporter (if set).",
-                      "type": "string",
-                      "x-order": 12
                     }
                   },
                   "x-order": 8
@@ -3992,11 +3952,6 @@
                         }
                       },
                       "x-order": 11
-                    },
-                    "connection_timeout": {
-                      "description": "Connection timeout for exporter (if set).",
-                      "type": "string",
-                      "x-order": 12
                     }
                   },
                   "x-order": 1
@@ -4733,11 +4688,6 @@
                         "AGENT_STATUS_UNKNOWN"
                       ],
                       "x-order": 13
-                    },
-                    "connection_timeout": {
-                      "description": "Connection timeout for exporter (if set).",
-                      "type": "string",
-                      "x-order": 14
                     }
                   },
                   "x-order": 6
@@ -4863,11 +4813,6 @@
                         }
                       },
                       "x-order": 14
-                    },
-                    "connection_timeout": {
-                      "description": "Connection timeout for exporter (if set).",
-                      "type": "string",
-                      "x-order": 15
                     }
                   },
                   "x-order": 7
@@ -4982,11 +4927,6 @@
                         }
                       },
                       "x-order": 12
-                    },
-                    "connection_timeout": {
-                      "description": "Connection timeout for exporter (if set).",
-                      "type": "string",
-                      "x-order": 13
                     }
                   },
                   "x-order": 8
@@ -6092,11 +6032,6 @@
                         }
                       },
                       "x-order": 11
-                    },
-                    "connection_timeout": {
-                      "description": "Connection timeout for exporter (if set).",
-                      "type": "string",
-                      "x-order": 12
                     }
                   },
                   "x-order": 2
@@ -7472,11 +7407,6 @@
                         "AGENT_STATUS_UNKNOWN"
                       ],
                       "x-order": 13
-                    },
-                    "connection_timeout": {
-                      "description": "Connection timeout for exporter (if set).",
-                      "type": "string",
-                      "x-order": 14
                     }
                   },
                   "x-order": 13
@@ -7602,11 +7532,6 @@
                         }
                       },
                       "x-order": 14
-                    },
-                    "connection_timeout": {
-                      "description": "Connection timeout for exporter (if set).",
-                      "type": "string",
-                      "x-order": 15
                     }
                   },
                   "x-order": 14
@@ -7721,11 +7646,6 @@
                         }
                       },
                       "x-order": 12
-                    },
-                    "connection_timeout": {
-                      "description": "Connection timeout for exporter (if set).",
-                      "type": "string",
-                      "x-order": 13
                     }
                   },
                   "x-order": 15
@@ -8131,11 +8051,6 @@
                       "type": "boolean",
                       "x-nullable": true,
                       "x-order": 6
-                    },
-                    "connection_timeout": {
-                      "description": "Connection timeout for exporter (if set).",
-                      "type": "string",
-                      "x-order": 7
                     }
                   },
                   "x-order": 0
@@ -8822,11 +8737,6 @@
                       "format": "int64",
                       "x-nullable": true,
                       "x-order": 7
-                    },
-                    "connection_timeout": {
-                      "description": "Connection timeout for exporter (if set).",
-                      "type": "string",
-                      "x-order": 8
                     }
                   },
                   "x-order": 5
@@ -8922,11 +8832,6 @@
                       ],
                       "x-nullable": true,
                       "x-order": 8
-                    },
-                    "connection_timeout": {
-                      "description": "Connection timeout for exporter (if set).",
-                      "type": "string",
-                      "x-order": 9
                     }
                   },
                   "x-order": 6
@@ -9028,11 +8933,6 @@
                       ],
                       "x-nullable": true,
                       "x-order": 9
-                    },
-                    "connection_timeout": {
-                      "description": "Connection timeout for exporter (if set).",
-                      "type": "string",
-                      "x-order": 10
                     }
                   },
                   "x-order": 7
@@ -10214,11 +10114,6 @@
                         }
                       },
                       "x-order": 11
-                    },
-                    "connection_timeout": {
-                      "description": "Connection timeout for exporter (if set).",
-                      "type": "string",
-                      "x-order": 12
                     }
                   },
                   "x-order": 0
@@ -10955,11 +10850,6 @@
                         "AGENT_STATUS_UNKNOWN"
                       ],
                       "x-order": 13
-                    },
-                    "connection_timeout": {
-                      "description": "Connection timeout for exporter (if set).",
-                      "type": "string",
-                      "x-order": 14
                     }
                   },
                   "x-order": 5
@@ -11085,11 +10975,6 @@
                         }
                       },
                       "x-order": 14
-                    },
-                    "connection_timeout": {
-                      "description": "Connection timeout for exporter (if set).",
-                      "type": "string",
-                      "x-order": 15
                     }
                   },
                   "x-order": 6
@@ -11204,11 +11089,6 @@
                         }
                       },
                       "x-order": 12
-                    },
-                    "connection_timeout": {
-                      "description": "Connection timeout for exporter (if set).",
-                      "type": "string",
-                      "x-order": 13
                     }
                   },
                   "x-order": 7
