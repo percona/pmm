@@ -38,7 +38,8 @@ Download and install PMM Server using `cURL` or `wget`:
     - can run in Interactive mode to change the default settings:
 
     ```sh
-       curl -fsSLO https://www.percona.com/get/pmm (or wget https://www.percona.com/get/pmm) 
+       curl -fsSLO https://www.percona.com/get/pmm
+       # or: wget https://www.percona.com/get/pmm
        chmod +x pmm
        ./pmm --interactive
     ```
