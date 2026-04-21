@@ -1,11 +1,13 @@
 import Stack from '@mui/material/Stack';
 import { TextInput } from '@percona/percona-ui';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { FC, useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
 import { useUpdateSettings } from 'hooks/api/useSettings';
 import { Messages } from '../../Settings.messages';
-import { SshKeyFormProps, SshKeyFormValues } from './SshKeyForm.types';
+import { SshKeyFormProps } from './SshKeyForm.types';
+import { SshKeyFormValues, sshKeySchema } from './SshKeyForm.schema';
 import { SettingsFieldLabel } from '../settings-field-label';
 import { formControlClasses } from '@mui/material';
 import { SettingsSubmitButton } from '../settings-submit-button';
@@ -13,6 +15,7 @@ import { SettingsSubmitButton } from '../settings-submit-button';
 export const SshKeyForm: FC<SshKeyFormProps> = ({ settings }) => {
   const { mutateAsync: updateSettings, isPending } = useUpdateSettings();
   const methods = useForm<SshKeyFormValues>({
+    resolver: zodResolver(sshKeySchema),
     defaultValues: { sshKey: settings.sshKey ?? '' },
   });
 

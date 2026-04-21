@@ -88,6 +88,9 @@ export const Messages = {
     tooltip:
       'Paste your public SSH key (ssh-rsa format) to enable SSH access to PMM Server.',
     placeholder: 'ssh-rsa AAAA...',
+    validation: {
+      invalidFormat: 'Enter a valid SSH public key (e.g. ssh-rsa, ssh-ed25519)',
+    },
   },
   service: {
     success: 'Settings updated',
