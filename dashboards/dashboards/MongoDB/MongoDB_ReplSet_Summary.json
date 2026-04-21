@@ -1518,7 +1518,7 @@
               }
             ]
           },
-          "unit": "ops"
+          "unit": "ops/sec"
         },
         "overrides": [
           {
@@ -1622,7 +1622,7 @@
               }
             ]
           },
-          "unit": "ops"
+          "unit": "ops/sec"
         },
         "overrides": []
       },
@@ -1644,7 +1644,7 @@
         "maxVizHeight": 300,
         "minVizHeight": 9,
         "minVizWidth": 0,
-        "namePlacement": "auto",
+        "namePlacement": "left",
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
@@ -1663,7 +1663,7 @@
         {
           "editorMode": "code",
           "exemplar": false,
-          "expr": "topk (5, sum by (database,collection) (rate(mongodb_top_queries_count{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$rs_nm\",service_name=~\"$service_name\"})[$interval] or irate(mongodb_top_queries_count{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$rs_nm\",service_name=~\"$service_name\"})[5s]))",
+            "expr": "topk(5, sum by (database, collection) (rate(mongodb_top_queries_count{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$rs_nm\", service_name=~\"$service_name\"}[$__rate_interval])))",
           "hide": false,
           "instant": true,
           "interval": "",
@@ -1793,7 +1793,7 @@
               }
             ]
           },
-          "unit": "ops"
+          "unit": "ops/sec"
         },
         "overrides": []
       },
@@ -1815,7 +1815,7 @@
         "maxVizHeight": 300,
         "minVizHeight": 10,
         "minVizWidth": 0,
-        "namePlacement": "auto",
+        "namePlacement": "left",
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
@@ -1833,7 +1833,7 @@
         {
           "editorMode": "code",
           "exemplar": false,
-          "expr": "topk (5,sum by (database,collection) ((rate(mongodb_top_insert_count{service_name=~\"$service_name\"}+mongodb_top_remove_count{service_name=~\"$service_name\"}+mongodb_top_update_count{service_name=~\"$service_name\"})[$interval]) or (irate(mongodb_top_insert_count{service_name=~\"$service_name\"}+mongodb_top_remove_count{service_name=~\"$service_name\"}+mongodb_top_update_count{service_name=~\"$service_name\"})[5s])))",
+            "expr": "topk(5, sum by (database, collection) (rate(mongodb_top_insert_count{service_name=~\"$service_name\"}[$__rate_interval]) + rate(mongodb_top_remove_count{service_name=~\"$service_name\"}[$__rate_interval]) + rate(mongodb_top_update_count{service_name=~\"$service_name\"}[$__rate_interval])))",
           "instant": true,
           "interval": "",
           "legendFormat": "{{database}}.{{collection}}",

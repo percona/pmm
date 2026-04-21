@@ -69,10 +69,10 @@ Shows the state timeline of MongoDB replica set members during the selected time
 Shows the rate of MongoDB operations per second, including both regular and replicated operations (query, insert, update, delete, getmore), as well as document deletions by TTL indexes. Use this metric to monitor database activity patterns and identify potential performance bottlenecks.
 
 ### Top Hottest Collections by Read
-Shows the five MongoDB collections with the highest read operations per second. Use this to identify your most frequently accessed collections and optimize their performance.
+Shows the five MongoDB collections with the highest read operations per second using a stable rate window. Use this to identify your most frequently accessed collections and optimize their performance.
 
 ### Top Hottest Collections by Write
-Shows the five MongoDB collections with the highest write operations (inserts, updates, and deletes) per second. Use this to identify your most frequently modified collections and optimize their write performance.
+Shows the five MongoDB collections with the highest write operations (inserts, updates, and deletes) per second using a stable rate window. Use this to identify your most frequently modified collections and optimize their write performance.
 
 ### Query Efficiency
 Shows the ratio of documents or index entries scanned versus documents returned. A ratio of 1 indicates optimal query performance where each scanned document matches the query criteria. 

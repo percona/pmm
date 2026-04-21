@@ -678,7 +678,7 @@
               }
             ]
           },
-          "unit": "ops"
+          "unit": "ops/sec"
         },
         "overrides": []
       },
@@ -1353,7 +1353,7 @@
         "maxVizHeight": 300,
         "minVizHeight": 10,
         "minVizWidth": 0,
-        "namePlacement": "auto",
+        "namePlacement": "left",
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
@@ -1557,7 +1557,7 @@
         "maxVizHeight": 300,
         "minVizHeight": 10,
         "minVizWidth": 0,
-        "namePlacement": "auto",
+        "namePlacement": "left",
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
@@ -1573,25 +1573,15 @@
       },
       "pluginVersion": "11.6.4",
       "targets": [
-        {
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "topk (5,sum by (environment, cluster,database,collection) (irate(mongodb_top_queries_count{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$set\", service_name=~\"$service_name\"}[5s]) or irate(mongodb_top_queries_count{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$set\", service_name=~\"$service_name\"})[$interval]))",
-          "hide": true,
-          "instant": true,
-          "legendFormat": "{{database}}.{{collection}}",
-          "range": false,
-          "refId": "B"
-        },
-        {
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "topk (5,sum by (environment, cluster,database,collection) ((rate(mongodb_top_queries_count{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$set\", service_name=~\"$service_name\"})[$interval]) or irate(mongodb_top_queries_count{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$set\", service_name=~\"$service_name\"})[5s]))",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "{{database}}.{{collection}}",
-          "range": false,
+          {
+            "editorMode": "code",
+            "exemplar": false,
+            "expr": "topk(5, sum by (environment, cluster, database, collection) (rate(mongodb_top_queries_count{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$set\", service_name=~\"$service_name\"}[$__rate_interval])))",
+            "hide": false,
+            "instant": true,
+            "interval": "",
+            "legendFormat": "{{database}}.{{collection}}",
+            "range": false,
           "refId": "A"
         }
       ],
@@ -1711,7 +1701,7 @@
               }
             ]
           },
-          "unit": "ops"
+          "unit": "ops/sec"
         },
         "overrides": []
       },
@@ -1733,7 +1723,7 @@
         "maxVizHeight": 300,
         "minVizHeight": 10,
         "minVizWidth": 0,
-        "namePlacement": "auto",
+        "namePlacement": "left",
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
@@ -1748,25 +1738,14 @@
       },
       "pluginVersion": "11.6.4",
       "targets": [
-        {
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "topk (5,sum by (environment,cluster,database,collection) (irate(mongodb_top_insert_count{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$set\", service_name=~\"$service_name\"}+mongodb_top_remove_count{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$set\", service_name=~\"$service_name\"}+mongodb_top_update_count{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$set\", service_name=~\"$service_name\"})[5m]))",
-          "hide": true,
-          "instant": true,
-          "key": "Q-bf62f68c-ad8e-4fb5-83bb-df50324b416b-0",
-          "legendFormat": "{{database}}.{{collection}}",
-          "range": false,
-          "refId": "A"
-        },
-        {
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "topk (5,sum by (environment,cluster,database,collection) ((rate(mongodb_top_insert_count{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$set\", service_name=~\"$service_name\"}+mongodb_top_remove_count{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$set\", service_name=~\"$service_name\"}+mongodb_top_update_count{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$set\", service_name=~\"$service_name\"})[$interval]) or irate(mongodb_top_insert_count{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$set\", service_name=~\"$service_name\"}+mongodb_top_remove_count{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$set\", service_name=~\"$service_name\"}+mongodb_top_update_count{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$set\", service_name=~\"$service_name\"})[5m]))",
-          "hide": false,
-          "instant": true,
-          "legendFormat": "{{database}}.{{collection}}",
-          "range": false,
+          {
+            "editorMode": "code",
+            "exemplar": false,
+            "expr": "topk(5, sum by (environment, cluster, database, collection) (rate(mongodb_top_insert_count{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$set\", service_name=~\"$service_name\"}[$__rate_interval]) + rate(mongodb_top_remove_count{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$set\", service_name=~\"$service_name\"}[$__rate_interval]) + rate(mongodb_top_update_count{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$set\", service_name=~\"$service_name\"}[$__rate_interval])))",
+            "hide": false,
+            "instant": true,
+            "legendFormat": "{{database}}.{{collection}}",
+            "range": false,
           "refId": "B"
         }
       ],
