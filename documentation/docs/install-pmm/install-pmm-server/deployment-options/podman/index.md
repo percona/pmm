@@ -6,14 +6,16 @@ Run PMM Server with Podman based on our [Docker image](https://hub.docker.com/r/
 
 Podman is an open-source, daemonless container engine for developing, managing, and running Open Container Initiative (OCI) containers and container images on Linux systems. It is widely supported across Linux distributions and hosted on [GitHub](https://github.com/containers/podman).
 
-One of Podman's advantages is that it allows non-privileged users to run containers, enhancing security by avoiding elevated permissions. Podman is compatible with Docker; by using an alias (`alias docker=podman`), you can run Docker commands seamlessly with Podman. All instructions in the Docker section apply to Podman as well.
+One of Podman's main benefits is that non-privileged users can run containers without elevated permissions. Podman is largely compatible with Docker commands. If needed, you can set an alias (`alias docker=podman`) and use familiar Docker workflows. 
+
+Most Docker-based PMM steps work with Podman, but follow the Podman-specific update and systemd instructions in this topic.
 
 Choose Podman deployment when:
 
-- Security is a priority and you need rootless container execution
-- Your organization has security policies restricting the use of Docker daemon
-- You're running in environments where fine-grained permission control is required
-- You need systemd integration for better service management
+- security is a priority and you need rootless container execution
+- your organization has security policies restricting the use of Docker daemon
+- you're running in environments where fine-grained permission control is required
+- you need systemd integration for better service management
 
 
 !!! tip "Recommended setup for best performance"
@@ -49,7 +51,7 @@ Before installing PMM Server with Podman, ensure you have:
 
     - ensure Watchtower is only accessible from within the Podman network or local host to prevent unauthorized access and enhance container security.
     - configure network settings to expose only the PMM Server container to the external network, keeping Watchtower isolated within the Podman network.
-    - grant Watchtower access to the Docker socket to monitor and manage containers effectively, ensuring proper security measures are in place to protect the Docker socket.
+    - grant Watchtower access to the Podman socket (mapped to `/var/run/docker.sock` inside the container) to monitor and manage containers, and protect that socket as a sensitive host interface.
     - verify that both Watchtower and PMM Server are on the same network, or ensure PMM Server can connect to Watchtower for communication. This network setup is essential for PMM Server to initiate updates through Watchtower.
 
 ## Update mechanism
