@@ -18,8 +18,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/AlekSi/pointer"
-
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/pkg/flags"
@@ -217,7 +215,7 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 				AutoDiscoveryLimit:     cmd.AutoDiscoveryLimit,
 				MaxExporterConnections: cmd.MaxExporterConnections,
 				LogLevel:               cmd.LogLevel.EnumValue(),
-				ConnectionTimeout:      pointer.Get(commands.DurationString(cmd.ConnectionTimeout)),
+				ConnectionTimeout:      commands.DurationString(cmd.ConnectionTimeout),
 			},
 		},
 		Context: commands.Ctx,

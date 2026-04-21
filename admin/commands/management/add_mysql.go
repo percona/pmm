@@ -244,7 +244,7 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 				MetricsMode:               cmd.MetricsModeFlags.MetricsMode.EnumValue(),
 				DisableCollectors:         commands.ParseDisableCollectors(cmd.DisableCollectors),
 				LogLevel:                  cmd.LogLevel.EnumValue(),
-				ConnectionTimeout:         pointer.Get(commands.DurationString(cmd.ConnectionTimeout)),
+				ConnectionTimeout:         commands.DurationString(cmd.ConnectionTimeout),
 			},
 		},
 		Context: commands.Ctx,

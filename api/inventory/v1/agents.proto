@@ -1003,7 +1003,7 @@ message ChangeNodeExporterParams {
   // Expose the node_exporter process on all public interfaces.
   optional bool expose_exporter = 7;
   // Connection timeout for exporter (if set).
-  optional google.protobuf.Duration connection_timeout = 8 [(validate.rules).duration = {
+  google.protobuf.Duration connection_timeout = 8 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
 }
@@ -1091,7 +1091,7 @@ message ChangeMySQLdExporterParams {
   // Optionally expose the exporter process on all public interfaces.
   optional bool expose_exporter = 17;
   // Connection timeout for exporter (if set).
-  optional google.protobuf.Duration connection_timeout = 18 [(validate.rules).duration = {
+  google.protobuf.Duration connection_timeout = 18 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
 }
@@ -1197,7 +1197,7 @@ message ChangeMongoDBExporterParams {
   // Optionally expose the exporter process on all public interfaces.
   optional bool expose_exporter = 21;
   // Connection timeout for exporter (if set).
-  optional google.protobuf.Duration connection_timeout = 22 [(validate.rules).duration = {
+  google.protobuf.Duration connection_timeout = 22 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
 }
@@ -1285,7 +1285,7 @@ message ChangePostgresExporterParams {
   // Maximum number of connections that exporter can open to the database instance.
   optional int32 max_exporter_connections = 18;
   // Connection timeout for exporter (if set).
-  optional google.protobuf.Duration connection_timeout = 19 [(validate.rules).duration = {
+  google.protobuf.Duration connection_timeout = 19 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
 }
@@ -1351,7 +1351,7 @@ message ChangeProxySQLExporterParams {
   // Optionally expose the exporter process on all public interfaces.
   optional bool expose_exporter = 12;
   // Connection timeout for exporter (if set).
-  optional google.protobuf.Duration connection_timeout = 13 [(validate.rules).duration = {
+  google.protobuf.Duration connection_timeout = 13 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
 }
@@ -1826,7 +1826,7 @@ message ChangeRDSExporterParams {
   // Log level for exporter.
   optional LogLevel log_level = 9;
   // Connection timeout for exporter (if set).
-  optional google.protobuf.Duration connection_timeout = 10 [(validate.rules).duration = {
+  google.protobuf.Duration connection_timeout = 10 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
 }
@@ -1881,7 +1881,7 @@ message ChangeExternalExporterParams {
   // Listen port for scraping metrics.
   optional uint32 listen_port = 8;
   // Connection timeout for exporter (if set).
-  optional google.protobuf.Duration connection_timeout = 9 [(validate.rules).duration = {
+  google.protobuf.Duration connection_timeout = 9 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
 }
@@ -1941,7 +1941,7 @@ message ChangeAzureDatabaseExporterParams {
   // Log level for exporter.
   optional LogLevel log_level = 11;
   // Connection timeout for exporter (if set).
-  optional google.protobuf.Duration connection_timeout = 12 [(validate.rules).duration = {
+  google.protobuf.Duration connection_timeout = 12 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
 }
@@ -2024,7 +2024,7 @@ message ChangeValkeyExporterParams {
   // Log level for exporter.
   optional LogLevel log_level = 15;
   // Connection timeout for exporter (if set).
-  optional google.protobuf.Duration connection_timeout = 16 [(validate.rules).duration = {
+  google.protobuf.Duration connection_timeout = 16 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
 }

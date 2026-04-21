@@ -162,7 +162,7 @@ func (cmd *AddValkeyCommand) RunCmd() (commands.Result, error) {
 				TLSKey:            tlsKey,
 				MetricsMode:       cmd.MetricsModeFlags.MetricsMode.EnumValue(),
 				LogLevel:          cmd.LogLevel.EnumValue(),
-				ConnectionTimeout: pointer.Get(commands.DurationString(cmd.ConnectionTimeout)),
+				ConnectionTimeout: commands.DurationString(cmd.ConnectionTimeout),
 			},
 		},
 		Context: commands.Ctx,

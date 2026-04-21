@@ -155,7 +155,7 @@ func (cmd *AddAgentMysqldExporterCommand) RunCmd() (commands.Result, error) {
 				ExposeExporter:            cmd.ExposeExporter,
 				DisableCollectors:         commands.ParseDisableCollectors(cmd.DisableCollectors),
 				LogLevel:                  cmd.LogLevel.EnumValue(),
-				ConnectionTimeout:         pointer.Get(commands.DurationString(cmd.ConnectionTimeout)),
+				ConnectionTimeout:         commands.DurationString(cmd.ConnectionTimeout),
 			},
 		},
 		Context: commands.Ctx,

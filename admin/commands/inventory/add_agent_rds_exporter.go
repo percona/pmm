@@ -17,8 +17,6 @@ package inventory
 import (
 	"time"
 
-	"github.com/AlekSi/pointer"
-
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/pkg/flags"
 	"github.com/percona/pmm/api/inventory/v1/json/client"
@@ -81,7 +79,7 @@ func (cmd *AddAgentRDSExporterCommand) RunCmd() (commands.Result, error) {
 				DisableEnhancedMetrics: cmd.DisableEnhancedMetrics,
 				PushMetrics:            cmd.PushMetrics,
 				LogLevel:               cmd.LogLevel.EnumValue(),
-				ConnectionTimeout:      pointer.Get(commands.DurationString(cmd.ConnectionTimeout)),
+				ConnectionTimeout:      commands.DurationString(cmd.ConnectionTimeout),
 			},
 		},
 		Context: commands.Ctx,

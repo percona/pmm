@@ -20,8 +20,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AlekSi/pointer"
-
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/pkg/flags"
@@ -144,7 +142,7 @@ func (cmd *AddExternalCommand) RunCmd() (commands.Result, error) {
 				Group:               cmd.Group,
 				SkipConnectionCheck: cmd.SkipConnectionCheck,
 				TLSSkipVerify:       cmd.TLSSkipVerify,
-				ConnectionTimeout:   pointer.Get(commands.DurationString(cmd.ConnectionTimeout)),
+				ConnectionTimeout:   commands.DurationString(cmd.ConnectionTimeout),
 			},
 		},
 		Context: commands.Ctx,

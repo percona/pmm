@@ -108,7 +108,7 @@ func (cmd *AddAgentMongodbExporterCommand) RunCmd() (commands.Result, error) {
 				StatsCollections:              commands.ParseDisableCollectors(cmd.StatsCollections),
 				CollectionsLimit:              cmd.CollectionsLimit,
 				LogLevel:                      cmd.LogLevel.EnumValue(),
-				ConnectionTimeout:             pointer.Get(commands.DurationString(cmd.ConnectionTimeout)),
+				ConnectionTimeout:             commands.DurationString(cmd.ConnectionTimeout),
 			},
 		},
 		Context: commands.Ctx,

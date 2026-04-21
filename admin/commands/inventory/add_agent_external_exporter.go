@@ -86,7 +86,7 @@ func (cmd *AddAgentExternalExporterCommand) RunCmd() (commands.Result, error) {
 				CustomLabels:      pointer.Get(customLabels),
 				PushMetrics:       cmd.PushMetrics,
 				TLSSkipVerify:     cmd.TLSSkipVerify,
-				ConnectionTimeout: pointer.Get(commands.DurationString(cmd.ConnectionTimeout)),
+				ConnectionTimeout: commands.DurationString(cmd.ConnectionTimeout),
 			},
 		},
 		Context: commands.Ctx,

@@ -8896,6 +8896,36 @@ func (m *ChangeNodeExporterParams) validate(all bool) error {
 		}
 	}
 
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = ChangeNodeExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := ChangeNodeExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
 	if m.Enable != nil {
 		// no validation rules for Enable
 	}
@@ -8941,38 +8971,6 @@ func (m *ChangeNodeExporterParams) validate(all bool) error {
 
 	if m.ExposeExporter != nil {
 		// no validation rules for ExposeExporter
-	}
-
-	if m.ConnectionTimeout != nil {
-		if d := m.GetConnectionTimeout(); d != nil {
-			dur, err := d.AsDuration(), d.CheckValid()
-			if err != nil {
-				err = ChangeNodeExporterParamsValidationError{
-					field:  "ConnectionTimeout",
-					reason: "value is not a valid duration",
-					cause:  err,
-				}
-				if !all {
-					return err
-				}
-				errors = append(errors, err)
-			} else {
-
-				gte := time.Duration(0*time.Second + 0*time.Nanosecond)
-
-				if dur < gte {
-					err := ChangeNodeExporterParamsValidationError{
-						field:  "ConnectionTimeout",
-						reason: "value must be greater than or equal to 0s",
-					}
-					if !all {
-						return err
-					}
-					errors = append(errors, err)
-				}
-
-			}
-		}
 	}
 
 	if len(errors) > 0 {
@@ -9299,6 +9297,36 @@ func (m *ChangeMySQLdExporterParams) validate(all bool) error {
 		}
 	}
 
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = ChangeMySQLdExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := ChangeMySQLdExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
 	if m.Enable != nil {
 		// no validation rules for Enable
 	}
@@ -9384,38 +9412,6 @@ func (m *ChangeMySQLdExporterParams) validate(all bool) error {
 
 	if m.ExposeExporter != nil {
 		// no validation rules for ExposeExporter
-	}
-
-	if m.ConnectionTimeout != nil {
-		if d := m.GetConnectionTimeout(); d != nil {
-			dur, err := d.AsDuration(), d.CheckValid()
-			if err != nil {
-				err = ChangeMySQLdExporterParamsValidationError{
-					field:  "ConnectionTimeout",
-					reason: "value is not a valid duration",
-					cause:  err,
-				}
-				if !all {
-					return err
-				}
-				errors = append(errors, err)
-			} else {
-
-				gte := time.Duration(0*time.Second + 0*time.Nanosecond)
-
-				if dur < gte {
-					err := ChangeMySQLdExporterParamsValidationError{
-						field:  "ConnectionTimeout",
-						reason: "value must be greater than or equal to 0s",
-					}
-					if !all {
-						return err
-					}
-					errors = append(errors, err)
-				}
-
-			}
-		}
 	}
 
 	if len(errors) > 0 {
@@ -9737,6 +9733,36 @@ func (m *ChangeMongoDBExporterParams) validate(all bool) error {
 		}
 	}
 
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = ChangeMongoDBExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := ChangeMongoDBExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
 	if m.Enable != nil {
 		// no validation rules for Enable
 	}
@@ -9834,38 +9860,6 @@ func (m *ChangeMongoDBExporterParams) validate(all bool) error {
 
 	if m.ExposeExporter != nil {
 		// no validation rules for ExposeExporter
-	}
-
-	if m.ConnectionTimeout != nil {
-		if d := m.GetConnectionTimeout(); d != nil {
-			dur, err := d.AsDuration(), d.CheckValid()
-			if err != nil {
-				err = ChangeMongoDBExporterParamsValidationError{
-					field:  "ConnectionTimeout",
-					reason: "value is not a valid duration",
-					cause:  err,
-				}
-				if !all {
-					return err
-				}
-				errors = append(errors, err)
-			} else {
-
-				gte := time.Duration(0*time.Second + 0*time.Nanosecond)
-
-				if dur < gte {
-					err := ChangeMongoDBExporterParamsValidationError{
-						field:  "ConnectionTimeout",
-						reason: "value must be greater than or equal to 0s",
-					}
-					if !all {
-						return err
-					}
-					errors = append(errors, err)
-				}
-
-			}
-		}
 	}
 
 	if len(errors) > 0 {
@@ -10193,6 +10187,36 @@ func (m *ChangePostgresExporterParams) validate(all bool) error {
 		}
 	}
 
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = ChangePostgresExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := ChangePostgresExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
 	if m.Enable != nil {
 		// no validation rules for Enable
 	}
@@ -10282,38 +10306,6 @@ func (m *ChangePostgresExporterParams) validate(all bool) error {
 
 	if m.MaxExporterConnections != nil {
 		// no validation rules for MaxExporterConnections
-	}
-
-	if m.ConnectionTimeout != nil {
-		if d := m.GetConnectionTimeout(); d != nil {
-			dur, err := d.AsDuration(), d.CheckValid()
-			if err != nil {
-				err = ChangePostgresExporterParamsValidationError{
-					field:  "ConnectionTimeout",
-					reason: "value is not a valid duration",
-					cause:  err,
-				}
-				if !all {
-					return err
-				}
-				errors = append(errors, err)
-			} else {
-
-				gte := time.Duration(0*time.Second + 0*time.Nanosecond)
-
-				if dur < gte {
-					err := ChangePostgresExporterParamsValidationError{
-						field:  "ConnectionTimeout",
-						reason: "value must be greater than or equal to 0s",
-					}
-					if !all {
-						return err
-					}
-					errors = append(errors, err)
-				}
-
-			}
-		}
 	}
 
 	if len(errors) > 0 {
@@ -10631,6 +10623,36 @@ func (m *ChangeProxySQLExporterParams) validate(all bool) error {
 		}
 	}
 
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = ChangeProxySQLExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := ChangeProxySQLExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
 	if m.Enable != nil {
 		// no validation rules for Enable
 	}
@@ -10696,38 +10718,6 @@ func (m *ChangeProxySQLExporterParams) validate(all bool) error {
 
 	if m.ExposeExporter != nil {
 		// no validation rules for ExposeExporter
-	}
-
-	if m.ConnectionTimeout != nil {
-		if d := m.GetConnectionTimeout(); d != nil {
-			dur, err := d.AsDuration(), d.CheckValid()
-			if err != nil {
-				err = ChangeProxySQLExporterParamsValidationError{
-					field:  "ConnectionTimeout",
-					reason: "value is not a valid duration",
-					cause:  err,
-				}
-				if !all {
-					return err
-				}
-				errors = append(errors, err)
-			} else {
-
-				gte := time.Duration(0*time.Second + 0*time.Nanosecond)
-
-				if dur < gte {
-					err := ChangeProxySQLExporterParamsValidationError{
-						field:  "ConnectionTimeout",
-						reason: "value must be greater than or equal to 0s",
-					}
-					if !all {
-						return err
-					}
-					errors = append(errors, err)
-				}
-
-			}
-		}
 	}
 
 	if len(errors) > 0 {
@@ -13302,6 +13292,36 @@ func (m *ChangeRDSExporterParams) validate(all bool) error {
 		}
 	}
 
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = ChangeRDSExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := ChangeRDSExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
 	if m.Enable != nil {
 		// no validation rules for Enable
 	}
@@ -13359,38 +13379,6 @@ func (m *ChangeRDSExporterParams) validate(all bool) error {
 
 	if m.LogLevel != nil {
 		// no validation rules for LogLevel
-	}
-
-	if m.ConnectionTimeout != nil {
-		if d := m.GetConnectionTimeout(); d != nil {
-			dur, err := d.AsDuration(), d.CheckValid()
-			if err != nil {
-				err = ChangeRDSExporterParamsValidationError{
-					field:  "ConnectionTimeout",
-					reason: "value is not a valid duration",
-					cause:  err,
-				}
-				if !all {
-					return err
-				}
-				errors = append(errors, err)
-			} else {
-
-				gte := time.Duration(0*time.Second + 0*time.Nanosecond)
-
-				if dur < gte {
-					err := ChangeRDSExporterParamsValidationError{
-						field:  "ConnectionTimeout",
-						reason: "value must be greater than or equal to 0s",
-					}
-					if !all {
-						return err
-					}
-					errors = append(errors, err)
-				}
-
-			}
-		}
 	}
 
 	if len(errors) > 0 {
@@ -13694,6 +13682,36 @@ func (m *ChangeExternalExporterParams) validate(all bool) error {
 		}
 	}
 
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = ChangeExternalExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := ChangeExternalExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
 	if m.Enable != nil {
 		// no validation rules for Enable
 	}
@@ -13747,38 +13765,6 @@ func (m *ChangeExternalExporterParams) validate(all bool) error {
 
 	if m.ListenPort != nil {
 		// no validation rules for ListenPort
-	}
-
-	if m.ConnectionTimeout != nil {
-		if d := m.GetConnectionTimeout(); d != nil {
-			dur, err := d.AsDuration(), d.CheckValid()
-			if err != nil {
-				err = ChangeExternalExporterParamsValidationError{
-					field:  "ConnectionTimeout",
-					reason: "value is not a valid duration",
-					cause:  err,
-				}
-				if !all {
-					return err
-				}
-				errors = append(errors, err)
-			} else {
-
-				gte := time.Duration(0*time.Second + 0*time.Nanosecond)
-
-				if dur < gte {
-					err := ChangeExternalExporterParamsValidationError{
-						field:  "ConnectionTimeout",
-						reason: "value must be greater than or equal to 0s",
-					}
-					if !all {
-						return err
-					}
-					errors = append(errors, err)
-				}
-
-			}
-		}
 	}
 
 	if len(errors) > 0 {
@@ -14098,6 +14084,36 @@ func (m *ChangeAzureDatabaseExporterParams) validate(all bool) error {
 		}
 	}
 
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = ChangeAzureDatabaseExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := ChangeAzureDatabaseExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
 	if m.Enable != nil {
 		// no validation rules for Enable
 	}
@@ -14159,38 +14175,6 @@ func (m *ChangeAzureDatabaseExporterParams) validate(all bool) error {
 
 	if m.LogLevel != nil {
 		// no validation rules for LogLevel
-	}
-
-	if m.ConnectionTimeout != nil {
-		if d := m.GetConnectionTimeout(); d != nil {
-			dur, err := d.AsDuration(), d.CheckValid()
-			if err != nil {
-				err = ChangeAzureDatabaseExporterParamsValidationError{
-					field:  "ConnectionTimeout",
-					reason: "value is not a valid duration",
-					cause:  err,
-				}
-				if !all {
-					return err
-				}
-				errors = append(errors, err)
-			} else {
-
-				gte := time.Duration(0*time.Second + 0*time.Nanosecond)
-
-				if dur < gte {
-					err := ChangeAzureDatabaseExporterParamsValidationError{
-						field:  "ConnectionTimeout",
-						reason: "value must be greater than or equal to 0s",
-					}
-					if !all {
-						return err
-					}
-					errors = append(errors, err)
-				}
-
-			}
-		}
 	}
 
 	if len(errors) > 0 {
@@ -14630,6 +14614,36 @@ func (m *ChangeValkeyExporterParams) validate(all bool) error {
 		}
 	}
 
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = ChangeValkeyExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := ChangeValkeyExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
 	if m.Enable != nil {
 		// no validation rules for Enable
 	}
@@ -14716,38 +14730,6 @@ func (m *ChangeValkeyExporterParams) validate(all bool) error {
 
 	if m.LogLevel != nil {
 		// no validation rules for LogLevel
-	}
-
-	if m.ConnectionTimeout != nil {
-		if d := m.GetConnectionTimeout(); d != nil {
-			dur, err := d.AsDuration(), d.CheckValid()
-			if err != nil {
-				err = ChangeValkeyExporterParamsValidationError{
-					field:  "ConnectionTimeout",
-					reason: "value is not a valid duration",
-					cause:  err,
-				}
-				if !all {
-					return err
-				}
-				errors = append(errors, err)
-			} else {
-
-				gte := time.Duration(0*time.Second + 0*time.Nanosecond)
-
-				if dur < gte {
-					err := ChangeValkeyExporterParamsValidationError{
-						field:  "ConnectionTimeout",
-						reason: "value must be greater than or equal to 0s",
-					}
-					if !all {
-						return err
-					}
-					errors = append(errors, err)
-				}
-
-			}
-		}
 	}
 
 	if len(errors) > 0 {

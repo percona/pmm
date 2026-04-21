@@ -16,15 +16,13 @@ package commands
 
 import (
 	"time"
-
-	"github.com/AlekSi/pointer"
 )
 
 // DurationString returns the string representation of a duration flag.
-func DurationString(value *time.Duration) *string {
+func DurationString(value *time.Duration) string {
 	if value == nil {
-		return nil
+		return ""
 	}
 
-	return pointer.ToString(value.String())
+	return value.String()
 }
