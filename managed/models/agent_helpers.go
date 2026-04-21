@@ -765,7 +765,6 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 	if metricsPath == "" {
 		metricsPath = "/metrics"
 	}
-
 	row := &Agent{
 		PMMAgentID:   pmmAgentID,
 		AgentID:      id,

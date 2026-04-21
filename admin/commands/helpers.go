@@ -15,6 +15,7 @@
 package commands
 
 import (
+	"strconv"
 	"time"
 )
 
@@ -24,5 +25,5 @@ func DurationString(value *time.Duration) string {
 		return ""
 	}
 
-	return value.String()
+	return strconv.FormatFloat(value.Seconds(), 'f', -1, 64) + "s"
 }
