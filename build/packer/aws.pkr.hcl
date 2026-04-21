@@ -12,8 +12,9 @@ packer {
 }
 
 source "amazon-ebs" "amd-agent" {
-  ami_name              = "Jenkins Agent v3"
+  ami_name              = "Jenkins Agent AL amd64"
   instance_type         = "t3.xlarge"
+  # TODO: revert to false after we make sure that the new AMI works fine.
   # force_deregister      = true
   force_delete_snapshot = true
   region                = "us-east-2"
@@ -29,7 +30,7 @@ source "amazon-ebs" "amd-agent" {
   }
   ssh_username = "ec2-user"
   tags = {
-    Name            = "Jenkins Agent x86_64 v3"
+    Name            = "Jenkins Agent AL amd64"
     iit-billing-tag = "pmm-worker-3"
   }
   run_tags = {
@@ -58,8 +59,9 @@ source "amazon-ebs" "amd-agent" {
 }
 
 source "amazon-ebs" "arm-agent" {
-  ami_name              = "Jenkins Agent ARM v3"
+  ami_name              = "Jenkins Agent AL arm64"
   instance_type         = "t4g.xlarge"
+  # TODO: revert to false after we make sure that the new AMI works fine.
   # force_deregister      = true
   force_delete_snapshot = true
   region                = "us-east-2"
@@ -75,7 +77,7 @@ source "amazon-ebs" "arm-agent" {
   }
   ssh_username = "ec2-user"
   tags = {
-    Name            = "Jenkins Agent arm64 v3"
+    Name            = "Jenkins Agent AL arm64"
     iit-billing-tag = "pmm-worker-3"
   }
   run_tags = {
