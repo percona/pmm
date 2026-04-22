@@ -22,20 +22,16 @@ import {
   MAX_DAYS,
   MIN_DAYS,
   MIN_STT_CHECK_INTERVAL,
-  SECONDS_IN_DAY,
   STT_CHECK_INTERVALS,
   TECHNICAL_PREVIEW_DOC_URL,
 } from './Advanced.constants';
 import { MAX_LABEL_WIDTH } from '../../Settings.constants';
-import {
-  convertHoursStringToSeconds,
-} from './Advanced.utils';
 import { AdvancedSettingsFormProps } from './AdvancedSettingsForm.types';
 import {
   AdvancedSettingsFormValues,
   advancedSettingsSchema,
 } from './AdvancedSettingsForm.schema';
-import { toFormValues } from './AdvancedSettingsForm.utils';
+import { toFormValues, toPayload } from './AdvancedSettingsForm.utils';
 import { SettingsFieldLabel } from '../settings-field-label';
 import { SettingsSubmitButton } from '../settings-submit-button';
 import { formControlClasses } from '@mui/material/FormControl';
@@ -61,28 +57,8 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
   }, [settings, reset]);
 
   const onSubmit = async (values: AdvancedSettingsFormValues) => {
-    const retentionNum = parseFloat(values.retention);
-    const dataRetention = `${Math.round(retentionNum * SECONDS_IN_DAY)}s`;
-    const sttCheckIntervals = {
-      rareInterval: `${convertHoursStringToSeconds(values.rareInterval)}s`,
-      standardInterval: `${convertHoursStringToSeconds(values.standardInterval)}s`,
-      frequentInterval: `${convertHoursStringToSeconds(values.frequentInterval)}s`,
-    };
-
     await updateSettings(
-      {
-        dataRetention,
-        pmmPublicAddress: values.publicAddress,
-        enableTelemetry: values.telemetry,
-        enableUpdates: values.updates,
-        enableAlerting: values.alerting,
-        enableBackupManagement: values.backup,
-        enableInternalPgQan: values.enableInternalPgQan,
-        enableAdvisor: values.stt,
-        advisorRunIntervals: values.stt ? sttCheckIntervals : undefined,
-        enableAzurediscover: values.azureDiscover,
-        enableAccessControl: values.accessControl,
-      },
+      toPayload(values),
       {
         onSuccess: () => {
           enqueueSnackbar(Messages.service.success, { variant: 'success' });
