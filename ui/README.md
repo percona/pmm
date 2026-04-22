@@ -38,6 +38,9 @@ make setup
 make dev
 ```
 
+Note: when changing code for dashboards, they will be rebuilt, but we have a polling in place every 5s.
+This means you have to manually refresh the browser in order to see the changes.
+
 ## Build application for production
 
 ```bash
