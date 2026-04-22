@@ -1,15 +1,17 @@
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
-import { useUpdateSettings } from 'hooks/api/useSettings';
 import { Messages } from 'pages/settings/Settings.messages';
 import { FC } from 'react';
 import { useFormContext } from 'react-hook-form';
 
-const SettingsSubmitButton: FC = () => {
+interface Props {
+  testId: string;
+}
+
+const SettingsSubmitButton: FC<Props> = ({ testId }) => {
   const {
-    formState: { isDirty, errors },
+    formState: { isDirty, isSubmitting, errors },
   } = useFormContext();
-  const { isPending } = useUpdateSettings();
 
   return (
     <Stack
@@ -29,11 +31,11 @@ const SettingsSubmitButton: FC = () => {
       <Button
         type="submit"
         variant="contained"
-        disabled={!isDirty || isPending || Object.keys(errors).length > 0}
-        data-testid="ssh-key-submit"
+        disabled={!isDirty || isSubmitting || Object.keys(errors).length > 0}
+        data-testid={testId}
         sx={{ alignSelf: 'flex-start' }}
       >
-        {isPending ? Messages.applying : Messages.applyChanges}
+        {isSubmitting ? Messages.applying : Messages.applyChanges}
       </Button>
     </Stack>
   );

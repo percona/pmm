@@ -62,10 +62,6 @@ export interface GetSettingsResponse {
   settings: Settings;
 }
 
-export interface ChangeSettingsResponse {
-  settings: Settings;
-}
-
 export interface GetFrontendSettingsResponse {
   anonymousEnabled: boolean;
   appSubUrl: string;

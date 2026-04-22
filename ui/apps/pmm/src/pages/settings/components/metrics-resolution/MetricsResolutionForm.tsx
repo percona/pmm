@@ -119,7 +119,7 @@ export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
           mb={2}
           sx={{
             [`.${formControlClasses.root}`]: {
-              margin: 0,
+              margin: -0,
             },
           }}
         >
@@ -163,7 +163,7 @@ export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
             }}
           />
         </Stack>
-        <SettingsSubmitButton />
+        <SettingsSubmitButton testId="metrics-resolution-button" />
       </Stack>
     </FormProvider>
   );

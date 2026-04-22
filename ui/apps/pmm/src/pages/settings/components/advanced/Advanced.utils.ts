@@ -1,5 +1,5 @@
 import { AdvisorRunIntervals } from 'types/settings.types';
-import { HOURS, MINUTES_IN_HOUR, SECONDS_IN_DAY } from './Advanced.constants';
+import { HOURS, MINUTES_IN_DAY, SECONDS_IN_DAY } from './Advanced.constants';
 
 export const convertSecondsToDays = (dataRetention: string): number | '' => {
   if (!dataRetention) return '';
@@ -10,7 +10,7 @@ export const convertSecondsToDays = (dataRetention: string): number | '' => {
     case 'h':
       return value / HOURS;
     case 'm':
-      return value / MINUTES_IN_HOUR;
+      return value / MINUTES_IN_DAY;
     case 's':
       return value / SECONDS_IN_DAY;
     case 'd':

@@ -1,6 +1,6 @@
 import Stack from '@mui/material/Stack';
 import { FC, ReactNode } from 'react';
-import { MAX_LABEL_WIDTH } from '../advanced/Advanced.constants';
+import { MAX_LABEL_WIDTH } from '../../Settings.constants';
 import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
 import { Messages } from '../../Settings.messages';

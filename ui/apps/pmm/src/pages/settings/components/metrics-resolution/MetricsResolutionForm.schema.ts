@@ -20,20 +20,6 @@ const resolutionField = z
     { message: rangeMessage }
   );
 
-const resolutionApiField = z
-  .string()
-  .regex(/^\d+s$/, required)
-  .refine((v) => {
-    const n = parseInt(v, 10);
-    return n >= RESOLUTION_MIN && n <= RESOLUTION_MAX;
-  }, rangeMessage);
-
-export const metricsResolutionsSchema = z.object({
-  hr: resolutionApiField,
-  mr: resolutionApiField,
-  lr: resolutionApiField,
-});
-
 export const metricsResolutionSchema = z.object({
   preset: z.enum(RESOLUTION_PRESETS),
   lr: resolutionField,

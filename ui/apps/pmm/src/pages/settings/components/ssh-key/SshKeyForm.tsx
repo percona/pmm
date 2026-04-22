@@ -69,7 +69,7 @@ export const SshKeyForm: FC<SshKeyFormProps> = ({ settings }) => {
             }}
           />
         </Stack>
-        <SettingsSubmitButton />
+        <SettingsSubmitButton testId="ssh-key-button" />
       </Stack>
     </FormProvider>
   );

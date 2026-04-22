@@ -21,13 +21,13 @@ import { Messages } from '../../Settings.messages';
 import {
   DEFAULT_DATA_RETENTION,
   MAX_DAYS,
-  MAX_LABEL_WIDTH,
   MIN_DAYS,
   MIN_STT_CHECK_INTERVAL,
   SECONDS_IN_DAY,
   STT_CHECK_INTERVALS,
   TECHNICAL_PREVIEW_DOC_URL,
 } from './Advanced.constants';
+import { MAX_LABEL_WIDTH } from '../../Settings.constants';
 import {
   convertCheckIntervalsToHours,
   convertHoursStringToSeconds,
@@ -437,7 +437,7 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
           </Stack>
         </Stack>
 
-        <SettingsSubmitButton />
+        <SettingsSubmitButton testId="advanced-button" />
       </Stack>
     </FormProvider>
   );
