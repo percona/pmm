@@ -2,7 +2,8 @@ name: Dashboards
 on: 
   pull_request:
     paths:
-      - "dashboards/**"
+      - "ui/apps/pmm-dashboards/**"
+      - "dashboards/misc/**"
 
 permissions:
   contents: read
@@ -23,19 +24,19 @@ jobs:
         with:
           node-version: "22"
           cache: "yarn"
-          cache-dependency-path: dashboards/pmm-app/yarn.lock
+          cache-dependency-path: ui/yarn.lock
 
       - name: Install deps
-        run: make -C dashboards install
+        run: cd ui && yarn install --frozen-lockfile
 
       - name: Build Grafana Dashboards
-        run: make -C dashboards build
+        run: cd ui && yarn workspace pmm-dashboards build
 
       - name: Upload the build artefacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: build-dist
-          path: dashboards/pmm-app/dist/
+          path: ui/apps/pmm-dashboards/dist/
           if-no-files-found: error
 
   tests:
@@ -50,16 +51,16 @@ jobs:
         with:
           node-version: "22"
           cache: "yarn"
-          cache-dependency-path: dashboards/pmm-app/yarn.lock
+          cache-dependency-path: ui/yarn.lock
     
       - name: Install deps
-        run: make -C dashboards install
+        run: cd ui && yarn install --frozen-lockfile
 
       - name: Run lint
-        run: cd dashboards/pmm-app && yarn lint:check
+        run: cd ui && yarn workspace pmm-dashboards lint:check
 
       - name: Run unit tests
-        run: cd dashboards/pmm-app && yarn test:ci
+        run: cd ui && yarn workspace pmm-dashboards test:ci
 
       - name: Upload unit test coverage
         if: github.event.pull_request.head.repo.full_name == github.repository
@@ -84,7 +85,7 @@ jobs:
         id: changed
         run: |
           git diff --name-only ${{ github.event.pull_request.base.sha }} HEAD \
-            | grep -E '^dashboards/dashboards/.*\.json$' \
+            | grep -E '^ui/apps/pmm-dashboards/src/dashboards/.*\.json$' \
             | sort -u > changed_dashboards.txt || true
           echo "count=$(wc -l < changed_dashboards.txt | tr -d ' ')" >> $GITHUB_OUTPUT
 
