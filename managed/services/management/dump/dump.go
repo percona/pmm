@@ -107,14 +107,20 @@ func (s *Service) StartDump(ctx context.Context, req *dumpv1beta1.StartDumpReque
 		}
 	}
 
+	if req.EnableEncryption && req.EncryptionPassword == "" {
+		return nil, status.Error(codes.InvalidArgument, "Encryption password must be provided when encryption is enabled")
+	}
+
 	params := &dump.Params{
-		Token:        token,
-		Cookie:       cookie,
-		User:         user,
-		Password:     password,
-		ServiceNames: req.ServiceNames,
-		ExportQAN:    req.ExportQan,
-		IgnoreLoad:   req.IgnoreLoad,
+		Token:              token,
+		Cookie:             cookie,
+		User:               user,
+		Password:           password,
+		ServiceNames:       req.ServiceNames,
+		ExportQAN:          req.ExportQan,
+		IgnoreLoad:         req.IgnoreLoad,
+		EnableEncryption:   req.EnableEncryption,
+		EncryptionPassword: req.EncryptionPassword,
 	}
 
 	if req.StartTime != nil {
@@ -289,6 +295,7 @@ func convertDump(dump *models.Dump) (*dumpv1beta1.Dump, error) {
 		Status:       ds,
 		ServiceNames: dump.ServiceNames,
 		CreatedAt:    timestamppb.New(dump.CreatedAt),
+		Encrypted:    dump.Encrypted,
 	}
 
 	if dump.StartTime != nil {

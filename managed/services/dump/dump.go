@@ -75,15 +75,17 @@ func New(db *reform.DB, urls *URLs) *Service {
 
 // Params represents the parameters for configuring the dump service.
 type Params struct {
-	Token        string
-	Cookie       string
-	User         string
-	Password     string
-	ServiceNames []string
-	StartTime    *time.Time
-	EndTime      *time.Time
-	ExportQAN    bool
-	IgnoreLoad   bool
+	Token              string
+	Cookie             string
+	User               string
+	Password           string
+	ServiceNames       []string
+	StartTime          *time.Time
+	EndTime            *time.Time
+	ExportQAN          bool
+	IgnoreLoad         bool
+	EnableEncryption   bool
+	EncryptionPassword string
 }
 
 // StartDump initiates the process of creating and managing dumps in the dump service.
@@ -99,6 +101,7 @@ func (s *Service) StartDump(params *Params) (string, error) {
 		EndTime:      params.EndTime,
 		ExportQAN:    params.ExportQAN,
 		IgnoreLoad:   params.IgnoreLoad,
+		Encrypted:    params.EnableEncryption,
 	})
 	if err != nil {
 		s.running.Store(false)
@@ -174,6 +177,13 @@ func (s *Service) StartDump(params *Params) (string, error) {
 
 	if params.IgnoreLoad {
 		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--ignore-load")
+	}
+
+	if params.EnableEncryption {
+		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--encryption")
+		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf("--pass=%s", params.EncryptionPassword))
+	} else {
+		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--no-encryption")
 	}
 
 	pReader, pWriter := io.Pipe()

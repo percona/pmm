@@ -1180,6 +1180,10 @@ var databaseSchema = [][]string{
 	117: {
 		`DROP TABLE IF EXISTS percona_sso_details`,
 	},
+	118: {
+		`ALTER TABLE dumps ADD COLUMN encrypted boolean NOT NULL DEFAULT false`,
+		`UPDATE dumps SET encrypted = false`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
