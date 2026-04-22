@@ -17,7 +17,10 @@ RUN dnf install -y \
     perl-TermReadKey \
     perl-Time-HiRes \
     perl-sigtrap \
+    python3-pip \
     && rm -rf /var/cache/*
+
+RUN pip3 install dumb-init
 
 RUN groupadd -g 1002 pmm-agent && \
     useradd -u 1002 -r -g pmm-agent -s /sbin/nologin \
@@ -81,6 +84,9 @@ COPY --from=builder --chown=0:0 /etc/ld.so.conf.d/mysql-*.conf /etc/ld.so.conf.d
 RUN install -d -o pmm-agent -g pmm-agent -m 0775 /usr/local/percona/pmm
 COPY --from=builder /usr/local/percona/pmm /usr/local/percona/pmm/
 
+# Install dumb-init
+COPY --from=builder /usr/local/bin/dumb-init /usr/local/bin/dumb-init
+
 ARG VERSION
 ARG BUILD_DATE
 ARG RELEASE
@@ -105,4 +111,4 @@ USER pmm-agent
 WORKDIR /usr/local/percona/pmm/
 ENV PATH=/usr/local/percona/pmm/bin/:$PATH
 
-ENTRYPOINT ["/usr/local/percona/pmm/bin/pmm-agent-entrypoint"]
+ENTRYPOINT ["/usr/local/bin/dumb-init", "--", "/usr/local/percona/pmm/bin/pmm-agent-entrypoint"]
