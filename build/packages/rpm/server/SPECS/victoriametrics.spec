@@ -26,8 +26,8 @@ export PKG_TAG=%{commit}
 export BUILDINFO_TAG=%{commit}
 export USER=builder
 
-GOTOOLCHAIN=local make victoria-metrics-pure
-GOTOOLCHAIN=local make vmalert-pure
+make victoria-metrics-pure
+make vmalert-pure
 
 
 %install
