@@ -22,7 +22,7 @@ services:
       # PMM UI (only useful if testing rendering server, for example. Otherwise, just stick with the vite dev server)
       # - ./apps/pmm/dist:/usr/share/pmm-ui
       # Uncomment to use custom (FE) Grafana dashboards
-      # - ../../grafana-dashboards/pmm-app/dist:/srv/grafana/plugins/pmm-app
+      - ../dashboards/pmm-app/dist:/usr/share/percona-dashboards/panels/pmm-app/dist
       # Mount repo so you can run the backend built from this codebase
       # - ..:/root/go/src/github.com/percona/pmm
       # - ../Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro
