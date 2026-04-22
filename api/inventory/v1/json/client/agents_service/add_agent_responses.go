@@ -2529,6 +2529,9 @@ type AddAgentOKBodyAzureDatabaseExporter struct {
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *AddAgentOKBodyAzureDatabaseExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -2843,6 +2846,9 @@ type AddAgentOKBodyExternalExporter struct {
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *AddAgentOKBodyExternalExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -3787,6 +3793,9 @@ type AddAgentOKBodyNodeExporter struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *AddAgentOKBodyNodeExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -6120,6 +6129,9 @@ type AddAgentOKBodyRDSExporter struct {
 	// Limit of databases for auto-discovery.
 	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
 
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *AddAgentOKBodyRDSExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -6991,6 +7003,9 @@ type AddAgentParamsBodyAzureDatabaseExporter struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 }
 
 // Validate validates this add agent params body azure database exporter
@@ -7118,6 +7133,9 @@ type AddAgentParamsBodyExternalExporter struct {
 
 	// Skip TLS certificate and hostname verification.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 }
 
 // Validate validates this add agent params body external exporter
@@ -7505,6 +7523,9 @@ type AddAgentParamsBodyNodeExporter struct {
 
 	// Expose the node_exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 }
 
 // Validate validates this add agent params body node exporter
@@ -8855,6 +8876,9 @@ type AddAgentParamsBodyRDSExporter struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 }
 
 // Validate validates this add agent params body RDS exporter

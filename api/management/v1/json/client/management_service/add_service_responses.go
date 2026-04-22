@@ -1645,6 +1645,9 @@ type AddServiceOKBodyExternalExternalExporter struct {
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyExternalExternalExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -2125,6 +2128,9 @@ type AddServiceOKBodyHaproxyExternalExporter struct {
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyHaproxyExternalExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -8577,6 +8583,9 @@ type AddServiceOKBodyRDSRDSExporter struct {
 	// Limit of databases for auto-discovery.
 	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
 
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyRDSRDSExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -9399,6 +9408,9 @@ type AddServiceParamsBodyExternal struct {
 
 	// Skip TLS certificate and hostname validation.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// add node
 	AddNode *AddServiceParamsBodyExternalAddNode `json:"add_node,omitempty"`

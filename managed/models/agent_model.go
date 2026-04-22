@@ -827,6 +827,7 @@ func (a *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 // Postgres on RDS/Azure uses 5s default but handled in postgresql.go (needs Node context).
 //
 // Exporters without DB connection (node, rds, azure, external) don't use this.
+// Their ConnectionTimeout affects only scrape timeout via exporterScrapeTimeout().
 func (a *Agent) EffectiveDialTimeout() time.Duration {
 	if a.ExporterOptions.ConnectionTimeout != nil {
 		return *a.ExporterOptions.ConnectionTimeout

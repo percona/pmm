@@ -129,6 +129,8 @@ message NodeExporter {
   bool expose_exporter = 14;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 15;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 16;
 }
 
 // MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.
@@ -687,6 +689,8 @@ message RDSExporter {
   int32 auto_discovery_limit = 25;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 26;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 27;
 }
 
 // ExternalExporter runs on any Node type, including Remote Node.
@@ -719,6 +723,8 @@ message ExternalExporter {
   bool tls_skip_verify = 13;
   // Actual Agent status.
   AgentStatus status = 14;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 15;
 }
 
 // AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.
@@ -754,6 +760,8 @@ message AzureDatabaseExporter {
   LogLevel log_level = 14;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 15;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 16;
 }
 
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.
@@ -973,6 +981,10 @@ message AddNodeExporterParams {
   LogLevel log_level = 5;
   // Expose the node_exporter process on all public interfaces
   bool expose_exporter = 6;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 7 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 message ChangeNodeExporterParams {
@@ -990,6 +1002,10 @@ message ChangeNodeExporterParams {
   optional LogLevel log_level = 6;
   // Expose the node_exporter process on all public interfaces.
   optional bool expose_exporter = 7;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 8 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 // Add/Change MySQLdExporter
@@ -1784,6 +1800,10 @@ message AddRDSExporterParams {
   bool push_metrics = 9;
   // Log level for exporter.
   LogLevel log_level = 10;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 11 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 message ChangeRDSExporterParams {
@@ -1805,6 +1825,10 @@ message ChangeRDSExporterParams {
   optional bool disable_enhanced_metrics = 8;
   // Log level for exporter.
   optional LogLevel log_level = 9;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 10 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 // Add/Change ExternalExporter
@@ -1833,6 +1857,10 @@ message AddExternalExporterParams {
   bool push_metrics = 11;
   // Skip TLS certificate and hostname verification.
   bool tls_skip_verify = 12;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 13 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 message ChangeExternalExporterParams {
@@ -1852,6 +1880,10 @@ message ChangeExternalExporterParams {
   optional string metrics_path = 7;
   // Listen port for scraping metrics.
   optional uint32 listen_port = 8;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 9 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 // Add/Change AzureDatabaseExporter
@@ -1881,6 +1913,10 @@ message AddAzureDatabaseExporterParams {
   bool push_metrics = 11;
   // Log level for exporter.
   LogLevel log_level = 12;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 13 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 message ChangeAzureDatabaseExporterParams {
@@ -1904,6 +1940,10 @@ message ChangeAzureDatabaseExporterParams {
   optional string azure_resource_group = 9;
   // Log level for exporter.
   optional LogLevel log_level = 11;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 12 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 message ChangeNomadAgentParams {
