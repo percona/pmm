@@ -45,12 +45,12 @@ PMM Server includes the following tools:
     - QAN App is a web application for visualizing collected Query Analytics data, which is part of the PMM Server's UI.
 
 
-- Metrics Monitor provides a historical view of metrics that are critical to a MySQL or MongoDB server instance. It includes the following:
+- Metrics Monitoring provides a historical view of and analysis of metrics that are critical to PostgreSQL, MySQL, MongoDB or Valkey/Redis server instances. It includes the following:
 
   - [VictoriaMetrics](https://github.com/VictoriaMetrics/VictoriaMetrics) is a scalable time-series database. 
   - [ClickHouse](https://clickhouse.com) is a third-party column-oriented database that facilitates the Query Analytics functionality.
   - [Grafana](http://docs.grafana.org) is a third-party dashboard and graph engine for visualizing data aggregated in an intuitive web interface.
-  - [PMM Dashboards](https://github.com/percona/pmm/dashboards) is a set of metrics dashboards developed by Percona.
+  - [PMM Dashboards](https://github.com/percona/pmm/tree/v3/dashboards) is a set of monitoring dashboards developed by Percona.
 
 ### PMM Client
 
