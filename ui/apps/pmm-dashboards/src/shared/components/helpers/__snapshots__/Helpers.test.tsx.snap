@@ -3,6 +3,7 @@
 exports[`PluginTooltip Renders with right props 1`] = `
 <DocumentFragment>
   <span
+    aria-describedby="test-id"
     aria-label="question-circle"
     class="anticon anticon-question-circle"
     role="img"
