@@ -33,8 +33,8 @@ export const MetricsResolutionForm: FC<MetricsResolutionFormProps> = ({
 }) => {
   const { mutateAsync: updateSettings } = useUpdateSettings();
   const metricsResolutions = useMemo(
-    () => settings?.metricsResolutions ?? DEFAULT_METRICS,
-    [settings?.metricsResolutions]
+    () => settings.metricsResolutions ?? DEFAULT_METRICS,
+    [settings.metricsResolutions]
   );
   const preset = getResolutionPreset(metricsResolutions);
   const { lr, mr, hr } = removeUnits(metricsResolutions);

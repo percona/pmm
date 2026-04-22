@@ -16,11 +16,11 @@ export const SshKeyForm: FC<SshKeyFormProps> = ({ settings }) => {
   const { mutateAsync: updateSettings, isPending } = useUpdateSettings();
   const methods = useForm<SshKeyFormValues>({
     resolver: zodResolver(sshKeySchema),
-    defaultValues: { sshKey: settings.sshKey ?? '' },
+    defaultValues: { sshKey: settings.sshKey },
   });
 
   useEffect(() => {
-    methods.reset({ sshKey: settings.sshKey ?? '' });
+    methods.reset({ sshKey: settings.sshKey });
   }, [settings.sshKey, methods]);
 
   const onSubmit = async (values: SshKeyFormValues) =>

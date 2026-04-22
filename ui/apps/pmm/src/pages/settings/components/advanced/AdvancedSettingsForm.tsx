@@ -19,7 +19,6 @@ import { enqueueSnackbar } from 'notistack';
 import { useUpdateSettings } from 'hooks/api/useSettings';
 import { Messages } from '../../Settings.messages';
 import {
-  DEFAULT_DATA_RETENTION,
   MAX_DAYS,
   MIN_DAYS,
   MIN_STT_CHECK_INTERVAL,
@@ -29,15 +28,14 @@ import {
 } from './Advanced.constants';
 import { MAX_LABEL_WIDTH } from '../../Settings.constants';
 import {
-  convertCheckIntervalsToHours,
   convertHoursStringToSeconds,
-  convertSecondsToDays,
 } from './Advanced.utils';
 import { AdvancedSettingsFormProps } from './AdvancedSettingsForm.types';
 import {
   AdvancedSettingsFormValues,
   advancedSettingsSchema,
 } from './AdvancedSettingsForm.schema';
+import { toFormValues } from './AdvancedSettingsForm.utils';
 import { SettingsFieldLabel } from '../settings-field-label';
 import { SettingsSubmitButton } from '../settings-submit-button';
 import { formControlClasses } from '@mui/material/FormControl';
@@ -47,29 +45,10 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
   settings,
 }) => {
   const { mutateAsync: updateSettings } = useUpdateSettings();
-  const intervals = convertCheckIntervalsToHours(settings.advisorRunIntervals);
 
   const methods = useForm<AdvancedSettingsFormValues>({
     resolver: zodResolver(advancedSettingsSchema),
-    defaultValues: {
-      retention: String(
-        convertSecondsToDays(
-          settings.dataRetention ?? DEFAULT_DATA_RETENTION
-        ) || '1'
-      ),
-      telemetry: settings.telemetryEnabled ?? false,
-      updates: settings.updatesEnabled ?? false,
-      alerting: settings.alertingEnabled ?? false,
-      backup: settings.backupManagementEnabled ?? false,
-      enableInternalPgQan: settings.enableInternalPgQan ?? false,
-      publicAddress: settings.pmmPublicAddress ?? '',
-      stt: settings.advisorEnabled ?? false,
-      rareInterval: intervals.rareInterval,
-      standardInterval: intervals.standardInterval,
-      frequentInterval: intervals.frequentInterval,
-      azureDiscover: settings.azurediscoverEnabled ?? false,
-      accessControl: settings.enableAccessControl ?? false,
-    },
+    defaultValues: toFormValues(settings),
   });
 
   const { handleSubmit, reset, watch, setValue } = methods;
@@ -78,23 +57,7 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
   const [telemetryDialogOpen, setTelemetryDialogOpen] = useState(false);
 
   useEffect(() => {
-    reset({
-      retention: String(
-        convertSecondsToDays(
-          settings.dataRetention ?? DEFAULT_DATA_RETENTION
-        ) || '1'
-      ),
-      telemetry: settings.telemetryEnabled ?? false,
-      updates: settings.updatesEnabled ?? false,
-      alerting: settings.alertingEnabled ?? false,
-      backup: settings.backupManagementEnabled ?? false,
-      enableInternalPgQan: settings.enableInternalPgQan ?? false,
-      publicAddress: settings.pmmPublicAddress ?? '',
-      stt: settings.advisorEnabled ?? false,
-      ...convertCheckIntervalsToHours(settings.advisorRunIntervals),
-      azureDiscover: settings.azurediscoverEnabled ?? false,
-      accessControl: settings.enableAccessControl ?? false,
-    });
+    reset(toFormValues(settings));
   }, [settings, reset]);
 
   const onSubmit = async (values: AdvancedSettingsFormValues) => {

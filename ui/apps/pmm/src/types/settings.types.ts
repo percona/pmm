@@ -26,15 +26,15 @@ export interface GetReadonlySettingsResponse {
 }
 
 export interface Settings extends ReadonlySettings {
-  updateSnoozeDuration: string;
+  updateSnoozeDuration?: string;
   metricsResolutions?: MetricsResolutions;
   dataRetention?: string;
-  sshKey?: string;
+  sshKey: string;
   awsPartitions?: string[];
   advisorRunIntervals?: AdvisorRunIntervals;
   telemetrySummaries?: string[];
-  enableInternalPgQan?: boolean;
-  defaultRoleId?: number;
+  enableInternalPgQan: boolean;
+  defaultRoleId: number;
 }
 
 /** Payload for PUT /server/settings - partial updates supported */

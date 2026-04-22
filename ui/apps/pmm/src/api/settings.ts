@@ -1,6 +1,8 @@
 import {
   GetFrontendSettingsResponse,
+  GetReadonlySettingsResponse,
   GetSettingsResponse,
+  ReadonlySettings,
   Settings,
   UpdateSettingsPayload,
 } from 'types/settings.types';
@@ -11,8 +13,8 @@ export const getSettings = async () => {
   return res.data.settings;
 };
 
-export const getReadonlySettings = async () => {
-  const res = await api.get<GetSettingsResponse>('/server/settings/readonly');
+export const getReadonlySettings = async (): Promise<ReadonlySettings> => {
+  const res = await api.get<GetReadonlySettingsResponse>('/server/settings/readonly');
   return res.data.settings;
 };
 

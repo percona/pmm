@@ -14,6 +14,7 @@ import {
 import messenger from 'lib/messenger';
 import {
   FrontendSettings,
+  ReadonlySettings,
   Settings,
   UpdateSettingsPayload,
 } from 'types/settings.types';
@@ -28,7 +29,7 @@ export const useSettings = (options?: Partial<UseQueryOptions<Settings>>) =>
   });
 
 export const useReadonlySettings = (
-  options?: Partial<UseQueryOptions<Settings>>
+  options?: Partial<UseQueryOptions<ReadonlySettings>>
 ) =>
   useQuery({
     queryKey: ['settings:readonly'],
