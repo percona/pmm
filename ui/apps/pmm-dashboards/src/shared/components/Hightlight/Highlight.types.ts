@@ -1,5 +1,7 @@
+import { ReactNode } from 'react';
+
 export interface HighlightProps {
-  children: string;
+  children: ReactNode;
   language: string;
   className?: string;
 }
