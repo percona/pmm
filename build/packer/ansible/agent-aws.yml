@@ -4,11 +4,11 @@
   become: true
   vars:
     docker_compose_version: "2.26.1"
-    kubectl_version: "1.35.0"
-    doctl_version: "1.148.0"
+    kubectl_version: "1.35.3"
+    doctl_version: "1.155.0"
     node_version: "22.x"
-    eksctl_version: "0.221.0"
-    helm_version: "3.20.0"
+    eksctl_version: "0.225.0"
+    helm_version: "3.20.2"
 
   tasks:
     - name: Detect vm architecture
@@ -24,9 +24,9 @@
     - name: Add a repository for NodeJS
       shell: "curl -fsSL https://rpm.nodesource.com/setup_{{ node_version }} | bash -"
 
-    - name: Install Oracle EPEL Repo
+    - name: Install EPEL Repo
       dnf:
-        name: oracle-epel-release-el9
+        name: epel-release
         state: latest
 
     - name: Add Docker repository
