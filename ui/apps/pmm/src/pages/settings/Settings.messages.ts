@@ -48,6 +48,7 @@ export const Messages = {
     publicAddressLabel: 'Public address',
     publicAddressTooltip:
       'The address or hostname PMM Server will be accessible at.',
+    publicAddressPlaceholder: 'https://...',
     publicAddressButton: 'Get from browser',
     alertingLabel: 'Percona Alerting',
     alertingTooltip: 'Option to enable/disable Percona Alerting features.',
@@ -60,6 +61,9 @@ export const Messages = {
     enableInternalPgQanTooltip:
       "Displays queries from PMM Server's internal PostgreSQL database in Query Analytics (QAN). Enable to troubleshoot PMM Server's database performance alongside your monitored instances.",
     enableInternalPgQanLink: 'https://per.co.na/qan-pmm-server',
+    featureManagementLabel: 'Feature management',
+    featureManagementDescription:
+      'Enable or disable core PMM capabilities. Turning off unused features can help conserve system resources and simplify your navigation menu.',
     technicalPreviewLegend: 'Technical preview features',
     technicalPreviewDescription: 'These are technical preview features, ',
     technicalPreviewWarning: 'not recommended',

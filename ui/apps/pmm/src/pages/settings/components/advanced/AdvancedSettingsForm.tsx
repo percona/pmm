@@ -95,7 +95,7 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
               name="publicAddress"
               textFieldProps={{
                 size: 'small',
-                placeholder: 'https://...',
+                placeholder: m.publicAddressPlaceholder,
                 sx: { flex: 1, minWidth: 240 },
               }}
             />
@@ -198,8 +198,8 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
 
         <Stack gap={2}>
           <SettingsFieldLabel
-            label="Feature management"
-            description="Enable or disable core PMM capabilities. Turning off unused features can help conserve system resources and simplify your navigation menu."
+            label={m.featureManagementLabel}
+            description={m.featureManagementDescription}
           />
           <Stack
             gap={2}
