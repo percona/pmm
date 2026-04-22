@@ -129,19 +129,18 @@ Relationships:
 
 ### External Repositories
 
-| Repository | Purpose |
-|------------|---------|
-| [percona/grafana](https://github.com/percona/grafana) | Percona's Grafana fork with PMM customizations |
-| [percona/node_exporter](https://github.com/percona/node_exporter) | Machine-level metrics exporter |
-| [percona/mysqld_exporter](https://github.com/percona/mysqld_exporter) | MySQL server metrics exporter |
-| [percona/mongodb_exporter](https://github.com/percona/mongodb_exporter) | MongoDB server metrics exporter |
-| [percona/postgres_exporter](https://github.com/percona/postgres_exporter) | PostgreSQL server metrics exporter |
-| [percona/proxysql_exporter](https://github.com/percona/proxysql_exporter) | ProxySQL server metrics exporter |
-| [percona/rds_exporter](https://github.com/percona/rds_exporter) | AWS RDS metrics exporter |
-| [percona/azure_metrics_exporter](https://github.com/percona/azure_metrics_exporter) | Azure database metrics exporter |
-| [percona/pmm-ui-tests](https://github.com/percona/pmm-ui-tests) | End-to-end UI tests |
-| [percona/pmm-qa](https://github.com/percona/pmm-qa) | QA automation and CLI tests |
-| [Percona-Lab/pmm-submodules](https://github.com/Percona-Lab/pmm-submodules) | Feature build orchestration |
+| Repository | Purpose                                                    |
+|------------|------------------------------------------------------------|
+| [percona/grafana](https://github.com/percona/grafana) | Percona's Grafana fork with PMM customizations             |
+| [percona/node_exporter](https://github.com/percona/node_exporter) | Machine-level metrics exporter                             |
+| [percona/mysqld_exporter](https://github.com/percona/mysqld_exporter) | MySQL server metrics exporter                              |
+| [percona/mongodb_exporter](https://github.com/percona/mongodb_exporter) | MongoDB server metrics exporter                            |
+| [percona/postgres_exporter](https://github.com/percona/postgres_exporter) | PostgreSQL server metrics exporter                         |
+| [percona/proxysql_exporter](https://github.com/percona/proxysql_exporter) | ProxySQL server metrics exporter                           |
+| [percona/rds_exporter](https://github.com/percona/rds_exporter) | AWS RDS metrics exporter                                   |
+| [percona/azure_metrics_exporter](https://github.com/percona/azure_metrics_exporter) | Azure database metrics exporter                            |                                     |
+| [percona/pmm-qa](https://github.com/percona/pmm-qa) | End-to-end UI tests, QA automation DB setups and CLI tests |
+| [Percona-Lab/pmm-submodules](https://github.com/Percona-Lab/pmm-submodules) | Feature build orchestration                                |
 
 ## Tech Stack
 
@@ -203,7 +202,7 @@ Relationships:
 - Mock generation via `mockery` (config in `.mockery.yaml`)
 - Unit tests: `*_test.go` next to implementation
 - Integration tests: `/api-tests/`, run against live PMM Server
-- E2E tests: [pmm-ui-tests](https://github.com/percona/pmm-ui-tests) and [pmm-qa](https://github.com/percona/pmm-qa)
+- E2E tests: [pmm-qa](https://github.com/percona/pmm-qa)
 
 ### Code Generation
 - Protobuf/gRPC: `make gen` from repo root
