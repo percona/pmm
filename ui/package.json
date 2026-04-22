@@ -31,6 +31,8 @@
     "node": ">=22"
   },
   "resolutions": {
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
     "esbuild": "~0.25.0",
     "cross-spawn": "~7.0.5",
     "brace-expansion": "~1.1.12",
