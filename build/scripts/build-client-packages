@@ -175,8 +175,9 @@ get_system(){
         OS_NAME="$(lsb_release -sc)"
         PACKAGE_MANAGER="deb"
     elif [ -f /etc/os-release ]; then
+        # shellcheck source=/dev/null
         . /etc/os-release
-        if [[ "$ID" == "amzn" && "$VERSION_ID" == "2023" ]]; then
+        if [ "$ID" = "amzn" ] && [ "$VERSION_ID" = "2023" ]; then
             OS_NAME="amzn2023"
             PACKAGE_MANAGER="rpm"
         fi
