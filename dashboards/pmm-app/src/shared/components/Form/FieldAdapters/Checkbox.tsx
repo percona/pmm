@@ -30,7 +30,8 @@ export const getLabelStyles = ({ v1: { typography, spacing, colors } }: GrafanaT
 export const getCheckboxStyles = (theme: GrafanaTheme2) => {
   const labelStyles = getLabelStyles(theme);
   const checkboxSize = '16px';
-  const { main: primaryMain, shade: primaryShade, contrastText: primaryContrastText } =
+  // @ts-ignore-next-line
+  const { main: primaryMain, shade: primaryShade, contrastText: primaryContrastText } = theme.colors.primary;
 
   return {
     label: cx(
