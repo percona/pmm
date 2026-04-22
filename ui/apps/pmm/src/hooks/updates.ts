@@ -32,8 +32,10 @@ export const useSnooze = () => {
       return false;
     }
 
-    const duration = settings.updateSnoozeDuration ?? '10s';
-    return diffFromNow(user.info.snoozedAt) <= parseDuration(duration);
+    return (
+      diffFromNow(user.info.snoozedAt) <=
+      parseDuration(settings.updateSnoozeDuration)
+    );
   }, [latest, user, settings]);
 
   const snoozeUpdate = useCallback(async () => {

@@ -26,7 +26,7 @@ export interface GetReadonlySettingsResponse {
 }
 
 export interface Settings extends ReadonlySettings {
-  updateSnoozeDuration?: string;
+  updateSnoozeDuration: string;
   metricsResolutions?: MetricsResolutions;
   dataRetention?: string;
   sshKey?: string;
