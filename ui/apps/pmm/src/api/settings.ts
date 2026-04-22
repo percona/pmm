@@ -14,7 +14,9 @@ export const getSettings = async () => {
 };
 
 export const getReadonlySettings = async (): Promise<ReadonlySettings> => {
-  const res = await api.get<GetReadonlySettingsResponse>('/server/settings/readonly');
+  const res = await api.get<GetReadonlySettingsResponse>(
+    '/server/settings/readonly'
+  );
   return res.data.settings;
 };
 

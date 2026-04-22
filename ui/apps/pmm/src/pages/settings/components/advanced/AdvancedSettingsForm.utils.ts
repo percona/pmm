@@ -7,8 +7,13 @@ import {
   convertSecondsToDays,
 } from './Advanced.utils';
 
-export const toFormValues = (settings: Settings): AdvancedSettingsFormValues => ({
-  retention: String(convertSecondsToDays(settings.dataRetention ?? DEFAULT_DATA_RETENTION) || '1'),
+export const toFormValues = (
+  settings: Settings
+): AdvancedSettingsFormValues => ({
+  retention: String(
+    convertSecondsToDays(settings.dataRetention ?? DEFAULT_DATA_RETENTION) ||
+      '1'
+  ),
   telemetry: settings.telemetryEnabled,
   updates: settings.updatesEnabled,
   alerting: settings.alertingEnabled,
@@ -21,7 +26,9 @@ export const toFormValues = (settings: Settings): AdvancedSettingsFormValues => 
   accessControl: settings.enableAccessControl,
 });
 
-export const toPayload = (values: AdvancedSettingsFormValues): UpdateSettingsPayload => {
+export const toPayload = (
+  values: AdvancedSettingsFormValues
+): UpdateSettingsPayload => {
   const dataRetention = `${Math.round(parseFloat(values.retention) * SECONDS_IN_DAY)}s`;
   const advisorRunIntervals = values.stt
     ? {

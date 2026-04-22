@@ -57,21 +57,18 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
   }, [settings, reset]);
 
   const onSubmit = async (values: AdvancedSettingsFormValues) => {
-    await updateSettings(
-      toPayload(values),
-      {
-        onSuccess: () => {
-          enqueueSnackbar(Messages.service.success, { variant: 'success' });
-          reset(values);
-        },
-        onError: (error) => {
-          enqueueSnackbar(
-            error instanceof Error ? error.message : Messages.unauthorized,
-            { variant: 'error' }
-          );
-        },
-      }
-    );
+    await updateSettings(toPayload(values), {
+      onSuccess: () => {
+        enqueueSnackbar(Messages.service.success, { variant: 'success' });
+        reset(values);
+      },
+      onError: (error) => {
+        enqueueSnackbar(
+          error instanceof Error ? error.message : Messages.unauthorized,
+          { variant: 'error' }
+        );
+      },
+    });
   };
 
   const m = Messages.advanced;
