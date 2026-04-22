@@ -72,7 +72,7 @@ func TestDumps(t *testing.T) {
 				EndTime:      &endTime,
 				ExportQAN:    false,
 				IgnoreLoad:   true,
-				Encrypted: true,
+				Encrypted:    true,
 			}
 			dump, err := models.CreateDump(tx.Querier, createDumpParams)
 			require.NoError(t, err)

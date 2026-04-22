@@ -144,7 +144,7 @@ func (s *Service) StartDump(params *Params) (string, error) {
 		"--pmm-url=http://127.0.0.1:8080",
 		"--click-house-url="+s.urls.ClickhouseURL,
 		"--victoria-metrics-url="+s.urls.VMURL,
-		fmt.Sprintf("--dump-path=%s", getDumpFilePath(dump.ID)))
+		"--dump-path="+getDumpFilePath(dump.ID, false))
 
 	if params.Token != "" {
 		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf(`--pmm-token=%s`, params.Token))
@@ -181,7 +181,7 @@ func (s *Service) StartDump(params *Params) (string, error) {
 
 	if params.EnableEncryption {
 		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--encryption")
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf("--pass=%s", params.EncryptionPassword))
+		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--pass="+params.EncryptionPassword)
 	} else {
 		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--no-encryption")
 	}
@@ -229,7 +229,7 @@ func (s *Service) DeleteDump(dumpID string) error {
 		return errors.Wrap(err, "failed to find dump")
 	}
 
-	filePath := getDumpFilePath(dump.ID)
+	filePath := getDumpFilePath(dump.ID, dump.Encrypted)
 	err = validateFilePath(filePath)
 	if err != nil && !errors.Is(err, os.ErrNotExist) {
 		return errors.WithStack(err)
@@ -260,7 +260,7 @@ func (s *Service) GetFilePathsForDumps(dumpIDs []string) (map[string]string, err
 			s.l.Warnf("Dump with id %s is in %s state. Skiping it.", d.ID, d.Status)
 			continue
 		}
-		filePath := getDumpFilePath(d.ID)
+		filePath := getDumpFilePath(d.ID, d.Encrypted)
 		if err = validateFilePath(filePath); err != nil {
 			return nil, errors.WithStack(err)
 		}
@@ -329,8 +329,12 @@ func (s *Service) StopDump() {
 	s.cancel()
 }
 
-func getDumpFilePath(id string) string {
-	return fmt.Sprintf("%s/%s.tar.gz", dumpsDir, id)
+func getDumpFilePath(id string, encrypted bool) string {
+	s := fmt.Sprintf("%s/%s.tar.gz", dumpsDir, id)
+	if encrypted {
+		s += ".enc"
+	}
+	return s
 }
 
 func validateFilePath(path string) error {
