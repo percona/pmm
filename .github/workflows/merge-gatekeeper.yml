@@ -37,4 +37,4 @@ jobs:
             -e GITHUB_EVENT_PATH -e GITHUB_SHA -e GITHUB_REF \
             -e GITHUB_RUN_ID -e GITHUB_WORKSPACE \
             -v "$GITHUB_EVENT_PATH:$GITHUB_EVENT_PATH:ro" \
-            ghcr.io/percona/pmm/merge-gatekeeper:2.0
+            ghcr.io/percona/pmm/merge-gatekeeper:2.0 validate
