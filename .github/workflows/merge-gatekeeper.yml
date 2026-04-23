@@ -23,10 +23,10 @@ jobs:
 
       - name: Run Merge Gatekeeper
         uses: docker://ghcr.io/percona/pmm/merge-gatekeeper:2.0
-        with:
-          self: Merge Gatekeeper
-          token: ${{ secrets.GITHUB_TOKEN }}
-          interval: 45
-          timeout: 1200
-          ignored: "linkspector"
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+        env:
+          INPUT_SELF: Merge Gatekeeper
+          INPUT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_INTERVAL: "45"
+          INPUT_TIMEOUT: "1200"
+          INPUT_IGNORED: "linkspector"
+          INPUT_REF: ${{ github.event.pull_request.head.sha || github.sha }}
