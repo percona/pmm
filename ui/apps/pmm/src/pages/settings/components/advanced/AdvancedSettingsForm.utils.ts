@@ -18,7 +18,7 @@ export const toFormValues = (
   updates: settings.updatesEnabled,
   alerting: settings.alertingEnabled,
   backup: settings.backupManagementEnabled,
-  enableInternalPgQan: settings.enableInternalPgQan,
+  enableInternalPgQan: settings.enableInternalPgQan ?? false,
   publicAddress: settings.pmmPublicAddress,
   stt: settings.advisorEnabled,
   ...convertCheckIntervalsToHours(settings.advisorRunIntervals),
