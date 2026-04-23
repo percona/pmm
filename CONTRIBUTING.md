@@ -54,7 +54,6 @@ This project is built from several repositories:
 * [Percona-Lab/jenkins-pipelines](https://github.com/Percona-Lab/jenkins-pipelines)
 
 ### QA, Testing and Documentation
-* [percona/pmm-ui-tests](https://github.com/percona/pmm-ui-tests)
 * [percona/pmm-qa](https://github.com/percona/pmm-qa)
 * [percona/documentation](https://github.com/percona/pmm/tree/main/documentation)
 
