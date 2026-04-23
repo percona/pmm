@@ -22,7 +22,6 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run Merge Gatekeeper
-        uses: docker://ghcr.io/percona/pmm/merge-gatekeeper:2.0
         env:
           INPUT_SELF: Merge Gatekeeper
           INPUT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -30,3 +29,12 @@ jobs:
           INPUT_TIMEOUT: "1200"
           INPUT_IGNORED: "linkspector"
           INPUT_REF: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          docker run --rm \
+            -e INPUT_SELF -e INPUT_TOKEN -e INPUT_INTERVAL \
+            -e INPUT_TIMEOUT -e INPUT_IGNORED -e INPUT_REF \
+            -e GITHUB_REPOSITORY -e GITHUB_EVENT_NAME \
+            -e GITHUB_EVENT_PATH -e GITHUB_SHA -e GITHUB_REF \
+            -e GITHUB_RUN_ID -e GITHUB_WORKSPACE \
+            -v "$GITHUB_EVENT_PATH:$GITHUB_EVENT_PATH:ro" \
+            ghcr.io/percona/pmm/merge-gatekeeper:2.0
