@@ -1,19 +1,27 @@
 name: Merge Gatekeeper
 
 on:
-  pull_request:
+  pull_request_target:
 
 permissions:
   checks: read
   statuses: read
+  packages: read
 
 jobs:
   merge-gatekeeper:
     name: Merge Gatekeeper
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Run Merge Gatekeeper
-        uses: upsidr/merge-gatekeeper@09af7a82c1666d0e64d2bd8c01797a0bcfd3bb5d # v1.2.1
+        uses: docker://ghcr.io/percona/pmm/merge-gatekeeper:2.0
         with:
           self: Merge Gatekeeper
           token: ${{ secrets.GITHUB_TOKEN }}
