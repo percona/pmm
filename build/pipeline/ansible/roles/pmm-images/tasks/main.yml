@@ -262,7 +262,7 @@
     name: initialization
 
 - name: Check supervisord logs
-  shell: sleep 10 && tail -n 200 /srv/logs/supervisord.log
+  shell: tail -n 200 /srv/logs/supervisord.log
 
 - name: Check grafana logs
   shell: cat /srv/logs/grafana.log
