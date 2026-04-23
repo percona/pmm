@@ -43,20 +43,16 @@ func (h *currentHTTPHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request
 	case "/v1/users/current":
 		user, err := h.c.GetCurrentUser(req.Context(), authHeaders)
 		if err != nil {
-			h.l.WithError(err).Warn("failed to get current user")
+			h.l.Errorf("failed to get current user: %v", err)
 			rw.WriteHeader(http.StatusUnauthorized)
 			_ = json.NewEncoder(rw).Encode(map[string]string{"message": "Unauthorized"})
-			return
-		}
-		if user == (grafana.CurrentUser{}) {
-			_ = json.NewEncoder(rw).Encode(map[string]any{})
 			return
 		}
 		_ = json.NewEncoder(rw).Encode(user)
 	case "/v1/users/current/orgs":
 		orgs, err := h.c.GetCurrentUserOrgs(req.Context(), authHeaders)
 		if err != nil {
-			h.l.WithError(err).Warn("failed to get current user orgs")
+			h.l.Errorf("failed to get current user orgs: %v", err)
 			rw.WriteHeader(http.StatusUnauthorized)
 			_ = json.NewEncoder(rw).Encode(map[string]string{"message": "Unauthorized"})
 			return

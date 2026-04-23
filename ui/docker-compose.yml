@@ -29,6 +29,15 @@ services:
       # should be followed by running:
       # docker exec -u root -it pmm-server bash -c 'cd /root/go/src/github.com/percona/pmm && make run-agent'
       # docker exec -u root -it pmm-server bash -c 'cd /root/go/src/github.com/percona/pmm && make run-managed'
+
+      # Mount local Grafana backend source (does not replace bundled Grafana binary by itself)
+      # - '../../grafana:/root/go/src/github.com/grafana/grafana'
+      # Build/swap/verify Grafana backend via helper targets in ui/Makefile:
+      # make -C ui grafana-be-build
+      # make -C ui grafana-be-swap
+      # make -C ui grafana-be-verify
+      # or run all steps:
+      # make -C ui grafana-be-refresh
     environment:
       - PMM_DEBUG=1
       - GF_DEFAULT_APP_MODE=development

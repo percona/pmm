@@ -270,7 +270,7 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header, l *lo
 		anonymousEnabled bool
 		anonymousRole    role
 	)
-	if authHeaders.Get("Authorization") == "" && authHeaders.Get("Cookie") == "" {
+	if !hasAuthorizationHeader(authHeaders) {
 		anonymousEnabled, anonymousRole = c.getAnonymousRoleFromSettings(ctx, l)
 	}
 
@@ -279,7 +279,7 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header, l *lo
 	err := c.do(ctx, http.MethodGet, "/api/user", "", authHeaders, nil, &m)
 	if err != nil {
 		var cErr *clientError
-		if anonymousEnabled && errors.As(errors.Cause(err), &cErr) && cErr.Code == http.StatusUnauthorized {
+		if anonymousEnabled && errors.As(err, &cErr) && cErr.Code == http.StatusUnauthorized {
 			l.Debugf("Grafana returned 401 for /api/user with no credentials; using anonymous role %q.", anonymousRole.String())
 			return authUser{
 				role:   anonymousRole,
@@ -342,16 +342,6 @@ func (c *Client) convertRole(role string) role {
 	}
 }
 
-type frontendUserSettings struct {
-	OrgRole string `json:"orgRole"`
-}
-
-type frontendSettings struct {
-	AnonymousEnabled bool                 `json:"anonymousEnabled"`
-	AnonymousOrgRole string               `json:"anonymousOrgRole"`
-	User             frontendUserSettings `json:"user"`
-}
-
 type frontendUserSettingsFull struct {
 	OrgRole string `json:"orgRole"`
 	OrgID   int    `json:"orgId"`
@@ -365,8 +355,8 @@ type frontendSettingsFull struct {
 }
 
 func (c *Client) getAnonymousRoleFromSettings(ctx context.Context, l *logrus.Entry) (bool, role) {
-	var settings frontendSettings
-	if err := c.do(ctx, http.MethodGet, "/api/frontend/settings", "", nil, nil, &settings); err != nil {
+	settings, err := c.getFrontendSettings(ctx)
+	if err != nil {
 		return false, none
 	}
 
@@ -374,11 +364,7 @@ func (c *Client) getAnonymousRoleFromSettings(ctx context.Context, l *logrus.Ent
 		return false, none
 	}
 
-	// orgRole from frontend user state is the effective role for anonymous access.
-	parsedRole := c.convertRole(settings.User.OrgRole)
-	if parsedRole == none {
-		parsedRole = c.convertRole(settings.AnonymousOrgRole)
-	}
+	parsedRole := c.convertRole(c.resolveAnonymousRole(settings))
 	l.Debugf("Grafana anonymous mode is enabled with role %q.", parsedRole.String())
 	return true, parsedRole
 }
@@ -392,18 +378,26 @@ func (c *Client) getFrontendSettings(ctx context.Context) (frontendSettingsFull,
 	return settings, nil
 }
 
-func hasAuthHeaders(authHeaders http.Header) bool {
-	return authHeaders.Get("Authorization") != "" || authHeaders.Get("Cookie") != ""
+func hasAuthorizationHeader(authHeaders http.Header) bool {
+	return authHeaders.Get("Authorization") != ""
 }
 
 func (c *Client) resolveAnonymousRole(settings frontendSettingsFull) string {
-	if settings.User.OrgRole != "" {
-		return settings.User.OrgRole
+	role := settings.User.OrgRole
+	if role == "" {
+		role = settings.AnonymousOrgRole
 	}
-	if settings.AnonymousOrgRole != "" {
-		return settings.AnonymousOrgRole
+
+	switch role {
+	case viewer.String():
+		return role
+	case editor.String(), admin.String(), grafanaAdmin.String():
+		// Grafana is deprecating anonymous roles other than Viewer.
+		// Keep PMM behavior aligned and never grant elevated anonymous role.
+		return viewer.String()
+	default:
+		return none.String()
 	}
-	return none.String()
 }
 
 // GetCurrentUser returns current Grafana user.
@@ -417,7 +411,7 @@ func (c *Client) GetCurrentUser(ctx context.Context, authHeaders http.Header) (C
 	}
 
 	var cErr *clientError
-	if !errors.As(errors.Cause(err), &cErr) || cErr.Code != http.StatusUnauthorized || hasAuthHeaders(authHeaders) {
+	if !errors.As(err, &cErr) || cErr.Code != http.StatusUnauthorized || hasAuthorizationHeader(authHeaders) {
 		return CurrentUser{}, err
 	}
 
@@ -425,10 +419,9 @@ func (c *Client) GetCurrentUser(ctx context.Context, authHeaders http.Header) (C
 	if settingsErr != nil || !settings.AnonymousEnabled {
 		return CurrentUser{}, err
 	}
-	if c.resolveAnonymousRole(settings) == none.String() {
-		// Anonymous mode is enabled but role is not configured.
-		// Return empty payload instead of Unauthorized.
-		return CurrentUser{}, nil
+	role := c.resolveAnonymousRole(settings)
+	if role == none.String() {
+		return CurrentUser{}, err
 	}
 
 	orgID := settings.User.OrgID
@@ -437,19 +430,13 @@ func (c *Client) GetCurrentUser(ctx context.Context, authHeaders http.Header) (C
 	}
 
 	return CurrentUser{
-		ID:                             0,
-		Email:                          "",
-		Name:                           "Anonymous",
-		Login:                          "anonymous",
-		CreatedAt:                      "",
-		OrgID:                          orgID,
-		IsAnonymous:                    true,
-		IsDisabled:                     false,
-		IsExternal:                     false,
-		IsExtarnallySynced:             false,
-		IsGrafanaAdmin:                 false,
-		IsGrafanaAdminExternallySynced: false,
-		Theme:                          "",
+		ID:              0,
+		Email:           "",
+		Name:            "Anonymous",
+		Login:           "anonymous",
+		OrgID:           orgID,
+		IsAnonymous:     true,
+		IsGrafanaAdmin:  false,
 	}, nil
 }
 
@@ -464,7 +451,7 @@ func (c *Client) GetCurrentUserOrgs(ctx context.Context, authHeaders http.Header
 	}
 
 	var cErr *clientError
-	if !errors.As(errors.Cause(err), &cErr) || cErr.Code != http.StatusUnauthorized || hasAuthHeaders(authHeaders) {
+	if !errors.As(err, &cErr) || cErr.Code != http.StatusUnauthorized || hasAuthorizationHeader(authHeaders) {
 		return nil, err
 	}
 
@@ -474,9 +461,7 @@ func (c *Client) GetCurrentUserOrgs(ctx context.Context, authHeaders http.Header
 	}
 	role := c.resolveAnonymousRole(settings)
 	if role == none.String() {
-		// Anonymous mode is enabled but role is not configured.
-		// Return empty payload instead of Unauthorized.
-		return []CurrentUserOrg{}, nil
+		return nil, err
 	}
 
 	orgID := settings.User.OrgID
