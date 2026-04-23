@@ -80,3 +80,6 @@ export { default as CodeCopyBlock } from './code-copy-block';
 
 export * from './form/inputs/file';
 export { default as FileInput } from './form/inputs/file';
+
+export * from './chip';
+export { default as Chip } from './chip';
