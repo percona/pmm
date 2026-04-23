@@ -1,0 +1,13 @@
+
+[2K[1G[1myarn run v1.22.22[22m
+[2K[1G[2m$ jest --onlyChanged --watch=false[22m
+[1m[2mDetermining test suites to run...[22m[22m[999D[K[1mNo tests found related to files changed since last commit.[22m[2m[22m
+[2mRun Jest without `-o` or with `--all` to run all tests.[22m
+[999D[K
+[K[1A[999D[K
+[K[1A[999D[K----------|---------|----------|---------|---------|-------------------
+File      | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+----------|---------|----------|---------|---------|-------------------
+All files |       0 |        0 |       0 |       0 | [31;1m                 [0m 
+----------|---------|----------|---------|---------|-------------------
+[2K[1G✨  Done in 0.78s.

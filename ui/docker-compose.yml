@@ -21,11 +21,12 @@ services:
 
       # PMM UI (only useful if testing rendering server, for example. Otherwise, just stick with the vite dev server)
       # - ./apps/pmm/dist:/usr/share/pmm-ui
-      # PMM dashboards — src/dashboards mounted directly; provisioner polls every 5s in dev.
-      - ./apps/pmm-dashboards/src/dashboards:/usr/share/percona-dashboards/panels/pmm-app/dist/dashboards
-      - ./apps/pmm-dashboards/provisioning-dev.yml:/usr/share/grafana/conf/provisioning/dashboards/default.yml
+      # PMM dashboards — source lives under dashboards/pmm-app/src/dashboards;
+      # provisioner polls every 5s in dev.
+      - ../dashboards/pmm-app/src/dashboards:/usr/share/percona-dashboards/panels/pmm-app/dist/dashboards
+      - ../dashboards/pmm-app/provisioning-dev.yml:/usr/share/grafana/conf/provisioning/dashboards/default.yml
       # Plugin JS/TS — dist mounted directly so webpack rebuilds are picked up on browser refresh.
-      - ./apps/pmm-dashboards/dist:/srv/grafana/plugins/pmm-app
+      - ../dashboards/pmm-app/dist:/srv/grafana/plugins/pmm-app
       # Mount repo so you can run the backend built from this codebase
       # - ..:/root/go/src/github.com/percona/pmm
       # - ../Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro

@@ -16,14 +16,16 @@ const config = async (env: any): Promise<Configuration> => {
   }
 
   return merge(baseConfig, {
-    plugins: env.development
-      ? [
-          new ForkTsCheckerWebpackPlugin({
-            async: true,
-            typescript: { configFile: path.join(process.cwd(), 'tsconfig.json') },
-          }),
-        ]
-      : [],
+    plugins: [
+      ...(env.development
+        ? [
+            new ForkTsCheckerWebpackPlugin({
+              async: true,
+              typescript: { configFile: path.join(process.cwd(), 'tsconfig.json') },
+            }),
+          ]
+        : []),
+    ],
   });
 };
 

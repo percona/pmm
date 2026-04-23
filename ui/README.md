@@ -38,8 +38,10 @@ make setup
 make dev
 ```
 
-Note: when changing code for dashboards, they will be rebuilt, but we have a polling in place every 5s.
-This means you have to manually refresh the browser in order to see the changes.
+## Develop dashboards
+
+Dashboards' code lives under `dashboards` folder in the repo's root.
+From there, just run `yarn dev` and your changes will be applied and picked up by Grafana within 5s, but the browser has to be manually refreshed.
 
 ## Build application for production
 

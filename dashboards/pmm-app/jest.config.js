@@ -23,7 +23,7 @@ module.exports = {
   ],
   moduleNameMapper: {
     ...baseConfig.moduleNameMapper,
-    '^d3$': path.resolve(__dirname, '../../node_modules/d3/dist/d3.min.js'),
+    '^d3$': path.resolve(__dirname, '../../ui/node_modules/d3/dist/d3.min.js'),
     '^react$': require.resolve('react'),
     '^react-dom$': require.resolve('react-dom'),
   },

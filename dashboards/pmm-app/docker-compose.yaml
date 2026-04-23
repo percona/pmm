@@ -5,7 +5,9 @@ services:
     platform: linux/amd64
     image: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:3-dev-container}
     volumes:
-      - './dist:/srv/grafana/plugins/pmm-app/dist'
+      - './src/dashboards:/usr/share/percona-dashboards/panels/pmm-app/dist/dashboards'
+      - './provisioning-dev.yml:/usr/share/grafana/conf/provisioning/dashboards/default.yml'
+      - './dist:/srv/grafana/plugins/pmm-app'
     environment:
       - PMM_DEBUG=1
       - PMM_DEV_PERCONA_PLATFORM_ADDRESS=https://check-dev.percona.com:443
