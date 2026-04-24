@@ -15,6 +15,7 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 
+	_ "github.com/percona/pmm/api/extensions/v1"
 	v1 "github.com/percona/pmm/api/inventory/v1"
 )
 
@@ -451,7 +452,7 @@ var File_management_v1_mysql_proto protoreflect.FileDescriptor
 
 const file_management_v1_mysql_proto_rawDesc = "" +
 	"\n" +
-	"\x19management/v1/mysql.proto\x12\rmanagement.v1\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xa6\f\n" +
+	"\x19management/v1/mysql.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xb6\f\n" +
 	"\x15AddMySQLServiceParams\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x127\n" +
@@ -465,9 +466,9 @@ const file_management_v1_mysql_proto_rawDesc = "" +
 	"\venvironment\x18\t \x01(\tR\venvironment\x12\x18\n" +
 	"\acluster\x18\n" +
 	" \x01(\tR\acluster\x12'\n" +
-	"\x0freplication_set\x18\v \x01(\tR\x0ereplicationSet\x12#\n" +
-	"\busername\x18\f \x01(\tB\a\xfaB\x04r\x02\x10\x01R\busername\x12\x1a\n" +
-	"\bpassword\x18\r \x01(\tR\bpassword\x120\n" +
+	"\x0freplication_set\x18\v \x01(\tR\x0ereplicationSet\x12'\n" +
+	"\busername\x18\f \x01(\tB\v\xfaB\x04r\x02\x10\x01\x88\xb5\x18\x01R\busername\x12 \n" +
+	"\bpassword\x18\r \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x120\n" +
 	"\x14qan_mysql_perfschema\x18\x0e \x01(\bR\x12qanMysqlPerfschema\x12*\n" +
 	"\x11qan_mysql_slowlog\x18\x0f \x01(\bR\x0fqanMysqlSlowlog\x12[\n" +
 	"\rcustom_labels\x18\x10 \x03(\v26.management.v1.AddMySQLServiceParams.CustomLabelsEntryR\fcustomLabels\x122\n" +
@@ -483,8 +484,8 @@ const file_management_v1_mysql_proto_rawDesc = "" +
 	"\atls_key\x18\x1a \x01(\tR\x06tlsKey\x12?\n" +
 	"\x1ctablestats_group_table_limit\x18\x1b \x01(\x05R\x19tablestatsGroupTableLimit\x12=\n" +
 	"\fmetrics_mode\x18\x1c \x01(\x0e2\x1a.management.v1.MetricsModeR\vmetricsMode\x12-\n" +
-	"\x12disable_collectors\x18\x1d \x03(\tR\x11disableCollectors\x12%\n" +
-	"\x0eagent_password\x18\x1e \x01(\tR\ragentPassword\x123\n" +
+	"\x12disable_collectors\x18\x1d \x03(\tR\x11disableCollectors\x12+\n" +
+	"\x0eagent_password\x18\x1e \x01(\tB\x04\x88\xb5\x18\x01R\ragentPassword\x123\n" +
 	"\tlog_level\x18\x1f \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12'\n" +
 	"\x0fexpose_exporter\x18  \x01(\bR\x0eexposeExporter\x12b\n" +
 	"\x10extra_dsn_params\x18! \x03(\v28.management.v1.AddMySQLServiceParams.ExtraDsnParamsEntryR\x0eextraDsnParams\x1a?\n" +
