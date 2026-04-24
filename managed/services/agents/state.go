@@ -321,7 +321,12 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		AgentProcesses: agentProcesses,
 		BuiltinAgents:  builtinAgents,
 	}
-	l.Debugf("sendSetStateRequest:\n%s", prototext.Format(state))
+
+	// Check log level before calling formatting function.
+	// Do not waste resources in case debug level is not enabled.
+	if l.Logger.IsLevelEnabled(logrus.DebugLevel) {
+		l.Debugf("sendSetStateRequest:\n%s\n", prototext.Format(logger.RedactMessage(state)))
+	}
 
 	resp, err := agent.channel.SendAndWaitResponse(state)
 	if err != nil {
