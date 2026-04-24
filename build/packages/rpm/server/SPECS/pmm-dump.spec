@@ -37,7 +37,7 @@ install -p -m 0755 pmm-dump %{buildroot}%{_sbindir}/pmm-dump
 
 
 %changelog
-* Wed Apr 22 2026 Maxim Kondratenko <maxim.kondratenko@percona.com> - 3.8.0
+* Wed Apr 22 2026 Maxim Kondratenko <maxim.kondratenko@percona.com> - 3.7.1
 - PMM-14441 Upgrade pmm-dump to support encryption
 
 * Wed Sep 24 2025 Michael Okoko <michael.okoko@percona.com> - 3.4.1
