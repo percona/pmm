@@ -1,4 +1,4 @@
-import type { ChipProps as MuiChipProps } from '@mui/material';
+import type { ChipProps as MuiChipProps } from '@mui/material/Chip';
 
 declare module '@mui/material/Chip' {
   interface ChipPropsColorOverrides {
@@ -7,6 +7,4 @@ declare module '@mui/material/Chip' {
   }
 }
 
-export type ChipProps = Omit<MuiChipProps, 'icon'> & {
-  dataTestId?: string;
-};
+export type ChipProps = Omit<MuiChipProps, 'icon'>;
