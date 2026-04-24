@@ -17,6 +17,7 @@ type FileInputProps = {
 
 const FileInput = ({
   name,
+  control,
   label,
   textFieldProps = {},
   fileInputProps = {},
@@ -33,9 +34,7 @@ const FileInput = ({
           label={label}
           {...field}
           {...textFieldProps}
-          value={
-            field.value && field.value instanceof File ? field.value.name : ''
-          }
+          value={field.value && field.value instanceof File ? field.value.name : ''}
           type="text"
           size="small"
           error={!!error}

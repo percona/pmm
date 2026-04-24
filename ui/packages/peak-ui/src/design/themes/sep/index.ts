@@ -1,2 +1,2 @@
-export { default } from "./SepTheme";
-export { sepPrimaryLight, sepPrimaryDark, sepTechnologyColors } from "./SepTheme";
+export { default } from './SepTheme';
+export { sepPrimaryLight, sepPrimaryDark, sepTechnologyColors } from './SepTheme';

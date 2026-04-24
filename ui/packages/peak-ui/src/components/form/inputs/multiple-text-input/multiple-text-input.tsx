@@ -8,11 +8,7 @@ interface MultipleTextInputProps {
   fieldName: string;
   control?: Control;
   onRemove?: (nrOfFields: number) => void;
-  onChange?: (
-    nrOfFields: number,
-    index: number,
-    field: 'key' | 'value'
-  ) => void;
+  onChange?: (nrOfFields: number, index: number, field: 'key' | 'value') => void;
 }
 
 const MultipleTextInput = ({
@@ -32,18 +28,14 @@ const MultipleTextInput = ({
   });
 
   const error = (index: number, key: 'key' | 'value'): FieldError | undefined =>
-    // @ts-ignore
+    // @ts-expect-error react-hook-form errors path is not strongly typed for nested field arrays
     errors?.[fieldName]?.[index]?.[key];
 
   const handleAdd = () => {
     append({ key: '', value: '' });
   };
 
-  const handleOnChange = async (
-    value: string,
-    index: number,
-    field: 'key' | 'value'
-  ) => {
+  const handleOnChange = async (value: string, index: number, field: 'key' | 'value') => {
     onChange?.(fields.length, index, field);
     return value;
   };
@@ -54,11 +46,9 @@ const MultipleTextInput = ({
   };
 
   const fieldValues = watch?.(fieldName) || [];
-  const hasEmptyFields = fieldValues.some(
-    (field: { key: string; value: string }) => {
-      return !field.key && !field.value;
-    }
-  );
+  const hasEmptyFields = fieldValues.some((field: { key: string; value: string }) => {
+    return !field.key && !field.value;
+  });
 
   return (
     <Box

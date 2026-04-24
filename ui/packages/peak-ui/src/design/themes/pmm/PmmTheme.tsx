@@ -1,15 +1,11 @@
-import { listItemTextClasses } from "@mui/material/ListItemText";
-import { PaletteMode, ThemeOptions } from "@mui/material";
-import { deepmerge } from "@mui/utils";
+import { listItemTextClasses } from '@mui/material/ListItemText';
+import { PaletteMode, ThemeOptions } from '@mui/material';
+import { deepmerge } from '@mui/utils';
 
-import { iconButtonClasses } from "@mui/material/IconButton";
-import { listItemIconClasses } from "@mui/material/ListItemIcon";
-import { listItemButtonClasses } from "@mui/material/ListItemButton";
-import baseThemeOptions, {
-  primitives,
-  semanticTokensLight,
-  semanticTokensDark,
-} from "../base";
+import { iconButtonClasses } from '@mui/material/IconButton';
+import { listItemIconClasses } from '@mui/material/ListItemIcon';
+import { listItemButtonClasses } from '@mui/material/ListItemButton';
+import baseThemeOptions, { primitives, semanticTokensLight, semanticTokensDark } from '../base';
 
 // PMM Primary color tokens
 export const pmmPrimaryLight = {
@@ -17,22 +13,22 @@ export const pmmPrimaryLight = {
   dark: primitives.brand.fire[700],
   light: primitives.brand.fire[500],
   contrastText: primitives.base.white,
-  hover: "rgba(242, 69, 0, 0.04)",
-  selected: "rgba(242, 69, 0, 0.08)",
-  focus: "rgba(242, 69, 0, 0.12)",
-  focusVisible: "rgba(242, 69, 0, 0.3)",
-  outlinedBorder: "rgba(242, 69, 0, 0.5)",
+  hover: 'rgba(242, 69, 0, 0.04)',
+  selected: 'rgba(242, 69, 0, 0.08)',
+  focus: 'rgba(242, 69, 0, 0.12)',
+  focusVisible: 'rgba(242, 69, 0, 0.3)',
+  outlinedBorder: 'rgba(242, 69, 0, 0.5)',
 };
 export const pmmPrimaryDark = {
   main: primitives.brand.fire[200],
   dark: primitives.brand.fire[300],
   light: primitives.brand.fire[100],
   contrastText: primitives.base.black,
-  hover: "rgba(251, 197, 176, 0.08)",
-  selected: "rgba(251, 197, 176, 0.12)",
-  focus: "rgba(251, 197, 176, 0.15)",
-  focusVisible: "rgba(251, 197, 176, 0.3)",
-  outlinedBorder: "rgba(251, 197, 176, 0.5)",
+  hover: 'rgba(251, 197, 176, 0.08)',
+  selected: 'rgba(251, 197, 176, 0.12)',
+  focus: 'rgba(251, 197, 176, 0.15)',
+  focusVisible: 'rgba(251, 197, 176, 0.3)',
+  outlinedBorder: 'rgba(251, 197, 176, 0.5)',
 };
 
 // PMM semantic color tokens
@@ -40,8 +36,8 @@ const pmmTokensLight = { ...semanticTokensLight };
 const pmmTokensDark = { ...semanticTokensDark };
 
 const pmmThemeOptions = (mode: PaletteMode): ThemeOptions => {
-  const tokens = mode === "light" ? pmmTokensLight : pmmTokensDark;
-  const primary = mode === "light" ? pmmPrimaryLight : pmmPrimaryDark;
+  const tokens = mode === 'light' ? pmmTokensLight : pmmTokensDark;
+  const primary = mode === 'light' ? pmmPrimaryLight : pmmPrimaryDark;
 
   const newOptions: ThemeOptions = {
     palette: {
@@ -69,22 +65,22 @@ const pmmThemeOptions = (mode: PaletteMode): ThemeOptions => {
         styleOverrides: {
           root: ({ theme, ownerState }) => ({
             color: theme.palette.text.primary,
-            ...(ownerState.color === "primary" && {
+            ...(ownerState.color === 'primary' && {
               color: theme.palette.primary.main,
             }),
-            "&:hover": {
+            '&:hover': {
               backgroundColor: theme.palette.action.selected,
             },
-            "&:focus": {
+            '&:focus': {
               backgroundColor: theme.palette.action.focusVisible,
             },
-            ...(ownerState.size === "large" && {
+            ...(ownerState.size === 'large' && {
               svg: {
                 width: 40,
                 height: 40,
               },
             }),
-            ...(ownerState.size === "small" && {
+            ...(ownerState.size === 'small' && {
               svg: {
                 width: 20,
                 height: 20,
@@ -96,16 +92,16 @@ const pmmThemeOptions = (mode: PaletteMode): ThemeOptions => {
       MuiAppBar: {
         styleOverrides: {
           root: () => ({
-            color: "#FBFBFB",
-            backgroundColor: "#3A4151",
+            color: '#FBFBFB',
+            backgroundColor: '#3A4151',
           }),
         },
       },
       MuiToggleButtonGroup: {
         styleOverrides: {
           root: ({ theme }) => ({
-            [theme.breakpoints.down("sm")]: {
-              flexDirection: "column",
+            [theme.breakpoints.down('sm')]: {
+              flexDirection: 'column',
             },
           }),
         },
@@ -114,21 +110,21 @@ const pmmThemeOptions = (mode: PaletteMode): ThemeOptions => {
         styleOverrides: {
           root: ({ theme }) => ({
             height: 10,
-            borderStyle: "solid",
+            borderStyle: 'solid',
             borderRadius: 5,
             borderColor: theme.palette.divider,
             backgroundColor: tokens.surfaces.elevation0,
           }),
           bar: {
             borderRadius: 5,
-            backgroundColor: "#606C86",
+            backgroundColor: '#606C86',
           },
         },
       },
       MuiChip: {
         variants: [
           {
-            props: { variant: "filled", color: "warning" },
+            props: { variant: 'filled', color: 'warning' },
             style: {
               color: tokens.warning.contrastText,
             },
@@ -140,8 +136,8 @@ const pmmThemeOptions = (mode: PaletteMode): ThemeOptions => {
             height: 22,
           },
           colorError: {
-            color: "#920000",
-            backgroundColor: "#FFECE9",
+            color: '#920000',
+            backgroundColor: '#FFECE9',
           },
           colorWarning: {
             color: tokens.warning.light,
@@ -153,22 +149,25 @@ const pmmThemeOptions = (mode: PaletteMode): ThemeOptions => {
         styleOverrides: {
           colorWarning: ({ theme }) => ({
             backgroundColor: tokens.warning.light,
-            color: theme.palette.mode === "light" ? theme.palette.common.white : tokens.warning.contrastText,
-          })
+            color:
+              theme.palette.mode === 'light'
+                ? theme.palette.common.white
+                : tokens.warning.contrastText,
+          }),
         },
       },
       MuiCard: {
         defaultProps: {
-          variant: "outlined",
+          variant: 'outlined',
         },
       },
       MuiDrawer: {
         styleOverrides: {
           root: {
-            fontFamily: "Poppins",
+            fontFamily: 'Poppins',
 
             [`.${listItemTextClasses.root} *`]: {
-              fontFamily: "Poppins",
+              fontFamily: 'Poppins',
             },
 
             [`.${iconButtonClasses.root}:hover`]: {
@@ -186,14 +185,14 @@ const pmmThemeOptions = (mode: PaletteMode): ThemeOptions => {
       MuiMenuItem: {
         styleOverrides: {
           root: {
-            fontFamily: "Poppins",
+            fontFamily: 'Poppins',
           },
         },
       },
       MuiListItemButton: {
         styleOverrides: {
           root: {
-            "&:hover, &:focus": {
+            '&:hover, &:focus': {
               color: primary.main,
               backgroundColor: primary.hover,
 
@@ -227,16 +226,16 @@ const pmmThemeOptions = (mode: PaletteMode): ThemeOptions => {
         styleOverrides: {
           root: {
             paddingBottom: 0,
-          }
-        }
+          },
+        },
       },
       MuiDialogActions: {
         styleOverrides: {
           root: {
             paddingTop: 0,
-          }
-        }
-      }
+          },
+        },
+      },
     },
   };
 

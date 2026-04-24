@@ -76,15 +76,7 @@ const meta = {
     },
   },
 
-  render: function Render({
-    disabled,
-    error,
-    required,
-    size,
-    options,
-    width,
-    label,
-  }) {
+  render: function Render({ disabled, error, required, size, options, width, label }) {
     const methods = useForm();
 
     return (
@@ -102,7 +94,11 @@ const meta = {
           name={'select'}
           label={label}
         >
-          {options?.map((item) => <MenuItem value={item}>{item}</MenuItem>)}
+          {options?.map((item) => (
+            <MenuItem key={item} value={item}>
+              {item}
+            </MenuItem>
+          ))}
         </SelectInput>
       </FormProvider>
     );

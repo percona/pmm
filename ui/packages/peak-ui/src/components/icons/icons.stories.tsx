@@ -61,14 +61,7 @@ const icons = {
 
   emptyState: [EmptyStateIcon],
 
-  status: [
-    ErrorIcon,
-    WarningIcon,
-    PendingIcon,
-    SuccessIcon,
-    UnknownIcon,
-    PausedIcon,
-  ],
+  status: [ErrorIcon, WarningIcon, PendingIcon, SuccessIcon, UnknownIcon, PausedIcon],
   other: [DatabaseIcon, NetworkNode],
 };
 
@@ -97,7 +90,7 @@ export const Database: StoryObj<typeof MySqlIcon> = {
       <>
         <Stack direction={'column'} rowGap={'2rem'}>
           {icons.db.map((Icon) => (
-            <Stack direction={'row'} alignItems={'center'} columnGap={'2rem'}>
+            <Stack key={Icon.name} direction={'row'} alignItems={'center'} columnGap={'2rem'}>
               <Icon fontSize={fontSize} />
               <Typography variant="body1">{Icon.name}</Typography>
             </Stack>
@@ -123,7 +116,7 @@ export const GenericError: StoryObj<typeof GenericErrorIcon> = {
     return (
       <Stack direction={'column'} rowGap={'2rem'}>
         {icons.genericError.map((Icon) => (
-          <Stack direction={'row'} alignItems={'center'} columnGap={'2rem'}>
+          <Stack key={Icon.name} direction={'row'} alignItems={'center'} columnGap={'2rem'}>
             <Icon h="128px" w="128px" />
             <Typography variant="body1">{Icon.name}</Typography>
           </Stack>
@@ -148,7 +141,7 @@ export const NoMatch: StoryObj<typeof NoMatchIcon> = {
     return (
       <Stack direction={'column'} rowGap={'2rem'}>
         {icons.noMatch.map((Icon) => (
-          <Stack direction={'row'} alignItems={'center'} columnGap={'2rem'}>
+          <Stack key={Icon.name} direction={'row'} alignItems={'center'} columnGap={'2rem'}>
             <Icon h="128px" w="128px" />
             <Typography variant="body1">{Icon.name}</Typography>
           </Stack>
@@ -173,7 +166,7 @@ export const EmptyState: StoryObj<typeof EmptyStateIcon> = {
     return (
       <Stack direction={'column'} rowGap={'2rem'}>
         {icons.emptyState.map((Icon) => (
-          <Stack direction={'row'} alignItems={'center'} columnGap={'2rem'}>
+          <Stack key={Icon.name} direction={'row'} alignItems={'center'} columnGap={'2rem'}>
             <Icon h="60px" w="60px" />
             <Typography variant="body1">{Icon.name}</Typography>
           </Stack>
@@ -198,7 +191,7 @@ export const Status: StoryObj<typeof ErrorIcon> = {
     return (
       <Stack direction={'column'} rowGap={'2rem'}>
         {icons.status.map((Icon) => (
-          <Stack direction={'row'} alignItems={'center'} columnGap={'2rem'}>
+          <Stack key={Icon.name} direction={'row'} alignItems={'center'} columnGap={'2rem'}>
             <Icon />
             <Typography variant="body1">{Icon.name}</Typography>
           </Stack>
@@ -223,7 +216,7 @@ export const Other: StoryObj<typeof DatabaseIcon> = {
     return (
       <Stack direction={'column'} rowGap={'2rem'}>
         {icons.other.map((Icon) => (
-          <Stack direction={'row'} alignItems={'center'} columnGap={'2rem'}>
+          <Stack key={Icon.name} direction={'row'} alignItems={'center'} columnGap={'2rem'}>
             <Icon />
             <Typography variant="body1">{Icon.name}</Typography>
           </Stack>

@@ -1,4 +1,3 @@
-
 // Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -44,7 +43,7 @@ const TextArray = ({
   const defaultFields: Record<string, string>[] = fields.length ? fields : [];
   const [fieldAppended, setFieldAppended] = useState(false);
   const error = (index: number): FieldError | undefined =>
-    // @ts-ignore
+    // @ts-expect-error react-hook-form errors path is not strongly typed for nested field arrays
     errors?.[fieldName]?.[index]?.[fieldKey];
 
   useEffect(() => {
@@ -55,6 +54,7 @@ const TextArray = ({
       if (lastField) {
         (lastField as HTMLInputElement).focus();
       }
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFieldAppended(false);
     }
   }, [fieldAppended]);
@@ -92,9 +92,7 @@ const TextArray = ({
 
               InputProps: {
                 onChange: () => {
-                  const initialFieldValue = watch?.(
-                    `${fieldName}.${index}.${fieldKey}`
-                  ) || [];
+                  const initialFieldValue = watch?.(`${fieldName}.${index}.${fieldKey}`) || [];
                   defaultFields[index][fieldKey] = initialFieldValue;
                 },
                 onBlur: handleBlur
