@@ -73,7 +73,7 @@ go test $(TEST_FLAGS) $(TEST_PARALLEL) -race -count 1 $(TEST_PKGS)
 endef
 
 define go-test-cover
-go test $(TEST_FLAGS) $(TEST_PARALLEL) -race -coverprofile=cover.out -covermode=$(COVERAGE_MODE) -coverpkg=$(TEST_PKGS) $(TEST_PKGS)
+go test $(TEST_FLAGS) $(TEST_PARALLEL) -race -coverprofile=cover.out -covermode=$(COVERAGE_MODE) $(TEST_PKGS)
 endef
 
 define go-mod-download

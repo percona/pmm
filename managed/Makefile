@@ -36,7 +36,7 @@ test:                           ## Run tests
 	go test $(TEST_FLAGS) -p 1 -race $(PMM_TEST_FILES)
 
 test-cover:                     ## Run tests and collect per-package coverage information
-	go test $(TEST_FLAGS) -p 1 -race -coverprofile=cover.out -covermode=atomic -coverpkg=$(PMM_TEST_FILES) $(PMM_TEST_FILES)
+	go test $(TEST_FLAGS) -p 1 -race -coverprofile=cover.out -covermode=atomic $(PMM_TEST_FILES)
 
 fuzz-grafana:                   ## Run fuzzer for services/grafana package
 	# go get -u github.com/dvyukov/go-fuzz/go-fuzz github.com/dvyukov/go-fuzz/go-fuzz-build
