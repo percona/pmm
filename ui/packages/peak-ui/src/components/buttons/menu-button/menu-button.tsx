@@ -3,12 +3,7 @@ import { Button, Menu } from '@mui/material';
 import { ArrowDropDownOutlined as ArrowDropDownOutlinedIcon } from '@mui/icons-material';
 import { MenuButtonProps } from './menu-button.types';
 
-const MenuButton = ({
-  children,
-  buttonText,
-  buttonProps,
-  menuProps,
-}: MenuButtonProps) => {
+const MenuButton = ({ children, buttonText, buttonProps, menuProps }: MenuButtonProps) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = !!anchorEl;
 

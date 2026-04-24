@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode } from 'react';
 import {
   Card as MuiCard,
   Typography,
@@ -12,10 +12,10 @@ import {
   CardContentProps,
   BoxProps,
   CardActionsProps,
-} from "@mui/material";
-import { kebabize } from "@/utils";
+} from '@mui/material';
+import { kebabize } from '@/utils';
 
-export interface CardProps extends Omit<MuiCardProps, "content"> {
+export interface CardProps extends Omit<MuiCardProps, 'content'> {
   content: ReactNode;
   dataTestId: string;
   cardActions?: ActionProps[];
@@ -44,14 +44,14 @@ const Card = ({
   return (
     <MuiCard
       data-testid={`${dataTestId}-card`}
-      sx={{ width: "320px", height: "fit-content", ...sx }}
+      sx={{ width: '320px', height: 'fit-content', ...sx }}
       {...props}
     >
       <CardContent
         data-testid={`${dataTestId}-card-content`}
         {...cardContentProps}
         sx={{
-          "&:last-child": {
+          '&:last-child': {
             p: 2,
           },
           ...cardContentProps?.sx,
@@ -67,10 +67,7 @@ const Card = ({
             {title}
           </Typography>
         )}
-        <Box
-          data-testid={`${dataTestId}-card-content-wrapper`}
-          {...contentWrapperProps}
-        >
+        <Box data-testid={`${dataTestId}-card-content-wrapper`} {...contentWrapperProps}>
           {content}
         </Box>
         {cardActions && (
@@ -80,11 +77,7 @@ const Card = ({
             sx={{ p: 0, mt: 4, ...cardActionsProps?.sx }}
           >
             {cardActions.map(({ text, ...buttonProps }) => (
-              <Button
-                key={text}
-                data-testid={`${kebabize(text)}-button`}
-                {...buttonProps}
-              >
+              <Button key={text} data-testid={`${kebabize(text)}-button`} {...buttonProps}>
                 {text}
               </Button>
             ))}

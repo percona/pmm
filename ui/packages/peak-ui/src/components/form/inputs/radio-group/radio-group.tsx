@@ -1,8 +1,4 @@
-import {
-  FormControlLabel,
-  RadioGroup as MuiRadioGroup,
-  Radio,
-} from '@mui/material';
+import { FormControlLabel, RadioGroup as MuiRadioGroup, Radio } from '@mui/material';
 import { Controller, useFormContext } from 'react-hook-form';
 import LabeledContent from '../../../labeled-content';
 import { RadioGroupProps } from './radio-group.types';
@@ -25,12 +21,7 @@ const RadioGroup = ({
       name={name}
       control={control ?? contextControl}
       render={({ field }) => (
-        <MuiRadioGroup
-          {...field}
-          row
-          name={`radio-group-${name}`}
-          {...radioGroupFieldProps}
-        >
+        <MuiRadioGroup {...field} row name={`radio-group-${name}`} {...radioGroupFieldProps}>
           {options.map((option) => (
             <FormControlLabel
               key={option.label}
@@ -38,7 +29,7 @@ const RadioGroup = ({
               control={
                 <Radio
                   {...option.radioProps}
-                  // @ts-expect-error
+                  // @ts-expect-error MUI Radio inputProps doesn't include data-testid in its type definition
                   inputProps={{ 'data-testid': `radio-option-${option.value}` }}
                 />
               }

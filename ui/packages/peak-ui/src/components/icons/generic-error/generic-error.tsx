@@ -2,13 +2,7 @@ import { GenericErrorProps } from '.';
 
 const GenericErrorIcon = ({ w, h }: GenericErrorProps) => {
   return (
-    <svg
-      width={w}
-      height={h}
-      viewBox="0 0 331 331"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg width={w} height={h} viewBox="0 0 331 331" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         d="M132.876 263.377C204.949 263.377 263.377 204.949 263.377 132.876C263.377 60.8022 204.949 2.375 132.876 2.375C60.8022 2.375 2.375 60.8022 2.375 132.876C2.375 204.949 60.8022 263.377 132.876 263.377Z"
         stroke="#0E5FB5"

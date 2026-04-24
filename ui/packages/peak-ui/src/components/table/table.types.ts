@@ -1,4 +1,3 @@
-
 // Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,8 +15,7 @@ import { AlertProps } from '@mui/material';
 import { MRT_Row, type MaterialReactTableProps } from 'material-react-table';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export interface TableProps<T extends Record<string, any>>
-  extends MaterialReactTableProps<T> {
+export interface TableProps<T extends Record<string, any>> extends MaterialReactTableProps<T> {
   noDataMessage?: string;
   emptyFilterResultsMessage?: string;
   hideExpandAllIcon?: boolean;

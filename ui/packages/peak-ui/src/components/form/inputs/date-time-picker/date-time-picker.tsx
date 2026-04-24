@@ -1,8 +1,8 @@
-import { Controller, useFormContext } from "react-hook-form";
+import { Controller, useFormContext } from 'react-hook-form';
 
-import { kebabize } from "@/utils";
-import { DateTimePickerInputProps } from "./date-time-picker.types";
-import { DateTimePicker, PickerValidDate } from "@mui/x-date-pickers";
+import { kebabize } from '@/utils';
+import { DateTimePickerInputProps } from './date-time-picker.types';
+import { DateTimePicker, PickerValidDate } from '@mui/x-date-pickers';
 
 const DateTimePickerInput = <T extends PickerValidDate>({
   name,
@@ -24,9 +24,9 @@ const DateTimePickerInput = <T extends PickerValidDate>({
           slotProps={{
             textField: {
               error: !!error,
-              helperText: error ? error.message : "",
+              helperText: error ? error.message : '',
               inputProps: {
-                "data-testid": `date-time-picker-${kebabize(name)}`,
+                'data-testid': `date-time-picker-${kebabize(name)}`,
               },
             },
           }}
