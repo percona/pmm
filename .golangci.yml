@@ -108,6 +108,9 @@ linters:
       - linters:
           - recvcheck
         path: managed/models/
+      - linters:
+          - mnd
+        path: api-tests
     paths:
       - managed/utils/interceptors/go-grpc-prometheus.go
       - agent/agents/mongodb/internal/
