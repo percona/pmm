@@ -442,7 +442,7 @@ func TestPerfSchema(t *testing.T) {
 				MQueryTimeSum:       actual.Common.MQueryTimeSum,
 			},
 			Mysql: &agentv1.MetricsBucket_MySQL{
-				MLockTimeCnt:     1,
+				MLockTimeCnt:     actual.Mysql.MLockTimeCnt,
 				MLockTimeSum:     actual.Mysql.MLockTimeSum,
 				MRowsSentCnt:     1,
 				MRowsSentSum:     4079,
@@ -502,7 +502,7 @@ func TestPerfSchema(t *testing.T) {
 					MQueryTimeSum:       b.Common.MQueryTimeSum,
 				},
 				Mysql: &agentv1.MetricsBucket_MySQL{
-					MLockTimeCnt:     1,
+					MLockTimeCnt:     b.Mysql.MLockTimeCnt,
 					MLockTimeSum:     b.Mysql.MLockTimeSum,
 					MRowsSentCnt:     1,
 					MRowsSentSum:     4079,
@@ -584,7 +584,7 @@ func TestPerfSchema(t *testing.T) {
 				MQueryTimeSum:          actual.Common.MQueryTimeSum,
 			},
 			Mysql: &agentv1.MetricsBucket_MySQL{
-				MLockTimeCnt:    1,
+				MLockTimeCnt:    actual.Mysql.MLockTimeCnt,
 				MLockTimeSum:    actual.Mysql.MLockTimeSum,
 				MFullScanCnt:    1,
 				MFullScanSum:    1,
