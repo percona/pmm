@@ -7,4 +7,5 @@ declare module '@mui/material/Chip' {
   }
 }
 
+// Chips shouldn't carry a leading icon (for now)
 export type ChipProps = Omit<MuiChipProps, 'icon'>;

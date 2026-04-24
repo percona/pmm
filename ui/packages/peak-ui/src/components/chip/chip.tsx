@@ -8,7 +8,6 @@ const Chip = forwardRef<HTMLDivElement, ChipProps>(
     <MuiChip
       ref={ref}
       {...rest}
-      icon={undefined}
       deleteIcon={<span>{deleteIcon ?? <HighlightOff />}</span>}
     />
   )
