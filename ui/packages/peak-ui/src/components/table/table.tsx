@@ -73,13 +73,13 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
 
   useEffect(() => {
     const hideColumnsIcon = document.querySelector('[aria-label="Show/Hide columns"]');
-    const showFiltesIcon = document.querySelector('[aria-label="Show/Hide filters"]');
+    const showFiltersIcon = document.querySelector('[aria-label="Show/Hide filters"]');
     const globalFilterIcon = document.querySelector('[aria-label="Show/Hide search"]');
     const elementsWithExpandLabel = document.querySelectorAll('[aria-label="Column Actions"]');
 
     if (!data.length) {
       hideColumnsIcon?.addEventListener('click', stopPropagation);
-      showFiltesIcon?.addEventListener('click', stopPropagation);
+      showFiltersIcon?.addEventListener('click', stopPropagation);
       globalFilterIcon?.addEventListener('click', stopPropagation);
       elementsWithExpandLabel.forEach((element) => {
         element.addEventListener('click', stopPropagation);
@@ -88,7 +88,7 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
 
     return () => {
       globalFilterIcon?.removeEventListener('click', stopPropagation);
-      showFiltesIcon?.removeEventListener('click', stopPropagation);
+      showFiltersIcon?.removeEventListener('click', stopPropagation);
       hideColumnsIcon?.removeEventListener('click', stopPropagation);
       elementsWithExpandLabel.forEach((element) => {
         element.removeEventListener('click', stopPropagation);
