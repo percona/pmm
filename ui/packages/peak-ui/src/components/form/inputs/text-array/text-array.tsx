@@ -54,7 +54,6 @@ const TextArray = ({
       if (lastField) {
         (lastField as HTMLInputElement).focus();
       }
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFieldAppended(false);
     }
   }, [fieldAppended]);
