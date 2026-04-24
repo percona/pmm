@@ -1,5 +1,5 @@
 import { forwardRef } from 'react';
-import { CustomContentProps } from 'notistack';
+import type { CustomContentProps } from 'notistack';
 import { Alert } from '@mui/material';
 
 const NotistackMuiSnackbar = forwardRef<HTMLDivElement, CustomContentProps>((props, ref) => {

@@ -25,7 +25,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['**/*.stories.tsx'],
+    files: ['**/*.stories.tsx', '**/*.stories.ts'],
     plugins: { storybook },
     rules: {
       ...storybook.configs.recommended.rules,

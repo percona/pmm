@@ -976,7 +976,7 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
           root: ({ theme }) => ({
             borderWidth: '1px',
             borderStyle: 'solid',
-            borderColor: 'rgba(44, 50, 62, 0.25)', // TODO move into pallet =#2C323E 25%
+            borderColor: 'rgba(44, 50, 62, 0.25)', // TODO move into palette =#2C323E 25%
             borderRadius: theme.spacing(1),
             backgroundColor: theme.palette.action.hover,
             boxShadow: 'none',
