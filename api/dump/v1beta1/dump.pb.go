@@ -17,6 +17,8 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
+
+	_ "github.com/percona/pmm/api/extensions/v1"
 )
 
 const (
@@ -795,7 +797,7 @@ var File_dump_v1beta1_dump_proto protoreflect.FileDescriptor
 
 const file_dump_v1beta1_dump_proto_rawDesc = "" +
 	"\n" +
-	"\x17dump/v1beta1/dump.proto\x12\fdump.v1beta1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\"\xc1\x02\n" +
+	"\x17dump/v1beta1/dump.proto\x12\fdump.v1beta1\x1a\x1aextensions/v1/redact.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\"\xc1\x02\n" +
 	"\x04Dump\x12\x17\n" +
 	"\adump_id\x18\x01 \x01(\tR\x06dumpId\x120\n" +
 	"\x06status\x18\x02 \x01(\x0e2\x18.dump.v1beta1.DumpStatusR\x06status\x12#\n" +
@@ -835,11 +837,11 @@ const file_dump_v1beta1_dump_proto_rawDesc = "" +
 	"\x03end\x18\x02 \x01(\bR\x03end\"9\n" +
 	"\bLogChunk\x12\x19\n" +
 	"\bchunk_id\x18\x01 \x01(\rR\achunkId\x12\x12\n" +
-	"\x04data\x18\x02 \x01(\tR\x04data\"\x93\x01\n" +
+	"\x04data\x18\x02 \x01(\tR\x04data\"\x9b\x01\n" +
 	"\x0eSFTPParameters\x12!\n" +
-	"\aaddress\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\aaddress\x12\x1b\n" +
-	"\x04user\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x04user\x12#\n" +
-	"\bpassword\x18\x03 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\bpassword\x12\x1c\n" +
+	"\aaddress\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\aaddress\x12\x1f\n" +
+	"\x04user\x18\x02 \x01(\tB\v\xfaB\x04r\x02\x10\x01\x88\xb5\x18\x01R\x04user\x12'\n" +
+	"\bpassword\x18\x03 \x01(\tB\v\xfaB\x04r\x02\x10\x01\x88\xb5\x18\x01R\bpassword\x12\x1c\n" +
 	"\tdirectory\x18\x04 \x01(\tR\tdirectory\"\x8b\x01\n" +
 	"\x11UploadDumpRequest\x12%\n" +
 	"\bdump_ids\x18\x01 \x03(\tB\n" +

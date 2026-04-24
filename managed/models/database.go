@@ -1426,6 +1426,15 @@ func initWithRoot(params SetupDBParams) error {
 		if err != nil {
 			return fmt.Errorf("failed to grant privileges to user %s on database %s: %w", params.Username, params.Name, err)
 		}
+	} else {
+		// Role exists but authentication failed (e.g. pg_hba.conf switched from trust to
+		// scram-sha-256 during an upgrade, leaving the role with no usable password hash).
+		// initWithRoot is only ever called after a 28000/28P01 auth error, so resetting the
+		// password to the currently configured value is OK.
+		_, err = db.Exec(fmt.Sprintf(`ALTER USER "%s" WITH PASSWORD '%s'`, params.Username, params.Password))
+		if err != nil {
+			return fmt.Errorf("failed to update password for user %s: %w", params.Username, err)
+		}
 	}
 	return nil
 }
