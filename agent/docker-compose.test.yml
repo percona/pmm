@@ -47,7 +47,7 @@ services:
       test_db:
         condition: service_completed_successfully
     healthcheck:
-      test: ["CMD-SHELL", "MYSQL_PWD=$$MYSQL_ROOT_PASSWORD mysqladmin ping -u root"]
+      test: ["CMD-SHELL", "if command -v mysqladmin >/dev/null 2>&1; then MYSQL_PWD=$$MYSQL_ROOT_PASSWORD mysqladmin ping -u root; else MYSQL_PWD=$$MYSQL_ROOT_PASSWORD mariadb-admin ping -u root; fi"]
       interval: 10s
       timeout: 5s
       retries: 10
