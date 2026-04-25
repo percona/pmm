@@ -26,7 +26,7 @@ RUN groupadd -g 1002 pmm-agent && \
             -d /usr/local/percona/pmm \
             -c "PMM Client User" pmm-agent
 
-RUN --mount=type=bind,source=package,target=/packages \
+RUN --mount=type=bind,source=tarball,target=/packages \
     tar -xzf /packages/pmm-client.tar.gz -C /tmp \
     && PMM_USER=pmm-agent PMM_GROUP=root /tmp/pmm-client/install_tarball \
     && rm -rf /tmp/pmm-client

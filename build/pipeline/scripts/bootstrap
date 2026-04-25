@@ -19,9 +19,8 @@ if [ -n "${BASH_SOURCE[0]:-}" ] && [ -f "${BASH_SOURCE[0]}" ]; then
 else
   PIPELINE_DIR="${HOME}/build"
   if [ -d "${PIPELINE_DIR}" ]; then
-    accepted="^(build\.log|cache|output)$"
     while IFS= read -r entry; do
-      if [[ ! "${entry}" =~ ${accepted} ]]; then
+      if ! grep -qE "^(build\.log|cache|output)$" <<< "${entry}"; then
         log_err "${PIPELINE_DIR} already exists and contains unexpected entry: ${entry}"
         log_err "Remove it or run bootstrap from that directory."
         exit 1
