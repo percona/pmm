@@ -8,6 +8,10 @@
 
 set -euo pipefail
 
+log_info() { echo "$(date -Iseconds)    INFO: $*"; }
+log_warn() { echo "$(date -Iseconds)    WARN: $*"; }
+log_err()  { echo "$(date -Iseconds)   ERROR: $*" >&2; }
+
 # When piped (curl | bash), BASH_SOURCE[0] is empty — create ~/build.
 if [ -n "${BASH_SOURCE[0]:-}" ] && [ -f "${BASH_SOURCE[0]}" ]; then
   # Script lives at <pipeline_dir>/scripts/bootstrap — go up two levels.
@@ -71,10 +75,6 @@ log_step() {
   echo ""
   log_info "==> [${n}/${TOTAL_STEPS}] ${msg}"
 }
-
-log_info() { echo "$(date -Iseconds)    INFO: $*"; }
-log_warn() { echo "$(date -Iseconds)    WARN: $*"; }
-log_err()  { echo "$(date -Iseconds)   ERROR: $*" >&2; }
 
 # set_env_var <key> <value>
 # Sets KEY=VALUE in .env, overwriting any existing value (or appending if absent).
