@@ -143,6 +143,7 @@ type Setup struct {
 	DisableCollectors string
 	CustomLabels      string
 	AgentPassword     string
+	ProcMountsPath    string
 
 	Force            bool
 	SkipRegistration bool
@@ -158,6 +159,7 @@ type Config struct {
 	ListenPort                     uint16 `yaml:"listen-port"`
 	RunnerCapacity                 uint16 `yaml:"runner-capacity,omitempty"`
 	RunnerMaxConnectionsPerService uint16 `yaml:"runner-max-connections-per-service,omitempty"`
+	ProcMountsPath                 string `yaml:"proc-mounts-path,omitempty"`
 
 	Server Server `yaml:"server"`
 	Paths  Paths  `yaml:"paths"`
@@ -525,6 +527,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_SETUP_NODE_PASSWORD").StringVar(&cfg.Setup.AgentPassword)
 	setupCmd.Flag("expose-exporter", "Expose the address of the agent's node-exporter publicly on 0.0.0.0").
 		Envar("PMM_AGENT_EXPOSE_EXPORTER").BoolVar(&cfg.Setup.ExposeExporter)
+	setupCmd.Flag("proc-mounts-path", "Path to /proc/mounts file for the filesystem collector [PMM_AGENT_SETUP_PROC_MOUNTS_PATH]").
+		Envar("PMM_AGENT_SETUP_PROC_MOUNTS_PATH").StringVar(&cfg.Setup.ProcMountsPath)
 
 	return app, configFileF
 }
