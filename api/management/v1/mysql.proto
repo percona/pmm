@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package management.v1;
 
+import "extensions/v1/redact.proto";
 import "inventory/v1/agents.proto";
 import "inventory/v1/log_level.proto";
 import "inventory/v1/services.proto";
@@ -41,9 +42,12 @@ message AddMySQLServiceParams {
   // Replication set name.
   string replication_set = 11;
   // MySQL username for scraping metrics.
-  string username = 12 [(validate.rules).string.min_len = 1];
+  string username = 12 [
+    (validate.rules).string.min_len = 1,
+    (extensions.v1.sensitive) = REDACT_TYPE_FULL
+  ];
   // MySQL password for scraping metrics.
-  string password = 13;
+  string password = 13 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // If true, adds qan-mysql-perfschema-agent for provided service.
   bool qan_mysql_perfschema = 14;
   // If true, adds qan-mysql-slowlog-agent for provided service.
@@ -83,7 +87,7 @@ message AddMySQLServiceParams {
   // List of collector names to disable in this exporter.
   repeated string disable_collectors = 29;
   // Custom password for exporter endpoint /metrics.
-  string agent_password = 30;
+  string agent_password = 30 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Exporter log level
   inventory.v1.LogLevel log_level = 31;
   // Optionally expose the exporter process on all public interfaces
