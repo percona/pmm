@@ -18,9 +18,18 @@ if [ -n "${BASH_SOURCE[0]:-}" ] && [ -f "${BASH_SOURCE[0]}" ]; then
   PIPELINE_DIR="$(realpath "$(dirname "$(dirname "${BASH_SOURCE[0]}")")")"
 else
   PIPELINE_DIR="${HOME}/build"
-  if [ -d "${PIPELINE_DIR}" ] && [ -n "$(ls -A "${PIPELINE_DIR}")" ]; then
-    log_err "${PIPELINE_DIR} already exists and is not empty. Remove it or run bootstrap from that directory." >&2
-    exit 1
+  if [ -d "${PIPELINE_DIR}" ]; then
+    declare accepted="build.log cash output"
+    while IFS= read -r entry; do
+      case " ${accepted} " in
+        *" ${entry} "*) ;;
+        *)
+          log_err "${PIPELINE_DIR} already exists and contains unexpected entry: ${entry}"
+          log_err "Remove it or run bootstrap from that directory."
+          exit 1
+          ;;
+      esac
+    done < <(ls -A "${PIPELINE_DIR}" 2>/dev/null)
   fi
   mkdir -p "${PIPELINE_DIR}"
 fi
