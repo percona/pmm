@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # bootstrap — zero-to-build setup for the PMM build pipeline.
 #
-# Checks prerequisites, downloads build files, populates bare-repo cache,
-# and optionally kicks off a build.
+# Checks prerequisites, downloads build files, and populates the bare-repo cache
+# (skipped automatically if the cache already exists).
 #
-# Usage: bootstrap [--ref <branch|tag|sha>] [--target client|server|all] [--skip-cache] [--help]
+# Usage: bootstrap [--ref <branch|tag|sha>] [--help]
 
 set -euo pipefail
 
@@ -23,11 +23,9 @@ fi
 SCRIPT_DIR="${PIPELINE_DIR}/scripts"
 
 # Defaults
-BUILD_TARGET=""
-SKIP_CACHE=false
 GIT_REF="v3"
 REF_EXPLICIT=false
-TOTAL_STEPS=5
+TOTAL_STEPS=4
 
 PMM_REPO_URL="https://github.com/percona/pmm.git"
 
@@ -36,18 +34,15 @@ usage() {
 Usage: $(basename "$0") [OPTIONS]
 
 Set up the PMM build pipeline from scratch: check prerequisites, download build
-files, populate the bare-repo cache, and optionally kick off a build.
+files, and populate the bare-repo cache (skipped if already present).
 
 Options:
-  --target <client|server|all>   Build target after setup (default: skip build)
   --ref <branch|tag|sha>         Git ref to download build files from (default: v3)
-  --skip-cache                   Skip cache population and upload
   --help                         Show this help
 
 Examples:
-  $(basename "$0")                          # setup only
-  $(basename "$0") --target client          # setup + build client
-  $(basename "$0") --skip-cache --target server  # setup (no cache) + build server
+  $(basename "$0")               # full setup
+  $(basename "$0") --ref main    # set up using the main branch
 EOF
   exit 0
 }
@@ -56,25 +51,10 @@ EOF
 
 while [ $# -gt 0 ]; do
   case "$1" in
-    --target)
-      BUILD_TARGET="$2"
-      case "${BUILD_TARGET}" in
-        client | server | all) ;;
-        *)
-          log_err "--target must be one of: client, server, all" >&2
-          exit 1
-          ;;
-      esac
-      shift 2
-      ;;
     --ref)
       GIT_REF="$2"
       REF_EXPLICIT=true
       shift 2
-      ;;
-    --skip-cache)
-      SKIP_CACHE=true
-      shift
       ;;
     --help) usage ;;
     *)
@@ -162,9 +142,9 @@ download_build_files() {
   # shellcheck disable=SC2064
   trap "rm -rf '${tmpdir}'" EXIT
 
-  git clone --depth 1 --branch "${GIT_REF}" --sparse --filter=blob:none \
+  git clone --no-progress --depth 1 --branch "${GIT_REF}" --sparse --filter=blob:none \
     "${PMM_REPO_URL}" "${tmpdir}/pmm"
-  git -C "${tmpdir}/pmm" sparse-checkout set build/
+  git -c core.progress=false -C "${tmpdir}/pmm" sparse-checkout set build/
 
   local src="${tmpdir}/pmm/build"
 
@@ -276,38 +256,28 @@ setup_env() {
 # ── Step 4: Populate cache ──────────────────────────────────────────────────
 
 populate_cache() {
-  if [ "${SKIP_CACHE}" = true ]; then
-    log_step 4 "Populating repository cache (skipped: --skip-cache)"
+  log_step 4 "Checking repository cache..."
+
+  if [ -d "${PIPELINE_DIR}/cache/repos" ] && [ -n "$(ls -A "${PIPELINE_DIR}/cache/repos" 2>/dev/null)" ]; then
+    log_info "  Cache already present, updating refs from upstream..."
+    make -C "${PIPELINE_DIR}" update-cache
     return
   fi
 
-  log_step 4 "Populating repository cache..."
-  log_info "This clones 14 bare repos from upstream (first run may take a while)"
+  log_info "Cloning bare repos from upstream (first run may take a while)..."
   make -C "${PIPELINE_DIR}" populate-cache
-}
-
-# ── Optional: Build ────────────────────────────────────────────────────────
-
-run_build() {
-  if [ -z "${BUILD_TARGET}" ]; then
-    return
-  fi
-
-  log_step 5 "Starting build: ${BUILD_TARGET}"
-  make -C "${PIPELINE_DIR}" "build-${BUILD_TARGET}"
 }
 
 # ── Main ────────────────────────────────────────────────────────────────────
 
 main() {
-  log_info "PMM Build Pipeline Bootstrap"
+  log_info "PMM Build Pipeline: Bootstrap"
   log_info "============================"
 
   check_prerequisites
   download_build_files
   setup_env
   populate_cache
-  run_build
 
   echo ""
   log_info "Bootstrap complete!"
