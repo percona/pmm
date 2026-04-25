@@ -176,9 +176,9 @@ build_workspace_component() {
     full_build_cmd="
             set -e
             git config --global --add safe.directory /repos/${bare_name}
-            git clone /repos/${bare_name} /workspace
+            git clone --quiet /repos/${bare_name} /workspace
             cd /workspace
-            git checkout ${pmm_ref}
+            git checkout --quiet ${pmm_ref}
             ${build_cmd}
         "
   fi

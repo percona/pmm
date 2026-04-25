@@ -100,6 +100,7 @@ POLYSTAT_PANEL_VERSION        := $(shell sed -n 's/^%define polystat_panel_versi
 CACHE_DIR := $(CURDIR)/cache
 REPO_CACHE_DIR := $(CACHE_DIR)/repos
 STAMP_DIR := $(CACHE_DIR)/stamps
+DOCKER_CACHE_DIR := $(CACHE_DIR)/docker
 
 # Bare repository URLs used by populate-cache and update-cache.
 # Keys are the bare directory names stored in REPO_CACHE_DIR; values are the upstream clone URLs.
@@ -383,11 +384,14 @@ build-server-docker: ensure-builder
 		echo "Run 'make build-client-tarball' first to create the tarball"; \
 		exit 1; \
 	fi
+	@mkdir -p $(DOCKER_CACHE_DIR)
 	@docker buildx build \
 		--load \
 		--builder $(BUILDX_BUILDER) \
 		--platform $(SERVER_PLATFORMS) \
 		--progress plain \
+		--cache-from type=local,src=$(DOCKER_CACHE_DIR) \
+		--cache-to type=local,dest=$(DOCKER_CACHE_DIR),mode=max \
 		--build-arg BUILD_DATE="$$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
 		--build-arg VERSION="$(PMM_VERSION)" \
 		-f $(SERVER_DOCKERFILE) \
