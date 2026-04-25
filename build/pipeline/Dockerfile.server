@@ -29,7 +29,7 @@ COPY docker/server/entrypoint.sh /opt/entrypoint.sh
 COPY ansible /opt/ansible
 
 RUN --mount=type=cache,target=/var/cache \
-    --mount=type=bind,source=package,target=/tmp/packages \
+    --mount=type=bind,source=tarball,target=/tmp/packages \
     --mount=type=bind,source=output/server,target=/opt/pmm-staging \
     cp /tmp/packages/pmm-client.tar.gz /tmp/pmm-client.tar.gz && \
     install -T -p -m 644 /opt/ansible/ansible.cfg /etc/ansible/ansible.cfg && \

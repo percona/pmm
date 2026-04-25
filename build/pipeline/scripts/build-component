@@ -36,6 +36,7 @@ GOMOD_CACHE_VOL="pmm-mod"
 BUILD_CACHE_VOL="pmm-build"
 # Bare-repo cache directory — populated by 'make populate-cache'
 REPO_CACHE_DIR="${REPO_CACHE_DIR:-$(realpath "${SCRIPT_DIR}/../cache/repos")}"
+STAMP_DIR="${STAMP_DIR:-$(realpath "${SCRIPT_DIR}/../cache/stamps")}"
 
 # Component lists (must match Makefile)
 WORKSPACE_COMPONENTS="pmm-admin pmm-agent"
@@ -107,6 +108,20 @@ build_workspace_component() {
       return 1
       ;;
   esac
+
+  # Resolve cache source: local checkout HEAD in dev mode, bare repo + PMM_REF in CI mode.
+  local cache_repo cache_ref
+  if [ -n "${WORKSPACE_DIR}" ] && [ -d "${WORKSPACE_DIR}/.git" ]; then
+    cache_repo="${WORKSPACE_DIR}"
+    cache_ref="HEAD"
+  else
+    cache_repo="${REPO_CACHE_DIR}/pmm.git"
+    cache_ref="${PMM_REF:-}"
+  fi
+
+  if ! "${SCRIPT_DIR}/check-build-cache" "${component}" "${cache_ref}" "${cache_repo}" "${OUTPUT_DIR}" "${STAMP_DIR}"; then
+    return 0
+  fi
 
   echo "Building workspace component: ${component} (${BUILD_TYPE}, ${GOARCH})"
 
@@ -196,6 +211,12 @@ build_workspace_component() {
     -w /workspace \
     "${BUILDER_IMAGE}" \
     bash -c "${full_build_cmd}"
+
+  # Write build stamp after successful build.
+  local current_hash
+  current_hash="$(git -C "${cache_repo}" rev-parse "${cache_ref}^{commit}" 2>/dev/null || echo "${cache_ref}")"
+  mkdir -p "${STAMP_DIR}"
+  echo "${current_hash}" >"${STAMP_DIR}/${component}.hash"
 
   echo "Build complete! Artifacts saved to ${OUTPUT_DIR}"
   ls -lh "${OUTPUT_DIR}"

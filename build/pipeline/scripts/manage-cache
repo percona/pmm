@@ -63,8 +63,13 @@ update() {
   fi
 
   log_info "Fetching required refs from upstream..."
+
+  # Deduplicate repo=ref pairs — when multiple components share the same repo
+  # and ref (e.g. PMM_REF == PMM_UI_REF == PMM_DASHBOARDS_REF), we fetch once.
+  local unique_refs
+  unique_refs="$(printf '%s\n' "${REPO_FETCH_REFS}" | sort -u | tr '\n' ' ')"
   local item repo ref dest remote_ref
-  for item in ${REPO_FETCH_REFS}; do
+  for item in ${unique_refs}; do
     repo=${item%%=*}
     ref=${item##*=}
     dest="${REPO_CACHE_DIR}/${repo}"
