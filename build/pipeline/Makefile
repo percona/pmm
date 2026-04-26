@@ -26,7 +26,7 @@ help:
 	@echo "Main Targets:"
 	@echo "  make build-client             - Build PMM Client components and Docker image"
 	@echo "  make client-tarball           - Generate pmm-client tarball from built components"
-	@echo "  make build-server             - Build PMM Server Docker image (downloads cache first)"
+	@echo "  make build-server             - Build PMM Server Docker image (requires existing client tarball)"
 	@echo "  make build-all                - Build both client and server"
 	@echo ""
 	@echo "Component Build Targets:"
@@ -343,15 +343,16 @@ build-client-tarball:
 	@echo "Creating pmm-client tarball package..."
 	@$(PACKAGE_SCRIPT)
 
-# Build PMM Server (Docker image with all server components)
+# Build PMM Server (Docker image with all server components).
+# Requires $(PACKAGE_DIR)/pmm-client.tar.gz to exist — pmm-server installs the
+# client from that tarball, so the client binaries are not rebuilt here. Run
+# 'make build-client' (or 'make build-all') first if the tarball is missing.
 build-server:
 ifeq ($(LOGGING),)
 	$(call time_target,build-server)
 else
 	@$(MAKE) update-cache
 	@$(MAKE) build-server-components
-	@$(MAKE) build-client-components
-	@$(MAKE) build-client-tarball
 	@$(MAKE) generate-version-json
 	@echo "Assembling PMM Server Docker image..."
 	@$(MAKE) build-server-docker
@@ -433,7 +434,7 @@ build-server-docker: ensure-builder
 	@echo "Building PMM Server Docker image..."
 	@if [ ! -f "$(PACKAGE_DIR)/pmm-client.tar.gz" ]; then \
 		echo "Error: pmm-client tarball not found at $(PACKAGE_DIR)/pmm-client.tar.gz"; \
-		echo "Run 'make build-client-tarball' first to create the tarball"; \
+		echo "Run 'make build-client' first (or 'make build-all') to produce the tarball."; \
 		exit 1; \
 	fi
 	@mkdir -p $(DOCKER_CACHE_DIR)
@@ -476,10 +477,20 @@ publish-pr:
 	@if [ "$(PUSH_SERVER)" = "1" ]; then \
 		echo "Pushing $(SERVER_DOCKER_TAG)..."; \
 		docker push $(SERVER_DOCKER_TAG); \
+		echo "Removing local $(SERVER_DOCKER_TAG)..."; \
+		docker rmi $(SERVER_DOCKER_TAG) >/dev/null 2>&1 || true; \
 	fi
 	@if [ "$(PUSH_CLIENT)" = "1" ]; then \
 		echo "Pushing $(CLIENT_DOCKER_TAG)..."; \
 		docker push $(CLIENT_DOCKER_TAG); \
+		echo "Removing local $(CLIENT_DOCKER_TAG)..."; \
+		docker rmi $(CLIENT_DOCKER_TAG) >/dev/null 2>&1 || true; \
+	fi
+	@# Prune the in-builder layer cache. Safe because $(DOCKER_CACHE_DIR) holds
+	@# the durable type=local cache that the next build hydrates from.
+	@if [ -n "$(PUSH_SERVER)$(PUSH_CLIENT)" ] && docker buildx inspect $(BUILDX_BUILDER) >/dev/null 2>&1; then \
+		echo "Pruning buildx cache for $(BUILDX_BUILDER)..."; \
+		docker buildx prune --builder $(BUILDX_BUILDER) -f || true; \
 	fi
 	@if [ "$(UPLOAD_TARBALL)" = "1" ]; then \
 		echo "Uploading client tarball to s3://$(S3_BUCKET)/$(TARBALL_KEY)..."; \
