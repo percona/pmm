@@ -156,6 +156,47 @@ BUILD_CACHE_VOL   ?= pmm-build
 YARN_CACHE_VOL    ?= pmm-yarn
 SERVER_OUTPUT_DIR := $(PIPELINE_DIR)/output/server
 
+# Feature-branch publishing — engaged automatically when PR_TAG is in the
+# environment (set by the webhook listener as "PR-<num>-<shortsha>").
+S3_BUCKET          ?= pmm-build-cache
+S3_REGION          ?= us-east-2
+S3_PREFIX          ?= PR-BUILDS/pmm-client
+PMM_STAGING_BASE   ?= https://pmm.cd.percona.com/job/pmm3-aws-staging-start/parambuild/
+# Stable references — used when an artifact wasn't built in this run so the
+# PR reply / staging launcher still has a complete set.
+DEV_LATEST_SERVER  ?= perconalab/pmm-server:3-dev-latest
+DEV_LATEST_CLIENT  ?= perconalab/pmm-client:3-dev-latest
+LATEST_TARBALL_URL ?= https://s3.$(S3_REGION).amazonaws.com/$(S3_BUCKET)/$(S3_PREFIX)/pmm-client-latest.tar.gz
+
+ifneq ($(PR_TAG),)
+# Override the local docker tags so build-* produces the -fb feature-branch
+# images that pmm3-aws-staging-start consumes.
+CLIENT_DOCKER_TAG := perconalab/pmm-client-fb:$(PR_TAG)
+SERVER_DOCKER_TAG := perconalab/pmm-server-fb:$(PR_TAG)
+TARBALL_KEY       := $(S3_PREFIX)/pmm-client-$(PR_TAG).tar.gz
+TARBALL_URL       := https://s3.$(S3_REGION).amazonaws.com/$(S3_BUCKET)/$(TARBALL_KEY)
+endif
+
+# Resolve effective values for the publish-pr target based on what was built.
+# BUILT is set by the client/server/all shortcuts to one of: client, server, all.
+# Each side (client, server) is independently fresh-or-fallback.
+ifneq ($(filter client all,$(BUILT)),)
+EFFECTIVE_CLIENT_TAG  := $(CLIENT_DOCKER_TAG)
+EFFECTIVE_TARBALL_URL := $(TARBALL_URL)
+PUSH_CLIENT           := 1
+UPLOAD_TARBALL        := 1
+else
+EFFECTIVE_CLIENT_TAG  := $(DEV_LATEST_CLIENT)
+EFFECTIVE_TARBALL_URL := $(LATEST_TARBALL_URL)
+endif
+
+ifneq ($(filter server all,$(BUILT)),)
+EFFECTIVE_SERVER_TAG := $(SERVER_DOCKER_TAG)
+PUSH_SERVER          := 1
+else
+EFFECTIVE_SERVER_TAG := $(DEV_LATEST_SERVER)
+endif
+
 export ALL_REPO_URLS
 export REPO_FETCH_REFS
 export LOG_FILE
@@ -331,12 +372,23 @@ else
 	@echo "All components built successfully!"
 endif
 
-# Convenience shortcuts
+# Convenience shortcuts. When PR_TAG is set (webhook flow), each chains into
+# the unified publish-pr target with BUILT={client,server,all}, which decides
+# what to push and which references go in the artifact reply.
 client: build-client
+ifneq ($(PR_TAG),)
+	@$(MAKE) publish-pr BUILT=client
+endif
 
 server: build-server
+ifneq ($(PR_TAG),)
+	@$(MAKE) publish-pr BUILT=server
+endif
 
 all: build-all
+ifneq ($(PR_TAG),)
+	@$(MAKE) publish-pr BUILT=all
+endif
 
 # Fetch required refs from upstream into local bare repos.
 # Runs populate-cache first if the cache directory is missing.
@@ -405,6 +457,41 @@ push-client-docker:
 	@echo "Building and pushing PMM Client Docker image..."
 	@PUSH_DOCKER=1 $(CLIENT_DOCKER_SCRIPT)
 	@echo "Docker image pushed successfully!"
+
+# ---------------------------------------------------------------------------
+# Webhook publish target. Driven by BUILT={client,server,all} from the
+# matching top-level shortcut. Pushes only the freshly-built images, uploads
+# the tarball only when the client was built, and always emits the same
+# four-line artifact reply (with dev-latest fallbacks for whatever wasn't
+# built).
+# ---------------------------------------------------------------------------
+publish-pr:
+	@if [ -z "$(PR_TAG)" ]; then \
+		echo "publish-pr requires PR_TAG"; exit 1; \
+	fi
+	@case "$(BUILT)" in \
+		client|server|all) ;; \
+		*) echo "publish-pr requires BUILT=client|server|all (got '$(BUILT)')"; exit 1 ;; \
+	esac
+	@if [ "$(PUSH_SERVER)" = "1" ]; then \
+		echo "Pushing $(SERVER_DOCKER_TAG)..."; \
+		docker push $(SERVER_DOCKER_TAG); \
+	fi
+	@if [ "$(PUSH_CLIENT)" = "1" ]; then \
+		echo "Pushing $(CLIENT_DOCKER_TAG)..."; \
+		docker push $(CLIENT_DOCKER_TAG); \
+	fi
+	@if [ "$(UPLOAD_TARBALL)" = "1" ]; then \
+		echo "Uploading client tarball to s3://$(S3_BUCKET)/$(TARBALL_KEY)..."; \
+		aws s3 cp $(PACKAGE_DIR)/pmm-client.tar.gz s3://$(S3_BUCKET)/$(TARBALL_KEY) --region $(S3_REGION); \
+	fi
+	@if [ -n "$(REPLY_FILE)" ]; then \
+		echo "**Server docker:** \`$(EFFECTIVE_SERVER_TAG)\`"  > $(REPLY_FILE); \
+		echo "**Client docker:** \`$(EFFECTIVE_CLIENT_TAG)\`" >> $(REPLY_FILE); \
+		echo "**Client tarball:** $(EFFECTIVE_TARBALL_URL)"   >> $(REPLY_FILE); \
+		echo "**Staging instance:** $(PMM_STAGING_BASE)?DOCKER_VERSION=$(EFFECTIVE_SERVER_TAG)&CLIENT_VERSION=$(EFFECTIVE_TARBALL_URL)" >> $(REPLY_FILE); \
+	fi
+	@echo "Publish complete (BUILT=$(BUILT))."
 
 # Generate VERSION.json with all component git refs.
 generate-version-json:
