@@ -501,6 +501,9 @@ publish-pr:
 		echo "**Client docker:** \`$(EFFECTIVE_CLIENT_TAG)\`" >> $(REPLY_FILE); \
 		echo "**Client tarball:** $(EFFECTIVE_TARBALL_URL)"   >> $(REPLY_FILE); \
 		echo "**Staging instance:** $(PMM_STAGING_BASE)?DOCKER_VERSION=$(EFFECTIVE_SERVER_TAG)&CLIENT_VERSION=$(EFFECTIVE_TARBALL_URL)" >> $(REPLY_FILE); \
+		if [ -n "$(LOG_UUID)" ]; then \
+			echo "**Build log:** \`$(LOG_UUID)\` — view with the [pmm-log-viewer](../tree/v3/build/pipeline/log-viewer)" >> $(REPLY_FILE); \
+		fi; \
 	fi
 	@echo "Publish complete (BUILT=$(BUILT))."
 
