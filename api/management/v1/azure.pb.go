@@ -637,7 +637,7 @@ var File_management_v1_azure_proto protoreflect.FileDescriptor
 
 const file_management_v1_azure_proto_rawDesc = "" +
 	"\n" +
-	"\x19management/v1/azure.proto\x12\rmanagement.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1aextensions/v1/redact.proto\x1a\x17validate/validate.proto\"\xfe\x01\n" +
+	"\x19management/v1/azure.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x17validate/validate.proto\"\xfe\x01\n" +
 	"\x1cDiscoverAzureDatabaseRequest\x123\n" +
 	"\x0fazure_client_id\x18\x01 \x01(\tB\v\xfaB\x04r\x02\x10\x01\x88\xb5\x18\x01R\razureClientId\x12;\n" +
 	"\x13azure_client_secret\x18\x02 \x01(\tB\v\xfaB\x04r\x02\x10\x01\x88\xb5\x18\x01R\x11azureClientSecret\x12/\n" +

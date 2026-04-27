@@ -742,7 +742,7 @@ var File_management_v1_rds_proto protoreflect.FileDescriptor
 
 const file_management_v1_rds_proto_rawDesc = "" +
 	"\n" +
-	"\x17management/v1/rds.proto\x12\rmanagement.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1aextensions/v1/redact.proto\x1a\x19inventory/v1/agents.proto\x1a\x18inventory/v1/nodes.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x17validate/validate.proto\"\x8c\x02\n" +
+	"\x17management/v1/rds.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x18inventory/v1/nodes.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x17validate/validate.proto\"\x8c\x02\n" +
 	"\x13DiscoverRDSInstance\x12\x16\n" +
 	"\x06region\x18\x01 \x01(\tR\x06region\x12\x0e\n" +
 	"\x02az\x18\x02 \x01(\tR\x02az\x12\x1f\n" +

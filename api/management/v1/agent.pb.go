@@ -1100,7 +1100,7 @@ var File_management_v1_agent_proto protoreflect.FileDescriptor
 
 const file_management_v1_agent_proto_rawDesc = "" +
 	"\n" +
-	"\x19management/v1/agent.proto\x12\rmanagement.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1aextensions/v1/redact.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\"\x9a\x19\n" +
+	"\x19management/v1/agent.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\"\x9a\x19\n" +
 	"\x0eUniversalAgent\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x121\n" +
 	"\x15is_agent_password_set\x18\x02 \x01(\bR\x12isAgentPasswordSet\x12\x1d\n" +
