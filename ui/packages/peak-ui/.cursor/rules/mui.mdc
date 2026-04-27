@@ -1,0 +1,33 @@
+---
+description: MUI import and bundle hygiene for percona-ui — path imports, tooling, bundler notes.
+globs: percona-ui/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+## Why
+
+MUI ships size snapshots per commit; **barrel imports** (`@mui/material`, `@mui/icons-material`) hurt **dev startup/rebuild** most — not only bundle size. Prefer **default path imports** (matches MUI docs/examples).
+
+## Imports
+
+- **Components**: `import Button from '@mui/material/Button'` — not `import { Button } from '@mui/material'`.
+- **Icons**: `import Delete from '@mui/icons-material/Delete'` — not `import { Delete } from '@mui/icons-material'` (icons: path imports much faster in dev).
+
+## Migrate barrels → paths
+
+```bash
+npx @mui/codemod@latest v5.0.0/path-imports <path>
+```
+
+## ESLint (optional guard)
+
+`no-restricted-imports` patterns: `{ "regex": "^@mui/[^/]+$" }` — blocks package root barrels only.
+
+## VS Code auto-import
+
+`.vscode/settings.json`: `typescript.preferences.autoImportSpecifierExcludeRegexes`: `["^@mui/[^/]+$"]` — nudges path imports.
+
+## Bundlers
+
+- **Next.js ≥13.5**: `optimizePackageImports` can optimize MUI imports; still prefer path imports for consistency unless team standard says otherwise.
+- **Parcel**: set `"@parcel/resolver-default": { "packageExports": true }` in `package.json` so ESM/exports resolve correctly.
