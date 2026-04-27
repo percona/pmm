@@ -21,7 +21,6 @@ Requires(preun):  systemd
 Requires(postun): systemd
 
 AutoReq:        no
-Conflicts:      pmm-client
 Obsoletes:      pmm2-client < 3.0.0
 
 %description
