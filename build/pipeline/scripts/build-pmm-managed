@@ -8,7 +8,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PIPELINE_DIR="$(dirname "${SCRIPT_DIR}")"
 
 # Source .env so the script is usable standalone (not just via make).
-if [ -f "${PIPELINE_DIR}/.env" ]; then
+if [ -z "${MAKEFLAGS:-}" ] && [ -f "${PIPELINE_DIR}/.env" ]; then
   set -o allexport
   # shellcheck disable=SC1091
   source "${PIPELINE_DIR}/.env"

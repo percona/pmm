@@ -64,6 +64,19 @@ update() {
 
   log_info "Fetching required refs from upstream..."
 
+  # Webhook PR builds: fetch refs/pull/<N>/head into pmm.git first so the PR's
+  # commit SHA (set as PMM_REF / PMM_UI_REF / PMM_DASHBOARDS_REF by the
+  # Makefile) is locally reachable. GitHub mirrors fork PR heads under this
+  # ref on the upstream repo, so this works for fork PRs too.
+  if [ -n "${PR_NUMBER:-}" ] && [ -d "${REPO_CACHE_DIR}/pmm.git" ]; then
+    log_info "  pmm.git: fetching PR #${PR_NUMBER} head..."
+    if ! git -C "${REPO_CACHE_DIR}/pmm.git" fetch --force origin \
+         "+refs/pull/${PR_NUMBER}/head:refs/pull/${PR_NUMBER}/head"; then
+      log_err "failed to fetch PR #${PR_NUMBER} head into pmm.git"
+      exit 1
+    fi
+  fi
+
   # Deduplicate repo=ref pairs — when multiple components share the same repo
   # and ref (e.g. PMM_REF == PMM_UI_REF == PMM_DASHBOARDS_REF), we fetch once.
   local unique_refs
@@ -76,6 +89,18 @@ update() {
     [ -d "${dest}" ] || continue
 
     git -C "${dest}" config remote.origin.fetch '+refs/heads/*:refs/heads/*' 2>/dev/null || true
+
+    # 40-char hex refs are pinned commit SHAs (typically the PR head fetched
+    # above). Verify the commit is locally reachable instead of trying to
+    # resolve a branch/tag that doesn't exist upstream.
+    if [[ "${ref}" =~ ^[0-9a-f]{40}$ ]]; then
+      if git -C "${dest}" cat-file -e "${ref}^{commit}" 2>/dev/null; then
+        log_info "  ${repo}: ${ref:0:7} present locally"
+        continue
+      fi
+      log_err "SHA ${ref} not present in ${repo} — was the PR ref fetched?"
+      exit 1
+    fi
 
     log_info "  ${repo}: fetching ${ref}..."
     remote_ref=$(git -C "${dest}" ls-remote --refs origin "refs/heads/${ref}" "refs/tags/${ref}" 2>/dev/null | awk '{print $2}' | head -1)

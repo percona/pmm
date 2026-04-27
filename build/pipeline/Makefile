@@ -82,6 +82,16 @@ include .env
 ifeq ($(PMM_VERSION),)
 $(error Fatal: PMM_VERSION is not set, exiting...)
 endif
+
+# Webhook PR builds: pin all pmm-monorepo refs to the PR's head commit.
+# manage-cache fetches refs/pull/$(PR_NUMBER)/head into pmm.git first so the
+# SHA is locally reachable for the build scripts. Other refs (Grafana, VM,
+# exporters) keep their .env values — only the monorepo PR is under test.
+ifneq ($(PR_HEAD_SHA),)
+PMM_REF            := $(PR_HEAD_SHA)
+PMM_UI_REF         := $(PR_HEAD_SHA)
+PMM_DASHBOARDS_REF := $(PR_HEAD_SHA)
+endif
 BUILD_TYPE ?= static
 # Native platform of the build host — containers run natively for speed;
 # Go cross-compiles for GOARCH independently.
@@ -309,6 +319,7 @@ build-client:
 ifeq ($(LOGGING),)
 	$(call time_target,build-client)
 else
+	@$(MAKE) update-cache
 	@echo "Building PMM Client..."
 	@echo ""
 	@$(MAKE) build-client-components

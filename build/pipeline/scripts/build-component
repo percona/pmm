@@ -12,9 +12,12 @@ SCRIPT_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
 # Left empty for CI/bootstrap builds where source is cloned from the bare cache.
 WORKSPACE_DIR="${WORKSPACE_DIR:-}"
 
-# Load environment variables from .env file
-if [ -f "${SCRIPT_DIR}/../.env" ]; then
+# Load environment variables from .env file. Skip when invoked from make:
+# the parent has already exported these vars and re-sourcing would silently
+# overwrite any overrides (e.g. PMM_REF set by the webhook PR flow).
+if [ -z "${MAKEFLAGS:-}" ] && [ -f "${SCRIPT_DIR}/../.env" ]; then
   set -o allexport
+  # shellcheck disable=SC1091
   source "${SCRIPT_DIR}/../.env"
   set +o allexport
 fi
