@@ -38,7 +38,7 @@ Attach screenshots, full log excerpts (not truncated) including PMM components l
 Brief note for the technical writer — does this need a Known Issues entry, a docs update, or a release note? Reference the affected docs page if known.
 
 **How to test**
-Concrete verification steps for QA. Include: preconditions, test data setup, exact actions, and pass/fail criteria. Mention if it's automatable and which test suite it belongs to (api-tests, pmm-ui-tests, pmm-qa).
+Concrete verification steps for QA. Include: preconditions, test data setup, exact actions, and pass/fail criteria. Mention if it's automatable and which test suite it belongs to (api-tests, pmm-qa).
 
 ## Classification
 

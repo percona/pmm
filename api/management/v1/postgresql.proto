@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package management.v1;
 
+import "extensions/v1/redact.proto";
 import "google/protobuf/duration.proto";
 import "inventory/v1/agents.proto";
 import "inventory/v1/log_level.proto";
@@ -44,9 +45,12 @@ message AddPostgreSQLServiceParams {
   // Replication set name.
   string replication_set = 12;
   // PostgreSQL username for scraping metrics.
-  string username = 13 [(validate.rules).string.min_len = 1];
+  string username = 13 [
+    (validate.rules).string.min_len = 1,
+    (extensions.v1.sensitive) = REDACT_TYPE_FULL
+  ];
   // PostgreSQL password for scraping metrics.
-  string password = 14;
+  string password = 14 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // If true, adds qan-postgresql-pgstatements-agent for provided service.
   bool qan_postgresql_pgstatements_agent = 15;
   // If true, adds qan-postgresql-pgstatmonitor-agent for provided service.
@@ -78,7 +82,7 @@ message AddPostgreSQLServiceParams {
   // TLS Certificate Key.
   string tls_key = 28;
   // Custom password for exporter endpoint /metrics.
-  string agent_password = 29;
+  string agent_password = 29 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Exporter log level
   inventory.v1.LogLevel log_level = 30;
   // Limit for auto discovery.

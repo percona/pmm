@@ -67,8 +67,8 @@ TEST_FLAGS ?= -timeout=60s
 test:                           ## Run tests
 	go test $(TEST_FLAGS) -p 1 -race ./...
 
-test-cover:                     ## Run tests and collect cross-package coverage information
-	go test $(TEST_FLAGS) -p 1 -race -coverprofile=cover.out -covermode=atomic -coverpkg=./... ./...
+test-cover:                     ## Run tests and collect per-package coverage information
+	go test $(TEST_FLAGS) -p 1 -race -coverprofile=cover.out -covermode=atomic ./...
 
 fuzz-slowlog-parser:            ## Run fuzzer for agents/mysql/slowlog/parser package
 	# go get -u github.com/dvyukov/go-fuzz/go-fuzz github.com/dvyukov/go-fuzz/go-fuzz-build

@@ -15,6 +15,8 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
+
+	_ "github.com/percona/pmm/api/extensions/v1"
 )
 
 const (
@@ -635,10 +637,10 @@ var File_management_v1_azure_proto protoreflect.FileDescriptor
 
 const file_management_v1_azure_proto_rawDesc = "" +
 	"\n" +
-	"\x19management/v1/azure.proto\x12\rmanagement.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x17validate/validate.proto\"\xf6\x01\n" +
-	"\x1cDiscoverAzureDatabaseRequest\x12/\n" +
-	"\x0fazure_client_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\razureClientId\x127\n" +
-	"\x13azure_client_secret\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x11azureClientSecret\x12/\n" +
+	"\x19management/v1/azure.proto\x12\rmanagement.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1aextensions/v1/redact.proto\x1a\x17validate/validate.proto\"\xfe\x01\n" +
+	"\x1cDiscoverAzureDatabaseRequest\x123\n" +
+	"\x0fazure_client_id\x18\x01 \x01(\tB\v\xfaB\x04r\x02\x10\x01\x88\xb5\x18\x01R\razureClientId\x12;\n" +
+	"\x13azure_client_secret\x18\x02 \x01(\tB\v\xfaB\x04r\x02\x10\x01\x88\xb5\x18\x01R\x11azureClientSecret\x12/\n" +
 	"\x0fazure_tenant_id\x18\x03 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\razureTenantId\x12;\n" +
 	"\x15azure_subscription_id\x18\x04 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x13azureSubscriptionId\"\xf2\x02\n" +
 	"\x1dDiscoverAzureDatabaseInstance\x12\x1f\n" +
@@ -656,7 +658,7 @@ const file_management_v1_azure_proto_rawDesc = "" +
 	"node_model\x18\n" +
 	" \x01(\tR\tnodeModel\"\x85\x01\n" +
 	"\x1dDiscoverAzureDatabaseResponse\x12d\n" +
-	"\x17azure_database_instance\x18\x01 \x03(\v2,.management.v1.DiscoverAzureDatabaseInstanceR\x15azureDatabaseInstance\"\xea\t\n" +
+	"\x17azure_database_instance\x18\x01 \x03(\v2,.management.v1.DiscoverAzureDatabaseInstanceR\x15azureDatabaseInstance\"\xfc\t\n" +
 	"\x17AddAzureDatabaseRequest\x12\x1f\n" +
 	"\x06region\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06region\x12\x0e\n" +
 	"\x02az\x18\x02 \x01(\tR\x02az\x12(\n" +
@@ -668,12 +670,12 @@ const file_management_v1_azure_proto_rawDesc = "" +
 	"\x04port\x18\x06 \x01(\rB\a\xfaB\x04*\x02 \x00R\x04port\x12\x1b\n" +
 	"\tnode_name\x18\a \x01(\tR\bnodeName\x12!\n" +
 	"\fservice_name\x18\b \x01(\tR\vserviceName\x12 \n" +
-	"\venvironment\x18\t \x01(\tR\venvironment\x12#\n" +
+	"\venvironment\x18\t \x01(\tR\venvironment\x12'\n" +
 	"\busername\x18\n" +
-	" \x01(\tB\a\xfaB\x04r\x02\x10\x01R\busername\x12\x1a\n" +
-	"\bpassword\x18\v \x01(\tR\bpassword\x12/\n" +
-	"\x0fazure_client_id\x18\f \x01(\tB\a\xfaB\x04r\x02\x10\x01R\razureClientId\x127\n" +
-	"\x13azure_client_secret\x18\r \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x11azureClientSecret\x12/\n" +
+	" \x01(\tB\v\xfaB\x04r\x02\x10\x01\x88\xb5\x18\x01R\busername\x12 \n" +
+	"\bpassword\x18\v \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x123\n" +
+	"\x0fazure_client_id\x18\f \x01(\tB\v\xfaB\x04r\x02\x10\x01\x88\xb5\x18\x01R\razureClientId\x12;\n" +
+	"\x13azure_client_secret\x18\r \x01(\tB\v\xfaB\x04r\x02\x10\x01\x88\xb5\x18\x01R\x11azureClientSecret\x12/\n" +
 	"\x0fazure_tenant_id\x18\x0e \x01(\tB\a\xfaB\x04r\x02\x10\x01R\razureTenantId\x12;\n" +
 	"\x15azure_subscription_id\x18\x0f \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x13azureSubscriptionId\x129\n" +
 	"\x14azure_resource_group\x18\x10 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x12azureResourceGroup\x126\n" +

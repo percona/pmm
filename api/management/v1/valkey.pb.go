@@ -16,6 +16,7 @@ import (
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
 
+	_ "github.com/percona/pmm/api/extensions/v1"
 	v1 "github.com/percona/pmm/api/inventory/v1"
 )
 
@@ -351,7 +352,7 @@ var File_management_v1_valkey_proto protoreflect.FileDescriptor
 
 const file_management_v1_valkey_proto_rawDesc = "" +
 	"\n" +
-	"\x1amanagement/v1/valkey.proto\x12\rmanagement.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xc9\b\n" +
+	"\x1amanagement/v1/valkey.proto\x12\rmanagement.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1aextensions/v1/redact.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xdb\b\n" +
 	"\x16AddValkeyServiceParams\x12#\n" +
 	"\anode_id\x18\x01 \x01(\tB\n" +
 	"\xfaB\ar\x05\x10\x01\xd0\x01\x01R\x06nodeId\x12'\n" +
@@ -363,10 +364,10 @@ const file_management_v1_valkey_proto_rawDesc = "" +
 	"\x04port\x18\x06 \x01(\rR\x04port\x12\x16\n" +
 	"\x06socket\x18\a \x01(\tR\x06socket\x12)\n" +
 	"\fpmm_agent_id\x18\b \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
-	"pmmAgentId\x12\x1a\n" +
-	"\busername\x18\t \x01(\tR\busername\x12\x1a\n" +
+	"pmmAgentId\x12 \n" +
+	"\busername\x18\t \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12 \n" +
 	"\bpassword\x18\n" +
-	" \x01(\tR\bpassword\x12 \n" +
+	" \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x12 \n" +
 	"\venvironment\x18\v \x01(\tR\venvironment\x12\x18\n" +
 	"\acluster\x18\f \x01(\tR\acluster\x12'\n" +
 	"\x0freplication_set\x18\r \x01(\tR\x0ereplicationSet\x12\\\n" +
@@ -379,8 +380,8 @@ const file_management_v1_valkey_proto_rawDesc = "" +
 	"\x0fexpose_exporter\x18\x14 \x01(\bR\x0eexposeExporter\x12\x15\n" +
 	"\x06tls_ca\x18\x15 \x01(\tR\x05tlsCa\x12\x19\n" +
 	"\btls_cert\x18\x16 \x01(\tR\atlsCert\x12\x17\n" +
-	"\atls_key\x18\x17 \x01(\tR\x06tlsKey\x12%\n" +
-	"\x0eagent_password\x18\x18 \x01(\tR\ragentPassword\x12R\n" +
+	"\atls_key\x18\x17 \x01(\tR\x06tlsKey\x12+\n" +
+	"\x0eagent_password\x18\x18 \x01(\tB\x04\x88\xb5\x18\x01R\ragentPassword\x12R\n" +
 	"\x12connection_timeout\x18\x19 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
