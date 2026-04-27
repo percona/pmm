@@ -69,13 +69,17 @@ trap cleanup EXIT
 
 # Build Docker image
 echo "Building Docker image..."
+OUTPUT_FLAG="--load"
+if [ "${PUSH_DOCKER:-0}" = "1" ]; then
+  OUTPUT_FLAG="--push"
+fi
 docker buildx build \
   --platform "${PLATFORM}" \
   --build-arg BUILD_DATE="$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
   --build-arg VERSION="${PMM_VERSION}" \
   --build-arg RELEASE="$(date +%s)" \
   --progress=plain \
-  --load \
+  "${OUTPUT_FLAG}" \
   -f "${PIPELINE_DIR}/${DOCKERFILE}" \
   -t "${DOCKER_TAG}" \
   "${PIPELINE_DIR}"

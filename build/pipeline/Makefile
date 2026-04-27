@@ -345,7 +345,7 @@ build-client-components: ensure-pmm-builder ensure-build-volumes
 # Build PMM Client Docker image
 build-client-docker:
 	@echo "Building PMM Client Docker image..."
-	@DOCKER_TAG=$(CLIENT_DOCKER_TAG) $(CLIENT_DOCKER_SCRIPT)
+	@$(if $(PR_TAG),PUSH_DOCKER=1 )DOCKER_TAG=$(CLIENT_DOCKER_TAG) $(CLIENT_DOCKER_SCRIPT)
 	@echo ""
 	@echo "Docker image built successfully!"
 
@@ -450,7 +450,7 @@ build-server-docker: ensure-builder
 	fi
 	@mkdir -p $(DOCKER_CACHE_DIR)
 	@docker buildx build \
-		--load \
+		$(if $(PR_TAG),--push,--load) \
 		--builder $(BUILDX_BUILDER) \
 		--platform $(SERVER_PLATFORMS) \
 		--progress plain \
@@ -484,18 +484,6 @@ publish-pr:
 		client|server|all) ;; \
 		*) echo "publish-pr requires BUILT=client|server|all (got '$(BUILT)')"; exit 1 ;; \
 	esac
-	@if [ "$(PUSH_SERVER)" = "1" ]; then \
-		echo "Pushing $(SERVER_DOCKER_TAG)..."; \
-		docker push $(SERVER_DOCKER_TAG); \
-		echo "Removing local $(SERVER_DOCKER_TAG)..."; \
-		docker rmi $(SERVER_DOCKER_TAG) >/dev/null 2>&1 || true; \
-	fi
-	@if [ "$(PUSH_CLIENT)" = "1" ]; then \
-		echo "Pushing $(CLIENT_DOCKER_TAG)..."; \
-		docker push $(CLIENT_DOCKER_TAG); \
-		echo "Removing local $(CLIENT_DOCKER_TAG)..."; \
-		docker rmi $(CLIENT_DOCKER_TAG) >/dev/null 2>&1 || true; \
-	fi
 	@# Prune the in-builder layer cache. Safe because $(DOCKER_CACHE_DIR) holds
 	@# the durable type=local cache that the next build hydrates from.
 	@if [ -n "$(PUSH_SERVER)$(PUSH_CLIENT)" ] && docker buildx inspect $(BUILDX_BUILDER) >/dev/null 2>&1; then \
