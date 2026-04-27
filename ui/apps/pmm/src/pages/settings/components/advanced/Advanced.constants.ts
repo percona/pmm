@@ -27,3 +27,30 @@ export const STT_CHECK_INTERVALS = [
 ];
 
 export const TECHNICAL_PREVIEW_DOC_URL = 'https://per.co.na/pmm-feature-status';
+
+export const FEATURE_MANAGEMENT_SETTINGS = [
+  {
+    name: 'updates' as const,
+    label: Messages.advanced.updatesLabel,
+    tooltip: Messages.advanced.updatesTooltip,
+    link: Messages.advanced.updatesLink,
+  },
+  {
+    name: 'alerting' as const,
+    label: Messages.advanced.alertingLabel,
+    tooltip: Messages.advanced.alertingTooltip,
+    link: Messages.advanced.alertingLink,
+  },
+  {
+    name: 'backup' as const,
+    label: Messages.advanced.backupLabel,
+    tooltip: Messages.advanced.backupTooltip,
+    link: Messages.advanced.backupLink,
+  },
+  {
+    name: 'enableInternalPgQan' as const,
+    label: Messages.advanced.enableInternalPgQanLabel,
+    tooltip: Messages.advanced.enableInternalPgQanTooltip,
+    link: Messages.advanced.enableInternalPgQanLink,
+  },
+];

@@ -19,6 +19,7 @@ import { enqueueSnackbar } from 'notistack';
 import { useUpdateSettings } from 'hooks/api/useSettings';
 import { Messages } from '../../Settings.messages';
 import {
+  FEATURE_MANAGEMENT_SETTINGS,
   MAX_DAYS,
   MIN_DAYS,
   MIN_STT_CHECK_INTERVAL,
@@ -209,59 +210,36 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
               },
             }}
           >
-            {[
-              {
-                name: 'updates' as const,
-                label: m.updatesLabel,
-                tooltip: m.updatesTooltip,
-                link: m.updatesLink,
-              },
-              {
-                name: 'alerting' as const,
-                label: m.alertingLabel,
-                tooltip: m.alertingTooltip,
-                link: m.alertingLink,
-              },
-              {
-                name: 'backup' as const,
-                label: m.backupLabel,
-                tooltip: m.backupTooltip,
-                link: m.backupLink,
-              },
-              {
-                name: 'enableInternalPgQan' as const,
-                label: m.enableInternalPgQanLabel,
-                tooltip: m.enableInternalPgQanTooltip,
-                link: m.enableInternalPgQanLink,
-              },
-            ].map(({ name, label, tooltip, link }) => (
-              <Stack key={name} direction="row" alignItems="center">
-                <SwitchInput name={name} label={label} />
-                <Tooltip
-                  title={
-                    <Typography variant="caption">
-                      {tooltip}{' '}
-                      {link && (
-                        <Link
-                          href={link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          color="inherit"
-                          sx={{ textDecorationColor: 'inherit' }}
-                        >
-                          {Messages.tooltipLinkText}
-                        </Link>
-                      )}
-                    </Typography>
-                  }
-                  arrow
-                >
-                  <IconButton size="small">
-                    <InfoOutlinedIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-              </Stack>
-            ))}
+            {FEATURE_MANAGEMENT_SETTINGS.map(
+              ({ name, label, tooltip, link }) => (
+                <Stack key={name} direction="row" alignItems="center">
+                  <SwitchInput name={name} label={label} />
+                  <Tooltip
+                    title={
+                      <Typography variant="caption">
+                        {tooltip}{' '}
+                        {link && (
+                          <Link
+                            href={link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            color="inherit"
+                            sx={{ textDecorationColor: 'inherit' }}
+                          >
+                            {Messages.tooltipLinkText}
+                          </Link>
+                        )}
+                      </Typography>
+                    }
+                    arrow
+                  >
+                    <IconButton size="small">
+                      <InfoOutlinedIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </Stack>
+              )
+            )}
           </Stack>
         </Stack>
 
