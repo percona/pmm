@@ -15,6 +15,7 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 
+	_ "github.com/percona/pmm/api/extensions/v1"
 	v1 "github.com/percona/pmm/api/inventory/v1"
 )
 
@@ -468,7 +469,7 @@ var File_management_v1_mongodb_proto protoreflect.FileDescriptor
 
 const file_management_v1_mongodb_proto_rawDesc = "" +
 	"\n" +
-	"\x1bmanagement/v1/mongodb.proto\x12\rmanagement.v1\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xed\f\n" +
+	"\x1bmanagement/v1/mongodb.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\x85\r\n" +
 	"\x17AddMongoDBServiceParams\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x127\n" +
@@ -482,24 +483,24 @@ const file_management_v1_mongodb_proto_rawDesc = "" +
 	"\venvironment\x18\n" +
 	" \x01(\tR\venvironment\x12\x18\n" +
 	"\acluster\x18\v \x01(\tR\acluster\x12'\n" +
-	"\x0freplication_set\x18\f \x01(\tR\x0ereplicationSet\x12\x1a\n" +
-	"\busername\x18\r \x01(\tR\busername\x12\x1a\n" +
-	"\bpassword\x18\x0e \x01(\tR\bpassword\x120\n" +
+	"\x0freplication_set\x18\f \x01(\tR\x0ereplicationSet\x12 \n" +
+	"\busername\x18\r \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12 \n" +
+	"\bpassword\x18\x0e \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x120\n" +
 	"\x14qan_mongodb_profiler\x18\x0f \x01(\bR\x12qanMongodbProfiler\x120\n" +
 	"\x14qan_mongodb_mongolog\x18# \x01(\bR\x12qanMongodbMongolog\x12]\n" +
 	"\rcustom_labels\x18\x10 \x03(\v28.management.v1.AddMongoDBServiceParams.CustomLabelsEntryR\fcustomLabels\x122\n" +
 	"\x15skip_connection_check\x18\x11 \x01(\bR\x13skipConnectionCheck\x12\x10\n" +
 	"\x03tls\x18\x13 \x01(\bR\x03tls\x12&\n" +
 	"\x0ftls_skip_verify\x18\x14 \x01(\bR\rtlsSkipVerify\x12.\n" +
-	"\x13tls_certificate_key\x18\x15 \x01(\tR\x11tlsCertificateKey\x12H\n" +
-	"!tls_certificate_key_file_password\x18\x16 \x01(\tR\x1dtlsCertificateKeyFilePassword\x12\x15\n" +
+	"\x13tls_certificate_key\x18\x15 \x01(\tR\x11tlsCertificateKey\x12N\n" +
+	"!tls_certificate_key_file_password\x18\x16 \x01(\tB\x04\x88\xb5\x18\x01R\x1dtlsCertificateKeyFilePassword\x12\x15\n" +
 	"\x06tls_ca\x18\x17 \x01(\tR\x05tlsCa\x12(\n" +
 	"\x10max_query_length\x18\x18 \x01(\x05R\x0emaxQueryLength\x12=\n" +
 	"\fmetrics_mode\x18\x19 \x01(\x0e2\x1a.management.v1.MetricsModeR\vmetricsMode\x12-\n" +
 	"\x12disable_collectors\x18\x1a \x03(\tR\x11disableCollectors\x129\n" +
 	"\x18authentication_mechanism\x18\x1b \x01(\tR\x17authenticationMechanism\x127\n" +
-	"\x17authentication_database\x18\x1c \x01(\tR\x16authenticationDatabase\x12%\n" +
-	"\x0eagent_password\x18\x1d \x01(\tR\ragentPassword\x12+\n" +
+	"\x17authentication_database\x18\x1c \x01(\tR\x16authenticationDatabase\x12+\n" +
+	"\x0eagent_password\x18\x1d \x01(\tB\x04\x88\xb5\x18\x01R\ragentPassword\x12+\n" +
 	"\x11stats_collections\x18\x1e \x03(\tR\x10statsCollections\x12+\n" +
 	"\x11collections_limit\x18\x1f \x01(\x05R\x10collectionsLimit\x122\n" +
 	"\x15enable_all_collectors\x18  \x01(\bR\x13enableAllCollectors\x123\n" +
