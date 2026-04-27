@@ -41,7 +41,7 @@
         -->
 
         <levels>
-          <ConfigReloader>none</ConfigReloader>
+          <CertificateReloader>none</CertificateReloader>
         </levels>
 
         <!-- Per level overrides:
