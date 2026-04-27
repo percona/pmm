@@ -345,7 +345,7 @@ build-client-components: ensure-pmm-builder ensure-build-volumes
 # Build PMM Client Docker image
 build-client-docker:
 	@echo "Building PMM Client Docker image..."
-	@$(CLIENT_DOCKER_SCRIPT)
+	@DOCKER_TAG=$(CLIENT_DOCKER_TAG) $(CLIENT_DOCKER_SCRIPT)
 	@echo ""
 	@echo "Docker image built successfully!"
 
@@ -461,13 +461,12 @@ build-server-docker: ensure-builder
 		-f $(SERVER_DOCKERFILE) \
 		-t $(SERVER_DOCKER_TAG) \
 		$(PIPELINE_DIR)
-	@docker buildx stop $(BUILDX_BUILDER) 2>/dev/null || true
 	@echo "Docker image built successfully!"
 
 # Build and push PMM Client Docker image
 push-client-docker:
 	@echo "Building and pushing PMM Client Docker image..."
-	@PUSH_DOCKER=1 $(CLIENT_DOCKER_SCRIPT)
+	@PUSH_DOCKER=1 DOCKER_TAG=$(CLIENT_DOCKER_TAG) $(CLIENT_DOCKER_SCRIPT)
 	@echo "Docker image pushed successfully!"
 
 # ---------------------------------------------------------------------------
@@ -502,6 +501,7 @@ publish-pr:
 	@if [ -n "$(PUSH_SERVER)$(PUSH_CLIENT)" ] && docker buildx inspect $(BUILDX_BUILDER) >/dev/null 2>&1; then \
 		echo "Pruning buildx cache for $(BUILDX_BUILDER)..."; \
 		docker buildx prune --builder $(BUILDX_BUILDER) -f || true; \
+		docker buildx stop $(BUILDX_BUILDER) 2>/dev/null || true; \
 	fi
 	@if [ "$(UPLOAD_TARBALL)" = "1" ]; then \
 		echo "Uploading client tarball to s3://$(S3_BUCKET)/$(TARBALL_KEY)..."; \
