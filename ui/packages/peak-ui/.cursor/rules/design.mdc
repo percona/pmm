@@ -1,0 +1,22 @@
+---
+description: Constraints for percona-ui. Source of truth for color/typography/spacing decisions that aren't obvious from code alone. Always check before editing themes or component styles.
+alwaysApply: true
+---
+
+## Color
+
+### Chip component
+
+Use `palette.[semantictheme].light` for outlined surfaces (text + border) — except `warning`, which uses `palette.warning.main`.
+
+Reason: `warning` resolves to a yellow-ish, gold hue, typically. The `light` shade of warning lacks contrast on light backgrounds. `main` is the smallest step that keeps contrast acceptable for outlined treatment. Do not "normalize" warning to `light` for consistency. It's a perceptual constraint, not a token-naming bug.
+
+Mapping:
+
+| color   | outlined tone                       |
+|---------|-------------------------------------|
+| default | `text.primary`                      |
+| success | `success.light`                     |
+| info    | `info.light`                        |
+| warning | `warning.main` (yellow exception)   |
+| error   | `error.light`                       |
