@@ -20,7 +20,7 @@ RUN dnf install -y \
     && rm -rf /var/cache/*
 
 RUN groupadd -g 1002 pmm-agent && \
-    useradd -u 1002 -r -g pmm-agent -s /sbin/nologin \
+    useradd -u 1002 -g pmm-agent -s /sbin/nologin \
             -d /usr/local/percona/pmm \
             -c "PMM Client User" pmm-agent
 
