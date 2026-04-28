@@ -51,4 +51,8 @@ RTA-Jira-Tasks-Summary.md
 
 # PMM Demo backups (it would increase repository size significantly)
 dev/clickhouse-backups/
-node_modules/@percona/percona-ui
+
+# Exclude AI skills to support fast local experimentation
+.claude/
+.cursor/
+.cursorrules/
