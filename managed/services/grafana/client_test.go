@@ -220,7 +220,6 @@ func TestGetAuthUserAnonymousFallback(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, viewer, u.role)
 	})
-
 }
 
 func TestCurrentUserAnonymousFallback(t *testing.T) {
@@ -282,7 +281,6 @@ func TestCurrentUserAnonymousFallback(t *testing.T) {
 		assert.Equal(t, "Viewer", orgs[0].Role)
 		assert.Equal(t, 1, orgs[0].OrgID)
 		assert.True(t, user.IsAnonymous)
-
 	})
 
 	t.Run("GetCurrentUser returns unauthorized when anonymous role missing", func(t *testing.T) {
