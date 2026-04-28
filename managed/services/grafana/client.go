@@ -391,6 +391,9 @@ func (c *Client) getAnonymousRoleFromSettings(ctx context.Context, l *logrus.Ent
 	}
 
 	parsedRole := c.convertRole(c.resolveAnonymousRole(settings))
+	if parsedRole == none {
+		return false, none
+	}
 	l.Debugf("Grafana anonymous mode is enabled with role %q.", parsedRole.String())
 	return true, parsedRole
 }
@@ -408,18 +411,23 @@ func hasAuthorizationHeader(authHeaders http.Header) bool {
 	return authHeaders.Get("Authorization") != ""
 }
 
+// resolveAnonymousRole maps Grafana frontend settings to an effective anonymous org role string.
+//
+// Grafana maps [auth.anonymous] org_role into anonymousOrgRole (and may omit user.orgRole). We honor
+// anonymousOrgRole Viewer so org_role = Viewer in Grafana configuration is applied. Deprecated elevated
+// roles (Editor/Admin/GrafanaAdmin) in either field are clamped to Viewer.
 func (c *Client) resolveAnonymousRole(settings frontendSettingsFull) string {
-	role := settings.User.OrgRole
-	if role == "" {
-		role = settings.AnonymousOrgRole
-	}
+	userOrg := strings.TrimSpace(settings.User.OrgRole)
+	anonOrg := strings.TrimSpace(settings.AnonymousOrgRole)
 
-	switch role {
-	case viewer.String():
-		return role
-	case editor.String(), admin.String(), grafanaAdmin.String():
-		// Grafana is deprecating anonymous roles other than Viewer.
-		// Keep PMM behavior aligned and never grant elevated anonymous role.
+	switch {
+	case userOrg == viewer.String():
+		return viewer.String()
+	case userOrg == editor.String() || userOrg == admin.String() || userOrg == grafanaAdmin.String():
+		return viewer.String()
+	case userOrg == "" && (anonOrg == editor.String() || anonOrg == admin.String() || anonOrg == grafanaAdmin.String()):
+		return viewer.String()
+	case userOrg == "" && anonOrg == viewer.String():
 		return viewer.String()
 	default:
 		return none.String()
@@ -456,13 +464,13 @@ func (c *Client) GetCurrentUser(ctx context.Context, authHeaders http.Header) (C
 	}
 
 	return CurrentUser{
-		ID:              0,
-		Email:           "",
-		Name:            "Anonymous",
-		Login:           "anonymous",
-		OrgID:           orgID,
-		IsAnonymous:     true,
-		IsGrafanaAdmin:  false,
+		ID:             0,
+		Email:          "",
+		Name:           "Anonymous",
+		Login:          "anonymous",
+		OrgID:          orgID,
+		IsAnonymous:    true,
+		IsGrafanaAdmin: false,
 	}, nil
 }
 
