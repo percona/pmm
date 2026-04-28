@@ -32,10 +32,9 @@ services:
 
       # Mount local Grafana backend source (does not replace bundled Grafana binary by itself)
       # - '../../grafana:/root/go/src/github.com/grafana/grafana'
-      # Build/swap/verify Grafana backend via helper targets in ui/Makefile:
+      # Build/swap Grafana backend via helper targets in ui/Makefile:
       # make -C ui grafana-be-build
       # make -C ui grafana-be-swap
-      # make -C ui grafana-be-verify
       # or run all steps:
       # make -C ui grafana-be-refresh
     environment:
