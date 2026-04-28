@@ -1,10 +1,7 @@
----
-applyTo: admin/**
----
 # pmm-admin Development Guidelines
 
-> **Parent guide**: [AGENTS.md](../../AGENTS.md) — product overview, architecture, domain model, global conventions
-> **Related**: [api.instructions.md](api.instructions.md) (API definitions and generated clients) · [managed.instructions.md](managed.instructions.md) (server-side API implementation) · [agent.instructions.md](agent.instructions.md) (client agent)
+> **Parent guide**: [AGENTS.md](../AGENTS.md) — product overview, architecture, domain model, global conventions
+> **Related**: [api/AGENTS.md](../api/AGENTS.md) (API definitions and generated clients) · [managed/AGENTS.md](../managed/AGENTS.md) (server-side API implementation) · [agent/AGENTS.md](../agent/AGENTS.md) (client agent)
 
 **pmm-admin** is the command-line tool for PMM. It allows users to add and remove monitored services (MySQL, PostgreSQL, MongoDB, ProxySQL, HAProxy, Valkey, external), manage the inventory of nodes/services/agents, check PMM status, create annotations, and generate diagnostic summaries. It communicates with pmm-managed via the generated Swagger HTTP clients.
 
