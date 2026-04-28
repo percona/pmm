@@ -44,8 +44,9 @@ func (h *currentHTTPHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request
 		user, err := h.c.GetCurrentUser(req.Context(), authHeaders)
 		if err != nil {
 			h.l.Errorf("failed to get current user: %v", err)
-			rw.WriteHeader(http.StatusUnauthorized)
-			_ = json.NewEncoder(rw).Encode(map[string]string{"message": "Unauthorized"})
+			status, body := grafana.CurrentUserHTTPResponse(err)
+			rw.WriteHeader(status)
+			_ = json.NewEncoder(rw).Encode(body)
 			return
 		}
 		_ = json.NewEncoder(rw).Encode(user)
@@ -53,8 +54,9 @@ func (h *currentHTTPHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request
 		orgs, err := h.c.GetCurrentUserOrgs(req.Context(), authHeaders)
 		if err != nil {
 			h.l.Errorf("failed to get current user orgs: %v", err)
-			rw.WriteHeader(http.StatusUnauthorized)
-			_ = json.NewEncoder(rw).Encode(map[string]string{"message": "Unauthorized"})
+			status, body := grafana.CurrentUserHTTPResponse(err)
+			rw.WriteHeader(status)
+			_ = json.NewEncoder(rw).Encode(body)
 			return
 		}
 		_ = json.NewEncoder(rw).Encode(orgs)

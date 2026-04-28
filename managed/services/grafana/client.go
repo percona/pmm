@@ -19,6 +19,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"net"
@@ -110,6 +111,36 @@ type clientError struct {
 // Error implements error interface.
 func (e *clientError) Error() string {
 	return fmt.Sprintf("clientError: %s %s -> %d %s", e.Method, e.URL, e.Code, e.Body)
+}
+
+// CurrentUserHTTPResponse maps errors returned by Client calls used from current-user HTTP handlers
+// to an HTTP status and a small JSON body. Non-Grafana errors (e.g. dial failures) map to 502.
+func CurrentUserHTTPResponse(err error) (status int, body map[string]string) {
+	var cErr *clientError
+	if !stderrors.As(err, &cErr) {
+		return http.StatusBadGateway, map[string]string{"message": "Bad Gateway"}
+	}
+
+	switch cErr.Code {
+	case http.StatusUnauthorized:
+		msg := cErr.ErrorMessage
+		if msg == "" {
+			msg = "Unauthorized"
+		}
+		return http.StatusUnauthorized, map[string]string{"message": msg}
+	case http.StatusForbidden:
+		msg := cErr.ErrorMessage
+		if msg == "" {
+			msg = "Forbidden"
+		}
+		return http.StatusForbidden, map[string]string{"message": msg}
+	default:
+		if cErr.Code >= 500 {
+			return http.StatusBadGateway, map[string]string{"message": "Bad Gateway"}
+		}
+		// Other Grafana 4xx responses are treated as upstream errors for this proxy endpoint.
+		return http.StatusBadGateway, map[string]string{"message": "Bad Gateway"}
+	}
 }
 
 // do makes HTTP request with given parameters, and decodes JSON response with 200 OK status

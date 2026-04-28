@@ -352,6 +352,32 @@ func TestCurrentUserAnonymousFallback(t *testing.T) {
 	})
 }
 
+func TestCurrentUserHTTPResponse(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name     string
+		err      error
+		wantCode int
+		wantMsg  string
+	}{
+		{"generic", errors.New("boom"), http.StatusBadGateway, "Bad Gateway"},
+		{"401 with message", errors.WithStack(&clientError{Code: http.StatusUnauthorized, ErrorMessage: "Invalid"}), http.StatusUnauthorized, "Invalid"},
+		{"401 empty message", errors.WithStack(&clientError{Code: http.StatusUnauthorized}), http.StatusUnauthorized, "Unauthorized"},
+		{"403", errors.WithStack(&clientError{Code: http.StatusForbidden}), http.StatusForbidden, "Forbidden"},
+		{"404", errors.WithStack(&clientError{Code: http.StatusNotFound, ErrorMessage: "nf"}), http.StatusBadGateway, "Bad Gateway"},
+		{"500 upstream", errors.WithStack(&clientError{Code: http.StatusInternalServerError}), http.StatusBadGateway, "Bad Gateway"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			code, body := CurrentUserHTTPResponse(tc.err)
+			assert.Equal(t, tc.wantCode, code)
+			assert.Equal(t, tc.wantMsg, body["message"])
+		})
+	}
+}
+
 func TestClient(t *testing.T) {
 	logrus.SetLevel(logrus.TraceLevel)
 	l := logrus.WithField("test", t.Name())
