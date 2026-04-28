@@ -184,7 +184,7 @@ func (h *Handlers) postChatWithPersistence(w http.ResponseWriter, r *http.Reques
 	req.ConversationHistory = hist
 	req.Model = resolveChatModel(settings, mode, req.Model)
 	req.BehaviorControls = ResolveBehaviorControlsForPostChat(settings, mode)
-	req.AdditionalSystemPrompt = resolveChatPrompt(settings, mode)
+	req.AdditionalSystemPrompt = ResolveChatSystemPrompt(settings, mode)
 	if dc := strings.TrimSpace(body.DashboardContext); dc != "" {
 		if len(dc) > maxDashboardContextBytes {
 			dc = dc[:maxDashboardContextBytes] + "\n... (truncated)"

@@ -443,26 +443,41 @@ func (h *Handlers) GetModels(w http.ResponseWriter, r *http.Request) {
 // maxDashboardContextBytes caps PMM UI Grafana URL context appended to additional_system_prompt.
 const maxDashboardContextBytes = 32 * 1024
 
-// resolveChatPrompt returns the additional_system_prompt for chat from settings and mode. Empty settings value uses built-in default.
-func resolveChatPrompt(settings *models.Settings, mode string) string {
+// ResolveChatSystemPrompt returns the additional_system_prompt for chat (fast or investigation) mode
+// with the always-on ScopeGuardrail appended. Empty settings value uses the built-in default.
+// Idempotent: if the resolved prompt already contains scopeGuardrailMarker the guardrail is not appended again.
+func ResolveChatSystemPrompt(settings *models.Settings, mode string) string {
+	base := DefaultChatPrompt
 	if mode == "investigation" {
 		if settings.Adre.InvestigationPrompt != "" {
-			return settings.Adre.InvestigationPrompt
+			base = settings.Adre.InvestigationPrompt
+		} else {
+			base = DefaultInvestigationPrompt
 		}
-		return DefaultInvestigationPrompt
+	} else if settings.Adre.ChatPrompt != "" {
+		base = settings.Adre.ChatPrompt
 	}
-	if settings.Adre.ChatPrompt != "" {
-		return settings.Adre.ChatPrompt
-	}
-	return DefaultChatPrompt
+	return appendScopeGuardrail(base)
 }
 
-// resolveQanInsightsPrompt returns the system prompt for QAN AI Insights. Empty settings value uses built-in default.
-func resolveQanInsightsPrompt(settings *models.Settings) string {
+// ResolveQanInsightsSystemPrompt returns the system prompt for QAN AI Insights with ScopeGuardrail appended.
+// Empty settings value uses the built-in default. Idempotent (see ResolveChatSystemPrompt).
+func ResolveQanInsightsSystemPrompt(settings *models.Settings) string {
+	base := DefaultQanInsightsPrompt
 	if settings.Adre.QanInsightsPrompt != "" {
-		return settings.Adre.QanInsightsPrompt
+		base = settings.Adre.QanInsightsPrompt
 	}
-	return DefaultQanInsightsPrompt
+	return appendScopeGuardrail(base)
+}
+
+// appendScopeGuardrail appends ScopeGuardrail to p (separated by a blank line). If p already contains
+// scopeGuardrailMarker, p is returned unchanged so customers who manually pasted the guardrail into
+// their custom prompt do not get a duplicated tail.
+func appendScopeGuardrail(p string) string {
+	if strings.Contains(p, scopeGuardrailMarker) {
+		return p
+	}
+	return strings.TrimRight(p, "\n") + "\n\n" + ScopeGuardrail
 }
 
 func resolveChatModel(settings *models.Settings, mode string, reqModel string) string {
@@ -598,7 +613,7 @@ func (h *Handlers) PostQanInsights(w http.ResponseWriter, r *http.Request) {
 	chatResp, err := client.Chat(ctx, &ChatRequest{
 		Ask:                    userMessage,
 		Model:                  strings.TrimSpace(settings.Adre.QanInsightsModel),
-		AdditionalSystemPrompt: resolveQanInsightsPrompt(settings),
+		AdditionalSystemPrompt: ResolveQanInsightsSystemPrompt(settings),
 		PageContext:            pageContext,
 		Stream:                 false,
 	})

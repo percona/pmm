@@ -106,10 +106,7 @@ func (h *Handlers) PostInvestigationChat(w http.ResponseWriter, r *http.Request,
 
 	client := adre.NewClient(settings.GetAdreURL())
 	ctxStr := buildInvestigationContext(inv)
-	investigationPrompt := settings.Adre.InvestigationPrompt
-	if investigationPrompt == "" {
-		investigationPrompt = adre.DefaultInvestigationPrompt
-	}
+	investigationPrompt := adre.ResolveChatSystemPrompt(settings, "investigation")
 	systemWithContext := investigationPrompt + "\n\nCurrent investigation context:\n" + ctxStr
 
 	// Build history from existing messages only (oldest first); new user message is sent as Ask.
@@ -237,10 +234,7 @@ func (h *Handlers) runInvestigationBackground(id string, _ *models.Investigation
 
 	ctxStr := buildInvestigationContext(inv)
 	adreURL := settings.GetAdreURL()
-	invPrompt := settings.Adre.InvestigationPrompt
-	if invPrompt == "" {
-		invPrompt = adre.DefaultInvestigationPrompt
-	}
+	invPrompt := adre.ResolveChatSystemPrompt(settings, "investigation")
 	client := adre.NewClient(adreURL)
 	ask := "Generate the full investigation report for this incident.\n\nContext:\n" + ctxStr
 	chatReq := &adre.ChatRequest{
