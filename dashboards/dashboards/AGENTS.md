@@ -1,10 +1,7 @@
----
-applyTo: dashboards/dashboards/**,dashboards/misc/**
----
 # Grafana Dashboards Development Guidelines
 
 > **Parent guide**: [AGENTS.md](../../AGENTS.md) — product overview, architecture, domain model, global conventions
-> **Related**: [qan-app.instructions.md](qan-app.instructions.md) (Grafana plugin that bundles these dashboards) · [managed.instructions.md](managed.instructions.md) (server backend providing metrics data)
+> **Related**: [dashboards/pmm-app/AGENTS.md](../pmm-app/AGENTS.md) (Grafana plugin that bundles these dashboards) · [managed/AGENTS.md](../../managed/AGENTS.md) (server backend providing metrics data)
 
 The `dashboards/dashboards/` directory contains Grafana dashboard JSON definitions organized by database and domain area. These are the canonical source for all PMM monitoring dashboards. The `dashboards/misc/` directory provides Python helper scripts for importing, exporting, and converting dashboard JSON files.
 

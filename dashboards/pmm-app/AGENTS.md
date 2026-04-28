@@ -1,10 +1,7 @@
----
-applyTo: dashboards/pmm-app/**
----
 # QAN App (pmm-app) Development Guidelines
 
 > **Parent guide**: [AGENTS.md](../../AGENTS.md) — product overview, architecture, domain model, global conventions
-> **Related**: [dashboards.instructions.md](dashboards.instructions.md) (dashboard JSON definitions bundled by this plugin) · [ui.instructions.md](ui.instructions.md) (main PMM frontend) · [api.instructions.md](api.instructions.md) (API definitions consumed by QAN) · [qan-api2.instructions.md](qan-api2.instructions.md) (QAN backend)
+> **Related**: [dashboards/dashboards/AGENTS.md](../dashboards/AGENTS.md) (dashboard JSON definitions bundled by this plugin) · [ui/AGENTS.md](../../ui/AGENTS.md) (main PMM frontend) · [api/AGENTS.md](../../api/AGENTS.md) (API definitions consumed by QAN) · [qan-api2/AGENTS.md](../../qan-api2/AGENTS.md) (QAN backend)
 
 The `dashboards/pmm-app/` directory contains a **Grafana application plugin** (`type: app`, `id: pmm-app`) that bundles PMM dashboard JSON definitions and provides the custom **Query Analytics (QAN) panel** (`pmm-qan-app-panel`). It is built with TypeScript and React on top of Grafana's plugin SDK.
 
