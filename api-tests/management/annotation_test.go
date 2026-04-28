@@ -33,7 +33,11 @@ import (
 )
 
 func TestAddAnnotation(t *testing.T) {
+	t.Parallel()
+
 	t.Run("Add Basic Annotation", func(t *testing.T) {
+		t.Parallel()
+
 		params := &mservice.AddAnnotationParams{
 			Body: mservice.AddAnnotationBody{
 				Text: "Annotation Text",
@@ -46,6 +50,8 @@ func TestAddAnnotation(t *testing.T) {
 	})
 
 	t.Run("Add Empty Annotation", func(t *testing.T) {
+		t.Parallel()
+
 		params := &mservice.AddAnnotationParams{
 			Body: mservice.AddAnnotationBody{
 				Text: "",
@@ -58,6 +64,8 @@ func TestAddAnnotation(t *testing.T) {
 	})
 
 	t.Run("Non-existent service", func(t *testing.T) {
+		t.Parallel()
+
 		params := &mservice.AddAnnotationParams{
 			Body: mservice.AddAnnotationBody{
 				Text:         "Some text",
@@ -70,6 +78,8 @@ func TestAddAnnotation(t *testing.T) {
 	})
 
 	t.Run("Non-existent node", func(t *testing.T) {
+		t.Parallel()
+
 		params := &mservice.AddAnnotationParams{
 			Body: mservice.AddAnnotationBody{
 				Text:     "Some text",
@@ -82,6 +92,8 @@ func TestAddAnnotation(t *testing.T) {
 	})
 
 	t.Run("Tag length exceeded", func(t *testing.T) {
+		t.Parallel()
+
 		nodeName := pmmapitests.TestString(t, strings.Repeat("long-annotation-node-name-", 10))
 		paramsNode := &nodes.AddNodeParams{
 			Body: nodes.AddNodeBody{
@@ -109,6 +121,8 @@ func TestAddAnnotation(t *testing.T) {
 	})
 
 	t.Run("Existing service", func(t *testing.T) {
+		t.Parallel()
+
 		nodeName := pmmapitests.TestString(t, "annotation-node")
 		paramsNode := &nodes.AddNodeParams{
 			Body: nodes.AddNodeBody{
@@ -155,6 +169,8 @@ func TestAddAnnotation(t *testing.T) {
 	})
 
 	t.Run("Existing node", func(t *testing.T) {
+		t.Parallel()
+
 		nodeName := "annotation-node"
 		params := &nodes.AddNodeParams{
 			Body: nodes.AddNodeBody{

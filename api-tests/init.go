@@ -36,6 +36,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 
+	"github.com/percona/pmm/api-tests/utils"
 	actionsClient "github.com/percona/pmm/api/actions/v1/json/client"
 	advisorClient "github.com/percona/pmm/api/advisors/v1/json/client"
 	alertingClient "github.com/percona/pmm/api/alerting/v1/json/client"
@@ -43,9 +44,7 @@ import (
 	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
 	managementClient "github.com/percona/pmm/api/management/v1/json/client"
 	serverClient "github.com/percona/pmm/api/server/v1/json/client"
-	"github.com/percona/pmm/api/server/v1/json/client/server_service"
 	userClient "github.com/percona/pmm/api/user/v1/json/client"
-	"github.com/percona/pmm/api/user/v1/json/client/user_service"
 	"github.com/percona/pmm/utils/tlsconfig"
 )
 
@@ -207,22 +206,7 @@ func init() {
 	userClient.Default = userClient.New(transport, nil)
 
 	// do not run tests if server is not available
-	serverReadyErr := retryWithBackoff(Context, 10, func() error {
-		_, err = serverClient.Default.ServerService.Readiness(&server_service.ReadinessParams{
-			Context: Context,
-		})
-		if err != nil {
-			return fmt.Errorf("failed to pass the server readiness probe: %w", err)
-		}
-
-		_, err = userClient.Default.UserService.GetUser(&user_service.GetUserParams{
-			Context: Context,
-		})
-		if err != nil {
-			return fmt.Errorf("failed to get user details: %w", err)
-		}
-		return nil
-	})
+	serverReadyErr := utils.WaitServerReady(Context)
 
 	if serverReadyErr != nil {
 		logrus.Fatalf("PMM Server is not ready: %s", serverReadyErr)

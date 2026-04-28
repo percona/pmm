@@ -19,11 +19,14 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"os"
+	"path"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -170,13 +173,13 @@ func TestModifyTemplatesAPI(t *testing.T) {
 	t.Parallel()
 	client := alertingClient.Default.AlertingService
 
-	templateData, err := os.ReadFile("../testdata/alerting/template.yaml")
+	templateData, err := readTemplateContent(t, "../testdata/alerting/template.yaml")
 	require.NoError(t, err)
 
-	multipleTemplatesData, err := os.ReadFile("../testdata/alerting/multiple-templates.yaml")
+	multipleTemplatesData, err := readTemplateContent(t, "../testdata/alerting/multiple-templates.yaml")
 	require.NoError(t, err)
 
-	invalidTemplateData, err := os.ReadFile("../testdata/alerting/invalid-template.yaml")
+	invalidTemplateData, err := readTemplateContent(t, "../testdata/alerting/invalid-template.yaml")
 	require.NoError(t, err)
 
 	t.Run("add", func(t *testing.T) {
@@ -429,11 +432,15 @@ func TestModifyTemplatesAPI(t *testing.T) {
 // We keep it separate from the tests in TestModifyTemplatesAPI to avoid
 // race conditions when other tests add or remove templates while we are listing them.
 func TestListTemplatesAPI(t *testing.T) {
+	t.Parallel()
+
 	client := alertingClient.Default.AlertingService
 
-	templateData, err := os.ReadFile("../testdata/alerting/template.yaml")
+	templateData, err := readTemplateContent(t, "../testdata/alerting/template.yaml")
 	require.NoError(t, err)
 	t.Run("list", func(t *testing.T) {
+		t.Parallel()
+
 		t.Run("without pagination", func(t *testing.T) {
 			name := uuid.New().String()
 			expr := uuid.New().String()
@@ -680,7 +687,7 @@ func createAlertRuleParams(templateName, folderUID string, filter *alerting.Crea
 func createTemplate(t *testing.T) string {
 	t.Helper()
 
-	b, err := os.ReadFile("../testdata/alerting/template.yaml")
+	b, err := readTemplateContent(t, "../testdata/alerting/template.yaml")
 	require.NoError(t, err)
 
 	templateName := uuid.New().String()
@@ -694,4 +701,14 @@ func createTemplate(t *testing.T) string {
 	require.NoError(t, err)
 
 	return templateName
+}
+
+func readTemplateContent(t *testing.T, filePath string) ([]byte, error) {
+	t.Helper()
+
+	_, file, _, ok := runtime.Caller(0)
+	if !ok {
+		return nil, errors.New("failed to get current file path")
+	}
+	return os.ReadFile(path.Join(path.Dir(file), filePath)) //nolint:gosec
 }

@@ -24,7 +24,6 @@ import (
 	"reflect"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
@@ -292,32 +291,6 @@ func AddPMMAgent(t TestingT, nodeID string) *agents.AddAgentOKBody {
 	require.NoError(t, err)
 	require.NotNil(t, res)
 	return res.Payload
-}
-
-// retryWithBackoff retries fn with capped exponential backoff until it succeeds,
-// attempts are exhausted, or ctx is done.
-func retryWithBackoff(ctx context.Context, attempts int, fn func() error) error {
-	var lastErr error
-	for i := range attempts {
-		lastErr = fn()
-		if lastErr == nil {
-			return nil
-		}
-		if i == attempts-1 {
-			break
-		}
-		select {
-		case <-time.After(backoff(i)):
-		case <-ctx.Done():
-			return ctx.Err()
-		}
-	}
-	return fmt.Errorf("retries exhausted: %w", lastErr)
-}
-
-func backoff(attempt int) time.Duration {
-	d := time.Duration(1<<attempt) * time.Second
-	return min(d, 5*time.Second)
 }
 
 // check interfaces.

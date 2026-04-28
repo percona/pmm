@@ -33,7 +33,11 @@ import (
 )
 
 func TestAddProxySQL(t *testing.T) {
+	t.Parallel()
+
 	t.Run("Basic", func(t *testing.T) {
+		t.Parallel()
+
 		nodeName := pmmapitests.TestString(t, "node-for-basic-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -108,6 +112,8 @@ func TestAddProxySQL(t *testing.T) {
 	})
 
 	t.Run("With agents", func(t *testing.T) {
+		t.Parallel()
+
 		nodeName := pmmapitests.TestString(t, "node-for-all-fields-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -184,6 +190,8 @@ func TestAddProxySQL(t *testing.T) {
 	})
 
 	t.Run("With labels", func(t *testing.T) {
+		t.Parallel()
+
 		nodeName := pmmapitests.TestString(t, "node-for-all-fields-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -245,6 +253,8 @@ func TestAddProxySQL(t *testing.T) {
 	})
 
 	t.Run("With the same name", func(t *testing.T) {
+		t.Parallel()
+
 		nodeName := pmmapitests.TestString(t, "node-for-the-same-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -297,6 +307,8 @@ func TestAddProxySQL(t *testing.T) {
 	})
 
 	t.Run("With add_node block", func(t *testing.T) {
+		t.Parallel()
+
 		nodeName := pmmapitests.TestString(t, "node-for-basic-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -421,6 +433,8 @@ func TestAddProxySQL(t *testing.T) {
 	})
 
 	t.Run("With Wrong Node Type", func(t *testing.T) {
+		t.Parallel()
+
 		nodeName := pmmapitests.TestString(t, "generic-node-for-wrong-node-type")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -455,6 +469,8 @@ func TestAddProxySQL(t *testing.T) {
 	})
 
 	t.Run("Empty Service Name", func(t *testing.T) {
+		t.Parallel()
+
 		nodeName := pmmapitests.TestString(t, "node-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -477,6 +493,8 @@ func TestAddProxySQL(t *testing.T) {
 	})
 
 	t.Run("Empty Address And Socket", func(t *testing.T) {
+		t.Parallel()
+
 		nodeName := pmmapitests.TestString(t, "node-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -503,6 +521,8 @@ func TestAddProxySQL(t *testing.T) {
 	})
 
 	t.Run("Empty Port", func(t *testing.T) {
+		t.Parallel()
+
 		nodeName := pmmapitests.TestString(t, "node-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -530,6 +550,8 @@ func TestAddProxySQL(t *testing.T) {
 	})
 
 	t.Run("Address And Socket Conflict.", func(t *testing.T) {
+		t.Parallel()
+
 		nodeName := pmmapitests.TestString(t, "node-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -560,6 +582,8 @@ func TestAddProxySQL(t *testing.T) {
 	})
 
 	t.Run("Empty Pmm Agent ID", func(t *testing.T) {
+		t.Parallel()
+
 		nodeName := pmmapitests.TestString(t, "node-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -586,6 +610,8 @@ func TestAddProxySQL(t *testing.T) {
 	})
 
 	t.Run("Empty username", func(t *testing.T) {
+		t.Parallel()
+
 		nodeName := pmmapitests.TestString(t, "node-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -614,6 +640,8 @@ func TestAddProxySQL(t *testing.T) {
 }
 
 func TestRemoveProxySQL(t *testing.T) {
+	t.Parallel()
+
 	addProxySQL := func(t *testing.T, serviceName, nodeName string) (nodeID string, pmmAgentID string, serviceID string) {
 		t.Helper()
 		nodeID, pmmAgentID = RegisterGenericNode(t, mservice.RegisterNodeBody{
@@ -646,6 +674,8 @@ func TestRemoveProxySQL(t *testing.T) {
 	}
 
 	t.Run("By name", func(t *testing.T) {
+		t.Parallel()
+
 		serviceName := pmmapitests.TestString(t, "service-remove-by-name")
 		nodeName := pmmapitests.TestString(t, "node-remove-by-name")
 		nodeID, pmmAgentID, serviceID := addProxySQL(t, serviceName, nodeName)
@@ -673,6 +703,8 @@ func TestRemoveProxySQL(t *testing.T) {
 	})
 
 	t.Run("By ID", func(t *testing.T) {
+		t.Parallel()
+
 		serviceName := pmmapitests.TestString(t, "service-remove-by-id")
 		nodeName := pmmapitests.TestString(t, "node-remove-by-id")
 		nodeID, pmmAgentID, serviceID := addProxySQL(t, serviceName, nodeName)
@@ -700,6 +732,8 @@ func TestRemoveProxySQL(t *testing.T) {
 	})
 
 	t.Run("Wrong type", func(t *testing.T) {
+		t.Parallel()
+
 		serviceName := pmmapitests.TestString(t, "service-remove-wrong-type")
 		nodeName := pmmapitests.TestString(t, "node-remove-wrong-type")
 		nodeID, pmmAgentID, serviceID := addProxySQL(t, serviceName, nodeName)
@@ -717,6 +751,8 @@ func TestRemoveProxySQL(t *testing.T) {
 	})
 
 	t.Run("No params", func(t *testing.T) {
+		t.Parallel()
+
 		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
 			Context: pmmapitests.Context,
 		})

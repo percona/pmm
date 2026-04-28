@@ -33,7 +33,11 @@ import (
 )
 
 func TestAddValkey(t *testing.T) {
+	t.Parallel()
+
 	t.Run("Basic", func(t *testing.T) {
+		t.Parallel()
+
 		nodeName := pmmapitests.TestString(t, "node-for-basic-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -105,6 +109,8 @@ func TestAddValkey(t *testing.T) {
 	})
 
 	t.Run("With agents", func(t *testing.T) {
+		t.Parallel()
+
 		nodeName := pmmapitests.TestString(t, "node-for-all-fields-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -179,6 +185,8 @@ func TestAddValkey(t *testing.T) {
 	})
 
 	t.Run("With the same name", func(t *testing.T) {
+		t.Parallel()
+
 		nodeName := pmmapitests.TestString(t, "node-for-the-same-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -230,6 +238,8 @@ func TestAddValkey(t *testing.T) {
 	})
 
 	t.Run("With Wrong Node Type", func(t *testing.T) {
+		t.Parallel()
+
 		nodeName := pmmapitests.TestString(t, "generic-node-for-wrong-node-type")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -263,6 +273,8 @@ func TestAddValkey(t *testing.T) {
 	})
 
 	t.Run("Empty Service Name", func(t *testing.T) {
+		t.Parallel()
+
 		nodeName := pmmapitests.TestString(t, "node-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -285,6 +297,8 @@ func TestAddValkey(t *testing.T) {
 	})
 
 	t.Run("Empty Address", func(t *testing.T) {
+		t.Parallel()
+
 		nodeName := pmmapitests.TestString(t, "node-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -311,6 +325,8 @@ func TestAddValkey(t *testing.T) {
 	})
 
 	t.Run("Empty Port", func(t *testing.T) {
+		t.Parallel()
+
 		nodeName := pmmapitests.TestString(t, "node-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -338,6 +354,8 @@ func TestAddValkey(t *testing.T) {
 	})
 
 	t.Run("Empty Pmm Agent ID", func(t *testing.T) {
+		t.Parallel()
+
 		nodeName := pmmapitests.TestString(t, "node-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -364,6 +382,8 @@ func TestAddValkey(t *testing.T) {
 	})
 
 	t.Run("Address And Socket Conflict.", func(t *testing.T) {
+		t.Parallel()
+
 		nodeName := pmmapitests.TestString(t, "node-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -395,6 +415,8 @@ func TestAddValkey(t *testing.T) {
 }
 
 func TestRemoveValkey(t *testing.T) {
+	t.Parallel()
+
 	addValkey := func(t *testing.T, serviceName, nodeName string) (nodeID string, pmmAgentID string, serviceID string) {
 		t.Helper()
 		nodeID, pmmAgentID = RegisterGenericNode(t, mservice.RegisterNodeBody{
@@ -426,6 +448,8 @@ func TestRemoveValkey(t *testing.T) {
 	}
 
 	t.Run("By name", func(t *testing.T) {
+		t.Parallel()
+
 		serviceName := pmmapitests.TestString(t, "service-remove-by-name")
 		nodeName := pmmapitests.TestString(t, "node-remove-by-name")
 		nodeID, pmmAgentID, serviceID := addValkey(t, serviceName, nodeName)
@@ -453,6 +477,8 @@ func TestRemoveValkey(t *testing.T) {
 	})
 
 	t.Run("By ID", func(t *testing.T) {
+		t.Parallel()
+
 		serviceName := pmmapitests.TestString(t, "service-remove-by-id")
 		nodeName := pmmapitests.TestString(t, "node-remove-by-id")
 		nodeID, pmmAgentID, serviceID := addValkey(t, serviceName, nodeName)
