@@ -39,6 +39,13 @@ func (h *currentHTTPHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request
 
 	rw.Header().Set("Content-Type", "application/json")
 
+	if req.Method != http.MethodGet {
+		rw.Header().Set("Allow", http.MethodGet)
+		rw.WriteHeader(http.StatusMethodNotAllowed)
+		_ = json.NewEncoder(rw).Encode(map[string]string{"message": "Method Not Allowed"})
+		return
+	}
+
 	switch req.URL.Path {
 	case "/v1/users/current":
 		user, err := h.c.GetCurrentUser(req.Context(), authHeaders)
