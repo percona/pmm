@@ -55,3 +55,4 @@ dev/clickhouse-backups/
 # Exclude AI skills to support fast local experimentation
 .claude/
 .cursor/
+.cursorrules/
