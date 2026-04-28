@@ -297,25 +297,20 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header, l *lo
 		}, nil
 	}
 
-	var (
-		anonymousEnabled bool
-		anonymousRole    role
-	)
-	if !hasAuthorizationHeader(authHeaders) {
-		anonymousEnabled, anonymousRole = c.getAnonymousRoleFromSettings(ctx, l)
-	}
-
 	// https://grafana.com/docs/http_api/user/#actual-user - works only with Basic Auth
 	var m map[string]interface{}
 	err := c.do(ctx, http.MethodGet, "/api/user", "", authHeaders, nil, &m)
 	if err != nil {
 		var cErr *clientError
-		if anonymousEnabled && errors.As(err, &cErr) && cErr.Code == http.StatusUnauthorized {
-			l.Debugf("Grafana returned 401 for /api/user with no credentials; using anonymous role %q.", anonymousRole.String())
-			return authUser{
-				role:   anonymousRole,
-				userID: 0,
-			}, nil
+		if !hasAuthorizationHeader(authHeaders) && errors.As(err, &cErr) && cErr.Code == http.StatusUnauthorized {
+			anonymousEnabled, anonymousRole := c.getAnonymousRoleFromSettings(ctx, l)
+			if anonymousEnabled {
+				l.Debugf("Grafana returned 401 for /api/user with no credentials; using anonymous role %q.", anonymousRole.String())
+				return authUser{
+					role:   anonymousRole,
+					userID: 0,
+				}, nil
+			}
 		}
 		return emptyUser, err
 	}

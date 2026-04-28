@@ -118,6 +118,39 @@ func TestGetAuthUserAnonymousFallback(t *testing.T) {
 		assert.Equal(t, viewer, u.role)
 	})
 
+	t.Run("no frontend settings when cookie session succeeds on api user", func(t *testing.T) {
+		t.Parallel()
+
+		var settingsCalls int
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			switch r.URL.Path {
+			case "/api/frontend/settings":
+				settingsCalls++
+				w.WriteHeader(http.StatusOK)
+				_, _ = fmt.Fprint(w, `{"anonymousEnabled":true,"anonymousOrgRole":"Viewer"}`)
+			case "/api/user":
+				w.WriteHeader(http.StatusOK)
+				_, _ = fmt.Fprint(w, `{"id":42,"isGrafanaAdmin":false}`)
+			case "/api/user/orgs":
+				w.WriteHeader(http.StatusOK)
+				_, _ = fmt.Fprint(w, `[{"orgId":1,"role":"Viewer"}]`)
+			default:
+				w.WriteHeader(http.StatusNotFound)
+			}
+		}))
+		defer ts.Close()
+
+		c := NewClient(strings.TrimPrefix(ts.URL, "http://"))
+		headers := http.Header{}
+		headers.Set("Cookie", "grafana_session=ok")
+
+		u, err := c.getAuthUser(ctx, headers, l)
+		require.NoError(t, err)
+		assert.Equal(t, viewer, u.role)
+		assert.Equal(t, 42, u.userID)
+		assert.Zero(t, settingsCalls, "/api/frontend/settings must not be called when /api/user succeeds")
+	})
+
 	t.Run("no fallback when anonymous is disabled", func(t *testing.T) {
 		t.Parallel()
 
