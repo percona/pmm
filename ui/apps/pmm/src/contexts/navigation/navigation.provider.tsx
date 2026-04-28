@@ -53,7 +53,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
   
   const navTree = useMemo<NavItem[]>(() => {
     const items: NavItem[] = [];
-    // provide all service types for anonymous mode
+    // use fetched service types, falling back to an empty list while unavailable
     const currentServiceTypes = serviceTypes?.serviceTypes || []
 
     items.push(addHomePage(user?.preferences));
