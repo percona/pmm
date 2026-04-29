@@ -36,6 +36,13 @@ Generic DB options (mapped per technology):
 
 Environment variables are also supported.
 Priority is: flags > env vars > interactive prompt.
+
+pmm-agent runtime knobs (env only):
+  PMM_AGENT_CONFIG_FILE         Path to pmm-agent.yaml (default: /usr/local/percona/pmm/config/pmm-agent.yaml)
+  PMM_AGENT_LISTEN_HOST         Host the local API binds to (default: 127.0.0.1)
+  PMM_AGENT_LISTEN_PORT         Port the local API binds to (default: 7777)
+  PMM_AGENT_LOG_FILE            Log file when started without systemd (default: /var/log/pmm-agent.log)
+  PMM_AGENT_START_TIMEOUT_SECS  Seconds to wait for the local API after start (default: 30)
 EOF
 }
 
@@ -89,6 +96,15 @@ VALKEY_PORT="${VALKEY_PORT:-}"
 VALKEY_ADDRESS="${VALKEY_ADDRESS:-}"
 VALKEY_SERVICE_NAME="${VALKEY_SERVICE_NAME:-}"
 VALKEY_SOCKET="${VALKEY_SOCKET:-}"
+
+# pmm-agent runtime knobs. Defaults match the Debian/RPM package layout.
+# Override via env if the package places things elsewhere or you need to
+# bind the local API on a non-default host/port.
+PMM_AGENT_CONFIG_FILE="${PMM_AGENT_CONFIG_FILE:-/usr/local/percona/pmm/config/pmm-agent.yaml}"
+PMM_AGENT_LISTEN_HOST="${PMM_AGENT_LISTEN_HOST:-127.0.0.1}"
+PMM_AGENT_LISTEN_PORT="${PMM_AGENT_LISTEN_PORT:-7777}"
+PMM_AGENT_LOG_FILE="${PMM_AGENT_LOG_FILE:-/var/log/pmm-agent.log}"
+PMM_AGENT_START_TIMEOUT_SECS="${PMM_AGENT_START_TIMEOUT_SECS:-30}"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -273,6 +289,110 @@ install_pmm_client() {
   percona-release enable pmm3-client release || true
   apt-get update -y
   apt-get install -y pmm-client
+}
+
+# Returns 0 if a real systemd is the init (i.e. systemctl can actually start units).
+# Mere presence of systemctl is not enough — Docker images often ship the binary
+# without PID 1 being systemd, and `systemctl start` then no-ops or fails.
+systemd_is_running() {
+  [[ -d /run/systemd/system ]] && command -v systemctl >/dev/null 2>&1
+}
+
+# Cheap TCP probe via bash builtins; no curl/nc dependency. We only need to know
+# the local API socket is bound — pmm-admin will do the actual HTTP handshake.
+pmm_agent_listening() {
+  (exec 3<>"/dev/tcp/${PMM_AGENT_LISTEN_HOST}/${PMM_AGENT_LISTEN_PORT}") >/dev/null 2>&1 && {
+    exec 3>&- 3<&-
+    return 0
+  }
+  return 1
+}
+
+wait_for_pmm_agent() {
+  local i
+  for ((i = 0; i < PMM_AGENT_START_TIMEOUT_SECS; i++)); do
+    if pmm_agent_listening; then
+      return 0
+    fi
+    sleep 1
+  done
+  return 1
+}
+
+# pmm-agent refuses to start without a config file. The Debian/RPM packages
+# create an empty 0660 file at install time; recreate it if something deleted it
+# (e.g. after a manual cleanup) so the daemon at least has a path to write to.
+ensure_pmm_agent_config_file() {
+  local dir
+  dir="$(dirname "${PMM_AGENT_CONFIG_FILE}")"
+  if [[ ! -d "${dir}" ]]; then
+    mkdir -p "${dir}"
+  fi
+  if [[ ! -e "${PMM_AGENT_CONFIG_FILE}" ]]; then
+    : > "${PMM_AGENT_CONFIG_FILE}"
+    chmod 0660 "${PMM_AGENT_CONFIG_FILE}" || true
+    log "Created empty pmm-agent config: ${PMM_AGENT_CONFIG_FILE}"
+  fi
+}
+
+start_pmm_agent_systemd() {
+  if ! systemctl list-unit-files pmm-agent.service >/dev/null 2>&1; then
+    return 1
+  fi
+  log "Starting pmm-agent via systemd..."
+  systemctl daemon-reload >/dev/null 2>&1 || true
+  systemctl enable --now pmm-agent.service
+}
+
+start_pmm_agent_nohup() {
+  if ! command -v pmm-agent >/dev/null 2>&1; then
+    error "pmm-agent binary not found in PATH; cannot start it manually."
+  fi
+  mkdir -p "$(dirname "${PMM_AGENT_LOG_FILE}")" 2>/dev/null || true
+  log "Starting pmm-agent in the background (no usable systemd); logging to ${PMM_AGENT_LOG_FILE}"
+  nohup pmm-agent --config-file="${PMM_AGENT_CONFIG_FILE}" \
+    >>"${PMM_AGENT_LOG_FILE}" 2>&1 &
+  disown 2>/dev/null || true
+}
+
+# Make sure pmm-agent is up and listening on its local API before we hand off to
+# pmm-admin config/add. The script previously assumed the package's postinst had
+# already started the daemon via systemd; that breaks in containers (no systemd)
+# and on hosts where the service is masked or stopped.
+ensure_pmm_agent_running() {
+  if pmm_agent_listening; then
+    log "pmm-agent already listening on ${PMM_AGENT_LISTEN_HOST}:${PMM_AGENT_LISTEN_PORT}."
+    return
+  fi
+
+  log "pmm-agent is not running; attempting to start it."
+  ensure_pmm_agent_config_file
+
+  local started=0
+  if systemd_is_running; then
+    if start_pmm_agent_systemd; then
+      started=1
+    else
+      log "No pmm-agent.service unit found; falling back to nohup."
+    fi
+  fi
+
+  if [[ "${started}" -eq 0 ]]; then
+    start_pmm_agent_nohup
+  fi
+
+  if ! wait_for_pmm_agent; then
+    log "pmm-agent did not bind ${PMM_AGENT_LISTEN_HOST}:${PMM_AGENT_LISTEN_PORT} within ${PMM_AGENT_START_TIMEOUT_SECS}s."
+    if [[ -f "${PMM_AGENT_LOG_FILE}" ]]; then
+      log "Last 20 lines of ${PMM_AGENT_LOG_FILE}:"
+      tail -n 20 "${PMM_AGENT_LOG_FILE}" >&2 || true
+    elif systemd_is_running; then
+      log "Try: journalctl -u pmm-agent -n 50 --no-pager"
+    fi
+    error "pmm-agent failed to start."
+  fi
+
+  log "pmm-agent is up on ${PMM_AGENT_LISTEN_HOST}:${PMM_AGENT_LISTEN_PORT}."
 }
 
 # When stdin is not a terminal (e.g. curl ... | bash), prompts cannot be used for DB
@@ -468,6 +588,7 @@ add_service() {
 main() {
   require_root
   install_pmm_client
+  ensure_pmm_agent_running
   configure_pmm_agent
   add_service
   log "PMM client setup completed successfully."
