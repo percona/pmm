@@ -104,7 +104,7 @@ stdout_logfile = /srv/logs/pmm-init.log
 stdout_logfile_maxbytes = 20MB
 stdout_logfile_backups = 3
 redirect_stderr = true
-environment = ANSIBLE_CONFIG="/opt/ansible/ansible.cfg",ANSIBLE_CALLBACK_WHITELIST="profile_tasks"
+environment = ANSIBLE_CONFIG="/opt/ansible/ansible.cfg"
 {{- if not .DisableInternalDB }}
 
 [program:postgresql]
