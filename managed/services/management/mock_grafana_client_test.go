@@ -78,15 +78,15 @@ func (_m *mockGrafanaClient) CreateServiceAccount(ctx context.Context, noneName 
 }
 
 // CreateNodeInstallToken provides a mock function for install-token flow.
-func (_m *mockGrafanaClient) CreateNodeInstallToken(ctx context.Context, uniqueSuffix string, ttlSeconds int64) (int64, string, time.Time, error) {
-	ret := _m.Called(ctx, uniqueSuffix, ttlSeconds)
+func (_m *mockGrafanaClient) CreateNodeInstallToken(ctx context.Context, technology string, ttlSeconds int64) (int64, string, time.Time, error) {
+	ret := _m.Called(ctx, technology, ttlSeconds)
 
 	var r0 int64
 	var r1 string
 	var r2 time.Time
 	var r3 error
 	if rf, ok := ret.Get(0).(func(context.Context, string, int64) (int64, string, time.Time, error)); ok {
-		return rf(ctx, uniqueSuffix, ttlSeconds)
+		return rf(ctx, technology, ttlSeconds)
 	}
 	if ret.Get(0) != nil {
 		r0 = ret.Get(0).(int64)

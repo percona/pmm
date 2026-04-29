@@ -163,8 +163,8 @@ export const InstallClientPage = () => {
                 run it from a real shell.
               </Typography>
               <Typography variant="body2">
-                <strong>Generated tokens are admin-role and valid for 15 minutes</strong> — treat the
-                URL like a password.
+                <strong>Generated tokens are Grafana Editor–role and valid for 15 minutes</strong>{' '}
+                — treat the URL like a password.
               </Typography>
             </Alert>
             <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>

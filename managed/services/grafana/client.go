@@ -29,6 +29,7 @@ import (
 	"time"
 
 	gapi "github.com/grafana/grafana-api-golang-client"
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
@@ -46,9 +47,13 @@ import (
 var ErrFailedToGetToken = errors.New("failed to get the user token")
 
 const (
-	pmmServiceTokenName          = "pmm-agent-st" //nolint:gosec
-	pmmServiceAccountName        = "pmm-agent-sa" //nolint:gosec
+	pmmServiceTokenName          = "pmm-agent-st"   //nolint:gosec
+	pmmServiceAccountName        = "pmm-agent-sa"   //nolint:gosec
 	pmmInstallServiceTokenPrefix = "pmm-install-st" //nolint:gosec
+	// pmmInstallServiceAccountName is the *prefix* for shared install SAs.
+	// One SA per technology is created lazily on first use ("-mysql", "-postgresql", ...);
+	// every CreateNodeInstallToken call mints a new short-lived token on the existing SA
+	// instead of creating a fresh SA each time (which would leak Grafana rows over time).
 	pmmInstallServiceAccountName = "pmm-install-sa" //nolint:gosec
 	defaultDialTimeout           = 3 * time.Second
 	defaultKeepAliveTimeout      = 30 * time.Second
@@ -429,8 +434,18 @@ func (c *Client) CreateServiceAccount(ctx context.Context, nodeName string, rere
 	return serviceAccountID, serviceToken, nil
 }
 
-// CreateNodeInstallToken creates a Grafana service account and a short-lived token (secondsToLive) for PMM Client install scripts.
-func (c *Client) CreateNodeInstallToken(ctx context.Context, uniqueSuffix string, ttlSeconds int64) (int64, string, time.Time, error) {
+// CreateNodeInstallToken mints a short-lived Grafana token for a PMM Client install script.
+//
+// Lifecycle:
+//   - Service accounts are shared per technology ("pmm-install-sa-mysql" etc.) and created
+//     lazily on first use. This avoids the unbounded growth of one-SA-per-token.
+//   - Each call mints a brand new token on the per-tech SA with a UUID-suffixed name so
+//     concurrent or repeated calls cannot collide on Grafana's unique-name constraint.
+//   - The token role is `editor` rather than `admin`: it only needs to register a node and
+//     add a service via pmm-admin, neither of which requires admin scope.
+//   - The returned expiry is computed locally from `ttlSeconds`; Grafana enforces the same
+//     TTL server-side, so the two should agree to within clock skew.
+func (c *Client) CreateNodeInstallToken(ctx context.Context, technology string, ttlSeconds int64) (int64, string, time.Time, error) {
 	authHeaders, err := auth.GetHeadersFromContext(ctx)
 	if err != nil {
 		return 0, "", time.Time{}, err
@@ -438,56 +453,74 @@ func (c *Client) CreateNodeInstallToken(ctx context.Context, uniqueSuffix string
 	if ttlSeconds <= 0 {
 		return 0, "", time.Time{}, errors.New("ttlSeconds must be positive")
 	}
+	if technology == "" {
+		return 0, "", time.Time{}, errors.New("technology must not be empty")
+	}
 
-	saID, err := c.createInstallServiceAccount(ctx, uniqueSuffix, authHeaders)
+	saName := fmt.Sprintf("%s-%s", pmmInstallServiceAccountName, technology)
+
+	saID, err := c.findServiceAccountIDByExactName(ctx, saName, authHeaders)
+	if err != nil {
+		// Not present yet — create it. We pass force=false on purpose: if a SA
+		// with the same name somehow already exists (e.g. a racing concurrent call
+		// that beat the search→miss above), we want the create to fail loudly so
+		// the next call's search hits it, rather than silently nuking existing tokens.
+		saID, err = c.createServiceAccountNamed(ctx, saName, editor, false, authHeaders)
+		if err != nil {
+			return 0, "", time.Time{}, err
+		}
+	}
+
+	tokenName := fmt.Sprintf("%s-%s-%s", pmmInstallServiceTokenPrefix, technology, uuid.NewString())
+	key, err := c.createInstallServiceToken(ctx, saID, tokenName, ttlSeconds, authHeaders)
 	if err != nil {
 		return 0, "", time.Time{}, err
 	}
 
-	_, tok, err := c.createInstallServiceToken(ctx, saID, uniqueSuffix, ttlSeconds, authHeaders)
-	if err != nil {
-		return 0, "", time.Time{}, err
+	return int64(saID), key, time.Now().Add(time.Duration(ttlSeconds) * time.Second), nil
+}
+
+// findServiceAccountIDByExactName looks up a Grafana service account by exact name.
+// Returns an error wrapping "not found" so callers can branch on errors.Is or just retry-create.
+func (c *Client) findServiceAccountIDByExactName(ctx context.Context, name string, authHeaders http.Header) (int, error) {
+	var res serviceAccountSearch
+	if err := c.do(ctx, http.MethodGet, "/api/serviceaccounts/search", fmt.Sprintf("query=%s", name), authHeaders, nil, &res); err != nil {
+		return 0, err
 	}
-
-	return int64(saID), tok, time.Now().Add(time.Duration(ttlSeconds) * time.Second), nil
+	for _, sa := range res.ServiceAccounts {
+		if sa.Name == name {
+			return sa.ID, nil
+		}
+	}
+	return 0, errors.Errorf("service account %q not found", name)
 }
 
-func (c *Client) createInstallServiceAccount(ctx context.Context, uniqueSuffix string, authHeaders http.Header) (int, error) {
-	serviceAccountName := fmt.Sprintf("%s-%s", pmmInstallServiceAccountName, uniqueSuffix)
-	return c.createServiceAccountNamed(ctx, serviceAccountName, admin, false, authHeaders)
-}
-
-func (c *Client) createInstallServiceToken(
-	ctx context.Context,
-	serviceAccountID int,
-	uniqueSuffix string,
-	ttlSeconds int64,
-	authHeaders http.Header,
-) (int, string, error) {
-	tokenName := fmt.Sprintf("%s-%s", pmmInstallServiceTokenPrefix, uniqueSuffix)
+// createInstallServiceToken POSTs a Grafana service-account token with the given name and TTL,
+// and returns the freshly minted secret. The secret cannot be re-fetched from Grafana later,
+// so the caller must persist it from the response.
+func (c *Client) createInstallServiceToken(ctx context.Context, serviceAccountID int, tokenName string, ttlSeconds int64, authHeaders http.Header) (string, error) {
 	b, err := json.Marshal(struct {
 		Name          string `json:"name"`
 		Role          string `json:"role"`
 		SecondsToLive int64  `json:"secondsToLive"`
 	}{
 		Name:          tokenName,
-		Role:          admin.String(),
+		Role:          editor.String(),
 		SecondsToLive: ttlSeconds,
 	})
 	if err != nil {
-		return 0, "", errors.WithStack(err)
+		return "", errors.WithStack(err)
 	}
 
 	var m map[string]interface{}
 	if err = c.do(ctx, "POST", fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, b, &m); err != nil {
-		return 0, "", err
+		return "", err
 	}
-	serviceTokenKey, ok := m["key"].(string)
+	key, ok := m["key"].(string)
 	if !ok {
-		return 0, "", errors.Errorf("grafana token response missing key: %#v", m)
+		return "", errors.Errorf("grafana token response missing key: %#v", m)
 	}
-
-	return 0, serviceTokenKey, nil
+	return key, nil
 }
 
 // DeleteServiceAccount deletes service account by current service token.

@@ -70,7 +70,7 @@ type checksService interface {
 type grafanaClient interface {
 	CreateAnnotation(ctx context.Context, tags []string, time time.Time, text string, user string) (string, error)
 	CreateServiceAccount(ctx context.Context, noneName string, reregister bool) (int, string, error)
-	CreateNodeInstallToken(ctx context.Context, uniqueSuffix string, ttlSeconds int64) (int64, string, time.Time, error)
+	CreateNodeInstallToken(ctx context.Context, technology string, ttlSeconds int64) (int64, string, time.Time, error)
 	DeleteServiceAccount(ctx context.Context, noneName string, force bool) (string, error)
 }
 

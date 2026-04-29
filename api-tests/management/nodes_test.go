@@ -449,15 +449,60 @@ func TestNodeRegister(t *testing.T) {
 func TestCreateNodeInstallToken(t *testing.T) {
 	t.Parallel()
 
-	params := mservice.CreateNodeInstallTokenParams{
-		Context: pmmapitests.Context,
-		Body: mservice.CreateNodeInstallTokenBody{
-			Technology: "mysql",
-		},
-	}
-	ok, err := client.Default.ManagementService.CreateNodeInstallToken(&params)
-	require.NoError(t, err)
-	require.NotNil(t, ok)
-	require.NotNil(t, ok.Payload)
-	assert.NotEmpty(t, ok.Payload.Token)
+	t.Run("ok mysql with default ttl", func(t *testing.T) {
+		t.Parallel()
+		params := mservice.CreateNodeInstallTokenParams{
+			Context: pmmapitests.Context,
+			Body: mservice.CreateNodeInstallTokenBody{
+				Technology: "mysql",
+			},
+		}
+		ok, err := client.Default.ManagementService.CreateNodeInstallToken(&params)
+		require.NoError(t, err)
+		require.NotNil(t, ok)
+		require.NotNil(t, ok.Payload)
+		assert.NotEmpty(t, ok.Payload.Token)
+		assert.NotZero(t, ok.Payload.ServiceAccountID)
+		assert.NotNil(t, ok.Payload.ExpiresAt)
+	})
+
+	t.Run("invalid technology returns 400", func(t *testing.T) {
+		t.Parallel()
+		params := mservice.CreateNodeInstallTokenParams{
+			Context: pmmapitests.Context,
+			Body: mservice.CreateNodeInstallTokenBody{
+				Technology: "oracle",
+			},
+		}
+		ok, err := client.Default.ManagementService.CreateNodeInstallToken(&params)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `unsupported technology "oracle"`)
+		require.Nil(t, ok)
+	})
+
+	t.Run("empty technology returns 400", func(t *testing.T) {
+		t.Parallel()
+		params := mservice.CreateNodeInstallTokenParams{
+			Context: pmmapitests.Context,
+			Body:    mservice.CreateNodeInstallTokenBody{},
+		}
+		ok, err := client.Default.ManagementService.CreateNodeInstallToken(&params)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `unsupported technology`)
+		require.Nil(t, ok)
+	})
+
+	t.Run("ttl above the cap is silently clamped, request still succeeds", func(t *testing.T) {
+		t.Parallel()
+		params := mservice.CreateNodeInstallTokenParams{
+			Context: pmmapitests.Context,
+			Body: mservice.CreateNodeInstallTokenBody{
+				Technology: "postgresql",
+				TTLSeconds: 24 * 60 * 60, // 24h — way above the 15-min hard cap.
+			},
+		}
+		ok, err := client.Default.ManagementService.CreateNodeInstallToken(&params)
+		require.NoError(t, err)
+		require.NotNil(t, ok)
+		require.NotNil(t, ok.Payload)
+		assert.NotEmpty(t, ok.Payload.Token)
+	})
 }

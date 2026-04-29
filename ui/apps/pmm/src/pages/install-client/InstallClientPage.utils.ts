@@ -1,3 +1,6 @@
+// IMPORTANT: keep this list in sync with `installTokenTechnologies` in
+// managed/services/management/install_token.go — adding a tech here without
+// adding it there gets you a runtime InvalidArgument from the server.
 export type Technology = 'mysql' | 'postgresql' | 'mongodb' | 'valkey';
 export type CredentialsMode = 'prompt' | 'env' | 'flags';
 
@@ -50,7 +53,11 @@ export const shellEscape = (value: string): string =>
   `'${value.replace(/'/g, `'\\''`)}'`;
 
 export const buildInstallCommand = (opts: InstallCommandOptions): string => {
-  const curl = `curl -fsSLk ${shellEscape(opts.installerUrl)}`;
+  // -k is for the PMM Server certificate; emit it only when the user opted into
+  // insecure TLS. With a properly signed cert we want curl to verify normally
+  // (otherwise we'd be silently downgrading the security of every install).
+  const curlFlags = opts.insecureTLS ? '-fsSLk' : '-fsSL';
+  const curl = `curl ${curlFlags} ${shellEscape(opts.installerUrl)}`;
 
   const envVars: string[] = [
     `PMM_SERVER_URL=${shellEscape(opts.serverURL)}`,

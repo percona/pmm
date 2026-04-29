@@ -68,10 +68,36 @@ describe('buildInstallCommand', () => {
     expect(cmd).toContain("DB_SERVICE_NAME='node-mysql'");
   });
 
-  test('omits insecure TLS flag when disabled', () => {
+  test('omits insecure TLS flag and drops curl -k when disabled', () => {
     const cmd = buildInstallCommand({ ...baseOptions, insecureTLS: false });
     expect(cmd).not.toContain('--pmm-server-insecure-tls');
+    expect(cmd).toContain('curl -fsSL ');
+    expect(cmd).not.toContain('curl -fsSLk');
     expect(cmd).toContain('bash -s --');
+  });
+
+  test('uses curl -fsSLk when insecure TLS is on', () => {
+    const cmd = buildInstallCommand({ ...baseOptions, insecureTLS: true });
+    expect(cmd).toContain('curl -fsSLk ');
+    expect(cmd).toContain('--pmm-server-insecure-tls');
+  });
+
+  test('flags mode also respects the insecure TLS toggle for curl', () => {
+    const secure = buildInstallCommand({
+      ...optionsWithDb,
+      credentialsMode: 'flags',
+      insecureTLS: false,
+    });
+    const insecure = buildInstallCommand({
+      ...optionsWithDb,
+      credentialsMode: 'flags',
+      insecureTLS: true,
+    });
+    expect(secure).toContain('curl -fsSL ');
+    expect(secure).not.toContain('curl -fsSLk');
+    expect(secure).not.toContain('--pmm-server-insecure-tls');
+    expect(insecure).toContain('curl -fsSLk ');
+    expect(insecure).toContain('--pmm-server-insecure-tls');
   });
 
   test('includes DB credentials in env mode', () => {

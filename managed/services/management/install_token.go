@@ -17,9 +17,7 @@ package management
 
 import (
 	"context"
-	"fmt"
 	"strings"
-	"time"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -31,19 +29,23 @@ import (
 // Install-token lifetime is intentionally short: the token is only used for the
 // initial pmm-admin config handshake, after which pmm-agent stores its own
 // per-agent identity and no longer needs it. A 15-minute window covers normal
-// install runs while limiting damage if the URL leaks (the token is admin-role
-// on Grafana, so treat it like a password).
+// install runs while limiting damage if the URL leaks. The token is editor-role
+// on Grafana — narrower than admin but still privileged, so treat it like a password.
 const (
 	defaultInstallTokenTTLSeconds = int64(15 * 60) // 15 minutes
 	maxInstallTokenTTLSeconds     = int64(15 * 60) // 15 minutes; hard cap, no caller can exceed
 	minInstallTokenTTLSeconds     = int64(60)      // 1 minute floor to leave room for slow installs
 )
 
+// IMPORTANT: keep this list in sync with the `Technology` union in
+// ui/apps/pmm/src/pages/install-client/InstallClientPage.utils.ts — adding a tech
+// to one without the other yields either a UI-unreachable code path (server-only)
+// or an InvalidArgument at runtime (UI-only).
 var installTokenTechnologies = map[string]struct{}{
-	"mysql":       {},
-	"postgresql":  {},
-	"mongodb":     {},
-	"valkey":      {},
+	"mysql":      {},
+	"postgresql": {},
+	"mongodb":    {},
+	"valkey":     {},
 }
 
 // CreateNodeInstallToken mints a short-lived Grafana token for PMM Client install; it does not create inventory rows.
@@ -57,18 +59,16 @@ func (s *ManagementService) CreateNodeInstallToken(
 	}
 
 	ttl := int64(req.GetTtlSeconds())
-	if ttl == 0 {
+	switch {
+	case ttl == 0:
 		ttl = defaultInstallTokenTTLSeconds
-	}
-	if ttl < minInstallTokenTTLSeconds {
+	case ttl < minInstallTokenTTLSeconds:
 		ttl = minInstallTokenTTLSeconds
-	}
-	if ttl > maxInstallTokenTTLSeconds {
+	case ttl > maxInstallTokenTTLSeconds:
 		ttl = maxInstallTokenTTLSeconds
 	}
 
-	unique := fmt.Sprintf("%s-%d", tech, time.Now().UnixNano())
-	saID, tok, exp, err := s.grafanaClient.CreateNodeInstallToken(ctx, unique, ttl)
+	saID, tok, exp, err := s.grafanaClient.CreateNodeInstallToken(ctx, tech, ttl)
 	if err != nil {
 		return nil, err
 	}

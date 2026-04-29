@@ -38,7 +38,9 @@ func TestManagementService_CreateNodeInstallToken(t *testing.T) {
 	t.Run("ok", func(t *testing.T) {
 		t.Parallel()
 		gc := &mockGrafanaClient{}
-		gc.On("CreateNodeInstallToken", mock.Anything, mock.MatchedBy(func(s string) bool { return s != "" }), defaultInstallTokenTTLSeconds).
+		// Asserts the grafana client receives the lowercased, trimmed technology — not a
+		// computed unique suffix — so the shared-SA-per-tech contract stays intact.
+		gc.On("CreateNodeInstallToken", mock.Anything, "mysql", defaultInstallTokenTTLSeconds).
 			Return(int64(42), "tok", exp, nil).Once()
 
 		s := &ManagementService{grafanaClient: gc}
@@ -52,6 +54,18 @@ func TestManagementService_CreateNodeInstallToken(t *testing.T) {
 		require.NotNil(t, res.ExpiresAt)
 	})
 
+	t.Run("normalises technology casing and whitespace", func(t *testing.T) {
+		t.Parallel()
+		gc := &mockGrafanaClient{}
+		gc.On("CreateNodeInstallToken", mock.Anything, "mongodb", defaultInstallTokenTTLSeconds).
+			Return(int64(7), "k", exp, nil).Once()
+		s := &ManagementService{grafanaClient: gc}
+		_, err := s.CreateNodeInstallToken(ctx, &managementv1.CreateNodeInstallTokenRequest{
+			Technology: "  MongoDB ",
+		})
+		require.NoError(t, err)
+	})
+
 	t.Run("invalid technology", func(t *testing.T) {
 		t.Parallel()
 		s := &ManagementService{grafanaClient: &mockGrafanaClient{}}
@@ -60,10 +74,18 @@ func TestManagementService_CreateNodeInstallToken(t *testing.T) {
 		assert.Equal(t, codes.InvalidArgument, status.Code(err))
 	})
 
+	t.Run("empty technology", func(t *testing.T) {
+		t.Parallel()
+		s := &ManagementService{grafanaClient: &mockGrafanaClient{}}
+		_, err := s.CreateNodeInstallToken(ctx, &managementv1.CreateNodeInstallTokenRequest{})
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+	})
+
 	t.Run("ttl clamp max", func(t *testing.T) {
 		t.Parallel()
 		gc := &mockGrafanaClient{}
-		gc.On("CreateNodeInstallToken", mock.Anything, mock.Anything, int64(maxInstallTokenTTLSeconds)).
+		gc.On("CreateNodeInstallToken", mock.Anything, "postgresql", maxInstallTokenTTLSeconds).
 			Return(int64(1), "t", exp, nil).Once()
 		s := &ManagementService{grafanaClient: gc}
 		_, err := s.CreateNodeInstallToken(ctx, &managementv1.CreateNodeInstallTokenRequest{
@@ -76,7 +98,7 @@ func TestManagementService_CreateNodeInstallToken(t *testing.T) {
 	t.Run("ttl clamp min", func(t *testing.T) {
 		t.Parallel()
 		gc := &mockGrafanaClient{}
-		gc.On("CreateNodeInstallToken", mock.Anything, mock.Anything, int64(minInstallTokenTTLSeconds)).
+		gc.On("CreateNodeInstallToken", mock.Anything, "mongodb", minInstallTokenTTLSeconds).
 			Return(int64(1), "t", exp, nil).Once()
 		s := &ManagementService{grafanaClient: gc}
 		_, err := s.CreateNodeInstallToken(ctx, &managementv1.CreateNodeInstallTokenRequest{
@@ -84,5 +106,17 @@ func TestManagementService_CreateNodeInstallToken(t *testing.T) {
 			Technology: "mongodb",
 		})
 		require.NoError(t, err)
+	})
+
+	t.Run("propagates grafana client error", func(t *testing.T) {
+		t.Parallel()
+		gc := &mockGrafanaClient{}
+		grafanaErr := status.Error(codes.Unavailable, "grafana down")
+		gc.On("CreateNodeInstallToken", mock.Anything, "valkey", defaultInstallTokenTTLSeconds).
+			Return(int64(0), "", time.Time{}, grafanaErr).Once()
+		s := &ManagementService{grafanaClient: gc}
+		_, err := s.CreateNodeInstallToken(ctx, &managementv1.CreateNodeInstallTokenRequest{Technology: "valkey"})
+		require.Error(t, err)
+		assert.Equal(t, codes.Unavailable, status.Code(err))
 	})
 }

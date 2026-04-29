@@ -300,12 +300,10 @@ systemd_is_running() {
 
 # Cheap TCP probe via bash builtins; no curl/nc dependency. We only need to know
 # the local API socket is bound — pmm-admin will do the actual HTTP handshake.
+# Anything else listening on that port (very unlikely on 7777) would falsely report
+# success; that case fails clearly at the next pmm-admin step.
 pmm_agent_listening() {
-  (exec 3<>"/dev/tcp/${PMM_AGENT_LISTEN_HOST}/${PMM_AGENT_LISTEN_PORT}") >/dev/null 2>&1 && {
-    exec 3>&- 3<&-
-    return 0
-  }
-  return 1
+  (exec 3<>"/dev/tcp/${PMM_AGENT_LISTEN_HOST}/${PMM_AGENT_LISTEN_PORT}") >/dev/null 2>&1
 }
 
 wait_for_pmm_agent() {
@@ -374,8 +372,21 @@ start_pmm_agent_nohup() {
     error "pmm-agent binary not found in PATH; cannot start it manually."
   fi
   mkdir -p "$(dirname "${PMM_AGENT_LOG_FILE}")" 2>/dev/null || true
-  log "Starting pmm-agent in the background (no usable systemd); logging to ${PMM_AGENT_LOG_FILE}"
-  nohup pmm-agent --config-file="${PMM_AGENT_CONFIG_FILE}" \
+
+  # Drop privileges to the pmm-agent system user when it exists (created by the
+  # package's postinst). The systemd unit runs as that user too, so this keeps
+  # the nohup fallback from being a privilege regression vs. systemd. If the
+  # user is missing (very minimal images, broken postinst), fall back to root —
+  # the agent still works, just with a wider blast radius if it's ever exploited.
+  local runner=()
+  if id -u pmm-agent >/dev/null 2>&1 && command -v runuser >/dev/null 2>&1; then
+    runner=(runuser -u pmm-agent --)
+    log "Starting pmm-agent as user pmm-agent (no usable systemd); logging to ${PMM_AGENT_LOG_FILE}"
+  else
+    log "Starting pmm-agent as root (no pmm-agent user or no runuser binary); logging to ${PMM_AGENT_LOG_FILE}"
+  fi
+
+  nohup "${runner[@]}" pmm-agent --config-file="${PMM_AGENT_CONFIG_FILE}" \
     >>"${PMM_AGENT_LOG_FILE}" 2>&1 &
   disown 2>/dev/null || true
 }
@@ -422,12 +433,11 @@ ensure_pmm_agent_running() {
 
 # When stdin is not a terminal (e.g. curl ... | bash), prompts cannot be used for DB
 # credentials. Fail before pmm-admin config so we do not register the node and then fail on add.
+# Caller must have already invoked apply_generic_inputs.
 require_db_creds_before_config_if_noninteractive() {
   if [[ -t 0 ]]; then
     return 0
   fi
-
-  apply_generic_inputs
 
   local hint='This install is non-interactive (stdin is not a terminal, e.g. curl ... | bash), so database credentials cannot be prompted. Set them before the agent registers with PMM Server: use --db-user and --db-password, or DB_USER and DB_PASSWORD (include them in sudo env if you use sudo env; use sudo -E to preserve exports).'
 
@@ -589,8 +599,11 @@ add_valkey() {
 }
 
 add_service() {
-  apply_generic_inputs
-
+  # IMPORTANT: keep this list in sync with:
+  #   - installTokenTechnologies in managed/services/management/install_token.go
+  #   - the Technology union in ui/apps/pmm/src/pages/install-client/InstallClientPage.utils.ts
+  # If you add a tech here, also add a matching add_<tech> function above and the require_*
+  # branch in require_db_creds_before_config_if_noninteractive.
   case "${TECH}" in
     mysql)
       add_mysql
@@ -610,12 +623,39 @@ add_service() {
   esac
 }
 
+# Print a tailored recovery hint when `pmm-admin add` fails after `pmm-admin config`
+# has already registered the node. The most common cause we see in the field is
+# wrong DB credentials; the second most common is leftover state from a previous
+# attempt. Either way the user wants `--force` on the next run + corrected creds.
+report_add_service_failure() {
+  local exit_code="$1"
+  echo >&2
+  log "ERROR: 'pmm-admin add ${TECH}' failed (exit ${exit_code}) after the node was already registered with PMM Server."
+  log "       The node is now visible on PMM Server but no service is attached to it."
+  log "       Most common causes:"
+  log "         * Wrong DB credentials → fix DB_USER / DB_PASSWORD (or --db-user / --db-password) and re-run."
+  log "         * Service already attached from a prior attempt → re-run with --force (or PMM_CONFIG_FORCE=1)"
+  log "           which removes the previous node registration and its services on the server before re-registering."
+  log "       For MongoDB also check --db-auth-db / DB_AUTH_DB; for PostgreSQL check --db-name / DB_NAME."
+  exit "${exit_code}"
+}
+
 main() {
   require_root
   install_pmm_client
+  apply_generic_inputs
   ensure_pmm_agent_running
   configure_pmm_agent
+  # Disable -e for the add step so we can intercept its non-zero exit, print a
+  # helpful recovery message, and propagate the original status. `set -E` would
+  # work too but only on bash >= 4 and changes broader trap semantics.
+  set +e
   add_service
+  local rc=$?
+  set -e
+  if [[ "${rc}" -ne 0 ]]; then
+    report_add_service_failure "${rc}"
+  fi
   log "PMM client setup completed successfully."
 }
 

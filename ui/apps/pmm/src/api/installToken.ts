@@ -4,10 +4,12 @@ import { MANAGEMENT_CREATE_NODE_INSTALL_TOKEN } from './managementEndpoints';
 export interface CreateNodeInstallTokenResponse {
   token: string;
   expiresAt?: string;
-  serviceAccountId?: string;
+  // The server also returns serviceAccountId (int64-as-string in JSON), but the
+  // UI does not consume it today. Re-add the field if/when we expose a revoke
+  // action — see managed/services/grafana/client.go::CreateNodeInstallToken.
 }
 
-/** Mints a short-lived Grafana token for PMM Client install (admin session). */
+/** Mints a short-lived Grafana token for PMM Client install (caller must be authenticated; token is Grafana Editor-role). */
 export async function createNodeInstallToken(
   technology: string,
   ttlSeconds = 0
