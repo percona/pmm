@@ -6,7 +6,7 @@ Use the **Install PMM Client** wizard to generate a single command that installs
 
 - PMM Server must be reachable from the target node (default port `443`; whatever you set in **PMM host** is used in `PMM_SERVER_URL`).
 - The node user running the command needs `sudo` access (or run it as `root`, e.g. inside a container).
-- A short-lived service token is minted from the UI on demand — you do not need to provision one beforehand. Tokens use Grafana **Editor** organization role and **expire 15 minutes after generation**; treat the URL like a password.
+- A short-lived service token is minted from the UI on demand — you do not need to provision one beforehand. The Grafana **Install PMM Client** service account is **Admin** org role and **expires 15 minutes after generation**; treat the URL like a password.
 
 ## Generate the command
 
@@ -49,11 +49,13 @@ The script available at `/pmm-static/install-pmm-client.sh` performs:
 
 ## Security notes
 
-- Generated tokens use Grafana **Editor** organization role (not Grafana Admin) and live for **15 minutes** — generate, run, done. There is no way to extend the lifetime from the UI.
+- Generated tokens are tied to Grafana service accounts minted as **Admin** org role and live for **15 minutes** — generate, run, done. There is no way to extend the lifetime from the UI.
 - Env mode and flags mode put credentials into the shell command line and the spawned process environment. On a shared node, that may be visible in `ps`/`/proc` to other users for a moment. Prompt mode avoids this but, as noted above, can only be used from a real terminal — not through `curl | bash`.
 - Avoid copy-pasting the command into chat/issue trackers; the embedded service token is a credential.
 
 ## Troubleshooting
+
+- **curl / browser returns `404`** on URLs like `/graph/…` — PMM Web UI lives under **`/pmm-ui/`**. Use paths such as `/pmm-ui/graph/inventory/nodes`, not `/graph/inventory/nodes`. This matches what the browser loads (see address bar vs. truncated copy-pastes).
 
 - **TLS handshake errors against PMM Server** — turn on **Use insecure TLS** in the wizard (sets the `--pmm-server-insecure-tls` script flag). The wizard also adds `-k` to `curl` so the script download itself succeeds.
 - **Package install fails** — verify outbound access to the Percona repositories (`repo.percona.com`).

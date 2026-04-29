@@ -163,7 +163,7 @@ export const InstallClientPage = () => {
                 run it from a real shell.
               </Typography>
               <Typography variant="body2">
-                <strong>Generated tokens are Grafana Editor–role and valid for 15 minutes</strong>{' '}
+                <strong>Generated tokens are Grafana Admin–role on the minted install service account and valid for 15 minutes</strong>{' '}
                 — treat the URL like a password.
               </Typography>
             </Alert>

@@ -441,10 +441,13 @@ func (c *Client) CreateServiceAccount(ctx context.Context, nodeName string, rere
 //     lazily on first use. This avoids the unbounded growth of one-SA-per-token.
 //   - Each call mints a brand new token on the per-tech SA with a UUID-suffixed name so
 //     concurrent or repeated calls cannot collide on Grafana's unique-name constraint.
-//   - The token role is `editor` rather than `admin`: it only needs to register a node and
-//     add a service via pmm-admin, neither of which requires admin scope.
-//   - The returned expiry is computed locally from `ttlSeconds`; Grafana enforces the same
-//     TTL server-side, so the two should agree to within clock skew.
+//   - Service accounts use Grafana org role **Admin** (required for `pmm-admin config` /
+//     inventory APIs in real PMM setups).
+//   - Token creation uses only `name` + `secondsToLive` in the JSON body. Tokens inherit the
+//     service account permissions. (Sending extra fields such as `role` has been observed to
+//     make Grafana ignore `secondsToLive`, falling back to a long default expiry in the UI.)
+//   - The returned expiry is computed locally from `ttlSeconds`; aligned with Grafana's stored
+//     expiry when `secondsToLive` is honored.
 func (c *Client) CreateNodeInstallToken(ctx context.Context, technology string, ttlSeconds int64) (int64, string, time.Time, error) {
 	authHeaders, err := auth.GetHeadersFromContext(ctx)
 	if err != nil {
@@ -465,7 +468,7 @@ func (c *Client) CreateNodeInstallToken(ctx context.Context, technology string, 
 		// with the same name somehow already exists (e.g. a racing concurrent call
 		// that beat the search→miss above), we want the create to fail loudly so
 		// the next call's search hits it, rather than silently nuking existing tokens.
-		saID, err = c.createServiceAccountNamed(ctx, saName, editor, false, authHeaders)
+		saID, err = c.createServiceAccountNamed(ctx, saName, admin, false, authHeaders)
 		if err != nil {
 			return 0, "", time.Time{}, err
 		}
@@ -498,14 +501,18 @@ func (c *Client) findServiceAccountIDByExactName(ctx context.Context, name strin
 // createInstallServiceToken POSTs a Grafana service-account token with the given name and TTL,
 // and returns the freshly minted secret. The secret cannot be re-fetched from Grafana later,
 // so the caller must persist it from the response.
+//
+// See https://grafana.com/docs/grafana/latest/developers/http_api/serviceaccount/#create-a-token
+// — the supported body is `name` and `secondsToLive`. Token permissions follow the service
+// account role (we create the install SAs as Admin). Do not add `role` here: some Grafana
+// versions ignore `secondsToLive` when extra fields are present, and the UI may show a ~24h
+// default expiry even though the server still applies a different TTL.
 func (c *Client) createInstallServiceToken(ctx context.Context, serviceAccountID int, tokenName string, ttlSeconds int64, authHeaders http.Header) (string, error) {
 	b, err := json.Marshal(struct {
 		Name          string `json:"name"`
-		Role          string `json:"role"`
 		SecondsToLive int64  `json:"secondsToLive"`
 	}{
 		Name:          tokenName,
-		Role:          editor.String(),
 		SecondsToLive: ttlSeconds,
 	})
 	if err != nil {

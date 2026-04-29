@@ -9,7 +9,7 @@ export interface CreateNodeInstallTokenResponse {
   // action — see managed/services/grafana/client.go::CreateNodeInstallToken.
 }
 
-/** Mints a short-lived Grafana token for PMM Client install (caller must be authenticated; token is Grafana Editor-role). */
+/** Mints a short-lived Grafana token for PMM Client install (authenticated admin session). */
 export async function createNodeInstallToken(
   technology: string,
   ttlSeconds = 0

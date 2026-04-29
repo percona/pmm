@@ -29,8 +29,8 @@ import (
 // Install-token lifetime is intentionally short: the token is only used for the
 // initial pmm-admin config handshake, after which pmm-agent stores its own
 // per-agent identity and no longer needs it. A 15-minute window covers normal
-// install runs while limiting damage if the URL leaks. The token is editor-role
-// on Grafana — narrower than admin but still privileged, so treat it like a password.
+// install runs while limiting damage if the URL leaks. The Grafana install service
+// account uses org Admin; the token TTL is capped at 15 minutes — treat it like a password.
 const (
 	defaultInstallTokenTTLSeconds = int64(15 * 60) // 15 minutes
 	maxInstallTokenTTLSeconds     = int64(15 * 60) // 15 minutes; hard cap, no caller can exceed
