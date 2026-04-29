@@ -16,6 +16,11 @@
     - /etc/nginx/conf.d/
     - /etc/nginx/ssl/
 
+- name: Enable nginx 1.26 module stream
+  command: dnf -y module enable nginx:1.26
+  args:
+    creates: /etc/dnf/modules.d/nginx.module
+
 - name: Install nginx
   dnf:
     name: nginx
