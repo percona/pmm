@@ -150,13 +150,14 @@ func (d *ElastiCacheDiscovery) reconcile(ctx context.Context) {
 	}
 
 	// Add missing.
-	var added int
+	var added, addFailed int
 	for addr, inst := range expectedByAddr {
 		if _, exists := managedByAddr[addr]; exists {
 			continue
 		}
 		if err := d.addInstance(ctx, inst); err != nil {
 			d.l.Warnf("Failed to add %s (%s): %v", inst.ClusterID, addr, err)
+			addFailed++
 			continue
 		}
 		added++
@@ -175,8 +176,8 @@ func (d *ElastiCacheDiscovery) reconcile(ctx context.Context) {
 		removed++
 	}
 
-	unchanged := len(expectedByAddr) - added
-	d.l.Infof("Reconciliation complete: +%d added, -%d removed, =%d unchanged", added, removed, unchanged)
+	unchanged := len(expectedByAddr) - added - addFailed
+	d.l.Infof("Reconciliation complete: +%d added, -%d removed, =%d unchanged, %d failed", added, removed, unchanged, addFailed)
 }
 
 // discoverTaggedInstances discovers ElastiCache replication groups across regions

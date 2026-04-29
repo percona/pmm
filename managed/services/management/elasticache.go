@@ -224,7 +224,7 @@ func (s *ManagementService) DiscoverElastiCache(ctx context.Context, req *manage
 		return res, status.Error(codes.Unknown, err.Error())
 	}
 
-	return nil, err
+	return res, nil
 }
 
 // addElastiCache adds an ElastiCache instance as a Valkey service.
