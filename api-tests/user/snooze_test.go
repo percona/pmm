@@ -16,7 +16,6 @@
 package user
 
 import (
-	"net/http"
 	"net/url"
 	"testing"
 	"time"
@@ -26,7 +25,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	_ "github.com/percona/pmm/api-tests"
 	pmmapitests "github.com/percona/pmm/api-tests"
 	userClient "github.com/percona/pmm/api/user/v1/json/client"
 	userService "github.com/percona/pmm/api/user/v1/json/client/user_service"
@@ -36,32 +34,24 @@ func TestUpdateSnoozing(t *testing.T) {
 	t.Parallel()
 
 	// Create test user.
-	gURL := *pmmapitests.BaseURL
-	gURL.Path = "/graph"
-	adminTransport := pmmapitests.Transport(&gURL, pmmapitests.ServerInsecureTLS).Transport.(*http.Transport)
-	gClient, err := gapi.New(gURL.String(), gapi.Config{
-		Client: &http.Client{
-			Transport: adminTransport,
-		},
-	})
-	assert.NoError(t, err)
+	gClient := pmmapitests.GetGrafanaClient(t)
 
 	login := pmmapitests.TestString(t, "test-user")
 	password := pmmapitests.TestString(t, "test-password")
-	gUserId, err := gClient.CreateUser(gapi.User{
+	gUserID, err := gClient.CreateUser(gapi.User{
 		Name:     login,
 		Login:    login,
 		Password: password,
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	t.Cleanup(func() {
-		_ = gClient.DeleteUser(gUserId)
+		_ = gClient.DeleteUser(gUserID)
 	})
 
-	userUrl := *pmmapitests.BaseURL
-	userUrl.User = url.UserPassword(login, password)
-	userTransport := pmmapitests.Transport(&userUrl, pmmapitests.ServerInsecureTLS)
+	userURL := *pmmapitests.BaseURL
+	userURL.User = url.UserPassword(login, password)
+	userTransport := pmmapitests.Transport(&userURL, pmmapitests.ServerInsecureTLS)
 	cloneUserClient := userClient.New(userTransport, nil)
 
 	t.Run("provides default snooze information in user info", func(t *testing.T) {

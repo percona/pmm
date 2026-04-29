@@ -72,7 +72,7 @@ clean:	## Cleanup reports
 ## Docker-related targets
 
 docker-build-image: ## Build Docker image with tests
-	docker build \
+	DOCKER_BUILDKIT=1 docker build \
 	-f Dockerfile \
 	--build-arg GO_VERSION=$(GO_VERSION) \
 	--build-arg VERSION=$(GIT_VERSION) \

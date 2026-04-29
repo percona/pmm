@@ -31,7 +31,6 @@ import (
 
 	pmmapitests "github.com/percona/pmm/api-tests"
 	serverTest "github.com/percona/pmm/api-tests/server"
-	"github.com/percona/pmm/api-tests/utils"
 	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
 	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 	serverClient "github.com/percona/pmm/api/server/v1/json/client"
@@ -440,7 +439,7 @@ func TestSettings(t *testing.T) {
 				assert.Equal(t, publicAddress, res.Payload.Settings.PMMPublicAddress)
 
 				// Wait until the server is ready again, otherwise the next tests will fail because of Grafana being restarted.
-				serverReadyErr := utils.WaitServerReady(t.Context())
+				serverReadyErr := pmmapitests.WaitServerReady(t.Context())
 				require.NoError(t, serverReadyErr)
 			})
 

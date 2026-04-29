@@ -36,7 +36,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 
-	"github.com/percona/pmm/api-tests/utils"
 	actionsClient "github.com/percona/pmm/api/actions/v1/json/client"
 	advisorClient "github.com/percona/pmm/api/advisors/v1/json/client"
 	alertingClient "github.com/percona/pmm/api/alerting/v1/json/client"
@@ -126,14 +125,14 @@ func init() {
 	seed := time.Now().UnixNano()
 	gofakeit.SetGlobalFaker(gofakeit.New(seed))
 
-	flag.BoolVar(&Debug,"pmm.debug", false, "Enable debug output [PMM_DEBUG].")
+	flag.BoolVar(&Debug, "pmm.debug", false, "Enable debug output [PMM_DEBUG].")
 	traceF := flag.Bool("pmm.trace", false, "Enable trace output [PMM_TRACE].")
 	serverURLF := flag.String("pmm.server-url", "https://admin:admin@localhost/", "PMM Server URL [PMM_SERVER_URL].")
-	flag.BoolVar(&ServerInsecureTLS,"pmm.server-insecure-tls", false, "Skip PMM Server TLS certificate validation [PMM_SERVER_INSECURE_TLS].")
-	flag.BoolVar(&RunUpdateTest,"pmm.run-update-test", false, "Run PMM Server update test [PMM_RUN_UPDATE_TEST].")
+	flag.BoolVar(&ServerInsecureTLS, "pmm.server-insecure-tls", false, "Skip PMM Server TLS certificate validation [PMM_SERVER_INSECURE_TLS].")
+	flag.BoolVar(&RunUpdateTest, "pmm.run-update-test", false, "Run PMM Server update test [PMM_RUN_UPDATE_TEST].")
 
 	// FIXME we should rethink it once https://jira.percona.com/browse/PMM-5106 is implemented
-	flag.BoolVar(&RunAdvisorTests,"pmm.run-advisor-tests", false, "Run Advisor tests that require connected clients [PMM_RUN_ADVISOR_TESTS].")
+	flag.BoolVar(&RunAdvisorTests, "pmm.run-advisor-tests", false, "Run Advisor tests that require connected clients [PMM_RUN_ADVISOR_TESTS].")
 
 	testing.Init()
 	flag.Parse()
@@ -208,7 +207,7 @@ func init() {
 
 	// do not run tests if server is not available
 	logrus.Info("Checking PMM Server availability...")
-	serverReadyErr := utils.WaitServerReady(Context)
+	serverReadyErr := WaitServerReady(Context)
 
 	if serverReadyErr != nil {
 		logrus.Fatalf("PMM Server is not ready: %s", serverReadyErr)

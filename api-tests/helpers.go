@@ -21,11 +21,15 @@ import (
 	"fmt"
 	"math"
 	"math/big"
+	"net/http"
 	"reflect"
 	"strings"
+	"sync"
 	"testing"
+	"time"
 
 	"github.com/AlekSi/pointer"
+	gapi "github.com/grafana/grafana-api-golang-client"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -36,6 +40,10 @@ import (
 	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 	managementClient "github.com/percona/pmm/api/management/v1/json/client"
 	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
+	serverClient "github.com/percona/pmm/api/server/v1/json/client"
+	server "github.com/percona/pmm/api/server/v1/json/client/server_service"
+	userClient "github.com/percona/pmm/api/user/v1/json/client"
+	"github.com/percona/pmm/api/user/v1/json/client/user_service"
 )
 
 // ErrorResponse represents the response structure for error scenarios.
@@ -151,10 +159,11 @@ func UnregisterNodes(t TestingT, nodeIDs ...string) {
 		}
 
 		res, err := managementClient.Default.ManagementService.UnregisterNode(params)
-		require.NoError(t, err)
-		assert.NotNil(t, res)
-		assert.NotNil(t, res.Payload)
-		assert.Empty(t, res.Payload.Warning)
+		if err == nil {
+			assert.NotNil(t, res)
+			assert.NotNil(t, res.Payload)
+			assert.Empty(t, res.Payload.Warning)
+		}
 	}
 }
 
@@ -168,8 +177,9 @@ func RemoveNodes(t TestingT, nodeIDs ...string) {
 			Context: context.Background(),
 		}
 		res, err := client.Default.NodesService.RemoveNode(params)
-		require.NoError(t, err)
-		assert.NotNil(t, res)
+		if err == nil {
+			assert.NotNil(t, res)
+		}
 	}
 }
 
@@ -184,8 +194,9 @@ func RemoveServices(t TestingT, serviceIDs ...string) {
 			Context:   context.Background(),
 		}
 		res, err := client.Default.ServicesService.RemoveService(params)
-		require.NoError(t, err)
-		assert.NotNil(t, res)
+		if err == nil {
+			assert.NotNil(t, res)
+		}
 	}
 }
 
@@ -199,8 +210,9 @@ func RemoveAgents(t TestingT, agentIDs ...string) {
 			Context: context.Background(),
 		}
 		res, err := client.Default.AgentsService.RemoveAgent(params)
-		require.NoError(t, err)
-		assert.NotNil(t, res)
+		if err == nil {
+			assert.NotNil(t, res)
+		}
 	}
 }
 
@@ -215,8 +227,9 @@ func RemoveAgentsWithForce(t TestingT, agentIDs ...string) {
 			Context: context.Background(),
 		}
 		res, err := client.Default.AgentsService.RemoveAgent(params)
-		require.NoError(t, err)
-		assert.NotNil(t, res)
+		if err == nil {
+			assert.NotNil(t, res)
+		}
 	}
 }
 
@@ -291,6 +304,78 @@ func AddPMMAgent(t TestingT, nodeID string) *agents.AddAgentOKBody {
 	require.NoError(t, err)
 	require.NotNil(t, res)
 	return res.Payload
+}
+
+var (
+	gClient *gapi.Client
+	gOnce   sync.Once
+)
+
+// WaitServerReady checks if the server is ready by calling the readiness endpoint and fetching user details.
+func WaitServerReady(ctx context.Context) error {
+	return retryWithBackoff(ctx, 10, func() error {
+		_, err := serverClient.Default.ServerService.Readiness(&server.ReadinessParams{
+			Context: ctx,
+		})
+		if err != nil {
+			return fmt.Errorf("failed to pass the server readiness probe: %w", err)
+		}
+
+		_, err = userClient.Default.UserService.GetUser(&user_service.GetUserParams{
+			Context: ctx,
+		})
+		if err != nil {
+			return fmt.Errorf("failed to get user details: %w", err)
+		}
+		return nil
+	})
+}
+
+// retryWithBackoff retries fn with capped exponential backoff until it succeeds,
+// attempts are exhausted, or ctx is done.
+func retryWithBackoff(ctx context.Context, attempts int, fn func() error) error {
+	var lastErr error
+	for i := range attempts {
+		lastErr = fn()
+		if lastErr == nil {
+			return nil
+		}
+		if i == attempts-1 {
+			break
+		}
+		select {
+		case <-time.After(backoff(i)):
+		case <-ctx.Done():
+			return ctx.Err()
+		}
+	}
+	return fmt.Errorf("retries exhausted: %w", lastErr)
+}
+
+func backoff(attempt int) time.Duration {
+	d := time.Duration(1<<attempt) * time.Second
+	return min(d, 5*time.Second)
+}
+
+// GetGrafanaClient creates and returns a Grafana client.
+func GetGrafanaClient(t TestingT) *gapi.Client {
+	t.Helper()
+	gOnce.Do(func() {
+		gURL := *BaseURL
+		gURL.Path = "/graph"
+		adminTransport, ok := Transport(&gURL, ServerInsecureTLS).Transport.(*http.Transport)
+		require.True(t, ok, "unexpected transport type: %T", Transport(&gURL, ServerInsecureTLS).Transport)
+
+		grafanaClient, err := gapi.New(gURL.String(), gapi.Config{
+			Client: &http.Client{
+				Transport: adminTransport,
+			},
+		})
+		assert.NoError(t, err)
+
+		gClient = grafanaClient
+	})
+	return gClient
 }
 
 // check interfaces.

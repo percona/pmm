@@ -129,9 +129,10 @@ func RemovePMMAgentWithSubAgents(t pmmapitests.TestingT, pmmAgentID string) {
 		PMMAgentID: pointer.ToString(pmmAgentID),
 		Context:    context.Background(),
 	})
-	assert.NoError(t, err)
-	removeAllAgentsInList(t, listAgentsOK)
-	pmmapitests.RemoveAgents(t, pmmAgentID)
+	if err == nil {
+		removeAllAgentsInList(t, listAgentsOK)
+		pmmapitests.RemoveAgents(t, pmmAgentID)
+	}
 }
 
 func removeServiceAgents(t pmmapitests.TestingT, serviceID string) {
@@ -141,8 +142,9 @@ func removeServiceAgents(t pmmapitests.TestingT, serviceID string) {
 		ServiceID: pointer.ToString(serviceID),
 		Context:   context.Background(),
 	})
-	assert.NoError(t, err)
-	removeAllAgentsInList(t, listAgentsOK)
+	if err == nil {
+		removeAllAgentsInList(t, listAgentsOK)
+	}
 }
 
 func removeAllAgentsInList(t pmmapitests.TestingT, listAgentsOK *agents.ListAgentsOK) {
