@@ -322,6 +322,31 @@ wait_for_pmm_agent() {
 # pmm-agent refuses to start without a config file. The Debian/RPM packages
 # create an empty 0660 file at install time; recreate it if something deleted it
 # (e.g. after a manual cleanup) so the daemon at least has a path to write to.
+# Resolve the local node's hostname without assuming the `hostname(1)` binary
+# is installed. Minimal RHEL/UBI/Alpine images often ship without it, and a
+# `$(hostname)` call there fails with "command not found", which under
+# `set -euo pipefail` aborts the whole script. Order: bash's $HOSTNAME (set
+# automatically via gethostname() syscall) → uname -n → /etc/hostname → "node".
+detect_node_hostname() {
+  if [[ -n "${HOSTNAME:-}" ]]; then
+    printf '%s' "${HOSTNAME}"
+    return
+  fi
+  if command -v hostname >/dev/null 2>&1; then
+    hostname
+    return
+  fi
+  if command -v uname >/dev/null 2>&1; then
+    uname -n
+    return
+  fi
+  if [[ -r /etc/hostname ]]; then
+    head -n 1 /etc/hostname
+    return
+  fi
+  printf 'node'
+}
+
 ensure_pmm_agent_config_file() {
   local dir
   dir="$(dirname "${PMM_AGENT_CONFIG_FILE}")"
@@ -504,7 +529,7 @@ add_mysql() {
   prompt_if_empty MYSQL_USERNAME "MySQL username" 0 "${db_cred_hint}"
   prompt_if_empty MYSQL_PASSWORD "MySQL password" 1 "${db_cred_hint}"
   MYSQL_ADDRESS="${MYSQL_ADDRESS:-${MYSQL_HOST:-127.0.0.1}:${MYSQL_PORT:-3306}}"
-  MYSQL_SERVICE_NAME="${MYSQL_SERVICE_NAME:-$(hostname)-mysql}"
+  MYSQL_SERVICE_NAME="${MYSQL_SERVICE_NAME:-$(detect_node_hostname)-mysql}"
   local cmd=(pmm-admin add mysql "${MYSQL_SERVICE_NAME}" "${MYSQL_ADDRESS}" "--username=${MYSQL_USERNAME}" "--password=${MYSQL_PASSWORD}")
   if [[ -n "${MYSQL_SOCKET}" ]]; then
     cmd+=("--socket=${MYSQL_SOCKET}")
@@ -518,7 +543,7 @@ add_postgresql() {
   prompt_if_empty POSTGRESQL_USERNAME "PostgreSQL username" 0 "${db_cred_hint}"
   prompt_if_empty POSTGRESQL_PASSWORD "PostgreSQL password" 1 "${db_cred_hint}"
   POSTGRESQL_ADDRESS="${POSTGRESQL_ADDRESS:-${POSTGRESQL_HOST:-127.0.0.1}:${POSTGRESQL_PORT:-5432}}"
-  POSTGRESQL_SERVICE_NAME="${POSTGRESQL_SERVICE_NAME:-$(hostname)-postgresql}"
+  POSTGRESQL_SERVICE_NAME="${POSTGRESQL_SERVICE_NAME:-$(detect_node_hostname)-postgresql}"
   local cmd=(pmm-admin add postgresql "${POSTGRESQL_SERVICE_NAME}" "${POSTGRESQL_ADDRESS}" "--username=${POSTGRESQL_USERNAME}" "--password=${POSTGRESQL_PASSWORD}")
   if [[ -n "${POSTGRESQL_DATABASE}" ]]; then
     cmd+=("--database=${POSTGRESQL_DATABASE}")
@@ -535,7 +560,7 @@ add_mongodb() {
   prompt_if_empty MONGODB_USERNAME "MongoDB username" 0 "${db_cred_hint}"
   prompt_if_empty MONGODB_PASSWORD "MongoDB password" 1 "${db_cred_hint}"
   MONGODB_ADDRESS="${MONGODB_ADDRESS:-${MONGODB_HOST:-127.0.0.1}:${MONGODB_PORT:-27017}}"
-  MONGODB_SERVICE_NAME="${MONGODB_SERVICE_NAME:-$(hostname)-mongodb}"
+  MONGODB_SERVICE_NAME="${MONGODB_SERVICE_NAME:-$(detect_node_hostname)-mongodb}"
   local cmd=(pmm-admin add mongodb "${MONGODB_SERVICE_NAME}" "${MONGODB_ADDRESS}" "--username=${MONGODB_USERNAME}" "--password=${MONGODB_PASSWORD}")
   if [[ -n "${MONGODB_AUTH_DB}" ]]; then
     cmd+=("--authentication-database=${MONGODB_AUTH_DB}")
@@ -551,7 +576,7 @@ add_valkey() {
   local db_cred_hint='Use --db-password or DB_PASSWORD (VALKEY_PASSWORD overrides if set). If you use sudo env, list DB_PASSWORD there; exports in your shell are not passed to the script.'
   prompt_if_empty VALKEY_PASSWORD "Valkey password" 1 "${db_cred_hint}"
   VALKEY_ADDRESS="${VALKEY_ADDRESS:-${VALKEY_HOST:-127.0.0.1}:${VALKEY_PORT:-6379}}"
-  VALKEY_SERVICE_NAME="${VALKEY_SERVICE_NAME:-$(hostname)-valkey}"
+  VALKEY_SERVICE_NAME="${VALKEY_SERVICE_NAME:-$(detect_node_hostname)-valkey}"
   local cmd=(pmm-admin add valkey "${VALKEY_SERVICE_NAME}" "${VALKEY_ADDRESS}" "--password=${VALKEY_PASSWORD}")
   if [[ -n "${VALKEY_USERNAME}" ]]; then
     cmd+=("--username=${VALKEY_USERNAME}")
