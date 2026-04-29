@@ -27,6 +27,7 @@
         - /var/log/clickhouse-keeper
         - /var/log/nginx
         - /var/lib/pgsql
+        - /var/lib/rpm
         - /var/cache/dnf
         - /var/cache/yum
         - /usr/local/percona/pmm/config/pmm-agent.yaml
@@ -65,3 +66,11 @@
       loop:
         - absent
         - directory
+
+    - name: Create empty log directory for nginx
+      file:
+        path: /var/log/nginx
+        state: directory
+        owner: pmm
+        group: root
+        mode: 0755
