@@ -474,7 +474,7 @@ nav:
       - troubleshoot/data_issues.md
   - Release notes:
       - Release notes index: release-notes/index.md
-    - "PMM 3.7.1 (2026-04-30)": release-notes/3.7.1.md
+      - "PMM 3.7.1 (2026-04-30)": release-notes/3.7.1.md
       - "PMM 3.7.0 (2026-04-01)": release-notes/3.7.0.md
       - "PMM 3.6.0 (2026-02-05)": release-notes/3.6.0.md 
       - "PMM 3.5.0 (2025-11-19)": release-notes/3.5.0.md     
