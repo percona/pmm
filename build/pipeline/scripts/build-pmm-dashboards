@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+# Build PMM dashboards + Grafana plugins into output/server/pmm-dashboards/.
+# Skips the build if the content of the dashboards/ subtree and the plugin
+# version spec file at PMM_DASHBOARDS_REF have not changed since the last run.
+# Uses git tree/blob hashes (not the commit hash) so commits that don't touch
+# these paths do not invalidate the cache.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PIPELINE_DIR="$(dirname "${SCRIPT_DIR}")"
+
+# Source .env so the script is usable standalone (not just via make).
+if [ -z "${MAKEFLAGS:-}" ] && [ -f "${PIPELINE_DIR}/.env" ]; then
+  set -o allexport
+  # shellcheck disable=SC1091
+  source "${PIPELINE_DIR}/.env"
+  set +o allexport
+fi
+
+HOST_ARCH="$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')"
+PMM_DASHBOARDS_REF="${PMM_DASHBOARDS_REF:?PMM_DASHBOARDS_REF must be set}"
+
+CACHE_DIR="${CACHE_DIR:-${PIPELINE_DIR}/cache}"
+REPO_CACHE_DIR="${REPO_CACHE_DIR:-${CACHE_DIR}/repos}"
+STAMP_DIR="${STAMP_DIR:-${CACHE_DIR}/stamps}"
+SERVER_OUTPUT_DIR="${SERVER_OUTPUT_DIR:-${PIPELINE_DIR}/output/server}"
+YARN_CACHE_VOL="${YARN_CACHE_VOL:-pmm-yarn}"
+
+# Grafana plugin versions — sourced from the dashboards RPM spec (same as the Makefile).
+DASHBOARDS_SPEC="${PIPELINE_DIR}/packages/rpm/server/SPECS/percona-dashboards.spec"
+CLICKHOUSE_DATASOURCE_VERSION="${CLICKHOUSE_DATASOURCE_VERSION:-$(sed -n 's/^%define clickhouse_datasource_version //p' "${DASHBOARDS_SPEC}")}"
+POLYSTAT_PANEL_VERSION="${POLYSTAT_PANEL_VERSION:-$(sed -n 's/^%define polystat_panel_version *//p' "${DASHBOARDS_SPEC}")}"
+: "${CLICKHOUSE_DATASOURCE_VERSION:?could not resolve CLICKHOUSE_DATASOURCE_VERSION from ${DASHBOARDS_SPEC}}"
+: "${POLYSTAT_PANEL_VERSION:?could not resolve POLYSTAT_PANEL_VERSION from ${DASHBOARDS_SPEC}}"
+
+COMPONENT="pmm-dashboards"
+BARE="${REPO_CACHE_DIR}/pmm.git"
+OUTPUT="${SERVER_OUTPUT_DIR}/${COMPONENT}"
+ENTRYPOINT="${SCRIPT_DIR}/entrypoints/${COMPONENT}"
+# pmm-dashboards lives inside the pmm monorepo. Key the cache on:
+#   - the dashboards/ subtree (main build inputs), and
+#   - the RPM spec file that supplies the Grafana plugin versions (so a bump
+#     to CLICKHOUSE_DATASOURCE_VERSION / POLYSTAT_PANEL_VERSION invalidates).
+SUBPATHS=(dashboards build/packages/rpm/server/SPECS/percona-dashboards.spec)
+
+if ! "${SCRIPT_DIR}/check-build-cache" "${COMPONENT}" "${PMM_DASHBOARDS_REF}" "${BARE}" "${OUTPUT}" "${STAMP_DIR}" "${SUBPATHS[@]}"; then
+  exit 0
+fi
+
+echo "Building PMM dashboards assets..."
+mkdir -p "${OUTPUT}"
+
+docker run --rm \
+  --platform "linux/${HOST_ARCH}" \
+  -v "${BARE}:/repos/pmm.git:ro" \
+  -v "${OUTPUT}:/output" \
+  -v "${ENTRYPOINT}:/entrypoint.sh:ro" \
+  -v "${YARN_CACHE_VOL}:/yarn-cache" \
+  -e YARN_CACHE_FOLDER=/yarn-cache \
+  -e YARN_GLOBAL_FOLDER=/yarn-cache \
+  -e NODE_OPTIONS="--max-old-space-size=8192" \
+  -e REF="${PMM_DASHBOARDS_REF}" \
+  -e CLICKHOUSE_DATASOURCE_VERSION="${CLICKHOUSE_DATASOURCE_VERSION}" \
+  -e POLYSTAT_PANEL_VERSION="${POLYSTAT_PANEL_VERSION}" \
+  -e HOST_ARCH="${HOST_ARCH}" \
+  node:22 bash /entrypoint.sh
+
+parts=()
+for p in "${SUBPATHS[@]}"; do
+  parts+=("$(git -C "${BARE}" rev-parse "${PMM_DASHBOARDS_REF}:${p}" 2>/dev/null || echo "${PMM_DASHBOARDS_REF}")")
+done
+hash=$(IFS=:; echo "${parts[*]}")
+mkdir -p "${STAMP_DIR}"
+echo "${hash}" >"${STAMP_DIR}/${COMPONENT}.hash"

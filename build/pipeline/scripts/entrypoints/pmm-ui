@@ -1,0 +1,19 @@
+#!/bin/bash
+# Entrypoint for building PMM UI inside a container.
+# Runs inside node:22 with /repos/pmm.git mounted read-only and /output as writable.
+#
+# Required env vars:
+#   REF   git ref to checkout
+
+set -euo pipefail
+
+: "${REF:?REF is required}"
+
+git config --global --add safe.directory /repos/pmm.git
+git clone /repos/pmm.git /build/pmm-ui
+cd /build/pmm-ui
+git checkout "${REF}"
+cd ui
+make release
+cp -r /build/pmm-ui/ui/apps/pmm/dist /output/pmm-dist
+cp -r /build/pmm-ui/ui/apps/pmm-compat/dist /output/pmm-compat-dist

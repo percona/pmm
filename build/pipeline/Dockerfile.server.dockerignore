@@ -1,0 +1,36 @@
+# Paths are relative to PIPELINE_DIR (the Docker build context).
+# The Dockerfile.server only needs:
+#   package/          - pmm-client tarball (bind-mounted in RUN)
+#   output/server/    - built component artifacts (bind-mounted in RUN)
+#   docker/server/    - entrypoint script
+#   ansible/          - Ansible playbooks
+
+# Exclude pipeline machinery
+cache/
+scripts/
+Makefile
+.env
+.env.example
+.gitignore
+AGENTS.md
+README.md
+build.log
+Dockerfile.builder
+Dockerfile.client
+Dockerfile.server.dockerignore
+
+# Exclude client output (only server output is needed)
+output/client/
+
+# Exclude dirs not needed in the image
+packages/
+
+# Generic noise
+.git/
+*.swp
+*.swo
+*~
+.DS_Store
+*.log
+*.rpm
+*.deb

@@ -11,6 +11,7 @@ PMM_RELEASE_VERSION ?= $(shell git describe --always --dirty | cut -b2-)
 PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
 PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
 PMM_RELEASE_BRANCH ?= $(shell git describe --always --contains --all)
+GOARCH ?= amd64
 ifeq ($(GOBIN),)
 	GOBIN := $(shell go env GOPATH)/bin
 endif
@@ -25,7 +26,7 @@ LD_FLAGS = -ldflags " \
 			"
 
 release:                        ## Build vmproxy release binary
-	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/vmproxy .
+	env CGO_ENABLED=0 GOOS=linux GOARCH=$(GOARCH) go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/vmproxy .
 
 install:                        ## Install vmproxy binary
 	go build -v $(LD_FLAGS) -o $(GOBIN)/vmproxy .

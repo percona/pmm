@@ -1,0 +1,59 @@
+# syntax=docker/dockerfile:1
+FROM oraclelinux:9-slim
+
+ARG VERSION
+ARG BUILD_DATE
+
+ENV LANG=en_US.utf8
+ENV GF_PLUGIN_DIR=/srv/grafana/plugins
+ENV PERCONA_TELEMETRY_DISABLE=1
+ENV PS1="[\u@\h \W] # "
+
+WORKDIR /opt
+
+# Install system dependencies
+RUN --mount=type=cache,target=/var/cache \
+    microdnf -y install epel-release && \
+    microdnf -y install \
+        ansible-core \
+        ansible-collection-community-general \
+        ansible-collection-community-postgresql \
+        ansible-collection-ansible-posix \
+        glibc-langpack-en \
+        dnf \
+        vi && \
+        dnf -y remove microdnf
+
+# Copy Ansible playbooks and run configuration
+COPY docker/server/entrypoint.sh /opt/entrypoint.sh
+COPY ansible /opt/ansible
+
+RUN --mount=type=cache,target=/var/cache \
+    --mount=type=bind,source=tarball,target=/tmp/packages \
+    --mount=type=bind,source=output/server,target=/opt/pmm-staging \
+    cp /tmp/packages/pmm-client.tar.gz /tmp/pmm-client.tar.gz && \
+    install -T -p -m 644 /opt/ansible/ansible.cfg /etc/ansible/ansible.cfg && \
+    install -T -p -m 644 /opt/ansible/hosts /etc/ansible/hosts && \
+    install -d /usr/share/percona-dashboards && \
+    echo "${VERSION}" | install -m 0644 /dev/stdin /usr/share/percona-dashboards/VERSION && \
+    ansible-playbook -vvv /opt/ansible/pmm-docker/main.yml && \
+    ansible-playbook -vvv /opt/ansible/pmm-docker/post-build.yml && \
+    rm -f /tmp/pmm-client.tar.gz && \
+    sed -i '/^assumeyes/d' /etc/dnf/dnf.conf
+
+LABEL org.opencontainers.image.created=${BUILD_DATE}
+LABEL org.opencontainers.image.licenses=AGPL-3.0
+LABEL org.opencontainers.image.title="Percona Monitoring and Management"
+LABEL org.opencontainers.image.vendor="Percona LLC"
+LABEL org.opencontainers.image.version=${VERSION}
+LABEL com.percona.pmm=true
+
+USER pmm
+
+VOLUME [ "/srv" ]
+
+EXPOSE 8080 8443
+
+HEALTHCHECK --interval=4s --timeout=2s --start-period=10s --retries=3 CMD curl -sf http://127.0.0.1:8080/v1/server/readyz
+
+CMD ["/opt/entrypoint.sh"]

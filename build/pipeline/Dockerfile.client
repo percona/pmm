@@ -1,0 +1,48 @@
+FROM oraclelinux:9-slim
+
+ARG VERSION
+ARG RELEASE
+ARG BUILD_DATE
+
+RUN --mount=type=cache,target=/var/cache/dnf \
+    microdnf install -y shadow-utils jq \
+    && curl -o /tmp/percona-release.rpm https://repo.percona.com/yum/percona-release-latest.noarch.rpm \
+    && rpm -i /tmp/percona-release.rpm \
+    && rm /tmp/percona-release.rpm \
+    && percona-release enable ps-80 \
+    && microdnf install -y percona-server-client \
+    perl \
+    perl-DBI \
+    perl-DBD-MySQL \
+    perl-Digest-MD5 \
+    perl-Time-HiRes \
+    perl-IO-Socket-SSL \
+    perl-TermReadKey \
+    && ls -la /var/cache/dnf \
+    && microdnf clean all
+
+RUN groupadd -g 1002 pmm-agent && \
+    useradd -u 1002 -g pmm-agent -s /sbin/nologin \
+            -d /usr/local/percona/pmm \
+            -c "PMM Client User" pmm-agent
+
+RUN --mount=type=bind,source=tarball,target=/packages \
+    tar -xzf /packages/pmm-client.tar.gz -C /tmp \
+    && PMM_USER=pmm-agent PMM_GROUP=root /tmp/pmm-client/install_tarball \
+    && rm -rf /tmp/pmm-client
+
+COPY LICENSE /licenses/
+
+LABEL org.opencontainers.image.created=${BUILD_DATE} \
+      org.opencontainers.image.licenses=Apache-2.0 \
+      org.opencontainers.image.title="PMM Client" \
+      org.opencontainers.image.description="OCI image for Percona Monitoring and Management Client" \
+      org.opencontainers.image.vendor="Percona, LLC" \
+      org.opencontainers.image.version=${VERSION} \
+      org.opencontainers.image.docs="https://docs.percona.com/percona-monitoring-and-management"
+
+USER pmm-agent
+WORKDIR /usr/local/percona/pmm/
+ENV PATH=/usr/local/percona/pmm/bin/:$PATH
+
+ENTRYPOINT ["/usr/local/percona/pmm/bin/pmm-agent-entrypoint"]

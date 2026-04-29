@@ -1,0 +1,130 @@
+#!/bin/bash
+# Package PMM client tarball
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+# Default values
+SCRIPT_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
+PIPELINE_DIR="$(dirname "${SCRIPT_DIR}")"
+PMM_VERSION="${PMM_VERSION:?No PMM_VERSION specified}"
+OUTPUT_DIR="${OUTPUT_DIR:-${PIPELINE_DIR}/output}"
+PACKAGE_DIR="${PACKAGE_DIR:-${PIPELINE_DIR}/tarball}"
+
+# Package name
+PACKAGE_NAME="pmm-client"
+PACKAGE_ROOT="${PACKAGE_DIR}/${PACKAGE_NAME}"
+
+usage() {
+  cat <<EOF
+Usage: $0
+
+Package PMM client tarball from build artifacts.
+
+Environment Variables:
+  PMM_VERSION    - Version to package (required)
+  OUTPUT_DIR     - Directory containing build artifacts (default: ../output)
+  PACKAGE_DIR    - Directory for tarball staging (default: ../tarball)
+
+Example:
+  PMM_VERSION=3.6.0 $0
+EOF
+  exit 1
+}
+
+echo "PMM Client Tarball Packager"
+echo "============================"
+echo "Version: ${PMM_VERSION}"
+echo "Output: ${OUTPUT_DIR}"
+echo "Package: ${PACKAGE_DIR}"
+echo ""
+
+# Clean and create package directory
+rm -rf "${PACKAGE_ROOT}"
+mkdir -p "${PACKAGE_ROOT}"
+
+# Create directory structure
+mkdir -p "${PACKAGE_ROOT}/bin"
+mkdir -p "${PACKAGE_ROOT}/config"
+mkdir -p "${PACKAGE_ROOT}/debian"
+mkdir -p "${PACKAGE_ROOT}/rpm"
+
+echo "Copying binaries from ${OUTPUT_DIR}..."
+# Copy binaries from build output
+for binary in \
+  azure_exporter \
+  mongodb_exporter \
+  mysqld_exporter \
+  node_exporter \
+  nomad \
+  pmm-admin \
+  pmm-agent \
+  pmm-agent-entrypoint \
+  postgres_exporter \
+  proxysql_exporter \
+  pt-mongodb-summary \
+  pt-mysql-summary \
+  pt-pg-summary \
+  pt-summary \
+  rds_exporter \
+  valkey_exporter \
+  vmagent; do
+  if [ -f "${OUTPUT_DIR}/${binary}" ]; then
+    cp "${OUTPUT_DIR}/${binary}" "${PACKAGE_ROOT}/bin/"
+    chmod +x "${PACKAGE_ROOT}/bin/${binary}"
+  else
+    echo "Error: Binary ${binary} not found in ${OUTPUT_DIR}"
+    exit 1
+  fi
+done
+
+echo "Copying the configuration files..."
+# Copy config files
+cp "${PIPELINE_DIR}/packages/config/pmm-agent.service" "${PACKAGE_ROOT}/config/"
+cp "${PIPELINE_DIR}/docker/client/LICENSE" "${PIPELINE_DIR}/"
+
+echo "Copying Debian packaging files..."
+# Copy debian packaging files
+cp -r "${PIPELINE_DIR}/packages/deb/"* "${PACKAGE_ROOT}/debian/"
+
+echo "Copying RPM spec file..."
+# Copy RPM spec file
+cp "${PIPELINE_DIR}/packages/rpm/client/pmm-client.spec" "${PACKAGE_ROOT}/rpm/"
+
+echo "Copying query files and other assets..."
+# Copy query files from OUTPUT_DIR/queries
+# These files are extracted from exporter repositories during build
+for query_file in \
+  example.prom \
+  queries-mysqld.yml \
+  queries-mysqld-group-replication.yml \
+  example-queries-postgres.yml \
+  queries-postgres-uptime.yml \
+  queries-hr.yml \
+  queries-mr.yaml \
+  queries-lr.yaml; do
+  if [ -f "${OUTPUT_DIR}/queries/${query_file}" ]; then
+    cp "${OUTPUT_DIR}/queries/${query_file}" "${PACKAGE_ROOT}/"
+  else
+    echo "Error: ${query_file} not found in ${OUTPUT_DIR}/queries" >&2
+    exit 1
+  fi
+done
+
+echo "${PMM_VERSION}" >"${PACKAGE_ROOT}/VERSION"
+
+# Copy install_tarball script
+echo "Copying install_tarball script..."
+cp "${PIPELINE_DIR}/scripts/install_tarball" "${PACKAGE_ROOT}/"
+chmod +x "${PACKAGE_ROOT}/install_tarball"
+
+echo "Creating tarball..."
+declare XATTRS=""
+[ "$(uname -s)" = "Darwin" ] && XATTRS="--no-xattrs"
+tar -czf "${PACKAGE_DIR}/${PACKAGE_NAME}.tar.gz" ${XATTRS} -C "${PACKAGE_DIR}" "${PACKAGE_NAME}"
+
+echo ""
+echo "Package created successfully!"
+echo "Location: ${PACKAGE_DIR}/${PACKAGE_NAME}.tar.gz"
+ls -lh "${PACKAGE_DIR}/${PACKAGE_NAME}.tar.gz"

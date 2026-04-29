@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+# Build VictoriaMetrics (victoria-metrics-pure, vmalert-pure) into output/server/victoriametrics/.
+# Skips the build if the commit for VM_REF has not changed since the last run.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PIPELINE_DIR="$(dirname "${SCRIPT_DIR}")"
+
+# Source .env so the script is usable standalone (not just via make).
+if [ -z "${MAKEFLAGS:-}" ] && [ -f "${PIPELINE_DIR}/.env" ]; then
+  set -o allexport
+  # shellcheck disable=SC1091
+  source "${PIPELINE_DIR}/.env"
+  set +o allexport
+fi
+
+HOST_ARCH="$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')"
+GOARCH="${GOARCH:-${HOST_ARCH}}"
+VM_REF="${VM_REF:?VM_REF must be set}"
+
+CACHE_DIR="${CACHE_DIR:-${PIPELINE_DIR}/cache}"
+REPO_CACHE_DIR="${REPO_CACHE_DIR:-${CACHE_DIR}/repos}"
+STAMP_DIR="${STAMP_DIR:-${CACHE_DIR}/stamps}"
+SERVER_OUTPUT_DIR="${SERVER_OUTPUT_DIR:-${PIPELINE_DIR}/output/server}"
+GOMOD_CACHE_VOL="${GOMOD_CACHE_VOL:-pmm-mod}"
+BUILD_CACHE_VOL="${BUILD_CACHE_VOL:-pmm-build}"
+
+COMPONENT="victoriametrics"
+BARE="${REPO_CACHE_DIR}/VictoriaMetrics.git"
+OUTPUT="${SERVER_OUTPUT_DIR}/${COMPONENT}"
+ENTRYPOINT="${SCRIPT_DIR}/entrypoints/${COMPONENT}"
+
+if ! "${SCRIPT_DIR}/check-build-cache" "${COMPONENT}" "${VM_REF}" "${BARE}" "${OUTPUT}" "${STAMP_DIR}"; then
+  exit 0
+fi
+
+echo "Building VictoriaMetrics binaries..."
+mkdir -p "${OUTPUT}"
+
+docker run --rm \
+  --platform "linux/${HOST_ARCH}" \
+  -v "${BARE}:/repos/VictoriaMetrics.git:ro" \
+  -v "${OUTPUT}:/output" \
+  -v "${GOMOD_CACHE_VOL}:/go/pkg/mod" \
+  -v "${BUILD_CACHE_VOL}:/root/.cache/go-build" \
+  -v "${ENTRYPOINT}:/entrypoint.sh:ro" \
+  -e GOCACHE=/root/.cache/go-build \
+  -e GOARCH="${GOARCH}" \
+  -e REF="${VM_REF}" \
+  pmm-builder:latest bash /entrypoint.sh
+
+hash="$(git -C "${BARE}" rev-parse "${VM_REF}^{commit}" 2>/dev/null || echo "${VM_REF}")"
+mkdir -p "${STAMP_DIR}"
+echo "${hash}" >"${STAMP_DIR}/${COMPONENT}.hash"

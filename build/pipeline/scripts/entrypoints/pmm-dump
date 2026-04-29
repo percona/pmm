@@ -1,0 +1,20 @@
+#!/bin/bash
+# Entrypoint for building pmm-dump inside a container.
+# Runs inside pmm-builder with /repos/pmm-dump.git mounted read-only and /output writable.
+#
+# Required env vars:
+#   REF     git ref to checkout
+#   GOARCH  target Go architecture (amd64 or arm64)
+
+set -euo pipefail
+
+: "${REF:?REF is required}"
+: "${GOARCH:?GOARCH is required}"
+
+git config --global --add safe.directory /repos/pmm-dump.git
+git clone /repos/pmm-dump.git /build/pmm-dump
+cd /build/pmm-dump
+git checkout "${REF}"
+
+CGO_ENABLED=0 GOOS=linux GOARCH="${GOARCH}" make build
+cp pmm-dump /output/

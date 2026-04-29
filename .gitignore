@@ -2,6 +2,7 @@
 /.vscode/
 *.iml
 
+# Temprorary build files
 /api/nginx/*.pem
 bin/
 !/documentation/resources/bin/
@@ -13,7 +14,6 @@ cover.out
 crosscover.out
 
 agent/testdata/
-
 agent/agents/mysql/slowlog/parser/corpus/
 agent/agents/mysql/slowlog/parser/crashers/
 agent/agents/mysql/slowlog/parser/suppressions/
@@ -32,22 +32,22 @@ compose.yml
 # ViM temporary files
 *.sw[o,p]
 
+# build ops
 .env
 .netrc
 .modules
 build.log
+packer.log
 ci.yml
 
-api-tests/pmm-api-tests-output.txt
-api-tests/pmm-api-tests-junit-report.xml
+pmm-api-tests-output.txt
+pmm-api-tests-junit-report.xml
 
-packer.log
 encryption.key
 
 /tmp/
 settings.json
 GEMINI.md
-RTA-Jira-Tasks-Summary.md
 
 # PMM Demo backups (it would increase repository size significantly)
 dev/clickhouse-backups/

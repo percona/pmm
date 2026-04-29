@@ -1,0 +1,174 @@
+#!/usr/bin/env bash
+# migrate-from-submodules — one-time migration that populates build/pipeline/.env
+# with the values currently fetched at runtime from percona/pmm-submodules.
+#
+# Safe to run multiple times: never overwrites values that are already set.
+# After this script succeeds, the build/pipeline no longer needs network access
+# to pmm-submodules during builds.
+#
+# Usage: ./scripts/migrate-from-submodules [--branch <branch>]
+#   --branch   pmm-submodules branch to read from (default: v3)
+
+set -euo pipefail
+
+SCRIPT_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
+ENV_FILE="$(realpath "${SCRIPT_DIR}/../.env")"
+BRANCH="v3"
+
+log_info() { echo "$(date -Iseconds)    INFO: $*"; }
+log_warn() { echo "$(date -Iseconds)    WARN: $*"; }
+log_err()  { echo "$(date -Iseconds)   ERROR: $*" >&2; }
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --branch)
+      BRANCH="$2"
+      shift 2
+      ;;
+    *)
+      log_err "Unknown argument: $1"
+      exit 1
+      ;;
+  esac
+done
+
+SUBMODULES_BASE="https://raw.githubusercontent.com/Percona-Lab/pmm-submodules/refs/heads/${BRANCH}"
+GITMODULES_TMP="$(mktemp /tmp/.gitmodules.XXXXXX)"
+
+trap 'rm -f "${GITMODULES_TMP}"' EXIT
+
+# set_if_empty <key> <value>
+# Writes KEY=VALUE into .env only when the key is absent or currently empty.
+set_if_empty() {
+  local key="$1"
+  local value="$2"
+
+  if grep -qE "^${key}=.+" "${ENV_FILE}" 2>/dev/null; then
+    log_info "$(printf '  %-40s already set, skipping' "${key}")"
+    return
+  fi
+
+  if grep -qE "^${key}=" "${ENV_FILE}" 2>/dev/null; then
+    # Key present but empty — update in-place using a temp file (portable).
+    local tmp
+    tmp="$(mktemp)"
+    sed "s|^${key}=$|${key}=${value}|" "${ENV_FILE}" >"${tmp}"
+    mv "${tmp}" "${ENV_FILE}"
+    log_info "$(printf '  %-40s set to %s' "${key}" "${value}")"
+  else
+    # Key absent — append it.
+    echo "${key}=${value}" >>"${ENV_FILE}"
+    log_info "$(printf '  %-40s added (%s)' "${key}" "${value}")"
+  fi
+}
+
+# parse_gitmodules <file>
+# Prints one line per submodule: name<TAB>url<TAB>ref
+# ref is the branch value; falls back to tag if branch is absent.
+parse_gitmodules() {
+  local file="$1"
+  awk '
+        function emit() {
+            if (name != "" && url != "") {
+                print name "\t" url "\t" ref
+            }
+        }
+        /^\[submodule / {
+            emit()
+            name = $0
+            gsub(/^\[submodule "/, "", name)
+            gsub(/".*$/, "", name)
+            url = ""; ref = ""
+        }
+        /url[ \t]*=/ {
+            sub(/^[^=]*=[ \t]*/, "")
+            url = $0
+        }
+        /branch[ \t]*=/ {
+            sub(/^[^=]*=[ \t]*/, "")
+            ref = $0
+        }
+        /tag[ \t]*=/ {
+            if (ref == "") {
+                sub(/^[^=]*=[ \t]*/, "")
+                ref = $0
+            }
+        }
+        END { emit() }
+    ' "${file}"
+}
+
+# ── Step 1: PMM_VERSION ──────────────────────────────────────────────────────
+log_info "Fetching PMM_VERSION from pmm-submodules/${BRANCH}/VERSION ..."
+PMM_VERSION="$(curl -fsSL "${SUBMODULES_BASE}/VERSION" | tr -d '[:space:]')"
+if [ -z "${PMM_VERSION}" ]; then
+  log_err "Could not fetch VERSION from pmm-submodules"
+  exit 1
+fi
+log_info "  Found: ${PMM_VERSION}"
+set_if_empty "PMM_VERSION" "${PMM_VERSION}"
+
+# ── Step 2: Fetch .gitmodules ────────────────────────────────────────────────
+echo ""
+log_info "Fetching .gitmodules from pmm-submodules/${BRANCH}/.gitmodules ..."
+curl -fsSL "${SUBMODULES_BASE}/.gitmodules" -o "${GITMODULES_TMP}"
+log_info "  Done ($(wc -l <"${GITMODULES_TMP}") lines)"
+
+# ── Step 3: Apply values from .gitmodules ────────────────────────────────────
+#
+# Maps each submodule name as it appears in .gitmodules to the env-var prefix
+# used in .env (e.g. "grafana" → GRAFANA).
+declare -A NAME_TO_PREFIX=(
+  ["pmm"]="PMM"
+  ["grafana"]="GRAFANA"
+  ["VictoriaMetrics"]="VM"
+  ["pmm-dump"]="PMM_DUMP"
+  ["node_exporter"]="NODE_EXPORTER"
+  ["mysqld_exporter"]="MYSQLD_EXPORTER"
+  ["mongodb_exporter"]="MONGODB_EXPORTER"
+  ["postgres_exporter"]="POSTGRES_EXPORTER"
+  ["proxysql_exporter"]="PROXYSQL_EXPORTER"
+  ["rds_exporter"]="RDS_EXPORTER"
+  ["azure_metrics_exporter"]="AZURE_METRICS_EXPORTER"
+  ["percona-toolkit"]="PERCONA_TOOLKIT"
+)
+
+echo ""
+log_info "Processing .gitmodules entries ..."
+while IFS=$'\t' read -r name url ref; do
+  prefix="${NAME_TO_PREFIX["${name}"]:-}"
+  if [ -z "${prefix}" ]; then
+    log_info "  Skipping unknown submodule: ${name}"
+    continue
+  fi
+  set_if_empty "${prefix}_URL" "${url}"
+  if [ -n "${ref}" ]; then
+    set_if_empty "${prefix}_REF" "${ref}"
+  fi
+done < <(parse_gitmodules "${GITMODULES_TMP}")
+
+# ── Step 4: Default UI/dashboards refs to PMM_REF ───────────────────────────
+# PMM_UI_REF and PMM_DASHBOARDS_REF are not separate submodules — they come from
+# the same percona/pmm repo as PMM_REF. Seed them with the same ref unless
+# already overridden.
+echo ""
+log_info "Setting PMM_UI_REF and PMM_DASHBOARDS_REF (default to PMM_REF) ..."
+_PMM_REF="$(grep -E '^PMM_REF=.+' "${ENV_FILE}" | head -1 | cut -d= -f2-)"
+if [ -n "${_PMM_REF}" ]; then
+  set_if_empty "PMM_UI_REF" "${_PMM_REF}"
+  set_if_empty "PMM_DASHBOARDS_REF" "${_PMM_REF}"
+else
+  log_warn "  PMM_REF not yet set — skipping PMM_UI_REF / PMM_DASHBOARDS_REF seeding"
+fi
+
+# ── Step 5: Hardcoded URLs for components absent from .gitmodules ────────────
+echo ""
+log_info "Setting URLs for components not in .gitmodules ..."
+set_if_empty "REDIS_EXPORTER_URL" "https://github.com/oliver006/redis_exporter.git"
+set_if_empty "VMAGENT_URL" "https://github.com/VictoriaMetrics/VictoriaMetrics.git"
+set_if_empty "NOMAD_URL" "https://github.com/hashicorp/nomad.git"
+
+echo ""
+log_info "Migration complete."
+log_info "Review ${ENV_FILE} and commit the result."
+log_info "You can now remove the pmm-submodules references from the build scripts."

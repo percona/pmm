@@ -1,0 +1,11 @@
+# Build outputs
+output/
+tarball/
+
+# Local bare-repo cache
+cache/
+
+# Temporary build files
+
+# Build log
+build.log

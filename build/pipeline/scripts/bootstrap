@@ -1,0 +1,295 @@
+#!/usr/bin/env bash
+# bootstrap — zero-to-build setup for the PMM build pipeline.
+#
+# Checks prerequisites, downloads build files, and populates the bare-repo cache
+# (skipped automatically if the cache already exists).
+#
+# Usage: bootstrap [--ref <branch|tag|sha>] [--help]
+
+set -euo pipefail
+
+log_info() { echo "$(date -Iseconds)    INFO: $*"; }
+log_warn() { echo "$(date -Iseconds)    WARN: $*"; }
+log_err()  { echo "$(date -Iseconds)   ERROR: $*" >&2; }
+
+# When piped (curl | bash), BASH_SOURCE[0] is empty — create ~/build.
+if [ -n "${BASH_SOURCE[0]:-}" ] && [ -f "${BASH_SOURCE[0]}" ]; then
+  # Script lives at <pipeline_dir>/scripts/bootstrap — go up two levels.
+  PIPELINE_DIR="$(realpath "$(dirname "$(dirname "${BASH_SOURCE[0]}")")")"
+else
+  PIPELINE_DIR="${HOME}/build"
+  if [ -d "${PIPELINE_DIR}" ]; then
+    while IFS= read -r entry; do
+      if ! grep -qE "^(build\.log|cache|output)$" <<< "${entry}"; then
+        log_err "${PIPELINE_DIR} already exists and contains unexpected entry: ${entry}"
+        log_err "Remove it or run bootstrap from that directory."
+        exit 1
+      fi
+    done < <(ls -A "${PIPELINE_DIR}" 2>/dev/null)
+  fi
+  mkdir -p "${PIPELINE_DIR}"
+fi
+SCRIPT_DIR="${PIPELINE_DIR}/scripts"
+
+# Defaults
+GIT_REF="v3"
+REF_EXPLICIT=false
+TOTAL_STEPS=4
+
+PMM_REPO_URL="https://github.com/percona/pmm.git"
+
+usage() {
+  cat <<EOF
+Usage: $(basename "$0") [OPTIONS]
+
+Set up the PMM build pipeline from scratch: check prerequisites, download build
+files, and populate the bare-repo cache (skipped if already present).
+
+Options:
+  --ref <branch|tag|sha>         Git ref to download build files from (default: v3)
+  --help                         Show this help
+
+Examples:
+  $(basename "$0")               # full setup
+  $(basename "$0") --ref main    # set up using the main branch
+EOF
+  exit 0
+}
+
+# ── Argument parsing ────────────────────────────────────────────────────────
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --ref)
+      GIT_REF="$2"
+      REF_EXPLICIT=true
+      shift 2
+      ;;
+    --help) usage ;;
+    *)
+      echo "Unknown argument: $1" >&2
+      exit 1
+      ;;
+  esac
+done
+
+# ── Helpers ─────────────────────────────────────────────────────────────────
+
+log_step() {
+  local n="$1" msg="$2"
+  echo ""
+  log_info "==> [${n}/${TOTAL_STEPS}] ${msg}"
+}
+
+# set_env_var <key> <value>
+# Sets KEY=VALUE in .env, overwriting any existing value (or appending if absent).
+set_env_var() {
+  local key="$1" value="$2"
+  local file="${PIPELINE_DIR}/.env"
+  if grep -qE "^${key}=" "${file}" 2>/dev/null; then
+    local tmp
+    tmp="$(mktemp)"
+    sed "s|^${key}=.*|${key}=${value}|" "${file}" >"${tmp}"
+    mv "${tmp}" "${file}"
+  else
+    echo "${key}=${value}" >>"${file}"
+  fi
+  log_info "  ${key}=${value}"
+}
+
+# ── Step 1: Prerequisites ──────────────────────────────────────────────────
+
+check_prerequisites() {
+  log_step 1 "Checking prerequisites..."
+
+  if ! command -v docker >/dev/null 2>&1; then
+    log_err "Docker is not installed"
+    log_info "Install Docker: https://docs.docker.com/get-docker/"
+    exit 1
+  fi
+  log_info "Docker found ($(docker --version))"
+
+  if ! command -v git >/dev/null 2>&1; then
+    log_err "git is not installed"
+    exit 1
+  fi
+  log_info "git found ($(git --version))"
+
+  if ! command -v make >/dev/null 2>&1; then
+    log_err "make is not installed"
+    exit 1
+  fi
+  log_info "make found ($(make --version | head -n 1))"
+
+  if ! docker info >/dev/null 2>&1; then
+    log_err "Docker daemon is not running"
+    log_info "Start Docker Desktop (macOS) or the docker service (Linux)"
+    exit 1
+  fi
+  log_info "Docker daemon is running"
+}
+
+# ── Step 2: Download build files ───────────────────────────────────────────
+
+download_build_files() {
+  log_step 2 "Downloading build files"
+
+  # If Dockerfile.builder exists, assume all build files are present
+  # (either from a full repo clone or a previous bootstrap run).
+  if [ -f "${PIPELINE_DIR}/Dockerfile.builder" ]; then
+    log_info "  Build files already present"
+    return
+  fi
+
+  log_info "Fetching build/ directory from ${PMM_REPO_URL} (ref: ${GIT_REF})..."
+  local tmpdir
+  tmpdir="$(mktemp -d)"
+  # shellcheck disable=SC2064
+  trap "rm -rf '${tmpdir}'" EXIT
+
+  git clone --no-progress --depth 1 --branch "${GIT_REF}" --sparse --filter=blob:none \
+    "${PMM_REPO_URL}" "${tmpdir}/pmm"
+  git -c core.progress=false -C "${tmpdir}/pmm" sparse-checkout set build/
+
+  local src="${tmpdir}/pmm/build"
+
+  # Copy pipeline files (Dockerfiles, Makefile, .env.example).
+  for f in Makefile Dockerfile.builder Dockerfile.client Dockerfile.server \
+    Dockerfile.server.dockerignore .env.example; do
+    if [ ! -f "${PIPELINE_DIR}/${f}" ]; then
+      cp "${src}/pipeline/${f}" "${PIPELINE_DIR}/${f}"
+      log_info "Installed ${f}"
+    fi
+  done
+
+  # Copy build scripts.
+  mkdir -p "${SCRIPT_DIR}"
+  for f in build-component build-client-docker package-tarball \
+    generate-version-json check-build-cache manage-cache migrate-from-submodules \
+    build-pmm-managed build-pmm-dump build-grafana-go build-grafana-ui \
+    build-victoriametrics build-pmm-dashboards build-pmm-ui; do
+    if [ ! -f "${SCRIPT_DIR}/${f}" ]; then
+      cp "${src}/pipeline/scripts/${f}" "${SCRIPT_DIR}/${f}"
+      chmod +x "${SCRIPT_DIR}/${f}"
+      log_info "Installed scripts/${f}"
+    fi
+  done
+
+  # Copy in-container entrypoint scripts used by the server-component builds.
+  mkdir -p "${SCRIPT_DIR}/entrypoints"
+  for f in pmm-managed pmm-dump grafana-go grafana-ui \
+    victoriametrics pmm-dashboards pmm-ui; do
+    if [ ! -f "${SCRIPT_DIR}/entrypoints/${f}" ]; then
+      cp "${src}/pipeline/scripts/entrypoints/${f}" "${SCRIPT_DIR}/entrypoints/${f}"
+      chmod +x "${SCRIPT_DIR}/entrypoints/${f}"
+      log_info "Installed scripts/entrypoints/${f}"
+    fi
+  done
+
+  # Copy sibling directories needed by the build into PIPELINE_DIR.
+  for dir in ansible docker packages; do
+    if [ ! -d "${PIPELINE_DIR}/${dir}" ]; then
+      cp -r "${src}/${dir}" "${PIPELINE_DIR}/${dir}"
+      log_info "Installed ${dir}/"
+    fi
+  done
+
+  # Overlay pipeline-specific overrides on top of the base directories above.
+  # Files under build/pipeline/<dir>/... replace files at the same relative path
+  # in ${PIPELINE_DIR}/<dir>/... (pipeline builds consume staged artifacts from
+  # /opt/pmm-staging rather than RPMs, so e.g. ansible tasks differ).
+  for dir in ansible docker packages; do
+    if [ -d "${src}/pipeline/${dir}" ]; then
+      cp -rf "${src}/pipeline/${dir}/." "${PIPELINE_DIR}/${dir}/"
+      log_info "Applied pipeline overrides under ${dir}/"
+    fi
+  done
+
+  # Copy install_tarball from the legacy scripts directory (used by package-tarball).
+  if [ ! -f "${SCRIPT_DIR}/install_tarball" ]; then
+    cp "${src}/scripts/install_tarball" "${SCRIPT_DIR}/install_tarball"
+    chmod +x "${SCRIPT_DIR}/install_tarball"
+    log_info "Installed scripts/install_tarball"
+  fi
+
+  rm -rf "${tmpdir}"
+  trap - EXIT
+  log_info "  Build files downloaded"
+}
+
+# ── Step 3: .env setup ─────────────────────────────────────────────────────
+
+setup_env() {
+  log_step 3 "Setting up .env"
+
+  if [ -f "${PIPELINE_DIR}/.env" ]; then
+    log_info ".env already exists"
+  else
+    if [ ! -f "${PIPELINE_DIR}/.env.example" ]; then
+      log_err ".env.example not found in ${PIPELINE_DIR}"
+      exit 1
+    fi
+    cp "${PIPELINE_DIR}/.env.example" "${PIPELINE_DIR}/.env"
+    log_info "Created .env from .env.example"
+  fi
+
+  log_info "Populating .env from pmm-submodules..."
+  "${SCRIPT_DIR}/migrate-from-submodules"
+  log_info "  Migration complete"
+
+  # If --ref was passed explicitly, pin PMM_REF/PMM_UI_REF/PMM_DASHBOARDS_REF to it.
+  # These three live in the same percona/pmm repo, so they should track the build ref.
+  if [ "${REF_EXPLICIT}" = true ]; then
+    log_info "Pinning PMM_REF / PMM_UI_REF / PMM_DASHBOARDS_REF to --ref (${GIT_REF})"
+    set_env_var "PMM_REF" "${GIT_REF}"
+    set_env_var "PMM_UI_REF" "${GIT_REF}"
+    set_env_var "PMM_DASHBOARDS_REF" "${GIT_REF}"
+  fi
+
+  # Source .env
+  set -o allexport
+  # shellcheck source=/dev/null
+  source "${PIPELINE_DIR}/.env"
+  set +o allexport
+
+  # Warn if PMM_VERSION is still empty after migration (e.g. network issue).
+  if [ -z "${PMM_VERSION:-}" ]; then
+    log_warn "PMM_VERSION is empty in .env — check migrate-from-submodules output above"
+  fi
+}
+
+# ── Step 4: Populate cache ──────────────────────────────────────────────────
+
+populate_cache() {
+  log_step 4 "Checking repository cache..."
+
+  if [ -d "${PIPELINE_DIR}/cache/repos" ] && [ -n "$(ls -A "${PIPELINE_DIR}/cache/repos" 2>/dev/null)" ]; then
+    log_info "  Cache already present, updating refs from upstream..."
+    make -C "${PIPELINE_DIR}" update-cache
+    return
+  fi
+
+  log_info "Cloning bare repos from upstream (first run may take a while)..."
+  make -C "${PIPELINE_DIR}" populate-cache
+}
+
+# ── Main ────────────────────────────────────────────────────────────────────
+
+main() {
+  log_info "PMM Build Pipeline: Bootstrap"
+  log_info "============================"
+
+  check_prerequisites
+  download_build_files
+  setup_env
+  populate_cache
+
+  echo ""
+  log_info "Bootstrap complete!"
+  log_info "You can now run builds with:"
+  log_info "  cd ${PIPELINE_DIR} && make client   # build PMM Client (tarball + Docker image)"
+  log_info "  cd ${PIPELINE_DIR} && make server   # build PMM Server (Docker image)"
+  log_info "  cd ${PIPELINE_DIR} && make all      # build both (client + server)"
+}
+
+main "$@"

@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PMM build log</title>
+    <link rel="stylesheet" href="/monaco/vs/editor/editor.main.css" />
+    <style>
+      html,
+      body,
+      #editor {
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+      }
+      body {
+        background: #1e1e1e;
+        color: #d4d4d4;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+      #status {
+        position: fixed;
+        right: 0.75rem;
+        bottom: 0.5rem;
+        padding: 0.25rem 0.6rem;
+        font-size: 0.75rem;
+        color: #858585;
+        background: rgba(30, 30, 30, 0.85);
+        border: 1px solid #2c2c2c;
+        border-radius: 4px;
+        pointer-events: none;
+        z-index: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="editor"></div>
+    <div id="status">loading…</div>
+
+    <script src="/monaco/vs/loader.js"></script>
+    <script>
+      // Workers are served from the same origin; this also silences Monaco's
+      // cross-origin worker warning.
+      self.MonacoEnvironment = {
+        getWorkerUrl: function () {
+          return '/monaco/vs/base/worker/workerMain.js';
+        },
+      };
+
+      require.config({ paths: { vs: '/monaco/vs' } });
+      require(['vs/editor/editor.main'], async function () {
+        const status = document.getElementById('status');
+
+        let value = '';
+        try {
+          const r = await fetch('/log.txt', { cache: 'no-store' });
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          value = await r.text();
+          const lines = value.split('\n').length;
+          status.textContent =
+            (value.length / 1024).toFixed(1) +
+            ' KB · ' +
+            lines.toLocaleString() +
+            ' lines';
+        } catch (e) {
+          value = 'Failed to load /log.txt: ' + e.message;
+          status.textContent = 'load error';
+        }
+
+        monaco.editor.create(document.getElementById('editor'), {
+          value: value,
+          language: 'plaintext',
+          readOnly: true,
+          domReadOnly: true,
+          theme: 'vs-dark',
+          automaticLayout: true,
+          wordWrap: 'on',
+          minimap: { enabled: false },
+          renderWhitespace: 'none',
+          scrollBeyondLastLine: false,
+          fontSize: 13,
+          fontFamily:
+            'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
+        });
+        const owl = await fetch('/themes/NightOwl.json').then(r => r.json()).catch(console.log);
+        monaco.editor.defineTheme('nightowl', owl);
+        monaco.editor.setTheme('nightowl');
+      });
+    </script>
+  </body>
+</html>

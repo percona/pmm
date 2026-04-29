@@ -1,0 +1,387 @@
+#!/bin/bash
+# Build PMM components using Docker
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+# Default values
+COMPONENT="${1:-}"
+SCRIPT_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
+# Workspace root set by the Makefile when running inside a full repo checkout.
+# Left empty for CI/bootstrap builds where source is cloned from the bare cache.
+WORKSPACE_DIR="${WORKSPACE_DIR:-}"
+
+# Load environment variables from .env file. Skip when invoked from make:
+# the parent has already exported these vars and re-sourcing would silently
+# overwrite any overrides (e.g. PMM_REF set by the webhook PR flow).
+if [ -z "${MAKEFLAGS:-}" ] && [ -f "${SCRIPT_DIR}/../.env" ]; then
+  set -o allexport
+  # shellcheck disable=SC1091
+  source "${SCRIPT_DIR}/../.env"
+  set +o allexport
+fi
+
+PMM_VERSION="${PMM_VERSION:?No PMM_VERSION specified}"
+BUILD_TYPE="${BUILD_TYPE:-static}"
+# Native platform of the build host — containers run natively for speed;
+# Go cross-compiles for GOARCH independently.
+HOST_ARCH="$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')"
+GOARCH="${GOARCH:-${HOST_ARCH}}"
+PLATFORM="${PLATFORM:-linux/${HOST_ARCH}}"
+OUTPUT_DIR="${OUTPUT_DIR:-$(realpath "$SCRIPT_DIR/../output")}"
+
+# Docker image and volumes
+BUILDER_IMAGE="pmm-builder:latest"
+BUILDER_DOCKERFILE="$(realpath "${SCRIPT_DIR}/../Dockerfile.builder")"
+GO_VERSION="${GO_VERSION:-1.26}"
+GOMOD_CACHE_VOL="pmm-mod"
+BUILD_CACHE_VOL="pmm-build"
+# Bare-repo cache directory — populated by 'make populate-cache'
+REPO_CACHE_DIR="${REPO_CACHE_DIR:-$(realpath "${SCRIPT_DIR}/../cache/repos")}"
+STAMP_DIR="${STAMP_DIR:-$(realpath "${SCRIPT_DIR}/../cache/stamps")}"
+
+# Component lists (must match Makefile)
+WORKSPACE_COMPONENTS="pmm-admin pmm-agent"
+EXTERNAL_COMPONENTS="node_exporter mysqld_exporter mongodb_exporter postgres_exporter proxysql_exporter rds_exporter azure_metrics_exporter redis_exporter vmagent nomad percona-toolkit"
+
+usage() {
+  cat <<EOF
+Usage: $0 <component>
+
+Build a PMM component using Docker.
+
+Components:
+  Workspace components:
+    pmm-admin, pmm-agent
+  
+  External components:
+    node_exporter, mysqld_exporter, mongodb_exporter, postgres_exporter,
+    proxysql_exporter, rds_exporter, azure_metrics_exporter, redis_exporter,
+    vmagent, nomad, percona-toolkit
+
+Environment Variables:
+  PMM_VERSION    - Version to build (default: from VERSION file)
+  BUILD_TYPE     - Build type: static or dynamic (default: static)
+  GOARCH         - Target architecture: amd64 or arm64 (default: amd64)
+  PLATFORM       - Docker platform: linux/amd64 or linux/arm64 (default: linux/amd64)
+  OUTPUT_DIR     - Output directory for artifacts (default: ./output)
+
+Examples:
+  $0 pmm-admin
+  PMM_VERSION=3.0.0 BUILD_TYPE=dynamic $0 mongodb_exporter
+EOF
+  exit 1
+}
+
+build_builder_image() {
+  if ! docker image inspect "${BUILDER_IMAGE}" >/dev/null 2>&1; then
+    echo "Building pmm-builder image..."
+    docker buildx build \
+      --platform "linux/${HOST_ARCH}" \
+      --build-arg GO_VERSION="${GO_VERSION}" \
+      --progress=plain \
+      --load \
+      -t "${BUILDER_IMAGE}" \
+      -f "${BUILDER_DOCKERFILE}" \
+      "$(dirname "${BUILDER_DOCKERFILE}")"
+  fi
+}
+
+create_volumes() {
+  echo "Creating Docker volumes for caching..."
+  if ! docker volume inspect "${GOMOD_CACHE_VOL}" >/dev/null 2>&1; then
+    docker volume create "${GOMOD_CACHE_VOL}"
+  fi
+  if ! docker volume inspect "${BUILD_CACHE_VOL}" >/dev/null 2>&1; then
+    docker volume create "${BUILD_CACHE_VOL}"
+  fi
+}
+
+build_workspace_component() {
+  local component=$1
+  local subdir
+
+  # Determine subdirectory based on component name
+  case "${component}" in
+    pmm-admin) subdir="admin" ;;
+    pmm-agent) subdir="agent" ;;
+    *)
+      echo "Error: Unknown workspace component '${component}'" >&2
+      return 1
+      ;;
+  esac
+
+  # Resolve cache source: local checkout HEAD in dev mode, bare repo + PMM_REF in CI mode.
+  local cache_repo cache_ref
+  if [ -n "${WORKSPACE_DIR}" ] && [ -d "${WORKSPACE_DIR}/.git" ]; then
+    cache_repo="${WORKSPACE_DIR}"
+    cache_ref="HEAD"
+  else
+    cache_repo="${REPO_CACHE_DIR}/pmm.git"
+    cache_ref="${PMM_REF:-}"
+  fi
+
+  if ! "${SCRIPT_DIR}/check-build-cache" "${component}" "${cache_ref}" "${cache_repo}" "${OUTPUT_DIR}" "${STAMP_DIR}"; then
+    return 0
+  fi
+
+  echo "Building workspace component: ${component} (${BUILD_TYPE}, ${GOARCH})"
+
+  mkdir -p "${OUTPUT_DIR}"
+
+  # Build command and CGO setting depend on component.
+  # pmm-agent uses CGO_ENABLED=1 with -static linking, so the container must
+  # run on the target architecture (GOARCH) to get a matching gcc toolchain.
+  # pmm-admin is CGO_ENABLED=0 and can run on the native host arch.
+  local build_cmd
+  local cgo_enabled
+  local container_arch
+  case "${component}" in
+    pmm-admin)
+      build_cmd="make -C /workspace/${subdir} release PMM_RELEASE_PATH=/output"
+      cgo_enabled=0
+      container_arch="${HOST_ARCH}"
+      ;;
+    pmm-agent)
+      if [ "${BUILD_TYPE}" = "dynamic" ]; then
+        build_cmd="make -C /workspace/${subdir} release-gssapi PMM_RELEASE_PATH=/output"
+      else
+        build_cmd="make -C /workspace/${subdir} release PMM_RELEASE_PATH=/output"
+      fi
+      cgo_enabled=1
+      container_arch="${GOARCH}"
+      ;;
+  esac
+
+  # Two modes:
+  # 1. Local dev: WORKSPACE_DIR points to a full repo checkout — mount it directly.
+  # 2. CI/bootstrap: no local checkout — clone from pmm.git bare cache inside the container.
+  local volume_args=()
+  local full_build_cmd
+
+  if [ -n "${WORKSPACE_DIR}" ] && [ -d "${WORKSPACE_DIR}/${subdir}" ]; then
+    volume_args+=(-v "${WORKSPACE_DIR}:/workspace:ro")
+    full_build_cmd="${build_cmd}"
+  else
+    local pmm_ref="${PMM_REF:?PMM_REF must be set in .env for workspace component builds}"
+    local bare_name="pmm.git"
+    local bare_repo_path="${REPO_CACHE_DIR}/${bare_name}"
+
+    if [ ! -d "${bare_repo_path}" ]; then
+      echo "Error: bare repo cache not found at ${bare_repo_path}" >&2
+      echo "Run 'make populate-cache' first." >&2
+      return 1
+    fi
+
+    echo "No local workspace — cloning from cache (pmm.git @ ${pmm_ref})"
+    volume_args+=(-v "${bare_repo_path}:/repos/${bare_name}:ro")
+    full_build_cmd="
+            set -e
+            git config --global --add safe.directory /repos/${bare_name}
+            git clone --quiet /repos/${bare_name} /workspace
+            cd /workspace
+            git checkout --quiet ${pmm_ref}
+            ${build_cmd}
+        "
+  fi
+
+  local fullcommit
+  local branch
+  if [ -n "${WORKSPACE_DIR}" ] && [ -d "${WORKSPACE_DIR}/.git" ]; then
+    fullcommit="$(git -C "${WORKSPACE_DIR}" rev-parse HEAD 2>/dev/null || echo "unknown")"
+    branch="$(git -C "${WORKSPACE_DIR}" describe --always --contains --all 2>/dev/null || echo "unknown")"
+  else
+    fullcommit="${PMM_REF:-unknown}"
+    branch="${PMM_REF:-unknown}"
+  fi
+
+  docker run --rm \
+    --platform "linux/${container_arch}" \
+    "${volume_args[@]}" \
+    -v "${OUTPUT_DIR}:/output" \
+    -v "${GOMOD_CACHE_VOL}:/go/pkg/mod" \
+    -v "${BUILD_CACHE_VOL}:/root/.cache/go-build" \
+    -e GOCACHE=/root/.cache/go-build \
+    -e CGO_ENABLED="${cgo_enabled}" \
+    -e GOOS=linux \
+    -e GOARCH="${GOARCH}" \
+    -e PMM_RELEASE_VERSION="${PMM_VERSION}" \
+    -e PMM_RELEASE_TIMESTAMP="$(date '+%s')" \
+    -e PMM_RELEASE_PATH=/output \
+    -e PMM_RELEASE_FULLCOMMIT="${fullcommit}" \
+    -e PMM_RELEASE_BRANCH="${branch}" \
+    -w /workspace \
+    "${BUILDER_IMAGE}" \
+    bash -c "${full_build_cmd}"
+
+  # Write build stamp after successful build.
+  local current_hash
+  current_hash="$(git -C "${cache_repo}" rev-parse "${cache_ref}^{commit}" 2>/dev/null || echo "${cache_ref}")"
+  mkdir -p "${STAMP_DIR}"
+  echo "${current_hash}" >"${STAMP_DIR}/${component}.hash"
+
+  echo "Build complete! Artifacts saved to ${OUTPUT_DIR}"
+  ls -lh "${OUTPUT_DIR}"
+}
+
+build_external_component() {
+  local component=$1
+  local url
+  local ref
+
+  # Resolve URL and ref from .env variables (e.g. node_exporter → NODE_EXPORTER_URL / _REF).
+  local env_prefix
+  env_prefix="$(echo "${component}" | tr '[:lower:]-' '[:upper:]_')"
+  local env_url="${env_prefix}_URL"
+  local env_ref="${env_prefix}_REF"
+  url="${!env_url:-}"
+  ref="${!env_ref:-}"
+
+  if [ -z "${url}" ] || [ -z "${ref}" ]; then
+    echo "Error: ${env_url} or ${env_ref} is not set in .env" >&2
+    echo "Run 'scripts/migrate-from-submodules' to populate missing values." >&2
+    return 1
+  fi
+
+  # Most external components are CGO_ENABLED=0 and run natively on HOST_ARCH.
+  # vmagent uses CGO_ENABLED=1 and needs gcc matching the target arch (GOARCH).
+  local container_arch="${HOST_ARCH}"
+
+  echo "Building external component: ${component} (${BUILD_TYPE}, ${GOARCH})"
+  echo "Repository: ${url}"
+  echo "Reference: ${ref}"
+
+  mkdir -p "${OUTPUT_DIR}"
+
+  # Determine build command
+  local build_cmd
+  case "${component}" in
+    node_exporter)
+      build_cmd="make release && cp node_exporter /output/ && mkdir -p /output/queries && cp example.prom /output/queries/"
+      ;;
+    mysqld_exporter)
+      build_cmd="make release && cp mysqld_exporter /output/ && mkdir -p /output/queries && cp queries-mysqld.yml queries-mysqld-group-replication.yml /output/queries/"
+      ;;
+    mongodb_exporter)
+      if [ "${BUILD_TYPE}" = "dynamic" ]; then
+        build_cmd="make build-gssapi && cp mongodb_exporter /output/"
+      else
+        build_cmd="make build && cp mongodb_exporter /output/"
+      fi
+      ;;
+    postgres_exporter)
+      build_cmd="make release && cp postgres_exporter /output/ && mkdir -p /output/queries && cp example-queries-postgres.yml queries-postgres-uptime.yml queries-hr.yml queries-mr.yaml queries-lr.yaml /output/queries/"
+      ;;
+    proxysql_exporter)
+      build_cmd="make release && cp proxysql_exporter /output/"
+      ;;
+    rds_exporter)
+      build_cmd="make release && cp rds_exporter /output/"
+      ;;
+    azure_metrics_exporter)
+      build_cmd="make release && cp azure_exporter /output/"
+      ;;
+    redis_exporter)
+      build_cmd="make build && cp redis_exporter /output/valkey_exporter"
+      ;;
+    vmagent)
+      build_cmd="make vmagent-linux-amd64 && cp bin/vmagent-linux-amd64 /output/vmagent"
+      container_arch="${GOARCH}"
+      ;;
+    nomad)
+      build_cmd="env CGO_ENABLED=0 TARGETS=linux_${GOARCH} make deps release && cp pkg/linux_${GOARCH}/nomad /output/"
+      container_arch="${GOARCH}"
+      ;;
+    percona-toolkit)
+      build_cmd="mkdir -p /output && \
+                cp bin/pt-summary /output/ && \
+                cp bin/pt-mysql-summary /output/ && \
+                cd src/go/pt-mongodb-summary && go build -o /output/pt-mongodb-summary . && \
+                cd ../pt-pg-summary && go build -o /output/pt-pg-summary ."
+      ;;
+  esac
+
+  # Derive bare repo cache name from URL
+  # e.g. https://github.com/percona/node_exporter -> node_exporter.git
+  local bare_name
+  bare_name="$(basename "${url}")"
+  [[ "${bare_name}" != *.git ]] && bare_name="${bare_name}.git"
+  local bare_repo_path="${REPO_CACHE_DIR}/${bare_name}"
+
+  if [ ! -d "${bare_repo_path}" ]; then
+    echo "Error: bare repo cache not found at ${bare_repo_path}" >&2
+    echo "Run 'make populate-cache' to populate it." >&2
+    return 1
+  fi
+
+  # Check build cache — skip if ref unchanged and artifacts present
+  local stamp_dir="${CACHE_DIR:-$(dirname "${SCRIPT_DIR}")/cache}/stamps"
+  if ! "${SCRIPT_DIR}/check-build-cache" "${component}" "${ref}" "${bare_repo_path}" "${OUTPUT_DIR}" "${stamp_dir}"; then
+    return 0
+  fi
+
+  echo "Using cached bare repo: ${bare_name}"
+  local clone_and_build="
+        set -e
+        git config --global --add safe.directory /repos/${bare_name}
+        git clone /repos/${bare_name} /build/${component}
+        cd /build/${component}
+        git checkout ${ref}
+        ${build_cmd}
+    "
+  docker run --rm \
+    --platform "linux/${container_arch}" \
+    -v "${bare_repo_path}:/repos/${bare_name}:ro" \
+    -v "${OUTPUT_DIR}:/output" \
+    -v "${GOMOD_CACHE_VOL}:/go/pkg/mod" \
+    -v "${BUILD_CACHE_VOL}:/root/.cache/go-build" \
+    -e GOCACHE=/root/.cache/go-build \
+    -e CGO_ENABLED=0 \
+    -e GOOS=linux \
+    -e GOARCH="${GOARCH}" \
+    -w /build \
+    "${BUILDER_IMAGE}" \
+    bash -c "${clone_and_build}"
+
+  # Write build stamp after successful build
+  local hash
+  hash="$(git -C "${bare_repo_path}" rev-parse "${ref}^{commit}" 2>/dev/null || echo "${ref}")"
+  mkdir -p "${stamp_dir}"
+  echo "${hash}" >"${stamp_dir}/${component}.hash"
+
+  echo "Build complete! Artifacts saved to ${OUTPUT_DIR}"
+  ls -lh "${OUTPUT_DIR}"
+}
+
+# Main
+if [ -z "${COMPONENT}" ]; then
+  usage
+fi
+
+echo "PMM Component Builder"
+echo "====================="
+echo "Component: ${COMPONENT}"
+echo "Version: ${PMM_VERSION}"
+echo "Build Type: ${BUILD_TYPE}"
+echo "Architecture: ${GOARCH}"
+echo "Platform: ${PLATFORM}"
+echo "Output: ${OUTPUT_DIR}"
+echo ""
+
+build_builder_image
+create_volumes
+
+# Check if component is a workspace component
+if echo " ${WORKSPACE_COMPONENTS} " | grep -q " ${COMPONENT} "; then
+  build_workspace_component "${COMPONENT}"
+# Check if component is an external component
+elif echo " ${EXTERNAL_COMPONENTS} " | grep -q " ${COMPONENT} "; then
+  build_external_component "${COMPONENT}"
+else
+  echo "Error: unknown component '${COMPONENT}'"
+  echo ""
+  echo "Available workspace components: ${WORKSPACE_COMPONENTS}"
+  echo "Available external components: ${EXTERNAL_COMPONENTS}"
+  usage
+fi

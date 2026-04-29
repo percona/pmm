@@ -1,0 +1,20 @@
+#!/bin/bash
+# Entrypoint for building VictoriaMetrics (pure variants) inside a container.
+# Runs inside pmm-builder with /repos/VictoriaMetrics.git mounted read-only and /output writable.
+#
+# Required env vars:
+#   REF     git ref to checkout
+#   GOARCH  target Go architecture (amd64 or arm64)
+
+set -euo pipefail
+
+: "${REF:?REF is required}"
+: "${GOARCH:?GOARCH is required}"
+
+git config --global --add safe.directory /repos/VictoriaMetrics.git
+git clone /repos/VictoriaMetrics.git /build/VictoriaMetrics
+cd /build/VictoriaMetrics
+git checkout "${REF}"
+
+make victoria-metrics-pure vmalert-pure PKG_TAG="${REF}" BUILDINFO_TAG="${REF}"
+cp bin/victoria-metrics-pure bin/vmalert-pure /output/
