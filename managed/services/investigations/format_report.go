@@ -147,6 +147,13 @@ func buildBlockDataJSON(blockType, content string) []byte {
 			return b
 		}
 	}
+	if blockType == BlockTypeImage {
+		url := strings.TrimSpace(content)
+		if url != "" {
+			b, _ := json.Marshal(map[string]string{"url": url})
+			return b
+		}
+	}
 	// markdown / finding: {"content": "..."}
 	b, _ := json.Marshal(map[string]string{"content": content})
 	return b

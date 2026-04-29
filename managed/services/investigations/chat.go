@@ -304,7 +304,8 @@ func (h *Handlers) runInvestigationBackground(id string, _ *models.Investigation
 					BlockTypeQueryResult,
 					BlockTypeLogsView,
 					BlockTypeSinglePanel,
-					BlockTypePanelGroup:
+					BlockTypePanelGroup,
+					BlockTypeImage:
 				default:
 					blockType = BlockTypeMarkdown
 				}

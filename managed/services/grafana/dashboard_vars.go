@@ -116,21 +116,38 @@ func formatVarValue(v interface{}) string {
 	}
 }
 
+func sanitizeTemplateValue(varName, value string) string {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return ""
+	}
+	if strings.EqualFold(varName, "interval") && strings.Contains(value, "$__auto_interval") {
+		return "$__auto"
+	}
+	if strings.EqualFold(varName, "agent_id") && strings.HasPrefix(value, "/agent_id/") {
+		return ""
+	}
+	return value
+}
+
 // MergeDashboardVars merges dashboard saved defaults with POST overrides. Keys in overrides may be
 // logical names (service_name) or already-prefixed var-service_name.
 func MergeDashboardVars(d dashboardInner, overrides map[string]string) (map[string]string, error) {
 	merged := make(map[string]string)
 	validNames := make(map[string]struct{})
+	defByName := make(map[string]templateVariable)
 	for _, tv := range d.Templating.List {
 		if tv.Name == "" {
 			continue
 		}
 		validNames[tv.Name] = struct{}{}
+		defByName[tv.Name] = tv
 		key := "var-" + tv.Name
 		def := variableCurrentValue(tv.Current)
 		if def == "" && tv.IncludeAll && tv.Multi {
 			def = "$__all"
 		}
+		def = sanitizeTemplateValue(tv.Name, def)
 		if def != "" {
 			merged[key] = def
 		}
@@ -166,10 +183,13 @@ func MergeDashboardVars(d dashboardInner, overrides map[string]string) (map[stri
 			sort.Strings(valid)
 			return nil, fmt.Errorf("unknown override %q; valid template variables: %v", k, valid)
 		}
-		for _, tv := range d.Templating.List {
-			if tv.Name == canonical && val == "$__all" && !(tv.IncludeAll && tv.Multi) {
+		tv := defByName[canonical]
+		if val == "$__all" && !(tv.IncludeAll && tv.Multi) {
 				return nil, fmt.Errorf("override %q cannot use $__all for variable %q", k, canonical)
-			}
+		}
+		val = sanitizeTemplateValue(canonical, val)
+		if val == "" {
+			continue
 		}
 		merged["var-"+canonical] = val
 	}

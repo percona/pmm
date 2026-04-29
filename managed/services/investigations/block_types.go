@@ -30,6 +30,7 @@ const (
 	BlockTypeTopQueries        = "top_queries"
 	BlockTypeSchemaView        = "schema_view"
 	BlockTypeRemediationSteps  = "remediation_steps"
+	BlockTypeImage             = "image"
 	BlockTypeCommentThread     = "comment_thread"
 	BlockTypeChatThread        = "chat_thread"
 	BlockTypeAttachments       = "attachments"

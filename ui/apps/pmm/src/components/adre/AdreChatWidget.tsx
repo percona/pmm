@@ -13,6 +13,8 @@ import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
 import SendIcon from '@mui/icons-material/Send';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
+import ContentCopy from '@mui/icons-material/ContentCopy';
+import Check from '@mui/icons-material/Check';
 import { FC, useState, useCallback, useEffect, useRef, useMemo, memo } from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -35,17 +37,21 @@ interface ChatMessageBubbleProps {
   response: string;
   loading: boolean;
   progressSteps: ProgressStep[];
+  copiedMessageKey: string | null;
+  onCopyMessage: (key: string, text: string) => void;
 }
 
 const ChatMessageBubble = memo<ChatMessageBubbleProps>(({
   msg, idx, expandedReasoningIdx, setExpandedReasoningIdx,
   expandedProgressIdx, setExpandedProgressIdx,
-  reasoning, response, loading, progressSteps,
+  reasoning, response, loading, progressSteps, copiedMessageKey, onCopyMessage,
 }) => {
   const mdComponents = useMemo(
     () => getMarkdownComponents(msg.content || response || ''),
     [msg.content, response]
   );
+  const messageKey = String(msg.serverMessageId ?? `row-${idx}`);
+  const messageText = (msg.content || response || '').trim();
 
   return (
     <Box
@@ -68,15 +74,27 @@ const ChatMessageBubble = memo<ChatMessageBubbleProps>(({
           fontSize: '0.85rem',
         }}
       >
-        <Typography
-          variant="caption"
-          color="text.secondary"
-          display="block"
-          sx={{ mb: 0.25, fontSize: '0.65rem', opacity: 0.8 }}
-        >
-          {msg.role === 'user' ? 'You' : 'Assistant'}
-          {msg.timestamp ? ` · ${formatTimestamp(msg.timestamp)}` : ''}
-        </Typography>
+        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 0.25 }}>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            display="block"
+            sx={{ fontSize: '0.65rem', opacity: 0.8 }}
+          >
+            {msg.role === 'user' ? 'You' : 'Assistant'}
+            {msg.timestamp ? ` · ${formatTimestamp(msg.timestamp)}` : ''}
+          </Typography>
+          {msg.role === 'assistant' && messageText ? (
+            <IconButton
+              size="small"
+              title={copiedMessageKey === messageKey ? 'Copied' : 'Copy response'}
+              onClick={() => onCopyMessage(messageKey, messageText)}
+              sx={{ p: 0.25, color: copiedMessageKey === messageKey ? 'success.light' : 'text.secondary' }}
+            >
+              {copiedMessageKey === messageKey ? <Check fontSize="inherit" /> : <ContentCopy fontSize="inherit" />}
+            </IconButton>
+          ) : null}
+        </Stack>
         {msg.role === 'user' ? (
           <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>{msg.content}</Typography>
         ) : (
@@ -209,9 +227,11 @@ export const AdreChatWidget: FC = () => {
   const [ask, setAsk] = useState('');
   const [expandedReasoningIdx, setExpandedReasoningIdx] = useState<number | null>(null);
   const [expandedProgressIdx, setExpandedProgressIdx] = useState<number | null>(null);
+  const [copiedMessageKey, setCopiedMessageKey] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [scrollRoot, setScrollRoot] = useState<HTMLElement | null>(null);
   const lastScrollRef = useRef(0);
+  const copyResetTimerRef = useRef<number | null>(null);
 
   const isConfigured = settings?.enabled && !!settings?.url;
   const chatViaLabel = isConfigured ? 'Chat via Holmes' : 'ADRE';
@@ -236,6 +256,28 @@ export const AdreChatWidget: FC = () => {
       return () => cancelAnimationFrame(id);
     }
   }, [open]);
+
+  useEffect(() => () => {
+    if (copyResetTimerRef.current != null) {
+      window.clearTimeout(copyResetTimerRef.current);
+    }
+  }, []);
+
+  const onCopyMessage = useCallback(async (key: string, text: string) => {
+    if (!text.trim()) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedMessageKey(key);
+      if (copyResetTimerRef.current != null) {
+        window.clearTimeout(copyResetTimerRef.current);
+      }
+      copyResetTimerRef.current = window.setTimeout(() => {
+        setCopiedMessageKey((prev: string | null) => (prev === key ? null : prev));
+      }, 1600);
+    } catch {
+      setCopiedMessageKey(null);
+    }
+  }, []);
 
   const onSend = useCallback(async () => {
     if (!ask.trim() || !isConfigured) return;
@@ -347,6 +389,8 @@ export const AdreChatWidget: FC = () => {
                   response={response}
                   loading={loading}
                   progressSteps={progressSteps}
+                  copiedMessageKey={copiedMessageKey}
+                  onCopyMessage={onCopyMessage}
                 />
               ))
             )}

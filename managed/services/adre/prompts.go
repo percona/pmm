@@ -172,6 +172,7 @@ Output this exact structure (use empty string for optional fields if absent). Th
     {"title": "Alert Explanation", "type": "markdown", "content": "text"},
     {"title": "Key Findings", "type": "finding", "content": "text"},
     {"title": "Conclusions and Possible Root causes", "type": "markdown", "content": "text"},
+    {"title": "QPS chart", "type": "image", "content": "/v1/grafana/render/blob/<hash>.png"},
     {"title": "Next Steps", "type": "remediation_steps", "content": "numbered steps or text"},
     {"title": "Related logs", "type": "markdown", "content": "text"},
     {"title": "App or Infra", "type": "markdown", "content": "text"},
@@ -193,6 +194,7 @@ Timeline rules: Extract chronological events from the report (alert time, log fi
 
 Rules:
 - Use type "markdown" for generic text sections, "finding" for key findings, "remediation_steps" for next steps.
+- Use type "image" when the source report includes a rendered image URL (for example Grafana blob paths like /v1/grafana/render/blob/{hash}.png). For image sections, set "content" to the image URL only (no markdown wrappers, no prose).
 - For "Next Steps" (remediation_steps): when a step involves a runnable command (SQL or shell), include the actual command in the content. Do not strip or omit commands; preserve full SQL (e.g. ALTER TABLE ... ADD INDEX ...;) or shell (e.g. systemctl restart mysql) from the source report.
 - Include only sections that exist in the source report; omit others.
 - When node_name, service_name, or cluster are provided in the context, include them in the report metadata or summary.

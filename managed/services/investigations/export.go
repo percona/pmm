@@ -22,6 +22,7 @@ import (
 	"html"
 	"net/http"
 	"sort"
+	"strings"
 
 	"github.com/pkg/errors"
 
@@ -244,6 +245,60 @@ func blockExportContent(blk *models.InvestigationBlock) (string, error) {
 			result = "(no result)"
 		}
 		return "<pre>" + html.EscapeString(result) + "</pre>", nil
+	case "image":
+		var cfg map[string]interface{}
+		if len(blk.ConfigJSON) > 0 {
+			if err := json.Unmarshal(blk.ConfigJSON, &cfg); err != nil {
+				return "", errors.Wrap(err, "config_json")
+			}
+		}
+		var data map[string]interface{}
+		if len(blk.DataJSON) > 0 {
+			if err := json.Unmarshal(blk.DataJSON, &data); err != nil {
+				return "", errors.Wrap(err, "data_json")
+			}
+		}
+		src := strings.TrimSpace(fmt.Sprint(cfg["url"]))
+		if src == "" || src == "<nil>" {
+			src = strings.TrimSpace(fmt.Sprint(cfg["image_url"]))
+		}
+		if src == "" || src == "<nil>" {
+			src = strings.TrimSpace(fmt.Sprint(data["url"]))
+		}
+		if src == "" || src == "<nil>" {
+			src = strings.TrimSpace(fmt.Sprint(data["image_url"]))
+		}
+		if src == "" || src == "<nil>" {
+			src = strings.TrimSpace(fmt.Sprint(data["content"]))
+		}
+		if src == "" || src == "<nil>" {
+			return "<p>(no image url)</p>", nil
+		}
+		alt := strings.TrimSpace(fmt.Sprint(cfg["alt"]))
+		if alt == "" || alt == "<nil>" {
+			alt = strings.TrimSpace(fmt.Sprint(data["alt"]))
+		}
+		if alt == "" || alt == "<nil>" {
+			alt = blk.Title
+		}
+		caption := strings.TrimSpace(fmt.Sprint(cfg["caption"]))
+		if caption == "" || caption == "<nil>" {
+			caption = strings.TrimSpace(fmt.Sprint(data["caption"]))
+		}
+		var b bytes.Buffer
+		b.WriteString("<figure style=\"margin:0\">")
+		b.WriteString("<img src=\"")
+		b.WriteString(html.EscapeString(src))
+		b.WriteString("\" alt=\"")
+		b.WriteString(html.EscapeString(alt))
+		b.WriteString("\" style=\"max-width:100%;height:auto;border-radius:6px;border:1px solid #e2e8f0\" />")
+		if caption != "" && caption != "<nil>" {
+			b.WriteString("<figcaption style=\"font-size:12px;color:#64748b;margin-top:6px\">")
+			b.WriteString(html.EscapeString(caption))
+			b.WriteString("</figcaption>")
+		}
+		b.WriteString("</figure>")
+		return b.String(), nil
 	default:
 		// Generic: show data_json as formatted JSON or title
 		if len(blk.DataJSON) > 0 {

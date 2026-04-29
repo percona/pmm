@@ -21,6 +21,8 @@ import {
 import HelpOutline from '@mui/icons-material/HelpOutline';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
+import ContentCopy from '@mui/icons-material/ContentCopy';
+import Check from '@mui/icons-material/Check';
 import Send from '@mui/icons-material/Send';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { FC, useState, useCallback, useEffect, useLayoutEffect, useRef } from 'react';
@@ -70,9 +72,11 @@ export const AdreChatPanel: FC = () => {
   const [modelMenuOpen, setModelMenuOpen] = useState(false);
   const [expandedReasoningIdx, setExpandedReasoningIdx] = useState<number | null>(null);
   const [expandedProgressIdx, setExpandedProgressIdx] = useState<number | null>(null);
+  const [copiedMessageKey, setCopiedMessageKey] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const modelAnchorRef = useRef<HTMLDivElement>(null);
+  const copyResetTimerRef = useRef<number | null>(null);
   /** After scrolling to a search hit, skip one "pin to bottom" so we do not jump away from the hit. */
   const skipPinToBottomOnceRef = useRef(false);
 
@@ -153,6 +157,28 @@ export const AdreChatPanel: FC = () => {
     await handleSend(userAsk, { model: model || undefined, mode });
   }, [ask, model, mode, handleSend]);
 
+  useEffect(() => () => {
+    if (copyResetTimerRef.current != null) {
+      window.clearTimeout(copyResetTimerRef.current);
+    }
+  }, []);
+
+  const copyAssistantMessage = useCallback(async (key: string, text: string) => {
+    if (!text.trim()) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedMessageKey(key);
+      if (copyResetTimerRef.current != null) {
+        window.clearTimeout(copyResetTimerRef.current);
+      }
+      copyResetTimerRef.current = window.setTimeout(() => {
+        setCopiedMessageKey((prev: string | null) => (prev === key ? null : prev));
+      }, 1600);
+    } catch {
+      setCopiedMessageKey(null);
+    }
+  }, []);
+
   const selectedModelLabel = model || 'Default';
 
   return (
@@ -232,9 +258,12 @@ export const AdreChatPanel: FC = () => {
                   gap: 2,
                 }}
               >
-              {allMessages.map((msg, idx) => (
+              {allMessages.map((msg, idx) => {
+                const messageKey = String(msg.serverMessageId ?? `row-${idx}`);
+                const messageText = (msg.content || response || '').trim();
+                return (
                 <Box
-                  key={msg.serverMessageId ?? `row-${idx}`}
+                  key={messageKey}
                   data-adre-msg-id={msg.serverMessageId != null ? String(msg.serverMessageId) : undefined}
                   sx={{
                     display: 'flex',
@@ -263,15 +292,27 @@ export const AdreChatPanel: FC = () => {
                           }),
                     }}
                   >
-                    <Typography
-                      variant="caption"
-                      color={msg.role === 'user' ? 'text.secondary' : 'text.secondary'}
-                      display="block"
-                      sx={{ mb: 0.5, fontSize: '0.7rem', opacity: 0.8 }}
-                    >
-                      {msg.role === 'user' ? 'You' : 'Assistant'}
-                      {msg.timestamp ? ` · ${formatTimestamp(msg.timestamp)}` : ''}
-                    </Typography>
+                    <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 0.5 }}>
+                      <Typography
+                        variant="caption"
+                        color={msg.role === 'user' ? 'text.secondary' : 'text.secondary'}
+                        display="block"
+                        sx={{ fontSize: '0.7rem', opacity: 0.8 }}
+                      >
+                        {msg.role === 'user' ? 'You' : 'Assistant'}
+                        {msg.timestamp ? ` · ${formatTimestamp(msg.timestamp)}` : ''}
+                      </Typography>
+                      {msg.role === 'assistant' && messageText ? (
+                        <IconButton
+                          size="small"
+                          title={copiedMessageKey === messageKey ? 'Copied' : 'Copy response'}
+                          onClick={() => copyAssistantMessage(messageKey, messageText)}
+                          sx={{ p: 0.25, color: copiedMessageKey === messageKey ? 'success.light' : 'text.secondary' }}
+                        >
+                          {copiedMessageKey === messageKey ? <Check fontSize="inherit" /> : <ContentCopy fontSize="inherit" />}
+                        </IconButton>
+                      ) : null}
+                    </Stack>
                     {msg.role === 'user' ? (
                       <Typography sx={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
                         {msg.content}
@@ -408,7 +449,7 @@ export const AdreChatPanel: FC = () => {
                     )}
                   </Box>
                 </Box>
-              ))}
+              )})}
               </Box>
             )}
             <div ref={messagesEndRef} />

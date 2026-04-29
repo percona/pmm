@@ -57,3 +57,10 @@ func TestBuildGrafanaRenderQueryValues_ScenesGating(t *testing.T) {
 	assert.Equal(t, "true", qScenes.Get("__feature.dashboardSceneSolo"))
 	assert.Equal(t, "panel-12", qScenes.Get("viewPanel"))
 }
+
+func TestSanitizeTemplateValue(t *testing.T) {
+	assert.Equal(t, "$__auto", sanitizeTemplateValue("interval", "$__auto_interval_interval"))
+	assert.Equal(t, "$__auto", sanitizeTemplateValue("interval", "$__auto_interval"))
+	assert.Equal(t, "", sanitizeTemplateValue("agent_id", "/agent_id/1093bb03-007c-41e9-80f2-930f37fa1733"))
+	assert.Equal(t, "e30e782e-8384-47e6-80d6-6187391f2f35", sanitizeTemplateValue("agent_id", "e30e782e-8384-47e6-80d6-6187391f2f35"))
+}

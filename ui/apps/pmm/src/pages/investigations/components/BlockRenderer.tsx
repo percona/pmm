@@ -10,6 +10,7 @@ import { SlowQueryAnalysisBlock } from './SlowQueryAnalysisBlock';
 import { TopQueriesBlock } from './TopQueriesBlock';
 import { SchemaViewBlock } from './SchemaViewBlock';
 import { RemediationStepsBlock } from './RemediationStepsBlock';
+import { ImageBlock } from './ImageBlock';
 
 export const BlockRenderer: FC<{ block: InvestigationBlock }> = ({ block }) => {
   switch (block.type) {
@@ -33,6 +34,8 @@ export const BlockRenderer: FC<{ block: InvestigationBlock }> = ({ block }) => {
       return <SchemaViewBlock block={block} />;
     case 'remediation_steps':
       return <RemediationStepsBlock block={block} />;
+    case 'image':
+      return <ImageBlock block={block} />;
     default:
       return (
         <MarkdownBlock
