@@ -12,24 +12,24 @@ packer {
 }
 
 source "amazon-ebs" "amd-agent" {
-  ami_name              = "Jenkins Agent v3"
+  ami_name              = "Jenkins Agent AL amd64"
   instance_type         = "t3.xlarge"
   force_deregister      = true
   force_delete_snapshot = true
   region                = "us-east-2"
   source_ami_filter {
     filters = {
-      name                = "OL9.3-*"
+      name                = "AlmaLinux OS 9*"
       root-device-type    = "ebs"
       virtualization-type = "hvm"
       architecture        = "x86_64"
     }
     most_recent = true
-    owners      = ["131827586825"]
+    owners      = ["764336703387"]
   }
   ssh_username = "ec2-user"
   tags = {
-    Name            = "Jenkins Agent x86_64 v3"
+    Name            = "Jenkins Agent AL amd64"
     iit-billing-tag = "pmm-worker-3"
   }
   run_tags = {
@@ -58,24 +58,24 @@ source "amazon-ebs" "amd-agent" {
 }
 
 source "amazon-ebs" "arm-agent" {
-  ami_name              = "Jenkins Agent ARM v3"
+  ami_name              = "Jenkins Agent AL arm64"
   instance_type         = "t4g.xlarge"
   force_deregister      = true
   force_delete_snapshot = true
   region                = "us-east-2"
   source_ami_filter {
     filters = {
-      name                = "OL9.3-*"
+      name                = "AlmaLinux OS 9*"
       root-device-type    = "ebs"
       virtualization-type = "hvm"
       architecture        = "arm64"
     }
     most_recent = true
-    owners      = ["131827586825"]
+    owners      = ["764336703387"]
   }
   ssh_username = "ec2-user"
   tags = {
-    Name            = "Jenkins Agent arm64 v3"
+    Name            = "Jenkins Agent AL arm64"
     iit-billing-tag = "pmm-worker-3"
   }
   run_tags = {

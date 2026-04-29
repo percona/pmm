@@ -96,61 +96,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		assert.Equal(t, &authError{code: codes.Unauthenticated, message: "Unauthorized"}, res)
 	})
 
-	for uri, minRole := range map[string]role{
-		"/agent.v1.AgentService/Connect":                 admin,
-		"/agent.Agent/Connect":                           admin,
-		"/realtimeanalytics.v1.CollectorService/Collect": admin,
-
-		"/inventory.v1.Nodes/ListNodes":                  admin,
-		"/actions.v1.ActionsService/StartServiceAction":  viewer,
-		"/management.v1.ManagementService/RemoveService": admin,
-		"/management.v1.ManagementService/ListServices":  admin,
-		"/management.v1.ManagementService/AddAnnotation": admin,
-		"/server.v1.ServerService/CheckUpdates":          viewer,
-		"/server.v1.ServerService/StartUpdate":           admin,
-		"/server.v1.ServerService/UpdateStatus":          none,
-		"/server.v1.ServerService/AWSInstanceCheck":      none,
-
-		"/v1/inventory/nodes":               admin,
-		"/v1/actions:startServiceAction":    viewer,
-		"/v1/advisors":                      editor,
-		"/v1/advisors/checks:start":         editor,
-		"/v1/advisors/failedServices":       editor,
-		"/v1/ha/status":                     viewer,
-		"/v1/ha/nodes":                      viewer,
-		"/v1/management/services":           admin,
-		"/v1/management/agents":             admin,
-		"/v1/server/updates":                viewer,
-		"/v1/server/updates:start":          admin,
-		"/v1/server/updates:getStatus":      none,
-		"/v1/server/settings":               admin,
-		"/v1/server/settings/readonly":      viewer,
-		"/v1/server/AWSInstance":            none,
-		"/v1/backups":                       admin,
-		"/v1/dumps":                         admin,
-		"/v1/accesscontrol":                 admin,
-		"/v1/users":                         viewer,
-		"/v1/platform:connect":              admin,
-		"/v1/platform:disconnect":           admin,
-		"/v1/platform/contact":              viewer,
-		"/v1/platform/user":                 viewer,
-		"/v1/platform/server":               viewer,
-		"/v1/platform/organization/tickets": viewer,
-
-		"/v1/server/AWSInstance/..%2f..%2finventory/Services/List": admin,
-		"/v1/server/AWSInstance/..%2flogs.zip":                     admin,
-
-		"/v1/server/version": viewer,
-		"/v1/server/readyz":  none,
-		"/ping":              none,
-
-		"/v1/qan/query:getExample": viewer,
-		"/v1/qan:getMetrics":       viewer,
-
-		"/prometheus/":        admin,
-		"/nomad/":             admin,
-		"/v1/server/logs.zip": admin,
-	} {
+	for uri, minRole := range rules {
 		for _, role := range []role{viewer, editor, admin} {
 			t.Run(fmt.Sprintf("uri=%s,minRole=%s,role=%s", uri, minRole, role), func(t *testing.T) {
 				t.Parallel()

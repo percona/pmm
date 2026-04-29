@@ -228,7 +228,7 @@ Here are the benefits and drawbacks of Slow query log and Performance Schema met
     
         To configure automatic rotation when adding a service, use the `--size-slow-logs` option with the `pmm-admin` command. This option sets the size threshold at which the slow query log file will be rotated. 
         
-        The size is specified as a number followed by a suffix (e.g., `10M` for 10 megabytes). For detailed syntax, see [pmm-admin add mysql](../../../../use/commands/pmm-admin/pmm-admin-add.md#pmm-admin-add-mysql).
+        The size is specified as a number followed by a suffix (e.g., `10M` for 10 megabytes). For detailed syntax, see [pmm-admin add mysql](../../../../use/commands/pmm-admin/pmm-admin.md#add-a-mysql-database).
     
         When the log reaches the specified size, PMM Client will:
     
@@ -668,14 +668,14 @@ Once the service is confirmed as active, verify that metrics are being properly 
 [DASH_MYSQLUSERDETAILS]: ../../../../reference//dashboards/dashboard-mysql-user-details.md
 [LOGROTATE]: https://linux.die.net/man/8/logrotate
 [PERCONA_SERVER_MYSQL]: https://www.percona.com/software/mysql-database/percona-server
-[PERCONA_XTRADB_CLUSTER]: https://www.percona.com/software/mysql-database/percona-xtradb-cluster
+[PERCONA_XTRADB_CLUSTER]: https://docs.percona.com/percona-xtradb-cluster/
 [ORACLE_MYSQL]: https://www.mysql.com/
 [MARIADB]: https://mariadb.org/
-[BLOG_CUSTOM_QUERIES_MYSQL]: https://www.percona.com/blog/2020/06/10/running-custom-queries-in-percona-monitoring-and-management/
-[BLOG_INNODB_METRICS]: https://www.percona.com/blog/2014/11/18/mysqls-innodb_metrics-table-how-much-is-the-overhead/
-[BLOG_LOGGING]: https://www.percona.com/blog/2009/02/10/impact-of-logging-on-mysql%E2%80%99s-performance/
-[BLOG_LOG_ROTATION]: https://www.percona.com/blog/2013/04/18/rotating-mysql-slow-logs-safely/
-[BLOG_PS_VS_SLOW]: https://www.percona.com/blog/2014/02/11/performance_schema-vs-slow-query-log/
+[BLOG_CUSTOM_QUERIES_MYSQL]: https://www.percona.com/blog/running-custom-queries-in-percona-monitoring-and-management/
+[BLOG_INNODB_METRICS]: https://www.percona.com/blog/mysqls-innodb_metrics-table-how-much-is-the-overhead/
+[BLOG_LOGGING]: https://www.percona.com/blog/impact-of-logging-on-mysqls-performance/
+[BLOG_LOG_ROTATION]: https://www.percona.com/blog/rotating-mysql-slow-logs-safely/
+[BLOG_PS_VS_SLOW]: https://www.percona.com/blog/performance_schema-vs-slow-query-log/
 [PS_FEATURES_REMOVED]: https://docs.percona.com/percona-server/8.0/upgrade-changes-removed.html
 [ps_slow_query_ext]: https://docs.percona.com/percona-server/latest/slow-extended.html
 [ps_query_response_time_stats]: https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#usage
