@@ -4406,7 +4406,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "browser",
+  "timezone": "",
   "title": "PostgreSQL Checkpoints, Buffers and WAL Usage",
   "uid": "postgresql-checkpoints-overview",
   "version": 1

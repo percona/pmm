@@ -2462,7 +2462,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "browser",
+  "timezone": "",
   "title": "Valkey/Redis Cluster Details",
   "uid": "valkey-cluster-details",
   "version": 1

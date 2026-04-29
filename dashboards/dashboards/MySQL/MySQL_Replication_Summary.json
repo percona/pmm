@@ -4847,7 +4847,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "browser",
+  "timezone": "",
   "title": "MySQL replication summary",
   "uid": "mysql-replicaset-summary",
   "version": 1,

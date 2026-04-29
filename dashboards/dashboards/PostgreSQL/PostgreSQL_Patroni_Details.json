@@ -3642,7 +3642,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "browser",
+  "timezone": "",
   "title": "PostgreSQL Patroni Details",
   "uid": "postgresql-patroni-details",
   "version": 1

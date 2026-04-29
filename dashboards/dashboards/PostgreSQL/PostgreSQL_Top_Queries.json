@@ -1974,7 +1974,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "browser",
+  "timezone": "",
   "title": "PostgreSQL Top Queries",
   "uid": "postgresql-top-queries",
   "version": 2

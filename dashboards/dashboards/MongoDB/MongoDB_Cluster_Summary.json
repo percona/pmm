@@ -4676,7 +4676,7 @@
             "30d"
         ]
     },
-    "timezone": "browser",
+    "timezone": "",
     "title": "MongoDB Sharded Cluster Summary",
     "uid": "mongodb-cluster-summary",
     "version": 1

@@ -1996,7 +1996,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "browser",
+  "timezone": "",
   "title": "Valkey/Redis Replication",
   "uid": "valkey-replication",
   "version": 1

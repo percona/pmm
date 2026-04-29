@@ -1105,7 +1105,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "browser",
+  "timezone": "",
   "title": "Valkey/Redis Load",
   "uid": "valkey-load",
   "version": 1

@@ -5150,7 +5150,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "browser",
+  "timezone": "",
   "title": "Node Summary",
   "uid": "node-instance-summary",
   "version": 1

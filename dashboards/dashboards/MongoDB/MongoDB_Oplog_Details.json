@@ -1471,7 +1471,7 @@
     ],
     "type": "timepicker"
   },
-  "timezone": "browser",
+  "timezone": "",
   "title": "MongoDB Oplog Details",
   "uid": "mongodb-oplog-details",
   "version": 1,

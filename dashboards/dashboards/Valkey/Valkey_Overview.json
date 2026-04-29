@@ -863,7 +863,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "browser",
+  "timezone": "",
   "title": "Valkey/Redis Overview",
   "uid": "valkey-overview",
   "version": 1

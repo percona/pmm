@@ -897,7 +897,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "browser",
+  "timezone": "",
   "title": "Valkey/Redis Memory",
   "uid": "valkey-memory",
   "version": 1

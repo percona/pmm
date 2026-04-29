@@ -2274,7 +2274,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "browser",
+  "timezone": "",
   "title": "Valkey/Redis Command Detail",
   "uid": "valkey-command-details",
   "version": 1

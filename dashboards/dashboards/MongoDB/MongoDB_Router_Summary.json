@@ -1839,7 +1839,7 @@
       "30d"
     ]
   },
-  "timezone": "browser",
+  "timezone": "",
   "title": "MongoDB Router Summary",
   "uid": "mongodb-router-summary",
   "version": 4

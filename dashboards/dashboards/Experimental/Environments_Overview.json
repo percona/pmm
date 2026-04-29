@@ -2125,7 +2125,7 @@
     ],
     "type": "timepicker"
   },
-  "timezone": "browser",
+  "timezone": "",
   "title": "Environments Overview (Designed for PMM)",
   "uid": "environments-overview",
   "version": 1,

@@ -11218,7 +11218,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "browser",
+  "timezone": "",
   "title": "PostgreSQL Instances Overview Extended",
   "uid": "postgresql-overview-extended",
   "version": 1

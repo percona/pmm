@@ -2210,7 +2210,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "browser",
+  "timezone": "",
   "title": "PostgreSQL Replication Overview",
   "uid": "postgresql-replication-overview",
   "version": 1

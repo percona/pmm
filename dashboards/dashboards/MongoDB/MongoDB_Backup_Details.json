@@ -1217,7 +1217,7 @@
       "30d"
     ]
   },
-  "timezone": "browser",
+  "timezone": "",
   "title": "MongoDB Backup Details",
   "uid": "mongodb-backup-details",
   "version": 3

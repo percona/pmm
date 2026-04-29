@@ -612,7 +612,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "browser",
+  "timezone": "",
   "title": "Valkey/Redis Slowlog",
   "uid": "valkey-slowlog",
   "version": 1

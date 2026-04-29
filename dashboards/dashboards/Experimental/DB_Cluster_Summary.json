@@ -2615,7 +2615,7 @@
     ],
     "type": "timepicker"
   },
-  "timezone": "browser",
+  "timezone": "",
   "title": "DB Cluster Summary",
   "uid": "db-cluster-summary",
   "version": 2,

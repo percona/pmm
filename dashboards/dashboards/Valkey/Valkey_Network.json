@@ -426,7 +426,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "browser",
+  "timezone": "",
   "title": "Valkey/Redis Network",
   "uid": "valkey-network",
   "version": 1

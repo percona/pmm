@@ -618,7 +618,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "browser",
+  "timezone": "",
   "title": "Valkey/Redis Clients",
   "uid": "valkey-clients",
   "version": 1

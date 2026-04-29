@@ -1919,7 +1919,7 @@
     ],
     "type": "timepicker"
   },
-  "timezone": "browser",
+  "timezone": "",
   "title": "MongoDB Collections Overview",
   "uid": "mongodb-collections-overview",
   "version": 2,
