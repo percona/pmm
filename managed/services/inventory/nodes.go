@@ -125,6 +125,12 @@ func (s *NodesService) AddNode(ctx context.Context, req *inventoryv1.AddNodeRequ
 			return nil, err
 		}
 		res.Node = &inventoryv1.AddNodeResponse_RemoteAzureDatabase{RemoteAzureDatabase: node}
+	case *inventoryv1.AddNodeRequest_RemoteElasticache:
+		node, err := s.AddRemoteElastiCacheNode(ctx, req.GetRemoteElasticache())
+		if err != nil {
+			return nil, err
+		}
+		res.Node = &inventoryv1.AddNodeResponse_RemoteElasticache{RemoteElasticache: node}
 	default:
 		return nil, errors.Errorf("invalid request %v", req.GetNode())
 	}
@@ -297,6 +303,40 @@ func (s *NodesService) AddRemoteAzureDatabaseNode(ctx context.Context, req *inve
 	}
 
 	return invNode.(*inventoryv1.RemoteAzureDatabaseNode), nil //nolint:forcetypeassert
+}
+
+// AddRemoteElastiCacheNode adds a new ElastiCache node.
+//
+//nolint:dupl
+func (s *NodesService) AddRemoteElastiCacheNode(ctx context.Context, req *inventoryv1.AddRemoteElastiCacheNodeParams) (*inventoryv1.RemoteElastiCacheNode, error) {
+	params := &models.CreateNodeParams{
+		NodeName:     req.NodeName,
+		Address:      req.Address,
+		NodeModel:    req.NodeModel,
+		Region:       pointer.ToStringOrNil(req.Region),
+		AZ:           req.Az,
+		CustomLabels: req.CustomLabels,
+	}
+
+	node := &models.Node{}
+	e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		var err error
+		node, err = models.CreateNode(tx.Querier, models.RemoteElastiCacheNodeType, params)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if e != nil {
+		return nil, e
+	}
+
+	invNode, err := services.ToAPINode(node)
+	if err != nil {
+		return nil, err
+	}
+
+	return invNode.(*inventoryv1.RemoteElastiCacheNode), nil //nolint:forcetypeassert
 }
 
 // Remove removes Node without any Agents and Services.

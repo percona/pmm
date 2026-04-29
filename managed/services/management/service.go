@@ -113,6 +113,8 @@ func (s *ManagementService) AddService(ctx context.Context, req *managementv1.Ad
 		return s.addRDS(ctx, req.GetRds())
 	case *managementv1.AddServiceRequest_Valkey:
 		return s.addValkey(ctx, req.GetValkey())
+	case *managementv1.AddServiceRequest_Elasticache:
+		return s.addElastiCache(ctx, req.GetElasticache())
 	default:
 		return nil, status.Error(codes.InvalidArgument, "invalid service type")
 	}
@@ -313,8 +315,8 @@ func (s *ManagementService) RemoveService(ctx context.Context, req *managementv1
 			return err
 		}
 
-		// For RDS and Azure we also want to remove the node.
-		if node.NodeType == models.RemoteRDSNodeType || node.NodeType == models.RemoteAzureDatabaseNodeType {
+		// For RDS, Azure and ElastiCache we also want to remove the node.
+		if node.NodeType == models.RemoteRDSNodeType || node.NodeType == models.RemoteAzureDatabaseNodeType || node.NodeType == models.RemoteElastiCacheNodeType {
 			agents, err = models.FindAgents(tx.Querier, models.AgentFilters{NodeID: node.NodeID})
 			if err != nil {
 				return err

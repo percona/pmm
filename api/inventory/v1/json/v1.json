@@ -12038,7 +12038,8 @@
               "NODE_TYPE_CONTAINER_NODE",
               "NODE_TYPE_REMOTE_NODE",
               "NODE_TYPE_REMOTE_RDS_NODE",
-              "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
+              "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE",
+              "NODE_TYPE_REMOTE_ELASTICACHE_NODE"
             ],
             "type": "string",
             "default": "NODE_TYPE_UNSPECIFIED",
@@ -12332,6 +12333,59 @@
                     }
                   },
                   "x-order": 4
+                },
+                "remote_elasticache": {
+                  "type": "array",
+                  "items": {
+                    "description": "RemoteElastiCacheNode represents remote ElastiCache Node. Agents can't run on Remote ElastiCache Nodes.",
+                    "type": "object",
+                    "properties": {
+                      "node_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "node_name": {
+                        "description": "Unique across all Nodes user-defined name.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "address": {
+                        "description": "ElastiCache primary endpoint address.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "node_model": {
+                        "description": "Node model (cache node type).",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "region": {
+                        "description": "Node region.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "az": {
+                        "description": "Node availability zone.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 6
+                      },
+                      "instance_id": {
+                        "description": "AWS instance ID (replication group ID).",
+                        "type": "string",
+                        "x-order": 7
+                      }
+                    }
+                  },
+                  "x-order": 5
                 }
               }
             }
@@ -12603,6 +12657,45 @@
                     }
                   },
                   "x-order": 4
+                },
+                "remote_elasticache": {
+                  "type": "object",
+                  "properties": {
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "address": {
+                      "description": "ElastiCache primary endpoint address.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "node_model": {
+                      "description": "Node model (cache node type).",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    }
+                  },
+                  "x-order": 5
                 }
               }
             }
@@ -12878,6 +12971,56 @@
                     }
                   },
                   "x-order": 4
+                },
+                "remote_elasticache": {
+                  "description": "RemoteElastiCacheNode represents remote ElastiCache Node. Agents can't run on Remote ElastiCache Nodes.",
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "address": {
+                      "description": "ElastiCache primary endpoint address.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "node_model": {
+                      "description": "Node model (cache node type).",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    },
+                    "instance_id": {
+                      "description": "AWS instance ID (replication group ID).",
+                      "type": "string",
+                      "x-order": 7
+                    }
+                  },
+                  "x-order": 5
                 }
               }
             }
@@ -13203,6 +13346,56 @@
                     }
                   },
                   "x-order": 4
+                },
+                "remote_elasticache": {
+                  "description": "RemoteElastiCacheNode represents remote ElastiCache Node. Agents can't run on Remote ElastiCache Nodes.",
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "address": {
+                      "description": "ElastiCache primary endpoint address.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "node_model": {
+                      "description": "Node model (cache node type).",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    },
+                    "instance_id": {
+                      "description": "AWS instance ID (replication group ID).",
+                      "type": "string",
+                      "x-order": 7
+                    }
+                  },
+                  "x-order": 5
                 }
               }
             }

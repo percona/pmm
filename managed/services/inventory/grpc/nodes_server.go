@@ -41,6 +41,7 @@ var nodeTypes = map[inventoryv1.NodeType]models.NodeType{
 	inventoryv1.NodeType_NODE_TYPE_REMOTE_NODE:                models.RemoteNodeType,
 	inventoryv1.NodeType_NODE_TYPE_REMOTE_RDS_NODE:            models.RemoteRDSNodeType,
 	inventoryv1.NodeType_NODE_TYPE_REMOTE_AZURE_DATABASE_NODE: models.RemoteAzureDatabaseNodeType,
+	inventoryv1.NodeType_NODE_TYPE_REMOTE_ELASTICACHE_NODE:    models.RemoteElastiCacheNodeType,
 }
 
 func nodeType(nodeType inventoryv1.NodeType) *models.NodeType {
@@ -74,6 +75,8 @@ func (s *nodesServer) ListNodes(ctx context.Context, req *inventoryv1.ListNodesR
 			res.RemoteRds = append(res.RemoteRds, node)
 		case *inventoryv1.RemoteAzureDatabaseNode:
 			res.RemoteAzureDatabase = append(res.RemoteAzureDatabase, node)
+		case *inventoryv1.RemoteElastiCacheNode:
+			res.RemoteElasticache = append(res.RemoteElasticache, node)
 		default:
 			panic(fmt.Errorf("unhandled inventory Node type %T", node))
 		}
@@ -100,6 +103,8 @@ func (s *nodesServer) GetNode(ctx context.Context, req *inventoryv1.GetNodeReque
 		res.Node = &inventoryv1.GetNodeResponse_RemoteRds{RemoteRds: node}
 	case *inventoryv1.RemoteAzureDatabaseNode:
 		res.Node = &inventoryv1.GetNodeResponse_RemoteAzureDatabase{RemoteAzureDatabase: node}
+	case *inventoryv1.RemoteElastiCacheNode:
+		res.Node = &inventoryv1.GetNodeResponse_RemoteElasticache{RemoteElasticache: node}
 	default:
 		panic(fmt.Errorf("unhandled inventory Node type %T", node))
 	}

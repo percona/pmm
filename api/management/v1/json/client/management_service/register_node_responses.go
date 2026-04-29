@@ -194,7 +194,7 @@ swagger:model RegisterNodeBody
 */
 type RegisterNodeBody struct {
 	// NodeType describes supported Node types.
-	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]
+	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE","NODE_TYPE_REMOTE_ELASTICACHE_NODE"]
 	NodeType *string `json:"node_type,omitempty"`
 
 	// A user-defined name unique across all Nodes.
@@ -272,7 +272,7 @@ var registerNodeBodyTypeNodeTypePropEnum []any
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE","NODE_TYPE_REMOTE_ELASTICACHE_NODE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -299,6 +299,9 @@ const (
 
 	// RegisterNodeBodyNodeTypeNODETYPEREMOTEAZUREDATABASENODE captures enum value "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
 	RegisterNodeBodyNodeTypeNODETYPEREMOTEAZUREDATABASENODE string = "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
+
+	// RegisterNodeBodyNodeTypeNODETYPEREMOTEELASTICACHENODE captures enum value "NODE_TYPE_REMOTE_ELASTICACHE_NODE"
+	RegisterNodeBodyNodeTypeNODETYPEREMOTEELASTICACHENODE string = "NODE_TYPE_REMOTE_ELASTICACHE_NODE"
 )
 
 // prop value enum

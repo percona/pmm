@@ -193,6 +193,9 @@ AddServiceBody add service body
 swagger:model AddServiceBody
 */
 type AddServiceBody struct {
+	// elasticache
+	Elasticache *AddServiceParamsBodyElasticache `json:"elasticache,omitempty"`
+
 	// external
 	External *AddServiceParamsBodyExternal `json:"external,omitempty"`
 
@@ -221,6 +224,10 @@ type AddServiceBody struct {
 // Validate validates this add service body
 func (o *AddServiceBody) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.validateElasticache(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.validateExternal(formats); err != nil {
 		res = append(res, err)
@@ -257,6 +264,29 @@ func (o *AddServiceBody) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *AddServiceBody) validateElasticache(formats strfmt.Registry) error {
+	if swag.IsZero(o.Elasticache) { // not required
+		return nil
+	}
+
+	if o.Elasticache != nil {
+		if err := o.Elasticache.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "elasticache")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "elasticache")
+			}
+
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -448,6 +478,10 @@ func (o *AddServiceBody) validateValkey(formats strfmt.Registry) error {
 func (o *AddServiceBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.contextValidateElasticache(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.contextValidateExternal(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -483,6 +517,30 @@ func (o *AddServiceBody) ContextValidate(ctx context.Context, formats strfmt.Reg
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *AddServiceBody) contextValidateElasticache(ctx context.Context, formats strfmt.Registry) error {
+	if o.Elasticache != nil {
+
+		if swag.IsZero(o.Elasticache) { // not required
+			return nil
+		}
+
+		if err := o.Elasticache.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "elasticache")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "elasticache")
+			}
+
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -929,6 +987,9 @@ AddServiceOKBody add service OK body
 swagger:model AddServiceOKBody
 */
 type AddServiceOKBody struct {
+	// elasticache
+	Elasticache *AddServiceOKBodyElasticache `json:"elasticache,omitempty"`
+
 	// external
 	External *AddServiceOKBodyExternal `json:"external,omitempty"`
 
@@ -957,6 +1018,10 @@ type AddServiceOKBody struct {
 // Validate validates this add service OK body
 func (o *AddServiceOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.validateElasticache(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.validateExternal(formats); err != nil {
 		res = append(res, err)
@@ -993,6 +1058,29 @@ func (o *AddServiceOKBody) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *AddServiceOKBody) validateElasticache(formats strfmt.Registry) error {
+	if swag.IsZero(o.Elasticache) { // not required
+		return nil
+	}
+
+	if o.Elasticache != nil {
+		if err := o.Elasticache.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("addServiceOk" + "." + "elasticache")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("addServiceOk" + "." + "elasticache")
+			}
+
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -1184,6 +1272,10 @@ func (o *AddServiceOKBody) validateValkey(formats strfmt.Registry) error {
 func (o *AddServiceOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.contextValidateElasticache(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.contextValidateExternal(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -1219,6 +1311,30 @@ func (o *AddServiceOKBody) ContextValidate(ctx context.Context, formats strfmt.R
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *AddServiceOKBody) contextValidateElasticache(ctx context.Context, formats strfmt.Registry) error {
+	if o.Elasticache != nil {
+
+		if swag.IsZero(o.Elasticache) { // not required
+			return nil
+		}
+
+		if err := o.Elasticache.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("addServiceOk" + "." + "elasticache")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("addServiceOk" + "." + "elasticache")
+			}
+
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -1425,6 +1541,612 @@ func (o *AddServiceOKBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddServiceOKBody) UnmarshalBinary(b []byte) error {
 	var res AddServiceOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddServiceOKBodyElasticache add service OK body elasticache
+swagger:model AddServiceOKBodyElasticache
+*/
+type AddServiceOKBodyElasticache struct {
+	// node
+	Node *AddServiceOKBodyElasticacheNode `json:"node,omitempty"`
+
+	// valkey exporter
+	ValkeyExporter *AddServiceOKBodyElasticacheValkeyExporter `json:"valkey_exporter,omitempty"`
+
+	// valkey service
+	ValkeyService *AddServiceOKBodyElasticacheValkeyService `json:"valkey_service,omitempty"`
+}
+
+// Validate validates this add service OK body elasticache
+func (o *AddServiceOKBodyElasticache) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateNode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateValkeyExporter(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateValkeyService(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddServiceOKBodyElasticache) validateNode(formats strfmt.Registry) error {
+	if swag.IsZero(o.Node) { // not required
+		return nil
+	}
+
+	if o.Node != nil {
+		if err := o.Node.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("addServiceOk" + "." + "elasticache" + "." + "node")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("addServiceOk" + "." + "elasticache" + "." + "node")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddServiceOKBodyElasticache) validateValkeyExporter(formats strfmt.Registry) error {
+	if swag.IsZero(o.ValkeyExporter) { // not required
+		return nil
+	}
+
+	if o.ValkeyExporter != nil {
+		if err := o.ValkeyExporter.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("addServiceOk" + "." + "elasticache" + "." + "valkey_exporter")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("addServiceOk" + "." + "elasticache" + "." + "valkey_exporter")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddServiceOKBodyElasticache) validateValkeyService(formats strfmt.Registry) error {
+	if swag.IsZero(o.ValkeyService) { // not required
+		return nil
+	}
+
+	if o.ValkeyService != nil {
+		if err := o.ValkeyService.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("addServiceOk" + "." + "elasticache" + "." + "valkey_service")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("addServiceOk" + "." + "elasticache" + "." + "valkey_service")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add service OK body elasticache based on the context it is used
+func (o *AddServiceOKBodyElasticache) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateNode(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateValkeyExporter(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateValkeyService(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddServiceOKBodyElasticache) contextValidateNode(ctx context.Context, formats strfmt.Registry) error {
+	if o.Node != nil {
+
+		if swag.IsZero(o.Node) { // not required
+			return nil
+		}
+
+		if err := o.Node.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("addServiceOk" + "." + "elasticache" + "." + "node")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("addServiceOk" + "." + "elasticache" + "." + "node")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddServiceOKBodyElasticache) contextValidateValkeyExporter(ctx context.Context, formats strfmt.Registry) error {
+	if o.ValkeyExporter != nil {
+
+		if swag.IsZero(o.ValkeyExporter) { // not required
+			return nil
+		}
+
+		if err := o.ValkeyExporter.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("addServiceOk" + "." + "elasticache" + "." + "valkey_exporter")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("addServiceOk" + "." + "elasticache" + "." + "valkey_exporter")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddServiceOKBodyElasticache) contextValidateValkeyService(ctx context.Context, formats strfmt.Registry) error {
+	if o.ValkeyService != nil {
+
+		if swag.IsZero(o.ValkeyService) { // not required
+			return nil
+		}
+
+		if err := o.ValkeyService.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("addServiceOk" + "." + "elasticache" + "." + "valkey_service")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("addServiceOk" + "." + "elasticache" + "." + "valkey_service")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddServiceOKBodyElasticache) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddServiceOKBodyElasticache) UnmarshalBinary(b []byte) error {
+	var res AddServiceOKBodyElasticache
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddServiceOKBodyElasticacheNode RemoteElastiCacheNode represents remote ElastiCache Node. Agents can't run on Remote ElastiCache Nodes.
+swagger:model AddServiceOKBodyElasticacheNode
+*/
+type AddServiceOKBodyElasticacheNode struct {
+	// Unique randomly generated instance identifier.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Unique across all Nodes user-defined name.
+	NodeName string `json:"node_name,omitempty"`
+
+	// ElastiCache primary endpoint address.
+	Address string `json:"address,omitempty"`
+
+	// Node model (cache node type).
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Node region.
+	Region string `json:"region,omitempty"`
+
+	// Node availability zone.
+	Az string `json:"az,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AWS instance ID (replication group ID).
+	InstanceID string `json:"instance_id,omitempty"`
+}
+
+// Validate validates this add service OK body elasticache node
+func (o *AddServiceOKBodyElasticacheNode) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add service OK body elasticache node based on context it is used
+func (o *AddServiceOKBodyElasticacheNode) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddServiceOKBodyElasticacheNode) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddServiceOKBodyElasticacheNode) UnmarshalBinary(b []byte) error {
+	var res AddServiceOKBodyElasticacheNode
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddServiceOKBodyElasticacheValkeyExporter ValkeyExporter runs on Generic or Container Node and exposes Valkey Service metrics.
+swagger:model AddServiceOKBodyElasticacheValkeyExporter
+*/
+type AddServiceOKBodyElasticacheValkeyExporter struct {
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// Valkey username for scraping metrics.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname verification.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// True if exporter uses push metrics mode.
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+
+	// List of disabled collector names.
+	DisabledCollectors []string `json:"disabled_collectors"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
+	Status *string `json:"status,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *AddServiceOKBodyElasticacheValkeyExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
+}
+
+// Validate validates this add service OK body elasticache valkey exporter
+func (o *AddServiceOKBodyElasticacheValkeyExporter) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addServiceOkBodyElasticacheValkeyExporterTypeStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addServiceOkBodyElasticacheValkeyExporterTypeStatusPropEnum = append(addServiceOkBodyElasticacheValkeyExporterTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// AddServiceOKBodyElasticacheValkeyExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	AddServiceOKBodyElasticacheValkeyExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// AddServiceOKBodyElasticacheValkeyExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddServiceOKBodyElasticacheValkeyExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// AddServiceOKBodyElasticacheValkeyExporterStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	AddServiceOKBodyElasticacheValkeyExporterStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// AddServiceOKBodyElasticacheValkeyExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddServiceOKBodyElasticacheValkeyExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// AddServiceOKBodyElasticacheValkeyExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddServiceOKBodyElasticacheValkeyExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// AddServiceOKBodyElasticacheValkeyExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddServiceOKBodyElasticacheValkeyExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// AddServiceOKBodyElasticacheValkeyExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddServiceOKBodyElasticacheValkeyExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// AddServiceOKBodyElasticacheValkeyExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddServiceOKBodyElasticacheValkeyExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *AddServiceOKBodyElasticacheValkeyExporter) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addServiceOkBodyElasticacheValkeyExporterTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddServiceOKBodyElasticacheValkeyExporter) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("addServiceOk"+"."+"elasticache"+"."+"valkey_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *AddServiceOKBodyElasticacheValkeyExporter) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("addServiceOk" + "." + "elasticache" + "." + "valkey_exporter" + "." + "metrics_resolutions")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("addServiceOk" + "." + "elasticache" + "." + "valkey_exporter" + "." + "metrics_resolutions")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add service OK body elasticache valkey exporter based on the context it is used
+func (o *AddServiceOKBodyElasticacheValkeyExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddServiceOKBodyElasticacheValkeyExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("addServiceOk" + "." + "elasticache" + "." + "valkey_exporter" + "." + "metrics_resolutions")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("addServiceOk" + "." + "elasticache" + "." + "valkey_exporter" + "." + "metrics_resolutions")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddServiceOKBodyElasticacheValkeyExporter) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddServiceOKBodyElasticacheValkeyExporter) UnmarshalBinary(b []byte) error {
+	var res AddServiceOKBodyElasticacheValkeyExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddServiceOKBodyElasticacheValkeyExporterMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model AddServiceOKBodyElasticacheValkeyExporterMetricsResolutions
+*/
+type AddServiceOKBodyElasticacheValkeyExporterMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this add service OK body elasticache valkey exporter metrics resolutions
+func (o *AddServiceOKBodyElasticacheValkeyExporterMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add service OK body elasticache valkey exporter metrics resolutions based on context it is used
+func (o *AddServiceOKBodyElasticacheValkeyExporterMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddServiceOKBodyElasticacheValkeyExporterMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddServiceOKBodyElasticacheValkeyExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res AddServiceOKBodyElasticacheValkeyExporterMetricsResolutions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddServiceOKBodyElasticacheValkeyService ValkeyService represents a generic Valkey instance.
+swagger:model AddServiceOKBodyElasticacheValkeyService
+*/
+type AddServiceOKBodyElasticacheValkeyService struct {
+	// Unique randomly generated instance identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// Unique across all Services user-defined name.
+	ServiceName string `json:"service_name,omitempty"`
+
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Access address (DNS name or IP).
+	// Address (and port) or socket is required.
+	Address string `json:"address,omitempty"`
+
+	// Access port.
+	// Port is required when the address present.
+	Port int64 `json:"port,omitempty"`
+
+	// Access unix socket.
+	// Address (and port) or socket is required.
+	Socket string `json:"socket,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Valkey version.
+	Version string `json:"version,omitempty"`
+}
+
+// Validate validates this add service OK body elasticache valkey service
+func (o *AddServiceOKBodyElasticacheValkeyService) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add service OK body elasticache valkey service based on context it is used
+func (o *AddServiceOKBodyElasticacheValkeyService) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddServiceOKBodyElasticacheValkeyService) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddServiceOKBodyElasticacheValkeyService) UnmarshalBinary(b []byte) error {
+	var res AddServiceOKBodyElasticacheValkeyService
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -9312,6 +10034,211 @@ func (o *AddServiceOKBodyValkeyValkeyExporterMetricsResolutions) UnmarshalBinary
 }
 
 /*
+AddServiceParamsBodyElasticache add service params body elasticache
+swagger:model AddServiceParamsBodyElasticache
+*/
+type AddServiceParamsBodyElasticache struct {
+	// AWS region.
+	Region string `json:"region,omitempty"`
+
+	// AWS availability zone.
+	Az string `json:"az,omitempty"`
+
+	// Replication group identifier.
+	InstanceID string `json:"instance_id,omitempty"`
+
+	// Cache node type.
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Primary endpoint address.
+	Address string `json:"address,omitempty"`
+
+	// Primary endpoint port.
+	Port int64 `json:"port,omitempty"`
+
+	// DiscoverElastiCacheEngine describes supported ElastiCache engines.
+	// Enum: ["DISCOVER_ELASTICACHE_ENGINE_UNSPECIFIED","DISCOVER_ELASTICACHE_ENGINE_REDIS","DISCOVER_ELASTICACHE_ENGINE_VALKEY"]
+	Engine *string `json:"engine,omitempty"`
+
+	// PMM Agent ID.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Unique across all Nodes user-defined name. Defaults to instance_id.
+	NodeName string `json:"node_name,omitempty"`
+
+	// Unique across all Services user-defined name. Defaults to instance_id.
+	ServiceName string `json:"service_name,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// Username for scraping metrics.
+	Username string `json:"username,omitempty"`
+
+	// Password for scraping metrics.
+	Password string `json:"password,omitempty"`
+
+	// Custom user-assigned labels for Node and Service.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Skip connection check.
+	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// MetricsMode defines desired metrics mode for agent,
+	// it can be pull, push or auto mode chosen by server.
+	//
+	//  - METRICS_MODE_UNSPECIFIED: Auto
+	// Enum: ["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]
+	MetricsMode *string `json:"metrics_mode,omitempty"`
+
+	// Custom password for exporter endpoint /metrics.
+	AgentPassword string `json:"agent_password,omitempty"`
+}
+
+// Validate validates this add service params body elasticache
+func (o *AddServiceParamsBodyElasticache) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateEngine(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsMode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addServiceParamsBodyElasticacheTypeEnginePropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["DISCOVER_ELASTICACHE_ENGINE_UNSPECIFIED","DISCOVER_ELASTICACHE_ENGINE_REDIS","DISCOVER_ELASTICACHE_ENGINE_VALKEY"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addServiceParamsBodyElasticacheTypeEnginePropEnum = append(addServiceParamsBodyElasticacheTypeEnginePropEnum, v)
+	}
+}
+
+const (
+
+	// AddServiceParamsBodyElasticacheEngineDISCOVERELASTICACHEENGINEUNSPECIFIED captures enum value "DISCOVER_ELASTICACHE_ENGINE_UNSPECIFIED"
+	AddServiceParamsBodyElasticacheEngineDISCOVERELASTICACHEENGINEUNSPECIFIED string = "DISCOVER_ELASTICACHE_ENGINE_UNSPECIFIED"
+
+	// AddServiceParamsBodyElasticacheEngineDISCOVERELASTICACHEENGINEREDIS captures enum value "DISCOVER_ELASTICACHE_ENGINE_REDIS"
+	AddServiceParamsBodyElasticacheEngineDISCOVERELASTICACHEENGINEREDIS string = "DISCOVER_ELASTICACHE_ENGINE_REDIS"
+
+	// AddServiceParamsBodyElasticacheEngineDISCOVERELASTICACHEENGINEVALKEY captures enum value "DISCOVER_ELASTICACHE_ENGINE_VALKEY"
+	AddServiceParamsBodyElasticacheEngineDISCOVERELASTICACHEENGINEVALKEY string = "DISCOVER_ELASTICACHE_ENGINE_VALKEY"
+)
+
+// prop value enum
+func (o *AddServiceParamsBodyElasticache) validateEngineEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addServiceParamsBodyElasticacheTypeEnginePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddServiceParamsBodyElasticache) validateEngine(formats strfmt.Registry) error {
+	if swag.IsZero(o.Engine) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateEngineEnum("body"+"."+"elasticache"+"."+"engine", "body", *o.Engine); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addServiceParamsBodyElasticacheTypeMetricsModePropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addServiceParamsBodyElasticacheTypeMetricsModePropEnum = append(addServiceParamsBodyElasticacheTypeMetricsModePropEnum, v)
+	}
+}
+
+const (
+
+	// AddServiceParamsBodyElasticacheMetricsModeMETRICSMODEUNSPECIFIED captures enum value "METRICS_MODE_UNSPECIFIED"
+	AddServiceParamsBodyElasticacheMetricsModeMETRICSMODEUNSPECIFIED string = "METRICS_MODE_UNSPECIFIED"
+
+	// AddServiceParamsBodyElasticacheMetricsModeMETRICSMODEPULL captures enum value "METRICS_MODE_PULL"
+	AddServiceParamsBodyElasticacheMetricsModeMETRICSMODEPULL string = "METRICS_MODE_PULL"
+
+	// AddServiceParamsBodyElasticacheMetricsModeMETRICSMODEPUSH captures enum value "METRICS_MODE_PUSH"
+	AddServiceParamsBodyElasticacheMetricsModeMETRICSMODEPUSH string = "METRICS_MODE_PUSH"
+)
+
+// prop value enum
+func (o *AddServiceParamsBodyElasticache) validateMetricsModeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addServiceParamsBodyElasticacheTypeMetricsModePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddServiceParamsBodyElasticache) validateMetricsMode(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsMode) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateMetricsModeEnum("body"+"."+"elasticache"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this add service params body elasticache based on context it is used
+func (o *AddServiceParamsBodyElasticache) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddServiceParamsBodyElasticache) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddServiceParamsBodyElasticache) UnmarshalBinary(b []byte) error {
+	var res AddServiceParamsBodyElasticache
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
 AddServiceParamsBodyExternal add service params body external
 swagger:model AddServiceParamsBodyExternal
 */
@@ -9531,7 +10458,7 @@ swagger:model AddServiceParamsBodyExternalAddNode
 */
 type AddServiceParamsBodyExternalAddNode struct {
 	// NodeType describes supported Node types.
-	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]
+	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE","NODE_TYPE_REMOTE_ELASTICACHE_NODE"]
 	NodeType *string `json:"node_type,omitempty"`
 
 	// Unique across all Nodes user-defined name.
@@ -9580,7 +10507,7 @@ var addServiceParamsBodyExternalAddNodeTypeNodeTypePropEnum []any
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE","NODE_TYPE_REMOTE_ELASTICACHE_NODE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -9607,6 +10534,9 @@ const (
 
 	// AddServiceParamsBodyExternalAddNodeNodeTypeNODETYPEREMOTEAZUREDATABASENODE captures enum value "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
 	AddServiceParamsBodyExternalAddNodeNodeTypeNODETYPEREMOTEAZUREDATABASENODE string = "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
+
+	// AddServiceParamsBodyExternalAddNodeNodeTypeNODETYPEREMOTEELASTICACHENODE captures enum value "NODE_TYPE_REMOTE_ELASTICACHE_NODE"
+	AddServiceParamsBodyExternalAddNodeNodeTypeNODETYPEREMOTEELASTICACHENODE string = "NODE_TYPE_REMOTE_ELASTICACHE_NODE"
 )
 
 // prop value enum
@@ -9865,7 +10795,7 @@ swagger:model AddServiceParamsBodyHaproxyAddNode
 */
 type AddServiceParamsBodyHaproxyAddNode struct {
 	// NodeType describes supported Node types.
-	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]
+	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE","NODE_TYPE_REMOTE_ELASTICACHE_NODE"]
 	NodeType *string `json:"node_type,omitempty"`
 
 	// Unique across all Nodes user-defined name.
@@ -9914,7 +10844,7 @@ var addServiceParamsBodyHaproxyAddNodeTypeNodeTypePropEnum []any
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE","NODE_TYPE_REMOTE_ELASTICACHE_NODE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -9941,6 +10871,9 @@ const (
 
 	// AddServiceParamsBodyHaproxyAddNodeNodeTypeNODETYPEREMOTEAZUREDATABASENODE captures enum value "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
 	AddServiceParamsBodyHaproxyAddNodeNodeTypeNODETYPEREMOTEAZUREDATABASENODE string = "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
+
+	// AddServiceParamsBodyHaproxyAddNodeNodeTypeNODETYPEREMOTEELASTICACHENODE captures enum value "NODE_TYPE_REMOTE_ELASTICACHE_NODE"
+	AddServiceParamsBodyHaproxyAddNodeNodeTypeNODETYPEREMOTEELASTICACHENODE string = "NODE_TYPE_REMOTE_ELASTICACHE_NODE"
 )
 
 // prop value enum
@@ -10320,7 +11253,7 @@ swagger:model AddServiceParamsBodyMongodbAddNode
 */
 type AddServiceParamsBodyMongodbAddNode struct {
 	// NodeType describes supported Node types.
-	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]
+	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE","NODE_TYPE_REMOTE_ELASTICACHE_NODE"]
 	NodeType *string `json:"node_type,omitempty"`
 
 	// Unique across all Nodes user-defined name.
@@ -10369,7 +11302,7 @@ var addServiceParamsBodyMongodbAddNodeTypeNodeTypePropEnum []any
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE","NODE_TYPE_REMOTE_ELASTICACHE_NODE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -10396,6 +11329,9 @@ const (
 
 	// AddServiceParamsBodyMongodbAddNodeNodeTypeNODETYPEREMOTEAZUREDATABASENODE captures enum value "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
 	AddServiceParamsBodyMongodbAddNodeNodeTypeNODETYPEREMOTEAZUREDATABASENODE string = "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
+
+	// AddServiceParamsBodyMongodbAddNodeNodeTypeNODETYPEREMOTEELASTICACHENODE captures enum value "NODE_TYPE_REMOTE_ELASTICACHE_NODE"
+	AddServiceParamsBodyMongodbAddNodeNodeTypeNODETYPEREMOTEELASTICACHENODE string = "NODE_TYPE_REMOTE_ELASTICACHE_NODE"
 )
 
 // prop value enum
@@ -10769,7 +11705,7 @@ swagger:model AddServiceParamsBodyMysqlAddNode
 */
 type AddServiceParamsBodyMysqlAddNode struct {
 	// NodeType describes supported Node types.
-	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]
+	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE","NODE_TYPE_REMOTE_ELASTICACHE_NODE"]
 	NodeType *string `json:"node_type,omitempty"`
 
 	// Unique across all Nodes user-defined name.
@@ -10818,7 +11754,7 @@ var addServiceParamsBodyMysqlAddNodeTypeNodeTypePropEnum []any
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE","NODE_TYPE_REMOTE_ELASTICACHE_NODE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -10845,6 +11781,9 @@ const (
 
 	// AddServiceParamsBodyMysqlAddNodeNodeTypeNODETYPEREMOTEAZUREDATABASENODE captures enum value "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
 	AddServiceParamsBodyMysqlAddNodeNodeTypeNODETYPEREMOTEAZUREDATABASENODE string = "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
+
+	// AddServiceParamsBodyMysqlAddNodeNodeTypeNODETYPEREMOTEELASTICACHENODE captures enum value "NODE_TYPE_REMOTE_ELASTICACHE_NODE"
+	AddServiceParamsBodyMysqlAddNodeNodeTypeNODETYPEREMOTEELASTICACHENODE string = "NODE_TYPE_REMOTE_ELASTICACHE_NODE"
 )
 
 // prop value enum
@@ -11214,7 +12153,7 @@ swagger:model AddServiceParamsBodyPostgresqlAddNode
 */
 type AddServiceParamsBodyPostgresqlAddNode struct {
 	// NodeType describes supported Node types.
-	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]
+	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE","NODE_TYPE_REMOTE_ELASTICACHE_NODE"]
 	NodeType *string `json:"node_type,omitempty"`
 
 	// Unique across all Nodes user-defined name.
@@ -11263,7 +12202,7 @@ var addServiceParamsBodyPostgresqlAddNodeTypeNodeTypePropEnum []any
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE","NODE_TYPE_REMOTE_ELASTICACHE_NODE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -11290,6 +12229,9 @@ const (
 
 	// AddServiceParamsBodyPostgresqlAddNodeNodeTypeNODETYPEREMOTEAZUREDATABASENODE captures enum value "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
 	AddServiceParamsBodyPostgresqlAddNodeNodeTypeNODETYPEREMOTEAZUREDATABASENODE string = "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
+
+	// AddServiceParamsBodyPostgresqlAddNodeNodeTypeNODETYPEREMOTEELASTICACHENODE captures enum value "NODE_TYPE_REMOTE_ELASTICACHE_NODE"
+	AddServiceParamsBodyPostgresqlAddNodeNodeTypeNODETYPEREMOTEELASTICACHENODE string = "NODE_TYPE_REMOTE_ELASTICACHE_NODE"
 )
 
 // prop value enum
@@ -11626,7 +12568,7 @@ swagger:model AddServiceParamsBodyProxysqlAddNode
 */
 type AddServiceParamsBodyProxysqlAddNode struct {
 	// NodeType describes supported Node types.
-	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]
+	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE","NODE_TYPE_REMOTE_ELASTICACHE_NODE"]
 	NodeType *string `json:"node_type,omitempty"`
 
 	// Unique across all Nodes user-defined name.
@@ -11675,7 +12617,7 @@ var addServiceParamsBodyProxysqlAddNodeTypeNodeTypePropEnum []any
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE","NODE_TYPE_REMOTE_ELASTICACHE_NODE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -11702,6 +12644,9 @@ const (
 
 	// AddServiceParamsBodyProxysqlAddNodeNodeTypeNODETYPEREMOTEAZUREDATABASENODE captures enum value "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
 	AddServiceParamsBodyProxysqlAddNodeNodeTypeNODETYPEREMOTEAZUREDATABASENODE string = "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
+
+	// AddServiceParamsBodyProxysqlAddNodeNodeTypeNODETYPEREMOTEELASTICACHENODE captures enum value "NODE_TYPE_REMOTE_ELASTICACHE_NODE"
+	AddServiceParamsBodyProxysqlAddNodeNodeTypeNODETYPEREMOTEELASTICACHENODE string = "NODE_TYPE_REMOTE_ELASTICACHE_NODE"
 )
 
 // prop value enum
@@ -12290,7 +13235,7 @@ swagger:model AddServiceParamsBodyValkeyAddNode
 */
 type AddServiceParamsBodyValkeyAddNode struct {
 	// NodeType describes supported Node types.
-	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]
+	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE","NODE_TYPE_REMOTE_ELASTICACHE_NODE"]
 	NodeType *string `json:"node_type,omitempty"`
 
 	// Unique across all Nodes user-defined name.
@@ -12339,7 +13284,7 @@ var addServiceParamsBodyValkeyAddNodeTypeNodeTypePropEnum []any
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE","NODE_TYPE_REMOTE_ELASTICACHE_NODE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -12366,6 +13311,9 @@ const (
 
 	// AddServiceParamsBodyValkeyAddNodeNodeTypeNODETYPEREMOTEAZUREDATABASENODE captures enum value "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
 	AddServiceParamsBodyValkeyAddNodeNodeTypeNODETYPEREMOTEAZUREDATABASENODE string = "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
+
+	// AddServiceParamsBodyValkeyAddNodeNodeTypeNODETYPEREMOTEELASTICACHENODE captures enum value "NODE_TYPE_REMOTE_ELASTICACHE_NODE"
+	AddServiceParamsBodyValkeyAddNodeNodeTypeNODETYPEREMOTEELASTICACHENODE string = "NODE_TYPE_REMOTE_ELASTICACHE_NODE"
 )
 
 // prop value enum
