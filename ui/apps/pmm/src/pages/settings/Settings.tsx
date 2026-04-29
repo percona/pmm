@@ -14,7 +14,7 @@ import { TabValue } from './Settings.types';
 import { useNavigate, useParams } from 'react-router-dom';
 
 export const Settings: FC = () => {
-  const { tab = 'metrics' } = useParams();
+  const { tab = 'metrics-resolution' } = useParams<{ tab: TabValue }>();
   const { data: settings, isLoading } = useSettings();
   const navigate = useNavigate();
 
@@ -34,6 +34,7 @@ export const Settings: FC = () => {
     <Page title={Messages.title} fullWidth surface="paper">
       <Stack gap={3} sx={{ flex: 1 }}>
         <Tabs
+          data-testid="settings-tabs"
           value={tab}
           onChange={(_, value: TabValue) => setTab(value)}
           variant="scrollable"
@@ -42,25 +43,29 @@ export const Settings: FC = () => {
         >
           <Tab
             data-testid="settings-tab-metrics"
-            value="metrics"
+            value="metrics-resolution"
             label={Messages.tabs.metrics}
           />
           <Tab
             data-testid="settings-tab-advanced"
-            value="advanced"
+            value="advanced-settings"
             label={Messages.tabs.advanced}
           />
           <Tab
             data-testid="settings-tab-ssh"
-            value="ssh"
+            value="ssh-key"
             label={Messages.tabs.ssh}
           />
         </Tabs>
 
-        <Box sx={{ flex: 1 }}>
-          {tab === 'metrics' && <MetricsResolutionForm settings={settings} />}
-          {tab === 'advanced' && <AdvancedSettingsForm settings={settings} />}
-          {tab === 'ssh' && <SshKeyForm settings={settings} />}
+        <Box sx={{ flex: 1 }} data-testid="settings-tab-content">
+          {tab === 'metrics-resolution' && (
+            <MetricsResolutionForm settings={settings} />
+          )}
+          {tab === 'advanced-settings' && (
+            <AdvancedSettingsForm settings={settings} />
+          )}
+          {tab === 'ssh-key' && <SshKeyForm settings={settings} />}
         </Box>
       </Stack>
     </Page>
