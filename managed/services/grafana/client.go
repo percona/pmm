@@ -115,7 +115,7 @@ func (e *clientError) Error() string {
 
 // CurrentUserHTTPResponse maps errors returned by Client calls used from current-user HTTP handlers
 // to an HTTP status and a small JSON body. Non-Grafana errors (e.g. dial failures) map to 502.
-func CurrentUserHTTPResponse(err error) (status int, body map[string]string) {
+func CurrentUserHTTPResponse(err error) (int, map[string]string) {
 	var cErr *clientError
 	if !stderrors.As(err, &cErr) {
 		return http.StatusBadGateway, map[string]string{"message": "Bad Gateway"}

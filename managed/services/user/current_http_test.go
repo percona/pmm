@@ -39,12 +39,12 @@ type fakeCurrentUserClient struct {
 	getOrgsCalls int
 }
 
-func (f *fakeCurrentUserClient) GetCurrentUser(ctx context.Context, authHeaders http.Header) (grafana.CurrentUser, error) {
+func (f *fakeCurrentUserClient) GetCurrentUser(_ context.Context, _ http.Header) (grafana.CurrentUser, error) {
 	f.getUserCalls++
 	return f.user, f.userErr
 }
 
-func (f *fakeCurrentUserClient) GetCurrentUserOrgs(ctx context.Context, authHeaders http.Header) ([]grafana.CurrentUserOrg, error) {
+func (f *fakeCurrentUserClient) GetCurrentUserOrgs(_ context.Context, _ http.Header) ([]grafana.CurrentUserOrg, error) {
 	f.getOrgsCalls++
 	return f.orgs, f.orgsErr
 }

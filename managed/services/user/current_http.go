@@ -57,7 +57,9 @@ func (h *currentHTTPHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request
 	if req.Method != http.MethodGet {
 		rw.Header().Set("Allow", http.MethodGet)
 		rw.WriteHeader(http.StatusMethodNotAllowed)
-		_ = json.NewEncoder(rw).Encode(map[string]string{"message": "Method Not Allowed"})
+		if err := json.NewEncoder(rw).Encode(map[string]string{"message": "Method Not Allowed"}); err != nil {
+			h.l.Errorf("encode method-not-allowed body: %v", err)
+		}
 		return
 	}
 
@@ -68,20 +70,28 @@ func (h *currentHTTPHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request
 			h.l.Errorf("failed to get current user: %v", err)
 			status, body := grafana.CurrentUserHTTPResponse(err)
 			rw.WriteHeader(status)
-			_ = json.NewEncoder(rw).Encode(body)
+			if encErr := json.NewEncoder(rw).Encode(body); encErr != nil {
+				h.l.Errorf("encode error body: %v", encErr)
+			}
 			return
 		}
-		_ = json.NewEncoder(rw).Encode(user)
+		if err := json.NewEncoder(rw).Encode(user); err != nil {
+			h.l.Errorf("encode current user: %v", err)
+		}
 	case "/v1/users/current/orgs":
 		orgs, err := h.c.GetCurrentUserOrgs(req.Context(), authHeaders)
 		if err != nil {
 			h.l.Errorf("failed to get current user orgs: %v", err)
 			status, body := grafana.CurrentUserHTTPResponse(err)
 			rw.WriteHeader(status)
-			_ = json.NewEncoder(rw).Encode(body)
+			if encErr := json.NewEncoder(rw).Encode(body); encErr != nil {
+				h.l.Errorf("encode error body: %v", encErr)
+			}
 			return
 		}
-		_ = json.NewEncoder(rw).Encode(orgs)
+		if err := json.NewEncoder(rw).Encode(orgs); err != nil {
+			h.l.Errorf("encode current user orgs: %v", err)
+		}
 	default:
 		http.NotFound(rw, req)
 	}
