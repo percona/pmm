@@ -2,6 +2,18 @@ export type Technology = 'mysql' | 'postgresql' | 'mongodb' | 'valkey';
 export type CredentialsMode = 'prompt' | 'env' | 'flags';
 
 /**
+ * Formats the remaining lifetime of an install token as MM:SS.
+ * Negative inputs (already expired) are clamped to "0:00" so callers can
+ * branch on isExpired separately without seeing odd negative timers.
+ */
+export const formatExpiresIn = (secondsLeft: number): string => {
+  const safe = Math.max(0, Math.floor(secondsLeft));
+  const minutes = Math.floor(safe / 60);
+  const seconds = safe % 60;
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+};
+
+/**
  * Builds PMM_SERVER_URL for install scripts. Token is percent-encoded in the userinfo.
  * `pmmHost` is hostname or hostname:port (defaults to current page host when empty).
  */

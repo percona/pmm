@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest';
 import {
   buildInstallCommand,
   buildPmmServerURL,
+  formatExpiresIn,
   InstallCommandOptions,
 } from './InstallClientPage.utils';
 
@@ -123,5 +124,34 @@ describe('buildInstallCommand', () => {
       technology: 'valkey',
     });
     expect(cmd).toContain("TECH='valkey'");
+  });
+});
+
+describe('formatExpiresIn', () => {
+  test('formats whole minutes with zero seconds', () => {
+    expect(formatExpiresIn(15 * 60)).toBe('15:00');
+    expect(formatExpiresIn(60)).toBe('1:00');
+  });
+
+  test('zero-pads seconds', () => {
+    expect(formatExpiresIn(125)).toBe('2:05');
+    expect(formatExpiresIn(9)).toBe('0:09');
+  });
+
+  test('handles boundary values', () => {
+    expect(formatExpiresIn(0)).toBe('0:00');
+    expect(formatExpiresIn(1)).toBe('0:01');
+    expect(formatExpiresIn(59)).toBe('0:59');
+    expect(formatExpiresIn(60)).toBe('1:00');
+  });
+
+  test('floors fractional seconds', () => {
+    expect(formatExpiresIn(59.9)).toBe('0:59');
+    expect(formatExpiresIn(120.4)).toBe('2:00');
+  });
+
+  test('clamps negatives to 0:00 (already expired)', () => {
+    expect(formatExpiresIn(-1)).toBe('0:00');
+    expect(formatExpiresIn(-9999)).toBe('0:00');
   });
 });

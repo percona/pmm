@@ -28,10 +28,15 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 )
 
+// Install-token lifetime is intentionally short: the token is only used for the
+// initial pmm-admin config handshake, after which pmm-agent stores its own
+// per-agent identity and no longer needs it. A 15-minute window covers normal
+// install runs while limiting damage if the URL leaks (the token is admin-role
+// on Grafana, so treat it like a password).
 const (
-	defaultInstallTokenTTLSeconds = int64(86400)
-	maxInstallTokenTTLSeconds     = int64(86400)
-	minInstallTokenTTLSeconds     = int64(60)
+	defaultInstallTokenTTLSeconds = int64(15 * 60) // 15 minutes
+	maxInstallTokenTTLSeconds     = int64(15 * 60) // 15 minutes; hard cap, no caller can exceed
+	minInstallTokenTTLSeconds     = int64(60)      // 1 minute floor to leave room for slow installs
 )
 
 var installTokenTechnologies = map[string]struct{}{

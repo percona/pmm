@@ -38,7 +38,7 @@ func TestManagementService_CreateNodeInstallToken(t *testing.T) {
 	t.Run("ok", func(t *testing.T) {
 		t.Parallel()
 		gc := &mockGrafanaClient{}
-		gc.On("CreateNodeInstallToken", mock.Anything, mock.MatchedBy(func(s string) bool { return s != "" }), int64(86400)).
+		gc.On("CreateNodeInstallToken", mock.Anything, mock.MatchedBy(func(s string) bool { return s != "" }), defaultInstallTokenTTLSeconds).
 			Return(int64(42), "tok", exp, nil).Once()
 
 		s := &ManagementService{grafanaClient: gc}

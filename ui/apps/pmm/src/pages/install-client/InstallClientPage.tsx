@@ -1,11 +1,12 @@
 import axios from 'axios';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Alert,
   Box,
   Button,
   Card,
   CardContent,
+  Chip,
   FormControl,
   FormControlLabel,
   FormHelperText,
@@ -17,12 +18,14 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
 import { Page } from 'components/page';
 import { createNodeInstallToken } from 'api/installToken';
 import {
   buildInstallCommand,
   buildPmmServerURL,
   CredentialsMode,
+  formatExpiresIn,
   Technology,
 } from './InstallClientPage.utils';
 
@@ -45,6 +48,30 @@ export const InstallClientPage = () => {
   const [copied, setCopied] = useState(false);
   const [genLoading, setGenLoading] = useState(false);
   const [genError, setGenError] = useState<string | null>(null);
+  const [tokenExpiresAt, setTokenExpiresAt] = useState<Date | null>(null);
+  const [now, setNow] = useState(() => Date.now());
+
+  // Tick once a second while a token is live, so the countdown chip refreshes.
+  // Stops as soon as expiresAt is null (e.g. user cleared the field manually).
+  useEffect(() => {
+    if (!tokenExpiresAt) return undefined;
+    const id = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(id);
+  }, [tokenExpiresAt]);
+
+  const secondsLeft = tokenExpiresAt
+    ? Math.max(0, Math.floor((tokenExpiresAt.getTime() - now) / 1000))
+    : 0;
+  const isExpired = !!tokenExpiresAt && secondsLeft <= 0;
+
+  // When the timer hits zero, drop the secret so the rendered command falls
+  // back to the placeholder. We deliberately keep `tokenExpiresAt` set so the
+  // chip can still show "Expired — regenerate" until the user acts.
+  useEffect(() => {
+    if (isExpired && token) {
+      setToken('');
+    }
+  }, [isExpired, token]);
 
   const installerUrl = useMemo(
     () => `${window.location.origin}/pmm-static/install-pmm-client.sh`,
@@ -103,6 +130,14 @@ export const InstallClientPage = () => {
     try {
       const res = await createNodeInstallToken(technology, 0);
       setToken(res.token);
+      // Server enforces a 15-minute hard cap (see install_token.go). If the
+      // response unexpectedly omits expiresAt, fall back to "now + 15 min" so
+      // the countdown still works and we don't silently lose the safety net.
+      const expires = res.expiresAt
+        ? new Date(res.expiresAt)
+        : new Date(Date.now() + 15 * 60 * 1000);
+      setTokenExpiresAt(expires);
+      setNow(Date.now());
     } catch (e: unknown) {
       let msg = 'Failed to create token';
       if (axios.isAxiosError(e)) {
@@ -121,10 +156,16 @@ export const InstallClientPage = () => {
         <CardContent>
           <Stack spacing={2}>
             <Alert severity="info">
-              Choose installation options, then copy and run the generated command on your database
-              node. The usual <code>curl … | bash</code> form has no interactive terminal on stdin, so
-              use env variables or flags for database credentials unless you save the script and run it
-              from a real shell.
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                Choose installation options, then copy and run the generated command on your database
+                node. The usual <code>curl … | bash</code> form has no interactive terminal on stdin,
+                so use env variables or flags for database credentials unless you save the script and
+                run it from a real shell.
+              </Typography>
+              <Typography variant="body2">
+                <strong>Generated tokens are admin-role and valid for 15 minutes</strong> — treat the
+                URL like a password.
+              </Typography>
             </Alert>
             <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
               <FormControl fullWidth>
@@ -180,24 +221,59 @@ export const InstallClientPage = () => {
                 type="password"
                 label="Service token"
                 value={token}
-                onChange={(e) => setToken(e.target.value)}
-                helperText="Used only to render command locally in browser"
+                onChange={(e) => {
+                  setToken(e.target.value);
+                  // User edited the field manually — drop the expiry so we
+                  // stop ticking against a token they overrode.
+                  setTokenExpiresAt(null);
+                }}
+                error={isExpired}
+                helperText={
+                  isExpired
+                    ? 'Token expired. Click Regenerate to mint a new one.'
+                    : 'Used only to render command locally in browser. Generated tokens auto-expire 15 min after creation.'
+                }
               />
             </Stack>
-            <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems="flex-start">
+            <Stack
+              direction={{ xs: 'column', md: 'row' }}
+              spacing={2}
+              alignItems={{ xs: 'stretch', md: 'center' }}
+            >
               <Button
                 variant="outlined"
                 onClick={handleGenerateToken}
                 disabled={genLoading}
               >
-                {genLoading ? 'Generating…' : 'Generate short-lived token'}
+                {genLoading
+                  ? 'Generating…'
+                  : tokenExpiresAt
+                    ? 'Regenerate token'
+                    : 'Generate short-lived token'}
               </Button>
+              {tokenExpiresAt && !genLoading && (
+                <Chip
+                  icon={<AccessTimeOutlinedIcon />}
+                  label={
+                    isExpired
+                      ? 'Expired — regenerate'
+                      : `Expires in ${formatExpiresIn(secondsLeft)}`
+                  }
+                  color={isExpired ? 'error' : 'success'}
+                  variant="outlined"
+                  size="medium"
+                />
+              )}
               {genError && (
                 <Alert severity="error" sx={{ flex: 1 }}>
                   {genError}
                 </Alert>
               )}
             </Stack>
+            <FormHelperText sx={{ mt: -1 }}>
+              Tokens are valid for 15 minutes after generation. Run the command on your node before
+              then.
+            </FormHelperText>
 
             <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
               <TextField
