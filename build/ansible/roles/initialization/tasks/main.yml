@@ -78,9 +78,13 @@
           expires: infinity
           login_user: postgres
           state: present
-        when: not ansible_check_mode
         environment:
           PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
+
+      - name: Restore pre-migrated Grafana schema to skip slow first-time migrations
+        shell: zcat /usr/share/pmm/grafana-schema.sql.gz | PGPASSWORD=grafana /usr/pgsql-14/bin/psql --single-transaction -v ON_ERROR_STOP=1 -U grafana -h 127.0.0.1 -d grafana
+        ignore_errors: true
+        changed_when: true
     when:
       - lookup('env','GF_DATABASE_URL') == ''
       - lookup('env','GF_DATABASE_HOST') == ''
