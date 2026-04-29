@@ -95,19 +95,19 @@ PMM **does not** ship `holmes_config.yaml` or Markdown **runbooks** in the repos
 
 - **Toolsets** — Often defined in YAML (custom toolsets) or via **MCP** servers. Point Prometheus/VictoriaMetrics, PMM inventory tools, ClickHouse (QAN/logs), and optional `curl` tools at URLs reachable from Holmes (see [HolmesGPT docs](https://holmesgpt.dev)).
 - **Runbooks** — Markdown files plus a **catalog** (e.g. `catalog.json`) so the `fetch_runbook` tool can load steps. Paths are configured in Holmes, not in PMM.
-- **PMM-facing URLs** — Use a **browser-reachable** PMM base URL for markdown images and Grafana links where Holmes embeds `/v1/grafana/render` or `/graph/...`.
+- **PMM-facing URLs** — Use a **browser-reachable** PMM base URL for markdown images and Grafana links where Holmes embeds `/v1/grafana/render/blob/...` or `/graph/...`.
 
-## `GET /v1/grafana/render` (panel image proxy)
+## Grafana panel render (Tier 1 — `POST /v1/grafana/render/resolve`)
 
-Served by **pmm-managed**. Used by Holmes toolsets or scripts to fetch a **PNG** of a dashboard panel or to return **JSON** with URLs for the PMM UI.
+Served by **pmm-managed**. Holmes (or any client) calls **`POST /v1/grafana/render/resolve`** with a JSON body. PMM loads the dashboard from Grafana, merges **overrides** with the dashboard’s template variables, renders once via the image renderer, stores the PNG under **`/srv/pmm/grafana_render_cache/{content_hash}.png`**, and returns JSON including **`image_url`** (`/v1/grafana/render/blob/{content_hash}.png`) and **`dashboard_url`**. Identical logical requests reuse the same **content hash** and hit the **disk cache** without calling Chromium again.
 
-**Required query parameters:** `dashboard_uid`, `panel_id`, `from`, `to`.
+**Request (typical):** `dashboard_uid`, `panel_id`, `from`, `to`, optional `width` / `height` / `scale` / `org_id` / `tz` / `theme`, and **`overrides`** (e.g. `service_name`, `node_name` — must match variable names on that dashboard).
 
-**Common optional parameters:** `width`, `height`, `format=json` (returns JSON with `image_url` and `dashboard_url` instead of raw PNG), `cache=1` (optional **disk cache** under `/srv/pmm/grafana_render_cache` on the server), `tz`, and any `var-*` Grafana template variables needed for the dashboard (e.g. `var-service_id`).
+**GET** `/v1/grafana/render/blob/{sha256}.png` serves immutable cached PNGs (`Cache-Control: public, max-age=31536000`).
 
-**Validation:** `dashboard_uid` and `panel_id` must match safe character classes enforced by the handler.
+**Legacy:** **`GET /v1/grafana/render?…`** returns **410 Gone** with a pointer to **`POST /resolve`** — do not build long query-string render URLs.
 
-**Auth:** Forwarding uses the caller’s `Authorization` header when calling Grafana’s render path.
+**Auth:** The resolve handler forwards **`Authorization`** / **`Cookie`** to Grafana’s dashboard and render APIs (same as the previous proxy).
 
 For **end-user** documentation, panel-image behaviour is intentionally **not** expanded in MkDocs; this section is for **integrators**.
 
@@ -115,7 +115,7 @@ For **end-user** documentation, panel-image behaviour is intentionally **not** e
 
 When Holmes (or a tool) renders a Grafana panel image via PMM’s render API and includes an “Open in Grafana” link in the same message, follow this contract so the UI shows one correct link per panel:
 
-1. **Use the render tool’s `dashboard_url`.** When the render tool (e.g. calling PMM `GET /v1/grafana/render?format=json`) returns `image_url` and `dashboard_url`, the model must use that exact `dashboard_url` for any “Open in Grafana” (or “Open the … panel”) link in the same message as the panel image. Do not construct the dashboard link from other parameters or default time ranges; otherwise the link can have the wrong timeframe.
+1. **Use the render tool’s `dashboard_url`.** When the render tool (e.g. calling PMM `POST /v1/grafana/render/resolve`) returns `image_url` and `dashboard_url`, the model must use that exact `dashboard_url` for any “Open in Grafana” (or “Open the … panel”) link in the same message as the panel image. Do not construct the dashboard link from other parameters or default time ranges; otherwise the link can have the wrong timeframe.
 
 2. **Match panel to narrative.** The panel id (and dashboard) used for the render must match what the model describes (e.g. if the answer says “QPS graph”, the rendered panel must be the QPS panel, not a different one like “MySQL Connections”).
 
@@ -134,7 +134,9 @@ PMM proxies requests to HolmesGPT where noted. Endpoints **require PMM authentic
 | GET | /v1/adre/alerts | Firing alerts from Grafana Alertmanager (ADRE enabled) |
 | POST | /v1/adre/qan-insights | Body: `service_id`, `query_text` (required); optional `query_id`, `fingerprint`, `time_from`, `time_to`, `force`. Returns analysis JSON; caches by `(query_id, service_id)` when `query_id` set |
 | GET | /v1/adre/qan-insights | Query params: `query_id`, `service_id` — returns cached analysis or 404 |
-| GET | /v1/grafana/render | Panel PNG or JSON (`format=json`); see section above |
+| POST | /v1/grafana/render/resolve | Resolve vars server-side, return `image_url` (blob) + `dashboard_url`; see section above |
+| GET | /v1/grafana/render/blob/{hash}.png | Cached panel PNG |
+| GET | /v1/grafana/render | **410 Gone** — use `POST /v1/grafana/render/resolve` |
 
 **Investigations** live under `/v1/investigations/*` — see [dev/investigations/README.md](../investigations/README.md).
 

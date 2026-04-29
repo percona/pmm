@@ -3,7 +3,6 @@ import { FC, useEffect, useState } from 'react';
 import type { InvestigationBlock } from 'api/investigations';
 import { PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
 
-const RENDER_API_PATH = '/v1/grafana/render';
 const RENDER_IMAGE_TIMEOUT_MS = 60000;
 
 /** Fetches panel image with credentials and long timeout so the image loads in reports. */
@@ -149,27 +148,7 @@ export const PanelBlock: FC<{ block: InvestigationBlock }> = ({ block }) => {
         })()
       : null;
 
-  const renderImageSrc =
-    imageUrl ||
-    (dashboardUid && panelId && timeFrom && timeTo
-      ? (() => {
-          const params = new URLSearchParams({
-            dashboard_uid: dashboardUid,
-            panel_id: String(panelId),
-            from: timeFrom,
-            to: timeTo,
-            width: '1000',
-            height: '500',
-            cache: '1',
-          });
-          Object.entries(config).forEach(([k, v]) => {
-            if ((k.startsWith('var_') || k.startsWith('var-')) && v != null && typeof v === 'string') {
-              params.set(k.startsWith('var_') ? `var-${k.slice(4)}` : k, v);
-            }
-          });
-          return `${RENDER_API_PATH}?${params.toString()}`;
-        })()
-      : null);
+  const renderImageSrc = imageUrl ?? null;
 
   return (
     <Card variant="outlined" sx={{ mb: 2 }}>

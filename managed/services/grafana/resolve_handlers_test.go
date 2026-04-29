@@ -1,0 +1,95 @@
+// Copyright (C) 2026 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+package grafana
+
+import (
+	"bytes"
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"path/filepath"
+	"strings"
+	"sync/atomic"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+)
+
+func TestLegacyGETRenderGone(t *testing.T) {
+	h := NewLegacyGETRenderGoneHandler()
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/v1/grafana/render", nil)
+	h.ServeHTTP(rec, req)
+	assert.Equal(t, http.StatusGone, rec.Code)
+	var body map[string]string
+	require.NoError(t, json.NewDecoder(rec.Body).Decode(&body))
+	assert.Contains(t, body["error"], "POST /v1/grafana/render/resolve")
+}
+
+func TestResolveRejectsNonIntegerPanelID(t *testing.T) {
+	h := NewResolveHandler(NewClient("127.0.0.1:1"))
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodPost, "/v1/grafana/render/resolve", strings.NewReader(`{"dashboard_uid":"test-dash","panel_id":12.5,"from":"2026-01-01T00:00:00Z","to":"2026-01-01T01:00:00Z"}`))
+	h.ServeHTTP(rec, req)
+	assert.Equal(t, http.StatusBadRequest, rec.Code)
+}
+
+func TestResolveSecondRequestUsesDiskCache(t *testing.T) {
+	grafanaRenderCacheDirForTest = t.TempDir()
+	t.Cleanup(func() { grafanaRenderCacheDirForTest = "" })
+
+	dashboardJSON, err := os.ReadFile(filepath.Join("testdata", "dashboard_merge.json"))
+	require.NoError(t, err)
+
+	var renderCalls atomic.Int32
+	pngBody := bytes.Repeat([]byte{0x0d}, 2500)
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case strings.HasPrefix(r.URL.Path, "/graph/api/dashboards/uid/test-dash"):
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write(dashboardJSON)
+		case strings.HasPrefix(r.URL.Path, "/graph/render/d-solo/test-dash"):
+			renderCalls.Add(1)
+			w.Header().Set("Content-Type", "image/png")
+			_, _ = w.Write(pngBody)
+		default:
+			t.Fatalf("unexpected path %s", r.URL.Path)
+		}
+	}))
+	defer srv.Close()
+
+	host := strings.TrimPrefix(strings.TrimPrefix(srv.URL, "http://"), "https://")
+	client := NewClient(host)
+	h := NewResolveHandler(client)
+
+	body := `{"dashboard_uid":"test-dash","panel_id":12,"from":"2026-01-01T00:00:00Z","to":"2026-01-01T01:00:00Z","overrides":{"service_name":"svc-default"}}`
+	do := func() *httptest.ResponseRecorder {
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodPost, "/v1/grafana/render/resolve", strings.NewReader(body))
+		h.ServeHTTP(rec, req)
+		return rec
+	}
+
+	rec1 := do()
+	require.Equal(t, http.StatusOK, rec1.Code, rec1.Body.String())
+	var out1 resolveResponse
+	require.NoError(t, json.NewDecoder(rec1.Body).Decode(&out1))
+	assert.False(t, out1.CacheHit)
+	assert.Equal(t, 1, int(renderCalls.Load()))
+
+	rec2 := do()
+	require.Equal(t, http.StatusOK, rec2.Code)
+	var out2 resolveResponse
+	require.NoError(t, json.NewDecoder(rec2.Body).Decode(&out2))
+	assert.True(t, out2.CacheHit)
+	assert.Equal(t, out1.ContentHash, out2.ContentHash)
+	assert.Equal(t, 1, int(renderCalls.Load()))
+}
