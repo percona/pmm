@@ -2,7 +2,7 @@
 
 This dashboard helps you monitor MongoDB instances that use the InMemory storage engine. It shows cache usage, transaction rate, session activity, and node resource use.
 
-![MongoDB InMemory Details dashboard](../../images/PMM_MongoDB_InMemory_Details_dashboard.jpg)
+![MongoDB InMemory Details dashboard](../../images/PMM_MongoDB_InMemory_Details.jpg)
 
 ## InMemory Storage
 
