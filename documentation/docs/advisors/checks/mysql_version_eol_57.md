@@ -10,7 +10,7 @@ Percona does not provide support or issue hotfixes for end-of-life releases. Aft
 
 [Contact Percona](https://www.percona.com/about/contact) to get extended support for version 5.7, or help you plan the migration to version 8.4 (latest).  
 
-For more information, check out the [Percona software support lifecycle information](https://www.percona.com/services/policies/percona-software-support-lifecycle).
+For more information, check out the [Percona software support lifecycle information](https://www.percona.com/services/policies/percona-services-lifecycle-policy/).
 
 ## Need more support from Percona?
 

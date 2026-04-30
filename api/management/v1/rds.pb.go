@@ -15,6 +15,7 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 
+	_ "github.com/percona/pmm/api/extensions/v1"
 	v1 "github.com/percona/pmm/api/inventory/v1"
 )
 
@@ -731,7 +732,7 @@ var File_management_v1_rds_proto protoreflect.FileDescriptor
 
 const file_management_v1_rds_proto_rawDesc = "" +
 	"\n" +
-	"\x17management/v1/rds.proto\x12\rmanagement.v1\x1a\x19inventory/v1/agents.proto\x1a\x18inventory/v1/nodes.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x17validate/validate.proto\"\x8c\x02\n" +
+	"\x17management/v1/rds.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x19inventory/v1/agents.proto\x1a\x18inventory/v1/nodes.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x17validate/validate.proto\"\x8c\x02\n" +
 	"\x13DiscoverRDSInstance\x12\x16\n" +
 	"\x06region\x18\x01 \x01(\tR\x06region\x12\x0e\n" +
 	"\x02az\x18\x02 \x01(\tR\x02az\x12\x1f\n" +
@@ -742,12 +743,12 @@ const file_management_v1_rds_proto_rawDesc = "" +
 	"\aaddress\x18\x05 \x01(\tR\aaddress\x12\x12\n" +
 	"\x04port\x18\x06 \x01(\rR\x04port\x128\n" +
 	"\x06engine\x18\a \x01(\x0e2 .management.v1.DiscoverRDSEngineR\x06engine\x12%\n" +
-	"\x0eengine_version\x18\b \x01(\tR\rengineVersion\"`\n" +
-	"\x12DiscoverRDSRequest\x12$\n" +
-	"\x0eaws_access_key\x18\x01 \x01(\tR\fawsAccessKey\x12$\n" +
-	"\x0eaws_secret_key\x18\x02 \x01(\tR\fawsSecretKey\"^\n" +
+	"\x0eengine_version\x18\b \x01(\tR\rengineVersion\"l\n" +
+	"\x12DiscoverRDSRequest\x12*\n" +
+	"\x0eaws_access_key\x18\x01 \x01(\tB\x04\x88\xb5\x18\x01R\fawsAccessKey\x12*\n" +
+	"\x0eaws_secret_key\x18\x02 \x01(\tB\x04\x88\xb5\x18\x01R\fawsSecretKey\"^\n" +
 	"\x13DiscoverRDSResponse\x12G\n" +
-	"\rrds_instances\x18\x01 \x03(\v2\".management.v1.DiscoverRDSInstanceR\frdsInstances\"\x9e\f\n" +
+	"\rrds_instances\x18\x01 \x03(\v2\".management.v1.DiscoverRDSInstanceR\frdsInstances\"\xb6\f\n" +
 	"\x13AddRDSServiceParams\x12\x1f\n" +
 	"\x06region\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06region\x12\x0e\n" +
 	"\x02az\x18\x02 \x01(\tR\x02az\x12(\n" +
@@ -766,10 +767,10 @@ const file_management_v1_rds_proto_rawDesc = "" +
 	" \x01(\tR\venvironment\x12\x18\n" +
 	"\acluster\x18\v \x01(\tR\acluster\x12'\n" +
 	"\x0freplication_set\x18\f \x01(\tR\x0ereplicationSet\x12#\n" +
-	"\busername\x18\r \x01(\tB\a\xfaB\x04r\x02\x10\x01R\busername\x12\x1a\n" +
-	"\bpassword\x18\x0e \x01(\tR\bpassword\x12$\n" +
-	"\x0eaws_access_key\x18\x0f \x01(\tR\fawsAccessKey\x12$\n" +
-	"\x0eaws_secret_key\x18\x10 \x01(\tR\fawsSecretKey\x12!\n" +
+	"\busername\x18\r \x01(\tB\a\xfaB\x04r\x02\x10\x01R\busername\x12 \n" +
+	"\bpassword\x18\x0e \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x12*\n" +
+	"\x0eaws_access_key\x18\x0f \x01(\tB\x04\x88\xb5\x18\x01R\fawsAccessKey\x12*\n" +
+	"\x0eaws_secret_key\x18\x10 \x01(\tB\x04\x88\xb5\x18\x01R\fawsSecretKey\x12!\n" +
 	"\frds_exporter\x18\x11 \x01(\bR\vrdsExporter\x120\n" +
 	"\x14qan_mysql_perfschema\x18\x12 \x01(\bR\x12qanMysqlPerfschema\x12Y\n" +
 	"\rcustom_labels\x18\x13 \x03(\v24.management.v1.AddRDSServiceParams.CustomLabelsEntryR\fcustomLabels\x122\n" +
@@ -781,8 +782,8 @@ const file_management_v1_rds_proto_rawDesc = "" +
 	"\x15disable_basic_metrics\x18\x19 \x01(\bR\x13disableBasicMetrics\x128\n" +
 	"\x18disable_enhanced_metrics\x18\x1a \x01(\bR\x16disableEnhancedMetrics\x12=\n" +
 	"\fmetrics_mode\x18\x1b \x01(\x0e2\x1a.management.v1.MetricsModeR\vmetricsMode\x12>\n" +
-	"\x1bqan_postgresql_pgstatements\x18\x1c \x01(\bR\x19qanPostgresqlPgstatements\x12%\n" +
-	"\x0eagent_password\x18\x1d \x01(\tR\ragentPassword\x12\x1a\n" +
+	"\x1bqan_postgresql_pgstatements\x18\x1c \x01(\bR\x19qanPostgresqlPgstatements\x12+\n" +
+	"\x0eagent_password\x18\x1d \x01(\tB\x04\x88\xb5\x18\x01R\ragentPassword\x12\x1a\n" +
 	"\bdatabase\x18\x1e \x01(\tR\bdatabase\x120\n" +
 	"\x14auto_discovery_limit\x18\x1f \x01(\x05R\x12autoDiscoveryLimit\x128\n" +
 	"\x18disable_comments_parsing\x18  \x01(\bR\x16disableCommentsParsing\x12M\n" +
