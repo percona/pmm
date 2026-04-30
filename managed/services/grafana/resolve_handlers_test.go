@@ -93,3 +93,41 @@ func TestResolveSecondRequestUsesDiskCache(t *testing.T) {
 	assert.Equal(t, out1.ContentHash, out2.ContentHash)
 	assert.Equal(t, 1, int(renderCalls.Load()))
 }
+
+func TestResolveReturnsAbsoluteURLs(t *testing.T) {
+	grafanaRenderCacheDirForTest = t.TempDir()
+	t.Cleanup(func() { grafanaRenderCacheDirForTest = "" })
+
+	dashboardJSON, err := os.ReadFile(filepath.Join("testdata", "dashboard_merge.json"))
+	require.NoError(t, err)
+
+	pngBody := bytes.Repeat([]byte{0x0d}, 2500)
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case strings.HasPrefix(r.URL.Path, "/graph/api/dashboards/uid/test-dash"):
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write(dashboardJSON)
+		case strings.HasPrefix(r.URL.Path, "/graph/render/d-solo/test-dash"):
+			w.Header().Set("Content-Type", "image/png")
+			_, _ = w.Write(pngBody)
+		default:
+			t.Fatalf("unexpected path %s", r.URL.Path)
+		}
+	}))
+	defer srv.Close()
+
+	host := strings.TrimPrefix(strings.TrimPrefix(srv.URL, "http://"), "https://")
+	h := NewResolveHandler(NewClient(host))
+
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodPost, "/v1/grafana/render/resolve", strings.NewReader(`{"dashboard_uid":"test-dash","panel_id":12,"from":"2026-01-01T00:00:00Z","to":"2026-01-01T01:00:00Z"}`))
+	req.Host = "pmm.example:8443"
+	req.Header.Set("X-Forwarded-Proto", "https")
+	h.ServeHTTP(rec, req)
+
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	var out resolveResponse
+	require.NoError(t, json.NewDecoder(rec.Body).Decode(&out))
+	assert.True(t, strings.HasPrefix(out.ImageURL, "https://pmm.example:8443/v1/grafana/render/blob/"))
+	assert.True(t, strings.HasPrefix(out.DashboardURL, "https://pmm.example:8443/graph/d/test-dash?"))
+}

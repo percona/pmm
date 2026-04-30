@@ -142,6 +142,42 @@ func buildDashboardViewerURL(dashboardUID, panelID, from, to string, mergedVars 
 	return "/graph/d/" + dashboardUID + "?" + q.Encode()
 }
 
+func requestBaseURL(r *http.Request) string {
+	proto := strings.TrimSpace(strings.Split(r.Header.Get("X-Forwarded-Proto"), ",")[0])
+	host := strings.TrimSpace(strings.Split(r.Header.Get("X-Forwarded-Host"), ",")[0])
+	if host == "" {
+		host = strings.TrimSpace(r.Host)
+	}
+	if host == "" {
+		return ""
+	}
+	if proto == "" {
+		if r.TLS != nil {
+			proto = "https"
+		} else {
+			proto = "http"
+		}
+	}
+	return proto + "://" + host
+}
+
+func absoluteURL(base, path string) string {
+	path = strings.TrimSpace(path)
+	if path == "" {
+		return path
+	}
+	if strings.HasPrefix(path, "http://") || strings.HasPrefix(path, "https://") {
+		return path
+	}
+	if base == "" {
+		return path
+	}
+	if !strings.HasPrefix(path, "/") {
+		path = "/" + path
+	}
+	return strings.TrimRight(base, "/") + path
+}
+
 // ServeHTTP implements POST /v1/grafana/render/resolve.
 func (h *ResolveHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -252,8 +288,12 @@ func (h *ResolveHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	imageURL := "/v1/grafana/render/blob/" + hash + ".png"
 	dashboardURL := buildDashboardViewerURL(dashboardUID, panelID, fromN, toN, merged)
+	baseURL := requestBaseURL(r)
+	imageURLAbs := absoluteURL(baseURL, imageURL)
+	dashboardURLAbs := absoluteURL(baseURL, dashboardURL)
 
-	if cached, err := readBlobPNG(hash); err == nil && len(cached) > 0 {
+	cached, cacheErr := readBlobPNG(hash)
+	if cacheErr == nil && len(cached) > 0 {
 		grafanaResolveCacheHitsTotal.Inc()
 		h.l.WithFields(logrus.Fields{
 			"dashboard_uid": dashboardUID,
@@ -263,8 +303,8 @@ func (h *ResolveHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}).Debug("resolve cache hit")
 		writeResolveJSON(w, http.StatusOK, resolveResponse{
 			ContentHash:  hash,
-			ImageURL:     imageURL,
-			DashboardURL: dashboardURL,
+			ImageURL:     imageURLAbs,
+			DashboardURL: dashboardURLAbs,
 			ResolvedVars: merged,
 			CacheHit:     true,
 			RenderMs:     0,
@@ -272,7 +312,8 @@ func (h *ResolveHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	renderVals := buildGrafanaRenderQueryValues(panelID, fromN, toN, orgID, width, height, scale, tz, theme, d.SchemaVersion, merged)
+	fromRender, toRender := fromToForGrafanaImageRendererQuery(fromN, toN)
+	renderVals := buildGrafanaRenderQueryValues(panelID, fromRender, toRender, orgID, width, height, scale, tz, theme, merged)
 	rawQuery := renderVals.Encode()
 
 	t0 := time.Now()
@@ -315,8 +356,8 @@ func (h *ResolveHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	writeResolveJSON(w, http.StatusOK, resolveResponse{
 		ContentHash:  hash,
-		ImageURL:     imageURL,
-		DashboardURL: dashboardURL,
+		ImageURL:     imageURLAbs,
+		DashboardURL: dashboardURLAbs,
 		ResolvedVars: merged,
 		CacheHit:     false,
 		RenderMs:     renderMs,

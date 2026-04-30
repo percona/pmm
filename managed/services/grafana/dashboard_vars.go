@@ -116,6 +116,18 @@ func formatVarValue(v interface{}) string {
 	}
 }
 
+// stripPathStyleVar removes Grafana/PMM path-style prefixes from template current values.
+// Dashboard JSON often stores e.g. "/service_id/<uuid>"; d-solo image render expects the bare UUID.
+func stripPathStyleVar(value, asciiPrefix string) string {
+	if len(value) < len(asciiPrefix) {
+		return value
+	}
+	if !strings.EqualFold(value[:len(asciiPrefix)], asciiPrefix) {
+		return value
+	}
+	return strings.TrimSpace(value[len(asciiPrefix):])
+}
+
 func sanitizeTemplateValue(varName, value string) string {
 	value = strings.TrimSpace(value)
 	if value == "" {
@@ -127,11 +139,25 @@ func sanitizeTemplateValue(varName, value string) string {
 	if strings.EqualFold(varName, "agent_id") && strings.HasPrefix(value, "/agent_id/") {
 		return ""
 	}
+	if strings.EqualFold(varName, "node_id") {
+		value = stripPathStyleVar(value, "/node_id/")
+	}
+	if strings.EqualFold(varName, "service_id") {
+		value = stripPathStyleVar(value, "/service_id/")
+	}
+	if value == "" {
+		return ""
+	}
 	return value
 }
 
 // MergeDashboardVars merges dashboard saved defaults with POST overrides. Keys in overrides may be
 // logical names (service_name) or already-prefixed var-service_name.
+//
+// An override whose value is only whitespace, or the empty string, clears the saved dashboard
+// default for that variable by forcing an explicit empty var-* in the final query (var-x=),
+// matching Grafana UI share links for blank cluster/region fields. When the raw value is non-empty
+// but sanitizeTemplateValue returns empty (e.g. invalid agent_id), the default is left unchanged.
 func MergeDashboardVars(d dashboardInner, overrides map[string]string) (map[string]string, error) {
 	merged := make(map[string]string)
 	validNames := make(map[string]struct{})
@@ -170,6 +196,7 @@ func MergeDashboardVars(d dashboardInner, overrides map[string]string) (map[stri
 		if k == "" {
 			continue
 		}
+		raw := val
 		name := k
 		if len(k) >= 4 && strings.EqualFold(k[:4], "var-") {
 			name = k[4:]
@@ -189,6 +216,9 @@ func MergeDashboardVars(d dashboardInner, overrides map[string]string) (map[stri
 		}
 		val = sanitizeTemplateValue(canonical, val)
 		if val == "" {
+			if strings.TrimSpace(raw) == "" {
+				merged["var-"+canonical] = ""
+			}
 			continue
 		}
 		merged["var-"+canonical] = val
@@ -198,9 +228,21 @@ func MergeDashboardVars(d dashboardInner, overrides map[string]string) (map[stri
 }
 
 // buildGrafanaRenderQueryValues constructs Grafana Image Renderer query parameters for /render/d-solo/{uid}/ .
-func buildGrafanaRenderQueryValues(panelID, from, to string, orgID, width, height, scale int, tz, theme string, schemaVersion int, mergedVars map[string]string) url.Values {
+//
+// Query shape matches what the Grafana UI issues for “Direct link rendered image” on current Grafana (PMM 3):
+// panelId=panel-<id>, __feature.dashboardScene=true, hideLogo=true. Relying on dashboard JSON schemaVersion
+// to choose legacy numeric panelId breaks against live Grafana: bundled dashboards can stay schemaVersion 34
+// while the server runs Scenes, which then mis-handles d-solo and can stall until the image-renderer times out.
+//
+// The UI passes timezone=browser (dashboard time mode) while tz= is the IANA zone for the panel; setting both
+// to the same string breaks that split and can change panel readiness/render behavior.
+func buildGrafanaRenderQueryValues(panelID, from, to string, orgID, width, height, scale int, tz, theme string, mergedVars map[string]string) url.Values {
 	renderParams := url.Values{}
-	renderParams.Set("panelId", panelID)
+	pid := NormalizePanelID(panelID)
+	scenePanel := "panel-" + pid
+	renderParams.Set("panelId", scenePanel)
+	renderParams.Set("__feature.dashboardScene", "true")
+	renderParams.Set("hideLogo", "true")
 	renderParams.Set("orgId", strconv.Itoa(orgID))
 	renderParams.Set("from", from)
 	renderParams.Set("to", to)
@@ -211,15 +253,14 @@ func buildGrafanaRenderQueryValues(panelID, from, to string, orgID, width, heigh
 		tz = "browser"
 	}
 	renderParams.Set("tz", tz)
+	renderParams.Set("timezone", "browser")
+	// Match Grafana "Direct link rendered image" (HAR): refresh on the d-solo query, not a substitute for a wrong URL.
+	renderParams.Set("refresh", "1m")
 	if theme != "" {
 		renderParams.Set("theme", theme)
 	}
-	if schemaVersion >= 39 {
-		renderParams.Set("__feature.dashboardSceneSolo", "true")
-		renderParams.Set("viewPanel", "panel-"+panelID)
-	}
 	for k, v := range mergedVars {
-		if strings.HasPrefix(k, "var-") && v != "" {
+		if strings.HasPrefix(k, "var-") {
 			renderParams.Set(k, v)
 		}
 	}
