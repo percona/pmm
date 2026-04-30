@@ -4,4 +4,5 @@ export interface PageProps extends PropsWithChildren {
   title?: string;
   footer?: ReactNode;
   topBar?: ReactNode;
+  fullWidth?: boolean;
 }

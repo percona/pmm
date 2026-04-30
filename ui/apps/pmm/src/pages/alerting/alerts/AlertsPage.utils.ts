@@ -109,18 +109,23 @@ export const flattenAlertRules = (
 
   const rows = data.data.groups.flatMap((group) =>
     (group.rules || []).flatMap((rule) =>
-      (rule.alerts || []).map((alert) => ({
-        type: 'alert' as const,
-        id: `${rule.name}-${alert.labels.node_name}-${alert.labels.service_name}`,
-        alertName: getAlertName(alert, rule),
-        ruleName: rule.name || 'Unnamed rule',
-        state: resolveState(alert, rule),
-        nodeId: getAlertNodeId(alert),
-        serviceName: getAlertServiceName(alert),
-        summary: getSummary(alert),
-        source: getSource(alert.labels),
-        age: getAge(alert.activeAt),
-      }))
+      (rule.alerts || []).map((alert) => {
+        console.log('alert', { alert, rule });
+
+        return {
+          type: 'alert' as const,
+          id: `${rule.name}-${alert.labels.node_name}-${alert.labels.service_name}`,
+          alertName: getAlertName(alert, rule),
+          ruleName: rule.name || 'Unnamed rule',
+          state: resolveState(alert, rule),
+          nodeId: getAlertNodeId(alert),
+          serviceName: getAlertServiceName(alert),
+          summary: getSummary(alert),
+          source: getSource(alert.labels),
+          activeAt: alert.activeAt,
+          age: getAge(alert.activeAt),
+        };
+      })
     )
   );
 
@@ -152,7 +157,9 @@ export const groupAlertsByNode = (rows: AlertRow[]): NodeGroupRow[] => {
         state,
         alertCount: alerts.length,
         alerts: alerts.sort((a, b) =>
-          `${a.ruleName}:${a.alertName}`.localeCompare(`${b.ruleName}:${b.alertName}`)
+          `${a.ruleName}:${a.alertName}`.localeCompare(
+            `${b.ruleName}:${b.alertName}`
+          )
         ),
       };
     })
@@ -169,7 +176,7 @@ export const getNodeFilterOptions = (
   ].sort();
 
   return [
-    { value: ALL_NODES_FILTER, label: 'All' },
+    { value: ALL_NODES_FILTER, label: 'All nodes' },
     ...knownNodeIds.map((nodeId) => ({ value: nodeId, label: nodeId })),
   ];
 };

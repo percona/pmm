@@ -7,14 +7,17 @@ import {
   Card,
   CardContent,
   Chip,
+  FormControl,
   FormControlLabel,
+  InputLabel,
+  MenuItem,
+  Select,
   Skeleton,
   Stack,
   Switch,
 } from '@mui/material';
 import { Page } from 'components/page';
 import { usePrometheusAlertRules } from 'hooks/api/usePrometheusAlertRules';
-import { TextSelect } from 'components/text-select';
 import { AlertsTableRow } from './AlertsPage.types';
 import {
   ALL_SERVICES_FILTER,
@@ -26,26 +29,12 @@ import {
   groupAlertsByNode,
   getNodeFilterOptions,
 } from './AlertsPage.utils';
-import { AlertStatus } from 'types/alerting.types';
-
-const STATUS_COLOR_MAP: Record<
-  AlertStatus,
-  'default' | 'error' | 'warning' | 'success'
-> = {
-  Alerting: 'error',
-  Pending: 'warning',
-  Normal: 'success',
-  NoData: 'default',
-  Error: 'error',
-};
-
-const STATUS_LABEL_MAP: Record<AlertStatus, string> = {
-  Alerting: 'Firing',
-  Pending: 'Pending',
-  Normal: 'OK',
-  NoData: 'No Data',
-  Error: 'Error',
-};
+import {
+  ALL_STATES_FILTER,
+  STATE_OPTIONS,
+  STATUS_COLOR_MAP,
+  STATUS_LABEL_MAP,
+} from './AlertsPage.constants';
 
 const AlertsPage = () => {
   const { data, isLoading, isError, error, refetch, isRefetching } =
@@ -56,6 +45,7 @@ const AlertsPage = () => {
   const [selectedNode, setSelectedNode] = useState<string>(ALL_NODES_FILTER);
   const [selectedService, setSelectedService] =
     useState<string>(ALL_SERVICES_FILTER);
+  const [selectedState, setSelectedState] = useState<string>(ALL_STATES_FILTER);
   const rows = useMemo(() => flattenAlertRules(data), [data]);
   const nodeOptions = useMemo(() => getNodeFilterOptions(rows), [rows]);
   const nodeFilteredRows = useMemo(
@@ -88,13 +78,22 @@ const AlertsPage = () => {
     }
   }, [isServiceFilterDisabled, selectedService, serviceOptions]);
 
-  const filteredRows = useMemo(
-    () =>
-      isServiceFilterDisabled
-        ? nodeFilteredRows
-        : filterAlertRulesByService(nodeFilteredRows, selectedService),
-    [nodeFilteredRows, selectedService, isServiceFilterDisabled]
-  );
+  const filteredRows = useMemo(() => {
+    const rows = isServiceFilterDisabled
+      ? nodeFilteredRows
+      : filterAlertRulesByService(nodeFilteredRows, selectedService);
+
+    if (selectedState !== ALL_STATES_FILTER) {
+      return rows.filter((r) => r.state === selectedState);
+    }
+
+    return rows;
+  }, [
+    nodeFilteredRows,
+    selectedService,
+    isServiceFilterDisabled,
+    selectedState,
+  ]);
   const tableRows = useMemo<AlertsTableRow[]>(
     () => (isGroupedByNode ? groupAlertsByNode(filteredRows) : filteredRows),
     [filteredRows, isGroupedByNode]
@@ -158,7 +157,7 @@ const AlertsPage = () => {
   );
 
   return (
-    <Page title="Alerts">
+    <Page title="Alerts" fullWidth>
       <Card variant="outlined">
         <CardContent>
           <Stack spacing={2}>
@@ -195,6 +194,52 @@ const AlertsPage = () => {
                   gap={1}
                 >
                   <Stack direction="row" alignItems="center" gap={2}>
+                    <FormControl sx={{ width: 200 }} size="small">
+                      <InputLabel id="node">Node</InputLabel>
+                      <Select
+                        labelId="node"
+                        label="Node"
+                        value={selectedNode}
+                        onChange={(e) => setSelectedNode(e.target.value)}
+                      >
+                        {nodeOptions.map((opt) => (
+                          <MenuItem key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                    <FormControl sx={{ width: 200 }} size="small">
+                      <InputLabel id="service">Service</InputLabel>
+                      <Select
+                        labelId="service"
+                        label="Service"
+                        value={selectedService}
+                        onChange={(e) => setSelectedService(e.target.value)}
+                        disabled={isServiceFilterDisabled}
+                      >
+                        {serviceOptions.map((opt) => (
+                          <MenuItem key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                    <FormControl sx={{ width: 200 }} size="small">
+                      <InputLabel id="state">State</InputLabel>
+                      <Select
+                        labelId="state"
+                        label="State"
+                        value={selectedState}
+                        onChange={(e) => setSelectedState(e.target.value)}
+                      >
+                        {STATE_OPTIONS.map((opt) => (
+                          <MenuItem key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
                     <FormControlLabel
                       control={
                         <Switch
@@ -204,24 +249,6 @@ const AlertsPage = () => {
                       }
                       label="Group by node"
                       sx={{ ml: 0 }}
-                    />
-                  </Stack>
-                  <Stack direction="row" alignItems="center" gap={1}>
-                    <TextSelect
-                      label="Node"
-                      value={selectedNode}
-                      options={nodeOptions}
-                      onChange={setSelectedNode}
-                      data-testid-button="alerts-node-filter"
-                    />
-                    <TextSelect
-                      label="Service"
-                      value={selectedService}
-                      options={serviceOptions}
-                      onChange={setSelectedService}
-                      disabled={isServiceFilterDisabled}
-                      disabledValue="All selected"
-                      data-testid-button="alerts-service-filter"
                     />
                   </Stack>
                 </Stack>
