@@ -199,6 +199,9 @@ const AlertsPage = () => {
               label={STATUS_LABEL_MAP[status]}
               color={STATUS_COLOR_MAP[status]}
               size="small"
+              sx={{
+                width: 100,
+              }}
             />
           );
         },
