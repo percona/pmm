@@ -65,6 +65,11 @@ const router = createBrowserRouter(
                 },
               ],
             },
+            // Fallback
+            {
+              path: 'graph/settings/*',
+              element: <Navigate to="/settings" />,
+            },
             // Grafana routes are handled at the Main component level
             {
               path: 'graph/*',
