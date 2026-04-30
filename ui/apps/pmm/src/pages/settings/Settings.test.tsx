@@ -48,7 +48,7 @@ describe('Settings', () => {
     });
 
     it('activates metrics tab for /settings/metrics', async () => {
-      renderWithRoute('/settings/metrics');
+      renderWithRoute('/settings/metrics-resolution');
       await waitFor(() =>
         expect(screen.getByTestId('settings-tab-metrics')).toHaveAttribute(
           'aria-selected',
@@ -58,7 +58,7 @@ describe('Settings', () => {
     });
 
     it('activates advanced tab for /settings/advanced', async () => {
-      renderWithRoute('/settings/advanced');
+      renderWithRoute('/settings/advanced-settings');
       await waitFor(() =>
         expect(screen.getByTestId('settings-tab-advanced')).toHaveAttribute(
           'aria-selected',
@@ -68,7 +68,7 @@ describe('Settings', () => {
     });
 
     it('activates ssh tab for /settings/ssh', async () => {
-      renderWithRoute('/settings/ssh');
+      renderWithRoute('/settings/ssh-key');
       await waitFor(() =>
         expect(screen.getByTestId('settings-tab-ssh')).toHaveAttribute(
           'aria-selected',
