@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Documentation">
+        <meta name="description" content="This dashboard helps you monitor MongoDB instances that use the InMemory storage engine. It shows cache usage, transaction rate, session activity, and node resource use.">
       
       
         <meta name="author" content="Percona LLC">
@@ -11828,6 +11828,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../release-notes/3.7.1.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PMM 3.7.1 (2026-04-30)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../release-notes/3.7.0.html" class="md-nav__link">
         
   
@@ -14607,6 +14635,79 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#inmemory-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        InMemory Storage
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="InMemory Storage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#inmemory-data-size" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        InMemory Data Size
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inmemory-max-data-size" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        InMemory Max Data Size
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inmemory-available" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        InMemory Available
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inmemory-dirty-pages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        InMemory Dirty Pages
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inmemory-engine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        InMemory Engine
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="InMemory Engine">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#inmemory-transactions" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -14616,8 +14717,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#inmemory-capacity" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -14627,8 +14728,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#inmemory-sessions" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -14638,8 +14739,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#inmemory-pages" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -14649,30 +14750,25 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#inmemory-concurrency-tickets" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        InMemory Concurrency Tickets
-      
-    </span>
-  </a>
+        
+      </ul>
+    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#queued-operations" class="md-nav__link">
+  <a href="#operations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Queued Operations
+        Operations
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
+    <nav class="md-nav" aria-label="Operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#document-changes" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -14682,19 +14778,19 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#inmemory-cache-eviction" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#queued-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        InMemory Cache Eviction
+        Queued Operations
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#scanned-and-moved-objects" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -14704,8 +14800,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#page-faults" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -14713,6 +14809,199 @@
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mongodb-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MongoDB Summary
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MongoDB Summary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mongodb-uptime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MongoDB Uptime
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        QPS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#latency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Latency
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#connections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Connections
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cursors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cursors
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#node-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Node Summary
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Node Summary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ram" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RAM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-available" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory Available
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#virtual-memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Virtual Memory
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#disk-space" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Disk Space
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#min-space-available" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Min Space Available
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cpu-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPU Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cpu-saturation-and-max-core-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPU Saturation and Max Core Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#disk-io-and-swap-activity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Disk I/O and Swap Activity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#network-traffic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Network Traffic
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -16156,6 +16445,79 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#inmemory-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        InMemory Storage
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="InMemory Storage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#inmemory-data-size" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        InMemory Data Size
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inmemory-max-data-size" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        InMemory Max Data Size
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inmemory-available" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        InMemory Available
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inmemory-dirty-pages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        InMemory Dirty Pages
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inmemory-engine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        InMemory Engine
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="InMemory Engine">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#inmemory-transactions" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -16165,8 +16527,8 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#inmemory-capacity" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -16176,8 +16538,8 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#inmemory-sessions" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -16187,8 +16549,8 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#inmemory-pages" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -16198,30 +16560,25 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#inmemory-concurrency-tickets" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        InMemory Concurrency Tickets
-      
-    </span>
-  </a>
+        
+      </ul>
+    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#queued-operations" class="md-nav__link">
+  <a href="#operations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Queued Operations
+        Operations
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
+    <nav class="md-nav" aria-label="Operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#document-changes" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -16231,19 +16588,19 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#inmemory-cache-eviction" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#queued-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        InMemory Cache Eviction
+        Queued Operations
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#scanned-and-moved-objects" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -16253,8 +16610,8 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#page-faults" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -16262,6 +16619,199 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mongodb-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MongoDB Summary
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MongoDB Summary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mongodb-uptime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MongoDB Uptime
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        QPS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#latency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Latency
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#connections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Connections
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cursors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cursors
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#node-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Node Summary
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Node Summary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ram" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RAM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-available" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory Available
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#virtual-memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Virtual Memory
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#disk-space" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Disk Space
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#min-space-available" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Min Space Available
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cpu-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPU Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cpu-saturation-and-max-core-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPU Saturation and Max Core Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#disk-io-and-swap-activity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Disk I/O and Swap Activity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#network-traffic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Network Traffic
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -16290,27 +16840,95 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 
 
 <h1 id="mongodb-inmemory-details">MongoDB InMemory Details<a class="headerlink" href="#mongodb-inmemory-details" title="Permanent link">&para;</a></h1>
-<p><img alt="!image" src="../../images/PMM_MongoDB_InMemory_Details.jpg" /></p>
-<h2 id="inmemory-transactions">InMemory Transactions<a class="headerlink" href="#inmemory-transactions" title="Permanent link">&para;</a></h2>
-<p>WiredTiger internal transactions</p>
-<h2 id="inmemory-capacity">InMemory Capacity<a class="headerlink" href="#inmemory-capacity" title="Permanent link">&para;</a></h2>
-<p>Configured max and current size of the WiredTiger cache.</p>
-<h2 id="inmemory-sessions">InMemory Sessions<a class="headerlink" href="#inmemory-sessions" title="Permanent link">&para;</a></h2>
-<p>Internal WiredTiger storage engine cursors and sessions currently open.</p>
-<h2 id="inmemory-pages">InMemory Pages<a class="headerlink" href="#inmemory-pages" title="Permanent link">&para;</a></h2>
-<p>Pages in the WiredTiger cache</p>
-<h2 id="inmemory-concurrency-tickets">InMemory Concurrency Tickets<a class="headerlink" href="#inmemory-concurrency-tickets" title="Permanent link">&para;</a></h2>
-<p>A WT &lsquo;ticket&rsquo; is assigned out for every operation running simultaneously in the WT storage engine. &ldquo;Tickets available&rdquo; = hard coded high value - &ldquo;Tickets Out&rdquo;.</p>
-<h2 id="queued-operations">Queued Operations<a class="headerlink" href="#queued-operations" title="Permanent link">&para;</a></h2>
-<p>Operations queued due to a lock</p>
-<h2 id="document-changes">Document Changes<a class="headerlink" href="#document-changes" title="Permanent link">&para;</a></h2>
-<p>Mixed metrics: Docs per second inserted, updated, deleted or returned on any type of node (primary or secondary); + replicated write Ops/sec; + TTL deletes per second.</p>
-<h2 id="inmemory-cache-eviction">InMemory Cache Eviction<a class="headerlink" href="#inmemory-cache-eviction" title="Permanent link">&para;</a></h2>
-<p>This panel shows the number of pages that have been evicted from the WiredTiger cache for the given time period. The InMemory storage engine only evicts modified pages which signals a compaction of the data and removal of the dirty pages.</p>
-<h2 id="scanned-and-moved-objects">Scanned and Moved Objects<a class="headerlink" href="#scanned-and-moved-objects" title="Permanent link">&para;</a></h2>
-<p>This panel shows the number of objects (both data (<code>scanned_objects</code>) and index (<code>scanned</code>)) as well as the number of documents that were moved to a new location due to the size of the document growing. Moved documents only apply to the MMAPv1 storage engine.</p>
-<h2 id="page-faults">Page Faults<a class="headerlink" href="#page-faults" title="Permanent link">&para;</a></h2>
-<p>Unix or Window memory page faults. Not necessarily from MongoDB.</p>
+<p>This dashboard helps you monitor MongoDB instances that use the InMemory storage engine. It shows cache usage, transaction rate, session activity, and node resource use.</p>
+<p><img alt="MongoDB InMemory Details dashboard" src="../../images/PMM_MongoDB_InMemory_Details.jpg" /></p>
+<h2 id="inmemory-storage">InMemory Storage<a class="headerlink" href="#inmemory-storage" title="Permanent link">&para;</a></h2>
+<p>Shows the current state of the InMemory cache at a glance. Use these panels to quickly assess how much of your configured memory is in use and whether your data is approaching the configured size limit.</p>
+<h3 id="inmemory-data-size">InMemory Data Size<a class="headerlink" href="#inmemory-data-size" title="Permanent link">&para;</a></h3>
+<p>Shows the amount of data currently stored in the InMemory cache in its uncompressed format. This reflects the actual working dataset in memory, not how data is stored on disk.</p>
+<p>This value will always be lower than the limit shown in <strong>InMemory Max Data Size</strong>. If it&rsquo;s consistently close to that limit, consider increasing the configured cache size to avoid evictions or degraded performance.</p>
+<h3 id="inmemory-max-data-size">InMemory Max Data Size<a class="headerlink" href="#inmemory-max-data-size" title="Permanent link">&para;</a></h3>
+<p>Shows the maximum amount of data the InMemory storage engine is configured to hold. Once your dataset reaches this limit, MongoDB begins evicting data to make room for new writes, which can impact performance.</p>
+<p>You can adjust this limit by setting <code>storage.inMemory.engineConfig.inMemorySizeGB</code> in the MongoDB configuration file or by passing the <code>--inMemorySizeGB</code> flag at startup.</p>
+<h3 id="inmemory-available">InMemory Available<a class="headerlink" href="#inmemory-available" title="Permanent link">&para;</a></h3>
+<p>Shows the percentage of InMemory capacity that is still free, calculated as the ratio of unused space to the total configured size. The panel uses color-coded thresholds: green when availability is healthy, orange as it drops below 10%, and red when critically low.</p>
+<p>Use this panel to detect when your dataset is approaching its configured limit. Proactively increasing capacity before this panel turns red helps avoid write stalls or data eviction under load.</p>
+<h3 id="inmemory-dirty-pages">InMemory Dirty Pages<a class="headerlink" href="#inmemory-dirty-pages" title="Permanent link">&para;</a></h3>
+<p>Shows the percentage of pages in the InMemory cache that contain modified data not yet consolidated. A small percentage of dirty pages is normal during active write workloads.</p>
+<p>If this value is persistently high (above 30%, marked orange, or above 50%, marked red), it may indicate that the configured InMemory size is too small for the current write rate and the engine is under pressure to consolidate data faster than it can.</p>
+<h2 id="inmemory-engine">InMemory Engine<a class="headerlink" href="#inmemory-engine" title="Permanent link">&para;</a></h2>
+<p>These panels help you understand how hard the InMemory storage engine is working over time. You can see how quickly activity is growing, how close the cache is to its limit, and how many sessions and pages the engine is handling.</p>
+<h3 id="inmemory-transactions">InMemory Transactions<a class="headerlink" href="#inmemory-transactions" title="Permanent link">&para;</a></h3>
+<p>Shows how many transactions the InMemory engine commits each second. Spikes usually mean a burst of writes or mixed read and write traffic.</p>
+<p>Use this panel with latency and cache pressure panels to understand cause and effect. If transaction rate stays high while dirty pages keep rising, the engine may be nearing its throughput limit.</p>
+<h3 id="inmemory-capacity">InMemory Capacity<a class="headerlink" href="#inmemory-capacity" title="Permanent link">&para;</a></h3>
+<p>Shows the configured cache limit (<strong>Maximum</strong>) and current cache usage (<strong>Used</strong>) over time, in bytes. When <strong>Used</strong> gets close to <strong>Maximum</strong>, the engine is running out of headroom.</p>
+<p>Use this panel together with <strong>InMemory Available</strong> to spot growth trends early. If <strong>Used</strong> keeps climbing without leveling off, increase cache size before performance starts to drop.</p>
+<h3 id="inmemory-sessions">InMemory Sessions<a class="headerlink" href="#inmemory-sessions" title="Permanent link">&para;</a></h3>
+<p>Shows how many sessions and open cursors the InMemory engine is handling over time. A moderate and stable level is normal.</p>
+<p>If these counts stay high or keep rising, especially when cursors do not drop, you may have long-running operations, too many concurrent connections, or cursor leaks in application code. Check this panel together with <strong>Connections</strong> and <strong>Cursors</strong> in MongoDB Summary for a clearer diagnosis.</p>
+<h3 id="inmemory-pages">InMemory Pages<a class="headerlink" href="#inmemory-pages" title="Permanent link">&para;</a></h3>
+<p>Shows how many pages are currently stored in the InMemory cache. This number naturally moves up and down as the working dataset and access pattern change.</p>
+<p>Use this panel to see how the cache reacts to workload shifts. A sudden drop can indicate a restart or cache flush. A long plateau near capacity often means the dataset is larger than available memory.</p>
+<h2 id="operations">Operations<a class="headerlink" href="#operations" title="Permanent link">&para;</a></h2>
+<p>These panels track MongoDB document-level operations, locking behavior, query execution efficiency, and OS-level memory events on the selected node.</p>
+<h3 id="document-changes">Document Changes<a class="headerlink" href="#document-changes" title="Permanent link">&para;</a></h3>
+<p>Shows the rate of document-level operations per second, including inserts, updates, deletes, and returned documents on both primary and secondary nodes. Also includes replicated write operations (<code>repl_inserted</code>, <code>repl_updated</code>, <code>repl_deleted</code>) and documents removed by TTL expiration (<code>ttl_deleted</code>).</p>
+<p>Use this panel to understand the write and read workload profile of the node, monitor replication activity, and track whether TTL-based cleanup is running at the expected rate.</p>
+<h3 id="queued-operations">Queued Operations<a class="headerlink" href="#queued-operations" title="Permanent link">&para;</a></h3>
+<p>Shows the number of operations currently waiting to acquire a global lock, broken down into read and write queues. A value of zero is the expected baseline under normal operation.</p>
+<p>If this queue does not return to zero, and especially if it keeps growing, lock contention is likely. The most common cause is long-running write operations. Check this panel with <strong>Operations Latency</strong> to confirm whether queueing is driving slower response times.</p>
+<h3 id="scanned-and-moved-objects">Scanned and Moved Objects<a class="headerlink" href="#scanned-and-moved-objects" title="Permanent link">&para;</a></h3>
+<p>Shows how many objects are scanned each second during query execution, split into data objects (<code>scanned_objects</code>) and index entries (<code>scanned</code>). If scanned objects are much higher than returned documents, queries may be doing full collection scans or using low-selectivity indexes.</p>
+<p>Use this panel to spot query efficiency problems. High <code>scanned_objects</code> values compared to actual query results usually point to missing or inefficient indexes that add unnecessary load.</p>
+<h3 id="page-faults">Page Faults<a class="headerlink" href="#page-faults" title="Permanent link">&para;</a></h3>
+<p>Shows OS-level memory page faults per second on the node running MongoDB. Page faults happen when the OS must load data from disk because it is not in RAM, and they can come from MongoDB or other processes on the same host.</p>
+<p>In an InMemory deployment, a sustained rise in page faults is an important warning sign because the engine depends on RAM. If page faults keep increasing, the host is likely under memory pressure, either because it needs more RAM or because other processes are competing for memory.</p>
+<h2 id="mongodb-summary">MongoDB Summary<a class="headerlink" href="#mongodb-summary" title="Permanent link">&para;</a></h2>
+<p>Gives you a quick health and activity summary for the selected MongoDB service.</p>
+<h3 id="mongodb-uptime">MongoDB Uptime<a class="headerlink" href="#mongodb-uptime" title="Permanent link">&para;</a></h3>
+<p>Shows how long the selected MongoDB instance has been running since its last restart. The panel highlights recent restarts with color thresholds: red for under 5 minutes, orange for under 1 hour, and green for over 1 hour.</p>
+<p>Use this panel to quickly verify that the service has not restarted unexpectedly, especially after maintenance or during incident response.</p>
+<h3 id="qps">QPS<a class="headerlink" href="#qps" title="Permanent link">&para;</a></h3>
+<p>Shows total query operations per second across all operation types (excluding internal commands) for the selected service. It gives you a quick view of current request load.</p>
+<p>Use this panel with resource metrics to connect throughput changes to system behavior. If QPS spikes while latency or queued operations also rise, you are likely seeing a workload surge that needs investigation.</p>
+<h3 id="latency">Latency<a class="headerlink" href="#latency" title="Permanent link">&para;</a></h3>
+<p>Shows average command execution latency in microseconds for the selected MongoDB service. Low and stable latency usually means the instance is responding well.</p>
+<p>Sudden spikes or a slowly rising baseline are early warning signs. Compare this panel with <strong>Queued Operations</strong> and <strong>InMemory Transactions</strong> to tell whether latency is coming from lock contention, throughput saturation, or cache pressure.</p>
+<h3 id="connections">Connections<a class="headerlink" href="#connections" title="Permanent link">&para;</a></h3>
+<p>Shows active client connections to MongoDB over time. Connection counts that stay high can put pressure on both MongoDB and the operating system.</p>
+<p>Use this panel to track connection trends and identify high-demand periods. If the count stays near the configured maximum, tune application-side connection pooling to reduce pressure on the database.</p>
+<h3 id="cursors">Cursors<a class="headerlink" href="#cursors" title="Permanent link">&para;</a></h3>
+<p>Shows open cursors on the selected MongoDB service over time, broken down by state. Cursors are pointers to query result sets and expire after 10 minutes by default.</p>
+<p>A rising count of open or pinned cursors is worth investigating. It often indicates long-running queries or application code that is not closing cursors properly, which can eventually exhaust server resources.</p>
+<h2 id="node-summary">Node Summary<a class="headerlink" href="#node-summary" title="Permanent link">&para;</a></h2>
+<p>Provides OS-level metrics for the host running the selected MongoDB service. Because the InMemory engine keeps all data in RAM, node memory and CPU health are especially important.</p>
+<h3 id="ram">RAM<a class="headerlink" href="#ram" title="Permanent link">&para;</a></h3>
+<p>Shows total physical memory available on the node. In containerized environments, this reflects the container memory limit, not total host memory.</p>
+<p>Use this panel as a baseline when reviewing pressure indicators such as <strong>Memory Available</strong> and <strong>Disk I/O and Swap Activity</strong>.</p>
+<h3 id="memory-available">Memory Available<a class="headerlink" href="#memory-available" title="Permanent link">&para;</a></h3>
+<p>Shows the percentage of memory currently available for application use. On modern Linux kernels, this includes reclaimable cache and buffer memory, so it is more useful than raw free memory.</p>
+<p>The panel turns orange below 5% and red when available memory is very low.</p>
+<p>For InMemory deployments, this value must stay safely above zero. If the OS runs out of available memory, it starts swapping, which severely hurts performance for an engine that depends on RAM.</p>
+<h3 id="virtual-memory">Virtual Memory<a class="headerlink" href="#virtual-memory" title="Permanent link">&para;</a></h3>
+<p>Shows total virtual memory on the node, calculated as RAM plus swap space. In containerized environments, this reflects container memory and swap limits.</p>
+<h3 id="disk-space">Disk Space<a class="headerlink" href="#disk-space" title="Permanent link">&para;</a></h3>
+<p>Shows total disk capacity across all monitored partitions on the node. In some setups, such as overlapping or shared mount points, this value can be over-reported.</p>
+<h3 id="min-space-available">Min Space Available<a class="headerlink" href="#min-space-available" title="Permanent link">&para;</a></h3>
+<p>Shows the lowest free-space percentage across monitored disk partitions. The panel turns orange below 5% and green at 20% or higher.</p>
+<p>Use this panel to quickly identify the most constrained partition. Even in InMemory deployments, disk space still matters because MongoDB writes journal files, logs, and diagnostic data to disk.</p>
+<h3 id="cpu-usage">CPU Usage<a class="headerlink" href="#cpu-usage" title="Permanent link">&para;</a></h3>
+<p>Shows CPU time by mode (user, system, iowait, steal, and others) as a percentage of total capacity over time.</p>
+<p>High <code>iowait</code> can point to disk bottlenecks, and high <code>steal</code> can indicate resource contention in virtualized or cloud environments. For InMemory deployments, watch for <code>system</code> CPU spikes, which can signal OS memory-management pressure.</p>
+<h3 id="cpu-saturation-and-max-core-usage">CPU Saturation and Max Core Usage<a class="headerlink" href="#cpu-saturation-and-max-core-usage" title="Permanent link">&para;</a></h3>
+<p>Shows CPU saturation as normalized load (running processes divided by available cores), along with peak utilization on any single core.</p>
+<p>Use this panel to see whether the node is CPU-bound and whether load is evenly distributed or concentrated on one core. High <strong>Max Core Usage</strong> with low overall CPU usage usually points to a single-threaded bottleneck, not a total capacity issue.</p>
+<h3 id="disk-io-and-swap-activity">Disk I/O and Swap Activity<a class="headerlink" href="#disk-io-and-swap-activity" title="Permanent link">&para;</a></h3>
+<p>Shows disk read and write throughput (bytes per second) together with swap read (<strong>Swap In</strong>) and write (<strong>Swap Out</strong>) activity. Disk writes appear on the negative Y axis.</p>
+<p>For InMemory deployments, sustained swap activity is a critical warning sign. Swapping means the OS is using disk as overflow memory, which directly undermines InMemory performance. If <strong>Swap Out</strong> stays non-zero, the node needs more RAM.</p>
+<h3 id="network-traffic">Network Traffic<a class="headerlink" href="#network-traffic" title="Permanent link">&para;</a></h3>
+<p>Shows inbound and outbound network throughput (bytes per second) for the node. Outbound traffic appears on the negative Y axis.</p>
+<p>Use this panel to spot network saturation or unexpected traffic spikes. Sudden drops in inbound traffic can indicate client connectivity issues, while high outbound traffic can correlate with replication or large query result sets sent to clients.</p>
 
 
 
@@ -16333,7 +16951,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="December 18, 2024 14:22:49 UTC">December 18, 2024</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 30, 2026 09:30:47 UTC">April 30, 2026</span>
   </span>
 
     

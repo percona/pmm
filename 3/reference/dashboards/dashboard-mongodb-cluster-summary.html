@@ -11828,6 +11828,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../release-notes/3.7.1.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PMM 3.7.1 (2026-04-30)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../release-notes/3.7.0.html" class="md-nav__link">
         
   
@@ -14748,6 +14776,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#fragmentation-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fragmentation Analysis
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -16820,6 +16859,17 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#fragmentation-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fragmentation Analysis
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -17107,6 +17157,10 @@ However, it also implies more complex data management.</p>
 <p>Shows how many collections each database has across different shards in your MongoDB cluster, excluding system databases. It lists database names in rows and shard names in columns, with the number of collections at each intersection.</p>
 <p>This overview helps you quickly see how your data is spread out, identify databases with many collections, and check if collections are evenly distributed across shards. </p>
 <p>Use this information to optimize your database structure and sharding strategy for better performance and resource usage.</p>
+<h3 id="fragmentation-analysis">Fragmentation Analysis<a class="headerlink" href="#fragmentation-analysis" title="Permanent link">&para;</a></h3>
+<p>Shows the estimated fragmentation percentage for each collection, broken down by shard. The value is calculated as the ratio of free (unused) storage to total allocated storage, and the table is sorted from most to least fragmented. Only the top 100 collections are shown; admin and config databases are excluded.</p>
+<p>Fragmentation builds up when documents are deleted or moved, leaving gaps in storage blocks that MongoDB has not yet reclaimed. A value of 30% means roughly 30% of that collection&rsquo;s allocated space is wasted. </p>
+<p>Use this table to identify collections worth compacting — run <code>compact</code> on the affected nodes during a maintenance window to reclaim disk space.</p>
 <h2 id="connections">Connections<a class="headerlink" href="#connections" title="Permanent link">&para;</a></h2>
 <h3 id="current-connections-per-shard">Current Connections Per Shard<a class="headerlink" href="#current-connections-per-shard" title="Permanent link">&para;</a></h3>
 <p>Shows the number of current TCP connections for each shard in your MongoDB cluster over time. It uses a stacked area chart to display incoming connections across different shards, allowing you to see both individual shard activity and total cluster connections at a glance. </p>
@@ -17161,7 +17215,7 @@ However, it also implies more complex data management.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 3, 2025 10:33:16 UTC">November 3, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 30, 2026 09:30:47 UTC">April 30, 2026</span>
   </span>
 
     

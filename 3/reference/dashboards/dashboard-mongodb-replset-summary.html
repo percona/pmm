@@ -11828,6 +11828,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../release-notes/3.7.1.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PMM 3.7.1 (2026-04-30)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../release-notes/3.7.0.html" class="md-nav__link">
         
   
@@ -14877,6 +14905,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#fragmentation-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fragmentation Analysis
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -16882,6 +16921,17 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#fragmentation-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fragmentation Analysis
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -17154,6 +17204,10 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <p>Shows storage size of MongoDB collections across different databases. Use this to monitor database growth and plan storage capacity needs.</p>
 <h3 id="number-of-collections">Number of Collections<a class="headerlink" href="#number-of-collections" title="Permanent link">&para;</a></h3>
 <p>Shows the total number of collections in each MongoDB database. Use this to track database organization and growth patterns.</p>
+<h3 id="fragmentation-analysis">Fragmentation Analysis<a class="headerlink" href="#fragmentation-analysis" title="Permanent link">&para;</a></h3>
+<p>Shows the estimated fragmentation percentage for each collection, organized by database and node. The value is calculated as the ratio of free (unused) storage to total allocated storage, and the table is sorted from most to least fragmented. Only the top 100 collections are shown; admin and config databases are excluded.</p>
+<p>Fragmentation builds up when documents are deleted or moved, leaving gaps in storage blocks that MongoDB has not yet reclaimed. A value of 30% means roughly 30% of that collection&rsquo;s allocated space is wasted. </p>
+<p>Use this table to identify collections worth compacting — run <code>compact</code> on the affected nodes during a maintenance window to reclaim disk space.</p>
 <h2 id="replication">Replication<a class="headerlink" href="#replication" title="Permanent link">&para;</a></h2>
 <h3 id="replication-lag">Replication Lag<a class="headerlink" href="#replication-lag" title="Permanent link">&para;</a></h3>
 <p>Shows how many seconds Secondary nodes are behind the Primary in replicating data. Higher values indicate potential issues with network latency or system resources. The red threshold line at 10 seconds helps identify when lag requires attention.</p>
@@ -17202,7 +17256,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 19, 2025 15:35:17 UTC">November 19, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 30, 2026 09:30:47 UTC">April 30, 2026</span>
   </span>
 
     
