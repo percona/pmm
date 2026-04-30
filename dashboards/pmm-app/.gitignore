@@ -1,0 +1,6 @@
+dist/
+coverage/
+node_modules/
+video/
+pr.browsers.json
+tests/output/

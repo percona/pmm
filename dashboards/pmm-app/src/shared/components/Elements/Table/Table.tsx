@@ -85,13 +85,13 @@ export const Table: FC<TableProps> = ({
           </div>
         ) : null}
         {rows.length && !loading ? (
-          <table {...getTableProps()}>
+          <table {...(getTableProps() as any)}>
             <thead>
               {headerGroups.map((headerGroup, i) => (
-                <tr data-testid="table-header" {...headerGroup.getHeaderGroupProps()} key={i}>
+                <tr data-testid="table-header" {...(headerGroup.getHeaderGroupProps() as any)} key={i}>
                   {headerGroup.headers.map((column, index) => (
                     <th
-                      {...column.getHeaderProps()}
+                      {...(column.getHeaderProps() as any)}
                       className={index === 0 && rowSelection ? styles.checkboxColumn : ''}
                       key={index}
                     >
@@ -101,16 +101,16 @@ export const Table: FC<TableProps> = ({
                 </tr>
               ))}
             </thead>
-            <tbody {...getTableBodyProps()}>
+            <tbody {...(getTableBodyProps() as any)}>
               {rows.map((row, i) => {
                 prepareRow(row);
 
                 return (
-                  <tr data-testid="table-row" {...row.getRowProps()} key={rowKey ? rowKey(row) : i}>
+                  <tr data-testid="table-row" {...(row.getRowProps() as any)} key={rowKey ? rowKey(row) : i}>
                     {row.cells.map((cell, index) => (
                       // eslint-disable-next-line react/jsx-key
                       <td
-                        {...cell.getCellProps()}
+                        {...(cell.getCellProps() as any)}
                         className={index === 0 && rowSelection ? styles.checkboxColumn : ''}
                         key={index}
                       >

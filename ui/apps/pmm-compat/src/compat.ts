@@ -3,7 +3,6 @@ import {
   ChangeThemeMessage,
   CrossFrameMessenger,
   DashboardVariablesMessage,
-  HistoryAction,
   LocationChangeMessage,
   ColorMode,
   isRenderingServer,
@@ -119,8 +118,8 @@ export const initialize = () => {
   });
 
   // Relay Grafana history changes back to PMM
-  let prevLocation: Location | undefined;
-  locationService.getHistory().listen((location: Location, action: HistoryAction) => {
+  let prevLocation: ReturnType<typeof locationService.getHistory>['location'] | undefined;
+  locationService.getHistory().listen((location, action) => {
     // Re-add custom toolbar buttons after exiting kiosk mode
     if (prevLocation?.search.includes('kiosk') && !location.search.includes('kiosk')) {
       adjustToolbar();

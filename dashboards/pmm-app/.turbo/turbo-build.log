@@ -1,0 +1,145 @@
+
+[2K[1G[1myarn run v1.22.22[22m
+[2K[1G[2m$ webpack -c ./webpack.config.ts --env production[22m
+assets by path [1m[32mdashboards/[39m[22m 11.4 MiB 80 assets
+assets by status 2.33 MiB [1m[32m[emitted][39m[22m
+  asset [1m[33mpmm-qan/module.js[39m[22m [1m[33m2.16 MiB[39m[22m [1m[32m[emitted][39m[22m [1m[32m[minimized][39m[22m [1m[33m[big][39m[22m (name: pmm-qan/module) 2 related assets
+  asset [1m[32mfonts/1ba679c05036b34bf359.ttf[39m[22m 167 KiB [1m[32m[emitted][39m[22m [1m[32m[immutable][39m[22m [from: shared/assets/fonts/Roboto/Roboto-Regular.ttf] (auxiliary name: pmm-qan/module)
+  asset [1m[32mmodule.js[39m[22m 710 bytes [1m[32m[emitted][39m[22m [1m[32m[minimized][39m[22m (name: module) 1 related asset
+assets by path [1m[32mshared/assets/[39m[22m 9.83 KiB
+  asset [1m[32mshared/assets/logo.png[39m[22m 7.94 KiB [1m[33m[compared for emit][39m[22m [from: shared/assets/logo.png] [1m[32m[copied][39m[22m
+  asset [1m[32mshared/assets/pmm-logo.svg[39m[22m 1.89 KiB [1m[33m[compared for emit][39m[22m [from: shared/assets/pmm-logo.svg] [1m[32m[copied][39m[22m
+assets by path [1m[32m*.md[39m[22m 506 bytes
+  asset [1m[32mREADME.md[39m[22m 453 bytes [1m[33m[compared for emit][39m[22m [from: ../README.md] [1m[32m[copied][39m[22m
+  asset [1m[32mCHANGELOG.md[39m[22m 53 bytes [1m[33m[compared for emit][39m[22m [from: ../CHANGELOG.md] [1m[32m[copied][39m[22m
+asset [1m[32mLICENSE[39m[22m 33.7 KiB [1m[33m[compared for emit][39m[22m [from: ../LICENSE] [1m[32m[copied][39m[22m
+asset [1m[32mplugin.json[39m[22m 10.3 KiB [1m[33m[compared for emit][39m[22m [from: plugin.json] [1m[32m[copied][39m[22m
+asset [1m[32mimg/pmm-logo.svg[39m[22m 1.89 KiB [1m[33m[compared for emit][39m[22m [from: img/pmm-logo.svg] [1m[32m[copied][39m[22m
+asset [1m[32mpmm-qan/plugin.json[39m[22m 68 bytes [1m[33m[compared for emit][39m[22m [from: pmm-qan/plugin.json] [1m[32m[copied][39m[22m
+orphan modules 8 MiB [1m[33m[orphan][39m[22m 3777 modules
+runtime modules 2.65 KiB 12 modules
+built modules 4.43 MiB (javascript) 167 KiB (asset) [1m[33m[built][39m[22m
+  modules by path [1m../node_modules/[39m[22m 1.78 MiB 202 modules
+  modules by path [1m../../../node_modules/[39m[22m 201 KiB 110 modules
+  modules by path [1m./[39m[22m 2.46 MiB (javascript) 167 KiB (asset)
+    modules by path [1m./pmm-qan/[39m[22m 2.44 MiB 5 modules
+    modules by path [1m./shared/[39m[22m 22.4 KiB (javascript) 167 KiB (asset) 4 modules
+    [1m./module.ts[39m[22m 82 bytes [1m[33m[built][39m[22m [1m[33m[code generated][39m[22m
+  modules by path [1mexternal "@grafana/[39m[22m 126 bytes
+    [1mexternal "@grafana/data"[39m[22m 42 bytes [1m[33m[built][39m[22m [1m[33m[code generated][39m[22m
+    [1mexternal "@grafana/ui"[39m[22m 42 bytes [1m[33m[built][39m[22m [1m[33m[code generated][39m[22m
+    [1mexternal "@grafana/runtime"[39m[22m 42 bytes [1m[33m[built][39m[22m [1m[33m[code generated][39m[22m
+  + 7 modules
+
+[1m[33mWARNING[39m[22m in [eslint] [0m[0m
+[0m[4m/Users/fabio/git/pmm/ui/apps/pmm-dashboards/src/pmm-qan/panel/QueryAnalytics.styles.ts[24m[0m
+[0m  [2m7:26[22m  [33mwarning[39m  'stylesFactory' is deprecated. use useStyles hook[0m
+[0mCreates memoized version of styles creator  [2mdeprecation/deprecation[22m[0m
+[0m[0m
+[0m[4m/Users/fabio/git/pmm/ui/apps/pmm-dashboards/src/pmm-qan/panel/components/BarChart/BarChart.utils.ts[24m[0m
+[0m  [2m28:22[22m  [33mwarning[39m  'v1' is deprecated. Will be removed in a future version  [2mdeprecation/deprecation[22m[0m
+[0m  [2m53:26[22m  [33mwarning[39m  'v1' is deprecated. Will be removed in a future version  [2mdeprecation/deprecation[22m[0m
+[0m  [2m56:32[22m  [33mwarning[39m  'v1' is deprecated. Will be removed in a future version  [2mdeprecation/deprecation[22m[0m
+[0m[0m
+[0m[4m/Users/fabio/git/pmm/ui/apps/pmm-dashboards/src/pmm-qan/panel/components/Details/Details.styles.ts[24m[0m
+[0m  [2m7:26[22m  [33mwarning[39m  'stylesFactory' is deprecated. use useStyles hook[0m
+[0mCreates memoized version of styles creator  [2mdeprecation/deprecation[22m[0m
+[0m[0m
+[0m[4m/Users/fabio/git/pmm/ui/apps/pmm-dashboards/src/pmm-qan/panel/components/Details/Explain/components/ReplacedQueryMessage/ReplacedQueryMessage.styles.ts[24m[0m
+[0m  [2m7:26[22m  [33mwarning[39m  'stylesFactory' is deprecated. use useStyles hook[0m
+[0mCreates memoized version of styles creator  [2mdeprecation/deprecation[22m[0m
+[0m[0m
+[0m[4m/Users/fabio/git/pmm/ui/apps/pmm-dashboards/src/pmm-qan/panel/components/Details/Metadata/Metadata.styles.ts[24m[0m
+[0m  [2m6:40[22m  [33mwarning[39m  'v1' is deprecated. Will be removed in a future version  [2mdeprecation/deprecation[22m[0m
+[0m[0m
+[0m[4m/Users/fabio/git/pmm/ui/apps/pmm-dashboards/src/pmm-qan/panel/components/Details/Metrics/Metrics.styles.ts[24m[0m
+[0m  [2m6:40[22m  [33mwarning[39m  'v1' is deprecated. Will be removed in a future version  [2mdeprecation/deprecation[22m[0m
+[0m[0m
+[0m[4m/Users/fabio/git/pmm/ui/apps/pmm-dashboards/src/pmm-qan/panel/components/Details/Metrics/Metrics.utils.ts[24m[0m
+[0m  [2m21:31[22m  [33mwarning[39m  'v1' is deprecated. Will be removed in a future version  [2mdeprecation/deprecation[22m[0m
+[0m[0m
+[0m[4m/Users/fabio/git/pmm/ui/apps/pmm-dashboards/src/pmm-qan/panel/components/Filters/Filters.styles.ts[24m[0m
+[0m  [2m8:26[22m  [33mwarning[39m  'stylesFactory' is deprecated. use useStyles hook[0m
+[0mCreates memoized version of styles creator  [2mdeprecation/deprecation[22m[0m
+[0m[0m
+[0m[4m/Users/fabio/git/pmm/ui/apps/pmm-dashboards/src/pmm-qan/panel/components/Filters/components/CheckboxGroup/CheckboxGroup.styles.ts[24m[0m
+[0m  [2m7:26[22m  [33mwarning[39m  'stylesFactory' is deprecated. use useStyles hook[0m
+[0mCreates memoized version of styles creator  [2mdeprecation/deprecation[22m[0m
+[0m[0m
+[0m[4m/Users/fabio/git/pmm/ui/apps/pmm-dashboards/src/pmm-qan/panel/components/ManageColumns/ManageColumns.styles.ts[24m[0m
+[0m  [2m7:26[22m  [33mwarning[39m  'stylesFactory' is deprecated. use useStyles hook[0m
+[0mCreates memoized version of styles creator  [2mdeprecation/deprecation[22m[0m
+[0m[0m
+[0m[4m/Users/fabio/git/pmm/ui/apps/pmm-dashboards/src/pmm-qan/panel/components/Overview/components/DefaultColumns/DefaultColumns.styles.ts[24m[0m
+[0m  [2m6:26[22m  [33mwarning[39m  'stylesFactory' is deprecated. use useStyles hook[0m
+[0mCreates memoized version of styles creator  [2mdeprecation/deprecation[22m[0m
+[0m[0m
+[0m[4m/Users/fabio/git/pmm/ui/apps/pmm-dashboards/src/pmm-qan/panel/components/Overview/components/Dimension/Dimension.styles.ts[24m[0m
+[0m  [2m6:26[22m  [33mwarning[39m  'stylesFactory' is deprecated. use useStyles hook[0m
+[0mCreates memoized version of styles creator  [2mdeprecation/deprecation[22m[0m
+[0m[0m
+[0m[4m/Users/fabio/git/pmm/ui/apps/pmm-dashboards/src/pmm-qan/panel/components/Overview/components/MetricColumns/MetricColumn.styles.ts[24m[0m
+[0m  [2m6:26[22m  [33mwarning[39m  'stylesFactory' is deprecated. use useStyles hook[0m
+[0mCreates memoized version of styles creator  [2mdeprecation/deprecation[22m[0m
+[0m[0m
+[0m[4m/Users/fabio/git/pmm/ui/apps/pmm-dashboards/src/pmm-qan/panel/components/Overview/components/QanTable/Table.styles.ts[24m[0m
+[0m  [2m6:26[22m  [33mwarning[39m  'stylesFactory' is deprecated. use useStyles hook[0m
+[0mCreates memoized version of styles creator  [2mdeprecation/deprecation[22m[0m
+[0m[0m
+[0m[4m/Users/fabio/git/pmm/ui/apps/pmm-dashboards/src/pmm-qan/panel/components/Overview/components/Search/Search.styles.ts[24m[0m
+[0m  [2m5:26[22m  [33mwarning[39m  'stylesFactory' is deprecated. use useStyles hook[0m
+[0mCreates memoized version of styles creator  [2mdeprecation/deprecation[22m[0m
+[0m[0m
+[0m[4m/Users/fabio/git/pmm/ui/apps/pmm-dashboards/src/shared/components/Elements/Charts/Latency/Latency.styles.ts[24m[0m
+[0m  [2m5:26[22m  [33mwarning[39m  'stylesFactory' is deprecated. use useStyles hook[0m
+[0mCreates memoized version of styles creator  [2mdeprecation/deprecation[22m[0m
+[0m[0m
+[0m[4m/Users/fabio/git/pmm/ui/apps/pmm-dashboards/src/shared/components/Elements/Icons/Icons.styles.ts[24m[0m
+[0m  [2m6:26[22m  [33mwarning[39m  'stylesFactory' is deprecated. use useStyles hook[0m
+[0mCreates memoized version of styles creator  [2mdeprecation/deprecation[22m[0m
+[0m[0m
+[0m[4m/Users/fabio/git/pmm/ui/apps/pmm-dashboards/src/shared/components/Elements/LinkTooltip/LinkTooltip.styles.ts[24m[0m
+[0m  [2m5:26[22m  [33mwarning[39m  'stylesFactory' is deprecated. use useStyles hook[0m
+[0mCreates memoized version of styles creator  [2mdeprecation/deprecation[22m[0m
+[0m[0m
+[0m[4m/Users/fabio/git/pmm/ui/apps/pmm-dashboards/src/shared/components/Elements/Table/Table.styles.ts[24m[0m
+[0m  [2m5:26[22m  [33mwarning[39m  'stylesFactory' is deprecated. use useStyles hook[0m
+[0mCreates memoized version of styles creator  [2mdeprecation/deprecation[22m[0m
+[0m[0m
+[0m[4m/Users/fabio/git/pmm/ui/apps/pmm-dashboards/src/shared/components/Form/Checkbox/Checkbox.styles.tsx[24m[0m
+[0m  [2m6:34[22m  [33mwarning[39m  'stylesFactory' is deprecated. use useStyles hook[0m
+[0mCreates memoized version of styles creator  [2mdeprecation/deprecation[22m[0m
+[0m[0m
+[0m[4m/Users/fabio/git/pmm/ui/apps/pmm-dashboards/src/shared/core/logger.ts[24m[0m
+[0m  [2m19:17[22m  [33mwarning[39m  'substr' is deprecated. A legacy feature for browser compatibility  [2mdeprecation/deprecation[22m[0m
+[0m[0m
+[0m[33m[1m✖ 23 problems (0 errors, 23 warnings)[22m[39m[0m
+[0m[33m[1m[22m[39m[0m
+
+[1m[33mWARNING[39m[22m in [1masset size limit: The following asset(s) exceed the recommended size limit (244 KiB).
+This can impact web performance.
+Assets: 
+  pmm-qan/module.js (2.16 MiB)
+  dashboards/Experimental/PMM_Health.json (267 KiB)
+  dashboards/MongoDB/MongoDB_Instances_Overview.json (256 KiB)
+  dashboards/OS/Nodes_Overview.json (492 KiB)
+  dashboards/MySQL/HAProxy_Instance_Summary.json (327 KiB)
+  dashboards/MySQL/MySQL_InnoDB_Details.json (1.04 MiB)
+  dashboards/MySQL/MySQL_Instances_Overview.json (383 KiB)
+  dashboards/MySQL/MySQL_MyRocks_Details.json (276 KiB)
+  dashboards/MySQL/MySQL_User_Details.json (245 KiB)
+  dashboards/PostgreSQL/PostgreSQL_Instance_Summary.json (247 KiB)
+  dashboards/PostgreSQL/PostgreSQL_Overview_Extended.json (493 KiB)[39m[22m
+
+[1m[33mWARNING[39m[22m in [1mentrypoint size limit: The following entrypoint(s) combined asset size exceeds the recommended limit (244 KiB). This can impact web performance.
+Entrypoints:
+  pmm-qan/module (2.16 MiB)
+      pmm-qan/module.js
+[39m[22m
+
+[1m[33mWARNING[39m[22m in [1mwebpack performance recommendations: 
+You can limit the size of your bundles by using import() or require.ensure to lazy load some parts of your application.
+For more info visit https://webpack.js.org/guides/code-splitting/[39m[22m
+
+webpack 5.104.1 compiled with [1m[33m4 warnings[39m[22m in 14284 ms
+[2K[1G✨  Done in 16.86s.

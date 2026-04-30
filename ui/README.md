@@ -38,6 +38,11 @@ make setup
 make dev
 ```
 
+## Develop dashboards
+
+Dashboards' code lives under `dashboards` folder in the repo's root.
+From there, just run `yarn dev` and your changes will be applied and picked up by Grafana within 5s, but the browser has to be manually refreshed.
+
 ## Build application for production
 
 ```bash

@@ -2,7 +2,9 @@ name: Dashboards
 on: 
   pull_request:
     paths:
-      - "dashboards/**"
+      - "dashboards/pmm-app/src/dashboards/**"
+      - "dashboards/misc/**"
+      - "dashboards/pmm-app/**"
 
 permissions:
   contents: read
@@ -84,7 +86,7 @@ jobs:
         id: changed
         run: |
           git diff --name-only ${{ github.event.pull_request.base.sha }} HEAD \
-            | grep -E '^dashboards/dashboards/.*\.json$' \
+            | grep -E '^dashboards/pmm-app/src/dashboards/.*\.json$' \
             | sort -u > changed_dashboards.txt || true
           echo "count=$(wc -l < changed_dashboards.txt | tr -d ' ')" >> $GITHUB_OUTPUT
 

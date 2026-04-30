@@ -9,6 +9,7 @@ module.exports = {
   ...baseConfig,
   verbose: true,
   collectCoverage: true,
+  coverageProvider: 'v8',
   collectCoverageFrom: [
     '**/*.{ts,tsx}',
     '!**/node_modules/**',

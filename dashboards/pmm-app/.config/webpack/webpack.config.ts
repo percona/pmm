@@ -8,7 +8,6 @@
 import CopyWebpackPlugin from 'copy-webpack-plugin';
 import ESLintPlugin from 'eslint-webpack-plugin';
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
-import LiveReloadPlugin from 'webpack-livereload-plugin';
 import path from 'path';
 import ReplaceInFileWebpackPlugin from 'replace-in-file-webpack-plugin';
 import { Configuration } from 'webpack';
@@ -202,7 +201,6 @@ const config = async (env): Promise<Configuration> => {
         extensions: ['.ts', '.tsx'],
         lintDirtyModulesOnly: Boolean(env.development), // don't lint on start, only lint changed files
       }),
-      ...(env.development ? [new LiveReloadPlugin()] : []),
     ],
 
     resolve: {

@@ -7,7 +7,7 @@ export const documentTitleObserver = {
     }),
 };
 
-export const updateBodyClassByLocation = (location: Location) => {
+export const updateBodyClassByLocation = (location: { pathname: string }) => {
   const previous = Array.from(document.body.classList).find((className) => className.startsWith('grafana-compat-page'));
   if (previous) {
     document.body.classList.remove(previous);
