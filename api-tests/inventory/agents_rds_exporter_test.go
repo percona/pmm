@@ -34,18 +34,10 @@ func TestRDSExporter(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		nodeID := pmmapitests.AddRemoteRDSNode(t, pmmapitests.TestString(t, "Remote node for RDS exporter")).NodeID
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
-		node := addRemoteRDSNode(t, pmmapitests.TestString(t, "Remote node for RDS exporter"))
-		nodeID := node.RemoteRDS.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
-
-		rdsExporter := addAgent(t, agents.AddAgentBody{
+		rdsExporter := pmmapitests.AddAgent(t, agents.AddAgentBody{
 			RDSExporter: &agents.AddAgentParamsBodyRDSExporter{
 				NodeID:     nodeID,
 				PMMAgentID: pmmAgentID,
@@ -58,7 +50,6 @@ func TestRDSExporter(t *testing.T) {
 			},
 		})
 		agentID := rdsExporter.RDSExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			AgentID: agentID,
@@ -151,12 +142,7 @@ func TestRDSExporter(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
 		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
 			Body: agents.AddAgentBody{
@@ -177,12 +163,7 @@ func TestRDSExporter(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
 		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
 			Body: agents.AddAgentBody{
@@ -201,9 +182,6 @@ func TestRDSExporter(t *testing.T) {
 
 	t.Run("NotExistPMMAgentID", func(t *testing.T) {
 		t.Parallel()
-		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
 			Body: agents.AddAgentBody{
@@ -224,18 +202,10 @@ func TestRDSExporter(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		nodeID := pmmapitests.AddRemoteRDSNode(t, pmmapitests.TestString(t, "Remote node for RDS exporter")).NodeID
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
-		node := addRemoteRDSNode(t, pmmapitests.TestString(t, "Remote node for RDS exporter"))
-		nodeID := node.RemoteRDS.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
-
-		rdsExporter := addAgent(t, agents.AddAgentBody{
+		rdsExporter := pmmapitests.AddAgent(t, agents.AddAgentBody{
 			RDSExporter: &agents.AddAgentParamsBodyRDSExporter{
 				NodeID:     nodeID,
 				PMMAgentID: pmmAgentID,
@@ -248,7 +218,6 @@ func TestRDSExporter(t *testing.T) {
 			},
 		})
 		agentID := rdsExporter.RDSExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(
 			&agents.GetAgentParams{
@@ -337,19 +306,11 @@ func TestRDSExporter(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
-
-		node := addRemoteRDSNode(t, pmmapitests.TestString(t, "Remote RDS node for credential rotation test"))
-		nodeID := node.RemoteRDS.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		nodeID := pmmapitests.AddRemoteRDSNode(t, pmmapitests.TestString(t, "Remote RDS node for credential rotation test")).NodeID
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
 		// Create RDS Exporter with initial AWS credentials
-		rdsExporter := addAgent(t, agents.AddAgentBody{
+		rdsExporter := pmmapitests.AddAgent(t, agents.AddAgentBody{
 			RDSExporter: &agents.AddAgentParamsBodyRDSExporter{
 				NodeID:       nodeID,
 				PMMAgentID:   pmmAgentID,
@@ -363,7 +324,6 @@ func TestRDSExporter(t *testing.T) {
 			},
 		})
 		agentID := rdsExporter.RDSExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
 
 		// Test AWS secret key rotation
 		changeRDSExporterOK, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
@@ -405,19 +365,11 @@ func TestRDSExporter(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
-
-		node := addRemoteRDSNode(t, pmmapitests.TestString(t, "Remote RDS node for partial update test"))
-		nodeID := node.RemoteRDS.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		nodeID := pmmapitests.AddRemoteRDSNode(t, pmmapitests.TestString(t, "Remote RDS node for partial update test")).NodeID
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
 		// Create RDS Exporter with comprehensive initial configuration
-		rdsExporter := addAgent(t, agents.AddAgentBody{
+		rdsExporter := pmmapitests.AddAgent(t, agents.AddAgentBody{
 			RDSExporter: &agents.AddAgentParamsBodyRDSExporter{
 				NodeID:                 nodeID,
 				PMMAgentID:             pmmAgentID,
@@ -436,7 +388,6 @@ func TestRDSExporter(t *testing.T) {
 			},
 		})
 		agentID := rdsExporter.RDSExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
 
 		// Change only log level, verify all other fields remain unchanged
 		_, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
@@ -479,19 +430,11 @@ func TestRDSExporter(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
-
-		node := addRemoteRDSNode(t, pmmapitests.TestString(t, "Remote RDS node for change all fields test"))
-		nodeID := node.RemoteRDS.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		nodeID := pmmapitests.AddRemoteRDSNode(t, pmmapitests.TestString(t, "Remote RDS node for change all fields test")).NodeID
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
 		// Create RDS Exporter with initial configuration
-		rdsExporter := addAgent(t, agents.AddAgentBody{
+		rdsExporter := pmmapitests.AddAgent(t, agents.AddAgentBody{
 			RDSExporter: &agents.AddAgentParamsBodyRDSExporter{
 				NodeID:                 nodeID,
 				PMMAgentID:             pmmAgentID,
@@ -509,7 +452,6 @@ func TestRDSExporter(t *testing.T) {
 			},
 		})
 		agentID := rdsExporter.RDSExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
 
 		// Change ALL available fields at once
 		changeRDSExporterOK, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{

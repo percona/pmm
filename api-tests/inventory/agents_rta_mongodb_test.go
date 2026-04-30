@@ -36,14 +36,11 @@ func TestRTAMongoDBAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for RTA MongoDB Agent")).NodeID
-		t.Cleanup(func() {
-			pmmapitests.RemoveNodes(t, genericNodeID)
-		})
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Mongodb: &services.AddServiceParamsBodyMongodb{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        27017,
 				ServiceName: pmmapitests.TestString(t, "MongoDB Service for RTA Profiler Agent test"),
 			},
@@ -53,37 +50,29 @@ func TestRTAMongoDBAgent(t *testing.T) {
 			pmmapitests.RemoveServices(t, serviceID)
 		})
 
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
+
 		t.Cleanup(func() {
 			pmmapitests.RemoveAgents(t, pmmAgentID)
 		})
 
-		res, err := client.Default.AgentsService.AddAgent(
-			&agents.AddAgentParams{
-				Body: agents.AddAgentBody{
-					RtaMongodbAgent: &agents.AddAgentParamsBodyRtaMongodbAgent{
-						ServiceID:  serviceID,
-						Username:   "username",
-						Password:   "password",
-						PMMAgentID: pmmAgentID,
-						CustomLabels: map[string]string{
-							"new_label": "RTAMongodbAgent",
-						},
-						RtaOptions: &agents.AddAgentParamsBodyRtaMongodbAgentRtaOptions{
-							CollectInterval: "5s",
-						},
-
-						SkipConnectionCheck: true,
-					},
+		res := pmmapitests.AddAgent(t, agents.AddAgentBody{
+			RtaMongodbAgent: &agents.AddAgentParamsBodyRtaMongodbAgent{
+				ServiceID:  serviceID,
+				Username:   "username",
+				Password:   "password",
+				PMMAgentID: pmmAgentID,
+				CustomLabels: map[string]string{
+					"new_label": "RTAMongodbAgent",
 				},
-				Context: pmmapitests.Context,
-			})
-		require.NoError(t, err)
-		agentID := res.Payload.RtaMongodbAgent.AgentID
-		t.Cleanup(func() {
-			pmmapitests.RemoveAgents(t, agentID)
+				RtaOptions: &agents.AddAgentParamsBodyRtaMongodbAgentRtaOptions{
+					CollectInterval: "5s",
+				},
+
+				SkipConnectionCheck: true,
+			},
 		})
+		agentID := res.RtaMongodbAgent.AgentID
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			AgentID: agentID,
@@ -184,47 +173,29 @@ func TestRTAMongoDBAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for RTA MongoDB password rotation")).NodeID
-		t.Cleanup(func() {
-			pmmapitests.RemoveNodes(t, genericNodeID)
-		})
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Mongodb: &services.AddServiceParamsBodyMongodb{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        27017,
 				ServiceName: pmmapitests.TestString(t, "MongoDB Service for RTA password rotation test"),
 			},
 		})
 		serviceID := service.Mongodb.ServiceID
-		t.Cleanup(func() {
-			pmmapitests.RemoveServices(t, serviceID)
-		})
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		t.Cleanup(func() {
-			pmmapitests.RemoveAgents(t, pmmAgentID)
-		})
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
 		// Create RTA MongoDB agent with initial credentials
-		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
-			Body: agents.AddAgentBody{
-				RtaMongodbAgent: &agents.AddAgentParamsBodyRtaMongodbAgent{
-					ServiceID:           serviceID,
-					Username:            "initial-rta-mongodb-user",
-					Password:            "initial-rta-mongodb-password",
-					PMMAgentID:          pmmAgentID,
-					SkipConnectionCheck: true,
-				},
+		res := pmmapitests.AddAgent(t, agents.AddAgentBody{
+			RtaMongodbAgent: &agents.AddAgentParamsBodyRtaMongodbAgent{
+				ServiceID:           serviceID,
+				Username:            "initial-rta-mongodb-user",
+				Password:            "initial-rta-mongodb-password",
+				PMMAgentID:          pmmAgentID,
+				SkipConnectionCheck: true,
 			},
-			Context: pmmapitests.Context,
 		})
-		require.NoError(t, err)
-		agentID := res.Payload.RtaMongodbAgent.AgentID
-		t.Cleanup(func() {
-			pmmapitests.RemoveAgents(t, agentID)
-		})
+		agentID := res.RtaMongodbAgent.AgentID
 
 		// Test password rotation
 		changeRTAAgentOK, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
@@ -267,61 +238,43 @@ func TestRTAMongoDBAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for RTA MongoDB partial update")).NodeID
-		t.Cleanup(func() {
-			pmmapitests.RemoveNodes(t, genericNodeID)
-		})
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Mongodb: &services.AddServiceParamsBodyMongodb{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        27017,
 				ServiceName: pmmapitests.TestString(t, "MongoDB Service for RTA partial update test"),
 			},
 		})
 		serviceID := service.Mongodb.ServiceID
-		t.Cleanup(func() {
-			pmmapitests.RemoveServices(t, serviceID)
-		})
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		t.Cleanup(func() {
-			pmmapitests.RemoveAgents(t, pmmAgentID)
-		})
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
 		// Create RTA MongoDB Profiler agent with comprehensive initial configuration
-		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
-			Body: agents.AddAgentBody{
-				RtaMongodbAgent: &agents.AddAgentParamsBodyRtaMongodbAgent{
-					ServiceID:               serviceID,
-					Username:                "initial-rta-user",
-					Password:                "initial-rta-password",
-					PMMAgentID:              pmmAgentID,
-					TLS:                     true,
-					TLSSkipVerify:           false,
-					AuthenticationMechanism: "MONGODB-CR",
-					CustomLabels: map[string]string{
-						"environment": "test",
-						"team":        "dev",
-					},
-					RtaOptions: &agents.AddAgentParamsBodyRtaMongodbAgentRtaOptions{
-						CollectInterval: "6s",
-					},
-					LogLevel:            pointer.ToString("LOG_LEVEL_DEBUG"),
-					SkipConnectionCheck: true,
+		res := pmmapitests.AddAgent(t, agents.AddAgentBody{
+			RtaMongodbAgent: &agents.AddAgentParamsBodyRtaMongodbAgent{
+				ServiceID:               serviceID,
+				Username:                "initial-rta-user",
+				Password:                "initial-rta-password",
+				PMMAgentID:              pmmAgentID,
+				TLS:                     true,
+				TLSSkipVerify:           false,
+				AuthenticationMechanism: "MONGODB-CR",
+				CustomLabels: map[string]string{
+					"environment": "test",
+					"team":        "dev",
 				},
+				RtaOptions: &agents.AddAgentParamsBodyRtaMongodbAgentRtaOptions{
+					CollectInterval: "6s",
+				},
+				LogLevel:            pointer.ToString("LOG_LEVEL_DEBUG"),
+				SkipConnectionCheck: true,
 			},
-			Context: pmmapitests.Context,
 		})
-		require.NoError(t, err)
-		agentID := res.Payload.RtaMongodbAgent.AgentID
-		t.Cleanup(func() {
-			pmmapitests.RemoveAgents(t, agentID)
-		})
+		agentID := res.RtaMongodbAgent.AgentID
 
 		// Change only username, verify all other fields remain unchanged
-		_, err = client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+		_, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				RtaMongodbAgent: &agents.ChangeAgentParamsBodyRtaMongodbAgent{
@@ -356,57 +309,39 @@ func TestRTAMongoDBAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for RTA MongoDB change all fields")).NodeID
-		t.Cleanup(func() {
-			pmmapitests.RemoveNodes(t, genericNodeID)
-		})
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Mongodb: &services.AddServiceParamsBodyMongodb{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        27017,
 				ServiceName: pmmapitests.TestString(t, "MongoDB Service for RTA Profiler change all fields test"),
 			},
 		})
 		serviceID := service.Mongodb.ServiceID
-		t.Cleanup(func() {
-			pmmapitests.RemoveServices(t, serviceID)
-		})
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		t.Cleanup(func() {
-			pmmapitests.RemoveAgents(t, pmmAgentID)
-		})
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
 		// Create RTA MongoDB Profiler agent with initial configuration
-		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
-			Body: agents.AddAgentBody{
-				RtaMongodbAgent: &agents.AddAgentParamsBodyRtaMongodbAgent{
-					ServiceID:     serviceID,
-					Username:      "initial-mongodb-user",
-					Password:      "initial-mongodb-password",
-					PMMAgentID:    pmmAgentID,
-					TLS:           false,
-					TLSSkipVerify: true,
-					CustomLabels: map[string]string{
-						"environment": "staging",
-						"version":     "1.0",
-					},
-					RtaOptions: &agents.AddAgentParamsBodyRtaMongodbAgentRtaOptions{
-						CollectInterval: "6s",
-					},
-					LogLevel:            pointer.ToString("LOG_LEVEL_WARN"),
-					SkipConnectionCheck: true,
+		res := pmmapitests.AddAgent(t, agents.AddAgentBody{
+			RtaMongodbAgent: &agents.AddAgentParamsBodyRtaMongodbAgent{
+				ServiceID:     serviceID,
+				Username:      "initial-mongodb-user",
+				Password:      "initial-mongodb-password",
+				PMMAgentID:    pmmAgentID,
+				TLS:           false,
+				TLSSkipVerify: true,
+				CustomLabels: map[string]string{
+					"environment": "staging",
+					"version":     "1.0",
 				},
+				RtaOptions: &agents.AddAgentParamsBodyRtaMongodbAgentRtaOptions{
+					CollectInterval: "6s",
+				},
+				LogLevel:            pointer.ToString("LOG_LEVEL_WARN"),
+				SkipConnectionCheck: true,
 			},
-			Context: pmmapitests.Context,
 		})
-		require.NoError(t, err)
-		agentID := res.Payload.RtaMongodbAgent.AgentID
-		t.Cleanup(func() {
-			pmmapitests.RemoveAgents(t, agentID)
-		})
+		agentID := res.RtaMongodbAgent.AgentID
 
 		// Change ALL available fields at once
 		changeRTAAgentOK, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
@@ -492,15 +427,7 @@ func TestRTAMongoDBAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for RTA Agent")).NodeID
-		t.Cleanup(func() {
-			pmmapitests.RemoveNodes(t, genericNodeID)
-		})
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		t.Cleanup(func() {
-			pmmapitests.RemoveAgents(t, pmmAgentID)
-		})
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
 		res, err := client.Default.AgentsService.AddAgent(
 			&agents.AddAgentParams{
@@ -527,22 +454,16 @@ func TestRTAMongoDBAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for RTA Agent")).NodeID
-		t.Cleanup(func() {
-			pmmapitests.RemoveNodes(t, genericNodeID)
-		})
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Mongodb: &services.AddServiceParamsBodyMongodb{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        27017,
 				ServiceName: pmmapitests.TestString(t, "MongoDB Service for RTA agent"),
 			},
 		})
 		serviceID := service.Mongodb.ServiceID
-		t.Cleanup(func() {
-			pmmapitests.RemoveServices(t, serviceID)
-		})
 
 		res, err := client.Default.AgentsService.AddAgent(
 			&agents.AddAgentParams{
@@ -568,15 +489,7 @@ func TestRTAMongoDBAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for RTA Agent")).NodeID
-		t.Cleanup(func() {
-			pmmapitests.RemoveNodes(t, genericNodeID)
-		})
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		t.Cleanup(func() {
-			pmmapitests.RemoveAgents(t, pmmAgentID)
-		})
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
 		res, err := client.Default.AgentsService.AddAgent(
 			&agents.AddAgentParams{
@@ -601,22 +514,16 @@ func TestRTAMongoDBAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for RTA Agent")).NodeID
-		t.Cleanup(func() {
-			pmmapitests.RemoveNodes(t, genericNodeID)
-		})
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Mongodb: &services.AddServiceParamsBodyMongodb{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        27017,
 				ServiceName: pmmapitests.TestString(t, "MongoDB Service for not exists node ID"),
 			},
 		})
 		serviceID := service.Mongodb.ServiceID
-		t.Cleanup(func() {
-			pmmapitests.RemoveServices(t, serviceID)
-		})
 
 		res, err := client.Default.AgentsService.AddAgent(
 			&agents.AddAgentParams{

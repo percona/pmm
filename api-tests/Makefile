@@ -28,9 +28,9 @@ PMM_RUN_ADVISOR_TESTS ?= 0
 .PHONY: help guard-% init $(TEST_BINARY_TARGETS) $(RUN_TEST_TARGETS)
 .PHONY: test-server-settings test test-report clean docker-build-image docker-run-tests
 
-help: ## Show available targets
-	@echo "Available targets: $(TARGETS)"
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+help: ## Display this help message
+	@echo "Please use \`make <target>\`, where <target> is one of the following:"
+	@grep -h '^[a-zA-Z]' $(MAKEFILE_LIST) | awk -F ':.*## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
 
 guard-%:
 	@[ -n "${$*}" ] || (echo "ERROR: $* is not set"; exit 1)
@@ -40,8 +40,8 @@ $(TEST_BINARY_TARGETS): ## Build test binaries
 	echo "-> Building test binary for dir: $$dir"; \
 	go test -c -v -race -o $(BIN_DIR)/$@ $(CURDIR)/$$dir
 
-init: $(TEST_BINARY_TARGETS) ## Installs development tools
-	@echo "-> Installing tools"
+init: $(TEST_BINARY_TARGETS) ## Build tests and install development tools
+	@echo "-> Installing tools MAKEFLAGS: $(MAKEFLAGS)"
 	cd tools && go generate -x -tags=tools
 
 $(RUN_TEST_TARGETS):
@@ -62,7 +62,7 @@ test: guard-PMM_SERVER_URL $(RUN_TEST_TARGETS) ## Run tests
 
 test-report: test ## Run tests and generate JUnit report
 	cat $(CURDIR)/$(TEST_OUTPUT_PREFIX)-*.txt | $(BIN_DIR)/go-junit-report > $(REPORT_OUT)
-	@echo "✅ Report is generated: $(REPORT_OUT)."
+	@echo "✅ Report generated: $(REPORT_OUT)."
 
 clean:	## Cleanup reports
 	rm -f $(CURDIR)/pmm-api-tests-*.txt

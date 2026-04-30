@@ -8,13 +8,13 @@ Make sure you have the latest Go version installed on your systems, execute the 
 to set up API-tests in your local systems.
 
 1. Run PMM Server. This can be done by running `make env-up` in the root (`pmm`) directory.
-2. Replace `$PMM_SERVER_URL` with a URL in format `https://USERNAME:PASSWORD@HOST`. For local development it's usually `http://admin:admin@127.0.0.1`.
+2. Replace `$PMM_SERVER_URL` with a URL in format `https://USERNAME:PASSWORD@HOST`. For local development it's usually `https://admin:admin@127.0.0.1`.
 
 # Usage
 
 Precompile tests using the following command:
 ```
-make -j4 init
+make init
 ```
 
 Run the tests using the following command:

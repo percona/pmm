@@ -36,7 +36,7 @@ import (
 func TestScheduleBackup(t *testing.T) {
 	t.Run("mongo", func(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-for-basic-name")
-		nodeID, pmmAgentID := management.RegisterGenericNode(t, mservice.RegisterNodeBody{
+		nodeID, pmmAgentID := management.RegisterNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
 			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})

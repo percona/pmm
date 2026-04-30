@@ -35,43 +35,33 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for QAN MongoDB Profiler Agent")).NodeID
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Mongodb: &services.AddServiceParamsBodyMongodb{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        27017,
 				ServiceName: pmmapitests.TestString(t, "MongoDB Service for QAN Profiler Agent test"),
 			},
 		})
 		serviceID := service.Mongodb.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
 
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
-		res, err := client.Default.AgentsService.AddAgent(
-			&agents.AddAgentParams{
-				Body: agents.AddAgentBody{
-					QANMongodbProfilerAgent: &agents.AddAgentParamsBodyQANMongodbProfilerAgent{
-						ServiceID:  serviceID,
-						Username:   "username",
-						Password:   "password",
-						PMMAgentID: pmmAgentID,
-						CustomLabels: map[string]string{
-							"new_label": "QANMongodbProfilerAgent",
-						},
-
-						SkipConnectionCheck: true,
-					},
+		res := pmmapitests.AddAgent(t, agents.AddAgentBody{
+			QANMongodbProfilerAgent: &agents.AddAgentParamsBodyQANMongodbProfilerAgent{
+				ServiceID:  serviceID,
+				Username:   "username",
+				Password:   "password",
+				PMMAgentID: pmmAgentID,
+				CustomLabels: map[string]string{
+					"new_label": "QANMongodbProfilerAgent",
 				},
-				Context: pmmapitests.Context,
-			})
-		require.NoError(t, err)
-		agentID := res.Payload.QANMongodbProfilerAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
+
+				SkipConnectionCheck: true,
+			},
+		})
+		agentID := res.QANMongodbProfilerAgent.AgentID
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			AgentID: agentID,
@@ -160,39 +150,30 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for QAN MongoDB Profiler password rotation")).NodeID
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Mongodb: &services.AddServiceParamsBodyMongodb{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        27017,
 				ServiceName: pmmapitests.TestString(t, "MongoDB Service for QAN Profiler password rotation test"),
 			},
 		})
 		serviceID := service.Mongodb.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
 
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
 		// Create QAN MongoDB Profiler agent with initial credentials
-		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
-			Body: agents.AddAgentBody{
-				QANMongodbProfilerAgent: &agents.AddAgentParamsBodyQANMongodbProfilerAgent{
-					ServiceID:           serviceID,
-					Username:            "initial-mongodb-profiler-user",
-					Password:            "initial-mongodb-profiler-password",
-					PMMAgentID:          pmmAgentID,
-					SkipConnectionCheck: true,
-				},
+		res := pmmapitests.AddAgent(t, agents.AddAgentBody{
+			QANMongodbProfilerAgent: &agents.AddAgentParamsBodyQANMongodbProfilerAgent{
+				ServiceID:           serviceID,
+				Username:            "initial-mongodb-profiler-user",
+				Password:            "initial-mongodb-profiler-password",
+				PMMAgentID:          pmmAgentID,
+				SkipConnectionCheck: true,
 			},
-			Context: pmmapitests.Context,
 		})
-		require.NoError(t, err)
-		agentID := res.Payload.QANMongodbProfilerAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
+		agentID := res.QANMongodbProfilerAgent.AgentID
 
 		// Test password rotation
 		changeQANAgentOK, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
@@ -235,52 +216,42 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for QAN MongoDB Profiler partial update")).NodeID
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Mongodb: &services.AddServiceParamsBodyMongodb{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        27017,
 				ServiceName: pmmapitests.TestString(t, "MongoDB Service for QAN Profiler partial update test"),
 			},
 		})
 		serviceID := service.Mongodb.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
 		// Create QAN MongoDB Profiler agent with comprehensive initial configuration
-		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
-			Body: agents.AddAgentBody{
-				QANMongodbProfilerAgent: &agents.AddAgentParamsBodyQANMongodbProfilerAgent{
-					ServiceID:               serviceID,
-					Username:                "initial-profiler-user",
-					Password:                "initial-profiler-password",
-					PMMAgentID:              pmmAgentID,
-					MaxQueryLength:          2048,
-					TLS:                     true,
-					TLSSkipVerify:           false,
-					AuthenticationMechanism: "MONGODB-CR",
-					AuthenticationDatabase:  "admin",
-					CustomLabels: map[string]string{
-						"environment": "test",
-						"team":        "dev",
-					},
-					LogLevel:            pointer.ToString("LOG_LEVEL_DEBUG"),
-					SkipConnectionCheck: true,
+		res := pmmapitests.AddAgent(t, agents.AddAgentBody{
+			QANMongodbProfilerAgent: &agents.AddAgentParamsBodyQANMongodbProfilerAgent{
+				ServiceID:               serviceID,
+				Username:                "initial-profiler-user",
+				Password:                "initial-profiler-password",
+				PMMAgentID:              pmmAgentID,
+				MaxQueryLength:          2048,
+				TLS:                     true,
+				TLSSkipVerify:           false,
+				AuthenticationMechanism: "MONGODB-CR",
+				AuthenticationDatabase:  "admin",
+				CustomLabels: map[string]string{
+					"environment": "test",
+					"team":        "dev",
 				},
+				LogLevel:            pointer.ToString("LOG_LEVEL_DEBUG"),
+				SkipConnectionCheck: true,
 			},
-			Context: pmmapitests.Context,
 		})
-		require.NoError(t, err)
-		agentID := res.Payload.QANMongodbProfilerAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
+		agentID := res.QANMongodbProfilerAgent.AgentID
 
 		// Change only username, verify all other fields remain unchanged
-		_, err = client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+		_, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				QANMongodbProfilerAgent: &agents.ChangeAgentParamsBodyQANMongodbProfilerAgent{
@@ -315,47 +286,38 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for QAN MongoDB Profiler change all fields")).NodeID
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Mongodb: &services.AddServiceParamsBodyMongodb{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        27017,
 				ServiceName: pmmapitests.TestString(t, "MongoDB Service for QAN Profiler change all fields test"),
 			},
 		})
 		serviceID := service.Mongodb.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
 
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
 		// Create QAN MongoDB Profiler agent with initial configuration
-		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
-			Body: agents.AddAgentBody{
-				QANMongodbProfilerAgent: &agents.AddAgentParamsBodyQANMongodbProfilerAgent{
-					ServiceID:      serviceID,
-					Username:       "initial-mongodb-user",
-					Password:       "initial-mongodb-password",
-					PMMAgentID:     pmmAgentID,
-					MaxQueryLength: 1024,
-					TLS:            false,
-					TLSSkipVerify:  true,
-					CustomLabels: map[string]string{
-						"environment": "staging",
-						"version":     "1.0",
-					},
-					LogLevel:            pointer.ToString("LOG_LEVEL_WARN"),
-					SkipConnectionCheck: true,
+		res := pmmapitests.AddAgent(t, agents.AddAgentBody{
+			QANMongodbProfilerAgent: &agents.AddAgentParamsBodyQANMongodbProfilerAgent{
+				ServiceID:      serviceID,
+				Username:       "initial-mongodb-user",
+				Password:       "initial-mongodb-password",
+				PMMAgentID:     pmmAgentID,
+				MaxQueryLength: 1024,
+				TLS:            false,
+				TLSSkipVerify:  true,
+				CustomLabels: map[string]string{
+					"environment": "staging",
+					"version":     "1.0",
 				},
+				LogLevel:            pointer.ToString("LOG_LEVEL_WARN"),
+				SkipConnectionCheck: true,
 			},
-			Context: pmmapitests.Context,
 		})
-		require.NoError(t, err)
-		agentID := res.Payload.QANMongodbProfilerAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
+		agentID := res.QANMongodbProfilerAgent.AgentID
 
 		// Change ALL available fields at once
 		changeQANAgentOK, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
@@ -435,11 +397,7 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for QAN Profiler Agent")).NodeID
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
 		res, err := client.Default.AgentsService.AddAgent(
 			&agents.AddAgentParams{
@@ -466,18 +424,16 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for QAN Profiler Agent")).NodeID
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Mongodb: &services.AddServiceParamsBodyMongodb{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        27017,
 				ServiceName: pmmapitests.TestString(t, "MongoDB Service for agent"),
 			},
 		})
 		serviceID := service.Mongodb.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
 
 		res, err := client.Default.AgentsService.AddAgent(
 			&agents.AddAgentParams{
@@ -503,11 +459,7 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for QAN Profiler Agent")).NodeID
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
 		res, err := client.Default.AgentsService.AddAgent(
 			&agents.AddAgentParams{
@@ -532,18 +484,16 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for QAN Profiler Agent")).NodeID
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Mongodb: &services.AddServiceParamsBodyMongodb{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        27017,
 				ServiceName: pmmapitests.TestString(t, "MongoDB Service for not exists node ID"),
 			},
 		})
 		serviceID := service.Mongodb.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
 
 		res, err := client.Default.AgentsService.AddAgent(
 			&agents.AddAgentParams{

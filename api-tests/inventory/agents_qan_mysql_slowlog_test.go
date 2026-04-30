@@ -35,43 +35,32 @@ func TestQANMySQLSlowlogAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for QAN MySQL Slowlog Agent")).NodeID
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Mysql: &services.AddServiceParamsBodyMysql{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        3306,
 				ServiceName: pmmapitests.TestString(t, "MySQL Service for QAN Slowlog Agent test"),
 			},
 		})
 		serviceID := service.Mysql.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
-
-		res, err := client.Default.AgentsService.AddAgent(
-			&agents.AddAgentParams{
-				Body: agents.AddAgentBody{
-					QANMysqlSlowlogAgent: &agents.AddAgentParamsBodyQANMysqlSlowlogAgent{
-						ServiceID:  serviceID,
-						Username:   "username",
-						Password:   "password",
-						PMMAgentID: pmmAgentID,
-						CustomLabels: map[string]string{
-							"new_label": "QANMysqlSlowlogAgent",
-						},
-
-						SkipConnectionCheck: true,
-					},
+		res := pmmapitests.AddAgent(t, agents.AddAgentBody{
+			QANMysqlSlowlogAgent: &agents.AddAgentParamsBodyQANMysqlSlowlogAgent{
+				ServiceID:  serviceID,
+				Username:   "username",
+				Password:   "password",
+				PMMAgentID: pmmAgentID,
+				CustomLabels: map[string]string{
+					"new_label": "QANMysqlSlowlogAgent",
 				},
-				Context: pmmapitests.Context,
-			})
-		require.NoError(t, err)
-		agentID := res.Payload.QANMysqlSlowlogAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
+
+				SkipConnectionCheck: true,
+			},
+		})
+		agentID := res.QANMysqlSlowlogAgent.AgentID
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			AgentID: agentID,
@@ -166,39 +155,30 @@ func TestQANMySQLSlowlogAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for QAN MySQL Slowlog password rotation")).NodeID
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Mysql: &services.AddServiceParamsBodyMysql{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        3306,
 				ServiceName: pmmapitests.TestString(t, "MySQL Service for QAN Slowlog password rotation test"),
 			},
 		})
 		serviceID := service.Mysql.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
 
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
 		// Create QAN MySQL Slowlog agent with initial credentials
-		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
-			Body: agents.AddAgentBody{
-				QANMysqlSlowlogAgent: &agents.AddAgentParamsBodyQANMysqlSlowlogAgent{
-					ServiceID:           serviceID,
-					Username:            "initial-mysql-slowlog-user",
-					Password:            "initial-mysql-slowlog-password",
-					PMMAgentID:          pmmAgentID,
-					SkipConnectionCheck: true,
-				},
+		res := pmmapitests.AddAgent(t, agents.AddAgentBody{
+			QANMysqlSlowlogAgent: &agents.AddAgentParamsBodyQANMysqlSlowlogAgent{
+				ServiceID:           serviceID,
+				Username:            "initial-mysql-slowlog-user",
+				Password:            "initial-mysql-slowlog-password",
+				PMMAgentID:          pmmAgentID,
+				SkipConnectionCheck: true,
 			},
-			Context: pmmapitests.Context,
 		})
-		require.NoError(t, err)
-		agentID := res.Payload.QANMysqlSlowlogAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
+		agentID := res.QANMysqlSlowlogAgent.AgentID
 
 		// Test password rotation
 		changeQANAgentOK, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
@@ -241,52 +221,42 @@ func TestQANMySQLSlowlogAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for QAN MySQL Slowlog partial update")).NodeID
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Mysql: &services.AddServiceParamsBodyMysql{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        3306,
 				ServiceName: pmmapitests.TestString(t, "MySQL Service for QAN Slowlog partial update test"),
 			},
 		})
 		serviceID := service.Mysql.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
 		// Create QAN MySQL Slowlog agent with comprehensive initial configuration
-		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
-			Body: agents.AddAgentBody{
-				QANMysqlSlowlogAgent: &agents.AddAgentParamsBodyQANMysqlSlowlogAgent{
-					ServiceID:            serviceID,
-					Username:             "initial-slowlog-user",
-					Password:             "initial-slowlog-password",
-					PMMAgentID:           pmmAgentID,
-					MaxQueryLength:       1024,
-					DisableQueryExamples: true,
-					TLS:                  true,
-					TLSSkipVerify:        false,
-					CustomLabels: map[string]string{
-						"environment": "test",
-						"team":        "dev",
-					},
-					LogLevel:               pointer.ToString("LOG_LEVEL_INFO"),
-					SkipConnectionCheck:    true,
-					DisableCommentsParsing: true,
+		res := pmmapitests.AddAgent(t, agents.AddAgentBody{
+			QANMysqlSlowlogAgent: &agents.AddAgentParamsBodyQANMysqlSlowlogAgent{
+				ServiceID:            serviceID,
+				Username:             "initial-slowlog-user",
+				Password:             "initial-slowlog-password",
+				PMMAgentID:           pmmAgentID,
+				MaxQueryLength:       1024,
+				DisableQueryExamples: true,
+				TLS:                  true,
+				TLSSkipVerify:        false,
+				CustomLabels: map[string]string{
+					"environment": "test",
+					"team":        "dev",
 				},
+				LogLevel:               pointer.ToString("LOG_LEVEL_INFO"),
+				SkipConnectionCheck:    true,
+				DisableCommentsParsing: true,
 			},
-			Context: pmmapitests.Context,
 		})
-		require.NoError(t, err)
-		agentID := res.Payload.QANMysqlSlowlogAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
+		agentID := res.QANMysqlSlowlogAgent.AgentID
 
 		// Change only username, verify all other fields remain unchanged
-		_, err = client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+		_, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				QANMysqlSlowlogAgent: &agents.ChangeAgentParamsBodyQANMysqlSlowlogAgent{
@@ -323,50 +293,41 @@ func TestQANMySQLSlowlogAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for QAN MySQL Slowlog change all fields")).NodeID
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Mysql: &services.AddServiceParamsBodyMysql{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        3306,
 				ServiceName: pmmapitests.TestString(t, "MySQL Service for QAN Slowlog change all fields test"),
 			},
 		})
 		serviceID := service.Mysql.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
 
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
 		// Create QAN MySQL Slowlog agent with initial configuration
-		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
-			Body: agents.AddAgentBody{
-				QANMysqlSlowlogAgent: &agents.AddAgentParamsBodyQANMysqlSlowlogAgent{
-					ServiceID:            serviceID,
-					Username:             "initial-slowlog-user",
-					Password:             "initial-slowlog-password",
-					PMMAgentID:           pmmAgentID,
-					MaxQueryLength:       512,
-					DisableQueryExamples: false,
-					TLS:                  false,
-					TLSSkipVerify:        true,
-					MaxSlowlogFileSize:   "1024",
-					CustomLabels: map[string]string{
-						"environment": "staging",
-						"version":     "1.0",
-					},
-					LogLevel:               pointer.ToString("LOG_LEVEL_WARN"),
-					SkipConnectionCheck:    true,
-					DisableCommentsParsing: false,
+		res := pmmapitests.AddAgent(t, agents.AddAgentBody{
+			QANMysqlSlowlogAgent: &agents.AddAgentParamsBodyQANMysqlSlowlogAgent{
+				ServiceID:            serviceID,
+				Username:             "initial-slowlog-user",
+				Password:             "initial-slowlog-password",
+				PMMAgentID:           pmmAgentID,
+				MaxQueryLength:       512,
+				DisableQueryExamples: false,
+				TLS:                  false,
+				TLSSkipVerify:        true,
+				MaxSlowlogFileSize:   "1024",
+				CustomLabels: map[string]string{
+					"environment": "staging",
+					"version":     "1.0",
 				},
+				LogLevel:               pointer.ToString("LOG_LEVEL_WARN"),
+				SkipConnectionCheck:    true,
+				DisableCommentsParsing: false,
 			},
-			Context: pmmapitests.Context,
 		})
-		require.NoError(t, err)
-		agentID := res.Payload.QANMysqlSlowlogAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
+		agentID := res.QANMysqlSlowlogAgent.AgentID
 
 		// Change ALL available fields at once
 		changeQANAgentOK, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
@@ -457,11 +418,7 @@ func TestQANMySQLSlowlogAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for QAN Slowlog Agent")).NodeID
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
 		res, err := client.Default.AgentsService.AddAgent(
 			&agents.AddAgentParams{
@@ -487,18 +444,16 @@ func TestQANMySQLSlowlogAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for QAN Slowlog Agent")).NodeID
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Mysql: &services.AddServiceParamsBodyMysql{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        3306,
 				ServiceName: pmmapitests.TestString(t, "MySQL Service for agent"),
 			},
 		})
 		serviceID := service.Mysql.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
 
 		res, err := client.Default.AgentsService.AddAgent(
 			&agents.AddAgentParams{
@@ -524,11 +479,7 @@ func TestQANMySQLSlowlogAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for QAN Slowlog Agent")).NodeID
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
 		res, err := client.Default.AgentsService.AddAgent(
 			&agents.AddAgentParams{
@@ -552,18 +503,16 @@ func TestQANMySQLSlowlogAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for QAN Slowlog Agent")).NodeID
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Mysql: &services.AddServiceParamsBodyMysql{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        3306,
 				ServiceName: pmmapitests.TestString(t, "MySQL Service for not exists node ID"),
 			},
 		})
 		serviceID := service.Mysql.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
 
 		res, err := client.Default.AgentsService.AddAgent(
 			&agents.AddAgentParams{

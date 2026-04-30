@@ -45,7 +45,6 @@ func TestNodes(t *testing.T) {
 			},
 		})
 		remoteNodeID := remoteNode.Remote.NodeID
-		t.Cleanup(func() { pmmapitests.RemoveNodes(t, remoteNodeID) })
 
 		genericNode := pmmapitests.AddNode(t, &nodes.AddNodeBody{
 			Generic: &nodes.AddNodeParamsBodyGeneric{
@@ -54,8 +53,6 @@ func TestNodes(t *testing.T) {
 			},
 		})
 		genericNodeID := genericNode.Generic.NodeID
-		require.NotEmpty(t, genericNodeID)
-		t.Cleanup(func() { pmmapitests.RemoveNodes(t, genericNodeID) })
 
 		res, err := client.Default.NodesService.ListNodes(nil)
 		require.NoError(t, err)
@@ -110,16 +107,20 @@ func TestGetNode(t *testing.T) {
 		t.Parallel()
 
 		nodeName := pmmapitests.TestString(t, "TestGenericNode")
-		nodeID := pmmapitests.AddGenericNode(t, nodeName).NodeID
-		require.NotEmpty(t, nodeID)
-		defer pmmapitests.RemoveNodes(t, nodeID)
+		address := pmmapitests.TestString(t, "10.10.10.10")
+		nodeID := pmmapitests.AddNode(t, &nodes.AddNodeBody{
+			Generic: &nodes.AddNodeParamsBodyGeneric{
+				NodeName: nodeName,
+				Address:  address,
+			},
+		}).Generic.NodeID
 
 		expectedResponse := nodes.GetNodeOK{
 			Payload: &nodes.GetNodeOKBody{
 				Generic: &nodes.GetNodeOKBodyGeneric{
 					NodeID:       nodeID,
 					NodeName:     nodeName,
-					Address:      "10.10.10.10",
+					Address:      address,
 					CustomLabels: map[string]string{},
 				},
 			},
@@ -165,11 +166,12 @@ func TestGenericNode(t *testing.T) {
 		t.Parallel()
 
 		nodeName := pmmapitests.TestString(t, "Test Generic Node")
+		address := pmmapitests.TestString(t, "10.10.10.10")
 		params := &nodes.AddNodeParams{
 			Body: nodes.AddNodeBody{
 				Generic: &nodes.AddNodeParamsBodyGeneric{
 					NodeName: nodeName,
-					Address:  "10.10.10.10",
+					Address:  address,
 				},
 			},
 			Context: pmmapitests.Context,
@@ -179,7 +181,9 @@ func TestGenericNode(t *testing.T) {
 		require.NotNil(t, res)
 		require.NotNil(t, res.Payload.Generic)
 		nodeID := res.Payload.Generic.NodeID
-		t.Cleanup(func() { pmmapitests.RemoveNodes(t, nodeID) })
+		t.Cleanup(func() {
+			pmmapitests.RemoveNodes(t, nodeID)
+		})
 
 		// Check that the node exists in DB.
 		getNodeRes, err := client.Default.NodesService.GetNode(&nodes.GetNodeParams{
@@ -192,7 +196,7 @@ func TestGenericNode(t *testing.T) {
 				Generic: &nodes.GetNodeOKBodyGeneric{
 					NodeID:       res.Payload.Generic.NodeID,
 					NodeName:     nodeName,
-					Address:      "10.10.10.10",
+					Address:      address,
 					CustomLabels: map[string]string{},
 				},
 			},
@@ -231,6 +235,7 @@ func TestContainerNode(t *testing.T) {
 		t.Parallel()
 
 		nodeName := pmmapitests.TestString(t, "Test Container Node")
+		address := pmmapitests.TestString(t, "10.10.10.10")
 		params := &nodes.AddNodeParams{
 			Body: nodes.AddNodeBody{
 				Container: &nodes.AddNodeParamsBodyContainer{
@@ -238,7 +243,7 @@ func TestContainerNode(t *testing.T) {
 					ContainerID:   "docker-id",
 					ContainerName: "docker-name",
 					MachineID:     "machine-id",
-					Address:       "10.10.1.10",
+					Address:       address,
 				},
 			},
 			Context: pmmapitests.Context,
@@ -247,7 +252,9 @@ func TestContainerNode(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, res.Payload.Container)
 		nodeID := res.Payload.Container.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
+		t.Cleanup(func() {
+			pmmapitests.RemoveNodes(t, nodeID)
+		})
 
 		// Check that the node exists in DB.
 		getNodeRes, err := client.Default.NodesService.GetNode(&nodes.GetNodeParams{
@@ -263,7 +270,7 @@ func TestContainerNode(t *testing.T) {
 					ContainerID:   "docker-id",
 					ContainerName: "docker-name",
 					MachineID:     "machine-id",
-					Address:       "10.10.1.10",
+					Address:       address,
 					CustomLabels:  map[string]string{},
 				},
 			},
@@ -302,13 +309,14 @@ func TestRemoteNode(t *testing.T) {
 		t.Parallel()
 
 		nodeName := pmmapitests.TestString(t, "Test Remote Node")
+		address := pmmapitests.TestString(t, "10.10.10.10")
 		params := &nodes.AddNodeParams{
 			Body: nodes.AddNodeBody{
 				Remote: &nodes.AddNodeParamsBodyRemote{
 					NodeName:     nodeName,
 					Az:           "eu",
 					Region:       "us-west",
-					Address:      "10.10.10.11",
+					Address:      address,
 					CustomLabels: map[string]string{"foo": "bar"},
 				},
 			},
@@ -318,7 +326,9 @@ func TestRemoteNode(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, res.Payload.Remote)
 		nodeID := res.Payload.Remote.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
+		t.Cleanup(func() {
+			pmmapitests.RemoveNodes(t, nodeID)
+		})
 
 		// Check node exists in DB.
 		getNodeRes, err := client.Default.NodesService.GetNode(&nodes.GetNodeParams{
@@ -333,7 +343,7 @@ func TestRemoteNode(t *testing.T) {
 					NodeName:     nodeName,
 					Az:           "eu",
 					Region:       "us-west",
-					Address:      "10.10.10.11",
+					Address:      address,
 					CustomLabels: map[string]string{"foo": "bar"},
 				},
 			},
@@ -372,14 +382,13 @@ func TestRemoveNode(t *testing.T) {
 		t.Parallel()
 
 		nodeName := pmmapitests.TestString(t, "Generic Node for basic remove test")
-		node := pmmapitests.AddNode(t,
+		nodeID := pmmapitests.AddNode(t,
 			&nodes.AddNodeBody{
 				Generic: &nodes.AddNodeParamsBodyGeneric{
 					NodeName: nodeName,
-					Address:  "10.10.10.1",
+					Address:  pmmapitests.TestString(t, "10.10.10.10"),
 				},
-			})
-		nodeID := node.Generic.NodeID
+			}).Generic.NodeID
 
 		removeResp, err := client.Default.NodesService.RemoveNode(&nodes.RemoveNodeParams{
 			NodeID:  nodeID,
@@ -397,16 +406,17 @@ func TestRemoveNode(t *testing.T) {
 			&nodes.AddNodeBody{
 				Generic: &nodes.AddNodeParamsBodyGeneric{
 					NodeName: nodeName,
-					Address:  "10.10.10.1",
+					Address:  pmmapitests.TestString(t, "10.10.10.10"),
 				},
 			},
 		)
 
 		serviceName := pmmapitests.TestString(t, "MySQL Service for agent")
-		service := addService(t, services.AddServiceBody{
+		serviceAddress := pmmapitests.TestString(t, "localhost")
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Mysql: &services.AddServiceParamsBodyMysql{
 				NodeID:      node.Generic.NodeID,
-				Address:     "localhost",
+				Address:     serviceAddress,
 				Port:        3306,
 				ServiceName: serviceName,
 			},
@@ -437,7 +447,7 @@ func TestRemoveNode(t *testing.T) {
 			{
 				NodeID:         node.Generic.NodeID,
 				ServiceID:      serviceID,
-				Address:        "localhost",
+				Address:        serviceAddress,
 				Port:           3306,
 				ServiceName:    serviceName,
 				CustomLabels:   map[string]string{},
@@ -487,7 +497,7 @@ func TestRemoveNode(t *testing.T) {
 			&nodes.AddNodeBody{
 				Generic: &nodes.AddNodeParamsBodyGeneric{
 					NodeName: nodeName,
-					Address:  "10.10.10.1",
+					Address:  pmmapitests.TestString(t, "10.10.10.1"),
 				},
 			},
 		)
