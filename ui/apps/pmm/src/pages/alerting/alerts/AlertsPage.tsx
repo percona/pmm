@@ -21,7 +21,6 @@ import {
   Typography,
 } from '@mui/material';
 import { paperClasses } from '@mui/material/Paper';
-import { Page } from 'components/page';
 import { useUser } from 'contexts/user';
 import { usePrometheusAlertRules } from 'hooks/api/usePrometheusAlertRules';
 import { TIME_FORMAT } from 'lib/constants';
