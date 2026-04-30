@@ -70,7 +70,7 @@ const ChatMessageBubble = memo<ChatMessageBubbleProps>(({
           ...(msg.role === 'user'
             ? { bgcolor: '#2d3748', color: 'text.primary' }
             : { bgcolor: 'rgba(255,255,255,0.05)', border: 1, borderColor: 'rgba(255,255,255,0.12)' }),
-          '& img': { maxWidth: '100%' },
+          '& img': { maxWidth: '100%', height: 'auto', display: 'block' },
           fontSize: '0.85rem',
         }}
       >

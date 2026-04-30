@@ -411,7 +411,7 @@ const GrafanaPanelImageInner: FC<{
   }
 
   return (
-    <Box sx={{ my: 1 }}>
+    <Box sx={{ my: 1, width: '100%', minWidth: 0, maxWidth: '100%' }}>
       <Box
         component="img"
         src={state.url}
@@ -419,14 +419,15 @@ const GrafanaPanelImageInner: FC<{
         loading="lazy"
         onClick={() => setIsZoomOpen(true)}
         sx={{
-          maxWidth: '100%',
-          maxHeight: 420,
-          width: 'auto',
-          height: 'auto',
-          borderRadius: 1,
           display: 'block',
+          width: '100%',
+          maxWidth: '100%',
+          height: 'auto',
+          maxHeight: 420,
+          borderRadius: 1,
           cursor: 'zoom-in',
           objectFit: 'contain',
+          boxSizing: 'border-box',
         }}
       />
       <Box sx={{ mt: 0.5, display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
@@ -498,6 +499,13 @@ export function getMarkdownComponents(content: string) {
   );
 
   return {
+    // Default <p> cannot contain block-level panel UI; browsers break the DOM and width
+    // constraints fail, so wide panel images overflow the chat bubble.
+    p: ({ children }: { children?: ReactNode }) => (
+      <Box component="div" sx={{ mb: 1.25, minWidth: 0, maxWidth: '100%' }}>
+        {children}
+      </Box>
+    ),
     code: ({
       inline,
       children,
@@ -593,7 +601,14 @@ export function getMarkdownComponents(content: string) {
         );
       }
 
-      return <Box component="img" src={src ? toSameOriginUrl(src) : undefined} alt={alt ?? ''} />;
+      return (
+        <Box
+          component="img"
+          src={src ? toSameOriginUrl(src) : undefined}
+          alt={alt ?? ''}
+          sx={{ display: 'block', maxWidth: '100%', height: 'auto' }}
+        />
+      );
     },
   };
 }
