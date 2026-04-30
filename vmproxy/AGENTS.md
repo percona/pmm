@@ -1,10 +1,7 @@
----
-applyTo: vmproxy/**
----
 # vmproxy Development Guidelines
 
-> **Parent guide**: [AGENTS.md](../../AGENTS.md) — product overview, architecture, domain model, global conventions
-> **Related**: [managed.instructions.md](managed.instructions.md) (configures VictoriaMetrics scrape targets)
+> **Parent guide**: [AGENTS.md](../AGENTS.md) — product overview, architecture, domain model, global conventions
+> **Related**: [managed/AGENTS.md](../managed/AGENTS.md) (configures VictoriaMetrics scrape targets)
 
 **vmproxy** is a lightweight, stateless HTTP reverse proxy for VictoriaMetrics. It intercepts requests, reads label filters from a configurable HTTP header, and injects them as `extra_filters[]` query parameters before forwarding to VictoriaMetrics. This enables **label-based access control (LBAC)** — restricting which metrics a user can query based on their role.
 
