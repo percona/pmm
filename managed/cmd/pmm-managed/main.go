@@ -101,6 +101,7 @@ import (
 	"github.com/percona/pmm/managed/services/realtimeanalytics"
 	"github.com/percona/pmm/managed/services/scheduler"
 	"github.com/percona/pmm/managed/services/server"
+	"github.com/percona/pmm/managed/services/slackbot"
 	"github.com/percona/pmm/managed/services/supervisord"
 	"github.com/percona/pmm/managed/services/telemetry"
 	"github.com/percona/pmm/managed/services/telemetry/uievents"
@@ -1268,6 +1269,11 @@ func main() { //nolint:maintidx,cyclop
 	haService.AddLeaderService(ha.NewContextService("cleaner", func(ctx context.Context) error {
 		cleaner.Run(ctx, cleanInterval, cleanOlderThan)
 		return nil
+	}))
+
+	adreSlackL := logrus.WithField("component", "adre-slack")
+	haService.AddLeaderService(ha.NewContextService("adre-slack", func(ctx context.Context) error {
+		return slackbot.Run(ctx, db, adreSlackL)
 	}))
 
 	wg.Add(1)

@@ -11,6 +11,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -27,6 +28,8 @@ import (
 const (
 	// defaultMinRenderPNGBytes rejects tiny PNG bodies that usually indicate an empty or error panel.
 	defaultMinRenderPNGBytes int64 = 2048
+	// maxCachedRenderBlobBytes caps internal reads (e.g. Slack uploads) from the Tier-1 PNG cache.
+	maxCachedRenderBlobBytes int64 = 15 << 20
 )
 
 var (
@@ -479,6 +482,28 @@ func (h *LegacyGETRenderGoneHandler) ServeHTTP(w http.ResponseWriter, r *http.Re
 
 func readBlobPNG(contentHash string) ([]byte, error) {
 	return os.ReadFile(blobPNGPath(contentHash))
+}
+
+// ReadCachedRenderBlob returns PNG bytes from the Tier-1 render disk cache for a valid SHA-256 content hash
+// (64 lowercase hex characters). Rejects invalid hashes and blobs larger than maxCachedRenderBlobBytes.
+// Callers that serve arbitrary HTTP clients should use BlobHandler; this API is for trusted in-process use (e.g. Slack uploads).
+func ReadCachedRenderBlob(contentHash string) ([]byte, error) {
+	if !hexSHA256Re.MatchString(contentHash) {
+		return nil, fmt.Errorf("invalid content hash")
+	}
+	f, err := os.Open(blobPNGPath(contentHash))
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	data, err := io.ReadAll(io.LimitReader(f, maxCachedRenderBlobBytes+1))
+	if err != nil {
+		return nil, err
+	}
+	if int64(len(data)) > maxCachedRenderBlobBytes {
+		return nil, fmt.Errorf("cached blob exceeds max size")
+	}
+	return data, nil
 }
 
 func writeBlobPNG(contentHash string, body []byte) error {

@@ -165,6 +165,11 @@ type ChangeSettingsParams struct {
 	PromptMaxBytes *int
 	// AdreChatRetentionDays: automatic purge of ADRE chats (days, 0 = never). Nil = no change.
 	AdreChatRetentionDays *int
+	// EnableSlackBot enables PMM-managed Slack (Socket Mode) integration.
+	EnableSlackBot *bool
+	// SlackBotToken / SlackAppToken: empty string in params means clear when pointer non-nil (same as ServiceNow keys).
+	SlackBotToken *string
+	SlackAppToken *string
 }
 
 // SetPMMServerID should be run on start up to generate unique PMM Server ID.
@@ -368,6 +373,24 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 		settings.Adre.AdreChatRetentionDays = pointer.ToInt(*params.AdreChatRetentionDays)
 	}
 
+	if params.EnableSlackBot != nil {
+		settings.Adre.SlackEnabled = *params.EnableSlackBot
+	}
+	if params.SlackBotToken != nil {
+		settings.Adre.SlackBotToken = pointer.GetString(params.SlackBotToken)
+	}
+	if params.SlackAppToken != nil {
+		settings.Adre.SlackAppToken = pointer.GetString(params.SlackAppToken)
+	}
+
+	if params.EnableAdre != nil && !*params.EnableAdre {
+		settings.Adre.SlackEnabled = false
+	}
+
+	if err := validateAdreSlackSettings(settings); err != nil {
+		return nil, NewInvalidArgumentError("%s", err.Error())
+	}
+
 	err = SaveSettings(q, settings)
 	if err != nil {
 		return nil, err
@@ -506,6 +529,18 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 	return nil
 }
 
+// validateAdreSlackSettings checks Slack integration: when enabled it requires ADRE with a Holmes URL.
+func validateAdreSlackSettings(settings *Settings) error {
+	if !settings.Adre.SlackEnabled {
+		return nil
+	}
+	if settings.GetAdreURL() == "" {
+		return errors.New("slack_enabled requires AI Assistant enabled with a Holmes URL")
+	}
+	return nil
+}
+
+// validateAdreModelAlias caps Holmes model id length and rejects Unicode control characters in ADRE model settings fields.
 func validateAdreModelAlias(field, value string) error {
 	v := strings.TrimSpace(value)
 	if len(v) > 256 {

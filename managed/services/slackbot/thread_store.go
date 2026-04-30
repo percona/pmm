@@ -1,0 +1,93 @@
+// Copyright (C) 2026 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+package slackbot
+
+import (
+	"sync"
+)
+
+// ThreadKey identifies a Slack conversation thread (team + channel + root ts).
+type ThreadKey struct {
+	TeamID    string
+	ChannelID string
+	ThreadTS  string
+}
+
+// ThreadStore holds recent user/assistant messages per thread (RAM only; leader process).
+type ThreadStore struct {
+	mu    sync.Mutex
+	items map[ThreadKey][]interface{}
+}
+
+// NewThreadStore creates an empty thread store.
+func NewThreadStore() *ThreadStore {
+	return &ThreadStore{items: make(map[ThreadKey][]interface{})}
+}
+
+func msgMap(role, content string) map[string]interface{} {
+	return map[string]interface{}{"role": role, "content": content}
+}
+
+// AppendUser appends a user message and caps length.
+func (ts *ThreadStore) AppendUser(key ThreadKey, text string) {
+	ts.mu.Lock()
+	defer ts.mu.Unlock()
+	h := append(ts.items[key], msgMap("user", text))
+	ts.items[key] = trimHistory(h, maxThreadMessagesRAM)
+}
+
+// UndoLastUserMessage removes the last message if it is a user turn matching content (used when PostMessage fails after append).
+func (ts *ThreadStore) UndoLastUserMessage(key ThreadKey, content string) {
+	ts.mu.Lock()
+	defer ts.mu.Unlock()
+	arr := ts.items[key]
+	if len(arr) == 0 {
+		return
+	}
+	last, ok := arr[len(arr)-1].(map[string]interface{})
+	if !ok {
+		return
+	}
+	if role, _ := last["role"].(string); role != "user" {
+		return
+	}
+	if c, _ := last["content"].(string); c != content {
+		return
+	}
+	arr = arr[:len(arr)-1]
+	if len(arr) == 0 {
+		delete(ts.items, key)
+		return
+	}
+	ts.items[key] = arr
+}
+
+// AppendAssistant appends an assistant message and caps length.
+func (ts *ThreadStore) AppendAssistant(key ThreadKey, text string) {
+	ts.mu.Lock()
+	defer ts.mu.Unlock()
+	h := append(ts.items[key], msgMap("assistant", text))
+	ts.items[key] = trimHistory(h, maxThreadMessagesRAM)
+}
+
+// Snapshot returns a shallow copy of messages for ADRE /api/chat conversation_history (oldest first).
+func (ts *ThreadStore) Snapshot(key ThreadKey) []interface{} {
+	ts.mu.Lock()
+	defer ts.mu.Unlock()
+	src := ts.items[key]
+	out := make([]interface{}, len(src))
+	copy(out, src)
+	return out
+}
+
+func trimHistory(h []interface{}, max int) []interface{} {
+	if len(h) <= max {
+		return h
+	}
+	return h[len(h)-max:]
+}

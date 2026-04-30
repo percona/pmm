@@ -59,6 +59,7 @@ require (
 	github.com/ramr/go-reaper v0.3.1
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/sirupsen/logrus v1.9.4
+	github.com/slack-go/slack v0.23.0
 	github.com/stretchr/objx v0.5.2
 	github.com/stretchr/testify v1.11.1
 	github.com/tink-crypto/tink-go v0.0.0-20230613075026-d6de17e3f164
@@ -115,6 +116,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/btree v1.0.1 // indirect
+	github.com/gorilla/websocket v1.5.4-0.20250319132907-e064f32e3674 // indirect
 	github.com/grafana/regexp v0.0.0-20250905093917-f7b3be9d1853 // indirect
 	github.com/hashicorp/go-hclog v1.6.3 // indirect
 	github.com/hashicorp/go-metrics v0.5.4 // indirect

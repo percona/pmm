@@ -71,6 +71,16 @@ export interface AdreSettings {
   /** Max bytes allowed for ADRE prompts. */
   promptMaxBytes?: number;
   prompt_max_bytes?: number;
+  /** PMM-managed Slack bot (Socket Mode). */
+  slackEnabled?: boolean;
+  slack_enabled?: boolean;
+  /** True when bot + app tokens are stored server-side (GET never returns raw tokens). */
+  slackConfigured?: boolean;
+  slack_configured?: boolean;
+  slackBotToken?: string;
+  slack_bot_token?: string;
+  slackAppToken?: string;
+  slack_app_token?: string;
 }
 
 export interface AdreModelsResponse {

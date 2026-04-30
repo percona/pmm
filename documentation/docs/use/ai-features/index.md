@@ -43,5 +43,6 @@ Source files live in the PMM repository (not all are part of the published MkDoc
 - Architecture decisions: [ADR-001 — PMM AI Investigations](../../adr/0001-pmm-ai-investigations.md), [ADR-002 — Data model and API](../../adr/0002-investigations-data-model-and-api.md)
 
 - [ADRE Chat](adre-chat.md)
+- [ADRE Slack bot](adre-slack-bot.md) (Socket Mode inside PMM Server)
 - [Investigations](investigations.md)
 - [QAN AI Insights](qan-ai-insights.md)

@@ -131,3 +131,28 @@ func TestResolveReturnsAbsoluteURLs(t *testing.T) {
 	assert.True(t, strings.HasPrefix(out.ImageURL, "https://pmm.example:8443/v1/grafana/render/blob/"))
 	assert.True(t, strings.HasPrefix(out.DashboardURL, "https://pmm.example:8443/graph/d/test-dash?"))
 }
+
+func TestReadCachedRenderBlob(t *testing.T) {
+	t.Run("invalid_hash", func(t *testing.T) {
+		_, err := ReadCachedRenderBlob("not-a-hash")
+		require.Error(t, err)
+	})
+	t.Run("miss", func(t *testing.T) {
+		grafanaRenderCacheDirForTest = t.TempDir()
+		t.Cleanup(func() { grafanaRenderCacheDirForTest = "" })
+		hash := strings.Repeat("a", 64)
+		_, err := ReadCachedRenderBlob(hash)
+		require.Error(t, err)
+	})
+	t.Run("hit", func(t *testing.T) {
+		grafanaRenderCacheDirForTest = t.TempDir()
+		t.Cleanup(func() { grafanaRenderCacheDirForTest = "" })
+		hash := strings.Repeat("b", 64)
+		path := filepath.Join(grafanaRenderCacheDirForTest, hash+".png")
+		payload := []byte{0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a}
+		require.NoError(t, os.WriteFile(path, payload, 0o644))
+		got, err := ReadCachedRenderBlob(hash)
+		require.NoError(t, err)
+		assert.Equal(t, payload, got)
+	})
+}

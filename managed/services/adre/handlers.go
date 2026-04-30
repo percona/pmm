@@ -124,6 +124,8 @@ type adreSettingsResponse struct {
 	ServiceNowConfigured          bool            `json:"servicenow_configured"`
 	PromptMaxBytes                int             `json:"prompt_max_bytes"`
 	AdreChatRetentionDays         int             `json:"adre_chat_retention_days"`
+	SlackEnabled                  bool            `json:"slack_enabled"`
+	SlackConfigured               bool            `json:"slack_configured"`
 }
 
 func applyAdreSettingsDefaults(r *adreSettingsResponse) {
@@ -186,6 +188,8 @@ func (h *Handlers) GetSettings(w http.ResponseWriter, r *http.Request) {
 		ServiceNowConfigured:          settings.Adre.ServiceNowURL != "" && settings.Adre.ServiceNowAPIKey != "" && settings.Adre.ServiceNowClientToken != "",
 		PromptMaxBytes:                settings.Adre.PromptMaxBytes,
 		AdreChatRetentionDays:         settings.GetAdreChatRetentionDays(),
+		SlackEnabled:                  settings.Adre.SlackEnabled,
+		SlackConfigured:               settings.Adre.SlackBotToken != "" && settings.Adre.SlackAppToken != "",
 	}
 	applyAdreSettingsDefaults(&resp)
 	body, err := json.Marshal(resp)
@@ -226,6 +230,9 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		ServiceNowClientToken         *string          `json:"servicenow_client_token"`
 		PromptMaxBytes                *int             `json:"prompt_max_bytes"`
 		AdreChatRetentionDays         *int             `json:"adre_chat_retention_days"`
+		SlackEnabled                  *bool            `json:"slack_enabled"`
+		SlackBotToken                 *string          `json:"slack_bot_token"`
+		SlackAppToken                 *string          `json:"slack_app_token"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
@@ -236,7 +243,8 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		body.BehaviorControlsFast != nil || body.BehaviorControlsInvestigation != nil || body.BehaviorControlsFormatReport != nil ||
 		body.AdreMaxConversationMessages != nil || body.QanInsightsPrompt != nil || body.QanInsightsModel != nil ||
 		body.ServiceNowURL != nil || body.ServiceNowAPIKey != nil || body.ServiceNowClientToken != nil ||
-		body.PromptMaxBytes != nil || body.AdreChatRetentionDays != nil
+		body.PromptMaxBytes != nil || body.AdreChatRetentionDays != nil ||
+		body.SlackEnabled != nil || body.SlackBotToken != nil || body.SlackAppToken != nil
 	if !hasChange {
 		writeJSONError(w, http.StatusBadRequest, "No changes provided")
 		return
@@ -357,6 +365,9 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		ServiceNowClientToken:             body.ServiceNowClientToken,
 		PromptMaxBytes:                    body.PromptMaxBytes,
 		AdreChatRetentionDays:             body.AdreChatRetentionDays,
+		EnableSlackBot:                    body.SlackEnabled,
+		SlackBotToken:                     body.SlackBotToken,
+		SlackAppToken:                     body.SlackAppToken,
 	}
 	if _, err := models.UpdateSettings(h.db, params); err != nil {
 		h.l.Errorf("UpdateSettings: %v", err)
@@ -397,6 +408,8 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		ServiceNowConfigured:          settings.Adre.ServiceNowURL != "" && settings.Adre.ServiceNowAPIKey != "" && settings.Adre.ServiceNowClientToken != "",
 		PromptMaxBytes:                settings.Adre.PromptMaxBytes,
 		AdreChatRetentionDays:         settings.GetAdreChatRetentionDays(),
+		SlackEnabled:                  settings.Adre.SlackEnabled,
+		SlackConfigured:               settings.Adre.SlackBotToken != "" && settings.Adre.SlackAppToken != "",
 	}
 	applyAdreSettingsDefaults(&resp)
 	respBody, err := json.Marshal(resp)

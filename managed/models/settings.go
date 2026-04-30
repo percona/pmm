@@ -17,6 +17,8 @@ package models
 
 import (
 	"database/sql/driver"
+	"net/url"
+	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -146,6 +148,10 @@ type Settings struct {
 		PromptMaxBytes int `json:"prompt_max_bytes"`
 		// AdreChatRetentionDays deletes ADRE chat threads with last_message_at older than this many days (0 = never auto-purge). Nil in JSON defaults in fillDefaults.
 		AdreChatRetentionDays *int `json:"adre_chat_retention_days"`
+		// Slack integration (Socket Mode); tokens stored in settings JSON.
+		SlackEnabled  bool   `json:"slack_enabled"`
+		SlackBotToken string `json:"slack_bot_token"`
+		SlackAppToken string `json:"slack_app_token"`
 	} `json:"adre"`
 
 	Alerting struct {
@@ -276,6 +282,38 @@ func (s *Settings) GetAdreURL() string {
 		return ""
 	}
 	return s.Adre.URL
+}
+
+// NormalizePMMPublicAddressOrigin parses PMM "Public address" (host:port or full URL) into an http(s) origin without trailing slash, or "" if unset/invalid.
+func NormalizePMMPublicAddressOrigin(raw string) string {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return ""
+	}
+	addr := raw
+	if !strings.HasPrefix(addr, "http://") && !strings.HasPrefix(addr, "https://") {
+		addr = "https://" + addr
+	}
+	u, err := url.Parse(addr)
+	if err != nil || u.Scheme == "" || u.Host == "" {
+		return ""
+	}
+	if u.Scheme != "http" && u.Scheme != "https" {
+		return ""
+	}
+	u.Path = ""
+	u.RawQuery = ""
+	u.Fragment = ""
+	return strings.TrimSuffix(u.String(), "/")
+}
+
+// GetEffectiveSlackLinkBaseURL returns the base URL for rewriting relative PMM paths in Slack (no trailing slash).
+// Uses PMM **Public address** from Advanced settings (see NormalizePMMPublicAddressOrigin).
+func (s *Settings) GetEffectiveSlackLinkBaseURL() string {
+	if s == nil {
+		return ""
+	}
+	return NormalizePMMPublicAddressOrigin(s.PMMPublicAddress)
 }
 
 // GetAdreChatRetentionDays returns automatic ADRE chat retention in days (0 = no automatic purge).
