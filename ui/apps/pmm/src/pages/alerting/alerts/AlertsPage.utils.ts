@@ -2,6 +2,7 @@ import {
   AlertStatus,
   PrometheusAlertItem,
   PrometheusAlertRuleItem,
+  PrometheusAlertState,
   PrometheusAlertRulesResponse,
 } from 'types/alerting.types';
 import { AlertRow, NodeGroupRow } from './AlertsPage.types';
@@ -20,8 +21,19 @@ const GROUP_STATE_PRIORITY: Record<AlertStatus, number> = {
   Normal: 0,
 };
 
+const ALERT_STATUSES = new Set<AlertStatus>([
+  'Alerting',
+  'Error',
+  'Pending',
+  'NoData',
+  'Normal',
+]);
+
+const isAlertStatus = (state: string): state is AlertStatus =>
+  ALERT_STATUSES.has(state as AlertStatus);
+
 const mapRuleStateToAlertState = (
-  ruleState?: PrometheusAlertRuleItem['state']
+  ruleState?: PrometheusAlertState
 ): AlertStatus => {
   switch (ruleState) {
     case 'firing':
@@ -38,7 +50,15 @@ const mapRuleStateToAlertState = (
 const resolveState = (
   alert: PrometheusAlertItem,
   rule: PrometheusAlertRuleItem
-): AlertStatus => alert.state || mapRuleStateToAlertState(rule.state);
+): AlertStatus => {
+  if (!alert.state) {
+    return mapRuleStateToAlertState(rule.state);
+  }
+
+  return isAlertStatus(alert.state)
+    ? alert.state
+    : mapRuleStateToAlertState(alert.state);
+};
 
 const getAge = (activeAt?: string): string => {
   if (!activeAt) {
@@ -110,20 +130,42 @@ export const flattenAlertRules = (
   const rows = data.data.groups.flatMap((group) =>
     (group.rules || []).flatMap((rule) =>
       (rule.alerts || []).map((alert) => {
-        console.log('alert', { alert, rule });
+        const ruleDetails = {
+          name: rule.name,
+          query: rule.query,
+          duration: rule.duration,
+          labels: rule.labels,
+          annotations: rule.annotations,
+          health: rule.health,
+          lastError: rule.lastError,
+          type: rule.type,
+          state: rule.state,
+        };
 
         return {
           type: 'alert' as const,
           id: `${rule.name}-${alert.labels.node_name}-${alert.labels.service_name}`,
           alertName: getAlertName(alert, rule),
           ruleName: rule.name || 'Unnamed rule',
+          ruleGroupUid: rule.uid,
           state: resolveState(alert, rule),
           nodeId: getAlertNodeId(alert),
           serviceName: getAlertServiceName(alert),
           summary: getSummary(alert),
           source: getSource(alert.labels),
+          labels: alert.labels,
+          annotations: alert.annotations,
+          expression: rule.query || '',
           activeAt: alert.activeAt,
           age: getAge(alert.activeAt),
+          rawJson: JSON.stringify(
+            {
+              rule: ruleDetails,
+              alert,
+            },
+            null,
+            2
+          ),
         };
       })
     )

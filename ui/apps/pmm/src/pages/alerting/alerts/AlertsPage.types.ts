@@ -5,12 +5,18 @@ export interface AlertRow {
   id: string;
   alertName: string;
   ruleName: string;
+  ruleGroupUid?: string;
   state: AlertStatus;
   nodeId: string;
   serviceName: string;
   summary: string;
   source: string;
+  labels: Record<string, string>;
+  annotations: Record<string, string>;
+  expression: string;
+  activeAt?: string;
   age: string;
+  rawJson: string;
 }
 
 export interface NodeGroupRow {

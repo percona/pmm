@@ -1,4 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
+import { format } from 'date-fns';
+import { tz } from '@date-fns/tz';
+import { Link as RouterLink } from 'react-router-dom';
 import { Table } from '@percona/percona-ui';
 import { type MRT_ColumnDef } from 'material-react-table';
 import {
@@ -15,10 +18,14 @@ import {
   Skeleton,
   Stack,
   Switch,
+  Typography,
 } from '@mui/material';
+import { paperClasses } from '@mui/material/Paper';
 import { Page } from 'components/page';
+import { useUser } from 'contexts/user';
 import { usePrometheusAlertRules } from 'hooks/api/usePrometheusAlertRules';
-import { AlertsTableRow } from './AlertsPage.types';
+import { TIME_FORMAT } from 'lib/constants';
+import { AlertRow, AlertsTableRow } from './AlertsPage.types';
 import {
   ALL_SERVICES_FILTER,
   ALL_NODES_FILTER,
@@ -35,8 +42,30 @@ import {
   STATUS_COLOR_MAP,
   STATUS_LABEL_MAP,
 } from './AlertsPage.constants';
+import { AlertDetailsPane } from './details-pane';
+
+const createAlertRuleViewUrl = (ruleGroupUid: string) =>
+  `/graph/alerting/grafana/${ruleGroupUid}/view`;
+const createAlertRuleEditUrl = (ruleGroupUid: string) =>
+  `/graph/alerting/${ruleGroupUid}/edit`;
+
+const formatTimestamp = (timestamp: string | undefined, timezone: string) => {
+  if (!timestamp) {
+    return '-';
+  }
+
+  const date = new Date(timestamp);
+
+  if (Number.isNaN(date.getTime())) {
+    return '-';
+  }
+
+  return format(date, TIME_FORMAT, { in: tz(timezone) });
+};
 
 const AlertsPage = () => {
+  const { user } = useUser();
+  const timezone = user?.preferences?.timezone || 'UTC';
   const { data, isLoading, isError, error, refetch, isRefetching } =
     usePrometheusAlertRules({
       refetchInterval: 5000,
@@ -46,6 +75,8 @@ const AlertsPage = () => {
   const [selectedService, setSelectedService] =
     useState<string>(ALL_SERVICES_FILTER);
   const [selectedState, setSelectedState] = useState<string>(ALL_STATES_FILTER);
+  const [selectedAlert, setSelectedAlert] = useState<AlertRow>();
+  const [selectedAlertIndex, setSelectedAlertIndex] = useState<number>();
   const rows = useMemo(() => flattenAlertRules(data), [data]);
   const nodeOptions = useMemo(() => getNodeFilterOptions(rows), [rows]);
   const nodeFilteredRows = useMemo(
@@ -99,7 +130,58 @@ const AlertsPage = () => {
     [filteredRows, isGroupedByNode]
   );
 
-  const columns: MRT_ColumnDef<AlertsTableRow>[] = useMemo(
+  useEffect(() => {
+    if (!selectedAlert) {
+      return;
+    }
+
+    const nextIndex = filteredRows.findIndex(
+      (row) => row.id === selectedAlert.id
+    );
+
+    if (nextIndex === -1) {
+      setSelectedAlert(undefined);
+      setSelectedAlertIndex(undefined);
+      return;
+    }
+
+    if (filteredRows[nextIndex] !== selectedAlert) {
+      setSelectedAlert(filteredRows[nextIndex]);
+      setSelectedAlertIndex(nextIndex);
+    }
+  }, [filteredRows, selectedAlert]);
+
+  const handleAlertChange = (alert: AlertRow) => {
+    setSelectedAlert(alert);
+    setSelectedAlertIndex(filteredRows.findIndex((row) => row.id === alert.id));
+  };
+
+  const handleCloseDetails = () => {
+    setSelectedAlert(undefined);
+    setSelectedAlertIndex(undefined);
+  };
+
+  const handleNextAlert = () => {
+    const idx = (selectedAlertIndex ?? -1) + 1;
+
+    if (idx >= filteredRows.length) {
+      return;
+    }
+
+    handleAlertChange(filteredRows[idx]);
+  };
+
+  const handlePreviousAlert = () => {
+    const idx = (selectedAlertIndex ?? 0) - 1;
+
+    if (idx < 0) {
+      return;
+    }
+
+    handleAlertChange(filteredRows[idx]);
+  };
+
+  const columns = useMemo<MRT_ColumnDef<AlertsTableRow>[]>(
     () => [
       {
         accessorKey: 'state',
@@ -130,15 +212,12 @@ const AlertsPage = () => {
             : row.original.alertName,
       },
       {
-        accessorKey: 'ruleName',
-        header: 'Rule',
-        Cell: ({ row }) =>
-          row.original.type === 'node' ? '-' : row.original.ruleName,
-      },
-      {
         accessorKey: 'nodeId',
         header: 'Node',
-        Cell: ({ row }) => row.original.nodeId || '-',
+        Cell: ({ row }) =>
+          row.original.type === 'node' && isGroupedByNode
+            ? '-'
+            : row.original.nodeId || '-',
       },
       {
         accessorKey: 'serviceName',
@@ -147,20 +226,52 @@ const AlertsPage = () => {
           row.original.type === 'node' ? '-' : row.original.serviceName || '-',
       },
       {
+        accessorKey: 'activeAt',
+        header: 'Active since',
+        Cell: ({ row }) =>
+          row.original.type === 'node'
+            ? '-'
+            : formatTimestamp(row.original.activeAt, timezone),
+      },
+      {
         accessorKey: 'age',
         header: 'Age',
         Cell: ({ row }) =>
           row.original.type === 'node' ? '-' : row.original.age,
       },
     ],
-    []
+    [isGroupedByNode, timezone]
   );
 
   return (
-    <Page title="Alerts" fullWidth>
-      <Card variant="outlined">
-        <CardContent>
-          <Stack spacing={2}>
+    <Stack
+      sx={{
+        flex: 1,
+        gap: 2,
+        m: 2,
+      }}
+    >
+      <Typography variant="h3">Alerts</Typography>
+      <Card
+        variant="outlined"
+        sx={{
+          position: 'relative',
+          flex: 1,
+          minHeight: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+        }}
+      >
+        <CardContent
+          sx={{
+            flex: 1,
+            minHeight: 0,
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <Stack spacing={2} sx={{ flex: 1, minHeight: 0 }}>
             {isLoading && <Skeleton variant="rounded" height={380} />}
             {isError && (
               <Alert
@@ -185,7 +296,20 @@ const AlertsPage = () => {
               </Alert>
             )}
             {!isLoading && !isError && rows.length > 0 && (
-              <Stack spacing={1.5}>
+              <Stack
+                spacing={1.5}
+                sx={{
+                  flex: 1,
+                  minHeight: 0,
+                  [`& > .${paperClasses.root}`]: {
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    minHeight: 0,
+                    overflow: 'hidden',
+                  },
+                }}
+              >
                 <Stack
                   direction="row"
                   justifyContent="space-between"
@@ -264,6 +388,7 @@ const AlertsPage = () => {
                     columnOrder: [
                       'mrt-row-expand',
                       ...columns.map((column) => column.accessorKey || ''),
+                      'mrt-row-actions',
                     ],
                   }}
                   tableName="alerts"
@@ -280,24 +405,113 @@ const AlertsPage = () => {
                   enableColumnOrdering={false}
                   enableColumnDragging={false}
                   enableTopToolbar={false}
+                  enableRowActions
+                  displayColumnDefOptions={{
+                    'mrt-row-actions': {
+                      header: '',
+                      size: 48,
+                      minSize: 48,
+                      maxSize: 48,
+                      muiTableHeadCellProps: {
+                        sx: {
+                          width: 48,
+                          minWidth: 48,
+                          px: 0.5,
+                        },
+                      },
+                      muiTableBodyCellProps: {
+                        sx: {
+                          width: 48,
+                          minWidth: 48,
+                          px: 0.5,
+                        },
+                      },
+                    },
+                  }}
+                  renderRowActionMenuItems={({ row, closeMenu }) => {
+                    if (
+                      row.original.type !== 'alert' ||
+                      !row.original.ruleGroupUid
+                    ) {
+                      return [];
+                    }
+
+                    return [
+                      <MenuItem
+                        key="view"
+                        component={RouterLink}
+                        to={createAlertRuleViewUrl(row.original.ruleGroupUid)}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          closeMenu();
+                        }}
+                      >
+                        View rule
+                      </MenuItem>,
+                      <MenuItem
+                        key="edit"
+                        component={RouterLink}
+                        to={createAlertRuleEditUrl(row.original.ruleGroupUid)}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          closeMenu();
+                        }}
+                      >
+                        Edit rule
+                      </MenuItem>,
+                    ];
+                  }}
                   getRowId={(row) => row.id}
                   getSubRows={(row) =>
                     row.type === 'node' ? row.alerts : undefined
                   }
-                  muiTableBodyRowProps={({ row }) => ({
-                    sx: {
-                      '& td': {
-                        fontWeight: row.original.type === 'node' ? 600 : 400,
+                  muiTableBodyRowProps={({ row }) => {
+                    if (row.original.type === 'alert') {
+                      return {
+                        sx: {
+                          cursor: 'pointer',
+                          '& td': {
+                            fontWeight: 400,
+                          },
+                        },
+                      };
+                    }
+
+                    return {
+                      sx: {
+                        cursor: 'default',
+                        '& td': {
+                          fontWeight: 600,
+                        },
                       },
-                    },
-                  })}
+                    };
+                  }}
+                  muiTableBodyCellProps={({ row }) => {
+                    if (row.original.type !== 'alert') {
+                      return {};
+                    }
+
+                    const alert = row.original;
+
+                    return {
+                      onClick: () => handleAlertChange(alert),
+                    };
+                  }}
                 />
               </Stack>
             )}
           </Stack>
         </CardContent>
+        <AlertDetailsPane
+          alert={selectedAlert}
+          onClose={handleCloseDetails}
+          isFirstAlert={selectedAlertIndex === 0}
+          isLastAlert={selectedAlertIndex === filteredRows.length - 1}
+          onNext={handleNextAlert}
+          onPrevious={handlePreviousAlert}
+        />
       </Card>
-    </Page>
+    </Stack>
   );
 };
 

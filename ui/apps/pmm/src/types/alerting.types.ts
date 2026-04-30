@@ -10,12 +10,13 @@ export type AlertStatus =
 export interface PrometheusAlertItem {
   labels: Record<string, string>;
   annotations: Record<string, string>;
-  state: AlertStatus;
+  state?: AlertStatus | PrometheusAlertState;
   activeAt?: string;
   value?: string;
 }
 
 export interface PrometheusAlertRuleItem {
+  uid?: string;
   name: string;
   query?: string;
   duration?: number;
@@ -29,6 +30,7 @@ export interface PrometheusAlertRuleItem {
 }
 
 export interface PrometheusAlertRuleGroup {
+  uid?: string;
   name?: string;
   file?: string;
   interval?: number;

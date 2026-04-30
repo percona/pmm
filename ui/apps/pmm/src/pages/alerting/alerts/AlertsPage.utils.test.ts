@@ -10,6 +10,18 @@ import {
   getNodeFilterOptions,
   getServiceFilterOptions,
 } from './AlertsPage.utils';
+import { AlertRow } from './AlertsPage.types';
+
+const createAlertRow = (
+  row: Omit<AlertRow, 'labels' | 'annotations' | 'expression' | 'rawJson'> &
+    Partial<Pick<AlertRow, 'labels' | 'annotations' | 'expression' | 'rawJson'>>
+): AlertRow => ({
+  labels: {},
+  annotations: {},
+  expression: '',
+  rawJson: '{}',
+  ...row,
+});
 
 describe('flattenAlertRules', () => {
   afterEach(() => {
@@ -102,7 +114,7 @@ describe('flattenAlertRules', () => {
     expect(mysqlConnectionsAlert).toBeDefined();
     expect(mysqlConnectionsAlert?.type).toBe('alert');
     expect(mysqlConnectionsAlert?.ruleName).toBe('mysql_replication_lag');
-    expect(mysqlConnectionsAlert?.state).toBe('inactive');
+    expect(mysqlConnectionsAlert?.state).toBe('Normal');
     expect(mysqlConnectionsAlert?.nodeId).toBe('node-a');
     expect(mysqlConnectionsAlert?.serviceName).toBe('mysql-service-b');
     expect(mysqlConnectionsAlert?.summary).toBe('Connections are healthy');
@@ -111,7 +123,7 @@ describe('flattenAlertRules', () => {
       (row) => row.alertName === 'MySQL Replication Broken'
     );
     expect(replicationBrokenAlert).toBeDefined();
-    expect(replicationBrokenAlert?.state).toBe('firing');
+    expect(replicationBrokenAlert?.state).toBe('Alerting');
     expect(replicationBrokenAlert?.nodeId).toBe('node-a');
     expect(replicationBrokenAlert?.serviceName).toBe('mysql-service-a');
     expect(replicationBrokenAlert?.age).toBe('20m');
@@ -157,42 +169,42 @@ describe('flattenAlertRules', () => {
 
   it('builds node/service options and filters by selected values', () => {
     const rows = [
-      {
+      createAlertRow({
         type: 'alert' as const,
         id: 'r1',
         alertName: 'alert-1',
         ruleName: 'rule-1',
-        state: 'firing' as const,
+        state: 'Alerting' as const,
         nodeId: 'node-a',
         serviceName: 'svc-a',
         summary: 's1',
         source: 'src',
         age: '2m',
-      },
-      {
+      }),
+      createAlertRow({
         type: 'alert' as const,
         id: 'r2',
         alertName: 'alert-2',
         ruleName: 'rule-2',
-        state: 'pending' as const,
+        state: 'Pending' as const,
         nodeId: 'node-b',
         serviceName: 'svc-b',
         summary: 's2',
         source: 'src',
         age: '3m',
-      },
-      {
+      }),
+      createAlertRow({
         type: 'alert' as const,
         id: 'r3',
         alertName: 'alert-3',
         ruleName: 'rule-3',
-        state: 'pending' as const,
+        state: 'Pending' as const,
         nodeId: '',
         serviceName: '',
         summary: 's3',
         source: 'src',
         age: '4m',
-      },
+      }),
     ];
 
     const options = getNodeFilterOptions(rows);
@@ -232,7 +244,7 @@ describe('flattenAlertRules', () => {
 
   it('groups alert rows by node and exposes child alert rows', () => {
     const rows = [
-      {
+      createAlertRow({
         type: 'alert' as const,
         id: 'a1',
         alertName: 'alert-1',
@@ -243,8 +255,8 @@ describe('flattenAlertRules', () => {
         summary: 's1',
         source: 'src',
         age: '1m',
-      },
-      {
+      }),
+      createAlertRow({
         type: 'alert' as const,
         id: 'a2',
         alertName: 'alert-2',
@@ -255,8 +267,8 @@ describe('flattenAlertRules', () => {
         summary: 's2',
         source: 'src',
         age: '2m',
-      },
-      {
+      }),
+      createAlertRow({
         type: 'alert' as const,
         id: 'a3',
         alertName: 'alert-3',
@@ -267,7 +279,7 @@ describe('flattenAlertRules', () => {
         summary: 's3',
         source: 'src',
         age: '3m',
-      },
+      }),
     ];
 
     const grouped = groupAlertsByNode(rows);
