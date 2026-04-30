@@ -74,7 +74,17 @@ export const Page: FC<PageProps> = ({ title, topBar, footer, children, fullWidth
             {children}
           </Box>
         ) : (
-          children
+          <Box
+            sx={{
+              flex: 1,
+              minHeight: 0,
+              minWidth: 0,
+              overflowY: 'auto',
+              WebkitOverflowScrolling: 'touch',
+            }}
+          >
+            {children}
+          </Box>
         )
       ) : (
         <Card variant="outlined" sx={{ p: 2 }}>
