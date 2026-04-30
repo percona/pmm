@@ -27,7 +27,7 @@ The **dump.tar.gz** dump file is a .TAR archive compressed via Gzip. Here's what
  - **meta.json**: metadata about the data dump
  - **vm**: Victoria Metrics data chunks in native VM format, organized by timeframe
  - **ch**: Query Analytics (QAN) data stored in ClickHouse format, organized by row count
- - **log.json**: logs detailing the export and archive creation process
+ - **log.json**: logs detailing the export and archive creation process. Passwords and credentials are automatically masked.
 
 ## Create a data dump
 
