@@ -1,18 +1,22 @@
-# pmm-agent - PMM Client agent
+# Configure the pmm-agent daemon
+
+`pmm-agent` is the daemon process that runs on each monitored host. It manages exporters, collects metrics, and handles communication between your databases and PMM Server. 
+
+You typically don't interact with pmm-agent directly, `pmm-admin` communicates with PMM Server, which then sends commands to `pmm-agent`. 
 
 ## NAME
 
-`pmm-agent` - The PMM Client daemon program.
+`pmm-agent`: The PMM Client daemon program.
 
-## SYNOPSIS
+## Syntax
 
 `pmm-agent [command] [options]`
 
-## DESCRIPTION
+## Description
 
 `pmm-agent`, part of the PMM Client package, runs as a daemon process on all monitored hosts.
 
-## COMMANDS
+## Commands
 
 `pmm-agent run`
 : Run pmm-agent (default).
@@ -23,7 +27,7 @@
 `pmm-agent help [command]`
 : Show help (for command) and exit.
 
-## OPTIONS AND ENVIRONMENT
+## Options and environment
 
 Most options can be set via environment variables (shown in parentheses).
 
@@ -35,17 +39,21 @@ Most options can be set via environment variables (shown in parentheses).
 | `--server-insecure-tls`                | `PMM_AGENT_SERVER_INSECURE_TLS`     | Skip PMM Server TLS certificate validation.
 | `--az=AZ`                              | `PMM_AGENT_SETUP_AZ`                | Node availability zone.
 | `--config-file=path_to/pmm-agent.yaml` | `PMM_AGENT_CONFIG_FILE`             | Configuration file path and name.
+| `--config-file-key-file`               | `PMM_AGENT_CONFIG_FILE_KEY_FILE`    | Path to RSA private key for config file encryption. See [Encrypt the PMM Client configuration file](../../admin/security/client_config_encryption.md).
+| `--config-file-key-password`           | `PMM_AGENT_CONFIG_FILE_KEY_PASSWORD`| Password for the RSA private key (if password-protected).
 | `--container-id=CONTAINER-ID`          | `PMM_AGENT_SETUP_CONTAINER_ID`      | Container ID.
 | `--container-name=CONTAINER-NAME`      | `PMM_AGENT_SETUP_CONTAINER_NAME`    | Container name.
 | `--debug`                              | `PMM_AGENT_DEBUG`                   | Enable debug output.
 | `--distro=distro`                      | `PMM_AGENT_SETUP_DISTRO`            | Node OS distribution (default is auto-detected).
 | `--force`                              | `PMM_AGENT_SETUP_FORCE`             | Remove Node with that name and all dependent Services and Agents (if existing).
-| `--id=...`                   | `PMM_AGENT_ID`                      | ID of this pmm-agent.
+| `--id=...`                             | `PMM_AGENT_ID`                      | ID of this pmm-agent.
 | `--listen-address=LISTEN-ADDRESS`      | `PMM_AGENT_LISTEN_ADDRESS`          | Agent local API address.
 | `--listen-port=LISTEN-PORT`            | `PMM_AGENT_LISTEN_PORT`             | Agent local API port.
 | `--machine-id=machine-id`              | `PMM_AGENT_SETUP_MACHINE_ID`        | Node machine ID (default is auto-detected).
 | `--metrics-mode=auto`                  | `PMM_AGENT_SETUP_METRICS_MODE`      | Metrics flow mode for agents node-exporter. Can be `push` (agent will push metrics), `pull` (server scrapes metrics from agent) or `auto` (chosen by server).
 | `--node-model=NODE-MODEL`              | `PMM_AGENT_SETUP_NODE_MODEL`        | Node model.
+| `--proc-mounts-path=PATH`              | `PMM_AGENT_SETUP_PROC_MOUNTS_PATH`  | Path to the `proc/mounts` file used by the `node_exporter`.
+| `--expose-exporter` | | If you enable this flag, any IP address on the local network and anywhere on the internet can access node exporter endpoints. If the flag is disabled, node exporter endpoints can be accessed only locally.|
 | `--paths-base=PATH`                    | `PMM_AGENT_PATHS_BASE`              | Base path for PMM client, where all binaries, tools and collectors are located. If not set, default is `/usr/local/percona/pmm`.
 | `--paths-exporters_base=PATH`          | `PMM_AGENT_PATHS_EXPORTERS_BASE`    | Base path for exporters to use. If not set, or set to a relative path, uses value of `--paths-base` prepended to it.
 | `--paths-mongodb_exporter=PATH`        | `PMM_AGENT_PATHS_MONGODB_EXPORTER`  | Path to `mongodb_exporter`.
@@ -62,17 +70,18 @@ Most options can be set via environment variables (shown in parentheses).
 | `--region=REGION`                      | `PMM_AGENT_SETUP_REGION`            | Node region.
 | `--skip-registration`                  | `PMM_AGENT_SETUP_SKIP_REGISTRATION` | Skip registration on PMM Server.
 | `--trace`                              | `PMM_AGENT_TRACE`                   | Enable trace output (implies `--debug`).
-| `-h`, `--help`                         |                                     | Show help (synonym for `pmm-agent help`).
 | `--version`                            |                                     | Show application version, PMM version, time-stamp, git commit hash and branch.
-| `--expose-exporter` | | If you enable this flag, any IP address on the local network and anywhere on the internet can access node exporter endpoints. If the flag is disabled, node exporter endpoints can be accessed only locally.
+| `-h`, `--help`                         |                                     | Show help (synonym for `pmm-agent help`).
 
-## CONFIG FILE
+## Config file
 
 PMM manages the configuration file, and it's not recommended to modify it manually. However, if necessary, you can make adjustments to specific properties in the config file, such as the username or password used for authorization through service accounts.
 
 To do this, set the username to `service_token` and add your service token as the password. For more information about service account authorization, see [Service accounts authentication](../../api/authentication.md).
 
-## USAGE AND EXAMPLES OF `paths-base` FLAG
+To protect the credentials stored in this file, you can optionally encrypt the PMM Client configuration file. See [Encrypt the PMM Client configuration file](../../admin/security/client_config_encryption.md).
+
+## Usage and examples of `paths-base` flag
 
 Since 2.23.0 this flag could be used for easier setup of PMM agent. With this flag the root permissions for PMM client aren't needed anymore and it will be fully working.
 

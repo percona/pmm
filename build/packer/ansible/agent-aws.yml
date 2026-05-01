@@ -4,12 +4,11 @@
   become: true
   vars:
     docker_compose_version: "2.26.1"
-    kubectl_version: "1.35.0"
-    doctl_version: "1.148.0"
+    kubectl_version: "1.35.3"
+    doctl_version: "1.155.0"
     node_version: "22.x"
-    goreleaser_version: "2.13.3" # https://github.com/goreleaser/goreleaser/releases
-    eksctl_version: "0.221.0"
-    helm_version: "3.20.0"
+    eksctl_version: "0.225.0"
+    helm_version: "3.20.2"
 
   tasks:
     - name: Detect vm architecture
@@ -25,9 +24,9 @@
     - name: Add a repository for NodeJS
       shell: "curl -fsSL https://rpm.nodesource.com/setup_{{ node_version }} | bash -"
 
-    - name: Install Oracle EPEL Repo
+    - name: Install EPEL Repo
       dnf:
-        name: oracle-epel-release-el9
+        name: epel-release
         state: latest
 
     - name: Add Docker repository
@@ -108,12 +107,6 @@
         dest: /usr/local/bin/kubectl
         mode: "u+x,g+x,o+x"
 
-    - name: Install lacework
-      get_url:
-        url: "https://github.com/lacework/lacework-vulnerability-scanner/releases/latest/download/lw-scanner-linux-{{ ansible_architecture_alt }}"
-        dest: /usr/local/bin/lw-scanner
-        mode: "u+x,g+x,o+x"
-
     - name: Install doctl client for digital ocean
       get_url:
         url: https://github.com/digitalocean/doctl/releases/download/v{{ doctl_version }}/doctl-{{ doctl_version }}-linux-{{ ansible_architecture_alt }}.tar.gz
@@ -125,12 +118,6 @@
         dest: /usr/local/bin
         remote_src: yes
         mode: "u+x,g+x,o+x"
-
-    - name: Install Goreleaser
-      dnf:
-        name: https://github.com/goreleaser/goreleaser/releases/download/v{{ goreleaser_version }}/goreleaser-{{ goreleaser_version }}-1.{{ ansible_architecture }}.rpm
-        state: present
-        disable_gpg_check: yes
 
     - name: Install latest YQ (YAML processor) 
       get_url:

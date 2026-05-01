@@ -16,13 +16,10 @@
 package management
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
 	"github.com/AlekSi/pointer"
-	"github.com/percona/saas/pkg/check"
-	"github.com/percona/saas/pkg/common"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -32,6 +29,8 @@ import (
 
 	advisorsv1 "github.com/percona/pmm/api/advisors/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
+	"github.com/percona/pmm/managed/pi/check"
+	"github.com/percona/pmm/managed/pi/common"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/tests"
 )
@@ -43,7 +42,7 @@ func TestStartAdvisorChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.StartAdvisorChecks(context.Background(), &advisorsv1.StartAdvisorChecksRequest{})
+		resp, err := s.StartAdvisorChecks(t.Context(), &advisorsv1.StartAdvisorChecksRequest{})
 		assert.EqualError(t, err, "failed to start advisor checks: random error")
 		assert.Nil(t, resp)
 	})
@@ -54,7 +53,7 @@ func TestStartAdvisorChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.StartAdvisorChecks(context.Background(), &advisorsv1.StartAdvisorChecksRequest{})
+		resp, err := s.StartAdvisorChecks(t.Context(), &advisorsv1.StartAdvisorChecksRequest{})
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "Advisor checks are disabled."), err)
 		assert.Nil(t, resp)
 	})
@@ -72,7 +71,7 @@ func TestGetFailedChecks(t *testing.T) {
 		s := NewChecksAPIService(&checksService)
 		serviceID := "test_svc"
 
-		resp, err := s.GetFailedChecks(context.Background(), &advisorsv1.GetFailedChecksRequest{
+		resp, err := s.GetFailedChecks(t.Context(), &advisorsv1.GetFailedChecksRequest{
 			ServiceId: serviceID,
 		})
 		assert.EqualError(t, err, fmt.Sprintf("failed to get check results for service '%s': random error", serviceID))
@@ -87,7 +86,7 @@ func TestGetFailedChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.GetFailedChecks(context.Background(), &advisorsv1.GetFailedChecksRequest{
+		resp, err := s.GetFailedChecks(t.Context(), &advisorsv1.GetFailedChecksRequest{
 			ServiceId: "test_svc",
 		})
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "Advisor checks are disabled."), err)
@@ -131,7 +130,7 @@ func TestGetFailedChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.GetFailedChecks(context.Background(), &advisorsv1.GetFailedChecksRequest{
+		resp, err := s.GetFailedChecks(t.Context(), &advisorsv1.GetFailedChecksRequest{
 			ServiceId: "test_svc",
 		})
 		require.NoError(t, err)
@@ -197,7 +196,7 @@ func TestGetFailedChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.GetFailedChecks(context.Background(), &advisorsv1.GetFailedChecksRequest{
+		resp, err := s.GetFailedChecks(t.Context(), &advisorsv1.GetFailedChecksRequest{
 			ServiceId: "test_svc",
 			PageSize:  pointer.ToInt32(1),
 			PageIndex: pointer.ToInt32(1),
@@ -218,7 +217,7 @@ func TestListFailedServices(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ListFailedServices(context.Background(), &advisorsv1.ListFailedServicesRequest{})
+		resp, err := s.ListFailedServices(t.Context(), &advisorsv1.ListFailedServicesRequest{})
 		assert.EqualError(t, err, "failed to get check results: random error")
 		assert.Nil(t, resp)
 	})
@@ -293,7 +292,7 @@ func TestListFailedServices(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ListFailedServices(context.Background(), &advisorsv1.ListFailedServicesRequest{})
+		resp, err := s.ListFailedServices(t.Context(), &advisorsv1.ListFailedServicesRequest{})
 		require.NoError(t, err)
 		assert.ElementsMatch(t, resp.Result, response.Result)
 	})
@@ -313,7 +312,7 @@ func TestListAdvisorChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ListAdvisorChecks(context.Background(), nil)
+		resp, err := s.ListAdvisorChecks(t.Context(), nil)
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 
@@ -333,7 +332,7 @@ func TestListAdvisorChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ListAdvisorChecks(context.Background(), nil)
+		resp, err := s.ListAdvisorChecks(t.Context(), nil)
 		assert.EqualError(t, err, "failed to get disabled checks list: random error")
 		assert.Nil(t, resp)
 	})
@@ -346,7 +345,7 @@ func TestUpdateAdvisorChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ChangeAdvisorChecks(context.Background(), &advisorsv1.ChangeAdvisorChecksRequest{})
+		resp, err := s.ChangeAdvisorChecks(t.Context(), &advisorsv1.ChangeAdvisorChecksRequest{})
 		assert.EqualError(t, err, "failed to enable disabled advisor checks: random error")
 		assert.Nil(t, resp)
 	})
@@ -358,7 +357,7 @@ func TestUpdateAdvisorChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ChangeAdvisorChecks(context.Background(), &advisorsv1.ChangeAdvisorChecksRequest{})
+		resp, err := s.ChangeAdvisorChecks(t.Context(), &advisorsv1.ChangeAdvisorChecksRequest{})
 		assert.EqualError(t, err, "failed to disable advisor checks: random error")
 		assert.Nil(t, resp)
 	})
@@ -369,7 +368,7 @@ func TestUpdateAdvisorChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ChangeAdvisorChecks(context.Background(), &advisorsv1.ChangeAdvisorChecksRequest{
+		resp, err := s.ChangeAdvisorChecks(t.Context(), &advisorsv1.ChangeAdvisorChecksRequest{
 			Params: []*advisorsv1.ChangeAdvisorCheckParams{{
 				Name:     "check-name",
 				Interval: advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD,
@@ -387,7 +386,7 @@ func TestUpdateAdvisorChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ChangeAdvisorChecks(context.Background(), &advisorsv1.ChangeAdvisorChecksRequest{
+		resp, err := s.ChangeAdvisorChecks(t.Context(), &advisorsv1.ChangeAdvisorChecksRequest{
 			Params: []*advisorsv1.ChangeAdvisorCheckParams{{
 				Name:     "check-name",
 				Interval: advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED,

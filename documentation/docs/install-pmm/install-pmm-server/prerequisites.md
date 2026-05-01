@@ -6,7 +6,7 @@ Before installing PMM Server, ensure your environment meets these requirements.
 
 ✓ **Hardware**: CPU with SSE4.2 support, 4+ cores, 8+ GB RAM, 100+ GB storage  
 ✓ **OS**: Modern 64-bit Linux or container platform (Docker/Podman/Kubernetes)  
-✓ **Network**: Ports 80/443 accessible to PMM Clients and users  
+✓ **Network**: Port 443 (or 8443 for non-privileged environments) accessible to PMM Clients and users
 ✓ **Container runtime**: Docker 17.03+ or Podman (for containerized deployments)  
 ✓ **Storage**: Persistent storage solution for data retention  
 
@@ -60,9 +60,8 @@ PMM Server requires these network connections:
 
 | Connection | Port | Purpose | Required |
 |------------|------|---------|----------|
-| Users > PMM Server | 443 (HTTPS) | Web interface access | Essential |
-| Users > PMM Server | 80 (HTTP) | Web interface (insecure) | Optional |
-| PMM Clients > PMM Server | 443/80 | Metrics reporting | Essential |
+| Users > PMM Server | 443 or 8443 | Web interface access. Use port 8443 if your environment restricts privileged ports (<1024). | Essential |
+| PMM Clients > PMM Server | 443 or 8443 | Metrics reporting | Essential |
 | PMM Server > Internet | 443 | Updates, telemetry | Optional |
 
 For complete port specifications, see [Network and firewall requirements](../plan-pmm-installation/network_and_firewall.md).

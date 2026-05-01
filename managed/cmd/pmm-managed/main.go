@@ -52,6 +52,9 @@ import (
 	"google.golang.org/grpc/backoff"
 	channelz "google.golang.org/grpc/channelz/service"
 	"google.golang.org/grpc/credentials/insecure"
+	// Installing the gzip encoding registers it as an available compressor.
+	// GRPC will automatically negotiate and use gzip if the client supports it.
+	_ "google.golang.org/grpc/encoding/gzip"
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -69,7 +72,7 @@ import (
 	hav1beta1 "github.com/percona/pmm/api/ha/v1beta1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
-	platformv1 "github.com/percona/pmm/api/platform/v1"
+	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	uieventsv1 "github.com/percona/pmm/api/uievents/v1"
 	userv1 "github.com/percona/pmm/api/user/v1"
@@ -93,6 +96,7 @@ import (
 	"github.com/percona/pmm/managed/services/minio"
 	"github.com/percona/pmm/managed/services/nomad"
 	"github.com/percona/pmm/managed/services/qan"
+	"github.com/percona/pmm/managed/services/realtimeanalytics"
 	"github.com/percona/pmm/managed/services/scheduler"
 	"github.com/percona/pmm/managed/services/server"
 	"github.com/percona/pmm/managed/services/supervisord"
@@ -197,36 +201,37 @@ func addLogsHandler(mux *http.ServeMux, logs *server.Logs) {
 }
 
 type gRPCServerDeps struct {
-	db                   *reform.DB
-	ha                   *ha.Service
-	checksService        *checks.Service
-	config               *config.Config
-	agentsRegistry       *agents.Registry
-	handler              *agents.Handler
-	actions              *agents.ActionsService
-	agentService         *agents.AgentService
-	jobsService          *agents.JobsService
-	connectionCheck      *agents.ConnectionChecker
-	serviceInfoBroker    *agents.ServiceInfoBroker
-	agentsStateUpdater   *agents.StateUpdater
-	grafanaClient        *grafana.Client
-	templatesService     *alerting.Service
-	backupService        *backup.Service
-	dumpService          *dump.Service
-	compatibilityService *backup.CompatibilityService
-	backupRemovalService *backup.RemovalService
-	pbmPITRService       *backup.PBMPITRService
-	vmClient             *metrics.Client
-	minioClient          *minio.Client
-	settings             *models.Settings
-	platformClient       *platformClient.Client
-	schedulerService     *scheduler.Service
-	supervisord          *supervisord.Service
-	server               *server.Server
-	uieventsService      *uievents.Service
-	versionCache         *versioncache.Service
-	vmdb                 *victoriametrics.Service
-	vmalert              *vmalert.Service
+	db                        *reform.DB
+	ha                        *ha.Service
+	checksService             *checks.Service
+	config                    *config.Config
+	agentsRegistry            *agents.Registry
+	handler                   *agents.Handler
+	actions                   *agents.ActionsService
+	agentService              *agents.AgentService
+	jobsService               *agents.JobsService
+	connectionCheck           *agents.ConnectionChecker
+	serviceInfoBroker         *agents.ServiceInfoBroker
+	agentsStateUpdater        *agents.StateUpdater
+	externalExporterStatusSvc *agents.ExternalExporterStatusService
+	grafanaClient             *grafana.Client
+	templatesService          *alerting.Service
+	backupService             *backup.Service
+	dumpService               *dump.Service
+	compatibilityService      *backup.CompatibilityService
+	backupRemovalService      *backup.RemovalService
+	pbmPITRService            *backup.PBMPITRService
+	vmClient                  *metrics.Client
+	minioClient               *minio.Client
+	settings                  *models.Settings
+	platformClient            *platformClient.Client
+	schedulerService          *scheduler.Service
+	supervisord               *supervisord.Service
+	server                    *server.Server
+	uieventsService           *uievents.Service
+	versionCache              *versioncache.Service
+	vmdb                      *victoriametrics.Service
+	vmalert                   *vmalert.Service
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -299,6 +304,15 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	uieventsv1.RegisterUIEventsServiceServer(gRPCServer, deps.uieventsService)
 
 	hav1beta1.RegisterHAServiceServer(gRPCServer, ha.NewHAServer(deps.ha))
+
+	// Register RTA service with in-memory store
+	rtaStore := realtimeanalytics.NewStore()
+	rtaSvc := realtimeanalytics.NewService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, rtaStore)
+	rtav1.RegisterRealtimeAnalyticsServiceServer(gRPCServer, rtaSvc)
+	rtav1.RegisterCollectorServiceServer(gRPCServer, rtaSvc)
+
+	// Start RTA store cleanup goroutine
+	go rtaStore.Run(ctx)
 
 	// run server until it is stopped gracefully or not
 	listener, err := net.Listen("tcp", gRPCAddr)
@@ -395,7 +409,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 
 		dumpv1beta1.RegisterDumpServiceHandler,
 
-		platformv1.RegisterPlatformServiceHandler,
+		rtav1.RegisterRealtimeAnalyticsServiceHandler,
+
 		uieventsv1.RegisterUIEventsServiceHandler,
 
 		userv1.RegisterUserServiceHandler,
@@ -529,11 +544,8 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 		deps.l.Warnf("Failed to get settings: %s.", err)
 		return false
 	}
-	ssoDetails, err := models.GetPerconaSSODetails(ctx, db.Querier)
-	if err != nil && !errors.Is(err, models.ErrNotConnectedToPortal) {
-		deps.l.Warnf("Failed to get Percona SSO Details: %s.", err)
-	}
-	if err = deps.supervisord.UpdateConfiguration(settings, ssoDetails); err != nil {
+	err = deps.supervisord.UpdateConfiguration(settings)
+	if err != nil {
 		deps.l.Warnf("Failed to update supervisord configuration: %s.", err)
 		return false
 	}
@@ -930,9 +942,9 @@ func main() { //nolint:maintidx,cyclop
 		l.Fatal(err)
 	}
 
-	platformClient, err := platformClient.NewClient(db, platformAddress)
+	platformClient, err := platformClient.NewClient(platformAddress)
 	if err != nil {
-		l.Fatalf("Could not create Percona Portal client: %s", err)
+		l.Fatalf("Could not create telemetry client: %s", err)
 	}
 
 	uieventsService := uievents.New()
@@ -978,6 +990,7 @@ func main() { //nolint:maintidx,cyclop
 	if err != nil {
 		l.Fatalf("Could not create Clickhouse client: %s", err)
 	}
+	externalExporterStatusSvc := agents.NewExternalExporterStatusService(db, v1.NewAPI(vmClient))
 
 	checksService := checks.New(db, actionsService, v1.NewAPI(vmClient), clickhouseClient)
 	prom.MustRegister(checksService)
@@ -1104,6 +1117,12 @@ func main() { //nolint:maintidx,cyclop
 		vmdb.Run(ctx)
 	})
 
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		externalExporterStatusSvc.Run(ctx)
+	}()
+
 	haService.AddLeaderService(ha.NewContextService("checks", func(ctx context.Context) error {
 		checksService.Run(ctx)
 		return nil
@@ -1137,36 +1156,37 @@ func main() { //nolint:maintidx,cyclop
 	wg.Go(func() {
 		runGRPCServer(ctx,
 			&gRPCServerDeps{
-				actions:              actionsService,
-				agentService:         agentService,
-				agentsRegistry:       agentsRegistry,
-				agentsStateUpdater:   agentsStateUpdater,
-				backupRemovalService: backupRemovalService,
-				backupService:        backupService,
-				checksService:        checksService,
-				compatibilityService: compatibilityService,
-				config:               &cfg.Config,
-				connectionCheck:      connectionCheck,
-				db:                   db,
-				dumpService:          dumpService,
-				grafanaClient:        grafanaClient,
-				handler:              agentsHandler,
-				ha:                   haService,
-				jobsService:          jobsService,
-				minioClient:          minioClient,
-				pbmPITRService:       pbmPITRService,
-				platformClient:       platformClient,
-				schedulerService:     schedulerService,
-				server:               server,
-				serviceInfoBroker:    serviceInfoBroker,
-				settings:             settings,
-				supervisord:          supervisord,
-				templatesService:     alertingService,
-				uieventsService:      uieventsService,
-				versionCache:         versionCache,
-				vmalert:              vmalert,
-				vmClient:             &vmClient,
-				vmdb:                 vmdb,
+				actions:                   actionsService,
+				agentService:              agentService,
+				agentsRegistry:            agentsRegistry,
+				agentsStateUpdater:        agentsStateUpdater,
+				externalExporterStatusSvc: externalExporterStatusSvc,
+				backupRemovalService:      backupRemovalService,
+				backupService:             backupService,
+				checksService:             checksService,
+				compatibilityService:      compatibilityService,
+				config:                    &cfg.Config,
+				connectionCheck:           connectionCheck,
+				db:                        db,
+				dumpService:               dumpService,
+				grafanaClient:             grafanaClient,
+				handler:                   agentsHandler,
+				ha:                        haService,
+				jobsService:               jobsService,
+				minioClient:               minioClient,
+				pbmPITRService:            pbmPITRService,
+				platformClient:            platformClient,
+				schedulerService:          schedulerService,
+				server:                    server,
+				serviceInfoBroker:         serviceInfoBroker,
+				settings:                  settings,
+				supervisord:               supervisord,
+				templatesService:          alertingService,
+				uieventsService:           uieventsService,
+				versionCache:              versionCache,
+				vmalert:                   vmalert,
+				vmClient:                  &vmClient,
+				vmdb:                      vmdb,
 			})
 	})
 

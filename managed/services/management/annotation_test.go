@@ -42,7 +42,7 @@ func TestAnnotations(t *testing.T) {
 	setup := func(t *testing.T) (context.Context, *ManagementService, *reform.DB, *mockGrafanaClient, func(t *testing.T)) {
 		t.Helper()
 
-		ctx := metadata.NewIncomingContext(context.Background(), metadata.New(map[string]string{"authorization": authorization}))
+		ctx := metadata.NewIncomingContext(t.Context(), metadata.New(map[string]string{"authorization": authorization}))
 		ctx = logger.Set(ctx, t.Name())
 		uuid.SetRand(&tests.IDReader{})
 

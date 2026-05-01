@@ -14,3 +14,14 @@ export const formatTimestamp = (timestamp: string) =>
     month: 'long',
     year: 'numeric',
   });
+
+export const formatDuration = (duration: number) => {
+  const hours = Math.floor(duration / 3600000);
+  const minutes = Math.floor((duration % 3600000) / 60000);
+
+  if (hours > 0) {
+    return `${hours}h ${minutes}m`;
+  }
+
+  return `${minutes} min`;
+};

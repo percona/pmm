@@ -7,56 +7,26 @@ on:
   # devcontainer. One more scenario is when we want to run the API tests on dev-latest
   # to see if the tests are in a good shape.
   # That said, this workflow is mostly a convenience if you prefer Github to Jenkins.
-  # https://github.com/Percona-Lab/jenkins-pipelines/blob/master/pmm/pmm2-api-tests.groovy
+  # https://github.com/Percona-Lab/jenkins-pipelines/blob/master/pmm/pmm3-api-tests.groovy
 
   workflow_dispatch:
     inputs:
-      MYSQL_IMAGE:
-        description: "MYSQL image version"
-        default: "percona:5.7"
-        required: true
-        type: string
-      POSTGRESQL_IMAGE:
-        description: "POSTGRESQL image version"
-        default: "postgres:12"
-        required: true
-        type: string
-      MONGODB_IMAGE:
-        description: "MONGODB image version"
-        default: "percona/percona-server-mongodb:4.4"
-        required: true
-        type: string
       PMM_SERVER_IMAGE:
         description: "PMM Server image version"
-        default: "perconalab/pmm-server:dev-latest"
+        default: "ghcr.io/percona/pmm:3-dev-container"
         required: true
         type: string
 
   workflow_call:
     inputs:
       BRANCH:
-        description: "The branch to source API tests from"
-        default: "main"
-        required: true
-        type: string      
-      MYSQL_IMAGE:
-        description: "MYSQL image version"
-        default: "percona:5.7"
-        required: true
-        type: string
-      POSTGRESQL_IMAGE:
-        description: "POSTGRESQL image version"
-        default: "postgres:12"
-        required: true
-        type: string
-      MONGODB_IMAGE:
-        description: "MONGODB image version"
-        default: "percona/percona-server-mongodb:4.4"
+        description: "The branch to pull API tests from"
+        default: "v3"
         required: true
         type: string
       PMM_SERVER_IMAGE:
         description: "PMM Server image version"
-        default: "perconalab/pmm-server:dev-latest"
+        default: "ghcr.io/percona/pmm:3-dev-container"
         required: true
         type: string
 
@@ -69,20 +39,17 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       PMM_URL: https://admin:admin@127.0.0.1
-      BRANCH: ${{ github.event.inputs.BRANCH || 'main' }}
-      MYSQL_IMAGE: ${{ github.event.inputs.MYSQL_IMAGE || 'percona:5.7' }}
-      POSTGRESQL_IMAGE: ${{ github.event.inputs.POSTGRESQL_IMAGE || 'postgres:12' }}
-      MONGODB_IMAGE: ${{ github.event.inputs.MONGODB_IMAGE || 'percona/percona-server-mongodb:4.4' }}
-      PMM_SERVER_IMAGE: ${{ github.event.inputs.PMM_SERVER_IMAGE || 'perconalab/pmm-server:3-dev-latest' }}
+      BRANCH: ${{ github.event.inputs.BRANCH || 'v3' }}
+      PMM_SERVER_IMAGE: ${{ github.event.inputs.PMM_SERVER_IMAGE }}
 
     steps:
       - name: Check out code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          ref: ${{ env.BRANCH }}        
+          ref: ${{ env.BRANCH }}
 
       - name: Login to docker.io registry
-        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
         with:
           registry: docker.io
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -90,7 +57,7 @@ jobs:
 
       - name: Run PMM Server
         run: |
-          cat <<-EOF > compose.pmm-server-test.yml
+          cat <<-EOF > compose.yml
           services:
             pmm-server:
               image: ${{ env.PMM_SERVER_IMAGE }}
@@ -98,21 +65,24 @@ jobs:
               environment:
                 - PMM_DEBUG=1
                 - PMM_DEV_PERCONA_PLATFORM_ADDRESS=https://check-dev.percona.com
-                - PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY=RWTg+ZmCCjt7O8eWeAmTLAqW+1ozUbpRSKSwNTmO+exlS5KEIPYWuYdX
               ports:
-                - 80:8080
                 - 443:8443
               volumes:
+                - pmm-data:/srv
                 - ./managed/testdata/checks:/srv/checks
+          volumes:
+            pmm-data:
+              name: pmm-data
           EOF
 
           # Run it and wait until it's healthy
-          docker compose -f compose.pmm-server-test.yml up -d --wait --wait-timeout=100
+          docker compose -f compose.yml up -d --wait --wait-timeout=100
 
       - name: Build the test image
         shell: bash
         run: |
-          docker build -t percona/pmm-api-tests .
+          echo "Make sure to set the context to the root of the repository."
+          docker buildx build -f api-tests/Dockerfile -t percona/pmm-api-tests .
 
       - name: Run compose up for test DBs
         shell: bash
@@ -128,9 +98,11 @@ jobs:
       - name: Run API tests
         shell: bash
         run: |
-          docker run -e PMM_SERVER_URL=${{env.PMM_URL}} \
+          docker run \
+            -e PMM_SERVER_URL=${{env.PMM_URL}} \
             -e PMM_RUN_UPDATE_TEST=0 \
             -e PMM_RUN_ADVISOR_TESTS=0 \
+            -e PMM_SERVER_INSECURE_TLS=1 \
             --name pmm-api-tests \
             --network host \
             percona/pmm-api-tests
@@ -141,7 +113,7 @@ jobs:
 
       - name: Upload the logs on failure
         if: ${{ failure() }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: "logs.zip"
           path: ${{ github.workspace }}/logs.zip

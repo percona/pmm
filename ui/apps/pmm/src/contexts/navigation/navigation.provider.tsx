@@ -67,8 +67,9 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
 
     items.push(...addDashboardItems(currentServiceTypes, folders, user));
 
+    items.push(NAV_QAN);
+
     if (user && settings) {
-      items.push(NAV_QAN);
 
       if (settings.frontend.exploreEnabled && user.isEditor) {
         items.push(addExplore(settings.frontend));

@@ -15,6 +15,7 @@ import (
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 
+	_ "github.com/percona/pmm/api/extensions/v1"
 	v1 "github.com/percona/pmm/api/inventory/v1"
 )
 
@@ -170,6 +171,8 @@ type UniversalAgent struct {
 	ExposeExporter bool `protobuf:"varint,40,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
 	// Options for connecting to Valkey.
 	ValkeyOptions *UniversalAgent_ValkeyOptions `protobuf:"bytes,41,opt,name=valkey_options,json=valkeyOptions,proto3" json:"valkey_options,omitempty"`
+	// Real-Time Analytics options.
+	RtaOptions    *v1.RTAOptions `protobuf:"bytes,42,opt,name=rta_options,json=rtaOptions,proto3" json:"rta_options,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -487,6 +490,13 @@ func (x *UniversalAgent) GetExposeExporter() bool {
 func (x *UniversalAgent) GetValkeyOptions() *UniversalAgent_ValkeyOptions {
 	if x != nil {
 		return x.ValkeyOptions
+	}
+	return nil
+}
+
+func (x *UniversalAgent) GetRtaOptions() *v1.RTAOptions {
+	if x != nil {
+		return x.RtaOptions
 	}
 	return nil
 }
@@ -1080,13 +1090,13 @@ var File_management_v1_agent_proto protoreflect.FileDescriptor
 
 const file_management_v1_agent_proto_rawDesc = "" +
 	"\n" +
-	"\x19management/v1/agent.proto\x12\rmanagement.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cinventory/v1/log_level.proto\"\x8f\x18\n" +
+	"\x19management/v1/agent.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\"\xd0\x18\n" +
 	"\x0eUniversalAgent\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x121\n" +
 	"\x15is_agent_password_set\x18\x02 \x01(\bR\x12isAgentPasswordSet\x12\x1d\n" +
 	"\n" +
-	"agent_type\x18\x03 \x01(\tR\tagentType\x12$\n" +
-	"\x0eaws_access_key\x18\x04 \x01(\tR\fawsAccessKey\x120\n" +
+	"agent_type\x18\x03 \x01(\tR\tagentType\x12*\n" +
+	"\x0eaws_access_key\x18\x04 \x01(\tB\x04\x88\xb5\x18\x01R\fawsAccessKey\x120\n" +
 	"\x15is_aws_secret_key_set\x18\x05 \x01(\bR\x11isAwsSecretKeySet\x12O\n" +
 	"\razure_options\x18\x06 \x01(\v2*.management.v1.UniversalAgent.AzureOptionsR\fazureOptions\x129\n" +
 	"\n" +
@@ -1130,7 +1140,9 @@ const file_management_v1_agent_proto_rawDesc = "" +
 	"\aversion\x18& \x01(\tR\aversion\x12!\n" +
 	"\fis_connected\x18' \x01(\bR\visConnected\x12'\n" +
 	"\x0fexpose_exporter\x18( \x01(\bR\x0eexposeExporter\x12R\n" +
-	"\x0evalkey_options\x18) \x01(\v2+.management.v1.UniversalAgent.ValkeyOptionsR\rvalkeyOptions\x1a\xe0\x01\n" +
+	"\x0evalkey_options\x18) \x01(\v2+.management.v1.UniversalAgent.ValkeyOptionsR\rvalkeyOptions\x129\n" +
+	"\vrta_options\x18* \x01(\v2\x18.inventory.v1.RTAOptionsR\n" +
+	"rtaOptions\x1a\xe0\x01\n" +
 	"\fMySQLOptions\x12#\n" +
 	"\x0eis_tls_key_set\x18\x01 \x01(\bR\visTlsKeySet\x12h\n" +
 	"\x10extra_dsn_params\x18\x02 \x03(\v2>.management.v1.UniversalAgent.MySQLOptions.ExtraDsnParamsEntryR\x0eextraDsnParams\x1aA\n" +
@@ -1214,6 +1226,7 @@ var (
 		nil,                                      // 13: management.v1.UniversalAgent.MySQLOptions.ExtraDsnParamsEntry
 		(*timestamppb.Timestamp)(nil),            // 14: google.protobuf.Timestamp
 		(v1.LogLevel)(0),                         // 15: inventory.v1.LogLevel
+		(*v1.RTAOptions)(nil),                    // 16: inventory.v1.RTAOptions
 	}
 )
 
@@ -1227,15 +1240,16 @@ var file_management_v1_agent_proto_depIdxs = []int32{
 	10, // 6: management.v1.UniversalAgent.postgresql_options:type_name -> management.v1.UniversalAgent.PostgreSQLOptions
 	14, // 7: management.v1.UniversalAgent.updated_at:type_name -> google.protobuf.Timestamp
 	11, // 8: management.v1.UniversalAgent.valkey_options:type_name -> management.v1.UniversalAgent.ValkeyOptions
-	1,  // 9: management.v1.ListAgentsResponse.agents:type_name -> management.v1.UniversalAgent
-	0,  // 10: management.v1.AgentVersions.severity:type_name -> management.v1.UpdateSeverity
-	4,  // 11: management.v1.ListAgentVersionsResponse.agent_versions:type_name -> management.v1.AgentVersions
-	13, // 12: management.v1.UniversalAgent.MySQLOptions.extra_dsn_params:type_name -> management.v1.UniversalAgent.MySQLOptions.ExtraDsnParamsEntry
-	13, // [13:13] is the sub-list for method output_type
-	13, // [13:13] is the sub-list for method input_type
-	13, // [13:13] is the sub-list for extension type_name
-	13, // [13:13] is the sub-list for extension extendee
-	0,  // [0:13] is the sub-list for field type_name
+	16, // 9: management.v1.UniversalAgent.rta_options:type_name -> inventory.v1.RTAOptions
+	1,  // 10: management.v1.ListAgentsResponse.agents:type_name -> management.v1.UniversalAgent
+	0,  // 11: management.v1.AgentVersions.severity:type_name -> management.v1.UpdateSeverity
+	4,  // 12: management.v1.ListAgentVersionsResponse.agent_versions:type_name -> management.v1.AgentVersions
+	13, // 13: management.v1.UniversalAgent.MySQLOptions.extra_dsn_params:type_name -> management.v1.UniversalAgent.MySQLOptions.ExtraDsnParamsEntry
+	14, // [14:14] is the sub-list for method output_type
+	14, // [14:14] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
 func init() { file_management_v1_agent_proto_init() }

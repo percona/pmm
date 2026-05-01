@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"testing"
@@ -112,14 +113,15 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 	// Need to detect vendor because result for mSharedBlksReadSum are different for different images for postgres.
 	mSharedBlksHitSum := float32(33)
-	if strings.Contains(os.Getenv("POSTGRES_IMAGE"), "perconalab") {
+	isPercona := strings.Contains(os.Getenv("POSTGRES_IMAGE"), "perconalab")
+	if isPercona {
 		mSharedBlksHitSum = 32
 	}
 	truncatedMSharedBlksHitSum := mSharedBlksHitSum
 	isTruncated := true
-	engineVersion := tests.PostgreSQLVersion(t, sqlDB)
+	majorVersion, minorVersion := tests.PostgreSQLVersion(t, sqlDB)
 	var digests map[string]string // digest_text/fingerprint to digest/query_id
-	switch engineVersion {
+	switch majorVersion {
 	case "10":
 		truncatedMSharedBlksHitSum = float32(1007)
 		digests = map[string]string{
@@ -163,11 +165,23 @@ func TestPGStatStatementsQAN(t *testing.T) {
 	case "18":
 		selectAllCitiesLong = "SELECT /* AllCitiesTruncated:pgstatstatements controller='test' */ * FROM city WHERE id IN ($1 /*, ... */)"
 		truncatedMSharedBlksHitSum = float32(8)
-		digests = map[string]string{
-			selectAllCities:     "2398197226709363629",
-			selectAllCitiesLong: "-1570108445478818403",
-		}
 		isTruncated = false
+
+		minor, err := strconv.ParseInt(minorVersion, 10, 64) // just to make sure minor version is parsable
+		require.NoError(t, err)
+
+		switch {
+		case minor >= 2 && !isPercona || minor >= 3 && isPercona:
+			digests = map[string]string{
+				selectAllCities:     "-7353212999726668504",
+				selectAllCitiesLong: "954639919948531541",
+			}
+		default:
+			digests = map[string]string{
+				selectAllCities:     "2398197226709363629",
+				selectAllCitiesLong: "-1570108445478818403",
+			}
+		}
 	default:
 		t.Log("Unhandled version, assuming dummy digests.")
 		digests = map[string]string{

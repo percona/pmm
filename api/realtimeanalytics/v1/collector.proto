@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package realtimeanalytics.v1;
+
+import "google/api/visibility.proto";
+import "realtimeanalytics/v1/query.proto";
+
+// CollectRequest is sent from agent to server with a batch of queries.
+message CollectRequest {
+  // List of Real-Time Analytics query data points.
+  // All queries in a single CollectRequest are expected to have the same service_id and service_name.
+  repeated QueryData queries = 1;
+}
+
+// CollectResponse is stub for server response.
+message CollectResponse {
+  // Empty response for now.
+}
+
+// CollectorService defines the gRPC service for collecting Real-Time Analytics data.
+service CollectorService {
+  option (google.api.api_visibility).restriction = "INTERNAL";
+  // Unidirectional streaming for Real-Time Analytics query data.
+  rpc Collect(stream CollectRequest) returns (CollectResponse);
+}

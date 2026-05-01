@@ -11,13 +11,13 @@ services:
       # - PMM_DEV_ADVISOR_CHECKS_FILE=/srv/checks/custom-checks.yml
       # for check-dev
       - PMM_DEV_PERCONA_PLATFORM_ADDRESS=check-dev.percona.com
-      - PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY=RWTg+ZmCCjt7O8eWeAmTLAqW+1ozUbpRSKSwNTmO+exlS5KEIPYWuYdX
     volumes:
       - ./testdata/checks:/srv/checks
 
   test_db:
     image: aleksi/test_db:1.1.0
     container_name: pmm-agent_test_db
+    platform: linux/amd64
     volumes:
       - test_db_mysql:/test_db/mysql/world:ro
       - test_db_postgres:/test_db/postgresql/world:ro

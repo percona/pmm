@@ -366,7 +366,7 @@ func GetPlatformAddress() (string, error) {
 	}
 
 	if _, err := url.Parse(address); err != nil {
-		return "", errors.Errorf("invalid percona platform address: %s", err)
+		return "", errors.Errorf("invalid Percona Platform address: %s", err)
 	}
 
 	logrus.Infof("Using Percona Platform address: %s.", address)
@@ -396,7 +396,7 @@ func GetInterfaceToBind() string {
 
 // GetEnv returns env with fallback option.
 func GetEnv(key, fallback string) string {
-	if value, ok := os.LookupEnv(key); ok {
+	if value, ok := os.LookupEnv(key); ok && value != "" {
 		return value
 	}
 	return fallback

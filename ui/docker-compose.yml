@@ -14,16 +14,25 @@ services:
       # - pmm-data:/srv
 
       # Uncomment to use custom (FE) grafana code
-      #- '../../grafana/public:/usr/share/grafana/public'
+      # - '../../grafana/public:/usr/share/grafana/public'
 
       # PMM compat plugin
       - ./apps/pmm-compat/dist:/srv/grafana/plugins/pmm-compat
+
+      # PMM UI (only useful if testing rendering server, for example. Otherwise, just stick with the vite dev server)
+      # - ./apps/pmm/dist:/usr/share/pmm-ui
+      # Uncomment to use custom (FE) Grafana dashboards
+      # - ../../grafana-dashboards/pmm-app/dist:/srv/grafana/plugins/pmm-app
+      # Mount repo so you can run the backend built from this codebase
+      # - ..:/root/go/src/github.com/percona/pmm
+      # - ../Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro
+      # should be followed by running:
+      # docker exec -u root -it pmm-server bash -c 'cd /root/go/src/github.com/percona/pmm && make run-agent'
+      # docker exec -u root -it pmm-server bash -c 'cd /root/go/src/github.com/percona/pmm && make run-managed'
     environment:
       - PMM_DEBUG=1
       - GF_DEFAULT_APP_MODE=development
-      - PMM_DEV_PORTAL_URL=https://portal-dev.percona.com
       - PMM_DEV_PERCONA_PLATFORM_ADDRESS=https://check-dev.percona.com:443
-      - PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY=RWTkF7Snv08FCboTne4djQfN5qbrLfAjb8SY3/wwEP+X5nUrkxCEvUDJ
       - PMM_WATCHTOWER_HOST=http://watchtower:8080
       - PMM_WATCHTOWER_TOKEN=123
       # Uncomment to specify to which docker image to update
