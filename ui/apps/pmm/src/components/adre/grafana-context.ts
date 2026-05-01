@@ -84,8 +84,8 @@ function collectVarParams(params: URLSearchParams): string[] {
 const CONTEXT_RULES = `Rules for this context:
 - Treat the URL fields below as the ONLY ground truth for which Grafana page, dashboard UID, focused panel (if any), time range, and template variables the user is viewing.
 - If viewPanel is absent, the user is on the dashboard view without a single focused panel encoded in the URL — do NOT claim a specific panel ID or title unless you state you are inferring from the tab title only.
-- If the user asks what they are looking at, answer from this context only; do NOT guess from runbooks, prior tool calls, or unrelated dashboards (e.g. do not invent mysql-innodb / panel IDs).
-- Do not mention runbook names or internal troubleshooting steps when answering "what panel/graph am I viewing?".`;
+- If the user asks what they are looking at, answer from this context only; do NOT guess from Holmes skills, prior tool calls, or unrelated dashboards (e.g. do not invent mysql-innodb / panel IDs).
+- Do not mention internal skill names or internal troubleshooting steps when answering "what panel/graph am I viewing?".`;
 
 /**
  * Builds the system-message fragment injected before ADRE chat requests.

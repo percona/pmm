@@ -46,7 +46,9 @@ func sanitizeQanInsightsAnalysis(raw string) string {
 	prefix := strings.ToLower(trimmed[:summaryIdx])
 	if strings.Contains(prefix, "runbook") ||
 		strings.Contains(prefix, "fetch_runbook") ||
+		strings.Contains(prefix, "fetch_skill") ||
 		strings.Contains(prefix, "i found a runbook") ||
+		strings.Contains(prefix, "i found a skill") ||
 		strings.Contains(prefix, "used it to troubleshoot") {
 		return strings.TrimSpace(trimmed[summaryIdx:])
 	}

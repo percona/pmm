@@ -44,8 +44,9 @@ var adreBehaviorControlAllowed = map[string]struct{}{
 	"style_guide":             {},
 	"cluster_name":            {},
 	"system_prompt_additions": {},
-	"files":                   {},
-	"time_runbooks":           {},
+	"files":          {},
+	"time_skills":    {},
+	"time_runbooks":  {}, // legacy; PMM maps to time_skills when calling Holmes
 }
 
 func validateAdreBehaviorControlsMap(field string, m map[string]bool) error {

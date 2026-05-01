@@ -19,7 +19,7 @@ HolmesGPT and PMM must be able to communicate. If using Docker or Kubernetes, en
 
 ### Fast vs Investigation (`default_chat_mode`, `mode` on chat)
 
-The ADRE panel and `POST /v1/adre/chat` use **Fast** (quick answers, minimal runbooks/TodoWrite by default) vs **Investigation** (full investigation behaviour). Differences are driven by Holmes **`behavior_controls`** maps stored in PMM settings (`behavior_controls_fast`, `behavior_controls_investigation`) plus separate **`additional_system_prompt`** texts (`chat_prompt`, `investigation_prompt`). See [Holmes fast mode / prompt controls](https://holmesgpt.dev/dev/reference/http-api/?h=fast#fast-mode--prompt-controls).
+The ADRE panel and `POST /v1/adre/chat` use **Fast** (quick answers, minimal Holmes skills / TodoWrite by default) vs **Investigation** (full investigation behaviour). Differences are driven by Holmes **`behavior_controls`** maps stored in PMM settings (`behavior_controls_fast`, `behavior_controls_investigation`) plus separate **`additional_system_prompt`** texts (`chat_prompt`, `investigation_prompt`). See [Holmes fast mode / prompt controls](https://holmesgpt.dev/dev/reference/http-api/?h=fast#fast-mode--prompt-controls).
 
 A third map, **`behavior_controls_format_report`**, applies only to the investigation report formatting pass.
 
@@ -91,10 +91,10 @@ The UI sends it as **`dashboard_context`** on `POST /v1/adre/chat`. **pmm-manage
 
 ## Holmes operator configuration (not shipped inside PMM)
 
-PMM **does not** ship `holmes_config.yaml` or Markdown **runbooks** in the repository. Operators maintain them on the **HolmesGPT** deployment:
+PMM **does not** ship `holmes_config.yaml` or Holmes **skills** (`SKILL.md` trees) in the repository. Operators maintain them on the **HolmesGPT** deployment:
 
 - **Toolsets** — Often defined in YAML (custom toolsets) or via **MCP** servers. Point Prometheus/VictoriaMetrics, PMM inventory tools, ClickHouse (QAN/logs), and optional `curl` tools at URLs reachable from Holmes (see [HolmesGPT docs](https://holmesgpt.dev)).
-- **Runbooks** — Markdown files plus a **catalog** (e.g. `catalog.json`) so the `fetch_runbook` tool can load steps. Paths are configured in Holmes, not in PMM.
+- **Skills** — Directories of `SKILL.md` files plus Holmes **`custom_skill_paths`** so the `fetch_skill` tool can load methodology. Paths are configured in Holmes, not in PMM.
 - **PMM-facing URLs** — Use a **browser-reachable** PMM base URL for markdown images and Grafana links where Holmes embeds `/v1/grafana/render/blob/...` or `/graph/...`.
 
 ## Grafana panel render (Tier 1 — `POST /v1/grafana/render/resolve`)

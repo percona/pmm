@@ -407,12 +407,12 @@ func (s *Settings) fillDefaults() {
 			s.Adre.DefaultChatMode = "investigation"
 		}
 		s.Adre.BehaviorControlsFast = map[string]bool{
-			"time_runbooks":          false,
+			"time_skills":            false,
 			"todowrite_instructions": false,
 			"todowrite_reminder":     false,
 		}
 		s.Adre.BehaviorControlsFormatReport = map[string]bool{
-			"time_runbooks":          false,
+			"time_skills":            false,
 			"todowrite_instructions": false,
 			"todowrite_reminder":     false,
 		}

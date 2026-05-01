@@ -65,12 +65,12 @@ func TestSettings(t *testing.T) {
 		expected.Adre.AdreSchemaVersion = models.AdreSchemaVersionCurrent
 		expected.Adre.AdreMaxConversationMessages = 40
 		expected.Adre.BehaviorControlsFast = map[string]bool{
-			"time_runbooks":          false,
+			"time_skills":            false,
 			"todowrite_instructions": false,
 			"todowrite_reminder":     false,
 		}
 		expected.Adre.BehaviorControlsFormatReport = map[string]bool{
-			"time_runbooks":          false,
+			"time_skills":            false,
 			"todowrite_instructions": false,
 			"todowrite_reminder":     false,
 		}
@@ -107,12 +107,12 @@ func TestSettings(t *testing.T) {
 		expected.Adre.AdreSchemaVersion = models.AdreSchemaVersionCurrent
 		expected.Adre.AdreMaxConversationMessages = 40
 		expected.Adre.BehaviorControlsFast = map[string]bool{
-			"time_runbooks":          false,
+			"time_skills":            false,
 			"todowrite_instructions": false,
 			"todowrite_reminder":     false,
 		}
 		expected.Adre.BehaviorControlsFormatReport = map[string]bool{
-			"time_runbooks":          false,
+			"time_skills":            false,
 			"todowrite_instructions": false,
 			"todowrite_reminder":     false,
 		}

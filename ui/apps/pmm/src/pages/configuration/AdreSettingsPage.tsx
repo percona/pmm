@@ -371,7 +371,7 @@ const AdreSettingsPage: FC = () => {
                 <AdreBehaviorControlsBlock
                   variant="fast"
                   title="Fast mode — behavior controls"
-                  description="Tuning for the Fast path in the ADRE chat panel (runbooks, TodoWrite, etc.)."
+                  description="Tuning for the Fast path in the ADRE chat panel (Holmes skills / TodoWrite, etc.)."
                   value={localBehaviorFast}
                   onChange={setLocalBehaviorFast}
                   onJsonError={(msg) => enqueueSnackbar(msg, { variant: 'error' })}

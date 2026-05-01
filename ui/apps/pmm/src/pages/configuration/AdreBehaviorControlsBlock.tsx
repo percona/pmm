@@ -14,7 +14,7 @@ const HOLMES_PROMPT_CONTROLS =
   'https://holmesgpt.dev/dev/reference/http-api/?h=fast#fast-mode--prompt-controls';
 
 const FAST_SHIPPED: Record<string, boolean> = {
-  time_runbooks: false,
+  time_skills: false,
   todowrite_instructions: false,
   todowrite_reminder: false,
 };

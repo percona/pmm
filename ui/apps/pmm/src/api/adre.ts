@@ -14,7 +14,7 @@ export const ADRE_BEHAVIOR_CONTROL_KEYS = [
   'cluster_name',
   'system_prompt_additions',
   'files',
-  'time_runbooks',
+  'time_skills',
 ] as const;
 
 export type AdreBehaviorControlsMap = Partial<Record<(typeof ADRE_BEHAVIOR_CONTROL_KEYS)[number], boolean>>;

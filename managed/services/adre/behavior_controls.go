@@ -28,18 +28,19 @@ var KnownBehaviorControlKeys = []string{
 	"cluster_name",
 	"system_prompt_additions",
 	"files",
-	"time_runbooks",
+	"time_skills",
+	"time_runbooks", // legacy; normalized to time_skills before calling Holmes (HolmesGPT #1953)
 }
 
 // AdreMaxConversationMessagesDefault caps conversation_history size sent to Holmes (fail-fast overflow mitigation).
 const AdreMaxConversationMessagesDefault = 40
 
-// DefaultBehaviorControlsFast disables runbooks and TodoWrite for Fast mode (Holmes fast-mode recipe).
+// DefaultBehaviorControlsFast disables timed skills catalog injection and TodoWrite for Fast mode (Holmes fast-mode recipe).
 func DefaultBehaviorControlsFast() map[string]bool {
 	return map[string]bool{
-		"time_runbooks":            false,
-		"todowrite_instructions":   false,
-		"todowrite_reminder":       false,
+		"time_skills":            false,
+		"todowrite_instructions": false,
+		"todowrite_reminder":     false,
 	}
 }
 
@@ -51,10 +52,25 @@ func DefaultBehaviorControlsInvestigation() map[string]bool {
 // DefaultBehaviorControlsFormatReport minimizes prompt noise for the JSON formatting pass.
 func DefaultBehaviorControlsFormatReport() map[string]bool {
 	return map[string]bool{
-		"time_runbooks":          false,
+		"time_skills":            false,
 		"todowrite_instructions": false,
 		"todowrite_reminder":     false,
 	}
+}
+
+// NormalizeBehaviorControlsForHolmes maps legacy keys to Holmes PromptComponent names (HolmesGPT #1953: time_runbooks → time_skills).
+func NormalizeBehaviorControlsForHolmes(m map[string]bool) map[string]bool {
+	if len(m) == 0 {
+		return m
+	}
+	out := maps.Clone(m)
+	if v, ok := out["time_runbooks"]; ok {
+		if _, has := out["time_skills"]; !has {
+			out["time_skills"] = v
+		}
+		delete(out, "time_runbooks")
+	}
+	return out
 }
 
 // ResolveBehaviorControlsForPostChat returns behavior_controls for Holmes from settings and UI mode ("fast" or "investigation").
@@ -65,13 +81,13 @@ func ResolveBehaviorControlsForPostChat(settings *models.Settings, mode string) 
 		if len(src) == 0 {
 			return nil
 		}
-		return maps.Clone(src)
+		return NormalizeBehaviorControlsForHolmes(maps.Clone(src))
 	}
 	src := settings.Adre.BehaviorControlsFast
 	if len(src) == 0 {
-		return DefaultBehaviorControlsFast()
+		return NormalizeBehaviorControlsForHolmes(DefaultBehaviorControlsFast())
 	}
-	return maps.Clone(src)
+	return NormalizeBehaviorControlsForHolmes(maps.Clone(src))
 }
 
 // ResolveBehaviorControlsForInvestigation returns behavior_controls for investigation chat/run.
@@ -80,16 +96,16 @@ func ResolveBehaviorControlsForInvestigation(settings *models.Settings) map[stri
 	if len(src) == 0 {
 		return DefaultBehaviorControlsInvestigation()
 	}
-	return maps.Clone(src)
+	return NormalizeBehaviorControlsForHolmes(maps.Clone(src))
 }
 
 // ResolveBehaviorControlsForFormatReport returns behavior_controls for FormatInvestigationReport.
 func ResolveBehaviorControlsForFormatReport(settings *models.Settings) map[string]bool {
 	src := settings.Adre.BehaviorControlsFormatReport
 	if len(src) == 0 {
-		return DefaultBehaviorControlsFormatReport()
+		return NormalizeBehaviorControlsForHolmes(DefaultBehaviorControlsFormatReport())
 	}
-	return maps.Clone(src)
+	return NormalizeBehaviorControlsForHolmes(maps.Clone(src))
 }
 
 // MaxConversationMessages returns the effective cap from settings.

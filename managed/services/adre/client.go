@@ -146,7 +146,7 @@ type ChatRequest struct {
 	FrontendTools          []interface{} `json:"frontend_tools,omitempty"`
 	FrontendToolResults    []interface{} `json:"frontend_tool_results,omitempty"`
 	ToolDecisions          []interface{} `json:"tool_decisions,omitempty"`
-	// BehaviorControls overrides Holmes prompt components (e.g. {"time_runbooks": false, "todowrite_instructions": false}). Keys must match holmes/core/prompt.py PromptComponent values. Optional.
+	// BehaviorControls overrides Holmes prompt components (e.g. {"time_skills": false, "todowrite_instructions": false}). Keys must match holmes/core/prompt.py PromptComponent values. Optional.
 	BehaviorControls map[string]bool `json:"behavior_controls,omitempty"`
 }
 
