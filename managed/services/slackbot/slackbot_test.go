@@ -45,6 +45,13 @@ func TestFormatAnswerForSlack(t *testing.T) {
 	assert.Contains(t, out, "https://pmm.example.com/v1/grafana/render/blob/")
 }
 
+func TestFormatAnswerForSlack_markdownLinkToSlackMrkdwn(t *testing.T) {
+	raw := `Here is the graph. [Open in Grafana](https://pmm-server:8443/graph/d/mysql-instance-summary?viewPanel=53)`
+	out := FormatAnswerForSlack(raw, "", false)
+	assert.NotContains(t, out, "[Open in Grafana]")
+	assert.Contains(t, out, "<https://pmm-server:8443/graph/d/mysql-instance-summary?viewPanel=53|Open in Grafana>")
+}
+
 func TestSlackEventDedupe(t *testing.T) {
 	d := newRingDedupe(4)
 	assert.True(t, d.firstSeen("T", "C", "1.0"))

@@ -17,6 +17,9 @@ var mdImgHideRE = regexp.MustCompile(`!\[[^\]]*\]\([^)]+\)`)
 var blobURLHideRE = regexp.MustCompile(`https?://\S+/v1/grafana/render/blob/[a-f0-9]{64}\.png`)
 var imageLineHideRE = regexp.MustCompile(`(?im)^\s*image:\s*\S+\s*$`)
 
+// ADRE/Holmes emits Markdown links [label](https://...). Slack mrkdwn uses <https://...|label> instead.
+var mdHTTPSLinkRE = regexp.MustCompile(`\[([^\]]+)\]\((https?://[^)]+)\)`)
+
 // FormatAnswerForSlack converts ADRE markdown-ish output to plain text suitable for Slack chat.update.
 // When hideImageLinks is true, strips markdown images and raw blob URLs that were uploaded as files.
 func FormatAnswerForSlack(raw, publicBase string, hideImageLinks bool) string {
@@ -37,5 +40,21 @@ func FormatAnswerForSlack(raw, publicBase string, hideImageLinks bool) string {
 		text = strings.ReplaceAll(text, "](/v1/grafana/render/blob/", "]("+base+"/v1/grafana/render/blob/")
 		text = strings.ReplaceAll(text, "(/v1/grafana/render/blob/", "("+base+"/v1/grafana/render/blob/")
 	}
+	text = markdownHTTPSLinksToSlackMrkdwn(text)
 	return strings.TrimSpace(text)
+}
+
+// markdownHTTPSLinksToSlackMrkdwn turns [label](https://host/path) into <https://host/path|label> for Slack mrkdwn.
+// URLs must not contain ")" (common for Grafana); relative [label](/path) links are left unchanged.
+func markdownHTTPSLinksToSlackMrkdwn(s string) string {
+	return mdHTTPSLinkRE.ReplaceAllStringFunc(s, func(full string) string {
+		m := mdHTTPSLinkRE.FindStringSubmatch(full)
+		if len(m) != 3 {
+			return full
+		}
+		label, u := m[1], m[2]
+		// "|" and "<" / ">" in display text break Slack link parsing — normalize minimally.
+		label = strings.ReplaceAll(label, "|", " ")
+		return "<" + u + "|" + label + ">"
+	})
 }
