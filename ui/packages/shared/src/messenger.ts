@@ -38,6 +38,7 @@ export class CrossFrameMessenger {
   }
 
   unregister() {
+    this.listeners = [];
     this.window.removeEventListener('message', this.eventListener);
   }
 

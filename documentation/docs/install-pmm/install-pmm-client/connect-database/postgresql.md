@@ -101,7 +101,7 @@ Decide which  PostgreSQL monitoring extensions to use, and configure your databa
 
 Choose:
 
-- `pg_stat_monitor` when you need comprehensive monitoring capabilities with more detailed insights into query performance:
+- `pg_stat_monitor` when you need comprehensive monitoring capabilities with more detailed insights into query performance
 - `pg_stat_statements` when you need a lightweight, built-in solution with minimal overhead
 
 | Aspect | **pg_stat_statements** | **pg_stat_monitor** |
@@ -120,8 +120,8 @@ For a more detailed comparison of extensions, see the [pg_stat_monitor documenta
 
 === "pg_stat_monitor"
 
-    `pg_stat_monitor` is Percona’s advanced PostgreSQL monitoring extension that enhances observability with detailed query metrics and improved aggregation. It is compatible with PostgreSQL (Community Edition) versions 11 through 18 and Percona Distribution for PostgreSQL versions 11 through 17.
-    
+    `pg_stat_monitor` is Percona’s advanced PostgreSQL monitoring extension that enhances observability with detailed query metrics and improved aggregation. It is compatible with PostgreSQL versions 13 through 18 and Percona Distribution for PostgreSQL versions 13 through 18.
+
     !!! warning "Query plan metrics known issue"
         Before configuring `pg_stat_monitor`, make sure that `pg_stat_monitor.pgsm_enable_query_plan` stays disabled. This is because query plans causes `pg_stat_monitor` to create multiple records for each query, leading to incorrect timing calculations.
 
@@ -486,17 +486,17 @@ The PostgreSQL exporter can execute custom queries to collect additional metrics
 
 ## Related topics
 
-- [`pmm-admin` man page for `pmm-admin add postgresql`](../../../use/commands/pmm-admin.md#database-commands)
+- [`pmm-admin` man page for `pmm-admin add postgresql`](../../../use/commands/pmm-admin/add.md)
 - [Configuring Percona repositories with percona-release][PERCONA_RELEASE]
 - [Running custom MySQL queries in PMM][BLOG_CUSTOM_QUERIES_MYSQL]
 
 [PostgreSQL]: https://www.postgresql.org/
-[Percona Distribution for PostgreSQL]: https://www.percona.com/software/postgresql-distribution
+[Percona Distribution for PostgreSQL]: https://www.percona.com/postgresql/software/
 [POSTGRESQL_VERSIONING]: https://www.postgresql.org/support/versioning/
-[PERCONA_LIFECYCLE]: https://www.percona.com/services/policies/percona-software-platform-lifecycle/
+[PERCONA_LIFECYCLE]: https://www.percona.com/services/policies/percona-services-lifecycle-policy/
 [PERCONA_RELEASE]: https://www.percona.com/doc/percona-repo-config/percona-release.html
 [PERCONA_POSTGRESQL_INSTALL]: https://www.percona.com/doc/postgresql/LATEST/installing.html
 [PG_STAT_MONITOR_INSTALL]: https://github.com/percona/pg_stat_monitor#installation
-[PMM_ADMIN]: ../../../use/commands/pmm-admin.md
+[PMM_ADMIN]: ../../../use/commands/pmm-admin/pmm-admin.md
 [Secure TCP/IP Connections with SSL]: https://www.postgresql.org/docs/current/ssl-tcp.html
-[BLOG_CUSTOM_QUERIES_MYSQL]: https://www.percona.com/blog/2020/06/10/running-custom-queries-in-percona-monitoring-and-management/
+[BLOG_CUSTOM_QUERIES_MYSQL]: https://www.percona.com/blog/running-custom-queries-in-percona-monitoring-and-management/

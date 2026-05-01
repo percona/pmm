@@ -2,19 +2,22 @@ import { DataLinkBuiltInVars, locationUtil, textUtil, urlUtil } from '@grafana/d
 import { config, getTemplateSrv } from '@grafana/runtime';
 import { DashboardLink } from '@grafana/schema';
 
+/**
+ * Needs to be in sync with public/app/features/panel/panellinks/link_srv.ts LinkSrv.getLinkUrl in grafana repository
+ */
 const getLinkUrl = (link: Partial<DashboardLink>) => {
-  let params: { [key: string]: any } = {};
+  let url = link.url ?? '';
 
   if (link.keepTime) {
-    params[`\$${DataLinkBuiltInVars.keepTime}`] = true;
+    url = urlUtil.appendQueryToUrl(url, `\$${DataLinkBuiltInVars.keepTime}`);
   }
 
   if (link.includeVars) {
-    params[`\$${DataLinkBuiltInVars.includeVars}`] = true;
+    url = urlUtil.appendQueryToUrl(url, `\$${DataLinkBuiltInVars.includeVars}`);
   }
 
-  let url = locationUtil.assureBaseUrl(urlUtil.appendQueryToUrl(link.url || '', urlUtil.toUrlParams(params)));
   url = getTemplateSrv().replace(url);
+  url = locationUtil.assureBaseUrl(url);
 
   return config.disableSanitizeHtml ? url : textUtil.sanitizeUrl(url);
 };
@@ -77,18 +80,30 @@ const getDbType = (url: string): string | undefined => {
   return dashboardUid;
 };
 
-const cleanupVariables = (urlWithLinks: string) => {
+export const cleanupVariables = (urlWithLinks: string) => {
   const [base, params] = urlWithLinks.split('?');
 
   if (params) {
-    // remove variables which have the All value or the value is empty
-    const variables = params
-      .split('&')
-      .filter((param) => !(param.includes('All') || param.endsWith('=')))
-      .join('&');
+    const variables = params.split('&').filter(filterVariable).join('&');
 
     return base + '?' + variables;
   }
 
   return base;
+};
+
+const filterVariable = (param: string) => {
+  const [_, value] = param.split('=');
+
+  // Filter out variables with the All value
+  if (value === '$__all' || value === 'All') {
+    return false;
+  }
+
+  // Filter out variables with no value
+  if (value === '' || value === 'None') {
+    return false;
+  }
+
+  return true;
 };

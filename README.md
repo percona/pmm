@@ -8,7 +8,7 @@
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9702/badge)](https://www.bestpractices.dev/projects/9702)
 [![Forum](https://img.shields.io/badge/Forum-join-brightgreen)](https://forums.percona.com/)
 
-![PMM](img/pmm-logo.png)
+![PMM](documentation/docs/assets/pmm-logo.png)
 
 ## Percona Monitoring and Management
 
@@ -29,21 +29,18 @@ See the [PMM Documentation](https://docs.percona.com/percona-monitoring-and-mana
 * Spot critical performance issues faster, understand the root cause of incidents better and troubleshoot them more efficiently.
 * Zoom-in, drill-down database performance from node to single query levels. Perform in-depth troubleshooting and performance optimization.
 * Built-in Advisors run regular checks of the databases connected to PMM. The checks identify and alert you of potential security threats, performance degradation, data loss and data corruption.
-* Backup and restore databases up to a specific moment with Point-in-Time-Recovery.
 
 ## Architecture
 
-![Overall Architecture](./documentation/docs/images/C_S_Architecture.jpg "Client Server Architecture")
+![Overall Architecture](./documentation/docs/images/arch/C_S_Architecture.jpg "Client Server Architecture")
 
+![PMM Server](./documentation/docs/images/arch/PMM-Server-Component-Based-View.jpg 'PMM Server Architecture')
 
-![PMM Server](./documentation/docs/images/PMM-Server-Component-Based-View.jpg 'PMM Server Architecture')
-
-
-![PMM Client](./documentation/docs/images/PMM-Client-Component-Based-View.jpg 'PMM Client Architecture')
+![PMM Client](./documentation/docs/images/arch/PMM-Client-Component-Based-View.jpg 'PMM Client Architecture')
 
 ## Installation
 
-There are numbers of installation methods, please check our [About PMM installation](https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/index.html) documentation page.
+There are different installation methods, please check our [About PMM installation](https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/index.html) documentation page.
 
 But in a nutshell:
 
@@ -58,12 +55,12 @@ $ docker volume create pmm-data
 3. Run PMM Server container:
 ```bash
 $ docker run --detach --restart always \
---publish 443:8443 \
---volume pmm-data:/srv \
---name pmm-server \
-percona/pmm-server:3
+  --publish 443:8443 \
+  --volume pmm-data:/srv \
+  --name pmm-server \
+  percona/pmm-server:3
 ```
-4. Start a web browser and in the address bar enter the server name or IP address of the PMM server host.
+4. Start a web browser and type the server name or IP address of the PMM server host (defaults to https://localhost).
 
 <img src="./documentation/docs/images/PMM_Login.png" width="280" alt="PMM Login Page" />
 
@@ -93,7 +90,7 @@ Your first step should be [to search](https://perconadev.atlassian.net/issues/?j
 
 If there is no existing report, submit a report following these steps:
 
-1. [Sign in to Percona JIRA](https://jira.percona.com). You will need to create an account if you do not have one.
+1. [Sign in to Percona JIRA](https://perconadev.atlassian.net). You will need to create an account if you do not have one.
 2. From the top navigation bar, anywhere in Jira, click **Create**. 
 3. Select Percona Monitoring and Management (PMM) from the **Project** drop-down menu. 
 4. Fill in the fields of **Summary**, **Description**, **Steps To Reproduce**, and **Affects Version** to the best you can. If the bug corresponds to a crash, attach the stack trace from the logs.
@@ -109,4 +106,9 @@ As a general rule of thumb, please try to create bug reports that are:
 
 ## Licensing
 
-Percona is dedicated to **keeping open source open**. Wherever possible, we strive to apply a permissive license to both our software and documentation. For this project, we are using the [GNU AGPLv3](./LICENSE) license.
+Percona is dedicated to **keeping open source open**. Wherever possible, we strive to apply a permissive license to both our software and documentation. 
+
+PMM components are licensed under the following open source licenses:
+- PMM Server: [GNU AGPLv3](./LICENSE)
+- PMM Client: [Apache 2.0](./agent/LICENSE)
+- PMM Documentation: [GNU AGPLv3](./documentation/LICENSE)

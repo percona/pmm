@@ -40,8 +40,10 @@ func RegisterMySQLCerts(files map[string]string, tlsSkipVerify bool) error {
 		if err != nil {
 			return errors.Wrap(err, "register MySQL client cert failed")
 		}
+
 		certs = append(certs, cert)
 	}
+
 	if len(certs) != 0 {
 		tlsConfig.Certificates = certs
 	}

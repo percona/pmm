@@ -2,7 +2,9 @@ syntax = "proto3";
 
 package management.v1;
 
+import "extensions/v1/redact.proto";
 import "google/protobuf/timestamp.proto";
+import "inventory/v1/agents.proto";
 import "inventory/v1/log_level.proto";
 
 message UniversalAgent {
@@ -62,7 +64,7 @@ message UniversalAgent {
   // Agent type.
   string agent_type = 3;
   // AWS Access Key.
-  string aws_access_key = 4;
+  string aws_access_key = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // True if AWS Secret Key is set.
   bool is_aws_secret_key_set = 5;
   // Options used for connecting to Azure.
@@ -139,6 +141,8 @@ message UniversalAgent {
   bool expose_exporter = 40;
   // Options for connecting to Valkey.
   ValkeyOptions valkey_options = 41;
+  // Real-Time Analytics options.
+  inventory.v1.RTAOptions rta_options = 42;
 }
 
 message ListAgentsRequest {

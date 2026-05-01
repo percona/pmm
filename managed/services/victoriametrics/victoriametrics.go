@@ -18,6 +18,7 @@ package victoriametrics
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -29,7 +30,6 @@ import (
 
 	"github.com/AlekSi/pointer"
 	config "github.com/percona/promconfig"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 	"google.golang.org/grpc/codes"
@@ -71,7 +71,7 @@ type Service struct {
 func NewVictoriaMetrics(scrapeConfigPath string, db *reform.DB, params *models.VictoriaMetricsParams, haService haService) (*Service, error) {
 	u, err := url.Parse(params.URL())
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return &Service{
@@ -141,6 +141,13 @@ func (svc *Service) RequestConfigurationUpdate() {
 	}
 }
 
+// ForceConfigurationUpdate triggers immediate synchronous configuration update,
+// bypassing the batch delay. Use this for critical updates like port changes.
+func (svc *Service) ForceConfigurationUpdate(ctx context.Context) error {
+	svc.l.Debug("ForceConfigurationUpdate: triggering immediate configuration update")
+	return svc.updateConfiguration(ctx)
+}
+
 // Start is called when this node becomes the leader in HA mode.
 func (svc *Service) Start(_ context.Context) error { //nolint:unparam
 	svc.l.Info("Became leader, triggering configuration update to include external agents")
@@ -190,22 +197,22 @@ func (svc *Service) reload(ctx context.Context) error {
 	u.Path = path.Join(u.Path, "-", "reload")
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	resp, err := svc.client.Do(req)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	defer resp.Body.Close() //nolint:errcheck,gosec,nolintlint
 
 	b, err := io.ReadAll(resp.Body)
 	svc.l.Debugf("VM reload: %s", b)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	if resp.StatusCode != http.StatusNoContent && resp.StatusCode != http.StatusOK {
-		return errors.Errorf("expected 204, got %d", resp.StatusCode)
+		return fmt.Errorf("expected 204, got %d", resp.StatusCode)
 	}
 	return nil
 }
@@ -240,7 +247,7 @@ func (svc *Service) marshalConfig(base *config.Config) ([]byte, error) {
 
 	b, err := yaml.Marshal(cfg)
 	if err != nil {
-		return nil, errors.Wrap(err, "can't marshal VictoriaMetrics configuration file")
+		return nil, fmt.Errorf("can't marshal VictoriaMetrics configuration file: %w", err)
 	}
 
 	b = append([]byte("# Managed by pmm-managed. DO NOT EDIT.\n---\n"), b...)
@@ -252,10 +259,10 @@ func (svc *Service) marshalConfig(base *config.Config) ([]byte, error) {
 func (svc *Service) validateConfig(ctx context.Context, cfg []byte) error {
 	f, err := os.CreateTemp("", "pmm-managed-config-victoriametrics-")
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	if _, err = f.Write(cfg); err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	defer func() {
 		_ = f.Close()
@@ -274,7 +281,7 @@ func (svc *Service) validateConfig(ctx context.Context, cfg []byte) error {
 			return status.Error(codes.Aborted, m[1])
 		}
 
-		return errors.Wrap(err, s)
+		return fmt.Errorf("can't validate VictoriaMetrics configuration: %w", err)
 	}
 	svc.l.Debugf("%s", b)
 
@@ -301,12 +308,12 @@ func (svc *Service) validateConfig(ctx context.Context, cfg []byte) error {
 func (svc *Service) configAndReload(ctx context.Context, b []byte) error {
 	oldCfg, err := os.ReadFile(svc.scrapeConfigPath)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	fi, err := os.Stat(svc.scrapeConfigPath)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	// restore old content and reload in case of error
@@ -328,7 +335,7 @@ func (svc *Service) configAndReload(ctx context.Context, b []byte) error {
 
 	restore = true
 	if err = os.WriteFile(svc.scrapeConfigPath, b, fi.Mode()); err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	if err = svc.reload(ctx); err != nil {
 		return err
@@ -469,21 +476,21 @@ func (svc *Service) IsReady(ctx context.Context) error {
 	u.Path = path.Join(u.Path, "health")
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	resp, err := svc.client.Do(req)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	defer resp.Body.Close() //nolint:errcheck
 
 	b, err := io.ReadAll(resp.Body)
 	svc.l.Debugf("VM health: %s", b)
 	if err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("can't read VM health response: %w", err)
 	}
 	if resp.StatusCode != http.StatusOK {
-		return errors.Errorf("expected 200, got %d", resp.StatusCode)
+		return fmt.Errorf("expected 200 from VM health endpoint, got %d", resp.StatusCode)
 	}
 
 	return nil

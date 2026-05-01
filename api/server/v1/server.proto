@@ -3,6 +3,7 @@ syntax = "proto3";
 package server.v1;
 
 import "common/common.proto";
+import "extensions/v1/redact.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
@@ -106,14 +107,14 @@ message StartUpdateRequest {
 
 message StartUpdateResponse {
   // Authentication token for getting update statuses.
-  string auth_token = 1;
+  string auth_token = 1 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Progress log offset.
   uint32 log_offset = 2;
 }
 
 message UpdateStatusRequest {
   // Authentication token.
-  string auth_token = 1;
+  string auth_token = 1 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Progress log offset.
   uint32 log_offset = 2;
 }
@@ -159,8 +160,7 @@ message Settings {
   repeated string aws_partitions = 6;
   // True if Advisor is enabled.
   bool advisor_enabled = 7;
-  // Percona Platform user's email, if this PMM instance is linked to the Platform.
-  string platform_email = 8;
+  string platform_email = 8 [deprecated = true];
   // True if Alerting is enabled.
   bool alerting_enabled = 10;
   // PMM Server public address.
@@ -172,7 +172,7 @@ message Settings {
   // True if Azure Discover is enabled.
   bool azurediscover_enabled = 14;
   // True if the PMM instance is connected to Platform
-  bool connected_to_platform = 15;
+  bool connected_to_platform = 15 [deprecated = true];
   // Includes list of collected telemetry
   repeated string telemetry_summaries = 16;
   // True if Access Control is enabled.

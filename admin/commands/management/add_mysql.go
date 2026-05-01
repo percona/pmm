@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/AlekSi/pointer"
 	"github.com/alecthomas/units"
 	"github.com/pkg/errors"
 
@@ -148,12 +149,12 @@ func (cmd *AddMySQLCommand) GetSocket() string {
 
 // RunCmd runs the command for AddMySQLCommand.
 func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
-	extraDSNParams := commands.ParseKeyValuePair(cmd.ExtraDSNParams)
+	customLabels := commands.ParseKeyValuePair(&cmd.CustomLabels)
+	extraDSNParams := commands.ParseKeyValuePair(&cmd.ExtraDSNParams)
 
 	if cmd.CreateUser {
 		return nil, errors.New("Unrecognized option. To create a user, see " +
-			"'https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/mysql.html#create-a-database-account-for-pmm'")
+			"https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/mysql/mysql.html#create-a-database-account-for-pmm") //nolint:lll
 	}
 
 	var (
@@ -220,8 +221,8 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 				Username:       cmd.Username,
 				Password:       cmd.Password,
 				AgentPassword:  cmd.AgentPassword,
-				CustomLabels:   customLabels,
-				ExtraDsnParams: extraDSNParams,
+				CustomLabels:   pointer.Get(customLabels),
+				ExtraDsnParams: pointer.Get(extraDSNParams),
 
 				QANMysqlSlowlog:    cmd.QuerySource == MysqlQuerySourceSlowLog,
 				QANMysqlPerfschema: cmd.QuerySource == MysqlQuerySourcePerfSchema,

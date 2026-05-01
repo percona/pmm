@@ -1,7 +1,8 @@
 ---
 title: Add a Node
 slug: addnode
-categorySlug: inventory-api
+category:
+  uri: inventory-api
 ---
 
 ## Add a Node

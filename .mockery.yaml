@@ -2,6 +2,7 @@
 disable-version-string: True
 with-expecter: False
 resolve-type-alias: False
+issue-845-fix: True
 inpackage: True
 dir: "{{.InterfaceDir}}"
 filename: "mock_{{ .InterfaceName | snakecase }}_test.go"
@@ -60,6 +61,10 @@ packages:
   github.com/percona/pmm/managed/services/qan:
     interfaces:
       qanCollectorClient:
+  github.com/percona/pmm/managed/services/realtimeanalytics:
+    interfaces:
+      agentsRegistry:
+      agentsStateUpdater:
   github.com/percona/pmm/managed/services/scheduler:
     interfaces:
       backupService:
@@ -68,6 +73,7 @@ packages:
       agentsStateUpdater:
       checksService:
       grafanaClient:
+      haService:
       prometheusService:
       supervisordService:
       telemetryService:

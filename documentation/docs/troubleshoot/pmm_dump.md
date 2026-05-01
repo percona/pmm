@@ -27,18 +27,18 @@ The **dump.tar.gz** dump file is a .TAR archive compressed via Gzip. Here's what
  - **meta.json**: metadata about the data dump
  - **vm**: Victoria Metrics data chunks in native VM format, organized by timeframe
  - **ch**: Query Analytics (QAN) data stored in ClickHouse format, organized by row count
- - **log.json**: logs detailing the export and archive creation process
+ - **log.json**: logs detailing the export and archive creation process. Passwords and credentials are automatically masked.
 
 ## Create a data dump
 
 To create a dump of your dataset:
 {.power-number}
 
-1. From the top-right corner of the PMM home page, click the question mark icon  <i class="uil uil-question-circle"></i> and select  **Help > PMM Dump**. If you don't see PMM Dump in the menu, your user account may not have sufficient permissions.
+1. From the main menu, click **Help > PMM Dump > Manage datasets**. If you don't see PMM Dump in the menu, your user account may not have sufficient permissions.
 2. Click **Create dataset** to go to the **Export new dataset** page.
 3. Choose the service for which you want to create the dataset or leave it empty to export all data.
 4. Define the time range for the dataset.
-5. Enable **Export QAN** to include Query Analytics (QAN) metrics alongside the core metrics.
+5. Toggle on **Export QAN** to include Query Analytics (QAN) metrics alongside the core metrics.
 7. Click **Create dataset**. This will generate a data dump file and automatically record an entry in the PMM Dump table. From there, you can use the options available in the **Options** menu to send the dump file to Percona Support or download it locally for internal usage.
 
 ## Send a data dump to Percona Support
@@ -46,9 +46,9 @@ To create a dump of your dataset:
 If you are a Percona Customer, you can securely share PMM data dumps with Percona Support via SFTP.
 {.power-number}
 
-1. From the top-right corner of the PMM home page, go to <i class="uil uil-question-circle"></i>  **Help > PMM Dump**.
+1. From the main menu, go to <i class="uil uil-question-circle"></i>  **Help > PMM Dump > Manage datasets**.
 2. Select the PMM dump entry which you want to send to Support.
-3. In the **Options** column, expand the table row to check the PMM Service associated with the dataset, click the ellipsis (three vertical dots) and select **Send to Support**.
+3. In the **Options** column, expand the table row to check the PMM Service associated with the dataset, then click the ellipsis (three vertical dots) and select **Send to Support**.
 4. Fill in the [details of the SFTP server](https://percona.service-now.com/percona?id=kb_article_view&sysparm_article=KB0010247&sys_kb_id=bebd04da87e329504035b8c9cebb35a7&spa=1), then click **Send**.
 5. Update your Support ticket to let Percona know that you've uploaded the dataset on the SFTP server.
 

@@ -1,146 +1,158 @@
 ---
+# Purpose: Spin up a fully wired PMM stack on a local machine with one command, including a monitored 
+#  database workload, to get a sense of PMM working end-to-end without any manual configuration.
+#
+# Usage:
+#  1. Minimal suite (server, client, mysql + sysbench), where sysbench is used to generate load on MySQL:
+#     docker compose -f docker-compose.yml --profile pmm up -d
+#  2. Full suite (server, client, postgres, mongo, mysql + sysbench):
+#     docker compose -f docker-compose.yml --profile pmm --profile postgres --profile mongo up -d
+#  3. Full suite + external clickhouse (server, client, postgres, mongo, mysql + sysbench, external ClickHouse):
+#     docker compose -f docker-compose.yml -f qan-api2/docker-compose.yml --profile pmm --profile postgres --profile mongo up -d
+#
+# Configuration: copy .env.example to .env and adjust variables (image tag, ports, credentials, AWS keys, etc.).
+#  Docker Compose loads .env automatically — no extra flags needed.
+#
+# Note: database ports are intentionally not mapped to the host since the communication takes place on a shared bridge network.
+#
+
 services:
   pmm-server:
     profiles:
       - pmm
-    image: ${PMM_CONTAINER:-perconalab/pmm-server:3-dev-container}
+    image: ${PMM_SERVER_IMAGE:-percona/pmm-server:3}
     platform: linux/amd64
-    # build:
-    #   context: .
-    #   args:
-    #     PMM_SERVER_IMAGE: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:3-dev-latest}
-    #   dockerfile: ./.devcontainer/Dockerfile
     container_name: pmm-server
     hostname: pmm-server
-    networks:
-      - ${NETWORK:-default}
+    restart: always
     environment:
-      - AWS_ACCESS_KEY=${AWS_ACCESS_KEY:-}
-      - AWS_SECRET_KEY=${AWS_SECRET_KEY:-}
-      - REVIEWDOG_GITHUB_API_TOKEN=${REVIEWDOG_GITHUB_API_TOKEN:-}
-      - PMM_RELEASE_PATH=/root/go/bin
-      - PMM_ENABLE_ACCESS_CONTROL=${PMM_ENABLE_ACCESS_CONTROL:-0}
-      - PMM_WATCHTOWER_HOST=${PMM_WATCHTOWER_HOST:-http://watchtower:8080}
-      - PMM_WATCHTOWER_TOKEN=${PMM_WATCHTOWER_TOKEN:-INSECURE_TOKEN}
-      - PMM_ENABLE_NOMAD=${PMM_ENABLE_NOMAD:-0}
-      - PMM_ENABLE_TELEMETRY=${PMM_ENABLE_TELEMETRY:-0}
+      - GF_SECURITY_ADMIN_USER
+      - GF_SECURITY_ADMIN_PASSWORD
+      - PMM_ENABLE_ACCESS_CONTROL
       - PMM_PUBLIC_ADDRESS=${PMM_PUBLIC_ADDRESS:-localhost}
-      - PMM_RELEASE_VERSION=3.0.0
-      - GO_VERSION=1.25.x
-      # - PMM_ENABLE_INTERNAL_PG_QAN=${PMM_ENABLE_INTERNAL_PG_QAN:-1}
-      # - PMM_DISTRIBUTION_METHOD=${PMM_DISTRIBUTION_METHOD:-docker}
-      # - PMM_DEV_UPDATE_DOCKER_IMAGE=${PMM_DEV_UPDATE_DOCKER_IMAGE:-}
-      # - PMM_DEV_PERCONA_PLATFORM_ADDRESS=https://check.localhost
-      # - PMM_DEV_PERCONA_PLATFORM_INSECURE=1
-      # - PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY=<public key>
-      # - PMM_DEV_TELEMETRY_INTERVAL=10s
-      # - PMM_DEV_TELEMETRY_DISABLE_START_DELAY=1
-      # - PMM_DEV_TELEMETRY_RETRY_BACKOFF=10s
-      # - PMM_CLICKHOUSE_ADDR=127.0.0.1:9000
-      # - PMM_CLICKHOUSE_DATABASE=pmm
-      # - PMM_CLICKHOUSE_USER=default
-      # - PMM_CLICKHOUSE_PASSWORD=<password>
-      # - PMM_CLICKHOUSE_IS_CLUSTER=1
-      # - PMM_CLICKHOUSE_CLUSTER_NAME=pmmclickhouse
-      # - PMM_DEBUG=1
-      # - PMM_DEV_ADVISOR_CHECKS_FILE=/srv/checks/local-checks.yml
-      # - PMM_POSTGRES_ADDR=pg
-      # - PMM_POSTGRES_DBNAME=pmm-managed
-      # - PMM_POSTGRES_USERNAME=pmm-managed
-      # - PMM_POSTGRES_DBPASSWORD=<password>
-      # - PMM_POSTGRES_SSL_MODE=verify-full
-      # - PMM_POSTGRES_SSL_CA_PATH=/tmp/certs/root.crt
-      # - PMM_POSTGRES_SSL_KEY_PATH=/tmp/certs/pmm-managed.key
-      # - PMM_POSTGRES_SSL_CERT_PATH=/tmp/certs/pmm-managed.crt
-      # - PMM_DISABLE_BUILTIN_POSTGRES=1
-      - GF_RENDERING_SERVER_URL=http://renderer:8081/render
-      - GF_RENDERING_CALLBACK_URL=https://pmm-server:8443/graph/
-      # - GF_DATABASE_SSL_MODE=verify-full
-      # - GF_DATABASE_CA_CERT_PATH=/tmp/certs/root.crt
-      # - GF_DATABASE_CLIENT_KEY_PATH=/tmp/certs/grafana.key
-      # - GF_DATABASE_CLIENT_CERT_PATH=/tmp/certs/grafana.crt
-
-    extra_hosts:
-      - host.docker.internal:host-gateway
-      # - portal.localhost:${PORTAL_HOST:-host-gateway}
-      # - check.localhost:${PORTAL_CHECK_HOST:-host-gateway}
-      # - pmm.localhost:${PORTAL_PMM_HOST:-host-gateway}
-      # - check-dev.percona.com:${PORTAL_PMM_HOST:-host-gateway}
-
-    # for delve
-    cap_add:
-      - SYS_PTRACE
-    security_opt:
-      - seccomp:unconfined
-
-    # see https://github.com/golang/go/wiki/LinuxKernelSignalVectorBug#what-to-do
-    ulimits:
-      memlock: 67108864
-
+      - PMM_ENABLE_INTERNAL_PG_QAN
+      - PMM_DEBUG
+      # To enable an external ClickHouse database
+      - PMM_CLICKHOUSE_ADDR
+      - PMM_CLICKHOUSE_DATABASE
+      - PMM_CLICKHOUSE_USER
+      - PMM_CLICKHOUSE_PASSWORD
+      - PMM_DISABLE_BUILTIN_CLICKHOUSE
+      # To enable an external PostgreSQL database
+      - PMM_POSTGRES_ADDR
+      - PMM_POSTGRES_DBNAME
+      - PMM_POSTGRES_USERNAME
+      - PMM_POSTGRES_DBPASSWORD
+      - PMM_DISABLE_BUILTIN_POSTGRES
+      # To discover RDS databases via UI
+      - AWS_ACCESS_KEY
+      - AWS_SECRET_KEY
     ports:
-      - ${PMM_PORT_HTTP:-80}:8080
       - ${PMM_PORT_HTTPS:-443}:8443
-      # For headless delve
-      - ${PMM_PORT_DELVE:-2345}:2345
-      # PG
-      - ${PMM_PORT_PG:-15432}:5432
-      # VM
-      - ${PMM_PORT_VM:-9090}:9090
-      # CH
-      - ${PMM_PORT_CH_TCP:-11000}:9000
-      - ${PMM_PORT_CH_HTTP:-11123}:8123
     volumes:
-      - ./:/root/go/src/github.com/percona/pmm
-      - ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro # substitute Makefile in devcontainer
-      - ./managed/testdata/updater/:/home/pmm/.config/systemd/user/
-      # caching
-      - go-modules:/root/go/pkg/mod
-      - go-cache:/root/.cache
-      - srv:/srv
-      # mount advisor files for easy development
-      - ./managed/data/advisors/:/usr/local/percona/advisors/
-      - ./managed/data/checks/:/usr/local/percona/checks/
-      - ./managed/data/alerting-templates/:/usr/local/percona/alerting-templates/
-      # grafana
-      #  - "../grafana:/workspace"
-      #  - "../grafana/public:/usr/share/grafana/public"
-      #  - "../grafana/conf/grafana.local-dev.ini:/usr/share/grafana/conf/defaults.ini"
-      # command: >
-      #   bash -c "
-      #     # script you want to run before entrypoint, e.g.
-      #     bash /tmp/wait-for-it.sh -t 30 some-service:some-port --
-      #     /opt/entrypoint.sh
-      #   "
+      - pmm-data:/srv
 
-  renderer:
-    image: grafana/grafana-image-renderer:latest
-    environment:
-      - RENDERING_VERBOSE_LOGGING=true
-      - RENDERING_DUMPIO=true
-      - IGNORE_HTTPS_ERRORS=true
-      - LOG_LEVEL=debug
-    networks:
-      - ${NETWORK:-default}
-    ports:
-      - 8081:8081
-
-  watchtower:
+  pmm-client:
     profiles:
       - pmm
-    image: ${WATCHTOWER_IMAGE:-perconalab/watchtower}
-    container_name: watchtower
+    image: percona/pmm-client:3
+    container_name: pmm-client
+    depends_on:
+      pmm-server:
+        condition: service_healthy
+      sysbench-ps:
+        condition: service_started
+      postgres:
+        condition: service_started
+        required: false
+      mongo:
+        condition: service_started
+        required: false
     environment:
-      - WATCHTOWER_HTTP_LISTEN_PORT=8080
-      - WATCHTOWER_HTTP_API_UPDATE=1
-      - WATCHTOWER_HTTP_API_TOKEN=${PMM_WATCHTOWER_TOKEN:-INSECURE_TOKEN}
-      - WATCHTOWER_NO_RESTART=${WATCHTOWER_NO_RESTART:-0}
-    hostname: watchtower
-    networks:
-      - ${NETWORK:-default}
+      PMM_AGENT_SERVER_ADDRESS: pmm-server:8443
+      PMM_AGENT_SERVER_USERNAME: admin
+      PMM_AGENT_SERVER_PASSWORD: admin
+      PMM_AGENT_SERVER_INSECURE_TLS: 1
+      PMM_AGENT_CONFIG_FILE: config/pmm-agent.yaml
+      PMM_AGENT_SETUP: 1
+      PMM_AGENT_SETUP_FORCE: 1
+      PMM_AGENT_SIDECAR: 1
+      PMM_AGENT_PRERUN_SCRIPT: |
+        pmm-admin status --wait=10s
+        pmm-admin add mysql --cluster=dev-cluster --environment=dev --custom-labels='app=test-app' --username=root --password=secret --query-source=perfschema mysql-dev ps:3306
+        pmm-admin add postgresql --username=postgres --password=secret postgres-dev postgres:5432 || true
+        pmm-admin add mongodb --username=mongo --password=secret mongo-dev mongo:27017 || true
+
+  ps:
+    profiles:
+      - pmm
+    image: percona/percona-server:latest
+    container_name: ps
+    environment:
+     - MYSQL_ROOT_PASSWORD=secret
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-P", "3306", "-u", "root", "-psecret"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
     volumes:
-      - ${DOCKER_PATH:-/var/run/docker.sock}:/var/run/docker.sock
+      - ./dev/my.cnf:/etc/my.cnf
+      - ./dev/mysql.logrotate:/etc/logrotate.d/mysql
+
+  ps-init:
+    profiles:
+      - pmm
+    image: percona/percona-server:latest
+    container_name: ps-init
+    depends_on:
+      ps:
+        condition: service_healthy
+    command: mysql -h ps -u root -psecret -e "CREATE DATABASE IF NOT EXISTS sbtest;"
+
+  postgres:
+    profiles:
+      - postgres
+    image: postgres:18
+    container_name: postgres
+    command: >
+      -c shared_preload_libraries=pg_stat_statements
+      -c track_activity_query_size=2048
+      -c pg_stat_statements.track=all
+      -c pg_stat_statements.max=10000
+      -c pg_stat_statements.track=all
+      -c pg_stat_statements.save=off
+      -c track_io_timing=on
+    environment:
+     - POSTGRES_USER=postgres
+     - POSTGRES_PASSWORD=secret
+    volumes:
+      - ./dev/init-pg.sql:/docker-entrypoint-initdb.d/init-pg.sql
+
+  mongo:
+    profiles:
+      - mongo
+    image: mongo:8
+    container_name: mongo
+    environment:
+     - MONGO_INITDB_ROOT_USERNAME=mongo
+     - MONGO_INITDB_ROOT_PASSWORD=secret
+
+  sysbench-ps:
+    profiles:
+      - pmm
+    image: perconalab/sysbench
+    platform: linux/amd64
+    container_name: sysbench-ps
+    depends_on:
+      ps-init:
+        condition: service_completed_successfully
+      pmm-server:
+        condition: service_healthy
+    command: bash /sysbench-ps.sh
+    volumes:
+      - ./dev/sysbench-ps.sh:/sysbench-ps.sh
 
 volumes:
-  go-modules:
-  go-cache:
-  srv:
+  pmm-data:
+    name: pmm-data

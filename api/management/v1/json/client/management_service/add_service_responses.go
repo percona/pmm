@@ -1633,6 +1633,18 @@ type AddServiceOKBodyExternalExternalExporter struct {
 	// Skip TLS certificate and hostname verification.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
+	// AgentStatus represents actual Agent status.
+	//
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
+	Status *string `json:"status,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyExternalExternalExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -1641,6 +1653,10 @@ type AddServiceOKBodyExternalExternalExporter struct {
 func (o *AddServiceOKBodyExternalExternalExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
@@ -1648,6 +1664,66 @@ func (o *AddServiceOKBodyExternalExternalExporter) Validate(formats strfmt.Regis
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+var addServiceOkBodyExternalExternalExporterTypeStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addServiceOkBodyExternalExternalExporterTypeStatusPropEnum = append(addServiceOkBodyExternalExternalExporterTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// AddServiceOKBodyExternalExternalExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	AddServiceOKBodyExternalExternalExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// AddServiceOKBodyExternalExternalExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddServiceOKBodyExternalExternalExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// AddServiceOKBodyExternalExternalExporterStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	AddServiceOKBodyExternalExternalExporterStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// AddServiceOKBodyExternalExternalExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddServiceOKBodyExternalExternalExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// AddServiceOKBodyExternalExternalExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddServiceOKBodyExternalExternalExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// AddServiceOKBodyExternalExternalExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddServiceOKBodyExternalExternalExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// AddServiceOKBodyExternalExternalExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddServiceOKBodyExternalExternalExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// AddServiceOKBodyExternalExternalExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddServiceOKBodyExternalExternalExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *AddServiceOKBodyExternalExternalExporter) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addServiceOkBodyExternalExternalExporterTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddServiceOKBodyExternalExternalExporter) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("addServiceOk"+"."+"external"+"."+"external_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -1801,6 +1877,12 @@ type AddServiceOKBodyExternalService struct {
 
 	// Group name of external service.
 	Group string `json:"group,omitempty"`
+
+	// Access address (DNS name or IP).
+	Address string `json:"address,omitempty"`
+
+	// Access port.
+	Port int64 `json:"port,omitempty"`
 }
 
 // Validate validates this add service OK body external service
@@ -2032,6 +2114,18 @@ type AddServiceOKBodyHaproxyExternalExporter struct {
 	// Skip TLS certificate and hostname verification.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
+	// AgentStatus represents actual Agent status.
+	//
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
+	Status *string `json:"status,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyHaproxyExternalExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -2040,6 +2134,10 @@ type AddServiceOKBodyHaproxyExternalExporter struct {
 func (o *AddServiceOKBodyHaproxyExternalExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
@@ -2047,6 +2145,66 @@ func (o *AddServiceOKBodyHaproxyExternalExporter) Validate(formats strfmt.Regist
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+var addServiceOkBodyHaproxyExternalExporterTypeStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addServiceOkBodyHaproxyExternalExporterTypeStatusPropEnum = append(addServiceOkBodyHaproxyExternalExporterTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// AddServiceOKBodyHaproxyExternalExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	AddServiceOKBodyHaproxyExternalExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// AddServiceOKBodyHaproxyExternalExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddServiceOKBodyHaproxyExternalExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// AddServiceOKBodyHaproxyExternalExporterStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	AddServiceOKBodyHaproxyExternalExporterStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// AddServiceOKBodyHaproxyExternalExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddServiceOKBodyHaproxyExternalExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// AddServiceOKBodyHaproxyExternalExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddServiceOKBodyHaproxyExternalExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// AddServiceOKBodyHaproxyExternalExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddServiceOKBodyHaproxyExternalExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// AddServiceOKBodyHaproxyExternalExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddServiceOKBodyHaproxyExternalExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// AddServiceOKBodyHaproxyExternalExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddServiceOKBodyHaproxyExternalExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *AddServiceOKBodyHaproxyExternalExporter) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addServiceOkBodyHaproxyExternalExporterTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddServiceOKBodyHaproxyExternalExporter) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("addServiceOk"+"."+"haproxy"+"."+"external_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -2241,6 +2399,9 @@ type AddServiceOKBodyMongodb struct {
 	// qan mongodb profiler
 	QANMongodbProfiler *AddServiceOKBodyMongodbQANMongodbProfiler `json:"qan_mongodb_profiler,omitempty"`
 
+	// rta mongodb agent
+	RtaMongodbAgent *AddServiceOKBodyMongodbRtaMongodbAgent `json:"rta_mongodb_agent,omitempty"`
+
 	// service
 	Service *AddServiceOKBodyMongodbService `json:"service,omitempty"`
 }
@@ -2258,6 +2419,10 @@ func (o *AddServiceOKBodyMongodb) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateQANMongodbProfiler(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRtaMongodbAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -2340,6 +2505,29 @@ func (o *AddServiceOKBodyMongodb) validateQANMongodbProfiler(formats strfmt.Regi
 	return nil
 }
 
+func (o *AddServiceOKBodyMongodb) validateRtaMongodbAgent(formats strfmt.Registry) error {
+	if swag.IsZero(o.RtaMongodbAgent) { // not required
+		return nil
+	}
+
+	if o.RtaMongodbAgent != nil {
+		if err := o.RtaMongodbAgent.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("addServiceOk" + "." + "mongodb" + "." + "rta_mongodb_agent")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("addServiceOk" + "." + "mongodb" + "." + "rta_mongodb_agent")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *AddServiceOKBodyMongodb) validateService(formats strfmt.Registry) error {
 	if swag.IsZero(o.Service) { // not required
 		return nil
@@ -2376,6 +2564,10 @@ func (o *AddServiceOKBodyMongodb) ContextValidate(ctx context.Context, formats s
 	}
 
 	if err := o.contextValidateQANMongodbProfiler(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateRtaMongodbAgent(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -2452,6 +2644,30 @@ func (o *AddServiceOKBodyMongodb) contextValidateQANMongodbProfiler(ctx context.
 			ce := new(errors.CompositeError)
 			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "mongodb" + "." + "qan_mongodb_profiler")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddServiceOKBodyMongodb) contextValidateRtaMongodbAgent(ctx context.Context, formats strfmt.Registry) error {
+	if o.RtaMongodbAgent != nil {
+
+		if swag.IsZero(o.RtaMongodbAgent) { // not required
+			return nil
+		}
+
+		if err := o.RtaMongodbAgent.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("addServiceOk" + "." + "mongodb" + "." + "rta_mongodb_agent")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("addServiceOk" + "." + "mongodb" + "." + "rta_mongodb_agent")
 			}
 
 			return err
@@ -2560,7 +2776,7 @@ type AddServiceOKBodyMongodbMongodbExporter struct {
 	// is less than this value. 0: no limit
 	CollectionsLimit int32 `json:"collections_limit,omitempty"`
 
-	// Enable All collectors.
+	// Enable all collectors.
 	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
 
 	// Path to exec process.
@@ -3251,6 +3467,309 @@ func (o *AddServiceOKBodyMongodbQANMongodbProfiler) MarshalBinary() ([]byte, err
 // UnmarshalBinary interface implementation
 func (o *AddServiceOKBodyMongodbQANMongodbProfiler) UnmarshalBinary(b []byte) error {
 	var res AddServiceOKBodyMongodbQANMongodbProfiler
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddServiceOKBodyMongodbRtaMongodbAgent RTAMongoDBAgent runs within pmm-agent and sends MongoDB Real-Time Query Analytics data to the PMM Server.
+swagger:model AddServiceOKBodyMongodbRtaMongodbAgent
+*/
+type AddServiceOKBodyMongodbRtaMongodbAgent struct {
+	// Unique agent identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// MongoDB username for getting profiler data.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
+	Status *string `json:"status,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+
+	// rta options
+	RtaOptions *AddServiceOKBodyMongodbRtaMongodbAgentRtaOptions `json:"rta_options,omitempty"`
+}
+
+// Validate validates this add service OK body mongodb rta mongodb agent
+func (o *AddServiceOKBodyMongodbRtaMongodbAgent) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRtaOptions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addServiceOkBodyMongodbRtaMongodbAgentTypeStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addServiceOkBodyMongodbRtaMongodbAgentTypeStatusPropEnum = append(addServiceOkBodyMongodbRtaMongodbAgentTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *AddServiceOKBodyMongodbRtaMongodbAgent) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addServiceOkBodyMongodbRtaMongodbAgentTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddServiceOKBodyMongodbRtaMongodbAgent) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("addServiceOk"+"."+"mongodb"+"."+"rta_mongodb_agent"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addServiceOkBodyMongodbRtaMongodbAgentTypeLogLevelPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addServiceOkBodyMongodbRtaMongodbAgentTypeLogLevelPropEnum = append(addServiceOkBodyMongodbRtaMongodbAgentTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddServiceOKBodyMongodbRtaMongodbAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddServiceOKBodyMongodbRtaMongodbAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+
+	// AddServiceOKBodyMongodbRtaMongodbAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddServiceOKBodyMongodbRtaMongodbAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+
+	// AddServiceOKBodyMongodbRtaMongodbAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddServiceOKBodyMongodbRtaMongodbAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+
+	// AddServiceOKBodyMongodbRtaMongodbAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddServiceOKBodyMongodbRtaMongodbAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+
+	// AddServiceOKBodyMongodbRtaMongodbAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddServiceOKBodyMongodbRtaMongodbAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+
+	// AddServiceOKBodyMongodbRtaMongodbAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddServiceOKBodyMongodbRtaMongodbAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+)
+
+// prop value enum
+func (o *AddServiceOKBodyMongodbRtaMongodbAgent) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addServiceOkBodyMongodbRtaMongodbAgentTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddServiceOKBodyMongodbRtaMongodbAgent) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addServiceOk"+"."+"mongodb"+"."+"rta_mongodb_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *AddServiceOKBodyMongodbRtaMongodbAgent) validateRtaOptions(formats strfmt.Registry) error {
+	if swag.IsZero(o.RtaOptions) { // not required
+		return nil
+	}
+
+	if o.RtaOptions != nil {
+		if err := o.RtaOptions.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("addServiceOk" + "." + "mongodb" + "." + "rta_mongodb_agent" + "." + "rta_options")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("addServiceOk" + "." + "mongodb" + "." + "rta_mongodb_agent" + "." + "rta_options")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add service OK body mongodb rta mongodb agent based on the context it is used
+func (o *AddServiceOKBodyMongodbRtaMongodbAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateRtaOptions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddServiceOKBodyMongodbRtaMongodbAgent) contextValidateRtaOptions(ctx context.Context, formats strfmt.Registry) error {
+	if o.RtaOptions != nil {
+
+		if swag.IsZero(o.RtaOptions) { // not required
+			return nil
+		}
+
+		if err := o.RtaOptions.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("addServiceOk" + "." + "mongodb" + "." + "rta_mongodb_agent" + "." + "rta_options")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("addServiceOk" + "." + "mongodb" + "." + "rta_mongodb_agent" + "." + "rta_options")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddServiceOKBodyMongodbRtaMongodbAgent) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddServiceOKBodyMongodbRtaMongodbAgent) UnmarshalBinary(b []byte) error {
+	var res AddServiceOKBodyMongodbRtaMongodbAgent
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddServiceOKBodyMongodbRtaMongodbAgentRtaOptions RTAOptions holds Real-Time Query Analytics agent options.
+swagger:model AddServiceOKBodyMongodbRtaMongodbAgentRtaOptions
+*/
+type AddServiceOKBodyMongodbRtaMongodbAgentRtaOptions struct {
+	// Query collect interval (default 2s is set by server).
+	CollectInterval string `json:"collect_interval,omitempty"`
+}
+
+// Validate validates this add service OK body mongodb rta mongodb agent rta options
+func (o *AddServiceOKBodyMongodbRtaMongodbAgentRtaOptions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add service OK body mongodb rta mongodb agent rta options based on context it is used
+func (o *AddServiceOKBodyMongodbRtaMongodbAgentRtaOptions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddServiceOKBodyMongodbRtaMongodbAgentRtaOptions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddServiceOKBodyMongodbRtaMongodbAgentRtaOptions) UnmarshalBinary(b []byte) error {
+	var res AddServiceOKBodyMongodbRtaMongodbAgentRtaOptions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -9587,6 +10106,9 @@ type AddServiceParamsBodyMongodb struct {
 	// Environment variable names to pass to the exporter.
 	// Values will be resolved from pmm-agent's environment when starting the exporter.
 	EnvironmentVariableNames []string `json:"environment_variable_names"`
+
+	// If true, adds Real-Time Analytics agent for the provided service.
+	RtaMongodbAgent bool `json:"rta_mongodb_agent,omitempty"`
 
 	// add node
 	AddNode *AddServiceParamsBodyMongodbAddNode `json:"add_node,omitempty"`

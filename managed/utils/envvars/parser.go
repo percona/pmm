@@ -225,7 +225,8 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		case "PMM_INSTALL_METHOD", "PMM_DISTRIBUTION_METHOD":
 			continue
 
-		case "PMM_ENCRYPTION_KEY_PATH":
+		// skip various HA-related variables
+		case "PMM_ENCRYPTION_KEY_PATH", "PMM_ADMIN_PASSWORD":
 			continue
 
 		case pkgenv.EnableAccessControl:
@@ -286,7 +287,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			}
 
 			// skip kubernetes environment variables
-			if strings.HasPrefix(k, "KUBERNETES_") {
+			if strings.HasPrefix(k, "KUBERNETES_") || strings.HasPrefix(k, "PMM_OPERATORS_") {
 				continue
 			}
 
@@ -365,7 +366,7 @@ func GetPlatformAddress() (string, error) {
 	}
 
 	if _, err := url.Parse(address); err != nil {
-		return "", errors.Errorf("invalid percona platform address: %s", err)
+		return "", errors.Errorf("invalid Percona Platform address: %s", err)
 	}
 
 	logrus.Infof("Using Percona Platform address: %s.", address)
@@ -395,7 +396,7 @@ func GetInterfaceToBind() string {
 
 // GetEnv returns env with fallback option.
 func GetEnv(key, fallback string) string {
-	if value, ok := os.LookupEnv(key); ok {
+	if value, ok := os.LookupEnv(key); ok && value != "" {
 		return value
 	}
 	return fallback

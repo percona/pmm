@@ -1,6 +1,6 @@
 import { NavItem } from 'types/navigation.types';
 import { ServiceType } from 'types/services.types';
-import { User } from 'types/user.types';
+import { User, UserPreferences } from 'types/user.types';
 import { FrontendSettings } from 'types/settings.types';
 import { Advisor } from 'types/advisors.types';
 import { groupAdvisorsIntoCategories } from 'utils/advisors.utils';
@@ -45,6 +45,8 @@ import {
   NAV_USERS_AND_ACCESS,
   NAV_ACCESS_CONTROL,
   NAV_HIGH_AVAILABILITY_LEADER,
+  NAV_HIGH_AVAILABILITY_NODES,
+  NAV_HOME_PAGE,
 } from './navigation.constants';
 import { CombinedSettings } from 'contexts/settings';
 import { capitalize } from 'utils/text.utils';
@@ -173,7 +175,7 @@ export const addAdvisors = (advisors: Advisor[]): NavItem => {
   for (const category of Object.keys(categories)) {
     children.push({
       id: `advisors-${category}`,
-      text: `${capitalize(category)} Advisors`,
+      text: `${capitalize(category)} advisors`,
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/advisors/${category}`,
     });
   }
@@ -189,7 +191,7 @@ export const addAccount = (
 ): NavItem => {
   const name = (user.name || '').split(' ')[0];
   const children = [...(NAV_ACCOUNT.children || [])];
-  const targetTheme = colorMode === 'light' ? 'Dark' : 'Light';
+  const targetMode = colorMode === 'light' ? 'dark' : 'light';
 
   if (
     !(
@@ -203,7 +205,7 @@ export const addAccount = (
   children.push({
     ...NAV_THEME_TOGGLE,
     icon: colorMode === 'light' ? 'theme-dark' : 'theme-light',
-    text: `Change to ${targetTheme} Theme`,
+    text: `Switch to ${targetMode} mode`,
     onClick: toggleMode,
   });
 
@@ -259,8 +261,7 @@ export const addHighAvailability = ({ health, leader }: HAInfo): NavItem => {
       ...NAV_HIGH_AVAILABILITY_LEADER,
       secondaryText: leader?.nodeName || 'Unknown',
     },
-    // Remove Identify Nodes link for now
-    // NAV_HIGH_AVAILABILITY_NODES,
+    NAV_HIGH_AVAILABILITY_NODES,
   ];
 
   return item;
@@ -274,4 +275,19 @@ export const addUsersAndAccess = (settings?: CombinedSettings): NavItem => {
   }
 
   return { ...NAV_USERS_AND_ACCESS, children };
+};
+
+export const addHomePage = (preferences?: UserPreferences): NavItem => {
+  if (preferences?.homeDashboardUID) {
+    return {
+      ...NAV_HOME_PAGE,
+      // highlight also the custom home dashboard
+      matches: [
+        ...(NAV_HOME_PAGE.matches || []),
+        `${PMM_NEW_NAV_GRAFANA_PATH}/d/${preferences.homeDashboardUID}`,
+      ],
+    };
+  }
+
+  return NAV_HOME_PAGE;
 };

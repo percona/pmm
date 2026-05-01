@@ -193,7 +193,8 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 			continue
 		case models.QANPostgreSQLPgStatementsAgentType, models.QANPostgreSQLPgStatMonitorAgentType:
 			continue
-
+		case models.RTAMongoDBAgentType:
+			continue
 		case models.RDSExporterType:
 			if skipExternalAgents && pointer.GetString(agent.RunsOnNodeID) == models.PMMServerNodeID {
 				l.Debugf("Skip the scrape config for RDSExporter %s running on PMM Server in HA non-leader mode", agent.AgentID)

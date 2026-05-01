@@ -162,6 +162,33 @@ func FindActiveServiceTypes(q *reform.Querier) ([]ServiceType, error) {
 	return res, nil
 }
 
+// FindActiveUserServiceTypes returns all active Service Types, excluding pmm-server-postgresql service.
+func FindActiveUserServiceTypes(q *reform.Querier) ([]ServiceType, error) {
+	query := fmt.Sprintf(`SELECT DISTINCT service_type FROM %s WHERE service_name != $1`, ServiceTable.s.SQLName)
+	rows, err := q.Query(query, PMMServerPostgreSQLServiceName)
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() {
+		if rowsErr := rows.Close(); rowsErr != nil {
+			logrus.Debug(rowsErr)
+		}
+	}()
+
+	var res []ServiceType
+	for rows.Next() {
+		var serviceType ServiceType
+		if err = rows.Scan(&serviceType); err != nil {
+			return nil, err
+		}
+
+		res = append(res, serviceType)
+	}
+
+	return res, nil
+}
+
 // FindServiceByID searches Service by ID.
 func FindServiceByID(q *reform.Querier, id string) (*Service, error) {
 	if id == "" {
@@ -188,7 +215,7 @@ func FindServicesByIDs(q *reform.Querier, ids []string) (map[string]*Service, er
 
 	p := strings.Join(q.Placeholders(1, len(ids)), ", ")
 	tail := fmt.Sprintf("WHERE service_id IN (%s) ORDER BY service_id", p)
-	args := make([]interface{}, len(ids))
+	args := make([]any, len(ids))
 	for i, id := range ids {
 		args[i] = id
 	}

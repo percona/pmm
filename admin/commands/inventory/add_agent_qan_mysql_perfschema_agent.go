@@ -75,7 +75,7 @@ type AddAgentQANMySQLPerfSchemaAgentCommand struct {
 
 // RunCmd runs the command for AddAgentQANMySQLPerfSchemaAgentCommand.
 func (cmd *AddAgentQANMySQLPerfSchemaAgentCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(&cmd.CustomLabels)
 
 	var (
 		err                    error
@@ -105,7 +105,7 @@ func (cmd *AddAgentQANMySQLPerfSchemaAgentCommand) RunCmd() (commands.Result, er
 				ServiceID:              cmd.ServiceID,
 				Username:               cmd.Username,
 				Password:               cmd.Password,
-				CustomLabels:           customLabels,
+				CustomLabels:           *customLabels,
 				SkipConnectionCheck:    cmd.SkipConnectionCheck,
 				DisableCommentsParsing: !cmd.CommentsParsingFlags.CommentsParsingEnabled(),
 				MaxQueryLength:         cmd.MaxQueryLength,

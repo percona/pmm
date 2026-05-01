@@ -220,7 +220,7 @@ func (s *Service) reload(name string) error {
 }
 
 // marshalConfig marshals supervisord program configuration.
-func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settings, ssoDetails *models.PerconaSSODetails) ([]byte, error) {
+func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settings) ([]byte, error) {
 	clickhouseDatabase := envvars.GetEnv("PMM_CLICKHOUSE_DATABASE", defaultClickhouseDatabase)
 	clickhouseAddr := envvars.GetEnv("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
 	clickhouseAddrPair := strings.SplitN(clickhouseAddr, ":", 2) //nolint:mnd
@@ -260,7 +260,6 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"ClickhouseUser":               clickhouseUser,
 		"ClickhousePassword":           clickhousePassword,
 		"PMMServerHost":                "",
-		"PerconaSSODetails":            nil,
 	}
 
 	s.addPostgresParams(templateParams)
@@ -276,16 +275,6 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 			return nil, errors.Wrap(err, "failed to parse PMM public address.") //nolint:revive
 		}
 		templateParams["PMMServerHost"] = publicURL.Host
-	}
-	if ssoDetails != nil {
-		u, err := url.Parse(ssoDetails.IssuerURL)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to parse host of IssuerURL")
-		}
-		templateParams["PerconaSSODetails"] = ssoDetails
-		templateParams["PMMServerAddress"] = settings.PMMPublicAddress
-		templateParams["PMMServerID"] = settings.PMMServerID
-		templateParams["IssuerDomain"] = u.Host
 	}
 
 	var buf bytes.Buffer
@@ -372,7 +361,7 @@ func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
 }
 
 // UpdateConfiguration updates VictoriaMetrics, Grafana and qan-api2 configurations, restarting them if needed.
-func (s *Service) UpdateConfiguration(settings *models.Settings, ssoDetails *models.PerconaSSODetails) error {
+func (s *Service) UpdateConfiguration(settings *models.Settings) error {
 	if s.supervisorctlPath == "" {
 		s.l.Errorf("supervisorctl not found, configuration updates are disabled.")
 		return nil
@@ -409,7 +398,7 @@ func (s *Service) UpdateConfiguration(settings *models.Settings, ssoDetails *mod
 			continue
 		}
 
-		b, e := s.marshalConfig(tmpl, settings, ssoDetails)
+		b, e := s.marshalConfig(tmpl, settings)
 		if e != nil {
 			s.l.Errorf("Failed to marshal config: %s.", e)
 			err = e
@@ -436,7 +425,6 @@ func (s *Service) StopSupervisedService(serviceName string) error {
 	return err
 }
 
-//nolint:lll
 var templates = template.Must(template.New("").Option("missingkey=error").Parse(`
 
 {{define "victoriametrics"}}
@@ -554,18 +542,6 @@ command =
         {{- if .PMMServerHost}}
         cfg:default.server.domain="{{ .PMMServerHost }}"
         {{- end}}
-        {{- if .PerconaSSODetails}}
-        cfg:default.auth.generic_oauth.enabled=true
-        cfg:default.auth.generic_oauth.name="Percona Account"
-        cfg:default.auth.generic_oauth.client_id="{{ .PerconaSSODetails.GrafanaClientID }}"
-        cfg:default.auth.generic_oauth.scopes="openid profile email offline_access percona"
-        cfg:default.auth.generic_oauth.auth_url="{{ .PerconaSSODetails.IssuerURL }}/authorize"
-        cfg:default.auth.generic_oauth.token_url="{{ .PerconaSSODetails.IssuerURL }}/token"
-        cfg:default.auth.generic_oauth.api_url="{{ .PerconaSSODetails.IssuerURL }}/userinfo"
-        cfg:default.auth.generic_oauth.role_attribute_path="(contains(portal_admin_orgs[*], '{{ .PerconaSSODetails.OrganizationID }}') || contains(pmm_demo_ids[*], '{{ .PMMServerID }}')) && 'Admin' || 'Viewer'"
-        cfg:default.auth.generic_oauth.use_pkce="true"
-        cfg:default.auth.oauth_allow_insecure_email_lookup="true"
-        {{- end}}
 environment =
     PMM_POSTGRES_ADDR="{{ .PostgresAddr }}",
     PMM_POSTGRES_DBNAME="{{ .PostgresDBName }}",
@@ -579,9 +555,6 @@ environment =
     PMM_CLICKHOUSE_PORT="{{ .ClickhousePort }}",
     PMM_CLICKHOUSE_USER="{{ .ClickhouseUser }}",
     PMM_CLICKHOUSE_PASSWORD="{{ .ClickhousePassword }}",
-    {{- if .PerconaSSODetails}}
-    GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"
-    {{- end}}
     {{- if .HAEnabled}}
     GF_UNIFIED_ALERTING_HA_LISTEN_ADDRESS="0.0.0.0:{{ .GrafanaGossipPort }}",
     GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS="{{ .HAAdvertiseAddress }}:{{ .GrafanaGossipPort }}",

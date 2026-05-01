@@ -10,7 +10,6 @@ import {
   Alert,
 } from '@mui/material';
 import { FC, useState } from 'react';
-import { formatTimestamp } from 'utils/datetime.utils';
 import { PMM_HOME_URL } from 'lib/constants';
 import { Messages } from './UpdateCard.messages';
 import { FetchingIcon } from 'components/fetching-icon';
@@ -99,7 +98,7 @@ export const UpdateCard: FC = () => {
           </Alert>
         )}
         <Stack spacing={1}>
-          {data.updateAvailable && data?.latest.version && (
+          {data.updateAvailable && data?.latest?.version && (
             <Typography variant="h4">
               {Messages.newUpdateAvailable(data.latest.version)}
             </Typography>
@@ -116,14 +115,6 @@ export const UpdateCard: FC = () => {
                 {Messages.newVersion}
               </Typography>
               {data?.latest && formatVersion(data.latest)}
-            </Typography>
-          )}
-          {data.lastCheck && (
-            <Typography>
-              <Typography fontWeight="bold" component="strong">
-                {Messages.lastChecked}
-              </Typography>{' '}
-              {formatTimestamp(data?.lastCheck)}
             </Typography>
           )}
         </Stack>

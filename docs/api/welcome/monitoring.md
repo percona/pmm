@@ -1,8 +1,9 @@
 ---
 title: Monitoring
 slug: monitoring
-parentSlug: welcome
-order: 2
+category:
+  uri: welcome
+position: 2
 ---
 
 In order to get a Database (or Service in PMM terminology) monitored you need:

@@ -95,19 +95,19 @@ func (ss *ServicesService) ListActiveServiceTypes(ctx context.Context) ([]invent
 	for _, t := range types {
 		switch t {
 		case models.MySQLServiceType:
-			res = append(res, inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE) //nolint:nosnakecase
+			res = append(res, inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE)
 		case models.MongoDBServiceType:
-			res = append(res, inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE) //nolint:nosnakecase
+			res = append(res, inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE)
 		case models.PostgreSQLServiceType:
-			res = append(res, inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE) //nolint:nosnakecase
+			res = append(res, inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE)
 		case models.ValkeyServiceType:
-			res = append(res, inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE) //nolint:nosnakecase
+			res = append(res, inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE)
 		case models.ProxySQLServiceType:
-			res = append(res, inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE) //nolint:nosnakecase
+			res = append(res, inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE)
 		case models.HAProxyServiceType:
-			res = append(res, inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE) //nolint:nosnakecase
+			res = append(res, inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE)
 		case models.ExternalServiceType:
-			res = append(res, inventoryv1.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE) //nolint:nosnakecase
+			res = append(res, inventoryv1.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE)
 		}
 	}
 	return res, nil

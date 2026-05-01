@@ -532,6 +532,20 @@ func validateDurations(intervalD, forD string) error {
 	return nil
 }
 
+// GetDatasourceUIDByID returns grafana datasource UID.
+func (c *Client) GetDatasourceUIDByID(ctx context.Context, id int64) (string, error) {
+	grafanaClient, err := c.createGrafanaClient(ctx)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to create grafana client")
+	}
+
+	ds, err := grafanaClient.DataSource(id)
+	if err != nil {
+		return "", err
+	}
+	return ds.UID, nil
+}
+
 // CreateFolder creates grafana folder.
 func (c *Client) CreateFolder(ctx context.Context, title string) (*gapi.Folder, error) {
 	grafanaClient, err := c.createGrafanaClient(ctx)
@@ -800,14 +814,11 @@ type grafanaHealthResponse struct {
 func (c *Client) IsReady(ctx context.Context) error {
 	var status grafanaHealthResponse
 	if err := c.do(ctx, http.MethodGet, "/api/health", "", nil, nil, &status); err != nil {
-		// since we don't return the error to the user, log it to help debugging
-		logrus.Errorf("grafana status check failed: %s", err)
-		return fmt.Errorf("cannot reach Grafana API")
+		return fmt.Errorf("grafana health check failed: %w", err)
 	}
 
 	if strings.ToLower(status.Database) != "ok" {
-		logrus.Errorf("grafana is up but the database is not ok. Database status is %s", status.Database)
-		return fmt.Errorf("grafana is running with errors")
+		return fmt.Errorf("grafana health check failure: database status is %s", status.Database)
 	}
 
 	return nil

@@ -9,6 +9,7 @@ on:
       - v[0-9]+.[0-9]+.[0-9]+*
     paths-ignore:
       - "documentation/**"
+      - "dashboards/**"
 
   pull_request:
     paths-ignore:
@@ -17,6 +18,7 @@ on:
       - 'api-tests/**'
       - 'docs/**'
       - "documentation/**"
+      - "dashboards/**"
       - 'qan-api2/**'
       - 'update/**'
       - 'vmproxy/**'
@@ -26,7 +28,7 @@ permissions: read-all
 
 jobs:
   test:
-    name: Managed tests
+    name: Unit tests
     runs-on: ubuntu-22.04
     timeout-minutes: 30
 
@@ -34,22 +36,20 @@ jobs:
       PMM_SERVER_IMAGE: perconalab/pmm-server:3-dev-latest
       AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
       AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
-      PMM_DEV_OAUTH_CLIENT_ID: ${{ secrets.OAUTH_PMM_CLIENT_ID }}
-      PMM_DEV_OAUTH_CLIENT_SECRET: ${{ secrets.OAUTH_PMM_CLIENT_SECRET }}
       PMM_CONTAINER: ghcr.io/percona/pmm:3-dev-container
 
     steps:
       - name: Check out code
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Enable Go build and module cache
-        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: |
             ~/go-build-cache
             ~/go-mod-cache
           key: ${{ runner.os }}-go-${{ hashFiles('go.sum') }}
-          restore-keys: ${{ runner.os }}-go-              
+          restore-keys: ${{ runner.os }}-go-
 
       - name: Launch PMM Server
         run: |
@@ -64,8 +64,9 @@ jobs:
             -e PMM_RELEASE_PATH=/root/go/bin \
             -e PMM_ENABLE_ACCESS_CONTROL=1 \
             -e PMM_ENABLE_TELEMETRY=0 \
-            -e PMM_RELEASE_VERSION=3.0.0 \
+            -e PMM_RELEASE_VERSION=3.7.0 \
             -e GOMODCACHE=/home/pmm/.cache/go/mod \
+            -e GOCACHE=/home/pmm/.cache/go-build \
             -w /root/go/src/github.com/percona/pmm \
             -v ./:/root/go/src/github.com/percona/pmm \
             -v ~/go-mod-cache:/home/pmm/.cache/go/mod \
@@ -83,7 +84,7 @@ jobs:
         run: docker exec -i -u root pmm-server git config --global --add safe.directory /root/go/src/github.com/percona/pmm
 
       - name: Rebuild the binaries
-        run: docker exec -i -u root pmm-server make run-managed-ci run-agent run-vmproxy run-qan
+        run: docker exec -i -u root pmm-server make run-managed-ci run-agent-ci run-vmproxy-ci run-qan-ci
 
       - name: Check the status of components
         continue-on-error: true
@@ -93,7 +94,7 @@ jobs:
         run: docker exec -i -u root pmm-server make -C managed test-cover
 
       - name: Upload coverage results
-        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
         with:
           files: managed/cover.out
           flags: managed
