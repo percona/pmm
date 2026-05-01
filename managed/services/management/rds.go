@@ -258,6 +258,7 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 }
 
 // AddRDS adds RDS instance.
+//
 //nolint:gocognit,cyclop,maintidx
 func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDSServiceParams) (*managementv1.AddServiceResponse, error) {
 	rds := &managementv1.RDSServiceResult{}
