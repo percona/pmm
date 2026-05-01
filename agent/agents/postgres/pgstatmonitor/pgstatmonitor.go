@@ -381,6 +381,21 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 	}
 }
 
+// Changes returns channel that should be read until it is closed.
+func (m *PGStatMonitorQAN) Changes() <-chan agents.Change {
+	return m.changes
+}
+
+// Describe implements prometheus.Collector.
+func (m *PGStatMonitorQAN) Describe(ch chan<- *prometheus.Desc) { //nolint:revive
+	// This method is needed to satisfy interface.
+}
+
+// Collect implement prometheus.Collector.
+func (m *PGStatMonitorQAN) Collect(ch chan<- prometheus.Metric) { //nolint:revive
+	// This method is needed to satisfy interface.
+}
+
 func (m *PGStatMonitorQAN) resetWaitTime(t *time.Timer, waitTime time.Duration) {
 	start := time.Now()
 	m.l.Debugf("Scheduling next collection in %s at %s.", waitTime, start.Add(waitTime).Format("15:04:05"))
@@ -763,21 +778,6 @@ func getHistogramRangesArray(vPGSM pgStatMonitorVersion) []*agentv1.HistogramIte
 		{Range: "(10000 - 31622)"},
 		{Range: "(31622 - 100000)"},
 	}
-}
-
-// Changes returns channel that should be read until it is closed.
-func (m *PGStatMonitorQAN) Changes() <-chan agents.Change {
-	return m.changes
-}
-
-// Describe implements prometheus.Collector.
-func (m *PGStatMonitorQAN) Describe(ch chan<- *prometheus.Desc) { //nolint:revive
-	// This method is needed to satisfy interface.
-}
-
-// Collect implement prometheus.Collector.
-func (m *PGStatMonitorQAN) Collect(ch chan<- prometheus.Metric) { //nolint:revive
-	// This method is needed to satisfy interface.
 }
 
 // check interfaces.
