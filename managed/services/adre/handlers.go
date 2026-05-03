@@ -127,6 +127,7 @@ type adreSettingsResponse struct {
 	PromptMaxBytes                int             `json:"prompt_max_bytes"`
 	AdreChatRetentionDays         int             `json:"adre_chat_retention_days"`
 	SlackEnabled                  bool            `json:"slack_enabled"`
+	SlackAutoInvestigate          bool            `json:"slack_auto_investigate"`
 	SlackConfigured               bool            `json:"slack_configured"`
 }
 
@@ -191,6 +192,7 @@ func (h *Handlers) GetSettings(w http.ResponseWriter, r *http.Request) {
 		PromptMaxBytes:                settings.Adre.PromptMaxBytes,
 		AdreChatRetentionDays:         settings.GetAdreChatRetentionDays(),
 		SlackEnabled:                  settings.Adre.SlackEnabled,
+		SlackAutoInvestigate:          settings.Adre.SlackAutoInvestigate,
 		SlackConfigured:               settings.Adre.SlackBotToken != "" && settings.Adre.SlackAppToken != "",
 	}
 	applyAdreSettingsDefaults(&resp)
@@ -233,6 +235,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		PromptMaxBytes                *int             `json:"prompt_max_bytes"`
 		AdreChatRetentionDays         *int             `json:"adre_chat_retention_days"`
 		SlackEnabled                  *bool            `json:"slack_enabled"`
+		SlackAutoInvestigate          *bool            `json:"slack_auto_investigate"`
 		SlackBotToken                 *string          `json:"slack_bot_token"`
 		SlackAppToken                 *string          `json:"slack_app_token"`
 	}
@@ -246,7 +249,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		body.AdreMaxConversationMessages != nil || body.QanInsightsPrompt != nil || body.QanInsightsModel != nil ||
 		body.ServiceNowURL != nil || body.ServiceNowAPIKey != nil || body.ServiceNowClientToken != nil ||
 		body.PromptMaxBytes != nil || body.AdreChatRetentionDays != nil ||
-		body.SlackEnabled != nil || body.SlackBotToken != nil || body.SlackAppToken != nil
+		body.SlackEnabled != nil || body.SlackAutoInvestigate != nil || body.SlackBotToken != nil || body.SlackAppToken != nil
 	if !hasChange {
 		writeJSONError(w, http.StatusBadRequest, "No changes provided")
 		return
@@ -368,6 +371,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		PromptMaxBytes:                    body.PromptMaxBytes,
 		AdreChatRetentionDays:             body.AdreChatRetentionDays,
 		EnableSlackBot:                    body.SlackEnabled,
+		SlackAutoInvestigate:              body.SlackAutoInvestigate,
 		SlackBotToken:                     body.SlackBotToken,
 		SlackAppToken:                     body.SlackAppToken,
 	}
@@ -411,6 +415,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		PromptMaxBytes:                settings.Adre.PromptMaxBytes,
 		AdreChatRetentionDays:         settings.GetAdreChatRetentionDays(),
 		SlackEnabled:                  settings.Adre.SlackEnabled,
+		SlackAutoInvestigate:          settings.Adre.SlackAutoInvestigate,
 		SlackConfigured:               settings.Adre.SlackBotToken != "" && settings.Adre.SlackAppToken != "",
 	}
 	applyAdreSettingsDefaults(&resp)

@@ -149,9 +149,10 @@ type Settings struct {
 		// AdreChatRetentionDays deletes ADRE chat threads with last_message_at older than this many days (0 = never auto-purge). Nil in JSON defaults in fillDefaults.
 		AdreChatRetentionDays *int `json:"adre_chat_retention_days"`
 		// Slack integration (Socket Mode); tokens stored in settings JSON.
-		SlackEnabled  bool   `json:"slack_enabled"`
-		SlackBotToken string `json:"slack_bot_token"`
-		SlackAppToken string `json:"slack_app_token"`
+		SlackEnabled         bool   `json:"slack_enabled"`
+		SlackAutoInvestigate bool   `json:"slack_auto_investigate"`
+		SlackBotToken        string `json:"slack_bot_token"`
+		SlackAppToken        string `json:"slack_app_token"`
 	} `json:"adre"`
 
 	Alerting struct {

@@ -1,0 +1,46 @@
+// Copyright (C) 2026 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+package slackbot
+
+import (
+	"strings"
+
+	"github.com/slack-go/slack/slackevents"
+)
+
+const slackAutoInvestigatePrefix = "Investigate this firing alert and summarize likely cause and next checks:\n\n"
+
+// slackMessagePlainBlob joins top-level text and attachment fields for FIRING/RESOLVED gates
+// and the Holmes prompt (v0 naive join).
+func slackMessagePlainBlob(ev *slackevents.MessageEvent) string {
+	var parts []string
+	if t := strings.TrimSpace(ev.Text); t != "" {
+		parts = append(parts, t)
+	}
+	if ev.Message != nil {
+		for _, a := range ev.Message.Attachments {
+			if s := strings.TrimSpace(a.Fallback); s != "" {
+				parts = append(parts, s)
+			}
+			if s := strings.TrimSpace(a.Title); s != "" {
+				parts = append(parts, s)
+			}
+			if s := strings.TrimSpace(a.Text); s != "" {
+				parts = append(parts, s)
+			}
+		}
+	}
+	return strings.Join(parts, "\n")
+}
+
+func slackBotMessageSubtypeOK(subType string) bool {
+	return subType == "" || subType == slackSubtypeBotMessage
+}
+
+// slackSubtypeBotMessage matches Slack's message/bot_message subtype.
+const slackSubtypeBotMessage = "bot_message"

@@ -199,6 +199,28 @@ func handleEventsAPI(
 		handleTurn(ctx, db, api, ts, log, eventsAPI.TeamID, ev.Channel, threadTS, ev.TimeStamp, text)
 
 	case *slackevents.MessageEvent:
+		if ev.BotID != "" && slackBotMessageSubtypeOK(ev.SubType) {
+			settings, err := models.GetSettings(db)
+			if err != nil {
+				log.Errorf("GetSettings: %v", err)
+				return
+			}
+			if settings.Adre.SlackAutoInvestigate &&
+				settings.IsAdreEnabled() &&
+				strings.TrimSpace(settings.GetAdreURL()) != "" {
+				blob := slackMessagePlainBlob(ev)
+				upper := strings.ToUpper(blob)
+				if strings.Contains(upper, "FIRING") && !strings.Contains(upper, "RESOLVED") {
+					threadTS := ev.ThreadTimeStamp
+					if threadTS == "" {
+						threadTS = ev.TimeStamp
+					}
+					handleTurn(ctx, db, api, ts, log, eventsAPI.TeamID, ev.Channel, threadTS, ev.TimeStamp, slackAutoInvestigatePrefix+blob)
+					return
+				}
+			}
+		}
+
 		if ev.ThreadTimeStamp == "" {
 			return
 		}

@@ -44,9 +44,9 @@ var adreBehaviorControlAllowed = map[string]struct{}{
 	"style_guide":             {},
 	"cluster_name":            {},
 	"system_prompt_additions": {},
-	"files":          {},
-	"time_skills":    {},
-	"time_runbooks":  {}, // legacy; PMM maps to time_skills when calling Holmes
+	"files":                   {},
+	"time_skills":             {},
+	"time_runbooks":           {}, // legacy; PMM maps to time_skills when calling Holmes
 }
 
 func validateAdreBehaviorControlsMap(field string, m map[string]bool) error {
@@ -168,6 +168,8 @@ type ChangeSettingsParams struct {
 	AdreChatRetentionDays *int
 	// EnableSlackBot enables PMM-managed Slack (Socket Mode) integration.
 	EnableSlackBot *bool
+	// SlackAutoInvestigate runs ADRE on Slack bot messages whose text contains FIRING (v0 heuristic).
+	SlackAutoInvestigate *bool
 	// SlackBotToken / SlackAppToken: empty string in params means clear when pointer non-nil (same as ServiceNow keys).
 	SlackBotToken *string
 	SlackAppToken *string
@@ -376,6 +378,12 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 
 	if params.EnableSlackBot != nil {
 		settings.Adre.SlackEnabled = *params.EnableSlackBot
+		if !settings.Adre.SlackEnabled {
+			settings.Adre.SlackAutoInvestigate = false
+		}
+	}
+	if params.SlackAutoInvestigate != nil {
+		settings.Adre.SlackAutoInvestigate = *params.SlackAutoInvestigate && settings.Adre.SlackEnabled
 	}
 	if params.SlackBotToken != nil {
 		settings.Adre.SlackBotToken = pointer.GetString(params.SlackBotToken)
@@ -386,6 +394,7 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 
 	if params.EnableAdre != nil && !*params.EnableAdre {
 		settings.Adre.SlackEnabled = false
+		settings.Adre.SlackAutoInvestigate = false
 	}
 
 	if err := validateAdreSlackSettings(settings); err != nil {
@@ -532,6 +541,9 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 
 // validateAdreSlackSettings checks Slack integration: when enabled it requires ADRE with a Holmes URL.
 func validateAdreSlackSettings(settings *Settings) error {
+	if settings.Adre.SlackAutoInvestigate && !settings.Adre.SlackEnabled {
+		return errors.New("slack_auto_investigate requires slack_enabled")
+	}
 	if !settings.Adre.SlackEnabled {
 		return nil
 	}

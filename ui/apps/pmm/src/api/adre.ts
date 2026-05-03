@@ -74,6 +74,9 @@ export interface AdreSettings {
   /** PMM-managed Slack bot (Socket Mode). */
   slackEnabled?: boolean;
   slack_enabled?: boolean;
+  /** Auto-run ADRE on bot messages containing FIRING (Slack alerts). */
+  slackAutoInvestigate?: boolean;
+  slack_auto_investigate?: boolean;
   /** True when bot + app tokens are stored server-side (GET never returns raw tokens). */
   slackConfigured?: boolean;
   slack_configured?: boolean;

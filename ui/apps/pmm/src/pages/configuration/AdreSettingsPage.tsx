@@ -95,6 +95,9 @@ const AdreSettingsPage: FC = () => {
   const [localSlackEnabled, setLocalSlackEnabled] = useState(
     settings?.slackEnabled ?? settings?.slack_enabled ?? false
   );
+  const [localSlackAutoInvestigate, setLocalSlackAutoInvestigate] = useState(
+    settings?.slackAutoInvestigate ?? settings?.slack_auto_investigate ?? false
+  );
   const [localSlackBotToken, setLocalSlackBotToken] = useState('');
   const [localSlackAppToken, setLocalSlackAppToken] = useState('');
 
@@ -143,6 +146,9 @@ const AdreSettingsPage: FC = () => {
       );
       setLocalPromptMaxBytes(settings.promptMaxBytes ?? settings.prompt_max_bytes ?? 16 * 1024);
       setLocalSlackEnabled(settings.slackEnabled ?? settings.slack_enabled ?? false);
+      setLocalSlackAutoInvestigate(
+        settings.slackAutoInvestigate ?? settings.slack_auto_investigate ?? false
+      );
       setLocalSlackBotToken('');
       setLocalSlackAppToken('');
     }
@@ -239,12 +245,32 @@ const AdreSettingsPage: FC = () => {
                     control={
                       <Switch
                         checked={localSlackEnabled}
-                        onChange={(_e: SyntheticEvent, v: boolean) => setLocalSlackEnabled(v)}
+                        onChange={(_e: SyntheticEvent, v: boolean) => {
+                          setLocalSlackEnabled(v);
+                          if (!v) {
+                            setLocalSlackAutoInvestigate(false);
+                          }
+                        }}
                         disabled={!localEnabled || !localUrl.trim()}
                       />
                     }
                     label="Enable Slack bot"
                   />
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={localSlackAutoInvestigate}
+                        onChange={(_e: SyntheticEvent, v: boolean) => setLocalSlackAutoInvestigate(v)}
+                        disabled={!localSlackEnabled}
+                      />
+                    }
+                    label="Auto-investigate firing alerts (bot messages)"
+                  />
+                  <Typography variant="caption" color="text.secondary" display="block">
+                    When enabled, channel messages from integrations whose text contains FIRING (and not
+                    RESOLVED) are sent to Holmes like a thread reply. Alert text usually lives in
+                    attachments—ensure your Grafana template includes FIRING.
+                  </Typography>
                   {!localEnabled || !localUrl.trim() ? (
                     <Typography variant="caption" color="text.secondary">
                       Enable ADRE and set HolmesGPT URL first.
@@ -497,6 +523,7 @@ const AdreSettingsPage: FC = () => {
                         ...(localServiceNowAPIKey ? { servicenow_api_key: localServiceNowAPIKey } : {}),
                         ...(localServiceNowClientToken ? { servicenow_client_token: localServiceNowClientToken } : {}),
                         slack_enabled: localSlackEnabled,
+                        slack_auto_investigate: localSlackAutoInvestigate,
                         ...(localSlackBotToken ? { slack_bot_token: localSlackBotToken } : {}),
                         ...(localSlackAppToken ? { slack_app_token: localSlackAppToken } : {}),
                       } as Partial<AdreSettings> & Record<string, unknown>,
