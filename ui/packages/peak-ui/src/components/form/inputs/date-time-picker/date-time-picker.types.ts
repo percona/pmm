@@ -22,7 +22,6 @@ export interface DateTimePickerInputProps<
   control?: Control<TFieldValues>;
   controllerProps?: UseControllerProps<TFieldValues>;
   name: FieldPath<TFieldValues>;
-  onBlur?: React.FocusEventHandler<HTMLDivElement>;
   /**
    * Shortcut for common value shapes stored in form state.
    * - 'date'       → identity (form state holds a `Date`). **Default.**

@@ -13,7 +13,7 @@ const toValidPickerDate = (value: Date): PickerValidDate | null =>
 
 const presets: Record<DateTimePickerValueFormat, DateTimePickerValueTransform<PickerValidDate>> = {
   date: {
-    input: (v) => (v == null ? null : (v as PickerValidDate)),
+    input: (v) => (v instanceof Date ? toValidPickerDate(v) : null),
     output: (v) => v,
   },
   'iso-string': {
@@ -49,9 +49,18 @@ const DateTimePickerInput = <
   const contextControl = formContext?.control;
 
   const { input, output } = (transform ?? presets[valueFormat]) as DateTimePickerValueTransform<TDate>;
-  const { slotProps: consumerSlotProps, ...restPickerProps } = dateTimePickerProps;
-  const consumerTextField =
-    typeof consumerSlotProps?.textField === 'object' ? consumerSlotProps.textField : undefined;
+  const {
+    slotProps: consumerSlotProps,
+    onChange: consumerOnChange,
+    ...restPickerProps
+  } = dateTimePickerProps;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const resolveConsumerTextField = (ownerState: any) => {
+    const tf = consumerSlotProps?.textField;
+    if (typeof tf === 'function') return tf(ownerState) ?? {};
+    return tf ?? {};
+  };
 
   return (
     <Controller
@@ -62,19 +71,28 @@ const DateTimePickerInput = <
           {...restPickerProps}
           name={field.name}
           inputRef={field.ref}
-          onBlur={field.onBlur}
           value={input(field.value) as TDate | null}
-          onChange={(value) => field.onChange(output(value))}
+          onChange={(value, context) => {
+            field.onChange(output(value));
+            consumerOnChange?.(value, context);
+          }}
           slotProps={{
             ...consumerSlotProps,
-            textField: {
-              ...consumerTextField,
-              error: !!error,
-              helperText: error ? error.message : '',
-              inputProps: {
-                ...consumerTextField?.inputProps,
-                'data-testid': `date-time-picker-${kebabize(name)}`,
-              },
+            textField: (ownerState) => {
+              const consumerTextField = resolveConsumerTextField(ownerState);
+              return {
+                ...consumerTextField,
+                error: !!error,
+                helperText: error ? error.message : '',
+                onBlur: (event: React.FocusEvent<HTMLInputElement>) => {
+                  consumerTextField.onBlur?.(event);
+                  field.onBlur();
+                },
+                inputProps: {
+                  ...consumerTextField.inputProps,
+                  'data-testid': `date-time-picker-${kebabize(name)}`,
+                },
+              };
             },
           }}
         />
