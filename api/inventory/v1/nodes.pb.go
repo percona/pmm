@@ -1888,7 +1888,9 @@ type AddRemoteElastiCacheNodeParams struct {
 	// Node availability zone.
 	Az string `protobuf:"bytes,5,opt,name=az,proto3" json:"az,omitempty"`
 	// Custom user-assigned labels.
-	CustomLabels  map[string]string `protobuf:"bytes,6,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	CustomLabels map[string]string `protobuf:"bytes,6,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// AWS instance ID (replication group ID).
+	InstanceId    string `protobuf:"bytes,7,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1963,6 +1965,13 @@ func (x *AddRemoteElastiCacheNodeParams) GetCustomLabels() map[string]string {
 		return x.CustomLabels
 	}
 	return nil
+}
+
+func (x *AddRemoteElastiCacheNodeParams) GetInstanceId() string {
+	if x != nil {
+		return x.InstanceId
+	}
+	return ""
 }
 
 type RemoveNodeRequest struct {
@@ -2248,7 +2257,7 @@ const file_inventory_v1_nodes_proto_rawDesc = "" +
 	"\rcustom_labels\x18\x06 \x03(\v28.inventory.v1.AddRemoteAzureNodeParams.CustomLabelsEntryR\fcustomLabels\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xdf\x02\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x80\x03\n" +
 	"\x1eAddRemoteElastiCacheNodeParams\x12$\n" +
 	"\tnode_name\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\bnodeName\x12!\n" +
 	"\aaddress\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\aaddress\x12\x1d\n" +
@@ -2256,7 +2265,9 @@ const file_inventory_v1_nodes_proto_rawDesc = "" +
 	"node_model\x18\x03 \x01(\tR\tnodeModel\x12\x1f\n" +
 	"\x06region\x18\x04 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06region\x12\x0e\n" +
 	"\x02az\x18\x05 \x01(\tR\x02az\x12c\n" +
-	"\rcustom_labels\x18\x06 \x03(\v2>.inventory.v1.AddRemoteElastiCacheNodeParams.CustomLabelsEntryR\fcustomLabels\x1a?\n" +
+	"\rcustom_labels\x18\x06 \x03(\v2>.inventory.v1.AddRemoteElastiCacheNodeParams.CustomLabelsEntryR\fcustomLabels\x12\x1f\n" +
+	"\vinstance_id\x18\a \x01(\tR\n" +
+	"instanceId\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"K\n" +

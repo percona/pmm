@@ -884,7 +884,7 @@ var File_management_v1_service_proto protoreflect.FileDescriptor
 
 const file_management_v1_service_proto_rawDesc = "" +
 	"\n" +
-	"\x1bmanagement/v1/service.proto\x12\rmanagement.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1binventory/v1/services.proto\x1a\x19management/v1/agent.proto\x1a\x1emanagement/v1/annotation.proto\x1a\x19management/v1/azure.proto\x1a\x1cmanagement/v1/external.proto\x1a\x1bmanagement/v1/haproxy.proto\x1a\x1bmanagement/v1/mongodb.proto\x1a\x19management/v1/mysql.proto\x1a\x18management/v1/node.proto\x1a\x1emanagement/v1/postgresql.proto\x1a\x1cmanagement/v1/proxysql.proto\x1a\x1fmanagement/v1/elasticache.proto\x1a\x17management/v1/rds.proto\x1a\x1amanagement/v1/valkey.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\x88\x05\n" +
+	"\x1bmanagement/v1/service.proto\x12\rmanagement.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1binventory/v1/services.proto\x1a\x19management/v1/agent.proto\x1a\x1emanagement/v1/annotation.proto\x1a\x19management/v1/azure.proto\x1a\x1fmanagement/v1/elasticache.proto\x1a\x1cmanagement/v1/external.proto\x1a\x1bmanagement/v1/haproxy.proto\x1a\x1bmanagement/v1/mongodb.proto\x1a\x19management/v1/mysql.proto\x1a\x18management/v1/node.proto\x1a\x1emanagement/v1/postgresql.proto\x1a\x1cmanagement/v1/proxysql.proto\x1a\x17management/v1/rds.proto\x1a\x1amanagement/v1/valkey.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\x88\x05\n" +
 	"\x11AddServiceRequest\x12<\n" +
 	"\x05mysql\x18\x01 \x01(\v2$.management.v1.AddMySQLServiceParamsH\x00R\x05mysql\x12B\n" +
 	"\amongodb\x18\x02 \x01(\v2&.management.v1.AddMongoDBServiceParamsH\x00R\amongodb\x12K\n" +
@@ -1115,6 +1115,7 @@ func file_management_v1_service_proto_init() {
 	file_management_v1_agent_proto_init()
 	file_management_v1_annotation_proto_init()
 	file_management_v1_azure_proto_init()
+	file_management_v1_elasticache_proto_init()
 	file_management_v1_external_proto_init()
 	file_management_v1_haproxy_proto_init()
 	file_management_v1_mongodb_proto_init()
@@ -1122,7 +1123,6 @@ func file_management_v1_service_proto_init() {
 	file_management_v1_node_proto_init()
 	file_management_v1_postgresql_proto_init()
 	file_management_v1_proxysql_proto_init()
-	file_management_v1_elasticache_proto_init()
 	file_management_v1_rds_proto_init()
 	file_management_v1_valkey_proto_init()
 	file_management_v1_service_proto_msgTypes[0].OneofWrappers = []any{

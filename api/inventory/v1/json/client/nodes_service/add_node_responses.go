@@ -1801,6 +1801,9 @@ type AddNodeParamsBodyRemoteElasticache struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AWS instance ID (replication group ID).
+	InstanceID string `json:"instance_id,omitempty"`
 }
 
 // Validate validates this add node params body remote elasticache
