@@ -5,10 +5,13 @@ import {
   Tooltip,
 } from "@mui/material";
 import { kebabize } from "@/utils";
-import { Controller, useFormContext } from "react-hook-form";
+import { Controller, FieldValues, useFormContext } from "react-hook-form";
 import { AutoCompleteInputProps } from "./auto-complete.types";
 
-function AutoCompleteInput<T>({
+function AutoCompleteInput<
+  TOption,
+  TFieldValues extends FieldValues = FieldValues,
+>({
   name,
   control,
   controllerProps,
@@ -21,8 +24,8 @@ function AutoCompleteInput<T>({
   disabled = false,
   tooltipText,
   onChange,
-}: AutoCompleteInputProps<T>) {
-  const formContext = useFormContext();
+}: AutoCompleteInputProps<TOption, TFieldValues>) {
+  const formContext = useFormContext<TFieldValues>();
   const contextControl = formContext?.control;
 
   const { helperText, ...restTextFieldProps } = textFieldProps;

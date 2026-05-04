@@ -1,20 +1,27 @@
-import { Control, UseControllerProps } from 'react-hook-form';
+import {
+  Control,
+  FieldPath,
+  FieldValues,
+  UseControllerProps,
+} from 'react-hook-form';
 import { DateTimePickerProps, PickerValidDate } from '@mui/x-date-pickers';
 
 export type DateTimePickerValueFormat = 'date' | 'iso-string' | 'unix-ms';
 
-export interface DateTimePickerValueTransform<T> {
+export interface DateTimePickerValueTransform<TDate> {
   /** Map the value stored in form state → the value the picker should receive. */
-  input: (formValue: unknown) => T | null;
+  input: (formValue: unknown) => TDate | null;
   /** Map the value the picker emits → the value to store in form state. */
-  output: (pickerValue: T | null) => unknown;
+  output: (pickerValue: TDate | null) => unknown;
 }
 
-export interface DateTimePickerInputProps<T extends PickerValidDate>
-  extends DateTimePickerProps<T> {
-  control?: Control;
-  controllerProps?: UseControllerProps;
-  name: string;
+export interface DateTimePickerInputProps<
+  TDate extends PickerValidDate,
+  TFieldValues extends FieldValues = FieldValues,
+> extends DateTimePickerProps<TDate> {
+  control?: Control<TFieldValues>;
+  controllerProps?: UseControllerProps<TFieldValues>;
+  name: FieldPath<TFieldValues>;
   onBlur?: React.FocusEventHandler<HTMLDivElement>;
   /**
    * Shortcut for common value shapes stored in form state.
@@ -28,5 +35,5 @@ export interface DateTimePickerInputProps<T extends PickerValidDate>
    */
   valueFormat?: DateTimePickerValueFormat;
   /** Custom transform pair. Takes precedence over `valueFormat`. */
-  transform?: DateTimePickerValueTransform<T>;
+  transform?: DateTimePickerValueTransform<TDate>;
 }

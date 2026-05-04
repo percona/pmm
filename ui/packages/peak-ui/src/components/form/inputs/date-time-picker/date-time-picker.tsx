@@ -1,4 +1,4 @@
-import { Controller, useFormContext } from 'react-hook-form';
+import { Controller, FieldValues, useFormContext } from 'react-hook-form';
 
 import { kebabize } from '@/utils';
 import {
@@ -34,18 +34,21 @@ const presets: Record<DateTimePickerValueFormat, DateTimePickerValueTransform<Pi
   },
 };
 
-const DateTimePickerInput = <T extends PickerValidDate>({
+const DateTimePickerInput = <
+  TDate extends PickerValidDate,
+  TFieldValues extends FieldValues = FieldValues,
+>({
   name,
   control,
   controllerProps,
   valueFormat = 'date',
   transform,
   ...dateTimePickerProps
-}: DateTimePickerInputProps<T>) => {
-  const formContext = useFormContext();
+}: DateTimePickerInputProps<TDate, TFieldValues>) => {
+  const formContext = useFormContext<TFieldValues>();
   const contextControl = formContext?.control;
 
-  const { input, output } = (transform ?? presets[valueFormat]) as DateTimePickerValueTransform<T>;
+  const { input, output } = (transform ?? presets[valueFormat]) as DateTimePickerValueTransform<TDate>;
   const { slotProps: consumerSlotProps, ...restPickerProps } = dateTimePickerProps;
   const consumerTextField =
     typeof consumerSlotProps?.textField === 'object' ? consumerSlotProps.textField : undefined;
@@ -60,7 +63,7 @@ const DateTimePickerInput = <T extends PickerValidDate>({
           name={field.name}
           inputRef={field.ref}
           onBlur={field.onBlur}
-          value={input(field.value) as T | null}
+          value={input(field.value) as TDate | null}
           onChange={(value) => field.onChange(output(value))}
           slotProps={{
             ...consumerSlotProps,

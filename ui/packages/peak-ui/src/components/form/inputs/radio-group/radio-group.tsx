@@ -3,11 +3,11 @@ import {
   RadioGroup as MuiRadioGroup,
   Radio,
 } from '@mui/material';
-import { Controller, useFormContext } from 'react-hook-form';
+import { Controller, FieldValues, useFormContext } from 'react-hook-form';
 import LabeledContent from '../../../labeled-content';
 import { RadioGroupProps } from './radio-group.types';
 
-const RadioGroup = ({
+const RadioGroup = <T extends FieldValues = FieldValues>({
   name,
   control,
   label,
@@ -16,8 +16,8 @@ const RadioGroup = ({
   radioGroupFieldProps,
   isRequired = false,
   options,
-}: RadioGroupProps) => {
-  const formContext = useFormContext();
+}: RadioGroupProps<T>) => {
+  const formContext = useFormContext<T>();
   const contextControl = formContext?.control;
 
   const content = (
