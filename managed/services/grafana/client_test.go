@@ -16,6 +16,7 @@
 package grafana
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -31,6 +32,25 @@ import (
 	stringsgen "github.com/percona/pmm/utils/strings"
 )
 
+func TestResolveAnonymousOrgRole(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		anonOrg string
+		want    string
+	}{
+		{"Viewer", grafanaOrgRoleViewer},
+		{"Editor", grafanaOrgRoleViewer},
+		{"Admin", grafanaOrgRoleViewer},
+		{"GrafanaAdmin", grafanaOrgRoleViewer},
+		{"", grafanaOrgRoleNone},
+		{"  ", grafanaOrgRoleNone},
+		{"None", grafanaOrgRoleNone},
+	} {
+		assert.Equal(t, tc.want, resolveAnonymousOrgRole(tc.anonOrg), "%q", tc.anonOrg)
+	}
+}
+
 func TestGetAuthUserAnonymousFallback(t *testing.T) {
 	t.Parallel()
 
@@ -44,7 +64,7 @@ func TestGetAuthUserAnonymousFallback(t *testing.T) {
 			switch r.URL.Path {
 			case "/api/frontend/settings":
 				w.WriteHeader(http.StatusOK)
-				_, _ = fmt.Fprint(w, `{"anonymousEnabled":true,"user":{"orgRole":"Editor"}}`)
+				_, _ = fmt.Fprint(w, `{"anonymousEnabled":true,"anonymousOrgRole":"Editor"}`)
 			case "/api/user":
 				w.WriteHeader(http.StatusUnauthorized)
 				_, _ = fmt.Fprint(w, `{"message":"Unauthorized"}`)
@@ -71,7 +91,7 @@ func TestGetAuthUserAnonymousFallback(t *testing.T) {
 			case "/api/frontend/settings":
 				settingsCalled = true
 				w.WriteHeader(http.StatusOK)
-				_, _ = fmt.Fprint(w, `{"anonymousEnabled":true,"user":{"orgRole":"Admin"}}`)
+				_, _ = fmt.Fprint(w, `{"anonymousEnabled":true,"anonymousOrgRole":"Admin"}`)
 			case "/api/user":
 				w.WriteHeader(http.StatusUnauthorized)
 				_, _ = fmt.Fprint(w, `{"message":"Invalid username or password"}`)
@@ -98,7 +118,7 @@ func TestGetAuthUserAnonymousFallback(t *testing.T) {
 			switch r.URL.Path {
 			case "/api/frontend/settings":
 				w.WriteHeader(http.StatusOK)
-				_, _ = fmt.Fprint(w, `{"anonymousEnabled":true,"user":{"orgRole":"Viewer"}}`)
+				_, _ = fmt.Fprint(w, `{"anonymousEnabled":true,"anonymousOrgRole":"Viewer"}`)
 			case "/api/user":
 				w.WriteHeader(http.StatusUnauthorized)
 				_, _ = fmt.Fprint(w, `{"message":"Unauthorized"}`)
@@ -233,7 +253,7 @@ func TestCurrentUserAnonymousFallback(t *testing.T) {
 			switch r.URL.Path {
 			case "/api/frontend/settings":
 				w.WriteHeader(http.StatusOK)
-				_, _ = fmt.Fprint(w, `{"anonymousEnabled":true,"anonymousOrgRole":"Viewer","user":{"orgRole":"Viewer","orgId":1,"orgName":"Main Org."}}`)
+				_, _ = fmt.Fprint(w, `{"anonymousEnabled":true,"anonymousOrgRole":"Viewer","user":{"orgId":1,"orgName":"Main Org."}}`)
 			case "/api/user":
 				w.WriteHeader(http.StatusUnauthorized)
 				_, _ = fmt.Fprint(w, `{"message":"Unauthorized"}`)
@@ -386,7 +406,7 @@ func TestCurrentUserAnonymousFallback(t *testing.T) {
 			switch r.URL.Path {
 			case "/api/frontend/settings":
 				w.WriteHeader(http.StatusOK)
-				_, _ = fmt.Fprint(w, `{"anonymousEnabled":true,"anonymousOrgRole":"Viewer","user":{"orgRole":"Viewer","orgId":1,"orgName":"Main Org."}}`)
+				_, _ = fmt.Fprint(w, `{"anonymousEnabled":true,"anonymousOrgRole":"Viewer","user":{"orgId":1,"orgName":"Main Org."}}`)
 			case "/api/user":
 				w.WriteHeader(http.StatusUnauthorized)
 				_, _ = fmt.Fprint(w, `{"message":"Unauthorized"}`)
