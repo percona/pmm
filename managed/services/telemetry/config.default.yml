@@ -1057,6 +1057,8 @@ telemetry:
         column: "agent_type"
       - metric_name: "collect_interval_sec"
         column: "collect_interval_sec"
+
+  # legacy promdb usage
   - id: VMPromDBSeriesReadPerQuery
     source: VM
     query: sum(rate(vm_promdb_series_read_per_query_sum[24h])) / sum(rate(vm_promdb_series_read_per_query_count[24h]))
