@@ -31,7 +31,7 @@ import {
 
 export const InstallClientPage = () => {
   const [technology, setTechnology] = useState<Technology>('mysql');
-  const [credentialsMode, setCredentialsMode] = useState<CredentialsMode>('env');
+  const [credentialsMode, setCredentialsMode] = useState<CredentialsMode>('prompt');
   const [token, setToken] = useState('');
   const [pmmHost, setPmmHost] = useState(() => window.location.host);
   const [insecureTLS, setInsecureTLS] = useState(true);
@@ -197,11 +197,11 @@ export const InstallClientPage = () => {
                     setCredentialsMode(e.target.value as CredentialsMode)
                   }
                 >
-                  <MenuItem value="env">Include env variables (recommended for curl | bash)</MenuItem>
-                  <MenuItem value="flags">Pass as script flags</MenuItem>
                   <MenuItem value="prompt">
                     Prompt on node (downloads script first, asks for DB user/password)
                   </MenuItem>
+                  <MenuItem value="env">Include env variables (recommended for curl | bash)</MenuItem>
+                  <MenuItem value="flags">Pass as script flags</MenuItem>
                 </Select>
                 <FormHelperText>
                   In prompt mode the rendered command is a two-liner: <code>curl -o</code> downloads
