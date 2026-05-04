@@ -362,10 +362,10 @@ func TestAddNode(t *testing.T) {
 		addNodeResponse, err := ns.AddNode(ctx, &inventoryv1.AddNodeRequest{
 			Node: &inventoryv1.AddNodeRequest_RemoteElasticache{
 				RemoteElasticache: &inventoryv1.AddRemoteElastiCacheNodeParams{
-					NodeName: "test-elasticache",
-					Address:  "my-cluster.abc123.use1.cache.amazonaws.com",
-					Region:   "us-east-1",
-					Az:       "us-east-1a",
+					NodeName:  "test-elasticache",
+					Address:   "my-cluster.abc123.use1.cache.amazonaws.com",
+					Region:    "us-east-1",
+					Az:        "us-east-1a",
 					NodeModel: "cache.r6g.large",
 					CustomLabels: map[string]string{
 						"env": "production",
