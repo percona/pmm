@@ -355,7 +355,7 @@ func (c *Client) processJobsResults(ctx context.Context) {
 	}
 }
 
-func (c *Client) processSupervisorRequests(ctx context.Context) {
+func (c *Client) processSupervisorRequests(ctx context.Context) { //nolint:gocognit
 	var wg sync.WaitGroup
 
 	wg.Add(1)
