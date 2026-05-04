@@ -2,12 +2,13 @@ import { IconButton } from '@mui/material';
 import { TextField } from '@mui/material';
 import { Upgrade as UpgradeIcon } from '@mui/icons-material';
 import { TextFieldProps } from '@mui/material';
-import { Control, Controller, useFormContext } from 'react-hook-form';
+import { Control, Controller, useFormContext, UseControllerProps } from 'react-hook-form';
 
 type FileInputProps = {
   name: string;
   label: string;
   control?: Control;
+  controllerProps?: UseControllerProps;
   textFieldProps?: TextFieldProps;
   fileInputProps?: React.DetailedHTMLProps<
     React.InputHTMLAttributes<HTMLInputElement>,
@@ -18,6 +19,8 @@ type FileInputProps = {
 const FileInput = ({
   name,
   label,
+  control,
+  controllerProps,
   textFieldProps = {},
   fileInputProps = {},
 }: FileInputProps) => {
@@ -63,6 +66,7 @@ const FileInput = ({
           helperText={error ? error.message : textFieldProps?.helperText}
         />
       )}
+      {...controllerProps}
     />
   );
 };
