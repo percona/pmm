@@ -36,6 +36,10 @@ Generic DB options (mapped per technology):
 
 Environment variables are also supported.
 Priority is: flags > env vars > interactive prompt.
+When stdin is a terminal, database prompts are skipped if credentials are already
+set from flags or environment (DB_USER / DB_PASSWORD and per-tech MYSQL_*,
+POSTGRESQL_* / … after apply_generic_inputs). Use sudo -E bash … when running
+as root so your exports reach the script.
 
 pmm-agent runtime knobs (env only):
   PMM_AGENT_CONFIG_FILE         Path to pmm-agent.yaml (default: /usr/local/percona/pmm/config/pmm-agent.yaml)
@@ -434,12 +438,25 @@ ensure_pmm_agent_running() {
 # When stdin is not a terminal (e.g. curl ... | bash), prompts cannot be used for DB
 # credentials. Fail before pmm-admin config so we do not register the node and then fail on add.
 # Caller must have already invoked apply_generic_inputs.
+#
+# Contract with the PMM UI's "Prompt on node" credentials mode:
+#   The UI deliberately renders a TWO-STEP command in that mode:
+#     1) curl -fsSL[k] -o /tmp/install-pmm-client.sh '<url>'
+#     2) sudo -E bash /tmp/install-pmm-client.sh --pmm-server-url ... --tech ... [...]
+#   Step 2 reads the script from disk (not from a pipe), so stdin stays attached
+#   to the user's TTY through sudo, [[ -t 0 ]] is true, and prompt_if_empty /
+#   read -r -s in add_mysql / add_postgresql / add_mongodb / add_valkey can ask
+#   for DB user and password interactively — unless DB_USER / DB_PASSWORD (or
+#   per-tech MYSQL_* / …) are already set; sudo -E preserves those exports.
+#   This guard therefore never trips
+#   when the user followed the UI's prompt-mode command — it only protects the
+#   curl | bash pipeline from registering a half-configured node.
 require_db_creds_before_config_if_noninteractive() {
   if [[ -t 0 ]]; then
     return 0
   fi
 
-  local hint='This install is non-interactive (stdin is not a terminal, e.g. curl ... | bash), so database credentials cannot be prompted. Set them before the agent registers with PMM Server: use --db-user and --db-password, or DB_USER and DB_PASSWORD (include them in sudo env if you use sudo env; use sudo -E to preserve exports).'
+  local hint='This install is non-interactive (stdin is not a terminal, e.g. curl ... | bash), so database credentials cannot be prompted. Either pass them up front (--db-user/--db-password or DB_USER/DB_PASSWORD; with sudo env, use sudo -E to preserve exports), or switch to the UI'\''s "Prompt on node" mode which renders a download-then-run command: curl -fsSLk -o /tmp/install-pmm-client.sh '\''<url>'\''; sudo -E bash /tmp/install-pmm-client.sh --pmm-server-url ... --tech ...'
 
   case "${TECH}" in
     mysql)

@@ -6,10 +6,14 @@ import {
   InstallCommandOptions,
 } from './InstallClientPage.utils';
 
+// Default to 'env' mode so most existing assertions exercise the curl|bash
+// pipeline; prompt-mode tests opt in explicitly via `credentialsMode: 'prompt'`.
+// This avoids surprises when shared assertions (curl flags, --pmm-server-insecure-tls)
+// happen to also pass in prompt mode but for entirely different reasons.
 const baseOptions: InstallCommandOptions = {
   installerUrl: 'https://pmm.example.com/pmm-static/install-pmm-client.sh',
   technology: 'mysql',
-  credentialsMode: 'prompt',
+  credentialsMode: 'env',
   serverURL: 'https://service_token:GLSA@pmm.example.com:443',
   insecureTLS: true,
   registerForce: false,
@@ -48,24 +52,16 @@ describe('buildPmmServerURL', () => {
 });
 
 describe('buildInstallCommand', () => {
-  test('omits DB env in prompt mode when DB fields are empty', () => {
+  test('env mode renders curl|bash with PMM_SERVER_URL and TECH', () => {
     const cmd = buildInstallCommand(baseOptions);
     expect(cmd).toContain("TECH='mysql'");
-    expect(cmd).not.toContain('DB_PASSWORD=');
-    expect(cmd).not.toContain('DB_USER=');
+    expect(cmd).toContain("PMM_SERVER_URL='https://service_token:GLSA@pmm.example.com:443'");
     expect(cmd).toContain('sudo -E env');
     expect(cmd).toContain('curl -fsSLk');
     expect(cmd).toContain('bash -s --');
     expect(cmd).toContain('--pmm-server-insecure-tls');
-  });
-
-  test('includes DB env in prompt mode when optional DB fields are set', () => {
-    const cmd = buildInstallCommand(optionsWithDb);
-    expect(cmd).toContain("DB_USER='pmm'");
-    expect(cmd).toContain("DB_PASSWORD='secret'");
-    expect(cmd).toContain("DB_HOST='127.0.0.1'");
-    expect(cmd).toContain("DB_PORT='3306'");
-    expect(cmd).toContain("DB_SERVICE_NAME='node-mysql'");
+    expect(cmd).not.toContain('DB_USER=');
+    expect(cmd).not.toContain('DB_PASSWORD=');
   });
 
   test('omits insecure TLS flag and drops curl -k when disabled', () => {
@@ -150,6 +146,112 @@ describe('buildInstallCommand', () => {
       technology: 'valkey',
     });
     expect(cmd).toContain("TECH='valkey'");
+  });
+});
+
+describe('buildInstallCommand prompt mode', () => {
+  const promptBase: InstallCommandOptions = {
+    ...baseOptions,
+    credentialsMode: 'prompt',
+  };
+
+  test('renders a two-line curl-then-sudo-E-bash command', () => {
+    const cmd = buildInstallCommand(promptBase);
+    const lines = cmd.split('\n');
+    expect(lines[0]).toContain(
+      "curl -fsSLk -o '/tmp/install-pmm-client.sh' 'https://pmm.example.com/pmm-static/install-pmm-client.sh'"
+    );
+    expect(lines[1]).toMatch(/^sudo -E bash '\/tmp\/install-pmm-client\.sh' \\$/);
+    expect(cmd).not.toContain('curl |');
+    expect(cmd).not.toContain('bash -s --');
+    expect(cmd).not.toContain('sudo -E env');
+  });
+
+  test('never emits DB credentials, even when fields are filled', () => {
+    const cmd = buildInstallCommand({
+      ...promptBase,
+      dbUser: 'pmm',
+      dbPassword: 'secret',
+    });
+    expect(cmd).not.toContain('DB_USER=');
+    expect(cmd).not.toContain('DB_PASSWORD=');
+    expect(cmd).not.toContain('--db-user');
+    expect(cmd).not.toContain('--db-password');
+    expect(cmd).not.toContain("'pmm'");
+    expect(cmd).not.toContain("'secret'");
+  });
+
+  test('emits non-credential DB fields as flags', () => {
+    const cmd = buildInstallCommand({
+      ...promptBase,
+      dbHost: '127.0.0.1',
+      dbPort: '3306',
+      dbServiceName: 'node-mysql',
+      nodeName: 'node-1',
+      nodeAddress: '10.0.0.1',
+    });
+    expect(cmd).toContain("--db-host '127.0.0.1'");
+    expect(cmd).toContain("--db-port '3306'");
+    expect(cmd).toContain("--db-service-name 'node-mysql'");
+    expect(cmd).toContain("--node-name 'node-1'");
+    expect(cmd).toContain("--node-address '10.0.0.1'");
+  });
+
+  test('emits --db-name only for postgresql', () => {
+    const pg = buildInstallCommand({
+      ...promptBase,
+      technology: 'postgresql',
+      dbName: 'postgres',
+    });
+    const mysql = buildInstallCommand({
+      ...promptBase,
+      technology: 'mysql',
+      dbName: 'postgres',
+    });
+    expect(pg).toContain("--db-name 'postgres'");
+    expect(mysql).not.toContain('--db-name');
+  });
+
+  test('emits --db-auth-db only for mongodb', () => {
+    const mongo = buildInstallCommand({
+      ...promptBase,
+      technology: 'mongodb',
+      dbAuthDB: 'admin',
+    });
+    const mysql = buildInstallCommand({
+      ...promptBase,
+      technology: 'mysql',
+      dbAuthDB: 'admin',
+    });
+    expect(mongo).toContain("--db-auth-db 'admin'");
+    expect(mysql).not.toContain('--db-auth-db');
+  });
+
+  test('respects insecureTLS toggle for both curl and the script', () => {
+    const secure = buildInstallCommand({ ...promptBase, insecureTLS: false });
+    const insecure = buildInstallCommand({ ...promptBase, insecureTLS: true });
+
+    expect(secure).toContain('curl -fsSL ');
+    expect(secure).not.toContain('curl -fsSLk');
+    expect(secure).not.toContain('--pmm-server-insecure-tls');
+
+    expect(insecure).toContain('curl -fsSLk ');
+    expect(insecure).toContain('--pmm-server-insecure-tls');
+  });
+
+  test('emits --pmm-server-url and --tech', () => {
+    const cmd = buildInstallCommand(promptBase);
+    expect(cmd).toContain(
+      "--pmm-server-url 'https://service_token:GLSA@pmm.example.com:443'"
+    );
+    expect(cmd).toContain("--tech 'mysql'");
+  });
+
+  test('emits --force when registerForce is on', () => {
+    const off = buildInstallCommand({ ...promptBase, registerForce: false });
+    const on = buildInstallCommand({ ...promptBase, registerForce: true });
+    expect(off).not.toContain('--force');
+    expect(on).toContain('--force');
   });
 });
 

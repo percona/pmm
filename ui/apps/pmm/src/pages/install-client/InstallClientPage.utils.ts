@@ -52,12 +52,79 @@ export interface InstallCommandOptions {
 export const shellEscape = (value: string): string =>
   `'${value.replace(/'/g, `'\\''`)}'`;
 
+// Where prompt mode tells the user to drop the downloaded script. /tmp is the
+// only path we promise: it is universally writable and `bash <path>` works even
+// when /tmp is mounted noexec (no exec bit needed, only read). Documented in
+// one-step-ui-install.md; do not change without updating docs and tests.
+const DOWNLOADED_SCRIPT_PATH = '/tmp/install-pmm-client.sh';
+
+const curlDownloadFlags = (insecureTLS: boolean): string =>
+  insecureTLS ? '-fsSLk' : '-fsSL';
+
+// buildPromptModeCommand renders a two-step "download then sudo -E bash" command
+// so the install script gets a real TTY on stdin. This is the only mode where
+// `read -r -s` in install-pmm-client.sh can ask for DB user/password, so this
+// branch must NEVER emit DB_USER / DB_PASSWORD or --db-user / --db-password —
+// the script will prompt for them. Other optional fields (host, port, service
+// name, MongoDB auth DB, PostgreSQL database) are still passed as flags so the
+// user only types two things.
+const buildPromptModeCommand = (opts: InstallCommandOptions): string => {
+  const curl = `curl ${curlDownloadFlags(opts.insecureTLS)} -o ${shellEscape(
+    DOWNLOADED_SCRIPT_PATH
+  )} ${shellEscape(opts.installerUrl)}`;
+
+  const flags: string[] = [
+    `--pmm-server-url ${shellEscape(opts.serverURL)}`,
+    `--tech ${shellEscape(opts.technology)}`,
+  ];
+  if (opts.insecureTLS) {
+    flags.push('--pmm-server-insecure-tls');
+  }
+  if (opts.registerForce) {
+    flags.push('--force');
+  }
+  if (opts.nodeName.trim()) {
+    flags.push(`--node-name ${shellEscape(opts.nodeName.trim())}`);
+  }
+  if (opts.nodeAddress.trim()) {
+    flags.push(`--node-address ${shellEscape(opts.nodeAddress.trim())}`);
+  }
+  if (opts.dbHost.trim()) {
+    flags.push(`--db-host ${shellEscape(opts.dbHost.trim())}`);
+  }
+  if (opts.dbPort.trim()) {
+    flags.push(`--db-port ${shellEscape(opts.dbPort.trim())}`);
+  }
+  if (opts.dbServiceName.trim()) {
+    flags.push(`--db-service-name ${shellEscape(opts.dbServiceName.trim())}`);
+  }
+  if (opts.dbName.trim() && opts.technology === 'postgresql') {
+    flags.push(`--db-name ${shellEscape(opts.dbName.trim())}`);
+  }
+  if (opts.dbAuthDB.trim() && opts.technology === 'mongodb') {
+    flags.push(`--db-auth-db ${shellEscape(opts.dbAuthDB.trim())}`);
+  }
+
+  // `sudo -E bash <path>` keeps stdin on the caller's TTY (same as plain sudo bash)
+  // while preserving the user's environment. install-pmm-client.sh maps
+  // DB_USER / DB_PASSWORD (and MYSQL_* / POSTGRESQL_* / …) before prompts; if
+  // those are already set, `prompt_if_empty` skips — so exports survive sudo.
+  return [
+    curl,
+    `sudo -E bash ${shellEscape(DOWNLOADED_SCRIPT_PATH)} \\`,
+    `  ${flags.join(' \\\n  ')}`,
+  ].join('\n');
+};
+
 export const buildInstallCommand = (opts: InstallCommandOptions): string => {
+  if (opts.credentialsMode === 'prompt') {
+    return buildPromptModeCommand(opts);
+  }
+
   // -k is for the PMM Server certificate; emit it only when the user opted into
   // insecure TLS. With a properly signed cert we want curl to verify normally
   // (otherwise we'd be silently downgrading the security of every install).
-  const curlFlags = opts.insecureTLS ? '-fsSLk' : '-fsSL';
-  const curl = `curl ${curlFlags} ${shellEscape(opts.installerUrl)}`;
+  const curl = `curl ${curlDownloadFlags(opts.insecureTLS)} ${shellEscape(opts.installerUrl)}`;
 
   const envVars: string[] = [
     `PMM_SERVER_URL=${shellEscape(opts.serverURL)}`,
@@ -80,20 +147,7 @@ export const buildInstallCommand = (opts: InstallCommandOptions): string => {
     scriptFlags.push('--force');
   }
 
-  const emitDbEnvVars =
-    opts.credentialsMode === 'env' ||
-    (opts.credentialsMode === 'prompt' &&
-      Boolean(
-        opts.dbUser.trim() ||
-          opts.dbPassword.trim() ||
-          opts.dbHost.trim() ||
-          opts.dbPort.trim() ||
-          opts.dbServiceName.trim() ||
-          opts.dbName.trim() ||
-          opts.dbAuthDB.trim()
-      ));
-
-  if (emitDbEnvVars) {
+  if (opts.credentialsMode === 'env') {
     if (opts.dbUser.trim()) {
       envVars.push(`DB_USER=${shellEscape(opts.dbUser.trim())}`);
     }

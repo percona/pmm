@@ -158,9 +158,12 @@ export const InstallClientPage = () => {
             <Alert severity="info">
               <Typography variant="body2" sx={{ mb: 1 }}>
                 Choose installation options, then copy and run the generated command on your database
-                node. The usual <code>curl … | bash</code> form has no interactive terminal on stdin,
-                so use env variables or flags for database credentials unless you save the script and
-                run it from a real shell.
+                node. <em>Include env variables</em> and <em>Pass as script flags</em> use the usual{' '}
+                <code>curl … | bash</code> form. <em>Prompt on node</em> renders a two-step command
+                that downloads the script to <code>/tmp/install-pmm-client.sh</code> first, then runs
+                it with <code>sudo -E bash</code> so it can prompt you for the DB user and password on
+                the node (or skip prompts if you already exported <code>DB_USER</code> /{' '}
+                <code>DB_PASSWORD</code> — <code>-E</code> keeps them visible to the script).
               </Typography>
               <Typography variant="body2">
                 <strong>Generated tokens are Grafana Admin–role on the minted install service account and valid for 15 minutes</strong>{' '}
@@ -197,13 +200,15 @@ export const InstallClientPage = () => {
                   <MenuItem value="env">Include env variables (recommended for curl | bash)</MenuItem>
                   <MenuItem value="flags">Pass as script flags</MenuItem>
                   <MenuItem value="prompt">
-                    Prompt on node (TTY only — save script and run in a terminal, not curl | bash)
+                    Prompt on node (downloads script first, asks for DB user/password)
                   </MenuItem>
                 </Select>
                 <FormHelperText>
-                  Piping from curl gives the script stdin, not your keyboard; prompts only work when
-                  stdin is a terminal (e.g. download the script, then{' '}
-                  <code>sudo bash ./install-pmm-client.sh …</code>).
+                  In prompt mode the rendered command is a two-liner: <code>curl -o</code> downloads
+                  the script to <code>/tmp/install-pmm-client.sh</code>, then{' '}
+                  <code>sudo -E bash</code> runs it on a TTY so it can ask for the DB user and password,
+                  or use credentials you already exported (<code>DB_USER</code>, <code>DB_PASSWORD</code>, or
+                  per-tech <code>MYSQL_*</code> / …) without prompts.
                 </FormHelperText>
               </FormControl>
             </Stack>
@@ -290,21 +295,27 @@ export const InstallClientPage = () => {
               />
             </Stack>
 
-            <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-              <TextField
-                fullWidth
-                label="DB user (optional)"
-                value={dbUser}
-                onChange={(e) => setDbUser(e.target.value)}
-              />
-              <TextField
-                fullWidth
-                type="password"
-                label="DB password (optional in prompt mode)"
-                value={dbPassword}
-                onChange={(e) => setDbPassword(e.target.value)}
-              />
-            </Stack>
+            {credentialsMode === 'prompt' ? (
+              <Typography variant="body2" color="text.secondary">
+                DB user and password will be requested when the script runs on the node.
+              </Typography>
+            ) : (
+              <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+                <TextField
+                  fullWidth
+                  label="DB user (optional)"
+                  value={dbUser}
+                  onChange={(e) => setDbUser(e.target.value)}
+                />
+                <TextField
+                  fullWidth
+                  type="password"
+                  label="DB password"
+                  value={dbPassword}
+                  onChange={(e) => setDbPassword(e.target.value)}
+                />
+              </Stack>
+            )}
 
             <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
               <TextField
