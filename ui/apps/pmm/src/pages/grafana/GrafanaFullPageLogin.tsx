@@ -1,5 +1,5 @@
 import { CircularProgress, Stack } from '@mui/material';
-import { GrafanaPage } from 'pages/grafana';
+import { GrafanaPage } from './GrafanaPage';
 import { useBootstrap } from 'hooks/utils/useBootstrap';
 
 /**
