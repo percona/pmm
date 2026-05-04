@@ -81,8 +81,8 @@ const sepTokensLight = {
   ...semanticTokensLight,
   text: {
     ...semanticTokensLight.text,
-    sky: sepBrand.purple[600],
-    lavender: sepBrand.purple[600],
+    accent1: sepBrand.purple[600],
+    accent2: sepBrand.purple[600],
   },
   charts: {
     ...semanticTokensLight.charts,
@@ -101,8 +101,8 @@ const sepTokensDark = {
   ...semanticTokensDark,
   text: {
     ...semanticTokensDark.text,
-    sky: sepBrand.purple[200],
-    lavender: sepBrand.purple[200],
+    accent1: sepBrand.purple[200],
+    accent2: sepBrand.purple[200],
   },
   charts: {
     ...semanticTokensDark.charts,
@@ -197,22 +197,6 @@ const sepThemeOptions = (mode: PaletteMode): ThemeOptions => {
           bar: {
             borderRadius: 5,
             backgroundColor: sepBrand.purple[500],
-          },
-        },
-      },
-      MuiChip: {
-        variants: [
-          {
-            props: { variant: "filled", color: "warning" },
-            style: {
-              color: tokens.warning.contrastText,
-            },
-          },
-        ],
-        styleOverrides: {
-          icon: {
-            width: 22,
-            height: 22,
           },
         },
       },
