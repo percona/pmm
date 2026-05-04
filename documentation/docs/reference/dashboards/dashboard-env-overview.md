@@ -54,7 +54,7 @@ A few things to keep in mind:
 
 - **QPS \| Error Rate per Environment** has dual axes: QPS on the left and error rate on the right.
 - **Disk Space Usage per Environment** shows the most-utilized filesystem per node, so a short spike can come from a single filesystem filling up.
-- **Query Latency per Environment** relies on Query Analytics data — if QAN isn't collecting data, this panel will be empty.
+- **Query Latency per Environment** relies on Query Analytics data. If QAN isn't collecting data, this panel will be empty.
 
 | Panel | Metric | Unit |
 |-------|--------|------|
@@ -69,7 +69,7 @@ A few things to keep in mind:
 
 A table listing all monitored database services:
 
-- **Status**: Whether PMM can reach the service. Red means monitoring has lost contact — check the agent connection or the database itself.
+- **Status**: Whether PMM can reach the service. Red means monitoring has lost contact, so check the agent connection or the database itself.
 - **Service**: The name of the database service as registered in PMM.
 - **Environment**: Which environment this service belongs to, based on its `environment` label.
 - **Region**: The `region` label assigned to this service. Useful for grouping services across geographic locations.

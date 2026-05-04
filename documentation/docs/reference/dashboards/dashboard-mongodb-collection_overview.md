@@ -12,3 +12,10 @@ The next panel displays data at the **Database Level**, where you can view Mongo
 The last panel shows the number of operations in the chosen database.
 
 ![!image](../../images/PMM_Mongodb_Collections_Overview.png)
+
+## Datasize
+
+## Instance level
+
+
+## Database level
