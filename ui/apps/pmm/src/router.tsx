@@ -12,6 +12,7 @@ import { RealtimeSessionsPage } from 'pages/rta/sessions';
 import { Redirect } from 'components/redirect';
 import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
+import { GrafanaFullPageLogin } from 'pages/grafana';
 
 const router = createBrowserRouter(
   [
@@ -19,6 +20,10 @@ const router = createBrowserRouter(
       path: '',
       element: <Providers />,
       children: [
+        {
+          path: 'graph/login',
+          element: <GrafanaFullPageLogin />,
+        },
         {
           path: PMM_NEW_NAV_PATH,
           element: <MainWithNav />,
