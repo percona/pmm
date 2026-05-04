@@ -433,10 +433,10 @@ const (
 func resolveAnonymousOrgRole(anonymousOrgRole string) string {
 	anonymousOrgRole = strings.TrimSpace(anonymousOrgRole)
 
-	switch {
-	case anonymousOrgRole == grafanaOrgRoleViewer:
+	switch anonymousOrgRole {
+	case grafanaOrgRoleViewer:
 		return grafanaOrgRoleViewer
-	case anonymousOrgRole == grafanaOrgRoleEditor || anonymousOrgRole == grafanaOrgRoleAdmin || anonymousOrgRole == grafanaOrgRoleGrafanaAdmin:
+	case grafanaOrgRoleEditor, grafanaOrgRoleAdmin, grafanaOrgRoleGrafanaAdmin:
 		return grafanaOrgRoleViewer
 	default:
 		return grafanaOrgRoleNone
