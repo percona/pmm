@@ -21,6 +21,9 @@ export interface DateTimePickerInputProps<T extends PickerValidDate>
    * - 'date'       → identity (form state holds a `Date`). **Default.**
    * - 'iso-string' → form state holds an ISO 8601 string (`"2025-01-01T12:00:00Z"`).
    * - 'unix-ms'    → form state holds epoch milliseconds.
+   *
+   * Presets assume the native `Date` adapter (`AdapterDateFns` / `AdapterDayjs`-as-Date).
+   * For non-Date adapters (Luxon, Moment, Dayjs objects) supply `transform` instead.
    * Ignored when `transform` is supplied.
    */
   valueFormat?: DateTimePickerValueFormat;
