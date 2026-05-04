@@ -1057,3 +1057,10 @@ telemetry:
         column: "agent_type"
       - metric_name: "collect_interval_sec"
         column: "collect_interval_sec"
+  - id: VMPromDBSeriesReadPerQuery
+    source: VM
+    query: sum(rate(vm_promdb_series_read_per_query_sum[24h])) / sum(rate(vm_promdb_series_read_per_query_count[24h]))
+    summary: "Average number of series read per query against Prometheus-native db on PMM Server for the last 24 hours"
+    data:
+      - metric_name: "vm_promdb_series_read_per_query_avg"
+        value: 1
