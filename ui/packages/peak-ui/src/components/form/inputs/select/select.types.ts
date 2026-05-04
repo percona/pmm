@@ -24,7 +24,7 @@ import {
 
 export type SelectInputProps<T extends FieldValues = FieldValues> = {
   control?: Control<T>;
-  controllerProps?: UseControllerProps<T>;
+  controllerProps?: Omit<UseControllerProps<T>, 'name' | 'control'>;
   name: FieldPath<T>;
   label?: string;
   helperText?: React.ReactNode;

@@ -26,7 +26,7 @@ export type ToggleButtonGroupInputProps<T extends FieldValues = FieldValues> = {
   label?: string;
   labelProps?: LabeledContentProps;
   control?: Control<T>;
-  controllerProps?: UseControllerProps<T>;
+  controllerProps?: Omit<UseControllerProps<T>, 'name' | 'control'>;
   toggleButtonGroupProps?: ToggleButtonGroupProps;
   children: React.ReactNode;
 };

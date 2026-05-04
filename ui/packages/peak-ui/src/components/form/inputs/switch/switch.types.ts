@@ -27,7 +27,7 @@ type FormControlLabelProps = MuiFormControlLabelProps;
 
 export type SwitchInputProps<T extends FieldValues = FieldValues> = {
   control?: Control<T>;
-  controllerProps?: UseControllerProps<T>;
+  controllerProps?: Omit<UseControllerProps<T>, 'name' | 'control'>;
   formControlLabelProps?: Omit<FormControlLabelProps, 'control' | 'label'>;
   name: FieldPath<T>;
   label: string;

@@ -34,7 +34,7 @@ export type RadioGroupOptions = {
 
 export type RadioGroupProps<T extends FieldValues = FieldValues> = {
   control?: Control<T>;
-  controllerProps?: Omit<UseControllerProps<T>, 'name'>;
+  controllerProps?: Omit<UseControllerProps<T>, 'name' | 'control'>;
   name: FieldPath<T>;
   label?: string;
   labelProps?: LabeledContentProps;

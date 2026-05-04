@@ -11,7 +11,7 @@ export type CheckboxProps<T extends FieldValues = FieldValues> = {
   name: FieldPath<T>;
   label?: string;
   control?: Control<T>;
-  controllerProps?: Omit<UseControllerProps<T>, 'name'>;
+  controllerProps?: Omit<UseControllerProps<T>, 'name' | 'control'>;
   checkboxProps?: MUICheckboxProps;
   labelProps?: LabeledContentProps;
   disabled?: boolean;
