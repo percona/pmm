@@ -28,7 +28,7 @@ export type AutoCompleteInputProps<
   name: FieldPath<TFieldValues>;
   options: TOption[];
   control?: Control<TFieldValues>;
-  controllerProps?: Omit<UseControllerProps<TFieldValues>, 'name'>;
+  controllerProps?: Omit<UseControllerProps<TFieldValues>, 'name' | 'control'>;
   label?: string;
   labelProps?: LabeledContentProps;
   autoCompleteProps?: Omit<

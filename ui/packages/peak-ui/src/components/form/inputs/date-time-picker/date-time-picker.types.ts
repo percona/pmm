@@ -20,7 +20,7 @@ export interface DateTimePickerInputProps<
   TFieldValues extends FieldValues = FieldValues,
 > extends DateTimePickerProps<TDate> {
   control?: Control<TFieldValues>;
-  controllerProps?: UseControllerProps<TFieldValues>;
+  controllerProps?: Omit<UseControllerProps<TFieldValues>, 'name' | 'control'>;
   name: FieldPath<TFieldValues>;
   /**
    * Shortcut for common value shapes stored in form state.

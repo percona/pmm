@@ -43,7 +43,6 @@ const meta = {
           label={label}
           toggleButtonGroupProps={{ disabled, size, sx: { width } }}
           controllerProps={{
-            name: 'toggle-button-group-input',
             defaultValue: 'small',
           }}
         >
