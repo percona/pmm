@@ -8,7 +8,6 @@ describe('getLocationUrl', () => {
         pathname: '/login',
         search: '',
         hash: '',
-        key: 'k',
       })
     ).toBe('/graph/login');
   });
@@ -19,7 +18,6 @@ describe('getLocationUrl', () => {
         pathname: '/graph/login',
         search: '',
         hash: '',
-        key: 'k',
       })
     ).toBe('/graph/login');
   });
@@ -30,7 +28,6 @@ describe('getLocationUrl', () => {
         pathname: '/pmm-ui/graph/d/x',
         search: '?a=1',
         hash: '',
-        key: 'k',
       })
     ).toBe('/graph/d/x?a=1');
   });
