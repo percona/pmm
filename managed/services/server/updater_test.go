@@ -251,7 +251,7 @@ func TestUpdater(t *testing.T) {
 				u := NewUpdater(watchtowerURL, gRPCMessageMaxSize, db)
 				parsed, err := version.Parse(tt.args.currentVersion)
 				require.NoError(t, err)
-				_, next := u.next(context.Background(), *parsed, tt.args.results)
+				_, next := u.next(t.Context(), *parsed, tt.args.results)
 				require.NoError(t, err)
 				assert.Equal(t, tt.want.Version, next.Version.String())
 				assert.Equal(t, tt.want.DockerImage, next.DockerImage)
@@ -283,7 +283,7 @@ func TestUpdater(t *testing.T) {
 		u := NewUpdater(watchtowerURL, gRPCMessageMaxSize, db)
 
 		t.Run("LatestFromProduction", func(t *testing.T) {
-			_, latest, err := u.latest(context.Background())
+			_, latest, err := u.latest(t.Context())
 			require.NoError(t, err)
 			if latest != nil {
 				assert.True(t, strings.HasPrefix(latest.Version.String(), "3."),
@@ -297,7 +297,7 @@ func TestUpdater(t *testing.T) {
 				t.Setenv(env.PlatformAddress, versionServiceURL)
 			}()
 			t.Setenv(env.PlatformAddress, "https://check-dev.percona.com")
-			_, latest, err := u.latest(context.Background())
+			_, latest, err := u.latest(t.Context())
 			require.NoError(t, err)
 			assert.True(t, strings.HasPrefix(latest.Version.String(), "3."),
 				"latest version of PMM should start with a '3.' prefix")
@@ -314,7 +314,7 @@ func TestUpdater(t *testing.T) {
 		require.NoError(t, err)
 
 		u := NewUpdater(watchtowerURL, gRPCMessageMaxSize, db)
-		_, latest, err := u.latest(context.Background())
+		_, latest, err := u.latest(t.Context())
 		require.NoError(t, err)
 		assert.Equal(t, "2.41.1", latest.Version.String())
 		assert.Equal(t, "2.41.1", latest.DockerImage)
@@ -327,7 +327,7 @@ func TestUpdater(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		ctx, cancel := context.WithTimeout(t.Context(), 10*time.Second)
 		defer cancel()
 
 		u := NewUpdater(watchtowerURL, gRPCMessageMaxSize, db)

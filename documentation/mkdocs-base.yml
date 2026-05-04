@@ -197,6 +197,7 @@ nav:
               - Install with Package Manager: install-pmm/install-pmm-client/package_manager.md
               - Install from binaries: install-pmm/install-pmm-client/binary_package.md
               - Install on Docker: install-pmm/install-pmm-client/docker.md
+              - Install on Kubernetes: install-pmm/install-pmm-client/kubernetes.md
           - Configure monitoring:
               - Database monitoring:
                   - Overview: install-pmm/install-pmm-client/connect-database/index.md
@@ -247,13 +248,17 @@ nav:
               - Annotate: use/dashboards-panels/annotate/annotate.md
       - Query Analytics:
           - use/qan/index.md
-          - use/qan/mysql.md
-          - use/qan/qan_mongo.md
-          - use/qan/share_link.md
-          - Panels on QAN dashboard:
-              - use/qan/panels/overview.md
-              - use/qan/panels/filters.md
-              - use/qan/panels/details.md
+          - Stored metrics: 
+            - use/qan/QAN-stored-metrics.md
+            - Panels on QAN dashboard:
+                - Overview panel: use/qan/panels/overview.md
+                - Filters panel: use/qan/panels/filters.md
+                - Details panel: use/qan/panels/details.md
+            - use/qan/mysql.md
+            - use/qan/qan_mongo.md
+          - Real-time analytics: use/qan/QAN-realtime-analytics.md           
+
+
       - Percona Advisors:
           - Advisor details: advisors/advisors.md
           - Develop custom advisors: advisors/develop-advisor-checks.md
@@ -418,9 +423,7 @@ nav:
           - admin/security/ssl_encryption.md
           - admin/security/grafana_cookies.md
           - admin/security/data_encryption.md
-      - Percona Platform:
-          - configure-pmm/percona_platform/integrate_with_percona_platform.md
-          - configure-pmm/percona_platform/check_percona_platform.md
+          - admin/security/client_config_encryption.md
   - Administer:
       - admin/index.md
       - Manage users:
@@ -463,6 +466,7 @@ nav:
       - troubleshoot/checklist.md
       - troubleshoot/upgrade_issues.md
       - troubleshoot/config_issues.md
+      - troubleshoot/exporter_issues.md
       - troubleshoot/alerting_issues.md
       - troubleshoot/qan_issues.md
       - troubleshoot/plugin_issues.md
@@ -470,6 +474,8 @@ nav:
       - troubleshoot/data_issues.md
   - Release notes:
       - Release notes index: release-notes/index.md
+      - "PMM 3.7.1 (2026-04-30)": release-notes/3.7.1.md
+      - "PMM 3.7.0 (2026-04-01)": release-notes/3.7.0.md
       - "PMM 3.6.0 (2026-02-05)": release-notes/3.6.0.md 
       - "PMM 3.5.0 (2025-11-19)": release-notes/3.5.0.md     
       - "PMM 3.4.1 (2025-10-13)": release-notes/3.4.1.md
@@ -493,9 +499,14 @@ nav:
               - api/index.md
               - api/authentication.md
           - PMM commands:
-              - use/commands/index.md
-              - use/commands/pmm-admin.md
-              - use/commands/pmm-agent.md
+              - About PMM commands: use/commands/index.md
+              - pmm-admin:
+                - pmm-admin overview: use/commands/pmm-admin/pmm-admin.md
+                - Add database services: use/commands/pmm-admin/add.md
+                - Manage inventory: use/commands/pmm-admin/inventory.md
+                - Configuration commands: use/commands/pmm-admin/config.md
+                - Status and diagnostics: use/commands/pmm-admin/status.md
+              - pmm-agent: use/commands/pmm-agent.md
       - PMM dashboards:
           - Insight:
               - reference/dashboards/dashboard-home.md

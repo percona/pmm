@@ -10,6 +10,7 @@ on:
       - v[0-9]+.[0-9]+.[0-9]+*
     paths-ignore:
       - "documentation/**"
+      - "dashboards/**"
 
   pull_request:
     paths-ignore:
@@ -18,8 +19,8 @@ on:
       - "api-tests/**"
       - "docs/**"
       - "documentation/**"
+      - "dashboards/**"
       - "managed/**"
-      - "managed-dev/**"
       - "qan-api2/**"
       - "vmproxy/**"
       - "update/**"
@@ -41,7 +42,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Setup nodejs
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version-file: ui/.nvmrc
           cache: yarn

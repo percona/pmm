@@ -67,15 +67,15 @@ var rules = map[string]role{
 	"/v1/advisors":                    editor,
 	"/v1/advisors/checks:":            editor,
 	"/v1/advisors/failedServices":     editor,
-	"/v1/actions/":                    viewer,
+	"/v1/actions":                     viewer,
 	"/v1/actions:":                    viewer,
 	"/v1/backups":                     admin,
 	"/v1/dumps":                       admin,
 	"/v1/accesscontrol":               admin,
 	"/v1/ha":                          viewer,
-	"/v1/inventory/":                  admin,
+	"/v1/inventory":                   admin,
 	"/v1/inventory/services:getTypes": viewer,
-	"/v1/management/":                 admin,
+	"/v1/management":                  admin,
 	"/v1/management/Jobs":             viewer,
 	"/v1/server/AWSInstance":          none, // special case - used before Grafana can be accessed
 	"/v1/server/updates":              viewer,
@@ -84,7 +84,7 @@ var rules = map[string]role{
 	"/v1/server/settings":             admin,
 	"/v1/server/settings/readonly":    viewer,
 	"/v1/platform:":                   admin,
-	"/v1/platform/":                   viewer,
+	"/v1/platform":                    viewer,
 	"/v1/users":                       viewer,
 	// special case - used on Grafana login page before user can be authenticated.
 	// Used for PMM Demo user only.
@@ -119,6 +119,7 @@ var rules = map[string]role{
 	"/v1/realtimeanalytics/sessions:start": admin,
 	"/v1/realtimeanalytics/sessions:stop":  admin,
 	"/v1/realtimeanalytics/sessions":       viewer,
+	"/v1/realtimeanalytics/services":       viewer,
 	"/v1/realtimeanalytics/queries:search": viewer,
 
 	// "/auth_request"  has auth_request disabled in nginx config
