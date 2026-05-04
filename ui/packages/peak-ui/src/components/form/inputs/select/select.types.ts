@@ -15,12 +15,17 @@
 
 import { LabeledContentProps } from '../../../labeled-content';
 import { FormControlProps, SelectProps } from '@mui/material';
-import { Control, UseControllerProps } from 'react-hook-form';
+import {
+  Control,
+  FieldPath,
+  FieldValues,
+  UseControllerProps,
+} from 'react-hook-form';
 
-export type SelectInputProps = {
-  control?: Control;
-  controllerProps?: UseControllerProps;
-  name: string;
+export type SelectInputProps<T extends FieldValues = FieldValues> = {
+  control?: Control<T>;
+  controllerProps?: UseControllerProps<T>;
+  name: FieldPath<T>;
   label?: string;
   helperText?: React.ReactNode;
   labelProps?: LabeledContentProps;

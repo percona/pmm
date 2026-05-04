@@ -13,19 +13,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 import { AutocompleteProps, TextFieldProps } from '@mui/material';
-import { Control, UseControllerProps } from 'react-hook-form';
+import {
+  Control,
+  FieldPath,
+  FieldValues,
+  UseControllerProps,
+} from 'react-hook-form';
 import { LabeledContentProps } from '../../../labeled-content';
 
-export type AutoCompleteInputProps<T> = {
-  name: string;
-  options: T[];
-  control?: Control;
-  controllerProps?: UseControllerProps;
+export type AutoCompleteInputProps<
+  TOption,
+  TFieldValues extends FieldValues = FieldValues,
+> = {
+  name: FieldPath<TFieldValues>;
+  options: TOption[];
+  control?: Control<TFieldValues>;
+  controllerProps?: Omit<UseControllerProps<TFieldValues>, 'name'>;
   label?: string;
   labelProps?: LabeledContentProps;
   autoCompleteProps?: Omit<
     AutocompleteProps<
-      T,
+      TOption,
       boolean | undefined,
       boolean | undefined,
       boolean | undefined

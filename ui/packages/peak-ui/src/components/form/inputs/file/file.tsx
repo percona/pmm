@@ -2,13 +2,20 @@ import { IconButton } from '@mui/material';
 import { TextField } from '@mui/material';
 import { Upgrade as UpgradeIcon } from '@mui/icons-material';
 import { TextFieldProps } from '@mui/material';
-import { Control, Controller, useFormContext, UseControllerProps } from 'react-hook-form';
+import {
+  Control,
+  Controller,
+  FieldPath,
+  FieldValues,
+  useFormContext,
+  UseControllerProps,
+} from 'react-hook-form';
 
-type FileInputProps = {
-  name: string;
+type FileInputProps<T extends FieldValues = FieldValues> = {
+  name: FieldPath<T>;
   label: string;
-  control?: Control;
-  controllerProps?: UseControllerProps;
+  control?: Control<T>;
+  controllerProps?: Omit<UseControllerProps<T>, 'name'>;
   textFieldProps?: TextFieldProps;
   fileInputProps?: React.DetailedHTMLProps<
     React.InputHTMLAttributes<HTMLInputElement>,
@@ -16,15 +23,15 @@ type FileInputProps = {
   >;
 };
 
-const FileInput = ({
+const FileInput = <T extends FieldValues = FieldValues>({
   name,
   label,
   control,
   controllerProps,
   textFieldProps = {},
   fileInputProps = {},
-}: FileInputProps) => {
-  const formContext = useFormContext();
+}: FileInputProps<T>) => {
+  const formContext = useFormContext<T>();
   const contextControl = formContext?.control;
 
   return (
@@ -37,7 +44,9 @@ const FileInput = ({
           {...field}
           {...textFieldProps}
           value={
-            field.value && field.value instanceof File ? field.value.name : ''
+            (field.value as unknown) instanceof File
+              ? (field.value as File).name
+              : ''
           }
           type="text"
           size="small"
