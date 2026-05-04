@@ -13,7 +13,14 @@ const toValidPickerDate = (value: Date): PickerValidDate | null =>
 
 const presets: Record<DateTimePickerValueFormat, DateTimePickerValueTransform<PickerValidDate>> = {
   date: {
-    input: (v) => (v instanceof Date ? toValidPickerDate(v) : null),
+    input: (v) => {
+      if (v == null) return null;
+      if (v instanceof Date) return toValidPickerDate(v);
+      // Pass through non-Date adapter objects (Dayjs/Luxon/Moment).
+      // Primitives like '' or numbers are rejected to avoid invalid-value warnings.
+      if (typeof v === 'object') return v as PickerValidDate;
+      return null;
+    },
     output: (v) => v,
   },
   'iso-string': {
