@@ -44,6 +44,7 @@ const FileInput = <T extends FieldValues = FieldValues>({
           {...field}
           {...textFieldProps}
           value={
+            typeof File !== 'undefined' &&
             (field.value as unknown) instanceof File
               ? (field.value as File).name
               : ''
