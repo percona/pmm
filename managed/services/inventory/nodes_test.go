@@ -207,6 +207,7 @@ func TestAddNode(t *testing.T) {
 			nodeID3 = "00000000-0000-4000-8000-000000000007"
 			nodeID4 = "00000000-0000-4000-8000-000000000008"
 			nodeID5 = "00000000-0000-4000-8000-000000000009"
+			nodeID6 = "00000000-0000-4000-8000-00000000000a"
 		)
 		_, _, ns, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
@@ -317,13 +318,33 @@ func TestAddNode(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, expectedNode5, addNodeResponse.GetRemoteRds())
 
+		expectedNode6 := &inventoryv1.RemoteElastiCacheNode{
+			NodeId:   nodeID6,
+			NodeName: "test-name6",
+			Region:   "test-region",
+			Az:       "test-region-az",
+			Address:  "test6",
+		}
+		addNodeResponse, err = ns.AddNode(ctx, &inventoryv1.AddNodeRequest{
+			Node: &inventoryv1.AddNodeRequest_RemoteElasticache{
+				RemoteElasticache: &inventoryv1.AddRemoteElastiCacheNodeParams{
+					NodeName: "test-name6",
+					Region:   "test-region",
+					Az:       "test-region-az",
+					Address:  "test6",
+				},
+			},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, expectedNode6, addNodeResponse.GetRemoteElasticache())
+
 		getNodeResponse, err := ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: nodeID1})
 		require.NoError(t, err)
 		assert.Equal(t, expectedNode1, getNodeResponse)
 
 		nodesResponse, err := ns.List(ctx, models.NodeFilters{})
 		require.NoError(t, err)
-		require.Len(t, nodesResponse, 6)
+		require.Len(t, nodesResponse, 7)
 		assert.Equal(t, expectedNode1, nodesResponse[0])
 
 		err = ns.Remove(ctx, nodeID1, false)
@@ -331,6 +352,80 @@ func TestAddNode(t *testing.T) {
 		getNodeResponse, err = ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: nodeID1})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf("Node with ID %q not found.", nodeID1)), err)
 		assert.Nil(t, getNodeResponse)
+	})
+
+	t.Run("AddRemoteElastiCacheNode", func(t *testing.T) {
+		const nodeID = "00000000-0000-4000-8000-000000000005"
+		_, _, ns, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		addNodeResponse, err := ns.AddNode(ctx, &inventoryv1.AddNodeRequest{
+			Node: &inventoryv1.AddNodeRequest_RemoteElasticache{
+				RemoteElasticache: &inventoryv1.AddRemoteElastiCacheNodeParams{
+					NodeName: "test-elasticache",
+					Address:  "my-cluster.abc123.use1.cache.amazonaws.com",
+					Region:   "us-east-1",
+					Az:       "us-east-1a",
+					NodeModel: "cache.r6g.large",
+					CustomLabels: map[string]string{
+						"env": "production",
+					},
+				},
+			},
+		})
+		require.NoError(t, err)
+
+		expectedNode := &inventoryv1.RemoteElastiCacheNode{
+			NodeId:    nodeID,
+			NodeName:  "test-elasticache",
+			Address:   "my-cluster.abc123.use1.cache.amazonaws.com",
+			Region:    "us-east-1",
+			Az:        "us-east-1a",
+			NodeModel: "cache.r6g.large",
+			CustomLabels: map[string]string{
+				"env": "production",
+			},
+		}
+		assert.Equal(t, expectedNode, addNodeResponse.GetRemoteElasticache())
+
+		getNodeResponse, err := ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: nodeID})
+		require.NoError(t, err)
+		assert.Equal(t, expectedNode, getNodeResponse)
+
+		err = ns.Remove(ctx, nodeID, false)
+		require.NoError(t, err)
+
+		getNodeResponse, err = ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: nodeID})
+		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf("Node with ID %q not found.", nodeID)), err)
+		assert.Nil(t, getNodeResponse)
+	})
+
+	t.Run("AddRemoteElastiCacheNodeNonUnique", func(t *testing.T) {
+		_, _, ns, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		_, err := ns.AddNode(ctx, &inventoryv1.AddNodeRequest{
+			Node: &inventoryv1.AddNodeRequest_RemoteElasticache{
+				RemoteElasticache: &inventoryv1.AddRemoteElastiCacheNodeParams{
+					NodeName: "test1",
+					Region:   "test-region",
+					Address:  "test-address",
+				},
+			},
+		})
+		require.NoError(t, err)
+
+		_, err = ns.AddNode(ctx, &inventoryv1.AddNodeRequest{
+			Node: &inventoryv1.AddNodeRequest_RemoteElasticache{
+				RemoteElasticache: &inventoryv1.AddRemoteElastiCacheNodeParams{
+					NodeName: "test2",
+					Region:   "test-region",
+					Address:  "test-address",
+				},
+			},
+		})
+		expected := status.New(codes.AlreadyExists, `Node with address "test-address" and region "test-region" already exists.`)
+		tests.AssertGRPCError(t, expected, err)
 	})
 
 	t.Run("AddRemoteRDSNodeNonUnique", func(t *testing.T) {

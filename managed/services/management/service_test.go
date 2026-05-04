@@ -273,6 +273,48 @@ func TestServiceService(t *testing.T) {
 			_, err = models.FindNodeByID(s.db.Querier, node.NodeID)
 			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Node with ID "%s" not found.`, node.NodeID)), err)
 		})
+
+		t.Run("ElastiCache", func(t *testing.T) {
+			ctx, s, teardown, _ := setup(t)
+			defer teardown(t)
+
+			node, err := models.CreateNode(s.db.Querier, models.RemoteElastiCacheNodeType, &models.CreateNodeParams{
+				NodeName: "test-elasticache",
+				Address:  "test-address",
+				Region:   pointer.ToString("us-east-1"),
+			})
+			require.NoError(t, err)
+
+			service, err := models.AddNewService(s.db.Querier, models.ValkeyServiceType, &models.AddDBMSServiceParams{
+				ServiceName: "test-valkey",
+				NodeID:      node.NodeID,
+				Address:     pointer.ToString("test-address"),
+				Port:        pointer.ToUint16(6379),
+			})
+			require.NoError(t, err)
+
+			pmmAgent, err := models.CreatePMMAgent(s.db.Querier, models.PMMServerNodeID, nil)
+			require.NoError(t, err)
+
+			valkeyExporter, err := models.CreateAgent(s.db.Querier, models.ValkeyExporterType, &models.CreateAgentParams{
+				PMMAgentID: pmmAgent.AgentID,
+				ServiceID:  service.ServiceID,
+			})
+			require.NoError(t, err)
+
+			s.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, pmmAgent.AgentID)
+			_, err = s.RemoveService(ctx, &managementv1.RemoveServiceRequest{ServiceId: service.ServiceName, ServiceType: inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE})
+			assert.NoError(t, err)
+
+			_, err = models.FindServiceByID(s.db.Querier, service.ServiceID)
+			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Service with ID "%s" not found.`, service.ServiceID)), err)
+
+			_, err = models.FindAgentByID(s.db.Querier, valkeyExporter.AgentID)
+			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID %s not found.`, valkeyExporter.AgentID)), err)
+
+			_, err = models.FindNodeByID(s.db.Querier, node.NodeID)
+			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Node with ID "%s" not found.`, node.NodeID)), err)
+		})
 	})
 
 	t.Run("List", func(t *testing.T) {
@@ -402,6 +444,50 @@ func TestServiceService(t *testing.T) {
 			assert.Len(t, response.Services, 2) // PMM Server PostgreSQL service, MySQL service
 			assert.Len(t, response.Services[0].Agents, 4)
 			assert.Len(t, response.Services[1].Agents, 2)
+		})
+
+		t.Run("ElastiCache", func(t *testing.T) {
+			ctx, s, teardown, _ := setup(t)
+			t.Cleanup(func() { teardown(t) })
+
+			node, err := models.CreateNode(s.db.Querier, models.RemoteElastiCacheNodeType, &models.CreateNodeParams{
+				NodeName: "test-elasticache",
+				Address:  "test-address",
+				Region:   pointer.ToString("us-east-1"),
+			})
+			require.NoError(t, err)
+
+			service, err := models.AddNewService(s.db.Querier, models.ValkeyServiceType, &models.AddDBMSServiceParams{
+				ServiceName: "test-valkey",
+				NodeID:      node.NodeID,
+				Address:     pointer.ToString("test-address"),
+				Port:        pointer.ToUint16(6379),
+			})
+			require.NoError(t, err)
+
+			pmmAgent, err := models.CreatePMMAgent(s.db.Querier, models.PMMServerNodeID, nil)
+			require.NoError(t, err)
+
+			valkeyExporter, err := models.CreateAgent(s.db.Querier, models.ValkeyExporterType, &models.CreateAgentParams{
+				PMMAgentID: pmmAgent.AgentID,
+				ServiceID:  service.ServiceID,
+			})
+			require.NoError(t, err)
+
+			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil).Once()
+			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once()
+			s.r.(*mockAgentsRegistry).On("IsConnected", pmmAgent.AgentID).Return(true).Once()
+			s.r.(*mockAgentsRegistry).On("IsConnected", pgExporterID).Return(false).Once()
+			s.r.(*mockAgentsRegistry).On("IsConnected", pgStatStatementID).Return(false).Once()
+			s.r.(*mockAgentsRegistry).On("IsConnected", PMMAgentID).Return(false)
+			s.r.(*mockAgentsRegistry).On("IsConnected", valkeyExporter.AgentID).Return(false).Once()
+
+			response, err := s.ListServices(ctx, &managementv1.ListServicesRequest{})
+
+			require.NoError(t, err)
+			assert.Len(t, response.Services, 2) // PMM Server PostgreSQL service, Valkey service
+			assert.Len(t, response.Services[0].Agents, 4)
+			assert.Len(t, response.Services[1].Agents, 1)
 		})
 
 		t.Run("Azure", func(t *testing.T) {
