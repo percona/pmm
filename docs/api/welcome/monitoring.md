@@ -1,7 +1,7 @@
 ---
 title: Monitoring
 slug: monitoring
-parent:
+category:
   uri: welcome
 position: 2
 ---

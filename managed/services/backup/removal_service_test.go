@@ -16,7 +16,6 @@
 package backup
 
 import (
-	"context"
 	"database/sql"
 	"testing"
 	"time"
@@ -115,7 +114,7 @@ func TestDeleteArtifact(t *testing.T) {
 		})
 		require.NoError(t, err)
 		go func() {
-			tx, err := db.BeginTx(context.Background(), &sql.TxOptions{Isolation: sql.LevelSerializable})
+			tx, err := db.BeginTx(t.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable})
 			require.NoError(t, err)
 
 			err = models.RemoveRestoreHistoryItem(tx.Querier, ri.ID)

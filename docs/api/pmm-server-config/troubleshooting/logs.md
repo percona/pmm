@@ -26,21 +26,61 @@ PMM Server offers three ways to access and download logs:
 
 The downloaded logs package contains the following structure:
 
-[block:code]
-{
-  "codes": [
-    {
-      "code": "# tree\n├── clickhouse-server.err.log\n├── clickhouse-server.log\n├── clickhouse-server.startup.log\n├── client\n│   ├── list.txt\n│   ├── pmm-admin-version.txt\n│   ├── pmm-agent-config.yaml\n│   ├── pmm-agent-version.txt\n│   └── status.json\n├── cron.log\n├── dashboard-upgrade.log\n├── grafana.log\n├── installed.json\n├── nginx.conf\n├── nginx.log\n├── nginx.startup.log\n├── pmm-agent.log\n├── pmm-agent.yaml\n├── pmm-managed.log\n├── pmm-ssl.conf\n├── pmm-init.log\n├── pmm-version.txt\n├── pmm.conf\n├── pmm.ini\n├── postgresql.log\n├── postgresql.startup.log\n├── prometheus.base.yml\n├── prometheus.log\n├── qan-api2.ini\n├── qan-api2.log\n├── supervisorctl_status.log\n├── supervisord.conf\n├── supervisord.log\n├── systemctl_status.log\n├── victoriametrics-promscrape.yml\n├── victoriametrics.ini\n├── victoriametrics.log\n├── victoriametrics_targets.json\n├── vmalert.ini\n└── vmalert.log",
-      "language": "text"
-    }
-  ]
-}
-[/block]
 
-[block:callout]
+```text
+# tree
+├── clickhouse-server.err.log
+├── clickhouse-server.log
+├── clickhouse-server.startup.log
+├── client
+│   ├── list.txt
+│   ├── pmm-admin-version.txt
+│   ├── pmm-agent-config.yaml
+│   ├── pmm-agent-version.txt
+│   └── status.json
+├── cron.log
+├── dashboard-upgrade.log
+├── grafana.log
+├── installed.json
+├── nginx.conf
+├── nginx.log
+├── nginx.startup.log
+├── pmm-agent.log
+├── pmm-agent.yaml
+├── pmm-managed.log
+├── pmm-ssl.conf
+├── pmm-init.log
+├── pmm-version.txt
+├── pmm.conf
+├── pmm.ini
+├── postgresql.log
+├── postgresql.startup.log
+├── prometheus.base.yml
+├── prometheus.log
+├── qan-api2.ini
+├── qan-api2.log
+├── supervisorctl_status.log
+├── supervisord.conf
+├── supervisord.log
+├── systemctl_status.log
+├── victoriametrics-promscrape.yml
+├── victoriametrics.ini
+├── victoriametrics.log
+├── victoriametrics_targets.json
+├── vmalert.ini
+└── vmalert.log
+```
+
+
+> 📘 PMM Server Version
+>
+> PMM Server also dumps its version info to a special file `installed.json`.
+```shell
+% cat installed.json | jq
 {
-  "type": "info",
-  "title": "PMM Server Version",
-  "body": "PMM Server also dumps its version info to a special file `installed.json`. \n\n```shell\n% cat installed.json | jq\n{\n  \"version\": \"3.0.0\",\n  \"full_version\": \"3.0.0-1.2412081130.6914083.el9\",\n  \"build_time\": \"2024-12-08T11:30:45Z\",\n  \"repo\": \"local\"\n}\n```"
+  "version": "3.0.0",
+  "full_version": "3.0.0-1.2412081130.6914083.el9",
+  "build_time": "2024-12-08T11:30:45Z",
+  "repo": "local"
 }
-[/block]
+```

@@ -16,7 +16,6 @@
 package models
 
 import (
-	"context"
 	"testing"
 
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
@@ -78,7 +77,7 @@ func TestGetPostgreSQLVersion(t *testing.T) {
 			t.Cleanup(func() { sqlDB.Close() }) //nolint:errcheck
 
 			q := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)).WithTag("pmm-agent:postgresqlversion")
-			ctx := context.Background()
+			ctx := t.Context()
 
 			for _, version := range tc.mockedData {
 				mock.ExpectQuery("SELECT version()").

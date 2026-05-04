@@ -23,26 +23,29 @@ This project is built from several repositories:
 
 #### Backends
 
-* [percona/pmm-managed](https://github.com/percona/pmm/tree/main/managed) manages configuration of PMM server components (VictoriaMetrics, Grafana, etc.) and exposes API for that. APIs are used by [pmm-admin](https://github.com/percona/pmm/tree/main/admin)
-* [percona/qan-api](https://github.com/percona/pmm/tree/main/qan-api2) query analytics API
+* [percona/pmm-managed](https://github.com/percona/pmm/tree/v3/managed) manages configuration of PMM server components (VictoriaMetrics, Grafana, etc.) and exposes API for that. APIs are used by [pmm-admin](https://github.com/percona/pmm/tree/v3/admin)
+* [percona/qan-api](https://github.com/percona/pmm/tree/v3/qan-api2) query analytics API
 
 #### Frontends
 
-* [percona/grafana-dashboards](https://github.com/percona/grafana-dashboards) PMM dashboards for database monitoring
-* [percona/grafana](https://github.com/percona/grafana) user interface for PMM
+* [percona/grafana](https://github.com/percona/grafana) user interface for PMM (Grafana-based)
+* [percona/ui](https://github.com/percona/pmm/tree/v3/ui) user interface for PMM (own)
+* [percona/dashboards](https://github.com/percona/pmm/tree/v3/dashboards) PMM dashboards for database monitoring
 
 ### PMM Client
 
-* [percona/pmm-agent](https://github.com/percona/pmm/tree/main/agent) monitoring agent for PMM. Runs exporters, and VMAgent that collects data from exporters and send to VictoriaMetrics
-* [percona/pmm-admin](https://github.com/percona/pmm/tree/main/admin) admin tool for PMM to manage service that should be monitored by PMM
+* [percona/pmm-agent](https://github.com/percona/pmm/tree/v3/agent) monitoring agent for PMM. Runs exporters, and VMAgent that collects data from exporters and send to VictoriaMetrics
+* [percona/pmm-admin](https://github.com/percona/pmm/tree/v3/admin) admin tool for PMM to manage service that should be monitored by PMM
 * [percona/node_exporter](https://github.com/percona/node_exporter) exports machine's metrics
 * [percona/mysqld_exporter](https://github.com/percona/mysqld_exporter) exports MySQL server's metrics
 * [percona/mongodb_exporter](https://github.com/percona/mongodb_exporter) exports MongoDB server's metrics
 * [percona/postgres_exporter](https://github.com/percona/postgres_exporter) exports PostgreSQL server's metrics
+* [percona/valkey_exporter](https://github.com/oliver006/redis_exporter) exports Valkey server's metrics
 * [percona/proxysql_exporter](https://github.com/percona/proxysql_exporter) exports ProxySQL server's metrics
 * [percona/rds_exporter](https://github.com/percona/rds_exporter) exports metrics from RDS
 * [percona/azure_exporter](https://github.com/percona/azure_metrics_exporter) exports metrics from Azure
 * [percona/percona-toolkit](https://github.com/percona/percona-toolkit) is a collection of advanced command-line tools to perform a variety of MySQL and system tasks that are too difficult or complex to perform manually
+* [nomad](https://github.com/hashicorp/nomad) is a flexible cluster scheduler used to orchestrate PMM Client components on the monitored nodes
 
 
 ### Building and Packaging
@@ -51,22 +54,19 @@ This project is built from several repositories:
 * [Percona-Lab/jenkins-pipelines](https://github.com/Percona-Lab/jenkins-pipelines)
 
 ### QA, Testing and Documentation
-* [percona/pmm-ui-tests](https://github.com/percona/pmm-ui-tests)
 * [percona/pmm-qa](https://github.com/percona/pmm-qa)
-* [percona/pmm-doc](https://github.com/percona/pmm-doc)
+* [percona/documentation](https://github.com/percona/pmm/tree/main/documentation)
 
 ## API Reference Documentation
 
 You can review the PMM API definition [here](https://percona-pmm.readme.io/).
 
-It is generated from our `.proto` [files](./api/) using a special [OpenAPI v2 tool](https://github.com/grpc-ecosystem/grpc-gateway/tree/master/protoc-gen-openapiv2) and additional API
-documentation source files which are located in the `docs/api/` directory. The
-content and structure of these is formatted using [Markdown markup
-language](https://www.markdownguide.org/) and published on the
-[ReadMe.com](https://readme.com/) service.
+It is generated from our `.proto` [files](./api/) using a special [OpenAPI v2 tool](https://github.com/grpc-ecosystem/grpc-gateway/tree/master/protoc-gen-openapiv2) and additional API documentation source files which are located in the `docs/api/` directory. The
+content and structure of these is formatted using [Markdown markup language](https://www.markdownguide.org/) and published on
+[ReadMe.com](https://readme.com/).
 
 You can edit the content using your favorite editor (ideally one that supports
-previewing MarkDown content, e.g. Microsoft Visual Studio Code).
+previewing Markdown content, e.g. Microsoft Visual Studio Code).
 
 If you need to create a new file, copy one of the existing `*.md` documents in
 the folder to maintain the overall structure and format.
@@ -78,7 +78,7 @@ letters and dashes).
 Make sure to create a unique `slug` for your file, for example: `slug:
 authentication`.
 
-**Header rules**: in Markdown, the level of a header line is defined by the
+**Header rules**: in Markdown, the level of the header line is defined by the
 number of hash signs, example: `###` would be equivalent to an H3 header. Please
 avoid using H1 headers. Your first-level header must be H2. The rest of the
 headers can by anything between H3 and H6.
@@ -136,7 +136,7 @@ Exporters by themselves are independent applications, so each of them contains i
 
 ### UI
 
-See [Grafana Dashboards Contribution Guide](https://github.com/percona/grafana-dashboards/blob/main/CONTRIBUTING.md).
+See [Grafana Dashboards Contribution Guide](https://github.com/percona/pmm/tree/v3/dashboards/CONTRIBUTING.md).
 
 ## Tests
 
@@ -210,7 +210,6 @@ To make the review process effective, we use a mixed approach:
 * for repos that don't have CODEOWNERS
   * add reviewers as follows:
       * add `pmm-review-fe` for UI/UX reviews
-      * add `pmm-review-exporters` for exporter reviews [see PMM Client](#pmm-client)
       * add `pmm-review-be` for backend reviews
 * if you know exactly who should review your code, add them to the review
 
@@ -218,7 +217,6 @@ To make the review process effective, we use a mixed approach:
 | Team                 | Description                                                    | Members |
 | -------------------- | -------------------------------------------------------------- | ------- |
 | pmm-review-fe        | UI reviewers of PRs to [FrontEnd repos](#frontends)             | [FE team](https://github.com/orgs/percona/teams/pmm-review-fe/members)        |
-| pmm-review-exporters | exporter reviewers of PRs to [PMM Client](#pmm-client)         | [Exporters team](https://github.com/orgs/percona/teams/pmm-review-exporters/members) |
 | pmm-review-be        | reviewers of backend (Go) PRs                                  | [BE team](https://github.com/orgs/percona/teams/pmm-review-be/members)        |
 | PMM Admins           | reviewers that could use admins rights to force merge or change repo settings | [PMM Admin team](https://github.com/orgs/percona/teams/pmm-admins/members)           |
 

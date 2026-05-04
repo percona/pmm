@@ -16,7 +16,6 @@
 package grafana
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -462,7 +461,7 @@ func TestClient(t *testing.T) {
 	logrus.SetLevel(logrus.TraceLevel)
 	l := logrus.WithField("test", t.Name())
 
-	ctx := context.Background()
+	ctx := t.Context()
 	c := NewClient("127.0.0.1:3000")
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/dummy", nil)
