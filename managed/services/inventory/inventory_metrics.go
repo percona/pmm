@@ -72,17 +72,20 @@ func NewInventoryMetricsCollector(metrics inventoryMetrics) *InventoryMetricsCol
 			prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "agents"),
 			"Inventory Agent",
 			[]string{"agent_id", "agent_type", "service_id", "service_name", "node_id", "node_name", "environment", "pmm_agent_id", "disabled", "version"},
-			nil),
+			nil,
+		),
 		mNodesDesc: prom.NewDesc(
 			prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "nodes"),
 			"Inventory Node",
 			[]string{"node_id", "node_type", "node_name", "container_name"},
-			nil),
+			nil,
+		),
 		mServicesDesc: prom.NewDesc(
 			prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "services"),
 			"Inventory Service",
 			[]string{"service_id", "service_type", "node_id"},
-			nil),
+			nil,
+		),
 
 		metrics: metrics,
 	}

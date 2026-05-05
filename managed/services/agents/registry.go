@@ -48,22 +48,26 @@ var (
 		prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "messages_sent_total"),
 		"A total number of messages sent to pmm-agent.",
 		[]string{"agent_id"},
-		nil)
+		nil,
+	)
 	mRecvDesc = prom.NewDesc(
 		prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "messages_received_total"),
 		"A total number of messages received from pmm-agent.",
 		[]string{"agent_id"},
-		nil)
+		nil,
+	)
 	mResponsesDesc = prom.NewDesc(
 		prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "messages_response_queue_length"),
 		"The current length of the response queue.",
 		[]string{"agent_id"},
-		nil)
+		nil,
+	)
 	mRequestsDesc = prom.NewDesc(
 		prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "messages_request_queue_length"),
 		"The current length of the request queue.",
 		[]string{"agent_id"},
-		nil)
+		nil,
+	)
 )
 
 type pmmAgentInfo struct {

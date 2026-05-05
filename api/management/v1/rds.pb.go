@@ -824,14 +824,14 @@ var (
 	file_management_v1_rds_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 	file_management_v1_rds_proto_msgTypes  = make([]protoimpl.MessageInfo, 6)
 	file_management_v1_rds_proto_goTypes   = []any{
-		(DiscoverRDSEngine)(0),                    // 0: management.v1.DiscoverRDSEngine
+		DiscoverRDSEngine(0),                      // 0: management.v1.DiscoverRDSEngine
 		(*DiscoverRDSInstance)(nil),               // 1: management.v1.DiscoverRDSInstance
 		(*DiscoverRDSRequest)(nil),                // 2: management.v1.DiscoverRDSRequest
 		(*DiscoverRDSResponse)(nil),               // 3: management.v1.DiscoverRDSResponse
 		(*AddRDSServiceParams)(nil),               // 4: management.v1.AddRDSServiceParams
 		(*RDSServiceResult)(nil),                  // 5: management.v1.RDSServiceResult
 		nil,                                       // 6: management.v1.AddRDSServiceParams.CustomLabelsEntry
-		(MetricsMode)(0),                          // 7: management.v1.MetricsMode
+		MetricsMode(0),                            // 7: management.v1.MetricsMode
 		(*v1.RemoteRDSNode)(nil),                  // 8: inventory.v1.RemoteRDSNode
 		(*v1.RDSExporter)(nil),                    // 9: inventory.v1.RDSExporter
 		(*v1.MySQLService)(nil),                   // 10: inventory.v1.MySQLService

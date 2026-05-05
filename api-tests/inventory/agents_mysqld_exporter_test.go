@@ -73,7 +73,8 @@ func TestMySQLdExporter(t *testing.T) {
 			&agents.GetAgentParams{
 				AgentID: agentID,
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.GetAgentOKBody{
 			MysqldExporter: &agents.GetAgentOKBodyMysqldExporter{
@@ -103,7 +104,8 @@ func TestMySQLdExporter(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOKBody{
 			MysqldExporter: &agents.ChangeAgentOKBodyMysqldExporter{
@@ -135,7 +137,8 @@ func TestMySQLdExporter(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOKBody{
 			MysqldExporter: &agents.ChangeAgentOKBodyMysqldExporter{
@@ -354,7 +357,8 @@ func TestMySQLdExporter(t *testing.T) {
 			&agents.GetAgentParams{
 				AgentID: agentID,
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.GetAgentOKBody{
 			MysqldExporter: &agents.GetAgentOKBodyMysqldExporter{
@@ -384,7 +388,8 @@ func TestMySQLdExporter(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOKBody{
 			MysqldExporter: &agents.ChangeAgentOKBodyMysqldExporter{
@@ -412,7 +417,8 @@ func TestMySQLdExporter(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOKBody{
 			MysqldExporter: &agents.ChangeAgentOKBodyMysqldExporter{
