@@ -86,6 +86,8 @@ var rules = map[string]role{
 	"/v1/platform:":                   admin,
 	"/v1/platform":                    viewer,
 	"/v1/users":                       viewer,
+	"/v1/users/current":               none,
+	"/v1/users/current/orgs":          none,
 	// special case - used on Grafana login page before user can be authenticated.
 	// Used for PMM Demo user only.
 	"/v1/users/demo/credentials": none,
@@ -292,7 +294,9 @@ func (s *AuthServer) returnError(rw http.ResponseWriter, msg map[string]any, l *
 // maybeAddLBACFilters adds extra filters to requests proxied through VMProxy.
 // In case the request is not proxied through VMProxy, this is a no-op.
 func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWriter, req *http.Request, userID int, l *logrus.Entry) error {
+	l.Debugf("maybeAddLBACFilters: userID=%d", userID)
 	if !s.shallAddLBACFilters(req) {
+		l.Debugf("Skipping LBAC filters for non-proxied request.")
 		return nil
 	}
 
@@ -311,7 +315,10 @@ func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWr
 	}
 
 	if userID <= 0 {
-		return ErrInvalidUserID
+		// Anonymous users don't have a numeric user ID and cannot have LBAC roles.
+		// Skip adding filters and allow the request to proceed.
+		l.Debugf("Skipping LBAC filters for anonymous user.")
+		return nil
 	}
 
 	filters, err := s.getLBACFilters(ctx, userID)
