@@ -407,7 +407,8 @@ func TestPGStatStatementsQAN(t *testing.T) {
 			go func() {
 				defer waitGroup.Done()
 				_, err := db.Exec(
-					fmt.Sprintf(`INSERT /* CheckMBlkReadTime controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES (%d, 'John', 'Dow', TRUE)`, tableName, id))
+					fmt.Sprintf(`INSERT /* CheckMBlkReadTime controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES (%d, 'John', 'Dow', TRUE)`, tableName, id),
+				)
 				if err != nil {
 					errChan <- err
 				}

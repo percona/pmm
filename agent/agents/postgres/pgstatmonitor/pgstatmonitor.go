@@ -433,7 +433,8 @@ func getPGSM20Settings(q *reform.Querier) (settings, error) {
 		var setting pgsm20Settings
 		err = rows.Scan(
 			&setting.Name,
-			&setting.Setting)
+			&setting.Setting,
+		)
 		if err != nil {
 			return nil, err
 		}

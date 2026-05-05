@@ -194,7 +194,8 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 				models.UpdateArtifactParams{
 					Status:   models.SuccessBackupStatus.Pointer(),
 					Metadata: artifactMetadataFromProto(result.MysqlBackup.Metadata),
-				})
+				},
+			)
 			if err != nil {
 				return err
 			}
@@ -216,7 +217,8 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 					Status:           models.SuccessBackupStatus.Pointer(),
 					IsShardedCluster: result.MongodbBackup.IsShardedCluster,
 					Metadata:         metadata,
-				})
+				},
+			)
 			if err != nil {
 				return err
 			}
@@ -260,7 +262,8 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 				models.ChangeRestoreHistoryItemParams{
 					Status:     models.SuccessRestoreStatus,
 					FinishedAt: pointer.ToTime(models.Now()),
-				})
+				},
+			)
 			if err != nil {
 				return err
 			}
@@ -283,7 +286,8 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 						models.ChangeRestoreHistoryItemParams{
 							Status:     models.ErrorRestoreStatus,
 							FinishedAt: pointer.ToTime(models.Now()),
-						})
+						},
+					)
 					return err
 				} else {
 					s.l.Info("successfully restarted mongod and pbm-agent on all cluster members")
@@ -296,7 +300,8 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 				models.ChangeRestoreHistoryItemParams{
 					Status:     models.SuccessRestoreStatus,
 					FinishedAt: pointer.ToTime(models.Now()),
-				})
+				},
+			)
 			if err != nil {
 				return err
 			}
@@ -336,7 +341,8 @@ func (s *JobsService) handleJobError(job *models.Job) error {
 			models.ChangeRestoreHistoryItemParams{
 				Status:     models.ErrorRestoreStatus,
 				FinishedAt: pointer.ToTime(models.Now()),
-			})
+			},
+		)
 	case models.MongoDBRestoreBackupJob:
 		_, err = models.ChangeRestoreHistoryItem(
 			s.db.Querier,
@@ -344,7 +350,8 @@ func (s *JobsService) handleJobError(job *models.Job) error {
 			models.ChangeRestoreHistoryItemParams{
 				Status:     models.ErrorRestoreStatus,
 				FinishedAt: pointer.ToTime(models.Now()),
-			})
+			},
+		)
 	default:
 		return errors.Errorf("unknown job type %s", job.Type)
 	}
@@ -676,7 +683,8 @@ func (s *JobsService) runMongoPostRestore(querier *reform.Querier, serviceID str
 		models.ServiceFilters{
 			ServiceType: &serviceType,
 			Cluster:     service.Cluster,
-		})
+		},
+	)
 	if err != nil {
 		return err
 	}
@@ -797,7 +805,8 @@ func createJobLog(querier *reform.Querier, jobID, data string, chunkID int, last
 			ChunkID:   chunkID,
 			Data:      data,
 			LastChunk: lastChunk,
-		})
+		},
+	)
 	return err
 }
 

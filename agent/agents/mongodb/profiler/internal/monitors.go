@@ -80,7 +80,8 @@ func (ms *monitors) MonitorAll(ctx context.Context) error {
 		m := ms.newMonitor(
 			ms.client,
 			ms.logger,
-			dbName)
+			dbName,
+		)
 		// ... and start it
 		err := m.Start(ctx)
 		if err != nil {
