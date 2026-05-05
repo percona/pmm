@@ -56,7 +56,7 @@ type monitors struct {
 
 func (ms *monitors) MonitorAll(ctx context.Context) error {
 	databases := make(map[string]struct{})
-	databasesSlice, err := ms.listDatabases()
+	databasesSlice, err := ms.listDatabases(ctx)
 	if err != nil {
 		return err
 	}
@@ -140,6 +140,6 @@ func (ms *monitors) GetAll() map[string]*monitor {
 	return list
 }
 
-func (ms *monitors) listDatabases() ([]string, error) {
-	return ms.client.ListDatabaseNames(context.TODO(), bson.M{})
+func (ms *monitors) listDatabases(ctx context.Context) ([]string, error) {
+	return ms.client.ListDatabaseNames(ctx, bson.M{})
 }
