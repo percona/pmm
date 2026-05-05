@@ -31,7 +31,8 @@ import (
 	server "github.com/percona/pmm/api/server/v1/json/client/server_service"
 )
 
-func restoreSettingsDefaults(t *testing.T) {
+// RestoreSettingsDefaults restores PMM Server settings to their default values.
+func RestoreSettingsDefaults(t *testing.T) {
 	t.Helper()
 
 	res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
