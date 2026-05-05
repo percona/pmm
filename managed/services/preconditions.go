@@ -95,7 +95,7 @@ func CheckMongoDBBackupPreconditions(q *reform.Querier, mode models.BackupMode, 
 // in the same folder may cause data inconsistency.
 //
 // WARNING: This function is valid only when executed as part of transaction with serializable isolation level.
-func CheckArtifactOverlapping(q *reform.Querier, serviceID, locationID, folder string) error {
+func CheckArtifactOverlapping(q *reform.Querier, serviceID, locationID, folder string) error { //nolint:gocognit
 	// TODO This doesn't work for all cases. For example, there may exist more than one storage locations pointing to the same place.
 
 	const (
