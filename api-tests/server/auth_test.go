@@ -44,7 +44,11 @@ const (
 )
 
 func TestAuth(t *testing.T) {
+	t.Parallel()
+
 	t.Run("AuthErrors", func(t *testing.T) {
+		t.Parallel()
+
 		for user, code := range map[*url.Userinfo]int{
 			nil:                              401,
 			url.UserPassword("bad", "wrong"): 401,
@@ -76,6 +80,8 @@ func TestAuth(t *testing.T) {
 	})
 
 	t.Run("NormalErrors", func(t *testing.T) {
+		t.Parallel()
+
 		for grpcCode, httpCode := range map[codes.Code]int{
 			codes.Unauthenticated:  401,
 			codes.PermissionDenied: 403,
@@ -171,6 +177,8 @@ func doRequest(tb testing.TB, client *http.Client, req *http.Request) (*http.Res
 }
 
 func TestBasicAuthPermissions(t *testing.T) {
+	t.Parallel()
+
 	ts := strconv.FormatInt(time.Now().Unix(), 10)
 	none := "none-" + ts
 	viewer := "viewer-" + ts
@@ -307,6 +315,8 @@ func setRole(t *testing.T, userID int, role string) {
 }
 
 func TestServiceAccountPermissions(t *testing.T) {
+	t.Parallel()
+
 	// service account role options: viewer, editor, admin
 	// service token role options: editor, admin
 	// basic auth format is skipped, endpoint /auth/serviceaccount (to get info about currently used token in request) requires Bearer authorization
