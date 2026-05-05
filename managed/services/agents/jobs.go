@@ -67,7 +67,7 @@ func NewJobsService(db *reform.DB, registry *Registry, retention retentionServic
 }
 
 // RestartJob restarts a job with the given jobID.
-func (s *JobsService) RestartJob(ctx context.Context, jobID string) error {
+func (s *JobsService) RestartJob(ctx context.Context, jobID string) error { //nolint:gocognit
 	var job *models.Job
 	var artifact *models.Artifact
 	var locationModel *models.BackupLocation
@@ -169,7 +169,7 @@ func (s *JobsService) RestartJob(ctx context.Context, jobID string) error {
 	return nil
 }
 
-func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result *agentv1.JobResult) { //nolint:cyclop
+func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result *agentv1.JobResult) { //nolint:gocognit,cyclop
 	var scheduleID string
 	if errTx := s.db.InTransaction(func(t *reform.TX) error { //nolint:contextcheck
 		job, err := models.FindJobByID(t.Querier, result.JobId)
