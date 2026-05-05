@@ -85,7 +85,8 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 		return err
 	}
 
-	l.Infof("CheckConnectionRequest: type: %s, DSN: %s timeout: %s.",
+	l.Infof(
+		"CheckConnectionRequest: type: %s, DSN: %s timeout: %s.",
 		request.Type, logger.MaskDSN(request.Dsn), request.Timeout,
 	)
 
