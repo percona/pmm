@@ -350,7 +350,7 @@ var (
 		(*ExternalServiceResult)(nil),    // 1: management.v1.ExternalServiceResult
 		nil,                              // 2: management.v1.AddExternalServiceParams.CustomLabelsEntry
 		(*AddNodeParams)(nil),            // 3: management.v1.AddNodeParams
-		(MetricsMode)(0),                 // 4: management.v1.MetricsMode
+		MetricsMode(0),                   // 4: management.v1.MetricsMode
 		(*v1.ExternalService)(nil),       // 5: inventory.v1.ExternalService
 		(*v1.ExternalExporter)(nil),      // 6: inventory.v1.ExternalExporter
 	}

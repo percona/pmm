@@ -1054,7 +1054,8 @@ func TestServices(t *testing.T) {
 				&models.ChangeStandardLabelsParams{
 					ServiceID: service.ServiceID,
 				},
-				nil)
+				nil,
+			)
 			assert.NoError(t, err)
 
 			service, err = models.FindServiceByID(s.db.Querier, service.ServiceID)
