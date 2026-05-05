@@ -127,7 +127,8 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.GetReportRequest) (*q
 		limit,
 		specialColumns,
 		commonColumns,
-		sumColumns)
+		sumColumns,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -168,7 +169,8 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.GetReportRequest) (*q
 			labels,
 			group,
 			mainMetric,
-			isTotal)
+			isTotal,
+		)
 		if err != nil {
 			return nil, err
 		}

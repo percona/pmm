@@ -1640,7 +1640,7 @@ var (
 		(*timestamppb.Timestamp)(nil),               // 26: google.protobuf.Timestamp
 		(*MapFieldEntry)(nil),                       // 27: qan.v1.MapFieldEntry
 		(*Point)(nil),                               // 28: qan.v1.Point
-		(ExampleType)(0),                            // 29: qan.v1.ExampleType
+		ExampleType(0),                              // 29: qan.v1.ExampleType
 	}
 )
 

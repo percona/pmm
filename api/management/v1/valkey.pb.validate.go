@@ -243,7 +243,8 @@ func (e AddValkeyServiceParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AddValkeyServiceParamsValidationError{}
@@ -403,7 +404,8 @@ func (e ValkeyServiceResultValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ValkeyServiceResultValidationError{}
