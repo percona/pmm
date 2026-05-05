@@ -35,29 +35,20 @@ func TestMongoDBExporter(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		nodeID := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node exporter")).NodeID
+		pmmAgentID := pmmapitests.AddPMMAgent(t, nodeID).AgentID
 
-		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node exporter"))
-		nodeID := node.Remote.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
-
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Mongodb: &services.AddServiceParamsBodyMongodb{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        3306,
 				ServiceName: pmmapitests.TestString(t, "MongoDB Service for MongoDBExporter test"),
 			},
 		})
 		serviceID := service.Mongodb.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
 
-		pmmAgent := pmmapitests.AddPMMAgent(t, nodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
-
-		mongoDBExporter := addAgent(t, agents.AddAgentBody{
+		mongoDBExporter := pmmapitests.AddAgent(t, agents.AddAgentBody{
 			MongodbExporter: &agents.AddAgentParamsBodyMongodbExporter{
 				ServiceID:  serviceID,
 				Username:   "username",
@@ -71,7 +62,6 @@ func TestMongoDBExporter(t *testing.T) {
 			},
 		})
 		agentID := mongoDBExporter.MongodbExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			AgentID: agentID,
@@ -108,7 +98,8 @@ func TestMongoDBExporter(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
@@ -142,7 +133,8 @@ func TestMongoDBExporter(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
@@ -169,14 +161,9 @@ func TestMongoDBExporter(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
-
-		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+		_, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
 			Body: agents.AddAgentBody{
 				MongodbExporter: &agents.AddAgentParamsBodyMongodbExporter{
 					ServiceID:  "",
@@ -186,30 +173,24 @@ func TestMongoDBExporter(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMongoDBExporterParams.ServiceId: value length must be at least 1 runes")
-		if !assert.Nil(t, res) {
-			pmmapitests.RemoveAgents(t, res.Payload.MongodbExporter.AgentID)
-		}
 	})
 
 	t.Run("AddPMMAgentIDEmpty", func(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Mongodb: &services.AddServiceParamsBodyMongodb{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        3306,
 				ServiceName: pmmapitests.TestString(t, "MongoDB Service for agent"),
 			},
 		})
 		serviceID := service.Mongodb.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
 
-		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+		_, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
 			Body: agents.AddAgentBody{
 				MongodbExporter: &agents.AddAgentParamsBodyMongodbExporter{
 					ServiceID:  serviceID,
@@ -221,23 +202,15 @@ func TestMongoDBExporter(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMongoDBExporterParams.PmmAgentId: value length must be at least 1 runes")
-		if !assert.Nil(t, res) {
-			pmmapitests.RemoveAgents(t, res.Payload.MongodbExporter.AgentID)
-		}
 	})
 
 	t.Run("NotExistServiceID", func(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
-
-		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+		_, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
 			Body: agents.AddAgentBody{
 				MongodbExporter: &agents.AddAgentParamsBodyMongodbExporter{
 					ServiceID:  "pmm-service-id",
@@ -249,30 +222,24 @@ func TestMongoDBExporter(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Service with ID \"pmm-service-id\" not found.")
-		if !assert.Nil(t, res) {
-			pmmapitests.RemoveAgents(t, res.Payload.MongodbExporter.AgentID)
-		}
 	})
 
 	t.Run("NotExistPMMAgentID", func(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Mongodb: &services.AddServiceParamsBodyMongodb{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        3306,
 				ServiceName: pmmapitests.TestString(t, "MongoDB Service for not exists node ID"),
 			},
 		})
 		serviceID := service.Mongodb.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
 
-		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+		_, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
 			Body: agents.AddAgentBody{
 				MongodbExporter: &agents.AddAgentParamsBodyMongodbExporter{
 					ServiceID:  serviceID,
@@ -284,38 +251,26 @@ func TestMongoDBExporter(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID pmm-not-exist-server not found.")
-		if !assert.Nil(t, res) {
-			pmmapitests.RemoveAgents(t, res.Payload.MongodbExporter.AgentID)
-		}
 	})
 
 	t.Run("With PushMetrics", func(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		nodeID := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node exporter")).NodeID
+		pmmAgentID := pmmapitests.AddPMMAgent(t, nodeID).AgentID
 
-		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node exporter"))
-		nodeID := node.Remote.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
-
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Mongodb: &services.AddServiceParamsBodyMongodb{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        3306,
 				ServiceName: pmmapitests.TestString(t, "MongoDB Service for MongoDBExporter test"),
 			},
 		})
 		serviceID := service.Mongodb.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
 
-		pmmAgent := pmmapitests.AddPMMAgent(t, nodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
-
-		mongoDBExporter := addAgent(t, agents.AddAgentBody{
+		mongoDBExporter := pmmapitests.AddAgent(t, agents.AddAgentBody{
 			MongodbExporter: &agents.AddAgentParamsBodyMongodbExporter{
 				ServiceID:  serviceID,
 				Username:   "username",
@@ -324,19 +279,18 @@ func TestMongoDBExporter(t *testing.T) {
 				CustomLabels: map[string]string{
 					"new_label": "mongodb_exporter",
 				},
-
 				SkipConnectionCheck: true,
 				PushMetrics:         true,
 			},
 		})
 		agentID := mongoDBExporter.MongodbExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(
 			&agents.GetAgentParams{
 				AgentID: agentID,
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.GetAgentOK{
 			Payload: &agents.GetAgentOKBody{
@@ -368,7 +322,8 @@ func TestMongoDBExporter(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
@@ -398,7 +353,8 @@ func TestMongoDBExporter(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
@@ -425,48 +381,34 @@ func TestMongoDBExporter(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		nodeID := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for mongodb exporter")).NodeID
+		pmmAgentID := pmmapitests.AddPMMAgent(t, nodeID).AgentID
 
-		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for mongodb exporter"))
-		nodeID := node.Remote.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
-
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Mongodb: &services.AddServiceParamsBodyMongodb{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        27017,
 				ServiceName: pmmapitests.TestString(t, "MongoDB Service for MongoDBExporter test"),
 			},
 		})
 		serviceID := service.Mongodb.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, nodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
 		// Add agent with skip connection check
-		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
-			Body: agents.AddAgentBody{
-				MongodbExporter: &agents.AddAgentParamsBodyMongodbExporter{
-					ServiceID:           serviceID,
-					Username:            "username",
-					Password:            "password",
-					PMMAgentID:          pmmAgentID,
-					SkipConnectionCheck: true,
-				},
+		mongoDBExporterOk := pmmapitests.AddAgent(t, agents.AddAgentBody{
+			MongodbExporter: &agents.AddAgentParamsBodyMongodbExporter{
+				ServiceID:           serviceID,
+				Username:            "username",
+				Password:            "password",
+				PMMAgentID:          pmmAgentID,
+				SkipConnectionCheck: true,
 			},
-			Context: pmmapitests.Context,
 		})
-		require.NoError(t, err)
 
-		agentID := res.Payload.MongodbExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
+		agentID := mongoDBExporterOk.MongodbExporter.AgentID
 
 		// Test changing ALL available MongoDB exporter fields
-		_, err = client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+		_, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				MongodbExporter: &agents.ChangeAgentParamsBodyMongodbExporter{
@@ -551,48 +493,34 @@ func TestMongoDBExporter(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		nodeID := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for mongodb exporter")).NodeID
+		pmmAgentID := pmmapitests.AddPMMAgent(t, nodeID).AgentID
 
-		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for mongodb exporter"))
-		nodeID := node.Remote.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
-
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Mongodb: &services.AddServiceParamsBodyMongodb{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        27017,
 				ServiceName: pmmapitests.TestString(t, "MongoDB Service for EnableAllCollectors test"),
 			},
 		})
 		serviceID := service.Mongodb.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, nodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
 		// Add MongoDB exporter without EnableAllCollectors
-		addAgentRes, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
-			Body: agents.AddAgentBody{
-				MongodbExporter: &agents.AddAgentParamsBodyMongodbExporter{
-					PMMAgentID:          pmmAgentID,
-					ServiceID:           serviceID,
-					Username:            "test-user",
-					Password:            "test-password",
-					SkipConnectionCheck: true,
-					EnableAllCollectors: false, // Start with disabled
-				},
+		mongoDBExporter := pmmapitests.AddAgent(t, agents.AddAgentBody{
+			MongodbExporter: &agents.AddAgentParamsBodyMongodbExporter{
+				PMMAgentID:          pmmAgentID,
+				ServiceID:           serviceID,
+				Username:            "test-user",
+				Password:            "test-password",
+				SkipConnectionCheck: true,
+				EnableAllCollectors: false, // Start with disabled
 			},
-			Context: pmmapitests.Context,
 		})
-		require.NoError(t, err)
-		agentID := addAgentRes.Payload.MongodbExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
+		agentID := mongoDBExporter.MongodbExporter.AgentID
 
 		// Test enabling all collectors
-		_, err = client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+		_, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				MongodbExporter: &agents.ChangeAgentParamsBodyMongodbExporter{
@@ -642,48 +570,33 @@ func TestMongoDBExporter(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		nodeID := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for mongodb exporter")).NodeID
+		pmmAgentID := pmmapitests.AddPMMAgent(t, nodeID).AgentID
 
-		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for mongodb exporter"))
-		nodeID := node.Remote.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
-
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Mongodb: &services.AddServiceParamsBodyMongodb{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        27017,
 				ServiceName: pmmapitests.TestString(t, "MongoDB Service for password rotation test"),
 			},
 		})
 		serviceID := service.Mongodb.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, nodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
 		// Add agent with initial password
-		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
-			Body: agents.AddAgentBody{
-				MongodbExporter: &agents.AddAgentParamsBodyMongodbExporter{
-					ServiceID:           serviceID,
-					Username:            "mongodb-user",
-					Password:            "initial-mongodb-password-123",
-					PMMAgentID:          pmmAgentID,
-					SkipConnectionCheck: true,
-				},
+		mongoDBExporter := pmmapitests.AddAgent(t, agents.AddAgentBody{
+			MongodbExporter: &agents.AddAgentParamsBodyMongodbExporter{
+				ServiceID:           serviceID,
+				Username:            "mongodb-user",
+				Password:            "initial-mongodb-password-123",
+				PMMAgentID:          pmmAgentID,
+				SkipConnectionCheck: true,
 			},
-			Context: pmmapitests.Context,
 		})
-		require.NoError(t, err)
-
-		agentID := res.Payload.MongodbExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
+		agentID := mongoDBExporter.MongodbExporter.AgentID
 
 		// Test changing password (simulating password rotation)
-		_, err = client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+		_, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				MongodbExporter: &agents.ChangeAgentParamsBodyMongodbExporter{
@@ -742,64 +655,50 @@ func TestMongoDBExporter(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		nodeID := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for mongodb exporter")).NodeID
+		pmmAgentID := pmmapitests.AddPMMAgent(t, nodeID).AgentID
 
-		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for mongodb exporter"))
-		nodeID := node.Remote.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
-
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Mongodb: &services.AddServiceParamsBodyMongodb{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        27017,
 				ServiceName: pmmapitests.TestString(t, "MongoDB Service for partial change test"),
 			},
 		})
 		serviceID := service.Mongodb.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, nodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
 		// Add agent with specific initial values for multiple fields
-		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
-			Body: agents.AddAgentBody{
-				MongodbExporter: &agents.AddAgentParamsBodyMongodbExporter{
-					ServiceID:           serviceID,
-					Username:            "initial-mongo-user",
-					Password:            "initial-mongo-password",
-					PMMAgentID:          pmmAgentID,
-					SkipConnectionCheck: true,
-					CollectionsLimit:    1000,
-					EnableAllCollectors: true,
-					StatsCollections:    []string{"db1.coll1", "db2.coll2"},
-					CustomLabels: map[string]string{
-						"env":        "staging",
-						"database":   "mongodb",
-						"monitoring": "enabled",
-					},
-					TLS:                           true,
-					TLSSkipVerify:                 false,
-					AuthenticationMechanism:       "SCRAM-SHA-1",
-					AuthenticationDatabase:        "admin",
-					PushMetrics:                   true,
-					LogLevel:                      pointer.ToString("LOG_LEVEL_WARN"),
-					ExposeExporter:                true,
-					DisableCollectors:             []string{"collstats", "indexstats"},
-					TLSCertificateKey:             "initial-cert-key",
-					TLSCertificateKeyFilePassword: "initial-cert-password",
-					TLSCa:                         "initial-ca-cert",
+		mongoDBExporter := pmmapitests.AddAgent(t, agents.AddAgentBody{
+			MongodbExporter: &agents.AddAgentParamsBodyMongodbExporter{
+				ServiceID:           serviceID,
+				Username:            "initial-mongo-user",
+				Password:            "initial-mongo-password",
+				PMMAgentID:          pmmAgentID,
+				SkipConnectionCheck: true,
+				CollectionsLimit:    1000,
+				EnableAllCollectors: true,
+				StatsCollections:    []string{"db1.coll1", "db2.coll2"},
+				CustomLabels: map[string]string{
+					"env":        "staging",
+					"database":   "mongodb",
+					"monitoring": "enabled",
 				},
+				TLS:                           true,
+				TLSSkipVerify:                 false,
+				AuthenticationMechanism:       "SCRAM-SHA-1",
+				AuthenticationDatabase:        "admin",
+				PushMetrics:                   true,
+				LogLevel:                      pointer.ToString("LOG_LEVEL_WARN"),
+				ExposeExporter:                true,
+				DisableCollectors:             []string{"collstats", "indexstats"},
+				TLSCertificateKey:             "initial-cert-key",
+				TLSCertificateKeyFilePassword: "initial-cert-password",
+				TLSCa:                         "initial-ca-cert",
 			},
-			Context: pmmapitests.Context,
 		})
-		require.NoError(t, err)
 
-		agentID := res.Payload.MongodbExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
+		agentID := mongoDBExporter.MongodbExporter.AgentID
 
 		// Get initial state to capture all original values
 		initialAgent, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{

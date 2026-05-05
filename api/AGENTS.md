@@ -1,10 +1,7 @@
----
-applyTo: api/**
----
 # PMM API Development Guidelines
 
-> **Parent guide**: [AGENTS.md](../../AGENTS.md) — product overview, architecture, domain model, global conventions
-> **Related**: [managed.instructions.md](managed.instructions.md) (server-side implementation) · [admin.instructions.md](admin.instructions.md) (CLI client) · [api-tests.instructions.md](api-tests.instructions.md) (integration tests)
+> **Parent guide**: [AGENTS.md](../AGENTS.md) — product overview, architecture, domain model, global conventions
+> **Related**: [managed/AGENTS.md](../managed/AGENTS.md) (server-side implementation) · [admin/AGENTS.md](../admin/AGENTS.md) (CLI client) · [api-tests/AGENTS.md](../api-tests/AGENTS.md) (integration tests)
 
 The `/api` directory is the **single source of truth** for all PMM APIs. It contains Protocol Buffer (`.proto`) definitions that generate gRPC servers, gRPC-Gateway HTTP/JSON endpoints, validation code, OpenAPI/Swagger specs, and Go client libraries. Every other component in the monorepo consumes the types and clients generated from these definitions.
 

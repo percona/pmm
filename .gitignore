@@ -38,8 +38,8 @@ compose.yml
 build.log
 ci.yml
 
-api-tests/pmm-api-tests-output.txt
-api-tests/pmm-api-tests-junit-report.xml
+api-tests/*.txt
+api-tests/*.xml
 
 packer.log
 encryption.key
@@ -51,3 +51,8 @@ RTA-Jira-Tasks-Summary.md
 
 # PMM Demo backups (it would increase repository size significantly)
 dev/clickhouse-backups/
+
+# Exclude AI skills to support fast local experimentation
+.claude/
+.cursor/
+.cursorrules/

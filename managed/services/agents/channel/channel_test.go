@@ -65,7 +65,8 @@ func setup(t *testing.T, connect func(*Channel) error, expected ...error) (agent
 
 	server := grpc.NewServer(
 		grpc.UnaryInterceptor(interceptors.UnaryAdd(grpcUnaryInterceptor)),
-		grpc.StreamInterceptor(interceptors.Stream(grpcStreamInterceptor)))
+		grpc.StreamInterceptor(interceptors.Stream(grpcStreamInterceptor)),
+	)
 
 	agentv1.RegisterAgentServiceServer(server, &testServer{
 		connectFunc: func(stream agentv1.AgentService_ConnectServer) error {

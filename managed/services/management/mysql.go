@@ -33,7 +33,7 @@ const (
 )
 
 // AddMySQL adds "MySQL Service", "MySQL Exporter Agent" and "QAN MySQL PerfSchema Agent".
-func (s *ManagementService) addMySQL(ctx context.Context, req *managementv1.AddMySQLServiceParams) (*managementv1.AddServiceResponse, error) {
+func (s *ManagementService) addMySQL(ctx context.Context, req *managementv1.AddMySQLServiceParams) (*managementv1.AddServiceResponse, error) { //nolint:gocognit
 	mysql := &managementv1.MySQLServiceResult{}
 
 	errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
