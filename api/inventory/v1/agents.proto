@@ -143,17 +143,17 @@ message MySQLdExporter {
   // Service identifier.
   string service_id = 4;
   // MySQL username for scraping metrics.
-  string username = 5;
+  string username = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   bool tls = 6;
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 7;
   // Certificate Authority certificate chain.
-  string tls_ca = 8;
+  string tls_ca = 8 [(extensions.v1.sensitive) = REDACT_TYPE_MASK];
   // Client certificate.
-  string tls_cert = 9;
+  string tls_cert = 9 [(extensions.v1.sensitive) = REDACT_TYPE_MASK];
   // Password for decrypting tls_cert.
-  string tls_key = 10;
+  string tls_key = 10 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Tablestats group collectors are disabled if there are more than that number of tables.
   // 0 means tablestats group collectors are always enabled (no limit).
   // Negative value means tablestats group collectors are always disabled.

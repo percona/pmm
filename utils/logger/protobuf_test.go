@@ -54,7 +54,7 @@ var rtaData = rtav1.QueryData{
 	},
 }
 
-func getSensitiveMessage(t *testing.T) []proto.Message {
+func getSetStateRequestMessage(t *testing.T) []proto.Message {
 	t.Helper()
 
 	agentProcsOrig := make(map[string]*agentv1.SetStateRequest_AgentProcess)
@@ -99,10 +99,17 @@ func getSensitiveMessage(t *testing.T) []proto.Message {
 		DisableCommentsParsing: false,
 		DisableQueryExamples:   false,
 		MaxQueryLogSize:        10 * 1024 * 1024,
-		Tls:                    true,
-		TlsSkipVerify:          true,
-		ServiceId:              "svc-1",
-		ServiceName:            "service-1",
+		TextFiles: &agentv1.TextFiles{
+			Files: map[string]string{
+				"/etc/agent/config.yaml": "agent_config: value\npassword: mysql://admin-user:admin-passwd@localhost:3306/admin?param=value",
+			},
+			TemplateLeftDelim:  "{{",
+			TemplateRightDelim: "}}",
+		},
+		Tls:           true,
+		TlsSkipVerify: true,
+		ServiceId:     "svc-1",
+		ServiceName:   "service-1",
 		RtaOptions: &inventoryv1.RTAOptions{
 			CollectInterval: durationpb.New(15 * time.Second),
 		},
@@ -134,11 +141,11 @@ func getSensitiveMessage(t *testing.T) []proto.Message {
 			"postgres://***REDACTED***:***REDACTED***@localhost:5432/dbname?param=value",
 		},
 		TextFiles: map[string]string{
-			"/etc/agent/config.yaml": "agent_config: value\npassword: mysql://admin-user:admin-passwd@localhost:3306/admin?param=value",
+			"/etc/agent/config.yaml": "ag***REDACTED***ue",
 		},
 		RedactWords: []string{
-			"mysql://admin-user:admin-passwd@localhost:3306/admin?param=value",
-			"postgres://user:password@localhost:5432/dbname?param=value",
+			"my***REDACTED***ue",
+			"po***REDACTED***ue",
 		},
 		EnvVariableNames: []string{
 			"ENV_VAR1",
@@ -158,10 +165,17 @@ func getSensitiveMessage(t *testing.T) []proto.Message {
 		DisableCommentsParsing: false,
 		DisableQueryExamples:   false,
 		MaxQueryLogSize:        10 * 1024 * 1024,
-		Tls:                    true,
-		TlsSkipVerify:          true,
-		ServiceId:              "svc-1",
-		ServiceName:            "service-1",
+		TextFiles: &agentv1.TextFiles{
+			Files: map[string]string{
+				"/etc/agent/config.yaml": "ag***REDACTED***ue",
+			},
+			TemplateLeftDelim:  "{{",
+			TemplateRightDelim: "}}",
+		},
+		Tls:           true,
+		TlsSkipVerify: true,
+		ServiceId:     "svc-1",
+		ServiceName:   "service-1",
 		RtaOptions: &inventoryv1.RTAOptions{
 			CollectInterval: durationpb.New(15 * time.Second),
 		},
@@ -175,6 +189,99 @@ func getSensitiveMessage(t *testing.T) []proto.Message {
 		},
 	}
 	return []proto.Message{msgOrig, msgRedacted}
+}
+
+func getStartActionRequestPtpgSummaryParams(t *testing.T) []proto.Message {
+	t.Helper()
+
+	startActionOrig := &agentv1.StartActionRequest{
+		ActionId: "action-1",
+		Timeout:  durationpb.New(30 * time.Second),
+		Params: &agentv1.StartActionRequest_PtPgSummaryParams{
+			PtPgSummaryParams: &agentv1.StartActionRequest_PTPgSummaryParams{
+				Host:     "localhost",
+				Port:     5432,
+				Username: "test-user",
+				Password: "test-password",
+			},
+		},
+	}
+
+	startActionRedacted := &agentv1.StartActionRequest{
+		ActionId: "action-1",
+		Timeout:  durationpb.New(30 * time.Second),
+		Params: &agentv1.StartActionRequest_PtPgSummaryParams{
+			PtPgSummaryParams: &agentv1.StartActionRequest_PTPgSummaryParams{
+				Host:     "localhost",
+				Port:     5432,
+				Username: maskedString,
+				Password: maskedString,
+			},
+		},
+	}
+	return []proto.Message{startActionOrig, startActionRedacted}
+}
+
+func getStartActionRequestPTMongoDBSummaryParams(t *testing.T) []proto.Message {
+	t.Helper()
+
+	startActionOrig := &agentv1.StartActionRequest{
+		ActionId: "action-1",
+		Timeout:  durationpb.New(30 * time.Second),
+		Params: &agentv1.StartActionRequest_PtMongodbSummaryParams{
+			PtMongodbSummaryParams: &agentv1.StartActionRequest_PTMongoDBSummaryParams{
+				Host:     "localhost",
+				Port:     5432,
+				Username: "test-user",
+				Password: "test-password",
+			},
+		},
+	}
+
+	startActionRedacted := &agentv1.StartActionRequest{
+		ActionId: "action-1",
+		Timeout:  durationpb.New(30 * time.Second),
+		Params: &agentv1.StartActionRequest_PtMongodbSummaryParams{
+			PtMongodbSummaryParams: &agentv1.StartActionRequest_PTMongoDBSummaryParams{
+				Host:     "localhost",
+				Port:     5432,
+				Username: maskedString,
+				Password: maskedString,
+			},
+		},
+	}
+	return []proto.Message{startActionOrig, startActionRedacted}
+}
+
+func getStartActionRequestPTMySQLSummaryParams(t *testing.T) []proto.Message {
+	t.Helper()
+
+	startActionOrig := &agentv1.StartActionRequest{
+		ActionId: "action-1",
+		Timeout:  durationpb.New(30 * time.Second),
+		Params: &agentv1.StartActionRequest_PtMysqlSummaryParams{
+			PtMysqlSummaryParams: &agentv1.StartActionRequest_PTMySQLSummaryParams{
+				Host:     "localhost",
+				Port:     5432,
+				Username: "test-user",
+				Password: "test-password",
+			},
+		},
+	}
+
+	startActionRedacted := &agentv1.StartActionRequest{
+		ActionId: "action-1",
+		Timeout:  durationpb.New(30 * time.Second),
+		Params: &agentv1.StartActionRequest_PtMysqlSummaryParams{
+			PtMysqlSummaryParams: &agentv1.StartActionRequest_PTMySQLSummaryParams{
+				Host:     "localhost",
+				Port:     5432,
+				Username: maskedString,
+				Password: maskedString,
+			},
+		},
+	}
+	return []proto.Message{startActionOrig, startActionRedacted}
 }
 
 func TestRedactMessage(t *testing.T) {
@@ -196,8 +303,23 @@ func TestRedactMessage(t *testing.T) {
 		},
 		{
 			name:  "sensitive message",
-			input: getSensitiveMessage(t)[0],
-			want:  getSensitiveMessage(t)[1],
+			input: getSetStateRequestMessage(t)[0],
+			want:  getSetStateRequestMessage(t)[1],
+		},
+		{
+			name:  "StartActionRequest_PTPgSummaryParams message with sensitive data",
+			input: getStartActionRequestPtpgSummaryParams(t)[0],
+			want:  getStartActionRequestPtpgSummaryParams(t)[1],
+		},
+		{
+			name:  "StartActionRequest_PTMongoDBSummaryParams message with sensitive data",
+			input: getStartActionRequestPTMongoDBSummaryParams(t)[0],
+			want:  getStartActionRequestPTMongoDBSummaryParams(t)[1],
+		},
+		{
+			name:  "StartActionRequest_PTMySQLSummaryParams message with sensitive data",
+			input: getStartActionRequestPTMySQLSummaryParams(t)[0],
+			want:  getStartActionRequestPTMySQLSummaryParams(t)[1],
 		},
 	}
 	for _, tt := range tests {
@@ -265,6 +387,11 @@ func Test_maskDSN(t *testing.T) {
 			want:  "mysql://***REDACTED***:***REDACTED***@localhost:3306/dbname?param=value",
 		},
 		{
+			name:  "MongoDB DSN",
+			input: "mongodb://user:password@host.docker.internal:27017/?connectTimeoutMS=2000&direct",
+			want:  "mongodb://***REDACTED***:***REDACTED***@host.docker.internal:27017/?connectTimeoutMS=2000&direct",
+		},
+		{
 			name:  "DSN without credentials",
 			input: "postgres://localhost:5432/dbname?param=value",
 			want:  "postgres://localhost:5432/dbname?param=value",
@@ -283,7 +410,7 @@ func Test_maskDSN(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tt.want, maskDSN(tt.input), "maskDSN() should return the expected redacted DSN")
+			assert.Equal(t, tt.want, MaskDSN(tt.input), "maskDSN() should return the expected redacted DSN")
 		})
 	}
 }

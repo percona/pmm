@@ -174,7 +174,7 @@ func RedactString(s string, rt extensionsv1.RedactType) string {
 	case extensionsv1.RedactType_REDACT_TYPE_MASK:
 		return maskString(s)
 	case extensionsv1.RedactType_REDACT_TYPE_DSN:
-		return maskDSN(s)
+		return MaskDSN(s)
 	default:
 		return s
 	}
@@ -192,7 +192,8 @@ func maskString(s string) string {
 	}
 }
 
-func maskDSN(s string) string {
+// MaskDSN returns a masked copy of DSN string, which masks username and password in DSN.
+func MaskDSN(s string) string {
 	at := strings.IndexByte(s, '@')
 	if at <= 0 {
 		return s

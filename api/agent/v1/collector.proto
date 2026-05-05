@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package agent.v1;
 
+import "extensions/v1/redact.proto";
 import "inventory/v1/agents.proto";
 
 // ExampleType is a type of query example selected for this query class in given period of time.
@@ -40,7 +41,7 @@ message MetricsBucket {
     // Tables or Collections list.
     repeated string tables = 5;
     // client user name.
-    string username = 6;
+    string username = 6 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
     // client IP or hostname.
     string client_host = 7;
     // Identifier of agent that collect and send metrics.

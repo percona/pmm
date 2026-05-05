@@ -10844,21 +10844,21 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x13metrics_resolutions\x18\x0f \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x8a\t\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xa2\t\n" +
 	"\x0eMySQLdExporter\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
 	"pmmAgentId\x12\x1a\n" +
 	"\bdisabled\x18\x03 \x01(\bR\bdisabled\x12\x1d\n" +
 	"\n" +
-	"service_id\x18\x04 \x01(\tR\tserviceId\x12\x1a\n" +
-	"\busername\x18\x05 \x01(\tR\busername\x12\x10\n" +
+	"service_id\x18\x04 \x01(\tR\tserviceId\x12 \n" +
+	"\busername\x18\x05 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12\x10\n" +
 	"\x03tls\x18\x06 \x01(\bR\x03tls\x12&\n" +
-	"\x0ftls_skip_verify\x18\a \x01(\bR\rtlsSkipVerify\x12\x15\n" +
-	"\x06tls_ca\x18\b \x01(\tR\x05tlsCa\x12\x19\n" +
-	"\btls_cert\x18\t \x01(\tR\atlsCert\x12\x17\n" +
+	"\x0ftls_skip_verify\x18\a \x01(\bR\rtlsSkipVerify\x12\x1b\n" +
+	"\x06tls_ca\x18\b \x01(\tB\x04\x88\xb5\x18\x02R\x05tlsCa\x12\x1f\n" +
+	"\btls_cert\x18\t \x01(\tB\x04\x88\xb5\x18\x02R\atlsCert\x12\x1d\n" +
 	"\atls_key\x18\n" +
-	" \x01(\tR\x06tlsKey\x12?\n" +
+	" \x01(\tB\x04\x88\xb5\x18\x01R\x06tlsKey\x12?\n" +
 	"\x1ctablestats_group_table_limit\x18\v \x01(\x05R\x19tablestatsGroupTableLimit\x12S\n" +
 	"\rcustom_labels\x18\f \x03(\v2..inventory.v1.MySQLdExporter.CustomLabelsEntryR\fcustomLabels\x120\n" +
 	"\x14push_metrics_enabled\x18\r \x01(\bR\x12pushMetricsEnabled\x12/\n" +
