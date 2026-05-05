@@ -120,7 +120,7 @@ func TestCheckUpdates(t *testing.T) {
 	})
 
 	t.Run("forced with updates disabled", func(t *testing.T) {
-		defer restoreSettingsDefaults(t)
+		defer RestoreSettingsDefaults(t)
 		settingsRes, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 			Body: server.ChangeSettingsBody{
 				EnableUpdates: pointer.ToBool(false),
@@ -167,7 +167,7 @@ func TestListUpdates(t *testing.T) {
 	}
 
 	t.Run("with updates disabled", func(t *testing.T) {
-		defer restoreSettingsDefaults(t)
+		defer RestoreSettingsDefaults(t)
 		settingsRes, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 			Body: server.ChangeSettingsBody{
 				EnableUpdates: pointer.ToBool(false),
@@ -214,7 +214,7 @@ func TestUpdate(t *testing.T) {
 	pmmapitests.AssertAPIErrorf(t, err, 401, codes.Unauthenticated, "Unauthorized")
 
 	t.Run("with PMM updates disabled", func(t *testing.T) {
-		defer restoreSettingsDefaults(t)
+		defer RestoreSettingsDefaults(t)
 		settingsRes, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 			Body: server.ChangeSettingsBody{
 				EnableUpdates: pointer.ToBool(false),
