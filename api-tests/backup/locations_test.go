@@ -48,7 +48,9 @@ func TestAddLocation(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
-		defer deleteLocation(t, client, resp.Payload.LocationID)
+		t.Cleanup(func() {
+			deleteLocation(t, client, resp.Payload.LocationID)
+		})
 
 		assert.NotEmpty(t, resp.Payload.LocationID)
 	})
@@ -73,7 +75,9 @@ func TestAddLocation(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
-		defer deleteLocation(t, client, resp.Payload.LocationID)
+		t.Cleanup(func() {
+			deleteLocation(t, client, resp.Payload.LocationID)
+		})
 
 		assert.NotEmpty(t, resp.Payload.LocationID)
 	})
@@ -209,7 +213,9 @@ func TestListLocations(t *testing.T) {
 		Context: pmmapitests.Context,
 	})
 	require.NoError(t, err)
-	defer deleteLocation(t, client, addResp.Payload.LocationID)
+	t.Cleanup(func() {
+		deleteLocation(t, client, addResp.Payload.LocationID)
+	})
 
 	resp, err := client.ListLocations(&locations.ListLocationsParams{Context: pmmapitests.Context})
 	require.NoError(t, err)
@@ -280,7 +286,9 @@ func TestChangeLocation(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
-		defer deleteLocation(t, client, resp.Payload.LocationID)
+		t.Cleanup(func() {
+			deleteLocation(t, client, resp.Payload.LocationID)
+		})
 
 		updateBody := locations.ChangeLocationBody{
 			Name: gofakeit.Name(),
@@ -316,7 +324,9 @@ func TestChangeLocation(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
-		defer deleteLocation(t, client, resp.Payload.LocationID)
+		t.Cleanup(func() {
+			deleteLocation(t, client, resp.Payload.LocationID)
+		})
 
 		updateBody := locations.ChangeLocationBody{
 			Name: gofakeit.Name(),
@@ -364,7 +374,9 @@ func TestChangeLocation(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
-		defer deleteLocation(t, client, resp.Payload.LocationID)
+		t.Cleanup(func() {
+			deleteLocation(t, client, resp.Payload.LocationID)
+		})
 
 		updateBody := locations.ChangeLocationBody{
 			Name: gofakeit.Name(),
@@ -403,7 +415,9 @@ func TestChangeLocation(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
-		defer deleteLocation(t, client, resp1.Payload.LocationID)
+		t.Cleanup(func() {
+			deleteLocation(t, client, resp1.Payload.LocationID)
+		})
 
 		addReqBody2 := locations.AddLocationBody{
 			Name:        gofakeit.Name(),
@@ -417,7 +431,9 @@ func TestChangeLocation(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
-		defer deleteLocation(t, client, resp2.Payload.LocationID)
+		t.Cleanup(func() {
+			deleteLocation(t, client, resp2.Payload.LocationID)
+		})
 
 		updateBody := locations.ChangeLocationBody{
 			Name: addReqBody1.Name,
@@ -449,6 +465,9 @@ func TestRemoveLocation(t *testing.T) {
 		Context: pmmapitests.Context,
 	})
 	require.NoError(t, err)
+	t.Cleanup(func() {
+		deleteLocation(t, client, resp.Payload.LocationID)
+	})
 
 	_, err = client.RemoveLocation(&locations.RemoveLocationParams{
 		LocationID: resp.Payload.LocationID,
@@ -567,10 +586,9 @@ func TestLocationConfigValidation(t *testing.T) {
 
 func deleteLocation(t *testing.T, client locations.ClientService, id string) {
 	t.Helper()
-	_, err := client.RemoveLocation(&locations.RemoveLocationParams{
+	_, _ = client.RemoveLocation(&locations.RemoveLocationParams{
 		LocationID: id,
 		Force:      pointer.ToBool(false),
 		Context:    pmmapitests.Context,
 	})
-	assert.NoError(t, err)
 }

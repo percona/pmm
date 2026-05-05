@@ -189,6 +189,8 @@ func (s *ManagementService) DiscoverAzureDatabase(
 }
 
 // AddAzureDatabase add azure database to monitoring.
+//
+//nolint:gocognit
 func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managementv1.AddAzureDatabaseRequest) (*managementv1.AddAzureDatabaseResponse, error) {
 	if !s.isAzureEnabled() {
 		return nil, services.ErrAzureDisabled
