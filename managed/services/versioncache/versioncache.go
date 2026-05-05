@@ -78,7 +78,8 @@ func (s *Service) findServiceForUpdate() (*service, error) {
 		servicesVersions, err := models.FindServicesSoftwareVersions(
 			tx.Querier,
 			filter,
-			models.SoftwareVersionsOrderByNextCheckAt)
+			models.SoftwareVersionsOrderByNextCheckAt,
+		)
 		if err != nil {
 			return err
 		}
@@ -127,7 +128,8 @@ func (s *Service) findServiceForUpdate() (*service, error) {
 		nextCheckAt := time.Now().UTC().Add(serviceCheckShortInterval)
 		if _, err := models.UpdateServiceSoftwareVersions(
 			tx.Querier, servicesVersions[0].ServiceID,
-			models.UpdateServiceSoftwareVersionsParams{NextCheckAt: &nextCheckAt}); err != nil {
+			models.UpdateServiceSoftwareVersionsParams{NextCheckAt: &nextCheckAt},
+		); err != nil {
 			return err
 		}
 
@@ -184,7 +186,8 @@ func (s *Service) updateVersionsForNextService() (time.Duration, error) {
 	}
 
 	nextCheckAt := time.Now().UTC().Add(serviceCheckInterval)
-	if _, err := models.UpdateServiceSoftwareVersions(s.db.Querier, serviceForUpdate.ServiceID,
+	if _, err := models.UpdateServiceSoftwareVersions(
+		s.db.Querier, serviceForUpdate.ServiceID,
 		models.UpdateServiceSoftwareVersionsParams{
 			NextCheckAt:      &nextCheckAt,
 			SoftwareVersions: svs,

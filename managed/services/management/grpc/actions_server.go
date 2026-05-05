@@ -618,7 +618,7 @@ func (s *actionsServer) CancelAction(ctx context.Context, req *actionsv1.CancelA
 		return nil, err
 	}
 
-	err = s.a.StopAction(ctx, ar.ID)
+	err = s.a.StopAction(ctx, ar.PMMAgentID, ar.ID)
 	if err != nil {
 		return nil, err
 	}
