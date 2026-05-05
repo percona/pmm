@@ -69,7 +69,7 @@ type PerformBackupParams struct {
 }
 
 // PerformBackup starts on-demand backup.
-func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams) (string, error) { //nolint:cyclop
+func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams) (string, error) { //nolint:gocognit,cyclop
 	dbVersion, err := s.compatibilityService.CheckSoftwareCompatibilityForService(ctx, params.ServiceID)
 	if err != nil {
 		return "", err
