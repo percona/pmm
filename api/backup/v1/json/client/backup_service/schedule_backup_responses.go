@@ -105,6 +105,7 @@ func (o *ScheduleBackupOK) GetPayload() *ScheduleBackupOKBody {
 }
 
 func (o *ScheduleBackupOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ScheduleBackupOKBody)
 
 	// response payload
@@ -178,6 +179,7 @@ func (o *ScheduleBackupDefault) GetPayload() *ScheduleBackupDefaultBody {
 }
 
 func (o *ScheduleBackupDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ScheduleBackupDefaultBody)
 
 	// response payload
@@ -193,6 +195,7 @@ ScheduleBackupBody schedule backup body
 swagger:model ScheduleBackupBody
 */
 type ScheduleBackupBody struct {
+
 	// Service identifier where backup should be performed.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -392,6 +395,7 @@ ScheduleBackupDefaultBody schedule backup default body
 swagger:model ScheduleBackupDefaultBody
 */
 type ScheduleBackupDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -461,7 +465,9 @@ func (o *ScheduleBackupDefaultBody) ContextValidate(ctx context.Context, formats
 }
 
 func (o *ScheduleBackupDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -481,6 +487,7 @@ func (o *ScheduleBackupDefaultBody) contextValidateDetails(ctx context.Context, 
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -509,6 +516,7 @@ ScheduleBackupDefaultBodyDetailsItems0 schedule backup default body details item
 swagger:model ScheduleBackupDefaultBodyDetailsItems0
 */
 type ScheduleBackupDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -520,6 +528,7 @@ type ScheduleBackupDefaultBodyDetailsItems0 struct {
 func (o *ScheduleBackupDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -557,6 +566,7 @@ func (o *ScheduleBackupDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) erro
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o ScheduleBackupDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -620,6 +630,7 @@ ScheduleBackupOKBody schedule backup OK body
 swagger:model ScheduleBackupOKBody
 */
 type ScheduleBackupOKBody struct {
+
 	// scheduled backup id
 	ScheduledBackupID string `json:"scheduled_backup_id,omitempty"`
 }

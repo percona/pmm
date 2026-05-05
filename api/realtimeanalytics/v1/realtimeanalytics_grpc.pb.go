@@ -8,7 +8,6 @@ package realtimeanalyticsv1
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -132,23 +131,18 @@ type UnimplementedRealtimeAnalyticsServiceServer struct{}
 func (UnimplementedRealtimeAnalyticsServiceServer) ListServices(context.Context, *ListServicesRequest) (*ListServicesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListServices not implemented")
 }
-
 func (UnimplementedRealtimeAnalyticsServiceServer) ListSessions(context.Context, *ListSessionsRequest) (*ListSessionsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListSessions not implemented")
 }
-
 func (UnimplementedRealtimeAnalyticsServiceServer) StartSession(context.Context, *StartSessionRequest) (*StartSessionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method StartSession not implemented")
 }
-
 func (UnimplementedRealtimeAnalyticsServiceServer) StopSession(context.Context, *StopSessionRequest) (*StopSessionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method StopSession not implemented")
 }
-
 func (UnimplementedRealtimeAnalyticsServiceServer) SearchQueries(context.Context, *SearchQueriesRequest) (*SearchQueriesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method SearchQueries not implemented")
 }
-
 func (UnimplementedRealtimeAnalyticsServiceServer) mustEmbedUnimplementedRealtimeAnalyticsServiceServer() {
 }
 func (UnimplementedRealtimeAnalyticsServiceServer) testEmbeddedByValue() {}

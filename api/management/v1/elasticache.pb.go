@@ -7,16 +7,14 @@
 package managementv1
 
 import (
+	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	_ "github.com/percona/pmm/api/extensions/v1"
+	v1 "github.com/percona/pmm/api/inventory/v1"
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
-
-	_ "github.com/envoyproxy/protoc-gen-validate/validate"
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-
-	_ "github.com/percona/pmm/api/extensions/v1"
-	v1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 const (
@@ -661,24 +659,21 @@ func file_management_v1_elasticache_proto_rawDescGZIP() []byte {
 	return file_management_v1_elasticache_proto_rawDescData
 }
 
-var (
-	file_management_v1_elasticache_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_management_v1_elasticache_proto_msgTypes  = make([]protoimpl.MessageInfo, 6)
-	file_management_v1_elasticache_proto_goTypes   = []any{
-		(DiscoverElastiCacheEngine)(0),      // 0: management.v1.DiscoverElastiCacheEngine
-		(*DiscoverElastiCacheInstance)(nil), // 1: management.v1.DiscoverElastiCacheInstance
-		(*DiscoverElastiCacheRequest)(nil),  // 2: management.v1.DiscoverElastiCacheRequest
-		(*DiscoverElastiCacheResponse)(nil), // 3: management.v1.DiscoverElastiCacheResponse
-		(*AddElastiCacheServiceParams)(nil), // 4: management.v1.AddElastiCacheServiceParams
-		(*ElastiCacheServiceResult)(nil),    // 5: management.v1.ElastiCacheServiceResult
-		nil,                                 // 6: management.v1.AddElastiCacheServiceParams.CustomLabelsEntry
-		(MetricsMode)(0),                    // 7: management.v1.MetricsMode
-		(*v1.RemoteElastiCacheNode)(nil),    // 8: inventory.v1.RemoteElastiCacheNode
-		(*v1.ValkeyService)(nil),            // 9: inventory.v1.ValkeyService
-		(*v1.ValkeyExporter)(nil),           // 10: inventory.v1.ValkeyExporter
-	}
-)
-
+var file_management_v1_elasticache_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_management_v1_elasticache_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_management_v1_elasticache_proto_goTypes = []any{
+	(DiscoverElastiCacheEngine)(0),      // 0: management.v1.DiscoverElastiCacheEngine
+	(*DiscoverElastiCacheInstance)(nil), // 1: management.v1.DiscoverElastiCacheInstance
+	(*DiscoverElastiCacheRequest)(nil),  // 2: management.v1.DiscoverElastiCacheRequest
+	(*DiscoverElastiCacheResponse)(nil), // 3: management.v1.DiscoverElastiCacheResponse
+	(*AddElastiCacheServiceParams)(nil), // 4: management.v1.AddElastiCacheServiceParams
+	(*ElastiCacheServiceResult)(nil),    // 5: management.v1.ElastiCacheServiceResult
+	nil,                                 // 6: management.v1.AddElastiCacheServiceParams.CustomLabelsEntry
+	(MetricsMode)(0),                    // 7: management.v1.MetricsMode
+	(*v1.RemoteElastiCacheNode)(nil),    // 8: inventory.v1.RemoteElastiCacheNode
+	(*v1.ValkeyService)(nil),            // 9: inventory.v1.ValkeyService
+	(*v1.ValkeyExporter)(nil),           // 10: inventory.v1.ValkeyExporter
+}
 var file_management_v1_elasticache_proto_depIdxs = []int32{
 	0,  // 0: management.v1.DiscoverElastiCacheInstance.engine:type_name -> management.v1.DiscoverElastiCacheEngine
 	1,  // 1: management.v1.DiscoverElastiCacheResponse.elasticache_instances:type_name -> management.v1.DiscoverElastiCacheInstance

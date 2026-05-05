@@ -104,6 +104,7 @@ func (o *ListFailedServicesOK) GetPayload() *ListFailedServicesOKBody {
 }
 
 func (o *ListFailedServicesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListFailedServicesOKBody)
 
 	// response payload
@@ -177,6 +178,7 @@ func (o *ListFailedServicesDefault) GetPayload() *ListFailedServicesDefaultBody 
 }
 
 func (o *ListFailedServicesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListFailedServicesDefaultBody)
 
 	// response payload
@@ -192,6 +194,7 @@ ListFailedServicesDefaultBody list failed services default body
 swagger:model ListFailedServicesDefaultBody
 */
 type ListFailedServicesDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -261,7 +264,9 @@ func (o *ListFailedServicesDefaultBody) ContextValidate(ctx context.Context, for
 }
 
 func (o *ListFailedServicesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -281,6 +286,7 @@ func (o *ListFailedServicesDefaultBody) contextValidateDetails(ctx context.Conte
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -309,6 +315,7 @@ ListFailedServicesDefaultBodyDetailsItems0 list failed services default body det
 swagger:model ListFailedServicesDefaultBodyDetailsItems0
 */
 type ListFailedServicesDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -320,6 +327,7 @@ type ListFailedServicesDefaultBodyDetailsItems0 struct {
 func (o *ListFailedServicesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -357,6 +365,7 @@ func (o *ListFailedServicesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) 
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o ListFailedServicesDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -420,6 +429,7 @@ ListFailedServicesOKBody list failed services OK body
 swagger:model ListFailedServicesOKBody
 */
 type ListFailedServicesOKBody struct {
+
 	// result
 	Result []*ListFailedServicesOKBodyResultItems0 `json:"result"`
 }
@@ -483,7 +493,9 @@ func (o *ListFailedServicesOKBody) ContextValidate(ctx context.Context, formats 
 }
 
 func (o *ListFailedServicesOKBody) contextValidateResult(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Result); i++ {
+
 		if o.Result[i] != nil {
 
 			if swag.IsZero(o.Result[i]) { // not required
@@ -503,6 +515,7 @@ func (o *ListFailedServicesOKBody) contextValidateResult(ctx context.Context, fo
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -531,6 +544,7 @@ ListFailedServicesOKBodyResultItems0 CheckResultSummary is a summary of check re
 swagger:model ListFailedServicesOKBodyResultItems0
 */
 type ListFailedServicesOKBodyResultItems0 struct {
+
 	// service name
 	ServiceName string `json:"service_name,omitempty"`
 

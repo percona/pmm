@@ -60,6 +60,7 @@ ListAgentsParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type ListAgentsParams struct {
+
 	/* AgentType.
 
 	   Return only agents of a particular type.
@@ -106,7 +107,9 @@ func (o *ListAgentsParams) WithDefaults() *ListAgentsParams {
 //
 // All values with no default are reset to their zero value.
 func (o *ListAgentsParams) SetDefaults() {
-	agentTypeDefault := string("AGENT_TYPE_UNSPECIFIED")
+	var (
+		agentTypeDefault = string("AGENT_TYPE_UNSPECIFIED")
+	)
 
 	val := ListAgentsParams{
 		AgentType: &agentTypeDefault,
@@ -197,6 +200,7 @@ func (o *ListAgentsParams) SetServiceID(serviceID *string) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *ListAgentsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}
@@ -212,6 +216,7 @@ func (o *ListAgentsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Re
 		}
 		qAgentType := qrAgentType
 		if qAgentType != "" {
+
 			if err := r.SetQueryParam("agent_type", qAgentType); err != nil {
 				return err
 			}
@@ -228,6 +233,7 @@ func (o *ListAgentsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Re
 		}
 		qNodeID := qrNodeID
 		if qNodeID != "" {
+
 			if err := r.SetQueryParam("node_id", qNodeID); err != nil {
 				return err
 			}
@@ -244,6 +250,7 @@ func (o *ListAgentsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Re
 		}
 		qPMMAgentID := qrPMMAgentID
 		if qPMMAgentID != "" {
+
 			if err := r.SetQueryParam("pmm_agent_id", qPMMAgentID); err != nil {
 				return err
 			}
@@ -260,6 +267,7 @@ func (o *ListAgentsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Re
 		}
 		qServiceID := qrServiceID
 		if qServiceID != "" {
+
 			if err := r.SetQueryParam("service_id", qServiceID); err != nil {
 				return err
 			}

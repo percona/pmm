@@ -61,6 +61,7 @@ CheckUpdatesParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type CheckUpdatesParams struct {
+
 	/* Force.
 
 	   If false, cached information may be returned.
@@ -150,6 +151,7 @@ func (o *CheckUpdatesParams) SetOnlyInstalledVersion(onlyInstalledVersion *bool)
 
 // WriteToRequest writes these params to a swagger request
 func (o *CheckUpdatesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}
@@ -165,6 +167,7 @@ func (o *CheckUpdatesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.
 		}
 		qForce := swag.FormatBool(qrForce)
 		if qForce != "" {
+
 			if err := r.SetQueryParam("force", qForce); err != nil {
 				return err
 			}
@@ -181,6 +184,7 @@ func (o *CheckUpdatesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.
 		}
 		qOnlyInstalledVersion := swag.FormatBool(qrOnlyInstalledVersion)
 		if qOnlyInstalledVersion != "" {
+
 			if err := r.SetQueryParam("only_installed_version", qOnlyInstalledVersion); err != nil {
 				return err
 			}

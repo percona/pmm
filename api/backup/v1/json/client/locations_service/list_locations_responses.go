@@ -104,6 +104,7 @@ func (o *ListLocationsOK) GetPayload() *ListLocationsOKBody {
 }
 
 func (o *ListLocationsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListLocationsOKBody)
 
 	// response payload
@@ -177,6 +178,7 @@ func (o *ListLocationsDefault) GetPayload() *ListLocationsDefaultBody {
 }
 
 func (o *ListLocationsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListLocationsDefaultBody)
 
 	// response payload
@@ -192,6 +194,7 @@ ListLocationsDefaultBody list locations default body
 swagger:model ListLocationsDefaultBody
 */
 type ListLocationsDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -261,7 +264,9 @@ func (o *ListLocationsDefaultBody) ContextValidate(ctx context.Context, formats 
 }
 
 func (o *ListLocationsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -281,6 +286,7 @@ func (o *ListLocationsDefaultBody) contextValidateDetails(ctx context.Context, f
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -309,6 +315,7 @@ ListLocationsDefaultBodyDetailsItems0 list locations default body details items0
 swagger:model ListLocationsDefaultBodyDetailsItems0
 */
 type ListLocationsDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -320,6 +327,7 @@ type ListLocationsDefaultBodyDetailsItems0 struct {
 func (o *ListLocationsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -357,6 +365,7 @@ func (o *ListLocationsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o ListLocationsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -420,6 +429,7 @@ ListLocationsOKBody list locations OK body
 swagger:model ListLocationsOKBody
 */
 type ListLocationsOKBody struct {
+
 	// locations
 	Locations []*ListLocationsOKBodyLocationsItems0 `json:"locations"`
 }
@@ -483,7 +493,9 @@ func (o *ListLocationsOKBody) ContextValidate(ctx context.Context, formats strfm
 }
 
 func (o *ListLocationsOKBody) contextValidateLocations(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Locations); i++ {
+
 		if o.Locations[i] != nil {
 
 			if swag.IsZero(o.Locations[i]) { // not required
@@ -503,6 +515,7 @@ func (o *ListLocationsOKBody) contextValidateLocations(ctx context.Context, form
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -531,6 +544,7 @@ ListLocationsOKBodyLocationsItems0 Location represents single Backup Location.
 swagger:model ListLocationsOKBodyLocationsItems0
 */
 type ListLocationsOKBodyLocationsItems0 struct {
+
 	// Machine-readable ID.
 	LocationID string `json:"location_id,omitempty"`
 
@@ -630,6 +644,7 @@ func (o *ListLocationsOKBodyLocationsItems0) ContextValidate(ctx context.Context
 }
 
 func (o *ListLocationsOKBodyLocationsItems0) contextValidateFilesystemConfig(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.FilesystemConfig != nil {
 
 		if swag.IsZero(o.FilesystemConfig) { // not required
@@ -654,6 +669,7 @@ func (o *ListLocationsOKBodyLocationsItems0) contextValidateFilesystemConfig(ctx
 }
 
 func (o *ListLocationsOKBodyLocationsItems0) contextValidateS3Config(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.S3Config != nil {
 
 		if swag.IsZero(o.S3Config) { // not required
@@ -700,6 +716,7 @@ ListLocationsOKBodyLocationsItems0FilesystemConfig FilesystemLocationConfig repr
 swagger:model ListLocationsOKBodyLocationsItems0FilesystemConfig
 */
 type ListLocationsOKBodyLocationsItems0FilesystemConfig struct {
+
 	// path
 	Path string `json:"path,omitempty"`
 }
@@ -737,6 +754,7 @@ ListLocationsOKBodyLocationsItems0S3Config S3LocationConfig represents S3 bucket
 swagger:model ListLocationsOKBodyLocationsItems0S3Config
 */
 type ListLocationsOKBodyLocationsItems0S3Config struct {
+
 	// endpoint
 	Endpoint string `json:"endpoint,omitempty"`
 

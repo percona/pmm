@@ -7,16 +7,14 @@
 package managementv1
 
 import (
+	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	_ "github.com/percona/pmm/api/extensions/v1"
+	v1 "github.com/percona/pmm/api/inventory/v1"
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
-
-	_ "github.com/envoyproxy/protoc-gen-validate/validate"
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-
-	_ "github.com/percona/pmm/api/extensions/v1"
-	v1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 const (
@@ -392,20 +390,17 @@ func file_management_v1_valkey_proto_rawDescGZIP() []byte {
 	return file_management_v1_valkey_proto_rawDescData
 }
 
-var (
-	file_management_v1_valkey_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-	file_management_v1_valkey_proto_goTypes  = []any{
-		(*AddValkeyServiceParams)(nil), // 0: management.v1.AddValkeyServiceParams
-		(*ValkeyServiceResult)(nil),    // 1: management.v1.ValkeyServiceResult
-		nil,                            // 2: management.v1.AddValkeyServiceParams.CustomLabelsEntry
-		(*AddNodeParams)(nil),          // 3: management.v1.AddNodeParams
-		MetricsMode(0),                 // 4: management.v1.MetricsMode
-		v1.LogLevel(0),                 // 5: inventory.v1.LogLevel
-		(*v1.ValkeyService)(nil),       // 6: inventory.v1.ValkeyService
-		(*v1.ValkeyExporter)(nil),      // 7: inventory.v1.ValkeyExporter
-	}
-)
-
+var file_management_v1_valkey_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_management_v1_valkey_proto_goTypes = []any{
+	(*AddValkeyServiceParams)(nil), // 0: management.v1.AddValkeyServiceParams
+	(*ValkeyServiceResult)(nil),    // 1: management.v1.ValkeyServiceResult
+	nil,                            // 2: management.v1.AddValkeyServiceParams.CustomLabelsEntry
+	(*AddNodeParams)(nil),          // 3: management.v1.AddNodeParams
+	(MetricsMode)(0),               // 4: management.v1.MetricsMode
+	(v1.LogLevel)(0),               // 5: inventory.v1.LogLevel
+	(*v1.ValkeyService)(nil),       // 6: inventory.v1.ValkeyService
+	(*v1.ValkeyExporter)(nil),      // 7: inventory.v1.ValkeyExporter
+}
 var file_management_v1_valkey_proto_depIdxs = []int32{
 	3, // 0: management.v1.AddValkeyServiceParams.add_node:type_name -> management.v1.AddNodeParams
 	2, // 1: management.v1.AddValkeyServiceParams.custom_labels:type_name -> management.v1.AddValkeyServiceParams.CustomLabelsEntry

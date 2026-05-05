@@ -121,8 +121,7 @@ func (e StringArrayValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StringArrayValidationError{}
@@ -223,8 +222,7 @@ func (e StringMapValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StringMapValidationError{}

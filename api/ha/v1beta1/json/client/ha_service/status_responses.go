@@ -104,6 +104,7 @@ func (o *StatusOK) GetPayload() *StatusOKBody {
 }
 
 func (o *StatusOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(StatusOKBody)
 
 	// response payload
@@ -177,6 +178,7 @@ func (o *StatusDefault) GetPayload() *StatusDefaultBody {
 }
 
 func (o *StatusDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(StatusDefaultBody)
 
 	// response payload
@@ -192,6 +194,7 @@ StatusDefaultBody status default body
 swagger:model StatusDefaultBody
 */
 type StatusDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -261,7 +264,9 @@ func (o *StatusDefaultBody) ContextValidate(ctx context.Context, formats strfmt.
 }
 
 func (o *StatusDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -281,6 +286,7 @@ func (o *StatusDefaultBody) contextValidateDetails(ctx context.Context, formats 
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -309,6 +315,7 @@ StatusDefaultBodyDetailsItems0 status default body details items0
 swagger:model StatusDefaultBodyDetailsItems0
 */
 type StatusDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -320,6 +327,7 @@ type StatusDefaultBodyDetailsItems0 struct {
 func (o *StatusDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -357,6 +365,7 @@ func (o *StatusDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o StatusDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -420,6 +429,7 @@ StatusOKBody status OK body
 swagger:model StatusOKBody
 */
 type StatusOKBody struct {
+
 	// Status of HA mode: "Enabled" or "Disabled".
 	Status string `json:"status,omitempty"`
 }
