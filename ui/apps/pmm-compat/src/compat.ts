@@ -49,6 +49,19 @@ export const initialize = () => {
     return;
   }
 
+  // Collapse Grafana docked nav via localStorage before the shell reads it on boot. If keys were
+  // missing or not "false" (e.g. after "clear site data"), Grafana may have mounted nav already;
+  // reload once so the next boot sees the correct keys. When both are already "false", skip reload.
+  const prevOpen = localStorage.getItem(GRAFANA_DOCKED_MENU_OPEN_LOCAL_STORAGE_KEY);
+  const prevDock = localStorage.getItem(GRAFANA_DOCKED_LOCAL_STORAGE_KEY);
+  const needsNavReload = prevOpen !== 'false' || prevDock !== 'false';
+  localStorage.setItem(GRAFANA_DOCKED_MENU_OPEN_LOCAL_STORAGE_KEY, 'false');
+  localStorage.setItem(GRAFANA_DOCKED_LOCAL_STORAGE_KEY, 'false');
+  if (needsNavReload) {
+    window.location.reload();
+    return;
+  }
+
   // Register messenger to communicate with PMM UI (top frame)
   const messenger = new CrossFrameMessenger('GRAFANA').setTargetWindow(window.top!).register();
 
@@ -65,10 +78,6 @@ export const initialize = () => {
   });
 
   messenger.sendMessage({ type: 'MESSENGER_READY' });
-
-  // Ensure docked menu is closed in the iframe
-  localStorage.setItem(GRAFANA_DOCKED_MENU_OPEN_LOCAL_STORAGE_KEY, 'false');
-  localStorage.setItem(GRAFANA_DOCKED_LOCAL_STORAGE_KEY, 'false');
 
   updateBodyClassByLocation(window.location);
   applyCustomStyles();
