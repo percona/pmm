@@ -250,11 +250,13 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			interceptors.UnaryAdd(grpcMetrics.UnaryServerInterceptor()),
 			interceptors.UnaryServiceEnabledInterceptor(),
-			grpc_validator.UnaryServerInterceptor())),
+			grpc_validator.UnaryServerInterceptor(),
+		)),
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
 			interceptors.Stream(grpcMetrics.StreamServerInterceptor()),
 			interceptors.StreamServiceEnabledInterceptor(),
-			grpc_validator.StreamServerInterceptor())),
+			grpc_validator.StreamServerInterceptor(),
+		)),
 	)
 
 	if l.Logger.GetLevel() >= logrus.DebugLevel {
@@ -272,7 +274,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	nodesSvc := inventory.NewNodesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb)
 	agentsSvc := inventory.NewAgentsService(
 		deps.db, deps.agentsRegistry, deps.agentsStateUpdater,
-		deps.vmdb, deps.connectionCheck, deps.serviceInfoBroker, deps.agentService)
+		deps.vmdb, deps.connectionCheck, deps.serviceInfoBroker, deps.agentService,
+	)
 
 	mgmtBackupService := managementbackup.NewBackupsService(deps.db, deps.backupService, deps.compatibilityService, deps.schedulerService, deps.backupRemovalService, deps.pbmPITRService)
 	mgmtRestoreService := managementbackup.NewRestoreService(deps.db, deps.backupService, deps.schedulerService)
@@ -369,7 +372,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	proxyMux := grpc_gateway.NewServeMux(
 		grpc_gateway.WithMarshalerOption(grpc_gateway.MIMEWildcard, marshaller),
 		grpc_gateway.WithErrorHandler(pmmerrors.PMMHTTPErrorHandler),
-		grpc_gateway.WithRoutingErrorHandler(pmmerrors.PMMRoutingErrorHandler))
+		grpc_gateway.WithRoutingErrorHandler(pmmerrors.PMMRoutingErrorHandler),
+	)
 
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -834,7 +838,8 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	vmParams, err := models.NewVictoriaMetricsParams(
 		models.BasePrometheusConfigPath,
-		*victoriaMetricsURLF)
+		*victoriaMetricsURLF,
+	)
 	if err != nil {
 		l.Panicf("cannot load victoriametrics params problem: %+v", err)
 	}
@@ -932,7 +937,8 @@ func main() { //nolint:gocognit,maintidx,cyclop
 				SSLCertPath: *postgresSSLCertPathF,
 			},
 			HAParams: haParams,
-		})
+		},
+	)
 
 	// Keep the agent always running, even on follower nodes.
 	err = supervisord.StartSupervisedService("pmm-agent")

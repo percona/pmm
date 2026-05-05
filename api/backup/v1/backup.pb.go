@@ -1262,11 +1262,11 @@ var (
 		(*GetLogsRequest)(nil),                         // 13: backup.v1.GetLogsRequest
 		(*GetLogsResponse)(nil),                        // 14: backup.v1.GetLogsResponse
 		(*durationpb.Duration)(nil),                    // 15: google.protobuf.Duration
-		(DataModel)(0),                                 // 16: backup.v1.DataModel
+		DataModel(0),                                   // 16: backup.v1.DataModel
 		(*v1.MySQLService)(nil),                        // 17: inventory.v1.MySQLService
 		(*v1.MongoDBService)(nil),                      // 18: inventory.v1.MongoDBService
 		(*timestamppb.Timestamp)(nil),                  // 19: google.protobuf.Timestamp
-		(BackupMode)(0),                                // 20: backup.v1.BackupMode
+		BackupMode(0),                                  // 20: backup.v1.BackupMode
 		(*LogChunk)(nil),                               // 21: backup.v1.LogChunk
 		(*ListArtifactsRequest)(nil),                   // 22: backup.v1.ListArtifactsRequest
 		(*DeleteArtifactRequest)(nil),                  // 23: backup.v1.DeleteArtifactRequest

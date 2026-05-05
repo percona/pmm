@@ -525,8 +525,8 @@ var (
 		nil,                                // 2: management.v1.AddMySQLServiceParams.CustomLabelsEntry
 		nil,                                // 3: management.v1.AddMySQLServiceParams.ExtraDsnParamsEntry
 		(*AddNodeParams)(nil),              // 4: management.v1.AddNodeParams
-		(MetricsMode)(0),                   // 5: management.v1.MetricsMode
-		(v1.LogLevel)(0),                   // 6: inventory.v1.LogLevel
+		MetricsMode(0),                     // 5: management.v1.MetricsMode
+		v1.LogLevel(0),                     // 6: inventory.v1.LogLevel
 		(*v1.MySQLService)(nil),            // 7: inventory.v1.MySQLService
 		(*v1.MySQLdExporter)(nil),          // 8: inventory.v1.MySQLdExporter
 		(*v1.QANMySQLPerfSchemaAgent)(nil), // 9: inventory.v1.QANMySQLPerfSchemaAgent

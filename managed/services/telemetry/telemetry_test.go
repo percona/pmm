@@ -344,7 +344,8 @@ func initMockTelemetrySender(t *testing.T, expectedReport *telemetryv1.ReportReq
 	return func() sender {
 		var mockTelemetrySender mockSender
 		mockTelemetrySender.Test(t)
-		mockTelemetrySender.On("SendTelemetry",
+		mockTelemetrySender.On(
+			"SendTelemetry",
 			mock.Anything,
 			mock.MatchedBy(func(report *telemetryv1.ReportRequest) bool {
 				return matchExpectedReport(report, expectedReport)

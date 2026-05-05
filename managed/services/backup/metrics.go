@@ -54,7 +54,8 @@ func NewMetricsCollector(db *reform.DB) *MetricsCollector {
 				"artifact_id", "artifact_name", "artifact_vendor", "service_id", "service_name",
 				"type", "db_version", "data_model", "mode", "status",
 			},
-			nil),
+			nil,
+		),
 	}
 }
 
@@ -112,6 +113,7 @@ func (c *MetricsCollector) Collect(ch chan<- prom.Metric) {
 			artifact.DBVersion,
 			string(artifact.DataModel),
 			string(artifact.Mode),
-			string(artifact.Status))
+			string(artifact.Status),
+		)
 	}
 }

@@ -265,8 +265,8 @@ github.com/go-openapi/swag/yamlutils v0.25.1 h1:mry5ez8joJwzvMbaTGLhw8pXUnhDK91o
 github.com/go-openapi/swag/yamlutils v0.25.1/go.mod h1:cm9ywbzncy3y6uPm/97ysW8+wZ09qsks+9RS8fLWKqg=
 github.com/go-openapi/validate v0.25.0 h1:JD9eGX81hDTjoY3WOzh6WqxVBVl7xjsLnvDo1GL5WPU=
 github.com/go-openapi/validate v0.25.0/go.mod h1:SUY7vKrN5FiwK6LyvSwKjDfLNirSfWwHNgxd2l29Mmw=
-github.com/go-quicktest/qt v1.101.0 h1:O1K29Txy5P2OK0dGo59b7b0LR6wKfIhttaAhHUyn7eI=
-github.com/go-quicktest/qt v1.101.0/go.mod h1:14Bz/f7NwaXPtdYEgzsx46kqSxVwTbzVZsDC26tQJow=
+github.com/go-quicktest/qt v1.102.0 h1:HSQxCeh5YZH3EL3W39ixjtyaEhcWSXQHtHnMBzSs474=
+github.com/go-quicktest/qt v1.102.0/go.mod h1:p4lGIVX+8Wa6ZPNDvqcxq36XpUDLh42FLetFU7odllI=
 github.com/go-sql-driver/mysql v1.5.0 h1:ozyZYNQW3x3HtqT1jira07DN2PArx2v7/mN66gGcHOs=
 github.com/go-sql-driver/mysql v1.5.0/go.mod h1:DCzpHaOWr8IXmIStZouvnhqoel9Qv2LBy8hT2VhHyBg=
 github.com/go-swagger/go-swagger v0.33.1 h1:BdtmxCvMxkrYIGAyn/qXPi4j85mFTwG4c9ED/27jtq4=
@@ -924,8 +924,8 @@ honnef.co/go/tools v0.0.0-20190523083050-ea95bdfd59fc/go.mod h1:rf3lG4BRIbNafJWh
 honnef.co/go/tools v0.0.1-2019.2.3/go.mod h1:a3bituU0lyd329TUQxRnasdCoJDkEUEAqEt0JzvZhAg=
 honnef.co/go/tools v0.0.1-2020.1.3/go.mod h1:X/FiERA/W4tHapMX5mGpAtMSVEeEUOyHaw9vFzvIQ3k=
 honnef.co/go/tools v0.0.1-2020.1.4/go.mod h1:X/FiERA/W4tHapMX5mGpAtMSVEeEUOyHaw9vFzvIQ3k=
-mvdan.cc/gofumpt v0.9.0 h1:W0wNHMSvDBDIyZsm3nnGbVfgp5AknzBrGJnfLCy501w=
-mvdan.cc/gofumpt v0.9.0/go.mod h1:3xYtNemnKiXaTh6R4VtlqDATFwBbdXI8lJvH/4qk7mw=
+mvdan.cc/gofumpt v0.10.0 h1:yGGpRS2pBN2OQIi7b21IXknJna7faPkFaVfHLrN6Euo=
+mvdan.cc/gofumpt v0.10.0/go.mod h1:sU2ElXHzOEmvoPqfutYG7uunlueR4K2T1JFml40SzP4=
 mvdan.cc/xurls/v2 v2.6.0 h1:3NTZpeTxYVWNSokW3MKeyVkz/j7uYXYiMtXRUfmjbgI=
 mvdan.cc/xurls/v2 v2.6.0/go.mod h1:bCvEZ1XvdA6wDnxY7jPPjEmigDtvtvPXAD/Exa9IMSk=
 pgregory.net/rapid v1.2.0 h1:keKAYRcjm+e1F0oAuU5F5+YPAWcyxNNRK2wud503Gnk=
