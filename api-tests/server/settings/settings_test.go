@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package server
+package settings
 
 import (
 	"bytes"
@@ -30,6 +30,7 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
+	serverTest "github.com/percona/pmm/api-tests/server"
 	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
 	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 	serverClient "github.com/percona/pmm/api/server/v1/json/client"
@@ -37,7 +38,7 @@ import (
 )
 
 func TestSettings(t *testing.T) {
-	t.Cleanup(func() { restoreSettingsDefaults(t) })
+	t.Cleanup(func() { serverTest.RestoreSettingsDefaults(t) })
 	t.Run("GetSettings", func(t *testing.T) {
 		res, err := serverClient.Default.ServerService.GetSettings(nil)
 		require.NoError(t, err)
@@ -61,11 +62,11 @@ func TestSettings(t *testing.T) {
 		assert.True(t, res.Payload.Settings.AlertingEnabled)
 
 		t.Run("ChangeSettings", func(t *testing.T) {
-			defer restoreSettingsDefaults(t)
+			defer serverTest.RestoreSettingsDefaults(t)
 
 			t.Run("Updates", func(t *testing.T) {
 				t.Run("DisableAndEnableUpdatesSettingsUpdate", func(t *testing.T) {
-					defer restoreSettingsDefaults(t)
+					defer serverTest.RestoreSettingsDefaults(t)
 					res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 						Body: server.ChangeSettingsBody{
 							EnableUpdates: pointer.ToBool(false),
@@ -95,7 +96,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("ValidAlertingSettingsUpdate", func(t *testing.T) {
-				defer restoreSettingsDefaults(t)
+				defer serverTest.RestoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -108,7 +109,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("EnableAdviorsAndEnableTelemetry", func(t *testing.T) {
-				defer restoreSettingsDefaults(t)
+				defer serverTest.RestoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -128,7 +129,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("EnableAdvisorsAndDisableTelemetry", func(t *testing.T) {
-				defer restoreSettingsDefaults(t)
+				defer serverTest.RestoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -143,7 +144,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("DisableAdvisorsAndEnableTelemetry", func(t *testing.T) {
-				defer restoreSettingsDefaults(t)
+				defer serverTest.RestoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -163,7 +164,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("DisableAdvisorsAndDisableTelemetry", func(t *testing.T) {
-				defer restoreSettingsDefaults(t)
+				defer serverTest.RestoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -183,7 +184,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("EnableAdvisorsWhileTelemetryEnabled", func(t *testing.T) {
-				defer restoreSettingsDefaults(t)
+				defer serverTest.RestoreSettingsDefaults(t)
 
 				// Ensure Telemetry is enabled
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
@@ -211,7 +212,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("DisableAdvisorsWhileItIsDisabled", func(t *testing.T) {
-				defer restoreSettingsDefaults(t)
+				defer serverTest.RestoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -229,7 +230,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("AdvisorsEnabledState", func(t *testing.T) {
-				defer restoreSettingsDefaults(t)
+				defer serverTest.RestoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -276,7 +277,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("TelemetryDisabledState", func(t *testing.T) {
-				defer restoreSettingsDefaults(t)
+				defer serverTest.RestoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -294,7 +295,7 @@ func TestSettings(t *testing.T) {
 				assert.True(t, resg.Payload.Settings.AdvisorEnabled)
 
 				t.Run("EnableAdvisorsWhileTelemetryDisabled", func(t *testing.T) {
-					defer restoreSettingsDefaults(t)
+					defer serverTest.RestoreSettingsDefaults(t)
 
 					res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 						Body: server.ChangeSettingsBody{
@@ -313,7 +314,7 @@ func TestSettings(t *testing.T) {
 				})
 
 				t.Run("EnableTelemetryWhileItIsDisabled", func(t *testing.T) {
-					defer restoreSettingsDefaults(t)
+					defer serverTest.RestoreSettingsDefaults(t)
 
 					res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 						Body: server.ChangeSettingsBody{
@@ -332,7 +333,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("InvalidPartition", func(t *testing.T) {
-				defer restoreSettingsDefaults(t)
+				defer serverTest.RestoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -346,7 +347,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("TooManyPartitions", func(t *testing.T) {
-				defer restoreSettingsDefaults(t)
+				defer serverTest.RestoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -361,7 +362,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("HRInvalid", func(t *testing.T) {
-				defer restoreSettingsDefaults(t)
+				defer serverTest.RestoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -377,7 +378,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("HRTooSmall", func(t *testing.T) {
-				defer restoreSettingsDefaults(t)
+				defer serverTest.RestoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -393,7 +394,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("HRFractional", func(t *testing.T) {
-				defer restoreSettingsDefaults(t)
+				defer serverTest.RestoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -409,7 +410,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("AdvisorsCheckIntervalInvalid", func(t *testing.T) {
-				defer restoreSettingsDefaults(t)
+				defer serverTest.RestoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -424,8 +425,9 @@ func TestSettings(t *testing.T) {
 				assert.Empty(t, res)
 			})
 
+			// This test case triggers Grafana restart that may affect the other tests.
 			t.Run("SetPMMPublicAddressWithoutScheme", func(t *testing.T) {
-				defer restoreSettingsDefaults(t)
+				defer serverTest.RestoreSettingsDefaults(t)
 				publicAddress := "192.168.0.42:8443"
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -435,10 +437,14 @@ func TestSettings(t *testing.T) {
 				})
 				require.NoError(t, err)
 				assert.Equal(t, publicAddress, res.Payload.Settings.PMMPublicAddress)
+
+				// Wait until the server is ready again, otherwise the next tests will fail because of Grafana being restarted.
+				serverReadyErr := pmmapitests.WaitServerReady(t.Context())
+				require.NoError(t, serverReadyErr)
 			})
 
 			t.Run("AdvisorsCheckIntervalTooSmall", func(t *testing.T) {
-				defer restoreSettingsDefaults(t)
+				defer serverTest.RestoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -454,7 +460,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("AdviorsCheckIntervalFractional", func(t *testing.T) {
-				defer restoreSettingsDefaults(t)
+				defer serverTest.RestoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -470,7 +476,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("DataRetentionInvalid", func(t *testing.T) {
-				defer restoreSettingsDefaults(t)
+				defer serverTest.RestoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -484,7 +490,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("DataRetentionInvalidToSmall", func(t *testing.T) {
-				defer restoreSettingsDefaults(t)
+				defer serverTest.RestoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -498,7 +504,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("DataRetentionFractional", func(t *testing.T) {
-				defer restoreSettingsDefaults(t)
+				defer serverTest.RestoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -512,7 +518,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("InvalidSSHKey", func(t *testing.T) {
-				defer restoreSettingsDefaults(t)
+				defer serverTest.RestoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -525,7 +531,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("ChangeSSHKey only on AMI and OVF", func(t *testing.T) {
-				defer restoreSettingsDefaults(t)
+				defer serverTest.RestoreSettingsDefaults(t)
 
 				sshKey := "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQClY/8sz3w03vA2bY6mBFgUzrvb2FIoHw8ZjUXGGClJzJg5HC" +
 					"3jW1m5df7TOIkx0bt6Da2UOhuCvS4o27IT1aiHXVFydppp6ghQRB6saiiW2TKlQ7B+mXatwVaOIkO381kEjgijAs0LJn" +
@@ -543,7 +549,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("OK", func(t *testing.T) {
-				defer restoreSettingsDefaults(t)
+				defer serverTest.RestoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -581,7 +587,7 @@ func TestSettings(t *testing.T) {
 				assert.Equal(t, []string{"aws", "aws-cn"}, res.Payload.Settings.AWSPartitions)
 
 				t.Run("DefaultsAreNotRestored", func(t *testing.T) {
-					defer restoreSettingsDefaults(t)
+					defer serverTest.RestoreSettingsDefaults(t)
 
 					res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 						Body:    server.ChangeSettingsBody{},
@@ -613,7 +619,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("AdvisorCheckIntervalsValid", func(t *testing.T) {
-				defer restoreSettingsDefaults(t)
+				defer serverTest.RestoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -643,7 +649,7 @@ func TestSettings(t *testing.T) {
 				assert.Equal(t, getExpected, getRes.Payload.Settings.AdvisorRunIntervals)
 
 				t.Run("DefaultsAreNotRestored", func(t *testing.T) {
-					defer restoreSettingsDefaults(t)
+					defer serverTest.RestoreSettingsDefaults(t)
 
 					res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 						Body:    server.ChangeSettingsBody{},
@@ -699,7 +705,7 @@ func TestSettings(t *testing.T) {
 					"1w":  "", // w suffix => error
 				} {
 					t.Run(change, func(t *testing.T) {
-						defer restoreSettingsDefaults(t)
+						defer serverTest.RestoreSettingsDefaults(t)
 
 						var p params
 						p.Settings.MetricsResolutions.LR = change

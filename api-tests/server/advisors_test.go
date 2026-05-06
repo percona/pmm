@@ -34,7 +34,7 @@ import (
 func TestStartChecks(t *testing.T) {
 	t.Run("with advisors enabled", func(t *testing.T) {
 		toggleAdvisorChecks(t, true)
-		t.Cleanup(func() { restoreSettingsDefaults(t) })
+		t.Cleanup(func() { RestoreSettingsDefaults(t) })
 
 		resp, err := advisorClient.Default.AdvisorService.StartAdvisorChecks(nil)
 		require.NoError(t, err)
@@ -43,7 +43,7 @@ func TestStartChecks(t *testing.T) {
 
 	t.Run("with advisors disabled", func(t *testing.T) {
 		toggleAdvisorChecks(t, false)
-		t.Cleanup(func() { restoreSettingsDefaults(t) })
+		t.Cleanup(func() { RestoreSettingsDefaults(t) })
 
 		resp, err := advisorClient.Default.AdvisorService.StartAdvisorChecks(nil)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `Advisor checks are disabled.`)
@@ -54,7 +54,7 @@ func TestStartChecks(t *testing.T) {
 func TestGetAdvisorCheckResults(t *testing.T) {
 	t.Run("with disabled Advisors", func(t *testing.T) {
 		toggleAdvisorChecks(t, false)
-		t.Cleanup(func() { restoreSettingsDefaults(t) })
+		t.Cleanup(func() { RestoreSettingsDefaults(t) })
 
 		results, err := advisorClient.Default.AdvisorService.GetFailedChecks(nil)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `Advisor checks are disabled.`)
@@ -63,7 +63,7 @@ func TestGetAdvisorCheckResults(t *testing.T) {
 
 	t.Run("with enabled Advisors", func(t *testing.T) {
 		toggleAdvisorChecks(t, true)
-		t.Cleanup(func() { restoreSettingsDefaults(t) })
+		t.Cleanup(func() { RestoreSettingsDefaults(t) })
 
 		resp, err := advisorClient.Default.AdvisorService.StartAdvisorChecks(nil)
 		require.NoError(t, err)
@@ -77,7 +77,7 @@ func TestGetAdvisorCheckResults(t *testing.T) {
 
 func TestListAdvisorChecks(t *testing.T) {
 	toggleAdvisorChecks(t, true)
-	t.Cleanup(func() { restoreSettingsDefaults(t) })
+	t.Cleanup(func() { RestoreSettingsDefaults(t) })
 
 	resp, err := advisorClient.Default.AdvisorService.ListAdvisorChecks(nil)
 	require.NoError(t, err)
@@ -92,7 +92,7 @@ func TestListAdvisorChecks(t *testing.T) {
 
 func TestListAdvisors(t *testing.T) {
 	toggleAdvisorChecks(t, true)
-	t.Cleanup(func() { restoreSettingsDefaults(t) })
+	t.Cleanup(func() { RestoreSettingsDefaults(t) })
 
 	resp, err := advisorClient.Default.AdvisorService.ListAdvisors(nil)
 	require.NoError(t, err)
@@ -116,7 +116,7 @@ func TestListAdvisors(t *testing.T) {
 
 func TestChangeAdvisorChecks(t *testing.T) {
 	toggleAdvisorChecks(t, true)
-	t.Cleanup(func() { restoreSettingsDefaults(t) })
+	t.Cleanup(func() { RestoreSettingsDefaults(t) })
 
 	t.Run("enable disable", func(t *testing.T) {
 		t.Run("enable disable", func(t *testing.T) {
@@ -198,7 +198,7 @@ func TestChangeAdvisorChecks(t *testing.T) {
 		})
 
 		t.Run("change interval normal", func(t *testing.T) {
-			t.Cleanup(func() { restoreSettingsDefaults(t) })
+			t.Cleanup(func() { RestoreSettingsDefaults(t) })
 
 			resp, err := advisorClient.Default.AdvisorService.ListAdvisorChecks(nil)
 			require.NoError(t, err)
