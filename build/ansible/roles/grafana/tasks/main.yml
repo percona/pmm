@@ -45,8 +45,8 @@
     group: root
   loop:
     - datasources
+    - plugins
     - dashboards
-    # - plugins
 
 - name: Copy change-admin-password command
   copy:
