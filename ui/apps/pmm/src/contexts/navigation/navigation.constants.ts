@@ -578,6 +578,11 @@ export const NAV_INVENTORY: NavItem = {
       text: 'Install PMM Client',
       url: `${PMM_NEW_NAV_PATH}/install-client`,
       matches: ['*'],
+      badge: {
+        label: 'Preview',
+        color: 'default',
+        variant: 'filled',
+      },
     },
   ],
 };
