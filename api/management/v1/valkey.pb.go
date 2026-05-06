@@ -342,7 +342,7 @@ var File_management_v1_valkey_proto protoreflect.FileDescriptor
 
 const file_management_v1_valkey_proto_rawDesc = "" +
 	"\n" +
-	"\x1amanagement/v1/valkey.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\x87\b\n" +
+	"\x1amanagement/v1/valkey.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\x93\b\n" +
 	"\x16AddValkeyServiceParams\x12#\n" +
 	"\anode_id\x18\x01 \x01(\tB\n" +
 	"\xfaB\ar\x05\x10\x01\xd0\x01\x01R\x06nodeId\x12'\n" +
@@ -368,9 +368,9 @@ const file_management_v1_valkey_proto_rawDesc = "" +
 	"\fmetrics_mode\x18\x12 \x01(\x0e2\x1a.management.v1.MetricsModeR\vmetricsMode\x123\n" +
 	"\tlog_level\x18\x13 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12'\n" +
 	"\x0fexpose_exporter\x18\x14 \x01(\bR\x0eexposeExporter\x12\x15\n" +
-	"\x06tls_ca\x18\x15 \x01(\tR\x05tlsCa\x12\x19\n" +
-	"\btls_cert\x18\x16 \x01(\tR\atlsCert\x12\x17\n" +
-	"\atls_key\x18\x17 \x01(\tR\x06tlsKey\x12+\n" +
+	"\x06tls_ca\x18\x15 \x01(\tR\x05tlsCa\x12\x1f\n" +
+	"\btls_cert\x18\x16 \x01(\tB\x04\x88\xb5\x18\x01R\atlsCert\x12\x1d\n" +
+	"\atls_key\x18\x17 \x01(\tB\x04\x88\xb5\x18\x01R\x06tlsKey\x12+\n" +
 	"\x0eagent_password\x18\x18 \x01(\tB\x04\x88\xb5\x18\x01R\ragentPassword\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -405,7 +405,6 @@ var (
 		(*v1.ValkeyExporter)(nil),      // 7: inventory.v1.ValkeyExporter
 	}
 )
-
 var file_management_v1_valkey_proto_depIdxs = []int32{
 	3, // 0: management.v1.AddValkeyServiceParams.add_node:type_name -> management.v1.AddNodeParams
 	2, // 1: management.v1.AddValkeyServiceParams.custom_labels:type_name -> management.v1.AddValkeyServiceParams.CustomLabelsEntry
