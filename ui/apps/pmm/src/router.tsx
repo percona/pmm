@@ -10,7 +10,7 @@ import { RealtimeSelection } from 'pages/rta/selection';
 import Providers from 'Providers';
 import { PMM_NEW_NAV_PATH } from 'lib/constants';
 import { RealtimeSessionsPage } from 'pages/rta/sessions';
-import { Redirect } from 'components/redirect';
+import { Redirect, SettingsRedirect } from 'components/redirect';
 import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
 
@@ -67,8 +67,8 @@ const router = createBrowserRouter(
             },
             // Fallback
             {
-              path: 'graph/settings/*',
-              element: <Navigate to="/settings" />,
+              path: 'graph/settings/:tab?',
+              element: <SettingsRedirect />,
             },
             // Grafana routes are handled at the Main component level
             {

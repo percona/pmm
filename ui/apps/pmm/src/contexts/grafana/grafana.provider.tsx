@@ -15,7 +15,7 @@ import type {
 import { updateDocumentTitle } from 'utils/document.utils';
 import { useKioskMode } from 'hooks/utils/useKioskMode';
 import { useColorMode } from 'hooks/theme';
-import { getLocationUrl } from './grafana.utils';
+import { getLocationUrl, isMigratedPage } from './grafana.utils';
 import messenger from 'lib/messenger';
 import { useSettings } from 'hooks/api/useSettings';
 import { useServiceTypes } from 'hooks/api/useServices';
@@ -48,7 +48,8 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   });
 
   const src = location.pathname.replace(PMM_NEW_NAV_PATH, '');
-  const isGrafanaPage = src.startsWith(GRAFANA_SUB_PATH);
+  const isGrafanaPage =
+    src.startsWith(GRAFANA_SUB_PATH) && !isMigratedPage(src);
   isGrafanaPageRef.current = isGrafanaPage;
 
   const [isLoaded, setIsLoaded] = useState(false);
