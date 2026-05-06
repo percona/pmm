@@ -144,8 +144,8 @@ func getSetStateRequestMessage(t *testing.T) []proto.Message {
 			"/etc/agent/config.yaml": "ag***REDACTED***ue",
 		},
 		RedactWords: []string{
-			"my***REDACTED***ue",
-			"po***REDACTED***ue",
+			"***REDACTED***",
+			"***REDACTED***",
 		},
 		EnvVariableNames: []string{
 			"ENV_VAR1",
