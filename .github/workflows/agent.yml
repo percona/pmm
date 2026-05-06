@@ -49,13 +49,13 @@ jobs:
           #   + older supported MongoDB versions
           #   + older supported PostgreSQL versions
           #   + 3-dev-latest PMM Server
-          # - MYSQL_IMAGE=mariadb:5.5
-          # - MYSQL_IMAGE=mariadb:10.0
-          # - MYSQL_IMAGE=mariadb:10.1
+          # - MYSQL_IMAGE=mariadb:11.2
+          # - MYSQL_IMAGE=mariadb:11.4
+          # - MYSQL_IMAGE=mariadb:11.5
 
-          - { mysql: 'mariadb:11.2', mongo: 'percona/percona-server-mongodb:5.0', postgres: 'postgres:17', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
-          - { mysql: 'mariadb:11.4', mongo: 'percona/percona-server-mongodb:6.0', postgres: 'perconalab/percona-distribution-postgresql:13', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
-          - { mysql: 'mariadb:11.5', mongo: 'percona/percona-server-mongodb:7.0', postgres: 'postgres:18', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
+          - { mysql: 'mariadb:11.2', mongo: 'percona/percona-server-mongodb:6.0', postgres: 'postgres:17', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
+          - { mysql: 'mariadb:11.4', mongo: 'percona/percona-server-mongodb:7.0', postgres: 'perconalab/percona-distribution-postgresql:13', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
+          - { mysql: 'mariadb:11.5', mongo: 'percona/percona-server-mongodb:8.0', postgres: 'postgres:18', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
 
     continue-on-error: true
 
@@ -103,8 +103,6 @@ jobs:
         run: make install
 
       - name: Launch containers
-        env:
-          ENV_UP_FLAGS: "--detach"
         run: make env-up
 
       - name: Run tests
@@ -130,11 +128,11 @@ jobs:
           docker compose logs
           docker compose ps -a
 
-
   build-gssapi:
     name: Build PMM Agent with GSSAPI support
     runs-on: ubuntu-22.04
     continue-on-error: false
+
     defaults:
       run:
         working-directory: ${{ github.workspace }}/agent

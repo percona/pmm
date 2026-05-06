@@ -1,15 +1,17 @@
 ---
+# Make sure to provide the .env file with the required variables.
+#
 services:
-  pmm-server:
+  pmm-server: # PMM Server
     profiles:
       - pmm
-    image: "${PMM_SERVER_IMAGE:?Fatal: .env file is not provided}"
+    image: "${PMM_SERVER_IMAGE:?Fatal: PMM_SERVER_IMAGE is not set}"
     platform: linux/amd64
     container_name: pmm-server
     hostname: pmm-server
     env_file:
       - .env
-    # enable for delve
+    # required for delve
     cap_add:
       - SYS_PTRACE
     security_opt:
@@ -21,15 +23,12 @@ services:
 
     ports:
       - ${PMM_PORT_HTTPS:-443}:8443
-      # For headless delve
       - ${PMM_PORT_DELVE:-2345}:2345
-      # PG
-      - ${PMM_PORT_PG:-5432}:5432
-      # VM
-      - ${PMM_PORT_VM:-9090}:9090
-      # CH
-      - ${PMM_PORT_CH_TCP:-9000}:9000
-      - ${PMM_PORT_CH_HTTP:-8123}:8123
+      # - ${PMM_PORT_PG:-5432}:5432
+      # - ${PMM_PORT_VM:-9090}:9090
+      # - ${PMM_PORT_CH_TCP:-9000}:9000
+      # - ${PMM_PORT_CH_HTTP:-8123}:8123
+    working_dir: /root/go/src/github.com/percona/pmm
     volumes:
       - ./:/root/go/src/github.com/percona/pmm
       - ./managed/testdata/updater/:/home/pmm/.config/systemd/user/
@@ -46,7 +45,181 @@ services:
       # nginx config overrides
       - ./build/ansible/roles/nginx/files/conf.d/pmm.conf:/etc/nginx/conf.d/pmm.conf:ro
 
-  mail-server:
+  pmm-client: # PMM Client with init script to add MySQL, PostgreSQL and MongoDB services
+    profiles:
+      - mysql
+      - postgres
+      - valkey
+      - mongo
+    image: percona/pmm-client:3
+    container_name: pmm-client
+    depends_on:
+      pmm-server:
+        condition: service_healthy
+      ps:
+        condition: service_healthy
+      sysbench-ps:
+        condition: service_started
+        required: false
+      postgres:
+        condition: service_started
+        required: false
+      mongo:
+        condition: service_started
+        required: false
+      valkey:
+        condition: service_started
+        required: false
+    environment:
+      PMM_AGENT_SERVER_ADDRESS: pmm-server:8443
+      PMM_AGENT_SERVER_USERNAME: admin
+      PMM_AGENT_SERVER_PASSWORD: admin
+      PMM_AGENT_SERVER_INSECURE_TLS: 1
+      PMM_AGENT_CONFIG_FILE: config/pmm-agent.yaml
+      PMM_AGENT_SETUP: 1
+      PMM_AGENT_SETUP_FORCE: 1
+      PMM_AGENT_SIDECAR: 1
+      PMM_AGENT_PRERUN_SCRIPT: |
+        pmm-admin status --wait=10s
+        pmm-admin add mysql --cluster=dev-cluster --environment=dev --custom-labels='app=test-app' --username=root --password=secret --query-source=perfschema mysql-dev ps:3306 || true
+        pmm-admin add postgresql --username=postgres --password=secret postgres-dev postgres:5432 || true
+        pmm-admin add mongodb --username=mongo --password=secret mongo-dev mongo:27017 || true
+
+  ps: # MySQL with slow query log enabled
+    profiles:
+      - mysql
+    image: percona/percona-server:latest
+    container_name: ps
+    environment:
+     - MYSQL_ROOT_PASSWORD=secret
+     - MYSQL_DATABASE=sbtest
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-P", "3306", "-u", "root", "-psecret"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    volumes:
+      - ./dev/my.cnf:/etc/my.cnf
+      - ./dev/mysql.logrotate:/etc/logrotate.d/mysql
+
+  sysbench-ps:
+    profiles:
+      - mysql
+    image: perconalab/sysbench
+    platform: linux/amd64
+    container_name: sysbench-ps
+    depends_on:
+      ps:
+        condition: service_healthy
+      pmm-server:
+        condition: service_healthy
+    command: bash /sysbench-ps.sh
+    volumes:
+      - ./dev/sysbench-ps.sh:/sysbench-ps.sh
+
+  postgres:
+    profiles:
+      - postgres
+    image: ${POSTGRES_IMAGE:-postgres:14}
+    container_name: postgres
+    command: >
+      -c shared_preload_libraries='${PG_PRELOADED_LIBS:-pg_stat_statements}'
+      -c track_activity_query_size=2048
+      -c pg_stat_statements.max=10000
+      -c pg_stat_monitor.pgsm_query_max_len=10000
+      -c pg_stat_statements.track=all
+      -c pg_stat_statements.save=off
+      -c track_io_timing=on
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=pmm-agent
+      - POSTGRES_PASSWORD=pmm-agent-password
+    volumes:
+      - ./testdata/postgres:/docker-entrypoint-initdb.d
+
+  valkey:
+    profiles:
+      - valkey
+    image: valkey/valkey:8.1
+    container_name: valkey
+    command: ["valkey-server", "--requirepass", "pmm-agent-password"]
+    ports:
+      - 6379:6379
+
+  mongo:
+    profiles:
+      - mongo
+    image: ${MONGO_IMAGE:-percona/percona-server-mongodb:6.0}
+    container_name: mongo
+    command:
+      - --profile=2
+      - --logpath=/var/log/mongodb/mongo.log
+      - --logappend
+    ports:
+      - 27017:27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root-password
+    volumes:
+      - ./testdata/mongo/var/log/mongodb:/var/log/mongodb
+
+  mongo-tls:
+    profiles:
+      - mongo-tls
+    image: ${MONGO_IMAGE:-percona/percona-server-mongodb:6.0}
+    container_name: mongo-tls
+    command:
+      - --profile=2
+      - --tlsMode=requireTLS
+      - --tlsCertificateKeyFile=/etc/tls/certificates/server.pem
+      - --tlsCAFile=/etc/tls/certificates/ca.crt
+      - --tlsAllowInvalidCertificates
+      - --bind_ip=0.0.0.0
+      - --logpath=/var/log/mongodb/mongo_tls.log
+      - --logappend
+    ports:
+      - 27018:27017
+    volumes:
+      - ./agent/utils/tests/testdata/mongodb:/etc/tls/certificates
+      - ./testdata/mongo/var/log/mongodb:/var/log/mongodb
+
+  mongo-noauth:
+    profiles:
+      - mongo-noauth
+    image: ${MONGO_IMAGE:-percona/percona-server-mongodb:6.0}
+    container_name: mongo-noauth
+    command: --profile=2 -bind_ip=0.0.0.0 --noauth
+    ports:
+      - 27019:27017
+
+  mongo-repl:
+    profiles:
+      - mongo-repl
+    image: ${MONGO_IMAGE:-percona/percona-server-mongodb:6.0}
+    container_name: mongo-repl
+    command: /scripts/mongo-repl.sh
+    ports:
+      - 27020:27020
+      - 27021:27021
+    volumes:
+      - ./agent/testscripts/:/scripts
+
+  mongo-repl-tls:
+    profiles:
+      - mongo-repl-tls
+    image: ${MONGO_IMAGE:-percona/percona-server-mongodb:6.0}
+    container_name: mongo-repl-tls
+    command: /scripts/mongo-repl-with-tls.sh
+    ports:
+      - 27022:27022
+      - 27023:27023
+    volumes:
+      - ./agent/testscripts/:/scripts
+      - ./agent/utils/tests/testdata/mongodb:/etc/tls/certificates
+
+  mail-server: # Test mail server for alerting tests
     profiles:
       - mail-server
     image: axllent/mailpit
@@ -55,7 +228,7 @@ services:
     ports:
       - ${PMM_PORT_MAIL_SERVER_UI:-8025}:8025 # Web UI - http://localhost:8025
 
-  renderer:
+  renderer: # Grafana Image Renderer
     profiles:
       - renderer
     image: grafana/grafana-image-renderer:latest
@@ -67,7 +240,7 @@ services:
     ports:
       - ${PMM_PORT_RENDERER:-8081}:8081
 
-  watchtower:
+  watchtower: # Automatic update of running containers
     profiles:
       - watchtower
     image: ${WATCHTOWER_IMAGE:-perconalab/watchtower}
@@ -80,6 +253,27 @@ services:
       - WATCHTOWER_NO_RESTART
     volumes:
       - ${WATCHTOWER_DOCKER_PATH:-/var/run/docker.sock}:/var/run/docker.sock
+
+  clickhouse: # External ClickHouse
+    profiles:
+      - clickhouse
+    image: clickhouse/clickhouse-server:25.3.6.56
+    container_name: clickhouse
+    environment:
+      - CLICKHOUSE_USER=${PMM_CLICKHOUSE_USER}
+      - CLICKHOUSE_PASSWORD=${PMM_CLICKHOUSE_PASSWORD}
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:8123/ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    ports:
+      - 9000:9000
 
 volumes:
   go-modules:

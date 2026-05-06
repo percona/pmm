@@ -126,9 +126,23 @@ func TestSlowLog(t *testing.T) {
 	testdata, err := filepath.Abs(filepath.Join("..", "..", "..", "testdata"))
 	require.NoError(t, err)
 
-	t.Run("Normal", func(t *testing.T) {
-		t.Parallel()
+	// Ensure the slow log file exists on the host before subtests run.
+	// It may be missing if a previous NormalWithRotation rotated it
+	// and the new file hasn't synced to the host yet.
+	_, err = q.Exec("SELECT /* ensure_slow_log */ 1")
+	require.NoError(t, err)
+	slowLogPath := filepath.Join(testdata, "mysql", "slowlogs", "slow.log")
+	require.Eventually(t,
+		func() bool {
+			_, err := os.Stat(slowLogPath)
+			return err == nil
+		},
+		10*time.Second,
+		100*time.Millisecond,
+		"mysql/slowlogs/slow.log did not appear at %s",
+		slowLogPath)
 
+	t.Run("Normal", func(t *testing.T) {
 		params := &Params{
 			DSN:               tests.GetTestMySQLDSN(t),
 			SlowLogFilePrefix: testdata,
@@ -177,8 +191,6 @@ func TestSlowLog(t *testing.T) {
 	})
 
 	t.Run("NoFile", func(t *testing.T) {
-		t.Parallel()
-
 		params := &Params{
 			DSN:               tests.GetTestMySQLDSN(t),
 			SlowLogFilePrefix: "nonexistent",
@@ -250,7 +262,7 @@ func TestSlowLog(t *testing.T) {
 		_, err = os.Stat(filepath.Join(params.SlowLogFilePrefix, "/mysql/slowlogs/slow.log"))
 		require.NoError(t, err)
 
-		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		go s.Run(ctx)
 
 		// collect first 3 status changes, skip QAN data

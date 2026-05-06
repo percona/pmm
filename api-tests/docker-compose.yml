@@ -47,6 +47,8 @@ services:
       - ./testdata/mysql:/mysql
 
   mongo:
+    profiles:
+      - mongo
     image: ${MONGO_IMAGE:-percona/percona-server-mongodb:6}
     container_name: pmm-agent_mongo
     command: --profile 2
@@ -55,6 +57,8 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=root-password
 
   postgres:
+    profiles:
+      - postgres
     image: ${POSTGRES_IMAGE:-postgres:14}
     container_name: pmm-agent_postgres
     command: >
@@ -73,7 +77,6 @@ services:
 
   pmm-client-mysql:
     image: percona/pmm-client:3
-    platform: "linux/amd64"
     container_name: pmm-client-mysql
     depends_on:
       pmm-server:
@@ -92,8 +95,10 @@ services:
       # PMM_AGENT_PRERUN_SCRIPT: "pmm-admin status --wait=10s; pmm-admin add mysql --username=pmm-agent --password=pmm-agent-password --host=pmm-agent_mysql --port=3306"
 
   sysbench:
+    profiles:
+      - sysbench
     image: perconalab/sysbench
-    container_name: pmm-agent_sysbench
+    container_name: sysbench
 
 volumes:
   test_db_mysql:

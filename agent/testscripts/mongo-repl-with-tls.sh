@@ -1,14 +1,14 @@
 #!/bin/bash
 
 MONGODB_CLIENT="mongosh"
-PARSED=(${MONGO_IMAGE//:/ })
-MONGODB_VERSION=${PARSED[1]}
-MONGODB_VENDOR=${PARSED[0]}
+MONGODB_VENDOR="${MONGO_IMAGE%%:*}"
+MONGODB_VERSION="${MONGO_IMAGE##*:}"
 
-if [ "`echo ${MONGODB_VERSION} | cut -c 1`" = "4" ]; then
-  MONGODB_CLIENT="mongo"
-fi
-if [ "`echo ${MONGODB_VERSION} | cut -c 1`" = "5" ] && [ ${MONGODB_VENDOR} == "percona/percona-server-mongodb" ]; then
+echo "Using MongoDB image: $MONGO_IMAGE"
+echo "MongoDB version: $MONGODB_VERSION"
+echo "MongoDB vendor: $MONGODB_VENDOR"
+
+if [[ "$MONGODB_VENDOR" == "percona/percona-server-mongodb" && "$MONGODB_VERSION" == 5* ]]; then
   MONGODB_CLIENT="mongo"
 fi
 

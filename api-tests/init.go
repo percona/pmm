@@ -142,7 +142,6 @@ func init() {
 		"PMM_TRACE":               flag.Lookup("pmm.trace"),
 		"PMM_SERVER_URL":          flag.Lookup("pmm.server-url"),
 		"PMM_SERVER_INSECURE_TLS": flag.Lookup("pmm.server-insecure-tls"),
-		"PMM_RUN_UPDATE_TEST":     flag.Lookup("pmm.run-update-test"),
 		"PMM_RUN_ADVISOR_TESTS":   flag.Lookup("pmm.run-advisor-tests"),
 	} {
 		env, ok := os.LookupEnv(envVar)
