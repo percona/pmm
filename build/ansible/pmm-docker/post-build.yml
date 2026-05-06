@@ -66,6 +66,7 @@
       loop:
         - absent
         - directory
+      no_log: true
 
     - name: Create empty log directory for nginx
       file:
