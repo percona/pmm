@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { wrapWithRouter } from 'utils/testUtils';
-import NavItem from './NavItem';
-import { NavItemProps } from './NavItem.types';
+import SidebarNavItem from './SidebarNavItem';
+import { NavItemProps } from './SidebarNavItem.types';
 import { NavItem as NavTreeItem } from 'types/navigation.types';
 import { collapseClasses } from '@mui/material/Collapse';
 import { MemoryRouterProps } from 'react-router-dom';
@@ -45,7 +45,7 @@ const renderNavItem = ({
 } = {}) =>
   render(
     wrapWithRouter(
-      <NavItem
+      <SidebarNavItem
         activeItem={activeItem}
         item={TEST_NAV_TREE}
         drawerOpen={true}
@@ -56,7 +56,7 @@ const renderNavItem = ({
     )
   );
 
-describe('NavItem', () => {
+describe('SidebarNavItem', () => {
   it('inner levels are closed by default', () => {
     renderNavItem();
 
