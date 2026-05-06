@@ -31,27 +31,58 @@ import (
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 )
 
-var rtaData = rtav1.QueryData{
-	ServiceId:              "serviceID",
-	ServiceName:            "serviceName",
-	QueryId:                "static-query-1",
-	QueryText:              `{ find: "mycollection", filter: { status: "active" } }`,
-	QueryExecutionDuration: durationpb.New(time.Duration(15)),
-	QueryCollectTime:       timestamppb.Now(),
-	QueryRawJson:           `{ find: "mycollection", filter: { status: "active" } }`,
-	ClientAddress:          "127.0.0.1:5060",
-	Payload: &rtav1.QueryData_MongoDbPayload{
-		MongoDbPayload: &rtav1.QueryMongoDBData{
-			DbInstanceAddress:  "c4486b1ebd30:27017",
-			DatabaseName:       "mydb",
-			ClientAppName:      "myapp",
-			Collection:         "mycollection",
-			Operation:          "find",
-			OperationStartTime: timestamppb.Now(),
-			Username:           "test-user",
-			PlanSummary:        "COLLSCAN",
+var startTime = timestamppb.Now()
+
+func getRtaQueryDataMessage(t *testing.T) []proto.Message {
+	t.Helper()
+
+	dataOrig := rtav1.QueryData{
+		ServiceId:              "serviceID",
+		ServiceName:            "serviceName",
+		QueryId:                "static-query-1",
+		QueryText:              `{ find: "mycollection", filter: { status: "active" } }`,
+		QueryExecutionDuration: durationpb.New(time.Duration(15)),
+		QueryCollectTime:       startTime,
+		QueryRawJson:           `{ find: "mycollection", filter: { status: "active" } }`,
+		ClientAddress:          "127.0.0.1:5060",
+		Payload: &rtav1.QueryData_MongoDbPayload{
+			MongoDbPayload: &rtav1.QueryMongoDBData{
+				DbInstanceAddress:  "c4486b1ebd30:27017",
+				DatabaseName:       "mydb",
+				ClientAppName:      "myapp",
+				Collection:         "mycollection",
+				Operation:          "find",
+				OperationStartTime: startTime,
+				Username:           "test-user",
+				PlanSummary:        "COLLSCAN",
+			},
 		},
-	},
+	}
+
+	dataRedacted := rtav1.QueryData{
+		ServiceId:              "serviceID",
+		ServiceName:            "serviceName",
+		QueryId:                "static-query-1",
+		QueryText:              `{ find: "mycollection", filter: { status: "active" } }`,
+		QueryExecutionDuration: durationpb.New(time.Duration(15)),
+		QueryCollectTime:       startTime,
+		QueryRawJson:           `{ find: "mycollection", filter: { status: "active" } }`,
+		ClientAddress:          "127.0.0.1:5060",
+		Payload: &rtav1.QueryData_MongoDbPayload{
+			MongoDbPayload: &rtav1.QueryMongoDBData{
+				DbInstanceAddress:  "c4486b1ebd30:27017",
+				DatabaseName:       "mydb",
+				ClientAppName:      "myapp",
+				Collection:         "mycollection",
+				Operation:          "find",
+				OperationStartTime: startTime,
+				Username:           "***REDACTED***",
+				PlanSummary:        "COLLSCAN",
+			},
+		},
+	}
+
+	return []proto.Message{&dataOrig, &dataRedacted}
 }
 
 func getSetStateRequestMessage(t *testing.T) []proto.Message {
@@ -298,8 +329,8 @@ func TestRedactMessage(t *testing.T) {
 		},
 		{
 			name:  "non-sensitive message",
-			input: &rtaData,
-			want:  &rtaData,
+			input: getRtaQueryDataMessage(t)[0],
+			want:  getRtaQueryDataMessage(t)[1],
 		},
 		{
 			name:  "sensitive message",
