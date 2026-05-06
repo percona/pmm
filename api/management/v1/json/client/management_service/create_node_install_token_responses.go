@@ -8,6 +8,7 @@ package management_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,7 +26,7 @@ type CreateNodeInstallTokenReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *CreateNodeInstallTokenReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *CreateNodeInstallTokenReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewCreateNodeInstallTokenOK()
@@ -104,11 +105,10 @@ func (o *CreateNodeInstallTokenOK) GetPayload() *CreateNodeInstallTokenOKBody {
 }
 
 func (o *CreateNodeInstallTokenOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(CreateNodeInstallTokenOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -178,11 +178,10 @@ func (o *CreateNodeInstallTokenDefault) GetPayload() *CreateNodeInstallTokenDefa
 }
 
 func (o *CreateNodeInstallTokenDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(CreateNodeInstallTokenDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -194,7 +193,6 @@ CreateNodeInstallTokenBody CreateNodeInstallTokenRequest requests a short-lived 
 swagger:model CreateNodeInstallTokenBody
 */
 type CreateNodeInstallTokenBody struct {
-
 	// Token TTL in seconds; 0 means use server default. Server clamps to a maximum.
 	TTLSeconds int64 `json:"ttl_seconds,omitempty"`
 
@@ -235,7 +233,6 @@ CreateNodeInstallTokenDefaultBody create node install token default body
 swagger:model CreateNodeInstallTokenDefaultBody
 */
 type CreateNodeInstallTokenDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -272,11 +269,15 @@ func (o *CreateNodeInstallTokenDefaultBody) validateDetails(formats strfmt.Regis
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("CreateNodeInstallToken default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("CreateNodeInstallToken default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -301,9 +302,7 @@ func (o *CreateNodeInstallTokenDefaultBody) ContextValidate(ctx context.Context,
 }
 
 func (o *CreateNodeInstallTokenDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -311,15 +310,18 @@ func (o *CreateNodeInstallTokenDefaultBody) contextValidateDetails(ctx context.C
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("CreateNodeInstallToken default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("CreateNodeInstallToken default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -348,19 +350,17 @@ CreateNodeInstallTokenDefaultBodyDetailsItems0 create node install token default
 swagger:model CreateNodeInstallTokenDefaultBodyDetailsItems0
 */
 type CreateNodeInstallTokenDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
 	// create node install token default body details items0
-	CreateNodeInstallTokenDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	CreateNodeInstallTokenDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
 func (o *CreateNodeInstallTokenDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -381,9 +381,9 @@ func (o *CreateNodeInstallTokenDefaultBodyDetailsItems0) UnmarshalJSON(data []by
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -398,7 +398,6 @@ func (o *CreateNodeInstallTokenDefaultBodyDetailsItems0) UnmarshalJSON(data []by
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o CreateNodeInstallTokenDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -462,7 +461,6 @@ CreateNodeInstallTokenOKBody CreateNodeInstallTokenResponse returns a one-time t
 swagger:model CreateNodeInstallTokenOKBody
 */
 type CreateNodeInstallTokenOKBody struct {
-
 	// Plaintext token for PMM_SERVER_URL userinfo (service_token:<token>).
 	Token string `json:"token,omitempty"`
 

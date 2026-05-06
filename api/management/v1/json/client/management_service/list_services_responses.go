@@ -8,6 +8,7 @@ package management_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,7 +26,7 @@ type ListServicesReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ListServicesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ListServicesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewListServicesOK()
@@ -104,11 +105,10 @@ func (o *ListServicesOK) GetPayload() *ListServicesOKBody {
 }
 
 func (o *ListServicesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListServicesOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -178,11 +178,10 @@ func (o *ListServicesDefault) GetPayload() *ListServicesDefaultBody {
 }
 
 func (o *ListServicesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListServicesDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -194,7 +193,6 @@ ListServicesDefaultBody list services default body
 swagger:model ListServicesDefaultBody
 */
 type ListServicesDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -231,11 +229,15 @@ func (o *ListServicesDefaultBody) validateDetails(formats strfmt.Registry) error
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("ListServices default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("ListServices default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -260,9 +262,7 @@ func (o *ListServicesDefaultBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *ListServicesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -270,15 +270,18 @@ func (o *ListServicesDefaultBody) contextValidateDetails(ctx context.Context, fo
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("ListServices default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("ListServices default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -307,19 +310,17 @@ ListServicesDefaultBodyDetailsItems0 list services default body details items0
 swagger:model ListServicesDefaultBodyDetailsItems0
 */
 type ListServicesDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
 	// list services default body details items0
-	ListServicesDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	ListServicesDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
 func (o *ListServicesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -340,9 +341,9 @@ func (o *ListServicesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error 
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -357,7 +358,6 @@ func (o *ListServicesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error 
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o ListServicesDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -421,7 +421,6 @@ ListServicesOKBody list services OK body
 swagger:model ListServicesOKBody
 */
 type ListServicesOKBody struct {
-
 	// List of Services.
 	Services []*ListServicesOKBodyServicesItems0 `json:"services"`
 }
@@ -452,11 +451,15 @@ func (o *ListServicesOKBody) validateServices(formats strfmt.Registry) error {
 
 		if o.Services[i] != nil {
 			if err := o.Services[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listServicesOk" + "." + "services" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listServicesOk" + "." + "services" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -481,9 +484,7 @@ func (o *ListServicesOKBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *ListServicesOKBody) contextValidateServices(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Services); i++ {
-
 		if o.Services[i] != nil {
 
 			if swag.IsZero(o.Services[i]) { // not required
@@ -491,15 +492,18 @@ func (o *ListServicesOKBody) contextValidateServices(ctx context.Context, format
 			}
 
 			if err := o.Services[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listServicesOk" + "." + "services" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listServicesOk" + "." + "services" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -528,7 +532,6 @@ ListServicesOKBodyServicesItems0 list services OK body services items0
 swagger:model ListServicesOKBodyServicesItems0
 */
 type ListServicesOKBodyServicesItems0 struct {
-
 	// Unique service identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -585,9 +588,6 @@ type ListServicesOKBodyServicesItems0 struct {
 	// List of agents related to this service.
 	Agents []*ListServicesOKBodyServicesItems0AgentsItems0 `json:"agents"`
 
-	// The service/database version.
-	Version string `json:"version,omitempty"`
-
 	// Service status.
 	//
 	//  - STATUS_UNSPECIFIED: In case we don't support the db vendor yet.
@@ -596,6 +596,9 @@ type ListServicesOKBodyServicesItems0 struct {
 	//  - STATUS_UNKNOWN: The service's status cannot be known (e.g. there are no metrics yet).
 	// Enum: ["STATUS_UNSPECIFIED","STATUS_UP","STATUS_DOWN","STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
+
+	// The service/database version.
+	Version string `json:"version,omitempty"`
 }
 
 // Validate validates this list services OK body services items0
@@ -660,11 +663,15 @@ func (o *ListServicesOKBodyServicesItems0) validateAgents(formats strfmt.Registr
 
 		if o.Agents[i] != nil {
 			if err := o.Agents[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("agents" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("agents" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -674,7 +681,7 @@ func (o *ListServicesOKBodyServicesItems0) validateAgents(formats strfmt.Registr
 	return nil
 }
 
-var listServicesOkBodyServicesItems0TypeStatusPropEnum []interface{}
+var listServicesOkBodyServicesItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -737,9 +744,7 @@ func (o *ListServicesOKBodyServicesItems0) ContextValidate(ctx context.Context, 
 }
 
 func (o *ListServicesOKBodyServicesItems0) contextValidateAgents(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Agents); i++ {
-
 		if o.Agents[i] != nil {
 
 			if swag.IsZero(o.Agents[i]) { // not required
@@ -747,15 +752,18 @@ func (o *ListServicesOKBodyServicesItems0) contextValidateAgents(ctx context.Con
 			}
 
 			if err := o.Agents[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("agents" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("agents" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -784,7 +792,6 @@ ListServicesOKBodyServicesItems0AgentsItems0 list services OK body services item
 swagger:model ListServicesOKBodyServicesItems0AgentsItems0
 */
 type ListServicesOKBodyServicesItems0AgentsItems0 struct {
-
 	// Unique agent identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -815,6 +822,12 @@ type ListServicesOKBodyServicesItems0AgentsItems0 struct {
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
 
 	// Limit query length in QAN.
 	MaxQueryLength int32 `json:"max_query_length,omitempty"`
@@ -894,14 +907,11 @@ type ListServicesOKBodyServicesItems0AgentsItems0 struct {
 	// True if an exporter agent is exposed on all host addresses.
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 
+	// valkey options
+	ValkeyOptions any `json:"valkey_options,omitempty"`
+
 	// azure options
 	AzureOptions *ListServicesOKBodyServicesItems0AgentsItems0AzureOptions `json:"azure_options,omitempty"`
-
-	// Log level for exporters
-	//
-	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
-	LogLevel *string `json:"log_level,omitempty"`
 
 	// mongo db options
 	MongoDBOptions *ListServicesOKBodyServicesItems0AgentsItems0MongoDBOptions `json:"mongo_db_options,omitempty"`
@@ -914,9 +924,6 @@ type ListServicesOKBodyServicesItems0AgentsItems0 struct {
 
 	// rta options
 	RtaOptions *ListServicesOKBodyServicesItems0AgentsItems0RtaOptions `json:"rta_options,omitempty"`
-
-	// valkey options
-	ValkeyOptions interface{} `json:"valkey_options,omitempty"`
 }
 
 // Validate validates this list services OK body services items0 agents items0
@@ -927,15 +934,15 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) Validate(formats strfmt.R
 		res = append(res, err)
 	}
 
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateUpdatedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := o.validateAzureOptions(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -973,38 +980,7 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) validateCreatedAt(formats
 	return nil
 }
 
-func (o *ListServicesOKBodyServicesItems0AgentsItems0) validateUpdatedAt(formats strfmt.Registry) error {
-	if swag.IsZero(o.UpdatedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("updated_at", "body", "date-time", o.UpdatedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *ListServicesOKBodyServicesItems0AgentsItems0) validateAzureOptions(formats strfmt.Registry) error {
-	if swag.IsZero(o.AzureOptions) { // not required
-		return nil
-	}
-
-	if o.AzureOptions != nil {
-		if err := o.AzureOptions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("azure_options")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("azure_options")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-var listServicesOkBodyServicesItems0AgentsItems0TypeLogLevelPropEnum []interface{}
+var listServicesOkBodyServicesItems0AgentsItems0TypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -1058,6 +1034,41 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) validateLogLevel(formats 
 	return nil
 }
 
+func (o *ListServicesOKBodyServicesItems0AgentsItems0) validateUpdatedAt(formats strfmt.Registry) error {
+	if swag.IsZero(o.UpdatedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("updated_at", "body", "date-time", o.UpdatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *ListServicesOKBodyServicesItems0AgentsItems0) validateAzureOptions(formats strfmt.Registry) error {
+	if swag.IsZero(o.AzureOptions) { // not required
+		return nil
+	}
+
+	if o.AzureOptions != nil {
+		if err := o.AzureOptions.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("azure_options")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("azure_options")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *ListServicesOKBodyServicesItems0AgentsItems0) validateMongoDBOptions(formats strfmt.Registry) error {
 	if swag.IsZero(o.MongoDBOptions) { // not required
 		return nil
@@ -1065,11 +1076,15 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) validateMongoDBOptions(fo
 
 	if o.MongoDBOptions != nil {
 		if err := o.MongoDBOptions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("mongo_db_options")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("mongo_db_options")
 			}
+
 			return err
 		}
 	}
@@ -1084,11 +1099,15 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) validateMysqlOptions(form
 
 	if o.MysqlOptions != nil {
 		if err := o.MysqlOptions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("mysql_options")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("mysql_options")
 			}
+
 			return err
 		}
 	}
@@ -1103,11 +1122,15 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) validatePostgresqlOptions
 
 	if o.PostgresqlOptions != nil {
 		if err := o.PostgresqlOptions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("postgresql_options")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("postgresql_options")
 			}
+
 			return err
 		}
 	}
@@ -1122,11 +1145,15 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) validateRtaOptions(format
 
 	if o.RtaOptions != nil {
 		if err := o.RtaOptions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("rta_options")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("rta_options")
 			}
+
 			return err
 		}
 	}
@@ -1165,7 +1192,6 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) ContextValidate(ctx conte
 }
 
 func (o *ListServicesOKBodyServicesItems0AgentsItems0) contextValidateAzureOptions(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.AzureOptions != nil {
 
 		if swag.IsZero(o.AzureOptions) { // not required
@@ -1173,11 +1199,15 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) contextValidateAzureOptio
 		}
 
 		if err := o.AzureOptions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("azure_options")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("azure_options")
 			}
+
 			return err
 		}
 	}
@@ -1186,7 +1216,6 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) contextValidateAzureOptio
 }
 
 func (o *ListServicesOKBodyServicesItems0AgentsItems0) contextValidateMongoDBOptions(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.MongoDBOptions != nil {
 
 		if swag.IsZero(o.MongoDBOptions) { // not required
@@ -1194,11 +1223,15 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) contextValidateMongoDBOpt
 		}
 
 		if err := o.MongoDBOptions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("mongo_db_options")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("mongo_db_options")
 			}
+
 			return err
 		}
 	}
@@ -1207,7 +1240,6 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) contextValidateMongoDBOpt
 }
 
 func (o *ListServicesOKBodyServicesItems0AgentsItems0) contextValidateMysqlOptions(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.MysqlOptions != nil {
 
 		if swag.IsZero(o.MysqlOptions) { // not required
@@ -1215,11 +1247,15 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) contextValidateMysqlOptio
 		}
 
 		if err := o.MysqlOptions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("mysql_options")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("mysql_options")
 			}
+
 			return err
 		}
 	}
@@ -1228,7 +1264,6 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) contextValidateMysqlOptio
 }
 
 func (o *ListServicesOKBodyServicesItems0AgentsItems0) contextValidatePostgresqlOptions(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.PostgresqlOptions != nil {
 
 		if swag.IsZero(o.PostgresqlOptions) { // not required
@@ -1236,11 +1271,15 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) contextValidatePostgresql
 		}
 
 		if err := o.PostgresqlOptions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("postgresql_options")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("postgresql_options")
 			}
+
 			return err
 		}
 	}
@@ -1249,7 +1288,6 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) contextValidatePostgresql
 }
 
 func (o *ListServicesOKBodyServicesItems0AgentsItems0) contextValidateRtaOptions(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.RtaOptions != nil {
 
 		if swag.IsZero(o.RtaOptions) { // not required
@@ -1257,11 +1295,15 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) contextValidateRtaOptions
 		}
 
 		if err := o.RtaOptions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("rta_options")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("rta_options")
 			}
+
 			return err
 		}
 	}
@@ -1292,7 +1334,6 @@ ListServicesOKBodyServicesItems0AgentsItems0AzureOptions list services OK body s
 swagger:model ListServicesOKBodyServicesItems0AgentsItems0AzureOptions
 */
 type ListServicesOKBodyServicesItems0AgentsItems0AzureOptions struct {
-
 	// Azure client ID.
 	ClientID string `json:"client_id,omitempty"`
 
@@ -1342,7 +1383,6 @@ ListServicesOKBodyServicesItems0AgentsItems0MongoDBOptions list services OK body
 swagger:model ListServicesOKBodyServicesItems0AgentsItems0MongoDBOptions
 */
 type ListServicesOKBodyServicesItems0AgentsItems0MongoDBOptions struct {
-
 	// True if TLS certificate is set.
 	IsTLSCertificateKeySet bool `json:"is_tls_certificate_key_set,omitempty"`
 
@@ -1398,7 +1438,6 @@ ListServicesOKBodyServicesItems0AgentsItems0MysqlOptions list services OK body s
 swagger:model ListServicesOKBodyServicesItems0AgentsItems0MysqlOptions
 */
 type ListServicesOKBodyServicesItems0AgentsItems0MysqlOptions struct {
-
 	// True if TLS key is set.
 	IsTLSKeySet bool `json:"is_tls_key_set,omitempty"`
 
@@ -1439,7 +1478,6 @@ ListServicesOKBodyServicesItems0AgentsItems0PostgresqlOptions list services OK b
 swagger:model ListServicesOKBodyServicesItems0AgentsItems0PostgresqlOptions
 */
 type ListServicesOKBodyServicesItems0AgentsItems0PostgresqlOptions struct {
-
 	// True if TLS key is set.
 	IsSslKeySet bool `json:"is_ssl_key_set,omitempty"`
 
@@ -1483,7 +1521,6 @@ ListServicesOKBodyServicesItems0AgentsItems0RtaOptions RTAOptions holds Real-Tim
 swagger:model ListServicesOKBodyServicesItems0AgentsItems0RtaOptions
 */
 type ListServicesOKBodyServicesItems0AgentsItems0RtaOptions struct {
-
 	// Query collect interval (default 2s is set by server).
 	CollectInterval string `json:"collect_interval,omitempty"`
 }

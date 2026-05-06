@@ -28,8 +28,8 @@ import (
 	"strings"
 	"time"
 
-	gapi "github.com/grafana/grafana-api-golang-client"
 	"github.com/google/uuid"
+	gapi "github.com/grafana/grafana-api-golang-client"
 	"github.com/pkg/errors"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"

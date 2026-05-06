@@ -60,7 +60,6 @@ CreateNodeInstallTokenParams contains all the parameters to send to the API endp
 	Typically these are written to a http.Request.
 */
 type CreateNodeInstallTokenParams struct {
-
 	/* Body.
 
 	   CreateNodeInstallTokenRequest requests a short-lived Grafana service account token for PMM Client install (curl | bash).
@@ -133,7 +132,6 @@ func (o *CreateNodeInstallTokenParams) SetBody(body CreateNodeInstallTokenBody) 
 
 // WriteToRequest writes these params to a swagger request
 func (o *CreateNodeInstallTokenParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

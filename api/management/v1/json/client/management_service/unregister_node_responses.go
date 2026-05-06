@@ -8,6 +8,7 @@ package management_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -24,7 +25,7 @@ type UnregisterNodeReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *UnregisterNodeReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *UnregisterNodeReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewUnregisterNodeOK()
@@ -103,11 +104,10 @@ func (o *UnregisterNodeOK) GetPayload() *UnregisterNodeOKBody {
 }
 
 func (o *UnregisterNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(UnregisterNodeOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -177,11 +177,10 @@ func (o *UnregisterNodeDefault) GetPayload() *UnregisterNodeDefaultBody {
 }
 
 func (o *UnregisterNodeDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(UnregisterNodeDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -193,7 +192,6 @@ UnregisterNodeDefaultBody unregister node default body
 swagger:model UnregisterNodeDefaultBody
 */
 type UnregisterNodeDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -230,11 +228,15 @@ func (o *UnregisterNodeDefaultBody) validateDetails(formats strfmt.Registry) err
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("UnregisterNode default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("UnregisterNode default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -259,9 +261,7 @@ func (o *UnregisterNodeDefaultBody) ContextValidate(ctx context.Context, formats
 }
 
 func (o *UnregisterNodeDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -269,15 +269,18 @@ func (o *UnregisterNodeDefaultBody) contextValidateDetails(ctx context.Context, 
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("UnregisterNode default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("UnregisterNode default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -306,19 +309,17 @@ UnregisterNodeDefaultBodyDetailsItems0 unregister node default body details item
 swagger:model UnregisterNodeDefaultBodyDetailsItems0
 */
 type UnregisterNodeDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
 	// unregister node default body details items0
-	UnregisterNodeDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	UnregisterNodeDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
 func (o *UnregisterNodeDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -339,9 +340,9 @@ func (o *UnregisterNodeDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) erro
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -356,7 +357,6 @@ func (o *UnregisterNodeDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) erro
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o UnregisterNodeDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -420,7 +420,6 @@ UnregisterNodeOKBody unregister node OK body
 swagger:model UnregisterNodeOKBody
 */
 type UnregisterNodeOKBody struct {
-
 	// Warning message if there are more service tokens attached to service account.
 	Warning string `json:"warning,omitempty"`
 }

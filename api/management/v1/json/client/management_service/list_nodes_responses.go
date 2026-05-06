@@ -8,6 +8,7 @@ package management_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,7 +26,7 @@ type ListNodesReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ListNodesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ListNodesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewListNodesOK()
@@ -104,11 +105,10 @@ func (o *ListNodesOK) GetPayload() *ListNodesOKBody {
 }
 
 func (o *ListNodesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListNodesOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -178,11 +178,10 @@ func (o *ListNodesDefault) GetPayload() *ListNodesDefaultBody {
 }
 
 func (o *ListNodesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListNodesDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -194,7 +193,6 @@ ListNodesDefaultBody list nodes default body
 swagger:model ListNodesDefaultBody
 */
 type ListNodesDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -231,11 +229,15 @@ func (o *ListNodesDefaultBody) validateDetails(formats strfmt.Registry) error {
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("ListNodes default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("ListNodes default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -260,9 +262,7 @@ func (o *ListNodesDefaultBody) ContextValidate(ctx context.Context, formats strf
 }
 
 func (o *ListNodesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -270,15 +270,18 @@ func (o *ListNodesDefaultBody) contextValidateDetails(ctx context.Context, forma
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("ListNodes default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("ListNodes default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -307,19 +310,17 @@ ListNodesDefaultBodyDetailsItems0 list nodes default body details items0
 swagger:model ListNodesDefaultBodyDetailsItems0
 */
 type ListNodesDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
 	// list nodes default body details items0
-	ListNodesDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	ListNodesDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
 func (o *ListNodesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -340,9 +341,9 @@ func (o *ListNodesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -357,7 +358,6 @@ func (o *ListNodesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o ListNodesDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -421,7 +421,6 @@ ListNodesOKBody list nodes OK body
 swagger:model ListNodesOKBody
 */
 type ListNodesOKBody struct {
-
 	// nodes
 	Nodes []*ListNodesOKBodyNodesItems0 `json:"nodes"`
 }
@@ -452,11 +451,15 @@ func (o *ListNodesOKBody) validateNodes(formats strfmt.Registry) error {
 
 		if o.Nodes[i] != nil {
 			if err := o.Nodes[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listNodesOk" + "." + "nodes" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listNodesOk" + "." + "nodes" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -481,9 +484,7 @@ func (o *ListNodesOKBody) ContextValidate(ctx context.Context, formats strfmt.Re
 }
 
 func (o *ListNodesOKBody) contextValidateNodes(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Nodes); i++ {
-
 		if o.Nodes[i] != nil {
 
 			if swag.IsZero(o.Nodes[i]) { // not required
@@ -491,15 +492,18 @@ func (o *ListNodesOKBody) contextValidateNodes(ctx context.Context, formats strf
 			}
 
 			if err := o.Nodes[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("listNodesOk" + "." + "nodes" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listNodesOk" + "." + "nodes" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -528,7 +532,6 @@ ListNodesOKBodyNodesItems0 list nodes OK body nodes items0
 swagger:model ListNodesOKBodyNodesItems0
 */
 type ListNodesOKBodyNodesItems0 struct {
-
 	// Unique Node identifier.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -573,6 +576,15 @@ type ListNodesOKBodyNodesItems0 struct {
 	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updated_at,omitempty"`
 
+	// Node status.
+	//
+	//  - STATUS_UNSPECIFIED: Invalid status.
+	//  - STATUS_UP: The node is up.
+	//  - STATUS_DOWN: The node is down.
+	//  - STATUS_UNKNOWN: The node's status cannot be known (e.g. there are no metrics yet).
+	// Enum: ["STATUS_UNSPECIFIED","STATUS_UP","STATUS_DOWN","STATUS_UNKNOWN"]
+	Status *string `json:"status,omitempty"`
+
 	// List of agents related to this node.
 	Agents []*ListNodesOKBodyNodesItems0AgentsItems0 `json:"agents"`
 
@@ -584,15 +596,6 @@ type ListNodesOKBodyNodesItems0 struct {
 
 	// True if this node is a PMM Server node (HA mode).
 	IsPMMServerNode bool `json:"is_pmm_server_node,omitempty"`
-
-	// Node status.
-	//
-	//  - STATUS_UNSPECIFIED: Invalid status.
-	//  - STATUS_UP: The node is up.
-	//  - STATUS_DOWN: The node is down.
-	//  - STATUS_UNKNOWN: The node's status cannot be known (e.g. there are no metrics yet).
-	// Enum: ["STATUS_UNSPECIFIED","STATUS_UP","STATUS_DOWN","STATUS_UNKNOWN"]
-	Status *string `json:"status,omitempty"`
 }
 
 // Validate validates this list nodes OK body nodes items0
@@ -607,15 +610,15 @@ func (o *ListNodesOKBodyNodesItems0) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateAgents(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := o.validateServices(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -649,59 +652,7 @@ func (o *ListNodesOKBodyNodesItems0) validateUpdatedAt(formats strfmt.Registry) 
 	return nil
 }
 
-func (o *ListNodesOKBodyNodesItems0) validateAgents(formats strfmt.Registry) error {
-	if swag.IsZero(o.Agents) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.Agents); i++ {
-		if swag.IsZero(o.Agents[i]) { // not required
-			continue
-		}
-
-		if o.Agents[i] != nil {
-			if err := o.Agents[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("agents" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("agents" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-func (o *ListNodesOKBodyNodesItems0) validateServices(formats strfmt.Registry) error {
-	if swag.IsZero(o.Services) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.Services); i++ {
-		if swag.IsZero(o.Services[i]) { // not required
-			continue
-		}
-
-		if o.Services[i] != nil {
-			if err := o.Services[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("services" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("services" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-var listNodesOkBodyNodesItems0TypeStatusPropEnum []interface{}
+var listNodesOkBodyNodesItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -749,6 +700,66 @@ func (o *ListNodesOKBodyNodesItems0) validateStatus(formats strfmt.Registry) err
 	return nil
 }
 
+func (o *ListNodesOKBodyNodesItems0) validateAgents(formats strfmt.Registry) error {
+	if swag.IsZero(o.Agents) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Agents); i++ {
+		if swag.IsZero(o.Agents[i]) { // not required
+			continue
+		}
+
+		if o.Agents[i] != nil {
+			if err := o.Agents[i].Validate(formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("agents" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("agents" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListNodesOKBodyNodesItems0) validateServices(formats strfmt.Registry) error {
+	if swag.IsZero(o.Services) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Services); i++ {
+		if swag.IsZero(o.Services[i]) { // not required
+			continue
+		}
+
+		if o.Services[i] != nil {
+			if err := o.Services[i].Validate(formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("services" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("services" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
 // ContextValidate validate this list nodes OK body nodes items0 based on the context it is used
 func (o *ListNodesOKBodyNodesItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -768,9 +779,7 @@ func (o *ListNodesOKBodyNodesItems0) ContextValidate(ctx context.Context, format
 }
 
 func (o *ListNodesOKBodyNodesItems0) contextValidateAgents(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Agents); i++ {
-
 		if o.Agents[i] != nil {
 
 			if swag.IsZero(o.Agents[i]) { // not required
@@ -778,24 +787,25 @@ func (o *ListNodesOKBodyNodesItems0) contextValidateAgents(ctx context.Context, 
 			}
 
 			if err := o.Agents[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("agents" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("agents" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *ListNodesOKBodyNodesItems0) contextValidateServices(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Services); i++ {
-
 		if o.Services[i] != nil {
 
 			if swag.IsZero(o.Services[i]) { // not required
@@ -803,15 +813,18 @@ func (o *ListNodesOKBodyNodesItems0) contextValidateServices(ctx context.Context
 			}
 
 			if err := o.Services[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("services" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("services" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -840,7 +853,6 @@ ListNodesOKBodyNodesItems0AgentsItems0 list nodes OK body nodes items0 agents it
 swagger:model ListNodesOKBodyNodesItems0AgentsItems0
 */
 type ListNodesOKBodyNodesItems0AgentsItems0 struct {
-
 	// Unique Agent identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -887,7 +899,6 @@ ListNodesOKBodyNodesItems0ServicesItems0 Service represents a service running on
 swagger:model ListNodesOKBodyNodesItems0ServicesItems0
 */
 type ListNodesOKBodyNodesItems0ServicesItems0 struct {
-
 	// Unique Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
 

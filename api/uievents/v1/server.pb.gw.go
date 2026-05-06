@@ -148,10 +148,6 @@ func RegisterUIEventsServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 	return nil
 }
 
-var (
-	pattern_UIEventsService_Store_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "ui-events", "Store"}, ""))
-)
+var pattern_UIEventsService_Store_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "ui-events", "Store"}, ""))
 
-var (
-	forward_UIEventsService_Store_0 = runtime.ForwardResponseMessage
-)
+var forward_UIEventsService_Store_0 = runtime.ForwardResponseMessage

@@ -8,6 +8,7 @@ package management_service
 import (
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -25,7 +26,7 @@ type AddServiceReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *AddServiceReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *AddServiceReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewAddServiceOK()
@@ -104,11 +105,10 @@ func (o *AddServiceOK) GetPayload() *AddServiceOKBody {
 }
 
 func (o *AddServiceOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddServiceOKBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -178,11 +178,10 @@ func (o *AddServiceDefault) GetPayload() *AddServiceDefaultBody {
 }
 
 func (o *AddServiceDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddServiceDefaultBody)
 
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -194,7 +193,6 @@ AddServiceBody add service body
 swagger:model AddServiceBody
 */
 type AddServiceBody struct {
-
 	// external
 	External *AddServiceParamsBodyExternal `json:"external,omitempty"`
 
@@ -269,11 +267,15 @@ func (o *AddServiceBody) validateExternal(formats strfmt.Registry) error {
 
 	if o.External != nil {
 		if err := o.External.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "external")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "external")
 			}
+
 			return err
 		}
 	}
@@ -288,11 +290,15 @@ func (o *AddServiceBody) validateHaproxy(formats strfmt.Registry) error {
 
 	if o.Haproxy != nil {
 		if err := o.Haproxy.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "haproxy")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "haproxy")
 			}
+
 			return err
 		}
 	}
@@ -307,11 +313,15 @@ func (o *AddServiceBody) validateMongodb(formats strfmt.Registry) error {
 
 	if o.Mongodb != nil {
 		if err := o.Mongodb.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mongodb")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mongodb")
 			}
+
 			return err
 		}
 	}
@@ -326,11 +336,15 @@ func (o *AddServiceBody) validateMysql(formats strfmt.Registry) error {
 
 	if o.Mysql != nil {
 		if err := o.Mysql.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mysql")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mysql")
 			}
+
 			return err
 		}
 	}
@@ -345,11 +359,15 @@ func (o *AddServiceBody) validatePostgresql(formats strfmt.Registry) error {
 
 	if o.Postgresql != nil {
 		if err := o.Postgresql.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "postgresql")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "postgresql")
 			}
+
 			return err
 		}
 	}
@@ -364,11 +382,15 @@ func (o *AddServiceBody) validateProxysql(formats strfmt.Registry) error {
 
 	if o.Proxysql != nil {
 		if err := o.Proxysql.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "proxysql")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "proxysql")
 			}
+
 			return err
 		}
 	}
@@ -383,11 +405,15 @@ func (o *AddServiceBody) validateRDS(formats strfmt.Registry) error {
 
 	if o.RDS != nil {
 		if err := o.RDS.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "rds")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "rds")
 			}
+
 			return err
 		}
 	}
@@ -402,11 +428,15 @@ func (o *AddServiceBody) validateValkey(formats strfmt.Registry) error {
 
 	if o.Valkey != nil {
 		if err := o.Valkey.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "valkey")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "valkey")
 			}
+
 			return err
 		}
 	}
@@ -457,7 +487,6 @@ func (o *AddServiceBody) ContextValidate(ctx context.Context, formats strfmt.Reg
 }
 
 func (o *AddServiceBody) contextValidateExternal(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.External != nil {
 
 		if swag.IsZero(o.External) { // not required
@@ -465,11 +494,15 @@ func (o *AddServiceBody) contextValidateExternal(ctx context.Context, formats st
 		}
 
 		if err := o.External.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "external")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "external")
 			}
+
 			return err
 		}
 	}
@@ -478,7 +511,6 @@ func (o *AddServiceBody) contextValidateExternal(ctx context.Context, formats st
 }
 
 func (o *AddServiceBody) contextValidateHaproxy(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Haproxy != nil {
 
 		if swag.IsZero(o.Haproxy) { // not required
@@ -486,11 +518,15 @@ func (o *AddServiceBody) contextValidateHaproxy(ctx context.Context, formats str
 		}
 
 		if err := o.Haproxy.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "haproxy")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "haproxy")
 			}
+
 			return err
 		}
 	}
@@ -499,7 +535,6 @@ func (o *AddServiceBody) contextValidateHaproxy(ctx context.Context, formats str
 }
 
 func (o *AddServiceBody) contextValidateMongodb(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Mongodb != nil {
 
 		if swag.IsZero(o.Mongodb) { // not required
@@ -507,11 +542,15 @@ func (o *AddServiceBody) contextValidateMongodb(ctx context.Context, formats str
 		}
 
 		if err := o.Mongodb.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mongodb")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mongodb")
 			}
+
 			return err
 		}
 	}
@@ -520,7 +559,6 @@ func (o *AddServiceBody) contextValidateMongodb(ctx context.Context, formats str
 }
 
 func (o *AddServiceBody) contextValidateMysql(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Mysql != nil {
 
 		if swag.IsZero(o.Mysql) { // not required
@@ -528,11 +566,15 @@ func (o *AddServiceBody) contextValidateMysql(ctx context.Context, formats strfm
 		}
 
 		if err := o.Mysql.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mysql")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mysql")
 			}
+
 			return err
 		}
 	}
@@ -541,7 +583,6 @@ func (o *AddServiceBody) contextValidateMysql(ctx context.Context, formats strfm
 }
 
 func (o *AddServiceBody) contextValidatePostgresql(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Postgresql != nil {
 
 		if swag.IsZero(o.Postgresql) { // not required
@@ -549,11 +590,15 @@ func (o *AddServiceBody) contextValidatePostgresql(ctx context.Context, formats 
 		}
 
 		if err := o.Postgresql.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "postgresql")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "postgresql")
 			}
+
 			return err
 		}
 	}
@@ -562,7 +607,6 @@ func (o *AddServiceBody) contextValidatePostgresql(ctx context.Context, formats 
 }
 
 func (o *AddServiceBody) contextValidateProxysql(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Proxysql != nil {
 
 		if swag.IsZero(o.Proxysql) { // not required
@@ -570,11 +614,15 @@ func (o *AddServiceBody) contextValidateProxysql(ctx context.Context, formats st
 		}
 
 		if err := o.Proxysql.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "proxysql")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "proxysql")
 			}
+
 			return err
 		}
 	}
@@ -583,7 +631,6 @@ func (o *AddServiceBody) contextValidateProxysql(ctx context.Context, formats st
 }
 
 func (o *AddServiceBody) contextValidateRDS(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.RDS != nil {
 
 		if swag.IsZero(o.RDS) { // not required
@@ -591,11 +638,15 @@ func (o *AddServiceBody) contextValidateRDS(ctx context.Context, formats strfmt.
 		}
 
 		if err := o.RDS.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "rds")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "rds")
 			}
+
 			return err
 		}
 	}
@@ -604,7 +655,6 @@ func (o *AddServiceBody) contextValidateRDS(ctx context.Context, formats strfmt.
 }
 
 func (o *AddServiceBody) contextValidateValkey(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Valkey != nil {
 
 		if swag.IsZero(o.Valkey) { // not required
@@ -612,11 +662,15 @@ func (o *AddServiceBody) contextValidateValkey(ctx context.Context, formats strf
 		}
 
 		if err := o.Valkey.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "valkey")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "valkey")
 			}
+
 			return err
 		}
 	}
@@ -647,7 +701,6 @@ AddServiceDefaultBody add service default body
 swagger:model AddServiceDefaultBody
 */
 type AddServiceDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -684,11 +737,15 @@ func (o *AddServiceDefaultBody) validateDetails(formats strfmt.Registry) error {
 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("AddService default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("AddService default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
@@ -713,9 +770,7 @@ func (o *AddServiceDefaultBody) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *AddServiceDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -723,15 +778,18 @@ func (o *AddServiceDefaultBody) contextValidateDetails(ctx context.Context, form
 			}
 
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
 					return ve.ValidateName("AddService default" + "." + "details" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
 					return ce.ValidateName("AddService default" + "." + "details" + "." + strconv.Itoa(i))
 				}
+
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -760,19 +818,17 @@ AddServiceDefaultBodyDetailsItems0 add service default body details items0
 swagger:model AddServiceDefaultBodyDetailsItems0
 */
 type AddServiceDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
 	// add service default body details items0
-	AddServiceDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+	AddServiceDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
 func (o *AddServiceDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -793,9 +849,9 @@ func (o *AddServiceDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	delete(stage2, "@type")
 	// stage 3, add additional properties values
 	if len(stage2) > 0 {
-		result := make(map[string]interface{})
+		result := make(map[string]any)
 		for k, v := range stage2 {
-			var toadd interface{}
+			var toadd any
 			if err := json.Unmarshal(v, &toadd); err != nil {
 				return err
 			}
@@ -810,7 +866,6 @@ func (o *AddServiceDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o AddServiceDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -874,7 +929,6 @@ AddServiceOKBody add service OK body
 swagger:model AddServiceOKBody
 */
 type AddServiceOKBody struct {
-
 	// external
 	External *AddServiceOKBodyExternal `json:"external,omitempty"`
 
@@ -949,11 +1003,15 @@ func (o *AddServiceOKBody) validateExternal(formats strfmt.Registry) error {
 
 	if o.External != nil {
 		if err := o.External.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "external")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "external")
 			}
+
 			return err
 		}
 	}
@@ -968,11 +1026,15 @@ func (o *AddServiceOKBody) validateHaproxy(formats strfmt.Registry) error {
 
 	if o.Haproxy != nil {
 		if err := o.Haproxy.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "haproxy")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "haproxy")
 			}
+
 			return err
 		}
 	}
@@ -987,11 +1049,15 @@ func (o *AddServiceOKBody) validateMongodb(formats strfmt.Registry) error {
 
 	if o.Mongodb != nil {
 		if err := o.Mongodb.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "mongodb")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "mongodb")
 			}
+
 			return err
 		}
 	}
@@ -1006,11 +1072,15 @@ func (o *AddServiceOKBody) validateMysql(formats strfmt.Registry) error {
 
 	if o.Mysql != nil {
 		if err := o.Mysql.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "mysql")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "mysql")
 			}
+
 			return err
 		}
 	}
@@ -1025,11 +1095,15 @@ func (o *AddServiceOKBody) validatePostgresql(formats strfmt.Registry) error {
 
 	if o.Postgresql != nil {
 		if err := o.Postgresql.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "postgresql")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "postgresql")
 			}
+
 			return err
 		}
 	}
@@ -1044,11 +1118,15 @@ func (o *AddServiceOKBody) validateProxysql(formats strfmt.Registry) error {
 
 	if o.Proxysql != nil {
 		if err := o.Proxysql.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "proxysql")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "proxysql")
 			}
+
 			return err
 		}
 	}
@@ -1063,11 +1141,15 @@ func (o *AddServiceOKBody) validateRDS(formats strfmt.Registry) error {
 
 	if o.RDS != nil {
 		if err := o.RDS.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "rds")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "rds")
 			}
+
 			return err
 		}
 	}
@@ -1082,11 +1164,15 @@ func (o *AddServiceOKBody) validateValkey(formats strfmt.Registry) error {
 
 	if o.Valkey != nil {
 		if err := o.Valkey.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "valkey")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "valkey")
 			}
+
 			return err
 		}
 	}
@@ -1137,7 +1223,6 @@ func (o *AddServiceOKBody) ContextValidate(ctx context.Context, formats strfmt.R
 }
 
 func (o *AddServiceOKBody) contextValidateExternal(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.External != nil {
 
 		if swag.IsZero(o.External) { // not required
@@ -1145,11 +1230,15 @@ func (o *AddServiceOKBody) contextValidateExternal(ctx context.Context, formats 
 		}
 
 		if err := o.External.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "external")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "external")
 			}
+
 			return err
 		}
 	}
@@ -1158,7 +1247,6 @@ func (o *AddServiceOKBody) contextValidateExternal(ctx context.Context, formats 
 }
 
 func (o *AddServiceOKBody) contextValidateHaproxy(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Haproxy != nil {
 
 		if swag.IsZero(o.Haproxy) { // not required
@@ -1166,11 +1254,15 @@ func (o *AddServiceOKBody) contextValidateHaproxy(ctx context.Context, formats s
 		}
 
 		if err := o.Haproxy.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "haproxy")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "haproxy")
 			}
+
 			return err
 		}
 	}
@@ -1179,7 +1271,6 @@ func (o *AddServiceOKBody) contextValidateHaproxy(ctx context.Context, formats s
 }
 
 func (o *AddServiceOKBody) contextValidateMongodb(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Mongodb != nil {
 
 		if swag.IsZero(o.Mongodb) { // not required
@@ -1187,11 +1278,15 @@ func (o *AddServiceOKBody) contextValidateMongodb(ctx context.Context, formats s
 		}
 
 		if err := o.Mongodb.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "mongodb")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "mongodb")
 			}
+
 			return err
 		}
 	}
@@ -1200,7 +1295,6 @@ func (o *AddServiceOKBody) contextValidateMongodb(ctx context.Context, formats s
 }
 
 func (o *AddServiceOKBody) contextValidateMysql(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Mysql != nil {
 
 		if swag.IsZero(o.Mysql) { // not required
@@ -1208,11 +1302,15 @@ func (o *AddServiceOKBody) contextValidateMysql(ctx context.Context, formats str
 		}
 
 		if err := o.Mysql.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "mysql")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "mysql")
 			}
+
 			return err
 		}
 	}
@@ -1221,7 +1319,6 @@ func (o *AddServiceOKBody) contextValidateMysql(ctx context.Context, formats str
 }
 
 func (o *AddServiceOKBody) contextValidatePostgresql(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Postgresql != nil {
 
 		if swag.IsZero(o.Postgresql) { // not required
@@ -1229,11 +1326,15 @@ func (o *AddServiceOKBody) contextValidatePostgresql(ctx context.Context, format
 		}
 
 		if err := o.Postgresql.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "postgresql")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "postgresql")
 			}
+
 			return err
 		}
 	}
@@ -1242,7 +1343,6 @@ func (o *AddServiceOKBody) contextValidatePostgresql(ctx context.Context, format
 }
 
 func (o *AddServiceOKBody) contextValidateProxysql(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Proxysql != nil {
 
 		if swag.IsZero(o.Proxysql) { // not required
@@ -1250,11 +1350,15 @@ func (o *AddServiceOKBody) contextValidateProxysql(ctx context.Context, formats 
 		}
 
 		if err := o.Proxysql.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "proxysql")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "proxysql")
 			}
+
 			return err
 		}
 	}
@@ -1263,7 +1367,6 @@ func (o *AddServiceOKBody) contextValidateProxysql(ctx context.Context, formats 
 }
 
 func (o *AddServiceOKBody) contextValidateRDS(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.RDS != nil {
 
 		if swag.IsZero(o.RDS) { // not required
@@ -1271,11 +1374,15 @@ func (o *AddServiceOKBody) contextValidateRDS(ctx context.Context, formats strfm
 		}
 
 		if err := o.RDS.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "rds")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "rds")
 			}
+
 			return err
 		}
 	}
@@ -1284,7 +1391,6 @@ func (o *AddServiceOKBody) contextValidateRDS(ctx context.Context, formats strfm
 }
 
 func (o *AddServiceOKBody) contextValidateValkey(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Valkey != nil {
 
 		if swag.IsZero(o.Valkey) { // not required
@@ -1292,11 +1398,15 @@ func (o *AddServiceOKBody) contextValidateValkey(ctx context.Context, formats st
 		}
 
 		if err := o.Valkey.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "valkey")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "valkey")
 			}
+
 			return err
 		}
 	}
@@ -1327,7 +1437,6 @@ AddServiceOKBodyExternal add service OK body external
 swagger:model AddServiceOKBodyExternal
 */
 type AddServiceOKBodyExternal struct {
-
 	// external exporter
 	ExternalExporter *AddServiceOKBodyExternalExternalExporter `json:"external_exporter,omitempty"`
 
@@ -1360,11 +1469,15 @@ func (o *AddServiceOKBodyExternal) validateExternalExporter(formats strfmt.Regis
 
 	if o.ExternalExporter != nil {
 		if err := o.ExternalExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "external" + "." + "external_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "external" + "." + "external_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1379,11 +1492,15 @@ func (o *AddServiceOKBodyExternal) validateService(formats strfmt.Registry) erro
 
 	if o.Service != nil {
 		if err := o.Service.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "external" + "." + "service")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "external" + "." + "service")
 			}
+
 			return err
 		}
 	}
@@ -1410,7 +1527,6 @@ func (o *AddServiceOKBodyExternal) ContextValidate(ctx context.Context, formats 
 }
 
 func (o *AddServiceOKBodyExternal) contextValidateExternalExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.ExternalExporter != nil {
 
 		if swag.IsZero(o.ExternalExporter) { // not required
@@ -1418,11 +1534,15 @@ func (o *AddServiceOKBodyExternal) contextValidateExternalExporter(ctx context.C
 		}
 
 		if err := o.ExternalExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "external" + "." + "external_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "external" + "." + "external_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1431,7 +1551,6 @@ func (o *AddServiceOKBodyExternal) contextValidateExternalExporter(ctx context.C
 }
 
 func (o *AddServiceOKBodyExternal) contextValidateService(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Service != nil {
 
 		if swag.IsZero(o.Service) { // not required
@@ -1439,11 +1558,15 @@ func (o *AddServiceOKBodyExternal) contextValidateService(ctx context.Context, f
 		}
 
 		if err := o.Service.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "external" + "." + "service")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "external" + "." + "service")
 			}
+
 			return err
 		}
 	}
@@ -1474,7 +1597,6 @@ AddServiceOKBodyExternalExternalExporter ExternalExporter runs on any Node type,
 swagger:model AddServiceOKBodyExternalExternalExporter
 */
 type AddServiceOKBodyExternalExternalExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -1511,9 +1633,6 @@ type AddServiceOKBodyExternalExternalExporter struct {
 	// Skip TLS certificate and hostname verification.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
-	// metrics resolutions
-	MetricsResolutions *AddServiceOKBodyExternalExternalExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
-
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
@@ -1525,17 +1644,20 @@ type AddServiceOKBodyExternalExternalExporter struct {
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *AddServiceOKBodyExternalExternalExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this add service OK body external external exporter
 func (o *AddServiceOKBodyExternalExternalExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateMetricsResolutions(formats); err != nil {
+	if err := o.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateStatus(formats); err != nil {
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1545,26 +1667,7 @@ func (o *AddServiceOKBodyExternalExternalExporter) Validate(formats strfmt.Regis
 	return nil
 }
 
-func (o *AddServiceOKBodyExternalExternalExporter) validateMetricsResolutions(formats strfmt.Registry) error {
-	if swag.IsZero(o.MetricsResolutions) { // not required
-		return nil
-	}
-
-	if o.MetricsResolutions != nil {
-		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addServiceOk" + "." + "external" + "." + "external_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("addServiceOk" + "." + "external" + "." + "external_exporter" + "." + "metrics_resolutions")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-var addServiceOkBodyExternalExternalExporterTypeStatusPropEnum []interface{}
+var addServiceOkBodyExternalExternalExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -1624,6 +1727,29 @@ func (o *AddServiceOKBodyExternalExternalExporter) validateStatus(formats strfmt
 	return nil
 }
 
+func (o *AddServiceOKBodyExternalExternalExporter) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("addServiceOk" + "." + "external" + "." + "external_exporter" + "." + "metrics_resolutions")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("addServiceOk" + "." + "external" + "." + "external_exporter" + "." + "metrics_resolutions")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this add service OK body external external exporter based on the context it is used
 func (o *AddServiceOKBodyExternalExternalExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -1639,7 +1765,6 @@ func (o *AddServiceOKBodyExternalExternalExporter) ContextValidate(ctx context.C
 }
 
 func (o *AddServiceOKBodyExternalExternalExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.MetricsResolutions != nil {
 
 		if swag.IsZero(o.MetricsResolutions) { // not required
@@ -1647,11 +1772,15 @@ func (o *AddServiceOKBodyExternalExternalExporter) contextValidateMetricsResolut
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "external" + "." + "external_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "external" + "." + "external_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -1682,7 +1811,6 @@ AddServiceOKBodyExternalExternalExporterMetricsResolutions MetricsResolutions re
 swagger:model AddServiceOKBodyExternalExternalExporterMetricsResolutions
 */
 type AddServiceOKBodyExternalExternalExporterMetricsResolutions struct {
-
 	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
 	Hr string `json:"hr,omitempty"`
 
@@ -1726,7 +1854,6 @@ AddServiceOKBodyExternalService ExternalService represents a generic External se
 swagger:model AddServiceOKBodyExternalService
 */
 type AddServiceOKBodyExternalService struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -1791,7 +1918,6 @@ AddServiceOKBodyHaproxy add service OK body haproxy
 swagger:model AddServiceOKBodyHaproxy
 */
 type AddServiceOKBodyHaproxy struct {
-
 	// external exporter
 	ExternalExporter *AddServiceOKBodyHaproxyExternalExporter `json:"external_exporter,omitempty"`
 
@@ -1824,11 +1950,15 @@ func (o *AddServiceOKBodyHaproxy) validateExternalExporter(formats strfmt.Regist
 
 	if o.ExternalExporter != nil {
 		if err := o.ExternalExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "haproxy" + "." + "external_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "haproxy" + "." + "external_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1843,11 +1973,15 @@ func (o *AddServiceOKBodyHaproxy) validateService(formats strfmt.Registry) error
 
 	if o.Service != nil {
 		if err := o.Service.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "haproxy" + "." + "service")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "haproxy" + "." + "service")
 			}
+
 			return err
 		}
 	}
@@ -1874,7 +2008,6 @@ func (o *AddServiceOKBodyHaproxy) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *AddServiceOKBodyHaproxy) contextValidateExternalExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.ExternalExporter != nil {
 
 		if swag.IsZero(o.ExternalExporter) { // not required
@@ -1882,11 +2015,15 @@ func (o *AddServiceOKBodyHaproxy) contextValidateExternalExporter(ctx context.Co
 		}
 
 		if err := o.ExternalExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "haproxy" + "." + "external_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "haproxy" + "." + "external_exporter")
 			}
+
 			return err
 		}
 	}
@@ -1895,7 +2032,6 @@ func (o *AddServiceOKBodyHaproxy) contextValidateExternalExporter(ctx context.Co
 }
 
 func (o *AddServiceOKBodyHaproxy) contextValidateService(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Service != nil {
 
 		if swag.IsZero(o.Service) { // not required
@@ -1903,11 +2039,15 @@ func (o *AddServiceOKBodyHaproxy) contextValidateService(ctx context.Context, fo
 		}
 
 		if err := o.Service.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "haproxy" + "." + "service")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "haproxy" + "." + "service")
 			}
+
 			return err
 		}
 	}
@@ -1938,7 +2078,6 @@ AddServiceOKBodyHaproxyExternalExporter ExternalExporter runs on any Node type, 
 swagger:model AddServiceOKBodyHaproxyExternalExporter
 */
 type AddServiceOKBodyHaproxyExternalExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -1975,9 +2114,6 @@ type AddServiceOKBodyHaproxyExternalExporter struct {
 	// Skip TLS certificate and hostname verification.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
-	// metrics resolutions
-	MetricsResolutions *AddServiceOKBodyHaproxyExternalExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
-
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
@@ -1989,17 +2125,20 @@ type AddServiceOKBodyHaproxyExternalExporter struct {
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *AddServiceOKBodyHaproxyExternalExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this add service OK body haproxy external exporter
 func (o *AddServiceOKBodyHaproxyExternalExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateMetricsResolutions(formats); err != nil {
+	if err := o.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateStatus(formats); err != nil {
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -2009,26 +2148,7 @@ func (o *AddServiceOKBodyHaproxyExternalExporter) Validate(formats strfmt.Regist
 	return nil
 }
 
-func (o *AddServiceOKBodyHaproxyExternalExporter) validateMetricsResolutions(formats strfmt.Registry) error {
-	if swag.IsZero(o.MetricsResolutions) { // not required
-		return nil
-	}
-
-	if o.MetricsResolutions != nil {
-		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addServiceOk" + "." + "haproxy" + "." + "external_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("addServiceOk" + "." + "haproxy" + "." + "external_exporter" + "." + "metrics_resolutions")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-var addServiceOkBodyHaproxyExternalExporterTypeStatusPropEnum []interface{}
+var addServiceOkBodyHaproxyExternalExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -2088,6 +2208,29 @@ func (o *AddServiceOKBodyHaproxyExternalExporter) validateStatus(formats strfmt.
 	return nil
 }
 
+func (o *AddServiceOKBodyHaproxyExternalExporter) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("addServiceOk" + "." + "haproxy" + "." + "external_exporter" + "." + "metrics_resolutions")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("addServiceOk" + "." + "haproxy" + "." + "external_exporter" + "." + "metrics_resolutions")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this add service OK body haproxy external exporter based on the context it is used
 func (o *AddServiceOKBodyHaproxyExternalExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -2103,7 +2246,6 @@ func (o *AddServiceOKBodyHaproxyExternalExporter) ContextValidate(ctx context.Co
 }
 
 func (o *AddServiceOKBodyHaproxyExternalExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.MetricsResolutions != nil {
 
 		if swag.IsZero(o.MetricsResolutions) { // not required
@@ -2111,11 +2253,15 @@ func (o *AddServiceOKBodyHaproxyExternalExporter) contextValidateMetricsResoluti
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "haproxy" + "." + "external_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "haproxy" + "." + "external_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -2146,7 +2292,6 @@ AddServiceOKBodyHaproxyExternalExporterMetricsResolutions MetricsResolutions rep
 swagger:model AddServiceOKBodyHaproxyExternalExporterMetricsResolutions
 */
 type AddServiceOKBodyHaproxyExternalExporterMetricsResolutions struct {
-
 	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
 	Hr string `json:"hr,omitempty"`
 
@@ -2190,7 +2335,6 @@ AddServiceOKBodyHaproxyService HAProxyService represents a generic HAProxy servi
 swagger:model AddServiceOKBodyHaproxyService
 */
 type AddServiceOKBodyHaproxyService struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -2246,7 +2390,6 @@ AddServiceOKBodyMongodb add service OK body mongodb
 swagger:model AddServiceOKBodyMongodb
 */
 type AddServiceOKBodyMongodb struct {
-
 	// mongodb exporter
 	MongodbExporter *AddServiceOKBodyMongodbMongodbExporter `json:"mongodb_exporter,omitempty"`
 
@@ -2300,11 +2443,15 @@ func (o *AddServiceOKBodyMongodb) validateMongodbExporter(formats strfmt.Registr
 
 	if o.MongodbExporter != nil {
 		if err := o.MongodbExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "mongodb" + "." + "mongodb_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "mongodb" + "." + "mongodb_exporter")
 			}
+
 			return err
 		}
 	}
@@ -2319,11 +2466,15 @@ func (o *AddServiceOKBodyMongodb) validateQANMongodbMongolog(formats strfmt.Regi
 
 	if o.QANMongodbMongolog != nil {
 		if err := o.QANMongodbMongolog.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "mongodb" + "." + "qan_mongodb_mongolog")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "mongodb" + "." + "qan_mongodb_mongolog")
 			}
+
 			return err
 		}
 	}
@@ -2338,11 +2489,15 @@ func (o *AddServiceOKBodyMongodb) validateQANMongodbProfiler(formats strfmt.Regi
 
 	if o.QANMongodbProfiler != nil {
 		if err := o.QANMongodbProfiler.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "mongodb" + "." + "qan_mongodb_profiler")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "mongodb" + "." + "qan_mongodb_profiler")
 			}
+
 			return err
 		}
 	}
@@ -2357,11 +2512,15 @@ func (o *AddServiceOKBodyMongodb) validateRtaMongodbAgent(formats strfmt.Registr
 
 	if o.RtaMongodbAgent != nil {
 		if err := o.RtaMongodbAgent.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "mongodb" + "." + "rta_mongodb_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "mongodb" + "." + "rta_mongodb_agent")
 			}
+
 			return err
 		}
 	}
@@ -2376,11 +2535,15 @@ func (o *AddServiceOKBodyMongodb) validateService(formats strfmt.Registry) error
 
 	if o.Service != nil {
 		if err := o.Service.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "mongodb" + "." + "service")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "mongodb" + "." + "service")
 			}
+
 			return err
 		}
 	}
@@ -2419,7 +2582,6 @@ func (o *AddServiceOKBodyMongodb) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *AddServiceOKBodyMongodb) contextValidateMongodbExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.MongodbExporter != nil {
 
 		if swag.IsZero(o.MongodbExporter) { // not required
@@ -2427,11 +2589,15 @@ func (o *AddServiceOKBodyMongodb) contextValidateMongodbExporter(ctx context.Con
 		}
 
 		if err := o.MongodbExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "mongodb" + "." + "mongodb_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "mongodb" + "." + "mongodb_exporter")
 			}
+
 			return err
 		}
 	}
@@ -2440,7 +2606,6 @@ func (o *AddServiceOKBodyMongodb) contextValidateMongodbExporter(ctx context.Con
 }
 
 func (o *AddServiceOKBodyMongodb) contextValidateQANMongodbMongolog(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.QANMongodbMongolog != nil {
 
 		if swag.IsZero(o.QANMongodbMongolog) { // not required
@@ -2448,11 +2613,15 @@ func (o *AddServiceOKBodyMongodb) contextValidateQANMongodbMongolog(ctx context.
 		}
 
 		if err := o.QANMongodbMongolog.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "mongodb" + "." + "qan_mongodb_mongolog")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "mongodb" + "." + "qan_mongodb_mongolog")
 			}
+
 			return err
 		}
 	}
@@ -2461,7 +2630,6 @@ func (o *AddServiceOKBodyMongodb) contextValidateQANMongodbMongolog(ctx context.
 }
 
 func (o *AddServiceOKBodyMongodb) contextValidateQANMongodbProfiler(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.QANMongodbProfiler != nil {
 
 		if swag.IsZero(o.QANMongodbProfiler) { // not required
@@ -2469,11 +2637,15 @@ func (o *AddServiceOKBodyMongodb) contextValidateQANMongodbProfiler(ctx context.
 		}
 
 		if err := o.QANMongodbProfiler.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "mongodb" + "." + "qan_mongodb_profiler")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "mongodb" + "." + "qan_mongodb_profiler")
 			}
+
 			return err
 		}
 	}
@@ -2482,7 +2654,6 @@ func (o *AddServiceOKBodyMongodb) contextValidateQANMongodbProfiler(ctx context.
 }
 
 func (o *AddServiceOKBodyMongodb) contextValidateRtaMongodbAgent(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.RtaMongodbAgent != nil {
 
 		if swag.IsZero(o.RtaMongodbAgent) { // not required
@@ -2490,11 +2661,15 @@ func (o *AddServiceOKBodyMongodb) contextValidateRtaMongodbAgent(ctx context.Con
 		}
 
 		if err := o.RtaMongodbAgent.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "mongodb" + "." + "rta_mongodb_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "mongodb" + "." + "rta_mongodb_agent")
 			}
+
 			return err
 		}
 	}
@@ -2503,7 +2678,6 @@ func (o *AddServiceOKBodyMongodb) contextValidateRtaMongodbAgent(ctx context.Con
 }
 
 func (o *AddServiceOKBodyMongodb) contextValidateService(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Service != nil {
 
 		if swag.IsZero(o.Service) { // not required
@@ -2511,11 +2685,15 @@ func (o *AddServiceOKBodyMongodb) contextValidateService(ctx context.Context, fo
 		}
 
 		if err := o.Service.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "mongodb" + "." + "service")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "mongodb" + "." + "service")
 			}
+
 			return err
 		}
 	}
@@ -2546,7 +2724,6 @@ AddServiceOKBodyMongodbMongodbExporter MongoDBExporter runs on Generic or Contai
 swagger:model AddServiceOKBodyMongodbMongodbExporter
 */
 type AddServiceOKBodyMongodbMongodbExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -2577,6 +2754,18 @@ type AddServiceOKBodyMongodbMongodbExporter struct {
 	// List of disabled collector names.
 	DisabledCollectors []string `json:"disabled_collectors"`
 
+	// AgentStatus represents actual Agent status.
+	//
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
+	Status *string `json:"status,omitempty"`
+
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
@@ -2593,37 +2782,29 @@ type AddServiceOKBodyMongodbMongodbExporter struct {
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
-	// Optionally expose the exporter process on all public interfaces
-	ExposeExporter bool `json:"expose_exporter,omitempty"`
-
-	// Environment variable names passed to the exporter.
-	EnvironmentVariableNames []string `json:"environment_variable_names"`
-
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// Environment variable names passed to the exporter.
+	EnvironmentVariableNames []string `json:"environment_variable_names"`
+
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyMongodbMongodbExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
-
-	// AgentStatus represents actual Agent status.
-	//
-	//  - AGENT_STATUS_STARTING: Agent is starting.
-	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
-	//  - AGENT_STATUS_RUNNING: Agent is running.
-	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
-	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
-	Status *string `json:"status,omitempty"`
 }
 
 // Validate validates this add service OK body mongodb mongodb exporter
 func (o *AddServiceOKBodyMongodbMongodbExporter) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
@@ -2633,17 +2814,73 @@ func (o *AddServiceOKBodyMongodbMongodbExporter) Validate(formats strfmt.Registr
 		res = append(res, err)
 	}
 
-	if err := o.validateStatus(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
 }
 
-var addServiceOkBodyMongodbMongodbExporterTypeLogLevelPropEnum []interface{}
+var addServiceOkBodyMongodbMongodbExporterTypeStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addServiceOkBodyMongodbMongodbExporterTypeStatusPropEnum = append(addServiceOkBodyMongodbMongodbExporterTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// AddServiceOKBodyMongodbMongodbExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	AddServiceOKBodyMongodbMongodbExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// AddServiceOKBodyMongodbMongodbExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddServiceOKBodyMongodbMongodbExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// AddServiceOKBodyMongodbMongodbExporterStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	AddServiceOKBodyMongodbMongodbExporterStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// AddServiceOKBodyMongodbMongodbExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddServiceOKBodyMongodbMongodbExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// AddServiceOKBodyMongodbMongodbExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddServiceOKBodyMongodbMongodbExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// AddServiceOKBodyMongodbMongodbExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddServiceOKBodyMongodbMongodbExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// AddServiceOKBodyMongodbMongodbExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddServiceOKBodyMongodbMongodbExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// AddServiceOKBodyMongodbMongodbExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddServiceOKBodyMongodbMongodbExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *AddServiceOKBodyMongodbMongodbExporter) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addServiceOkBodyMongodbMongodbExporterTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddServiceOKBodyMongodbMongodbExporter) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("addServiceOk"+"."+"mongodb"+"."+"mongodb_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addServiceOkBodyMongodbMongodbExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -2704,73 +2941,17 @@ func (o *AddServiceOKBodyMongodbMongodbExporter) validateMetricsResolutions(form
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "mongodb" + "." + "mongodb_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "mongodb" + "." + "mongodb_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
-	}
-
-	return nil
-}
-
-var addServiceOkBodyMongodbMongodbExporterTypeStatusPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		addServiceOkBodyMongodbMongodbExporterTypeStatusPropEnum = append(addServiceOkBodyMongodbMongodbExporterTypeStatusPropEnum, v)
-	}
-}
-
-const (
-
-	// AddServiceOKBodyMongodbMongodbExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
-	AddServiceOKBodyMongodbMongodbExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
-
-	// AddServiceOKBodyMongodbMongodbExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
-	AddServiceOKBodyMongodbMongodbExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
-
-	// AddServiceOKBodyMongodbMongodbExporterStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
-	AddServiceOKBodyMongodbMongodbExporterStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
-
-	// AddServiceOKBodyMongodbMongodbExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
-	AddServiceOKBodyMongodbMongodbExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
-
-	// AddServiceOKBodyMongodbMongodbExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
-	AddServiceOKBodyMongodbMongodbExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
-
-	// AddServiceOKBodyMongodbMongodbExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
-	AddServiceOKBodyMongodbMongodbExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
-
-	// AddServiceOKBodyMongodbMongodbExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
-	AddServiceOKBodyMongodbMongodbExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
-
-	// AddServiceOKBodyMongodbMongodbExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
-	AddServiceOKBodyMongodbMongodbExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
-)
-
-// prop value enum
-func (o *AddServiceOKBodyMongodbMongodbExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addServiceOkBodyMongodbMongodbExporterTypeStatusPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *AddServiceOKBodyMongodbMongodbExporter) validateStatus(formats strfmt.Registry) error {
-	if swag.IsZero(o.Status) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateStatusEnum("addServiceOk"+"."+"mongodb"+"."+"mongodb_exporter"+"."+"status", "body", *o.Status); err != nil {
-		return err
 	}
 
 	return nil
@@ -2791,7 +2972,6 @@ func (o *AddServiceOKBodyMongodbMongodbExporter) ContextValidate(ctx context.Con
 }
 
 func (o *AddServiceOKBodyMongodbMongodbExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.MetricsResolutions != nil {
 
 		if swag.IsZero(o.MetricsResolutions) { // not required
@@ -2799,11 +2979,15 @@ func (o *AddServiceOKBodyMongodbMongodbExporter) contextValidateMetricsResolutio
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "mongodb" + "." + "mongodb_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "mongodb" + "." + "mongodb_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -2834,7 +3018,6 @@ AddServiceOKBodyMongodbMongodbExporterMetricsResolutions MetricsResolutions repr
 swagger:model AddServiceOKBodyMongodbMongodbExporterMetricsResolutions
 */
 type AddServiceOKBodyMongodbMongodbExporterMetricsResolutions struct {
-
 	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
 	Hr string `json:"hr,omitempty"`
 
@@ -2878,7 +3061,6 @@ AddServiceOKBodyMongodbQANMongodbMongolog QANMongoDBMongologAgent runs within pm
 swagger:model AddServiceOKBodyMongodbQANMongodbMongolog
 */
 type AddServiceOKBodyMongodbQANMongodbMongolog struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -2906,15 +3088,6 @@ type AddServiceOKBodyMongodbQANMongodbMongolog struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Path to exec process.
-	ProcessExecPath string `json:"process_exec_path,omitempty"`
-
-	// Log level for exporters
-	//
-	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
-	LogLevel *string `json:"log_level,omitempty"`
-
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
@@ -2926,17 +3099,26 @@ type AddServiceOKBodyMongodbQANMongodbMongolog struct {
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add service OK body mongodb QAN mongodb mongolog
 func (o *AddServiceOKBodyMongodbQANMongodbMongolog) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateLogLevel(formats); err != nil {
+	if err := o.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateStatus(formats); err != nil {
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -2946,61 +3128,7 @@ func (o *AddServiceOKBodyMongodbQANMongodbMongolog) Validate(formats strfmt.Regi
 	return nil
 }
 
-var addServiceOkBodyMongodbQanMongodbMongologTypeLogLevelPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		addServiceOkBodyMongodbQanMongodbMongologTypeLogLevelPropEnum = append(addServiceOkBodyMongodbQanMongodbMongologTypeLogLevelPropEnum, v)
-	}
-}
-
-const (
-
-	// AddServiceOKBodyMongodbQANMongodbMongologLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
-	AddServiceOKBodyMongodbQANMongodbMongologLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
-
-	// AddServiceOKBodyMongodbQANMongodbMongologLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
-	AddServiceOKBodyMongodbQANMongodbMongologLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
-
-	// AddServiceOKBodyMongodbQANMongodbMongologLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
-	AddServiceOKBodyMongodbQANMongodbMongologLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
-
-	// AddServiceOKBodyMongodbQANMongodbMongologLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
-	AddServiceOKBodyMongodbQANMongodbMongologLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
-
-	// AddServiceOKBodyMongodbQANMongodbMongologLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
-	AddServiceOKBodyMongodbQANMongodbMongologLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
-
-	// AddServiceOKBodyMongodbQANMongodbMongologLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
-	AddServiceOKBodyMongodbQANMongodbMongologLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
-)
-
-// prop value enum
-func (o *AddServiceOKBodyMongodbQANMongodbMongolog) validateLogLevelEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addServiceOkBodyMongodbQanMongodbMongologTypeLogLevelPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *AddServiceOKBodyMongodbQANMongodbMongolog) validateLogLevel(formats strfmt.Registry) error {
-	if swag.IsZero(o.LogLevel) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateLogLevelEnum("addServiceOk"+"."+"mongodb"+"."+"qan_mongodb_mongolog"+"."+"log_level", "body", *o.LogLevel); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-var addServiceOkBodyMongodbQanMongodbMongologTypeStatusPropEnum []interface{}
+var addServiceOkBodyMongodbQanMongodbMongologTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -3060,6 +3188,60 @@ func (o *AddServiceOKBodyMongodbQANMongodbMongolog) validateStatus(formats strfm
 	return nil
 }
 
+var addServiceOkBodyMongodbQanMongodbMongologTypeLogLevelPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addServiceOkBodyMongodbQanMongodbMongologTypeLogLevelPropEnum = append(addServiceOkBodyMongodbQanMongodbMongologTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddServiceOKBodyMongodbQANMongodbMongologLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddServiceOKBodyMongodbQANMongodbMongologLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+
+	// AddServiceOKBodyMongodbQANMongodbMongologLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddServiceOKBodyMongodbQANMongodbMongologLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+
+	// AddServiceOKBodyMongodbQANMongodbMongologLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddServiceOKBodyMongodbQANMongodbMongologLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+
+	// AddServiceOKBodyMongodbQANMongodbMongologLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddServiceOKBodyMongodbQANMongodbMongologLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+
+	// AddServiceOKBodyMongodbQANMongodbMongologLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddServiceOKBodyMongodbQANMongodbMongologLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+
+	// AddServiceOKBodyMongodbQANMongodbMongologLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddServiceOKBodyMongodbQANMongodbMongologLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+)
+
+// prop value enum
+func (o *AddServiceOKBodyMongodbQANMongodbMongolog) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addServiceOkBodyMongodbQanMongodbMongologTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddServiceOKBodyMongodbQANMongodbMongolog) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addServiceOk"+"."+"mongodb"+"."+"qan_mongodb_mongolog"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // ContextValidate validates this add service OK body mongodb QAN mongodb mongolog based on context it is used
 func (o *AddServiceOKBodyMongodbQANMongodbMongolog) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
@@ -3088,7 +3270,6 @@ AddServiceOKBodyMongodbQANMongodbProfiler QANMongoDBProfilerAgent runs within pm
 swagger:model AddServiceOKBodyMongodbQANMongodbProfiler
 */
 type AddServiceOKBodyMongodbQANMongodbProfiler struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -3116,15 +3297,6 @@ type AddServiceOKBodyMongodbQANMongodbProfiler struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Path to exec process.
-	ProcessExecPath string `json:"process_exec_path,omitempty"`
-
-	// Log level for exporters
-	//
-	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
-	LogLevel *string `json:"log_level,omitempty"`
-
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
@@ -3136,17 +3308,26 @@ type AddServiceOKBodyMongodbQANMongodbProfiler struct {
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add service OK body mongodb QAN mongodb profiler
 func (o *AddServiceOKBodyMongodbQANMongodbProfiler) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateLogLevel(formats); err != nil {
+	if err := o.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateStatus(formats); err != nil {
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -3156,61 +3337,7 @@ func (o *AddServiceOKBodyMongodbQANMongodbProfiler) Validate(formats strfmt.Regi
 	return nil
 }
 
-var addServiceOkBodyMongodbQanMongodbProfilerTypeLogLevelPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		addServiceOkBodyMongodbQanMongodbProfilerTypeLogLevelPropEnum = append(addServiceOkBodyMongodbQanMongodbProfilerTypeLogLevelPropEnum, v)
-	}
-}
-
-const (
-
-	// AddServiceOKBodyMongodbQANMongodbProfilerLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
-	AddServiceOKBodyMongodbQANMongodbProfilerLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
-
-	// AddServiceOKBodyMongodbQANMongodbProfilerLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
-	AddServiceOKBodyMongodbQANMongodbProfilerLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
-
-	// AddServiceOKBodyMongodbQANMongodbProfilerLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
-	AddServiceOKBodyMongodbQANMongodbProfilerLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
-
-	// AddServiceOKBodyMongodbQANMongodbProfilerLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
-	AddServiceOKBodyMongodbQANMongodbProfilerLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
-
-	// AddServiceOKBodyMongodbQANMongodbProfilerLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
-	AddServiceOKBodyMongodbQANMongodbProfilerLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
-
-	// AddServiceOKBodyMongodbQANMongodbProfilerLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
-	AddServiceOKBodyMongodbQANMongodbProfilerLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
-)
-
-// prop value enum
-func (o *AddServiceOKBodyMongodbQANMongodbProfiler) validateLogLevelEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addServiceOkBodyMongodbQanMongodbProfilerTypeLogLevelPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *AddServiceOKBodyMongodbQANMongodbProfiler) validateLogLevel(formats strfmt.Registry) error {
-	if swag.IsZero(o.LogLevel) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateLogLevelEnum("addServiceOk"+"."+"mongodb"+"."+"qan_mongodb_profiler"+"."+"log_level", "body", *o.LogLevel); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-var addServiceOkBodyMongodbQanMongodbProfilerTypeStatusPropEnum []interface{}
+var addServiceOkBodyMongodbQanMongodbProfilerTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -3270,6 +3397,60 @@ func (o *AddServiceOKBodyMongodbQANMongodbProfiler) validateStatus(formats strfm
 	return nil
 }
 
+var addServiceOkBodyMongodbQanMongodbProfilerTypeLogLevelPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addServiceOkBodyMongodbQanMongodbProfilerTypeLogLevelPropEnum = append(addServiceOkBodyMongodbQanMongodbProfilerTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddServiceOKBodyMongodbQANMongodbProfilerLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddServiceOKBodyMongodbQANMongodbProfilerLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+
+	// AddServiceOKBodyMongodbQANMongodbProfilerLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddServiceOKBodyMongodbQANMongodbProfilerLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+
+	// AddServiceOKBodyMongodbQANMongodbProfilerLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddServiceOKBodyMongodbQANMongodbProfilerLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+
+	// AddServiceOKBodyMongodbQANMongodbProfilerLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddServiceOKBodyMongodbQANMongodbProfilerLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+
+	// AddServiceOKBodyMongodbQANMongodbProfilerLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddServiceOKBodyMongodbQANMongodbProfilerLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+
+	// AddServiceOKBodyMongodbQANMongodbProfilerLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddServiceOKBodyMongodbQANMongodbProfilerLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+)
+
+// prop value enum
+func (o *AddServiceOKBodyMongodbQANMongodbProfiler) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addServiceOkBodyMongodbQanMongodbProfilerTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddServiceOKBodyMongodbQANMongodbProfiler) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addServiceOk"+"."+"mongodb"+"."+"qan_mongodb_profiler"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // ContextValidate validates this add service OK body mongodb QAN mongodb profiler based on context it is used
 func (o *AddServiceOKBodyMongodbQANMongodbProfiler) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
@@ -3298,7 +3479,6 @@ AddServiceOKBodyMongodbRtaMongodbAgent RTAMongoDBAgent runs within pmm-agent and
 swagger:model AddServiceOKBodyMongodbRtaMongodbAgent
 */
 type AddServiceOKBodyMongodbRtaMongodbAgent struct {
-
 	// Unique agent identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -3323,15 +3503,6 @@ type AddServiceOKBodyMongodbRtaMongodbAgent struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Log level for exporters
-	//
-	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
-	LogLevel *string `json:"log_level,omitempty"`
-
-	// rta options
-	RtaOptions *AddServiceOKBodyMongodbRtaMongodbAgentRtaOptions `json:"rta_options,omitempty"`
-
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
@@ -3343,11 +3514,24 @@ type AddServiceOKBodyMongodbRtaMongodbAgent struct {
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+
+	// rta options
+	RtaOptions *AddServiceOKBodyMongodbRtaMongodbAgentRtaOptions `json:"rta_options,omitempty"`
 }
 
 // Validate validates this add service OK body mongodb rta mongodb agent
 func (o *AddServiceOKBodyMongodbRtaMongodbAgent) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
@@ -3357,17 +3541,73 @@ func (o *AddServiceOKBodyMongodbRtaMongodbAgent) Validate(formats strfmt.Registr
 		res = append(res, err)
 	}
 
-	if err := o.validateStatus(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
 }
 
-var addServiceOkBodyMongodbRtaMongodbAgentTypeLogLevelPropEnum []interface{}
+var addServiceOkBodyMongodbRtaMongodbAgentTypeStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addServiceOkBodyMongodbRtaMongodbAgentTypeStatusPropEnum = append(addServiceOkBodyMongodbRtaMongodbAgentTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *AddServiceOKBodyMongodbRtaMongodbAgent) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addServiceOkBodyMongodbRtaMongodbAgentTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddServiceOKBodyMongodbRtaMongodbAgent) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("addServiceOk"+"."+"mongodb"+"."+"rta_mongodb_agent"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addServiceOkBodyMongodbRtaMongodbAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -3428,73 +3668,17 @@ func (o *AddServiceOKBodyMongodbRtaMongodbAgent) validateRtaOptions(formats strf
 
 	if o.RtaOptions != nil {
 		if err := o.RtaOptions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "mongodb" + "." + "rta_mongodb_agent" + "." + "rta_options")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "mongodb" + "." + "rta_mongodb_agent" + "." + "rta_options")
 			}
+
 			return err
 		}
-	}
-
-	return nil
-}
-
-var addServiceOkBodyMongodbRtaMongodbAgentTypeStatusPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		addServiceOkBodyMongodbRtaMongodbAgentTypeStatusPropEnum = append(addServiceOkBodyMongodbRtaMongodbAgentTypeStatusPropEnum, v)
-	}
-}
-
-const (
-
-	// AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
-	AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
-
-	// AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
-	AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
-
-	// AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
-	AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
-
-	// AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
-	AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
-
-	// AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
-	AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
-
-	// AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
-	AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
-
-	// AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
-	AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
-
-	// AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
-	AddServiceOKBodyMongodbRtaMongodbAgentStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
-)
-
-// prop value enum
-func (o *AddServiceOKBodyMongodbRtaMongodbAgent) validateStatusEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addServiceOkBodyMongodbRtaMongodbAgentTypeStatusPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *AddServiceOKBodyMongodbRtaMongodbAgent) validateStatus(formats strfmt.Registry) error {
-	if swag.IsZero(o.Status) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateStatusEnum("addServiceOk"+"."+"mongodb"+"."+"rta_mongodb_agent"+"."+"status", "body", *o.Status); err != nil {
-		return err
 	}
 
 	return nil
@@ -3515,7 +3699,6 @@ func (o *AddServiceOKBodyMongodbRtaMongodbAgent) ContextValidate(ctx context.Con
 }
 
 func (o *AddServiceOKBodyMongodbRtaMongodbAgent) contextValidateRtaOptions(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.RtaOptions != nil {
 
 		if swag.IsZero(o.RtaOptions) { // not required
@@ -3523,11 +3706,15 @@ func (o *AddServiceOKBodyMongodbRtaMongodbAgent) contextValidateRtaOptions(ctx c
 		}
 
 		if err := o.RtaOptions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "mongodb" + "." + "rta_mongodb_agent" + "." + "rta_options")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "mongodb" + "." + "rta_mongodb_agent" + "." + "rta_options")
 			}
+
 			return err
 		}
 	}
@@ -3558,7 +3745,6 @@ AddServiceOKBodyMongodbRtaMongodbAgentRtaOptions RTAOptions holds Real-Time Quer
 swagger:model AddServiceOKBodyMongodbRtaMongodbAgentRtaOptions
 */
 type AddServiceOKBodyMongodbRtaMongodbAgentRtaOptions struct {
-
 	// Query collect interval (default 2s is set by server).
 	CollectInterval string `json:"collect_interval,omitempty"`
 }
@@ -3596,7 +3782,6 @@ AddServiceOKBodyMongodbService MongoDBService represents a generic MongoDB insta
 swagger:model AddServiceOKBodyMongodbService
 */
 type AddServiceOKBodyMongodbService struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -3667,7 +3852,6 @@ AddServiceOKBodyMysql add service OK body mysql
 swagger:model AddServiceOKBodyMysql
 */
 type AddServiceOKBodyMysql struct {
-
 	// Actual table count at the moment of adding.
 	TableCount int32 `json:"table_count,omitempty"`
 
@@ -3717,11 +3901,15 @@ func (o *AddServiceOKBodyMysql) validateMysqldExporter(formats strfmt.Registry) 
 
 	if o.MysqldExporter != nil {
 		if err := o.MysqldExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "mysql" + "." + "mysqld_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "mysql" + "." + "mysqld_exporter")
 			}
+
 			return err
 		}
 	}
@@ -3736,11 +3924,15 @@ func (o *AddServiceOKBodyMysql) validateQANMysqlPerfschema(formats strfmt.Regist
 
 	if o.QANMysqlPerfschema != nil {
 		if err := o.QANMysqlPerfschema.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "mysql" + "." + "qan_mysql_perfschema")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "mysql" + "." + "qan_mysql_perfschema")
 			}
+
 			return err
 		}
 	}
@@ -3755,11 +3947,15 @@ func (o *AddServiceOKBodyMysql) validateQANMysqlSlowlog(formats strfmt.Registry)
 
 	if o.QANMysqlSlowlog != nil {
 		if err := o.QANMysqlSlowlog.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "mysql" + "." + "qan_mysql_slowlog")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "mysql" + "." + "qan_mysql_slowlog")
 			}
+
 			return err
 		}
 	}
@@ -3774,11 +3970,15 @@ func (o *AddServiceOKBodyMysql) validateService(formats strfmt.Registry) error {
 
 	if o.Service != nil {
 		if err := o.Service.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "mysql" + "." + "service")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "mysql" + "." + "service")
 			}
+
 			return err
 		}
 	}
@@ -3813,7 +4013,6 @@ func (o *AddServiceOKBodyMysql) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *AddServiceOKBodyMysql) contextValidateMysqldExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.MysqldExporter != nil {
 
 		if swag.IsZero(o.MysqldExporter) { // not required
@@ -3821,11 +4020,15 @@ func (o *AddServiceOKBodyMysql) contextValidateMysqldExporter(ctx context.Contex
 		}
 
 		if err := o.MysqldExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "mysql" + "." + "mysqld_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "mysql" + "." + "mysqld_exporter")
 			}
+
 			return err
 		}
 	}
@@ -3834,7 +4037,6 @@ func (o *AddServiceOKBodyMysql) contextValidateMysqldExporter(ctx context.Contex
 }
 
 func (o *AddServiceOKBodyMysql) contextValidateQANMysqlPerfschema(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.QANMysqlPerfschema != nil {
 
 		if swag.IsZero(o.QANMysqlPerfschema) { // not required
@@ -3842,11 +4044,15 @@ func (o *AddServiceOKBodyMysql) contextValidateQANMysqlPerfschema(ctx context.Co
 		}
 
 		if err := o.QANMysqlPerfschema.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "mysql" + "." + "qan_mysql_perfschema")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "mysql" + "." + "qan_mysql_perfschema")
 			}
+
 			return err
 		}
 	}
@@ -3855,7 +4061,6 @@ func (o *AddServiceOKBodyMysql) contextValidateQANMysqlPerfschema(ctx context.Co
 }
 
 func (o *AddServiceOKBodyMysql) contextValidateQANMysqlSlowlog(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.QANMysqlSlowlog != nil {
 
 		if swag.IsZero(o.QANMysqlSlowlog) { // not required
@@ -3863,11 +4068,15 @@ func (o *AddServiceOKBodyMysql) contextValidateQANMysqlSlowlog(ctx context.Conte
 		}
 
 		if err := o.QANMysqlSlowlog.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "mysql" + "." + "qan_mysql_slowlog")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "mysql" + "." + "qan_mysql_slowlog")
 			}
+
 			return err
 		}
 	}
@@ -3876,7 +4085,6 @@ func (o *AddServiceOKBodyMysql) contextValidateQANMysqlSlowlog(ctx context.Conte
 }
 
 func (o *AddServiceOKBodyMysql) contextValidateService(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Service != nil {
 
 		if swag.IsZero(o.Service) { // not required
@@ -3884,11 +4092,15 @@ func (o *AddServiceOKBodyMysql) contextValidateService(ctx context.Context, form
 		}
 
 		if err := o.Service.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "mysql" + "." + "service")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "mysql" + "." + "service")
 			}
+
 			return err
 		}
 	}
@@ -3919,7 +4131,6 @@ AddServiceOKBodyMysqlMysqldExporter MySQLdExporter runs on Generic or Container 
 swagger:model AddServiceOKBodyMysqlMysqldExporter
 */
 type AddServiceOKBodyMysqlMysqldExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -3967,30 +4178,6 @@ type AddServiceOKBodyMysqlMysqldExporter struct {
 	// Actual table count at the moment of adding.
 	TableCount int32 `json:"table_count,omitempty"`
 
-	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
-
-	// True if tablestats group collectors are currently disabled.
-	TablestatsGroupDisabled bool `json:"tablestats_group_disabled,omitempty"`
-
-	// Path to exec process.
-	ProcessExecPath string `json:"process_exec_path,omitempty"`
-
-	// Optionally expose the exporter process on all public interfaces
-	ExposeExporter bool `json:"expose_exporter,omitempty"`
-
-	// Extra DSN parameters for MySQL connection.
-	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
-
-	// Log level for exporters
-	//
-	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
-	LogLevel *string `json:"log_level,omitempty"`
-
-	// metrics resolutions
-	MetricsResolutions *AddServiceOKBodyMysqlMysqldExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
-
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
@@ -4002,11 +4189,39 @@ type AddServiceOKBodyMysqlMysqldExporter struct {
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// True if tablestats group collectors are currently disabled.
+	TablestatsGroupDisabled bool `json:"tablestats_group_disabled,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// Extra DSN parameters for MySQL connection.
+	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *AddServiceOKBodyMysqlMysqldExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this add service OK body mysql mysqld exporter
 func (o *AddServiceOKBodyMysqlMysqldExporter) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
@@ -4016,17 +4231,73 @@ func (o *AddServiceOKBodyMysqlMysqldExporter) Validate(formats strfmt.Registry) 
 		res = append(res, err)
 	}
 
-	if err := o.validateStatus(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
 }
 
-var addServiceOkBodyMysqlMysqldExporterTypeLogLevelPropEnum []interface{}
+var addServiceOkBodyMysqlMysqldExporterTypeStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addServiceOkBodyMysqlMysqldExporterTypeStatusPropEnum = append(addServiceOkBodyMysqlMysqldExporterTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// AddServiceOKBodyMysqlMysqldExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	AddServiceOKBodyMysqlMysqldExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// AddServiceOKBodyMysqlMysqldExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddServiceOKBodyMysqlMysqldExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// AddServiceOKBodyMysqlMysqldExporterStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	AddServiceOKBodyMysqlMysqldExporterStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// AddServiceOKBodyMysqlMysqldExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddServiceOKBodyMysqlMysqldExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// AddServiceOKBodyMysqlMysqldExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddServiceOKBodyMysqlMysqldExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// AddServiceOKBodyMysqlMysqldExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddServiceOKBodyMysqlMysqldExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// AddServiceOKBodyMysqlMysqldExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddServiceOKBodyMysqlMysqldExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// AddServiceOKBodyMysqlMysqldExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddServiceOKBodyMysqlMysqldExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *AddServiceOKBodyMysqlMysqldExporter) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addServiceOkBodyMysqlMysqldExporterTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddServiceOKBodyMysqlMysqldExporter) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("addServiceOk"+"."+"mysql"+"."+"mysqld_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addServiceOkBodyMysqlMysqldExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -4087,73 +4358,17 @@ func (o *AddServiceOKBodyMysqlMysqldExporter) validateMetricsResolutions(formats
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "mysql" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "mysql" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
-	}
-
-	return nil
-}
-
-var addServiceOkBodyMysqlMysqldExporterTypeStatusPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		addServiceOkBodyMysqlMysqldExporterTypeStatusPropEnum = append(addServiceOkBodyMysqlMysqldExporterTypeStatusPropEnum, v)
-	}
-}
-
-const (
-
-	// AddServiceOKBodyMysqlMysqldExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
-	AddServiceOKBodyMysqlMysqldExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
-
-	// AddServiceOKBodyMysqlMysqldExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
-	AddServiceOKBodyMysqlMysqldExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
-
-	// AddServiceOKBodyMysqlMysqldExporterStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
-	AddServiceOKBodyMysqlMysqldExporterStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
-
-	// AddServiceOKBodyMysqlMysqldExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
-	AddServiceOKBodyMysqlMysqldExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
-
-	// AddServiceOKBodyMysqlMysqldExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
-	AddServiceOKBodyMysqlMysqldExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
-
-	// AddServiceOKBodyMysqlMysqldExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
-	AddServiceOKBodyMysqlMysqldExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
-
-	// AddServiceOKBodyMysqlMysqldExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
-	AddServiceOKBodyMysqlMysqldExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
-
-	// AddServiceOKBodyMysqlMysqldExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
-	AddServiceOKBodyMysqlMysqldExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
-)
-
-// prop value enum
-func (o *AddServiceOKBodyMysqlMysqldExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addServiceOkBodyMysqlMysqldExporterTypeStatusPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *AddServiceOKBodyMysqlMysqldExporter) validateStatus(formats strfmt.Registry) error {
-	if swag.IsZero(o.Status) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateStatusEnum("addServiceOk"+"."+"mysql"+"."+"mysqld_exporter"+"."+"status", "body", *o.Status); err != nil {
-		return err
 	}
 
 	return nil
@@ -4174,7 +4389,6 @@ func (o *AddServiceOKBodyMysqlMysqldExporter) ContextValidate(ctx context.Contex
 }
 
 func (o *AddServiceOKBodyMysqlMysqldExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.MetricsResolutions != nil {
 
 		if swag.IsZero(o.MetricsResolutions) { // not required
@@ -4182,11 +4396,15 @@ func (o *AddServiceOKBodyMysqlMysqldExporter) contextValidateMetricsResolutions(
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "mysql" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "mysql" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -4217,7 +4435,6 @@ AddServiceOKBodyMysqlMysqldExporterMetricsResolutions MetricsResolutions represe
 swagger:model AddServiceOKBodyMysqlMysqldExporterMetricsResolutions
 */
 type AddServiceOKBodyMysqlMysqldExporterMetricsResolutions struct {
-
 	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
 	Hr string `json:"hr,omitempty"`
 
@@ -4261,7 +4478,6 @@ AddServiceOKBodyMysqlQANMysqlPerfschema QANMySQLPerfSchemaAgent runs within pmm-
 swagger:model AddServiceOKBodyMysqlQANMysqlPerfschema
 */
 type AddServiceOKBodyMysqlQANMysqlPerfschema struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -4304,18 +4520,6 @@ type AddServiceOKBodyMysqlQANMysqlPerfschema struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Path to exec process.
-	ProcessExecPath string `json:"process_exec_path,omitempty"`
-
-	// Extra DSN parameters for MySQL connection.
-	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
-
-	// Log level for exporters
-	//
-	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
-	LogLevel *string `json:"log_level,omitempty"`
-
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
@@ -4327,17 +4531,29 @@ type AddServiceOKBodyMysqlQANMysqlPerfschema struct {
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+
+	// Extra DSN parameters for MySQL connection.
+	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
 }
 
 // Validate validates this add service OK body mysql QAN mysql perfschema
 func (o *AddServiceOKBodyMysqlQANMysqlPerfschema) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateLogLevel(formats); err != nil {
+	if err := o.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateStatus(formats); err != nil {
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -4347,61 +4563,7 @@ func (o *AddServiceOKBodyMysqlQANMysqlPerfschema) Validate(formats strfmt.Regist
 	return nil
 }
 
-var addServiceOkBodyMysqlQanMysqlPerfschemaTypeLogLevelPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		addServiceOkBodyMysqlQanMysqlPerfschemaTypeLogLevelPropEnum = append(addServiceOkBodyMysqlQanMysqlPerfschemaTypeLogLevelPropEnum, v)
-	}
-}
-
-const (
-
-	// AddServiceOKBodyMysqlQANMysqlPerfschemaLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
-	AddServiceOKBodyMysqlQANMysqlPerfschemaLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
-
-	// AddServiceOKBodyMysqlQANMysqlPerfschemaLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
-	AddServiceOKBodyMysqlQANMysqlPerfschemaLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
-
-	// AddServiceOKBodyMysqlQANMysqlPerfschemaLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
-	AddServiceOKBodyMysqlQANMysqlPerfschemaLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
-
-	// AddServiceOKBodyMysqlQANMysqlPerfschemaLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
-	AddServiceOKBodyMysqlQANMysqlPerfschemaLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
-
-	// AddServiceOKBodyMysqlQANMysqlPerfschemaLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
-	AddServiceOKBodyMysqlQANMysqlPerfschemaLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
-
-	// AddServiceOKBodyMysqlQANMysqlPerfschemaLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
-	AddServiceOKBodyMysqlQANMysqlPerfschemaLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
-)
-
-// prop value enum
-func (o *AddServiceOKBodyMysqlQANMysqlPerfschema) validateLogLevelEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addServiceOkBodyMysqlQanMysqlPerfschemaTypeLogLevelPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *AddServiceOKBodyMysqlQANMysqlPerfschema) validateLogLevel(formats strfmt.Registry) error {
-	if swag.IsZero(o.LogLevel) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateLogLevelEnum("addServiceOk"+"."+"mysql"+"."+"qan_mysql_perfschema"+"."+"log_level", "body", *o.LogLevel); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-var addServiceOkBodyMysqlQanMysqlPerfschemaTypeStatusPropEnum []interface{}
+var addServiceOkBodyMysqlQanMysqlPerfschemaTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -4461,6 +4623,60 @@ func (o *AddServiceOKBodyMysqlQANMysqlPerfschema) validateStatus(formats strfmt.
 	return nil
 }
 
+var addServiceOkBodyMysqlQanMysqlPerfschemaTypeLogLevelPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addServiceOkBodyMysqlQanMysqlPerfschemaTypeLogLevelPropEnum = append(addServiceOkBodyMysqlQanMysqlPerfschemaTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddServiceOKBodyMysqlQANMysqlPerfschemaLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddServiceOKBodyMysqlQANMysqlPerfschemaLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+
+	// AddServiceOKBodyMysqlQANMysqlPerfschemaLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddServiceOKBodyMysqlQANMysqlPerfschemaLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+
+	// AddServiceOKBodyMysqlQANMysqlPerfschemaLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddServiceOKBodyMysqlQANMysqlPerfschemaLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+
+	// AddServiceOKBodyMysqlQANMysqlPerfschemaLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddServiceOKBodyMysqlQANMysqlPerfschemaLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+
+	// AddServiceOKBodyMysqlQANMysqlPerfschemaLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddServiceOKBodyMysqlQANMysqlPerfschemaLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+
+	// AddServiceOKBodyMysqlQANMysqlPerfschemaLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddServiceOKBodyMysqlQANMysqlPerfschemaLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+)
+
+// prop value enum
+func (o *AddServiceOKBodyMysqlQANMysqlPerfschema) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addServiceOkBodyMysqlQanMysqlPerfschemaTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddServiceOKBodyMysqlQANMysqlPerfschema) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addServiceOk"+"."+"mysql"+"."+"qan_mysql_perfschema"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // ContextValidate validates this add service OK body mysql QAN mysql perfschema based on context it is used
 func (o *AddServiceOKBodyMysqlQANMysqlPerfschema) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
@@ -4489,7 +4705,6 @@ AddServiceOKBodyMysqlQANMysqlSlowlog QANMySQLSlowlogAgent runs within pmm-agent 
 swagger:model AddServiceOKBodyMysqlQANMysqlSlowlog
 */
 type AddServiceOKBodyMysqlQANMysqlSlowlog struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -4535,18 +4750,6 @@ type AddServiceOKBodyMysqlQANMysqlSlowlog struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// mod tidy
-	ProcessExecPath string `json:"process_exec_path,omitempty"`
-
-	// Extra DSN parameters for MySQL connection.
-	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
-
-	// Log level for exporters
-	//
-	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
-	LogLevel *string `json:"log_level,omitempty"`
-
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
@@ -4558,17 +4761,29 @@ type AddServiceOKBodyMysqlQANMysqlSlowlog struct {
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
+
+	// mod tidy
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+
+	// Extra DSN parameters for MySQL connection.
+	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
 }
 
 // Validate validates this add service OK body mysql QAN mysql slowlog
 func (o *AddServiceOKBodyMysqlQANMysqlSlowlog) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateLogLevel(formats); err != nil {
+	if err := o.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateStatus(formats); err != nil {
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -4578,61 +4793,7 @@ func (o *AddServiceOKBodyMysqlQANMysqlSlowlog) Validate(formats strfmt.Registry)
 	return nil
 }
 
-var addServiceOkBodyMysqlQanMysqlSlowlogTypeLogLevelPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		addServiceOkBodyMysqlQanMysqlSlowlogTypeLogLevelPropEnum = append(addServiceOkBodyMysqlQanMysqlSlowlogTypeLogLevelPropEnum, v)
-	}
-}
-
-const (
-
-	// AddServiceOKBodyMysqlQANMysqlSlowlogLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
-	AddServiceOKBodyMysqlQANMysqlSlowlogLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
-
-	// AddServiceOKBodyMysqlQANMysqlSlowlogLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
-	AddServiceOKBodyMysqlQANMysqlSlowlogLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
-
-	// AddServiceOKBodyMysqlQANMysqlSlowlogLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
-	AddServiceOKBodyMysqlQANMysqlSlowlogLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
-
-	// AddServiceOKBodyMysqlQANMysqlSlowlogLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
-	AddServiceOKBodyMysqlQANMysqlSlowlogLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
-
-	// AddServiceOKBodyMysqlQANMysqlSlowlogLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
-	AddServiceOKBodyMysqlQANMysqlSlowlogLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
-
-	// AddServiceOKBodyMysqlQANMysqlSlowlogLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
-	AddServiceOKBodyMysqlQANMysqlSlowlogLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
-)
-
-// prop value enum
-func (o *AddServiceOKBodyMysqlQANMysqlSlowlog) validateLogLevelEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addServiceOkBodyMysqlQanMysqlSlowlogTypeLogLevelPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *AddServiceOKBodyMysqlQANMysqlSlowlog) validateLogLevel(formats strfmt.Registry) error {
-	if swag.IsZero(o.LogLevel) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateLogLevelEnum("addServiceOk"+"."+"mysql"+"."+"qan_mysql_slowlog"+"."+"log_level", "body", *o.LogLevel); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-var addServiceOkBodyMysqlQanMysqlSlowlogTypeStatusPropEnum []interface{}
+var addServiceOkBodyMysqlQanMysqlSlowlogTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -4692,6 +4853,60 @@ func (o *AddServiceOKBodyMysqlQANMysqlSlowlog) validateStatus(formats strfmt.Reg
 	return nil
 }
 
+var addServiceOkBodyMysqlQanMysqlSlowlogTypeLogLevelPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addServiceOkBodyMysqlQanMysqlSlowlogTypeLogLevelPropEnum = append(addServiceOkBodyMysqlQanMysqlSlowlogTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddServiceOKBodyMysqlQANMysqlSlowlogLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddServiceOKBodyMysqlQANMysqlSlowlogLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+
+	// AddServiceOKBodyMysqlQANMysqlSlowlogLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddServiceOKBodyMysqlQANMysqlSlowlogLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+
+	// AddServiceOKBodyMysqlQANMysqlSlowlogLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddServiceOKBodyMysqlQANMysqlSlowlogLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+
+	// AddServiceOKBodyMysqlQANMysqlSlowlogLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddServiceOKBodyMysqlQANMysqlSlowlogLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+
+	// AddServiceOKBodyMysqlQANMysqlSlowlogLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddServiceOKBodyMysqlQANMysqlSlowlogLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+
+	// AddServiceOKBodyMysqlQANMysqlSlowlogLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddServiceOKBodyMysqlQANMysqlSlowlogLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+)
+
+// prop value enum
+func (o *AddServiceOKBodyMysqlQANMysqlSlowlog) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addServiceOkBodyMysqlQanMysqlSlowlogTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddServiceOKBodyMysqlQANMysqlSlowlog) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addServiceOk"+"."+"mysql"+"."+"qan_mysql_slowlog"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // ContextValidate validates this add service OK body mysql QAN mysql slowlog based on context it is used
 func (o *AddServiceOKBodyMysqlQANMysqlSlowlog) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
@@ -4720,7 +4935,6 @@ AddServiceOKBodyMysqlService MySQLService represents a generic MySQL instance.
 swagger:model AddServiceOKBodyMysqlService
 */
 type AddServiceOKBodyMysqlService struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -4794,7 +5008,6 @@ AddServiceOKBodyPostgresql add service OK body postgresql
 swagger:model AddServiceOKBodyPostgresql
 */
 type AddServiceOKBodyPostgresql struct {
-
 	// Warning message.
 	Warning string `json:"warning,omitempty"`
 
@@ -4844,11 +5057,15 @@ func (o *AddServiceOKBodyPostgresql) validatePostgresExporter(formats strfmt.Reg
 
 	if o.PostgresExporter != nil {
 		if err := o.PostgresExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "postgresql" + "." + "postgres_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "postgresql" + "." + "postgres_exporter")
 			}
+
 			return err
 		}
 	}
@@ -4863,11 +5080,15 @@ func (o *AddServiceOKBodyPostgresql) validateQANPostgresqlPgstatementsAgent(form
 
 	if o.QANPostgresqlPgstatementsAgent != nil {
 		if err := o.QANPostgresqlPgstatementsAgent.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "postgresql" + "." + "qan_postgresql_pgstatements_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "postgresql" + "." + "qan_postgresql_pgstatements_agent")
 			}
+
 			return err
 		}
 	}
@@ -4882,11 +5103,15 @@ func (o *AddServiceOKBodyPostgresql) validateQANPostgresqlPgstatmonitorAgent(for
 
 	if o.QANPostgresqlPgstatmonitorAgent != nil {
 		if err := o.QANPostgresqlPgstatmonitorAgent.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "postgresql" + "." + "qan_postgresql_pgstatmonitor_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "postgresql" + "." + "qan_postgresql_pgstatmonitor_agent")
 			}
+
 			return err
 		}
 	}
@@ -4901,11 +5126,15 @@ func (o *AddServiceOKBodyPostgresql) validateService(formats strfmt.Registry) er
 
 	if o.Service != nil {
 		if err := o.Service.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "postgresql" + "." + "service")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "postgresql" + "." + "service")
 			}
+
 			return err
 		}
 	}
@@ -4940,7 +5169,6 @@ func (o *AddServiceOKBodyPostgresql) ContextValidate(ctx context.Context, format
 }
 
 func (o *AddServiceOKBodyPostgresql) contextValidatePostgresExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.PostgresExporter != nil {
 
 		if swag.IsZero(o.PostgresExporter) { // not required
@@ -4948,11 +5176,15 @@ func (o *AddServiceOKBodyPostgresql) contextValidatePostgresExporter(ctx context
 		}
 
 		if err := o.PostgresExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "postgresql" + "." + "postgres_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "postgresql" + "." + "postgres_exporter")
 			}
+
 			return err
 		}
 	}
@@ -4961,7 +5193,6 @@ func (o *AddServiceOKBodyPostgresql) contextValidatePostgresExporter(ctx context
 }
 
 func (o *AddServiceOKBodyPostgresql) contextValidateQANPostgresqlPgstatementsAgent(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.QANPostgresqlPgstatementsAgent != nil {
 
 		if swag.IsZero(o.QANPostgresqlPgstatementsAgent) { // not required
@@ -4969,11 +5200,15 @@ func (o *AddServiceOKBodyPostgresql) contextValidateQANPostgresqlPgstatementsAge
 		}
 
 		if err := o.QANPostgresqlPgstatementsAgent.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "postgresql" + "." + "qan_postgresql_pgstatements_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "postgresql" + "." + "qan_postgresql_pgstatements_agent")
 			}
+
 			return err
 		}
 	}
@@ -4982,7 +5217,6 @@ func (o *AddServiceOKBodyPostgresql) contextValidateQANPostgresqlPgstatementsAge
 }
 
 func (o *AddServiceOKBodyPostgresql) contextValidateQANPostgresqlPgstatmonitorAgent(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.QANPostgresqlPgstatmonitorAgent != nil {
 
 		if swag.IsZero(o.QANPostgresqlPgstatmonitorAgent) { // not required
@@ -4990,11 +5224,15 @@ func (o *AddServiceOKBodyPostgresql) contextValidateQANPostgresqlPgstatmonitorAg
 		}
 
 		if err := o.QANPostgresqlPgstatmonitorAgent.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "postgresql" + "." + "qan_postgresql_pgstatmonitor_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "postgresql" + "." + "qan_postgresql_pgstatmonitor_agent")
 			}
+
 			return err
 		}
 	}
@@ -5003,7 +5241,6 @@ func (o *AddServiceOKBodyPostgresql) contextValidateQANPostgresqlPgstatmonitorAg
 }
 
 func (o *AddServiceOKBodyPostgresql) contextValidateService(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Service != nil {
 
 		if swag.IsZero(o.Service) { // not required
@@ -5011,11 +5248,15 @@ func (o *AddServiceOKBodyPostgresql) contextValidateService(ctx context.Context,
 		}
 
 		if err := o.Service.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "postgresql" + "." + "service")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "postgresql" + "." + "service")
 			}
+
 			return err
 		}
 	}
@@ -5046,7 +5287,6 @@ AddServiceOKBodyPostgresqlPostgresExporter PostgresExporter runs on Generic or C
 swagger:model AddServiceOKBodyPostgresqlPostgresExporter
 */
 type AddServiceOKBodyPostgresqlPostgresExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -5077,30 +5317,6 @@ type AddServiceOKBodyPostgresqlPostgresExporter struct {
 	// List of disabled collector names.
 	DisabledCollectors []string `json:"disabled_collectors"`
 
-	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
-
-	// Path to exec process.
-	ProcessExecPath string `json:"process_exec_path,omitempty"`
-
-	// Limit of databases for auto-discovery.
-	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
-
-	// Optionally expose the exporter process on all public interfaces
-	ExposeExporter bool `json:"expose_exporter,omitempty"`
-
-	// Maximum number of connections that exporter can open to the database instance.
-	MaxExporterConnections int32 `json:"max_exporter_connections,omitempty"`
-
-	// Log level for exporters
-	//
-	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
-	LogLevel *string `json:"log_level,omitempty"`
-
-	// metrics resolutions
-	MetricsResolutions *AddServiceOKBodyPostgresqlPostgresExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
-
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
@@ -5112,11 +5328,39 @@ type AddServiceOKBodyPostgresqlPostgresExporter struct {
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+
+	// Limit of databases for auto-discovery.
+	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
+
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// Maximum number of connections that exporter can open to the database instance.
+	MaxExporterConnections int32 `json:"max_exporter_connections,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *AddServiceOKBodyPostgresqlPostgresExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this add service OK body postgresql postgres exporter
 func (o *AddServiceOKBodyPostgresqlPostgresExporter) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
@@ -5126,17 +5370,73 @@ func (o *AddServiceOKBodyPostgresqlPostgresExporter) Validate(formats strfmt.Reg
 		res = append(res, err)
 	}
 
-	if err := o.validateStatus(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
 }
 
-var addServiceOkBodyPostgresqlPostgresExporterTypeLogLevelPropEnum []interface{}
+var addServiceOkBodyPostgresqlPostgresExporterTypeStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addServiceOkBodyPostgresqlPostgresExporterTypeStatusPropEnum = append(addServiceOkBodyPostgresqlPostgresExporterTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// AddServiceOKBodyPostgresqlPostgresExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	AddServiceOKBodyPostgresqlPostgresExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// AddServiceOKBodyPostgresqlPostgresExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddServiceOKBodyPostgresqlPostgresExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// AddServiceOKBodyPostgresqlPostgresExporterStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	AddServiceOKBodyPostgresqlPostgresExporterStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// AddServiceOKBodyPostgresqlPostgresExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddServiceOKBodyPostgresqlPostgresExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// AddServiceOKBodyPostgresqlPostgresExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddServiceOKBodyPostgresqlPostgresExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// AddServiceOKBodyPostgresqlPostgresExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddServiceOKBodyPostgresqlPostgresExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// AddServiceOKBodyPostgresqlPostgresExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddServiceOKBodyPostgresqlPostgresExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// AddServiceOKBodyPostgresqlPostgresExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddServiceOKBodyPostgresqlPostgresExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *AddServiceOKBodyPostgresqlPostgresExporter) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addServiceOkBodyPostgresqlPostgresExporterTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddServiceOKBodyPostgresqlPostgresExporter) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("addServiceOk"+"."+"postgresql"+"."+"postgres_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addServiceOkBodyPostgresqlPostgresExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -5197,73 +5497,17 @@ func (o *AddServiceOKBodyPostgresqlPostgresExporter) validateMetricsResolutions(
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "postgresql" + "." + "postgres_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "postgresql" + "." + "postgres_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
-	}
-
-	return nil
-}
-
-var addServiceOkBodyPostgresqlPostgresExporterTypeStatusPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		addServiceOkBodyPostgresqlPostgresExporterTypeStatusPropEnum = append(addServiceOkBodyPostgresqlPostgresExporterTypeStatusPropEnum, v)
-	}
-}
-
-const (
-
-	// AddServiceOKBodyPostgresqlPostgresExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
-	AddServiceOKBodyPostgresqlPostgresExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
-
-	// AddServiceOKBodyPostgresqlPostgresExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
-	AddServiceOKBodyPostgresqlPostgresExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
-
-	// AddServiceOKBodyPostgresqlPostgresExporterStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
-	AddServiceOKBodyPostgresqlPostgresExporterStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
-
-	// AddServiceOKBodyPostgresqlPostgresExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
-	AddServiceOKBodyPostgresqlPostgresExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
-
-	// AddServiceOKBodyPostgresqlPostgresExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
-	AddServiceOKBodyPostgresqlPostgresExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
-
-	// AddServiceOKBodyPostgresqlPostgresExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
-	AddServiceOKBodyPostgresqlPostgresExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
-
-	// AddServiceOKBodyPostgresqlPostgresExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
-	AddServiceOKBodyPostgresqlPostgresExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
-
-	// AddServiceOKBodyPostgresqlPostgresExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
-	AddServiceOKBodyPostgresqlPostgresExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
-)
-
-// prop value enum
-func (o *AddServiceOKBodyPostgresqlPostgresExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addServiceOkBodyPostgresqlPostgresExporterTypeStatusPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *AddServiceOKBodyPostgresqlPostgresExporter) validateStatus(formats strfmt.Registry) error {
-	if swag.IsZero(o.Status) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateStatusEnum("addServiceOk"+"."+"postgresql"+"."+"postgres_exporter"+"."+"status", "body", *o.Status); err != nil {
-		return err
 	}
 
 	return nil
@@ -5284,7 +5528,6 @@ func (o *AddServiceOKBodyPostgresqlPostgresExporter) ContextValidate(ctx context
 }
 
 func (o *AddServiceOKBodyPostgresqlPostgresExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.MetricsResolutions != nil {
 
 		if swag.IsZero(o.MetricsResolutions) { // not required
@@ -5292,11 +5535,15 @@ func (o *AddServiceOKBodyPostgresqlPostgresExporter) contextValidateMetricsResol
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "postgresql" + "." + "postgres_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "postgresql" + "." + "postgres_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -5327,7 +5574,6 @@ AddServiceOKBodyPostgresqlPostgresExporterMetricsResolutions MetricsResolutions 
 swagger:model AddServiceOKBodyPostgresqlPostgresExporterMetricsResolutions
 */
 type AddServiceOKBodyPostgresqlPostgresExporterMetricsResolutions struct {
-
 	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
 	Hr string `json:"hr,omitempty"`
 
@@ -5371,7 +5617,6 @@ AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgent QANPostgreSQLPgStatemen
 swagger:model AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgent
 */
 type AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgent struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -5402,15 +5647,6 @@ type AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgent struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Path to exec process.
-	ProcessExecPath string `json:"process_exec_path,omitempty"`
-
-	// Log level for exporters
-	//
-	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
-	LogLevel *string `json:"log_level,omitempty"`
-
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
@@ -5422,17 +5658,26 @@ type AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgent struct {
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add service OK body postgresql QAN postgresql pgstatements agent
 func (o *AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgent) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateLogLevel(formats); err != nil {
+	if err := o.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateStatus(formats); err != nil {
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -5442,61 +5687,7 @@ func (o *AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgent) Validate(form
 	return nil
 }
 
-var addServiceOkBodyPostgresqlQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		addServiceOkBodyPostgresqlQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum = append(addServiceOkBodyPostgresqlQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum, v)
-	}
-}
-
-const (
-
-	// AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
-	AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
-
-	// AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
-	AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
-
-	// AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
-	AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
-
-	// AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
-	AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
-
-	// AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
-	AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
-
-	// AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
-	AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
-)
-
-// prop value enum
-func (o *AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgent) validateLogLevelEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addServiceOkBodyPostgresqlQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgent) validateLogLevel(formats strfmt.Registry) error {
-	if swag.IsZero(o.LogLevel) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateLogLevelEnum("addServiceOk"+"."+"postgresql"+"."+"qan_postgresql_pgstatements_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-var addServiceOkBodyPostgresqlQanPostgresqlPgstatementsAgentTypeStatusPropEnum []interface{}
+var addServiceOkBodyPostgresqlQanPostgresqlPgstatementsAgentTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -5556,6 +5747,60 @@ func (o *AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgent) validateStatu
 	return nil
 }
 
+var addServiceOkBodyPostgresqlQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addServiceOkBodyPostgresqlQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum = append(addServiceOkBodyPostgresqlQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+
+	// AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+
+	// AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+
+	// AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+
+	// AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+
+	// AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+)
+
+// prop value enum
+func (o *AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgent) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addServiceOkBodyPostgresqlQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgent) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addServiceOk"+"."+"postgresql"+"."+"qan_postgresql_pgstatements_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // ContextValidate validates this add service OK body postgresql QAN postgresql pgstatements agent based on context it is used
 func (o *AddServiceOKBodyPostgresqlQANPostgresqlPgstatementsAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
@@ -5584,7 +5829,6 @@ AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgent QANPostgreSQLPgStatMon
 swagger:model AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgent
 */
 type AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgent struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -5618,15 +5862,6 @@ type AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgent struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Path to exec process.
-	ProcessExecPath string `json:"process_exec_path,omitempty"`
-
-	// Log level for exporters
-	//
-	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
-	LogLevel *string `json:"log_level,omitempty"`
-
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
@@ -5638,17 +5873,26 @@ type AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgent struct {
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add service OK body postgresql QAN postgresql pgstatmonitor agent
 func (o *AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgent) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateLogLevel(formats); err != nil {
+	if err := o.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateStatus(formats); err != nil {
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -5658,61 +5902,7 @@ func (o *AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgent) Validate(for
 	return nil
 }
 
-var addServiceOkBodyPostgresqlQanPostgresqlPgstatmonitorAgentTypeLogLevelPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		addServiceOkBodyPostgresqlQanPostgresqlPgstatmonitorAgentTypeLogLevelPropEnum = append(addServiceOkBodyPostgresqlQanPostgresqlPgstatmonitorAgentTypeLogLevelPropEnum, v)
-	}
-}
-
-const (
-
-	// AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
-	AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
-
-	// AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
-	AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
-
-	// AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
-	AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
-
-	// AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
-	AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
-
-	// AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
-	AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
-
-	// AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
-	AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
-)
-
-// prop value enum
-func (o *AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgent) validateLogLevelEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addServiceOkBodyPostgresqlQanPostgresqlPgstatmonitorAgentTypeLogLevelPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgent) validateLogLevel(formats strfmt.Registry) error {
-	if swag.IsZero(o.LogLevel) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateLogLevelEnum("addServiceOk"+"."+"postgresql"+"."+"qan_postgresql_pgstatmonitor_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-var addServiceOkBodyPostgresqlQanPostgresqlPgstatmonitorAgentTypeStatusPropEnum []interface{}
+var addServiceOkBodyPostgresqlQanPostgresqlPgstatmonitorAgentTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -5772,6 +5962,60 @@ func (o *AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgent) validateStat
 	return nil
 }
 
+var addServiceOkBodyPostgresqlQanPostgresqlPgstatmonitorAgentTypeLogLevelPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addServiceOkBodyPostgresqlQanPostgresqlPgstatmonitorAgentTypeLogLevelPropEnum = append(addServiceOkBodyPostgresqlQanPostgresqlPgstatmonitorAgentTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+
+	// AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+
+	// AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+
+	// AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+
+	// AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+
+	// AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+)
+
+// prop value enum
+func (o *AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgent) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addServiceOkBodyPostgresqlQanPostgresqlPgstatmonitorAgentTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgent) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addServiceOk"+"."+"postgresql"+"."+"qan_postgresql_pgstatmonitor_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // ContextValidate validates this add service OK body postgresql QAN postgresql pgstatmonitor agent based on context it is used
 func (o *AddServiceOKBodyPostgresqlQANPostgresqlPgstatmonitorAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
@@ -5800,7 +6044,6 @@ AddServiceOKBodyPostgresqlService PostgreSQLService represents a generic Postgre
 swagger:model AddServiceOKBodyPostgresqlService
 */
 type AddServiceOKBodyPostgresqlService struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -5877,7 +6120,6 @@ AddServiceOKBodyProxysql add service OK body proxysql
 swagger:model AddServiceOKBodyProxysql
 */
 type AddServiceOKBodyProxysql struct {
-
 	// proxysql exporter
 	ProxysqlExporter *AddServiceOKBodyProxysqlProxysqlExporter `json:"proxysql_exporter,omitempty"`
 
@@ -5910,11 +6152,15 @@ func (o *AddServiceOKBodyProxysql) validateProxysqlExporter(formats strfmt.Regis
 
 	if o.ProxysqlExporter != nil {
 		if err := o.ProxysqlExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "proxysql" + "." + "proxysql_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "proxysql" + "." + "proxysql_exporter")
 			}
+
 			return err
 		}
 	}
@@ -5929,11 +6175,15 @@ func (o *AddServiceOKBodyProxysql) validateService(formats strfmt.Registry) erro
 
 	if o.Service != nil {
 		if err := o.Service.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "proxysql" + "." + "service")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "proxysql" + "." + "service")
 			}
+
 			return err
 		}
 	}
@@ -5960,7 +6210,6 @@ func (o *AddServiceOKBodyProxysql) ContextValidate(ctx context.Context, formats 
 }
 
 func (o *AddServiceOKBodyProxysql) contextValidateProxysqlExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.ProxysqlExporter != nil {
 
 		if swag.IsZero(o.ProxysqlExporter) { // not required
@@ -5968,11 +6217,15 @@ func (o *AddServiceOKBodyProxysql) contextValidateProxysqlExporter(ctx context.C
 		}
 
 		if err := o.ProxysqlExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "proxysql" + "." + "proxysql_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "proxysql" + "." + "proxysql_exporter")
 			}
+
 			return err
 		}
 	}
@@ -5981,7 +6234,6 @@ func (o *AddServiceOKBodyProxysql) contextValidateProxysqlExporter(ctx context.C
 }
 
 func (o *AddServiceOKBodyProxysql) contextValidateService(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Service != nil {
 
 		if swag.IsZero(o.Service) { // not required
@@ -5989,11 +6241,15 @@ func (o *AddServiceOKBodyProxysql) contextValidateService(ctx context.Context, f
 		}
 
 		if err := o.Service.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "proxysql" + "." + "service")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "proxysql" + "." + "service")
 			}
+
 			return err
 		}
 	}
@@ -6024,7 +6280,6 @@ AddServiceOKBodyProxysqlProxysqlExporter ProxySQLExporter runs on Generic or Con
 swagger:model AddServiceOKBodyProxysqlProxysqlExporter
 */
 type AddServiceOKBodyProxysqlProxysqlExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -6055,24 +6310,6 @@ type AddServiceOKBodyProxysqlProxysqlExporter struct {
 	// List of disabled collector names.
 	DisabledCollectors []string `json:"disabled_collectors"`
 
-	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
-
-	// Path to exec process.
-	ProcessExecPath string `json:"process_exec_path,omitempty"`
-
-	// Optionally expose the exporter process on all public interfaces
-	ExposeExporter bool `json:"expose_exporter,omitempty"`
-
-	// Log level for exporters
-	//
-	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
-	LogLevel *string `json:"log_level,omitempty"`
-
-	// metrics resolutions
-	MetricsResolutions *AddServiceOKBodyProxysqlProxysqlExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
-
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
@@ -6084,11 +6321,33 @@ type AddServiceOKBodyProxysqlProxysqlExporter struct {
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *AddServiceOKBodyProxysqlProxysqlExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this add service OK body proxysql proxysql exporter
 func (o *AddServiceOKBodyProxysqlProxysqlExporter) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
@@ -6098,17 +6357,73 @@ func (o *AddServiceOKBodyProxysqlProxysqlExporter) Validate(formats strfmt.Regis
 		res = append(res, err)
 	}
 
-	if err := o.validateStatus(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
 }
 
-var addServiceOkBodyProxysqlProxysqlExporterTypeLogLevelPropEnum []interface{}
+var addServiceOkBodyProxysqlProxysqlExporterTypeStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addServiceOkBodyProxysqlProxysqlExporterTypeStatusPropEnum = append(addServiceOkBodyProxysqlProxysqlExporterTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// AddServiceOKBodyProxysqlProxysqlExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	AddServiceOKBodyProxysqlProxysqlExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// AddServiceOKBodyProxysqlProxysqlExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddServiceOKBodyProxysqlProxysqlExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// AddServiceOKBodyProxysqlProxysqlExporterStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	AddServiceOKBodyProxysqlProxysqlExporterStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// AddServiceOKBodyProxysqlProxysqlExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddServiceOKBodyProxysqlProxysqlExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// AddServiceOKBodyProxysqlProxysqlExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddServiceOKBodyProxysqlProxysqlExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// AddServiceOKBodyProxysqlProxysqlExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddServiceOKBodyProxysqlProxysqlExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// AddServiceOKBodyProxysqlProxysqlExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddServiceOKBodyProxysqlProxysqlExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// AddServiceOKBodyProxysqlProxysqlExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddServiceOKBodyProxysqlProxysqlExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *AddServiceOKBodyProxysqlProxysqlExporter) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addServiceOkBodyProxysqlProxysqlExporterTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddServiceOKBodyProxysqlProxysqlExporter) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("addServiceOk"+"."+"proxysql"+"."+"proxysql_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addServiceOkBodyProxysqlProxysqlExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -6169,73 +6484,17 @@ func (o *AddServiceOKBodyProxysqlProxysqlExporter) validateMetricsResolutions(fo
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "proxysql" + "." + "proxysql_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "proxysql" + "." + "proxysql_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
-	}
-
-	return nil
-}
-
-var addServiceOkBodyProxysqlProxysqlExporterTypeStatusPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		addServiceOkBodyProxysqlProxysqlExporterTypeStatusPropEnum = append(addServiceOkBodyProxysqlProxysqlExporterTypeStatusPropEnum, v)
-	}
-}
-
-const (
-
-	// AddServiceOKBodyProxysqlProxysqlExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
-	AddServiceOKBodyProxysqlProxysqlExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
-
-	// AddServiceOKBodyProxysqlProxysqlExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
-	AddServiceOKBodyProxysqlProxysqlExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
-
-	// AddServiceOKBodyProxysqlProxysqlExporterStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
-	AddServiceOKBodyProxysqlProxysqlExporterStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
-
-	// AddServiceOKBodyProxysqlProxysqlExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
-	AddServiceOKBodyProxysqlProxysqlExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
-
-	// AddServiceOKBodyProxysqlProxysqlExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
-	AddServiceOKBodyProxysqlProxysqlExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
-
-	// AddServiceOKBodyProxysqlProxysqlExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
-	AddServiceOKBodyProxysqlProxysqlExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
-
-	// AddServiceOKBodyProxysqlProxysqlExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
-	AddServiceOKBodyProxysqlProxysqlExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
-
-	// AddServiceOKBodyProxysqlProxysqlExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
-	AddServiceOKBodyProxysqlProxysqlExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
-)
-
-// prop value enum
-func (o *AddServiceOKBodyProxysqlProxysqlExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addServiceOkBodyProxysqlProxysqlExporterTypeStatusPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *AddServiceOKBodyProxysqlProxysqlExporter) validateStatus(formats strfmt.Registry) error {
-	if swag.IsZero(o.Status) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateStatusEnum("addServiceOk"+"."+"proxysql"+"."+"proxysql_exporter"+"."+"status", "body", *o.Status); err != nil {
-		return err
 	}
 
 	return nil
@@ -6256,7 +6515,6 @@ func (o *AddServiceOKBodyProxysqlProxysqlExporter) ContextValidate(ctx context.C
 }
 
 func (o *AddServiceOKBodyProxysqlProxysqlExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.MetricsResolutions != nil {
 
 		if swag.IsZero(o.MetricsResolutions) { // not required
@@ -6264,11 +6522,15 @@ func (o *AddServiceOKBodyProxysqlProxysqlExporter) contextValidateMetricsResolut
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "proxysql" + "." + "proxysql_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "proxysql" + "." + "proxysql_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -6299,7 +6561,6 @@ AddServiceOKBodyProxysqlProxysqlExporterMetricsResolutions MetricsResolutions re
 swagger:model AddServiceOKBodyProxysqlProxysqlExporterMetricsResolutions
 */
 type AddServiceOKBodyProxysqlProxysqlExporterMetricsResolutions struct {
-
 	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
 	Hr string `json:"hr,omitempty"`
 
@@ -6343,7 +6604,6 @@ AddServiceOKBodyProxysqlService ProxySQLService represents a generic ProxySQL in
 swagger:model AddServiceOKBodyProxysqlService
 */
 type AddServiceOKBodyProxysqlService struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -6414,7 +6674,6 @@ AddServiceOKBodyRDS add service OK body RDS
 swagger:model AddServiceOKBodyRDS
 */
 type AddServiceOKBodyRDS struct {
-
 	// mysql
 	Mysql *AddServiceOKBodyRDSMysql `json:"mysql,omitempty"`
 
@@ -6489,11 +6748,15 @@ func (o *AddServiceOKBodyRDS) validateMysql(formats strfmt.Registry) error {
 
 	if o.Mysql != nil {
 		if err := o.Mysql.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "mysql")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "mysql")
 			}
+
 			return err
 		}
 	}
@@ -6508,11 +6771,15 @@ func (o *AddServiceOKBodyRDS) validateMysqldExporter(formats strfmt.Registry) er
 
 	if o.MysqldExporter != nil {
 		if err := o.MysqldExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "mysqld_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "mysqld_exporter")
 			}
+
 			return err
 		}
 	}
@@ -6527,11 +6794,15 @@ func (o *AddServiceOKBodyRDS) validateNode(formats strfmt.Registry) error {
 
 	if o.Node != nil {
 		if err := o.Node.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "node")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "node")
 			}
+
 			return err
 		}
 	}
@@ -6546,11 +6817,15 @@ func (o *AddServiceOKBodyRDS) validatePostgresql(formats strfmt.Registry) error 
 
 	if o.Postgresql != nil {
 		if err := o.Postgresql.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "postgresql")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "postgresql")
 			}
+
 			return err
 		}
 	}
@@ -6565,11 +6840,15 @@ func (o *AddServiceOKBodyRDS) validatePostgresqlExporter(formats strfmt.Registry
 
 	if o.PostgresqlExporter != nil {
 		if err := o.PostgresqlExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "postgresql_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "postgresql_exporter")
 			}
+
 			return err
 		}
 	}
@@ -6584,11 +6863,15 @@ func (o *AddServiceOKBodyRDS) validateQANMysqlPerfschema(formats strfmt.Registry
 
 	if o.QANMysqlPerfschema != nil {
 		if err := o.QANMysqlPerfschema.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "qan_mysql_perfschema")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "qan_mysql_perfschema")
 			}
+
 			return err
 		}
 	}
@@ -6603,11 +6886,15 @@ func (o *AddServiceOKBodyRDS) validateQANPostgresqlPgstatements(formats strfmt.R
 
 	if o.QANPostgresqlPgstatements != nil {
 		if err := o.QANPostgresqlPgstatements.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "qan_postgresql_pgstatements")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "qan_postgresql_pgstatements")
 			}
+
 			return err
 		}
 	}
@@ -6622,11 +6909,15 @@ func (o *AddServiceOKBodyRDS) validateRDSExporter(formats strfmt.Registry) error
 
 	if o.RDSExporter != nil {
 		if err := o.RDSExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "rds_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "rds_exporter")
 			}
+
 			return err
 		}
 	}
@@ -6677,7 +6968,6 @@ func (o *AddServiceOKBodyRDS) ContextValidate(ctx context.Context, formats strfm
 }
 
 func (o *AddServiceOKBodyRDS) contextValidateMysql(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Mysql != nil {
 
 		if swag.IsZero(o.Mysql) { // not required
@@ -6685,11 +6975,15 @@ func (o *AddServiceOKBodyRDS) contextValidateMysql(ctx context.Context, formats 
 		}
 
 		if err := o.Mysql.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "mysql")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "mysql")
 			}
+
 			return err
 		}
 	}
@@ -6698,7 +6992,6 @@ func (o *AddServiceOKBodyRDS) contextValidateMysql(ctx context.Context, formats 
 }
 
 func (o *AddServiceOKBodyRDS) contextValidateMysqldExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.MysqldExporter != nil {
 
 		if swag.IsZero(o.MysqldExporter) { // not required
@@ -6706,11 +6999,15 @@ func (o *AddServiceOKBodyRDS) contextValidateMysqldExporter(ctx context.Context,
 		}
 
 		if err := o.MysqldExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "mysqld_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "mysqld_exporter")
 			}
+
 			return err
 		}
 	}
@@ -6719,7 +7016,6 @@ func (o *AddServiceOKBodyRDS) contextValidateMysqldExporter(ctx context.Context,
 }
 
 func (o *AddServiceOKBodyRDS) contextValidateNode(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Node != nil {
 
 		if swag.IsZero(o.Node) { // not required
@@ -6727,11 +7023,15 @@ func (o *AddServiceOKBodyRDS) contextValidateNode(ctx context.Context, formats s
 		}
 
 		if err := o.Node.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "node")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "node")
 			}
+
 			return err
 		}
 	}
@@ -6740,7 +7040,6 @@ func (o *AddServiceOKBodyRDS) contextValidateNode(ctx context.Context, formats s
 }
 
 func (o *AddServiceOKBodyRDS) contextValidatePostgresql(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Postgresql != nil {
 
 		if swag.IsZero(o.Postgresql) { // not required
@@ -6748,11 +7047,15 @@ func (o *AddServiceOKBodyRDS) contextValidatePostgresql(ctx context.Context, for
 		}
 
 		if err := o.Postgresql.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "postgresql")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "postgresql")
 			}
+
 			return err
 		}
 	}
@@ -6761,7 +7064,6 @@ func (o *AddServiceOKBodyRDS) contextValidatePostgresql(ctx context.Context, for
 }
 
 func (o *AddServiceOKBodyRDS) contextValidatePostgresqlExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.PostgresqlExporter != nil {
 
 		if swag.IsZero(o.PostgresqlExporter) { // not required
@@ -6769,11 +7071,15 @@ func (o *AddServiceOKBodyRDS) contextValidatePostgresqlExporter(ctx context.Cont
 		}
 
 		if err := o.PostgresqlExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "postgresql_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "postgresql_exporter")
 			}
+
 			return err
 		}
 	}
@@ -6782,7 +7088,6 @@ func (o *AddServiceOKBodyRDS) contextValidatePostgresqlExporter(ctx context.Cont
 }
 
 func (o *AddServiceOKBodyRDS) contextValidateQANMysqlPerfschema(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.QANMysqlPerfschema != nil {
 
 		if swag.IsZero(o.QANMysqlPerfschema) { // not required
@@ -6790,11 +7095,15 @@ func (o *AddServiceOKBodyRDS) contextValidateQANMysqlPerfschema(ctx context.Cont
 		}
 
 		if err := o.QANMysqlPerfschema.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "qan_mysql_perfschema")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "qan_mysql_perfschema")
 			}
+
 			return err
 		}
 	}
@@ -6803,7 +7112,6 @@ func (o *AddServiceOKBodyRDS) contextValidateQANMysqlPerfschema(ctx context.Cont
 }
 
 func (o *AddServiceOKBodyRDS) contextValidateQANPostgresqlPgstatements(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.QANPostgresqlPgstatements != nil {
 
 		if swag.IsZero(o.QANPostgresqlPgstatements) { // not required
@@ -6811,11 +7119,15 @@ func (o *AddServiceOKBodyRDS) contextValidateQANPostgresqlPgstatements(ctx conte
 		}
 
 		if err := o.QANPostgresqlPgstatements.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "qan_postgresql_pgstatements")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "qan_postgresql_pgstatements")
 			}
+
 			return err
 		}
 	}
@@ -6824,7 +7136,6 @@ func (o *AddServiceOKBodyRDS) contextValidateQANPostgresqlPgstatements(ctx conte
 }
 
 func (o *AddServiceOKBodyRDS) contextValidateRDSExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.RDSExporter != nil {
 
 		if swag.IsZero(o.RDSExporter) { // not required
@@ -6832,11 +7143,15 @@ func (o *AddServiceOKBodyRDS) contextValidateRDSExporter(ctx context.Context, fo
 		}
 
 		if err := o.RDSExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "rds_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "rds_exporter")
 			}
+
 			return err
 		}
 	}
@@ -6867,7 +7182,6 @@ AddServiceOKBodyRDSMysql MySQLService represents a generic MySQL instance.
 swagger:model AddServiceOKBodyRDSMysql
 */
 type AddServiceOKBodyRDSMysql struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -6941,7 +7255,6 @@ AddServiceOKBodyRDSMysqldExporter MySQLdExporter runs on Generic or Container No
 swagger:model AddServiceOKBodyRDSMysqldExporter
 */
 type AddServiceOKBodyRDSMysqldExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -6989,30 +7302,6 @@ type AddServiceOKBodyRDSMysqldExporter struct {
 	// Actual table count at the moment of adding.
 	TableCount int32 `json:"table_count,omitempty"`
 
-	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
-
-	// True if tablestats group collectors are currently disabled.
-	TablestatsGroupDisabled bool `json:"tablestats_group_disabled,omitempty"`
-
-	// Path to exec process.
-	ProcessExecPath string `json:"process_exec_path,omitempty"`
-
-	// Optionally expose the exporter process on all public interfaces
-	ExposeExporter bool `json:"expose_exporter,omitempty"`
-
-	// Extra DSN parameters for MySQL connection.
-	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
-
-	// Log level for exporters
-	//
-	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
-	LogLevel *string `json:"log_level,omitempty"`
-
-	// metrics resolutions
-	MetricsResolutions *AddServiceOKBodyRDSMysqldExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
-
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
@@ -7024,11 +7313,39 @@ type AddServiceOKBodyRDSMysqldExporter struct {
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// True if tablestats group collectors are currently disabled.
+	TablestatsGroupDisabled bool `json:"tablestats_group_disabled,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// Extra DSN parameters for MySQL connection.
+	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *AddServiceOKBodyRDSMysqldExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this add service OK body RDS mysqld exporter
 func (o *AddServiceOKBodyRDSMysqldExporter) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
@@ -7038,17 +7355,73 @@ func (o *AddServiceOKBodyRDSMysqldExporter) Validate(formats strfmt.Registry) er
 		res = append(res, err)
 	}
 
-	if err := o.validateStatus(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
 }
 
-var addServiceOkBodyRdsMysqldExporterTypeLogLevelPropEnum []interface{}
+var addServiceOkBodyRdsMysqldExporterTypeStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addServiceOkBodyRdsMysqldExporterTypeStatusPropEnum = append(addServiceOkBodyRdsMysqldExporterTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// AddServiceOKBodyRDSMysqldExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	AddServiceOKBodyRDSMysqldExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// AddServiceOKBodyRDSMysqldExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddServiceOKBodyRDSMysqldExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// AddServiceOKBodyRDSMysqldExporterStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	AddServiceOKBodyRDSMysqldExporterStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// AddServiceOKBodyRDSMysqldExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddServiceOKBodyRDSMysqldExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// AddServiceOKBodyRDSMysqldExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddServiceOKBodyRDSMysqldExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// AddServiceOKBodyRDSMysqldExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddServiceOKBodyRDSMysqldExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// AddServiceOKBodyRDSMysqldExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddServiceOKBodyRDSMysqldExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// AddServiceOKBodyRDSMysqldExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddServiceOKBodyRDSMysqldExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *AddServiceOKBodyRDSMysqldExporter) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addServiceOkBodyRdsMysqldExporterTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddServiceOKBodyRDSMysqldExporter) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("addServiceOk"+"."+"rds"+"."+"mysqld_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addServiceOkBodyRdsMysqldExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -7109,73 +7482,17 @@ func (o *AddServiceOKBodyRDSMysqldExporter) validateMetricsResolutions(formats s
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
-	}
-
-	return nil
-}
-
-var addServiceOkBodyRdsMysqldExporterTypeStatusPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		addServiceOkBodyRdsMysqldExporterTypeStatusPropEnum = append(addServiceOkBodyRdsMysqldExporterTypeStatusPropEnum, v)
-	}
-}
-
-const (
-
-	// AddServiceOKBodyRDSMysqldExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
-	AddServiceOKBodyRDSMysqldExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
-
-	// AddServiceOKBodyRDSMysqldExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
-	AddServiceOKBodyRDSMysqldExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
-
-	// AddServiceOKBodyRDSMysqldExporterStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
-	AddServiceOKBodyRDSMysqldExporterStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
-
-	// AddServiceOKBodyRDSMysqldExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
-	AddServiceOKBodyRDSMysqldExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
-
-	// AddServiceOKBodyRDSMysqldExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
-	AddServiceOKBodyRDSMysqldExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
-
-	// AddServiceOKBodyRDSMysqldExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
-	AddServiceOKBodyRDSMysqldExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
-
-	// AddServiceOKBodyRDSMysqldExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
-	AddServiceOKBodyRDSMysqldExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
-
-	// AddServiceOKBodyRDSMysqldExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
-	AddServiceOKBodyRDSMysqldExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
-)
-
-// prop value enum
-func (o *AddServiceOKBodyRDSMysqldExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addServiceOkBodyRdsMysqldExporterTypeStatusPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *AddServiceOKBodyRDSMysqldExporter) validateStatus(formats strfmt.Registry) error {
-	if swag.IsZero(o.Status) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateStatusEnum("addServiceOk"+"."+"rds"+"."+"mysqld_exporter"+"."+"status", "body", *o.Status); err != nil {
-		return err
 	}
 
 	return nil
@@ -7196,7 +7513,6 @@ func (o *AddServiceOKBodyRDSMysqldExporter) ContextValidate(ctx context.Context,
 }
 
 func (o *AddServiceOKBodyRDSMysqldExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.MetricsResolutions != nil {
 
 		if swag.IsZero(o.MetricsResolutions) { // not required
@@ -7204,11 +7520,15 @@ func (o *AddServiceOKBodyRDSMysqldExporter) contextValidateMetricsResolutions(ct
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -7239,7 +7559,6 @@ AddServiceOKBodyRDSMysqldExporterMetricsResolutions MetricsResolutions represent
 swagger:model AddServiceOKBodyRDSMysqldExporterMetricsResolutions
 */
 type AddServiceOKBodyRDSMysqldExporterMetricsResolutions struct {
-
 	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
 	Hr string `json:"hr,omitempty"`
 
@@ -7283,7 +7602,6 @@ AddServiceOKBodyRDSNode RemoteRDSNode represents remote RDS Node. Agents can't r
 swagger:model AddServiceOKBodyRDSNode
 */
 type AddServiceOKBodyRDSNode struct {
-
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -7342,7 +7660,6 @@ AddServiceOKBodyRDSPostgresql PostgreSQLService represents a generic PostgreSQL 
 swagger:model AddServiceOKBodyRDSPostgresql
 */
 type AddServiceOKBodyRDSPostgresql struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -7419,7 +7736,6 @@ AddServiceOKBodyRDSPostgresqlExporter PostgresExporter runs on Generic or Contai
 swagger:model AddServiceOKBodyRDSPostgresqlExporter
 */
 type AddServiceOKBodyRDSPostgresqlExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -7450,30 +7766,6 @@ type AddServiceOKBodyRDSPostgresqlExporter struct {
 	// List of disabled collector names.
 	DisabledCollectors []string `json:"disabled_collectors"`
 
-	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
-
-	// Path to exec process.
-	ProcessExecPath string `json:"process_exec_path,omitempty"`
-
-	// Limit of databases for auto-discovery.
-	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
-
-	// Optionally expose the exporter process on all public interfaces
-	ExposeExporter bool `json:"expose_exporter,omitempty"`
-
-	// Maximum number of connections that exporter can open to the database instance.
-	MaxExporterConnections int32 `json:"max_exporter_connections,omitempty"`
-
-	// Log level for exporters
-	//
-	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
-	LogLevel *string `json:"log_level,omitempty"`
-
-	// metrics resolutions
-	MetricsResolutions *AddServiceOKBodyRDSPostgresqlExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
-
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
@@ -7485,11 +7777,39 @@ type AddServiceOKBodyRDSPostgresqlExporter struct {
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+
+	// Limit of databases for auto-discovery.
+	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
+
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// Maximum number of connections that exporter can open to the database instance.
+	MaxExporterConnections int32 `json:"max_exporter_connections,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *AddServiceOKBodyRDSPostgresqlExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this add service OK body RDS postgresql exporter
 func (o *AddServiceOKBodyRDSPostgresqlExporter) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
@@ -7499,17 +7819,73 @@ func (o *AddServiceOKBodyRDSPostgresqlExporter) Validate(formats strfmt.Registry
 		res = append(res, err)
 	}
 
-	if err := o.validateStatus(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
 }
 
-var addServiceOkBodyRdsPostgresqlExporterTypeLogLevelPropEnum []interface{}
+var addServiceOkBodyRdsPostgresqlExporterTypeStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addServiceOkBodyRdsPostgresqlExporterTypeStatusPropEnum = append(addServiceOkBodyRdsPostgresqlExporterTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// AddServiceOKBodyRDSPostgresqlExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	AddServiceOKBodyRDSPostgresqlExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// AddServiceOKBodyRDSPostgresqlExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddServiceOKBodyRDSPostgresqlExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// AddServiceOKBodyRDSPostgresqlExporterStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	AddServiceOKBodyRDSPostgresqlExporterStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// AddServiceOKBodyRDSPostgresqlExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddServiceOKBodyRDSPostgresqlExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// AddServiceOKBodyRDSPostgresqlExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddServiceOKBodyRDSPostgresqlExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// AddServiceOKBodyRDSPostgresqlExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddServiceOKBodyRDSPostgresqlExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// AddServiceOKBodyRDSPostgresqlExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddServiceOKBodyRDSPostgresqlExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// AddServiceOKBodyRDSPostgresqlExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddServiceOKBodyRDSPostgresqlExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *AddServiceOKBodyRDSPostgresqlExporter) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addServiceOkBodyRdsPostgresqlExporterTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddServiceOKBodyRDSPostgresqlExporter) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("addServiceOk"+"."+"rds"+"."+"postgresql_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addServiceOkBodyRdsPostgresqlExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -7570,73 +7946,17 @@ func (o *AddServiceOKBodyRDSPostgresqlExporter) validateMetricsResolutions(forma
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "postgresql_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "postgresql_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
-	}
-
-	return nil
-}
-
-var addServiceOkBodyRdsPostgresqlExporterTypeStatusPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		addServiceOkBodyRdsPostgresqlExporterTypeStatusPropEnum = append(addServiceOkBodyRdsPostgresqlExporterTypeStatusPropEnum, v)
-	}
-}
-
-const (
-
-	// AddServiceOKBodyRDSPostgresqlExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
-	AddServiceOKBodyRDSPostgresqlExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
-
-	// AddServiceOKBodyRDSPostgresqlExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
-	AddServiceOKBodyRDSPostgresqlExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
-
-	// AddServiceOKBodyRDSPostgresqlExporterStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
-	AddServiceOKBodyRDSPostgresqlExporterStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
-
-	// AddServiceOKBodyRDSPostgresqlExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
-	AddServiceOKBodyRDSPostgresqlExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
-
-	// AddServiceOKBodyRDSPostgresqlExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
-	AddServiceOKBodyRDSPostgresqlExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
-
-	// AddServiceOKBodyRDSPostgresqlExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
-	AddServiceOKBodyRDSPostgresqlExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
-
-	// AddServiceOKBodyRDSPostgresqlExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
-	AddServiceOKBodyRDSPostgresqlExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
-
-	// AddServiceOKBodyRDSPostgresqlExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
-	AddServiceOKBodyRDSPostgresqlExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
-)
-
-// prop value enum
-func (o *AddServiceOKBodyRDSPostgresqlExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addServiceOkBodyRdsPostgresqlExporterTypeStatusPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *AddServiceOKBodyRDSPostgresqlExporter) validateStatus(formats strfmt.Registry) error {
-	if swag.IsZero(o.Status) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateStatusEnum("addServiceOk"+"."+"rds"+"."+"postgresql_exporter"+"."+"status", "body", *o.Status); err != nil {
-		return err
 	}
 
 	return nil
@@ -7657,7 +7977,6 @@ func (o *AddServiceOKBodyRDSPostgresqlExporter) ContextValidate(ctx context.Cont
 }
 
 func (o *AddServiceOKBodyRDSPostgresqlExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.MetricsResolutions != nil {
 
 		if swag.IsZero(o.MetricsResolutions) { // not required
@@ -7665,11 +7984,15 @@ func (o *AddServiceOKBodyRDSPostgresqlExporter) contextValidateMetricsResolution
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "postgresql_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "postgresql_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -7700,7 +8023,6 @@ AddServiceOKBodyRDSPostgresqlExporterMetricsResolutions MetricsResolutions repre
 swagger:model AddServiceOKBodyRDSPostgresqlExporterMetricsResolutions
 */
 type AddServiceOKBodyRDSPostgresqlExporterMetricsResolutions struct {
-
 	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
 	Hr string `json:"hr,omitempty"`
 
@@ -7744,7 +8066,6 @@ AddServiceOKBodyRDSQANMysqlPerfschema QANMySQLPerfSchemaAgent runs within pmm-ag
 swagger:model AddServiceOKBodyRDSQANMysqlPerfschema
 */
 type AddServiceOKBodyRDSQANMysqlPerfschema struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -7787,18 +8108,6 @@ type AddServiceOKBodyRDSQANMysqlPerfschema struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Path to exec process.
-	ProcessExecPath string `json:"process_exec_path,omitempty"`
-
-	// Extra DSN parameters for MySQL connection.
-	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
-
-	// Log level for exporters
-	//
-	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
-	LogLevel *string `json:"log_level,omitempty"`
-
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
@@ -7810,17 +8119,29 @@ type AddServiceOKBodyRDSQANMysqlPerfschema struct {
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+
+	// Extra DSN parameters for MySQL connection.
+	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
 }
 
 // Validate validates this add service OK body RDS QAN mysql perfschema
 func (o *AddServiceOKBodyRDSQANMysqlPerfschema) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateLogLevel(formats); err != nil {
+	if err := o.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateStatus(formats); err != nil {
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -7830,61 +8151,7 @@ func (o *AddServiceOKBodyRDSQANMysqlPerfschema) Validate(formats strfmt.Registry
 	return nil
 }
 
-var addServiceOkBodyRdsQanMysqlPerfschemaTypeLogLevelPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		addServiceOkBodyRdsQanMysqlPerfschemaTypeLogLevelPropEnum = append(addServiceOkBodyRdsQanMysqlPerfschemaTypeLogLevelPropEnum, v)
-	}
-}
-
-const (
-
-	// AddServiceOKBodyRDSQANMysqlPerfschemaLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
-	AddServiceOKBodyRDSQANMysqlPerfschemaLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
-
-	// AddServiceOKBodyRDSQANMysqlPerfschemaLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
-	AddServiceOKBodyRDSQANMysqlPerfschemaLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
-
-	// AddServiceOKBodyRDSQANMysqlPerfschemaLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
-	AddServiceOKBodyRDSQANMysqlPerfschemaLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
-
-	// AddServiceOKBodyRDSQANMysqlPerfschemaLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
-	AddServiceOKBodyRDSQANMysqlPerfschemaLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
-
-	// AddServiceOKBodyRDSQANMysqlPerfschemaLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
-	AddServiceOKBodyRDSQANMysqlPerfschemaLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
-
-	// AddServiceOKBodyRDSQANMysqlPerfschemaLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
-	AddServiceOKBodyRDSQANMysqlPerfschemaLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
-)
-
-// prop value enum
-func (o *AddServiceOKBodyRDSQANMysqlPerfschema) validateLogLevelEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addServiceOkBodyRdsQanMysqlPerfschemaTypeLogLevelPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *AddServiceOKBodyRDSQANMysqlPerfschema) validateLogLevel(formats strfmt.Registry) error {
-	if swag.IsZero(o.LogLevel) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateLogLevelEnum("addServiceOk"+"."+"rds"+"."+"qan_mysql_perfschema"+"."+"log_level", "body", *o.LogLevel); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-var addServiceOkBodyRdsQanMysqlPerfschemaTypeStatusPropEnum []interface{}
+var addServiceOkBodyRdsQanMysqlPerfschemaTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -7944,6 +8211,60 @@ func (o *AddServiceOKBodyRDSQANMysqlPerfschema) validateStatus(formats strfmt.Re
 	return nil
 }
 
+var addServiceOkBodyRdsQanMysqlPerfschemaTypeLogLevelPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addServiceOkBodyRdsQanMysqlPerfschemaTypeLogLevelPropEnum = append(addServiceOkBodyRdsQanMysqlPerfschemaTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddServiceOKBodyRDSQANMysqlPerfschemaLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddServiceOKBodyRDSQANMysqlPerfschemaLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+
+	// AddServiceOKBodyRDSQANMysqlPerfschemaLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddServiceOKBodyRDSQANMysqlPerfschemaLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+
+	// AddServiceOKBodyRDSQANMysqlPerfschemaLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddServiceOKBodyRDSQANMysqlPerfschemaLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+
+	// AddServiceOKBodyRDSQANMysqlPerfschemaLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddServiceOKBodyRDSQANMysqlPerfschemaLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+
+	// AddServiceOKBodyRDSQANMysqlPerfschemaLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddServiceOKBodyRDSQANMysqlPerfschemaLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+
+	// AddServiceOKBodyRDSQANMysqlPerfschemaLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddServiceOKBodyRDSQANMysqlPerfschemaLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+)
+
+// prop value enum
+func (o *AddServiceOKBodyRDSQANMysqlPerfschema) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addServiceOkBodyRdsQanMysqlPerfschemaTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddServiceOKBodyRDSQANMysqlPerfschema) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addServiceOk"+"."+"rds"+"."+"qan_mysql_perfschema"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // ContextValidate validates this add service OK body RDS QAN mysql perfschema based on context it is used
 func (o *AddServiceOKBodyRDSQANMysqlPerfschema) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
@@ -7972,7 +8293,6 @@ AddServiceOKBodyRDSQANPostgresqlPgstatements QANPostgreSQLPgStatementsAgent runs
 swagger:model AddServiceOKBodyRDSQANPostgresqlPgstatements
 */
 type AddServiceOKBodyRDSQANPostgresqlPgstatements struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -8003,15 +8323,6 @@ type AddServiceOKBodyRDSQANPostgresqlPgstatements struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Path to exec process.
-	ProcessExecPath string `json:"process_exec_path,omitempty"`
-
-	// Log level for exporters
-	//
-	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
-	LogLevel *string `json:"log_level,omitempty"`
-
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
@@ -8023,17 +8334,26 @@ type AddServiceOKBodyRDSQANPostgresqlPgstatements struct {
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add service OK body RDS QAN postgresql pgstatements
 func (o *AddServiceOKBodyRDSQANPostgresqlPgstatements) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateLogLevel(formats); err != nil {
+	if err := o.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateStatus(formats); err != nil {
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -8043,61 +8363,7 @@ func (o *AddServiceOKBodyRDSQANPostgresqlPgstatements) Validate(formats strfmt.R
 	return nil
 }
 
-var addServiceOkBodyRdsQanPostgresqlPgstatementsTypeLogLevelPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		addServiceOkBodyRdsQanPostgresqlPgstatementsTypeLogLevelPropEnum = append(addServiceOkBodyRdsQanPostgresqlPgstatementsTypeLogLevelPropEnum, v)
-	}
-}
-
-const (
-
-	// AddServiceOKBodyRDSQANPostgresqlPgstatementsLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
-	AddServiceOKBodyRDSQANPostgresqlPgstatementsLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
-
-	// AddServiceOKBodyRDSQANPostgresqlPgstatementsLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
-	AddServiceOKBodyRDSQANPostgresqlPgstatementsLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
-
-	// AddServiceOKBodyRDSQANPostgresqlPgstatementsLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
-	AddServiceOKBodyRDSQANPostgresqlPgstatementsLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
-
-	// AddServiceOKBodyRDSQANPostgresqlPgstatementsLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
-	AddServiceOKBodyRDSQANPostgresqlPgstatementsLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
-
-	// AddServiceOKBodyRDSQANPostgresqlPgstatementsLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
-	AddServiceOKBodyRDSQANPostgresqlPgstatementsLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
-
-	// AddServiceOKBodyRDSQANPostgresqlPgstatementsLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
-	AddServiceOKBodyRDSQANPostgresqlPgstatementsLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
-)
-
-// prop value enum
-func (o *AddServiceOKBodyRDSQANPostgresqlPgstatements) validateLogLevelEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addServiceOkBodyRdsQanPostgresqlPgstatementsTypeLogLevelPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *AddServiceOKBodyRDSQANPostgresqlPgstatements) validateLogLevel(formats strfmt.Registry) error {
-	if swag.IsZero(o.LogLevel) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateLogLevelEnum("addServiceOk"+"."+"rds"+"."+"qan_postgresql_pgstatements"+"."+"log_level", "body", *o.LogLevel); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-var addServiceOkBodyRdsQanPostgresqlPgstatementsTypeStatusPropEnum []interface{}
+var addServiceOkBodyRdsQanPostgresqlPgstatementsTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -8157,6 +8423,60 @@ func (o *AddServiceOKBodyRDSQANPostgresqlPgstatements) validateStatus(formats st
 	return nil
 }
 
+var addServiceOkBodyRdsQanPostgresqlPgstatementsTypeLogLevelPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addServiceOkBodyRdsQanPostgresqlPgstatementsTypeLogLevelPropEnum = append(addServiceOkBodyRdsQanPostgresqlPgstatementsTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddServiceOKBodyRDSQANPostgresqlPgstatementsLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddServiceOKBodyRDSQANPostgresqlPgstatementsLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+
+	// AddServiceOKBodyRDSQANPostgresqlPgstatementsLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddServiceOKBodyRDSQANPostgresqlPgstatementsLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+
+	// AddServiceOKBodyRDSQANPostgresqlPgstatementsLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddServiceOKBodyRDSQANPostgresqlPgstatementsLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+
+	// AddServiceOKBodyRDSQANPostgresqlPgstatementsLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddServiceOKBodyRDSQANPostgresqlPgstatementsLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+
+	// AddServiceOKBodyRDSQANPostgresqlPgstatementsLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddServiceOKBodyRDSQANPostgresqlPgstatementsLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+
+	// AddServiceOKBodyRDSQANPostgresqlPgstatementsLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddServiceOKBodyRDSQANPostgresqlPgstatementsLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+)
+
+// prop value enum
+func (o *AddServiceOKBodyRDSQANPostgresqlPgstatements) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addServiceOkBodyRdsQanPostgresqlPgstatementsTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddServiceOKBodyRDSQANPostgresqlPgstatements) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addServiceOk"+"."+"rds"+"."+"qan_postgresql_pgstatements"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // ContextValidate validates this add service OK body RDS QAN postgresql pgstatements based on context it is used
 func (o *AddServiceOKBodyRDSQANPostgresqlPgstatements) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
@@ -8185,7 +8505,6 @@ AddServiceOKBodyRDSRDSExporter RDSExporter runs on Generic or Container Node and
 swagger:model AddServiceOKBodyRDSRDSExporter
 */
 type AddServiceOKBodyRDSRDSExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -8204,6 +8523,18 @@ type AddServiceOKBodyRDSRDSExporter struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
+	// AgentStatus represents actual Agent status.
+	//
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
+	Status *string `json:"status,omitempty"`
+
 	// Listen port for scraping metrics (the same for several configurations).
 	ListenPort int64 `json:"listen_port,omitempty"`
 
@@ -8219,34 +8550,26 @@ type AddServiceOKBodyRDSRDSExporter struct {
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
-	// Limit of databases for auto-discovery.
-	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
-
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
+	// Limit of databases for auto-discovery.
+	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyRDSRDSExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
-
-	// AgentStatus represents actual Agent status.
-	//
-	//  - AGENT_STATUS_STARTING: Agent is starting.
-	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
-	//  - AGENT_STATUS_RUNNING: Agent is running.
-	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
-	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
-	Status *string `json:"status,omitempty"`
 }
 
 // Validate validates this add service OK body RDS RDS exporter
 func (o *AddServiceOKBodyRDSRDSExporter) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
@@ -8256,17 +8579,73 @@ func (o *AddServiceOKBodyRDSRDSExporter) Validate(formats strfmt.Registry) error
 		res = append(res, err)
 	}
 
-	if err := o.validateStatus(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
 }
 
-var addServiceOkBodyRdsRdsExporterTypeLogLevelPropEnum []interface{}
+var addServiceOkBodyRdsRdsExporterTypeStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addServiceOkBodyRdsRdsExporterTypeStatusPropEnum = append(addServiceOkBodyRdsRdsExporterTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// AddServiceOKBodyRDSRDSExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	AddServiceOKBodyRDSRDSExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// AddServiceOKBodyRDSRDSExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddServiceOKBodyRDSRDSExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// AddServiceOKBodyRDSRDSExporterStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	AddServiceOKBodyRDSRDSExporterStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// AddServiceOKBodyRDSRDSExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddServiceOKBodyRDSRDSExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// AddServiceOKBodyRDSRDSExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddServiceOKBodyRDSRDSExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// AddServiceOKBodyRDSRDSExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddServiceOKBodyRDSRDSExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// AddServiceOKBodyRDSRDSExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddServiceOKBodyRDSRDSExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// AddServiceOKBodyRDSRDSExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddServiceOKBodyRDSRDSExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *AddServiceOKBodyRDSRDSExporter) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addServiceOkBodyRdsRdsExporterTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddServiceOKBodyRDSRDSExporter) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("addServiceOk"+"."+"rds"+"."+"rds_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addServiceOkBodyRdsRdsExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -8327,73 +8706,17 @@ func (o *AddServiceOKBodyRDSRDSExporter) validateMetricsResolutions(formats strf
 
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "rds_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "rds_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
-	}
-
-	return nil
-}
-
-var addServiceOkBodyRdsRdsExporterTypeStatusPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		addServiceOkBodyRdsRdsExporterTypeStatusPropEnum = append(addServiceOkBodyRdsRdsExporterTypeStatusPropEnum, v)
-	}
-}
-
-const (
-
-	// AddServiceOKBodyRDSRDSExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
-	AddServiceOKBodyRDSRDSExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
-
-	// AddServiceOKBodyRDSRDSExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
-	AddServiceOKBodyRDSRDSExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
-
-	// AddServiceOKBodyRDSRDSExporterStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
-	AddServiceOKBodyRDSRDSExporterStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
-
-	// AddServiceOKBodyRDSRDSExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
-	AddServiceOKBodyRDSRDSExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
-
-	// AddServiceOKBodyRDSRDSExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
-	AddServiceOKBodyRDSRDSExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
-
-	// AddServiceOKBodyRDSRDSExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
-	AddServiceOKBodyRDSRDSExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
-
-	// AddServiceOKBodyRDSRDSExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
-	AddServiceOKBodyRDSRDSExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
-
-	// AddServiceOKBodyRDSRDSExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
-	AddServiceOKBodyRDSRDSExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
-)
-
-// prop value enum
-func (o *AddServiceOKBodyRDSRDSExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addServiceOkBodyRdsRdsExporterTypeStatusPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *AddServiceOKBodyRDSRDSExporter) validateStatus(formats strfmt.Registry) error {
-	if swag.IsZero(o.Status) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateStatusEnum("addServiceOk"+"."+"rds"+"."+"rds_exporter"+"."+"status", "body", *o.Status); err != nil {
-		return err
 	}
 
 	return nil
@@ -8414,7 +8737,6 @@ func (o *AddServiceOKBodyRDSRDSExporter) ContextValidate(ctx context.Context, fo
 }
 
 func (o *AddServiceOKBodyRDSRDSExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.MetricsResolutions != nil {
 
 		if swag.IsZero(o.MetricsResolutions) { // not required
@@ -8422,11 +8744,15 @@ func (o *AddServiceOKBodyRDSRDSExporter) contextValidateMetricsResolutions(ctx c
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "rds" + "." + "rds_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "rds" + "." + "rds_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -8457,7 +8783,6 @@ AddServiceOKBodyRDSRDSExporterMetricsResolutions MetricsResolutions represents P
 swagger:model AddServiceOKBodyRDSRDSExporterMetricsResolutions
 */
 type AddServiceOKBodyRDSRDSExporterMetricsResolutions struct {
-
 	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
 	Hr string `json:"hr,omitempty"`
 
@@ -8501,7 +8826,6 @@ AddServiceOKBodyValkey add service OK body valkey
 swagger:model AddServiceOKBodyValkey
 */
 type AddServiceOKBodyValkey struct {
-
 	// service
 	Service *AddServiceOKBodyValkeyService `json:"service,omitempty"`
 
@@ -8534,11 +8858,15 @@ func (o *AddServiceOKBodyValkey) validateService(formats strfmt.Registry) error 
 
 	if o.Service != nil {
 		if err := o.Service.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "valkey" + "." + "service")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "valkey" + "." + "service")
 			}
+
 			return err
 		}
 	}
@@ -8553,11 +8881,15 @@ func (o *AddServiceOKBodyValkey) validateValkeyExporter(formats strfmt.Registry)
 
 	if o.ValkeyExporter != nil {
 		if err := o.ValkeyExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "valkey" + "." + "valkey_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "valkey" + "." + "valkey_exporter")
 			}
+
 			return err
 		}
 	}
@@ -8584,7 +8916,6 @@ func (o *AddServiceOKBodyValkey) ContextValidate(ctx context.Context, formats st
 }
 
 func (o *AddServiceOKBodyValkey) contextValidateService(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Service != nil {
 
 		if swag.IsZero(o.Service) { // not required
@@ -8592,11 +8923,15 @@ func (o *AddServiceOKBodyValkey) contextValidateService(ctx context.Context, for
 		}
 
 		if err := o.Service.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "valkey" + "." + "service")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "valkey" + "." + "service")
 			}
+
 			return err
 		}
 	}
@@ -8605,7 +8940,6 @@ func (o *AddServiceOKBodyValkey) contextValidateService(ctx context.Context, for
 }
 
 func (o *AddServiceOKBodyValkey) contextValidateValkeyExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.ValkeyExporter != nil {
 
 		if swag.IsZero(o.ValkeyExporter) { // not required
@@ -8613,11 +8947,15 @@ func (o *AddServiceOKBodyValkey) contextValidateValkeyExporter(ctx context.Conte
 		}
 
 		if err := o.ValkeyExporter.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "valkey" + "." + "valkey_exporter")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "valkey" + "." + "valkey_exporter")
 			}
+
 			return err
 		}
 	}
@@ -8648,7 +8986,6 @@ AddServiceOKBodyValkeyService ValkeyService represents a generic Valkey instance
 swagger:model AddServiceOKBodyValkeyService
 */
 type AddServiceOKBodyValkeyService struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -8719,7 +9056,6 @@ AddServiceOKBodyValkeyValkeyExporter ValkeyExporter runs on Generic or Container
 swagger:model AddServiceOKBodyValkeyValkeyExporter
 */
 type AddServiceOKBodyValkeyValkeyExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -8750,18 +9086,6 @@ type AddServiceOKBodyValkeyValkeyExporter struct {
 	// List of disabled collector names.
 	DisabledCollectors []string `json:"disabled_collectors"`
 
-	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
-
-	// Path to exec process.
-	ProcessExecPath string `json:"process_exec_path,omitempty"`
-
-	// Optionally expose the exporter process on all public interfaces
-	ExposeExporter bool `json:"expose_exporter,omitempty"`
-
-	// metrics resolutions
-	MetricsResolutions *AddServiceOKBodyValkeyValkeyExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
-
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
@@ -8773,17 +9097,29 @@ type AddServiceOKBodyValkeyValkeyExporter struct {
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *AddServiceOKBodyValkeyValkeyExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this add service OK body valkey valkey exporter
 func (o *AddServiceOKBodyValkeyValkeyExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateMetricsResolutions(formats); err != nil {
+	if err := o.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateStatus(formats); err != nil {
+	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -8793,26 +9129,7 @@ func (o *AddServiceOKBodyValkeyValkeyExporter) Validate(formats strfmt.Registry)
 	return nil
 }
 
-func (o *AddServiceOKBodyValkeyValkeyExporter) validateMetricsResolutions(formats strfmt.Registry) error {
-	if swag.IsZero(o.MetricsResolutions) { // not required
-		return nil
-	}
-
-	if o.MetricsResolutions != nil {
-		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addServiceOk" + "." + "valkey" + "." + "valkey_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("addServiceOk" + "." + "valkey" + "." + "valkey_exporter" + "." + "metrics_resolutions")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-var addServiceOkBodyValkeyValkeyExporterTypeStatusPropEnum []interface{}
+var addServiceOkBodyValkeyValkeyExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -8872,6 +9189,29 @@ func (o *AddServiceOKBodyValkeyValkeyExporter) validateStatus(formats strfmt.Reg
 	return nil
 }
 
+func (o *AddServiceOKBodyValkeyValkeyExporter) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("addServiceOk" + "." + "valkey" + "." + "valkey_exporter" + "." + "metrics_resolutions")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("addServiceOk" + "." + "valkey" + "." + "valkey_exporter" + "." + "metrics_resolutions")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this add service OK body valkey valkey exporter based on the context it is used
 func (o *AddServiceOKBodyValkeyValkeyExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -8887,7 +9227,6 @@ func (o *AddServiceOKBodyValkeyValkeyExporter) ContextValidate(ctx context.Conte
 }
 
 func (o *AddServiceOKBodyValkeyValkeyExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.MetricsResolutions != nil {
 
 		if swag.IsZero(o.MetricsResolutions) { // not required
@@ -8895,11 +9234,15 @@ func (o *AddServiceOKBodyValkeyValkeyExporter) contextValidateMetricsResolutions
 		}
 
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("addServiceOk" + "." + "valkey" + "." + "valkey_exporter" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addServiceOk" + "." + "valkey" + "." + "valkey_exporter" + "." + "metrics_resolutions")
 			}
+
 			return err
 		}
 	}
@@ -8930,7 +9273,6 @@ AddServiceOKBodyValkeyValkeyExporterMetricsResolutions MetricsResolutions repres
 swagger:model AddServiceOKBodyValkeyValkeyExporterMetricsResolutions
 */
 type AddServiceOKBodyValkeyValkeyExporterMetricsResolutions struct {
-
 	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
 	Hr string `json:"hr,omitempty"`
 
@@ -8974,7 +9316,6 @@ AddServiceParamsBodyExternal add service params body external
 swagger:model AddServiceParamsBodyExternal
 */
 type AddServiceParamsBodyExternal struct {
-
 	// Node identifier on which an external exporter is been running.
 	// runs_on_node_id should always be passed with node_id.
 	// Exactly one of these parameters should be present: node_id, node_name, add_node.
@@ -9025,6 +9366,13 @@ type AddServiceParamsBodyExternal struct {
 	// Group name of external service.
 	Group string `json:"group,omitempty"`
 
+	// MetricsMode defines desired metrics mode for agent,
+	// it can be pull, push or auto mode chosen by server.
+	//
+	//  - METRICS_MODE_UNSPECIFIED: Auto
+	// Enum: ["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]
+	MetricsMode *string `json:"metrics_mode,omitempty"`
+
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 
@@ -9033,24 +9381,17 @@ type AddServiceParamsBodyExternal struct {
 
 	// add node
 	AddNode *AddServiceParamsBodyExternalAddNode `json:"add_node,omitempty"`
-
-	// MetricsMode defines desired metrics mode for agent,
-	// it can be pull, push or auto mode chosen by server.
-	//
-	//  - METRICS_MODE_UNSPECIFIED: Auto
-	// Enum: ["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]
-	MetricsMode *string `json:"metrics_mode,omitempty"`
 }
 
 // Validate validates this add service params body external
 func (o *AddServiceParamsBodyExternal) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateAddNode(formats); err != nil {
+	if err := o.validateMetricsMode(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateMetricsMode(formats); err != nil {
+	if err := o.validateAddNode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -9060,26 +9401,7 @@ func (o *AddServiceParamsBodyExternal) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *AddServiceParamsBodyExternal) validateAddNode(formats strfmt.Registry) error {
-	if swag.IsZero(o.AddNode) { // not required
-		return nil
-	}
-
-	if o.AddNode != nil {
-		if err := o.AddNode.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "external" + "." + "add_node")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "external" + "." + "add_node")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-var addServiceParamsBodyExternalTypeMetricsModePropEnum []interface{}
+var addServiceParamsBodyExternalTypeMetricsModePropEnum []any
 
 func init() {
 	var res []string
@@ -9124,6 +9446,29 @@ func (o *AddServiceParamsBodyExternal) validateMetricsMode(formats strfmt.Regist
 	return nil
 }
 
+func (o *AddServiceParamsBodyExternal) validateAddNode(formats strfmt.Registry) error {
+	if swag.IsZero(o.AddNode) { // not required
+		return nil
+	}
+
+	if o.AddNode != nil {
+		if err := o.AddNode.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "external" + "." + "add_node")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "external" + "." + "add_node")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this add service params body external based on the context it is used
 func (o *AddServiceParamsBodyExternal) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -9139,7 +9484,6 @@ func (o *AddServiceParamsBodyExternal) ContextValidate(ctx context.Context, form
 }
 
 func (o *AddServiceParamsBodyExternal) contextValidateAddNode(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.AddNode != nil {
 
 		if swag.IsZero(o.AddNode) { // not required
@@ -9147,11 +9491,15 @@ func (o *AddServiceParamsBodyExternal) contextValidateAddNode(ctx context.Contex
 		}
 
 		if err := o.AddNode.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "external" + "." + "add_node")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "external" + "." + "add_node")
 			}
+
 			return err
 		}
 	}
@@ -9182,6 +9530,9 @@ AddServiceParamsBodyExternalAddNode AddNodeParams holds node params and is used 
 swagger:model AddServiceParamsBodyExternalAddNode
 */
 type AddServiceParamsBodyExternalAddNode struct {
+	// NodeType describes supported Node types.
+	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]
+	NodeType *string `json:"node_type,omitempty"`
 
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
@@ -9209,10 +9560,6 @@ type AddServiceParamsBodyExternalAddNode struct {
 
 	// Custom user-assigned labels for Node.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// NodeType describes supported Node types.
-	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]
-	NodeType *string `json:"node_type,omitempty"`
 }
 
 // Validate validates this add service params body external add node
@@ -9229,7 +9576,7 @@ func (o *AddServiceParamsBodyExternalAddNode) Validate(formats strfmt.Registry) 
 	return nil
 }
 
-var addServiceParamsBodyExternalAddNodeTypeNodeTypePropEnum []interface{}
+var addServiceParamsBodyExternalAddNodeTypeNodeTypePropEnum []any
 
 func init() {
 	var res []string
@@ -9311,7 +9658,6 @@ AddServiceParamsBodyHaproxy add service params body haproxy
 swagger:model AddServiceParamsBodyHaproxy
 */
 type AddServiceParamsBodyHaproxy struct {
-
 	// Node identifier on which an external exporter is been running.
 	// Exactly one of these parameters should be present: node_id, node_name, add_node.
 	NodeID string `json:"node_id,omitempty"`
@@ -9354,6 +9700,13 @@ type AddServiceParamsBodyHaproxy struct {
 	// Custom user-assigned labels for Service.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
+	// MetricsMode defines desired metrics mode for agent,
+	// it can be pull, push or auto mode chosen by server.
+	//
+	//  - METRICS_MODE_UNSPECIFIED: Auto
+	// Enum: ["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]
+	MetricsMode *string `json:"metrics_mode,omitempty"`
+
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 
@@ -9362,24 +9715,17 @@ type AddServiceParamsBodyHaproxy struct {
 
 	// add node
 	AddNode *AddServiceParamsBodyHaproxyAddNode `json:"add_node,omitempty"`
-
-	// MetricsMode defines desired metrics mode for agent,
-	// it can be pull, push or auto mode chosen by server.
-	//
-	//  - METRICS_MODE_UNSPECIFIED: Auto
-	// Enum: ["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]
-	MetricsMode *string `json:"metrics_mode,omitempty"`
 }
 
 // Validate validates this add service params body haproxy
 func (o *AddServiceParamsBodyHaproxy) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateAddNode(formats); err != nil {
+	if err := o.validateMetricsMode(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateMetricsMode(formats); err != nil {
+	if err := o.validateAddNode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -9389,26 +9735,7 @@ func (o *AddServiceParamsBodyHaproxy) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *AddServiceParamsBodyHaproxy) validateAddNode(formats strfmt.Registry) error {
-	if swag.IsZero(o.AddNode) { // not required
-		return nil
-	}
-
-	if o.AddNode != nil {
-		if err := o.AddNode.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "haproxy" + "." + "add_node")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "haproxy" + "." + "add_node")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-var addServiceParamsBodyHaproxyTypeMetricsModePropEnum []interface{}
+var addServiceParamsBodyHaproxyTypeMetricsModePropEnum []any
 
 func init() {
 	var res []string
@@ -9453,6 +9780,29 @@ func (o *AddServiceParamsBodyHaproxy) validateMetricsMode(formats strfmt.Registr
 	return nil
 }
 
+func (o *AddServiceParamsBodyHaproxy) validateAddNode(formats strfmt.Registry) error {
+	if swag.IsZero(o.AddNode) { // not required
+		return nil
+	}
+
+	if o.AddNode != nil {
+		if err := o.AddNode.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "haproxy" + "." + "add_node")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "haproxy" + "." + "add_node")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this add service params body haproxy based on the context it is used
 func (o *AddServiceParamsBodyHaproxy) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -9468,7 +9818,6 @@ func (o *AddServiceParamsBodyHaproxy) ContextValidate(ctx context.Context, forma
 }
 
 func (o *AddServiceParamsBodyHaproxy) contextValidateAddNode(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.AddNode != nil {
 
 		if swag.IsZero(o.AddNode) { // not required
@@ -9476,11 +9825,15 @@ func (o *AddServiceParamsBodyHaproxy) contextValidateAddNode(ctx context.Context
 		}
 
 		if err := o.AddNode.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "haproxy" + "." + "add_node")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "haproxy" + "." + "add_node")
 			}
+
 			return err
 		}
 	}
@@ -9511,6 +9864,9 @@ AddServiceParamsBodyHaproxyAddNode AddNodeParams holds node params and is used t
 swagger:model AddServiceParamsBodyHaproxyAddNode
 */
 type AddServiceParamsBodyHaproxyAddNode struct {
+	// NodeType describes supported Node types.
+	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]
+	NodeType *string `json:"node_type,omitempty"`
 
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
@@ -9538,10 +9894,6 @@ type AddServiceParamsBodyHaproxyAddNode struct {
 
 	// Custom user-assigned labels for Node.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// NodeType describes supported Node types.
-	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]
-	NodeType *string `json:"node_type,omitempty"`
 }
 
 // Validate validates this add service params body haproxy add node
@@ -9558,7 +9910,7 @@ func (o *AddServiceParamsBodyHaproxyAddNode) Validate(formats strfmt.Registry) e
 	return nil
 }
 
-var addServiceParamsBodyHaproxyAddNodeTypeNodeTypePropEnum []interface{}
+var addServiceParamsBodyHaproxyAddNodeTypeNodeTypePropEnum []any
 
 func init() {
 	var res []string
@@ -9640,7 +9992,6 @@ AddServiceParamsBodyMongodb add service params body mongodb
 swagger:model AddServiceParamsBodyMongodb
 */
 type AddServiceParamsBodyMongodb struct {
-
 	// Node identifier on which a service is been running.
 	// Exactly one of these parameters should be present: node_id, node_name, add_node.
 	NodeID string `json:"node_id,omitempty"`
@@ -9712,6 +10063,13 @@ type AddServiceParamsBodyMongodb struct {
 	// Limit query length in QAN (default: server-defined; -1: no limit).
 	MaxQueryLength int32 `json:"max_query_length,omitempty"`
 
+	// MetricsMode defines desired metrics mode for agent,
+	// it can be pull, push or auto mode chosen by server.
+	//
+	//  - METRICS_MODE_UNSPECIFIED: Auto
+	// Enum: ["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]
+	MetricsMode *string `json:"metrics_mode,omitempty"`
+
 	// List of collector names to disable in this exporter.
 	DisableCollectors []string `json:"disable_collectors"`
 
@@ -9736,6 +10094,12 @@ type AddServiceParamsBodyMongodb struct {
 	// Enable all collectors
 	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
 
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 
@@ -9748,26 +10112,13 @@ type AddServiceParamsBodyMongodb struct {
 
 	// add node
 	AddNode *AddServiceParamsBodyMongodbAddNode `json:"add_node,omitempty"`
-
-	// Log level for exporters
-	//
-	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
-	LogLevel *string `json:"log_level,omitempty"`
-
-	// MetricsMode defines desired metrics mode for agent,
-	// it can be pull, push or auto mode chosen by server.
-	//
-	//  - METRICS_MODE_UNSPECIFIED: Auto
-	// Enum: ["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]
-	MetricsMode *string `json:"metrics_mode,omitempty"`
 }
 
 // Validate validates this add service params body mongodb
 func (o *AddServiceParamsBodyMongodb) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateAddNode(formats); err != nil {
+	if err := o.validateMetricsMode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -9775,7 +10126,7 @@ func (o *AddServiceParamsBodyMongodb) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := o.validateMetricsMode(formats); err != nil {
+	if err := o.validateAddNode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -9785,26 +10136,52 @@ func (o *AddServiceParamsBodyMongodb) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *AddServiceParamsBodyMongodb) validateAddNode(formats strfmt.Registry) error {
-	if swag.IsZero(o.AddNode) { // not required
+var addServiceParamsBodyMongodbTypeMetricsModePropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addServiceParamsBodyMongodbTypeMetricsModePropEnum = append(addServiceParamsBodyMongodbTypeMetricsModePropEnum, v)
+	}
+}
+
+const (
+
+	// AddServiceParamsBodyMongodbMetricsModeMETRICSMODEUNSPECIFIED captures enum value "METRICS_MODE_UNSPECIFIED"
+	AddServiceParamsBodyMongodbMetricsModeMETRICSMODEUNSPECIFIED string = "METRICS_MODE_UNSPECIFIED"
+
+	// AddServiceParamsBodyMongodbMetricsModeMETRICSMODEPULL captures enum value "METRICS_MODE_PULL"
+	AddServiceParamsBodyMongodbMetricsModeMETRICSMODEPULL string = "METRICS_MODE_PULL"
+
+	// AddServiceParamsBodyMongodbMetricsModeMETRICSMODEPUSH captures enum value "METRICS_MODE_PUSH"
+	AddServiceParamsBodyMongodbMetricsModeMETRICSMODEPUSH string = "METRICS_MODE_PUSH"
+)
+
+// prop value enum
+func (o *AddServiceParamsBodyMongodb) validateMetricsModeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addServiceParamsBodyMongodbTypeMetricsModePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddServiceParamsBodyMongodb) validateMetricsMode(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsMode) { // not required
 		return nil
 	}
 
-	if o.AddNode != nil {
-		if err := o.AddNode.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "mongodb" + "." + "add_node")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "mongodb" + "." + "add_node")
-			}
-			return err
-		}
+	// value enum
+	if err := o.validateMetricsModeEnum("body"+"."+"mongodb"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
+		return err
 	}
 
 	return nil
 }
 
-var addServiceParamsBodyMongodbTypeLogLevelPropEnum []interface{}
+var addServiceParamsBodyMongodbTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -9858,46 +10235,24 @@ func (o *AddServiceParamsBodyMongodb) validateLogLevel(formats strfmt.Registry) 
 	return nil
 }
 
-var addServiceParamsBodyMongodbTypeMetricsModePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		addServiceParamsBodyMongodbTypeMetricsModePropEnum = append(addServiceParamsBodyMongodbTypeMetricsModePropEnum, v)
-	}
-}
-
-const (
-
-	// AddServiceParamsBodyMongodbMetricsModeMETRICSMODEUNSPECIFIED captures enum value "METRICS_MODE_UNSPECIFIED"
-	AddServiceParamsBodyMongodbMetricsModeMETRICSMODEUNSPECIFIED string = "METRICS_MODE_UNSPECIFIED"
-
-	// AddServiceParamsBodyMongodbMetricsModeMETRICSMODEPULL captures enum value "METRICS_MODE_PULL"
-	AddServiceParamsBodyMongodbMetricsModeMETRICSMODEPULL string = "METRICS_MODE_PULL"
-
-	// AddServiceParamsBodyMongodbMetricsModeMETRICSMODEPUSH captures enum value "METRICS_MODE_PUSH"
-	AddServiceParamsBodyMongodbMetricsModeMETRICSMODEPUSH string = "METRICS_MODE_PUSH"
-)
-
-// prop value enum
-func (o *AddServiceParamsBodyMongodb) validateMetricsModeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addServiceParamsBodyMongodbTypeMetricsModePropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *AddServiceParamsBodyMongodb) validateMetricsMode(formats strfmt.Registry) error {
-	if swag.IsZero(o.MetricsMode) { // not required
+func (o *AddServiceParamsBodyMongodb) validateAddNode(formats strfmt.Registry) error {
+	if swag.IsZero(o.AddNode) { // not required
 		return nil
 	}
 
-	// value enum
-	if err := o.validateMetricsModeEnum("body"+"."+"mongodb"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
-		return err
+	if o.AddNode != nil {
+		if err := o.AddNode.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "mongodb" + "." + "add_node")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "mongodb" + "." + "add_node")
+			}
+
+			return err
+		}
 	}
 
 	return nil
@@ -9918,7 +10273,6 @@ func (o *AddServiceParamsBodyMongodb) ContextValidate(ctx context.Context, forma
 }
 
 func (o *AddServiceParamsBodyMongodb) contextValidateAddNode(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.AddNode != nil {
 
 		if swag.IsZero(o.AddNode) { // not required
@@ -9926,11 +10280,15 @@ func (o *AddServiceParamsBodyMongodb) contextValidateAddNode(ctx context.Context
 		}
 
 		if err := o.AddNode.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mongodb" + "." + "add_node")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mongodb" + "." + "add_node")
 			}
+
 			return err
 		}
 	}
@@ -9961,6 +10319,9 @@ AddServiceParamsBodyMongodbAddNode AddNodeParams holds node params and is used t
 swagger:model AddServiceParamsBodyMongodbAddNode
 */
 type AddServiceParamsBodyMongodbAddNode struct {
+	// NodeType describes supported Node types.
+	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]
+	NodeType *string `json:"node_type,omitempty"`
 
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
@@ -9988,10 +10349,6 @@ type AddServiceParamsBodyMongodbAddNode struct {
 
 	// Custom user-assigned labels for Node.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// NodeType describes supported Node types.
-	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]
-	NodeType *string `json:"node_type,omitempty"`
 }
 
 // Validate validates this add service params body mongodb add node
@@ -10008,7 +10365,7 @@ func (o *AddServiceParamsBodyMongodbAddNode) Validate(formats strfmt.Registry) e
 	return nil
 }
 
-var addServiceParamsBodyMongodbAddNodeTypeNodeTypePropEnum []interface{}
+var addServiceParamsBodyMongodbAddNodeTypeNodeTypePropEnum []any
 
 func init() {
 	var res []string
@@ -10090,7 +10447,6 @@ AddServiceParamsBodyMysql add service params body mysql
 swagger:model AddServiceParamsBodyMysql
 */
 type AddServiceParamsBodyMysql struct {
-
 	// Node identifier on which a service is been running.
 	// Exactly one of these parameters should be present: node_id, node_name, add_node.
 	NodeID string `json:"node_id,omitempty"`
@@ -10178,11 +10534,24 @@ type AddServiceParamsBodyMysql struct {
 	// Use negative value to disable them.
 	TablestatsGroupTableLimit int32 `json:"tablestats_group_table_limit,omitempty"`
 
+	// MetricsMode defines desired metrics mode for agent,
+	// it can be pull, push or auto mode chosen by server.
+	//
+	//  - METRICS_MODE_UNSPECIFIED: Auto
+	// Enum: ["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]
+	MetricsMode *string `json:"metrics_mode,omitempty"`
+
 	// List of collector names to disable in this exporter.
 	DisableCollectors []string `json:"disable_collectors"`
 
 	// Custom password for exporter endpoint /metrics.
 	AgentPassword string `json:"agent_password,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
@@ -10192,26 +10561,13 @@ type AddServiceParamsBodyMysql struct {
 
 	// add node
 	AddNode *AddServiceParamsBodyMysqlAddNode `json:"add_node,omitempty"`
-
-	// Log level for exporters
-	//
-	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
-	LogLevel *string `json:"log_level,omitempty"`
-
-	// MetricsMode defines desired metrics mode for agent,
-	// it can be pull, push or auto mode chosen by server.
-	//
-	//  - METRICS_MODE_UNSPECIFIED: Auto
-	// Enum: ["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]
-	MetricsMode *string `json:"metrics_mode,omitempty"`
 }
 
 // Validate validates this add service params body mysql
 func (o *AddServiceParamsBodyMysql) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateAddNode(formats); err != nil {
+	if err := o.validateMetricsMode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -10219,7 +10575,7 @@ func (o *AddServiceParamsBodyMysql) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := o.validateMetricsMode(formats); err != nil {
+	if err := o.validateAddNode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -10229,26 +10585,52 @@ func (o *AddServiceParamsBodyMysql) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *AddServiceParamsBodyMysql) validateAddNode(formats strfmt.Registry) error {
-	if swag.IsZero(o.AddNode) { // not required
+var addServiceParamsBodyMysqlTypeMetricsModePropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addServiceParamsBodyMysqlTypeMetricsModePropEnum = append(addServiceParamsBodyMysqlTypeMetricsModePropEnum, v)
+	}
+}
+
+const (
+
+	// AddServiceParamsBodyMysqlMetricsModeMETRICSMODEUNSPECIFIED captures enum value "METRICS_MODE_UNSPECIFIED"
+	AddServiceParamsBodyMysqlMetricsModeMETRICSMODEUNSPECIFIED string = "METRICS_MODE_UNSPECIFIED"
+
+	// AddServiceParamsBodyMysqlMetricsModeMETRICSMODEPULL captures enum value "METRICS_MODE_PULL"
+	AddServiceParamsBodyMysqlMetricsModeMETRICSMODEPULL string = "METRICS_MODE_PULL"
+
+	// AddServiceParamsBodyMysqlMetricsModeMETRICSMODEPUSH captures enum value "METRICS_MODE_PUSH"
+	AddServiceParamsBodyMysqlMetricsModeMETRICSMODEPUSH string = "METRICS_MODE_PUSH"
+)
+
+// prop value enum
+func (o *AddServiceParamsBodyMysql) validateMetricsModeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addServiceParamsBodyMysqlTypeMetricsModePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddServiceParamsBodyMysql) validateMetricsMode(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsMode) { // not required
 		return nil
 	}
 
-	if o.AddNode != nil {
-		if err := o.AddNode.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "mysql" + "." + "add_node")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "mysql" + "." + "add_node")
-			}
-			return err
-		}
+	// value enum
+	if err := o.validateMetricsModeEnum("body"+"."+"mysql"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
+		return err
 	}
 
 	return nil
 }
 
-var addServiceParamsBodyMysqlTypeLogLevelPropEnum []interface{}
+var addServiceParamsBodyMysqlTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -10302,46 +10684,24 @@ func (o *AddServiceParamsBodyMysql) validateLogLevel(formats strfmt.Registry) er
 	return nil
 }
 
-var addServiceParamsBodyMysqlTypeMetricsModePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		addServiceParamsBodyMysqlTypeMetricsModePropEnum = append(addServiceParamsBodyMysqlTypeMetricsModePropEnum, v)
-	}
-}
-
-const (
-
-	// AddServiceParamsBodyMysqlMetricsModeMETRICSMODEUNSPECIFIED captures enum value "METRICS_MODE_UNSPECIFIED"
-	AddServiceParamsBodyMysqlMetricsModeMETRICSMODEUNSPECIFIED string = "METRICS_MODE_UNSPECIFIED"
-
-	// AddServiceParamsBodyMysqlMetricsModeMETRICSMODEPULL captures enum value "METRICS_MODE_PULL"
-	AddServiceParamsBodyMysqlMetricsModeMETRICSMODEPULL string = "METRICS_MODE_PULL"
-
-	// AddServiceParamsBodyMysqlMetricsModeMETRICSMODEPUSH captures enum value "METRICS_MODE_PUSH"
-	AddServiceParamsBodyMysqlMetricsModeMETRICSMODEPUSH string = "METRICS_MODE_PUSH"
-)
-
-// prop value enum
-func (o *AddServiceParamsBodyMysql) validateMetricsModeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addServiceParamsBodyMysqlTypeMetricsModePropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *AddServiceParamsBodyMysql) validateMetricsMode(formats strfmt.Registry) error {
-	if swag.IsZero(o.MetricsMode) { // not required
+func (o *AddServiceParamsBodyMysql) validateAddNode(formats strfmt.Registry) error {
+	if swag.IsZero(o.AddNode) { // not required
 		return nil
 	}
 
-	// value enum
-	if err := o.validateMetricsModeEnum("body"+"."+"mysql"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
-		return err
+	if o.AddNode != nil {
+		if err := o.AddNode.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "mysql" + "." + "add_node")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "mysql" + "." + "add_node")
+			}
+
+			return err
+		}
 	}
 
 	return nil
@@ -10362,7 +10722,6 @@ func (o *AddServiceParamsBodyMysql) ContextValidate(ctx context.Context, formats
 }
 
 func (o *AddServiceParamsBodyMysql) contextValidateAddNode(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.AddNode != nil {
 
 		if swag.IsZero(o.AddNode) { // not required
@@ -10370,11 +10729,15 @@ func (o *AddServiceParamsBodyMysql) contextValidateAddNode(ctx context.Context, 
 		}
 
 		if err := o.AddNode.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "mysql" + "." + "add_node")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mysql" + "." + "add_node")
 			}
+
 			return err
 		}
 	}
@@ -10405,6 +10768,9 @@ AddServiceParamsBodyMysqlAddNode AddNodeParams holds node params and is used to 
 swagger:model AddServiceParamsBodyMysqlAddNode
 */
 type AddServiceParamsBodyMysqlAddNode struct {
+	// NodeType describes supported Node types.
+	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]
+	NodeType *string `json:"node_type,omitempty"`
 
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
@@ -10432,10 +10798,6 @@ type AddServiceParamsBodyMysqlAddNode struct {
 
 	// Custom user-assigned labels for Node.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// NodeType describes supported Node types.
-	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]
-	NodeType *string `json:"node_type,omitempty"`
 }
 
 // Validate validates this add service params body mysql add node
@@ -10452,7 +10814,7 @@ func (o *AddServiceParamsBodyMysqlAddNode) Validate(formats strfmt.Registry) err
 	return nil
 }
 
-var addServiceParamsBodyMysqlAddNodeTypeNodeTypePropEnum []interface{}
+var addServiceParamsBodyMysqlAddNodeTypeNodeTypePropEnum []any
 
 func init() {
 	var res []string
@@ -10534,7 +10896,6 @@ AddServiceParamsBodyPostgresql add service params body postgresql
 swagger:model AddServiceParamsBodyPostgresql
 */
 type AddServiceParamsBodyPostgresql struct {
-
 	// Node identifier on which a service is been running.
 	// Exactly one of these parameters should be present: node_id, node_name, add_node.
 	NodeID string `json:"node_id,omitempty"`
@@ -10606,6 +10967,13 @@ type AddServiceParamsBodyPostgresql struct {
 	// Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
+	// MetricsMode defines desired metrics mode for agent,
+	// it can be pull, push or auto mode chosen by server.
+	//
+	//  - METRICS_MODE_UNSPECIFIED: Auto
+	// Enum: ["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]
+	MetricsMode *string `json:"metrics_mode,omitempty"`
+
 	// List of collector names to disable in this exporter.
 	DisableCollectors []string `json:"disable_collectors"`
 
@@ -10621,6 +10989,12 @@ type AddServiceParamsBodyPostgresql struct {
 	// Custom password for exporter endpoint /metrics.
 	AgentPassword string `json:"agent_password,omitempty"`
 
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+
 	// Limit for auto discovery.
 	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
 
@@ -10632,26 +11006,13 @@ type AddServiceParamsBodyPostgresql struct {
 
 	// add node
 	AddNode *AddServiceParamsBodyPostgresqlAddNode `json:"add_node,omitempty"`
-
-	// Log level for exporters
-	//
-	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
-	LogLevel *string `json:"log_level,omitempty"`
-
-	// MetricsMode defines desired metrics mode for agent,
-	// it can be pull, push or auto mode chosen by server.
-	//
-	//  - METRICS_MODE_UNSPECIFIED: Auto
-	// Enum: ["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]
-	MetricsMode *string `json:"metrics_mode,omitempty"`
 }
 
 // Validate validates this add service params body postgresql
 func (o *AddServiceParamsBodyPostgresql) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateAddNode(formats); err != nil {
+	if err := o.validateMetricsMode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -10659,7 +11020,7 @@ func (o *AddServiceParamsBodyPostgresql) Validate(formats strfmt.Registry) error
 		res = append(res, err)
 	}
 
-	if err := o.validateMetricsMode(formats); err != nil {
+	if err := o.validateAddNode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -10669,26 +11030,52 @@ func (o *AddServiceParamsBodyPostgresql) Validate(formats strfmt.Registry) error
 	return nil
 }
 
-func (o *AddServiceParamsBodyPostgresql) validateAddNode(formats strfmt.Registry) error {
-	if swag.IsZero(o.AddNode) { // not required
+var addServiceParamsBodyPostgresqlTypeMetricsModePropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addServiceParamsBodyPostgresqlTypeMetricsModePropEnum = append(addServiceParamsBodyPostgresqlTypeMetricsModePropEnum, v)
+	}
+}
+
+const (
+
+	// AddServiceParamsBodyPostgresqlMetricsModeMETRICSMODEUNSPECIFIED captures enum value "METRICS_MODE_UNSPECIFIED"
+	AddServiceParamsBodyPostgresqlMetricsModeMETRICSMODEUNSPECIFIED string = "METRICS_MODE_UNSPECIFIED"
+
+	// AddServiceParamsBodyPostgresqlMetricsModeMETRICSMODEPULL captures enum value "METRICS_MODE_PULL"
+	AddServiceParamsBodyPostgresqlMetricsModeMETRICSMODEPULL string = "METRICS_MODE_PULL"
+
+	// AddServiceParamsBodyPostgresqlMetricsModeMETRICSMODEPUSH captures enum value "METRICS_MODE_PUSH"
+	AddServiceParamsBodyPostgresqlMetricsModeMETRICSMODEPUSH string = "METRICS_MODE_PUSH"
+)
+
+// prop value enum
+func (o *AddServiceParamsBodyPostgresql) validateMetricsModeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addServiceParamsBodyPostgresqlTypeMetricsModePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddServiceParamsBodyPostgresql) validateMetricsMode(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsMode) { // not required
 		return nil
 	}
 
-	if o.AddNode != nil {
-		if err := o.AddNode.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "postgresql" + "." + "add_node")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "postgresql" + "." + "add_node")
-			}
-			return err
-		}
+	// value enum
+	if err := o.validateMetricsModeEnum("body"+"."+"postgresql"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
+		return err
 	}
 
 	return nil
 }
 
-var addServiceParamsBodyPostgresqlTypeLogLevelPropEnum []interface{}
+var addServiceParamsBodyPostgresqlTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -10742,46 +11129,24 @@ func (o *AddServiceParamsBodyPostgresql) validateLogLevel(formats strfmt.Registr
 	return nil
 }
 
-var addServiceParamsBodyPostgresqlTypeMetricsModePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		addServiceParamsBodyPostgresqlTypeMetricsModePropEnum = append(addServiceParamsBodyPostgresqlTypeMetricsModePropEnum, v)
-	}
-}
-
-const (
-
-	// AddServiceParamsBodyPostgresqlMetricsModeMETRICSMODEUNSPECIFIED captures enum value "METRICS_MODE_UNSPECIFIED"
-	AddServiceParamsBodyPostgresqlMetricsModeMETRICSMODEUNSPECIFIED string = "METRICS_MODE_UNSPECIFIED"
-
-	// AddServiceParamsBodyPostgresqlMetricsModeMETRICSMODEPULL captures enum value "METRICS_MODE_PULL"
-	AddServiceParamsBodyPostgresqlMetricsModeMETRICSMODEPULL string = "METRICS_MODE_PULL"
-
-	// AddServiceParamsBodyPostgresqlMetricsModeMETRICSMODEPUSH captures enum value "METRICS_MODE_PUSH"
-	AddServiceParamsBodyPostgresqlMetricsModeMETRICSMODEPUSH string = "METRICS_MODE_PUSH"
-)
-
-// prop value enum
-func (o *AddServiceParamsBodyPostgresql) validateMetricsModeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addServiceParamsBodyPostgresqlTypeMetricsModePropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *AddServiceParamsBodyPostgresql) validateMetricsMode(formats strfmt.Registry) error {
-	if swag.IsZero(o.MetricsMode) { // not required
+func (o *AddServiceParamsBodyPostgresql) validateAddNode(formats strfmt.Registry) error {
+	if swag.IsZero(o.AddNode) { // not required
 		return nil
 	}
 
-	// value enum
-	if err := o.validateMetricsModeEnum("body"+"."+"postgresql"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
-		return err
+	if o.AddNode != nil {
+		if err := o.AddNode.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "postgresql" + "." + "add_node")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "postgresql" + "." + "add_node")
+			}
+
+			return err
+		}
 	}
 
 	return nil
@@ -10802,7 +11167,6 @@ func (o *AddServiceParamsBodyPostgresql) ContextValidate(ctx context.Context, fo
 }
 
 func (o *AddServiceParamsBodyPostgresql) contextValidateAddNode(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.AddNode != nil {
 
 		if swag.IsZero(o.AddNode) { // not required
@@ -10810,11 +11174,15 @@ func (o *AddServiceParamsBodyPostgresql) contextValidateAddNode(ctx context.Cont
 		}
 
 		if err := o.AddNode.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "postgresql" + "." + "add_node")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "postgresql" + "." + "add_node")
 			}
+
 			return err
 		}
 	}
@@ -10845,6 +11213,9 @@ AddServiceParamsBodyPostgresqlAddNode AddNodeParams holds node params and is use
 swagger:model AddServiceParamsBodyPostgresqlAddNode
 */
 type AddServiceParamsBodyPostgresqlAddNode struct {
+	// NodeType describes supported Node types.
+	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]
+	NodeType *string `json:"node_type,omitempty"`
 
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
@@ -10872,10 +11243,6 @@ type AddServiceParamsBodyPostgresqlAddNode struct {
 
 	// Custom user-assigned labels for Node.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// NodeType describes supported Node types.
-	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]
-	NodeType *string `json:"node_type,omitempty"`
 }
 
 // Validate validates this add service params body postgresql add node
@@ -10892,7 +11259,7 @@ func (o *AddServiceParamsBodyPostgresqlAddNode) Validate(formats strfmt.Registry
 	return nil
 }
 
-var addServiceParamsBodyPostgresqlAddNodeTypeNodeTypePropEnum []interface{}
+var addServiceParamsBodyPostgresqlAddNodeTypeNodeTypePropEnum []any
 
 func init() {
 	var res []string
@@ -10974,7 +11341,6 @@ AddServiceParamsBodyProxysql add service params body proxysql
 swagger:model AddServiceParamsBodyProxysql
 */
 type AddServiceParamsBodyProxysql struct {
-
 	// Node identifier on which a service is been running.
 	// Exactly one of these parameters should be present: node_id, node_name, add_node.
 	NodeID string `json:"node_id,omitempty"`
@@ -11028,17 +11394,18 @@ type AddServiceParamsBodyProxysql struct {
 	// Skip TLS certificate and hostname validation.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
+	// MetricsMode defines desired metrics mode for agent,
+	// it can be pull, push or auto mode chosen by server.
+	//
+	//  - METRICS_MODE_UNSPECIFIED: Auto
+	// Enum: ["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]
+	MetricsMode *string `json:"metrics_mode,omitempty"`
+
 	// List of collector names to disable in this exporter.
 	DisableCollectors []string `json:"disable_collectors"`
 
 	// Custom password for exporter endpoint /metrics.
 	AgentPassword string `json:"agent_password,omitempty"`
-
-	// Optionally expose the exporter process on all public interfaces
-	ExposeExporter bool `json:"expose_exporter,omitempty"`
-
-	// add node
-	AddNode *AddServiceParamsBodyProxysqlAddNode `json:"add_node,omitempty"`
 
 	// Log level for exporters
 	//
@@ -11046,19 +11413,18 @@ type AddServiceParamsBodyProxysql struct {
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
-	// MetricsMode defines desired metrics mode for agent,
-	// it can be pull, push or auto mode chosen by server.
-	//
-	//  - METRICS_MODE_UNSPECIFIED: Auto
-	// Enum: ["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]
-	MetricsMode *string `json:"metrics_mode,omitempty"`
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// add node
+	AddNode *AddServiceParamsBodyProxysqlAddNode `json:"add_node,omitempty"`
 }
 
 // Validate validates this add service params body proxysql
 func (o *AddServiceParamsBodyProxysql) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateAddNode(formats); err != nil {
+	if err := o.validateMetricsMode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -11066,7 +11432,7 @@ func (o *AddServiceParamsBodyProxysql) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := o.validateMetricsMode(formats); err != nil {
+	if err := o.validateAddNode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -11076,26 +11442,52 @@ func (o *AddServiceParamsBodyProxysql) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *AddServiceParamsBodyProxysql) validateAddNode(formats strfmt.Registry) error {
-	if swag.IsZero(o.AddNode) { // not required
+var addServiceParamsBodyProxysqlTypeMetricsModePropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addServiceParamsBodyProxysqlTypeMetricsModePropEnum = append(addServiceParamsBodyProxysqlTypeMetricsModePropEnum, v)
+	}
+}
+
+const (
+
+	// AddServiceParamsBodyProxysqlMetricsModeMETRICSMODEUNSPECIFIED captures enum value "METRICS_MODE_UNSPECIFIED"
+	AddServiceParamsBodyProxysqlMetricsModeMETRICSMODEUNSPECIFIED string = "METRICS_MODE_UNSPECIFIED"
+
+	// AddServiceParamsBodyProxysqlMetricsModeMETRICSMODEPULL captures enum value "METRICS_MODE_PULL"
+	AddServiceParamsBodyProxysqlMetricsModeMETRICSMODEPULL string = "METRICS_MODE_PULL"
+
+	// AddServiceParamsBodyProxysqlMetricsModeMETRICSMODEPUSH captures enum value "METRICS_MODE_PUSH"
+	AddServiceParamsBodyProxysqlMetricsModeMETRICSMODEPUSH string = "METRICS_MODE_PUSH"
+)
+
+// prop value enum
+func (o *AddServiceParamsBodyProxysql) validateMetricsModeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addServiceParamsBodyProxysqlTypeMetricsModePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddServiceParamsBodyProxysql) validateMetricsMode(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsMode) { // not required
 		return nil
 	}
 
-	if o.AddNode != nil {
-		if err := o.AddNode.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "proxysql" + "." + "add_node")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "proxysql" + "." + "add_node")
-			}
-			return err
-		}
+	// value enum
+	if err := o.validateMetricsModeEnum("body"+"."+"proxysql"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
+		return err
 	}
 
 	return nil
 }
 
-var addServiceParamsBodyProxysqlTypeLogLevelPropEnum []interface{}
+var addServiceParamsBodyProxysqlTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -11149,46 +11541,24 @@ func (o *AddServiceParamsBodyProxysql) validateLogLevel(formats strfmt.Registry)
 	return nil
 }
 
-var addServiceParamsBodyProxysqlTypeMetricsModePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		addServiceParamsBodyProxysqlTypeMetricsModePropEnum = append(addServiceParamsBodyProxysqlTypeMetricsModePropEnum, v)
-	}
-}
-
-const (
-
-	// AddServiceParamsBodyProxysqlMetricsModeMETRICSMODEUNSPECIFIED captures enum value "METRICS_MODE_UNSPECIFIED"
-	AddServiceParamsBodyProxysqlMetricsModeMETRICSMODEUNSPECIFIED string = "METRICS_MODE_UNSPECIFIED"
-
-	// AddServiceParamsBodyProxysqlMetricsModeMETRICSMODEPULL captures enum value "METRICS_MODE_PULL"
-	AddServiceParamsBodyProxysqlMetricsModeMETRICSMODEPULL string = "METRICS_MODE_PULL"
-
-	// AddServiceParamsBodyProxysqlMetricsModeMETRICSMODEPUSH captures enum value "METRICS_MODE_PUSH"
-	AddServiceParamsBodyProxysqlMetricsModeMETRICSMODEPUSH string = "METRICS_MODE_PUSH"
-)
-
-// prop value enum
-func (o *AddServiceParamsBodyProxysql) validateMetricsModeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addServiceParamsBodyProxysqlTypeMetricsModePropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *AddServiceParamsBodyProxysql) validateMetricsMode(formats strfmt.Registry) error {
-	if swag.IsZero(o.MetricsMode) { // not required
+func (o *AddServiceParamsBodyProxysql) validateAddNode(formats strfmt.Registry) error {
+	if swag.IsZero(o.AddNode) { // not required
 		return nil
 	}
 
-	// value enum
-	if err := o.validateMetricsModeEnum("body"+"."+"proxysql"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
-		return err
+	if o.AddNode != nil {
+		if err := o.AddNode.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "proxysql" + "." + "add_node")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "proxysql" + "." + "add_node")
+			}
+
+			return err
+		}
 	}
 
 	return nil
@@ -11209,7 +11579,6 @@ func (o *AddServiceParamsBodyProxysql) ContextValidate(ctx context.Context, form
 }
 
 func (o *AddServiceParamsBodyProxysql) contextValidateAddNode(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.AddNode != nil {
 
 		if swag.IsZero(o.AddNode) { // not required
@@ -11217,11 +11586,15 @@ func (o *AddServiceParamsBodyProxysql) contextValidateAddNode(ctx context.Contex
 		}
 
 		if err := o.AddNode.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "proxysql" + "." + "add_node")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "proxysql" + "." + "add_node")
 			}
+
 			return err
 		}
 	}
@@ -11252,6 +11625,9 @@ AddServiceParamsBodyProxysqlAddNode AddNodeParams holds node params and is used 
 swagger:model AddServiceParamsBodyProxysqlAddNode
 */
 type AddServiceParamsBodyProxysqlAddNode struct {
+	// NodeType describes supported Node types.
+	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]
+	NodeType *string `json:"node_type,omitempty"`
 
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
@@ -11279,10 +11655,6 @@ type AddServiceParamsBodyProxysqlAddNode struct {
 
 	// Custom user-assigned labels for Node.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// NodeType describes supported Node types.
-	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]
-	NodeType *string `json:"node_type,omitempty"`
 }
 
 // Validate validates this add service params body proxysql add node
@@ -11299,7 +11671,7 @@ func (o *AddServiceParamsBodyProxysqlAddNode) Validate(formats strfmt.Registry) 
 	return nil
 }
 
-var addServiceParamsBodyProxysqlAddNodeTypeNodeTypePropEnum []interface{}
+var addServiceParamsBodyProxysqlAddNodeTypeNodeTypePropEnum []any
 
 func init() {
 	var res []string
@@ -11381,7 +11753,6 @@ AddServiceParamsBodyRDS add service params body RDS
 swagger:model AddServiceParamsBodyRDS
 */
 type AddServiceParamsBodyRDS struct {
-
 	// AWS region.
 	Region string `json:"region,omitempty"`
 
@@ -11399,6 +11770,10 @@ type AddServiceParamsBodyRDS struct {
 
 	// Access port.
 	Port int64 `json:"port,omitempty"`
+
+	// DiscoverRDSEngine describes supported RDS instance engines.
+	// Enum: ["DISCOVER_RDS_ENGINE_UNSPECIFIED","DISCOVER_RDS_ENGINE_MYSQL","DISCOVER_RDS_ENGINE_POSTGRESQL"]
+	Engine *string `json:"engine,omitempty"`
 
 	// PMM Agent ID.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
@@ -11462,6 +11837,13 @@ type AddServiceParamsBodyRDS struct {
 	// Disable enhanced metrics.
 	DisableEnhancedMetrics bool `json:"disable_enhanced_metrics,omitempty"`
 
+	// MetricsMode defines desired metrics mode for agent,
+	// it can be pull, push or auto mode chosen by server.
+	//
+	//  - METRICS_MODE_UNSPECIFIED: Auto
+	// Enum: ["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]
+	MetricsMode *string `json:"metrics_mode,omitempty"`
+
 	// If true, add qan-pgstatements
 	QANPostgresqlPgstatements bool `json:"qan_postgresql_pgstatements,omitempty"`
 
@@ -11479,17 +11861,6 @@ type AddServiceParamsBodyRDS struct {
 
 	// Maximum number of exporter connections to PostgreSQL instance.
 	MaxPostgresqlExporterConnections int32 `json:"max_postgresql_exporter_connections,omitempty"`
-
-	// DiscoverRDSEngine describes supported RDS instance engines.
-	// Enum: ["DISCOVER_RDS_ENGINE_UNSPECIFIED","DISCOVER_RDS_ENGINE_MYSQL","DISCOVER_RDS_ENGINE_POSTGRESQL"]
-	Engine *string `json:"engine,omitempty"`
-
-	// MetricsMode defines desired metrics mode for agent,
-	// it can be pull, push or auto mode chosen by server.
-	//
-	//  - METRICS_MODE_UNSPECIFIED: Auto
-	// Enum: ["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]
-	MetricsMode *string `json:"metrics_mode,omitempty"`
 }
 
 // Validate validates this add service params body RDS
@@ -11510,7 +11881,7 @@ func (o *AddServiceParamsBodyRDS) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addServiceParamsBodyRdsTypeEnginePropEnum []interface{}
+var addServiceParamsBodyRdsTypeEnginePropEnum []any
 
 func init() {
 	var res []string
@@ -11555,7 +11926,7 @@ func (o *AddServiceParamsBodyRDS) validateEngine(formats strfmt.Registry) error 
 	return nil
 }
 
-var addServiceParamsBodyRdsTypeMetricsModePropEnum []interface{}
+var addServiceParamsBodyRdsTypeMetricsModePropEnum []any
 
 func init() {
 	var res []string
@@ -11628,7 +11999,6 @@ AddServiceParamsBodyValkey add service params body valkey
 swagger:model AddServiceParamsBodyValkey
 */
 type AddServiceParamsBodyValkey struct {
-
 	// Node identifier on which the service is running.
 	// Only one of these parameters should be present: node_id, node_name, add_node.
 	NodeID string `json:"node_id,omitempty"`
@@ -11682,6 +12052,19 @@ type AddServiceParamsBodyValkey struct {
 	// Skip TLS verification.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
+	// MetricsMode defines desired metrics mode for agent,
+	// it can be pull, push or auto mode chosen by server.
+	//
+	//  - METRICS_MODE_UNSPECIFIED: Auto
+	// Enum: ["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]
+	MetricsMode *string `json:"metrics_mode,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 
@@ -11699,26 +12082,13 @@ type AddServiceParamsBodyValkey struct {
 
 	// add node
 	AddNode *AddServiceParamsBodyValkeyAddNode `json:"add_node,omitempty"`
-
-	// Log level for exporters
-	//
-	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
-	LogLevel *string `json:"log_level,omitempty"`
-
-	// MetricsMode defines desired metrics mode for agent,
-	// it can be pull, push or auto mode chosen by server.
-	//
-	//  - METRICS_MODE_UNSPECIFIED: Auto
-	// Enum: ["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]
-	MetricsMode *string `json:"metrics_mode,omitempty"`
 }
 
 // Validate validates this add service params body valkey
 func (o *AddServiceParamsBodyValkey) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateAddNode(formats); err != nil {
+	if err := o.validateMetricsMode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -11726,7 +12096,7 @@ func (o *AddServiceParamsBodyValkey) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := o.validateMetricsMode(formats); err != nil {
+	if err := o.validateAddNode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -11736,26 +12106,52 @@ func (o *AddServiceParamsBodyValkey) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *AddServiceParamsBodyValkey) validateAddNode(formats strfmt.Registry) error {
-	if swag.IsZero(o.AddNode) { // not required
+var addServiceParamsBodyValkeyTypeMetricsModePropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addServiceParamsBodyValkeyTypeMetricsModePropEnum = append(addServiceParamsBodyValkeyTypeMetricsModePropEnum, v)
+	}
+}
+
+const (
+
+	// AddServiceParamsBodyValkeyMetricsModeMETRICSMODEUNSPECIFIED captures enum value "METRICS_MODE_UNSPECIFIED"
+	AddServiceParamsBodyValkeyMetricsModeMETRICSMODEUNSPECIFIED string = "METRICS_MODE_UNSPECIFIED"
+
+	// AddServiceParamsBodyValkeyMetricsModeMETRICSMODEPULL captures enum value "METRICS_MODE_PULL"
+	AddServiceParamsBodyValkeyMetricsModeMETRICSMODEPULL string = "METRICS_MODE_PULL"
+
+	// AddServiceParamsBodyValkeyMetricsModeMETRICSMODEPUSH captures enum value "METRICS_MODE_PUSH"
+	AddServiceParamsBodyValkeyMetricsModeMETRICSMODEPUSH string = "METRICS_MODE_PUSH"
+)
+
+// prop value enum
+func (o *AddServiceParamsBodyValkey) validateMetricsModeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addServiceParamsBodyValkeyTypeMetricsModePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddServiceParamsBodyValkey) validateMetricsMode(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsMode) { // not required
 		return nil
 	}
 
-	if o.AddNode != nil {
-		if err := o.AddNode.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "valkey" + "." + "add_node")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "valkey" + "." + "add_node")
-			}
-			return err
-		}
+	// value enum
+	if err := o.validateMetricsModeEnum("body"+"."+"valkey"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
+		return err
 	}
 
 	return nil
 }
 
-var addServiceParamsBodyValkeyTypeLogLevelPropEnum []interface{}
+var addServiceParamsBodyValkeyTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -11809,46 +12205,24 @@ func (o *AddServiceParamsBodyValkey) validateLogLevel(formats strfmt.Registry) e
 	return nil
 }
 
-var addServiceParamsBodyValkeyTypeMetricsModePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		addServiceParamsBodyValkeyTypeMetricsModePropEnum = append(addServiceParamsBodyValkeyTypeMetricsModePropEnum, v)
-	}
-}
-
-const (
-
-	// AddServiceParamsBodyValkeyMetricsModeMETRICSMODEUNSPECIFIED captures enum value "METRICS_MODE_UNSPECIFIED"
-	AddServiceParamsBodyValkeyMetricsModeMETRICSMODEUNSPECIFIED string = "METRICS_MODE_UNSPECIFIED"
-
-	// AddServiceParamsBodyValkeyMetricsModeMETRICSMODEPULL captures enum value "METRICS_MODE_PULL"
-	AddServiceParamsBodyValkeyMetricsModeMETRICSMODEPULL string = "METRICS_MODE_PULL"
-
-	// AddServiceParamsBodyValkeyMetricsModeMETRICSMODEPUSH captures enum value "METRICS_MODE_PUSH"
-	AddServiceParamsBodyValkeyMetricsModeMETRICSMODEPUSH string = "METRICS_MODE_PUSH"
-)
-
-// prop value enum
-func (o *AddServiceParamsBodyValkey) validateMetricsModeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addServiceParamsBodyValkeyTypeMetricsModePropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *AddServiceParamsBodyValkey) validateMetricsMode(formats strfmt.Registry) error {
-	if swag.IsZero(o.MetricsMode) { // not required
+func (o *AddServiceParamsBodyValkey) validateAddNode(formats strfmt.Registry) error {
+	if swag.IsZero(o.AddNode) { // not required
 		return nil
 	}
 
-	// value enum
-	if err := o.validateMetricsModeEnum("body"+"."+"valkey"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
-		return err
+	if o.AddNode != nil {
+		if err := o.AddNode.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "valkey" + "." + "add_node")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "valkey" + "." + "add_node")
+			}
+
+			return err
+		}
 	}
 
 	return nil
@@ -11869,7 +12243,6 @@ func (o *AddServiceParamsBodyValkey) ContextValidate(ctx context.Context, format
 }
 
 func (o *AddServiceParamsBodyValkey) contextValidateAddNode(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.AddNode != nil {
 
 		if swag.IsZero(o.AddNode) { // not required
@@ -11877,11 +12250,15 @@ func (o *AddServiceParamsBodyValkey) contextValidateAddNode(ctx context.Context,
 		}
 
 		if err := o.AddNode.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
 				return ve.ValidateName("body" + "." + "valkey" + "." + "add_node")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "valkey" + "." + "add_node")
 			}
+
 			return err
 		}
 	}
@@ -11912,6 +12289,9 @@ AddServiceParamsBodyValkeyAddNode AddNodeParams holds node params and is used to
 swagger:model AddServiceParamsBodyValkeyAddNode
 */
 type AddServiceParamsBodyValkeyAddNode struct {
+	// NodeType describes supported Node types.
+	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]
+	NodeType *string `json:"node_type,omitempty"`
 
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
@@ -11939,10 +12319,6 @@ type AddServiceParamsBodyValkeyAddNode struct {
 
 	// Custom user-assigned labels for Node.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// NodeType describes supported Node types.
-	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]
-	NodeType *string `json:"node_type,omitempty"`
 }
 
 // Validate validates this add service params body valkey add node
@@ -11959,7 +12335,7 @@ func (o *AddServiceParamsBodyValkeyAddNode) Validate(formats strfmt.Registry) er
 	return nil
 }
 
-var addServiceParamsBodyValkeyAddNodeTypeNodeTypePropEnum []interface{}
+var addServiceParamsBodyValkeyAddNodeTypeNodeTypePropEnum []any
 
 func init() {
 	var res []string
