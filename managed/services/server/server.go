@@ -710,7 +710,8 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		s.checksService.UpdateIntervals(
 			newSettings.SaaS.AdvisorRunIntervals.RareInterval,
 			newSettings.SaaS.AdvisorRunIntervals.StandardInterval,
-			newSettings.SaaS.AdvisorRunIntervals.FrequentInterval)
+			newSettings.SaaS.AdvisorRunIntervals.FrequentInterval,
+		)
 	}
 
 	// When Advisor is moved from disabled to enabled state, force checks download and execution.
