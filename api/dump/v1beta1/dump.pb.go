@@ -850,7 +850,7 @@ var (
 	file_dump_v1beta1_dump_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 	file_dump_v1beta1_dump_proto_msgTypes  = make([]protoimpl.MessageInfo, 13)
 	file_dump_v1beta1_dump_proto_goTypes   = []any{
-		(DumpStatus)(0),               // 0: dump.v1beta1.DumpStatus
+		DumpStatus(0),                 // 0: dump.v1beta1.DumpStatus
 		(*Dump)(nil),                  // 1: dump.v1beta1.Dump
 		(*StartDumpRequest)(nil),      // 2: dump.v1beta1.StartDumpRequest
 		(*StartDumpResponse)(nil),     // 3: dump.v1beta1.StartDumpResponse

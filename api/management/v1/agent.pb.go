@@ -1210,7 +1210,7 @@ var (
 	file_management_v1_agent_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 	file_management_v1_agent_proto_msgTypes  = make([]protoimpl.MessageInfo, 13)
 	file_management_v1_agent_proto_goTypes   = []any{
-		(UpdateSeverity)(0),                      // 0: management.v1.UpdateSeverity
+		UpdateSeverity(0),                        // 0: management.v1.UpdateSeverity
 		(*UniversalAgent)(nil),                   // 1: management.v1.UniversalAgent
 		(*ListAgentsRequest)(nil),                // 2: management.v1.ListAgentsRequest
 		(*ListAgentsResponse)(nil),               // 3: management.v1.ListAgentsResponse
@@ -1225,7 +1225,7 @@ var (
 		nil,                                      // 12: management.v1.UniversalAgent.CustomLabelsEntry
 		nil,                                      // 13: management.v1.UniversalAgent.MySQLOptions.ExtraDsnParamsEntry
 		(*timestamppb.Timestamp)(nil),            // 14: google.protobuf.Timestamp
-		(v1.LogLevel)(0),                         // 15: inventory.v1.LogLevel
+		v1.LogLevel(0),                           // 15: inventory.v1.LogLevel
 		(*v1.RTAOptions)(nil),                    // 16: inventory.v1.RTAOptions
 	}
 )
