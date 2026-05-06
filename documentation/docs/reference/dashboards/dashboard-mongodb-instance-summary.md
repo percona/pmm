@@ -8,7 +8,7 @@ Provides detailed metrics for a single MongoDB instance, including performance, 
 
 At the top of the dashboard, summary panels show key metrics at a glance:
 
-- **Node**: Link to the Node Summary dashboard for the underlying host.
+- **Node**: Link to the **Node Summary** dashboard for the underlying host.
 - **MongoDB Uptime**: How long the MongoDB instance has been running. Color-coded:
   - Red: less than 1 hour
   - Yellow: 1–24 hours
@@ -17,7 +17,6 @@ At the top of the dashboard, summary panels show key metrics at a glance:
 - **Latency**: Average command latency in microseconds.
 - **ReplSet**: Name of the replica set the instance belongs to.
 - **Current ReplSet State**: Current role of the instance, such as PRIMARY, SECONDARY, ARBITER, or transitional states like STARTUP2 during initial sync.
-
 
 ## ReplSet States
 
@@ -75,7 +74,7 @@ Assert events per second. Occasional asserts are normal, but spikes or consisten
 
 Operating system memory page faults. These are system-level faults, not necessarily caused by MongoDB.
 
-## System Resources
+## Node Summary
 
 The lower section shows host-level metrics:
 
@@ -86,6 +85,7 @@ The lower section shows host-level metrics:
 - **Virtual Memory**: Total memory including RAM and swap space.
 - **Disk Space**: Total disk space across all partitions.
 - **Min Space Available**: Lowest available disk space percentage across partitions.
+
 
 ## CPU Usage
 
