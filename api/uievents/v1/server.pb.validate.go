@@ -132,7 +132,8 @@ func (e NotificationEventValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = NotificationEventValidationError{}
@@ -240,7 +241,8 @@ func (e FetchingEventValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = FetchingEventValidationError{}
@@ -352,7 +354,8 @@ func (e DashboardUsageEventValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = DashboardUsageEventValidationError{}
@@ -460,7 +463,8 @@ func (e UserFlowEventValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = UserFlowEventValidationError{}
@@ -695,7 +699,8 @@ func (e StoreRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = StoreRequestValidationError{}
@@ -795,7 +800,8 @@ func (e StoreResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = StoreResponseValidationError{}

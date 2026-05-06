@@ -65,7 +65,8 @@ func TestScheduleBackup(t *testing.T) {
 						DisableCollectors:   []string{"global_status", "perf_schema.tablelocks"},
 					},
 				},
-			})
+			},
+		)
 		require.NoError(t, err)
 		mongo1ID := mongo1Resp.Payload.Mongodb.Service.ServiceID
 		t.Cleanup(func() {
@@ -89,7 +90,8 @@ func TestScheduleBackup(t *testing.T) {
 						DisableCollectors:   []string{"global_status", "perf_schema.tablelocks"},
 					},
 				},
-			})
+			},
+		)
 		require.NoError(t, err)
 		mongo2ID := mongo2Resp.Payload.Mongodb.Service.ServiceID
 		t.Cleanup(func() {

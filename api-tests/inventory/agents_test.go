@@ -138,7 +138,8 @@ func TestAgents(t *testing.T) {
 			&agents.ListAgentsParams{
 				PMMAgentID: pointer.ToString(pmmAgentID),
 				Context:    pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		require.NotNil(t, res)
 		require.NotEmpty(t, res.Payload.MysqldExporter, "There should be at least one agent")
@@ -151,7 +152,8 @@ func TestAgents(t *testing.T) {
 			&agents.ListAgentsParams{
 				NodeID:  pointer.ToString(nodeID),
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		require.NotNil(t, res)
 		require.NotEmpty(t, res.Payload.NodeExporter, "There should be at least one node exporter")
@@ -164,7 +166,8 @@ func TestAgents(t *testing.T) {
 			&agents.ListAgentsParams{
 				ServiceID: pointer.ToString(serviceID),
 				Context:   pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		require.NotNil(t, res)
 		require.NotEmpty(t, res.Payload.MysqldExporter, "There should be at least one mysql exporter")
@@ -177,7 +180,8 @@ func TestAgents(t *testing.T) {
 			&agents.ListAgentsParams{
 				AgentType: pointer.ToString(types.AgentTypeMySQLdExporter),
 				Context:   pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		require.NotNil(t, res)
 		require.NotEmpty(t, res.Payload.MysqldExporter, "There should be at least one mysql exporter")
@@ -198,7 +202,8 @@ func TestAgents(t *testing.T) {
 				NodeID:     pointer.ToString(genericNodeID),
 				ServiceID:  pointer.ToString("some-service-id"),
 				Context:    pmmapitests.Context,
-			})
+			},
+		)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "expected at most one param: pmm_agent_id, node_id or service_id")
 		assert.Nil(t, res)
 	})
@@ -230,7 +235,8 @@ func TestAgents(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 
 		pmmapitests.AssertAPIErrorf(t, err, http.StatusBadRequest, codes.FailedPrecondition, "invalid combination of service type mysql and agent type mongodb_exporter")
 	})
@@ -248,7 +254,8 @@ func TestPMMAgent(t *testing.T) {
 			&agents.GetAgentParams{
 				AgentID: agentID,
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.GetAgentOK{
 			Payload: &agents.GetAgentOKBody{
@@ -280,7 +287,8 @@ func TestPMMAgent(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddPMMAgentParams.RunsOnNodeId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveNodes(t, res.Payload.PMMAgent.AgentID)
@@ -332,7 +340,8 @@ func TestPMMAgent(t *testing.T) {
 			&agents.GetAgentParams{
 				AgentID: pmmAgentID,
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.GetAgentOK{
 			Payload: &agents.GetAgentOKBody{
@@ -348,7 +357,8 @@ func TestPMMAgent(t *testing.T) {
 			&agents.ListAgentsParams{
 				PMMAgentID: pointer.ToString(pmmAgentID),
 				Context:    pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyNodeExporterItems0{
 			{
@@ -392,7 +402,8 @@ func TestPMMAgent(t *testing.T) {
 			&agents.GetAgentParams{
 				AgentID: pmmAgentID,
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID %s not found.", pmmAgentID)
 		assert.Nil(t, getAgentRes)
 
@@ -435,7 +446,8 @@ func TestPMMAgent(t *testing.T) {
 				AgentID: "pmm-server",
 				Force:   pointer.ToBool(true),
 				Context: context.Background(),
-			})
+			},
+		)
 		pmmapitests.AssertAPIErrorf(t, err, 403, codes.PermissionDenied, "pmm-agent on PMM Server can't be removed.")
 		assert.Nil(t, removeResp)
 	})
@@ -507,7 +519,8 @@ func TestQanAgentExporter(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
@@ -539,7 +552,8 @@ func TestQanAgentExporter(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
@@ -579,7 +593,8 @@ func TestQanAgentExporter(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddQANMySQLPerfSchemaAgentParams.ServiceId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.QANMysqlPerfschemaAgent.AgentID)
@@ -614,7 +629,8 @@ func TestQanAgentExporter(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddQANMySQLPerfSchemaAgentParams.PmmAgentId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.QANMysqlPerfschemaAgent.AgentID)
@@ -638,7 +654,8 @@ func TestQanAgentExporter(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Service with ID \"pmm-service-id\" not found.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.QANMysqlPerfschemaAgent.AgentID)
@@ -671,7 +688,8 @@ func TestQanAgentExporter(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID pmm-not-exist-server not found.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.QANMysqlPerfschemaAgent.AgentID)
@@ -714,7 +732,8 @@ func TestMetricsResolutionsChange(t *testing.T) {
 		&agents.GetAgentParams{
 			AgentID: agentID,
 			Context: pmmapitests.Context,
-		})
+		},
+	)
 	require.NoError(t, err)
 	assert.Equal(t, &agents.GetAgentOKBodyPostgresExporter{
 		AgentID:    agentID,
@@ -743,7 +762,8 @@ func TestMetricsResolutionsChange(t *testing.T) {
 				},
 			},
 			Context: pmmapitests.Context,
-		})
+		},
+	)
 	require.NoError(t, err)
 	assert.Equal(t, &agents.ChangeAgentOKBodyPostgresExporter{
 		AgentID:    agentID,
@@ -777,7 +797,8 @@ func TestMetricsResolutionsChange(t *testing.T) {
 				},
 			},
 			Context: pmmapitests.Context,
-		})
+		},
+	)
 	require.NoError(t, err)
 	assert.Equal(t, &agents.ChangeAgentOKBodyPostgresExporter{
 		AgentID:    agentID,
@@ -808,7 +829,8 @@ func TestMetricsResolutionsChange(t *testing.T) {
 				},
 			},
 			Context: pmmapitests.Context,
-		})
+		},
+	)
 	require.NoError(t, err)
 	assert.Equal(t, &agents.ChangeAgentOKBodyPostgresExporter{
 		AgentID:    agentID,

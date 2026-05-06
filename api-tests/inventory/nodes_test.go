@@ -402,7 +402,8 @@ func TestRemoveNode(t *testing.T) {
 		t.Parallel()
 
 		nodeName := pmmapitests.TestString(t, "Generic Node for remove test")
-		node := pmmapitests.AddNode(t,
+		node := pmmapitests.AddNode(
+			t,
 			&nodes.AddNodeBody{
 				Generic: &nodes.AddNodeParamsBodyGeneric{
 					NodeName: nodeName,
@@ -493,7 +494,8 @@ func TestRemoveNode(t *testing.T) {
 		t.Parallel()
 
 		nodeName := pmmapitests.TestString(t, "Generic Node for remove test")
-		node := pmmapitests.AddNode(t,
+		node := pmmapitests.AddNode(
+			t,
 			&nodes.AddNodeBody{
 				Generic: &nodes.AddNodeParamsBodyGeneric{
 					NodeName: nodeName,
