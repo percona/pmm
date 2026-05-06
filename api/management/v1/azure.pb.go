@@ -714,7 +714,6 @@ var (
 		nil,                                   // 6: management.v1.AddAzureDatabaseRequest.CustomLabelsEntry
 	}
 )
-
 var file_management_v1_azure_proto_depIdxs = []int32{
 	0, // 0: management.v1.DiscoverAzureDatabaseInstance.type:type_name -> management.v1.DiscoverAzureDatabaseType
 	2, // 1: management.v1.DiscoverAzureDatabaseResponse.azure_database_instance:type_name -> management.v1.DiscoverAzureDatabaseInstance

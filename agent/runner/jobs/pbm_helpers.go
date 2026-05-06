@@ -24,7 +24,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
@@ -557,7 +556,7 @@ func pbmGetSnapshotTimestamp(ctx context.Context, l logrus.FieldLogger, dsn stri
 
 	for _, snapshot := range snapshots {
 		if snapshot.Name == backupName {
-			return pointer.ToTime(time.Unix(snapshot.RestoreTo, 0)), nil
+			return new(time.Unix(snapshot.RestoreTo, 0)), nil
 		}
 	}
 

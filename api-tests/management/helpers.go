@@ -20,7 +20,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -76,7 +75,7 @@ func assertNodeExporterCreated(t *testing.T, pmmAgentID string) (string, bool) {
 	t.Helper()
 
 	listAgentsOK, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-		PMMAgentID: pointer.ToString(pmmAgentID),
+		PMMAgentID: new(pmmAgentID),
 		Context:    pmmapitests.Context,
 	})
 	assert.NoError(t, err)
@@ -89,7 +88,7 @@ func assertNodeExporterCreated(t *testing.T, pmmAgentID string) (string, bool) {
 		Status:             &AgentStatusUnknown,
 		CustomLabels:       make(map[string]string),
 		DisabledCollectors: make([]string, 0),
-		LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+		LogLevel:           new("LOG_LEVEL_UNSPECIFIED"),
 	}, *listAgentsOK.Payload.NodeExporter[0])
 	return nodeExporterAgentID, asserted
 }
@@ -127,7 +126,7 @@ func RemovePMMAgentWithSubAgents(t *testing.T, pmmAgentID string) {
 	t.Helper()
 
 	listAgentsOK, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-		PMMAgentID: pointer.ToString(pmmAgentID),
+		PMMAgentID: new(pmmAgentID),
 		Context:    context.Background(),
 	})
 	if err == nil {

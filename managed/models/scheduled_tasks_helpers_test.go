@@ -20,7 +20,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
@@ -163,11 +162,11 @@ func TestScheduledTaskHelpers(t *testing.T) {
 		require.NoError(t, err)
 
 		changeParams1 := models.ChangeScheduledTaskParams{
-			NextRun: pointer.ToTime(time.Now()),
-			LastRun: pointer.ToTime(time.Now()),
-			Disable: pointer.ToBool(true),
-			Running: pointer.ToBool(true),
-			Error:   pointer.ToString("something"),
+			NextRun: new(time.Now()),
+			LastRun: new(time.Now()),
+			Disable: new(true),
+			Running: new(true),
+			Error:   new("something"),
 		}
 		task1, err = models.ChangeScheduledTask(tx.Querier, task1.ID, changeParams1)
 		assert.NoError(t, err)
@@ -241,13 +240,13 @@ func TestScheduledTaskHelpers(t *testing.T) {
 			},
 			{
 				filter: models.ScheduledTasksFilter{
-					Disabled: pointer.ToBool(true),
+					Disabled: new(true),
 				},
 				ids: []string{task2.ID},
 			},
 			{
 				filter: models.ScheduledTasksFilter{
-					Disabled: pointer.ToBool(false),
+					Disabled: new(false),
 				},
 				ids: []string{task1.ID, task3.ID, task4.ID},
 			},

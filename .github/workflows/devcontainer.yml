@@ -62,3 +62,6 @@ jobs:
           tags: |
             ${{ env.GH_DEVCONTAINER_IMAGE }}
             ${{ env.LAB_DEVCONTAINER_IMAGE }}
+          with:
+            build-args: |
+              GO_VERSION=$(grep '^go ' ./go.mod | awk '{print $2}')

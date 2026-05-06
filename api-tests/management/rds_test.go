@@ -20,7 +20,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -76,7 +75,7 @@ func TestAddRds(t *testing.T) {
 					NodeModel:                 "some-model",
 					Address:                   pmmapitests.TestString(t, "some.example.rds"),
 					Port:                      3306,
-					Engine:                    pointer.ToString("DISCOVER_RDS_ENGINE_MYSQL"),
+					Engine:                    new("DISCOVER_RDS_ENGINE_MYSQL"),
 					NodeName:                  "some-node-name-000001",
 					ServiceName:               "test-add-rds-service000001",
 					Environment:               "some-env",
@@ -143,7 +142,7 @@ func TestAddRds(t *testing.T) {
 					NodeModel:                 "some-model",
 					Address:                   pmmapitests.TestString(t, "some.example.rds"),
 					Port:                      5432,
-					Engine:                    pointer.ToString("DISCOVER_RDS_ENGINE_POSTGRESQL"),
+					Engine:                    new("DISCOVER_RDS_ENGINE_POSTGRESQL"),
 					NodeName:                  "some-node-name-000009",
 					ServiceName:               "test-add-rds-service000010",
 					Environment:               "some-env",
