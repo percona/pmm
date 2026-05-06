@@ -2827,6 +2827,7 @@ var (
 		v1.AgentType(0),                  // 9: inventory.v1.AgentType
 	}
 )
+
 var file_agent_v1_collector_proto_depIdxs = []int32{
 	3, // 0: agent.v1.MetricsBucket.common:type_name -> agent.v1.MetricsBucket.Common
 	4, // 1: agent.v1.MetricsBucket.mysql:type_name -> agent.v1.MetricsBucket.MySQL
