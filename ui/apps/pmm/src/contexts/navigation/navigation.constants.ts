@@ -34,7 +34,7 @@ export const NAV_HOME_PAGE: NavItem = {
 export const NAV_MYSQL: NavItem = {
   id: 'mysql',
   text: 'MySQL',
-  icon: 'mysql',
+  icon: 'percona-my',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-instance-overview/mysql-instances-overview`,
   children: [
     {
@@ -120,7 +120,7 @@ export const NAV_MYSQL: NavItem = {
 //
 export const NAV_MONGO: NavItem = {
   id: 'mongo',
-  icon: 'mongo',
+  icon: 'percona-mo',
   text: 'MongoDB',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-instance-overview/mongodb-instances-overview`,
   children: [
@@ -183,7 +183,7 @@ export const NAV_MONGO: NavItem = {
 export const NAV_POSTGRESQL: NavItem = {
   id: 'postgre',
   text: 'PostgreSQL',
-  icon: 'postgresql',
+  icon: 'percona-po',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/postgresql-instance-overview/postgresql-instances-overview`,
   children: [
     {
@@ -309,7 +309,7 @@ export const NAV_PROXYSQL: NavItem = {
 export const NAV_VALKEY: NavItem = {
   id: 'valkey',
   text: 'Valkey',
-  icon: 'valkey',
+  icon: 'percona-va',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/valkey-overview/valkey-redis-overview`,
   children: [
     {
