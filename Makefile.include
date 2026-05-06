@@ -32,7 +32,6 @@ gen: clean            ## Generate files
 	make gen-mocks      ## Generate mocks
 
 	make format
-	make format ## TODO: One formatting run is not enough, figure out why.
 	go install -v ./...
 
 clean:                ## Remove generated files

@@ -399,8 +399,8 @@ var (
 		(*ValkeyServiceResult)(nil),    // 1: management.v1.ValkeyServiceResult
 		nil,                            // 2: management.v1.AddValkeyServiceParams.CustomLabelsEntry
 		(*AddNodeParams)(nil),          // 3: management.v1.AddNodeParams
-		(MetricsMode)(0),               // 4: management.v1.MetricsMode
-		(v1.LogLevel)(0),               // 5: inventory.v1.LogLevel
+		MetricsMode(0),                 // 4: management.v1.MetricsMode
+		v1.LogLevel(0),                 // 5: inventory.v1.LogLevel
 		(*v1.ValkeyService)(nil),       // 6: inventory.v1.ValkeyService
 		(*v1.ValkeyExporter)(nil),      // 7: inventory.v1.ValkeyExporter
 	}

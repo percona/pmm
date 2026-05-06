@@ -107,7 +107,8 @@ func TestRulesAPI(t *testing.T) {
 					Name:  "unknown parameter",
 					Type:  pointer.ToString("PARAM_TYPE_FLOAT"),
 					Float: 12,
-				})
+				},
+			)
 			_, err := client.CreateRule(params)
 			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Expression requires 2 parameters, but got 3.")
 		})

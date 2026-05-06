@@ -857,7 +857,8 @@ func convertArtifact(
 	l, ok := locationModels[a.LocationID]
 	if !ok {
 		return nil, errors.Errorf(
-			"failed to convert artifact with id '%s': no location id '%s' in the map", a.ID, a.LocationID)
+			"failed to convert artifact with id '%s': no location id '%s' in the map", a.ID, a.LocationID,
+		)
 	}
 
 	var serviceName string

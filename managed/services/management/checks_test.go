@@ -316,7 +316,8 @@ func TestListAdvisorChecks(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 
-		assert.ElementsMatch(t, resp.Checks,
+		assert.ElementsMatch(
+			t, resp.Checks,
 			[]*advisorsv1.AdvisorCheck{
 				{Name: "one", Enabled: true, Interval: advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD},
 				{Name: "two", Enabled: false, Interval: advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_FREQUENT},

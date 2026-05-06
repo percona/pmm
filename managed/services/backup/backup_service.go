@@ -431,7 +431,8 @@ func (s *Service) SwitchMongoPITR(ctx context.Context, serviceID string, enabled
 		dsn,
 		agent.Files(),
 		agent.TemplateDelimiters(service),
-		enabled)
+		enabled,
+	)
 }
 
 func (s *Service) startRestoreJob(params *restoreJobParams) error {
@@ -449,7 +450,8 @@ func (s *Service) startRestoreJob(params *restoreJobParams) error {
 			0,
 			params.ArtifactName,
 			locationConfig,
-			params.Folder)
+			params.Folder,
+		)
 	case models.MongoDBServiceType:
 		return s.jobsService.StartMongoDBRestoreBackupJob(
 			params.Service,
@@ -461,7 +463,8 @@ func (s *Service) startRestoreJob(params *restoreJobParams) error {
 			params.DataModel,
 			locationConfig,
 			params.PITRTimestamp,
-			params.Folder)
+			params.Folder,
+		)
 	case models.PostgreSQLServiceType,
 		models.ProxySQLServiceType,
 		models.HAProxyServiceType,
