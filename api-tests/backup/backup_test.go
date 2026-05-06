@@ -36,12 +36,15 @@ import (
 func TestScheduleBackup(t *testing.T) {
 	t.Run("mongo", func(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-for-basic-name")
-		nodeID, pmmAgentID := management.RegisterGenericNode(t, mservice.RegisterNodeBody{
+		nodeID, pmmAgentID := management.RegisterNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
 			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
-		defer pmmapitests.UnregisterNodes(t, nodeID)
-		defer management.RemovePMMAgentWithSubAgents(t, pmmAgentID)
+		t.Cleanup(func() {
+			pmmapitests.UnregisterNodes(t, nodeID)
+			management.RemovePMMAgentWithSubAgents(t, pmmAgentID)
+		})
+
 		mongo1Name := pmmapitests.TestString(t, "mongo")
 		mongo2Name := pmmapitests.TestString(t, "mongo")
 
@@ -54,7 +57,7 @@ func TestScheduleBackup(t *testing.T) {
 						Cluster:     "test_cluster",
 						PMMAgentID:  pmmAgentID,
 						ServiceName: mongo1Name,
-						Address:     "10.10.10.10",
+						Address:     pmmapitests.TestString(t, "10.10.10.10"),
 						Port:        27017,
 						Username:    "username",
 
@@ -62,10 +65,13 @@ func TestScheduleBackup(t *testing.T) {
 						DisableCollectors:   []string{"global_status", "perf_schema.tablelocks"},
 					},
 				},
-			})
+			},
+		)
 		require.NoError(t, err)
 		mongo1ID := mongo1Resp.Payload.Mongodb.Service.ServiceID
-		defer pmmapitests.RemoveServices(t, mongo1ID)
+		t.Cleanup(func() {
+			pmmapitests.RemoveServices(t, mongo1ID)
+		})
 
 		mongo2Resp, err := managementClient.Default.ManagementService.AddService(
 			&mservice.AddServiceParams{
@@ -76,7 +82,7 @@ func TestScheduleBackup(t *testing.T) {
 						Cluster:     "test_cluster",
 						PMMAgentID:  pmmAgentID,
 						ServiceName: mongo2Name,
-						Address:     "10.10.10.11",
+						Address:     pmmapitests.TestString(t, "10.10.10.11"),
 						Port:        27017,
 						Username:    "username",
 
@@ -84,10 +90,13 @@ func TestScheduleBackup(t *testing.T) {
 						DisableCollectors:   []string{"global_status", "perf_schema.tablelocks"},
 					},
 				},
-			})
+			},
+		)
 		require.NoError(t, err)
 		mongo2ID := mongo2Resp.Payload.Mongodb.Service.ServiceID
-		defer pmmapitests.RemoveServices(t, mongo2ID)
+		t.Cleanup(func() {
+			pmmapitests.RemoveServices(t, mongo2ID)
+		})
 
 		resp, err := backupClient.Default.LocationsService.AddLocation(&locations.AddLocationParams{
 			Body: locations.AddLocationBody{
@@ -101,7 +110,9 @@ func TestScheduleBackup(t *testing.T) {
 		})
 		require.NoError(t, err)
 		locationID := resp.Payload.LocationID
-		defer deleteLocation(t, backupClient.Default.LocationsService, locationID)
+		t.Cleanup(func() {
+			deleteLocation(t, backupClient.Default.LocationsService, locationID)
+		})
 
 		t.Run("schedule logical backup", func(t *testing.T) {
 			client := backupClient.Default.BackupService
@@ -199,7 +210,9 @@ func TestScheduleBackup(t *testing.T) {
 			})
 
 			require.NoError(t, err)
-			defer removeScheduledBackup(t, sb1.Payload.ScheduledBackupID)
+			t.Cleanup(func() {
+				removeScheduledBackup(t, sb1.Payload.ScheduledBackupID)
+			})
 
 			sb2, err := client.ScheduleBackup(&backup.ScheduleBackupParams{
 				Body: backup.ScheduleBackupBody{
@@ -216,7 +229,9 @@ func TestScheduleBackup(t *testing.T) {
 			})
 
 			require.NoError(t, err)
-			defer removeScheduledBackup(t, sb2.Payload.ScheduledBackupID)
+			t.Cleanup(func() {
+				removeScheduledBackup(t, sb2.Payload.ScheduledBackupID)
+			})
 		})
 
 		t.Run("create PITR backup when other backups disabled", func(t *testing.T) {
@@ -237,7 +252,9 @@ func TestScheduleBackup(t *testing.T) {
 			})
 
 			require.NoError(t, err)
-			defer removeScheduledBackup(t, sb1.Payload.ScheduledBackupID)
+			t.Cleanup(func() {
+				removeScheduledBackup(t, sb1.Payload.ScheduledBackupID)
+			})
 
 			pitrb1, err := client.ScheduleBackup(&backup.ScheduleBackupParams{
 				Body: backup.ScheduleBackupBody{
@@ -254,7 +271,9 @@ func TestScheduleBackup(t *testing.T) {
 			})
 
 			require.NoError(t, err)
-			defer removeScheduledBackup(t, pitrb1.Payload.ScheduledBackupID)
+			t.Cleanup(func() {
+				removeScheduledBackup(t, pitrb1.Payload.ScheduledBackupID)
+			})
 
 			pitrb2, err := client.ScheduleBackup(&backup.ScheduleBackupParams{
 				Body: backup.ScheduleBackupBody{
@@ -271,7 +290,9 @@ func TestScheduleBackup(t *testing.T) {
 			})
 
 			require.NoError(t, err)
-			defer removeScheduledBackup(t, pitrb2.Payload.ScheduledBackupID)
+			t.Cleanup(func() {
+				removeScheduledBackup(t, pitrb2.Payload.ScheduledBackupID)
+			})
 		})
 
 		t.Run("only one enabled PITR backup allowed for the same cluster", func(t *testing.T) {
@@ -291,7 +312,9 @@ func TestScheduleBackup(t *testing.T) {
 			})
 
 			require.NoError(t, err)
-			defer removeScheduledBackup(t, sb1.Payload.ScheduledBackupID)
+			t.Cleanup(func() {
+				removeScheduledBackup(t, sb1.Payload.ScheduledBackupID)
+			})
 
 			_, err = client.ScheduleBackup(&backup.ScheduleBackupParams{
 				Body: backup.ScheduleBackupBody{

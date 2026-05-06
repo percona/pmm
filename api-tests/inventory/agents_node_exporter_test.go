@@ -33,26 +33,20 @@ func TestNodeExporter(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
-		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node exporter"))
-		nodeID := node.Remote.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, nodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		nodeID := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node exporter")).NodeID
+		pmmAgentID := pmmapitests.AddPMMAgent(t, nodeID).AgentID
 
 		customLabels := map[string]string{
 			"custom_label_node_exporter": "node_exporter",
 		}
-		res := addNodeExporter(t, pmmAgentID, customLabels)
-		agentID := res.Payload.NodeExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
+		agentID := pmmapitests.AddNodeExporter(t, pmmAgentID, customLabels).AgentID
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(
 			&agents.GetAgentParams{
 				AgentID: agentID,
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.GetAgentOK{
 			Payload: &agents.GetAgentOKBody{
@@ -79,7 +73,8 @@ func TestNodeExporter(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
@@ -109,7 +104,8 @@ func TestNodeExporter(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
@@ -165,13 +161,8 @@ func TestNodeExporter(t *testing.T) {
 	t.Run("With PushMetrics", func(t *testing.T) {
 		t.Parallel()
 
-		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node exporter"))
-		nodeID := node.Remote.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, nodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		nodeID := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node exporter")).NodeID
+		pmmAgentID := pmmapitests.AddPMMAgent(t, nodeID).AgentID
 
 		customLabels := map[string]string{
 			"custom_label_node_exporter": "node_exporter",
@@ -191,7 +182,6 @@ func TestNodeExporter(t *testing.T) {
 		require.NotNil(t, res.Payload.NodeExporter)
 		require.Equal(t, pmmAgentID, res.Payload.NodeExporter.PMMAgentID)
 		agentID := res.Payload.NodeExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			AgentID: agentID,
@@ -247,7 +237,8 @@ func TestNodeExporter(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
@@ -268,17 +259,9 @@ func TestNodeExporter(t *testing.T) {
 	t.Run("ChangeCollectorsAndLogLevel", func(t *testing.T) {
 		t.Parallel()
 
-		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node exporter"))
-		nodeID := node.Remote.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, nodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
-
-		res := addNodeExporter(t, pmmAgentID, map[string]string{})
-		agentID := res.Payload.NodeExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
+		nodeID := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node exporter")).NodeID
+		pmmAgentID := pmmapitests.AddPMMAgent(t, nodeID).AgentID
+		agentID := pmmapitests.AddNodeExporter(t, pmmAgentID, map[string]string{}).AgentID
 
 		// Test changing new fields: DisableCollectors, LogLevel, ExposeExporter
 		changeNodeExporterOK, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
@@ -316,17 +299,9 @@ func TestNodeExporter(t *testing.T) {
 	t.Run("ChangeMetricsResolutions", func(t *testing.T) {
 		t.Parallel()
 
-		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node exporter"))
-		nodeID := node.Remote.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, nodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
-
-		res := addNodeExporter(t, pmmAgentID, map[string]string{})
-		agentID := res.Payload.NodeExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
+		nodeID := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node exporter")).NodeID
+		pmmAgentID := pmmapitests.AddPMMAgent(t, nodeID).AgentID
+		agentID := pmmapitests.AddNodeExporter(t, pmmAgentID, map[string]string{}).AgentID
 
 		// Test changing MetricsResolutions
 		_, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
@@ -359,21 +334,14 @@ func TestNodeExporter(t *testing.T) {
 	t.Run("ChangePassword_PasswordRotation", func(t *testing.T) {
 		t.Parallel()
 
-		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node Exporter field changes"))
-		nodeID := node.Remote.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, nodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		nodeID := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node Exporter field changes")).NodeID
+		pmmAgentID := pmmapitests.AddPMMAgent(t, nodeID).AgentID
 
 		// Create Node Exporter with initial configuration
-		res := addNodeExporter(t, pmmAgentID, map[string]string{
+		agentID := pmmapitests.AddNodeExporter(t, pmmAgentID, map[string]string{
 			"environment": "test",
 			"version":     "1.0",
-		})
-		agentID := res.Payload.NodeExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
+		}).AgentID
 
 		// Test changing configurable fields (Node Exporter doesn't have passwords)
 		changeNodeExporterOK, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
@@ -417,13 +385,8 @@ func TestNodeExporter(t *testing.T) {
 	t.Run("ChangeOnlySpecifiedFields_KeepOthersUnchanged", func(t *testing.T) {
 		t.Parallel()
 
-		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node Exporter partial update"))
-		nodeID := node.Remote.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, nodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		nodeID := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node Exporter partial update")).NodeID
+		pmmAgentID := pmmapitests.AddPMMAgent(t, nodeID).AgentID
 
 		// Create Node Exporter with comprehensive initial configuration
 		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
@@ -445,7 +408,6 @@ func TestNodeExporter(t *testing.T) {
 		})
 		require.NoError(t, err)
 		agentID := res.Payload.NodeExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
 
 		// Change only log level, verify all other fields remain unchanged
 		_, err = client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
@@ -483,21 +445,14 @@ func TestNodeExporter(t *testing.T) {
 	t.Run("ChangeAllAvailableFields", func(t *testing.T) {
 		t.Parallel()
 
-		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node Exporter change all fields"))
-		nodeID := node.Remote.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, nodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		nodeID := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node Exporter change all fields")).NodeID
+		pmmAgentID := pmmapitests.AddPMMAgent(t, nodeID).AgentID
 
 		// Create Node Exporter with initial configuration
-		res := addNodeExporter(t, pmmAgentID, map[string]string{
+		agentID := pmmapitests.AddNodeExporter(t, pmmAgentID, map[string]string{
 			"environment": "staging",
 			"version":     "1.0",
-		})
-		agentID := res.Payload.NodeExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
+		}).AgentID
 
 		// Change ALL available fields at once
 		changeNodeExporterOK, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{

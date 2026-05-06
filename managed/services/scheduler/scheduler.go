@@ -367,7 +367,8 @@ func checkAddPreconditions(q *reform.Querier, data *models.ScheduledTaskData, en
 				data.MongoDBBackupTask.Mode,
 				data.MongoDBBackupTask.ClusterName,
 				data.MongoDBBackupTask.ServiceID,
-				scheduledTaskID)
+				scheduledTaskID,
+			)
 		}
 	}
 	return nil
@@ -383,7 +384,8 @@ func checkUpdatePreconditions(q *reform.Querier, data *models.ScheduledTaskData,
 				data.MongoDBBackupTask.Mode,
 				data.MongoDBBackupTask.ClusterName,
 				data.MongoDBBackupTask.ServiceID,
-				scheduledTaskID)
+				scheduledTaskID,
+			)
 		}
 	}
 	return nil

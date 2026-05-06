@@ -35,29 +35,20 @@ func TestPostgresExporter(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		nodeID := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node exporter")).NodeID
 
-		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node exporter"))
-		nodeID := node.Remote.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
-
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Postgresql: &services.AddServiceParamsBodyPostgresql{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        5432,
 				ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for PostgresExporter test"),
 			},
 		})
 		serviceID := service.Postgresql.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, nodeID).AgentID
 
-		pmmAgent := pmmapitests.AddPMMAgent(t, nodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
-
-		PostgresExporter := addAgent(t, agents.AddAgentBody{
+		PostgresExporter := pmmapitests.AddAgent(t, agents.AddAgentBody{
 			PostgresExporter: &agents.AddAgentParamsBodyPostgresExporter{
 				ServiceID:  serviceID,
 				Username:   "username",
@@ -71,7 +62,6 @@ func TestPostgresExporter(t *testing.T) {
 			},
 		})
 		agentID := PostgresExporter.PostgresExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			AgentID: agentID,
@@ -107,7 +97,8 @@ func TestPostgresExporter(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
@@ -140,7 +131,8 @@ func TestPostgresExporter(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
@@ -166,12 +158,7 @@ func TestPostgresExporter(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
 		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
 			Body: agents.AddAgentBody{
@@ -192,19 +179,16 @@ func TestPostgresExporter(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Postgresql: &services.AddServiceParamsBodyPostgresql{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        5432,
 				ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for agent"),
 			},
 		})
 		serviceID := service.Postgresql.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
 
 		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
 			Body: agents.AddAgentBody{
@@ -227,12 +211,7 @@ func TestPostgresExporter(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
 		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
 			Body: agents.AddAgentBody{
@@ -255,19 +234,16 @@ func TestPostgresExporter(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Postgresql: &services.AddServiceParamsBodyPostgresql{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        5432,
 				ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for not exists node ID"),
 			},
 		})
 		serviceID := service.Postgresql.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
 
 		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
 			Body: agents.AddAgentBody{
@@ -290,29 +266,20 @@ func TestPostgresExporter(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		nodeID := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node exporter")).NodeID
 
-		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node exporter"))
-		nodeID := node.Remote.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
-
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Postgresql: &services.AddServiceParamsBodyPostgresql{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        5432,
 				ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for PostgresExporter test"),
 			},
 		})
 		serviceID := service.Postgresql.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, nodeID).AgentID
 
-		pmmAgent := pmmapitests.AddPMMAgent(t, nodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
-
-		PostgresExporter := addAgent(t, agents.AddAgentBody{
+		PostgresExporter := pmmapitests.AddAgent(t, agents.AddAgentBody{
 			PostgresExporter: &agents.AddAgentParamsBodyPostgresExporter{
 				ServiceID:  serviceID,
 				Username:   "username",
@@ -326,13 +293,13 @@ func TestPostgresExporter(t *testing.T) {
 			},
 		})
 		agentID := PostgresExporter.PostgresExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(
 			&agents.GetAgentParams{
 				AgentID: agentID,
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.GetAgentOK{
 			Payload: &agents.GetAgentOKBody{
@@ -362,7 +329,8 @@ func TestPostgresExporter(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
@@ -390,7 +358,8 @@ func TestPostgresExporter(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
@@ -415,47 +384,33 @@ func TestPostgresExporter(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		nodeID := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for postgres exporter")).NodeID
 
-		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for postgres exporter"))
-		nodeID := node.Remote.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
-
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Postgresql: &services.AddServiceParamsBodyPostgresql{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        5432,
 				ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for PostgresExporter test"),
 			},
 		})
 		serviceID := service.Postgresql.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, nodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, nodeID).AgentID
 
 		// Add agent with skip connection check
-		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
-			Body: agents.AddAgentBody{
-				PostgresExporter: &agents.AddAgentParamsBodyPostgresExporter{
-					ServiceID:           serviceID,
-					Username:            "username",
-					Password:            "password",
-					PMMAgentID:          pmmAgentID,
-					SkipConnectionCheck: true,
-				},
+		res := pmmapitests.AddAgent(t, agents.AddAgentBody{
+			PostgresExporter: &agents.AddAgentParamsBodyPostgresExporter{
+				ServiceID:           serviceID,
+				Username:            "username",
+				Password:            "password",
+				PMMAgentID:          pmmAgentID,
+				SkipConnectionCheck: true,
 			},
-			Context: pmmapitests.Context,
 		})
-		require.NoError(t, err)
-		agentID := res.Payload.PostgresExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
+		agentID := res.PostgresExporter.AgentID
 
 		// Test changing TLS fields, LogLevel, and AgentPassword
-		_, err = client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+		_, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				PostgresExporter: &agents.ChangeAgentParamsBodyPostgresExporter{
@@ -492,47 +447,33 @@ func TestPostgresExporter(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		nodeID := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for postgres exporter")).NodeID
 
-		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for postgres exporter"))
-		nodeID := node.Remote.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
-
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Postgresql: &services.AddServiceParamsBodyPostgresql{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        5432,
 				ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for password rotation test"),
 			},
 		})
 		serviceID := service.Postgresql.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, nodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, nodeID).AgentID
 
 		// Add agent with initial password
-		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
-			Body: agents.AddAgentBody{
-				PostgresExporter: &agents.AddAgentParamsBodyPostgresExporter{
-					ServiceID:           serviceID,
-					Username:            "postgres-user",
-					Password:            "initial-postgres-password-123",
-					PMMAgentID:          pmmAgentID,
-					SkipConnectionCheck: true,
-				},
+		res := pmmapitests.AddAgent(t, agents.AddAgentBody{
+			PostgresExporter: &agents.AddAgentParamsBodyPostgresExporter{
+				ServiceID:           serviceID,
+				Username:            "postgres-user",
+				Password:            "initial-postgres-password-123",
+				PMMAgentID:          pmmAgentID,
+				SkipConnectionCheck: true,
 			},
-			Context: pmmapitests.Context,
 		})
-		require.NoError(t, err)
-		agentID := res.Payload.PostgresExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
+		agentID := res.PostgresExporter.AgentID
 
 		// Test changing password (simulating password rotation)
-		_, err = client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+		_, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				PostgresExporter: &agents.ChangeAgentParamsBodyPostgresExporter{
@@ -592,63 +533,49 @@ func TestPostgresExporter(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		nodeID := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for postgres exporter")).NodeID
 
-		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for postgres exporter"))
-		nodeID := node.Remote.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
-
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Postgresql: &services.AddServiceParamsBodyPostgresql{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        5432,
 				ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for partial change test"),
 			},
 		})
 		serviceID := service.Postgresql.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, nodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, nodeID).AgentID
 
 		// Add agent with specific initial values for multiple fields
-		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
-			Body: agents.AddAgentBody{
-				PostgresExporter: &agents.AddAgentParamsBodyPostgresExporter{
-					ServiceID:              serviceID,
-					Username:               "initial-postgres-user",
-					Password:               "initial-postgres-password",
-					PMMAgentID:             pmmAgentID,
-					SkipConnectionCheck:    true,
-					MaxExporterConnections: 25,
-					CustomLabels: map[string]string{
-						"env":        "development",
-						"database":   "postgresql",
-						"monitoring": "enabled",
-					},
-					TLS:            true,
-					TLSSkipVerify:  false,
-					TLSCa:          "initial-ca-cert",
-					TLSCert:        "initial-client-cert",
-					TLSKey:         "initial-client-key",
-					PushMetrics:    true,
-					LogLevel:       pointer.ToString("LOG_LEVEL_ERROR"),
-					ExposeExporter: true,
-					DisableCollectors: []string{
-						"pg_stat_bgwriter",
-						"pg_stat_database",
-					},
-					AutoDiscoveryLimit: 100,
+		res := pmmapitests.AddAgent(t, agents.AddAgentBody{
+			PostgresExporter: &agents.AddAgentParamsBodyPostgresExporter{
+				ServiceID:              serviceID,
+				Username:               "initial-postgres-user",
+				Password:               "initial-postgres-password",
+				PMMAgentID:             pmmAgentID,
+				SkipConnectionCheck:    true,
+				MaxExporterConnections: 25,
+				CustomLabels: map[string]string{
+					"env":        "development",
+					"database":   "postgresql",
+					"monitoring": "enabled",
 				},
+				TLS:            true,
+				TLSSkipVerify:  false,
+				TLSCa:          "initial-ca-cert",
+				TLSCert:        "initial-client-cert",
+				TLSKey:         "initial-client-key",
+				PushMetrics:    true,
+				LogLevel:       pointer.ToString("LOG_LEVEL_ERROR"),
+				ExposeExporter: true,
+				DisableCollectors: []string{
+					"pg_stat_bgwriter",
+					"pg_stat_database",
+				},
+				AutoDiscoveryLimit: 100,
 			},
-			Context: pmmapitests.Context,
 		})
-		require.NoError(t, err)
-		agentID := res.Payload.PostgresExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
+		agentID := res.PostgresExporter.AgentID
 
 		// Get initial state to capture all original values
 		initialAgent, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{

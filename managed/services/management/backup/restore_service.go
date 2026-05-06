@@ -285,20 +285,23 @@ func convertRestoreHistoryItem(
 	artifact, ok := artifacts[i.ArtifactID]
 	if !ok {
 		return nil, errors.Errorf(
-			"failed to convert restore history item with id '%s': no artifact id '%s' in the map", i.ID, i.ArtifactID)
+			"failed to convert restore history item with id '%s': no artifact id '%s' in the map", i.ID, i.ArtifactID,
+		)
 	}
 
 	l, ok := locations[artifact.LocationID]
 	if !ok {
 		return nil, errors.Errorf(
 			"failed to convert restore history item with id '%s': no location id '%s' in the map",
-			i.ID, artifact.LocationID)
+			i.ID, artifact.LocationID,
+		)
 	}
 
 	s, ok := services[i.ServiceID]
 	if !ok {
 		return nil, errors.Errorf(
-			"failed to convert restore history item with id '%s': no service id '%s' in the map", i.ID, i.ServiceID)
+			"failed to convert restore history item with id '%s': no service id '%s' in the map", i.ID, i.ServiceID,
+		)
 	}
 
 	dm, err := convertDataModel(artifact.DataModel)

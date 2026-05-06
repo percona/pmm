@@ -162,7 +162,8 @@ func DropOldPartition(db *sqlx.DB, dbName string, days uint) {
 		&partitions,
 		query,
 		dbName,
-		days)
+		days,
+	)
 	if err != nil {
 		l.Infof("Select %d days old partitions of system.parts. Result: %v, Error: %v", days, partitions, err)
 		return

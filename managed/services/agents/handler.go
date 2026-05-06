@@ -64,7 +64,7 @@ func NewHandler(db *reform.DB, qanClient qanClient, vmdb prometheusService, regi
 }
 
 // Run takes over pmm-agent gRPC stream and runs it until completion.
-func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error {
+func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error { //nolint:gocognit
 	disconnectReason := "unknown"
 
 	ctx := stream.Context()
@@ -199,7 +199,8 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedReq
 				req.Status,
 				req.ListenPort,
 				pointer.ToStringOrNil(req.ProcessExecPath),
-				pointer.ToStringOrNil(req.Version))
+				pointer.ToStringOrNil(req.Version),
+			)
 			if err != nil {
 				return err
 			}
