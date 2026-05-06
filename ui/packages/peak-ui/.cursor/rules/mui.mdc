@@ -1,7 +1,7 @@
 ---
 description: MUI import and bundle hygiene for percona-ui — path imports, tooling, bundler notes.
 globs: percona-ui/**/*.{ts,tsx}
-alwaysApply: false
+alwaysApply: true
 ---
 
 ## Why

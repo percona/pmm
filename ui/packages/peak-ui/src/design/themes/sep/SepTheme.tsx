@@ -1,10 +1,8 @@
 import { PaletteMode, ThemeOptions } from '@mui/material';
 import { deepmerge } from '@mui/utils';
-import { listItemTextClasses } from '@mui/material/ListItemText';
 import { iconButtonClasses } from '@mui/material/IconButton';
 import { listItemIconClasses } from '@mui/material/ListItemIcon';
 import { listItemButtonClasses } from '@mui/material/ListItemButton';
-import { typographyClasses } from '@mui/material/Typography';
 
 import baseThemeOptions, { semanticTokensLight, semanticTokensDark } from '../base';
 
@@ -205,21 +203,10 @@ const sepThemeOptions = (mode: PaletteMode): ThemeOptions => {
       MuiDrawer: {
         styleOverrides: {
           root: {
-            fontFamily: 'Poppins',
-
-            [`.${listItemTextClasses.root} *`]: {
-              fontFamily: 'Poppins',
-            },
-
-            [`.${typographyClasses.root}`]: {
-              fontSize: '0.875rem',
-            },
-
             [`.${iconButtonClasses.root}:hover`]: {
               color: primary.main,
               backgroundColor: primary.hover,
             },
-
             [`.${iconButtonClasses.root}:focus`]: {
               color: primary.main,
               backgroundColor: primary.focus,
