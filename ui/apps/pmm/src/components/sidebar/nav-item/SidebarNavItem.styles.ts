@@ -21,7 +21,7 @@ export const getStyles = (
   listCollapsible:
     level === 0
       ? {
-          pl: 5,
+          pl: 4.75,
           pb: 2,
         }
       : level === 1
