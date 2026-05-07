@@ -23,8 +23,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	pmmv1 "github.com/percona/saas/gen/telemetry/events/pmm"
-	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
+	pmmv1 "github.com/percona/platform/gen/telemetry/events/pmm"
+	telemetryv1 "github.com/percona/platform/gen/telemetry/generic"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
