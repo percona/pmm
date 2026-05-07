@@ -110,143 +110,143 @@ const fontDisplay =
 export const primitives = {
   primary: {
     purple: {
-      950: "#1F0D68",
-      900: "#381999",
-      800: "#421CBB",
-      700: "#5022DF",
-      600: "#653DF4",
-      500: "#7056FC",
-      400: "#9387FE",
-      300: "#B6B2FF",
-      200: "#D6D5FF",
-      100: "#EAE8FF",
-      50: "#F3F3FF",
+      950: '#1F0D68',
+      900: '#381999',
+      800: '#421CBB',
+      700: '#5022DF',
+      600: '#653DF4',
+      500: '#7056FC',
+      400: '#9387FE',
+      300: '#B6B2FF',
+      200: '#D6D5FF',
+      100: '#EAE8FF',
+      50: '#F3F3FF',
     },
     yellow: {
-      950: "#2E3003",
-      900: "#5A5F02",
-      800: "#7D8301",
-      700: "#9FA701",
-      600: "#B8C200",
-      500: "#D4DB00",
-      400: "#E8F000",
-      300: "#F6FE54",
-      200: "#F9FDA5",
-      100: "#FBFDD3",
-      50: "#FCFDE7",
+      950: '#2E3003',
+      900: '#5A5F02',
+      800: '#7D8301',
+      700: '#9FA701',
+      600: '#B8C200',
+      500: '#D4DB00',
+      400: '#E8F000',
+      300: '#F6FE54',
+      200: '#F9FDA5',
+      100: '#FBFDD3',
+      50: '#FCFDE7',
     },
     black: {
-      950: "#282727",
-      900: "#3D3C3C",
-      800: "#464444",
-      700: "#504E4F",
-      600: "#5E5C5D",
-      500: "#6F6B6B",
-      400: "#8A8686",
-      300: "#B1AFB0",
-      200: "#D1D0D0",
-      100: "#E7E6E6",
-      50: "#F6F5F5",
+      950: '#282727',
+      900: '#3D3C3C',
+      800: '#464444',
+      700: '#504E4F',
+      600: '#5E5C5D',
+      500: '#6F6B6B',
+      400: '#8A8686',
+      300: '#B1AFB0',
+      200: '#D1D0D0',
+      100: '#E7E6E6',
+      50: '#F6F5F5',
     },
   },
   tech: {
     mysql: {
-      950: "#411409",
-      900: "#782E16",
-      800: "#953517",
-      700: "#BB4213",
-      600: "#E65A15",
-      500: "#F0721F",
-      400: "#F49143",
-      300: "#F8B879",
-      200: "#FBD6AD",
-      100: "#FDEDD7",
-      50: "#FEF7EE",
+      950: '#411409',
+      900: '#782E16',
+      800: '#953517',
+      700: '#BB4213',
+      600: '#E65A15',
+      500: '#F0721F',
+      400: '#F49143',
+      300: '#F8B879',
+      200: '#FBD6AD',
+      100: '#FDEDD7',
+      50: '#FEF7EE',
     },
     redis: {
-      950: "#43100C",
-      900: "#7C2620",
-      800: "#95271F",
-      700: "#B42B21",
-      600: "#D6362A",
-      500: "#EA5449",
-      400: "#F47E75",
-      300: "#F9AEA8",
-      200: "#FCCFCC",
-      100: "#FDE5E3",
-      50: "#FEF3F2",
+      950: '#43100C',
+      900: '#7C2620',
+      800: '#95271F',
+      700: '#B42B21',
+      600: '#D6362A',
+      500: '#EA5449',
+      400: '#F47E75',
+      300: '#F9AEA8',
+      200: '#FCCFCC',
+      100: '#FDE5E3',
+      50: '#FEF3F2',
     },
     mongodb: {
-      950: "#072C10",
-      900: "#175025",
-      800: "#1A6129",
-      700: "#1B7A2F",
-      600: "#1FA23A",
-      500: "#2BBC48",
-      400: "#52D66D",
-      300: "#8CE99F",
-      200: "#BEF4C8",
-      100: "#DEFAE3",
-      50: "#F1FCF2",
+      950: '#072C10',
+      900: '#175025',
+      800: '#1A6129',
+      700: '#1B7A2F',
+      600: '#1FA23A',
+      500: '#2BBC48',
+      400: '#52D66D',
+      300: '#8CE99F',
+      200: '#BEF4C8',
+      100: '#DEFAE3',
+      50: '#F1FCF2',
     },
     postgresql: {
-      950: "#0A3161",
-      900: "#084AA0",
-      800: "#005ED6",
-      700: "#0073FF",
-      600: "#2486FF",
-      500: "#479DFF",
-      400: "#6BB0FF",
-      300: "#8FC5FF",
-      200: "#ADD5FF",
-      100: "#CCE5FF",
-      50: "#EBF5FF",
+      950: '#0A3161',
+      900: '#084AA0',
+      800: '#005ED6',
+      700: '#0073FF',
+      600: '#2486FF',
+      500: '#479DFF',
+      400: '#6BB0FF',
+      300: '#8FC5FF',
+      200: '#ADD5FF',
+      100: '#CCE5FF',
+      50: '#EBF5FF',
     },
     valkey: {
-      950: "#420566",
-      900: "#601A89",
-      800: "#751EAB",
-      700: "#8B1FD1",
-      600: "#A83FEF",
-      500: "#B452FA",
-      400: "#C982FE",
-      300: "#DDB3FF",
-      200: "#ECD4FF",
-      100: "#F5E8FF",
-      50: "#FBF5FF",
+      950: '#420566',
+      900: '#601A89',
+      800: '#751EAB',
+      700: '#8B1FD1',
+      600: '#A83FEF',
+      500: '#B452FA',
+      400: '#C982FE',
+      300: '#DDB3FF',
+      200: '#ECD4FF',
+      100: '#F5E8FF',
+      50: '#FBF5FF',
     },
     kubernetes: {
-      950: "#0D2E44",
-      900: "#144866",
-      800: "#12567A",
-      700: "#106494",
-      600: "#127EB7",
-      500: "#2AA6DF",
-      400: "#48B6E8",
-      300: "#88CFF1",
-      200: "#C0E4F7",
-      100: "#E3F1FB",
-      50: "#F1F9FE",
+      950: '#0D2E44',
+      900: '#144866',
+      800: '#12567A',
+      700: '#106494',
+      600: '#127EB7',
+      500: '#2AA6DF',
+      400: '#48B6E8',
+      300: '#88CFF1',
+      200: '#C0E4F7',
+      100: '#E3F1FB',
+      50: '#F1F9FE',
     },
   },
   extra: {
     gold: {
-      950: "#150F04",
-      900: "#493408",
-      800: "#7D5A08",
-      700: "#AC8006",
-      600: "#D7A604",
-      500: "#FCCA03",
-      400: "#FED520",
-      300: "#FFDF3D",
-      200: "#FFE866",
-      100: "#FFF199",
-      50: "#FFFBE0",
+      950: '#150F04',
+      900: '#493408',
+      800: '#7D5A08',
+      700: '#AC8006',
+      600: '#D7A604',
+      500: '#FCCA03',
+      400: '#FED520',
+      300: '#FFDF3D',
+      200: '#FFE866',
+      100: '#FFF199',
+      50: '#FFFBE0',
     },
   },
   pure: {
-    black: "#000000",
-    white: "#FFFFFF",
+    black: '#000000',
+    white: '#FFFFFF',
   },
 } as const;
 
@@ -258,26 +258,26 @@ export const semanticTokensLight = {
   surfaces: {
     elevation0: primitives.primary.black[50],
     elevation1: primitives.pure.white,
-    backdrop: "rgba(0, 0, 0, 0.7)",
+    backdrop: 'rgba(0, 0, 0, 0.7)',
   },
   text: {
-    primary: "rgb(40, 39, 39)",
-    secondary: "rgba(40, 39, 39, 0.7)",
-    disabled: "rgba(40, 39, 39, 0.4)",
+    primary: 'rgb(40, 39, 39)',
+    secondary: 'rgba(40, 39, 39, 0.7)',
+    disabled: 'rgba(40, 39, 39, 0.4)',
     accent1: primitives.tech.kubernetes[600],
     accent2: primitives.primary.purple[500],
     accent3: primitives.primary.yellow[800],
   },
   lines: {
-    contour: "rgba(0, 0, 0, 0.08)",
-    divider: "rgba(40, 39, 39, 0.25)",
-    dividerStrong: "rgba(40, 39, 39, 0.5)",
-    dividerStronger: "rgb(40, 39, 39)",
+    contour: 'rgba(0, 0, 0, 0.08)',
+    divider: 'rgba(40, 39, 39, 0.25)',
+    dividerStrong: 'rgba(40, 39, 39, 0.5)',
+    dividerStronger: 'rgb(40, 39, 39)',
   },
   action: {
-    hover: "rgba(40, 39, 39, 0.04)",
-    disabled: "rgba(40, 39, 39, 0.12)",
-    focus: "rgba(40, 39, 39, 0.12)",
+    hover: 'rgba(40, 39, 39, 0.04)',
+    disabled: 'rgba(40, 39, 39, 0.12)',
+    focus: 'rgba(40, 39, 39, 0.12)',
   },
   // Semantic (light mode)
   success: {
@@ -313,7 +313,7 @@ export const semanticTokensLight = {
     main: primitives.primary.black[700],
     light: primitives.primary.black[400],
     contrastText: primitives.primary.black[950],
-    surface: "rgba(40, 39, 39, 0.12)",
+    surface: 'rgba(40, 39, 39, 0.12)',
   },
   // Charts (light mode)
   charts: {
@@ -324,7 +324,7 @@ export const semanticTokensLight = {
     chart5: primitives.tech.mongodb[400],
     chart6: primitives.tech.redis[500],
     chart7: primitives.primary.black[300],
-  }
+  },
 };
 
 // Semantic color tokens — Dark mode
@@ -333,26 +333,26 @@ export const semanticTokensDark = {
   surfaces: {
     elevation0: primitives.primary.black[900],
     elevation1: primitives.primary.black[950],
-    backdrop: "rgba(0, 0, 0, 0.7)",
+    backdrop: 'rgba(0, 0, 0, 0.7)',
   },
   text: {
-    primary: "rgb(246, 245, 245)",
-    secondary: "rgba(246, 245, 245, 0.7)",
-    disabled: "rgba(246, 245, 245, 0.4)",
+    primary: 'rgb(246, 245, 245)',
+    secondary: 'rgba(246, 245, 245, 0.7)',
+    disabled: 'rgba(246, 245, 245, 0.4)',
     accent1: primitives.tech.kubernetes[300],
     accent2: primitives.primary.purple[300],
     accent3: primitives.primary.yellow[200],
   },
   lines: {
-    contour: "rgba(255, 255, 255, 0.12)",
-    divider: "rgba(255, 255, 255, 0.25)",
-    dividerStrong: "rgba(255, 255, 255, 0.5)",
-    dividerStronger: "rgb(255, 255, 255)",
+    contour: 'rgba(255, 255, 255, 0.12)',
+    divider: 'rgba(255, 255, 255, 0.25)',
+    dividerStrong: 'rgba(255, 255, 255, 0.5)',
+    dividerStronger: 'rgb(255, 255, 255)',
   },
   action: {
-    hover: "rgba(246, 245, 245, 0.08)",
-    disabled: "rgba(246, 245, 245, 0.15)",
-    focus: "rgba(246, 245, 245, 0.15)",
+    hover: 'rgba(246, 245, 245, 0.08)',
+    disabled: 'rgba(246, 245, 245, 0.15)',
+    focus: 'rgba(246, 245, 245, 0.15)',
   },
   // Semantic (dark mode)
   success: {
@@ -388,7 +388,7 @@ export const semanticTokensDark = {
     main: primitives.primary.black[400],
     light: primitives.primary.black[200],
     contrastText: primitives.primary.black[50],
-    surface: "rgba(246, 245, 245, 0.15)",
+    surface: 'rgba(246, 245, 245, 0.15)',
   },
   // Charts (dark mode)
   charts: {
@@ -399,7 +399,7 @@ export const semanticTokensDark = {
     chart5: primitives.tech.mongodb[300],
     chart6: primitives.tech.redis[400],
     chart7: primitives.primary.black[300],
-  }
+  },
 };
 
 // Primary color tokens
@@ -408,22 +408,22 @@ export const defaultPrimaryLight = {
   main: primitives.primary.black[900],
   light: primitives.primary.black[800],
   contrastText: primitives.pure.white,
-  hover: "rgba(40, 39, 39, 0.04)",
-  selected: "rgba(40, 39, 39, 0.08)",
-  focus: "rgba(40, 39, 39, 0.12)",
-  focusVisible: "rgba(40, 39, 39, 0.3)",
-  outlinedBorder: "rgba(40, 39, 39, 0.5)",
+  hover: 'rgba(40, 39, 39, 0.04)',
+  selected: 'rgba(40, 39, 39, 0.08)',
+  focus: 'rgba(40, 39, 39, 0.12)',
+  focusVisible: 'rgba(40, 39, 39, 0.3)',
+  outlinedBorder: 'rgba(40, 39, 39, 0.5)',
 };
 export const defaultPrimaryDark = {
   dark: primitives.primary.black[50],
   main: primitives.pure.white,
   light: primitives.pure.white,
   contrastText: primitives.primary.black[950],
-  hover: "rgba(255, 255, 255, 0.08)",
-  selected: "rgba(255, 255, 255, 0.12)",
-  focus: "rgba(255, 255, 255, 0.15)",
-  focusVisible: "rgba(255, 255, 255, 0.3)",
-  outlinedBorder: "rgba(255, 255, 255, 0.5)",
+  hover: 'rgba(255, 255, 255, 0.08)',
+  selected: 'rgba(255, 255, 255, 0.12)',
+  focus: 'rgba(255, 255, 255, 0.15)',
+  focusVisible: 'rgba(255, 255, 255, 0.3)',
+  outlinedBorder: 'rgba(255, 255, 255, 0.5)',
 };
 
 export type SemanticTokens = typeof semanticTokensLight;
@@ -532,13 +532,13 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
       },
       styleOverrides: {
         root: ({ theme }) => ({
-          "&.MuiIconButton-root:not(:focus-visible):focus": {
-            backgroundColor: "transparent",
+          '&.MuiIconButton-root:not(:focus-visible):focus': {
+            backgroundColor: 'transparent',
           },
-          "&.MuiIconButton-root:focus-visible:focus": {
+          '&.MuiIconButton-root:focus-visible:focus': {
             backgroundColor: theme.palette.primary.focusVisible,
           },
-          "&.MuiIconButton-root:focus-visible": {
+          '&.MuiIconButton-root:focus-visible': {
             backgroundColor: theme.palette.primary.focusVisible,
           },
         }),
@@ -692,24 +692,24 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
             outlineOffset: '2px',
             borderRadius: '2px',
           },
-        }
-      }
+        },
+      },
     },
     MuiAccordion: {
       styleOverrides: {
         root: ({ theme }) => ({
-          borderWidth: "1px",
-          borderStyle: "solid",
-          borderColor: "rgba(44, 50, 62, 0.25)", // TODO move into pallet =#2C323E 25%
+          borderWidth: '1px',
+          borderStyle: 'solid',
+          borderColor: 'rgba(44, 50, 62, 0.25)', // TODO move into pallet =#2C323E 25%
           borderRadius: theme.spacing(1),
           backgroundColor: theme.palette.action.hover,
-          boxShadow: "none",
-          "&:before": {
+          boxShadow: 'none',
+          '&:before': {
             height: 0,
           },
-          marginTop: "8px",
-          "&.Mui-expanded": {
-            marginTop: "8px",
+          marginTop: '8px',
+          '&.Mui-expanded': {
+            marginTop: '8px',
           },
         }),
       },
@@ -916,7 +916,7 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
     MuiChip: {
       styleOverrides: {
         filled: ({ theme, ownerState: { color } }) => {
-          if (!color || color === "default") {
+          if (!color || color === 'default') {
             return {
               backgroundColor: theme.palette.action.focus,
               color: theme.palette.text.primary,
@@ -929,8 +929,8 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
           };
         },
         outlined: ({ theme, ownerState: { color } }) => {
-          const base = { backgroundColor: "transparent" };
-          if (!color || color === "default") {
+          const base = { backgroundColor: 'transparent' };
+          if (!color || color === 'default') {
             return {
               ...base,
               color: theme.palette.text.primary,
@@ -938,42 +938,40 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
             };
           }
           const tone =
-            color === "warning"
-              ? theme.palette.warning.main
-              : theme.palette[color].light;
+            color === 'warning' ? theme.palette.warning.main : theme.palette[color].light;
           return { ...base, color: tone, borderColor: tone };
         },
         label: ({ theme, ownerState }) => ({
-          ...(ownerState.size === "small"
+          ...(ownerState.size === 'small'
             ? theme.typography.helperText
             : theme.typography.inputText),
-          paddingLeft: ownerState.size === "small" ? 5 : 7,
-          paddingRight: ownerState.size === "small" ? 5 : 7,
+          paddingLeft: ownerState.size === 'small' ? 5 : 7,
+          paddingRight: ownerState.size === 'small' ? 5 : 7,
         }),
         avatar: ({ ownerState }) => ({
           width: 24,
           height: 24,
-          marginLeft: ownerState.size === "small" ? 0 : 4,
-          marginRight: ownerState.size === "small" ? -1 : -3,
+          marginLeft: ownerState.size === 'small' ? 0 : 4,
+          marginRight: ownerState.size === 'small' ? -1 : -3,
         }),
         deleteIcon: ({ theme, ownerState }) => {
-          const isSmall = ownerState.size === "small";
+          const isSmall = ownerState.size === 'small';
           const iconSize = isSmall ? 16 : 20;
           return {
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             padding: isSmall ? 4 : 6,
             marginLeft: isSmall ? -5 : -7,
             marginRight: 0,
-            cursor: "pointer",
+            cursor: 'pointer',
             color: theme.palette.text.disabled,
-            "& > svg": {
+            '& > svg': {
               width: iconSize,
               height: iconSize,
               fontSize: iconSize,
             },
-            "&:hover": {
+            '&:hover': {
               color: theme.palette.text.primary,
             },
           };

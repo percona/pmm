@@ -13,22 +13,22 @@ export const pmmPrimaryLight = {
   main: primitives.primary.purple[600],
   light: primitives.primary.purple[400],
   contrastText: primitives.pure.white,
-  hover: "rgba(101, 61, 244, 0.04)",
-  selected: "rgba(101, 61, 244, 0.08)",
-  focus: "rgba(101, 61, 244, 0.12)",
-  focusVisible: "rgba(101, 61, 244, 0.3)",
-  outlinedBorder: "rgba(101, 61, 244, 0.5)",
+  hover: 'rgba(101, 61, 244, 0.04)',
+  selected: 'rgba(101, 61, 244, 0.08)',
+  focus: 'rgba(101, 61, 244, 0.12)',
+  focusVisible: 'rgba(101, 61, 244, 0.3)',
+  outlinedBorder: 'rgba(101, 61, 244, 0.5)',
 };
 export const pmmPrimaryDark = {
   dark: primitives.primary.purple[400],
   main: primitives.primary.purple[300],
   light: primitives.primary.purple[200],
   contrastText: primitives.pure.black,
-  hover: "rgba(182, 178, 255, 0.08)",
-  selected: "rgba(182, 178, 255, 0.20)",
-  focus: "rgba(182, 178, 255, 0.30)",
-  focusVisible: "rgba(182, 178, 255, 0.5)",
-  outlinedBorder: "rgba(182, 178, 255, 0.75)",
+  hover: 'rgba(182, 178, 255, 0.08)',
+  selected: 'rgba(182, 178, 255, 0.20)',
+  focus: 'rgba(182, 178, 255, 0.30)',
+  focusVisible: 'rgba(182, 178, 255, 0.5)',
+  outlinedBorder: 'rgba(182, 178, 255, 0.75)',
 };
 
 // PMM semantic color tokens
@@ -126,7 +126,7 @@ const pmmThemeOptions = (mode: PaletteMode): ThemeOptions => {
           colorWarning: ({ theme }) => ({
             backgroundColor: theme.palette.warning.light,
             color:
-              theme.palette.mode === "light"
+              theme.palette.mode === 'light'
                 ? theme.palette.common.white
                 : theme.palette.warning.contrastText,
           }),
