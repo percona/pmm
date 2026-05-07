@@ -6,7 +6,7 @@ Use the filters at the top to scope the view to a specific service, cluster, rep
 
 ![MongoDB Collections Overview dashboard](../../images/PMM_Mongodb_Collections_Overview.png)
 
-## Datasize 
+## Data size
 
 ### Top 5 Databases By Size
 
@@ -73,6 +73,7 @@ Shows the five most-written collections as a horizontal bar gauge, ranked by cur
 Use this alongside the Read Rate panel to get a full picture of which collections are under the most active load right now. A collection appearing in both the read and write rate charts is handling high traffic on both sides and is worth watching closely for performance issues.
 
 ## Database Level
+
 ### Collections statistics for $database (rate)
 
 Shows the rate of operations per second for the selected database, broken down by operation type: Commands, Insert, Update, Remove, Getmore, and Queries. Each line in the chart represents one operation type for one database.

@@ -186,7 +186,7 @@ A very high virtual memory figure relative to physical RAM isn't always a proble
 
 Shows the total disk capacity on the host. Links to the Disk Details dashboard for more information.
 
-Even though the InMemory engine doesn't persist data, MongoDB still writes logs, journal files (if enabled), and diagnostic data to disk. Make sure there's enough free space for these.
+Even though the InMemory engine doesn't persist data, MongoDB still writes logs and diagnostic data to disk. Make sure there's enough free space for these.                           
 
 ### Min Space Available
 

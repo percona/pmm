@@ -1,5 +1,5 @@
 # Environments Overview
-![!image](../../images/PMM_Experimental_Environment_Overview_Dashboard.png)
+![!image](../../images/PMM_Environment_Overview_Dashboard.png)
 
 The **Environments Overview** dashboard gives you a high-level view of all environments monitored by PMM. Use it to quickly see how your infrastructure is doing and drill into individual environments or services.
 
