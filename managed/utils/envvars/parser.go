@@ -25,7 +25,6 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/managed/models"
@@ -366,7 +365,7 @@ func GetPlatformAddress() (string, error) {
 	}
 
 	if _, err := url.Parse(address); err != nil {
-		return "", errors.Errorf("invalid Percona Platform address: %s", err)
+		return "", fmt.Errorf("invalid Percona Platform address: %w", err)
 	}
 
 	logrus.Infof("Using Percona Platform address: %s.", address)
@@ -378,15 +377,6 @@ func GetPlatformInsecure() bool {
 	insecure, _ := strconv.ParseBool(os.Getenv(pkgenv.PlatformInsecure))
 
 	return insecure
-}
-
-// GetPlatformPublicKeys returns public keys used to verify signatures of files downloaded form Percona Portal.
-func GetPlatformPublicKeys() []string {
-	if v := os.Getenv(pkgenv.PlatformPublicKey); v != "" {
-		return strings.Split(v, ",")
-	}
-
-	return nil
 }
 
 // GetInterfaceToBind retrieves the network interface to bind based on environment variables.
@@ -403,10 +393,10 @@ func GetEnv(key, fallback string) string {
 }
 
 func formatEnvVariableError(err error, env, value string) error {
-	switch e := err.(type) { //nolint:errorlint
+	switch err.(type) { //nolint:errorlint
 	case InvalidDurationError:
 		return fmt.Errorf("environment variable %q has invalid duration %s", env, value)
 	default:
-		return errors.Wrap(e, "unknown error")
+		return fmt.Errorf("unknown error: %w", err)
 	}
 }
