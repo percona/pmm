@@ -106,147 +106,147 @@ declare module '@mui/material/Paper' {
 const fontDisplay =
   "'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif";
 
-// Color Primitives — Shared across all themes
+// Color Primitives — Shared across all themes (Figma: primary / tech / extra / pure)
 export const primitives = {
-  brand: {
-    sunset: {
-      900: '#6B350B',
-      800: '#8C450E',
-      700: '#B55912',
-      600: '#E87318',
-      500: '#FF7E1A',
-      400: '#FF9848',
-      300: '#FFA966',
-      200: '#FFC496',
-      100: '#FFD7B8',
-      50: '#FFF2E8',
+  primary: {
+    purple: {
+      950: "#1F0D68",
+      900: "#381999",
+      800: "#421CBB",
+      700: "#5022DF",
+      600: "#653DF4",
+      500: "#7056FC",
+      400: "#9387FE",
+      300: "#B6B2FF",
+      200: "#D6D5FF",
+      100: "#EAE8FF",
+      50: "#F3F3FF",
     },
-    fire: {
-      900: '#661D00',
-      800: '#852600',
-      700: '#AC3100',
-      600: '#DC3F00',
-      500: '#F24500',
-      400: '#F56A33',
-      300: '#F68254',
-      200: '#F9A98A',
-      100: '#FBC5B0',
-      50: '#FEECE6',
+    yellow: {
+      950: "#2E3003",
+      900: "#5A5F02",
+      800: "#7D8301",
+      700: "#9FA701",
+      600: "#B8C200",
+      500: "#D4DB00",
+      400: "#E8F000",
+      300: "#F6FE54",
+      200: "#F9FDA5",
+      100: "#FBFDD3",
+      50: "#FCFDE7",
     },
-    night: {
-      900: '#060B23',
-      800: '#080E2E',
-      700: '#0A123B',
-      600: '#0D184C',
-      500: '#0E1A53',
-      400: '#3E4875',
-      300: '#5E668C',
-      200: '#9096B0',
-      100: '#B4B8CA',
-      50: '#E7E8EE',
+    black: {
+      950: "#282727",
+      900: "#3D3C3C",
+      800: "#464444",
+      700: "#504E4F",
+      600: "#5E5C5D",
+      500: "#6F6B6B",
+      400: "#8A8686",
+      300: "#B1AFB0",
+      200: "#D1D0D0",
+      100: "#E7E6E6",
+      50: "#F6F5F5",
     },
-    sky: {
-      900: '#08386B',
-      800: '#0B4A8C',
-      700: '#0E5FB5',
-      600: '#127AE8',
-      500: '#1486FF',
-      400: '#439EFF',
-      300: '#62AEFF',
-      200: '#93C7FF',
-      100: '#B6D9FF',
-      50: '#E8F3FF',
+  },
+  tech: {
+    mysql: {
+      950: "#411409",
+      900: "#782E16",
+      800: "#953517",
+      700: "#BB4213",
+      600: "#E65A15",
+      500: "#F0721F",
+      400: "#F49143",
+      300: "#F8B879",
+      200: "#FBD6AD",
+      100: "#FDEDD7",
+      50: "#FEF7EE",
     },
-    sunrise: {
-      900: '#654B17',
-      800: '#84621E',
-      700: '#AA7F26',
-      600: '#DAA331',
-      500: '#F0B336',
-      400: '#F3C25E',
-      300: '#F5CC78',
-      200: '#F8DCA3',
-      100: '#FAE7C1',
-      50: '#FEF7EB',
+    redis: {
+      950: "#43100C",
+      900: "#7C2620",
+      800: "#95271F",
+      700: "#B42B21",
+      600: "#D6362A",
+      500: "#EA5449",
+      400: "#F47E75",
+      300: "#F9AEA8",
+      200: "#FCCFCC",
+      100: "#FDE5E3",
+      50: "#FEF3F2",
     },
-    aqua: {
-      900: '#14584B',
-      800: '#1A7362',
-      700: '#22947E',
-      600: '#2CBEA2',
-      500: '#30D1B2',
-      400: '#59DAC1',
-      300: '#74E0CB',
-      200: '#A0EADC',
-      100: '#BFF1E7',
-      50: '#EAFAF7',
+    mongodb: {
+      950: "#072C10",
+      900: "#175025",
+      800: "#1A6129",
+      700: "#1B7A2F",
+      600: "#1FA23A",
+      500: "#2BBC48",
+      400: "#52D66D",
+      300: "#8CE99F",
+      200: "#BEF4C8",
+      100: "#DEFAE3",
+      50: "#F1FCF2",
     },
-    lavender: {
-      900: '#472F64',
-      800: '#5C3D83',
-      700: '#774FAA',
-      600: '#9965D9',
-      500: '#A86FEF',
-      400: '#B98CF2',
-      300: '#C59FF4',
-      200: '#D7BDF8',
-      100: '#E4D2FA',
-      50: '#F6F1FD',
+    postgresql: {
+      950: "#0A3161",
+      900: "#084AA0",
+      800: "#005ED6",
+      700: "#0073FF",
+      600: "#2486FF",
+      500: "#479DFF",
+      400: "#6BB0FF",
+      300: "#8FC5FF",
+      200: "#ADD5FF",
+      100: "#CCE5FF",
+      50: "#EBF5FF",
     },
-    stone: {
-      900: '#2C323E',
-      800: '#3A4151',
-      700: '#4B5468',
-      600: '#606C86',
-      500: '#697793',
-      400: '#8792A9',
-      300: '#9BA4B7',
-      200: '#BAC0CD',
-      100: '#D1D5DE',
-      50: '#F0F1F4',
+    valkey: {
+      950: "#420566",
+      900: "#601A89",
+      800: "#751EAB",
+      700: "#8B1FD1",
+      600: "#A83FEF",
+      500: "#B452FA",
+      400: "#C982FE",
+      300: "#DDB3FF",
+      200: "#ECD4FF",
+      100: "#F5E8FF",
+      50: "#FBF5FF",
+    },
+    kubernetes: {
+      950: "#0D2E44",
+      900: "#144866",
+      800: "#12567A",
+      700: "#106494",
+      600: "#127EB7",
+      500: "#2AA6DF",
+      400: "#48B6E8",
+      300: "#88CFF1",
+      200: "#C0E4F7",
+      100: "#E3F1FB",
+      50: "#F1F9FE",
     },
   },
   extra: {
-    yellow: {
-      900: '#70510A',
-      800: '#9C7407',
-      700: '#C89A04',
-      600: '#F2C202',
-      500: '#FED520',
-      400: '#FFE047',
-      300: '#FFE770',
-      200: '#FFEE99',
-      100: '#FFF5C2',
-      50: '#FFFCEB',
-    },
-    red: {
-      900: '#4D0000',
-      800: '#700000',
-      700: '#920000',
-      600: '#B10810',
-      500: '#CC352E',
-      400: '#E2584D',
-      300: '#F37C6F',
-      200: '#FEA195',
-      100: '#FFC6BE',
-      50: '#FFECE9',
-    },
-    green: {
-      900: '#002C1D',
-      800: '#004430',
-      700: '#005C45',
-      600: '#00745B',
-      500: '#008C71',
-      400: '#00A489',
-      300: '#51BAA2',
-      200: '#85CFBC',
-      100: '#B6E3D6',
-      50: '#E7F6F1',
+    gold: {
+      950: "#150F04",
+      900: "#493408",
+      800: "#7D5A08",
+      700: "#AC8006",
+      600: "#D7A604",
+      500: "#FCCA03",
+      400: "#FED520",
+      300: "#FFDF3D",
+      200: "#FFE866",
+      100: "#FFF199",
+      50: "#FFFBE0",
     },
   },
-  base: {
-    white: '#FFFFFF',
-    black: '#000000',
+  pure: {
+    black: "#000000",
+    white: "#FFFFFF",
   },
 } as const;
 
@@ -256,174 +256,174 @@ export type Primitives = typeof primitives;
 export const semanticTokensLight = {
   // Structural UI (light mode)
   surfaces: {
-    elevation0: primitives.brand.stone[50],
-    elevation1: primitives.base.white,
-    backdrop: 'rgba(0, 0, 0, 0.7)',
+    elevation0: primitives.primary.black[50],
+    elevation1: primitives.pure.white,
+    backdrop: "rgba(0, 0, 0, 0.7)",
   },
   text: {
-    primary: '#2C323E',
-    secondary: 'rgba(44, 50, 62, 0.7)',
-    disabled: 'rgba(44, 50, 62, 0.4)',
-    sky: primitives.brand.sky[600],
-    lavender: primitives.brand.lavender[600],
-    aqua: primitives.brand.aqua[700],
+    primary: "rgb(40, 39, 39)",
+    secondary: "rgba(40, 39, 39, 0.7)",
+    disabled: "rgba(40, 39, 39, 0.4)",
+    accent1: primitives.tech.kubernetes[600],
+    accent2: primitives.primary.purple[500],
+    accent3: primitives.primary.yellow[800],
   },
   lines: {
-    contour: 'rgba(0, 0, 0, 0.06)',
-    divider: 'rgba(44, 50, 62, 0.25)',
-    dividerStrong: 'rgba(44, 50, 62, 0.5)',
-    dividerStronger: '#2C323E',
+    contour: "rgba(0, 0, 0, 0.08)",
+    divider: "rgba(40, 39, 39, 0.25)",
+    dividerStrong: "rgba(40, 39, 39, 0.5)",
+    dividerStronger: "rgb(40, 39, 39)",
   },
   action: {
-    hover: 'rgba(44, 50, 62, 0.04)',
-    disabled: 'rgba(44, 50, 62, 0.12)',
-    focus: 'rgba(44, 50, 62, 0.12)',
+    hover: "rgba(40, 39, 39, 0.04)",
+    disabled: "rgba(40, 39, 39, 0.12)",
+    focus: "rgba(40, 39, 39, 0.12)",
   },
   // Semantic (light mode)
-  error: {
-    light: primitives.extra.red[500],
-    main: primitives.extra.red[600],
-    dark: primitives.extra.red[700],
-    surface: primitives.extra.red[50],
-    contrastText: primitives.extra.red[700],
-  },
   success: {
-    light: primitives.extra.green[500],
-    main: primitives.extra.green[600],
-    dark: primitives.extra.green[700],
-    surface: primitives.extra.green[50],
-    contrastText: primitives.extra.green[700],
+    dark: primitives.tech.mongodb[900],
+    main: primitives.tech.mongodb[700],
+    light: primitives.tech.mongodb[500],
+    contrastText: primitives.tech.mongodb[900],
+    surface: primitives.tech.mongodb[50],
   },
   informative: {
-    light: primitives.brand.sky[600],
-    main: primitives.brand.sky[700],
-    dark: primitives.brand.sky[800],
-    surface: primitives.brand.sky[50],
-    contrastText: primitives.brand.sky[800],
+    dark: primitives.tech.postgresql[900],
+    main: primitives.tech.postgresql[700],
+    light: primitives.tech.postgresql[500],
+    contrastText: primitives.tech.postgresql[900],
+    surface: primitives.tech.postgresql[50],
   },
   warning: {
-    light: primitives.brand.sunrise[700],
-    main: primitives.extra.yellow[800],
-    dark: primitives.brand.sunrise[900],
-    surface: primitives.extra.yellow[100],
-    contrastText: primitives.brand.sunrise[900],
+    dark: primitives.extra.gold[800],
+    main: primitives.extra.gold[600],
+    light: primitives.extra.gold[400],
+    contrastText: primitives.extra.gold[800],
+    surface: primitives.extra.gold[50],
+  },
+  error: {
+    dark: primitives.tech.redis[900],
+    main: primitives.tech.redis[700],
+    light: primitives.tech.redis[500],
+    contrastText: primitives.tech.redis[900],
+    surface: primitives.tech.redis[50],
   },
   neutral: {
-    light: primitives.brand.stone[700],
-    main: primitives.brand.stone[800],
-    dark: primitives.brand.stone[900],
-    surface: 'rgba(44, 50, 62, 0.12)', // Same as action.focus
-    contrastText: primitives.brand.stone[800],
+    dark: primitives.primary.black[950],
+    main: primitives.primary.black[700],
+    light: primitives.primary.black[400],
+    contrastText: primitives.primary.black[950],
+    surface: "rgba(40, 39, 39, 0.12)",
   },
   // Charts (light mode)
   charts: {
-    stone: primitives.brand.stone[400],
-    sky: primitives.brand.sky[500],
-    aqua: primitives.brand.aqua[600],
-    sunrise: primitives.brand.sunrise[500],
-    sunset: primitives.brand.sunset[400],
-    red: primitives.extra.red[400],
-    lavender: primitives.brand.lavender[500],
-  },
+    chart1: primitives.primary.purple[400],
+    chart2: primitives.primary.yellow[400],
+    chart3: primitives.tech.postgresql[500],
+    chart4: primitives.tech.mysql[400],
+    chart5: primitives.tech.mongodb[400],
+    chart6: primitives.tech.redis[500],
+    chart7: primitives.primary.black[300],
+  }
 };
 
 // Semantic color tokens — Dark mode
 export const semanticTokensDark = {
   // Structural UI (dark mode)
   surfaces: {
-    elevation0: primitives.brand.stone[800],
-    elevation1: primitives.brand.stone[900],
-    backdrop: 'rgba(0, 0, 0, 0.7)',
+    elevation0: primitives.primary.black[900],
+    elevation1: primitives.primary.black[950],
+    backdrop: "rgba(0, 0, 0, 0.7)",
   },
   text: {
-    primary: '#FBFBFB',
-    secondary: 'rgba(251, 251, 251, 0.7)',
-    disabled: 'rgba(251, 251, 251, 0.4)',
-    sky: primitives.brand.sky[200],
-    lavender: primitives.brand.lavender[200],
-    aqua: primitives.brand.aqua[300],
+    primary: "rgb(246, 245, 245)",
+    secondary: "rgba(246, 245, 245, 0.7)",
+    disabled: "rgba(246, 245, 245, 0.4)",
+    accent1: primitives.tech.kubernetes[300],
+    accent2: primitives.primary.purple[300],
+    accent3: primitives.primary.yellow[200],
   },
   lines: {
-    contour: 'rgba(255, 255, 255, 0.08)',
-    divider: 'rgba(255, 255, 255, 0.25)',
-    dividerStrong: 'rgba(255, 255, 255, 0.5)',
-    dividerStronger: '#FFFFFF',
+    contour: "rgba(255, 255, 255, 0.12)",
+    divider: "rgba(255, 255, 255, 0.25)",
+    dividerStrong: "rgba(255, 255, 255, 0.5)",
+    dividerStronger: "rgb(255, 255, 255)",
   },
   action: {
-    hover: 'rgba(240, 241, 244, 0.08)',
-    disabled: 'rgba(240, 241, 244, 0.15)',
-    focus: 'rgba(240, 241, 244, 0.15)',
+    hover: "rgba(246, 245, 245, 0.08)",
+    disabled: "rgba(246, 245, 245, 0.15)",
+    focus: "rgba(246, 245, 245, 0.15)",
   },
   // Semantic (dark mode)
-  error: {
-    light: primitives.extra.red[200],
-    main: primitives.extra.red[300],
-    dark: primitives.extra.red[400],
-    surface: primitives.extra.red[400],
-    contrastText: primitives.base.white,
-  },
   success: {
-    light: primitives.extra.green[300],
-    main: primitives.extra.green[400],
-    dark: primitives.extra.green[500],
-    surface: primitives.extra.green[500],
-    contrastText: primitives.base.white,
+    dark: primitives.tech.mongodb[800],
+    main: primitives.tech.mongodb[600],
+    light: primitives.tech.mongodb[400],
+    contrastText: primitives.pure.white,
+    surface: primitives.tech.mongodb[800],
   },
   informative: {
-    light: primitives.brand.sky[400],
-    main: primitives.brand.sky[500],
-    dark: primitives.brand.sky[600],
-    surface: primitives.brand.sky[600],
-    contrastText: primitives.base.white,
+    dark: primitives.tech.postgresql[700],
+    main: primitives.tech.postgresql[500],
+    light: primitives.tech.postgresql[300],
+    contrastText: primitives.pure.white,
+    surface: primitives.tech.postgresql[700],
   },
   warning: {
-    light: primitives.extra.yellow[100],
-    main: primitives.extra.yellow[200],
-    dark: primitives.extra.yellow[300],
-    surface: primitives.extra.yellow[300],
-    contrastText: primitives.brand.sunrise[900],
+    dark: primitives.extra.gold[600],
+    main: primitives.extra.gold[400],
+    light: primitives.extra.gold[200],
+    contrastText: primitives.extra.gold[900],
+    surface: primitives.extra.gold[100],
+  },
+  error: {
+    dark: primitives.tech.redis[700],
+    main: primitives.tech.redis[500],
+    light: primitives.tech.redis[300],
+    contrastText: primitives.pure.white,
+    surface: primitives.tech.redis[700],
   },
   neutral: {
-    light: primitives.base.white,
-    main: primitives.brand.stone[50],
-    dark: primitives.brand.stone[100],
-    surface: 'rgba(240, 241, 244, 0.15)', // Same as action.focus
-    contrastText: primitives.brand.stone[50],
+    dark: primitives.primary.black[600],
+    main: primitives.primary.black[400],
+    light: primitives.primary.black[200],
+    contrastText: primitives.primary.black[50],
+    surface: "rgba(246, 245, 245, 0.15)",
   },
   // Charts (dark mode)
   charts: {
-    stone: primitives.brand.stone[200],
-    sky: primitives.brand.sky[200],
-    aqua: primitives.brand.aqua[300],
-    sunrise: primitives.brand.sunrise[300],
-    sunset: primitives.brand.sunset[200],
-    red: primitives.extra.red[200],
-    lavender: primitives.brand.lavender[200],
-  },
+    chart1: primitives.primary.purple[400],
+    chart2: primitives.primary.yellow[300],
+    chart3: primitives.tech.postgresql[400],
+    chart4: primitives.tech.mysql[300],
+    chart5: primitives.tech.mongodb[300],
+    chart6: primitives.tech.redis[400],
+    chart7: primitives.primary.black[300],
+  }
 };
 
 // Primary color tokens
 export const defaultPrimaryLight = {
-  main: primitives.brand.stone[900],
-  dark: primitives.base.black,
-  light: primitives.brand.stone[800],
-  contrastText: primitives.base.white,
-  hover: 'rgba(32, 68, 147, 0.04)',
-  selected: 'rgba(32, 68, 147, 0.08)',
-  focus: 'rgba(32, 68, 147, 0.12)',
-  focusVisible: 'rgba(47, 74, 132, 0.3)',
-  outlinedBorder: 'rgba(61, 79, 118, 0.5)',
+  dark: primitives.primary.black[950],
+  main: primitives.primary.black[900],
+  light: primitives.primary.black[800],
+  contrastText: primitives.pure.white,
+  hover: "rgba(40, 39, 39, 0.04)",
+  selected: "rgba(40, 39, 39, 0.08)",
+  focus: "rgba(40, 39, 39, 0.12)",
+  focusVisible: "rgba(40, 39, 39, 0.3)",
+  outlinedBorder: "rgba(40, 39, 39, 0.5)",
 };
 export const defaultPrimaryDark = {
-  main: primitives.brand.stone[50],
-  dark: primitives.brand.stone[100],
-  light: primitives.base.white,
-  contrastText: primitives.base.black,
-  hover: 'rgba(209, 213, 222, 0.08)',
-  selected: 'rgba(209, 213, 222, 0.12)',
-  focus: 'rgba(209, 213, 222, 0.15)',
-  focusVisible: 'rgba(209, 213, 222, 0.3)',
-  outlinedBorder: 'rgba(209, 213, 222, 0.5)',
+  dark: primitives.primary.black[50],
+  main: primitives.pure.white,
+  light: primitives.pure.white,
+  contrastText: primitives.primary.black[950],
+  hover: "rgba(255, 255, 255, 0.08)",
+  selected: "rgba(255, 255, 255, 0.12)",
+  focus: "rgba(255, 255, 255, 0.15)",
+  focusVisible: "rgba(255, 255, 255, 0.3)",
+  outlinedBorder: "rgba(255, 255, 255, 0.5)",
 };
 
 export type SemanticTokens = typeof semanticTokensLight;
@@ -530,197 +530,18 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
         },
         lineHeight: '1.0625',
       },
-      h2: {
-        fontFamily: fontDisplay,
-        fontWeight: 600,
-        [BaseTheme.breakpoints.down('sm')]: {
-          fontSize: '1.8125rem',
-          letterSpacing: '-0.01813rem',
-        },
-        [BaseTheme.breakpoints.up('sm')]: {
-          fontSize: '2.5rem',
-          letterSpacing: '-0.025rem',
-        },
-        lineHeight: '1.0625',
-      },
-      h3: {
-        fontFamily: fontDisplay,
-        fontWeight: 600,
-        [BaseTheme.breakpoints.down('sm')]: {
-          fontSize: '1.625rem',
-        },
-        [BaseTheme.breakpoints.up('sm')]: {
-          fontSize: '2.0625rem',
-        },
-        lineHeight: '1.0625',
-      },
-      h4: {
-        fontFamily: fontDisplay,
-        fontWeight: 600,
-        [BaseTheme.breakpoints.down('sm')]: {
-          fontSize: '1.4375rem',
-        },
-        [BaseTheme.breakpoints.up('sm')]: {
-          fontSize: '1.75rem',
-        },
-        lineHeight: '1.0625',
-      },
-      h5: {
-        fontFamily: fontDisplay,
-        fontWeight: 600,
-        [BaseTheme.breakpoints.down('sm')]: {
-          fontSize: '1.25rem',
-        },
-        [BaseTheme.breakpoints.up('sm')]: {
-          fontSize: '1.4375rem',
-        },
-        lineHeight: '1.125',
-      },
-      h6: {
-        fontFamily: fontDisplay,
-        fontWeight: 600,
-        [BaseTheme.breakpoints.down('sm')]: {
-          fontSize: '1.125rem',
-        },
-        [BaseTheme.breakpoints.up('sm')]: {
-          fontSize: '1.1875rem',
-        },
-        lineHeight: '1.25',
-      },
-      subHead1: {
-        fontWeight: 500,
-        fontSize: '1.1875rem',
-        lineHeight: '1.125',
-      },
-      subHead2: {
-        fontWeight: 500,
-        fontSize: '1rem',
-        lineHeight: '1.25',
-      },
-      overline: {
-        fontFamily: fontDisplay,
-        fontWeight: 700,
-        fontSize: '0.75rem',
-        lineHeight: '1.125',
-        letterSpacing: '0.03rem',
-        textTransform: 'uppercase',
-      },
-      sectionHeading: {
-        fontFamily: fontDisplay,
-        fontWeight: 700,
-        fontSize: '0.875rem',
-        lineHeight: '1.25',
-        letterSpacing: '0.00875rem',
-      },
-      body1: {
-        fontWeight: 400,
-        fontSize: '1rem',
-        lineHeight: '1.375',
-      },
-      body2: {
-        fontWeight: 400,
-        fontSize: '0.875rem',
-        lineHeight: '1.5',
-      },
-      caption: {
-        fontWeight: 400,
-        fontSize: '0.8125rem',
-        lineHeight: '1.375',
-      },
-      button: {
-        fontWeight: 600,
-        fontFamily: fontDisplay,
-        fontSize: '0.9375rem',
-        lineHeight: '1.0625',
-        textTransform: 'none',
-      },
-      menuText: {
-        fontFamily: fontDisplay,
-        fontWeight: 600,
-        fontSize: '0.875rem',
-        lineHeight: '1.25',
-      },
-      inputText: {
-        fontWeight: 400,
-        fontSize: '1rem',
-        lineHeight: '1.5',
-      },
-      inputLabel: {
-        fontWeight: 500,
-        fontSize: '0.75rem',
-        lineHeight: '1',
-        letterSpacing: '0.0075rem',
-      },
-      helperText: {
-        fontWeight: 450,
-        fontSize: '0.75rem',
-        lineHeight: '1.25',
-        letterSpacing: '0.0075rem',
-      },
-    },
-    shadows: [
-      'none',
-      '0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12)',
-      '0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px rgba(0, 0, 0, 0.14), 0px 1px 5px rgba(0, 0, 0, 0.12)',
-      '0px 3px 3px -2px rgba(0, 0, 0, 0.2), 0px 3px 4px 0px rgba(0, 0, 0, 0.14), 0px 1px 8px 0px rgba(0, 0, 0, 0.12)',
-      '0px 2px 4px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px rgba(0, 0, 0, 0.14), 0px 1px 10px rgba(0, 0, 0, 0.12)',
-      '0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 5px 8px 0px rgba(0, 0, 0, 0.14), 0px 1px 14px 0px rgba(0, 0, 0, 0.12)',
-      '0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12)',
-      '0px 4px 5px -2px rgba(0, 0, 0, 0.2), 0px 7px 10px 1px rgba(0, 0, 0, 0.14), 0px 2px 16px 1px rgba(0, 0, 0, 0.12)',
-      '0px 5px 5px -3px rgba(0, 0, 0, 0.2), 0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 3px 14px 2px rgba(0, 0, 0, 0.12)',
-      '0px 5px 6px -3px rgba(0, 0, 0, 0.2), 0px 9px 12px 1px rgba(0, 0, 0, 0.14), 0px 3px 16px 2px rgba(0, 0, 0, 0.12)',
-      '0px 6px 6px -3px rgba(0, 0, 0, 0.2), 0px 10px 14px 1px rgba(0, 0, 0, 0.14), 0px 4px 18px 3px rgba(0, 0, 0, 0.12)',
-      '0px 6px 7px -4px rgba(0, 0, 0, 0.2), 0px 11px 15px 1px rgba(0, 0, 0, 0.14), 0px 4px 20px 3px rgba(0, 0, 0, 0.12)',
-      '0px 7px 8px -4px rgba(0, 0, 0, 0.2), 0px 12px 17px 2px rgba(0, 0, 0, 0.14), 0px 5px 22px 4px rgba(0, 0, 0, 0.12)',
-      '0px 7px 8px -4px rgba(0, 0, 0, 0.2), 0px 13px 19px 2px rgba(0, 0, 0, 0.14), 0px 5px 24px 4px rgba(0, 0, 0, 0.12)',
-      '0px 7px 9px -4px rgba(0, 0, 0, 0.2), 0px 14px 21px 2px rgba(0, 0, 0, 0.14), 0px 5px 26px 4px rgba(0, 0, 0, 0.12)',
-      '0px 8px 9px -5px rgba(0, 0, 0, 0.2), 0px 15px 22px 2px rgba(0, 0, 0, 0.14), 0px 6px 28px 5px rgba(0, 0, 0, 0.12)',
-      '0px 8px 10px -5px rgba(0, 0, 0, 0.2), 0px 16px 24px 2px rgba(0, 0, 0, 0.14), 0px 6px 30px 5px rgba(0, 0, 0, 0.12)',
-      '0px 8px 11px -5px rgba(0, 0, 0, 0.2), 0px 17px 26px 2px rgba(0, 0, 0, 0.14), 0px 6px 32px 5px rgba(0, 0, 0, 0.12)',
-      '0px 9px 11px -5px rgba(0, 0, 0, 0.2), 0px 18px 28px 2px rgba(0, 0, 0, 0.14), 0px 7px 34px 6px rgba(0, 0, 0, 0.12)',
-      '0px 9px 12px -6px rgba(0, 0, 0, 0.2), 0px 19px 29px 2px rgba(0, 0, 0, 0.14), 0px 7px 36px 6px rgba(0, 0, 0, 0.12)',
-      '0px 10px 13px -6px rgba(0, 0, 0, 0.2), 0px 20px 31px 3px rgba(0, 0, 0, 0.14), 0px 8px 38px 7px rgba(0, 0, 0, 0.12)',
-      '0px 10px 13px -6px rgba(0, 0, 0, 0.2), 0px 21px 33px 3px rgba(0, 0, 0, 0.14), 0px 8px 40px 7px rgba(0, 0, 0, 0.12)',
-      '0px 10px 14px -6px rgba(0, 0, 0, 0.2), 0px 22px 35px 3px rgba(0, 0, 0, 0.14), 0px 8px 42px 7px rgba(0, 0, 0, 0.12)',
-      '0px 11px 14px -7px rgba(0, 0, 0, 0.2), 0px 23px 36px 3px rgba(0, 0, 0, 0.14), 0px 9px 44px 8px rgba(0, 0, 0, 0.12)',
-      '0px 11px 15px -7px rgba(0, 0, 0, 0.2), 0px 24px 38px 3px rgba(0, 0, 0, 0.14), 0px 9px 46px 8px rgba(0, 0, 0, 0.12)',
-    ],
-    breakpoints: {
-      values: {
-        xs: 0,
-        sm: 600,
-        md: 900,
-        lg: 1200,
-        xl: 1536,
-      },
-    },
-    components: {
-      MuiInputBase: {
-        styleOverrides: {
-          root: () => ({
-            fontSize: '16px',
-            fontWeight: 400,
-            maxWidth: '100%',
-          }),
-        },
-      },
-      MuiButtonBase: {
-        defaultProps: {
-          disableRipple: true,
-        },
-        styleOverrides: {
-          root: {
-            '&.MuiIconButton-root:not(:focus-visible):focus': {
-              backgroundColor: 'transparent',
-            },
-            '&.MuiIconButton-root:focus-visible:focus': {
-              backgroundColor: 'rgba(18, 119, 227, 0.3)',
-            },
-            '&.MuiIconButton-root:focus-visible': {
-              backgroundColor: 'rgba(18, 119, 227, 0.3)',
-            },
+      styleOverrides: {
+        root: ({ theme }) => ({
+          "&.MuiIconButton-root:not(:focus-visible):focus": {
+            backgroundColor: "transparent",
           },
-        },
+          "&.MuiIconButton-root:focus-visible:focus": {
+            backgroundColor: theme.palette.primary.focusVisible,
+          },
+          "&.MuiIconButton-root:focus-visible": {
+            backgroundColor: theme.palette.primary.focusVisible,
+          },
+        }),
       },
       MuiButton: {
         defaultProps: {
@@ -854,12 +675,43 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
           }),
         },
       },
-      MuiInputLabel: {
-        styleOverrides: {
-          root: ({ theme }) => ({
-            ...theme.typography.inputText,
-          }),
-        },
+    },
+    MuiLink: {
+      styleOverrides: {
+        root: {
+          color: tokens.text.accent1,
+          textDecorationColor: tokens.text.accent1,
+          '&:hover': {
+            opacity: 0.8,
+          },
+          '&:active': {
+            opacity: 0.6,
+          },
+          '&:focus-visible': {
+            outline: `2px solid ${tokens.text.accent1}`,
+            outlineOffset: '2px',
+            borderRadius: '2px',
+          },
+        }
+      }
+    },
+    MuiAccordion: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          borderWidth: "1px",
+          borderStyle: "solid",
+          borderColor: "rgba(44, 50, 62, 0.25)", // TODO move into pallet =#2C323E 25%
+          borderRadius: theme.spacing(1),
+          backgroundColor: theme.palette.action.hover,
+          boxShadow: "none",
+          "&:before": {
+            height: 0,
+          },
+          marginTop: "8px",
+          "&.Mui-expanded": {
+            marginTop: "8px",
+          },
+        }),
       },
       MuiFormGroup: {
         styleOverrides: {
@@ -1060,11 +912,71 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
           }),
         },
       },
-      MuiAlertTitle: {
-        styleOverrides: {
-          root: ({ theme }) => ({
-            ...theme.typography.h6,
-          }),
+    },
+    MuiChip: {
+      styleOverrides: {
+        filled: ({ theme, ownerState: { color } }) => {
+          if (!color || color === "default") {
+            return {
+              backgroundColor: theme.palette.action.focus,
+              color: theme.palette.text.primary,
+            };
+          }
+          const paletteColor = theme.palette[color];
+          return {
+            backgroundColor: paletteColor.surface,
+            color: paletteColor.contrastText,
+          };
+        },
+        outlined: ({ theme, ownerState: { color } }) => {
+          const base = { backgroundColor: "transparent" };
+          if (!color || color === "default") {
+            return {
+              ...base,
+              color: theme.palette.text.primary,
+              borderColor: theme.palette.text.primary,
+            };
+          }
+          const tone =
+            color === "warning"
+              ? theme.palette.warning.main
+              : theme.palette[color].light;
+          return { ...base, color: tone, borderColor: tone };
+        },
+        label: ({ theme, ownerState }) => ({
+          ...(ownerState.size === "small"
+            ? theme.typography.helperText
+            : theme.typography.inputText),
+          paddingLeft: ownerState.size === "small" ? 5 : 7,
+          paddingRight: ownerState.size === "small" ? 5 : 7,
+        }),
+        avatar: ({ ownerState }) => ({
+          width: 24,
+          height: 24,
+          marginLeft: ownerState.size === "small" ? 0 : 4,
+          marginRight: ownerState.size === "small" ? -1 : -3,
+        }),
+        deleteIcon: ({ theme, ownerState }) => {
+          const isSmall = ownerState.size === "small";
+          const iconSize = isSmall ? 16 : 20;
+          return {
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: isSmall ? 4 : 6,
+            marginLeft: isSmall ? -5 : -7,
+            marginRight: 0,
+            cursor: "pointer",
+            color: theme.palette.text.disabled,
+            "& > svg": {
+              width: iconSize,
+              height: iconSize,
+              fontSize: iconSize,
+            },
+            "&:hover": {
+              color: theme.palette.text.primary,
+            },
+          };
         },
       },
       MuiAlert: {
