@@ -9,26 +9,26 @@ import baseThemeOptions, { primitives, semanticTokensLight, semanticTokensDark }
 
 // PMM Primary color tokens
 export const pmmPrimaryLight = {
-  main: primitives.brand.fire[600],
-  dark: primitives.brand.fire[700],
-  light: primitives.brand.fire[500],
-  contrastText: primitives.base.white,
-  hover: 'rgba(242, 69, 0, 0.04)',
-  selected: 'rgba(242, 69, 0, 0.08)',
-  focus: 'rgba(242, 69, 0, 0.12)',
-  focusVisible: 'rgba(242, 69, 0, 0.3)',
-  outlinedBorder: 'rgba(242, 69, 0, 0.5)',
+  dark: primitives.primary.purple[800],
+  main: primitives.primary.purple[600],
+  light: primitives.primary.purple[400],
+  contrastText: primitives.pure.white,
+  hover: "rgba(101, 61, 244, 0.04)",
+  selected: "rgba(101, 61, 244, 0.08)",
+  focus: "rgba(101, 61, 244, 0.12)",
+  focusVisible: "rgba(101, 61, 244, 0.3)",
+  outlinedBorder: "rgba(101, 61, 244, 0.5)",
 };
 export const pmmPrimaryDark = {
-  main: primitives.brand.fire[200],
-  dark: primitives.brand.fire[300],
-  light: primitives.brand.fire[100],
-  contrastText: primitives.base.black,
-  hover: 'rgba(251, 197, 176, 0.08)',
-  selected: 'rgba(251, 197, 176, 0.12)',
-  focus: 'rgba(251, 197, 176, 0.15)',
-  focusVisible: 'rgba(251, 197, 176, 0.3)',
-  outlinedBorder: 'rgba(251, 197, 176, 0.5)',
+  dark: primitives.primary.purple[400],
+  main: primitives.primary.purple[300],
+  light: primitives.primary.purple[200],
+  contrastText: primitives.pure.black,
+  hover: "rgba(182, 178, 255, 0.08)",
+  selected: "rgba(182, 178, 255, 0.20)",
+  focus: "rgba(182, 178, 255, 0.30)",
+  focusVisible: "rgba(182, 178, 255, 0.5)",
+  outlinedBorder: "rgba(182, 178, 255, 0.75)",
 };
 
 // PMM semantic color tokens
@@ -92,8 +92,8 @@ const pmmThemeOptions = (mode: PaletteMode): ThemeOptions => {
       MuiAppBar: {
         styleOverrides: {
           root: () => ({
-            color: '#FBFBFB',
-            backgroundColor: '#3A4151',
+            color: primitives.primary.black[50],
+            backgroundColor: primitives.primary.black[800],
           }),
         },
       },
@@ -113,46 +113,22 @@ const pmmThemeOptions = (mode: PaletteMode): ThemeOptions => {
             borderStyle: 'solid',
             borderRadius: 5,
             borderColor: theme.palette.divider,
-            backgroundColor: tokens.surfaces.elevation0,
+            backgroundColor: theme.palette.background.default,
           }),
-          bar: {
+          bar: ({ theme }) => ({
             borderRadius: 5,
-            backgroundColor: '#606C86',
-          },
-        },
-      },
-      MuiChip: {
-        variants: [
-          {
-            props: { variant: 'filled', color: 'warning' },
-            style: {
-              color: tokens.warning.contrastText,
-            },
-          },
-        ],
-        styleOverrides: {
-          icon: {
-            width: 22,
-            height: 22,
-          },
-          colorError: {
-            color: '#920000',
-            backgroundColor: '#FFECE9',
-          },
-          colorWarning: {
-            color: tokens.warning.light,
-            borderColor: tokens.warning.main,
-          },
+            backgroundColor: theme.palette.primary.main,
+          }),
         },
       },
       MuiBadge: {
         styleOverrides: {
           colorWarning: ({ theme }) => ({
-            backgroundColor: tokens.warning.light,
+            backgroundColor: theme.palette.warning.light,
             color:
-              theme.palette.mode === 'light'
+              theme.palette.mode === "light"
                 ? theme.palette.common.white
-                : tokens.warning.contrastText,
+                : theme.palette.warning.contrastText,
           }),
         },
       },
@@ -214,11 +190,11 @@ const pmmThemeOptions = (mode: PaletteMode): ThemeOptions => {
             ...theme.typography.helperText,
             p: 6,
             boxShadow: theme.shadows[8],
-            color: primary.contrastText,
-            backgroundColor: tokens.neutral.main,
+            color: theme.palette.tooltips?.color,
+            backgroundColor: theme.palette.tooltips?.background,
           }),
-          arrow: () => ({
-            color: tokens.neutral.main,
+          arrow: ({ theme }) => ({
+            color: theme.palette.tooltips?.background,
           }),
         },
       },
