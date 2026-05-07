@@ -6,10 +6,10 @@ export const getStyles = ({ palette: { background, warning, error, info } }: The
     height: 20,
 
     '.background': {
-      fill: background.default,
+      fill: background.paper,
     },
     '.status-at-risk': {
-      fill: warning.light,
+      fill: warning.main,
     },
     '.status-down': {
       fill: error.light,

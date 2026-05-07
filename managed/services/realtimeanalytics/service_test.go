@@ -794,7 +794,8 @@ func getTestClient(t *testing.T) (rtav1.CollectorServiceClient, func()) {
 	conn, err := grpc.NewClient(
 		"passthrough:///bufnet",
 		grpc.WithContextDialer(bufDialer),
-		grpc.WithTransportCredentials(insecure.NewCredentials()))
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
 	if err != nil {
 		t.Fatalf("Failed to dial bufnet: %v", err)
 	}
@@ -852,7 +853,8 @@ func TestService_Collect(t *testing.T) {
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
 			interceptors.Stream(grpcMetrics.StreamServerInterceptor()),
 			interceptors.StreamServiceEnabledInterceptor(),
-			grpc_validator.StreamServerInterceptor())),
+			grpc_validator.StreamServerInterceptor(),
+		)),
 	)
 	rtav1.RegisterCollectorServiceServer(s, svc)
 

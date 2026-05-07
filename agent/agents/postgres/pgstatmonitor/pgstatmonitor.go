@@ -181,7 +181,7 @@ func getPGVersion(q *reform.Querier) (pgVersion, error) {
 	return pgVersion(parsed), err
 }
 
-//nolint:mnd
+//nolint:mnd,cyclop
 func getPGMonitorVersion(q *reform.Querier) (pgStatMonitorVersion, pgStatMonitorPrerelease, error) {
 	var result string
 	err := q.QueryRow(fmt.Sprintf("SELECT /* %s */ pg_stat_monitor_version()", queryTag)).Scan(&result)
@@ -433,7 +433,8 @@ func getPGSM20Settings(q *reform.Querier) (settings, error) {
 		var setting pgsm20Settings
 		err = rows.Scan(
 			&setting.Name,
-			&setting.Setting)
+			&setting.Setting,
+		)
 		if err != nil {
 			return nil, err
 		}
