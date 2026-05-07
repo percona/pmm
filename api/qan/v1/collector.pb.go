@@ -2752,8 +2752,8 @@ var (
 		nil,                     // 3: qan.v1.MetricsBucket.LabelsEntry
 		nil,                     // 4: qan.v1.MetricsBucket.WarningsEntry
 		nil,                     // 5: qan.v1.MetricsBucket.ErrorsEntry
-		(v1.AgentType)(0),       // 6: inventory.v1.AgentType
-		(ExampleType)(0),        // 7: qan.v1.ExampleType
+		v1.AgentType(0),         // 6: inventory.v1.AgentType
+		ExampleType(0),          // 7: qan.v1.ExampleType
 	}
 )
 

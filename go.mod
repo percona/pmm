@@ -8,7 +8,7 @@ replace github.com/alecthomas/kingpin/v2 => github.com/Percona-Lab/kingpin/v2 v2
 
 require (
 	github.com/AlekSi/pointer v1.2.0
-	github.com/ClickHouse/clickhouse-go/v2 v2.45.0
+	github.com/ClickHouse/clickhouse-go/v2 v2.46.0
 	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/alecthomas/kong v1.15.0
@@ -28,7 +28,7 @@ require (
 	github.com/go-openapi/strfmt v0.26.1
 	github.com/go-openapi/swag v0.26.0
 	github.com/go-openapi/validate v0.25.1
-	github.com/go-sql-driver/mysql v1.9.0
+	github.com/go-sql-driver/mysql v1.10.0
 	github.com/gogo/status v1.1.1
 	github.com/golang-migrate/migrate/v4 v4.19.1
 	github.com/gomodule/redigo v1.9.2
@@ -48,8 +48,8 @@ require (
 	github.com/percona/exporter_shared v0.7.5
 	github.com/percona/go-mysql v0.0.0-20251202083530-b3e1c16efc74
 	github.com/percona/percona-toolkit v0.0.0-20251217124347-6b3e5ed485dd
+	github.com/percona/platform v0.0.0-20260424191126-0d2cfd8ceb51
 	github.com/percona/promconfig v0.3.0
-	github.com/percona/saas v0.0.0-20260107224938-470337be1058
 	github.com/pganalyze/pg_query_go/v6 v6.2.2
 	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.13.6
@@ -73,7 +73,7 @@ require (
 	golang.org/x/tools v0.44.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20260414002931-afd174a4e478
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260414002931-afd174a4e478
-	google.golang.org/grpc v1.80.0
+	google.golang.org/grpc v1.81.0
 	google.golang.org/protobuf v1.36.11
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
 	gopkg.in/reform.v1 v1.5.1
@@ -81,7 +81,7 @@ require (
 )
 
 require (
-	filippo.io/edwards25519 v1.1.1 // indirect
+	filippo.io/edwards25519 v1.2.0 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.18.20 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.21 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.7.21 // indirect
@@ -135,7 +135,7 @@ require (
 	github.com/zeebo/xxh3 v1.1.0 // indirect
 	go.etcd.io/bbolt v1.3.5 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
-	go.opentelemetry.io/otel/metric v1.42.0 // indirect
+	go.opentelemetry.io/otel/metric v1.43.0 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.4 // indirect
 )
@@ -191,8 +191,8 @@ require (
 	github.com/xdg-go/scram v1.2.0 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78
-	go.opentelemetry.io/otel v1.42.0 // indirect
-	go.opentelemetry.io/otel/trace v1.42.0 // indirect
+	go.opentelemetry.io/otel v1.43.0 // indirect
+	go.opentelemetry.io/otel/trace v1.43.0 // indirect
 	golang.org/x/mod v0.35.0 // indirect
 	golang.org/x/net v0.53.0 // indirect
 )

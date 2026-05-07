@@ -705,7 +705,7 @@ var (
 	file_management_v1_azure_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 	file_management_v1_azure_proto_msgTypes  = make([]protoimpl.MessageInfo, 6)
 	file_management_v1_azure_proto_goTypes   = []any{
-		(DiscoverAzureDatabaseType)(0),        // 0: management.v1.DiscoverAzureDatabaseType
+		DiscoverAzureDatabaseType(0),          // 0: management.v1.DiscoverAzureDatabaseType
 		(*DiscoverAzureDatabaseRequest)(nil),  // 1: management.v1.DiscoverAzureDatabaseRequest
 		(*DiscoverAzureDatabaseInstance)(nil), // 2: management.v1.DiscoverAzureDatabaseInstance
 		(*DiscoverAzureDatabaseResponse)(nil), // 3: management.v1.DiscoverAzureDatabaseResponse

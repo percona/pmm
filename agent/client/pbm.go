@@ -55,7 +55,8 @@ func (c *Client) handlePBMSwitchRequest(ctx context.Context, req *agentv1.PBMSwi
 		"config",
 		"--set",
 		"pitr.enabled="+strconv.FormatBool(req.Enabled),
-		"--mongodb-uri="+dsn).
+		"--mongodb-uri="+dsn,
+	).
 		CombinedOutput() // #nosec G204
 	if err != nil {
 		return errors.Wrapf(err, "pbm config error: %s", string(output))

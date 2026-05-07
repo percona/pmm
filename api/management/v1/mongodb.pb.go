@@ -538,8 +538,8 @@ var (
 		(*MongoDBServiceResult)(nil),       // 1: management.v1.MongoDBServiceResult
 		nil,                                // 2: management.v1.AddMongoDBServiceParams.CustomLabelsEntry
 		(*AddNodeParams)(nil),              // 3: management.v1.AddNodeParams
-		(MetricsMode)(0),                   // 4: management.v1.MetricsMode
-		(v1.LogLevel)(0),                   // 5: inventory.v1.LogLevel
+		MetricsMode(0),                     // 4: management.v1.MetricsMode
+		v1.LogLevel(0),                     // 5: inventory.v1.LogLevel
 		(*v1.MongoDBService)(nil),          // 6: inventory.v1.MongoDBService
 		(*v1.MongoDBExporter)(nil),         // 7: inventory.v1.MongoDBExporter
 		(*v1.QANMongoDBProfilerAgent)(nil), // 8: inventory.v1.QANMongoDBProfilerAgent
