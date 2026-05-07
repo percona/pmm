@@ -111,10 +111,8 @@ if [ ! -f "$DIST_FILE" ]; then
     fi
 fi
 
-if [ ! -d "/srv/nginx/tmp" ]; then
-    echo "Creating nginx temp directories..."
-    mkdir -p /srv/nginx/tmp/{client,proxy,fastcgi,uwsgi,scgi}
-fi
+echo "Creating nginx temp directories..."
+mkdir -p /srv/nginx/tmp/{client,proxy,fastcgi,uwsgi,scgi}
 
 if [ ! -d "/srv/pmm-agent/tmp" ]; then
     echo "Creating pmm-agent temp directory..."
