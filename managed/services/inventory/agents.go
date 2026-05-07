@@ -1318,7 +1318,8 @@ func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Contex
 			return nil, status.Errorf(
 				codes.FailedPrecondition,
 				"QAN for PMM's internal PostgreSQL server is set to %s via an environment variable.",
-				envVar)
+				envVar,
+			)
 		}
 	}
 

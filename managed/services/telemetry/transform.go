@@ -18,7 +18,7 @@ package telemetry
 import (
 	"encoding/json"
 
-	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
+	telemetryv1 "github.com/percona/platform/gen/telemetry/generic"
 	"github.com/pkg/errors"
 )
 
