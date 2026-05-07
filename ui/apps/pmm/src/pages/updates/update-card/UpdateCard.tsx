@@ -23,6 +23,7 @@ import { UpdateInProgressCard } from '../update-in-progress-card';
 import { useUpdates } from 'contexts/updates';
 import { ChangeLog } from '../change-log';
 import { capitalize } from 'utils/text.utils';
+import { DEPRECATION_DOCKER_UPGRADE_HREF, DEPRECATION_HELM_UPGRADE_HREF, DEPRECATION_PODMAN_UPGRADE_HREF } from './UpdateCard.constants';
 
 export const UpdateCard: FC = () => {
   const { inProgress, status, setStatus } = useUpdates();
@@ -121,15 +122,36 @@ export const UpdateCard: FC = () => {
         {data.updateAvailable && <UpdateInfo />}
       </CardContent>
       {data.updateAvailable ? (
-        <CardActions>
-          <Button
-            endIcon={<KeyboardDoubleArrowUp />}
-            variant="contained"
-            onClick={handleStartUpdate}
-          >
-            {Messages.updateNow}
-          </Button>
-        </CardActions>
+        <>
+        {/* TODO temporary solution for link color */}
+          <Alert severity="warning" sx={{ mb: 2, '& a': { color: 'inherit', textDecorationColor: 'inherit' } }} >
+            <Typography variant="body1">
+              <strong>UI upgrades deprecated</strong>: This <strong>Update now</strong> button will be removed in PMM 3.9.0.
+            </Typography>
+            <Typography>
+              After that, PMM upgrades will only be available via&nbsp;
+              <Link href={DEPRECATION_DOCKER_UPGRADE_HREF} target="_blank" rel="noopener noreferrer">
+                Docker
+              </Link> (recommended), <Link href={DEPRECATION_PODMAN_UPGRADE_HREF} target="_blank" rel="noopener noreferrer">
+                Podman
+              </Link>, or <Link href={DEPRECATION_HELM_UPGRADE_HREF} target="_blank" rel="noopener noreferrer">
+                Helm
+              </Link>.
+            </Typography>
+            <Typography>
+              Switch before then to keep upgrading PMM to newer versions.
+            </Typography>
+          </Alert>
+          <CardActions>
+            <Button
+              endIcon={<KeyboardDoubleArrowUp />}
+              variant="contained"
+              onClick={handleStartUpdate}
+            >
+              {Messages.updateNow}
+            </Button>
+          </CardActions>
+        </>
       ) : (
         <CardActions>
           <Button
