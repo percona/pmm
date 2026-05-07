@@ -79,7 +79,7 @@ export const getStyles = (
       whiteSpace: 'nowrap',
       overflow: 'hidden',
 
-      color: active ? 'inherit' : theme.palette.warning.contrastText,
+      color: active ? 'inherit' : theme.palette.text.disabled,
     },
   },
   textOnly: {

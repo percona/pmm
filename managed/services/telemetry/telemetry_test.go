@@ -24,8 +24,8 @@ import (
 
 	_ "github.com/ClickHouse/clickhouse-go/v2"
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
-	pmmv1 "github.com/percona/saas/gen/telemetry/events/pmm"
-	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
+	pmmv1 "github.com/percona/platform/gen/telemetry/events/pmm"
+	telemetryv1 "github.com/percona/platform/gen/telemetry/generic"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
