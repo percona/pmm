@@ -8,7 +8,7 @@ on:
 
 jobs:
   ci:
-    name: Build, Typecheck, Lint & Format
+    name: Build, Typecheck, Lint, Format & Build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -36,3 +36,6 @@ jobs:
 
       - name: Format check
         run: pnpm format:check
+
+      - name: Build
+        run: pnpm build
