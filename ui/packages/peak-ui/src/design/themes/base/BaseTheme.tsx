@@ -23,6 +23,7 @@ declare module '@mui/material/styles' {
     };
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface Palette extends PaletteOptions {}
   interface SimplePaletteColorOptions {
     surface?: string;
