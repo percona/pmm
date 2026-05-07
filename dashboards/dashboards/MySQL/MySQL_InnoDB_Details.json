@@ -52,10 +52,10 @@
       }
     ]
   },
-  "editable": true,
+  "editable": false,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 98,
+  "id": null,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -24696,7 +24696,7 @@
       "type": "row"
     }
   ],
-  "refresh": "1m",
+  "refresh": false,
   "schemaVersion": 37,
   "style": "dark",
   "tags": [
@@ -25126,7 +25126,7 @@
     ],
     "type": "timepicker"
   },
-  "timezone": "",
+  "timezone": "browser",
   "title": "MySQL InnoDB Details",
   "uid": "mysql-innodb",
   "version": 2,
