@@ -52,7 +52,11 @@ const (
 	defaultKeepAliveTimeout      = 30 * time.Second
 	defaultIdleConnTimeout       = 90 * time.Second
 	defaultExpectContinueTimeout = 1 * time.Second
-	defaultMaxIdleConns          = 50
+	// Sized to absorb a reconnect storm from a fleet of PMM clients (hundreds of agents
+	// reconnecting simultaneously after a server restart). Go's default per-host idle
+	// pool is 2, which forces a TCP/TLS handshake on almost every burst request.
+	defaultMaxIdleConns        = 200
+	defaultMaxIdleConnsPerHost = 100
 )
 
 // Client represents a client for Grafana API.
@@ -70,6 +74,7 @@ func NewClient(addr string) *Client {
 			KeepAlive: defaultKeepAliveTimeout,
 		}).DialContext,
 		MaxIdleConns:          defaultMaxIdleConns,
+		MaxIdleConnsPerHost:   defaultMaxIdleConnsPerHost,
 		IdleConnTimeout:       defaultIdleConnTimeout,
 		ExpectContinueTimeout: defaultExpectContinueTimeout,
 	}
@@ -115,7 +120,7 @@ func (e *clientError) Error() string {
 // do makes HTTP request with given parameters, and decodes JSON response with 200 OK status
 // to respBody. It returns wrapped clientError on any other status, or other fatal errors.
 // Ctx is used only for cancelation.
-func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers http.Header, body []byte, target interface{}) error {
+func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers http.Header, body []byte, target any) error {
 	u := url.URL{
 		Scheme:   "http",
 		Host:     c.addr,
@@ -205,7 +210,7 @@ func (c *Client) GetUserID(ctx context.Context) (int, error) {
 		return 0, err
 	}
 
-	var m map[string]interface{}
+	var m map[string]any
 	err = c.do(ctx, http.MethodGet, "/api/user", "", authHeaders, nil, &m)
 	if err != nil {
 		return 0, err
@@ -243,7 +248,7 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header, l *lo
 	}
 
 	// https://grafana.com/docs/http_api/user/#actual-user - works only with Basic Auth
-	var m map[string]interface{}
+	var m map[string]any
 	err := c.do(ctx, http.MethodGet, "/api/user", "", authHeaders, nil, &m)
 	if err != nil {
 		return emptyUser, err
@@ -259,7 +264,7 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header, l *lo
 	}
 
 	// works only with Basic auth
-	var s []interface{}
+	var s []any
 	if err := c.do(ctx, http.MethodGet, "/api/user/orgs", "", authHeaders, nil, &s); err != nil {
 		return authUser{
 			role:   none,
@@ -268,7 +273,7 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header, l *lo
 	}
 
 	for _, el := range s {
-		m, _ := el.(map[string]interface{})
+		m, _ := el.(map[string]any)
 		if m == nil {
 			continue
 		}
@@ -306,7 +311,7 @@ func (c *Client) getRoleForServiceToken(ctx context.Context, token string) (role
 	header := http.Header{}
 	header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
 
-	var k map[string]interface{}
+	var k map[string]any
 	if err := c.do(ctx, http.MethodGet, "/api/auth/serviceaccount", "", header, nil, &k); err != nil {
 		return none, err
 	}
@@ -378,7 +383,7 @@ func (c *Client) testCreateUser(ctx context.Context, login string, role role, au
 	if err != nil {
 		return 0, errors.WithStack(err)
 	}
-	var m map[string]interface{}
+	var m map[string]any
 	if err = c.do(ctx, "POST", "/api/admin/users", "", authHeaders, b, &m); err != nil {
 		return 0, err
 	}
@@ -638,7 +643,7 @@ func (c *Client) createServiceAccount(ctx context.Context, role role, nodeName s
 		return 0, errors.WithStack(err)
 	}
 
-	var m map[string]interface{}
+	var m map[string]any
 	if err = c.do(ctx, "POST", "/api/serviceaccounts", "", authHeaders, b, &m); err != nil {
 		return 0, err
 	}
@@ -672,7 +677,7 @@ func (c *Client) createServiceToken(ctx context.Context, serviceAccountID int, n
 		return 0, "", errors.WithStack(err)
 	}
 
-	var m map[string]interface{}
+	var m map[string]any
 	if err = c.do(ctx, "POST", fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, b, &m); err != nil {
 		return 0, "", err
 	}

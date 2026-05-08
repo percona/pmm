@@ -33,6 +33,7 @@ import (
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/sync/singleflight"
 	"google.golang.org/grpc/codes"
 	"gopkg.in/reform.v1"
 
@@ -144,8 +145,8 @@ const authenticationErrorCode = 401
 
 const (
 	// Note: cacheInvalidationInterval is used to invalidate cache for grafana responses.
-	cacheInvalidationInterval = 3 * time.Second
-	authenticationTimeout     = 3 * time.Second
+	cacheInvalidationInterval = 60 * time.Second
+	authenticationTimeout     = 15 * time.Second
 )
 
 // clientError contains authentication error response details.
@@ -178,6 +179,11 @@ type AuthServer struct {
 
 	cache map[string]cacheItem
 	rw    sync.RWMutex
+
+	// sf coalesces concurrent Grafana lookups for the same credentials.
+	// Critical when a fleet of PMM clients reconnects after a server restart and would
+	// otherwise issue one /api/auth/serviceaccount request per client to Grafana.
+	sf singleflight.Group
 
 	accessControl *accessControl
 
@@ -583,25 +589,48 @@ func (s *AuthServer) authHeaders(req *http.Request) http.Header {
 	return authHeaders
 }
 
-func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders http.Header, l *logrus.Entry) (*authUser, *authError) {
-	authUser, err := s.c.getAuthUser(ctx, authHeaders, l)
-	if err != nil {
-		l.Warnf("%s", err)
-		if cErr, ok := errors.Cause(err).(*clientError); ok { //nolint:errorlint
-			code := codes.Internal
-			if cErr.Code == 401 || cErr.Code == 403 {
-				code = codes.Unauthenticated
-			}
-			return nil, &authError{code: code, message: cErr.ErrorMessage}
-		}
-		return nil, &authError{code: codes.Internal, message: "Internal server error."}
-	}
-	s.rw.Lock()
-	s.cache[hash] = cacheItem{
-		u:       authUser,
-		created: time.Now(),
-	}
-	s.rw.Unlock()
+type retrieveResult struct {
+	user *authUser
+	err  *authError
+}
 
-	return &authUser, nil
+func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders http.Header, l *logrus.Entry) (*authUser, *authError) {
+	// Coalesce concurrent lookups for the same credentials so that a fleet of PMM
+	// clients reconnecting at the same moment results in a single Grafana request
+	// per unique token, not one per client.
+	res, _, _ := s.sf.Do(hash, func() (any, error) {
+		// Re-check the cache: another goroutine may have populated it while we waited.
+		s.rw.RLock()
+		item, ok := s.cache[hash]
+		s.rw.RUnlock()
+		if ok {
+			u := item.u
+			return retrieveResult{user: &u}, nil
+		}
+
+		authUser, err := s.c.getAuthUser(ctx, authHeaders, l)
+		if err != nil {
+			l.Warnf("%s", err)
+			if cErr, ok := errors.Cause(err).(*clientError); ok { //nolint:errorlint
+				code := codes.Internal
+				if cErr.Code == 401 || cErr.Code == 403 {
+					code = codes.Unauthenticated
+				}
+				return retrieveResult{err: &authError{code: code, message: cErr.ErrorMessage}}, nil
+			}
+			return retrieveResult{err: &authError{code: codes.Internal, message: "Internal server error."}}, nil
+		}
+
+		s.rw.Lock()
+		s.cache[hash] = cacheItem{
+			u:       authUser,
+			created: time.Now(),
+		}
+		s.rw.Unlock()
+
+		return retrieveResult{user: &authUser}, nil
+	})
+
+	r, _ := res.(retrieveResult)
+	return r.user, r.err
 }
