@@ -33,7 +33,6 @@ import (
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"golang.org/x/sync/singleflight"
 	"google.golang.org/grpc/codes"
 	"gopkg.in/reform.v1"
 
@@ -179,11 +178,6 @@ type AuthServer struct {
 
 	cache map[string]cacheItem
 	rw    sync.RWMutex
-
-	// sf coalesces concurrent Grafana lookups for the same credentials.
-	// Critical when a fleet of PMM clients reconnects after a server restart and would
-	// otherwise issue one /api/auth/serviceaccount request per client to Grafana.
-	sf singleflight.Group
 
 	accessControl *accessControl
 
@@ -589,49 +583,26 @@ func (s *AuthServer) authHeaders(req *http.Request) http.Header {
 	return authHeaders
 }
 
-type retrieveResult struct {
-	user *authUser
-	err  *authError
-}
-
 func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders http.Header, l *logrus.Entry) (*authUser, *authError) {
-	// Coalesce concurrent lookups for the same credentials so that a fleet of PMM
-	// clients reconnecting at the same moment results in a single Grafana request
-	// per unique token, not one per client.
-	res, _, _ := s.sf.Do(hash, func() (any, error) {
-		// Re-check the cache: another goroutine may have populated it while we waited.
-		s.rw.RLock()
-		item, ok := s.cache[hash]
-		s.rw.RUnlock()
-		if ok {
-			u := item.u
-			return retrieveResult{user: &u}, nil
-		}
-
-		authUser, err := s.c.getAuthUser(ctx, authHeaders, l)
-		if err != nil {
-			l.Warnf("%s", err)
-			var cErr *clientError
-			if errors.As(err, &cErr) {
-				code := codes.Internal
-				if cErr.Code == 401 || cErr.Code == 403 {
-					code = codes.Unauthenticated
-				}
-				return retrieveResult{err: &authError{code: code, message: cErr.ErrorMessage}}, nil
+	authUser, err := s.c.getAuthUser(ctx, authHeaders, l)
+	if err != nil {
+		l.Warnf("%s", err)
+		var cErr *clientError
+		if errors.As(err, &cErr) {
+			code := codes.Internal
+			if cErr.Code == 401 || cErr.Code == 403 {
+				code = codes.Unauthenticated
 			}
-			return retrieveResult{err: &authError{code: codes.Internal, message: "Internal server error."}}, nil
+			return nil, &authError{code: code, message: cErr.ErrorMessage}
 		}
+		return nil, &authError{code: codes.Internal, message: "Internal server error."}
+	}
+	s.rw.Lock()
+	s.cache[hash] = cacheItem{
+		u:       authUser,
+		created: time.Now(),
+	}
+	s.rw.Unlock()
 
-		s.rw.Lock()
-		s.cache[hash] = cacheItem{
-			u:       authUser,
-			created: time.Now(),
-		}
-		s.rw.Unlock()
-
-		return retrieveResult{user: &authUser}, nil
-	})
-
-	r, _ := res.(retrieveResult)
-	return r.user, r.err
+	return &authUser, nil
 }
