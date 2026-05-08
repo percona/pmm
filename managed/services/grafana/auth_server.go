@@ -611,7 +611,8 @@ func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders 
 		authUser, err := s.c.getAuthUser(ctx, authHeaders, l)
 		if err != nil {
 			l.Warnf("%s", err)
-			if cErr, ok := errors.Cause(err).(*clientError); ok { //nolint:errorlint
+			var cErr *clientError
+			if errors.As(err, &cErr) {
 				code := codes.Internal
 				if cErr.Code == 401 || cErr.Code == 403 {
 					code = codes.Unauthenticated
