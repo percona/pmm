@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -198,8 +197,8 @@ func TestGetFailedChecks(t *testing.T) {
 
 		resp, err := s.GetFailedChecks(t.Context(), &advisorsv1.GetFailedChecksRequest{
 			ServiceId: "test_svc",
-			PageSize:  pointer.ToInt32(1),
-			PageIndex: pointer.ToInt32(1),
+			PageSize:  new(int32(1)),
+			PageIndex: new(int32(1)),
 		})
 		require.NoError(t, err)
 		assert.Equal(t, response, resp)

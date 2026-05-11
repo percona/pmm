@@ -19,7 +19,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -45,8 +44,8 @@ func TestToAPIAgent(t *testing.T) {
 	service, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
 		ServiceName: "test-mongodb",
 		NodeID:      node.NodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(27017),
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(27017)),
 		Cluster:     "test-cluster",
 	})
 	require.NoError(t, err)
@@ -75,11 +74,11 @@ func TestToAPIAgent(t *testing.T) {
 					ServiceID:     &service.ServiceID,
 					AgentType:     models.RTAMongoDBAgentType,
 					Disabled:      false,
-					Username:      pointer.To("test-user"),
-					Password:      pointer.To("test-pass"),
+					Username:      new("test-user"),
+					Password:      new("test-pass"),
 					TLS:           true,
 					TLSSkipVerify: true,
-					RTAOptions:    models.RTAOptions{CollectInterval: pointer.To(2 * time.Second)},
+					RTAOptions:    models.RTAOptions{CollectInterval: new(2 * time.Second)},
 					Status:        inventoryv1.AgentStatus_name[int32(inventoryv1.AgentStatus_AGENT_STATUS_RUNNING)],
 				},
 			},

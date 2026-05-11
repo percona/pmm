@@ -20,7 +20,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -392,7 +391,7 @@ func RemoveService(q *reform.Querier, id string, mode RemoveMode) error { //noli
 		}
 		for _, a := range artifacts {
 			if _, err := UpdateArtifact(q, a.ID, UpdateArtifactParams{
-				ServiceID: pointer.ToString(""),
+				ServiceID: new(""),
 			}); err != nil {
 				return err
 			}

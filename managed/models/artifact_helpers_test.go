@@ -53,7 +53,7 @@ func TestArtifacts(t *testing.T) {
 				ServiceType: models.MySQLServiceType,
 				ServiceName: "Service 1",
 				NodeID:      nodeID1,
-				Address:     pointer.ToString("127.0.0.1"),
+				Address:     new("127.0.0.1"),
 				Port:        pointer.ToUint16OrNil(777),
 			},
 			&models.Service{
@@ -61,7 +61,7 @@ func TestArtifacts(t *testing.T) {
 				ServiceType: models.MySQLServiceType,
 				ServiceName: "Service 2",
 				NodeID:      nodeID1,
-				Address:     pointer.ToString("127.0.0.1"),
+				Address:     new("127.0.0.1"),
 				Port:        pointer.ToUint16OrNil(777),
 			},
 			&models.BackupLocation{
@@ -122,7 +122,7 @@ func TestArtifacts(t *testing.T) {
 
 		updateParams := models.UpdateArtifactParams{
 			Status:           models.SuccessBackupStatus.Pointer(),
-			ScheduleID:       pointer.ToString("schedule_id"),
+			ScheduleID:       new("schedule_id"),
 			ServiceID:        &serviceID2,
 			IsShardedCluster: true,
 		}
