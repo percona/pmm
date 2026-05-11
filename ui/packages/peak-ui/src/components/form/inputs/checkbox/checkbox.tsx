@@ -27,7 +27,7 @@ const Checkbox = <T extends FieldValues = FieldValues>({
           disabled={disabled}
           {...checkboxProps}
           inputProps={{
-            // @ts-expect-error
+            // @ts-expect-error -- data-testid is not in MUI's InputHTMLAttributes for inputProps
             'data-testid': `checkbox-${kebabize(name)}`,
             ...checkboxProps?.inputProps,
           }}

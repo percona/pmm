@@ -55,7 +55,6 @@ function FormShell<TValues extends Record<string, unknown>>({
         component="form"
         spacing={2}
         onSubmit={methods.handleSubmit((values) => {
-          // eslint-disable-next-line no-console
           console.log('submit', values);
         })}
       >
