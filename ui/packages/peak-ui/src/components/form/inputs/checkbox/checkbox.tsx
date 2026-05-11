@@ -1,8 +1,8 @@
-import { Controller, FieldValues, useFormContext } from "react-hook-form";
-import { Checkbox as MUICheckbox } from "@mui/material";
-import { CheckboxProps } from "./checkbox.types";
-import { kebabize } from "@/utils";
-import { LabeledContent } from "../../..";
+import { Controller, FieldValues, useFormContext } from 'react-hook-form';
+import { Checkbox as MUICheckbox } from '@mui/material';
+import { CheckboxProps } from './checkbox.types';
+import { kebabize } from '@/utils';
+import { LabeledContent } from '../../..';
 
 const Checkbox = <T extends FieldValues = FieldValues>({
   name,
@@ -28,7 +28,7 @@ const Checkbox = <T extends FieldValues = FieldValues>({
           {...checkboxProps}
           inputProps={{
             // @ts-expect-error
-            "data-testid": `checkbox-${kebabize(name)}`,
+            'data-testid': `checkbox-${kebabize(name)}`,
             ...checkboxProps?.inputProps,
           }}
         />

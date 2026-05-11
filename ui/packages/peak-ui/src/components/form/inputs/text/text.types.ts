@@ -1,4 +1,3 @@
-
 // Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,12 +14,7 @@
 
 import { FormHelperTextProps, TextFieldProps } from '@mui/material';
 import { LabeledContentProps } from '../../../labeled-content';
-import {
-  Control,
-  FieldPath,
-  FieldValues,
-  UseControllerProps,
-} from 'react-hook-form';
+import { Control, FieldPath, FieldValues, UseControllerProps } from 'react-hook-form';
 
 export type TextInputProps<T extends FieldValues = FieldValues> = {
   control?: Control<T>;

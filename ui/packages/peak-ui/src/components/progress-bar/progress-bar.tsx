@@ -1,13 +1,7 @@
 import { Box, LinearProgress } from '@mui/material';
 import { ProgressBarProps } from './progress-bar.types';
 
-const ProgressBar = ({
-  dataTestId,
-  value,
-  buffer,
-  total,
-  label,
-}: ProgressBarProps) => {
+const ProgressBar = ({ dataTestId, value, buffer, total, label }: ProgressBarProps) => {
   const value1Percentage = (value / total) * 100;
   const value2Percentage = (buffer / total) * 100;
   const isOverLimit = value2Percentage > 100;
@@ -48,9 +42,7 @@ const ProgressBar = ({
             display: isOverLimit ? 'none' : 'block',
           },
           '& .MuiLinearProgress-bar2Buffer': {
-            backgroundColor: isOverLimit
-              ? 'warning.main'
-              : 'primary.contrastText',
+            backgroundColor: isOverLimit ? 'warning.main' : 'primary.contrastText',
             transform: isOverLimit ? 'none !important' : undefined,
           },
         }}

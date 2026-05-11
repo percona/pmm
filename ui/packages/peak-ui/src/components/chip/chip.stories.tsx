@@ -7,13 +7,7 @@ import type { ChipProps } from './chip.types';
 type ChipColor = NonNullable<ChipProps['color']>;
 type ChipVariant = NonNullable<ChipProps['variant']>;
 
-const COLORS: ChipColor[] = [
-  'default',
-  'success',
-  'error',
-  'info',
-  'warning',
-];
+const COLORS: ChipColor[] = ['default', 'success', 'error', 'info', 'warning'];
 
 const VARIANTS: ChipVariant[] = ['filled', 'outlined'];
 
@@ -91,12 +85,7 @@ export const Playground: Story = {
     withDelete: { control: { type: 'boolean' }, name: 'onDelete' },
     clickable: { control: { type: 'boolean' }, name: 'clickable' },
   },
-  render: function Render({
-    withAvatar,
-    withDelete,
-    clickable,
-    ...rest
-  }) {
+  render: function Render({ withAvatar, withDelete, clickable, ...rest }) {
     return (
       <Chip
         {...rest}
@@ -113,12 +102,7 @@ export const Variants: Story = {
     return (
       <Box sx={rowSx}>
         {VARIANTS.map((variant) => (
-          <Chip
-            key={variant}
-            {...args}
-            variant={variant}
-            label={variant}
-          />
+          <Chip key={variant} {...args} variant={variant} label={variant} />
         ))}
       </Box>
     );
@@ -134,13 +118,7 @@ export const Colors: Story = {
             <Typography variant="overline">{variant}</Typography>
             <Box sx={rowSx}>
               {COLORS.map((color) => (
-                <Chip
-                  key={color}
-                  {...args}
-                  variant={variant}
-                  color={color}
-                  label={color}
-                />
+                <Chip key={color} {...args} variant={variant} color={color} label={color} />
               ))}
             </Box>
           </Box>

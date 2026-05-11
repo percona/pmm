@@ -1,11 +1,11 @@
 import { PickerValidDate } from '@mui/x-date-pickers';
-import {
-  DateTimePickerValueFormat,
-  DateTimePickerValueTransform,
-} from './date-time-picker.types';
+import { DateTimePickerValueFormat, DateTimePickerValueTransform } from './date-time-picker.types';
 import { toValidPickerDate } from './date-time-picker.utils';
 
-export const presets: Record<DateTimePickerValueFormat, DateTimePickerValueTransform<PickerValidDate>> = {
+export const presets: Record<
+  DateTimePickerValueFormat,
+  DateTimePickerValueTransform<PickerValidDate>
+> = {
   date: {
     input: (v) => {
       if (v == null) return null;
@@ -22,15 +22,13 @@ export const presets: Record<DateTimePickerValueFormat, DateTimePickerValueTrans
       if (typeof v !== 'string' || !v) return null;
       return toValidPickerDate(new Date(v));
     },
-    output: (v) =>
-      v instanceof Date && !Number.isNaN(v.getTime()) ? v.toISOString() : null,
+    output: (v) => (v instanceof Date && !Number.isNaN(v.getTime()) ? v.toISOString() : null),
   },
   'unix-ms': {
     input: (v) => {
       if (typeof v !== 'number') return null;
       return toValidPickerDate(new Date(v));
     },
-    output: (v) =>
-      v instanceof Date && !Number.isNaN(v.getTime()) ? v.getTime() : null,
+    output: (v) => (v instanceof Date && !Number.isNaN(v.getTime()) ? v.getTime() : null),
   },
 };

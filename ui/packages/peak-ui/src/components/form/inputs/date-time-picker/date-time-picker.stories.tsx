@@ -193,11 +193,7 @@ export const EmptyInitial: Story = {
   name: 'empty initial value (iso-string)',
   render: () => (
     <FormShell defaultValues={{ scheduledFor: null }} fieldName="scheduledFor">
-      <DateTimePickerInput
-        name="scheduledFor"
-        label="Scheduled for"
-        valueFormat="iso-string"
-      />
+      <DateTimePickerInput name="scheduledFor" label="Scheduled for" valueFormat="iso-string" />
     </FormShell>
   ),
 };
