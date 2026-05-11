@@ -5,11 +5,11 @@ import {
   InputLabel,
   MenuItem,
   Select,
-} from "@mui/material";
-import { kebabize } from "@/utils";
-import { Controller, FieldValues, useFormContext } from "react-hook-form";
-import { SelectInputProps } from "./select.types";
-import { Messages } from "./select.messages";
+} from '@mui/material';
+import { kebabize } from '@/utils';
+import { Controller, FieldValues, useFormContext } from 'react-hook-form';
+import { SelectInputProps } from './select.types';
+import { Messages } from './select.messages';
 
 const SelectInput = <T extends FieldValues = FieldValues>({
   name,
@@ -26,11 +26,7 @@ const SelectInput = <T extends FieldValues = FieldValues>({
   const contextControl = formContext?.control;
 
   return (
-    <FormControl
-      sx={{ mt: 3 }}
-      size={formControlProps?.size || "small"}
-      {...formControlProps}
-    >
+    <FormControl sx={{ mt: 3 }} size={formControlProps?.size || 'small'} {...formControlProps}>
       <InputLabel id={`${name}-input-label`}>{label}</InputLabel>
       <Controller
         name={name}
@@ -44,18 +40,12 @@ const SelectInput = <T extends FieldValues = FieldValues>({
             error={error !== undefined}
             data-testid={`select-${kebabize(name)}-button`}
             inputProps={{
-              "data-testid": `select-input-${kebabize(name)}`,
+              'data-testid': `select-input-${kebabize(name)}`,
               ...selectFieldProps?.inputProps,
             }}
             IconComponent={
               loading
-                ? () => (
-                    <CircularProgress
-                      color="inherit"
-                      size={20}
-                      sx={{ mr: 1 }}
-                    />
-                  )
+                ? () => <CircularProgress color="inherit" size={20} sx={{ mr: 1 }} />
                 : undefined
             }
             {...selectFieldProps}
@@ -68,9 +58,9 @@ const SelectInput = <T extends FieldValues = FieldValues>({
                 value=""
                 data-testid="no-options-select"
                 sx={{
-                  fontWeight: "400",
-                  "&.Mui-disabled.Mui-selected": {
-                    backgroundColor: "transparent",
+                  fontWeight: '400',
+                  '&.Mui-disabled.Mui-selected': {
+                    backgroundColor: 'transparent',
                   },
                 }}
               >

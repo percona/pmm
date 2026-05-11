@@ -1,8 +1,8 @@
-import { ToggleButtonGroup } from "@mui/material";
-import { kebabize } from "@/utils";
-import LabeledContent from "../../../labeled-content";
-import { Controller, FieldValues, useFormContext } from "react-hook-form";
-import { ToggleButtonGroupInputProps } from "./toggle-button-group.types";
+import { ToggleButtonGroup } from '@mui/material';
+import { kebabize } from '@/utils';
+import LabeledContent from '../../../labeled-content';
+import { Controller, FieldValues, useFormContext } from 'react-hook-form';
+import { ToggleButtonGroupInputProps } from './toggle-button-group.types';
 
 const ToggleButtonGroupInput = <T extends FieldValues = FieldValues>({
   name,
@@ -13,7 +13,6 @@ const ToggleButtonGroupInput = <T extends FieldValues = FieldValues>({
   toggleButtonGroupProps = {},
   children,
 }: ToggleButtonGroupInputProps<T>) => {
-
   const formContext = useFormContext<T>();
   const setValue = formContext?.setValue;
   const control = controlProp ?? formContext?.control;
@@ -34,8 +33,8 @@ const ToggleButtonGroupInput = <T extends FieldValues = FieldValues>({
           exclusive
           data-testid={`toggle-button-group-input-${kebabize(name)}`}
           sx={{
-            "& > button": {
-              flex: "1 1 0px",
+            '& > button': {
+              flex: '1 1 0px',
             },
             ...toggleButtonGroupSxProp,
           }}
@@ -46,7 +45,7 @@ const ToggleButtonGroupInput = <T extends FieldValues = FieldValues>({
             value: any
           ) => {
             if (value !== null) {
-              const isNumber = typeof value === "number";
+              const isNumber = typeof value === 'number';
               if (isNumber) {
                 event.target.valueAsNumber = value;
               } else {

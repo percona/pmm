@@ -1,4 +1,3 @@
-
 // Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,18 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 import { AutocompleteProps, TextFieldProps } from '@mui/material';
-import {
-  Control,
-  FieldPath,
-  FieldValues,
-  UseControllerProps,
-} from 'react-hook-form';
+import { Control, FieldPath, FieldValues, UseControllerProps } from 'react-hook-form';
 import { LabeledContentProps } from '../../../labeled-content';
 
-export type AutoCompleteInputProps<
-  TOption,
-  TFieldValues extends FieldValues = FieldValues,
-> = {
+export type AutoCompleteInputProps<TOption, TFieldValues extends FieldValues = FieldValues> = {
   name: FieldPath<TFieldValues>;
   options: TOption[];
   control?: Control<TFieldValues>;
@@ -32,12 +23,7 @@ export type AutoCompleteInputProps<
   label?: string;
   labelProps?: LabeledContentProps;
   autoCompleteProps?: Omit<
-    AutocompleteProps<
-      TOption,
-      boolean | undefined,
-      boolean | undefined,
-      boolean | undefined
-    >,
+    AutocompleteProps<TOption, boolean | undefined, boolean | undefined, boolean | undefined>,
     'options' | 'renderInput'
   >;
   textFieldProps?: TextFieldProps;

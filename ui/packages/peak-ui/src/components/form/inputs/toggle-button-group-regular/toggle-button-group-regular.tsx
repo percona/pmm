@@ -14,11 +14,10 @@ const ToggleButtonGroupInputRegular = <T extends FieldValues = FieldValues>({
       toggleButtonGroupProps={{
         sx: {
           width: 'fit-content',
-          '.MuiToggleButtonGroup-middleButton, .MuiToggleButtonGroup-lastButton':
-            {
-              ml: 0,
-              borderLeft: 0,
-            },
+          '.MuiToggleButtonGroup-middleButton, .MuiToggleButtonGroup-lastButton': {
+            ml: 0,
+            borderLeft: 0,
+          },
 
           '.MuiButtonBase-root:not(:first-child, :last-child)': {
             borderRadius: '0',

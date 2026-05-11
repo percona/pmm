@@ -1,7 +1,7 @@
-import { FormControlLabel, Switch, Typography } from "@mui/material";
-import { kebabize } from "@/utils";
-import { Controller, FieldValues, useFormContext } from "react-hook-form";
-import { SwitchInputProps } from "./switch.types";
+import { FormControlLabel, Switch, Typography } from '@mui/material';
+import { kebabize } from '@/utils';
+import { Controller, FieldValues, useFormContext } from 'react-hook-form';
+import { SwitchInputProps } from './switch.types';
 
 const SwitchInput = <T extends FieldValues = FieldValues>({
   name,
@@ -21,9 +21,7 @@ const SwitchInput = <T extends FieldValues = FieldValues>({
       label={
         <>
           <Typography variant="body1">{label}</Typography>
-          {labelCaption && (
-            <Typography variant="caption">{labelCaption}</Typography>
-          )}
+          {labelCaption && <Typography variant="caption">{labelCaption}</Typography>}
         </>
       }
       data-testid={`switch-input-${kebabize(name)}-label`}
@@ -40,7 +38,7 @@ const SwitchInput = <T extends FieldValues = FieldValues>({
               }}
               sx={{
                 ...(labelCaption && {
-                  alignSelf: "flex-start",
+                  alignSelf: 'flex-start',
                   mt: -1,
                 }),
               }}

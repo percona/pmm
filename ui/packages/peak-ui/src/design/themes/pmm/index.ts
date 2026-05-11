@@ -1,2 +1,2 @@
-export { default } from "./PmmTheme";
-export { pmmPrimaryLight, pmmPrimaryDark } from "./PmmTheme";
+export { default } from './PmmTheme';
+export { pmmPrimaryLight, pmmPrimaryDark } from './PmmTheme';
