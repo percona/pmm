@@ -255,20 +255,6 @@ const sepThemeOptions = (mode: PaletteMode): ThemeOptions => {
           },
         },
       },
-      MuiTooltip: {
-        styleOverrides: {
-          tooltip: ({ theme }) => ({
-            ...theme.typography.helperText,
-            p: 6,
-            boxShadow: theme.shadows[8],
-            color: primary.contrastText,
-            backgroundColor: tokens.neutral.main,
-          }),
-          arrow: () => ({
-            color: tokens.neutral.main,
-          }),
-        },
-      },
       MuiPaper: {
         styleOverrides: {
           root: ({ theme }) => ({
