@@ -12,7 +12,7 @@ Use the filters at the top to scope the view to a specific service, cluster, rep
 
 Shows the five largest databases in your instance or cluster as time series lines, measured in bytes. The legend table below the chart includes the mean, max, and min size for each database over the selected time range.
 
-Use this to understand which databases are consuming the most storage and how their size is changing over time. A steadily growing line is expected for active databases; a sudden jump can indicate a bulk import, a runaway process, or unexpectedly large documents being written.
+Use this to understand which databases are consuming the most storage and how their size is changing over time. A steadily growing line is expected for active databases. A sudden jump can indicate a bulk import, a runaway process, or unexpectedly large documents being written.
 
 Note that data in this panel comes from the primary node only in a replica set.
 
@@ -76,9 +76,9 @@ Use this alongside the Read Rate panel to get a full picture of which collection
 
 ### Collections statistics for $database (rate)
 
-Shows the rate of operations per second for the selected database, broken down by operation type: Commands, Insert, Update, Remove, Getmore, and Queries. Each line in the chart represents one operation type for one database.
+Shows the rate of operations per second for the selected database, broken down by operation type: `Commands`, `Insert`, `Update`, `Remove`, `Getmore`, and `Queries`. Each line in the chart represents one operation type for one database.
 
-Use this to understand the current workload mix hitting each database. A spike in Remove rate can signal a bulk cleanup job; a spike in Getmore can indicate large cursor-based queries paginating through results. The legend table shows mean, max, and min rates to help you compare types over the time range.
+Use this to understand the current workload mix hitting each database. A spike in Remove rate can signal a bulk cleanup job. A spike in `Getmore` can indicate large cursor-based queries paginating through results. The legend table shows mean, max, and min rates to help you compare types over the time range.
 
 ### Collections statistics for $database (summary)
 
@@ -88,6 +88,9 @@ Use this alongside the rate panel to distinguish between a high burst of activit
 
 ### Collections statistics $database
 
-Shows a per-collection breakdown of total operation counts for the selected database, with one row per collection and columns for Queries, Insert, Remove, Update, and Getmore.
+Shows a per-collection breakdown of total operation counts for the selected database, with one row per collection and columns for `Queries`, `Insert`, `Remove`, `Update`, and `Getmore`.
 
-Use this to drill down from the dashboard-level summaries to individual collections. The table is sorted by Queries descending by default. Sort by any other column to find collections with the highest count for a specific operation type. If you've selected multiple databases using the filter, a separate table appears for each one.
+Use this to drill down from the dashboard-level summaries to individual collections. The table is sorted by **Queries** descending by default. 
+
+Sort by any other column to find collections with the highest count for a specific operation type. 
+If you've selected multiple databases using the filter, a separate table appears for each one.

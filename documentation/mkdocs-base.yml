@@ -551,7 +551,7 @@ nav:
               - reference/dashboards/dashboard-mysql-user-details.md
           - MongoDB dashboards:
               - reference/dashboards/dashboard-mongodb-collection_overview.md
-              - reference/dashboards/dashboard-mongodb-experimental_oplog.md
+              - reference/dashboards/dashboard-mongodb-oplog-details.md
               - reference/dashboards/dashboard-mongodb-cluster-summary.md
               - reference/dashboards/dashboard-mongodb-instance-summary.md
               - reference/dashboards/dashboard-mongodb-instances-overview.md
@@ -587,7 +587,6 @@ nav:
           - HA dashboards:
               - reference/dashboards/dashboard-ha-health-overview.md
               - reference/dashboards/dashboard-pxc-galera-node-summary.md
-              - reference/dashboards/dashboard-pxc-galera-cluster-summary-experimental.md
               - reference/dashboards/dashboard-pxc-galera-nodes-compare.md
               - reference/dashboards/dashboard-haproxy-instance-summary.md
       - reference/nomad.md

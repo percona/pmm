@@ -82,7 +82,7 @@ Use this to spot which services are absorbing the most connections and whether a
 
 ### Current Connections
 
-A hexagon grid showing the current connection count for each service. Click any hexagon to open the MongoDB Instance Summary for that service.
+A hexagon grid showing the current connection count for each service. Click any hexagon to open the **MongoDB Instance Summary** for that service.
 
 Use this to see the full fleet at once after checking the Top 5 time series. Services with higher connection counts stand out by color.
 
@@ -94,7 +94,7 @@ Shows a time series of the five services with the highest rate of command operat
 
 ### Command Operations
 
-A hexagon grid showing the current command operation rate for each service. Click any hexagon to open the MongoDB Instance Summary for that service.
+A hexagon grid showing the current command operation rate for each service. Click any hexagon to open the **MongoDB Instance Summary** for that service.
 
 ### Top 5 Getmore Operations
 
@@ -104,7 +104,7 @@ Getmore operations fetch additional results from an open cursor. A high getmore 
 
 ### Getmore Operations
 
-A hexagon grid showing the current getmore rate for each service. Click any hexagon to open the MongoDB Instance Summary for that service.
+A hexagon grid showing the current getmore rate for each service. Click any hexagon to open the **MongoDB Instance Summary** for that service.
 
 ### Top 5 Delete Operations
 
@@ -112,7 +112,7 @@ Shows a time series of the five services with the highest delete command rate pe
 
 ### Delete Operations
 
-A hexagon grid showing the current delete rate for each service. Click any hexagon to open the MongoDB Instance Summary for that service.
+A hexagon grid showing the current delete rate for each service. Click any hexagon to open the **MongoDB Instance Summary** for that service.
 
 ### Top 5 Insert Operations
 
@@ -120,7 +120,7 @@ Shows a time series of the five services with the highest insert command rate pe
 
 ### Insert Operations
 
-A hexagon grid showing the current insert rate for each service. Click any hexagon to open the MongoDB Instance Summary for that service.
+A hexagon grid showing the current insert rate for each service. Click any hexagon to open the **MongoDB Instance Summary** for that service.
 
 ### Top 5 Update Operations
 
@@ -128,7 +128,7 @@ Shows a time series of the five services with the highest update command rate pe
 
 ### Update Operations
 
-A hexagon grid showing the current update rate for each service. Click any hexagon to open the MongoDB Instance Summary for that service.
+A hexagon grid showing the current update rate for each service. Click any hexagon to open the **MongoDB Instance Summary** for that service.
 
 ### Top 5 Query Operations
 
@@ -136,7 +136,7 @@ Shows a time series of the five services with the highest query (find) operation
 
 ### Query Operations
 
-A hexagon grid showing the current query rate for each service. Click any hexagon to open the MongoDB Instance Summary for that service.
+A hexagon grid showing the current query rate for each service. Click any hexagon to open the **MongoDB Instance Summary** for that service.
 
 ## Document Operations Details
 
@@ -148,7 +148,7 @@ Shows a time series of the five services with the highest rate of documents dele
 
 ### Document Delete Operations
 
-A hexagon grid showing the current document delete rate for each service. Click any hexagon to open the MongoDB Instance Summary for that service.
+A hexagon grid showing the current document delete rate for each service. Click any hexagon to open the **MongoDB Instance Summary** for that service.
 
 ### Top 5 Document Insert Operations
 
@@ -156,7 +156,7 @@ Shows a time series of the five services with the highest rate of documents inse
 
 ### Document Insert Operations
 
-A hexagon grid showing the current document insert rate for each service. Click any hexagon to open the MongoDB Instance Summary for that service.
+A hexagon grid showing the current document insert rate for each service. Click any hexagon to open the **MongoDB Instance Summary** for that service.
 
 ### Top 5 Document Return Operations
 
@@ -164,7 +164,7 @@ Shows a time series of the five services with the highest rate of documents retu
 
 ### Document Return Operations
 
-A hexagon grid showing the current document return rate for each service. Click any hexagon to open the MongoDB Instance Summary for that service.
+A hexagon grid showing the current document return rate for each service. Click any hexagon to open the **MongoDB Instance Summary** for that service.
 
 ### Top 5 Document Update Operations
 
@@ -172,7 +172,7 @@ Shows a time series of the five services with the highest rate of documents upda
 
 ### Document Update Operations
 
-A hexagon grid showing the current document update rate for each service. Click any hexagon to open the MongoDB Instance Summary for that service.
+A hexagon grid showing the current document update rate for each service. Click any hexagon to open the **MongoDB Instance Summary** for that service.
 
 ## Queued Operations Details
 
@@ -184,7 +184,7 @@ Shows a time series of the five services with the highest number of read operati
 
 ### Queued Read Operations
 
-A hexagon grid showing the current read queue depth for each service. The hexagon turns orange when any operations are queued (1 or more). Click any hexagon to open the MongoDB Instance Summary for that service.
+A hexagon grid showing the current read queue depth for each service. The hexagon turns orange when any operations are queued (1 or more). Click any hexagon to open the **MongoDB Instance Summary** for that service.
 
 ### Top 5 Queued Write Operations
 
@@ -192,4 +192,4 @@ Shows a time series of the five services with the highest number of write operat
 
 ### Queued Write Operations
 
-A hexagon grid showing the current write queue depth for each service. The hexagon turns orange when any operations are queued (1 or more). Click any hexagon to open the MongoDB Instance Summary for that service.
+A hexagon grid showing the current write queue depth for each service. The hexagon turns orange when any operations are queued (1 or more). Click any hexagon to open the **MongoDB Instance Summary** for that service.

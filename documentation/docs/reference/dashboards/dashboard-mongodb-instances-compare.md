@@ -13,7 +13,7 @@ Use this dashboard when you need to compare a healthy instance against a degrade
 A row of stat panels showing the current value of key metrics for each selected service. Each panel repeats horizontally so you can compare values across services at a glance:
 
 - **Service Info**: Metadata table for each selected service, including service name, node name, MongoDB version, cluster, replication set, node type, and other PMM labels. Use this to verify you are comparing equivalent services.
-- **MongoDB Uptime**: How long the service has been running. Turns orange after 5 minutes and green after 1 hour. A recently restarted service may show temporarily different behavior in other panels. Click to open the MongoDB Instance Summary for that service.
+- **MongoDB Uptime**: How long the service has been running. Turns orange after 5 minutes and green after 1 hour. A recently restarted service may show temporarily different behavior in other panels. Click to open the **MongoDB Instance Summary** for that service.
 - **Current QPS**: Current query throughput in operations per second, excluding commands. Use this to compare load levels across services.
 - **DB Connections**: Current number of active connections. Use this alongside the **Connections** timeseries below to see which services are under connection pressure.
 - **Latency**: Average command latency in milliseconds. Turns orange at 90ms and red at 95ms. Use this for a quick health check before drilling into the **Latency** timeseries for detail.
@@ -26,13 +26,13 @@ Shows the number of current and available connections over time for each selecte
 
 Use this to compare connection usage patterns across services. The "available" line shows remaining connection capacity. When it approaches zero, the service is near its connection limit. 
 
-A service with much higher current connections than others may be receiving uneven traffic or have connection pooling misconfigured. Click a series to open the MongoDB Instance Summary for that service.
+A service with much higher current connections than others may be receiving uneven traffic or have connection pooling misconfigured. Click a series to open the **MongoDB Instance Summary** for that service.
 
 ## Cursors
 
 Shows the number of open cursors over time, broken down by state (including idle cursors), for each selected service.
 
-Use this to compare cursor behavior across services. A service with a steadily growing cursor count relative to others may have an application not closing cursors properly. Click a series to open the MongoDB Instance Summary for that service.
+Use this to compare cursor behavior across services. A service with a steadily growing cursor count relative to others may have an application not closing cursors properly. Click a series to open the **MongoDB Instance Summary** for that service.
 
 ## Query Efficiency
 
@@ -42,7 +42,7 @@ Shows average operation latency in microseconds over time, broken down by operat
 
 Use this to compare latency profiles across services. If one service has higher read latency but similar write latency, the difference is likely query-related (indexes, working set size).
 
-If all latency types are elevated on one service, look at resource contention (CPU, memory, lock queues). Click a series to open the MongoDB Instance Summary for that service.
+If all latency types are elevated on one service, look at resource contention (CPU, memory, lock queues). Click a series to open the **MongoDB Instance Summary** for that service.
 
 ### Scan Ratios
 
@@ -51,7 +51,7 @@ Shows two scan efficiency ratios over time for each selected service:
 - **Index**: Index entries scanned per document returned. Lower is better. A value close to 1 means index scans are highly selective. A high value means many index entries are being scanned to return few documents, which can indicate a poorly selective index.
 - **Document**: Documents returned per document scanned. Higher is better. A value close to 1 means almost every document scanned is returned. A low value means many documents are being scanned but few match the query, which usually points to a missing or unused index.
 
-Use this to compare query efficiency across services. A service with worse ratios than others may have different query patterns, different indexes, or a different data distribution. Click a series to open the MongoDB Instance Summary for that service.
+Use this to compare query efficiency across services. A service with worse ratios than others may have different query patterns, different indexes, or a different data distribution. Click a series to open the **MongoDB Instance Summary** for that service.
 
 ### Index Filtering Effectiveness
 
@@ -59,7 +59,7 @@ Shows the ratio of full document scans to total scan operations (index + documen
 
 A value close to 0% means most scans are going through indexes (good). A value close to 100% means most scans are full document scans, which suggests queries are not using indexes effectively.
 
-Use this alongside **Scan Ratios** to understand whether query inefficiency is consistent across services or isolated to one. Click a series to open the MongoDB Instance Summary for that service.
+Use this alongside **Scan Ratios** to understand whether query inefficiency is consistent across services or isolated to one. Click a series to open the **MongoDB Instance Summary** for that service.
 
 ## Operations
 

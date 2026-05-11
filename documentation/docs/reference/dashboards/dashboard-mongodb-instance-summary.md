@@ -27,9 +27,11 @@ Detailed summary information for the selected MongoDB service.
 
 ## Command Operations
 
-Shows operation rates per second over time, broken down by type: legacy wire protocol operations (query, insert, update, delete, getmore), replicated operations (repl_insert, repl_update, repl_delete), and TTL index deletions (ttl_delete).
+Shows operation rates per second over time, broken down by type: legacy wire protocol operations (`query`, `insert`, `update`, `delete`, `getmore`), replicated operations (`repl_insert`, `repl_update`, `repl_delete`), and TTL index deletions (`ttl_delete`).
 
-Use this to understand what the instance is doing and how the workload is composed. A spike in ttl_delete means a large batch of documents expired at once. High repl_* rates on a secondary mean it is catching up on replication. The legend table shows mean, max, and min rates to help compare types over the time range.
+Use this to understand what the instance is doing and how the workload is composed. A rising `repl_*` rate on a secondary means it is actively applying changes from the primary. 
+
+Compare regular and replicated operation rates to distinguish client-driven load from replication catch-up traffic
 
 ## Latency Detail
 
@@ -65,7 +67,9 @@ Any value above zero means lock contention is occurring. A small queue that reso
 
 Shows two efficiency ratios over time: documents returned versus documents scanned (Document), and index entries scanned versus documents scanned (Index).
 
-A Document ratio close to 100% means queries are returning almost everything they scan, which is ideal. A low ratio means the query engine is scanning many more documents than it returns, which typically indicates a missing or unused index. A consistently low Index ratio means queries are relying on collection scans rather than index lookups.
+A Document ratio close to 100% means queries are returning almost everything they scan, which is ideal. A low ratio means the query engine is scanning many more documents than it returns, which typically indicates a missing or unused index. 
+
+A consistently low **Index ratio** means queries are relying on collection scans rather than index lookups.
 
 ## Scanned and Moved Objects
 

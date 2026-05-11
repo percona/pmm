@@ -62,9 +62,7 @@ Shows the rate of operations per second in each phase of oplog application: **Do
 
 Use this alongside **Oplog Processing Time** to distinguish throughput from latency. 
 
-High operation counts with high processing time means the secondary is applying many operations slowly. 
-
-Low counts with high processing time means individual operations are expensive. 
+High operation counts with high processing time means the secondary is applying many operations slowly. Low counts with high processing time means individual operations are expensive. 
 
 Click a series to open the **MongoDB Instance Summary** for that service.
 

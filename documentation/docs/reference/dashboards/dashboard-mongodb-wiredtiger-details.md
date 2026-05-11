@@ -22,13 +22,13 @@ Shows the amount of memory in the OS filesystem cache on the host. WiredTiger st
 
 Shows the percentage of system memory currently available for use. Turns orange at 90% and red at 95%. If available memory is critically low, the OS may begin evicting filesystem cache pages, which will increase disk reads for data not in the WiredTiger cache.
 
-## WiredTiger Transactions
+### WiredTiger Transactions
 
 Shows the rate of WiredTiger internal transactions per second, broken down by type: begin, commit, and rollback.
 
 A high rollback rate relative to commit rate can indicate write conflicts under concurrent workloads. Use this alongside **Queued Operations** to understand whether contention is causing transactions to fail and retry.
 
-## WiredTiger Cache Activity
+### WiredTiger Cache Activity
 
 Shows the rate of data transfer between the WiredTiger cache and storage in bytes per second. Two series are shown: **Read into** (data loaded from storage into the cache) and **Written from** (dirty data flushed from the cache to disk).
 
@@ -52,37 +52,36 @@ Shows the number of available WiredTiger concurrency tickets for read (positive 
 
 When available tickets approach zero for either read or write, new operations must wait before entering the storage engine. This is one of the most direct indicators of storage engine saturation. If tickets are consistently depleted, check **Queued Operations** and consider whether the workload or hardware is the limiting factor.
 
-## Queued Operations
-
+### Queued Operations
 Shows the number of operations waiting to acquire a global lock, broken down by read and write queues over time.
 
 Any value above zero means lock contention is occurring. A queue that grows and stays elevated points to long-running write operations blocking other work. Use this alongside **WiredTiger Concurrency Tickets Available** to distinguish between lock queue pressure and ticket exhaustion.
 
-## WiredTiger Checkpoint Time
+### WiredTiger Checkpoint Time
 
 Shows the time spent in the WiredTiger checkpoint phase, displayed as a per-second average of a cyclical event that runs approximately every 60 seconds by default.
 
 Checkpoints flush dirty cache pages to disk to create a consistent on-disk snapshot. A rising trend in checkpoint time means each checkpoint is taking longer, usually because there are more dirty pages to flush or the disk cannot keep up. Long checkpoints can cause brief latency spikes for write operations. Check **Disk I/O and Swap Activity** to confirm whether disk throughput is the constraint.
 
-## WiredTiger Cache Eviction
+### WiredTiger Cache Eviction
 
 Shows the rate of cache page evictions per second, broken down by type (modified and unmodified pages).
 
 Eviction happens when the cache fills up and WiredTiger needs to make room for new data. Unmodified page evictions are inexpensive. Modified (dirty) page evictions require writing to disk first and are more expensive. A sustained high rate of dirty page evictions means the cache is consistently full and cannot absorb write bursts without stalling application threads.
 
-## WiredTiger Cache Capacity
+### WiredTiger Cache Capacity
 
 Shows the configured maximum cache size (**Max**) alongside the current cache usage (**Used**) over time.
 
 Use this to see how cache utilization trends over the selected time range. A **Used** line that hugs the **Max** line means the cache is always full and eviction pressure is constant. This is a signal to increase the cache size if memory allows, or to reduce the working set.
 
-## WiredTiger Cache Pages
+### WiredTiger Cache Pages
 
 Shows the number of pages in the WiredTiger cache over time, broken down by state (clean, dirty, internal).
 
 A high dirty page count relative to total pages means a large fraction of the cache contains modified data that has not yet been flushed to disk. If dirty pages stay elevated, checkpoint and eviction pressure will follow.
 
-## WiredTiger Log Operations
+### WiredTiger Log Operations
 
 Shows the rate of WiredTiger write-ahead log (WAL) operations per second, broken down by type (write, sync, read, compress, compress failure, compress uncompressed, read).
 
@@ -94,25 +93,25 @@ Shows the rate of data moved through the WiredTiger write-ahead log in bytes per
 
 Rising log write rates indicate increasing write activity. If log sync bytes are high relative to log write bytes, individual writes are being fsynced frequently rather than batched, which can reduce write throughput.
 
-## WiredTiger Log Records
+### WiredTiger Log Records
 
 Shows the rate of records appended to the WiredTiger internal log per second, broken down by type (compressed and uncompressed).
 
 Use this alongside **WiredTiger Log Activity** to understand whether rising log volume is driven by more records or larger records.
 
-## Document Changes
+### Document Changes
 
 Shows the rate of document-level changes per second, broken down by operation type: `inserted`, `updated`, `deleted`, and `returned` (query results), plus replicated write operations (`repl_inserted`, `repl_updated`, `repl_deleted`) and TTL index deletions (`ttl_deleted`).
 
 Use this to understand overall data throughput and its composition. A spike in `ttl_deleted` means a large batch of documents expired at once. High `repl_*` rates on a secondary mean replication is catching up. Compare insert and delete rates to track net data growth.
 
-## Scanned and Moved Objects
+### Scanned and Moved Objects
 
 Shows the rate of objects scanned per second, broken down into data objects (`scanned_objects`) and index entries (`scanned`). Also shows the rate of documents moved per second (`moved`).
 
 High scan rates relative to documents returned point to collection scans that would benefit from better indexes. The `moved` metric applies to MMAPv1 only: documents are moved when they grow beyond their allocated space. If you see a non-zero `moved` rate, the instance is running MMAPv1.
 
-## Page Faults
+### Page Faults
 
 Shows the rate of OS memory page faults per second on the host. Page faults are not exclusive to MongoDB and can be caused by any process on the host.
 
@@ -121,22 +120,35 @@ For WiredTiger instances, page faults typically happen when the OS filesystem ca
 ## MongoDB Summary
 
 ### MongoDB Uptime
-
 Shows how long the MongoDB instance has been running since its last restart. Red means under 5 minutes, orange means under 1 hour, green means over 1 hour.
 
 A recent restart may cause temporarily elevated cache miss rates and page faults as the WiredTiger cache warms up.
 
 ### QPS
-
 Shows the current query rate in operations per second, excluding commands.
 
 ### Latency
-
 Shows the average command latency in microseconds.
 
 ### Service
-
 Links to the **MongoDB Instance Summary** for the selected service.
+
+### Connections
+Tracks the number of active client connections to the MongoDB instance over   
+time, averaged per service. The metric is collected from mongod, mongos, or generic MongoDB exporters depending on your deployment type.                  
+   
+Monitor this panel to detect unusual spikes or sustained growth in connection  counts, which may indicate connection leaks, misconfigured connection pools,
+or increased load.      
+                                                
+MongoDB enforces a hard cap via `maxIncomingConnections`, which you can tune using  [Number of Connections](https://docs.mongodb.com/manual/administration/analyzing-mongodb-performance/#number-of-connections).                     
+                  
+### Cursors
+
+Tracks the number of open cursors per service, broken down by state. A cursor is a pointer to a query result set that MongoDB holds open while a client iterates over it.
+
+Monitor this panel to detect cursor accumulation, which can indicate cursor leaks, long-running queries, or clients that are not closing cursors properly. Cursors with the `noTimeout` flag set never expire and require explicit closure by the application.
+
+By default, idle cursors time out after 10 minutes. If cursor counts increase steadily beyond your normal query patterns, investigate for leaks or unclosed cursors.
 
 ## Node Summary
 
