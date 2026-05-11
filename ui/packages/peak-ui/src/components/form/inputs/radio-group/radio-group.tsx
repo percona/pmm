@@ -29,7 +29,7 @@ const RadioGroup = <T extends FieldValues = FieldValues>({
               control={
                 <Radio
                   {...option.radioProps}
-                  // @ts-expect-error
+                  // @ts-expect-error -- data-testid is not in MUI's InputHTMLAttributes for inputProps
                   inputProps={{ 'data-testid': `radio-option-${option.value}` }}
                 />
               }
