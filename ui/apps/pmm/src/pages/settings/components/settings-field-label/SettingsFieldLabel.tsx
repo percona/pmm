@@ -11,6 +11,7 @@ interface Props {
   description: ReactNode;
   readMoreLink?: string;
   readMoreText?: string;
+  'data-testid'?: string;
 }
 
 const SettingsFieldLabel: FC<Props> = ({
@@ -18,10 +19,14 @@ const SettingsFieldLabel: FC<Props> = ({
   description,
   readMoreLink,
   readMoreText = Messages.tooltipLinkText,
+  'data-testid': dataTestId,
 }) => (
-  <Stack maxWidth={MAX_LABEL_WIDTH}>
+  <Stack maxWidth={MAX_LABEL_WIDTH} data-testid={dataTestId}>
     <Typography variant="h6">{label}</Typography>
-    <Typography variant="body2">
+    <Typography
+      variant="body2"
+      data-testid={dataTestId ? `${dataTestId}-description` : undefined}
+    >
       {description}
       {readMoreLink && (
         <>

@@ -1,3 +1,4 @@
+import type { InputHTMLAttributes } from 'react';
 import { Messages } from '../../Settings.messages';
 import { MetricsResolutions } from 'types/settings.types';
 
@@ -9,11 +10,42 @@ export const RESOLUTION_PRESETS = [
 ] as const;
 export type ResolutionPreset = (typeof RESOLUTION_PRESETS)[number];
 
-export const resolutionOptions: { value: ResolutionPreset; label: string }[] = [
-  { value: 'rare', label: Messages.metrics.options.rare },
-  { value: 'standard', label: Messages.metrics.options.standard },
-  { value: 'frequent', label: Messages.metrics.options.frequent },
-  { value: 'custom', label: Messages.metrics.options.custom },
+const radioInputProps = (testId: string) =>
+  ({ 'data-testid': testId }) as InputHTMLAttributes<HTMLInputElement>;
+
+export const resolutionOptions: {
+  value: ResolutionPreset;
+  label: string;
+  radioProps: { inputProps: InputHTMLAttributes<HTMLInputElement> };
+}[] = [
+  {
+    value: 'rare',
+    label: Messages.metrics.options.rare,
+    radioProps: {
+      inputProps: radioInputProps('metrics-resolution-radio-rare'),
+    },
+  },
+  {
+    value: 'standard',
+    label: Messages.metrics.options.standard,
+    radioProps: {
+      inputProps: radioInputProps('metrics-resolution-radio-standard'),
+    },
+  },
+  {
+    value: 'frequent',
+    label: Messages.metrics.options.frequent,
+    radioProps: {
+      inputProps: radioInputProps('metrics-resolution-radio-frequent'),
+    },
+  },
+  {
+    value: 'custom',
+    label: Messages.metrics.options.custom,
+    radioProps: {
+      inputProps: radioInputProps('metrics-resolution-radio-custom'),
+    },
+  },
 ];
 
 export const defaultResolutions: MetricsResolutions[] = [
