@@ -33,7 +33,6 @@ const usePersistentColumnVisibility = (
         localStorage.removeItem(key);
       }
     }
-
   }, [key, localStorageValue]);
 
   return [localStorageValue, setLocalStorageStateValue];
