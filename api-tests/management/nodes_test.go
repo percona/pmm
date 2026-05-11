@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -46,7 +45,7 @@ func TestNodeRegister(t *testing.T) {
 				Context: pmmapitests.Context,
 				Body: mservice.RegisterNodeBody{
 					NodeName: nodeName,
-					NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+					NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 				},
 			}
 			registerOK, err := client.Default.ManagementService.RegisterNode(&params)
@@ -86,14 +85,14 @@ func TestNodeRegister(t *testing.T) {
 			nodeRegion := pmmapitests.TestString(t, "region-1")
 			RegisterNode(t, mservice.RegisterNodeBody{
 				NodeName: nodeName,
-				NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+				NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 				Address:  nodeAddress,
 				Region:   nodeRegion,
 			})
 
 			body := mservice.RegisterNodeBody{
 				NodeName: nodeName,
-				NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+				NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 				Address:  nodeAddress,
 				Region:   nodeRegion,
 			}
@@ -113,14 +112,14 @@ func TestNodeRegister(t *testing.T) {
 			nodeAddress := pmmapitests.TestString(t, "node-address-2")
 			RegisterNode(t, mservice.RegisterNodeBody{
 				NodeName: nodeName,
-				NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+				NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 				Address:  nodeAddress,
 				Region:   pmmapitests.TestString(t, "region-2"),
 			})
 
 			body := mservice.RegisterNodeBody{
 				NodeName:   nodeName,
-				NodeType:   pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+				NodeType:   new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 				Address:    nodeAddress,
 				Region:     pmmapitests.TestString(t, "region-3"),
 				Reregister: true,
@@ -147,14 +146,14 @@ func TestNodeRegister(t *testing.T) {
 			nodeRegion := pmmapitests.TestString(t, "region-3")
 			RegisterNode(t, mservice.RegisterNodeBody{
 				NodeName: nodeName,
-				NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+				NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 				Address:  nodeAddress,
 				Region:   nodeRegion,
 			})
 
 			body := mservice.RegisterNodeBody{
 				NodeName: nodeName + "_new",
-				NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+				NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 				Address:  nodeAddress,
 				Region:   nodeRegion,
 			}
@@ -175,14 +174,14 @@ func TestNodeRegister(t *testing.T) {
 			nodeRegion := pmmapitests.TestString(t, "region-4")
 			RegisterNode(t, mservice.RegisterNodeBody{
 				NodeName: nodeName,
-				NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+				NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 				Address:  nodeAddress,
 				Region:   nodeRegion,
 			})
 
 			body := mservice.RegisterNodeBody{
 				NodeName:   nodeName + "_new",
-				NodeType:   pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+				NodeType:   new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 				Address:    nodeAddress,
 				Region:     nodeRegion,
 				Reregister: true,
@@ -211,7 +210,7 @@ func TestNodeRegister(t *testing.T) {
 			nodeAddress := pmmapitests.TestString(t, "node-address-3")
 			body := mservice.RegisterNodeBody{
 				NodeName:          nodeName,
-				NodeType:          pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+				NodeType:          new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 				MachineID:         machineID,
 				NodeModel:         nodeModel,
 				Az:                "eu",
@@ -243,7 +242,7 @@ func TestNodeRegister(t *testing.T) {
 
 			// Check Node Exporter is created
 			listAgentsOK, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-				PMMAgentID: pointer.ToString(pmmAgentID),
+				PMMAgentID: new(pmmAgentID),
 				Context:    pmmapitests.Context,
 			})
 			assert.NoError(t, err)
@@ -256,7 +255,7 @@ func TestNodeRegister(t *testing.T) {
 				PushMetricsEnabled: true,
 				Status:             &AgentStatusUnknown,
 				CustomLabels:       map[string]string{},
-				LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				LogLevel:           new("LOG_LEVEL_UNSPECIFIED"),
 			}, *listAgentsOK.Payload.NodeExporter[0])
 		})
 
@@ -266,7 +265,7 @@ func TestNodeRegister(t *testing.T) {
 			nodeName := pmmapitests.TestString(t, "node-name")
 			nodeID, _ := RegisterNode(t, mservice.RegisterNodeBody{
 				NodeName: nodeName,
-				NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+				NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 			})
 
 			// Check Node is created
@@ -283,7 +282,7 @@ func TestNodeRegister(t *testing.T) {
 			nodeAddress := pmmapitests.TestString(t, "10.10.10.10")
 			RegisterNode(t, mservice.RegisterNodeBody{
 				NodeName:     nodeName,
-				NodeType:     pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+				NodeType:     new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 				MachineID:    machineID,
 				NodeModel:    nodeModel,
 				Az:           "eu",
@@ -319,7 +318,7 @@ func TestNodeRegister(t *testing.T) {
 			nodeName := pmmapitests.TestString(t, "node-name")
 			nodeID, pmmAgentID := RegisterNode(t, mservice.RegisterNodeBody{
 				NodeName: nodeName,
-				NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPECONTAINERNODE),
+				NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPECONTAINERNODE),
 			})
 			assert.NotEmpty(t, nodeID)
 			assert.NotEmpty(t, pmmAgentID)
@@ -356,7 +355,7 @@ func TestNodeRegister(t *testing.T) {
 			nodeAddress := pmmapitests.TestString(t, "10.10.10.10")
 			body := mservice.RegisterNodeBody{
 				NodeName:      nodeName,
-				NodeType:      pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPECONTAINERNODE),
+				NodeType:      new(mservice.RegisterNodeBodyNodeTypeNODETYPECONTAINERNODE),
 				NodeModel:     nodeModel,
 				ContainerID:   containerID,
 				ContainerName: containerName,
@@ -395,7 +394,7 @@ func TestNodeRegister(t *testing.T) {
 			nodeName := pmmapitests.TestString(t, "node-name")
 			nodeID, _ := RegisterNode(t, mservice.RegisterNodeBody{
 				NodeName: nodeName,
-				NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPECONTAINERNODE),
+				NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPECONTAINERNODE),
 			})
 
 			// Check Node is created
@@ -413,7 +412,7 @@ func TestNodeRegister(t *testing.T) {
 			nodeAddress := pmmapitests.TestString(t, "10.10.10.10")
 			RegisterNode(t, mservice.RegisterNodeBody{
 				NodeName:      nodeName,
-				NodeType:      pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPECONTAINERNODE),
+				NodeType:      new(mservice.RegisterNodeBodyNodeTypeNODETYPECONTAINERNODE),
 				ContainerID:   containerID,
 				ContainerName: containerName,
 				NodeModel:     nodeModel,
