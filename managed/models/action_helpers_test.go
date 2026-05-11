@@ -19,7 +19,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -77,7 +76,7 @@ func TestActionHelpers(t *testing.T) {
 	t.Run("FindPmmAgentIDToRunActionOrJob", func(t *testing.T) {
 		a := []*models.Agent{
 			{AgentID: "A1", AgentType: models.PMMAgentType},
-			{AgentID: "A2", AgentType: models.MySQLdExporterType, PMMAgentID: pointer.ToString("A1")},
+			{AgentID: "A2", AgentType: models.MySQLdExporterType, PMMAgentID: new("A1")},
 		}
 
 		id, err := models.FindPmmAgentIDToRunActionOrJob("A1", a)
@@ -86,8 +85,8 @@ func TestActionHelpers(t *testing.T) {
 
 		a2 := []*models.Agent{
 			{AgentID: "A1", AgentType: models.PMMAgentType},
-			{AgentID: "A2", AgentType: models.MySQLdExporterType, PMMAgentID: pointer.ToString("A1")},
-			{AgentID: "A3", AgentType: models.MySQLdExporterType, PMMAgentID: pointer.ToString("A1")},
+			{AgentID: "A2", AgentType: models.MySQLdExporterType, PMMAgentID: new("A1")},
+			{AgentID: "A3", AgentType: models.MySQLdExporterType, PMMAgentID: new("A1")},
 		}
 
 		id, err = models.FindPmmAgentIDToRunActionOrJob("A3", a2)

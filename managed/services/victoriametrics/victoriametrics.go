@@ -453,11 +453,9 @@ func (svc *Service) BuildScrapeConfigForVMAgent(ctx context.Context, pmmAgentID 
 		settings, err := models.GetSettings(tx)
 		if err != nil {
 			return err
-		}
-		s := settings.MetricsResolutions
-		// In HA mode, skip ExternalExporter agents if this node is not the leader
+		} // In HA mode, skip ExternalExporter agents if this node is not the leader
 		skipExternalExporter := !svc.haService.IsLeader()
-		return AddScrapeConfigs(svc.l, &cfg, tx.Querier, &s, pointer.ToString(pmmAgentID), true, skipExternalExporter)
+		return AddScrapeConfigs(svc.l, &cfg, tx.Querier, new(settings.MetricsResolutions), new(pmmAgentID), true, skipExternalExporter)
 	})
 	if e != nil {
 		return nil, e

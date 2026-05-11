@@ -24,7 +24,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/managed/models"
@@ -213,7 +212,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			envSettings.EnableNomad = &b
 
 		case "PMM_PUBLIC_ADDRESS":
-			envSettings.PMMPublicAddress = pointer.ToString(v)
+			envSettings.PMMPublicAddress = new(v)
 
 		case "PMM_VM_URL":
 			_, err = url.Parse(v)

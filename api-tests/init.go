@@ -98,8 +98,7 @@ func Transport(baseURL *url.URL, insecureTLS bool) *httptransport.Runtime {
 	// set error handlers for nginx responses if pmm-managed is down
 	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, _ interface{}) error {
 		b, _ := io.ReadAll(reader)
-		err := NginxError(string(b))
-		return &err
+		return new(NginxError(string(b)))
 	})
 	transport.Consumers = map[string]runtime.Consumer{
 		runtime.JSONMime:    runtime.JSONConsumer(),
