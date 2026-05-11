@@ -34,7 +34,6 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
@@ -191,9 +190,9 @@ func parseStatus(status string) *bool {
 	if f := strings.Fields(status); len(f) > 1 {
 		switch status := f[1]; status {
 		case "FATAL", "STOPPED": // will not be restarted
-			return pointer.ToBool(false)
+			return new(false)
 		case "STARTING", "RUNNING", "BACKOFF", "STOPPING":
-			return pointer.ToBool(true)
+			return new(true)
 		case "EXITED":
 			// it might be restarted - we need to inspect last event
 		default:

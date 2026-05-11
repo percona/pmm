@@ -20,7 +20,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	gapi "github.com/grafana/grafana-api-golang-client"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -80,7 +79,7 @@ func TestUpdateSnoozing(t *testing.T) {
 	t.Run("snoozes the update", func(t *testing.T) {
 		res, err1 := cloneUserClient.UserService.UpdateUser(&userService.UpdateUserParams{
 			Body: userService.UpdateUserBody{
-				SnoozedPMMVersion: pointer.ToString("1.0.0"),
+				SnoozedPMMVersion: new("1.0.0"),
 			},
 		})
 
@@ -94,7 +93,7 @@ func TestUpdateSnoozing(t *testing.T) {
 	t.Run("increments the snooze count", func(t *testing.T) {
 		res, err := cloneUserClient.UserService.UpdateUser(&userService.UpdateUserParams{
 			Body: userService.UpdateUserBody{
-				SnoozedPMMVersion: pointer.ToString("1.0.0"),
+				SnoozedPMMVersion: new("1.0.0"),
 			},
 		})
 
@@ -108,7 +107,7 @@ func TestUpdateSnoozing(t *testing.T) {
 	t.Run("resets the snooze count when version is different", func(t *testing.T) {
 		res, err := cloneUserClient.UserService.UpdateUser(&userService.UpdateUserParams{
 			Body: userService.UpdateUserBody{
-				SnoozedPMMVersion: pointer.ToString("2.0.0"),
+				SnoozedPMMVersion: new("2.0.0"),
 			},
 		})
 

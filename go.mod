@@ -1,6 +1,6 @@
 module github.com/percona/pmm
 
-go 1.25.9
+go 1.26.2
 
 replace github.com/go-openapi/spec => github.com/Percona-Lab/spec v0.0.0-20260107142235-15cbcf569b9f
 
@@ -48,8 +48,8 @@ require (
 	github.com/percona/exporter_shared v0.7.5
 	github.com/percona/go-mysql v0.0.0-20251202083530-b3e1c16efc74
 	github.com/percona/percona-toolkit v0.0.0-20251217124347-6b3e5ed485dd
+	github.com/percona/platform v0.0.0-20260424191126-0d2cfd8ceb51
 	github.com/percona/promconfig v0.3.0
-	github.com/percona/saas v0.0.0-20260107224938-470337be1058
 	github.com/pganalyze/pg_query_go/v6 v6.2.2
 	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.13.6
@@ -66,11 +66,11 @@ require (
 	go.mongodb.org/mongo-driver v1.17.6
 	go.starlark.net v0.0.0-20230717150657-8a3343210976
 	go.yaml.in/yaml/v3 v3.0.4
-	golang.org/x/crypto v0.50.0
+	golang.org/x/crypto v0.51.0
 	golang.org/x/sync v0.20.0
-	golang.org/x/sys v0.43.0
-	golang.org/x/text v0.36.0
-	golang.org/x/tools v0.44.0
+	golang.org/x/sys v0.44.0
+	golang.org/x/text v0.37.0
+	golang.org/x/tools v0.45.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20260414002931-afd174a4e478
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260414002931-afd174a4e478
 	google.golang.org/grpc v1.81.0
@@ -193,6 +193,6 @@ require (
 	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78
 	go.opentelemetry.io/otel v1.43.0 // indirect
 	go.opentelemetry.io/otel/trace v1.43.0 // indirect
-	golang.org/x/mod v0.35.0 // indirect
-	golang.org/x/net v0.53.0 // indirect
+	golang.org/x/mod v0.36.0 // indirect
+	golang.org/x/net v0.54.0 // indirect
 )

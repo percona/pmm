@@ -18,7 +18,6 @@ package inventory
 import (
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -93,7 +92,7 @@ func TestRTAMongoDBAgent(t *testing.T) {
 						CollectInterval: "5s",
 					},
 					Status:   &AgentStatusUnknown,
-					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel: new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, getAgentRes)
@@ -104,7 +103,7 @@ func TestRTAMongoDBAgent(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					RtaMongodbAgent: &agents.ChangeAgentParamsBodyRtaMongodbAgent{
-						Enable:       pointer.ToBool(false),
+						Enable:       new(false),
 						CustomLabels: &agents.ChangeAgentParamsBodyRtaMongodbAgentCustomLabels{},
 					},
 				},
@@ -125,7 +124,7 @@ func TestRTAMongoDBAgent(t *testing.T) {
 					RtaOptions: &agents.ChangeAgentOKBodyRtaMongodbAgentRtaOptions{
 						CollectInterval: "5s",
 					},
-					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel: new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeRTAMongoDBAgentOK)
@@ -135,7 +134,7 @@ func TestRTAMongoDBAgent(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					RtaMongodbAgent: &agents.ChangeAgentParamsBodyRtaMongodbAgent{
-						Enable: pointer.ToBool(true),
+						Enable: new(true),
 						CustomLabels: &agents.ChangeAgentParamsBodyRtaMongodbAgentCustomLabels{
 							Values: map[string]string{
 								"new_label": "RTAMongodbAgent",
@@ -165,7 +164,7 @@ func TestRTAMongoDBAgent(t *testing.T) {
 						CollectInterval: "10s",
 					},
 					Status:   &AgentStatusDone,
-					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel: new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeRTAMongoDBAgentOK)
@@ -204,7 +203,7 @@ func TestRTAMongoDBAgent(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				RtaMongodbAgent: &agents.ChangeAgentParamsBodyRtaMongodbAgent{
-					Password: pointer.ToString("new-rotated-rta-mongodb-password"),
+					Password: new("new-rotated-rta-mongodb-password"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -218,8 +217,8 @@ func TestRTAMongoDBAgent(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				RtaMongodbAgent: &agents.ChangeAgentParamsBodyRtaMongodbAgent{
-					Username: pointer.ToString("new-rta-mongodb-user"),
-					Password: pointer.ToString("another-new-rta-mongodb-password"),
+					Username: new("new-rta-mongodb-user"),
+					Password: new("another-new-rta-mongodb-password"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -269,7 +268,7 @@ func TestRTAMongoDBAgent(t *testing.T) {
 				RtaOptions: &agents.AddAgentParamsBodyRtaMongodbAgentRtaOptions{
 					CollectInterval: "6s",
 				},
-				LogLevel:            pointer.ToString("LOG_LEVEL_DEBUG"),
+				LogLevel:            new("LOG_LEVEL_DEBUG"),
 				SkipConnectionCheck: true,
 			},
 		})
@@ -280,7 +279,7 @@ func TestRTAMongoDBAgent(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				RtaMongodbAgent: &agents.ChangeAgentParamsBodyRtaMongodbAgent{
-					Username: pointer.ToString("updated-profiler-user"),
+					Username: new("updated-profiler-user"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -302,9 +301,9 @@ func TestRTAMongoDBAgent(t *testing.T) {
 			"environment": "test",
 			"team":        "dev",
 		}, agent.CustomLabels) // Unchanged
-		assert.Equal(t, "6s", agent.RtaOptions.CollectInterval)              // Unchanged
-		assert.Equal(t, pointer.ToString("LOG_LEVEL_DEBUG"), agent.LogLevel) // Unchanged
-		assert.False(t, agent.Disabled)                                      // Unchanged
+		assert.Equal(t, "6s", agent.RtaOptions.CollectInterval) // Unchanged
+		assert.Equal(t, new("LOG_LEVEL_DEBUG"), agent.LogLevel) // Unchanged
+		assert.False(t, agent.Disabled)                         // Unchanged
 	})
 
 	t.Run("ChangeAllAvailableFields", func(t *testing.T) {
@@ -339,7 +338,7 @@ func TestRTAMongoDBAgent(t *testing.T) {
 				RtaOptions: &agents.AddAgentParamsBodyRtaMongodbAgentRtaOptions{
 					CollectInterval: "6s",
 				},
-				LogLevel:            pointer.ToString("LOG_LEVEL_WARN"),
+				LogLevel:            new("LOG_LEVEL_WARN"),
 				SkipConnectionCheck: true,
 			},
 		})
@@ -350,10 +349,10 @@ func TestRTAMongoDBAgent(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				RtaMongodbAgent: &agents.ChangeAgentParamsBodyRtaMongodbAgent{
-					Username:      pointer.ToString("changed-mongodb-user"),
-					Password:      pointer.ToString("changed-mongodb-password"),
-					TLS:           pointer.ToBool(true),
-					TLSSkipVerify: pointer.ToBool(false),
+					Username:      new("changed-mongodb-user"),
+					Password:      new("changed-mongodb-password"),
+					TLS:           new(true),
+					TLSSkipVerify: new(false),
 					CustomLabels: &agents.ChangeAgentParamsBodyRtaMongodbAgentCustomLabels{
 						Values: map[string]string{
 							"environment": "production",
@@ -364,8 +363,8 @@ func TestRTAMongoDBAgent(t *testing.T) {
 					RtaOptions: &agents.ChangeAgentParamsBodyRtaMongodbAgentRtaOptions{
 						CollectInterval: "10s",
 					},
-					LogLevel: pointer.ToString("LOG_LEVEL_DEBUG"),
-					Enable:   pointer.ToBool(false), // disable the agent
+					LogLevel: new("LOG_LEVEL_DEBUG"),
+					Enable:   new(false), // disable the agent
 				},
 			},
 			Context: pmmapitests.Context,
@@ -390,7 +389,7 @@ func TestRTAMongoDBAgent(t *testing.T) {
 				CollectInterval: "10s",
 			},
 			Status:   &AgentStatusDone,
-			LogLevel: pointer.ToString("LOG_LEVEL_DEBUG"),
+			LogLevel: new("LOG_LEVEL_DEBUG"),
 		}
 
 		assert.Equal(t, expectedAgent, changeRTAAgentOK.Payload.RtaMongodbAgent)
@@ -419,7 +418,7 @@ func TestRTAMongoDBAgent(t *testing.T) {
 				CollectInterval: "10s",
 			},
 			Status:   &AgentStatusDone,
-			LogLevel: pointer.ToString("LOG_LEVEL_DEBUG"),
+			LogLevel: new("LOG_LEVEL_DEBUG"),
 		}
 
 		assert.Equal(t, expectedGetAgent, getAgentRes.Payload.RtaMongodbAgent)

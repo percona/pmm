@@ -20,7 +20,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/AlekSi/pointer"
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resourcegraph/armresourcegraph"
 	"github.com/sirupsen/logrus"
@@ -96,13 +95,11 @@ func (s *ManagementService) fetchAzureDatabaseInstancesData(
 	req *managementv1.DiscoverAzureDatabaseRequest,
 	client *armresourcegraph.Client,
 ) ([]AzureDatabaseInstanceData, error) {
-	query := azureDatabaseResourceQuery
-	resultFormat := armresourcegraph.ResultFormatObjectArray
 	request := armresourcegraph.QueryRequest{
 		Subscriptions: []*string{&req.AzureSubscriptionId},
-		Query:         &query,
+		Query:         new(azureDatabaseResourceQuery),
 		Options: &armresourcegraph.QueryRequestOptions{
-			ResultFormat: &resultFormat,
+			ResultFormat: new(armresourcegraph.ResultFormatObjectArray),
 		},
 	}
 
@@ -253,7 +250,7 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 			Environment:  req.Environment,
 			CustomLabels: req.CustomLabels,
 			Address:      &req.Address,
-			Port:         pointer.ToUint16(uint16(req.Port)), //nolint:gosec // port is a uint16
+			Port:         new(uint16(req.Port)), //nolint:gosec // port is a uint16
 		})
 		if err != nil {
 			return err

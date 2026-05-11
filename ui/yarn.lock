@@ -1613,16 +1613,15 @@
   resolved "https://registry.yarnpkg.com/@percona/eslint-config-react/-/eslint-config-react-1.1.0.tgz#db69fcf5d6bb43e6c842f462e2c1c84d5f3eb281"
   integrity sha512-Tk9mNYslXrxW/gdS/rzxHbLuEXoNCw8r2t/pB8CXZjBl46VLMGspljbyI6525uNNfyO5H0iJQKCJu0Ckf+5erA==
 
-"@percona/percona-ui@1.0.13":
-  version "1.0.13"
-  resolved "https://registry.yarnpkg.com/@percona/percona-ui/-/percona-ui-1.0.13.tgz#7940f6feae4103c09a5021bfc8663cbb89e1afa4"
-  integrity sha512-I4jMkQf3l8pwT/j15L7X6rOynpcCwOypvcP75FXbM67TadG2FajkB3XQiMrUfGqvd8qZ0V9CEwiUANEzbZg2uQ==
+"@percona/percona-ui@1.0.16":
+  version "1.0.16"
+  resolved "https://registry.yarnpkg.com/@percona/percona-ui/-/percona-ui-1.0.16.tgz#103d2611458890100963089c8729d447c28c39e7"
+  integrity sha512-cHdwPimD1MPHv0RCuGIp6XAgBvhlEpIP6ybTNfEs4pLi/B3ukh0h7rRLUiGck+ocj1TEFsJSzv3ayhFFYCJVhw==
   dependencies:
     "@fontsource/poppins" "^5.2.7"
     "@fontsource/roboto" "^5.2.9"
     "@fontsource/roboto-mono" "^5.2.8"
     material-react-table "^1.15.1"
-    react-hook-form "^7.68.0"
     react-is "18.3.1"
 
 "@percona/prettier-config@^1.1.0":
@@ -9314,11 +9313,6 @@ react-hook-form@^7.49.2:
   version "7.62.0"
   resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-7.62.0.tgz#2d81e13c2c6b6d636548e440818341ca753218d0"
   integrity sha512-7KWFejc98xqG/F4bAxpL41NB3o1nnvQO1RWZT3TqRZYL8RryQETGfEdVnJN2fy1crCiBLLjkRBVK05j24FxJGA==
-
-react-hook-form@^7.68.0:
-  version "7.71.1"
-  resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-7.71.1.tgz#6a758958861682cf0eb22131eead684ba3618f66"
-  integrity sha512-9SUJKCGKo8HUSsCO+y0CtqkqI5nNuaDqTxyqPsZPqIwudpj4rCrAz/jZV+jn57bx5gtZKOh3neQu94DXMc+w5w==
 
 react-i18next@^15.0.0:
   version "15.7.4"
