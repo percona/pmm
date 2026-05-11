@@ -25,7 +25,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/pkg/sftp"
 	"github.com/sirupsen/logrus"
@@ -124,13 +123,11 @@ func (s *Service) StartDump(ctx context.Context, req *dumpv1beta1.StartDumpReque
 	}
 
 	if req.StartTime != nil {
-		startTime := req.StartTime.AsTime()
-		params.StartTime = &startTime
+		params.StartTime = new(req.StartTime.AsTime())
 	}
 
 	if req.EndTime != nil {
-		endTime := req.EndTime.AsTime()
-		params.EndTime = &endTime
+		params.EndTime = new(req.EndTime.AsTime())
 	}
 
 	if params.StartTime != nil && params.EndTime != nil {
@@ -187,7 +184,7 @@ func (s *Service) GetDumpLogs(_ context.Context, req *dumpv1beta1.GetDumpLogsReq
 		Offset: int(req.Offset),
 	}
 	if req.Limit > 0 {
-		filter.Limit = pointer.ToInt(int(req.Limit))
+		filter.Limit = new(int(req.Limit))
 	}
 
 	dumpLogs, err := models.FindDumpLogs(s.db.Querier, filter)

@@ -710,7 +710,8 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		s.checksService.UpdateIntervals(
 			newSettings.SaaS.AdvisorRunIntervals.RareInterval,
 			newSettings.SaaS.AdvisorRunIntervals.StandardInterval,
-			newSettings.SaaS.AdvisorRunIntervals.FrequentInterval)
+			newSettings.SaaS.AdvisorRunIntervals.FrequentInterval,
+		)
 	}
 
 	// When Advisor is moved from disabled to enabled state, force checks download and execution.
@@ -742,10 +743,9 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 }
 
 func (s *Server) getInternalPgQANAgent(q *reform.Querier) (*models.Agent, error) {
-	agentType := models.QANPostgreSQLPgStatementsAgentType
 	agents, err := models.FindAgents(q, models.AgentFilters{
 		PMMAgentID: models.PMMServerAgentID,
-		AgentType:  &agentType,
+		AgentType:  new(models.QANPostgreSQLPgStatementsAgentType),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to find agents: %w", err)

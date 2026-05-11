@@ -15,10 +15,15 @@ on:
   pull_request:
     paths-ignore:
       - "documentation/**"
-      - "dashboards/**"  
+      - "dashboards/**"
 
 permissions:
   contents: read
+
+env:
+  GONOPROXY: 'github.com/percona,github.com/Percona-Lab'
+  GONOSUMDB: 'github.com/percona,github.com/Percona-Lab'
+  GOPRIVATE: 'github.com/percona,github.com/Percona-Lab'
 
 jobs:
   check:
@@ -119,7 +124,7 @@ jobs:
           fail_level: error
           cache: false
           golangci_lint_flags: "-c=.golangci.yml"
-          golangci_lint_version: v2.6.2 # Version should match specified in Makefile
+          golangci_lint_version: v2.12.2 # Version should match specified in Makefile
 
       - name: Test common API
         run: make test-common

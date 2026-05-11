@@ -305,7 +305,7 @@ func TestBackupLocations(t *testing.T) {
 			ServiceType: models.MySQLServiceType,
 			ServiceName: "Service 1",
 			NodeID:      nodeID1,
-			Address:     pointer.ToString("127.0.0.1"),
+			Address:     new("127.0.0.1"),
 			Port:        pointer.ToUint16OrNil(777),
 		}
 		require.NoError(t, q.Insert(s))

@@ -113,9 +113,9 @@ func (cmd *ListAgentsCommand) RunCmd() (commands.Result, error) {
 	}
 
 	params := &agents.ListAgentsParams{
-		PMMAgentID: pointer.ToString(cmd.PMMAgentID),
-		ServiceID:  pointer.ToString(cmd.ServiceID),
-		NodeID:     pointer.ToString(cmd.NodeID),
+		PMMAgentID: new(cmd.PMMAgentID),
+		ServiceID:  new(cmd.ServiceID),
+		NodeID:     new(cmd.NodeID),
 		AgentType:  agentType,
 		Context:    commands.Ctx,
 	}

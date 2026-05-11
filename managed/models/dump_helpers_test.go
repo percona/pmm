@@ -20,7 +20,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
@@ -42,11 +41,9 @@ func TestDumps(t *testing.T) {
 	t.Run("create", func(t *testing.T) {
 		t.Run("normal non-encrypted", func(t *testing.T) {
 			endTime := time.Now()
-			startTime := endTime.Add(-10 * time.Minute)
-
 			createDumpParams := models.CreateDumpParams{
 				ServiceNames: []string{"foo", "bar"},
-				StartTime:    &startTime,
+				StartTime:    new(endTime.Add(-10 * time.Minute)),
 				EndTime:      &endTime,
 				ExportQAN:    false,
 				IgnoreLoad:   true,
@@ -88,11 +85,9 @@ func TestDumps(t *testing.T) {
 
 		t.Run("invalid start and end time", func(t *testing.T) {
 			endTime := time.Now()
-			startTime := endTime.Add(10 * time.Minute)
-
 			createDumpParams := models.CreateDumpParams{
 				ServiceNames: []string{"foo", "bar"},
-				StartTime:    &startTime,
+				StartTime:    new(endTime.Add(10 * time.Minute)),
 				EndTime:      &endTime,
 				ExportQAN:    false,
 				IgnoreLoad:   true,
@@ -263,7 +258,7 @@ func TestDumpLogs(t *testing.T) {
 				Name: "dump filter and limit",
 				Filters: models.DumpLogsFilter{
 					DumpID: dump1.ID,
-					Limit:  pointer.ToInt(1),
+					Limit:  new(1),
 				},
 				Expect: []expectLog{
 					{
@@ -277,7 +272,7 @@ func TestDumpLogs(t *testing.T) {
 				Filters: models.DumpLogsFilter{
 					DumpID: dump1.ID,
 					Offset: 1,
-					Limit:  pointer.ToInt(1),
+					Limit:  new(1),
 				},
 				Expect: []expectLog{
 					{

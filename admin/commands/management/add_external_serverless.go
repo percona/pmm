@@ -21,7 +21,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/admin/commands"
@@ -130,7 +129,7 @@ func (cmd *AddExternalServerlessCommand) RunCmd() (commands.Result, error) {
 		Body: mservice.AddServiceBody{
 			External: &mservice.AddServiceParamsBodyExternal{
 				AddNode: &mservice.AddServiceParamsBodyExternalAddNode{
-					NodeType:      pointer.ToString(mservice.AddServiceParamsBodyExternalAddNodeNodeTypeNODETYPEREMOTENODE),
+					NodeType:      new(mservice.AddServiceParamsBodyExternalAddNodeNodeTypeNODETYPEREMOTENODE),
 					NodeName:      serviceName,
 					MachineID:     cmd.MachineID,
 					Distro:        cmd.Distro,
@@ -152,7 +151,7 @@ func (cmd *AddExternalServerlessCommand) RunCmd() (commands.Result, error) {
 				Cluster:             cmd.Cluster,
 				ReplicationSet:      cmd.ReplicationSet,
 				CustomLabels:        *customLabels,
-				MetricsMode:         pointer.ToString(mservice.AddServiceParamsBodyExternalMetricsModeMETRICSMODEPULL),
+				MetricsMode:         new(mservice.AddServiceParamsBodyExternalMetricsModeMETRICSMODEPULL),
 				Group:               cmd.Group,
 				SkipConnectionCheck: cmd.SkipConnectionCheck,
 				TLSSkipVerify:       cmd.TLSSkipVerify,
