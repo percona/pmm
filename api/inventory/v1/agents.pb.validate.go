@@ -134,7 +134,8 @@ func (e PMMAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = PMMAgentValidationError{}
@@ -242,7 +243,8 @@ func (e VMAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = VMAgentValidationError{}
@@ -353,7 +355,8 @@ func (e NomadAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = NomadAgentValidationError{}
@@ -501,7 +504,8 @@ func (e NodeExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = NodeExporterValidationError{}
@@ -701,7 +705,8 @@ func (e MySQLdExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = MySQLdExporterValidationError{}
@@ -891,7 +896,8 @@ func (e MongoDBExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = MongoDBExporterValidationError{}
@@ -1081,7 +1087,8 @@ func (e PostgresExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = PostgresExporterValidationError{}
@@ -1267,7 +1274,8 @@ func (e ProxySQLExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ProxySQLExporterValidationError{}
@@ -1451,7 +1459,8 @@ func (e ValkeyExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ValkeyExporterValidationError{}
@@ -1589,7 +1598,8 @@ func (e QANMySQLPerfSchemaAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = QANMySQLPerfSchemaAgentValidationError{}
@@ -1729,7 +1739,8 @@ func (e QANMySQLSlowlogAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = QANMySQLSlowlogAgentValidationError{}
@@ -1855,7 +1866,8 @@ func (e QANMongoDBProfilerAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = QANMongoDBProfilerAgentValidationError{}
@@ -1981,7 +1993,8 @@ func (e QANMongoDBMongologAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = QANMongoDBMongologAgentValidationError{}
@@ -2110,7 +2123,8 @@ func (e RTAOptionsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = RTAOptionsValidationError{}
@@ -2259,7 +2273,8 @@ func (e RTAMongoDBAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = RTAMongoDBAgentValidationError{}
@@ -2388,7 +2403,8 @@ func (e QANPostgreSQLPgStatementsAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = QANPostgreSQLPgStatementsAgentValidationError{}
@@ -2519,7 +2535,8 @@ func (e QANPostgreSQLPgStatMonitorAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = QANPostgreSQLPgStatMonitorAgentValidationError{}
@@ -2675,7 +2692,8 @@ func (e RDSExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = RDSExporterValidationError{}
@@ -2830,7 +2848,8 @@ func (e ExternalExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ExternalExporterValidationError{}
@@ -2985,7 +3004,8 @@ func (e AzureDatabaseExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AzureDatabaseExporterValidationError{}
@@ -3155,7 +3175,8 @@ func (e ChangeCommonAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ChangeCommonAgentParamsValidationError{}
@@ -3265,7 +3286,8 @@ func (e ListAgentsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ListAgentsRequestValidationError{}
@@ -4013,7 +4035,8 @@ func (e ListAgentsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ListAgentsResponseValidationError{}
@@ -4124,7 +4147,8 @@ func (e GetAgentRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = GetAgentRequestValidationError{}
@@ -5008,7 +5032,8 @@ func (e GetAgentResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = GetAgentResponseValidationError{}
@@ -5123,7 +5148,8 @@ func (e GetAgentLogsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = GetAgentLogsRequestValidationError{}
@@ -5227,7 +5253,8 @@ func (e GetAgentLogsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = GetAgentLogsResponseValidationError{}
@@ -6029,7 +6056,8 @@ func (e AddAgentRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AddAgentRequestValidationError{}
@@ -6831,7 +6859,8 @@ func (e AddAgentResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AddAgentResponseValidationError{}
@@ -7646,7 +7675,8 @@ func (e ChangeAgentRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ChangeAgentRequestValidationError{}
@@ -8450,7 +8480,8 @@ func (e ChangeAgentResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ChangeAgentResponseValidationError{}
@@ -8565,7 +8596,8 @@ func (e AddPMMAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AddPMMAgentParamsValidationError{}
@@ -8686,7 +8718,8 @@ func (e AddNodeExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AddNodeExporterParamsValidationError{}
@@ -8864,7 +8897,8 @@ func (e ChangeNodeExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ChangeNodeExporterParamsValidationError{}
@@ -9057,7 +9091,8 @@ func (e AddMySQLdExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AddMySQLdExporterParamsValidationError{}
@@ -9305,7 +9340,8 @@ func (e ChangeMySQLdExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ChangeMySQLdExporterParamsValidationError{}
@@ -9493,7 +9529,8 @@ func (e AddMongoDBExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AddMongoDBExporterParamsValidationError{}
@@ -9754,7 +9791,8 @@ func (e ChangeMongoDBExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ChangeMongoDBExporterParamsValidationError{}
@@ -9947,7 +9985,8 @@ func (e AddPostgresExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AddPostgresExporterParamsValidationError{}
@@ -10200,7 +10239,8 @@ func (e ChangePostgresExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ChangePostgresExporterParamsValidationError{}
@@ -10383,7 +10423,8 @@ func (e AddProxySQLExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AddProxySQLExporterParamsValidationError{}
@@ -10612,7 +10653,8 @@ func (e ChangeProxySQLExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ChangeProxySQLExporterParamsValidationError{}
@@ -10776,7 +10818,8 @@ func (e AddQANMySQLPerfSchemaAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AddQANMySQLPerfSchemaAgentParamsValidationError{}
@@ -10997,7 +11040,8 @@ func (e ChangeQANMySQLPerfSchemaAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ChangeQANMySQLPerfSchemaAgentParamsValidationError{}
@@ -11161,7 +11205,8 @@ func (e AddQANMySQLSlowlogAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AddQANMySQLSlowlogAgentParamsValidationError{}
@@ -11386,7 +11431,8 @@ func (e ChangeQANMySQLSlowlogAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ChangeQANMySQLSlowlogAgentParamsValidationError{}
@@ -11539,7 +11585,8 @@ func (e AddQANMongoDBProfilerAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AddQANMongoDBProfilerAgentParamsValidationError{}
@@ -11756,7 +11803,8 @@ func (e ChangeQANMongoDBProfilerAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ChangeQANMongoDBProfilerAgentParamsValidationError{}
@@ -11909,7 +11957,8 @@ func (e AddQANMongoDBMongologAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AddQANMongoDBMongologAgentParamsValidationError{}
@@ -12126,7 +12175,8 @@ func (e ChangeQANMongoDBMongologAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ChangeQANMongoDBMongologAgentParamsValidationError{}
@@ -12287,7 +12337,8 @@ func (e AddQANPostgreSQLPgStatementsAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AddQANPostgreSQLPgStatementsAgentParamsValidationError{}
@@ -12501,7 +12552,8 @@ func (e ChangeQANPostgreSQLPgStatementsAgentParamsValidationError) Error() strin
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ChangeQANPostgreSQLPgStatementsAgentParamsValidationError{}
@@ -12664,7 +12716,8 @@ func (e AddQANPostgreSQLPgStatMonitorAgentParamsValidationError) Error() string 
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AddQANPostgreSQLPgStatMonitorAgentParamsValidationError{}
@@ -12882,7 +12935,8 @@ func (e ChangeQANPostgreSQLPgStatMonitorAgentParamsValidationError) Error() stri
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ChangeQANPostgreSQLPgStatMonitorAgentParamsValidationError{}
@@ -13022,7 +13076,8 @@ func (e AddRDSExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AddRDSExporterParamsValidationError{}
@@ -13212,7 +13267,8 @@ func (e ChangeRDSExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ChangeRDSExporterParamsValidationError{}
@@ -13352,7 +13408,8 @@ func (e AddExternalExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AddExternalExporterParamsValidationError{}
@@ -13539,7 +13596,8 @@ func (e ChangeExternalExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ChangeExternalExporterParamsValidationError{}
@@ -13693,7 +13751,8 @@ func (e AddAzureDatabaseExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AddAzureDatabaseExporterParamsValidationError{}
@@ -13890,7 +13949,8 @@ func (e ChangeAzureDatabaseExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ChangeAzureDatabaseExporterParamsValidationError{}
@@ -13996,7 +14056,8 @@ func (e ChangeNomadAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ChangeNomadAgentParamsValidationError{}
@@ -14194,7 +14255,8 @@ func (e AddValkeyExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AddValkeyExporterParamsValidationError{}
@@ -14443,7 +14505,8 @@ func (e ChangeValkeyExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ChangeValkeyExporterParamsValidationError{}
@@ -14618,7 +14681,8 @@ func (e AddRTAMongoDBAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AddRTAMongoDBAgentParamsValidationError{}
@@ -14823,7 +14887,8 @@ func (e ChangeRTAMongoDBAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ChangeRTAMongoDBAgentParamsValidationError{}
@@ -14938,7 +15003,8 @@ func (e RemoveAgentRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = RemoveAgentRequestValidationError{}
@@ -15040,7 +15106,8 @@ func (e RemoveAgentResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = RemoveAgentResponseValidationError{}

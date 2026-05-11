@@ -254,7 +254,8 @@ func (e AddProxySQLServiceParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AddProxySQLServiceParamsValidationError{}
@@ -414,7 +415,8 @@ func (e ProxySQLServiceResultValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ProxySQLServiceResultValidationError{}

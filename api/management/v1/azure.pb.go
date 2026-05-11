@@ -716,7 +716,7 @@ var (
 	file_management_v1_azure_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 	file_management_v1_azure_proto_msgTypes  = make([]protoimpl.MessageInfo, 6)
 	file_management_v1_azure_proto_goTypes   = []any{
-		(DiscoverAzureDatabaseType)(0),        // 0: management.v1.DiscoverAzureDatabaseType
+		DiscoverAzureDatabaseType(0),          // 0: management.v1.DiscoverAzureDatabaseType
 		(*DiscoverAzureDatabaseRequest)(nil),  // 1: management.v1.DiscoverAzureDatabaseRequest
 		(*DiscoverAzureDatabaseInstance)(nil), // 2: management.v1.DiscoverAzureDatabaseInstance
 		(*DiscoverAzureDatabaseResponse)(nil), // 3: management.v1.DiscoverAzureDatabaseResponse
@@ -726,7 +726,6 @@ var (
 		(*durationpb.Duration)(nil),           // 7: google.protobuf.Duration
 	}
 )
-
 var file_management_v1_azure_proto_depIdxs = []int32{
 	0, // 0: management.v1.DiscoverAzureDatabaseInstance.type:type_name -> management.v1.DiscoverAzureDatabaseType
 	2, // 1: management.v1.DiscoverAzureDatabaseResponse.azure_database_instance:type_name -> management.v1.DiscoverAzureDatabaseInstance

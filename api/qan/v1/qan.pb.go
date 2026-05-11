@@ -995,12 +995,11 @@ var (
 	file_qan_v1_qan_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 	file_qan_v1_qan_proto_msgTypes  = make([]protoimpl.MessageInfo, 2)
 	file_qan_v1_qan_proto_goTypes   = []any{
-		(ExampleType)(0),      // 0: qan.v1.ExampleType
+		ExampleType(0),        // 0: qan.v1.ExampleType
 		(*Point)(nil),         // 1: qan.v1.Point
 		(*MapFieldEntry)(nil), // 2: qan.v1.MapFieldEntry
 	}
 )
-
 var file_qan_v1_qan_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type

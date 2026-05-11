@@ -46,16 +46,16 @@ func (s *PostgresExporterConfigTestSuite) SetupTest() {
 		Address: "1.2.3.4",
 	}
 	s.postgresql = &models.Service{
-		Address:      pointer.ToString("1.2.3.4"),
-		Port:         pointer.ToUint16(5432),
+		Address:      new("1.2.3.4"),
+		Port:         new(uint16(5432)),
 		DatabaseName: "postgres",
 	}
 	s.exporter = &models.Agent{
 		AgentID:       "agent-id",
 		AgentType:     models.PostgresExporterType,
-		Username:      pointer.ToString("username"),
-		Password:      pointer.ToString("s3cur3 p@$$w0r4."),
-		AgentPassword: pointer.ToString("agent-password"),
+		Username:      new("username"),
+		Password:      new("s3cur3 p@$$w0r4."),
+		AgentPassword: new("agent-password"),
 	}
 	s.expected = &agentv1.SetStateRequest_AgentProcess{
 		Type:               inventoryv1.AgentType_AGENT_TYPE_POSTGRES_EXPORTER,
@@ -163,7 +163,7 @@ func (s *PostgresExporterConfigTestSuite) TestSocket() {
 	s.exporter.Password = nil
 	s.postgresql.Address = nil
 	s.postgresql.Port = nil
-	s.postgresql.Socket = pointer.ToString("/var/run/postgres")
+	s.postgresql.Socket = new("/var/run/postgres")
 	s.exporter.ExporterOptions = models.ExporterOptions{}
 	s.exporter.AzureOptions = models.AzureOptions{}
 	s.exporter.PostgreSQLOptions = models.PostgreSQLOptions{}
@@ -178,7 +178,7 @@ func (s *PostgresExporterConfigTestSuite) TestDisabledCollectors() {
 	s.pmmAgentVersion = version.MustParse("2.42.0")
 	s.postgresql.Address = nil
 	s.postgresql.Port = nil
-	s.postgresql.Socket = pointer.ToString("/var/run/postgres")
+	s.postgresql.Socket = new("/var/run/postgres")
 	s.exporter.ExporterOptions = models.ExporterOptions{
 		DisabledCollectors: []string{"custom_query.hr", "custom_query.hr.directory", "locks"},
 	}
@@ -290,15 +290,15 @@ func TestAutoDiscovery(t *testing.T) {
 	}
 
 	postgresql := &models.Service{
-		Address:      pointer.ToString("1.2.3.4"),
-		Port:         pointer.ToUint16(5432),
+		Address:      new("1.2.3.4"),
+		Port:         new(uint16(5432)),
 		DatabaseName: "postgres",
 	}
 	exporter := &models.Agent{
 		AgentID:           "agent-id",
 		AgentType:         models.PostgresExporterType,
-		Username:          pointer.ToString("username"),
-		Password:          pointer.ToString("s3cur3 p@$$w0r4."),
+		Username:          new("username"),
+		Password:          new("s3cur3 p@$$w0r4."),
 		ExporterOptions:   models.ExporterOptions{},
 		AzureOptions:      models.AzureOptions{},
 		PostgreSQLOptions: models.PostgreSQLOptions{},
@@ -342,7 +342,7 @@ func TestAutoDiscovery(t *testing.T) {
 
 	t.Run("Database count more than limit - disabled", func(t *testing.T) {
 		exporter.PostgreSQLOptions = models.PostgreSQLOptions{
-			AutoDiscoveryLimit: pointer.ToInt32(5),
+			AutoDiscoveryLimit: new(int32(5)),
 			DatabaseCount:      10,
 		}
 		res, err := postgresExporterConfig(node, postgresql, exporter, redactSecrets, pmmAgentVersion)
@@ -353,7 +353,7 @@ func TestAutoDiscovery(t *testing.T) {
 
 	t.Run("Database count equal to limit - enabled", func(t *testing.T) {
 		exporter.PostgreSQLOptions = models.PostgreSQLOptions{
-			AutoDiscoveryLimit: pointer.ToInt32(5),
+			AutoDiscoveryLimit: new(int32(5)),
 			DatabaseCount:      5,
 		}
 		res, err := postgresExporterConfig(node, postgresql, exporter, redactSecrets, pmmAgentVersion)
@@ -364,7 +364,7 @@ func TestAutoDiscovery(t *testing.T) {
 
 	t.Run("Database count less than limit - enabled", func(t *testing.T) {
 		exporter.PostgreSQLOptions = models.PostgreSQLOptions{
-			AutoDiscoveryLimit: pointer.ToInt32(5),
+			AutoDiscoveryLimit: new(int32(5)),
 			DatabaseCount:      3,
 		}
 		res, err := postgresExporterConfig(node, postgresql, exporter, redactSecrets, pmmAgentVersion)
@@ -375,7 +375,7 @@ func TestAutoDiscovery(t *testing.T) {
 
 	t.Run("Negative limit - disabled", func(t *testing.T) {
 		exporter.PostgreSQLOptions = models.PostgreSQLOptions{
-			AutoDiscoveryLimit: pointer.ToInt32(-1),
+			AutoDiscoveryLimit: new(int32(-1)),
 			DatabaseCount:      3,
 		}
 		res, err := postgresExporterConfig(node, postgresql, exporter, redactSecrets, pmmAgentVersion)
@@ -386,7 +386,7 @@ func TestAutoDiscovery(t *testing.T) {
 
 	t.Run("Default - enabled", func(t *testing.T) {
 		exporter.PostgreSQLOptions = models.PostgreSQLOptions{
-			AutoDiscoveryLimit: pointer.ToInt32(0),
+			AutoDiscoveryLimit: new(int32(0)),
 			DatabaseCount:      3,
 		}
 		res, err := postgresExporterConfig(node, postgresql, exporter, redactSecrets, pmmAgentVersion)
@@ -405,15 +405,15 @@ func TestMaxConnections(t *testing.T) {
 	}
 
 	postgresql := &models.Service{
-		Address:      pointer.ToString("1.2.3.4"),
-		Port:         pointer.ToUint16(5432),
+		Address:      new("1.2.3.4"),
+		Port:         new(uint16(5432)),
 		DatabaseName: "postgres",
 	}
 	exporter := &models.Agent{
 		AgentID:         "agent-id",
 		AgentType:       models.PostgresExporterType,
-		Username:        pointer.ToString("username"),
-		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+		Username:        new("username"),
+		Password:        new("s3cur3 p@$$w0r4."),
 		ExporterOptions: models.ExporterOptions{},
 		AzureOptions:    models.AzureOptions{},
 		PostgreSQLOptions: models.PostgreSQLOptions{
@@ -480,15 +480,15 @@ func (s *PostgresExporterConfigTestSuite) TestAzureTimeout() {
 	s.pmmAgentVersion = version.MustParse("2.16.0")
 
 	s.postgresql = &models.Service{
-		Address:      pointer.ToString("1.2.3.4"),
-		Port:         pointer.ToUint16(5432),
+		Address:      new("1.2.3.4"),
+		Port:         new(uint16(5432)),
 		DatabaseName: "postgres",
 	}
 	s.exporter = &models.Agent{
 		AgentID:         "agent-id",
 		AgentType:       models.PostgresExporterType,
-		Username:        pointer.ToString("username"),
-		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+		Username:        new("username"),
+		Password:        new("s3cur3 p@$$w0r4."),
 		ExporterOptions: models.ExporterOptions{},
 		AzureOptions: models.AzureOptions{
 			SubscriptionID: "subscription_id",
@@ -534,15 +534,15 @@ func (s *PostgresExporterConfigTestSuite) TestPrometheusWebConfig() {
 	s.pmmAgentVersion = version.MustParse("2.31.0")
 
 	s.postgresql = &models.Service{
-		Address:      pointer.ToString("1.2.3.4"),
-		Port:         pointer.ToUint16(5432),
+		Address:      new("1.2.3.4"),
+		Port:         new(uint16(5432)),
 		DatabaseName: "postgres",
 	}
 	s.exporter = &models.Agent{
 		AgentID:           "agent-id",
 		AgentType:         models.PostgresExporterType,
-		Username:          pointer.ToString("username"),
-		Password:          pointer.ToString("s3cur3 p@$$w0r4."),
+		Username:          new("username"),
+		Password:          new("s3cur3 p@$$w0r4."),
 		TLS:               true,
 		ExporterOptions:   models.ExporterOptions{},
 		AzureOptions:      models.AzureOptions{},
@@ -586,15 +586,15 @@ func (s *PostgresExporterConfigTestSuite) TestSSLSni() {
 	s.pmmAgentVersion = version.MustParse("2.41.0")
 
 	s.postgresql = &models.Service{
-		Address:      pointer.ToString("1.2.3.4"),
-		Port:         pointer.ToUint16(5432),
+		Address:      new("1.2.3.4"),
+		Port:         new(uint16(5432)),
 		DatabaseName: "postgres",
 	}
 	s.exporter = &models.Agent{
 		AgentID:           "agent-id",
 		AgentType:         models.PostgresExporterType,
-		Username:          pointer.ToString("username"),
-		Password:          pointer.ToString("s3cur3 p@$$w0r4."),
+		Username:          new("username"),
+		Password:          new("s3cur3 p@$$w0r4."),
 		TLS:               true,
 		ExporterOptions:   models.ExporterOptions{},
 		AzureOptions:      models.AzureOptions{},

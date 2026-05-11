@@ -31,8 +31,8 @@ import (
 
 func TestMySQLdExporterConfig(t *testing.T) {
 	mysql := &models.Service{
-		Address: pointer.ToString("1.2.3.4"),
-		Port:    pointer.ToUint16(3306),
+		Address: new("1.2.3.4"),
+		Port:    new(uint16(3306)),
 	}
 	node := &models.Node{
 		Address: "1.2.3.4",
@@ -40,9 +40,9 @@ func TestMySQLdExporterConfig(t *testing.T) {
 	exporter := &models.Agent{
 		AgentID:         "agent-id",
 		AgentType:       models.MySQLdExporterType,
-		Username:        pointer.ToString("username"),
-		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
-		AgentPassword:   pointer.ToString("agent-password"),
+		Username:        new("username"),
+		Password:        new("s3cur3 p@$$w0r4."),
+		AgentPassword:   new("agent-password"),
 		ExporterOptions: models.ExporterOptions{},
 		MySQLOptions:    models.MySQLOptions{},
 	}
@@ -160,14 +160,14 @@ func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 		Address: "1.2.3.4",
 	}
 	mysql := &models.Service{
-		Address: pointer.ToString("1.2.3.4"),
-		Port:    pointer.ToUint16(3306),
+		Address: new("1.2.3.4"),
+		Port:    new(uint16(3306)),
 	}
 	exporter := &models.Agent{
 		AgentID:         "agent-id",
 		AgentType:       models.MySQLdExporterType,
-		Username:        pointer.ToString("username"),
-		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+		Username:        new("username"),
+		Password:        new("s3cur3 p@$$w0r4."),
 		TLS:             true,
 		ExporterOptions: models.ExporterOptions{},
 		MySQLOptions: models.MySQLOptions{
@@ -270,14 +270,14 @@ func TestMySQLdExporterConfigDisabledCollectors(t *testing.T) {
 		Address: "1.2.3.4",
 	}
 	mysql := &models.Service{
-		Address: pointer.ToString("1.2.3.4"),
-		Port:    pointer.ToUint16(3306),
+		Address: new("1.2.3.4"),
+		Port:    new(uint16(3306)),
 	}
 	exporter := &models.Agent{
 		AgentID:   "agent-id",
 		AgentType: models.MySQLdExporterType,
-		Username:  pointer.ToString("username"),
-		Password:  pointer.ToString("s3cur3 p@$$w0r4."),
+		Username:  new("username"),
+		Password:  new("s3cur3 p@$$w0r4."),
 		ExporterOptions: models.ExporterOptions{
 			DisabledCollectors: []string{"heartbeat", "info_schema.clientstats", "perf_schema.eventsstatements", "custom_query.hr"},
 		},
@@ -341,8 +341,8 @@ func TestMySQLdExporterConfigDisabledCollectors(t *testing.T) {
 
 func TestMySQLdExporterConfigMySQL8Support(t *testing.T) {
 	mysql := &models.Service{
-		Address: pointer.ToString("1.2.3.4"),
-		Port:    pointer.ToUint16(3306),
+		Address: new("1.2.3.4"),
+		Port:    new(uint16(3306)),
 	}
 	node := &models.Node{
 		Address: "1.2.3.4",
@@ -350,9 +350,9 @@ func TestMySQLdExporterConfigMySQL8Support(t *testing.T) {
 	exporter := &models.Agent{
 		AgentID:         "agent-id",
 		AgentType:       models.MySQLdExporterType,
-		Username:        pointer.ToString("username"),
-		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
-		AgentPassword:   pointer.ToString("agent-password"),
+		Username:        new("username"),
+		Password:        new("s3cur3 p@$$w0r4."),
+		AgentPassword:   new("agent-password"),
 		ExporterOptions: models.ExporterOptions{},
 	}
 	pmmAgentVersion := version.MustParse("3.2.0")
@@ -491,7 +491,7 @@ func TestMySQLdExporterConfigMySQL8Support(t *testing.T) {
 
 	t.Run("EmptyUsername", func(t *testing.T) {
 		exporter.Username = nil
-		exporter.Password = pointer.ToString("s3cur3 p@$$w0r4.")
+		exporter.Password = new("s3cur3 p@$$w0r4.")
 		exporter.MySQLOptions = models.MySQLOptions{}
 		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
 		expected := &agentv1.SetStateRequest_AgentProcess{

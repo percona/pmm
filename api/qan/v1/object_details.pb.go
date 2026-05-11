@@ -1640,10 +1640,9 @@ var (
 		(*timestamppb.Timestamp)(nil),               // 26: google.protobuf.Timestamp
 		(*MapFieldEntry)(nil),                       // 27: qan.v1.MapFieldEntry
 		(*Point)(nil),                               // 28: qan.v1.Point
-		(ExampleType)(0),                            // 29: qan.v1.ExampleType
+		ExampleType(0),                              // 29: qan.v1.ExampleType
 	}
 )
-
 var file_qan_v1_object_details_proto_depIdxs = []int32{
 	26, // 0: qan.v1.GetMetricsRequest.period_start_from:type_name -> google.protobuf.Timestamp
 	26, // 1: qan.v1.GetMetricsRequest.period_start_to:type_name -> google.protobuf.Timestamp

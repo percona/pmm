@@ -18,7 +18,6 @@ package agents
 import (
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -32,8 +31,8 @@ func TestProxySQLExporterConfig(t *testing.T) {
 	t.Parallel()
 	pmmAgentVersion := version.MustParse("2.18.0")
 	proxysql := &models.Service{
-		Address: pointer.ToString("1.2.3.4"),
-		Port:    pointer.ToUint16(3306),
+		Address: new("1.2.3.4"),
+		Port:    new(uint16(3306)),
 	}
 	node := &models.Node{
 		Address: "1.2.3.4",
@@ -41,9 +40,9 @@ func TestProxySQLExporterConfig(t *testing.T) {
 	exporter := &models.Agent{
 		AgentID:         "agent-id",
 		AgentType:       models.ProxySQLExporterType,
-		Username:        pointer.ToString("username"),
-		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
-		AgentPassword:   pointer.ToString("agent-password"),
+		Username:        new("username"),
+		Password:        new("s3cur3 p@$$w0r4."),
+		AgentPassword:   new("agent-password"),
 		ExporterOptions: models.ExporterOptions{},
 	}
 	actual := proxysqlExporterConfig(node, proxysql, exporter, redactSecrets, pmmAgentVersion)
@@ -101,14 +100,14 @@ func TestProxySQLExporterConfig(t *testing.T) {
 		pmmAgentVersion := version.MustParse("2.19.0")
 
 		proxysql := &models.Service{
-			Address: pointer.ToString("1.2.3.4"),
-			Port:    pointer.ToUint16(3306),
+			Address: new("1.2.3.4"),
+			Port:    new(uint16(3306)),
 		}
 		exporter := &models.Agent{
 			AgentID:         "agent-id",
 			AgentType:       models.ProxySQLExporterType,
-			Username:        pointer.ToString("username"),
-			Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+			Username:        new("username"),
+			Password:        new("s3cur3 p@$$w0r4."),
 			ExporterOptions: models.ExporterOptions{},
 		}
 		actual := proxysqlExporterConfig(node, proxysql, exporter, redactSecrets, pmmAgentVersion)
@@ -142,14 +141,14 @@ func TestProxySQLExporterConfig(t *testing.T) {
 			Address: "1.2.3.4",
 		}
 		proxysql := &models.Service{
-			Address: pointer.ToString("1.2.3.4"),
-			Port:    pointer.ToUint16(3306),
+			Address: new("1.2.3.4"),
+			Port:    new(uint16(3306)),
 		}
 		exporter := &models.Agent{
 			AgentID:         "agent-id",
 			AgentType:       models.ProxySQLExporterType,
-			Username:        pointer.ToString("username"),
-			Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+			Username:        new("username"),
+			Password:        new("s3cur3 p@$$w0r4."),
 			ExporterOptions: models.ExporterOptions{},
 		}
 		actual := proxysqlExporterConfig(node, proxysql, exporter, redactSecrets, pmmAgentVersion)

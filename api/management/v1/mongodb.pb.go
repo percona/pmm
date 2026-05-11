@@ -549,8 +549,8 @@ var (
 		(*MongoDBServiceResult)(nil),       // 1: management.v1.MongoDBServiceResult
 		nil,                                // 2: management.v1.AddMongoDBServiceParams.CustomLabelsEntry
 		(*AddNodeParams)(nil),              // 3: management.v1.AddNodeParams
-		(MetricsMode)(0),                   // 4: management.v1.MetricsMode
-		(v1.LogLevel)(0),                   // 5: inventory.v1.LogLevel
+		MetricsMode(0),                     // 4: management.v1.MetricsMode
+		v1.LogLevel(0),                     // 5: inventory.v1.LogLevel
 		(*durationpb.Duration)(nil),        // 6: google.protobuf.Duration
 		(*v1.MongoDBService)(nil),          // 7: inventory.v1.MongoDBService
 		(*v1.MongoDBExporter)(nil),         // 8: inventory.v1.MongoDBExporter
@@ -559,7 +559,6 @@ var (
 		(*v1.RTAMongoDBAgent)(nil),         // 11: inventory.v1.RTAMongoDBAgent
 	}
 )
-
 var file_management_v1_mongodb_proto_depIdxs = []int32{
 	3,  // 0: management.v1.AddMongoDBServiceParams.add_node:type_name -> management.v1.AddNodeParams
 	2,  // 1: management.v1.AddMongoDBServiceParams.custom_labels:type_name -> management.v1.AddMongoDBServiceParams.CustomLabelsEntry

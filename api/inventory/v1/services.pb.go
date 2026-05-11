@@ -3288,7 +3288,7 @@ var (
 	file_inventory_v1_services_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 	file_inventory_v1_services_proto_msgTypes  = make([]protoimpl.MessageInfo, 42)
 	file_inventory_v1_services_proto_goTypes   = []any{
-		(ServiceType)(0),                       // 0: inventory.v1.ServiceType
+		ServiceType(0),                         // 0: inventory.v1.ServiceType
 		(*MySQLService)(nil),                   // 1: inventory.v1.MySQLService
 		(*MongoDBService)(nil),                 // 2: inventory.v1.MongoDBService
 		(*PostgreSQLService)(nil),              // 3: inventory.v1.PostgreSQLService
@@ -3334,7 +3334,6 @@ var (
 		(*common.StringMap)(nil),               // 43: common.StringMap
 	}
 )
-
 var file_inventory_v1_services_proto_depIdxs = []int32{
 	27, // 0: inventory.v1.MySQLService.custom_labels:type_name -> inventory.v1.MySQLService.CustomLabelsEntry
 	28, // 1: inventory.v1.MySQLService.extra_dsn_params:type_name -> inventory.v1.MySQLService.ExtraDsnParamsEntry

@@ -20,7 +20,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -40,16 +39,16 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 	t.Run("Normal", func(t *testing.T) {
 		prev := map[string]*eventsStatementsSummaryByDigest{
 			"Normal": {
-				Digest:          pointer.ToString("Normal"),
-				DigestText:      pointer.ToString("SELECT 'Normal'"),
+				Digest:          new("Normal"),
+				DigestText:      new("SELECT 'Normal'"),
 				CountStar:       10,
 				SumRowsAffected: 50,
 			},
 		}
 		current := map[string]*eventsStatementsSummaryByDigest{
 			"Normal": {
-				Digest:          pointer.ToString("Normal"),
-				DigestText:      pointer.ToString("SELECT 'Normal'"),
+				Digest:          new("Normal"),
+				DigestText:      new("SELECT 'Normal'"),
 				CountStar:       15, // +5
 				SumRowsAffected: 60, // +10
 			},
@@ -75,8 +74,8 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 		prev := make(map[string]*eventsStatementsSummaryByDigest)
 		current := map[string]*eventsStatementsSummaryByDigest{
 			"New": {
-				Digest:          pointer.ToString("New"),
-				DigestText:      pointer.ToString("SELECT 'New'"),
+				Digest:          new("New"),
+				DigestText:      new("SELECT 'New'"),
 				CountStar:       10,
 				SumRowsAffected: 50,
 			},
@@ -101,16 +100,16 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 	t.Run("Same", func(t *testing.T) {
 		prev := map[string]*eventsStatementsSummaryByDigest{
 			"Same": {
-				Digest:          pointer.ToString("Same"),
-				DigestText:      pointer.ToString("SELECT 'Same'"),
+				Digest:          new("Same"),
+				DigestText:      new("SELECT 'Same'"),
 				CountStar:       10,
 				SumRowsAffected: 50,
 			},
 		}
 		current := map[string]*eventsStatementsSummaryByDigest{
 			"Same": {
-				Digest:          pointer.ToString("Same"),
-				DigestText:      pointer.ToString("SELECT 'Same'"),
+				Digest:          new("Same"),
+				DigestText:      new("SELECT 'Same'"),
 				CountStar:       10,
 				SumRowsAffected: 50,
 			},
@@ -122,8 +121,8 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 	t.Run("Truncate", func(t *testing.T) {
 		prev := map[string]*eventsStatementsSummaryByDigest{
 			"Truncate": {
-				Digest:          pointer.ToString("Truncate"),
-				DigestText:      pointer.ToString("SELECT 'Truncate'"),
+				Digest:          new("Truncate"),
+				DigestText:      new("SELECT 'Truncate'"),
 				CountStar:       10,
 				SumRowsAffected: 50,
 			},
@@ -136,16 +135,16 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 	t.Run("TruncateAndNew", func(t *testing.T) {
 		prev := map[string]*eventsStatementsSummaryByDigest{
 			"TruncateAndNew": {
-				Digest:          pointer.ToString("TruncateAndNew"),
-				DigestText:      pointer.ToString("SELECT 'TruncateAndNew'"),
+				Digest:          new("TruncateAndNew"),
+				DigestText:      new("SELECT 'TruncateAndNew'"),
 				CountStar:       10,
 				SumRowsAffected: 50,
 			},
 		}
 		current := map[string]*eventsStatementsSummaryByDigest{
 			"TruncateAndNew": {
-				Digest:          pointer.ToString("TruncateAndNew"),
-				DigestText:      pointer.ToString("SELECT 'TruncateAndNew'"),
+				Digest:          new("TruncateAndNew"),
+				DigestText:      new("SELECT 'TruncateAndNew'"),
 				CountStar:       5,
 				SumRowsAffected: 25,
 			},

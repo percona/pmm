@@ -276,7 +276,8 @@ func (e AddMySQLServiceParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AddMySQLServiceParamsValidationError{}
@@ -496,7 +497,8 @@ func (e MySQLServiceResultValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = MySQLServiceResultValidationError{}

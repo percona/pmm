@@ -169,7 +169,8 @@ func (e DiscoverAzureDatabaseRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = DiscoverAzureDatabaseRequestValidationError{}
@@ -292,7 +293,8 @@ func (e DiscoverAzureDatabaseInstanceValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = DiscoverAzureDatabaseInstanceValidationError{}
@@ -429,7 +431,8 @@ func (e DiscoverAzureDatabaseResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = DiscoverAzureDatabaseResponseValidationError{}
@@ -701,7 +704,8 @@ func (e AddAzureDatabaseRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AddAzureDatabaseRequestValidationError{}
@@ -803,7 +807,8 @@ func (e AddAzureDatabaseResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AddAzureDatabaseResponseValidationError{}

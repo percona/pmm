@@ -673,8 +673,7 @@ func ProtoToModelNodeType(nodeType inventoryv1.NodeType) *models.NodeType {
 	if nodeType == inventoryv1.NodeType_NODE_TYPE_UNSPECIFIED {
 		return nil
 	}
-	result := nodeTypes[nodeType]
-	return &result
+	return new(nodeTypes[nodeType])
 }
 
 // ServiceTypes maps protobuf types to their string types.
@@ -693,6 +692,5 @@ func ProtoToModelServiceType(serviceType inventoryv1.ServiceType) *models.Servic
 	if serviceType == inventoryv1.ServiceType_SERVICE_TYPE_UNSPECIFIED {
 		return nil
 	}
-	result := ServiceTypes[serviceType]
-	return &result
+	return new(ServiceTypes[serviceType])
 }

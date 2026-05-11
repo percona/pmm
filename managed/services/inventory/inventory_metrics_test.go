@@ -109,21 +109,24 @@ func TestNewInventoryMetricsCollector(t *testing.T) {
 		if err := testutil.CollectAndCompare(
 			inventoryCollector,
 			strings.NewReader(expectedAgentMetrics),
-			"pmm_managed_inventory_agents"); err != nil {
+			"pmm_managed_inventory_agents",
+		); err != nil {
 			t.Errorf("Unexpected collecting result:\n%s", err)
 		}
 
 		if err := testutil.CollectAndCompare(
 			inventoryCollector,
 			strings.NewReader(expectedNodeMetrics),
-			"pmm_managed_inventory_nodes"); err != nil {
+			"pmm_managed_inventory_nodes",
+		); err != nil {
 			t.Errorf("Unexpected collecting result:\n%s", err)
 		}
 
 		if err := testutil.CollectAndCompare(
 			inventoryCollector,
 			strings.NewReader(expectedServiceMetrics),
-			"pmm_managed_inventory_services"); err != nil {
+			"pmm_managed_inventory_services",
+		); err != nil {
 			t.Errorf("Unexpected collecting result:\n%s", err)
 		}
 	})

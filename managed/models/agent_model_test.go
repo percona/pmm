@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
@@ -47,8 +48,8 @@ func TestAgent(t *testing.T) {
 
 	t.Run("DSN", func(t *testing.T) {
 		agent := &models.Agent{
-			Username:          pointer.ToString("username"),
-			Password:          pointer.ToString("s3cur3 p@$$w0r4."),
+			Username:          new("username"),
+			Password:          new("s3cur3 p@$$w0r4."),
 			ExporterOptions:   models.ExporterOptions{},
 			QANOptions:        models.QANOptions{},
 			MongoDBOptions:    models.MongoDBOptions{},
@@ -56,8 +57,8 @@ func TestAgent(t *testing.T) {
 			PostgreSQLOptions: models.PostgreSQLOptions{},
 		}
 		service := &models.Service{
-			Address: pointer.ToString("1.2.3.4"),
-			Port:    pointer.ToUint16(12345),
+			Address: new("1.2.3.4"),
+			Port:    new(uint16(12345)),
 		}
 		for typ, expected := range map[models.AgentType]string{
 			models.MySQLdExporterType:          "username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:12345)/database?timeout=1s",
@@ -84,14 +85,14 @@ func TestAgent(t *testing.T) {
 
 	t.Run("DSN socket", func(t *testing.T) {
 		agent := &models.Agent{
-			Username:        pointer.ToString("username"),
-			Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+			Username:        new("username"),
+			Password:        new("s3cur3 p@$$w0r4."),
 			ExporterOptions: models.ExporterOptions{},
 			QANOptions:      models.QANOptions{},
 			MySQLOptions:    models.MySQLOptions{},
 		}
 		service := &models.Service{
-			Socket: pointer.ToString("/var/run/mysqld/mysqld.sock"),
+			Socket: new("/var/run/mysqld/mysqld.sock"),
 		}
 		for typ, expected := range map[models.AgentType]string{
 			models.MySQLdExporterType:          "username:s3cur3 p@$$w0r4.@unix(/var/run/mysqld/mysqld.sock)/database?timeout=1s",
@@ -108,14 +109,14 @@ func TestAgent(t *testing.T) {
 
 	t.Run("DSN timeout", func(t *testing.T) {
 		agent := &models.Agent{
-			Username:        pointer.ToString("username"),
-			Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+			Username:        new("username"),
+			Password:        new("s3cur3 p@$$w0r4."),
 			ExporterOptions: models.ExporterOptions{},
 			QANOptions:      models.QANOptions{},
 			MongoDBOptions:  models.MongoDBOptions{},
 		}
 		service := &models.Service{
-			Socket: pointer.ToString("/var/run/mysqld/mysqld.sock"),
+			Socket: new("/var/run/mysqld/mysqld.sock"),
 		}
 		for typ, expected := range map[models.AgentType]string{
 			models.MongoDBExporterType:         "mongodb://username:s3cur3%20p%40$$w0r4.@%2Fvar%2Frun%2Fmysqld%2Fmysqld.sock/database?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000",
@@ -146,8 +147,8 @@ func TestAgent(t *testing.T) {
 			SSLKey:  "key",
 		}
 		agent := &models.Agent{
-			Username:          pointer.ToString("username"),
-			Password:          pointer.ToString("s3cur3 p@$$w0r4."),
+			Username:          new("username"),
+			Password:          new("s3cur3 p@$$w0r4."),
 			TLS:               true,
 			ExporterOptions:   models.ExporterOptions{},
 			MongoDBOptions:    mongoDBOptions,
@@ -155,8 +156,8 @@ func TestAgent(t *testing.T) {
 			PostgreSQLOptions: postgresqlOptions,
 		}
 		service := &models.Service{
-			Address: pointer.ToString("1.2.3.4"),
-			Port:    pointer.ToUint16(12345),
+			Address: new("1.2.3.4"),
+			Port:    new(uint16(12345)),
 		}
 
 		for typ, expected := range map[models.AgentType]string{
@@ -208,8 +209,8 @@ func TestAgent(t *testing.T) {
 
 	t.Run("DSN ssl-skip-verify", func(t *testing.T) {
 		agent := &models.Agent{
-			Username:          pointer.ToString("username"),
-			Password:          pointer.ToString("s3cur3 p@$$w0r4."),
+			Username:          new("username"),
+			Password:          new("s3cur3 p@$$w0r4."),
 			TLS:               true,
 			TLSSkipVerify:     true,
 			ExporterOptions:   models.ExporterOptions{},
@@ -219,8 +220,8 @@ func TestAgent(t *testing.T) {
 			PostgreSQLOptions: models.PostgreSQLOptions{},
 		}
 		service := &models.Service{
-			Address: pointer.ToString("1.2.3.4"),
-			Port:    pointer.ToUint16(12345),
+			Address: new("1.2.3.4"),
+			Port:    new(uint16(12345)),
 		}
 		for typ, expected := range map[models.AgentType]string{
 			models.MySQLdExporterType:          "username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:12345)/database?timeout=1s&tls=skip-verify",
@@ -248,15 +249,15 @@ func TestAgent(t *testing.T) {
 
 func TestPostgresAgentTLS(t *testing.T) {
 	agent := &models.Agent{
-		Username:          pointer.ToString("username"),
-		Password:          pointer.ToString("s3cur3 p@$$w0r4."),
+		Username:          new("username"),
+		Password:          new("s3cur3 p@$$w0r4."),
 		AgentType:         models.PostgresExporterType,
 		ExporterOptions:   models.ExporterOptions{},
 		PostgreSQLOptions: models.PostgreSQLOptions{},
 	}
 	service := &models.Service{
-		Address: pointer.ToString("1.2.3.4"),
-		Port:    pointer.ToUint16(12345),
+		Address: new("1.2.3.4"),
+		Port:    new(uint16(12345)),
 	}
 
 	for _, testCase := range []struct {
@@ -278,8 +279,8 @@ func TestPostgresAgentTLS(t *testing.T) {
 		t.Run(fmt.Sprintf("AutodiscoveryLimit set TLS:%v/TLSSkipVerify:%v", testCase.tls, testCase.tlsSkipVerify), func(t *testing.T) {
 			agent.TLS = testCase.tls
 			agent.TLSSkipVerify = testCase.tlsSkipVerify
-			agent.PostgreSQLOptions = models.PostgreSQLOptions{AutoDiscoveryLimit: pointer.ToInt32(10)}
-			require.Equal(t, testCase.expected, agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: "database"}, nil, nil))
+			agent.PostgreSQLOptions = models.PostgreSQLOptions{AutoDiscoveryLimit: new(int32(10))}
+			assert.Equal(t, testCase.expected, agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: "database"}, nil, nil))
 		})
 	}
 }
@@ -287,15 +288,15 @@ func TestPostgresAgentTLS(t *testing.T) {
 func TestValkey(t *testing.T) {
 	t.Run("Redis DSN", func(t *testing.T) {
 		agent := &models.Agent{
-			Username:        pointer.ToString("username"),
-			Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+			Username:        new("username"),
+			Password:        new("s3cur3 p@$$w0r4."),
 			AgentType:       models.ValkeyExporterType,
 			ExporterOptions: models.ExporterOptions{},
 			ValkeyOptions:   models.ValkeyOptions{},
 		}
 		service := &models.Service{
-			Address: pointer.ToString("1.2.3.4"),
-			Port:    pointer.ToUint16(12345),
+			Address: new("1.2.3.4"),
+			Port:    new(uint16(12345)),
 		}
 
 		expected := "redis://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345"
@@ -305,8 +306,8 @@ func TestValkey(t *testing.T) {
 
 	t.Run("Valkey DSN with TLS", func(t *testing.T) {
 		agent := &models.Agent{
-			Username:        pointer.ToString("username"),
-			Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+			Username:        new("username"),
+			Password:        new("s3cur3 p@$$w0r4."),
 			AgentType:       models.ValkeyExporterType,
 			ExporterOptions: models.ExporterOptions{},
 			TLS:             true,
@@ -317,8 +318,8 @@ func TestValkey(t *testing.T) {
 			},
 		}
 		service := &models.Service{
-			Address: pointer.ToString("1.2.3.4"),
-			Port:    pointer.ToUint16(12345),
+			Address: new("1.2.3.4"),
+			Port:    new(uint16(12345)),
 		}
 
 		expected := "rediss://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345"
@@ -330,7 +331,7 @@ func TestValkey(t *testing.T) {
 func TestPostgresWithSocket(t *testing.T) {
 	t.Run("empty-password", func(t *testing.T) {
 		agent := &models.Agent{
-			Username:          pointer.ToString("username"),
+			Username:          new("username"),
 			AgentType:         models.PostgresExporterType,
 			TLS:               true,
 			TLSSkipVerify:     false,
@@ -338,7 +339,7 @@ func TestPostgresWithSocket(t *testing.T) {
 			PostgreSQLOptions: models.PostgreSQLOptions{},
 		}
 		service := &models.Service{
-			Socket: pointer.ToString("/var/run/postgres"),
+			Socket: new("/var/run/postgres"),
 		}
 		expect := "postgres://username@/database?connect_timeout=1&host=%2Fvar%2Frun%2Fpostgres&sslmode=verify-ca"
 		require.Equal(t, expect, agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: "database"}, nil, nil))
@@ -351,7 +352,7 @@ func TestPostgresWithSocket(t *testing.T) {
 			PostgreSQLOptions: models.PostgreSQLOptions{},
 		}
 		service := &models.Service{
-			Socket: pointer.ToString("/var/run/postgres"),
+			Socket: new("/var/run/postgres"),
 		}
 		expect := "postgres:///database?connect_timeout=1&host=%2Fvar%2Frun%2Fpostgres&sslmode=disable"
 		require.Equal(t, expect, agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: "database"}, nil, nil))
@@ -364,7 +365,7 @@ func TestPostgresWithSocket(t *testing.T) {
 			PostgreSQLOptions: models.PostgreSQLOptions{},
 		}
 		service := &models.Service{
-			Socket: pointer.ToString(`/tmp/123\ A0m\%\$\@\8\,\+\-`),
+			Socket: new(`/tmp/123\ A0m\%\$\@\8\,\+\-`),
 		}
 		expect := "postgres:///database?connect_timeout=1&host=%2Ftmp%2F123%5C+A0m%5C%25%5C%24%5C%40%5C8%5C%2C%5C%2B%5C-&sslmode=disable"
 		require.Equal(t, expect, agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: "database"}, nil, nil))
@@ -374,7 +375,7 @@ func TestPostgresWithSocket(t *testing.T) {
 func TestMongoWithSocket(t *testing.T) {
 	t.Run("empty-password", func(t *testing.T) {
 		agent := &models.Agent{
-			Username:        pointer.ToString("username"),
+			Username:        new("username"),
 			AgentType:       models.MongoDBExporterType,
 			TLS:             true,
 			TLSSkipVerify:   false,
@@ -382,7 +383,7 @@ func TestMongoWithSocket(t *testing.T) {
 			MongoDBOptions:  models.MongoDBOptions{},
 		}
 		service := &models.Service{
-			Socket: pointer.ToString("/tmp/mongodb-27017.sock"),
+			Socket: new("/tmp/mongodb-27017.sock"),
 		}
 		expect := "mongodb://username@%2Ftmp%2Fmongodb-27017.sock/database?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000&ssl=true"
 		require.Equal(t, expect, agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: "database"}, nil, nil))
@@ -395,7 +396,7 @@ func TestMongoWithSocket(t *testing.T) {
 			MongoDBOptions:  models.MongoDBOptions{},
 		}
 		service := &models.Service{
-			Socket: pointer.ToString("/tmp/mongodb-27017.sock"),
+			Socket: new("/tmp/mongodb-27017.sock"),
 		}
 		expect := "mongodb://%2Ftmp%2Fmongodb-27017.sock/database?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000"
 		require.Equal(t, expect, agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: "database"}, nil, nil))
@@ -408,7 +409,7 @@ func TestMongoWithSocket(t *testing.T) {
 			MongoDBOptions:  models.MongoDBOptions{},
 		}
 		service := &models.Service{
-			Socket: pointer.ToString(`/tmp/123\ A0m\%\$\@\8\,\+\-/mongodb-27017.sock`),
+			Socket: new(`/tmp/123\ A0m\%\$\@\8\,\+\-/mongodb-27017.sock`),
 		}
 		expect := "mongodb://%2Ftmp%2F123%5C%20A0m%5C%25%5C$%5C%40%5C8%5C,%5C+%5C-%2Fmongodb-27017.sock/database?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000"
 		require.Equal(t, expect, agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: "database"}, nil, nil))
@@ -426,10 +427,10 @@ func TestIsMySQLTablestatsGroupEnabled(t *testing.T) {
 		{nil, 500, true},
 		{nil, 2000, true},
 
-		{pointer.ToInt32(1000), -1, false},
-		{pointer.ToInt32(1000), 0, true},
-		{pointer.ToInt32(1000), 500, false},
-		{pointer.ToInt32(1000), 2000, true},
+		{new(int32(1000)), -1, false},
+		{new(int32(1000)), 0, true},
+		{new(int32(1000)), 500, false},
+		{new(int32(1000)), 2000, true},
 	} {
 		c := "nil"
 		if testCase.count != nil {
@@ -471,7 +472,7 @@ func TestExporterURL(t *testing.T) {
 				NodeID:    "ExporterNodeID",
 				NodeType:  models.ContainerNodeType,
 				NodeName:  "Node for Exporter",
-				MachineID: pointer.ToString("ExporterNode"),
+				MachineID: new("ExporterNode"),
 				Address:   "172.20.0.4",
 			},
 
@@ -516,9 +517,9 @@ func TestExporterURL(t *testing.T) {
 			&models.Agent{
 				AgentID:      "ExporterAgentPush",
 				AgentType:    models.ExternalExporterType,
-				ServiceID:    pointer.ToString("external"),
-				RunsOnNodeID: pointer.ToString("ExporterNodeID"),
-				ListenPort:   pointer.ToUint16(9121),
+				ServiceID:    new("external"),
+				RunsOnNodeID: new("ExporterNodeID"),
+				ListenPort:   new(uint16(9121)),
 				ExporterOptions: models.ExporterOptions{
 					PushMetrics:   true,
 					MetricsPath:   "/metrics",
@@ -529,11 +530,11 @@ func TestExporterURL(t *testing.T) {
 			&models.Agent{
 				AgentID:      "ExporterAgentPull",
 				AgentType:    models.ExternalExporterType,
-				ServiceID:    pointer.ToString("external"),
-				RunsOnNodeID: pointer.ToString("ExporterNodeID"),
-				ListenPort:   pointer.ToUint16(9121),
-				Username:     pointer.ToString("user"),
-				Password:     pointer.ToString("secret"),
+				ServiceID:    new("external"),
+				RunsOnNodeID: new("ExporterNodeID"),
+				ListenPort:   new(uint16(9121)),
+				Username:     new("user"),
+				Password:     new("secret"),
 				ExporterOptions: models.ExporterOptions{
 					PushMetrics:   false,
 					MetricsPath:   "/metrics",
@@ -544,11 +545,11 @@ func TestExporterURL(t *testing.T) {
 			&models.Agent{
 				AgentID:      "ExporterServerless",
 				AgentType:    models.ExternalExporterType,
-				RunsOnNodeID: pointer.ToString("ExporterServerlessNodeID"),
-				ServiceID:    pointer.ToString("redis_exporter-external"),
-				ListenPort:   pointer.ToUint16(9121),
-				Username:     pointer.ToString("user"),
-				Password:     pointer.ToString("secret"),
+				RunsOnNodeID: new("ExporterServerlessNodeID"),
+				ServiceID:    new("redis_exporter-external"),
+				ListenPort:   new(uint16(9121)),
+				Username:     new("user"),
+				Password:     new("secret"),
 				ExporterOptions: models.ExporterOptions{
 					PushMetrics:   false,
 					MetricsPath:   "/metrics",
@@ -559,11 +560,11 @@ func TestExporterURL(t *testing.T) {
 			&models.Agent{
 				AgentID:      "ExporterServerlessWithQueryParams",
 				AgentType:    models.ExternalExporterType,
-				RunsOnNodeID: pointer.ToString("ExporterServerlessNodeID2"),
-				ServiceID:    pointer.ToString("nomad_exporter-external"),
-				ListenPort:   pointer.ToUint16(9121),
-				Username:     pointer.ToString("user"),
-				Password:     pointer.ToString("secret"),
+				RunsOnNodeID: new("ExporterServerlessNodeID2"),
+				ServiceID:    new("nomad_exporter-external"),
+				ListenPort:   new(uint16(9121)),
+				Username:     new("user"),
+				Password:     new("secret"),
 				ExporterOptions: models.ExporterOptions{
 					PushMetrics:   false,
 					MetricsPath:   "/metrics?format=prometheus&output=json",
@@ -574,11 +575,11 @@ func TestExporterURL(t *testing.T) {
 			&models.Agent{
 				AgentID:      "ExporterServerlessWithEmptyMetricsPath",
 				AgentType:    models.ExternalExporterType,
-				RunsOnNodeID: pointer.ToString("ExporterServerlessNodeID2"),
-				ServiceID:    pointer.ToString("nomad_exporter-external"),
-				ListenPort:   pointer.ToUint16(9121),
-				Username:     pointer.ToString("user"),
-				Password:     pointer.ToString("secret"),
+				RunsOnNodeID: new("ExporterServerlessNodeID2"),
+				ServiceID:    new("nomad_exporter-external"),
+				ListenPort:   new(uint16(9121)),
+				Username:     new("user"),
+				Password:     new("secret"),
 				ExporterOptions: models.ExporterOptions{
 					PushMetrics:   false,
 					MetricsPath:   "/",
@@ -587,8 +588,7 @@ func TestExporterURL(t *testing.T) {
 			},
 		} {
 			if v, ok := str.(*models.Agent); ok {
-				encryptedAgent := models.EncryptAgent(*v)
-				str = &encryptedAgent
+				str = new(models.EncryptAgent(*v))
 			}
 			require.NoError(t, q.Insert(str), "failed to INSERT %+v", str)
 		}

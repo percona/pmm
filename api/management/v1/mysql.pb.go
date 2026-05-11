@@ -536,8 +536,8 @@ var (
 		nil,                                // 2: management.v1.AddMySQLServiceParams.CustomLabelsEntry
 		nil,                                // 3: management.v1.AddMySQLServiceParams.ExtraDsnParamsEntry
 		(*AddNodeParams)(nil),              // 4: management.v1.AddNodeParams
-		(MetricsMode)(0),                   // 5: management.v1.MetricsMode
-		(v1.LogLevel)(0),                   // 6: inventory.v1.LogLevel
+		MetricsMode(0),                     // 5: management.v1.MetricsMode
+		v1.LogLevel(0),                     // 6: inventory.v1.LogLevel
 		(*durationpb.Duration)(nil),        // 7: google.protobuf.Duration
 		(*v1.MySQLService)(nil),            // 8: inventory.v1.MySQLService
 		(*v1.MySQLdExporter)(nil),          // 9: inventory.v1.MySQLdExporter
@@ -545,7 +545,6 @@ var (
 		(*v1.QANMySQLSlowlogAgent)(nil),    // 11: inventory.v1.QANMySQLSlowlogAgent
 	}
 )
-
 var file_management_v1_mysql_proto_depIdxs = []int32{
 	4,  // 0: management.v1.AddMySQLServiceParams.add_node:type_name -> management.v1.AddNodeParams
 	2,  // 1: management.v1.AddMySQLServiceParams.custom_labels:type_name -> management.v1.AddMySQLServiceParams.CustomLabelsEntry

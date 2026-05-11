@@ -481,11 +481,10 @@ var (
 		(*ReloadRequest)(nil),       // 4: agentlocal.v1.ReloadRequest
 		(*ReloadResponse)(nil),      // 5: agentlocal.v1.ReloadResponse
 		(*durationpb.Duration)(nil), // 6: google.protobuf.Duration
-		(v1.AgentType)(0),           // 7: inventory.v1.AgentType
-		(v1.AgentStatus)(0),         // 8: inventory.v1.AgentStatus
+		v1.AgentType(0),             // 7: inventory.v1.AgentType
+		v1.AgentStatus(0),           // 8: inventory.v1.AgentStatus
 	}
 )
-
 var file_agentlocal_v1_agentlocal_proto_depIdxs = []int32{
 	6, // 0: agentlocal.v1.ServerInfo.latency:type_name -> google.protobuf.Duration
 	6, // 1: agentlocal.v1.ServerInfo.clock_drift:type_name -> google.protobuf.Duration

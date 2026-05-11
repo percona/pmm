@@ -388,14 +388,13 @@ var (
 		(*ProxySQLServiceResult)(nil),    // 1: management.v1.ProxySQLServiceResult
 		nil,                              // 2: management.v1.AddProxySQLServiceParams.CustomLabelsEntry
 		(*AddNodeParams)(nil),            // 3: management.v1.AddNodeParams
-		(MetricsMode)(0),                 // 4: management.v1.MetricsMode
-		(v1.LogLevel)(0),                 // 5: inventory.v1.LogLevel
+		MetricsMode(0),                   // 4: management.v1.MetricsMode
+		v1.LogLevel(0),                   // 5: inventory.v1.LogLevel
 		(*durationpb.Duration)(nil),      // 6: google.protobuf.Duration
 		(*v1.ProxySQLService)(nil),       // 7: inventory.v1.ProxySQLService
 		(*v1.ProxySQLExporter)(nil),      // 8: inventory.v1.ProxySQLExporter
 	}
 )
-
 var file_management_v1_proxysql_proto_depIdxs = []int32{
 	3, // 0: management.v1.AddProxySQLServiceParams.add_node:type_name -> management.v1.AddNodeParams
 	2, // 1: management.v1.AddProxySQLServiceParams.custom_labels:type_name -> management.v1.AddProxySQLServiceParams.CustomLabelsEntry

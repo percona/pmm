@@ -18,7 +18,6 @@ package inventory
 import (
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -35,29 +34,20 @@ func TestProxySQLExporter(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		nodeID := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node exporter")).NodeID
 
-		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node exporter"))
-		nodeID := node.Remote.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
-
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Proxysql: &services.AddServiceParamsBodyProxysql{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        5432,
 				ServiceName: pmmapitests.TestString(t, "ProxySQL Service for ProxySQLExporter test"),
 			},
 		})
 		serviceID := service.Proxysql.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, nodeID).AgentID
 
-		pmmAgent := pmmapitests.AddPMMAgent(t, nodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
-
-		ProxySQLExporter := addAgent(t, agents.AddAgentBody{
+		ProxySQLExporter := pmmapitests.AddAgent(t, agents.AddAgentBody{
 			ProxysqlExporter: &agents.AddAgentParamsBodyProxysqlExporter{
 				ServiceID:  serviceID,
 				Username:   "username",
@@ -71,7 +61,6 @@ func TestProxySQLExporter(t *testing.T) {
 			},
 		})
 		agentID := ProxySQLExporter.ProxysqlExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			AgentID: agentID,
@@ -90,7 +79,7 @@ func TestProxySQLExporter(t *testing.T) {
 					},
 					Status:             &AgentStatusUnknown,
 					DisabledCollectors: make([]string, 0),
-					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:           new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, getAgentRes)
@@ -101,12 +90,13 @@ func TestProxySQLExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{
-						Enable:       pointer.ToBool(false),
+						Enable:       new(false),
 						CustomLabels: &agents.ChangeAgentParamsBodyProxysqlExporterCustomLabels{},
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
@@ -119,7 +109,7 @@ func TestProxySQLExporter(t *testing.T) {
 					Status:             &AgentStatusDone,
 					CustomLabels:       map[string]string{},
 					DisabledCollectors: make([]string, 0),
-					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:           new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeProxySQLExporterOK)
@@ -129,7 +119,7 @@ func TestProxySQLExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{
-						Enable: pointer.ToBool(true),
+						Enable: new(true),
 						CustomLabels: &agents.ChangeAgentParamsBodyProxysqlExporterCustomLabels{
 							Values: map[string]string{
 								"new_label": "proxysql_exporter",
@@ -138,7 +128,8 @@ func TestProxySQLExporter(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
@@ -153,7 +144,7 @@ func TestProxySQLExporter(t *testing.T) {
 					},
 					Status:             &AgentStatusDone,
 					DisabledCollectors: make([]string, 0),
-					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:           new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeProxySQLExporterOK)
@@ -163,12 +154,7 @@ func TestProxySQLExporter(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
 		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
 			Body: agents.AddAgentBody{
@@ -189,19 +175,16 @@ func TestProxySQLExporter(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Proxysql: &services.AddServiceParamsBodyProxysql{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        5432,
 				ServiceName: pmmapitests.TestString(t, "ProxySQL Service for agent"),
 			},
 		})
 		serviceID := service.Proxysql.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
 
 		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
 			Body: agents.AddAgentBody{
@@ -224,12 +207,7 @@ func TestProxySQLExporter(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
 		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
 			Body: agents.AddAgentBody{
@@ -252,19 +230,16 @@ func TestProxySQLExporter(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Proxysql: &services.AddServiceParamsBodyProxysql{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        5432,
 				ServiceName: pmmapitests.TestString(t, "ProxySQL Service for not exists node ID"),
 			},
 		})
 		serviceID := service.Proxysql.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
 
 		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
 			Body: agents.AddAgentBody{
@@ -283,30 +258,23 @@ func TestProxySQLExporter(t *testing.T) {
 		}
 	})
 	t.Run("With PushMetrics", func(t *testing.T) {
+		t.Parallel()
+
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		nodeID := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node exporter")).NodeID
 
-		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node exporter"))
-		nodeID := node.Remote.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
-
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Proxysql: &services.AddServiceParamsBodyProxysql{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        5432,
 				ServiceName: pmmapitests.TestString(t, "ProxySQL Service for ProxySQLExporter test"),
 			},
 		})
 		serviceID := service.Proxysql.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, nodeID).AgentID
 
-		pmmAgent := pmmapitests.AddPMMAgent(t, nodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
-
-		ProxySQLExporter := addAgent(t, agents.AddAgentBody{
+		ProxySQLExporter := pmmapitests.AddAgent(t, agents.AddAgentBody{
 			ProxysqlExporter: &agents.AddAgentParamsBodyProxysqlExporter{
 				ServiceID:  serviceID,
 				Username:   "username",
@@ -320,7 +288,6 @@ func TestProxySQLExporter(t *testing.T) {
 			},
 		})
 		agentID := ProxySQLExporter.ProxysqlExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			AgentID: agentID,
@@ -339,7 +306,7 @@ func TestProxySQLExporter(t *testing.T) {
 					},
 					Status:             &AgentStatusUnknown,
 					DisabledCollectors: make([]string, 0),
-					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:           new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, getAgentRes)
@@ -349,7 +316,7 @@ func TestProxySQLExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{
-					EnablePushMetrics: pointer.ToBool(true),
+					EnablePushMetrics: new(true),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -368,7 +335,7 @@ func TestProxySQLExporter(t *testing.T) {
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
 					DisabledCollectors: make([]string, 0),
-					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:           new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeProxySQLExporterOK)
@@ -378,11 +345,12 @@ func TestProxySQLExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{
-						EnablePushMetrics: pointer.ToBool(false),
+						EnablePushMetrics: new(false),
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
@@ -396,7 +364,7 @@ func TestProxySQLExporter(t *testing.T) {
 					},
 					Status:             &AgentStatusUnknown,
 					DisabledCollectors: make([]string, 0),
-					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:           new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeProxySQLExporterOK)
@@ -406,30 +374,21 @@ func TestProxySQLExporter(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		nodeID := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for proxysql exporter")).NodeID
 
-		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for proxysql exporter"))
-		nodeID := node.Remote.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
-
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Proxysql: &services.AddServiceParamsBodyProxysql{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        6033,
 				ServiceName: pmmapitests.TestString(t, "ProxySQL Service for password rotation test"),
 			},
 		})
 		serviceID := service.Proxysql.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, nodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, nodeID).AgentID
 
 		// Create agent with initial credentials
-		ProxySQLExporter := addAgent(t, agents.AddAgentBody{
+		ProxySQLExporter := pmmapitests.AddAgent(t, agents.AddAgentBody{
 			ProxysqlExporter: &agents.AddAgentParamsBodyProxysqlExporter{
 				ServiceID:           serviceID,
 				Username:            "initial-user",
@@ -439,14 +398,13 @@ func TestProxySQLExporter(t *testing.T) {
 			},
 		})
 		agentID := ProxySQLExporter.ProxysqlExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
 
 		// Test password rotation
 		changeProxySQLExporterOK, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{
-					Password: pointer.ToString("new-rotated-password"),
+					Password: new("new-rotated-password"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -460,8 +418,8 @@ func TestProxySQLExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{
-					Username: pointer.ToString("new-proxysql-user"),
-					Password: pointer.ToString("another-new-password"),
+					Username: new("new-proxysql-user"),
+					Password: new("another-new-password"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -482,30 +440,21 @@ func TestProxySQLExporter(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		nodeID := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for proxysql exporter")).NodeID
 
-		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for proxysql exporter"))
-		nodeID := node.Remote.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
-
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Proxysql: &services.AddServiceParamsBodyProxysql{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        6033,
 				ServiceName: pmmapitests.TestString(t, "ProxySQL Service for partial field test"),
 			},
 		})
 		serviceID := service.Proxysql.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, nodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, nodeID).AgentID
 
 		// Create agent with comprehensive initial configuration
-		ProxySQLExporter := addAgent(t, agents.AddAgentBody{
+		ProxySQLExporter := pmmapitests.AddAgent(t, agents.AddAgentBody{
 			ProxysqlExporter: &agents.AddAgentParamsBodyProxysqlExporter{
 				ServiceID:           serviceID,
 				Username:            "original-user",
@@ -518,18 +467,17 @@ func TestProxySQLExporter(t *testing.T) {
 					"region": "us-west",
 				},
 				PushMetrics: true,
-				LogLevel:    pointer.ToString("LOG_LEVEL_INFO"),
+				LogLevel:    new("LOG_LEVEL_INFO"),
 			},
 		})
 		agentID := ProxySQLExporter.ProxysqlExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
 
 		// Change only one field (username), others should remain unchanged
 		_, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{
-					Username: pointer.ToString("changed-user"),
+					Username: new("changed-user"),
 					// Note: password, custom labels, push metrics, and log level are NOT specified
 				},
 			},
@@ -554,7 +502,7 @@ func TestProxySQLExporter(t *testing.T) {
 			"region": "us-west",
 		}, getAgentRes.Payload.ProxysqlExporter.CustomLabels)
 		assert.True(t, getAgentRes.Payload.ProxysqlExporter.PushMetricsEnabled)
-		assert.Equal(t, pointer.ToString("LOG_LEVEL_INFO"), getAgentRes.Payload.ProxysqlExporter.LogLevel)
+		assert.Equal(t, new("LOG_LEVEL_INFO"), getAgentRes.Payload.ProxysqlExporter.LogLevel)
 		assert.False(t, getAgentRes.Payload.ProxysqlExporter.Disabled)
 	})
 
@@ -562,30 +510,21 @@ func TestProxySQLExporter(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		nodeID := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for proxysql exporter change all fields")).NodeID
 
-		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for proxysql exporter change all fields"))
-		nodeID := node.Remote.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
-
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Proxysql: &services.AddServiceParamsBodyProxysql{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        6033,
 				ServiceName: pmmapitests.TestString(t, "ProxySQL Service for change all fields test"),
 			},
 		})
 		serviceID := service.Proxysql.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, nodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, nodeID).AgentID
 
 		// Create ProxySQL Exporter with initial configuration
-		ProxySQLExporter := addAgent(t, agents.AddAgentBody{
+		ProxySQLExporter := pmmapitests.AddAgent(t, agents.AddAgentBody{
 			ProxysqlExporter: &agents.AddAgentParamsBodyProxysqlExporter{
 				ServiceID:           serviceID,
 				Username:            "initial-user",
@@ -597,21 +536,20 @@ func TestProxySQLExporter(t *testing.T) {
 					"version":     "1.0",
 				},
 				PushMetrics: false,
-				LogLevel:    pointer.ToString("LOG_LEVEL_WARN"),
+				LogLevel:    new("LOG_LEVEL_WARN"),
 			},
 		})
 		agentID := ProxySQLExporter.ProxysqlExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
 
 		// Change ALL available fields at once
 		changeProxySQLExporterOK, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{
-					Username:          pointer.ToString("new-proxysql-user"),
-					Password:          pointer.ToString("new-proxysql-password"),
-					LogLevel:          pointer.ToString("LOG_LEVEL_ERROR"),
-					EnablePushMetrics: pointer.ToBool(true),
+					Username:          new("new-proxysql-user"),
+					Password:          new("new-proxysql-password"),
+					LogLevel:          new("LOG_LEVEL_ERROR"),
+					EnablePushMetrics: new(true),
 					DisableCollectors: []string{"mysql_connection_pool", "mysql_connection_list"},
 					CustomLabels: &agents.ChangeAgentParamsBodyProxysqlExporterCustomLabels{
 						Values: map[string]string{
@@ -620,7 +558,7 @@ func TestProxySQLExporter(t *testing.T) {
 							"team":        "platform",
 						},
 					},
-					Enable: pointer.ToBool(false), // disable the agent
+					Enable: new(false), // disable the agent
 				},
 			},
 			Context: pmmapitests.Context,
@@ -633,7 +571,7 @@ func TestProxySQLExporter(t *testing.T) {
 			ServiceID:          serviceID,
 			PMMAgentID:         pmmAgentID,
 			Username:           "new-proxysql-user",
-			LogLevel:           pointer.ToString("LOG_LEVEL_ERROR"),
+			LogLevel:           new("LOG_LEVEL_ERROR"),
 			PushMetricsEnabled: true,
 			DisabledCollectors: []string{"mysql_connection_pool", "mysql_connection_list"},
 			Disabled:           true, // agent was disabled
@@ -659,7 +597,7 @@ func TestProxySQLExporter(t *testing.T) {
 			ServiceID:          serviceID,
 			PMMAgentID:         pmmAgentID,
 			Username:           "new-proxysql-user",
-			LogLevel:           pointer.ToString("LOG_LEVEL_ERROR"),
+			LogLevel:           new("LOG_LEVEL_ERROR"),
 			PushMetricsEnabled: true,
 			DisabledCollectors: []string{"mysql_connection_pool", "mysql_connection_list"},
 			Disabled:           true,

@@ -526,8 +526,8 @@ var (
 		(*PostgreSQLServiceResult)(nil),            // 1: management.v1.PostgreSQLServiceResult
 		nil,                                        // 2: management.v1.AddPostgreSQLServiceParams.CustomLabelsEntry
 		(*AddNodeParams)(nil),                      // 3: management.v1.AddNodeParams
-		(MetricsMode)(0),                           // 4: management.v1.MetricsMode
-		(v1.LogLevel)(0),                           // 5: inventory.v1.LogLevel
+		MetricsMode(0),                             // 4: management.v1.MetricsMode
+		v1.LogLevel(0),                             // 5: inventory.v1.LogLevel
 		(*durationpb.Duration)(nil),                // 6: google.protobuf.Duration
 		(*v1.PostgreSQLService)(nil),               // 7: inventory.v1.PostgreSQLService
 		(*v1.PostgresExporter)(nil),                // 8: inventory.v1.PostgresExporter
@@ -535,7 +535,6 @@ var (
 		(*v1.QANPostgreSQLPgStatMonitorAgent)(nil), // 10: inventory.v1.QANPostgreSQLPgStatMonitorAgent
 	}
 )
-
 var file_management_v1_postgresql_proto_depIdxs = []int32{
 	3,  // 0: management.v1.AddPostgreSQLServiceParams.add_node:type_name -> management.v1.AddNodeParams
 	2,  // 1: management.v1.AddPostgreSQLServiceParams.custom_labels:type_name -> management.v1.AddPostgreSQLServiceParams.CustomLabelsEntry

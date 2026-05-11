@@ -1,6 +1,6 @@
 module github.com/percona/pmm/tools
 
-go 1.25.9
+go 1.26.2
 
 replace github.com/go-openapi/spec => github.com/Percona-Lab/spec v0.21.0-percona
 
@@ -25,7 +25,7 @@ require (
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.6.0
 	google.golang.org/protobuf v1.36.11
 	gopkg.in/reform.v1 v1.5.1
-	mvdan.cc/gofumpt v0.9.0
+	mvdan.cc/gofumpt v0.10.0
 )
 
 require (
@@ -116,7 +116,6 @@ require (
 	github.com/golang-sql/civil v0.0.0-20190719163853-cb61b32ac6fe // indirect
 	github.com/golang/groupcache v0.0.0-20241129210726-2c02b8208cf8 // indirect
 	github.com/google/cel-go v0.28.0 // indirect
-	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/go-containerregistry v0.21.5 // indirect
 	github.com/google/go-dap v0.12.0 // indirect
 	github.com/google/go-github/v33 v33.0.0 // indirect
