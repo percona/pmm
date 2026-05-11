@@ -1,8 +1,8 @@
-import { Controller, useFormContext } from "react-hook-form";
-import { Checkbox as MUICheckbox } from "@mui/material";
-import { CheckboxProps } from "./checkbox.types";
-import { kebabize } from "@/utils";
-import { LabeledContent } from "../../..";
+import { Controller, useFormContext } from 'react-hook-form';
+import { Checkbox as MUICheckbox } from '@mui/material';
+import { CheckboxProps } from './checkbox.types';
+import { kebabize } from '@/utils';
+import { LabeledContent } from '../../..';
 
 const Checkbox = ({
   name,
@@ -27,8 +27,8 @@ const Checkbox = ({
           disabled={disabled}
           {...checkboxProps}
           inputProps={{
-            // @ts-expect-error
-            "data-testid": `checkbox-${kebabize(name)}`,
+            // @ts-expect-error MUI inputProps doesn't include data-testid in its type definition
+            'data-testid': `checkbox-${kebabize(name)}`,
             ...checkboxProps?.inputProps,
           }}
         />

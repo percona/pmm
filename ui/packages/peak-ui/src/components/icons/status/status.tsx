@@ -1,10 +1,6 @@
 import { useTheme } from '@mui/material';
 import { SvgIcon } from '@mui/material';
-import {
-  IconsProps,
-  StatusIconProps,
-  StatusIconProviderProps,
-} from './status.types';
+import { IconsProps, StatusIconProps, StatusIconProviderProps } from './status.types';
 
 const StatusIconProvider = ({
   LightIconGeneral,
@@ -46,15 +42,7 @@ const ErrorIconLight = ({ iconWidth, props }: IconsProps) => (
         fill="#B10810"
       />
     </g>
-    <rect
-      x="0.5"
-      y="0.5"
-      width="19"
-      height="19"
-      rx="9.5"
-      stroke="#B10810"
-      strokeOpacity="0.2"
-    />
+    <rect x="0.5" y="0.5" width="19" height="19" rx="9.5" stroke="#B10810" strokeOpacity="0.2" />
   </SvgIcon>
 );
 
@@ -109,15 +97,7 @@ const WarningIconLight = ({ iconWidth, props }: IconsProps) => (
         fill="#856E00"
       />
     </g>
-    <rect
-      x="0.5"
-      y="0.5"
-      width="19"
-      height="19"
-      rx="9.5"
-      stroke="#856E00"
-      strokeOpacity="0.2"
-    />
+    <rect x="0.5" y="0.5" width="19" height="19" rx="9.5" stroke="#856E00" strokeOpacity="0.2" />
   </SvgIcon>
 );
 
@@ -185,15 +165,7 @@ const PendingIconLight = ({ iconWidth, props }: IconsProps) => (
         fill="#856E00"
       />
     </g>
-    <rect
-      x="0.5"
-      y="0.5"
-      width="19"
-      height="19"
-      rx="9.5"
-      stroke="#856E00"
-      strokeOpacity="0.2"
-    />
+    <rect x="0.5" y="0.5" width="19" height="19" rx="9.5" stroke="#856E00" strokeOpacity="0.2" />
   </SvgIcon>
 );
 
@@ -257,15 +229,7 @@ const SuccessIconLight = ({ iconWidth, props }: IconsProps) => (
         fill="#00745B"
       />
     </g>
-    <rect
-      x="0.5"
-      y="0.5"
-      width="19"
-      height="19"
-      rx="9.5"
-      stroke="#00745B"
-      strokeOpacity="0.2"
-    />
+    <rect x="0.5" y="0.5" width="19" height="19" rx="9.5" stroke="#00745B" strokeOpacity="0.2" />
   </SvgIcon>
 );
 
@@ -321,15 +285,7 @@ const UnknownIconLight = ({ iconWidth, props }: IconsProps) => (
         fillOpacity="0.5"
       />
     </g>
-    <rect
-      x="0.5"
-      y="0.5"
-      width="19"
-      height="19"
-      rx="9.5"
-      stroke="black"
-      strokeOpacity="0.05"
-    />
+    <rect x="0.5" y="0.5" width="19" height="19" rx="9.5" stroke="black" strokeOpacity="0.05" />
   </SvgIcon>
 );
 
@@ -386,15 +342,7 @@ const PausedIconLight = ({ iconWidth, props }: IconsProps) => (
         fillOpacity="0.5"
       />
     </g>
-    <rect
-      x="0.5"
-      y="0.5"
-      width="19"
-      height="19"
-      rx="9.5"
-      stroke="black"
-      strokeOpacity="0.05"
-    />
+    <rect x="0.5" y="0.5" width="19" height="19" rx="9.5" stroke="black" strokeOpacity="0.05" />
   </SvgIcon>
 );
 
