@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { FormProvider, useForm, useWatch } from 'react-hook-form';
+import { DefaultValues, FormProvider, useForm, useWatch } from 'react-hook-form';
 import { Box, Button, Stack, Typography } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
@@ -34,7 +34,7 @@ type Story = StoryObj<typeof DateTimePickerInput>;
 // ---------- helpers ----------
 
 interface FormShellProps<TValues extends Record<string, unknown>> {
-  defaultValues: TValues;
+  defaultValues: DefaultValues<TValues>;
   fieldName: keyof TValues & string;
   children: React.ReactNode;
   /** Render function that pretty-prints the live form value for the story panel. */
