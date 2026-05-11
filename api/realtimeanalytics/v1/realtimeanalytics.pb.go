@@ -699,7 +699,7 @@ var (
 	file_realtimeanalytics_v1_realtimeanalytics_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 	file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes  = make([]protoimpl.MessageInfo, 11)
 	file_realtimeanalytics_v1_realtimeanalytics_proto_goTypes   = []any{
-		(SessionStatus)(0),            // 0: realtimeanalytics.v1.SessionStatus
+		SessionStatus(0),              // 0: realtimeanalytics.v1.SessionStatus
 		(*ListServicesRequest)(nil),   // 1: realtimeanalytics.v1.ListServicesRequest
 		(*ListServicesResponse)(nil),  // 2: realtimeanalytics.v1.ListServicesResponse
 		(*Session)(nil),               // 3: realtimeanalytics.v1.Session
@@ -711,7 +711,7 @@ var (
 		(*StopSessionResponse)(nil),   // 9: realtimeanalytics.v1.StopSessionResponse
 		(*SearchQueriesRequest)(nil),  // 10: realtimeanalytics.v1.SearchQueriesRequest
 		(*SearchQueriesResponse)(nil), // 11: realtimeanalytics.v1.SearchQueriesResponse
-		(v1.ServiceType)(0),           // 12: inventory.v1.ServiceType
+		v1.ServiceType(0),             // 12: inventory.v1.ServiceType
 		(*v1.MongoDBService)(nil),     // 13: inventory.v1.MongoDBService
 		(*timestamppb.Timestamp)(nil), // 14: google.protobuf.Timestamp
 		(*durationpb.Duration)(nil),   // 15: google.protobuf.Duration

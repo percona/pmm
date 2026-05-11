@@ -21,7 +21,6 @@ import (
 	"sort"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
@@ -346,7 +345,7 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				ReplicationSet: req.ReplicationSet,
 				CustomLabels:   req.CustomLabels,
 				Address:        &req.Address,
-				Port:           pointer.ToUint16(uint16(req.Port)), //nolint:gosec // port is not expected to overflow uint16
+				Port:           new(uint16(req.Port)), //nolint:gosec // port is not expected to overflow uint16
 			})
 			if err != nil {
 				return err
@@ -426,7 +425,7 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				ReplicationSet: req.ReplicationSet,
 				CustomLabels:   req.CustomLabels,
 				Address:        &req.Address,
-				Port:           pointer.ToUint16(uint16(req.Port)), //nolint:gosec // port is not expected to overflow uint16
+				Port:           new(uint16(req.Port)), //nolint:gosec // port is not expected to overflow uint16
 				Database:       req.Database,
 			})
 			if err != nil {
@@ -453,7 +452,7 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 					TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
 				},
 				PostgreSQLOptions: models.PostgreSQLOptions{
-					AutoDiscoveryLimit:     pointer.ToInt32(req.AutoDiscoveryLimit),
+					AutoDiscoveryLimit:     new(req.AutoDiscoveryLimit),
 					MaxExporterConnections: req.MaxPostgresqlExporterConnections,
 				},
 			})

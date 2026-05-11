@@ -326,7 +326,7 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	amountOfPoints := int64(optimalAmountOfPoint)
 	timePeriod := periodStartToSec - periodStartFromSec
 	// reduce amount of point if period less then 2h.
-	if timePeriod < int64((minFullTimeFrame).Seconds()) {
+	if timePeriod < int64(minFullTimeFrame.Seconds()) {
 		// minimum point is 1 minute
 		amountOfPoints = timePeriod / 60 //nolint:mnd
 	}

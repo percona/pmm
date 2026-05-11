@@ -19,8 +19,6 @@ import (
 	"net"
 	"strconv"
 
-	"github.com/AlekSi/pointer"
-
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/inventory/v1/json/client"
 	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
@@ -89,8 +87,8 @@ func (cmd *ListServicesCommand) RunCmd() (commands.Result, error) {
 	}
 
 	params := &services.ListServicesParams{
-		NodeID:        pointer.ToString(cmd.NodeID),
-		ExternalGroup: pointer.ToString(cmd.ExternalGroup),
+		NodeID:        new(cmd.NodeID),
+		ExternalGroup: new(cmd.ExternalGroup),
 		ServiceType:   serviceType,
 		Context:       commands.Ctx,
 	}
