@@ -20,7 +20,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -164,8 +163,8 @@ func TestCheckArtifactOverlapping(t *testing.T) {
 	mongoSvc1, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
 		ServiceName: "mongodb1",
 		NodeID:      node.NodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(60000),
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(60000)),
 		Cluster:     "cluster1",
 	})
 	require.NoError(t, err)
@@ -173,8 +172,8 @@ func TestCheckArtifactOverlapping(t *testing.T) {
 	mongoSvc2, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
 		ServiceName: "mongodb2",
 		NodeID:      node.NodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(60000),
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(60000)),
 		Cluster:     "cluster1",
 	})
 	require.NoError(t, err)
@@ -182,8 +181,8 @@ func TestCheckArtifactOverlapping(t *testing.T) {
 	mongoSvc3, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
 		ServiceName: "mongodb3",
 		NodeID:      node.NodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(60000),
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(60000)),
 		Cluster:     "cluster2",
 	})
 	require.NoError(t, err)
@@ -191,8 +190,8 @@ func TestCheckArtifactOverlapping(t *testing.T) {
 	mysqlSvc1, err := models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 		ServiceName: "mysql1",
 		NodeID:      node.NodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(60000),
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(60000)),
 		Cluster:     "mysql_cluster_1",
 	})
 	require.NoError(t, err)
@@ -200,8 +199,8 @@ func TestCheckArtifactOverlapping(t *testing.T) {
 	mysqlSvc2, err := models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 		ServiceName: "mysql2",
 		NodeID:      node.NodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(60000),
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(60000)),
 		Cluster:     "mysql_cluster_2",
 	})
 	require.NoError(t, err)

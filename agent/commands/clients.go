@@ -27,7 +27,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/AlekSi/pointer"
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/pkg/errors"
@@ -186,7 +185,7 @@ func serverRegister(cfgSetup *config.Setup) (agentID, token string, _ error) { /
 
 	res, err := managementClient.Default.ManagementService.RegisterNode(&mservice.RegisterNodeParams{
 		Body: mservice.RegisterNodeBody{
-			NodeType:      pointer.ToString(nodeTypes[cfgSetup.NodeType]),
+			NodeType:      new(nodeTypes[cfgSetup.NodeType]),
 			NodeName:      cfgSetup.NodeName,
 			MachineID:     cfgSetup.MachineID,
 			Distro:        cfgSetup.Distro,
@@ -200,7 +199,7 @@ func serverRegister(cfgSetup *config.Setup) (agentID, token string, _ error) { /
 			AgentPassword: cfgSetup.AgentPassword,
 
 			Reregister:        cfgSetup.Force,
-			MetricsMode:       pointer.ToString(strings.ToUpper("METRICS_MODE_" + cfgSetup.MetricsMode)),
+			MetricsMode:       new(strings.ToUpper("METRICS_MODE_" + cfgSetup.MetricsMode)),
 			DisableCollectors: disableCollectors,
 			ExposeExporter:    cfgSetup.ExposeExporter,
 		},

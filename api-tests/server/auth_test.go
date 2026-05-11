@@ -27,7 +27,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -90,7 +89,7 @@ func TestAuth(t *testing.T) {
 				t.Parallel()
 
 				res, err := serverClient.Default.ServerService.Version(&server.VersionParams{
-					Dummy:   pointer.ToString(fmt.Sprintf("grpccode-%d", grpcCode)),
+					Dummy:   new(fmt.Sprintf("grpccode-%d", grpcCode)),
 					Context: pmmapitests.Context,
 				})
 				assert.Empty(t, res)
