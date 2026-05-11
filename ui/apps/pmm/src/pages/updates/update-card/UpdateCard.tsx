@@ -123,24 +123,30 @@ export const UpdateCard: FC = () => {
       </CardContent>
       {data.updateAvailable ? (
         <>
-        {/* TODO temporary solution for link color */}
-          <Alert severity="warning" sx={{ mb: 2, '& a': { color: 'inherit', textDecorationColor: 'inherit' } }} >
+          {/* TODO temporary solution for link color */}
+          <Alert severity="warning" sx={{ mb: 2, '& a': { color: 'inherit', textDecorationColor: 'inherit' } }}>
             <Typography variant="body1">
-              <strong>UI upgrades deprecated</strong>: This <strong>Update now</strong> button will be removed in PMM 3.9.0.
+              <strong>{Messages.deprecation.heading}</strong>
+              {Messages.deprecation.paragraph1BeforeUpdateNow}
+              <strong>{Messages.updateNow}</strong>
+              {Messages.deprecation.paragraph1AfterUpdateNow}
             </Typography>
             <Typography>
-              After that, PMM upgrades will only be available via&nbsp;
+              {Messages.deprecation.viaIntro}
               <Link href={DEPRECATION_DOCKER_UPGRADE_HREF} target="_blank" rel="noopener noreferrer">
-                Docker
-              </Link> (recommended), <Link href={DEPRECATION_PODMAN_UPGRADE_HREF} target="_blank" rel="noopener noreferrer">
-                Podman
-              </Link>, or <Link href={DEPRECATION_HELM_UPGRADE_HREF} target="_blank" rel="noopener noreferrer">
-                Helm
-              </Link>.
+                {Messages.deprecation.docker}
+              </Link>
+              {Messages.deprecation.afterDocker}
+              <Link href={DEPRECATION_PODMAN_UPGRADE_HREF} target="_blank" rel="noopener noreferrer">
+                {Messages.deprecation.podman}
+              </Link>
+              {Messages.deprecation.afterPodman}
+              <Link href={DEPRECATION_HELM_UPGRADE_HREF} target="_blank" rel="noopener noreferrer">
+                {Messages.deprecation.helm}
+              </Link>
+              {Messages.deprecation.afterHelm}
             </Typography>
-            <Typography>
-              Switch before then to keep upgrading PMM to newer versions.
-            </Typography>
+            <Typography>{Messages.deprecation.reminder}</Typography>
           </Alert>
           <CardActions>
             <Button
