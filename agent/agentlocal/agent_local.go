@@ -314,7 +314,8 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 				DiscardUnknown: true,
 			},
 		}),
-		grpc_gateway.WithErrorHandler(pmmerrors.PMMHTTPErrorHandler))
+		grpc_gateway.WithErrorHandler(pmmerrors.PMMHTTPErrorHandler),
+	)
 
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),

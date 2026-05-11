@@ -42,7 +42,8 @@ func TestRunExplain(t *testing.T) {
 						QueryID:   "3923dace316a86643fcf87cb45e0558a",
 					},
 				},
-			})
+			},
+		)
 		require.NoError(t, err)
 		require.NotEmpty(t, explainActionOK.Payload.MysqlExplain.ActionID)
 
@@ -72,7 +73,8 @@ func TestRunMongoDBExplain(t *testing.T) {
 					Query:     `{"ns":"test.coll","op":"query","query":{"k":{"$lte":{"$numberInt":"1"}}}}`,
 				},
 			},
-		})
+		},
+	)
 	require.NoError(t, err)
 	require.NotEmpty(t, explainActionOK.Payload.MongodbExplain.ActionID)
 

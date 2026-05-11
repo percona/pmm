@@ -140,7 +140,7 @@ func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent *pmmAgen
 }
 
 // sendSetStateRequest sends SetStateRequest to given pmm-agent.
-func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentInfo) error { //nolint:cyclop,maintidx
+func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentInfo) error { //nolint:gocognit,cyclop,maintidx
 	l := logger.Get(ctx)
 	start := time.Now()
 	defer func() {
@@ -166,7 +166,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		PMMAgentID:  agent.id,
 		IgnoreNomad: !settings.IsNomadEnabled(),
 		// fetch enabled only
-		Disabled: pointer.To(false),
+		Disabled: new(false),
 	}
 	agents, err := models.FindAgents(u.db.Querier, filters)
 	if err != nil {
