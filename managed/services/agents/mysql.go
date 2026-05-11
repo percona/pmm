@@ -150,9 +150,7 @@ func mysqldExporterConfig(
 		TextFiles:          textFiles,
 	}
 
-	// MySQL client connection timeout is configured in whole seconds, so round up
-	// once here and reuse the normalized value for both my.cnf and legacy DSN paths.
-	connectionTimeout := time.Second * time.Duration(max(1, int(math.Ceil(exporter.EffectiveDialTimeout().Seconds()))))
+	connectionTimeout := mysqlExporterDialTimeout(exporter)
 
 	if pmmAgentVersion.IsFeatureSupported(version.MysqlExporterV0_17_2) {
 		if textFiles == nil {
@@ -182,6 +180,14 @@ func mysqldExporterConfig(
 		res.RedactWords = redactWords(exporter)
 	}
 	return res, nil
+}
+
+func mysqlExporterDialTimeout(exporter *models.Agent) time.Duration {
+	return roundUpToSecond(exporter.EffectiveDialTimeout())
+}
+
+func roundUpToSecond(timeout time.Duration) time.Duration {
+	return time.Second * time.Duration(max(1, int(math.Ceil(timeout.Seconds()))))
 }
 
 // qanMySQLPerfSchemaAgentConfig returns desired configuration of qan-mysql-perfschema built-in agent.

@@ -822,9 +822,7 @@ func (a *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 // EffectiveDialTimeout returns the database connection timeout for DSN generation.
 // Returns ExporterOptions.ConnectionTimeout if set, otherwise default based on agent type.
 //
-// Defaults: mysqld/mongodb/proxysql/postgres (2s), valkey (3s).
-//
-// Postgres on RDS/Azure uses 5s default but handled in postgresql.go (needs Node context).
+// Defaults: MySQL, MongoDB, ProxySQL, and PostgreSQL use 2s; Valkey uses 3s.
 //
 // Exporters without DB connection (node, rds, azure, external) don't use this.
 func (a *Agent) EffectiveDialTimeout() time.Duration {
@@ -899,18 +897,18 @@ func (a *Agent) IsMySQLTablestatsGroupEnabled() bool {
 }
 
 // Files returns files map required to connect to DB.
-func (s Agent) Files() map[string]string { //nolint:gocognit
-	switch s.AgentType {
+func (a Agent) Files() map[string]string { //nolint:gocognit
+	switch a.AgentType {
 	case MySQLdExporterType, QANMySQLPerfSchemaAgentType, QANMySQLSlowlogAgentType:
 		files := make(map[string]string)
-		if s.MySQLOptions.TLSCa != "" {
-			files["tlsCa"] = s.MySQLOptions.TLSCa
+		if a.MySQLOptions.TLSCa != "" {
+			files["tlsCa"] = a.MySQLOptions.TLSCa
 		}
-		if s.MySQLOptions.TLSCert != "" {
-			files["tlsCert"] = s.MySQLOptions.TLSCert
+		if a.MySQLOptions.TLSCert != "" {
+			files["tlsCert"] = a.MySQLOptions.TLSCert
 		}
-		if s.MySQLOptions.TLSKey != "" {
-			files["tlsKey"] = s.MySQLOptions.TLSKey
+		if a.MySQLOptions.TLSKey != "" {
+			files["tlsKey"] = a.MySQLOptions.TLSKey
 		}
 
 		if len(files) != 0 {
@@ -922,11 +920,11 @@ func (s Agent) Files() map[string]string { //nolint:gocognit
 		return nil
 	case QANMongoDBProfilerAgentType, QANMongoDBMongologAgentType, MongoDBExporterType, RTAMongoDBAgentType:
 		files := make(map[string]string)
-		if s.MongoDBOptions.TLSCa != "" {
-			files[caFilePlaceholder] = s.MongoDBOptions.TLSCa
+		if a.MongoDBOptions.TLSCa != "" {
+			files[caFilePlaceholder] = a.MongoDBOptions.TLSCa
 		}
-		if s.MongoDBOptions.TLSCertificateKey != "" {
-			files[certificateKeyFilePlaceholder] = s.MongoDBOptions.TLSCertificateKey
+		if a.MongoDBOptions.TLSCertificateKey != "" {
+			files[certificateKeyFilePlaceholder] = a.MongoDBOptions.TLSCertificateKey
 		}
 
 		if len(files) != 0 {
@@ -937,14 +935,14 @@ func (s Agent) Files() map[string]string { //nolint:gocognit
 	case PostgresExporterType, QANPostgreSQLPgStatementsAgentType, QANPostgreSQLPgStatMonitorAgentType:
 		files := make(map[string]string)
 
-		if s.PostgreSQLOptions.SSLCa != "" {
-			files[caFilePlaceholder] = s.PostgreSQLOptions.SSLCa
+		if a.PostgreSQLOptions.SSLCa != "" {
+			files[caFilePlaceholder] = a.PostgreSQLOptions.SSLCa
 		}
-		if s.PostgreSQLOptions.SSLCert != "" {
-			files[certificateFilePlaceholder] = s.PostgreSQLOptions.SSLCert
+		if a.PostgreSQLOptions.SSLCert != "" {
+			files[certificateFilePlaceholder] = a.PostgreSQLOptions.SSLCert
 		}
-		if s.PostgreSQLOptions.SSLKey != "" {
-			files[certificateKeyFilePlaceholder] = s.PostgreSQLOptions.SSLKey
+		if a.PostgreSQLOptions.SSLKey != "" {
+			files[certificateKeyFilePlaceholder] = a.PostgreSQLOptions.SSLKey
 		}
 
 		if len(files) != 0 {
@@ -955,14 +953,14 @@ func (s Agent) Files() map[string]string { //nolint:gocognit
 	case ValkeyExporterType:
 		files := make(map[string]string)
 
-		if s.ValkeyOptions.SSLCa != "" {
-			files["tlsCa"] = s.ValkeyOptions.SSLCa
+		if a.ValkeyOptions.SSLCa != "" {
+			files["tlsCa"] = a.ValkeyOptions.SSLCa
 		}
-		if s.ValkeyOptions.SSLCert != "" {
-			files["tlsCert"] = s.ValkeyOptions.SSLCert
+		if a.ValkeyOptions.SSLCert != "" {
+			files["tlsCert"] = a.ValkeyOptions.SSLCert
 		}
-		if s.ValkeyOptions.SSLKey != "" {
-			files["tlsKey"] = s.ValkeyOptions.SSLKey
+		if a.ValkeyOptions.SSLKey != "" {
+			files["tlsKey"] = a.ValkeyOptions.SSLKey
 		}
 
 		if len(files) != 0 {
@@ -971,31 +969,31 @@ func (s Agent) Files() map[string]string { //nolint:gocognit
 
 		return nil
 	default:
-		panic(fmt.Errorf("unhandled AgentType %q", s.AgentType))
+		panic(fmt.Errorf("unhandled AgentType %q", a.AgentType))
 	}
 }
 
 // TemplateDelimiters returns a pair of safe template delimiters that are not present in agent parameters.
-func (s Agent) TemplateDelimiters(svc *Service) *DelimiterPair {
+func (a Agent) TemplateDelimiters(svc *Service) *DelimiterPair {
 	templateParams := []string{
 		pointer.GetString(svc.Address),
-		pointer.GetString(s.Username),
-		pointer.GetString(s.Password),
-		s.ExporterOptions.MetricsPath,
+		pointer.GetString(a.Username),
+		pointer.GetString(a.Password),
+		a.ExporterOptions.MetricsPath,
 	}
 
 	switch svc.ServiceType {
 	case MySQLServiceType:
-		if s.MySQLOptions.TLSKey != "" {
-			templateParams = append(templateParams, s.MySQLOptions.TLSKey)
+		if a.MySQLOptions.TLSKey != "" {
+			templateParams = append(templateParams, a.MySQLOptions.TLSKey)
 		}
 	case MongoDBServiceType:
-		if s.MongoDBOptions.TLSCertificateKeyFilePassword != "" {
-			templateParams = append(templateParams, s.MongoDBOptions.TLSCertificateKeyFilePassword)
+		if a.MongoDBOptions.TLSCertificateKeyFilePassword != "" {
+			templateParams = append(templateParams, a.MongoDBOptions.TLSCertificateKeyFilePassword)
 		}
 	case PostgreSQLServiceType:
-		if s.PostgreSQLOptions.SSLKey != "" {
-			templateParams = append(templateParams, s.PostgreSQLOptions.SSLKey)
+		if a.PostgreSQLOptions.SSLKey != "" {
+			templateParams = append(templateParams, a.PostgreSQLOptions.SSLKey)
 		}
 	case ProxySQLServiceType:
 	case HAProxyServiceType:

@@ -17,7 +17,6 @@ package agents
 
 import (
 	"fmt"
-	"math"
 	"sort"
 	"strconv"
 	"strings"
@@ -132,22 +131,7 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 		PostgreSQLSupportsSSLSNI: !pmmAgentVersion.Less(postgresSSLSniVersion),
 	}
 
-	var connectionTimeout time.Duration
-
-	// Remote RDS / Azure: default use postgresCloudConnectionTimeout dial unless the user set ExporterOptions.ConnectionTimeout.
-	switch {
-	case exporter.AzureOptions.ClientID != "",
-		node.NodeType == models.RemoteRDSNodeType:
-		connectionTimeout = pointer.Get(exporter.ExporterOptions.ConnectionTimeout)
-		if connectionTimeout == 0 {
-			connectionTimeout = postgresCloudConnectionTimeout
-		}
-	default:
-		connectionTimeout = exporter.EffectiveDialTimeout()
-	}
-	// PostgreSQL uses whole-second connection timeout values, so round up once here
-	// before rendering the connection string to avoid truncating sub-second values to 0.
-	connectionTimeout = time.Second * time.Duration(max(1, int(math.Ceil(connectionTimeout.Seconds()))))
+	connectionTimeout := postgresExporterDialTimeout(node, exporter)
 	dsnParams.DialTimeout = connectionTimeout
 
 	res := &agentv1.SetStateRequest_AgentProcess{
@@ -170,6 +154,19 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 	}
 
 	return res, nil
+}
+
+func postgresExporterDialTimeout(node *models.Node, exporter *models.Agent) time.Duration {
+	timeout := exporter.EffectiveDialTimeout()
+	if exporter.ExporterOptions.ConnectionTimeout != nil {
+		return roundUpToSecond(timeout)
+	}
+
+	if exporter.AzureOptions.ClientID != "" || (node != nil && node.NodeType == models.RemoteRDSNodeType) {
+		timeout = postgresCloudConnectionTimeout
+	}
+
+	return roundUpToSecond(timeout)
 }
 
 // qanPostgreSQLPgStatementsAgentConfig returns desired configuration of qan-postgresql-pgstatements-agent built-in agent.
