@@ -72,7 +72,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     if (user && settings) {
 
       if (settings.frontend.exploreEnabled && user.isEditor) {
-        items.push(addExplore(settings.frontend));
+        items.push(addExplore());
       }
 
       if (settings.frontend.unifiedAlertingEnabled) {
