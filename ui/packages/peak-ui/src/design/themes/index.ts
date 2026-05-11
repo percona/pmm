@@ -5,7 +5,7 @@ export {
   semanticTokensDark,
   type Primitives,
   type SemanticTokens,
-} from "./base";
-export { default as pmmThemeOptions } from "./pmm";
-export { default as sepThemeOptions } from "./sep";
-export { sepPrimaryLight, sepPrimaryDark, sepTechnologyColors } from "./sep";
+} from './base';
+export { default as pmmThemeOptions } from './pmm';
+export { default as sepThemeOptions } from './sep';
+export { sepPrimaryLight, sepPrimaryDark, sepTechnologyColors } from './sep';

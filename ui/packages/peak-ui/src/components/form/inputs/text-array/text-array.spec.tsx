@@ -32,7 +32,5 @@ it('should add / remove fields', () => {
 
   fireEvent.click(screen.getByTestId('delete-text-input-0-button'));
 
-  expect(
-    screen.queryByTestId('text-input-people.1.person')
-  ).not.toBeInTheDocument();
+  expect(screen.queryByTestId('text-input-people.1.person')).not.toBeInTheDocument();
 });

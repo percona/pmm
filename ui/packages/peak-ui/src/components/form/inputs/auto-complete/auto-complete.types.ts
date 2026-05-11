@@ -1,4 +1,3 @@
-
 // Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,12 +23,7 @@ export type AutoCompleteInputProps<T> = {
   label?: string;
   labelProps?: LabeledContentProps;
   autoCompleteProps?: Omit<
-    AutocompleteProps<
-      T,
-      boolean | undefined,
-      boolean | undefined,
-      boolean | undefined
-    >,
+    AutocompleteProps<T, boolean | undefined, boolean | undefined, boolean | undefined>,
     'options' | 'renderInput'
   >;
   textFieldProps?: TextFieldProps;

@@ -85,11 +85,7 @@ const StepperWithoutConnectors = () => {
   );
 };
 const HorizontalStepperWithConnectors = () => {
-  const steps = [
-    { label: 'Step 1 title' },
-    { label: 'Step 2 title' },
-    { label: 'Step 3 title' },
-  ];
+  const steps = [{ label: 'Step 1 title' }, { label: 'Step 2 title' }, { label: 'Step 3 title' }];
   const [activeStep, setActiveStep] = useState(0);
   const [skipped, setSkipped] = useState(new Set<number>());
 
@@ -155,14 +151,10 @@ const HorizontalStepperWithConnectors = () => {
 describe('Stepper', () => {
   it('should not show the connector line when noConnector prop is true', () => {
     const { container } = render(<StepperWithoutConnectors />);
-    expect(
-      container.getElementsByClassName('MuiStepConnector-root')[0]
-    ).toBeUndefined();
+    expect(container.getElementsByClassName('MuiStepConnector-root')[0]).toBeUndefined();
   });
   it('should show the connector line when noConnector prop is false', () => {
     const { container } = render(<HorizontalStepperWithConnectors />);
-    expect(
-      container.getElementsByClassName('MuiStepConnector-root')[0]
-    ).toBeTruthy();
+    expect(container.getElementsByClassName('MuiStepConnector-root')[0]).toBeTruthy();
   });
 });

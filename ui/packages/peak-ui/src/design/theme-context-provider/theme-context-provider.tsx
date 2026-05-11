@@ -22,7 +22,6 @@ const ThemeContextProvider = ({
   themeOptions,
   saveColorModeOnLocalStorage,
 }: ThemeContextProviderProps) => {
-
   const [colorMode, setColorMode] = useState<PaletteMode>(
     saveColorModeOnLocalStorage ? getColorModeFromLocalStorage() : 'light'
   );
@@ -36,10 +35,7 @@ const ThemeContextProvider = ({
     });
   }, [saveColorModeOnLocalStorage]);
 
-  const theme = useMemo(
-    () => createTheme(themeOptions(colorMode)),
-    [colorMode, themeOptions]
-  );
+  const theme = useMemo(() => createTheme(themeOptions(colorMode)), [colorMode, themeOptions]);
 
   return (
     <ColorModeContext.Provider value={{ colorMode, toggleColorMode }}>

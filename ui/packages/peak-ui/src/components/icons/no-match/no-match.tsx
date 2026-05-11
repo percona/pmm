@@ -2,13 +2,7 @@ import { NoMatchIconProps } from '.';
 
 const NoMatchIcon = ({ w, h }: NoMatchIconProps) => {
   return (
-    <svg
-      width={w}
-      height={h}
-      viewBox="0 0 435 435"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg width={w} height={h} viewBox="0 0 435 435" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         d="M184.876 315.377C256.949 315.377 315.377 256.949 315.377 184.876C315.377 112.802 256.949 54.375 184.876 54.375C112.802 54.375 54.375 112.802 54.375 184.876C54.375 256.949 112.802 315.377 184.876 315.377Z"
         stroke="#0E5FB5"

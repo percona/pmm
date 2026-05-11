@@ -1,4 +1,4 @@
-import { StepperProps as MuiStepperProps } from '@mui/material/Stepper/Stepper';
+import { StepperProps as MuiStepperProps } from '@mui/material';
 
 export type StepperProps = MuiStepperProps & {
   noConnector?: boolean;
