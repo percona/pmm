@@ -55,7 +55,7 @@ const DateTimePickerInput = <
               return {
                 ...consumerTextField,
                 error: !!error,
-                helperText: error ? error.message : '',
+                helperText: error ? error.message : consumerTextField.helperText,
                 onBlur: (event: React.FocusEvent<HTMLInputElement>) => {
                   consumerTextField.onBlur?.(event);
                   field.onBlur();
