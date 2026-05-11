@@ -18,6 +18,7 @@ package agents
 import (
 	"context"
 	"fmt"
+	"math"
 	"strings"
 	"time"
 
@@ -36,6 +37,8 @@ import (
 )
 
 var checkExternalExporterConnectionPMMVersion = version.MustParse("2.14.99")
+
+const checkConnectionTimeoutOverhead = time.Second
 
 // ConnectionChecker checks if connection can be established to service.
 type ConnectionChecker struct {
@@ -126,13 +129,15 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 	var request *agentv1.CheckConnectionRequest
 
 	pmmAgentVersion := models.ExtractPmmAgentVersionFromAgent(q, agent)
+	dialTimeout := connectionRequestDialTimeout(service, agent)
+	requestTimeout := connectionRequestTimeout(agent)
 	switch service.ServiceType {
 	case models.MySQLServiceType:
 		tdp := agent.TemplateDelimiters(service)
 		request = &agentv1.CheckConnectionRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE,
-			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second, Database: service.DatabaseName}, nil, pmmAgentVersion),
-			Timeout: durationpb.New(3 * time.Second),
+			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: dialTimeout, Database: service.DatabaseName}, nil, pmmAgentVersion),
+			Timeout: durationpb.New(requestTimeout),
 			TextFiles: &agentv1.TextFiles{
 				Files:              agent.Files(),
 				TemplateLeftDelim:  tdp.Left,
@@ -142,16 +147,15 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 		}
 	case models.PostgreSQLServiceType:
 		tdp := agent.TemplateDelimiters(service)
-
 		sqlSniSupported, err := models.IsPostgreSQLSSLSniSupported(q, pointer.GetString(agent.PMMAgentID))
 		if err != nil {
 			return nil, err
 		}
 		request = &agentv1.CheckConnectionRequest{
 			Type: inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE,
-			Dsn: agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second, Database: service.DatabaseName, PostgreSQLSupportsSSLSNI: sqlSniSupported},
+			Dsn: agent.DSN(service, models.DSNParams{DialTimeout: dialTimeout, Database: service.DatabaseName, PostgreSQLSupportsSSLSNI: sqlSniSupported},
 				nil, pmmAgentVersion),
-			Timeout: durationpb.New(3 * time.Second),
+			Timeout: durationpb.New(requestTimeout),
 			TextFiles: &agentv1.TextFiles{
 				Files:              agent.Files(),
 				TemplateLeftDelim:  tdp.Left,
@@ -162,8 +166,8 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 		tdp := agent.TemplateDelimiters(service)
 		request = &agentv1.CheckConnectionRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
-			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second, Database: service.DatabaseName}, nil, pmmAgentVersion),
-			Timeout: durationpb.New(3 * time.Second),
+			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: dialTimeout, Database: service.DatabaseName}, nil, pmmAgentVersion),
+			Timeout: durationpb.New(requestTimeout),
 			TextFiles: &agentv1.TextFiles{
 				Files:              agent.Files(),
 				TemplateLeftDelim:  tdp.Left,
@@ -173,8 +177,8 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 	case models.ProxySQLServiceType:
 		request = &agentv1.CheckConnectionRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE,
-			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second, Database: service.DatabaseName}, nil, pmmAgentVersion),
-			Timeout: durationpb.New(3 * time.Second),
+			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: dialTimeout, Database: service.DatabaseName}, nil, pmmAgentVersion),
+			Timeout: durationpb.New(requestTimeout),
 		}
 	case models.ExternalServiceType:
 		exporterURL, err := agent.ExporterURL(q)
@@ -185,7 +189,7 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 		request = &agentv1.CheckConnectionRequest{
 			Type:          inventoryv1.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE,
 			Dsn:           exporterURL,
-			Timeout:       durationpb.New(3 * time.Second),
+			Timeout:       durationpb.New(requestTimeout),
 			TlsSkipVerify: agent.TLSSkipVerify,
 		}
 	case models.HAProxyServiceType:
@@ -197,16 +201,16 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 		request = &agentv1.CheckConnectionRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE,
 			Dsn:     exporterURL,
-			Timeout: durationpb.New(3 * time.Second),
+			Timeout: durationpb.New(requestTimeout),
 		}
 	case models.ValkeyServiceType:
 		tdp := agent.TemplateDelimiters(service)
 		request = &agentv1.CheckConnectionRequest{
 			Type: inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE,
 			Tls:  agent.TLS,
-			Dsn: agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second},
+			Dsn: agent.DSN(service, models.DSNParams{DialTimeout: dialTimeout},
 				nil, pmmAgentVersion),
-			Timeout: durationpb.New(3 * time.Second),
+			Timeout: durationpb.New(requestTimeout),
 			TextFiles: &agentv1.TextFiles{
 				Files:              agent.Files(),
 				TemplateLeftDelim:  tdp.Left,
@@ -217,6 +221,24 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 		return nil, errors.Errorf("unhandled Service type %s", service.ServiceType)
 	}
 	return request, nil
+}
+
+func connectionRequestDialTimeout(service *models.Service, agent *models.Agent) time.Duration {
+	timeout := agent.EffectiveDialTimeout()
+	if service.ServiceType != models.PostgreSQLServiceType {
+		return timeout
+	}
+
+	return time.Second * time.Duration(max(1, int(math.Ceil(timeout.Seconds()))))
+}
+
+func connectionRequestTimeout(agent *models.Agent) time.Duration {
+	timeout := agent.EffectiveDialTimeout()
+	if timeout <= 0 {
+		return 3 * time.Second
+	}
+
+	return timeout + checkConnectionTimeoutOverhead
 }
 
 func isExternalExporterConnectionCheckSupported(q *reform.Querier, pmmAgentID string) (bool, error) {
