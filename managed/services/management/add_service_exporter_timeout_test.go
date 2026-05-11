@@ -171,7 +171,7 @@ func TestAddServiceExporterTimeout(t *testing.T) {
 
 	t.Run("Azure Database", func(t *testing.T) {
 		_, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-			EnableAzurediscover: pointer.ToBool(true),
+			EnableAzurediscover: new(true),
 		})
 		require.NoError(t, err)
 

@@ -58,6 +58,8 @@ const (
 	skipVerify         = "skip-verify"
 	defaultDialTimeout = 2 * time.Second
 	valkeyDialTimeout  = 3 * time.Second
+	agentIDLabel       = "agent_id"
+	agentTypeLabel     = "agent_type"
 )
 
 // Agent types (in the same order as in agents.proto).
@@ -486,8 +488,8 @@ func (a *Agent) UnifiedLabels() (map[string]string, error) {
 	}
 
 	res := map[string]string{
-		"agent_id":   a.AgentID,
-		"agent_type": string(a.AgentType),
+		agentIDLabel:   a.AgentID,
+		agentTypeLabel: string(a.AgentType),
 	}
 	maps.Copy(res, custom)
 

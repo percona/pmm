@@ -37,7 +37,10 @@ import (
 
 var checkExternalExporterConnectionPMMVersion = version.MustParse("2.14.99")
 
-const checkConnectionTimeoutOverhead = time.Second
+const (
+	defaultCheckTimeout = 3 * time.Second
+	checkTimeoutMargin  = time.Second
+)
 
 // ConnectionChecker checks if connection can be established to service.
 type ConnectionChecker struct {
@@ -246,10 +249,10 @@ func connectionCheckDialTimeout(node *models.Node, agent *models.Agent) time.Dur
 
 func requestTimeout(timeout time.Duration) *durationpb.Duration {
 	if timeout <= 0 {
-		return durationpb.New(3 * time.Second)
+		return durationpb.New(defaultCheckTimeout)
 	}
 
-	return durationpb.New(timeout + checkConnectionTimeoutOverhead)
+	return durationpb.New(timeout + checkTimeoutMargin)
 }
 
 func isExternalExporterConnectionCheckSupported(q *reform.Querier, pmmAgentID string) (bool, error) {

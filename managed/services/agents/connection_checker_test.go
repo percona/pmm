@@ -19,7 +19,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -44,17 +43,17 @@ func TestConnectionRequestUsesExporterConnectionTimeout(t *testing.T) {
 	connectionTimeout := 7 * time.Second
 	service := &models.Service{
 		ServiceType:  models.MySQLServiceType,
-		Address:      pointer.ToString("127.0.0.1"),
-		Port:         pointer.ToUint16(3306),
+		Address:      new("127.0.0.1"),
+		Port:         new(uint16(3306)),
 		DatabaseName: "mysql",
 	}
 	agent := &models.Agent{
 		AgentType:  models.MySQLdExporterType,
-		PMMAgentID: pointer.ToString("pmm-agent-id"),
-		Username:   pointer.ToString("pmm-agent"),
-		Password:   pointer.ToString("password"),
+		PMMAgentID: new("pmm-agent-id"),
+		Username:   new("pmm-agent"),
+		Password:   new("password"),
 		ExporterOptions: models.ExporterOptions{
-			ConnectionTimeout: pointer.ToDuration(connectionTimeout),
+			ConnectionTimeout: new(connectionTimeout),
 		},
 	}
 
@@ -90,7 +89,7 @@ func TestConnectionRequestDialTimeoutRoundsWholeSecondTimeoutsUp(t *testing.T) {
 			agent := &models.Agent{
 				AgentType: tc.agentType,
 				ExporterOptions: models.ExporterOptions{
-					ConnectionTimeout: pointer.ToDuration(connectionTimeout),
+					ConnectionTimeout: new(connectionTimeout),
 				},
 			}
 
