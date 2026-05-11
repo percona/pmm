@@ -4,7 +4,6 @@ import LabeledContent from "../../../labeled-content";
 import { Controller, FieldValues, useFormContext } from "react-hook-form";
 import { ToggleButtonGroupInputProps } from "./toggle-button-group.types";
 
-// TODO remove control prop from all inputs. We should just use useFormContext
 const ToggleButtonGroupInput = <T extends FieldValues = FieldValues>({
   name,
   label,
