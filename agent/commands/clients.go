@@ -208,6 +208,7 @@ func serverRegister(cfgSetup *config.Setup) (agentID, token string, _ error) { /
 	if err != nil {
 		return "", "", err
 	}
+	// TODO: Investigate what can lead to PMMAgent being nil in the response
 	if res.Payload == nil || res.Payload.PMMAgent == nil {
 		return "", "", errors.New("unexpected empty response from PMM Server (missing pmm_agent)")
 	}
