@@ -17,7 +17,7 @@ import { useKioskMode } from 'hooks/utils/useKioskMode';
 import { useColorMode } from 'hooks/theme';
 import { getLocationUrl } from './grafana.utils';
 import messenger from 'lib/messenger';
-import { useSettings } from 'hooks/api/useSettings';
+import { useSettings, useFrontendSettings } from 'hooks/api/useSettings';
 import { useServiceTypes } from 'hooks/api/useServices';
 import { useQueryClient } from '@tanstack/react-query';
 import { USER_PREFERENCES_QUERY_KEY } from 'hooks/api/useUser';
@@ -40,6 +40,9 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   const queryClient = useQueryClient();
 
   const { refetch: refetchSettings } = useSettings({
+    enabled: false,
+  });
+  const { refetch: refetchFrontendSettings } = useFrontendSettings({
     enabled: false,
   });
   const { refetch: refetchServiceTypes } = useServiceTypes({
@@ -111,6 +114,11 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
     messenger.addListener({
       type: 'SETTINGS_CHANGED',
       onMessage: () => refetchSettings(),
+    });
+
+    messenger.addListener({
+      type: 'FRONTEND_SETTINGS_CHANGED',
+      onMessage: () => refetchFrontendSettings(),
     });
 
     messenger.addListener({

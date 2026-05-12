@@ -70,9 +70,8 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     items.push(NAV_QAN);
 
     if (user && settings) {
-
       if (settings.frontend.exploreEnabled && user.isEditor) {
-        items.push(addExplore());
+        items.push(addExplore('grafana-metricsdrilldown-app' in settings.frontend.apps));
       }
 
       if (settings.frontend.unifiedAlertingEnabled) {

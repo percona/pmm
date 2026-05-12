@@ -157,10 +157,12 @@ export const addAlerting = (enabled = false, user?: User): NavItem => {
   return { ...NAV_ALERTS, children };
 };
 
-export const addExplore = (): NavItem => {
+export const addExplore = (exploreMetricsEnabled: boolean): NavItem => {
   const children: NavItem[] = [NAV_EXPLORE_BUILDER];
 
+  if (exploreMetricsEnabled) {
     children.push(NAV_EXPLORE_METRICS);
+  }
 
   return { ...NAV_EXPLORE, children };
 };

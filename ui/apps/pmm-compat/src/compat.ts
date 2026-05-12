@@ -23,7 +23,7 @@ import { adjustToolbar } from 'compat/toolbar';
 import { isWithinIframe, getLinkWithVariables } from 'lib/utils';
 import { documentTitleObserver, updateBodyClassByLocation } from 'lib/utils/document';
 import { isFirstLogin, updateIsFirstLogin, isUserLoggedIn } from 'lib/utils/login';
-import { ServiceAddedEvent, ServiceDeletedEvent, SettingsUpdatedEvent, TimeZoneUpdatedEvent } from 'lib/events';
+import { ServiceAddedEvent, ServiceDeletedEvent, SettingsUpdatedEvent, FrontendSettingsUpdatedEvent, TimeZoneUpdatedEvent } from 'lib/events';
 import { handleExternalLinks } from 'compat/links';
 
 export const initialize = () => {
@@ -172,6 +172,12 @@ export const initialize = () => {
   getAppEvents().subscribe(SettingsUpdatedEvent, () => {
     messenger.sendMessage({
       type: 'SETTINGS_CHANGED',
+    });
+  });
+
+  getAppEvents().subscribe(FrontendSettingsUpdatedEvent, () => {
+    messenger.sendMessage({
+      type: 'FRONTEND_SETTINGS_CHANGED',
     });
   });
 
