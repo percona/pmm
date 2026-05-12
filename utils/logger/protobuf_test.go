@@ -316,6 +316,32 @@ func getStartActionRequestPTMySQLSummaryParams(t *testing.T) []proto.Message {
 	return []proto.Message{startActionOrig, startActionRedacted}
 }
 
+//nolint:gosec
+func getServerMessageMessage(t *testing.T) []proto.Message {
+	t.Helper()
+
+	orig := &agentv1.ServerMessage{
+		Id: 10,
+		Payload: &agentv1.ServerMessage_ServiceInfo{
+			ServiceInfo: &agentv1.ServiceInfoRequest{
+				Type: inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE,
+				Dsn:  "postgres://user:password@pmm2-qa-postgresql.postgres.database.azure.com:5432/postgres?connect_timeout=1&sslmode=disable",
+			},
+		},
+	}
+
+	redacted := &agentv1.ServerMessage{
+		Id: 10,
+		Payload: &agentv1.ServerMessage_ServiceInfo{
+			ServiceInfo: &agentv1.ServiceInfoRequest{
+				Type: inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE,
+				Dsn:  "postgres://***REDACTED***:***REDACTED***@pmm2-qa-postgresql.postgres.database.azure.com:5432/postgres?connect_timeout=1&sslmode=disable",
+			},
+		},
+	}
+	return []proto.Message{orig, redacted}
+}
+
 func TestRedactMessage(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
@@ -352,6 +378,11 @@ func TestRedactMessage(t *testing.T) {
 			name:  "StartActionRequest_PTMySQLSummaryParams message with sensitive data",
 			input: getStartActionRequestPTMySQLSummaryParams(t)[0],
 			want:  getStartActionRequestPTMySQLSummaryParams(t)[1],
+		},
+		{
+			name:  "ServerMessage message with sensitive data",
+			input: getServerMessageMessage(t)[0],
+			want:  getServerMessageMessage(t)[1],
 		},
 	}
 	for _, tt := range tests {
@@ -503,6 +534,11 @@ func Test_maskDSN(t *testing.T) {
 			name:  "DSN server:port without credentials",
 			input: "server:80",
 			want:  "server:80",
+		},
+		{
+			name:  "escaped DSN",
+			input: "postgres://pmm2qa:7w%5ELXF8%5EqUaPNfD@pmm2-qa-postgresql.postgres.database.azure.com:5432/postgres?connect_timeout=1&sslmode=disable",
+			want:  "postgres://***REDACTED***:***REDACTED***@pmm2-qa-postgresql.postgres.database.azure.com:5432/postgres?connect_timeout=1&sslmode=disable",
 		},
 	}
 	for _, tt := range tests {
