@@ -10,7 +10,7 @@ interface Props {
 
 const SettingsSubmitButton: FC<Props> = ({ testId }) => {
   const {
-    formState: { isDirty, isSubmitting, errors },
+    formState: { isDirty, isSubmitting, isValid },
   } = useFormContext();
 
   return (
@@ -31,7 +31,7 @@ const SettingsSubmitButton: FC<Props> = ({ testId }) => {
       <Button
         type="submit"
         variant="contained"
-        disabled={!isDirty || isSubmitting || Object.keys(errors).length > 0}
+        disabled={!isValid || !isDirty || isSubmitting}
         data-testid={testId}
         sx={{ alignSelf: 'flex-start' }}
       >

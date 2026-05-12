@@ -48,6 +48,7 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
   const methods = useForm<AdvancedSettingsFormValues>({
     resolver: zodResolver(advancedSettingsSchema),
     defaultValues: toFormValues(settings),
+    mode: 'onChange',
   });
 
   const { handleSubmit, reset, watch, setValue } = methods;

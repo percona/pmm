@@ -12,13 +12,22 @@ import { AdvancedSettingsForm } from './components/advanced/AdvancedSettingsForm
 import { Messages } from './Settings.messages';
 import { TabValue } from './Settings.types';
 import { useNavigate, useParams } from 'react-router-dom';
+import { OrgRole } from 'types/user.types';
+import { useUser } from 'contexts/user';
 
 export const Settings: FC = () => {
+  const { user } = useUser();
   const { tab = 'metrics-resolution' } = useParams<{ tab: TabValue }>();
-  const { data: settings, isLoading } = useSettings();
+  const {
+    data: settings,
+    isLoading,
+    isEnabled,
+  } = useSettings({
+    enabled: !!user && user.isPMMAdmin,
+  });
   const navigate = useNavigate();
 
-  if (isLoading || !settings) {
+  if (isLoading || (isEnabled && !settings)) {
     return (
       <Page title={Messages.title}>
         <Stack alignItems="center" py={4}>
@@ -31,7 +40,12 @@ export const Settings: FC = () => {
   const setTab = (value: TabValue) => navigate(`/settings/${value}`);
 
   return (
-    <Page title={Messages.title} fullWidth surface="paper">
+    <Page
+      title={Messages.title}
+      fullWidth
+      surface="paper"
+      roles={[OrgRole.Admin]}
+    >
       <Stack gap={3} sx={{ flex: 1 }}>
         <Tabs
           data-testid="settings-tabs"
@@ -60,12 +74,12 @@ export const Settings: FC = () => {
 
         <Box sx={{ flex: 1 }} data-testid="settings-tab-content">
           {tab === 'metrics-resolution' && (
-            <MetricsResolutionForm settings={settings} />
+            <MetricsResolutionForm settings={settings!} />
           )}
           {tab === 'advanced-settings' && (
-            <AdvancedSettingsForm settings={settings} />
+            <AdvancedSettingsForm settings={settings!} />
           )}
-          {tab === 'ssh-key' && <SshKeyForm settings={settings} />}
+          {tab === 'ssh-key' && <SshKeyForm settings={settings!} />}
         </Box>
       </Stack>
     </Page>

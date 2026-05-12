@@ -16,6 +16,7 @@ import { Messages } from './Page.messages';
 import { PMM_HOME_URL } from 'lib/constants';
 import { Footer } from 'components/footer';
 import { updateDocumentTitle } from 'utils/document.utils';
+import { Link as RouterLink } from 'react-router-dom';
 
 export const Page: FC<PageProps> = ({
   title,
@@ -24,9 +25,11 @@ export const Page: FC<PageProps> = ({
   children,
   fullWidth,
   surface,
+  roles,
 }) => {
   const { user } = useUser();
   updateDocumentTitle(title);
+  const hasAccess = !roles || roles?.some((role) => user?.orgRole === role);
 
   return (
     <>
@@ -63,17 +66,19 @@ export const Page: FC<PageProps> = ({
         {topBar}
         {!!title && <Typography variant="h2">{title}</Typography>}
         <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          {user?.isAuthorized ? (
+          {user?.isAuthorized && hasAccess ? (
             children
           ) : (
             <Card variant="outlined" sx={{ p: 2 }}>
-              <Alert severity="error" sx={{ mb: 1 }}>
+              <Alert severity="error" sx={{ mb: 1 }} data-testid="unauthorized">
                 {Messages.noAcccess}
               </Alert>
               <CardActions>
                 <Typography>
                   {Messages.goBack}
-                  <Link href={PMM_HOME_URL}>{Messages.home}</Link>
+                  <Link to={PMM_HOME_URL} component={RouterLink}>
+                    {Messages.home}
+                  </Link>
                 </Typography>
               </CardActions>
             </Card>
