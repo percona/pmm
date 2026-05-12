@@ -42,9 +42,7 @@ $(TEST_BINARY_TARGETS): ## Build test binaries
 	echo "-> Building test binary for dir: $$dir"; \
 	go test -c -v -race -o $(BIN_DIR)/$@ $(CURDIR)/$$dir
 
-init: clean $(TEST_BINARY_TARGETS) ## Build tests and install development tools
-	@echo "-> Installing tools MAKEFLAGS: $(MAKEFLAGS)"
-	cd tools && go generate -x -tags=tools
+init: clean $(TEST_BINARY_TARGETS) ## Build tests
 
 $(RUN_TEST_TARGETS):
 	@binary="$(subst test-,,$@)"; \
@@ -63,13 +61,13 @@ test: guard-PMM_SERVER_URL $(RUN_TEST_TARGETS) ## Run tests
 	@echo "✅ All tests completed."
 
 test-report: test ## Run tests and generate JUnit report
-	cat $(CURDIR)/$(TEST_OUTPUT_PREFIX)-*.txt | $(BIN_DIR)/go-junit-report > $(REPORT_OUT)
+	cat $(CURDIR)/$(TEST_OUTPUT_PREFIX)-*.txt | go tool go-junit-report -out $(REPORT_OUT)
 	@echo "✅ Report generated: $(REPORT_OUT)."
 
 clean:	## Cleanup reports and test binaries
 	@echo "🧹 Cleaning up test binaries and reports..."
 	rm -f $(BIN_DIR)/test-* || true
-	rm -f $(CURDIR)/pmm-api-tests-*.txt || true
+	rm -f $(CURDIR)/pmm-api-tests-*.txt $(CURDIR)/pmm-api-tests-*.xml  || true
 	rm -f $(CURDIR)/$(REPORT_OUT) || true
 	@echo "✅ Cleanup completed."
 
