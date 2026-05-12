@@ -991,69 +991,96 @@ telemetry:
       - metric_name: "pmm_server_ha_vm_url"
         column: "PMM_VM_URL"
 
-  - id: RTADBVersion
+  # Real-Time Analytics for MongoDB (RTA)
+  # Uses pmm-server-postgresql.created_at as the install-time marker (same idiom as PMMServerFirstServiceAdded).
+  - id: RTAMongoFirstAgent
     source: PMMDB_SELECT
     query: >
-      a.agent_type as agent_type,
-      s.version as db_version,
-      count(a.agent_id) as agent_count
-      FROM
-        agents a
-      INNER JOIN
-        services s ON a.service_id = s.service_id
-      WHERE
-        a.agent_type = 'rta-mongodb-agent'
-        AND a.created_at >= now() -  interval '1 day'
-      GROUP BY
-        agent_type, db_version;
-    summary: "Real-Time Analytics agents used for last day grouped by DB version"
-    transform:
-      type: JSON
-      metric: "rta_db_versions"
+      EXTRACT(EPOCH FROM y.created_at::timestamp)
+        - EXTRACT(EPOCH FROM x.created_at::timestamp) AS value_difference_sec
+      FROM services x
+      JOIN agents y ON y.agent_type = 'rta-mongodb-agent'
+      WHERE x.service_name = 'pmm-server-postgresql'
+        AND y.created_at = (
+          SELECT MIN(created_at) FROM agents WHERE agent_type = 'rta-mongodb-agent'
+        );
+    summary: "Time in seconds from PMM installation to first Real-Time Analytics agent created"
     data:
-      - metric_name: "agent_type"
-        column: "agent_type"
-      - metric_name: "db_version"
-        column: "db_version"
-      - metric_name: "agent_count"
+      - metric_name: "rta_mongo_first_agent_sec"
+        column: "value_difference_sec"
+
+  - id: RTAMongoAgentsRunning24h
+    source: PMMDB_SELECT
+    query: >
+      count(*) AS agent_count
+      FROM agents
+      WHERE agent_type = 'rta-mongodb-agent'
+        AND (disabled = false OR created_at >= now() - interval '1 day');
+    summary: "Count of Real-Time Analytics MongoDB agents currently running or started within the past 24 hours"
+    data:
+      - metric_name: "rta_mongo_agents_running_in_24hrs"
         column: "agent_count"
 
-  - id: RTASessionDuration
+  - id: RTAMongoAgentsLifetimeTotal
     source: PMMDB_SELECT
     query: >
-      agent_type,
-      EXTRACT(EPOCH FROM updated_at  - created_at)::int  AS duration_sec
+      count(*) AS agent_count
       FROM agents
-      WHERE
-        agent_type = 'rta-mongodb-agent'
-        AND EXTRACT(EPOCH FROM updated_at  - created_at)::int > 0
-        AND created_at >= now() -  interval '1 day';
-    summary: "Real-Time Analytics session durations for last day"
-    transform:
-      type: JSON
-      metric: "rta_session_durations"
+      WHERE agent_type = 'rta-mongodb-agent';
+    summary: "Total count of Real-Time Analytics MongoDB agents (running now + in the past)"
     data:
-      - metric_name: "agent_type"
-        column: "agent_type"
-      - metric_name: "duration_sec"
-        column: "duration_sec"
+      - metric_name: "rta_mongo_agents_lifetime_total"
+        column: "agent_count"
 
-  - id: RTAAgentCollectInterval
+  # Approximate: updated_at advances on any row write (status reports, HA reconnects), not only StopSession.
+  - id: RTAMongoAgentsStopped24h
     source: PMMDB_SELECT
     query: >
-      agent_type,
-      ((rta_options->'collect_interval')::numeric / 1000000000)::int as collect_interval_sec
+      count(*) AS agent_count
       FROM agents
-      WHERE
-        agent_type = 'rta-mongodb-agent'
-        AND rta_options->'collect_interval' != 'null'
-        AND created_at >= now() -  interval '1 day';
-    summary: "Real-Time Analytics collect interval (sec)"
-    transform:
-      type: JSON
-      metric: "rta_agent_collect_interval"
+      WHERE agent_type = 'rta-mongodb-agent'
+        AND disabled = true
+        AND updated_at >= now() - interval '1 day';
+    summary: "Count of Real-Time Analytics MongoDB agents stopped within past 24 hours"
     data:
-      - metric_name: "agent_type"
+      - metric_name: "rta_mongo_agents_stopped_in_24hrs"
+        column: "agent_count"
+
+  - id: RTAMongoAgentsStartedThenStopped24h
+    source: PMMDB_SELECT
+    query: >
+      count(*) AS agent_count
+      FROM agents
+      WHERE agent_type = 'rta-mongodb-agent'
+        AND disabled = true
+        AND created_at >= now() - interval '1 day';
+    summary: "Count of Real-Time Analytics MongoDB agents started and then stopped within past 24 hours"
+    data:
+      - metric_name: "rta_mongo_agents_started_then_stopped_in_24hrs"
+        column: "agent_count"
+
+  # Real-Time Analytics (RTA) agents details
+  # Per-agent rows; agent_type is the row marker (consumer assumes 4 lines per agent).
+  # COALESCE keeps row alignment when version/collect_interval are NULL (empty values would be dropped by removeEmpty).
+  # 1_000_000_000 divisor converts the stored nanosecond CollectInterval to seconds. LIKE 'rta-%' is forward-compatible with future PG/MySQL RTA agents.
+  - id: RTAAgentsRunning24hDetail
+    source: PMMDB_SELECT
+    query: >
+      a.agent_type AS agent_type,
+      COALESCE(s.version, 'unknown') AS db_version,
+      EXTRACT(EPOCH FROM a.updated_at - a.created_at)::int AS duration_sec,
+      COALESCE(((a.rta_options->>'collect_interval')::bigint / 1000000000)::int, 0) AS collect_interval_sec
+      FROM agents a
+      LEFT JOIN services s ON a.service_id = s.service_id
+      WHERE a.agent_type LIKE 'rta-%'
+        AND (a.disabled = false OR a.created_at >= now() - interval '1 day');
+    summary: "Per-agent details for Real-Time Analytics agents currently running or started within the past 24 hours"
+    data:
+      - metric_name: "rta_agent_running_type"
         column: "agent_type"
-      - metric_name: "collect_interval_sec"
+      - metric_name: "rta_agent_running_db_version"
+        column: "db_version"
+      - metric_name: "rta_agent_running_session_duration"
+        column: "duration_sec"
+      - metric_name: "rta_agent_collect_interval"
         column: "collect_interval_sec"
