@@ -1,6 +1,6 @@
-// IMPORTANT: keep this list in sync with `installTokenTechnologies` in
-// managed/services/management/install_token.go — adding a tech here without
-// adding it there gets you a runtime InvalidArgument from the server.
+// IMPORTANT: keep this list in sync with `SUPPORTED_TECHNOLOGIES` in
+// api/installToken.ts — adding a tech here without adding it there gets you
+// a client-side "unsupported technology" error when generating a token.
 export type Technology = 'mysql' | 'postgresql' | 'mongodb' | 'valkey';
 export type CredentialsMode = 'prompt' | 'env' | 'flags';
 

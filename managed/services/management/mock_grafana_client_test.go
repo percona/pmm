@@ -42,48 +42,6 @@ func (_m *mockGrafanaClient) CreateAnnotation(ctx context.Context, tags []string
 	return r0, r1
 }
 
-// CreateNodeInstallToken provides a mock function with given fields: ctx, technology, ttlSeconds
-func (_m *mockGrafanaClient) CreateNodeInstallToken(ctx context.Context, technology string, ttlSeconds int64) (int64, string, time.Time, error) {
-	ret := _m.Called(ctx, technology, ttlSeconds)
-
-	if len(ret) == 0 {
-		panic("no return value specified for CreateNodeInstallToken")
-	}
-
-	var r0 int64
-	var r1 string
-	var r2 time.Time
-	var r3 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, int64) (int64, string, time.Time, error)); ok {
-		return rf(ctx, technology, ttlSeconds)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, int64) int64); ok {
-		r0 = rf(ctx, technology, ttlSeconds)
-	} else {
-		r0 = ret.Get(0).(int64)
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, string, int64) string); ok {
-		r1 = rf(ctx, technology, ttlSeconds)
-	} else {
-		r1 = ret.Get(1).(string)
-	}
-
-	if rf, ok := ret.Get(2).(func(context.Context, string, int64) time.Time); ok {
-		r2 = rf(ctx, technology, ttlSeconds)
-	} else {
-		r2 = ret.Get(2).(time.Time)
-	}
-
-	if rf, ok := ret.Get(3).(func(context.Context, string, int64) error); ok {
-		r3 = rf(ctx, technology, ttlSeconds)
-	} else {
-		r3 = ret.Error(3)
-	}
-
-	return r0, r1, r2, r3
-}
-
 // CreateServiceAccount provides a mock function with given fields: ctx, noneName, reregister
 func (_m *mockGrafanaClient) CreateServiceAccount(ctx context.Context, noneName string, reregister bool) (int, string, error) {
 	ret := _m.Called(ctx, noneName, reregister)

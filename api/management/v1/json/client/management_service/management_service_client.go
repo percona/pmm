@@ -60,8 +60,6 @@ type ClientService interface {
 
 	AddService(params *AddServiceParams, opts ...ClientOption) (*AddServiceOK, error)
 
-	CreateNodeInstallToken(params *CreateNodeInstallTokenParams, opts ...ClientOption) (*CreateNodeInstallTokenOK, error)
-
 	DiscoverAzureDatabase(params *DiscoverAzureDatabaseParams, opts ...ClientOption) (*DiscoverAzureDatabaseOK, error)
 
 	DiscoverRDS(params *DiscoverRDSParams, opts ...ClientOption) (*DiscoverRDSOK, error)
@@ -213,50 +211,6 @@ func (a *Client) AddService(params *AddServiceParams, opts ...ClientOption) (*Ad
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*AddServiceDefault)
-
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-CreateNodeInstallToken creates node install token
-
-Creates a short-lived Grafana service account token for PMM Client install.
-*/
-func (a *Client) CreateNodeInstallToken(params *CreateNodeInstallTokenParams, opts ...ClientOption) (*CreateNodeInstallTokenOK, error) {
-	// NOTE: parameters are not validated before sending
-	if params == nil {
-		params = NewCreateNodeInstallTokenParams()
-	}
-	op := &runtime.ClientOperation{
-		ID:                 "CreateNodeInstallToken",
-		Method:             "POST",
-		PathPattern:        "/v1/management/nodes:installToken",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &CreateNodeInstallTokenReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	}
-	for _, opt := range opts {
-		opt(op)
-	}
-	result, err := a.transport.Submit(op)
-	if err != nil {
-		return nil, err
-	}
-
-	// only one success response has to be checked
-	success, ok := result.(*CreateNodeInstallTokenOK)
-	if ok {
-		return success, nil
-	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
-	unexpectedSuccess := result.(*CreateNodeInstallTokenDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }

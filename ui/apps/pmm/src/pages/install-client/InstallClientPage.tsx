@@ -130,9 +130,8 @@ export const InstallClientPage = () => {
     try {
       const res = await createNodeInstallToken(technology, 0);
       setToken(res.token);
-      // Server enforces a 15-minute hard cap (see install_token.go). If the
-      // response unexpectedly omits expiresAt, fall back to "now + 15 min" so
-      // the countdown still works and we don't silently lose the safety net.
+      // installToken.ts always returns expiresAt; the fallback is just defensive
+      // belt-and-braces in case of a future refactor.
       const expires = res.expiresAt
         ? new Date(res.expiresAt)
         : new Date(Date.now() + 15 * 60 * 1000);

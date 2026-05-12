@@ -7,16 +7,14 @@
 package managementv1
 
 import (
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
-
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	v1 "github.com/percona/pmm/api/inventory/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-
-	v1 "github.com/percona/pmm/api/inventory/v1"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -963,125 +961,6 @@ func (x *GetNodeResponse) GetNode() *UniversalNode {
 	return nil
 }
 
-// CreateNodeInstallTokenRequest requests a short-lived Grafana service account token for PMM Client install (curl | bash).
-type CreateNodeInstallTokenRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Token TTL in seconds; 0 means use server default. Server clamps to a maximum.
-	TtlSeconds uint32 `protobuf:"varint,1,opt,name=ttl_seconds,json=ttlSeconds,proto3" json:"ttl_seconds,omitempty"`
-	// Technology for install script TECH env (e.g. mysql, postgresql, mongodb).
-	Technology    string `protobuf:"bytes,2,opt,name=technology,proto3" json:"technology,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CreateNodeInstallTokenRequest) Reset() {
-	*x = CreateNodeInstallTokenRequest{}
-	mi := &file_management_v1_node_proto_msgTypes[10]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CreateNodeInstallTokenRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CreateNodeInstallTokenRequest) ProtoMessage() {}
-
-func (x *CreateNodeInstallTokenRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_management_v1_node_proto_msgTypes[10]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CreateNodeInstallTokenRequest.ProtoReflect.Descriptor instead.
-func (*CreateNodeInstallTokenRequest) Descriptor() ([]byte, []int) {
-	return file_management_v1_node_proto_rawDescGZIP(), []int{10}
-}
-
-func (x *CreateNodeInstallTokenRequest) GetTtlSeconds() uint32 {
-	if x != nil {
-		return x.TtlSeconds
-	}
-	return 0
-}
-
-func (x *CreateNodeInstallTokenRequest) GetTechnology() string {
-	if x != nil {
-		return x.Technology
-	}
-	return ""
-}
-
-// CreateNodeInstallTokenResponse returns a one-time token and expiry for PMM_SERVER_URL.
-type CreateNodeInstallTokenResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Plaintext token for PMM_SERVER_URL userinfo (service_token:<token>).
-	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
-	// Expiration time of the token (derived from TTL).
-	ExpiresAt *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
-	// Grafana service account id created for this install token flow.
-	ServiceAccountId int64 `protobuf:"varint,3,opt,name=service_account_id,json=serviceAccountId,proto3" json:"service_account_id,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
-}
-
-func (x *CreateNodeInstallTokenResponse) Reset() {
-	*x = CreateNodeInstallTokenResponse{}
-	mi := &file_management_v1_node_proto_msgTypes[11]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CreateNodeInstallTokenResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CreateNodeInstallTokenResponse) ProtoMessage() {}
-
-func (x *CreateNodeInstallTokenResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_management_v1_node_proto_msgTypes[11]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CreateNodeInstallTokenResponse.ProtoReflect.Descriptor instead.
-func (*CreateNodeInstallTokenResponse) Descriptor() ([]byte, []int) {
-	return file_management_v1_node_proto_rawDescGZIP(), []int{11}
-}
-
-func (x *CreateNodeInstallTokenResponse) GetToken() string {
-	if x != nil {
-		return x.Token
-	}
-	return ""
-}
-
-func (x *CreateNodeInstallTokenResponse) GetExpiresAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.ExpiresAt
-	}
-	return nil
-}
-
-func (x *CreateNodeInstallTokenResponse) GetServiceAccountId() int64 {
-	if x != nil {
-		return x.ServiceAccountId
-	}
-	return 0
-}
-
 // Service represents a service running on a node.
 type UniversalNode_Service struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -1097,7 +976,7 @@ type UniversalNode_Service struct {
 
 func (x *UniversalNode_Service) Reset() {
 	*x = UniversalNode_Service{}
-	mi := &file_management_v1_node_proto_msgTypes[14]
+	mi := &file_management_v1_node_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1109,7 +988,7 @@ func (x *UniversalNode_Service) String() string {
 func (*UniversalNode_Service) ProtoMessage() {}
 
 func (x *UniversalNode_Service) ProtoReflect() protoreflect.Message {
-	mi := &file_management_v1_node_proto_msgTypes[14]
+	mi := &file_management_v1_node_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1162,7 +1041,7 @@ type UniversalNode_Agent struct {
 
 func (x *UniversalNode_Agent) Reset() {
 	*x = UniversalNode_Agent{}
-	mi := &file_management_v1_node_proto_msgTypes[15]
+	mi := &file_management_v1_node_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1174,7 +1053,7 @@ func (x *UniversalNode_Agent) String() string {
 func (*UniversalNode_Agent) ProtoMessage() {}
 
 func (x *UniversalNode_Agent) ProtoReflect() protoreflect.Message {
-	mi := &file_management_v1_node_proto_msgTypes[15]
+	mi := &file_management_v1_node_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1330,18 +1209,7 @@ const file_management_v1_node_proto_rawDesc = "" +
 	"\x0eGetNodeRequest\x12 \n" +
 	"\anode_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06nodeId\"C\n" +
 	"\x0fGetNodeResponse\x120\n" +
-	"\x04node\x18\x01 \x01(\v2\x1c.management.v1.UniversalNodeR\x04node\"`\n" +
-	"\x1dCreateNodeInstallTokenRequest\x12\x1f\n" +
-	"\vttl_seconds\x18\x01 \x01(\rR\n" +
-	"ttlSeconds\x12\x1e\n" +
-	"\n" +
-	"technology\x18\x02 \x01(\tR\n" +
-	"technology\"\x9f\x01\n" +
-	"\x1eCreateNodeInstallTokenResponse\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\x129\n" +
-	"\n" +
-	"expires_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x12,\n" +
-	"\x12service_account_id\x18\x03 \x01(\x03R\x10serviceAccountIdB\xaa\x01\n" +
+	"\x04node\x18\x01 \x01(\v2\x1c.management.v1.UniversalNodeR\x04nodeB\xaa\x01\n" +
 	"\x11com.management.v1B\tNodeProtoP\x01Z5github.com/percona/pmm/api/management/v1;managementv1\xa2\x02\x03MXX\xaa\x02\rManagement.V1\xca\x02\rManagement\\V1\xe2\x02\x19Management\\V1\\GPBMetadata\xea\x02\x0eManagement::V1b\x06proto3"
 
 var (
@@ -1356,61 +1224,55 @@ func file_management_v1_node_proto_rawDescGZIP() []byte {
 	return file_management_v1_node_proto_rawDescData
 }
 
-var (
-	file_management_v1_node_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_management_v1_node_proto_msgTypes  = make([]protoimpl.MessageInfo, 17)
-	file_management_v1_node_proto_goTypes   = []any{
-		(UniversalNode_Status)(0),              // 0: management.v1.UniversalNode.Status
-		(*AddNodeParams)(nil),                  // 1: management.v1.AddNodeParams
-		(*RegisterNodeRequest)(nil),            // 2: management.v1.RegisterNodeRequest
-		(*RegisterNodeResponse)(nil),           // 3: management.v1.RegisterNodeResponse
-		(*UnregisterNodeRequest)(nil),          // 4: management.v1.UnregisterNodeRequest
-		(*UnregisterNodeResponse)(nil),         // 5: management.v1.UnregisterNodeResponse
-		(*UniversalNode)(nil),                  // 6: management.v1.UniversalNode
-		(*ListNodesRequest)(nil),               // 7: management.v1.ListNodesRequest
-		(*ListNodesResponse)(nil),              // 8: management.v1.ListNodesResponse
-		(*GetNodeRequest)(nil),                 // 9: management.v1.GetNodeRequest
-		(*GetNodeResponse)(nil),                // 10: management.v1.GetNodeResponse
-		(*CreateNodeInstallTokenRequest)(nil),  // 11: management.v1.CreateNodeInstallTokenRequest
-		(*CreateNodeInstallTokenResponse)(nil), // 12: management.v1.CreateNodeInstallTokenResponse
-		nil,                                    // 13: management.v1.AddNodeParams.CustomLabelsEntry
-		nil,                                    // 14: management.v1.RegisterNodeRequest.CustomLabelsEntry
-		(*UniversalNode_Service)(nil),          // 15: management.v1.UniversalNode.Service
-		(*UniversalNode_Agent)(nil),            // 16: management.v1.UniversalNode.Agent
-		nil,                                    // 17: management.v1.UniversalNode.CustomLabelsEntry
-		(v1.NodeType)(0),                       // 18: inventory.v1.NodeType
-		(MetricsMode)(0),                       // 19: management.v1.MetricsMode
-		(*v1.GenericNode)(nil),                 // 20: inventory.v1.GenericNode
-		(*v1.ContainerNode)(nil),               // 21: inventory.v1.ContainerNode
-		(*v1.PMMAgent)(nil),                    // 22: inventory.v1.PMMAgent
-		(*timestamppb.Timestamp)(nil),          // 23: google.protobuf.Timestamp
-	}
-)
-
+var file_management_v1_node_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_management_v1_node_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_management_v1_node_proto_goTypes = []any{
+	(UniversalNode_Status)(0),      // 0: management.v1.UniversalNode.Status
+	(*AddNodeParams)(nil),          // 1: management.v1.AddNodeParams
+	(*RegisterNodeRequest)(nil),    // 2: management.v1.RegisterNodeRequest
+	(*RegisterNodeResponse)(nil),   // 3: management.v1.RegisterNodeResponse
+	(*UnregisterNodeRequest)(nil),  // 4: management.v1.UnregisterNodeRequest
+	(*UnregisterNodeResponse)(nil), // 5: management.v1.UnregisterNodeResponse
+	(*UniversalNode)(nil),          // 6: management.v1.UniversalNode
+	(*ListNodesRequest)(nil),       // 7: management.v1.ListNodesRequest
+	(*ListNodesResponse)(nil),      // 8: management.v1.ListNodesResponse
+	(*GetNodeRequest)(nil),         // 9: management.v1.GetNodeRequest
+	(*GetNodeResponse)(nil),        // 10: management.v1.GetNodeResponse
+	nil,                            // 11: management.v1.AddNodeParams.CustomLabelsEntry
+	nil,                            // 12: management.v1.RegisterNodeRequest.CustomLabelsEntry
+	(*UniversalNode_Service)(nil),  // 13: management.v1.UniversalNode.Service
+	(*UniversalNode_Agent)(nil),    // 14: management.v1.UniversalNode.Agent
+	nil,                            // 15: management.v1.UniversalNode.CustomLabelsEntry
+	(v1.NodeType)(0),               // 16: inventory.v1.NodeType
+	(MetricsMode)(0),               // 17: management.v1.MetricsMode
+	(*v1.GenericNode)(nil),         // 18: inventory.v1.GenericNode
+	(*v1.ContainerNode)(nil),       // 19: inventory.v1.ContainerNode
+	(*v1.PMMAgent)(nil),            // 20: inventory.v1.PMMAgent
+	(*timestamppb.Timestamp)(nil),  // 21: google.protobuf.Timestamp
+}
 var file_management_v1_node_proto_depIdxs = []int32{
-	18, // 0: management.v1.AddNodeParams.node_type:type_name -> inventory.v1.NodeType
-	13, // 1: management.v1.AddNodeParams.custom_labels:type_name -> management.v1.AddNodeParams.CustomLabelsEntry
-	18, // 2: management.v1.RegisterNodeRequest.node_type:type_name -> inventory.v1.NodeType
-	14, // 3: management.v1.RegisterNodeRequest.custom_labels:type_name -> management.v1.RegisterNodeRequest.CustomLabelsEntry
-	19, // 4: management.v1.RegisterNodeRequest.metrics_mode:type_name -> management.v1.MetricsMode
-	20, // 5: management.v1.RegisterNodeResponse.generic_node:type_name -> inventory.v1.GenericNode
-	21, // 6: management.v1.RegisterNodeResponse.container_node:type_name -> inventory.v1.ContainerNode
-	22, // 7: management.v1.RegisterNodeResponse.pmm_agent:type_name -> inventory.v1.PMMAgent
-	17, // 8: management.v1.UniversalNode.custom_labels:type_name -> management.v1.UniversalNode.CustomLabelsEntry
-	23, // 9: management.v1.UniversalNode.created_at:type_name -> google.protobuf.Timestamp
-	23, // 10: management.v1.UniversalNode.updated_at:type_name -> google.protobuf.Timestamp
+	16, // 0: management.v1.AddNodeParams.node_type:type_name -> inventory.v1.NodeType
+	11, // 1: management.v1.AddNodeParams.custom_labels:type_name -> management.v1.AddNodeParams.CustomLabelsEntry
+	16, // 2: management.v1.RegisterNodeRequest.node_type:type_name -> inventory.v1.NodeType
+	12, // 3: management.v1.RegisterNodeRequest.custom_labels:type_name -> management.v1.RegisterNodeRequest.CustomLabelsEntry
+	17, // 4: management.v1.RegisterNodeRequest.metrics_mode:type_name -> management.v1.MetricsMode
+	18, // 5: management.v1.RegisterNodeResponse.generic_node:type_name -> inventory.v1.GenericNode
+	19, // 6: management.v1.RegisterNodeResponse.container_node:type_name -> inventory.v1.ContainerNode
+	20, // 7: management.v1.RegisterNodeResponse.pmm_agent:type_name -> inventory.v1.PMMAgent
+	15, // 8: management.v1.UniversalNode.custom_labels:type_name -> management.v1.UniversalNode.CustomLabelsEntry
+	21, // 9: management.v1.UniversalNode.created_at:type_name -> google.protobuf.Timestamp
+	21, // 10: management.v1.UniversalNode.updated_at:type_name -> google.protobuf.Timestamp
 	0,  // 11: management.v1.UniversalNode.status:type_name -> management.v1.UniversalNode.Status
-	16, // 12: management.v1.UniversalNode.agents:type_name -> management.v1.UniversalNode.Agent
-	15, // 13: management.v1.UniversalNode.services:type_name -> management.v1.UniversalNode.Service
-	18, // 14: management.v1.ListNodesRequest.node_type:type_name -> inventory.v1.NodeType
+	14, // 12: management.v1.UniversalNode.agents:type_name -> management.v1.UniversalNode.Agent
+	13, // 13: management.v1.UniversalNode.services:type_name -> management.v1.UniversalNode.Service
+	16, // 14: management.v1.ListNodesRequest.node_type:type_name -> inventory.v1.NodeType
 	6,  // 15: management.v1.ListNodesResponse.nodes:type_name -> management.v1.UniversalNode
 	6,  // 16: management.v1.GetNodeResponse.node:type_name -> management.v1.UniversalNode
-	23, // 17: management.v1.CreateNodeInstallTokenResponse.expires_at:type_name -> google.protobuf.Timestamp
-	18, // [18:18] is the sub-list for method output_type
-	18, // [18:18] is the sub-list for method input_type
-	18, // [18:18] is the sub-list for extension type_name
-	18, // [18:18] is the sub-list for extension extendee
-	0,  // [0:18] is the sub-list for field type_name
+	17, // [17:17] is the sub-list for method output_type
+	17, // [17:17] is the sub-list for method input_type
+	17, // [17:17] is the sub-list for extension type_name
+	17, // [17:17] is the sub-list for extension extendee
+	0,  // [0:17] is the sub-list for field type_name
 }
 
 func init() { file_management_v1_node_proto_init() }
@@ -1425,7 +1287,7 @@ func file_management_v1_node_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_management_v1_node_proto_rawDesc), len(file_management_v1_node_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   17,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

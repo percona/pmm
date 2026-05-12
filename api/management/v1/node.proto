@@ -183,21 +183,3 @@ message GetNodeRequest {
 message GetNodeResponse {
   UniversalNode node = 1;
 }
-
-// CreateNodeInstallTokenRequest requests a short-lived Grafana service account token for PMM Client install (curl | bash).
-message CreateNodeInstallTokenRequest {
-  // Token TTL in seconds; 0 means use server default. Server clamps to a maximum.
-  uint32 ttl_seconds = 1;
-  // Technology for install script TECH env (e.g. mysql, postgresql, mongodb).
-  string technology = 2;
-}
-
-// CreateNodeInstallTokenResponse returns a one-time token and expiry for PMM_SERVER_URL.
-message CreateNodeInstallTokenResponse {
-  // Plaintext token for PMM_SERVER_URL userinfo (service_token:<token>).
-  string token = 1;
-  // Expiration time of the token (derived from TTL).
-  google.protobuf.Timestamp expires_at = 2;
-  // Grafana service account id created for this install token flow.
-  int64 service_account_id = 3;
-}

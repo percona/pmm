@@ -107,7 +107,6 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		"/management.v1.ManagementService/RemoveService":          admin,
 		"/management.v1.ManagementService/ListServices":           admin,
 		"/management.v1.ManagementService/AddAnnotation":          admin,
-		"/management.v1.ManagementService/CreateNodeInstallToken": admin,
 		"/server.v1.ServerService/CheckUpdates":                   viewer,
 		"/server.v1.ServerService/StartUpdate":                    admin,
 		"/server.v1.ServerService/UpdateStatus":                   none,
