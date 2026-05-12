@@ -1,7 +1,10 @@
 version: "2"
 linters:
   default: all
+  enable:
+    - gomodguard_v2
   disable:
+    - gomodguard # deprecated since golangci-lint v2.12.0
     - copyloopvar         # replaced exportloopref, but we don't need it for Go 1.22+
     - dupl                # we can't avoid duplicating code
     - err113              # extra work & poor benefit (renamed from goerr113)

@@ -62,10 +62,8 @@ jobs:
 
       - name: Download Go modules
         run: |
-          go mod download -x
-
-      - name: Install development tools
-        run: make init
+          pushd tools/golangci-lint && go mod download -x
+          popd                      && go mod download -x
 
       - name: Generate files
         run: make gen

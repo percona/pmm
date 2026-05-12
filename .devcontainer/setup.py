@@ -60,15 +60,6 @@ def install_go():
         "go env"
     ])
 
-
-def make_init():
-    """Runs make init."""
-
-    run_commands([
-        "make init",
-    ])
-
-
 def setup():
     """Runs various setup commands."""
     run_commands([
@@ -88,7 +79,6 @@ def setup():
 def main():
     install_packages()
     install_go()
-    make_init()
 
     # do basic setup
     setup()

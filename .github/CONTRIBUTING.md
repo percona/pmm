@@ -42,10 +42,6 @@ This project relies on the following dependencies:
 
 - git, make, curl, go, nginx
 
-## Local setup
-
-1. Run `make init` to install dependencies.
-
 ### To check API documentation locally
 
 1. Install latest nginx.
