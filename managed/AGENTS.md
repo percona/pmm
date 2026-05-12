@@ -74,7 +74,7 @@ PMM Agent (1) ──→ (N) Child Agent (via pmm_agent_id)
 PMM uses **reform** (NOT gorm) for PostgreSQL:
 
 ```go
-//go:generate ../../bin/reform
+//go:generate go tool reform
 
 //reform:nodes
 type Node struct {
@@ -176,7 +176,7 @@ PMM supports HA via **Raft consensus** (`services/ha/`):
 ## Code Generation
 
 1. **Protocol Buffers** — `make gen` from repo root
-2. **reform** — `//go:generate ../../bin/reform` on model files
+2. **reform** — `//go:generate go tool reform` on model files
 3. **mockery** — mock generation per `.mockery.yaml`
 4. **swagger** — API docs from proto annotations
 
