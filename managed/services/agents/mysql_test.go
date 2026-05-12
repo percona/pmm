@@ -19,7 +19,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -558,8 +557,8 @@ func TestMySQLdExporterConfigRoundsUpConnectionTimeout(t *testing.T) {
 		Address: "1.2.3.4",
 	}
 	service := &models.Service{
-		Address: pointer.ToString("1.2.3.4"),
-		Port:    pointer.ToUint16(3306),
+		Address: new("1.2.3.4"),
+		Port:    new(uint16(3306)),
 	}
 
 	t.Run("myCnf", func(t *testing.T) {
@@ -568,10 +567,10 @@ func TestMySQLdExporterConfigRoundsUpConnectionTimeout(t *testing.T) {
 		exporter := &models.Agent{
 			AgentID:       "agent-id",
 			AgentType:     models.MySQLdExporterType,
-			Username:      pointer.ToString("username"),
-			AgentPassword: pointer.ToString("agent-password"),
+			Username:      new("username"),
+			AgentPassword: new("agent-password"),
 			ExporterOptions: models.ExporterOptions{
-				ConnectionTimeout: pointer.ToDuration(1500 * time.Millisecond),
+				ConnectionTimeout: new(1500 * time.Millisecond),
 			},
 		}
 
@@ -589,10 +588,10 @@ func TestMySQLdExporterConfigRoundsUpConnectionTimeout(t *testing.T) {
 		exporter := &models.Agent{
 			AgentID:       "agent-id",
 			AgentType:     models.MySQLdExporterType,
-			Username:      pointer.ToString("username"),
-			AgentPassword: pointer.ToString("agent-password"),
+			Username:      new("username"),
+			AgentPassword: new("agent-password"),
 			ExporterOptions: models.ExporterOptions{
-				ConnectionTimeout: pointer.ToDuration(1500 * time.Millisecond),
+				ConnectionTimeout: new(1500 * time.Millisecond),
 			},
 		}
 
