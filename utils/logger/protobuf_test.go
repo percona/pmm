@@ -85,6 +85,7 @@ func getRtaQueryDataMessage(t *testing.T) []proto.Message {
 	return []proto.Message{&dataOrig, &dataRedacted}
 }
 
+//nolint:gosec
 func getSetStateRequestMessage(t *testing.T) []proto.Message {
 	t.Helper()
 
@@ -400,6 +401,7 @@ func Test_maskString(t *testing.T) {
 	}
 }
 
+//nolint:gosec
 func Test_maskDSN(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
@@ -436,6 +438,71 @@ func Test_maskDSN(t *testing.T) {
 			name:  "Invalid DSN",
 			input: "not-a-valid-dsn",
 			want:  "not-a-valid-dsn",
+		},
+		{
+			name:  "DSN without scheme and several @ characters-1",
+			input: "us@er:password@tcp(pmm2-qa-mysql.mysql.database.azure.com:3306/dbname?param=value",
+			want:  "***REDACTED***:***REDACTED***@tcp(pmm2-qa-mysql.mysql.database.azure.com:3306/dbname?param=value",
+		},
+		{
+			name:  "DSN without scheme and several @ characters-2",
+			input: "user:p@ssword@tcp(pmm2-qa-mysql.mysql.database.azure.com:3306/dbname?param=value",
+			want:  "***REDACTED***:***REDACTED***@tcp(pmm2-qa-mysql.mysql.database.azure.com:3306/dbname?param=value",
+		},
+		{
+			name:  "DSN with scheme and several @ characters-1",
+			input: "mysql://us@er:password@tcp(pmm2-qa-mysql.mysql.database.azure.com:3306/dbname?param=value",
+			want:  "mysql://***REDACTED***:***REDACTED***@tcp(pmm2-qa-mysql.mysql.database.azure.com:3306/dbname?param=value",
+		},
+		{
+			name:  "DSN with scheme and several @ characters-2",
+			input: "mysql://user:p@ssword@tcp(pmm2-qa-mysql.mysql.database.azure.com:3306/dbname?param=value",
+			want:  "mysql://***REDACTED***:***REDACTED***@tcp(pmm2-qa-mysql.mysql.database.azure.com:3306/dbname?param=value",
+		},
+		{
+			name:  "DSN with scheme and several @ characters-3",
+			input: "mysql://us@r:p@ssword@tcp(pmm2-qa-mysql.mysql.database.azure.com:3306/dbname?param=value",
+			want:  "mysql://***REDACTED***:***REDACTED***@tcp(pmm2-qa-mysql.mysql.database.azure.com:3306/dbname?param=value",
+		},
+		{
+			name:  "DSN sxheme_ip without credentials",
+			input: "scheme://127.0.0.1/foo/bar?key=value",
+			want:  "scheme://127.0.0.1/foo/bar?key=value",
+		},
+		{
+			name:  "DSN scheme_path without credentials",
+			input: "scheme:///var/local/run/memcached.socket?weight=25",
+			want:  "scheme:///var/local/run/memcached.socket?weight=25",
+		},
+		{
+			name:  "DSN scheme_path with credentials",
+			input: "scheme://user:pass@/var/local/run/memcached.socket?weight=25",
+			want:  "scheme://***REDACTED***:***REDACTED***@/var/local/run/memcached.socket?weight=25",
+		},
+		{
+			name:  "DSN scheme_path with credentials with several @ characters-1",
+			input: "scheme://us@r:pass@/var/local/run/memcached.socket?weight=25",
+			want:  "scheme://***REDACTED***:***REDACTED***@/var/local/run/memcached.socket?weight=25",
+		},
+		{
+			name:  "DSN scheme_path with credentials with several @ characters-2",
+			input: "scheme://user:p@ss@/var/local/run/memcached.socket?weight=25",
+			want:  "scheme://***REDACTED***:***REDACTED***@/var/local/run/memcached.socket?weight=25",
+		},
+		{
+			name:  "DSN scheme_path with credentials with several @ characters-3",
+			input: "scheme://us@r:p@ss@/var/local/run/memcached.socket?weight=25",
+			want:  "scheme://***REDACTED***:***REDACTED***@/var/local/run/memcached.socket?weight=25",
+		},
+		{
+			name:  "DSN scheme_path without credentials",
+			input: "scheme://a",
+			want:  "scheme://a",
+		},
+		{
+			name:  "DSN server:port without credentials",
+			input: "server:80",
+			want:  "server:80",
 		},
 	}
 	for _, tt := range tests {

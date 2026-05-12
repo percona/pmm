@@ -194,7 +194,7 @@ func maskString(s string) string {
 
 // MaskDSN returns a masked copy of DSN string, which masks username and password in DSN.
 func MaskDSN(s string) string {
-	at := strings.IndexByte(s, '@')
+	at := strings.LastIndex(s, "@")
 	if at <= 0 {
 		return s
 	}
