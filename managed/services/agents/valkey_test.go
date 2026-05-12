@@ -19,7 +19,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/require"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
@@ -34,8 +33,8 @@ func TestValkeyExporterConfig(t *testing.T) {
 	pmmAgentVersion := version.MustParse("2.44.0")
 	node := &models.Node{Address: "1.2.3.4"}
 	service := &models.Service{
-		Address: pointer.ToString("1.2.3.4"),
-		Port:    pointer.ToUint16(6379),
+		Address: new("1.2.3.4"),
+		Port:    new(uint16(6379)),
 	}
 
 	t.Run("DefaultTimeoutUsesFlag", func(t *testing.T) {
@@ -43,8 +42,8 @@ func TestValkeyExporterConfig(t *testing.T) {
 		exporter := &models.Agent{
 			AgentID:   "agent-id",
 			AgentType: models.ValkeyExporterType,
-			Username:  pointer.ToString("username"),
-			Password:  pointer.ToString("secret"),
+			Username:  new("username"),
+			Password:  new("secret"),
 		}
 		actual := valkeyExporterConfig(node, service, exporter, redactSecrets, pmmAgentVersion)
 		expected := &agentv1.SetStateRequest_AgentProcess{
@@ -68,10 +67,10 @@ func TestValkeyExporterConfig(t *testing.T) {
 		exporter := &models.Agent{
 			AgentID:   "agent-id",
 			AgentType: models.ValkeyExporterType,
-			Username:  pointer.ToString("username"),
-			Password:  pointer.ToString("secret"),
+			Username:  new("username"),
+			Password:  new("secret"),
 		}
-		exporter.ExporterOptions.ConnectionTimeout = pointer.ToDuration(1500 * time.Millisecond)
+		exporter.ExporterOptions.ConnectionTimeout = new(1500 * time.Millisecond)
 
 		actual := valkeyExporterConfig(node, service, exporter, redactSecrets, pmmAgentVersion)
 		require.Contains(t, actual.Args, "--connection-timeout=1.5s")
