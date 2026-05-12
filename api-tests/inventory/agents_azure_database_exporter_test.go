@@ -18,7 +18,6 @@ package inventory
 import (
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -68,7 +67,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 						"custom_label_azure_database_exporter": "azure_database_exporter",
 					},
 					Status:   &AgentStatusUnknown,
-					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel: new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, getAgentRes)
@@ -79,7 +78,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					AzureDatabaseExporter: &agents.ChangeAgentParamsBodyAzureDatabaseExporter{
-						Enable:       pointer.ToBool(false),
+						Enable:       new(false),
 						CustomLabels: &agents.ChangeAgentParamsBodyAzureDatabaseExporterCustomLabels{},
 					},
 				},
@@ -96,7 +95,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 					AzureDatabaseSubscriptionID: "azure_subscription_id",
 					Disabled:                    true,
 					Status:                      &AgentStatusDone,
-					LogLevel:                    pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:                    new("LOG_LEVEL_UNSPECIFIED"),
 					CustomLabels:                map[string]string{},
 				},
 			},
@@ -107,7 +106,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					AzureDatabaseExporter: &agents.ChangeAgentParamsBodyAzureDatabaseExporter{
-						Enable: pointer.ToBool(true),
+						Enable: new(true),
 						CustomLabels: &agents.ChangeAgentParamsBodyAzureDatabaseExporterCustomLabels{
 							Values: map[string]string{
 								"new_label": "azure_database_exporter",
@@ -131,7 +130,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 						"new_label": "azure_database_exporter",
 					},
 					Status:   &AgentStatusDone,
-					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel: new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeAzureDatabaseExporterOK)
@@ -226,7 +225,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 				"custom_label_azure_database_exporter": "azure_database_exporter",
 			},
 			Status:   &AgentStatusUnknown,
-			LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+			LogLevel: new("LOG_LEVEL_UNSPECIFIED"),
 		}, getAgentRes.Payload.AzureDatabaseExporter)
 
 		// Test change API.
@@ -235,7 +234,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					AzureDatabaseExporter: &agents.ChangeAgentParamsBodyAzureDatabaseExporter{
-						EnablePushMetrics: pointer.ToBool(true),
+						EnablePushMetrics: new(true),
 					},
 				},
 				Context: pmmapitests.Context,
@@ -253,7 +252,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 						"custom_label_azure_database_exporter": "azure_database_exporter",
 					},
 					Status:             &AgentStatusUnknown,
-					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:           new("LOG_LEVEL_UNSPECIFIED"),
 					PushMetricsEnabled: true,
 				},
 			},
@@ -264,7 +263,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					AzureDatabaseExporter: &agents.ChangeAgentParamsBodyAzureDatabaseExporter{
-						EnablePushMetrics: pointer.ToBool(false),
+						EnablePushMetrics: new(false),
 					},
 				},
 				Context: pmmapitests.Context,
@@ -282,7 +281,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 						"custom_label_azure_database_exporter": "azure_database_exporter",
 					},
 					Status:             &AgentStatusUnknown,
-					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:           new("LOG_LEVEL_UNSPECIFIED"),
 					PushMetricsEnabled: false,
 				},
 			},
@@ -307,7 +306,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 				AzureSubscriptionID:       "initial-subscription-id",
 				AzureResourceGroup:        "initial-resource-group",
 				AzureDatabaseResourceType: "mysql",
-				LogLevel:                  pointer.ToString("LOG_LEVEL_WARN"),
+				LogLevel:                  new("LOG_LEVEL_WARN"),
 				CustomLabels: map[string]string{
 					"environment": "test",
 				},
@@ -321,7 +320,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				AzureDatabaseExporter: &agents.ChangeAgentParamsBodyAzureDatabaseExporter{
-					AzureClientSecret: pointer.ToString("rotated-client-secret"),
+					AzureClientSecret: new("rotated-client-secret"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -334,9 +333,9 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				AzureDatabaseExporter: &agents.ChangeAgentParamsBodyAzureDatabaseExporter{
-					AzureClientID:     pointer.ToString("new-client-id"),
-					AzureClientSecret: pointer.ToString("new-client-secret"),
-					AzureTenantID:     pointer.ToString("new-tenant-id"),
+					AzureClientID:     new("new-client-id"),
+					AzureClientSecret: new("new-client-secret"),
+					AzureTenantID:     new("new-tenant-id"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -372,7 +371,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 				AzureSubscriptionID:       "initial-subscription-id",
 				AzureResourceGroup:        "initial-resource-group",
 				AzureDatabaseResourceType: "postgres",
-				LogLevel:                  pointer.ToString("LOG_LEVEL_INFO"),
+				LogLevel:                  new("LOG_LEVEL_INFO"),
 				CustomLabels: map[string]string{
 					"environment": "staging",
 					"team":        "data",
@@ -389,7 +388,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				AzureDatabaseExporter: &agents.ChangeAgentParamsBodyAzureDatabaseExporter{
-					LogLevel: pointer.ToString("LOG_LEVEL_DEBUG"),
+					LogLevel: new("LOG_LEVEL_DEBUG"),
 					// Note: Azure credentials, custom labels, resource group are NOT specified
 				},
 			},
@@ -406,7 +405,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 
 		agent := getAgentRes.Payload.AzureDatabaseExporter
 		// Log level should be changed
-		assert.Equal(t, pointer.ToString("LOG_LEVEL_DEBUG"), agent.LogLevel)
+		assert.Equal(t, new("LOG_LEVEL_DEBUG"), agent.LogLevel)
 
 		// Everything else should remain unchanged
 		assert.Equal(t, "initial-subscription-id", agent.AzureDatabaseSubscriptionID)
@@ -437,7 +436,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 				AzureSubscriptionID:       "initial-subscription-id",
 				AzureResourceGroup:        "initial-resource-group",
 				AzureDatabaseResourceType: "mysql",
-				LogLevel:                  pointer.ToString("LOG_LEVEL_WARN"),
+				LogLevel:                  new("LOG_LEVEL_WARN"),
 				CustomLabels: map[string]string{
 					"environment": "staging",
 					"version":     "1.0",
@@ -453,13 +452,13 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				AzureDatabaseExporter: &agents.ChangeAgentParamsBodyAzureDatabaseExporter{
-					AzureClientID:       pointer.ToString("new-client-id"),
-					AzureClientSecret:   pointer.ToString("new-client-secret"),
-					AzureTenantID:       pointer.ToString("new-tenant-id"),
-					AzureSubscriptionID: pointer.ToString("new-subscription-id"),
-					AzureResourceGroup:  pointer.ToString("new-resource-group"),
-					LogLevel:            pointer.ToString("LOG_LEVEL_ERROR"),
-					EnablePushMetrics:   pointer.ToBool(true),
+					AzureClientID:       new("new-client-id"),
+					AzureClientSecret:   new("new-client-secret"),
+					AzureTenantID:       new("new-tenant-id"),
+					AzureSubscriptionID: new("new-subscription-id"),
+					AzureResourceGroup:  new("new-resource-group"),
+					LogLevel:            new("LOG_LEVEL_ERROR"),
+					EnablePushMetrics:   new(true),
 					CustomLabels: &agents.ChangeAgentParamsBodyAzureDatabaseExporterCustomLabels{
 						Values: map[string]string{
 							"environment": "production",
@@ -467,7 +466,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 							"team":        "platform",
 						},
 					},
-					Enable: pointer.ToBool(false), // disable the agent
+					Enable: new(false), // disable the agent
 				},
 			},
 			Context: pmmapitests.Context,
@@ -481,7 +480,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 			NodeID:                      nodeID,
 			AzureDatabaseSubscriptionID: "new-subscription-id",
 			AzureDatabaseResourceType:   "", // This field gets reset when changed
-			LogLevel:                    pointer.ToString("LOG_LEVEL_ERROR"),
+			LogLevel:                    new("LOG_LEVEL_ERROR"),
 			PushMetricsEnabled:          true,
 			Disabled:                    true, // agent was disabled
 			Status:                      &AgentStatusDone,
@@ -506,7 +505,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 			NodeID:                      nodeID,
 			AzureDatabaseSubscriptionID: "new-subscription-id",
 			AzureDatabaseResourceType:   "", // This field gets reset when changed
-			LogLevel:                    pointer.ToString("LOG_LEVEL_ERROR"),
+			LogLevel:                    new("LOG_LEVEL_ERROR"),
 			PushMetricsEnabled:          true,
 			Disabled:                    true, // agent was disabled
 			Status:                      &AgentStatusDone,

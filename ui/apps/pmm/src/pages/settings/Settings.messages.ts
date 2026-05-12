@@ -7,9 +7,9 @@ export const Messages = {
   },
   advanced: {
     validation: {
-      required: 'Required',
+      required: 'Required field',
       retentionRange: (min: number, max: number) =>
-        `Must be between ${min} and ${max}`,
+        `Value should be in the range from ${min} to ${max}`,
       intervalMin: (min: number) => `Min ${min}`,
     },
     retentionLabel: 'Data retention',

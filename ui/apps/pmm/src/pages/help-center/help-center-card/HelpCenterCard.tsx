@@ -7,10 +7,7 @@ import NorthEast from '@mui/icons-material/NorthEast';
 import SaveAlt from '@mui/icons-material/SaveAlt';
 import MapOutlined from '@mui/icons-material/MapOutlined';
 import { FC, ReactNode, useCallback } from 'react';
-import {
-  semanticTokensLight,
-  semanticTokensDark,
-} from '@percona/percona-ui';
+import { semanticTokensLight, semanticTokensDark } from '@percona/percona-ui';
 import { CARD_IDS, START_ICON } from '../HelpCenter.constants';
 import { HelpCenterCardProps } from './HelpCenterCard.types';
 import { Link } from 'react-router-dom';

@@ -2,7 +2,11 @@ ARG PMM_SERVER_IMAGE="perconalab/pmm-server:3-dev-latest"
 FROM $PMM_SERVER_IMAGE
 
 ARG PMM_SERVER_IMAGE
-ARG GO_VERSION="1.25.x"
+ARG GO_VERSION
+
+ENV GONOPROXY='github.com/percona,github.com/Percona-Lab'
+ENV GONOSUMDB='github.com/percona,github.com/Percona-Lab'
+ENV GOPRIVATE='github.com/percona,github.com/Percona-Lab'
 
 USER root
 

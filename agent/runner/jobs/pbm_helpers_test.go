@@ -114,8 +114,7 @@ func TestCreatePBMConfig(t *testing.T) {
 		},
 	} {
 		t.Run(test.name, func(t *testing.T) {
-			inputLocation := test.inputLocation
-			res, err := createPBMConfig(&inputLocation, "test_prefix", test.inputPitr)
+			res, err := createPBMConfig(new(test.inputLocation), "test_prefix", test.inputPitr)
 			if test.errString != "" {
 				assert.ErrorContains(t, err, test.errString)
 				assert.Nil(t, res)

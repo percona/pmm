@@ -18,7 +18,6 @@ package inventory
 import (
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -69,7 +68,7 @@ func TestRDSExporter(t *testing.T) {
 					BasicMetricsDisabled:    true,
 					EnhancedMetricsDisabled: true,
 					Status:                  &AgentStatusUnknown,
-					LogLevel:                pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:                new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, getAgentRes)
@@ -80,7 +79,7 @@ func TestRDSExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					RDSExporter: &agents.ChangeAgentParamsBodyRDSExporter{
-						Enable:       pointer.ToBool(false),
+						Enable:       new(false),
 						CustomLabels: &agents.ChangeAgentParamsBodyRDSExporterCustomLabels{},
 					},
 				},
@@ -99,7 +98,7 @@ func TestRDSExporter(t *testing.T) {
 					EnhancedMetricsDisabled: true,
 					Status:                  &AgentStatusDone,
 					CustomLabels:            map[string]string{},
-					LogLevel:                pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:                new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeRDSExporterOK)
@@ -109,7 +108,7 @@ func TestRDSExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					RDSExporter: &agents.ChangeAgentParamsBodyRDSExporter{
-						Enable: pointer.ToBool(true),
+						Enable: new(true),
 						CustomLabels: &agents.ChangeAgentParamsBodyRDSExporterCustomLabels{
 							Values: map[string]string{
 								"new_label": "rds_exporter",
@@ -134,7 +133,7 @@ func TestRDSExporter(t *testing.T) {
 					BasicMetricsDisabled:    true,
 					EnhancedMetricsDisabled: true,
 					Status:                  &AgentStatusDone,
-					LogLevel:                pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:                new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeRDSExporterOK)
@@ -241,7 +240,7 @@ func TestRDSExporter(t *testing.T) {
 					BasicMetricsDisabled:    true,
 					EnhancedMetricsDisabled: true,
 					Status:                  &AgentStatusUnknown,
-					LogLevel:                pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:                new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, getAgentRes)
@@ -252,7 +251,7 @@ func TestRDSExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					RDSExporter: &agents.ChangeAgentParamsBodyRDSExporter{
-						EnablePushMetrics: pointer.ToBool(true),
+						EnablePushMetrics: new(true),
 					},
 				},
 				Context: pmmapitests.Context,
@@ -272,7 +271,7 @@ func TestRDSExporter(t *testing.T) {
 					EnhancedMetricsDisabled: true,
 					PushMetricsEnabled:      true,
 					Status:                  &AgentStatusUnknown,
-					LogLevel:                pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:                new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeRDSExporterOK)
@@ -282,7 +281,7 @@ func TestRDSExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					RDSExporter: &agents.ChangeAgentParamsBodyRDSExporter{
-						EnablePushMetrics: pointer.ToBool(false),
+						EnablePushMetrics: new(false),
 					},
 				},
 				Context: pmmapitests.Context,
@@ -301,7 +300,7 @@ func TestRDSExporter(t *testing.T) {
 					BasicMetricsDisabled:    true,
 					EnhancedMetricsDisabled: true,
 					Status:                  &AgentStatusUnknown,
-					LogLevel:                pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:                new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeRDSExporterOK)
@@ -321,7 +320,7 @@ func TestRDSExporter(t *testing.T) {
 				PMMAgentID:   pmmAgentID,
 				AWSAccessKey: "initial-access-key",
 				AWSSecretKey: "initial-secret-key",
-				LogLevel:     pointer.ToString("LOG_LEVEL_WARN"),
+				LogLevel:     new("LOG_LEVEL_WARN"),
 				CustomLabels: map[string]string{
 					"environment": "test",
 				},
@@ -335,7 +334,7 @@ func TestRDSExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				RDSExporter: &agents.ChangeAgentParamsBodyRDSExporter{
-					AWSSecretKey: pointer.ToString("rotated-secret-key"),
+					AWSSecretKey: new("rotated-secret-key"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -348,8 +347,8 @@ func TestRDSExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				RDSExporter: &agents.ChangeAgentParamsBodyRDSExporter{
-					AWSAccessKey: pointer.ToString("new-access-key"),
-					AWSSecretKey: pointer.ToString("new-secret-key"),
+					AWSAccessKey: new("new-access-key"),
+					AWSSecretKey: new("new-secret-key"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -380,7 +379,7 @@ func TestRDSExporter(t *testing.T) {
 				PMMAgentID:             pmmAgentID,
 				AWSAccessKey:           "initial-access-key",
 				AWSSecretKey:           "initial-secret-key",
-				LogLevel:               pointer.ToString("LOG_LEVEL_INFO"),
+				LogLevel:               new("LOG_LEVEL_INFO"),
 				DisableBasicMetrics:    true,
 				DisableEnhancedMetrics: false,
 				CustomLabels: map[string]string{
@@ -399,7 +398,7 @@ func TestRDSExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				RDSExporter: &agents.ChangeAgentParamsBodyRDSExporter{
-					LogLevel: pointer.ToString("LOG_LEVEL_DEBUG"),
+					LogLevel: new("LOG_LEVEL_DEBUG"),
 					// Note: AWS keys, custom labels, metrics settings are NOT specified
 				},
 			},
@@ -416,7 +415,7 @@ func TestRDSExporter(t *testing.T) {
 
 		agent := getAgentRes.Payload.RDSExporter
 		// Log level should be changed
-		assert.Equal(t, pointer.ToString("LOG_LEVEL_DEBUG"), agent.LogLevel)
+		assert.Equal(t, new("LOG_LEVEL_DEBUG"), agent.LogLevel)
 
 		// Everything else should remain unchanged
 		assert.Equal(t, "initial-access-key", agent.AWSAccessKey)
@@ -445,7 +444,7 @@ func TestRDSExporter(t *testing.T) {
 				PMMAgentID:             pmmAgentID,
 				AWSAccessKey:           "initial-access-key",
 				AWSSecretKey:           "initial-secret-key",
-				LogLevel:               pointer.ToString("LOG_LEVEL_WARN"),
+				LogLevel:               new("LOG_LEVEL_WARN"),
 				DisableBasicMetrics:    false,
 				DisableEnhancedMetrics: false,
 				CustomLabels: map[string]string{
@@ -463,12 +462,12 @@ func TestRDSExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				RDSExporter: &agents.ChangeAgentParamsBodyRDSExporter{
-					AWSAccessKey:           pointer.ToString("new-access-key"),
-					AWSSecretKey:           pointer.ToString("new-secret-key"),
-					LogLevel:               pointer.ToString("LOG_LEVEL_ERROR"),
-					DisableBasicMetrics:    pointer.ToBool(true),
-					DisableEnhancedMetrics: pointer.ToBool(true),
-					EnablePushMetrics:      pointer.ToBool(true),
+					AWSAccessKey:           new("new-access-key"),
+					AWSSecretKey:           new("new-secret-key"),
+					LogLevel:               new("LOG_LEVEL_ERROR"),
+					DisableBasicMetrics:    new(true),
+					DisableEnhancedMetrics: new(true),
+					EnablePushMetrics:      new(true),
 					CustomLabels: &agents.ChangeAgentParamsBodyRDSExporterCustomLabels{
 						Values: map[string]string{
 							"environment": "production",
@@ -476,7 +475,7 @@ func TestRDSExporter(t *testing.T) {
 							"team":        "platform",
 						},
 					},
-					Enable: pointer.ToBool(false), // disable the agent
+					Enable: new(false), // disable the agent
 				},
 			},
 			Context: pmmapitests.Context,
@@ -489,7 +488,7 @@ func TestRDSExporter(t *testing.T) {
 			AgentID:                 agentID,
 			PMMAgentID:              pmmAgentID,
 			AWSAccessKey:            "new-access-key",
-			LogLevel:                pointer.ToString("LOG_LEVEL_ERROR"),
+			LogLevel:                new("LOG_LEVEL_ERROR"),
 			BasicMetricsDisabled:    true,
 			EnhancedMetricsDisabled: true,
 			PushMetricsEnabled:      true,
@@ -516,7 +515,7 @@ func TestRDSExporter(t *testing.T) {
 			AgentID:                 agentID,
 			PMMAgentID:              pmmAgentID,
 			AWSAccessKey:            "new-access-key",
-			LogLevel:                pointer.ToString("LOG_LEVEL_ERROR"),
+			LogLevel:                new("LOG_LEVEL_ERROR"),
 			BasicMetricsDisabled:    true,
 			EnhancedMetricsDisabled: true,
 			PushMetricsEnabled:      true,

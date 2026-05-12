@@ -1,3 +1,4 @@
+import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
@@ -37,6 +38,7 @@ import { SettingsFieldLabel } from '../settings-field-label';
 import { SettingsSubmitButton } from '../settings-submit-button';
 import { formControlClasses } from '@mui/material/FormControl';
 import { formControlLabelClasses } from '@mui/material/FormControlLabel';
+import { helperTextTestId } from 'utils/mui.utils';
 
 export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
   settings,
@@ -46,6 +48,7 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
   const methods = useForm<AdvancedSettingsFormValues>({
     resolver: zodResolver(advancedSettingsSchema),
     defaultValues: toFormValues(settings),
+    mode: 'onChange',
   });
 
   const { handleSubmit, reset, watch, setValue } = methods;
@@ -90,6 +93,7 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
           <SettingsFieldLabel
             label={m.publicAddressLabel}
             description={m.publicAddressTooltip}
+            data-testid="public-address-label"
           />
           <Stack direction="row" flexWrap="wrap" gap={2} alignItems="center">
             <TextInput
@@ -98,12 +102,16 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
                 size: 'small',
                 placeholder: m.publicAddressPlaceholder,
                 sx: { flex: 1, minWidth: 240 },
+                slotProps: {
+                  htmlInput: { 'data-testid': 'publicAddress-text-input' },
+                },
               }}
             />
             <Button
               type="button"
               variant="text"
               startIcon={<ContentCopyIcon />}
+              data-testid="public-address-button"
               onClick={() =>
                 setValue('publicAddress', window.location.host, {
                   shouldDirty: true,
@@ -120,6 +128,7 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
             label={m.retentionLabel}
             description={m.retentionTooltip}
             readMoreLink={m.retentionLink}
+            data-testid="advanced-label"
           />
           <Stack direction="row" alignItems="baseline" gap={1}>
             <TextInput
@@ -127,11 +136,19 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
               textFieldProps={{
                 type: 'number',
                 slotProps: {
-                  htmlInput: { min: MIN_DAYS, max: MAX_DAYS, step: 1 },
+                  htmlInput: {
+                    min: MIN_DAYS,
+                    max: MAX_DAYS,
+                    step: 1,
+                    'data-testid': 'retention-number-input',
+                  },
                 },
                 sx: { minWidth: 120, maxWidth: 240 },
                 size: 'small',
               }}
+              formHelperTextProps={helperTextTestId(
+                'retention-field-error-message'
+              )}
             />
             <Typography variant="body1" color="text.secondary">
               {m.retentionUnits}
@@ -139,11 +156,12 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
           </Stack>
         </Stack>
 
-        <Stack gap={1}>
+        <Stack gap={1} data-testid="advanced-telemetry">
           <SettingsFieldLabel
             label={m.telemetryLabel}
             description={m.telemetryTooltip}
             readMoreLink={m.telemetryLink}
+            data-testid="advanced-telemetry-label"
           />
           <Stack direction="row" alignItems="center" gap={0.5}>
             <SwitchInput
@@ -156,6 +174,7 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
               component="button"
               type="button"
               variant="body1"
+              data-testid="telemetry-summaries-link"
               onClick={() => setTelemetryDialogOpen(true)}
             >
               {m.telemetryDialogLink}
@@ -166,6 +185,7 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
             onClose={() => setTelemetryDialogOpen(false)}
             maxWidth="sm"
             fullWidth
+            data-testid="telemetry-summaries-dialog"
             slotProps={{ paper: { elevation: 1 } }}
           >
             <DialogTitle>
@@ -211,29 +231,36 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
             }}
           >
             {FEATURE_MANAGEMENT_SETTINGS.map(
-              ({ name, label, tooltip, link }) => (
-                <Stack key={name} direction="row" alignItems="center">
+              ({ name, label, tooltip, link, testId }) => (
+                <Stack
+                  key={name}
+                  direction="row"
+                  alignItems="center"
+                  data-testid={testId}
+                >
                   <SwitchInput name={name} label={label} />
                   <Tooltip
                     title={
-                      <Typography variant="caption">
-                        {tooltip}{' '}
-                        {link && (
-                          <Link
-                            href={link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            color="inherit"
-                            sx={{ textDecorationColor: 'inherit' }}
-                          >
-                            {Messages.tooltipLinkText}
-                          </Link>
-                        )}
-                      </Typography>
+                      <Box data-testid="info-tooltip">
+                        <Typography variant="caption">
+                          {tooltip}{' '}
+                          {link && (
+                            <Link
+                              href={link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              color="inherit"
+                              sx={{ textDecorationColor: 'inherit' }}
+                            >
+                              {Messages.tooltipLinkText}
+                            </Link>
+                          )}
+                        </Typography>
+                      </Box>
                     }
                     arrow
                   >
-                    <IconButton size="small">
+                    <IconButton size="small" data-testid="info-icon">
                       <InfoOutlinedIcon fontSize="small" />
                     </IconButton>
                   </Tooltip>
@@ -243,18 +270,23 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
           </Stack>
         </Stack>
 
-        <Stack gap={1}>
+        <Stack gap={1} data-testid="advanced-advisors">
           <SettingsFieldLabel
             label={m.advisorsLabel}
             description={m.advisorsTooltip}
             readMoreLink={m.advisorsLink}
+            data-testid="advanced-advisors-label"
           />
           <Stack gap={1}>
             <SwitchInput name="stt" label={m.advisorsLabel} />
           </Stack>
           {sttEnabled && (
             <Stack gap={2}>
-              <Typography variant="body1" sx={{ maxWidth: MAX_LABEL_WIDTH }}>
+              <Typography
+                variant="body1"
+                sx={{ maxWidth: MAX_LABEL_WIDTH }}
+                data-testid="check-intervals-label"
+              >
                 {m.sttCheckIntervalTooltip}
               </Typography>
               <Stack direction="row" columnGap={2} rowGap={3} flexWrap="wrap">
@@ -266,11 +298,18 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
                     textFieldProps={{
                       type: 'number',
                       slotProps: {
-                        htmlInput: { min: MIN_STT_CHECK_INTERVAL, step: 0.1 },
+                        htmlInput: {
+                          min: MIN_STT_CHECK_INTERVAL,
+                          step: 0.1,
+                          'data-testid': `${name}-number-input`,
+                        },
                       },
                       size: 'small',
                       sx: { minWidth: 80, maxWidth: 120 },
                     }}
+                    formHelperTextProps={helperTextTestId(
+                      `${name}-field-error-message`
+                    )}
                   />
                 ))}
               </Stack>
@@ -299,51 +338,70 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
             readMoreLink={TECHNICAL_PREVIEW_DOC_URL}
             readMoreText={m.technicalPreviewLinkText}
           />
-          <Stack gap={2}>
-            <Stack direction="row" alignItems="center">
+          <Stack
+            gap={2}
+            sx={{
+              [`.${formControlLabelClasses.root}`]: {
+                marginRight: 0,
+              },
+            }}
+          >
+            <Stack
+              direction="row"
+              alignItems="center"
+              data-testid="advanced-azure-discover"
+            >
               <SwitchInput name="azureDiscover" label={m.azureDiscoverLabel} />
               <Tooltip
                 title={
-                  <Typography variant="caption">
-                    {m.azureDiscoverTooltip}{' '}
-                    <Link
-                      href={m.azureDiscoverLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      color="inherit"
-                      sx={{ textDecorationColor: 'inherit' }}
-                    >
-                      {Messages.tooltipLinkText}
-                    </Link>
-                  </Typography>
+                  <Box data-testid="info-tooltip">
+                    <Typography variant="caption">
+                      {m.azureDiscoverTooltip}{' '}
+                      <Link
+                        href={m.azureDiscoverLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        color="inherit"
+                        sx={{ textDecorationColor: 'inherit' }}
+                      >
+                        {Messages.tooltipLinkText}
+                      </Link>
+                    </Typography>
+                  </Box>
                 }
                 arrow
               >
-                <IconButton size="small">
+                <IconButton size="small" data-testid="info-icon">
                   <InfoOutlinedIcon fontSize="small" />
                 </IconButton>
               </Tooltip>
             </Stack>
-            <Stack direction="row" alignItems="center">
+            <Stack
+              direction="row"
+              alignItems="center"
+              data-testid="access-control"
+            >
               <SwitchInput name="accessControl" label={m.accessControl} />
               <Tooltip
                 title={
-                  <Typography variant="caption">
-                    {m.accessControlTooltip}{' '}
-                    <Link
-                      href={m.accessControlLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      color="inherit"
-                      sx={{ textDecorationColor: 'inherit' }}
-                    >
-                      {Messages.tooltipLinkText}
-                    </Link>
-                  </Typography>
+                  <Box data-testid="info-tooltip">
+                    <Typography variant="caption">
+                      {m.accessControlTooltip}{' '}
+                      <Link
+                        href={m.accessControlLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        color="inherit"
+                        sx={{ textDecorationColor: 'inherit' }}
+                      >
+                        {Messages.tooltipLinkText}
+                      </Link>
+                    </Typography>
+                  </Box>
                 }
                 arrow
               >
-                <IconButton size="small">
+                <IconButton size="small" data-testid="info-icon">
                   <InfoOutlinedIcon fontSize="small" />
                 </IconButton>
               </Tooltip>

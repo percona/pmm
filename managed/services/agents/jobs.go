@@ -19,7 +19,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/hashicorp/go-version"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -261,7 +260,7 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 				job.Data.MySQLRestoreBackup.RestoreID,
 				models.ChangeRestoreHistoryItemParams{
 					Status:     models.SuccessRestoreStatus,
-					FinishedAt: pointer.ToTime(models.Now()),
+					FinishedAt: new(models.Now()),
 				},
 			)
 			if err != nil {
@@ -285,7 +284,7 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 						job.Data.MongoDBRestoreBackup.RestoreID,
 						models.ChangeRestoreHistoryItemParams{
 							Status:     models.ErrorRestoreStatus,
-							FinishedAt: pointer.ToTime(models.Now()),
+							FinishedAt: new(models.Now()),
 						},
 					)
 					return err
@@ -299,7 +298,7 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 				job.Data.MongoDBRestoreBackup.RestoreID,
 				models.ChangeRestoreHistoryItemParams{
 					Status:     models.SuccessRestoreStatus,
-					FinishedAt: pointer.ToTime(models.Now()),
+					FinishedAt: new(models.Now()),
 				},
 			)
 			if err != nil {
@@ -340,7 +339,7 @@ func (s *JobsService) handleJobError(job *models.Job) error {
 			job.Data.MySQLRestoreBackup.RestoreID,
 			models.ChangeRestoreHistoryItemParams{
 				Status:     models.ErrorRestoreStatus,
-				FinishedAt: pointer.ToTime(models.Now()),
+				FinishedAt: new(models.Now()),
 			},
 		)
 	case models.MongoDBRestoreBackupJob:
@@ -349,7 +348,7 @@ func (s *JobsService) handleJobError(job *models.Job) error {
 			job.Data.MongoDBRestoreBackup.RestoreID,
 			models.ChangeRestoreHistoryItemParams{
 				Status:     models.ErrorRestoreStatus,
-				FinishedAt: pointer.ToTime(models.Now()),
+				FinishedAt: new(models.Now()),
 			},
 		)
 	default:
@@ -677,11 +676,10 @@ func (s *JobsService) runMongoPostRestore(querier *reform.Querier, serviceID str
 		return errors.Errorf("service '%s' has an empty cluster name and needs to be manually restarted", service.ServiceID)
 	}
 
-	serviceType := models.MongoDBServiceType
 	clusterMembers, err := models.FindServices(
 		querier,
 		models.ServiceFilters{
-			ServiceType: &serviceType,
+			ServiceType: new(models.MongoDBServiceType),
 			Cluster:     service.Cluster,
 		},
 	)
@@ -826,8 +824,7 @@ func artifactMetadataFromProto(metadata *backuppb.Metadata) *models.Metadata {
 	res.FileList = files
 
 	if metadata.RestoreTo != nil {
-		t := metadata.RestoreTo.AsTime()
-		res.RestoreTo = &t
+		res.RestoreTo = new(metadata.RestoreTo.AsTime())
 	}
 
 	if metadata.BackupToolMetadata != nil {

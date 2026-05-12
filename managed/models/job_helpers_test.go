@@ -21,7 +21,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
@@ -209,7 +208,7 @@ func TestJobLogs(t *testing.T) {
 				Name: "job filter and limit",
 				Filters: models.JobLogsFilter{
 					JobID: job1.ID,
-					Limit: pointer.ToInt(1),
+					Limit: new(1),
 				},
 				Expect: []expectLog{
 					{
@@ -223,7 +222,7 @@ func TestJobLogs(t *testing.T) {
 				Filters: models.JobLogsFilter{
 					JobID:  job1.ID,
 					Offset: 1,
-					Limit:  pointer.ToInt(1),
+					Limit:  new(1),
 				},
 				Expect: []expectLog{
 					{

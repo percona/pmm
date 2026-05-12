@@ -977,10 +977,9 @@ func (s Agent) TemplateDelimiters(svc *Service) *DelimiterPair {
 	case ExternalServiceType:
 	}
 
-	tdp := TemplateDelimsPair(
+	return new(TemplateDelimsPair(
 		templateParams...,
-	)
-	return &tdp
+	))
 }
 
 // HashPassword func to calculate password hash. Public and overridable for testing purposes.

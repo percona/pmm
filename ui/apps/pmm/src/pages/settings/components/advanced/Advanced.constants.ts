@@ -34,23 +34,27 @@ export const FEATURE_MANAGEMENT_SETTINGS = [
     label: Messages.advanced.updatesLabel,
     tooltip: Messages.advanced.updatesTooltip,
     link: Messages.advanced.updatesLink,
+    testId: 'advanced-updates',
   },
   {
     name: 'alerting' as const,
     label: Messages.advanced.alertingLabel,
     tooltip: Messages.advanced.alertingTooltip,
     link: Messages.advanced.alertingLink,
+    testId: 'advanced-alerting',
   },
   {
     name: 'backup' as const,
     label: Messages.advanced.backupLabel,
     tooltip: Messages.advanced.backupTooltip,
     link: Messages.advanced.backupLink,
+    testId: 'advanced-backup',
   },
   {
     name: 'enableInternalPgQan' as const,
     label: Messages.advanced.enableInternalPgQanLabel,
     tooltip: Messages.advanced.enableInternalPgQanTooltip,
     link: Messages.advanced.enableInternalPgQanLink,
+    testId: 'enable-internal-pg-qan',
   },
 ];

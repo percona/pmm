@@ -1,4 +1,5 @@
 import { PropsWithChildren, ReactNode } from 'react';
+import { OrgRole } from 'types/user.types';
 
 export interface PageProps extends PropsWithChildren {
   title?: string;
@@ -6,4 +7,5 @@ export interface PageProps extends PropsWithChildren {
   topBar?: ReactNode;
   fullWidth?: boolean;
   surface?: 'default' | 'paper';
+  roles?: OrgRole[];
 }

@@ -79,7 +79,7 @@ func TestLoadBuiltinAdvisors(t *testing.T) {
 
 	t.Run("advisors are loaded with telemetry disabled", func(t *testing.T) {
 		_, err := models.UpdateSettings(db.Querier, &models.ChangeSettingsParams{
-			EnableTelemetry: pointer.ToBool(false),
+			EnableTelemetry: new(false),
 		})
 		require.NoError(t, err)
 
@@ -327,7 +327,7 @@ func TestStartChecks(t *testing.T) {
 		settings, err := models.GetSettings(db)
 		require.NoError(t, err)
 
-		settings.SaaS.Enabled = pointer.ToBool(false)
+		settings.SaaS.Enabled = new(false)
 		err = models.SaveSettings(db, settings)
 		require.NoError(t, err)
 
@@ -456,8 +456,8 @@ func setup(t *testing.T, db *reform.DB, serviceName, nodeID, pmmAgentVersion str
 	mysql, err := models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 		ServiceName: serviceName,
 		NodeID:      nodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(3306),
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(3306)),
 	})
 	require.NoError(t, err)
 
@@ -697,7 +697,7 @@ func TestGetFailedChecks(t *testing.T) {
 		settings, err := models.GetSettings(db)
 		require.NoError(t, err)
 
-		settings.SaaS.Enabled = pointer.ToBool(false)
+		settings.SaaS.Enabled = new(false)
 		err = models.SaveSettings(db, settings)
 		require.NoError(t, err)
 
