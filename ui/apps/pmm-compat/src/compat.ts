@@ -179,6 +179,7 @@ export const initialize = () => {
     messenger.sendMessage({
       type: 'FRONTEND_SETTINGS_CHANGED',
     });
+    window.location.reload();
   });
 
   getAppEvents().subscribe(ServiceAddedEvent, () => {
