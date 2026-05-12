@@ -338,7 +338,14 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
             readMoreLink={TECHNICAL_PREVIEW_DOC_URL}
             readMoreText={m.technicalPreviewLinkText}
           />
-          <Stack gap={2}>
+          <Stack
+            gap={2}
+            sx={{
+              [`.${formControlLabelClasses.root}`]: {
+                marginRight: 0,
+              },
+            }}
+          >
             <Stack
               direction="row"
               alignItems="center"
