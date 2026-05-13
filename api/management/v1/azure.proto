@@ -41,7 +41,7 @@ message DiscoverAzureDatabaseInstance {
   // Azure database server name.
   string service_name = 3;
   // Database username.
-  string username = 4;
+  string username = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Address used to connect to it.
   string address = 5;
   // Azure Resource group.
