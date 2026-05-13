@@ -33,8 +33,6 @@ const usePersistentColumnVisibility = (
         localStorage.removeItem(key);
       }
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, localStorageValue]);
 
   return [localStorageValue, setLocalStorageStateValue];

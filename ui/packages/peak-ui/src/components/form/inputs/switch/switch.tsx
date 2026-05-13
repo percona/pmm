@@ -1,9 +1,9 @@
 import { FormControlLabel, Switch, Typography } from '@mui/material';
 import { kebabize } from '@/utils';
-import { Controller, useFormContext } from 'react-hook-form';
+import { Controller, FieldValues, useFormContext } from 'react-hook-form';
 import { SwitchInputProps } from './switch.types';
 
-const SwitchInput = ({
+const SwitchInput = <T extends FieldValues = FieldValues>({
   name,
   control,
   label,
@@ -11,8 +11,8 @@ const SwitchInput = ({
   controllerProps,
   formControlLabelProps,
   switchFieldProps = {},
-}: SwitchInputProps) => {
-  const formContext = useFormContext();
+}: SwitchInputProps<T>) => {
+  const formContext = useFormContext<T>();
   const contextControl = formContext?.control;
 
   const { onChange, ...restSwitchFieldProps } = switchFieldProps;

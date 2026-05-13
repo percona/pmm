@@ -14,12 +14,12 @@
 
 import { FormHelperTextProps, TextFieldProps } from '@mui/material';
 import { LabeledContentProps } from '../../../labeled-content';
-import { Control, UseControllerProps } from 'react-hook-form';
+import { Control, FieldPath, FieldValues, UseControllerProps } from 'react-hook-form';
 
-export type TextInputProps = {
-  control?: Control;
-  controllerProps?: Omit<UseControllerProps, 'name'>;
-  name: string;
+export type TextInputProps<T extends FieldValues = FieldValues> = {
+  control?: Control<T>;
+  controllerProps?: Omit<UseControllerProps<T>, 'name' | 'control'>;
+  name: FieldPath<T>;
   label?: string;
   labelProps?: LabeledContentProps;
   textFieldProps?: TextFieldProps;

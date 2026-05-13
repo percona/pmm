@@ -135,6 +135,14 @@ const sepThemeOptions = (mode: PaletteMode): ThemeOptions => {
           },
         }),
       },
+      MuiButton: {
+        styleOverrides: {
+          containedSuccess: { color: sepBrand.white },
+          containedError: { color: sepBrand.white },
+          containedWarning: { color: sepBrand.white },
+          containedInfo: { color: sepBrand.white },
+        },
+      },
       MuiIconButton: {
         defaultProps: {
           disableTouchRipple: true,

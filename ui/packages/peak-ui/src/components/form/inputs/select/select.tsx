@@ -7,11 +7,11 @@ import {
   Select,
 } from '@mui/material';
 import { kebabize } from '@/utils';
-import { Controller, useFormContext } from 'react-hook-form';
+import { Controller, FieldValues, useFormContext } from 'react-hook-form';
 import { SelectInputProps } from './select.types';
 import { Messages } from './select.messages';
 
-const SelectInput = ({
+const SelectInput = <T extends FieldValues = FieldValues>({
   name,
   control,
   label,
@@ -21,8 +21,8 @@ const SelectInput = ({
   formControlProps,
   loading,
   children,
-}: SelectInputProps) => {
-  const formContext = useFormContext();
+}: SelectInputProps<T>) => {
+  const formContext = useFormContext<T>();
   const contextControl = formContext?.control;
 
   return (
@@ -35,7 +35,7 @@ const SelectInput = ({
           <Select
             {...field}
             label={label}
-            labelId="demo-simple-select-label"
+            labelId={`${name}-input-label`}
             variant="outlined"
             error={error !== undefined}
             data-testid={`select-${kebabize(name)}-button`}

@@ -1,12 +1,13 @@
+import { FieldValues } from 'react-hook-form';
 import { ToggleButtonGroupInputProps } from '../toggle-button-group';
 import ToggleButtonGroupInput from '../toggle-button-group/toggle-button-group';
 
-const ToggleButtonGroupInputRegular = ({
+const ToggleButtonGroupInputRegular = <T extends FieldValues = FieldValues>({
   children,
   name,
   toggleButtonGroupProps,
   ...props
-}: ToggleButtonGroupInputProps) => {
+}: ToggleButtonGroupInputProps<T>) => {
   return (
     <ToggleButtonGroupInput
       name={name}
