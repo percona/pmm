@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 import { FormControlLabelProps as MuiFormControlLabelProps, SwitchProps } from '@mui/material';
-import { Control, UseControllerProps } from 'react-hook-form';
+import { Control, FieldPath, FieldValues, UseControllerProps } from 'react-hook-form';
 
 type FormControlLabelProps = MuiFormControlLabelProps;
 
-export type SwitchInputProps = {
-  control?: Control;
-  controllerProps?: UseControllerProps;
+export type SwitchInputProps<T extends FieldValues = FieldValues> = {
+  control?: Control<T>;
+  controllerProps?: Omit<UseControllerProps<T>, 'name' | 'control'>;
   formControlLabelProps?: Omit<FormControlLabelProps, 'control' | 'label'>;
-  name: string;
+  name: FieldPath<T>;
   label: string;
   labelCaption?: string;
   switchFieldProps?: SwitchProps;

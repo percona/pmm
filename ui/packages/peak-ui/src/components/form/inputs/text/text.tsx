@@ -1,9 +1,9 @@
 import { TextField } from '@mui/material';
 import { kebabize } from '@/utils';
-import { Controller, useFormContext } from 'react-hook-form';
+import { Controller, FieldValues, useFormContext } from 'react-hook-form';
 import { TextInputProps } from './text.types';
 
-const TextInput = ({
+const TextInput = <T extends FieldValues = FieldValues>({
   control,
   name,
   label,
@@ -11,8 +11,8 @@ const TextInput = ({
   textFieldProps = {},
   isRequired,
   formHelperTextProps = {},
-}: TextInputProps) => {
-  const formContext = useFormContext();
+}: TextInputProps<T>) => {
+  const formContext = useFormContext<T>();
   const contextControl = formContext?.control;
 
   const { sx: textFieldPropsSx, onChange, ...restFieldProps } = textFieldProps;
