@@ -377,7 +377,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "sum(rate(redis_commands_total{service_name=~\"$service_name\"} [1m])) by (service_name,cmd)",
+                    "expr": "sum(rate(redis_commands_total{service_name=~\"$ns_service_name\"} [1m])) by (service_name,cmd)",
                     "format": "time_series",
                     "interval": "",
                     "intervalFactor": 2,
