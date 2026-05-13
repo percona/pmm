@@ -15,6 +15,7 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 
+	_ "github.com/percona/pmm/api/extensions/v1"
 	v1 "github.com/percona/pmm/api/inventory/v1"
 )
 
@@ -447,7 +448,7 @@ var File_management_v1_postgresql_proto protoreflect.FileDescriptor
 
 const file_management_v1_postgresql_proto_rawDesc = "" +
 	"\n" +
-	"\x1emanagement/v1/postgresql.proto\x12\rmanagement.v1\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xd7\v\n" +
+	"\x1emanagement/v1/postgresql.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xe7\v\n" +
 	"\x1aAddPostgreSQLServiceParams\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x127\n" +
@@ -462,9 +463,9 @@ const file_management_v1_postgresql_proto_rawDesc = "" +
 	"\venvironment\x18\n" +
 	" \x01(\tR\venvironment\x12\x18\n" +
 	"\acluster\x18\v \x01(\tR\acluster\x12'\n" +
-	"\x0freplication_set\x18\f \x01(\tR\x0ereplicationSet\x12#\n" +
-	"\busername\x18\r \x01(\tB\a\xfaB\x04r\x02\x10\x01R\busername\x12\x1a\n" +
-	"\bpassword\x18\x0e \x01(\tR\bpassword\x12I\n" +
+	"\x0freplication_set\x18\f \x01(\tR\x0ereplicationSet\x12'\n" +
+	"\busername\x18\r \x01(\tB\v\xfaB\x04r\x02\x10\x01\x88\xb5\x18\x01R\busername\x12 \n" +
+	"\bpassword\x18\x0e \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x12I\n" +
 	"!qan_postgresql_pgstatements_agent\x18\x0f \x01(\bR\x1eqanPostgresqlPgstatementsAgent\x12K\n" +
 	"\"qan_postgresql_pgstatmonitor_agent\x18\x10 \x01(\bR\x1fqanPostgresqlPgstatmonitorAgent\x12(\n" +
 	"\x10max_query_length\x18\x11 \x01(\x05R\x0emaxQueryLength\x124\n" +
@@ -478,8 +479,8 @@ const file_management_v1_postgresql_proto_rawDesc = "" +
 	"\x12disable_collectors\x18\x19 \x03(\tR\x11disableCollectors\x12\x15\n" +
 	"\x06tls_ca\x18\x1a \x01(\tR\x05tlsCa\x12\x19\n" +
 	"\btls_cert\x18\x1b \x01(\tR\atlsCert\x12\x17\n" +
-	"\atls_key\x18\x1c \x01(\tR\x06tlsKey\x12%\n" +
-	"\x0eagent_password\x18\x1d \x01(\tR\ragentPassword\x123\n" +
+	"\atls_key\x18\x1c \x01(\tR\x06tlsKey\x12+\n" +
+	"\x0eagent_password\x18\x1d \x01(\tB\x04\x88\xb5\x18\x01R\ragentPassword\x123\n" +
 	"\tlog_level\x18\x1e \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x120\n" +
 	"\x14auto_discovery_limit\x18\x1f \x01(\x05R\x12autoDiscoveryLimit\x12'\n" +
 	"\x0fexpose_exporter\x18  \x01(\bR\x0eexposeExporter\x128\n" +
@@ -514,8 +515,8 @@ var (
 		(*PostgreSQLServiceResult)(nil),            // 1: management.v1.PostgreSQLServiceResult
 		nil,                                        // 2: management.v1.AddPostgreSQLServiceParams.CustomLabelsEntry
 		(*AddNodeParams)(nil),                      // 3: management.v1.AddNodeParams
-		(MetricsMode)(0),                           // 4: management.v1.MetricsMode
-		(v1.LogLevel)(0),                           // 5: inventory.v1.LogLevel
+		MetricsMode(0),                             // 4: management.v1.MetricsMode
+		v1.LogLevel(0),                             // 5: inventory.v1.LogLevel
 		(*v1.PostgreSQLService)(nil),               // 6: inventory.v1.PostgreSQLService
 		(*v1.PostgresExporter)(nil),                // 7: inventory.v1.PostgresExporter
 		(*v1.QANPostgreSQLPgStatementsAgent)(nil),  // 8: inventory.v1.QANPostgreSQLPgStatementsAgent

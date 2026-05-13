@@ -23,7 +23,7 @@ on:
         description: "The branch to pull API tests from"
         default: "v3"
         required: true
-        type: string      
+        type: string
       PMM_SERVER_IMAGE:
         description: "PMM Server image version"
         default: "ghcr.io/percona/pmm:3-dev-container"
@@ -46,7 +46,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          ref: ${{ env.BRANCH }}        
+          ref: ${{ env.BRANCH }}
 
       - name: Login to docker.io registry
         uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
@@ -81,8 +81,7 @@ jobs:
       - name: Build the test image
         shell: bash
         run: |
-          echo "Make sure to set the context to the root of the repository."
-          docker buildx build -f api-tests/Dockerfile -t percona/pmm-api-tests .
+          make docker-build-image
 
       - name: Run compose up for test DBs
         shell: bash
@@ -98,14 +97,7 @@ jobs:
       - name: Run API tests
         shell: bash
         run: |
-          docker run \
-            -e PMM_SERVER_URL=${{env.PMM_URL}} \
-            -e PMM_RUN_UPDATE_TEST=0 \
-            -e PMM_RUN_ADVISOR_TESTS=0 \
-            -e PMM_SERVER_INSECURE_TLS=1 \
-            --name pmm-api-tests \
-            --network host \
-            percona/pmm-api-tests
+          PMM_SERVER_URL=${{env.PMM_URL}} make docker-run-tests
 
       - name: Get PMM logs
         if: ${{ failure() }}

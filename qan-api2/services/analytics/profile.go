@@ -26,7 +26,7 @@ import (
 )
 
 // GetReport implements rpc to get report for given filtering.
-func (s *Service) GetReport(ctx context.Context, in *qanpb.GetReportRequest) (*qanpb.GetReportResponse, error) {
+func (s *Service) GetReport(ctx context.Context, in *qanpb.GetReportRequest) (*qanpb.GetReportResponse, error) { //nolint:gocognit
 	if in.PeriodStartFrom == nil || in.PeriodStartTo == nil {
 		return nil, fmt.Errorf("from-date: %v or to-date: %v cannot be empty", in.PeriodStartFrom, in.PeriodStartTo)
 	}
@@ -127,7 +127,8 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.GetReportRequest) (*q
 		limit,
 		specialColumns,
 		commonColumns,
-		sumColumns)
+		sumColumns,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -168,7 +169,8 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.GetReportRequest) (*q
 			labels,
 			group,
 			mainMetric,
-			isTotal)
+			isTotal,
+		)
 		if err != nil {
 			return nil, err
 		}

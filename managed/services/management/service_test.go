@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	"github.com/prometheus/common/model"
 	"github.com/stretchr/testify/assert"
@@ -118,8 +117,8 @@ func TestServiceService(t *testing.T) {
 			service, err := models.AddNewService(s.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 				ServiceName: "test-mysql",
 				NodeID:      models.PMMServerNodeID,
-				Address:     pointer.ToString("127.0.0.1"),
-				Port:        pointer.ToUint16(3306),
+				Address:     new("127.0.0.1"),
+				Port:        new(uint16(3306)),
 			})
 			require.NoError(t, err)
 
@@ -135,8 +134,8 @@ func TestServiceService(t *testing.T) {
 			service, err := models.AddNewService(s.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 				ServiceName: "test-mysql",
 				NodeID:      models.PMMServerNodeID,
-				Address:     pointer.ToString("127.0.0.1"),
-				Port:        pointer.ToUint16(3306),
+				Address:     new("127.0.0.1"),
+				Port:        new(uint16(3306)),
 			})
 			require.NoError(t, err)
 
@@ -173,15 +172,15 @@ func TestServiceService(t *testing.T) {
 			node, err := models.CreateNode(s.db.Querier, models.RemoteRDSNodeType, &models.CreateNodeParams{
 				NodeName: "test",
 				Address:  "test-address",
-				Region:   pointer.ToString("test-region"),
+				Region:   new("test-region"),
 			})
 			require.NoError(t, err)
 
 			service, err := models.AddNewService(s.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 				ServiceName: "test-mysql",
 				NodeID:      node.NodeID,
-				Address:     pointer.ToString("127.0.0.1"),
-				Port:        pointer.ToUint16(3306),
+				Address:     new("127.0.0.1"),
+				Port:        new(uint16(3306)),
 			})
 			require.NoError(t, err)
 
@@ -227,15 +226,15 @@ func TestServiceService(t *testing.T) {
 			node, err := models.CreateNode(s.db.Querier, models.RemoteAzureDatabaseNodeType, &models.CreateNodeParams{
 				NodeName: "test",
 				Address:  "test-address",
-				Region:   pointer.ToString("test-region"),
+				Region:   new("test-region"),
 			})
 			require.NoError(t, err)
 
 			service, err := models.AddNewService(s.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 				ServiceName: "test-mysql",
 				NodeID:      node.NodeID,
-				Address:     pointer.ToString("127.0.0.1"),
-				Port:        pointer.ToUint16(3306),
+				Address:     new("127.0.0.1"),
+				Port:        new(uint16(3306)),
 			})
 			require.NoError(t, err)
 
@@ -358,15 +357,15 @@ func TestServiceService(t *testing.T) {
 			node, err := models.CreateNode(s.db.Querier, models.RemoteRDSNodeType, &models.CreateNodeParams{
 				NodeName: "test",
 				Address:  "test-address",
-				Region:   pointer.ToString("test-region"),
+				Region:   new("test-region"),
 			})
 			require.NoError(t, err)
 
 			service, err := models.AddNewService(s.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 				ServiceName: "test-mysql",
 				NodeID:      node.NodeID,
-				Address:     pointer.ToString("127.0.0.1"),
-				Port:        pointer.ToUint16(3306),
+				Address:     new("127.0.0.1"),
+				Port:        new(uint16(3306)),
 			})
 			require.NoError(t, err)
 
@@ -411,15 +410,15 @@ func TestServiceService(t *testing.T) {
 			node, err := models.CreateNode(s.db.Querier, models.RemoteAzureDatabaseNodeType, &models.CreateNodeParams{
 				NodeName: "test",
 				Address:  "test-address",
-				Region:   pointer.ToString("test-region"),
+				Region:   new("test-region"),
 			})
 			require.NoError(t, err)
 
 			service, err := models.AddNewService(s.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 				ServiceName: "test-mysql",
 				NodeID:      node.NodeID,
-				Address:     pointer.ToString("127.0.0.1"),
-				Port:        pointer.ToUint16(3306),
+				Address:     new("127.0.0.1"),
+				Port:        new(uint16(3306)),
 			})
 			require.NoError(t, err)
 

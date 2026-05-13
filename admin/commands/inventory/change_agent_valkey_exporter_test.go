@@ -18,7 +18,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/alecthomas/kong"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -39,13 +38,13 @@ func TestValkeyExporterChangeAgent(t *testing.T) {
 
 			cmd := &ChangeAgentValkeyExporterCommand{
 				AgentID:     "test-agent-valkey-update",
-				Enable:      pointer.ToBool(true),
-				Username:    pointer.ToString("redis_user"),
-				Password:    pointer.ToString("redis_pass"),
-				TLS:         pointer.ToBool(true),
-				PushMetrics: pointer.ToBool(false),
+				Enable:      new(true),
+				Username:    new("redis_user"),
+				Password:    new("redis_pass"),
+				TLS:         new(true),
+				PushMetrics: new(false),
 				LogLevelFatalChangeFlags: flags.LogLevelFatalChangeFlags{
-					LogLevel: pointer.To(flags.LogLevel("debug")),
+					LogLevel: new(flags.LogLevel("debug")),
 				},
 				CustomLabels: &map[string]string{"environment": "test"},
 			}
@@ -80,8 +79,8 @@ func TestValkeyExporterChangeAgent(t *testing.T) {
 
 			cmd := &ChangeAgentValkeyExporterCommand{
 				AgentID:     "test-agent-valkey-disable",
-				Enable:      pointer.ToBool(false),
-				PushMetrics: pointer.ToBool(false),
+				Enable:      new(false),
+				PushMetrics: new(false),
 			}
 
 			result, err := cmd.RunCmd()
@@ -217,7 +216,7 @@ Configuration changes applied:
 
 		cmd := &ChangeAgentValkeyExporterCommand{
 			AgentID: "invalid-agent-valkey",
-			Enable:  pointer.ToBool(true),
+			Enable:  new(true),
 		}
 
 		result, err := cmd.RunCmd()
