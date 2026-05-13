@@ -46,8 +46,8 @@ func setup(t *testing.T, q *reform.Querier, serviceType models.ServiceType, serv
 	service, err = models.AddNewService(q, serviceType, &models.AddDBMSServiceParams{
 		ServiceName: serviceName,
 		NodeID:      node.NodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(60000),
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(60000)),
 	})
 	require.NoError(t, err)
 

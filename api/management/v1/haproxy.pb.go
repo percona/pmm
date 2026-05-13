@@ -328,7 +328,7 @@ var (
 		(*HAProxyServiceResult)(nil),    // 1: management.v1.HAProxyServiceResult
 		nil,                             // 2: management.v1.AddHAProxyServiceParams.CustomLabelsEntry
 		(*AddNodeParams)(nil),           // 3: management.v1.AddNodeParams
-		(MetricsMode)(0),                // 4: management.v1.MetricsMode
+		MetricsMode(0),                  // 4: management.v1.MetricsMode
 		(*v1.HAProxyService)(nil),       // 5: inventory.v1.HAProxyService
 		(*v1.ExternalExporter)(nil),     // 6: inventory.v1.ExternalExporter
 	}

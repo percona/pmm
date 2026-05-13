@@ -1318,7 +1318,8 @@ func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Contex
 			return nil, status.Errorf(
 				codes.FailedPrecondition,
 				"QAN for PMM's internal PostgreSQL server is set to %s via an environment variable.",
-				envVar)
+				envVar,
+			)
 		}
 	}
 
@@ -1890,8 +1891,7 @@ func convertLogLevel(logLevel *inventoryv1.LogLevel) *string {
 		// Convert from "LOG_LEVEL_DEBUG" to "debug"
 		fullName := logLevel.String()
 		if after, ok := strings.CutPrefix(fullName, "LOG_LEVEL_"); ok {
-			simplified := strings.ToLower(after)
-			return &simplified
+			return new(strings.ToLower(after))
 		}
 
 		return &fullName
@@ -1908,14 +1908,14 @@ func convertMetricsResolutions(mrs *common.MetricsResolutions) *models.ChangeMet
 
 	result := &models.ChangeMetricsResolutionsParams{}
 	if hr := mrs.GetHr(); hr != nil {
-		result.HR = pointer.ToDuration(hr.AsDuration())
+		result.HR = new(hr.AsDuration())
 	}
 
 	if mr := mrs.GetMr(); mr != nil {
-		result.MR = pointer.ToDuration(mr.AsDuration())
+		result.MR = new(mr.AsDuration())
 	}
 	if lr := mrs.GetLr(); lr != nil {
-		result.LR = pointer.ToDuration(lr.AsDuration())
+		result.LR = new(lr.AsDuration())
 	}
 
 	return result

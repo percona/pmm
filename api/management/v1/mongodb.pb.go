@@ -469,7 +469,7 @@ var File_management_v1_mongodb_proto protoreflect.FileDescriptor
 
 const file_management_v1_mongodb_proto_rawDesc = "" +
 	"\n" +
-	"\x1bmanagement/v1/mongodb.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\x85\r\n" +
+	"\x1bmanagement/v1/mongodb.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\x8b\r\n" +
 	"\x17AddMongoDBServiceParams\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x127\n" +
@@ -491,8 +491,8 @@ const file_management_v1_mongodb_proto_rawDesc = "" +
 	"\rcustom_labels\x18\x10 \x03(\v28.management.v1.AddMongoDBServiceParams.CustomLabelsEntryR\fcustomLabels\x122\n" +
 	"\x15skip_connection_check\x18\x11 \x01(\bR\x13skipConnectionCheck\x12\x10\n" +
 	"\x03tls\x18\x13 \x01(\bR\x03tls\x12&\n" +
-	"\x0ftls_skip_verify\x18\x14 \x01(\bR\rtlsSkipVerify\x12.\n" +
-	"\x13tls_certificate_key\x18\x15 \x01(\tR\x11tlsCertificateKey\x12N\n" +
+	"\x0ftls_skip_verify\x18\x14 \x01(\bR\rtlsSkipVerify\x124\n" +
+	"\x13tls_certificate_key\x18\x15 \x01(\tB\x04\x88\xb5\x18\x01R\x11tlsCertificateKey\x12N\n" +
 	"!tls_certificate_key_file_password\x18\x16 \x01(\tB\x04\x88\xb5\x18\x01R\x1dtlsCertificateKeyFilePassword\x12\x15\n" +
 	"\x06tls_ca\x18\x17 \x01(\tR\x05tlsCa\x12(\n" +
 	"\x10max_query_length\x18\x18 \x01(\x05R\x0emaxQueryLength\x12=\n" +
@@ -538,8 +538,8 @@ var (
 		(*MongoDBServiceResult)(nil),       // 1: management.v1.MongoDBServiceResult
 		nil,                                // 2: management.v1.AddMongoDBServiceParams.CustomLabelsEntry
 		(*AddNodeParams)(nil),              // 3: management.v1.AddNodeParams
-		(MetricsMode)(0),                   // 4: management.v1.MetricsMode
-		(v1.LogLevel)(0),                   // 5: inventory.v1.LogLevel
+		MetricsMode(0),                     // 4: management.v1.MetricsMode
+		v1.LogLevel(0),                     // 5: inventory.v1.LogLevel
 		(*v1.MongoDBService)(nil),          // 6: inventory.v1.MongoDBService
 		(*v1.MongoDBExporter)(nil),         // 7: inventory.v1.MongoDBExporter
 		(*v1.QANMongoDBProfilerAgent)(nil), // 8: inventory.v1.QANMongoDBProfilerAgent

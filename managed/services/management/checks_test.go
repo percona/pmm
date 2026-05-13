@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -198,8 +197,8 @@ func TestGetFailedChecks(t *testing.T) {
 
 		resp, err := s.GetFailedChecks(t.Context(), &advisorsv1.GetFailedChecksRequest{
 			ServiceId: "test_svc",
-			PageSize:  pointer.ToInt32(1),
-			PageIndex: pointer.ToInt32(1),
+			PageSize:  new(int32(1)),
+			PageIndex: new(int32(1)),
 		})
 		require.NoError(t, err)
 		assert.Equal(t, response, resp)
@@ -316,7 +315,8 @@ func TestListAdvisorChecks(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 
-		assert.ElementsMatch(t, resp.Checks,
+		assert.ElementsMatch(
+			t, resp.Checks,
 			[]*advisorsv1.AdvisorCheck{
 				{Name: "one", Enabled: true, Interval: advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD},
 				{Name: "two", Enabled: false, Interval: advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_FREQUENT},
