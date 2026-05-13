@@ -1,1183 +1,1183 @@
 {
-  "annotations": {
-    "list": [
-      {
-        "builtIn": 1,
-        "datasource": {
-          "type": "grafana",
-          "uid": "-- Grafana --"
-        },
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
-        "target": {
-          "limit": 100,
-          "matchAny": false,
-          "tags": [],
-          "type": "dashboard"
-        },
-        "type": "dashboard"
-      }
-    ]
-  },
-  "editable": false,
-  "fiscalYearStartMonth": 0,
-  "graphTooltip": 1,
-  "id": null,
-  "links": [],
-  "panels": [
-    {
-      "datasource": {
-        "uid": "Metrics"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "text",
-            "mode": "fixed"
-          },
-          "fieldMinMax": false,
-          "mappings": [],
-          "noValue": "0",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 0,
-        "y": 0
-      },
-      "id": 1090,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "value_and_name",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.6.4",
-      "targets": [
-        {
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "count(min by (cluster)(pg_up{cluster!=\"\"})) or vector(0)",
-          "instant": true,
-          "legendFormat": "Cluster",
-          "range": false,
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "count(min by (service_name)(pg_up)) or vector(0)",
-          "hide": false,
-          "instant": true,
-          "legendFormat": "Nodes",
-          "range": false,
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "count(min by (service_name)(pg_up{cluster=\"\"})) or vector(0)",
-          "hide": false,
-          "instant": true,
-          "legendFormat": "Nodes without cluster",
-          "range": false,
-          "refId": "C"
-        }
-      ],
-      "title": "Databases monitored",
-      "type": "stat"
-    },
-    {
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "purple",
-            "mode": "continuous-BlYlRd"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 15,
-            "gradientMode": "opacity",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
+    "annotations": {
+        "list": [
+            {
+                "builtIn": 1,
+                "datasource": {
+                    "type": "grafana",
+                    "uid": "-- Grafana --"
+                },
+                "enable": true,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Annotations & Alerts",
+                "target": {
+                    "limit": 100,
+                    "matchAny": false,
+                    "tags": [],
+                    "type": "dashboard"
+                },
+                "type": "dashboard"
             }
-          },
-          "decimals": 1,
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue"
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 18,
-        "x": 6,
-        "y": 0
-      },
-      "id": 1085,
-      "options": {
-        "legend": {
-          "calcs": [
-            "lastNotNull",
-            "mean",
-            "max",
-            "min"
-          ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true,
-          "sortBy": "Mean",
-          "sortDesc": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "pluginVersion": "11.6.4",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "topk(5, avg by (service_name) (irate(mysql_global_status_questions{service_type=~\"$service_type\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"})))",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
-        },
-        {
-          "editorMode": "code",
-          "expr": "topk(5, avg by (service_name) (rate(pg_stat_database_xact_commit{service_type=~\"$service_type\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}[$interval])) or \navg by (service_name) (irate(pg_stat_database_xact_commit{service_type=~\"$service_type\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}[5m])))",
-          "hide": false,
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "B"
-        },
-        {
-          "editorMode": "code",
-          "expr": "topk(5, avg by (service_name) (rate(mongodb_op_counters_total{service_type=~\"$service_type\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\",type!=\"command\"}[$interval])) or \navg by (service_name) (irate(mongodb_op_counters_total{service_type=~\"$service_type\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\",type!=\"command\"}[5m])))",
-          "hide": false,
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "C"
-        }
-      ],
-      "title": "Executed queries",
-      "transparent": true,
-      "type": "timeseries"
+        ]
     },
-    {
-      "datasource": {
-        "type": "grafana-clickhouse-datasource",
-        "uid": "PDEE91DDB90597936"
-      },
-      "description": "*Not real time. QAN is expected to have some minutes of lag",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "text",
-            "mode": "fixed"
-          },
-          "displayName": "Queries slower than ${qthres} sec(s) in the last ${rangeCustom} minutes",
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 0,
-        "y": 5
-      },
-      "id": 1079,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {
-          "titleSize": 12,
-          "valueSize": 32
-        },
-        "textMode": "value_and_name",
-        "wideLayout": false
-      },
-      "pluginVersion": "11.6.4",
-      "targets": [
+    "editable": false,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 1,
+    "id": null,
+    "links": [],
+    "panels": [
         {
-          "datasource": {
-            "type": "grafana-clickhouse-datasource",
-            "uid": "PDEE91DDB90597936"
-          },
-          "editorType": "sql",
-          "format": 1,
-          "meta": {
-            "builderOptions": {
-              "columns": [],
-              "database": "",
-              "limit": 1000,
-              "mode": "list",
-              "queryType": "table",
-              "table": ""
-            }
-          },
-          "pluginVersion": "4.11.2",
-          "queryType": "table",
-          "rawSql": "SELECT count(*)\r\n   FROM pmm.metrics\r\n   WHERE service_type = '${service_type}'\r\n     AND ( period_start  >= $__fromTime AND period_start <= $__toTime )\r\n    AND m_query_time_cnt > 0 AND m_query_time_sum/m_query_time_cnt > ${qthres}",
-          "refId": "A"
-        }
-      ],
-      "title": "Slow queries",
-      "type": "stat"
-    },
-    {
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue"
-              }
-            ]
-          }
+            "datasource": {
+                "uid": "Metrics"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "text",
+                        "mode": "fixed"
+                    },
+                    "fieldMinMax": false,
+                    "mappings": [],
+                    "noValue": "0",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 5,
+                "w": 6,
+                "x": 0,
+                "y": 0
+            },
+            "id": 1090,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "value_and_name",
+                "wideLayout": true
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "count(min by (cluster)(pg_up{cluster!=\"\"})) or vector(0)",
+                    "instant": true,
+                    "legendFormat": "Cluster",
+                    "range": false,
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "count(min by (service_name)(pg_up)) or vector(0)",
+                    "hide": false,
+                    "instant": true,
+                    "legendFormat": "Nodes",
+                    "range": false,
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "prometheus"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "count(min by (service_name)(pg_up{cluster=\"\"})) or vector(0)",
+                    "hide": false,
+                    "instant": true,
+                    "legendFormat": "Nodes without cluster",
+                    "range": false,
+                    "refId": "C"
+                }
+            ],
+            "title": "Databases monitored",
+            "type": "stat"
         },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 6,
-        "x": 0,
-        "y": 9
-      },
-      "id": 1089,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.6.4",
-      "targets": [
         {
-          "editorMode": "code",
-          "expr": "sum(rate(pg_stat_database_xact_commit{service_type=\"$service_type\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\", datname!~\"template1|template0\"}))",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Transactions per second",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "grafana-clickhouse-datasource",
-        "uid": "PDEE91DDB90597936"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "super-light-yellow",
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 31,
-            "gradientMode": "opacity",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "purple",
+                        "mode": "continuous-BlYlRd"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 15,
+                        "gradientMode": "opacity",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "smooth",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 1,
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue"
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
             },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineStyle": {
-              "fill": "solid"
+            "gridPos": {
+                "h": 9,
+                "w": 18,
+                "x": 6,
+                "y": 0
             },
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
+            "id": 1085,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "lastNotNull",
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
             },
-            "showPoints": "auto",
-            "spanNulls": true,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "decimals": 2,
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue"
-              }
-            ]
-          },
-          "unit": "s"
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "editorMode": "code",
+                    "expr": "topk(5, avg by (service_name) (irate(mysql_global_status_questions{service_type=~\"$service_type\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"})))",
+                    "legendFormat": "__auto",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "editorMode": "code",
+                    "expr": "topk(5, avg by (service_name) (rate(pg_stat_database_xact_commit{service_type=~\"$service_type\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}[$interval])) or \navg by (service_name) (irate(pg_stat_database_xact_commit{service_type=~\"$service_type\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}[5m])))",
+                    "hide": false,
+                    "legendFormat": "__auto",
+                    "range": true,
+                    "refId": "B"
+                },
+                {
+                    "editorMode": "code",
+                    "expr": "topk(5, avg by (service_name) (rate(mongodb_op_counters_total{service_type=~\"$service_type\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\",type!=\"command\"}[$interval])) or \navg by (service_name) (irate(mongodb_op_counters_total{service_type=~\"$service_type\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\",type!=\"command\"}[5m])))",
+                    "hide": false,
+                    "legendFormat": "__auto",
+                    "range": true,
+                    "refId": "C"
+                }
+            ],
+            "title": "Executed queries",
+            "transparent": true,
+            "type": "timeseries"
         },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 18,
-        "x": 6,
-        "y": 9
-      },
-      "id": 1077,
-      "options": {
-        "legend": {
-          "calcs": [
-            "lastNotNull",
-            "mean",
-            "max",
-            "min"
-          ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true,
-          "sortBy": "Mean",
-          "sortDesc": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "pluginVersion": "11.6.4",
-      "targets": [
         {
-          "builderOptions": {
-            "database": "pmm",
-            "fields": [],
-            "filters": [
-              {
-                "condition": "AND",
-                "filterType": "custom",
-                "key": "period_start",
-                "operator": "WITH IN DASHBOARD TIME RANGE",
-                "restrictToFields": [
-                  {
-                    "label": "period_start",
-                    "name": "period_start",
-                    "picklistValues": [],
-                    "type": "DateTime"
-                  }
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+            },
+            "description": "*Not real time. QAN is expected to have some minutes of lag",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "text",
+                        "mode": "fixed"
+                    },
+                    "displayName": "Queries slower than ${qthres} sec(s) in the last ${rangeCustom} minutes",
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 6,
+                "x": 0,
+                "y": 5
+            },
+            "id": 1079,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "text": {
+                    "titleSize": 12,
+                    "valueSize": 32
+                },
+                "textMode": "value_and_name",
+                "wideLayout": false
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "grafana-clickhouse-datasource",
+                        "uid": "PDEE91DDB90597936"
+                    },
+                    "editorType": "sql",
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                        }
+                    },
+                    "pluginVersion": "4.11.2",
+                    "queryType": "table",
+                    "rawSql": "SELECT count(*)\r\n   FROM pmm.metrics\r\n   WHERE service_type = '${service_type}'\r\n     AND ( period_start  >= $__fromTime AND period_start <= $__toTime )\r\n    AND m_query_time_cnt > 0 AND m_query_time_sum/m_query_time_cnt > ${qthres}",
+                    "refId": "A"
+                }
+            ],
+            "title": "Slow queries",
+            "type": "stat"
+        },
+        {
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue"
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 6,
+                "x": 0,
+                "y": 9
+            },
+            "id": 1089,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "auto",
+                "wideLayout": true
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "editorMode": "code",
+                    "expr": "sum(rate(pg_stat_database_xact_commit{service_type=\"$service_type\",service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\", datname!~\"template1|template0\"}))",
+                    "legendFormat": "__auto",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Transactions per second",
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "super-light-yellow",
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 31,
+                        "gradientMode": "opacity",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "smooth",
+                        "lineStyle": {
+                            "fill": "solid"
+                        },
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": true,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 2,
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue"
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 18,
+                "x": 6,
+                "y": 9
+            },
+            "id": 1077,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "lastNotNull",
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "builderOptions": {
+                        "database": "pmm",
+                        "fields": [],
+                        "filters": [
+                            {
+                                "condition": "AND",
+                                "filterType": "custom",
+                                "key": "period_start",
+                                "operator": "WITH IN DASHBOARD TIME RANGE",
+                                "restrictToFields": [
+                                    {
+                                        "label": "period_start",
+                                        "name": "period_start",
+                                        "picklistValues": [],
+                                        "type": "DateTime"
+                                    }
+                                ],
+                                "type": "datetime"
+                            }
+                        ],
+                        "groupBy": [
+                            "period_start",
+                            "service_name"
+                        ],
+                        "limit": 10000,
+                        "metrics": [
+                            {
+                                "aggregation": "avg",
+                                "alias": "\"Execution time\"",
+                                "field": "m_query_time_sum"
+                            }
+                        ],
+                        "mode": "aggregate",
+                        "orderBy": [
+                            {
+                                "dir": "ASC",
+                                "name": "period_start"
+                            }
+                        ],
+                        "table": "metrics",
+                        "timeField": "period_start",
+                        "timeFieldType": "DateTime"
+                    },
+                    "datasource": {
+                        "type": "grafana-clickhouse-datasource",
+                        "uid": "PDEE91DDB90597936"
+                    },
+                    "format": 0,
+                    "hide": true,
+                    "meta": {
+                        "builderOptions": {
+                            "database": "pmm",
+                            "fields": [],
+                            "filters": [
+                                {
+                                    "condition": "AND",
+                                    "filterType": "custom",
+                                    "key": "period_start",
+                                    "operator": "WITH IN DASHBOARD TIME RANGE",
+                                    "restrictToFields": [
+                                        {
+                                            "label": "period_start",
+                                            "name": "period_start",
+                                            "picklistValues": [],
+                                            "type": "DateTime"
+                                        }
+                                    ],
+                                    "type": "datetime"
+                                }
+                            ],
+                            "groupBy": [
+                                "period_start",
+                                "service_name"
+                            ],
+                            "limit": 10000,
+                            "metrics": [
+                                {
+                                    "aggregation": "avg",
+                                    "alias": "\"Execution time\"",
+                                    "field": "m_query_time_sum"
+                                }
+                            ],
+                            "mode": "aggregate",
+                            "orderBy": [
+                                {
+                                    "dir": "ASC",
+                                    "name": "period_start"
+                                }
+                            ],
+                            "table": "metrics",
+                            "timeField": "period_start",
+                            "timeFieldType": "DateTime"
+                        }
+                    },
+                    "queryType": "sql",
+                    "rawSql": "SELECT period_start, service_name, avg(m_query_time_sum) \"Execution_time\" FROM pmm.\"metrics\" WHERE   ( period_start  >= $__fromTime AND period_start <= $__toTime ) and service_type like '%$service_type%' AND (service_name IN ($service_name)) AND (node_name IN ($node_name)) AND (cluster IN ($cluster)) AND (environment IN ($environment)) GROUP BY period_start, service_name ORDER BY period_start ASC LIMIT 10000",
+                    "refId": "A",
+                    "selectedFormat": 0
+                },
+                {
+                    "datasource": {
+                        "type": "grafana-clickhouse-datasource",
+                        "uid": "PDEE91DDB90597936"
+                    },
+                    "editorType": "sql",
+                    "format": 0,
+                    "hide": false,
+                    "meta": {
+                        "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 100,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                        }
+                    },
+                    "pluginVersion": "4.4.0",
+                    "queryType": "timeseries",
+                    "rawSql": "SELECT period_start, service_name, avgIf(m_query_time_sum/m_query_time_cnt, m_query_time_cnt > 0) \"Execution_time\"\nFROM pmm.\"metrics\" WHERE   ( period_start  >= $__fromTime AND period_start <= $__toTime ) and service_type like '%$service_type%' AND (service_name IN ($service_name)) GROUP BY period_start, service_name ORDER BY period_start ASC ",
+                    "refId": "B"
+                }
+            ],
+            "title": "Execution time",
+            "transparent": true,
+            "type": "timeseries"
+        },
+        {
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "dark-blue",
+                        "mode": "fixed"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 5,
+                "w": 6,
+                "x": 0,
+                "y": 12
+            },
+            "id": 1087,
+            "options": {
+                "displayMode": "basic",
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": false
+                },
+                "maxVizHeight": 300,
+                "minVizHeight": 10,
+                "minVizWidth": 0,
+                "namePlacement": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "min"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showUnfilled": true,
+                "sizing": "auto",
+                "valueMode": "color"
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "bottomk(3,range_last(mysql_global_status_uptime{service_type=\"$service_type\",service_name=~\"$service_name\"}[30s]))",
+                    "format": "time_series",
+                    "hide": false,
+                    "instant": false,
+                    "legendFormat": "{{service_name}}",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "editorMode": "code",
+                    "expr": "bottomk(3,range_last(pg_postmaster_uptime_seconds{service_type=\"$service_type\",service_name=~\"$service_name\"}[30s]))",
+                    "hide": false,
+                    "legendFormat": "{{service_name}}",
+                    "range": true,
+                    "refId": "B"
+                },
+                {
+                    "editorMode": "code",
+                    "expr": "bottomk(3,range_last(mongodb_instance_uptime_seconds{service_type=\"$service_type\",service_name=~\"$service_name\"}[30s]))",
+                    "hide": false,
+                    "legendFormat": "{{service_name}}",
+                    "range": true,
+                    "refId": "C"
+                }
+            ],
+            "title": "Lowest uptime (top 3)",
+            "transparent": true,
+            "type": "bargauge"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "continuous-GrYlRd"
+                    },
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "inspect": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "time"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.minWidth",
+                                "value": 150
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "mode": "basic",
+                                    "type": "color-background"
+                                }
+                            },
+                            {
+                                "id": "custom.align",
+                                "value": "center"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Service"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.minWidth",
+                                "value": 200
+                            },
+                            {
+                                "id": "custom.align",
+                                "value": "center"
+                            },
+                            {
+                                "id": "custom.filterable",
+                                "value": true
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Query"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.inspect",
+                                "value": true
+                            },
+                            {
+                                "id": "custom.minWidth",
+                                "value": 300
+                            },
+                            {
+                                "id": "custom.filterable",
+                                "value": true
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Execution_time"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.align",
+                                "value": "center"
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "mode": "basic",
+                                    "type": "gauge"
+                                }
+                            },
+                            {
+                                "id": "custom.minWidth",
+                                "value": 150
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "fingerprint"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 704
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "username"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.minWidth",
+                                "value": 100
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 24,
+                "x": 0,
+                "y": 17
+            },
+            "id": 1065,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "enablePagination": true,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": true,
+                        "displayName": "Execution_time"
+                    }
+                ]
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "grafana-clickhouse-datasource",
+                        "uid": "PDEE91DDB90597936"
+                    },
+                    "editorType": "sql",
+                    "format": 1,
+                    "hide": false,
+                    "meta": {
+                        "builderOptions": {
+                            "aggregates": [
+                                {
+                                    "aggregateType": "avg",
+                                    "alias": "\"Execution time\"",
+                                    "column": "m_query_time_sum"
+                                }
+                            ],
+                            "columns": [
+                                {
+                                    "name": "fingerprint"
+                                },
+                                {
+                                    "name": "service_name"
+                                },
+                                {
+                                    "hint": "time",
+                                    "name": "period_start",
+                                    "type": "DateTime"
+                                }
+                            ],
+                            "database": "pmm",
+                            "filters": [
+                                {
+                                    "condition": "AND",
+                                    "filterType": "custom",
+                                    "hint": "time",
+                                    "key": "period_start",
+                                    "operator": "WITH IN DASHBOARD TIME RANGE",
+                                    "restrictToFields": [
+                                        {
+                                            "label": "period_start",
+                                            "name": "period_start",
+                                            "picklistValues": [],
+                                            "type": "DateTime"
+                                        }
+                                    ],
+                                    "type": "datetime"
+                                },
+                                {
+                                    "condition": "AND",
+                                    "filterType": "custom",
+                                    "key": "service_type",
+                                    "operator": "LIKE",
+                                    "type": "LowCardinality(String)",
+                                    "value": "$service_type"
+                                }
+                            ],
+                            "groupBy": [
+                                "period_start",
+                                "service_name",
+                                "fingerprint",
+                                "m_query_time_sum"
+                            ],
+                            "limit": 10,
+                            "mode": "trend",
+                            "orderBy": [
+                                {
+                                    "dir": "ASC",
+                                    "name": "period_start"
+                                }
+                            ],
+                            "queryType": "timeseries",
+                            "table": "metrics"
+                        }
+                    },
+                    "pluginVersion": "4.4.0",
+                    "queryType": "table",
+                    "rawSql": "SELECT $__timeInterval(period_start) as time, \r\nservice_name \"Service\", username, fingerprint \"Query\", avgIf(m_query_time_sum/m_query_time_cnt, m_query_time_cnt > 0) \"Execution_time\" FROM pmm.\"metrics\" WHERE ( period_start  >= $__fromTime AND period_start <= $__toTime ) AND ( service_type LIKE '%$service_type%' ) AND (service_name IN ($service_name)) GROUP BY service_name, username, fingerprint , m_query_time_sum, time ORDER BY time DESC LIMIT 10000",
+                    "refId": "A"
+                }
+            ],
+            "title": "Queries",
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "includeByName": {},
+                        "indexByName": {},
+                        "renameByName": {
+                            "Execution_time": "Execution Time",
+                            "time": "Time",
+                            "username": "Username"
+                        }
+                    }
+                }
+            ],
+            "transparent": true,
+            "type": "table"
+        }
+    ],
+    "preload": false,
+    "refresh": false,
+    "schemaVersion": 41,
+    "tags": [
+        "Percona",
+        "PostgreSQL",
+        "Services"
+    ],
+    "templating": {
+        "list": [
+            {
+                "auto": true,
+                "auto_count": 200,
+                "auto_min": "1s",
+                "current": {
+                    "text": "$__auto",
+                    "value": "$__auto"
+                },
+                "label": "Interval",
+                "name": "interval",
+                "options": [
+                    {
+                        "selected": false,
+                        "text": "1s",
+                        "value": "1s"
+                    },
+                    {
+                        "selected": false,
+                        "text": "5s",
+                        "value": "5s"
+                    },
+                    {
+                        "selected": false,
+                        "text": "1m",
+                        "value": "1m"
+                    },
+                    {
+                        "selected": false,
+                        "text": "5m",
+                        "value": "5m"
+                    },
+                    {
+                        "selected": false,
+                        "text": "1h",
+                        "value": "1h"
+                    },
+                    {
+                        "selected": false,
+                        "text": "6h",
+                        "value": "6h"
+                    },
+                    {
+                        "selected": false,
+                        "text": "1d",
+                        "value": "1d"
+                    }
                 ],
-                "type": "datetime"
-              }
-            ],
-            "groupBy": [
-              "period_start",
-              "service_name"
-            ],
-            "limit": 10000,
-            "metrics": [
-              {
-                "aggregation": "avg",
-                "alias": "\"Execution time\"",
-                "field": "m_query_time_sum"
-              }
-            ],
-            "mode": "aggregate",
-            "orderBy": [
-              {
-                "dir": "ASC",
-                "name": "period_start"
-              }
-            ],
-            "table": "metrics",
-            "timeField": "period_start",
-            "timeFieldType": "DateTime"
-          },
-          "datasource": {
-            "type": "grafana-clickhouse-datasource",
-            "uid": "PDEE91DDB90597936"
-          },
-          "format": 0,
-          "hide": true,
-          "meta": {
-            "builderOptions": {
-              "database": "pmm",
-              "fields": [],
-              "filters": [
-                {
-                  "condition": "AND",
-                  "filterType": "custom",
-                  "key": "period_start",
-                  "operator": "WITH IN DASHBOARD TIME RANGE",
-                  "restrictToFields": [
+                "query": "1s,5s,1m,5m,1h,6h,1d",
+                "refresh": 2,
+                "type": "interval"
+            },
+            {
+                "current": {
+                    "text": "postgresql",
+                    "value": "postgresql"
+                },
+                "hide": 2,
+                "label": "Engine",
+                "name": "service_type",
+                "query": "postgresql",
+                "skipUrlSync": true,
+                "type": "constant"
+            },
+            {
+                "current": {
+                    "text": "0.100",
+                    "value": "0.100"
+                },
+                "includeAll": false,
+                "label": "Query Time",
+                "name": "qthres",
+                "options": [
                     {
-                      "label": "period_start",
-                      "name": "period_start",
-                      "picklistValues": [],
-                      "type": "DateTime"
-                    }
-                  ],
-                  "type": "datetime"
-                }
-              ],
-              "groupBy": [
-                "period_start",
-                "service_name"
-              ],
-              "limit": 10000,
-              "metrics": [
-                {
-                  "aggregation": "avg",
-                  "alias": "\"Execution time\"",
-                  "field": "m_query_time_sum"
-                }
-              ],
-              "mode": "aggregate",
-              "orderBy": [
-                {
-                  "dir": "ASC",
-                  "name": "period_start"
-                }
-              ],
-              "table": "metrics",
-              "timeField": "period_start",
-              "timeFieldType": "DateTime"
-            }
-          },
-          "queryType": "sql",
-          "rawSql": "SELECT period_start, service_name, avg(m_query_time_sum) \"Execution_time\" FROM pmm.\"metrics\" WHERE   ( period_start  >= $__fromTime AND period_start <= $__toTime ) and service_type like '%$service_type%' AND (service_name IN ($service_name)) AND (node_name IN ($node_name)) AND (cluster IN ($cluster)) AND (environment IN ($environment)) GROUP BY period_start, service_name ORDER BY period_start ASC LIMIT 10000",
-          "refId": "A",
-          "selectedFormat": 0
-        },
-        {
-          "datasource": {
-            "type": "grafana-clickhouse-datasource",
-            "uid": "PDEE91DDB90597936"
-          },
-          "editorType": "sql",
-          "format": 0,
-          "hide": false,
-          "meta": {
-            "builderOptions": {
-              "columns": [],
-              "database": "",
-              "limit": 100,
-              "mode": "list",
-              "queryType": "table",
-              "table": ""
-            }
-          },
-          "pluginVersion": "4.4.0",
-          "queryType": "timeseries",
-          "rawSql": "SELECT period_start, service_name, avgIf(m_query_time_sum/m_query_time_cnt, m_query_time_cnt > 0) \"Execution_time\"\nFROM pmm.\"metrics\" WHERE   ( period_start  >= $__fromTime AND period_start <= $__toTime ) and service_type like '%$service_type%' AND (service_name IN ($service_name)) GROUP BY period_start, service_name ORDER BY period_start ASC ",
-          "refId": "B"
-        }
-      ],
-      "title": "Execution time",
-      "transparent": true,
-      "type": "timeseries"
-    },
-    {
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "dark-blue",
-            "mode": "fixed"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              }
-            ]
-          },
-          "unit": "s"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 0,
-        "y": 12
-      },
-      "id": 1087,
-      "options": {
-        "displayMode": "basic",
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false
-        },
-        "maxVizHeight": 300,
-        "minVizHeight": 10,
-        "minVizWidth": 0,
-        "namePlacement": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "min"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showUnfilled": true,
-        "sizing": "auto",
-        "valueMode": "color"
-      },
-      "pluginVersion": "11.6.4",
-      "targets": [
-        {
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "bottomk(3,range_last(mysql_global_status_uptime{service_type=\"$service_type\",service_name=~\"$service_name\"}[30s]))",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "legendFormat": "{{service_name}}",
-          "range": true,
-          "refId": "A"
-        },
-        {
-          "editorMode": "code",
-          "expr": "bottomk(3,range_last(pg_postmaster_uptime_seconds{service_type=\"$service_type\",service_name=~\"$service_name\"}[30s]))",
-          "hide": false,
-          "legendFormat": "{{service_name}}",
-          "range": true,
-          "refId": "B"
-        },
-        {
-          "editorMode": "code",
-          "expr": "bottomk(3,range_last(mongodb_instance_uptime_seconds{service_type=\"$service_type\",service_name=~\"$service_name\"}[30s]))",
-          "hide": false,
-          "legendFormat": "{{service_name}}",
-          "range": true,
-          "refId": "C"
-        }
-      ],
-      "title": "Lowest uptime (top 3)",
-      "transparent": true,
-      "type": "bargauge"
-    },
-    {
-      "datasource": {
-        "type": "grafana-clickhouse-datasource",
-        "uid": "PDEE91DDB90597936"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "continuous-GrYlRd"
-          },
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "time"
-            },
-            "properties": [
-              {
-                "id": "custom.minWidth",
-                "value": 150
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "mode": "basic",
-                  "type": "color-background"
-                }
-              },
-              {
-                "id": "custom.align",
-                "value": "center"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Service"
-            },
-            "properties": [
-              {
-                "id": "custom.minWidth",
-                "value": 200
-              },
-              {
-                "id": "custom.align",
-                "value": "center"
-              },
-              {
-                "id": "custom.filterable",
-                "value": true
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Query"
-            },
-            "properties": [
-              {
-                "id": "custom.inspect",
-                "value": true
-              },
-              {
-                "id": "custom.minWidth",
-                "value": 300
-              },
-              {
-                "id": "custom.filterable",
-                "value": true
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Execution_time"
-            },
-            "properties": [
-              {
-                "id": "custom.align",
-                "value": "center"
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "mode": "basic",
-                  "type": "gauge"
-                }
-              },
-              {
-                "id": "custom.minWidth",
-                "value": 150
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "fingerprint"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 704
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "username"
-            },
-            "properties": [
-              {
-                "id": "custom.minWidth",
-                "value": 100
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 10,
-        "w": 24,
-        "x": 0,
-        "y": 17
-      },
-      "id": 1065,
-      "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "enablePagination": true,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
-        "showHeader": true,
-        "sortBy": [
-          {
-            "desc": true,
-            "displayName": "Execution_time"
-          }
-        ]
-      },
-      "pluginVersion": "11.6.4",
-      "targets": [
-        {
-          "datasource": {
-            "type": "grafana-clickhouse-datasource",
-            "uid": "PDEE91DDB90597936"
-          },
-          "editorType": "sql",
-          "format": 1,
-          "hide": false,
-          "meta": {
-            "builderOptions": {
-              "aggregates": [
-                {
-                  "aggregateType": "avg",
-                  "alias": "\"Execution time\"",
-                  "column": "m_query_time_sum"
-                }
-              ],
-              "columns": [
-                {
-                  "name": "fingerprint"
-                },
-                {
-                  "name": "service_name"
-                },
-                {
-                  "hint": "time",
-                  "name": "period_start",
-                  "type": "DateTime"
-                }
-              ],
-              "database": "pmm",
-              "filters": [
-                {
-                  "condition": "AND",
-                  "filterType": "custom",
-                  "hint": "time",
-                  "key": "period_start",
-                  "operator": "WITH IN DASHBOARD TIME RANGE",
-                  "restrictToFields": [
+                        "selected": false,
+                        "text": "0.001",
+                        "value": "0.001"
+                    },
                     {
-                      "label": "period_start",
-                      "name": "period_start",
-                      "picklistValues": [],
-                      "type": "DateTime"
+                        "selected": false,
+                        "text": "0.010",
+                        "value": "0.010"
+                    },
+                    {
+                        "selected": true,
+                        "text": "0.100",
+                        "value": "0.100"
+                    },
+                    {
+                        "selected": false,
+                        "text": "1",
+                        "value": "1"
+                    },
+                    {
+                        "selected": false,
+                        "text": "10",
+                        "value": "10"
                     }
-                  ],
-                  "type": "datetime"
+                ],
+                "query": "0.001,0.010,0.100,1,10",
+                "type": "custom"
+            },
+            {
+                "current": {
+                    "text": "720",
+                    "value": "720"
                 },
-                {
-                  "condition": "AND",
-                  "filterType": "custom",
-                  "key": "service_type",
-                  "operator": "LIKE",
-                  "type": "LowCardinality(String)",
-                  "value": "$service_type"
-                }
-              ],
-              "groupBy": [
-                "period_start",
-                "service_name",
-                "fingerprint",
-                "m_query_time_sum"
-              ],
-              "limit": 10,
-              "mode": "trend",
-              "orderBy": [
-                {
-                  "dir": "ASC",
-                  "name": "period_start"
-                }
-              ],
-              "queryType": "timeseries",
-              "table": "metrics"
+                "datasource": {
+                    "type": "grafana-clickhouse-datasource",
+                    "uid": "PDEE91DDB90597936"
+                },
+                "definition": "select ($__toTime - $__fromTime)/60",
+                "hide": 2,
+                "includeAll": false,
+                "name": "rangeCustom",
+                "options": [],
+                "query": "select ($__toTime - $__fromTime)/60",
+                "refresh": 2,
+                "regex": "",
+                "type": "query"
+            },
+            {
+                "allValue": ".*",
+                "current": {
+                    "text": "All",
+                    "value": "$__all"
+                },
+                "definition": "label_values({__name__=\"pg_up\"},environment)",
+                "includeAll": true,
+                "label": "Environment",
+                "multi": true,
+                "name": "environment",
+                "options": [],
+                "query": {
+                    "qryType": 1,
+                    "query": "label_values({__name__=\"pg_up\"},environment)",
+                    "refId": "PrometheusVariableQueryEditor-VariableQuery"
+                },
+                "refresh": 1,
+                "regex": "",
+                "sort": 5,
+                "type": "query"
+            },
+            {
+                "allValue": ".*",
+                "current": {
+                    "text": "All",
+                    "value": "$__all"
+                },
+                "definition": "label_values(pg_up{environment=~\"$environment\"},cluster)",
+                "includeAll": true,
+                "label": "Cluster",
+                "multi": true,
+                "name": "cluster",
+                "options": [],
+                "query": {
+                    "qryType": 1,
+                    "query": "label_values(pg_up{environment=~\"$environment\"},cluster)",
+                    "refId": "PrometheusVariableQueryEditor-VariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "sort": 1,
+                "type": "query"
+            },
+            {
+                "allValue": ".*",
+                "current": {
+                    "text": "All",
+                    "value": [
+                        "$__all"
+                    ]
+                },
+                "definition": "label_values(pg_up{environment=~\"$environment\", cluster=~\"$cluster\"},node_name)",
+                "includeAll": true,
+                "label": "Node Name",
+                "multi": true,
+                "name": "node_name",
+                "options": [],
+                "query": {
+                    "qryType": 1,
+                    "query": "label_values(pg_up{environment=~\"$environment\", cluster=~\"$cluster\"},node_name)",
+                    "refId": "PrometheusVariableQueryEditor-VariableQuery"
+                },
+                "refresh": 1,
+                "regex": "",
+                "sort": 5,
+                "type": "query"
+            },
+            {
+                "current": {
+                    "text": "All",
+                    "value": [
+                        "$__all"
+                    ]
+                },
+                "definition": "label_values(pg_up{node_name=~\"$node_name\", environment=~\"$environment\", cluster=~\"$cluster\"},service_name)",
+                "includeAll": true,
+                "label": "Service Name",
+                "multi": true,
+                "name": "service_name",
+                "options": [],
+                "query": {
+                    "qryType": 1,
+                    "query": "label_values(pg_up{node_name=~\"$node_name\", environment=~\"$environment\", cluster=~\"$cluster\"},service_name)",
+                    "refId": "PrometheusVariableQueryEditor-VariableQuery"
+                },
+                "refresh": 1,
+                "regex": "",
+                "sort": 5,
+                "type": "query"
             }
-          },
-          "pluginVersion": "4.4.0",
-          "queryType": "table",
-          "rawSql": "SELECT $__timeInterval(period_start) as time, \r\nservice_name \"Service\", username, fingerprint \"Query\", avgIf(m_query_time_sum/m_query_time_cnt, m_query_time_cnt > 0) \"Execution_time\" FROM pmm.\"metrics\" WHERE ( period_start  >= $__fromTime AND period_start <= $__toTime ) AND ( service_type LIKE '%$service_type%' ) AND (service_name IN ($service_name)) GROUP BY service_name, username, fingerprint , m_query_time_sum, time ORDER BY time DESC LIMIT 10000",
-          "refId": "A"
-        }
-      ],
-      "title": "Queries",
-      "transformations": [
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {},
-            "includeByName": {},
-            "indexByName": {},
-            "renameByName": {
-              "Execution_time": "Execution Time",
-              "time": "Time",
-              "username": "Username"
-            }
-          }
-        }
-      ],
-      "transparent": true,
-      "type": "table"
-    }
-  ],
-  "preload": false,
-  "refresh": "",
-  "schemaVersion": 41,
-  "tags": [
-    "Percona",
-    "PostgreSQL",
-    "Services"
-  ],
-  "templating": {
-    "list": [
-      {
-        "auto": true,
-        "auto_count": 200,
-        "auto_min": "1s",
-        "current": {
-          "text": "$__auto",
-          "value": "$__auto"
-        },
-        "label": "Interval",
-        "name": "interval",
-        "options": [
-          {
-            "selected": false,
-            "text": "1s",
-            "value": "1s"
-          },
-          {
-            "selected": false,
-            "text": "5s",
-            "value": "5s"
-          },
-          {
-            "selected": false,
-            "text": "1m",
-            "value": "1m"
-          },
-          {
-            "selected": false,
-            "text": "5m",
-            "value": "5m"
-          },
-          {
-            "selected": false,
-            "text": "1h",
-            "value": "1h"
-          },
-          {
-            "selected": false,
-            "text": "6h",
-            "value": "6h"
-          },
-          {
-            "selected": false,
-            "text": "1d",
-            "value": "1d"
-          }
-        ],
-        "query": "1s,5s,1m,5m,1h,6h,1d",
-        "refresh": 2,
-        "type": "interval"
-      },
-      {
-        "current": {
-          "text": "postgresql",
-          "value": "postgresql"
-        },
-        "hide": 2,
-        "label": "Engine",
-        "name": "service_type",
-        "query": "postgresql",
-        "skipUrlSync": true,
-        "type": "constant"
-      },
-      {
-        "current": {
-          "text": "0.100",
-          "value": "0.100"
-        },
-        "includeAll": false,
-        "label": "Query Time",
-        "name": "qthres",
-        "options": [
-          {
-            "selected": false,
-            "text": "0.001",
-            "value": "0.001"
-          },
-          {
-            "selected": false,
-            "text": "0.010",
-            "value": "0.010"
-          },
-          {
-            "selected": true,
-            "text": "0.100",
-            "value": "0.100"
-          },
-          {
-            "selected": false,
-            "text": "1",
-            "value": "1"
-          },
-          {
-            "selected": false,
-            "text": "10",
-            "value": "10"
-          }
-        ],
-        "query": "0.001,0.010,0.100,1,10",
-        "type": "custom"
-      },
-      {
-        "current": {
-          "text": "720",
-          "value": "720"
-        },
-        "datasource": {
-          "type": "grafana-clickhouse-datasource",
-          "uid": "PDEE91DDB90597936"
-        },
-        "definition": "select ($__toTime - $__fromTime)/60",
-        "hide": 2,
-        "includeAll": false,
-        "name": "rangeCustom",
-        "options": [],
-        "query": "select ($__toTime - $__fromTime)/60",
-        "refresh": 2,
-        "regex": "",
-        "type": "query"
-      },
-      {
-        "allValue": ".*",
-        "current": {
-          "text": "All",
-          "value": "$__all"
-        },
-        "definition": "label_values({__name__=\"pg_up\"},environment)",
-        "includeAll": true,
-        "label": "Environment",
-        "multi": true,
-        "name": "environment",
-        "options": [],
-        "query": {
-          "qryType": 1,
-          "query": "label_values({__name__=\"pg_up\"},environment)",
-          "refId": "PrometheusVariableQueryEditor-VariableQuery"
-        },
-        "refresh": 1,
-        "regex": "",
-        "sort": 5,
-        "type": "query"
-      },
-      {
-        "allValue": ".*",
-        "current": {
-          "text": "All",
-          "value": "$__all"
-        },
-        "definition": "label_values(pg_up{environment=~\"$environment\"},cluster)",
-        "includeAll": true,
-        "label": "Cluster",
-        "multi": true,
-        "name": "cluster",
-        "options": [],
-        "query": {
-          "qryType": 1,
-          "query": "label_values(pg_up{environment=~\"$environment\"},cluster)",
-          "refId": "PrometheusVariableQueryEditor-VariableQuery"
-        },
-        "refresh": 2,
-        "regex": "",
-        "sort": 1,
-        "type": "query"
-      },
-      {
-        "allValue": ".*",
-        "current": {
-          "text": "All",
-          "value": [
-            "$__all"
-          ]
-        },
-        "definition": "label_values(pg_up{environment=~\"$environment\", cluster=~\"$cluster\"},node_name)",
-        "includeAll": true,
-        "label": "Node Name",
-        "multi": true,
-        "name": "node_name",
-        "options": [],
-        "query": {
-          "qryType": 1,
-          "query": "label_values(pg_up{environment=~\"$environment\", cluster=~\"$cluster\"},node_name)",
-          "refId": "PrometheusVariableQueryEditor-VariableQuery"
-        },
-        "refresh": 1,
-        "regex": "",
-        "sort": 5,
-        "type": "query"
-      },
-      {
-        "current": {
-          "text": "All",
-          "value": [
-            "$__all"
-          ]
-        },
-        "definition": "label_values(pg_up{node_name=~\"$node_name\", environment=~\"$environment\", cluster=~\"$cluster\"},service_name)",
-        "includeAll": true,
-        "label": "Service Name",
-        "multi": true,
-        "name": "service_name",
-        "options": [],
-        "query": {
-          "qryType": 1,
-          "query": "label_values(pg_up{node_name=~\"$node_name\", environment=~\"$environment\", cluster=~\"$cluster\"},service_name)",
-          "refId": "PrometheusVariableQueryEditor-VariableQuery"
-        },
-        "refresh": 1,
-        "regex": "",
-        "sort": 5,
-        "type": "query"
-      }
-    ]
-  },
-  "time": {
-    "from": "now-12h",
-    "to": "now"
-  },
-  "timepicker": {},
-  "timezone": "browser",
-  "title": "PostgreSQL Instances Overview",
-  "uid": "postgresql-instance-overview",
-  "version": 12,
-  "weekStart": ""
+        ]
+    },
+    "time": {
+        "from": "now-12h",
+        "to": "now"
+    },
+    "timepicker": {},
+    "timezone": "",
+    "title": "PostgreSQL Instances Overview",
+    "uid": "postgresql-instance-overview",
+    "version": 12,
+    "weekStart": ""
 }

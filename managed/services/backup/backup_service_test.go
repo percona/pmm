@@ -16,7 +16,6 @@
 package backup
 
 import (
-	"context"
 	"testing"
 	"time"
 
@@ -47,8 +46,8 @@ func setup(t *testing.T, q *reform.Querier, serviceType models.ServiceType, serv
 	service, err = models.AddNewService(q, serviceType, &models.AddDBMSServiceParams{
 		ServiceName: serviceName,
 		NodeID:      node.NodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(60000),
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(60000)),
 	})
 	require.NoError(t, err)
 
@@ -68,7 +67,7 @@ func setup(t *testing.T, q *reform.Querier, serviceType models.ServiceType, serv
 }
 
 func TestPerformBackup(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 
 	t.Cleanup(func() {
@@ -242,7 +241,7 @@ func TestPerformBackup(t *testing.T) {
 }
 
 func TestRestoreBackup(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 
 	t.Cleanup(func() {
@@ -480,7 +479,7 @@ func TestRestoreBackup(t *testing.T) {
 }
 
 func TestCheckArtifactModePreconditions(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 
 	t.Cleanup(func() {

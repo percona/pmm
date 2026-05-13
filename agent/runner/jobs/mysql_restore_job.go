@@ -189,7 +189,8 @@ func prepareRestoreCommands( //nolint:nonamedreturns
 		"--s3-bucket="+config.S3Config.BucketName,
 		"--s3-region="+config.S3Config.BucketRegion,
 		"--parallel=10",
-		folder)
+		folder,
+	)
 	xbcloudCmd.Stderr = stderr
 
 	xbcloudStdout, err := xbcloudCmd.StdoutPipe()
@@ -203,7 +204,8 @@ func prepareRestoreCommands( //nolint:nonamedreturns
 		"restore",
 		"-x",
 		"--directory="+targetDirectory,
-		"--parallel=10")
+		"--parallel=10",
+	)
 	xbstreamCmd.Stdin = xbcloudStdout
 	xbstreamCmd.Stderr = stderr
 	xbstreamCmd.Stdout = stdout
@@ -227,7 +229,8 @@ func (j *MySQLRestoreJob) restoreMySQLFromS3(ctx context.Context, targetDirector
 		&j.locationConfig,
 		targetDirectory,
 		&stderr,
-		&stdout)
+		&stdout,
+	)
 	if err != nil {
 		return err
 	}
@@ -379,7 +382,8 @@ func restoreBackup(ctx context.Context, backupDirectory, mySQLDirectory string) 
 		ctx,
 		xtrabackupBin,
 		"--decompress",
-		"--target-dir="+backupDirectory).CombinedOutput(); err != nil {
+		"--target-dir="+backupDirectory,
+	).CombinedOutput(); err != nil {
 		return errors.Wrapf(err, "failed to decompress, output: %s", string(output))
 	}
 
@@ -387,7 +391,8 @@ func restoreBackup(ctx context.Context, backupDirectory, mySQLDirectory string) 
 		ctx,
 		xtrabackupBin,
 		"--prepare",
-		"--target-dir="+backupDirectory).CombinedOutput(); err != nil {
+		"--target-dir="+backupDirectory,
+	).CombinedOutput(); err != nil {
 		return errors.Wrapf(err, "failed to prepare, output: %s", string(output))
 	}
 
@@ -411,7 +416,8 @@ func restoreBackup(ctx context.Context, backupDirectory, mySQLDirectory string) 
 		xtrabackupBin,
 		"--copy-back",
 		"--datadir="+mySQLDirectory,
-		"--target-dir="+backupDirectory).CombinedOutput(); err != nil {
+		"--target-dir="+backupDirectory,
+	).CombinedOutput(); err != nil {
 		return errors.Wrapf(err, "failed to copy back, output: %s", string(output))
 	}
 

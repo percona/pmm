@@ -19,6 +19,7 @@ import (
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 
 	common "github.com/percona/pmm/api/common"
+	_ "github.com/percona/pmm/api/extensions/v1"
 )
 
 const (
@@ -1752,7 +1753,7 @@ var File_server_v1_server_proto protoreflect.FileDescriptor
 
 const file_server_v1_server_proto_rawDesc = "" +
 	"\n" +
-	"\x16server/v1/server.proto\x12\tserver.v1\x1a\x13common/common.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\x84\x01\n" +
+	"\x16server/v1/server.proto\x12\tserver.v1\x1a\x13common/common.proto\x1a\x1aextensions/v1/redact.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\x84\x01\n" +
 	"\vVersionInfo\x12\x18\n" +
 	"\aversion\x18\x01 \x01(\tR\aversion\x12!\n" +
 	"\ffull_version\x18\x02 \x01(\tR\vfullVersion\x128\n" +
@@ -1790,15 +1791,15 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\n" +
 	"last_check\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tlastCheck\"1\n" +
 	"\x12StartUpdateRequest\x12\x1b\n" +
-	"\tnew_image\x18\x01 \x01(\tR\bnewImage\"S\n" +
-	"\x13StartUpdateResponse\x12\x1d\n" +
+	"\tnew_image\x18\x01 \x01(\tR\bnewImage\"Y\n" +
+	"\x13StartUpdateResponse\x12#\n" +
 	"\n" +
-	"auth_token\x18\x01 \x01(\tR\tauthToken\x12\x1d\n" +
+	"auth_token\x18\x01 \x01(\tB\x04\x88\xb5\x18\x01R\tauthToken\x12\x1d\n" +
 	"\n" +
-	"log_offset\x18\x02 \x01(\rR\tlogOffset\"S\n" +
-	"\x13UpdateStatusRequest\x12\x1d\n" +
+	"log_offset\x18\x02 \x01(\rR\tlogOffset\"Y\n" +
+	"\x13UpdateStatusRequest\x12#\n" +
 	"\n" +
-	"auth_token\x18\x01 \x01(\tR\tauthToken\x12\x1d\n" +
+	"auth_token\x18\x01 \x01(\tB\x04\x88\xb5\x18\x01R\tauthToken\x12\x1d\n" +
 	"\n" +
 	"log_offset\x18\x02 \x01(\rR\tlogOffset\"f\n" +
 	"\x14UpdateStatusResponse\x12\x1b\n" +
@@ -1919,7 +1920,7 @@ var (
 	file_server_v1_server_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 	file_server_v1_server_proto_msgTypes  = make([]protoimpl.MessageInfo, 26)
 	file_server_v1_server_proto_goTypes   = []any{
-		(DistributionMethod)(0),             // 0: server.v1.DistributionMethod
+		DistributionMethod(0),               // 0: server.v1.DistributionMethod
 		(*VersionInfo)(nil),                 // 1: server.v1.VersionInfo
 		(*VersionRequest)(nil),              // 2: server.v1.VersionRequest
 		(*VersionResponse)(nil),             // 3: server.v1.VersionResponse

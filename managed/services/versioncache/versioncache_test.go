@@ -54,7 +54,7 @@ func TestVersionCache(t *testing.T) {
 				ServiceType: models.MySQLServiceType,
 				ServiceName: "Service 1",
 				NodeID:      nodeID1,
-				Address:     pointer.ToString("127.0.0.1"),
+				Address:     new("127.0.0.1"),
 				Port:        pointer.ToUint16OrNil(777),
 			},
 			&models.ServiceSoftwareVersions{
@@ -143,7 +143,7 @@ func TestVersionCache(t *testing.T) {
 		// the test is finished, but make a universal mock for all the other version updates.
 		versionerMock.On("GetVersions", agentID1, softwares).Return(versions2, nil)
 
-		ctx, cancel := context.WithCancel(context.Background())
+		ctx, cancel := context.WithCancel(t.Context())
 
 		serviceCheckInterval = time.Second
 		minCheckInterval = 0
@@ -183,7 +183,7 @@ func TestVersionCache(t *testing.T) {
 				ServiceType: models.PostgreSQLServiceType,
 				ServiceName: "Service 1",
 				NodeID:      nodeID1,
-				Address:     pointer.ToString("127.0.0.1"),
+				Address:     new("127.0.0.1"),
 				Port:        pointer.ToUint16OrNil(777),
 			},
 			&models.ServiceSoftwareVersions{

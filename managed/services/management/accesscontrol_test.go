@@ -19,7 +19,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -36,7 +35,7 @@ import (
 
 //nolint:paralleltest
 func TestAccessControlService(t *testing.T) {
-	ctx := logger.Set(context.Background(), t.Name())
+	ctx := logger.Set(t.Context(), t.Name())
 	uuid.SetRand(&tests.IDReader{})
 
 	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
@@ -83,9 +82,9 @@ func TestAccessControlService(t *testing.T) {
 
 			_, err := s.UpdateRole(ctx, &rolev1beta1.UpdateRoleRequest{
 				RoleId:      roleID,
-				Title:       pointer.ToString("Role B - updated"),
-				Filter:      pointer.ToString(""), // Filter was reset.
-				Description: nil,                  // Description is not updated.
+				Title:       new("Role B - updated"),
+				Filter:      new(""), // Filter was reset.
+				Description: nil,     // Description is not updated.
 			})
 			require.NoError(t, err)
 

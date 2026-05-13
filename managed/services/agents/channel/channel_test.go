@@ -65,7 +65,8 @@ func setup(t *testing.T, connect func(*Channel) error, expected ...error) (agent
 
 	server := grpc.NewServer(
 		grpc.UnaryInterceptor(interceptors.UnaryAdd(grpcUnaryInterceptor)),
-		grpc.StreamInterceptor(interceptors.Stream(grpcStreamInterceptor)))
+		grpc.StreamInterceptor(interceptors.Stream(grpcStreamInterceptor)),
+	)
 
 	agentv1.RegisterAgentServiceServer(server, &testServer{
 		connectFunc: func(stream agentv1.AgentService_ConnectServer) error {
@@ -78,7 +79,7 @@ func setup(t *testing.T, connect func(*Channel) error, expected ...error) (agent
 		assert.NoError(t, err)
 	}()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(t.Context(), 3*time.Second)
 
 	// make client and channel
 	opts := []grpc.DialOption{

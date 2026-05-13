@@ -18,7 +18,6 @@ package server
 import (
 	"archive/zip"
 	"bytes"
-	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -143,7 +142,7 @@ func TestAddAdminSummary(t *testing.T) {
 	assert.NoError(t, err)
 
 	zw := zip.NewWriter(zipfile)
-	err = addAdminSummary(context.Background(), zw)
+	err = addAdminSummary(t.Context(), zw)
 	assert.NoError(t, err)
 
 	assert.NoError(t, zw.Close())
@@ -166,7 +165,7 @@ func TestFiles(t *testing.T) {
 	params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
 	require.NoError(t, err)
 	l := NewLogs("2.4.5", updater, params)
-	ctx := logger.Set(context.Background(), t.Name())
+	ctx := logger.Set(t.Context(), t.Name())
 
 	files := l.files(ctx, nil, maxLogReadLines)
 	actual := make([]string, 0, len(files))
@@ -199,7 +198,7 @@ func TestZip(t *testing.T) {
 	params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
 	require.NoError(t, err)
 	l := NewLogs("2.4.5", updater, params)
-	ctx := logger.Set(context.Background(), t.Name())
+	ctx := logger.Set(t.Context(), t.Name())
 
 	var buf bytes.Buffer
 	require.NoError(t, l.Zip(ctx, &buf, nil, -1))

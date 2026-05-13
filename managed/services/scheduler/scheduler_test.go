@@ -20,7 +20,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -51,8 +50,8 @@ func TestService(t *testing.T) {
 		service, err := models.AddNewService(db.Querier, serviceType, &models.AddDBMSServiceParams{
 			ServiceName: serviceName,
 			NodeID:      node.NodeID,
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(60000),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(60000)),
 		})
 		require.NoError(t, err)
 
@@ -79,7 +78,7 @@ func TestService(t *testing.T) {
 	}
 
 	t.Run("invalid cron expression", func(t *testing.T) {
-		ctx, cancel := context.WithCancel(context.Background())
+		ctx, cancel := context.WithCancel(t.Context())
 		defer cancel()
 		scheduler, service, location := setup(t, ctx, models.MongoDBServiceType, "mongo_service")
 
@@ -106,7 +105,7 @@ func TestService(t *testing.T) {
 	})
 
 	t.Run("normal", func(t *testing.T) {
-		ctx, cancel := context.WithCancel(context.Background())
+		ctx, cancel := context.WithCancel(t.Context())
 		defer cancel()
 		scheduler, service, location := setup(t, ctx, models.MongoDBServiceType, "mongo_service")
 

@@ -21,7 +21,7 @@ import (
 	"os"
 	"testing"
 
-	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
+	telemetryv1 "github.com/percona/platform/gen/telemetry/generic"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -33,7 +33,7 @@ func TestEnvVarsDatasource(t *testing.T) {
 
 	type testEnvVars map[string]string
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 	logger := logrus.StandardLogger()
 	logger.SetLevel(logrus.DebugLevel)
 	logEntry := logrus.NewEntry(logger)

@@ -18,7 +18,7 @@ package telemetry
 import (
 	"context"
 
-	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
+	telemetryv1 "github.com/percona/platform/gen/telemetry/generic"
 )
 
 // Extension provides dynamic extension point for Telemetry.

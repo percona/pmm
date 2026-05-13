@@ -16,7 +16,6 @@
 package backup
 
 import (
-	"context"
 	"database/sql"
 	"testing"
 	"time"
@@ -115,7 +114,7 @@ func TestDeleteArtifact(t *testing.T) {
 		})
 		require.NoError(t, err)
 		go func() {
-			tx, err := db.BeginTx(context.Background(), &sql.TxOptions{Isolation: sql.LevelSerializable})
+			tx, err := db.BeginTx(t.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable})
 			require.NoError(t, err)
 
 			err = models.RemoveRestoreHistoryItem(tx.Querier, ri.ID)
@@ -288,12 +287,10 @@ func TestTrimPITRArtifact(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	restoreTo := time.Unix(123, 456)
-
 	artifact, err = models.UpdateArtifact(db.Querier, artifact.ID, models.UpdateArtifactParams{
 		Metadata: &models.Metadata{
 			FileList:  []models.File{{Name: "dir2", IsDirectory: true}, {Name: "file4"}, {Name: "file5"}, {Name: "file6"}},
-			RestoreTo: &restoreTo,
+			RestoreTo: new(time.Unix(123, 456)),
 		},
 	})
 	require.NoError(t, err)

@@ -16,7 +16,7 @@ package pgstatmonitor
 
 import "fmt"
 
-//go:generate ../../../../bin/reform
+//go:generate go tool reform
 
 // pgStatDatabase represents a row in pg_stat_database view.
 //
