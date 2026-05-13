@@ -68,9 +68,9 @@ message AddValkeyServiceParams {
   // TLS CA certificate.
   string tls_ca = 21;
   // TLS Certifcate.
-  string tls_cert = 22;
+  string tls_cert = 22 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // TLS Certificate Key.
-  string tls_key = 23;
+  string tls_key = 23 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Custom password for exporter endpoint /metrics.
   string agent_password = 24 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
 }
