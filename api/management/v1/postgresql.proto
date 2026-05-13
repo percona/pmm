@@ -77,9 +77,9 @@ message AddPostgreSQLServiceParams {
   // TLS CA certificate.
   string tls_ca = 26;
   // TLS Certifcate.
-  string tls_cert = 27;
+  string tls_cert = 27 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // TLS Certificate Key.
-  string tls_key = 28;
+  string tls_key = 28 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Custom password for exporter endpoint /metrics.
   string agent_password = 29 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Exporter log level

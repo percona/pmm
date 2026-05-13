@@ -1090,7 +1090,7 @@ var File_management_v1_agent_proto protoreflect.FileDescriptor
 
 const file_management_v1_agent_proto_rawDesc = "" +
 	"\n" +
-	"\x19management/v1/agent.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\"\xd0\x18\n" +
+	"\x19management/v1/agent.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\"\xd6\x18\n" +
 	"\x0eUniversalAgent\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x121\n" +
 	"\x15is_agent_password_set\x18\x02 \x01(\bR\x12isAgentPasswordSet\x12\x1d\n" +
@@ -1133,8 +1133,8 @@ const file_management_v1_agent_proto_rawDesc = "" +
 	"tableCount\x12J\n" +
 	"\"table_count_tablestats_group_limit\x18! \x01(\x05R\x1etableCountTablestatsGroupLimit\x12\x10\n" +
 	"\x03tls\x18\" \x01(\bR\x03tls\x12&\n" +
-	"\x0ftls_skip_verify\x18# \x01(\bR\rtlsSkipVerify\x12\x1a\n" +
-	"\busername\x18$ \x01(\tR\busername\x129\n" +
+	"\x0ftls_skip_verify\x18# \x01(\bR\rtlsSkipVerify\x12 \n" +
+	"\busername\x18$ \x01(\tB\x04\x88\xb5\x18\x01R\busername\x129\n" +
 	"\n" +
 	"updated_at\x18% \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12\x18\n" +
 	"\aversion\x18& \x01(\tR\aversion\x12!\n" +
