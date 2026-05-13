@@ -3427,7 +3427,7 @@
                         {
                             "datasource": "Metrics",
                             "exemplar": true,
-                            "expr": "(rate(node_disk_read_time_seconds_total{node_name=~\"$node_name\"}[$interval]) / rate(node_disk_reads_completed_total{node_name=~\"$node_name\"}[$interval])) offset 1w - (rate(node_disk_read_time_seconds_total{node_name=~\"$node_name\"}[$interval]) / rate(node_disk_reads_completed_total{node_name=~\"$node_name\"}[$interval])) > 0 ",
+                            "expr": "(rate(node_disk_read_time_seconds_total{node_name=~\"$node_name\"}[$interval]) / rate(node_disk_reads_completed_total{node_name=~\"$node_name\"}[$interval])) - (rate(node_disk_read_time_seconds_total{node_name=~\"$node_name\"}[$interval]) / rate(node_disk_reads_completed_total{node_name=~\"$node_name\"}[$interval])) offset 1w > 0 ",
                             "format": "time_series",
                             "hide": false,
                             "instant": false,
