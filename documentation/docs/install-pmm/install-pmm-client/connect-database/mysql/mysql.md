@@ -613,7 +613,7 @@ After adding your MySQL service to PMM, it's important to verify that it's prope
     To verify your service in the web interface:
     {.power-number}
 
-    1. Navigate to **PMM Inventory > Services**.
+    1. Navigate to **Inventory > Services**.
     2. In the **Services** tab, find your newly added MySQL service.
     3. Verify the **Service Name** and **Address** match your configuration.
     4. Check the **Status** column shows as *Active*.
