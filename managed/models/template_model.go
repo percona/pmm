@@ -25,7 +25,7 @@ import (
 	"github.com/percona/pmm/managed/pi/common"
 )
 
-//go:generate ../../bin/reform
+//go:generate go tool reform
 
 // Template represents Percona Alerting rule template.
 //

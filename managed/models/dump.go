@@ -24,7 +24,7 @@ import (
 
 // DumpStatus represents the status of a dump process.
 //
-//go:generate ../../bin/reform
+//go:generate go tool reform
 type DumpStatus string
 
 const (
