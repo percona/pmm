@@ -67,7 +67,7 @@ func TestCurrentHTTPHandler_MethodNotAllowed(t *testing.T) {
 			f := &fakeCurrentUserClient{user: grafana.CurrentUser{Login: "u"}}
 			h := NewCurrentHTTPHandler(f)
 
-			req := httptest.NewRequest(tc.method, tc.path, nil)
+			req := httptest.NewRequestWithContext(t.Context(), tc.method, tc.path, nil)
 			rec := httptest.NewRecorder()
 			h.ServeHTTP(rec, req)
 
@@ -89,7 +89,7 @@ func TestCurrentHTTPHandler_GET_current(t *testing.T) {
 	f := &fakeCurrentUserClient{user: grafana.CurrentUser{Login: "alice", ID: 1}}
 	h := NewCurrentHTTPHandler(f)
 
-	req := httptest.NewRequest(http.MethodGet, "/v1/users/current", nil)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/users/current", nil)
 	rec := httptest.NewRecorder()
 	h.ServeHTTP(rec, req)
 
@@ -109,7 +109,7 @@ func TestCurrentHTTPHandler_GET_orgs(t *testing.T) {
 	f := &fakeCurrentUserClient{orgs: []grafana.CurrentUserOrg{{OrgID: 1, Name: "Main", Role: "Viewer"}}}
 	h := NewCurrentHTTPHandler(f)
 
-	req := httptest.NewRequest(http.MethodGet, "/v1/users/current/orgs", nil)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/users/current/orgs", nil)
 	rec := httptest.NewRecorder()
 	h.ServeHTTP(rec, req)
 
@@ -130,7 +130,7 @@ func TestCurrentHTTPHandler_GET_errorUsesGrafanaMapping(t *testing.T) {
 	f := &fakeCurrentUserClient{userErr: errors.New("upstream unavailable")}
 	h := NewCurrentHTTPHandler(f)
 
-	req := httptest.NewRequest(http.MethodGet, "/v1/users/current", nil)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/users/current", nil)
 	rec := httptest.NewRecorder()
 	h.ServeHTTP(rec, req)
 
@@ -148,7 +148,7 @@ func TestCurrentHTTPHandler_notFound(t *testing.T) {
 	f := &fakeCurrentUserClient{}
 	h := NewCurrentHTTPHandler(f)
 
-	req := httptest.NewRequest(http.MethodGet, "/v1/users/other", nil)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/users/other", nil)
 	rec := httptest.NewRecorder()
 	h.ServeHTTP(rec, req)
 
