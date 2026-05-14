@@ -12,4 +12,10 @@ declare module 'axios' {
   }
 }
 
+declare module '@tanstack/react-query' {
+  interface UseQueryOptions {
+    axios?: import('axios').AxiosRequestConfig;
+  }
+}
+
 export interface ApiError extends AxiosError<ApiErrorResponse> {}
