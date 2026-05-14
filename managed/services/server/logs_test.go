@@ -64,9 +64,9 @@ var commonExpectedFiles = []string{
 }
 
 func TestReadLog(t *testing.T) {
-	f, err := os.CreateTemp("", "pmm-managed-supervisord-tests-")
+	f, err := os.CreateTemp(t.TempDir(), "pmm-managed-supervisord-tests-")
 	require.NoError(t, err)
-	fNoNewLineEnding, err := os.CreateTemp("", "pmm-managed-supervisord-tests-")
+	fNoNewLineEnding, err := os.CreateTemp(t.TempDir(), "pmm-managed-supervisord-tests-")
 	require.NoError(t, err)
 
 	for i := range 10 {
@@ -100,9 +100,9 @@ func TestReadLog(t *testing.T) {
 }
 
 func TestReadLogUnlimited(t *testing.T) {
-	f, err := os.CreateTemp("", "pmm-managed-supervisord-tests-")
+	f, err := os.CreateTemp(t.TempDir(), "pmm-managed-supervisord-tests-")
 	require.NoError(t, err)
-	fNoNewLineEnding, err := os.CreateTemp("", "pmm-managed-supervisord-tests-")
+	fNoNewLineEnding, err := os.CreateTemp(t.TempDir(), "pmm-managed-supervisord-tests-")
 	require.NoError(t, err)
 
 	for i := range 10 {
@@ -138,7 +138,7 @@ func TestReadLogUnlimited(t *testing.T) {
 func TestAddAdminSummary(t *testing.T) {
 	t.Skip("FIXME")
 
-	zipfile, err := os.CreateTemp("", "*-test.zip")
+	zipfile, err := os.CreateTemp(t.TempDir(), "*-test.zip")
 	assert.NoError(t, err)
 
 	zw := zip.NewWriter(zipfile)

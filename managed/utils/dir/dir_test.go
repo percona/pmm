@@ -68,7 +68,7 @@ func TestFindFilesWithExtensions(t *testing.T) {
 
 	var files []*os.File
 	createTemp := func(pattern string) {
-		f, err := os.CreateTemp("", t.Name()+pattern)
+		f, err := os.CreateTemp(t.TempDir(), t.Name()+pattern)
 		require.NoError(t, err)
 		files = append(files, f)
 	}

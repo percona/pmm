@@ -321,14 +321,11 @@ func TestSupervisorProcessParams(t *testing.T) {
 	setup := func(t *testing.T) (*Supervisor, func()) {
 		t.Helper()
 
-		temp, err := os.MkdirTemp("", "pmm-agent-")
-		require.NoError(t, err)
-
 		ctx, cancel := context.WithCancel(context.Background())
 		paths := config.Paths{
 			MySQLdExporter: "/path/to/mysql_exporter",
 			Nomad:          "/path/to/nomad",
-			TempDir:        temp,
+			TempDir:        t.TempDir(),
 			NomadDataDir:   "/path/to/nomad/data",
 		}
 

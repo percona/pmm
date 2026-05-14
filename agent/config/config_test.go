@@ -30,7 +30,7 @@ const defaultWindowPeriod = time.Hour
 
 func writeConfig(t *testing.T, cfg *Config) string {
 	t.Helper()
-	f, err := os.CreateTemp("", "pmm-agent-test-")
+	f, err := os.CreateTemp(t.TempDir(), "pmm-agent-test-")
 	require.NoError(t, err)
 	require.NoError(t, f.Close())
 	require.NoError(t, SaveToFile(f.Name(), cfg, t.Name()))
