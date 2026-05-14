@@ -80,6 +80,8 @@
     - name: Clean Clickhouse dir
       shell: find /srv/clickhouse -mindepth 1 -maxdepth 1 -print0 | xargs -0 rm -rf --
 
+    # This step is required removes the static files except for the "static" directory, 
+    # which contains files that are not generated on startup.
     - name: Clean pmm-server dir
       shell: find /usr/share/pmm-server -mindepth 1 -maxdepth 1 -not -name static -print0 | xargs -0 rm -rf --
 
