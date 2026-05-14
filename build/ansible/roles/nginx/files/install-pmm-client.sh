@@ -110,7 +110,7 @@ PMM_AGENT_LISTEN_PORT="${PMM_AGENT_LISTEN_PORT:-7777}"
 PMM_AGENT_LOG_FILE="${PMM_AGENT_LOG_FILE:-/var/log/pmm-agent.log}"
 PMM_AGENT_START_TIMEOUT_SECS="${PMM_AGENT_START_TIMEOUT_SECS:-30}"
 
-while [[ $# -gt 0 ]]; do
+while [ $# -gt 0 ]; do
   case "$1" in
     --help|-h)
       usage
@@ -183,7 +183,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 require_root() {
-  if [[ "${EUID}" -ne 0 ]]; then
+  if [ "${EUID}" -ne 0 ]; then
     error "Run this script as root (for package installation). Example: curl -fsSLk ... | sudo -E env ... bash -s --"
   fi
 }
@@ -195,19 +195,19 @@ prompt_if_empty() {
   local hint="${4:-}"
   local value="${!var_name:-}"
 
-  if [[ -n "${value}" ]]; then
+  if [ -n "${value}" ]; then
     return
   fi
 
-  if [[ "${secret}" == "1" ]]; then
+  if [ "${secret}" = "1" ]; then
     read -r -s -p "${prompt_label}: " value
     echo
   else
     read -r -p "${prompt_label}: " value
   fi
 
-  if [[ -z "${value}" ]]; then
-    if [[ -n "${hint}" ]]; then
+  if [ -z "${value}" ]; then
+    if [ -n "${hint}" ]; then
       error "${prompt_label} is required. ${hint}"
     else
       error "${prompt_label} is required."
@@ -218,7 +218,7 @@ prompt_if_empty() {
 }
 
 detect_os_family() {
-  if [[ -f /etc/os-release ]]; then
+  if [ -f /etc/os-release ]; then
     # shellcheck source=/dev/null
     . /etc/os-release
     case "${ID:-}" in
@@ -232,11 +232,11 @@ detect_os_family() {
         ;;
     esac
   fi
-  if [[ -f /etc/redhat-release ]] || [[ -f /etc/oracle-release ]]; then
+  if [ -f /etc/redhat-release ] || [ -f /etc/oracle-release ]; then
     echo "el"
     return
   fi
-  if [[ -f /etc/debian_version ]]; then
+  if [ -f /etc/debian_version ]; then
     echo "debian"
     return
   fi
@@ -278,7 +278,7 @@ install_pmm_client() {
   os_family="$(detect_os_family)"
   log "Detected OS family: ${os_family}"
 
-  if [[ "${os_family}" == "el" ]]; then
+  if [ "${os_family}" = "el" ]; then
     install_percona_repo_el
     percona-release enable pmm3-client release || true
     if command -v dnf >/dev/null 2>&1; then
@@ -299,7 +299,7 @@ install_pmm_client() {
 # Mere presence of systemctl is not enough — Docker images often ship the binary
 # without PID 1 being systemd, and `systemctl start` then no-ops or fails.
 systemd_is_running() {
-  [[ -d /run/systemd/system ]] && command -v systemctl >/dev/null 2>&1
+  [ -d /run/systemd/system ] && command -v systemctl >/dev/null 2>&1
 }
 
 # Cheap TCP probe via bash builtins; no curl/nc dependency. We only need to know
@@ -311,12 +311,13 @@ pmm_agent_listening() {
 }
 
 wait_for_pmm_agent() {
-  local i
-  for ((i = 0; i < PMM_AGENT_START_TIMEOUT_SECS; i++)); do
+  local i=0
+  while [ "$i" -lt "$PMM_AGENT_START_TIMEOUT_SECS" ]; do
     if pmm_agent_listening; then
       return 0
     fi
     sleep 1
+    i=$((i + 1))
   done
   return 1
 }
@@ -330,7 +331,7 @@ wait_for_pmm_agent() {
 # `set -euo pipefail` aborts the whole script. Order: bash's $HOSTNAME (set
 # automatically via gethostname() syscall) → uname -n → /etc/hostname → "node".
 detect_node_hostname() {
-  if [[ -n "${HOSTNAME:-}" ]]; then
+  if [ -n "${HOSTNAME:-}" ]; then
     printf '%s' "${HOSTNAME}"
     return
   fi
@@ -342,7 +343,7 @@ detect_node_hostname() {
     uname -n
     return
   fi
-  if [[ -r /etc/hostname ]]; then
+  if [ -r /etc/hostname ]; then
     head -n 1 /etc/hostname
     return
   fi
@@ -352,10 +353,10 @@ detect_node_hostname() {
 ensure_pmm_agent_config_file() {
   local dir
   dir="$(dirname "${PMM_AGENT_CONFIG_FILE}")"
-  if [[ ! -d "${dir}" ]]; then
+  if [ ! -d "${dir}" ]; then
     mkdir -p "${dir}"
   fi
-  if [[ ! -e "${PMM_AGENT_CONFIG_FILE}" ]]; then
+  if [ ! -e "${PMM_AGENT_CONFIG_FILE}" ]; then
     : > "${PMM_AGENT_CONFIG_FILE}"
     chmod 0660 "${PMM_AGENT_CONFIG_FILE}" || true
     log "Created empty pmm-agent config: ${PMM_AGENT_CONFIG_FILE}"
@@ -417,13 +418,13 @@ ensure_pmm_agent_running() {
     fi
   fi
 
-  if [[ "${started}" -eq 0 ]]; then
+  if [ "${started}" -eq 0 ]; then
     start_pmm_agent_nohup
   fi
 
   if ! wait_for_pmm_agent; then
     log "pmm-agent did not bind ${PMM_AGENT_LISTEN_HOST}:${PMM_AGENT_LISTEN_PORT} within ${PMM_AGENT_START_TIMEOUT_SECS}s."
-    if [[ -f "${PMM_AGENT_LOG_FILE}" ]]; then
+    if [ -f "${PMM_AGENT_LOG_FILE}" ]; then
       log "Last 20 lines of ${PMM_AGENT_LOG_FILE}:"
       tail -n 20 "${PMM_AGENT_LOG_FILE}" >&2 || true
     elif systemd_is_running; then
@@ -444,7 +445,7 @@ ensure_pmm_agent_running() {
 #     1) curl -fsSL[k] -o /tmp/install-pmm-client.sh '<url>'
 #     2) sudo -E bash /tmp/install-pmm-client.sh --pmm-server-url ... --tech ... [...]
 #   Step 2 reads the script from disk (not from a pipe), so stdin stays attached
-#   to the user's TTY through sudo, [[ -t 0 ]] is true, and prompt_if_empty /
+#   to the user's TTY through sudo, [ -t 0 ] is true, and prompt_if_empty /
 #   read -r -s in add_mysql / add_postgresql / add_mongodb / add_valkey can ask
 #   for DB user and password interactively — unless DB_USER / DB_PASSWORD (or
 #   per-tech MYSQL_* / …) are already set; sudo -E preserves those exports.
@@ -452,7 +453,7 @@ ensure_pmm_agent_running() {
 #   when the user followed the UI's prompt-mode command — it only protects the
 #   curl | bash pipeline from registering a half-configured node.
 require_db_creds_before_config_if_noninteractive() {
-  if [[ -t 0 ]]; then
+  if [ -t 0 ]; then
     return 0
   fi
 
@@ -460,22 +461,22 @@ require_db_creds_before_config_if_noninteractive() {
 
   case "${TECH}" in
     mysql)
-      if [[ -z "${MYSQL_USERNAME}" || -z "${MYSQL_PASSWORD}" ]]; then
+      if [ -z "${MYSQL_USERNAME}" ] || [ -z "${MYSQL_PASSWORD}" ]; then
         error "MySQL username and password are required for non-interactive runs. ${hint}"
       fi
       ;;
     postgresql)
-      if [[ -z "${POSTGRESQL_USERNAME}" || -z "${POSTGRESQL_PASSWORD}" ]]; then
+      if [ -z "${POSTGRESQL_USERNAME}" ] || [ -z "${POSTGRESQL_PASSWORD}" ]; then
         error "PostgreSQL username and password are required for non-interactive runs. ${hint}"
       fi
       ;;
     mongodb)
-      if [[ -z "${MONGODB_USERNAME}" || -z "${MONGODB_PASSWORD}" ]]; then
+      if [ -z "${MONGODB_USERNAME}" ] || [ -z "${MONGODB_PASSWORD}" ]; then
         error "MongoDB username and password are required for non-interactive runs. ${hint}"
       fi
       ;;
     valkey)
-      if [[ -z "${VALKEY_PASSWORD}" ]]; then
+      if [ -z "${VALKEY_PASSWORD}" ]; then
         error "Valkey password is required for non-interactive runs (use --db-password or DB_PASSWORD / VALKEY_PASSWORD). ${hint}"
       fi
       ;;
@@ -489,16 +490,16 @@ configure_pmm_agent() {
   require_db_creds_before_config_if_noninteractive
 
   local config_cmd=(pmm-admin config "--server-url=${PMM_SERVER_URL}")
-  if [[ "${PMM_SERVER_INSECURE_TLS}" == "1" || "${PMM_SERVER_INSECURE_TLS}" == "true" ]]; then
+  if [ "${PMM_SERVER_INSECURE_TLS}" = "1" ] || [ "${PMM_SERVER_INSECURE_TLS}" = "true" ]; then
     config_cmd+=(--server-insecure-tls)
   fi
-  if [[ -n "${NODE_ADDRESS}" ]]; then
+  if [ -n "${NODE_ADDRESS}" ]; then
     config_cmd+=("${NODE_ADDRESS}")
   fi
-  if [[ -n "${NODE_NAME}" ]]; then
+  if [ -n "${NODE_NAME}" ]; then
     config_cmd+=("generic" "${NODE_NAME}")
   fi
-  if [[ "${PMM_CONFIG_FORCE}" == "1" || "${PMM_CONFIG_FORCE}" == "true" ]]; then
+  if [ "${PMM_CONFIG_FORCE}" = "1" ] || [ "${PMM_CONFIG_FORCE}" = "true" ]; then
     config_cmd+=(--force)
   fi
 
@@ -558,7 +559,7 @@ add_mysql() {
   MYSQL_ADDRESS="${MYSQL_ADDRESS:-${MYSQL_HOST:-127.0.0.1}:${MYSQL_PORT:-3306}}"
   MYSQL_SERVICE_NAME="${MYSQL_SERVICE_NAME:-$(detect_node_hostname)-mysql}"
   local cmd=(pmm-admin add mysql "${MYSQL_SERVICE_NAME}" "${MYSQL_ADDRESS}" "--username=${MYSQL_USERNAME}" "--password=${MYSQL_PASSWORD}")
-  if [[ -n "${MYSQL_SOCKET}" ]]; then
+  if [ -n "${MYSQL_SOCKET}" ]; then
     cmd+=("--socket=${MYSQL_SOCKET}")
   fi
   log "Running pmm-admin add mysql..."
@@ -572,10 +573,10 @@ add_postgresql() {
   POSTGRESQL_ADDRESS="${POSTGRESQL_ADDRESS:-${POSTGRESQL_HOST:-127.0.0.1}:${POSTGRESQL_PORT:-5432}}"
   POSTGRESQL_SERVICE_NAME="${POSTGRESQL_SERVICE_NAME:-$(detect_node_hostname)-postgresql}"
   local cmd=(pmm-admin add postgresql "${POSTGRESQL_SERVICE_NAME}" "${POSTGRESQL_ADDRESS}" "--username=${POSTGRESQL_USERNAME}" "--password=${POSTGRESQL_PASSWORD}")
-  if [[ -n "${POSTGRESQL_DATABASE}" ]]; then
+  if [ -n "${POSTGRESQL_DATABASE}" ]; then
     cmd+=("--database=${POSTGRESQL_DATABASE}")
   fi
-  if [[ -n "${POSTGRESQL_SOCKET}" ]]; then
+  if [ -n "${POSTGRESQL_SOCKET}" ]; then
     cmd+=("--socket=${POSTGRESQL_SOCKET}")
   fi
   log "Running pmm-admin add postgresql..."
@@ -589,10 +590,10 @@ add_mongodb() {
   MONGODB_ADDRESS="${MONGODB_ADDRESS:-${MONGODB_HOST:-127.0.0.1}:${MONGODB_PORT:-27017}}"
   MONGODB_SERVICE_NAME="${MONGODB_SERVICE_NAME:-$(detect_node_hostname)-mongodb}"
   local cmd=(pmm-admin add mongodb "${MONGODB_SERVICE_NAME}" "${MONGODB_ADDRESS}" "--username=${MONGODB_USERNAME}" "--password=${MONGODB_PASSWORD}")
-  if [[ -n "${MONGODB_AUTH_DB}" ]]; then
+  if [ -n "${MONGODB_AUTH_DB}" ]; then
     cmd+=("--authentication-database=${MONGODB_AUTH_DB}")
   fi
-  if [[ -n "${MONGODB_SOCKET}" ]]; then
+  if [ -n "${MONGODB_SOCKET}" ]; then
     cmd+=("--socket=${MONGODB_SOCKET}")
   fi
   log "Running pmm-admin add mongodb..."
@@ -605,10 +606,10 @@ add_valkey() {
   VALKEY_ADDRESS="${VALKEY_ADDRESS:-${VALKEY_HOST:-127.0.0.1}:${VALKEY_PORT:-6379}}"
   VALKEY_SERVICE_NAME="${VALKEY_SERVICE_NAME:-$(detect_node_hostname)-valkey}"
   local cmd=(pmm-admin add valkey "${VALKEY_SERVICE_NAME}" "${VALKEY_ADDRESS}" "--password=${VALKEY_PASSWORD}")
-  if [[ -n "${VALKEY_USERNAME}" ]]; then
+  if [ -n "${VALKEY_USERNAME}" ]; then
     cmd+=("--username=${VALKEY_USERNAME}")
   fi
-  if [[ -n "${VALKEY_SOCKET}" ]]; then
+  if [ -n "${VALKEY_SOCKET}" ]; then
     cmd+=("--socket=${VALKEY_SOCKET}")
   fi
   log "Running pmm-admin add valkey..."
@@ -670,7 +671,7 @@ main() {
   add_service
   local rc=$?
   set -e
-  if [[ "${rc}" -ne 0 ]]; then
+  if [ "${rc}" -ne 0 ]; then
     report_add_service_failure "${rc}"
   fi
   log "PMM client setup completed successfully."

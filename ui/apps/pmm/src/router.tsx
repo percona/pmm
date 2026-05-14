@@ -48,7 +48,7 @@ const router = createBrowserRouter(
             {
               path: 'settings/:tab?',
               element: <Settings />,
-            },            
+            },
             {
               path: 'rta',
               children: [
