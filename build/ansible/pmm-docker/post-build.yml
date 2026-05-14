@@ -81,29 +81,7 @@
       shell: find /srv/clickhouse -mindepth 1 -maxdepth 1 -print0 | xargs -0 rm -rf --
 
     - name: Clean pmm-server dir
-      shell: find /usr/share/pmm-server -mindepth 1 -maxdepth 1 -print0 | xargs -0 rm -rf --
-
-    # The cleanup above removes nginx static assets (e.g. local-rss.xml, install-pmm-client.sh)
-    # that were copied earlier by roles/nginx. Restore them from the ansible tree still present
-    # in the image at /opt/ansible (see build/docker/server/Dockerfile.el9).
-    - name: Recreate pmm-static directory for nginx
-      file:
-        path: /usr/share/pmm-server/static
-        state: directory
-        owner: pmm
-        group: root
-        mode: "0775"
-
-    - name: Restore nginx /pmm-static files after pmm-server cleanup
-      copy:
-        src: "/opt/ansible/roles/nginx/files/{{ item.name }}"
-        dest: "/usr/share/pmm-server/static/{{ item.name }}"
-        owner: pmm
-        group: root
-        mode: "{{ item.mode }}"
-      loop:
-        - { name: local-rss.xml, mode: "0644" }
-        - { name: install-pmm-client.sh, mode: "0755" }
+      shell: find /usr/share/pmm-server -mindepth 1 -maxdepth 1 -not -name static -print0 | xargs -0 rm -rf --
 
     # This step is required because of a change between VictoriaMetrics 1.77.1 and 1.82.1.
     # VictoriaMetrics tries to atomically rename directories in this folder on startup.
