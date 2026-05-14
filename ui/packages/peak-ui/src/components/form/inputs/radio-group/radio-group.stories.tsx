@@ -10,7 +10,7 @@ type ExpandedRadioGroupProps = RadioGroupProps & {
 };
 
 const meta = {
-  title: 'Inputs/RadioGroup',
+  title: 'To be reviewed/RadioGroup',
   component: RadioGroup,
   parameters: {
     layout: 'centered',
