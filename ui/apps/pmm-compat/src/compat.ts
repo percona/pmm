@@ -169,6 +169,11 @@ export const initialize = () => {
     },
   });
 
+  messenger.addListener({
+    type: 'SETTINGS_CHANGED',
+    onMessage: () => getAppEvents().publish(new SettingsUpdatedEvent()),
+  });
+
   getAppEvents().subscribe(SettingsUpdatedEvent, () => {
     messenger.sendMessage({
       type: 'SETTINGS_CHANGED',
