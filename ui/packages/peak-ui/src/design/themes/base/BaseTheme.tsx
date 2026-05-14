@@ -271,9 +271,15 @@ export const semanticTokensLight = {
     dividerStronger: 'rgb(40, 39, 39)',
   },
   action: {
+    active: 'rgb(40, 39, 39)',
     hover: 'rgba(40, 39, 39, 0.04)',
+    hoverOpacity: 0.04,
+    selected: 'rgba(40, 39, 39, 0.08)',
+    selectedOpacity: 0.08,
     disabled: 'rgba(40, 39, 39, 0.12)',
+    disabledOpacity: 0.12,
     focus: 'rgba(40, 39, 39, 0.12)',
+    focusOpacity: 0.12,
   },
   // Semantic (light mode)
   success: {
@@ -346,9 +352,15 @@ export const semanticTokensDark = {
     dividerStronger: 'rgb(255, 255, 255)',
   },
   action: {
+    active: 'rgb(246, 245, 245)',
     hover: 'rgba(246, 245, 245, 0.08)',
+    hoverOpacity: 0.08,
+    selected: 'rgba(246, 245, 245, 0.16)',
+    selectedOpacity: 0.16,
     disabled: 'rgba(246, 245, 245, 0.15)',
+    disabledOpacity: 0.15,
     focus: 'rgba(246, 245, 245, 0.15)',
+    focusOpacity: 0.15,
   },
   // Semantic (dark mode)
   success: {
@@ -483,12 +495,15 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
       },
       // Action colors
       action: {
+        active: tokens.action.active,
         hover: tokens.action.hover,
-        hoverOpacity: 0.04,
+        hoverOpacity: tokens.action.hoverOpacity,
+        selected: tokens.action.selected,
+        selectedOpacity: tokens.action.selectedOpacity,
         disabled: tokens.action.disabled,
-        disabledOpacity: 0.12,
+        disabledOpacity: tokens.action.disabledOpacity,
         focus: tokens.action.focus,
-        focusOpacity: 0.12,
+        focusOpacity: tokens.action.focusOpacity,
       },
       // Background/Surfaces
       background: {
@@ -702,7 +717,7 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
         },
         styleOverrides: {
           root: ({ theme }) => ({
-            '&.MuiIconButton-root:not(:focus-visible):focus': {
+            '&.MuiIconButton-root:not(:focus-visible):focus:not(:hover)': {
               backgroundColor: 'transparent',
             },
             '&.MuiIconButton-root:focus-visible:focus': {
@@ -712,6 +727,40 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
               backgroundColor: theme.palette.primary.focusVisible,
             },
           }),
+        },
+      },
+      MuiIconButton: {
+        styleOverrides: {
+          root: ({ theme, ownerState }) => ({
+            ...((!ownerState.color || ownerState.color === 'default') && {
+              color: theme.palette.text.primary,
+            }),
+            '&.Mui-disabled': {
+              color: theme.palette.text.disabled,
+            },
+          }),
+          colorSecondary: ({ theme }) => ({
+            color: theme.palette.text.secondary,
+            '--IconButton-hoverBg': theme.palette.action.hover,
+          }),
+          sizeSmall: {
+            width: 40,
+            height: 40,
+            padding: 12,
+            '& > .MuiSvgIcon-root': { width: 16, height: 16 },
+          },
+          sizeMedium: {
+            width: 40,
+            height: 40,
+            padding: 10,
+            '& > .MuiSvgIcon-root': { width: 20, height: 20 },
+          },
+          sizeLarge: {
+            width: 40,
+            height: 40,
+            padding: 8,
+            '& > .MuiSvgIcon-root': { width: 24, height: 24 },
+          },
         },
       },
       MuiButton: {
