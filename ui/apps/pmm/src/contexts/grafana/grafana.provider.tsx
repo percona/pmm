@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useNavigationType } from 'react-router';
 import { GrafanaContext } from './grafana.context';
 import {
   GRAFANA_SUB_PATH,
+  PMM_BASE_PATH,
   PMM_NEW_NAV_GRAFANA_PATH,
   PMM_NEW_NAV_PATH,
 } from 'lib/constants';
@@ -15,7 +16,7 @@ import type {
 import { updateDocumentTitle } from 'utils/document.utils';
 import { useKioskMode } from 'hooks/utils/useKioskMode';
 import { useColorMode } from 'hooks/theme';
-import { getLocationUrl } from './grafana.utils';
+import { getLocationUrl, isGrafanaLoginPath } from './grafana.utils';
 import messenger from 'lib/messenger';
 import { useSettings } from 'hooks/api/useSettings';
 import { useServiceTypes } from 'hooks/api/useServices';
@@ -93,7 +94,18 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
           return;
         }
 
-        navigate(getLocationUrl(location), {
+        const nextPath = getLocationUrl(location);
+
+        // Full top-level navigation: SPA route still mounts MainWithNav for /graph/*,
+        // which would keep the PMM sidebar visible next to Grafana login (PMM-14971).
+        if (isGrafanaLoginPath(nextPath)) {
+          window.location.replace(
+            new URL(`${PMM_BASE_PATH}${nextPath}`, window.location.origin).href
+          );
+          return;
+        }
+
+        navigate(nextPath, {
           state: { fromGrafana: true },
           replace: true,
         });
