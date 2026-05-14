@@ -116,7 +116,7 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 	transport.Context = context.Background()
 
 	// set error handlers for nginx responses if pmm-managed is down
-	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, _ interface{}) error {
+	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, _ any) error {
 		b, _ := io.ReadAll(reader)
 		return nginxError(string(b))
 	})
@@ -146,8 +146,8 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 // as [[region=us-east1, mylabel=mylab-22]].
 func ParseKeyValuePair(labels string) (map[string]string, error) {
 	result := make(map[string]string)
-	parts := strings.Split(labels, ",")
-	for _, part := range parts {
+	parts := strings.SplitSeq(labels, ",")
+	for part := range parts {
 		part = strings.TrimSpace(part)
 		if part == "" {
 			continue
@@ -207,6 +207,10 @@ func serverRegister(cfgSetup *config.Setup) (agentID, token string, _ error) { /
 	})
 	if err != nil {
 		return "", "", err
+	}
+	// TODO: Investigate what can lead to PMMAgent being nil in the response
+	if res.Payload == nil || res.Payload.PMMAgent == nil {
+		return "", "", errors.New("unexpected empty response from PMM Server (missing pmm_agent)")
 	}
 	return res.Payload.PMMAgent.AgentID, res.Payload.Token, nil
 }

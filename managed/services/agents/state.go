@@ -34,8 +34,9 @@ import (
 
 const (
 	// Constants for delayed batch updates.
-	updateBatchDelay   = time.Second
-	stateChangeTimeout = 5 * time.Second
+	updateBatchDelay                = time.Second
+	stateChangeTimeout              = 5 * time.Second
+	loggerComponentNameStateUpdater = "state-updater"
 )
 
 // StateUpdater handles updating status of agents.
@@ -61,7 +62,7 @@ func NewStateUpdater(db *reform.DB, r *Registry, vmdb prometheusService, vmParam
 // RequestStateUpdate requests state update on pmm-agent with given ID. It sets
 // the status to done if the agent is not connected.
 func (u *StateUpdater) RequestStateUpdate(ctx context.Context, pmmAgentID string) {
-	l := logger.Get(ctx)
+	l := logger.Get(ctx).WithField("component", loggerComponentNameStateUpdater)
 
 	agent, err := u.r.get(pmmAgentID)
 	if err != nil {
@@ -98,7 +99,9 @@ func (u *StateUpdater) UpdateAgentsState(ctx context.Context) error {
 
 // runStateChangeHandler runs pmm-agent state update loop for given pmm-agent until ctx is canceled or agent is kicked.
 func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent *pmmAgentInfo) {
-	l := logger.Get(ctx).WithField("agent_id", agent.id)
+	l := logger.Get(ctx).
+		WithField("component", loggerComponentNameStateUpdater).
+		WithField("agent_id", agent.id)
 
 	l.Info("Starting runStateChangeHandler ...")
 	defer l.Info("Done runStateChangeHandler.")
@@ -141,7 +144,7 @@ func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent *pmmAgen
 
 // sendSetStateRequest sends SetStateRequest to given pmm-agent.
 func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentInfo) error { //nolint:gocognit,cyclop,maintidx
-	l := logger.Get(ctx)
+	l := logger.Get(ctx).WithField("component", loggerComponentNameStateUpdater)
 	start := time.Now()
 	defer func() {
 		if dur := time.Since(start); dur > time.Second {
