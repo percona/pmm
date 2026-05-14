@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package management.v1;
 
+import "extensions/v1/redact.proto";
 import "google/protobuf/timestamp.proto";
 import "inventory/v1/agents.proto";
 import "inventory/v1/log_level.proto";
@@ -63,7 +64,7 @@ message UniversalAgent {
   // Agent type.
   string agent_type = 3;
   // AWS Access Key.
-  string aws_access_key = 4;
+  string aws_access_key = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // True if AWS Secret Key is set.
   bool is_aws_secret_key_set = 5;
   // Options used for connecting to Azure.
@@ -129,7 +130,7 @@ message UniversalAgent {
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 35;
   // HTTP basic auth username for collecting metrics.
-  string username = 36;
+  string username = 36 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Last update timestamp.
   google.protobuf.Timestamp updated_at = 37;
   // Agent version.

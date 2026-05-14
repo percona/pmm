@@ -31,11 +31,11 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: API
-        uses: readmeio/rdme@3c41af599df44e516c90ba4107a81c05d4945822 # v10.6.2
+        uses: readmeio/rdme@919e1182da5b37517f20692cf8603361964669a6 # v10.7.0
         with:
           rdme: openapi upload ./api/swagger/swagger.json --useSpecVersion --slug=pmm-api.json --key=${{ secrets.README_TOKEN }}
 
       - name: Markdown docs
-        uses: readmeio/rdme@3c41af599df44e516c90ba4107a81c05d4945822 # v10.6.2
+        uses: readmeio/rdme@919e1182da5b37517f20692cf8603361964669a6 # v10.7.0
         with:
           rdme: reference upload docs/api/ --branch=${{ env.VERSION }}  --key=${{ secrets.README_TOKEN }}

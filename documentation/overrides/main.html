@@ -1,6 +1,32 @@
 {# Import the theme's layout. #}
 {% extends "base.html" %}
 
+{% block announce %}
+<div class="md-banner" style="text-align: center;">
+  Where the open source database community meets:
+  Use code <strong>PERCONA75</strong> and secure your spot for Percona Live.
+
+  <a
+    class="breakdance-link button-atom button-atom--primary bde-button__button"
+    href="https://perconalive.com/2026-usa/"
+    target="_blank"
+    data-type="url"
+    style="
+      padding: 5px 20px;
+      display: inline-block;
+      margin-left: 10px;
+      background-color: #653df4;
+      border-radius: 999px;
+      text-decoration: none;
+    "
+  >
+    <span class="button-atom__text" style="font-size: 16px; color: #ffffff;">
+      Register
+    </span>
+  </a>
+</div>
+{% endblock %}
+
 {% block scripts %}
 <script src="https://cmp.osano.com/Azqe5vTyLOSbN3OuT/49ad85b5-0418-4794-ab81-7599dddd534c/osano.js"></script>
 {{ super() }}

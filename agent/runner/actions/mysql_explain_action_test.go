@@ -68,7 +68,7 @@ func TestMySQLExplain(t *testing.T) {
 
 		actual := strings.TrimSpace(string(er.ExplainResult))
 		switch fmt.Sprintf("%s-%s", mySQLVersion, mySQLVendor) {
-		case "9.5-oracle", "9.6-oracle":
+		case "9.5-oracle", "9.6-oracle", "9.7-oracle":
 			// Explain output changed. More checks should be done. See: PMM-14426
 			assert.Contains(t, actual, "Table scan on city")
 		default:
@@ -106,7 +106,7 @@ func TestMySQLExplain(t *testing.T) {
 		require.NoError(t, err)
 
 		switch fmt.Sprintf("%s-%s", mySQLVersion, mySQLVendor) {
-		case "9.5-oracle", "9.6-oracle":
+		case "9.5-oracle", "9.6-oracle", "9.7-oracle":
 			// Explain output changed. More checks should be done. See: PMM-14426
 			require.Empty(t, m.Get("warnings").InterSlice())
 		default:
@@ -166,7 +166,7 @@ func TestMySQLExplain(t *testing.T) {
 		require.Len(t, actual, 2)
 
 		switch fmt.Sprintf("%s-%s", mySQLVersion, mySQLVendor) {
-		case "9.5-oracle", "9.6-oracle":
+		case "9.5-oracle", "9.6-oracle", "9.7-oracle":
 			// Explain output changed. More checks should be done. See: PMM-14426
 		default:
 			// Check some columns names

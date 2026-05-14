@@ -24,8 +24,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/managed/models"
@@ -70,7 +68,7 @@ func (e InvalidDurationError) Error() string { return string(e) }
 //   - the environment variables prefixed with GF_ passed as related to Grafana.
 //   - the environment variables relating to proxies
 //   - the environment variable set by podman
-func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []string) { //nolint:cyclop,maintidx
+func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []string) { //nolint:gocognit,cyclop,maintidx
 	envSettings := &models.ChangeSettingsParams{}
 	var errs []error
 	var warns []string
@@ -214,7 +212,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			envSettings.EnableNomad = &b
 
 		case "PMM_PUBLIC_ADDRESS":
-			envSettings.PMMPublicAddress = pointer.ToString(v)
+			envSettings.PMMPublicAddress = new(v)
 
 		case "PMM_VM_URL":
 			_, err = url.Parse(v)
@@ -366,7 +364,7 @@ func GetPlatformAddress() (string, error) {
 	}
 
 	if _, err := url.Parse(address); err != nil {
-		return "", errors.Errorf("invalid Percona Platform address: %s", err)
+		return "", fmt.Errorf("invalid Percona Platform address: %w", err)
 	}
 
 	logrus.Infof("Using Percona Platform address: %s.", address)
@@ -378,15 +376,6 @@ func GetPlatformInsecure() bool {
 	insecure, _ := strconv.ParseBool(os.Getenv(pkgenv.PlatformInsecure))
 
 	return insecure
-}
-
-// GetPlatformPublicKeys returns public keys used to verify signatures of files downloaded form Percona Portal.
-func GetPlatformPublicKeys() []string {
-	if v := os.Getenv(pkgenv.PlatformPublicKey); v != "" {
-		return strings.Split(v, ",")
-	}
-
-	return nil
 }
 
 // GetInterfaceToBind retrieves the network interface to bind based on environment variables.
@@ -403,10 +392,10 @@ func GetEnv(key, fallback string) string {
 }
 
 func formatEnvVariableError(err error, env, value string) error {
-	switch e := err.(type) { //nolint:errorlint
+	switch err.(type) { //nolint:errorlint
 	case InvalidDurationError:
 		return fmt.Errorf("environment variable %q has invalid duration %s", env, value)
 	default:
-		return errors.Wrap(e, "unknown error")
+		return fmt.Errorf("unknown error: %w", err)
 	}
 }

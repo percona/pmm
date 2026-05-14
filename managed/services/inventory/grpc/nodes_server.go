@@ -47,8 +47,7 @@ func nodeType(nodeType inventoryv1.NodeType) *models.NodeType {
 	if nodeType == inventoryv1.NodeType_NODE_TYPE_UNSPECIFIED {
 		return nil
 	}
-	result := nodeTypes[nodeType]
-	return &result
+	return new(nodeTypes[nodeType])
 }
 
 // ListNodes returns a list of all Nodes.
