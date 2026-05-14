@@ -66,23 +66,16 @@ func TestCreateDataDir(t *testing.T) {
 func TestFindFilesWithExtensions(t *testing.T) {
 	t.Parallel()
 
-	var files []*os.File
+	tmpDir := t.TempDir()
 	createTemp := func(pattern string) {
-		f, err := os.CreateTemp(t.TempDir(), t.Name()+pattern)
+		_, err := os.CreateTemp(tmpDir, t.Name()+pattern)
 		require.NoError(t, err)
-		files = append(files, f)
 	}
 
 	createTemp("*.yaml")
 	createTemp("*.yaml")
 	createTemp("*.yml")
 	createTemp("*")
-
-	t.Cleanup(func() {
-		for _, f := range files {
-			_ = os.Remove(f.Name())
-		}
-	})
 
 	testcases := []struct {
 		name       string
@@ -120,7 +113,7 @@ func TestFindFilesWithExtensions(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			files, err := FindFilesWithExtensions(os.TempDir(), tc.extensions...)
+			files, err := FindFilesWithExtensions(tmpDir, tc.extensions...)
 			assert.NoError(t, err)
 			assert.Len(t, files, tc.expected)
 		})

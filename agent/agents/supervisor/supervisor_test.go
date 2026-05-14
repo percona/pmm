@@ -338,15 +338,7 @@ func TestSupervisorProcessParams(t *testing.T) {
 		s := NewSupervisor(ctx, nil, cfgStorage) //nolint:varnamelen
 		go s.Run(ctx)
 
-		teardown := func() {
-			cancel()
-			if t.Failed() {
-				t.Logf("%s is kept.", paths.TempDir)
-			} else {
-				require.NoError(t, os.RemoveAll(paths.TempDir))
-			}
-		}
-		return s, teardown
+		return s, cancel
 	}
 
 	t.Run("Normal", func(t *testing.T) {

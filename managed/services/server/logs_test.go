@@ -64,6 +64,8 @@ var commonExpectedFiles = []string{
 }
 
 func TestReadLog(t *testing.T) {
+	t.Parallel()
+
 	f, err := os.CreateTemp(t.TempDir(), "pmm-managed-supervisord-tests-")
 	require.NoError(t, err)
 	fNoNewLineEnding, err := os.CreateTemp(t.TempDir(), "pmm-managed-supervisord-tests-")
@@ -76,9 +78,6 @@ func TestReadLog(t *testing.T) {
 	fmt.Fprintf(fNoNewLineEnding, "some string without new line") //nolint:errcheck
 	require.NoError(t, f.Close())
 	require.NoError(t, fNoNewLineEnding.Close())
-
-	defer os.Remove(f.Name())                //nolint:errcheck
-	defer os.Remove(fNoNewLineEnding.Name()) //nolint:errcheck
 
 	t.Run("LimitByLines", func(t *testing.T) {
 		b, m, err := readLog(f.Name(), 5)
@@ -100,6 +99,8 @@ func TestReadLog(t *testing.T) {
 }
 
 func TestReadLogUnlimited(t *testing.T) {
+	t.Parallel()
+
 	f, err := os.CreateTemp(t.TempDir(), "pmm-managed-supervisord-tests-")
 	require.NoError(t, err)
 	fNoNewLineEnding, err := os.CreateTemp(t.TempDir(), "pmm-managed-supervisord-tests-")
@@ -112,9 +113,6 @@ func TestReadLogUnlimited(t *testing.T) {
 	fmt.Fprintf(fNoNewLineEnding, "some string without new line")
 	require.NoError(t, f.Close())
 	require.NoError(t, fNoNewLineEnding.Close())
-
-	defer os.Remove(f.Name())                //nolint:errcheck
-	defer os.Remove(fNoNewLineEnding.Name()) //nolint:errcheck
 
 	t.Run("UnlimitedLineCount", func(t *testing.T) {
 		b, m, err := readLogUnlimited(f.Name())
@@ -161,6 +159,8 @@ func TestAddAdminSummary(t *testing.T) {
 }
 
 func TestFiles(t *testing.T) {
+	t.Parallel()
+
 	updater := &Updater{}
 	params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
 	require.NoError(t, err)

@@ -37,11 +37,6 @@ func writeConfig(t *testing.T, cfg *Config) string {
 	return f.Name()
 }
 
-func removeConfig(t *testing.T, name string) {
-	t.Helper()
-	require.NoError(t, os.Remove(name))
-}
-
 func generateTempDirPath(t *testing.T, basePath string) string {
 	t.Helper()
 	return filepath.Join(basePath, agentTmpPath)
@@ -50,7 +45,6 @@ func generateTempDirPath(t *testing.T, basePath string) string {
 func TestLoadFromFile(t *testing.T) {
 	t.Run("Normal", func(t *testing.T) {
 		name := writeConfig(t, &Config{ID: "agent-id"})
-		t.Cleanup(func() { removeConfig(t, name) })
 
 		cfg, err := loadFromFile(name, nil)
 		require.NoError(t, err)
@@ -66,7 +60,6 @@ func TestLoadFromFile(t *testing.T) {
 	t.Run("PermissionDenied", func(t *testing.T) {
 		name := writeConfig(t, &Config{ID: "agent-id"})
 		require.NoError(t, os.Chmod(name, 0o000))
-		t.Cleanup(func() { removeConfig(t, name) })
 
 		cfg, err := loadFromFile(name, nil)
 		require.IsType(t, (*os.PathError)(nil), err)
@@ -78,7 +71,6 @@ func TestLoadFromFile(t *testing.T) {
 	t.Run("NotYAML", func(t *testing.T) {
 		name := writeConfig(t, nil)
 		require.NoError(t, os.WriteFile(name, []byte(`not YAML`), 0o666)) //nolint:gosec
-		t.Cleanup(func() { removeConfig(t, name) })
 
 		cfg, err := loadFromFile(name, nil)
 		require.IsType(t, (*yaml.TypeError)(nil), err)
@@ -141,10 +133,6 @@ func TestGet(t *testing.T) {
 		var actual Config
 
 		tmpDir := generateTempDirPath(t, pathBaseDefault)
-		t.Cleanup(func() {
-			removeConfig(t, name)
-		})
-
 		name = writeConfig(t, &Config{
 			ID:            "agent-id",
 			ListenAddress: "0.0.0.0",
@@ -205,9 +193,6 @@ func TestGet(t *testing.T) {
 		var name string
 		var actual Config
 		tmpDir := generateTempDirPath(t, "/foo/bar")
-		t.Cleanup(func() {
-			removeConfig(t, name)
-		})
 
 		name = writeConfig(t, &Config{
 			ID: "config-id",
@@ -271,10 +256,6 @@ func TestGet(t *testing.T) {
 	t.Run("MixExportersBase", func(t *testing.T) {
 		var name string
 		var actual Config
-
-		t.Cleanup(func() {
-			removeConfig(t, name)
-		})
 
 		name = writeConfig(t, &Config{
 			ID: "config-id",
@@ -342,10 +323,6 @@ func TestGet(t *testing.T) {
 		var name string
 		var actual Config
 
-		t.Cleanup(func() {
-			removeConfig(t, name)
-		})
-
 		name = writeConfig(t, &Config{
 			ID: "config-id",
 			Server: Server{
@@ -410,10 +387,6 @@ func TestGet(t *testing.T) {
 	t.Run("MixPathsBaseExporterBase", func(t *testing.T) {
 		var name string
 		var actual Config
-
-		t.Cleanup(func() {
-			removeConfig(t, name)
-		})
 
 		name = writeConfig(t, &Config{
 			ID: "config-id",
