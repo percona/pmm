@@ -1,22 +1,20 @@
 ---
-description: Constraints for percona-ui. Source of truth for color/typography/spacing decisions that aren't obvious from code alone. Always check before editing themes or component styles.
+description: "Design constraints for percona-ui. Decisions that aren't obvious from code or Storybook: numbers, omissions, and traps. Always check before editing themes or components."
 alwaysApply: true
 ---
 
-## Color
+## Chip
 
-### Chip component
+Outlined uses `palette.[color].light` for text + border — except `warning`, which uses `warning.main`. `warning.light` is a yellow/gold hue with insufficient contrast on light backgrounds; `main` is the smallest step that holds. Don't "normalize" warning to `light` — it's a perceptual constraint.
 
-Use `palette.[semantictheme].light` for outlined surfaces (text + border) — except `warning`, which uses `palette.warning.main`.
+Filled uses `palette.[color].surface` token (not MUI-standard). Don't refactor `surface` to `.light` or `.main` — they're reserved for borders/icons and have a different perceptual role from the recessed filled treatment.
 
-Reason: `warning` resolves to a yellow-ish, gold hue, typically. The `light` shade of warning lacks contrast on light backgrounds. `main` is the smallest step that keeps contrast acceptable for outlined treatment. Do not "normalize" warning to `light` for consistency. It's a perceptual constraint, not a token-naming bug.
+## NavItem
 
-Mapping:
+The `<Box sx={{ mr: -1.75 }} />` rendered when no `icon` is passed is intentional: it preserves the text start-line alignment with icon-bearing rows.
 
-| color   | outlined tone                       |
-|---------|-------------------------------------|
-| default | `text.primary`                      |
-| success | `success.light`                     |
-| info    | `info.light`                        |
-| warning | `warning.main` (yellow exception)   |
-| error   | `error.light`                       |
+## Tooltip
+
+Tooltips render in the **inverted** mode of the app: light-mode app → dark tooltip surface, dark-mode app → light tooltip surface. Don't add per-theme tooltip overrides — change `BaseTheme` instead where possible.
+
+Link styling inside tooltips lives as a nested `& .MuiLink-root` rule *inside* the tooltip override, **not** in `MuiLink.styleOverrides`. Don't "clean up" by moving link styles back to `MuiLink`.
