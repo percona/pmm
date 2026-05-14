@@ -69,11 +69,24 @@
     line-height: 1.25;
     margin-bottom: 11px;
   }
-  .sbdocs h2[id^="stories"] {
+  .sbdocs h2[id^="stories"],
+  .docblock-argstable-body > tr[title] > td {
     font-weight: 700;
     font-size: 12px;
     line-height: 1.25;
     letter-spacing: 0.03rem;
+  }
+  .sbdocs .sbdocs-content code {
+    padding-top: 0;
+    padding-bottom: 0;
+    margin: 0;
+  }
+  .docblock-argstable-body > tr[title] > td {
+    font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    font-weight: 600;
+  }
+  .docblock-argstable-body > tr[title] > td svg {
+    margin-top: -1px;
   }
 
   /* Dark mode preview wrapper for color docs */
@@ -132,5 +145,6 @@
   .sbdocs .docblock-argstable tbody {
     filter: none !important;
   }
+
 
 </style>
