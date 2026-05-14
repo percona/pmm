@@ -2,14 +2,21 @@ syntax = "proto3";
 
 package management.v1;
 
+import "extensions/v1/redact.proto";
 import "validate/validate.proto";
 
 // DiscoverAzureDatabaseRequest discover azure databases request.
 message DiscoverAzureDatabaseRequest {
   // Azure client ID.
-  string azure_client_id = 1 [(validate.rules).string.min_len = 1];
+  string azure_client_id = 1 [
+    (validate.rules).string.min_len = 1,
+    (extensions.v1.sensitive) = REDACT_TYPE_FULL
+  ];
   // Azure client secret.
-  string azure_client_secret = 2 [(validate.rules).string.min_len = 1];
+  string azure_client_secret = 2 [
+    (validate.rules).string.min_len = 1,
+    (extensions.v1.sensitive) = REDACT_TYPE_FULL
+  ];
   // Azure tanant ID.
   string azure_tenant_id = 3 [(validate.rules).string.min_len = 1];
   // Azure subscription ID.
@@ -34,7 +41,7 @@ message DiscoverAzureDatabaseInstance {
   // Azure database server name.
   string service_name = 3;
   // Database username.
-  string username = 4;
+  string username = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Address used to connect to it.
   string address = 5;
   // Azure Resource group.
@@ -76,13 +83,22 @@ message AddAzureDatabaseRequest {
   // Environment name.
   string environment = 9;
   // Username for scraping metrics.
-  string username = 10 [(validate.rules).string.min_len = 1];
+  string username = 10 [
+    (validate.rules).string.min_len = 1,
+    (extensions.v1.sensitive) = REDACT_TYPE_FULL
+  ];
   // Password for scraping metrics.
-  string password = 11;
+  string password = 11 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Azure client ID.
-  string azure_client_id = 12 [(validate.rules).string.min_len = 1];
+  string azure_client_id = 12 [
+    (validate.rules).string.min_len = 1,
+    (extensions.v1.sensitive) = REDACT_TYPE_FULL
+  ];
   // Azure client secret.
-  string azure_client_secret = 13 [(validate.rules).string.min_len = 1];
+  string azure_client_secret = 13 [
+    (validate.rules).string.min_len = 1,
+    (extensions.v1.sensitive) = REDACT_TYPE_FULL
+  ];
   // Azure tanant ID.
   string azure_tenant_id = 14 [(validate.rules).string.min_len = 1];
   // Azure subscription ID.

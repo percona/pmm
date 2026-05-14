@@ -424,7 +424,8 @@ func (e UniversalAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = UniversalAgentValidationError{}
@@ -530,7 +531,8 @@ func (e ListAgentsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ListAgentsRequestValidationError{}
@@ -666,7 +668,8 @@ func (e ListAgentsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ListAgentsResponseValidationError{}
@@ -774,7 +777,8 @@ func (e AgentVersionsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AgentVersionsValidationError{}
@@ -876,7 +880,8 @@ func (e ListAgentVersionsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ListAgentVersionsRequestValidationError{}
@@ -1012,7 +1017,8 @@ func (e ListAgentVersionsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ListAgentVersionsResponseValidationError{}
@@ -1119,7 +1125,8 @@ func (e UniversalAgent_MySQLOptionsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = UniversalAgent_MySQLOptionsValidationError{}
@@ -1232,7 +1239,8 @@ func (e UniversalAgent_AzureOptionsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = UniversalAgent_AzureOptionsValidationError{}
@@ -1347,7 +1355,8 @@ func (e UniversalAgent_MongoDBOptionsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = UniversalAgent_MongoDBOptionsValidationError{}
@@ -1458,7 +1467,8 @@ func (e UniversalAgent_PostgreSQLOptionsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = UniversalAgent_PostgreSQLOptionsValidationError{}
@@ -1561,7 +1571,8 @@ func (e UniversalAgent_ValkeyOptionsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = UniversalAgent_ValkeyOptionsValidationError{}

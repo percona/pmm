@@ -612,7 +612,7 @@ var (
 	file_backup_v1_restores_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 	file_backup_v1_restores_proto_msgTypes  = make([]protoimpl.MessageInfo, 7)
 	file_backup_v1_restores_proto_goTypes   = []any{
-		(RestoreStatus)(0),                    // 0: backup.v1.RestoreStatus
+		RestoreStatus(0),                      // 0: backup.v1.RestoreStatus
 		(*RestoreHistoryItem)(nil),            // 1: backup.v1.RestoreHistoryItem
 		(*ListRestoresRequest)(nil),           // 2: backup.v1.ListRestoresRequest
 		(*ListRestoresResponse)(nil),          // 3: backup.v1.ListRestoresResponse
@@ -620,7 +620,7 @@ var (
 		(*RestoreServiceGetLogsResponse)(nil), // 5: backup.v1.RestoreServiceGetLogsResponse
 		(*RestoreBackupRequest)(nil),          // 6: backup.v1.RestoreBackupRequest
 		(*RestoreBackupResponse)(nil),         // 7: backup.v1.RestoreBackupResponse
-		(DataModel)(0),                        // 8: backup.v1.DataModel
+		DataModel(0),                          // 8: backup.v1.DataModel
 		(*timestamppb.Timestamp)(nil),         // 9: google.protobuf.Timestamp
 		(*LogChunk)(nil),                      // 10: backup.v1.LogChunk
 	}

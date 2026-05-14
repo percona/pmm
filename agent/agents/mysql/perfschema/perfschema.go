@@ -262,6 +262,31 @@ func (m *PerfSchema) Run(ctx context.Context) {
 	}
 }
 
+// Changes returns channel that should be read until it is closed.
+func (m *PerfSchema) Changes() <-chan agents.Change {
+	return m.changes
+}
+
+// Describe implements prometheus.Collector.
+func (m *PerfSchema) Describe(ch chan<- *prometheus.Desc) { //nolint:revive
+	// This method is needed to satisfy interface.
+}
+
+// Collect implement prometheus.Collector.
+func (m *PerfSchema) Collect(ch chan<- prometheus.Metric) {
+	historyStats := m.historyCache.cache.Stats()
+	summaryStats := m.summaryCache.cache.Stats()
+	historyMetrics := cache.MetricsFromStats(historyStats, m.agentID, "history")
+	summaryMetrics := cache.MetricsFromStats(summaryStats, m.agentID, "summary")
+
+	for _, metric := range historyMetrics {
+		ch <- metric
+	}
+	for _, metric := range summaryMetrics {
+		ch <- metric
+	}
+}
+
 func (m *PerfSchema) runHistoryCacheRefresher(ctx context.Context) {
 	interval := refreshHistory
 	if m.perfschemaRefreshRate != 0 {
@@ -291,7 +316,7 @@ func (m *PerfSchema) refreshHistoryCache(ctx context.Context) error {
 		if err != nil {
 			return errors.Wrap(err, "cannot get MySQL version")
 		}
-		m.useLong = pointer.ToBool(vendor == version.MariaDBVendor && sqlVersion.Float() >= 11)
+		m.useLong = new(vendor == version.MariaDBVendor && sqlVersion.Float() >= 11)
 	}
 	current, err := getHistory(m.q, m.useLong)
 	if err != nil {
@@ -305,7 +330,7 @@ func (m *PerfSchema) refreshHistoryCache(ctx context.Context) error {
 	return nil
 }
 
-func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint32) ([]*agentv1.MetricsBucket, error) {
+func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint32) ([]*agentv1.MetricsBucket, error) { //nolint:gocognit
 	current, err := getSummaries(m.q)
 	if err != nil {
 		return nil, err
@@ -478,31 +503,6 @@ func makeBuckets(current, prev summaryMap, l *logrus.Entry, maxQueryLength int32
 	}
 
 	return res
-}
-
-// Changes returns channel that should be read until it is closed.
-func (m *PerfSchema) Changes() <-chan agents.Change {
-	return m.changes
-}
-
-// Describe implements prometheus.Collector.
-func (m *PerfSchema) Describe(ch chan<- *prometheus.Desc) { //nolint:revive
-	// This method is needed to satisfy interface.
-}
-
-// Collect implement prometheus.Collector.
-func (m *PerfSchema) Collect(ch chan<- prometheus.Metric) {
-	historyStats := m.historyCache.cache.Stats()
-	summaryStats := m.summaryCache.cache.Stats()
-	historyMetrics := cache.MetricsFromStats(historyStats, m.agentID, "history")
-	summaryMetrics := cache.MetricsFromStats(summaryStats, m.agentID, "summary")
-
-	for _, metric := range historyMetrics {
-		ch <- metric
-	}
-	for _, metric := range summaryMetrics {
-		ch <- metric
-	}
 }
 
 // check interfaces.
