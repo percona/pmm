@@ -18,7 +18,6 @@ package models
 import (
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -229,7 +228,7 @@ func ConvertParamsDefinitions(params []alert.Parameter) (AlertExprParamsDefiniti
 				if err != nil {
 					return nil, errors.Wrap(err, "failed to parse param value")
 				}
-				fp.Default = pointer.ToFloat64(def)
+				fp.Default = new(def)
 			}
 
 			if len(param.Range) != 0 {
@@ -237,7 +236,7 @@ func ConvertParamsDefinitions(params []alert.Parameter) (AlertExprParamsDefiniti
 				if err != nil {
 					return nil, errors.Wrap(err, "failed to parse param range")
 				}
-				fp.Min, fp.Max = pointer.ToFloat64(pMin), pointer.ToFloat64(pMax)
+				fp.Min, fp.Max = new(pMin), new(pMax)
 			}
 
 			p.FloatParam = &fp

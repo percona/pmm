@@ -38,7 +38,7 @@ import (
 	"github.com/percona/pmm/version"
 )
 
-//go:generate ../../bin/reform
+//go:generate go tool reform
 
 // AgentType represents Agent type as stored in databases:
 // pmm-managed's PostgreSQL, qan-api's ClickHouse, and VictoriaMetrics.
@@ -977,10 +977,9 @@ func (s Agent) TemplateDelimiters(svc *Service) *DelimiterPair {
 	case ExternalServiceType:
 	}
 
-	tdp := TemplateDelimsPair(
+	return new(TemplateDelimsPair(
 		templateParams...,
-	)
-	return &tdp
+	))
 }
 
 // HashPassword func to calculate password hash. Public and overridable for testing purposes.

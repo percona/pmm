@@ -19,7 +19,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -117,8 +116,8 @@ func TestAnnotations(t *testing.T) {
 		_, err := models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 			ServiceName: "service-test",
 			NodeID:      models.PMMServerNodeID,
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(3306),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(3306)),
 		})
 		require.NoError(t, err)
 
@@ -186,8 +185,8 @@ func TestAnnotations(t *testing.T) {
 		_, err := models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 			ServiceName: "service-test",
 			NodeID:      models.PMMServerNodeID,
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(3306),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(3306)),
 		})
 		require.NoError(t, err)
 
@@ -211,8 +210,8 @@ func TestAnnotations(t *testing.T) {
 		_, err = models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 			ServiceName: "service-test",
 			NodeID:      models.PMMServerNodeID,
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(3306),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(3306)),
 		})
 		require.NoError(t, err)
 
@@ -234,16 +233,16 @@ func TestAnnotations(t *testing.T) {
 		_, err := models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 			ServiceName: "service-test",
 			NodeID:      models.PMMServerNodeID,
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(3306),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(3306)),
 		})
 		require.NoError(t, err)
 
 		_, err = models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 			ServiceName: "service-test2",
 			NodeID:      models.PMMServerNodeID,
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(3307),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(3307)),
 		})
 		require.NoError(t, err)
 
@@ -264,8 +263,8 @@ func TestAnnotations(t *testing.T) {
 		_, err := models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 			ServiceName: "service-test",
 			NodeID:      models.PMMServerNodeID,
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(3306),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(3306)),
 		})
 		require.NoError(t, err)
 

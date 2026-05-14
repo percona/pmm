@@ -28,6 +28,11 @@ on:
 permissions:
   contents: read
 
+env:
+  GONOPROXY: 'github.com/percona,github.com/Percona-Lab'
+  GONOSUMDB: 'github.com/percona,github.com/Percona-Lab'
+  GOPRIVATE: 'github.com/percona,github.com/Percona-Lab'
+
 jobs:
   test:
     name: Tests

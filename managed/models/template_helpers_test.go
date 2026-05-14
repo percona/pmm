@@ -19,7 +19,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/google/uuid"
 	"github.com/percona/promconfig"
@@ -63,9 +62,9 @@ func TestRuleTemplates(t *testing.T) {
 				Unit:    models.ParamUnit(params.Template.Params[0].Unit),
 				Type:    models.Float,
 				FloatParam: &models.FloatParam{
-					Default: pointer.ToFloat64(params.Template.Params[0].Value.(float64)),
-					Min:     pointer.ToFloat64(params.Template.Params[0].Range[0].(float64)),
-					Max:     pointer.ToFloat64(params.Template.Params[0].Range[1].(float64)),
+					Default: new(params.Template.Params[0].Value.(float64)),
+					Min:     new(params.Template.Params[0].Range[0].(float64)),
+					Max:     new(params.Template.Params[0].Range[1].(float64)),
 				},
 			}},
 			created.Params)
@@ -113,9 +112,9 @@ func TestRuleTemplates(t *testing.T) {
 				Unit:    models.ParamUnit(updateParams.Template.Params[0].Unit),
 				Type:    models.Float,
 				FloatParam: &models.FloatParam{
-					Default: pointer.ToFloat64(updateParams.Template.Params[0].Value.(float64)),
-					Min:     pointer.ToFloat64(updateParams.Template.Params[0].Range[0].(float64)),
-					Max:     pointer.ToFloat64(updateParams.Template.Params[0].Range[1].(float64)),
+					Default: new(updateParams.Template.Params[0].Value.(float64)),
+					Min:     new(updateParams.Template.Params[0].Range[0].(float64)),
+					Max:     new(updateParams.Template.Params[0].Range[1].(float64)),
 				},
 			}},
 			updated.Params)

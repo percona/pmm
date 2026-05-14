@@ -19,7 +19,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/require"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
@@ -36,7 +35,7 @@ func TestRDSExporterConfig(t *testing.T) {
 		NodeType:   models.RemoteRDSNodeType,
 		NodeName:   "prod-mysql56",
 		NodeModel:  "db.t2.micro",
-		Region:     pointer.ToString("us-east-1"),
+		Region:     new("us-east-1"),
 		AZ:         "us-east-1c",
 		Address:    "rds-mysql56.xyzzy.us-east-1.rds.amazonaws.com",
 		InstanceID: "rds-mysql56",
@@ -61,7 +60,7 @@ func TestRDSExporterConfig(t *testing.T) {
 		NodeType:   models.RemoteRDSNodeType,
 		NodeName:   "test-mysql57",
 		NodeModel:  "db.t2.micro",
-		Region:     pointer.ToString("us-east-1"),
+		Region:     new("us-east-1"),
 		AZ:         "us-east-1c",
 		Address:    "rds-mysql57.xyzzy.us-east-1.rds.amazonaws.com",
 		InstanceID: "rds-mysql57",
