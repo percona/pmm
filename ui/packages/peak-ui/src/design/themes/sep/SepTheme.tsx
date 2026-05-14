@@ -74,7 +74,7 @@ export const sepPrimaryDark = {
 };
 
 // SEP semantic color tokens — light overrides
-const sepTokensLight = {
+export const sepTokensLight = {
   ...semanticTokensLight,
   text: {
     ...semanticTokensLight.text,
@@ -94,7 +94,7 @@ const sepTokensLight = {
 };
 
 // SEP semantic color tokens — dark overrides
-const sepTokensDark = {
+export const sepTokensDark = {
   ...semanticTokensDark,
   text: {
     ...semanticTokensDark.text,
@@ -136,12 +136,15 @@ const sepThemeOptions = (mode: PaletteMode): ThemeOptions => {
         }),
       },
       MuiButton: {
-        styleOverrides: {
-          containedSuccess: { color: sepBrand.white },
-          containedError: { color: sepBrand.white },
-          containedWarning: { color: sepBrand.white },
-          containedInfo: { color: sepBrand.white },
-        },
+        variants: [
+          { props: { variant: 'contained', color: 'success' }, style: { color: sepBrand.white } },
+          { props: { variant: 'contained', color: 'error' }, style: { color: sepBrand.white } },
+          {
+            props: { variant: 'contained', color: 'warning' },
+            style: { color: mode === 'light' ? sepBrand.white : 'initial' },
+          },
+          { props: { variant: 'contained', color: 'info' }, style: { color: sepBrand.white } },
+        ],
       },
       MuiIconButton: {
         defaultProps: {
@@ -276,6 +279,42 @@ const sepThemeOptions = (mode: PaletteMode): ThemeOptions => {
           }),
           arrow: () => ({
             color: tokens.neutral.main,
+          }),
+        },
+      },
+      MuiPaper: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            ...(theme.palette.mode === 'light' && {
+              // MuiTableSep is a custom class added to the material-react-table on SEP to apply SEP table's Toolbar and TableRow children
+              '&.MuiTableSep .MuiToolbar-root': {
+                backgroundColor: theme.palette.background.paper,
+              },
+              '&.MuiTableSep .MuiTableRow-root': {
+                backgroundColor: theme.palette.background.paper + ' !important',
+              },
+            }),
+          }),
+        },
+      },
+      MuiInputBase: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            ...(theme.palette.mode === 'light' && {
+              backgroundColor: theme.palette.background.paper,
+            }),
+          }),
+        },
+      },
+      MuiChip: {
+        styleOverrides: {
+          root: ({ theme, ownerState }) => ({
+            ...(theme.palette.mode === 'light' &&
+              ownerState.variant === 'filled' &&
+              ownerState.color === 'default' && {
+                // Default filled chip blends into #F6F5F5 page bg — add visible surface
+                backgroundColor: 'rgba(40, 39, 39, 0.12)',
+              }),
           }),
         },
       },
