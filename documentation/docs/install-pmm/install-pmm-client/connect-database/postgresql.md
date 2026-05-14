@@ -258,10 +258,7 @@ After configuring your database server with the appropriate extension, you need 
     
     2. Enter or select values for the fields.
 
-    3. (Optional) Under **Additional options**:
-
-        - Set **Connection timeout** to control how long PMM waits when connecting. Leave it empty to use the default of 2s.
-        - If using `pgstatmonitor`, check **Disable query examples** to prevent collection of actual query values. This protects sensitive data while preserving all query metrics and performance statistics in QAN.
+    3. (Optional) Under **Additional options**, if using `pgstatmonitor`, check **Disable query examples** to prevent collection of actual query values. This protects sensitive data while preserving all query metrics and performance statistics in QAN.
 
     4. Click **Add service**.
     ![!](../../../images/PMM_Add_Instance_PostgreSQL.png)
