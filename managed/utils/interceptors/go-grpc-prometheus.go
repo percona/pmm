@@ -149,22 +149,26 @@ func NewServerMetricsWithExtension(extension ServerExtension, counterOpts ...Cou
 			opts.apply(prom.CounterOpts{
 				Name: "grpc_server_started_total",
 				Help: "Total number of RPCs started on the server.",
-			}), []string{"grpc_type", "grpc_service", "grpc_method"}),
+			}), []string{"grpc_type", "grpc_service", "grpc_method"},
+		),
 		serverHandledCounter: prom.NewCounterVec(
 			opts.apply(prom.CounterOpts{
 				Name: "grpc_server_handled_total",
 				Help: "Total number of RPCs completed on the server, regardless of success or failure.",
-			}), append(extension.ServerHandledCounterCustomLabels(), "grpc_type", "grpc_service", "grpc_method", "grpc_code")),
+			}), append(extension.ServerHandledCounterCustomLabels(), "grpc_type", "grpc_service", "grpc_method", "grpc_code"),
+		),
 		serverStreamMsgReceivedCounter: prom.NewCounterVec(
 			opts.apply(prom.CounterOpts{
 				Name: "grpc_server_msg_received_total",
 				Help: "Total number of RPC stream messages received on the server.",
-			}), append(extension.ServerStreamMsgReceivedCounterCustomLabels(), "grpc_type", "grpc_service", "grpc_method")),
+			}), append(extension.ServerStreamMsgReceivedCounterCustomLabels(), "grpc_type", "grpc_service", "grpc_method"),
+		),
 		serverStreamMsgSentCounter: prom.NewCounterVec(
 			opts.apply(prom.CounterOpts{
 				Name: "grpc_server_msg_sent_total",
 				Help: "Total number of gRPC stream messages sent by the server.",
-			}), append(extension.ServerStreamMsgSentCounterCustomLabels(), "grpc_type", "grpc_service", "grpc_method")),
+			}), append(extension.ServerStreamMsgSentCounterCustomLabels(), "grpc_type", "grpc_service", "grpc_method"),
+		),
 		serverHandledHistogramEnabled: false,
 		serverHandledHistogramOpts: prom.HistogramOpts{
 			Name:    "grpc_server_handling_seconds",
@@ -186,7 +190,8 @@ func (m *ServerMetrics) EnableHandlingTimeHistogram(opts ...HistogramOption) {
 	if !m.serverHandledHistogramEnabled {
 		m.serverHandledHistogram = prom.NewHistogramVec(
 			m.serverHandledHistogramOpts,
-			[]string{"grpc_type", "grpc_service", "grpc_method"})
+			[]string{"grpc_type", "grpc_service", "grpc_method"},
+		)
 	}
 	m.serverHandledHistogramEnabled = true
 }
@@ -361,29 +366,37 @@ func newServerReporter(m *ServerMetrics, rpcType grpcType, fullMethod string) *s
 }
 
 func (r *serverReporter) ReceivedMessage(ctx context.Context) {
-	r.metrics.serverStreamMsgReceivedCounter.WithLabelValues(append(
-		r.metrics.extension.ServerStreamMsgReceivedCounterValues(ctx),
-		string(r.rpcType), r.serviceName, r.methodName)...,
+	r.metrics.serverStreamMsgReceivedCounter.WithLabelValues(
+		append(
+			r.metrics.extension.ServerStreamMsgReceivedCounterValues(ctx),
+			string(r.rpcType), r.serviceName, r.methodName,
+		)...,
 	).Inc()
 }
 
 func (r *serverReporter) SentMessage(ctx context.Context) {
-	r.metrics.serverStreamMsgSentCounter.WithLabelValues(append(
-		r.metrics.extension.ServerStreamMsgSentCounterValues(ctx),
-		string(r.rpcType), r.serviceName, r.methodName)...,
+	r.metrics.serverStreamMsgSentCounter.WithLabelValues(
+		append(
+			r.metrics.extension.ServerStreamMsgSentCounterValues(ctx),
+			string(r.rpcType), r.serviceName, r.methodName,
+		)...,
 	).Inc()
 }
 
 func (r *serverReporter) Handled(ctx context.Context, code codes.Code) {
-	r.metrics.serverHandledCounter.WithLabelValues(append(
-		r.metrics.extension.ServerHandledCounterValues(ctx),
-		string(r.rpcType), r.serviceName, r.methodName, code.String())...,
+	r.metrics.serverHandledCounter.WithLabelValues(
+		append(
+			r.metrics.extension.ServerHandledCounterValues(ctx),
+			string(r.rpcType), r.serviceName, r.methodName, code.String(),
+		)...,
 	).Inc()
 
 	if r.metrics.serverHandledHistogramEnabled {
-		r.metrics.serverHandledHistogram.WithLabelValues(append(
-			r.metrics.extension.ServerHandledHistogramValues(ctx),
-			string(r.rpcType), r.serviceName, r.methodName)...,
+		r.metrics.serverHandledHistogram.WithLabelValues(
+			append(
+				r.metrics.extension.ServerHandledHistogramValues(ctx),
+				string(r.rpcType), r.serviceName, r.methodName,
+			)...,
 		).Observe(time.Since(r.startTime).Seconds())
 	}
 }

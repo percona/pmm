@@ -24,7 +24,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -234,7 +233,7 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 
 	// Enable access control
 	_, err = models.UpdateSettings(db.Querier, &models.ChangeSettingsParams{
-		EnableAccessControl: pointer.ToBool(true),
+		EnableAccessControl: new(true),
 	})
 	require.NoError(t, err)
 

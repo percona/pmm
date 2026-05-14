@@ -632,13 +632,13 @@ const file_management_v1_azure_proto_rawDesc = "" +
 	"\x0fazure_client_id\x18\x01 \x01(\tB\v\xfaB\x04r\x02\x10\x01\x88\xb5\x18\x01R\razureClientId\x12;\n" +
 	"\x13azure_client_secret\x18\x02 \x01(\tB\v\xfaB\x04r\x02\x10\x01\x88\xb5\x18\x01R\x11azureClientSecret\x12/\n" +
 	"\x0fazure_tenant_id\x18\x03 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\razureTenantId\x12;\n" +
-	"\x15azure_subscription_id\x18\x04 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x13azureSubscriptionId\"\xf2\x02\n" +
+	"\x15azure_subscription_id\x18\x04 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x13azureSubscriptionId\"\xf8\x02\n" +
 	"\x1dDiscoverAzureDatabaseInstance\x12\x1f\n" +
 	"\vinstance_id\x18\x01 \x01(\tR\n" +
 	"instanceId\x12\x16\n" +
 	"\x06region\x18\x02 \x01(\tR\x06region\x12!\n" +
-	"\fservice_name\x18\x03 \x01(\tR\vserviceName\x12\x1a\n" +
-	"\busername\x18\x04 \x01(\tR\busername\x12\x18\n" +
+	"\fservice_name\x18\x03 \x01(\tR\vserviceName\x12 \n" +
+	"\busername\x18\x04 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12\x18\n" +
 	"\aaddress\x18\x05 \x01(\tR\aaddress\x120\n" +
 	"\x14azure_resource_group\x18\x06 \x01(\tR\x12azureResourceGroup\x12 \n" +
 	"\venvironment\x18\a \x01(\tR\venvironment\x12<\n" +
@@ -705,7 +705,7 @@ var (
 	file_management_v1_azure_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 	file_management_v1_azure_proto_msgTypes  = make([]protoimpl.MessageInfo, 6)
 	file_management_v1_azure_proto_goTypes   = []any{
-		(DiscoverAzureDatabaseType)(0),        // 0: management.v1.DiscoverAzureDatabaseType
+		DiscoverAzureDatabaseType(0),          // 0: management.v1.DiscoverAzureDatabaseType
 		(*DiscoverAzureDatabaseRequest)(nil),  // 1: management.v1.DiscoverAzureDatabaseRequest
 		(*DiscoverAzureDatabaseInstance)(nil), // 2: management.v1.DiscoverAzureDatabaseInstance
 		(*DiscoverAzureDatabaseResponse)(nil), // 3: management.v1.DiscoverAzureDatabaseResponse

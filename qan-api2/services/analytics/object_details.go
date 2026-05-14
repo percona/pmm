@@ -66,7 +66,8 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.GetMetricsRequest) (
 			in.GroupBy,
 			dimensions,
 			labels,
-			in.Totals)
+			in.Totals,
+		)
 		if err != nil {
 			return nil, fmt.Errorf("error in quering metrics: %w", err)
 		}
@@ -87,7 +88,8 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.GetMetricsRequest) (
 		in.GroupBy,
 		dimensions,
 		labels,
-		true) // get Totals
+		true,
+	) // get Totals
 	if err != nil {
 		return nil, fmt.Errorf("cannot get metrics totals: %w", err)
 	}
@@ -117,7 +119,8 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.GetMetricsRequest) (
 		in.FilterBy,
 		in.GroupBy,
 		dimensions,
-		labels)
+		labels,
+	)
 	if err != nil {
 		return resp, err
 	}
@@ -262,7 +265,8 @@ func (s *Service) GetQueryExample(ctx context.Context, in *qanpb.GetQueryExample
 		group,
 		limit,
 		dimensions,
-		labels)
+		labels,
+	)
 	if err != nil {
 		return nil, fmt.Errorf("error in selecting query examples: %w", err)
 	}
@@ -292,7 +296,8 @@ func (s *Service) GetLabels(ctx context.Context, in *qanpb.GetLabelsRequest) (*q
 		from,
 		to,
 		in.FilterBy,
-		in.GroupBy)
+		in.GroupBy,
+	)
 	if err != nil {
 		return nil, fmt.Errorf("error in selecting object details labels: %w", err)
 	}
@@ -303,7 +308,8 @@ func (s *Service) GetLabels(ctx context.Context, in *qanpb.GetLabelsRequest) (*q
 func (s *Service) GetQueryPlan(ctx context.Context, in *qanpb.GetQueryPlanRequest) (*qanpb.GetQueryPlanResponse, error) {
 	resp, err := s.mm.SelectQueryPlan(
 		ctx,
-		in.Queryid)
+		in.Queryid,
+	)
 	if err != nil {
 		return nil, fmt.Errorf("error in selecting query plans: %w", err)
 	}
@@ -342,7 +348,8 @@ func (s *Service) GetHistogram(ctx context.Context, in *qanpb.GetHistogramReques
 		periodStartToSec,
 		dimensions,
 		labels,
-		in.Queryid)
+		in.Queryid,
+	)
 	if err != nil {
 		return nil, fmt.Errorf("error in selecting histogram: %w", err)
 	}
@@ -355,7 +362,8 @@ func (s *Service) QueryExists(ctx context.Context, in *qanpb.QueryExistsRequest)
 	resp, err := s.mm.QueryExists(
 		ctx,
 		in.Serviceid,
-		in.Query)
+		in.Query,
+	)
 	if err != nil {
 		return nil, fmt.Errorf("error in checking query: %w", err)
 	}
@@ -368,7 +376,8 @@ func (s *Service) ExplainFingerprintByQueryID(ctx context.Context, in *qanpb.Exp
 	res, err := s.mm.ExplainFingerprintByQueryID(
 		ctx,
 		in.Serviceid,
-		in.QueryId)
+		in.QueryId,
+	)
 	if err != nil {
 		return nil, fmt.Errorf("error in checking query: %w", err)
 	}
@@ -381,7 +390,8 @@ func (s *Service) SchemaByQueryID(ctx context.Context, in *qanpb.SchemaByQueryID
 	res, err := s.mm.SchemaByQueryID(
 		ctx,
 		in.ServiceId,
-		in.QueryId)
+		in.QueryId,
+	)
 	if err != nil {
 		return nil, fmt.Errorf("error in checking query: %w", err)
 	}

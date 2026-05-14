@@ -23,7 +23,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -344,7 +343,7 @@ func (s *BackupService) ChangeScheduledBackup(ctx context.Context, req *backupv1
 		}
 
 		if req.Enabled != nil {
-			params.Disable = pointer.ToBool(!*req.Enabled)
+			params.Disable = new(!*req.Enabled)
 			if scheduledTask.Type == models.ScheduledMongoDBBackupTask && !*req.Enabled {
 				disablePITR = data.Mode == models.PITR
 			}
@@ -395,7 +394,7 @@ func (s *BackupService) RemoveScheduledBackup(ctx context.Context, req *backupv1
 
 		for _, artifact := range artifacts {
 			_, err := models.UpdateArtifact(tx.Querier, artifact.ID, models.UpdateArtifactParams{
-				ScheduleID: pointer.ToString(""),
+				ScheduleID: new(""),
 			})
 			if err != nil {
 				return err
@@ -445,7 +444,7 @@ func (s *BackupService) GetLogs(_ context.Context, req *backupv1.GetLogsRequest)
 		Offset: int(req.Offset),
 	}
 	if req.Limit > 0 {
-		filter.Limit = pointer.ToInt(int(req.Limit))
+		filter.Limit = new(int(req.Limit))
 	}
 
 	jobLogs, err := models.FindJobLogs(s.db.Querier, filter)
@@ -857,7 +856,8 @@ func convertArtifact(
 	l, ok := locationModels[a.LocationID]
 	if !ok {
 		return nil, errors.Errorf(
-			"failed to convert artifact with id '%s': no location id '%s' in the map", a.ID, a.LocationID)
+			"failed to convert artifact with id '%s': no location id '%s' in the map", a.ID, a.LocationID,
+		)
 	}
 
 	var serviceName string

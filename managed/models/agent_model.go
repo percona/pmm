@@ -38,7 +38,7 @@ import (
 	"github.com/percona/pmm/version"
 )
 
-//go:generate ../../bin/reform
+//go:generate go tool reform
 
 // AgentType represents Agent type as stored in databases:
 // pmm-managed's PostgreSQL, qan-api's ClickHouse, and VictoriaMetrics.
@@ -526,7 +526,7 @@ type DSNParams struct {
 }
 
 // DSN returns a DSN string for accessing a given Service with this Agent (and an implicit driver).
-func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, pmmAgentVersion *version.Parsed) string { //nolint:cyclop,maintidx
+func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, pmmAgentVersion *version.Parsed) string { //nolint:gocognit,cyclop,maintidx
 	host := pointer.GetString(service.Address)
 	port := pointer.GetUint16(service.Port)
 	socket := pointer.GetString(service.Socket)
@@ -874,7 +874,7 @@ func (s *Agent) IsMySQLTablestatsGroupEnabled() bool {
 }
 
 // Files returns files map required to connect to DB.
-func (s Agent) Files() map[string]string {
+func (s Agent) Files() map[string]string { //nolint:gocognit
 	switch s.AgentType {
 	case MySQLdExporterType, QANMySQLPerfSchemaAgentType, QANMySQLSlowlogAgentType:
 		files := make(map[string]string)
@@ -977,10 +977,9 @@ func (s Agent) TemplateDelimiters(svc *Service) *DelimiterPair {
 	case ExternalServiceType:
 	}
 
-	tdp := TemplateDelimsPair(
+	return new(TemplateDelimsPair(
 		templateParams...,
-	)
-	return &tdp
+	))
 }
 
 // HashPassword func to calculate password hash. Public and overridable for testing purposes.

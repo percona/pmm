@@ -5770,7 +5770,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "browser",
+  "timezone": "",
   "title": "PostgreSQL Instance Summary",
   "uid": "postgresql-instance-summary",
   "version": 17

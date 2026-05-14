@@ -19,7 +19,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -36,15 +35,15 @@ func TestMongodbExporterConfig225(t *testing.T) {
 		Address: "1.2.3.4",
 	}
 	mongodb := &models.Service{
-		Address: pointer.ToString("1.2.3.4"),
-		Port:    pointer.ToUint16(27017),
+		Address: new("1.2.3.4"),
+		Port:    new(uint16(27017)),
 	}
 	exporter := &models.Agent{
 		AgentID:         "agent-id",
 		AgentType:       models.MongoDBExporterType,
-		Username:        pointer.ToString("username"),
-		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
-		AgentPassword:   pointer.ToString("agent-password"),
+		Username:        new("username"),
+		Password:        new("s3cur3 p@$$w0r4."),
+		AgentPassword:   new("agent-password"),
 		ExporterOptions: models.ExporterOptions{},
 		MongoDBOptions:  models.MongoDBOptions{},
 	}
@@ -98,15 +97,15 @@ func TestMongodbExporterConfig226(t *testing.T) {
 		Address: "1.2.3.4",
 	}
 	mongodb := &models.Service{
-		Address: pointer.ToString("1.2.3.4"),
-		Port:    pointer.ToUint16(27017),
+		Address: new("1.2.3.4"),
+		Port:    new(uint16(27017)),
 	}
 	exporter := &models.Agent{
 		AgentID:         "agent-id",
 		AgentType:       models.MongoDBExporterType,
-		Username:        pointer.ToString("username"),
-		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
-		AgentPassword:   pointer.ToString("agent-password"),
+		Username:        new("username"),
+		Password:        new("s3cur3 p@$$w0r4."),
+		AgentPassword:   new("agent-password"),
 		ExporterOptions: models.ExporterOptions{},
 		MongoDBOptions:  models.MongoDBOptions{},
 	}
@@ -246,15 +245,15 @@ func TestMongodbExporterConfig2411(t *testing.T) {
 		Address: "1.2.3.4",
 	}
 	mongodb := &models.Service{
-		Address: pointer.ToString("1.2.3.4"),
-		Port:    pointer.ToUint16(27017),
+		Address: new("1.2.3.4"),
+		Port:    new(uint16(27017)),
 	}
 	exporter := &models.Agent{
 		AgentID:         "agent-id",
 		AgentType:       models.MongoDBExporterType,
-		Username:        pointer.ToString("username"),
-		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
-		AgentPassword:   pointer.ToString("agent-password"),
+		Username:        new("username"),
+		Password:        new("s3cur3 p@$$w0r4."),
+		AgentPassword:   new("agent-password"),
 		ExporterOptions: models.ExporterOptions{},
 		MongoDBOptions:  models.MongoDBOptions{},
 	}
@@ -435,15 +434,15 @@ func TestMongodbExporterConfig2432(t *testing.T) {
 		Address: "1.2.3.4",
 	}
 	mongodb := &models.Service{
-		Address: pointer.ToString("1.2.3.4"),
-		Port:    pointer.ToUint16(27017),
+		Address: new("1.2.3.4"),
+		Port:    new(uint16(27017)),
 	}
 	exporter := &models.Agent{
 		AgentID:         "agent-id",
 		AgentType:       models.MongoDBExporterType,
-		Username:        pointer.ToString("username"),
-		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
-		AgentPassword:   pointer.ToString("agent-password"),
+		Username:        new("username"),
+		Password:        new("s3cur3 p@$$w0r4."),
+		AgentPassword:   new("agent-password"),
 		ExporterOptions: models.ExporterOptions{},
 		MongoDBOptions:  models.MongoDBOptions{},
 	}
@@ -518,15 +517,15 @@ func TestMongodbExporterConfig(t *testing.T) {
 		Address: "1.2.3.4",
 	}
 	mongodb := &models.Service{
-		Address: pointer.ToString("1.2.3.4"),
-		Port:    pointer.ToUint16(27017),
+		Address: new("1.2.3.4"),
+		Port:    new(uint16(27017)),
 	}
 	exporter := &models.Agent{
 		AgentID:         "agent-id",
 		AgentType:       models.MongoDBExporterType,
-		Username:        pointer.ToString("username"),
-		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
-		AgentPassword:   pointer.ToString("agent-password"),
+		Username:        new("username"),
+		Password:        new("s3cur3 p@$$w0r4."),
+		AgentPassword:   new("agent-password"),
 		ExporterOptions: models.ExporterOptions{},
 		MongoDBOptions:  models.MongoDBOptions{},
 	}
@@ -643,14 +642,14 @@ func TestNewMongodbExporterConfig(t *testing.T) {
 		Address: "1.2.3.4",
 	}
 	mongodb := &models.Service{
-		Address: pointer.ToString("1.2.3.4"),
-		Port:    pointer.ToUint16(27017),
+		Address: new("1.2.3.4"),
+		Port:    new(uint16(27017)),
 	}
 	exporter := &models.Agent{
 		AgentID:         "agent-id",
 		AgentType:       models.MongoDBExporterType,
-		Username:        pointer.ToString("username"),
-		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+		Username:        new("username"),
+		Password:        new("s3cur3 p@$$w0r4."),
 		ExporterOptions: models.ExporterOptions{},
 		MongoDBOptions:  models.MongoDBOptions{},
 	}
@@ -701,14 +700,14 @@ func TestMongodbExporterConfig228_WebConfigAuth(t *testing.T) {
 	}
 
 	mongodb := &models.Service{
-		Address: pointer.ToString("1.2.3.4"),
-		Port:    pointer.ToUint16(27017),
+		Address: new("1.2.3.4"),
+		Port:    new(uint16(27017)),
 	}
 	exporter := &models.Agent{
 		AgentID:         "agent-id",
 		AgentType:       models.MongoDBExporterType,
-		Username:        pointer.ToString("username"),
-		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+		Username:        new("username"),
+		Password:        new("s3cur3 p@$$w0r4."),
 		ExporterOptions: models.ExporterOptions{},
 		MongoDBOptions:  models.MongoDBOptions{},
 	}
@@ -736,7 +735,7 @@ func TestMongodbExporterConfig228_WebConfigAuth(t *testing.T) {
 			AgentType:       exporter.AgentType,
 			Username:        exporter.Username,
 			Password:        exporter.Password,
-			AgentPassword:   pointer.ToString("agent-custom-password"),
+			AgentPassword:   new("agent-custom-password"),
 			ExporterOptions: models.ExporterOptions{},
 			MongoDBOptions:  models.MongoDBOptions{},
 		}
@@ -805,16 +804,16 @@ func Test_rtaMongoDBAgentConfig(t *testing.T) {
 			service: &models.Service{
 				ServiceID:   "service-id-1",
 				ServiceName: "mongodb-service-1",
-				Address:     pointer.ToString("127.0.0.1"),
-				Port:        pointer.ToUint16(27017),
+				Address:     new("127.0.0.1"),
+				Port:        new(uint16(27017)),
 			},
 			agent: &models.Agent{
 				AgentID:   "agent-id-1",
 				AgentType: models.RTAMongoDBAgentType,
-				Username:  pointer.ToString("username"),
-				Password:  pointer.ToString("password"),
+				Username:  new("username"),
+				Password:  new("password"),
 				RTAOptions: models.RTAOptions{
-					CollectInterval: pointer.ToDuration(2 * time.Second),
+					CollectInterval: new(2 * time.Second),
 				},
 			},
 			pmmAgentVersion: version.MustParse("3.7.0"),

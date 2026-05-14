@@ -33,6 +33,8 @@ import (
 
 // This test checks if all (even empty) fields are present in json responses.
 func TestSerialization(t *testing.T) {
+	t.Parallel()
+
 	// Get json filed names from settings model
 	var settings server.GetSettingsOKBodySettings
 	jsonFields := extractJSONTagNames(settings)

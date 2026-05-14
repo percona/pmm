@@ -20,7 +20,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -110,7 +109,7 @@ func TestAgents(t *testing.T) {
 				ctx,
 				"00000000-0000-4000-8000-000000000006",
 				&inventoryv1.ChangeNodeExporterParams{
-					Enable: pointer.ToBool(false),
+					Enable: new(false),
 					// passing an empty map to remove custom labels
 					CustomLabels: &common.StringMap{},
 					MetricsResolutions: &common.MetricsResolutions{
@@ -141,8 +140,8 @@ func TestAgents(t *testing.T) {
 			ms, err = ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
 				ServiceName: "test-mysql",
 				NodeID:      models.PMMServerNodeID,
-				Address:     pointer.ToString("127.0.0.1"),
-				Port:        pointer.ToUint16(3306),
+				Address:     new("127.0.0.1"),
+				Port:        new(uint16(3306)),
 			})
 			require.NoError(t, err)
 
@@ -170,8 +169,8 @@ func TestAgents(t *testing.T) {
 			ms, err := ss.AddMongoDB(ctx, &models.AddDBMSServiceParams{
 				ServiceName: "test-mongo",
 				NodeID:      models.PMMServerNodeID,
-				Address:     pointer.ToString("127.0.0.1"),
-				Port:        pointer.ToUint16(27017),
+				Address:     new("127.0.0.1"),
+				Port:        new(uint16(27017)),
 			})
 			require.NoError(t, err)
 
@@ -223,8 +222,8 @@ func TestAgents(t *testing.T) {
 			ps, err = ss.AddPostgreSQL(ctx, &models.AddDBMSServiceParams{
 				ServiceName: "test-postgres",
 				NodeID:      models.PMMServerNodeID,
-				Address:     pointer.ToString("127.0.0.1"),
-				Port:        pointer.ToUint16(5432),
+				Address:     new("127.0.0.1"),
+				Port:        new(uint16(5432)),
 			})
 			require.NoError(t, err)
 
@@ -274,8 +273,8 @@ func TestAgents(t *testing.T) {
 			valkey, err = ss.AddValkey(ctx, &models.AddDBMSServiceParams{
 				ServiceName: "test-valkey",
 				NodeID:      models.PMMServerNodeID,
-				Address:     pointer.ToString("127.0.0.1"),
-				Port:        pointer.ToUint16(6379),
+				Address:     new("127.0.0.1"),
+				Port:        new(uint16(6379)),
 			})
 			require.NoError(t, err)
 
@@ -346,8 +345,7 @@ func TestAgents(t *testing.T) {
 		})
 
 		t.Run("FilterByAgentType", func(t *testing.T) {
-			agentType := models.ExternalExporterType
-			actualAgents, err := as.List(ctx, models.AgentFilters{AgentType: &agentType})
+			actualAgents, err := as.List(ctx, models.AgentFilters{AgentType: new(models.ExternalExporterType)})
 			require.NoError(t, err)
 			require.Len(t, actualAgents, 1)
 			assert.Equal(t, expectedExternalExporter, actualAgents[0])
@@ -562,8 +560,8 @@ func TestAgents(t *testing.T) {
 		ms, err := ss.AddMongoDB(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-mongo",
 			NodeID:      models.PMMServerNodeID,
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(27017),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(27017)),
 		})
 		require.NoError(t, err)
 		actualAgent, err := as.AddMongoDBExporter(ctx, &inventoryv1.AddMongoDBExporterParams{
@@ -654,8 +652,8 @@ func TestAgents(t *testing.T) {
 		ps, err := ss.AddPostgreSQL(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-postgres",
 			NodeID:      models.PMMServerNodeID,
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(5432),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(5432)),
 		})
 		require.NoError(t, err)
 
@@ -712,8 +710,8 @@ func TestAgents(t *testing.T) {
 		s, err := ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-mysql",
 			NodeID:      models.PMMServerNodeID,
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(3306),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(3306)),
 		})
 		require.NoError(t, err)
 
@@ -858,8 +856,8 @@ func TestAgents(t *testing.T) {
 		ms, err := ss.AddMongoDB(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-mongo-rta",
 			NodeID:      models.PMMServerNodeID,
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(27017),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(27017)),
 		})
 		require.NoError(t, err)
 
@@ -899,7 +897,7 @@ func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
 		// Try to change the internal PostgreSQL QAN agent (pmm-server's agent)
 		// The agent with ID "00000000-0000-4000-8000-000000000004" is the internal PostgreSQL QAN agent
 		_, err := as.ChangeQANPostgreSQLPgStatementsAgent(ctx, "00000000-0000-4000-8000-000000000004", &inventoryv1.ChangeQANPostgreSQLPgStatementsAgentParams{
-			Enable: pointer.ToBool(false),
+			Enable: new(false),
 		})
 
 		// Expect a FailedPrecondition error
@@ -919,7 +917,7 @@ func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
 
 		// Try to change the internal PostgreSQL QAN agent
 		agent, err := as.ChangeQANPostgreSQLPgStatementsAgent(ctx, "00000000-0000-4000-8000-000000000004", &inventoryv1.ChangeQANPostgreSQLPgStatementsAgentParams{
-			Enable: pointer.ToBool(false),
+			Enable: new(false),
 		})
 
 		// Should succeed
@@ -929,7 +927,7 @@ func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
 		// Change it back to enabled
 		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "pmm-server")
 		agent, err = as.ChangeQANPostgreSQLPgStatementsAgent(ctx, "00000000-0000-4000-8000-000000000004", &inventoryv1.ChangeQANPostgreSQLPgStatementsAgentParams{
-			Enable: pointer.ToBool(true),
+			Enable: new(true),
 		})
 
 		// Should succeed
@@ -968,8 +966,8 @@ func TestChangeRTAMongoDBAgent(t *testing.T) {
 		ms, err := ss.AddMongoDB(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-mongo-rta",
 			NodeID:      models.PMMServerNodeID,
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(27017),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(27017)),
 		})
 		require.NoError(t, err)
 
