@@ -3,7 +3,7 @@
 !!! warning "GUI-based upgrades ending in PMM 3.9.0"
     GUI-based upgrades are deprecated starting with PMM 3.7.0. This upgrade method will be formally deprecated in PMM 3.8 (end of May 2026) and removed in PMM 3.9 (end of July 2026).
 
-    The underlying Watchtower project used for GUI upgrades is no longer maintained. Switch to one of the supported upgrade methods:
+    The underlying Watchtower project used for GUI upgrades is no longer maintained. When switching to a supported upgrade method, stop and remove the Watchtower container first to avoid conflicts:
 
     - [Upgrade PMM Server using Docker](upgrade_docker.md)
     - [Upgrade PMM Server using Podman](upgrade_podman.md)
