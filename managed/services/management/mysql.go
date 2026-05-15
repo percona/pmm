@@ -25,6 +25,7 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/duration"
 )
 
 const (
@@ -105,6 +106,7 @@ func (s *ManagementService) addMySQL(ctx context.Context, req *managementv1.AddM
 				ExposeExporter:     req.ExposeExporter,
 				PushMetrics:        isPushMode(req.MetricsMode),
 				DisabledCollectors: req.DisableCollectors,
+				ConnectionTimeout:  duration.OptionalFromProto(req.ConnectionTimeout),
 			},
 			LogLevel: services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
 		})
