@@ -87,7 +87,7 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 		}
 		switch {
 		case pushMetrics:
-			paramsHost = localhost
+			paramsHost = "127.0.0.1"
 		case agent.PMMAgentID != nil:
 			pmmAgentNode = &models.Node{NodeID: pointer.GetString(pmmAgent.RunsOnNodeID)}
 			if err = q.Reload(pmmAgentNode); err != nil {
@@ -272,21 +272,7 @@ func addInternalServicesToScrape(s models.MetricsResolutions, svc *Service, pmmS
 		scrapeConfigForQANAPI2(s.MR, pmmServerNodeName),
 	}
 
-	if svc.params.ExternalVM() {
-		svc.l.Infof("Skip scrape config for ClickHouse, VictoriaMetrics is configured to run externally.")
-		return cfg
-	}
-
-	if svc.chParams.BuiltinDisabled {
-		svc.l.Infof("Skip scrape config for ClickHouse, scraping has been disabled for builtin clickhouse.")
-		return cfg
-	}
-
-	if svc.chParams.ExternalClickHouse() {
-		svc.l.Warnf(
-			"External ClickHouse detected (%s); skipping built-in ClickHouse scrape (127.0.0.1:9363). Set PMM_DISABLE_BUILTIN_CLICKHOUSE=true to make this explicit.",
-			svc.chParams.URL().Redacted(),
-		)
+	if svc.params.ExternalVM() || svc.clickhouseBuiltinDisabled {
 		return cfg
 	}
 

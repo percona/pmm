@@ -825,19 +825,15 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	grafanadb.DSN.DB = "grafana"
 	grafanadb.DSN.Params = q.Encode()
 
-	chParams, err := models.NewClickHouseParams(
-		*clickhouseAddrF,
-		*clickHouseDatabaseF,
-		*clickhouseUsernameF,
-		*clickhousePasswordF,
-		*clickhouseBuiltinDisabledF,
-	)
-	if err != nil {
-		l.Panicf("cannot load clickhouse params: %+v", err)
+	chURI := url.URL{
+		Scheme: "tcp",
+		User:   url.UserPassword(*clickhouseUsernameF, *clickhousePasswordF),
+		Host:   *clickhouseAddrF,
+		Path:   *clickHouseDatabaseF,
 	}
 
 	qanDB := ds.QanDBSelect
-	qanDB.DSN = chParams.URL().String()
+	qanDB.DSN = chURI.String()
 
 	ds.VM.Address = *victoriaMetricsURLF
 
@@ -887,7 +883,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	cleaner := clean.New(db)
 	externalRules := vmalert.NewExternalRules()
-	vmdb, err := victoriametrics.NewVictoriaMetrics(*victoriaMetricsConfigF, db, vmParams, chParams, haService)
+	vmdb, err := victoriametrics.NewVictoriaMetrics(*victoriaMetricsConfigF, db, vmParams, *clickhouseBuiltinDisabledF, haService)
 	if err != nil {
 		l.Panicf("VictoriaMetrics service problem: %+v", err)
 	}
@@ -1027,7 +1023,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	versionCache := versioncache.New(db, versioner)
 
 	dumpService := dump.New(db, &dump.URLs{
-		ClickhouseURL: chParams.URL().String(),
+		ClickhouseURL: chURI.String(),
 		VMURL:         *victoriaMetricsURLF,
 	})
 

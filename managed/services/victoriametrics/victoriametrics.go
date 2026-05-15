@@ -49,8 +49,6 @@ const (
 	victoriametricsDir     = "/srv/victoriametrics"
 	victoriametricsDataDir = "/srv/victoriametrics/data"
 	dirPerm                = os.FileMode(0o775)
-
-	localhost = "127.0.0.1"
 )
 
 var checkFailedRE = regexp.MustCompile(`(?s)cannot unmarshal data: (.+)`)
@@ -62,8 +60,8 @@ type Service struct {
 	baseURL          *url.URL
 	client           *http.Client
 
-	params   *models.VictoriaMetricsParams
-	chParams *models.ClickHouseParams
+	params                    *models.VictoriaMetricsParams
+	clickhouseBuiltinDisabled bool
 
 	l         *logrus.Entry
 	reloadCh  chan struct{}
@@ -75,27 +73,24 @@ func NewVictoriaMetrics(
 	scrapeConfigPath string,
 	db *reform.DB,
 	params *models.VictoriaMetricsParams,
-	chParams *models.ClickHouseParams,
+	clickhouseBuiltinDisabled bool,
 	haService haService,
 ) (*Service, error) {
 	u, err := url.Parse(params.URL())
 	if err != nil {
 		return nil, err
 	}
-	if chParams == nil {
-		return nil, fmt.Errorf("ClickHouseParams is required")
-	}
 
 	return &Service{
-		scrapeConfigPath: scrapeConfigPath,
-		db:               db,
-		baseURL:          u,
-		client:           &http.Client{}, // TODO instrument with utils/irt; see vmalert package https://jira.percona.com/browse/PMM-7229
-		params:           params,
-		chParams:         chParams,
-		l:                logrus.WithField("component", "victoriametrics"),
-		reloadCh:         make(chan struct{}, 1),
-		haService:        haService,
+		scrapeConfigPath:          scrapeConfigPath,
+		db:                        db,
+		baseURL:                   u,
+		client:                    &http.Client{}, // TODO instrument with utils/irt; see vmalert package https://jira.percona.com/browse/PMM-7229
+		params:                    params,
+		clickhouseBuiltinDisabled: clickhouseBuiltinDisabled,
+		l:                         logrus.WithField("component", "victoriametrics"),
+		reloadCh:                  make(chan struct{}, 1),
+		haService:                 haService,
 	}, nil
 }
 
@@ -448,7 +443,7 @@ func scrapeConfigForVMAlert(interval time.Duration, pmmServerNodeName string) *c
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{
 				{
-					Targets: []string{localhost + ":8880"},
+					Targets: []string{"127.0.0.1:8880"},
 					Labels:  map[string]string{"instance": pmmServerNodeName},
 				},
 			},
