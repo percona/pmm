@@ -46,8 +46,8 @@ theme:
     - navigation.top
     - content.tabs.link
     - content.code.copy
+    - content.images.zoom
     - navigation.tracking
-#    - content.action.edit
     - content.action.view
 
 extra_css:
