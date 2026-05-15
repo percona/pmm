@@ -1126,11 +1126,9 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		vmdb.Run(ctx)
 	})
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		externalExporterStatusSvc.Run(ctx)
-	}()
+	})
 
 	haService.AddLeaderService(ha.NewContextService("checks", func(ctx context.Context) error {
 		checksService.Run(ctx)

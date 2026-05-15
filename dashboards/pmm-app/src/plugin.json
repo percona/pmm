@@ -44,6 +44,7 @@
       "type": "dashboard",
       "name": "Home Dashboard",
       "path": "dashboards/Insight/Home_Dashboard.json",
+      "uid": "pmm-home",
       "addToNav": false,
       "defaultNav": true
     },
