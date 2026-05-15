@@ -206,7 +206,7 @@ instances.
     - Use TLS for the database connection.
     - Skip TLS certificate and hostname validation.
     - Disable basic and/or enhanced metrics collection for the RDS instance to reduce costs.
-    - Set **Connection timeout** to control how long PMM waits when connecting to the instance. Leave empty to use the default of 2s.
+    - Set **Connection timeout** to control how long PMM waits when connecting to the instance. Leave empty to use the default of 5s.
 
     Also this section contains a database-specific flag, which would allow Query Analytics for the selected remote database:
 

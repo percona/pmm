@@ -57,7 +57,7 @@ You can add your Valkey or Redis service to PMM either through the user interfac
         - **Agents**: Select the PMM agent that should monitor this instance.
         - **Hostname/Port**: The address and port (default: `6379`) of your instance.
         - **Username/Password**: Authentication credentials (if ACL is enabled).
-        - **Connection timeout**: How long PMM should wait when connecting to this service. Increase this for remote or high-latency databases. If the connection times out, PMM retries the next time it collects metrics. Leave empty to use the default of 2s.
+        - **Connection timeout**: How long PMM should wait when connecting to this service. Increase this for remote or high-latency databases. If the connection times out, PMM retries the next time it collects metrics. Leave empty to use the default of 3s.
 
     4. Configure **Labels** (optional): Add descriptive tags. For clustered/replicated setups, ensure you set the `role` label here (e.g., `role:primary`).
         
