@@ -18,7 +18,6 @@ package agents
 import (
 	"context"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -33,6 +32,8 @@ import (
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/utils/logger"
 )
+
+const loggerComponentNameServiceInfoBroker = "service-info-broker"
 
 // ServiceInfoBroker helps query various information from services.
 type ServiceInfoBroker struct {
@@ -145,7 +146,7 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 
 // GetInfoFromService sends a request to pmm-agent to query information from a service.
 func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Querier, service *models.Service, agent *models.Agent) error {
-	l := logger.Get(ctx)
+	l := logger.Get(ctx).WithField("component", loggerComponentNameServiceInfoBroker)
 	start := time.Now()
 	defer func() {
 		if dur := time.Since(start); dur > 4*time.Second {
@@ -169,11 +170,8 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 		return err
 	}
 
-	sanitizedDSN := request.Dsn
-	for _, word := range redactWords(agent) {
-		sanitizedDSN = strings.ReplaceAll(sanitizedDSN, word, "****")
-	}
-	l.Infof("ServiceInfoRequest: type: %s, DSN: %s timeout: %s.", request.Type, sanitizedDSN, request.Timeout)
+	l.Infof("ServiceInfoRequest: type: %s, DSN: %s timeout: %s.",
+		request.Type, logger.MaskDSN(request.Dsn), request.Timeout)
 
 	resp, err := pmmAgent.channel.SendAndWaitResponse(request)
 	if err != nil {
@@ -237,7 +235,7 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 }
 
 func updateServiceVersion(ctx context.Context, q *reform.Querier, resp agentv1.AgentResponsePayload, service *models.Service) error {
-	l := logger.Get(ctx)
+	l := logger.Get(ctx).WithField("component", loggerComponentNameServiceInfoBroker)
 
 	version := resp.(*agentv1.ServiceInfoResponse).Version //nolint:forcetypeassert
 	if version == "" {
