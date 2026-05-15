@@ -330,7 +330,7 @@ type AddRDSServiceParams struct {
 	// AWS Secret key.
 	AwsSecretKey string `protobuf:"bytes,16,opt,name=aws_secret_key,json=awsSecretKey,proto3" json:"aws_secret_key,omitempty"`
 	// AWS IAM role ARN to assume for RDS metrics discovery and collection.
-	AwsRoleArn string `protobuf:"bytes,35,opt,name=aws_role_arn,json=awsRoleArn,proto3" json:"aws_role_arn,omitempty"`
+	AwsRoleArn string `protobuf:"bytes,36,opt,name=aws_role_arn,json=awsRoleArn,proto3" json:"aws_role_arn,omitempty"`
 	// If true, adds rds_exporter.
 	RdsExporter bool `protobuf:"varint,17,opt,name=rds_exporter,json=rdsExporter,proto3" json:"rds_exporter,omitempty"`
 	// If true, adds qan-mysql-perfschema-agent.
@@ -778,7 +778,7 @@ const file_management_v1_rds_proto_rawDesc = "" +
 	"\faws_role_arn\x18\x03 \x01(\tR\n" +
 	"awsRoleArn\"^\n" +
 	"\x13DiscoverRDSResponse\x12G\n" +
-	"\rrds_instances\x18\x01 \x03(\v2\".management.v1.DiscoverRDSInstanceR\frdsInstances\"\x8e\r\n" +
+	"\rrds_instances\x18\x01 \x03(\v2\".management.v1.DiscoverRDSInstanceR\frdsInstances\"\xb0\r\n" +
 	"\x13AddRDSServiceParams\x12\x1f\n" +
 	"\x06region\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06region\x12\x0e\n" +
 	"\x02az\x18\x02 \x01(\tR\x02az\x12(\n" +
@@ -801,7 +801,7 @@ const file_management_v1_rds_proto_rawDesc = "" +
 	"\bpassword\x18\x0e \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x12*\n" +
 	"\x0eaws_access_key\x18\x0f \x01(\tB\x04\x88\xb5\x18\x01R\fawsAccessKey\x12*\n" +
 	"\x0eaws_secret_key\x18\x10 \x01(\tB\x04\x88\xb5\x18\x01R\fawsSecretKey\x12 \n" +
-	"\faws_role_arn\x18# \x01(\tR\n" +
+	"\faws_role_arn\x18$ \x01(\tR\n" +
 	"awsRoleArn\x12!\n" +
 	"\frds_exporter\x18\x11 \x01(\bR\vrdsExporter\x120\n" +
 	"\x14qan_mysql_perfschema\x18\x12 \x01(\bR\x12qanMysqlPerfschema\x12Y\n" +
