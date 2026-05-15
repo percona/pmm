@@ -62,6 +62,9 @@ export { default as LoadableChildren } from './loadable-children';
 export * from './buttons/menu-button';
 export { default as MenuButton } from './buttons/menu-button';
 
+export * from './nav-item';
+export { default as NavItem } from './nav-item';
+
 export * from './progress-bar';
 export { default as ProgressBar } from './progress-bar';
 
