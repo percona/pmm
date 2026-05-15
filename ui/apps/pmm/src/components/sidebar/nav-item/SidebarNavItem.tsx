@@ -23,6 +23,7 @@ const SidebarNavItem: FC<NavItemProps> = ({
   item,
   drawerOpen,
   level = 0,
+  onClick,
 }) => {
   const active = useMemo(
     () => activeItem === item || hasChildMatch(item, activeItem),
@@ -59,6 +60,20 @@ const SidebarNavItem: FC<NavItemProps> = ({
     if (drawerOpen) {
       setIsOpen(true);
     }
+
+    if (onClick) {
+      onClick();
+    }
+  };
+
+  const handleItemClick = () => {
+    if (linkProps.onClick) {
+      linkProps.onClick();
+    }
+
+    if (onClick) {
+      onClick();
+    }
   };
 
   if (item.children?.length) {
@@ -93,8 +108,8 @@ const SidebarNavItem: FC<NavItemProps> = ({
                 level === 0 && styles.navItemRootCollapsible,
                 !drawerOpen && { justifyContent: 'center' },
               ]}
-              onClick={handleOpenCollapsible}
               {...(linkProps as Omit<typeof linkProps, 'component'> & { component?: React.ElementType })}
+              onClick={handleOpenCollapsible}
               data-testid={dataTestid}
               data-navlevel={level}
             />
@@ -133,6 +148,7 @@ const SidebarNavItem: FC<NavItemProps> = ({
                 activeItem={activeItem}
                 drawerOpen={drawerOpen}
                 level={level + 1}
+                onClick={handleItemClick}
               />
             ))}
           </List>
@@ -200,6 +216,7 @@ const SidebarNavItem: FC<NavItemProps> = ({
             !drawerOpen && { justifyContent: 'center' },
           ]}
           {...(linkProps as Omit<typeof linkProps, 'component'> & { component?: React.ElementType })}
+          onClick={handleItemClick}
           data-testid={dataTestid}
           data-navlevel={level}
         />

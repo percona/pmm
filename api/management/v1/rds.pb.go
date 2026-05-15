@@ -748,7 +748,7 @@ const file_management_v1_rds_proto_rawDesc = "" +
 	"\x0eaws_access_key\x18\x01 \x01(\tB\x04\x88\xb5\x18\x01R\fawsAccessKey\x12*\n" +
 	"\x0eaws_secret_key\x18\x02 \x01(\tB\x04\x88\xb5\x18\x01R\fawsSecretKey\"^\n" +
 	"\x13DiscoverRDSResponse\x12G\n" +
-	"\rrds_instances\x18\x01 \x03(\v2\".management.v1.DiscoverRDSInstanceR\frdsInstances\"\xb6\f\n" +
+	"\rrds_instances\x18\x01 \x03(\v2\".management.v1.DiscoverRDSInstanceR\frdsInstances\"\xba\f\n" +
 	"\x13AddRDSServiceParams\x12\x1f\n" +
 	"\x06region\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06region\x12\x0e\n" +
 	"\x02az\x18\x02 \x01(\tR\x02az\x12(\n" +
@@ -766,8 +766,8 @@ const file_management_v1_rds_proto_rawDesc = "" +
 	"\venvironment\x18\n" +
 	" \x01(\tR\venvironment\x12\x18\n" +
 	"\acluster\x18\v \x01(\tR\acluster\x12'\n" +
-	"\x0freplication_set\x18\f \x01(\tR\x0ereplicationSet\x12#\n" +
-	"\busername\x18\r \x01(\tB\a\xfaB\x04r\x02\x10\x01R\busername\x12 \n" +
+	"\x0freplication_set\x18\f \x01(\tR\x0ereplicationSet\x12'\n" +
+	"\busername\x18\r \x01(\tB\v\xfaB\x04r\x02\x10\x01\x88\xb5\x18\x01R\busername\x12 \n" +
 	"\bpassword\x18\x0e \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x12*\n" +
 	"\x0eaws_access_key\x18\x0f \x01(\tB\x04\x88\xb5\x18\x01R\fawsAccessKey\x12*\n" +
 	"\x0eaws_secret_key\x18\x10 \x01(\tB\x04\x88\xb5\x18\x01R\fawsSecretKey\x12!\n" +

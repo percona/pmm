@@ -130,7 +130,7 @@ message UniversalAgent {
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 35;
   // HTTP basic auth username for collecting metrics.
-  string username = 36;
+  string username = 36 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Last update timestamp.
   google.protobuf.Timestamp updated_at = 37;
   // Agent version.

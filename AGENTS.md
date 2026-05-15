@@ -122,7 +122,6 @@ Relationships:
 |-----------|---------|
 | `/docs` | API documentation and process docs (tech stack, best practices, git workflow) |
 | `/documentation` | User-facing documentation (MkDocs) |
-| `/tools` | Development tools (mockery, buf, golangci-lint, etc.) |
 | `/version` | Version info and feature flags |
 | `/dev` | Development utilities (e.g., mongo-rs-backups) |
 | `/.devcontainer` | Devcontainer setup for local development |
@@ -206,7 +205,7 @@ Relationships:
 
 ### Code Generation
 - Protobuf/gRPC: `make gen` from repo root
-- reform ORM: `//go:generate ../../bin/reform` (pmm-managed only)
+- reform ORM: `//go:generate go tool reform` (pmm-managed only)
 - Mocks: `mockery` per `.mockery.yaml`
 - **Never edit generated files** (`.pb.go`, `.pb.gw.go`, `*_reform.go`, `*.pb.validate.go`, swagger specs, `json/client/`)
 

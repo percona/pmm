@@ -48,9 +48,8 @@ clean:                          ## Remove generated files
 
 # generate stub models for perfschema QAN agent; hidden from help as it is not generally useful
 gen-init:
-	go build -modfile=tools/go.mod -o ../bin/reform-db gopkg.in/reform.v1/reform-db
 	mkdir tmp-mysql
-	../bin/reform-db -db-driver=mysql -db-source='root:root-password@tcp(127.0.0.1:3306)/performance_schema' init tmp-mysql
+	go tool reform-db -db-driver=mysql -db-source='root:root-password@tcp(127.0.0.1:3306)/performance_schema' init tmp-mysql
 
 install:                        ## Install pmm-admin binary
 	go build -v -ldflags "$(VERSION_FLAGS)" -o $(GOBIN)/pmm-agent
@@ -88,10 +87,10 @@ fuzz-postgres-parser:   ## Run fuzzer for agents/postgres/parser package
 
 bench:                          ## Run benchmarks
 	go test -bench=. -benchtime=1s -count=5 -cpu=1 -timeout=30m -failfast github.com/percona/pmm/agent/agents/mysql/slowlog/parser | tee slowlog_parser_new.bench
-	../bin/benchstat slowlog_parser_old.bench slowlog_parser_new.bench
+	go tool benchstat slowlog_parser_old.bench slowlog_parser_new.bench
 
 	go test -bench=. -benchtime=1s -count=5 -cpu=1 -timeout=30m -failfast github.com/percona/pmm/agent/agents/postgres/parser | tee postgres_parser_new.bench
-	../bin/benchstat postgres_parser_old.bench postgres_parser_new.bench
+	go tool benchstat postgres_parser_old.bench postgres_parser_new.bench
 
 RUN_FLAGS = --config-file=pmm-agent-dev.yaml
 
