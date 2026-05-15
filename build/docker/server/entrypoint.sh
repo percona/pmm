@@ -6,7 +6,7 @@ declare CURRENT_GID CURRENT_UID CURRENT_USER
 
 # Returns 0 (true) if the given variable is set to "1" or "true".
 is_enabled() { [ "$1" = "1" ] || [ "$1" = "true" ]; }
-declare POSTGRES_DATA_DIR="/srv/postgres14"
+declare POSTGRES_DATA_DIR="/srv/postgres18"
 declare POSTGRES_PASSWORD_FILE="/srv/.postgres_password"
 
 # Get current user info - handle cases where user doesn't exist in passwd
@@ -113,12 +113,12 @@ if [ ! -f "$DIST_FILE" ]; then
         chmod 600 "$POSTGRES_PASSWORD_FILE"
 
         # Initialize database with password authentication
-        /usr/pgsql-14/bin/initdb -D "$POSTGRES_DATA_DIR" --auth-host=scram-sha-256 --auth-local=trust --username=postgres --pwfile="$POSTGRES_PASSWORD_FILE"
+        /usr/pgsql-18/bin/initdb -D "$POSTGRES_DATA_DIR" --auth-host=scram-sha-256 --auth-local=trust --username=postgres --pwfile="$POSTGRES_PASSWORD_FILE"
 
         echo "Enabling pg_stat_statements extension for PostgreSQL..."
-        /usr/pgsql-14/bin/pg_ctl start -D "$POSTGRES_DATA_DIR" -o "-c logging_collector=off"
+        /usr/pgsql-18/bin/pg_ctl start -D "$POSTGRES_DATA_DIR" -o "-c logging_collector=off"
         PGPASSWORD="$POSTGRES_PASSWORD" /usr/bin/psql -U postgres -h /run/postgresql -d postgres -c 'CREATE EXTENSION pg_stat_statements SCHEMA public'
-        /usr/pgsql-14/bin/pg_ctl stop -D "$POSTGRES_DATA_DIR"
+        /usr/pgsql-18/bin/pg_ctl stop -D "$POSTGRES_DATA_DIR"
 
         # Clean up password from environment
         unset POSTGRES_PASSWORD

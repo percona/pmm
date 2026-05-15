@@ -64,7 +64,7 @@ func TestDownloadLogs(t *testing.T) {
 		"pmm-version.txt",
 		"pmm.conf",
 		"pmm.ini",
-		"postgresql14.log",
+		"postgresql18.log",
 		"prometheus.base.yml",
 		"qan-api2.ini",
 		"qan-api2.log",

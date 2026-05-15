@@ -47,7 +47,7 @@ const (
 	// PMMServerPostgreSQLServiceName is a special Service Name representing PMM Server's PostgreSQL Service.
 	PMMServerPostgreSQLServiceName = "pmm-server-postgresql"
 	// - minPGVersion stands for minimal required PostgreSQL server version for PMM Server.
-	minPGVersion float64 = 14
+	minPGVersion float64 = 18
 	// DefaultPostgreSQLAddr represent default local PostgreSQL database server address.
 	DefaultPostgreSQLAddr = "127.0.0.1:5432"
 	// PMMServerPostgreSQLNodeName is a special Node Name representing PMM Server's External PostgreSQL Node.
@@ -1282,11 +1282,51 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		return nil, errCV
 	}
 
+	if err := ensureSchemaGrant(params); err != nil {
+		return nil, err
+	}
+
 	if err := migrateDB(db, params); err != nil {
 		return nil, err
 	}
 
 	return db, nil
+}
+
+// ensureSchemaGrant grants CREATE on the public schema to the database user.
+// PostgreSQL 15+ revoked the default CREATE privilege on the public schema from PUBLIC,
+// so it must be granted explicitly before migrations can create tables.
+// Skipped for HA mode and when the embedded postgres password file is absent (external PostgreSQL).
+func ensureSchemaGrant(params SetupDBParams) error {
+	if params.HANodeID != "" {
+		return nil
+	}
+
+	if params.Logf != nil {
+		params.Logf("Ensuring CREATE privilege on schema public for %s", params.Username)
+	}
+
+	passwordFile := "/srv/.postgres_password" //nolint:gosec
+	passwordBytes, err := os.ReadFile(passwordFile)
+	if err != nil {
+		if os.IsNotExist(err) {
+			// No password file means external PostgreSQL — skip.
+			return nil
+		}
+		return fmt.Errorf("failed to read postgres password from %s: %w", passwordFile, err)
+	}
+
+	db, err := OpenDB(SetupDBParams{Address: params.Address, Name: params.Name, Username: "postgres", Password: string(passwordBytes)})
+	if err != nil {
+		return fmt.Errorf("failed to open the database: %w", err)
+	}
+	defer db.Close() //nolint:errcheck
+
+	_, err = db.Exec(fmt.Sprintf(`GRANT CREATE ON SCHEMA public TO "%s"`, params.Username))
+	if err != nil {
+		return fmt.Errorf("failed to grant CREATE on schema public to %s: %w", params.Username, err)
+	}
+	return nil
 }
 
 // EncryptDB encrypts a set of columns in a specific database and table.
@@ -1418,7 +1458,7 @@ func initWithRoot(params SetupDBParams) error {
 			return fmt.Errorf("failed to create user %s: %w", params.Username, err)
 		}
 
-		_, err = db.Exec(`GRANT ALL PRIVILEGES ON DATABASE $1 TO $2`, params.Name, params.Username)
+		_, err = db.Exec(fmt.Sprintf(`GRANT ALL PRIVILEGES ON DATABASE "%s" TO "%s"`, params.Name, params.Username))
 		if err != nil {
 			return fmt.Errorf("failed to grant privileges to user %s on database %s: %w", params.Username, params.Name, err)
 		}
@@ -1432,6 +1472,7 @@ func initWithRoot(params SetupDBParams) error {
 			return fmt.Errorf("failed to update password for user %s: %w", params.Username, err)
 		}
 	}
+
 	return nil
 }
 
