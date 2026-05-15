@@ -180,6 +180,8 @@ func (m *DiscoverRDSRequest) validate(all bool) error {
 
 	// no validation rules for AwsSecretKey
 
+	// no validation rules for AwsRoleArn
+
 	if len(errors) > 0 {
 		return DiscoverRDSRequestMultiError(errors)
 	}
@@ -498,6 +500,8 @@ func (m *AddRDSServiceParams) validate(all bool) error {
 	// no validation rules for AwsAccessKey
 
 	// no validation rules for AwsSecretKey
+
+	// no validation rules for AwsRoleArn
 
 	// no validation rules for RdsExporter
 

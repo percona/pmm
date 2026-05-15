@@ -51,6 +51,7 @@ type AddAgentRDSExporterCommand struct {
 	NodeID                 string            `arg:"" help:"Node identifier"`
 	AWSAccessKey           string            `help:"AWS Access Key ID"`
 	AWSSecretKey           string            `help:"AWS Secret Access Key"`
+	AWSRoleArn             string            `help:"AWS IAM role ARN to assume"`
 	CustomLabels           map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck    bool              `help:"Skip connection check"`
 	DisableBasicMetrics    bool              `help:"Disable basic metrics"`
@@ -70,6 +71,7 @@ func (cmd *AddAgentRDSExporterCommand) RunCmd() (commands.Result, error) {
 				NodeID:                 cmd.NodeID,
 				AWSAccessKey:           cmd.AWSAccessKey,
 				AWSSecretKey:           cmd.AWSSecretKey,
+				AWSRoleArn:             cmd.AWSRoleArn,
 				CustomLabels:           *customLabels,
 				SkipConnectionCheck:    cmd.SkipConnectionCheck,
 				DisableBasicMetrics:    cmd.DisableBasicMetrics,

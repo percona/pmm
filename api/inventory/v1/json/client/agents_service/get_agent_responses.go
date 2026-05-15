@@ -5294,6 +5294,9 @@ type GetAgentOKBodyRDSExporter struct {
 	// AWS Access Key.
 	AWSAccessKey string `json:"aws_access_key,omitempty"`
 
+	// AWS IAM role ARN to assume for RDS metrics collection.
+	AWSRoleArn string `json:"aws_role_arn,omitempty"`
+
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 

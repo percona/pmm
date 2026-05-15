@@ -2801,6 +2801,8 @@ type RDSExporter struct {
 	NodeId string `protobuf:"bytes,4,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
 	// AWS Access Key.
 	AwsAccessKey string `protobuf:"bytes,5,opt,name=aws_access_key,json=awsAccessKey,proto3" json:"aws_access_key,omitempty"`
+	// AWS IAM role ARN to assume for RDS metrics collection.
+	AwsRoleArn string `protobuf:"bytes,27,opt,name=aws_role_arn,json=awsRoleArn,proto3" json:"aws_role_arn,omitempty"`
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `protobuf:"bytes,6,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Actual Agent status (the same for several configurations).
@@ -2886,6 +2888,13 @@ func (x *RDSExporter) GetNodeId() string {
 func (x *RDSExporter) GetAwsAccessKey() string {
 	if x != nil {
 		return x.AwsAccessKey
+	}
+	return ""
+}
+
+func (x *RDSExporter) GetAwsRoleArn() string {
+	if x != nil {
+		return x.AwsRoleArn
 	}
 	return ""
 }
@@ -9377,6 +9386,8 @@ type AddRDSExporterParams struct {
 	AwsAccessKey string `protobuf:"bytes,3,opt,name=aws_access_key,json=awsAccessKey,proto3" json:"aws_access_key,omitempty"`
 	// AWS Secret Key.
 	AwsSecretKey string `protobuf:"bytes,4,opt,name=aws_secret_key,json=awsSecretKey,proto3" json:"aws_secret_key,omitempty"`
+	// AWS IAM role ARN to assume for RDS metrics collection.
+	AwsRoleArn string `protobuf:"bytes,11,opt,name=aws_role_arn,json=awsRoleArn,proto3" json:"aws_role_arn,omitempty"`
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `protobuf:"bytes,5,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Skip connection check.
@@ -9451,6 +9462,13 @@ func (x *AddRDSExporterParams) GetAwsSecretKey() string {
 	return ""
 }
 
+func (x *AddRDSExporterParams) GetAwsRoleArn() string {
+	if x != nil {
+		return x.AwsRoleArn
+	}
+	return ""
+}
+
 func (x *AddRDSExporterParams) GetCustomLabels() map[string]string {
 	if x != nil {
 		return x.CustomLabels
@@ -9507,6 +9525,8 @@ type ChangeRDSExporterParams struct {
 	AwsAccessKey *string `protobuf:"bytes,5,opt,name=aws_access_key,json=awsAccessKey,proto3,oneof" json:"aws_access_key,omitempty"`
 	// AWS Secret Key.
 	AwsSecretKey *string `protobuf:"bytes,6,opt,name=aws_secret_key,json=awsSecretKey,proto3,oneof" json:"aws_secret_key,omitempty"`
+	// AWS IAM role ARN to assume for RDS metrics collection.
+	AwsRoleArn *string `protobuf:"bytes,10,opt,name=aws_role_arn,json=awsRoleArn,proto3,oneof" json:"aws_role_arn,omitempty"`
 	// Disable basic metrics.
 	DisableBasicMetrics *bool `protobuf:"varint,7,opt,name=disable_basic_metrics,json=disableBasicMetrics,proto3,oneof" json:"disable_basic_metrics,omitempty"`
 	// Disable enhanced metrics.
@@ -9585,6 +9605,13 @@ func (x *ChangeRDSExporterParams) GetAwsAccessKey() string {
 func (x *ChangeRDSExporterParams) GetAwsSecretKey() string {
 	if x != nil && x.AwsSecretKey != nil {
 		return *x.AwsSecretKey
+	}
+	return ""
+}
+
+func (x *ChangeRDSExporterParams) GetAwsRoleArn() string {
+	if x != nil && x.AwsRoleArn != nil {
+		return *x.AwsRoleArn
 	}
 	return ""
 }
@@ -11279,14 +11306,16 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\tlog_level\x18\x16 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x96\x06\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb8\x06\n" +
 	"\vRDSExporter\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
 	"pmmAgentId\x12\x1a\n" +
 	"\bdisabled\x18\x03 \x01(\bR\bdisabled\x12\x17\n" +
 	"\anode_id\x18\x04 \x01(\tR\x06nodeId\x12*\n" +
-	"\x0eaws_access_key\x18\x05 \x01(\tB\x04\x88\xb5\x18\x01R\fawsAccessKey\x12P\n" +
+	"\x0eaws_access_key\x18\x05 \x01(\tB\x04\x88\xb5\x18\x01R\fawsAccessKey\x12 \n" +
+	"\faws_role_arn\x18\x1b \x01(\tR\n" +
+	"awsRoleArn\x12P\n" +
 	"\rcustom_labels\x18\x06 \x03(\v2+.inventory.v1.RDSExporter.CustomLabelsEntryR\fcustomLabels\x121\n" +
 	"\x06status\x18\n" +
 	" \x01(\x0e2\x19.inventory.v1.AgentStatusR\x06status\x12\x1f\n" +
@@ -12125,13 +12154,15 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\n" +
 	"\b_tls_keyB\f\n" +
 	"\n" +
-	"_log_level\"\xd1\x04\n" +
+	"_log_level\"\xf3\x04\n" +
 	"\x14AddRDSExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12 \n" +
 	"\anode_id\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06nodeId\x12*\n" +
 	"\x0eaws_access_key\x18\x03 \x01(\tB\x04\x88\xb5\x18\x01R\fawsAccessKey\x12*\n" +
-	"\x0eaws_secret_key\x18\x04 \x01(\tB\x04\x88\xb5\x18\x01R\fawsSecretKey\x12Y\n" +
+	"\x0eaws_secret_key\x18\x04 \x01(\tB\x04\x88\xb5\x18\x01R\fawsSecretKey\x12 \n" +
+	"\faws_role_arn\x18\v \x01(\tR\n" +
+	"awsRoleArn\x12Y\n" +
 	"\rcustom_labels\x18\x05 \x03(\v24.inventory.v1.AddRDSExporterParams.CustomLabelsEntryR\fcustomLabels\x122\n" +
 	"\x15skip_connection_check\x18\x06 \x01(\bR\x13skipConnectionCheck\x122\n" +
 	"\x15disable_basic_metrics\x18\a \x01(\bR\x13disableBasicMetrics\x128\n" +
@@ -12141,22 +12172,26 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	" \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xa9\x05\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe1\x05\n" +
 	"\x17ChangeRDSExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
 	"\x13enable_push_metrics\x18\x03 \x01(\bH\x02R\x11enablePushMetrics\x88\x01\x01\x12K\n" +
 	"\x13metrics_resolutions\x18\x04 \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x12/\n" +
 	"\x0eaws_access_key\x18\x05 \x01(\tB\x04\x88\xb5\x18\x01H\x03R\fawsAccessKey\x88\x01\x01\x12/\n" +
-	"\x0eaws_secret_key\x18\x06 \x01(\tB\x04\x88\xb5\x18\x01H\x04R\fawsSecretKey\x88\x01\x01\x127\n" +
-	"\x15disable_basic_metrics\x18\a \x01(\bH\x05R\x13disableBasicMetrics\x88\x01\x01\x12=\n" +
-	"\x18disable_enhanced_metrics\x18\b \x01(\bH\x06R\x16disableEnhancedMetrics\x88\x01\x01\x128\n" +
-	"\tlog_level\x18\t \x01(\x0e2\x16.inventory.v1.LogLevelH\aR\blogLevel\x88\x01\x01B\t\n" +
+	"\x0eaws_secret_key\x18\x06 \x01(\tB\x04\x88\xb5\x18\x01H\x04R\fawsSecretKey\x88\x01\x01\x12%\n" +
+	"\faws_role_arn\x18\n" +
+	" \x01(\tH\x05R\n" +
+	"awsRoleArn\x88\x01\x01\x127\n" +
+	"\x15disable_basic_metrics\x18\a \x01(\bH\x06R\x13disableBasicMetrics\x88\x01\x01\x12=\n" +
+	"\x18disable_enhanced_metrics\x18\b \x01(\bH\aR\x16disableEnhancedMetrics\x88\x01\x01\x128\n" +
+	"\tlog_level\x18\t \x01(\x0e2\x16.inventory.v1.LogLevelH\bR\blogLevel\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\x11\n" +
 	"\x0f_aws_access_keyB\x11\n" +
-	"\x0f_aws_secret_keyB\x18\n" +
+	"\x0f_aws_secret_keyB\x0f\n" +
+	"\r_aws_role_arnB\x18\n" +
 	"\x16_disable_basic_metricsB\x1b\n" +
 	"\x19_disable_enhanced_metricsB\f\n" +
 	"\n" +

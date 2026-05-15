@@ -1508,6 +1508,7 @@ func (as *AgentsService) AddRDSExporter(ctx context.Context, p *inventoryv1.AddR
 			AWSOptions: models.AWSOptions{
 				AWSAccessKey:               p.AwsAccessKey,
 				AWSSecretKey:               p.AwsSecretKey,
+				AWSRoleARN:                 p.AwsRoleArn,
 				RDSBasicMetricsDisabled:    p.DisableBasicMetrics,
 				RDSEnhancedMetricsDisabled: p.DisableEnhancedMetrics,
 			},
@@ -1557,6 +1558,7 @@ func (as *AgentsService) ChangeRDSExporter(ctx context.Context, agentID string, 
 	params.AWSOptions = &models.ChangeAWSOptions{
 		AWSAccessKey:               p.AwsAccessKey,
 		AWSSecretKey:               p.AwsSecretKey,
+		AWSRoleARN:                 p.AwsRoleArn,
 		RDSBasicMetricsDisabled:    p.DisableBasicMetrics,
 		RDSEnhancedMetricsDisabled: p.DisableEnhancedMetrics,
 	}

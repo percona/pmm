@@ -8535,6 +8535,9 @@ type AddServiceOKBodyRDSRDSExporter struct {
 	// AWS Access Key.
 	AWSAccessKey string `json:"aws_access_key,omitempty"`
 
+	// AWS IAM role ARN to assume for RDS metrics collection.
+	AWSRoleArn string `json:"aws_role_arn,omitempty"`
+
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
@@ -11834,6 +11837,9 @@ type AddServiceParamsBodyRDS struct {
 
 	// AWS Secret key.
 	AWSSecretKey string `json:"aws_secret_key,omitempty"`
+
+	// AWS IAM role ARN to assume for RDS metrics discovery and collection.
+	AWSRoleArn string `json:"aws_role_arn,omitempty"`
 
 	// If true, adds rds_exporter.
 	RDSExporter bool `json:"rds_exporter,omitempty"`

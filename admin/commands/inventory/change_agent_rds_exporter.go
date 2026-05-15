@@ -72,6 +72,7 @@ type ChangeAgentRDSExporterCommand struct {
 	// AWS credentials
 	AWSAccessKey *string `help:"AWS access key"`
 	AWSSecretKey *string `help:"AWS secret key"`
+	AWSRoleArn   *string `help:"AWS IAM role ARN to assume"`
 
 	// RDS-specific options
 	DisableBasicMetrics    *bool `help:"Disable basic metrics"`
@@ -95,6 +96,7 @@ func (cmd *ChangeAgentRDSExporterCommand) RunCmd() (commands.Result, error) {
 		Enable:                 cmd.Enable,
 		AWSAccessKey:           cmd.AWSAccessKey,
 		AWSSecretKey:           cmd.AWSSecretKey,
+		AWSRoleArn:             cmd.AWSRoleArn,
 		DisableBasicMetrics:    cmd.DisableBasicMetrics,
 		DisableEnhancedMetrics: cmd.DisableEnhancedMetrics,
 		EnablePushMetrics:      cmd.PushMetrics,
@@ -133,6 +135,9 @@ func (cmd *ChangeAgentRDSExporterCommand) RunCmd() (commands.Result, error) {
 	}
 	if cmd.AWSSecretKey != nil {
 		changes = append(changes, "updated AWS secret key")
+	}
+	if cmd.AWSRoleArn != nil {
+		changes = append(changes, "updated AWS role ARN")
 	}
 	if cmd.DisableBasicMetrics != nil {
 		if *cmd.DisableBasicMetrics {

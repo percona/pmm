@@ -2581,6 +2581,8 @@ func (m *RDSExporter) validate(all bool) error {
 
 	// no validation rules for AwsAccessKey
 
+	// no validation rules for AwsRoleArn
+
 	// no validation rules for CustomLabels
 
 	// no validation rules for Status
@@ -12997,6 +12999,8 @@ func (m *AddRDSExporterParams) validate(all bool) error {
 
 	// no validation rules for AwsSecretKey
 
+	// no validation rules for AwsRoleArn
+
 	// no validation rules for CustomLabels
 
 	// no validation rules for SkipConnectionCheck
@@ -13186,6 +13190,10 @@ func (m *ChangeRDSExporterParams) validate(all bool) error {
 
 	if m.AwsSecretKey != nil {
 		// no validation rules for AwsSecretKey
+	}
+
+	if m.AwsRoleArn != nil {
+		// no validation rules for AwsRoleArn
 	}
 
 	if m.DisableBasicMetrics != nil {

@@ -1717,13 +1717,18 @@
                         "type": "string",
                         "x-order": 4
                       },
+                      "aws_role_arn": {
+                        "description": "AWS IAM role ARN to assume for RDS metrics collection.",
+                        "type": "string",
+                        "x-order": 5
+                      },
                       "custom_labels": {
                         "description": "Custom user-assigned labels.",
                         "type": "object",
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 5
+                        "x-order": 6
                       },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -1739,33 +1744,33 @@
                           "AGENT_STATUS_DONE",
                           "AGENT_STATUS_UNKNOWN"
                         ],
-                        "x-order": 6
+                        "x-order": 7
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics (the same for several configurations).",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 7
+                        "x-order": 8
                       },
                       "basic_metrics_disabled": {
                         "description": "Basic metrics are disabled.",
                         "type": "boolean",
-                        "x-order": 8
+                        "x-order": 9
                       },
                       "enhanced_metrics_disabled": {
                         "description": "Enhanced metrics are disabled.",
                         "type": "boolean",
-                        "x-order": 9
+                        "x-order": 10
                       },
                       "push_metrics_enabled": {
                         "description": "True if exporter uses push metrics mode.",
                         "type": "boolean",
-                        "x-order": 10
+                        "x-order": 11
                       },
                       "process_exec_path": {
                         "description": "Path to exec process.",
                         "type": "string",
-                        "x-order": 11
+                        "x-order": 12
                       },
                       "log_level": {
                         "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -1780,13 +1785,13 @@
                           "LOG_LEVEL_INFO",
                           "LOG_LEVEL_DEBUG"
                         ],
-                        "x-order": 12
+                        "x-order": 13
                       },
                       "auto_discovery_limit": {
                         "description": "Limit of databases for auto-discovery.",
                         "type": "integer",
                         "format": "int32",
-                        "x-order": 13
+                        "x-order": 14
                       },
                       "metrics_resolutions": {
                         "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -1808,7 +1813,7 @@
                             "x-order": 2
                           }
                         },
-                        "x-order": 14
+                        "x-order": 15
                       }
                     }
                   },
@@ -2884,33 +2889,38 @@
                       "type": "string",
                       "x-order": 3
                     },
+                    "aws_role_arn": {
+                      "description": "AWS IAM role ARN to assume for RDS metrics collection.",
+                      "type": "string",
+                      "x-order": 4
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 4
+                      "x-order": 5
                     },
                     "skip_connection_check": {
                       "description": "Skip connection check.",
                       "type": "boolean",
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "disable_basic_metrics": {
                       "description": "Disable basic metrics.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 7
                     },
                     "disable_enhanced_metrics": {
                       "description": "Disable enhanced metrics.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "push_metrics": {
                       "description": "Enables push metrics mode for exporter.",
                       "type": "boolean",
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "log_level": {
                       "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -2925,7 +2935,7 @@
                         "LOG_LEVEL_INFO",
                         "LOG_LEVEL_DEBUG"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     }
                   },
                   "x-order": 7
@@ -4721,13 +4731,18 @@
                       "type": "string",
                       "x-order": 4
                     },
+                    "aws_role_arn": {
+                      "description": "AWS IAM role ARN to assume for RDS metrics collection.",
+                      "type": "string",
+                      "x-order": 5
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -4743,33 +4758,33 @@
                         "AGENT_STATUS_DONE",
                         "AGENT_STATUS_UNKNOWN"
                       ],
-                      "x-order": 6
+                      "x-order": 7
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics (the same for several configurations).",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "basic_metrics_disabled": {
                       "description": "Basic metrics are disabled.",
                       "type": "boolean",
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "enhanced_metrics_disabled": {
                       "description": "Enhanced metrics are disabled.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "log_level": {
                       "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -4784,13 +4799,13 @@
                         "LOG_LEVEL_INFO",
                         "LOG_LEVEL_DEBUG"
                       ],
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "auto_discovery_limit": {
                       "description": "Limit of databases for auto-discovery.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -4812,7 +4827,7 @@
                           "x-order": 2
                         }
                       },
-                      "x-order": 14
+                      "x-order": 15
                     }
                   },
                   "x-order": 7
@@ -7440,13 +7455,18 @@
                       "type": "string",
                       "x-order": 4
                     },
+                    "aws_role_arn": {
+                      "description": "AWS IAM role ARN to assume for RDS metrics collection.",
+                      "type": "string",
+                      "x-order": 5
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -7462,33 +7482,33 @@
                         "AGENT_STATUS_DONE",
                         "AGENT_STATUS_UNKNOWN"
                       ],
-                      "x-order": 6
+                      "x-order": 7
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics (the same for several configurations).",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "basic_metrics_disabled": {
                       "description": "Basic metrics are disabled.",
                       "type": "boolean",
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "enhanced_metrics_disabled": {
                       "description": "Enhanced metrics are disabled.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "log_level": {
                       "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -7503,13 +7523,13 @@
                         "LOG_LEVEL_INFO",
                         "LOG_LEVEL_DEBUG"
                       ],
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "auto_discovery_limit": {
                       "description": "Limit of databases for auto-discovery.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -7531,7 +7551,7 @@
                           "x-order": 2
                         }
                       },
-                      "x-order": 14
+                      "x-order": 15
                     }
                   },
                   "x-order": 14
@@ -8805,17 +8825,23 @@
                       "x-nullable": true,
                       "x-order": 5
                     },
+                    "aws_role_arn": {
+                      "description": "AWS IAM role ARN to assume for RDS metrics collection.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 6
+                    },
                     "disable_basic_metrics": {
                       "description": "Disable basic metrics.",
                       "type": "boolean",
                       "x-nullable": true,
-                      "x-order": 6
+                      "x-order": 7
                     },
                     "disable_enhanced_metrics": {
                       "description": "Disable enhanced metrics.",
                       "type": "boolean",
                       "x-nullable": true,
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "log_level": {
                       "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -8831,7 +8857,7 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-nullable": true,
-                      "x-order": 8
+                      "x-order": 9
                     }
                   },
                   "x-order": 6
@@ -10883,13 +10909,18 @@
                       "type": "string",
                       "x-order": 4
                     },
+                    "aws_role_arn": {
+                      "description": "AWS IAM role ARN to assume for RDS metrics collection.",
+                      "type": "string",
+                      "x-order": 5
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -10905,33 +10936,33 @@
                         "AGENT_STATUS_DONE",
                         "AGENT_STATUS_UNKNOWN"
                       ],
-                      "x-order": 6
+                      "x-order": 7
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics (the same for several configurations).",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "basic_metrics_disabled": {
                       "description": "Basic metrics are disabled.",
                       "type": "boolean",
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "enhanced_metrics_disabled": {
                       "description": "Enhanced metrics are disabled.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "log_level": {
                       "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -10946,13 +10977,13 @@
                         "LOG_LEVEL_INFO",
                         "LOG_LEVEL_DEBUG"
                       ],
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "auto_discovery_limit": {
                       "description": "Limit of databases for auto-discovery.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -10974,7 +11005,7 @@
                           "x-order": 2
                         }
                       },
-                      "x-order": 14
+                      "x-order": 15
                     }
                   },
                   "x-order": 6

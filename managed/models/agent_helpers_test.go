@@ -917,6 +917,7 @@ func TestAgentHelpers(t *testing.T) {
 				AWSOptions: models.AWSOptions{
 					AWSAccessKey:               "old-access-key",
 					AWSSecretKey:               "old-secret-key",
+					AWSRoleARN:                 "old-role-arn",
 					RDSBasicMetricsDisabled:    false,
 					RDSEnhancedMetricsDisabled: false,
 				},
@@ -938,6 +939,7 @@ func TestAgentHelpers(t *testing.T) {
 			require.NoError(t, err)
 			assert.Equal(t, "new-access-key", agent.AWSOptions.AWSAccessKey)
 			assert.Equal(t, "new-secret-key", agent.AWSOptions.AWSSecretKey)
+			assert.Equal(t, "new-role-arn", agent.AWSOptions.AWSRoleARN)
 			assert.True(t, agent.AWSOptions.RDSBasicMetricsDisabled)
 			assert.True(t, agent.AWSOptions.RDSEnhancedMetricsDisabled)
 
@@ -946,6 +948,7 @@ func TestAgentHelpers(t *testing.T) {
 			require.NoError(t, err)
 			assert.Equal(t, "new-access-key", persistedAgent.AWSOptions.AWSAccessKey)
 			assert.Equal(t, "new-secret-key", persistedAgent.AWSOptions.AWSSecretKey)
+			assert.Equal(t, "new-role-arn", persistedAgent.AWSOptions.AWSRoleARN)
 			assert.True(t, persistedAgent.AWSOptions.RDSBasicMetricsDisabled)
 			assert.True(t, persistedAgent.AWSOptions.RDSEnhancedMetricsDisabled)
 		})
