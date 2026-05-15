@@ -60,8 +60,8 @@ type Service struct {
 	baseURL          *url.URL
 	client           *http.Client
 
-	params                    *models.VictoriaMetricsParams
-	clickhouseBuiltinDisabled bool
+	params         *models.VictoriaMetricsParams
+	clickhouseHost string
 
 	l         *logrus.Entry
 	reloadCh  chan struct{}
@@ -73,7 +73,7 @@ func NewVictoriaMetrics(
 	scrapeConfigPath string,
 	db *reform.DB,
 	params *models.VictoriaMetricsParams,
-	clickhouseBuiltinDisabled bool,
+	clickhouseHost string,
 	haService haService,
 ) (*Service, error) {
 	u, err := url.Parse(params.URL())
@@ -82,15 +82,15 @@ func NewVictoriaMetrics(
 	}
 
 	return &Service{
-		scrapeConfigPath:          scrapeConfigPath,
-		db:                        db,
-		baseURL:                   u,
-		client:                    &http.Client{}, // TODO instrument with utils/irt; see vmalert package https://jira.percona.com/browse/PMM-7229
-		params:                    params,
-		clickhouseBuiltinDisabled: clickhouseBuiltinDisabled,
-		l:                         logrus.WithField("component", "victoriametrics"),
-		reloadCh:                  make(chan struct{}, 1),
-		haService:                 haService,
+		scrapeConfigPath: scrapeConfigPath,
+		db:               db,
+		baseURL:          u,
+		client:           &http.Client{}, // TODO instrument with utils/irt; see vmalert package https://jira.percona.com/browse/PMM-7229
+		params:           params,
+		clickhouseHost:   clickhouseHost,
+		l:                logrus.WithField("component", "victoriametrics"),
+		reloadCh:         make(chan struct{}, 1),
+		haService:        haService,
 	}, nil
 }
 

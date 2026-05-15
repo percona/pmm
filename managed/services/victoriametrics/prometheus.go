@@ -272,7 +272,7 @@ func addInternalServicesToScrape(s models.MetricsResolutions, svc *Service, pmmS
 		scrapeConfigForQANAPI2(s.MR, pmmServerNodeName),
 	}
 
-	if svc.params.ExternalVM() || svc.clickhouseBuiltinDisabled {
+	if svc.params.ExternalVM() || svc.clickhouseHost != "127.0.0.1" {
 		return cfg
 	}
 

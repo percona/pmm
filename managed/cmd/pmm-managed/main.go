@@ -729,7 +729,6 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PMM_CLICKHOUSE_ADDR").String()
 	clickhouseUsernameF := kingpin.Flag("clickhouse-username", "Clickhouse database user").Default("default").Envar("PMM_CLICKHOUSE_USER").String()
 	clickhousePasswordF := kingpin.Flag("clickhouse-password", "Clickhouse database user password").Default("clickhouse").Envar("PMM_CLICKHOUSE_PASSWORD").String()
-	clickhouseBuiltinDisabledF := kingpin.Flag("clickhouse-disable-builtin", "Disable the built-in ClickHouse").Envar("PMM_DISABLE_BUILTIN_CLICKHOUSE").Bool()
 
 	watchtowerHostF := kingpin.Flag("watchtower-host", "Watchtower host").Default("http://watchtower:8080").Envar("PMM_WATCHTOWER_HOST").URL()
 
@@ -883,7 +882,11 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	cleaner := clean.New(db)
 	externalRules := vmalert.NewExternalRules()
-	vmdb, err := victoriametrics.NewVictoriaMetrics(*victoriaMetricsConfigF, db, vmParams, *clickhouseBuiltinDisabledF, haService)
+	clickhouseHost, _, err := net.SplitHostPort(*clickhouseAddrF)
+	if err != nil {
+		l.Panicf("Failed to parse clickhouse-addr %q: %s", *clickhouseAddrF, err)
+	}
+	vmdb, err := victoriametrics.NewVictoriaMetrics(*victoriaMetricsConfigF, db, vmParams, clickhouseHost, haService)
 	if err != nil {
 		l.Panicf("VictoriaMetrics service problem: %+v", err)
 	}

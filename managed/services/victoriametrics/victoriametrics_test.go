@@ -48,7 +48,7 @@ func setup(t *testing.T) (*reform.DB, *Service, []byte) {
 	mockHaService := newMockHaService(t)
 	mockHaService.On("Params").Return(&models.HAParams{Enabled: false, NodeID: "pmm-ha-service-0"}).Maybe()
 	mockHaService.On("IsLeader").Return(true).Maybe()
-	svc, err := NewVictoriaMetrics(configPath, db, vmParams, false, mockHaService)
+	svc, err := NewVictoriaMetrics(configPath, db, vmParams, "127.0.0.1", mockHaService)
 	check.NoError(err)
 
 	original, err := os.ReadFile(configPath)
@@ -993,7 +993,7 @@ scrape_configs:
 }
 
 func TestVMConfig_OmitsClickhouseScrape(t *testing.T) {
-	newSvc := func(t *testing.T, builtinDisabled bool, vmURL string) (*reform.DB, *Service) {
+	newSvc := func(t *testing.T, clickhouseHost, vmURL string) (*reform.DB, *Service) {
 		t.Helper()
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
@@ -1004,7 +1004,7 @@ func TestVMConfig_OmitsClickhouseScrape(t *testing.T) {
 		mockHaService.On("Params").Return(&models.HAParams{Enabled: false, NodeID: "pmm-ha-service-0"}).Maybe()
 		mockHaService.On("IsLeader").Return(true).Maybe()
 
-		svc, err := NewVictoriaMetrics(configPath, db, vmParams, builtinDisabled, mockHaService)
+		svc, err := NewVictoriaMetrics(configPath, db, vmParams, clickhouseHost, mockHaService)
 		require.NoError(t, err)
 		require.NoError(t, svc.IsReady(t.Context()))
 		t.Cleanup(func() { _ = db.DBInterface().(*sql.DB).Close() })
@@ -1012,18 +1012,18 @@ func TestVMConfig_OmitsClickhouseScrape(t *testing.T) {
 	}
 
 	cases := []struct {
-		name            string
-		builtinDisabled bool
-		vmURL           string
-		wantClickhouse  bool
+		name           string
+		clickhouseHost string
+		vmURL          string
+		wantClickhouse bool
 	}{
-		{"internal enabled positive control", false, models.VMBaseURL, true},
-		{"builtin disabled", true, models.VMBaseURL, false},
-		{"external VM short-circuits CH scrape", false, "http://vm.external:9090/prometheus/", false},
+		{"internal CH positive control", "127.0.0.1", models.VMBaseURL, true},
+		{"external CH host", "ch.external", models.VMBaseURL, false},
+		{"external VM short-circuits CH scrape", "127.0.0.1", "http://vm.external:9090/prometheus/", false},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			_, svc := newSvc(t, tc.builtinDisabled, tc.vmURL)
+			_, svc := newSvc(t, tc.clickhouseHost, tc.vmURL)
 			cfg, err := svc.marshalConfig(svc.loadBaseConfig())
 			require.NoError(t, err)
 			if tc.wantClickhouse {
