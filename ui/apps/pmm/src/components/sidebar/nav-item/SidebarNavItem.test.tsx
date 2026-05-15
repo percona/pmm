@@ -5,6 +5,7 @@ import { NavItemProps } from './SidebarNavItem.types';
 import { NavItem as NavTreeItem } from 'types/navigation.types';
 import { collapseClasses } from '@mui/material/Collapse';
 import { MemoryRouterProps } from 'react-router-dom';
+import { ThemeContextProvider, pmmThemeOptions } from '@percona/percona-ui';
 
 const TEST_NAV_TREE: NavTreeItem = {
   id: 'level-0',
@@ -44,16 +45,18 @@ const renderNavItem = ({
   activeItem?: NavTreeItem;
 } = {}) =>
   render(
-    wrapWithRouter(
-      <SidebarNavItem
-        activeItem={activeItem}
-        item={TEST_NAV_TREE}
-        drawerOpen={true}
-        level={0}
-        {...props}
-      />,
-      routerProps
-    )
+    <ThemeContextProvider themeOptions={pmmThemeOptions}>
+      {wrapWithRouter(
+        <SidebarNavItem
+          activeItem={activeItem}
+          item={TEST_NAV_TREE}
+          drawerOpen={true}
+          level={0}
+          {...props}
+        />,
+        routerProps
+      )}
+    </ThemeContextProvider>
   );
 
 describe('SidebarNavItem', () => {
@@ -157,14 +160,14 @@ describe('SidebarNavItem', () => {
         },
       ],
     };
-    renderNavItem({
+    const { container } = renderNavItem({
       activeItem: item,
       props: { item },
     });
 
     fireEvent.click(screen.getByTestId('navitem-with-badge-toggle'));
 
-    expect(screen.getByTestId('navitem-dot')).toBeInTheDocument();
+    expect(container.querySelector('.MuiBadge-dot')).toBeInTheDocument();
   });
 
   it('renders divider if item has type "menu-divider"', () => {
