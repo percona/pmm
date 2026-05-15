@@ -413,7 +413,7 @@ After creating your PMM database user, you can quickly add your MySQL service to
     To add the service from the user interface:
     {.power-number}
     
-    1. Go to **PMM Configuration > PMM Inventory > Add Service**.
+    1. Go to **Inventory > Add Service**.
     
     2. Select **MySQL** service type.
     
@@ -427,6 +427,7 @@ After creating your PMM database user, you can quickly add your MySQL service to
         - **Query Source**: Choose between **Slow Log** or **Performance Schema**
         - **PMM Agent**: Select which PMM agent should monitor this instance
         - **Disable query examples**: Check this option to prevent collection of actual query values in QAN. When enabled, PMM will continue to collect query metrics and statistics but will not store the actual query examples with real data values.
+        - **Connection timeout**: How long PMM should wait when connecting to this service. Increase this for remote or high-latency databases. If the connection times out, PMM retries the next time it collects metrics. Leave empty to use the default of 2s.
 
     4. Click **Add Service**.
 
@@ -612,7 +613,7 @@ After adding your MySQL service to PMM, it's important to verify that it's prope
     To verify your service in the web interface:
     {.power-number}
 
-    1. Navigate to **PMM Configuration > PMM Inventory**.
+    1. Navigate to **Inventory > Services**.
     2. In the **Services** tab, find your newly added MySQL service.
     3. Verify the **Service Name** and **Address** match your configuration.
     4. Check the **Status** column shows as *Active*.
