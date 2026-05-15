@@ -12,6 +12,7 @@ See the [PMM Documentation](https://www.percona.com/doc/percona-monitoring-and-m
 See detailed information about prerequisites and setup [here](../../README.md)
 
 # Locally testing @percona/percona-ui
+
 - Checkout code from https://github.com/percona/percona-ui
 - From the lib folder, run `pnpm build:watch` and `yarn link`
 - On this repo's `ui/apps/pmm` folder, run `yarn link @percona/percona-ui` and uncomment the `exclude` block from `vite.config.ts`
