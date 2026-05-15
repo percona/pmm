@@ -67,6 +67,9 @@ jobs:
             -e PMM_RELEASE_VERSION=3.7.0 \
             -e GOMODCACHE=/home/pmm/.cache/go/mod \
             -e GOCACHE=/home/pmm/.cache/go-build \
+            -e GONOPROXY=github.com/percona,github.com/Percona-Lab \
+            -e GONOSUMDB=github.com/percona,github.com/Percona-Lab \
+            -e GOPRIVATE=github.com/percona,github.com/Percona-Lab \
             -w /root/go/src/github.com/percona/pmm \
             -v ./:/root/go/src/github.com/percona/pmm \
             -v ~/go-mod-cache:/home/pmm/.cache/go/mod \

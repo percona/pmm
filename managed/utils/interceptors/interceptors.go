@@ -18,7 +18,6 @@ package interceptors
 
 import (
 	"context"
-	"io"
 	"regexp"
 	"runtime/debug"
 	"runtime/pprof"
@@ -30,6 +29,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/encoding/prototext"
+	"google.golang.org/protobuf/proto"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/utils/logger"
@@ -93,20 +94,35 @@ func UnaryAdd(interceptor grpc.UnaryServerInterceptor) UnaryInterceptorType {
 		pprof.SetGoroutineLabels(ctx)
 
 		// set logger
-		l := logrus.WithField("request", logger.MakeRequestID())
+		l := logrus.WithFields(logrus.Fields{
+			"request":   logger.MakeRequestID(),
+			"component": "grpc/interceptor",
+			"method":    info.FullMethod,
+		})
 		ctx = logger.SetEntry(ctx, l)
-		if l.Level < logrus.DebugLevel && dropEndpointsRE.MatchString(info.FullMethod) {
-			l = logrus.NewEntry(logrus.New())
-			l.Logger.SetOutput(io.Discard)
-		}
-
 		ctx = SetCallerOrigin(ctx, info.FullMethod)
 
-		var res interface{}
+		var res any
 		err := logRequest(l, "RPC "+info.FullMethod, func() error {
 			var origErr error
 			res, origErr = interceptor(ctx, req, info, handler)
-			l.Debugf("\nRequest:\n%s\nResponse:\n%s\n", req, res)
+			if l.Logger.IsLevelEnabled(logrus.DebugLevel) && !dropEndpointsRE.MatchString(info.FullMethod) {
+				var reqMsg, resMsg any
+				protoReq, okReq := req.(proto.Message)
+				if okReq {
+					reqMsg = prototext.Format(logger.RedactMessage(protoReq))
+				} else {
+					reqMsg = req
+				}
+
+				protoResp, okResp := res.(proto.Message)
+				if okResp {
+					resMsg = prototext.Format(logger.RedactMessage(protoResp))
+				} else {
+					resMsg = res
+				}
+				l.Debugf("\nRequest:\n%s\nResponse:\n%s\n", reqMsg, resMsg)
+			}
 			return origErr
 		})
 		return res, err
@@ -124,8 +140,11 @@ func Stream(interceptor grpc.StreamServerInterceptor) func(srv interface{}, ss g
 		pprof.SetGoroutineLabels(ctx)
 
 		// set logger
-		l := logrus.WithField("request", logger.MakeRequestID()).
-			WithField("method", info.FullMethod)
+		l := logrus.WithFields(logrus.Fields{
+			"request":   logger.MakeRequestID(),
+			"component": "grpc/interceptor",
+			"method":    info.FullMethod,
+		})
 		if info.FullMethod == "/agent.v1.AgentService/Connect" ||
 			info.FullMethod == "/realtimeanalytics.v1.CollectorService/Collect" {
 			md, _ := agentv1.ReceiveAgentConnectMetadata(ss)

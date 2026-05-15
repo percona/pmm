@@ -18,7 +18,6 @@ package agents
 import (
 	"context"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -51,7 +50,7 @@ func NewConnectionChecker(r *Registry) *ConnectionChecker {
 
 // CheckConnectionToService sends a request to pmm-agent to check connection to service.
 func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *reform.Querier, service *models.Service, agent *models.Agent) error {
-	l := logger.Get(ctx)
+	l := logger.Get(ctx).WithField("component", "connection-checker")
 	start := time.Now()
 	defer func() {
 		if dur := time.Since(start); dur > 4*time.Second {
@@ -86,11 +85,10 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 		return err
 	}
 
-	sanitizedDSN := request.Dsn
-	for _, word := range redactWords(agent) {
-		sanitizedDSN = strings.ReplaceAll(sanitizedDSN, word, "****")
-	}
-	l.Infof("CheckConnectionRequest: type: %s, DSN: %s timeout: %s.", request.Type, sanitizedDSN, request.Timeout)
+	l.Infof(
+		"CheckConnectionRequest: type: %s, DSN: %s timeout: %s.",
+		request.Type, logger.MaskDSN(request.Dsn), request.Timeout,
+	)
 
 	resp, err := pmmAgent.channel.SendAndWaitResponse(request)
 	if err != nil {

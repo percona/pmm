@@ -52,7 +52,7 @@ func TestSoftwareVersions(t *testing.T) {
 				ServiceType: models.MySQLServiceType,
 				ServiceName: "Service 1",
 				NodeID:      nodeID1,
-				Address:     pointer.ToString("127.0.0.1"),
+				Address:     new("127.0.0.1"),
 				Port:        pointer.ToUint16OrNil(777),
 			},
 			&models.Service{
@@ -60,7 +60,7 @@ func TestSoftwareVersions(t *testing.T) {
 				ServiceType: models.MySQLServiceType,
 				ServiceName: "Service 2",
 				NodeID:      nodeID1,
-				Address:     pointer.ToString("127.0.0.1"),
+				Address:     new("127.0.0.1"),
 				Port:        pointer.ToUint16OrNil(777),
 			},
 		} {
@@ -201,7 +201,7 @@ func TestSoftwareVersions(t *testing.T) {
 			ServiceType: models.MySQLServiceType,
 			ServiceName: "MySQL Service",
 			NodeID:      nodeID1,
-			Address:     pointer.ToString("127.0.0.1"),
+			Address:     new("127.0.0.1"),
 			Port:        pointer.ToUint16OrNil(3306),
 		}))
 
@@ -210,7 +210,7 @@ func TestSoftwareVersions(t *testing.T) {
 			ServiceType: models.MongoDBServiceType,
 			ServiceName: "MongoDB Service",
 			NodeID:      nodeID1,
-			Address:     pointer.ToString("127.0.0.1"),
+			Address:     new("127.0.0.1"),
 			Port:        pointer.ToUint16OrNil(27017),
 		}))
 
@@ -235,9 +235,8 @@ func TestSoftwareVersions(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		mysqlType := models.MySQLServiceType
 		actual, err := models.FindServicesSoftwareVersions(q, models.FindServicesSoftwareVersionsFilter{
-			ServiceType: &mysqlType,
+			ServiceType: new(models.MySQLServiceType),
 		}, models.SoftwareVersionsOrderByServiceID)
 		require.NoError(t, err)
 		require.Len(t, actual, 1)
@@ -245,9 +244,8 @@ func TestSoftwareVersions(t *testing.T) {
 		assert.Equal(t, models.MySQLServiceType, actual[0].ServiceType)
 
 		// Filter by MongoDB - should return only MongoDB service
-		mongoType := models.MongoDBServiceType
 		actual, err = models.FindServicesSoftwareVersions(q, models.FindServicesSoftwareVersionsFilter{
-			ServiceType: &mongoType,
+			ServiceType: new(models.MongoDBServiceType),
 		}, models.SoftwareVersionsOrderByServiceID)
 		require.NoError(t, err)
 		require.Len(t, actual, 1)
@@ -409,7 +407,7 @@ func TestUpdateServiceSoftwareVersionsParamsValidation(t *testing.T) {
 			name: "invalid software name",
 			params: models.UpdateServiceSoftwareVersionsParams{
 				SoftwareVersions: []models.SoftwareVersion{{Name: "invalid", Version: "8.0.0"}},
-				NextCheckAt:      pointer.ToTime(time.Now().UTC().Truncate(time.Second)),
+				NextCheckAt:      new(time.Now().UTC().Truncate(time.Second)),
 			},
 			errorMsg: "invalid argument: invalid software name \"invalid\"",
 		},
@@ -417,7 +415,7 @@ func TestUpdateServiceSoftwareVersionsParamsValidation(t *testing.T) {
 			name: "empty software version",
 			params: models.UpdateServiceSoftwareVersionsParams{
 				SoftwareVersions: []models.SoftwareVersion{{Name: models.MysqldSoftwareName}},
-				NextCheckAt:      pointer.ToTime(time.Now().UTC().Truncate(time.Second)),
+				NextCheckAt:      new(time.Now().UTC().Truncate(time.Second)),
 			},
 			errorMsg: "invalid argument: empty version for software name \"mysqld\"",
 		},
@@ -433,7 +431,7 @@ func TestUpdateServiceSoftwareVersionsParamsValidation(t *testing.T) {
 			name: "all parameters are filled up",
 			params: models.UpdateServiceSoftwareVersionsParams{
 				SoftwareVersions: []models.SoftwareVersion{{Name: models.MysqldSoftwareName, Version: "8.0.0"}},
-				NextCheckAt:      pointer.ToTime(time.Now().UTC().Truncate(time.Second)),
+				NextCheckAt:      new(time.Now().UTC().Truncate(time.Second)),
 			},
 			errorMsg: "",
 		},

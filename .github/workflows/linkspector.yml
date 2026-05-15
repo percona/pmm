@@ -25,7 +25,7 @@ jobs:
           ref: ${{ github.event.inputs.ref || github.ref }}
 
       - name: Run linkspector
-        uses: umbrelladocs/action-linkspector@37c85bcde51b30bf929936502bac6bfb7e8f0a4d # v1.4.1
+        uses: umbrelladocs/action-linkspector@963b6264d7de32c904942a70b488d3407453049e # v1.5.1
         with:
           github_token: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
           reporter: ${{ github.event_name == 'pull_request' && 'github-pr-review' || 'github-check' }}
