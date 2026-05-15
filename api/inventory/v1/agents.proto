@@ -658,6 +658,8 @@ message RDSExporter {
   string node_id = 4;
   // AWS Access Key.
   string aws_access_key = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // AWS IAM role ARN to assume for RDS metrics collection.
+  string aws_role_arn = 27;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 6;
 
@@ -1794,6 +1796,8 @@ message AddRDSExporterParams {
   string aws_access_key = 3 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // AWS Secret Key.
   string aws_secret_key = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // AWS IAM role ARN to assume for RDS metrics collection.
+  string aws_role_arn = 11;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 5;
   // Skip connection check.
@@ -1821,6 +1825,8 @@ message ChangeRDSExporterParams {
   optional string aws_access_key = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // AWS Secret Key.
   optional string aws_secret_key = 6 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // AWS IAM role ARN to assume for RDS metrics collection.
+  optional string aws_role_arn = 10;
   // Disable basic metrics.
   optional bool disable_basic_metrics = 7;
   // Disable enhanced metrics.

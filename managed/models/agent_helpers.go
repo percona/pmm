@@ -1036,6 +1036,7 @@ type ChangeQANOptions struct {
 type ChangeAWSOptions struct {
 	AWSAccessKey               *string
 	AWSSecretKey               *string
+	AWSRoleARN                 *string
 	RDSBasicMetricsDisabled    *bool
 	RDSEnhancedMetricsDisabled *bool
 }
@@ -1239,6 +1240,9 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 		}
 		if params.AWSOptions.AWSSecretKey != nil {
 			row.AWSOptions.AWSSecretKey = *params.AWSOptions.AWSSecretKey
+		}
+		if params.AWSOptions.AWSRoleARN != nil {
+			row.AWSOptions.AWSRoleARN = *params.AWSOptions.AWSRoleARN
 		}
 		if params.AWSOptions.RDSBasicMetricsDisabled != nil {
 			row.AWSOptions.RDSBasicMetricsDisabled = *params.AWSOptions.RDSBasicMetricsDisabled

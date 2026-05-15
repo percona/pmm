@@ -24,8 +24,10 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/credentials/stscreds"
 	"github.com/aws/aws-sdk-go-v2/service/rds"
 	"github.com/aws/aws-sdk-go-v2/service/rds/types"
+	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/aws/smithy-go"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -45,7 +47,12 @@ import (
 const (
 	// Maximum time for AWS discover APIs calls.
 	awsDiscoverTimeout = 7 * time.Second
-	rdsEndpointsID     = "rds"
+
+	// Maximum time for resolving AWS credentials or assuming the requested IAM role before RDS discovery starts.
+	awsCredentialsTimeout = 7 * time.Second
+	rdsEndpointsID        = "rds"
+
+	rdsAssumeRoleSessionName = "pmm-rds-discovery"
 )
 
 // See https://pkg.go.dev/github.com/aws/aws-sdk-go-v2/service/rds?tab=doc#CreateDBInstanceInput, Engine field.
@@ -139,6 +146,57 @@ func listRegions(partitions []string) []string {
 	return slice
 }
 
+func loadRDSAWSConfig(ctx context.Context, req *managementv1.DiscoverRDSRequest, l *logrus.Entry) (aws.Config, error) {
+	var opts []func(*config.LoadOptions) error
+
+	// Use supplied credentials as the source credentials, or fall back to the default AWS credential chain.
+	if req.AwsAccessKey != "" && req.AwsSecretKey != "" {
+		opts = append(opts, config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(req.AwsAccessKey, req.AwsSecretKey, "")))
+	}
+	opts = append(opts, config.WithHTTPClient(&http.Client{}))
+
+	if l.Logger != nil && l.Logger.Level >= logrus.DebugLevel {
+		opts = append(opts, config.WithClientLogMode(aws.LogRetries|aws.LogRequestWithBody|aws.LogResponseWithBody))
+	}
+
+	cfg, err := config.LoadDefaultConfig(ctx, opts...)
+	if err != nil {
+		return aws.Config{}, errors.WithStack(err)
+	}
+
+	if req.AwsRoleArn != "" {
+		cfg.Credentials = aws.NewCredentialsCache(stscreds.NewAssumeRoleProvider(
+			sts.NewFromConfig(cfg),
+			req.AwsRoleArn,
+			func(o *stscreds.AssumeRoleOptions) {
+				o.RoleSessionName = rdsAssumeRoleSessionName
+			},
+		))
+	}
+
+	return cfg, nil
+}
+
+func validateRDSAWSCredentials(ctx context.Context, cfg aws.Config, roleARN string) error {
+	if ctx.Err() != nil {
+		return nil
+	}
+
+	ctx, cancel := context.WithTimeout(ctx, awsCredentialsTimeout)
+	defer cancel()
+
+	_, err := cfg.Credentials.Retrieve(ctx)
+	if err == nil {
+		return nil
+	}
+
+	if roleARN != "" {
+		return status.Errorf(codes.InvalidArgument, "Failed to assume AWS IAM role %q: %s", roleARN, err)
+	}
+
+	return status.Errorf(codes.InvalidArgument, "Failed to load AWS credentials: %s", err)
+}
+
 // DiscoverRDS discovers RDS instances.
 func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.DiscoverRDSRequest) (*managementv1.DiscoverRDSResponse, error) { //nolint:gocognit
 	l := logger.Get(ctx).WithField("component", "discover/rds")
@@ -148,23 +206,12 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 		return nil, err
 	}
 
-	// use given credentials, or default credential chain
-	var creds aws.CredentialsProvider
-	if req.AwsAccessKey != "" && req.AwsSecretKey != "" {
-		creds = credentials.NewStaticCredentialsProvider(req.AwsAccessKey, req.AwsSecretKey, "")
-	}
-
-	opts := []func(*config.LoadOptions) error{
-		config.WithCredentialsProvider(creds),
-		config.WithHTTPClient(&http.Client{}),
-	}
-	if l.Logger != nil && l.Logger.Level >= logrus.DebugLevel {
-		opts = append(opts, config.WithClientLogMode(aws.LogRetries|aws.LogRequestWithBody|aws.LogResponseWithBody))
-	}
-
-	cfg, err := config.LoadDefaultConfig(ctx, opts...)
+	cfg, err := loadRDSAWSConfig(ctx, req, l)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
+	}
+	if err := validateRDSAWSCredentials(ctx, cfg, req.AwsRoleArn); err != nil {
+		return nil, err
 	}
 
 	// do not break our API if some AWS region is slow or down
@@ -318,6 +365,7 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				AWSOptions: models.AWSOptions{
 					AWSAccessKey:               req.AwsAccessKey,
 					AWSSecretKey:               req.AwsSecretKey,
+					AWSRoleARN:                 req.AwsRoleArn,
 					RDSBasicMetricsDisabled:    req.DisableBasicMetrics,
 					RDSEnhancedMetricsDisabled: req.DisableEnhancedMetrics,
 				},

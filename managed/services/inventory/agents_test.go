@@ -454,6 +454,7 @@ func TestAgents(t *testing.T) {
 			NodeId:       node.NodeId,
 			AwsAccessKey: "EXAMPLE_ACCESS_KEY",
 			AwsSecretKey: "EXAMPLE_SECRET_KEY",
+			AwsRoleArn:   "arn:aws:iam::123456789012:role/PmmRdsReadRole",
 			CustomLabels: map[string]string{"baz": "qux"},
 		})
 		require.NoError(t, err)
@@ -462,6 +463,7 @@ func TestAgents(t *testing.T) {
 			PmmAgentId:   "pmm-server",
 			NodeId:       "00000000-0000-4000-8000-000000000005",
 			AwsAccessKey: "EXAMPLE_ACCESS_KEY",
+			AwsRoleArn:   "arn:aws:iam::123456789012:role/PmmRdsReadRole",
 			CustomLabels: map[string]string{"baz": "qux"},
 			Status:       inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 		}
@@ -796,6 +798,7 @@ func TestAgents(t *testing.T) {
 			NodeId:       node.NodeId,
 			AwsAccessKey: "EXAMPLE_ACCESS_KEY",
 			AwsSecretKey: "EXAMPLE_SECRET_KEY",
+			AwsRoleArn:   "arn:aws:iam::123456789012:role/PmmRdsReadRole",
 			CustomLabels: map[string]string{"baz": "qux"},
 			PushMetrics:  true,
 		})
@@ -805,6 +808,7 @@ func TestAgents(t *testing.T) {
 			PmmAgentId:         "pmm-server",
 			NodeId:             "00000000-0000-4000-8000-000000000005",
 			AwsAccessKey:       "EXAMPLE_ACCESS_KEY",
+			AwsRoleArn:         "arn:aws:iam::123456789012:role/PmmRdsReadRole",
 			CustomLabels:       map[string]string{"baz": "qux"},
 			PushMetricsEnabled: true,
 			Status:             inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
