@@ -17,7 +17,6 @@
       - clickhouse-common-static-{{ clickhouse_version }}
     state: installed
     enablerepo: clickhouse
-  ignore_errors: "{{ ansible_check_mode }}" # We don't have clickhouse repo when we run ansible with --check
 
 - name: Change ownership of clickhouse directories
   file:
