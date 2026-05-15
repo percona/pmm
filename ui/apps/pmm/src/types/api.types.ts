@@ -13,7 +13,12 @@ declare module 'axios' {
 }
 
 declare module '@tanstack/react-query' {
-  interface UseQueryOptions {
+  interface UseQueryOptions<
+    TQueryFnData = unknown,
+    TError = DefaultError,
+    TData = TQueryFnData,
+    TQueryKey extends QueryKey = QueryKey,
+  > {
     axios?: import('axios').AxiosRequestConfig;
   }
 }
