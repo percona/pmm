@@ -1,9 +1,9 @@
-import { TextField } from "@mui/material";
-import { kebabize } from "@/utils";
-import { Controller, useFormContext } from "react-hook-form";
-import { TextInputProps } from "./text.types";
+import { TextField } from '@mui/material';
+import { kebabize } from '@/utils';
+import { Controller, FieldValues, useFormContext } from 'react-hook-form';
+import { TextInputProps } from './text.types';
 
-const TextInput = ({
+const TextInput = <T extends FieldValues = FieldValues>({
   control,
   name,
   label,
@@ -11,8 +11,8 @@ const TextInput = ({
   textFieldProps = {},
   isRequired,
   formHelperTextProps = {},
-}: TextInputProps) => {
-  const formContext = useFormContext();
+}: TextInputProps<T>) => {
+  const formContext = useFormContext<T>();
   const contextControl = formContext?.control;
 
   const { sx: textFieldPropsSx, onChange, ...restFieldProps } = textFieldProps;
@@ -26,7 +26,7 @@ const TextInput = ({
         <TextField
           label={label}
           {...field}
-          size={restFieldProps?.size || "small"}
+          size={restFieldProps?.size || 'small'}
           sx={{ mt: 3, ...textFieldPropsSx }}
           {...restFieldProps}
           variant="outlined"
@@ -36,7 +36,7 @@ const TextInput = ({
             shrink: true,
           }}
           inputProps={{
-            "data-testid": `text-input-${kebabize(name)}`,
+            'data-testid': `text-input-${kebabize(name)}`,
             onWheel: (e) => {
               (e.target as HTMLElement).blur();
             },
