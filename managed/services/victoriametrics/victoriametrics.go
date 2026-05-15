@@ -60,7 +60,8 @@ type Service struct {
 	baseURL          *url.URL
 	client           *http.Client
 
-	params *models.VictoriaMetricsParams
+	params   *models.VictoriaMetricsParams
+	chParams *models.ClickHouseParams
 
 	l         *logrus.Entry
 	reloadCh  chan struct{}
@@ -68,10 +69,13 @@ type Service struct {
 }
 
 // NewVictoriaMetrics creates new VictoriaMetrics service.
-func NewVictoriaMetrics(scrapeConfigPath string, db *reform.DB, params *models.VictoriaMetricsParams, haService haService) (*Service, error) {
+func NewVictoriaMetrics(scrapeConfigPath string, db *reform.DB, params *models.VictoriaMetricsParams, chParams *models.ClickHouseParams, haService haService) (*Service, error) {
 	u, err := url.Parse(params.URL())
 	if err != nil {
 		return nil, err
+	}
+	if chParams == nil {
+		return nil, fmt.Errorf("ClickHouseParams is required")
 	}
 
 	return &Service{
@@ -80,6 +84,7 @@ func NewVictoriaMetrics(scrapeConfigPath string, db *reform.DB, params *models.V
 		baseURL:          u,
 		client:           &http.Client{}, // TODO instrument with utils/irt; see vmalert package https://jira.percona.com/browse/PMM-7229
 		params:           params,
+		chParams:         chParams,
 		l:                logrus.WithField("component", "victoriametrics"),
 		reloadCh:         make(chan struct{}, 1),
 		haService:        haService,

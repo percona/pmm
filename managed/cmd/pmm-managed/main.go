@@ -726,6 +726,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PMM_CLICKHOUSE_ADDR").String()
 	clickhouseUsernameF := kingpin.Flag("clickhouse-username", "Clickhouse database user").Default("default").Envar("PMM_CLICKHOUSE_USER").String()
 	clickhousePasswordF := kingpin.Flag("clickhouse-password", "Clickhouse database user password").Default("clickhouse").Envar("PMM_CLICKHOUSE_PASSWORD").String()
+	clickhouseBuiltinDisabledF := kingpin.Flag("clickhouse-disable-builtin", "Disable the built-in ClickHouse").Envar("PMM_DISABLE_BUILTIN_CLICKHOUSE").Bool()
 
 	watchtowerHostF := kingpin.Flag("watchtower-host", "Watchtower host").Default("http://watchtower:8080").Envar("PMM_WATCHTOWER_HOST").URL()
 
@@ -821,15 +822,19 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	grafanadb.DSN.DB = "grafana"
 	grafanadb.DSN.Params = q.Encode()
 
-	chURI := url.URL{
-		Scheme: "tcp",
-		User:   url.UserPassword(*clickhouseUsernameF, *clickhousePasswordF),
-		Host:   *clickhouseAddrF,
-		Path:   *clickHouseDatabaseF,
+	chParams, err := models.NewClickHouseParams(
+		*clickhouseAddrF,
+		*clickHouseDatabaseF,
+		*clickhouseUsernameF,
+		*clickhousePasswordF,
+		*clickhouseBuiltinDisabledF,
+	)
+	if err != nil {
+		l.Panicf("cannot load clickhouse params: %+v", err)
 	}
 
 	qanDB := ds.QanDBSelect
-	qanDB.DSN = chURI.String()
+	qanDB.DSN = chParams.URL().String()
 
 	ds.VM.Address = *victoriaMetricsURLF
 
@@ -879,7 +884,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	cleaner := clean.New(db)
 	externalRules := vmalert.NewExternalRules()
-	vmdb, err := victoriametrics.NewVictoriaMetrics(*victoriaMetricsConfigF, db, vmParams, haService)
+	vmdb, err := victoriametrics.NewVictoriaMetrics(*victoriaMetricsConfigF, db, vmParams, chParams, haService)
 	if err != nil {
 		l.Panicf("VictoriaMetrics service problem: %+v", err)
 	}
@@ -1019,7 +1024,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	versionCache := versioncache.New(db, versioner)
 
 	dumpService := dump.New(db, &dump.URLs{
-		ClickhouseURL: chURI.String(),
+		ClickhouseURL: chParams.URL().String(),
 		VMURL:         *victoriaMetricsURLF,
 	})
 

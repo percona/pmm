@@ -273,6 +273,20 @@ func addInternalServicesToScrape(s models.MetricsResolutions, svc *Service, pmmS
 	}
 
 	if svc.params.ExternalVM() {
+		svc.l.Infof("Skip scrape config for ClickHouse, VictoriaMetrics is configured to run externally.")
+		return cfg
+	}
+
+	if svc.chParams.BuiltinDisabled {
+		svc.l.Infof("Skip scrape config for ClickHouse, scraping has been disabled for builtin clickhouse.")
+		return cfg
+	}
+
+	if svc.chParams.ExternalClickHouse() {
+		svc.l.Warnf(
+			"External ClickHouse detected (%s); skipping built-in ClickHouse scrape (127.0.0.1:9363). Set PMM_DISABLE_BUILTIN_CLICKHOUSE=true to make this explicit.",
+			svc.chParams.URL().Redacted(),
+		)
 		return cfg
 	}
 
