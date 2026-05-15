@@ -69,7 +69,13 @@ type Service struct {
 }
 
 // NewVictoriaMetrics creates new VictoriaMetrics service.
-func NewVictoriaMetrics(scrapeConfigPath string, db *reform.DB, params *models.VictoriaMetricsParams, chParams *models.ClickHouseParams, haService haService) (*Service, error) {
+func NewVictoriaMetrics(
+	scrapeConfigPath string,
+	db *reform.DB,
+	params *models.VictoriaMetricsParams,
+	chParams *models.ClickHouseParams,
+	haService haService,
+) (*Service, error) {
 	u, err := url.Parse(params.URL())
 	if err != nil {
 		return nil, err
