@@ -89,7 +89,7 @@ message AddRDSServiceParams {
   // AWS Secret key.
   string aws_secret_key = 16 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // AWS IAM role ARN to assume for RDS metrics discovery and collection.
-  string aws_role_arn = 35;
+  string aws_role_arn = 36;
   // If true, adds rds_exporter.
   bool rds_exporter = 17;
   // If true, adds qan-mysql-perfschema-agent.

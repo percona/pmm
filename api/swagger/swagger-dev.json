@@ -24987,12 +24987,12 @@
                       "description": "Maximum number of exporter connections to PostgreSQL instance.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 33
+                      "x-order": 34
                     },
                     "connection_timeout": {
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
-                      "x-order": 34
+                      "x-order": 35
                     }
                   },
                   "x-order": 6
