@@ -1049,3 +1049,13 @@ func TestVMConfig_OmitsClickhouseScrape(t *testing.T) {
 		})
 	}
 }
+
+func TestNewVictoriaMetrics_NilClickHouseParams(t *testing.T) {
+	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
+	require.NoError(t, err)
+
+	svc, err := NewVictoriaMetrics(configPath, nil, vmParams, nil, newMockHaService(t))
+	require.Error(t, err)
+	assert.Nil(t, svc)
+	assert.Contains(t, err.Error(), "ClickHouseParams is required")
+}
