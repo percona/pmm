@@ -55,11 +55,11 @@ function AutoCompleteInput<TOption, TFieldValues extends FieldValues = FieldValu
                   ...textFieldProps?.inputProps,
                 }}
                 InputProps={{
-                  ...params.InputProps,
+                  ...(params.InputProps ?? {}),
                   endAdornment: (
                     <>
                       {loading ? <CircularProgress color="inherit" size={20} /> : null}
-                      {params.InputProps.endAdornment}
+                      {params.InputProps?.endAdornment}
                     </>
                   ),
                 }}
