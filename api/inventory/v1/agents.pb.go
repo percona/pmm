@@ -10979,21 +10979,21 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x13metrics_resolutions\x18\x0f \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd4\t\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe6\t\n" +
 	"\x0eMySQLdExporter\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
 	"pmmAgentId\x12\x1a\n" +
 	"\bdisabled\x18\x03 \x01(\bR\bdisabled\x12\x1d\n" +
 	"\n" +
-	"service_id\x18\x04 \x01(\tR\tserviceId\x12\x1a\n" +
-	"\busername\x18\x05 \x01(\tR\busername\x12\x10\n" +
+	"service_id\x18\x04 \x01(\tR\tserviceId\x12 \n" +
+	"\busername\x18\x05 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12\x10\n" +
 	"\x03tls\x18\x06 \x01(\bR\x03tls\x12&\n" +
 	"\x0ftls_skip_verify\x18\a \x01(\bR\rtlsSkipVerify\x12\x15\n" +
-	"\x06tls_ca\x18\b \x01(\tR\x05tlsCa\x12\x19\n" +
-	"\btls_cert\x18\t \x01(\tR\atlsCert\x12\x17\n" +
+	"\x06tls_ca\x18\b \x01(\tR\x05tlsCa\x12\x1f\n" +
+	"\btls_cert\x18\t \x01(\tB\x04\x88\xb5\x18\x01R\atlsCert\x12\x1d\n" +
 	"\atls_key\x18\n" +
-	" \x01(\tR\x06tlsKey\x12?\n" +
+	" \x01(\tB\x04\x88\xb5\x18\x01R\x06tlsKey\x12?\n" +
 	"\x1ctablestats_group_table_limit\x18\v \x01(\x05R\x19tablestatsGroupTableLimit\x12S\n" +
 	"\rcustom_labels\x18\f \x03(\v2..inventory.v1.MySQLdExporter.CustomLabelsEntryR\fcustomLabels\x120\n" +
 	"\x14push_metrics_enabled\x18\r \x01(\bR\x12pushMetricsEnabled\x12/\n" +
@@ -11015,15 +11015,15 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aA\n" +
 	"\x13ExtraDsnParamsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x9a\b\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xa0\b\n" +
 	"\x0fMongoDBExporter\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
 	"pmmAgentId\x12\x1a\n" +
 	"\bdisabled\x18\x03 \x01(\bR\bdisabled\x12\x1d\n" +
 	"\n" +
-	"service_id\x18\x04 \x01(\tR\tserviceId\x12\x1a\n" +
-	"\busername\x18\x05 \x01(\tR\busername\x12\x10\n" +
+	"service_id\x18\x04 \x01(\tR\tserviceId\x12 \n" +
+	"\busername\x18\x05 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12\x10\n" +
 	"\x03tls\x18\x06 \x01(\bR\x03tls\x12&\n" +
 	"\x0ftls_skip_verify\x18\a \x01(\bR\rtlsSkipVerify\x12T\n" +
 	"\rcustom_labels\x18\b \x03(\v2/.inventory.v1.MongoDBExporter.CustomLabelsEntryR\fcustomLabels\x120\n" +
@@ -11044,15 +11044,15 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x12connection_timeout\x18\x1e \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xbc\a\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc2\a\n" +
 	"\x10PostgresExporter\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
 	"pmmAgentId\x12\x1a\n" +
 	"\bdisabled\x18\x03 \x01(\bR\bdisabled\x12\x1d\n" +
 	"\n" +
-	"service_id\x18\x04 \x01(\tR\tserviceId\x12\x1a\n" +
-	"\busername\x18\x05 \x01(\tR\busername\x12\x10\n" +
+	"service_id\x18\x04 \x01(\tR\tserviceId\x12 \n" +
+	"\busername\x18\x05 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12\x10\n" +
 	"\x03tls\x18\x06 \x01(\bR\x03tls\x12&\n" +
 	"\x0ftls_skip_verify\x18\a \x01(\bR\rtlsSkipVerify\x12U\n" +
 	"\rcustom_labels\x18\b \x03(\v20.inventory.v1.PostgresExporter.CustomLabelsEntryR\fcustomLabels\x120\n" +
@@ -11071,15 +11071,15 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x12connection_timeout\x18\x1c \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd0\x06\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd6\x06\n" +
 	"\x10ProxySQLExporter\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
 	"pmmAgentId\x12\x1a\n" +
 	"\bdisabled\x18\x03 \x01(\bR\bdisabled\x12\x1d\n" +
 	"\n" +
-	"service_id\x18\x04 \x01(\tR\tserviceId\x12\x1a\n" +
-	"\busername\x18\x05 \x01(\tR\busername\x12\x10\n" +
+	"service_id\x18\x04 \x01(\tR\tserviceId\x12 \n" +
+	"\busername\x18\x05 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12\x10\n" +
 	"\x03tls\x18\x06 \x01(\bR\x03tls\x12&\n" +
 	"\x0ftls_skip_verify\x18\a \x01(\bR\rtlsSkipVerify\x12U\n" +
 	"\rcustom_labels\x18\b \x03(\v20.inventory.v1.ProxySQLExporter.CustomLabelsEntryR\fcustomLabels\x120\n" +
@@ -11096,15 +11096,15 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x12connection_timeout\x18\x1a \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x97\x06\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x9d\x06\n" +
 	"\x0eValkeyExporter\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
 	"pmmAgentId\x12\x1a\n" +
 	"\bdisabled\x18\x03 \x01(\bR\bdisabled\x12\x1d\n" +
 	"\n" +
-	"service_id\x18\x04 \x01(\tR\tserviceId\x12\x1a\n" +
-	"\busername\x18\x05 \x01(\tR\busername\x12\x10\n" +
+	"service_id\x18\x04 \x01(\tR\tserviceId\x12 \n" +
+	"\busername\x18\x05 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12\x10\n" +
 	"\x03tls\x18\x06 \x01(\bR\x03tls\x12&\n" +
 	"\x0ftls_skip_verify\x18\a \x01(\bR\rtlsSkipVerify\x12S\n" +
 	"\rcustom_labels\x18\b \x03(\v2..inventory.v1.ValkeyExporter.CustomLabelsEntryR\fcustomLabels\x120\n" +
@@ -11120,21 +11120,21 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x12connection_timeout\x18\x19 \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xa9\a\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xbb\a\n" +
 	"\x17QANMySQLPerfSchemaAgent\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
 	"pmmAgentId\x12\x1a\n" +
 	"\bdisabled\x18\x03 \x01(\bR\bdisabled\x12\x1d\n" +
 	"\n" +
-	"service_id\x18\x04 \x01(\tR\tserviceId\x12\x1a\n" +
-	"\busername\x18\x05 \x01(\tR\busername\x12\x10\n" +
+	"service_id\x18\x04 \x01(\tR\tserviceId\x12 \n" +
+	"\busername\x18\x05 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12\x10\n" +
 	"\x03tls\x18\x06 \x01(\bR\x03tls\x12&\n" +
 	"\x0ftls_skip_verify\x18\a \x01(\bR\rtlsSkipVerify\x12\x15\n" +
-	"\x06tls_ca\x18\b \x01(\tR\x05tlsCa\x12\x19\n" +
-	"\btls_cert\x18\t \x01(\tR\atlsCert\x12\x17\n" +
+	"\x06tls_ca\x18\b \x01(\tR\x05tlsCa\x12\x1f\n" +
+	"\btls_cert\x18\t \x01(\tB\x04\x88\xb5\x18\x01R\atlsCert\x12\x1d\n" +
 	"\atls_key\x18\n" +
-	" \x01(\tR\x06tlsKey\x128\n" +
+	" \x01(\tB\x04\x88\xb5\x18\x01R\x06tlsKey\x128\n" +
 	"\x18disable_comments_parsing\x18\v \x01(\bR\x16disableCommentsParsing\x12(\n" +
 	"\x10max_query_length\x18\f \x01(\x05R\x0emaxQueryLength\x126\n" +
 	"\x17query_examples_disabled\x18\r \x01(\bR\x15queryExamplesDisabled\x12\\\n" +
@@ -11148,21 +11148,21 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aA\n" +
 	"\x13ExtraDsnParamsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd3\a\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe5\a\n" +
 	"\x14QANMySQLSlowlogAgent\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
 	"pmmAgentId\x12\x1a\n" +
 	"\bdisabled\x18\x03 \x01(\bR\bdisabled\x12\x1d\n" +
 	"\n" +
-	"service_id\x18\x04 \x01(\tR\tserviceId\x12\x1a\n" +
-	"\busername\x18\x05 \x01(\tR\busername\x12\x10\n" +
+	"service_id\x18\x04 \x01(\tR\tserviceId\x12 \n" +
+	"\busername\x18\x05 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12\x10\n" +
 	"\x03tls\x18\x06 \x01(\bR\x03tls\x12&\n" +
 	"\x0ftls_skip_verify\x18\a \x01(\bR\rtlsSkipVerify\x12\x15\n" +
-	"\x06tls_ca\x18\b \x01(\tR\x05tlsCa\x12\x19\n" +
-	"\btls_cert\x18\t \x01(\tR\atlsCert\x12\x17\n" +
+	"\x06tls_ca\x18\b \x01(\tR\x05tlsCa\x12\x1f\n" +
+	"\btls_cert\x18\t \x01(\tB\x04\x88\xb5\x18\x01R\atlsCert\x12\x1d\n" +
 	"\atls_key\x18\n" +
-	" \x01(\tR\x06tlsKey\x128\n" +
+	" \x01(\tB\x04\x88\xb5\x18\x01R\x06tlsKey\x128\n" +
 	"\x18disable_comments_parsing\x18\v \x01(\bR\x16disableCommentsParsing\x12(\n" +
 	"\x10max_query_length\x18\f \x01(\x05R\x0emaxQueryLength\x126\n" +
 	"\x17query_examples_disabled\x18\r \x01(\bR\x15queryExamplesDisabled\x121\n" +
@@ -11177,15 +11177,15 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aA\n" +
 	"\x13ExtraDsnParamsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe3\x04\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe9\x04\n" +
 	"\x17QANMongoDBProfilerAgent\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
 	"pmmAgentId\x12\x1a\n" +
 	"\bdisabled\x18\x03 \x01(\bR\bdisabled\x12\x1d\n" +
 	"\n" +
-	"service_id\x18\x04 \x01(\tR\tserviceId\x12\x1a\n" +
-	"\busername\x18\x05 \x01(\tR\busername\x12\x10\n" +
+	"service_id\x18\x04 \x01(\tR\tserviceId\x12 \n" +
+	"\busername\x18\x05 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12\x10\n" +
 	"\x03tls\x18\x06 \x01(\bR\x03tls\x12&\n" +
 	"\x0ftls_skip_verify\x18\a \x01(\bR\rtlsSkipVerify\x12(\n" +
 	"\x10max_query_length\x18\t \x01(\x05R\x0emaxQueryLength\x12\\\n" +
@@ -11196,15 +11196,15 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\tlog_level\x18\x16 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\b\x10\tR\x17query_examples_disabled\"\xe3\x04\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\b\x10\tR\x17query_examples_disabled\"\xe9\x04\n" +
 	"\x17QANMongoDBMongologAgent\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
 	"pmmAgentId\x12\x1a\n" +
 	"\bdisabled\x18\x03 \x01(\bR\bdisabled\x12\x1d\n" +
 	"\n" +
-	"service_id\x18\x04 \x01(\tR\tserviceId\x12\x1a\n" +
-	"\busername\x18\x05 \x01(\tR\busername\x12\x10\n" +
+	"service_id\x18\x04 \x01(\tR\tserviceId\x12 \n" +
+	"\busername\x18\x05 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12\x10\n" +
 	"\x03tls\x18\x06 \x01(\bR\x03tls\x12&\n" +
 	"\x0ftls_skip_verify\x18\a \x01(\bR\rtlsSkipVerify\x12(\n" +
 	"\x10max_query_length\x18\t \x01(\x05R\x0emaxQueryLength\x12\\\n" +
@@ -11219,15 +11219,15 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\n" +
 	"RTAOptions\x12P\n" +
 	"\x10collect_interval\x18\x01 \x01(\v2\x19.google.protobuf.DurationB\n" +
-	"\xfaB\a\xaa\x01\x042\x02\b\x01R\x0fcollectInterval\"\x99\x04\n" +
+	"\xfaB\a\xaa\x01\x042\x02\b\x01R\x0fcollectInterval\"\x9f\x04\n" +
 	"\x0fRTAMongoDBAgent\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
 	"pmmAgentId\x12\x1a\n" +
 	"\bdisabled\x18\x03 \x01(\bR\bdisabled\x12\x1d\n" +
 	"\n" +
-	"service_id\x18\x04 \x01(\tR\tserviceId\x12\x1a\n" +
-	"\busername\x18\x05 \x01(\tR\busername\x12\x10\n" +
+	"service_id\x18\x04 \x01(\tR\tserviceId\x12 \n" +
+	"\busername\x18\x05 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12\x10\n" +
 	"\x03tls\x18\x06 \x01(\bR\x03tls\x12&\n" +
 	"\x0ftls_skip_verify\x18\a \x01(\bR\rtlsSkipVerify\x12T\n" +
 	"\rcustom_labels\x18\b \x03(\v2/.inventory.v1.RTAMongoDBAgent.CustomLabelsEntryR\fcustomLabels\x129\n" +
@@ -11238,15 +11238,15 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\tlog_level\x18\v \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x8c\x05\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x92\x05\n" +
 	"\x1eQANPostgreSQLPgStatementsAgent\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
 	"pmmAgentId\x12\x1a\n" +
 	"\bdisabled\x18\x03 \x01(\bR\bdisabled\x12\x1d\n" +
 	"\n" +
-	"service_id\x18\x04 \x01(\tR\tserviceId\x12\x1a\n" +
-	"\busername\x18\x05 \x01(\tR\busername\x128\n" +
+	"service_id\x18\x04 \x01(\tR\tserviceId\x12 \n" +
+	"\busername\x18\x05 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x128\n" +
 	"\x18disable_comments_parsing\x18\x06 \x01(\bR\x16disableCommentsParsing\x12(\n" +
 	"\x10max_query_length\x18\a \x01(\x05R\x0emaxQueryLength\x12\x10\n" +
 	"\x03tls\x18\b \x01(\bR\x03tls\x12&\n" +
@@ -11258,15 +11258,15 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\tlog_level\x18\x16 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc6\x05\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xcc\x05\n" +
 	"\x1fQANPostgreSQLPgStatMonitorAgent\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
 	"pmmAgentId\x12\x1a\n" +
 	"\bdisabled\x18\x03 \x01(\bR\bdisabled\x12\x1d\n" +
 	"\n" +
-	"service_id\x18\x04 \x01(\tR\tserviceId\x12\x1a\n" +
-	"\busername\x18\x05 \x01(\tR\busername\x12\x10\n" +
+	"service_id\x18\x04 \x01(\tR\tserviceId\x12 \n" +
+	"\busername\x18\x05 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12\x10\n" +
 	"\x03tls\x18\x06 \x01(\bR\x03tls\x12&\n" +
 	"\x0ftls_skip_verify\x18\a \x01(\bR\rtlsSkipVerify\x128\n" +
 	"\x18disable_comments_parsing\x18\b \x01(\bR\x16disableCommentsParsing\x12(\n" +
@@ -11301,14 +11301,14 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x13metrics_resolutions\x18\x1a \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xa5\x05\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xab\x05\n" +
 	"\x10ExternalExporter\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12%\n" +
 	"\x0fruns_on_node_id\x18\x02 \x01(\tR\frunsOnNodeId\x12\x1a\n" +
 	"\bdisabled\x18\x03 \x01(\bR\bdisabled\x12\x1d\n" +
 	"\n" +
-	"service_id\x18\x04 \x01(\tR\tserviceId\x12\x1a\n" +
-	"\busername\x18\x05 \x01(\tR\busername\x12\x16\n" +
+	"service_id\x18\x04 \x01(\tR\tserviceId\x12 \n" +
+	"\busername\x18\x05 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12\x16\n" +
 	"\x06scheme\x18\x06 \x01(\tR\x06scheme\x12!\n" +
 	"\fmetrics_path\x18\a \x01(\tR\vmetricsPath\x12U\n" +
 	"\rcustom_labels\x18\b \x03(\v20.inventory.v1.ExternalExporter.CustomLabelsEntryR\fcustomLabels\x12\x1f\n" +
@@ -11525,7 +11525,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x14_enable_push_metricsB\f\n" +
 	"\n" +
 	"_log_levelB\x12\n" +
-	"\x10_expose_exporter\"\xa9\b\n" +
+	"\x10_expose_exporter\"\xb5\b\n" +
 	"\x17AddMySQLdExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -11535,9 +11535,9 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\bpassword\x18\x04 \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x12\x10\n" +
 	"\x03tls\x18\x05 \x01(\bR\x03tls\x12&\n" +
 	"\x0ftls_skip_verify\x18\x06 \x01(\bR\rtlsSkipVerify\x12\x15\n" +
-	"\x06tls_ca\x18\a \x01(\tR\x05tlsCa\x12\x19\n" +
-	"\btls_cert\x18\b \x01(\tR\atlsCert\x12\x17\n" +
-	"\atls_key\x18\t \x01(\tR\x06tlsKey\x12?\n" +
+	"\x06tls_ca\x18\a \x01(\tR\x05tlsCa\x12\x1f\n" +
+	"\btls_cert\x18\b \x01(\tB\x04\x88\xb5\x18\x01R\atlsCert\x12\x1d\n" +
+	"\atls_key\x18\t \x01(\tB\x04\x88\xb5\x18\x01R\x06tlsKey\x12?\n" +
 	"\x1ctablestats_group_table_limit\x18\n" +
 	" \x01(\x05R\x19tablestatsGroupTableLimit\x12\\\n" +
 	"\rcustom_labels\x18\v \x03(\v27.inventory.v1.AddMySQLdExporterParams.CustomLabelsEntryR\fcustomLabels\x122\n" +
@@ -11554,7 +11554,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aA\n" +
 	"\x13ExtraDsnParamsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xff\b\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x8b\t\n" +
 	"\x1aChangeMySQLdExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -11564,10 +11564,10 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\bpassword\x18\x06 \x01(\tB\x04\x88\xb5\x18\x01H\x04R\bpassword\x88\x01\x01\x12\x15\n" +
 	"\x03tls\x18\a \x01(\bH\x05R\x03tls\x88\x01\x01\x12+\n" +
 	"\x0ftls_skip_verify\x18\b \x01(\bH\x06R\rtlsSkipVerify\x88\x01\x01\x12\x1a\n" +
-	"\x06tls_ca\x18\t \x01(\tH\aR\x05tlsCa\x88\x01\x01\x12\x1e\n" +
+	"\x06tls_ca\x18\t \x01(\tH\aR\x05tlsCa\x88\x01\x01\x12$\n" +
 	"\btls_cert\x18\n" +
-	" \x01(\tH\bR\atlsCert\x88\x01\x01\x12\x1c\n" +
-	"\atls_key\x18\v \x01(\tH\tR\x06tlsKey\x88\x01\x01\x12D\n" +
+	" \x01(\tB\x04\x88\xb5\x18\x01H\bR\atlsCert\x88\x01\x01\x12\"\n" +
+	"\atls_key\x18\v \x01(\tB\x04\x88\xb5\x18\x01H\tR\x06tlsKey\x88\x01\x01\x12D\n" +
 	"\x1ctablestats_group_table_limit\x18\f \x01(\x05H\n" +
 	"R\x19tablestatsGroupTableLimit\x88\x01\x01\x127\n" +
 	"\x15skip_connection_check\x18\r \x01(\bH\vR\x13skipConnectionCheck\x88\x01\x01\x12-\n" +
@@ -11592,7 +11592,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0f_agent_passwordB\f\n" +
 	"\n" +
 	"_log_levelB\x12\n" +
-	"\x10_expose_exporter\"\xc7\t\n" +
+	"\x10_expose_exporter\"\xcd\t\n" +
 	"\x18AddMongoDBExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -11601,8 +11601,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\busername\x18\x03 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12 \n" +
 	"\bpassword\x18\x04 \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x12\x10\n" +
 	"\x03tls\x18\x05 \x01(\bR\x03tls\x12&\n" +
-	"\x0ftls_skip_verify\x18\x06 \x01(\bR\rtlsSkipVerify\x12.\n" +
-	"\x13tls_certificate_key\x18\a \x01(\tR\x11tlsCertificateKey\x12N\n" +
+	"\x0ftls_skip_verify\x18\x06 \x01(\bR\rtlsSkipVerify\x124\n" +
+	"\x13tls_certificate_key\x18\a \x01(\tB\x04\x88\xb5\x18\x01R\x11tlsCertificateKey\x12N\n" +
 	"!tls_certificate_key_file_password\x18\b \x01(\tB\x04\x88\xb5\x18\x01R\x1dtlsCertificateKeyFilePassword\x12\x15\n" +
 	"\x06tls_ca\x18\t \x01(\tR\x05tlsCa\x12]\n" +
 	"\rcustom_labels\x18\n" +
@@ -11622,7 +11622,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x12connection_timeout\x18\x17 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x89\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x8f\f\n" +
 	"\x1bChangeMongoDBExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -11631,8 +11631,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\busername\x18\x05 \x01(\tB\x04\x88\xb5\x18\x01H\x03R\busername\x88\x01\x01\x12%\n" +
 	"\bpassword\x18\x06 \x01(\tB\x04\x88\xb5\x18\x01H\x04R\bpassword\x88\x01\x01\x12\x15\n" +
 	"\x03tls\x18\a \x01(\bH\x05R\x03tls\x88\x01\x01\x12+\n" +
-	"\x0ftls_skip_verify\x18\b \x01(\bH\x06R\rtlsSkipVerify\x88\x01\x01\x123\n" +
-	"\x13tls_certificate_key\x18\t \x01(\tH\aR\x11tlsCertificateKey\x88\x01\x01\x12S\n" +
+	"\x0ftls_skip_verify\x18\b \x01(\bH\x06R\rtlsSkipVerify\x88\x01\x01\x129\n" +
+	"\x13tls_certificate_key\x18\t \x01(\tB\x04\x88\xb5\x18\x01H\aR\x11tlsCertificateKey\x88\x01\x01\x12S\n" +
 	"!tls_certificate_key_file_password\x18\n" +
 	" \x01(\tB\x04\x88\xb5\x18\x01H\bR\x1dtlsCertificateKeyFilePassword\x88\x01\x01\x12\x1a\n" +
 	"\x06tls_ca\x18\v \x01(\tH\tR\x05tlsCa\x88\x01\x01\x127\n" +
@@ -11666,7 +11666,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x16_enable_all_collectorsB\f\n" +
 	"\n" +
 	"_log_levelB\x12\n" +
-	"\x10_expose_exporter\"\xb0\a\n" +
+	"\x10_expose_exporter\"\xbc\a\n" +
 	"\x19AddPostgresExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -11681,9 +11681,9 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\fpush_metrics\x18\t \x01(\bR\vpushMetrics\x12-\n" +
 	"\x12disable_collectors\x18\n" +
 	" \x03(\tR\x11disableCollectors\x12\x15\n" +
-	"\x06tls_ca\x18\v \x01(\tR\x05tlsCa\x12\x19\n" +
-	"\btls_cert\x18\f \x01(\tR\atlsCert\x12\x17\n" +
-	"\atls_key\x18\r \x01(\tR\x06tlsKey\x12+\n" +
+	"\x06tls_ca\x18\v \x01(\tR\x05tlsCa\x12\x1f\n" +
+	"\btls_cert\x18\f \x01(\tB\x04\x88\xb5\x18\x01R\atlsCert\x12\x1d\n" +
+	"\atls_key\x18\r \x01(\tB\x04\x88\xb5\x18\x01R\x06tlsKey\x12+\n" +
 	"\x0eagent_password\x18\x0e \x01(\tB\x04\x88\xb5\x18\x01R\ragentPassword\x123\n" +
 	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x120\n" +
 	"\x14auto_discovery_limit\x18\x10 \x01(\x05R\x12autoDiscoveryLimit\x12'\n" +
@@ -11692,7 +11692,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x12connection_timeout\x18\x13 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc6\t\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd2\t\n" +
 	"\x1cChangePostgresExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -11705,9 +11705,9 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x15skip_connection_check\x18\t \x01(\bH\aR\x13skipConnectionCheck\x88\x01\x01\x12-\n" +
 	"\x12disable_collectors\x18\n" +
 	" \x03(\tR\x11disableCollectors\x12\x1a\n" +
-	"\x06tls_ca\x18\v \x01(\tH\bR\x05tlsCa\x88\x01\x01\x12\x1e\n" +
-	"\btls_cert\x18\f \x01(\tH\tR\atlsCert\x88\x01\x01\x12\x1c\n" +
-	"\atls_key\x18\r \x01(\tH\n" +
+	"\x06tls_ca\x18\v \x01(\tH\bR\x05tlsCa\x88\x01\x01\x12$\n" +
+	"\btls_cert\x18\f \x01(\tB\x04\x88\xb5\x18\x01H\tR\atlsCert\x88\x01\x01\x12\"\n" +
+	"\atls_key\x18\r \x01(\tB\x04\x88\xb5\x18\x01H\n" +
 	"R\x06tlsKey\x88\x01\x01\x120\n" +
 	"\x0eagent_password\x18\x0e \x01(\tB\x04\x88\xb5\x18\x01H\vR\ragentPassword\x88\x01\x01\x128\n" +
 	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelH\fR\blogLevel\x88\x01\x01\x125\n" +
@@ -11779,7 +11779,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0f_agent_passwordB\f\n" +
 	"\n" +
 	"_log_levelB\x12\n" +
-	"\x10_expose_exporter\"\xa1\a\n" +
+	"\x10_expose_exporter\"\xad\a\n" +
 	" AddQANMySQLPerfSchemaAgentParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -11789,9 +11789,9 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\bpassword\x18\x04 \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x12\x10\n" +
 	"\x03tls\x18\x05 \x01(\bR\x03tls\x12&\n" +
 	"\x0ftls_skip_verify\x18\x06 \x01(\bR\rtlsSkipVerify\x12\x15\n" +
-	"\x06tls_ca\x18\a \x01(\tR\x05tlsCa\x12\x19\n" +
-	"\btls_cert\x18\b \x01(\tR\atlsCert\x12\x17\n" +
-	"\atls_key\x18\t \x01(\tR\x06tlsKey\x12(\n" +
+	"\x06tls_ca\x18\a \x01(\tR\x05tlsCa\x12\x1f\n" +
+	"\btls_cert\x18\b \x01(\tB\x04\x88\xb5\x18\x01R\atlsCert\x12\x1d\n" +
+	"\atls_key\x18\t \x01(\tB\x04\x88\xb5\x18\x01R\x06tlsKey\x12(\n" +
 	"\x10max_query_length\x18\n" +
 	" \x01(\x05R\x0emaxQueryLength\x124\n" +
 	"\x16disable_query_examples\x18\v \x01(\bR\x14disableQueryExamples\x12e\n" +
@@ -11805,7 +11805,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aA\n" +
 	"\x13ExtraDsnParamsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x8d\b\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x99\b\n" +
 	"#ChangeQANMySQLPerfSchemaAgentParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -11815,10 +11815,10 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\bpassword\x18\x06 \x01(\tB\x04\x88\xb5\x18\x01H\x04R\bpassword\x88\x01\x01\x12\x15\n" +
 	"\x03tls\x18\a \x01(\bH\x05R\x03tls\x88\x01\x01\x12+\n" +
 	"\x0ftls_skip_verify\x18\b \x01(\bH\x06R\rtlsSkipVerify\x88\x01\x01\x12\x1a\n" +
-	"\x06tls_ca\x18\t \x01(\tH\aR\x05tlsCa\x88\x01\x01\x12\x1e\n" +
+	"\x06tls_ca\x18\t \x01(\tH\aR\x05tlsCa\x88\x01\x01\x12$\n" +
 	"\btls_cert\x18\n" +
-	" \x01(\tH\bR\atlsCert\x88\x01\x01\x12\x1c\n" +
-	"\atls_key\x18\v \x01(\tH\tR\x06tlsKey\x88\x01\x01\x12-\n" +
+	" \x01(\tB\x04\x88\xb5\x18\x01H\bR\atlsCert\x88\x01\x01\x12\"\n" +
+	"\atls_key\x18\v \x01(\tB\x04\x88\xb5\x18\x01H\tR\x06tlsKey\x88\x01\x01\x12-\n" +
 	"\x10max_query_length\x18\f \x01(\x05H\n" +
 	"R\x0emaxQueryLength\x88\x01\x01\x129\n" +
 	"\x16disable_query_examples\x18\r \x01(\bH\vR\x14disableQueryExamples\x88\x01\x01\x127\n" +
@@ -11841,7 +11841,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x16_skip_connection_checkB\x1b\n" +
 	"\x19_disable_comments_parsingB\f\n" +
 	"\n" +
-	"_log_level\"\xcb\a\n" +
+	"_log_level\"\xd7\a\n" +
 	"\x1dAddQANMySQLSlowlogAgentParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -11851,9 +11851,9 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\bpassword\x18\x04 \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x12\x10\n" +
 	"\x03tls\x18\x05 \x01(\bR\x03tls\x12&\n" +
 	"\x0ftls_skip_verify\x18\x06 \x01(\bR\rtlsSkipVerify\x12\x15\n" +
-	"\x06tls_ca\x18\a \x01(\tR\x05tlsCa\x12\x19\n" +
-	"\btls_cert\x18\b \x01(\tR\atlsCert\x12\x17\n" +
-	"\atls_key\x18\t \x01(\tR\x06tlsKey\x12(\n" +
+	"\x06tls_ca\x18\a \x01(\tR\x05tlsCa\x12\x1f\n" +
+	"\btls_cert\x18\b \x01(\tB\x04\x88\xb5\x18\x01R\atlsCert\x12\x1d\n" +
+	"\atls_key\x18\t \x01(\tB\x04\x88\xb5\x18\x01R\x06tlsKey\x12(\n" +
 	"\x10max_query_length\x18\n" +
 	" \x01(\x05R\x0emaxQueryLength\x124\n" +
 	"\x16disable_query_examples\x18\v \x01(\bR\x14disableQueryExamples\x121\n" +
@@ -11868,7 +11868,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aA\n" +
 	"\x13ExtraDsnParamsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xdc\b\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe8\b\n" +
 	" ChangeQANMySQLSlowlogAgentParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -11878,10 +11878,10 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\bpassword\x18\x06 \x01(\tB\x04\x88\xb5\x18\x01H\x04R\bpassword\x88\x01\x01\x12\x15\n" +
 	"\x03tls\x18\a \x01(\bH\x05R\x03tls\x88\x01\x01\x12+\n" +
 	"\x0ftls_skip_verify\x18\b \x01(\bH\x06R\rtlsSkipVerify\x88\x01\x01\x12\x1a\n" +
-	"\x06tls_ca\x18\t \x01(\tH\aR\x05tlsCa\x88\x01\x01\x12\x1e\n" +
+	"\x06tls_ca\x18\t \x01(\tH\aR\x05tlsCa\x88\x01\x01\x12$\n" +
 	"\btls_cert\x18\n" +
-	" \x01(\tH\bR\atlsCert\x88\x01\x01\x12\x1c\n" +
-	"\atls_key\x18\v \x01(\tH\tR\x06tlsKey\x88\x01\x01\x12-\n" +
+	" \x01(\tB\x04\x88\xb5\x18\x01H\bR\atlsCert\x88\x01\x01\x12\"\n" +
+	"\atls_key\x18\v \x01(\tB\x04\x88\xb5\x18\x01H\tR\x06tlsKey\x88\x01\x01\x12-\n" +
 	"\x10max_query_length\x18\f \x01(\x05H\n" +
 	"R\x0emaxQueryLength\x88\x01\x01\x129\n" +
 	"\x16disable_query_examples\x18\r \x01(\bH\vR\x14disableQueryExamples\x88\x01\x01\x126\n" +
@@ -11906,7 +11906,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x16_skip_connection_checkB\x1b\n" +
 	"\x19_disable_comments_parsingB\f\n" +
 	"\n" +
-	"_log_level\"\xb9\x06\n" +
+	"_log_level\"\xbf\x06\n" +
 	" AddQANMongoDBProfilerAgentParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -11915,8 +11915,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\busername\x18\x03 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12 \n" +
 	"\bpassword\x18\x04 \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x12\x10\n" +
 	"\x03tls\x18\x05 \x01(\bR\x03tls\x12&\n" +
-	"\x0ftls_skip_verify\x18\x06 \x01(\bR\rtlsSkipVerify\x12.\n" +
-	"\x13tls_certificate_key\x18\a \x01(\tR\x11tlsCertificateKey\x12N\n" +
+	"\x0ftls_skip_verify\x18\x06 \x01(\bR\rtlsSkipVerify\x124\n" +
+	"\x13tls_certificate_key\x18\a \x01(\tB\x04\x88\xb5\x18\x01R\x11tlsCertificateKey\x12N\n" +
 	"!tls_certificate_key_file_password\x18\b \x01(\tB\x04\x88\xb5\x18\x01R\x1dtlsCertificateKeyFilePassword\x12\x15\n" +
 	"\x06tls_ca\x18\t \x01(\tR\x05tlsCa\x12(\n" +
 	"\x10max_query_length\x18\n" +
@@ -11928,7 +11928,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb0\b\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb6\b\n" +
 	"#ChangeQANMongoDBProfilerAgentParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -11937,8 +11937,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\busername\x18\x05 \x01(\tB\x04\x88\xb5\x18\x01H\x03R\busername\x88\x01\x01\x12%\n" +
 	"\bpassword\x18\x06 \x01(\tB\x04\x88\xb5\x18\x01H\x04R\bpassword\x88\x01\x01\x12\x15\n" +
 	"\x03tls\x18\a \x01(\bH\x05R\x03tls\x88\x01\x01\x12+\n" +
-	"\x0ftls_skip_verify\x18\b \x01(\bH\x06R\rtlsSkipVerify\x88\x01\x01\x123\n" +
-	"\x13tls_certificate_key\x18\t \x01(\tH\aR\x11tlsCertificateKey\x88\x01\x01\x12S\n" +
+	"\x0ftls_skip_verify\x18\b \x01(\bH\x06R\rtlsSkipVerify\x88\x01\x01\x129\n" +
+	"\x13tls_certificate_key\x18\t \x01(\tB\x04\x88\xb5\x18\x01H\aR\x11tlsCertificateKey\x88\x01\x01\x12S\n" +
 	"!tls_certificate_key_file_password\x18\n" +
 	" \x01(\tB\x04\x88\xb5\x18\x01H\bR\x1dtlsCertificateKeyFilePassword\x88\x01\x01\x12\x1a\n" +
 	"\x06tls_ca\x18\v \x01(\tH\tR\x05tlsCa\x88\x01\x01\x12-\n" +
@@ -11961,7 +11961,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x19_authentication_mechanismB\x1a\n" +
 	"\x18_authentication_databaseB\f\n" +
 	"\n" +
-	"_log_level\"\xb9\x06\n" +
+	"_log_level\"\xbf\x06\n" +
 	" AddQANMongoDBMongologAgentParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -11970,8 +11970,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\busername\x18\x03 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12 \n" +
 	"\bpassword\x18\x04 \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x12\x10\n" +
 	"\x03tls\x18\x05 \x01(\bR\x03tls\x12&\n" +
-	"\x0ftls_skip_verify\x18\x06 \x01(\bR\rtlsSkipVerify\x12.\n" +
-	"\x13tls_certificate_key\x18\a \x01(\tR\x11tlsCertificateKey\x12N\n" +
+	"\x0ftls_skip_verify\x18\x06 \x01(\bR\rtlsSkipVerify\x124\n" +
+	"\x13tls_certificate_key\x18\a \x01(\tB\x04\x88\xb5\x18\x01R\x11tlsCertificateKey\x12N\n" +
 	"!tls_certificate_key_file_password\x18\b \x01(\tB\x04\x88\xb5\x18\x01R\x1dtlsCertificateKeyFilePassword\x12\x15\n" +
 	"\x06tls_ca\x18\t \x01(\tR\x05tlsCa\x12(\n" +
 	"\x10max_query_length\x18\n" +
@@ -11983,7 +11983,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb0\b\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb6\b\n" +
 	"#ChangeQANMongoDBMongologAgentParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -11992,8 +11992,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\busername\x18\x05 \x01(\tB\x04\x88\xb5\x18\x01H\x03R\busername\x88\x01\x01\x12%\n" +
 	"\bpassword\x18\x06 \x01(\tB\x04\x88\xb5\x18\x01H\x04R\bpassword\x88\x01\x01\x12\x15\n" +
 	"\x03tls\x18\a \x01(\bH\x05R\x03tls\x88\x01\x01\x12+\n" +
-	"\x0ftls_skip_verify\x18\b \x01(\bH\x06R\rtlsSkipVerify\x88\x01\x01\x123\n" +
-	"\x13tls_certificate_key\x18\t \x01(\tH\aR\x11tlsCertificateKey\x88\x01\x01\x12S\n" +
+	"\x0ftls_skip_verify\x18\b \x01(\bH\x06R\rtlsSkipVerify\x88\x01\x01\x129\n" +
+	"\x13tls_certificate_key\x18\t \x01(\tB\x04\x88\xb5\x18\x01H\aR\x11tlsCertificateKey\x88\x01\x01\x12S\n" +
 	"!tls_certificate_key_file_password\x18\n" +
 	" \x01(\tB\x04\x88\xb5\x18\x01H\bR\x1dtlsCertificateKeyFilePassword\x88\x01\x01\x12\x1a\n" +
 	"\x06tls_ca\x18\v \x01(\tH\tR\x05tlsCa\x88\x01\x01\x12-\n" +
@@ -12016,7 +12016,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x19_authentication_mechanismB\x1a\n" +
 	"\x18_authentication_databaseB\f\n" +
 	"\n" +
-	"_log_level\"\xc8\x05\n" +
+	"_log_level\"\xd4\x05\n" +
 	"'AddQANPostgreSQLPgStatementsAgentParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -12031,13 +12031,13 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x18disable_comments_parsing\x18\t \x01(\bR\x16disableCommentsParsing\x12(\n" +
 	"\x10max_query_length\x18\n" +
 	" \x01(\x05R\x0emaxQueryLength\x12\x15\n" +
-	"\x06tls_ca\x18\v \x01(\tR\x05tlsCa\x12\x19\n" +
-	"\btls_cert\x18\f \x01(\tR\atlsCert\x12\x17\n" +
-	"\atls_key\x18\r \x01(\tR\x06tlsKey\x123\n" +
+	"\x06tls_ca\x18\v \x01(\tR\x05tlsCa\x12\x1f\n" +
+	"\btls_cert\x18\f \x01(\tB\x04\x88\xb5\x18\x01R\atlsCert\x12\x1d\n" +
+	"\atls_key\x18\r \x01(\tB\x04\x88\xb5\x18\x01R\x06tlsKey\x123\n" +
 	"\tlog_level\x18\x0e \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xeb\x06\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xf7\x06\n" +
 	"*ChangeQANPostgreSQLPgStatementsAgentParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -12050,10 +12050,10 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x18disable_comments_parsing\x18\t \x01(\bH\aR\x16disableCommentsParsing\x88\x01\x01\x12-\n" +
 	"\x10max_query_length\x18\n" +
 	" \x01(\x05H\bR\x0emaxQueryLength\x88\x01\x01\x12\x1a\n" +
-	"\x06tls_ca\x18\v \x01(\tH\tR\x05tlsCa\x88\x01\x01\x12\x1e\n" +
-	"\btls_cert\x18\f \x01(\tH\n" +
-	"R\atlsCert\x88\x01\x01\x12\x1c\n" +
-	"\atls_key\x18\r \x01(\tH\vR\x06tlsKey\x88\x01\x01\x128\n" +
+	"\x06tls_ca\x18\v \x01(\tH\tR\x05tlsCa\x88\x01\x01\x12$\n" +
+	"\btls_cert\x18\f \x01(\tB\x04\x88\xb5\x18\x01H\n" +
+	"R\atlsCert\x88\x01\x01\x12\"\n" +
+	"\atls_key\x18\r \x01(\tB\x04\x88\xb5\x18\x01H\vR\x06tlsKey\x88\x01\x01\x128\n" +
 	"\tlog_level\x18\x0e \x01(\x0e2\x16.inventory.v1.LogLevelH\fR\blogLevel\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
@@ -12069,7 +12069,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\n" +
 	"\b_tls_keyB\f\n" +
 	"\n" +
-	"_log_level\"\x80\x06\n" +
+	"_log_level\"\x8c\x06\n" +
 	"(AddQANPostgreSQLPgStatMonitorAgentParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -12085,13 +12085,13 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x15skip_connection_check\x18\n" +
 	" \x01(\bR\x13skipConnectionCheck\x128\n" +
 	"\x18disable_comments_parsing\x18\v \x01(\bR\x16disableCommentsParsing\x12\x15\n" +
-	"\x06tls_ca\x18\f \x01(\tR\x05tlsCa\x12\x19\n" +
-	"\btls_cert\x18\r \x01(\tR\atlsCert\x12\x17\n" +
-	"\atls_key\x18\x0e \x01(\tR\x06tlsKey\x123\n" +
+	"\x06tls_ca\x18\f \x01(\tR\x05tlsCa\x12\x1f\n" +
+	"\btls_cert\x18\r \x01(\tB\x04\x88\xb5\x18\x01R\atlsCert\x12\x1d\n" +
+	"\atls_key\x18\x0e \x01(\tB\x04\x88\xb5\x18\x01R\x06tlsKey\x123\n" +
 	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc2\a\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xce\a\n" +
 	"+ChangeQANPostgreSQLPgStatMonitorAgentParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -12106,9 +12106,9 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	" \x01(\bH\bR\x14disableQueryExamples\x88\x01\x01\x12=\n" +
 	"\x18disable_comments_parsing\x18\v \x01(\bH\tR\x16disableCommentsParsing\x88\x01\x01\x12\x1a\n" +
 	"\x06tls_ca\x18\f \x01(\tH\n" +
-	"R\x05tlsCa\x88\x01\x01\x12\x1e\n" +
-	"\btls_cert\x18\r \x01(\tH\vR\atlsCert\x88\x01\x01\x12\x1c\n" +
-	"\atls_key\x18\x0e \x01(\tH\fR\x06tlsKey\x88\x01\x01\x128\n" +
+	"R\x05tlsCa\x88\x01\x01\x12$\n" +
+	"\btls_cert\x18\r \x01(\tB\x04\x88\xb5\x18\x01H\vR\atlsCert\x88\x01\x01\x12\"\n" +
+	"\atls_key\x18\x0e \x01(\tB\x04\x88\xb5\x18\x01H\fR\x06tlsKey\x88\x01\x01\x128\n" +
 	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelH\rR\blogLevel\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
@@ -12177,13 +12177,13 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0ftls_skip_verify\x18\f \x01(\bR\rtlsSkipVerify\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xf4\x03\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xfa\x03\n" +
 	"\x1cChangeExternalExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
 	"\x13enable_push_metrics\x18\x03 \x01(\bH\x02R\x11enablePushMetrics\x88\x01\x01\x12K\n" +
-	"\x13metrics_resolutions\x18\x04 \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x12\x1f\n" +
-	"\busername\x18\x05 \x01(\tH\x03R\busername\x88\x01\x01\x12\x1b\n" +
+	"\x13metrics_resolutions\x18\x04 \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x12%\n" +
+	"\busername\x18\x05 \x01(\tB\x04\x88\xb5\x18\x01H\x03R\busername\x88\x01\x01\x12\x1b\n" +
 	"\x06scheme\x18\x06 \x01(\tH\x04R\x06scheme\x88\x01\x01\x12&\n" +
 	"\fmetrics_path\x18\a \x01(\tH\x05R\vmetricsPath\x88\x01\x01\x12$\n" +
 	"\vlisten_port\x18\b \x01(\rH\x06R\n" +
@@ -12236,7 +12236,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"_log_level\"@\n" +
 	"\x16ChangeNomadAgentParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01B\t\n" +
-	"\a_enable\"\xc1\x06\n" +
+	"\a_enable\"\xcd\x06\n" +
 	"\x17AddValkeyExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12'\n" +
@@ -12251,16 +12251,16 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\fpush_metrics\x18\t \x01(\bR\vpushMetrics\x12-\n" +
 	"\x12disable_collectors\x18\n" +
 	" \x03(\tR\x11disableCollectors\x12\x15\n" +
-	"\x06tls_ca\x18\v \x01(\tR\x05tlsCa\x12\x19\n" +
-	"\btls_cert\x18\f \x01(\tR\atlsCert\x12\x17\n" +
-	"\atls_key\x18\r \x01(\tR\x06tlsKey\x12+\n" +
+	"\x06tls_ca\x18\v \x01(\tR\x05tlsCa\x12\x1f\n" +
+	"\btls_cert\x18\f \x01(\tB\x04\x88\xb5\x18\x01R\atlsCert\x12\x1d\n" +
+	"\atls_key\x18\r \x01(\tB\x04\x88\xb5\x18\x01R\x06tlsKey\x12+\n" +
 	"\x0eagent_password\x18\x0e \x01(\tB\x04\x88\xb5\x18\x01R\ragentPassword\x12'\n" +
 	"\x0fexpose_exporter\x18\x0f \x01(\bR\x0eexposeExporter\x123\n" +
 	"\tlog_level\x18\x10 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12R\n" +
 	"\x12connection_timeout\x18\x11 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xcc\a\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd8\a\n" +
 	"\x1aChangeValkeyExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -12272,9 +12272,9 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0ftls_skip_verify\x18\b \x01(\bH\x06R\rtlsSkipVerify\x88\x01\x01\x12-\n" +
 	"\x12disable_collectors\x18\t \x03(\tR\x11disableCollectors\x12\x1a\n" +
 	"\x06tls_ca\x18\n" +
-	" \x01(\tH\aR\x05tlsCa\x88\x01\x01\x12\x1e\n" +
-	"\btls_cert\x18\v \x01(\tH\bR\atlsCert\x88\x01\x01\x12\x1c\n" +
-	"\atls_key\x18\f \x01(\tH\tR\x06tlsKey\x88\x01\x01\x120\n" +
+	" \x01(\tH\aR\x05tlsCa\x88\x01\x01\x12$\n" +
+	"\btls_cert\x18\v \x01(\tB\x04\x88\xb5\x18\x01H\bR\atlsCert\x88\x01\x01\x12\"\n" +
+	"\atls_key\x18\f \x01(\tB\x04\x88\xb5\x18\x01H\tR\x06tlsKey\x88\x01\x01\x120\n" +
 	"\x0eagent_password\x18\r \x01(\tB\x04\x88\xb5\x18\x01H\n" +
 	"R\ragentPassword\x88\x01\x01\x12,\n" +
 	"\x0fexpose_exporter\x18\x0e \x01(\bH\vR\x0eexposeExporter\x88\x01\x01\x128\n" +
@@ -12294,7 +12294,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0f_agent_passwordB\x12\n" +
 	"\x10_expose_exporterB\f\n" +
 	"\n" +
-	"_log_level\"\x81\x06\n" +
+	"_log_level\"\x87\x06\n" +
 	"\x18AddRTAMongoDBAgentParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -12305,8 +12305,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\rcustom_labels\x18\x05 \x03(\v28.inventory.v1.AddRTAMongoDBAgentParams.CustomLabelsEntryR\fcustomLabels\x123\n" +
 	"\tlog_level\x18\x06 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12\x10\n" +
 	"\x03tls\x18\a \x01(\bR\x03tls\x12&\n" +
-	"\x0ftls_skip_verify\x18\b \x01(\bR\rtlsSkipVerify\x12.\n" +
-	"\x13tls_certificate_key\x18\t \x01(\tR\x11tlsCertificateKey\x12N\n" +
+	"\x0ftls_skip_verify\x18\b \x01(\bR\rtlsSkipVerify\x124\n" +
+	"\x13tls_certificate_key\x18\t \x01(\tB\x04\x88\xb5\x18\x01R\x11tlsCertificateKey\x12N\n" +
 	"!tls_certificate_key_file_password\x18\n" +
 	" \x01(\tB\x04\x88\xb5\x18\x01R\x1dtlsCertificateKeyFilePassword\x12\x15\n" +
 	"\x06tls_ca\x18\v \x01(\tR\x05tlsCa\x122\n" +
@@ -12316,7 +12316,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"rtaOptions\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc0\x06\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc6\x06\n" +
 	"\x1bChangeRTAMongoDBAgentParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x128\n" +
@@ -12324,8 +12324,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\busername\x18\x04 \x01(\tB\x04\x88\xb5\x18\x01H\x03R\busername\x88\x01\x01\x12%\n" +
 	"\bpassword\x18\x05 \x01(\tB\x04\x88\xb5\x18\x01H\x04R\bpassword\x88\x01\x01\x12\x15\n" +
 	"\x03tls\x18\x06 \x01(\bH\x05R\x03tls\x88\x01\x01\x12+\n" +
-	"\x0ftls_skip_verify\x18\a \x01(\bH\x06R\rtlsSkipVerify\x88\x01\x01\x123\n" +
-	"\x13tls_certificate_key\x18\b \x01(\tH\aR\x11tlsCertificateKey\x88\x01\x01\x12S\n" +
+	"\x0ftls_skip_verify\x18\a \x01(\bH\x06R\rtlsSkipVerify\x88\x01\x01\x129\n" +
+	"\x13tls_certificate_key\x18\b \x01(\tB\x04\x88\xb5\x18\x01H\aR\x11tlsCertificateKey\x88\x01\x01\x12S\n" +
 	"!tls_certificate_key_file_password\x18\t \x01(\tB\x04\x88\xb5\x18\x01H\bR\x1dtlsCertificateKeyFilePassword\x88\x01\x01\x12\x1a\n" +
 	"\x06tls_ca\x18\n" +
 	" \x01(\tH\tR\x05tlsCa\x88\x01\x01\x12>\n" +

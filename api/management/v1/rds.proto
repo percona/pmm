@@ -76,7 +76,10 @@ message AddRDSServiceParams {
   // Replication set name.
   string replication_set = 12;
   // Username for scraping metrics.
-  string username = 13 [(validate.rules).string.min_len = 1];
+  string username = 13 [
+    (validate.rules).string.min_len = 1,
+    (extensions.v1.sensitive) = REDACT_TYPE_FULL
+  ];
   // Password for scraping metrics.
   string password = 14 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // AWS Access key.

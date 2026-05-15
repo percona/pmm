@@ -32,7 +32,7 @@ const setup = ({
       )}
     </TestWrapper>
   );
-}
+};
 
 describe('MainWithNav', () => {
   it('shows loading', () => {
@@ -60,11 +60,15 @@ describe('MainWithNav', () => {
   });
 
   it('hides sidebar so the renderer gets a minimal layout', () => {
-    setup({ isLoading: false, isLoggedIn: true, kioskModeActive: false, search: 'render=1' });
+    setup({
+      isLoading: false,
+      isLoggedIn: true,
+      kioskModeActive: false,
+      search: 'render=1',
+    });
 
     expect(screen.queryByTestId('pmm-sidebar')).toBeNull();
   });
-
 
   it('shows sidebar when not in renderer mode', () => {
     setup({ isLoading: false, isLoggedIn: true, kioskModeActive: false });

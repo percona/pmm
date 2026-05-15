@@ -458,7 +458,7 @@ var File_management_v1_postgresql_proto protoreflect.FileDescriptor
 
 const file_management_v1_postgresql_proto_rawDesc = "" +
 	"\n" +
-	"\x1emanagement/v1/postgresql.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xbb\f\n" +
+	"\x1emanagement/v1/postgresql.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xc7\f\n" +
 	"\x1aAddPostgreSQLServiceParams\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x127\n" +
@@ -487,9 +487,9 @@ const file_management_v1_postgresql_proto_rawDesc = "" +
 	"\x0ftls_skip_verify\x18\x17 \x01(\bR\rtlsSkipVerify\x12=\n" +
 	"\fmetrics_mode\x18\x18 \x01(\x0e2\x1a.management.v1.MetricsModeR\vmetricsMode\x12-\n" +
 	"\x12disable_collectors\x18\x19 \x03(\tR\x11disableCollectors\x12\x15\n" +
-	"\x06tls_ca\x18\x1a \x01(\tR\x05tlsCa\x12\x19\n" +
-	"\btls_cert\x18\x1b \x01(\tR\atlsCert\x12\x17\n" +
-	"\atls_key\x18\x1c \x01(\tR\x06tlsKey\x12+\n" +
+	"\x06tls_ca\x18\x1a \x01(\tR\x05tlsCa\x12\x1f\n" +
+	"\btls_cert\x18\x1b \x01(\tB\x04\x88\xb5\x18\x01R\atlsCert\x12\x1d\n" +
+	"\atls_key\x18\x1c \x01(\tB\x04\x88\xb5\x18\x01R\x06tlsKey\x12+\n" +
 	"\x0eagent_password\x18\x1d \x01(\tB\x04\x88\xb5\x18\x01R\ragentPassword\x123\n" +
 	"\tlog_level\x18\x1e \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x120\n" +
 	"\x14auto_discovery_limit\x18\x1f \x01(\x05R\x12autoDiscoveryLimit\x12'\n" +

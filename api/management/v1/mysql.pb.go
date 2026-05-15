@@ -462,7 +462,7 @@ var File_management_v1_mysql_proto protoreflect.FileDescriptor
 
 const file_management_v1_mysql_proto_rawDesc = "" +
 	"\n" +
-	"\x19management/v1/mysql.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\x8a\r\n" +
+	"\x19management/v1/mysql.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\x96\r\n" +
 	"\x15AddMySQLServiceParams\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x127\n" +
@@ -489,9 +489,9 @@ const file_management_v1_mysql_proto_rawDesc = "" +
 	"\x15max_slowlog_file_size\x18\x15 \x01(\x03R\x12maxSlowlogFileSize\x12\x10\n" +
 	"\x03tls\x18\x16 \x01(\bR\x03tls\x12&\n" +
 	"\x0ftls_skip_verify\x18\x17 \x01(\bR\rtlsSkipVerify\x12\x15\n" +
-	"\x06tls_ca\x18\x18 \x01(\tR\x05tlsCa\x12\x19\n" +
-	"\btls_cert\x18\x19 \x01(\tR\atlsCert\x12\x17\n" +
-	"\atls_key\x18\x1a \x01(\tR\x06tlsKey\x12?\n" +
+	"\x06tls_ca\x18\x18 \x01(\tR\x05tlsCa\x12\x1f\n" +
+	"\btls_cert\x18\x19 \x01(\tB\x04\x88\xb5\x18\x01R\atlsCert\x12\x1d\n" +
+	"\atls_key\x18\x1a \x01(\tB\x04\x88\xb5\x18\x01R\x06tlsKey\x12?\n" +
 	"\x1ctablestats_group_table_limit\x18\x1b \x01(\x05R\x19tablestatsGroupTableLimit\x12=\n" +
 	"\fmetrics_mode\x18\x1c \x01(\x0e2\x1a.management.v1.MetricsModeR\vmetricsMode\x12-\n" +
 	"\x12disable_collectors\x18\x1d \x03(\tR\x11disableCollectors\x12+\n" +

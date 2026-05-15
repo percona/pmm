@@ -62,7 +62,7 @@ message AddMongoDBServiceParams {
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 20;
   // Client certificate and key.
-  string tls_certificate_key = 21;
+  string tls_certificate_key = 21 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Password for decrypting tls_certificate_key.
   string tls_certificate_key_file_password = 22 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Certificate Authority certificate chain.

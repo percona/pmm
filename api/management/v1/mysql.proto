@@ -74,9 +74,9 @@ message AddMySQLServiceParams {
   // Certificate Authority certificate chain.
   string tls_ca = 24;
   // Client certificate.
-  string tls_cert = 25;
+  string tls_cert = 25 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Password for decrypting tls_cert.
-  string tls_key = 26;
+  string tls_key = 26 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Tablestats group collectors will be disabled if there are more than that number of tables.
   // If zero, server's default value is used.
   // Use negative value to disable them.
