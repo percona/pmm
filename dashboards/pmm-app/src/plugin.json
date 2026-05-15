@@ -290,13 +290,18 @@
     },
     {
       "type": "dashboard",
-      "name": "Environment Summary",
-      "path": "dashboards/Experimental/Environment_Summary.json"
+      "name": "Environments Overview",
+      "path": "dashboards/PMM Health/Environments_Overview.json"
     },
     {
       "type": "dashboard",
-      "name": "Environment Overview",
-      "path": "dashboards/Experimental/Environments_Overview.json"
+      "name": "PMM Health",
+      "path": "dashboards/PMM Health/PMM_Health.json"
+    },
+    {
+      "type": "dashboard",
+      "name": "PMM HA Health Overview",
+      "path": "dashboards/PMM Health/PMM_HA_Health_Overview.json"
     },
     {
       "type": "dashboard",
