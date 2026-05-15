@@ -1,4 +1,3 @@
-
 // Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,14 +13,14 @@
 // limitations under the License.
 import { ToggleButtonGroupProps } from '@mui/material';
 import { LabeledContentProps } from '../../../labeled-content';
-import { Control, UseControllerProps } from 'react-hook-form';
+import { Control, FieldPath, FieldValues, UseControllerProps } from 'react-hook-form';
 
-export type ToggleButtonGroupInputProps = {
-  name: string;
+export type ToggleButtonGroupInputProps<T extends FieldValues = FieldValues> = {
+  name: FieldPath<T>;
   label?: string;
   labelProps?: LabeledContentProps;
-  control?: Control;
-  controllerProps?: UseControllerProps;
+  control?: Control<T>;
+  controllerProps?: Omit<UseControllerProps<T>, 'name' | 'control'>;
   toggleButtonGroupProps?: ToggleButtonGroupProps;
   children: React.ReactNode;
 };

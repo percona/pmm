@@ -1,11 +1,10 @@
-import { ToggleButtonGroup } from "@mui/material";
-import { kebabize } from "@/utils";
-import LabeledContent from "../../../labeled-content";
-import { Controller, useFormContext } from "react-hook-form";
-import { ToggleButtonGroupInputProps } from "./toggle-button-group.types";
+import { ToggleButtonGroup } from '@mui/material';
+import { kebabize } from '@/utils';
+import LabeledContent from '../../../labeled-content';
+import { Controller, FieldValues, useFormContext } from 'react-hook-form';
+import { ToggleButtonGroupInputProps } from './toggle-button-group.types';
 
-// TODO remove control prop from all inputs. We should just use useFormContext
-const ToggleButtonGroupInput = ({
+const ToggleButtonGroupInput = <T extends FieldValues = FieldValues>({
   name,
   label,
   control: controlProp,
@@ -13,9 +12,8 @@ const ToggleButtonGroupInput = ({
   labelProps,
   toggleButtonGroupProps = {},
   children,
-}: ToggleButtonGroupInputProps) => {
-
-  const formContext = useFormContext();
+}: ToggleButtonGroupInputProps<T>) => {
+  const formContext = useFormContext<T>();
   const setValue = formContext?.setValue;
   const control = controlProp ?? formContext?.control;
 
@@ -35,8 +33,8 @@ const ToggleButtonGroupInput = ({
           exclusive
           data-testid={`toggle-button-group-input-${kebabize(name)}`}
           sx={{
-            "& > button": {
-              flex: "1 1 0px",
+            '& > button': {
+              flex: '1 1 0px',
             },
             ...toggleButtonGroupSxProp,
           }}
@@ -47,7 +45,7 @@ const ToggleButtonGroupInput = ({
             value: any
           ) => {
             if (value !== null) {
-              const isNumber = typeof value === "number";
+              const isNumber = typeof value === 'number';
               if (isNumber) {
                 event.target.valueAsNumber = value;
               } else {

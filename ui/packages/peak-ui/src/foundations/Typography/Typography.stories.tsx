@@ -64,9 +64,7 @@ export const Headings: Story = {
     },
     children: { control: 'text' },
   },
-  render: (args) => (
-    <Typography variant={args.variant}>{args.children}</Typography>
-  ),
+  render: (args) => <Typography variant={args.variant}>{args.children}</Typography>,
 };
 
 /* ── Titling ──────────────────────────────────────── */
@@ -74,8 +72,10 @@ export const Headings: Story = {
 const titlingVariants = ['subHead1', 'subHead2', 'overline', 'sectionHeading'] as const;
 
 const titlingSamples: Record<(typeof titlingVariants)[number], string> = {
-  subHead1: 'Education is the passport to the future and the key to unlocking the world. Students thrive when teachers actively inspire and challenge them.',
-  subHead2: 'Critical thinking is the essential compass for navigating a complex world. Every focused lesson learned is a significant step toward personal growth. Technology provides new, borderless avenues for global learning and connection.',
+  subHead1:
+    'Education is the passport to the future and the key to unlocking the world. Students thrive when teachers actively inspire and challenge them.',
+  subHead2:
+    'Critical thinking is the essential compass for navigating a complex world. Every focused lesson learned is a significant step toward personal growth. Technology provides new, borderless avenues for global learning and connection.',
   overline: 'Critical Thinking',
   sectionHeading: 'Education Is The Passport',
 };
@@ -106,9 +106,7 @@ export const Titling: Story = {
     },
     children: { control: 'text' },
   },
-  render: (args) => (
-    <Typography variant={args.variant}>{args.children}</Typography>
-  ),
+  render: (args) => <Typography variant={args.variant}>{args.children}</Typography>,
 };
 
 /* ── Body ─────────────────────────────────────────── */
@@ -145,9 +143,7 @@ export const Body: Story = {
     },
     children: { control: 'text' },
   },
-  render: (args) => (
-    <Typography variant={args.variant}>{args.children}</Typography>
-  ),
+  render: (args) => <Typography variant={args.variant}>{args.children}</Typography>,
 };
 
 /* ── Component text styles ────────────────────────── */
@@ -183,7 +179,5 @@ export const ComponentStyles: Story = {
     },
     children: { control: 'text' },
   },
-  render: (args) => (
-    <Typography variant={args.variant}>{args.children}</Typography>
-  ),
+  render: (args) => <Typography variant={args.variant}>{args.children}</Typography>,
 };

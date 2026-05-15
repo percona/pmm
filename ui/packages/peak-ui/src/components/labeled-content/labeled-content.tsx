@@ -1,4 +1,3 @@
-
 // Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,9 +29,9 @@ const LabeledContent = ({
   ...typographyProps
 }: LabeledContentProps) => {
   const {
-    // @ts-expect-error
+    // @ts-expect-error destructuring CSS selector keys that TypeScript doesn't recognize as valid object keys
     '.MuiTextField-root': textFieldRootSx,
-    // @ts-expect-error
+    // @ts-expect-error destructuring CSS selector keys that TypeScript doesn't recognize as valid object keys
     '.MuiAutocomplete-root': autocompleteRootSx,
     ...verticalStackSx
   } = verticalSx;

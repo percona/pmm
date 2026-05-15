@@ -1,21 +1,18 @@
-import { FilterList as FilterListIcon, KeyboardDoubleArrowDown as KeyboardDoubleArrowDownIcon, MoreVert as MoreVertIcon, Search as SearchIcon, ViewColumn as ViewColumnIcon } from '@mui/icons-material';
-import { Alert, AlertProps, Box } from '@mui/material';
 import {
-  MaterialReactTable,
-  MRT_ShowHideColumnsButton,
-  MRT_VisibilityState,
-  MRT_ToggleFiltersButton,
-  MRT_ToggleGlobalFilterButton,
-} from 'material-react-table';
+  FilterList as FilterListIcon,
+  KeyboardDoubleArrowDown as KeyboardDoubleArrowDownIcon,
+  MoreVert as MoreVertIcon,
+  Search as SearchIcon,
+  ViewColumn as ViewColumnIcon,
+} from '@mui/icons-material';
+import { Alert, AlertProps, Box } from '@mui/material';
+import { MaterialReactTable, MRT_VisibilityState } from 'material-react-table';
 import { useEffect } from 'react';
 import { ICONS_OPACITY } from './table.constants';
 import { TableProps } from './table.types';
 import usePersistentColumnVisibility from './usePersistentColumnVisibility';
 
-const NoDataAlertMessage = ({
-  message,
-  ...rest
-}: { message: string } & AlertProps) => {
+const NoDataAlertMessage = ({ message, ...rest }: { message: string } & AlertProps) => {
   const { sx, ...alertProps } = rest;
   return (
     <Alert
@@ -52,12 +49,11 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
     initialState,
     emptyState,
     enableRowHoverAction = false,
-    rowHoverAction = () => { },
+    rowHoverAction = () => {},
     muiTableBodyRowProps,
     ...rest
   } = props;
-  const [columnVisibility, setColumnVisibility] =
-    usePersistentColumnVisibility(tableName);
+  const [columnVisibility, setColumnVisibility] = usePersistentColumnVisibility(tableName);
 
   let columnVisibilityState: MRT_VisibilityState | undefined = {};
   let restOfState = {};
@@ -72,27 +68,18 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
     e.stopPropagation();
   };
 
-  // @ts-expect-error
-  const { sx: muiTopToolbarPropsSx = {}, ...muiTopToolbarRestProps } =
-    muiTopToolbarProps || {};
+  // @ts-expect-error MRT muiTopToolbarProps type doesn't expose sx directly
+  const { sx: muiTopToolbarPropsSx = {}, ...muiTopToolbarRestProps } = muiTopToolbarProps || {};
 
   useEffect(() => {
-    const hideColumnsIcon = document.querySelector(
-      '[aria-label="Show/Hide columns"]'
-    );
-    const showFiltesIcon = document.querySelector(
-      '[aria-label="Show/Hide filters"]'
-    );
-    const globalFilterIcon = document.querySelector(
-      '[aria-label="Show/Hide search"]'
-    );
-    const elementsWithExpandLabel = document.querySelectorAll(
-      '[aria-label="Column Actions"]'
-    );
+    const hideColumnsIcon = document.querySelector('[aria-label="Show/Hide columns"]');
+    const showFiltersIcon = document.querySelector('[aria-label="Show/Hide filters"]');
+    const globalFilterIcon = document.querySelector('[aria-label="Show/Hide search"]');
+    const elementsWithExpandLabel = document.querySelectorAll('[aria-label="Column Actions"]');
 
     if (!data.length) {
       hideColumnsIcon?.addEventListener('click', stopPropagation);
-      showFiltesIcon?.addEventListener('click', stopPropagation);
+      showFiltersIcon?.addEventListener('click', stopPropagation);
       globalFilterIcon?.addEventListener('click', stopPropagation);
       elementsWithExpandLabel.forEach((element) => {
         element.addEventListener('click', stopPropagation);
@@ -101,7 +88,7 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
 
     return () => {
       globalFilterIcon?.removeEventListener('click', stopPropagation);
-      showFiltesIcon?.removeEventListener('click', stopPropagation);
+      showFiltersIcon?.removeEventListener('click', stopPropagation);
       hideColumnsIcon?.removeEventListener('click', stopPropagation);
       elementsWithExpandLabel.forEach((element) => {
         element.removeEventListener('click', stopPropagation);
@@ -123,10 +110,7 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
         <>
           {/* This means there was data before filtering, so we show the message of empty filtering result */}
           {getPreFilteredRowModel().rows.length > 0 ? (
-            <NoDataAlertMessage
-              message={emptyFilterResultsMessage}
-              {...noDataAlertProps}
-            />
+            <NoDataAlertMessage message={emptyFilterResultsMessage} {...noDataAlertProps} />
           ) : emptyState ? (
             <Box>{emptyState}</Box>
           ) : (
@@ -150,18 +134,10 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
           ) : (
             <KeyboardDoubleArrowDownIcon sx={{ opacity: ICONS_OPACITY }} />
           ),
-        SearchIcon: () => (
-          <SearchIcon sx={{ opacity: !data.length ? ICONS_OPACITY : 1 }} />
-        ),
-        FilterListIcon: () => (
-          <FilterListIcon sx={{ opacity: !data.length ? ICONS_OPACITY : 1 }} />
-        ),
-        ViewColumnIcon: () => (
-          <ViewColumnIcon sx={{ opacity: !data.length ? ICONS_OPACITY : 1 }} />
-        ),
-        MoreVertIcon: () => (
-          <MoreVertIcon sx={{ opacity: !data.length ? ICONS_OPACITY : 1 }} />
-        ),
+        SearchIcon: () => <SearchIcon sx={{ opacity: !data.length ? ICONS_OPACITY : 1 }} />,
+        FilterListIcon: () => <FilterListIcon sx={{ opacity: !data.length ? ICONS_OPACITY : 1 }} />,
+        ViewColumnIcon: () => <ViewColumnIcon sx={{ opacity: !data.length ? ICONS_OPACITY : 1 }} />,
+        MoreVertIcon: () => <MoreVertIcon sx={{ opacity: !data.length ? ICONS_OPACITY : 1 }} />,
       }}
       positionActionsColumn="last"
       positionExpandColumn="last"
@@ -188,14 +164,12 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
             sx: {
               flex: 'none',
               width: '75px',
-              ...// @ts-ignore
               // prettier-ignore
-              displayColumnDefOptions?.['mrt-row-actions']
-                // @ts-ignore
+              ...displayColumnDefOptions?.['mrt-row-actions']
+                // @ts-expect-error MRT displayColumnDefOptions type doesn't expose nested sx
                 ?.muiTableBodyCellProps?.sx,
             },
-            ...displayColumnDefOptions?.['mrt-row-actions']
-              ?.muiTableBodyCellProps,
+            ...displayColumnDefOptions?.['mrt-row-actions']?.muiTableBodyCellProps,
           },
           muiTableHeadCellProps: {
             sx: {
@@ -209,14 +183,12 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
               WebkitUserSelect: 'none',
               MozUserSelect: 'none',
               msUserSelect: 'none',
-              ...// @ts-ignore
               // prettier-ignore
-              displayColumnDefOptions?.['mrt-row-actions']
-                // @ts-ignore
+              ...displayColumnDefOptions?.['mrt-row-actions']
+                // @ts-expect-error MRT displayColumnDefOptions type doesn't expose nested sx
                 ?.muiTableHeadCellProps?.sx,
             },
-            ...displayColumnDefOptions?.['mrt-row-actions']
-              ?.muiTableHeadCellProps,
+            ...displayColumnDefOptions?.['mrt-row-actions']?.muiTableHeadCellProps,
           },
           ...displayColumnDefOptions?.['mrt-row-actions'],
         },
@@ -226,14 +198,12 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
             sx: {
               flex: 'none',
               width: '60px',
-              ...// @ts-ignore
               // prettier-ignore
-              displayColumnDefOptions?.['mrt-row-expand']?.muiTableBodyCellProps
-                // @ts-ignore
+              ...displayColumnDefOptions?.['mrt-row-expand']?.muiTableBodyCellProps
+                // @ts-expect-error MRT displayColumnDefOptions type doesn't expose nested sx
                 ?.sx,
             },
-            ...displayColumnDefOptions?.['mrt-row-expand']
-              ?.muiTableBodyCellProps,
+            ...displayColumnDefOptions?.['mrt-row-expand']?.muiTableBodyCellProps,
           },
           muiTableHeadCellProps: {
             sx: {
@@ -244,21 +214,19 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
                   display: 'none',
                 },
               }),
-              ...// @ts-ignore
               // prettier-ignore
-              displayColumnDefOptions?.['mrt-row-expand']?.muiTableHeadCellProps
-                // @ts-ignore
+              ...displayColumnDefOptions?.['mrt-row-expand']?.muiTableHeadCellProps
+                // @ts-expect-error MRT displayColumnDefOptions type doesn't expose nested sx
                 ?.sx,
             },
-            ...displayColumnDefOptions?.['mrt-row-expand']
-              ?.muiTableHeadCellProps,
+            ...displayColumnDefOptions?.['mrt-row-expand']?.muiTableHeadCellProps,
           },
           ...displayColumnDefOptions?.['mrt-row-expand'],
         },
         ...displayColumnDefOptions,
       }}
       muiTableProps={{
-        // @ts-expect-error
+        // @ts-expect-error MRT muiTableProps type doesn't include data-testid HTML attribute
         'data-testid': tableName,
       }}
       muiTableHeadProps={{
@@ -312,8 +280,8 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
           sx: {
             ...(!isDetailPanel &&
               enableRowHoverAction && {
-              cursor: 'pointer', // you might want to change the cursor too when adding an onClick
-            }),
+                cursor: 'pointer', // you might want to change the cursor too when adding an onClick
+              }),
             ...sx,
           },
           ...restOfProps,
