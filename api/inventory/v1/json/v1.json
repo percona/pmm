@@ -448,6 +448,11 @@
                           "type": "string"
                         },
                         "x-order": 22
+                      },
+                      "connection_timeout": {
+                        "description": "Connection timeout for exporter (if set).",
+                        "type": "string",
+                        "x-order": 23
                       }
                     }
                   },
@@ -610,6 +615,11 @@
                           "type": "string"
                         },
                         "x-order": 19
+                      },
+                      "connection_timeout": {
+                        "description": "Connection timeout for exporter (if set).",
+                        "type": "string",
+                        "x-order": 20
                       }
                     }
                   },
@@ -757,6 +767,11 @@
                           }
                         },
                         "x-order": 17
+                      },
+                      "connection_timeout": {
+                        "description": "Connection timeout for exporter (if set).",
+                        "type": "string",
+                        "x-order": 18
                       }
                     }
                   },
@@ -892,6 +907,11 @@
                           }
                         },
                         "x-order": 15
+                      },
+                      "connection_timeout": {
+                        "description": "Connection timeout for exporter (if set).",
+                        "type": "string",
+                        "x-order": 16
                       }
                     }
                   },
@@ -2077,6 +2097,11 @@
                           }
                         },
                         "x-order": 14
+                      },
+                      "connection_timeout": {
+                        "description": "Connection timeout for exporter (if set).",
+                        "type": "string",
+                        "x-order": 15
                       }
                     }
                   },
@@ -2412,6 +2437,11 @@
                         "type": "string"
                       },
                       "x-order": 17
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 18
                     }
                   },
                   "x-order": 2
@@ -2551,6 +2581,11 @@
                       "description": "Enable all collectors.",
                       "type": "boolean",
                       "x-order": 21
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 22
                     }
                   },
                   "x-order": 3
@@ -2665,6 +2700,11 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 17
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 18
                     }
                   },
                   "x-order": 4
@@ -2752,6 +2792,11 @@
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 12
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 13
                     }
                   },
                   "x-order": 5
@@ -3649,6 +3694,11 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 15
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 16
                     }
                   },
                   "x-order": 15
@@ -4074,6 +4124,11 @@
                         "type": "string"
                       },
                       "x-order": 22
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 23
                     }
                   },
                   "x-order": 2
@@ -4233,6 +4288,11 @@
                         "type": "string"
                       },
                       "x-order": 19
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 20
                     }
                   },
                   "x-order": 3
@@ -4377,6 +4437,11 @@
                         }
                       },
                       "x-order": 17
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 18
                     }
                   },
                   "x-order": 4
@@ -4509,6 +4574,11 @@
                         }
                       },
                       "x-order": 15
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 16
                     }
                   },
                   "x-order": 5
@@ -5613,6 +5683,11 @@
                         }
                       },
                       "x-order": 14
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 15
                     }
                   },
                   "x-order": 15
@@ -6129,6 +6204,11 @@
                         "type": "string"
                       },
                       "x-order": 22
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 23
                     }
                   },
                   "x-order": 3
@@ -6288,6 +6368,11 @@
                         "type": "string"
                       },
                       "x-order": 19
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 20
                     }
                   },
                   "x-order": 4
@@ -6432,6 +6517,11 @@
                         }
                       },
                       "x-order": 17
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 18
                     }
                   },
                   "x-order": 5
@@ -6564,6 +6654,11 @@
                         }
                       },
                       "x-order": 15
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 16
                     }
                   },
                   "x-order": 6
@@ -7716,6 +7811,11 @@
                         }
                       },
                       "x-order": 14
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 15
                     }
                   },
                   "x-order": 17
@@ -8097,6 +8197,11 @@
                       "type": "boolean",
                       "x-nullable": true,
                       "x-order": 16
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 17
                     }
                   },
                   "x-order": 1
@@ -8269,6 +8374,11 @@
                       "type": "boolean",
                       "x-nullable": true,
                       "x-order": 20
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 21
                     }
                   },
                   "x-order": 2
@@ -8422,6 +8532,11 @@
                       "format": "int32",
                       "x-nullable": true,
                       "x-order": 17
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 18
                     }
                   },
                   "x-order": 3
@@ -8537,6 +8652,11 @@
                       "type": "boolean",
                       "x-nullable": true,
                       "x-order": 11
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 12
                     }
                   },
                   "x-order": 4
@@ -9763,6 +9883,11 @@
                       ],
                       "x-nullable": true,
                       "x-order": 14
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 15
                     }
                   },
                   "x-order": 15
@@ -10161,6 +10286,11 @@
                         "type": "string"
                       },
                       "x-order": 22
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 23
                     }
                   },
                   "x-order": 1
@@ -10320,6 +10450,11 @@
                         "type": "string"
                       },
                       "x-order": 19
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 20
                     }
                   },
                   "x-order": 2
@@ -10464,6 +10599,11 @@
                         }
                       },
                       "x-order": 17
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 18
                     }
                   },
                   "x-order": 3
@@ -10596,6 +10736,11 @@
                         }
                       },
                       "x-order": 15
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 16
                     }
                   },
                   "x-order": 4
@@ -11748,6 +11893,11 @@
                         }
                       },
                       "x-order": 14
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 15
                     }
                   },
                   "x-order": 15
