@@ -49,6 +49,8 @@ const (
 	victoriametricsDir     = "/srv/victoriametrics"
 	victoriametricsDataDir = "/srv/victoriametrics/data"
 	dirPerm                = os.FileMode(0o775)
+
+	localhost = "127.0.0.1"
 )
 
 var checkFailedRE = regexp.MustCompile(`(?s)cannot unmarshal data: (.+)`)
@@ -446,7 +448,7 @@ func scrapeConfigForVMAlert(interval time.Duration, pmmServerNodeName string) *c
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{
 				{
-					Targets: []string{"127.0.0.1:8880"},
+					Targets: []string{localhost + ":8880"},
 					Labels:  map[string]string{"instance": pmmServerNodeName},
 				},
 			},

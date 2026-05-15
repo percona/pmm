@@ -87,7 +87,7 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 		}
 		switch {
 		case pushMetrics:
-			paramsHost = "127.0.0.1"
+			paramsHost = localhost
 		case agent.PMMAgentID != nil:
 			pmmAgentNode = &models.Node{NodeID: pointer.GetString(pmmAgent.RunsOnNodeID)}
 			if err = q.Reload(pmmAgentNode); err != nil {
