@@ -137,6 +137,22 @@ services:
       - ${PWD}/utils/tests/testdata/valkey:/etc/valkey/
       - test_db_valkey:/docker-entrypoint-initdb.d/
 
+  clickhouse:
+    image: ${CLICKHOUSE_IMAGE:-clickhouse/clickhouse-server:25.3}
+    container_name: pmm-agent_clickhouse
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:8123:8123"
+    environment:
+      - CLICKHOUSE_USER=default
+      - CLICKHOUSE_PASSWORD=clickhouse
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8123/ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   sysbench:
     image: perconalab/sysbench
     container_name: pmm-agent_sysbench
