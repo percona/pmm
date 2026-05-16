@@ -23,6 +23,7 @@ VERSION          ?= $(if $(OFFICIAL_VERSION),$(OFFICIAL_VERSION),3.0.0)
 RELEASE          ?= $(shell git rev-list --count HEAD 2>/dev/null || echo 1)
 FULL_VERSION     := $(VERSION)-$(RELEASE)
 GIT_BRANCH       := $(shell git rev-parse --abbrev-ref HEAD 2>/dev/null)
+GIT_COMMIT       := $(shell git rev-parse HEAD 2>/dev/null)
 
 # -----------------------------------------------------------------------------
 # Paths — the build tree lives OUTSIDE the repo so `go build ./...` never scans
@@ -102,11 +103,14 @@ create-build-dirs:                                ## Create the $(ROOT_DIR) buil
 	@ln -sfn $(CURDIR)/pmm-submodules $(ROOT_DIR)/sources/pmm-submodules
 	# THIS repo is the pmm component source. The build scripts run `git` on it
 	# (rev-parse, archive), so it must be a real checkout — a local clone of
-	# this repo at the current branch, in the GOPATH-style path they expect.
+	# this repo at the current commit, in the GOPATH-style path they expect.
+	# Clone by commit, not branch: in CI the repo is checked out at a tag
+	# (detached HEAD), so there is no branch name to clone.
 	@rm -rf $(ROOT_DIR)/sources/pmm
 	@mkdir -p $(ROOT_DIR)/sources/pmm/src/github.com/percona
-	@git clone --local --single-branch --branch $(GIT_BRANCH) \
+	@git clone --local --no-checkout \
 	    $(CURDIR) $(ROOT_DIR)/sources/pmm/src/github.com/percona/pmm
+	@git -C $(ROOT_DIR)/sources/pmm/src/github.com/percona/pmm checkout --detach $(GIT_COMMIT)
 
 .PHONY: build-rpmbuild-image
 build-rpmbuild-image:                             ## Build the rpmbuild container locally
