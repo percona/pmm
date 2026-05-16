@@ -70,17 +70,21 @@ submodules:                                       ## git submodule update (compo
 .PHONY: create-build-dirs
 create-build-dirs:                                ## Create the $(ROOT_DIR) build layout
 	@echo "=== Laying out $(ROOT_DIR) ==="
+	# Rebuilt fresh each run so the layout is idempotent.
+	@rm -rf $(ROOT_DIR)/sources
 	@mkdir -p $(ROOT_DIR)/sources $(ROOT_DIR)/tmp $(ROOT_DIR)/results $(ARTIFACT_DIR)
 	@echo "$(FULL_VERSION)" > $(ROOT_DIR)/VERSION
 	# build/scripts/* read component sources from $(ROOT_DIR)/sources/*.
 	@if [ -d pmm-submodules/sources ]; then \
 	    cp -aT pmm-submodules/sources $(ROOT_DIR)/sources; \
 	fi
-	# This repo IS the pmm component source (GOPATH-style path the scripts expect).
+	# THIS repo is the pmm component source — override the pmm-submodules pin
+	# with a GOPATH-style symlink the build scripts expect.
+	@rm -rf $(ROOT_DIR)/sources/pmm
 	@mkdir -p $(ROOT_DIR)/sources/pmm/src/github.com/percona
-	@if [ ! -e $(ROOT_DIR)/sources/pmm/src/github.com/percona/pmm ]; then \
-	    ln -sfn $(CURDIR) $(ROOT_DIR)/sources/pmm/src/github.com/percona/pmm; \
-	fi
+	@ln -sfn $(CURDIR) $(ROOT_DIR)/sources/pmm/src/github.com/percona/pmm
+	# build-client-source archives sources/pmm-submodules itself.
+	@ln -sfn $(CURDIR)/pmm-submodules $(ROOT_DIR)/sources/pmm-submodules
 
 .PHONY: build-rpmbuild-image
 build-rpmbuild-image:                             ## Build the rpmbuild container locally
@@ -93,21 +97,23 @@ build-rpmbuild-image:                             ## Build the rpmbuild containe
 .PHONY: client
 client: create-build-dirs                         ## Build pmm-client RPM/tarball + Docker image
 	@echo "=== Building pmm-client (local) ==="
+	cd $(ROOT_DIR) && \
 	ROOT_DIR=$(ROOT_DIR) \
 	RPMBUILD_DOCKER_IMAGE=$(RPMBUILD_DOCKER_IMAGE) \
 	DOCKER_CLIENT_TAG=$(CLIENT_IMAGE) \
 	SKIP_S3_CACHE=1 \
-	    $(PATH_TO_SCRIPTS)/build-client
+	    $(CURDIR)/$(PATH_TO_SCRIPTS)/build-client
 
 .PHONY: server
 server: create-build-dirs                         ## Build pmm-server RPMs + Docker image
 	@echo "=== Building pmm-server (local) ==="
+	cd $(ROOT_DIR) && \
 	ROOT_DIR=$(ROOT_DIR) \
 	RPMBUILD_DOCKER_IMAGE=$(RPMBUILD_DOCKER_IMAGE) \
 	RPMBUILD_DIST=$(DIST) \
 	DOCKER_TAG=$(SERVER_IMAGE) \
 	SKIP_S3_CACHE=1 \
-	    $(PATH_TO_SCRIPTS)/build-server
+	    $(CURDIR)/$(PATH_TO_SCRIPTS)/build-server
 
 .PHONY: publish
 publish:                                          ## Collect build artifacts into $(ARTIFACT_DIR)

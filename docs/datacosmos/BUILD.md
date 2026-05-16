@@ -44,17 +44,32 @@ make publish      # collect artifacts into ./artifacts
 make clean
 ```
 
-### ⚠️ Build caveats (validate in CI — not verifiable offline)
+### Standalone (no Percona infrastructure)
 
-- The **canonical** PMM build is orchestrated by the separate
-  [`Percona-Lab/pmm-submodules`](https://github.com/Percona-Lab/pmm-submodules)
-  repo (`ci.yml` + Jenkins). `Makefile.datacosmos` is a *local alternative*
-  that calls `build/scripts/*` directly — it must be re-validated whenever the
-  fork is realigned to a new upstream tag, since those scripts evolve.
-- `build-rpmbuild-image`, `client`, `server` run Docker/`buildx` and push to
-  `gru.ocir.io/grq1iurfepyg/pmm`. They cannot be dry-run in a plain checkout.
-- `prepare` depends on the `pmm-submodules` git submodule being initialised
-  (`git submodule update --init --recursive`).
+`Makefile.datacosmos` builds with **no Jenkins, no AWS S3 build cache, no
+private/Percona registries, no image push**:
+
+- `RPMBUILD_DOCKER_IMAGE` defaults to the locally-built `pmm-rpmbuild:local`
+  (built by `make build-rpmbuild-image` from `oraclelinux:9-slim`).
+- `SKIP_S3_CACHE=1` is exported — `build/scripts/build-server-rpm` then builds
+  every RPM locally instead of syncing `s3://pmm-build-cache`.
+- Images use local tags (`pmm-local/*`) and are never pushed.
+- `make prepare` materialises the build tree under `$(ROOT_DIR)` (default
+  `../pmm-build-root`, **outside** the repo).
+
+### ⚠️ Build status — verified vs. pending
+
+Verified working: `make build-rpmbuild-image` (local 1.5 GB rpmbuild image),
+`make prepare` (submodule checkout + build-tree layout), and the early
+`make client` stages (external tarball downloads, source preparation).
+
+**Pending:** the canonical PMM build (orchestrated upstream by
+[`Percona-Lab/pmm-submodules`](https://github.com/Percona-Lab/pmm-submodules)
++ Jenkins) assumes `root_dir` is itself a git checkout (the Jenkins workspace)
+and writes the Go module cache under `root_dir/tmp`. Reproducing a full
+`make client` / `make server` standalone needs `build/scripts/vars` to be
+decoupled from that workspace assumption. Until then, run the full RPM/image
+build inside a `Percona-Lab/pmm-submodules` checkout, or in CI.
 
 ## ClickHouse collector (draft — `feat/clickhouse-collector`)
 
