@@ -59,10 +59,17 @@ prepare_specs() {
     local spec_name=$1
     local repo_name=$2
 
-    sudo chown -R $(id -u):$(id -g) ${rpmbuild_dir}/SPECS ${rpmbuild_dir}/SOURCES
+    # Best-effort: passwordless sudo is not available in every environment
+    # (e.g. a standalone build). The files are usually already owned by the
+    # current user, so a plain chown — or nothing — suffices.
+    sudo -n chown -R $(id -u):$(id -g) ${rpmbuild_dir}/SPECS ${rpmbuild_dir}/SOURCES 2>/dev/null \
+        || chown -R $(id -u):$(id -g) ${rpmbuild_dir}/SPECS ${rpmbuild_dir}/SOURCES 2>/dev/null \
+        || true
     cp ${rpmbuild_dir}/SPECS/${spec_name}.spec ${rpmbuild_dir}/SOURCES/${spec_name}.spec
     if [ -d "${root_dir}/sources/${repo_name}" ]; then
-        local git_dir=$(dirname $(find "${root_dir}/sources/${repo_name}" -name .git | head -1))
+        # -L + realpath: component sources may be symlinked into a standalone
+        # build tree; resolve so `git` finds the real submodule gitlink.
+        local git_dir=$(realpath "$(dirname "$(find -L "${root_dir}/sources/${repo_name}" -name .git | head -1)")")
         local full_commit=$(git -C "${git_dir}" rev-parse HEAD)
         local short_commit=${full_commit:0:7}
 
