@@ -47,9 +47,18 @@ SERVER_IMAGE          ?= $(IMAGE_REGISTRY)/pmm-server:$(FULL_VERSION)
 DC_RELEASE             ?= dc1
 DC_VERSION             ?= $(VERSION)-$(DC_RELEASE)
 GHCR_NAMESPACE         ?= ghcr.io/datacosmos-br
+
+# Multi-arch. PLATFORMS drives the buildx rpmbuild image. The pmm-client/server
+# images are built per-arch (each on its native runner in CI) and published as
+# <tag>-<arch>; `publish-manifests` then merges them into a multi-arch tag.
+PLATFORMS              ?= linux/amd64,linux/arm64
+BUILDX_BUILDER         ?= pmm-multiarch
+IMAGE_ARCH             ?=
+ARCH_SUFFIX            := $(if $(IMAGE_ARCH),-$(IMAGE_ARCH),)
+
 RPMBUILD_PUBLISH_IMAGE ?= $(GHCR_NAMESPACE)/pmm-rpmbuild:$(DC_VERSION)
-CLIENT_PUBLISH_IMAGE   ?= $(GHCR_NAMESPACE)/pmm-client:$(DC_VERSION)
-SERVER_PUBLISH_IMAGE   ?= $(GHCR_NAMESPACE)/pmm-server:$(DC_VERSION)
+CLIENT_PUBLISH_IMAGE   ?= $(GHCR_NAMESPACE)/pmm-client:$(DC_VERSION)$(ARCH_SUFFIX)
+SERVER_PUBLISH_IMAGE   ?= $(GHCR_NAMESPACE)/pmm-server:$(DC_VERSION)$(ARCH_SUFFIX)
 
 # Standalone build switches consumed by build/scripts/*:
 #  * SKIP_S3_CACHE=1  — never touch s3://pmm-build-cache (build every RPM here);
@@ -79,8 +88,10 @@ submodules:                                       ## git submodule update (compo
 .PHONY: create-build-dirs
 create-build-dirs:                                ## Create the $(ROOT_DIR) build layout
 	@echo "=== Laying out $(ROOT_DIR) ==="
-	# Rebuilt fresh each run so the layout is idempotent.
-	@rm -rf $(ROOT_DIR)/sources
+	# Rebuilt fresh each run so the layout is idempotent. tmp/source and
+	# tmp/binary are cleared too: stale per-commit tarballs (pmm-<oldsha>.tar.gz)
+	# collide with the current build. tmp/go (the module cache) is kept.
+	@rm -rf $(ROOT_DIR)/sources $(ROOT_DIR)/tmp/source $(ROOT_DIR)/tmp/binary
 	@mkdir -p $(ROOT_DIR)/sources $(ROOT_DIR)/tmp $(ROOT_DIR)/results $(ARTIFACT_DIR)
 	@echo "$(FULL_VERSION)" > $(ROOT_DIR)/VERSION
 	# Symlink (never copy) each component source from pmm-submodules: copying
@@ -109,23 +120,42 @@ build-rpmbuild-image:                             ## Build the rpmbuild containe
 ghcr-login:                                       ## Log in to ghcr.io using the gh CLI token
 	@gh auth token | docker login ghcr.io -u "$$(gh api user --jq .login)" --password-stdin
 
+.PHONY: buildx-setup
+buildx-setup:                                     ## Ensure a multi-arch buildx builder exists
+	@docker buildx inspect $(BUILDX_BUILDER) >/dev/null 2>&1 \
+	    || docker buildx create --name $(BUILDX_BUILDER) --driver docker-container --bootstrap
+
 .PHONY: publish-rpmbuild-image
-publish-rpmbuild-image: ghcr-login                ## Push pmm-rpmbuild to ghcr.io/datacosmos-br as -dcN
-	docker tag $(RPMBUILD_DOCKER_IMAGE) $(RPMBUILD_PUBLISH_IMAGE)
-	docker push $(RPMBUILD_PUBLISH_IMAGE)
-	@echo "Published $(RPMBUILD_PUBLISH_IMAGE)"
+publish-rpmbuild-image: ghcr-login buildx-setup   ## Build & push multi-arch pmm-rpmbuild to ghcr.io
+	docker buildx build --builder $(BUILDX_BUILDER) \
+	    --platform $(PLATFORMS) \
+	    --tag $(RPMBUILD_PUBLISH_IMAGE) \
+	    --file build/docker/rpmbuild/Dockerfile.el9 \
+	    --push \
+	    build/docker/rpmbuild
+	@echo "Published multi-arch $(RPMBUILD_PUBLISH_IMAGE) ($(PLATFORMS))"
 
 .PHONY: publish-client-image
-publish-client-image: ghcr-login                  ## Push pmm-client to ghcr.io/datacosmos-br as -dcN
+publish-client-image: ghcr-login                  ## Push pmm-client (host arch) to ghcr.io as -dcN[-arch]
 	docker tag $(CLIENT_IMAGE) $(CLIENT_PUBLISH_IMAGE)
 	docker push $(CLIENT_PUBLISH_IMAGE)
 	@echo "Published $(CLIENT_PUBLISH_IMAGE)"
 
 .PHONY: publish-server-image
-publish-server-image: ghcr-login                  ## Push pmm-server to ghcr.io/datacosmos-br as -dcN
+publish-server-image: ghcr-login                  ## Push pmm-server (host arch) to ghcr.io as -dcN[-arch]
 	docker tag $(SERVER_IMAGE) $(SERVER_PUBLISH_IMAGE)
 	docker push $(SERVER_PUBLISH_IMAGE)
 	@echo "Published $(SERVER_PUBLISH_IMAGE)"
+
+.PHONY: publish-manifests
+publish-manifests: ghcr-login                     ## Merge per-arch pmm-client/server images into multi-arch tags
+	docker buildx imagetools create --tag $(GHCR_NAMESPACE)/pmm-client:$(DC_VERSION) \
+	    $(GHCR_NAMESPACE)/pmm-client:$(DC_VERSION)-amd64 \
+	    $(GHCR_NAMESPACE)/pmm-client:$(DC_VERSION)-arm64
+	docker buildx imagetools create --tag $(GHCR_NAMESPACE)/pmm-server:$(DC_VERSION) \
+	    $(GHCR_NAMESPACE)/pmm-server:$(DC_VERSION)-amd64 \
+	    $(GHCR_NAMESPACE)/pmm-server:$(DC_VERSION)-arm64
+	@echo "Published multi-arch pmm-client and pmm-server :$(DC_VERSION)"
 
 .PHONY: client
 client: create-build-dirs                         ## Build pmm-client RPM/tarball + Docker image
