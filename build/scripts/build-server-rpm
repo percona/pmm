@@ -29,8 +29,11 @@ is_build_needed() {
     # s3://pmm-build-cache/PR-BUILDS/9 - el9
     # s3://pmm-build-cache/RELEASE/9 - el9
 
-    # RPM_EPOCH is set for Feature Builds
-    if [ -n "$RPM_EPOCH" ]; then
+    # SKIP_S3_CACHE: standalone builds never touch the AWS S3 RPM cache — every
+    # RPM is built locally. RPM_EPOCH is set for Feature Builds.
+    if [ -n "${SKIP_S3_CACHE:-}" ]; then
+        mkdir -p ${rpms_dir}/${spec_name}-${rpm_version}
+    elif [ -n "$RPM_EPOCH" ]; then
         aws s3 sync \
             --region us-east-2 \
             --no-progress \
@@ -147,7 +150,10 @@ build() {
             sudo chown -R $(id -u):$(id -g) /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
         "
 
-        if [ -n "$RPM_EPOCH" ]; then
+        # SKIP_S3_CACHE: standalone builds never upload RPMs to the S3 cache.
+        if [ -n "${SKIP_S3_CACHE:-}" ]; then
+            :
+        elif [ -n "$RPM_EPOCH" ]; then
             aws s3 sync \
                 --region us-east-2 \
                 --no-progress \
