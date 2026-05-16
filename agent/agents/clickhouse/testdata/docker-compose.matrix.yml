@@ -1,0 +1,65 @@
+---
+# ClickHouse version/topology matrix for the collector integration tests.
+#
+# The image is selected via CLICKHOUSE_IMAGE; the topology via the compose
+# profile (`--profile single` or `--profile cluster`). Driven by run-matrix.sh.
+services:
+  # --- single-node topology ---------------------------------------------------
+  ch-single:
+    image: ${CLICKHOUSE_IMAGE:-clickhouse/clickhouse-server:25.3}
+    container_name: pmm_ch_single
+    hostname: ch-single
+    profiles: ["single"]
+    ports:
+      - "127.0.0.1:9000:9000"
+    environment:
+      - CLICKHOUSE_USER=default
+      - CLICKHOUSE_PASSWORD=clickhouse
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+    healthcheck:
+      test: ["CMD", "clickhouse-client", "--user=default", "--password=clickhouse", "--query=SELECT 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  # --- cluster topology (2 nodes, node1 hosts an embedded Keeper) -------------
+  ch-node1:
+    image: ${CLICKHOUSE_IMAGE:-clickhouse/clickhouse-server:25.3}
+    container_name: pmm_ch_node1
+    hostname: ch-node1
+    profiles: ["cluster"]
+    ports:
+      - "127.0.0.1:9100:9000"
+    environment:
+      - CLICKHOUSE_USER=default
+      - CLICKHOUSE_PASSWORD=clickhouse
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+    volumes:
+      - ./clickhouse-cluster/node1.xml:/etc/clickhouse-server/config.d/pmm-cluster.xml:ro
+    healthcheck:
+      test: ["CMD", "clickhouse-client", "--user=default", "--password=clickhouse", "--query=SELECT 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  ch-node2:
+    image: ${CLICKHOUSE_IMAGE:-clickhouse/clickhouse-server:25.3}
+    container_name: pmm_ch_node2
+    hostname: ch-node2
+    profiles: ["cluster"]
+    ports:
+      - "127.0.0.1:9101:9000"
+    environment:
+      - CLICKHOUSE_USER=default
+      - CLICKHOUSE_PASSWORD=clickhouse
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+    volumes:
+      - ./clickhouse-cluster/node2.xml:/etc/clickhouse-server/config.d/pmm-cluster.xml:ro
+    depends_on:
+      ch-node1:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "clickhouse-client", "--user=default", "--password=clickhouse", "--query=SELECT 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 30

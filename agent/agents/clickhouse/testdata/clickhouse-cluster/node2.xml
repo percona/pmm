@@ -1,0 +1,31 @@
+<!-- pmm_test_cluster — node2: ClickHouse server, uses node1's Keeper. -->
+<clickhouse>
+    <zookeeper>
+        <node>
+            <host>ch-node1</host>
+            <port>9181</port>
+        </node>
+    </zookeeper>
+
+    <remote_servers>
+        <pmm_test_cluster>
+            <shard>
+                <internal_replication>true</internal_replication>
+                <replica>
+                    <host>ch-node1</host>
+                    <port>9000</port>
+                </replica>
+                <replica>
+                    <host>ch-node2</host>
+                    <port>9000</port>
+                </replica>
+            </shard>
+        </pmm_test_cluster>
+    </remote_servers>
+
+    <macros>
+        <shard>01</shard>
+        <replica>ch-node2</replica>
+        <cluster>pmm_test_cluster</cluster>
+    </macros>
+</clickhouse>
