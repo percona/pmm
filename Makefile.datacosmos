@@ -48,6 +48,8 @@ DC_RELEASE             ?= dc1
 DC_VERSION             ?= $(VERSION)-$(DC_RELEASE)
 GHCR_NAMESPACE         ?= ghcr.io/datacosmos-br
 RPMBUILD_PUBLISH_IMAGE ?= $(GHCR_NAMESPACE)/pmm-rpmbuild:$(DC_VERSION)
+CLIENT_PUBLISH_IMAGE   ?= $(GHCR_NAMESPACE)/pmm-client:$(DC_VERSION)
+SERVER_PUBLISH_IMAGE   ?= $(GHCR_NAMESPACE)/pmm-server:$(DC_VERSION)
 
 # Standalone build switches consumed by build/scripts/*:
 #  * SKIP_S3_CACHE=1  — never touch s3://pmm-build-cache (build every RPM here);
@@ -112,6 +114,18 @@ publish-rpmbuild-image: ghcr-login                ## Push pmm-rpmbuild to ghcr.i
 	docker tag $(RPMBUILD_DOCKER_IMAGE) $(RPMBUILD_PUBLISH_IMAGE)
 	docker push $(RPMBUILD_PUBLISH_IMAGE)
 	@echo "Published $(RPMBUILD_PUBLISH_IMAGE)"
+
+.PHONY: publish-client-image
+publish-client-image: ghcr-login                  ## Push pmm-client to ghcr.io/datacosmos-br as -dcN
+	docker tag $(CLIENT_IMAGE) $(CLIENT_PUBLISH_IMAGE)
+	docker push $(CLIENT_PUBLISH_IMAGE)
+	@echo "Published $(CLIENT_PUBLISH_IMAGE)"
+
+.PHONY: publish-server-image
+publish-server-image: ghcr-login                  ## Push pmm-server to ghcr.io/datacosmos-br as -dcN
+	docker tag $(SERVER_IMAGE) $(SERVER_PUBLISH_IMAGE)
+	docker push $(SERVER_PUBLISH_IMAGE)
+	@echo "Published $(SERVER_PUBLISH_IMAGE)"
 
 .PHONY: client
 client: create-build-dirs                         ## Build pmm-client RPM/tarball + Docker image
