@@ -87,11 +87,13 @@ create-build-dirs:                                ## Create the $(ROOT_DIR) buil
 	    ln -sfn "$$d" "$(ROOT_DIR)/sources/$$(basename $$d)"; \
 	done
 	@ln -sfn $(CURDIR)/pmm-submodules $(ROOT_DIR)/sources/pmm-submodules
-	# THIS repo is the pmm component source — override the pmm-submodules pin
-	# with a GOPATH-style symlink the build scripts expect.
-	@rm -f $(ROOT_DIR)/sources/pmm
+	# THIS repo is the pmm component source. The build scripts run `git` on it
+	# (rev-parse, archive), so it must be a real checkout — a local clone of
+	# this repo at the current branch, in the GOPATH-style path they expect.
+	@rm -rf $(ROOT_DIR)/sources/pmm
 	@mkdir -p $(ROOT_DIR)/sources/pmm/src/github.com/percona
-	@ln -sfn $(CURDIR) $(ROOT_DIR)/sources/pmm/src/github.com/percona/pmm
+	@git clone --local --single-branch --branch $(GIT_BRANCH) \
+	    $(CURDIR) $(ROOT_DIR)/sources/pmm/src/github.com/percona/pmm
 
 .PHONY: build-rpmbuild-image
 build-rpmbuild-image:                             ## Build the rpmbuild container locally

@@ -11,7 +11,9 @@ prepare_tarball() {
         mkdir -p ${root_dir}/sources/${repo_name}
         git_dir="${root_dir}/sources/${repo_name}"
     else
-        local git_dir=$(dirname $(find "${root_dir}/sources/${repo_name}" -name .git | head -1))
+        # -L: follow symlinks — component sources may be symlinked into the
+        # build tree (a standalone layout) rather than being real directories.
+        local git_dir=$(dirname $(find -L "${root_dir}/sources/${repo_name}" -name .git | head -1))
     fi
     local commit=$(git -C "${git_dir}" rev-parse --short HEAD)
     local tarball=${source_dir}/${repo_name}-${commit}.tar.gz
