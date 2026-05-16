@@ -1,0 +1,4 @@
+[submodule "pmm-submodules"]
+	path = pmm-submodules
+	url = https://github.com/Percona-Lab/pmm-submodules.git
+	branch = v3

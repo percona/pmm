@@ -46,3 +46,5 @@ env-root:								## Run `make TARGET` in devcontainer (`make env-root TARGET=hel
 
 rotate-encryption: 							## Rotate encryption key
 	go run ./encryption-rotation/main.go
+
+include Makefile.datacosmos

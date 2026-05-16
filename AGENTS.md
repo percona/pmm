@@ -247,3 +247,38 @@ All long-running daemons expose on `127.0.0.1`:
 - `docs/process/tech_stack.md` — technology choices and rationale
 - `docs/process/best_practices.md` — coding best practices
 - `docs/process/GIT_AND_GITHUB.md` — git workflow
+
+---
+
+# Datacosmos fork — additions
+
+This is the `datacosmos-br/pmm` fork. The sections above are upstream Percona's.
+The rules below are datacosmos-specific and apply on the `datacosmos/build` branch.
+
+## §W-9 — Multi-agent coordination (MANDATORY)
+
+Multiple AI agents work this repo concurrently, **without git worktrees**
+(shared checkout). Coordination is mandatory and standardized:
+
+- **Protocol:** `.agents/skills/agent-coordination/SKILL.md`
+- **Live ledger:** `.agents/coordination/LEDGER.md` — SSOT for agent identity +
+  heartbeats, area locks (token strategy with TTL/lease), tasks with timestamps
+  and expiry (vencimento), and the append-only communication log.
+
+Every agent, every session: `git pull`; read the ledger; register/refresh your
+Agents row; scan for STALE agents/locks/tasks; acquire a narrow Area Lock
+before editing; heartbeat ≤15 min; small batches (one task → commit → next);
+on stop, release locks + write a handoff Log entry. Never edit an area locked
+by a live agent; never revert another agent's commits (open a `CONFLICT` task,
+`owner: HUMAN`). Timestamps are UTC ISO-8601 (`date -u +%Y-%m-%dT%H:%M:%SZ`).
+
+## Branch model
+
+| Branch | Base | Purpose |
+|---|---|---|
+| `v3` | upstream `v3.7.1` | pristine upstream mirror — never edited directly |
+| `datacosmos/build` | `v3.7.1` | datacosmos OCI/RPM packaging (`Makefile.datacosmos`) + this protocol |
+| `feat/clickhouse-collector` | `v3.7.1` | isolated ClickHouse collector draft (not upstream-ready) |
+
+Custom commits are never placed on `v3`, so `git merge upstream/v3` stays
+conflict-free. Build details: `docs/datacosmos/BUILD.md`.

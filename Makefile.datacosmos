@@ -1,0 +1,187 @@
+###############################################################################
+# Makefile COMPLETO para build do PMM 3.x - Versão Compatível
+# Alterações críticas:
+# 1. Adequação aos parâmetros exigidos pelos scripts oficiais
+# 2. Correção do fluxo de dependências
+# 3. Ajuste nas variáveis de ambiente para evitar duplicidade e inconsistências
+# Autor: Marlon Costa <marlon.costa@datacosmos.com.br>
+# Versão: 1.1 | Data: 2025-03-16
+###############################################################################
+
+SHELL := /bin/bash -o pipefail
+.DEFAULT_GOAL := all
+.NOTPARALLEL:
+
+# -----------------------------------------------------------------------------
+# Variáveis Principais
+# -----------------------------------------------------------------------------
+PKG_NAME         := pmm
+OFFICIAL_VERSION := $(shell git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//')
+COMMIT_NUMBER    := $(shell git rev-list --count HEAD 2>/dev/null)
+VERSION          := $(if $(OFFICIAL_VERSION),$(OFFICIAL_VERSION),3.0.0)
+RELEASE_NUMBER   := $(shell git rev-list --count HEAD 2>/dev/null || echo "0")
+RELEASE          := $(if $(COMMIT_NUMBER),$(COMMIT_NUMBER),1)
+FULL_VERSION     := $(VERSION)-$(RELEASE_NUMBER)
+GIT_BRANCH       := $(shell git rev-parse --abbrev-ref HEAD)
+# Submódulos a symlinkar em build/scripts/sources. Sem esta definição o loop
+# do alvo `submodules` itera sobre vazio (bug latente da v1.1).
+SUBMODULES_LIST  := pmm-submodules
+DESTINATION      := experimental
+ENABLE_EXPERIMENTAL := 1
+DOCKER_BUILD_FLAGS  := --pull
+
+# -----------------------------------------------------------------------------
+# Diretórios e Caminhos
+# -----------------------------------------------------------------------------
+CURDIR           := $(shell pwd)
+# ROOT_DIR e ARTIFACT_DIR ficam FORA da árvore do repo. Mantê-los dentro
+# (regressão da v1.1) faz `go build ./...` varrer o cache de módulos e quebra
+# o build com ~100 erros em cascata. Ver docs/datacosmos/BUILD.md.
+ROOT_DIR         := $(abspath $(CURDIR)/../pmm-build-root)
+ARTIFACT_DIR     := $(abspath $(CURDIR)/../pmm-artifacts)
+PMM_RELEASE_PATH := $(ROOT_DIR)/packages
+TMP_DIR          := $(ROOT_DIR)/tmp
+SOURCES_DIR      := $(ROOT_DIR)/SOURCES
+
+# Diretório onde ficam os scripts de build
+PATH_TO_SCRIPTS  := build/scripts
+
+# Diretórios para resultados
+SOURCE_TARBALL_DIR := $(ROOT_DIR)/results/source_tarball
+BINARY_TARBALL_DIR := $(ROOT_DIR)/results/tarball
+DOCKER_RESULTS_DIR := $(ROOT_DIR)/results/docker
+
+# -----------------------------------------------------------------------------
+# Configurações de Build
+# -----------------------------------------------------------------------------
+# Distribuição e arquitetura para o empacotamento
+DIST  := el9
+ARCH  := noarch
+
+# Repositório para todas as imagens Docker
+IMAGE_REGISTRY  := gru.ocir.io/grq1iurfepyg/pmm
+BASE_DOCKER_TAG := rpmbuild:3
+
+# Imagens para Release (client, server, watchtower)
+CLIENT_IMAGE     := $(IMAGE_REGISTRY)/pmm-client:$(FULL_VERSION)
+SERVER_IMAGE     := $(IMAGE_REGISTRY)/pmm-server:$(FULL_VERSION)
+WATCHTOWER_IMAGE := $(IMAGE_REGISTRY)/pmm-watchtower:$(FULL_VERSION)
+
+# -----------------------------------------------------------------------------
+# Alvos Principais
+# -----------------------------------------------------------------------------
+.PHONY: all prepare build-rpmbuild-image client server publish
+
+all: prepare build-rpmbuild-image client server
+
+# -----------------------------------------------------------------------------
+# Preparação do Ambiente
+# -----------------------------------------------------------------------------
+.PHONY: prepare
+prepare: submodules create-build-dirs
+	@echo "=== Configuração do Ambiente para PMM 3.x ==="
+	@echo "Versão Oficial: $(VERSION)"
+	@echo "Release Number: $(RELEASE)"
+	@mkdir -p $(ROOT_DIR) $(TMP_DIR) $(SOURCE_TARBALL_DIR) $(BINARY_TARBALL_DIR) $(DOCKER_RESULTS_DIR)
+	@chmod 755 $(ROOT_DIR) $(TMP_DIR)
+	@echo "$(FULL_VERSION)" > $(ROOT_DIR)/VERSION
+
+.PHONY: submodules
+submodules:
+	@echo "=== Atualizando Submódulos ==="
+	git submodule update --init --recursive --jobs 10
+	@mkdir -p $(PATH_TO_SCRIPTS)/sources
+	@for sm in $(SUBMODULES_LIST); do \
+	    if [ -d "$$sm" ]; then \
+	        ln -sfn "$(CURDIR)/$$sm" "$(PATH_TO_SCRIPTS)/sources/$$sm"; \
+	    else \
+	        echo "Aviso: Submódulo $$sm não encontrado"; \
+	    fi; \
+	done
+
+.PHONY: create-version-file
+create-version-file:
+	@mkdir -p $(ROOT_DIR)
+	@echo "$(FULL_VERSION)" > $(ROOT_DIR)/VERSION
+
+.PHONY: create-build-dirs
+create-build-dirs:
+	@echo "=== Criando Estrutura de Diretórios ==="
+	@mkdir -p $(ROOT_DIR)/{sources,SPECS,SRPMS,RPMS,x86_64,debug}
+	@mkdir -p $(TMP_DIR)/{source,binary}
+	@echo "Copiando fontes do pmm-submodules para $(ROOT_DIR)/sources/pmm-submodules"
+	@mkdir -p $(ROOT_DIR)/sources/pmm-submodules
+	@cp -R pmm-submodules/sources/* $(ROOT_DIR)/sources/pmm-submodules/
+	
+# -----------------------------------------------------------------------------
+# Build da Imagem Base (Correção para multi-stage build)
+# -----------------------------------------------------------------------------
+.PHONY: build-rpmbuild-image
+build-rpmbuild-image:
+	@echo "=== Construindo Imagem Base RPM ==="
+	docker buildx build \
+		--platform linux/amd64,linux/arm64 \
+		--tag $(IMAGE_REGISTRY)/$(BASE_DOCKER_TAG) \
+		--build-arg BUILD_TAG=$(VERSION) \
+		--build-arg BASE_IMAGE=percona/pmm-server:$(VERSION) \
+		$(DOCKER_BUILD_FLAGS) \
+		--push \
+		--file build/docker/rpmbuild/Dockerfile.el9 .
+
+# -----------------------------------------------------------------------------
+# Build do Client
+# -----------------------------------------------------------------------------
+.PHONY: client
+client: create-build-dirs create-version-file
+	@echo "=== Build Oficial do Client ==="
+	ROOT_DIR=$(ROOT_DIR) $(PATH_TO_SCRIPTS)/build-client \
+		--rpm \
+		--deb \
+		--docker \
+		--version=$(VERSION) \
+		--release=$(RELEASE) \
+		--output-dir=$(PMM_RELEASE_PATH) \
+		--tmp-dir=$(TMP_DIR) \
+		--results-dir=$(ROOT_DIR)/results \
+		--docker-image=$(CLIENT_IMAGE)
+
+# -----------------------------------------------------------------------------
+# Build do Server
+# -----------------------------------------------------------------------------
+.PHONY: server
+server:
+	@echo "=== Build do Server ==="
+	$(PATH_TO_SCRIPTS)/build-server \
+		--rpm \
+		--docker \
+		--version=$(VERSION) \
+		--release=$(RELEASE) \
+		--rpm-dist=$(DIST) \
+		--tmp-dir=$(TMP_DIR) \
+		--results-dir=$(ROOT_DIR)/results \
+		--docker-image=$(SERVER_IMAGE) \
+		--packager-image=$(IMAGE_REGISTRY)/$(BASE_DOCKER_TAG)
+
+# -----------------------------------------------------------------------------
+# Release: Push final dos Artefatos
+# -----------------------------------------------------------------------------
+.PHONY: publish
+publish:
+	@echo "=== Publicando Artefatos ==="
+	@mkdir -p $(ARTIFACT_DIR)
+	@cp -a $(ROOT_DIR)/*rpms $(ARTIFACT_DIR)
+	@cp -a $(ROOT_DIR)/docker-images $(ARTIFACT_DIR)
+	@echo "Artefatos disponíveis em: $(ARTIFACT_DIR)"
+
+# -----------------------------------------------------------------------------
+# Limpeza
+# -----------------------------------------------------------------------------
+.PHONY: clean
+clean:
+	@echo "=== Limpando Ambiente ==="
+	@rm -rf $(ROOT_DIR) $(ARTIFACT_DIR)
+	@docker buildx rm pmmbuilder 2>/dev/null || true
+
+###############################################################################
+# Fim do Makefile
+###############################################################################
