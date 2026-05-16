@@ -15,10 +15,14 @@ OS_VARIANT=${OS_VARIANT:-ol8}
 # * full_pmm_version to contain full version and build metadata: '2.0.0-alpha3-PMM-1234-fb-branch-123abc';
 # * pmm_version to contain only MAJOR.MINOR.PATCH: '2.0.0';
 # * pmm_release to contain only pre-release part (can be empty): 'alpha3'.
-pmm_branch=$(git rev-parse --abbrev-ref HEAD)
+# Resolve git metadata from the pmm source explicitly, not the current working
+# directory — so the build works whether root_dir is a Jenkins workspace git
+# checkout or a plain standalone build tree.
+pmm_src_dir=${PMM_SRC_DIR:-${root_dir}/sources/pmm/src/github.com/percona/pmm}
+pmm_branch=$(git -C "${pmm_src_dir}" rev-parse --abbrev-ref HEAD)
 
 pmm_base_version=$(cat ${root_dir}/VERSION)
-full_pmm_version=${pmm_base_version}-${pmm_branch}-$(git rev-parse --short HEAD)
+full_pmm_version=${pmm_base_version}-${pmm_branch}-$(git -C "${pmm_src_dir}" rev-parse --short HEAD)
 # Replace '/' with '-' to prevent sed from failing on dependabot-authored PRs
 full_pmm_version=${full_pmm_version//\//-}
 
