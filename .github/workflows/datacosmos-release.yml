@@ -1,0 +1,83 @@
+name: datacosmos release
+
+# The only workflow on the datacosmos fork. Builds the PMM packages and Docker
+# images with the standalone pipeline (Makefile.datacosmos) and publishes them,
+# triggered by a datacosmos version tag — e.g. v3.7.1-dc1, v3.8.0-dc2.
+on:
+  push:
+    tags:
+      - "*-dc*"
+  workflow_dispatch:
+    inputs:
+      dc_version:
+        description: "datacosmos version (e.g. 3.7.1-dc1)"
+        required: true
+
+permissions:
+  contents: write   # create the GitHub Release
+  packages: write   # push images to ghcr.io/datacosmos-br
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout (with submodules)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Derive datacosmos version
+        id: ver
+        env:
+          DC_INPUT: ${{ github.event.inputs.dc_version }}
+        run: |
+          if [ -n "${DC_INPUT}" ]; then
+            dc="${DC_INPUT}"
+          else
+            dc="${GITHUB_REF_NAME#v}"          # v3.7.1-dc1 -> 3.7.1-dc1
+          fi
+          echo "dc_version=${dc}" >> "$GITHUB_OUTPUT"
+
+      - name: Free up runner disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android /opt/hostedtoolcache || true
+          docker system prune -af || true
+
+      - name: Build the rpmbuild image
+        run: make -f Makefile.datacosmos build-rpmbuild-image
+
+      - name: Build pmm-client and pmm-server
+        run: make -f Makefile.datacosmos client server
+
+      - name: Publish images to ghcr.io
+        env:
+          DC_VERSION: ${{ steps.ver.outputs.dc_version }}
+        run: |
+          make -f Makefile.datacosmos \
+            publish-rpmbuild-image publish-client-image publish-server-image \
+            DC_VERSION="${DC_VERSION}"
+
+      - name: Collect build artifacts
+        run: make -f Makefile.datacosmos publish
+
+      - name: Create the GitHub Release
+        env:
+          DC_VERSION: ${{ steps.ver.outputs.dc_version }}
+          TAG_NAME: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
+        run: |
+          mapfile -t assets < <(find ../pmm-artifacts -type f \
+            \( -name '*.tar.gz' -o -name '*.rpm' -o -name '*.deb' \) 2>/dev/null)
+          notes="datacosmos PMM ${DC_VERSION} — built from source, aligned to upstream Percona PMM.
+
+          Images:
+          - ghcr.io/datacosmos-br/pmm-server:${DC_VERSION}
+          - ghcr.io/datacosmos-br/pmm-client:${DC_VERSION}
+          - ghcr.io/datacosmos-br/pmm-rpmbuild:${DC_VERSION}"
+          gh release create "${TAG_NAME}" "${assets[@]}" \
+            --repo "${REPO}" \
+            --title "PMM ${DC_VERSION}" \
+            --notes "${notes}"
