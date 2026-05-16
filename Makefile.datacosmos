@@ -42,6 +42,13 @@ RPMBUILD_DOCKER_IMAGE ?= pmm-rpmbuild:local
 CLIENT_IMAGE          ?= $(IMAGE_REGISTRY)/pmm-client:$(FULL_VERSION)
 SERVER_IMAGE          ?= $(IMAGE_REGISTRY)/pmm-server:$(FULL_VERSION)
 
+# datacosmos release versioning ("<upstream>-dc<N>") and the GitHub Container
+# Registry namespace images are published to.
+DC_RELEASE             ?= dc1
+DC_VERSION             ?= $(VERSION)-$(DC_RELEASE)
+GHCR_NAMESPACE         ?= ghcr.io/datacosmos-br
+RPMBUILD_PUBLISH_IMAGE ?= $(GHCR_NAMESPACE)/pmm-rpmbuild:$(DC_VERSION)
+
 # Standalone build switches consumed by build/scripts/*:
 #  * SKIP_S3_CACHE=1  — never touch s3://pmm-build-cache (build every RPM here);
 #  * PUSH_DOCKER unset — images stay local;
@@ -93,6 +100,16 @@ build-rpmbuild-image:                             ## Build the rpmbuild containe
 	    --tag $(RPMBUILD_DOCKER_IMAGE) \
 	    --file build/docker/rpmbuild/Dockerfile.el9 \
 	    build/docker/rpmbuild
+
+.PHONY: ghcr-login
+ghcr-login:                                       ## Log in to ghcr.io using the gh CLI token
+	@gh auth token | docker login ghcr.io -u "$$(gh api user --jq .login)" --password-stdin
+
+.PHONY: publish-rpmbuild-image
+publish-rpmbuild-image: ghcr-login                ## Push pmm-rpmbuild to ghcr.io/datacosmos-br as -dcN
+	docker tag $(RPMBUILD_DOCKER_IMAGE) $(RPMBUILD_PUBLISH_IMAGE)
+	docker push $(RPMBUILD_PUBLISH_IMAGE)
+	@echo "Published $(RPMBUILD_PUBLISH_IMAGE)"
 
 .PHONY: client
 client: create-build-dirs                         ## Build pmm-client RPM/tarball + Docker image
