@@ -59,3 +59,7 @@ dev/clickhouse-backups/
 /artifacts/
 /sources
 /bin/
+
+# agent governance — local to the workspace, never committed
+/.agents/
+/AGENTS.md
