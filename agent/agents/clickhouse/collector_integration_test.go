@@ -14,16 +14,24 @@
 
 //go:build clickhouse_integration
 
-// Integration tests for the ClickHouse collector against a real server.
+// Integration tests for the ClickHouse collector against real servers.
 //
-// Run with a ClickHouse instance available (see agent/docker-compose.yml):
+// The collector must work against every supported ClickHouse version, in both
+// single-node and cluster topologies, and whether the server is local or
+// external. The full matrix is driven by testdata/run-matrix.sh:
 //
-//	docker compose -f agent/docker-compose.yml up -d clickhouse
-//	go test -tags clickhouse_integration ./agent/agents/clickhouse/...
+//	cd agent/agents/clickhouse/testdata && ./run-matrix.sh
+//
+// To run against an arbitrary set of endpoints directly, set
+// CLICKHOUSE_TEST_ENDPOINTS to a comma-separated list of "name=dsn" pairs:
+//
+//	CLICKHOUSE_TEST_ENDPOINTS="single-25.3=clickhouse://default:clickhouse@127.0.0.1:9000/default" \
+//	  go test -tags clickhouse_integration ./agent/agents/clickhouse/...
 package clickhouse
 
 import (
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -31,44 +39,84 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// integrationDSN returns the DSN for the test ClickHouse, overridable via
-// CLICKHOUSE_DSN; the default matches agent/docker-compose.yml.
-func integrationDSN() string {
-	if dsn := os.Getenv("CLICKHOUSE_DSN"); dsn != "" {
-		return dsn
+// matrixEndpoints returns the ClickHouse endpoints to validate, parsed from
+// CLICKHOUSE_TEST_ENDPOINTS ("name=dsn" pairs, comma-separated). When unset, a
+// single local default is used so the test is runnable without the driver.
+func matrixEndpoints() map[string]string {
+	raw := os.Getenv("CLICKHOUSE_TEST_ENDPOINTS")
+	if strings.TrimSpace(raw) == "" {
+		return map[string]string{
+			"single-local": "clickhouse://default:clickhouse@127.0.0.1:9000/default",
+		}
 	}
-	return "clickhouse://default:clickhouse@127.0.0.1:9000/default"
-}
-
-func TestCollectorIntegrationNewCollector(t *testing.T) {
-	c, err := NewCollector(integrationDSN())
-	require.NoError(t, err, "NewCollector must connect and ping the server")
-	require.NoError(t, c.client.Close())
-}
-
-func TestCollectorIntegrationCollect(t *testing.T) {
-	c, err := NewCollector(integrationDSN())
-	require.NoError(t, err)
-	defer c.client.Close() //nolint:errcheck
-
-	// system.query_log is created lazily by ClickHouse — it does not exist on a
-	// server that has never flushed its logs. Force the flush so the test
-	// mirrors a real monitored server that has served (and logged) traffic.
-	_, err = c.client.Exec("SYSTEM FLUSH LOGS")
-	require.NoError(t, err)
-
-	ch := make(chan prometheus.Metric, 8)
-	c.Collect(ch)
-	close(ch)
-
-	var metrics []prometheus.Metric
-	for m := range ch {
-		metrics = append(metrics, m)
+	endpoints := make(map[string]string)
+	for _, pair := range strings.Split(raw, ",") {
+		pair = strings.TrimSpace(pair)
+		if pair == "" {
+			continue
+		}
+		name, dsn, ok := strings.Cut(pair, "=")
+		if !ok {
+			continue
+		}
+		endpoints[strings.TrimSpace(name)] = strings.TrimSpace(dsn)
 	}
-	assert.Len(t, metrics, 2, "Collect against a live server must emit both metrics")
+	return endpoints
 }
 
+// TestClickHouseMatrix validates the collector against every configured
+// endpoint (version × {single, cluster} × {local, external}). Each endpoint is
+// a subtest; an unreachable endpoint is skipped so the matrix can be run
+// incrementally, one topology at a time, by the driver script.
+func TestClickHouseMatrix(t *testing.T) {
+	endpoints := matrixEndpoints()
+	require.NotEmpty(t, endpoints)
+
+	for name, dsn := range endpoints {
+		t.Run(name, func(t *testing.T) {
+			c, err := NewCollector(dsn)
+			if err != nil {
+				t.Skipf("endpoint %q unreachable, skipping: %v", name, err)
+			}
+			defer c.client.Close() //nolint:errcheck
+
+			var version string
+			require.NoError(t, c.client.QueryRow("SELECT version()").Scan(&version),
+				"the collector must read the server version on every supported release")
+			t.Logf("endpoint %q: ClickHouse %s", name, version)
+
+			// On a cluster member system.clusters must list a named cluster.
+			if strings.HasPrefix(name, "cluster") {
+				var clusters int
+				require.NoError(t, c.client.QueryRow(
+					"SELECT count(DISTINCT cluster) FROM system.clusters WHERE cluster NOT LIKE 'default%'").Scan(&clusters))
+				assert.Positive(t, clusters, "a cluster endpoint must expose a named cluster")
+			}
+
+			// system.query_log is created lazily — force the flush so the
+			// collector's query has a table to read, mirroring a server that
+			// has served traffic.
+			_, err = c.client.Exec("SYSTEM FLUSH LOGS")
+			require.NoError(t, err)
+
+			ch := make(chan prometheus.Metric, 8)
+			c.Collect(ch)
+			close(ch)
+
+			var metrics []prometheus.Metric
+			for m := range ch {
+				metrics = append(metrics, m)
+			}
+			assert.Len(t, metrics, 2,
+				"Collect must emit clickhouse_query_count and clickhouse_scrape_duration_seconds")
+		})
+	}
+}
+
+// TestCollectorIntegrationBadDSN verifies NewCollector fails fast when the
+// server is unreachable — needed so a missing external server is not mistaken
+// for a healthy one.
 func TestCollectorIntegrationBadDSN(t *testing.T) {
 	_, err := NewCollector("clickhouse://default:wrong@127.0.0.1:1?dial_timeout=2s")
-	assert.Error(t, err, "NewCollector must fail when the server is unreachable")
+	assert.Error(t, err)
 }

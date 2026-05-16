@@ -1,0 +1,49 @@
+<!-- pmm_test_cluster — node1: ClickHouse server + embedded Keeper. -->
+<clickhouse>
+    <keeper_server>
+        <tcp_port>9181</tcp_port>
+        <server_id>1</server_id>
+        <log_storage_path>/var/lib/clickhouse/coordination/log</log_storage_path>
+        <snapshot_storage_path>/var/lib/clickhouse/coordination/snapshots</snapshot_storage_path>
+        <coordination_settings>
+            <operation_timeout_ms>10000</operation_timeout_ms>
+            <session_timeout_ms>30000</session_timeout_ms>
+        </coordination_settings>
+        <raft_configuration>
+            <server>
+                <id>1</id>
+                <hostname>ch-node1</hostname>
+                <port>9234</port>
+            </server>
+        </raft_configuration>
+    </keeper_server>
+
+    <zookeeper>
+        <node>
+            <host>ch-node1</host>
+            <port>9181</port>
+        </node>
+    </zookeeper>
+
+    <remote_servers>
+        <pmm_test_cluster>
+            <shard>
+                <internal_replication>true</internal_replication>
+                <replica>
+                    <host>ch-node1</host>
+                    <port>9000</port>
+                </replica>
+                <replica>
+                    <host>ch-node2</host>
+                    <port>9000</port>
+                </replica>
+            </shard>
+        </pmm_test_cluster>
+    </remote_servers>
+
+    <macros>
+        <shard>01</shard>
+        <replica>ch-node1</replica>
+        <cluster>pmm_test_cluster</cluster>
+    </macros>
+</clickhouse>
