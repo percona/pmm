@@ -74,17 +74,17 @@ create-build-dirs:                                ## Create the $(ROOT_DIR) buil
 	@rm -rf $(ROOT_DIR)/sources
 	@mkdir -p $(ROOT_DIR)/sources $(ROOT_DIR)/tmp $(ROOT_DIR)/results $(ARTIFACT_DIR)
 	@echo "$(FULL_VERSION)" > $(ROOT_DIR)/VERSION
-	# build/scripts/* read component sources from $(ROOT_DIR)/sources/*.
-	@if [ -d pmm-submodules/sources ]; then \
-	    cp -aT pmm-submodules/sources $(ROOT_DIR)/sources; \
-	fi
+	# Symlink (never copy) each component source from pmm-submodules: copying
+	# breaks the submodule .git gitlinks and litters the build with junk.
+	@for d in $(CURDIR)/pmm-submodules/sources/*; do \
+	    ln -sfn "$$d" "$(ROOT_DIR)/sources/$$(basename $$d)"; \
+	done
+	@ln -sfn $(CURDIR)/pmm-submodules $(ROOT_DIR)/sources/pmm-submodules
 	# THIS repo is the pmm component source — override the pmm-submodules pin
 	# with a GOPATH-style symlink the build scripts expect.
-	@rm -rf $(ROOT_DIR)/sources/pmm
+	@rm -f $(ROOT_DIR)/sources/pmm
 	@mkdir -p $(ROOT_DIR)/sources/pmm/src/github.com/percona
 	@ln -sfn $(CURDIR) $(ROOT_DIR)/sources/pmm/src/github.com/percona/pmm
-	# build-client-source archives sources/pmm-submodules itself.
-	@ln -sfn $(CURDIR)/pmm-submodules $(ROOT_DIR)/sources/pmm-submodules
 
 .PHONY: build-rpmbuild-image
 build-rpmbuild-image:                             ## Build the rpmbuild container locally
