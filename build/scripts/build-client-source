@@ -13,7 +13,9 @@ prepare_tarball() {
     else
         # -L: follow symlinks — component sources may be symlinked into the
         # build tree (a standalone layout) rather than being real directories.
-        local git_dir=$(dirname $(find -L "${root_dir}/sources/${repo_name}" -name .git | head -1))
+        # realpath: canonicalise so `git` resolves the submodule gitlink against
+        # the real path, not the symlinked one.
+        local git_dir=$(realpath "$(dirname "$(find -L "${root_dir}/sources/${repo_name}" -name .git | head -1)")")
     fi
     local commit=$(git -C "${git_dir}" rev-parse --short HEAD)
     local tarball=${source_dir}/${repo_name}-${commit}.tar.gz
