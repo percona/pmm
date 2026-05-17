@@ -396,6 +396,13 @@ func buildSelectList(columns map[string]struct{}) string {
 	parts := make([]string, 0, len(order))
 	for _, c := range order {
 		if has(columns, c) {
+			// system.query_log.type is an Enum8; the clickhouse-go driver
+			// surfaces enums as their string label, so cast it to the numeric
+			// value scanRow expects. Other columns are scanned as-is.
+			if c == "type" {
+				parts = append(parts, "toUInt8(type) AS type")
+				continue
+			}
 			parts = append(parts, c)
 			continue
 		}

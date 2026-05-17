@@ -27,9 +27,11 @@
 //
 //	CLICKHOUSE_TEST_ENDPOINTS="single-25.3=clickhouse://default:clickhouse@127.0.0.1:9000/default" \
 //	  go test -tags clickhouse_integration ./agent/agents/clickhouse/...
+
 package clickhouse
 
 import (
+	"context"
 	"os"
 	"strings"
 	"testing"
@@ -50,7 +52,7 @@ func matrixEndpoints() map[string]string {
 		}
 	}
 	endpoints := make(map[string]string)
-	for _, pair := range strings.Split(raw, ",") {
+	for pair := range strings.SplitSeq(raw, ",") {
 		pair = strings.TrimSpace(pair)
 		if pair == "" {
 			continue
@@ -78,17 +80,19 @@ func TestClickHouseMatrix(t *testing.T) {
 			if err != nil {
 				t.Skipf("endpoint %q unreachable, skipping: %v", name, err)
 			}
-			defer c.client.Close() //nolint:errcheck
+			defer c.client.Close()
+
+			ctx := context.Background()
 
 			var version string
-			require.NoError(t, c.client.QueryRow("SELECT version()").Scan(&version),
+			require.NoError(t, c.client.QueryRowContext(ctx, "SELECT version()").Scan(&version),
 				"the collector must read the server version on every supported release")
 			t.Logf("endpoint %q: ClickHouse %s", name, version)
 
 			// On a cluster member system.clusters must list a named cluster.
 			if strings.HasPrefix(name, "cluster") {
 				var clusters int
-				require.NoError(t, c.client.QueryRow(
+				require.NoError(t, c.client.QueryRowContext(ctx,
 					"SELECT count(DISTINCT cluster) FROM system.clusters WHERE cluster NOT LIKE 'default%'").Scan(&clusters))
 				assert.Positive(t, clusters, "a cluster endpoint must expose a named cluster")
 			}
