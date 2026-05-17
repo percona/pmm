@@ -205,6 +205,7 @@ nav:
                   - MongoDB: install-pmm/install-pmm-client/connect-database/mongodb.md
                   - PostgreSQL: install-pmm/install-pmm-client/connect-database/postgresql.md
                   - Valkey/Redis: install-pmm/install-pmm-client/connect-database/valkey-redis.md
+                  - ClickHouse: install-pmm/install-pmm-client/connect-database/clickhouse.md
               - Cloud services monitoring:
                   - AWS: install-pmm/install-pmm-client/connect-database/aws.md
                   - Azure: install-pmm/install-pmm-client/connect-database/azure.md

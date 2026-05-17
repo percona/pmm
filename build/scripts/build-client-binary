@@ -145,6 +145,7 @@ main() {
 
     gobuild_component "pmm-admin" "pmm" "" "admin"
     gobuild_component "pmm-agent" "pmm" "" "agent"
+    gobuild_component "clickhouse_exporter" "pmm" "" "agent/cmd/clickhouse_exporter"
 
     echo ${pmm_version} > ${binary_dir}/VERSION
 

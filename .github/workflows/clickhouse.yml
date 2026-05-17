@@ -1,0 +1,113 @@
+name: 'Client: ClickHouse exporter & QAN'
+
+on:
+  push:
+    branches:
+      - main
+      - v3
+      - pmm-*
+      - feat/clickhouse-*
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+*
+    paths:
+      - "agent/agents/clickhouse/**"
+      - "agent/cmd/clickhouse_exporter/**"
+      - "build/Makefile.clickhouse"
+      - ".github/workflows/clickhouse.yml"
+
+  pull_request:
+    paths:
+      - "agent/agents/clickhouse/**"
+      - "agent/cmd/clickhouse_exporter/**"
+      - "build/Makefile.clickhouse"
+      - ".github/workflows/clickhouse.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    name: Unit tests
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Set up Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
+        with:
+          go-version-file: ${{ github.workspace }}/go.mod
+          cache: false
+
+      - name: Enable Go build cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ~/.cache/go-build
+          key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
+          restore-keys: |
+            ${{ runner.os }}-go-build-${{ github.ref }}-
+            ${{ runner.os }}-go-build-
+
+      - name: Enable Go modules cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
+          restore-keys: ${{ runner.os }}-go-modules-
+
+      - name: Download Go modules
+        run: go mod download -x
+
+      - name: Build clickhouse_exporter
+        run: make build-clickhouse-exporter
+
+      - name: Run ClickHouse unit tests
+        run: make test-clickhouse-unit
+
+  matrix:
+    name: Integration matrix (reduced)
+    runs-on: ubuntu-22.04
+    needs: unit
+    # The full version x topology matrix is heavy; CI runs a reduced subset.
+    # The complete matrix is the local pre-tag release gate (run-matrix.sh).
+    env:
+      CLICKHOUSE_VERSIONS: "26.3 24.3"
+      CLICKHOUSE_TOPOLOGIES: "single"
+    steps:
+      - name: Check out code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Set up Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
+        with:
+          go-version-file: ${{ github.workspace }}/go.mod
+          cache: false
+
+      - name: Enable Go build cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ~/.cache/go-build
+          key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
+          restore-keys: |
+            ${{ runner.os }}-go-build-${{ github.ref }}-
+            ${{ runner.os }}-go-build-
+
+      - name: Enable Go modules cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
+          restore-keys: ${{ runner.os }}-go-modules-
+
+      - name: Download Go modules
+        run: go mod download -x
+
+      - name: Run ClickHouse integration matrix
+        run: make test-clickhouse-matrix
+
+      - name: Run debug commands on failure
+        if: ${{ failure() }}
+        working-directory: ${{ github.workspace }}/agent/agents/clickhouse/testdata
+        run: |
+          docker compose -f docker-compose.matrix.yml ps -a
+          docker compose -f docker-compose.matrix.yml logs --tail 50 || true

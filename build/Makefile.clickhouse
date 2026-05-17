@@ -1,0 +1,16 @@
+# Makefile.clickhouse — ClickHouse exporter and QAN agent build/test helpers.
+#
+# Included by the root Makefile. Keeps the ClickHouse-specific targets in one
+# place so the upstream build wiring stays minimal and easy to review.
+
+.PHONY: build-clickhouse-exporter test-clickhouse-unit test-clickhouse-matrix
+
+build-clickhouse-exporter:        ## Build the clickhouse_exporter binary into bin/
+	go build -o bin/clickhouse_exporter ./agent/cmd/clickhouse_exporter
+
+test-clickhouse-unit:             ## Run ClickHouse exporter and QAN unit tests
+	go test ./agent/agents/clickhouse/... ./agent/cmd/clickhouse_exporter/...
+	# Both packages run together so the exporter main package is covered too.
+
+test-clickhouse-matrix:           ## Run the ClickHouse integration matrix (Docker required)
+	bash agent/agents/clickhouse/testdata/run-matrix.sh
