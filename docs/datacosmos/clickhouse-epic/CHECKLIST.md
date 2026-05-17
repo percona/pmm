@@ -33,10 +33,12 @@ user checkpoint.
 - [x] 1.8 pmm-agent — `config.go` paths, `supervisor.go`, `deps.go`
 - [x] 1.9 `clickhouse_exporter` — expand collector + `agent/cmd/clickhouse_exporter/main.go`
 - [x] 1.10 pmm-admin — `add_clickhouse.go` (management + inventory) + registration
-- [~] 1.V Validation: `make gen` idempotent, build, `go vet`, `go-sumtype`,
+- [x] 1.V Validation: `make gen` idempotent, build, `go vet`, `go-sumtype`,
       golangci-lint (0 new issues), exporter `--version`/`--help`, unit tests
-      green — all done; migration 118 / inventory round-trip / `up{...}==1`
-      need a live PMM stack (covered by 1.IT)
+      green; **managed test suite run against a real PostgreSQL** — migration
+      118 applies, ClickHouse converters/qan/inventory paths green (one
+      sqlmock-fixture regression in handler_test found & fixed). `up{...}==1`
+      needs a live PMM stack (covered by 1.IT)
 - [~] 1.IT Integration tests IT-1.1 … IT-1.8: the version-matrix portion
       (collector + exporter, CH 26.3/25.8/25.3/24.8/24.3 × single/cluster) is
       green via `run-matrix.sh`; the `pmm-admin add clickhouse` end-to-end
