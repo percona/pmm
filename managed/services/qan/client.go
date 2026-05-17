@@ -259,6 +259,8 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentv1.MetricsB
 			fillMongoDB(mb, m.Mongodb)
 		case m.Postgresql != nil:
 			fillPostgreSQL(mb, m.Postgresql)
+		case m.Clickhouse != nil:
+			fillClickHouse(mb, m.Clickhouse)
 		}
 
 		// Ordered the same as fields in MetricsBucket
@@ -642,6 +644,52 @@ func fillPostgreSQL(mb *qanv1.MetricsBucket, bp *agentv1.MetricsBucket_PostgreSQ
 	mb.Planid = bp.Planid
 	mb.QueryPlan = bp.QueryPlan
 	mb.HistogramItems = convertHistogramItems(bp.HistogramItems)
+}
+
+func fillClickHouse(mb *qanv1.MetricsBucket, bc *agentv1.MetricsBucket_ClickHouse) {
+	mb.MReadRowsCnt = bc.MReadRowsCnt
+	mb.MReadRowsSum = bc.MReadRowsSum
+	mb.MReadRowsMin = bc.MReadRowsMin
+	mb.MReadRowsMax = bc.MReadRowsMax
+	mb.MReadRowsP99 = bc.MReadRowsP99
+
+	mb.MReadBytesCnt = bc.MReadBytesCnt
+	mb.MReadBytesSum = bc.MReadBytesSum
+	mb.MReadBytesMin = bc.MReadBytesMin
+	mb.MReadBytesMax = bc.MReadBytesMax
+	mb.MReadBytesP99 = bc.MReadBytesP99
+
+	mb.MResultRowsCnt = bc.MResultRowsCnt
+	mb.MResultRowsSum = bc.MResultRowsSum
+	mb.MResultRowsMin = bc.MResultRowsMin
+	mb.MResultRowsMax = bc.MResultRowsMax
+	mb.MResultRowsP99 = bc.MResultRowsP99
+
+	mb.MResultBytesCnt = bc.MResultBytesCnt
+	mb.MResultBytesSum = bc.MResultBytesSum
+	mb.MResultBytesMin = bc.MResultBytesMin
+	mb.MResultBytesMax = bc.MResultBytesMax
+	mb.MResultBytesP99 = bc.MResultBytesP99
+
+	mb.MMemoryUsageCnt = bc.MMemoryUsageCnt
+	mb.MMemoryUsageSum = bc.MMemoryUsageSum
+	mb.MMemoryUsageMin = bc.MMemoryUsageMin
+	mb.MMemoryUsageMax = bc.MMemoryUsageMax
+	mb.MMemoryUsageP99 = bc.MMemoryUsageP99
+
+	mb.MWrittenRowsCnt = bc.MWrittenRowsCnt
+	mb.MWrittenRowsSum = bc.MWrittenRowsSum
+	mb.MWrittenRowsMin = bc.MWrittenRowsMin
+	mb.MWrittenRowsMax = bc.MWrittenRowsMax
+	mb.MWrittenRowsP99 = bc.MWrittenRowsP99
+
+	mb.MWrittenBytesCnt = bc.MWrittenBytesCnt
+	mb.MWrittenBytesSum = bc.MWrittenBytesSum
+	mb.MWrittenBytesMin = bc.MWrittenBytesMin
+	mb.MWrittenBytesMax = bc.MWrittenBytesMax
+	mb.MWrittenBytesP99 = bc.MWrittenBytesP99
+
+	mb.QueryKind = bc.QueryKind
 }
 
 func convertHistogramItems(items []*agentv1.HistogramItem) []string {

@@ -31,6 +31,7 @@ dashboards/dashboards/*.json
 | `PostgreSQL/` | PostgreSQL, Patroni |
 | `OS/` | Node, CPU, memory, disk, network, NUMA, processes |
 | `Valkey/` | Valkey/Redis clients, cluster, memory, replication, slowlog |
+| `ClickHouse/` | ClickHouse instance summary, query performance, replication, fleet overview/compare |
 | `Insight/` | Home Dashboard, Advanced Data Exploration, VictoriaMetrics, Exporters |
 | `Experimental/` | Environment, DB Cluster, PMM Health, PostgreSQL Vacuum |
 | `Query Analytics/` | QAN panel wrapper (`pmm-qan.json`) |

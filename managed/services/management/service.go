@@ -90,6 +90,7 @@ var supportedServices = map[string]inventoryv1.ServiceType{
 	string(models.MongoDBServiceType):    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
 	string(models.PostgreSQLServiceType): inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE,
 	string(models.ValkeyServiceType):     inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE,
+	string(models.ClickHouseServiceType): inventoryv1.ServiceType_SERVICE_TYPE_CLICKHOUSE_SERVICE,
 	string(models.ProxySQLServiceType):   inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE,
 	string(models.HAProxyServiceType):    inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE,
 }
@@ -113,6 +114,8 @@ func (s *ManagementService) AddService(ctx context.Context, req *managementv1.Ad
 		return s.addRDS(ctx, req.GetRds())
 	case *managementv1.AddServiceRequest_Valkey:
 		return s.addValkey(ctx, req.GetValkey())
+	case *managementv1.AddServiceRequest_Clickhouse:
+		return s.addClickHouse(ctx, req.GetClickhouse())
 	default:
 		return nil, status.Error(codes.InvalidArgument, "invalid service type")
 	}

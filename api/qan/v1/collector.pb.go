@@ -466,8 +466,52 @@ type MetricsBucket struct {
 	Planid          string   `protobuf:"bytes,266,opt,name=planid,proto3" json:"planid,omitempty"`
 	QueryPlan       string   `protobuf:"bytes,267,opt,name=query_plan,json=queryPlan,proto3" json:"query_plan,omitempty"`
 	HistogramItems  []string `protobuf:"bytes,268,rep,name=histogram_items,json=histogramItems,proto3" json:"histogram_items,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// Sum, count, min, max, p99 of rows read from all tables and table functions.
+	MReadRowsCnt float32 `protobuf:"fixed32,310,opt,name=m_read_rows_cnt,json=mReadRowsCnt,proto3" json:"m_read_rows_cnt,omitempty"`
+	MReadRowsSum float32 `protobuf:"fixed32,311,opt,name=m_read_rows_sum,json=mReadRowsSum,proto3" json:"m_read_rows_sum,omitempty"`
+	MReadRowsMin float32 `protobuf:"fixed32,312,opt,name=m_read_rows_min,json=mReadRowsMin,proto3" json:"m_read_rows_min,omitempty"`
+	MReadRowsMax float32 `protobuf:"fixed32,313,opt,name=m_read_rows_max,json=mReadRowsMax,proto3" json:"m_read_rows_max,omitempty"`
+	MReadRowsP99 float32 `protobuf:"fixed32,314,opt,name=m_read_rows_p99,json=mReadRowsP99,proto3" json:"m_read_rows_p99,omitempty"`
+	// Sum, count, min, max, p99 of bytes read from all tables and table functions.
+	MReadBytesCnt float32 `protobuf:"fixed32,315,opt,name=m_read_bytes_cnt,json=mReadBytesCnt,proto3" json:"m_read_bytes_cnt,omitempty"`
+	MReadBytesSum float32 `protobuf:"fixed32,316,opt,name=m_read_bytes_sum,json=mReadBytesSum,proto3" json:"m_read_bytes_sum,omitempty"`
+	MReadBytesMin float32 `protobuf:"fixed32,317,opt,name=m_read_bytes_min,json=mReadBytesMin,proto3" json:"m_read_bytes_min,omitempty"`
+	MReadBytesMax float32 `protobuf:"fixed32,318,opt,name=m_read_bytes_max,json=mReadBytesMax,proto3" json:"m_read_bytes_max,omitempty"`
+	MReadBytesP99 float32 `protobuf:"fixed32,319,opt,name=m_read_bytes_p99,json=mReadBytesP99,proto3" json:"m_read_bytes_p99,omitempty"`
+	// Sum, count, min, max, p99 of rows in the query result.
+	MResultRowsCnt float32 `protobuf:"fixed32,320,opt,name=m_result_rows_cnt,json=mResultRowsCnt,proto3" json:"m_result_rows_cnt,omitempty"`
+	MResultRowsSum float32 `protobuf:"fixed32,321,opt,name=m_result_rows_sum,json=mResultRowsSum,proto3" json:"m_result_rows_sum,omitempty"`
+	MResultRowsMin float32 `protobuf:"fixed32,322,opt,name=m_result_rows_min,json=mResultRowsMin,proto3" json:"m_result_rows_min,omitempty"`
+	MResultRowsMax float32 `protobuf:"fixed32,323,opt,name=m_result_rows_max,json=mResultRowsMax,proto3" json:"m_result_rows_max,omitempty"`
+	MResultRowsP99 float32 `protobuf:"fixed32,324,opt,name=m_result_rows_p99,json=mResultRowsP99,proto3" json:"m_result_rows_p99,omitempty"`
+	// Sum, count, min, max, p99 of bytes in the query result.
+	MResultBytesCnt float32 `protobuf:"fixed32,325,opt,name=m_result_bytes_cnt,json=mResultBytesCnt,proto3" json:"m_result_bytes_cnt,omitempty"`
+	MResultBytesSum float32 `protobuf:"fixed32,326,opt,name=m_result_bytes_sum,json=mResultBytesSum,proto3" json:"m_result_bytes_sum,omitempty"`
+	MResultBytesMin float32 `protobuf:"fixed32,327,opt,name=m_result_bytes_min,json=mResultBytesMin,proto3" json:"m_result_bytes_min,omitempty"`
+	MResultBytesMax float32 `protobuf:"fixed32,328,opt,name=m_result_bytes_max,json=mResultBytesMax,proto3" json:"m_result_bytes_max,omitempty"`
+	MResultBytesP99 float32 `protobuf:"fixed32,329,opt,name=m_result_bytes_p99,json=mResultBytesP99,proto3" json:"m_result_bytes_p99,omitempty"`
+	// Sum, count, min, max, p99 of peak memory usage for the query.
+	MMemoryUsageCnt float32 `protobuf:"fixed32,330,opt,name=m_memory_usage_cnt,json=mMemoryUsageCnt,proto3" json:"m_memory_usage_cnt,omitempty"`
+	MMemoryUsageSum float32 `protobuf:"fixed32,331,opt,name=m_memory_usage_sum,json=mMemoryUsageSum,proto3" json:"m_memory_usage_sum,omitempty"`
+	MMemoryUsageMin float32 `protobuf:"fixed32,332,opt,name=m_memory_usage_min,json=mMemoryUsageMin,proto3" json:"m_memory_usage_min,omitempty"`
+	MMemoryUsageMax float32 `protobuf:"fixed32,333,opt,name=m_memory_usage_max,json=mMemoryUsageMax,proto3" json:"m_memory_usage_max,omitempty"`
+	MMemoryUsageP99 float32 `protobuf:"fixed32,334,opt,name=m_memory_usage_p99,json=mMemoryUsageP99,proto3" json:"m_memory_usage_p99,omitempty"`
+	// Sum, count, min, max, p99 of rows written by INSERT queries.
+	MWrittenRowsCnt float32 `protobuf:"fixed32,335,opt,name=m_written_rows_cnt,json=mWrittenRowsCnt,proto3" json:"m_written_rows_cnt,omitempty"`
+	MWrittenRowsSum float32 `protobuf:"fixed32,336,opt,name=m_written_rows_sum,json=mWrittenRowsSum,proto3" json:"m_written_rows_sum,omitempty"`
+	MWrittenRowsMin float32 `protobuf:"fixed32,337,opt,name=m_written_rows_min,json=mWrittenRowsMin,proto3" json:"m_written_rows_min,omitempty"`
+	MWrittenRowsMax float32 `protobuf:"fixed32,338,opt,name=m_written_rows_max,json=mWrittenRowsMax,proto3" json:"m_written_rows_max,omitempty"`
+	MWrittenRowsP99 float32 `protobuf:"fixed32,339,opt,name=m_written_rows_p99,json=mWrittenRowsP99,proto3" json:"m_written_rows_p99,omitempty"`
+	// Sum, count, min, max, p99 of bytes written by INSERT queries.
+	MWrittenBytesCnt float32 `protobuf:"fixed32,340,opt,name=m_written_bytes_cnt,json=mWrittenBytesCnt,proto3" json:"m_written_bytes_cnt,omitempty"`
+	MWrittenBytesSum float32 `protobuf:"fixed32,341,opt,name=m_written_bytes_sum,json=mWrittenBytesSum,proto3" json:"m_written_bytes_sum,omitempty"`
+	MWrittenBytesMin float32 `protobuf:"fixed32,342,opt,name=m_written_bytes_min,json=mWrittenBytesMin,proto3" json:"m_written_bytes_min,omitempty"`
+	MWrittenBytesMax float32 `protobuf:"fixed32,343,opt,name=m_written_bytes_max,json=mWrittenBytesMax,proto3" json:"m_written_bytes_max,omitempty"`
+	MWrittenBytesP99 float32 `protobuf:"fixed32,344,opt,name=m_written_bytes_p99,json=mWrittenBytesP99,proto3" json:"m_written_bytes_p99,omitempty"`
+	// ClickHouse query kind (Select, Insert, Create, ...).
+	QueryKind     string `protobuf:"bytes,345,opt,name=query_kind,json=queryKind,proto3" json:"query_kind,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *MetricsBucket) Reset() {
@@ -2390,6 +2434,258 @@ func (x *MetricsBucket) GetHistogramItems() []string {
 	return nil
 }
 
+func (x *MetricsBucket) GetMReadRowsCnt() float32 {
+	if x != nil {
+		return x.MReadRowsCnt
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMReadRowsSum() float32 {
+	if x != nil {
+		return x.MReadRowsSum
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMReadRowsMin() float32 {
+	if x != nil {
+		return x.MReadRowsMin
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMReadRowsMax() float32 {
+	if x != nil {
+		return x.MReadRowsMax
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMReadRowsP99() float32 {
+	if x != nil {
+		return x.MReadRowsP99
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMReadBytesCnt() float32 {
+	if x != nil {
+		return x.MReadBytesCnt
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMReadBytesSum() float32 {
+	if x != nil {
+		return x.MReadBytesSum
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMReadBytesMin() float32 {
+	if x != nil {
+		return x.MReadBytesMin
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMReadBytesMax() float32 {
+	if x != nil {
+		return x.MReadBytesMax
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMReadBytesP99() float32 {
+	if x != nil {
+		return x.MReadBytesP99
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMResultRowsCnt() float32 {
+	if x != nil {
+		return x.MResultRowsCnt
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMResultRowsSum() float32 {
+	if x != nil {
+		return x.MResultRowsSum
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMResultRowsMin() float32 {
+	if x != nil {
+		return x.MResultRowsMin
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMResultRowsMax() float32 {
+	if x != nil {
+		return x.MResultRowsMax
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMResultRowsP99() float32 {
+	if x != nil {
+		return x.MResultRowsP99
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMResultBytesCnt() float32 {
+	if x != nil {
+		return x.MResultBytesCnt
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMResultBytesSum() float32 {
+	if x != nil {
+		return x.MResultBytesSum
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMResultBytesMin() float32 {
+	if x != nil {
+		return x.MResultBytesMin
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMResultBytesMax() float32 {
+	if x != nil {
+		return x.MResultBytesMax
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMResultBytesP99() float32 {
+	if x != nil {
+		return x.MResultBytesP99
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMMemoryUsageCnt() float32 {
+	if x != nil {
+		return x.MMemoryUsageCnt
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMMemoryUsageSum() float32 {
+	if x != nil {
+		return x.MMemoryUsageSum
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMMemoryUsageMin() float32 {
+	if x != nil {
+		return x.MMemoryUsageMin
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMMemoryUsageMax() float32 {
+	if x != nil {
+		return x.MMemoryUsageMax
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMMemoryUsageP99() float32 {
+	if x != nil {
+		return x.MMemoryUsageP99
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMWrittenRowsCnt() float32 {
+	if x != nil {
+		return x.MWrittenRowsCnt
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMWrittenRowsSum() float32 {
+	if x != nil {
+		return x.MWrittenRowsSum
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMWrittenRowsMin() float32 {
+	if x != nil {
+		return x.MWrittenRowsMin
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMWrittenRowsMax() float32 {
+	if x != nil {
+		return x.MWrittenRowsMax
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMWrittenRowsP99() float32 {
+	if x != nil {
+		return x.MWrittenRowsP99
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMWrittenBytesCnt() float32 {
+	if x != nil {
+		return x.MWrittenBytesCnt
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMWrittenBytesSum() float32 {
+	if x != nil {
+		return x.MWrittenBytesSum
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMWrittenBytesMin() float32 {
+	if x != nil {
+		return x.MWrittenBytesMin
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMWrittenBytesMax() float32 {
+	if x != nil {
+		return x.MWrittenBytesMax
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetMWrittenBytesP99() float32 {
+	if x != nil {
+		return x.MWrittenBytesP99
+	}
+	return 0
+}
+
+func (x *MetricsBucket) GetQueryKind() string {
+	if x != nil {
+		return x.QueryKind
+	}
+	return ""
+}
+
 type CollectResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -2432,7 +2728,7 @@ const file_qan_v1_collector_proto_rawDesc = "" +
 	"\n" +
 	"\x16qan/v1/collector.proto\x12\x06qan.v1\x1a\x1bgoogle/api/visibility.proto\x1a\x19inventory/v1/agents.proto\x1a\x10qan/v1/qan.proto\"N\n" +
 	"\x0eCollectRequest\x12<\n" +
-	"\x0emetrics_bucket\x18\x01 \x03(\v2\x15.qan.v1.MetricsBucketR\rmetricsBucket\"\xdek\n" +
+	"\x0emetrics_bucket\x18\x01 \x03(\v2\x15.qan.v1.MetricsBucketR\rmetricsBucket\"\x96x\n" +
 	"\rMetricsBucket\x12\x18\n" +
 	"\aqueryid\x18\x01 \x01(\tR\aqueryid\x12/\n" +
 	"\x13explain_fingerprint\x18\x02 \x01(\tR\x12explainFingerprint\x12-\n" +
@@ -2714,7 +3010,44 @@ const file_qan_v1_collector_proto_rawDesc = "" +
 	"\x06planid\x18\x8a\x02 \x01(\tR\x06planid\x12\x1e\n" +
 	"\n" +
 	"query_plan\x18\x8b\x02 \x01(\tR\tqueryPlan\x12(\n" +
-	"\x0fhistogram_items\x18\x8c\x02 \x03(\tR\x0ehistogramItems\x1a9\n" +
+	"\x0fhistogram_items\x18\x8c\x02 \x03(\tR\x0ehistogramItems\x12&\n" +
+	"\x0fm_read_rows_cnt\x18\xb6\x02 \x01(\x02R\fmReadRowsCnt\x12&\n" +
+	"\x0fm_read_rows_sum\x18\xb7\x02 \x01(\x02R\fmReadRowsSum\x12&\n" +
+	"\x0fm_read_rows_min\x18\xb8\x02 \x01(\x02R\fmReadRowsMin\x12&\n" +
+	"\x0fm_read_rows_max\x18\xb9\x02 \x01(\x02R\fmReadRowsMax\x12&\n" +
+	"\x0fm_read_rows_p99\x18\xba\x02 \x01(\x02R\fmReadRowsP99\x12(\n" +
+	"\x10m_read_bytes_cnt\x18\xbb\x02 \x01(\x02R\rmReadBytesCnt\x12(\n" +
+	"\x10m_read_bytes_sum\x18\xbc\x02 \x01(\x02R\rmReadBytesSum\x12(\n" +
+	"\x10m_read_bytes_min\x18\xbd\x02 \x01(\x02R\rmReadBytesMin\x12(\n" +
+	"\x10m_read_bytes_max\x18\xbe\x02 \x01(\x02R\rmReadBytesMax\x12(\n" +
+	"\x10m_read_bytes_p99\x18\xbf\x02 \x01(\x02R\rmReadBytesP99\x12*\n" +
+	"\x11m_result_rows_cnt\x18\xc0\x02 \x01(\x02R\x0emResultRowsCnt\x12*\n" +
+	"\x11m_result_rows_sum\x18\xc1\x02 \x01(\x02R\x0emResultRowsSum\x12*\n" +
+	"\x11m_result_rows_min\x18\xc2\x02 \x01(\x02R\x0emResultRowsMin\x12*\n" +
+	"\x11m_result_rows_max\x18\xc3\x02 \x01(\x02R\x0emResultRowsMax\x12*\n" +
+	"\x11m_result_rows_p99\x18\xc4\x02 \x01(\x02R\x0emResultRowsP99\x12,\n" +
+	"\x12m_result_bytes_cnt\x18\xc5\x02 \x01(\x02R\x0fmResultBytesCnt\x12,\n" +
+	"\x12m_result_bytes_sum\x18\xc6\x02 \x01(\x02R\x0fmResultBytesSum\x12,\n" +
+	"\x12m_result_bytes_min\x18\xc7\x02 \x01(\x02R\x0fmResultBytesMin\x12,\n" +
+	"\x12m_result_bytes_max\x18\xc8\x02 \x01(\x02R\x0fmResultBytesMax\x12,\n" +
+	"\x12m_result_bytes_p99\x18\xc9\x02 \x01(\x02R\x0fmResultBytesP99\x12,\n" +
+	"\x12m_memory_usage_cnt\x18\xca\x02 \x01(\x02R\x0fmMemoryUsageCnt\x12,\n" +
+	"\x12m_memory_usage_sum\x18\xcb\x02 \x01(\x02R\x0fmMemoryUsageSum\x12,\n" +
+	"\x12m_memory_usage_min\x18\xcc\x02 \x01(\x02R\x0fmMemoryUsageMin\x12,\n" +
+	"\x12m_memory_usage_max\x18\xcd\x02 \x01(\x02R\x0fmMemoryUsageMax\x12,\n" +
+	"\x12m_memory_usage_p99\x18\xce\x02 \x01(\x02R\x0fmMemoryUsageP99\x12,\n" +
+	"\x12m_written_rows_cnt\x18\xcf\x02 \x01(\x02R\x0fmWrittenRowsCnt\x12,\n" +
+	"\x12m_written_rows_sum\x18\xd0\x02 \x01(\x02R\x0fmWrittenRowsSum\x12,\n" +
+	"\x12m_written_rows_min\x18\xd1\x02 \x01(\x02R\x0fmWrittenRowsMin\x12,\n" +
+	"\x12m_written_rows_max\x18\xd2\x02 \x01(\x02R\x0fmWrittenRowsMax\x12,\n" +
+	"\x12m_written_rows_p99\x18\xd3\x02 \x01(\x02R\x0fmWrittenRowsP99\x12.\n" +
+	"\x13m_written_bytes_cnt\x18\xd4\x02 \x01(\x02R\x10mWrittenBytesCnt\x12.\n" +
+	"\x13m_written_bytes_sum\x18\xd5\x02 \x01(\x02R\x10mWrittenBytesSum\x12.\n" +
+	"\x13m_written_bytes_min\x18\xd6\x02 \x01(\x02R\x10mWrittenBytesMin\x12.\n" +
+	"\x13m_written_bytes_max\x18\xd7\x02 \x01(\x02R\x10mWrittenBytesMax\x12.\n" +
+	"\x13m_written_bytes_p99\x18\xd8\x02 \x01(\x02R\x10mWrittenBytesP99\x12\x1e\n" +
+	"\n" +
+	"query_kind\x18\xd9\x02 \x01(\tR\tqueryKind\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a;\n" +
@@ -2756,7 +3089,6 @@ var (
 		(ExampleType)(0),        // 7: qan.v1.ExampleType
 	}
 )
-
 var file_qan_v1_collector_proto_depIdxs = []int32{
 	1, // 0: qan.v1.CollectRequest.metrics_bucket:type_name -> qan.v1.MetricsBucket
 	6, // 1: qan.v1.MetricsBucket.agent_type:type_name -> inventory.v1.AgentType

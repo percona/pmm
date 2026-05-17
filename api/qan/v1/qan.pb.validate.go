@@ -214,6 +214,20 @@ func (m *Point) validate(all bool) error {
 
 	// no validation rules for MPlanTimeSumPerSec
 
+	// no validation rules for MReadRowsSumPerSec
+
+	// no validation rules for MReadBytesSumPerSec
+
+	// no validation rules for MResultRowsSumPerSec
+
+	// no validation rules for MResultBytesSumPerSec
+
+	// no validation rules for MMemoryUsageSumPerSec
+
+	// no validation rules for MWrittenRowsSumPerSec
+
+	// no validation rules for MWrittenBytesSumPerSec
+
 	if len(errors) > 0 {
 		return PointMultiError(errors)
 	}

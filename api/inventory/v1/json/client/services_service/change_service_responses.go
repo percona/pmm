@@ -534,6 +534,9 @@ ChangeServiceOKBody change service OK body
 swagger:model ChangeServiceOKBody
 */
 type ChangeServiceOKBody struct {
+	// clickhouse
+	Clickhouse *ChangeServiceOKBodyClickhouse `json:"clickhouse,omitempty"`
+
 	// external
 	External *ChangeServiceOKBodyExternal `json:"external,omitempty"`
 
@@ -559,6 +562,10 @@ type ChangeServiceOKBody struct {
 // Validate validates this change service OK body
 func (o *ChangeServiceOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.validateClickhouse(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.validateExternal(formats); err != nil {
 		res = append(res, err)
@@ -591,6 +598,29 @@ func (o *ChangeServiceOKBody) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *ChangeServiceOKBody) validateClickhouse(formats strfmt.Registry) error {
+	if swag.IsZero(o.Clickhouse) { // not required
+		return nil
+	}
+
+	if o.Clickhouse != nil {
+		if err := o.Clickhouse.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("changeServiceOk" + "." + "clickhouse")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("changeServiceOk" + "." + "clickhouse")
+			}
+
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -759,6 +789,10 @@ func (o *ChangeServiceOKBody) validateValkey(formats strfmt.Registry) error {
 func (o *ChangeServiceOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.contextValidateClickhouse(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.contextValidateExternal(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -790,6 +824,30 @@ func (o *ChangeServiceOKBody) ContextValidate(ctx context.Context, formats strfm
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *ChangeServiceOKBody) contextValidateClickhouse(ctx context.Context, formats strfmt.Registry) error {
+	if o.Clickhouse != nil {
+
+		if swag.IsZero(o.Clickhouse) { // not required
+			return nil
+		}
+
+		if err := o.Clickhouse.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("changeServiceOk" + "." + "clickhouse")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("changeServiceOk" + "." + "clickhouse")
+			}
+
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -972,6 +1030,76 @@ func (o *ChangeServiceOKBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ChangeServiceOKBody) UnmarshalBinary(b []byte) error {
 	var res ChangeServiceOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeServiceOKBodyClickhouse ClickHouseService represents a generic ClickHouse instance.
+swagger:model ChangeServiceOKBodyClickhouse
+*/
+type ChangeServiceOKBodyClickhouse struct {
+	// Unique randomly generated instance identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// Unique across all Services user-defined name.
+	ServiceName string `json:"service_name,omitempty"`
+
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Access address (DNS name or IP).
+	// Address (and port) or socket is required.
+	Address string `json:"address,omitempty"`
+
+	// Access port.
+	// Port is required when the address present.
+	Port int64 `json:"port,omitempty"`
+
+	// Access unix socket.
+	// Address (and port) or socket is required.
+	Socket string `json:"socket,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// ClickHouse version.
+	Version string `json:"version,omitempty"`
+}
+
+// Validate validates this change service OK body clickhouse
+func (o *ChangeServiceOKBodyClickhouse) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change service OK body clickhouse based on context it is used
+func (o *ChangeServiceOKBodyClickhouse) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeServiceOKBodyClickhouse) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeServiceOKBodyClickhouse) UnmarshalBinary(b []byte) error {
+	var res ChangeServiceOKBodyClickhouse
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

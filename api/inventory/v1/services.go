@@ -31,3 +31,4 @@ func (*ProxySQLService) sealedService()   {}
 func (*HAProxyService) sealedService()    {}
 func (*ExternalService) sealedService()   {}
 func (*ValkeyService) sealedService()     {}
+func (*ClickHouseService) sealedService() {}

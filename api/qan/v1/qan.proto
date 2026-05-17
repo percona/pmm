@@ -193,6 +193,23 @@ message Point {
   float m_parallel_workers_launched_sum_per_sec = 97;
   // Plan time in per seconds.
   float m_plan_time_sum_per_sec = 84;
+  //
+  // ClickHouse metrics (system.query_log), per second.
+  //
+  // Rows read from all tables and table functions, per second.
+  float m_read_rows_sum_per_sec = 98;
+  // Bytes read from all tables and table functions, per second.
+  float m_read_bytes_sum_per_sec = 99;
+  // Rows in the query result, per second.
+  float m_result_rows_sum_per_sec = 100;
+  // Bytes in the query result, per second.
+  float m_result_bytes_sum_per_sec = 101;
+  // Peak memory usage for the query, per second.
+  float m_memory_usage_sum_per_sec = 102;
+  // Rows written by INSERT queries, per second.
+  float m_written_rows_sum_per_sec = 103;
+  // Bytes written by INSERT queries, per second.
+  float m_written_bytes_sum_per_sec = 104;
 }
 
 // MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.

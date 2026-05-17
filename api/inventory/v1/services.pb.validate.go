@@ -530,6 +530,130 @@ var _ interface {
 	ErrorName() string
 } = ValkeyServiceValidationError{}
 
+// Validate checks the field values on ClickHouseService with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *ClickHouseService) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ClickHouseService with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ClickHouseServiceMultiError, or nil if none found.
+func (m *ClickHouseService) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ClickHouseService) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for ServiceId
+
+	// no validation rules for ServiceName
+
+	// no validation rules for NodeId
+
+	// no validation rules for Address
+
+	// no validation rules for Port
+
+	// no validation rules for Socket
+
+	// no validation rules for Environment
+
+	// no validation rules for Cluster
+
+	// no validation rules for ReplicationSet
+
+	// no validation rules for CustomLabels
+
+	// no validation rules for Version
+
+	if len(errors) > 0 {
+		return ClickHouseServiceMultiError(errors)
+	}
+
+	return nil
+}
+
+// ClickHouseServiceMultiError is an error wrapping multiple validation errors
+// returned by ClickHouseService.ValidateAll() if the designated constraints
+// aren't met.
+type ClickHouseServiceMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ClickHouseServiceMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ClickHouseServiceMultiError) AllErrors() []error { return m }
+
+// ClickHouseServiceValidationError is the validation error returned by
+// ClickHouseService.Validate if the designated constraints aren't met.
+type ClickHouseServiceValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ClickHouseServiceValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ClickHouseServiceValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ClickHouseServiceValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ClickHouseServiceValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ClickHouseServiceValidationError) ErrorName() string {
+	return "ClickHouseServiceValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ClickHouseServiceValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sClickHouseService.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ClickHouseServiceValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ClickHouseServiceValidationError{}
+
 // Validate checks the field values on ProxySQLService with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -1254,6 +1378,40 @@ func (m *ListServicesResponse) validate(all bool) error {
 
 	}
 
+	for idx, item := range m.GetClickhouse() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ListServicesResponseValidationError{
+						field:  fmt.Sprintf("Clickhouse[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ListServicesResponseValidationError{
+						field:  fmt.Sprintf("Clickhouse[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ListServicesResponseValidationError{
+					field:  fmt.Sprintf("Clickhouse[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
 	if len(errors) > 0 {
 		return ListServicesResponseMultiError(errors)
 	}
@@ -1963,6 +2121,47 @@ func (m *GetServiceResponse) validate(all bool) error {
 			}
 		}
 
+	case *GetServiceResponse_Clickhouse:
+		if v == nil {
+			err := GetServiceResponseValidationError{
+				field:  "Service",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetClickhouse()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetServiceResponseValidationError{
+						field:  "Clickhouse",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetServiceResponseValidationError{
+						field:  "Clickhouse",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetClickhouse()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetServiceResponseValidationError{
+					field:  "Clickhouse",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	default:
 		_ = v // ensures v is used
 	}
@@ -2357,6 +2556,47 @@ func (m *AddServiceRequest) validate(all bool) error {
 			}
 		}
 
+	case *AddServiceRequest_Clickhouse:
+		if v == nil {
+			err := AddServiceRequestValidationError{
+				field:  "Service",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetClickhouse()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddServiceRequestValidationError{
+						field:  "Clickhouse",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddServiceRequestValidationError{
+						field:  "Clickhouse",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetClickhouse()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddServiceRequestValidationError{
+					field:  "Clickhouse",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	default:
 		_ = v // ensures v is used
 	}
@@ -2745,6 +2985,47 @@ func (m *AddServiceResponse) validate(all bool) error {
 			if err := v.Validate(); err != nil {
 				return AddServiceResponseValidationError{
 					field:  "Valkey",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddServiceResponse_Clickhouse:
+		if v == nil {
+			err := AddServiceResponseValidationError{
+				field:  "Service",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetClickhouse()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddServiceResponseValidationError{
+						field:  "Clickhouse",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddServiceResponseValidationError{
+						field:  "Clickhouse",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetClickhouse()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddServiceResponseValidationError{
+					field:  "Clickhouse",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -3390,6 +3671,144 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = AddValkeyServiceParamsValidationError{}
+
+// Validate checks the field values on AddClickHouseServiceParams with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AddClickHouseServiceParams) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AddClickHouseServiceParams with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AddClickHouseServiceParamsMultiError, or nil if none found.
+func (m *AddClickHouseServiceParams) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AddClickHouseServiceParams) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetServiceName()) < 1 {
+		err := AddClickHouseServiceParamsValidationError{
+			field:  "ServiceName",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetNodeId()) < 1 {
+		err := AddClickHouseServiceParamsValidationError{
+			field:  "NodeId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for Address
+
+	// no validation rules for Port
+
+	// no validation rules for Socket
+
+	// no validation rules for Environment
+
+	// no validation rules for Cluster
+
+	// no validation rules for ReplicationSet
+
+	// no validation rules for CustomLabels
+
+	if len(errors) > 0 {
+		return AddClickHouseServiceParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+// AddClickHouseServiceParamsMultiError is an error wrapping multiple
+// validation errors returned by AddClickHouseServiceParams.ValidateAll() if
+// the designated constraints aren't met.
+type AddClickHouseServiceParamsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AddClickHouseServiceParamsMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AddClickHouseServiceParamsMultiError) AllErrors() []error { return m }
+
+// AddClickHouseServiceParamsValidationError is the validation error returned
+// by AddClickHouseServiceParams.Validate if the designated constraints aren't met.
+type AddClickHouseServiceParamsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AddClickHouseServiceParamsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AddClickHouseServiceParamsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AddClickHouseServiceParamsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AddClickHouseServiceParamsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AddClickHouseServiceParamsValidationError) ErrorName() string {
+	return "AddClickHouseServiceParamsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AddClickHouseServiceParamsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAddClickHouseServiceParams.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AddClickHouseServiceParamsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AddClickHouseServiceParamsValidationError{}
 
 // Validate checks the field values on AddProxySQLServiceParams with the rules
 // defined in the proto definition for this message. If any rules are
@@ -4476,6 +4895,47 @@ func (m *ChangeServiceResponse) validate(all bool) error {
 			if err := v.Validate(); err != nil {
 				return ChangeServiceResponseValidationError{
 					field:  "Valkey",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeServiceResponse_Clickhouse:
+		if v == nil {
+			err := ChangeServiceResponseValidationError{
+				field:  "Service",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetClickhouse()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeServiceResponseValidationError{
+						field:  "Clickhouse",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeServiceResponseValidationError{
+						field:  "Clickhouse",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetClickhouse()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeServiceResponseValidationError{
+					field:  "Clickhouse",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}

@@ -88,6 +88,7 @@ type MetricsBucket struct {
 	Mysql         *MetricsBucket_MySQL      `protobuf:"bytes,2,opt,name=mysql,proto3" json:"mysql,omitempty"`
 	Mongodb       *MetricsBucket_MongoDB    `protobuf:"bytes,3,opt,name=mongodb,proto3" json:"mongodb,omitempty"`
 	Postgresql    *MetricsBucket_PostgreSQL `protobuf:"bytes,4,opt,name=postgresql,proto3" json:"postgresql,omitempty"`
+	Clickhouse    *MetricsBucket_ClickHouse `protobuf:"bytes,5,opt,name=clickhouse,proto3" json:"clickhouse,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -146,6 +147,13 @@ func (x *MetricsBucket) GetMongodb() *MetricsBucket_MongoDB {
 func (x *MetricsBucket) GetPostgresql() *MetricsBucket_PostgreSQL {
 	if x != nil {
 		return x.Postgresql
+	}
+	return nil
+}
+
+func (x *MetricsBucket) GetClickhouse() *MetricsBucket_ClickHouse {
+	if x != nil {
+		return x.Clickhouse
 	}
 	return nil
 }
@@ -2497,18 +2505,355 @@ func (x *MetricsBucket_PostgreSQL) GetHistogramItems() []*HistogramItem {
 	return nil
 }
 
+// ClickHouse contains ClickHouse-specific metrics, sourced from
+// system.query_log.
+type MetricsBucket_ClickHouse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Sum, count, min, max, p99 of rows read from all tables and table functions.
+	MReadRowsCnt float32 `protobuf:"fixed32,1,opt,name=m_read_rows_cnt,json=mReadRowsCnt,proto3" json:"m_read_rows_cnt,omitempty"`
+	MReadRowsSum float32 `protobuf:"fixed32,2,opt,name=m_read_rows_sum,json=mReadRowsSum,proto3" json:"m_read_rows_sum,omitempty"`
+	MReadRowsMin float32 `protobuf:"fixed32,3,opt,name=m_read_rows_min,json=mReadRowsMin,proto3" json:"m_read_rows_min,omitempty"`
+	MReadRowsMax float32 `protobuf:"fixed32,4,opt,name=m_read_rows_max,json=mReadRowsMax,proto3" json:"m_read_rows_max,omitempty"`
+	MReadRowsP99 float32 `protobuf:"fixed32,5,opt,name=m_read_rows_p99,json=mReadRowsP99,proto3" json:"m_read_rows_p99,omitempty"`
+	// Sum, count, min, max, p99 of bytes read from all tables and table functions.
+	MReadBytesCnt float32 `protobuf:"fixed32,6,opt,name=m_read_bytes_cnt,json=mReadBytesCnt,proto3" json:"m_read_bytes_cnt,omitempty"`
+	MReadBytesSum float32 `protobuf:"fixed32,7,opt,name=m_read_bytes_sum,json=mReadBytesSum,proto3" json:"m_read_bytes_sum,omitempty"`
+	MReadBytesMin float32 `protobuf:"fixed32,8,opt,name=m_read_bytes_min,json=mReadBytesMin,proto3" json:"m_read_bytes_min,omitempty"`
+	MReadBytesMax float32 `protobuf:"fixed32,9,opt,name=m_read_bytes_max,json=mReadBytesMax,proto3" json:"m_read_bytes_max,omitempty"`
+	MReadBytesP99 float32 `protobuf:"fixed32,10,opt,name=m_read_bytes_p99,json=mReadBytesP99,proto3" json:"m_read_bytes_p99,omitempty"`
+	// Sum, count, min, max, p99 of rows in the query result.
+	MResultRowsCnt float32 `protobuf:"fixed32,11,opt,name=m_result_rows_cnt,json=mResultRowsCnt,proto3" json:"m_result_rows_cnt,omitempty"`
+	MResultRowsSum float32 `protobuf:"fixed32,12,opt,name=m_result_rows_sum,json=mResultRowsSum,proto3" json:"m_result_rows_sum,omitempty"`
+	MResultRowsMin float32 `protobuf:"fixed32,13,opt,name=m_result_rows_min,json=mResultRowsMin,proto3" json:"m_result_rows_min,omitempty"`
+	MResultRowsMax float32 `protobuf:"fixed32,14,opt,name=m_result_rows_max,json=mResultRowsMax,proto3" json:"m_result_rows_max,omitempty"`
+	MResultRowsP99 float32 `protobuf:"fixed32,15,opt,name=m_result_rows_p99,json=mResultRowsP99,proto3" json:"m_result_rows_p99,omitempty"`
+	// Sum, count, min, max, p99 of bytes in the query result.
+	MResultBytesCnt float32 `protobuf:"fixed32,16,opt,name=m_result_bytes_cnt,json=mResultBytesCnt,proto3" json:"m_result_bytes_cnt,omitempty"`
+	MResultBytesSum float32 `protobuf:"fixed32,17,opt,name=m_result_bytes_sum,json=mResultBytesSum,proto3" json:"m_result_bytes_sum,omitempty"`
+	MResultBytesMin float32 `protobuf:"fixed32,18,opt,name=m_result_bytes_min,json=mResultBytesMin,proto3" json:"m_result_bytes_min,omitempty"`
+	MResultBytesMax float32 `protobuf:"fixed32,19,opt,name=m_result_bytes_max,json=mResultBytesMax,proto3" json:"m_result_bytes_max,omitempty"`
+	MResultBytesP99 float32 `protobuf:"fixed32,20,opt,name=m_result_bytes_p99,json=mResultBytesP99,proto3" json:"m_result_bytes_p99,omitempty"`
+	// Sum, count, min, max, p99 of peak memory usage for the query.
+	MMemoryUsageCnt float32 `protobuf:"fixed32,21,opt,name=m_memory_usage_cnt,json=mMemoryUsageCnt,proto3" json:"m_memory_usage_cnt,omitempty"`
+	MMemoryUsageSum float32 `protobuf:"fixed32,22,opt,name=m_memory_usage_sum,json=mMemoryUsageSum,proto3" json:"m_memory_usage_sum,omitempty"`
+	MMemoryUsageMin float32 `protobuf:"fixed32,23,opt,name=m_memory_usage_min,json=mMemoryUsageMin,proto3" json:"m_memory_usage_min,omitempty"`
+	MMemoryUsageMax float32 `protobuf:"fixed32,24,opt,name=m_memory_usage_max,json=mMemoryUsageMax,proto3" json:"m_memory_usage_max,omitempty"`
+	MMemoryUsageP99 float32 `protobuf:"fixed32,25,opt,name=m_memory_usage_p99,json=mMemoryUsageP99,proto3" json:"m_memory_usage_p99,omitempty"`
+	// Sum, count, min, max, p99 of rows written by INSERT queries.
+	MWrittenRowsCnt float32 `protobuf:"fixed32,26,opt,name=m_written_rows_cnt,json=mWrittenRowsCnt,proto3" json:"m_written_rows_cnt,omitempty"`
+	MWrittenRowsSum float32 `protobuf:"fixed32,27,opt,name=m_written_rows_sum,json=mWrittenRowsSum,proto3" json:"m_written_rows_sum,omitempty"`
+	MWrittenRowsMin float32 `protobuf:"fixed32,28,opt,name=m_written_rows_min,json=mWrittenRowsMin,proto3" json:"m_written_rows_min,omitempty"`
+	MWrittenRowsMax float32 `protobuf:"fixed32,29,opt,name=m_written_rows_max,json=mWrittenRowsMax,proto3" json:"m_written_rows_max,omitempty"`
+	MWrittenRowsP99 float32 `protobuf:"fixed32,30,opt,name=m_written_rows_p99,json=mWrittenRowsP99,proto3" json:"m_written_rows_p99,omitempty"`
+	// Sum, count, min, max, p99 of bytes written by INSERT queries.
+	MWrittenBytesCnt float32 `protobuf:"fixed32,31,opt,name=m_written_bytes_cnt,json=mWrittenBytesCnt,proto3" json:"m_written_bytes_cnt,omitempty"`
+	MWrittenBytesSum float32 `protobuf:"fixed32,32,opt,name=m_written_bytes_sum,json=mWrittenBytesSum,proto3" json:"m_written_bytes_sum,omitempty"`
+	MWrittenBytesMin float32 `protobuf:"fixed32,33,opt,name=m_written_bytes_min,json=mWrittenBytesMin,proto3" json:"m_written_bytes_min,omitempty"`
+	MWrittenBytesMax float32 `protobuf:"fixed32,34,opt,name=m_written_bytes_max,json=mWrittenBytesMax,proto3" json:"m_written_bytes_max,omitempty"`
+	MWrittenBytesP99 float32 `protobuf:"fixed32,35,opt,name=m_written_bytes_p99,json=mWrittenBytesP99,proto3" json:"m_written_bytes_p99,omitempty"`
+	// ClickHouse query kind (Select, Insert, Create, ...).
+	QueryKind     string `protobuf:"bytes,36,opt,name=query_kind,json=queryKind,proto3" json:"query_kind,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MetricsBucket_ClickHouse) Reset() {
+	*x = MetricsBucket_ClickHouse{}
+	mi := &file_agent_v1_collector_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MetricsBucket_ClickHouse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MetricsBucket_ClickHouse) ProtoMessage() {}
+
+func (x *MetricsBucket_ClickHouse) ProtoReflect() protoreflect.Message {
+	mi := &file_agent_v1_collector_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MetricsBucket_ClickHouse.ProtoReflect.Descriptor instead.
+func (*MetricsBucket_ClickHouse) Descriptor() ([]byte, []int) {
+	return file_agent_v1_collector_proto_rawDescGZIP(), []int{0, 4}
+}
+
+func (x *MetricsBucket_ClickHouse) GetMReadRowsCnt() float32 {
+	if x != nil {
+		return x.MReadRowsCnt
+	}
+	return 0
+}
+
+func (x *MetricsBucket_ClickHouse) GetMReadRowsSum() float32 {
+	if x != nil {
+		return x.MReadRowsSum
+	}
+	return 0
+}
+
+func (x *MetricsBucket_ClickHouse) GetMReadRowsMin() float32 {
+	if x != nil {
+		return x.MReadRowsMin
+	}
+	return 0
+}
+
+func (x *MetricsBucket_ClickHouse) GetMReadRowsMax() float32 {
+	if x != nil {
+		return x.MReadRowsMax
+	}
+	return 0
+}
+
+func (x *MetricsBucket_ClickHouse) GetMReadRowsP99() float32 {
+	if x != nil {
+		return x.MReadRowsP99
+	}
+	return 0
+}
+
+func (x *MetricsBucket_ClickHouse) GetMReadBytesCnt() float32 {
+	if x != nil {
+		return x.MReadBytesCnt
+	}
+	return 0
+}
+
+func (x *MetricsBucket_ClickHouse) GetMReadBytesSum() float32 {
+	if x != nil {
+		return x.MReadBytesSum
+	}
+	return 0
+}
+
+func (x *MetricsBucket_ClickHouse) GetMReadBytesMin() float32 {
+	if x != nil {
+		return x.MReadBytesMin
+	}
+	return 0
+}
+
+func (x *MetricsBucket_ClickHouse) GetMReadBytesMax() float32 {
+	if x != nil {
+		return x.MReadBytesMax
+	}
+	return 0
+}
+
+func (x *MetricsBucket_ClickHouse) GetMReadBytesP99() float32 {
+	if x != nil {
+		return x.MReadBytesP99
+	}
+	return 0
+}
+
+func (x *MetricsBucket_ClickHouse) GetMResultRowsCnt() float32 {
+	if x != nil {
+		return x.MResultRowsCnt
+	}
+	return 0
+}
+
+func (x *MetricsBucket_ClickHouse) GetMResultRowsSum() float32 {
+	if x != nil {
+		return x.MResultRowsSum
+	}
+	return 0
+}
+
+func (x *MetricsBucket_ClickHouse) GetMResultRowsMin() float32 {
+	if x != nil {
+		return x.MResultRowsMin
+	}
+	return 0
+}
+
+func (x *MetricsBucket_ClickHouse) GetMResultRowsMax() float32 {
+	if x != nil {
+		return x.MResultRowsMax
+	}
+	return 0
+}
+
+func (x *MetricsBucket_ClickHouse) GetMResultRowsP99() float32 {
+	if x != nil {
+		return x.MResultRowsP99
+	}
+	return 0
+}
+
+func (x *MetricsBucket_ClickHouse) GetMResultBytesCnt() float32 {
+	if x != nil {
+		return x.MResultBytesCnt
+	}
+	return 0
+}
+
+func (x *MetricsBucket_ClickHouse) GetMResultBytesSum() float32 {
+	if x != nil {
+		return x.MResultBytesSum
+	}
+	return 0
+}
+
+func (x *MetricsBucket_ClickHouse) GetMResultBytesMin() float32 {
+	if x != nil {
+		return x.MResultBytesMin
+	}
+	return 0
+}
+
+func (x *MetricsBucket_ClickHouse) GetMResultBytesMax() float32 {
+	if x != nil {
+		return x.MResultBytesMax
+	}
+	return 0
+}
+
+func (x *MetricsBucket_ClickHouse) GetMResultBytesP99() float32 {
+	if x != nil {
+		return x.MResultBytesP99
+	}
+	return 0
+}
+
+func (x *MetricsBucket_ClickHouse) GetMMemoryUsageCnt() float32 {
+	if x != nil {
+		return x.MMemoryUsageCnt
+	}
+	return 0
+}
+
+func (x *MetricsBucket_ClickHouse) GetMMemoryUsageSum() float32 {
+	if x != nil {
+		return x.MMemoryUsageSum
+	}
+	return 0
+}
+
+func (x *MetricsBucket_ClickHouse) GetMMemoryUsageMin() float32 {
+	if x != nil {
+		return x.MMemoryUsageMin
+	}
+	return 0
+}
+
+func (x *MetricsBucket_ClickHouse) GetMMemoryUsageMax() float32 {
+	if x != nil {
+		return x.MMemoryUsageMax
+	}
+	return 0
+}
+
+func (x *MetricsBucket_ClickHouse) GetMMemoryUsageP99() float32 {
+	if x != nil {
+		return x.MMemoryUsageP99
+	}
+	return 0
+}
+
+func (x *MetricsBucket_ClickHouse) GetMWrittenRowsCnt() float32 {
+	if x != nil {
+		return x.MWrittenRowsCnt
+	}
+	return 0
+}
+
+func (x *MetricsBucket_ClickHouse) GetMWrittenRowsSum() float32 {
+	if x != nil {
+		return x.MWrittenRowsSum
+	}
+	return 0
+}
+
+func (x *MetricsBucket_ClickHouse) GetMWrittenRowsMin() float32 {
+	if x != nil {
+		return x.MWrittenRowsMin
+	}
+	return 0
+}
+
+func (x *MetricsBucket_ClickHouse) GetMWrittenRowsMax() float32 {
+	if x != nil {
+		return x.MWrittenRowsMax
+	}
+	return 0
+}
+
+func (x *MetricsBucket_ClickHouse) GetMWrittenRowsP99() float32 {
+	if x != nil {
+		return x.MWrittenRowsP99
+	}
+	return 0
+}
+
+func (x *MetricsBucket_ClickHouse) GetMWrittenBytesCnt() float32 {
+	if x != nil {
+		return x.MWrittenBytesCnt
+	}
+	return 0
+}
+
+func (x *MetricsBucket_ClickHouse) GetMWrittenBytesSum() float32 {
+	if x != nil {
+		return x.MWrittenBytesSum
+	}
+	return 0
+}
+
+func (x *MetricsBucket_ClickHouse) GetMWrittenBytesMin() float32 {
+	if x != nil {
+		return x.MWrittenBytesMin
+	}
+	return 0
+}
+
+func (x *MetricsBucket_ClickHouse) GetMWrittenBytesMax() float32 {
+	if x != nil {
+		return x.MWrittenBytesMax
+	}
+	return 0
+}
+
+func (x *MetricsBucket_ClickHouse) GetMWrittenBytesP99() float32 {
+	if x != nil {
+		return x.MWrittenBytesP99
+	}
+	return 0
+}
+
+func (x *MetricsBucket_ClickHouse) GetQueryKind() string {
+	if x != nil {
+		return x.QueryKind
+	}
+	return ""
+}
+
 var File_agent_v1_collector_proto protoreflect.FileDescriptor
 
 const file_agent_v1_collector_proto_rawDesc = "" +
 	"\n" +
-	"\x18agent/v1/collector.proto\x12\bagent.v1\x1a\x19inventory/v1/agents.proto\"\xabh\n" +
+	"\x18agent/v1/collector.proto\x12\bagent.v1\x1a\x19inventory/v1/agents.proto\"\x92u\n" +
 	"\rMetricsBucket\x126\n" +
 	"\x06common\x18\x01 \x01(\v2\x1e.agent.v1.MetricsBucket.CommonR\x06common\x123\n" +
 	"\x05mysql\x18\x02 \x01(\v2\x1d.agent.v1.MetricsBucket.MySQLR\x05mysql\x129\n" +
 	"\amongodb\x18\x03 \x01(\v2\x1f.agent.v1.MetricsBucket.MongoDBR\amongodb\x12B\n" +
 	"\n" +
 	"postgresql\x18\x04 \x01(\v2\".agent.v1.MetricsBucket.PostgreSQLR\n" +
-	"postgresql\x1a\xd6\t\n" +
+	"postgresql\x12B\n" +
+	"\n" +
+	"clickhouse\x18\x05 \x01(\v2\".agent.v1.MetricsBucket.ClickHouseR\n" +
+	"clickhouse\x1a\xd6\t\n" +
 	"\x06Common\x12\x18\n" +
 	"\aqueryid\x18\x01 \x01(\tR\aqueryid\x12/\n" +
 	"\x13explain_fingerprint\x18\x19 \x01(\tR\x12explainFingerprint\x12-\n" +
@@ -2786,7 +3131,47 @@ const file_agent_v1_collector_proto_rawDesc = "" +
 	"\x06planid\x18. \x01(\tR\x06planid\x12\x1d\n" +
 	"\n" +
 	"query_plan\x180 \x01(\tR\tqueryPlan\x12@\n" +
-	"\x0fhistogram_items\x181 \x03(\v2\x17.agent.v1.HistogramItemR\x0ehistogramItems\"C\n" +
+	"\x0fhistogram_items\x181 \x03(\v2\x17.agent.v1.HistogramItemR\x0ehistogramItems\x1a\xa0\f\n" +
+	"\n" +
+	"ClickHouse\x12%\n" +
+	"\x0fm_read_rows_cnt\x18\x01 \x01(\x02R\fmReadRowsCnt\x12%\n" +
+	"\x0fm_read_rows_sum\x18\x02 \x01(\x02R\fmReadRowsSum\x12%\n" +
+	"\x0fm_read_rows_min\x18\x03 \x01(\x02R\fmReadRowsMin\x12%\n" +
+	"\x0fm_read_rows_max\x18\x04 \x01(\x02R\fmReadRowsMax\x12%\n" +
+	"\x0fm_read_rows_p99\x18\x05 \x01(\x02R\fmReadRowsP99\x12'\n" +
+	"\x10m_read_bytes_cnt\x18\x06 \x01(\x02R\rmReadBytesCnt\x12'\n" +
+	"\x10m_read_bytes_sum\x18\a \x01(\x02R\rmReadBytesSum\x12'\n" +
+	"\x10m_read_bytes_min\x18\b \x01(\x02R\rmReadBytesMin\x12'\n" +
+	"\x10m_read_bytes_max\x18\t \x01(\x02R\rmReadBytesMax\x12'\n" +
+	"\x10m_read_bytes_p99\x18\n" +
+	" \x01(\x02R\rmReadBytesP99\x12)\n" +
+	"\x11m_result_rows_cnt\x18\v \x01(\x02R\x0emResultRowsCnt\x12)\n" +
+	"\x11m_result_rows_sum\x18\f \x01(\x02R\x0emResultRowsSum\x12)\n" +
+	"\x11m_result_rows_min\x18\r \x01(\x02R\x0emResultRowsMin\x12)\n" +
+	"\x11m_result_rows_max\x18\x0e \x01(\x02R\x0emResultRowsMax\x12)\n" +
+	"\x11m_result_rows_p99\x18\x0f \x01(\x02R\x0emResultRowsP99\x12+\n" +
+	"\x12m_result_bytes_cnt\x18\x10 \x01(\x02R\x0fmResultBytesCnt\x12+\n" +
+	"\x12m_result_bytes_sum\x18\x11 \x01(\x02R\x0fmResultBytesSum\x12+\n" +
+	"\x12m_result_bytes_min\x18\x12 \x01(\x02R\x0fmResultBytesMin\x12+\n" +
+	"\x12m_result_bytes_max\x18\x13 \x01(\x02R\x0fmResultBytesMax\x12+\n" +
+	"\x12m_result_bytes_p99\x18\x14 \x01(\x02R\x0fmResultBytesP99\x12+\n" +
+	"\x12m_memory_usage_cnt\x18\x15 \x01(\x02R\x0fmMemoryUsageCnt\x12+\n" +
+	"\x12m_memory_usage_sum\x18\x16 \x01(\x02R\x0fmMemoryUsageSum\x12+\n" +
+	"\x12m_memory_usage_min\x18\x17 \x01(\x02R\x0fmMemoryUsageMin\x12+\n" +
+	"\x12m_memory_usage_max\x18\x18 \x01(\x02R\x0fmMemoryUsageMax\x12+\n" +
+	"\x12m_memory_usage_p99\x18\x19 \x01(\x02R\x0fmMemoryUsageP99\x12+\n" +
+	"\x12m_written_rows_cnt\x18\x1a \x01(\x02R\x0fmWrittenRowsCnt\x12+\n" +
+	"\x12m_written_rows_sum\x18\x1b \x01(\x02R\x0fmWrittenRowsSum\x12+\n" +
+	"\x12m_written_rows_min\x18\x1c \x01(\x02R\x0fmWrittenRowsMin\x12+\n" +
+	"\x12m_written_rows_max\x18\x1d \x01(\x02R\x0fmWrittenRowsMax\x12+\n" +
+	"\x12m_written_rows_p99\x18\x1e \x01(\x02R\x0fmWrittenRowsP99\x12-\n" +
+	"\x13m_written_bytes_cnt\x18\x1f \x01(\x02R\x10mWrittenBytesCnt\x12-\n" +
+	"\x13m_written_bytes_sum\x18  \x01(\x02R\x10mWrittenBytesSum\x12-\n" +
+	"\x13m_written_bytes_min\x18! \x01(\x02R\x10mWrittenBytesMin\x12-\n" +
+	"\x13m_written_bytes_max\x18\" \x01(\x02R\x10mWrittenBytesMax\x12-\n" +
+	"\x13m_written_bytes_p99\x18# \x01(\x02R\x10mWrittenBytesP99\x12\x1d\n" +
+	"\n" +
+	"query_kind\x18$ \x01(\tR\tqueryKind\"C\n" +
 	"\rHistogramItem\x12\x14\n" +
 	"\x05range\x18\x01 \x01(\tR\x05range\x12\x1c\n" +
 	"\tfrequency\x18\x02 \x01(\rR\tfrequency*\x95\x01\n" +
@@ -2812,7 +3197,7 @@ func file_agent_v1_collector_proto_rawDescGZIP() []byte {
 
 var (
 	file_agent_v1_collector_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_agent_v1_collector_proto_msgTypes  = make([]protoimpl.MessageInfo, 8)
+	file_agent_v1_collector_proto_msgTypes  = make([]protoimpl.MessageInfo, 9)
 	file_agent_v1_collector_proto_goTypes   = []any{
 		(ExampleType)(0),                 // 0: agent.v1.ExampleType
 		(*MetricsBucket)(nil),            // 1: agent.v1.MetricsBucket
@@ -2821,27 +3206,28 @@ var (
 		(*MetricsBucket_MySQL)(nil),      // 4: agent.v1.MetricsBucket.MySQL
 		(*MetricsBucket_MongoDB)(nil),    // 5: agent.v1.MetricsBucket.MongoDB
 		(*MetricsBucket_PostgreSQL)(nil), // 6: agent.v1.MetricsBucket.PostgreSQL
-		nil,                              // 7: agent.v1.MetricsBucket.Common.CommentsEntry
-		nil,                              // 8: agent.v1.MetricsBucket.Common.ErrorsEntry
-		(v1.AgentType)(0),                // 9: inventory.v1.AgentType
+		(*MetricsBucket_ClickHouse)(nil), // 7: agent.v1.MetricsBucket.ClickHouse
+		nil,                              // 8: agent.v1.MetricsBucket.Common.CommentsEntry
+		nil,                              // 9: agent.v1.MetricsBucket.Common.ErrorsEntry
+		(v1.AgentType)(0),                // 10: inventory.v1.AgentType
 	}
 )
-
 var file_agent_v1_collector_proto_depIdxs = []int32{
-	3, // 0: agent.v1.MetricsBucket.common:type_name -> agent.v1.MetricsBucket.Common
-	4, // 1: agent.v1.MetricsBucket.mysql:type_name -> agent.v1.MetricsBucket.MySQL
-	5, // 2: agent.v1.MetricsBucket.mongodb:type_name -> agent.v1.MetricsBucket.MongoDB
-	6, // 3: agent.v1.MetricsBucket.postgresql:type_name -> agent.v1.MetricsBucket.PostgreSQL
-	7, // 4: agent.v1.MetricsBucket.Common.comments:type_name -> agent.v1.MetricsBucket.Common.CommentsEntry
-	9, // 5: agent.v1.MetricsBucket.Common.agent_type:type_name -> inventory.v1.AgentType
-	0, // 6: agent.v1.MetricsBucket.Common.example_type:type_name -> agent.v1.ExampleType
-	8, // 7: agent.v1.MetricsBucket.Common.errors:type_name -> agent.v1.MetricsBucket.Common.ErrorsEntry
-	2, // 8: agent.v1.MetricsBucket.PostgreSQL.histogram_items:type_name -> agent.v1.HistogramItem
-	9, // [9:9] is the sub-list for method output_type
-	9, // [9:9] is the sub-list for method input_type
-	9, // [9:9] is the sub-list for extension type_name
-	9, // [9:9] is the sub-list for extension extendee
-	0, // [0:9] is the sub-list for field type_name
+	3,  // 0: agent.v1.MetricsBucket.common:type_name -> agent.v1.MetricsBucket.Common
+	4,  // 1: agent.v1.MetricsBucket.mysql:type_name -> agent.v1.MetricsBucket.MySQL
+	5,  // 2: agent.v1.MetricsBucket.mongodb:type_name -> agent.v1.MetricsBucket.MongoDB
+	6,  // 3: agent.v1.MetricsBucket.postgresql:type_name -> agent.v1.MetricsBucket.PostgreSQL
+	7,  // 4: agent.v1.MetricsBucket.clickhouse:type_name -> agent.v1.MetricsBucket.ClickHouse
+	8,  // 5: agent.v1.MetricsBucket.Common.comments:type_name -> agent.v1.MetricsBucket.Common.CommentsEntry
+	10, // 6: agent.v1.MetricsBucket.Common.agent_type:type_name -> inventory.v1.AgentType
+	0,  // 7: agent.v1.MetricsBucket.Common.example_type:type_name -> agent.v1.ExampleType
+	9,  // 8: agent.v1.MetricsBucket.Common.errors:type_name -> agent.v1.MetricsBucket.Common.ErrorsEntry
+	2,  // 9: agent.v1.MetricsBucket.PostgreSQL.histogram_items:type_name -> agent.v1.HistogramItem
+	10, // [10:10] is the sub-list for method output_type
+	10, // [10:10] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_agent_v1_collector_proto_init() }
@@ -2855,7 +3241,7 @@ func file_agent_v1_collector_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_agent_v1_collector_proto_rawDesc), len(file_agent_v1_collector_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   8,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -1180,6 +1180,10 @@ var databaseSchema = [][]string{
 	117: {
 		`DROP TABLE IF EXISTS percona_sso_details`,
 	},
+	118: {
+		`ALTER TABLE agents ADD COLUMN clickhouse_options JSONB`,
+		`UPDATE agents SET clickhouse_options = '{}'::jsonb`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

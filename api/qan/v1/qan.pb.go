@@ -240,8 +240,24 @@ type Point struct {
 	MParallelWorkersLaunchedSumPerSec float32 `protobuf:"fixed32,97,opt,name=m_parallel_workers_launched_sum_per_sec,json=mParallelWorkersLaunchedSumPerSec,proto3" json:"m_parallel_workers_launched_sum_per_sec,omitempty"`
 	// Plan time in per seconds.
 	MPlanTimeSumPerSec float32 `protobuf:"fixed32,84,opt,name=m_plan_time_sum_per_sec,json=mPlanTimeSumPerSec,proto3" json:"m_plan_time_sum_per_sec,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// ClickHouse metrics (system.query_log), per second.
+	//
+	// Rows read from all tables and table functions, per second.
+	MReadRowsSumPerSec float32 `protobuf:"fixed32,98,opt,name=m_read_rows_sum_per_sec,json=mReadRowsSumPerSec,proto3" json:"m_read_rows_sum_per_sec,omitempty"`
+	// Bytes read from all tables and table functions, per second.
+	MReadBytesSumPerSec float32 `protobuf:"fixed32,99,opt,name=m_read_bytes_sum_per_sec,json=mReadBytesSumPerSec,proto3" json:"m_read_bytes_sum_per_sec,omitempty"`
+	// Rows in the query result, per second.
+	MResultRowsSumPerSec float32 `protobuf:"fixed32,100,opt,name=m_result_rows_sum_per_sec,json=mResultRowsSumPerSec,proto3" json:"m_result_rows_sum_per_sec,omitempty"`
+	// Bytes in the query result, per second.
+	MResultBytesSumPerSec float32 `protobuf:"fixed32,101,opt,name=m_result_bytes_sum_per_sec,json=mResultBytesSumPerSec,proto3" json:"m_result_bytes_sum_per_sec,omitempty"`
+	// Peak memory usage for the query, per second.
+	MMemoryUsageSumPerSec float32 `protobuf:"fixed32,102,opt,name=m_memory_usage_sum_per_sec,json=mMemoryUsageSumPerSec,proto3" json:"m_memory_usage_sum_per_sec,omitempty"`
+	// Rows written by INSERT queries, per second.
+	MWrittenRowsSumPerSec float32 `protobuf:"fixed32,103,opt,name=m_written_rows_sum_per_sec,json=mWrittenRowsSumPerSec,proto3" json:"m_written_rows_sum_per_sec,omitempty"`
+	// Bytes written by INSERT queries, per second.
+	MWrittenBytesSumPerSec float32 `protobuf:"fixed32,104,opt,name=m_written_bytes_sum_per_sec,json=mWrittenBytesSumPerSec,proto3" json:"m_written_bytes_sum_per_sec,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *Point) Reset() {
@@ -827,6 +843,55 @@ func (x *Point) GetMPlanTimeSumPerSec() float32 {
 	return 0
 }
 
+func (x *Point) GetMReadRowsSumPerSec() float32 {
+	if x != nil {
+		return x.MReadRowsSumPerSec
+	}
+	return 0
+}
+
+func (x *Point) GetMReadBytesSumPerSec() float32 {
+	if x != nil {
+		return x.MReadBytesSumPerSec
+	}
+	return 0
+}
+
+func (x *Point) GetMResultRowsSumPerSec() float32 {
+	if x != nil {
+		return x.MResultRowsSumPerSec
+	}
+	return 0
+}
+
+func (x *Point) GetMResultBytesSumPerSec() float32 {
+	if x != nil {
+		return x.MResultBytesSumPerSec
+	}
+	return 0
+}
+
+func (x *Point) GetMMemoryUsageSumPerSec() float32 {
+	if x != nil {
+		return x.MMemoryUsageSumPerSec
+	}
+	return 0
+}
+
+func (x *Point) GetMWrittenRowsSumPerSec() float32 {
+	if x != nil {
+		return x.MWrittenRowsSumPerSec
+	}
+	return 0
+}
+
+func (x *Point) GetMWrittenBytesSumPerSec() float32 {
+	if x != nil {
+		return x.MWrittenBytesSumPerSec
+	}
+	return 0
+}
+
 // MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
 type MapFieldEntry struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -884,7 +949,7 @@ var File_qan_v1_qan_proto protoreflect.FileDescriptor
 
 const file_qan_v1_qan_proto_rawDesc = "" +
 	"\n" +
-	"\x10qan/v1/qan.proto\x12\x06qan.v1\"\x9c(\n" +
+	"\x10qan/v1/qan.proto\x12\x06qan.v1\"\xaf+\n" +
 	"\x05Point\x12\x14\n" +
 	"\x05point\x18\x01 \x01(\rR\x05point\x12\x1d\n" +
 	"\n" +
@@ -966,7 +1031,14 @@ const file_qan_v1_qan_proto_rawDesc = "" +
 	"\x1em_wal_buffers_full_sum_per_sec\x18_ \x01(\x02R\x18mWalBuffersFullSumPerSec\x12S\n" +
 	"(m_parallel_workers_to_launch_sum_per_sec\x18` \x01(\x02R!mParallelWorkersToLaunchSumPerSec\x12R\n" +
 	"'m_parallel_workers_launched_sum_per_sec\x18a \x01(\x02R!mParallelWorkersLaunchedSumPerSec\x123\n" +
-	"\x17m_plan_time_sum_per_sec\x18T \x01(\x02R\x12mPlanTimeSumPerSec\"7\n" +
+	"\x17m_plan_time_sum_per_sec\x18T \x01(\x02R\x12mPlanTimeSumPerSec\x123\n" +
+	"\x17m_read_rows_sum_per_sec\x18b \x01(\x02R\x12mReadRowsSumPerSec\x125\n" +
+	"\x18m_read_bytes_sum_per_sec\x18c \x01(\x02R\x13mReadBytesSumPerSec\x127\n" +
+	"\x19m_result_rows_sum_per_sec\x18d \x01(\x02R\x14mResultRowsSumPerSec\x129\n" +
+	"\x1am_result_bytes_sum_per_sec\x18e \x01(\x02R\x15mResultBytesSumPerSec\x129\n" +
+	"\x1am_memory_usage_sum_per_sec\x18f \x01(\x02R\x15mMemoryUsageSumPerSec\x129\n" +
+	"\x1am_written_rows_sum_per_sec\x18g \x01(\x02R\x15mWrittenRowsSumPerSec\x12;\n" +
+	"\x1bm_written_bytes_sum_per_sec\x18h \x01(\x02R\x16mWrittenBytesSumPerSec\"7\n" +
 	"\rMapFieldEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x03(\tR\x05value*\x95\x01\n" +
@@ -1000,7 +1072,6 @@ var (
 		(*MapFieldEntry)(nil), // 2: qan.v1.MapFieldEntry
 	}
 )
-
 var file_qan_v1_qan_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type

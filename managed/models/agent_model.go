@@ -78,6 +78,8 @@ const (
 	VMAgentType                         AgentType = "vmagent"
 	NomadAgentType                      AgentType = "nomad-agent"
 	ValkeyExporterType                  AgentType = "valkey_exporter"
+	ClickHouseExporterType              AgentType = "clickhouse_exporter"
+	QANClickHouseQueryLogAgentType      AgentType = "qan-clickhouse-querylog-agent"
 	RTAMongoDBAgentType                 AgentType = "rta-mongodb-agent"
 )
 
@@ -306,6 +308,34 @@ func (c ValkeyOptions) IsEmpty() bool {
 		c.SSLKey == ""
 }
 
+// ClickHouseOptions represents a structure for special ClickHouse options.
+type ClickHouseOptions struct {
+	TLS     bool   `json:"tls"`
+	SSLCa   string `json:"ssl_ca"`
+	SSLCert string `json:"ssl_cert"`
+	SSLKey  string `json:"ssl_key"`
+	// NativeEndpoint is true when metrics are scraped from the ClickHouse
+	// native Prometheus endpoint instead of a managed clickhouse_exporter.
+	NativeEndpoint bool `json:"native_endpoint"`
+	// NativeMetricsPort is the port of the ClickHouse native Prometheus endpoint.
+	NativeMetricsPort uint16 `json:"native_metrics_port"`
+}
+
+// Value implements database/sql/driver.Valuer interface. Should be defined on the value.
+func (c ClickHouseOptions) Value() (driver.Value, error) { return jsonValue(c) }
+
+// Scan implements database/sql.Scanner interface. Should be defined on the pointer.
+func (c *ClickHouseOptions) Scan(src any) error { return jsonScan(c, src) }
+
+// IsEmpty returns true if all ClickHouseOptions fields are unset or have zero values, otherwise returns false.
+func (c ClickHouseOptions) IsEmpty() bool {
+	return c.SSLCa == "" &&
+		c.SSLCert == "" &&
+		c.SSLKey == "" &&
+		!c.NativeEndpoint &&
+		c.NativeMetricsPort == 0
+}
+
 // RTAOptions represents structure for Real-Time Analytics options.
 type RTAOptions struct {
 	// Queries collection interval for this agent.
@@ -375,6 +405,7 @@ type Agent struct {
 	MySQLOptions      MySQLOptions      `reform:"mysql_options"`
 	PostgreSQLOptions PostgreSQLOptions `reform:"postgresql_options"`
 	ValkeyOptions     ValkeyOptions     `reform:"valkey_options"`
+	ClickHouseOptions ClickHouseOptions `reform:"clickhouse_options"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
@@ -809,6 +840,41 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 		dsn = strings.ReplaceAll(dsn, url.QueryEscape(tdp.Right), tdp.Right)
 
 		return dsn
+
+	case ClickHouseExporterType, QANClickHouseQueryLogAgentType:
+		urlScheme := "clickhouse"
+		address := ""
+		if socket == "" {
+			address = net.JoinHostPort(host, strconv.Itoa(int(port)))
+		} else {
+			address = socket
+		}
+
+		q := make(url.Values)
+		if s.TLS {
+			q.Set("secure", "true")
+			if s.ClickHouseOptions.TLS && s.TLSSkipVerify {
+				q.Set("skip_verify", "true")
+			}
+		}
+
+		u := &url.URL{
+			Scheme:   urlScheme,
+			Host:     address,
+			RawQuery: q.Encode(),
+		}
+		switch {
+		case password != "":
+			u.User = url.UserPassword(username, password)
+		case username != "":
+			u.User = url.User(username)
+		}
+
+		dsn := u.String()
+		dsn = strings.ReplaceAll(dsn, url.QueryEscape(tdp.Left), tdp.Left)
+		dsn = strings.ReplaceAll(dsn, url.QueryEscape(tdp.Right), tdp.Right)
+
+		return dsn
 	default:
 		panic(fmt.Errorf("unhandled AgentType %q", s.AgentType))
 	}
@@ -938,6 +1004,24 @@ func (s Agent) Files() map[string]string {
 		}
 		if s.ValkeyOptions.SSLKey != "" {
 			files["tlsKey"] = s.ValkeyOptions.SSLKey
+		}
+
+		if len(files) != 0 {
+			return files
+		}
+
+		return nil
+	case ClickHouseExporterType, QANClickHouseQueryLogAgentType:
+		files := make(map[string]string)
+
+		if s.ClickHouseOptions.SSLCa != "" {
+			files["tlsCa"] = s.ClickHouseOptions.SSLCa
+		}
+		if s.ClickHouseOptions.SSLCert != "" {
+			files["tlsCert"] = s.ClickHouseOptions.SSLCert
+		}
+		if s.ClickHouseOptions.SSLKey != "" {
+			files["tlsKey"] = s.ClickHouseOptions.SSLKey
 		}
 
 		if len(files) != 0 {

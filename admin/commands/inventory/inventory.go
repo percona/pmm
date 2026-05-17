@@ -84,6 +84,7 @@ type AddServiceCommand struct {
 	PostgreSQL AddServicePostgreSQLCommand `cmd:"" name:"postgresql" help:"Add PostgreSQL service to inventory"`
 	ProxySQL   AddServiceProxySQLCommand   `cmd:"" name:"proxysql" help:"Add ProxySQL service to inventory"`
 	Valkey     AddServiceValkeyCommand     `cmd:"" name:"valkey" help:"Add Valkey service to inventory"`
+	ClickHouse AddServiceClickHouseCommand `cmd:"" name:"clickhouse" help:"Add ClickHouse service to inventory"`
 }
 
 // RemoveCommand is used by Kong for CLI flags and commands.

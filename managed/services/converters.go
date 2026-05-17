@@ -171,6 +171,21 @@ func ToAPIService(service *models.Service) (inventoryv1.Service, error) { //noli
 			CustomLabels:   labels,
 		}, nil
 
+	case models.ClickHouseServiceType:
+		return &inventoryv1.ClickHouseService{
+			ServiceId:      service.ServiceID,
+			ServiceName:    service.ServiceName,
+			NodeId:         service.NodeID,
+			Address:        pointer.GetString(service.Address),
+			Port:           uint32(pointer.GetUint16(service.Port)),
+			Socket:         pointer.GetString(service.Socket),
+			Environment:    service.Environment,
+			Cluster:        service.Cluster,
+			ReplicationSet: service.ReplicationSet,
+			CustomLabels:   labels,
+			Version:        pointer.GetString(service.Version),
+		}, nil
+
 	case models.ProxySQLServiceType:
 		return &inventoryv1.ProxySQLService{
 			ServiceId:      service.ServiceID,
@@ -475,6 +490,23 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			LogLevel:               inventoryv1.LogLevelAPIValue(agent.LogLevel),
 		}, nil
 
+	case models.QANClickHouseQueryLogAgentType:
+		return &inventoryv1.QANClickHouseQueryLogAgent{
+			AgentId:                agent.AgentID,
+			PmmAgentId:             pointer.GetString(agent.PMMAgentID),
+			ServiceId:              serviceID,
+			Username:               pointer.GetString(agent.Username),
+			Disabled:               agent.Disabled,
+			Status:                 inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
+			CustomLabels:           labels,
+			MaxQueryLength:         agent.QANOptions.MaxQueryLength,
+			DisableCommentsParsing: agent.QANOptions.CommentsParsingDisabled,
+			Tls:                    agent.TLS,
+			TlsSkipVerify:          agent.TLSSkipVerify,
+			ProcessExecPath:        processExecPath,
+			LogLevel:               inventoryv1.LogLevelAPIValue(agent.LogLevel),
+		}, nil
+
 	case models.RDSExporterType:
 		return &inventoryv1.RDSExporter{
 			AgentId:                 agent.AgentID,
@@ -555,6 +587,26 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 
 	case models.ValkeyExporterType:
 		exporter := &inventoryv1.ValkeyExporter{
+			AgentId:            agent.AgentID,
+			PmmAgentId:         pointer.GetString(agent.PMMAgentID),
+			ServiceId:          serviceID,
+			Username:           pointer.GetString(agent.Username),
+			Disabled:           agent.Disabled,
+			Status:             inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
+			ListenPort:         uint32(pointer.GetUint16(agent.ListenPort)),
+			CustomLabels:       labels,
+			Tls:                agent.TLS,
+			TlsSkipVerify:      agent.TLSSkipVerify,
+			PushMetricsEnabled: agent.ExporterOptions.PushMetrics,
+			DisabledCollectors: agent.ExporterOptions.DisabledCollectors,
+			ProcessExecPath:    processExecPath,
+			ExposeExporter:     agent.ExporterOptions.ExposeExporter,
+			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
+		}
+		return exporter, nil
+
+	case models.ClickHouseExporterType:
+		exporter := &inventoryv1.ClickHouseExporter{
 			AgentId:            agent.AgentID,
 			PmmAgentId:         pointer.GetString(agent.PMMAgentID),
 			ServiceId:          serviceID,
@@ -667,6 +719,7 @@ var ServiceTypes = map[inventoryv1.ServiceType]models.ServiceType{
 	inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE:    models.HAProxyServiceType,
 	inventoryv1.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE:   models.ExternalServiceType,
 	inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE:     models.ValkeyServiceType,
+	inventoryv1.ServiceType_SERVICE_TYPE_CLICKHOUSE_SERVICE: models.ClickHouseServiceType,
 }
 
 // ProtoToModelServiceType converts a ServiceType from protobuf to model.

@@ -2,6 +2,7 @@
 
 include Makefile.include
 -include documentation/Makefile
+-include build/Makefile.clickhouse
 
 ifeq ($(PROFILES),)
 PROFILES := 'pmm'

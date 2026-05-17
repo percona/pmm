@@ -105,24 +105,25 @@ func TestGet(t *testing.T) {
 				Address: "127.0.0.1:443",
 			},
 			Paths: Paths{
-				PathsBase:        "/usr/local/percona/pmm",
-				ExportersBase:    "/usr/local/percona/pmm/exporters",
-				NodeExporter:     "/usr/local/percona/pmm/exporters/node_exporter",
-				MySQLdExporter:   "/usr/local/percona/pmm/exporters/mysqld_exporter",
-				MongoDBExporter:  "/usr/local/percona/pmm/exporters/mongodb_exporter",
-				PostgresExporter: "/usr/local/percona/pmm/exporters/postgres_exporter",
-				ProxySQLExporter: "/usr/local/percona/pmm/exporters/proxysql_exporter",
-				RDSExporter:      "/usr/local/percona/pmm/exporters/rds_exporter",
-				AzureExporter:    "/usr/local/percona/pmm/exporters/azure_exporter",
-				ValkeyExporter:   "/usr/local/percona/pmm/exporters/valkey_exporter",
-				VMAgent:          "/usr/local/percona/pmm/exporters/vmagent",
-				TempDir:          "/usr/local/percona/pmm/tmp",
-				NomadDataDir:     "/usr/local/percona/pmm/data/nomad",
-				PTSummary:        "/usr/local/percona/pmm/tools/pt-summary",
-				PTPGSummary:      "/usr/local/percona/pmm/tools/pt-pg-summary",
-				PTMySQLSummary:   "/usr/local/percona/pmm/tools/pt-mysql-summary",
-				PTMongoDBSummary: "/usr/local/percona/pmm/tools/pt-mongodb-summary",
-				Nomad:            "/usr/local/percona/pmm/tools/nomad",
+				PathsBase:          "/usr/local/percona/pmm",
+				ExportersBase:      "/usr/local/percona/pmm/exporters",
+				NodeExporter:       "/usr/local/percona/pmm/exporters/node_exporter",
+				MySQLdExporter:     "/usr/local/percona/pmm/exporters/mysqld_exporter",
+				MongoDBExporter:    "/usr/local/percona/pmm/exporters/mongodb_exporter",
+				PostgresExporter:   "/usr/local/percona/pmm/exporters/postgres_exporter",
+				ProxySQLExporter:   "/usr/local/percona/pmm/exporters/proxysql_exporter",
+				RDSExporter:        "/usr/local/percona/pmm/exporters/rds_exporter",
+				AzureExporter:      "/usr/local/percona/pmm/exporters/azure_exporter",
+				ValkeyExporter:     "/usr/local/percona/pmm/exporters/valkey_exporter",
+				ClickHouseExporter: "/usr/local/percona/pmm/exporters/clickhouse_exporter",
+				VMAgent:            "/usr/local/percona/pmm/exporters/vmagent",
+				TempDir:            "/usr/local/percona/pmm/tmp",
+				NomadDataDir:       "/usr/local/percona/pmm/data/nomad",
+				PTSummary:          "/usr/local/percona/pmm/tools/pt-summary",
+				PTPGSummary:        "/usr/local/percona/pmm/tools/pt-pg-summary",
+				PTMySQLSummary:     "/usr/local/percona/pmm/tools/pt-mysql-summary",
+				PTMongoDBSummary:   "/usr/local/percona/pmm/tools/pt-mongodb-summary",
+				Nomad:              "/usr/local/percona/pmm/tools/nomad",
 			},
 			WindowConnectedTime: defaultWindowPeriod,
 			Ports: Ports{
@@ -170,24 +171,25 @@ func TestGet(t *testing.T) {
 				Address: "127.0.0.1:443",
 			},
 			Paths: Paths{
-				PathsBase:        "/usr/local/percona/pmm",
-				ExportersBase:    "/usr/local/percona/pmm/exporters",
-				NodeExporter:     "/usr/local/percona/pmm/exporters/node_exporter",
-				MySQLdExporter:   "/usr/local/percona/pmm/exporters/mysqld_exporter",
-				MongoDBExporter:  "/usr/local/percona/pmm/exporters/mongodb_exporter",
-				PostgresExporter: "/usr/local/percona/pmm/exporters/postgres_exporter",
-				ProxySQLExporter: "/usr/local/percona/pmm/exporters/proxysql_exporter",
-				RDSExporter:      "/usr/local/percona/pmm/exporters/rds_exporter",
-				AzureExporter:    "/usr/local/percona/pmm/exporters/azure_exporter",
-				ValkeyExporter:   "/usr/local/percona/pmm/exporters/valkey_exporter",
-				VMAgent:          "/usr/local/percona/pmm/exporters/vmagent",
-				TempDir:          "/usr/local/percona/pmm/tmp",
-				NomadDataDir:     "/usr/local/percona/pmm/data/nomad",
-				PTSummary:        "/usr/local/percona/pmm/tools/pt-summary",
-				PTPGSummary:      "/usr/local/percona/pmm/tools/pt-pg-summary",
-				PTMongoDBSummary: "/usr/local/percona/pmm/tools/pt-mongodb-summary",
-				PTMySQLSummary:   "/usr/local/percona/pmm/tools/pt-mysql-summary",
-				Nomad:            "/usr/local/percona/pmm/tools/nomad",
+				PathsBase:          "/usr/local/percona/pmm",
+				ExportersBase:      "/usr/local/percona/pmm/exporters",
+				NodeExporter:       "/usr/local/percona/pmm/exporters/node_exporter",
+				MySQLdExporter:     "/usr/local/percona/pmm/exporters/mysqld_exporter",
+				MongoDBExporter:    "/usr/local/percona/pmm/exporters/mongodb_exporter",
+				PostgresExporter:   "/usr/local/percona/pmm/exporters/postgres_exporter",
+				ProxySQLExporter:   "/usr/local/percona/pmm/exporters/proxysql_exporter",
+				RDSExporter:        "/usr/local/percona/pmm/exporters/rds_exporter",
+				AzureExporter:      "/usr/local/percona/pmm/exporters/azure_exporter",
+				ValkeyExporter:     "/usr/local/percona/pmm/exporters/valkey_exporter",
+				ClickHouseExporter: "/usr/local/percona/pmm/exporters/clickhouse_exporter",
+				VMAgent:            "/usr/local/percona/pmm/exporters/vmagent",
+				TempDir:            "/usr/local/percona/pmm/tmp",
+				NomadDataDir:       "/usr/local/percona/pmm/data/nomad",
+				PTSummary:          "/usr/local/percona/pmm/tools/pt-summary",
+				PTPGSummary:        "/usr/local/percona/pmm/tools/pt-pg-summary",
+				PTMongoDBSummary:   "/usr/local/percona/pmm/tools/pt-mongodb-summary",
+				PTMySQLSummary:     "/usr/local/percona/pmm/tools/pt-mysql-summary",
+				Nomad:              "/usr/local/percona/pmm/tools/nomad",
 			},
 			WindowConnectedTime: defaultWindowPeriod,
 			Ports: Ports{
@@ -235,24 +237,25 @@ func TestGet(t *testing.T) {
 				Address: "127.0.0.1:443",
 			},
 			Paths: Paths{
-				PathsBase:        "/usr/local/percona/pmm",
-				ExportersBase:    "/usr/local/percona/pmm/exporters",
-				NodeExporter:     "/usr/local/percona/pmm/exporters/node_exporter",
-				MySQLdExporter:   "/usr/local/percona/pmm/exporters/mysqld_exporter",
-				MongoDBExporter:  "/usr/local/percona/pmm/exporters/mongodb_exporter",
-				PostgresExporter: "/usr/local/percona/pmm/exporters/postgres_exporter",
-				ProxySQLExporter: "/usr/local/percona/pmm/exporters/proxysql_exporter",
-				RDSExporter:      "/usr/local/percona/pmm/exporters/rds_exporter",
-				AzureExporter:    "/usr/local/percona/pmm/exporters/azure_exporter",
-				ValkeyExporter:   "/usr/local/percona/pmm/exporters/valkey_exporter",
-				VMAgent:          "/usr/local/percona/pmm/exporters/vmagent",
-				TempDir:          "/foo/bar/tmp",
-				NomadDataDir:     "/usr/local/percona/pmm/data/nomad",
-				PTSummary:        "/usr/local/percona/pmm/tools/pt-summary",
-				PTPGSummary:      "/usr/local/percona/pmm/tools/pt-pg-summary",
-				PTMySQLSummary:   "/usr/local/percona/pmm/tools/pt-mysql-summary",
-				PTMongoDBSummary: "/usr/local/percona/pmm/tools/pt-mongodb-summary",
-				Nomad:            "/usr/local/percona/pmm/tools/nomad",
+				PathsBase:          "/usr/local/percona/pmm",
+				ExportersBase:      "/usr/local/percona/pmm/exporters",
+				NodeExporter:       "/usr/local/percona/pmm/exporters/node_exporter",
+				MySQLdExporter:     "/usr/local/percona/pmm/exporters/mysqld_exporter",
+				MongoDBExporter:    "/usr/local/percona/pmm/exporters/mongodb_exporter",
+				PostgresExporter:   "/usr/local/percona/pmm/exporters/postgres_exporter",
+				ProxySQLExporter:   "/usr/local/percona/pmm/exporters/proxysql_exporter",
+				RDSExporter:        "/usr/local/percona/pmm/exporters/rds_exporter",
+				AzureExporter:      "/usr/local/percona/pmm/exporters/azure_exporter",
+				ValkeyExporter:     "/usr/local/percona/pmm/exporters/valkey_exporter",
+				ClickHouseExporter: "/usr/local/percona/pmm/exporters/clickhouse_exporter",
+				VMAgent:            "/usr/local/percona/pmm/exporters/vmagent",
+				TempDir:            "/foo/bar/tmp",
+				NomadDataDir:       "/usr/local/percona/pmm/data/nomad",
+				PTSummary:          "/usr/local/percona/pmm/tools/pt-summary",
+				PTPGSummary:        "/usr/local/percona/pmm/tools/pt-pg-summary",
+				PTMySQLSummary:     "/usr/local/percona/pmm/tools/pt-mysql-summary",
+				PTMongoDBSummary:   "/usr/local/percona/pmm/tools/pt-mongodb-summary",
+				Nomad:              "/usr/local/percona/pmm/tools/nomad",
 			},
 			WindowConnectedTime: defaultWindowPeriod,
 			Ports: Ports{
@@ -306,24 +309,25 @@ func TestGet(t *testing.T) {
 				Address: "127.0.0.1:443",
 			},
 			Paths: Paths{
-				PathsBase:        "/usr/local/percona/pmm",
-				ExportersBase:    "/base",
-				NodeExporter:     "/base/node_exporter",    // default value
-				MySQLdExporter:   "/foo/mysqld_exporter",   // respect absolute value from flag
-				MongoDBExporter:  "/base/mongo_exporter",   // respect relative value from flag
-				PostgresExporter: "/bar/postgres_exporter", // respect absolute value from config file
-				ProxySQLExporter: "/base/pro_exporter",     // respect relative value from config file
-				RDSExporter:      "/base/rds_exporter",     // default value
-				AzureExporter:    "/base/azure_exporter",   // default value
-				ValkeyExporter:   "/base/valkey_exporter",  // default value
-				VMAgent:          "/base/vmagent",          // default value
-				TempDir:          "/usr/local/percona/pmm/tmp",
-				NomadDataDir:     "/usr/local/percona/pmm/data/nomad",
-				PTSummary:        "/usr/local/percona/pmm/tools/pt-summary",
-				PTPGSummary:      "/usr/local/percona/pmm/tools/pt-pg-summary",
-				PTMongoDBSummary: "/usr/local/percona/pmm/tools/pt-mongodb-summary",
-				PTMySQLSummary:   "/usr/local/percona/pmm/tools/pt-mysql-summary",
-				Nomad:            "/usr/local/percona/pmm/tools/nomad",
+				PathsBase:          "/usr/local/percona/pmm",
+				ExportersBase:      "/base",
+				NodeExporter:       "/base/node_exporter",       // default value
+				MySQLdExporter:     "/foo/mysqld_exporter",      // respect absolute value from flag
+				MongoDBExporter:    "/base/mongo_exporter",      // respect relative value from flag
+				PostgresExporter:   "/bar/postgres_exporter",    // respect absolute value from config file
+				ProxySQLExporter:   "/base/pro_exporter",        // respect relative value from config file
+				RDSExporter:        "/base/rds_exporter",        // default value
+				AzureExporter:      "/base/azure_exporter",      // default value
+				ValkeyExporter:     "/base/valkey_exporter",     // default value
+				ClickHouseExporter: "/base/clickhouse_exporter", // default value
+				VMAgent:            "/base/vmagent",             // default value
+				TempDir:            "/usr/local/percona/pmm/tmp",
+				NomadDataDir:       "/usr/local/percona/pmm/data/nomad",
+				PTSummary:          "/usr/local/percona/pmm/tools/pt-summary",
+				PTPGSummary:        "/usr/local/percona/pmm/tools/pt-pg-summary",
+				PTMongoDBSummary:   "/usr/local/percona/pmm/tools/pt-mongodb-summary",
+				PTMySQLSummary:     "/usr/local/percona/pmm/tools/pt-mysql-summary",
+				Nomad:              "/usr/local/percona/pmm/tools/nomad",
 			},
 			WindowConnectedTime: defaultWindowPeriod,
 			Ports: Ports{
@@ -375,24 +379,25 @@ func TestGet(t *testing.T) {
 				Address: "127.0.0.1:443",
 			},
 			Paths: Paths{
-				PathsBase:        "/base",
-				ExportersBase:    "/base/exporters",
-				NodeExporter:     "/base/exporters/node_exporter",      // default value
-				MySQLdExporter:   "/foo/mysqld_exporter",               // respect absolute value from flag
-				MongoDBExporter:  "/base/exporters/dir/mongo_exporter", // respect relative value from flag
-				PostgresExporter: "/foo/postgres_exporter",             // respect absolute value from config file
-				ProxySQLExporter: "/base/exporters/pro_exporter",       // respect relative value from config file
-				RDSExporter:      "/base/exporters/rds_exporter",       // default value
-				AzureExporter:    "/base/exporters/azure_exporter",     // default value
-				ValkeyExporter:   "/base/exporters/valkey_exporter",    // default value
-				VMAgent:          "/base/exporters/vmagent",            // default value
-				TempDir:          "/base/tmp",
-				NomadDataDir:     "/base/data/nomad",
-				PTSummary:        "/base/tools/pt-summary",
-				PTPGSummary:      "/base/tools/pt-pg-summary",
-				PTMongoDBSummary: "/base/tools/pt-mongodb-summary",
-				PTMySQLSummary:   "/base/tools/pt-mysql-summary",
-				Nomad:            "/base/tools/nomad",
+				PathsBase:          "/base",
+				ExportersBase:      "/base/exporters",
+				NodeExporter:       "/base/exporters/node_exporter",       // default value
+				MySQLdExporter:     "/foo/mysqld_exporter",                // respect absolute value from flag
+				MongoDBExporter:    "/base/exporters/dir/mongo_exporter",  // respect relative value from flag
+				PostgresExporter:   "/foo/postgres_exporter",              // respect absolute value from config file
+				ProxySQLExporter:   "/base/exporters/pro_exporter",        // respect relative value from config file
+				RDSExporter:        "/base/exporters/rds_exporter",        // default value
+				AzureExporter:      "/base/exporters/azure_exporter",      // default value
+				ValkeyExporter:     "/base/exporters/valkey_exporter",     // default value
+				ClickHouseExporter: "/base/exporters/clickhouse_exporter", // default value
+				VMAgent:            "/base/exporters/vmagent",             // default value
+				TempDir:            "/base/tmp",
+				NomadDataDir:       "/base/data/nomad",
+				PTSummary:          "/base/tools/pt-summary",
+				PTPGSummary:        "/base/tools/pt-pg-summary",
+				PTMongoDBSummary:   "/base/tools/pt-mongodb-summary",
+				PTMySQLSummary:     "/base/tools/pt-mysql-summary",
+				Nomad:              "/base/tools/nomad",
 			},
 			WindowConnectedTime: defaultWindowPeriod,
 			Ports: Ports{
@@ -442,24 +447,25 @@ func TestGet(t *testing.T) {
 				Address: "127.0.0.1:443",
 			},
 			Paths: Paths{
-				PathsBase:        "/base",
-				ExportersBase:    "/foo/exporters",
-				NodeExporter:     "/foo/exporters/node_exporter",     // default value
-				MySQLdExporter:   "/foo/exporters/mysqld_exporter",   // default value
-				MongoDBExporter:  "/foo/exporters/mongodb_exporter",  // default value
-				PostgresExporter: "/foo/exporters/postgres_exporter", // default value
-				ProxySQLExporter: "/foo/exporters/proxysql_exporter", // default value
-				RDSExporter:      "/foo/exporters/rds_exporter",      // default value
-				AzureExporter:    "/foo/exporters/azure_exporter",    // default value
-				ValkeyExporter:   "/foo/exporters/valkey_exporter",   // default value
-				VMAgent:          "/foo/exporters/vmagent",           // default value
-				TempDir:          "/foo/tmp",
-				NomadDataDir:     "/base/data/nomad",
-				PTSummary:        "/base/tools/pt-summary",
-				PTPGSummary:      "/base/tools/pt-pg-summary",
-				PTMongoDBSummary: "/base/tools/pt-mongodb-summary",
-				PTMySQLSummary:   "/base/tools/pt-mysql-summary",
-				Nomad:            "/base/tools/nomad",
+				PathsBase:          "/base",
+				ExportersBase:      "/foo/exporters",
+				NodeExporter:       "/foo/exporters/node_exporter",       // default value
+				MySQLdExporter:     "/foo/exporters/mysqld_exporter",     // default value
+				MongoDBExporter:    "/foo/exporters/mongodb_exporter",    // default value
+				PostgresExporter:   "/foo/exporters/postgres_exporter",   // default value
+				ProxySQLExporter:   "/foo/exporters/proxysql_exporter",   // default value
+				RDSExporter:        "/foo/exporters/rds_exporter",        // default value
+				AzureExporter:      "/foo/exporters/azure_exporter",      // default value
+				ValkeyExporter:     "/foo/exporters/valkey_exporter",     // default value
+				ClickHouseExporter: "/foo/exporters/clickhouse_exporter", // default value
+				VMAgent:            "/foo/exporters/vmagent",             // default value
+				TempDir:            "/foo/tmp",
+				NomadDataDir:       "/base/data/nomad",
+				PTSummary:          "/base/tools/pt-summary",
+				PTPGSummary:        "/base/tools/pt-pg-summary",
+				PTMongoDBSummary:   "/base/tools/pt-mongodb-summary",
+				PTMySQLSummary:     "/base/tools/pt-mysql-summary",
+				Nomad:              "/base/tools/nomad",
 			},
 			WindowConnectedTime: defaultWindowPeriod,
 			Ports: Ports{
@@ -494,24 +500,25 @@ func TestGet(t *testing.T) {
 			ListenAddress: "127.0.0.1",
 			ListenPort:    7777,
 			Paths: Paths{
-				PathsBase:        "/usr/local/percona/pmm",
-				ExportersBase:    "/usr/local/percona/pmm/exporters",
-				NodeExporter:     "/usr/local/percona/pmm/exporters/node_exporter",
-				MySQLdExporter:   "/usr/local/percona/pmm/exporters/mysqld_exporter",
-				MongoDBExporter:  "/usr/local/percona/pmm/exporters/mongodb_exporter",
-				PostgresExporter: "/usr/local/percona/pmm/exporters/postgres_exporter",
-				ProxySQLExporter: "/usr/local/percona/pmm/exporters/proxysql_exporter",
-				RDSExporter:      "/usr/local/percona/pmm/exporters/rds_exporter",
-				AzureExporter:    "/usr/local/percona/pmm/exporters/azure_exporter",
-				ValkeyExporter:   "/usr/local/percona/pmm/exporters/valkey_exporter",
-				VMAgent:          "/usr/local/percona/pmm/exporters/vmagent",
-				TempDir:          "/usr/local/percona/pmm/tmp",
-				NomadDataDir:     "/usr/local/percona/pmm/data/nomad",
-				PTSummary:        "/usr/local/percona/pmm/tools/pt-summary",
-				PTPGSummary:      "/usr/local/percona/pmm/tools/pt-pg-summary",
-				PTMongoDBSummary: "/usr/local/percona/pmm/tools/pt-mongodb-summary",
-				PTMySQLSummary:   "/usr/local/percona/pmm/tools/pt-mysql-summary",
-				Nomad:            "/usr/local/percona/pmm/tools/nomad",
+				PathsBase:          "/usr/local/percona/pmm",
+				ExportersBase:      "/usr/local/percona/pmm/exporters",
+				NodeExporter:       "/usr/local/percona/pmm/exporters/node_exporter",
+				MySQLdExporter:     "/usr/local/percona/pmm/exporters/mysqld_exporter",
+				MongoDBExporter:    "/usr/local/percona/pmm/exporters/mongodb_exporter",
+				PostgresExporter:   "/usr/local/percona/pmm/exporters/postgres_exporter",
+				ProxySQLExporter:   "/usr/local/percona/pmm/exporters/proxysql_exporter",
+				RDSExporter:        "/usr/local/percona/pmm/exporters/rds_exporter",
+				AzureExporter:      "/usr/local/percona/pmm/exporters/azure_exporter",
+				ValkeyExporter:     "/usr/local/percona/pmm/exporters/valkey_exporter",
+				ClickHouseExporter: "/usr/local/percona/pmm/exporters/clickhouse_exporter",
+				VMAgent:            "/usr/local/percona/pmm/exporters/vmagent",
+				TempDir:            "/usr/local/percona/pmm/tmp",
+				NomadDataDir:       "/usr/local/percona/pmm/data/nomad",
+				PTSummary:          "/usr/local/percona/pmm/tools/pt-summary",
+				PTPGSummary:        "/usr/local/percona/pmm/tools/pt-pg-summary",
+				PTMongoDBSummary:   "/usr/local/percona/pmm/tools/pt-mongodb-summary",
+				PTMySQLSummary:     "/usr/local/percona/pmm/tools/pt-mysql-summary",
+				Nomad:              "/usr/local/percona/pmm/tools/nomad",
 			},
 			WindowConnectedTime: defaultWindowPeriod,
 			Ports: Ports{

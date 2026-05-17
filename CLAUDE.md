@@ -8,6 +8,7 @@ When working on a specific component, also read the relevant guide:
 
 - [managed.instructions.md](.github/instructions/managed.instructions.md) — pmm-managed server backend (`managed/**`)
 - [agent.instructions.md](.github/instructions/agent.instructions.md) — pmm-agent client agent (`agent/**`)
+- [clickhouse.instructions.md](.github/instructions/clickhouse.instructions.md) — ClickHouse exporter and QAN agent (`agent/agents/clickhouse/**`, `agent/cmd/clickhouse_exporter/**`)
 - [admin.instructions.md](.github/instructions/admin.instructions.md) — pmm-admin CLI (`admin/**`)
 - [api.instructions.md](.github/instructions/api.instructions.md) — Protobuf API definitions (`api/**`)
 - [qan-api2.instructions.md](.github/instructions/qan-api2.instructions.md) — Query Analytics API (`qan-api2/**`)

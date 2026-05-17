@@ -60,6 +60,7 @@ var standartDimensions = map[string]struct{}{
 	"username":         {},
 	"client_host":      {},
 	"cmd_type":         {},
+	"query_kind":       {},
 	"application_name": {},
 	"top_queryid":      {},
 	"planid":           {},
@@ -158,6 +159,13 @@ var commonColumnNames = map[string]struct{}{
 	"keys_examined":               {},
 	"storage_bytes_read":          {},
 	"storage_time_reading_micros": {},
+	"read_rows":                   {},
+	"read_bytes":                  {},
+	"result_rows":                 {},
+	"result_bytes":                {},
+	"memory_usage":                {},
+	"written_rows":                {},
+	"written_bytes":               {},
 	"locks_database_time_acquiring_micros_read_shared": {},
 }
 

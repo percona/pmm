@@ -34,6 +34,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/percona/pmm/agent/agents"
+	"github.com/percona/pmm/agent/agents/clickhouse/querylog"
 	"github.com/percona/pmm/agent/agents/mongodb/mongolog"
 	mongoprofiler "github.com/percona/pmm/agent/agents/mongodb/profiler"
 	mongorta "github.com/percona/pmm/agent/agents/mongodb/realtimeanalytics"
@@ -650,6 +651,14 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 		}
 		agent, err = pgstatmonitor.New(params, l)
 
+	case inventoryv1.AgentType_AGENT_TYPE_QAN_CLICKHOUSE_QUERYLOG_AGENT:
+		params := querylog.Params{
+			DSN:            dsn,
+			AgentID:        agentID,
+			MaxQueryLength: builtinAgent.MaxQueryLength,
+		}
+		agent, err = querylog.New(params, l)
+
 	case inventoryv1.AgentType_AGENT_TYPE_RTA_MONGODB_AGENT:
 		params := &mongorta.Params{
 			DSN:             dsn,
@@ -770,6 +779,9 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStat
 	case inventoryv1.AgentType_AGENT_TYPE_VALKEY_EXPORTER:
 		templateParams["paths_base"] = cfg.Paths.PathsBase
 		processParams.Path = cfg.Paths.ValkeyExporter
+	case inventoryv1.AgentType_AGENT_TYPE_CLICKHOUSE_EXPORTER:
+		templateParams["paths_base"] = cfg.Paths.PathsBase
+		processParams.Path = cfg.Paths.ClickHouseExporter
 	case type_TEST_SLEEP:
 		processParams.Path = "sleep"
 	case inventoryv1.AgentType_AGENT_TYPE_VM_AGENT:
@@ -865,6 +877,8 @@ func (s *Supervisor) version(agentType inventoryv1.AgentType, path string) (stri
 		return s.agentVersioner.BinaryVersion(path, 0, azureMetricsExporterRegexp, "--version")
 	case inventoryv1.AgentType_AGENT_TYPE_VALKEY_EXPORTER:
 		return s.agentVersioner.BinaryVersion(path, 0, valkeyExporterRegexp, "--version")
+	case inventoryv1.AgentType_AGENT_TYPE_CLICKHOUSE_EXPORTER:
+		return s.agentVersioner.BinaryVersion(path, 0, clickhouseExporterRegexp, "--version")
 	default:
 		return "", nil
 	}

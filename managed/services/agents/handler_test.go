@@ -39,6 +39,7 @@ func TestCheckPortChanged(t *testing.T) {
 		"username", "password", "agent_password", "tls", "tls_skip_verify",
 		"log_level", "exporter_options", "qan_options", "rta_options",
 		"aws_options", "azure_options", "mongo_options", "mysql_options", "postgresql_options", "valkey_options",
+		"clickhouse_options",
 	}
 
 	t.Run("returns false when agent not found", func(t *testing.T) {
@@ -105,6 +106,7 @@ func TestCheckPortChanged(t *testing.T) {
 				`{}`,                        // mysql_options
 				`{}`,                        // postgresql_options
 				`{}`,                        // valkey_options
+				`{}`,                        // clickhouse_options
 			))
 
 		changed := checkPortChanged(db.Querier, "test-agent-1", 8080)
@@ -157,6 +159,7 @@ func TestCheckPortChanged(t *testing.T) {
 				`{}`,                        // mysql_options
 				`{}`,                        // postgresql_options
 				`{}`,                        // valkey_options
+				`{}`,                        // clickhouse_options
 			))
 
 		changed := checkPortChanged(db.Querier, "test-agent-2", 8080)
@@ -209,6 +212,7 @@ func TestCheckPortChanged(t *testing.T) {
 				`{}`,                        // mysql_options
 				`{}`,                        // postgresql_options
 				`{}`,                        // valkey_options
+				`{}`,                        // clickhouse_options
 			))
 
 		changed := checkPortChanged(db.Querier, "test-agent-3", 9090)
@@ -261,6 +265,7 @@ func TestCheckPortChanged(t *testing.T) {
 				`{}`,                        // mysql_options
 				`{}`,                        // postgresql_options
 				`{}`,                        // valkey_options
+				`{}`,                        // clickhouse_options
 			))
 
 		// Test with the same port passed as uint32
@@ -278,7 +283,7 @@ func TestCheckPortChanged(t *testing.T) {
 				time.Now(), time.Now(),
 				false, "", 42000, nil, nil, false,
 				nil, nil, nil, false, false, nil,
-				`{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`,
+				`{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`,
 			))
 
 		// Test with different port

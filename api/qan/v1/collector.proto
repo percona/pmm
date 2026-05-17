@@ -458,6 +458,55 @@ message MetricsBucket {
   string planid = 266;
   string query_plan = 267;
   repeated string histogram_items = 268;
+
+  //
+  // ClickHouse metrics (system.query_log).
+  //
+
+  // Sum, count, min, max, p99 of rows read from all tables and table functions.
+  float m_read_rows_cnt = 310;
+  float m_read_rows_sum = 311;
+  float m_read_rows_min = 312;
+  float m_read_rows_max = 313;
+  float m_read_rows_p99 = 314;
+  // Sum, count, min, max, p99 of bytes read from all tables and table functions.
+  float m_read_bytes_cnt = 315;
+  float m_read_bytes_sum = 316;
+  float m_read_bytes_min = 317;
+  float m_read_bytes_max = 318;
+  float m_read_bytes_p99 = 319;
+  // Sum, count, min, max, p99 of rows in the query result.
+  float m_result_rows_cnt = 320;
+  float m_result_rows_sum = 321;
+  float m_result_rows_min = 322;
+  float m_result_rows_max = 323;
+  float m_result_rows_p99 = 324;
+  // Sum, count, min, max, p99 of bytes in the query result.
+  float m_result_bytes_cnt = 325;
+  float m_result_bytes_sum = 326;
+  float m_result_bytes_min = 327;
+  float m_result_bytes_max = 328;
+  float m_result_bytes_p99 = 329;
+  // Sum, count, min, max, p99 of peak memory usage for the query.
+  float m_memory_usage_cnt = 330;
+  float m_memory_usage_sum = 331;
+  float m_memory_usage_min = 332;
+  float m_memory_usage_max = 333;
+  float m_memory_usage_p99 = 334;
+  // Sum, count, min, max, p99 of rows written by INSERT queries.
+  float m_written_rows_cnt = 335;
+  float m_written_rows_sum = 336;
+  float m_written_rows_min = 337;
+  float m_written_rows_max = 338;
+  float m_written_rows_p99 = 339;
+  // Sum, count, min, max, p99 of bytes written by INSERT queries.
+  float m_written_bytes_cnt = 340;
+  float m_written_bytes_sum = 341;
+  float m_written_bytes_min = 342;
+  float m_written_bytes_max = 343;
+  float m_written_bytes_p99 = 344;
+  // ClickHouse query kind (Select, Insert, Create, ...).
+  string query_kind = 345;
 }
 
 message CollectResponse {}

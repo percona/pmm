@@ -371,6 +371,31 @@
       "type": "dashboard",
       "name": "Valkey/Redis Slowlog",
       "path": "dashboards/Valkey/Valkey_Slowlog.json"
+    },
+    {
+      "type": "dashboard",
+      "name": "ClickHouse Instance Summary",
+      "path": "dashboards/ClickHouse/ClickHouse_Instance_Summary.json"
+    },
+    {
+      "type": "dashboard",
+      "name": "ClickHouse Query Performance",
+      "path": "dashboards/ClickHouse/ClickHouse_Query_Performance.json"
+    },
+    {
+      "type": "dashboard",
+      "name": "ClickHouse Replication",
+      "path": "dashboards/ClickHouse/ClickHouse_Replication.json"
+    },
+    {
+      "type": "dashboard",
+      "name": "ClickHouse Instances Overview",
+      "path": "dashboards/ClickHouse/ClickHouse_Instances_Overview.json"
+    },
+    {
+      "type": "dashboard",
+      "name": "ClickHouse Instances Compare",
+      "path": "dashboards/ClickHouse/ClickHouse_Instances_Compare.json"
     }
   ],
   "dependencies": {

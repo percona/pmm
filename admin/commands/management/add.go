@@ -28,6 +28,7 @@ type AddCommand struct {
 	MySQL              AddMySQLCommand              `cmd:"" name:"mysql" help:"Add MySQL to monitoring"`
 	PostgreSQL         AddPostgreSQLCommand         `cmd:"" name:"postgresql" help:"Add PostgreSQL to monitoring"`
 	Valkey             AddValkeyCommand             `cmd:"" name:"valkey" help:"Add Valkey to monitoring"`
+	ClickHouse         AddClickHouseCommand         `cmd:"" name:"clickhouse" help:"Add ClickHouse to monitoring"`
 	ProxySQL           AddProxySQLCommand           `cmd:"" name:"proxysql" help:"Add ProxySQL to monitoring"`
 }
 
