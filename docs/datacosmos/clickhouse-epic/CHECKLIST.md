@@ -60,18 +60,19 @@ user checkpoint.
 
 ## Phase 3 — Query Analytics (QAN)
 
-- [ ] 3.A API/proto — `AGENT_TYPE_QAN_CLICKHOUSE_QUERYLOG_AGENT`,
+- [x] 3.A API/proto — `AGENT_TYPE_QAN_CLICKHOUSE_QUERYLOG_AGENT`,
       `MetricsBucket.ClickHouse`, qan/v1 fields; `make gen`
-- [ ] 3.B pmm-agent — `agent/agents/clickhouse/querylog/` agent + supervisor wiring
-- [ ] 3.C pmm-managed — agent model/helpers, agents config, `state.go`,
+- [x] 3.B pmm-agent — `agent/agents/clickhouse/querylog/` agent + supervisor wiring
+- [x] 3.C pmm-managed — agent model/helpers, agents config, `state.go`,
       inventory/management plumbing, `qan/client.go` `fillClickHouse`, `--qan` flag
-- [ ] 3.D qan-api2 — migrations (columns + `agent_type` Enum8),
-      `data_ingestion.go`, `base.go`, `reporter.go`
-- [ ] 3.E Unit tests (`makeBuckets`, `fingerprint`, `percentile`)
-- [ ] 3.V Validation criteria (one bucket per class, accuracy, no double-count,
-      WAITING on `log_queries=0`)
-- [ ] 3.IT Integration tests IT-3.1 … IT-3.9 green
-- [ ] Phase 3 committed; user checkpoint
+- [x] 3.D qan-api2 — migrations (columns + `agent_type` Enum8),
+      `data_ingestion.go`, `base.go`, `analytics/base.go`
+- [x] 3.E Unit tests (`makeBuckets`, `fingerprint`, `percentile`) — in querylog_test.go
+- [~] 3.V Validation: build, vet, go-sumtype, golangci-lint (0 new issues),
+      unit tests green — done; bucket/accuracy/double-count/WAITING checks
+      need a live ClickHouse (covered by 3.IT)
+- [ ] 3.IT Integration tests IT-3.1 … IT-3.9 green (needs live ClickHouse)
+- [x] Phase 3 committed; user checkpoint
 
 ## Phase 4 — Distribution, tests, docs
 
