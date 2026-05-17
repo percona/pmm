@@ -1,18 +1,20 @@
 # PMM — datacosmos build & fork model
 
 This is a datacosmos fork of [`percona/pmm`](https://github.com/percona/pmm),
-aligned to the upstream stable tag **`v3.7.1`**.
+tracking the upstream **`v3`** branch.
 
 ## Branch model
 
-| Branch | Base | Purpose | How to keep current |
-|---|---|---|---|
-| `v3` | upstream `v3.7.1` | Pristine mirror of upstream — **never edit directly**. | `git fetch upstream && git merge upstream/v3` |
-| `datacosmos/build` | `v3.7.1` | datacosmos OCI/RPM packaging pipeline (`Makefile.datacosmos`) + agent coordination protocol. The branch the team builds from. | `git merge v3` |
-| `feat/clickhouse-collector` | `v3.7.1` | Isolated **draft** of a ClickHouse metrics collector. Compilable, not yet upstream-ready. | rebase onto `v3` before any upstream PR |
+| Branch | Purpose | How to keep current |
+|---|---|---|
+| `main` | Integration branch — the datacosmos default branch; merges `feat/build` and `feat/clickhouse-collector`. | `git merge upstream/v3` |
+| `feat/build` | datacosmos OCI/RPM packaging pipeline (`Makefile.datacosmos`, `datacosmos-release.yml`) + agent coordination protocol. The branch the team builds and releases from. | `git merge upstream/v3` |
+| `feat/clickhouse-collector` | Isolated **draft** of a ClickHouse metrics collector. Compilable, not yet upstream-ready. | `git merge upstream/v3` |
 
-Custom commits are never placed on `v3`, so future upstream syncs stay
-conflict-free. This mirrors the standard long-lived-fork practice
+Upstream is tracked via the `upstream/v3` remote branch — there is no local
+mirror branch. Custom commits live only on the fork branches, so periodic
+`git merge upstream/v3` keeps conflicts confined to the fork-specific files.
+This mirrors the standard long-lived-fork practice
 ([Atlassian](https://www.atlassian.com/git/tutorials/git-forks-and-upstreams),
 [GitHub Docs](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork)).
 
@@ -27,9 +29,27 @@ upstream  https://github.com/percona/pmm.git          # Percona
 
 ```bash
 git fetch upstream --tags
-git switch v3 && git merge --ff-only upstream/v3      # or merge a newer tag
-git switch datacosmos/build && git merge v3           # resolve conflicts in custom files only
+for b in feat/build feat/clickhouse-collector main; do
+  git switch "$b" && git merge upstream/v3            # resolve conflicts in fork files only
+done
 ```
+
+## Releases
+
+datacosmos releases are tagged `v3-<ISO date>-<upstream commit count>` — e.g.
+`v3-2026-05-17-5580`: the `v3` line, the date the tag was cut, and
+`git rev-list --count upstream/v3` (the upstream commit the build is based on).
+The old `-dcN` counter is retired.
+
+```bash
+make -f Makefile.datacosmos release-tag               # creates the v3-<date>-<count> tag
+git push origin v3-<date>-<count>                     # triggers the datacosmos release workflow
+```
+
+Pushing the tag runs `.github/workflows/datacosmos-release.yml`, which builds
+multi-arch images and a GitHub Release. The build's internal `PMM_VERSION`
+(written to `VERSION`, used for the upstream S3 RPM cache) is derived
+separately from the nearest upstream semver tag — it stays a clean `X.Y.Z`.
 
 ## Building (datacosmos pipeline)
 

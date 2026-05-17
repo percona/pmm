@@ -22,12 +22,15 @@ SHELL := /bin/bash -o pipefail
 # Version
 # -----------------------------------------------------------------------------
 PKG_NAME         := pmm
-OFFICIAL_VERSION := $(shell git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//')
-VERSION          ?= $(if $(OFFICIAL_VERSION),$(OFFICIAL_VERSION),3.0.0)
-# Upstream PMM version, without the -dcN suffix. The VERSION file fed to
-# build/scripts/vars carries only this, so `pmm_release` stays empty and the
-# generated RPM versions match the upstream S3 build cache keys.
-PMM_VERSION      := $(firstword $(subst -dc, ,$(VERSION)))
+# Upstream PMM version (real semver). Feeds the VERSION file and the upstream
+# S3 RPM cache keys, so it must stay a clean X.Y.Z. Derived from the nearest
+# upstream release tag reachable in history; datacosmos tags (-dc* and the
+# current v3-<date>-<count> scheme) are excluded so they never leak in.
+PMM_VERSION      ?= $(shell git describe --tags --abbrev=0 \
+                      --match 'v[0-9]*.[0-9]*.[0-9]*' --exclude '*-dc*' \
+                      2>/dev/null | sed 's/^v//')
+PMM_VERSION      := $(if $(PMM_VERSION),$(PMM_VERSION),3.0.0)
+VERSION          := $(PMM_VERSION)
 RELEASE          ?= $(shell git rev-list --count HEAD 2>/dev/null || echo 1)
 FULL_VERSION     := $(VERSION)-$(RELEASE)
 GIT_BRANCH       := $(shell git rev-parse --abbrev-ref HEAD 2>/dev/null)
@@ -52,10 +55,12 @@ IMAGE_REGISTRY        ?= pmm-local
 CLIENT_IMAGE          ?= $(IMAGE_REGISTRY)/pmm-client:$(FULL_VERSION)
 SERVER_IMAGE          ?= $(IMAGE_REGISTRY)/pmm-server:$(FULL_VERSION)
 
-# datacosmos release versioning ("<upstream>-dc<N>") and the GitHub Container
-# Registry namespace images are published to.
-DC_RELEASE             ?= dc1
-DC_VERSION             ?= $(VERSION)-$(DC_RELEASE)
+# datacosmos release identifier — v3-<ISO date>-<upstream commit count> — and
+# the GitHub Container Registry namespace images are published to. In CI
+# DC_VERSION always comes from the pushed tag (see datacosmos-release.yml);
+# locally it falls back to a dev-stamped value. Cut a real tag with the
+# `release-tag` target.
+DC_VERSION             ?= v3-$(shell date -u +%Y-%m-%d)-local
 GHCR_NAMESPACE         ?= ghcr.io/datacosmos-br
 
 # Multi-arch. PLATFORMS drives the buildx rpmbuild image. The pmm-client/server
@@ -83,6 +88,14 @@ unexport PUSH_DOCKER
 # -----------------------------------------------------------------------------
 .PHONY: all
 all: prepare client server                        ## Full build (rpmbuild image pulled from upstream)
+
+.PHONY: release-tag
+release-tag:                                      ## Create the release tag v3-<ISO date>-<upstream commit count>
+	@git fetch upstream
+	@count=$$(git rev-list --count upstream/v3); \
+	tag="v3-$$(date -u +%Y-%m-%d)-$$count"; \
+	git tag -a "$$tag" -m "datacosmos PMM $$tag (upstream/v3 @ $$(git rev-parse --short upstream/v3))"; \
+	echo "Created $$tag — push it to trigger the release: git push origin $$tag"
 
 .PHONY: prepare
 prepare: submodules create-build-dirs             ## Fetch submodules and lay out the build tree

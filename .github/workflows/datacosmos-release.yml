@@ -1,17 +1,17 @@
 name: datacosmos release
 
 # The only build/publish workflow on the datacosmos fork. Triggered by a
-# datacosmos version tag (*-dc*), it builds the PMM packages and Docker images
+# datacosmos version tag (v3-*), it builds the PMM packages and Docker images
 # from source for BOTH linux/amd64 and linux/arm64 — each on its native
 # runner — then merges them into multi-arch images and a GitHub Release.
 on:
   push:
     tags:
-      - "*-dc*"
+      - "v3-*"
   workflow_dispatch:
     inputs:
       dc_version:
-        description: "datacosmos version (e.g. 3.7.1-dc1)"
+        description: "datacosmos version tag (e.g. v3-2026-05-17-5580)"
         required: true
 
 permissions:
@@ -53,11 +53,8 @@ jobs:
       - name: Derive datacosmos version
         id: ver
         run: |
-          if [ -n "${DC_INPUT}" ]; then
-            dc="${DC_INPUT}"
-          else
-            dc="${GITHUB_REF_NAME#v}"
-          fi
+          # The v3-<date>-<count> tag is the version string verbatim.
+          dc="${DC_INPUT:-${GITHUB_REF_NAME}}"
           echo "dc_version=${dc}" >> "$GITHUB_OUTPUT"
 
       - name: Free up runner disk space
@@ -96,7 +93,6 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       DC_INPUT: ${{ github.event.inputs.dc_version }}
-      REF_TYPE: ${{ github.ref_type }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -104,17 +100,11 @@ jobs:
       - name: Derive datacosmos version and tag
         id: ver
         run: |
-          if [ -n "${DC_INPUT}" ]; then
-            dc="${DC_INPUT}"
-          else
-            dc="${GITHUB_REF_NAME#v}"
-          fi
+          # The v3-<date>-<count> tag is both the version string and the
+          # release tag verbatim — no prefixing or stripping.
+          dc="${DC_INPUT:-${GITHUB_REF_NAME}}"
           echo "dc_version=${dc}" >> "$GITHUB_OUTPUT"
-          if [ "${REF_TYPE}" = "tag" ]; then
-            echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
-          else
-            echo "tag=v${dc}" >> "$GITHUB_OUTPUT"
-          fi
+          echo "tag=${dc}" >> "$GITHUB_OUTPUT"
 
       - name: Merge per-arch images into multi-arch tags
         env:
