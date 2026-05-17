@@ -38,6 +38,10 @@ jobs:
       # rejects '..' in its path, so ARTIFACT_DIR cannot be the Makefile
       # default (../pmm-artifacts). ROOT_DIR (the heavy build tree) stays out.
       ARTIFACT_DIR: ${{ github.workspace }}/pmm-artifacts
+      # Do not let docker/build-push-action upload its build-record
+      # (`*.dockerbuild`) artifact — the release job downloads all run
+      # artifacts and those 0-byte records broke the download.
+      DOCKER_BUILD_RECORD_UPLOAD: false
     steps:
       - name: Checkout (with submodules)
         uses: actions/checkout@v4
@@ -181,6 +185,9 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: release-assets
+          # Only the per-arch build artifacts — never any stray artifact
+          # (e.g. a build-push-action *.dockerbuild record).
+          pattern: pmm-artifacts-*
 
       - name: Create the GitHub Release
         env:
