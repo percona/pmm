@@ -18,25 +18,27 @@ user checkpoint.
 - [x] Round 2 — reuse maximization; PHASE-2 rewritten reuse-first (adapt the
       official `clickhouse-mixin`, 8→5 dashboards), attribution made mandatory,
       OVERVIEW reuse-first rule added (see OVERVIEW "Review findings", round 2)
-- [ ] Commit the documentation set; user checkpoint before Phase 1 code
+- [x] Commit the documentation set; user checkpoint before Phase 1 code
 
 ## Phase 1 — Metrics + Inventory + API + pmm-admin
 
-- [ ] 1.1 Inventory protos — `SERVICE_TYPE_CLICKHOUSE_SERVICE`,
+- [x] 1.1 Inventory protos — `SERVICE_TYPE_CLICKHOUSE_SERVICE`,
       `AGENT_TYPE_CLICKHOUSE_EXPORTER`, messages
-- [ ] 1.2 `api/management/v1/clickhouse.proto` + `service.proto` oneof; `make gen`
-- [ ] 1.3 Inventory type registries (`service_types.go`, `agent_types.go`)
-- [ ] 1.4 pmm-managed models + `ClickHouseOptions` + migration `118`
-- [ ] 1.5 Converters (`ToAPIService`/`ToAPIAgent` + reverse map)
-- [ ] 1.6 `managed/services/management/clickhouse.go` (addClickHouse + probe) + `service.go`
-- [ ] 1.7 `managed/services/agents/clickhouse.go` + `state.go` + `prometheus.go`
-- [ ] 1.8 pmm-agent — `config.go` paths, `supervisor.go`, `deps.go`
-- [ ] 1.9 `clickhouse_exporter` — expand collector + `agent/cmd/clickhouse_exporter/main.go`
-- [ ] 1.10 pmm-admin — `add_clickhouse.go` (management + inventory) + registration
-- [ ] 1.V Validation: `make gen` idempotent, build, migration 118, inventory
-      round-trip, `make check`, unit tests, no regressions, `up{...}==1`
-- [ ] 1.IT Integration tests IT-1.1 … IT-1.8 green
-- [ ] Phase 1 committed; user checkpoint
+- [x] 1.2 `api/management/v1/clickhouse.proto` + `service.proto` oneof; `make gen`
+- [x] 1.3 Inventory type registries (`service_types.go`, `agent_types.go`)
+- [x] 1.4 pmm-managed models + `ClickHouseOptions` + migration `118`
+- [x] 1.5 Converters (`ToAPIService`/`ToAPIAgent` + reverse map)
+- [x] 1.6 `managed/services/management/clickhouse.go` (addClickHouse + probe) + `service.go`
+- [x] 1.7 `managed/services/agents/clickhouse.go` + `state.go` + `prometheus.go`
+- [x] 1.8 pmm-agent — `config.go` paths, `supervisor.go`, `deps.go`
+- [x] 1.9 `clickhouse_exporter` — expand collector + `agent/cmd/clickhouse_exporter/main.go`
+- [x] 1.10 pmm-admin — `add_clickhouse.go` (management + inventory) + registration
+- [~] 1.V Validation: `make gen` idempotent, build, `go vet`, `go-sumtype`,
+      golangci-lint (0 new issues), exporter `--version`/`--help`, unit tests
+      green — all done; migration 118 / inventory round-trip / `up{...}==1`
+      need a live PMM stack (covered by 1.IT)
+- [ ] 1.IT Integration tests IT-1.1 … IT-1.8 green (needs Docker matrix)
+- [x] Phase 1 committed; user checkpoint
 
 ## Phase 2 — Grafana dashboards
 
