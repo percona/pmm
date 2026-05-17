@@ -34,6 +34,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/percona/pmm/agent/agents"
+	"github.com/percona/pmm/agent/agents/clickhouse/querylog"
 	"github.com/percona/pmm/agent/agents/mongodb/mongolog"
 	mongoprofiler "github.com/percona/pmm/agent/agents/mongodb/profiler"
 	mongorta "github.com/percona/pmm/agent/agents/mongodb/realtimeanalytics"
@@ -649,6 +650,14 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 			DisableQueryExamples:   builtinAgent.DisableQueryExamples,
 		}
 		agent, err = pgstatmonitor.New(params, l)
+
+	case inventoryv1.AgentType_AGENT_TYPE_QAN_CLICKHOUSE_QUERYLOG_AGENT:
+		params := querylog.Params{
+			DSN:            dsn,
+			AgentID:        agentID,
+			MaxQueryLength: builtinAgent.MaxQueryLength,
+		}
+		agent, err = querylog.New(params, l)
 
 	case inventoryv1.AgentType_AGENT_TYPE_RTA_MONGODB_AGENT:
 		params := &mongorta.Params{

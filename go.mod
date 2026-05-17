@@ -148,7 +148,7 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
-	github.com/go-faster/city v1.0.1 // indirect
+	github.com/go-faster/city v1.0.1
 	github.com/go-faster/errors v0.7.1 // indirect
 	github.com/go-openapi/analysis v0.24.2 // indirect
 	github.com/go-openapi/jsonpointer v0.22.5 // indirect
