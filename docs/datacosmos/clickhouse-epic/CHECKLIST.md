@@ -76,22 +76,22 @@ user checkpoint.
 
 ## Phase 4 — Distribution, tests, docs
 
-- [ ] 4.1 Confirm `agent/cmd/clickhouse_exporter/main.go` (Phase 1 hand-off)
-- [ ] 4.2 `build/Makefile.clickhouse` (new)
-- [ ] 4.3 `build/scripts/build-client-binary` — `gobuild_component clickhouse_exporter`
-- [ ] 4.4 RPM spec — install the binary
-- [ ] 4.5 DEB packaging — `rules` + `install`
-- [ ] 4.6 Docker client image check
-- [ ] 4.7 Verify supervisor path matches the packaged path
-- [ ] 4.8 Unit tests — exporter (`main_test.go`, `config_test.go`)
-- [ ] 4.9 Unit tests — QAN agent
-- [ ] 4.10 Extend `run-matrix.sh` — exporter + QAN matrix tests
-- [ ] 4.11 CI workflow for ClickHouse tests
-- [ ] 4.12 Docs — `.github/instructions/`, user docs, `BUILD.md`
-- [ ] 4.V Validation: build, package contents, install perms, `--version`,
-      `go test`/`vet` clean
-- [ ] 4.IT Integration tests IT-4.1 … IT-4.6 green
-- [ ] Phase 4 committed; user checkpoint
+- [x] 4.1 Confirm `agent/cmd/clickhouse_exporter/main.go` (Phase 1 hand-off)
+- [x] 4.2 `build/Makefile.clickhouse` (new)
+- [x] 4.3 `build/scripts/build-client-binary` — `gobuild_component clickhouse_exporter`
+- [x] 4.4 RPM spec — install the binary
+- [x] 4.5 DEB packaging — `rules` + `install`
+- [x] 4.6 Docker client image check (EL9 copies the whole exporters/ dir — automatic)
+- [x] 4.7 Verify supervisor path matches the packaged path (matches)
+- [x] 4.8 Unit tests — exporter (`main_test.go` new, `config_test.go` from Phase 1)
+- [x] 4.9 Unit tests — QAN agent (`querylog_test.go` from Phase 3)
+- [x] 4.10 Extend `run-matrix.sh` — exporter build + widened `-run` filter
+- [x] 4.11 CI workflow for ClickHouse tests (`.github/workflows/clickhouse.yml`)
+- [x] 4.12 Docs — `.github/instructions/clickhouse.instructions.md`, user docs
+- [~] 4.V Validation: build, `--version`/`--help`, `go test`/`vet`/lint clean —
+      done; package-contents/install-perms need a real RPM/DEB build (4.IT)
+- [ ] 4.IT Integration tests IT-4.1 … IT-4.6 green (needs Docker matrix + package build)
+- [x] Phase 4 committed; user checkpoint
 
 ## Epic completion
 
