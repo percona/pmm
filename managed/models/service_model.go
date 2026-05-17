@@ -46,6 +46,7 @@ const (
 	HAProxyServiceType    ServiceType = "haproxy"
 	ExternalServiceType   ServiceType = "external"
 	ValkeyServiceType     ServiceType = "valkey"
+	ClickHouseServiceType ServiceType = "clickhouse"
 )
 
 // Service represents Service as stored in database.

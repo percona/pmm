@@ -115,6 +115,25 @@ func ValkeyOptionsFromRequest(params ValkeyOptionsParams) ValkeyOptions {
 	return res
 }
 
+// ClickHouseOptionsParams contains methods to create a ClickHouseOptions object.
+type ClickHouseOptionsParams interface {
+	GetTls() bool
+	GetTlsCa() string
+	GetTlsCert() string
+	GetTlsKey() string
+}
+
+// ClickHouseOptionsFromRequest creates ClickHouseOptions object from request.
+func ClickHouseOptionsFromRequest(params ClickHouseOptionsParams) ClickHouseOptions {
+	res := ClickHouseOptions{}
+	res.TLS = params.GetTls()
+	res.SSLCa = params.GetTlsCa()
+	res.SSLCert = params.GetTlsCert()
+	res.SSLKey = params.GetTlsKey()
+
+	return res
+}
+
 // MongoDBOptionsParams contains methods to create MongoDBOptions object.
 type MongoDBOptionsParams interface {
 	GetTlsCertificateKey() string
