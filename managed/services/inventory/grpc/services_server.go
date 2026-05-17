@@ -84,6 +84,8 @@ func (s *servicesServer) ListServices(ctx context.Context, req *inventoryv1.List
 			res.Postgresql = append(res.Postgresql, service)
 		case *inventoryv1.ValkeyService:
 			res.Valkey = append(res.Valkey, service)
+		case *inventoryv1.ClickHouseService:
+			res.Clickhouse = append(res.Clickhouse, service)
 		case *inventoryv1.ProxySQLService:
 			res.Proxysql = append(res.Proxysql, service)
 		case *inventoryv1.HAProxyService:
@@ -131,6 +133,8 @@ func (s *servicesServer) GetService(ctx context.Context, req *inventoryv1.GetSer
 		res.Service = &inventoryv1.GetServiceResponse_Postgresql{Postgresql: service}
 	case *inventoryv1.ValkeyService:
 		res.Service = &inventoryv1.GetServiceResponse_Valkey{Valkey: service}
+	case *inventoryv1.ClickHouseService:
+		res.Service = &inventoryv1.GetServiceResponse_Clickhouse{Clickhouse: service}
 	case *inventoryv1.ProxySQLService:
 		res.Service = &inventoryv1.GetServiceResponse_Proxysql{Proxysql: service}
 	case *inventoryv1.HAProxyService:
@@ -364,6 +368,8 @@ func (s *servicesServer) ChangeService(ctx context.Context, req *inventoryv1.Cha
 		res.Service = &inventoryv1.ChangeServiceResponse_Postgresql{Postgresql: service}
 	case *inventoryv1.ValkeyService:
 		res.Service = &inventoryv1.ChangeServiceResponse_Valkey{Valkey: service}
+	case *inventoryv1.ClickHouseService:
+		res.Service = &inventoryv1.ChangeServiceResponse_Clickhouse{Clickhouse: service}
 	case *inventoryv1.ProxySQLService:
 		res.Service = &inventoryv1.ChangeServiceResponse_Proxysql{Proxysql: service}
 	case *inventoryv1.HAProxyService:

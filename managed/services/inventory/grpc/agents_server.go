@@ -100,6 +100,8 @@ func (s *agentsServer) ListAgents(ctx context.Context, req *inventoryv1.ListAgen
 			res.PostgresExporter = append(res.PostgresExporter, agent)
 		case *inventoryv1.ValkeyExporter:
 			res.ValkeyExporter = append(res.ValkeyExporter, agent)
+		case *inventoryv1.ClickHouseExporter:
+			res.ClickhouseExporter = append(res.ClickhouseExporter, agent)
 		case *inventoryv1.QANMongoDBProfilerAgent:
 			res.QanMongodbProfilerAgent = append(res.QanMongodbProfilerAgent, agent)
 		case *inventoryv1.QANMongoDBMongologAgent:
@@ -154,6 +156,8 @@ func (s *agentsServer) GetAgent(ctx context.Context, req *inventoryv1.GetAgentRe
 		res.Agent = &inventoryv1.GetAgentResponse_PostgresExporter{PostgresExporter: agent}
 	case *inventoryv1.ValkeyExporter:
 		res.Agent = &inventoryv1.GetAgentResponse_ValkeyExporter{ValkeyExporter: agent}
+	case *inventoryv1.ClickHouseExporter:
+		res.Agent = &inventoryv1.GetAgentResponse_ClickhouseExporter{ClickhouseExporter: agent}
 	case *inventoryv1.QANMongoDBProfilerAgent:
 		res.Agent = &inventoryv1.GetAgentResponse_QanMongodbProfilerAgent{QanMongodbProfilerAgent: agent}
 	case *inventoryv1.QANMongoDBMongologAgent:
