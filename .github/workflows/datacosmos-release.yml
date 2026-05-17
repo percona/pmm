@@ -34,6 +34,10 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       MATRIX_ARCH: ${{ matrix.arch }}
       DC_INPUT: ${{ github.event.inputs.dc_version }}
+      # Collect artifacts inside the workspace: actions/upload-artifact@v4
+      # rejects '..' in its path, so ARTIFACT_DIR cannot be the Makefile
+      # default (../pmm-artifacts). ROOT_DIR (the heavy build tree) stays out.
+      ARTIFACT_DIR: ${{ github.workspace }}/pmm-artifacts
     steps:
       - name: Checkout (with submodules)
         uses: actions/checkout@v4
@@ -138,7 +142,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: pmm-artifacts-${{ matrix.arch }}
-          path: ../pmm-artifacts/**
+          path: pmm-artifacts/**
           if-no-files-found: ignore
 
   release:
