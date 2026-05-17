@@ -119,7 +119,7 @@ func (s *ManagementService) AddService(ctx context.Context, req *managementv1.Ad
 }
 
 // ListServices returns a filtered list of Services with some attributes from Agents and Nodes.
-func (s *ManagementService) ListServices(ctx context.Context, req *managementv1.ListServicesRequest) (*managementv1.ListServicesResponse, error) {
+func (s *ManagementService) ListServices(ctx context.Context, req *managementv1.ListServicesRequest) (*managementv1.ListServicesResponse, error) { //nolint:gocognit
 	filters := models.ServiceFilters{
 		NodeID:        req.NodeId,
 		ServiceType:   services.ProtoToModelServiceType(req.ServiceType),
@@ -258,7 +258,7 @@ func (s *ManagementService) ListServices(ctx context.Context, req *managementv1.
 }
 
 // RemoveService removes a Service along with its Agents.
-func (s *ManagementService) RemoveService(ctx context.Context, req *managementv1.RemoveServiceRequest) (*managementv1.RemoveServiceResponse, error) {
+func (s *ManagementService) RemoveService(ctx context.Context, req *managementv1.RemoveServiceRequest) (*managementv1.RemoveServiceResponse, error) { //nolint:gocognit
 	err := s.validateRequest(req)
 	if err != nil {
 		return nil, err

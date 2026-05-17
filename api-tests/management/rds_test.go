@@ -20,7 +20,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -34,7 +33,11 @@ import (
 )
 
 func TestRDSDiscovery(t *testing.T) {
+	t.Parallel()
+
 	t.Run("Basic", func(t *testing.T) {
+		t.Parallel()
+
 		accessKey, secretKey := os.Getenv("AWS_ACCESS_KEY"), os.Getenv("AWS_SECRET_KEY")
 		if accessKey == "" || secretKey == "" {
 			// TODO remove skip once secrets are added
@@ -58,17 +61,21 @@ func TestRDSDiscovery(t *testing.T) {
 }
 
 func TestAddRds(t *testing.T) {
+	t.Parallel()
+
 	t.Run("BasicAddRDS", func(t *testing.T) {
+		t.Parallel()
+
 		params := &mservice.AddServiceParams{
 			Body: mservice.AddServiceBody{
 				RDS: &mservice.AddServiceParamsBodyRDS{
-					Region:                    "region",
+					Region:                    pmmapitests.TestString(t, "region"),
 					Az:                        "az",
 					InstanceID:                "d752f1a9-31c9-4b8c-bb2d-d26bc000001",
 					NodeModel:                 "some-model",
-					Address:                   "some.example.rds",
+					Address:                   pmmapitests.TestString(t, "some.example.rds"),
 					Port:                      3306,
-					Engine:                    pointer.ToString("DISCOVER_RDS_ENGINE_MYSQL"),
+					Engine:                    new("DISCOVER_RDS_ENGINE_MYSQL"),
 					NodeName:                  "some-node-name-000001",
 					ServiceName:               "test-add-rds-service000001",
 					Environment:               "some-env",
@@ -94,6 +101,10 @@ func TestAddRds(t *testing.T) {
 		}
 		addRDSOK, err := client.Default.ManagementService.AddService(params)
 		require.NoError(t, err)
+		serviceID := addRDSOK.Payload.RDS.Mysql.ServiceID
+		t.Cleanup(func() {
+			pmmapitests.RemoveServices(t, serviceID)
+		})
 		require.NotNil(t, addRDSOK.Payload)
 
 		body := addRDSOK.Payload
@@ -120,18 +131,20 @@ func TestAddRds(t *testing.T) {
 	})
 
 	t.Run("AddRDSPostgres", func(t *testing.T) {
+		t.Parallel()
+
 		params := &mservice.AddServiceParams{
 			Body: mservice.AddServiceBody{
 				RDS: &mservice.AddServiceParamsBodyRDS{
-					Region:                    "region",
+					Region:                    pmmapitests.TestString(t, "region"),
 					Az:                        "az",
 					InstanceID:                "d752f1a9-31c9-4b8c-bb2d-d26bc000009",
 					NodeModel:                 "some-model",
-					Address:                   "some.example.rds",
+					Address:                   pmmapitests.TestString(t, "some.example.rds"),
 					Port:                      5432,
-					Engine:                    pointer.ToString("DISCOVER_RDS_ENGINE_POSTGRESQL"),
+					Engine:                    new("DISCOVER_RDS_ENGINE_POSTGRESQL"),
 					NodeName:                  "some-node-name-000009",
-					ServiceName:               "test-add-rds-service000009",
+					ServiceName:               "test-add-rds-service000010",
 					Environment:               "some-env",
 					Cluster:                   "cluster-01",
 					ReplicationSet:            "rs-01",
@@ -154,6 +167,10 @@ func TestAddRds(t *testing.T) {
 		}
 		addRDSOK, err := client.Default.ManagementService.AddService(params)
 		require.NoError(t, err)
+		serviceID := addRDSOK.Payload.RDS.Postgresql.ServiceID
+		t.Cleanup(func() {
+			pmmapitests.RemoveServices(t, serviceID)
+		})
 		require.NotNil(t, addRDSOK.Payload)
 
 		body := addRDSOK.Payload

@@ -78,7 +78,6 @@
           expires: infinity
           login_user: postgres
           state: present
-        when: not ansible_check_mode
         environment:
           PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
     when:

@@ -507,7 +507,7 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 	amountOfPoints := int64(optimalAmountOfPoint)
 	timePeriod := periodStartToSec - periodStartFromSec
 	// reduce amount of point if period less then 2h.
-	if timePeriod < int64((minFullTimeFrame).Seconds()) {
+	if timePeriod < int64(minFullTimeFrame.Seconds()) {
 		// minimum point is 1 minute
 		amountOfPoints = timePeriod / secondsPerMinute
 	}
@@ -675,7 +675,8 @@ func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, peri
 			&row.Example,
 			&row.IsTruncated,
 			&row.ExampleType,
-			&row.ExampleMetrics)
+			&row.ExampleMetrics,
+		)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to scan query example for object details")
 		}
@@ -818,7 +819,8 @@ func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, periodStartFrom
 			&row.CmdType,
 			&row.TopQueryID,
 			&row.ApplicationName,
-			&row.PlanID)
+			&row.PlanID,
+		)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to scan labels for object details")
 		}
@@ -1142,7 +1144,8 @@ func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, qu
 			&res.ExplainFingerprint,
 			&fingerprint,
 			&example,
-			&res.PlaceholdersCount)
+			&res.PlaceholdersCount,
+		)
 		if err != nil {
 			return res, errors.Wrap(err, "failed to scan query")
 		}

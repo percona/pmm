@@ -174,7 +174,7 @@ func TestReadFile(t *testing.T) {
 	t.Run("Normal", func(t *testing.T) {
 		t.Parallel()
 
-		cert, err := os.CreateTemp("", "cert")
+		cert, err := os.CreateTemp(t.TempDir(), "cert")
 		require.NoError(t, err)
 		defer func() {
 			err = cert.Close()

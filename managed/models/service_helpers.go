@@ -20,7 +20,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -341,7 +340,7 @@ func AddNewService(q *reform.Querier, serviceType ServiceType, params *AddDBMSSe
 
 // RemoveService removes single Service.
 // If associated service software versions entry exists it is removed by the ON DELETE CASCADE option.
-func RemoveService(q *reform.Querier, id string, mode RemoveMode) error {
+func RemoveService(q *reform.Querier, id string, mode RemoveMode) error { //nolint:gocognit
 	s, err := FindServiceByID(q, id)
 	if err != nil {
 		return err
@@ -392,7 +391,7 @@ func RemoveService(q *reform.Querier, id string, mode RemoveMode) error {
 		}
 		for _, a := range artifacts {
 			if _, err := UpdateArtifact(q, a.ID, UpdateArtifactParams{
-				ServiceID: pointer.ToString(""),
+				ServiceID: new(""),
 			}); err != nil {
 				return err
 			}
