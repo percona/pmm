@@ -91,16 +91,17 @@ func (s *Server) FilteredURL() string {
 
 // Paths represents binary paths configuration.
 type Paths struct {
-	PathsBase        string `yaml:"paths_base"`
-	ExportersBase    string `yaml:"exporters_base"`
-	NodeExporter     string `yaml:"node_exporter"`
-	MySQLdExporter   string `yaml:"mysqld_exporter"`
-	MongoDBExporter  string `yaml:"mongodb_exporter"`
-	PostgresExporter string `yaml:"postgres_exporter"`
-	ProxySQLExporter string `yaml:"proxysql_exporter"`
-	RDSExporter      string `yaml:"rds_exporter"`
-	AzureExporter    string `yaml:"azure_exporter"`
-	ValkeyExporter   string `yaml:"valkey_exporter"`
+	PathsBase          string `yaml:"paths_base"`
+	ExportersBase      string `yaml:"exporters_base"`
+	NodeExporter       string `yaml:"node_exporter"`
+	MySQLdExporter     string `yaml:"mysqld_exporter"`
+	MongoDBExporter    string `yaml:"mongodb_exporter"`
+	PostgresExporter   string `yaml:"postgres_exporter"`
+	ProxySQLExporter   string `yaml:"proxysql_exporter"`
+	RDSExporter        string `yaml:"rds_exporter"`
+	AzureExporter      string `yaml:"azure_exporter"`
+	ValkeyExporter     string `yaml:"valkey_exporter"`
+	ClickHouseExporter string `yaml:"clickhouse_exporter"`
 
 	VMAgent string `yaml:"vmagent"`
 	Nomad   string `yaml:"nomad"`
@@ -227,20 +228,21 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 		}
 
 		for sp, v := range map[*string]string{
-			&cfg.Paths.NodeExporter:     "node_exporter",
-			&cfg.Paths.MySQLdExporter:   "mysqld_exporter",
-			&cfg.Paths.MongoDBExporter:  "mongodb_exporter",
-			&cfg.Paths.PostgresExporter: "postgres_exporter",
-			&cfg.Paths.ValkeyExporter:   "valkey_exporter",
-			&cfg.Paths.ProxySQLExporter: "proxysql_exporter",
-			&cfg.Paths.RDSExporter:      "rds_exporter",
-			&cfg.Paths.AzureExporter:    "azure_exporter",
-			&cfg.Paths.VMAgent:          "vmagent",
-			&cfg.Paths.PTSummary:        "tools/pt-summary",
-			&cfg.Paths.PTPGSummary:      "tools/pt-pg-summary",
-			&cfg.Paths.PTMongoDBSummary: "tools/pt-mongodb-summary",
-			&cfg.Paths.PTMySQLSummary:   "tools/pt-mysql-summary",
-			&cfg.Paths.Nomad:            "tools/nomad",
+			&cfg.Paths.NodeExporter:       "node_exporter",
+			&cfg.Paths.MySQLdExporter:     "mysqld_exporter",
+			&cfg.Paths.MongoDBExporter:    "mongodb_exporter",
+			&cfg.Paths.PostgresExporter:   "postgres_exporter",
+			&cfg.Paths.ValkeyExporter:     "valkey_exporter",
+			&cfg.Paths.ClickHouseExporter: "clickhouse_exporter",
+			&cfg.Paths.ProxySQLExporter:   "proxysql_exporter",
+			&cfg.Paths.RDSExporter:        "rds_exporter",
+			&cfg.Paths.AzureExporter:      "azure_exporter",
+			&cfg.Paths.VMAgent:            "vmagent",
+			&cfg.Paths.PTSummary:          "tools/pt-summary",
+			&cfg.Paths.PTPGSummary:        "tools/pt-pg-summary",
+			&cfg.Paths.PTMongoDBSummary:   "tools/pt-mongodb-summary",
+			&cfg.Paths.PTMySQLSummary:     "tools/pt-mysql-summary",
+			&cfg.Paths.Nomad:              "tools/nomad",
 		} {
 			if *sp == "" {
 				*sp = v
@@ -290,15 +292,16 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 		}
 
 		for n, sp := range map[string]*string{
-			"node_exporter":     &cfg.Paths.NodeExporter,
-			"mysqld_exporter":   &cfg.Paths.MySQLdExporter,
-			"mongodb_exporter":  &cfg.Paths.MongoDBExporter,
-			"postgres_exporter": &cfg.Paths.PostgresExporter,
-			"valkey_exporter":   &cfg.Paths.ValkeyExporter,
-			"proxysql_exporter": &cfg.Paths.ProxySQLExporter,
-			"rds_exporter":      &cfg.Paths.RDSExporter,
-			"azure_exporter":    &cfg.Paths.AzureExporter,
-			"vmagent":           &cfg.Paths.VMAgent,
+			"node_exporter":       &cfg.Paths.NodeExporter,
+			"mysqld_exporter":     &cfg.Paths.MySQLdExporter,
+			"mongodb_exporter":    &cfg.Paths.MongoDBExporter,
+			"postgres_exporter":   &cfg.Paths.PostgresExporter,
+			"valkey_exporter":     &cfg.Paths.ValkeyExporter,
+			"clickhouse_exporter": &cfg.Paths.ClickHouseExporter,
+			"proxysql_exporter":   &cfg.Paths.ProxySQLExporter,
+			"rds_exporter":        &cfg.Paths.RDSExporter,
+			"azure_exporter":      &cfg.Paths.AzureExporter,
+			"vmagent":             &cfg.Paths.VMAgent,
 		} {
 			if cfg.Paths.ExportersBase != "" && !filepath.IsAbs(*sp) {
 				*sp = filepath.Join(cfg.Paths.ExportersBase, *sp)
@@ -410,6 +413,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_PATHS_AZURE_EXPORTER").StringVar(&cfg.Paths.AzureExporter)
 	app.Flag("paths-valkey-exporter", "Path to valkey_exporter to use [PMM_AGENT_PATHS_VALKEY_EXPORTER]").
 		Envar("PMM_AGENT_PATHS_VALKEY_EXPORTER").StringVar(&cfg.Paths.ValkeyExporter)
+	app.Flag("paths-clickhouse-exporter", "Path to clickhouse_exporter to use [PMM_AGENT_PATHS_CLICKHOUSE_EXPORTER]").
+		Envar("PMM_AGENT_PATHS_CLICKHOUSE_EXPORTER").StringVar(&cfg.Paths.ClickHouseExporter)
 	app.Flag("paths-pt-summary", "Path to pt summary to use [PMM_AGENT_PATHS_PT_SUMMARY]").
 		Envar("PMM_AGENT_PATHS_PT_SUMMARY").StringVar(&cfg.Paths.PTSummary)
 	app.Flag("paths-pt-pg-summary", "Path to pt-pg-summary to use [PMM_AGENT_PATHS_PT_PG_SUMMARY]").

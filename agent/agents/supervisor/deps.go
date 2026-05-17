@@ -24,6 +24,7 @@ var (
 	rdsExporterRegexp          = regexp.MustCompile("rds_exporter, version ([!-~]*).*")
 	azureMetricsExporterRegexp = regexp.MustCompile("azure_metrics_exporter, version ([!-~]*).*")
 	valkeyExporterRegexp       = regexp.MustCompile("valkey_exporter, version ([!-~]*).*")
+	clickhouseExporterRegexp   = regexp.MustCompile("clickhouse_exporter, version ([!-~]*).*")
 	mongodbExporterRegexp      = regexp.MustCompile("Version: ([!-~]*).*")
 )
 
