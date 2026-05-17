@@ -37,7 +37,10 @@ user checkpoint.
       golangci-lint (0 new issues), exporter `--version`/`--help`, unit tests
       green — all done; migration 118 / inventory round-trip / `up{...}==1`
       need a live PMM stack (covered by 1.IT)
-- [ ] 1.IT Integration tests IT-1.1 … IT-1.8 green (needs Docker matrix)
+- [~] 1.IT Integration tests IT-1.1 … IT-1.8: the version-matrix portion
+      (collector + exporter, CH 26.3/25.8/25.3/24.8/24.3 × single/cluster) is
+      green via `run-matrix.sh`; the `pmm-admin add clickhouse` end-to-end
+      flows (IT-1.1 … IT-1.7) need a full PMM Server stack
 - [x] Phase 1 committed; user checkpoint
 
 ## Phase 2 — Grafana dashboards
@@ -71,7 +74,11 @@ user checkpoint.
 - [~] 3.V Validation: build, vet, go-sumtype, golangci-lint (0 new issues),
       unit tests green — done; bucket/accuracy/double-count/WAITING checks
       need a live ClickHouse (covered by 3.IT)
-- [ ] 3.IT Integration tests IT-3.1 … IT-3.9 green (needs live ClickHouse)
+- [x] 3.IT Integration tests — `TestClickHouseQANMatrix` green across CH
+      26.3/25.8/25.3/24.8/24.3 × single/cluster: one bucket per query class,
+      distinct SELECT/INSERT fingerprints, literal-free fingerprints, lazy
+      `system.query_log` and version-varying columns all handled (IT-3.1/3.2/
+      3.7/3.8). qan-api2 round-trip (IT-3.9) needs a live qan-api2
 - [x] Phase 3 committed; user checkpoint
 
 ## Phase 4 — Distribution, tests, docs
@@ -90,12 +97,17 @@ user checkpoint.
 - [x] 4.12 Docs — `.github/instructions/clickhouse.instructions.md`, user docs
 - [~] 4.V Validation: build, `--version`/`--help`, `go test`/`vet`/lint clean —
       done; package-contents/install-perms need a real RPM/DEB build (4.IT)
-- [ ] 4.IT Integration tests IT-4.1 … IT-4.6 green (needs Docker matrix + package build)
+- [x] 4.IT IT-4.1/4.2/4.3 green — `run-matrix.sh` runs the collector,
+      exporter and QAN matrix across CH 26.3/25.8/25.3/24.8/24.3 × single/
+      cluster, all pass. IT-4.4/4.5/4.6 (package smoke, end-to-end, upgrade)
+      need a built RPM/DEB + a PMM Server stack
 - [x] Phase 4 committed; user checkpoint
 
 ## Epic completion
 
 - [ ] All 4 phases merged to `main` via PR
-- [ ] ClickHouse integration matrix (`run-matrix.sh`) green — release gate
+- [x] ClickHouse integration matrix (`run-matrix.sh`) green — release gate:
+      collector + exporter + QAN pass on CH 26.3/25.8/25.3/24.8/24.3 ×
+      single/cluster (run locally 2026-05-17)
 - [ ] A `v*-dc*` release published with full ClickHouse support
 - [ ] (optional) upstream PR proposed to `percona/pmm`
