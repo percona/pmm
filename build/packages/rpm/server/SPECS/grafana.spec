@@ -1,12 +1,14 @@
 %global debug_package   %{nil}
 %global commit          abbb94174fc31712b073c2be1be8285715d13aa3
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
-%define build_timestamp %(date -u +"%y%m%d%H%M")
 %define release         114
 %define grafana_version 11.6.14
 %define full_pmm_version 3.0.0
 %define full_version    v%{grafana_version}-%{full_pmm_version}
-%define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
+# No build timestamp in the release: it changed every minute, so the RPM
+# version was never stable and the build cache for the (expensive) Grafana
+# RPM never matched. release + Grafana commit identify the build uniquely.
+%define rpm_release     %{release}.%{shortcommit}%{?dist}
 
 %if ! 0%{?gobuild:1}
 %define gobuild(o:) go build -ldflags "${LDFLAGS:-} -B 0x$(head -c20 /dev/urandom|od -An -tx1|tr -d ' \\n')" -a -v -x %{?**};
