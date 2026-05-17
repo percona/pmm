@@ -1,10 +1,14 @@
 ###############################################################################
-# Makefile.datacosmos — local, infrastructure-free PMM build pipeline.
+# Makefile.datacosmos — PMM build pipeline, aligned to upstream.
 #
-# Builds pmm-client and pmm-server RPMs and Docker images entirely locally:
-#   * no Jenkins, no AWS S3 build cache (SKIP_S3_CACHE=1);
-#   * no Percona/private container registries, no image push;
-#   * the rpmbuild container is built locally from oraclelinux:9-slim.
+# Thin wrapper over the upstream build/scripts/*: it lays out the build tree
+# and runs the same scripts a Jenkins agent would. It deliberately keeps
+# upstream's strategy:
+#   * rpmbuild container — the upstream public image (build/scripts/vars
+#     default: public.ecr.aws/e7j3v3n0/rpmbuild:3), not built locally;
+#   * RPM cache — upstream's public s3://pmm-build-cache (SKIP_S3_CACHE unset),
+#     so Grafana et al. are downloaded prebuilt instead of compiled.
+# Images are published to ghcr.io/datacosmos-br.
 #
 # Every variable below is overridable from the environment. See
 # docs/datacosmos/BUILD.md. Included by the root Makefile.
@@ -20,6 +24,10 @@ SHELL := /bin/bash -o pipefail
 PKG_NAME         := pmm
 OFFICIAL_VERSION := $(shell git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//')
 VERSION          ?= $(if $(OFFICIAL_VERSION),$(OFFICIAL_VERSION),3.0.0)
+# Upstream PMM version, without the -dcN suffix. The VERSION file fed to
+# build/scripts/vars carries only this, so `pmm_release` stays empty and the
+# generated RPM versions match the upstream S3 build cache keys.
+PMM_VERSION      := $(firstword $(subst -dc, ,$(VERSION)))
 RELEASE          ?= $(shell git rev-list --count HEAD 2>/dev/null || echo 1)
 FULL_VERSION     := $(VERSION)-$(RELEASE)
 GIT_BRANCH       := $(shell git rev-parse --abbrev-ref HEAD 2>/dev/null)
@@ -36,10 +44,11 @@ PATH_TO_SCRIPTS  := build/scripts
 
 # -----------------------------------------------------------------------------
 # Build configuration — local images only, never a remote registry by default.
+# The rpmbuild container image is NOT overridden: build/scripts/vars defaults
+# it to the upstream-published public.ecr.aws/e7j3v3n0/rpmbuild:3 (multi-arch).
 # -----------------------------------------------------------------------------
 DIST                  ?= el9
 IMAGE_REGISTRY        ?= pmm-local
-RPMBUILD_DOCKER_IMAGE ?= pmm-rpmbuild:local
 CLIENT_IMAGE          ?= $(IMAGE_REGISTRY)/pmm-client:$(FULL_VERSION)
 SERVER_IMAGE          ?= $(IMAGE_REGISTRY)/pmm-server:$(FULL_VERSION)
 
@@ -61,21 +70,19 @@ RPMBUILD_PUBLISH_IMAGE ?= $(GHCR_NAMESPACE)/pmm-rpmbuild:$(DC_VERSION)
 CLIENT_PUBLISH_IMAGE   ?= $(GHCR_NAMESPACE)/pmm-client:$(DC_VERSION)$(ARCH_SUFFIX)
 SERVER_PUBLISH_IMAGE   ?= $(GHCR_NAMESPACE)/pmm-server:$(DC_VERSION)$(ARCH_SUFFIX)
 
-# Standalone build switches consumed by build/scripts/*:
-#  * SKIP_S3_CACHE=1  — never touch s3://pmm-build-cache (build every RPM here);
-#  * PUSH_DOCKER unset — images stay local;
-#  * ROOT_DIR / RPMBUILD_* — feed build/scripts/vars without a Jenkins workspace.
+# Switches consumed by build/scripts/*. SKIP_S3_CACHE is intentionally NOT set:
+# build-server-rpm's is_build_needed then reuses the upstream public RPM cache
+# (s3://pmm-build-cache, --no-sign-request) — Grafana et al. are downloaded
+# prebuilt instead of compiled. PUSH_DOCKER unset keeps images local.
 export ROOT_DIR
-export RPMBUILD_DOCKER_IMAGE
 export RPMBUILD_DIST   := $(DIST)
-export SKIP_S3_CACHE   := 1
 unexport PUSH_DOCKER
 
 # -----------------------------------------------------------------------------
 # Targets
 # -----------------------------------------------------------------------------
 .PHONY: all
-all: prepare build-rpmbuild-image client server   ## Full local build: image + client + server
+all: prepare client server                        ## Full build (rpmbuild image pulled from upstream)
 
 .PHONY: prepare
 prepare: submodules create-build-dirs             ## Fetch submodules and lay out the build tree
@@ -100,7 +107,7 @@ create-build-dirs:                                ## Create the $(ROOT_DIR) buil
 	# tree. World-writable results/ lets the container mkdir there; the build
 	# scripts chown the finished srpm/ and rpm/ back to the host user.
 	@chmod 0777 $(ROOT_DIR)/tmp $(ROOT_DIR)/results
-	@echo "$(FULL_VERSION)" > $(ROOT_DIR)/VERSION
+	@echo "$(PMM_VERSION)" > $(ROOT_DIR)/VERSION
 	# Symlink (never copy) each component source from pmm-submodules: copying
 	# breaks the submodule .git gitlinks and litters the build with junk.
 	@for d in $(CURDIR)/pmm-submodules/sources/*; do \
@@ -119,10 +126,10 @@ create-build-dirs:                                ## Create the $(ROOT_DIR) buil
 	@git -C $(ROOT_DIR)/sources/pmm/src/github.com/percona/pmm checkout --detach $(GIT_COMMIT)
 
 .PHONY: build-rpmbuild-image
-build-rpmbuild-image:                             ## Build the rpmbuild container locally
-	@echo "=== Building local rpmbuild image $(RPMBUILD_DOCKER_IMAGE) ==="
+build-rpmbuild-image:                             ## Build the rpmbuild image locally (optional; the build uses the upstream image by default)
+	@echo "=== Building local rpmbuild image pmm-rpmbuild:local ==="
 	docker build --pull \
-	    --tag $(RPMBUILD_DOCKER_IMAGE) \
+	    --tag pmm-rpmbuild:local \
 	    --file build/docker/rpmbuild/Dockerfile.el9 \
 	    build/docker/rpmbuild
 
@@ -178,9 +185,7 @@ client: create-build-dirs                         ## Build pmm-client RPM/tarbal
 	@echo "=== Building pmm-client (local) ==="
 	cd $(ROOT_DIR) && \
 	ROOT_DIR=$(ROOT_DIR) \
-	RPMBUILD_DOCKER_IMAGE=$(RPMBUILD_DOCKER_IMAGE) \
 	DOCKER_CLIENT_TAG=$(CLIENT_IMAGE) \
-	SKIP_S3_CACHE=1 \
 	    $(CURDIR)/$(PATH_TO_SCRIPTS)/build-client
 
 .PHONY: server
@@ -188,10 +193,8 @@ server: create-build-dirs                         ## Build pmm-server RPMs + Doc
 	@echo "=== Building pmm-server (local) ==="
 	cd $(ROOT_DIR) && \
 	ROOT_DIR=$(ROOT_DIR) \
-	RPMBUILD_DOCKER_IMAGE=$(RPMBUILD_DOCKER_IMAGE) \
 	RPMBUILD_DIST=$(DIST) \
 	DOCKER_TAG=$(SERVER_IMAGE) \
-	SKIP_S3_CACHE=1 \
 	    $(CURDIR)/$(PATH_TO_SCRIPTS)/build-server
 
 .PHONY: publish

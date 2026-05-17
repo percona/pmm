@@ -38,10 +38,11 @@ jobs:
       # rejects '..' in its path, so ARTIFACT_DIR cannot be the Makefile
       # default (../pmm-artifacts). ROOT_DIR (the heavy build tree) stays out.
       ARTIFACT_DIR: ${{ github.workspace }}/pmm-artifacts
-      # Do not let docker/build-push-action upload its build-record
-      # (`*.dockerbuild`) artifact — the release job downloads all run
-      # artifacts and those 0-byte records broke the download.
-      DOCKER_BUILD_RECORD_UPLOAD: false
+      # Upstream's public RPM cache (s3://pmm-build-cache) only holds x86_64
+      # RPMs. Use it on amd64 (Grafana et al. come down prebuilt); skip it on
+      # arm64, where it would feed is_build_needed a wrong-arch RPM and skip
+      # the build that must happen.
+      SKIP_S3_CACHE: ${{ matrix.arch == 'arm64' && '1' || '' }}
     steps:
       - name: Checkout (with submodules)
         uses: actions/checkout@v4
@@ -64,79 +65,12 @@ jobs:
           sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android /opt/hostedtoolcache || true
           docker system prune -af || true
 
-      - name: Log in to ghcr.io
-        run: echo "${GH_TOKEN}" | docker login ghcr.io -u "${GITHUB_ACTOR}" --password-stdin
-
-      # The rpmbuild image (OracleLinux 9 + a fixed dnf set) almost never
-      # changes. Publish it to ghcr.io keyed by the content of
-      # build/docker/rpmbuild/ and just pull it on later runs — no rebuild,
-      # no GHA layer cache. Tagged pmm-rpmbuild:local so `make` reuses it.
-      - name: rpmbuild image (pull published, build+push on miss)
-        run: |
-          img="ghcr.io/datacosmos-br/pmm-rpmbuild:el9-${MATRIX_ARCH}-${{ hashFiles('build/docker/rpmbuild/**') }}"
-          if docker pull "$img" 2>/dev/null; then
-            docker tag "$img" pmm-rpmbuild:local
-            echo "reused published rpmbuild image: $img"
-          else
-            docker build --pull -t pmm-rpmbuild:local -t "$img" \
-              -f build/docker/rpmbuild/Dockerfile.el9 build/docker/rpmbuild
-            docker push "$img" || true
-          fi
-
-      # The build scripts mount four docker volumes as caches: pmm-gobuild
-      # (Go build cache), pmm-gomod (Go module cache), pmm-yarn (Grafana's
-      # yarn cache) and pmm-dnf (dnf package cache). Persist all four across
-      # runs: seed the volumes from the GHA cache before building and dump
-      # them back after — so even a failed run keeps every package that
-      # already compiled and the next attempt only rebuilds what changed.
-      - name: Restore Go / yarn / dnf caches
-        uses: actions/cache@v4
-        with:
-          path: /tmp/pmm-gocache
-          key: pmm-gocache-${{ matrix.arch }}-${{ hashFiles('go.sum') }}-${{ github.run_id }}
-          restore-keys: |
-            pmm-gocache-${{ matrix.arch }}-${{ hashFiles('go.sum') }}-
-            pmm-gocache-${{ matrix.arch }}-
-
-      # The generated RPMs (grafana, victoriametrics, pmm-managed, qan-api2,
-      # vmproxy, percona-dashboards, pmm-dump). build-server-rpm skips a spec
-      # whose RPMs already sit in this tree (is_build_needed), so restoring it
-      # lets version-stable components — Grafana above all — skip rebuilding.
-      - name: Restore generated RPMs
-        uses: actions/cache@v4
-        with:
-          path: ../pmm-build-root/tmp/pmm-server/RPMS
-          key: pmm-rpms-${{ matrix.arch }}-${{ hashFiles('build/packages/rpm/server/**') }}-${{ github.run_id }}
-          restore-keys: |
-            pmm-rpms-${{ matrix.arch }}-${{ hashFiles('build/packages/rpm/server/**') }}-
-            pmm-rpms-${{ matrix.arch }}-
-
-      # Seed the docker volumes from the restored cache. The copy + chown run
-      # inside the rpmbuild image itself so the cache ends up owned by its
-      # `builder` user — the build runs as builder, and a cache owned by a
-      # different uid made `go build` fail with 'permission denied'.
-      - name: Seed Docker volumes from cache
-        run: |
-          for v in gobuild gomod yarn dnf; do
-            docker volume create "pmm-$v" >/dev/null
-            if [ -d "/tmp/pmm-gocache/$v" ]; then
-              docker run --rm -v "pmm-$v:/dst" -v "/tmp/pmm-gocache/$v:/src:ro" \
-                pmm-rpmbuild:local sh -c \
-                'sudo cp -a /src/. /dst/ && sudo chown -R builder:builder /dst' || true
-            fi
-          done
-
+      # No custom caching: build/scripts/vars pulls the upstream rpmbuild
+      # image (public.ecr.aws/e7j3v3n0/rpmbuild:3) and build-server-rpm's
+      # is_build_needed reuses upstream's public RPM cache
+      # (s3://pmm-build-cache) — Grafana et al. come down prebuilt.
       - name: Build pmm-client and pmm-server (native)
         run: make -f Makefile.datacosmos client server
-
-      - name: Dump Docker volumes to cache
-        if: always()
-        run: |
-          for v in gobuild gomod yarn dnf; do
-            mkdir -p "/tmp/pmm-gocache/$v"
-            docker run --rm -v "pmm-$v:/src:ro" -v "/tmp/pmm-gocache/$v:/dst" \
-              alpine sh -c 'cp -a /src/. /dst/ 2>/dev/null || true' || true
-          done
 
       - name: Publish per-arch images to ghcr.io
         env:
