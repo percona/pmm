@@ -53,6 +53,7 @@ const (
 	AgentType_AGENT_TYPE_AZURE_DATABASE_EXPORTER            AgentType = 15
 	AgentType_AGENT_TYPE_NOMAD_AGENT                        AgentType = 16
 	AgentType_AGENT_TYPE_RTA_MONGODB_AGENT                  AgentType = 19
+	AgentType_AGENT_TYPE_CLICKHOUSE_EXPORTER                AgentType = 20
 )
 
 // Enum value maps for AgentType.
@@ -78,6 +79,7 @@ var (
 		15: "AGENT_TYPE_AZURE_DATABASE_EXPORTER",
 		16: "AGENT_TYPE_NOMAD_AGENT",
 		19: "AGENT_TYPE_RTA_MONGODB_AGENT",
+		20: "AGENT_TYPE_CLICKHOUSE_EXPORTER",
 	}
 	AgentType_value = map[string]int32{
 		"AGENT_TYPE_UNSPECIFIED":                        0,
@@ -100,6 +102,7 @@ var (
 		"AGENT_TYPE_AZURE_DATABASE_EXPORTER":            15,
 		"AGENT_TYPE_NOMAD_AGENT":                        16,
 		"AGENT_TYPE_RTA_MONGODB_AGENT":                  19,
+		"AGENT_TYPE_CLICKHOUSE_EXPORTER":                20,
 	}
 )
 
@@ -1547,6 +1550,178 @@ func (x *ValkeyExporter) GetMetricsResolutions() *common.MetricsResolutions {
 	return nil
 }
 
+// ClickHouseExporter runs on Generic or Container Node and exposes ClickHouse Service metrics.
+type ClickHouseExporter struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Unique randomly generated instance identifier.
+	AgentId string `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
+	// The pmm-agent identifier which runs this instance.
+	PmmAgentId string `protobuf:"bytes,2,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `protobuf:"varint,3,opt,name=disabled,proto3" json:"disabled,omitempty"`
+	// Service identifier.
+	ServiceId string `protobuf:"bytes,4,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	// ClickHouse username for scraping metrics.
+	Username string `protobuf:"bytes,5,opt,name=username,proto3" json:"username,omitempty"`
+	// Use TLS for database connections.
+	Tls bool `protobuf:"varint,6,opt,name=tls,proto3" json:"tls,omitempty"`
+	// Skip TLS certificate and hostname verification.
+	TlsSkipVerify bool `protobuf:"varint,7,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3" json:"tls_skip_verify,omitempty"`
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `protobuf:"bytes,8,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// True if exporter uses push metrics mode.
+	PushMetricsEnabled bool `protobuf:"varint,9,opt,name=push_metrics_enabled,json=pushMetricsEnabled,proto3" json:"push_metrics_enabled,omitempty"`
+	// List of disabled collector names.
+	DisabledCollectors []string `protobuf:"bytes,10,rep,name=disabled_collectors,json=disabledCollectors,proto3" json:"disabled_collectors,omitempty"`
+	// Actual Agent status.
+	Status AgentStatus `protobuf:"varint,20,opt,name=status,proto3,enum=inventory.v1.AgentStatus" json:"status,omitempty"`
+	// Listen port for scraping metrics.
+	ListenPort uint32 `protobuf:"varint,21,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`
+	// Path to exec process.
+	ProcessExecPath string `protobuf:"bytes,22,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter bool `protobuf:"varint,23,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
+	// Metrics resolution for this agent.
+	MetricsResolutions *common.MetricsResolutions `protobuf:"bytes,24,opt,name=metrics_resolutions,json=metricsResolutions,proto3" json:"metrics_resolutions,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *ClickHouseExporter) Reset() {
+	*x = ClickHouseExporter{}
+	mi := &file_inventory_v1_agents_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClickHouseExporter) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClickHouseExporter) ProtoMessage() {}
+
+func (x *ClickHouseExporter) ProtoReflect() protoreflect.Message {
+	mi := &file_inventory_v1_agents_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClickHouseExporter.ProtoReflect.Descriptor instead.
+func (*ClickHouseExporter) Descriptor() ([]byte, []int) {
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *ClickHouseExporter) GetAgentId() string {
+	if x != nil {
+		return x.AgentId
+	}
+	return ""
+}
+
+func (x *ClickHouseExporter) GetPmmAgentId() string {
+	if x != nil {
+		return x.PmmAgentId
+	}
+	return ""
+}
+
+func (x *ClickHouseExporter) GetDisabled() bool {
+	if x != nil {
+		return x.Disabled
+	}
+	return false
+}
+
+func (x *ClickHouseExporter) GetServiceId() string {
+	if x != nil {
+		return x.ServiceId
+	}
+	return ""
+}
+
+func (x *ClickHouseExporter) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *ClickHouseExporter) GetTls() bool {
+	if x != nil {
+		return x.Tls
+	}
+	return false
+}
+
+func (x *ClickHouseExporter) GetTlsSkipVerify() bool {
+	if x != nil {
+		return x.TlsSkipVerify
+	}
+	return false
+}
+
+func (x *ClickHouseExporter) GetCustomLabels() map[string]string {
+	if x != nil {
+		return x.CustomLabels
+	}
+	return nil
+}
+
+func (x *ClickHouseExporter) GetPushMetricsEnabled() bool {
+	if x != nil {
+		return x.PushMetricsEnabled
+	}
+	return false
+}
+
+func (x *ClickHouseExporter) GetDisabledCollectors() []string {
+	if x != nil {
+		return x.DisabledCollectors
+	}
+	return nil
+}
+
+func (x *ClickHouseExporter) GetStatus() AgentStatus {
+	if x != nil {
+		return x.Status
+	}
+	return AgentStatus_AGENT_STATUS_UNSPECIFIED
+}
+
+func (x *ClickHouseExporter) GetListenPort() uint32 {
+	if x != nil {
+		return x.ListenPort
+	}
+	return 0
+}
+
+func (x *ClickHouseExporter) GetProcessExecPath() string {
+	if x != nil {
+		return x.ProcessExecPath
+	}
+	return ""
+}
+
+func (x *ClickHouseExporter) GetExposeExporter() bool {
+	if x != nil {
+		return x.ExposeExporter
+	}
+	return false
+}
+
+func (x *ClickHouseExporter) GetMetricsResolutions() *common.MetricsResolutions {
+	if x != nil {
+		return x.MetricsResolutions
+	}
+	return nil
+}
+
 // QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
 type QANMySQLPerfSchemaAgent struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -1592,7 +1767,7 @@ type QANMySQLPerfSchemaAgent struct {
 
 func (x *QANMySQLPerfSchemaAgent) Reset() {
 	*x = QANMySQLPerfSchemaAgent{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[9]
+	mi := &file_inventory_v1_agents_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1604,7 +1779,7 @@ func (x *QANMySQLPerfSchemaAgent) String() string {
 func (*QANMySQLPerfSchemaAgent) ProtoMessage() {}
 
 func (x *QANMySQLPerfSchemaAgent) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[9]
+	mi := &file_inventory_v1_agents_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1617,7 +1792,7 @@ func (x *QANMySQLPerfSchemaAgent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QANMySQLPerfSchemaAgent.ProtoReflect.Descriptor instead.
 func (*QANMySQLPerfSchemaAgent) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{9}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *QANMySQLPerfSchemaAgent) GetAgentId() string {
@@ -1793,7 +1968,7 @@ type QANMySQLSlowlogAgent struct {
 
 func (x *QANMySQLSlowlogAgent) Reset() {
 	*x = QANMySQLSlowlogAgent{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[10]
+	mi := &file_inventory_v1_agents_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1805,7 +1980,7 @@ func (x *QANMySQLSlowlogAgent) String() string {
 func (*QANMySQLSlowlogAgent) ProtoMessage() {}
 
 func (x *QANMySQLSlowlogAgent) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[10]
+	mi := &file_inventory_v1_agents_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1818,7 +1993,7 @@ func (x *QANMySQLSlowlogAgent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QANMySQLSlowlogAgent.ProtoReflect.Descriptor instead.
 func (*QANMySQLSlowlogAgent) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{10}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *QANMySQLSlowlogAgent) GetAgentId() string {
@@ -1987,7 +2162,7 @@ type QANMongoDBProfilerAgent struct {
 
 func (x *QANMongoDBProfilerAgent) Reset() {
 	*x = QANMongoDBProfilerAgent{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[11]
+	mi := &file_inventory_v1_agents_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1999,7 +2174,7 @@ func (x *QANMongoDBProfilerAgent) String() string {
 func (*QANMongoDBProfilerAgent) ProtoMessage() {}
 
 func (x *QANMongoDBProfilerAgent) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[11]
+	mi := &file_inventory_v1_agents_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2012,7 +2187,7 @@ func (x *QANMongoDBProfilerAgent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QANMongoDBProfilerAgent.ProtoReflect.Descriptor instead.
 func (*QANMongoDBProfilerAgent) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{11}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *QANMongoDBProfilerAgent) GetAgentId() string {
@@ -2132,7 +2307,7 @@ type QANMongoDBMongologAgent struct {
 
 func (x *QANMongoDBMongologAgent) Reset() {
 	*x = QANMongoDBMongologAgent{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[12]
+	mi := &file_inventory_v1_agents_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2144,7 +2319,7 @@ func (x *QANMongoDBMongologAgent) String() string {
 func (*QANMongoDBMongologAgent) ProtoMessage() {}
 
 func (x *QANMongoDBMongologAgent) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[12]
+	mi := &file_inventory_v1_agents_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2157,7 +2332,7 @@ func (x *QANMongoDBMongologAgent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QANMongoDBMongologAgent.ProtoReflect.Descriptor instead.
 func (*QANMongoDBMongologAgent) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{12}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *QANMongoDBMongologAgent) GetAgentId() string {
@@ -2255,7 +2430,7 @@ type RTAOptions struct {
 
 func (x *RTAOptions) Reset() {
 	*x = RTAOptions{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[13]
+	mi := &file_inventory_v1_agents_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2267,7 +2442,7 @@ func (x *RTAOptions) String() string {
 func (*RTAOptions) ProtoMessage() {}
 
 func (x *RTAOptions) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[13]
+	mi := &file_inventory_v1_agents_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2280,7 +2455,7 @@ func (x *RTAOptions) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RTAOptions.ProtoReflect.Descriptor instead.
 func (*RTAOptions) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{13}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *RTAOptions) GetCollectInterval() *durationpb.Duration {
@@ -2321,7 +2496,7 @@ type RTAMongoDBAgent struct {
 
 func (x *RTAMongoDBAgent) Reset() {
 	*x = RTAMongoDBAgent{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[14]
+	mi := &file_inventory_v1_agents_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2333,7 +2508,7 @@ func (x *RTAMongoDBAgent) String() string {
 func (*RTAMongoDBAgent) ProtoMessage() {}
 
 func (x *RTAMongoDBAgent) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[14]
+	mi := &file_inventory_v1_agents_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2346,7 +2521,7 @@ func (x *RTAMongoDBAgent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RTAMongoDBAgent.ProtoReflect.Descriptor instead.
 func (*RTAMongoDBAgent) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{14}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *RTAMongoDBAgent) GetAgentId() string {
@@ -2461,7 +2636,7 @@ type QANPostgreSQLPgStatementsAgent struct {
 
 func (x *QANPostgreSQLPgStatementsAgent) Reset() {
 	*x = QANPostgreSQLPgStatementsAgent{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[15]
+	mi := &file_inventory_v1_agents_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2473,7 +2648,7 @@ func (x *QANPostgreSQLPgStatementsAgent) String() string {
 func (*QANPostgreSQLPgStatementsAgent) ProtoMessage() {}
 
 func (x *QANPostgreSQLPgStatementsAgent) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[15]
+	mi := &file_inventory_v1_agents_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2486,7 +2661,7 @@ func (x *QANPostgreSQLPgStatementsAgent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QANPostgreSQLPgStatementsAgent.ProtoReflect.Descriptor instead.
 func (*QANPostgreSQLPgStatementsAgent) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{15}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *QANPostgreSQLPgStatementsAgent) GetAgentId() string {
@@ -2617,7 +2792,7 @@ type QANPostgreSQLPgStatMonitorAgent struct {
 
 func (x *QANPostgreSQLPgStatMonitorAgent) Reset() {
 	*x = QANPostgreSQLPgStatMonitorAgent{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[16]
+	mi := &file_inventory_v1_agents_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2629,7 +2804,7 @@ func (x *QANPostgreSQLPgStatMonitorAgent) String() string {
 func (*QANPostgreSQLPgStatMonitorAgent) ProtoMessage() {}
 
 func (x *QANPostgreSQLPgStatMonitorAgent) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[16]
+	mi := &file_inventory_v1_agents_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2642,7 +2817,7 @@ func (x *QANPostgreSQLPgStatMonitorAgent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QANPostgreSQLPgStatMonitorAgent.ProtoReflect.Descriptor instead.
 func (*QANPostgreSQLPgStatMonitorAgent) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{16}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *QANPostgreSQLPgStatMonitorAgent) GetAgentId() string {
@@ -2782,7 +2957,7 @@ type RDSExporter struct {
 
 func (x *RDSExporter) Reset() {
 	*x = RDSExporter{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[17]
+	mi := &file_inventory_v1_agents_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2794,7 +2969,7 @@ func (x *RDSExporter) String() string {
 func (*RDSExporter) ProtoMessage() {}
 
 func (x *RDSExporter) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[17]
+	mi := &file_inventory_v1_agents_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2807,7 +2982,7 @@ func (x *RDSExporter) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RDSExporter.ProtoReflect.Descriptor instead.
 func (*RDSExporter) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{17}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *RDSExporter) GetAgentId() string {
@@ -2952,7 +3127,7 @@ type ExternalExporter struct {
 
 func (x *ExternalExporter) Reset() {
 	*x = ExternalExporter{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[18]
+	mi := &file_inventory_v1_agents_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2964,7 +3139,7 @@ func (x *ExternalExporter) String() string {
 func (*ExternalExporter) ProtoMessage() {}
 
 func (x *ExternalExporter) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[18]
+	mi := &file_inventory_v1_agents_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2977,7 +3152,7 @@ func (x *ExternalExporter) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExternalExporter.ProtoReflect.Descriptor instead.
 func (*ExternalExporter) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{18}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *ExternalExporter) GetAgentId() string {
@@ -3113,7 +3288,7 @@ type AzureDatabaseExporter struct {
 
 func (x *AzureDatabaseExporter) Reset() {
 	*x = AzureDatabaseExporter{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[19]
+	mi := &file_inventory_v1_agents_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3125,7 +3300,7 @@ func (x *AzureDatabaseExporter) String() string {
 func (*AzureDatabaseExporter) ProtoMessage() {}
 
 func (x *AzureDatabaseExporter) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[19]
+	mi := &file_inventory_v1_agents_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3138,7 +3313,7 @@ func (x *AzureDatabaseExporter) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AzureDatabaseExporter.ProtoReflect.Descriptor instead.
 func (*AzureDatabaseExporter) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{19}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *AzureDatabaseExporter) GetAgentId() string {
@@ -3249,7 +3424,7 @@ type ChangeCommonAgentParams struct {
 
 func (x *ChangeCommonAgentParams) Reset() {
 	*x = ChangeCommonAgentParams{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[20]
+	mi := &file_inventory_v1_agents_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3261,7 +3436,7 @@ func (x *ChangeCommonAgentParams) String() string {
 func (*ChangeCommonAgentParams) ProtoMessage() {}
 
 func (x *ChangeCommonAgentParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[20]
+	mi := &file_inventory_v1_agents_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3274,7 +3449,7 @@ func (x *ChangeCommonAgentParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangeCommonAgentParams.ProtoReflect.Descriptor instead.
 func (*ChangeCommonAgentParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{20}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *ChangeCommonAgentParams) GetEnable() bool {
@@ -3324,7 +3499,7 @@ type ListAgentsRequest struct {
 
 func (x *ListAgentsRequest) Reset() {
 	*x = ListAgentsRequest{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[21]
+	mi := &file_inventory_v1_agents_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3336,7 +3511,7 @@ func (x *ListAgentsRequest) String() string {
 func (*ListAgentsRequest) ProtoMessage() {}
 
 func (x *ListAgentsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[21]
+	mi := &file_inventory_v1_agents_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3349,7 +3524,7 @@ func (x *ListAgentsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAgentsRequest.ProtoReflect.Descriptor instead.
 func (*ListAgentsRequest) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{21}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *ListAgentsRequest) GetPmmAgentId() string {
@@ -3401,13 +3576,14 @@ type ListAgentsResponse struct {
 	NomadAgent                      []*NomadAgent                      `protobuf:"bytes,16,rep,name=nomad_agent,json=nomadAgent,proto3" json:"nomad_agent,omitempty"`
 	ValkeyExporter                  []*ValkeyExporter                  `protobuf:"bytes,17,rep,name=valkey_exporter,json=valkeyExporter,proto3" json:"valkey_exporter,omitempty"`
 	RtaMongodbAgent                 []*RTAMongoDBAgent                 `protobuf:"bytes,19,rep,name=rta_mongodb_agent,json=rtaMongodbAgent,proto3" json:"rta_mongodb_agent,omitempty"`
+	ClickhouseExporter              []*ClickHouseExporter              `protobuf:"bytes,20,rep,name=clickhouse_exporter,json=clickhouseExporter,proto3" json:"clickhouse_exporter,omitempty"`
 	unknownFields                   protoimpl.UnknownFields
 	sizeCache                       protoimpl.SizeCache
 }
 
 func (x *ListAgentsResponse) Reset() {
 	*x = ListAgentsResponse{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[22]
+	mi := &file_inventory_v1_agents_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3419,7 +3595,7 @@ func (x *ListAgentsResponse) String() string {
 func (*ListAgentsResponse) ProtoMessage() {}
 
 func (x *ListAgentsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[22]
+	mi := &file_inventory_v1_agents_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3432,7 +3608,7 @@ func (x *ListAgentsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAgentsResponse.ProtoReflect.Descriptor instead.
 func (*ListAgentsResponse) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{22}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *ListAgentsResponse) GetPmmAgent() []*PMMAgent {
@@ -3568,6 +3744,13 @@ func (x *ListAgentsResponse) GetRtaMongodbAgent() []*RTAMongoDBAgent {
 	return nil
 }
 
+func (x *ListAgentsResponse) GetClickhouseExporter() []*ClickHouseExporter {
+	if x != nil {
+		return x.ClickhouseExporter
+	}
+	return nil
+}
+
 type GetAgentRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Unique randomly generated instance identifier.
@@ -3578,7 +3761,7 @@ type GetAgentRequest struct {
 
 func (x *GetAgentRequest) Reset() {
 	*x = GetAgentRequest{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[23]
+	mi := &file_inventory_v1_agents_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3590,7 +3773,7 @@ func (x *GetAgentRequest) String() string {
 func (*GetAgentRequest) ProtoMessage() {}
 
 func (x *GetAgentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[23]
+	mi := &file_inventory_v1_agents_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3603,7 +3786,7 @@ func (x *GetAgentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAgentRequest.ProtoReflect.Descriptor instead.
 func (*GetAgentRequest) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{23}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *GetAgentRequest) GetAgentId() string {
@@ -3636,6 +3819,7 @@ type GetAgentResponse struct {
 	//	*GetAgentResponse_NomadAgent
 	//	*GetAgentResponse_ValkeyExporter
 	//	*GetAgentResponse_RtaMongodbAgent
+	//	*GetAgentResponse_ClickhouseExporter
 	Agent         isGetAgentResponse_Agent `protobuf_oneof:"agent"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -3643,7 +3827,7 @@ type GetAgentResponse struct {
 
 func (x *GetAgentResponse) Reset() {
 	*x = GetAgentResponse{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[24]
+	mi := &file_inventory_v1_agents_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3655,7 +3839,7 @@ func (x *GetAgentResponse) String() string {
 func (*GetAgentResponse) ProtoMessage() {}
 
 func (x *GetAgentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[24]
+	mi := &file_inventory_v1_agents_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3668,7 +3852,7 @@ func (x *GetAgentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAgentResponse.ProtoReflect.Descriptor instead.
 func (*GetAgentResponse) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{24}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *GetAgentResponse) GetAgent() isGetAgentResponse_Agent {
@@ -3849,6 +4033,15 @@ func (x *GetAgentResponse) GetRtaMongodbAgent() *RTAMongoDBAgent {
 	return nil
 }
 
+func (x *GetAgentResponse) GetClickhouseExporter() *ClickHouseExporter {
+	if x != nil {
+		if x, ok := x.Agent.(*GetAgentResponse_ClickhouseExporter); ok {
+			return x.ClickhouseExporter
+		}
+	}
+	return nil
+}
+
 type isGetAgentResponse_Agent interface {
 	isGetAgentResponse_Agent()
 }
@@ -3929,6 +4122,10 @@ type GetAgentResponse_RtaMongodbAgent struct {
 	RtaMongodbAgent *RTAMongoDBAgent `protobuf:"bytes,19,opt,name=rta_mongodb_agent,json=rtaMongodbAgent,proto3,oneof"`
 }
 
+type GetAgentResponse_ClickhouseExporter struct {
+	ClickhouseExporter *ClickHouseExporter `protobuf:"bytes,20,opt,name=clickhouse_exporter,json=clickhouseExporter,proto3,oneof"`
+}
+
 func (*GetAgentResponse_PmmAgent) isGetAgentResponse_Agent() {}
 
 func (*GetAgentResponse_Vmagent) isGetAgentResponse_Agent() {}
@@ -3967,6 +4164,8 @@ func (*GetAgentResponse_ValkeyExporter) isGetAgentResponse_Agent() {}
 
 func (*GetAgentResponse_RtaMongodbAgent) isGetAgentResponse_Agent() {}
 
+func (*GetAgentResponse_ClickhouseExporter) isGetAgentResponse_Agent() {}
+
 type GetAgentLogsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Unique randomly generated instance identifier.
@@ -3979,7 +4178,7 @@ type GetAgentLogsRequest struct {
 
 func (x *GetAgentLogsRequest) Reset() {
 	*x = GetAgentLogsRequest{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[25]
+	mi := &file_inventory_v1_agents_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3991,7 +4190,7 @@ func (x *GetAgentLogsRequest) String() string {
 func (*GetAgentLogsRequest) ProtoMessage() {}
 
 func (x *GetAgentLogsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[25]
+	mi := &file_inventory_v1_agents_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4004,7 +4203,7 @@ func (x *GetAgentLogsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAgentLogsRequest.ProtoReflect.Descriptor instead.
 func (*GetAgentLogsRequest) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{25}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *GetAgentLogsRequest) GetAgentId() string {
@@ -4031,7 +4230,7 @@ type GetAgentLogsResponse struct {
 
 func (x *GetAgentLogsResponse) Reset() {
 	*x = GetAgentLogsResponse{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[26]
+	mi := &file_inventory_v1_agents_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4043,7 +4242,7 @@ func (x *GetAgentLogsResponse) String() string {
 func (*GetAgentLogsResponse) ProtoMessage() {}
 
 func (x *GetAgentLogsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[26]
+	mi := &file_inventory_v1_agents_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4056,7 +4255,7 @@ func (x *GetAgentLogsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAgentLogsResponse.ProtoReflect.Descriptor instead.
 func (*GetAgentLogsResponse) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{26}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *GetAgentLogsResponse) GetLogs() []string {
@@ -4094,6 +4293,7 @@ type AddAgentRequest struct {
 	//	*AddAgentRequest_QanPostgresqlPgstatmonitorAgent
 	//	*AddAgentRequest_ValkeyExporter
 	//	*AddAgentRequest_RtaMongodbAgent
+	//	*AddAgentRequest_ClickhouseExporter
 	Agent         isAddAgentRequest_Agent `protobuf_oneof:"agent"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -4101,7 +4301,7 @@ type AddAgentRequest struct {
 
 func (x *AddAgentRequest) Reset() {
 	*x = AddAgentRequest{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[27]
+	mi := &file_inventory_v1_agents_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4113,7 +4313,7 @@ func (x *AddAgentRequest) String() string {
 func (*AddAgentRequest) ProtoMessage() {}
 
 func (x *AddAgentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[27]
+	mi := &file_inventory_v1_agents_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4126,7 +4326,7 @@ func (x *AddAgentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddAgentRequest.ProtoReflect.Descriptor instead.
 func (*AddAgentRequest) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{27}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *AddAgentRequest) GetAgent() isAddAgentRequest_Agent {
@@ -4289,6 +4489,15 @@ func (x *AddAgentRequest) GetRtaMongodbAgent() *AddRTAMongoDBAgentParams {
 	return nil
 }
 
+func (x *AddAgentRequest) GetClickhouseExporter() *AddClickHouseExporterParams {
+	if x != nil {
+		if x, ok := x.Agent.(*AddAgentRequest_ClickhouseExporter); ok {
+			return x.ClickhouseExporter
+		}
+	}
+	return nil
+}
+
 type isAddAgentRequest_Agent interface {
 	isAddAgentRequest_Agent()
 }
@@ -4361,6 +4570,10 @@ type AddAgentRequest_RtaMongodbAgent struct {
 	RtaMongodbAgent *AddRTAMongoDBAgentParams `protobuf:"bytes,17,opt,name=rta_mongodb_agent,json=rtaMongodbAgent,proto3,oneof"`
 }
 
+type AddAgentRequest_ClickhouseExporter struct {
+	ClickhouseExporter *AddClickHouseExporterParams `protobuf:"bytes,18,opt,name=clickhouse_exporter,json=clickhouseExporter,proto3,oneof"`
+}
+
 func (*AddAgentRequest_PmmAgent) isAddAgentRequest_Agent() {}
 
 func (*AddAgentRequest_NodeExporter) isAddAgentRequest_Agent() {}
@@ -4395,6 +4608,8 @@ func (*AddAgentRequest_ValkeyExporter) isAddAgentRequest_Agent() {}
 
 func (*AddAgentRequest_RtaMongodbAgent) isAddAgentRequest_Agent() {}
 
+func (*AddAgentRequest_ClickhouseExporter) isAddAgentRequest_Agent() {}
+
 type AddAgentResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Agent:
@@ -4416,6 +4631,7 @@ type AddAgentResponse struct {
 	//	*AddAgentResponse_QanPostgresqlPgstatmonitorAgent
 	//	*AddAgentResponse_ValkeyExporter
 	//	*AddAgentResponse_RtaMongodbAgent
+	//	*AddAgentResponse_ClickhouseExporter
 	Agent         isAddAgentResponse_Agent `protobuf_oneof:"agent"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -4423,7 +4639,7 @@ type AddAgentResponse struct {
 
 func (x *AddAgentResponse) Reset() {
 	*x = AddAgentResponse{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[28]
+	mi := &file_inventory_v1_agents_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4435,7 +4651,7 @@ func (x *AddAgentResponse) String() string {
 func (*AddAgentResponse) ProtoMessage() {}
 
 func (x *AddAgentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[28]
+	mi := &file_inventory_v1_agents_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4448,7 +4664,7 @@ func (x *AddAgentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddAgentResponse.ProtoReflect.Descriptor instead.
 func (*AddAgentResponse) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{28}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *AddAgentResponse) GetAgent() isAddAgentResponse_Agent {
@@ -4611,6 +4827,15 @@ func (x *AddAgentResponse) GetRtaMongodbAgent() *RTAMongoDBAgent {
 	return nil
 }
 
+func (x *AddAgentResponse) GetClickhouseExporter() *ClickHouseExporter {
+	if x != nil {
+		if x, ok := x.Agent.(*AddAgentResponse_ClickhouseExporter); ok {
+			return x.ClickhouseExporter
+		}
+	}
+	return nil
+}
+
 type isAddAgentResponse_Agent interface {
 	isAddAgentResponse_Agent()
 }
@@ -4683,6 +4908,10 @@ type AddAgentResponse_RtaMongodbAgent struct {
 	RtaMongodbAgent *RTAMongoDBAgent `protobuf:"bytes,17,opt,name=rta_mongodb_agent,json=rtaMongodbAgent,proto3,oneof"`
 }
 
+type AddAgentResponse_ClickhouseExporter struct {
+	ClickhouseExporter *ClickHouseExporter `protobuf:"bytes,18,opt,name=clickhouse_exporter,json=clickhouseExporter,proto3,oneof"`
+}
+
 func (*AddAgentResponse_PmmAgent) isAddAgentResponse_Agent() {}
 
 func (*AddAgentResponse_NodeExporter) isAddAgentResponse_Agent() {}
@@ -4717,6 +4946,8 @@ func (*AddAgentResponse_ValkeyExporter) isAddAgentResponse_Agent() {}
 
 func (*AddAgentResponse_RtaMongodbAgent) isAddAgentResponse_Agent() {}
 
+func (*AddAgentResponse_ClickhouseExporter) isAddAgentResponse_Agent() {}
+
 type ChangeAgentRequest struct {
 	state   protoimpl.MessageState `protogen:"open.v1"`
 	AgentId string                 `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
@@ -4739,6 +4970,7 @@ type ChangeAgentRequest struct {
 	//	*ChangeAgentRequest_NomadAgent
 	//	*ChangeAgentRequest_ValkeyExporter
 	//	*ChangeAgentRequest_RtaMongodbAgent
+	//	*ChangeAgentRequest_ClickhouseExporter
 	Agent         isChangeAgentRequest_Agent `protobuf_oneof:"agent"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -4746,7 +4978,7 @@ type ChangeAgentRequest struct {
 
 func (x *ChangeAgentRequest) Reset() {
 	*x = ChangeAgentRequest{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[29]
+	mi := &file_inventory_v1_agents_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4758,7 +4990,7 @@ func (x *ChangeAgentRequest) String() string {
 func (*ChangeAgentRequest) ProtoMessage() {}
 
 func (x *ChangeAgentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[29]
+	mi := &file_inventory_v1_agents_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4771,7 +5003,7 @@ func (x *ChangeAgentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangeAgentRequest.ProtoReflect.Descriptor instead.
 func (*ChangeAgentRequest) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{29}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *ChangeAgentRequest) GetAgentId() string {
@@ -4941,6 +5173,15 @@ func (x *ChangeAgentRequest) GetRtaMongodbAgent() *ChangeRTAMongoDBAgentParams {
 	return nil
 }
 
+func (x *ChangeAgentRequest) GetClickhouseExporter() *ChangeClickHouseExporterParams {
+	if x != nil {
+		if x, ok := x.Agent.(*ChangeAgentRequest_ClickhouseExporter); ok {
+			return x.ClickhouseExporter
+		}
+	}
+	return nil
+}
+
 type isChangeAgentRequest_Agent interface {
 	isChangeAgentRequest_Agent()
 }
@@ -5013,6 +5254,10 @@ type ChangeAgentRequest_RtaMongodbAgent struct {
 	RtaMongodbAgent *ChangeRTAMongoDBAgentParams `protobuf:"bytes,18,opt,name=rta_mongodb_agent,json=rtaMongodbAgent,proto3,oneof"`
 }
 
+type ChangeAgentRequest_ClickhouseExporter struct {
+	ClickhouseExporter *ChangeClickHouseExporterParams `protobuf:"bytes,19,opt,name=clickhouse_exporter,json=clickhouseExporter,proto3,oneof"`
+}
+
 func (*ChangeAgentRequest_NodeExporter) isChangeAgentRequest_Agent() {}
 
 func (*ChangeAgentRequest_MysqldExporter) isChangeAgentRequest_Agent() {}
@@ -5047,6 +5292,8 @@ func (*ChangeAgentRequest_ValkeyExporter) isChangeAgentRequest_Agent() {}
 
 func (*ChangeAgentRequest_RtaMongodbAgent) isChangeAgentRequest_Agent() {}
 
+func (*ChangeAgentRequest_ClickhouseExporter) isChangeAgentRequest_Agent() {}
+
 type ChangeAgentResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Agent:
@@ -5068,6 +5315,7 @@ type ChangeAgentResponse struct {
 	//	*ChangeAgentResponse_NomadAgent
 	//	*ChangeAgentResponse_ValkeyExporter
 	//	*ChangeAgentResponse_RtaMongodbAgent
+	//	*ChangeAgentResponse_ClickhouseExporter
 	Agent         isChangeAgentResponse_Agent `protobuf_oneof:"agent"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -5075,7 +5323,7 @@ type ChangeAgentResponse struct {
 
 func (x *ChangeAgentResponse) Reset() {
 	*x = ChangeAgentResponse{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[30]
+	mi := &file_inventory_v1_agents_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5087,7 +5335,7 @@ func (x *ChangeAgentResponse) String() string {
 func (*ChangeAgentResponse) ProtoMessage() {}
 
 func (x *ChangeAgentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[30]
+	mi := &file_inventory_v1_agents_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5100,7 +5348,7 @@ func (x *ChangeAgentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangeAgentResponse.ProtoReflect.Descriptor instead.
 func (*ChangeAgentResponse) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{30}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *ChangeAgentResponse) GetAgent() isChangeAgentResponse_Agent {
@@ -5263,6 +5511,15 @@ func (x *ChangeAgentResponse) GetRtaMongodbAgent() *RTAMongoDBAgent {
 	return nil
 }
 
+func (x *ChangeAgentResponse) GetClickhouseExporter() *ClickHouseExporter {
+	if x != nil {
+		if x, ok := x.Agent.(*ChangeAgentResponse_ClickhouseExporter); ok {
+			return x.ClickhouseExporter
+		}
+	}
+	return nil
+}
+
 type isChangeAgentResponse_Agent interface {
 	isChangeAgentResponse_Agent()
 }
@@ -5335,6 +5592,10 @@ type ChangeAgentResponse_RtaMongodbAgent struct {
 	RtaMongodbAgent *RTAMongoDBAgent `protobuf:"bytes,18,opt,name=rta_mongodb_agent,json=rtaMongodbAgent,proto3,oneof"`
 }
 
+type ChangeAgentResponse_ClickhouseExporter struct {
+	ClickhouseExporter *ClickHouseExporter `protobuf:"bytes,19,opt,name=clickhouse_exporter,json=clickhouseExporter,proto3,oneof"`
+}
+
 func (*ChangeAgentResponse_NodeExporter) isChangeAgentResponse_Agent() {}
 
 func (*ChangeAgentResponse_MysqldExporter) isChangeAgentResponse_Agent() {}
@@ -5369,6 +5630,8 @@ func (*ChangeAgentResponse_ValkeyExporter) isChangeAgentResponse_Agent() {}
 
 func (*ChangeAgentResponse_RtaMongodbAgent) isChangeAgentResponse_Agent() {}
 
+func (*ChangeAgentResponse_ClickhouseExporter) isChangeAgentResponse_Agent() {}
+
 type AddPMMAgentParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Node identifier where this instance runs.
@@ -5381,7 +5644,7 @@ type AddPMMAgentParams struct {
 
 func (x *AddPMMAgentParams) Reset() {
 	*x = AddPMMAgentParams{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[31]
+	mi := &file_inventory_v1_agents_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5393,7 +5656,7 @@ func (x *AddPMMAgentParams) String() string {
 func (*AddPMMAgentParams) ProtoMessage() {}
 
 func (x *AddPMMAgentParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[31]
+	mi := &file_inventory_v1_agents_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5406,7 +5669,7 @@ func (x *AddPMMAgentParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddPMMAgentParams.ProtoReflect.Descriptor instead.
 func (*AddPMMAgentParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{31}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *AddPMMAgentParams) GetRunsOnNodeId() string {
@@ -5443,7 +5706,7 @@ type AddNodeExporterParams struct {
 
 func (x *AddNodeExporterParams) Reset() {
 	*x = AddNodeExporterParams{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[32]
+	mi := &file_inventory_v1_agents_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5455,7 +5718,7 @@ func (x *AddNodeExporterParams) String() string {
 func (*AddNodeExporterParams) ProtoMessage() {}
 
 func (x *AddNodeExporterParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[32]
+	mi := &file_inventory_v1_agents_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5468,7 +5731,7 @@ func (x *AddNodeExporterParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddNodeExporterParams.ProtoReflect.Descriptor instead.
 func (*AddNodeExporterParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{32}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *AddNodeExporterParams) GetPmmAgentId() string {
@@ -5535,7 +5798,7 @@ type ChangeNodeExporterParams struct {
 
 func (x *ChangeNodeExporterParams) Reset() {
 	*x = ChangeNodeExporterParams{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[33]
+	mi := &file_inventory_v1_agents_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5547,7 +5810,7 @@ func (x *ChangeNodeExporterParams) String() string {
 func (*ChangeNodeExporterParams) ProtoMessage() {}
 
 func (x *ChangeNodeExporterParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[33]
+	mi := &file_inventory_v1_agents_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5560,7 +5823,7 @@ func (x *ChangeNodeExporterParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangeNodeExporterParams.ProtoReflect.Descriptor instead.
 func (*ChangeNodeExporterParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{33}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *ChangeNodeExporterParams) GetEnable() bool {
@@ -5658,7 +5921,7 @@ type AddMySQLdExporterParams struct {
 
 func (x *AddMySQLdExporterParams) Reset() {
 	*x = AddMySQLdExporterParams{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[34]
+	mi := &file_inventory_v1_agents_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5670,7 +5933,7 @@ func (x *AddMySQLdExporterParams) String() string {
 func (*AddMySQLdExporterParams) ProtoMessage() {}
 
 func (x *AddMySQLdExporterParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[34]
+	mi := &file_inventory_v1_agents_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5683,7 +5946,7 @@ func (x *AddMySQLdExporterParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddMySQLdExporterParams.ProtoReflect.Descriptor instead.
 func (*AddMySQLdExporterParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{34}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *AddMySQLdExporterParams) GetPmmAgentId() string {
@@ -5854,7 +6117,7 @@ type ChangeMySQLdExporterParams struct {
 
 func (x *ChangeMySQLdExporterParams) Reset() {
 	*x = ChangeMySQLdExporterParams{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[35]
+	mi := &file_inventory_v1_agents_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5866,7 +6129,7 @@ func (x *ChangeMySQLdExporterParams) String() string {
 func (*ChangeMySQLdExporterParams) ProtoMessage() {}
 
 func (x *ChangeMySQLdExporterParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[35]
+	mi := &file_inventory_v1_agents_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5879,7 +6142,7 @@ func (x *ChangeMySQLdExporterParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangeMySQLdExporterParams.ProtoReflect.Descriptor instead.
 func (*ChangeMySQLdExporterParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{35}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *ChangeMySQLdExporterParams) GetEnable() bool {
@@ -6057,7 +6320,7 @@ type AddMongoDBExporterParams struct {
 
 func (x *AddMongoDBExporterParams) Reset() {
 	*x = AddMongoDBExporterParams{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[36]
+	mi := &file_inventory_v1_agents_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6069,7 +6332,7 @@ func (x *AddMongoDBExporterParams) String() string {
 func (*AddMongoDBExporterParams) ProtoMessage() {}
 
 func (x *AddMongoDBExporterParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[36]
+	mi := &file_inventory_v1_agents_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6082,7 +6345,7 @@ func (x *AddMongoDBExporterParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddMongoDBExporterParams.ProtoReflect.Descriptor instead.
 func (*AddMongoDBExporterParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{36}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *AddMongoDBExporterParams) GetPmmAgentId() string {
@@ -6289,7 +6552,7 @@ type ChangeMongoDBExporterParams struct {
 
 func (x *ChangeMongoDBExporterParams) Reset() {
 	*x = ChangeMongoDBExporterParams{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[37]
+	mi := &file_inventory_v1_agents_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6301,7 +6564,7 @@ func (x *ChangeMongoDBExporterParams) String() string {
 func (*ChangeMongoDBExporterParams) ProtoMessage() {}
 
 func (x *ChangeMongoDBExporterParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[37]
+	mi := &file_inventory_v1_agents_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6314,7 +6577,7 @@ func (x *ChangeMongoDBExporterParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangeMongoDBExporterParams.ProtoReflect.Descriptor instead.
 func (*ChangeMongoDBExporterParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{37}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *ChangeMongoDBExporterParams) GetEnable() bool {
@@ -6508,7 +6771,7 @@ type AddPostgresExporterParams struct {
 
 func (x *AddPostgresExporterParams) Reset() {
 	*x = AddPostgresExporterParams{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[38]
+	mi := &file_inventory_v1_agents_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6520,7 +6783,7 @@ func (x *AddPostgresExporterParams) String() string {
 func (*AddPostgresExporterParams) ProtoMessage() {}
 
 func (x *AddPostgresExporterParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[38]
+	mi := &file_inventory_v1_agents_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6533,7 +6796,7 @@ func (x *AddPostgresExporterParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddPostgresExporterParams.ProtoReflect.Descriptor instead.
 func (*AddPostgresExporterParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{38}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *AddPostgresExporterParams) GetPmmAgentId() string {
@@ -6706,7 +6969,7 @@ type ChangePostgresExporterParams struct {
 
 func (x *ChangePostgresExporterParams) Reset() {
 	*x = ChangePostgresExporterParams{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[39]
+	mi := &file_inventory_v1_agents_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6718,7 +6981,7 @@ func (x *ChangePostgresExporterParams) String() string {
 func (*ChangePostgresExporterParams) ProtoMessage() {}
 
 func (x *ChangePostgresExporterParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[39]
+	mi := &file_inventory_v1_agents_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6731,7 +6994,7 @@ func (x *ChangePostgresExporterParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangePostgresExporterParams.ProtoReflect.Descriptor instead.
 func (*ChangePostgresExporterParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{39}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *ChangePostgresExporterParams) GetEnable() bool {
@@ -6894,7 +7157,7 @@ type AddProxySQLExporterParams struct {
 
 func (x *AddProxySQLExporterParams) Reset() {
 	*x = AddProxySQLExporterParams{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[40]
+	mi := &file_inventory_v1_agents_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6906,7 +7169,7 @@ func (x *AddProxySQLExporterParams) String() string {
 func (*AddProxySQLExporterParams) ProtoMessage() {}
 
 func (x *AddProxySQLExporterParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[40]
+	mi := &file_inventory_v1_agents_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6919,7 +7182,7 @@ func (x *AddProxySQLExporterParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddProxySQLExporterParams.ProtoReflect.Descriptor instead.
 func (*AddProxySQLExporterParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{40}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *AddProxySQLExporterParams) GetPmmAgentId() string {
@@ -7045,7 +7308,7 @@ type ChangeProxySQLExporterParams struct {
 
 func (x *ChangeProxySQLExporterParams) Reset() {
 	*x = ChangeProxySQLExporterParams{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[41]
+	mi := &file_inventory_v1_agents_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7057,7 +7320,7 @@ func (x *ChangeProxySQLExporterParams) String() string {
 func (*ChangeProxySQLExporterParams) ProtoMessage() {}
 
 func (x *ChangeProxySQLExporterParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[41]
+	mi := &file_inventory_v1_agents_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7070,7 +7333,7 @@ func (x *ChangeProxySQLExporterParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangeProxySQLExporterParams.ProtoReflect.Descriptor instead.
 func (*ChangeProxySQLExporterParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{41}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *ChangeProxySQLExporterParams) GetEnable() bool {
@@ -7197,7 +7460,7 @@ type AddQANMySQLPerfSchemaAgentParams struct {
 
 func (x *AddQANMySQLPerfSchemaAgentParams) Reset() {
 	*x = AddQANMySQLPerfSchemaAgentParams{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[42]
+	mi := &file_inventory_v1_agents_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7209,7 +7472,7 @@ func (x *AddQANMySQLPerfSchemaAgentParams) String() string {
 func (*AddQANMySQLPerfSchemaAgentParams) ProtoMessage() {}
 
 func (x *AddQANMySQLPerfSchemaAgentParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[42]
+	mi := &file_inventory_v1_agents_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7222,7 +7485,7 @@ func (x *AddQANMySQLPerfSchemaAgentParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddQANMySQLPerfSchemaAgentParams.ProtoReflect.Descriptor instead.
 func (*AddQANMySQLPerfSchemaAgentParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{42}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *AddQANMySQLPerfSchemaAgentParams) GetPmmAgentId() string {
@@ -7377,7 +7640,7 @@ type ChangeQANMySQLPerfSchemaAgentParams struct {
 
 func (x *ChangeQANMySQLPerfSchemaAgentParams) Reset() {
 	*x = ChangeQANMySQLPerfSchemaAgentParams{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[43]
+	mi := &file_inventory_v1_agents_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7389,7 +7652,7 @@ func (x *ChangeQANMySQLPerfSchemaAgentParams) String() string {
 func (*ChangeQANMySQLPerfSchemaAgentParams) ProtoMessage() {}
 
 func (x *ChangeQANMySQLPerfSchemaAgentParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[43]
+	mi := &file_inventory_v1_agents_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7402,7 +7665,7 @@ func (x *ChangeQANMySQLPerfSchemaAgentParams) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use ChangeQANMySQLPerfSchemaAgentParams.ProtoReflect.Descriptor instead.
 func (*ChangeQANMySQLPerfSchemaAgentParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{43}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *ChangeQANMySQLPerfSchemaAgentParams) GetEnable() bool {
@@ -7560,7 +7823,7 @@ type AddQANMySQLSlowlogAgentParams struct {
 
 func (x *AddQANMySQLSlowlogAgentParams) Reset() {
 	*x = AddQANMySQLSlowlogAgentParams{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[44]
+	mi := &file_inventory_v1_agents_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7572,7 +7835,7 @@ func (x *AddQANMySQLSlowlogAgentParams) String() string {
 func (*AddQANMySQLSlowlogAgentParams) ProtoMessage() {}
 
 func (x *AddQANMySQLSlowlogAgentParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[44]
+	mi := &file_inventory_v1_agents_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7585,7 +7848,7 @@ func (x *AddQANMySQLSlowlogAgentParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddQANMySQLSlowlogAgentParams.ProtoReflect.Descriptor instead.
 func (*AddQANMySQLSlowlogAgentParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{44}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *AddQANMySQLSlowlogAgentParams) GetPmmAgentId() string {
@@ -7749,7 +8012,7 @@ type ChangeQANMySQLSlowlogAgentParams struct {
 
 func (x *ChangeQANMySQLSlowlogAgentParams) Reset() {
 	*x = ChangeQANMySQLSlowlogAgentParams{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[45]
+	mi := &file_inventory_v1_agents_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7761,7 +8024,7 @@ func (x *ChangeQANMySQLSlowlogAgentParams) String() string {
 func (*ChangeQANMySQLSlowlogAgentParams) ProtoMessage() {}
 
 func (x *ChangeQANMySQLSlowlogAgentParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[45]
+	mi := &file_inventory_v1_agents_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7774,7 +8037,7 @@ func (x *ChangeQANMySQLSlowlogAgentParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangeQANMySQLSlowlogAgentParams.ProtoReflect.Descriptor instead.
 func (*ChangeQANMySQLSlowlogAgentParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{45}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *ChangeQANMySQLSlowlogAgentParams) GetEnable() bool {
@@ -7936,7 +8199,7 @@ type AddQANMongoDBProfilerAgentParams struct {
 
 func (x *AddQANMongoDBProfilerAgentParams) Reset() {
 	*x = AddQANMongoDBProfilerAgentParams{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[46]
+	mi := &file_inventory_v1_agents_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7948,7 +8211,7 @@ func (x *AddQANMongoDBProfilerAgentParams) String() string {
 func (*AddQANMongoDBProfilerAgentParams) ProtoMessage() {}
 
 func (x *AddQANMongoDBProfilerAgentParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[46]
+	mi := &file_inventory_v1_agents_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7961,7 +8224,7 @@ func (x *AddQANMongoDBProfilerAgentParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddQANMongoDBProfilerAgentParams.ProtoReflect.Descriptor instead.
 func (*AddQANMongoDBProfilerAgentParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{46}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *AddQANMongoDBProfilerAgentParams) GetPmmAgentId() string {
@@ -8107,7 +8370,7 @@ type ChangeQANMongoDBProfilerAgentParams struct {
 
 func (x *ChangeQANMongoDBProfilerAgentParams) Reset() {
 	*x = ChangeQANMongoDBProfilerAgentParams{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[47]
+	mi := &file_inventory_v1_agents_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8119,7 +8382,7 @@ func (x *ChangeQANMongoDBProfilerAgentParams) String() string {
 func (*ChangeQANMongoDBProfilerAgentParams) ProtoMessage() {}
 
 func (x *ChangeQANMongoDBProfilerAgentParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[47]
+	mi := &file_inventory_v1_agents_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8132,7 +8395,7 @@ func (x *ChangeQANMongoDBProfilerAgentParams) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use ChangeQANMongoDBProfilerAgentParams.ProtoReflect.Descriptor instead.
 func (*ChangeQANMongoDBProfilerAgentParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{47}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *ChangeQANMongoDBProfilerAgentParams) GetEnable() bool {
@@ -8280,7 +8543,7 @@ type AddQANMongoDBMongologAgentParams struct {
 
 func (x *AddQANMongoDBMongologAgentParams) Reset() {
 	*x = AddQANMongoDBMongologAgentParams{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[48]
+	mi := &file_inventory_v1_agents_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8292,7 +8555,7 @@ func (x *AddQANMongoDBMongologAgentParams) String() string {
 func (*AddQANMongoDBMongologAgentParams) ProtoMessage() {}
 
 func (x *AddQANMongoDBMongologAgentParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[48]
+	mi := &file_inventory_v1_agents_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8305,7 +8568,7 @@ func (x *AddQANMongoDBMongologAgentParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddQANMongoDBMongologAgentParams.ProtoReflect.Descriptor instead.
 func (*AddQANMongoDBMongologAgentParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{48}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *AddQANMongoDBMongologAgentParams) GetPmmAgentId() string {
@@ -8451,7 +8714,7 @@ type ChangeQANMongoDBMongologAgentParams struct {
 
 func (x *ChangeQANMongoDBMongologAgentParams) Reset() {
 	*x = ChangeQANMongoDBMongologAgentParams{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[49]
+	mi := &file_inventory_v1_agents_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8463,7 +8726,7 @@ func (x *ChangeQANMongoDBMongologAgentParams) String() string {
 func (*ChangeQANMongoDBMongologAgentParams) ProtoMessage() {}
 
 func (x *ChangeQANMongoDBMongologAgentParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[49]
+	mi := &file_inventory_v1_agents_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8476,7 +8739,7 @@ func (x *ChangeQANMongoDBMongologAgentParams) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use ChangeQANMongoDBMongologAgentParams.ProtoReflect.Descriptor instead.
 func (*ChangeQANMongoDBMongologAgentParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{49}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{50}
 }
 
 func (x *ChangeQANMongoDBMongologAgentParams) GetEnable() bool {
@@ -8620,7 +8883,7 @@ type AddQANPostgreSQLPgStatementsAgentParams struct {
 
 func (x *AddQANPostgreSQLPgStatementsAgentParams) Reset() {
 	*x = AddQANPostgreSQLPgStatementsAgentParams{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[50]
+	mi := &file_inventory_v1_agents_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8632,7 +8895,7 @@ func (x *AddQANPostgreSQLPgStatementsAgentParams) String() string {
 func (*AddQANPostgreSQLPgStatementsAgentParams) ProtoMessage() {}
 
 func (x *AddQANPostgreSQLPgStatementsAgentParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[50]
+	mi := &file_inventory_v1_agents_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8645,7 +8908,7 @@ func (x *AddQANPostgreSQLPgStatementsAgentParams) ProtoReflect() protoreflect.Me
 
 // Deprecated: Use AddQANPostgreSQLPgStatementsAgentParams.ProtoReflect.Descriptor instead.
 func (*AddQANPostgreSQLPgStatementsAgentParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{50}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{51}
 }
 
 func (x *AddQANPostgreSQLPgStatementsAgentParams) GetPmmAgentId() string {
@@ -8782,7 +9045,7 @@ type ChangeQANPostgreSQLPgStatementsAgentParams struct {
 
 func (x *ChangeQANPostgreSQLPgStatementsAgentParams) Reset() {
 	*x = ChangeQANPostgreSQLPgStatementsAgentParams{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[51]
+	mi := &file_inventory_v1_agents_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8794,7 +9057,7 @@ func (x *ChangeQANPostgreSQLPgStatementsAgentParams) String() string {
 func (*ChangeQANPostgreSQLPgStatementsAgentParams) ProtoMessage() {}
 
 func (x *ChangeQANPostgreSQLPgStatementsAgentParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[51]
+	mi := &file_inventory_v1_agents_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8807,7 +9070,7 @@ func (x *ChangeQANPostgreSQLPgStatementsAgentParams) ProtoReflect() protoreflect
 
 // Deprecated: Use ChangeQANPostgreSQLPgStatementsAgentParams.ProtoReflect.Descriptor instead.
 func (*ChangeQANPostgreSQLPgStatementsAgentParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{51}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{52}
 }
 
 func (x *ChangeQANPostgreSQLPgStatementsAgentParams) GetEnable() bool {
@@ -8946,7 +9209,7 @@ type AddQANPostgreSQLPgStatMonitorAgentParams struct {
 
 func (x *AddQANPostgreSQLPgStatMonitorAgentParams) Reset() {
 	*x = AddQANPostgreSQLPgStatMonitorAgentParams{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[52]
+	mi := &file_inventory_v1_agents_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8958,7 +9221,7 @@ func (x *AddQANPostgreSQLPgStatMonitorAgentParams) String() string {
 func (*AddQANPostgreSQLPgStatMonitorAgentParams) ProtoMessage() {}
 
 func (x *AddQANPostgreSQLPgStatMonitorAgentParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[52]
+	mi := &file_inventory_v1_agents_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8971,7 +9234,7 @@ func (x *AddQANPostgreSQLPgStatMonitorAgentParams) ProtoReflect() protoreflect.M
 
 // Deprecated: Use AddQANPostgreSQLPgStatMonitorAgentParams.ProtoReflect.Descriptor instead.
 func (*AddQANPostgreSQLPgStatMonitorAgentParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{52}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *AddQANPostgreSQLPgStatMonitorAgentParams) GetPmmAgentId() string {
@@ -9117,7 +9380,7 @@ type ChangeQANPostgreSQLPgStatMonitorAgentParams struct {
 
 func (x *ChangeQANPostgreSQLPgStatMonitorAgentParams) Reset() {
 	*x = ChangeQANPostgreSQLPgStatMonitorAgentParams{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[53]
+	mi := &file_inventory_v1_agents_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9129,7 +9392,7 @@ func (x *ChangeQANPostgreSQLPgStatMonitorAgentParams) String() string {
 func (*ChangeQANPostgreSQLPgStatMonitorAgentParams) ProtoMessage() {}
 
 func (x *ChangeQANPostgreSQLPgStatMonitorAgentParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[53]
+	mi := &file_inventory_v1_agents_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9142,7 +9405,7 @@ func (x *ChangeQANPostgreSQLPgStatMonitorAgentParams) ProtoReflect() protoreflec
 
 // Deprecated: Use ChangeQANPostgreSQLPgStatMonitorAgentParams.ProtoReflect.Descriptor instead.
 func (*ChangeQANPostgreSQLPgStatMonitorAgentParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{53}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{54}
 }
 
 func (x *ChangeQANPostgreSQLPgStatMonitorAgentParams) GetEnable() bool {
@@ -9278,7 +9541,7 @@ type AddRDSExporterParams struct {
 
 func (x *AddRDSExporterParams) Reset() {
 	*x = AddRDSExporterParams{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[54]
+	mi := &file_inventory_v1_agents_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9290,7 +9553,7 @@ func (x *AddRDSExporterParams) String() string {
 func (*AddRDSExporterParams) ProtoMessage() {}
 
 func (x *AddRDSExporterParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[54]
+	mi := &file_inventory_v1_agents_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9303,7 +9566,7 @@ func (x *AddRDSExporterParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddRDSExporterParams.ProtoReflect.Descriptor instead.
 func (*AddRDSExporterParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{54}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{55}
 }
 
 func (x *AddRDSExporterParams) GetPmmAgentId() string {
@@ -9402,7 +9665,7 @@ type ChangeRDSExporterParams struct {
 
 func (x *ChangeRDSExporterParams) Reset() {
 	*x = ChangeRDSExporterParams{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[55]
+	mi := &file_inventory_v1_agents_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9414,7 +9677,7 @@ func (x *ChangeRDSExporterParams) String() string {
 func (*ChangeRDSExporterParams) ProtoMessage() {}
 
 func (x *ChangeRDSExporterParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[55]
+	mi := &file_inventory_v1_agents_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9427,7 +9690,7 @@ func (x *ChangeRDSExporterParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangeRDSExporterParams.ProtoReflect.Descriptor instead.
 func (*ChangeRDSExporterParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{55}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{56}
 }
 
 func (x *ChangeRDSExporterParams) GetEnable() bool {
@@ -9521,7 +9784,7 @@ type AddExternalExporterParams struct {
 
 func (x *AddExternalExporterParams) Reset() {
 	*x = AddExternalExporterParams{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[56]
+	mi := &file_inventory_v1_agents_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9533,7 +9796,7 @@ func (x *AddExternalExporterParams) String() string {
 func (*AddExternalExporterParams) ProtoMessage() {}
 
 func (x *AddExternalExporterParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[56]
+	mi := &file_inventory_v1_agents_proto_msgTypes[57]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9546,7 +9809,7 @@ func (x *AddExternalExporterParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddExternalExporterParams.ProtoReflect.Descriptor instead.
 func (*AddExternalExporterParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{56}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{57}
 }
 
 func (x *AddExternalExporterParams) GetRunsOnNodeId() string {
@@ -9643,7 +9906,7 @@ type ChangeExternalExporterParams struct {
 
 func (x *ChangeExternalExporterParams) Reset() {
 	*x = ChangeExternalExporterParams{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[57]
+	mi := &file_inventory_v1_agents_proto_msgTypes[58]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9655,7 +9918,7 @@ func (x *ChangeExternalExporterParams) String() string {
 func (*ChangeExternalExporterParams) ProtoMessage() {}
 
 func (x *ChangeExternalExporterParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[57]
+	mi := &file_inventory_v1_agents_proto_msgTypes[58]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9668,7 +9931,7 @@ func (x *ChangeExternalExporterParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangeExternalExporterParams.ProtoReflect.Descriptor instead.
 func (*ChangeExternalExporterParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{57}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{58}
 }
 
 func (x *ChangeExternalExporterParams) GetEnable() bool {
@@ -9759,7 +10022,7 @@ type AddAzureDatabaseExporterParams struct {
 
 func (x *AddAzureDatabaseExporterParams) Reset() {
 	*x = AddAzureDatabaseExporterParams{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[58]
+	mi := &file_inventory_v1_agents_proto_msgTypes[59]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9771,7 +10034,7 @@ func (x *AddAzureDatabaseExporterParams) String() string {
 func (*AddAzureDatabaseExporterParams) ProtoMessage() {}
 
 func (x *AddAzureDatabaseExporterParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[58]
+	mi := &file_inventory_v1_agents_proto_msgTypes[59]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9784,7 +10047,7 @@ func (x *AddAzureDatabaseExporterParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddAzureDatabaseExporterParams.ProtoReflect.Descriptor instead.
 func (*AddAzureDatabaseExporterParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{58}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{59}
 }
 
 func (x *AddAzureDatabaseExporterParams) GetPmmAgentId() string {
@@ -9899,7 +10162,7 @@ type ChangeAzureDatabaseExporterParams struct {
 
 func (x *ChangeAzureDatabaseExporterParams) Reset() {
 	*x = ChangeAzureDatabaseExporterParams{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[59]
+	mi := &file_inventory_v1_agents_proto_msgTypes[60]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9911,7 +10174,7 @@ func (x *ChangeAzureDatabaseExporterParams) String() string {
 func (*ChangeAzureDatabaseExporterParams) ProtoMessage() {}
 
 func (x *ChangeAzureDatabaseExporterParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[59]
+	mi := &file_inventory_v1_agents_proto_msgTypes[60]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9924,7 +10187,7 @@ func (x *ChangeAzureDatabaseExporterParams) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use ChangeAzureDatabaseExporterParams.ProtoReflect.Descriptor instead.
 func (*ChangeAzureDatabaseExporterParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{59}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{60}
 }
 
 func (x *ChangeAzureDatabaseExporterParams) GetEnable() bool {
@@ -10007,7 +10270,7 @@ type ChangeNomadAgentParams struct {
 
 func (x *ChangeNomadAgentParams) Reset() {
 	*x = ChangeNomadAgentParams{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[60]
+	mi := &file_inventory_v1_agents_proto_msgTypes[61]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10019,7 +10282,7 @@ func (x *ChangeNomadAgentParams) String() string {
 func (*ChangeNomadAgentParams) ProtoMessage() {}
 
 func (x *ChangeNomadAgentParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[60]
+	mi := &file_inventory_v1_agents_proto_msgTypes[61]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10032,7 +10295,7 @@ func (x *ChangeNomadAgentParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangeNomadAgentParams.ProtoReflect.Descriptor instead.
 func (*ChangeNomadAgentParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{60}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{61}
 }
 
 func (x *ChangeNomadAgentParams) GetEnable() bool {
@@ -10082,7 +10345,7 @@ type AddValkeyExporterParams struct {
 
 func (x *AddValkeyExporterParams) Reset() {
 	*x = AddValkeyExporterParams{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[61]
+	mi := &file_inventory_v1_agents_proto_msgTypes[62]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10094,7 +10357,7 @@ func (x *AddValkeyExporterParams) String() string {
 func (*AddValkeyExporterParams) ProtoMessage() {}
 
 func (x *AddValkeyExporterParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[61]
+	mi := &file_inventory_v1_agents_proto_msgTypes[62]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10107,7 +10370,7 @@ func (x *AddValkeyExporterParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddValkeyExporterParams.ProtoReflect.Descriptor instead.
 func (*AddValkeyExporterParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{61}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{62}
 }
 
 func (x *AddValkeyExporterParams) GetPmmAgentId() string {
@@ -10260,7 +10523,7 @@ type ChangeValkeyExporterParams struct {
 
 func (x *ChangeValkeyExporterParams) Reset() {
 	*x = ChangeValkeyExporterParams{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[62]
+	mi := &file_inventory_v1_agents_proto_msgTypes[63]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10272,7 +10535,7 @@ func (x *ChangeValkeyExporterParams) String() string {
 func (*ChangeValkeyExporterParams) ProtoMessage() {}
 
 func (x *ChangeValkeyExporterParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[62]
+	mi := &file_inventory_v1_agents_proto_msgTypes[63]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10285,7 +10548,7 @@ func (x *ChangeValkeyExporterParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangeValkeyExporterParams.ProtoReflect.Descriptor instead.
 func (*ChangeValkeyExporterParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{62}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{63}
 }
 
 func (x *ChangeValkeyExporterParams) GetEnable() bool {
@@ -10393,6 +10656,357 @@ func (x *ChangeValkeyExporterParams) GetLogLevel() LogLevel {
 	return LogLevel_LOG_LEVEL_UNSPECIFIED
 }
 
+type AddClickHouseExporterParams struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The pmm-agent identifier which runs this instance.
+	PmmAgentId string `protobuf:"bytes,1,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
+	// Service identifier.
+	ServiceId string `protobuf:"bytes,2,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	// ClickHouse username for scraping metrics.
+	Username string `protobuf:"bytes,3,opt,name=username,proto3" json:"username,omitempty"`
+	// ClickHouse password for scraping metrics.
+	Password string `protobuf:"bytes,4,opt,name=password,proto3" json:"password,omitempty"`
+	// Use TLS for database connections.
+	Tls bool `protobuf:"varint,5,opt,name=tls,proto3" json:"tls,omitempty"`
+	// Skip TLS certificate and hostname validation.
+	TlsSkipVerify bool `protobuf:"varint,6,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3" json:"tls_skip_verify,omitempty"`
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `protobuf:"bytes,7,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Skip connection check.
+	SkipConnectionCheck bool `protobuf:"varint,8,opt,name=skip_connection_check,json=skipConnectionCheck,proto3" json:"skip_connection_check,omitempty"`
+	// Enables push metrics mode for exporter.
+	PushMetrics bool `protobuf:"varint,9,opt,name=push_metrics,json=pushMetrics,proto3" json:"push_metrics,omitempty"`
+	// List of collector names to disable in this exporter.
+	DisableCollectors []string `protobuf:"bytes,10,rep,name=disable_collectors,json=disableCollectors,proto3" json:"disable_collectors,omitempty"`
+	// TLS CA certificate.
+	TlsCa string `protobuf:"bytes,11,opt,name=tls_ca,json=tlsCa,proto3" json:"tls_ca,omitempty"`
+	// TLS Certificate.
+	TlsCert string `protobuf:"bytes,12,opt,name=tls_cert,json=tlsCert,proto3" json:"tls_cert,omitempty"`
+	// TLS Certificate Key.
+	TlsKey string `protobuf:"bytes,13,opt,name=tls_key,json=tlsKey,proto3" json:"tls_key,omitempty"`
+	// Custom password for exporter endpoint /metrics.
+	AgentPassword string `protobuf:"bytes,14,opt,name=agent_password,json=agentPassword,proto3" json:"agent_password,omitempty"`
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter bool `protobuf:"varint,15,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
+	// Log level for exporter.
+	LogLevel      LogLevel `protobuf:"varint,16,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AddClickHouseExporterParams) Reset() {
+	*x = AddClickHouseExporterParams{}
+	mi := &file_inventory_v1_agents_proto_msgTypes[64]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AddClickHouseExporterParams) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AddClickHouseExporterParams) ProtoMessage() {}
+
+func (x *AddClickHouseExporterParams) ProtoReflect() protoreflect.Message {
+	mi := &file_inventory_v1_agents_proto_msgTypes[64]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AddClickHouseExporterParams.ProtoReflect.Descriptor instead.
+func (*AddClickHouseExporterParams) Descriptor() ([]byte, []int) {
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{64}
+}
+
+func (x *AddClickHouseExporterParams) GetPmmAgentId() string {
+	if x != nil {
+		return x.PmmAgentId
+	}
+	return ""
+}
+
+func (x *AddClickHouseExporterParams) GetServiceId() string {
+	if x != nil {
+		return x.ServiceId
+	}
+	return ""
+}
+
+func (x *AddClickHouseExporterParams) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *AddClickHouseExporterParams) GetPassword() string {
+	if x != nil {
+		return x.Password
+	}
+	return ""
+}
+
+func (x *AddClickHouseExporterParams) GetTls() bool {
+	if x != nil {
+		return x.Tls
+	}
+	return false
+}
+
+func (x *AddClickHouseExporterParams) GetTlsSkipVerify() bool {
+	if x != nil {
+		return x.TlsSkipVerify
+	}
+	return false
+}
+
+func (x *AddClickHouseExporterParams) GetCustomLabels() map[string]string {
+	if x != nil {
+		return x.CustomLabels
+	}
+	return nil
+}
+
+func (x *AddClickHouseExporterParams) GetSkipConnectionCheck() bool {
+	if x != nil {
+		return x.SkipConnectionCheck
+	}
+	return false
+}
+
+func (x *AddClickHouseExporterParams) GetPushMetrics() bool {
+	if x != nil {
+		return x.PushMetrics
+	}
+	return false
+}
+
+func (x *AddClickHouseExporterParams) GetDisableCollectors() []string {
+	if x != nil {
+		return x.DisableCollectors
+	}
+	return nil
+}
+
+func (x *AddClickHouseExporterParams) GetTlsCa() string {
+	if x != nil {
+		return x.TlsCa
+	}
+	return ""
+}
+
+func (x *AddClickHouseExporterParams) GetTlsCert() string {
+	if x != nil {
+		return x.TlsCert
+	}
+	return ""
+}
+
+func (x *AddClickHouseExporterParams) GetTlsKey() string {
+	if x != nil {
+		return x.TlsKey
+	}
+	return ""
+}
+
+func (x *AddClickHouseExporterParams) GetAgentPassword() string {
+	if x != nil {
+		return x.AgentPassword
+	}
+	return ""
+}
+
+func (x *AddClickHouseExporterParams) GetExposeExporter() bool {
+	if x != nil {
+		return x.ExposeExporter
+	}
+	return false
+}
+
+func (x *AddClickHouseExporterParams) GetLogLevel() LogLevel {
+	if x != nil {
+		return x.LogLevel
+	}
+	return LogLevel_LOG_LEVEL_UNSPECIFIED
+}
+
+type ChangeClickHouseExporterParams struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Enable this Agent. Agents are enabled by default when they get added.
+	Enable *bool `protobuf:"varint,1,opt,name=enable,proto3,oneof" json:"enable,omitempty"`
+	// Replace all custom user-assigned labels.
+	CustomLabels *common.StringMap `protobuf:"bytes,2,opt,name=custom_labels,json=customLabels,proto3,oneof" json:"custom_labels,omitempty"`
+	// Enables push metrics with vmagent.
+	EnablePushMetrics *bool `protobuf:"varint,3,opt,name=enable_push_metrics,json=enablePushMetrics,proto3,oneof" json:"enable_push_metrics,omitempty"`
+	// Metrics resolution for this agent.
+	MetricsResolutions *common.MetricsResolutions `protobuf:"bytes,4,opt,name=metrics_resolutions,json=metricsResolutions,proto3" json:"metrics_resolutions,omitempty"`
+	// ClickHouse username for scraping metrics.
+	Username *string `protobuf:"bytes,5,opt,name=username,proto3,oneof" json:"username,omitempty"`
+	// ClickHouse password for scraping metrics.
+	Password *string `protobuf:"bytes,6,opt,name=password,proto3,oneof" json:"password,omitempty"`
+	// Use TLS for database connections.
+	Tls *bool `protobuf:"varint,7,opt,name=tls,proto3,oneof" json:"tls,omitempty"`
+	// Skip TLS certificate and hostname validation.
+	TlsSkipVerify *bool `protobuf:"varint,8,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3,oneof" json:"tls_skip_verify,omitempty"`
+	// List of collector names to disable in this exporter.
+	DisableCollectors []string `protobuf:"bytes,9,rep,name=disable_collectors,json=disableCollectors,proto3" json:"disable_collectors,omitempty"`
+	// TLS CA certificate.
+	TlsCa *string `protobuf:"bytes,10,opt,name=tls_ca,json=tlsCa,proto3,oneof" json:"tls_ca,omitempty"`
+	// TLS Certificate.
+	TlsCert *string `protobuf:"bytes,11,opt,name=tls_cert,json=tlsCert,proto3,oneof" json:"tls_cert,omitempty"`
+	// TLS Certificate Key.
+	TlsKey *string `protobuf:"bytes,12,opt,name=tls_key,json=tlsKey,proto3,oneof" json:"tls_key,omitempty"`
+	// Custom password for exporter endpoint /metrics.
+	AgentPassword *string `protobuf:"bytes,13,opt,name=agent_password,json=agentPassword,proto3,oneof" json:"agent_password,omitempty"`
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter *bool `protobuf:"varint,14,opt,name=expose_exporter,json=exposeExporter,proto3,oneof" json:"expose_exporter,omitempty"`
+	// Log level for exporter.
+	LogLevel      *LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ChangeClickHouseExporterParams) Reset() {
+	*x = ChangeClickHouseExporterParams{}
+	mi := &file_inventory_v1_agents_proto_msgTypes[65]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChangeClickHouseExporterParams) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChangeClickHouseExporterParams) ProtoMessage() {}
+
+func (x *ChangeClickHouseExporterParams) ProtoReflect() protoreflect.Message {
+	mi := &file_inventory_v1_agents_proto_msgTypes[65]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChangeClickHouseExporterParams.ProtoReflect.Descriptor instead.
+func (*ChangeClickHouseExporterParams) Descriptor() ([]byte, []int) {
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{65}
+}
+
+func (x *ChangeClickHouseExporterParams) GetEnable() bool {
+	if x != nil && x.Enable != nil {
+		return *x.Enable
+	}
+	return false
+}
+
+func (x *ChangeClickHouseExporterParams) GetCustomLabels() *common.StringMap {
+	if x != nil {
+		return x.CustomLabels
+	}
+	return nil
+}
+
+func (x *ChangeClickHouseExporterParams) GetEnablePushMetrics() bool {
+	if x != nil && x.EnablePushMetrics != nil {
+		return *x.EnablePushMetrics
+	}
+	return false
+}
+
+func (x *ChangeClickHouseExporterParams) GetMetricsResolutions() *common.MetricsResolutions {
+	if x != nil {
+		return x.MetricsResolutions
+	}
+	return nil
+}
+
+func (x *ChangeClickHouseExporterParams) GetUsername() string {
+	if x != nil && x.Username != nil {
+		return *x.Username
+	}
+	return ""
+}
+
+func (x *ChangeClickHouseExporterParams) GetPassword() string {
+	if x != nil && x.Password != nil {
+		return *x.Password
+	}
+	return ""
+}
+
+func (x *ChangeClickHouseExporterParams) GetTls() bool {
+	if x != nil && x.Tls != nil {
+		return *x.Tls
+	}
+	return false
+}
+
+func (x *ChangeClickHouseExporterParams) GetTlsSkipVerify() bool {
+	if x != nil && x.TlsSkipVerify != nil {
+		return *x.TlsSkipVerify
+	}
+	return false
+}
+
+func (x *ChangeClickHouseExporterParams) GetDisableCollectors() []string {
+	if x != nil {
+		return x.DisableCollectors
+	}
+	return nil
+}
+
+func (x *ChangeClickHouseExporterParams) GetTlsCa() string {
+	if x != nil && x.TlsCa != nil {
+		return *x.TlsCa
+	}
+	return ""
+}
+
+func (x *ChangeClickHouseExporterParams) GetTlsCert() string {
+	if x != nil && x.TlsCert != nil {
+		return *x.TlsCert
+	}
+	return ""
+}
+
+func (x *ChangeClickHouseExporterParams) GetTlsKey() string {
+	if x != nil && x.TlsKey != nil {
+		return *x.TlsKey
+	}
+	return ""
+}
+
+func (x *ChangeClickHouseExporterParams) GetAgentPassword() string {
+	if x != nil && x.AgentPassword != nil {
+		return *x.AgentPassword
+	}
+	return ""
+}
+
+func (x *ChangeClickHouseExporterParams) GetExposeExporter() bool {
+	if x != nil && x.ExposeExporter != nil {
+		return *x.ExposeExporter
+	}
+	return false
+}
+
+func (x *ChangeClickHouseExporterParams) GetLogLevel() LogLevel {
+	if x != nil && x.LogLevel != nil {
+		return *x.LogLevel
+	}
+	return LogLevel_LOG_LEVEL_UNSPECIFIED
+}
+
 type AddRTAMongoDBAgentParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The pmm-agent identifier which runs this instance.
@@ -10432,7 +11046,7 @@ type AddRTAMongoDBAgentParams struct {
 
 func (x *AddRTAMongoDBAgentParams) Reset() {
 	*x = AddRTAMongoDBAgentParams{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[63]
+	mi := &file_inventory_v1_agents_proto_msgTypes[66]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10444,7 +11058,7 @@ func (x *AddRTAMongoDBAgentParams) String() string {
 func (*AddRTAMongoDBAgentParams) ProtoMessage() {}
 
 func (x *AddRTAMongoDBAgentParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[63]
+	mi := &file_inventory_v1_agents_proto_msgTypes[66]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10457,7 +11071,7 @@ func (x *AddRTAMongoDBAgentParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddRTAMongoDBAgentParams.ProtoReflect.Descriptor instead.
 func (*AddRTAMongoDBAgentParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{63}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{66}
 }
 
 func (x *AddRTAMongoDBAgentParams) GetPmmAgentId() string {
@@ -10590,7 +11204,7 @@ type ChangeRTAMongoDBAgentParams struct {
 
 func (x *ChangeRTAMongoDBAgentParams) Reset() {
 	*x = ChangeRTAMongoDBAgentParams{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[64]
+	mi := &file_inventory_v1_agents_proto_msgTypes[67]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10602,7 +11216,7 @@ func (x *ChangeRTAMongoDBAgentParams) String() string {
 func (*ChangeRTAMongoDBAgentParams) ProtoMessage() {}
 
 func (x *ChangeRTAMongoDBAgentParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[64]
+	mi := &file_inventory_v1_agents_proto_msgTypes[67]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10615,7 +11229,7 @@ func (x *ChangeRTAMongoDBAgentParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangeRTAMongoDBAgentParams.ProtoReflect.Descriptor instead.
 func (*ChangeRTAMongoDBAgentParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{64}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{67}
 }
 
 func (x *ChangeRTAMongoDBAgentParams) GetEnable() bool {
@@ -10713,7 +11327,7 @@ type RemoveAgentRequest struct {
 
 func (x *RemoveAgentRequest) Reset() {
 	*x = RemoveAgentRequest{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[65]
+	mi := &file_inventory_v1_agents_proto_msgTypes[68]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10725,7 +11339,7 @@ func (x *RemoveAgentRequest) String() string {
 func (*RemoveAgentRequest) ProtoMessage() {}
 
 func (x *RemoveAgentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[65]
+	mi := &file_inventory_v1_agents_proto_msgTypes[68]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10738,7 +11352,7 @@ func (x *RemoveAgentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoveAgentRequest.ProtoReflect.Descriptor instead.
 func (*RemoveAgentRequest) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{65}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{68}
 }
 
 func (x *RemoveAgentRequest) GetAgentId() string {
@@ -10763,7 +11377,7 @@ type RemoveAgentResponse struct {
 
 func (x *RemoveAgentResponse) Reset() {
 	*x = RemoveAgentResponse{}
-	mi := &file_inventory_v1_agents_proto_msgTypes[66]
+	mi := &file_inventory_v1_agents_proto_msgTypes[69]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10775,7 +11389,7 @@ func (x *RemoveAgentResponse) String() string {
 func (*RemoveAgentResponse) ProtoMessage() {}
 
 func (x *RemoveAgentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_agents_proto_msgTypes[66]
+	mi := &file_inventory_v1_agents_proto_msgTypes[69]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10788,7 +11402,7 @@ func (x *RemoveAgentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoveAgentResponse.ProtoReflect.Descriptor instead.
 func (*RemoveAgentResponse) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{66}
+	return file_inventory_v1_agents_proto_rawDescGZIP(), []int{69}
 }
 
 var File_inventory_v1_agents_proto protoreflect.FileDescriptor
@@ -10969,6 +11583,29 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x03tls\x18\x06 \x01(\bR\x03tls\x12&\n" +
 	"\x0ftls_skip_verify\x18\a \x01(\bR\rtlsSkipVerify\x12S\n" +
 	"\rcustom_labels\x18\b \x03(\v2..inventory.v1.ValkeyExporter.CustomLabelsEntryR\fcustomLabels\x120\n" +
+	"\x14push_metrics_enabled\x18\t \x01(\bR\x12pushMetricsEnabled\x12/\n" +
+	"\x13disabled_collectors\x18\n" +
+	" \x03(\tR\x12disabledCollectors\x121\n" +
+	"\x06status\x18\x14 \x01(\x0e2\x19.inventory.v1.AgentStatusR\x06status\x12\x1f\n" +
+	"\vlisten_port\x18\x15 \x01(\rR\n" +
+	"listenPort\x12*\n" +
+	"\x11process_exec_path\x18\x16 \x01(\tR\x0fprocessExecPath\x12'\n" +
+	"\x0fexpose_exporter\x18\x17 \x01(\bR\x0eexposeExporter\x12K\n" +
+	"\x13metrics_resolutions\x18\x18 \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x1a?\n" +
+	"\x11CustomLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd5\x05\n" +
+	"\x12ClickHouseExporter\x12\x19\n" +
+	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
+	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
+	"pmmAgentId\x12\x1a\n" +
+	"\bdisabled\x18\x03 \x01(\bR\bdisabled\x12\x1d\n" +
+	"\n" +
+	"service_id\x18\x04 \x01(\tR\tserviceId\x12\x1a\n" +
+	"\busername\x18\x05 \x01(\tR\busername\x12\x10\n" +
+	"\x03tls\x18\x06 \x01(\bR\x03tls\x12&\n" +
+	"\x0ftls_skip_verify\x18\a \x01(\bR\rtlsSkipVerify\x12W\n" +
+	"\rcustom_labels\x18\b \x03(\v22.inventory.v1.ClickHouseExporter.CustomLabelsEntryR\fcustomLabels\x120\n" +
 	"\x14push_metrics_enabled\x18\t \x01(\bR\x12pushMetricsEnabled\x12/\n" +
 	"\x13disabled_collectors\x18\n" +
 	" \x03(\tR\x12disabledCollectors\x121\n" +
@@ -11218,7 +11855,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\n" +
 	"service_id\x18\x03 \x01(\tR\tserviceId\x126\n" +
 	"\n" +
-	"agent_type\x18\x04 \x01(\x0e2\x17.inventory.v1.AgentTypeR\tagentType\"\x98\f\n" +
+	"agent_type\x18\x04 \x01(\x0e2\x17.inventory.v1.AgentTypeR\tagentType\"\xeb\f\n" +
 	"\x12ListAgentsResponse\x123\n" +
 	"\tpmm_agent\x18\x01 \x03(\v2\x16.inventory.v1.PMMAgentR\bpmmAgent\x120\n" +
 	"\bvm_agent\x18\x02 \x03(\v2\x15.inventory.v1.VMAgentR\avmAgent\x12?\n" +
@@ -11240,9 +11877,10 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\vnomad_agent\x18\x10 \x03(\v2\x18.inventory.v1.NomadAgentR\n" +
 	"nomadAgent\x12E\n" +
 	"\x0fvalkey_exporter\x18\x11 \x03(\v2\x1c.inventory.v1.ValkeyExporterR\x0evalkeyExporter\x12I\n" +
-	"\x11rta_mongodb_agent\x18\x13 \x03(\v2\x1d.inventory.v1.RTAMongoDBAgentR\x0frtaMongodbAgent\"5\n" +
+	"\x11rta_mongodb_agent\x18\x13 \x03(\v2\x1d.inventory.v1.RTAMongoDBAgentR\x0frtaMongodbAgent\x12Q\n" +
+	"\x13clickhouse_exporter\x18\x14 \x03(\v2 .inventory.v1.ClickHouseExporterR\x12clickhouseExporter\"5\n" +
 	"\x0fGetAgentRequest\x12\"\n" +
-	"\bagent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10$R\aagentId\"\xc4\f\n" +
+	"\bagent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10$R\aagentId\"\x99\r\n" +
 	"\x10GetAgentResponse\x125\n" +
 	"\tpmm_agent\x18\x01 \x01(\v2\x16.inventory.v1.PMMAgentH\x00R\bpmmAgent\x121\n" +
 	"\avmagent\x18\x02 \x01(\v2\x15.inventory.v1.VMAgentH\x00R\avmagent\x12A\n" +
@@ -11264,14 +11902,15 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\vnomad_agent\x18\x10 \x01(\v2\x18.inventory.v1.NomadAgentH\x00R\n" +
 	"nomadAgent\x12G\n" +
 	"\x0fvalkey_exporter\x18\x11 \x01(\v2\x1c.inventory.v1.ValkeyExporterH\x00R\x0evalkeyExporter\x12K\n" +
-	"\x11rta_mongodb_agent\x18\x13 \x01(\v2\x1d.inventory.v1.RTAMongoDBAgentH\x00R\x0frtaMongodbAgentB\a\n" +
+	"\x11rta_mongodb_agent\x18\x13 \x01(\v2\x1d.inventory.v1.RTAMongoDBAgentH\x00R\x0frtaMongodbAgent\x12S\n" +
+	"\x13clickhouse_exporter\x18\x14 \x01(\v2 .inventory.v1.ClickHouseExporterH\x00R\x12clickhouseExporterB\a\n" +
 	"\x05agent\"O\n" +
 	"\x13GetAgentLogsRequest\x12\"\n" +
 	"\bagent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10$R\aagentId\x12\x14\n" +
 	"\x05limit\x18\x02 \x01(\rR\x05limit\"j\n" +
 	"\x14GetAgentLogsResponse\x12\x12\n" +
 	"\x04logs\x18\x01 \x03(\tR\x04logs\x12>\n" +
-	"\x1cagent_config_log_lines_count\x18\x02 \x01(\rR\x18agentConfigLogLinesCount\"\xee\f\n" +
+	"\x1cagent_config_log_lines_count\x18\x02 \x01(\rR\x18agentConfigLogLinesCount\"\xcc\r\n" +
 	"\x0fAddAgentRequest\x12>\n" +
 	"\tpmm_agent\x18\x01 \x01(\v2\x1f.inventory.v1.AddPMMAgentParamsH\x00R\bpmmAgent\x12J\n" +
 	"\rnode_exporter\x18\x02 \x01(\v2#.inventory.v1.AddNodeExporterParamsH\x00R\fnodeExporter\x12P\n" +
@@ -11290,8 +11929,9 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"!qan_postgresql_pgstatements_agent\x18\r \x01(\v25.inventory.v1.AddQANPostgreSQLPgStatementsAgentParamsH\x00R\x1eqanPostgresqlPgstatementsAgent\x12\x85\x01\n" +
 	"\"qan_postgresql_pgstatmonitor_agent\x18\x0e \x01(\v26.inventory.v1.AddQANPostgreSQLPgStatMonitorAgentParamsH\x00R\x1fqanPostgresqlPgstatmonitorAgent\x12P\n" +
 	"\x0fvalkey_exporter\x18\x0f \x01(\v2%.inventory.v1.AddValkeyExporterParamsH\x00R\x0evalkeyExporter\x12T\n" +
-	"\x11rta_mongodb_agent\x18\x11 \x01(\v2&.inventory.v1.AddRTAMongoDBAgentParamsH\x00R\x0frtaMongodbAgentB\a\n" +
-	"\x05agent\"\xd4\v\n" +
+	"\x11rta_mongodb_agent\x18\x11 \x01(\v2&.inventory.v1.AddRTAMongoDBAgentParamsH\x00R\x0frtaMongodbAgent\x12\\\n" +
+	"\x13clickhouse_exporter\x18\x12 \x01(\v2).inventory.v1.AddClickHouseExporterParamsH\x00R\x12clickhouseExporterB\a\n" +
+	"\x05agent\"\xa9\f\n" +
 	"\x10AddAgentResponse\x125\n" +
 	"\tpmm_agent\x18\x01 \x01(\v2\x16.inventory.v1.PMMAgentH\x00R\bpmmAgent\x12A\n" +
 	"\rnode_exporter\x18\x02 \x01(\v2\x1a.inventory.v1.NodeExporterH\x00R\fnodeExporter\x12G\n" +
@@ -11310,8 +11950,9 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"!qan_postgresql_pgstatements_agent\x18\r \x01(\v2,.inventory.v1.QANPostgreSQLPgStatementsAgentH\x00R\x1eqanPostgresqlPgstatementsAgent\x12|\n" +
 	"\"qan_postgresql_pgstatmonitor_agent\x18\x0e \x01(\v2-.inventory.v1.QANPostgreSQLPgStatMonitorAgentH\x00R\x1fqanPostgresqlPgstatmonitorAgent\x12G\n" +
 	"\x0fvalkey_exporter\x18\x0f \x01(\v2\x1c.inventory.v1.ValkeyExporterH\x00R\x0evalkeyExporter\x12K\n" +
-	"\x11rta_mongodb_agent\x18\x11 \x01(\v2\x1d.inventory.v1.RTAMongoDBAgentH\x00R\x0frtaMongodbAgentB\a\n" +
-	"\x05agent\"\xce\r\n" +
+	"\x11rta_mongodb_agent\x18\x11 \x01(\v2\x1d.inventory.v1.RTAMongoDBAgentH\x00R\x0frtaMongodbAgent\x12S\n" +
+	"\x13clickhouse_exporter\x18\x12 \x01(\v2 .inventory.v1.ClickHouseExporterH\x00R\x12clickhouseExporterB\a\n" +
+	"\x05agent\"\xaf\x0e\n" +
 	"\x12ChangeAgentRequest\x12\"\n" +
 	"\bagent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\aagentId\x12M\n" +
 	"\rnode_exporter\x18\x02 \x01(\v2&.inventory.v1.ChangeNodeExporterParamsH\x00R\fnodeExporter\x12S\n" +
@@ -11332,8 +11973,9 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\vnomad_agent\x18\x0f \x01(\v2$.inventory.v1.ChangeNomadAgentParamsH\x00R\n" +
 	"nomadAgent\x12S\n" +
 	"\x0fvalkey_exporter\x18\x10 \x01(\v2(.inventory.v1.ChangeValkeyExporterParamsH\x00R\x0evalkeyExporter\x12W\n" +
-	"\x11rta_mongodb_agent\x18\x12 \x01(\v2).inventory.v1.ChangeRTAMongoDBAgentParamsH\x00R\x0frtaMongodbAgentB\a\n" +
-	"\x05agent\"\xdd\v\n" +
+	"\x11rta_mongodb_agent\x18\x12 \x01(\v2).inventory.v1.ChangeRTAMongoDBAgentParamsH\x00R\x0frtaMongodbAgent\x12_\n" +
+	"\x13clickhouse_exporter\x18\x13 \x01(\v2,.inventory.v1.ChangeClickHouseExporterParamsH\x00R\x12clickhouseExporterB\a\n" +
+	"\x05agent\"\xb2\f\n" +
 	"\x13ChangeAgentResponse\x12A\n" +
 	"\rnode_exporter\x18\x02 \x01(\v2\x1a.inventory.v1.NodeExporterH\x00R\fnodeExporter\x12G\n" +
 	"\x0fmysqld_exporter\x18\x03 \x01(\v2\x1c.inventory.v1.MySQLdExporterH\x00R\x0emysqldExporter\x12J\n" +
@@ -11353,7 +11995,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\vnomad_agent\x18\x0f \x01(\v2\x18.inventory.v1.NomadAgentH\x00R\n" +
 	"nomadAgent\x12G\n" +
 	"\x0fvalkey_exporter\x18\x10 \x01(\v2\x1c.inventory.v1.ValkeyExporterH\x00R\x0evalkeyExporter\x12K\n" +
-	"\x11rta_mongodb_agent\x18\x12 \x01(\v2\x1d.inventory.v1.RTAMongoDBAgentH\x00R\x0frtaMongodbAgentB\a\n" +
+	"\x11rta_mongodb_agent\x18\x12 \x01(\v2\x1d.inventory.v1.RTAMongoDBAgentH\x00R\x0frtaMongodbAgent\x12S\n" +
+	"\x13clickhouse_exporter\x18\x13 \x01(\v2 .inventory.v1.ClickHouseExporterH\x00R\x12clickhouseExporterB\a\n" +
 	"\x05agent\"\xdc\x01\n" +
 	"\x11AddPMMAgentParams\x12.\n" +
 	"\x0fruns_on_node_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\frunsOnNodeId\x12V\n" +
@@ -12144,6 +12787,62 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0f_agent_passwordB\x12\n" +
 	"\x10_expose_exporterB\f\n" +
 	"\n" +
+	"_log_level\"\xee\x05\n" +
+	"\x1bAddClickHouseExporterParams\x12)\n" +
+	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
+	"pmmAgentId\x12'\n" +
+	"\n" +
+	"service_id\x18\x02 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\tserviceId\x12 \n" +
+	"\busername\x18\x03 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12 \n" +
+	"\bpassword\x18\x04 \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x12\x10\n" +
+	"\x03tls\x18\x05 \x01(\bR\x03tls\x12&\n" +
+	"\x0ftls_skip_verify\x18\x06 \x01(\bR\rtlsSkipVerify\x12`\n" +
+	"\rcustom_labels\x18\a \x03(\v2;.inventory.v1.AddClickHouseExporterParams.CustomLabelsEntryR\fcustomLabels\x122\n" +
+	"\x15skip_connection_check\x18\b \x01(\bR\x13skipConnectionCheck\x12!\n" +
+	"\fpush_metrics\x18\t \x01(\bR\vpushMetrics\x12-\n" +
+	"\x12disable_collectors\x18\n" +
+	" \x03(\tR\x11disableCollectors\x12\x15\n" +
+	"\x06tls_ca\x18\v \x01(\tR\x05tlsCa\x12\x19\n" +
+	"\btls_cert\x18\f \x01(\tR\atlsCert\x12\x17\n" +
+	"\atls_key\x18\r \x01(\tR\x06tlsKey\x12+\n" +
+	"\x0eagent_password\x18\x0e \x01(\tB\x04\x88\xb5\x18\x01R\ragentPassword\x12'\n" +
+	"\x0fexpose_exporter\x18\x0f \x01(\bR\x0eexposeExporter\x123\n" +
+	"\tlog_level\x18\x10 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x1a?\n" +
+	"\x11CustomLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xf5\x06\n" +
+	"\x1eChangeClickHouseExporterParams\x12\x1b\n" +
+	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
+	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
+	"\x13enable_push_metrics\x18\x03 \x01(\bH\x02R\x11enablePushMetrics\x88\x01\x01\x12K\n" +
+	"\x13metrics_resolutions\x18\x04 \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x12%\n" +
+	"\busername\x18\x05 \x01(\tB\x04\x88\xb5\x18\x01H\x03R\busername\x88\x01\x01\x12%\n" +
+	"\bpassword\x18\x06 \x01(\tB\x04\x88\xb5\x18\x01H\x04R\bpassword\x88\x01\x01\x12\x15\n" +
+	"\x03tls\x18\a \x01(\bH\x05R\x03tls\x88\x01\x01\x12+\n" +
+	"\x0ftls_skip_verify\x18\b \x01(\bH\x06R\rtlsSkipVerify\x88\x01\x01\x12-\n" +
+	"\x12disable_collectors\x18\t \x03(\tR\x11disableCollectors\x12\x1a\n" +
+	"\x06tls_ca\x18\n" +
+	" \x01(\tH\aR\x05tlsCa\x88\x01\x01\x12\x1e\n" +
+	"\btls_cert\x18\v \x01(\tH\bR\atlsCert\x88\x01\x01\x12\x1c\n" +
+	"\atls_key\x18\f \x01(\tH\tR\x06tlsKey\x88\x01\x01\x120\n" +
+	"\x0eagent_password\x18\r \x01(\tB\x04\x88\xb5\x18\x01H\n" +
+	"R\ragentPassword\x88\x01\x01\x12,\n" +
+	"\x0fexpose_exporter\x18\x0e \x01(\bH\vR\x0eexposeExporter\x88\x01\x01\x128\n" +
+	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelH\fR\blogLevel\x88\x01\x01B\t\n" +
+	"\a_enableB\x10\n" +
+	"\x0e_custom_labelsB\x16\n" +
+	"\x14_enable_push_metricsB\v\n" +
+	"\t_usernameB\v\n" +
+	"\t_passwordB\x06\n" +
+	"\x04_tlsB\x12\n" +
+	"\x10_tls_skip_verifyB\t\n" +
+	"\a_tls_caB\v\n" +
+	"\t_tls_certB\n" +
+	"\n" +
+	"\b_tls_keyB\x11\n" +
+	"\x0f_agent_passwordB\x12\n" +
+	"\x10_expose_exporterB\f\n" +
+	"\n" +
 	"_log_level\"\x81\x06\n" +
 	"\x18AddRTAMongoDBAgentParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
@@ -12199,7 +12898,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x12RemoveAgentRequest\x12\"\n" +
 	"\bagent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\aagentId\x12\x14\n" +
 	"\x05force\x18\x02 \x01(\bR\x05force\"\x15\n" +
-	"\x13RemoveAgentResponse*\xd0\x05\n" +
+	"\x13RemoveAgentResponse*\xf4\x05\n" +
 	"\tAgentType\x12\x1a\n" +
 	"\x16AGENT_TYPE_UNSPECIFIED\x10\x00\x12\x18\n" +
 	"\x14AGENT_TYPE_PMM_AGENT\x10\x01\x12\x17\n" +
@@ -12221,7 +12920,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x17AGENT_TYPE_RDS_EXPORTER\x10\v\x12&\n" +
 	"\"AGENT_TYPE_AZURE_DATABASE_EXPORTER\x10\x0f\x12\x1a\n" +
 	"\x16AGENT_TYPE_NOMAD_AGENT\x10\x10\x12 \n" +
-	"\x1cAGENT_TYPE_RTA_MONGODB_AGENT\x10\x132\x83\t\n" +
+	"\x1cAGENT_TYPE_RTA_MONGODB_AGENT\x10\x13\x12\"\n" +
+	"\x1eAGENT_TYPE_CLICKHOUSE_EXPORTER\x10\x142\x83\t\n" +
 	"\rAgentsService\x12\x9c\x01\n" +
 	"\n" +
 	"ListAgents\x12\x1f.inventory.v1.ListAgentsRequest\x1a .inventory.v1.ListAgentsResponse\"K\x92A,\x12\vList Agents\x1a\x1dReturns a list of all Agents.\x82\xd3\xe4\x93\x02\x16\x12\x14/v1/inventory/agents\x12\x9f\x01\n" +
@@ -12246,7 +12946,7 @@ func file_inventory_v1_agents_proto_rawDescGZIP() []byte {
 
 var (
 	file_inventory_v1_agents_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_inventory_v1_agents_proto_msgTypes  = make([]protoimpl.MessageInfo, 107)
+	file_inventory_v1_agents_proto_msgTypes  = make([]protoimpl.MessageInfo, 112)
 	file_inventory_v1_agents_proto_goTypes   = []any{
 		(AgentType)(0),                                      // 0: inventory.v1.AgentType
 		(*PMMAgent)(nil),                                    // 1: inventory.v1.PMMAgent
@@ -12258,385 +12958,403 @@ var (
 		(*PostgresExporter)(nil),                            // 7: inventory.v1.PostgresExporter
 		(*ProxySQLExporter)(nil),                            // 8: inventory.v1.ProxySQLExporter
 		(*ValkeyExporter)(nil),                              // 9: inventory.v1.ValkeyExporter
-		(*QANMySQLPerfSchemaAgent)(nil),                     // 10: inventory.v1.QANMySQLPerfSchemaAgent
-		(*QANMySQLSlowlogAgent)(nil),                        // 11: inventory.v1.QANMySQLSlowlogAgent
-		(*QANMongoDBProfilerAgent)(nil),                     // 12: inventory.v1.QANMongoDBProfilerAgent
-		(*QANMongoDBMongologAgent)(nil),                     // 13: inventory.v1.QANMongoDBMongologAgent
-		(*RTAOptions)(nil),                                  // 14: inventory.v1.RTAOptions
-		(*RTAMongoDBAgent)(nil),                             // 15: inventory.v1.RTAMongoDBAgent
-		(*QANPostgreSQLPgStatementsAgent)(nil),              // 16: inventory.v1.QANPostgreSQLPgStatementsAgent
-		(*QANPostgreSQLPgStatMonitorAgent)(nil),             // 17: inventory.v1.QANPostgreSQLPgStatMonitorAgent
-		(*RDSExporter)(nil),                                 // 18: inventory.v1.RDSExporter
-		(*ExternalExporter)(nil),                            // 19: inventory.v1.ExternalExporter
-		(*AzureDatabaseExporter)(nil),                       // 20: inventory.v1.AzureDatabaseExporter
-		(*ChangeCommonAgentParams)(nil),                     // 21: inventory.v1.ChangeCommonAgentParams
-		(*ListAgentsRequest)(nil),                           // 22: inventory.v1.ListAgentsRequest
-		(*ListAgentsResponse)(nil),                          // 23: inventory.v1.ListAgentsResponse
-		(*GetAgentRequest)(nil),                             // 24: inventory.v1.GetAgentRequest
-		(*GetAgentResponse)(nil),                            // 25: inventory.v1.GetAgentResponse
-		(*GetAgentLogsRequest)(nil),                         // 26: inventory.v1.GetAgentLogsRequest
-		(*GetAgentLogsResponse)(nil),                        // 27: inventory.v1.GetAgentLogsResponse
-		(*AddAgentRequest)(nil),                             // 28: inventory.v1.AddAgentRequest
-		(*AddAgentResponse)(nil),                            // 29: inventory.v1.AddAgentResponse
-		(*ChangeAgentRequest)(nil),                          // 30: inventory.v1.ChangeAgentRequest
-		(*ChangeAgentResponse)(nil),                         // 31: inventory.v1.ChangeAgentResponse
-		(*AddPMMAgentParams)(nil),                           // 32: inventory.v1.AddPMMAgentParams
-		(*AddNodeExporterParams)(nil),                       // 33: inventory.v1.AddNodeExporterParams
-		(*ChangeNodeExporterParams)(nil),                    // 34: inventory.v1.ChangeNodeExporterParams
-		(*AddMySQLdExporterParams)(nil),                     // 35: inventory.v1.AddMySQLdExporterParams
-		(*ChangeMySQLdExporterParams)(nil),                  // 36: inventory.v1.ChangeMySQLdExporterParams
-		(*AddMongoDBExporterParams)(nil),                    // 37: inventory.v1.AddMongoDBExporterParams
-		(*ChangeMongoDBExporterParams)(nil),                 // 38: inventory.v1.ChangeMongoDBExporterParams
-		(*AddPostgresExporterParams)(nil),                   // 39: inventory.v1.AddPostgresExporterParams
-		(*ChangePostgresExporterParams)(nil),                // 40: inventory.v1.ChangePostgresExporterParams
-		(*AddProxySQLExporterParams)(nil),                   // 41: inventory.v1.AddProxySQLExporterParams
-		(*ChangeProxySQLExporterParams)(nil),                // 42: inventory.v1.ChangeProxySQLExporterParams
-		(*AddQANMySQLPerfSchemaAgentParams)(nil),            // 43: inventory.v1.AddQANMySQLPerfSchemaAgentParams
-		(*ChangeQANMySQLPerfSchemaAgentParams)(nil),         // 44: inventory.v1.ChangeQANMySQLPerfSchemaAgentParams
-		(*AddQANMySQLSlowlogAgentParams)(nil),               // 45: inventory.v1.AddQANMySQLSlowlogAgentParams
-		(*ChangeQANMySQLSlowlogAgentParams)(nil),            // 46: inventory.v1.ChangeQANMySQLSlowlogAgentParams
-		(*AddQANMongoDBProfilerAgentParams)(nil),            // 47: inventory.v1.AddQANMongoDBProfilerAgentParams
-		(*ChangeQANMongoDBProfilerAgentParams)(nil),         // 48: inventory.v1.ChangeQANMongoDBProfilerAgentParams
-		(*AddQANMongoDBMongologAgentParams)(nil),            // 49: inventory.v1.AddQANMongoDBMongologAgentParams
-		(*ChangeQANMongoDBMongologAgentParams)(nil),         // 50: inventory.v1.ChangeQANMongoDBMongologAgentParams
-		(*AddQANPostgreSQLPgStatementsAgentParams)(nil),     // 51: inventory.v1.AddQANPostgreSQLPgStatementsAgentParams
-		(*ChangeQANPostgreSQLPgStatementsAgentParams)(nil),  // 52: inventory.v1.ChangeQANPostgreSQLPgStatementsAgentParams
-		(*AddQANPostgreSQLPgStatMonitorAgentParams)(nil),    // 53: inventory.v1.AddQANPostgreSQLPgStatMonitorAgentParams
-		(*ChangeQANPostgreSQLPgStatMonitorAgentParams)(nil), // 54: inventory.v1.ChangeQANPostgreSQLPgStatMonitorAgentParams
-		(*AddRDSExporterParams)(nil),                        // 55: inventory.v1.AddRDSExporterParams
-		(*ChangeRDSExporterParams)(nil),                     // 56: inventory.v1.ChangeRDSExporterParams
-		(*AddExternalExporterParams)(nil),                   // 57: inventory.v1.AddExternalExporterParams
-		(*ChangeExternalExporterParams)(nil),                // 58: inventory.v1.ChangeExternalExporterParams
-		(*AddAzureDatabaseExporterParams)(nil),              // 59: inventory.v1.AddAzureDatabaseExporterParams
-		(*ChangeAzureDatabaseExporterParams)(nil),           // 60: inventory.v1.ChangeAzureDatabaseExporterParams
-		(*ChangeNomadAgentParams)(nil),                      // 61: inventory.v1.ChangeNomadAgentParams
-		(*AddValkeyExporterParams)(nil),                     // 62: inventory.v1.AddValkeyExporterParams
-		(*ChangeValkeyExporterParams)(nil),                  // 63: inventory.v1.ChangeValkeyExporterParams
-		(*AddRTAMongoDBAgentParams)(nil),                    // 64: inventory.v1.AddRTAMongoDBAgentParams
-		(*ChangeRTAMongoDBAgentParams)(nil),                 // 65: inventory.v1.ChangeRTAMongoDBAgentParams
-		(*RemoveAgentRequest)(nil),                          // 66: inventory.v1.RemoveAgentRequest
-		(*RemoveAgentResponse)(nil),                         // 67: inventory.v1.RemoveAgentResponse
-		nil,                                                 // 68: inventory.v1.PMMAgent.CustomLabelsEntry
-		nil,                                                 // 69: inventory.v1.NodeExporter.CustomLabelsEntry
-		nil,                                                 // 70: inventory.v1.MySQLdExporter.CustomLabelsEntry
-		nil,                                                 // 71: inventory.v1.MySQLdExporter.ExtraDsnParamsEntry
-		nil,                                                 // 72: inventory.v1.MongoDBExporter.CustomLabelsEntry
-		nil,                                                 // 73: inventory.v1.PostgresExporter.CustomLabelsEntry
-		nil,                                                 // 74: inventory.v1.ProxySQLExporter.CustomLabelsEntry
-		nil,                                                 // 75: inventory.v1.ValkeyExporter.CustomLabelsEntry
-		nil,                                                 // 76: inventory.v1.QANMySQLPerfSchemaAgent.CustomLabelsEntry
-		nil,                                                 // 77: inventory.v1.QANMySQLPerfSchemaAgent.ExtraDsnParamsEntry
-		nil,                                                 // 78: inventory.v1.QANMySQLSlowlogAgent.CustomLabelsEntry
-		nil,                                                 // 79: inventory.v1.QANMySQLSlowlogAgent.ExtraDsnParamsEntry
-		nil,                                                 // 80: inventory.v1.QANMongoDBProfilerAgent.CustomLabelsEntry
-		nil,                                                 // 81: inventory.v1.QANMongoDBMongologAgent.CustomLabelsEntry
-		nil,                                                 // 82: inventory.v1.RTAMongoDBAgent.CustomLabelsEntry
-		nil,                                                 // 83: inventory.v1.QANPostgreSQLPgStatementsAgent.CustomLabelsEntry
-		nil,                                                 // 84: inventory.v1.QANPostgreSQLPgStatMonitorAgent.CustomLabelsEntry
-		nil,                                                 // 85: inventory.v1.RDSExporter.CustomLabelsEntry
-		nil,                                                 // 86: inventory.v1.ExternalExporter.CustomLabelsEntry
-		nil,                                                 // 87: inventory.v1.AzureDatabaseExporter.CustomLabelsEntry
-		nil,                                                 // 88: inventory.v1.AddPMMAgentParams.CustomLabelsEntry
-		nil,                                                 // 89: inventory.v1.AddNodeExporterParams.CustomLabelsEntry
-		nil,                                                 // 90: inventory.v1.AddMySQLdExporterParams.CustomLabelsEntry
-		nil,                                                 // 91: inventory.v1.AddMySQLdExporterParams.ExtraDsnParamsEntry
-		nil,                                                 // 92: inventory.v1.AddMongoDBExporterParams.CustomLabelsEntry
-		nil,                                                 // 93: inventory.v1.AddPostgresExporterParams.CustomLabelsEntry
-		nil,                                                 // 94: inventory.v1.AddProxySQLExporterParams.CustomLabelsEntry
-		nil,                                                 // 95: inventory.v1.AddQANMySQLPerfSchemaAgentParams.CustomLabelsEntry
-		nil,                                                 // 96: inventory.v1.AddQANMySQLPerfSchemaAgentParams.ExtraDsnParamsEntry
-		nil,                                                 // 97: inventory.v1.AddQANMySQLSlowlogAgentParams.CustomLabelsEntry
-		nil,                                                 // 98: inventory.v1.AddQANMySQLSlowlogAgentParams.ExtraDsnParamsEntry
-		nil,                                                 // 99: inventory.v1.AddQANMongoDBProfilerAgentParams.CustomLabelsEntry
-		nil,                                                 // 100: inventory.v1.AddQANMongoDBMongologAgentParams.CustomLabelsEntry
-		nil,                                                 // 101: inventory.v1.AddQANPostgreSQLPgStatementsAgentParams.CustomLabelsEntry
-		nil,                                                 // 102: inventory.v1.AddQANPostgreSQLPgStatMonitorAgentParams.CustomLabelsEntry
-		nil,                                                 // 103: inventory.v1.AddRDSExporterParams.CustomLabelsEntry
-		nil,                                                 // 104: inventory.v1.AddExternalExporterParams.CustomLabelsEntry
-		nil,                                                 // 105: inventory.v1.AddAzureDatabaseExporterParams.CustomLabelsEntry
-		nil,                                                 // 106: inventory.v1.AddValkeyExporterParams.CustomLabelsEntry
-		nil,                                                 // 107: inventory.v1.AddRTAMongoDBAgentParams.CustomLabelsEntry
-		(AgentStatus)(0),                                    // 108: inventory.v1.AgentStatus
-		(LogLevel)(0),                                       // 109: inventory.v1.LogLevel
-		(*common.MetricsResolutions)(nil),                   // 110: common.MetricsResolutions
-		(*durationpb.Duration)(nil),                         // 111: google.protobuf.Duration
-		(*common.StringMap)(nil),                            // 112: common.StringMap
+		(*ClickHouseExporter)(nil),                          // 10: inventory.v1.ClickHouseExporter
+		(*QANMySQLPerfSchemaAgent)(nil),                     // 11: inventory.v1.QANMySQLPerfSchemaAgent
+		(*QANMySQLSlowlogAgent)(nil),                        // 12: inventory.v1.QANMySQLSlowlogAgent
+		(*QANMongoDBProfilerAgent)(nil),                     // 13: inventory.v1.QANMongoDBProfilerAgent
+		(*QANMongoDBMongologAgent)(nil),                     // 14: inventory.v1.QANMongoDBMongologAgent
+		(*RTAOptions)(nil),                                  // 15: inventory.v1.RTAOptions
+		(*RTAMongoDBAgent)(nil),                             // 16: inventory.v1.RTAMongoDBAgent
+		(*QANPostgreSQLPgStatementsAgent)(nil),              // 17: inventory.v1.QANPostgreSQLPgStatementsAgent
+		(*QANPostgreSQLPgStatMonitorAgent)(nil),             // 18: inventory.v1.QANPostgreSQLPgStatMonitorAgent
+		(*RDSExporter)(nil),                                 // 19: inventory.v1.RDSExporter
+		(*ExternalExporter)(nil),                            // 20: inventory.v1.ExternalExporter
+		(*AzureDatabaseExporter)(nil),                       // 21: inventory.v1.AzureDatabaseExporter
+		(*ChangeCommonAgentParams)(nil),                     // 22: inventory.v1.ChangeCommonAgentParams
+		(*ListAgentsRequest)(nil),                           // 23: inventory.v1.ListAgentsRequest
+		(*ListAgentsResponse)(nil),                          // 24: inventory.v1.ListAgentsResponse
+		(*GetAgentRequest)(nil),                             // 25: inventory.v1.GetAgentRequest
+		(*GetAgentResponse)(nil),                            // 26: inventory.v1.GetAgentResponse
+		(*GetAgentLogsRequest)(nil),                         // 27: inventory.v1.GetAgentLogsRequest
+		(*GetAgentLogsResponse)(nil),                        // 28: inventory.v1.GetAgentLogsResponse
+		(*AddAgentRequest)(nil),                             // 29: inventory.v1.AddAgentRequest
+		(*AddAgentResponse)(nil),                            // 30: inventory.v1.AddAgentResponse
+		(*ChangeAgentRequest)(nil),                          // 31: inventory.v1.ChangeAgentRequest
+		(*ChangeAgentResponse)(nil),                         // 32: inventory.v1.ChangeAgentResponse
+		(*AddPMMAgentParams)(nil),                           // 33: inventory.v1.AddPMMAgentParams
+		(*AddNodeExporterParams)(nil),                       // 34: inventory.v1.AddNodeExporterParams
+		(*ChangeNodeExporterParams)(nil),                    // 35: inventory.v1.ChangeNodeExporterParams
+		(*AddMySQLdExporterParams)(nil),                     // 36: inventory.v1.AddMySQLdExporterParams
+		(*ChangeMySQLdExporterParams)(nil),                  // 37: inventory.v1.ChangeMySQLdExporterParams
+		(*AddMongoDBExporterParams)(nil),                    // 38: inventory.v1.AddMongoDBExporterParams
+		(*ChangeMongoDBExporterParams)(nil),                 // 39: inventory.v1.ChangeMongoDBExporterParams
+		(*AddPostgresExporterParams)(nil),                   // 40: inventory.v1.AddPostgresExporterParams
+		(*ChangePostgresExporterParams)(nil),                // 41: inventory.v1.ChangePostgresExporterParams
+		(*AddProxySQLExporterParams)(nil),                   // 42: inventory.v1.AddProxySQLExporterParams
+		(*ChangeProxySQLExporterParams)(nil),                // 43: inventory.v1.ChangeProxySQLExporterParams
+		(*AddQANMySQLPerfSchemaAgentParams)(nil),            // 44: inventory.v1.AddQANMySQLPerfSchemaAgentParams
+		(*ChangeQANMySQLPerfSchemaAgentParams)(nil),         // 45: inventory.v1.ChangeQANMySQLPerfSchemaAgentParams
+		(*AddQANMySQLSlowlogAgentParams)(nil),               // 46: inventory.v1.AddQANMySQLSlowlogAgentParams
+		(*ChangeQANMySQLSlowlogAgentParams)(nil),            // 47: inventory.v1.ChangeQANMySQLSlowlogAgentParams
+		(*AddQANMongoDBProfilerAgentParams)(nil),            // 48: inventory.v1.AddQANMongoDBProfilerAgentParams
+		(*ChangeQANMongoDBProfilerAgentParams)(nil),         // 49: inventory.v1.ChangeQANMongoDBProfilerAgentParams
+		(*AddQANMongoDBMongologAgentParams)(nil),            // 50: inventory.v1.AddQANMongoDBMongologAgentParams
+		(*ChangeQANMongoDBMongologAgentParams)(nil),         // 51: inventory.v1.ChangeQANMongoDBMongologAgentParams
+		(*AddQANPostgreSQLPgStatementsAgentParams)(nil),     // 52: inventory.v1.AddQANPostgreSQLPgStatementsAgentParams
+		(*ChangeQANPostgreSQLPgStatementsAgentParams)(nil),  // 53: inventory.v1.ChangeQANPostgreSQLPgStatementsAgentParams
+		(*AddQANPostgreSQLPgStatMonitorAgentParams)(nil),    // 54: inventory.v1.AddQANPostgreSQLPgStatMonitorAgentParams
+		(*ChangeQANPostgreSQLPgStatMonitorAgentParams)(nil), // 55: inventory.v1.ChangeQANPostgreSQLPgStatMonitorAgentParams
+		(*AddRDSExporterParams)(nil),                        // 56: inventory.v1.AddRDSExporterParams
+		(*ChangeRDSExporterParams)(nil),                     // 57: inventory.v1.ChangeRDSExporterParams
+		(*AddExternalExporterParams)(nil),                   // 58: inventory.v1.AddExternalExporterParams
+		(*ChangeExternalExporterParams)(nil),                // 59: inventory.v1.ChangeExternalExporterParams
+		(*AddAzureDatabaseExporterParams)(nil),              // 60: inventory.v1.AddAzureDatabaseExporterParams
+		(*ChangeAzureDatabaseExporterParams)(nil),           // 61: inventory.v1.ChangeAzureDatabaseExporterParams
+		(*ChangeNomadAgentParams)(nil),                      // 62: inventory.v1.ChangeNomadAgentParams
+		(*AddValkeyExporterParams)(nil),                     // 63: inventory.v1.AddValkeyExporterParams
+		(*ChangeValkeyExporterParams)(nil),                  // 64: inventory.v1.ChangeValkeyExporterParams
+		(*AddClickHouseExporterParams)(nil),                 // 65: inventory.v1.AddClickHouseExporterParams
+		(*ChangeClickHouseExporterParams)(nil),              // 66: inventory.v1.ChangeClickHouseExporterParams
+		(*AddRTAMongoDBAgentParams)(nil),                    // 67: inventory.v1.AddRTAMongoDBAgentParams
+		(*ChangeRTAMongoDBAgentParams)(nil),                 // 68: inventory.v1.ChangeRTAMongoDBAgentParams
+		(*RemoveAgentRequest)(nil),                          // 69: inventory.v1.RemoveAgentRequest
+		(*RemoveAgentResponse)(nil),                         // 70: inventory.v1.RemoveAgentResponse
+		nil,                                                 // 71: inventory.v1.PMMAgent.CustomLabelsEntry
+		nil,                                                 // 72: inventory.v1.NodeExporter.CustomLabelsEntry
+		nil,                                                 // 73: inventory.v1.MySQLdExporter.CustomLabelsEntry
+		nil,                                                 // 74: inventory.v1.MySQLdExporter.ExtraDsnParamsEntry
+		nil,                                                 // 75: inventory.v1.MongoDBExporter.CustomLabelsEntry
+		nil,                                                 // 76: inventory.v1.PostgresExporter.CustomLabelsEntry
+		nil,                                                 // 77: inventory.v1.ProxySQLExporter.CustomLabelsEntry
+		nil,                                                 // 78: inventory.v1.ValkeyExporter.CustomLabelsEntry
+		nil,                                                 // 79: inventory.v1.ClickHouseExporter.CustomLabelsEntry
+		nil,                                                 // 80: inventory.v1.QANMySQLPerfSchemaAgent.CustomLabelsEntry
+		nil,                                                 // 81: inventory.v1.QANMySQLPerfSchemaAgent.ExtraDsnParamsEntry
+		nil,                                                 // 82: inventory.v1.QANMySQLSlowlogAgent.CustomLabelsEntry
+		nil,                                                 // 83: inventory.v1.QANMySQLSlowlogAgent.ExtraDsnParamsEntry
+		nil,                                                 // 84: inventory.v1.QANMongoDBProfilerAgent.CustomLabelsEntry
+		nil,                                                 // 85: inventory.v1.QANMongoDBMongologAgent.CustomLabelsEntry
+		nil,                                                 // 86: inventory.v1.RTAMongoDBAgent.CustomLabelsEntry
+		nil,                                                 // 87: inventory.v1.QANPostgreSQLPgStatementsAgent.CustomLabelsEntry
+		nil,                                                 // 88: inventory.v1.QANPostgreSQLPgStatMonitorAgent.CustomLabelsEntry
+		nil,                                                 // 89: inventory.v1.RDSExporter.CustomLabelsEntry
+		nil,                                                 // 90: inventory.v1.ExternalExporter.CustomLabelsEntry
+		nil,                                                 // 91: inventory.v1.AzureDatabaseExporter.CustomLabelsEntry
+		nil,                                                 // 92: inventory.v1.AddPMMAgentParams.CustomLabelsEntry
+		nil,                                                 // 93: inventory.v1.AddNodeExporterParams.CustomLabelsEntry
+		nil,                                                 // 94: inventory.v1.AddMySQLdExporterParams.CustomLabelsEntry
+		nil,                                                 // 95: inventory.v1.AddMySQLdExporterParams.ExtraDsnParamsEntry
+		nil,                                                 // 96: inventory.v1.AddMongoDBExporterParams.CustomLabelsEntry
+		nil,                                                 // 97: inventory.v1.AddPostgresExporterParams.CustomLabelsEntry
+		nil,                                                 // 98: inventory.v1.AddProxySQLExporterParams.CustomLabelsEntry
+		nil,                                                 // 99: inventory.v1.AddQANMySQLPerfSchemaAgentParams.CustomLabelsEntry
+		nil,                                                 // 100: inventory.v1.AddQANMySQLPerfSchemaAgentParams.ExtraDsnParamsEntry
+		nil,                                                 // 101: inventory.v1.AddQANMySQLSlowlogAgentParams.CustomLabelsEntry
+		nil,                                                 // 102: inventory.v1.AddQANMySQLSlowlogAgentParams.ExtraDsnParamsEntry
+		nil,                                                 // 103: inventory.v1.AddQANMongoDBProfilerAgentParams.CustomLabelsEntry
+		nil,                                                 // 104: inventory.v1.AddQANMongoDBMongologAgentParams.CustomLabelsEntry
+		nil,                                                 // 105: inventory.v1.AddQANPostgreSQLPgStatementsAgentParams.CustomLabelsEntry
+		nil,                                                 // 106: inventory.v1.AddQANPostgreSQLPgStatMonitorAgentParams.CustomLabelsEntry
+		nil,                                                 // 107: inventory.v1.AddRDSExporterParams.CustomLabelsEntry
+		nil,                                                 // 108: inventory.v1.AddExternalExporterParams.CustomLabelsEntry
+		nil,                                                 // 109: inventory.v1.AddAzureDatabaseExporterParams.CustomLabelsEntry
+		nil,                                                 // 110: inventory.v1.AddValkeyExporterParams.CustomLabelsEntry
+		nil,                                                 // 111: inventory.v1.AddClickHouseExporterParams.CustomLabelsEntry
+		nil,                                                 // 112: inventory.v1.AddRTAMongoDBAgentParams.CustomLabelsEntry
+		(AgentStatus)(0),                                    // 113: inventory.v1.AgentStatus
+		(LogLevel)(0),                                       // 114: inventory.v1.LogLevel
+		(*common.MetricsResolutions)(nil),                   // 115: common.MetricsResolutions
+		(*durationpb.Duration)(nil),                         // 116: google.protobuf.Duration
+		(*common.StringMap)(nil),                            // 117: common.StringMap
 	}
 )
-
 var file_inventory_v1_agents_proto_depIdxs = []int32{
-	68,  // 0: inventory.v1.PMMAgent.custom_labels:type_name -> inventory.v1.PMMAgent.CustomLabelsEntry
-	108, // 1: inventory.v1.VMAgent.status:type_name -> inventory.v1.AgentStatus
-	108, // 2: inventory.v1.NomadAgent.status:type_name -> inventory.v1.AgentStatus
-	69,  // 3: inventory.v1.NodeExporter.custom_labels:type_name -> inventory.v1.NodeExporter.CustomLabelsEntry
-	108, // 4: inventory.v1.NodeExporter.status:type_name -> inventory.v1.AgentStatus
-	109, // 5: inventory.v1.NodeExporter.log_level:type_name -> inventory.v1.LogLevel
-	110, // 6: inventory.v1.NodeExporter.metrics_resolutions:type_name -> common.MetricsResolutions
-	70,  // 7: inventory.v1.MySQLdExporter.custom_labels:type_name -> inventory.v1.MySQLdExporter.CustomLabelsEntry
-	108, // 8: inventory.v1.MySQLdExporter.status:type_name -> inventory.v1.AgentStatus
-	109, // 9: inventory.v1.MySQLdExporter.log_level:type_name -> inventory.v1.LogLevel
-	110, // 10: inventory.v1.MySQLdExporter.metrics_resolutions:type_name -> common.MetricsResolutions
-	71,  // 11: inventory.v1.MySQLdExporter.extra_dsn_params:type_name -> inventory.v1.MySQLdExporter.ExtraDsnParamsEntry
-	72,  // 12: inventory.v1.MongoDBExporter.custom_labels:type_name -> inventory.v1.MongoDBExporter.CustomLabelsEntry
-	108, // 13: inventory.v1.MongoDBExporter.status:type_name -> inventory.v1.AgentStatus
-	109, // 14: inventory.v1.MongoDBExporter.log_level:type_name -> inventory.v1.LogLevel
-	110, // 15: inventory.v1.MongoDBExporter.metrics_resolutions:type_name -> common.MetricsResolutions
-	73,  // 16: inventory.v1.PostgresExporter.custom_labels:type_name -> inventory.v1.PostgresExporter.CustomLabelsEntry
-	108, // 17: inventory.v1.PostgresExporter.status:type_name -> inventory.v1.AgentStatus
-	109, // 18: inventory.v1.PostgresExporter.log_level:type_name -> inventory.v1.LogLevel
-	110, // 19: inventory.v1.PostgresExporter.metrics_resolutions:type_name -> common.MetricsResolutions
-	74,  // 20: inventory.v1.ProxySQLExporter.custom_labels:type_name -> inventory.v1.ProxySQLExporter.CustomLabelsEntry
-	108, // 21: inventory.v1.ProxySQLExporter.status:type_name -> inventory.v1.AgentStatus
-	109, // 22: inventory.v1.ProxySQLExporter.log_level:type_name -> inventory.v1.LogLevel
-	110, // 23: inventory.v1.ProxySQLExporter.metrics_resolutions:type_name -> common.MetricsResolutions
-	75,  // 24: inventory.v1.ValkeyExporter.custom_labels:type_name -> inventory.v1.ValkeyExporter.CustomLabelsEntry
-	108, // 25: inventory.v1.ValkeyExporter.status:type_name -> inventory.v1.AgentStatus
-	110, // 26: inventory.v1.ValkeyExporter.metrics_resolutions:type_name -> common.MetricsResolutions
-	76,  // 27: inventory.v1.QANMySQLPerfSchemaAgent.custom_labels:type_name -> inventory.v1.QANMySQLPerfSchemaAgent.CustomLabelsEntry
-	108, // 28: inventory.v1.QANMySQLPerfSchemaAgent.status:type_name -> inventory.v1.AgentStatus
-	109, // 29: inventory.v1.QANMySQLPerfSchemaAgent.log_level:type_name -> inventory.v1.LogLevel
-	77,  // 30: inventory.v1.QANMySQLPerfSchemaAgent.extra_dsn_params:type_name -> inventory.v1.QANMySQLPerfSchemaAgent.ExtraDsnParamsEntry
-	78,  // 31: inventory.v1.QANMySQLSlowlogAgent.custom_labels:type_name -> inventory.v1.QANMySQLSlowlogAgent.CustomLabelsEntry
-	108, // 32: inventory.v1.QANMySQLSlowlogAgent.status:type_name -> inventory.v1.AgentStatus
-	109, // 33: inventory.v1.QANMySQLSlowlogAgent.log_level:type_name -> inventory.v1.LogLevel
-	79,  // 34: inventory.v1.QANMySQLSlowlogAgent.extra_dsn_params:type_name -> inventory.v1.QANMySQLSlowlogAgent.ExtraDsnParamsEntry
-	80,  // 35: inventory.v1.QANMongoDBProfilerAgent.custom_labels:type_name -> inventory.v1.QANMongoDBProfilerAgent.CustomLabelsEntry
-	108, // 36: inventory.v1.QANMongoDBProfilerAgent.status:type_name -> inventory.v1.AgentStatus
-	109, // 37: inventory.v1.QANMongoDBProfilerAgent.log_level:type_name -> inventory.v1.LogLevel
-	81,  // 38: inventory.v1.QANMongoDBMongologAgent.custom_labels:type_name -> inventory.v1.QANMongoDBMongologAgent.CustomLabelsEntry
-	108, // 39: inventory.v1.QANMongoDBMongologAgent.status:type_name -> inventory.v1.AgentStatus
-	109, // 40: inventory.v1.QANMongoDBMongologAgent.log_level:type_name -> inventory.v1.LogLevel
-	111, // 41: inventory.v1.RTAOptions.collect_interval:type_name -> google.protobuf.Duration
-	82,  // 42: inventory.v1.RTAMongoDBAgent.custom_labels:type_name -> inventory.v1.RTAMongoDBAgent.CustomLabelsEntry
-	14,  // 43: inventory.v1.RTAMongoDBAgent.rta_options:type_name -> inventory.v1.RTAOptions
-	108, // 44: inventory.v1.RTAMongoDBAgent.status:type_name -> inventory.v1.AgentStatus
-	109, // 45: inventory.v1.RTAMongoDBAgent.log_level:type_name -> inventory.v1.LogLevel
-	83,  // 46: inventory.v1.QANPostgreSQLPgStatementsAgent.custom_labels:type_name -> inventory.v1.QANPostgreSQLPgStatementsAgent.CustomLabelsEntry
-	108, // 47: inventory.v1.QANPostgreSQLPgStatementsAgent.status:type_name -> inventory.v1.AgentStatus
-	109, // 48: inventory.v1.QANPostgreSQLPgStatementsAgent.log_level:type_name -> inventory.v1.LogLevel
-	84,  // 49: inventory.v1.QANPostgreSQLPgStatMonitorAgent.custom_labels:type_name -> inventory.v1.QANPostgreSQLPgStatMonitorAgent.CustomLabelsEntry
-	108, // 50: inventory.v1.QANPostgreSQLPgStatMonitorAgent.status:type_name -> inventory.v1.AgentStatus
-	109, // 51: inventory.v1.QANPostgreSQLPgStatMonitorAgent.log_level:type_name -> inventory.v1.LogLevel
-	85,  // 52: inventory.v1.RDSExporter.custom_labels:type_name -> inventory.v1.RDSExporter.CustomLabelsEntry
-	108, // 53: inventory.v1.RDSExporter.status:type_name -> inventory.v1.AgentStatus
-	109, // 54: inventory.v1.RDSExporter.log_level:type_name -> inventory.v1.LogLevel
-	110, // 55: inventory.v1.RDSExporter.metrics_resolutions:type_name -> common.MetricsResolutions
-	86,  // 56: inventory.v1.ExternalExporter.custom_labels:type_name -> inventory.v1.ExternalExporter.CustomLabelsEntry
-	110, // 57: inventory.v1.ExternalExporter.metrics_resolutions:type_name -> common.MetricsResolutions
-	108, // 58: inventory.v1.ExternalExporter.status:type_name -> inventory.v1.AgentStatus
-	87,  // 59: inventory.v1.AzureDatabaseExporter.custom_labels:type_name -> inventory.v1.AzureDatabaseExporter.CustomLabelsEntry
-	108, // 60: inventory.v1.AzureDatabaseExporter.status:type_name -> inventory.v1.AgentStatus
-	109, // 61: inventory.v1.AzureDatabaseExporter.log_level:type_name -> inventory.v1.LogLevel
-	110, // 62: inventory.v1.AzureDatabaseExporter.metrics_resolutions:type_name -> common.MetricsResolutions
-	112, // 63: inventory.v1.ChangeCommonAgentParams.custom_labels:type_name -> common.StringMap
-	110, // 64: inventory.v1.ChangeCommonAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	0,   // 65: inventory.v1.ListAgentsRequest.agent_type:type_name -> inventory.v1.AgentType
-	1,   // 66: inventory.v1.ListAgentsResponse.pmm_agent:type_name -> inventory.v1.PMMAgent
-	2,   // 67: inventory.v1.ListAgentsResponse.vm_agent:type_name -> inventory.v1.VMAgent
-	4,   // 68: inventory.v1.ListAgentsResponse.node_exporter:type_name -> inventory.v1.NodeExporter
-	5,   // 69: inventory.v1.ListAgentsResponse.mysqld_exporter:type_name -> inventory.v1.MySQLdExporter
-	6,   // 70: inventory.v1.ListAgentsResponse.mongodb_exporter:type_name -> inventory.v1.MongoDBExporter
-	7,   // 71: inventory.v1.ListAgentsResponse.postgres_exporter:type_name -> inventory.v1.PostgresExporter
-	8,   // 72: inventory.v1.ListAgentsResponse.proxysql_exporter:type_name -> inventory.v1.ProxySQLExporter
-	10,  // 73: inventory.v1.ListAgentsResponse.qan_mysql_perfschema_agent:type_name -> inventory.v1.QANMySQLPerfSchemaAgent
-	11,  // 74: inventory.v1.ListAgentsResponse.qan_mysql_slowlog_agent:type_name -> inventory.v1.QANMySQLSlowlogAgent
-	12,  // 75: inventory.v1.ListAgentsResponse.qan_mongodb_profiler_agent:type_name -> inventory.v1.QANMongoDBProfilerAgent
-	13,  // 76: inventory.v1.ListAgentsResponse.qan_mongodb_mongolog_agent:type_name -> inventory.v1.QANMongoDBMongologAgent
-	16,  // 77: inventory.v1.ListAgentsResponse.qan_postgresql_pgstatements_agent:type_name -> inventory.v1.QANPostgreSQLPgStatementsAgent
-	17,  // 78: inventory.v1.ListAgentsResponse.qan_postgresql_pgstatmonitor_agent:type_name -> inventory.v1.QANPostgreSQLPgStatMonitorAgent
-	19,  // 79: inventory.v1.ListAgentsResponse.external_exporter:type_name -> inventory.v1.ExternalExporter
-	18,  // 80: inventory.v1.ListAgentsResponse.rds_exporter:type_name -> inventory.v1.RDSExporter
-	20,  // 81: inventory.v1.ListAgentsResponse.azure_database_exporter:type_name -> inventory.v1.AzureDatabaseExporter
-	3,   // 82: inventory.v1.ListAgentsResponse.nomad_agent:type_name -> inventory.v1.NomadAgent
-	9,   // 83: inventory.v1.ListAgentsResponse.valkey_exporter:type_name -> inventory.v1.ValkeyExporter
-	15,  // 84: inventory.v1.ListAgentsResponse.rta_mongodb_agent:type_name -> inventory.v1.RTAMongoDBAgent
-	1,   // 85: inventory.v1.GetAgentResponse.pmm_agent:type_name -> inventory.v1.PMMAgent
-	2,   // 86: inventory.v1.GetAgentResponse.vmagent:type_name -> inventory.v1.VMAgent
-	4,   // 87: inventory.v1.GetAgentResponse.node_exporter:type_name -> inventory.v1.NodeExporter
-	5,   // 88: inventory.v1.GetAgentResponse.mysqld_exporter:type_name -> inventory.v1.MySQLdExporter
-	6,   // 89: inventory.v1.GetAgentResponse.mongodb_exporter:type_name -> inventory.v1.MongoDBExporter
-	7,   // 90: inventory.v1.GetAgentResponse.postgres_exporter:type_name -> inventory.v1.PostgresExporter
-	8,   // 91: inventory.v1.GetAgentResponse.proxysql_exporter:type_name -> inventory.v1.ProxySQLExporter
-	10,  // 92: inventory.v1.GetAgentResponse.qan_mysql_perfschema_agent:type_name -> inventory.v1.QANMySQLPerfSchemaAgent
-	11,  // 93: inventory.v1.GetAgentResponse.qan_mysql_slowlog_agent:type_name -> inventory.v1.QANMySQLSlowlogAgent
-	12,  // 94: inventory.v1.GetAgentResponse.qan_mongodb_profiler_agent:type_name -> inventory.v1.QANMongoDBProfilerAgent
-	13,  // 95: inventory.v1.GetAgentResponse.qan_mongodb_mongolog_agent:type_name -> inventory.v1.QANMongoDBMongologAgent
-	16,  // 96: inventory.v1.GetAgentResponse.qan_postgresql_pgstatements_agent:type_name -> inventory.v1.QANPostgreSQLPgStatementsAgent
-	17,  // 97: inventory.v1.GetAgentResponse.qan_postgresql_pgstatmonitor_agent:type_name -> inventory.v1.QANPostgreSQLPgStatMonitorAgent
-	19,  // 98: inventory.v1.GetAgentResponse.external_exporter:type_name -> inventory.v1.ExternalExporter
-	18,  // 99: inventory.v1.GetAgentResponse.rds_exporter:type_name -> inventory.v1.RDSExporter
-	20,  // 100: inventory.v1.GetAgentResponse.azure_database_exporter:type_name -> inventory.v1.AzureDatabaseExporter
-	3,   // 101: inventory.v1.GetAgentResponse.nomad_agent:type_name -> inventory.v1.NomadAgent
-	9,   // 102: inventory.v1.GetAgentResponse.valkey_exporter:type_name -> inventory.v1.ValkeyExporter
-	15,  // 103: inventory.v1.GetAgentResponse.rta_mongodb_agent:type_name -> inventory.v1.RTAMongoDBAgent
-	32,  // 104: inventory.v1.AddAgentRequest.pmm_agent:type_name -> inventory.v1.AddPMMAgentParams
-	33,  // 105: inventory.v1.AddAgentRequest.node_exporter:type_name -> inventory.v1.AddNodeExporterParams
-	35,  // 106: inventory.v1.AddAgentRequest.mysqld_exporter:type_name -> inventory.v1.AddMySQLdExporterParams
-	37,  // 107: inventory.v1.AddAgentRequest.mongodb_exporter:type_name -> inventory.v1.AddMongoDBExporterParams
-	39,  // 108: inventory.v1.AddAgentRequest.postgres_exporter:type_name -> inventory.v1.AddPostgresExporterParams
-	41,  // 109: inventory.v1.AddAgentRequest.proxysql_exporter:type_name -> inventory.v1.AddProxySQLExporterParams
-	57,  // 110: inventory.v1.AddAgentRequest.external_exporter:type_name -> inventory.v1.AddExternalExporterParams
-	55,  // 111: inventory.v1.AddAgentRequest.rds_exporter:type_name -> inventory.v1.AddRDSExporterParams
-	59,  // 112: inventory.v1.AddAgentRequest.azure_database_exporter:type_name -> inventory.v1.AddAzureDatabaseExporterParams
-	43,  // 113: inventory.v1.AddAgentRequest.qan_mysql_perfschema_agent:type_name -> inventory.v1.AddQANMySQLPerfSchemaAgentParams
-	45,  // 114: inventory.v1.AddAgentRequest.qan_mysql_slowlog_agent:type_name -> inventory.v1.AddQANMySQLSlowlogAgentParams
-	47,  // 115: inventory.v1.AddAgentRequest.qan_mongodb_profiler_agent:type_name -> inventory.v1.AddQANMongoDBProfilerAgentParams
-	49,  // 116: inventory.v1.AddAgentRequest.qan_mongodb_mongolog_agent:type_name -> inventory.v1.AddQANMongoDBMongologAgentParams
-	51,  // 117: inventory.v1.AddAgentRequest.qan_postgresql_pgstatements_agent:type_name -> inventory.v1.AddQANPostgreSQLPgStatementsAgentParams
-	53,  // 118: inventory.v1.AddAgentRequest.qan_postgresql_pgstatmonitor_agent:type_name -> inventory.v1.AddQANPostgreSQLPgStatMonitorAgentParams
-	62,  // 119: inventory.v1.AddAgentRequest.valkey_exporter:type_name -> inventory.v1.AddValkeyExporterParams
-	64,  // 120: inventory.v1.AddAgentRequest.rta_mongodb_agent:type_name -> inventory.v1.AddRTAMongoDBAgentParams
-	1,   // 121: inventory.v1.AddAgentResponse.pmm_agent:type_name -> inventory.v1.PMMAgent
-	4,   // 122: inventory.v1.AddAgentResponse.node_exporter:type_name -> inventory.v1.NodeExporter
-	5,   // 123: inventory.v1.AddAgentResponse.mysqld_exporter:type_name -> inventory.v1.MySQLdExporter
-	6,   // 124: inventory.v1.AddAgentResponse.mongodb_exporter:type_name -> inventory.v1.MongoDBExporter
-	7,   // 125: inventory.v1.AddAgentResponse.postgres_exporter:type_name -> inventory.v1.PostgresExporter
-	8,   // 126: inventory.v1.AddAgentResponse.proxysql_exporter:type_name -> inventory.v1.ProxySQLExporter
-	19,  // 127: inventory.v1.AddAgentResponse.external_exporter:type_name -> inventory.v1.ExternalExporter
-	18,  // 128: inventory.v1.AddAgentResponse.rds_exporter:type_name -> inventory.v1.RDSExporter
-	20,  // 129: inventory.v1.AddAgentResponse.azure_database_exporter:type_name -> inventory.v1.AzureDatabaseExporter
-	10,  // 130: inventory.v1.AddAgentResponse.qan_mysql_perfschema_agent:type_name -> inventory.v1.QANMySQLPerfSchemaAgent
-	11,  // 131: inventory.v1.AddAgentResponse.qan_mysql_slowlog_agent:type_name -> inventory.v1.QANMySQLSlowlogAgent
-	12,  // 132: inventory.v1.AddAgentResponse.qan_mongodb_profiler_agent:type_name -> inventory.v1.QANMongoDBProfilerAgent
-	13,  // 133: inventory.v1.AddAgentResponse.qan_mongodb_mongolog_agent:type_name -> inventory.v1.QANMongoDBMongologAgent
-	16,  // 134: inventory.v1.AddAgentResponse.qan_postgresql_pgstatements_agent:type_name -> inventory.v1.QANPostgreSQLPgStatementsAgent
-	17,  // 135: inventory.v1.AddAgentResponse.qan_postgresql_pgstatmonitor_agent:type_name -> inventory.v1.QANPostgreSQLPgStatMonitorAgent
-	9,   // 136: inventory.v1.AddAgentResponse.valkey_exporter:type_name -> inventory.v1.ValkeyExporter
-	15,  // 137: inventory.v1.AddAgentResponse.rta_mongodb_agent:type_name -> inventory.v1.RTAMongoDBAgent
-	34,  // 138: inventory.v1.ChangeAgentRequest.node_exporter:type_name -> inventory.v1.ChangeNodeExporterParams
-	36,  // 139: inventory.v1.ChangeAgentRequest.mysqld_exporter:type_name -> inventory.v1.ChangeMySQLdExporterParams
-	38,  // 140: inventory.v1.ChangeAgentRequest.mongodb_exporter:type_name -> inventory.v1.ChangeMongoDBExporterParams
-	40,  // 141: inventory.v1.ChangeAgentRequest.postgres_exporter:type_name -> inventory.v1.ChangePostgresExporterParams
-	42,  // 142: inventory.v1.ChangeAgentRequest.proxysql_exporter:type_name -> inventory.v1.ChangeProxySQLExporterParams
-	58,  // 143: inventory.v1.ChangeAgentRequest.external_exporter:type_name -> inventory.v1.ChangeExternalExporterParams
-	56,  // 144: inventory.v1.ChangeAgentRequest.rds_exporter:type_name -> inventory.v1.ChangeRDSExporterParams
-	60,  // 145: inventory.v1.ChangeAgentRequest.azure_database_exporter:type_name -> inventory.v1.ChangeAzureDatabaseExporterParams
-	44,  // 146: inventory.v1.ChangeAgentRequest.qan_mysql_perfschema_agent:type_name -> inventory.v1.ChangeQANMySQLPerfSchemaAgentParams
-	46,  // 147: inventory.v1.ChangeAgentRequest.qan_mysql_slowlog_agent:type_name -> inventory.v1.ChangeQANMySQLSlowlogAgentParams
-	48,  // 148: inventory.v1.ChangeAgentRequest.qan_mongodb_profiler_agent:type_name -> inventory.v1.ChangeQANMongoDBProfilerAgentParams
-	50,  // 149: inventory.v1.ChangeAgentRequest.qan_mongodb_mongolog_agent:type_name -> inventory.v1.ChangeQANMongoDBMongologAgentParams
-	52,  // 150: inventory.v1.ChangeAgentRequest.qan_postgresql_pgstatements_agent:type_name -> inventory.v1.ChangeQANPostgreSQLPgStatementsAgentParams
-	54,  // 151: inventory.v1.ChangeAgentRequest.qan_postgresql_pgstatmonitor_agent:type_name -> inventory.v1.ChangeQANPostgreSQLPgStatMonitorAgentParams
-	61,  // 152: inventory.v1.ChangeAgentRequest.nomad_agent:type_name -> inventory.v1.ChangeNomadAgentParams
-	63,  // 153: inventory.v1.ChangeAgentRequest.valkey_exporter:type_name -> inventory.v1.ChangeValkeyExporterParams
-	65,  // 154: inventory.v1.ChangeAgentRequest.rta_mongodb_agent:type_name -> inventory.v1.ChangeRTAMongoDBAgentParams
-	4,   // 155: inventory.v1.ChangeAgentResponse.node_exporter:type_name -> inventory.v1.NodeExporter
-	5,   // 156: inventory.v1.ChangeAgentResponse.mysqld_exporter:type_name -> inventory.v1.MySQLdExporter
-	6,   // 157: inventory.v1.ChangeAgentResponse.mongodb_exporter:type_name -> inventory.v1.MongoDBExporter
-	7,   // 158: inventory.v1.ChangeAgentResponse.postgres_exporter:type_name -> inventory.v1.PostgresExporter
-	8,   // 159: inventory.v1.ChangeAgentResponse.proxysql_exporter:type_name -> inventory.v1.ProxySQLExporter
-	19,  // 160: inventory.v1.ChangeAgentResponse.external_exporter:type_name -> inventory.v1.ExternalExporter
-	18,  // 161: inventory.v1.ChangeAgentResponse.rds_exporter:type_name -> inventory.v1.RDSExporter
-	20,  // 162: inventory.v1.ChangeAgentResponse.azure_database_exporter:type_name -> inventory.v1.AzureDatabaseExporter
-	10,  // 163: inventory.v1.ChangeAgentResponse.qan_mysql_perfschema_agent:type_name -> inventory.v1.QANMySQLPerfSchemaAgent
-	11,  // 164: inventory.v1.ChangeAgentResponse.qan_mysql_slowlog_agent:type_name -> inventory.v1.QANMySQLSlowlogAgent
-	12,  // 165: inventory.v1.ChangeAgentResponse.qan_mongodb_profiler_agent:type_name -> inventory.v1.QANMongoDBProfilerAgent
-	13,  // 166: inventory.v1.ChangeAgentResponse.qan_mongodb_mongolog_agent:type_name -> inventory.v1.QANMongoDBMongologAgent
-	16,  // 167: inventory.v1.ChangeAgentResponse.qan_postgresql_pgstatements_agent:type_name -> inventory.v1.QANPostgreSQLPgStatementsAgent
-	17,  // 168: inventory.v1.ChangeAgentResponse.qan_postgresql_pgstatmonitor_agent:type_name -> inventory.v1.QANPostgreSQLPgStatMonitorAgent
-	3,   // 169: inventory.v1.ChangeAgentResponse.nomad_agent:type_name -> inventory.v1.NomadAgent
-	9,   // 170: inventory.v1.ChangeAgentResponse.valkey_exporter:type_name -> inventory.v1.ValkeyExporter
-	15,  // 171: inventory.v1.ChangeAgentResponse.rta_mongodb_agent:type_name -> inventory.v1.RTAMongoDBAgent
-	88,  // 172: inventory.v1.AddPMMAgentParams.custom_labels:type_name -> inventory.v1.AddPMMAgentParams.CustomLabelsEntry
-	89,  // 173: inventory.v1.AddNodeExporterParams.custom_labels:type_name -> inventory.v1.AddNodeExporterParams.CustomLabelsEntry
-	109, // 174: inventory.v1.AddNodeExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	112, // 175: inventory.v1.ChangeNodeExporterParams.custom_labels:type_name -> common.StringMap
-	110, // 176: inventory.v1.ChangeNodeExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	109, // 177: inventory.v1.ChangeNodeExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	90,  // 178: inventory.v1.AddMySQLdExporterParams.custom_labels:type_name -> inventory.v1.AddMySQLdExporterParams.CustomLabelsEntry
-	109, // 179: inventory.v1.AddMySQLdExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	91,  // 180: inventory.v1.AddMySQLdExporterParams.extra_dsn_params:type_name -> inventory.v1.AddMySQLdExporterParams.ExtraDsnParamsEntry
-	112, // 181: inventory.v1.ChangeMySQLdExporterParams.custom_labels:type_name -> common.StringMap
-	110, // 182: inventory.v1.ChangeMySQLdExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	109, // 183: inventory.v1.ChangeMySQLdExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	92,  // 184: inventory.v1.AddMongoDBExporterParams.custom_labels:type_name -> inventory.v1.AddMongoDBExporterParams.CustomLabelsEntry
-	109, // 185: inventory.v1.AddMongoDBExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	112, // 186: inventory.v1.ChangeMongoDBExporterParams.custom_labels:type_name -> common.StringMap
-	110, // 187: inventory.v1.ChangeMongoDBExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	109, // 188: inventory.v1.ChangeMongoDBExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	93,  // 189: inventory.v1.AddPostgresExporterParams.custom_labels:type_name -> inventory.v1.AddPostgresExporterParams.CustomLabelsEntry
-	109, // 190: inventory.v1.AddPostgresExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	112, // 191: inventory.v1.ChangePostgresExporterParams.custom_labels:type_name -> common.StringMap
-	110, // 192: inventory.v1.ChangePostgresExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	109, // 193: inventory.v1.ChangePostgresExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	94,  // 194: inventory.v1.AddProxySQLExporterParams.custom_labels:type_name -> inventory.v1.AddProxySQLExporterParams.CustomLabelsEntry
-	109, // 195: inventory.v1.AddProxySQLExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	112, // 196: inventory.v1.ChangeProxySQLExporterParams.custom_labels:type_name -> common.StringMap
-	110, // 197: inventory.v1.ChangeProxySQLExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	109, // 198: inventory.v1.ChangeProxySQLExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	95,  // 199: inventory.v1.AddQANMySQLPerfSchemaAgentParams.custom_labels:type_name -> inventory.v1.AddQANMySQLPerfSchemaAgentParams.CustomLabelsEntry
-	109, // 200: inventory.v1.AddQANMySQLPerfSchemaAgentParams.log_level:type_name -> inventory.v1.LogLevel
-	96,  // 201: inventory.v1.AddQANMySQLPerfSchemaAgentParams.extra_dsn_params:type_name -> inventory.v1.AddQANMySQLPerfSchemaAgentParams.ExtraDsnParamsEntry
-	112, // 202: inventory.v1.ChangeQANMySQLPerfSchemaAgentParams.custom_labels:type_name -> common.StringMap
-	110, // 203: inventory.v1.ChangeQANMySQLPerfSchemaAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	109, // 204: inventory.v1.ChangeQANMySQLPerfSchemaAgentParams.log_level:type_name -> inventory.v1.LogLevel
-	97,  // 205: inventory.v1.AddQANMySQLSlowlogAgentParams.custom_labels:type_name -> inventory.v1.AddQANMySQLSlowlogAgentParams.CustomLabelsEntry
-	109, // 206: inventory.v1.AddQANMySQLSlowlogAgentParams.log_level:type_name -> inventory.v1.LogLevel
-	98,  // 207: inventory.v1.AddQANMySQLSlowlogAgentParams.extra_dsn_params:type_name -> inventory.v1.AddQANMySQLSlowlogAgentParams.ExtraDsnParamsEntry
-	112, // 208: inventory.v1.ChangeQANMySQLSlowlogAgentParams.custom_labels:type_name -> common.StringMap
-	110, // 209: inventory.v1.ChangeQANMySQLSlowlogAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	109, // 210: inventory.v1.ChangeQANMySQLSlowlogAgentParams.log_level:type_name -> inventory.v1.LogLevel
-	99,  // 211: inventory.v1.AddQANMongoDBProfilerAgentParams.custom_labels:type_name -> inventory.v1.AddQANMongoDBProfilerAgentParams.CustomLabelsEntry
-	109, // 212: inventory.v1.AddQANMongoDBProfilerAgentParams.log_level:type_name -> inventory.v1.LogLevel
-	112, // 213: inventory.v1.ChangeQANMongoDBProfilerAgentParams.custom_labels:type_name -> common.StringMap
-	110, // 214: inventory.v1.ChangeQANMongoDBProfilerAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	109, // 215: inventory.v1.ChangeQANMongoDBProfilerAgentParams.log_level:type_name -> inventory.v1.LogLevel
-	100, // 216: inventory.v1.AddQANMongoDBMongologAgentParams.custom_labels:type_name -> inventory.v1.AddQANMongoDBMongologAgentParams.CustomLabelsEntry
-	109, // 217: inventory.v1.AddQANMongoDBMongologAgentParams.log_level:type_name -> inventory.v1.LogLevel
-	112, // 218: inventory.v1.ChangeQANMongoDBMongologAgentParams.custom_labels:type_name -> common.StringMap
-	110, // 219: inventory.v1.ChangeQANMongoDBMongologAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	109, // 220: inventory.v1.ChangeQANMongoDBMongologAgentParams.log_level:type_name -> inventory.v1.LogLevel
-	101, // 221: inventory.v1.AddQANPostgreSQLPgStatementsAgentParams.custom_labels:type_name -> inventory.v1.AddQANPostgreSQLPgStatementsAgentParams.CustomLabelsEntry
-	109, // 222: inventory.v1.AddQANPostgreSQLPgStatementsAgentParams.log_level:type_name -> inventory.v1.LogLevel
-	112, // 223: inventory.v1.ChangeQANPostgreSQLPgStatementsAgentParams.custom_labels:type_name -> common.StringMap
-	110, // 224: inventory.v1.ChangeQANPostgreSQLPgStatementsAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	109, // 225: inventory.v1.ChangeQANPostgreSQLPgStatementsAgentParams.log_level:type_name -> inventory.v1.LogLevel
-	102, // 226: inventory.v1.AddQANPostgreSQLPgStatMonitorAgentParams.custom_labels:type_name -> inventory.v1.AddQANPostgreSQLPgStatMonitorAgentParams.CustomLabelsEntry
-	109, // 227: inventory.v1.AddQANPostgreSQLPgStatMonitorAgentParams.log_level:type_name -> inventory.v1.LogLevel
-	112, // 228: inventory.v1.ChangeQANPostgreSQLPgStatMonitorAgentParams.custom_labels:type_name -> common.StringMap
-	110, // 229: inventory.v1.ChangeQANPostgreSQLPgStatMonitorAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	109, // 230: inventory.v1.ChangeQANPostgreSQLPgStatMonitorAgentParams.log_level:type_name -> inventory.v1.LogLevel
-	103, // 231: inventory.v1.AddRDSExporterParams.custom_labels:type_name -> inventory.v1.AddRDSExporterParams.CustomLabelsEntry
-	109, // 232: inventory.v1.AddRDSExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	112, // 233: inventory.v1.ChangeRDSExporterParams.custom_labels:type_name -> common.StringMap
-	110, // 234: inventory.v1.ChangeRDSExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	109, // 235: inventory.v1.ChangeRDSExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	104, // 236: inventory.v1.AddExternalExporterParams.custom_labels:type_name -> inventory.v1.AddExternalExporterParams.CustomLabelsEntry
-	112, // 237: inventory.v1.ChangeExternalExporterParams.custom_labels:type_name -> common.StringMap
-	110, // 238: inventory.v1.ChangeExternalExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	105, // 239: inventory.v1.AddAzureDatabaseExporterParams.custom_labels:type_name -> inventory.v1.AddAzureDatabaseExporterParams.CustomLabelsEntry
-	109, // 240: inventory.v1.AddAzureDatabaseExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	112, // 241: inventory.v1.ChangeAzureDatabaseExporterParams.custom_labels:type_name -> common.StringMap
-	110, // 242: inventory.v1.ChangeAzureDatabaseExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	109, // 243: inventory.v1.ChangeAzureDatabaseExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	106, // 244: inventory.v1.AddValkeyExporterParams.custom_labels:type_name -> inventory.v1.AddValkeyExporterParams.CustomLabelsEntry
-	109, // 245: inventory.v1.AddValkeyExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	112, // 246: inventory.v1.ChangeValkeyExporterParams.custom_labels:type_name -> common.StringMap
-	110, // 247: inventory.v1.ChangeValkeyExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
-	109, // 248: inventory.v1.ChangeValkeyExporterParams.log_level:type_name -> inventory.v1.LogLevel
-	107, // 249: inventory.v1.AddRTAMongoDBAgentParams.custom_labels:type_name -> inventory.v1.AddRTAMongoDBAgentParams.CustomLabelsEntry
-	109, // 250: inventory.v1.AddRTAMongoDBAgentParams.log_level:type_name -> inventory.v1.LogLevel
-	14,  // 251: inventory.v1.AddRTAMongoDBAgentParams.rta_options:type_name -> inventory.v1.RTAOptions
-	112, // 252: inventory.v1.ChangeRTAMongoDBAgentParams.custom_labels:type_name -> common.StringMap
-	109, // 253: inventory.v1.ChangeRTAMongoDBAgentParams.log_level:type_name -> inventory.v1.LogLevel
-	14,  // 254: inventory.v1.ChangeRTAMongoDBAgentParams.rta_options:type_name -> inventory.v1.RTAOptions
-	22,  // 255: inventory.v1.AgentsService.ListAgents:input_type -> inventory.v1.ListAgentsRequest
-	24,  // 256: inventory.v1.AgentsService.GetAgent:input_type -> inventory.v1.GetAgentRequest
-	26,  // 257: inventory.v1.AgentsService.GetAgentLogs:input_type -> inventory.v1.GetAgentLogsRequest
-	28,  // 258: inventory.v1.AgentsService.AddAgent:input_type -> inventory.v1.AddAgentRequest
-	30,  // 259: inventory.v1.AgentsService.ChangeAgent:input_type -> inventory.v1.ChangeAgentRequest
-	66,  // 260: inventory.v1.AgentsService.RemoveAgent:input_type -> inventory.v1.RemoveAgentRequest
-	23,  // 261: inventory.v1.AgentsService.ListAgents:output_type -> inventory.v1.ListAgentsResponse
-	25,  // 262: inventory.v1.AgentsService.GetAgent:output_type -> inventory.v1.GetAgentResponse
-	27,  // 263: inventory.v1.AgentsService.GetAgentLogs:output_type -> inventory.v1.GetAgentLogsResponse
-	29,  // 264: inventory.v1.AgentsService.AddAgent:output_type -> inventory.v1.AddAgentResponse
-	31,  // 265: inventory.v1.AgentsService.ChangeAgent:output_type -> inventory.v1.ChangeAgentResponse
-	67,  // 266: inventory.v1.AgentsService.RemoveAgent:output_type -> inventory.v1.RemoveAgentResponse
-	261, // [261:267] is the sub-list for method output_type
-	255, // [255:261] is the sub-list for method input_type
-	255, // [255:255] is the sub-list for extension type_name
-	255, // [255:255] is the sub-list for extension extendee
-	0,   // [0:255] is the sub-list for field type_name
+	71,  // 0: inventory.v1.PMMAgent.custom_labels:type_name -> inventory.v1.PMMAgent.CustomLabelsEntry
+	113, // 1: inventory.v1.VMAgent.status:type_name -> inventory.v1.AgentStatus
+	113, // 2: inventory.v1.NomadAgent.status:type_name -> inventory.v1.AgentStatus
+	72,  // 3: inventory.v1.NodeExporter.custom_labels:type_name -> inventory.v1.NodeExporter.CustomLabelsEntry
+	113, // 4: inventory.v1.NodeExporter.status:type_name -> inventory.v1.AgentStatus
+	114, // 5: inventory.v1.NodeExporter.log_level:type_name -> inventory.v1.LogLevel
+	115, // 6: inventory.v1.NodeExporter.metrics_resolutions:type_name -> common.MetricsResolutions
+	73,  // 7: inventory.v1.MySQLdExporter.custom_labels:type_name -> inventory.v1.MySQLdExporter.CustomLabelsEntry
+	113, // 8: inventory.v1.MySQLdExporter.status:type_name -> inventory.v1.AgentStatus
+	114, // 9: inventory.v1.MySQLdExporter.log_level:type_name -> inventory.v1.LogLevel
+	115, // 10: inventory.v1.MySQLdExporter.metrics_resolutions:type_name -> common.MetricsResolutions
+	74,  // 11: inventory.v1.MySQLdExporter.extra_dsn_params:type_name -> inventory.v1.MySQLdExporter.ExtraDsnParamsEntry
+	75,  // 12: inventory.v1.MongoDBExporter.custom_labels:type_name -> inventory.v1.MongoDBExporter.CustomLabelsEntry
+	113, // 13: inventory.v1.MongoDBExporter.status:type_name -> inventory.v1.AgentStatus
+	114, // 14: inventory.v1.MongoDBExporter.log_level:type_name -> inventory.v1.LogLevel
+	115, // 15: inventory.v1.MongoDBExporter.metrics_resolutions:type_name -> common.MetricsResolutions
+	76,  // 16: inventory.v1.PostgresExporter.custom_labels:type_name -> inventory.v1.PostgresExporter.CustomLabelsEntry
+	113, // 17: inventory.v1.PostgresExporter.status:type_name -> inventory.v1.AgentStatus
+	114, // 18: inventory.v1.PostgresExporter.log_level:type_name -> inventory.v1.LogLevel
+	115, // 19: inventory.v1.PostgresExporter.metrics_resolutions:type_name -> common.MetricsResolutions
+	77,  // 20: inventory.v1.ProxySQLExporter.custom_labels:type_name -> inventory.v1.ProxySQLExporter.CustomLabelsEntry
+	113, // 21: inventory.v1.ProxySQLExporter.status:type_name -> inventory.v1.AgentStatus
+	114, // 22: inventory.v1.ProxySQLExporter.log_level:type_name -> inventory.v1.LogLevel
+	115, // 23: inventory.v1.ProxySQLExporter.metrics_resolutions:type_name -> common.MetricsResolutions
+	78,  // 24: inventory.v1.ValkeyExporter.custom_labels:type_name -> inventory.v1.ValkeyExporter.CustomLabelsEntry
+	113, // 25: inventory.v1.ValkeyExporter.status:type_name -> inventory.v1.AgentStatus
+	115, // 26: inventory.v1.ValkeyExporter.metrics_resolutions:type_name -> common.MetricsResolutions
+	79,  // 27: inventory.v1.ClickHouseExporter.custom_labels:type_name -> inventory.v1.ClickHouseExporter.CustomLabelsEntry
+	113, // 28: inventory.v1.ClickHouseExporter.status:type_name -> inventory.v1.AgentStatus
+	115, // 29: inventory.v1.ClickHouseExporter.metrics_resolutions:type_name -> common.MetricsResolutions
+	80,  // 30: inventory.v1.QANMySQLPerfSchemaAgent.custom_labels:type_name -> inventory.v1.QANMySQLPerfSchemaAgent.CustomLabelsEntry
+	113, // 31: inventory.v1.QANMySQLPerfSchemaAgent.status:type_name -> inventory.v1.AgentStatus
+	114, // 32: inventory.v1.QANMySQLPerfSchemaAgent.log_level:type_name -> inventory.v1.LogLevel
+	81,  // 33: inventory.v1.QANMySQLPerfSchemaAgent.extra_dsn_params:type_name -> inventory.v1.QANMySQLPerfSchemaAgent.ExtraDsnParamsEntry
+	82,  // 34: inventory.v1.QANMySQLSlowlogAgent.custom_labels:type_name -> inventory.v1.QANMySQLSlowlogAgent.CustomLabelsEntry
+	113, // 35: inventory.v1.QANMySQLSlowlogAgent.status:type_name -> inventory.v1.AgentStatus
+	114, // 36: inventory.v1.QANMySQLSlowlogAgent.log_level:type_name -> inventory.v1.LogLevel
+	83,  // 37: inventory.v1.QANMySQLSlowlogAgent.extra_dsn_params:type_name -> inventory.v1.QANMySQLSlowlogAgent.ExtraDsnParamsEntry
+	84,  // 38: inventory.v1.QANMongoDBProfilerAgent.custom_labels:type_name -> inventory.v1.QANMongoDBProfilerAgent.CustomLabelsEntry
+	113, // 39: inventory.v1.QANMongoDBProfilerAgent.status:type_name -> inventory.v1.AgentStatus
+	114, // 40: inventory.v1.QANMongoDBProfilerAgent.log_level:type_name -> inventory.v1.LogLevel
+	85,  // 41: inventory.v1.QANMongoDBMongologAgent.custom_labels:type_name -> inventory.v1.QANMongoDBMongologAgent.CustomLabelsEntry
+	113, // 42: inventory.v1.QANMongoDBMongologAgent.status:type_name -> inventory.v1.AgentStatus
+	114, // 43: inventory.v1.QANMongoDBMongologAgent.log_level:type_name -> inventory.v1.LogLevel
+	116, // 44: inventory.v1.RTAOptions.collect_interval:type_name -> google.protobuf.Duration
+	86,  // 45: inventory.v1.RTAMongoDBAgent.custom_labels:type_name -> inventory.v1.RTAMongoDBAgent.CustomLabelsEntry
+	15,  // 46: inventory.v1.RTAMongoDBAgent.rta_options:type_name -> inventory.v1.RTAOptions
+	113, // 47: inventory.v1.RTAMongoDBAgent.status:type_name -> inventory.v1.AgentStatus
+	114, // 48: inventory.v1.RTAMongoDBAgent.log_level:type_name -> inventory.v1.LogLevel
+	87,  // 49: inventory.v1.QANPostgreSQLPgStatementsAgent.custom_labels:type_name -> inventory.v1.QANPostgreSQLPgStatementsAgent.CustomLabelsEntry
+	113, // 50: inventory.v1.QANPostgreSQLPgStatementsAgent.status:type_name -> inventory.v1.AgentStatus
+	114, // 51: inventory.v1.QANPostgreSQLPgStatementsAgent.log_level:type_name -> inventory.v1.LogLevel
+	88,  // 52: inventory.v1.QANPostgreSQLPgStatMonitorAgent.custom_labels:type_name -> inventory.v1.QANPostgreSQLPgStatMonitorAgent.CustomLabelsEntry
+	113, // 53: inventory.v1.QANPostgreSQLPgStatMonitorAgent.status:type_name -> inventory.v1.AgentStatus
+	114, // 54: inventory.v1.QANPostgreSQLPgStatMonitorAgent.log_level:type_name -> inventory.v1.LogLevel
+	89,  // 55: inventory.v1.RDSExporter.custom_labels:type_name -> inventory.v1.RDSExporter.CustomLabelsEntry
+	113, // 56: inventory.v1.RDSExporter.status:type_name -> inventory.v1.AgentStatus
+	114, // 57: inventory.v1.RDSExporter.log_level:type_name -> inventory.v1.LogLevel
+	115, // 58: inventory.v1.RDSExporter.metrics_resolutions:type_name -> common.MetricsResolutions
+	90,  // 59: inventory.v1.ExternalExporter.custom_labels:type_name -> inventory.v1.ExternalExporter.CustomLabelsEntry
+	115, // 60: inventory.v1.ExternalExporter.metrics_resolutions:type_name -> common.MetricsResolutions
+	113, // 61: inventory.v1.ExternalExporter.status:type_name -> inventory.v1.AgentStatus
+	91,  // 62: inventory.v1.AzureDatabaseExporter.custom_labels:type_name -> inventory.v1.AzureDatabaseExporter.CustomLabelsEntry
+	113, // 63: inventory.v1.AzureDatabaseExporter.status:type_name -> inventory.v1.AgentStatus
+	114, // 64: inventory.v1.AzureDatabaseExporter.log_level:type_name -> inventory.v1.LogLevel
+	115, // 65: inventory.v1.AzureDatabaseExporter.metrics_resolutions:type_name -> common.MetricsResolutions
+	117, // 66: inventory.v1.ChangeCommonAgentParams.custom_labels:type_name -> common.StringMap
+	115, // 67: inventory.v1.ChangeCommonAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	0,   // 68: inventory.v1.ListAgentsRequest.agent_type:type_name -> inventory.v1.AgentType
+	1,   // 69: inventory.v1.ListAgentsResponse.pmm_agent:type_name -> inventory.v1.PMMAgent
+	2,   // 70: inventory.v1.ListAgentsResponse.vm_agent:type_name -> inventory.v1.VMAgent
+	4,   // 71: inventory.v1.ListAgentsResponse.node_exporter:type_name -> inventory.v1.NodeExporter
+	5,   // 72: inventory.v1.ListAgentsResponse.mysqld_exporter:type_name -> inventory.v1.MySQLdExporter
+	6,   // 73: inventory.v1.ListAgentsResponse.mongodb_exporter:type_name -> inventory.v1.MongoDBExporter
+	7,   // 74: inventory.v1.ListAgentsResponse.postgres_exporter:type_name -> inventory.v1.PostgresExporter
+	8,   // 75: inventory.v1.ListAgentsResponse.proxysql_exporter:type_name -> inventory.v1.ProxySQLExporter
+	11,  // 76: inventory.v1.ListAgentsResponse.qan_mysql_perfschema_agent:type_name -> inventory.v1.QANMySQLPerfSchemaAgent
+	12,  // 77: inventory.v1.ListAgentsResponse.qan_mysql_slowlog_agent:type_name -> inventory.v1.QANMySQLSlowlogAgent
+	13,  // 78: inventory.v1.ListAgentsResponse.qan_mongodb_profiler_agent:type_name -> inventory.v1.QANMongoDBProfilerAgent
+	14,  // 79: inventory.v1.ListAgentsResponse.qan_mongodb_mongolog_agent:type_name -> inventory.v1.QANMongoDBMongologAgent
+	17,  // 80: inventory.v1.ListAgentsResponse.qan_postgresql_pgstatements_agent:type_name -> inventory.v1.QANPostgreSQLPgStatementsAgent
+	18,  // 81: inventory.v1.ListAgentsResponse.qan_postgresql_pgstatmonitor_agent:type_name -> inventory.v1.QANPostgreSQLPgStatMonitorAgent
+	20,  // 82: inventory.v1.ListAgentsResponse.external_exporter:type_name -> inventory.v1.ExternalExporter
+	19,  // 83: inventory.v1.ListAgentsResponse.rds_exporter:type_name -> inventory.v1.RDSExporter
+	21,  // 84: inventory.v1.ListAgentsResponse.azure_database_exporter:type_name -> inventory.v1.AzureDatabaseExporter
+	3,   // 85: inventory.v1.ListAgentsResponse.nomad_agent:type_name -> inventory.v1.NomadAgent
+	9,   // 86: inventory.v1.ListAgentsResponse.valkey_exporter:type_name -> inventory.v1.ValkeyExporter
+	16,  // 87: inventory.v1.ListAgentsResponse.rta_mongodb_agent:type_name -> inventory.v1.RTAMongoDBAgent
+	10,  // 88: inventory.v1.ListAgentsResponse.clickhouse_exporter:type_name -> inventory.v1.ClickHouseExporter
+	1,   // 89: inventory.v1.GetAgentResponse.pmm_agent:type_name -> inventory.v1.PMMAgent
+	2,   // 90: inventory.v1.GetAgentResponse.vmagent:type_name -> inventory.v1.VMAgent
+	4,   // 91: inventory.v1.GetAgentResponse.node_exporter:type_name -> inventory.v1.NodeExporter
+	5,   // 92: inventory.v1.GetAgentResponse.mysqld_exporter:type_name -> inventory.v1.MySQLdExporter
+	6,   // 93: inventory.v1.GetAgentResponse.mongodb_exporter:type_name -> inventory.v1.MongoDBExporter
+	7,   // 94: inventory.v1.GetAgentResponse.postgres_exporter:type_name -> inventory.v1.PostgresExporter
+	8,   // 95: inventory.v1.GetAgentResponse.proxysql_exporter:type_name -> inventory.v1.ProxySQLExporter
+	11,  // 96: inventory.v1.GetAgentResponse.qan_mysql_perfschema_agent:type_name -> inventory.v1.QANMySQLPerfSchemaAgent
+	12,  // 97: inventory.v1.GetAgentResponse.qan_mysql_slowlog_agent:type_name -> inventory.v1.QANMySQLSlowlogAgent
+	13,  // 98: inventory.v1.GetAgentResponse.qan_mongodb_profiler_agent:type_name -> inventory.v1.QANMongoDBProfilerAgent
+	14,  // 99: inventory.v1.GetAgentResponse.qan_mongodb_mongolog_agent:type_name -> inventory.v1.QANMongoDBMongologAgent
+	17,  // 100: inventory.v1.GetAgentResponse.qan_postgresql_pgstatements_agent:type_name -> inventory.v1.QANPostgreSQLPgStatementsAgent
+	18,  // 101: inventory.v1.GetAgentResponse.qan_postgresql_pgstatmonitor_agent:type_name -> inventory.v1.QANPostgreSQLPgStatMonitorAgent
+	20,  // 102: inventory.v1.GetAgentResponse.external_exporter:type_name -> inventory.v1.ExternalExporter
+	19,  // 103: inventory.v1.GetAgentResponse.rds_exporter:type_name -> inventory.v1.RDSExporter
+	21,  // 104: inventory.v1.GetAgentResponse.azure_database_exporter:type_name -> inventory.v1.AzureDatabaseExporter
+	3,   // 105: inventory.v1.GetAgentResponse.nomad_agent:type_name -> inventory.v1.NomadAgent
+	9,   // 106: inventory.v1.GetAgentResponse.valkey_exporter:type_name -> inventory.v1.ValkeyExporter
+	16,  // 107: inventory.v1.GetAgentResponse.rta_mongodb_agent:type_name -> inventory.v1.RTAMongoDBAgent
+	10,  // 108: inventory.v1.GetAgentResponse.clickhouse_exporter:type_name -> inventory.v1.ClickHouseExporter
+	33,  // 109: inventory.v1.AddAgentRequest.pmm_agent:type_name -> inventory.v1.AddPMMAgentParams
+	34,  // 110: inventory.v1.AddAgentRequest.node_exporter:type_name -> inventory.v1.AddNodeExporterParams
+	36,  // 111: inventory.v1.AddAgentRequest.mysqld_exporter:type_name -> inventory.v1.AddMySQLdExporterParams
+	38,  // 112: inventory.v1.AddAgentRequest.mongodb_exporter:type_name -> inventory.v1.AddMongoDBExporterParams
+	40,  // 113: inventory.v1.AddAgentRequest.postgres_exporter:type_name -> inventory.v1.AddPostgresExporterParams
+	42,  // 114: inventory.v1.AddAgentRequest.proxysql_exporter:type_name -> inventory.v1.AddProxySQLExporterParams
+	58,  // 115: inventory.v1.AddAgentRequest.external_exporter:type_name -> inventory.v1.AddExternalExporterParams
+	56,  // 116: inventory.v1.AddAgentRequest.rds_exporter:type_name -> inventory.v1.AddRDSExporterParams
+	60,  // 117: inventory.v1.AddAgentRequest.azure_database_exporter:type_name -> inventory.v1.AddAzureDatabaseExporterParams
+	44,  // 118: inventory.v1.AddAgentRequest.qan_mysql_perfschema_agent:type_name -> inventory.v1.AddQANMySQLPerfSchemaAgentParams
+	46,  // 119: inventory.v1.AddAgentRequest.qan_mysql_slowlog_agent:type_name -> inventory.v1.AddQANMySQLSlowlogAgentParams
+	48,  // 120: inventory.v1.AddAgentRequest.qan_mongodb_profiler_agent:type_name -> inventory.v1.AddQANMongoDBProfilerAgentParams
+	50,  // 121: inventory.v1.AddAgentRequest.qan_mongodb_mongolog_agent:type_name -> inventory.v1.AddQANMongoDBMongologAgentParams
+	52,  // 122: inventory.v1.AddAgentRequest.qan_postgresql_pgstatements_agent:type_name -> inventory.v1.AddQANPostgreSQLPgStatementsAgentParams
+	54,  // 123: inventory.v1.AddAgentRequest.qan_postgresql_pgstatmonitor_agent:type_name -> inventory.v1.AddQANPostgreSQLPgStatMonitorAgentParams
+	63,  // 124: inventory.v1.AddAgentRequest.valkey_exporter:type_name -> inventory.v1.AddValkeyExporterParams
+	67,  // 125: inventory.v1.AddAgentRequest.rta_mongodb_agent:type_name -> inventory.v1.AddRTAMongoDBAgentParams
+	65,  // 126: inventory.v1.AddAgentRequest.clickhouse_exporter:type_name -> inventory.v1.AddClickHouseExporterParams
+	1,   // 127: inventory.v1.AddAgentResponse.pmm_agent:type_name -> inventory.v1.PMMAgent
+	4,   // 128: inventory.v1.AddAgentResponse.node_exporter:type_name -> inventory.v1.NodeExporter
+	5,   // 129: inventory.v1.AddAgentResponse.mysqld_exporter:type_name -> inventory.v1.MySQLdExporter
+	6,   // 130: inventory.v1.AddAgentResponse.mongodb_exporter:type_name -> inventory.v1.MongoDBExporter
+	7,   // 131: inventory.v1.AddAgentResponse.postgres_exporter:type_name -> inventory.v1.PostgresExporter
+	8,   // 132: inventory.v1.AddAgentResponse.proxysql_exporter:type_name -> inventory.v1.ProxySQLExporter
+	20,  // 133: inventory.v1.AddAgentResponse.external_exporter:type_name -> inventory.v1.ExternalExporter
+	19,  // 134: inventory.v1.AddAgentResponse.rds_exporter:type_name -> inventory.v1.RDSExporter
+	21,  // 135: inventory.v1.AddAgentResponse.azure_database_exporter:type_name -> inventory.v1.AzureDatabaseExporter
+	11,  // 136: inventory.v1.AddAgentResponse.qan_mysql_perfschema_agent:type_name -> inventory.v1.QANMySQLPerfSchemaAgent
+	12,  // 137: inventory.v1.AddAgentResponse.qan_mysql_slowlog_agent:type_name -> inventory.v1.QANMySQLSlowlogAgent
+	13,  // 138: inventory.v1.AddAgentResponse.qan_mongodb_profiler_agent:type_name -> inventory.v1.QANMongoDBProfilerAgent
+	14,  // 139: inventory.v1.AddAgentResponse.qan_mongodb_mongolog_agent:type_name -> inventory.v1.QANMongoDBMongologAgent
+	17,  // 140: inventory.v1.AddAgentResponse.qan_postgresql_pgstatements_agent:type_name -> inventory.v1.QANPostgreSQLPgStatementsAgent
+	18,  // 141: inventory.v1.AddAgentResponse.qan_postgresql_pgstatmonitor_agent:type_name -> inventory.v1.QANPostgreSQLPgStatMonitorAgent
+	9,   // 142: inventory.v1.AddAgentResponse.valkey_exporter:type_name -> inventory.v1.ValkeyExporter
+	16,  // 143: inventory.v1.AddAgentResponse.rta_mongodb_agent:type_name -> inventory.v1.RTAMongoDBAgent
+	10,  // 144: inventory.v1.AddAgentResponse.clickhouse_exporter:type_name -> inventory.v1.ClickHouseExporter
+	35,  // 145: inventory.v1.ChangeAgentRequest.node_exporter:type_name -> inventory.v1.ChangeNodeExporterParams
+	37,  // 146: inventory.v1.ChangeAgentRequest.mysqld_exporter:type_name -> inventory.v1.ChangeMySQLdExporterParams
+	39,  // 147: inventory.v1.ChangeAgentRequest.mongodb_exporter:type_name -> inventory.v1.ChangeMongoDBExporterParams
+	41,  // 148: inventory.v1.ChangeAgentRequest.postgres_exporter:type_name -> inventory.v1.ChangePostgresExporterParams
+	43,  // 149: inventory.v1.ChangeAgentRequest.proxysql_exporter:type_name -> inventory.v1.ChangeProxySQLExporterParams
+	59,  // 150: inventory.v1.ChangeAgentRequest.external_exporter:type_name -> inventory.v1.ChangeExternalExporterParams
+	57,  // 151: inventory.v1.ChangeAgentRequest.rds_exporter:type_name -> inventory.v1.ChangeRDSExporterParams
+	61,  // 152: inventory.v1.ChangeAgentRequest.azure_database_exporter:type_name -> inventory.v1.ChangeAzureDatabaseExporterParams
+	45,  // 153: inventory.v1.ChangeAgentRequest.qan_mysql_perfschema_agent:type_name -> inventory.v1.ChangeQANMySQLPerfSchemaAgentParams
+	47,  // 154: inventory.v1.ChangeAgentRequest.qan_mysql_slowlog_agent:type_name -> inventory.v1.ChangeQANMySQLSlowlogAgentParams
+	49,  // 155: inventory.v1.ChangeAgentRequest.qan_mongodb_profiler_agent:type_name -> inventory.v1.ChangeQANMongoDBProfilerAgentParams
+	51,  // 156: inventory.v1.ChangeAgentRequest.qan_mongodb_mongolog_agent:type_name -> inventory.v1.ChangeQANMongoDBMongologAgentParams
+	53,  // 157: inventory.v1.ChangeAgentRequest.qan_postgresql_pgstatements_agent:type_name -> inventory.v1.ChangeQANPostgreSQLPgStatementsAgentParams
+	55,  // 158: inventory.v1.ChangeAgentRequest.qan_postgresql_pgstatmonitor_agent:type_name -> inventory.v1.ChangeQANPostgreSQLPgStatMonitorAgentParams
+	62,  // 159: inventory.v1.ChangeAgentRequest.nomad_agent:type_name -> inventory.v1.ChangeNomadAgentParams
+	64,  // 160: inventory.v1.ChangeAgentRequest.valkey_exporter:type_name -> inventory.v1.ChangeValkeyExporterParams
+	68,  // 161: inventory.v1.ChangeAgentRequest.rta_mongodb_agent:type_name -> inventory.v1.ChangeRTAMongoDBAgentParams
+	66,  // 162: inventory.v1.ChangeAgentRequest.clickhouse_exporter:type_name -> inventory.v1.ChangeClickHouseExporterParams
+	4,   // 163: inventory.v1.ChangeAgentResponse.node_exporter:type_name -> inventory.v1.NodeExporter
+	5,   // 164: inventory.v1.ChangeAgentResponse.mysqld_exporter:type_name -> inventory.v1.MySQLdExporter
+	6,   // 165: inventory.v1.ChangeAgentResponse.mongodb_exporter:type_name -> inventory.v1.MongoDBExporter
+	7,   // 166: inventory.v1.ChangeAgentResponse.postgres_exporter:type_name -> inventory.v1.PostgresExporter
+	8,   // 167: inventory.v1.ChangeAgentResponse.proxysql_exporter:type_name -> inventory.v1.ProxySQLExporter
+	20,  // 168: inventory.v1.ChangeAgentResponse.external_exporter:type_name -> inventory.v1.ExternalExporter
+	19,  // 169: inventory.v1.ChangeAgentResponse.rds_exporter:type_name -> inventory.v1.RDSExporter
+	21,  // 170: inventory.v1.ChangeAgentResponse.azure_database_exporter:type_name -> inventory.v1.AzureDatabaseExporter
+	11,  // 171: inventory.v1.ChangeAgentResponse.qan_mysql_perfschema_agent:type_name -> inventory.v1.QANMySQLPerfSchemaAgent
+	12,  // 172: inventory.v1.ChangeAgentResponse.qan_mysql_slowlog_agent:type_name -> inventory.v1.QANMySQLSlowlogAgent
+	13,  // 173: inventory.v1.ChangeAgentResponse.qan_mongodb_profiler_agent:type_name -> inventory.v1.QANMongoDBProfilerAgent
+	14,  // 174: inventory.v1.ChangeAgentResponse.qan_mongodb_mongolog_agent:type_name -> inventory.v1.QANMongoDBMongologAgent
+	17,  // 175: inventory.v1.ChangeAgentResponse.qan_postgresql_pgstatements_agent:type_name -> inventory.v1.QANPostgreSQLPgStatementsAgent
+	18,  // 176: inventory.v1.ChangeAgentResponse.qan_postgresql_pgstatmonitor_agent:type_name -> inventory.v1.QANPostgreSQLPgStatMonitorAgent
+	3,   // 177: inventory.v1.ChangeAgentResponse.nomad_agent:type_name -> inventory.v1.NomadAgent
+	9,   // 178: inventory.v1.ChangeAgentResponse.valkey_exporter:type_name -> inventory.v1.ValkeyExporter
+	16,  // 179: inventory.v1.ChangeAgentResponse.rta_mongodb_agent:type_name -> inventory.v1.RTAMongoDBAgent
+	10,  // 180: inventory.v1.ChangeAgentResponse.clickhouse_exporter:type_name -> inventory.v1.ClickHouseExporter
+	92,  // 181: inventory.v1.AddPMMAgentParams.custom_labels:type_name -> inventory.v1.AddPMMAgentParams.CustomLabelsEntry
+	93,  // 182: inventory.v1.AddNodeExporterParams.custom_labels:type_name -> inventory.v1.AddNodeExporterParams.CustomLabelsEntry
+	114, // 183: inventory.v1.AddNodeExporterParams.log_level:type_name -> inventory.v1.LogLevel
+	117, // 184: inventory.v1.ChangeNodeExporterParams.custom_labels:type_name -> common.StringMap
+	115, // 185: inventory.v1.ChangeNodeExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	114, // 186: inventory.v1.ChangeNodeExporterParams.log_level:type_name -> inventory.v1.LogLevel
+	94,  // 187: inventory.v1.AddMySQLdExporterParams.custom_labels:type_name -> inventory.v1.AddMySQLdExporterParams.CustomLabelsEntry
+	114, // 188: inventory.v1.AddMySQLdExporterParams.log_level:type_name -> inventory.v1.LogLevel
+	95,  // 189: inventory.v1.AddMySQLdExporterParams.extra_dsn_params:type_name -> inventory.v1.AddMySQLdExporterParams.ExtraDsnParamsEntry
+	117, // 190: inventory.v1.ChangeMySQLdExporterParams.custom_labels:type_name -> common.StringMap
+	115, // 191: inventory.v1.ChangeMySQLdExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	114, // 192: inventory.v1.ChangeMySQLdExporterParams.log_level:type_name -> inventory.v1.LogLevel
+	96,  // 193: inventory.v1.AddMongoDBExporterParams.custom_labels:type_name -> inventory.v1.AddMongoDBExporterParams.CustomLabelsEntry
+	114, // 194: inventory.v1.AddMongoDBExporterParams.log_level:type_name -> inventory.v1.LogLevel
+	117, // 195: inventory.v1.ChangeMongoDBExporterParams.custom_labels:type_name -> common.StringMap
+	115, // 196: inventory.v1.ChangeMongoDBExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	114, // 197: inventory.v1.ChangeMongoDBExporterParams.log_level:type_name -> inventory.v1.LogLevel
+	97,  // 198: inventory.v1.AddPostgresExporterParams.custom_labels:type_name -> inventory.v1.AddPostgresExporterParams.CustomLabelsEntry
+	114, // 199: inventory.v1.AddPostgresExporterParams.log_level:type_name -> inventory.v1.LogLevel
+	117, // 200: inventory.v1.ChangePostgresExporterParams.custom_labels:type_name -> common.StringMap
+	115, // 201: inventory.v1.ChangePostgresExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	114, // 202: inventory.v1.ChangePostgresExporterParams.log_level:type_name -> inventory.v1.LogLevel
+	98,  // 203: inventory.v1.AddProxySQLExporterParams.custom_labels:type_name -> inventory.v1.AddProxySQLExporterParams.CustomLabelsEntry
+	114, // 204: inventory.v1.AddProxySQLExporterParams.log_level:type_name -> inventory.v1.LogLevel
+	117, // 205: inventory.v1.ChangeProxySQLExporterParams.custom_labels:type_name -> common.StringMap
+	115, // 206: inventory.v1.ChangeProxySQLExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	114, // 207: inventory.v1.ChangeProxySQLExporterParams.log_level:type_name -> inventory.v1.LogLevel
+	99,  // 208: inventory.v1.AddQANMySQLPerfSchemaAgentParams.custom_labels:type_name -> inventory.v1.AddQANMySQLPerfSchemaAgentParams.CustomLabelsEntry
+	114, // 209: inventory.v1.AddQANMySQLPerfSchemaAgentParams.log_level:type_name -> inventory.v1.LogLevel
+	100, // 210: inventory.v1.AddQANMySQLPerfSchemaAgentParams.extra_dsn_params:type_name -> inventory.v1.AddQANMySQLPerfSchemaAgentParams.ExtraDsnParamsEntry
+	117, // 211: inventory.v1.ChangeQANMySQLPerfSchemaAgentParams.custom_labels:type_name -> common.StringMap
+	115, // 212: inventory.v1.ChangeQANMySQLPerfSchemaAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	114, // 213: inventory.v1.ChangeQANMySQLPerfSchemaAgentParams.log_level:type_name -> inventory.v1.LogLevel
+	101, // 214: inventory.v1.AddQANMySQLSlowlogAgentParams.custom_labels:type_name -> inventory.v1.AddQANMySQLSlowlogAgentParams.CustomLabelsEntry
+	114, // 215: inventory.v1.AddQANMySQLSlowlogAgentParams.log_level:type_name -> inventory.v1.LogLevel
+	102, // 216: inventory.v1.AddQANMySQLSlowlogAgentParams.extra_dsn_params:type_name -> inventory.v1.AddQANMySQLSlowlogAgentParams.ExtraDsnParamsEntry
+	117, // 217: inventory.v1.ChangeQANMySQLSlowlogAgentParams.custom_labels:type_name -> common.StringMap
+	115, // 218: inventory.v1.ChangeQANMySQLSlowlogAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	114, // 219: inventory.v1.ChangeQANMySQLSlowlogAgentParams.log_level:type_name -> inventory.v1.LogLevel
+	103, // 220: inventory.v1.AddQANMongoDBProfilerAgentParams.custom_labels:type_name -> inventory.v1.AddQANMongoDBProfilerAgentParams.CustomLabelsEntry
+	114, // 221: inventory.v1.AddQANMongoDBProfilerAgentParams.log_level:type_name -> inventory.v1.LogLevel
+	117, // 222: inventory.v1.ChangeQANMongoDBProfilerAgentParams.custom_labels:type_name -> common.StringMap
+	115, // 223: inventory.v1.ChangeQANMongoDBProfilerAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	114, // 224: inventory.v1.ChangeQANMongoDBProfilerAgentParams.log_level:type_name -> inventory.v1.LogLevel
+	104, // 225: inventory.v1.AddQANMongoDBMongologAgentParams.custom_labels:type_name -> inventory.v1.AddQANMongoDBMongologAgentParams.CustomLabelsEntry
+	114, // 226: inventory.v1.AddQANMongoDBMongologAgentParams.log_level:type_name -> inventory.v1.LogLevel
+	117, // 227: inventory.v1.ChangeQANMongoDBMongologAgentParams.custom_labels:type_name -> common.StringMap
+	115, // 228: inventory.v1.ChangeQANMongoDBMongologAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	114, // 229: inventory.v1.ChangeQANMongoDBMongologAgentParams.log_level:type_name -> inventory.v1.LogLevel
+	105, // 230: inventory.v1.AddQANPostgreSQLPgStatementsAgentParams.custom_labels:type_name -> inventory.v1.AddQANPostgreSQLPgStatementsAgentParams.CustomLabelsEntry
+	114, // 231: inventory.v1.AddQANPostgreSQLPgStatementsAgentParams.log_level:type_name -> inventory.v1.LogLevel
+	117, // 232: inventory.v1.ChangeQANPostgreSQLPgStatementsAgentParams.custom_labels:type_name -> common.StringMap
+	115, // 233: inventory.v1.ChangeQANPostgreSQLPgStatementsAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	114, // 234: inventory.v1.ChangeQANPostgreSQLPgStatementsAgentParams.log_level:type_name -> inventory.v1.LogLevel
+	106, // 235: inventory.v1.AddQANPostgreSQLPgStatMonitorAgentParams.custom_labels:type_name -> inventory.v1.AddQANPostgreSQLPgStatMonitorAgentParams.CustomLabelsEntry
+	114, // 236: inventory.v1.AddQANPostgreSQLPgStatMonitorAgentParams.log_level:type_name -> inventory.v1.LogLevel
+	117, // 237: inventory.v1.ChangeQANPostgreSQLPgStatMonitorAgentParams.custom_labels:type_name -> common.StringMap
+	115, // 238: inventory.v1.ChangeQANPostgreSQLPgStatMonitorAgentParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	114, // 239: inventory.v1.ChangeQANPostgreSQLPgStatMonitorAgentParams.log_level:type_name -> inventory.v1.LogLevel
+	107, // 240: inventory.v1.AddRDSExporterParams.custom_labels:type_name -> inventory.v1.AddRDSExporterParams.CustomLabelsEntry
+	114, // 241: inventory.v1.AddRDSExporterParams.log_level:type_name -> inventory.v1.LogLevel
+	117, // 242: inventory.v1.ChangeRDSExporterParams.custom_labels:type_name -> common.StringMap
+	115, // 243: inventory.v1.ChangeRDSExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	114, // 244: inventory.v1.ChangeRDSExporterParams.log_level:type_name -> inventory.v1.LogLevel
+	108, // 245: inventory.v1.AddExternalExporterParams.custom_labels:type_name -> inventory.v1.AddExternalExporterParams.CustomLabelsEntry
+	117, // 246: inventory.v1.ChangeExternalExporterParams.custom_labels:type_name -> common.StringMap
+	115, // 247: inventory.v1.ChangeExternalExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	109, // 248: inventory.v1.AddAzureDatabaseExporterParams.custom_labels:type_name -> inventory.v1.AddAzureDatabaseExporterParams.CustomLabelsEntry
+	114, // 249: inventory.v1.AddAzureDatabaseExporterParams.log_level:type_name -> inventory.v1.LogLevel
+	117, // 250: inventory.v1.ChangeAzureDatabaseExporterParams.custom_labels:type_name -> common.StringMap
+	115, // 251: inventory.v1.ChangeAzureDatabaseExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	114, // 252: inventory.v1.ChangeAzureDatabaseExporterParams.log_level:type_name -> inventory.v1.LogLevel
+	110, // 253: inventory.v1.AddValkeyExporterParams.custom_labels:type_name -> inventory.v1.AddValkeyExporterParams.CustomLabelsEntry
+	114, // 254: inventory.v1.AddValkeyExporterParams.log_level:type_name -> inventory.v1.LogLevel
+	117, // 255: inventory.v1.ChangeValkeyExporterParams.custom_labels:type_name -> common.StringMap
+	115, // 256: inventory.v1.ChangeValkeyExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	114, // 257: inventory.v1.ChangeValkeyExporterParams.log_level:type_name -> inventory.v1.LogLevel
+	111, // 258: inventory.v1.AddClickHouseExporterParams.custom_labels:type_name -> inventory.v1.AddClickHouseExporterParams.CustomLabelsEntry
+	114, // 259: inventory.v1.AddClickHouseExporterParams.log_level:type_name -> inventory.v1.LogLevel
+	117, // 260: inventory.v1.ChangeClickHouseExporterParams.custom_labels:type_name -> common.StringMap
+	115, // 261: inventory.v1.ChangeClickHouseExporterParams.metrics_resolutions:type_name -> common.MetricsResolutions
+	114, // 262: inventory.v1.ChangeClickHouseExporterParams.log_level:type_name -> inventory.v1.LogLevel
+	112, // 263: inventory.v1.AddRTAMongoDBAgentParams.custom_labels:type_name -> inventory.v1.AddRTAMongoDBAgentParams.CustomLabelsEntry
+	114, // 264: inventory.v1.AddRTAMongoDBAgentParams.log_level:type_name -> inventory.v1.LogLevel
+	15,  // 265: inventory.v1.AddRTAMongoDBAgentParams.rta_options:type_name -> inventory.v1.RTAOptions
+	117, // 266: inventory.v1.ChangeRTAMongoDBAgentParams.custom_labels:type_name -> common.StringMap
+	114, // 267: inventory.v1.ChangeRTAMongoDBAgentParams.log_level:type_name -> inventory.v1.LogLevel
+	15,  // 268: inventory.v1.ChangeRTAMongoDBAgentParams.rta_options:type_name -> inventory.v1.RTAOptions
+	23,  // 269: inventory.v1.AgentsService.ListAgents:input_type -> inventory.v1.ListAgentsRequest
+	25,  // 270: inventory.v1.AgentsService.GetAgent:input_type -> inventory.v1.GetAgentRequest
+	27,  // 271: inventory.v1.AgentsService.GetAgentLogs:input_type -> inventory.v1.GetAgentLogsRequest
+	29,  // 272: inventory.v1.AgentsService.AddAgent:input_type -> inventory.v1.AddAgentRequest
+	31,  // 273: inventory.v1.AgentsService.ChangeAgent:input_type -> inventory.v1.ChangeAgentRequest
+	69,  // 274: inventory.v1.AgentsService.RemoveAgent:input_type -> inventory.v1.RemoveAgentRequest
+	24,  // 275: inventory.v1.AgentsService.ListAgents:output_type -> inventory.v1.ListAgentsResponse
+	26,  // 276: inventory.v1.AgentsService.GetAgent:output_type -> inventory.v1.GetAgentResponse
+	28,  // 277: inventory.v1.AgentsService.GetAgentLogs:output_type -> inventory.v1.GetAgentLogsResponse
+	30,  // 278: inventory.v1.AgentsService.AddAgent:output_type -> inventory.v1.AddAgentResponse
+	32,  // 279: inventory.v1.AgentsService.ChangeAgent:output_type -> inventory.v1.ChangeAgentResponse
+	70,  // 280: inventory.v1.AgentsService.RemoveAgent:output_type -> inventory.v1.RemoveAgentResponse
+	275, // [275:281] is the sub-list for method output_type
+	269, // [269:275] is the sub-list for method input_type
+	269, // [269:269] is the sub-list for extension type_name
+	269, // [269:269] is the sub-list for extension extendee
+	0,   // [0:269] is the sub-list for field type_name
 }
 
 func init() { file_inventory_v1_agents_proto_init() }
@@ -12646,8 +13364,8 @@ func file_inventory_v1_agents_proto_init() {
 	}
 	file_inventory_v1_agent_status_proto_init()
 	file_inventory_v1_log_level_proto_init()
-	file_inventory_v1_agents_proto_msgTypes[20].OneofWrappers = []any{}
-	file_inventory_v1_agents_proto_msgTypes[24].OneofWrappers = []any{
+	file_inventory_v1_agents_proto_msgTypes[21].OneofWrappers = []any{}
+	file_inventory_v1_agents_proto_msgTypes[25].OneofWrappers = []any{
 		(*GetAgentResponse_PmmAgent)(nil),
 		(*GetAgentResponse_Vmagent)(nil),
 		(*GetAgentResponse_NodeExporter)(nil),
@@ -12667,8 +13385,9 @@ func file_inventory_v1_agents_proto_init() {
 		(*GetAgentResponse_NomadAgent)(nil),
 		(*GetAgentResponse_ValkeyExporter)(nil),
 		(*GetAgentResponse_RtaMongodbAgent)(nil),
+		(*GetAgentResponse_ClickhouseExporter)(nil),
 	}
-	file_inventory_v1_agents_proto_msgTypes[27].OneofWrappers = []any{
+	file_inventory_v1_agents_proto_msgTypes[28].OneofWrappers = []any{
 		(*AddAgentRequest_PmmAgent)(nil),
 		(*AddAgentRequest_NodeExporter)(nil),
 		(*AddAgentRequest_MysqldExporter)(nil),
@@ -12686,8 +13405,9 @@ func file_inventory_v1_agents_proto_init() {
 		(*AddAgentRequest_QanPostgresqlPgstatmonitorAgent)(nil),
 		(*AddAgentRequest_ValkeyExporter)(nil),
 		(*AddAgentRequest_RtaMongodbAgent)(nil),
+		(*AddAgentRequest_ClickhouseExporter)(nil),
 	}
-	file_inventory_v1_agents_proto_msgTypes[28].OneofWrappers = []any{
+	file_inventory_v1_agents_proto_msgTypes[29].OneofWrappers = []any{
 		(*AddAgentResponse_PmmAgent)(nil),
 		(*AddAgentResponse_NodeExporter)(nil),
 		(*AddAgentResponse_MysqldExporter)(nil),
@@ -12705,8 +13425,9 @@ func file_inventory_v1_agents_proto_init() {
 		(*AddAgentResponse_QanPostgresqlPgstatmonitorAgent)(nil),
 		(*AddAgentResponse_ValkeyExporter)(nil),
 		(*AddAgentResponse_RtaMongodbAgent)(nil),
+		(*AddAgentResponse_ClickhouseExporter)(nil),
 	}
-	file_inventory_v1_agents_proto_msgTypes[29].OneofWrappers = []any{
+	file_inventory_v1_agents_proto_msgTypes[30].OneofWrappers = []any{
 		(*ChangeAgentRequest_NodeExporter)(nil),
 		(*ChangeAgentRequest_MysqldExporter)(nil),
 		(*ChangeAgentRequest_MongodbExporter)(nil),
@@ -12724,8 +13445,9 @@ func file_inventory_v1_agents_proto_init() {
 		(*ChangeAgentRequest_NomadAgent)(nil),
 		(*ChangeAgentRequest_ValkeyExporter)(nil),
 		(*ChangeAgentRequest_RtaMongodbAgent)(nil),
+		(*ChangeAgentRequest_ClickhouseExporter)(nil),
 	}
-	file_inventory_v1_agents_proto_msgTypes[30].OneofWrappers = []any{
+	file_inventory_v1_agents_proto_msgTypes[31].OneofWrappers = []any{
 		(*ChangeAgentResponse_NodeExporter)(nil),
 		(*ChangeAgentResponse_MysqldExporter)(nil),
 		(*ChangeAgentResponse_MongodbExporter)(nil),
@@ -12743,31 +13465,33 @@ func file_inventory_v1_agents_proto_init() {
 		(*ChangeAgentResponse_NomadAgent)(nil),
 		(*ChangeAgentResponse_ValkeyExporter)(nil),
 		(*ChangeAgentResponse_RtaMongodbAgent)(nil),
+		(*ChangeAgentResponse_ClickhouseExporter)(nil),
 	}
-	file_inventory_v1_agents_proto_msgTypes[33].OneofWrappers = []any{}
-	file_inventory_v1_agents_proto_msgTypes[35].OneofWrappers = []any{}
-	file_inventory_v1_agents_proto_msgTypes[37].OneofWrappers = []any{}
-	file_inventory_v1_agents_proto_msgTypes[39].OneofWrappers = []any{}
-	file_inventory_v1_agents_proto_msgTypes[41].OneofWrappers = []any{}
-	file_inventory_v1_agents_proto_msgTypes[43].OneofWrappers = []any{}
-	file_inventory_v1_agents_proto_msgTypes[45].OneofWrappers = []any{}
-	file_inventory_v1_agents_proto_msgTypes[47].OneofWrappers = []any{}
-	file_inventory_v1_agents_proto_msgTypes[49].OneofWrappers = []any{}
-	file_inventory_v1_agents_proto_msgTypes[51].OneofWrappers = []any{}
-	file_inventory_v1_agents_proto_msgTypes[53].OneofWrappers = []any{}
-	file_inventory_v1_agents_proto_msgTypes[55].OneofWrappers = []any{}
-	file_inventory_v1_agents_proto_msgTypes[57].OneofWrappers = []any{}
-	file_inventory_v1_agents_proto_msgTypes[59].OneofWrappers = []any{}
+	file_inventory_v1_agents_proto_msgTypes[34].OneofWrappers = []any{}
+	file_inventory_v1_agents_proto_msgTypes[36].OneofWrappers = []any{}
+	file_inventory_v1_agents_proto_msgTypes[38].OneofWrappers = []any{}
+	file_inventory_v1_agents_proto_msgTypes[40].OneofWrappers = []any{}
+	file_inventory_v1_agents_proto_msgTypes[42].OneofWrappers = []any{}
+	file_inventory_v1_agents_proto_msgTypes[44].OneofWrappers = []any{}
+	file_inventory_v1_agents_proto_msgTypes[46].OneofWrappers = []any{}
+	file_inventory_v1_agents_proto_msgTypes[48].OneofWrappers = []any{}
+	file_inventory_v1_agents_proto_msgTypes[50].OneofWrappers = []any{}
+	file_inventory_v1_agents_proto_msgTypes[52].OneofWrappers = []any{}
+	file_inventory_v1_agents_proto_msgTypes[54].OneofWrappers = []any{}
+	file_inventory_v1_agents_proto_msgTypes[56].OneofWrappers = []any{}
+	file_inventory_v1_agents_proto_msgTypes[58].OneofWrappers = []any{}
 	file_inventory_v1_agents_proto_msgTypes[60].OneofWrappers = []any{}
-	file_inventory_v1_agents_proto_msgTypes[62].OneofWrappers = []any{}
-	file_inventory_v1_agents_proto_msgTypes[64].OneofWrappers = []any{}
+	file_inventory_v1_agents_proto_msgTypes[61].OneofWrappers = []any{}
+	file_inventory_v1_agents_proto_msgTypes[63].OneofWrappers = []any{}
+	file_inventory_v1_agents_proto_msgTypes[65].OneofWrappers = []any{}
+	file_inventory_v1_agents_proto_msgTypes[67].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_inventory_v1_agents_proto_rawDesc), len(file_inventory_v1_agents_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   107,
+			NumMessages:   112,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -477,6 +477,9 @@ type ListAgentsOKBody struct {
 
 	// rta mongodb agent
 	RtaMongodbAgent []*ListAgentsOKBodyRtaMongodbAgentItems0 `json:"rta_mongodb_agent"`
+
+	// clickhouse exporter
+	ClickhouseExporter []*ListAgentsOKBodyClickhouseExporterItems0 `json:"clickhouse_exporter"`
 }
 
 // Validate validates this list agents OK body
@@ -556,6 +559,10 @@ func (o *ListAgentsOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateRtaMongodbAgent(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateClickhouseExporter(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1135,6 +1142,36 @@ func (o *ListAgentsOKBody) validateRtaMongodbAgent(formats strfmt.Registry) erro
 	return nil
 }
 
+func (o *ListAgentsOKBody) validateClickhouseExporter(formats strfmt.Registry) error {
+	if swag.IsZero(o.ClickhouseExporter) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.ClickhouseExporter); i++ {
+		if swag.IsZero(o.ClickhouseExporter[i]) { // not required
+			continue
+		}
+
+		if o.ClickhouseExporter[i] != nil {
+			if err := o.ClickhouseExporter[i].Validate(formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("listAgentsOk" + "." + "clickhouse_exporter" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("listAgentsOk" + "." + "clickhouse_exporter" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
 // ContextValidate validate this list agents OK body based on the context it is used
 func (o *ListAgentsOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -1212,6 +1249,10 @@ func (o *ListAgentsOKBody) ContextValidate(ctx context.Context, formats strfmt.R
 	}
 
 	if err := o.contextValidateRtaMongodbAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateClickhouseExporter(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1715,6 +1756,32 @@ func (o *ListAgentsOKBody) contextValidateRtaMongodbAgent(ctx context.Context, f
 	return nil
 }
 
+func (o *ListAgentsOKBody) contextValidateClickhouseExporter(ctx context.Context, formats strfmt.Registry) error {
+	for i := 0; i < len(o.ClickhouseExporter); i++ {
+		if o.ClickhouseExporter[i] != nil {
+
+			if swag.IsZero(o.ClickhouseExporter[i]) { // not required
+				return nil
+			}
+
+			if err := o.ClickhouseExporter[i].ContextValidate(ctx, formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("listAgentsOk" + "." + "clickhouse_exporter" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("listAgentsOk" + "." + "clickhouse_exporter" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *ListAgentsOKBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -2041,6 +2108,266 @@ func (o *ListAgentsOKBodyAzureDatabaseExporterItems0MetricsResolutions) MarshalB
 // UnmarshalBinary interface implementation
 func (o *ListAgentsOKBodyAzureDatabaseExporterItems0MetricsResolutions) UnmarshalBinary(b []byte) error {
 	var res ListAgentsOKBodyAzureDatabaseExporterItems0MetricsResolutions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListAgentsOKBodyClickhouseExporterItems0 ClickHouseExporter runs on Generic or Container Node and exposes ClickHouse Service metrics.
+swagger:model ListAgentsOKBodyClickhouseExporterItems0
+*/
+type ListAgentsOKBodyClickhouseExporterItems0 struct {
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// ClickHouse username for scraping metrics.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname verification.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// True if exporter uses push metrics mode.
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+
+	// List of disabled collector names.
+	DisabledCollectors []string `json:"disabled_collectors"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
+	Status *string `json:"status,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ListAgentsOKBodyClickhouseExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
+}
+
+// Validate validates this list agents OK body clickhouse exporter items0
+func (o *ListAgentsOKBodyClickhouseExporterItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var listAgentsOkBodyClickhouseExporterItems0TypeStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listAgentsOkBodyClickhouseExporterItems0TypeStatusPropEnum = append(listAgentsOkBodyClickhouseExporterItems0TypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// ListAgentsOKBodyClickhouseExporterItems0StatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	ListAgentsOKBodyClickhouseExporterItems0StatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// ListAgentsOKBodyClickhouseExporterItems0StatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	ListAgentsOKBodyClickhouseExporterItems0StatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// ListAgentsOKBodyClickhouseExporterItems0StatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	ListAgentsOKBodyClickhouseExporterItems0StatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// ListAgentsOKBodyClickhouseExporterItems0StatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	ListAgentsOKBodyClickhouseExporterItems0StatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// ListAgentsOKBodyClickhouseExporterItems0StatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	ListAgentsOKBodyClickhouseExporterItems0StatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// ListAgentsOKBodyClickhouseExporterItems0StatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	ListAgentsOKBodyClickhouseExporterItems0StatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// ListAgentsOKBodyClickhouseExporterItems0StatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	ListAgentsOKBodyClickhouseExporterItems0StatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// ListAgentsOKBodyClickhouseExporterItems0StatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	ListAgentsOKBodyClickhouseExporterItems0StatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *ListAgentsOKBodyClickhouseExporterItems0) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listAgentsOkBodyClickhouseExporterItems0TypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListAgentsOKBodyClickhouseExporterItems0) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *ListAgentsOKBodyClickhouseExporterItems0) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("metrics_resolutions")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("metrics_resolutions")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list agents OK body clickhouse exporter items0 based on the context it is used
+func (o *ListAgentsOKBodyClickhouseExporterItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListAgentsOKBodyClickhouseExporterItems0) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("metrics_resolutions")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("metrics_resolutions")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAgentsOKBodyClickhouseExporterItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAgentsOKBodyClickhouseExporterItems0) UnmarshalBinary(b []byte) error {
+	var res ListAgentsOKBodyClickhouseExporterItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListAgentsOKBodyClickhouseExporterItems0MetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ListAgentsOKBodyClickhouseExporterItems0MetricsResolutions
+*/
+type ListAgentsOKBodyClickhouseExporterItems0MetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this list agents OK body clickhouse exporter items0 metrics resolutions
+func (o *ListAgentsOKBodyClickhouseExporterItems0MetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list agents OK body clickhouse exporter items0 metrics resolutions based on context it is used
+func (o *ListAgentsOKBodyClickhouseExporterItems0MetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAgentsOKBodyClickhouseExporterItems0MetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAgentsOKBodyClickhouseExporterItems0MetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ListAgentsOKBodyClickhouseExporterItems0MetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

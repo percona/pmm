@@ -34,6 +34,7 @@ enum AgentType {
   AGENT_TYPE_AZURE_DATABASE_EXPORTER = 15;
   AGENT_TYPE_NOMAD_AGENT = 16;
   AGENT_TYPE_RTA_MONGODB_AGENT = 19;
+  AGENT_TYPE_CLICKHOUSE_EXPORTER = 20;
 }
 
 // PMMAgent runs on Generic or Container Node.
@@ -336,6 +337,45 @@ message ValkeyExporter {
   // Service identifier.
   string service_id = 4;
   // Valkey username for scraping metrics.
+  string username = 5;
+  // Use TLS for database connections.
+  bool tls = 6;
+  // Skip TLS certificate and hostname verification.
+  bool tls_skip_verify = 7;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 8;
+  // True if exporter uses push metrics mode.
+  bool push_metrics_enabled = 9;
+  // List of disabled collector names.
+  repeated string disabled_collectors = 10;
+
+  //
+  // Status fields below.
+  //
+
+  // Actual Agent status.
+  AgentStatus status = 20;
+  // Listen port for scraping metrics.
+  uint32 listen_port = 21;
+  // Path to exec process.
+  string process_exec_path = 22;
+  // Optionally expose the exporter process on all public interfaces
+  bool expose_exporter = 23;
+  // Metrics resolution for this agent.
+  common.MetricsResolutions metrics_resolutions = 24;
+}
+
+// ClickHouseExporter runs on Generic or Container Node and exposes ClickHouse Service metrics.
+message ClickHouseExporter {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 2;
+  // Desired Agent status: enabled (false) or disabled (true).
+  bool disabled = 3;
+  // Service identifier.
+  string service_id = 4;
+  // ClickHouse username for scraping metrics.
   string username = 5;
   // Use TLS for database connections.
   bool tls = 6;
@@ -795,6 +835,7 @@ message ListAgentsResponse {
   repeated NomadAgent nomad_agent = 16;
   repeated ValkeyExporter valkey_exporter = 17;
   repeated RTAMongoDBAgent rta_mongodb_agent = 19;
+  repeated ClickHouseExporter clickhouse_exporter = 20;
 }
 
 // Get
@@ -825,6 +866,7 @@ message GetAgentResponse {
     NomadAgent nomad_agent = 16;
     ValkeyExporter valkey_exporter = 17;
     RTAMongoDBAgent rta_mongodb_agent = 19;
+    ClickHouseExporter clickhouse_exporter = 20;
   }
 }
 
@@ -865,6 +907,7 @@ message AddAgentRequest {
     AddQANPostgreSQLPgStatMonitorAgentParams qan_postgresql_pgstatmonitor_agent = 14;
     AddValkeyExporterParams valkey_exporter = 15;
     AddRTAMongoDBAgentParams rta_mongodb_agent = 17;
+    AddClickHouseExporterParams clickhouse_exporter = 18;
   }
 }
 
@@ -887,6 +930,7 @@ message AddAgentResponse {
     QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 14;
     ValkeyExporter valkey_exporter = 15;
     RTAMongoDBAgent rta_mongodb_agent = 17;
+    ClickHouseExporter clickhouse_exporter = 18;
   }
 }
 
@@ -913,6 +957,7 @@ message ChangeAgentRequest {
     ChangeNomadAgentParams nomad_agent = 15;
     ChangeValkeyExporterParams valkey_exporter = 16;
     ChangeRTAMongoDBAgentParams rta_mongodb_agent = 18;
+    ChangeClickHouseExporterParams clickhouse_exporter = 19;
   }
 }
 
@@ -937,6 +982,7 @@ message ChangeAgentResponse {
     NomadAgent nomad_agent = 15;
     ValkeyExporter valkey_exporter = 16;
     RTAMongoDBAgent rta_mongodb_agent = 18;
+    ClickHouseExporter clickhouse_exporter = 19;
   }
 }
 
@@ -1956,6 +2002,76 @@ message ChangeValkeyExporterParams {
   // TLS CA certificate.
   optional string tls_ca = 10;
   // TLS Certifcate.
+  optional string tls_cert = 11;
+  // TLS Certificate Key.
+  optional string tls_key = 12;
+  // Custom password for exporter endpoint /metrics.
+  optional string agent_password = 13 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Optionally expose the exporter process on all public interfaces
+  optional bool expose_exporter = 14;
+  // Log level for exporter.
+  optional LogLevel log_level = 15;
+}
+
+// Add/Change ClickHouseExporter
+
+message AddClickHouseExporterParams {
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
+  // Service identifier.
+  string service_id = 2 [(validate.rules).string.uuid = true];
+  // ClickHouse username for scraping metrics.
+  string username = 3 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // ClickHouse password for scraping metrics.
+  string password = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Use TLS for database connections.
+  bool tls = 5;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 6;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 7;
+  // Skip connection check.
+  bool skip_connection_check = 8;
+  // Enables push metrics mode for exporter.
+  bool push_metrics = 9;
+  // List of collector names to disable in this exporter.
+  repeated string disable_collectors = 10;
+  // TLS CA certificate.
+  string tls_ca = 11;
+  // TLS Certificate.
+  string tls_cert = 12;
+  // TLS Certificate Key.
+  string tls_key = 13;
+  // Custom password for exporter endpoint /metrics.
+  string agent_password = 14 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Optionally expose the exporter process on all public interfaces
+  bool expose_exporter = 15;
+  // Log level for exporter.
+  LogLevel log_level = 16;
+}
+
+message ChangeClickHouseExporterParams {
+  // Enable this Agent. Agents are enabled by default when they get added.
+  optional bool enable = 1;
+  // Replace all custom user-assigned labels.
+  optional common.StringMap custom_labels = 2;
+  // Enables push metrics with vmagent.
+  optional bool enable_push_metrics = 3;
+  // Metrics resolution for this agent.
+  common.MetricsResolutions metrics_resolutions = 4;
+  // ClickHouse username for scraping metrics.
+  optional string username = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // ClickHouse password for scraping metrics.
+  optional string password = 6 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Use TLS for database connections.
+  optional bool tls = 7;
+  // Skip TLS certificate and hostname validation.
+  optional bool tls_skip_verify = 8;
+  // List of collector names to disable in this exporter.
+  repeated string disable_collectors = 9;
+  // TLS CA certificate.
+  optional string tls_ca = 10;
+  // TLS Certificate.
   optional string tls_cert = 11;
   // TLS Certificate Key.
   optional string tls_key = 12;

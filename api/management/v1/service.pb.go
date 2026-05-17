@@ -96,6 +96,7 @@ type AddServiceRequest struct {
 	//	*AddServiceRequest_External
 	//	*AddServiceRequest_Rds
 	//	*AddServiceRequest_Valkey
+	//	*AddServiceRequest_Clickhouse
 	Service       isAddServiceRequest_Service `protobuf_oneof:"service"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -210,6 +211,15 @@ func (x *AddServiceRequest) GetValkey() *AddValkeyServiceParams {
 	return nil
 }
 
+func (x *AddServiceRequest) GetClickhouse() *AddClickHouseServiceParams {
+	if x != nil {
+		if x, ok := x.Service.(*AddServiceRequest_Clickhouse); ok {
+			return x.Clickhouse
+		}
+	}
+	return nil
+}
+
 type isAddServiceRequest_Service interface {
 	isAddServiceRequest_Service()
 }
@@ -246,6 +256,10 @@ type AddServiceRequest_Valkey struct {
 	Valkey *AddValkeyServiceParams `protobuf:"bytes,8,opt,name=valkey,proto3,oneof"`
 }
 
+type AddServiceRequest_Clickhouse struct {
+	Clickhouse *AddClickHouseServiceParams `protobuf:"bytes,9,opt,name=clickhouse,proto3,oneof"`
+}
+
 func (*AddServiceRequest_Mysql) isAddServiceRequest_Service() {}
 
 func (*AddServiceRequest_Mongodb) isAddServiceRequest_Service() {}
@@ -262,6 +276,8 @@ func (*AddServiceRequest_Rds) isAddServiceRequest_Service() {}
 
 func (*AddServiceRequest_Valkey) isAddServiceRequest_Service() {}
 
+func (*AddServiceRequest_Clickhouse) isAddServiceRequest_Service() {}
+
 type AddServiceResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Service:
@@ -274,6 +290,7 @@ type AddServiceResponse struct {
 	//	*AddServiceResponse_External
 	//	*AddServiceResponse_Rds
 	//	*AddServiceResponse_Valkey
+	//	*AddServiceResponse_Clickhouse
 	Service       isAddServiceResponse_Service `protobuf_oneof:"service"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -388,6 +405,15 @@ func (x *AddServiceResponse) GetValkey() *ValkeyServiceResult {
 	return nil
 }
 
+func (x *AddServiceResponse) GetClickhouse() *ClickHouseServiceResult {
+	if x != nil {
+		if x, ok := x.Service.(*AddServiceResponse_Clickhouse); ok {
+			return x.Clickhouse
+		}
+	}
+	return nil
+}
+
 type isAddServiceResponse_Service interface {
 	isAddServiceResponse_Service()
 }
@@ -424,6 +450,10 @@ type AddServiceResponse_Valkey struct {
 	Valkey *ValkeyServiceResult `protobuf:"bytes,8,opt,name=valkey,proto3,oneof"`
 }
 
+type AddServiceResponse_Clickhouse struct {
+	Clickhouse *ClickHouseServiceResult `protobuf:"bytes,9,opt,name=clickhouse,proto3,oneof"`
+}
+
 func (*AddServiceResponse_Mysql) isAddServiceResponse_Service() {}
 
 func (*AddServiceResponse_Mongodb) isAddServiceResponse_Service() {}
@@ -439,6 +469,8 @@ func (*AddServiceResponse_External) isAddServiceResponse_Service() {}
 func (*AddServiceResponse_Rds) isAddServiceResponse_Service() {}
 
 func (*AddServiceResponse_Valkey) isAddServiceResponse_Service() {}
+
+func (*AddServiceResponse_Clickhouse) isAddServiceResponse_Service() {}
 
 type RemoveServiceRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -852,7 +884,7 @@ var File_management_v1_service_proto protoreflect.FileDescriptor
 
 const file_management_v1_service_proto_rawDesc = "" +
 	"\n" +
-	"\x1bmanagement/v1/service.proto\x12\rmanagement.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1binventory/v1/services.proto\x1a\x19management/v1/agent.proto\x1a\x1emanagement/v1/annotation.proto\x1a\x19management/v1/azure.proto\x1a\x1cmanagement/v1/external.proto\x1a\x1bmanagement/v1/haproxy.proto\x1a\x1bmanagement/v1/mongodb.proto\x1a\x19management/v1/mysql.proto\x1a\x18management/v1/node.proto\x1a\x1emanagement/v1/postgresql.proto\x1a\x1cmanagement/v1/proxysql.proto\x1a\x17management/v1/rds.proto\x1a\x1amanagement/v1/valkey.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\xb8\x04\n" +
+	"\x1bmanagement/v1/service.proto\x12\rmanagement.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1binventory/v1/services.proto\x1a\x19management/v1/agent.proto\x1a\x1emanagement/v1/annotation.proto\x1a\x19management/v1/azure.proto\x1a\x1emanagement/v1/clickhouse.proto\x1a\x1cmanagement/v1/external.proto\x1a\x1bmanagement/v1/haproxy.proto\x1a\x1bmanagement/v1/mongodb.proto\x1a\x19management/v1/mysql.proto\x1a\x18management/v1/node.proto\x1a\x1emanagement/v1/postgresql.proto\x1a\x1cmanagement/v1/proxysql.proto\x1a\x17management/v1/rds.proto\x1a\x1amanagement/v1/valkey.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\x85\x05\n" +
 	"\x11AddServiceRequest\x12<\n" +
 	"\x05mysql\x18\x01 \x01(\v2$.management.v1.AddMySQLServiceParamsH\x00R\x05mysql\x12B\n" +
 	"\amongodb\x18\x02 \x01(\v2&.management.v1.AddMongoDBServiceParamsH\x00R\amongodb\x12K\n" +
@@ -863,8 +895,11 @@ const file_management_v1_service_proto_rawDesc = "" +
 	"\ahaproxy\x18\x05 \x01(\v2&.management.v1.AddHAProxyServiceParamsH\x00R\ahaproxy\x12E\n" +
 	"\bexternal\x18\x06 \x01(\v2'.management.v1.AddExternalServiceParamsH\x00R\bexternal\x126\n" +
 	"\x03rds\x18\a \x01(\v2\".management.v1.AddRDSServiceParamsH\x00R\x03rds\x12?\n" +
-	"\x06valkey\x18\b \x01(\v2%.management.v1.AddValkeyServiceParamsH\x00R\x06valkeyB\t\n" +
-	"\aservice\"\xa1\x04\n" +
+	"\x06valkey\x18\b \x01(\v2%.management.v1.AddValkeyServiceParamsH\x00R\x06valkey\x12K\n" +
+	"\n" +
+	"clickhouse\x18\t \x01(\v2).management.v1.AddClickHouseServiceParamsH\x00R\n" +
+	"clickhouseB\t\n" +
+	"\aservice\"\xeb\x04\n" +
 	"\x12AddServiceResponse\x129\n" +
 	"\x05mysql\x18\x01 \x01(\v2!.management.v1.MySQLServiceResultH\x00R\x05mysql\x12?\n" +
 	"\amongodb\x18\x02 \x01(\v2#.management.v1.MongoDBServiceResultH\x00R\amongodb\x12H\n" +
@@ -875,7 +910,10 @@ const file_management_v1_service_proto_rawDesc = "" +
 	"\ahaproxy\x18\x05 \x01(\v2#.management.v1.HAProxyServiceResultH\x00R\ahaproxy\x12B\n" +
 	"\bexternal\x18\x06 \x01(\v2$.management.v1.ExternalServiceResultH\x00R\bexternal\x123\n" +
 	"\x03rds\x18\a \x01(\v2\x1f.management.v1.RDSServiceResultH\x00R\x03rds\x12<\n" +
-	"\x06valkey\x18\b \x01(\v2\".management.v1.ValkeyServiceResultH\x00R\x06valkeyB\t\n" +
+	"\x06valkey\x18\b \x01(\v2\".management.v1.ValkeyServiceResultH\x00R\x06valkey\x12H\n" +
+	"\n" +
+	"clickhouse\x18\t \x01(\v2&.management.v1.ClickHouseServiceResultH\x00R\n" +
+	"clickhouseB\t\n" +
 	"\aservice\"s\n" +
 	"\x14RemoveServiceRequest\x12\x1d\n" +
 	"\n" +
@@ -972,40 +1010,41 @@ var (
 		(*AddExternalServiceParams)(nil),      // 14: management.v1.AddExternalServiceParams
 		(*AddRDSServiceParams)(nil),           // 15: management.v1.AddRDSServiceParams
 		(*AddValkeyServiceParams)(nil),        // 16: management.v1.AddValkeyServiceParams
-		(*MySQLServiceResult)(nil),            // 17: management.v1.MySQLServiceResult
-		(*MongoDBServiceResult)(nil),          // 18: management.v1.MongoDBServiceResult
-		(*PostgreSQLServiceResult)(nil),       // 19: management.v1.PostgreSQLServiceResult
-		(*ProxySQLServiceResult)(nil),         // 20: management.v1.ProxySQLServiceResult
-		(*HAProxyServiceResult)(nil),          // 21: management.v1.HAProxyServiceResult
-		(*ExternalServiceResult)(nil),         // 22: management.v1.ExternalServiceResult
-		(*RDSServiceResult)(nil),              // 23: management.v1.RDSServiceResult
-		(*ValkeyServiceResult)(nil),           // 24: management.v1.ValkeyServiceResult
-		(v1.ServiceType)(0),                   // 25: inventory.v1.ServiceType
-		(*timestamppb.Timestamp)(nil),         // 26: google.protobuf.Timestamp
-		(*UniversalAgent)(nil),                // 27: management.v1.UniversalAgent
-		(*AddAnnotationRequest)(nil),          // 28: management.v1.AddAnnotationRequest
-		(*ListAgentsRequest)(nil),             // 29: management.v1.ListAgentsRequest
-		(*ListAgentVersionsRequest)(nil),      // 30: management.v1.ListAgentVersionsRequest
-		(*RegisterNodeRequest)(nil),           // 31: management.v1.RegisterNodeRequest
-		(*UnregisterNodeRequest)(nil),         // 32: management.v1.UnregisterNodeRequest
-		(*ListNodesRequest)(nil),              // 33: management.v1.ListNodesRequest
-		(*GetNodeRequest)(nil),                // 34: management.v1.GetNodeRequest
-		(*DiscoverRDSRequest)(nil),            // 35: management.v1.DiscoverRDSRequest
-		(*DiscoverAzureDatabaseRequest)(nil),  // 36: management.v1.DiscoverAzureDatabaseRequest
-		(*AddAzureDatabaseRequest)(nil),       // 37: management.v1.AddAzureDatabaseRequest
-		(*AddAnnotationResponse)(nil),         // 38: management.v1.AddAnnotationResponse
-		(*ListAgentsResponse)(nil),            // 39: management.v1.ListAgentsResponse
-		(*ListAgentVersionsResponse)(nil),     // 40: management.v1.ListAgentVersionsResponse
-		(*RegisterNodeResponse)(nil),          // 41: management.v1.RegisterNodeResponse
-		(*UnregisterNodeResponse)(nil),        // 42: management.v1.UnregisterNodeResponse
-		(*ListNodesResponse)(nil),             // 43: management.v1.ListNodesResponse
-		(*GetNodeResponse)(nil),               // 44: management.v1.GetNodeResponse
-		(*DiscoverRDSResponse)(nil),           // 45: management.v1.DiscoverRDSResponse
-		(*DiscoverAzureDatabaseResponse)(nil), // 46: management.v1.DiscoverAzureDatabaseResponse
-		(*AddAzureDatabaseResponse)(nil),      // 47: management.v1.AddAzureDatabaseResponse
+		(*AddClickHouseServiceParams)(nil),    // 17: management.v1.AddClickHouseServiceParams
+		(*MySQLServiceResult)(nil),            // 18: management.v1.MySQLServiceResult
+		(*MongoDBServiceResult)(nil),          // 19: management.v1.MongoDBServiceResult
+		(*PostgreSQLServiceResult)(nil),       // 20: management.v1.PostgreSQLServiceResult
+		(*ProxySQLServiceResult)(nil),         // 21: management.v1.ProxySQLServiceResult
+		(*HAProxyServiceResult)(nil),          // 22: management.v1.HAProxyServiceResult
+		(*ExternalServiceResult)(nil),         // 23: management.v1.ExternalServiceResult
+		(*RDSServiceResult)(nil),              // 24: management.v1.RDSServiceResult
+		(*ValkeyServiceResult)(nil),           // 25: management.v1.ValkeyServiceResult
+		(*ClickHouseServiceResult)(nil),       // 26: management.v1.ClickHouseServiceResult
+		(v1.ServiceType)(0),                   // 27: inventory.v1.ServiceType
+		(*timestamppb.Timestamp)(nil),         // 28: google.protobuf.Timestamp
+		(*UniversalAgent)(nil),                // 29: management.v1.UniversalAgent
+		(*AddAnnotationRequest)(nil),          // 30: management.v1.AddAnnotationRequest
+		(*ListAgentsRequest)(nil),             // 31: management.v1.ListAgentsRequest
+		(*ListAgentVersionsRequest)(nil),      // 32: management.v1.ListAgentVersionsRequest
+		(*RegisterNodeRequest)(nil),           // 33: management.v1.RegisterNodeRequest
+		(*UnregisterNodeRequest)(nil),         // 34: management.v1.UnregisterNodeRequest
+		(*ListNodesRequest)(nil),              // 35: management.v1.ListNodesRequest
+		(*GetNodeRequest)(nil),                // 36: management.v1.GetNodeRequest
+		(*DiscoverRDSRequest)(nil),            // 37: management.v1.DiscoverRDSRequest
+		(*DiscoverAzureDatabaseRequest)(nil),  // 38: management.v1.DiscoverAzureDatabaseRequest
+		(*AddAzureDatabaseRequest)(nil),       // 39: management.v1.AddAzureDatabaseRequest
+		(*AddAnnotationResponse)(nil),         // 40: management.v1.AddAnnotationResponse
+		(*ListAgentsResponse)(nil),            // 41: management.v1.ListAgentsResponse
+		(*ListAgentVersionsResponse)(nil),     // 42: management.v1.ListAgentVersionsResponse
+		(*RegisterNodeResponse)(nil),          // 43: management.v1.RegisterNodeResponse
+		(*UnregisterNodeResponse)(nil),        // 44: management.v1.UnregisterNodeResponse
+		(*ListNodesResponse)(nil),             // 45: management.v1.ListNodesResponse
+		(*GetNodeResponse)(nil),               // 46: management.v1.GetNodeResponse
+		(*DiscoverRDSResponse)(nil),           // 47: management.v1.DiscoverRDSResponse
+		(*DiscoverAzureDatabaseResponse)(nil), // 48: management.v1.DiscoverAzureDatabaseResponse
+		(*AddAzureDatabaseResponse)(nil),      // 49: management.v1.AddAzureDatabaseResponse
 	}
 )
-
 var file_management_v1_service_proto_depIdxs = []int32{
 	9,  // 0: management.v1.AddServiceRequest.mysql:type_name -> management.v1.AddMySQLServiceParams
 	10, // 1: management.v1.AddServiceRequest.mongodb:type_name -> management.v1.AddMongoDBServiceParams
@@ -1015,53 +1054,55 @@ var file_management_v1_service_proto_depIdxs = []int32{
 	14, // 5: management.v1.AddServiceRequest.external:type_name -> management.v1.AddExternalServiceParams
 	15, // 6: management.v1.AddServiceRequest.rds:type_name -> management.v1.AddRDSServiceParams
 	16, // 7: management.v1.AddServiceRequest.valkey:type_name -> management.v1.AddValkeyServiceParams
-	17, // 8: management.v1.AddServiceResponse.mysql:type_name -> management.v1.MySQLServiceResult
-	18, // 9: management.v1.AddServiceResponse.mongodb:type_name -> management.v1.MongoDBServiceResult
-	19, // 10: management.v1.AddServiceResponse.postgresql:type_name -> management.v1.PostgreSQLServiceResult
-	20, // 11: management.v1.AddServiceResponse.proxysql:type_name -> management.v1.ProxySQLServiceResult
-	21, // 12: management.v1.AddServiceResponse.haproxy:type_name -> management.v1.HAProxyServiceResult
-	22, // 13: management.v1.AddServiceResponse.external:type_name -> management.v1.ExternalServiceResult
-	23, // 14: management.v1.AddServiceResponse.rds:type_name -> management.v1.RDSServiceResult
-	24, // 15: management.v1.AddServiceResponse.valkey:type_name -> management.v1.ValkeyServiceResult
-	25, // 16: management.v1.RemoveServiceRequest.service_type:type_name -> inventory.v1.ServiceType
-	8,  // 17: management.v1.UniversalService.custom_labels:type_name -> management.v1.UniversalService.CustomLabelsEntry
-	26, // 18: management.v1.UniversalService.created_at:type_name -> google.protobuf.Timestamp
-	26, // 19: management.v1.UniversalService.updated_at:type_name -> google.protobuf.Timestamp
-	27, // 20: management.v1.UniversalService.agents:type_name -> management.v1.UniversalAgent
-	0,  // 21: management.v1.UniversalService.status:type_name -> management.v1.UniversalService.Status
-	25, // 22: management.v1.ListServicesRequest.service_type:type_name -> inventory.v1.ServiceType
-	5,  // 23: management.v1.ListServicesResponse.services:type_name -> management.v1.UniversalService
-	28, // 24: management.v1.ManagementService.AddAnnotation:input_type -> management.v1.AddAnnotationRequest
-	29, // 25: management.v1.ManagementService.ListAgents:input_type -> management.v1.ListAgentsRequest
-	30, // 26: management.v1.ManagementService.ListAgentVersions:input_type -> management.v1.ListAgentVersionsRequest
-	31, // 27: management.v1.ManagementService.RegisterNode:input_type -> management.v1.RegisterNodeRequest
-	32, // 28: management.v1.ManagementService.UnregisterNode:input_type -> management.v1.UnregisterNodeRequest
-	33, // 29: management.v1.ManagementService.ListNodes:input_type -> management.v1.ListNodesRequest
-	34, // 30: management.v1.ManagementService.GetNode:input_type -> management.v1.GetNodeRequest
-	1,  // 31: management.v1.ManagementService.AddService:input_type -> management.v1.AddServiceRequest
-	6,  // 32: management.v1.ManagementService.ListServices:input_type -> management.v1.ListServicesRequest
-	35, // 33: management.v1.ManagementService.DiscoverRDS:input_type -> management.v1.DiscoverRDSRequest
-	36, // 34: management.v1.ManagementService.DiscoverAzureDatabase:input_type -> management.v1.DiscoverAzureDatabaseRequest
-	37, // 35: management.v1.ManagementService.AddAzureDatabase:input_type -> management.v1.AddAzureDatabaseRequest
-	3,  // 36: management.v1.ManagementService.RemoveService:input_type -> management.v1.RemoveServiceRequest
-	38, // 37: management.v1.ManagementService.AddAnnotation:output_type -> management.v1.AddAnnotationResponse
-	39, // 38: management.v1.ManagementService.ListAgents:output_type -> management.v1.ListAgentsResponse
-	40, // 39: management.v1.ManagementService.ListAgentVersions:output_type -> management.v1.ListAgentVersionsResponse
-	41, // 40: management.v1.ManagementService.RegisterNode:output_type -> management.v1.RegisterNodeResponse
-	42, // 41: management.v1.ManagementService.UnregisterNode:output_type -> management.v1.UnregisterNodeResponse
-	43, // 42: management.v1.ManagementService.ListNodes:output_type -> management.v1.ListNodesResponse
-	44, // 43: management.v1.ManagementService.GetNode:output_type -> management.v1.GetNodeResponse
-	2,  // 44: management.v1.ManagementService.AddService:output_type -> management.v1.AddServiceResponse
-	7,  // 45: management.v1.ManagementService.ListServices:output_type -> management.v1.ListServicesResponse
-	45, // 46: management.v1.ManagementService.DiscoverRDS:output_type -> management.v1.DiscoverRDSResponse
-	46, // 47: management.v1.ManagementService.DiscoverAzureDatabase:output_type -> management.v1.DiscoverAzureDatabaseResponse
-	47, // 48: management.v1.ManagementService.AddAzureDatabase:output_type -> management.v1.AddAzureDatabaseResponse
-	4,  // 49: management.v1.ManagementService.RemoveService:output_type -> management.v1.RemoveServiceResponse
-	37, // [37:50] is the sub-list for method output_type
-	24, // [24:37] is the sub-list for method input_type
-	24, // [24:24] is the sub-list for extension type_name
-	24, // [24:24] is the sub-list for extension extendee
-	0,  // [0:24] is the sub-list for field type_name
+	17, // 8: management.v1.AddServiceRequest.clickhouse:type_name -> management.v1.AddClickHouseServiceParams
+	18, // 9: management.v1.AddServiceResponse.mysql:type_name -> management.v1.MySQLServiceResult
+	19, // 10: management.v1.AddServiceResponse.mongodb:type_name -> management.v1.MongoDBServiceResult
+	20, // 11: management.v1.AddServiceResponse.postgresql:type_name -> management.v1.PostgreSQLServiceResult
+	21, // 12: management.v1.AddServiceResponse.proxysql:type_name -> management.v1.ProxySQLServiceResult
+	22, // 13: management.v1.AddServiceResponse.haproxy:type_name -> management.v1.HAProxyServiceResult
+	23, // 14: management.v1.AddServiceResponse.external:type_name -> management.v1.ExternalServiceResult
+	24, // 15: management.v1.AddServiceResponse.rds:type_name -> management.v1.RDSServiceResult
+	25, // 16: management.v1.AddServiceResponse.valkey:type_name -> management.v1.ValkeyServiceResult
+	26, // 17: management.v1.AddServiceResponse.clickhouse:type_name -> management.v1.ClickHouseServiceResult
+	27, // 18: management.v1.RemoveServiceRequest.service_type:type_name -> inventory.v1.ServiceType
+	8,  // 19: management.v1.UniversalService.custom_labels:type_name -> management.v1.UniversalService.CustomLabelsEntry
+	28, // 20: management.v1.UniversalService.created_at:type_name -> google.protobuf.Timestamp
+	28, // 21: management.v1.UniversalService.updated_at:type_name -> google.protobuf.Timestamp
+	29, // 22: management.v1.UniversalService.agents:type_name -> management.v1.UniversalAgent
+	0,  // 23: management.v1.UniversalService.status:type_name -> management.v1.UniversalService.Status
+	27, // 24: management.v1.ListServicesRequest.service_type:type_name -> inventory.v1.ServiceType
+	5,  // 25: management.v1.ListServicesResponse.services:type_name -> management.v1.UniversalService
+	30, // 26: management.v1.ManagementService.AddAnnotation:input_type -> management.v1.AddAnnotationRequest
+	31, // 27: management.v1.ManagementService.ListAgents:input_type -> management.v1.ListAgentsRequest
+	32, // 28: management.v1.ManagementService.ListAgentVersions:input_type -> management.v1.ListAgentVersionsRequest
+	33, // 29: management.v1.ManagementService.RegisterNode:input_type -> management.v1.RegisterNodeRequest
+	34, // 30: management.v1.ManagementService.UnregisterNode:input_type -> management.v1.UnregisterNodeRequest
+	35, // 31: management.v1.ManagementService.ListNodes:input_type -> management.v1.ListNodesRequest
+	36, // 32: management.v1.ManagementService.GetNode:input_type -> management.v1.GetNodeRequest
+	1,  // 33: management.v1.ManagementService.AddService:input_type -> management.v1.AddServiceRequest
+	6,  // 34: management.v1.ManagementService.ListServices:input_type -> management.v1.ListServicesRequest
+	37, // 35: management.v1.ManagementService.DiscoverRDS:input_type -> management.v1.DiscoverRDSRequest
+	38, // 36: management.v1.ManagementService.DiscoverAzureDatabase:input_type -> management.v1.DiscoverAzureDatabaseRequest
+	39, // 37: management.v1.ManagementService.AddAzureDatabase:input_type -> management.v1.AddAzureDatabaseRequest
+	3,  // 38: management.v1.ManagementService.RemoveService:input_type -> management.v1.RemoveServiceRequest
+	40, // 39: management.v1.ManagementService.AddAnnotation:output_type -> management.v1.AddAnnotationResponse
+	41, // 40: management.v1.ManagementService.ListAgents:output_type -> management.v1.ListAgentsResponse
+	42, // 41: management.v1.ManagementService.ListAgentVersions:output_type -> management.v1.ListAgentVersionsResponse
+	43, // 42: management.v1.ManagementService.RegisterNode:output_type -> management.v1.RegisterNodeResponse
+	44, // 43: management.v1.ManagementService.UnregisterNode:output_type -> management.v1.UnregisterNodeResponse
+	45, // 44: management.v1.ManagementService.ListNodes:output_type -> management.v1.ListNodesResponse
+	46, // 45: management.v1.ManagementService.GetNode:output_type -> management.v1.GetNodeResponse
+	2,  // 46: management.v1.ManagementService.AddService:output_type -> management.v1.AddServiceResponse
+	7,  // 47: management.v1.ManagementService.ListServices:output_type -> management.v1.ListServicesResponse
+	47, // 48: management.v1.ManagementService.DiscoverRDS:output_type -> management.v1.DiscoverRDSResponse
+	48, // 49: management.v1.ManagementService.DiscoverAzureDatabase:output_type -> management.v1.DiscoverAzureDatabaseResponse
+	49, // 50: management.v1.ManagementService.AddAzureDatabase:output_type -> management.v1.AddAzureDatabaseResponse
+	4,  // 51: management.v1.ManagementService.RemoveService:output_type -> management.v1.RemoveServiceResponse
+	39, // [39:52] is the sub-list for method output_type
+	26, // [26:39] is the sub-list for method input_type
+	26, // [26:26] is the sub-list for extension type_name
+	26, // [26:26] is the sub-list for extension extendee
+	0,  // [0:26] is the sub-list for field type_name
 }
 
 func init() { file_management_v1_service_proto_init() }
@@ -1072,6 +1113,7 @@ func file_management_v1_service_proto_init() {
 	file_management_v1_agent_proto_init()
 	file_management_v1_annotation_proto_init()
 	file_management_v1_azure_proto_init()
+	file_management_v1_clickhouse_proto_init()
 	file_management_v1_external_proto_init()
 	file_management_v1_haproxy_proto_init()
 	file_management_v1_mongodb_proto_init()
@@ -1090,6 +1132,7 @@ func file_management_v1_service_proto_init() {
 		(*AddServiceRequest_External)(nil),
 		(*AddServiceRequest_Rds)(nil),
 		(*AddServiceRequest_Valkey)(nil),
+		(*AddServiceRequest_Clickhouse)(nil),
 	}
 	file_management_v1_service_proto_msgTypes[1].OneofWrappers = []any{
 		(*AddServiceResponse_Mysql)(nil),
@@ -1100,6 +1143,7 @@ func file_management_v1_service_proto_init() {
 		(*AddServiceResponse_External)(nil),
 		(*AddServiceResponse_Rds)(nil),
 		(*AddServiceResponse_Valkey)(nil),
+		(*AddServiceResponse_Clickhouse)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
