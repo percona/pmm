@@ -56,11 +56,59 @@ jobs:
           sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android /opt/hostedtoolcache || true
           docker system prune -af || true
 
-      - name: Build the rpmbuild image (native)
-        run: make -f Makefile.datacosmos build-rpmbuild-image
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # The rpmbuild image is OracleLinux 9 + a fixed dnf package set, so its
+      # layers rarely change — restore them from the GHA cache instead of
+      # re-downloading every run. Tagged pmm-rpmbuild:local (the Makefile
+      # default RPMBUILD_DOCKER_IMAGE), so `make client server` reuses it.
+      - name: Build the rpmbuild image (layer-cached)
+        uses: docker/build-push-action@v6
+        with:
+          context: build/docker/rpmbuild
+          file: build/docker/rpmbuild/Dockerfile.el9
+          tags: pmm-rpmbuild:local
+          load: true
+          pull: true
+          cache-from: type=gha,scope=rpmbuild-${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=rpmbuild-${{ matrix.arch }}
+
+      # build-client-binary mounts the Go build cache and module cache as the
+      # docker volumes pmm-gobuild / pmm-gomod. Persist them across runs: seed
+      # the volumes from the GHA cache before building and dump them back
+      # after — so even a failed run keeps every package that already compiled
+      # and the next attempt only rebuilds what changed.
+      - name: Restore Go build & module cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/pmm-gocache
+          key: pmm-gocache-${{ matrix.arch }}-${{ hashFiles('go.sum') }}-${{ github.run_id }}
+          restore-keys: |
+            pmm-gocache-${{ matrix.arch }}-${{ hashFiles('go.sum') }}-
+            pmm-gocache-${{ matrix.arch }}-
+
+      - name: Seed Docker volumes from cache
+        run: |
+          for v in gobuild gomod; do
+            docker volume create "pmm-$v" >/dev/null
+            if [ -d "/tmp/pmm-gocache/$v" ]; then
+              docker run --rm -v "pmm-$v:/dst" -v "/tmp/pmm-gocache/$v:/src:ro" \
+                alpine sh -c 'cp -a /src/. /dst/ 2>/dev/null || true'
+            fi
+          done
 
       - name: Build pmm-client and pmm-server (native)
         run: make -f Makefile.datacosmos client server
+
+      - name: Dump Docker volumes to cache
+        if: always()
+        run: |
+          for v in gobuild gomod; do
+            mkdir -p "/tmp/pmm-gocache/$v"
+            docker run --rm -v "pmm-$v:/src:ro" -v "/tmp/pmm-gocache/$v:/dst" \
+              alpine sh -c 'cp -a /src/. /dst/ 2>/dev/null || true' || true
+          done
 
       - name: Publish per-arch images to ghcr.io
         env:
