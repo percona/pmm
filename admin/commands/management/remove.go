@@ -79,6 +79,8 @@ func (cmd *RemoveCommand) RunCmd() (commands.Result, error) {
 			serviceID = servicesRes.Payload.Postgresql[0].ServiceID
 		case len(servicesRes.Payload.Valkey) == 1:
 			serviceID = servicesRes.Payload.Valkey[0].ServiceID
+		case len(servicesRes.Payload.Clickhouse) == 1:
+			serviceID = servicesRes.Payload.Clickhouse[0].ServiceID
 		case len(servicesRes.Payload.Proxysql) == 1:
 			serviceID = servicesRes.Payload.Proxysql[0].ServiceID
 		case len(servicesRes.Payload.Haproxy) == 1:
