@@ -103,6 +103,13 @@ var sparklinePointAllFields = []string{
 	"m_locks_collection_acquire_count_read_shared_sum_per_sec",
 	"m_storage_bytes_read_sum_per_sec",
 	"m_storage_time_reading_micros_sum_per_sec",
+	"m_read_rows_sum_per_sec",
+	"m_read_bytes_sum_per_sec",
+	"m_result_rows_sum_per_sec",
+	"m_result_bytes_sum_per_sec",
+	"m_memory_usage_sum_per_sec",
+	"m_written_rows_sum_per_sec",
+	"m_written_bytes_sum_per_sec",
 }
 
 func getPointFieldsList(point *qanv1.Point, fields []string) []interface{} {
@@ -184,6 +191,13 @@ func getPointFieldsList(point *qanv1.Point, fields []string) []interface{} {
 		"m_locks_collection_acquire_count_read_shared_sum_per_sec":       &point.MLocksCollectionAcquireCountReadSharedSumPerSec,
 		"m_storage_bytes_read_sum_per_sec":                               &point.MStorageBytesReadSumPerSec,
 		"m_storage_time_reading_micros_sum_per_sec":                      &point.MStorageTimeReadingMicrosSumPerSec,
+		"m_read_rows_sum_per_sec":                                        &point.MReadRowsSumPerSec,
+		"m_read_bytes_sum_per_sec":                                       &point.MReadBytesSumPerSec,
+		"m_result_rows_sum_per_sec":                                      &point.MResultRowsSumPerSec,
+		"m_result_bytes_sum_per_sec":                                     &point.MResultBytesSumPerSec,
+		"m_memory_usage_sum_per_sec":                                     &point.MMemoryUsageSumPerSec,
+		"m_written_rows_sum_per_sec":                                     &point.MWrittenRowsSumPerSec,
+		"m_written_bytes_sum_per_sec":                                    &point.MWrittenBytesSumPerSec,
 	}
 
 	sparklinePointValuesList := []interface{}{}
@@ -419,6 +433,41 @@ func isValidMetricColumn(name string) bool {
 		"m_storage_time_reading_micros_min":                      {},
 		"m_storage_time_reading_micros_max":                      {},
 		"m_storage_time_reading_micros_p99":                      {},
+		"m_read_rows_cnt":                                        {},
+		"m_read_rows_sum":                                        {},
+		"m_read_rows_min":                                        {},
+		"m_read_rows_max":                                        {},
+		"m_read_rows_p99":                                        {},
+		"m_read_bytes_cnt":                                       {},
+		"m_read_bytes_sum":                                       {},
+		"m_read_bytes_min":                                       {},
+		"m_read_bytes_max":                                       {},
+		"m_read_bytes_p99":                                       {},
+		"m_result_rows_cnt":                                      {},
+		"m_result_rows_sum":                                      {},
+		"m_result_rows_min":                                      {},
+		"m_result_rows_max":                                      {},
+		"m_result_rows_p99":                                      {},
+		"m_result_bytes_cnt":                                     {},
+		"m_result_bytes_sum":                                     {},
+		"m_result_bytes_min":                                     {},
+		"m_result_bytes_max":                                     {},
+		"m_result_bytes_p99":                                     {},
+		"m_memory_usage_cnt":                                     {},
+		"m_memory_usage_sum":                                     {},
+		"m_memory_usage_min":                                     {},
+		"m_memory_usage_max":                                     {},
+		"m_memory_usage_p99":                                     {},
+		"m_written_rows_cnt":                                     {},
+		"m_written_rows_sum":                                     {},
+		"m_written_rows_min":                                     {},
+		"m_written_rows_max":                                     {},
+		"m_written_rows_p99":                                     {},
+		"m_written_bytes_cnt":                                    {},
+		"m_written_bytes_sum":                                    {},
+		"m_written_bytes_min":                                    {},
+		"m_written_bytes_max":                                    {},
+		"m_written_bytes_p99":                                    {},
 	}
 	_, isValid := fields[name]
 	return isValid
@@ -450,6 +499,7 @@ func IsDimension(name string) bool {
 		"container_name":   {},
 		"container_id":     {},
 		"cmd_type":         {},
+		"query_kind":       {},
 		"application_name": {},
 		"top_queryid":      {},
 		"planid":           {},
@@ -470,6 +520,7 @@ func agentTypeToClickHouseEnum(agentType inventoryv1.AgentType) string {
 		inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_MONGOLOG_AGENT:         "qan-mongodb-mongolog-agent",
 		inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT:  "qan-postgresql-pgstatements-agent",
 		inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT: "qan-postgresql-pgstatmonitor-agent",
+		inventoryv1.AgentType_AGENT_TYPE_QAN_CLICKHOUSE_QUERYLOG_AGENT:      "qan-clickhouse-querylog-agent",
 	}
 
 	if val, ok := agentTypes[agentType]; ok {
