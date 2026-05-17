@@ -2,138 +2,128 @@
 
 **Outcome:** a set of ClickHouse Grafana dashboards under
 `dashboards/dashboards/ClickHouse/`, registered in the `pmm-app` plugin,
-rendering live ClickHouse metrics from VictoriaMetrics — on par with the
-MySQL/PostgreSQL dashboard sets.
+rendering live ClickHouse metrics — **adapted from existing, ready-made
+ClickHouse dashboards** rather than authored from scratch.
+
+## Reuse-first principle
+
+Phase 2 does **not** invent dashboards. ClickHouse's metrics are already
+well-covered by official, ready-made dashboards that target the very metric
+names PMM emits (`ClickHouseMetrics_*` / `ClickHouseProfileEvents_*` /
+`ClickHouseAsyncMetrics_*` — confirmed in Phase 1). Two layers are reused:
+
+- **Panels / PromQL** — from ClickHouse's own dashboards (below).
+- **Shell** (templating cascade, datasource variable, layout, tags, UID
+  conventions, `cleanup-dash.py` normalization) — from PMM's existing
+  PostgreSQL/Valkey dashboards.
+
+Phase 2 = *adapt + organize*, not *author*.
+
+### Base dashboards used  *(attribution is mandatory)*
+
+| Base | Source | Role |
+|---|---|---|
+| **`ClickHouse/clickhouse-mixin`** — `dashboard.json` | `github.com/ClickHouse/clickhouse-mixin` | **primary** — ClickHouse's official dashboard, "nearly identical to ClickHouse's own internal dashboards", filters 1000+ metrics to ~125 mission-critical; targets the native `/metrics` endpoint |
+| ClickHouse + Keeper Comprehensive | Grafana Labs dashboard `23285` | secondary — Keeper/replication panels reference |
+| ClickHouse (community) | Grafana Labs dashboard `14192` | secondary — cross-check panel coverage |
+| PMM `PostgreSQL/*.json`, `Valkey/*.json` | this repo, `dashboards/dashboards/` | the PMM shell — templating, datasource var, tags, UIDs |
+
+**Before incorporating**: verify each base's license (the `clickhouse-mixin`
+license must be confirmed — likely Apache-2.0, compatible with PMM's
+`dashboards/` Apache-2.0; if unclear, treat panels as reference and rebuild).
+Record every base + URL + license + commit/version in
+`dashboards/dashboards/ClickHouse/ATTRIBUTION.md`, and keep an attribution line
+in each dashboard JSON `description`.
 
 ## Design
 
-- ClickHouse monitoring dashboards bind to the **VictoriaMetrics / Prometheus**
-  datasource (the `ClickHouseMetrics_*` / `ClickHouseProfileEvents_*` /
-  `ClickHouseAsyncMetrics_*` metrics — from the ClickHouse native endpoint or
-  the Phase 1 exporter, which emit identical names) — **not** the bundled
-  `grafana-clickhouse-datasource` plugin (that is for ad-hoc direct ClickHouse
-  querying, a separate concern).
-- Dashboard JSON: one file per dashboard in `dashboards/dashboards/ClickHouse/`,
-  each registered in `dashboards/pmm-app/src/plugin.json` `includes`.
+- Dashboards bind to the **VictoriaMetrics / Prometheus** datasource (the
+  `ClickHouseMetrics_*` / `ClickHouseProfileEvents_*` / `ClickHouseAsyncMetrics_*`
+  metrics — emitted identically by the native endpoint and the Phase 1
+  exporter) — **not** the bundled `grafana-clickhouse-datasource` plugin.
 - Template variables cascade `environment → cluster → node_name → service_name`,
-  keyed off `up{service_type="clickhouse"}` (synthesized by the scraper for
-  every target) — there is **no** `clickhouse_up` metric.
-- Tags on every dashboard: `ClickHouse`, `Percona`, `Services`.
-- UIDs are stable lowercase-hyphen, fixed at creation, never changed.
-
-### Metric contract  *(Phase 1 prerequisite)*
-
-Dashboards bind to ClickHouse's **native metric names** — emitted both by the
-native `<prometheus>` endpoint and by the managed `clickhouse_exporter` (Phase 1
-guarantees parity, so one dashboard set serves both sources). Three families,
-each from the corresponding `system.*` table:
-
-- **`ClickHouseMetrics_*`** — gauges from `system.metrics` (current state):
-  e.g. `ClickHouseMetrics_Query`, `_Merge`, `_TCPConnection`,
-  `_ReadonlyReplica`, `_PartsActive`, `_BackgroundPoolTask`.
-- **`ClickHouseProfileEvents_*`** — counters from `system.events` (cumulative):
-  e.g. `ClickHouseProfileEvents_Query`, `_SelectQuery`, `_InsertQuery`,
-  `_FailedQuery`, `_SelectedRows`, `_SelectedBytes`, `_MergedRows`.
-- **`ClickHouseAsyncMetrics_*`** — from `system.asynchronous_metrics`: e.g.
-  `ClickHouseAsyncMetrics_Uptime`, `_MemoryResident`,
-  `_MaxPartCountForPartition`, `_ReplicasMaxQueueSize`,
-  `_ReplicasMaxAbsoluteDelay`.
-- **`ClickHouseStatusInfo_*`** — info series (used for the summary header /
-  version).
-
-`up{service_type="clickhouse"}` (scraper-synthesized) drives templating — there
-is **no** `clickhouse_up`. All series carry `service_name`, `node_name`,
-`cluster`, `environment` (VM external labels). ClickHouse exposes 1000+ metrics;
-Phase 1 may use ClickHouse's `filtered_metrics` (~125 mission-critical) to keep
-cardinality sane. Exact per-panel metric names are pinned during Phase 1/2
-against a live server (`curl :9363/metrics`). Author dashboards in the Step
-order below — each needs only its own subset.
+  keyed off `up{service_type="clickhouse"}` (scraper-synthesized) — there is
+  **no** `clickhouse_up` metric.
+- Tags on every dashboard: `ClickHouse`, `Percona`, `Services`. Stable
+  lowercase-hyphen UIDs, fixed at creation.
 
 ## Development line (ordered)
 
-**Step 0 — scaffold.** Create `dashboards/dashboards/ClickHouse/`. Add a
-`ClickHouse` row to `.github/instructions/dashboards.instructions.md`. Fix UIDs
-up front: `clickhouse-instance-summary`, `clickhouse-query-performance`,
-`clickhouse-memory`, `clickhouse-tables-parts`, `clickhouse-replication`,
-`clickhouse-system-resources`, `clickhouse-instances-overview`,
+**Step 0 — obtain bases + scaffold.** Clone `ClickHouse/clickhouse-mixin`;
+record license + commit in `ATTRIBUTION.md`. Create
+`dashboards/dashboards/ClickHouse/`. Add a `ClickHouse` row to
+`.github/instructions/dashboards.instructions.md`. Fix UIDs:
+`clickhouse-instance-summary`, `clickhouse-query-performance`,
+`clickhouse-replication`, `clickhouse-instances-overview`,
 `clickhouse-instances-compare`.
 
-**Step 1 — `ClickHouse_Instance_Summary.json`** *(anchor)* — clone
-`PostgreSQL/PostgreSQL_Instance_Summary.json`. Status/uptime, version, QPS,
-query latency, memory tracked vs resident, active parts, connections, pool
-tasks. Build this first and get the templating/layout reviewed; later
-dashboards clone it.
+**Step 1 — `ClickHouse_Instance_Summary.json`** *(primary — the adapted mixin)*.
+Take `clickhouse-mixin/dashboard.json` and adapt to PMM:
+- repoint every panel datasource to the PMM Prometheus/VM datasource variable;
+- replace the mixin's instance/job variables with the PMM cascade
+  (`environment → cluster → node_name → service_name`), keyed off
+  `up{service_type="clickhouse"}` — reuse the variable block from
+  `PostgreSQL/PostgreSQL_Instance_Summary.json`;
+- set PMM `tags`, the fixed UID, `editable:false`, `refresh:false`;
+- keep the mixin's panels and PromQL essentially intact (that is the reuse);
+- run `cleanup-dash.py`.
 
-**Step 2 — `ClickHouse_Query_Performance.json`** — SELECT/INSERT/failed query
-rates, duration percentiles, slow-query indicators. (Metrics counterpart of QAN.)
+**Step 2 — organize / split out.** If `dashboard.json` is large, split its
+panel groups into focused PMM-style dashboards — **reusing the mixin's panels
+and queries verbatim**, only regrouping:
+- `ClickHouse_Query_Performance.json` — query/select/insert/failed rates,
+  durations (mixin query panels).
+- `ClickHouse_Replication.json` — replica queue, delay, readonly, Keeper
+  (mixin + dashboard `23285` panels). Degrades to no-data on single-node.
+Only split where it genuinely improves clarity; do not pad the set.
 
-**Step 3 — `ClickHouse_Memory.json`** — memory tracking, mark/uncompressed
-cache, resident memory, allocator stats.
+**Step 3 — fleet views** (PMM-specific — no mixin equivalent). Clone the PMM
+shell of `PostgreSQL_Instances_Overview.json` / `PostgreSQL_Instances_Compare.json`
+and drop in the mixin's headline panels:
+- `ClickHouse_Instances_Overview.json` — one row per `service_name`.
+- `ClickHouse_Instances_Compare.json` — side-by-side, series by `service_name`.
 
-**Step 4 — `ClickHouse_Tables_and_Parts.json`** — per-`database`/`table` parts
-count/size, active vs inactive, rows, merges, mutations. Adds `database`/`table`
-multi-value template variables.
+**Step 4 — cross-linking.** Data links: Instance Summary ↔ the split-outs;
+Overview/Compare → Instance Summary.
 
-**Step 5 — `ClickHouse_Replication.json`** — replica queue size, replication
-delay, readonly replicas, Keeper/ZooKeeper session. Cluster-relevant; panels
-degrade gracefully (no-data) on single-node.
+**Step 5 — registration.** Add each JSON to `dashboards/pmm-app/src/plugin.json`
+`includes` with `path: dashboards/ClickHouse/<File>.json` (avoid the existing
+mis-pathed entry bug in that file).
 
-**Step 6 — `ClickHouse_System_Resources.json`** — background pool tasks,
-threads, file descriptors, ClickHouse data-dir disk usage. Link out to OS
-dashboards for host-level metrics rather than duplicating.
-
-**Step 7 — `ClickHouse_Instances_Overview.json`** — fleet view, one row per
-`service_name` (`repeat`), `$service_name` multi-value/`All`.
-
-**Step 8 — `ClickHouse_Instances_Compare.json`** — side-by-side comparison,
-series keyed by `service_name`.
-
-**Step 9 — cross-linking.** Data links: Instance Summary → the drill-down
-dashboards; Overview/Compare → Instance Summary.
-
-**Step 10 — registration.** Add 8 `includes` entries to
-`dashboards/pmm-app/src/plugin.json` with `path: dashboards/ClickHouse/<File>.json`.
-(Note: an existing entry mis-registers a PostgreSQL dashboard under
-`dashboards/MongoDB/` — do not copy that mistake.)
-
-**Step 11 — normalize.** Run `python3 dashboards/misc/cleanup-dash.py <file>`
-on every file before commit (CI enforces it).
-
-### Per-dashboard workflow
-
-Design in Grafana UI against a live ClickHouse + Phase 1 exporter → export with
-`dashboards/misc/export-dash.py` → `convert-dash-to-PMM.py` + `fix-panels.py` →
-`cleanup-dash.py` → place in `dashboards/dashboards/ClickHouse/` → register in
-`plugin.json` → `make -C dashboards build` to confirm bundling.
+**Step 6 — normalize.** `python3 dashboards/misc/cleanup-dash.py <file>` on
+every file (CI enforces it). Write `ATTRIBUTION.md`.
 
 ## Validation criteria
 
 1. `make -C dashboards build` succeeds; `pmm-app/dist/dashboards/ClickHouse/`
-   has all 8 JSONs.
-2. `cleanup-dash.py --check-only <file>` returns 0 for every file (CI `check`).
+   contains every JSON.
+2. `cleanup-dash.py --check-only <file>` returns 0 for all.
 3. `yarn lint:check` + `yarn test:ci` pass.
 4. Each JSON: valid, unique non-null `uid`, `editable:false`, `refresh:false`,
-   `timezone:"browser"`, tags include `ClickHouse`/`Percona`/`Services`.
-5. No panel references `grafana-clickhouse-datasource` — all use the VM datasource var.
-6. Every template-variable query references a metric Phase 1 actually emits.
-7. No duplicate `uid` across `dashboards/dashboards/`.
+   `timezone:"browser"`, tags include `ClickHouse`/`Percona`/`Services`, and a
+   `description` attribution line.
+5. `ATTRIBUTION.md` lists every base dashboard with URL + license + version;
+   every base license is confirmed compatible.
+6. No panel references `grafana-clickhouse-datasource`; all use the VM
+   datasource variable.
+7. Every template-variable / panel query references a metric Phase 1 emits.
+8. No duplicate `uid` across `dashboards/dashboards/`.
 
 ## Integration tests
 
 See [INTEGRATION-TESTS.md](INTEGRATION-TESTS.md) — IT-2.x: plugin-build artifact
-contains the ClickHouse dashboards; live provisioning (all 8 load, no
-datasource errors); metric-binding (headline panels render data under load);
-template cascade on single-node and cluster.
+contains the ClickHouse dashboards; live provisioning (all load, no datasource
+errors); metric-binding (headline panels render under load); template cascade
+on single-node and cluster.
 
 ## Risks
 
+- **License of the base dashboards** — must be confirmed before incorporating
+  `clickhouse-mixin` content; if unclear, the mixin is used only as a reference
+  to rebuild equivalent panels. Attribution is mandatory either way.
 - **Blocked on the Phase 1 metric contract** — dashboards need the native
-  metric families to exist. The contract above is the explicit hand-off; if
-  Phase 1 trims it, trim the dashboards to match.
-- **Metric-name parity is mandatory** — if the managed `clickhouse_exporter`
-  diverged from ClickHouse's native naming, native-mode and exporter-mode
-  services would need different dashboards. Phase 1 must guarantee parity.
-- `plugin.json` has an existing path bug — ClickHouse entries must use the
-  correct `dashboards/ClickHouse/` path.
-- ClickHouse's OLAP performance model differs from row-store OLTP; panels must
-  reflect ClickHouse reality (parts/merges/memory) — not be a MySQL clone.
+  metric families realised; if Phase 1 trims them, trim panels to match.
+- **Metric-name parity is mandatory** — native and exporter modes must emit
+  identical names, else the reused dashboards work for only one mode.
+- **Mixin schema drift** — the mixin targets a recent Grafana; `fix-panels.py`
+  + `cleanup-dash.py` must reconcile it with PMM's Grafana version.

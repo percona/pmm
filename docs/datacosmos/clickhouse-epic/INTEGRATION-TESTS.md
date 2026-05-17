@@ -33,11 +33,11 @@ This is the end-to-end test plan that proves each phase works and feeds the
 
 | ID | Scenario | Asserts |
 |---|---|---|
-| IT-2.1 | plugin build | CI `dashboards.yml` `build` artifact contains all 8 `ClickHouse/` JSONs |
-| IT-2.2 | live provisioning | PMM Server + rebuilt pmm-app + a monitored ClickHouse → all 8 dashboards appear, load with no "not found"/datasource error |
+| IT-2.1 | plugin build | CI `dashboards.yml` `build` artifact contains all 5 `ClickHouse/` JSONs |
+| IT-2.2 | live provisioning | PMM Server + rebuilt pmm-app + a monitored ClickHouse → all 5 dashboards appear, load with no "not found"/datasource error |
 | IT-2.3 | metric binding | with ClickHouse under load, headline panels of each dashboard render data (query Grafana `/api/dashboards/uid/<uid>`, POST targets to `/api/ds/query`, assert non-empty series) |
 | IT-2.4 | template cascade | `$environment → $cluster → $node_name → $service_name` filters correctly, single-node and cluster |
-| IT-2.5 | uid regression | the 8 UIDs present in the dashboard-inventory snapshot test |
+| IT-2.5 | uid regression | the 5 UIDs present in the dashboard-inventory snapshot test |
 
 ## Phase 3 — QAN
 

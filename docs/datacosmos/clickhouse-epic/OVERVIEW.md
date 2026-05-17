@@ -59,7 +59,7 @@ expose it:
 | Phase | Scope | Outcome |
 |---|---|---|
 | **1 — Metrics + Inventory + API + pmm-admin** | proto (`SERVICE_TYPE_CLICKHOUSE_SERVICE`, `AGENT_TYPE_CLICKHOUSE_EXPORTER`), `clickhouse_exporter` binary, pmm-managed models/services, pmm-admin command, pmm-agent supervisor wiring | `pmm-admin add clickhouse` works; metrics reach VictoriaMetrics (native or exporter) |
-| **2 — Grafana dashboards** | 8 dashboards under `dashboards/dashboards/ClickHouse/`, registered in `pmm-app` | ClickHouse dashboards render live metrics |
+| **2 — Grafana dashboards** | 5 dashboards under `dashboards/dashboards/ClickHouse/` (adapted from ClickHouse's official `clickhouse-mixin`), registered in `pmm-app` | ClickHouse dashboards render live metrics |
 | **3 — Query Analytics (QAN)** | `MetricsBucket.ClickHouse` proto, built-in QAN agent reading `system.query_log`, qan-api2 ingestion changes | QAN shows ClickHouse query-level analytics |
 | **4 — Distribution, tests, docs** | bundle `clickhouse_exporter` into pmm-client (RPM/DEB/build scripts), unit tests, extend the integration matrix, docs | shipped in the pmm-client package; fully tested |
 
@@ -92,6 +92,11 @@ Live tracking: [CHECKLIST.md](CHECKLIST.md).
   ClickHouse integration matrix (`agent/agents/clickhouse/testdata/run-matrix.sh`)
   passes locally — extended each phase per INTEGRATION-TESTS.md.
 - Proto/`*.pb.go` are regenerated with `make gen` (buf), never hand-edited.
+- **Reuse-first** (standing rule): adapt existing assets rather than author
+  from scratch — PMM's MySQL/PostgreSQL/Valkey code, services and dashboard
+  shell as templates; ClickHouse's official ready-made dashboards for panels
+  and PromQL. Every reused *external* asset is recorded with source + license
+  + version (attribution is mandatory). See PHASE-2 "Reuse-first principle".
 
 ## Honest scale
 
@@ -133,3 +138,21 @@ documentation. Outcome:
    `agent_type` as an `Enum8` (values 0-5, no ClickHouse). Phase 3 therefore
    requires qan-api2 migrations + an `Enum8` extension — as PHASE-3 already
    states; the earlier "no qan-api2 change" assumption is rejected.
+
+**Round 2 — reuse maximization & dashboard sourcing.** A second review pass
+focused on reusing what already exists:
+
+6. *Dashboards are adapted, not authored.* ClickHouse publishes an official
+   ready-made dashboard — `ClickHouse/clickhouse-mixin` (`dashboard.json`) —
+   built on the very native metric families PMM emits (`ClickHouseMetrics_*`
+   etc.). PHASE-2 was rewritten to **adapt** that mixin (re-point datasource,
+   swap in PMM's templating cascade) instead of authoring panels from scratch,
+   and the dashboard set was cut from 8 speculative files to **5** focused
+   ones (Instance Summary, Query Performance, Replication, Instances Overview,
+   Instances Compare). The mixin's panels/PromQL are reused verbatim.
+7. *Attribution is mandatory.* Every reused external base (the mixin, Grafana
+   Labs dashboards `23285`/`14192`) is recorded — source URL, license, commit/
+   version — in `dashboards/dashboards/ClickHouse/ATTRIBUTION.md` plus an
+   attribution line in each dashboard JSON `description`. Each base's license
+   must be confirmed compatible with PMM's Apache-2.0 `dashboards/` tree before
+   incorporation; if unclear, the base is used only as a reference to rebuild.

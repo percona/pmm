@@ -11,10 +11,13 @@ user checkpoint.
 - [x] Deep per-phase research (3 planning agents)
 - [x] `docs/datacosmos/clickhouse-epic/` written (OVERVIEW, PHASE-1..4,
       INTEGRATION-TESTS, CHECKLIST)
-- [x] Plan reviewed against the code + ClickHouse docs; contradictions
-      corrected — agent-type number collision, native-endpoint version myth,
-      native/exporter metric-naming unification, qan-api2 not DB-agnostic
-      (see OVERVIEW "Review findings")
+- [x] Round 1 — plan reviewed against the code + ClickHouse docs;
+      contradictions corrected — agent-type number collision, native-endpoint
+      version myth, native/exporter metric-naming unification, qan-api2 not
+      DB-agnostic (see OVERVIEW "Review findings")
+- [x] Round 2 — reuse maximization; PHASE-2 rewritten reuse-first (adapt the
+      official `clickhouse-mixin`, 8→5 dashboards), attribution made mandatory,
+      OVERVIEW reuse-first rule added (see OVERVIEW "Review findings", round 2)
 - [ ] Commit the documentation set; user checkpoint before Phase 1 code
 
 ## Phase 1 — Metrics + Inventory + API + pmm-admin
@@ -37,20 +40,18 @@ user checkpoint.
 
 ## Phase 2 — Grafana dashboards
 
-- [ ] 2.0 Scaffold `dashboards/dashboards/ClickHouse/` + UIDs fixed
-- [ ] 2.1 `ClickHouse_Instance_Summary.json` (anchor)
-- [ ] 2.2 `ClickHouse_Query_Performance.json`
-- [ ] 2.3 `ClickHouse_Memory.json`
-- [ ] 2.4 `ClickHouse_Tables_and_Parts.json`
-- [ ] 2.5 `ClickHouse_Replication.json`
-- [ ] 2.6 `ClickHouse_System_Resources.json`
-- [ ] 2.7 `ClickHouse_Instances_Overview.json`
-- [ ] 2.8 `ClickHouse_Instances_Compare.json`
-- [ ] 2.9 Cross-linking (data links)
-- [ ] 2.10 Register all 8 in `pmm-app/src/plugin.json`
-- [ ] 2.11 Normalize every file via `cleanup-dash.py`
+- [ ] 2.0 Obtain bases (clone `clickhouse-mixin`) + scaffold
+      `dashboards/dashboards/ClickHouse/` + 5 UIDs fixed
+- [ ] 2.1 `ClickHouse_Instance_Summary.json` (adapted mixin — anchor)
+- [ ] 2.2 `ClickHouse_Query_Performance.json` (mixin split-out)
+- [ ] 2.3 `ClickHouse_Replication.json` (mixin + dashboard `23285` split-out)
+- [ ] 2.4 `ClickHouse_Instances_Overview.json` (PMM-shell fleet view)
+- [ ] 2.5 `ClickHouse_Instances_Compare.json` (PMM-shell fleet view)
+- [ ] 2.6 Cross-linking (data links)
+- [ ] 2.7 Register all 5 in `pmm-app/src/plugin.json`
+- [ ] 2.8 Normalize every file via `cleanup-dash.py`; write `ATTRIBUTION.md`
 - [ ] 2.V Validation: `make -C dashboards build`, `cleanup-dash --check-only`,
-      lint/test, unique UIDs, VM datasource only
+      lint/test, unique UIDs, VM datasource only, attribution present
 - [ ] 2.IT Integration tests IT-2.1 … IT-2.5 green
 - [ ] Phase 2 committed; user checkpoint
 
