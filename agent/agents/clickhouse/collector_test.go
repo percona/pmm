@@ -107,7 +107,7 @@ func TestCollectorDescribeIsUnchecked(t *testing.T) {
 
 func TestCollectorCollectNativeMetricNames(t *testing.T) {
 	db, mock := newMockDB(t)
-	defer db.Close() //nolint:errcheck
+	defer db.Close()
 	expectAllTables(mock)
 
 	values := gatheredValues(t, newTestCollector(db))
@@ -127,7 +127,7 @@ func TestCollectorCollectNativeMetricNames(t *testing.T) {
 
 func TestCollectorCollectTableErrorIsNotFatal(t *testing.T) {
 	db, mock := newMockDB(t)
-	defer db.Close() //nolint:errcheck
+	defer db.Close()
 
 	mock.ExpectQuery(metricsSQL).WillReturnError(sql.ErrConnDone)
 	mock.ExpectQuery(asyncMetricsSQL).WillReturnRows(

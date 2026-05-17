@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// clickhouse_exporter is a Prometheus exporter for ClickHouse. It is managed by
-// pmm-agent for ClickHouse instances that do not expose the native <prometheus>
-// endpoint, and emits the same metric families as that endpoint.
+// Command clickhouse_exporter is a Prometheus exporter for ClickHouse. It is
+// managed by pmm-agent for ClickHouse instances that do not expose the native
+// <prometheus> endpoint, and emits the same metric families as that endpoint.
 package main
 
 import (
@@ -33,6 +33,9 @@ import (
 	"github.com/percona/pmm/version"
 )
 
+// readHeaderTimeout bounds how long the metrics HTTP server waits for request headers.
+const readHeaderTimeout = 5 * time.Second
+
 // versionLine is the banner the pmm-agent version probe matches.
 func versionLine() string {
 	return "clickhouse_exporter, version " + version.Version
@@ -42,10 +45,42 @@ func versionLine() string {
 // collector, registered on a private registry.
 func newMetricsHandler(collector prometheus.Collector) (http.Handler, error) {
 	registry := prometheus.NewRegistry()
-	if err := registry.Register(collector); err != nil {
-		return nil, err
+	regErr := registry.Register(collector)
+	if regErr != nil {
+		return nil, regErr
 	}
 	return promhttp.HandlerFor(registry, promhttp.HandlerOpts{}), nil
+}
+
+// run wires the collector and serves /metrics; it returns an error instead of
+// exiting so deferred cleanup always runs.
+func run(dsn, listenAddress, telemetryPath string) error {
+	collector, err := clickhouse.NewCollector(dsn)
+	if err != nil {
+		return fmt.Errorf("cannot connect to ClickHouse: %w", err)
+	}
+	defer collector.Close() //nolint:errcheck
+
+	handler, err := newMetricsHandler(collector)
+	if err != nil {
+		return fmt.Errorf("cannot build metrics handler: %w", err)
+	}
+
+	mux := http.NewServeMux()
+	mux.Handle(telemetryPath, handler)
+
+	srv := &http.Server{
+		Addr:              listenAddress,
+		Handler:           mux,
+		ReadHeaderTimeout: readHeaderTimeout,
+	}
+
+	log.Printf("%s — serving metrics on %s%s", versionLine(), listenAddress, telemetryPath)
+	err = srv.ListenAndServe()
+	if err != nil && !errors.Is(err, http.ErrServerClosed) {
+		return err
+	}
+	return nil
 }
 
 func main() {
@@ -68,28 +103,8 @@ func main() {
 		return
 	}
 
-	collector, err := clickhouse.NewCollector(*dsn)
+	err := run(*dsn, *listenAddress, *telemetryPath)
 	if err != nil {
-		log.Fatalf("clickhouse_exporter: cannot connect to ClickHouse: %v", err)
-	}
-	defer collector.Close() //nolint:errcheck
-
-	handler, err := newMetricsHandler(collector)
-	if err != nil {
-		log.Fatalf("clickhouse_exporter: cannot build metrics handler: %v", err)
-	}
-
-	mux := http.NewServeMux()
-	mux.Handle(*telemetryPath, handler)
-
-	srv := &http.Server{
-		Addr:              *listenAddress,
-		Handler:           mux,
-		ReadHeaderTimeout: 5 * time.Second,
-	}
-
-	log.Printf("%s — serving metrics on %s%s", versionLine(), *listenAddress, *telemetryPath)
-	if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Fatalf("clickhouse_exporter: %v", err)
 	}
 }

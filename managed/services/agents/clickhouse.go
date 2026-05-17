@@ -25,6 +25,9 @@ import (
 	"github.com/percona/pmm/version"
 )
 
+// clickhouseDialTimeout bounds the ClickHouse connection dial used by the exporter.
+const clickhouseDialTimeout = 3 * time.Second
+
 // clickhouseExporterConfig returns the desired configuration of the clickhouse_exporter process.
 func clickhouseExporterConfig(node *models.Node, service *models.Service, exporter *models.Agent, redactMode redactMode,
 	pmmAgentVersion *version.Parsed,
@@ -40,7 +43,7 @@ func clickhouseExporterConfig(node *models.Node, service *models.Service, export
 	}
 
 	dnsParams := models.DSNParams{
-		DialTimeout: 3 * time.Second,
+		DialTimeout: clickhouseDialTimeout,
 	}
 
 	args = append(args, "--clickhouse.dsn="+exporter.DSN(service, dnsParams, nil, pmmAgentVersion))

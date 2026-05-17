@@ -122,6 +122,8 @@ func (s *ManagementService) addClickHouse(ctx context.Context, req *managementv1
 						"enable the <prometheus> server config section or use --metrics-source=exporter",
 					req.Address, nativePort)
 			}
+		case managementv1.MetricsSource_METRICS_SOURCE_EXPORTER:
+			// Explicit managed-exporter source; no native-endpoint probe needed.
 		}
 
 		if source == managementv1.MetricsSource_METRICS_SOURCE_NATIVE {
@@ -145,7 +147,8 @@ func (s *ManagementService) addClickHouse(ctx context.Context, req *managementv1
 				NativeEndpoint:    true,
 				NativeMetricsPort: nativePort,
 			}
-			if err = tx.Querier.Update(row); err != nil {
+			err = tx.Update(row)
+			if err != nil {
 				return err
 			}
 
@@ -179,11 +182,13 @@ func (s *ManagementService) addClickHouse(ctx context.Context, req *managementv1
 			return err
 		}
 		if !req.SkipConnectionCheck {
-			if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 
-			if err = s.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+			err = s.sib.GetInfoFromService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 		}

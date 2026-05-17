@@ -78,9 +78,12 @@ func NewCollector(dsn string) (*Collector, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := db.Ping(); err != nil {
+	pingCtx, cancel := context.WithTimeout(context.Background(), scrapeTimeout)
+	defer cancel()
+	pingErr := db.PingContext(pingCtx)
+	if pingErr != nil {
 		_ = db.Close()
-		return nil, err
+		return nil, pingErr
 	}
 	return &Collector{
 		client: db,
@@ -119,7 +122,8 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 
 	success := 1.0
 	for _, st := range systemTables {
-		if err := c.collectTable(ctx, ch, st); err != nil {
+		err := c.collectTable(ctx, ch, st)
+		if err != nil {
 			success = 0
 			log.Printf("clickhouse_exporter: failed to scrape %s: %v", st.table, err)
 		}
@@ -130,8 +134,8 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 }
 
 // collectTable scrapes one ClickHouse system table and emits a metric per row.
-// value is cast to Float64 server-side so Int64 and Float64 columns are read
-// uniformly across ClickHouse versions.
+// The value is cast to Float64 server-side so Int64 and Float64 columns are
+// read uniformly across ClickHouse versions.
 func (c *Collector) collectTable(ctx context.Context, ch chan<- prometheus.Metric, st systemTable) error {
 	query := fmt.Sprintf("SELECT %s, toFloat64(value) FROM %s", st.nameColumn, st.table) //nolint:gosec
 	rows, err := c.client.QueryContext(ctx, query)
@@ -144,8 +148,9 @@ func (c *Collector) collectTable(ctx context.Context, ch chan<- prometheus.Metri
 	for rows.Next() {
 		var name string
 		var value float64
-		if err := rows.Scan(&name, &value); err != nil {
-			return err
+		scanErr := rows.Scan(&name, &value)
+		if scanErr != nil {
+			return scanErr
 		}
 
 		metricName := st.prefix + sanitizeMetricName(name)

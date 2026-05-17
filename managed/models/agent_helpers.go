@@ -116,6 +116,8 @@ func ValkeyOptionsFromRequest(params ValkeyOptionsParams) ValkeyOptions {
 }
 
 // ClickHouseOptionsParams contains methods to create a ClickHouseOptions object.
+//
+//nolint:iface // ClickHouse keeps its own request contract, identical to Valkey's by coincidence.
 type ClickHouseOptionsParams interface {
 	GetTls() bool
 	GetTlsCa() string
