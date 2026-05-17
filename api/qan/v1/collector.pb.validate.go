@@ -731,6 +731,78 @@ func (m *MetricsBucket) validate(all bool) error {
 
 	// no validation rules for QueryPlan
 
+	// no validation rules for MReadRowsCnt
+
+	// no validation rules for MReadRowsSum
+
+	// no validation rules for MReadRowsMin
+
+	// no validation rules for MReadRowsMax
+
+	// no validation rules for MReadRowsP99
+
+	// no validation rules for MReadBytesCnt
+
+	// no validation rules for MReadBytesSum
+
+	// no validation rules for MReadBytesMin
+
+	// no validation rules for MReadBytesMax
+
+	// no validation rules for MReadBytesP99
+
+	// no validation rules for MResultRowsCnt
+
+	// no validation rules for MResultRowsSum
+
+	// no validation rules for MResultRowsMin
+
+	// no validation rules for MResultRowsMax
+
+	// no validation rules for MResultRowsP99
+
+	// no validation rules for MResultBytesCnt
+
+	// no validation rules for MResultBytesSum
+
+	// no validation rules for MResultBytesMin
+
+	// no validation rules for MResultBytesMax
+
+	// no validation rules for MResultBytesP99
+
+	// no validation rules for MMemoryUsageCnt
+
+	// no validation rules for MMemoryUsageSum
+
+	// no validation rules for MMemoryUsageMin
+
+	// no validation rules for MMemoryUsageMax
+
+	// no validation rules for MMemoryUsageP99
+
+	// no validation rules for MWrittenRowsCnt
+
+	// no validation rules for MWrittenRowsSum
+
+	// no validation rules for MWrittenRowsMin
+
+	// no validation rules for MWrittenRowsMax
+
+	// no validation rules for MWrittenRowsP99
+
+	// no validation rules for MWrittenBytesCnt
+
+	// no validation rules for MWrittenBytesSum
+
+	// no validation rules for MWrittenBytesMin
+
+	// no validation rules for MWrittenBytesMax
+
+	// no validation rules for MWrittenBytesP99
+
+	// no validation rules for QueryKind
+
 	if len(errors) > 0 {
 		return MetricsBucketMultiError(errors)
 	}

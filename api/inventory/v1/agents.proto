@@ -35,6 +35,7 @@ enum AgentType {
   AGENT_TYPE_NOMAD_AGENT = 16;
   AGENT_TYPE_RTA_MONGODB_AGENT = 19;
   AGENT_TYPE_CLICKHOUSE_EXPORTER = 20;
+  AGENT_TYPE_QAN_CLICKHOUSE_QUERYLOG_AGENT = 21;
 }
 
 // PMMAgent runs on Generic or Container Node.
@@ -402,6 +403,41 @@ message ClickHouseExporter {
   bool expose_exporter = 23;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 24;
+}
+
+// QANClickHouseQueryLogAgent runs within pmm-agent and sends ClickHouse Query Analytics data to the PMM Server.
+message QANClickHouseQueryLogAgent {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 2;
+  // Desired Agent status: enabled (false) or disabled (true).
+  bool disabled = 3;
+  // Service identifier.
+  string service_id = 4;
+  // ClickHouse username for reading system.query_log.
+  string username = 5;
+  // Disable parsing comments from queries and showing them in QAN.
+  bool disable_comments_parsing = 6;
+  // Limit query length in QAN (default: server-defined; -1: no limit).
+  int32 max_query_length = 7;
+  // Use TLS for database connections.
+  bool tls = 8;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 9;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 10;
+
+  //
+  // Status fields below.
+  //
+
+  // Actual Agent status.
+  AgentStatus status = 20;
+  // Path to exec process.
+  string process_exec_path = 21;
+  // Log level for exporter.
+  LogLevel log_level = 22;
 }
 
 // QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
@@ -836,6 +872,7 @@ message ListAgentsResponse {
   repeated ValkeyExporter valkey_exporter = 17;
   repeated RTAMongoDBAgent rta_mongodb_agent = 19;
   repeated ClickHouseExporter clickhouse_exporter = 20;
+  repeated QANClickHouseQueryLogAgent qan_clickhouse_querylog_agent = 21;
 }
 
 // Get
@@ -867,6 +904,7 @@ message GetAgentResponse {
     ValkeyExporter valkey_exporter = 17;
     RTAMongoDBAgent rta_mongodb_agent = 19;
     ClickHouseExporter clickhouse_exporter = 20;
+    QANClickHouseQueryLogAgent qan_clickhouse_querylog_agent = 21;
   }
 }
 
@@ -908,6 +946,7 @@ message AddAgentRequest {
     AddValkeyExporterParams valkey_exporter = 15;
     AddRTAMongoDBAgentParams rta_mongodb_agent = 17;
     AddClickHouseExporterParams clickhouse_exporter = 18;
+    AddQANClickHouseQueryLogAgentParams qan_clickhouse_querylog_agent = 19;
   }
 }
 
@@ -931,6 +970,7 @@ message AddAgentResponse {
     ValkeyExporter valkey_exporter = 15;
     RTAMongoDBAgent rta_mongodb_agent = 17;
     ClickHouseExporter clickhouse_exporter = 18;
+    QANClickHouseQueryLogAgent qan_clickhouse_querylog_agent = 19;
   }
 }
 
@@ -958,6 +998,7 @@ message ChangeAgentRequest {
     ChangeValkeyExporterParams valkey_exporter = 16;
     ChangeRTAMongoDBAgentParams rta_mongodb_agent = 18;
     ChangeClickHouseExporterParams clickhouse_exporter = 19;
+    ChangeQANClickHouseQueryLogAgentParams qan_clickhouse_querylog_agent = 20;
   }
 }
 
@@ -983,6 +1024,7 @@ message ChangeAgentResponse {
     ValkeyExporter valkey_exporter = 16;
     RTAMongoDBAgent rta_mongodb_agent = 18;
     ClickHouseExporter clickhouse_exporter = 19;
+    QANClickHouseQueryLogAgent qan_clickhouse_querylog_agent = 20;
   }
 }
 
@@ -2081,6 +2123,70 @@ message ChangeClickHouseExporterParams {
   optional bool expose_exporter = 14;
   // Log level for exporter.
   optional LogLevel log_level = 15;
+}
+
+// Add/Change QANClickHouseQueryLogAgent
+
+message AddQANClickHouseQueryLogAgentParams {
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
+  // Service identifier.
+  string service_id = 2 [(validate.rules).string.min_len = 1];
+  // ClickHouse username for reading system.query_log.
+  string username = 3 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // ClickHouse password for reading system.query_log.
+  string password = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Use TLS for database connections.
+  bool tls = 5;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 6;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 7;
+  // Skip connection check.
+  bool skip_connection_check = 8;
+  // Disable parsing comments from queries and showing them in QAN.
+  bool disable_comments_parsing = 9;
+  // Limit query length in QAN (default: server-defined; -1: no limit).
+  int32 max_query_length = 10;
+  // TLS CA certificate.
+  string tls_ca = 11;
+  // TLS Certificate.
+  string tls_cert = 12;
+  // TLS Certificate Key.
+  string tls_key = 13;
+  // Log level for exporter.
+  LogLevel log_level = 14;
+}
+
+message ChangeQANClickHouseQueryLogAgentParams {
+  // Enable this Agent. Agents are enabled by default when they get added.
+  optional bool enable = 1;
+  // Replace all custom user-assigned labels.
+  optional common.StringMap custom_labels = 2;
+  // Enables push metrics with vmagent.
+  optional bool enable_push_metrics = 3;
+  // Metrics resolution for this agent.
+  common.MetricsResolutions metrics_resolutions = 4;
+  // ClickHouse username for reading system.query_log.
+  optional string username = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // ClickHouse password for reading system.query_log.
+  optional string password = 6 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Use TLS for database connections.
+  optional bool tls = 7;
+  // Skip TLS certificate and hostname validation.
+  optional bool tls_skip_verify = 8;
+  // Disable parsing comments from queries and showing them in QAN.
+  optional bool disable_comments_parsing = 9;
+  // Limit query length in QAN (default: server-defined; -1: no limit).
+  optional int32 max_query_length = 10;
+  // TLS CA certificate.
+  optional string tls_ca = 11;
+  // TLS Certificate.
+  optional string tls_cert = 12;
+  // TLS Certificate Key.
+  optional string tls_key = 13;
+  // Log level for exporter.
+  optional LogLevel log_level = 14;
 }
 
 // Add/Change RTAMongoDBAgent

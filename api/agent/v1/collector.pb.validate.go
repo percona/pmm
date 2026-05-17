@@ -177,6 +177,35 @@ func (m *MetricsBucket) validate(all bool) error {
 		}
 	}
 
+	if all {
+		switch v := interface{}(m.GetClickhouse()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MetricsBucketValidationError{
+					field:  "Clickhouse",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MetricsBucketValidationError{
+					field:  "Clickhouse",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetClickhouse()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return MetricsBucketValidationError{
+				field:  "Clickhouse",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return MetricsBucketMultiError(errors)
 	}
@@ -1304,3 +1333,177 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = MetricsBucket_PostgreSQLValidationError{}
+
+// Validate checks the field values on MetricsBucket_ClickHouse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *MetricsBucket_ClickHouse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on MetricsBucket_ClickHouse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// MetricsBucket_ClickHouseMultiError, or nil if none found.
+func (m *MetricsBucket_ClickHouse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *MetricsBucket_ClickHouse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for MReadRowsCnt
+
+	// no validation rules for MReadRowsSum
+
+	// no validation rules for MReadRowsMin
+
+	// no validation rules for MReadRowsMax
+
+	// no validation rules for MReadRowsP99
+
+	// no validation rules for MReadBytesCnt
+
+	// no validation rules for MReadBytesSum
+
+	// no validation rules for MReadBytesMin
+
+	// no validation rules for MReadBytesMax
+
+	// no validation rules for MReadBytesP99
+
+	// no validation rules for MResultRowsCnt
+
+	// no validation rules for MResultRowsSum
+
+	// no validation rules for MResultRowsMin
+
+	// no validation rules for MResultRowsMax
+
+	// no validation rules for MResultRowsP99
+
+	// no validation rules for MResultBytesCnt
+
+	// no validation rules for MResultBytesSum
+
+	// no validation rules for MResultBytesMin
+
+	// no validation rules for MResultBytesMax
+
+	// no validation rules for MResultBytesP99
+
+	// no validation rules for MMemoryUsageCnt
+
+	// no validation rules for MMemoryUsageSum
+
+	// no validation rules for MMemoryUsageMin
+
+	// no validation rules for MMemoryUsageMax
+
+	// no validation rules for MMemoryUsageP99
+
+	// no validation rules for MWrittenRowsCnt
+
+	// no validation rules for MWrittenRowsSum
+
+	// no validation rules for MWrittenRowsMin
+
+	// no validation rules for MWrittenRowsMax
+
+	// no validation rules for MWrittenRowsP99
+
+	// no validation rules for MWrittenBytesCnt
+
+	// no validation rules for MWrittenBytesSum
+
+	// no validation rules for MWrittenBytesMin
+
+	// no validation rules for MWrittenBytesMax
+
+	// no validation rules for MWrittenBytesP99
+
+	// no validation rules for QueryKind
+
+	if len(errors) > 0 {
+		return MetricsBucket_ClickHouseMultiError(errors)
+	}
+
+	return nil
+}
+
+// MetricsBucket_ClickHouseMultiError is an error wrapping multiple validation
+// errors returned by MetricsBucket_ClickHouse.ValidateAll() if the designated
+// constraints aren't met.
+type MetricsBucket_ClickHouseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m MetricsBucket_ClickHouseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m MetricsBucket_ClickHouseMultiError) AllErrors() []error { return m }
+
+// MetricsBucket_ClickHouseValidationError is the validation error returned by
+// MetricsBucket_ClickHouse.Validate if the designated constraints aren't met.
+type MetricsBucket_ClickHouseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e MetricsBucket_ClickHouseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e MetricsBucket_ClickHouseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e MetricsBucket_ClickHouseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e MetricsBucket_ClickHouseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e MetricsBucket_ClickHouseValidationError) ErrorName() string {
+	return "MetricsBucket_ClickHouseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e MetricsBucket_ClickHouseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sMetricsBucket_ClickHouse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = MetricsBucket_ClickHouseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = MetricsBucket_ClickHouseValidationError{}

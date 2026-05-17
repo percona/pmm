@@ -414,10 +414,59 @@ message MetricsBucket {
     string query_plan = 48;
     repeated HistogramItem histogram_items = 49;
   }
+  // ClickHouse contains ClickHouse-specific metrics, sourced from
+  // system.query_log.
+  message ClickHouse {
+    // Sum, count, min, max, p99 of rows read from all tables and table functions.
+    float m_read_rows_cnt = 1;
+    float m_read_rows_sum = 2;
+    float m_read_rows_min = 3;
+    float m_read_rows_max = 4;
+    float m_read_rows_p99 = 5;
+    // Sum, count, min, max, p99 of bytes read from all tables and table functions.
+    float m_read_bytes_cnt = 6;
+    float m_read_bytes_sum = 7;
+    float m_read_bytes_min = 8;
+    float m_read_bytes_max = 9;
+    float m_read_bytes_p99 = 10;
+    // Sum, count, min, max, p99 of rows in the query result.
+    float m_result_rows_cnt = 11;
+    float m_result_rows_sum = 12;
+    float m_result_rows_min = 13;
+    float m_result_rows_max = 14;
+    float m_result_rows_p99 = 15;
+    // Sum, count, min, max, p99 of bytes in the query result.
+    float m_result_bytes_cnt = 16;
+    float m_result_bytes_sum = 17;
+    float m_result_bytes_min = 18;
+    float m_result_bytes_max = 19;
+    float m_result_bytes_p99 = 20;
+    // Sum, count, min, max, p99 of peak memory usage for the query.
+    float m_memory_usage_cnt = 21;
+    float m_memory_usage_sum = 22;
+    float m_memory_usage_min = 23;
+    float m_memory_usage_max = 24;
+    float m_memory_usage_p99 = 25;
+    // Sum, count, min, max, p99 of rows written by INSERT queries.
+    float m_written_rows_cnt = 26;
+    float m_written_rows_sum = 27;
+    float m_written_rows_min = 28;
+    float m_written_rows_max = 29;
+    float m_written_rows_p99 = 30;
+    // Sum, count, min, max, p99 of bytes written by INSERT queries.
+    float m_written_bytes_cnt = 31;
+    float m_written_bytes_sum = 32;
+    float m_written_bytes_min = 33;
+    float m_written_bytes_max = 34;
+    float m_written_bytes_p99 = 35;
+    // ClickHouse query kind (Select, Insert, Create, ...).
+    string query_kind = 36;
+  }
   Common common = 1;
   MySQL mysql = 2;
   MongoDB mongodb = 3;
   PostgreSQL postgresql = 4;
+  ClickHouse clickhouse = 5;
 }
 
 // HistogramItem represents one item in histogram.

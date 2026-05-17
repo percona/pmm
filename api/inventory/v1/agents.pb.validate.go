@@ -1476,6 +1476,134 @@ var _ interface {
 	ErrorName() string
 } = ClickHouseExporterValidationError{}
 
+// Validate checks the field values on QANClickHouseQueryLogAgent with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *QANClickHouseQueryLogAgent) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on QANClickHouseQueryLogAgent with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// QANClickHouseQueryLogAgentMultiError, or nil if none found.
+func (m *QANClickHouseQueryLogAgent) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *QANClickHouseQueryLogAgent) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for AgentId
+
+	// no validation rules for PmmAgentId
+
+	// no validation rules for Disabled
+
+	// no validation rules for ServiceId
+
+	// no validation rules for Username
+
+	// no validation rules for DisableCommentsParsing
+
+	// no validation rules for MaxQueryLength
+
+	// no validation rules for Tls
+
+	// no validation rules for TlsSkipVerify
+
+	// no validation rules for CustomLabels
+
+	// no validation rules for Status
+
+	// no validation rules for ProcessExecPath
+
+	// no validation rules for LogLevel
+
+	if len(errors) > 0 {
+		return QANClickHouseQueryLogAgentMultiError(errors)
+	}
+
+	return nil
+}
+
+// QANClickHouseQueryLogAgentMultiError is an error wrapping multiple
+// validation errors returned by QANClickHouseQueryLogAgent.ValidateAll() if
+// the designated constraints aren't met.
+type QANClickHouseQueryLogAgentMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m QANClickHouseQueryLogAgentMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m QANClickHouseQueryLogAgentMultiError) AllErrors() []error { return m }
+
+// QANClickHouseQueryLogAgentValidationError is the validation error returned
+// by QANClickHouseQueryLogAgent.Validate if the designated constraints aren't met.
+type QANClickHouseQueryLogAgentValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e QANClickHouseQueryLogAgentValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e QANClickHouseQueryLogAgentValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e QANClickHouseQueryLogAgentValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e QANClickHouseQueryLogAgentValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e QANClickHouseQueryLogAgentValidationError) ErrorName() string {
+	return "QANClickHouseQueryLogAgentValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e QANClickHouseQueryLogAgentValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sQANClickHouseQueryLogAgent.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = QANClickHouseQueryLogAgentValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = QANClickHouseQueryLogAgentValidationError{}
+
 // Validate checks the field values on QANMySQLPerfSchemaAgent with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -3992,6 +4120,40 @@ func (m *ListAgentsResponse) validate(all bool) error {
 
 	}
 
+	for idx, item := range m.GetQanClickhouseQuerylogAgent() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ListAgentsResponseValidationError{
+						field:  fmt.Sprintf("QanClickhouseQuerylogAgent[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ListAgentsResponseValidationError{
+						field:  fmt.Sprintf("QanClickhouseQuerylogAgent[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ListAgentsResponseValidationError{
+					field:  fmt.Sprintf("QanClickhouseQuerylogAgent[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
 	if len(errors) > 0 {
 		return ListAgentsResponseMultiError(errors)
 	}
@@ -5020,6 +5182,47 @@ func (m *GetAgentResponse) validate(all bool) error {
 			if err := v.Validate(); err != nil {
 				return GetAgentResponseValidationError{
 					field:  "ClickhouseExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *GetAgentResponse_QanClickhouseQuerylogAgent:
+		if v == nil {
+			err := GetAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetQanClickhouseQuerylogAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetAgentResponseValidationError{
+						field:  "QanClickhouseQuerylogAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetAgentResponseValidationError{
+						field:  "QanClickhouseQuerylogAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetQanClickhouseQuerylogAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetAgentResponseValidationError{
+					field:  "QanClickhouseQuerylogAgent",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -6088,6 +6291,47 @@ func (m *AddAgentRequest) validate(all bool) error {
 			}
 		}
 
+	case *AddAgentRequest_QanClickhouseQuerylogAgent:
+		if v == nil {
+			err := AddAgentRequestValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetQanClickhouseQuerylogAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddAgentRequestValidationError{
+						field:  "QanClickhouseQuerylogAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddAgentRequestValidationError{
+						field:  "QanClickhouseQuerylogAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetQanClickhouseQuerylogAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddAgentRequestValidationError{
+					field:  "QanClickhouseQuerylogAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	default:
 		_ = v // ensures v is used
 	}
@@ -6925,6 +7169,47 @@ func (m *AddAgentResponse) validate(all bool) error {
 			if err := v.Validate(); err != nil {
 				return AddAgentResponseValidationError{
 					field:  "ClickhouseExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddAgentResponse_QanClickhouseQuerylogAgent:
+		if v == nil {
+			err := AddAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetQanClickhouseQuerylogAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddAgentResponseValidationError{
+						field:  "QanClickhouseQuerylogAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddAgentResponseValidationError{
+						field:  "QanClickhouseQuerylogAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetQanClickhouseQuerylogAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddAgentResponseValidationError{
+					field:  "QanClickhouseQuerylogAgent",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -7785,6 +8070,47 @@ func (m *ChangeAgentRequest) validate(all bool) error {
 			}
 		}
 
+	case *ChangeAgentRequest_QanClickhouseQuerylogAgent:
+		if v == nil {
+			err := ChangeAgentRequestValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetQanClickhouseQuerylogAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "QanClickhouseQuerylogAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "QanClickhouseQuerylogAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetQanClickhouseQuerylogAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentRequestValidationError{
+					field:  "QanClickhouseQuerylogAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	default:
 		_ = v // ensures v is used
 	}
@@ -8624,6 +8950,47 @@ func (m *ChangeAgentResponse) validate(all bool) error {
 			if err := v.Validate(); err != nil {
 				return ChangeAgentResponseValidationError{
 					field:  "ClickhouseExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeAgentResponse_QanClickhouseQuerylogAgent:
+		if v == nil {
+			err := ChangeAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetQanClickhouseQuerylogAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "QanClickhouseQuerylogAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "QanClickhouseQuerylogAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetQanClickhouseQuerylogAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentResponseValidationError{
+					field:  "QanClickhouseQuerylogAgent",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -14777,6 +15144,371 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ChangeClickHouseExporterParamsValidationError{}
+
+// Validate checks the field values on AddQANClickHouseQueryLogAgentParams with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
+func (m *AddQANClickHouseQueryLogAgentParams) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AddQANClickHouseQueryLogAgentParams
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the result is a list of violation errors wrapped in
+// AddQANClickHouseQueryLogAgentParamsMultiError, or nil if none found.
+func (m *AddQANClickHouseQueryLogAgentParams) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AddQANClickHouseQueryLogAgentParams) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetPmmAgentId()) < 1 {
+		err := AddQANClickHouseQueryLogAgentParamsValidationError{
+			field:  "PmmAgentId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
+		err := AddQANClickHouseQueryLogAgentParamsValidationError{
+			field:  "ServiceId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for Username
+
+	// no validation rules for Password
+
+	// no validation rules for Tls
+
+	// no validation rules for TlsSkipVerify
+
+	// no validation rules for CustomLabels
+
+	// no validation rules for SkipConnectionCheck
+
+	// no validation rules for DisableCommentsParsing
+
+	// no validation rules for MaxQueryLength
+
+	// no validation rules for TlsCa
+
+	// no validation rules for TlsCert
+
+	// no validation rules for TlsKey
+
+	// no validation rules for LogLevel
+
+	if len(errors) > 0 {
+		return AddQANClickHouseQueryLogAgentParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+// AddQANClickHouseQueryLogAgentParamsMultiError is an error wrapping multiple
+// validation errors returned by
+// AddQANClickHouseQueryLogAgentParams.ValidateAll() if the designated
+// constraints aren't met.
+type AddQANClickHouseQueryLogAgentParamsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AddQANClickHouseQueryLogAgentParamsMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AddQANClickHouseQueryLogAgentParamsMultiError) AllErrors() []error { return m }
+
+// AddQANClickHouseQueryLogAgentParamsValidationError is the validation error
+// returned by AddQANClickHouseQueryLogAgentParams.Validate if the designated
+// constraints aren't met.
+type AddQANClickHouseQueryLogAgentParamsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AddQANClickHouseQueryLogAgentParamsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AddQANClickHouseQueryLogAgentParamsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AddQANClickHouseQueryLogAgentParamsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AddQANClickHouseQueryLogAgentParamsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AddQANClickHouseQueryLogAgentParamsValidationError) ErrorName() string {
+	return "AddQANClickHouseQueryLogAgentParamsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AddQANClickHouseQueryLogAgentParamsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAddQANClickHouseQueryLogAgentParams.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AddQANClickHouseQueryLogAgentParamsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AddQANClickHouseQueryLogAgentParamsValidationError{}
+
+// Validate checks the field values on ChangeQANClickHouseQueryLogAgentParams
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the first error encountered is returned, or nil if
+// there are no violations.
+func (m *ChangeQANClickHouseQueryLogAgentParams) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on
+// ChangeQANClickHouseQueryLogAgentParams with the rules defined in the proto
+// definition for this message. If any rules are violated, the result is a
+// list of violation errors wrapped in
+// ChangeQANClickHouseQueryLogAgentParamsMultiError, or nil if none found.
+func (m *ChangeQANClickHouseQueryLogAgentParams) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ChangeQANClickHouseQueryLogAgentParams) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetMetricsResolutions()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ChangeQANClickHouseQueryLogAgentParamsValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ChangeQANClickHouseQueryLogAgentParamsValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMetricsResolutions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ChangeQANClickHouseQueryLogAgentParamsValidationError{
+				field:  "MetricsResolutions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if m.Enable != nil {
+		// no validation rules for Enable
+	}
+
+	if m.CustomLabels != nil {
+		if all {
+			switch v := interface{}(m.GetCustomLabels()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeQANClickHouseQueryLogAgentParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeQANClickHouseQueryLogAgentParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetCustomLabels()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeQANClickHouseQueryLogAgentParamsValidationError{
+					field:  "CustomLabels",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+	}
+
+	if m.EnablePushMetrics != nil {
+		// no validation rules for EnablePushMetrics
+	}
+
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.DisableCommentsParsing != nil {
+		// no validation rules for DisableCommentsParsing
+	}
+
+	if m.MaxQueryLength != nil {
+		// no validation rules for MaxQueryLength
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.TlsCert != nil {
+		// no validation rules for TlsCert
+	}
+
+	if m.TlsKey != nil {
+		// no validation rules for TlsKey
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
+	if len(errors) > 0 {
+		return ChangeQANClickHouseQueryLogAgentParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+// ChangeQANClickHouseQueryLogAgentParamsMultiError is an error wrapping
+// multiple validation errors returned by
+// ChangeQANClickHouseQueryLogAgentParams.ValidateAll() if the designated
+// constraints aren't met.
+type ChangeQANClickHouseQueryLogAgentParamsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ChangeQANClickHouseQueryLogAgentParamsMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ChangeQANClickHouseQueryLogAgentParamsMultiError) AllErrors() []error { return m }
+
+// ChangeQANClickHouseQueryLogAgentParamsValidationError is the validation
+// error returned by ChangeQANClickHouseQueryLogAgentParams.Validate if the
+// designated constraints aren't met.
+type ChangeQANClickHouseQueryLogAgentParamsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ChangeQANClickHouseQueryLogAgentParamsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ChangeQANClickHouseQueryLogAgentParamsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ChangeQANClickHouseQueryLogAgentParamsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ChangeQANClickHouseQueryLogAgentParamsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ChangeQANClickHouseQueryLogAgentParamsValidationError) ErrorName() string {
+	return "ChangeQANClickHouseQueryLogAgentParamsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ChangeQANClickHouseQueryLogAgentParamsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sChangeQANClickHouseQueryLogAgentParams.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ChangeQANClickHouseQueryLogAgentParamsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ChangeQANClickHouseQueryLogAgentParamsValidationError{}
 
 // Validate checks the field values on AddRTAMongoDBAgentParams with the rules
 // defined in the proto definition for this message. If any rules are

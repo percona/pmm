@@ -1295,6 +1295,29 @@ type GetReportOKBodyRowsItems0SparklineItems0 struct {
 
 	// Plan time in per seconds.
 	MPlanTimeSumPerSec float32 `json:"m_plan_time_sum_per_sec,omitempty"`
+
+	// ClickHouse metrics (system.query_log), per second.
+	//
+	// Rows read from all tables and table functions, per second.
+	MReadRowsSumPerSec float32 `json:"m_read_rows_sum_per_sec,omitempty"`
+
+	// Bytes read from all tables and table functions, per second.
+	MReadBytesSumPerSec float32 `json:"m_read_bytes_sum_per_sec,omitempty"`
+
+	// Rows in the query result, per second.
+	MResultRowsSumPerSec float32 `json:"m_result_rows_sum_per_sec,omitempty"`
+
+	// Bytes in the query result, per second.
+	MResultBytesSumPerSec float32 `json:"m_result_bytes_sum_per_sec,omitempty"`
+
+	// Peak memory usage for the query, per second.
+	MMemoryUsageSumPerSec float32 `json:"m_memory_usage_sum_per_sec,omitempty"`
+
+	// Rows written by INSERT queries, per second.
+	MWrittenRowsSumPerSec float32 `json:"m_written_rows_sum_per_sec,omitempty"`
+
+	// Bytes written by INSERT queries, per second.
+	MWrittenBytesSumPerSec float32 `json:"m_written_bytes_sum_per_sec,omitempty"`
 }
 
 // Validate validates this get report OK body rows items0 sparkline items0

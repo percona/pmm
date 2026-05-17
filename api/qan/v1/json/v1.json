@@ -933,6 +933,48 @@
                               "type": "number",
                               "format": "float",
                               "x-order": 78
+                            },
+                            "m_read_rows_sum_per_sec": {
+                              "description": "ClickHouse metrics (system.query_log), per second.\n\nRows read from all tables and table functions, per second.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 79
+                            },
+                            "m_read_bytes_sum_per_sec": {
+                              "description": "Bytes read from all tables and table functions, per second.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 80
+                            },
+                            "m_result_rows_sum_per_sec": {
+                              "description": "Rows in the query result, per second.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 81
+                            },
+                            "m_result_bytes_sum_per_sec": {
+                              "description": "Bytes in the query result, per second.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 82
+                            },
+                            "m_memory_usage_sum_per_sec": {
+                              "description": "Peak memory usage for the query, per second.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 83
+                            },
+                            "m_written_rows_sum_per_sec": {
+                              "description": "Rows written by INSERT queries, per second.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 84
+                            },
+                            "m_written_bytes_sum_per_sec": {
+                              "description": "Bytes written by INSERT queries, per second.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 85
                             }
                           }
                         },
@@ -2325,6 +2367,48 @@
                         "type": "number",
                         "format": "float",
                         "x-order": 78
+                      },
+                      "m_read_rows_sum_per_sec": {
+                        "description": "ClickHouse metrics (system.query_log), per second.\n\nRows read from all tables and table functions, per second.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 79
+                      },
+                      "m_read_bytes_sum_per_sec": {
+                        "description": "Bytes read from all tables and table functions, per second.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 80
+                      },
+                      "m_result_rows_sum_per_sec": {
+                        "description": "Rows in the query result, per second.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 81
+                      },
+                      "m_result_bytes_sum_per_sec": {
+                        "description": "Bytes in the query result, per second.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 82
+                      },
+                      "m_memory_usage_sum_per_sec": {
+                        "description": "Peak memory usage for the query, per second.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 83
+                      },
+                      "m_written_rows_sum_per_sec": {
+                        "description": "Rows written by INSERT queries, per second.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 84
+                      },
+                      "m_written_bytes_sum_per_sec": {
+                        "description": "Bytes written by INSERT queries, per second.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 85
                       }
                     }
                   },
