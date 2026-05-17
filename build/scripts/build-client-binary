@@ -72,6 +72,10 @@ gobuild_component() {
         build_command="cd /tmp/go/src/${extract_path} && TARGETS=${target} make deps release"
     elif [ ${component} = 'redis_exporter' ]; then
         build_command="cd /tmp/go/src/${extract_path} && go build ."
+    elif [ ${component} = 'clickhouse_exporter' ]; then
+        # Built from the pmm module: cd into the repo so module mode resolves
+        # deps (cwd /tmp/go is outside any module -> GO111MODULE=auto picks GOPATH).
+        build_command="cd /tmp/go/src/${extract_path} && go build -o \${binary_dir}/${result_file} ./${component_path}"
     else
         build_command="go build -o \${binary_dir}/${result_file} ./src/${extract_path}/${component_path}"
     fi
