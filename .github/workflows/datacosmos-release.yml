@@ -74,12 +74,13 @@ jobs:
           cache-from: type=gha,scope=rpmbuild-${{ matrix.arch }}
           cache-to: type=gha,mode=max,scope=rpmbuild-${{ matrix.arch }}
 
-      # build-client-binary mounts the Go build cache and module cache as the
-      # docker volumes pmm-gobuild / pmm-gomod. Persist them across runs: seed
-      # the volumes from the GHA cache before building and dump them back
-      # after — so even a failed run keeps every package that already compiled
-      # and the next attempt only rebuilds what changed.
-      - name: Restore Go build & module cache
+      # The build scripts mount four docker volumes as caches: pmm-gobuild
+      # (Go build cache), pmm-gomod (Go module cache), pmm-yarn (Grafana's
+      # yarn cache) and pmm-dnf (dnf package cache). Persist all four across
+      # runs: seed the volumes from the GHA cache before building and dump
+      # them back after — so even a failed run keeps every package that
+      # already compiled and the next attempt only rebuilds what changed.
+      - name: Restore Go / yarn / dnf caches
         uses: actions/cache@v4
         with:
           path: /tmp/pmm-gocache
@@ -88,9 +89,22 @@ jobs:
             pmm-gocache-${{ matrix.arch }}-${{ hashFiles('go.sum') }}-
             pmm-gocache-${{ matrix.arch }}-
 
+      # The generated RPMs (grafana, victoriametrics, pmm-managed, qan-api2,
+      # vmproxy, percona-dashboards, pmm-dump). build-server-rpm skips a spec
+      # whose RPMs already sit in this tree (is_build_needed), so restoring it
+      # lets version-stable components — Grafana above all — skip rebuilding.
+      - name: Restore generated RPMs
+        uses: actions/cache@v4
+        with:
+          path: ../pmm-build-root/tmp/pmm-server/RPMS
+          key: pmm-rpms-${{ matrix.arch }}-${{ hashFiles('build/packages/rpm/server/**') }}-${{ github.run_id }}
+          restore-keys: |
+            pmm-rpms-${{ matrix.arch }}-${{ hashFiles('build/packages/rpm/server/**') }}-
+            pmm-rpms-${{ matrix.arch }}-
+
       - name: Seed Docker volumes from cache
         run: |
-          for v in gobuild gomod; do
+          for v in gobuild gomod yarn dnf; do
             docker volume create "pmm-$v" >/dev/null
             if [ -d "/tmp/pmm-gocache/$v" ]; then
               docker run --rm -v "pmm-$v:/dst" -v "/tmp/pmm-gocache/$v:/src:ro" \
@@ -104,7 +118,7 @@ jobs:
       - name: Dump Docker volumes to cache
         if: always()
         run: |
-          for v in gobuild gomod; do
+          for v in gobuild gomod yarn dnf; do
             mkdir -p "/tmp/pmm-gocache/$v"
             docker run --rm -v "pmm-$v:/src:ro" -v "/tmp/pmm-gocache/$v:/dst" \
               alpine sh -c 'cp -a /src/. /dst/ 2>/dev/null || true' || true
@@ -170,15 +184,29 @@ jobs:
           TAG_NAME: ${{ steps.ver.outputs.tag }}
           REPO: ${{ github.repository }}
         run: |
-          mapfile -t assets < <(find release-assets -type f \
+          # Flatten every per-arch artifact (tarballs + client/server RPMs +
+          # debs) into dist/, prefixed with its source arch so amd64 and
+          # arm64 files — including same-named noarch RPMs — never collide.
+          mkdir -p dist
+          while IFS= read -r f; do
+            rel="${f#release-assets/}"
+            arch="${rel%%/*}"; arch="${arch#pmm-artifacts-}"
+            cp -f "$f" "dist/${arch}-$(basename "$f")"
+          done < <(find release-assets -type f \
             \( -name '*.tar.gz' -o -name '*.rpm' -o -name '*.deb' \) 2>/dev/null)
+          ls -la dist
           notes="datacosmos PMM ${DC_VERSION} — multi-arch (linux/amd64, linux/arm64), built from source and aligned to upstream Percona PMM.
 
           Images:
           - ghcr.io/datacosmos-br/pmm-server:${DC_VERSION}
           - ghcr.io/datacosmos-br/pmm-client:${DC_VERSION}
-          - ghcr.io/datacosmos-br/pmm-rpmbuild:${DC_VERSION}"
-          gh release create "${TAG_NAME}" "${assets[@]}" \
+          - ghcr.io/datacosmos-br/pmm-rpmbuild:${DC_VERSION}
+
+          Release assets: pmm-client tarballs and every generated RPM
+          (pmm-client, pmm-managed, percona-qan-api2, vmproxy, pmm-dump,
+          percona-dashboards, grafana, victoriametrics) for both arches,
+          each prefixed amd64- / arm64-."
+          gh release create "${TAG_NAME}" dist/* \
             --repo "${REPO}" \
             --title "PMM ${DC_VERSION}" \
             --notes "${notes}"

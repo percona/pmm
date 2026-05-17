@@ -127,8 +127,14 @@ build-rpmbuild-image:                             ## Build the rpmbuild containe
 	    build/docker/rpmbuild
 
 .PHONY: ghcr-login
-ghcr-login:                                       ## Log in to ghcr.io using the gh CLI token
-	@gh auth token | docker login ghcr.io -u "$$(gh api user --jq .login)" --password-stdin
+ghcr-login:                                       ## Log in to ghcr.io (CI: GITHUB_TOKEN; local: gh CLI)
+	# In GitHub Actions the gh CLI runs as GITHUB_TOKEN, which is not a user
+	# ('gh api user' fails) — log in with GITHUB_ACTOR + the token instead.
+	@if [ -n "$$GITHUB_ACTIONS" ]; then \
+	    echo "$$GH_TOKEN" | docker login ghcr.io -u "$$GITHUB_ACTOR" --password-stdin; \
+	else \
+	    gh auth token | docker login ghcr.io -u "$$(gh api user --jq .login)" --password-stdin; \
+	fi
 
 .PHONY: buildx-setup
 buildx-setup:                                     ## Ensure a multi-arch buildx builder exists
@@ -190,8 +196,13 @@ server: create-build-dirs                         ## Build pmm-server RPMs + Doc
 
 .PHONY: publish
 publish:                                          ## Collect build artifacts into $(ARTIFACT_DIR)
-	@mkdir -p $(ARTIFACT_DIR)
+	@mkdir -p $(ARTIFACT_DIR)/server-rpms
 	@cp -a $(ROOT_DIR)/results/. $(ARTIFACT_DIR)/ 2>/dev/null || true
+	# Server-side RPMs (grafana, victoriametrics, pmm-managed, percona-qan-api2,
+	# vmproxy, percona-dashboards, pmm-dump) are built under tmp/pmm-server/RPMS,
+	# outside results/ — collect them so the GitHub Release carries every RPM.
+	@find $(ROOT_DIR)/tmp/pmm-server/RPMS -name '*.rpm' -type f \
+	    -exec cp -f {} $(ARTIFACT_DIR)/server-rpms/ \; 2>/dev/null || true
 	@echo "Artifacts in $(ARTIFACT_DIR)"
 
 .PHONY: clean
