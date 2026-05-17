@@ -20,7 +20,7 @@ This is the end-to-end test plan that proves each phase works and feeds the
 
 | ID | Scenario | Asserts |
 |---|---|---|
-| IT-1.1 | exporter mode end to end (old CH) | `add clickhouse --metrics-source=exporter` → result has `clickhouse_exporter`; agent row `agent_type=clickhouse_exporter`; supervisor process `RUNNING`; `up{agent_type="clickhouse-exporter"}==1` in VM; `clickhouse_*` series present |
+| IT-1.1 | exporter mode end to end (`<prometheus>` disabled) | `add clickhouse --metrics-source=exporter` → result has `clickhouse_exporter`; agent row `agent_type=clickhouse_exporter`; supervisor process `RUNNING`; `up{agent_type="clickhouse-exporter"}==1` in VM; `ClickHouseMetrics_*` series present |
 | IT-1.2 | native mode end to end (CH 22.6+) | `--metrics-source=native` → result has a native (external) exporter `:9363/metrics`; **no** `clickhouse_exporter` process; VM scrape job targets `:9363`; `up==1` |
 | IT-1.3 | auto-probe → native | `<prometheus>`-enabled server, `--metrics-source=auto` → native chosen; `clickhouse_options.native_endpoint=true` |
 | IT-1.4 | auto-probe → exporter | `<prometheus>`-disabled server, `auto` → exporter chosen |
@@ -58,7 +58,7 @@ This is the end-to-end test plan that proves each phase works and feeds the
 | ID | Scenario | Asserts |
 |---|---|---|
 | IT-4.1 | matrix collector | existing `TestClickHouseMatrix` still green across all versions × topologies |
-| IT-4.2 | matrix exporter | `TestClickHouseExporterMatrix` — packaged-equivalent binary scrapes each endpoint; `clickhouse_up==1`, `clickhouse_version_info` present, all contract metrics exposed; cluster also asserts replication metrics |
+| IT-4.2 | matrix exporter | `TestClickHouseExporterMatrix` — packaged-equivalent binary scrapes each endpoint; the `ClickHouseMetrics_*` / `ClickHouseProfileEvents_*` / `ClickHouseAsyncMetrics_*` families and a `ClickHouseStatusInfo_*` version series are present; cluster also asserts replication metrics |
 | IT-4.3 | matrix QAN | `TestClickHouseQANMatrix` — drive known queries, run a QAN cycle, assert buckets (`fingerprint`, `num_queries`) |
 | IT-4.4 | package smoke | clean EL9 + Debian: install built `pmm-client`; `pmm-admin add clickhouse`; supervisor starts `clickhouse_exporter`; metrics land in VM |
 | IT-4.5 | end-to-end | `pmm-ui-tests` flow registers a ClickHouse service; metrics flow server-side; dashboards bind |

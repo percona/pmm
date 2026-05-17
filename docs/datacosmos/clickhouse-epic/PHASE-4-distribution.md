@@ -47,8 +47,9 @@ template (Phase 1) — a mismatch silently breaks launch.
 
 **Step 8 — unit tests, exporter.** `agent/cmd/clickhouse_exporter/main_test.go`
 — start the HTTP handler with a mock registry, `GET /metrics`, assert `200` +
-`clickhouse_*` names; flag-parsing test. Expand `config_test.go` for DSN edge
-cases. (`collector_test.go` with `go-sqlmock` already exists.)
+`ClickHouseMetrics_*` / `ClickHouseAsyncMetrics_*` names; flag-parsing test.
+Expand `config_test.go` for DSN edge cases. (`collector_test.go` with
+`go-sqlmock` already exists.)
 
 **Step 9 — unit tests, QAN.** `agent/agents/clickhouse/querylog/querylog_test.go`
 — `makeBuckets`, `fingerprint`, `percentile` (Phase 3 deliverables).
@@ -57,7 +58,8 @@ cases. (`collector_test.go` with `go-sqlmock` already exists.)
 (the collector). Add:
 - `TestClickHouseExporterMatrix` (`agent/agents/clickhouse/exporter_integration_test.go`,
   tag `clickhouse_integration`) — start the real `clickhouse_exporter` binary
-  per endpoint, scrape `/metrics`, assert `clickhouse_up==1` + the metric families.
+  per endpoint, scrape `/metrics`, assert the `ClickHouseMetrics_*` /
+  `ClickHouseProfileEvents_*` / `ClickHouseAsyncMetrics_*` families are present.
 - `TestClickHouseQANMatrix` (`agent/agents/clickhouse/querylog/qan_integration_test.go`)
   — drive queries, run a QAN cycle, assert buckets.
 - Change the `go test -run` filter to

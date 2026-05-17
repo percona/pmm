@@ -11,6 +11,10 @@ user checkpoint.
 - [x] Deep per-phase research (3 planning agents)
 - [x] `docs/datacosmos/clickhouse-epic/` written (OVERVIEW, PHASE-1..4,
       INTEGRATION-TESTS, CHECKLIST)
+- [x] Plan reviewed against the code + ClickHouse docs; contradictions
+      corrected — agent-type number collision, native-endpoint version myth,
+      native/exporter metric-naming unification, qan-api2 not DB-agnostic
+      (see OVERVIEW "Review findings")
 - [ ] Commit the documentation set; user checkpoint before Phase 1 code
 
 ## Phase 1 — Metrics + Inventory + API + pmm-admin

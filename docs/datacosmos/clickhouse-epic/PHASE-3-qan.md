@@ -32,7 +32,8 @@ lower-risk fallback if qan-api2 migration is deferred.
 ## Development line (ordered)
 
 ### Stage A — API / proto (must complete first; B/C/D import generated code)
-- `api/inventory/v1/agents.proto` — `AGENT_TYPE_QAN_CLICKHOUSE_QUERYLOG_AGENT = 20`.
+- `api/inventory/v1/agents.proto` — `AGENT_TYPE_QAN_CLICKHOUSE_QUERYLOG_AGENT = 21`
+  (`20` is taken by `AGENT_TYPE_CLICKHOUSE_EXPORTER` from Phase 1).
 - `api/agent/v1/collector.proto` — `message ClickHouse {…}` inside `MetricsBucket`
   + `ClickHouse clickhouse = 5`. Fields: `m_read_rows_*`, `m_read_bytes_*`,
   `m_result_rows_*`, `m_result_bytes_*`, `m_memory_usage_*`, `m_written_rows_*`,

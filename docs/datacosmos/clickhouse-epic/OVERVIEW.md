@@ -34,17 +34,25 @@ ClickHouse server
                                                               QAN UI panel
 ```
 
-**Metrics — two sources, selectable per service** (a ClickHouse instance may or
-may not expose the native Prometheus endpoint depending on its version/config):
+**Metrics — two sources, selectable per service.** ClickHouse's native
+Prometheus endpoint is **config-gated, not version-gated** (validated below):
+it exists since ClickHouse ~19.14 (2019) but only when the operator enables the
+`<prometheus>` section in the server config. So a given instance may or may not
+expose it:
 
-- **Native endpoint** — ClickHouse 22.6+ serves Prometheus metrics directly
-  (`<prometheus>` config, default `:9363/metrics`). PMM scrapes it; no PMM
-  process. Modelled by reusing PMM's existing `external-exporter` machinery.
-- **Managed `clickhouse_exporter`** — for older ClickHouse without the native
-  endpoint. A PMM-managed process agent, exactly like `mysqld_exporter`.
+- **Native endpoint** — when `<prometheus>` is enabled (default `:9363/metrics`).
+  PMM scrapes it; no PMM process. Modelled by reusing PMM's `external-exporter`.
+  ClickHouse emits metrics under the prefixes `ClickHouseMetrics_*`,
+  `ClickHouseProfileEvents_*`, `ClickHouseAsyncMetrics_*`.
+- **Managed `clickhouse_exporter`** — for instances where `<prometheus>` is not
+  enabled. A PMM-managed process agent, like `mysqld_exporter`. **It emits the
+  same metric names as the native endpoint** (`ClickHouseMetrics_*` etc.) so a
+  single dashboard set works regardless of source.
 
 `AddClickHouseService` auto-probes the native endpoint and picks the source;
 `pmm-admin add clickhouse --metrics-source=auto|native|exporter` overrides it.
+
+> Validated against the code and ClickHouse docs — see [review findings](#review-findings).
 
 ## The four phases
 
@@ -67,8 +75,8 @@ Live tracking: [CHECKLIST.md](CHECKLIST.md).
 
 - **Phase 1 is the foundation.** It defines the proto types, the metric set,
   and the `clickhouse_exporter` binary. Phases 2 and 4 are **blocked on Phase
-  1** (dashboards need a real metric contract incl. `clickhouse_up`; packaging
-  needs the buildable binary).
+  1** (dashboards need the metric contract realised; packaging needs the
+  buildable binary).
 - **Phase 2** consumes the Phase 1 metric contract; can start once Phase 1
   emits the agreed metric families.
 - **Phase 3** is largely independent of Phase 2 but extends Phase 1's proto and
@@ -91,3 +99,37 @@ Live tracking: [CHECKLIST.md](CHECKLIST.md).
 `dashboards/`, `build/`. Proto enum additions ripple through generated gRPC and
 swagger clients. This is a multi-phase engineering effort, delivered and
 verified phase by phase — not a single drop.
+
+## Review findings
+
+The plan was reviewed against the actual code and external ClickHouse
+documentation. Outcome:
+
+**Verified correct** (against the code):
+- `SERVICE_TYPE_CLICKHOUSE_SERVICE = 8` — `ServiceType` highest used is `7`.
+- `AGENT_TYPE_CLICKHOUSE_EXPORTER = 20` — `AgentType` highest used is `19`.
+- DB migration `118` — `managed/models/database.go` latest is `117`.
+- `MetricsBucket.ClickHouse` = field `5` — `api/agent/v1/collector.proto` has
+  `common=1, mysql=2, mongodb=3, postgresql=4`.
+- `api/qan/v1/collector.proto` ClickHouse fields use `310+` — current max `309`.
+
+**Corrected** (assumptions that were wrong):
+1. *Native endpoint is config-gated, not version-gated.* ClickHouse's
+   `<prometheus>` endpoint exists since ~v19.14 (2019), not "22.6+". The
+   distinction between the two metric sources is whether the operator enabled
+   `<prometheus>`, not the ClickHouse version. (The user's intent — "some
+   ClickHouse without the native endpoint" — still holds, for config reasons.)
+2. *Metric-naming unification.* ClickHouse's native endpoint emits
+   `ClickHouseMetrics_*` / `ClickHouseProfileEvents_*` / `ClickHouseAsyncMetrics_*`.
+   For one dashboard set to work in both modes, the managed `clickhouse_exporter`
+   must emit those **same** names — not a custom `clickhouse_*` scheme. The
+   Phase 2 metric contract was rewritten accordingly.
+3. *No `clickhouse_up` metric.* `up` is synthesized by the scraper for every
+   target; dashboard templating keys off `up{service_type="clickhouse"}` /
+   `ClickHouseAsyncMetrics_Uptime`, not a non-existent `clickhouse_up`.
+4. *Agent-type number collision.* Phase 1 and Phase 3 both drafted `=20`.
+   Resolved: exporter `=20`, QAN agent `AGENT_TYPE_QAN_CLICKHOUSE_QUERYLOG_AGENT = 21`.
+5. *qan-api2 is NOT DB-agnostic.* `qan-api2/models/data_ingestion.go` hardcodes
+   `agent_type` as an `Enum8` (values 0-5, no ClickHouse). Phase 3 therefore
+   requires qan-api2 migrations + an `Enum8` extension — as PHASE-3 already
+   states; the earlier "no qan-api2 change" assumption is rejected.

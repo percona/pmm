@@ -8,39 +8,46 @@ MySQL/PostgreSQL dashboard sets.
 ## Design
 
 - ClickHouse monitoring dashboards bind to the **VictoriaMetrics / Prometheus**
-  datasource (the `clickhouse_*` metrics from the Phase 1 exporter) — **not**
-  the bundled `grafana-clickhouse-datasource` plugin (that is for ad-hoc direct
-  ClickHouse querying, a separate concern).
+  datasource (the `ClickHouseMetrics_*` / `ClickHouseProfileEvents_*` /
+  `ClickHouseAsyncMetrics_*` metrics — from the ClickHouse native endpoint or
+  the Phase 1 exporter, which emit identical names) — **not** the bundled
+  `grafana-clickhouse-datasource` plugin (that is for ad-hoc direct ClickHouse
+  querying, a separate concern).
 - Dashboard JSON: one file per dashboard in `dashboards/dashboards/ClickHouse/`,
   each registered in `dashboards/pmm-app/src/plugin.json` `includes`.
-- Template variables cascade off a `clickhouse_up` metric:
-  `environment → cluster → node_name → service_name` (the Valkey/MySQL pattern).
+- Template variables cascade `environment → cluster → node_name → service_name`,
+  keyed off `up{service_type="clickhouse"}` (synthesized by the scraper for
+  every target) — there is **no** `clickhouse_up` metric.
 - Tags on every dashboard: `ClickHouse`, `Percona`, `Services`.
 - UIDs are stable lowercase-hyphen, fixed at creation, never changed.
 
 ### Metric contract  *(Phase 1 prerequisite)*
 
-Phase 2 cannot author panels against metrics that do not exist. Phase 1's
-`clickhouse_exporter` must emit at least:
+Dashboards bind to ClickHouse's **native metric names** — emitted both by the
+native `<prometheus>` endpoint and by the managed `clickhouse_exporter` (Phase 1
+guarantees parity, so one dashboard set serves both sources). Three families,
+each from the corresponding `system.*` table:
 
-- `clickhouse_up` (gauge 1/0 — **drives all templating**),
-  `clickhouse_version_info{version=...}`.
-- Queries: `clickhouse_query_count`, `clickhouse_query_duration_seconds`,
-  `clickhouse_select_query_count`, `clickhouse_insert_query_count`,
-  `clickhouse_failed_query_count`.
-- Memory: `clickhouse_memory_tracking_bytes`, `clickhouse_memory_resident_bytes`,
-  `clickhouse_mark_cache_bytes`, `clickhouse_uncompressed_cache_bytes`.
-- Parts/tables (labels `database`,`table`): `clickhouse_parts_count`,
-  `clickhouse_parts_bytes`, `clickhouse_table_rows`, `clickhouse_active_parts`,
-  `clickhouse_merge_count`, `clickhouse_mutation_count`.
-- Replication (labels `database`,`table`): `clickhouse_replica_queue_size`,
-  `clickhouse_replica_delay_seconds`, `clickhouse_readonly_replica`.
-- System: `clickhouse_connections`, `clickhouse_background_pool_tasks`,
-  `clickhouse_scrape_duration_seconds`.
+- **`ClickHouseMetrics_*`** — gauges from `system.metrics` (current state):
+  e.g. `ClickHouseMetrics_Query`, `_Merge`, `_TCPConnection`,
+  `_ReadonlyReplica`, `_PartsActive`, `_BackgroundPoolTask`.
+- **`ClickHouseProfileEvents_*`** — counters from `system.events` (cumulative):
+  e.g. `ClickHouseProfileEvents_Query`, `_SelectQuery`, `_InsertQuery`,
+  `_FailedQuery`, `_SelectedRows`, `_SelectedBytes`, `_MergedRows`.
+- **`ClickHouseAsyncMetrics_*`** — from `system.asynchronous_metrics`: e.g.
+  `ClickHouseAsyncMetrics_Uptime`, `_MemoryResident`,
+  `_MaxPartCountForPartition`, `_ReplicasMaxQueueSize`,
+  `_ReplicasMaxAbsoluteDelay`.
+- **`ClickHouseStatusInfo_*`** — info series (used for the summary header /
+  version).
 
-All series carry `service_name`, `node_name`, `cluster`, `environment` (VM
-external labels). If Phase 1 delivers metrics incrementally, author the
-dashboards in the Step order below — each needs only its own subset.
+`up{service_type="clickhouse"}` (scraper-synthesized) drives templating — there
+is **no** `clickhouse_up`. All series carry `service_name`, `node_name`,
+`cluster`, `environment` (VM external labels). ClickHouse exposes 1000+ metrics;
+Phase 1 may use ClickHouse's `filtered_metrics` (~125 mission-critical) to keep
+cardinality sane. Exact per-panel metric names are pinned during Phase 1/2
+against a live server (`curl :9363/metrics`). Author dashboards in the Step
+order below — each needs only its own subset.
 
 ## Development line (ordered)
 
@@ -120,9 +127,12 @@ template cascade on single-node and cluster.
 
 ## Risks
 
-- **Blocked on the Phase 1 metric contract** — dashboards need real metrics
-  incl. `clickhouse_up`. The contract above is the explicit hand-off; if Phase 1
-  trims it, trim the dashboards to match.
+- **Blocked on the Phase 1 metric contract** — dashboards need the native
+  metric families to exist. The contract above is the explicit hand-off; if
+  Phase 1 trims it, trim the dashboards to match.
+- **Metric-name parity is mandatory** — if the managed `clickhouse_exporter`
+  diverged from ClickHouse's native naming, native-mode and exporter-mode
+  services would need different dashboards. Phase 1 must guarantee parity.
 - `plugin.json` has an existing path bug — ClickHouse entries must use the
   correct `dashboards/ClickHouse/` path.
 - ClickHouse's OLAP performance model differs from row-store OLTP; panels must

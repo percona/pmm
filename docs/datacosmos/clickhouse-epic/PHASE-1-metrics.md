@@ -13,8 +13,14 @@ PMM keys process spawning, scrape-config, status and converters off
 
 | Source | Agent type | Process? | Scrape target |
 |---|---|---|---|
-| Managed exporter (old ClickHouse) | `AGENT_TYPE_CLICKHOUSE_EXPORTER` (new, `=20`) | `clickhouse_exporter` spawned by pmm-agent | `127.0.0.1:{listen_port}/metrics` |
-| Native endpoint (CH 22.6+) | `AGENT_TYPE_EXTERNAL_EXPORTER` (existing — reused) | none | `{address}:{native_port}/metrics` |
+| Managed exporter (`<prometheus>` not enabled) | `AGENT_TYPE_CLICKHOUSE_EXPORTER` (new, `=20`) | `clickhouse_exporter` spawned by pmm-agent | `127.0.0.1:{listen_port}/metrics` |
+| Native endpoint (`<prometheus>` enabled in server config) | `AGENT_TYPE_EXTERNAL_EXPORTER` (existing — reused) | none | `{address}:{native_port}/metrics` |
+
+> The native endpoint is **config-gated, not version-gated** — it exists since
+> ClickHouse ~19.14 but only when the operator enabled `<prometheus>`. Both
+> metric sources MUST emit identical metric names (`ClickHouseMetrics_*`,
+> `ClickHouseProfileEvents_*`, `ClickHouseAsyncMetrics_*`) so one dashboard set
+> serves both.
 
 Reusing `external-exporter` for the native case means **zero new code** in the
 scrape/status path (`prometheus.go` already handles `ExternalExporterType`).
@@ -98,9 +104,12 @@ migration 111).
 - Promote `agent/agents/clickhouse/` — expand the collector to scrape
   `system.metrics`, `system.events`, `system.asynchronous_metrics`,
   `system.parts`, `system.replicas` (always-populated tables — **not**
-  `system.query_log`, which is empty on a fresh server); emit `clickhouse_up`,
-  `clickhouse_version_info`, and the metric families in the
-  [metric contract](PHASE-2-dashboards.md#metric-contract). English comments.
+  `system.query_log`, which is empty on a fresh server). It MUST emit metrics
+  under the **same names as ClickHouse's native endpoint** —
+  `ClickHouseMetrics_*`, `ClickHouseProfileEvents_*`, `ClickHouseAsyncMetrics_*`
+  (+ `ClickHouseStatusInfo_*` for version) — so a single dashboard set serves
+  both metric sources (see the PHASE-2 metric contract). English comments.
+  Note: `up` is synthesized by the scraper — the exporter does not emit it.
 - New `agent/cmd/clickhouse_exporter/main.go` — `package main`, HTTP `/metrics`
   via `promhttp`, `--web.listen-address`/`--version` flags, emits the
   `clickhouse_exporter, version X` banner the version regex expects.
