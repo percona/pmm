@@ -7,8 +7,6 @@ on:
       - v3
       - pmm-*
       - feat/clickhouse-*
-    tags:
-      - v[0-9]+.[0-9]+.[0-9]+*
     paths:
       - "agent/agents/clickhouse/**"
       - "agent/cmd/clickhouse_exporter/**"
@@ -43,9 +41,12 @@ jobs:
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ~/.cache/go-build
-          key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
+          # Key on go.sum, not hashFiles('**'): hashing every file changes the
+          # key on every commit, so the cache was never reused — only piled up
+          # (~230 MB per run). go.sum-keyed, it is restored and refreshed only
+          # when dependencies change.
+          key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-go-build-${{ github.ref }}-
             ${{ runner.os }}-go-build-
 
       - name: Enable Go modules cache
@@ -87,9 +88,12 @@ jobs:
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ~/.cache/go-build
-          key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
+          # Key on go.sum, not hashFiles('**'): hashing every file changes the
+          # key on every commit, so the cache was never reused — only piled up
+          # (~230 MB per run). go.sum-keyed, it is restored and refreshed only
+          # when dependencies change.
+          key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-go-build-${{ github.ref }}-
             ${{ runner.os }}-go-build-
 
       - name: Enable Go modules cache
