@@ -94,6 +94,12 @@ create-build-dirs:                                ## Create the $(ROOT_DIR) buil
 	# collide with the current build. tmp/go (the module cache) is kept.
 	@rm -rf $(ROOT_DIR)/sources $(ROOT_DIR)/tmp/source $(ROOT_DIR)/tmp/binary
 	@mkdir -p $(ROOT_DIR)/sources $(ROOT_DIR)/tmp $(ROOT_DIR)/results $(ARTIFACT_DIR)
+	# build-client-srpm / build-client-rpm bind-mount results/ into the
+	# rpmbuild container and create srpm/ and rpm/ subdirs as the container's
+	# 'builder' user, whose uid differs from the host (CI) user that owns the
+	# tree. World-writable results/ lets the container mkdir there; the build
+	# scripts chown the finished srpm/ and rpm/ back to the host user.
+	@chmod 0777 $(ROOT_DIR)/tmp $(ROOT_DIR)/results
 	@echo "$(FULL_VERSION)" > $(ROOT_DIR)/VERSION
 	# Symlink (never copy) each component source from pmm-submodules: copying
 	# breaks the submodule .git gitlinks and litters the build with junk.
