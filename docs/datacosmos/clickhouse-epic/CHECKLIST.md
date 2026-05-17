@@ -42,20 +42,21 @@ user checkpoint.
 
 ## Phase 2 — Grafana dashboards
 
-- [ ] 2.0 Obtain bases (clone `clickhouse-mixin`) + scaffold
-      `dashboards/dashboards/ClickHouse/` + 5 UIDs fixed
-- [ ] 2.1 `ClickHouse_Instance_Summary.json` (adapted mixin — anchor)
-- [ ] 2.2 `ClickHouse_Query_Performance.json` (mixin split-out)
-- [ ] 2.3 `ClickHouse_Replication.json` (mixin + dashboard `23285` split-out)
-- [ ] 2.4 `ClickHouse_Instances_Overview.json` (PMM-shell fleet view)
-- [ ] 2.5 `ClickHouse_Instances_Compare.json` (PMM-shell fleet view)
-- [ ] 2.6 Cross-linking (data links)
-- [ ] 2.7 Register all 5 in `pmm-app/src/plugin.json`
-- [ ] 2.8 Normalize every file via `cleanup-dash.py`; write `ATTRIBUTION.md`
-- [ ] 2.V Validation: `make -C dashboards build`, `cleanup-dash --check-only`,
-      lint/test, unique UIDs, VM datasource only, attribution present
-- [ ] 2.IT Integration tests IT-2.1 … IT-2.5 green
-- [ ] Phase 2 committed; user checkpoint
+- [x] 2.0 Obtain bases (cloned `clickhouse-mixin` — no LICENSE, used as
+      design reference only) + scaffold `dashboards/dashboards/ClickHouse/` + 5 UIDs fixed
+- [x] 2.1 `ClickHouse_Instance_Summary.json` (PMM-shell rebuild — anchor)
+- [x] 2.2 `ClickHouse_Query_Performance.json`
+- [x] 2.3 `ClickHouse_Replication.json`
+- [x] 2.4 `ClickHouse_Instances_Overview.json` (PMM-shell fleet view)
+- [x] 2.5 `ClickHouse_Instances_Compare.json` (PMM-shell fleet view)
+- [x] 2.6 Cross-linking (data links)
+- [x] 2.7 Register all 5 in `pmm-app/src/plugin.json`
+- [x] 2.8 Normalize every file via `cleanup-dash.py`; write `ATTRIBUTION.md`
+- [~] 2.V Validation: `cleanup-dash --check-only` passes all 5, unique UIDs,
+      VM datasource only, attribution present — done. `make -C dashboards build`
+      needs `yarn install` (node env); covered by 2.IT
+- [ ] 2.IT Integration tests IT-2.1 … IT-2.5 green (needs live PMM stack)
+- [x] Phase 2 committed; user checkpoint
 
 ## Phase 3 — Query Analytics (QAN)
 
