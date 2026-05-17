@@ -522,6 +522,19 @@ func scrapeConfigForValkeyExporter(params *scrapeConfigParams) ([]*config.Scrape
 	return r, nil
 }
 
+func scrapeConfigForClickHouseExporter(params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
+	hr, err := scrapeConfigForStandardExporter("hr", params.metricsResolution.HR, params, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var r []*config.ScrapeConfig
+	if hr != nil {
+		r = append(r, hr)
+	}
+	return r, nil
+}
+
 func scrapeConfigsForProxySQLExporter(params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
 	hr, err := scrapeConfigForStandardExporter("hr", params.metricsResolution.HR, params, nil) // TODO https://jira.percona.com/browse/PMM-4619
 	if err != nil {

@@ -836,6 +836,7 @@ type CreateAgentParams struct {
 	MySQLOptions             MySQLOptions
 	PostgreSQLOptions        PostgreSQLOptions
 	ValkeyOptions            ValkeyOptions
+	ClickHouseOptions        ClickHouseOptions
 }
 
 func compatibleNodeAndAgent(nodeType NodeType, agentType AgentType) bool {
@@ -978,6 +979,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		MySQLOptions:      params.MySQLOptions,
 		PostgreSQLOptions: params.PostgreSQLOptions,
 		ValkeyOptions:     params.ValkeyOptions,
+		ClickHouseOptions: params.ClickHouseOptions,
 		LogLevel:          pointer.ToStringOrNil(params.LogLevel),
 		Disabled:          params.Disabled,
 	}
