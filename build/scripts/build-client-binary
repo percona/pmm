@@ -26,12 +26,15 @@ gobuild_component() {
 
     # Set target for Nomad accordingly
     local target
+    local goarch
     case "$(uname -m)" in
         x86_64)
             target="linux_amd64"
+            goarch="amd64"
             ;;
         aarch64)
             target="linux_arm64"
+            goarch="arm64"
             ;;
         *)
             echo "Unsupported architecture: $(uname -m)"
@@ -79,7 +82,7 @@ gobuild_component() {
         set -o errexit
         set -o xtrace
         export GOOS=${GOOS:-linux}
-        export GOARCH=${GOARCH:-amd64}
+        export GOARCH=${GOARCH:-${goarch}}
         export CGO_ENABLED=0
         export GO111MODULE=auto
 
