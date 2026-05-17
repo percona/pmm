@@ -21,21 +21,23 @@ import (
 )
 
 func TestLoadConfigDefaults(t *testing.T) {
-	t.Setenv("CLICKHOUSE_DSN", "")
-	t.Setenv("CLICKHOUSE_SCRAPE_PORT", "")
+	t.Setenv(EnvDSN, "")
+	t.Setenv(EnvListenAddress, "")
 
 	cfg := LoadConfig()
 
-	assert.Equal(t, "tcp://localhost:9000?username=default&password=&database=default", cfg.DSN)
-	assert.Equal(t, "9100", cfg.ScrapePort)
+	assert.Equal(t, DefaultDSN, cfg.DSN)
+	assert.Equal(t, DefaultListenAddress, cfg.ListenAddress)
+	assert.Equal(t, DefaultTelemetryPath, cfg.TelemetryPath)
 }
 
 func TestLoadConfigFromEnv(t *testing.T) {
-	t.Setenv("CLICKHOUSE_DSN", "tcp://ch-host:9000?username=admin&password=secret&database=metrics")
-	t.Setenv("CLICKHOUSE_SCRAPE_PORT", "9101")
+	t.Setenv(EnvDSN, "clickhouse://admin:secret@ch-host:9000/metrics")
+	t.Setenv(EnvListenAddress, "0.0.0.0:9116")
 
 	cfg := LoadConfig()
 
-	assert.Equal(t, "tcp://ch-host:9000?username=admin&password=secret&database=metrics", cfg.DSN)
-	assert.Equal(t, "9101", cfg.ScrapePort)
+	assert.Equal(t, "clickhouse://admin:secret@ch-host:9000/metrics", cfg.DSN)
+	assert.Equal(t, "0.0.0.0:9116", cfg.ListenAddress)
+	assert.Equal(t, DefaultTelemetryPath, cfg.TelemetryPath)
 }

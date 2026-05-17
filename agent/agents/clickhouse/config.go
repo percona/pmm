@@ -16,28 +16,45 @@ package clickhouse
 
 import "os"
 
-// Config contém as configurações para conectar ao ClickHouse.
+// Exporter configuration defaults and environment-variable names.
+const (
+	// EnvDSN holds the ClickHouse connection string when no flag is given.
+	EnvDSN = "CLICKHOUSE_EXPORTER_DSN"
+	// EnvListenAddress overrides the HTTP listen address.
+	EnvListenAddress = "CLICKHOUSE_EXPORTER_WEB_LISTEN_ADDRESS"
+
+	// DefaultDSN points at a local ClickHouse over the native protocol.
+	DefaultDSN = "clickhouse://default@127.0.0.1:9000/default"
+	// DefaultListenAddress is the host:port the exporter serves /metrics on.
+	DefaultListenAddress = "127.0.0.1:9116"
+	// DefaultTelemetryPath is the HTTP path that exposes Prometheus metrics.
+	DefaultTelemetryPath = "/metrics"
+)
+
+// Config holds clickhouse_exporter runtime configuration.
 type Config struct {
-	// DSN no formato: tcp://<host>:<port>?username=<user>&password=<pass>&database=<db>
+	// DSN is the ClickHouse connection string for the clickhouse-go/v2 driver.
 	DSN string
-	// Porta de scrape que o exportador usará (opcional, para registrar no pmm-agent)
-	ScrapePort string
+	// ListenAddress is the host:port the exporter serves metrics on.
+	ListenAddress string
+	// TelemetryPath is the HTTP path that exposes Prometheus metrics.
+	TelemetryPath string
 }
 
-// LoadConfig lê as configurações a partir das variáveis de ambiente.
-// Variáveis esperadas: CLICKHOUSE_DSN e CLICKHOUSE_SCRAPE_PORT.
+// LoadConfig builds a Config from the defaults overlaid with environment
+// variables. Command-line flags, when present, take precedence and are applied
+// by the exporter's main package on top of the returned Config.
 func LoadConfig() *Config {
-	dsn := os.Getenv("CLICKHOUSE_DSN")
-	if dsn == "" {
-		// Valor padrão – ajuste conforme necessário
-		dsn = "tcp://localhost:9000?username=default&password=&database=default"
+	cfg := &Config{
+		DSN:           DefaultDSN,
+		ListenAddress: DefaultListenAddress,
+		TelemetryPath: DefaultTelemetryPath,
 	}
-	scrapePort := os.Getenv("CLICKHOUSE_SCRAPE_PORT")
-	if scrapePort == "" {
-		scrapePort = "9100"
+	if v := os.Getenv(EnvDSN); v != "" {
+		cfg.DSN = v
 	}
-	return &Config{
-		DSN:        dsn,
-		ScrapePort: scrapePort,
+	if v := os.Getenv(EnvListenAddress); v != "" {
+		cfg.ListenAddress = v
 	}
+	return cfg
 }

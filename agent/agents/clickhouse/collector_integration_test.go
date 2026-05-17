@@ -93,22 +93,31 @@ func TestClickHouseMatrix(t *testing.T) {
 				assert.Positive(t, clusters, "a cluster endpoint must expose a named cluster")
 			}
 
-			// system.query_log is created lazily — force the flush so the
-			// collector's query has a table to read, mirroring a server that
-			// has served traffic.
-			_, err = c.client.Exec("SYSTEM FLUSH LOGS")
+			// Scrape via a registry so the assertions see the same metric
+			// families a Prometheus server would.
+			reg := prometheus.NewRegistry()
+			require.NoError(t, reg.Register(c))
+			mfs, err := reg.Gather()
 			require.NoError(t, err)
 
-			ch := make(chan prometheus.Metric, 8)
-			c.Collect(ch)
-			close(ch)
-
-			var metrics []prometheus.Metric
-			for m := range ch {
-				metrics = append(metrics, m)
+			names := make(map[string]struct{}, len(mfs))
+			for _, mf := range mfs {
+				names[mf.GetName()] = struct{}{}
 			}
-			assert.Len(t, metrics, 2,
-				"Collect must emit clickhouse_query_count and clickhouse_scrape_duration_seconds")
+
+			// The three native metric families must all be present.
+			hasPrefix := func(prefix string) bool {
+				for n := range names {
+					if strings.HasPrefix(n, prefix) {
+						return true
+					}
+				}
+				return false
+			}
+			assert.True(t, hasPrefix("ClickHouseMetrics_"), "system.metrics family must be emitted")
+			assert.True(t, hasPrefix("ClickHouseAsyncMetrics_"), "system.asynchronous_metrics family must be emitted")
+			assert.True(t, hasPrefix("ClickHouseProfileEvents_"), "system.events family must be emitted")
+			assert.Contains(t, names, "clickhouse_exporter_last_scrape_success")
 		})
 	}
 }

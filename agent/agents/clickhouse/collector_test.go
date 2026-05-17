@@ -16,12 +16,10 @@ package clickhouse
 
 import (
 	"database/sql"
-	"strings"
 	"testing"
 
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -29,24 +27,28 @@ import (
 // Compile-time check that Collector satisfies the prometheus.Collector contract.
 var _ prometheus.Collector = (*Collector)(nil)
 
-// queryLogSQL must match exactly the query issued by Collector.Collect.
-const queryLogSQL = "SELECT count(*) FROM system.query_log WHERE event_time >= now() - interval 1 minute"
+// Queries must match exactly the strings issued by Collector.collectTable.
+const (
+	metricsSQL      = "SELECT metric, toFloat64(value) FROM system.metrics"
+	asyncMetricsSQL = "SELECT metric, toFloat64(value) FROM system.asynchronous_metrics"
+	eventsSQL       = "SELECT event, toFloat64(value) FROM system.events"
+)
 
 // newTestCollector builds a Collector backed by the given *sql.DB, mirroring
 // the descriptors NewCollector creates — without opening a real connection.
 func newTestCollector(db *sql.DB) *Collector {
 	return &Collector{
-		queryCount: prometheus.NewDesc(
-			"clickhouse_query_count",
-			"Número de queries executadas no ClickHouse (último minuto)",
-			nil, nil,
-		),
-		scrapeSeconds: prometheus.NewDesc(
-			"clickhouse_scrape_duration_seconds",
-			"Tempo gasto para coletar métricas do ClickHouse",
-			nil, nil,
-		),
 		client: db,
+		scrapeDuration: prometheus.NewDesc(
+			exporterScrapePrefix+"scrape_duration_seconds",
+			"Duration of the last ClickHouse scrape in seconds.",
+			nil, nil,
+		),
+		scrapeSuccess: prometheus.NewDesc(
+			exporterScrapePrefix+"last_scrape_success",
+			"Whether the last ClickHouse scrape succeeded (1) or not (0).",
+			nil, nil,
+		),
 	}
 }
 
@@ -58,64 +60,98 @@ func newMockDB(t *testing.T) (*sql.DB, sqlmock.Sqlmock) {
 	return db, mock
 }
 
-func TestCollectorDescribe(t *testing.T) {
+// expectAllTables queues mocked responses for the three system-table queries.
+func expectAllTables(mock sqlmock.Sqlmock) {
+	mock.ExpectQuery(metricsSQL).WillReturnRows(
+		sqlmock.NewRows([]string{"metric", "value"}).AddRow("Query", 3.0).AddRow("Merge", 1.0))
+	mock.ExpectQuery(asyncMetricsSQL).WillReturnRows(
+		sqlmock.NewRows([]string{"metric", "value"}).AddRow("Uptime", 1234.0).AddRow("jemalloc.arenas.all.muzzy", 7.0))
+	mock.ExpectQuery(eventsSQL).WillReturnRows(
+		sqlmock.NewRows([]string{"event", "value"}).AddRow("SelectQuery", 42.0))
+}
+
+// gatheredValues registers the collector on a private registry, gathers it, and
+// returns a metric-name -> value map.
+func gatheredValues(t *testing.T, c *Collector) map[string]float64 {
+	t.Helper()
+
+	reg := prometheus.NewRegistry()
+	require.NoError(t, reg.Register(c))
+
+	mfs, err := reg.Gather()
+	require.NoError(t, err)
+
+	values := make(map[string]float64)
+	for _, mf := range mfs {
+		for _, m := range mf.GetMetric() {
+			switch {
+			case m.GetGauge() != nil:
+				values[mf.GetName()] = m.GetGauge().GetValue()
+			case m.GetCounter() != nil:
+				values[mf.GetName()] = m.GetCounter().GetValue()
+			}
+		}
+	}
+	return values
+}
+
+func TestCollectorDescribeIsUnchecked(t *testing.T) {
 	c := newTestCollector(nil)
 
-	ch := make(chan *prometheus.Desc, 2)
+	ch := make(chan *prometheus.Desc, 1)
 	c.Describe(ch)
 	close(ch)
 
-	var descs []*prometheus.Desc
-	for d := range ch {
-		descs = append(descs, d)
+	assert.Empty(t, ch, "an unchecked collector must not pre-declare descriptors")
+}
+
+func TestCollectorCollectNativeMetricNames(t *testing.T) {
+	db, mock := newMockDB(t)
+	defer db.Close() //nolint:errcheck
+	expectAllTables(mock)
+
+	values := gatheredValues(t, newTestCollector(db))
+
+	// Metric families carry the native ClickHouse prefixes and values.
+	assert.InDelta(t, 3.0, values["ClickHouseMetrics_Query"], 0.0001)
+	assert.InDelta(t, 1.0, values["ClickHouseMetrics_Merge"], 0.0001)
+	assert.InDelta(t, 1234.0, values["ClickHouseAsyncMetrics_Uptime"], 0.0001)
+	assert.InDelta(t, 42.0, values["ClickHouseProfileEvents_SelectQuery"], 0.0001)
+	// Invalid characters in async-metric names are sanitized.
+	assert.Contains(t, values, "ClickHouseAsyncMetrics_jemalloc_arenas_all_muzzy")
+	// The exporter always reports its own scrape metrics.
+	assert.Contains(t, values, "clickhouse_exporter_scrape_duration_seconds")
+	assert.InDelta(t, 1.0, values["clickhouse_exporter_last_scrape_success"], 0.0001)
+	assert.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestCollectorCollectTableErrorIsNotFatal(t *testing.T) {
+	db, mock := newMockDB(t)
+	defer db.Close() //nolint:errcheck
+
+	mock.ExpectQuery(metricsSQL).WillReturnError(sql.ErrConnDone)
+	mock.ExpectQuery(asyncMetricsSQL).WillReturnRows(
+		sqlmock.NewRows([]string{"metric", "value"}).AddRow("Uptime", 1.0))
+	mock.ExpectQuery(eventsSQL).WillReturnRows(
+		sqlmock.NewRows([]string{"event", "value"}).AddRow("SelectQuery", 1.0))
+
+	values := gatheredValues(t, newTestCollector(db))
+
+	// A failing table must not panic and must surface in last_scrape_success.
+	assert.InDelta(t, 0.0, values["clickhouse_exporter_last_scrape_success"], 0.0001)
+	// The tables that did succeed are still emitted.
+	assert.InDelta(t, 1.0, values["ClickHouseAsyncMetrics_Uptime"], 0.0001)
+	assert.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestSanitizeMetricName(t *testing.T) {
+	cases := map[string]string{
+		"Query":                     "Query",
+		"jemalloc.arenas.all.muzzy": "jemalloc_arenas_all_muzzy",
+		"already_clean_1":           "already_clean_1",
+		"weird-name/with chars":     "weird_name_with_chars",
 	}
-	assert.Len(t, descs, 2, "Describe must emit both metric descriptors")
-}
-
-func TestCollectorCollectSuccess(t *testing.T) {
-	db, mock := newMockDB(t)
-	defer db.Close() //nolint:errcheck
-
-	mock.ExpectQuery(queryLogSQL).
-		WillReturnRows(sqlmock.NewRows([]string{"count()"}).AddRow(42))
-
-	c := newTestCollector(db)
-
-	// The scrape-duration metric is time-dependent, so compare only the
-	// deterministic query-count metric.
-	expected := `
-# HELP clickhouse_query_count Número de queries executadas no ClickHouse (último minuto)
-# TYPE clickhouse_query_count gauge
-clickhouse_query_count 42
-`
-	err := testutil.CollectAndCompare(c, strings.NewReader(expected), "clickhouse_query_count")
-	assert.NoError(t, err)
-	assert.NoError(t, mock.ExpectationsWereMet())
-}
-
-func TestCollectorCollectEmitsBothMetrics(t *testing.T) {
-	db, mock := newMockDB(t)
-	defer db.Close() //nolint:errcheck
-
-	mock.ExpectQuery(queryLogSQL).
-		WillReturnRows(sqlmock.NewRows([]string{"count()"}).AddRow(7))
-
-	c := newTestCollector(db)
-
-	assert.Equal(t, 2, testutil.CollectAndCount(c), "Collect must emit query-count and scrape-duration")
-	assert.NoError(t, mock.ExpectationsWereMet())
-}
-
-func TestCollectorCollectQueryError(t *testing.T) {
-	db, mock := newMockDB(t)
-	defer db.Close() //nolint:errcheck
-
-	mock.ExpectQuery(queryLogSQL).WillReturnError(sql.ErrConnDone)
-
-	c := newTestCollector(db)
-
-	// On a query failure Collect logs the error and emits nothing — and must
-	// never panic or block.
-	assert.Equal(t, 0, testutil.CollectAndCount(c))
-	assert.NoError(t, mock.ExpectationsWereMet())
+	for in, want := range cases {
+		assert.Equal(t, want, sanitizeMetricName(in))
+	}
 }
