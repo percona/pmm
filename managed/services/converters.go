@@ -490,6 +490,23 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			LogLevel:               inventoryv1.LogLevelAPIValue(agent.LogLevel),
 		}, nil
 
+	case models.QANClickHouseQueryLogAgentType:
+		return &inventoryv1.QANClickHouseQueryLogAgent{
+			AgentId:                agent.AgentID,
+			PmmAgentId:             pointer.GetString(agent.PMMAgentID),
+			ServiceId:              serviceID,
+			Username:               pointer.GetString(agent.Username),
+			Disabled:               agent.Disabled,
+			Status:                 inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
+			CustomLabels:           labels,
+			MaxQueryLength:         agent.QANOptions.MaxQueryLength,
+			DisableCommentsParsing: agent.QANOptions.CommentsParsingDisabled,
+			Tls:                    agent.TLS,
+			TlsSkipVerify:          agent.TLSSkipVerify,
+			ProcessExecPath:        processExecPath,
+			LogLevel:               inventoryv1.LogLevelAPIValue(agent.LogLevel),
+		}, nil
+
 	case models.RDSExporterType:
 		return &inventoryv1.RDSExporter{
 			AgentId:                 agent.AgentID,

@@ -73,6 +73,11 @@ func FindDSNByServiceIDandPMMAgentID(q *reform.Querier, serviceID, pmmAgentID, d
 			QANMongoDBMongologAgentType,
 			MongoDBExporterType,
 			RTAMongoDBAgentType)
+	case ClickHouseServiceType:
+		agentTypes = append(
+			agentTypes,
+			QANClickHouseQueryLogAgentType,
+			ClickHouseExporterType)
 	default:
 		return "", nil, status.Errorf(codes.FailedPrecondition, "Couldn't resolve dsn, as service is unsupported")
 	}

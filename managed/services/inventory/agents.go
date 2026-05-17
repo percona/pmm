@@ -1337,6 +1337,106 @@ func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Contex
 	return res, nil
 }
 
+// AddQANClickHouseQueryLogAgent adds ClickHouse system.query_log QAN Agent.
+func (as *AgentsService) AddQANClickHouseQueryLogAgent(ctx context.Context, p *inventoryv1.AddQANClickHouseQueryLogAgentParams) (*inventoryv1.AddAgentResponse, error) { //nolint:lll
+	var agent *inventoryv1.QANClickHouseQueryLogAgent
+	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		params := &models.CreateAgentParams{
+			PMMAgentID:    p.PmmAgentId,
+			ServiceID:     p.ServiceId,
+			Username:      p.Username,
+			Password:      p.Password,
+			CustomLabels:  p.CustomLabels,
+			TLS:           p.Tls,
+			TLSSkipVerify: p.TlsSkipVerify,
+			QANOptions: models.QANOptions{
+				MaxQueryLength:          p.MaxQueryLength,
+				CommentsParsingDisabled: p.DisableCommentsParsing,
+			},
+			ClickHouseOptions: models.ClickHouseOptionsFromRequest(p),
+			LogLevel:          services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+		}
+		row, err := models.CreateAgent(tx.Querier, models.QANClickHouseQueryLogAgentType, params)
+		if err != nil {
+			return err
+		}
+		if !p.SkipConnectionCheck {
+			service, err := models.FindServiceByID(tx.Querier, p.ServiceId)
+			if err != nil {
+				return err
+			}
+
+			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
+			if err != nil {
+				return err
+			}
+		}
+
+		aa, err := services.ToAPIAgent(tx.Querier, row)
+		if err != nil {
+			return err
+		}
+		agent = aa.(*inventoryv1.QANClickHouseQueryLogAgent) //nolint:forcetypeassert
+		return nil
+	})
+	if e != nil {
+		return nil, e
+	}
+
+	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+	res := &inventoryv1.AddAgentResponse{
+		Agent: &inventoryv1.AddAgentResponse_QanClickhouseQuerylogAgent{
+			QanClickhouseQuerylogAgent: agent,
+		},
+	}
+
+	return res, e
+}
+
+// ChangeQANClickHouseQueryLogAgent updates ClickHouse system.query_log QAN Agent with given parameters.
+func (as *AgentsService) ChangeQANClickHouseQueryLogAgent(ctx context.Context, agentID string, p *inventoryv1.ChangeQANClickHouseQueryLogAgentParams) (*inventoryv1.ChangeAgentResponse, error) { //nolint:lll
+	params := &models.ChangeAgentParams{
+		Enabled:       p.Enable,
+		Username:      p.Username,
+		Password:      p.Password,
+		TLS:           p.Tls,
+		TLSSkipVerify: p.TlsSkipVerify,
+		CustomLabels:  convertCustomLabels(p.CustomLabels),
+		LogLevel:      convertLogLevel(p.LogLevel),
+	}
+
+	params.QANOptions = &models.ChangeQANOptions{
+		MaxQueryLength:          p.MaxQueryLength,
+		CommentsParsingDisabled: p.DisableCommentsParsing,
+	}
+
+	params.ClickHouseOptions = &models.ChangeClickHouseOptions{
+		SSLCa:   p.TlsCa,
+		SSLCert: p.TlsCert,
+		SSLKey:  p.TlsKey,
+	}
+
+	params.ExporterOptions = &models.ChangeExporterOptions{
+		PushMetrics:        p.EnablePushMetrics,
+		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
+	}
+
+	agent, err := as.executeAgentChange(ctx, agentID, params)
+	if err != nil {
+		return nil, err
+	}
+
+	queryLogAgent := agent.(*inventoryv1.QANClickHouseQueryLogAgent) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, queryLogAgent.PmmAgentId)
+
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_QanClickhouseQuerylogAgent{
+			QanClickhouseQuerylogAgent: queryLogAgent,
+		},
+	}
+	return res, nil
+}
+
 // AddQANPostgreSQLPgStatMonitorAgent adds PostgreSQL Pg stat monitor QAN Agent.
 func (as *AgentsService) AddQANPostgreSQLPgStatMonitorAgent(ctx context.Context, p *inventoryv1.AddQANPostgreSQLPgStatMonitorAgentParams) (*inventoryv1.AddAgentResponse, error) { //nolint:lll
 	var agent *inventoryv1.QANPostgreSQLPgStatMonitorAgent

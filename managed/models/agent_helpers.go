@@ -388,6 +388,11 @@ func FindDBConfigForService(q *reform.Querier, serviceID string) (*DBConfig, err
 			QANMongoDBProfilerAgentType,
 			RTAMongoDBAgentType,
 		}
+	case ClickHouseServiceType:
+		agentTypes = []AgentType{
+			ClickHouseExporterType,
+			QANClickHouseQueryLogAgentType,
+		}
 	case ExternalServiceType, HAProxyServiceType, ProxySQLServiceType:
 		fallthrough
 	default:
@@ -909,6 +914,12 @@ func compatibleServiceAndAgent(serviceType ServiceType, agentType AgentType) boo
 		QANPostgreSQLPgStatementsAgentType: {
 			PostgreSQLServiceType,
 		},
+		ClickHouseExporterType: {
+			ClickHouseServiceType,
+		},
+		QANClickHouseQueryLogAgentType: {
+			ClickHouseServiceType,
+		},
 		ExternalExporterType: {
 			ExternalServiceType,
 		},
@@ -1111,6 +1122,13 @@ type ChangeValkeyOptions struct {
 	SSLKey  *string
 }
 
+// ChangeClickHouseOptions contains ClickHouseOptions fields that can be changed.
+type ChangeClickHouseOptions struct {
+	SSLCa   *string
+	SSLCert *string
+	SSLKey  *string
+}
+
 // ChangeAgentParams contains parameters that can be changed for all Agent types.
 type ChangeAgentParams struct {
 	// Common fields for all agents
@@ -1131,6 +1149,7 @@ type ChangeAgentParams struct {
 	MySQLOptions      *ChangeMySQLOptions
 	PostgreSQLOptions *ChangePostgreSQLOptions
 	ValkeyOptions     *ChangeValkeyOptions
+	ClickHouseOptions *ChangeClickHouseOptions
 	RTAOptions        *RTAOptions
 
 	// Simple fields that don't fit into options structs
@@ -1232,6 +1251,20 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 		}
 		if params.ValkeyOptions.SSLKey != nil {
 			row.ValkeyOptions.SSLKey = *params.ValkeyOptions.SSLKey
+		}
+	}
+
+	// Update ClickHouseOptions fields
+	if params.ClickHouseOptions != nil {
+		if params.ClickHouseOptions.SSLCa != nil {
+			row.ClickHouseOptions.SSLCa = *params.ClickHouseOptions.SSLCa
+		}
+
+		if params.ClickHouseOptions.SSLCert != nil {
+			row.ClickHouseOptions.SSLCert = *params.ClickHouseOptions.SSLCert
+		}
+		if params.ClickHouseOptions.SSLKey != nil {
+			row.ClickHouseOptions.SSLKey = *params.ClickHouseOptions.SSLKey
 		}
 	}
 

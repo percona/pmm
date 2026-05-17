@@ -20,6 +20,8 @@ import (
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/pkg/flags"
+	inventoryclient "github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 	"github.com/percona/pmm/api/management/v1/json/client"
 	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
@@ -28,12 +30,17 @@ var addClickHouseResultT = commands.ParseTemplate(`
 ClickHouse Service added.
 Service ID  : {{ .Service.ServiceID }}
 Service name: {{ .Service.ServiceName }}
+{{ if .QANAgent }}
+QAN ClickHouse query log agent added.
+Agent ID    : {{ .QANAgent.AgentID }}
+{{- end }}
 `)
 
 type addClickHouseResult struct {
 	Service            *mservice.AddServiceOKBodyClickhouseService            `json:"service"`
 	ClickHouseExporter *mservice.AddServiceOKBodyClickhouseClickhouseExporter `json:"clickhouse_exporter,omitempty"`
 	ExternalExporter   *mservice.AddServiceOKBodyClickhouseExternalExporter   `json:"external_exporter,omitempty"`
+	QANAgent           *agents.AddAgentOKBodyQANClickhouseQuerylogAgent       `json:"qan_clickhouse_querylog_agent,omitempty"`
 }
 
 func (res *addClickHouseResult) Result() {}
@@ -73,6 +80,7 @@ type AddClickHouseCommand struct {
 	TLSKeyFile          string            `name:"tls-key" help:"Path to client key file"`
 	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	ExposeExporter      bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
+	QAN                 bool              `name:"qan" help:"Enable Query Analytics"`
 
 	AddCommonFlags
 	flags.MetricsModeFlags
@@ -182,9 +190,50 @@ func (cmd *AddClickHouseCommand) RunCmd() (commands.Result, error) {
 		return nil, err
 	}
 
-	return &addClickHouseResult{
+	result := &addClickHouseResult{
 		Service:            resp.Payload.Clickhouse.Service,
 		ClickHouseExporter: resp.Payload.Clickhouse.ClickhouseExporter,
 		ExternalExporter:   resp.Payload.Clickhouse.ExternalExporter,
-	}, nil
+	}
+
+	// The management AddClickHouseService API does not expose a QAN toggle, so the
+	// QAN ClickHouse query log agent is added with a separate inventory AddAgent call.
+	if cmd.QAN {
+		qanAgent, err := cmd.addQANAgent(resp.Payload.Clickhouse.Service.ServiceID, tlsCa, tlsCert, tlsKey, customLabels)
+		if err != nil {
+			return nil, err
+		}
+		result.QANAgent = qanAgent
+	}
+
+	return result, nil
+}
+
+// addQANAgent adds the QAN ClickHouse query log agent for an already added ClickHouse service.
+func (cmd *AddClickHouseCommand) addQANAgent(serviceID, tlsCa, tlsCert, tlsKey string, customLabels *map[string]string) (*agents.AddAgentOKBodyQANClickhouseQuerylogAgent, error) { //nolint:lll
+	params := &agents.AddAgentParams{
+		Body: agents.AddAgentBody{
+			QANClickhouseQuerylogAgent: &agents.AddAgentParamsBodyQANClickhouseQuerylogAgent{
+				PMMAgentID:          cmd.PMMAgentID,
+				ServiceID:           serviceID,
+				Username:            cmd.Username,
+				Password:            cmd.Password,
+				CustomLabels:        pointer.Get(customLabels),
+				SkipConnectionCheck: cmd.SkipConnectionCheck,
+				TLS:                 cmd.TLS,
+				TLSSkipVerify:       cmd.TLSSkipVerify,
+				TLSCa:               tlsCa,
+				TLSCert:             tlsCert,
+				TLSKey:              tlsKey,
+				LogLevel:            cmd.LogLevel.EnumValue(),
+			},
+		},
+		Context: commands.Ctx,
+	}
+
+	resp, err := inventoryclient.Default.AgentsService.AddAgent(params)
+	if err != nil {
+		return nil, err
+	}
+	return resp.Payload.QANClickhouseQuerylogAgent, nil
 }

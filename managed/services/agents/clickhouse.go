@@ -62,3 +62,24 @@ func clickhouseExporterConfig(node *models.Node, service *models.Service, export
 	}
 	return res
 }
+
+// qanClickHouseQueryLogAgentConfig returns desired configuration of qan-clickhouse-querylog-agent built-in agent.
+func qanClickHouseQueryLogAgentConfig(service *models.Service, agent *models.Agent, pmmAgentVersion *version.Parsed) *agentv1.SetStateRequest_BuiltinAgent {
+	tdp := agent.TemplateDelimiters(service)
+	dnsParams := models.DSNParams{
+		DialTimeout: clickhouseDialTimeout,
+		Database:    service.DatabaseName,
+	}
+
+	return &agentv1.SetStateRequest_BuiltinAgent{
+		Type:                   inventoryv1.AgentType_AGENT_TYPE_QAN_CLICKHOUSE_QUERYLOG_AGENT,
+		Dsn:                    agent.DSN(service, dnsParams, nil, pmmAgentVersion),
+		MaxQueryLength:         agent.QANOptions.MaxQueryLength,
+		DisableCommentsParsing: agent.QANOptions.CommentsParsingDisabled,
+		TextFiles: &agentv1.TextFiles{
+			Files:              agent.Files(),
+			TemplateLeftDelim:  tdp.Left,
+			TemplateRightDelim: tdp.Right,
+		},
+	}
+}

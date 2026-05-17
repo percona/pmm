@@ -79,6 +79,7 @@ const (
 	NomadAgentType                      AgentType = "nomad-agent"
 	ValkeyExporterType                  AgentType = "valkey_exporter"
 	ClickHouseExporterType              AgentType = "clickhouse_exporter"
+	QANClickHouseQueryLogAgentType      AgentType = "qan-clickhouse-querylog-agent"
 	RTAMongoDBAgentType                 AgentType = "rta-mongodb-agent"
 )
 
@@ -840,7 +841,7 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 
 		return dsn
 
-	case ClickHouseExporterType:
+	case ClickHouseExporterType, QANClickHouseQueryLogAgentType:
 		urlScheme := "clickhouse"
 		address := ""
 		if socket == "" {
@@ -1010,7 +1011,7 @@ func (s Agent) Files() map[string]string {
 		}
 
 		return nil
-	case ClickHouseExporterType:
+	case ClickHouseExporterType, QANClickHouseQueryLogAgentType:
 		files := make(map[string]string)
 
 		if s.ClickHouseOptions.SSLCa != "" {

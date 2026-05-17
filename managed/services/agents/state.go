@@ -240,7 +240,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			models.ValkeyExporterType, models.ClickHouseExporterType, models.QANMySQLPerfSchemaAgentType, models.QANMySQLSlowlogAgentType,
 			models.QANMongoDBProfilerAgentType, models.QANMongoDBMongologAgentType,
 			models.QANPostgreSQLPgStatementsAgentType, models.QANPostgreSQLPgStatMonitorAgentType,
-			models.RTAMongoDBAgentType:
+			models.QANClickHouseQueryLogAgentType, models.RTAMongoDBAgentType:
 			service, err := models.FindServiceByID(u.db.Querier, pointer.GetString(row.ServiceID))
 			if err != nil {
 				return err
@@ -283,6 +283,8 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 				builtinAgents[row.AgentID] = qanPostgreSQLPgStatementsAgentConfig(service, row, pmmAgentVersion)
 			case models.QANPostgreSQLPgStatMonitorAgentType:
 				builtinAgents[row.AgentID] = qanPostgreSQLPgStatMonitorAgentConfig(service, row, pmmAgentVersion)
+			case models.QANClickHouseQueryLogAgentType:
+				builtinAgents[row.AgentID] = qanClickHouseQueryLogAgentConfig(service, row, pmmAgentVersion)
 			case models.RTAMongoDBAgentType:
 				builtinAgents[row.AgentID] = rtaMongoDBAgentConfig(service, row, pmmAgentVersion)
 			}

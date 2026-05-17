@@ -52,6 +52,8 @@ var agentTypes = map[inventoryv1.AgentType]models.AgentType{
 	inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT:         models.QANMongoDBProfilerAgentType,
 	inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT:  models.QANPostgreSQLPgStatementsAgentType,
 	inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT: models.QANPostgreSQLPgStatMonitorAgentType,
+	inventoryv1.AgentType_AGENT_TYPE_CLICKHOUSE_EXPORTER:                models.ClickHouseExporterType,
+	inventoryv1.AgentType_AGENT_TYPE_QAN_CLICKHOUSE_QUERYLOG_AGENT:      models.QANClickHouseQueryLogAgentType,
 	inventoryv1.AgentType_AGENT_TYPE_RDS_EXPORTER:                       models.RDSExporterType,
 	inventoryv1.AgentType_AGENT_TYPE_EXTERNAL_EXPORTER:                  models.ExternalExporterType,
 	inventoryv1.AgentType_AGENT_TYPE_AZURE_DATABASE_EXPORTER:            models.AzureDatabaseExporterType,
@@ -112,6 +114,8 @@ func (s *agentsServer) ListAgents(ctx context.Context, req *inventoryv1.ListAgen
 			res.QanPostgresqlPgstatementsAgent = append(res.QanPostgresqlPgstatementsAgent, agent)
 		case *inventoryv1.QANPostgreSQLPgStatMonitorAgent:
 			res.QanPostgresqlPgstatmonitorAgent = append(res.QanPostgresqlPgstatmonitorAgent, agent)
+		case *inventoryv1.QANClickHouseQueryLogAgent:
+			res.QanClickhouseQuerylogAgent = append(res.QanClickhouseQuerylogAgent, agent)
 		case *inventoryv1.RDSExporter:
 			res.RdsExporter = append(res.RdsExporter, agent)
 		case *inventoryv1.ExternalExporter:
@@ -168,6 +172,8 @@ func (s *agentsServer) GetAgent(ctx context.Context, req *inventoryv1.GetAgentRe
 		res.Agent = &inventoryv1.GetAgentResponse_QanPostgresqlPgstatementsAgent{QanPostgresqlPgstatementsAgent: agent}
 	case *inventoryv1.QANPostgreSQLPgStatMonitorAgent:
 		res.Agent = &inventoryv1.GetAgentResponse_QanPostgresqlPgstatmonitorAgent{QanPostgresqlPgstatmonitorAgent: agent}
+	case *inventoryv1.QANClickHouseQueryLogAgent:
+		res.Agent = &inventoryv1.GetAgentResponse_QanClickhouseQuerylogAgent{QanClickhouseQuerylogAgent: agent}
 	case *inventoryv1.RDSExporter:
 		res.Agent = &inventoryv1.GetAgentResponse_RdsExporter{RdsExporter: agent}
 	case *inventoryv1.ExternalExporter:
@@ -234,6 +240,8 @@ func (s *agentsServer) AddAgent(ctx context.Context, req *inventoryv1.AddAgentRe
 		return s.s.AddQANPostgreSQLPgStatementsAgent(ctx, req.GetQanPostgresqlPgstatementsAgent())
 	case *inventoryv1.AddAgentRequest_QanPostgresqlPgstatmonitorAgent:
 		return s.s.AddQANPostgreSQLPgStatMonitorAgent(ctx, req.GetQanPostgresqlPgstatmonitorAgent())
+	case *inventoryv1.AddAgentRequest_QanClickhouseQuerylogAgent:
+		return s.s.AddQANClickHouseQueryLogAgent(ctx, req.GetQanClickhouseQuerylogAgent())
 	case *inventoryv1.AddAgentRequest_RtaMongodbAgent:
 		return s.s.AddRTAMongoDBAgent(ctx, req.GetRtaMongodbAgent())
 	default:
@@ -276,6 +284,8 @@ func (s *agentsServer) ChangeAgent(ctx context.Context, req *inventoryv1.ChangeA
 		return s.s.ChangeQANPostgreSQLPgStatementsAgent(ctx, agentID, req.GetQanPostgresqlPgstatementsAgent())
 	case *inventoryv1.ChangeAgentRequest_QanPostgresqlPgstatmonitorAgent:
 		return s.s.ChangeQANPostgreSQLPgStatMonitorAgent(ctx, agentID, req.GetQanPostgresqlPgstatmonitorAgent())
+	case *inventoryv1.ChangeAgentRequest_QanClickhouseQuerylogAgent:
+		return s.s.ChangeQANClickHouseQueryLogAgent(ctx, agentID, req.GetQanClickhouseQuerylogAgent())
 	case *inventoryv1.ChangeAgentRequest_NomadAgent:
 		return s.s.ChangeNomadAgent(ctx, agentID, req.GetNomadAgent())
 	case *inventoryv1.ChangeAgentRequest_RtaMongodbAgent:
