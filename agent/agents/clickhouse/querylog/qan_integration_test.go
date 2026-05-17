@@ -36,16 +36,23 @@
 // package querylog precisely so it can reach those methods.
 //
 // Query-log flush: ClickHouse buffers system.query_log rows and flushes them
-// asynchronously (default flush_interval_milliseconds = 7500). The agent never
-// issues SYSTEM FLUSH LOGS, and neither does this test — instead it polls
-// system.query_log until the expected rows appear, which is exactly how a real
-// deployment behaves and keeps the assertion free of a privileged statement.
+// asynchronously (default flush_interval_milliseconds = 7500). Worse, on a
+// fresh server system.query_log does not exist at all until the first flush
+// has happened — querying it before then fails hard with ClickHouse error
+// code 60 (UNKNOWN_TABLE). The production agent handles this lazily via its
+// preflight/WAITING path and must never issue SYSTEM FLUSH LOGS. The test has
+// no such constraint: after running its workload it issues SYSTEM FLUSH LOGS
+// itself to force system.query_log into existence and flush pending rows,
+// then polls for its own marker rows. The poll additionally tolerates a
+// transient code-60 error so it stays deterministic against a server whose
+// table has not materialised yet.
 
 package querylog
 
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"os"
 	"slices"
@@ -53,7 +60,7 @@ import (
 	"testing"
 	"time"
 
-	_ "github.com/ClickHouse/clickhouse-go/v2" // database/sql driver "clickhouse"
+	"github.com/ClickHouse/clickhouse-go/v2" // database/sql driver "clickhouse" + clickhouse.Exception
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -198,13 +205,20 @@ func generateWorkload(t *testing.T, db *sql.DB, marker, table string) {
 	// log_queries must be on for system.query_log to be populated, and
 	// log_comment tags every row with the run marker so the flush poll and
 	// assertions ignore unrelated activity. The agent never changes server
-	// settings, so the workload session enables these per statement; the
-	// SETTINGS clause is placed where ClickHouse's grammar accepts it (after
-	// the table definition / SELECT body, and before VALUES for an INSERT).
+	// settings, so the workload session enables these per statement.
+	//
+	// These are query/session-level settings, NOT table storage settings:
+	// ClickHouse 24.x rejects a non-storage SETTINGS clause on a Memory-engine
+	// CREATE TABLE (error 115, UNKNOWN_SETTING), while 25.x+ tolerates it. The
+	// SETTINGS clause therefore goes only on the workload queries whose
+	// execution must be logged — the SELECTs and the INSERT — placed where
+	// ClickHouse's grammar accepts it (after the SELECT body, and before VALUES
+	// for an INSERT). The CREATE TABLE carries no query settings and is not
+	// logged; it is not part of the workload the agent must observe.
 	settings := fmt.Sprintf(" SETTINGS log_queries = 1, log_comment = '%s'", marker)
 
 	_, err := db.ExecContext(ctx,
-		fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s (n UInt64) ENGINE = Memory%s", table, settings))
+		fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s (n UInt64) ENGINE = Memory", table))
 	require.NoError(t, err, "creating the per-run table must succeed")
 	t.Cleanup(func() {
 		dropCtx, dropCancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -226,14 +240,25 @@ func generateWorkload(t *testing.T, db *sql.DB, marker, table string) {
 	require.NoError(t, err, "workload INSERT must succeed")
 }
 
-// waitForQueryLog polls system.query_log until this run's finished queries are
-// visible, i.e. until ClickHouse has flushed its in-memory buffer. The test
-// deliberately does not issue SYSTEM FLUSH LOGS — it waits for the same
-// asynchronous flush the agent relies on in production.
+// clickHouseUnknownTableCode is ClickHouse error code 60 (UNKNOWN_TABLE),
+// returned when system.query_log is queried before it has been materialised
+// on a fresh server.
+const clickHouseUnknownTableCode = 60
+
+// waitForQueryLog forces this run's finished queries to become visible and
+// polls until they are. On a fresh server system.query_log does not exist
+// until the first flush, so the test issues SYSTEM FLUSH LOGS itself — which
+// both creates the table and flushes the in-memory buffer — then polls for the
+// run's marker rows. The poll tolerates a transient ClickHouse code-60
+// (UNKNOWN_TABLE) error so it keeps waiting if the table has not materialised
+// yet, rather than treating that window as a hard failure.
 func waitForQueryLog(t *testing.T, db *sql.DB, marker string) {
 	t.Helper()
-	// Expected finished rows: selectQueryCount SELECTs + 1 CREATE + 1 INSERT.
-	const wantRows = selectQueryCount + 2
+	// Expected finished rows: selectQueryCount SELECTs + 1 INSERT. The CREATE
+	// TABLE carries no log_queries setting and is intentionally not logged.
+	const wantRows = selectQueryCount + 1
+
+	flushQueryLog(t, db)
 
 	deadline := time.Now().Add(flushPollTimeout)
 	for {
@@ -244,18 +269,61 @@ func waitForQueryLog(t *testing.T, db *sql.DB, marker string) {
 				"WHERE type = ? AND log_comment = ?",
 			queryLogTypeQueryFinish, marker).Scan(&got)
 		cancel()
-		require.NoError(t, err, "reading system.query_log must succeed")
 
-		if got >= wantRows {
-			t.Logf("system.query_log flushed: %d finished rows for marker", got)
-			return
+		switch {
+		case err == nil:
+			if got >= wantRows {
+				t.Logf("system.query_log flushed: %d finished rows for marker", got)
+				return
+			}
+		case isUnknownTableError(err):
+			// system.query_log has not materialised yet — keep waiting.
+			t.Logf("system.query_log not yet materialised, retrying: %v", err)
+		default:
+			require.NoError(t, err, "reading system.query_log must succeed")
 		}
+
 		if time.Now().After(deadline) {
 			t.Fatalf("system.query_log did not flush %d rows within %s (got %d)",
 				wantRows, flushPollTimeout, got)
 		}
 		time.Sleep(500 * time.Millisecond)
+		// Re-flush on each iteration so a node whose table appeared only just
+		// now still gets its buffered rows pushed before the next poll.
+		flushQueryLog(t, db)
 	}
+}
+
+// flushQueryLog issues SYSTEM FLUSH LOGS, which both creates system.query_log
+// on a fresh server and flushes its buffered rows. Only the test does this;
+// the production agent must never flush. A failure here is not fatal — the
+// bounded poll in waitForQueryLog still governs success — so it is logged and
+// the caller proceeds.
+func flushQueryLog(t *testing.T, db *sql.DB) {
+	t.Helper()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	_, err := db.ExecContext(ctx, "SYSTEM FLUSH LOGS")
+	if err != nil {
+		t.Logf("SYSTEM FLUSH LOGS failed (will rely on poll): %v", err)
+	}
+}
+
+// isUnknownTableError reports whether err is a ClickHouse UNKNOWN_TABLE
+// (code 60) error, raised when system.query_log is queried before it has been
+// created on a fresh server.
+func isUnknownTableError(err error) bool {
+	if err == nil {
+		return false
+	}
+	var chErr *clickhouse.Exception
+	if errors.As(err, &chErr) {
+		return chErr.Code == clickHouseUnknownTableCode
+	}
+	// Fallback for driver/transport wrappers that do not surface the typed
+	// exception: match the code in the message text.
+	return strings.Contains(err.Error(), "code: 60") ||
+		strings.Contains(err.Error(), "UNKNOWN_TABLE")
 }
 
 // collectOnce drives the agent through exactly one collection interval —
