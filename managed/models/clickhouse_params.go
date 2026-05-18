@@ -33,7 +33,7 @@ func (p *ClickHouseParams) ExternalClickHouse() bool {
 	return p.url.Hostname() != "127.0.0.1"
 }
 
-// URL returns the ClickHouse DSN.
+// URL returns the ClickHouse URL.
 func (p *ClickHouseParams) URL() *url.URL {
 	u := *p.url
 	return &u
