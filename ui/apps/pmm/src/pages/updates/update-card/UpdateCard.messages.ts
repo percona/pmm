@@ -11,4 +11,18 @@ export const Messages = {
   checking: 'Checking',
   updateNow: 'Update now',
   error: 'There was a problem during the update',
+
+  deprecation: {
+    heading: 'UI upgrades deprecated',
+    paragraph1BeforeUpdateNow: ': This ',
+    paragraph1AfterUpdateNow: ' button will be removed in PMM 3.9.0.',
+    viaIntro: 'After that, PMM upgrades will only be available via\u00a0',
+    docker: 'Docker',
+    afterDocker: ' (recommended), ',
+    podman: 'Podman',
+    afterPodman: ', or ',
+    helm: 'Helm',
+    afterHelm: '.',
+    reminder: 'Switch before then to keep upgrading PMM to newer versions.',
+  },
 };

@@ -21,8 +21,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/lib/pq"
+	"github.com/lib/pq/pqerror"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -37,7 +37,7 @@ func assertUniqueViolation(t *testing.T, err error, constraint string) {
 
 	require.IsType(t, &pq.Error{}, err)
 	pgErr := err.(*pq.Error) //nolint:errorlint
-	assert.EqualValues(t, pq.ErrorCode("23505"), pgErr.Code)
+	assert.Equal(t, pqerror.Code("23505"), pgErr.Code)
 	assert.Equal(t, fmt.Sprintf(`duplicate key value violates unique constraint %q`, constraint), pgErr.Message)
 }
 
@@ -46,7 +46,7 @@ func assertCheckViolation(t *testing.T, err error, table, constraint string) { /
 
 	require.IsType(t, &pq.Error{}, err)
 	pgErr := err.(*pq.Error) //nolint:errorlint
-	assert.EqualValues(t, pq.ErrorCode("23514"), pgErr.Code)
+	assert.Equal(t, pqerror.Code("23514"), pgErr.Code)
 	assert.Equal(t, fmt.Sprintf(`new row for relation %q violates check constraint %q`, table, constraint), pgErr.Message)
 }
 
@@ -355,7 +355,7 @@ func TestDatabaseChecks(t *testing.T) {
 
 func TestDatabaseMigrations(t *testing.T) {
 	t.Run("push metrics field migration: from root to exporter_options", func(t *testing.T) {
-		sqlDB := testdb.Open(t, models.SkipFixtures, pointer.ToInt(58))
+		sqlDB := testdb.Open(t, models.SkipFixtures, new(58))
 		defer sqlDB.Close() //nolint:errcheck
 
 		// Insert dummy node in DB
@@ -379,7 +379,7 @@ func TestDatabaseMigrations(t *testing.T) {
 		require.NoError(t, err)
 
 		// Apply migration
-		testdb.SetupDB(t, sqlDB, models.SkipFixtures, pointer.ToInt(107))
+		testdb.SetupDB(t, sqlDB, models.SkipFixtures, new(107))
 
 		var agentID string
 		var exporterOptions models.ExporterOptions

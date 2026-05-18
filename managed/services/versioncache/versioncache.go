@@ -20,7 +20,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
@@ -74,7 +73,7 @@ func (s *Service) findServiceForUpdate() (*service, error) {
 	results := &service{CheckAfter: minCheckInterval}
 
 	if err := s.db.InTransaction(func(tx *reform.TX) error {
-		filter := models.FindServicesSoftwareVersionsFilter{Limit: pointer.ToInt(1)}
+		filter := models.FindServicesSoftwareVersionsFilter{Limit: new(1)}
 		servicesVersions, err := models.FindServicesSoftwareVersions(
 			tx.Querier,
 			filter,
@@ -125,10 +124,9 @@ func (s *Service) findServiceForUpdate() (*service, error) {
 
 		// shift the next check time for this service, so, in case of versions fetch error,
 		// it will not loop in trying, but will continue with other services.
-		nextCheckAt := time.Now().UTC().Add(serviceCheckShortInterval)
 		if _, err := models.UpdateServiceSoftwareVersions(
 			tx.Querier, servicesVersions[0].ServiceID,
-			models.UpdateServiceSoftwareVersionsParams{NextCheckAt: &nextCheckAt},
+			models.UpdateServiceSoftwareVersionsParams{NextCheckAt: new(time.Now().UTC().Add(serviceCheckShortInterval))},
 		); err != nil {
 			return err
 		}
@@ -185,11 +183,10 @@ func (s *Service) updateVersionsForNextService() (time.Duration, error) {
 		})
 	}
 
-	nextCheckAt := time.Now().UTC().Add(serviceCheckInterval)
 	if _, err := models.UpdateServiceSoftwareVersions(
 		s.db.Querier, serviceForUpdate.ServiceID,
 		models.UpdateServiceSoftwareVersionsParams{
-			NextCheckAt:      &nextCheckAt,
+			NextCheckAt:      new(time.Now().UTC().Add(serviceCheckInterval)),
 			SoftwareVersions: svs,
 		},
 	); err != nil {

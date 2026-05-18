@@ -13,13 +13,20 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-//go:build tools
-// +build tools
-
-package tools
+// Package duration provides utilities for working with time durations.
+package duration
 
 import (
-	_ "github.com/jstemmer/go-junit-report"
+	"time"
+
+	durationpb "google.golang.org/protobuf/types/known/durationpb"
 )
 
-//go:generate go build -o ../bin/go-junit-report github.com/jstemmer/go-junit-report
+// OptionalFromProto converts a protobuf Duration to a *time.Duration, preserving nil vs zero.
+func OptionalFromProto(d *durationpb.Duration) *time.Duration {
+	if d == nil {
+		return nil
+	}
+
+	return new(d.AsDuration())
+}

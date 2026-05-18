@@ -16,7 +16,6 @@
 package models_test
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -82,7 +81,7 @@ func TestRoleHelpers(t *testing.T) {
 		defer teardown(t)
 
 		err := models.AssignRoles(tx, userID, []int{0})
-		require.True(t, errors.Is(err, models.ErrRoleNotFound))
+		require.ErrorIs(t, err, models.ErrRoleNotFound)
 	})
 
 	//nolint:paralleltest

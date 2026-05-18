@@ -67,7 +67,7 @@ func TestServiceHelpers(t *testing.T) {
 				ServiceType: models.MongoDBServiceType,
 				ServiceName: "Service without Agents",
 				NodeID:      "N1",
-				Address:     pointer.ToString("127.0.0.1"),
+				Address:     new("127.0.0.1"),
 				Port:        pointer.ToUint16OrNil(27017),
 			},
 			&models.Service{
@@ -75,7 +75,7 @@ func TestServiceHelpers(t *testing.T) {
 				ServiceType: models.MySQLServiceType,
 				ServiceName: "Service with Agents",
 				NodeID:      "N1",
-				Address:     pointer.ToString("127.0.0.1"),
+				Address:     new("127.0.0.1"),
 				Port:        pointer.ToUint16OrNil(3306),
 			},
 			&models.Service{
@@ -83,7 +83,7 @@ func TestServiceHelpers(t *testing.T) {
 				ServiceType: models.ValkeyServiceType,
 				ServiceName: "Standalone Valkey Service",
 				NodeID:      "N1",
-				Address:     pointer.ToString("127.0.0.1"),
+				Address:     new("127.0.0.1"),
 				Port:        pointer.ToUint16OrNil(6379),
 			},
 			&models.Service{
@@ -105,7 +105,7 @@ func TestServiceHelpers(t *testing.T) {
 				ServiceType: models.ProxySQLServiceType,
 				ServiceName: "Fifth service",
 				NodeID:      "N1",
-				Address:     pointer.ToString("127.0.0.1"),
+				Address:     new("127.0.0.1"),
 				Port:        pointer.ToUint16OrNil(6032),
 			},
 			&models.Service{
@@ -120,7 +120,7 @@ func TestServiceHelpers(t *testing.T) {
 				ServiceType:   models.ExternalServiceType,
 				ServiceName:   "Seventh service",
 				NodeID:        "N2",
-				Address:       pointer.ToString("127.0.0.1"),
+				Address:       new("127.0.0.1"),
 				Port:          pointer.ToUint16OrNil(6379),
 				ExternalGroup: "redis",
 				CreatedAt:     now,
@@ -136,13 +136,13 @@ func TestServiceHelpers(t *testing.T) {
 			&models.Agent{
 				AgentID:      "A1",
 				AgentType:    models.PMMAgentType,
-				RunsOnNodeID: pointer.ToString("N1"),
+				RunsOnNodeID: new("N1"),
 			},
 			&models.Agent{
 				AgentID:    "A2",
 				AgentType:  models.MySQLdExporterType,
-				PMMAgentID: pointer.ToString("A1"),
-				ServiceID:  pointer.ToString("S2"),
+				PMMAgentID: new("A1"),
+				ServiceID:  new("S2"),
 			},
 		} {
 			require.NoError(t, q.Insert(str))
@@ -166,12 +166,12 @@ func TestServiceHelpers(t *testing.T) {
 		services, err = models.FindServices(q, models.ServiceFilters{NodeID: "N1"})
 		assert.NoError(t, err)
 		assert.Len(t, services, 4)
-		assert.Equal(t, services, []*models.Service{{
+		assert.Equal(t, []*models.Service{{
 			ServiceID:   "S1",
 			ServiceType: models.MongoDBServiceType,
 			ServiceName: "Service without Agents",
 			NodeID:      "N1",
-			Address:     pointer.ToString("127.0.0.1"),
+			Address:     new("127.0.0.1"),
 			Port:        pointer.ToUint16OrNil(27017),
 			CreatedAt:   now,
 			UpdatedAt:   now,
@@ -180,7 +180,7 @@ func TestServiceHelpers(t *testing.T) {
 			ServiceType: models.MySQLServiceType,
 			ServiceName: "Service with Agents",
 			NodeID:      "N1",
-			Address:     pointer.ToString("127.0.0.1"),
+			Address:     new("127.0.0.1"),
 			Port:        pointer.ToUint16OrNil(3306),
 			CreatedAt:   now,
 			UpdatedAt:   now,
@@ -189,7 +189,7 @@ func TestServiceHelpers(t *testing.T) {
 			ServiceType: models.ValkeyServiceType,
 			ServiceName: "Standalone Valkey Service",
 			NodeID:      "N1",
-			Address:     pointer.ToString("127.0.0.1"),
+			Address:     new("127.0.0.1"),
 			Port:        pointer.ToUint16OrNil(6379),
 			CreatedAt:   now,
 			UpdatedAt:   now,
@@ -198,30 +198,30 @@ func TestServiceHelpers(t *testing.T) {
 			ServiceType: models.ProxySQLServiceType,
 			ServiceName: "Fifth service",
 			NodeID:      "N1",
-			Address:     pointer.ToString("127.0.0.1"),
+			Address:     new("127.0.0.1"),
 			Port:        pointer.ToUint16OrNil(6032),
 			CreatedAt:   now,
 			UpdatedAt:   now,
-		}})
+		}}, services)
 
-		services, err = models.FindServices(q, models.ServiceFilters{NodeID: "N1", ServiceType: pointerToServiceType(models.MySQLServiceType)})
+		services, err = models.FindServices(q, models.ServiceFilters{NodeID: "N1", ServiceType: new(models.MySQLServiceType)})
 		assert.NoError(t, err)
 		assert.Len(t, services, 1)
-		assert.Equal(t, services, []*models.Service{{
+		assert.Equal(t, []*models.Service{{
 			ServiceID:   "S2",
 			ServiceType: models.MySQLServiceType,
 			ServiceName: "Service with Agents",
 			NodeID:      "N1",
-			Address:     pointer.ToString("127.0.0.1"),
+			Address:     new("127.0.0.1"),
 			Port:        pointer.ToUint16OrNil(3306),
 			CreatedAt:   now,
 			UpdatedAt:   now,
-		}})
+		}}, services)
 
-		services, err = models.FindServices(q, models.ServiceFilters{NodeID: "N2", ServiceType: pointerToServiceType(models.ExternalServiceType)})
+		services, err = models.FindServices(q, models.ServiceFilters{NodeID: "N2", ServiceType: new(models.ExternalServiceType)})
 		assert.NoError(t, err)
 		assert.Len(t, services, 2)
-		assert.Equal(t, services, []*models.Service{
+		assert.Equal(t, []*models.Service{
 			{
 				ServiceID:     "S4",
 				ServiceType:   models.ExternalServiceType,
@@ -236,18 +236,18 @@ func TestServiceHelpers(t *testing.T) {
 				ServiceType:   models.ExternalServiceType,
 				ServiceName:   "Seventh service",
 				NodeID:        "N2",
-				Address:       pointer.ToString("127.0.0.1"),
+				Address:       new("127.0.0.1"),
 				Port:          pointer.ToUint16OrNil(6379),
 				ExternalGroup: "redis",
 				CreatedAt:     now,
 				UpdatedAt:     now,
 			},
-		})
+		}, services)
 
-		services, err = models.FindServices(q, models.ServiceFilters{NodeID: "N2", ServiceType: pointerToServiceType(models.ProxySQLServiceType)})
+		services, err = models.FindServices(q, models.ServiceFilters{NodeID: "N2", ServiceType: new(models.ProxySQLServiceType)})
 		assert.NoError(t, err)
 		assert.Len(t, services, 1)
-		assert.Equal(t, services, []*models.Service{{
+		assert.Equal(t, []*models.Service{{
 			ServiceID:   "S6",
 			ServiceType: models.ProxySQLServiceType,
 			ServiceName: "Sixth service",
@@ -255,34 +255,34 @@ func TestServiceHelpers(t *testing.T) {
 			NodeID:      "N2",
 			CreatedAt:   now,
 			UpdatedAt:   now,
-		}})
+		}}, services)
 
 		services, err = models.FindServices(q, models.ServiceFilters{ExternalGroup: "redis"})
 		assert.NoError(t, err)
 		assert.Len(t, services, 1)
-		assert.Equal(t, services, []*models.Service{{
+		assert.Equal(t, []*models.Service{{
 			ServiceID:     "S7",
 			ServiceType:   models.ExternalServiceType,
 			ServiceName:   "Seventh service",
 			NodeID:        "N2",
-			Address:       pointer.ToString("127.0.0.1"),
+			Address:       new("127.0.0.1"),
 			Port:          pointer.ToUint16OrNil(6379),
 			ExternalGroup: "redis",
 			CreatedAt:     now,
 			UpdatedAt:     now,
-		}})
+		}}, services)
 
-		services, err = models.FindServices(q, models.ServiceFilters{NodeID: "N2", ServiceType: pointerToServiceType(models.HAProxyServiceType)})
+		services, err = models.FindServices(q, models.ServiceFilters{NodeID: "N2", ServiceType: new(models.HAProxyServiceType)})
 		assert.NoError(t, err)
 		assert.Len(t, services, 1)
-		assert.Equal(t, services, []*models.Service{{
+		assert.Equal(t, []*models.Service{{
 			ServiceID:   "S8",
 			ServiceType: models.HAProxyServiceType,
 			ServiceName: "Eighth service",
 			NodeID:      "N2",
 			CreatedAt:   now,
 			UpdatedAt:   now,
-		}})
+		}}, services)
 	})
 
 	t.Run("FindActiveServiceTypes", func(t *testing.T) {
@@ -329,9 +329,9 @@ func TestServiceHelpers(t *testing.T) {
 		_, err := models.AddNewService(q, models.MySQLServiceType, &models.AddDBMSServiceParams{
 			ServiceName: "test-mysql-socket-address",
 			NodeID:      "N1",
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(3306),
-			Socket:      pointer.ToString("/var/run/mysqld/mysqld.sock"),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(3306)),
+			Socket:      new("/var/run/mysqld/mysqld.sock"),
 		})
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Socket and address cannot be specified together.`), err)
 	})
@@ -354,9 +354,9 @@ func TestServiceHelpers(t *testing.T) {
 		_, err := models.AddNewService(q, models.PostgreSQLServiceType, &models.AddDBMSServiceParams{
 			ServiceName: "test-postgresql-socket-address",
 			NodeID:      "N1",
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(5432),
-			Socket:      pointer.ToString("/var/run/postgresql"),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(5432)),
+			Socket:      new("/var/run/postgresql"),
 		})
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Socket and address cannot be specified together.`), err)
 	})
@@ -379,9 +379,9 @@ func TestServiceHelpers(t *testing.T) {
 		_, err := models.AddNewService(q, models.MongoDBServiceType, &models.AddDBMSServiceParams{
 			ServiceName: "test-mongodb-socket-address",
 			NodeID:      "N1",
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(27017),
-			Socket:      pointer.ToString("/tmp/mongodb-27017.sock"),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(27017)),
+			Socket:      new("/tmp/mongodb-27017.sock"),
 		})
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Socket and address cannot be specified together.`), err)
 	})
@@ -414,9 +414,9 @@ func TestServiceHelpers(t *testing.T) {
 		_, err := models.AddNewService(q, models.ProxySQLServiceType, &models.AddDBMSServiceParams{
 			ServiceName: "test-proxysql-socket-address",
 			NodeID:      "N1",
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(6032),
-			Socket:      pointer.ToString("/tmp/proxysql_admin.sock"),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(6032)),
+			Socket:      new("/tmp/proxysql_admin.sock"),
 		})
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Socket and address cannot be specified together.`), err)
 	})
@@ -428,7 +428,7 @@ func TestServiceHelpers(t *testing.T) {
 			ServiceName: "mongors1",
 			NodeID:      "N1",
 			Cluster:     "cluster0",
-			Address:     pointer.ToString("127.0.0.1"),
+			Address:     new("127.0.0.1"),
 			Port:        pointer.ToUint16OrNil(27017),
 		})
 		require.NoError(t, err)
@@ -437,7 +437,7 @@ func TestServiceHelpers(t *testing.T) {
 			ServiceName: "mongors2",
 			NodeID:      "N1",
 			Cluster:     "cluster0",
-			Address:     pointer.ToString("127.0.0.1"),
+			Address:     new("127.0.0.1"),
 			Port:        pointer.ToUint16OrNil(27017),
 		})
 		require.NoError(t, err)
@@ -445,13 +445,13 @@ func TestServiceHelpers(t *testing.T) {
 			ServiceName: "mongors3",
 			NodeID:      "N1",
 			Cluster:     "cluster1",
-			Address:     pointer.ToString("127.0.0.1"),
+			Address:     new("127.0.0.1"),
 			Port:        pointer.ToUint16OrNil(27017),
 		})
 		require.NoError(t, err)
 
 		services, err := models.FindServices(q, models.ServiceFilters{
-			ServiceType: pointerToServiceType(models.MongoDBServiceType),
+			ServiceType: new(models.MongoDBServiceType),
 			Cluster:     "cluster0",
 		})
 		assert.NoError(t, err)
@@ -467,26 +467,26 @@ func TestServiceHelpers(t *testing.T) {
 			NodeID:        "N1",
 			Cluster:       "cluster0",
 			ExternalGroup: "ext",
-			Address:       pointer.ToString("127.0.0.1"),
+			Address:       new("127.0.0.1"),
 			Port:          pointer.ToUint16OrNil(27017),
 		})
 		require.NoError(t, err)
 
 		err = models.ChangeStandardLabels(q, s.ServiceID, models.ServiceStandardLabelsParams{
-			Cluster:        pointer.ToString("cluster"),
-			Environment:    pointer.ToString("env"),
-			ReplicationSet: pointer.ToString("rs"),
-			ExternalGroup:  pointer.ToString("external"),
+			Cluster:        new("cluster"),
+			Environment:    new("env"),
+			ReplicationSet: new("rs"),
+			ExternalGroup:  new("external"),
 		})
 		require.NoError(t, err)
 
 		ns, err := models.FindServiceByID(q, s.ServiceID)
 		require.NoError(t, err)
 
-		assert.Equal(t, ns.Cluster, "cluster")
-		assert.Equal(t, ns.Environment, "env")
-		assert.Equal(t, ns.ReplicationSet, "rs")
-		assert.Equal(t, ns.ExternalGroup, "external")
+		assert.Equal(t, "cluster", ns.Cluster)
+		assert.Equal(t, "env", ns.Environment)
+		assert.Equal(t, "rs", ns.ReplicationSet)
+		assert.Equal(t, "external", ns.ExternalGroup)
 	})
 
 	t.Run("Software versions record created when adding a service", func(t *testing.T) {
@@ -502,7 +502,7 @@ func TestServiceHelpers(t *testing.T) {
 		s1, err := models.AddNewService(q, models.MySQLServiceType, &models.AddDBMSServiceParams{
 			ServiceName: "mysql",
 			NodeID:      "N1",
-			Address:     pointer.ToString("127.0.0.1"),
+			Address:     new("127.0.0.1"),
 			Port:        pointer.ToUint16OrNil(3306),
 		})
 		require.NoError(t, err)
@@ -510,7 +510,7 @@ func TestServiceHelpers(t *testing.T) {
 		s2, err := models.AddNewService(q, models.MongoDBServiceType, &models.AddDBMSServiceParams{
 			ServiceName: "mongo",
 			NodeID:      "N1",
-			Address:     pointer.ToString("127.0.0.1"),
+			Address:     new("127.0.0.1"),
 			Port:        pointer.ToUint16OrNil(27017),
 		})
 		require.NoError(t, err)
@@ -519,7 +519,7 @@ func TestServiceHelpers(t *testing.T) {
 			ServiceName: "postgres",
 			NodeID:      "N1",
 			Cluster:     "cluster1",
-			Address:     pointer.ToString("127.0.0.1"),
+			Address:     new("127.0.0.1"),
 			Port:        pointer.ToUint16OrNil(5432),
 		})
 		require.NoError(t, err)
