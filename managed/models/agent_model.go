@@ -51,15 +51,16 @@ const (
 	// AgentStatusUnknown indicates we know nothing about agent because it is not connected.
 	AgentStatusUnknown = "AGENT_STATUS_UNKNOWN"
 	// AgentStatusDone indicates thay the agent has either been stopped or disabled.
-	agentStatusDone    = "AGENT_STATUS_DONE"
-	tcp                = "tcp"
-	trueStr            = "true"
-	unix               = "unix"
-	skipVerify         = "skip-verify"
-	defaultDialTimeout = 2 * time.Second
-	valkeyDialTimeout  = 3 * time.Second
-	agentIDLabel       = "agent_id"
-	agentTypeLabel     = "agent_type"
+	agentStatusDone       = "AGENT_STATUS_DONE"
+	tcp                   = "tcp"
+	trueStr               = "true"
+	unix                  = "unix"
+	skipVerify            = "skip-verify"
+	defaultDialTimeout    = 2 * time.Second
+	valkeyDialTimeout     = 3 * time.Second
+	clickhouseDialTimeout = 3 * time.Second
+	agentIDLabel          = "agent_id"
+	agentTypeLabel        = "agent_type"
 )
 
 // Agent types (in the same order as in agents.proto).
@@ -890,7 +891,8 @@ func (a *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 // EffectiveDialTimeout returns the database connection timeout for DSN generation.
 // Returns ExporterOptions.ConnectionTimeout if set, otherwise default based on agent type.
 //
-// Defaults: MySQL, MongoDB, ProxySQL, and PostgreSQL use 2s; Valkey uses 3s.
+// Defaults: MySQL, MongoDB, ProxySQL, and PostgreSQL use 2s; Valkey and
+// ClickHouse use 3s.
 //
 // Exporters without DB connection (node, rds, azure, external) don't use this.
 func (a *Agent) EffectiveDialTimeout() time.Duration {
@@ -898,11 +900,14 @@ func (a *Agent) EffectiveDialTimeout() time.Duration {
 		return *a.ExporterOptions.ConnectionTimeout
 	}
 
-	if a.AgentType == ValkeyExporterType {
+	switch a.AgentType {
+	case ValkeyExporterType:
 		return valkeyDialTimeout
+	case ClickHouseExporterType, QANClickHouseQueryLogAgentType:
+		return clickhouseDialTimeout
+	default:
+		return defaultDialTimeout
 	}
-
-	return defaultDialTimeout
 }
 
 // ExporterURL composes URL to an external exporter.

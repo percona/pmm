@@ -660,6 +660,21 @@ func TestEffectiveDialTimeout(t *testing.T) {
 		require.Equal(t, 3*time.Second, a.EffectiveDialTimeout())
 	})
 
+	t.Run("clickhouse agents return 3s default", func(t *testing.T) {
+		t.Parallel()
+
+		for _, typ := range []models.AgentType{
+			models.ClickHouseExporterType,
+			models.QANClickHouseQueryLogAgentType,
+		} {
+			t.Run(string(typ), func(t *testing.T) {
+				t.Parallel()
+				a := &models.Agent{AgentType: typ}
+				require.Equal(t, 3*time.Second, a.EffectiveDialTimeout())
+			})
+		}
+	})
+
 	t.Run("non-exporter agent falls back to 2s", func(t *testing.T) {
 		t.Parallel()
 		a := &models.Agent{AgentType: models.QANMySQLPerfSchemaAgentType}
