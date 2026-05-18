@@ -473,7 +473,14 @@ AS m_locks_database_time_acquiring_micros_read_shared_sum_per_sec,
 if(SUM(m_locks_collection_acquire_count_read_shared_cnt) == 0, NaN, SUM(m_locks_collection_acquire_count_read_shared_sum) / time_frame) 
 AS m_locks_collection_acquire_count_read_shared_sum_per_sec,
 if(SUM(m_storage_bytes_read_cnt) == 0, NaN, SUM(m_storage_bytes_read_sum) / time_frame) AS m_storage_bytes_read_sum_per_sec,
-if(SUM(m_storage_time_reading_micros_cnt) == 0, NaN, SUM(m_storage_time_reading_micros_sum) / time_frame) AS m_storage_time_reading_micros_sum_per_sec
+if(SUM(m_storage_time_reading_micros_cnt) == 0, NaN, SUM(m_storage_time_reading_micros_sum) / time_frame) AS m_storage_time_reading_micros_sum_per_sec,
+if(SUM(m_read_rows_cnt) == 0, NaN, SUM(m_read_rows_sum) / time_frame) AS m_read_rows_sum_per_sec,
+if(SUM(m_read_bytes_cnt) == 0, NaN, SUM(m_read_bytes_sum) / time_frame) AS m_read_bytes_sum_per_sec,
+if(SUM(m_result_rows_cnt) == 0, NaN, SUM(m_result_rows_sum) / time_frame) AS m_result_rows_sum_per_sec,
+if(SUM(m_result_bytes_cnt) == 0, NaN, SUM(m_result_bytes_sum) / time_frame) AS m_result_bytes_sum_per_sec,
+if(SUM(m_memory_usage_cnt) == 0, NaN, SUM(m_memory_usage_sum) / time_frame) AS m_memory_usage_sum_per_sec,
+if(SUM(m_written_rows_cnt) == 0, NaN, SUM(m_written_rows_sum) / time_frame) AS m_written_rows_sum_per_sec,
+if(SUM(m_written_bytes_cnt) == 0, NaN, SUM(m_written_bytes_sum) / time_frame) AS m_written_bytes_sum_per_sec
 
 FROM metrics
 WHERE period_start >= :period_start_from AND period_start <= :period_start_to
