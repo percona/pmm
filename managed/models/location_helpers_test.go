@@ -16,7 +16,6 @@
 package models_test
 
 import (
-	"errors"
 	"fmt"
 	"net/url"
 	"testing"
@@ -336,10 +335,10 @@ func TestBackupLocations(t *testing.T) {
 		require.NoError(t, err)
 
 		_, err = models.FindArtifactByID(q, artifact.ID)
-		require.True(t, errors.Is(err, models.ErrNotFound))
+		require.ErrorIs(t, err, models.ErrNotFound)
 
 		_, err = models.FindRestoreHistoryItemByID(q, rhi.ID)
-		require.True(t, errors.Is(err, models.ErrNotFound))
+		require.ErrorIs(t, err, models.ErrNotFound)
 
 		locations, err := models.FindBackupLocations(q)
 		require.NoError(t, err)

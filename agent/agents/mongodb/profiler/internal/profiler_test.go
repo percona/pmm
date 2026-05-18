@@ -163,7 +163,7 @@ func testProfiler(t *testing.T, url string) {
 
 	responseLength := float32(45)
 
-	assert.Equal(t, dbsCount, len(bucketsMap)) // 300 sample docs / 10 = different database names
+	assert.Len(t, bucketsMap, dbsCount) // 300 sample docs / 10 = different database names
 	var buckets []*agentv1.MetricsBucket
 	for _, bucket := range bucketsMap {
 		buckets = append(buckets, bucket)

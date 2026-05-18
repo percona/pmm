@@ -86,7 +86,6 @@ Performance Monitoring and Management (PMM) offers a range of dashboards you can
     | Dashboard                                                                                | Description |
     |------------------------------------------------------------------------------------------|-------------|
     | [PostgreSQL Instances Overview]                                                          | High-level overview of all PostgreSQL instances
-    | [Experimental PostgreSQL Vacuum Monitoring]                                              | Vacuum operations and table bloat (experimental)
     | [PostgreSQL Instance Summary]                                                            | PostgreSQL instance health and performance
     | [PostgreSQL Instances Compare]                                                           | Compare metrics across PostgreSQL instances
 
@@ -117,7 +116,6 @@ Performance Monitoring and Management (PMM) offers a range of dashboards you can
     |------------------------------------------------------------------------------------------|-------------|
     | [PXC/Galera Node Summary]                                                                | Individual node health in PXC/Galera clusters
     | [PXC/Galera Cluster Summary]                                                             | Cluster-wide health and replication flow
-    | [Experimental PXC/Galera Cluster Summary]                                                | Enhanced cluster monitoring (experimental)
     | [PXC/Galera Nodes Compare]                                                               | Compare metrics across PXC/Galera nodes
     | [HAProxy Instance Summary]                                                               | HAProxy load balancer performance and backend health
 
@@ -168,7 +166,6 @@ Performance Monitoring and Management (PMM) offers a range of dashboards you can
 [MongoDB InMemory Details]: ../../reference/dashboards/dashboard-mongodb-inmemory-details.md
 [MongoDB MMAPv1 Details]: ../../reference/dashboards/dashboard-mongodb-mmapv1-details.md
 [MongoDB WiredTiger Details]: ../../reference/dashboards/dashboard-mongodb-wiredtiger-details.md
-[Experimental PostgreSQL Vacuum Monitoring]: ../../reference/dashboards/dashboard-postgresql-vacuum-monitoring-experimental.md
 [PostgreSQL Instances Overview]: ../../reference/dashboards/dashboard-postgresql-instances-overview.md
 [PostgreSQL Instance Summary]: ../../reference/dashboards/dashboard-postgresql-instance-summary.md
 [PostgreSQL Instances Compare]: ../../reference/dashboards/dashboard-postgresql-instances-compare.md
@@ -184,6 +181,5 @@ Performance Monitoring and Management (PMM) offers a range of dashboards you can
 [Valkey/Redis Replication]: ../../reference/dashboards/dashboard-valkey-redis-replication.md
 [Valkey/Redis Slowlog]: ../../reference/dashboards/dashboard-valkey-redis-slowlog.md
 [PXC/Galera Node Summary]: ../../reference/dashboards/dashboard-pxc-galera-node-summary.md
-[Experimental PXC/Galera Cluster Summary]: ../../reference/dashboards/dashboard-pxc-galera-cluster-summary-experimental.md
 [PXC/Galera Nodes Compare]: ../../reference/dashboards/dashboard-pxc-galera-nodes-compare.md
 [HAProxy Instance Summary]: ../../reference/dashboards/dashboard-haproxy-instance-summary.md

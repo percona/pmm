@@ -40,7 +40,7 @@ func TestVersioner(t *testing.T) {
 
 		version, err := versioner.MySQLdVersion()
 		assert.True(t, errors.Is(err, ErrNotFound))
-		assert.Equal(t, "", version)
+		assert.Empty(t, version)
 	})
 
 	// mysql software
