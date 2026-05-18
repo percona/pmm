@@ -933,6 +933,11 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		}
 	}
 
+	exporterOptions := params.ExporterOptions
+	if pointer.Get(exporterOptions.ConnectionTimeout) == 0 {
+		exporterOptions.ConnectionTimeout = nil
+	}
+
 	row := &Agent{
 		AgentID:           id,
 		AgentType:         agentType,
@@ -944,7 +949,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		AgentPassword:     pointer.ToStringOrNil(params.AgentPassword),
 		TLS:               params.TLS,
 		TLSSkipVerify:     params.TLSSkipVerify,
-		ExporterOptions:   params.ExporterOptions,
+		ExporterOptions:   exporterOptions,
 		QANOptions:        params.QANOptions,
 		AWSOptions:        params.AWSOptions,
 		AzureOptions:      params.AzureOptions,
@@ -1016,6 +1021,7 @@ type ChangeExporterOptions struct {
 	MetricsScheme      *string
 	MetricsPath        *string
 	MetricsResolutions *ChangeMetricsResolutionsParams
+	ConnectionTimeout  *time.Duration
 }
 
 // ChangeQANOptions contains QANOptions fields that can be changed.
@@ -1175,6 +1181,12 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 		}
 		if params.ExporterOptions.MetricsPath != nil {
 			row.ExporterOptions.MetricsPath = *params.ExporterOptions.MetricsPath
+		}
+
+		if pointer.Get(params.ExporterOptions.ConnectionTimeout) == 0 {
+			row.ExporterOptions.ConnectionTimeout = nil
+		} else {
+			row.ExporterOptions.ConnectionTimeout = params.ExporterOptions.ConnectionTimeout
 		}
 	}
 

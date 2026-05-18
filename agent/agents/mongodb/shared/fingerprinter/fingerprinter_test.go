@@ -123,7 +123,7 @@ func TestProfilerFingerprinter(t *testing.T) {
 		database.Collection("test").FindOneAndDelete(ctx, bson.M{"id": 1})
 		database.Collection("secondcollection").Find(ctx, bson.M{"name": "sec"}, options.Find().SetLimit(1).SetSort(bson.M{"id": -1})) //nolint:errcheck
 		database.Collection("test").Aggregate(
-			ctx, //nolint:errcheck
+			ctx,
 			[]bson.M{
 				{
 					"$match": bson.M{"id": 0, "time": bson.M{"$gt": time.Now().Add(-time.Hour)}},

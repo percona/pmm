@@ -197,7 +197,7 @@ func TestCheckCompatibility(t *testing.T) {
 			dbVersion, err := cSvc.checkCompatibility(&models.Service{ServiceType: tc.serviceType}, &agentModel)
 			if tc.expectedError != nil {
 				assert.ErrorIs(t, err, tc.expectedError)
-				assert.Equal(t, "", dbVersion)
+				assert.Empty(t, dbVersion)
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.versions[0].Version, dbVersion)

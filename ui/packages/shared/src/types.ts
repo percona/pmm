@@ -11,6 +11,7 @@ export type MessageType =
   | 'GRAFANA_THEME_CHANGED'
   | 'CHANGE_THEME'
   | 'SETTINGS_CHANGED'
+  | 'FRONTEND_SETTINGS_CHANGED'
   | 'SERVICE_ADDED'
   | 'SERVICE_DELETED'
   | 'TIMEZONE_CHANGED';
@@ -61,5 +62,7 @@ export type ChangeThemeMessage = Message<
 >;
 
 export type SettingsChangedMessage = Message<'SETTINGS_CHANGED'>;
+
+export type FrontendSettingsChangedMessage = Message<'FRONTEND_SETTINGS_CHANGED'>;
 
 export type ServiceAddedMessage = Message<'SERVICE_ADDED'>;

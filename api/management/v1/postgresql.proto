@@ -3,6 +3,7 @@ syntax = "proto3";
 package management.v1;
 
 import "extensions/v1/redact.proto";
+import "google/protobuf/duration.proto";
 import "inventory/v1/agents.proto";
 import "inventory/v1/log_level.proto";
 import "inventory/v1/services.proto";
@@ -77,9 +78,9 @@ message AddPostgreSQLServiceParams {
   // TLS CA certificate.
   string tls_ca = 26;
   // TLS Certifcate.
-  string tls_cert = 27;
+  string tls_cert = 27 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // TLS Certificate Key.
-  string tls_key = 28;
+  string tls_key = 28 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Custom password for exporter endpoint /metrics.
   string agent_password = 29 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Exporter log level
@@ -90,6 +91,10 @@ message AddPostgreSQLServiceParams {
   bool expose_exporter = 32;
   // Maximum number of connections that exporter can open to the database instance.
   int32 max_exporter_connections = 33;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 34 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 message PostgreSQLServiceResult {

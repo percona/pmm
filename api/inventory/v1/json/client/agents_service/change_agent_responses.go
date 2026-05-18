@@ -3120,6 +3120,9 @@ type ChangeAgentOKBodyMongodbExporter struct {
 	// Environment variable names passed to the exporter.
 	EnvironmentVariableNames []string `json:"environment_variable_names"`
 
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *ChangeAgentOKBodyMongodbExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -3466,6 +3469,9 @@ type ChangeAgentOKBodyMysqldExporter struct {
 
 	// Extra DSN parameters for MySQL connection.
 	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ChangeAgentOKBodyMysqldExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -4239,6 +4245,9 @@ type ChangeAgentOKBodyPostgresExporter struct {
 	// Maximum number of connections that exporter can open to the database instance.
 	MaxExporterConnections int32 `json:"max_exporter_connections,omitempty"`
 
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *ChangeAgentOKBodyPostgresExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -4562,6 +4571,9 @@ type ChangeAgentOKBodyProxysqlExporter struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ChangeAgentOKBodyProxysqlExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -6807,6 +6819,9 @@ type ChangeAgentOKBodyValkeyExporter struct {
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *ChangeAgentOKBodyValkeyExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -7659,6 +7674,9 @@ type ChangeAgentParamsBodyMongodbExporter struct {
 	// Optionally expose the exporter process on all public interfaces.
 	ExposeExporter *bool `json:"expose_exporter,omitempty"`
 
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyMongodbExporterCustomLabels `json:"custom_labels,omitempty"`
 
@@ -8004,6 +8022,9 @@ type ChangeAgentParamsBodyMysqldExporter struct {
 
 	// Optionally expose the exporter process on all public interfaces.
 	ExposeExporter *bool `json:"expose_exporter,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyMysqldExporterCustomLabels `json:"custom_labels,omitempty"`
@@ -8707,6 +8728,9 @@ type ChangeAgentParamsBodyPostgresExporter struct {
 	// Maximum number of connections that exporter can open to the database instance.
 	MaxExporterConnections *int32 `json:"max_exporter_connections,omitempty"`
 
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyPostgresExporterCustomLabels `json:"custom_labels,omitempty"`
 
@@ -9037,6 +9061,9 @@ type ChangeAgentParamsBodyProxysqlExporter struct {
 
 	// Optionally expose the exporter process on all public interfaces.
 	ExposeExporter *bool `json:"expose_exporter,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyProxysqlExporterCustomLabels `json:"custom_labels,omitempty"`
@@ -12070,6 +12097,9 @@ type ChangeAgentParamsBodyValkeyExporter struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyValkeyExporterCustomLabels `json:"custom_labels,omitempty"`
