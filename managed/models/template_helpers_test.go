@@ -199,7 +199,7 @@ func TestRuleTemplates(t *testing.T) {
 		assert.Equal(t, created.Summary, actual.Summary)
 		assert.Equal(t, created.Expr, actual.Expr)
 		assert.Equal(t, created.Params, actual.Params)
-		assert.EqualValues(t, created.For, actual.For)
+		assert.Equal(t, created.For, actual.For)
 		assert.Equal(t, created.Severity, actual.Severity)
 		assert.Equal(t, created.Labels, actual.Labels)
 		assert.Empty(t, actual.Annotations)
