@@ -77,7 +77,7 @@ getent passwd pmm >/dev/null || echo "User pmm does not exist. Please create it 
 exit 0
 
 %changelog
-* Mon May 14 2026 Fábio Silva <ffjs1993@gmail.com> - 12.4.3
+* Thu May 14 2026 Fábio Silva <ffjs1993@gmail.com> - 12.4.3
 - PMM-14213 Upgrade Grafana to v12.4.2
 
 * Mon Mar 30 2026 Matej Kubinec <matej.kubinec@ext.percona.com> - 11.6.14-1
