@@ -73,27 +73,13 @@ if [ "$CURRENT_UID" != "1000" ] || [ "$CURRENT_GID" != "0" ]; then
     echo "NSS wrapper enabled with $NSS_WRAPPER_LIB"
 fi
 
-# Check /usr/share/pmm-server directory on every start
-echo "Checking /usr/share/pmm-server directory structure..."
-# Still ensure critical directories exist, but don't create empty ones
-if [ ! -d "/usr/share/pmm-server/nginx" ]; then
-    echo "Creating nginx temp directories..."
-    mkdir -p /usr/share/pmm-server/nginx/{client_temp,proxy_temp,fastcgi_temp,uwsgi_temp,scgi_temp}
-fi
-
-if [ ! -d "/srv/pmm-agent/tmp" ]; then
-    echo "Creating pmm-agent temp directory..."
-    install -d -m 770 /srv/pmm-agent/tmp
-fi
-
 # Initialize /srv if empty
 declare DIST_FILE=/srv/pmm-distribution
 if [ ! -f "$DIST_FILE" ]; then
     echo -n "$PMM_DISTRIBUTION_METHOD" > "$DIST_FILE"
     echo "Initializing /srv..."
-    mkdir -p /srv/{backup,clickhouse,grafana,logs,nginx,prometheus,victoriametrics}
+    mkdir -p /srv/{backup,clickhouse,grafana/plugins,logs,nginx,prometheus/rules,victoriametrics}
     echo "Copying grafana plugins and the VERSION file..."
-    mkdir -p /srv/grafana/plugins
     cp -r /usr/share/percona-dashboards/panels/* /srv/grafana/plugins
 
     if is_enabled "$PMM_HA_ENABLE"; then
@@ -123,6 +109,14 @@ if [ ! -f "$DIST_FILE" ]; then
         # Clean up password from environment
         unset POSTGRES_PASSWORD
     fi
+fi
+
+echo "Creating nginx temp directories..."
+mkdir -p /srv/nginx/tmp/{client,proxy,fastcgi,uwsgi,scgi}
+
+if [ ! -d "/srv/pmm-agent/tmp" ]; then
+    echo "Creating pmm-agent temp directory..."
+    install -d -m 770 /srv/pmm-agent/tmp
 fi
 
 if is_enabled "$PMM_HA_ENABLE"; then
@@ -179,5 +173,5 @@ fi
 
 unset AGENT_CONFIG_DIR AGENT_ID
 
-# Start supervisor in foreground
+# Start supervisor in foreground, i.e. as PID 1
 exec supervisord -n -c /etc/supervisord.conf

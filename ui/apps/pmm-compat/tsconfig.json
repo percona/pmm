@@ -2,6 +2,7 @@
   "extends": "./.config/tsconfig.json",
   "compilerOptions": {
     "rootDir": "../..",
+    "typeRoots": ["./node_modules/@types", "../../node_modules/@types"],
     "paths": {
       "@pmm/shared": ["../../../packages/shared/src"]
     }
