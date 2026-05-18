@@ -100,7 +100,9 @@ jobs:
           # The [ -n "$f" ] ensures the last line is read even if it lacks a newline
           while IFS= read -r f || [ -n "$f" ]; do
             [ -z "$f" ] && continue
-            
+            # Deleted dashboards still appear in git diff; skip missing files.
+            [ ! -f "$f" ] && continue
+
             if python3 dashboards/misc/cleanup-dash.py --check-only "$f"; then
               echo "| \`$f\` | ✅ OK | - |" >> $GITHUB_STEP_SUMMARY
             else

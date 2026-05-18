@@ -110,12 +110,9 @@ func TestProcess(t *testing.T) {
 	})
 
 	t.Run("Killed", func(t *testing.T) {
-		f, err := os.CreateTemp("", "pmm-agent-process-test-noterm")
+		f, err := os.CreateTemp(t.TempDir(), "pmm-agent-process-test-noterm")
 		require.NoError(t, err)
 		require.NoError(t, f.Close())
-		defer func() {
-			require.NoError(t, os.Remove(f.Name()))
-		}()
 
 		build(t, "", "process_noterm.go", f.Name())
 
@@ -133,12 +130,9 @@ func TestProcess(t *testing.T) {
 			t.Skip("Pdeathsig is implemented only on Linux")
 		}
 
-		f, err := os.CreateTemp("", "pmm-agent-process-test-child")
+		f, err := os.CreateTemp(t.TempDir(), "pmm-agent-process-test-child")
 		require.NoError(t, err)
 		require.NoError(t, f.Close())
-		defer func() {
-			require.NoError(t, os.Remove(f.Name()))
-		}()
 
 		build(t, "child", "process_child.go", f.Name())
 
