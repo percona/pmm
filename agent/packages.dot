@@ -25,6 +25,7 @@ digraph packages {
 	"/agents/postgres/pgstatstatements.test" -> "/agents/postgres/pgstatstatements";
 	"/agents/process.test" -> "/agents/process";
 	"/agents/supervisor" -> "/agents";
+	"/agents/supervisor" -> "/agents/clickhouse/querylog";
 	"/agents/supervisor" -> "/agents/mongodb/mongolog";
 	"/agents/supervisor" -> "/agents/mongodb/profiler";
 	"/agents/supervisor" -> "/agents/mongodb/realtimeanalytics";
