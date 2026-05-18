@@ -157,8 +157,12 @@ build() {
             sudo chown -R $(id -u):$(id -g) /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
         "
 
-        # SKIP_S3_CACHE: standalone builds never upload RPMs to the S3 cache.
-        if [ -n "${SKIP_S3_CACHE:-}" ]; then
+        # S3 RPM cache upload — only Percona's own CI populates the shared
+        # s3://pmm-build-cache bucket. Standalone and fork builds read that
+        # cache anonymously (--no-sign-request, above) but must never write to
+        # it: the upload is opt-in via S3_CACHE_UPLOAD and stays off unless
+        # explicitly enabled. SKIP_S3_CACHE (standalone) also disables it.
+        if [ -z "${S3_CACHE_UPLOAD:-}" ] || [ -n "${SKIP_S3_CACHE:-}" ]; then
             :
         elif [ -n "$RPM_EPOCH" ]; then
             aws s3 sync \
