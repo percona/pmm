@@ -36,6 +36,7 @@ const (
 	AgentTypeQANMongoDBMongologAgent         = "AGENT_TYPE_QAN_MONGODB_MONGOLOG_AGENT"
 	AgentTypeQANPostgreSQLPgStatementsAgent  = "AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT"
 	AgentTypeQANPostgreSQLPgStatMonitorAgent = "AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT"
+	AgentTypeQANClickHouseQueryLogAgent      = "AGENT_TYPE_QAN_CLICKHOUSE_QUERYLOG_AGENT"
 	AgentTypeRDSExporter                     = "AGENT_TYPE_RDS_EXPORTER"
 	AgentTypeExternalExporter                = "AGENT_TYPE_EXTERNAL_EXPORTER"
 	AgentTypeAzureDatabaseExporter           = "AGENT_TYPE_AZURE_DATABASE_EXPORTER"
@@ -60,6 +61,7 @@ var agentTypeNames = map[string]string{
 	AgentTypeQANMongoDBMongologAgent:         "mongodb_mongolog_agent",
 	AgentTypeQANPostgreSQLPgStatementsAgent:  "postgresql_pgstatements_agent",
 	AgentTypeQANPostgreSQLPgStatMonitorAgent: "postgresql_pgstatmonitor_agent",
+	AgentTypeQANClickHouseQueryLogAgent:      "clickhouse_querylog_agent",
 	AgentTypeRDSExporter:                     "rds_exporter",
 	AgentTypeExternalExporter:                "external-exporter",
 	AgentTypeAzureDatabaseExporter:           "azure_database_exporter",
