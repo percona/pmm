@@ -90,10 +90,13 @@ unexport PUSH_DOCKER
 all: prepare client server                        ## Full build (rpmbuild image pulled from upstream)
 
 .PHONY: release-tag
-release-tag:                                      ## Create the release tag v3-<ISO date>-<upstream commit count>
+release-tag:                                      ## Create the release tag v3-<ISO date>-<upstream commit count>[.N]
 	@git fetch upstream
 	@count=$$(git rev-list --count upstream/v3); \
-	tag="v3-$$(date -u +%Y-%m-%d)-$$count"; \
+	base="v3-$$(date -u +%Y-%m-%d)-$$count"; tag="$$base"; n=2; \
+	while git rev-parse -q --verify "refs/tags/$$tag" >/dev/null 2>&1; do \
+	    tag="$$base.$$n"; n=$$((n + 1)); \
+	done; \
 	git tag -a "$$tag" -m "datacosmos PMM $$tag (upstream/v3 @ $$(git rev-parse --short upstream/v3))"; \
 	echo "Created $$tag — push it to trigger the release: git push origin $$tag"
 
