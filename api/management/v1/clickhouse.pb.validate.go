@@ -62,6 +62,7 @@ func (m *AddClickHouseServiceParams) validate(all bool) error {
 	var errors []error
 
 	if m.GetNodeId() != "" {
+
 		if utf8.RuneCountInString(m.GetNodeId()) < 1 {
 			err := AddClickHouseServiceParamsValidationError{
 				field:  "NodeId",
@@ -72,9 +73,11 @@ func (m *AddClickHouseServiceParams) validate(all bool) error {
 			}
 			errors = append(errors, err)
 		}
+
 	}
 
 	if m.GetNodeName() != "" {
+
 		if utf8.RuneCountInString(m.GetNodeName()) < 1 {
 			err := AddClickHouseServiceParamsValidationError{
 				field:  "NodeName",
@@ -85,6 +88,7 @@ func (m *AddClickHouseServiceParams) validate(all bool) error {
 			}
 			errors = append(errors, err)
 		}
+
 	}
 
 	if all {

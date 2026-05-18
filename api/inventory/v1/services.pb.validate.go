@@ -4481,6 +4481,7 @@ func (m *ChangeServiceRequest) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -4509,6 +4510,7 @@ func (m *ChangeServiceRequest) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if len(errors) > 0 {

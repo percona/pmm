@@ -18,6 +18,7 @@ package agents
 import (
 	"bytes"
 	"fmt"
+	"math"
 	"sort"
 	"text/template"
 	"time"
@@ -149,13 +150,15 @@ func mysqldExporterConfig(
 		TextFiles:          textFiles,
 	}
 
+	connectionTimeout := mysqlExporterDialTimeout(exporter)
+
 	if pmmAgentVersion.IsFeatureSupported(version.MysqlExporterV0_17_2) {
 		if textFiles == nil {
 			textFiles = make(map[string]string)
 		}
 		res.TextFiles = textFiles
 
-		cfg, err := buildMyCnfConfig(service, exporter, textFiles)
+		cfg, err := buildMyCnfConfig(service, exporter, textFiles, connectionTimeout)
 		if err != nil {
 			return nil, err
 		}
@@ -167,7 +170,7 @@ func mysqldExporterConfig(
 		}
 	} else {
 		env := []string{
-			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion)),
+			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, models.DSNParams{DialTimeout: connectionTimeout, Database: ""}, nil, pmmAgentVersion)),
 			fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.GetAgentPassword()),
 		}
 		res.Env = env
@@ -177,6 +180,14 @@ func mysqldExporterConfig(
 		res.RedactWords = redactWords(exporter)
 	}
 	return res, nil
+}
+
+func mysqlExporterDialTimeout(exporter *models.Agent) time.Duration {
+	return roundUpToSecond(exporter.EffectiveDialTimeout())
+}
+
+func roundUpToSecond(timeout time.Duration) time.Duration {
+	return time.Second * time.Duration(max(1, int(math.Ceil(timeout.Seconds()))))
 }
 
 // qanMySQLPerfSchemaAgentConfig returns desired configuration of qan-mysql-perfschema built-in agent.
@@ -226,6 +237,7 @@ const myCnfTemplate = `[client]
 {{if .User}}user={{ .User }}{{end}}
 {{if .Password}}password={{ .Password }}{{end}}
 {{if .Socket}}socket={{ .Socket }}{{end}}
+{{if .ConnectTimeout}}connect_timeout={{ .ConnectTimeout }}{{end}}
 {{if .CaFile}}ssl-ca={{ .CaFile }}{{end}}
 {{if .CertFile}}ssl-cert={{ .CertFile }}{{end}}
 {{if .KeyFile}}ssl-key={{ .KeyFile }}{{end}}
@@ -233,7 +245,7 @@ const myCnfTemplate = `[client]
 `
 
 // buildMyCnfConfig builds my.cnf configuration for MySQL connection.
-func buildMyCnfConfig(service *models.Service, agent *models.Agent, files map[string]string) (string, error) {
+func buildMyCnfConfig(service *models.Service, agent *models.Agent, files map[string]string, connectTimeout time.Duration) (string, error) {
 	tmpl, err := template.New("myCnf").Parse(myCnfTemplate)
 	if err != nil {
 		return "", fmt.Errorf("failed to parse myCnf template: %w", err)
@@ -247,16 +259,18 @@ func buildMyCnfConfig(service *models.Service, agent *models.Agent, files map[st
 		Socket                  string
 		Host                    string
 		Port                    int
+		ConnectTimeout          int
 		CaFile                  string
 		CertFile                string
 		KeyFile                 string
 		EnableClearTextPassword bool
 		MyCnfPath               string
 	}{
-		User:     pointer.GetString(agent.Username),
-		Password: pointer.GetString(agent.Password),
-		Host:     pointer.GetString(service.Address),
-		Port:     int(pointer.GetUint16(service.Port)),
+		User:           pointer.GetString(agent.Username),
+		Password:       pointer.GetString(agent.Password),
+		Host:           pointer.GetString(service.Address),
+		Port:           int(pointer.GetUint16(service.Port)),
+		ConnectTimeout: max(1, int(connectTimeout.Seconds())),
 	}
 
 	if files["tlsCa"] != "" {

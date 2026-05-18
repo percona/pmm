@@ -111,5 +111,5 @@ user checkpoint.
 - [x] ClickHouse integration matrix (`run-matrix.sh`) green — release gate:
       collector + exporter + QAN pass on CH 26.3/25.8/25.3/24.8/24.3 ×
       single/cluster (run locally 2026-05-17)
-- [ ] A `v*-dc*` release published with full ClickHouse support
+- [ ] A `v3-*` release published with full ClickHouse support
 - [ ] (optional) upstream PR proposed to `percona/pmm`

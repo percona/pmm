@@ -1,7 +1,7 @@
 # ClickHouse epic — Integration-test strategy
 
 This is the end-to-end test plan that proves each phase works and feeds the
-**release gate**: no `v*-dc*` tag ships unless these pass locally
+**release gate**: no `v3-*` tag ships unless these pass locally
 (`agent/agents/clickhouse/testdata/run-matrix.sh`, extended per phase).
 
 ## Test infrastructure
@@ -76,6 +76,6 @@ This is the end-to-end test plan that proves each phase works and feeds the
 ## Release gate
 
 `run-matrix.sh` must exit 0 (all of IT-1.8, IT-3.8, IT-4.1–4.3 across the
-version/topology matrix) before any `v*-dc*` tag is pushed. The
+version/topology matrix) before any `v3-*` tag is pushed. The
 `datacosmos-release.yml` workflow builds/publishes; the matrix is the local
 pre-tag gate.

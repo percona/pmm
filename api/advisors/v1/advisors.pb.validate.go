@@ -1937,6 +1937,7 @@ func (m *GetFailedChecksRequest) validate(all bool) error {
 	// no validation rules for ServiceId
 
 	if m.PageSize != nil {
+
 		if m.GetPageSize() < 1 {
 			err := GetFailedChecksRequestValidationError{
 				field:  "PageSize",
@@ -1947,9 +1948,11 @@ func (m *GetFailedChecksRequest) validate(all bool) error {
 			}
 			errors = append(errors, err)
 		}
+
 	}
 
 	if m.PageIndex != nil {
+
 		if m.GetPageIndex() < 0 {
 			err := GetFailedChecksRequestValidationError{
 				field:  "PageIndex",
@@ -1960,6 +1963,7 @@ func (m *GetFailedChecksRequest) validate(all bool) error {
 			}
 			errors = append(errors, err)
 		}
+
 	}
 
 	if len(errors) > 0 {

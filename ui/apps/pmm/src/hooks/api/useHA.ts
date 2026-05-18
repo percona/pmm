@@ -25,8 +25,8 @@ export const useHANodes = (
     ...options,
   });
 
-export const useHaInfo = () => {
-  const statusQuery = useHAStatus();
+export const useHaInfo = (options?: Partial<UseQueryOptions<GetHAStatusResponse>>) => {
+  const statusQuery = useHAStatus(options);
   const nodesQuery = useHANodes({
     enabled: statusQuery.data?.status === 'Enabled',
     refetchInterval: 15000,

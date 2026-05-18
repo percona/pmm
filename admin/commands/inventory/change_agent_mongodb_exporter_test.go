@@ -18,7 +18,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/alecthomas/kong"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -41,20 +40,20 @@ func TestMongodbExporterChangeAgent(t *testing.T) {
 
 			cmd := &ChangeAgentMongodbExporterCommand{
 				AgentID:                 "test-agent-id",
-				Enable:                  pointer.ToBool(true),
-				Username:                pointer.ToString("newuser"),
-				Password:                pointer.ToString("newpass"),
-				TLS:                     pointer.ToBool(true),
-				TLSSkipVerify:           pointer.ToBool(false),
-				AuthenticationMechanism: pointer.ToString("SCRAM-SHA-256"),
-				AuthenticationDatabase:  pointer.ToString("admin"),
-				StatsCollections:        pointer.ToString("collection1,collection2"),
-				CollectionsLimit:        pointer.ToInt32(100),
+				Enable:                  new(true),
+				Username:                new("newuser"),
+				Password:                new("newpass"),
+				TLS:                     new(true),
+				TLSSkipVerify:           new(false),
+				AuthenticationMechanism: new("SCRAM-SHA-256"),
+				AuthenticationDatabase:  new("admin"),
+				StatsCollections:        new("collection1,collection2"),
+				CollectionsLimit:        new(int32(100)),
 				DisableCollectors:       []string{"general_stats", "index_stats"},
-				ExposeExporter:          pointer.ToBool(true),
-				PushMetrics:             pointer.ToBool(false),
+				ExposeExporter:          new(true),
+				PushMetrics:             new(false),
 				LogLevelFatalChangeFlags: flags.LogLevelFatalChangeFlags{
-					LogLevel: pointer.To(flags.LogLevel("debug")),
+					LogLevel: new(flags.LogLevel("debug")),
 				},
 				CustomLabels: &map[string]string{"environment": "test", "team": "backend"},
 			}
@@ -98,9 +97,9 @@ func TestMongodbExporterChangeAgent(t *testing.T) {
 
 			cmd := &ChangeAgentMongodbExporterCommand{
 				AgentID:           "test-agent-id",
-				Enable:            pointer.ToBool(false),
+				Enable:            new(false),
 				DisableCollectors: []string{"general_stats"},
-				PushMetrics:       pointer.ToBool(true),
+				PushMetrics:       new(true),
 			}
 
 			result, err := cmd.RunCmd()
@@ -251,7 +250,7 @@ Configuration changes applied:
 
 		cmd := &ChangeAgentMongodbExporterCommand{
 			AgentID: "invalid-agent",
-			Enable:  pointer.ToBool(true),
+			Enable:  new(true),
 		}
 
 		result, err := cmd.RunCmd()
