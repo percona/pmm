@@ -5,16 +5,16 @@ Alert rules describe the circumstances under which you want to be alerted. The e
 
 An alert rule consists of one or more queries and expressions, a condition, the frequency of evaluation, and the duration over which the condition is met. For example, you might configure an alert to fire and trigger a notification when MongoDB is down.
 
-An alert rule can be in the following states:
+During evaluation, an alert rule moves through the following states:
 
-- **Normal**: Everything is working correctly and the conditions specified in the rule has not been met. This is the default state for newly created rules.
-- **Pending**: The conditions specified in the alert rule has been met, but for a time that is less than the configured duration.
-- **Firing**: Both the conditions and the duration specified in the alert rule have both been met.
+- **Normal**: Everything is working correctly, and the conditions specified in the rule have not been met. This is the default state for newly created rules.
+- **Pending**: The conditions specified in the alert rule have been met, but for less time than the configured duration.
+- **Firing**: Both the alert condition and the configured duration have been met.
 - **Recovering**: The alert conditions are no longer met, but the alert remains active until the metric is stable below the threshold. This prevents alerts from repeatedly flipping between **Firing** and **Normal** when metrics briefly cross a threshold.
 
 It takes at least one evaluation cycle for an alert rule to transition from one state to another (e.g., from `Normal` to `Pending`).
 
-## Alert rules templates
+## Alert rule templates
 
 PMM provides a set of Alert Rule templates with common events and expressions for alerting. These templates can be used as a basis for creating Alert Rules. You can also create your own templates if you need custom expressions.
 
