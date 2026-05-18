@@ -21,7 +21,6 @@ import (
 	"sort"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
@@ -39,6 +38,7 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/duration"
 	"github.com/percona/pmm/utils/logger"
 )
 
@@ -140,7 +140,7 @@ func listRegions(partitions []string) []string {
 }
 
 // DiscoverRDS discovers RDS instances.
-func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.DiscoverRDSRequest) (*managementv1.DiscoverRDSResponse, error) {
+func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.DiscoverRDSRequest) (*managementv1.DiscoverRDSResponse, error) { //nolint:gocognit
 	l := logger.Get(ctx).WithField("component", "discover/rds")
 
 	settings, err := models.GetSettings(s.db.Querier)
@@ -258,7 +258,9 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 }
 
 // AddRDS adds RDS instance.
-func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDSServiceParams) (*managementv1.AddServiceResponse, error) { //nolint:cyclop,maintidx
+//
+//nolint:gocognit,cyclop,maintidx
+func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDSServiceParams) (*managementv1.AddServiceResponse, error) {
 	rds := &managementv1.RDSServiceResult{}
 
 	pmmAgentID := models.PMMServerAgentID
@@ -344,7 +346,7 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				ReplicationSet: req.ReplicationSet,
 				CustomLabels:   req.CustomLabels,
 				Address:        &req.Address,
-				Port:           pointer.ToUint16(uint16(req.Port)), //nolint:gosec // port is not expected to overflow uint16
+				Port:           new(uint16(req.Port)), //nolint:gosec // port is not expected to overflow uint16
 			})
 			if err != nil {
 				return err
@@ -364,7 +366,8 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				TLS:           req.Tls,
 				TLSSkipVerify: req.TlsSkipVerify,
 				ExporterOptions: models.ExporterOptions{
-					PushMetrics: isPushMode(metricsMode),
+					PushMetrics:       isPushMode(metricsMode),
+					ConnectionTimeout: duration.OptionalFromProto(req.ConnectionTimeout),
 				},
 				MySQLOptions: models.MySQLOptions{
 					TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
@@ -424,7 +427,7 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				ReplicationSet: req.ReplicationSet,
 				CustomLabels:   req.CustomLabels,
 				Address:        &req.Address,
-				Port:           pointer.ToUint16(uint16(req.Port)), //nolint:gosec // port is not expected to overflow uint16
+				Port:           new(uint16(req.Port)), //nolint:gosec // port is not expected to overflow uint16
 				Database:       req.Database,
 			})
 			if err != nil {
@@ -445,13 +448,14 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				TLS:           req.Tls,
 				TLSSkipVerify: req.TlsSkipVerify,
 				ExporterOptions: models.ExporterOptions{
-					PushMetrics: isPushMode(metricsMode),
+					PushMetrics:       isPushMode(metricsMode),
+					ConnectionTimeout: duration.OptionalFromProto(req.ConnectionTimeout),
 				},
 				MySQLOptions: models.MySQLOptions{
 					TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
 				},
 				PostgreSQLOptions: models.PostgreSQLOptions{
-					AutoDiscoveryLimit:     pointer.ToInt32(req.AutoDiscoveryLimit),
+					AutoDiscoveryLimit:     new(req.AutoDiscoveryLimit),
 					MaxExporterConnections: req.MaxPostgresqlExporterConnections,
 				},
 			})

@@ -88,7 +88,7 @@ Live tracking: [CHECKLIST.md](CHECKLIST.md).
 - All work on `feat/clickhouse-collector`; small atomic commits.
 - After each phase: `go build ./...` + `go vet` clean; phase committed; the
   CHECKLIST updated; **checkpoint with the user** before the next phase.
-- **Release gate** (standing rule): no `v*-dc*` tag is published unless the
+- **Release gate** (standing rule): no `v3-*` tag is published unless the
   ClickHouse integration matrix (`agent/agents/clickhouse/testdata/run-matrix.sh`)
   passes locally — extended each phase per INTEGRATION-TESTS.md.
 - Proto/`*.pb.go` are regenerated with `make gen` (buf), never hand-edited.

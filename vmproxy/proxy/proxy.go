@@ -123,7 +123,8 @@ func prepareRequest(req *http.Request, target *url.URL, headerName string) {
 
 		logrus.Debugf(
 			"Parsed filters: %#v, Target URL: %s, Time spent: %s",
-			parsed, req.URL, time.Since(now))
+			parsed, req.URL, time.Since(now),
+		)
 	}
 
 	// Do not trust the client

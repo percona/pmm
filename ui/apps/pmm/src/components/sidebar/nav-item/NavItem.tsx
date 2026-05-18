@@ -26,6 +26,7 @@ const NavItem: FC<NavItemProps> = ({
   item,
   drawerOpen,
   level = 0,
+  onClick,
 }) => {
   const active = useMemo(
     () => activeItem === item || hasChildMatch(item, activeItem),
@@ -61,6 +62,20 @@ const NavItem: FC<NavItemProps> = ({
     // prevent opening when sidebar collapsed
     if (drawerOpen) {
       setIsOpen(true);
+    }
+
+    if (onClick) {
+      onClick();
+    }
+  };
+
+  const handleItemClick = () => {
+    if (linkProps.onClick) {
+      linkProps.onClick();
+    }
+
+    if (onClick) {
+      onClick();
     }
   };
 
@@ -145,6 +160,7 @@ const NavItem: FC<NavItemProps> = ({
                 activeItem={activeItem}
                 drawerOpen={drawerOpen}
                 level={level + 1}
+                onClick={handleItemClick}
               />
             ))}
           </List>
@@ -209,6 +225,7 @@ const NavItem: FC<NavItemProps> = ({
           ]}
           selected={active}
           {...linkProps}
+          onClick={handleItemClick}
           data-testid={dataTestid}
           data-navlevel={level}
         >

@@ -25,10 +25,11 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/duration"
 )
 
 // AddMongoDB adds "MongoDB Service", "MongoDB Exporter Agent", "QAN MongoDB Profiler" and "Real-Time Analytics Agent".
-func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.AddMongoDBServiceParams) (*managementv1.AddServiceResponse, error) {
+func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.AddMongoDBServiceParams) (*managementv1.AddServiceResponse, error) { //nolint:gocognit
 	mongodb := &managementv1.MongoDBServiceResult{}
 
 	if e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
@@ -77,6 +78,7 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 				ExposeExporter:     req.ExposeExporter,
 				PushMetrics:        isPushMode(req.MetricsMode),
 				DisabledCollectors: req.DisableCollectors,
+				ConnectionTimeout:  duration.OptionalFromProto(req.ConnectionTimeout),
 			},
 		})
 		if err != nil {

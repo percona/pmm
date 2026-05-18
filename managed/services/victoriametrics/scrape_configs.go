@@ -302,7 +302,8 @@ func scrapeConfigsForNodeExporter(params *scrapeConfigParams) ([]*config.ScrapeC
 		"loadavg",
 		"meminfo",
 		"netdev",
-		"time")
+		"time",
+	)
 	hrCollect = collectors.FilterOutCollectors("", hrCollect, params.agent.ExporterOptions.DisabledCollectors)
 
 	hr, err = scrapeConfigForStandardExporter("hr", params.metricsResolution.HR, params, hrCollect)

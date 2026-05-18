@@ -7,16 +7,14 @@
 package managementv1
 
 import (
+	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	_ "github.com/percona/pmm/api/extensions/v1"
+	v1 "github.com/percona/pmm/api/inventory/v1"
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
-
-	_ "github.com/envoyproxy/protoc-gen-validate/validate"
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-
-	_ "github.com/percona/pmm/api/extensions/v1"
-	v1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 const (
@@ -481,22 +479,20 @@ func file_management_v1_clickhouse_proto_rawDescGZIP() []byte {
 	return file_management_v1_clickhouse_proto_rawDescData
 }
 
-var (
-	file_management_v1_clickhouse_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_management_v1_clickhouse_proto_msgTypes  = make([]protoimpl.MessageInfo, 3)
-	file_management_v1_clickhouse_proto_goTypes   = []any{
-		(MetricsSource)(0),                 // 0: management.v1.MetricsSource
-		(*AddClickHouseServiceParams)(nil), // 1: management.v1.AddClickHouseServiceParams
-		(*ClickHouseServiceResult)(nil),    // 2: management.v1.ClickHouseServiceResult
-		nil,                                // 3: management.v1.AddClickHouseServiceParams.CustomLabelsEntry
-		(*AddNodeParams)(nil),              // 4: management.v1.AddNodeParams
-		(MetricsMode)(0),                   // 5: management.v1.MetricsMode
-		(v1.LogLevel)(0),                   // 6: inventory.v1.LogLevel
-		(*v1.ClickHouseService)(nil),       // 7: inventory.v1.ClickHouseService
-		(*v1.ClickHouseExporter)(nil),      // 8: inventory.v1.ClickHouseExporter
-		(*v1.ExternalExporter)(nil),        // 9: inventory.v1.ExternalExporter
-	}
-)
+var file_management_v1_clickhouse_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_management_v1_clickhouse_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_management_v1_clickhouse_proto_goTypes = []any{
+	(MetricsSource)(0),                 // 0: management.v1.MetricsSource
+	(*AddClickHouseServiceParams)(nil), // 1: management.v1.AddClickHouseServiceParams
+	(*ClickHouseServiceResult)(nil),    // 2: management.v1.ClickHouseServiceResult
+	nil,                                // 3: management.v1.AddClickHouseServiceParams.CustomLabelsEntry
+	(*AddNodeParams)(nil),              // 4: management.v1.AddNodeParams
+	(MetricsMode)(0),                   // 5: management.v1.MetricsMode
+	(v1.LogLevel)(0),                   // 6: inventory.v1.LogLevel
+	(*v1.ClickHouseService)(nil),       // 7: inventory.v1.ClickHouseService
+	(*v1.ClickHouseExporter)(nil),      // 8: inventory.v1.ClickHouseExporter
+	(*v1.ExternalExporter)(nil),        // 9: inventory.v1.ExternalExporter
+}
 var file_management_v1_clickhouse_proto_depIdxs = []int32{
 	4, // 0: management.v1.AddClickHouseServiceParams.add_node:type_name -> management.v1.AddNodeParams
 	3, // 1: management.v1.AddClickHouseServiceParams.custom_labels:type_name -> management.v1.AddClickHouseServiceParams.CustomLabelsEntry

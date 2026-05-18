@@ -2645,7 +2645,7 @@
             "datasource": {
                 "type": "prometheus"
             },
-            "description": "Collections become fragmented over time when there are multiple insert/delete operations",
+            "description": "Ratio of free to allocated storage per collection. High fragmentation means disk space is wasted due to deletes and document moves. Run compact on heavily fragmented collections to reclaim it.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -5259,9 +5259,8 @@
             "30d"
         ]
     },
-    "timezone": "browser",
+    "timezone": "",
     "title": "MongoDB ReplSet Summary",
     "uid": "mongodb-replicaset-summary",
     "version": 2
 }
-

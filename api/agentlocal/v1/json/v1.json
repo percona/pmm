@@ -179,7 +179,9 @@
                           "AGENT_TYPE_RDS_EXPORTER",
                           "AGENT_TYPE_AZURE_DATABASE_EXPORTER",
                           "AGENT_TYPE_NOMAD_AGENT",
-                          "AGENT_TYPE_RTA_MONGODB_AGENT"
+                          "AGENT_TYPE_RTA_MONGODB_AGENT",
+                          "AGENT_TYPE_CLICKHOUSE_EXPORTER",
+                          "AGENT_TYPE_QAN_CLICKHOUSE_QUERYLOG_AGENT"
                         ],
                         "x-order": 1
                       },
@@ -378,7 +380,9 @@
                           "AGENT_TYPE_RDS_EXPORTER",
                           "AGENT_TYPE_AZURE_DATABASE_EXPORTER",
                           "AGENT_TYPE_NOMAD_AGENT",
-                          "AGENT_TYPE_RTA_MONGODB_AGENT"
+                          "AGENT_TYPE_RTA_MONGODB_AGENT",
+                          "AGENT_TYPE_CLICKHOUSE_EXPORTER",
+                          "AGENT_TYPE_QAN_CLICKHOUSE_QUERYLOG_AGENT"
                         ],
                         "x-order": 1
                       },

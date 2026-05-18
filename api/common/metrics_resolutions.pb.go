@@ -7,13 +7,12 @@
 package common
 
 import (
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
-
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -111,14 +110,11 @@ func file_common_metrics_resolutions_proto_rawDescGZIP() []byte {
 	return file_common_metrics_resolutions_proto_rawDescData
 }
 
-var (
-	file_common_metrics_resolutions_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
-	file_common_metrics_resolutions_proto_goTypes  = []any{
-		(*MetricsResolutions)(nil),  // 0: common.MetricsResolutions
-		(*durationpb.Duration)(nil), // 1: google.protobuf.Duration
-	}
-)
-
+var file_common_metrics_resolutions_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_common_metrics_resolutions_proto_goTypes = []any{
+	(*MetricsResolutions)(nil),  // 0: common.MetricsResolutions
+	(*durationpb.Duration)(nil), // 1: google.protobuf.Duration
+}
 var file_common_metrics_resolutions_proto_depIdxs = []int32{
 	1, // 0: common.MetricsResolutions.hr:type_name -> google.protobuf.Duration
 	1, // 1: common.MetricsResolutions.mr:type_name -> google.protobuf.Duration
