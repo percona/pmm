@@ -90,7 +90,7 @@ func TestShowTableStatus(t *testing.T) {
 		defer cancel()
 
 		_, err := a.Run(ctx)
-		assert.EqualError(t, err, `table "no_such_table" not found`)
+		require.EqualError(t, err, `table "no_such_table" not found`)
 	})
 
 	t.Run("LittleBobbyTables", func(t *testing.T) {
@@ -104,7 +104,7 @@ func TestShowTableStatus(t *testing.T) {
 		defer cancel()
 
 		_, err := a.Run(ctx)
-		assert.EqualError(t, err, `table "city; DROP TABLE city; --" not found`)
+		require.EqualError(t, err, `table "city; DROP TABLE city; --" not found`)
 
 		var count int
 		err = db.QueryRow("SELECT COUNT(*) FROM city").Scan(&count)

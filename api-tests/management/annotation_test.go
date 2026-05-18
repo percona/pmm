@@ -20,7 +20,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 
@@ -105,7 +104,7 @@ func TestAddAnnotation(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		resNode, err := inventoryClient.Default.NodesService.AddNode(paramsNode)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		genericNodeID := resNode.Payload.Generic.NodeID
 		t.Cleanup(func() {
 			pmmapitests.RemoveNodes(t, genericNodeID)
@@ -136,7 +135,7 @@ func TestAddAnnotation(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		resNode, err := inventoryClient.Default.NodesService.AddNode(paramsNode)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		genericNodeID := resNode.Payload.Generic.NodeID
 		t.Cleanup(func() {
 			pmmapitests.RemoveNodes(t, genericNodeID)
@@ -156,7 +155,7 @@ func TestAddAnnotation(t *testing.T) {
 		}
 
 		resService, err := inventoryClient.Default.ServicesService.AddService(paramsService)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, resService)
 		serviceID := resService.Payload.Mysql.ServiceID
 		t.Cleanup(func() {
@@ -188,7 +187,7 @@ func TestAddAnnotation(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := inventoryClient.Default.NodesService.AddNode(params)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		nodeID := res.Payload.Generic.NodeID
 		t.Cleanup(func() {
 			pmmapitests.RemoveNodes(t, nodeID)

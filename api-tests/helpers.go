@@ -471,7 +471,7 @@ func GetGrafanaClient(t *testing.T) *gapi.Client {
 				Transport: adminTransport,
 			},
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		gClient = grafanaClient
 	})

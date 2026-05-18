@@ -20,7 +20,6 @@ import (
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/pkg/errors"
 	"github.com/stretchr/objx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -231,7 +230,8 @@ func replSetGetStatusAssertionsStandalone(t *testing.T, id string, timeout time.
 	defer cancel()
 	b, err := a.Run(ctx)
 	require.Nil(t, b)
-	require.IsType(t, mongo.CommandError{}, errors.Unwrap(err))
+	var targetErr *mongo.CommandError
+	require.ErrorAs(t, err, &targetErr)
 	require.Equal(t, "(NoReplicationEnabled) not running with --replSet", err.Error())
 }
 

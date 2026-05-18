@@ -493,7 +493,7 @@ func TestClient(t *testing.T) {
 		t.Run("GrafanaAdmin", func(t *testing.T) {
 			u, err := c.getAuthUser(ctx, authHeaders, l)
 			role := u.role
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Equal(t, grafanaAdmin, role)
 			assert.Equal(t, "GrafanaAdmin", role.String())
 		})
@@ -538,7 +538,7 @@ func TestClient(t *testing.T) {
 
 			u, err := c.getAuthUser(ctx, userAuthHeaders, l)
 			actualRole := u.role
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Equal(t, viewer, actualRole)
 			assert.Equal(t, viewer.String(), actualRole.String())
 		})
@@ -591,7 +591,7 @@ func TestClient(t *testing.T) {
 				serviceTokenAuthHeaders := http.Header{}
 				serviceTokenAuthHeaders.Set("Authorization", fmt.Sprintf("Bearer %s", serviceToken))
 				u, err := c.getAuthUser(ctx, serviceTokenAuthHeaders, l)
-				assert.NoError(t, err)
+				require.NoError(t, err)
 				actualRole := u.role
 				assert.Equal(t, role, actualRole)
 				assert.Equal(t, role.String(), actualRole.String())

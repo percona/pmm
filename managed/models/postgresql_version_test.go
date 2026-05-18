@@ -86,11 +86,11 @@ func TestGetPostgreSQLVersion(t *testing.T) {
 
 			version, err := GetPostgreSQLVersion(ctx, q)
 			if tc.wantError {
-				assert.Error(t, err)
+				require.Error(t, err)
 			} else {
 				assert.InEpsilon(t, tc.wantVersion.Float(), version.Float(), 0.0001)
 				assert.Equal(t, tc.wantVersion.String(), version.String())
-				assert.NoError(t, err)
+				require.NoError(t, err)
 			}
 		})
 	}
