@@ -62,9 +62,24 @@ jobs:
           sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android /opt/hostedtoolcache || true
           docker system prune -af || true
 
-      # No custom caching: build/scripts/vars pulls the upstream rpmbuild
-      # image (public.ecr.aws/e7j3v3n0/rpmbuild:3) and build-server-rpm's
-      # is_build_needed reuses upstream's public RPM cache
+      # Pre-pull the rpmbuild image with retries. public.ecr.aws is
+      # anonymous-rate-limited ('toomanyrequests'); an in-build `docker run`
+      # that trips the limit aborts the whole build. Pulling it up front,
+      # retried with backoff, lands it in the local cache so the build
+      # itself never pulls.
+      - name: Pull the rpmbuild image
+        run: |
+          image=public.ecr.aws/e7j3v3n0/rpmbuild:3
+          for i in 1 2 3 4 5; do
+            docker pull "$image" && exit 0
+            echo "::warning::pull attempt $i for $image failed; retrying in $((i * 30))s"
+            sleep $((i * 30))
+          done
+          echo "::error::could not pull $image after 5 attempts"
+          exit 1
+
+      # build/scripts/vars uses the rpmbuild image pre-pulled above, and
+      # build-server-rpm's is_build_needed reuses upstream's public RPM cache
       # (s3://pmm-build-cache) — Grafana et al. come down prebuilt.
       - name: Build pmm-client and pmm-server (native)
         run: make -f Makefile.datacosmos client server
