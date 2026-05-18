@@ -510,15 +510,6 @@ configure_pmm_agent() {
 }
 
 apply_generic_inputs() {
-  DB_USER="${DB_USER:-}"
-  DB_PASSWORD="${DB_PASSWORD:-}"
-  DB_HOST="${DB_HOST:-}"
-  DB_PORT="${DB_PORT:-}"
-  DB_ADDRESS="${DB_ADDRESS:-}"
-  DB_SERVICE_NAME="${DB_SERVICE_NAME:-}"
-  DB_AUTH_DB="${DB_AUTH_DB:-}"
-  DB_SOCKET="${DB_SOCKET:-}"
-
   MYSQL_USERNAME="${MYSQL_USERNAME:-${DB_USER}}"
   MYSQL_PASSWORD="${MYSQL_PASSWORD:-${DB_PASSWORD}}"
   MYSQL_HOST="${MYSQL_HOST:-${DB_HOST}}"
