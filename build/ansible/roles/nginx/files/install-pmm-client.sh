@@ -226,7 +226,7 @@ detect_os_family() {
         echo "debian"
         return
         ;;
-      rhel|ol|amzn)
+      rhel|ol|amzn|rocky|almalinux|centos|fedora)
         echo "el"
         return
         ;;
