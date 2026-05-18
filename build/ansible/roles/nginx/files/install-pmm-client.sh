@@ -493,11 +493,13 @@ configure_pmm_agent() {
   if [ "${PMM_SERVER_INSECURE_TLS}" = "1" ] || [ "${PMM_SERVER_INSECURE_TLS}" = "true" ]; then
     config_cmd+=(--server-insecure-tls)
   fi
-  if [ -n "${NODE_ADDRESS}" ]; then
-    config_cmd+=("${NODE_ADDRESS}")
-  fi
+  # pmm-admin config positionals are [<node-address>] [<node-type>] [<node-name>].
+  # NODE_NAME without NODE_ADDRESS would shift "generic" into the address slot.
   if [ -n "${NODE_NAME}" ]; then
-    config_cmd+=("generic" "${NODE_NAME}")
+    local node_address="${NODE_ADDRESS:-$(detect_node_hostname)}"
+    config_cmd+=("${node_address}" "generic" "${NODE_NAME}")
+  elif [ -n "${NODE_ADDRESS}" ]; then
+    config_cmd+=("${NODE_ADDRESS}")
   fi
   if [ "${PMM_CONFIG_FORCE}" = "1" ] || [ "${PMM_CONFIG_FORCE}" = "true" ]; then
     config_cmd+=(--force)
