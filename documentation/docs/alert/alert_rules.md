@@ -5,11 +5,12 @@ Alert rules describe the circumstances under which you want to be alerted. The e
 
 An alert rule consists of one or more queries and expressions, a condition, the frequency of evaluation, and the duration over which the condition is met. For example, you might configure an alert to fire and trigger a notification when MongoDB is down.
 
-An alert rule can be in three possible states:
+An alert rule can be in the following states:
 
-- Normal: Everything is working correctly and the conditions specified in the rule has not been met. This is the default state for newly created rules.
-- Pending: The conditions specified in the alert rule has been met, but for a time that is less than the configured duration.
-- Firing: Both the conditions and the duration specified in the alert rule have both been met.
+- **Normal**: Everything is working correctly and the conditions specified in the rule has not been met. This is the default state for newly created rules.
+- **Pending**: The conditions specified in the alert rule has been met, but for a time that is less than the configured duration.
+- **Firing**: Both the conditions and the duration specified in the alert rule have both been met.
+- **Recovering**: The alert conditions are no longer met, but the alert remains active until the metric is stable below the threshold. This prevents alerts from repeatedly flipping between **Firing** and **Normal** when metrics briefly cross a threshold.
 
 It takes at least one evaluation cycle for an alert rule to transition from one state to another (e.g., from `Normal` to `Pending`).
 
@@ -109,7 +110,7 @@ If you want to create custom templates, you can test the MetricsQL expressions f
 To test expressions for custom templates:
 {.power-number}
 
-1. On the main menu in PMM, choose **Explore > Metrics**.
+1. On the main menu in PMM, choose **Explore > PromQL builder**.
 2. Enter your expression in the **Metrics** field and click **Run query**.
 
 For example, to check the CPU usage, Go to **Explore > PromQL builder** and run the query expression below:
