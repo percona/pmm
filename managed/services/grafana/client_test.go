@@ -478,7 +478,6 @@ func TestCurrentUserHTTPResponse(t *testing.T) {
 }
 
 func TestClient(t *testing.T) {
-	logrus.SetLevel(logrus.TraceLevel)
 	l := logrus.WithField("test", t.Name())
 
 	ctx := t.Context()

@@ -34,7 +34,7 @@ func AssertGRPCError(tb testing.TB, expected *status.Status, actual error) {
 		return
 	}
 	err := s.Err()
-	require.NoError(tb, err)
+	require.Error(tb, err)
 	assert.Equal(tb, expected.Err().Error(), err.Error()) // gives the best error message
 }
 
