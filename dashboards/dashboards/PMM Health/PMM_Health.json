@@ -7730,7 +7730,7 @@
     }
   ],
   "preload": false,
-  "refresh": "",
+  "refresh": false,
   "schemaVersion": 42,
   "tags": [
     "Percona",
@@ -7865,7 +7865,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "browser",
+  "timezone": "",
   "title": "PMM Health",
   "uid": "pmm-health",
   "version": 1,
