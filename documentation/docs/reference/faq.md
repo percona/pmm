@@ -42,7 +42,7 @@ If you encounter errors such as `ERROR: Unsupported distribution` when running t
 
 ## Retention
 
-To control data retention, go to **PMM Configuration > Settings > Advanced Settings > Data retention** to adjust the value in days.
+To control data retention, go to **Configuration > Settings > Advanced settings > Data retention** to adjust the value in days.
 
 !!! seealso alert alert-info "See also"
     [Configure data retention](../configure-pmm/advanced_settings.md#data-retention)
