@@ -10,7 +10,7 @@ import NavItem from './nav-item';
 import type { NavItemProps } from './nav-item.types';
 
 const meta: Meta<NavItemProps> = {
-  title: 'Navigation/NavItem',
+  title: 'Navigation/Navigation Item',
   component: NavItem,
   tags: ['autodocs'],
   parameters: {

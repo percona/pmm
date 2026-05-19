@@ -6,7 +6,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import DateTimePickerInput from './date-time-picker';
 
 const meta: Meta<typeof DateTimePickerInput> = {
-  title: 'Inputs/DateTimePickerInput',
+  title: 'To be reviewed/DateTimePickerInput',
   component: DateTimePickerInput,
   parameters: {
     layout: 'centered',
