@@ -53,7 +53,7 @@
         - nomad-server.ini
 
     - name: Clean pmm-server dir
-      shell: find /usr/share/pmm-server -mindepth 1 -maxdepth 1 -print0 | xargs -0 rm -rf --
+      shell: find /usr/share/pmm-server -mindepth 1 -maxdepth 1 -not -name "static" -print0 | xargs -0 rm -rf --
 
     - name: Clean /srv directory for fresh initialization on first start
       file:
