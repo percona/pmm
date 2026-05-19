@@ -53,6 +53,11 @@ export const InstallClientPage = () => {
   const [now, setNow] = useState(() => Date.now());
   const refreshNow = useCallback(() => setNow(Date.now()), []);
 
+  const secondsLeft = tokenExpiresAt
+    ? Math.max(0, Math.floor((tokenExpiresAt.getTime() - now) / 1000))
+    : 0;
+  const isExpired = !!tokenExpiresAt && secondsLeft <= 0;
+
   // Tick once a second while a token is live, so the countdown chip refreshes.
   // Stops as soon as expiresAt is null or the token has expired.
   useEffect(() => {
@@ -60,11 +65,6 @@ export const InstallClientPage = () => {
     const id = window.setInterval(refreshNow, 1000);
     return () => window.clearInterval(id);
   }, [tokenExpiresAt, isExpired, refreshNow]);
-
-  const secondsLeft = tokenExpiresAt
-    ? Math.max(0, Math.floor((tokenExpiresAt.getTime() - now) / 1000))
-    : 0;
-  const isExpired = !!tokenExpiresAt && secondsLeft <= 0;
 
   // When the timer hits zero, drop the secret so the rendered command falls
   // back to the placeholder. We deliberately keep `tokenExpiresAt` set so the
