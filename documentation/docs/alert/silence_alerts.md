@@ -22,7 +22,7 @@ To create a new silence:
 4. Enter one or more matching labels by filling out the **Name** and **Value** fields. Matchers determine which rules the silence will apply to. Note that all labels specified here must be matched by an alert for it to be silenced.
 5. Enter any additional comments you would like about this silence - by default, the date the silence was created is placed here.
 6. Review the affected alert instances that will be silenced.
-7. Click **Save silece**.
+7. Click **Save silence**.
 
 For more information on working with silences, see [About alerting silences](https://grafana.com/docs/grafana/latest/alerting/manage-notifications/create-silence/) in the Grafana documentation.
 
