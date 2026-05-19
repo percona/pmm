@@ -16,6 +16,7 @@ import {
   Stack,
   Switch,
   TextField,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
@@ -79,6 +80,13 @@ export const InstallClientPage = () => {
   );
 
   const serverURL = useMemo(() => buildPmmServerURL(pmmHost, token), [pmmHost, token]);
+  const clipboardAvailable = useMemo(
+    () =>
+      typeof window !== 'undefined' &&
+      window.isSecureContext &&
+      typeof navigator.clipboard?.writeText === 'function',
+    []
+  );
 
   const command = useMemo(
     () =>
@@ -119,6 +127,7 @@ export const InstallClientPage = () => {
   );
 
   const handleCopy = async () => {
+    if (!clipboardAvailable) return;
     await navigator.clipboard.writeText(command);
     setCopied(true);
     window.setTimeout(() => setCopied(false), 2000);
@@ -390,9 +399,23 @@ export const InstallClientPage = () => {
               InputProps={{ readOnly: true }}
             />
             <Box>
-              <Button variant="contained" onClick={handleCopy}>
-                Copy command
-              </Button>
+              <Tooltip
+                title={
+                  clipboardAvailable
+                    ? ''
+                    : 'Copy is unavailable because clipboard access requires HTTPS or localhost.'
+                }
+              >
+                <span>
+                  <Button
+                    variant="contained"
+                    onClick={handleCopy}
+                    disabled={!clipboardAvailable}
+                  >
+                    Copy command
+                  </Button>
+                </span>
+              </Tooltip>
             </Box>
             {copied && <Alert severity="success">Command copied.</Alert>}
           </Stack>
