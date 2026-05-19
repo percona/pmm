@@ -18,6 +18,7 @@ package agents
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
@@ -45,16 +46,16 @@ func (s *PostgresExporterConfigTestSuite) SetupTest() {
 		Address: "1.2.3.4",
 	}
 	s.postgresql = &models.Service{
-		Address:      pointer.ToString("1.2.3.4"),
-		Port:         pointer.ToUint16(5432),
+		Address:      new("1.2.3.4"),
+		Port:         new(uint16(5432)),
 		DatabaseName: "postgres",
 	}
 	s.exporter = &models.Agent{
 		AgentID:       "agent-id",
 		AgentType:     models.PostgresExporterType,
-		Username:      pointer.ToString("username"),
-		Password:      pointer.ToString("s3cur3 p@$$w0r4."),
-		AgentPassword: pointer.ToString("agent-password"),
+		Username:      new("username"),
+		Password:      new("s3cur3 p@$$w0r4."),
+		AgentPassword: new("agent-password"),
 	}
 	s.expected = &agentv1.SetStateRequest_AgentProcess{
 		Type:               inventoryv1.AgentType_AGENT_TYPE_POSTGRES_EXPORTER,
@@ -70,7 +71,7 @@ func (s *PostgresExporterConfigTestSuite) SetupTest() {
 			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 		},
 		Env: []string{
-			"DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable",
+			"DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=2&sslmode=disable",
 			"HTTP_AUTH=pmm:agent-password",
 		},
 		RedactWords: []string{"s3cur3 p@$$w0r4.", "agent-password"},
@@ -94,7 +95,7 @@ func (s *PostgresExporterConfigTestSuite) TestConfig() {
 func (s *PostgresExporterConfigTestSuite) TestDatabaseName() {
 	s.Run("Set", func() {
 		s.postgresql.DatabaseName = "db1"
-		s.expected.Env[0] = "DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/db1?connect_timeout=1&sslmode=disable"
+		s.expected.Env[0] = "DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/db1?connect_timeout=2&sslmode=disable"
 
 		s.exporter.ExporterOptions = models.ExporterOptions{}
 		s.exporter.AzureOptions = models.AzureOptions{}
@@ -129,7 +130,7 @@ func (s *PostgresExporterConfigTestSuite) TestEmptyPassword() {
 	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, exposeSecrets, s.pmmAgentVersion)
 	s.NoError(err, "Failed to create exporter config")
 
-	s.Equal("DATA_SOURCE_NAME=postgres://username@1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable", actual.Env[0])
+	s.Equal("DATA_SOURCE_NAME=postgres://username@1.2.3.4:5432/postgres?connect_timeout=2&sslmode=disable", actual.Env[0])
 }
 
 func (s *PostgresExporterConfigTestSuite) TestEmptyUsername() {
@@ -141,7 +142,7 @@ func (s *PostgresExporterConfigTestSuite) TestEmptyUsername() {
 	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, exposeSecrets, s.pmmAgentVersion)
 	s.NoError(err, "Failed to create exporter config")
 
-	s.Equal("DATA_SOURCE_NAME=postgres://:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable", actual.Env[0])
+	s.Equal("DATA_SOURCE_NAME=postgres://:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=2&sslmode=disable", actual.Env[0])
 }
 
 func (s *PostgresExporterConfigTestSuite) TestEmptyUsernameAndPassword() {
@@ -154,7 +155,7 @@ func (s *PostgresExporterConfigTestSuite) TestEmptyUsernameAndPassword() {
 	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, exposeSecrets, s.pmmAgentVersion)
 	s.NoError(err, "Failed to create exporter config")
 
-	s.Equal("DATA_SOURCE_NAME=postgres://1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable", actual.Env[0])
+	s.Equal("DATA_SOURCE_NAME=postgres://1.2.3.4:5432/postgres?connect_timeout=2&sslmode=disable", actual.Env[0])
 }
 
 func (s *PostgresExporterConfigTestSuite) TestSocket() {
@@ -162,7 +163,7 @@ func (s *PostgresExporterConfigTestSuite) TestSocket() {
 	s.exporter.Password = nil
 	s.postgresql.Address = nil
 	s.postgresql.Port = nil
-	s.postgresql.Socket = pointer.ToString("/var/run/postgres")
+	s.postgresql.Socket = new("/var/run/postgres")
 	s.exporter.ExporterOptions = models.ExporterOptions{}
 	s.exporter.AzureOptions = models.AzureOptions{}
 	s.exporter.PostgreSQLOptions = models.PostgreSQLOptions{}
@@ -170,14 +171,14 @@ func (s *PostgresExporterConfigTestSuite) TestSocket() {
 	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, exposeSecrets, s.pmmAgentVersion)
 	s.NoError(err, "Failed to create exporter config")
 
-	s.Equal("DATA_SOURCE_NAME=postgres:///postgres?connect_timeout=1&host=%2Fvar%2Frun%2Fpostgres&sslmode=disable", actual.Env[0])
+	s.Equal("DATA_SOURCE_NAME=postgres:///postgres?connect_timeout=2&host=%2Fvar%2Frun%2Fpostgres&sslmode=disable", actual.Env[0])
 }
 
 func (s *PostgresExporterConfigTestSuite) TestDisabledCollectors() {
 	s.pmmAgentVersion = version.MustParse("2.42.0")
 	s.postgresql.Address = nil
 	s.postgresql.Port = nil
-	s.postgresql.Socket = pointer.ToString("/var/run/postgres")
+	s.postgresql.Socket = new("/var/run/postgres")
 	s.exporter.ExporterOptions = models.ExporterOptions{
 		DisabledCollectors: []string{"custom_query.hr", "custom_query.hr.directory", "locks"},
 	}
@@ -207,6 +208,78 @@ func (s *PostgresExporterConfigTestSuite) TestDisabledCollectors() {
 	s.Require().Equal(expected.Args, actual.Args)
 }
 
+func (s *PostgresExporterConfigTestSuite) TestDialTimeoutRemoteRDSDefault() {
+	s.node.NodeType = models.RemoteRDSNodeType
+	s.exporter.ExporterOptions = models.ExporterOptions{}
+	s.exporter.AzureOptions = models.AzureOptions{}
+	s.exporter.PostgreSQLOptions = models.PostgreSQLOptions{}
+	s.expected.Env[0] = "DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=5&sslmode=disable"
+
+	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, redactSecrets, s.pmmAgentVersion)
+	s.NoError(err)
+	s.Require().Equal(s.expected.Env, actual.Env)
+}
+
+func (s *PostgresExporterConfigTestSuite) TestDialTimeoutRemoteRDSCustom() {
+	s.node.NodeType = models.RemoteRDSNodeType
+	s.exporter.ExporterOptions = models.ExporterOptions{ConnectionTimeout: pointer.ToDuration(8 * time.Second)}
+	s.exporter.AzureOptions = models.AzureOptions{}
+	s.exporter.PostgreSQLOptions = models.PostgreSQLOptions{}
+	s.expected.Env[0] = "DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=8&sslmode=disable"
+
+	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, redactSecrets, s.pmmAgentVersion)
+	s.NoError(err)
+	s.Require().Equal(s.expected.Env, actual.Env)
+}
+
+func (s *PostgresExporterConfigTestSuite) TestDialTimeoutRoundsUpSubSecondCustom() {
+	s.exporter.ExporterOptions = models.ExporterOptions{ConnectionTimeout: pointer.ToDuration(1500 * time.Millisecond)}
+	s.exporter.AzureOptions = models.AzureOptions{}
+	s.exporter.PostgreSQLOptions = models.PostgreSQLOptions{}
+	s.expected.Env[0] = "DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=2&sslmode=disable"
+
+	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, redactSecrets, s.pmmAgentVersion)
+	s.NoError(err)
+	s.Require().Equal(s.expected.Env, actual.Env)
+	s.Require().NotNil(s.exporter.ExporterOptions.ConnectionTimeout)
+	s.Equal(1500*time.Millisecond, *s.exporter.ExporterOptions.ConnectionTimeout)
+}
+
+func (s *PostgresExporterConfigTestSuite) TestDialTimeoutAzureDefault() {
+	s.exporter.ExporterOptions = models.ExporterOptions{}
+	s.exporter.AzureOptions = models.AzureOptions{ClientID: "azure-client"}
+	s.exporter.PostgreSQLOptions = models.PostgreSQLOptions{}
+	s.expected.Env[0] = "DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=5&sslmode=disable"
+
+	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, redactSecrets, s.pmmAgentVersion)
+	s.NoError(err)
+	s.Require().Equal(s.expected.Env, actual.Env)
+}
+
+func (s *PostgresExporterConfigTestSuite) TestDialTimeoutAzureRoundsUpSubSecondCustom() {
+	s.exporter.ExporterOptions = models.ExporterOptions{ConnectionTimeout: pointer.ToDuration(1500 * time.Millisecond)}
+	s.exporter.AzureOptions = models.AzureOptions{ClientID: "azure-client"}
+	s.exporter.PostgreSQLOptions = models.PostgreSQLOptions{}
+	s.expected.Env[0] = "DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=2&sslmode=disable"
+
+	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, redactSecrets, s.pmmAgentVersion)
+	s.NoError(err)
+	s.Require().Equal(s.expected.Env, actual.Env)
+	s.Require().NotNil(s.exporter.ExporterOptions.ConnectionTimeout)
+	s.Equal(1500*time.Millisecond, *s.exporter.ExporterOptions.ConnectionTimeout)
+}
+
+func (s *PostgresExporterConfigTestSuite) TestDialTimeoutAzureCustom() {
+	s.exporter.ExporterOptions = models.ExporterOptions{ConnectionTimeout: pointer.ToDuration(4 * time.Second)}
+	s.exporter.AzureOptions = models.AzureOptions{ClientID: "azure-client"}
+	s.exporter.PostgreSQLOptions = models.PostgreSQLOptions{}
+	s.expected.Env[0] = "DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=4&sslmode=disable"
+
+	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, redactSecrets, s.pmmAgentVersion)
+	s.NoError(err)
+	s.Require().Equal(s.expected.Env, actual.Env)
+}
+
 func TestAutoDiscovery(t *testing.T) {
 	const discoveryFlag = "--auto-discover-databases"
 	const excludedFlag = "--exclude-databases=template0,template1,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin"
@@ -217,15 +290,15 @@ func TestAutoDiscovery(t *testing.T) {
 	}
 
 	postgresql := &models.Service{
-		Address:      pointer.ToString("1.2.3.4"),
-		Port:         pointer.ToUint16(5432),
+		Address:      new("1.2.3.4"),
+		Port:         new(uint16(5432)),
 		DatabaseName: "postgres",
 	}
 	exporter := &models.Agent{
 		AgentID:           "agent-id",
 		AgentType:         models.PostgresExporterType,
-		Username:          pointer.ToString("username"),
-		Password:          pointer.ToString("s3cur3 p@$$w0r4."),
+		Username:          new("username"),
+		Password:          new("s3cur3 p@$$w0r4."),
 		ExporterOptions:   models.ExporterOptions{},
 		AzureOptions:      models.AzureOptions{},
 		PostgreSQLOptions: models.PostgreSQLOptions{},
@@ -245,7 +318,7 @@ func TestAutoDiscovery(t *testing.T) {
 			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 		},
 		Env: []string{
-			"DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable",
+			"DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=2&sslmode=disable",
 			"HTTP_AUTH=pmm:agent-id",
 		},
 		RedactWords: []string{"s3cur3 p@$$w0r4."},
@@ -269,7 +342,7 @@ func TestAutoDiscovery(t *testing.T) {
 
 	t.Run("Database count more than limit - disabled", func(t *testing.T) {
 		exporter.PostgreSQLOptions = models.PostgreSQLOptions{
-			AutoDiscoveryLimit: pointer.ToInt32(5),
+			AutoDiscoveryLimit: new(int32(5)),
 			DatabaseCount:      10,
 		}
 		res, err := postgresExporterConfig(node, postgresql, exporter, redactSecrets, pmmAgentVersion)
@@ -280,7 +353,7 @@ func TestAutoDiscovery(t *testing.T) {
 
 	t.Run("Database count equal to limit - enabled", func(t *testing.T) {
 		exporter.PostgreSQLOptions = models.PostgreSQLOptions{
-			AutoDiscoveryLimit: pointer.ToInt32(5),
+			AutoDiscoveryLimit: new(int32(5)),
 			DatabaseCount:      5,
 		}
 		res, err := postgresExporterConfig(node, postgresql, exporter, redactSecrets, pmmAgentVersion)
@@ -291,7 +364,7 @@ func TestAutoDiscovery(t *testing.T) {
 
 	t.Run("Database count less than limit - enabled", func(t *testing.T) {
 		exporter.PostgreSQLOptions = models.PostgreSQLOptions{
-			AutoDiscoveryLimit: pointer.ToInt32(5),
+			AutoDiscoveryLimit: new(int32(5)),
 			DatabaseCount:      3,
 		}
 		res, err := postgresExporterConfig(node, postgresql, exporter, redactSecrets, pmmAgentVersion)
@@ -302,7 +375,7 @@ func TestAutoDiscovery(t *testing.T) {
 
 	t.Run("Negative limit - disabled", func(t *testing.T) {
 		exporter.PostgreSQLOptions = models.PostgreSQLOptions{
-			AutoDiscoveryLimit: pointer.ToInt32(-1),
+			AutoDiscoveryLimit: new(int32(-1)),
 			DatabaseCount:      3,
 		}
 		res, err := postgresExporterConfig(node, postgresql, exporter, redactSecrets, pmmAgentVersion)
@@ -313,7 +386,7 @@ func TestAutoDiscovery(t *testing.T) {
 
 	t.Run("Default - enabled", func(t *testing.T) {
 		exporter.PostgreSQLOptions = models.PostgreSQLOptions{
-			AutoDiscoveryLimit: pointer.ToInt32(0),
+			AutoDiscoveryLimit: new(int32(0)),
 			DatabaseCount:      3,
 		}
 		res, err := postgresExporterConfig(node, postgresql, exporter, redactSecrets, pmmAgentVersion)
@@ -332,15 +405,15 @@ func TestMaxConnections(t *testing.T) {
 	}
 
 	postgresql := &models.Service{
-		Address:      pointer.ToString("1.2.3.4"),
-		Port:         pointer.ToUint16(5432),
+		Address:      new("1.2.3.4"),
+		Port:         new(uint16(5432)),
 		DatabaseName: "postgres",
 	}
 	exporter := &models.Agent{
 		AgentID:         "agent-id",
 		AgentType:       models.PostgresExporterType,
-		Username:        pointer.ToString("username"),
-		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+		Username:        new("username"),
+		Password:        new("s3cur3 p@$$w0r4."),
 		ExporterOptions: models.ExporterOptions{},
 		AzureOptions:    models.AzureOptions{},
 		PostgreSQLOptions: models.PostgreSQLOptions{
@@ -364,7 +437,7 @@ func TestMaxConnections(t *testing.T) {
 			"--web.config={{ .TextFiles.webConfig }}",
 		},
 		Env: []string{
-			"DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable",
+			"DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=2&sslmode=disable",
 		},
 		TextFiles: map[string]string{
 			"webConfig": "basic_auth_users:\n    pmm: agent-id\n",
@@ -407,15 +480,15 @@ func (s *PostgresExporterConfigTestSuite) TestAzureTimeout() {
 	s.pmmAgentVersion = version.MustParse("2.16.0")
 
 	s.postgresql = &models.Service{
-		Address:      pointer.ToString("1.2.3.4"),
-		Port:         pointer.ToUint16(5432),
+		Address:      new("1.2.3.4"),
+		Port:         new(uint16(5432)),
 		DatabaseName: "postgres",
 	}
 	s.exporter = &models.Agent{
 		AgentID:         "agent-id",
 		AgentType:       models.PostgresExporterType,
-		Username:        pointer.ToString("username"),
-		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+		Username:        new("username"),
+		Password:        new("s3cur3 p@$$w0r4."),
 		ExporterOptions: models.ExporterOptions{},
 		AzureOptions: models.AzureOptions{
 			SubscriptionID: "subscription_id",
@@ -461,15 +534,15 @@ func (s *PostgresExporterConfigTestSuite) TestPrometheusWebConfig() {
 	s.pmmAgentVersion = version.MustParse("2.31.0")
 
 	s.postgresql = &models.Service{
-		Address:      pointer.ToString("1.2.3.4"),
-		Port:         pointer.ToUint16(5432),
+		Address:      new("1.2.3.4"),
+		Port:         new(uint16(5432)),
 		DatabaseName: "postgres",
 	}
 	s.exporter = &models.Agent{
 		AgentID:           "agent-id",
 		AgentType:         models.PostgresExporterType,
-		Username:          pointer.ToString("username"),
-		Password:          pointer.ToString("s3cur3 p@$$w0r4."),
+		Username:          new("username"),
+		Password:          new("s3cur3 p@$$w0r4."),
 		TLS:               true,
 		ExporterOptions:   models.ExporterOptions{},
 		AzureOptions:      models.AzureOptions{},
@@ -496,7 +569,7 @@ func (s *PostgresExporterConfigTestSuite) TestPrometheusWebConfig() {
 			"--web.config={{ .TextFiles.webConfig }}",
 		},
 		Env: []string{
-			"DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=1&sslmode=verify-ca",
+			"DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=2&sslmode=verify-ca",
 		},
 		TextFiles: map[string]string{
 			"webConfig": "basic_auth_users:\n    pmm: agent-id\n",
@@ -513,15 +586,15 @@ func (s *PostgresExporterConfigTestSuite) TestSSLSni() {
 	s.pmmAgentVersion = version.MustParse("2.41.0")
 
 	s.postgresql = &models.Service{
-		Address:      pointer.ToString("1.2.3.4"),
-		Port:         pointer.ToUint16(5432),
+		Address:      new("1.2.3.4"),
+		Port:         new(uint16(5432)),
 		DatabaseName: "postgres",
 	}
 	s.exporter = &models.Agent{
 		AgentID:           "agent-id",
 		AgentType:         models.PostgresExporterType,
-		Username:          pointer.ToString("username"),
-		Password:          pointer.ToString("s3cur3 p@$$w0r4."),
+		Username:          new("username"),
+		Password:          new("s3cur3 p@$$w0r4."),
 		TLS:               true,
 		ExporterOptions:   models.ExporterOptions{},
 		AzureOptions:      models.AzureOptions{},
@@ -548,7 +621,7 @@ func (s *PostgresExporterConfigTestSuite) TestSSLSni() {
 			"--web.config={{ .TextFiles.webConfig }}",
 		},
 		Env: []string{
-			"DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=1&sslmode=verify-ca&sslsni=0",
+			"DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=2&sslmode=verify-ca&sslsni=0",
 		},
 		TextFiles: map[string]string{
 			"webConfig": "basic_auth_users:\n    pmm: agent-id\n",

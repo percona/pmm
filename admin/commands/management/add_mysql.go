@@ -17,6 +17,7 @@ package management
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/alecthomas/units"
@@ -120,6 +121,7 @@ type AddMySQLCommand struct {
 	CreateUser             bool              `hidden:"" help:"Create pmm user"`
 	DisableCollectors      []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	ExposeExporter         bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
+	ConnectionTimeout      *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 
 	AddCommonFlags
 	flags.MetricsModeFlags
@@ -241,7 +243,8 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 				TablestatsGroupTableLimit: tablestatsGroupTableLimit,
 				MetricsMode:               cmd.MetricsModeFlags.MetricsMode.EnumValue(),
 				DisableCollectors:         commands.ParseDisableCollectors(cmd.DisableCollectors),
-				LogLevel:                  cmd.LogLevelNoFatalFlags.LogLevel.EnumValue(),
+				LogLevel:                  cmd.LogLevel.EnumValue(),
+				ConnectionTimeout:         commands.DurationString(cmd.ConnectionTimeout),
 			},
 		},
 		Context: commands.Ctx,

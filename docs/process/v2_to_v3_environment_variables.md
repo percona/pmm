@@ -37,7 +37,7 @@ Below is a list of affected variables and their new names.
 | `PERCONA_TEST_INTERFACE_TO_BIND`              | `PMM_INTERFACE_TO_BIND`                    |                                                              |
 | `PERCONA_TEST_PLATFORM_ADDRESS`               | `PMM_DEV_PERCONA_PLATFORM_ADDRESS`         |                                                              |
 | `PERCONA_TEST_PLATFORM_INSECURE`              | `PMM_DEV_PERCONA_PLATFORM_INSECURE`        |                                                              |
-| `PERCONA_TEST_PLATFORM_PUBLIC_KEY`            | `PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY`      |                                                              |
+| `PERCONA_TEST_PLATFORM_PUBLIC_KEY`            | `PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY`      | Removed in PMM v3                                            |
 | `PERCONA_TEST_POSTGRES_ADDR`                  | `PMM_POSTGRES_ADDR`                        |                                                              |
 | `PERCONA_TEST_POSTGRES_DBNAME`                | `PMM_POSTGRES_DBNAME`                      |                                                              |
 | `PERCONA_TEST_POSTGRES_SSL_CA_PATH`           | `PMM_POSTGRES_SSL_CA_PATH`                 |                                                              |

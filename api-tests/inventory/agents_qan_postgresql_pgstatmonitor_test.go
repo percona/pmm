@@ -18,7 +18,6 @@ package inventory
 import (
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -79,7 +78,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 						"new_label": "QANPostgreSQLPgStatMonitorAgent",
 					},
 					Status:   &AgentStatusUnknown,
-					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel: new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, getAgentRes)
@@ -90,7 +89,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					QANPostgresqlPgstatmonitorAgent: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgent{
-						Enable:       pointer.ToBool(false),
+						Enable:       new(false),
 						CustomLabels: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCustomLabels{},
 					},
 				},
@@ -108,7 +107,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 					Disabled:     true,
 					Status:       &AgentStatusDone,
 					CustomLabels: map[string]string{},
-					LogLevel:     pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:     new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeQANPostgreSQLPgStatMonitorAgentOK)
@@ -118,7 +117,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					QANPostgresqlPgstatmonitorAgent: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgent{
-						Enable: pointer.ToBool(true),
+						Enable: new(true),
 						CustomLabels: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCustomLabels{
 							Values: map[string]string{
 								"new_label": "QANPostgreSQLPgStatMonitorAgent",
@@ -142,7 +141,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 						"new_label": "QANPostgreSQLPgStatMonitorAgent",
 					},
 					Status:   &AgentStatusDone,
-					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel: new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeQANPostgreSQLPgStatMonitorAgentOK)
@@ -181,7 +180,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				QANPostgresqlPgstatmonitorAgent: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgent{
-					Password: pointer.ToString("new-rotated-postgres-monitor-password"),
+					Password: new("new-rotated-postgres-monitor-password"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -195,8 +194,8 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				QANPostgresqlPgstatmonitorAgent: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgent{
-					Username: pointer.ToString("new-postgres-monitor-user"),
-					Password: pointer.ToString("another-new-postgres-monitor-password"),
+					Username: new("new-postgres-monitor-user"),
+					Password: new("another-new-postgres-monitor-password"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -244,7 +243,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 					"environment": "test",
 					"team":        "dev",
 				},
-				LogLevel:               pointer.ToString("LOG_LEVEL_INFO"),
+				LogLevel:               new("LOG_LEVEL_INFO"),
 				SkipConnectionCheck:    true,
 				DisableCommentsParsing: true,
 			},
@@ -256,7 +255,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				QANPostgresqlPgstatmonitorAgent: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgent{
-					Username: pointer.ToString("updated-pgstatmonitor-user"),
+					Username: new("updated-pgstatmonitor-user"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -281,8 +280,8 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 			"environment": "test",
 			"team":        "dev",
 		}, agent.CustomLabels) // Unchanged
-		assert.Equal(t, pointer.ToString("LOG_LEVEL_INFO"), agent.LogLevel) // Unchanged
-		assert.False(t, agent.Disabled)                                     // Unchanged
+		assert.Equal(t, new("LOG_LEVEL_INFO"), agent.LogLevel) // Unchanged
+		assert.False(t, agent.Disabled)                        // Unchanged
 	})
 
 	t.Run("ChangeAllAvailableFields", func(t *testing.T) {
@@ -316,7 +315,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 					"environment": "staging",
 					"version":     "1.0",
 				},
-				LogLevel:               pointer.ToString("LOG_LEVEL_WARN"),
+				LogLevel:               new("LOG_LEVEL_WARN"),
 				SkipConnectionCheck:    true,
 				DisableCommentsParsing: false,
 			},
@@ -328,12 +327,12 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				QANPostgresqlPgstatmonitorAgent: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgent{
-					Username:             pointer.ToString("changed-pgstatmonitor-user"),
-					Password:             pointer.ToString("changed-pgstatmonitor-password"),
-					MaxQueryLength:       pointer.ToInt32(4096),
-					TLS:                  pointer.ToBool(true),
-					TLSSkipVerify:        pointer.ToBool(false),
-					DisableQueryExamples: pointer.ToBool(true),
+					Username:             new("changed-pgstatmonitor-user"),
+					Password:             new("changed-pgstatmonitor-password"),
+					MaxQueryLength:       new(int32(4096)),
+					TLS:                  new(true),
+					TLSSkipVerify:        new(false),
+					DisableQueryExamples: new(true),
 					CustomLabels: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCustomLabels{
 						Values: map[string]string{
 							"environment": "production",
@@ -341,9 +340,9 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 							"team":        "backend",
 						},
 					},
-					LogLevel:               pointer.ToString("LOG_LEVEL_DEBUG"),
-					DisableCommentsParsing: pointer.ToBool(true),
-					Enable:                 pointer.ToBool(false), // disable the agent
+					LogLevel:               new("LOG_LEVEL_DEBUG"),
+					DisableCommentsParsing: new(true),
+					Enable:                 new(false), // disable the agent
 				},
 			},
 			Context: pmmapitests.Context,
@@ -368,7 +367,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 				"team":        "backend",
 			},
 			Status:   &AgentStatusDone,
-			LogLevel: pointer.ToString("LOG_LEVEL_DEBUG"),
+			LogLevel: new("LOG_LEVEL_DEBUG"),
 		}
 
 		assert.Equal(t, expectedAgent, changeQANAgentOK.Payload.QANPostgresqlPgstatmonitorAgent)
@@ -397,7 +396,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 				"team":        "backend",
 			},
 			Status:   &AgentStatusDone,
-			LogLevel: pointer.ToString("LOG_LEVEL_DEBUG"),
+			LogLevel: new("LOG_LEVEL_DEBUG"),
 		}
 
 		assert.Equal(t, expectedGetAgent, getAgentRes.Payload.QANPostgresqlPgstatmonitorAgent)
