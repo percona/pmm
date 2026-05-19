@@ -156,6 +156,7 @@ export const flattenAlertRules = (
           labels: alert.labels,
           annotations: alert.annotations,
           expression: rule.query || '',
+          value: alert.value,
           activeAt: alert.activeAt,
           age: getAge(alert.activeAt),
           rawJson: JSON.stringify(

@@ -499,6 +499,11 @@ const AlertsPage = () => {
                       onClick: () => handleAlertChange(alert),
                     };
                   }}
+                  muiTableHeadRowProps={{
+                    sx: {
+                      boxShadow: 'none',
+                    },
+                  }}
                 />
               </Stack>
             )}

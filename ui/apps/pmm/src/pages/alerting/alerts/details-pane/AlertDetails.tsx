@@ -5,6 +5,7 @@ import {
   Chip,
   Grid,
   Paper,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -18,10 +19,7 @@ import { TIME_FORMAT } from 'lib/constants';
 import { SyntaxHighlighter } from 'components/syntax-highlighter';
 import BigNumberMetric from 'pages/rta/overview/details-pane/BigNumberMetric';
 import DetailsMetric from 'pages/rta/overview/details-pane/DetailsMetric';
-import {
-  STATUS_COLOR_MAP,
-  STATUS_LABEL_MAP,
-} from '../AlertsPage.constants';
+import { STATUS_COLOR_MAP, STATUS_LABEL_MAP } from '../AlertsPage.constants';
 import { AlertRow } from '../AlertsPage.types';
 
 type Props = {
@@ -67,7 +65,7 @@ const KeyValueTable = ({
 
   return (
     <TableContainer component={Paper} variant="outlined">
-      <Table size="small">
+      <Table size="small" stickyHeader>
         <TableHead>
           <TableRow>
             <TableCell colSpan={2}>
@@ -118,6 +116,9 @@ const AlertDetails: FC<Props> = ({ alert }) => {
                 label={STATUS_LABEL_MAP[alert.state]}
                 color={STATUS_COLOR_MAP[alert.state]}
                 size="small"
+                sx={{
+                  px: 1,
+                }}
               />
             </DetailsMetric>
           </GridItem>
@@ -212,12 +213,52 @@ const AlertDetails: FC<Props> = ({ alert }) => {
           overflow: 'auto',
         }}
       >
-        <SyntaxHighlighter
-          language="text"
-          showLineNumbers
-          showCopyButton
-          content={alert.expression}
-        />
+        <Typography
+          variant="body1"
+          fontFamily="Poppins"
+          fontWeight="600"
+          sx={{
+            marginBottom: -1,
+          }}
+        >
+          Query
+        </Typography>
+        <Stack
+          sx={{
+            pre: {
+              minHeight: 40,
+            },
+          }}
+        >
+          <SyntaxHighlighter
+            language="text"
+            showLineNumbers
+            showCopyButton
+            content={alert.expression}
+          />
+        </Stack>
+        <Typography
+          variant="body1"
+          fontFamily="Poppins"
+          fontWeight="600"
+          sx={{
+            marginBottom: -1,
+          }}
+        >
+          Value
+        </Typography>
+        <Stack
+          sx={{
+            pre: {
+              minHeight: 40,
+            },
+          }}
+        >
+          <SyntaxHighlighter
+            language="text"
+            content={alert.value || 'Unavailable'}
+          />
+        </Stack>
         <KeyValueTable title="Labels" data={alert.labels} />
         <KeyValueTable title="Annotations" data={alert.annotations} />
       </Grid>

@@ -14,6 +14,7 @@ export interface AlertRow {
   labels: Record<string, string>;
   annotations: Record<string, string>;
   expression: string;
+  value?: string;
   activeAt?: string;
   age: string;
   rawJson: string;
