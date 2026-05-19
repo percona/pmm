@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { type ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Alert,
   Box,
@@ -21,6 +21,7 @@ import {
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
 import { Page } from 'components/page';
 import { createNodeInstallToken } from 'api/installToken';
+import type { SelectChangeEvent } from '@mui/material/Select';
 import {
   buildInstallCommand,
   buildPmmServerURL,
@@ -49,14 +50,15 @@ export const InstallClientPage = () => {
   const [genLoading, setGenLoading] = useState(false);
   const [tokenExpiresAt, setTokenExpiresAt] = useState<Date | null>(null);
   const [now, setNow] = useState(() => Date.now());
+  const refreshNow = useCallback(() => setNow(Date.now()), []);
 
   // Tick once a second while a token is live, so the countdown chip refreshes.
   // Stops as soon as expiresAt is null or the token has expired.
   useEffect(() => {
     if (!tokenExpiresAt || isExpired) return undefined;
-    const id = window.setInterval(() => setNow(Date.now()), 1000);
+    const id = window.setInterval(refreshNow, 1000);
     return () => window.clearInterval(id);
-  }, [tokenExpiresAt, isExpired]);
+  }, [tokenExpiresAt, isExpired, refreshNow]);
 
   const secondsLeft = tokenExpiresAt
     ? Math.max(0, Math.floor((tokenExpiresAt.getTime() - now) / 1000))
@@ -124,14 +126,14 @@ export const InstallClientPage = () => {
     ]
   );
 
-  const handleCopy = async () => {
+  const handleCopy = useCallback(async () => {
     if (!clipboardAvailable) return;
     await navigator.clipboard.writeText(command);
     setCopied(true);
     window.setTimeout(() => setCopied(false), 2000);
-  };
+  }, [clipboardAvailable, command]);
 
-  const handleGenerateToken = async () => {
+  const handleGenerateToken = useCallback(async () => {
     setGenLoading(true);
     try {
       const res = await createNodeInstallToken(technology, 0);
@@ -142,13 +144,89 @@ export const InstallClientPage = () => {
         ? new Date(res.expiresAt)
         : new Date(Date.now() + 15 * 60 * 1000);
       setTokenExpiresAt(expires);
-      setNow(Date.now());
+      refreshNow();
     } catch {
       // Handled by global API error interceptor (toast notification).
     } finally {
       setGenLoading(false);
     }
-  };
+  }, [refreshNow, technology]);
+
+  const handleTechnologyChange = useCallback(
+    (e: SelectChangeEvent<Technology>) => setTechnology(e.target.value as Technology),
+    []
+  );
+
+  const handleCredentialsModeChange = useCallback(
+    (e: SelectChangeEvent<CredentialsMode>) =>
+      setCredentialsMode(e.target.value as CredentialsMode),
+    []
+  );
+
+  const handlePmmHostChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => setPmmHost(e.target.value),
+    []
+  );
+
+  const handleTokenChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    setToken(e.target.value);
+    setTokenExpiresAt(null);
+  }, []);
+
+  const handleNodeNameChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => setNodeName(e.target.value),
+    []
+  );
+
+  const handleNodeAddressChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => setNodeAddress(e.target.value),
+    []
+  );
+
+  const handleDbUserChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => setDbUser(e.target.value),
+    []
+  );
+
+  const handleDbPasswordChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => setDbPassword(e.target.value),
+    []
+  );
+
+  const handleDbHostChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => setDbHost(e.target.value),
+    []
+  );
+
+  const handleDbPortChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => setDbPort(e.target.value),
+    []
+  );
+
+  const handleDbServiceNameChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => setDbServiceName(e.target.value),
+    []
+  );
+
+  const handleDbNameChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => setDbName(e.target.value),
+    []
+  );
+
+  const handleDbAuthDBChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => setDbAuthDB(e.target.value),
+    []
+  );
+
+  const handleInsecureTLSChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => setInsecureTLS(e.target.checked),
+    []
+  );
+
+  const handleRegisterForceChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => setRegisterForce(e.target.checked),
+    []
+  );
 
   return (
     <Page title="Install PMM Client (One-step)">
@@ -177,7 +255,7 @@ export const InstallClientPage = () => {
                   labelId="technology-label"
                   value={technology}
                   label="Technology"
-                  onChange={(e) => setTechnology(e.target.value as Technology)}
+                  onChange={handleTechnologyChange}
                 >
                   <MenuItem value="mysql">MySQL</MenuItem>
                   <MenuItem value="postgresql">PostgreSQL</MenuItem>
@@ -193,9 +271,7 @@ export const InstallClientPage = () => {
                   labelId="credentials-mode-label"
                   value={credentialsMode}
                   label="Credentials mode"
-                  onChange={(e) =>
-                    setCredentialsMode(e.target.value as CredentialsMode)
-                  }
+                  onChange={handleCredentialsModeChange}
                 >
                   <MenuItem value="prompt">
                     Prompt on node (downloads script first, asks for DB user/password)
@@ -218,7 +294,7 @@ export const InstallClientPage = () => {
                 fullWidth
                 label="PMM host"
                 value={pmmHost}
-                onChange={(e) => setPmmHost(e.target.value)}
+                onChange={handlePmmHostChange}
                 helperText="Hostname or hostname:port for PMM_SERVER_URL (defaults to this page if empty)"
               />
               <TextField
@@ -226,12 +302,7 @@ export const InstallClientPage = () => {
                 type="password"
                 label="Service token"
                 value={token}
-                onChange={(e) => {
-                  setToken(e.target.value);
-                  // User edited the field manually — drop the expiry so we
-                  // stop ticking against a token they overrode.
-                  setTokenExpiresAt(null);
-                }}
+                onChange={handleTokenChange}
                 error={isExpired}
                 helperText={
                   isExpired
@@ -280,13 +351,13 @@ export const InstallClientPage = () => {
                 fullWidth
                 label="Node name (optional)"
                 value={nodeName}
-                onChange={(e) => setNodeName(e.target.value)}
+                onChange={handleNodeNameChange}
               />
               <TextField
                 fullWidth
                 label="Node address (optional)"
                 value={nodeAddress}
-                onChange={(e) => setNodeAddress(e.target.value)}
+                onChange={handleNodeAddressChange}
               />
             </Stack>
 
@@ -297,18 +368,18 @@ export const InstallClientPage = () => {
             ) : (
               <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
                 <TextField
-                  fullWidth
-                  label="DB user (optional)"
-                  value={dbUser}
-                  onChange={(e) => setDbUser(e.target.value)}
-                />
+                    fullWidth
+                    label="DB user (optional)"
+                    value={dbUser}
+                    onChange={handleDbUserChange}
+                  />
                 <TextField
                   fullWidth
-                  type="password"
-                  label="DB password"
-                  value={dbPassword}
-                  onChange={(e) => setDbPassword(e.target.value)}
-                />
+                    type="password"
+                    label="DB password"
+                    value={dbPassword}
+                    onChange={handleDbPasswordChange}
+                  />
               </Stack>
             )}
 
@@ -317,19 +388,19 @@ export const InstallClientPage = () => {
                 fullWidth
                 label="DB host"
                 value={dbHost}
-                onChange={(e) => setDbHost(e.target.value)}
+                onChange={handleDbHostChange}
               />
               <TextField
                 fullWidth
                 label="DB port"
                 value={dbPort}
-                onChange={(e) => setDbPort(e.target.value)}
+                onChange={handleDbPortChange}
               />
               <TextField
                 fullWidth
                 label="Service name"
                 value={dbServiceName}
-                onChange={(e) => setDbServiceName(e.target.value)}
+                onChange={handleDbServiceNameChange}
               />
             </Stack>
 
@@ -338,7 +409,7 @@ export const InstallClientPage = () => {
                 fullWidth
                 label="PostgreSQL database (optional)"
                 value={dbName}
-                onChange={(e) => setDbName(e.target.value)}
+                onChange={handleDbNameChange}
               />
             )}
             {technology === 'mongodb' && (
@@ -346,7 +417,7 @@ export const InstallClientPage = () => {
                 fullWidth
                 label="MongoDB auth DB (optional)"
                 value={dbAuthDB}
-                onChange={(e) => setDbAuthDB(e.target.value)}
+                onChange={handleDbAuthDBChange}
               />
             )}
 
@@ -355,7 +426,7 @@ export const InstallClientPage = () => {
                 control={
                   <Switch
                     checked={insecureTLS}
-                    onChange={(e) => setInsecureTLS(e.target.checked)}
+                    onChange={handleInsecureTLSChange}
                   />
                 }
                 label="Use insecure TLS"
@@ -364,7 +435,7 @@ export const InstallClientPage = () => {
                 control={
                   <Switch
                     checked={registerForce}
-                    onChange={(e) => setRegisterForce(e.target.checked)}
+                    onChange={handleRegisterForceChange}
                   />
                 }
                 label="Force re-register node"
