@@ -48,6 +48,7 @@ export const InstallClientPage = () => {
   const [dbServiceName, setDbServiceName] = useState('');
   const [copied, setCopied] = useState(false);
   const [genLoading, setGenLoading] = useState(false);
+  const [genError, setGenError] = useState<string | null>(null);
   const [tokenExpiresAt, setTokenExpiresAt] = useState<Date | null>(null);
   const [now, setNow] = useState(() => Date.now());
   const refreshNow = useCallback(() => setNow(Date.now()), []);
@@ -134,6 +135,7 @@ export const InstallClientPage = () => {
   }, [clipboardAvailable, command]);
 
   const handleGenerateToken = useCallback(async () => {
+    setGenError(null);
     setGenLoading(true);
     try {
       const res = await createNodeInstallToken(technology, 0);
@@ -145,8 +147,8 @@ export const InstallClientPage = () => {
         : new Date(Date.now() + 15 * 60 * 1000);
       setTokenExpiresAt(expires);
       refreshNow();
-    } catch {
-      // Handled by global API error interceptor (toast notification).
+    } catch (error) {
+      setGenError(error instanceof Error ? error.message : 'Failed to create token');
     } finally {
       setGenLoading(false);
     }
@@ -339,6 +341,11 @@ export const InstallClientPage = () => {
                   variant="outlined"
                   size="medium"
                 />
+              )}
+              {genError && (
+                <Alert severity="error" sx={{ flex: 1 }}>
+                  {genError}
+                </Alert>
               )}
             </Stack>
             <FormHelperText sx={{ mt: -1 }}>
