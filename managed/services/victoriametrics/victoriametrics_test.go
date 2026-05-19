@@ -45,7 +45,7 @@ func setup(t *testing.T) (*reform.DB, *Service, []byte) {
 	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
 	check.NoError(err)
 
-	chParams, err := models.NewClickHouseParams("127.0.0.1:9000", "pmm", "default", "clickhouse", false)
+	chParams, err := models.NewClickHouseParams("127.0.0.1:9000", "pmm", "default", "clickhouse")
 	check.NoError(err)
 
 	mockHaService := newMockHaService(t)
@@ -1014,29 +1014,26 @@ func TestVMConfig_OmitsClickhouseScrape(t *testing.T) {
 		return db, svc
 	}
 
-	newCHParams := func(t *testing.T, addr string, builtinDisabled bool) *models.ClickHouseParams {
+	newCHParams := func(t *testing.T, addr string) *models.ClickHouseParams {
 		t.Helper()
-		chp, err := models.NewClickHouseParams(addr, "pmm", "default", "clickhouse", builtinDisabled)
+		chp, err := models.NewClickHouseParams(addr, "pmm", "default", "clickhouse")
 		require.NoError(t, err)
 		return chp
 	}
 
 	cases := []struct {
-		name            string
-		addr            string
-		builtinDisabled bool
-		vmURL           string
-		wantClickhouse  bool
+		name           string
+		addr           string
+		vmURL          string
+		wantClickhouse bool
 	}{
-		{"internal enabled positive control", "127.0.0.1:9000", false, models.VMBaseURL, true},
-		{"external addr, builtin not disabled (auto-skip)", "ch.external:9000", false, models.VMBaseURL, false},
-		{"builtin disabled", "127.0.0.1:9000", true, models.VMBaseURL, false},
-		{"external addr, builtin disabled", "ch.external:9000", true, models.VMBaseURL, false},
-		{"external VM short-circuits CH scrape", "127.0.0.1:9000", false, "http://vm.external:9090/prometheus/", false},
+		{"internal enabled positive control", "127.0.0.1:9000", models.VMBaseURL, true},
+		{"external addr skips scrape", "ch.external:9000", models.VMBaseURL, false},
+		{"external VM short-circuits CH scrape", "127.0.0.1:9000", "http://vm.external:9090/prometheus/", false},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			_, svc := newSvc(t, newCHParams(t, tc.addr, tc.builtinDisabled), tc.vmURL)
+			_, svc := newSvc(t, newCHParams(t, tc.addr), tc.vmURL)
 			cfg, err := svc.marshalConfig(svc.loadBaseConfig())
 			require.NoError(t, err)
 			if tc.wantClickhouse {

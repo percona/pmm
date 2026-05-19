@@ -24,8 +24,7 @@ import (
 
 // ClickHouseParams represents ClickHouse server params.
 type ClickHouseParams struct {
-	BuiltinDisabled bool
-	url             *url.URL
+	url *url.URL
 }
 
 // ExternalClickHouse returns true if ClickHouse is configured externally.
@@ -41,7 +40,7 @@ func (p *ClickHouseParams) URL() *url.URL {
 
 // NewClickHouseParams returns validated ClickHouse configuration params,
 // or an error if any required field is missing or malformed.
-func NewClickHouseParams(addr, dbName, dbUsername, dbPassword string, builtinDisabled bool) (*ClickHouseParams, error) {
+func NewClickHouseParams(addr, dbName, dbUsername, dbPassword string) (*ClickHouseParams, error) {
 	if addr == "" {
 		return nil, fmt.Errorf("addr is required")
 	}
@@ -63,7 +62,6 @@ func NewClickHouseParams(addr, dbName, dbUsername, dbPassword string, builtinDis
 	}
 
 	return &ClickHouseParams{
-		BuiltinDisabled: builtinDisabled,
 		url: &url.URL{
 			Scheme: "tcp",
 			User:   url.UserPassword(dbUsername, dbPassword),

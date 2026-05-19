@@ -24,20 +24,13 @@ import (
 
 func TestNewClickHouseParams(t *testing.T) {
 	t.Run("valid", func(t *testing.T) {
-		p, err := NewClickHouseParams("127.0.0.1:9000", "pmm", "default", "clickhouse", false)
+		p, err := NewClickHouseParams("127.0.0.1:9000", "pmm", "default", "clickhouse")
 		require.NoError(t, err)
 		assert.Equal(t, "tcp://default:clickhouse@127.0.0.1:9000/pmm", p.URL().String())
-		assert.False(t, p.BuiltinDisabled)
-	})
-
-	t.Run("valid builtin disabled", func(t *testing.T) {
-		p, err := NewClickHouseParams("127.0.0.1:9000", "pmm", "default", "clickhouse", true)
-		require.NoError(t, err)
-		assert.True(t, p.BuiltinDisabled)
 	})
 
 	t.Run("valid empty password", func(t *testing.T) {
-		_, err := NewClickHouseParams("127.0.0.1:9000", "pmm", "default", "", false)
+		_, err := NewClickHouseParams("127.0.0.1:9000", "pmm", "default", "")
 		require.NoError(t, err)
 	})
 
@@ -59,7 +52,7 @@ func TestNewClickHouseParams(t *testing.T) {
 	}
 	for _, tc := range errCases {
 		t.Run(tc.name, func(t *testing.T) {
-			_, err := NewClickHouseParams(tc.addr, tc.dbName, tc.dbUsername, tc.dbPassword, false)
+			_, err := NewClickHouseParams(tc.addr, tc.dbName, tc.dbUsername, tc.dbPassword)
 			require.Error(t, err)
 			assert.ErrorContains(t, err, tc.wantErrSub)
 		})
@@ -79,7 +72,7 @@ func TestCHParamsExternalClickHouse(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			p, err := NewClickHouseParams(tc.addr, "pmm", "default", "clickhouse", false)
+			p, err := NewClickHouseParams(tc.addr, "pmm", "default", "clickhouse")
 			require.NoError(t, err)
 			assert.Equal(t, tc.want, p.ExternalClickHouse())
 		})
@@ -88,13 +81,13 @@ func TestCHParamsExternalClickHouse(t *testing.T) {
 
 func TestCHParamsURL(t *testing.T) {
 	t.Run("simple", func(t *testing.T) {
-		p, err := NewClickHouseParams("127.0.0.1:9000", "pmm", "default", "clickhouse", false)
+		p, err := NewClickHouseParams("127.0.0.1:9000", "pmm", "default", "clickhouse")
 		require.NoError(t, err)
 		assert.Equal(t, "tcp://default:clickhouse@127.0.0.1:9000/pmm", p.URL().String())
 	})
 
 	t.Run("password with special chars", func(t *testing.T) {
-		p, err := NewClickHouseParams("127.0.0.1:9000", "pmm", "default", "p@ss/word", false)
+		p, err := NewClickHouseParams("127.0.0.1:9000", "pmm", "default", "p@ss/word")
 		require.NoError(t, err)
 		assert.Equal(t, "tcp://default:p%40ss%2Fword@127.0.0.1:9000/pmm", p.URL().String())
 	})

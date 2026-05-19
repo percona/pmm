@@ -729,8 +729,6 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PMM_CLICKHOUSE_ADDR").String()
 	clickhouseUsernameF := kingpin.Flag("clickhouse-username", "Clickhouse database user").Default("default").Envar("PMM_CLICKHOUSE_USER").String()
 	clickhousePasswordF := kingpin.Flag("clickhouse-password", "Clickhouse database user password").Default("clickhouse").Envar("PMM_CLICKHOUSE_PASSWORD").String()
-	clickhouseBuiltinDisabledF := kingpin.Flag("clickhouse-disable-builtin", "Disable the built-in ClickHouse").Envar("PMM_DISABLE_BUILTIN_CLICKHOUSE").Bool()
-
 	watchtowerHostF := kingpin.Flag("watchtower-host", "Watchtower host").Default("http://watchtower:8080").Envar("PMM_WATCHTOWER_HOST").URL()
 
 	// Nomad garbage collection flags
@@ -830,7 +828,6 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		*clickHouseDatabaseF,
 		*clickhouseUsernameF,
 		*clickhousePasswordF,
-		*clickhouseBuiltinDisabledF,
 	)
 	if err != nil {
 		l.Panicf("cannot load clickhouse params: %+v", err)

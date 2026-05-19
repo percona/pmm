@@ -266,27 +266,21 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 
 // AddInternalServicesToScrape adds internal services metrics to scrape targets.
 func addInternalServicesToScrape(s models.MetricsResolutions, svc *Service, pmmServerNodeName string) []*config.ScrapeConfig {
-	cfg := []*config.ScrapeConfig{
+	cfg := []*config.ScrapeConfig{}
+
+	if svc.params.ExternalVM() {
+		svc.l.Infof("Skip all scrape configs, VictoriaMetrics is configured to run externally.")
+		return cfg
+	}
+
+	cfg = append(cfg,
 		scrapeConfigForGrafana(s.MR, pmmServerNodeName),
 		scrapeConfigForPMMManaged(s.MR, pmmServerNodeName),
 		scrapeConfigForQANAPI2(s.MR, pmmServerNodeName),
-	}
-
-	if svc.params.ExternalVM() {
-		svc.l.Infof("Skip scrape config for ClickHouse, VictoriaMetrics is configured to run externally.")
-		return cfg
-	}
-
-	if svc.chParams.BuiltinDisabled {
-		svc.l.Infof("Skip scrape config for ClickHouse, scraping has been disabled for builtin clickhouse.")
-		return cfg
-	}
+	)
 
 	if svc.chParams.ExternalClickHouse() {
-		svc.l.Warnf(
-			"External ClickHouse detected (%s); skipping built-in ClickHouse scrape (127.0.0.1:9363). Set PMM_DISABLE_BUILTIN_CLICKHOUSE=true to make this explicit.",
-			svc.chParams.URL().Redacted(),
-		)
+		svc.l.Warnf("Skip ClickHouse scrape config, ClickHouse is configured to run externally.")
 		return cfg
 	}
 
