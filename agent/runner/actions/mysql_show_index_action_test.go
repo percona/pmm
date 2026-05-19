@@ -125,7 +125,7 @@ func TestMySQLShowIndex(t *testing.T) {
 
 		_, err := a.Run(ctx)
 		expected := "Error 1146 (42S02): Table 'world.city; DROP TABLE city; --' doesn't exist"
-		require.Equal(t, expected, err.Error())
+		require.EqualError(t, err, expected)
 
 		var count int
 		err = q.QueryRow("SELECT COUNT(*) FROM city").Scan(&count)

@@ -63,7 +63,7 @@ Traceback (most recent call last):
   TestVersion:2:22: in check_context
   <builtin>: in parse_version
 	`) + "\n"
-	require.Error(t, err, expectedErr)
+	require.EqualError(t, err, expectedErr)
 	assert.Empty(t, res)
 
 	input = []map[string]interface{}{
