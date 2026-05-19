@@ -22,6 +22,7 @@ import (
 	"testing"
 
 	"github.com/lib/pq"
+	"github.com/lib/pq/pqerror"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -36,7 +37,7 @@ func assertUniqueViolation(t *testing.T, err error, constraint string) {
 
 	require.IsType(t, &pq.Error{}, err)
 	pgErr := err.(*pq.Error) //nolint:errorlint
-	assert.EqualValues(t, pq.ErrorCode("23505"), pgErr.Code)
+	assert.Equal(t, pqerror.Code("23505"), pgErr.Code)
 	assert.Equal(t, fmt.Sprintf(`duplicate key value violates unique constraint %q`, constraint), pgErr.Message)
 }
 
@@ -45,7 +46,7 @@ func assertCheckViolation(t *testing.T, err error, table, constraint string) { /
 
 	require.IsType(t, &pq.Error{}, err)
 	pgErr := err.(*pq.Error) //nolint:errorlint
-	assert.EqualValues(t, pq.ErrorCode("23514"), pgErr.Code)
+	assert.Equal(t, pqerror.Code("23514"), pgErr.Code)
 	assert.Equal(t, fmt.Sprintf(`new row for relation %q violates check constraint %q`, table, constraint), pgErr.Message)
 }
 
