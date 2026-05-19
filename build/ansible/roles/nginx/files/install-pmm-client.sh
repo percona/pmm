@@ -358,8 +358,12 @@ ensure_pmm_agent_config_file() {
   fi
   if [ ! -e "${PMM_AGENT_CONFIG_FILE}" ]; then
     : > "${PMM_AGENT_CONFIG_FILE}"
-    chmod 0660 "${PMM_AGENT_CONFIG_FILE}" || true
     log "Created empty pmm-agent config: ${PMM_AGENT_CONFIG_FILE}"
+  fi
+  chmod 0660 "${PMM_AGENT_CONFIG_FILE}" || true
+  if id -u pmm-agent >/dev/null 2>&1; then
+    chown pmm-agent:pmm-agent "${PMM_AGENT_CONFIG_FILE}" 2>/dev/null || \
+      chown pmm-agent "${PMM_AGENT_CONFIG_FILE}" 2>/dev/null || true
   fi
 }
 
