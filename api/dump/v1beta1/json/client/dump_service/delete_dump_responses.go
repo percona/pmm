@@ -104,7 +104,6 @@ func (o *DeleteDumpOK) GetPayload() any {
 }
 
 func (o *DeleteDumpOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
@@ -176,7 +175,6 @@ func (o *DeleteDumpDefault) GetPayload() *DeleteDumpDefaultBody {
 }
 
 func (o *DeleteDumpDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(DeleteDumpDefaultBody)
 
 	// response payload
@@ -192,7 +190,6 @@ DeleteDumpBody delete dump body
 swagger:model DeleteDumpBody
 */
 type DeleteDumpBody struct {
-
 	// dump ids
 	DumpIds []string `json:"dump_ids"`
 }
@@ -230,7 +227,6 @@ DeleteDumpDefaultBody delete dump default body
 swagger:model DeleteDumpDefaultBody
 */
 type DeleteDumpDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -300,9 +296,7 @@ func (o *DeleteDumpDefaultBody) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *DeleteDumpDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -322,7 +316,6 @@ func (o *DeleteDumpDefaultBody) contextValidateDetails(ctx context.Context, form
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -351,7 +344,6 @@ DeleteDumpDefaultBodyDetailsItems0 delete dump default body details items0
 swagger:model DeleteDumpDefaultBodyDetailsItems0
 */
 type DeleteDumpDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -363,7 +355,6 @@ type DeleteDumpDefaultBodyDetailsItems0 struct {
 func (o *DeleteDumpDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -401,7 +392,6 @@ func (o *DeleteDumpDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o DeleteDumpDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}

@@ -7,14 +7,15 @@
 package inventoryv1
 
 import (
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
+
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
 )
 
 const (
@@ -2306,43 +2307,46 @@ func file_inventory_v1_nodes_proto_rawDescGZIP() []byte {
 	return file_inventory_v1_nodes_proto_rawDescData
 }
 
-var file_inventory_v1_nodes_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_inventory_v1_nodes_proto_msgTypes = make([]protoimpl.MessageInfo, 32)
-var file_inventory_v1_nodes_proto_goTypes = []any{
-	(NodeType)(0),                          // 0: inventory.v1.NodeType
-	(*GenericNode)(nil),                    // 1: inventory.v1.GenericNode
-	(*ContainerNode)(nil),                  // 2: inventory.v1.ContainerNode
-	(*RemoteNode)(nil),                     // 3: inventory.v1.RemoteNode
-	(*RemoteRDSNode)(nil),                  // 4: inventory.v1.RemoteRDSNode
-	(*RemoteAzureDatabaseNode)(nil),        // 5: inventory.v1.RemoteAzureDatabaseNode
-	(*RemoteElastiCacheNode)(nil),          // 6: inventory.v1.RemoteElastiCacheNode
-	(*ListNodesRequest)(nil),               // 7: inventory.v1.ListNodesRequest
-	(*ListNodesResponse)(nil),              // 8: inventory.v1.ListNodesResponse
-	(*GetNodeRequest)(nil),                 // 9: inventory.v1.GetNodeRequest
-	(*GetNodeResponse)(nil),                // 10: inventory.v1.GetNodeResponse
-	(*AddNodeRequest)(nil),                 // 11: inventory.v1.AddNodeRequest
-	(*AddNodeResponse)(nil),                // 12: inventory.v1.AddNodeResponse
-	(*AddGenericNodeParams)(nil),           // 13: inventory.v1.AddGenericNodeParams
-	(*AddContainerNodeParams)(nil),         // 14: inventory.v1.AddContainerNodeParams
-	(*AddRemoteNodeParams)(nil),            // 15: inventory.v1.AddRemoteNodeParams
-	(*AddRemoteRDSNodeParams)(nil),         // 16: inventory.v1.AddRemoteRDSNodeParams
-	(*AddRemoteAzureNodeParams)(nil),       // 17: inventory.v1.AddRemoteAzureNodeParams
-	(*AddRemoteElastiCacheNodeParams)(nil), // 18: inventory.v1.AddRemoteElastiCacheNodeParams
-	(*RemoveNodeRequest)(nil),              // 19: inventory.v1.RemoveNodeRequest
-	(*RemoveNodeResponse)(nil),             // 20: inventory.v1.RemoveNodeResponse
-	nil,                                    // 21: inventory.v1.GenericNode.CustomLabelsEntry
-	nil,                                    // 22: inventory.v1.ContainerNode.CustomLabelsEntry
-	nil,                                    // 23: inventory.v1.RemoteNode.CustomLabelsEntry
-	nil,                                    // 24: inventory.v1.RemoteRDSNode.CustomLabelsEntry
-	nil,                                    // 25: inventory.v1.RemoteAzureDatabaseNode.CustomLabelsEntry
-	nil,                                    // 26: inventory.v1.RemoteElastiCacheNode.CustomLabelsEntry
-	nil,                                    // 27: inventory.v1.AddGenericNodeParams.CustomLabelsEntry
-	nil,                                    // 28: inventory.v1.AddContainerNodeParams.CustomLabelsEntry
-	nil,                                    // 29: inventory.v1.AddRemoteNodeParams.CustomLabelsEntry
-	nil,                                    // 30: inventory.v1.AddRemoteRDSNodeParams.CustomLabelsEntry
-	nil,                                    // 31: inventory.v1.AddRemoteAzureNodeParams.CustomLabelsEntry
-	nil,                                    // 32: inventory.v1.AddRemoteElastiCacheNodeParams.CustomLabelsEntry
-}
+var (
+	file_inventory_v1_nodes_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+	file_inventory_v1_nodes_proto_msgTypes  = make([]protoimpl.MessageInfo, 32)
+	file_inventory_v1_nodes_proto_goTypes   = []any{
+		(NodeType)(0),                          // 0: inventory.v1.NodeType
+		(*GenericNode)(nil),                    // 1: inventory.v1.GenericNode
+		(*ContainerNode)(nil),                  // 2: inventory.v1.ContainerNode
+		(*RemoteNode)(nil),                     // 3: inventory.v1.RemoteNode
+		(*RemoteRDSNode)(nil),                  // 4: inventory.v1.RemoteRDSNode
+		(*RemoteAzureDatabaseNode)(nil),        // 5: inventory.v1.RemoteAzureDatabaseNode
+		(*RemoteElastiCacheNode)(nil),          // 6: inventory.v1.RemoteElastiCacheNode
+		(*ListNodesRequest)(nil),               // 7: inventory.v1.ListNodesRequest
+		(*ListNodesResponse)(nil),              // 8: inventory.v1.ListNodesResponse
+		(*GetNodeRequest)(nil),                 // 9: inventory.v1.GetNodeRequest
+		(*GetNodeResponse)(nil),                // 10: inventory.v1.GetNodeResponse
+		(*AddNodeRequest)(nil),                 // 11: inventory.v1.AddNodeRequest
+		(*AddNodeResponse)(nil),                // 12: inventory.v1.AddNodeResponse
+		(*AddGenericNodeParams)(nil),           // 13: inventory.v1.AddGenericNodeParams
+		(*AddContainerNodeParams)(nil),         // 14: inventory.v1.AddContainerNodeParams
+		(*AddRemoteNodeParams)(nil),            // 15: inventory.v1.AddRemoteNodeParams
+		(*AddRemoteRDSNodeParams)(nil),         // 16: inventory.v1.AddRemoteRDSNodeParams
+		(*AddRemoteAzureNodeParams)(nil),       // 17: inventory.v1.AddRemoteAzureNodeParams
+		(*AddRemoteElastiCacheNodeParams)(nil), // 18: inventory.v1.AddRemoteElastiCacheNodeParams
+		(*RemoveNodeRequest)(nil),              // 19: inventory.v1.RemoveNodeRequest
+		(*RemoveNodeResponse)(nil),             // 20: inventory.v1.RemoveNodeResponse
+		nil,                                    // 21: inventory.v1.GenericNode.CustomLabelsEntry
+		nil,                                    // 22: inventory.v1.ContainerNode.CustomLabelsEntry
+		nil,                                    // 23: inventory.v1.RemoteNode.CustomLabelsEntry
+		nil,                                    // 24: inventory.v1.RemoteRDSNode.CustomLabelsEntry
+		nil,                                    // 25: inventory.v1.RemoteAzureDatabaseNode.CustomLabelsEntry
+		nil,                                    // 26: inventory.v1.RemoteElastiCacheNode.CustomLabelsEntry
+		nil,                                    // 27: inventory.v1.AddGenericNodeParams.CustomLabelsEntry
+		nil,                                    // 28: inventory.v1.AddContainerNodeParams.CustomLabelsEntry
+		nil,                                    // 29: inventory.v1.AddRemoteNodeParams.CustomLabelsEntry
+		nil,                                    // 30: inventory.v1.AddRemoteRDSNodeParams.CustomLabelsEntry
+		nil,                                    // 31: inventory.v1.AddRemoteAzureNodeParams.CustomLabelsEntry
+		nil,                                    // 32: inventory.v1.AddRemoteElastiCacheNodeParams.CustomLabelsEntry
+	}
+)
+
 var file_inventory_v1_nodes_proto_depIdxs = []int32{
 	21, // 0: inventory.v1.GenericNode.custom_labels:type_name -> inventory.v1.GenericNode.CustomLabelsEntry
 	22, // 1: inventory.v1.ContainerNode.custom_labels:type_name -> inventory.v1.ContainerNode.CustomLabelsEntry

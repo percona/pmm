@@ -105,7 +105,6 @@ func (o *VersionOK) GetPayload() *VersionOKBody {
 }
 
 func (o *VersionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(VersionOKBody)
 
 	// response payload
@@ -179,7 +178,6 @@ func (o *VersionDefault) GetPayload() *VersionDefaultBody {
 }
 
 func (o *VersionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(VersionDefaultBody)
 
 	// response payload
@@ -195,7 +193,6 @@ VersionDefaultBody version default body
 swagger:model VersionDefaultBody
 */
 type VersionDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -265,9 +262,7 @@ func (o *VersionDefaultBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *VersionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -287,7 +282,6 @@ func (o *VersionDefaultBody) contextValidateDetails(ctx context.Context, formats
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -400,7 +394,6 @@ VersionDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized protocol 
 swagger:model VersionDefaultBodyDetailsItems0
 */
 type VersionDefaultBodyDetailsItems0 struct {
-
 	// A URL/resource name that uniquely identifies the type of the serialized
 	// protocol buffer message. This string must contain at least
 	// one "/" character. The last segment of the URL's path must represent
@@ -439,7 +432,6 @@ type VersionDefaultBodyDetailsItems0 struct {
 func (o *VersionDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// A URL/resource name that uniquely identifies the type of the serialized
 		// protocol buffer message. This string must contain at least
 		// one "/" character. The last segment of the URL's path must represent
@@ -504,7 +496,6 @@ func (o *VersionDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o VersionDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// A URL/resource name that uniquely identifies the type of the serialized
 		// protocol buffer message. This string must contain at least
 		// one "/" character. The last segment of the URL's path must represent
@@ -595,7 +586,6 @@ VersionOKBody version OK body
 swagger:model VersionOKBody
 */
 type VersionOKBody struct {
-
 	// PMM Server version.
 	Version string `json:"version,omitempty"`
 
@@ -751,7 +741,6 @@ func (o *VersionOKBody) ContextValidate(ctx context.Context, formats strfmt.Regi
 }
 
 func (o *VersionOKBody) contextValidateManaged(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Managed != nil {
 
 		if swag.IsZero(o.Managed) { // not required
@@ -776,7 +765,6 @@ func (o *VersionOKBody) contextValidateManaged(ctx context.Context, formats strf
 }
 
 func (o *VersionOKBody) contextValidateServer(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Server != nil {
 
 		if swag.IsZero(o.Server) { // not required
@@ -823,7 +811,6 @@ VersionOKBodyManaged VersionInfo describes component version, or PMM Server as a
 swagger:model VersionOKBodyManaged
 */
 type VersionOKBodyManaged struct {
-
 	// User-visible version.
 	Version string `json:"version,omitempty"`
 
@@ -889,7 +876,6 @@ VersionOKBodyServer VersionInfo describes component version, or PMM Server as a 
 swagger:model VersionOKBodyServer
 */
 type VersionOKBodyServer struct {
-
 	// User-visible version.
 	Version string `json:"version,omitempty"`
 

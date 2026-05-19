@@ -7,11 +7,12 @@
 package managementv1
 
 import (
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
+
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 )
 
 const (
@@ -118,10 +119,13 @@ func file_management_v1_severity_proto_rawDescGZIP() []byte {
 	return file_management_v1_severity_proto_rawDescData
 }
 
-var file_management_v1_severity_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_management_v1_severity_proto_goTypes = []any{
-	(Severity)(0), // 0: management.v1.Severity
-}
+var (
+	file_management_v1_severity_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+	file_management_v1_severity_proto_goTypes   = []any{
+		(Severity)(0), // 0: management.v1.Severity
+	}
+)
+
 var file_management_v1_severity_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type

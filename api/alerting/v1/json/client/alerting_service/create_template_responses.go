@@ -104,7 +104,6 @@ func (o *CreateTemplateOK) GetPayload() any {
 }
 
 func (o *CreateTemplateOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
@@ -176,7 +175,6 @@ func (o *CreateTemplateDefault) GetPayload() *CreateTemplateDefaultBody {
 }
 
 func (o *CreateTemplateDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(CreateTemplateDefaultBody)
 
 	// response payload
@@ -192,7 +190,6 @@ CreateTemplateBody create template body
 swagger:model CreateTemplateBody
 */
 type CreateTemplateBody struct {
-
 	// YAML template file content.
 	Yaml string `json:"yaml,omitempty"`
 }
@@ -230,7 +227,6 @@ CreateTemplateDefaultBody create template default body
 swagger:model CreateTemplateDefaultBody
 */
 type CreateTemplateDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -300,9 +296,7 @@ func (o *CreateTemplateDefaultBody) ContextValidate(ctx context.Context, formats
 }
 
 func (o *CreateTemplateDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -322,7 +316,6 @@ func (o *CreateTemplateDefaultBody) contextValidateDetails(ctx context.Context, 
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -351,7 +344,6 @@ CreateTemplateDefaultBodyDetailsItems0 create template default body details item
 swagger:model CreateTemplateDefaultBodyDetailsItems0
 */
 type CreateTemplateDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -363,7 +355,6 @@ type CreateTemplateDefaultBodyDetailsItems0 struct {
 func (o *CreateTemplateDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -401,7 +392,6 @@ func (o *CreateTemplateDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) erro
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o CreateTemplateDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}

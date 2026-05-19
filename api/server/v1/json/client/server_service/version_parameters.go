@@ -60,7 +60,6 @@ VersionParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type VersionParams struct {
-
 	/* Dummy.
 
 	   Dummy parameter for internal testing. Do not use.
@@ -133,7 +132,6 @@ func (o *VersionParams) SetDummy(dummy *string) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *VersionParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}
@@ -149,7 +147,6 @@ func (o *VersionParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Regis
 		}
 		qDummy := qrDummy
 		if qDummy != "" {
-
 			if err := r.SetQueryParam("dummy", qDummy); err != nil {
 				return err
 			}

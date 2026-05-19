@@ -105,7 +105,6 @@ func (o *GetLabelsOK) GetPayload() *GetLabelsOKBody {
 }
 
 func (o *GetLabelsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetLabelsOKBody)
 
 	// response payload
@@ -179,7 +178,6 @@ func (o *GetLabelsDefault) GetPayload() *GetLabelsDefaultBody {
 }
 
 func (o *GetLabelsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetLabelsDefaultBody)
 
 	// response payload
@@ -196,7 +194,6 @@ GetLabelsBody GetLabelsRequest defines filtering of object detail's labels for s
 swagger:model GetLabelsBody
 */
 type GetLabelsBody struct {
-
 	// period start from
 	// Format: date-time
 	PeriodStartFrom strfmt.DateTime `json:"period_start_from,omitempty"`
@@ -282,7 +279,6 @@ GetLabelsDefaultBody get labels default body
 swagger:model GetLabelsDefaultBody
 */
 type GetLabelsDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -352,9 +348,7 @@ func (o *GetLabelsDefaultBody) ContextValidate(ctx context.Context, formats strf
 }
 
 func (o *GetLabelsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -374,7 +368,6 @@ func (o *GetLabelsDefaultBody) contextValidateDetails(ctx context.Context, forma
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -403,7 +396,6 @@ GetLabelsDefaultBodyDetailsItems0 get labels default body details items0
 swagger:model GetLabelsDefaultBodyDetailsItems0
 */
 type GetLabelsDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -415,7 +407,6 @@ type GetLabelsDefaultBodyDetailsItems0 struct {
 func (o *GetLabelsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -453,7 +444,6 @@ func (o *GetLabelsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o GetLabelsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -517,7 +507,6 @@ GetLabelsOKBody GetLabelsResponse is a map of labels names as keys and labels va
 swagger:model GetLabelsOKBody
 */
 type GetLabelsOKBody struct {
-
 	// labels
 	Labels map[string]GetLabelsOKBodyLabelsAnon `json:"labels,omitempty"`
 }
@@ -581,15 +570,12 @@ func (o *GetLabelsOKBody) ContextValidate(ctx context.Context, formats strfmt.Re
 }
 
 func (o *GetLabelsOKBody) contextValidateLabels(ctx context.Context, formats strfmt.Registry) error {
-
 	for k := range o.Labels {
-
 		if val, ok := o.Labels[k]; ok {
 			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -618,7 +604,6 @@ GetLabelsOKBodyLabelsAnon ListLabelValues is list of label's values.
 swagger:model GetLabelsOKBodyLabelsAnon
 */
 type GetLabelsOKBodyLabelsAnon struct {
-
 	// values
 	Values []string `json:"values"`
 }

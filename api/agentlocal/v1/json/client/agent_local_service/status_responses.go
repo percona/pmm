@@ -105,7 +105,6 @@ func (o *StatusOK) GetPayload() *StatusOKBody {
 }
 
 func (o *StatusOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(StatusOKBody)
 
 	// response payload
@@ -179,7 +178,6 @@ func (o *StatusDefault) GetPayload() *StatusDefaultBody {
 }
 
 func (o *StatusDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(StatusDefaultBody)
 
 	// response payload
@@ -195,7 +193,6 @@ StatusBody status body
 swagger:model StatusBody
 */
 type StatusBody struct {
-
 	// Returns network info (latency and clock_drift) if true.
 	GetNetworkInfo bool `json:"get_network_info,omitempty"`
 }
@@ -233,7 +230,6 @@ StatusDefaultBody status default body
 swagger:model StatusDefaultBody
 */
 type StatusDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -303,9 +299,7 @@ func (o *StatusDefaultBody) ContextValidate(ctx context.Context, formats strfmt.
 }
 
 func (o *StatusDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -325,7 +319,6 @@ func (o *StatusDefaultBody) contextValidateDetails(ctx context.Context, formats 
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -354,7 +347,6 @@ StatusDefaultBodyDetailsItems0 status default body details items0
 swagger:model StatusDefaultBodyDetailsItems0
 */
 type StatusDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -366,7 +358,6 @@ type StatusDefaultBodyDetailsItems0 struct {
 func (o *StatusDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -404,7 +395,6 @@ func (o *StatusDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o StatusDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -468,7 +458,6 @@ StatusOKBody status OK body
 swagger:model StatusOKBody
 */
 type StatusOKBody struct {
-
 	// agent id
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -584,9 +573,7 @@ func (o *StatusOKBody) ContextValidate(ctx context.Context, formats strfmt.Regis
 }
 
 func (o *StatusOKBody) contextValidateAgentsInfo(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.AgentsInfo); i++ {
-
 		if o.AgentsInfo[i] != nil {
 
 			if swag.IsZero(o.AgentsInfo[i]) { // not required
@@ -606,14 +593,12 @@ func (o *StatusOKBody) contextValidateAgentsInfo(ctx context.Context, formats st
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *StatusOKBody) contextValidateServerInfo(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.ServerInfo != nil {
 
 		if swag.IsZero(o.ServerInfo) { // not required
@@ -660,7 +645,6 @@ StatusOKBodyAgentsInfoItems0 AgentInfo contains information about Agent managed 
 swagger:model StatusOKBodyAgentsInfoItems0
 */
 type StatusOKBodyAgentsInfoItems0 struct {
-
 	// agent id
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -890,7 +874,6 @@ StatusOKBodyServerInfo ServerInfo contains information about the PMM Server.
 swagger:model StatusOKBodyServerInfo
 */
 type StatusOKBodyServerInfo struct {
-
 	// PMM Server URL in a form https://HOST:PORT/.
 	URL string `json:"url,omitempty"`
 

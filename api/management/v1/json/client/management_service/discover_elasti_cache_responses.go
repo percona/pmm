@@ -105,7 +105,6 @@ func (o *DiscoverElastiCacheOK) GetPayload() *DiscoverElastiCacheOKBody {
 }
 
 func (o *DiscoverElastiCacheOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(DiscoverElastiCacheOKBody)
 
 	// response payload
@@ -179,7 +178,6 @@ func (o *DiscoverElastiCacheDefault) GetPayload() *DiscoverElastiCacheDefaultBod
 }
 
 func (o *DiscoverElastiCacheDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(DiscoverElastiCacheDefaultBody)
 
 	// response payload
@@ -195,7 +193,6 @@ DiscoverElastiCacheBody discover elasti cache body
 swagger:model DiscoverElastiCacheBody
 */
 type DiscoverElastiCacheBody struct {
-
 	// AWS Access key. Optional — if empty, the default credential chain is used.
 	AWSAccessKey string `json:"aws_access_key,omitempty"`
 
@@ -236,7 +233,6 @@ DiscoverElastiCacheDefaultBody discover elasti cache default body
 swagger:model DiscoverElastiCacheDefaultBody
 */
 type DiscoverElastiCacheDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -306,9 +302,7 @@ func (o *DiscoverElastiCacheDefaultBody) ContextValidate(ctx context.Context, fo
 }
 
 func (o *DiscoverElastiCacheDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -328,7 +322,6 @@ func (o *DiscoverElastiCacheDefaultBody) contextValidateDetails(ctx context.Cont
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -357,7 +350,6 @@ DiscoverElastiCacheDefaultBodyDetailsItems0 discover elasti cache default body d
 swagger:model DiscoverElastiCacheDefaultBodyDetailsItems0
 */
 type DiscoverElastiCacheDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -369,7 +361,6 @@ type DiscoverElastiCacheDefaultBodyDetailsItems0 struct {
 func (o *DiscoverElastiCacheDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -407,7 +398,6 @@ func (o *DiscoverElastiCacheDefaultBodyDetailsItems0) UnmarshalJSON(data []byte)
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o DiscoverElastiCacheDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -471,7 +461,6 @@ DiscoverElastiCacheOKBody discover elasti cache OK body
 swagger:model DiscoverElastiCacheOKBody
 */
 type DiscoverElastiCacheOKBody struct {
-
 	// elasticache instances
 	ElasticacheInstances []*DiscoverElastiCacheOKBodyElasticacheInstancesItems0 `json:"elasticache_instances"`
 }
@@ -535,9 +524,7 @@ func (o *DiscoverElastiCacheOKBody) ContextValidate(ctx context.Context, formats
 }
 
 func (o *DiscoverElastiCacheOKBody) contextValidateElasticacheInstances(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.ElasticacheInstances); i++ {
-
 		if o.ElasticacheInstances[i] != nil {
 
 			if swag.IsZero(o.ElasticacheInstances[i]) { // not required
@@ -557,7 +544,6 @@ func (o *DiscoverElastiCacheOKBody) contextValidateElasticacheInstances(ctx cont
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -586,7 +572,6 @@ DiscoverElastiCacheOKBodyElasticacheInstancesItems0 DiscoverElastiCacheInstance 
 swagger:model DiscoverElastiCacheOKBodyElasticacheInstancesItems0
 */
 type DiscoverElastiCacheOKBodyElasticacheInstancesItems0 struct {
-
 	// AWS region.
 	Region string `json:"region,omitempty"`
 

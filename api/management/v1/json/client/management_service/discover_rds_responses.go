@@ -105,7 +105,6 @@ func (o *DiscoverRDSOK) GetPayload() *DiscoverRDSOKBody {
 }
 
 func (o *DiscoverRDSOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(DiscoverRDSOKBody)
 
 	// response payload
@@ -179,7 +178,6 @@ func (o *DiscoverRDSDefault) GetPayload() *DiscoverRDSDefaultBody {
 }
 
 func (o *DiscoverRDSDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(DiscoverRDSDefaultBody)
 
 	// response payload
@@ -195,7 +193,6 @@ DiscoverRDSBody discover RDS body
 swagger:model DiscoverRDSBody
 */
 type DiscoverRDSBody struct {
-
 	// AWS Access key. Optional.
 	AWSAccessKey string `json:"aws_access_key,omitempty"`
 
@@ -236,7 +233,6 @@ DiscoverRDSDefaultBody discover RDS default body
 swagger:model DiscoverRDSDefaultBody
 */
 type DiscoverRDSDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -306,9 +302,7 @@ func (o *DiscoverRDSDefaultBody) ContextValidate(ctx context.Context, formats st
 }
 
 func (o *DiscoverRDSDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -328,7 +322,6 @@ func (o *DiscoverRDSDefaultBody) contextValidateDetails(ctx context.Context, for
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -357,7 +350,6 @@ DiscoverRDSDefaultBodyDetailsItems0 discover RDS default body details items0
 swagger:model DiscoverRDSDefaultBodyDetailsItems0
 */
 type DiscoverRDSDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -369,7 +361,6 @@ type DiscoverRDSDefaultBodyDetailsItems0 struct {
 func (o *DiscoverRDSDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -407,7 +398,6 @@ func (o *DiscoverRDSDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o DiscoverRDSDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -471,7 +461,6 @@ DiscoverRDSOKBody discover RDS OK body
 swagger:model DiscoverRDSOKBody
 */
 type DiscoverRDSOKBody struct {
-
 	// rds instances
 	RDSInstances []*DiscoverRDSOKBodyRDSInstancesItems0 `json:"rds_instances"`
 }
@@ -535,9 +524,7 @@ func (o *DiscoverRDSOKBody) ContextValidate(ctx context.Context, formats strfmt.
 }
 
 func (o *DiscoverRDSOKBody) contextValidateRDSInstances(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.RDSInstances); i++ {
-
 		if o.RDSInstances[i] != nil {
 
 			if swag.IsZero(o.RDSInstances[i]) { // not required
@@ -557,7 +544,6 @@ func (o *DiscoverRDSOKBody) contextValidateRDSInstances(ctx context.Context, for
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -586,7 +572,6 @@ DiscoverRDSOKBodyRDSInstancesItems0 DiscoverRDSInstance models an unique RDS ins
 swagger:model DiscoverRDSOKBodyRDSInstancesItems0
 */
 type DiscoverRDSOKBodyRDSInstancesItems0 struct {
-
 	// AWS region.
 	Region string `json:"region,omitempty"`
 

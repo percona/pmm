@@ -104,7 +104,6 @@ func (o *ReloadOK) GetPayload() any {
 }
 
 func (o *ReloadOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
@@ -176,7 +175,6 @@ func (o *ReloadDefault) GetPayload() *ReloadDefaultBody {
 }
 
 func (o *ReloadDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ReloadDefaultBody)
 
 	// response payload
@@ -192,7 +190,6 @@ ReloadDefaultBody reload default body
 swagger:model ReloadDefaultBody
 */
 type ReloadDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -262,9 +259,7 @@ func (o *ReloadDefaultBody) ContextValidate(ctx context.Context, formats strfmt.
 }
 
 func (o *ReloadDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -284,7 +279,6 @@ func (o *ReloadDefaultBody) contextValidateDetails(ctx context.Context, formats 
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -313,7 +307,6 @@ ReloadDefaultBodyDetailsItems0 reload default body details items0
 swagger:model ReloadDefaultBodyDetailsItems0
 */
 type ReloadDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -325,7 +318,6 @@ type ReloadDefaultBodyDetailsItems0 struct {
 func (o *ReloadDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -363,7 +355,6 @@ func (o *ReloadDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o ReloadDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}

@@ -105,7 +105,6 @@ func (o *ListAgentsOK) GetPayload() *ListAgentsOKBody {
 }
 
 func (o *ListAgentsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListAgentsOKBody)
 
 	// response payload
@@ -179,7 +178,6 @@ func (o *ListAgentsDefault) GetPayload() *ListAgentsDefaultBody {
 }
 
 func (o *ListAgentsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListAgentsDefaultBody)
 
 	// response payload
@@ -195,7 +193,6 @@ ListAgentsDefaultBody list agents default body
 swagger:model ListAgentsDefaultBody
 */
 type ListAgentsDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -265,9 +262,7 @@ func (o *ListAgentsDefaultBody) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *ListAgentsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -287,7 +282,6 @@ func (o *ListAgentsDefaultBody) contextValidateDetails(ctx context.Context, form
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -316,7 +310,6 @@ ListAgentsDefaultBodyDetailsItems0 list agents default body details items0
 swagger:model ListAgentsDefaultBodyDetailsItems0
 */
 type ListAgentsDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -328,7 +321,6 @@ type ListAgentsDefaultBodyDetailsItems0 struct {
 func (o *ListAgentsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -366,7 +358,6 @@ func (o *ListAgentsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o ListAgentsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -430,7 +421,6 @@ ListAgentsOKBody list agents OK body
 swagger:model ListAgentsOKBody
 */
 type ListAgentsOKBody struct {
-
 	// List of Agents.
 	Agents []*ListAgentsOKBodyAgentsItems0 `json:"agents"`
 }
@@ -494,9 +484,7 @@ func (o *ListAgentsOKBody) ContextValidate(ctx context.Context, formats strfmt.R
 }
 
 func (o *ListAgentsOKBody) contextValidateAgents(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Agents); i++ {
-
 		if o.Agents[i] != nil {
 
 			if swag.IsZero(o.Agents[i]) { // not required
@@ -516,7 +504,6 @@ func (o *ListAgentsOKBody) contextValidateAgents(ctx context.Context, formats st
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -545,7 +532,6 @@ ListAgentsOKBodyAgentsItems0 list agents OK body agents items0
 swagger:model ListAgentsOKBodyAgentsItems0
 */
 type ListAgentsOKBodyAgentsItems0 struct {
-
 	// Unique agent identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -946,7 +932,6 @@ func (o *ListAgentsOKBodyAgentsItems0) ContextValidate(ctx context.Context, form
 }
 
 func (o *ListAgentsOKBodyAgentsItems0) contextValidateAzureOptions(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.AzureOptions != nil {
 
 		if swag.IsZero(o.AzureOptions) { // not required
@@ -971,7 +956,6 @@ func (o *ListAgentsOKBodyAgentsItems0) contextValidateAzureOptions(ctx context.C
 }
 
 func (o *ListAgentsOKBodyAgentsItems0) contextValidateMongoDBOptions(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.MongoDBOptions != nil {
 
 		if swag.IsZero(o.MongoDBOptions) { // not required
@@ -996,7 +980,6 @@ func (o *ListAgentsOKBodyAgentsItems0) contextValidateMongoDBOptions(ctx context
 }
 
 func (o *ListAgentsOKBodyAgentsItems0) contextValidateMysqlOptions(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.MysqlOptions != nil {
 
 		if swag.IsZero(o.MysqlOptions) { // not required
@@ -1021,7 +1004,6 @@ func (o *ListAgentsOKBodyAgentsItems0) contextValidateMysqlOptions(ctx context.C
 }
 
 func (o *ListAgentsOKBodyAgentsItems0) contextValidatePostgresqlOptions(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.PostgresqlOptions != nil {
 
 		if swag.IsZero(o.PostgresqlOptions) { // not required
@@ -1046,7 +1028,6 @@ func (o *ListAgentsOKBodyAgentsItems0) contextValidatePostgresqlOptions(ctx cont
 }
 
 func (o *ListAgentsOKBodyAgentsItems0) contextValidateRtaOptions(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.RtaOptions != nil {
 
 		if swag.IsZero(o.RtaOptions) { // not required
@@ -1093,7 +1074,6 @@ ListAgentsOKBodyAgentsItems0AzureOptions list agents OK body agents items0 azure
 swagger:model ListAgentsOKBodyAgentsItems0AzureOptions
 */
 type ListAgentsOKBodyAgentsItems0AzureOptions struct {
-
 	// Azure client ID.
 	ClientID string `json:"client_id,omitempty"`
 
@@ -1143,7 +1123,6 @@ ListAgentsOKBodyAgentsItems0MongoDBOptions list agents OK body agents items0 mon
 swagger:model ListAgentsOKBodyAgentsItems0MongoDBOptions
 */
 type ListAgentsOKBodyAgentsItems0MongoDBOptions struct {
-
 	// True if TLS certificate is set.
 	IsTLSCertificateKeySet bool `json:"is_tls_certificate_key_set,omitempty"`
 
@@ -1199,7 +1178,6 @@ ListAgentsOKBodyAgentsItems0MysqlOptions list agents OK body agents items0 mysql
 swagger:model ListAgentsOKBodyAgentsItems0MysqlOptions
 */
 type ListAgentsOKBodyAgentsItems0MysqlOptions struct {
-
 	// True if TLS key is set.
 	IsTLSKeySet bool `json:"is_tls_key_set,omitempty"`
 
@@ -1240,7 +1218,6 @@ ListAgentsOKBodyAgentsItems0PostgresqlOptions list agents OK body agents items0 
 swagger:model ListAgentsOKBodyAgentsItems0PostgresqlOptions
 */
 type ListAgentsOKBodyAgentsItems0PostgresqlOptions struct {
-
 	// True if TLS key is set.
 	IsSslKeySet bool `json:"is_ssl_key_set,omitempty"`
 
@@ -1284,7 +1261,6 @@ ListAgentsOKBodyAgentsItems0RtaOptions RTAOptions holds Real-Time Query Analytic
 swagger:model ListAgentsOKBodyAgentsItems0RtaOptions
 */
 type ListAgentsOKBodyAgentsItems0RtaOptions struct {
-
 	// Query collect interval (default 2s is set by server).
 	CollectInterval string `json:"collect_interval,omitempty"`
 }

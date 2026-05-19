@@ -60,7 +60,6 @@ CreateTemplateParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type CreateTemplateParams struct {
-
 	// Body.
 	Body CreateTemplateBody
 
@@ -130,7 +129,6 @@ func (o *CreateTemplateParams) SetBody(body CreateTemplateBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *CreateTemplateParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}
