@@ -364,12 +364,14 @@ ensure_pmm_agent_config_file() {
 }
 
 start_pmm_agent_systemd() {
-  if ! systemctl list-unit-files pmm-agent.service >/dev/null 2>&1; then
+  if ! systemctl cat pmm-agent.service >/dev/null 2>&1; then
     return 1
   fi
   log "Starting pmm-agent via systemd..."
   systemctl daemon-reload >/dev/null 2>&1 || true
-  systemctl enable --now pmm-agent.service
+  if ! systemctl enable --now pmm-agent.service; then
+    return 1
+  fi
 }
 
 start_pmm_agent_nohup() {
