@@ -91,7 +91,7 @@ const preview: Preview = {
             'Typography',
             'Icons'
           ],
-          'Inputs', ['Icon Button'],
+          'Inputs', ['Icon Button', 'Text Field'],
           'Data display', ['Chip', 'Table', 'Tooltip'],
           'Navigation',
           'To be reviewed',

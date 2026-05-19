@@ -729,6 +729,13 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
           }),
         },
       },
+      MuiSvgIcon: {
+        styleOverrides: {
+          fontSizeSmall: { fontSize: 16 },
+          fontSizeMedium: { fontSize: 20 },
+          fontSizeLarge: { fontSize: 24 },
+        },
+      },
       MuiIconButton: {
         styleOverrides: {
           root: ({ theme, ownerState }) => ({
@@ -878,28 +885,97 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
       },
       MuiOutlinedInput: {
         styleOverrides: {
-          root: ({ theme }) => ({
+          root: ({ theme, ownerState }) => ({
             ...theme.typography.inputText,
-            '& fieldset': {
+            borderRadius: 5,
+            [`& .${outlinedInputClasses.notchedOutline}`]: {
+              borderWidth: 2,
               borderColor: theme.palette.dividers?.divider,
+              padding: '0 6px',
+              '& > legend > span': {
+                paddingLeft: 4,
+                paddingRight: 4,
+              },
             },
             [`&:hover .${outlinedInputClasses.notchedOutline}`]: {
+              borderWidth: 2,
               borderColor: theme.palette.dividers?.dividerStrong,
             },
             [`&.Mui-focused .${outlinedInputClasses.notchedOutline}`]: {
+              borderWidth: 2,
               borderColor: theme.palette.dividers?.dividerStronger,
             },
-            [`&:disabled .${outlinedInputClasses.notchedOutline}`]: {
-              borderColor: theme.palette.dividers?.contour,
+            [`&.Mui-disabled .${outlinedInputClasses.notchedOutline}`]: {
+              borderWidth: 2,
+              borderColor: theme.palette.dividers?.divider,
             },
+            [`&.Mui-error .${outlinedInputClasses.notchedOutline}`]: {
+              borderWidth: 2,
+              borderColor: theme.palette.error.main,
+            },
+            [`&.${outlinedInputClasses.adornedStart}`]: {
+              paddingLeft: 10,
+            },
+            [`&.${outlinedInputClasses.adornedEnd}`]: {
+              paddingRight: 10,
+            },
+            ...(ownerState.multiline && {
+              padding: ownerState.size === 'small' ? '8px 12px' : '16px 12px',
+            }),
           }),
+          input: {
+            lineHeight: 1.5,
+            '&:not(.MuiInputBase-inputMultiline)': {
+              padding: '16px 12px',
+              height: '1.5em',
+            },
+          },
+          inputSizeSmall: {
+            lineHeight: 1.5,
+            '&:not(.MuiInputBase-inputMultiline)': {
+              padding: '8px 12px',
+              height: '1.5em',
+            },
+          },
+        },
+      },
+      MuiInputAdornment: {
+        styleOverrides: {
+          root: {
+            '& .MuiIconButton-root': {
+              margin: -8,
+              width: 40,
+              height: 40,
+            },
+            '& > span': {
+              display: 'flex',
+            },
+          },
+          positionStart: {
+            marginRight: -4,
+          },
+          positionEnd: {
+            marginLeft: -4,
+          },
         },
       },
       MuiInputLabel: {
         styleOverrides: {
           root: ({ theme }) => ({
             ...theme.typography.inputText,
+            '&:not(.MuiInputLabel-shrink)': {
+              transform: 'translate(12px, 16px) scale(1)',
+              '&.MuiInputLabel-sizeSmall': {
+                transform: 'translate(12px, 8px) scale(1)',
+              },
+            },
           }),
+          shrink: {
+            fontWeight: 500,
+            letterSpacing: '0.12px',
+            lineHeight: '1',
+            transform: 'translate(12px, -5px) scale(0.75)',
+          },
         },
       },
       MuiFormGroup: {
@@ -925,10 +1001,11 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
       },
       MuiFormHelperText: {
         styleOverrides: {
-          root: {
-            fontSize: '12px',
-            fontWeight: 400,
-          },
+          root: ({ theme }) => ({
+            ...theme.typography.helperText,
+            marginLeft: 0,
+            marginRight: 0,
+          }),
         },
       },
       MuiTabs: {
