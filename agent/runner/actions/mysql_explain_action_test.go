@@ -182,9 +182,9 @@ func TestMySQLExplain(t *testing.T) {
 			assert.Contains(t, actual[0], "Extra")
 
 			// Checks some stable values
-			assert.InEpsilon(t, float64(1), actual[1][0], 0.0001) // id
-			assert.Equal(t, "SIMPLE", actual[1][1])               // select_type
-			assert.Equal(t, "city", actual[1][2])                 // table
+			assert.InDelta(t, float64(1), actual[1][0], 0.0001) // id
+			assert.Equal(t, "SIMPLE", actual[1][1])             // select_type
+			assert.Equal(t, "city", actual[1][2])               // table
 		}
 	})
 
