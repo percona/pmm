@@ -52,12 +52,12 @@ export const InstallClientPage = () => {
   const [now, setNow] = useState(() => Date.now());
 
   // Tick once a second while a token is live, so the countdown chip refreshes.
-  // Stops as soon as expiresAt is null (e.g. user cleared the field manually).
+  // Stops as soon as expiresAt is null or the token has expired.
   useEffect(() => {
-    if (!tokenExpiresAt) return undefined;
+    if (!tokenExpiresAt || isExpired) return undefined;
     const id = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(id);
-  }, [tokenExpiresAt]);
+  }, [tokenExpiresAt, isExpired]);
 
   const secondsLeft = tokenExpiresAt
     ? Math.max(0, Math.floor((tokenExpiresAt.getTime() - now) / 1000))
