@@ -269,7 +269,7 @@ func addInternalServicesToScrape(s models.MetricsResolutions, svc *Service, pmmS
 	cfg := []*config.ScrapeConfig{}
 
 	if svc.params.ExternalVM() {
-		svc.l.Infof("Skip all scrape configs, VictoriaMetrics is configured to run externally.")
+		svc.l.Infof("Skip all internal-service configs, VictoriaMetrics is configured to run externally.")
 		return cfg
 	}
 
@@ -280,7 +280,7 @@ func addInternalServicesToScrape(s models.MetricsResolutions, svc *Service, pmmS
 	)
 
 	if svc.chParams.ExternalClickHouse() {
-		svc.l.Warnf("Skip ClickHouse scrape config, ClickHouse is configured to run externally.")
+		svc.l.Warnf("Skip internal ClickHouse scrape config, ClickHouse is configured to run externally.")
 		return cfg
 	}
 
