@@ -226,7 +226,7 @@ func TestNodeService(t *testing.T) {
 				Force:  true,
 			})
 			assert.NoError(t, err)
-			assert.Equal(t, "", res.Warning)
+			assert.Empty(t, res.Warning)
 		})
 	})
 
