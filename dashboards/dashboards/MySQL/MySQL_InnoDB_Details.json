@@ -6774,7 +6774,7 @@
                             "calculatedInterval": "10m",
                             "datasourceErrors": {},
                             "errors": {},
-                            "expr": "sum(avg_over_time(mysql_global_status_buffer_pool_pages{service_name=~\"$service_name\", state=\"dirty\"}[5m]))/sum(avg_over_time(mysql_global_status_buffer_pool_pages{service_name=~\"$service_name\", state=\"data\"}[5m]))",
+                            "expr": "sum(avg_over_time(mysql_global_status_buffer_pool_dirty_pages{service_name=~\"$service_name\"}[5m]))/sum(avg_over_time(mysql_global_status_buffer_pool_pages{service_name=~\"$service_name\", state=\"data\"}[5m]))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
