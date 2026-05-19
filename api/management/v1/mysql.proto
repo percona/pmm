@@ -3,6 +3,7 @@ syntax = "proto3";
 package management.v1;
 
 import "extensions/v1/redact.proto";
+import "google/protobuf/duration.proto";
 import "inventory/v1/agents.proto";
 import "inventory/v1/log_level.proto";
 import "inventory/v1/services.proto";
@@ -73,9 +74,9 @@ message AddMySQLServiceParams {
   // Certificate Authority certificate chain.
   string tls_ca = 24;
   // Client certificate.
-  string tls_cert = 25;
+  string tls_cert = 25 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Password for decrypting tls_cert.
-  string tls_key = 26;
+  string tls_key = 26 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Tablestats group collectors will be disabled if there are more than that number of tables.
   // If zero, server's default value is used.
   // Use negative value to disable them.
@@ -94,6 +95,10 @@ message AddMySQLServiceParams {
   bool expose_exporter = 32;
   // extra DSN parameters to be used for connecting to MySQL.
   map<string, string> extra_dsn_params = 33;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 34 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 message MySQLServiceResult {

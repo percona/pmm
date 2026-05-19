@@ -168,7 +168,7 @@ func TestCollector(t *testing.T) {
 	wg.Wait()
 	ctr.Stop()
 
-	assert.Equal(t, maxDocs*maxLoops, len(profiles))
+	assert.Len(t, profiles, maxDocs*maxLoops)
 }
 
 func genData(ctx context.Context, client *mongo.Client, maxLoops, maxDocs int) {

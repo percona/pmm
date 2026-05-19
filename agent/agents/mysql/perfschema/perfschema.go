@@ -316,7 +316,7 @@ func (m *PerfSchema) refreshHistoryCache(ctx context.Context) error {
 		if err != nil {
 			return errors.Wrap(err, "cannot get MySQL version")
 		}
-		m.useLong = pointer.ToBool(vendor == version.MariaDBVendor && sqlVersion.Float() >= 11)
+		m.useLong = new(vendor == version.MariaDBVendor && sqlVersion.Float() >= 11)
 	}
 	current, err := getHistory(m.q, m.useLong)
 	if err != nil {

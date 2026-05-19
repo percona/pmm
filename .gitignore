@@ -56,3 +56,4 @@ dev/clickhouse-backups/
 .claude/
 .cursor/
 .cursorrules/
+build/.cache/

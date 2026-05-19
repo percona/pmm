@@ -271,7 +271,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 		}, nil
 
 	case models.NodeExporterType:
-		return &inventoryv1.NodeExporter{
+		exporter := &inventoryv1.NodeExporter{
 			AgentId:            agent.AgentID,
 			PmmAgentId:         pointer.GetString(agent.PMMAgentID),
 			Disabled:           agent.Disabled,
@@ -284,10 +284,11 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			LogLevel:           inventoryv1.LogLevelAPIValue(agent.LogLevel),
 			ExposeExporter:     agent.ExporterOptions.ExposeExporter,
 			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
-		}, nil
+		}
+		return exporter, nil
 
 	case models.MySQLdExporterType:
-		return &inventoryv1.MySQLdExporter{
+		exporter := &inventoryv1.MySQLdExporter{
 			AgentId:                   agent.AgentID,
 			PmmAgentId:                pointer.GetString(agent.PMMAgentID),
 			ServiceId:                 serviceID,
@@ -308,7 +309,11 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			ExposeExporter:            agent.ExporterOptions.ExposeExporter,
 			MetricsResolutions:        ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 			ExtraDsnParams:            agent.MySQLOptions.ExtraDSNParams,
-		}, nil
+		}
+		if agent.ExporterOptions.ConnectionTimeout != nil {
+			exporter.ConnectionTimeout = durationpb.New(*agent.ExporterOptions.ConnectionTimeout)
+		}
+		return exporter, nil
 
 	case models.MongoDBExporterType:
 		exporter := &inventoryv1.MongoDBExporter{
@@ -329,7 +334,9 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			ExposeExporter:     agent.ExporterOptions.ExposeExporter,
 			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 		}
-
+		if agent.ExporterOptions.ConnectionTimeout != nil {
+			exporter.ConnectionTimeout = durationpb.New(*agent.ExporterOptions.ConnectionTimeout)
+		}
 		exporter.StatsCollections = agent.MongoDBOptions.StatsCollections
 		exporter.CollectionsLimit = agent.MongoDBOptions.CollectionsLimit
 		exporter.EnableAllCollectors = agent.MongoDBOptions.EnableAllCollectors
@@ -355,7 +362,9 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			ExposeExporter:     agent.ExporterOptions.ExposeExporter,
 			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 		}
-
+		if agent.ExporterOptions.ConnectionTimeout != nil {
+			exporter.ConnectionTimeout = durationpb.New(*agent.ExporterOptions.ConnectionTimeout)
+		}
 		exporter.AutoDiscoveryLimit = pointer.GetInt32(agent.PostgreSQLOptions.AutoDiscoveryLimit)
 		exporter.MaxExporterConnections = agent.PostgreSQLOptions.MaxExporterConnections
 
@@ -433,7 +442,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 		}, nil
 
 	case models.ProxySQLExporterType:
-		return &inventoryv1.ProxySQLExporter{
+		exporter := &inventoryv1.ProxySQLExporter{
 			AgentId:            agent.AgentID,
 			PmmAgentId:         pointer.GetString(agent.PMMAgentID),
 			ServiceId:          serviceID,
@@ -450,7 +459,11 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			LogLevel:           inventoryv1.LogLevelAPIValue(agent.LogLevel),
 			ExposeExporter:     agent.ExporterOptions.ExposeExporter,
 			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
-		}, nil
+		}
+		if agent.ExporterOptions.ConnectionTimeout != nil {
+			exporter.ConnectionTimeout = durationpb.New(*agent.ExporterOptions.ConnectionTimeout)
+		}
+		return exporter, nil
 
 	case models.QANPostgreSQLPgStatementsAgentType:
 		return &inventoryv1.QANPostgreSQLPgStatementsAgent{
@@ -488,7 +501,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 		}, nil
 
 	case models.RDSExporterType:
-		return &inventoryv1.RDSExporter{
+		exporter := &inventoryv1.RDSExporter{
 			AgentId:                 agent.AgentID,
 			PmmAgentId:              pointer.GetString(agent.PMMAgentID),
 			NodeId:                  nodeID,
@@ -503,7 +516,8 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			ProcessExecPath:         processExecPath,
 			LogLevel:                inventoryv1.LogLevelAPIValue(agent.LogLevel),
 			MetricsResolutions:      ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
-		}, nil
+		}
+		return exporter, nil
 
 	case models.ExternalExporterType:
 		if agent.RunsOnNodeID == nil && agent.PMMAgentID != nil {
@@ -513,7 +527,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			}
 			agent.RunsOnNodeID = pmmAgent.RunsOnNodeID
 		}
-		return &inventoryv1.ExternalExporter{
+		ext := &inventoryv1.ExternalExporter{
 			AgentId:            agent.AgentID,
 			RunsOnNodeId:       pointer.GetString(agent.RunsOnNodeID),
 			ServiceId:          pointer.GetString(agent.ServiceID),
@@ -528,10 +542,11 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 			TlsSkipVerify:      agent.TLSSkipVerify,
 			Status:             inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
-		}, nil
+		}
+		return ext, nil
 
 	case models.AzureDatabaseExporterType:
-		return &inventoryv1.AzureDatabaseExporter{
+		exporter := &inventoryv1.AzureDatabaseExporter{
 			AgentId:                     agent.AgentID,
 			PmmAgentId:                  pointer.GetString(agent.PMMAgentID),
 			NodeId:                      nodeID,
@@ -544,7 +559,8 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			ProcessExecPath:             processExecPath,
 			LogLevel:                    inventoryv1.LogLevelAPIValue(agent.LogLevel),
 			MetricsResolutions:          ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
-		}, nil
+		}
+		return exporter, nil
 
 	case models.VMAgentType:
 		return &inventoryv1.VMAgent{
@@ -582,6 +598,9 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			ProcessExecPath:    processExecPath,
 			ExposeExporter:     agent.ExporterOptions.ExposeExporter,
 			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
+		}
+		if agent.ExporterOptions.ConnectionTimeout != nil {
+			exporter.ConnectionTimeout = durationpb.New(*agent.ExporterOptions.ConnectionTimeout)
 		}
 		return exporter, nil
 
@@ -667,8 +686,7 @@ func ProtoToModelNodeType(nodeType inventoryv1.NodeType) *models.NodeType {
 	if nodeType == inventoryv1.NodeType_NODE_TYPE_UNSPECIFIED {
 		return nil
 	}
-	result := nodeTypes[nodeType]
-	return &result
+	return new(nodeTypes[nodeType])
 }
 
 // ServiceTypes maps protobuf types to their string types.
@@ -687,6 +705,5 @@ func ProtoToModelServiceType(serviceType inventoryv1.ServiceType) *models.Servic
 	if serviceType == inventoryv1.ServiceType_SERVICE_TYPE_UNSPECIFIED {
 		return nil
 	}
-	result := ServiceTypes[serviceType]
-	return &result
+	return new(ServiceTypes[serviceType])
 }

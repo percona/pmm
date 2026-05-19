@@ -57,6 +57,7 @@ type CreateDumpParams struct {
 	EndTime      *time.Time
 	ExportQAN    bool
 	IgnoreLoad   bool
+	Encrypted    bool
 }
 
 // Validate checks the validity of CreateDumpParams.
@@ -87,6 +88,7 @@ func CreateDump(q *reform.Querier, params CreateDumpParams) (*Dump, error) {
 		EndTime:      params.EndTime,
 		ExportQAN:    params.ExportQAN,
 		IgnoreLoad:   params.IgnoreLoad,
+		Encrypted:    params.Encrypted,
 	}
 	if err := q.Insert(dump); err != nil {
 		return nil, errors.WithStack(err)

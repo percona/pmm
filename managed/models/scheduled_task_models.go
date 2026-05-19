@@ -22,7 +22,7 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-//go:generate ../../bin/reform
+//go:generate go tool reform
 
 // ScheduledTaskType represents scheduled task type.
 type ScheduledTaskType string

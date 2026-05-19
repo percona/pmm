@@ -89,7 +89,7 @@ func PostgreSQLOptionsFromRequest(params PostgreSQLOptionsParams) PostgreSQLOpti
 
 	// PostgreSQL exporter has these parameters but they are not needed for QAN agent.
 	if extendedOptions, ok := params.(PostgreSQLExtendedOptionsParams); ok && extendedOptions != nil {
-		res.AutoDiscoveryLimit = pointer.ToInt32(extendedOptions.GetAutoDiscoveryLimit())
+		res.AutoDiscoveryLimit = new(extendedOptions.GetAutoDiscoveryLimit())
 		res.MaxExporterConnections = extendedOptions.GetMaxExporterConnections()
 	}
 
@@ -188,7 +188,7 @@ func RTAOptionsFromRequest(params RTAOptionsParams) *RTAOptions {
 	rtaOptions := &RTAOptions{}
 
 	if params.GetCollectInterval() != nil {
-		rtaOptions.CollectInterval = pointer.To(params.GetCollectInterval().AsDuration())
+		rtaOptions.CollectInterval = new(params.GetCollectInterval().AsDuration())
 	}
 
 	return rtaOptions
@@ -311,9 +311,7 @@ func FindAgentByID(q *reform.Querier, id string) (*Agent, error) {
 		}
 		return nil, errors.WithStack(err)
 	}
-	decryptedAgent := DecryptAgent(*agent)
-
-	return &decryptedAgent, nil
+	return new(DecryptAgent(*agent)), nil
 }
 
 // FindAgentsByIDs finds Agents by IDs.
@@ -588,8 +586,7 @@ func FindPmmAgentIDToRunActionOrJob(pmmAgentID string, agents []*Agent) (string,
 
 // UpdateAgent updates the Agent in the database.
 func UpdateAgent(q *reform.Querier, agent *Agent) error {
-	eAgent := EncryptAgent(*agent)
-	err := q.Update(&eAgent)
+	err := q.Update(new(EncryptAgent(*agent)))
 	if err != nil {
 		return fmt.Errorf("failed to update Agent: %w", err)
 	}
@@ -702,9 +699,7 @@ func CreateNodeExporter(q *reform.Querier,
 	if err := q.Insert(&encryptedAgent); err != nil {
 		return nil, errors.WithStack(err)
 	}
-	agent := DecryptAgent(encryptedAgent)
-
-	return &agent, nil
+	return new(DecryptAgent(encryptedAgent)), nil
 }
 
 // CreateExternalExporterParams params for add external exporter.
@@ -727,7 +722,7 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 		return nil, status.Errorf(codes.InvalidArgument, "Listen port should be between 1 and 65535.")
 	}
 	var pmmAgentID *string
-	runsOnNodeID := pointer.ToString(params.RunsOnNodeID)
+	runsOnNodeID := new(params.RunsOnNodeID)
 	id := uuid.New().String()
 	if err := checkUniqueAgentID(q, id); err != nil {
 		return nil, err
@@ -746,7 +741,7 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 			return nil, errors.Errorf("exactly one pmm_agent expected for external exporter, but "+
 				"(%d) found at node: %s", len(agentIDs), params.RunsOnNodeID)
 		}
-		pmmAgentID = pointer.ToString(agentIDs[0].AgentID)
+		pmmAgentID = new(agentIDs[0].AgentID)
 		runsOnNodeID = nil
 	}
 
@@ -773,7 +768,7 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 		ServiceID:    pointer.ToStringOrNil(params.ServiceID),
 		Username:     pointer.ToStringOrNil(params.Username),
 		Password:     pointer.ToStringOrNil(params.Password),
-		ListenPort:   pointer.ToUint16(uint16(params.ListenPort)),
+		ListenPort:   new(uint16(params.ListenPort)),
 		ExporterOptions: ExporterOptions{
 			PushMetrics:   params.PushMetrics,
 			MetricsPath:   metricsPath,
@@ -789,9 +784,7 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 	if err := q.Insert(&encryptedAgent); err != nil {
 		return nil, errors.WithStack(err)
 	}
-	agent := DecryptAgent(encryptedAgent)
-
-	return &agent, nil
+	return new(DecryptAgent(encryptedAgent)), nil
 }
 
 // CreateAgentParams params for add common exporter.
@@ -941,6 +934,11 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		}
 	}
 
+	exporterOptions := params.ExporterOptions
+	if pointer.Get(exporterOptions.ConnectionTimeout) == 0 {
+		exporterOptions.ConnectionTimeout = nil
+	}
+
 	row := &Agent{
 		AgentID:           id,
 		AgentType:         agentType,
@@ -952,7 +950,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		AgentPassword:     pointer.ToStringOrNil(params.AgentPassword),
 		TLS:               params.TLS,
 		TLSSkipVerify:     params.TLSSkipVerify,
-		ExporterOptions:   params.ExporterOptions,
+		ExporterOptions:   exporterOptions,
 		QANOptions:        params.QANOptions,
 		AWSOptions:        params.AWSOptions,
 		AzureOptions:      params.AzureOptions,
@@ -976,7 +974,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 	case RTAMongoDBAgentType:
 		row.RTAOptions = RTAOptions{
 			// default value
-			CollectInterval: pointer.To(2 * time.Second), //nolint:mnd
+			CollectInterval: new(2 * time.Second), //nolint:mnd
 		}
 		// RTA options
 		row.RTAOptions.Merge(&params.RTAOptions)
@@ -988,9 +986,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 	if err := q.Insert(&encryptedAgent); err != nil {
 		return nil, errors.WithStack(err)
 	}
-	agent := DecryptAgent(encryptedAgent)
-
-	return &agent, nil
+	return new(DecryptAgent(encryptedAgent)), nil
 }
 
 func trimUnicodeNilsInCertFiles(agent Agent) Agent {
@@ -1026,6 +1022,7 @@ type ChangeExporterOptions struct {
 	MetricsScheme      *string
 	MetricsPath        *string
 	MetricsResolutions *ChangeMetricsResolutionsParams
+	ConnectionTimeout  *time.Duration
 }
 
 // ChangeQANOptions contains QANOptions fields that can be changed.
@@ -1185,6 +1182,12 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 		}
 		if params.ExporterOptions.MetricsPath != nil {
 			row.ExporterOptions.MetricsPath = *params.ExporterOptions.MetricsPath
+		}
+
+		if pointer.Get(params.ExporterOptions.ConnectionTimeout) == 0 {
+			row.ExporterOptions.ConnectionTimeout = nil
+		} else {
+			row.ExporterOptions.ConnectionTimeout = params.ExporterOptions.ConnectionTimeout
 		}
 	}
 
@@ -1359,12 +1362,12 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 	row.RTAOptions.Merge(params.RTAOptions)
 
 	// need to encrypt Agent's sensitive data before update
-	row = pointer.To(EncryptAgent(*row))
+	row = new(EncryptAgent(*row))
 	if err = q.Update(row); err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	return pointer.To(DecryptAgent(*row)), nil
+	return new(DecryptAgent(*row)), nil
 }
 
 // RemoveAgent removes Agent by ID.
@@ -1423,7 +1426,7 @@ func updateExternalExporterParams(q *reform.Querier, row *Agent) error {
 		}
 
 		row.RunsOnNodeID = nil
-		row.PMMAgentID = pointer.ToString(pmmAgent[0].AgentID)
+		row.PMMAgentID = new(pmmAgent[0].AgentID)
 	}
 	// without push metrics, external exporter must have RunsOnNodeID without PMMAgentID
 	if !row.ExporterOptions.PushMetrics && row.RunsOnNodeID == nil {
