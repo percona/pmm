@@ -230,7 +230,7 @@ func replSetGetStatusAssertionsStandalone(t *testing.T, id string, timeout time.
 	defer cancel()
 	b, err := a.Run(ctx)
 	require.Nil(t, b)
-	var targetErr *mongo.CommandError
+	var targetErr mongo.CommandError
 	require.ErrorAs(t, err, &targetErr)
 	require.Equal(t, "(NoReplicationEnabled) not running with --replSet", err.Error())
 }
