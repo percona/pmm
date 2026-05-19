@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { useEffect, useMemo, useState } from 'react';
 import {
   Alert,
@@ -48,7 +47,6 @@ export const InstallClientPage = () => {
   const [dbServiceName, setDbServiceName] = useState('');
   const [copied, setCopied] = useState(false);
   const [genLoading, setGenLoading] = useState(false);
-  const [genError, setGenError] = useState<string | null>(null);
   const [tokenExpiresAt, setTokenExpiresAt] = useState<Date | null>(null);
   const [now, setNow] = useState(() => Date.now());
 
@@ -134,7 +132,6 @@ export const InstallClientPage = () => {
   };
 
   const handleGenerateToken = async () => {
-    setGenError(null);
     setGenLoading(true);
     try {
       const res = await createNodeInstallToken(technology, 0);
@@ -146,13 +143,8 @@ export const InstallClientPage = () => {
         : new Date(Date.now() + 15 * 60 * 1000);
       setTokenExpiresAt(expires);
       setNow(Date.now());
-    } catch (e: unknown) {
-      let msg = 'Failed to create token';
-      if (axios.isAxiosError(e)) {
-        const data = e.response?.data as { message?: string } | undefined;
-        msg = data?.message ?? e.message;
-      }
-      setGenError(msg);
+    } catch {
+      // Handled by global API error interceptor (toast notification).
     } finally {
       setGenLoading(false);
     }
@@ -276,11 +268,6 @@ export const InstallClientPage = () => {
                   variant="outlined"
                   size="medium"
                 />
-              )}
-              {genError && (
-                <Alert severity="error" sx={{ flex: 1 }}>
-                  {genError}
-                </Alert>
               )}
             </Stack>
             <FormHelperText sx={{ mt: -1 }}>
