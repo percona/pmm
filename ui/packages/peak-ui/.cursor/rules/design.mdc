@@ -18,3 +18,16 @@ The `<Box sx={{ mr: -1.75 }} />` rendered when no `icon` is passed is intentiona
 Tooltips render in the **inverted** mode of the app: light-mode app → dark tooltip surface, dark-mode app → light tooltip surface. Don't add per-theme tooltip overrides — change `BaseTheme` instead where possible.
 
 Link styling inside tooltips lives as a nested `& .MuiLink-root` rule *inside* the tooltip override, **not** in `MuiLink.styleOverrides`. Don't "clean up" by moving link styles back to `MuiLink`.
+
+## Action token model (state colors)
+
+Two parallel layers, intentionally distinct — don't collapse them:
+
+- **`palette.action.{active,hover,selected,disabled,focus}`** = neutral state tints. Brand-black-tinted in all themes. Used wherever the surface is default-colored.
+- **`palette.primary.{hover,selected,focus,focusVisible,outlinedBorder}`** = state tints for *primary-colored* surfaces. Identical to `action.*` in Base (both are brand-black) but diverges in PMM/SEP (purple).
+
+Per-mode opacity is mandatory: dark mode uses higher alpha (8% hover vs 4% light, 16% selected vs 8% light, 15% disabled/focus vs 12% light). Wired through `tokens.action.{hoverOpacity,selectedOpacity,disabledOpacity,focusOpacity}` so MUI's `alpha(...)` calculations stay in sync.
+
+## Theme extension contract
+
+PMM and SEP must NOT redeclare `MuiX.styleOverrides.root` as a function — `deepmerge` will replace BaseTheme's function entirely (see `mui.mdc`). If a brand tweak is needed, use a sibling slot (`colorPrimary`, `sizeSmall`, etc.) or a CSS selector inside an existing object-typed slot. When in doubt: add the override to BaseTheme and let PMM/SEP inherit it.
