@@ -588,7 +588,7 @@ type DiscoverElastiCacheOKBodyElasticacheInstancesItems0 struct {
 	Port int64 `json:"port,omitempty"`
 
 	// DiscoverElastiCacheEngine describes supported ElastiCache engines.
-	// Enum: ["DISCOVER_ELASTICACHE_ENGINE_UNSPECIFIED","DISCOVER_ELASTICACHE_ENGINE_REDIS","DISCOVER_ELASTICACHE_ENGINE_VALKEY"]
+	// Enum: ["DISCOVER_ELASTI_CACHE_ENGINE_UNSPECIFIED","DISCOVER_ELASTI_CACHE_ENGINE_REDIS","DISCOVER_ELASTI_CACHE_ENGINE_VALKEY"]
 	Engine *string `json:"engine,omitempty"`
 
 	// Engine version.
@@ -619,7 +619,7 @@ var discoverElastiCacheOkBodyElasticacheInstancesItems0TypeEnginePropEnum []any
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DISCOVER_ELASTICACHE_ENGINE_UNSPECIFIED","DISCOVER_ELASTICACHE_ENGINE_REDIS","DISCOVER_ELASTICACHE_ENGINE_VALKEY"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DISCOVER_ELASTI_CACHE_ENGINE_UNSPECIFIED","DISCOVER_ELASTI_CACHE_ENGINE_REDIS","DISCOVER_ELASTI_CACHE_ENGINE_VALKEY"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -629,14 +629,14 @@ func init() {
 
 const (
 
-	// DiscoverElastiCacheOKBodyElasticacheInstancesItems0EngineDISCOVERELASTICACHEENGINEUNSPECIFIED captures enum value "DISCOVER_ELASTICACHE_ENGINE_UNSPECIFIED"
-	DiscoverElastiCacheOKBodyElasticacheInstancesItems0EngineDISCOVERELASTICACHEENGINEUNSPECIFIED string = "DISCOVER_ELASTICACHE_ENGINE_UNSPECIFIED"
+	// DiscoverElastiCacheOKBodyElasticacheInstancesItems0EngineDISCOVERELASTICACHEENGINEUNSPECIFIED captures enum value "DISCOVER_ELASTI_CACHE_ENGINE_UNSPECIFIED"
+	DiscoverElastiCacheOKBodyElasticacheInstancesItems0EngineDISCOVERELASTICACHEENGINEUNSPECIFIED string = "DISCOVER_ELASTI_CACHE_ENGINE_UNSPECIFIED"
 
-	// DiscoverElastiCacheOKBodyElasticacheInstancesItems0EngineDISCOVERELASTICACHEENGINEREDIS captures enum value "DISCOVER_ELASTICACHE_ENGINE_REDIS"
-	DiscoverElastiCacheOKBodyElasticacheInstancesItems0EngineDISCOVERELASTICACHEENGINEREDIS string = "DISCOVER_ELASTICACHE_ENGINE_REDIS"
+	// DiscoverElastiCacheOKBodyElasticacheInstancesItems0EngineDISCOVERELASTICACHEENGINEREDIS captures enum value "DISCOVER_ELASTI_CACHE_ENGINE_REDIS"
+	DiscoverElastiCacheOKBodyElasticacheInstancesItems0EngineDISCOVERELASTICACHEENGINEREDIS string = "DISCOVER_ELASTI_CACHE_ENGINE_REDIS"
 
-	// DiscoverElastiCacheOKBodyElasticacheInstancesItems0EngineDISCOVERELASTICACHEENGINEVALKEY captures enum value "DISCOVER_ELASTICACHE_ENGINE_VALKEY"
-	DiscoverElastiCacheOKBodyElasticacheInstancesItems0EngineDISCOVERELASTICACHEENGINEVALKEY string = "DISCOVER_ELASTICACHE_ENGINE_VALKEY"
+	// DiscoverElastiCacheOKBodyElasticacheInstancesItems0EngineDISCOVERELASTICACHEENGINEVALKEY captures enum value "DISCOVER_ELASTI_CACHE_ENGINE_VALKEY"
+	DiscoverElastiCacheOKBodyElasticacheInstancesItems0EngineDISCOVERELASTICACHEENGINEVALKEY string = "DISCOVER_ELASTI_CACHE_ENGINE_VALKEY"
 )
 
 // prop value enum

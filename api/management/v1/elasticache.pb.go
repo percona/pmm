@@ -30,22 +30,22 @@ const (
 type DiscoverElastiCacheEngine int32
 
 const (
-	DiscoverElastiCacheEngine_DISCOVER_ELASTICACHE_ENGINE_UNSPECIFIED DiscoverElastiCacheEngine = 0
-	DiscoverElastiCacheEngine_DISCOVER_ELASTICACHE_ENGINE_REDIS       DiscoverElastiCacheEngine = 1
-	DiscoverElastiCacheEngine_DISCOVER_ELASTICACHE_ENGINE_VALKEY      DiscoverElastiCacheEngine = 2
+	DiscoverElastiCacheEngine_DISCOVER_ELASTI_CACHE_ENGINE_UNSPECIFIED DiscoverElastiCacheEngine = 0
+	DiscoverElastiCacheEngine_DISCOVER_ELASTI_CACHE_ENGINE_REDIS       DiscoverElastiCacheEngine = 1
+	DiscoverElastiCacheEngine_DISCOVER_ELASTI_CACHE_ENGINE_VALKEY      DiscoverElastiCacheEngine = 2
 )
 
 // Enum value maps for DiscoverElastiCacheEngine.
 var (
 	DiscoverElastiCacheEngine_name = map[int32]string{
-		0: "DISCOVER_ELASTICACHE_ENGINE_UNSPECIFIED",
-		1: "DISCOVER_ELASTICACHE_ENGINE_REDIS",
-		2: "DISCOVER_ELASTICACHE_ENGINE_VALKEY",
+		0: "DISCOVER_ELASTI_CACHE_ENGINE_UNSPECIFIED",
+		1: "DISCOVER_ELASTI_CACHE_ENGINE_REDIS",
+		2: "DISCOVER_ELASTI_CACHE_ENGINE_VALKEY",
 	}
 	DiscoverElastiCacheEngine_value = map[string]int32{
-		"DISCOVER_ELASTICACHE_ENGINE_UNSPECIFIED": 0,
-		"DISCOVER_ELASTICACHE_ENGINE_REDIS":       1,
-		"DISCOVER_ELASTICACHE_ENGINE_VALKEY":      2,
+		"DISCOVER_ELASTI_CACHE_ENGINE_UNSPECIFIED": 0,
+		"DISCOVER_ELASTI_CACHE_ENGINE_REDIS":       1,
+		"DISCOVER_ELASTI_CACHE_ENGINE_VALKEY":      2,
 	}
 )
 
@@ -179,7 +179,7 @@ func (x *DiscoverElastiCacheInstance) GetEngine() DiscoverElastiCacheEngine {
 	if x != nil {
 		return x.Engine
 	}
-	return DiscoverElastiCacheEngine_DISCOVER_ELASTICACHE_ENGINE_UNSPECIFIED
+	return DiscoverElastiCacheEngine_DISCOVER_ELASTI_CACHE_ENGINE_UNSPECIFIED
 }
 
 func (x *DiscoverElastiCacheInstance) GetEngineVersion() string {
@@ -425,7 +425,7 @@ func (x *AddElastiCacheServiceParams) GetEngine() DiscoverElastiCacheEngine {
 	if x != nil {
 		return x.Engine
 	}
-	return DiscoverElastiCacheEngine_DISCOVER_ELASTICACHE_ENGINE_UNSPECIFIED
+	return DiscoverElastiCacheEngine_DISCOVER_ELASTI_CACHE_ENGINE_UNSPECIFIED
 }
 
 func (x *AddElastiCacheServiceParams) GetPmmAgentId() string {
@@ -642,11 +642,11 @@ const file_management_v1_elasticache_proto_rawDesc = "" +
 	"\x18ElastiCacheServiceResult\x127\n" +
 	"\x04node\x18\x01 \x01(\v2#.inventory.v1.RemoteElastiCacheNodeR\x04node\x12B\n" +
 	"\x0evalkey_service\x18\x02 \x01(\v2\x1b.inventory.v1.ValkeyServiceR\rvalkeyService\x12E\n" +
-	"\x0fvalkey_exporter\x18\x03 \x01(\v2\x1c.inventory.v1.ValkeyExporterR\x0evalkeyExporter*\x97\x01\n" +
-	"\x19DiscoverElastiCacheEngine\x12+\n" +
-	"'DISCOVER_ELASTICACHE_ENGINE_UNSPECIFIED\x10\x00\x12%\n" +
-	"!DISCOVER_ELASTICACHE_ENGINE_REDIS\x10\x01\x12&\n" +
-	"\"DISCOVER_ELASTICACHE_ENGINE_VALKEY\x10\x02B\xb1\x01\n" +
+	"\x0fvalkey_exporter\x18\x03 \x01(\v2\x1c.inventory.v1.ValkeyExporterR\x0evalkeyExporter*\x9a\x01\n" +
+	"\x19DiscoverElastiCacheEngine\x12,\n" +
+	"(DISCOVER_ELASTI_CACHE_ENGINE_UNSPECIFIED\x10\x00\x12&\n" +
+	"\"DISCOVER_ELASTI_CACHE_ENGINE_REDIS\x10\x01\x12'\n" +
+	"#DISCOVER_ELASTI_CACHE_ENGINE_VALKEY\x10\x02B\xb1\x01\n" +
 	"\x11com.management.v1B\x10ElasticacheProtoP\x01Z5github.com/percona/pmm/api/management/v1;managementv1\xa2\x02\x03MXX\xaa\x02\rManagement.V1\xca\x02\rManagement\\V1\xe2\x02\x19Management\\V1\\GPBMetadata\xea\x02\x0eManagement::V1b\x06proto3"
 
 var (

@@ -11,9 +11,9 @@ import "validate/validate.proto";
 
 // DiscoverElastiCacheEngine describes supported ElastiCache engines.
 enum DiscoverElastiCacheEngine {
-  DISCOVER_ELASTICACHE_ENGINE_UNSPECIFIED = 0;
-  DISCOVER_ELASTICACHE_ENGINE_REDIS = 1;
-  DISCOVER_ELASTICACHE_ENGINE_VALKEY = 2;
+  DISCOVER_ELASTI_CACHE_ENGINE_UNSPECIFIED = 0;
+  DISCOVER_ELASTI_CACHE_ENGINE_REDIS = 1;
+  DISCOVER_ELASTI_CACHE_ENGINE_VALKEY = 2;
 }
 
 // DiscoverElastiCacheInstance models an ElastiCache replication group discovered by the API.

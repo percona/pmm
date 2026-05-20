@@ -43,8 +43,8 @@ import (
 
 // elasticacheEngines maps AWS engine names to our proto enum.
 var elasticacheEngines = map[string]managementv1.DiscoverElastiCacheEngine{
-	"redis":  managementv1.DiscoverElastiCacheEngine_DISCOVER_ELASTICACHE_ENGINE_REDIS,
-	"valkey": managementv1.DiscoverElastiCacheEngine_DISCOVER_ELASTICACHE_ENGINE_VALKEY,
+	"redis":  managementv1.DiscoverElastiCacheEngine_DISCOVER_ELASTI_CACHE_ENGINE_REDIS,
+	"valkey": managementv1.DiscoverElastiCacheEngine_DISCOVER_ELASTI_CACHE_ENGINE_VALKEY,
 }
 
 // discoverElastiCacheRegion returns a list of ElastiCache replication groups from a single region.

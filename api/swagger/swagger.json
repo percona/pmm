@@ -24462,11 +24462,11 @@
                     "engine": {
                       "description": "DiscoverElastiCacheEngine describes supported ElastiCache engines.",
                       "type": "string",
-                      "default": "DISCOVER_ELASTICACHE_ENGINE_UNSPECIFIED",
+                      "default": "DISCOVER_ELASTI_CACHE_ENGINE_UNSPECIFIED",
                       "enum": [
-                        "DISCOVER_ELASTICACHE_ENGINE_UNSPECIFIED",
-                        "DISCOVER_ELASTICACHE_ENGINE_REDIS",
-                        "DISCOVER_ELASTICACHE_ENGINE_VALKEY"
+                        "DISCOVER_ELASTI_CACHE_ENGINE_UNSPECIFIED",
+                        "DISCOVER_ELASTI_CACHE_ENGINE_REDIS",
+                        "DISCOVER_ELASTI_CACHE_ENGINE_VALKEY"
                       ],
                       "x-order": 6
                     },
@@ -28435,11 +28435,11 @@
                       "engine": {
                         "description": "DiscoverElastiCacheEngine describes supported ElastiCache engines.",
                         "type": "string",
-                        "default": "DISCOVER_ELASTICACHE_ENGINE_UNSPECIFIED",
+                        "default": "DISCOVER_ELASTI_CACHE_ENGINE_UNSPECIFIED",
                         "enum": [
-                          "DISCOVER_ELASTICACHE_ENGINE_UNSPECIFIED",
-                          "DISCOVER_ELASTICACHE_ENGINE_REDIS",
-                          "DISCOVER_ELASTICACHE_ENGINE_VALKEY"
+                          "DISCOVER_ELASTI_CACHE_ENGINE_UNSPECIFIED",
+                          "DISCOVER_ELASTI_CACHE_ENGINE_REDIS",
+                          "DISCOVER_ELASTI_CACHE_ENGINE_VALKEY"
                         ],
                         "x-order": 6
                       },

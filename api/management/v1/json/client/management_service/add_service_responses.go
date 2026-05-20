@@ -10078,7 +10078,7 @@ type AddServiceParamsBodyElasticache struct {
 	Port int64 `json:"port,omitempty"`
 
 	// DiscoverElastiCacheEngine describes supported ElastiCache engines.
-	// Enum: ["DISCOVER_ELASTICACHE_ENGINE_UNSPECIFIED","DISCOVER_ELASTICACHE_ENGINE_REDIS","DISCOVER_ELASTICACHE_ENGINE_VALKEY"]
+	// Enum: ["DISCOVER_ELASTI_CACHE_ENGINE_UNSPECIFIED","DISCOVER_ELASTI_CACHE_ENGINE_REDIS","DISCOVER_ELASTI_CACHE_ENGINE_VALKEY"]
 	Engine *string `json:"engine,omitempty"`
 
 	// PMM Agent ID.
@@ -10150,7 +10150,7 @@ var addServiceParamsBodyElasticacheTypeEnginePropEnum []any
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DISCOVER_ELASTICACHE_ENGINE_UNSPECIFIED","DISCOVER_ELASTICACHE_ENGINE_REDIS","DISCOVER_ELASTICACHE_ENGINE_VALKEY"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DISCOVER_ELASTI_CACHE_ENGINE_UNSPECIFIED","DISCOVER_ELASTI_CACHE_ENGINE_REDIS","DISCOVER_ELASTI_CACHE_ENGINE_VALKEY"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -10160,14 +10160,14 @@ func init() {
 
 const (
 
-	// AddServiceParamsBodyElasticacheEngineDISCOVERELASTICACHEENGINEUNSPECIFIED captures enum value "DISCOVER_ELASTICACHE_ENGINE_UNSPECIFIED"
-	AddServiceParamsBodyElasticacheEngineDISCOVERELASTICACHEENGINEUNSPECIFIED string = "DISCOVER_ELASTICACHE_ENGINE_UNSPECIFIED"
+	// AddServiceParamsBodyElasticacheEngineDISCOVERELASTICACHEENGINEUNSPECIFIED captures enum value "DISCOVER_ELASTI_CACHE_ENGINE_UNSPECIFIED"
+	AddServiceParamsBodyElasticacheEngineDISCOVERELASTICACHEENGINEUNSPECIFIED string = "DISCOVER_ELASTI_CACHE_ENGINE_UNSPECIFIED"
 
-	// AddServiceParamsBodyElasticacheEngineDISCOVERELASTICACHEENGINEREDIS captures enum value "DISCOVER_ELASTICACHE_ENGINE_REDIS"
-	AddServiceParamsBodyElasticacheEngineDISCOVERELASTICACHEENGINEREDIS string = "DISCOVER_ELASTICACHE_ENGINE_REDIS"
+	// AddServiceParamsBodyElasticacheEngineDISCOVERELASTICACHEENGINEREDIS captures enum value "DISCOVER_ELASTI_CACHE_ENGINE_REDIS"
+	AddServiceParamsBodyElasticacheEngineDISCOVERELASTICACHEENGINEREDIS string = "DISCOVER_ELASTI_CACHE_ENGINE_REDIS"
 
-	// AddServiceParamsBodyElasticacheEngineDISCOVERELASTICACHEENGINEVALKEY captures enum value "DISCOVER_ELASTICACHE_ENGINE_VALKEY"
-	AddServiceParamsBodyElasticacheEngineDISCOVERELASTICACHEENGINEVALKEY string = "DISCOVER_ELASTICACHE_ENGINE_VALKEY"
+	// AddServiceParamsBodyElasticacheEngineDISCOVERELASTICACHEENGINEVALKEY captures enum value "DISCOVER_ELASTI_CACHE_ENGINE_VALKEY"
+	AddServiceParamsBodyElasticacheEngineDISCOVERELASTICACHEENGINEVALKEY string = "DISCOVER_ELASTI_CACHE_ENGINE_VALKEY"
 )
 
 // prop value enum

@@ -60,13 +60,13 @@ func TestElastiCacheEngineMap(t *testing.T) {
 	t.Run("Redis", func(t *testing.T) {
 		engine, ok := elasticacheEngines["redis"]
 		assert.True(t, ok)
-		assert.Equal(t, managementv1.DiscoverElastiCacheEngine_DISCOVER_ELASTICACHE_ENGINE_REDIS, engine)
+		assert.Equal(t, managementv1.DiscoverElastiCacheEngine_DISCOVER_ELASTI_CACHE_ENGINE_REDIS, engine)
 	})
 
 	t.Run("Valkey", func(t *testing.T) {
 		engine, ok := elasticacheEngines["valkey"]
 		assert.True(t, ok)
-		assert.Equal(t, managementv1.DiscoverElastiCacheEngine_DISCOVER_ELASTICACHE_ENGINE_VALKEY, engine)
+		assert.Equal(t, managementv1.DiscoverElastiCacheEngine_DISCOVER_ELASTI_CACHE_ENGINE_VALKEY, engine)
 	})
 
 	t.Run("UnsupportedEngine", func(t *testing.T) {
