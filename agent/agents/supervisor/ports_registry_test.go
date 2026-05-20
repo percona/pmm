@@ -30,7 +30,7 @@ func TestRegistry(t *testing.T) {
 	defer l1.Close() //nolint:gosec,errcheck,nolintlint
 
 	p, err := r.Reserve()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.EqualValues(t, 65002, p)
 	_, err = r.Reserve()
 	assert.Equal(t, errNoFreePort, err)
@@ -40,7 +40,7 @@ func TestRegistry(t *testing.T) {
 	defer l2.Close() //nolint:errcheck,gosec,nolintlint
 
 	err = r.Release(65000)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	err = r.Release(65001)
 	assert.Equal(t, errPortNotReserved, err)
 	err = r.Release(65002)
@@ -50,19 +50,19 @@ func TestRegistry(t *testing.T) {
 	l2.Close() //nolint:errcheck
 
 	p, err = r.Reserve()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.EqualValues(t, 65000, p)
 	p, err = r.Reserve()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.EqualValues(t, 65001, p)
 	_, err = r.Reserve()
 	assert.Equal(t, errNoFreePort, err)
 
 	err = r.Release(65002)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	p, err = r.Reserve()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.EqualValues(t, 65002, p)
 	_, err = r.Reserve()
 	assert.Equal(t, errNoFreePort, err)
@@ -72,22 +72,22 @@ func TestPreferNewPort(t *testing.T) {
 	r := newPortsRegistry(65000, 65002, nil)
 
 	p, err := r.Reserve()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.EqualValues(t, 65000, p)
 
 	err = r.Release(p)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	p, err = r.Reserve()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.EqualValues(t, 65001, p)
 
 	p, err = r.Reserve()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.EqualValues(t, 65002, p)
 
 	p, err = r.Reserve()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.EqualValues(t, 65000, p)
 }
 
@@ -95,16 +95,16 @@ func TestSinglePort(t *testing.T) {
 	r := newPortsRegistry(65000, 65000, nil)
 
 	p, err := r.Reserve()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.EqualValues(t, 65000, p)
 
 	_, err = r.Reserve()
 	assert.Equal(t, errNoFreePort, err)
 
 	err = r.Release(p)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	p, err = r.Reserve()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.EqualValues(t, 65000, p)
 }

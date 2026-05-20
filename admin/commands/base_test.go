@@ -78,8 +78,8 @@ func TestCredentials(t *testing.T) {
 	credSourceX, _ := CreateDummyCredentialsExecutable(data)
 
 	t.Cleanup(func() {
-		assert.NoError(t, os.Remove(credSource))
-		assert.NoError(t, os.Remove(credSourceX))
+		require.NoError(t, os.Remove(credSource))
+		require.NoError(t, os.Remove(credSourceX))
 	})
 
 	t.Run("Reading", func(t *testing.T) {
@@ -178,15 +178,15 @@ func TestReadFile(t *testing.T) {
 		require.NoError(t, err)
 		defer func() {
 			err = cert.Close()
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			err = os.Remove(cert.Name())
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		}()
 		_, err = cert.WriteString("cert")
 		require.NoError(t, err)
 
 		certificate, err := ReadFile(cert.Name())
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, "cert", certificate)
 	})
 
@@ -195,7 +195,7 @@ func TestReadFile(t *testing.T) {
 
 		filepath := "not-existed-file"
 		certificate, err := ReadFile(filepath)
-		assert.EqualError(t, err, fmt.Sprintf("cannot load file in path %q: open not-existed-file: no such file or directory", filepath))
+		require.EqualError(t, err, fmt.Sprintf("cannot load file in path %q: open not-existed-file: no such file or directory", filepath))
 		assert.Empty(t, certificate)
 	})
 

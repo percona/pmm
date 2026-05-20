@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestClientOptionsForDSN(t *testing.T) {
@@ -70,7 +71,7 @@ func TestClientOptionsForDSN(t *testing.T) {
 			if tt.error != "" {
 				assert.Equal(t, err.Error(), tt.error)
 			} else {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 				assert.Equal(t, tt.expectedUser, got.Auth.Username)
 				assert.Equal(t, tt.expectedPassword, got.Auth.Password)
 			}

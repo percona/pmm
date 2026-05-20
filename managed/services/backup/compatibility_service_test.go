@@ -196,10 +196,10 @@ func TestCheckCompatibility(t *testing.T) {
 			cSvc := NewCompatibilityService(nil, &mockVersioner)
 			dbVersion, err := cSvc.checkCompatibility(&models.Service{ServiceType: tc.serviceType}, &agentModel)
 			if tc.expectedError != nil {
-				assert.ErrorIs(t, err, tc.expectedError)
+				require.ErrorIs(t, err, tc.expectedError)
 				assert.Empty(t, dbVersion)
 			} else {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 				assert.Equal(t, tc.versions[0].Version, dbVersion)
 			}
 			mock.AssertExpectationsForObjects(t, &mockVersioner)
@@ -478,9 +478,9 @@ func TestFindArtifactCompatibleServices(t *testing.T) {
 			res, err := cSvc.FindArtifactCompatibleServices(t.Context(), test.artifactIDToSearch)
 
 			if test.errString != "" {
-				assert.ErrorContains(t, err, test.errString)
+				require.ErrorContains(t, err, test.errString)
 			} else {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 			}
 
 			if test.expectEmptyResult {
@@ -618,7 +618,7 @@ func TestFindArtifactCompatibleServices(t *testing.T) {
 		})
 
 		res, err := cSvc.FindArtifactCompatibleServices(t.Context(), "test_artifact_id")
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.ElementsMatch(t, []*models.Service{serviceModel, &svsData4.service}, res)
 	})
 }
@@ -699,7 +699,7 @@ func TestArtifactCompatibility(t *testing.T) {
 				return
 			}
 
-			assert.ErrorIs(t, err, tc.expectedErr)
+			require.ErrorIs(t, err, tc.expectedErr)
 		})
 	}
 }

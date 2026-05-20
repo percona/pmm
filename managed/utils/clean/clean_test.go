@@ -73,7 +73,7 @@ func TestCleaner(t *testing.T) {
 
 		teardown := func(t *testing.T) {
 			t.Helper()
-			assert.NoError(t, models.CleanupOldActionResults(db.Querier, models.Now()))
+			require.NoError(t, models.CleanupOldActionResults(db.Querier, models.Now()))
 		}
 		return db, q, teardown
 	}
@@ -93,16 +93,16 @@ func TestCleaner(t *testing.T) {
 		time.Sleep(100 * time.Millisecond)
 
 		_, err := models.FindActionResultByID(q, "A1")
-		assert.Error(t, err)
+		require.Error(t, err)
 
 		_, err = models.FindActionResultByID(q, "A2")
-		assert.Error(t, err)
+		require.Error(t, err)
 
 		_, err = models.FindActionResultByID(q, "A3")
-		assert.Error(t, err)
+		require.Error(t, err)
 
 		a, err := models.FindActionResultByID(q, "A4")
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotEmpty(t, a.ID)
 	})
 }
