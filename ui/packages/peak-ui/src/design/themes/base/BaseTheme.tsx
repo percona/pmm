@@ -5,6 +5,7 @@ import { outlinedInputClasses } from '@mui/material/OutlinedInput';
 
 declare module '@mui/material/styles' {
   interface PaletteOptions {
+    neutral?: SimplePaletteColorOptions;
     surfaces?: {
       default?: string;
       backdrop?: string;
@@ -90,6 +91,12 @@ declare module '@mui/material/Typography' {
     menuText: true;
     inputText: true;
     inputLabel: true;
+  }
+}
+
+declare module '@mui/material/Alert' {
+  interface AlertPropsColorOverrides {
+    neutral: true;
   }
 }
 
@@ -493,6 +500,13 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
         contrastText: tokens.success.contrastText,
         surface: tokens.success.surface,
       },
+      neutral: {
+        main: tokens.neutral.main,
+        light: tokens.neutral.light,
+        dark: tokens.neutral.dark,
+        contrastText: tokens.neutral.contrastText,
+        surface: tokens.neutral.surface,
+      },
       // Action colors
       action: {
         active: tokens.action.active,
@@ -516,6 +530,7 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
         high: tokens.surfaces.elevation1,
       },
       // Other color tokens
+      divider: tokens.lines.divider,
       dividers: {
         divider: tokens.lines.divider,
         dividerStrong: tokens.lines.dividerStrong,
@@ -643,7 +658,7 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
       },
       menuText: {
         fontFamily: fontDisplay,
-        fontWeight: 600,
+        fontWeight: 500,
         fontSize: '0.875rem',
         lineHeight: '1.25',
       },
@@ -897,12 +912,23 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
         styleOverrides: {
           root: ({ theme }) => ({
             ...theme.typography.menuText,
-            // This should override any other nested typography (e.g. form labels)
             '.MuiTypography-root': {
               ...theme.typography.menuText,
             },
             '&.Mui-disabled': {
               opacity: 0.5,
+            },
+          }),
+          divider: ({ theme }) => ({
+            borderBottom: 'none',
+            marginBottom: '16px !important',
+            '&::after': {
+              content: '""',
+              position: 'absolute',
+              right: 0,
+              bottom: '-8px',
+              left: 0,
+              borderBottom: `1px solid ${theme.palette.divider}`,
             },
           }),
         },
@@ -1226,20 +1252,43 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
       },
       MuiAlert: {
         styleOverrides: {
-          root: ({ theme, ownerState: { severity } }) => ({
-            ...theme.typography.body2,
-            borderRadius: '4px',
-            borderWidth: '1px',
-            borderStyle: 'solid',
-            borderColor: theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.059)' : 'transparent',
-            backgroundColor: theme.palette[severity!].surface,
-          }),
-          icon: ({ theme, ownerState: { severity } }) => ({
-            color: `${theme.palette[severity!].contrastText} !important`,
-          }),
-          message: ({ theme, ownerState: { severity } }) => ({
-            color: theme.palette[severity!].contrastText,
-          }),
+          root: ({ theme, ownerState: { color, severity } }) => {
+            const key = (color ?? severity ?? 'info') as string;
+            const palette = (theme.palette as Record<string, any>)[key];
+            const surface = palette?.surface as string | undefined;
+            const isTranslucent = surface?.startsWith('rgba');
+            const bg = isTranslucent
+              ? {
+                  background: `linear-gradient(${surface}, ${surface}), linear-gradient(${theme.palette.background.paper}, ${theme.palette.background.paper})`,
+                }
+              : { backgroundColor: surface };
+            return {
+              ...theme.typography.body1,
+              minHeight: 40,
+              borderRadius: 5,
+              border: `1px solid ${theme.palette.dividers?.divider}`,
+              ...bg,
+              padding: '4px 8px',
+              alignItems: 'center',
+            };
+          },
+          icon: ({ theme, ownerState: { color, severity } }) => {
+            const key = (color ?? severity ?? 'info') as string;
+            const palette = (theme.palette as Record<string, any>)[key];
+            return {
+              color: `${palette?.contrastText} !important`,
+              padding: '8px 0',
+              marginRight: 8,
+            };
+          },
+          message: ({ theme, ownerState: { color, severity } }) => {
+            const key = (color ?? severity ?? 'info') as string;
+            const palette = (theme.palette as Record<string, any>)[key];
+            return {
+              color: palette?.contrastText,
+              padding: '8px 0',
+            };
+          },
         },
       },
       MuiChip: {
