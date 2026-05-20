@@ -1252,9 +1252,11 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
       MuiAlert: {
         styleOverrides: {
           root: ({ theme, ownerState: { color, severity } }) => {
-            const key = (color ?? severity ?? 'info') as string;
-            const palette = (theme.palette as Record<string, any>)[key];
-            const surface = palette?.surface as string | undefined;
+            const key = (color ?? severity ?? 'info') as keyof typeof theme.palette;
+            const palette = theme.palette[key] as
+              | { surface?: string; contrastText?: string }
+              | undefined;
+            const surface = palette?.surface;
             const isTranslucent = surface?.startsWith('rgba');
             const bg = isTranslucent
               ? {
@@ -1272,8 +1274,10 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
             };
           },
           icon: ({ theme, ownerState: { color, severity } }) => {
-            const key = (color ?? severity ?? 'info') as string;
-            const palette = (theme.palette as Record<string, any>)[key];
+            const key = (color ?? severity ?? 'info') as keyof typeof theme.palette;
+            const palette = theme.palette[key] as
+              | { contrastText?: string }
+              | undefined;
             return {
               color: `${palette?.contrastText} !important`,
               padding: '8px 0',
@@ -1281,8 +1285,10 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
             };
           },
           message: ({ theme, ownerState: { color, severity } }) => {
-            const key = (color ?? severity ?? 'info') as string;
-            const palette = (theme.palette as Record<string, any>)[key];
+            const key = (color ?? severity ?? 'info') as keyof typeof theme.palette;
+            const palette = theme.palette[key] as
+              | { contrastText?: string }
+              | undefined;
             return {
               color: palette?.contrastText,
               padding: '8px 0',
