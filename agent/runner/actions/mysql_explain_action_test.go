@@ -64,7 +64,7 @@ func TestMySQLExplain(t *testing.T) {
 
 		var er explainResponse
 		err = json.Unmarshal(b, &er)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		actual := strings.TrimSpace(string(er.ExplainResult))
 		switch fmt.Sprintf("%s-%s", mySQLVersion, mySQLVendor) {
@@ -100,7 +100,7 @@ func TestMySQLExplain(t *testing.T) {
 
 		var er explainResponse
 		err = json.Unmarshal(b, &er)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		m, err := objx.FromJSON(string(er.ExplainResult))
 		require.NoError(t, err)
@@ -158,7 +158,7 @@ func TestMySQLExplain(t *testing.T) {
 
 		var er explainResponse
 		err = json.Unmarshal(b, &er)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		var actual [][]interface{}
 		err = json.Unmarshal(er.ExplainResult, &actual)
@@ -182,9 +182,9 @@ func TestMySQLExplain(t *testing.T) {
 			assert.Contains(t, actual[0], "Extra")
 
 			// Checks some stable values
-			assert.InEpsilon(t, float64(1), actual[1][0], 0.0001) // id
-			assert.Equal(t, "SIMPLE", actual[1][1])               // select_type
-			assert.Equal(t, "city", actual[1][2])                 // table
+			assert.InDelta(t, float64(1), actual[1][0], 0.0001) // id
+			assert.Equal(t, "SIMPLE", actual[1][1])             // select_type
+			assert.Equal(t, "city", actual[1][2])               // table
 		}
 	})
 
@@ -196,7 +196,7 @@ func TestMySQLExplain(t *testing.T) {
 			OutputFormat: agentv1.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
 		}
 		a, err := NewMySQLExplainAction("", time.Second, params)
-		assert.ErrorContains(t, err, `Query to EXPLAIN is empty`)
+		require.ErrorContains(t, err, `Query to EXPLAIN is empty`)
 		assert.Nil(t, a)
 	})
 
@@ -218,7 +218,7 @@ func TestMySQLExplain(t *testing.T) {
 		require.NoError(t, err)
 		var er explainResponse
 		err = json.Unmarshal(resp, &er)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.True(t, er.IsDMLQuery)
 		assert.Equal(t, `SELECT * FROM city  WHERE Name='Rosario'`, er.Query)
 	})
@@ -232,7 +232,7 @@ func TestMySQLExplain(t *testing.T) {
 			OutputFormat: agentv1.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
 		}
 		a, err := NewMySQLExplainAction("", time.Second, params)
-		assert.ErrorContains(t, err, "EXPLAIN failed because the query exceeded max length and got trimmed. Set max-query-length to a larger value.")
+		require.ErrorContains(t, err, "EXPLAIN failed because the query exceeded max length and got trimmed. Set max-query-length to a larger value.")
 		assert.Nil(t, a)
 	})
 

@@ -107,18 +107,18 @@ func TestPGStatMonitorSchema(t *testing.T) {
 	}
 
 	_, err := db.Exec("CREATE EXTENSION IF NOT EXISTS pg_stat_monitor SCHEMA public")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	defer func() {
 		_, err = db.Exec("DROP EXTENSION pg_stat_monitor")
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	}()
 
 	vPG, err := getPGVersion(db.Querier)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	vPGSM, _, err := getPGMonitorVersion(db.Querier)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	_, view := newPgStatMonitorStructs(vPGSM, vPG)
 	structs, err := db.SelectAllFrom(view, "")
@@ -181,7 +181,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 	var selectCMDType, insertCMDType string
 	var mPlansCallsCnt, mPlansTimeCnt float32
 	pgsmVersion, _, err := getPGMonitorVersion(db.Querier)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	switch pgsmVersion {
 	case pgStatMonitorVersion06:
 	case pgStatMonitorVersion08:
@@ -224,7 +224,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		actual := buckets[0]
 		actual.Common.Username = strings.ReplaceAll(actual.Common.Username, `"`, "")
 		assert.InDelta(t, 0, actual.Common.MQueryTimeSum, 0.09)
-		assert.InEpsilon(t, float32(5), actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum, 0.0001)
+		assert.InDelta(t, float32(5), actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum, 0.0001)
 		assert.InDelta(t, 1.5, actual.Postgresql.MSharedBlksHitCnt+actual.Postgresql.MSharedBlksReadCnt, 0.5)
 		example := ""
 
@@ -499,12 +499,10 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		for i := 0; i < n; i++ {
 			id := i
 			query := fmt.Sprintf(`INSERT /* CheckMBlkReadTime controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES (%d, 'John', 'Dow', TRUE)`, tableName, id)
-			waitGroup.Add(1)
-			go func() {
-				defer waitGroup.Done()
+			waitGroup.Go(func() {
 				_, err := db.Exec(query)
 				require.NoError(t, err)
-			}()
+			})
 		}
 		waitGroup.Wait()
 

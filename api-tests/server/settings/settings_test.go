@@ -765,7 +765,7 @@ func TestSettings(t *testing.T) {
 							t.Logf("Response:\n%s", b)
 						}
 						b, err = io.ReadAll(resp.Body)
-						assert.NoError(t, err)
+						require.NoError(t, err)
 						resp.Body.Close() //nolint:errcheck
 						assert.Equal(t, 200, resp.StatusCode, "response:\n%s", b)
 

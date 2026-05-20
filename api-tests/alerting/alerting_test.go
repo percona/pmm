@@ -569,14 +569,14 @@ func assertTemplate(t *testing.T, expectedTemplate alert.Template, listTemplates
 				require.NotNil(t, param.Float)
 				value, err := expectedParam.GetValueForFloat()
 				require.NoError(t, err)
-				assert.Equal(t, value, *param.Float.Default) //nolint:testifylint
+				assert.InDelta(t, value, *param.Float.Default, 0.0001)
 			}
 
 			if len(expectedParam.Range) != 0 {
-				min, max, err := expectedParam.GetRangeForFloat()
+				minR, maxR, err := expectedParam.GetRangeForFloat()
 				require.NoError(t, err)
-				assert.Equal(t, min, *param.Float.Min) //nolint:testifylint
-				assert.Equal(t, max, *param.Float.Max) //nolint:testifylint
+				assert.InDelta(t, minR, *param.Float.Min, 0.0001)
+				assert.InDelta(t, maxR, *param.Float.Max, 0.0001)
 			}
 
 			assert.Nil(t, param.Bool)
