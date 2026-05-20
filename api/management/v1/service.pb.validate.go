@@ -502,7 +502,8 @@ func (e AddServiceRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AddServiceRequestValidationError{}
@@ -978,7 +979,8 @@ func (e AddServiceResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AddServiceResponseValidationError{}
@@ -1084,7 +1086,8 @@ func (e RemoveServiceRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = RemoveServiceRequestValidationError{}
@@ -1186,7 +1189,8 @@ func (e RemoveServiceResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = RemoveServiceResponseValidationError{}
@@ -1410,7 +1414,8 @@ func (e UniversalServiceValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = UniversalServiceValidationError{}
@@ -1518,7 +1523,8 @@ func (e ListServicesRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ListServicesRequestValidationError{}
@@ -1654,7 +1660,8 @@ func (e ListServicesResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ListServicesResponseValidationError{}

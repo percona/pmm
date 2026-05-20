@@ -545,7 +545,6 @@ var (
 		(*v1.QANMySQLSlowlogAgent)(nil),    // 11: inventory.v1.QANMySQLSlowlogAgent
 	}
 )
-
 var file_management_v1_mysql_proto_depIdxs = []int32{
 	4,  // 0: management.v1.AddMySQLServiceParams.add_node:type_name -> management.v1.AddNodeParams
 	2,  // 1: management.v1.AddMySQLServiceParams.custom_labels:type_name -> management.v1.AddMySQLServiceParams.CustomLabelsEntry

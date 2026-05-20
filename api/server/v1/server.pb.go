@@ -1920,7 +1920,7 @@ var (
 	file_server_v1_server_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 	file_server_v1_server_proto_msgTypes  = make([]protoimpl.MessageInfo, 26)
 	file_server_v1_server_proto_goTypes   = []any{
-		(DistributionMethod)(0),             // 0: server.v1.DistributionMethod
+		DistributionMethod(0),               // 0: server.v1.DistributionMethod
 		(*VersionInfo)(nil),                 // 1: server.v1.VersionInfo
 		(*VersionRequest)(nil),              // 2: server.v1.VersionRequest
 		(*VersionResponse)(nil),             // 3: server.v1.VersionResponse
@@ -1952,7 +1952,6 @@ var (
 		(*common.StringArray)(nil),          // 29: common.StringArray
 	}
 )
-
 var file_server_v1_server_proto_depIdxs = []int32{
 	27, // 0: server.v1.VersionInfo.timestamp:type_name -> google.protobuf.Timestamp
 	1,  // 1: server.v1.VersionResponse.server:type_name -> server.v1.VersionInfo

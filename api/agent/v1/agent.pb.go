@@ -3795,7 +3795,7 @@ type SetStateRequest_BuiltinAgent struct {
 
 func (x *SetStateRequest_BuiltinAgent) Reset() {
 	*x = SetStateRequest_BuiltinAgent{}
-	mi := &file_agent_v1_agent_proto_msgTypes[44]
+	mi := &file_agent_v1_agent_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3807,7 +3807,7 @@ func (x *SetStateRequest_BuiltinAgent) String() string {
 func (*SetStateRequest_BuiltinAgent) ProtoMessage() {}
 
 func (x *SetStateRequest_BuiltinAgent) ProtoReflect() protoreflect.Message {
-	mi := &file_agent_v1_agent_proto_msgTypes[44]
+	mi := &file_agent_v1_agent_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3820,7 +3820,7 @@ func (x *SetStateRequest_BuiltinAgent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetStateRequest_BuiltinAgent.ProtoReflect.Descriptor instead.
 func (*SetStateRequest_BuiltinAgent) Descriptor() ([]byte, []int) {
-	return file_agent_v1_agent_proto_rawDescGZIP(), []int{7, 1}
+	return file_agent_v1_agent_proto_rawDescGZIP(), []int{7, 2}
 }
 
 func (x *SetStateRequest_BuiltinAgent) GetType() v1.AgentType {
@@ -6671,7 +6671,10 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"\x12env_variable_names\x18\b \x03(\tR\x10envVariableNames\x1a<\n" +
 	"\x0eTextFilesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a\x86\x05\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1ai\n" +
+	"\x13AgentProcessesEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12<\n" +
+	"\x05value\x18\x02 \x01(\v2&.agent.v1.SetStateRequest.AgentProcessR\x05value:\x028\x01\x1a\x86\x05\n" +
 	"\fBuiltinAgent\x12+\n" +
 	"\x04type\x18\x01 \x01(\x0e2\x17.inventory.v1.AgentTypeR\x04type\x12\x16\n" +
 	"\x03dsn\x18\x02 \x01(\tB\x04\x88\xb5\x18\x03R\x03dsn\x12(\n" +
@@ -6692,10 +6695,7 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"\fservice_name\x18\r \x01(\tR\vserviceName\x1a6\n" +
 	"\bEnvEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1ai\n" +
-	"\x13AgentProcessesEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12<\n" +
-	"\x05value\x18\x02 \x01(\v2&.agent.v1.SetStateRequest.AgentProcessR\x05value:\x028\x01\x1ah\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1ah\n" +
 	"\x12BuiltinAgentsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12<\n" +
 	"\x05value\x18\x02 \x01(\v2&.agent.v1.SetStateRequest.BuiltinAgentR\x05value:\x028\x01\"\x12\n" +
@@ -7114,59 +7114,59 @@ var (
 	file_agent_v1_agent_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 	file_agent_v1_agent_proto_msgTypes  = make([]protoimpl.MessageInfo, 92)
 	file_agent_v1_agent_proto_goTypes   = []any{
-		(MysqlExplainOutputFormat)(0),                                    // 0: agent.v1.MysqlExplainOutputFormat
-		(StartActionRequest_RestartSystemServiceParams_SystemService)(0), // 1: agent.v1.StartActionRequest.RestartSystemServiceParams.SystemService
-		(*TextFiles)(nil),                             // 2: agent.v1.TextFiles
-		(*Ping)(nil),                                  // 3: agent.v1.Ping
-		(*Pong)(nil),                                  // 4: agent.v1.Pong
-		(*QANCollectRequest)(nil),                     // 5: agent.v1.QANCollectRequest
-		(*QANCollectResponse)(nil),                    // 6: agent.v1.QANCollectResponse
-		(*StateChangedRequest)(nil),                   // 7: agent.v1.StateChangedRequest
-		(*StateChangedResponse)(nil),                  // 8: agent.v1.StateChangedResponse
-		(*SetStateRequest)(nil),                       // 9: agent.v1.SetStateRequest
-		(*SetStateResponse)(nil),                      // 10: agent.v1.SetStateResponse
-		(*QueryActionValue)(nil),                      // 11: agent.v1.QueryActionValue
-		(*QueryActionSlice)(nil),                      // 12: agent.v1.QueryActionSlice
-		(*QueryActionMap)(nil),                        // 13: agent.v1.QueryActionMap
-		(*QueryActionBinary)(nil),                     // 14: agent.v1.QueryActionBinary
-		(*QueryActionResult)(nil),                     // 15: agent.v1.QueryActionResult
-		(*StartActionRequest)(nil),                    // 16: agent.v1.StartActionRequest
-		(*StartActionResponse)(nil),                   // 17: agent.v1.StartActionResponse
-		(*StopActionRequest)(nil),                     // 18: agent.v1.StopActionRequest
-		(*StopActionResponse)(nil),                    // 19: agent.v1.StopActionResponse
-		(*ActionResultRequest)(nil),                   // 20: agent.v1.ActionResultRequest
-		(*ActionResultResponse)(nil),                  // 21: agent.v1.ActionResultResponse
-		(*PBMSwitchPITRRequest)(nil),                  // 22: agent.v1.PBMSwitchPITRRequest
-		(*PBMSwitchPITRResponse)(nil),                 // 23: agent.v1.PBMSwitchPITRResponse
-		(*AgentLogsRequest)(nil),                      // 24: agent.v1.AgentLogsRequest
-		(*AgentLogsResponse)(nil),                     // 25: agent.v1.AgentLogsResponse
-		(*CheckConnectionRequest)(nil),                // 26: agent.v1.CheckConnectionRequest
-		(*CheckConnectionResponse)(nil),               // 27: agent.v1.CheckConnectionResponse
-		(*ServiceInfoRequest)(nil),                    // 28: agent.v1.ServiceInfoRequest
-		(*ServiceInfoResponse)(nil),                   // 29: agent.v1.ServiceInfoResponse
-		(*JobStatusRequest)(nil),                      // 30: agent.v1.JobStatusRequest
-		(*JobStatusResponse)(nil),                     // 31: agent.v1.JobStatusResponse
-		(*S3LocationConfig)(nil),                      // 32: agent.v1.S3LocationConfig
-		(*FilesystemLocationConfig)(nil),              // 33: agent.v1.FilesystemLocationConfig
-		(*StartJobRequest)(nil),                       // 34: agent.v1.StartJobRequest
-		(*StartJobResponse)(nil),                      // 35: agent.v1.StartJobResponse
-		(*StopJobRequest)(nil),                        // 36: agent.v1.StopJobRequest
-		(*StopJobResponse)(nil),                       // 37: agent.v1.StopJobResponse
-		(*JobResult)(nil),                             // 38: agent.v1.JobResult
-		(*JobProgress)(nil),                           // 39: agent.v1.JobProgress
-		(*GetVersionsRequest)(nil),                    // 40: agent.v1.GetVersionsRequest
-		(*GetVersionsResponse)(nil),                   // 41: agent.v1.GetVersionsResponse
-		(*AgentMessage)(nil),                          // 42: agent.v1.AgentMessage
-		(*ServerMessage)(nil),                         // 43: agent.v1.ServerMessage
-		nil,                                           // 44: agent.v1.TextFiles.FilesEntry
-		(*SetStateRequest_AgentProcess)(nil),          // 45: agent.v1.SetStateRequest.AgentProcess
-		(*SetStateRequest_BuiltinAgent)(nil),          // 46: agent.v1.SetStateRequest.BuiltinAgent
-		nil,                                           // 47: agent.v1.SetStateRequest.AgentProcessesEntry
-		nil,                                           // 48: agent.v1.SetStateRequest.BuiltinAgentsEntry
-		nil,                                           // 49: agent.v1.SetStateRequest.AgentProcess.TextFilesEntry
-		nil,                                           // 50: agent.v1.SetStateRequest.BuiltinAgent.EnvEntry
-		nil,                                           // 51: agent.v1.QueryActionMap.MapEntry
-		(*StartActionRequest_MySQLExplainParams)(nil), // 52: agent.v1.StartActionRequest.MySQLExplainParams
+		MysqlExplainOutputFormat(0),                                    // 0: agent.v1.MysqlExplainOutputFormat
+		StartActionRequest_RestartSystemServiceParams_SystemService(0), // 1: agent.v1.StartActionRequest.RestartSystemServiceParams.SystemService
+		(*TextFiles)(nil),                                              // 2: agent.v1.TextFiles
+		(*Ping)(nil),                                                   // 3: agent.v1.Ping
+		(*Pong)(nil),                                                   // 4: agent.v1.Pong
+		(*QANCollectRequest)(nil),                                      // 5: agent.v1.QANCollectRequest
+		(*QANCollectResponse)(nil),                                     // 6: agent.v1.QANCollectResponse
+		(*StateChangedRequest)(nil),                                    // 7: agent.v1.StateChangedRequest
+		(*StateChangedResponse)(nil),                                   // 8: agent.v1.StateChangedResponse
+		(*SetStateRequest)(nil),                                        // 9: agent.v1.SetStateRequest
+		(*SetStateResponse)(nil),                                       // 10: agent.v1.SetStateResponse
+		(*QueryActionValue)(nil),                                       // 11: agent.v1.QueryActionValue
+		(*QueryActionSlice)(nil),                                       // 12: agent.v1.QueryActionSlice
+		(*QueryActionMap)(nil),                                         // 13: agent.v1.QueryActionMap
+		(*QueryActionBinary)(nil),                                      // 14: agent.v1.QueryActionBinary
+		(*QueryActionResult)(nil),                                      // 15: agent.v1.QueryActionResult
+		(*StartActionRequest)(nil),                                     // 16: agent.v1.StartActionRequest
+		(*StartActionResponse)(nil),                                    // 17: agent.v1.StartActionResponse
+		(*StopActionRequest)(nil),                                      // 18: agent.v1.StopActionRequest
+		(*StopActionResponse)(nil),                                     // 19: agent.v1.StopActionResponse
+		(*ActionResultRequest)(nil),                                    // 20: agent.v1.ActionResultRequest
+		(*ActionResultResponse)(nil),                                   // 21: agent.v1.ActionResultResponse
+		(*PBMSwitchPITRRequest)(nil),                                   // 22: agent.v1.PBMSwitchPITRRequest
+		(*PBMSwitchPITRResponse)(nil),                                  // 23: agent.v1.PBMSwitchPITRResponse
+		(*AgentLogsRequest)(nil),                                       // 24: agent.v1.AgentLogsRequest
+		(*AgentLogsResponse)(nil),                                      // 25: agent.v1.AgentLogsResponse
+		(*CheckConnectionRequest)(nil),                                 // 26: agent.v1.CheckConnectionRequest
+		(*CheckConnectionResponse)(nil),                                // 27: agent.v1.CheckConnectionResponse
+		(*ServiceInfoRequest)(nil),                                     // 28: agent.v1.ServiceInfoRequest
+		(*ServiceInfoResponse)(nil),                                    // 29: agent.v1.ServiceInfoResponse
+		(*JobStatusRequest)(nil),                                       // 30: agent.v1.JobStatusRequest
+		(*JobStatusResponse)(nil),                                      // 31: agent.v1.JobStatusResponse
+		(*S3LocationConfig)(nil),                                       // 32: agent.v1.S3LocationConfig
+		(*FilesystemLocationConfig)(nil),                               // 33: agent.v1.FilesystemLocationConfig
+		(*StartJobRequest)(nil),                                        // 34: agent.v1.StartJobRequest
+		(*StartJobResponse)(nil),                                       // 35: agent.v1.StartJobResponse
+		(*StopJobRequest)(nil),                                         // 36: agent.v1.StopJobRequest
+		(*StopJobResponse)(nil),                                        // 37: agent.v1.StopJobResponse
+		(*JobResult)(nil),                                              // 38: agent.v1.JobResult
+		(*JobProgress)(nil),                                            // 39: agent.v1.JobProgress
+		(*GetVersionsRequest)(nil),                                     // 40: agent.v1.GetVersionsRequest
+		(*GetVersionsResponse)(nil),                                    // 41: agent.v1.GetVersionsResponse
+		(*AgentMessage)(nil),                                           // 42: agent.v1.AgentMessage
+		(*ServerMessage)(nil),                                          // 43: agent.v1.ServerMessage
+		nil,                                                            // 44: agent.v1.TextFiles.FilesEntry
+		(*SetStateRequest_AgentProcess)(nil),                           // 45: agent.v1.SetStateRequest.AgentProcess
+		nil,                                                            // 46: agent.v1.SetStateRequest.AgentProcessesEntry
+		(*SetStateRequest_BuiltinAgent)(nil),                           // 47: agent.v1.SetStateRequest.BuiltinAgent
+		nil,                                                            // 48: agent.v1.SetStateRequest.BuiltinAgentsEntry
+		nil,                                                            // 49: agent.v1.SetStateRequest.AgentProcess.TextFilesEntry
+		nil,                                                            // 50: agent.v1.SetStateRequest.BuiltinAgent.EnvEntry
+		nil,                                                            // 51: agent.v1.QueryActionMap.MapEntry
+		(*StartActionRequest_MySQLExplainParams)(nil),                  // 52: agent.v1.StartActionRequest.MySQLExplainParams
 		(*StartActionRequest_MySQLShowCreateTableParams)(nil),          // 53: agent.v1.StartActionRequest.MySQLShowCreateTableParams
 		(*StartActionRequest_MySQLShowTableStatusParams)(nil),          // 54: agent.v1.StartActionRequest.MySQLShowTableStatusParams
 		(*StartActionRequest_MySQLShowIndexParams)(nil),                // 55: agent.v1.StartActionRequest.MySQLShowIndexParams
@@ -7210,24 +7210,23 @@ var (
 		(*GetVersionsResponse_Version)(nil),                            // 93: agent.v1.GetVersionsResponse.Version
 		(*timestamppb.Timestamp)(nil),                                  // 94: google.protobuf.Timestamp
 		(*MetricsBucket)(nil),                                          // 95: agent.v1.MetricsBucket
-		(v1.AgentStatus)(0),                                            // 96: inventory.v1.AgentStatus
+		v1.AgentStatus(0),                                              // 96: inventory.v1.AgentStatus
 		(*durationpb.Duration)(nil),                                    // 97: google.protobuf.Duration
-		(v1.ServiceType)(0),                                            // 98: inventory.v1.ServiceType
+		v1.ServiceType(0),                                              // 98: inventory.v1.ServiceType
 		(*status.Status)(nil),                                          // 99: google.rpc.Status
-		(v1.AgentType)(0),                                              // 100: inventory.v1.AgentType
+		v1.AgentType(0),                                                // 100: inventory.v1.AgentType
 		(*v1.RTAOptions)(nil),                                          // 101: inventory.v1.RTAOptions
-		(v11.DataModel)(0),                                             // 102: backup.v1.DataModel
+		v11.DataModel(0),                                               // 102: backup.v1.DataModel
 		(*v11.PbmMetadata)(nil),                                        // 103: backup.v1.PbmMetadata
 		(*v11.Metadata)(nil),                                           // 104: backup.v1.Metadata
 	}
 )
-
 var file_agent_v1_agent_proto_depIdxs = []int32{
 	44,  // 0: agent.v1.TextFiles.files:type_name -> agent.v1.TextFiles.FilesEntry
 	94,  // 1: agent.v1.Pong.current_time:type_name -> google.protobuf.Timestamp
 	95,  // 2: agent.v1.QANCollectRequest.metrics_bucket:type_name -> agent.v1.MetricsBucket
 	96,  // 3: agent.v1.StateChangedRequest.status:type_name -> inventory.v1.AgentStatus
-	47,  // 4: agent.v1.SetStateRequest.agent_processes:type_name -> agent.v1.SetStateRequest.AgentProcessesEntry
+	46,  // 4: agent.v1.SetStateRequest.agent_processes:type_name -> agent.v1.SetStateRequest.AgentProcessesEntry
 	48,  // 5: agent.v1.SetStateRequest.builtin_agents:type_name -> agent.v1.SetStateRequest.BuiltinAgentsEntry
 	94,  // 6: agent.v1.QueryActionValue.timestamp:type_name -> google.protobuf.Timestamp
 	12,  // 7: agent.v1.QueryActionValue.slice:type_name -> agent.v1.QueryActionSlice
@@ -7321,12 +7320,12 @@ var file_agent_v1_agent_proto_depIdxs = []int32{
 	28,  // 95: agent.v1.ServerMessage.service_info:type_name -> agent.v1.ServiceInfoRequest
 	100, // 96: agent.v1.SetStateRequest.AgentProcess.type:type_name -> inventory.v1.AgentType
 	49,  // 97: agent.v1.SetStateRequest.AgentProcess.text_files:type_name -> agent.v1.SetStateRequest.AgentProcess.TextFilesEntry
-	100, // 98: agent.v1.SetStateRequest.BuiltinAgent.type:type_name -> inventory.v1.AgentType
-	2,   // 99: agent.v1.SetStateRequest.BuiltinAgent.text_files:type_name -> agent.v1.TextFiles
-	50,  // 100: agent.v1.SetStateRequest.BuiltinAgent.env:type_name -> agent.v1.SetStateRequest.BuiltinAgent.EnvEntry
-	101, // 101: agent.v1.SetStateRequest.BuiltinAgent.rta_options:type_name -> inventory.v1.RTAOptions
-	45,  // 102: agent.v1.SetStateRequest.AgentProcessesEntry.value:type_name -> agent.v1.SetStateRequest.AgentProcess
-	46,  // 103: agent.v1.SetStateRequest.BuiltinAgentsEntry.value:type_name -> agent.v1.SetStateRequest.BuiltinAgent
+	45,  // 98: agent.v1.SetStateRequest.AgentProcessesEntry.value:type_name -> agent.v1.SetStateRequest.AgentProcess
+	100, // 99: agent.v1.SetStateRequest.BuiltinAgent.type:type_name -> inventory.v1.AgentType
+	2,   // 100: agent.v1.SetStateRequest.BuiltinAgent.text_files:type_name -> agent.v1.TextFiles
+	50,  // 101: agent.v1.SetStateRequest.BuiltinAgent.env:type_name -> agent.v1.SetStateRequest.BuiltinAgent.EnvEntry
+	101, // 102: agent.v1.SetStateRequest.BuiltinAgent.rta_options:type_name -> inventory.v1.RTAOptions
+	47,  // 103: agent.v1.SetStateRequest.BuiltinAgentsEntry.value:type_name -> agent.v1.SetStateRequest.BuiltinAgent
 	11,  // 104: agent.v1.QueryActionMap.MapEntry.value:type_name -> agent.v1.QueryActionValue
 	0,   // 105: agent.v1.StartActionRequest.MySQLExplainParams.output_format:type_name -> agent.v1.MysqlExplainOutputFormat
 	2,   // 106: agent.v1.StartActionRequest.MySQLExplainParams.tls_files:type_name -> agent.v1.TextFiles

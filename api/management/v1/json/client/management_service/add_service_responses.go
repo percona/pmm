@@ -1877,6 +1877,9 @@ type AddServiceOKBodyElasticacheValkeyExporter struct {
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyElasticacheValkeyExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }

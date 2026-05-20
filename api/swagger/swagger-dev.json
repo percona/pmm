@@ -28854,6 +28854,11 @@
                             }
                           },
                           "x-order": 14
+                        },
+                        "connection_timeout": {
+                          "description": "Connection timeout for exporter (if set).",
+                          "type": "string",
+                          "x-order": 15
                         }
                       },
                       "x-order": 2

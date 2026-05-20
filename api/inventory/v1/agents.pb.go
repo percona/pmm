@@ -12398,7 +12398,7 @@ var (
 	file_inventory_v1_agents_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 	file_inventory_v1_agents_proto_msgTypes  = make([]protoimpl.MessageInfo, 107)
 	file_inventory_v1_agents_proto_goTypes   = []any{
-		(AgentType)(0),                                      // 0: inventory.v1.AgentType
+		AgentType(0),                                        // 0: inventory.v1.AgentType
 		(*PMMAgent)(nil),                                    // 1: inventory.v1.PMMAgent
 		(*VMAgent)(nil),                                     // 2: inventory.v1.VMAgent
 		(*NomadAgent)(nil),                                  // 3: inventory.v1.NomadAgent
@@ -12506,14 +12506,13 @@ var (
 		nil,                                                 // 105: inventory.v1.AddAzureDatabaseExporterParams.CustomLabelsEntry
 		nil,                                                 // 106: inventory.v1.AddValkeyExporterParams.CustomLabelsEntry
 		nil,                                                 // 107: inventory.v1.AddRTAMongoDBAgentParams.CustomLabelsEntry
-		(AgentStatus)(0),                                    // 108: inventory.v1.AgentStatus
-		(LogLevel)(0),                                       // 109: inventory.v1.LogLevel
+		AgentStatus(0),                                      // 108: inventory.v1.AgentStatus
+		LogLevel(0),                                         // 109: inventory.v1.LogLevel
 		(*common.MetricsResolutions)(nil),                   // 110: common.MetricsResolutions
 		(*durationpb.Duration)(nil),                         // 111: google.protobuf.Duration
 		(*common.StringMap)(nil),                            // 112: common.StringMap
 	}
 )
-
 var file_inventory_v1_agents_proto_depIdxs = []int32{
 	68,  // 0: inventory.v1.PMMAgent.custom_labels:type_name -> inventory.v1.PMMAgent.CustomLabelsEntry
 	108, // 1: inventory.v1.VMAgent.status:type_name -> inventory.v1.AgentStatus

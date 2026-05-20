@@ -203,7 +203,8 @@ func (e AddHAProxyServiceParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AddHAProxyServiceParamsValidationError{}
@@ -363,7 +364,8 @@ func (e HAProxyServiceResultValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = HAProxyServiceResultValidationError{}

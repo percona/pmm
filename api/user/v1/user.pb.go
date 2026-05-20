@@ -507,7 +507,6 @@ var (
 		(*timestamppb.Timestamp)(nil),        // 7: google.protobuf.Timestamp
 	}
 )
-
 var file_user_v1_user_proto_depIdxs = []int32{
 	7, // 0: user.v1.GetUserResponse.snoozed_at:type_name -> google.protobuf.Timestamp
 	7, // 1: user.v1.UpdateUserResponse.snoozed_at:type_name -> google.protobuf.Timestamp

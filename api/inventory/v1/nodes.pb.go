@@ -2311,7 +2311,7 @@ var (
 	file_inventory_v1_nodes_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 	file_inventory_v1_nodes_proto_msgTypes  = make([]protoimpl.MessageInfo, 32)
 	file_inventory_v1_nodes_proto_goTypes   = []any{
-		(NodeType)(0),                          // 0: inventory.v1.NodeType
+		NodeType(0),                            // 0: inventory.v1.NodeType
 		(*GenericNode)(nil),                    // 1: inventory.v1.GenericNode
 		(*ContainerNode)(nil),                  // 2: inventory.v1.ContainerNode
 		(*RemoteNode)(nil),                     // 3: inventory.v1.RemoteNode
@@ -2346,7 +2346,6 @@ var (
 		nil,                                    // 32: inventory.v1.AddRemoteElastiCacheNodeParams.CustomLabelsEntry
 	}
 )
-
 var file_inventory_v1_nodes_proto_depIdxs = []int32{
 	21, // 0: inventory.v1.GenericNode.custom_labels:type_name -> inventory.v1.GenericNode.CustomLabelsEntry
 	22, // 1: inventory.v1.ContainerNode.custom_labels:type_name -> inventory.v1.ContainerNode.CustomLabelsEntry

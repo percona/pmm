@@ -183,7 +183,8 @@ func (d *ElastiCacheDiscovery) reconcile(ctx context.Context) {
 // discoverTaggedInstances discovers ElastiCache replication groups across regions
 // and filters to those tagged with pmm_enable=true.
 func (d *ElastiCacheDiscovery) discoverTaggedInstances(ctx context.Context, regions []string) ([]discoveredInstance, error) {
-	cfg, err := config.LoadDefaultConfig(ctx,
+	cfg, err := config.LoadDefaultConfig(
+		ctx,
 		config.WithHTTPClient(&http.Client{}),
 	)
 	if err != nil {

@@ -145,7 +145,8 @@ func (e DiscoverElastiCacheInstanceValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = DiscoverElastiCacheInstanceValidationError{}
@@ -251,7 +252,8 @@ func (e DiscoverElastiCacheRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = DiscoverElastiCacheRequestValidationError{}
@@ -388,7 +390,8 @@ func (e DiscoverElastiCacheResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = DiscoverElastiCacheResponseValidationError{}
@@ -569,7 +572,8 @@ func (e AddElastiCacheServiceParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AddElastiCacheServiceParamsValidationError{}
@@ -758,7 +762,8 @@ func (e ElastiCacheServiceResultValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ElastiCacheServiceResultValidationError{}

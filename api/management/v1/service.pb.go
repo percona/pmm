@@ -990,7 +990,7 @@ var (
 	file_management_v1_service_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 	file_management_v1_service_proto_msgTypes  = make([]protoimpl.MessageInfo, 8)
 	file_management_v1_service_proto_goTypes   = []any{
-		(UniversalService_Status)(0),          // 0: management.v1.UniversalService.Status
+		UniversalService_Status(0),            // 0: management.v1.UniversalService.Status
 		(*AddServiceRequest)(nil),             // 1: management.v1.AddServiceRequest
 		(*AddServiceResponse)(nil),            // 2: management.v1.AddServiceResponse
 		(*RemoveServiceRequest)(nil),          // 3: management.v1.RemoveServiceRequest
@@ -1017,7 +1017,7 @@ var (
 		(*RDSServiceResult)(nil),              // 24: management.v1.RDSServiceResult
 		(*ValkeyServiceResult)(nil),           // 25: management.v1.ValkeyServiceResult
 		(*ElastiCacheServiceResult)(nil),      // 26: management.v1.ElastiCacheServiceResult
-		(v1.ServiceType)(0),                   // 27: inventory.v1.ServiceType
+		v1.ServiceType(0),                     // 27: inventory.v1.ServiceType
 		(*timestamppb.Timestamp)(nil),         // 28: google.protobuf.Timestamp
 		(*UniversalAgent)(nil),                // 29: management.v1.UniversalAgent
 		(*AddAnnotationRequest)(nil),          // 30: management.v1.AddAnnotationRequest
@@ -1044,7 +1044,6 @@ var (
 		(*DiscoverElastiCacheResponse)(nil),   // 51: management.v1.DiscoverElastiCacheResponse
 	}
 )
-
 var file_management_v1_service_proto_depIdxs = []int32{
 	9,  // 0: management.v1.AddServiceRequest.mysql:type_name -> management.v1.AddMySQLServiceParams
 	10, // 1: management.v1.AddServiceRequest.mongodb:type_name -> management.v1.AddMongoDBServiceParams
