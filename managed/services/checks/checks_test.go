@@ -306,7 +306,7 @@ func TestStartChecks(t *testing.T) {
 		s.customCheckFile = testChecksFile
 
 		err := s.runChecksGroup(t.Context(), "unknown")
-		assert.EqualError(t, err, "unknown check interval: unknown")
+		require.EqualError(t, err, "unknown check interval: unknown")
 	})
 
 	t.Run("advisors enabled", func(t *testing.T) {
@@ -332,7 +332,7 @@ func TestStartChecks(t *testing.T) {
 		require.NoError(t, err)
 
 		err = s.runChecksGroup(t.Context(), "")
-		assert.ErrorIs(t, err, services.ErrAdvisorsDisabled)
+		require.ErrorIs(t, err, services.ErrAdvisorsDisabled)
 	})
 }
 
@@ -703,7 +703,7 @@ func TestGetFailedChecks(t *testing.T) {
 
 		results, err := s.GetChecksResults(t.Context(), "test_svc")
 		assert.Nil(t, results)
-		assert.ErrorIs(t, err, services.ErrAdvisorsDisabled)
+		require.ErrorIs(t, err, services.ErrAdvisorsDisabled)
 	})
 }
 
@@ -780,7 +780,7 @@ func TestFillQueryPlaceholders(t *testing.T) {
 				assert.Equal(t, tt.expected, actual)
 			} else {
 				require.Error(t, err)
-				assert.ErrorContains(t, err, tt.errString)
+				require.ErrorContains(t, err, tt.errString)
 			}
 		})
 	}

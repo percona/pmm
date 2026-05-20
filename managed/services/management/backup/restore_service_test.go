@@ -95,7 +95,7 @@ func TestRestoreServiceGetLogs(t *testing.T) {
 				ChunkID: chunkID,
 				Data:    "not important",
 			})
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		}
 		for _, tc := range testCases {
 			logs, err := restoreSvc.GetLogs(ctx, &backupv1.RestoreServiceGetLogsRequest{
@@ -103,7 +103,7 @@ func TestRestoreServiceGetLogs(t *testing.T) {
 				Offset:    tc.offset,
 				Limit:     tc.limit,
 			})
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			chunkIDs := make([]uint32, 0, len(logs.Logs))
 			for _, log := range logs.Logs {
 				chunkIDs = append(chunkIDs, log.ChunkId)
@@ -132,7 +132,7 @@ func TestRestoreServiceGetLogs(t *testing.T) {
 				ChunkID: chunkID,
 				Data:    "not important",
 			})
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		}
 
 		for _, tc := range testCases {
@@ -141,7 +141,7 @@ func TestRestoreServiceGetLogs(t *testing.T) {
 				Offset:    tc.offset,
 				Limit:     tc.limit,
 			})
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			chunkIDs := make([]uint32, 0, len(logs.Logs))
 			for _, log := range logs.Logs {
 				chunkIDs = append(chunkIDs, log.ChunkId)

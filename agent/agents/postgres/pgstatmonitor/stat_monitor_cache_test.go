@@ -18,7 +18,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
@@ -38,18 +37,18 @@ func TestPGStatMonitorStructs(t *testing.T) {
 	}
 
 	_, err := db.Exec("CREATE EXTENSION IF NOT EXISTS pg_stat_monitor SCHEMA public")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	defer func() {
 		_, err = db.Exec("DROP EXTENSION pg_stat_monitor")
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	}()
 
 	m := setup(t, db, false, false)
 	settings, err := m.getSettings()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	normalizedQuery, err := settings.getNormalizedQueryValue()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	current, cache, err := m.monitorCache.getStatMonitorExtended(context.TODO(), db.Querier, normalizedQuery, truncate.GetDefaultMaxQueryLength())
 
