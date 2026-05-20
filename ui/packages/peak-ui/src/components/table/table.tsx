@@ -208,7 +208,7 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
         sx: mergeSx(
           (theme: Theme) => ({
             backgroundColor: theme.palette.background.paper,
-            borderBottom: `1px solid ${theme.palette.divider}`,
+            borderBottom: `1px solid ${theme.palette.dividers?.divider}`,
           }),
           typeof muiTableContainerProps === 'function' ? undefined : muiTableContainerProps?.sx
         ),
@@ -278,7 +278,7 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
           sx: mergeSx(
             (theme: Theme) => ({
               '& .MuiTableCell-root': {
-                borderBottomColor: theme.palette.divider,
+                borderBottomColor: theme.palette.dividers?.divider,
               },
               '& .MuiTableCell-head': {
                 typography: 'subHead2',
