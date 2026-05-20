@@ -114,9 +114,9 @@ func TestProfilerFingerprinter(t *testing.T) {
 
 		database := client.Database(dbName)
 		_, err = database.Collection("test").InsertOne(ctx, bson.M{"id": 0, "name": "test", "value": 1, "time": time.Now()})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		_, err = database.Collection("secondcollection").InsertOne(ctx, bson.M{"id": 0, "name": "sec", "value": 2})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		database.Collection("test").FindOne(ctx, bson.M{"id": 0})
 		database.Collection("test").FindOne(ctx, bson.M{"id": 1, "name": "test", "time": time.Now()})
 		database.Collection("test").FindOneAndUpdate(ctx, bson.M{"id": 0}, bson.M{"$set": bson.M{"name": "new"}})

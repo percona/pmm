@@ -42,7 +42,7 @@ func TestClient(t *testing.T) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
 	ctx := logger.Set(t.Context(), t.Name())
 	defer func() {
-		assert.NoError(t, sqlDB.Close())
+		require.NoError(t, sqlDB.Close())
 		assert.Equal(t, 18, reformL.Requests())
 	}()
 
@@ -439,7 +439,7 @@ func TestClientPerformance(t *testing.T) {
 	reformL := sqlmetrics.NewReform("test", "test", t.Logf)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
 	defer func() {
-		assert.NoError(t, sqlDB.Close())
+		require.NoError(t, sqlDB.Close())
 	}()
 
 	for _, str := range []reform.Struct{
