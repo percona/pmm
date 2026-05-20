@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"net/http"
 	"sort"
+	"sync/atomic"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -122,7 +123,7 @@ func (d *ElastiCacheDiscovery) reconcile(ctx context.Context) {
 	}
 
 	regions := listElastiCacheRegions(partitions)
-	discovered, err := d.discoverTaggedInstances(ctx, regions)
+	discovered, scanComplete, err := d.discoverTaggedInstances(ctx, regions)
 	if err != nil {
 		d.l.Warnf("Discovery failed: %v", err)
 		return
@@ -149,7 +150,8 @@ func (d *ElastiCacheDiscovery) reconcile(ctx context.Context) {
 		}
 	}
 
-	// Add missing.
+	// Add missing. Adds are safe even on a partial scan: any tagged cluster we
+	// did see is still legitimately tagged, and the operation is idempotent.
 	var added, addFailed int
 	for addr, inst := range expectedByAddr {
 		if _, exists := managedByAddr[addr]; exists {
@@ -163,32 +165,44 @@ func (d *ElastiCacheDiscovery) reconcile(ctx context.Context) {
 		added++
 	}
 
-	// Remove stale.
+	// Remove stale — only when the AWS scan completed cleanly across every
+	// region and tag lookup. A partial scan would make legitimate services look
+	// "missing" (e.g. throttled ListTagsForResource → cluster appears untagged)
+	// and trigger false removals.
 	var removed int
-	for addr, svc := range managedByAddr {
-		if _, exists := expectedByAddr[addr]; exists {
-			continue
+	if !scanComplete {
+		d.l.Warnf("Discovery scan was incomplete; skipping stale-removal this cycle")
+	} else {
+		for addr, svc := range managedByAddr {
+			if _, exists := expectedByAddr[addr]; exists {
+				continue
+			}
+			if err := d.removeService(ctx, svc); err != nil {
+				d.l.Warnf("Failed to remove %s (%s): %v", svc.ServiceName, addr, err)
+				continue
+			}
+			removed++
 		}
-		if err := d.removeService(ctx, svc); err != nil {
-			d.l.Warnf("Failed to remove %s (%s): %v", svc.ServiceName, addr, err)
-			continue
-		}
-		removed++
 	}
 
 	unchanged := len(expectedByAddr) - added - addFailed
-	d.l.Infof("Reconciliation complete: +%d added, -%d removed, =%d unchanged, %d failed", added, removed, unchanged, addFailed)
+	d.l.Infof("Reconciliation complete: +%d added, -%d removed, =%d unchanged, %d failed (scan complete: %t)",
+		added, removed, unchanged, addFailed, scanComplete)
 }
 
 // discoverTaggedInstances discovers ElastiCache replication groups across regions
 // and filters to those tagged with pmm_enable=true.
-func (d *ElastiCacheDiscovery) discoverTaggedInstances(ctx context.Context, regions []string) ([]discoveredInstance, error) {
+//
+// Returns (instances, scanComplete, error). scanComplete is false when any
+// region scan or per-cluster tag lookup failed; callers must not use the result
+// to drive destructive operations (e.g. stale-removal) in that case.
+func (d *ElastiCacheDiscovery) discoverTaggedInstances(ctx context.Context, regions []string) ([]discoveredInstance, bool, error) {
 	cfg, err := config.LoadDefaultConfig(
 		ctx,
 		config.WithHTTPClient(&http.Client{}),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("failed to load AWS config: %w", err)
+		return nil, false, fmt.Errorf("failed to load AWS config: %w", err)
 	}
 
 	d.l.Debugf("Scanning %d region(s)", len(regions))
@@ -198,13 +212,13 @@ func (d *ElastiCacheDiscovery) discoverTaggedInstances(ctx context.Context, regi
 
 	var wg errgroup.Group
 	results := make(chan discoveredInstance)
+	var scanFailed atomic.Bool
 
 	for _, region := range regions {
 		wg.Go(func() error {
-			instances, err := d.discoverRegionTagged(ctx, cfg, region)
-			if err != nil {
-				d.l.Debugf("Region %s: %v", region, err)
-				return nil
+			instances, complete := d.discoverRegionTagged(ctx, cfg, region)
+			if !complete {
+				scanFailed.Store(true)
 			}
 			if len(instances) > 0 {
 				d.l.Debugf("Region %s: found %d tagged endpoint(s)", region, len(instances))
@@ -233,22 +247,29 @@ func (d *ElastiCacheDiscovery) discoverTaggedInstances(ctx context.Context, regi
 		return discovered[i].Address < discovered[j].Address
 	})
 
-	return discovered, nil
+	return discovered, !scanFailed.Load(), nil
 }
 
 // discoverRegionTagged returns ElastiCache replication groups in a region that are tagged pmm_enable=true.
-func (d *ElastiCacheDiscovery) discoverRegionTagged(ctx context.Context, cfg aws.Config, region string) ([]discoveredInstance, error) {
+//
+// The second return value is true only when every AWS call in this region
+// succeeded. A false value means the caller should not trust the absence of any
+// previously-known cluster from the returned slice (e.g. throttled
+// DescribeReplicationGroups or ListTagsForResource).
+func (d *ElastiCacheDiscovery) discoverRegionTagged(ctx context.Context, cfg aws.Config, region string) ([]discoveredInstance, bool) {
 	client := elasticache.NewFromConfig(cfg, func(o *elasticache.Options) {
 		o.Region = region
 	})
 
 	var instances []discoveredInstance
+	complete := true
 
 	paginator := elasticache.NewDescribeReplicationGroupsPaginator(client, &elasticache.DescribeReplicationGroupsInput{})
 	for paginator.HasMorePages() {
 		page, err := paginator.NextPage(ctx)
 		if err != nil {
-			return nil, err
+			d.l.Warnf("Region %s: DescribeReplicationGroups failed: %v", region, err)
+			return instances, false
 		}
 
 		for _, rg := range page.ReplicationGroups {
@@ -274,7 +295,16 @@ func (d *ElastiCacheDiscovery) discoverRegionTagged(ctx context.Context, cfg aws
 			}
 
 			// Check tags for pmm_enable=true and extract Environment.
-			tags := d.checkTags(ctx, client, rg)
+			// On error we mark the region as incomplete and skip this cluster:
+			// we can't tell whether it's tagged, and silently treating the
+			// unknown as "not tagged" would let stale-removal delete a
+			// legitimately-managed service.
+			tags, err := d.checkTags(ctx, client, rg)
+			if err != nil {
+				d.l.Warnf("Region %s cluster %s: ListTagsForResource failed: %v", region, clusterName, err)
+				complete = false
+				continue
+			}
 			if !tags.enabled {
 				continue
 			}
@@ -344,7 +374,7 @@ func (d *ElastiCacheDiscovery) discoverRegionTagged(ctx context.Context, cfg aws
 		}
 	}
 
-	return instances, nil
+	return instances, complete
 }
 
 // tagResult holds the result of a tag check.
@@ -354,17 +384,19 @@ type tagResult struct {
 }
 
 // checkTags checks if a replication group has the pmm_enable=true tag and extracts the Environment tag.
-func (d *ElastiCacheDiscovery) checkTags(ctx context.Context, client *elasticache.Client, rg ectypes.ReplicationGroup) tagResult {
+//
+// A non-nil error means the AWS call failed; callers must treat the result as
+// unknown (not as "not tagged") to avoid false stale-removals.
+func (d *ElastiCacheDiscovery) checkTags(ctx context.Context, client *elasticache.Client, rg ectypes.ReplicationGroup) (tagResult, error) {
 	if rg.ARN == nil {
-		return tagResult{}
+		return tagResult{}, nil
 	}
 
 	resp, err := client.ListTagsForResource(ctx, &elasticache.ListTagsForResourceInput{
 		ResourceName: rg.ARN,
 	})
 	if err != nil {
-		d.l.Debugf("Failed to list tags for %s: %v", pointer.GetString(rg.ReplicationGroupId), err)
-		return tagResult{}
+		return tagResult{}, fmt.Errorf("list tags for %s: %w", pointer.GetString(rg.ReplicationGroupId), err)
 	}
 
 	result := tagResult{}
@@ -378,7 +410,7 @@ func (d *ElastiCacheDiscovery) checkTags(ctx context.Context, client *elasticach
 			result.environment = value
 		}
 	}
-	return result
+	return result, nil
 }
 
 // findManagedServices returns all Valkey services in the inventory that were added by auto-discovery.
