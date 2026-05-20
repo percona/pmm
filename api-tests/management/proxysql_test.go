@@ -152,7 +152,7 @@ func TestAddProxySQL(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Proxysql: &services.GetServiceOKBodyProxysql{
@@ -170,7 +170,7 @@ func TestAddProxySQL(t *testing.T) {
 			Context:   pmmapitests.Context,
 			ServiceID: new(serviceID),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, listAgents)
 		require.Len(t, listAgents.Payload.ProxysqlExporter, 1)
 		assert.Equal(t, []*agents.ListAgentsOKBodyProxysqlExporterItems0{
@@ -234,7 +234,7 @@ func TestAddProxySQL(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Proxysql: &services.GetServiceOKBodyProxysql{

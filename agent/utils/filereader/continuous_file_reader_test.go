@@ -94,7 +94,7 @@ func TestContinuousFileReader(t *testing.T) {
 		// test close
 		_, err = f.WriteString("7\n8")
 		require.NoError(t, err)
-		assert.NoError(t, r.Close())
+		require.NoError(t, r.Close())
 		l, ok := <-lines
 		assert.False(t, ok, "line = %q", l)
 		assert.Nil(t, r.Metrics())
@@ -187,7 +187,7 @@ func TestContinuousFileReader(t *testing.T) {
 		// test close
 		_, err = f.WriteString("\n10\n")
 		require.NoError(t, err)
-		assert.NoError(t, r.Close())
+		require.NoError(t, r.Close())
 		l, ok := <-lines
 		assert.False(t, ok, "line = %q", l)
 		assert.Nil(t, r.Metrics())

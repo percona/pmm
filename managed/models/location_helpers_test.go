@@ -560,10 +560,10 @@ func TestCreateBackupLocationValidation(t *testing.T) {
 
 			c, err := models.CreateBackupLocation(q, test.params)
 			if test.errorMsg != "" {
-				assert.EqualError(t, err, test.errorMsg)
+				require.EqualError(t, err, test.errorMsg)
 				return
 			}
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.NotNil(t, c)
 		})
 	}
@@ -610,10 +610,10 @@ func TestParseEndpoint(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			res, err := models.ParseEndpoint(test.endpoint)
 			if test.errorMsg != "" {
-				assert.EqualError(t, err, test.errorMsg)
+				require.EqualError(t, err, test.errorMsg)
 				return
 			}
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Equal(t, test.url, *res)
 		})
 	}

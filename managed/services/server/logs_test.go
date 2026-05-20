@@ -137,16 +137,16 @@ func TestAddAdminSummary(t *testing.T) {
 	t.Skip("FIXME")
 
 	zipfile, err := os.CreateTemp(t.TempDir(), "*-test.zip")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	zw := zip.NewWriter(zipfile)
 	err = addAdminSummary(t.Context(), zw)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
-	assert.NoError(t, zw.Close())
+	require.NoError(t, zw.Close())
 
 	reader, err := zip.OpenReader(zipfile.Name())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	hasClientDir := false
 	for _, file := range reader.File {
@@ -171,18 +171,18 @@ func TestFiles(t *testing.T) {
 	actual := make([]string, 0, len(files))
 	for _, f := range files {
 		if f.Name == "prometheus.base.yml" {
-			assert.EqualError(t, f.Err, "open /srv/prometheus/prometheus.base.yml: no such file or directory")
+			require.EqualError(t, f.Err, "open /srv/prometheus/prometheus.base.yml: no such file or directory")
 			continue
 		}
 
 		if f.Name == "supervisorctl_status.log" {
-			assert.EqualError(t, f.Err, "exit status 3")
+			require.EqualError(t, f.Err, "exit status 3")
 			// NOTE: this fails in supervisorctl v4+ if there are stopped services; it is not critical because the call succeeds
 			actual = append(actual, f.Name)
 			continue
 		}
 
-		assert.NoError(t, f.Err, "name = %q", f.Name)
+		require.NoError(t, f.Err, "name = %q", f.Name)
 
 		actual = append(actual, f.Name)
 	}

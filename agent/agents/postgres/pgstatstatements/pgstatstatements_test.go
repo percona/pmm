@@ -75,7 +75,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 	defer func() {
 		_, err := db.Exec("DROP EXTENSION pg_stat_statements")
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	}()
 
 	structs, err := db.SelectAllFrom(pgStatDatabaseView, "")
@@ -204,7 +204,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 		actual := buckets[0]
 		assert.InDelta(t, 0, actual.Common.MQueryTimeSum, 0.09)
-		assert.InEpsilon(t, mSharedBlksHitSum, actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum, 0.0001)
+		assert.InDelta(t, mSharedBlksHitSum, actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum, 0.0001)
 		assert.InDelta(t, 1.5, actual.Postgresql.MSharedBlksHitCnt+actual.Postgresql.MSharedBlksReadCnt, 0.5)
 		expected := &agentv1.MetricsBucket{
 			Common: &agentv1.MetricsBucket_Common{
@@ -437,7 +437,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 		actual := buckets[0]
 		assert.NotZero(t, actual.Postgresql.MSharedBlkReadTimeSum+actual.Postgresql.MSharedBlkWriteTimeSum)
-		assert.InEpsilon(t, float32(n), actual.Postgresql.MSharedBlkReadTimeCnt+actual.Postgresql.MSharedBlkWriteTimeCnt, 0.0001)
+		assert.InDelta(t, float32(n), actual.Postgresql.MSharedBlkReadTimeCnt+actual.Postgresql.MSharedBlkWriteTimeCnt, 0.0001)
 		expected := &agentv1.MetricsBucket{
 			Common: &agentv1.MetricsBucket_Common{
 				Queryid:             actual.Common.Queryid,
@@ -488,7 +488,7 @@ func TestPGStatStatementsQPS(t *testing.T) {
 
 	defer func() {
 		_, err := db.Exec("DROP EXTENSION pg_stat_statements")
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	}()
 
 	// filterInsertQueries retrieves only buckets for insert queries used by test.
@@ -536,7 +536,7 @@ func TestPGStatStatementsQPS(t *testing.T) {
 		insertBuckets := filterInsertQueries(t, buckets)
 		mismatchedCount := 0
 		for _, b := range insertBuckets {
-			assert.Equal(t, float32(1), b.Common.NumQueries)
+			assert.InDelta(t, float32(1), b.Common.NumQueries, 0.0001)
 			if b.Common.NumQueries != 1 {
 				mismatchedCount++
 			}

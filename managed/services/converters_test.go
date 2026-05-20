@@ -144,7 +144,7 @@ func TestToAPIAgent(t *testing.T) {
 
 			got, err := ToAPIAgent(tt.args.q, tt.args.agent)
 			if tt.wantErr != nil {
-				assert.ErrorIs(t, err, tt.wantErr)
+				require.ErrorIs(t, err, tt.wantErr)
 			} else {
 				assert.Equalf(t, tt.want, got, "ToAPIAgent(%v, %v)", tt.args.q, tt.args.agent)
 			}
