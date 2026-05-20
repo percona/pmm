@@ -4,6 +4,7 @@ import * as DocBlock from '@storybook/blocks';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
+import MenuItem from '@mui/material/MenuItem';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
@@ -15,6 +16,12 @@ import InfoOutlined from '@mui/icons-material/InfoOutlined';
 import SearchOutlined from '@mui/icons-material/SearchOutlined';
 import VisibilityOutlined from '@mui/icons-material/VisibilityOutlined';
 import VisibilityOffOutlined from '@mui/icons-material/VisibilityOffOutlined';
+
+const SAMPLE_SELECT_OPTIONS = [
+  { value: 'production', label: 'Production' },
+  { value: 'staging', label: 'Staging' },
+  { value: 'development', label: 'Development' },
+];
 
 type StartAdornmentChoice = 'none' | 'search' | 'currency' | 'at' | 'info';
 type EndAdornmentChoice = 'none' | 'clear' | 'visibility' | 'info';
@@ -116,6 +123,12 @@ const meta = {
       description: 'HTML input type.',
       table: { category: 'Content', defaultValue: { summary: "'text'" } },
     },
+    select: {
+      control: 'boolean',
+      description:
+        'Renders the field as a select (dropdown caret on the right). Real usage requires `<MenuItem>` children. Can be combined with an `endAdornment`.',
+      table: { category: 'Content', defaultValue: { summary: 'false' } },
+    },
     startAdornment: {
       options: ['none', 'search', 'currency', 'at', 'info'],
       control: { type: 'select' },
@@ -182,6 +195,7 @@ export const Playground: Story = {
     defaultValue: '',
     helperText: 'Helper text',
     type: 'text',
+    select: false,
     startAdornment: 'none',
     endAdornment: 'none',
     multiline: false,
@@ -192,7 +206,7 @@ export const Playground: Story = {
     required: false,
   },
   render: (args) => {
-    const { startAdornment, endAdornment, multiline, focused, ...rest } = args;
+    const { startAdornment, endAdornment, multiline, focused, select, ...rest } = args;
     const startKey: StartAdornmentChoice = startAdornment ?? 'none';
     const endKey: EndAdornmentChoice = endAdornment ?? 'none';
     const startNode = startAdornmentMap[startKey];
@@ -201,10 +215,11 @@ export const Playground: Story = {
       <Box sx={{ width: 320 }}>
         <TextField
           variant="outlined"
-          multiline={multiline}
-          minRows={multiline ? 3 : undefined}
-          maxRows={multiline ? 8 : undefined}
+          multiline={!select && multiline}
+          minRows={!select && multiline ? 3 : undefined}
+          maxRows={!select && multiline ? 8 : undefined}
           focused={focused || undefined}
+          select={select}
           {...rest}
           slotProps={{
             input: {
@@ -216,7 +231,15 @@ export const Playground: Story = {
               ) : undefined,
             },
           }}
-        />
+        >
+          {select
+            ? SAMPLE_SELECT_OPTIONS.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))
+            : undefined}
+        </TextField>
       </Box>
     );
   },
@@ -517,6 +540,100 @@ export const Multiline: Story = {
       />
     </Box>
   ),
+};
+
+export const WithSelect: Story = {
+  name: 'As a select',
+  parameters: {
+    docs: {
+      description: {
+        story: [
+          'Pass `select` to render the field as a dropdown. The caret icon is provided by MUI — pass `<MenuItem>` children for the options.',
+          '',
+          'Pairing with an `endAdornment` (e.g. a clear button) is supported.',
+        ].join('\n'),
+      },
+    },
+  },
+  render: function Render() {
+    const [plain, setPlain] = useState('');
+    const [withClear, setWithClear] = useState('staging');
+    return (
+      <Stack gap={3} sx={{ width: 280 }}>
+        <TextField
+          select
+          size="small"
+          label="Environment"
+          placeholder="Select an environment"
+          value={plain}
+          onChange={(e) => setPlain(e.target.value)}
+          variant="outlined"
+          slotProps={{
+            select: {
+              displayEmpty: true,
+              renderValue: (value) =>
+                value ? (
+                  SAMPLE_SELECT_OPTIONS.find((o) => o.value === value)?.label
+                ) : (
+                  <Box sx={{ opacity: 0.5 }}>Select an environment</Box>
+                ),
+            },
+            inputLabel: { shrink: true },
+          }}
+        >
+          {SAMPLE_SELECT_OPTIONS.map((option) => (
+            <MenuItem key={option.value} value={option.value}>
+              {option.label}
+            </MenuItem>
+          ))}
+        </TextField>
+        <TextField
+          select
+          size="small"
+          label="Environment (clearable)"
+          placeholder="Select an environment"
+          value={withClear}
+          onChange={(e) => setWithClear(e.target.value)}
+          variant="outlined"
+          slotProps={{
+            select: {
+              displayEmpty: true,
+              renderValue: (value) =>
+                value ? (
+                  SAMPLE_SELECT_OPTIONS.find((o) => o.value === value)?.label
+                ) : (
+                  <Box sx={{ opacity: 0.5 }}>Select an environment</Box>
+                ),
+            },
+            inputLabel: { shrink: true },
+            input: {
+              endAdornment: withClear ? (
+                <InputAdornment position="end">
+                  <Tooltip title="Clear">
+                    <IconButton
+                      size="small"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        setWithClear('');
+                      }}
+                    >
+                      <CloseOutlined />
+                    </IconButton>
+                  </Tooltip>
+                </InputAdornment>
+              ) : null,
+            },
+          }}
+        >
+          {SAMPLE_SELECT_OPTIONS.map((option) => (
+            <MenuItem key={option.value} value={option.value}>
+              {option.label}
+            </MenuItem>
+          ))}
+        </TextField>
+      </Stack>
+    );
+  },
 };
 
 export const LabelInline: Story = {
