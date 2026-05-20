@@ -32,6 +32,9 @@ type GlobalFlags struct {
 	EnableDebug             bool        `name:"debug" help:"Enable debug logging"`
 	EnableTrace             bool        `name:"trace" help:"Enable trace logging (implies debug)"`
 	PMMAgentListenPort      uint32      `default:"${defaultListenPort}" help:"Set listen port of pmm-agent"`
+	AgentConfigFile         string      `name:"agent-config-file" help:"Path to pmm-agent configuration file" env:"PMM_AGENT_CONFIG_FILE"`
+	AgentConfigKeyFile      string      `name:"agent-config-file-key-file" help:"Path to the key file for decrypting agent configuration" env:"PMM_AGENT_CONFIG_FILE_KEY_FILE"` //nolint:lll
+	AgentConfigKeyPassword  string      `name:"agent-config-file-key-password" help:"Password for the agent configuration key file" env:"PMM_AGENT_CONFIG_FILE_KEY_PASSWORD"`   //nolint:lll
 	JSON                    jsonFlag    `help:"Enable JSON output"`
 	Version                 versionFlag `short:"v" help:"Show application version"`
 }
