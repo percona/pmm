@@ -5,7 +5,7 @@ Alert rules describe the circumstances under which you want to be alerted. The e
 
 An alert rule consists of one or more queries and expressions, a condition, the frequency of evaluation, and the duration over which the condition is met. For example, you might configure an alert to fire and trigger a notification when MongoDB is down.
 
-During evaluation, an **alert rule** moves through the following states:
+During evaluation, an alert rule moves through the following states:
 
 - **Normal**: Everything is working correctly, and the conditions specified in the rule have not been met. This is the default state for newly created rules.
 - **Pending**: The conditions specified in the alert rule have been met, but for less time than the configured duration.
@@ -140,6 +140,6 @@ If you want to learn about creating Grafana alerts instead, check out [Grafana's
 
 ## Recording rules
 
-Recording rules are available in PMM under **Alerting > Alert rules**. They let you pre-compute a query on a schedule and store the result as a new metric, which you can then reference in alert rules. This is useful when the same query powers multiple alert rules, for example, average CPU load across all nodes or replication lag across a cluster.
+Record an alert rules to pre-compute a query on a schedule and store the result as a new metric, which you can then reference in alert rules. This is useful when the same query powers multiple alert rules, for example, average CPU load across all nodes or replication lag across a cluster.
 
-To create a recording rule, click **+ New recording rule** on the **Alert rules** page. For full instructions, see [Create recording rules](https://grafana.com/docs/grafana/latest/alerting/alerting-rules/create-recording-rules/) in the Grafana documentation.
+To create a recording rule, click **Alerting > Alert rules** + New recording rule**. For full instructions, see [Create recording rules](https://grafana.com/docs/grafana/latest/alerting/alerting-rules/create-recording-rules/) in the Grafana documentation.
