@@ -110,7 +110,7 @@ func TestMySQLShowIndex(t *testing.T) {
 		defer cancel()
 
 		_, err := a.Run(ctx)
-		assert.EqualError(t, err, `Error 1146 (42S02): Table 'world.no_such_table' doesn't exist`)
+		require.EqualError(t, err, `Error 1146 (42S02): Table 'world.no_such_table' doesn't exist`)
 	})
 
 	t.Run("LittleBobbyTables", func(t *testing.T) {
@@ -125,7 +125,7 @@ func TestMySQLShowIndex(t *testing.T) {
 
 		_, err := a.Run(ctx)
 		expected := "Error 1146 (42S02): Table 'world.city; DROP TABLE city; --' doesn't exist"
-		assert.EqualError(t, err, expected)
+		require.EqualError(t, err, expected)
 
 		var count int
 		err = q.QueryRow("SELECT COUNT(*) FROM city").Scan(&count)

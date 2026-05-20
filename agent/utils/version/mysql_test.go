@@ -20,6 +20,7 @@ import (
 
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/mysql"
 )
@@ -125,7 +126,7 @@ func TestGetMySQLVersion(t *testing.T) {
 			version, vendor, err := GetMySQLVersion(ctx, q)
 			assert.Equal(t, tc.wantVersion, version.String())
 			assert.Equal(t, tc.wantVendor, vendor)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		})
 	}
 }

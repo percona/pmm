@@ -252,7 +252,7 @@ func TestAccessControlService(t *testing.T) {
 				RoleId: 1337,
 			})
 
-			assert.Error(t, err)
+			require.Error(t, err)
 		})
 	})
 }
