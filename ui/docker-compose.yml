@@ -72,16 +72,5 @@ services:
     volumes:
       - ./testdata/mysql:/mysql
 
-  watchtower:
-    container_name: watchtower
-    platform: linux/amd64
-    image: perconalab/watchtower
-    hostname: watchtower
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    environment:
-      - WATCHTOWER_HTTP_API_UPDATE=1
-      - WATCHTOWER_HTTP_API_TOKEN=123
-
 volumes:
   pmm-data:
