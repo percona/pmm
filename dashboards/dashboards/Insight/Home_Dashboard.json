@@ -3329,7 +3329,7 @@
                 },
                 {
                     "datasource": "Metrics",
-                    "description": "Shows average latency for Reads and Writes IO Devices. Higher than typical latency for highly loaded storage indicates saturation (overload) and is frequent cause of performance problems. Higher than normal latency also can indicate internal storage problems.",
+                    "description": "Shows read latency above last week's baseline. Spikes indicate storage saturation or internal storage issues.",
                     "fieldConfig": {
                         "defaults": {
                             "color": {
