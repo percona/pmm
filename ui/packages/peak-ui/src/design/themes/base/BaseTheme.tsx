@@ -711,6 +711,30 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
           }),
         },
       },
+      MuiSelect: {
+        styleOverrides: {
+          select: {
+            [`.${outlinedInputClasses.adornedEnd} &`]: {
+              paddingRight: '64px !important',
+              '& > *': {
+                maxWidth: '100%',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              },
+            },
+          },
+          icon: {
+            [`.${outlinedInputClasses.root}:not(.${outlinedInputClasses.adornedEnd}) &`]:
+              {
+                right: '12px !important',
+              },
+            [`.${outlinedInputClasses.adornedEnd} &`]: {
+              marginRight: '32px !important',
+            },
+          },
+        },
+      },
       MuiButtonBase: {
         defaultProps: {
           disableRipple: true,
@@ -892,7 +916,7 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
               borderWidth: 2,
               borderColor: theme.palette.dividers?.divider,
               padding: '0 6px',
-              '& > legend > span': {
+              '& > legend > span:not(.notranslate)': {
                 paddingLeft: 4,
                 paddingRight: 4,
               },
@@ -915,6 +939,9 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
             },
             [`&.${outlinedInputClasses.adornedStart}`]: {
               paddingLeft: 10,
+              '& > .MuiSvgIcon-root:first-of-type': {
+                marginRight: '-4px',
+              },
             },
             [`&.${outlinedInputClasses.adornedEnd}`]: {
               paddingRight: 10,
