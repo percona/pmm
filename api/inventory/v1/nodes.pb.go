@@ -2346,6 +2346,7 @@ var (
 		nil,                                    // 32: inventory.v1.AddRemoteElastiCacheNodeParams.CustomLabelsEntry
 	}
 )
+
 var file_inventory_v1_nodes_proto_depIdxs = []int32{
 	21, // 0: inventory.v1.GenericNode.custom_labels:type_name -> inventory.v1.GenericNode.CustomLabelsEntry
 	22, // 1: inventory.v1.ContainerNode.custom_labels:type_name -> inventory.v1.ContainerNode.CustomLabelsEntry

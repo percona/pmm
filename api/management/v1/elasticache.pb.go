@@ -678,6 +678,7 @@ var (
 		(*v1.ValkeyExporter)(nil),           // 10: inventory.v1.ValkeyExporter
 	}
 )
+
 var file_management_v1_elasticache_proto_depIdxs = []int32{
 	0,  // 0: management.v1.DiscoverElastiCacheInstance.engine:type_name -> management.v1.DiscoverElastiCacheEngine
 	1,  // 1: management.v1.DiscoverElastiCacheResponse.elasticache_instances:type_name -> management.v1.DiscoverElastiCacheInstance
