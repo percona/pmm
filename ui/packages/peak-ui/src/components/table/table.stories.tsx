@@ -89,10 +89,7 @@ const STATUS_RANK: Record<ServerStatus, number> = {
 };
 
 const renderStatusCell = ({ row }: { row: MRT_Row<Server> }) => (
-  <Chip
-    color={STATUS_COLOR[row.original.status]}
-    label={row.original.status}
-  />
+  <Chip color={STATUS_COLOR[row.original.status]} label={row.original.status} />
 );
 
 const baseColumns: MRT_ColumnDef<Server>[] = [
@@ -395,8 +392,7 @@ export const SimpleReadOnly: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'All data-manipulation features disabled. Purely a styled grid of rows and columns.',
+        story: 'All data-manipulation features disabled. Purely a styled grid of rows and columns.',
       },
     },
   },

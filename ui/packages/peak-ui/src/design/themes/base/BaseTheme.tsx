@@ -740,10 +740,9 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
             },
           },
           icon: {
-            [`.${outlinedInputClasses.root}:not(.${outlinedInputClasses.adornedEnd}) &`]:
-              {
-                right: '12px !important',
-              },
+            [`.${outlinedInputClasses.root}:not(.${outlinedInputClasses.adornedEnd}) &`]: {
+              right: '12px !important',
+            },
             [`.${outlinedInputClasses.adornedEnd} &`]: {
               marginRight: '32px !important',
             },

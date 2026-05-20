@@ -34,7 +34,7 @@ const NoDataAlertMessage = ({ message, ...rest }: { message: string } & AlertPro
 // Consumer values win at the top-level-key level (typical sx override semantics).
 const mergeSx = (
   defaultSx: SxProps<Theme> | undefined,
-  consumerSx: SxProps<Theme> | undefined,
+  consumerSx: SxProps<Theme> | undefined
 ): SxProps<Theme> | undefined => {
   if (!consumerSx) return defaultSx;
   if (!defaultSx) return consumerSx;
@@ -183,10 +183,7 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
           variant: 'outlined',
           size: 'small',
           ...consumer,
-          sx: mergeSx(
-            isRangeInput ? { minWidth: 0, width: '100%', mx: 0 } : {},
-            consumer?.sx,
-          ),
+          sx: mergeSx(isRangeInput ? { minWidth: 0, width: '100%', mx: 0 } : {}, consumer?.sx),
         };
       }}
       muiToolbarAlertBannerProps={{
@@ -213,9 +210,7 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
             backgroundColor: theme.palette.background.paper,
             borderBottom: `1px solid ${theme.palette.divider}`,
           }),
-          typeof muiTableContainerProps === 'function'
-            ? undefined
-            : muiTableContainerProps?.sx,
+          typeof muiTableContainerProps === 'function' ? undefined : muiTableContainerProps?.sx
         ),
       }}
       muiTopToolbarProps={{
@@ -259,7 +254,7 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
               ...resolved,
               sx: mergeSx(
                 hideExpandAllIcon ? { '& button': { display: 'none' } } : {},
-                resolved?.sx,
+                resolved?.sx
               ),
             };
           },
@@ -291,9 +286,10 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
                   duration: theme.transitions.duration.shortest,
                 }),
               },
-              '& .MuiTableCell-head:has(.MuiCheckbox-root), & .MuiTableCell-head:has([aria-label="Expand all"])': {
-                paddingTop: '18px',
-              },
+              '& .MuiTableCell-head:has(.MuiCheckbox-root), & .MuiTableCell-head:has([aria-label="Expand all"])':
+                {
+                  paddingTop: '18px',
+                },
               '& .MuiTableCell-body': {
                 typography: 'body1',
               },
@@ -309,16 +305,15 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
               '& .MuiTableCell-head .Mui-TableHeadCell-Content-Labels': {
                 gap: 0.5,
               },
-              '& .MuiTableCell-head .Mui-TableHeadCell-Content-Labels .MuiTableSortLabel-root':
-                {
-                  transform: 'none',
-                },
+              '& .MuiTableCell-head .Mui-TableHeadCell-Content-Labels .MuiTableSortLabel-root': {
+                transform: 'none',
+              },
               '& .MuiTableCell-head:has(.Mui-TableHeadCell-Content-Actions .MuiIconButton-root:hover)':
                 {
                   backgroundColor: theme.palette.action.hover,
                 },
             }),
-            consumer?.sx,
+            consumer?.sx
           ),
         };
       }}
@@ -331,7 +326,7 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
           ...consumer,
           sx: mergeSx(
             { '& tr': { backgroundColor: 'background.paper', boxShadow: 'none' } },
-            consumer?.sx,
+            consumer?.sx
           ),
         };
       }}
@@ -347,7 +342,7 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
           ...consumer,
           sx: mergeSx(
             { '& tr': { backgroundColor: 'transparent' }, minHeight: 'unset' },
-            consumer?.sx,
+            consumer?.sx
           ),
         };
       }}
@@ -406,7 +401,7 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
                 backgroundColor: theme.palette.primary.focus,
               },
             }),
-            sx,
+            sx
           ),
           ...restOfProps,
         };
