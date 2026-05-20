@@ -68,8 +68,8 @@ func TestSerialization(t *testing.T) {
 func extractJSONTagNames(v any) []string {
 	var res []string
 	t := reflect.ValueOf(v).Type()
-	for i := range t.NumField() {
-		if tag, ok := t.Field(i).Tag.Lookup("json"); ok {
+	for field := range t.Fields() {
+		if tag, ok := field.Tag.Lookup("json"); ok {
 			s := strings.Split(tag, ",")
 			res = append(res, s[0])
 		}
