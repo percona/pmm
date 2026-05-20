@@ -78,7 +78,7 @@ func assertNodeExporterCreated(t *testing.T, pmmAgentID string) (string, bool) {
 		PMMAgentID: new(pmmAgentID),
 		Context:    pmmapitests.Context,
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	require.Len(t, listAgentsOK.Payload.NodeExporter, 1)
 	nodeExporterAgentID := listAgentsOK.Payload.NodeExporter[0].AgentID
 	asserted := assert.Equal(t, agents.ListAgentsOKBodyNodeExporterItems0{
@@ -100,7 +100,7 @@ func assertPMMAgentCreated(t *testing.T, nodeID string, pmmAgentID string) {
 		AgentID: pmmAgentID,
 		Context: pmmapitests.Context,
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, agents.GetAgentOKBody{
 		PMMAgent: &agents.GetAgentOKBodyPMMAgent{
 			AgentID:      pmmAgentID,
@@ -117,7 +117,7 @@ func assertNodeCreated(t *testing.T, nodeID string, expectedResult nodes.GetNode
 		NodeID:  nodeID,
 		Context: pmmapitests.Context,
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, expectedResult, *nodeOK.Payload)
 }
 

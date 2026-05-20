@@ -50,11 +50,11 @@ func TestCreateDataDir(t *testing.T) {
 
 			err := CreateDataDir(tc.path, tc.perm)
 			if tc.err != "" {
-				assert.EqualError(t, err, tc.err)
+				require.EqualError(t, err, tc.err)
 				return
 			}
 
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			stat, err := os.Stat(tc.path)
 			require.NoError(t, err)
 			assert.True(t, stat.IsDir())
@@ -114,7 +114,7 @@ func TestFindFilesWithExtensions(t *testing.T) {
 			t.Parallel()
 
 			files, err := FindFilesWithExtensions(tmpDir, tc.extensions...)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Len(t, files, tc.expected)
 		})
 	}
