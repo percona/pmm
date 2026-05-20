@@ -20,7 +20,6 @@ import (
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/pkg/errors"
 	"github.com/stretchr/objx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -196,14 +195,14 @@ func convertToObjxMap(t *testing.T, b []byte) objx.Map {
 func getParameterAssertions(t *testing.T, b []byte) { //nolint:thelper
 	assert.LessOrEqual(t, 5000, len(b))
 	objxM := convertToObjxMap(t, b)
-	assert.InEpsilon(t, 1.0, objxM.Get("ok").Data(), 0.0001)
+	assert.InDelta(t, 1.0, objxM.Get("ok").Data(), 0.0001)
 	assert.Contains(t, objxM.Get("authenticationMechanisms").Data(), "SCRAM-SHA-1")
 }
 
 func buildInfoAssertions(t *testing.T, b []byte) { //nolint:thelper
 	assert.LessOrEqual(t, 1000, len(b))
 	objxM := convertToObjxMap(t, b)
-	assert.InEpsilon(t, 1.0, objxM.Get("ok").Data(), 0.0001)
+	assert.InDelta(t, 1.0, objxM.Get("ok").Data(), 0.0001)
 	assert.Equal(t, "mozjs", objxM.Get("javascriptEngine").Data())
 	assert.Equal(t, "x86_64", objxM.Get("buildEnvironment.distarch").Data())
 }
@@ -211,15 +210,15 @@ func buildInfoAssertions(t *testing.T, b []byte) { //nolint:thelper
 func getDiagnosticDataAssertions(t *testing.T, b []byte) { //nolint:thelper
 	assert.LessOrEqual(t, 25000, len(b))
 	objxM := convertToObjxMap(t, b)
-	assert.InEpsilon(t, 1.0, objxM.Get("ok").Data(), 0.0001)
-	assert.InEpsilon(t, 1.0, objxM.Get("data.serverStatus.ok").Data(), 0.0001)
+	assert.InDelta(t, 1.0, objxM.Get("ok").Data(), 0.0001)
+	assert.InDelta(t, 1.0, objxM.Get("data.serverStatus.ok").Data(), 0.0001)
 	assert.Equal(t, "mongod", objxM.Get("data.serverStatus.process").Data())
 }
 
 func replSetGetStatusAssertionsReplicated(t *testing.T, b []byte) { //nolint:thelper
 	assert.LessOrEqual(t, 1000, len(b))
 	objxM := convertToObjxMap(t, b)
-	assert.InEpsilon(t, 1.0, objxM.Get("ok").Data(), 0.0001)
+	assert.InDelta(t, 1.0, objxM.Get("ok").Data(), 0.0001)
 	assert.Len(t, objxM.Get("members").Data(), 2)
 }
 
@@ -231,7 +230,8 @@ func replSetGetStatusAssertionsStandalone(t *testing.T, id string, timeout time.
 	defer cancel()
 	b, err := a.Run(ctx)
 	require.Nil(t, b)
-	require.IsType(t, mongo.CommandError{}, errors.Unwrap(err))
+	var targetErr mongo.CommandError
+	require.ErrorAs(t, err, &targetErr)
 	require.Equal(t, "(NoReplicationEnabled) not running with --replSet", err.Error())
 }
 

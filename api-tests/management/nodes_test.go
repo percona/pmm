@@ -138,7 +138,7 @@ func TestNodeRegister(t *testing.T) {
 				Body:    body,
 			}
 			node, err := client.Default.ManagementService.RegisterNode(&params)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			nodeID := node.Payload.GenericNode.NodeID
 			t.Cleanup(func() {
 				pmmapitests.UnregisterNodes(t, nodeID)
@@ -200,7 +200,7 @@ func TestNodeRegister(t *testing.T) {
 				Body:    body,
 			}
 			node, err := client.Default.ManagementService.RegisterNode(&params)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			nodeID := node.Payload.GenericNode.NodeID
 			t.Cleanup(func() {
@@ -254,7 +254,7 @@ func TestNodeRegister(t *testing.T) {
 				PMMAgentID: new(pmmAgentID),
 				Context:    pmmapitests.Context,
 			})
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			require.Len(t, listAgentsOK.Payload.NodeExporter, 1)
 			nodeExporterAgentID := listAgentsOK.Payload.NodeExporter[0].AgentID
 			assert.Equal(t, agents.ListAgentsOKBodyNodeExporterItems0{
