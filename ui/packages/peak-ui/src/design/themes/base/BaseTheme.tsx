@@ -1275,9 +1275,7 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
           },
           icon: ({ theme, ownerState: { color, severity } }) => {
             const key = (color ?? severity ?? 'info') as keyof typeof theme.palette;
-            const palette = theme.palette[key] as
-              | { contrastText?: string }
-              | undefined;
+            const palette = theme.palette[key] as { contrastText?: string } | undefined;
             return {
               color: `${palette?.contrastText} !important`,
               padding: '8px 0',
@@ -1286,9 +1284,7 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
           },
           message: ({ theme, ownerState: { color, severity } }) => {
             const key = (color ?? severity ?? 'info') as keyof typeof theme.palette;
-            const palette = theme.palette[key] as
-              | { contrastText?: string }
-              | undefined;
+            const palette = theme.palette[key] as { contrastText?: string } | undefined;
             return {
               color: palette?.contrastText,
               padding: '8px 0',
