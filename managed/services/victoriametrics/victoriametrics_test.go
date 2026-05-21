@@ -1055,5 +1055,5 @@ func TestNewVictoriaMetrics_NilClickHouseParams(t *testing.T) {
 	svc, err := NewVictoriaMetrics(configPath, nil, vmParams, nil, newMockHaService(t))
 	require.Error(t, err)
 	assert.Nil(t, svc)
-	assert.Contains(t, err.Error(), "ClickHouseParams is required")
+	assert.Contains(t, err.Error(), "ClickHouse params is required")
 }
