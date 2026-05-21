@@ -147,16 +147,12 @@ PMM protects an exporter's output from unauthorized access by adding an authoriz
 
 ## How to provision PMM Server with non-default admin password?
 
-You can set the password for the default `admin` user on first startup with the `GF_SECURITY_ADMIN_PASSWORD` environment variable, and optionally set a custom admin username with `GF_SECURITY_ADMIN_USER`.
-
-These variables are applied only during initial PMM data initialization. They are ignored on subsequent starts and container restarts.
+Currently, there is no API available to change the `admin` password at deployment time. However, you can use the `GF_SECURITY_ADMIN_PASSWORD` environment variable to set the password for the default `admin` user.
 
 ```sh
 docker run -d --name pmm-server \
-  -e GF_SECURITY_ADMIN_USER="your_username" \
   -e GF_SECURITY_ADMIN_PASSWORD="your_secure_password" \
   -p 443:8443 \
-  --volume pmm-data:/srv \
   percona/pmm-server:latest
 ```
 
