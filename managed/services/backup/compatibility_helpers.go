@@ -37,8 +37,9 @@ var (
 	// processing will be stopped and Percona XtraBackup will not be allowed to continue.
 	// https://www.percona.com/blog/2020/08/18/aligning-percona-xtrabackup-versions-with-percona-server-for-mysql/
 	alignedXtrabackupVersion = version.Must(version.NewVersion("8.0.22"))
-	// Since there is no version 9 or greater let's limit aligning rule by this number.
-	maxAlignedXtrabackupVersion = version.Must(version.NewVersion("9.0"))
+	mysql81Version           = version.Must(version.NewVersion("8.1.0"))
+	mysql84Version           = version.Must(version.NewVersion("8.4.0"))
+	mysql85Version           = version.Must(version.NewVersion("8.5.0"))
 
 	pbmMinSupportedVersion = version.Must(version.NewVersion("2.0.1"))
 )
@@ -66,7 +67,7 @@ func init() {
 			mysqlMinVersion:      "8.0",
 			mysqlMaxVersion:      "8.0.20",
 			xtrabackupMinVersion: "8.0.6",
-			xtrabackupMaxVersion: "9.0",
+			xtrabackupMaxVersion: "8.1.0",
 		},
 		// Percona XtraBackup 8.0.12 now supports backup and restore processing for all versions of MySQL;
 		// previous versions of Percona XtraBackup will not work with MySQL 8.0.20 and higher.
@@ -78,7 +79,7 @@ func init() {
 			mysqlMinVersion:      "8.0.20",
 			mysqlMaxVersion:      "8.0.21",
 			xtrabackupMinVersion: "8.0.12",
-			xtrabackupMaxVersion: "9.0",
+			xtrabackupMaxVersion: "8.1.0",
 		},
 		// Percona XtraBackup 8.0.14 supports backup and restore processing for all versions of MySQL
 		// and has been tested with the latest MySQL 8.0.21.
@@ -87,7 +88,7 @@ func init() {
 			mysqlMinVersion:      "8.0.21",
 			mysqlMaxVersion:      "8.0.22",
 			xtrabackupMinVersion: "8.0.14",
-			xtrabackupMaxVersion: "9.0",
+			xtrabackupMaxVersion: "8.1.0",
 		},
 	}
 
@@ -108,35 +109,98 @@ func init() {
 }
 
 func mysqlAndXtrabackupCompatible(mysqlVersionString, xtrabackupVersionString string) (bool, error) {
-	mysqlVersion, err := version.NewVersion(mysqlVersionString)
+	mysqlVersion, xtrabackupVersion, err := mysqlAndXtrabackupCoreVersions(mysqlVersionString, xtrabackupVersionString)
 	if err != nil {
 		return false, err
+	}
+
+	return mysqlAndXtrabackupCoreVersionsCompatible(mysqlVersion, xtrabackupVersion), nil
+}
+
+func mysqlAndXtrabackupCoreVersions(mysqlVersionString, xtrabackupVersionString string) (*version.Version, *version.Version, error) {
+	mysqlVersion, err := version.NewVersion(mysqlVersionString)
+	if err != nil {
+		return nil, nil, err
 	}
 	mysqlVersion = mysqlVersion.Core()
 
 	xtrabackupVersion, err := version.NewVersion(xtrabackupVersionString)
 	if err != nil {
-		return false, err
+		return nil, nil, err
 	}
 	xtrabackupVersion = xtrabackupVersion.Core()
 
-	// See comment to alignedVersion.
-	// Using compatibility rule.
-	if mysqlVersion.GreaterThanOrEqual(alignedXtrabackupVersion) {
-		if xtrabackupVersion.GreaterThanOrEqual(mysqlVersion) && xtrabackupVersion.LessThan(maxAlignedXtrabackupVersion) {
-			return true, nil
-		}
-	} else { // Using compatibility matrix.
-		for _, cv := range mysqlAndXtrabackupCompatibleVersions {
-			if (mysqlVersion.GreaterThanOrEqual(cv.dbMinVersion) &&
-				mysqlVersion.LessThan(cv.dbMaxVersion)) &&
-				xtrabackupVersion.GreaterThanOrEqual(cv.backupToolMinVersion) &&
-				xtrabackupVersion.LessThan(cv.backupToolMaxVersion) {
-				return true, nil
-			}
+	return mysqlVersion, xtrabackupVersion, nil
+}
+
+func mysqlAndXtrabackupCoreVersionsCompatible(mysqlVersion, xtrabackupVersion *version.Version) bool {
+	switch {
+	case mysqlVersion.GreaterThanOrEqual(mysql84Version) && mysqlVersion.LessThan(mysql85Version):
+		return xtrabackupVersion.GreaterThanOrEqual(mysql84Version) && xtrabackupVersion.LessThan(mysql85Version)
+	case mysqlVersion.GreaterThanOrEqual(alignedXtrabackupVersion) && mysqlVersion.LessThan(mysql84Version):
+		return xtrabackupVersion.GreaterThanOrEqual(mysqlVersion) && xtrabackupVersion.LessThan(mysql81Version)
+	}
+
+	for _, cv := range mysqlAndXtrabackupCompatibleVersions {
+		if (mysqlVersion.GreaterThanOrEqual(cv.dbMinVersion) &&
+			mysqlVersion.LessThan(cv.dbMaxVersion)) &&
+			xtrabackupVersion.GreaterThanOrEqual(cv.backupToolMinVersion) &&
+			xtrabackupVersion.LessThan(cv.backupToolMaxVersion) {
+			return true
 		}
 	}
-	return false, nil
+
+	return false
+}
+
+func mysqlAndXtrabackupCompatibilityError(mysqlVersionString, xtrabackupVersionString string) error {
+	mysqlVersion, xtrabackupVersion, err := mysqlAndXtrabackupCoreVersions(mysqlVersionString, xtrabackupVersionString)
+	if err != nil {
+		return err
+	}
+	if mysqlAndXtrabackupCoreVersionsCompatible(mysqlVersion, xtrabackupVersion) {
+		return nil
+	}
+
+	switch {
+	case mysqlVersion.GreaterThanOrEqual(mysql84Version) && mysqlVersion.LessThan(mysql85Version):
+		return errors.Wrapf(
+			ErrIncompatibleXtrabackup,
+			"Percona XtraBackup version %q is not compatible with MySQL version %q; use Percona XtraBackup 8.4.x for MySQL 8.4.x",
+			xtrabackupVersionString,
+			mysqlVersionString,
+		)
+	case mysqlVersion.GreaterThanOrEqual(alignedXtrabackupVersion) && mysqlVersion.LessThan(mysql84Version):
+		if xtrabackupVersion.LessThan(mysqlVersion) {
+			return errors.Wrapf(
+				ErrIncompatibleXtrabackup,
+				"Percona XtraBackup version %q is older than MySQL version %q; for MySQL 8.0.22 and newer 8.0 releases, use Percona XtraBackup 8.0.x with the same or newer core version",
+				xtrabackupVersionString,
+				mysqlVersionString,
+			)
+		}
+
+		return errors.Wrapf(
+			ErrIncompatibleXtrabackup,
+			"Percona XtraBackup version %q is not compatible with MySQL version %q; use Percona XtraBackup 8.0.x for MySQL 8.0.x",
+			xtrabackupVersionString,
+			mysqlVersionString,
+		)
+	case mysqlVersion.LessThan(alignedXtrabackupVersion):
+		return errors.Wrapf(
+			ErrIncompatibleXtrabackup,
+			"Percona XtraBackup version %q is not compatible with MySQL version %q; install a Percona XtraBackup version supported for this MySQL version",
+			xtrabackupVersionString,
+			mysqlVersionString,
+		)
+	default:
+		return errors.Wrapf(
+			ErrIncompatibleXtrabackup,
+			"PMM does not support Percona XtraBackup version %q with MySQL version %q yet",
+			xtrabackupVersionString,
+			mysqlVersionString,
+		)
+	}
 }
 
 func vendorToServiceType(vendor string) (models.ServiceType, error) {
@@ -185,13 +249,8 @@ func mySQLBackupSoftwareInstalledAndCompatible(svm map[models.SoftwareName]strin
 			svm[models.XtrabackupSoftwareName], svm[models.XbcloudSoftwareName])
 	}
 
-	ok, err := mysqlAndXtrabackupCompatible(svm[models.MysqldSoftwareName], svm[models.XtrabackupSoftwareName])
-	if err != nil {
+	if err := mysqlAndXtrabackupCompatibilityError(svm[models.MysqldSoftwareName], svm[models.XtrabackupSoftwareName]); err != nil {
 		return err
-	}
-	if !ok {
-		return errors.Wrapf(ErrIncompatibleXtrabackup, "xtrabackup version %q is not compatible with mysql version %q",
-			svm[models.XtrabackupSoftwareName], svm[models.MysqldSoftwareName])
 	}
 
 	return nil

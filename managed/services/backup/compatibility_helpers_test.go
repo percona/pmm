@@ -43,40 +43,44 @@ func TestMysqlAndXtrabackupCompatible(t *testing.T) {
 		{"5.7", "2.4.20"},
 		{"5.7", "2.4.99"},
 
-		// MySQL [8.0; 8.0.20), PXB [8.0.6; 9.0)
+		// MySQL [8.0; 8.0.20), PXB [8.0.6; 8.1.0)
 		{"8.0", "8.0.6"},
 		{"8.0", "8.0.8"},
-		{"8.0", "8.99.99"},
+		{"8.0", "8.0.99"},
 		{"8.0.12", "8.0.6"},
 		{"8.0.12", "8.0.8"},
-		{"8.0.12", "8.99.99"},
+		{"8.0.12", "8.0.99"},
 		{"8.0.19", "8.0.6"},
 		{"8.0.19", "8.0.8"},
-		{"8.0.19", "8.99.99"},
+		{"8.0.19", "8.0.99"},
 
-		// MySQL [8.0.20; 8.0.21), PXB [8.0.12; 9.0)
+		// MySQL [8.0.20; 8.0.21), PXB [8.0.12; 8.1.0)
 		{"8.0.20", "8.0.12"},
 		{"8.0.20", "8.0.18"},
-		{"8.0.20", "8.99.99"},
+		{"8.0.20", "8.0.99"},
 
-		// MySQL [8.0.21; 8.0.22), PXB [8.0.14; 9.0)
+		// MySQL [8.0.21; 8.0.22), PXB [8.0.14; 8.1.0)
 		{"8.0.21", "8.0.14"},
 		{"8.0.21", "8.0.18"},
-		{"8.0.21", "8.99.99"},
+		{"8.0.21", "8.0.99"},
 
-		// MySQL [8.0.22; 9.0), PXB [8.0.22; 9.0)
+		// MySQL [8.0.22; 8.4.0), PXB [MySQL version; 8.1.0)
 		{"8.0.22", "8.0.22"},
 		{"8.0.22", "8.0.22-15.0"},
 		{"8.0.22", "8.0.50"},
-		{"8.0.22", "8.99.99"},
 		{"8.0.22-13", "8.0.22"},
 		{"8.0.22-13", "8.0.22-15.0"},
 		{"8.0.22-13", "8.0.50"},
-		{"8.0.22-13", "8.99.99"},
 		{"8.0.28", "8.0.28"},
 		{"8.0.28", "8.0.50"},
-		{"8.0.28", "8.99.99"},
-		{"8.99.99", "8.99.99"},
+
+		// MySQL [8.4.0; 8.5.0), PXB [8.4.0; 8.5.0)
+		{"8.4.0", "8.4.0"},
+		{"8.4.0", "8.4.0-4"},
+		{"8.4.5-5.1", "8.4.0-4"},
+		{"8.4.6", "8.4.0-4"},
+		{"8.4.6", "8.4.0-5"},
+		{"8.4.6", "8.4.1"},
 	}
 
 	incompatible := []mysqlAndPXBVersions{
@@ -102,7 +106,7 @@ func TestMysqlAndXtrabackupCompatible(t *testing.T) {
 		{"5.8", "2.4.99"},
 		{"5.8", "2.5"},
 
-		// MySQL [8.0; 8.0.20), PXB [8.0.6; 9.0)
+		// MySQL [8.0; 8.0.20), PXB [8.0.6; 8.1.0)
 		{"7.99.99", "8.0.5"},
 		{"7.99.99", "8.0.6"},
 		{"7.99.99", "8.0.10"},
@@ -110,29 +114,57 @@ func TestMysqlAndXtrabackupCompatible(t *testing.T) {
 		{"7.99.99", "9.0"},
 		//
 		{"8.0", "8.0.5"},
+		{"8.0", "8.1.0"},
+		{"8.0", "8.3.0"},
+		{"8.0", "8.4.0"},
 		{"8.0", "9.0"},
 		//
 		{"8.0.10", "8.0.5"},
+		{"8.0.10", "8.1.0"},
+		{"8.0.10", "8.3.0"},
+		{"8.0.10", "8.4.0"},
 		{"8.0.10", "9.0"},
 		//
 		{"8.0.19", "8.0.5"},
+		{"8.0.19", "8.1.0"},
+		{"8.0.19", "8.3.0"},
+		{"8.0.19", "8.4.0"},
 		{"8.0.19", "9.0"},
 
-		// MySQL [8.0.20; 8.0.21), PXB [8.0.12; 9.0)
+		// MySQL [8.0.20; 8.0.21), PXB [8.0.12; 8.1.0)
 		{"8.0.20", "8.0.11"},
+		{"8.0.20", "8.1.0"},
+		{"8.0.20", "8.3.0"},
+		{"8.0.20", "8.4.0"},
 		{"8.0.20", "9.0"},
 
-		// MySQL [8.0.21; 8.0.22), PXB [8.0.14; 9.0)
+		// MySQL [8.0.21; 8.0.22), PXB [8.0.14; 8.1.0)
 		{"8.0.21", "8.0.13"},
+		{"8.0.21", "8.1.0"},
+		{"8.0.21", "8.3.0"},
+		{"8.0.21", "8.4.0"},
 		{"8.0.21", "9.0"},
 
-		// MySQL [8.0.22; 9.0), PXB [8.0.22; 9.0)
+		// MySQL [8.0.22; 8.4.0), PXB [MySQL version; 8.1.0)
 		{"8.0.22", "8.0.21"},
+		{"8.0.22", "8.1.0"},
+		{"8.0.22", "8.3.0"},
+		{"8.0.22", "8.4.0"},
 		{"8.0.22", "9.0"},
 		//
 		{"8.0.28", "8.0.22-15.0"},
 		{"8.0.28", "8.0.27"},
+		{"8.0.28", "8.1.0"},
+		{"8.0.28", "8.3.0"},
+		{"8.0.28", "8.4.0"},
 		{"8.0.28", "9.0"},
+		//
+		// MySQL [8.4.0; 8.5.0), PXB [8.4.0; 8.5.0)
+		{"8.4.0", "8.0.35"},
+		{"8.4.5-5.1", "8.0.35"},
+		{"8.4.6", "8.3.0"},
+		{"8.4.6", "8.5.0"},
+		{"8.4.6", "9.0"},
 		//
 		{"8.99.99", "8.99.98"},
 		{"8.99.99", "9.0"},
@@ -225,9 +257,10 @@ func TestSoftwareVersionsToMap(t *testing.T) {
 
 func TestMySQLSoftwaresInstalledAndCompatible(t *testing.T) {
 	for _, test := range []struct {
-		name  string
-		input map[models.SoftwareName]string
-		err   error
+		name      string
+		input     map[models.SoftwareName]string
+		err       error
+		errString string
 	}{
 		// mysql cases
 		{
@@ -236,6 +269,16 @@ func TestMySQLSoftwaresInstalledAndCompatible(t *testing.T) {
 				models.SoftwareName("mysqld"):     "8.0.25",
 				models.SoftwareName("xtrabackup"): "8.0.25",
 				models.SoftwareName("xbcloud"):    "8.0.25",
+				models.SoftwareName("qpress"):     "1.1",
+			},
+			err: nil,
+		},
+		{
+			name: "successful with mysql 8.4 and xtrabackup 8.4",
+			input: map[models.SoftwareName]string{
+				models.SoftwareName("mysqld"):     "8.4.5-5.1",
+				models.SoftwareName("xtrabackup"): "8.4.0-4",
+				models.SoftwareName("xbcloud"):    "8.4.0-4",
 				models.SoftwareName("qpress"):     "1.1",
 			},
 			err: nil,
@@ -285,13 +328,28 @@ func TestMySQLSoftwaresInstalledAndCompatible(t *testing.T) {
 				models.SoftwareName("xbcloud"):    "8.0.24",
 				models.SoftwareName("qpress"):     "1.1",
 			},
-			err: ErrIncompatibleXtrabackup,
+			err:       ErrIncompatibleXtrabackup,
+			errString: "older than MySQL",
+		},
+		{
+			name: "incompatible xtrabackup family",
+			input: map[models.SoftwareName]string{
+				models.SoftwareName("mysqld"):     "8.4.5-5.1",
+				models.SoftwareName("xtrabackup"): "8.0.35-34",
+				models.SoftwareName("xbcloud"):    "8.0.35-34",
+				models.SoftwareName("qpress"):     "1.1",
+			},
+			err:       ErrIncompatibleXtrabackup,
+			errString: "use Percona XtraBackup 8.4.x for MySQL 8.4.x",
 		},
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			err := mySQLBackupSoftwareInstalledAndCompatible(test.input)
 			if test.err != nil {
-				require.ErrorIs(t, err, test.err)
+				assert.ErrorIs(t, err, test.err)
+				if test.errString != "" {
+					assert.Contains(t, err.Error(), test.errString)
+				}
 			} else {
 				require.NoError(t, err)
 			}
