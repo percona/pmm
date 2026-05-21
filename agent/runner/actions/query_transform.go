@@ -122,7 +122,7 @@ func insertToSelect(matches []string) string {
 	if len(fields) == len(values) {
 		query := fmt.Sprintf("SELECT * FROM %s WHERE ", matches[1])
 		sep := ""
-		for i := 0; i < len(fields); i++ {
+		for i := range fields {
 			query += fmt.Sprintf(`%s%s=%s`, sep, strings.TrimSpace(fields[i]), values[i])
 			sep = " and "
 		}

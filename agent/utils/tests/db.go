@@ -29,7 +29,7 @@ func waitForTestDataLoad(tb testing.TB, db *sql.DB) {
 
 	var count int
 	var err error
-	for i := 0; i < 30; i++ {
+	for range 30 {
 		if err = db.QueryRow("SELECT /* pmm-agent-tests:waitForTestDataLoad */ COUNT(*) FROM city").Scan(&count); err == nil {
 			return
 		}

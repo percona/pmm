@@ -123,7 +123,7 @@ func TestDefaultCapacityLimit(t *testing.T) {
 	go cr.Run(ctx)
 
 	totalJobs := 2 * defaultTotalCapacity
-	for i := 0; i < totalJobs; i++ {
+	for i := range totalJobs {
 		require.NoError(t, cr.StartJob(testJob{id: fmt.Sprintf("test-%d", i), timeout: time.Second}))
 	}
 
@@ -131,7 +131,7 @@ func TestDefaultCapacityLimit(t *testing.T) {
 	time.Sleep(500 * time.Millisecond)
 
 	var running int
-	for i := 0; i < totalJobs; i++ {
+	for i := range totalJobs {
 		// Check that running jobs amount is not exceeded default capacity.
 		if cr.IsRunning(fmt.Sprintf("test-%d", i)) {
 			running++

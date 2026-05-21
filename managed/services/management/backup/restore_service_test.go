@@ -89,7 +89,7 @@ func TestRestoreServiceGetLogs(t *testing.T) {
 			},
 		})
 		require.NoError(t, err)
-		for chunkID := 0; chunkID < 5; chunkID++ {
+		for chunkID := range 5 {
 			_, err = models.CreateJobLog(db.Querier, models.CreateJobLogParams{
 				JobID:   job.ID,
 				ChunkID: chunkID,
@@ -126,7 +126,7 @@ func TestRestoreServiceGetLogs(t *testing.T) {
 			},
 		})
 		require.NoError(t, err)
-		for chunkID := 0; chunkID < 5; chunkID++ {
+		for chunkID := range 5 {
 			_, err = models.CreateJobLog(db.Querier, models.CreateJobLogParams{
 				JobID:   logicalRestore.ID,
 				ChunkID: chunkID,

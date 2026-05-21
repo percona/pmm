@@ -112,7 +112,7 @@ func testProfiler(t *testing.T, url string) {
 		dbNumber := i / int(docsCount)
 		fieldsCount := dbNumber + 1
 		doc := bson.M{}
-		for j := 0; j < fieldsCount; j++ {
+		for j := range fieldsCount {
 			doc[fmt.Sprintf("name_%02d\xff", j)] = fmt.Sprintf("value_%02d\xff", j) // to generate different fingerprints and test UTF8
 		}
 		dbName := fmt.Sprintf("test_%02d", dbNumber)
