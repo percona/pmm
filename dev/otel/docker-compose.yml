@@ -18,7 +18,7 @@ services:
   # PMM Server with built-in ClickHouse
   pmm-server:
     # image: percona/pmm-server:3
-    image: perconalab/pmm-server:3-dev-latest
+    image: perconalab/pmm-server:3.8.0-rc
     platform: linux/amd64
     container_name: pmm-server
     hostname: pmm-server
@@ -26,15 +26,16 @@ services:
     # depends_on:
     #   cert-generator:
     #     condition: service_completed_successfully
+    #     required: false
     environment:
-      - GF_ANALYTICS_ENABLED=false
-      - GF_ANALYTICS_REPORTING_ENABLED=false
-      - GF_REPORTING_ENABLED=false
-      - GF_NEWS_NEWS_FEED_ENABLED=false
-      - GF_SECURITY_DISABLE_GRAVATAR=true
+      - GF_ANALYTICS_ENABLED=0
+      - GF_ANALYTICS_REPORTING_ENABLED=0
+      - GF_REPORTING_ENABLED=0
+      - GF_NEWS_NEWS_FEED_ENABLED=0
+      - GF_SECURITY_DISABLE_GRAVATAR=1
       - GF_SECURITY_ADMIN_EMAIL=${GF_SECURITY_ADMIN_EMAIL:?GF_SECURITY_ADMIN_EMAIL must be set}
-      - GF_SMTP_ENABLED=true
-      - GF_SMTP_HOST=mailhog:1025
+      - GF_SMTP_ENABLED=1
+      - GF_SMTP_HOST=mailpit:1025
       - GF_SMTP_FROM_NAME=Percona
       - GF_SMTP_FROM_ADDRESS=${GF_SMTP_FROM_ADDRESS:?GF_SMTP_FROM_ADDRESS must be set}
       - GF_LOG_FILTERS=ngalert.api:error
@@ -43,7 +44,7 @@ services:
       - "9000:9000"
     volumes:
       - pmm-data:/srv
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      # - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./grafana/change-admin-password:/usr/local/sbin/change-admin-password:ro
       - ./grafana/datasources.yml:/usr/share/grafana/conf/provisioning/datasources/otel-ds.yml:ro
       - ./grafana/alert-rules.yml:/usr/share/grafana/conf/provisioning/alerting/otel-alert-rules.yml:ro
@@ -68,16 +69,16 @@ services:
     depends_on:
       pmm-server:
         condition: service_healthy
-      mailhog:
+      mailpit:
         condition: service_started
     networks:
       - otel
   
-  # MailHog for SMTP testing
-  mailhog:
-    image: mailhog/mailhog:latest
-    platform: linux/amd64
-    container_name: mailhog
+  # for SMTP testing
+  mailpit:
+    image: axllent/mailpit
+    container_name: mail-server
+    hostname: mail-server
     restart: always
     ports:
       - "8025:8025"   # Web UI
@@ -85,7 +86,7 @@ services:
       - otel
 
   postgres:
-    image: percona/percona-distribution-postgresql:17
+    image: percona/percona-distribution-postgresql:17.9
     platform: ${PLATFORM:-linux/amd64}
     container_name: postgres
     hostname: postgres

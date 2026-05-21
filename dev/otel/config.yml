@@ -3,14 +3,13 @@ receivers:
   filelog/nginx_access:
     include: [/srv/logs/nginx.log]
     operators:
-      - type: json_parser
+      - type: key_value_parser
         parse_from: body
         parse_to: attributes
-      - type: move
-        from: attributes.timestamp
-        to: attributes.temp_timestamp
+        pair_delimiter: " "
+        key_value_delimiter: "="
       - type: time_parser
-        parse_from: attributes.temp_timestamp
+        parse_from: attributes.time
         layout: '2006-01-02T15:04:05-07:00'
         layout_type: gotime
       # Add a severity level based on HTTP status code
