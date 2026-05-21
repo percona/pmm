@@ -29,7 +29,7 @@ type ClickHouseParams struct {
 
 // ExternalClickHouse returns true if ClickHouse is configured externally.
 func (p *ClickHouseParams) ExternalClickHouse() bool {
-	return p.url.Hostname() != "127.0.0.1"
+	return !internalAddr(p.url.Hostname())
 }
 
 // URL returns the ClickHouse URL.

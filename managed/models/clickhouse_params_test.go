@@ -66,7 +66,7 @@ func TestCHParamsExternalClickHouse(t *testing.T) {
 		want bool
 	}{
 		{"loopback", "127.0.0.1:9000", false},
-		{"localhost", "localhost:9000", true},
+		{"localhost", "localhost:9000", false},
 		{"external host", "ch-01.test.net:9000", true},
 		{"wildcard", "0.0.0.0:9000", true},
 	}

@@ -30,3 +30,9 @@ func (e *InvalidArgumentError) Error() string {
 func NewInvalidArgumentError(format string, a ...interface{}) *InvalidArgumentError {
 	return &InvalidArgumentError{Details: fmt.Sprintf(format, a...)}
 }
+
+// internalAddr reports whether host refers to PMM's built-in,
+// co-located services.
+func internalAddr(host string) bool {
+	return host == "127.0.0.1" || host == "localhost"
+}
