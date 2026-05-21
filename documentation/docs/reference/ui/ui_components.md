@@ -24,7 +24,7 @@ You'll find these options in the left-side menu:
 | :material-monitor-dashboard:| Operating System  | Monitor server-level metrics including CPU, memory, disk, and network performance. |
 | :material-view-grid-outline:| All Dashboards | Create and organize dashboards, create [folders](../../use/dashboards-panels/manage-dashboards/create-folders.md), import dashboards, create playlists, and manage snapshots. |
 | :material-chart-timeline-variant: | Query Analytics (QAN) | Analyze database queries over time, identify slow queries, optimize performance, and troubleshoot issues. |
-| :material-compass-outline:  | Explore | Run ad-hoc queries with [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/) to investigate specific metrics without creating dashboards. |
+| :material-compass-outline:  | Explore | Investigate metrics without creating dashboards. **PromQL builder** lets you write custom [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/) queries. You can also enable **Explore metrics** to visually browse metrics without writing queries. **Explore metrics** requires [enabling the Grafana Metrics Drilldown plugin](#enable-explore-metrics). |
 | :material-bell-outline: |  | Alerts | Create and manage [alerts](../../alert/index.md) that notify you when metrics exceed thresholds. |
 |:material-earth: | Advisors | Run health assessment checks on your databases and view recommendations for improving performance.|
 | :material-flask-outline: | Inventory | View and manage all monitored nodes, services, and agents registered in PMM. Check database and agent status, organize services by clusters, and add or remove monitored instances. |
@@ -68,3 +68,16 @@ Filter your monitoring data using these contextual options:
 - **PMM Annotations**: Toggle visibility of important events on your timelines
 
 These selectors change based on the dashboard you're viewing, showing only relevant options.
+
+## Enable Explore metrics
+
+Starting with PMM 3.8.0, **Explore metrics** (part of the Grafana Metrics Drilldown app) is no longer enabled by default. To re-enable it:
+{.power-number}
+
+1. Go to **Users and Access > Plugins and data > Plugins**.
+2. Search for **Grafana Metrics Drilldown**.
+3. Select the plugin and click **Enable**.
+
+Once enabled, **Explore metrics** reappears under **Explore** in the left sidebar.
+
+![Explore metrics in the PMM sidebar](../../images/PMM_Explore_metrics.jpg)
