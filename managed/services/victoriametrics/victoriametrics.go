@@ -83,7 +83,7 @@ func NewVictoriaMetrics(
 		return nil, err
 	}
 	if chParams == nil {
-		return nil, fmt.Errorf("ClickHouseParams is required")
+		return nil, fmt.Errorf("ClickHouse params is required")
 	}
 
 	return &Service{
