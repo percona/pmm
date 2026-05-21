@@ -274,7 +274,7 @@ func TestMongoDBExplain(t *testing.T) {
 		require.NoError(t, err)
 
 		res, err := ex.Run(ctx)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		want := map[string]interface{}{
 			"indexFilterSet": false,
@@ -311,7 +311,7 @@ func TestMongoDBExplain(t *testing.T) {
 
 		explainM := make(map[string]interface{})
 		err = json.Unmarshal(res, &explainM)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		queryPlanner, ok := explainM["queryPlanner"]
 		assert.True(t, ok)
 		assert.NotEmpty(t, queryPlanner)
@@ -355,7 +355,7 @@ func TestNewMongoDBExplain(t *testing.T) {
 	for _, tf := range testFiles {
 		t.Run(tf.in, func(t *testing.T) {
 			query, err := os.ReadFile(filepath.Join("testdata/", filepath.Clean(tf.in)))
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			params := &agentv1.StartActionRequest_MongoDBExplainParams{
 				Dsn:   tests.GetTestMongoDBDSN(t),
 				Query: string(query),
@@ -365,11 +365,11 @@ func TestNewMongoDBExplain(t *testing.T) {
 			require.NoError(t, err)
 
 			res, err := ex.Run(ctx)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			explainM := make(map[string]interface{})
 			err = json.Unmarshal(res, &explainM)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			// Just test not empty because different versions and environments return different
 			// explain results

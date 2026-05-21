@@ -22,6 +22,7 @@ import (
 	"testing"
 
 	"github.com/lib/pq"
+	"github.com/lib/pq/pqerror"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -34,18 +35,20 @@ import (
 func assertUniqueViolation(t *testing.T, err error, constraint string) {
 	t.Helper()
 
-	require.IsType(t, &pq.Error{}, err)
+	var targetErr *pq.Error
+	require.ErrorAs(t, err, &targetErr)
 	pgErr := err.(*pq.Error) //nolint:errorlint
-	assert.EqualValues(t, pq.ErrorCode("23505"), pgErr.Code)
+	assert.Equal(t, pqerror.Code("23505"), pgErr.Code)
 	assert.Equal(t, fmt.Sprintf(`duplicate key value violates unique constraint %q`, constraint), pgErr.Message)
 }
 
 func assertCheckViolation(t *testing.T, err error, table, constraint string) { //nolint:unparam
 	t.Helper()
 
-	require.IsType(t, &pq.Error{}, err)
+	var targetErr *pq.Error
+	require.ErrorAs(t, err, &targetErr)
 	pgErr := err.(*pq.Error) //nolint:errorlint
-	assert.EqualValues(t, pq.ErrorCode("23514"), pgErr.Code)
+	assert.Equal(t, pqerror.Code("23514"), pgErr.Code)
 	assert.Equal(t, fmt.Sprintf(`new row for relation %q violates check constraint %q`, table, constraint), pgErr.Message)
 }
 
@@ -310,7 +313,7 @@ func TestDatabaseChecks(t *testing.T) {
 						`VALUES ('8', 'node_exporter', NULL, '1', '1', NULL, false, '', $1, $2, false, false, '{"max_query_length": 0, "query_examples_disabled": false, "comments_parsing_disabled": true, "max_query_log_size": 0}', '{"table_count_tablestats_group_limit": 0}', '{"rds_basic_metrics_disabled": false, "rds_enhanced_metrics_disabled": false}', '{"push_metrics": false, "expose_exporter": false}')`,
 					now, now,
 				)
-				assert.NoError(t, err)
+				require.NoError(t, err)
 			})
 
 			t.Run("service_id set", func(t *testing.T) {
@@ -322,7 +325,7 @@ func TestDatabaseChecks(t *testing.T) {
 						`VALUES ('8', 'mysqld_exporter', NULL, '1', NULL, '1', false, '', $1, $2, false, false, '{"max_query_length": 0, "query_examples_disabled": false, "comments_parsing_disabled": true, "max_query_log_size": 0}', '{"table_count_tablestats_group_limit": 0}', '{"rds_basic_metrics_disabled": false, "rds_enhanced_metrics_disabled": false}', '{"push_metrics": false, "expose_exporter": false}')`,
 					now, now,
 				)
-				assert.NoError(t, err)
+				require.NoError(t, err)
 			})
 
 			t.Run("Both NULL", func(t *testing.T) {
