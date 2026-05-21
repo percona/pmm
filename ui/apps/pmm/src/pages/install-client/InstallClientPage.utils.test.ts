@@ -2,8 +2,10 @@ import { describe, expect, test } from 'vitest';
 import {
   buildInstallCommand,
   buildPmmServerURL,
+  DEFAULT_DB_PORTS,
   formatExpiresIn,
   InstallCommandOptions,
+  suggestDbServiceName,
 } from './InstallClientPage.utils';
 
 // Default to 'env' mode so most existing assertions exercise the curl|bash
@@ -26,6 +28,7 @@ const baseOptions: InstallCommandOptions = {
   dbName: '',
   dbAuthDB: '',
   dbServiceName: '',
+  dbQuerySource: '',
 };
 
 const optionsWithDb: InstallCommandOptions = {
@@ -147,6 +150,34 @@ describe('buildInstallCommand', () => {
     });
     expect(cmd).toContain("TECH='valkey'");
   });
+
+  test('includes mysql query source in env mode', () => {
+    const cmd = buildInstallCommand({
+      ...baseOptions,
+      dbQuerySource: 'perfschema',
+    });
+    expect(cmd).toContain("DB_QUERY_SOURCE='perfschema'");
+    expect(cmd).not.toContain('--db-query-source');
+  });
+
+  test('includes mysql query source in flags mode', () => {
+    const cmd = buildInstallCommand({
+      ...baseOptions,
+      credentialsMode: 'flags',
+      dbQuerySource: 'slowlog',
+    });
+    expect(cmd).toContain("--db-query-source 'slowlog'");
+  });
+
+  test('omits mysql query source for non-mysql technologies', () => {
+    const cmd = buildInstallCommand({
+      ...baseOptions,
+      technology: 'postgresql',
+      dbQuerySource: 'slowlog',
+    });
+    expect(cmd).not.toContain('DB_QUERY_SOURCE=');
+    expect(cmd).not.toContain('--db-query-source');
+  });
 });
 
 describe('buildInstallCommand prompt mode', () => {
@@ -227,6 +258,20 @@ describe('buildInstallCommand prompt mode', () => {
     expect(mysql).not.toContain('--db-auth-db');
   });
 
+  test('emits --db-query-source only for mysql', () => {
+    const mysql = buildInstallCommand({
+      ...promptBase,
+      dbQuerySource: 'perfschema',
+    });
+    const pg = buildInstallCommand({
+      ...promptBase,
+      technology: 'postgresql',
+      dbQuerySource: 'perfschema',
+    });
+    expect(mysql).toContain("--db-query-source 'perfschema'");
+    expect(pg).not.toContain('--db-query-source');
+  });
+
   test('respects insecureTLS toggle for both curl and the script', () => {
     const secure = buildInstallCommand({ ...promptBase, insecureTLS: false });
     const insecure = buildInstallCommand({ ...promptBase, insecureTLS: true });
@@ -252,6 +297,27 @@ describe('buildInstallCommand prompt mode', () => {
     const on = buildInstallCommand({ ...promptBase, registerForce: true });
     expect(off).not.toContain('--force');
     expect(on).toContain('--force');
+  });
+});
+
+describe('suggestDbServiceName', () => {
+  test('uses hostname placeholder and tech label without port', () => {
+    expect(suggestDbServiceName('mysql', '', '')).toBe('<hostname>-mysql');
+    expect(suggestDbServiceName('postgresql', '', 'db1')).toBe('db1-postgresql');
+  });
+
+  test('appends port suffix when db port is set', () => {
+    expect(suggestDbServiceName('mysql', '3307', 'db1')).toBe('db1-mysql-3307');
+    expect(suggestDbServiceName('mysql', '3306', 'db1')).toBe('db1-mysql-3306');
+  });
+
+  test('ignores invalid port and falls back to base name', () => {
+    expect(suggestDbServiceName('mongodb', 'abc', 'db1')).toBe('db1-mongodb');
+  });
+
+  test('default ports match install script', () => {
+    expect(DEFAULT_DB_PORTS.mysql).toBe(3306);
+    expect(DEFAULT_DB_PORTS.valkey).toBe(6379);
   });
 });
 

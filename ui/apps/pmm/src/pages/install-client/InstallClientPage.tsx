@@ -1,15 +1,20 @@
 import { type ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Alert,
   Box,
   Button,
   Card,
   CardContent,
   Chip,
+  Collapse,
   FormControl,
   FormControlLabel,
   FormHelperText,
   InputLabel,
+  Link,
   MenuItem,
   Select,
   Stack,
@@ -19,6 +24,7 @@ import {
   Typography,
 } from '@mui/material';
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Page } from 'components/page';
 import { createNodeInstallToken } from 'api/installToken';
 import type { SelectChangeEvent } from '@mui/material/Select';
@@ -27,12 +33,20 @@ import {
   buildPmmServerURL,
   CredentialsMode,
   formatExpiresIn,
+  suggestDbServiceName,
   Technology,
+  MYSQL_QUERY_SOURCES,
+  type MySQLQuerySource,
 } from './InstallClientPage.utils';
+
+const INSTALL_DOCS_URL =
+  'https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/one-step-ui-install.html';
 
 export const InstallClientPage = () => {
   const [technology, setTechnology] = useState<Technology>('mysql');
   const [credentialsMode, setCredentialsMode] = useState<CredentialsMode>('prompt');
+  const [automationMode, setAutomationMode] = useState(false);
+  const [learnMoreOpen, setLearnMoreOpen] = useState(false);
   const [token, setToken] = useState('');
   const [pmmHost, setPmmHost] = useState(() => window.location.host);
   const [insecureTLS, setInsecureTLS] = useState(true);
@@ -46,6 +60,7 @@ export const InstallClientPage = () => {
   const [dbName, setDbName] = useState('');
   const [dbAuthDB, setDbAuthDB] = useState('');
   const [dbServiceName, setDbServiceName] = useState('');
+  const [mysqlQuerySource, setMysqlQuerySource] = useState<MySQLQuerySource>('');
   const [copied, setCopied] = useState(false);
   const [genLoading, setGenLoading] = useState(false);
   const [genError, setGenError] = useState<string | null>(null);
@@ -58,22 +73,26 @@ export const InstallClientPage = () => {
     : 0;
   const isExpired = !!tokenExpiresAt && secondsLeft <= 0;
 
-  // Tick once a second while a token is live, so the countdown chip refreshes.
-  // Stops as soon as expiresAt is null or the token has expired.
   useEffect(() => {
     if (!tokenExpiresAt || isExpired) return undefined;
     const id = window.setInterval(refreshNow, 1000);
     return () => window.clearInterval(id);
   }, [tokenExpiresAt, isExpired, refreshNow]);
 
-  // When the timer hits zero, drop the secret so the rendered command falls
-  // back to the placeholder. We deliberately keep `tokenExpiresAt` set so the
-  // chip can still show "Expired — regenerate" until the user acts.
   useEffect(() => {
     if (isExpired && token) {
       setToken('');
     }
   }, [isExpired, token]);
+
+  const suggestedServiceName = useMemo(
+    () => suggestDbServiceName(technology, dbPort, nodeName),
+    [technology, dbPort, nodeName]
+  );
+
+  const serviceNameHelperText = dbServiceName.trim()
+    ? 'Passed to the script as --db-service-name.'
+    : `Leave empty to use the script default (${suggestedServiceName} on the node).`;
 
   const installerUrl = useMemo(
     () => `${window.location.origin}/pmm-static/install-pmm-client.sh`,
@@ -107,23 +126,25 @@ export const InstallClientPage = () => {
         dbName,
         dbAuthDB,
         dbServiceName,
+        dbQuerySource: mysqlQuerySource,
       }),
     [
-    credentialsMode,
-    dbAuthDB,
-    dbHost,
-    dbName,
-    dbPassword,
-    dbPort,
-    dbServiceName,
-    dbUser,
-    insecureTLS,
-    installerUrl,
-    nodeAddress,
-    nodeName,
-    registerForce,
-    serverURL,
-    technology,
+      credentialsMode,
+      dbAuthDB,
+      dbHost,
+      dbName,
+      dbPassword,
+      dbPort,
+      dbServiceName,
+      mysqlQuerySource,
+      dbUser,
+      insecureTLS,
+      installerUrl,
+      nodeAddress,
+      nodeName,
+      registerForce,
+      serverURL,
+      technology,
     ]
   );
 
@@ -140,8 +161,6 @@ export const InstallClientPage = () => {
     try {
       const res = await createNodeInstallToken(technology, 0);
       setToken(res.token);
-      // installToken.ts always returns expiresAt; the fallback is just defensive
-      // belt-and-braces in case of a future refactor.
       const expires = res.expiresAt
         ? new Date(res.expiresAt)
         : new Date(Date.now() + 15 * 60 * 1000);
@@ -162,6 +181,19 @@ export const InstallClientPage = () => {
   const handleCredentialsModeChange = useCallback(
     (e: SelectChangeEvent<CredentialsMode>) =>
       setCredentialsMode(e.target.value as CredentialsMode),
+    []
+  );
+
+  const handleAutomationModeChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      const enabled = e.target.checked;
+      setAutomationMode(enabled);
+      if (enabled) {
+        setCredentialsMode((mode) => (mode === 'prompt' ? 'env' : mode));
+      } else {
+        setCredentialsMode('prompt');
+      }
+    },
     []
   );
 
@@ -210,6 +242,12 @@ export const InstallClientPage = () => {
     []
   );
 
+  const handleMysqlQuerySourceChange = useCallback(
+    (e: SelectChangeEvent<MySQLQuerySource>) =>
+      setMysqlQuerySource(e.target.value as MySQLQuerySource),
+    []
+  );
+
   const handleDbNameChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => setDbName(e.target.value),
     []
@@ -236,60 +274,58 @@ export const InstallClientPage = () => {
         <CardContent>
           <Stack spacing={2}>
             <Alert severity="info">
-              <Typography variant="body2" sx={{ mb: 1 }}>
-                Choose installation options, then copy and run the generated command on your database
-                node. <em>Include env variables</em> and <em>Pass as script flags</em> use the usual{' '}
-                <code>curl … | bash</code> form. <em>Prompt on node</em> renders a two-step command
-                that downloads the script to <code>/tmp/install-pmm-client.sh</code> first, then runs
-                it with <code>sudo -E bash</code> so it can prompt you for the DB user and password on
-                the node (or skip prompts if you already exported <code>DB_USER</code> /{' '}
-                <code>DB_PASSWORD</code> — <code>-E</code> keeps them visible to the script).
-              </Typography>
               <Typography variant="body2">
-                <strong>Generated tokens are Grafana Admin–role on the minted install service account and valid for 15 minutes</strong>{' '}
-                — treat the URL like a password.
+                Pick your database type, generate a short-lived token, then copy and run the
+                command on your database server with <code>sudo</code>. The script installs the
+                PMM client and adds one monitored service.
               </Typography>
+              <Typography variant="body2" sx={{ mt: 1 }}>
+                DB credentials are requested on the server by default — they are not embedded in
+                the command.{' '}
+                <Link
+                  component="button"
+                  variant="body2"
+                  onClick={() => setLearnMoreOpen((open) => !open)}
+                  sx={{ verticalAlign: 'baseline' }}
+                >
+                  {learnMoreOpen ? 'Show less' : 'Learn more'}
+                </Link>
+              </Typography>
+              <Collapse in={learnMoreOpen}>
+                <Stack spacing={1} sx={{ mt: 1.5 }}>
+                  <Typography variant="body2">
+                    Generated tokens expire in <strong>15 minutes</strong> and grant Admin-level
+                    access — treat the command like a password.
+                  </Typography>
+                  <Typography variant="body2">
+                    <strong>Multiple instances on one node:</strong> run the command again with a
+                    different port. The script skips node registration after the first run.
+                  </Typography>
+                  <Typography variant="body2">
+                    Enable <strong>Running in CI/automation?</strong> below to embed credentials in
+                    the command (env or flags). For interactive installs, leave it off.
+                  </Typography>
+                  <Link href={INSTALL_DOCS_URL} target="_blank" rel="noopener noreferrer" variant="body2">
+                    Full documentation
+                  </Link>
+                </Stack>
+              </Collapse>
             </Alert>
-            <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-              <FormControl fullWidth>
-                <InputLabel id="technology-label">Technology</InputLabel>
-                <Select
-                  labelId="technology-label"
-                  value={technology}
-                  label="Technology"
-                  onChange={handleTechnologyChange}
-                >
-                  <MenuItem value="mysql">MySQL</MenuItem>
-                  <MenuItem value="postgresql">PostgreSQL</MenuItem>
-                  <MenuItem value="mongodb">MongoDB</MenuItem>
-                  <MenuItem value="valkey">Valkey</MenuItem>
-                </Select>
-              </FormControl>
-              <FormControl fullWidth>
-                <InputLabel id="credentials-mode-label">
-                  Credentials mode
-                </InputLabel>
-                <Select
-                  labelId="credentials-mode-label"
-                  value={credentialsMode}
-                  label="Credentials mode"
-                  onChange={handleCredentialsModeChange}
-                >
-                  <MenuItem value="prompt">
-                    Prompt on node (downloads script first, asks for DB user/password)
-                  </MenuItem>
-                  <MenuItem value="env">Include env variables (recommended for curl | bash)</MenuItem>
-                  <MenuItem value="flags">Pass as script flags</MenuItem>
-                </Select>
-                <FormHelperText>
-                  In prompt mode the rendered command is a two-liner: <code>curl -o</code> downloads
-                  the script to <code>/tmp/install-pmm-client.sh</code>, then{' '}
-                  <code>sudo -E bash</code> runs it on a TTY so it can ask for the DB user and password,
-                  or use credentials you already exported (<code>DB_USER</code>, <code>DB_PASSWORD</code>, or
-                  per-tech <code>MYSQL_*</code> / …) without prompts.
-                </FormHelperText>
-              </FormControl>
-            </Stack>
+
+            <FormControl fullWidth>
+              <InputLabel id="technology-label">Technology</InputLabel>
+              <Select
+                labelId="technology-label"
+                value={technology}
+                label="Technology"
+                onChange={handleTechnologyChange}
+              >
+                <MenuItem value="mysql">MySQL</MenuItem>
+                <MenuItem value="postgresql">PostgreSQL</MenuItem>
+                <MenuItem value="mongodb">MongoDB</MenuItem>
+                <MenuItem value="valkey">Valkey</MenuItem>
+              </Select>
+            </FormControl>
 
             <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
               <TextField
@@ -297,7 +333,7 @@ export const InstallClientPage = () => {
                 label="PMM host"
                 value={pmmHost}
                 onChange={handlePmmHostChange}
-                helperText="Hostname or hostname:port for PMM_SERVER_URL (defaults to this page if empty)"
+                helperText="Usually leave as-is (this page's hostname)"
               />
               <TextField
                 fullWidth
@@ -309,20 +345,17 @@ export const InstallClientPage = () => {
                 helperText={
                   isExpired
                     ? 'Token expired. Click Regenerate to mint a new one.'
-                    : 'Used only to render command locally in browser. Generated tokens auto-expire 15 min after creation.'
+                    : 'Click Generate below — token is filled in automatically.'
                 }
               />
             </Stack>
+
             <Stack
               direction={{ xs: 'column', md: 'row' }}
               spacing={2}
               alignItems={{ xs: 'stretch', md: 'center' }}
             >
-              <Button
-                variant="outlined"
-                onClick={handleGenerateToken}
-                disabled={genLoading}
-              >
+              <Button variant="outlined" onClick={handleGenerateToken} disabled={genLoading}>
                 {genLoading
                   ? 'Generating…'
                   : tokenExpiresAt
@@ -348,106 +381,187 @@ export const InstallClientPage = () => {
                 </Alert>
               )}
             </Stack>
-            <FormHelperText sx={{ mt: -1 }}>
-              Tokens are valid for 15 minutes after generation. Run the command on your node before
-              then.
-            </FormHelperText>
 
-            <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-              <TextField
-                fullWidth
-                label="Node name (optional)"
-                value={nodeName}
-                onChange={handleNodeNameChange}
-              />
-              <TextField
-                fullWidth
-                label="Node address (optional)"
-                value={nodeAddress}
-                onChange={handleNodeAddressChange}
-              />
-            </Stack>
-
-            {credentialsMode === 'prompt' ? (
+            {!automationMode && (
               <Typography variant="body2" color="text.secondary">
-                DB user and password will be requested when the script runs on the node.
+                When you run the command on the node, the script will prompt for the DB user and
+                password.
               </Typography>
-            ) : (
-              <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-                <TextField
-                    fullWidth
-                    label="DB user (optional)"
-                    value={dbUser}
-                    onChange={handleDbUserChange}
-                  />
-                <TextField
-                  fullWidth
-                    type="password"
-                    label="DB password"
-                    value={dbPassword}
-                    onChange={handleDbPasswordChange}
-                  />
+            )}
+
+            <FormControlLabel
+              control={
+                <Switch checked={automationMode} onChange={handleAutomationModeChange} />
+              }
+              label="Running in CI/automation?"
+            />
+
+            {automationMode && (
+              <Stack spacing={2}>
+                <FormControl fullWidth>
+                  <InputLabel id="credentials-mode-label">Credentials mode</InputLabel>
+                  <Select
+                    labelId="credentials-mode-label"
+                    value={credentialsMode}
+                    label="Credentials mode"
+                    onChange={handleCredentialsModeChange}
+                  >
+                    <MenuItem value="env">
+                      Include env variables (recommended for curl | bash)
+                    </MenuItem>
+                    <MenuItem value="flags">Pass as script flags</MenuItem>
+                    <MenuItem value="prompt">
+                      Prompt on node (downloads script first, asks on TTY)
+                    </MenuItem>
+                  </Select>
+                  <FormHelperText>
+                    Env and flags modes embed credentials in the command — use only in trusted
+                    automation.
+                  </FormHelperText>
+                </FormControl>
+                {credentialsMode !== 'prompt' && (
+                  <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+                    <TextField
+                      fullWidth
+                      label="DB user"
+                      value={dbUser}
+                      onChange={handleDbUserChange}
+                    />
+                    <TextField
+                      fullWidth
+                      type="password"
+                      label="DB password"
+                      value={dbPassword}
+                      onChange={handleDbPasswordChange}
+                    />
+                  </Stack>
+                )}
               </Stack>
             )}
 
-            <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-              <TextField
-                fullWidth
-                label="DB host"
-                value={dbHost}
-                onChange={handleDbHostChange}
-              />
-              <TextField
-                fullWidth
-                label="DB port"
-                value={dbPort}
-                onChange={handleDbPortChange}
-              />
-              <TextField
-                fullWidth
-                label="Service name"
-                value={dbServiceName}
-                onChange={handleDbServiceNameChange}
-              />
-            </Stack>
+            <Accordion disableGutters elevation={0} sx={{ '&:before': { display: 'none' } }}>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="subtitle1">Advanced options</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Stack spacing={2}>
+                  <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+                    <TextField
+                      fullWidth
+                      label="Node name"
+                      value={nodeName}
+                      onChange={handleNodeNameChange}
+                      helperText="Optional. Defaults to the server hostname."
+                    />
+                    <TextField
+                      fullWidth
+                      label="Node address"
+                      value={nodeAddress}
+                      onChange={handleNodeAddressChange}
+                      helperText="Optional. Defaults to autodetected IP."
+                    />
+                  </Stack>
 
-            {technology === 'postgresql' && (
-              <TextField
-                fullWidth
-                label="PostgreSQL database (optional)"
-                value={dbName}
-                onChange={handleDbNameChange}
-              />
-            )}
-            {technology === 'mongodb' && (
-              <TextField
-                fullWidth
-                label="MongoDB auth DB (optional)"
-                value={dbAuthDB}
-                onChange={handleDbAuthDBChange}
-              />
-            )}
+                  <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+                    <TextField
+                      fullWidth
+                      label="DB host"
+                      value={dbHost}
+                      onChange={handleDbHostChange}
+                      helperText="Optional. Defaults to 127.0.0.1 on the node."
+                    />
+                    <TextField
+                      fullWidth
+                      label="DB port"
+                      value={dbPort}
+                      onChange={handleDbPortChange}
+                      helperText={
+                        dbPort.trim()
+                          ? 'Adds a -<port> suffix to the default service name.'
+                          : 'Optional. Technology default if empty (e.g. 3306).'
+                      }
+                    />
+                    <TextField
+                      fullWidth
+                      label="Service name"
+                      value={dbServiceName}
+                      onChange={handleDbServiceNameChange}
+                      placeholder={suggestedServiceName}
+                      helperText={serviceNameHelperText}
+                    />
+                  </Stack>
 
-            <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={insecureTLS}
-                    onChange={handleInsecureTLSChange}
+                  {technology === 'mysql' && (
+                    <FormControl fullWidth>
+                      <InputLabel id="mysql-query-source-label">MySQL query source (QAN)</InputLabel>
+                      <Select
+                        labelId="mysql-query-source-label"
+                        value={mysqlQuerySource}
+                        label="MySQL query source (QAN)"
+                        onChange={handleMysqlQuerySourceChange}
+                      >
+                        {MYSQL_QUERY_SOURCES.map((item) => (
+                          <MenuItem key={item.value || 'default'} value={item.value}>
+                            {item.label}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                      <FormHelperText>
+                        Slow log vs Performance Schema — see MySQL connect docs for required
+                        grants.
+                      </FormHelperText>
+                    </FormControl>
+                  )}
+
+                  {technology === 'postgresql' && (
+                    <TextField
+                      fullWidth
+                      label="PostgreSQL database"
+                      value={dbName}
+                      onChange={handleDbNameChange}
+                    />
+                  )}
+                  {technology === 'mongodb' && (
+                    <TextField
+                      fullWidth
+                      label="MongoDB auth DB"
+                      value={dbAuthDB}
+                      onChange={handleDbAuthDBChange}
+                    />
+                  )}
+
+                  <FormControlLabel
+                    control={
+                      <Switch checked={insecureTLS} onChange={handleInsecureTLSChange} />
+                    }
+                    label="Use insecure TLS"
                   />
-                }
-                label="Use insecure TLS"
-              />
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={registerForce}
-                    onChange={handleRegisterForceChange}
-                  />
-                }
-                label="Force re-register node"
-              />
-            </Stack>
+
+                  <Alert severity="warning" variant="outlined">
+                    <FormControlLabel
+                      sx={{ m: 0, alignItems: 'flex-start' }}
+                      control={
+                        <Switch
+                          checked={registerForce}
+                          onChange={handleRegisterForceChange}
+                          color="warning"
+                        />
+                      }
+                      label={
+                        <Box>
+                          <Typography variant="body2">Force re-register node</Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            Removes the existing node and <strong>all its services</strong> on PMM
+                            Server, then registers again. Use only to recover from a failed first
+                            install — not when adding another database instance.
+                          </Typography>
+                        </Box>
+                      }
+                    />
+                  </Alert>
+                </Stack>
+              </AccordionDetails>
+            </Accordion>
           </Stack>
         </CardContent>
       </Card>

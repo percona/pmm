@@ -4,6 +4,47 @@
 export type Technology = 'mysql' | 'postgresql' | 'mongodb' | 'valkey';
 export type CredentialsMode = 'prompt' | 'env' | 'flags';
 
+/** MySQL QAN sources — keep in sync with pmm-admin add mysql --query-source. */
+export type MySQLQuerySource = '' | 'slowlog' | 'perfschema' | 'none';
+
+export const MYSQL_QUERY_SOURCES: { value: MySQLQuerySource; label: string }[] = [
+  { value: '', label: 'Default (slowlog)' },
+  { value: 'slowlog', label: 'Slow log' },
+  { value: 'perfschema', label: 'Performance Schema' },
+  { value: 'none', label: 'None (metrics only)' },
+];
+
+/** Default listen ports — keep in sync with install-pmm-client.sh add_* defaults. */
+export const DEFAULT_DB_PORTS: Record<Technology, number> = {
+  mysql: 3306,
+  postgresql: 5432,
+  mongodb: 27017,
+  valkey: 6379,
+};
+
+/**
+ * Suggested PMM service name when the field is left empty in the wizard.
+ * Mirrors default_db_service_name / service_name_disambiguator in install-pmm-client.sh.
+ * `nodeName` is optional; the script uses the node hostname when unset.
+ */
+export function suggestDbServiceName(
+  technology: Technology,
+  dbPort: string,
+  nodeName = '',
+): string {
+  const hostLabel = nodeName.trim() || '<hostname>';
+  const base = `${hostLabel}-${technology}`;
+  const port = dbPort.trim();
+  if (!port) {
+    return base;
+  }
+  const portNum = Number(port);
+  if (!Number.isInteger(portNum) || portNum <= 0 || portNum > 65535) {
+    return base;
+  }
+  return `${base}-${port}`;
+}
+
 /**
  * Formats the remaining lifetime of an install token as MM:SS.
  * Negative inputs (already expired) are clamped to "0:00" so callers can
@@ -47,6 +88,8 @@ export interface InstallCommandOptions {
   dbName: string;
   dbAuthDB: string;
   dbServiceName: string;
+  /** MySQL only — maps to install-pmm-client.sh --db-query-source */
+  dbQuerySource: MySQLQuerySource;
 }
 
 export const shellEscape = (value: string): string =>
@@ -60,6 +103,26 @@ const DOWNLOADED_SCRIPT_PATH = '/tmp/install-pmm-client.sh';
 
 const curlDownloadFlags = (insecureTLS: boolean): string =>
   insecureTLS ? '-fsSLk' : '-fsSL';
+
+const appendMysqlQuerySourceFlag = (
+  opts: InstallCommandOptions,
+  flags: string[]
+): void => {
+  if (opts.technology !== 'mysql' || !opts.dbQuerySource) {
+    return;
+  }
+  flags.push(`--db-query-source ${shellEscape(opts.dbQuerySource)}`);
+};
+
+const appendMysqlQuerySourceEnv = (
+  opts: InstallCommandOptions,
+  envVars: string[]
+): void => {
+  if (opts.technology !== 'mysql' || !opts.dbQuerySource) {
+    return;
+  }
+  envVars.push(`DB_QUERY_SOURCE=${shellEscape(opts.dbQuerySource)}`);
+};
 
 // buildPromptModeCommand renders a two-step "download then sudo -E bash" command
 // so the install script gets a real TTY on stdin. This is the only mode where
@@ -104,6 +167,7 @@ const buildPromptModeCommand = (opts: InstallCommandOptions): string => {
   if (opts.dbAuthDB.trim() && opts.technology === 'mongodb') {
     flags.push(`--db-auth-db ${shellEscape(opts.dbAuthDB.trim())}`);
   }
+  appendMysqlQuerySourceFlag(opts, flags);
 
   // `sudo -E bash <path>` keeps stdin on the caller's TTY (same as plain sudo bash)
   // while preserving the user's environment. install-pmm-client.sh maps
@@ -169,6 +233,7 @@ export const buildInstallCommand = (opts: InstallCommandOptions): string => {
     if (opts.dbAuthDB.trim() && opts.technology === 'mongodb') {
       envVars.push(`DB_AUTH_DB=${shellEscape(opts.dbAuthDB.trim())}`);
     }
+    appendMysqlQuerySourceEnv(opts, envVars);
   }
 
   if (opts.credentialsMode === 'flags') {
@@ -210,6 +275,7 @@ export const buildInstallCommand = (opts: InstallCommandOptions): string => {
     if (opts.dbAuthDB.trim() && opts.technology === 'mongodb') {
       flags.push(`--db-auth-db ${shellEscape(opts.dbAuthDB.trim())}`);
     }
+    appendMysqlQuerySourceFlag(opts, flags);
 
     return [
       `${curl} | sudo -E bash -s -- \\`,

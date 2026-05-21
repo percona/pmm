@@ -21,7 +21,7 @@ Global options:
   --tech TECH                   One of: mysql, postgresql, mongodb, valkey
   --node-name NAME              Node name for pmm-admin config
   --node-address ADDRESS        Node address for pmm-admin config
-  --force                       Pass --force to pmm-admin config (removes existing node name and its services on the server, then registers again)
+  --force                       Pass --force to pmm-admin config (removes existing node name and its services on the server, then registers again). When omitted, pmm-admin config is skipped automatically if pmm-agent is already set up on this node.
 
 Generic DB options (mapped per technology):
   --db-user USER
@@ -30,16 +30,18 @@ Generic DB options (mapped per technology):
   --db-port PORT
   --db-name NAME                DB name for PostgreSQL
   --db-address HOST:PORT        Explicit service address
-  --db-service-name NAME        PMM service name
+  --db-service-name NAME        PMM service name (default: <hostname>-<tech>, with -<port> or -<socket-id> suffix when the port is non-default, --db-port is set, or a socket path is used)
   --db-auth-db NAME             MongoDB auth database
   --db-socket PATH              Socket path for MySQL/PostgreSQL/MongoDB/Valkey
+  --db-query-source SOURCE      MySQL QAN source: slowlog, perfschema, or none (passed to pmm-admin add mysql as --query-source; default: pmm-admin default slowlog)
 
 Environment variables are also supported.
 Priority is: flags > env vars > interactive prompt.
 When stdin is a terminal, database prompts are skipped if credentials are already
 set from flags or environment (DB_USER / DB_PASSWORD and per-tech MYSQL_*,
-POSTGRESQL_* / … after apply_generic_inputs). Use sudo -E bash … when running
-as root so your exports reach the script.
+POSTGRESQL_* / … after apply_generic_inputs). MYSQL_QUERY_SOURCE overrides
+DB_QUERY_SOURCE for MySQL. Use sudo -E bash … when running as root so your
+exports reach the script.
 
 pmm-agent runtime knobs (env only):
   PMM_AGENT_CONFIG_FILE         Path to pmm-agent.yaml (default: /usr/local/percona/pmm/config/pmm-agent.yaml)
@@ -56,6 +58,7 @@ TECH="${TECH:-}"
 NODE_NAME="${NODE_NAME:-}"
 NODE_ADDRESS="${NODE_ADDRESS:-}"
 PMM_CONFIG_FORCE="${PMM_CONFIG_FORCE:-0}"
+PMM_CONFIG_SKIPPED=0
 
 DB_USER="${DB_USER:-}"
 DB_PASSWORD="${DB_PASSWORD:-}"
@@ -66,6 +69,7 @@ DB_ADDRESS="${DB_ADDRESS:-}"
 DB_SERVICE_NAME="${DB_SERVICE_NAME:-}"
 DB_AUTH_DB="${DB_AUTH_DB:-}"
 DB_SOCKET="${DB_SOCKET:-}"
+DB_QUERY_SOURCE="${DB_QUERY_SOURCE:-}"
 
 MYSQL_USERNAME="${MYSQL_USERNAME:-}"
 MYSQL_PASSWORD="${MYSQL_PASSWORD:-}"
@@ -74,6 +78,7 @@ MYSQL_PORT="${MYSQL_PORT:-}"
 MYSQL_ADDRESS="${MYSQL_ADDRESS:-}"
 MYSQL_SERVICE_NAME="${MYSQL_SERVICE_NAME:-}"
 MYSQL_SOCKET="${MYSQL_SOCKET:-}"
+MYSQL_QUERY_SOURCE="${MYSQL_QUERY_SOURCE:-}"
 
 POSTGRESQL_USERNAME="${POSTGRESQL_USERNAME:-}"
 POSTGRESQL_PASSWORD="${POSTGRESQL_PASSWORD:-}"
@@ -174,6 +179,10 @@ while [ $# -gt 0 ]; do
       ;;
     --db-socket)
       DB_SOCKET="${2:-}"
+      shift 2
+      ;;
+    --db-query-source)
+      DB_QUERY_SOURCE="${2:-}"
       shift 2
       ;;
     *)
@@ -489,9 +498,75 @@ require_db_creds_before_config_if_noninteractive() {
   esac
 }
 
+# True when pmm-agent is running and has registered with PMM Server locally.
+# Returns false when --force is set (caller should run pmm-admin config).
+pmm_agent_already_configured() {
+  if [ "${PMM_CONFIG_FORCE}" = "1" ] || [ "${PMM_CONFIG_FORCE}" = "true" ]; then
+    return 1
+  fi
+  if ! command -v pmm-admin >/dev/null 2>&1; then
+    return 1
+  fi
+  if ! pmm_agent_listening; then
+    return 1
+  fi
+  local agent_id
+  agent_id="$(pmm-admin status 2>/dev/null | sed -n 's/^Agent ID *: *\(.*\)/\1/p' | head -1 | tr -d '[:space:]')"
+  [ -n "${agent_id}" ]
+}
+
+# Port from a host:port address (empty when no colon is present).
+extract_port_from_address() {
+  local address="$1"
+  case "${address}" in
+    *:*)
+      printf '%s' "${address##*:}"
+      ;;
+  esac
+}
+
+# Disambiguator for default service names, e.g. "-3307" or "-mysql2" (socket basename).
+service_name_disambiguator() {
+  local default_port="$1"
+  local port="$2"
+  local port_explicit="$3"
+  local socket="$4"
+  local effective="${port:-${default_port}}"
+
+  if [ -n "${socket}" ]; then
+    local sock_id="${socket##*/}"
+    sock_id="${sock_id%.sock}"
+    printf '-%s' "${sock_id}"
+    return
+  fi
+
+  if [ "${port_explicit}" = "1" ] || [ "${effective}" != "${default_port}" ]; then
+    printf '-%s' "${effective}"
+  fi
+}
+
+default_db_service_name() {
+  local tech_label="$1"
+  local default_port="$2"
+  local port="$3"
+  local port_explicit="$4"
+  local socket="$5"
+  local suffix
+  suffix="$(service_name_disambiguator "${default_port}" "${port}" "${port_explicit}" "${socket}")"
+  printf '%s-%s%s' "$(detect_node_hostname)" "${tech_label}" "${suffix}"
+}
+
 configure_pmm_agent() {
-  prompt_if_empty PMM_SERVER_URL "PMM server URL (example: https://service_token:GLSA_TOKEN@pmm.example.com:443)" 1
   prompt_if_empty TECH "Technology to add (mysql/postgresql/mongodb/valkey)"
+
+  if pmm_agent_already_configured; then
+    log "pmm-agent is already configured with PMM Server; skipping pmm-admin config."
+    log "Use --force to re-register the node (removes the existing node and its services on the server)."
+    PMM_CONFIG_SKIPPED=1
+    return 0
+  fi
+
+  prompt_if_empty PMM_SERVER_URL "PMM server URL (example: https://service_token:GLSA_TOKEN@pmm.example.com:443)" 1
 
   require_db_creds_before_config_if_noninteractive
 
@@ -523,6 +598,7 @@ apply_generic_inputs() {
   MYSQL_ADDRESS="${MYSQL_ADDRESS:-${DB_ADDRESS}}"
   MYSQL_SERVICE_NAME="${MYSQL_SERVICE_NAME:-${DB_SERVICE_NAME}}"
   MYSQL_SOCKET="${MYSQL_SOCKET:-${DB_SOCKET}}"
+  MYSQL_QUERY_SOURCE="${MYSQL_QUERY_SOURCE:-${DB_QUERY_SOURCE}}"
 
   POSTGRESQL_USERNAME="${POSTGRESQL_USERNAME:-${DB_USER}}"
   POSTGRESQL_PASSWORD="${POSTGRESQL_PASSWORD:-${DB_PASSWORD}}"
@@ -551,15 +627,41 @@ apply_generic_inputs() {
   VALKEY_SOCKET="${VALKEY_SOCKET:-${DB_SOCKET}}"
 }
 
+validate_mysql_query_source() {
+  case "${MYSQL_QUERY_SOURCE}" in
+    slowlog|perfschema|none)
+      ;;
+    '')
+      ;;
+    *)
+      error "Unsupported MySQL query source '${MYSQL_QUERY_SOURCE}'. Supported: slowlog, perfschema, none."
+      ;;
+  esac
+}
+
 add_mysql() {
   local db_cred_hint='Use --db-user and --db-password, or set DB_USER and DB_PASSWORD (MYSQL_* overrides if set). If you use sudo env, list DB_USER and DB_PASSWORD there; exports in your shell are not passed to the script.'
   prompt_if_empty MYSQL_USERNAME "MySQL username" 0 "${db_cred_hint}"
   prompt_if_empty MYSQL_PASSWORD "MySQL password" 1 "${db_cred_hint}"
+  local port_explicit=0
+  if [ -n "${DB_PORT}" ] || [ -n "${MYSQL_PORT}" ]; then
+    port_explicit=1
+  fi
+  if [ -z "${MYSQL_PORT}" ] && [ -n "${MYSQL_ADDRESS}" ]; then
+    MYSQL_PORT="$(extract_port_from_address "${MYSQL_ADDRESS}")"
+  fi
   MYSQL_ADDRESS="${MYSQL_ADDRESS:-${MYSQL_HOST:-127.0.0.1}:${MYSQL_PORT:-3306}}"
-  MYSQL_SERVICE_NAME="${MYSQL_SERVICE_NAME:-$(detect_node_hostname)-mysql}"
+  if [ -z "${MYSQL_PORT}" ]; then
+    MYSQL_PORT="$(extract_port_from_address "${MYSQL_ADDRESS}")"
+  fi
+  MYSQL_SERVICE_NAME="${MYSQL_SERVICE_NAME:-$(default_db_service_name mysql 3306 "${MYSQL_PORT}" "${port_explicit}" "${MYSQL_SOCKET}")}"
+  validate_mysql_query_source
   local cmd=(pmm-admin add mysql "${MYSQL_SERVICE_NAME}" "${MYSQL_ADDRESS}" "--username=${MYSQL_USERNAME}" "--password=${MYSQL_PASSWORD}")
   if [ -n "${MYSQL_SOCKET}" ]; then
     cmd+=("--socket=${MYSQL_SOCKET}")
+  fi
+  if [ -n "${MYSQL_QUERY_SOURCE}" ]; then
+    cmd+=("--query-source=${MYSQL_QUERY_SOURCE}")
   fi
   log "Running pmm-admin add mysql..."
   "${cmd[@]}"
@@ -569,8 +671,18 @@ add_postgresql() {
   local db_cred_hint='Use --db-user and --db-password, or set DB_USER and DB_PASSWORD (POSTGRESQL_* overrides if set). If you use sudo env, list DB_USER and DB_PASSWORD there; exports in your shell are not passed to the script.'
   prompt_if_empty POSTGRESQL_USERNAME "PostgreSQL username" 0 "${db_cred_hint}"
   prompt_if_empty POSTGRESQL_PASSWORD "PostgreSQL password" 1 "${db_cred_hint}"
+  local port_explicit=0
+  if [ -n "${DB_PORT}" ] || [ -n "${POSTGRESQL_PORT}" ]; then
+    port_explicit=1
+  fi
+  if [ -z "${POSTGRESQL_PORT}" ] && [ -n "${POSTGRESQL_ADDRESS}" ]; then
+    POSTGRESQL_PORT="$(extract_port_from_address "${POSTGRESQL_ADDRESS}")"
+  fi
   POSTGRESQL_ADDRESS="${POSTGRESQL_ADDRESS:-${POSTGRESQL_HOST:-127.0.0.1}:${POSTGRESQL_PORT:-5432}}"
-  POSTGRESQL_SERVICE_NAME="${POSTGRESQL_SERVICE_NAME:-$(detect_node_hostname)-postgresql}"
+  if [ -z "${POSTGRESQL_PORT}" ]; then
+    POSTGRESQL_PORT="$(extract_port_from_address "${POSTGRESQL_ADDRESS}")"
+  fi
+  POSTGRESQL_SERVICE_NAME="${POSTGRESQL_SERVICE_NAME:-$(default_db_service_name postgresql 5432 "${POSTGRESQL_PORT}" "${port_explicit}" "${POSTGRESQL_SOCKET}")}"
   local cmd=(pmm-admin add postgresql "${POSTGRESQL_SERVICE_NAME}" "${POSTGRESQL_ADDRESS}" "--username=${POSTGRESQL_USERNAME}" "--password=${POSTGRESQL_PASSWORD}")
   if [ -n "${POSTGRESQL_DATABASE}" ]; then
     cmd+=("--database=${POSTGRESQL_DATABASE}")
@@ -586,8 +698,18 @@ add_mongodb() {
   local db_cred_hint='Use --db-user and --db-password, or set DB_USER and DB_PASSWORD (MONGODB_* overrides if set). If you use sudo env, list DB_USER and DB_PASSWORD there; exports in your shell are not passed to the script.'
   prompt_if_empty MONGODB_USERNAME "MongoDB username" 0 "${db_cred_hint}"
   prompt_if_empty MONGODB_PASSWORD "MongoDB password" 1 "${db_cred_hint}"
+  local port_explicit=0
+  if [ -n "${DB_PORT}" ] || [ -n "${MONGODB_PORT}" ]; then
+    port_explicit=1
+  fi
+  if [ -z "${MONGODB_PORT}" ] && [ -n "${MONGODB_ADDRESS}" ]; then
+    MONGODB_PORT="$(extract_port_from_address "${MONGODB_ADDRESS}")"
+  fi
   MONGODB_ADDRESS="${MONGODB_ADDRESS:-${MONGODB_HOST:-127.0.0.1}:${MONGODB_PORT:-27017}}"
-  MONGODB_SERVICE_NAME="${MONGODB_SERVICE_NAME:-$(detect_node_hostname)-mongodb}"
+  if [ -z "${MONGODB_PORT}" ]; then
+    MONGODB_PORT="$(extract_port_from_address "${MONGODB_ADDRESS}")"
+  fi
+  MONGODB_SERVICE_NAME="${MONGODB_SERVICE_NAME:-$(default_db_service_name mongodb 27017 "${MONGODB_PORT}" "${port_explicit}" "${MONGODB_SOCKET}")}"
   local cmd=(pmm-admin add mongodb "${MONGODB_SERVICE_NAME}" "${MONGODB_ADDRESS}" "--username=${MONGODB_USERNAME}" "--password=${MONGODB_PASSWORD}")
   if [ -n "${MONGODB_AUTH_DB}" ]; then
     cmd+=("--authentication-database=${MONGODB_AUTH_DB}")
@@ -602,8 +724,18 @@ add_mongodb() {
 add_valkey() {
   local db_cred_hint='Use --db-password or DB_PASSWORD (VALKEY_PASSWORD overrides if set). If you use sudo env, list DB_PASSWORD there; exports in your shell are not passed to the script.'
   prompt_if_empty VALKEY_PASSWORD "Valkey password" 1 "${db_cred_hint}"
+  local port_explicit=0
+  if [ -n "${DB_PORT}" ] || [ -n "${VALKEY_PORT}" ]; then
+    port_explicit=1
+  fi
+  if [ -z "${VALKEY_PORT}" ] && [ -n "${VALKEY_ADDRESS}" ]; then
+    VALKEY_PORT="$(extract_port_from_address "${VALKEY_ADDRESS}")"
+  fi
   VALKEY_ADDRESS="${VALKEY_ADDRESS:-${VALKEY_HOST:-127.0.0.1}:${VALKEY_PORT:-6379}}"
-  VALKEY_SERVICE_NAME="${VALKEY_SERVICE_NAME:-$(detect_node_hostname)-valkey}"
+  if [ -z "${VALKEY_PORT}" ]; then
+    VALKEY_PORT="$(extract_port_from_address "${VALKEY_ADDRESS}")"
+  fi
+  VALKEY_SERVICE_NAME="${VALKEY_SERVICE_NAME:-$(default_db_service_name valkey 6379 "${VALKEY_PORT}" "${port_explicit}" "${VALKEY_SOCKET}")}"
   local cmd=(pmm-admin add valkey "${VALKEY_SERVICE_NAME}" "${VALKEY_ADDRESS}" "--password=${VALKEY_PASSWORD}")
   if [ -n "${VALKEY_USERNAME}" ]; then
     cmd+=("--username=${VALKEY_USERNAME}")
@@ -617,7 +749,7 @@ add_valkey() {
 
 add_service() {
   # IMPORTANT: keep this list in sync with:
-  #   - installTokenTechnologies in managed/services/management/install_token.go
+  #   - SUPPORTED_TECHNOLOGIES in ui/apps/pmm/src/api/installToken.ts
   #   - the Technology union in ui/apps/pmm/src/pages/install-client/InstallClientPage.utils.ts
   # If you add a tech here, also add a matching add_<tech> function above and the require_*
   # branch in require_db_creds_before_config_if_noninteractive.
@@ -640,19 +772,22 @@ add_service() {
   esac
 }
 
-# Print a tailored recovery hint when `pmm-admin add` fails after `pmm-admin config`
-# has already registered the node. The most common cause we see in the field is
-# wrong DB credentials; the second most common is leftover state from a previous
-# attempt. Either way the user wants `--force` on the next run + corrected creds.
+# Print a tailored recovery hint when `pmm-admin add` fails.
 report_add_service_failure() {
   local exit_code="$1"
   echo >&2
-  log "ERROR: 'pmm-admin add ${TECH}' failed (exit ${exit_code}) after the node was already registered with PMM Server."
-  log "       The node is now visible on PMM Server but no service is attached to it."
+  log "ERROR: 'pmm-admin add ${TECH}' failed (exit ${exit_code})."
   log "       Most common causes:"
   log "         * Wrong DB credentials → fix DB_USER / DB_PASSWORD (or --db-user / --db-password) and re-run."
-  log "         * Service already attached from a prior attempt → re-run with --force (or PMM_CONFIG_FORCE=1)"
-  log "           which removes the previous node registration and its services on the server before re-registering."
+  if [ "${PMM_CONFIG_SKIPPED}" = "1" ]; then
+    log "         * Service name already in use on this node → set a unique --db-service-name or a"
+    log "           different --db-port so the script default name includes a port suffix."
+    log "           Do not use --force here; that removes the node and all existing services."
+  else
+    log "         * The node was registered but no service was added → fix credentials or service"
+    log "           options and re-run. To replace the node registration entirely, use --force"
+    log "           (removes the node and its services on PMM Server before re-registering)."
+  fi
   log "       For MongoDB also check --db-auth-db / DB_AUTH_DB; for PostgreSQL check --db-name / DB_NAME."
   exit "${exit_code}"
 }
