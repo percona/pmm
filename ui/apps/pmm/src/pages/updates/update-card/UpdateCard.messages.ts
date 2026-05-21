@@ -9,7 +9,7 @@ export const Messages = {
   home: 'PMM home',
   checkNow: 'Check updates now',
   checking: 'Checking',
-  updateNow: 'Update now',
+  howToUpdateDocs: 'How to update docs',
   error: 'There was a problem during the update',
 
   deprecation: {
