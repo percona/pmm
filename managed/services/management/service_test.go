@@ -304,7 +304,7 @@ func TestServiceService(t *testing.T) {
 
 			s.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, pmmAgent.AgentID)
 			_, err = s.RemoveService(ctx, &managementv1.RemoveServiceRequest{ServiceId: service.ServiceName, ServiceType: inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE})
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			_, err = models.FindServiceByID(s.db.Querier, service.ServiceID)
 			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Service with ID "%s" not found.`, service.ServiceID)), err)

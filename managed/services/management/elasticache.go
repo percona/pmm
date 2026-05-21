@@ -73,7 +73,7 @@ func listElastiCacheRegions(partitions []string) []string {
 }
 
 // DiscoverElastiCache discovers ElastiCache replication groups (Valkey/Redis).
-func (s *ManagementService) DiscoverElastiCache(ctx context.Context, req *managementv1.DiscoverElastiCacheRequest) (*managementv1.DiscoverElastiCacheResponse, error) {
+func (s *ManagementService) DiscoverElastiCache(ctx context.Context, req *managementv1.DiscoverElastiCacheRequest) (*managementv1.DiscoverElastiCacheResponse, error) { //nolint:gocognit
 	l := logger.Get(ctx).WithField("component", "discover/elasticache")
 
 	settings, err := models.GetSettings(s.db.Querier)
@@ -144,7 +144,7 @@ func (s *ManagementService) DiscoverElastiCache(ctx context.Context, req *manage
 						InstanceId:               clusterName,
 						NodeModel:                nodeType,
 						Address:                  pointer.GetString(rg.ConfigurationEndpoint.Address),
-						Port:                     uint32(pointer.GetInt32(rg.ConfigurationEndpoint.Port)),
+						Port:                     uint32(pointer.GetInt32(rg.ConfigurationEndpoint.Port)), //nolint:gosec
 						Engine:                   engine,
 						TransitEncryptionEnabled: transitEncryption,
 						Cluster:                  clusterName,
@@ -169,7 +169,7 @@ func (s *ManagementService) DiscoverElastiCache(ctx context.Context, req *manage
 						InstanceId:               clusterName,
 						NodeModel:                nodeType,
 						Address:                  pointer.GetString(ng.PrimaryEndpoint.Address),
-						Port:                     uint32(pointer.GetInt32(ng.PrimaryEndpoint.Port)),
+						Port:                     uint32(pointer.GetInt32(ng.PrimaryEndpoint.Port)), //nolint:gosec
 						Engine:                   engine,
 						TransitEncryptionEnabled: transitEncryption,
 						Cluster:                  clusterName,
@@ -275,7 +275,7 @@ func (s *ManagementService) addElastiCache(ctx context.Context, req *managementv
 			ReplicationSet: req.ReplicationSet,
 			CustomLabels:   req.CustomLabels,
 			Address:        &req.Address,
-			Port:           pointer.ToUint16(uint16(req.Port)), //nolint:gosec
+			Port:           pointer.ToUint16(uint16(req.Port)), //nolint:gosec,modernize
 		})
 		if err != nil {
 			return err

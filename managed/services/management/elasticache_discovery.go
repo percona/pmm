@@ -193,9 +193,9 @@ func (d *ElastiCacheDiscovery) reconcile(ctx context.Context) {
 // discoverTaggedInstances discovers ElastiCache replication groups across regions
 // and filters to those tagged with pmm_enable=true.
 //
-// Returns (instances, scanComplete, error). scanComplete is false when any
-// region scan or per-cluster tag lookup failed; callers must not use the result
-// to drive destructive operations (e.g. stale-removal) in that case.
+// Returns (instances, scanComplete, error). The scanComplete flag is false
+// when any region scan or per-cluster tag lookup failed; callers must not use
+// the result to drive destructive operations (e.g. stale-removal) in that case.
 func (d *ElastiCacheDiscovery) discoverTaggedInstances(ctx context.Context, regions []string) ([]discoveredInstance, bool, error) {
 	cfg, err := config.LoadDefaultConfig(
 		ctx,
@@ -256,7 +256,7 @@ func (d *ElastiCacheDiscovery) discoverTaggedInstances(ctx context.Context, regi
 // succeeded. A false value means the caller should not trust the absence of any
 // previously-known cluster from the returned slice (e.g. throttled
 // DescribeReplicationGroups or ListTagsForResource).
-func (d *ElastiCacheDiscovery) discoverRegionTagged(ctx context.Context, cfg aws.Config, region string) ([]discoveredInstance, bool) {
+func (d *ElastiCacheDiscovery) discoverRegionTagged(ctx context.Context, cfg aws.Config, region string) ([]discoveredInstance, bool) { //nolint:gocognit
 	client := elasticache.NewFromConfig(cfg, func(o *elasticache.Options) {
 		o.Region = region
 	})
@@ -469,7 +469,7 @@ func (d *ElastiCacheDiscovery) addInstance(ctx context.Context, inst discoveredI
 			Environment: inst.Environment,
 			Cluster:     inst.ClusterID,
 			Address:     &inst.Address,
-			Port:        pointer.ToUint16(uint16(inst.Port)), //nolint:gosec
+			Port:        pointer.ToUint16(uint16(inst.Port)), //nolint:gosec,modernize
 			CustomLabels: map[string]string{
 				"managed_by": elasticacheManagedByLabel,
 				"source":     "elasticache",

@@ -71,7 +71,7 @@ func TestElastiCacheDiscovery(t *testing.T) {
 			node, err := models.CreateNode(db.Querier, models.RemoteElastiCacheNodeType, &models.CreateNodeParams{
 				NodeName: "test-node",
 				Address:  "test-address",
-				Region:   pointer.ToString("us-east-1"),
+				Region:   pointer.ToString("us-east-1"), //nolint:modernize
 			})
 			require.NoError(t, err)
 
@@ -79,7 +79,7 @@ func TestElastiCacheDiscovery(t *testing.T) {
 			_, err = models.AddNewService(db.Querier, models.ValkeyServiceType, &models.AddDBMSServiceParams{
 				ServiceName: "managed-valkey",
 				NodeID:      node.NodeID,
-				Address:     pointer.ToString("managed.cache.amazonaws.com"),
+				Address:     pointer.ToString("managed.cache.amazonaws.com"), //nolint:modernize
 				Port:        pointer.ToUint16(6379),
 				CustomLabels: map[string]string{
 					"managed_by": elasticacheManagedByLabel,
@@ -92,7 +92,7 @@ func TestElastiCacheDiscovery(t *testing.T) {
 			_, err = models.AddNewService(db.Querier, models.ValkeyServiceType, &models.AddDBMSServiceParams{
 				ServiceName: "manual-valkey",
 				NodeID:      node.NodeID,
-				Address:     pointer.ToString("manual.cache.amazonaws.com"),
+				Address:     pointer.ToString("manual.cache.amazonaws.com"), //nolint:modernize
 				Port:        pointer.ToUint16(6380),
 			})
 			require.NoError(t, err)
