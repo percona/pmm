@@ -266,18 +266,11 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 
 // AddInternalServicesToScrape adds internal services metrics to scrape targets.
 func addInternalServicesToScrape(s models.MetricsResolutions, svc *Service, pmmServerNodeName string) []*config.ScrapeConfig {
-	cfg := []*config.ScrapeConfig{}
-
-	if svc.params.ExternalVM() {
-		svc.l.Infof("Skip all internal-service configs, VictoriaMetrics is configured to run externally.")
-		return cfg
-	}
-
-	cfg = append(cfg,
+	cfg := []*config.ScrapeConfig{
 		scrapeConfigForGrafana(s.MR, pmmServerNodeName),
 		scrapeConfigForPMMManaged(s.MR, pmmServerNodeName),
 		scrapeConfigForQANAPI2(s.MR, pmmServerNodeName),
-	)
+	}
 
 	if svc.chParams.ExternalClickHouse() {
 		svc.l.Warnf("Skip internal ClickHouse scrape config, ClickHouse is configured to run externally.")

@@ -1024,18 +1024,19 @@ func TestVMConfig_OmitsClickhouseScrape(t *testing.T) {
 	cases := []struct {
 		name           string
 		addr           string
-		vmURL          string
 		wantClickhouse bool
 	}{
-		{"internal enabled positive control", "127.0.0.1:9000", models.VMBaseURL, true},
-		{"external addr skips scrape", "ch.external:9000", models.VMBaseURL, false},
-		{"external VM short-circuits CH scrape", "127.0.0.1:9000", "http://vm.external:9090/prometheus/", false},
+		{"internal enabled positive control", "127.0.0.1:9000", true},
+		{"external addr skips scrape", "ch.external:9000", false},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			_, svc := newSvc(t, newCHParams(t, tc.addr), tc.vmURL)
+			_, svc := newSvc(t, newCHParams(t, tc.addr), models.VMBaseURL)
 			cfg, err := svc.marshalConfig(svc.loadBaseConfig())
 			require.NoError(t, err)
+			assert.Contains(t, string(cfg), "job_name: grafana")
+			assert.Contains(t, string(cfg), "job_name: pmm-managed")
+			assert.Contains(t, string(cfg), "job_name: qan-api2")
 			if tc.wantClickhouse {
 				assert.Contains(t, string(cfg), "127.0.0.1:9363")
 				assert.Contains(t, string(cfg), "job_name: clickhouse")
