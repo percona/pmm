@@ -282,10 +282,10 @@ func (s *Service) setDumpStatus(dumpID string, status models.DumpStatus) {
 func (s *Service) persistLogs(dumpID string, r io.Reader) error {
 	scanner := bufio.NewScanner(r)
 	var err error
-	var chunkN uint32
+	var chunkN atomic.Uint32
 
 	for scanner.Scan() {
-		nErr := s.saveLogChunk(dumpID, atomic.AddUint32(&chunkN, 1)-1, scanner.Text(), false)
+		nErr := s.saveLogChunk(dumpID, chunkN.Add(1)-1, scanner.Text(), false)
 		if nErr != nil {
 			s.l.Warnf("failed to read pmm-dump logs: %v", err)
 			return errors.WithStack(nErr)
@@ -294,13 +294,13 @@ func (s *Service) persistLogs(dumpID string, r io.Reader) error {
 
 	if err = scanner.Err(); err != nil {
 		s.l.Warnf("Failed to read pmm-dump logs: %+v", err)
-		nErr := s.saveLogChunk(dumpID, atomic.AddUint32(&chunkN, 1)-1, err.Error(), false)
+		nErr := s.saveLogChunk(dumpID, chunkN.Add(1)-1, err.Error(), false)
 		if nErr != nil {
 			return errors.WithStack(nErr)
 		}
 	}
 
-	nErr := s.saveLogChunk(dumpID, atomic.AddUint32(&chunkN, 1)-1, "", true)
+	nErr := s.saveLogChunk(dumpID, chunkN.Add(1)-1, "", true)
 	if nErr != nil {
 		return errors.WithStack(nErr)
 	}

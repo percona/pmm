@@ -66,7 +66,7 @@ func TestExtractTables(t *testing.T) {
 	}
 }
 
-var actualB interface{}
+var actualB any
 
 func BenchmarkExtractTables(b *testing.B) {
 	files, err := filepath.Glob(filepath.FromSlash("./testdata/*.sql"))

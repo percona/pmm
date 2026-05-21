@@ -1214,14 +1214,12 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		return nil
 	}))
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		err := haService.Run(ctx)
 		if err != nil {
 			l.Panicf("cannot start high availability service: %+v", err)
 		}
-	}()
+	})
 
 	wg.Wait()
 }

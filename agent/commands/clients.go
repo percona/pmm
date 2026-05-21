@@ -171,7 +171,7 @@ func serverRegister(cfgSetup *config.Setup) (agentID, token string, _ error) { /
 	}
 
 	var disableCollectors []string
-	for _, v := range strings.Split(cfgSetup.DisableCollectors, ",") {
+	for v := range strings.SplitSeq(cfgSetup.DisableCollectors, ",") {
 		disableCollector := strings.TrimSpace(v)
 		if disableCollector != "" {
 			disableCollectors = append(disableCollectors, disableCollector)

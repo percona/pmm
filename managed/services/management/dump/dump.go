@@ -103,8 +103,8 @@ func (s *Service) StartDump(ctx context.Context, req *dumpv1beta1.StartDumpReque
 
 	// If auth cookie is present try to extract cookie value.
 	if len(cookieHeader) != 0 {
-		cookies := strings.Split(cookieHeader[0], ";")
-		for _, c := range cookies {
+		cookies := strings.SplitSeq(cookieHeader[0], ";")
+		for c := range cookies {
 			// The name of the cookie is defined in `./build/ansible/roles/grafana/files/grafana.ini`.
 			if auth, ok := strings.CutPrefix(strings.TrimSpace(c), "pmm_session="); ok {
 				cookie = auth

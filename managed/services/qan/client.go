@@ -20,6 +20,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"maps"
 	"strings"
 	"time"
 
@@ -298,9 +299,7 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentv1.MetricsB
 			delete(labels, labelName)
 		}
 
-		for k, l := range m.Common.Comments {
-			labels[k] = l
-		}
+		maps.Copy(labels, m.Common.Comments)
 		mb.Labels = labels
 
 		convertedMetricsBuckets = append(convertedMetricsBuckets, mb)
