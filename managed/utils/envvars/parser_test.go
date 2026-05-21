@@ -13,7 +13,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package validators contains environment variables validator.
 package envvars
 
 import (
@@ -21,7 +20,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/percona/pmm/managed/models"
@@ -44,8 +42,8 @@ func TestEnvVarValidator(t *testing.T) {
 		}
 		expectedEnvVars := &models.ChangeSettingsParams{
 			DataRetention:   72 * time.Hour,
-			EnableTelemetry: pointer.ToBool(true),
-			EnableUpdates:   pointer.ToBool(false),
+			EnableTelemetry: new(true),
+			EnableUpdates:   new(false),
 			EnableAdvisors:  nil,
 			MetricsResolutions: models.MetricsResolutions{
 				HR: 5 * time.Minute,
@@ -67,8 +65,8 @@ func TestEnvVarValidator(t *testing.T) {
 		envs := []string{"UNKNOWN_VAR=VAL", "ANOTHER_UNKNOWN_VAR=VAL"}
 		expectedEnvVars := &models.ChangeSettingsParams{}
 		expectedWarns := []string{
-			`unknown environment variable "UNKNOWN_VAR=VAL"`,
-			`unknown environment variable "ANOTHER_UNKNOWN_VAR=VAL"`,
+			"unknown environment variable UNKNOWN_VAR=VAL",
+			"unknown environment variable ANOTHER_UNKNOWN_VAR=VAL",
 		}
 
 		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
@@ -187,15 +185,15 @@ func TestEnvVarValidator(t *testing.T) {
 		}{
 			{
 				value: "", respVal: time.Second * 30,
-				msg: "Environment variable \"PMM_DEV_PERCONA_PLATFORM_API_TIMEOUT\" is not set, using \"30s\" as a default timeout for platform API.",
+				msg: "Setting the default timeout for Platform API to 30s.",
 			},
 			{
 				value: "10s", respVal: time.Second * 10,
-				msg: "Using \"10s\" as a timeout for platform API.",
+				msg: "Set the timeout for Platform API to 10s.",
 			},
 			{
 				value: "xxx", respVal: time.Second * 30,
-				msg: "Using \"30s\" as a default: failed to parse platform API timeout \"xxx\": invalid duration error.",
+				msg: "Set the default Platform API to 30s: failed to parse timeout xxx: invalid duration error.",
 			},
 		}
 		for _, c := range userCase {
@@ -221,7 +219,7 @@ func TestEnvVarValidator(t *testing.T) {
 		expectedEnvVars := &models.ChangeSettingsParams{}
 
 		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
-		assert.Equal(t, gotEnvVars, expectedEnvVars)
+		assert.Equal(t, expectedEnvVars, gotEnvVars)
 		assert.Nil(t, gotErrs)
 		assert.Nil(t, gotWarns)
 	})
@@ -242,7 +240,7 @@ func TestEnvVarValidator(t *testing.T) {
 		expectedEnvVars := &models.ChangeSettingsParams{}
 
 		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
-		assert.Equal(t, gotEnvVars, expectedEnvVars)
+		assert.Equal(t, expectedEnvVars, gotEnvVars)
 		assert.Nil(t, gotErrs)
 		assert.Nil(t, gotWarns)
 	})

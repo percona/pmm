@@ -57,14 +57,14 @@ var agentTypes = map[inventoryv1.AgentType]models.AgentType{
 	inventoryv1.AgentType_AGENT_TYPE_AZURE_DATABASE_EXPORTER:            models.AzureDatabaseExporterType,
 	inventoryv1.AgentType_AGENT_TYPE_VM_AGENT:                           models.VMAgentType,
 	inventoryv1.AgentType_AGENT_TYPE_NOMAD_AGENT:                        models.NomadAgentType,
+	inventoryv1.AgentType_AGENT_TYPE_RTA_MONGODB_AGENT:                  models.RTAMongoDBAgentType,
 }
 
 func agentType(req *inventoryv1.ListAgentsRequest) *models.AgentType {
 	if req.AgentType == inventoryv1.AgentType_AGENT_TYPE_UNSPECIFIED {
 		return nil
 	}
-	agentType := agentTypes[req.AgentType]
-	return &agentType
+	return new(agentTypes[req.AgentType])
 }
 
 // ListAgents returns a list of Agents for a given filters.
@@ -119,6 +119,8 @@ func (s *agentsServer) ListAgents(ctx context.Context, req *inventoryv1.ListAgen
 			res.VmAgent = append(res.VmAgent, agent)
 		case *inventoryv1.NomadAgent:
 			res.NomadAgent = append(res.NomadAgent, agent)
+		case *inventoryv1.RTAMongoDBAgent:
+			res.RtaMongodbAgent = append(res.RtaMongodbAgent, agent)
 		default:
 			panic(fmt.Errorf("unhandled inventory Agent type %T", agent))
 		}
@@ -171,6 +173,8 @@ func (s *agentsServer) GetAgent(ctx context.Context, req *inventoryv1.GetAgentRe
 		// skip it, fix later if needed.
 	case *inventoryv1.NomadAgent:
 		res.Agent = &inventoryv1.GetAgentResponse_NomadAgent{NomadAgent: agent}
+	case *inventoryv1.RTAMongoDBAgent:
+		res.Agent = &inventoryv1.GetAgentResponse_RtaMongodbAgent{RtaMongodbAgent: agent}
 	default:
 		panic(fmt.Errorf("unhandled inventory Agent type %T", agent))
 	}
@@ -225,6 +229,8 @@ func (s *agentsServer) AddAgent(ctx context.Context, req *inventoryv1.AddAgentRe
 		return s.s.AddQANPostgreSQLPgStatementsAgent(ctx, req.GetQanPostgresqlPgstatementsAgent())
 	case *inventoryv1.AddAgentRequest_QanPostgresqlPgstatmonitorAgent:
 		return s.s.AddQANPostgreSQLPgStatMonitorAgent(ctx, req.GetQanPostgresqlPgstatmonitorAgent())
+	case *inventoryv1.AddAgentRequest_RtaMongodbAgent:
+		return s.s.AddRTAMongoDBAgent(ctx, req.GetRtaMongodbAgent())
 	default:
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid agent type %T", req.Agent))
 	}
@@ -267,6 +273,8 @@ func (s *agentsServer) ChangeAgent(ctx context.Context, req *inventoryv1.ChangeA
 		return s.s.ChangeQANPostgreSQLPgStatMonitorAgent(ctx, agentID, req.GetQanPostgresqlPgstatmonitorAgent())
 	case *inventoryv1.ChangeAgentRequest_NomadAgent:
 		return s.s.ChangeNomadAgent(ctx, agentID, req.GetNomadAgent())
+	case *inventoryv1.ChangeAgentRequest_RtaMongodbAgent:
+		return s.s.ChangeRTAMongoDBAgent(ctx, agentID, req.GetRtaMongodbAgent())
 	default:
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid agent type %T", req.Agent))
 	}

@@ -30,8 +30,6 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/percona/saas/pkg/alert"
-	"github.com/percona/saas/pkg/common"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -43,6 +41,8 @@ import (
 	alerting "github.com/percona/pmm/api/alerting/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/pi/alert"
+	"github.com/percona/pmm/managed/pi/common"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/dir"
 )
@@ -51,7 +51,6 @@ const (
 	builtinTemplatesDir       = "/usr/local/percona/alerting-templates"
 	userTemplatesDir          = "/srv/alerting/templates"
 	defaultEvaluationInterval = time.Minute
-	prometheusDatasourceUID   = "prometheus"
 
 	dirPerm = os.FileMode(0o775)
 )
@@ -410,7 +409,7 @@ func (s *Service) CreateTemplate(ctx context.Context, req *alerting.CreateTempla
 
 	templates, err := alert.Parse(strings.NewReader(req.Yaml), pParams)
 	if err != nil {
-		s.l.Errorf("failed to parse rule template form request: +%v", err)
+		s.l.Errorf("failed to parse rule template form request: %+v", err)
 		return nil, status.Errorf(codes.InvalidArgument, "Failed to parse rule template: %v.", err)
 	}
 
@@ -463,7 +462,7 @@ func (s *Service) UpdateTemplate(ctx context.Context, req *alerting.UpdateTempla
 
 	templates, err := alert.Parse(strings.NewReader(req.Yaml), parseParams)
 	if err != nil {
-		s.l.Errorf("failed to parse rule template form request: +%v", err)
+		s.l.Errorf("failed to parse rule template form request: %+v", err)
 		return nil, status.Error(codes.InvalidArgument, "Failed to parse rule template.")
 	}
 
@@ -613,6 +612,11 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		return nil, status.Error(codes.InvalidArgument, "Rule group name should be specified.")
 	}
 
+	metricsDatasourceUID, err := s.grafanaClient.GetDatasourceUIDByID(ctx, 1) // 1 - it's id of Metrics datasource in PMM
+	if err != nil {
+		return nil, err
+	}
+
 	sourceTemplate, ok := s.GetTemplates()[req.TemplateName]
 	if !ok {
 		return nil, status.Errorf(codes.NotFound, "Unknown template %s.", req.TemplateName)
@@ -689,7 +693,7 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 			Data: []services.Data{
 				{
 					RefID:         "A",
-					DatasourceUID: prometheusDatasourceUID,
+					DatasourceUID: metricsDatasourceUID,
 					// TODO: https://community.grafana.com/t/grafana-requires-time-range-for-alert-rule-creation-with-instant-promql-quieriy/70919
 					RelativeTimeRange: services.RelativeTimeRange{From: 600, To: 0},
 					Model: services.Model{

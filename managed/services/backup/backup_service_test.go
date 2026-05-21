@@ -16,7 +16,6 @@
 package backup
 
 import (
-	"context"
 	"testing"
 	"time"
 
@@ -47,8 +46,8 @@ func setup(t *testing.T, q *reform.Querier, serviceType models.ServiceType, serv
 	service, err = models.AddNewService(q, serviceType, &models.AddDBMSServiceParams{
 		ServiceName: serviceName,
 		NodeID:      node.NodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(60000),
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(60000)),
 	})
 	require.NoError(t, err)
 
@@ -68,7 +67,7 @@ func setup(t *testing.T, q *reform.Querier, serviceType models.ServiceType, serv
 }
 
 func TestPerformBackup(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 
 	t.Cleanup(func() {
@@ -175,12 +174,12 @@ func TestPerformBackup(t *testing.T) {
 				})
 
 				if tc.expectedError != nil {
-					assert.ErrorIs(t, err, tc.expectedError)
+					require.ErrorIs(t, err, tc.expectedError)
 					assert.Empty(t, artifactID)
 					return
 				}
 
-				assert.NoError(t, err)
+				require.NoError(t, err)
 				artifact, err := models.FindArtifactByID(db.Querier, artifactID)
 				require.NoError(t, err)
 				assert.Equal(t, tc.locationModel.ID, artifact.LocationID)
@@ -204,7 +203,7 @@ func TestPerformBackup(t *testing.T) {
 				Mode:       models.PITR,
 				Folder:     "artifact_folder_2",
 			})
-			assert.ErrorIs(t, err, ErrIncompatibleDataModel)
+			require.ErrorIs(t, err, ErrIncompatibleDataModel)
 			assert.Empty(t, artifactID)
 		})
 
@@ -218,7 +217,7 @@ func TestPerformBackup(t *testing.T) {
 				Mode:       models.PITR,
 				Folder:     "artifact_folder_3",
 			})
-			assert.ErrorContains(t, err, "Empty Service ID")
+			require.ErrorContains(t, err, "Empty Service ID")
 			assert.Empty(t, artifactID)
 		})
 
@@ -233,7 +232,7 @@ func TestPerformBackup(t *testing.T) {
 				Mode:       models.Incremental,
 				Folder:     "artifact_folder_4",
 			})
-			assert.ErrorContains(t, err, "the only supported backups mode for mongoDB is snapshot and PITR")
+			require.ErrorContains(t, err, "the only supported backups mode for mongoDB is snapshot and PITR")
 			assert.Empty(t, artifactID)
 		})
 	})
@@ -242,7 +241,7 @@ func TestPerformBackup(t *testing.T) {
 }
 
 func TestRestoreBackup(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 
 	t.Cleanup(func() {
@@ -330,10 +329,10 @@ func TestRestoreBackup(t *testing.T) {
 				}
 				restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID, time.Unix(0, 0))
 				if tc.expectedError != nil {
-					assert.ErrorIs(t, err, tc.expectedError)
+					require.ErrorIs(t, err, tc.expectedError)
 					assert.Empty(t, restoreID)
 				} else {
-					assert.NoError(t, err)
+					require.NoError(t, err)
 					assert.NotEmpty(t, restoreID)
 				}
 			})
@@ -432,10 +431,10 @@ func TestRestoreBackup(t *testing.T) {
 				}
 				restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), tc.artifact.ID, time.Unix(0, 0))
 				if tc.expectedError != nil {
-					assert.ErrorIs(t, err, tc.expectedError)
+					require.ErrorIs(t, err, tc.expectedError)
 					assert.Empty(t, restoreID)
 				} else {
-					assert.NoError(t, err)
+					require.NoError(t, err)
 					assert.NotEmpty(t, restoreID)
 				}
 			})
@@ -480,7 +479,7 @@ func TestRestoreBackup(t *testing.T) {
 }
 
 func TestCheckArtifactModePreconditions(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 
 	t.Cleanup(func() {
@@ -569,7 +568,7 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 				if tc.err == nil {
 					require.NoError(t, err)
 				} else {
-					assert.ErrorIs(t, err, tc.err)
+					require.ErrorIs(t, err, tc.err)
 				}
 			})
 		}
@@ -710,7 +709,7 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 				if tc.err == nil {
 					require.NoError(t, err)
 				} else {
-					assert.ErrorIs(t, err, tc.err)
+					require.ErrorIs(t, err, tc.err)
 				}
 			})
 		}

@@ -21,7 +21,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
@@ -67,7 +66,7 @@ func TestJobs(t *testing.T) {
 		assert.Equal(t, createJobParams.Data.MongoDBBackup.ArtifactID, job.Data.MongoDBBackup.ArtifactID)
 
 		_, err = models.CreateJob(tx.Querier, models.CreateJobParams{Type: "unknown"})
-		assert.EqualError(t, err, "unknown job type: unknown")
+		require.EqualError(t, err, "unknown job type: unknown")
 	})
 
 	t.Run("find", func(t *testing.T) {
@@ -209,7 +208,7 @@ func TestJobLogs(t *testing.T) {
 				Name: "job filter and limit",
 				Filters: models.JobLogsFilter{
 					JobID: job1.ID,
-					Limit: pointer.ToInt(1),
+					Limit: new(1),
 				},
 				Expect: []expectLog{
 					{
@@ -223,7 +222,7 @@ func TestJobLogs(t *testing.T) {
 				Filters: models.JobLogsFilter{
 					JobID:  job1.ID,
 					Offset: 1,
-					Limit:  pointer.ToInt(1),
+					Limit:  new(1),
 				},
 				Expect: []expectLog{
 					{
@@ -254,7 +253,7 @@ func TestJobLogs(t *testing.T) {
 			logs, err := models.FindJobLogs(tx.Querier, models.JobLogsFilter{
 				JobID: jobID,
 			})
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Empty(t, logs)
 		}
 	})

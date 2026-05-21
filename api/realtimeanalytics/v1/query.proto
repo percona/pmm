@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package realtimeanalytics.v1;
+
+import "extensions/v1/redact.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+
+// QueryMongoDBData holds MongoDB-specific Real-Time Analytics query information.
+message QueryMongoDBData {
+  // MongoDB instance address(host:port) that processing the query.
+  string db_instance_address = 1;
+  // Client application name from the MongoDB query.
+  string client_app_name = 2;
+  // Database name.
+  string database_name = 3;
+  // Collection name.
+  string collection = 4;
+  // Query operation ("find", "aggregate", "update", etc).
+  string operation = 5;
+  // The start time of the operation.
+  google.protobuf.Timestamp operation_start_time = 6;
+  // MongoDB user name associated with the query.
+  string username = 7 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Indicates if an index (COLLSCAN vs IXSCAN) was utilized in the query.
+  string plan_summary = 8;
+}
+
+// QueryData represents a single Real-Time Analytics query data point.
+// It includes general query information and a payload for database-specific details.
+message QueryData {
+  // PMM Service identifier that reported the query.
+  string service_id = 1;
+  // PMM Service name that reported the query.
+  string service_name = 2;
+  // Unique identifier for the query.
+  string query_id = 3;
+  // The text of the query.
+  string query_text = 4;
+  // Raw JSON representation of the query.
+  string query_raw_json = 5;
+  // Current query current execution time.
+  google.protobuf.Duration query_execution_duration = 6;
+  // Timestamp when the query data was collected by Real-Time Analytics agent.
+  google.protobuf.Timestamp query_collect_time = 7;
+  // Client address (host:port).
+  string client_address = 8;
+  // Database-specific payload.
+  oneof payload {
+    // MongoDB-specific query data.
+    QueryMongoDBData mongo_db_payload = 9;
+  }
+}

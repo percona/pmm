@@ -48,7 +48,7 @@ func TestNodeService(t *testing.T) {
 		setup := func(t *testing.T) (context.Context, *ManagementService, func(t *testing.T)) {
 			t.Helper()
 
-			ctx := logger.Set(context.Background(), t.Name())
+			ctx := logger.Set(t.Context(), t.Name())
 			uuid.SetRand(&tests.IDReader{})
 
 			sqlDB := testdb.Open(t, models.SetupFixtures, nil)
@@ -119,7 +119,7 @@ func TestNodeService(t *testing.T) {
 				Token: "test-token",
 			}
 			assert.Equal(t, expected, res)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		})
 
 		t.Run("Exist", func(t *testing.T) {
@@ -128,7 +128,7 @@ func TestNodeService(t *testing.T) {
 				NodeName: getTestNodeName(),
 			})
 			assert.Nil(t, res)
-			tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with name "test-node" already exists.`), err)
+			tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with name test-node already exists.`), err)
 		})
 
 		t.Run("Reregister", func(t *testing.T) {
@@ -184,7 +184,7 @@ func TestNodeService(t *testing.T) {
 				Token: "test-token",
 			}
 			assert.Equal(t, expected, res)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		})
 
 		t.Run("Register/Unregister", func(t *testing.T) {
@@ -219,14 +219,14 @@ func TestNodeService(t *testing.T) {
 				Region:     "region",
 				Reregister: true,
 			})
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			res, err := s.UnregisterNode(ctx, &managementv1.UnregisterNodeRequest{
 				NodeId: resRegister.GenericNode.NodeId,
 				Force:  true,
 			})
-			assert.NoError(t, err)
-			assert.Equal(t, "", res.Warning)
+			require.NoError(t, err)
+			assert.Empty(t, res.Warning)
 		})
 	})
 
@@ -241,7 +241,7 @@ func TestNodeService(t *testing.T) {
 				return now
 			}
 
-			ctx := logger.Set(context.Background(), t.Name())
+			ctx := logger.Set(t.Context(), t.Name())
 			uuid.SetRand(&tests.IDReader{})
 
 			sqlDB := testdb.Open(t, models.SetupFixtures, nil)
@@ -321,20 +321,21 @@ func TestNodeService(t *testing.T) {
 			expected := &managementv1.ListNodesResponse{
 				Nodes: []*managementv1.UniversalNode{
 					{
-						NodeId:        "pmm-server",
-						NodeType:      "generic",
-						NodeName:      "pmm-server",
-						MachineId:     "",
-						Distro:        "",
-						NodeModel:     "",
-						ContainerId:   "",
-						ContainerName: "",
-						Address:       "127.0.0.1",
-						Region:        "",
-						Az:            "",
-						CustomLabels:  nil,
-						CreatedAt:     timestamppb.New(now),
-						UpdatedAt:     timestamppb.New(now),
+						NodeId:          "pmm-server",
+						NodeType:        "generic",
+						NodeName:        "pmm-server",
+						MachineId:       "",
+						Distro:          "",
+						NodeModel:       "",
+						ContainerId:     "",
+						ContainerName:   "",
+						Address:         "127.0.0.1",
+						Region:          "",
+						Az:              "",
+						CustomLabels:    nil,
+						CreatedAt:       timestamppb.New(now),
+						UpdatedAt:       timestamppb.New(now),
+						IsPmmServerNode: true,
 						Agents: []*managementv1.UniversalNode_Agent{
 							{
 								AgentId:     nodeExporterID,
@@ -406,20 +407,21 @@ func TestNodeService(t *testing.T) {
 			expected := &managementv1.ListNodesResponse{
 				Nodes: []*managementv1.UniversalNode{
 					{
-						NodeId:        "pmm-server",
-						NodeType:      "generic",
-						NodeName:      "pmm-server",
-						MachineId:     "",
-						Distro:        "",
-						NodeModel:     "",
-						ContainerId:   "",
-						ContainerName: "",
-						Address:       "127.0.0.1",
-						Region:        "",
-						Az:            "",
-						CustomLabels:  nil,
-						CreatedAt:     timestamppb.New(now),
-						UpdatedAt:     timestamppb.New(now),
+						NodeId:          "pmm-server",
+						NodeType:        "generic",
+						NodeName:        "pmm-server",
+						MachineId:       "",
+						Distro:          "",
+						NodeModel:       "",
+						ContainerId:     "",
+						ContainerName:   "",
+						Address:         "127.0.0.1",
+						Region:          "",
+						Az:              "",
+						CustomLabels:    nil,
+						CreatedAt:       timestamppb.New(now),
+						UpdatedAt:       timestamppb.New(now),
+						IsPmmServerNode: true,
 						Agents: []*managementv1.UniversalNode_Agent{
 							{
 								AgentId:     nodeExporterID,
@@ -460,7 +462,7 @@ func TestNodeService(t *testing.T) {
 			models.Now = func() time.Time {
 				return now
 			}
-			ctx := logger.Set(context.Background(), t.Name())
+			ctx := logger.Set(t.Context(), t.Name())
 			uuid.SetRand(&tests.IDReader{})
 
 			sqlDB := testdb.Open(t, models.SetupFixtures, nil)
@@ -530,21 +532,22 @@ func TestNodeService(t *testing.T) {
 
 			expected := &managementv1.GetNodeResponse{
 				Node: &managementv1.UniversalNode{
-					NodeId:        "pmm-server",
-					NodeType:      "generic",
-					NodeName:      "pmm-server",
-					MachineId:     "",
-					Distro:        "",
-					NodeModel:     "",
-					ContainerId:   "",
-					ContainerName: "",
-					Address:       "127.0.0.1",
-					Region:        "",
-					Az:            "",
-					CustomLabels:  nil,
-					CreatedAt:     timestamppb.New(now),
-					UpdatedAt:     timestamppb.New(now),
-					Status:        managementv1.UniversalNode_STATUS_UP,
+					NodeId:          "pmm-server",
+					NodeType:        "generic",
+					NodeName:        "pmm-server",
+					MachineId:       "",
+					Distro:          "",
+					NodeModel:       "",
+					ContainerId:     "",
+					ContainerName:   "",
+					Address:         "127.0.0.1",
+					Region:          "",
+					Az:              "",
+					CustomLabels:    nil,
+					CreatedAt:       timestamppb.New(now),
+					UpdatedAt:       timestamppb.New(now),
+					Status:          managementv1.UniversalNode_STATUS_UP,
+					IsPmmServerNode: true,
 				},
 			}
 

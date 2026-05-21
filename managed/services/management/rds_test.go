@@ -127,7 +127,7 @@ func TestRDSService(t *testing.T) {
 		})
 
 		t.Run("InvalidClientTokenId", func(t *testing.T) {
-			ctx := logger.Set(context.Background(), t.Name())
+			ctx := logger.Set(t.Context(), t.Name())
 			accessKey, secretKey := "EXAMPLE_ACCESS_KEY", "EXAMPLE_SECRET_KEY"
 
 			instances, err := s.DiscoverRDS(ctx, &managementv1.DiscoverRDSRequest{
@@ -140,7 +140,7 @@ func TestRDSService(t *testing.T) {
 		})
 
 		t.Run("DeadlineExceeded", func(t *testing.T) {
-			ctx, cancel := context.WithTimeout(context.Background(), time.Nanosecond)
+			ctx, cancel := context.WithTimeout(t.Context(), time.Nanosecond)
 			defer cancel()
 			ctx = logger.Set(ctx, t.Name())
 			accessKey, secretKey := "EXAMPLE_ACCESS_KEY", "EXAMPLE_SECRET_KEY"
@@ -155,7 +155,7 @@ func TestRDSService(t *testing.T) {
 		})
 
 		t.Run("Normal", func(t *testing.T) {
-			ctx := logger.Set(context.Background(), t.Name())
+			ctx := logger.Set(t.Context(), t.Name())
 			accessKey, secretKey := tests.GetAWSKeys(t)
 
 			instances, err := s.DiscoverRDS(ctx, &managementv1.DiscoverRDSRequest{
@@ -164,7 +164,7 @@ func TestRDSService(t *testing.T) {
 			})
 
 			require.NoError(t, err)
-			assert.Equal(t, 4, len(instances.RdsInstances), "Should have four instances")
+			assert.Len(t, instances.RdsInstances, 4, "Should have four instances")
 			assert.Equal(t, []*managementv1.DiscoverRDSInstance{
 				{
 					Region:        "us-east-1",
@@ -222,7 +222,7 @@ func TestRDSService(t *testing.T) {
 			{"us-west-2", []instance{{"us-west-2b", "autotest-aurora-psql-11"}, {"us-west-2c", "autotest-mysql-57"}}},
 		} {
 			t.Run(fmt.Sprintf("discoverRDSRegion %s", tt.region), func(t *testing.T) {
-				ctx := logger.Set(context.Background(), t.Name())
+				ctx := logger.Set(t.Context(), t.Name())
 				accessKey, secretKey := tests.GetAWSKeys(t)
 				creds := credentials.NewStaticCredentialsProvider(accessKey, secretKey, "")
 				opts := []func(*config.LoadOptions) error{
@@ -240,7 +240,7 @@ func TestRDSService(t *testing.T) {
 				instances, err := discoverRDSRegion(ctx, cfg, tt.region)
 
 				require.NoError(t, err)
-				require.Equal(t, len(tt.instances), len(instances), "Should have two instances")
+				require.Len(t, instances, len(tt.instances), "Should have two instances")
 				// we compare instances this way because there are too much fields that we don't need to compare.
 				for i, instance := range tt.instances {
 					assert.Equal(t, instance.az, pointer.GetString(instances[i].AvailabilityZone))
@@ -251,7 +251,7 @@ func TestRDSService(t *testing.T) {
 	})
 
 	t.Run("AddRDS", func(t *testing.T) {
-		ctx := logger.Set(context.Background(), t.Name())
+		ctx := logger.Set(t.Context(), t.Name())
 		accessKey, secretKey := "EXAMPLE_ACCESS_KEY", "EXAMPLE_SECRET_KEY"
 
 		req := &managementv1.AddRDSServiceParams{
@@ -343,7 +343,7 @@ func TestRDSService(t *testing.T) {
 	})
 
 	t.Run("AddRDSPostgreSQL", func(t *testing.T) {
-		ctx := logger.Set(context.Background(), t.Name())
+		ctx := logger.Set(t.Context(), t.Name())
 		accessKey, secretKey := "EXAMPLE_ACCESS_KEY", "EXAMPLE_SECRET_KEY"
 
 		req := &managementv1.AddRDSServiceParams{

@@ -16,6 +16,7 @@ package management
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
@@ -60,6 +61,7 @@ type AddProxySQLCommand struct {
 	TLSSkipVerify       bool              `help:"Skip TLS certificate verification"`
 	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	ExposeExporter      bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
+	ConnectionTimeout   *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 
 	AddCommonFlags
 	flags.MetricsModeFlags
@@ -102,7 +104,7 @@ func (cmd *AddProxySQLCommand) GetCredentials() error {
 
 // RunCmd runs the command for AddProxySQLCommand.
 func (cmd *AddProxySQLCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(&cmd.CustomLabels)
 
 	if cmd.PMMAgentID == "" || cmd.NodeID == "" {
 		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
@@ -145,13 +147,14 @@ func (cmd *AddProxySQLCommand) RunCmd() (commands.Result, error) {
 				Password:       cmd.Password,
 				AgentPassword:  cmd.AgentPassword,
 
-				CustomLabels:        customLabels,
+				CustomLabels:        *customLabels,
 				SkipConnectionCheck: cmd.SkipConnectionCheck,
 				TLS:                 cmd.TLS,
 				TLSSkipVerify:       cmd.TLSSkipVerify,
 				MetricsMode:         cmd.MetricsModeFlags.MetricsMode.EnumValue(),
 				DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
-				LogLevel:            cmd.LogLevelFatalFlags.LogLevel.EnumValue(),
+				LogLevel:            cmd.LogLevel.EnumValue(),
+				ConnectionTimeout:   commands.DurationString(cmd.ConnectionTimeout),
 			},
 		},
 		Context: commands.Ctx,

@@ -4,7 +4,7 @@ PMM is a client/server application built by Percona comprising its own and third
 
 <!-- The source of this image is maintained at https://miro.com/app/board/uXjVOPgKgrE=/ -->
 
-![!image](../images/C_S_Architecture.jpg)
+![Client-Server Architecture](../images/arch/C_S_Architecture.jpg)
 
 ## PMM Server
 
@@ -35,7 +35,7 @@ The PMM Server package provides:
 
 <!-- The source of this image is maintained at https://miro.com/app/board/uXjVOPgKgrE=/ -->
 
-![!image](../images/PMM-Server-Component-Based-View.jpg)
+![PMM Server](../images/arch/PMM-Server-Component-Based-View.jpg)
 
 PMM Server includes the following tools:
 
@@ -45,20 +45,20 @@ PMM Server includes the following tools:
     - QAN App is a web application for visualizing collected Query Analytics data, which is part of the PMM Server's UI.
 
 
-- Metrics Monitor provides a historical view of metrics that are critical to a MySQL or MongoDB server instance. It includes the following:
+- Metrics Monitoring provides a historical view of and analysis of metrics that are critical to PostgreSQL, MySQL, MongoDB or Valkey/Redis server instances. It includes the following:
 
-  - [VictoriaMetrics](https://github.com/VictoriaMetrics/VictoriaMetrics), a scalable time-series database. 
+  - [VictoriaMetrics](https://github.com/VictoriaMetrics/VictoriaMetrics) is a scalable time-series database. 
   - [ClickHouse](https://clickhouse.com) is a third-party column-oriented database that facilitates the Query Analytics functionality.
-  - [Grafana](http://docs.grafana.org) is a third-party dashboard and graph builder for visualizing data aggregated (by VictoriaMetrics or Prometheus) in an intuitive web interface.
-  - [Percona Dashboards](https://github.com/percona/grafana-dashboards) is a set of dashboards for Grafana developed by Percona.
+  - [Grafana](http://docs.grafana.org) is a third-party dashboard and graph engine for visualizing data aggregated in an intuitive web interface.
+  - [PMM Dashboards](https://github.com/percona/pmm/tree/v3/dashboards) is a set of monitoring dashboards developed by Percona.
 
 ### PMM Client
 
-![!image](../images/PMM-Client-Component-Based-View.jpg)
+![PMM Client](../images/arch/PMM-Client-Component-Based-View.jpg)
 
 The PMM Client package consists of the following:
 
-- `pmm-admin` is a command-line tool for managing PMM Client, for example, adding and removing database instances that you want to monitor. ([Read more](../use/commands/pmm-admin.md)).
+- `pmm-admin` is a command-line tool for managing PMM Client, for example, adding and removing database instances that you want to monitor. For more information, see [pmm-admin command overview](../use/commands/pmm-admin/pmm-admin.md).
 
 - `pmm-agent` is a client-side component of a minimal command-line interface, which is a central entry point in charge of bringing the client functionality: it carries on client’s authentication, gets the client configuration stored on the PMM Server, manages exporters and other agents.
 
@@ -70,6 +70,8 @@ The PMM Client package consists of the following:
 
 - `postgres_exporter` is an exporter that collects PostgreSQL performance metrics.
 
+- `valkey_exporter` is an exporter that collects Valkey and Redis performance metrics.
+
 - `proxysql_exporter` is an exporter that collects ProxySQL performance metrics.
 
 - `rds_exporter` is an exporter that collects Amazon RDS performance metrics.
@@ -80,4 +82,4 @@ To make data transfer from PMM Client to PMM Server secure, all exporters are ab
 
 <!-- The source of this image is maintained at https://miro.com/app/board/uXjVOPgKgrE=/ -->
 
-![!image](../images/C_S_Interactions.jpg)
+![Client Server Interactions](../images/arch/C_S_Interactions.jpg)

@@ -1,0 +1,155 @@
+name: Dashboards
+on: 
+  pull_request:
+    paths:
+      - "dashboards/**"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Install NodeJS
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: "22"
+          cache: "yarn"
+          cache-dependency-path: dashboards/pmm-app/yarn.lock
+
+      - name: Install deps
+        run: make -C dashboards install
+
+      - name: Build Grafana Dashboards
+        run: make -C dashboards build
+
+      - name: Upload the build artefacts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: build-dist
+          path: dashboards/pmm-app/dist/
+          if-no-files-found: error
+
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Install NodeJS
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: "22"
+          cache: "yarn"
+          cache-dependency-path: dashboards/pmm-app/yarn.lock
+    
+      - name: Install deps
+        run: make -C dashboards install
+
+      - name: Run lint
+        run: cd dashboards/pmm-app && yarn lint:check
+
+      - name: Run unit tests
+        run: cd dashboards/pmm-app && yarn test:ci
+
+      - name: Upload unit test coverage
+        if: github.event.pull_request.head.repo.full_name == github.repository
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+        with:
+          fail_ci_if_error: true
+          flags: unittests # optional
+          name: codecov-umbrella
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true
+
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Get changed dashboard files
+        id: changed
+        run: |
+          git diff --name-only ${{ github.event.pull_request.base.sha }} HEAD \
+            | grep -E '^dashboards/dashboards/.*\.json$' \
+            | sort -u > changed_dashboards.txt || true
+          echo "count=$(wc -l < changed_dashboards.txt | tr -d ' ')" >> $GITHUB_OUTPUT
+
+      - name: Run cleanup check per dashboard
+        if: steps.changed.outputs.count != '0'
+        run: |
+          # Ensure we don't exit immediately on the python check
+          echo "## 📊 Dashboard cleanup results" >> $GITHUB_STEP_SUMMARY
+          echo "| Dashboard | Status | Action |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|--------|--------|" >> $GITHUB_STEP_SUMMARY
+
+          has_failed=0
+          # The [ -n "$f" ] ensures the last line is read even if it lacks a newline
+          while IFS= read -r f || [ -n "$f" ]; do
+            [ -z "$f" ] && continue
+            # Deleted dashboards still appear in git diff; skip missing files.
+            [ ! -f "$f" ] && continue
+
+            if python3 dashboards/misc/cleanup-dash.py --check-only "$f"; then
+              echo "| \`$f\` | ✅ OK | - |" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "| \`$f\` | ❌ Requires cleanup | \`python3 dashboards/misc/cleanup-dash.py $f\` |" >> $GITHUB_STEP_SUMMARY
+              echo "::error file=$f,title=Cleanup required::Dashboard needs cleanup. Run: python3 dashboards/misc/cleanup-dash.py $f"
+              has_failed=1
+            fi
+          done < changed_dashboards.txt
+
+          if [ "$has_failed" -ne 0 ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "> [!CAUTION]" >> $GITHUB_STEP_SUMMARY
+            echo "> Some dashboards require cleanup. See table above." >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+  workflow_success:
+    needs: [tests, build]
+    name: Slack Notification success
+    runs-on: ubuntu-latest
+    env:
+      SLACK_WEBHOOK: ${{ secrets.SLACK_TOKEN }}
+      SLACK_CHANNEL: "pmm-ci"
+      SLACK_USERNAME: "PR bot"
+      SLACK_ICON_EMOJI: ":octocat:"
+      SLACK_COLOR: "#00FF00"
+      SLACK_MESSAGE: "Workflow succeded: ${{ github.event.inputs.repo || github.repository }}:${{ github.event.inputs.branch || github.head_ref }}"
+      SLACK_FOOTER: "Please check the Actions URL ^"
+
+    steps:
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@e31e87e03dd19038e411e38ae27cbad084a90661 # v2.3.3
+
+  workflow_failure:
+    if: ${{ failure() }}
+    needs: [tests, build]
+    name: Slack Notification failure
+    runs-on: ubuntu-latest
+    env:
+      SLACK_WEBHOOK: ${{ secrets.SLACK_TOKEN }}
+      SLACK_CHANNEL: "pmm-ci"
+      SLACK_USERNAME: "PR bot"
+      SLACK_ICON_EMOJI: ":octocat:"
+      SLACK_COLOR: "#FF0000"
+      SLACK_MESSAGE: "Workflow failed: ${{ github.event.inputs.repo || github.repository }}:${{ github.event.inputs.branch || github.head_ref }}"
+      SLACK_FOOTER: "Please check the Actions URL ^"
+
+    steps:
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@e31e87e03dd19038e411e38ae27cbad084a90661 # v2.3.3

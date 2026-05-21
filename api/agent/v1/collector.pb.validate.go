@@ -242,7 +242,8 @@ func (e MetricsBucketValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = MetricsBucketValidationError{}
@@ -346,7 +347,8 @@ func (e HistogramItemValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = HistogramItemValidationError{}
@@ -498,7 +500,8 @@ func (e MetricsBucket_CommonValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = MetricsBucket_CommonValidationError{}
@@ -830,7 +833,8 @@ func (e MetricsBucket_MySQLValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = MetricsBucket_MySQLValidationError{}
@@ -1040,7 +1044,8 @@ func (e MetricsBucket_MongoDBValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = MetricsBucket_MongoDBValidationError{}
@@ -1161,6 +1166,10 @@ func (m *MetricsBucket_PostgreSQL) validate(all bool) error {
 
 	// no validation rules for MWalBytesCnt
 
+	// no validation rules for MWalBuffersFullSum
+
+	// no validation rules for MWalBuffersFullCnt
+
 	// no validation rules for MPlanTimeSum
 
 	// no validation rules for MPlanTimeCnt
@@ -1168,6 +1177,14 @@ func (m *MetricsBucket_PostgreSQL) validate(all bool) error {
 	// no validation rules for MPlanTimeMin
 
 	// no validation rules for MPlanTimeMax
+
+	// no validation rules for MParallelWorkersToLaunchSum
+
+	// no validation rules for MParallelWorkersToLaunchCnt
+
+	// no validation rules for MParallelWorkersLaunchedSum
+
+	// no validation rules for MParallelWorkersLaunchedCnt
 
 	// no validation rules for TopQueryid
 
@@ -1280,7 +1297,8 @@ func (e MetricsBucket_PostgreSQLValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = MetricsBucket_PostgreSQLValidationError{}

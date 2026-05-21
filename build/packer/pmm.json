@@ -39,31 +39,6 @@
       "ssh_clear_authorized_keys": "true"
     },
     {
-      "type": "azure-arm",
-
-      "subscription_id": "41000701-4126-4674-9219-da03b1f9bb58",
-      "resource_group_name": "percona",
-      "storage_account": "percona",
-      "capture_container_name": "percona",
-      "capture_name_prefix": "pmm-server-{{ user `pmm_version` }}",
-
-      "os_type": "Linux",
-      "image_publisher": "OpenLogic",
-      "image_offer": "CentOS",
-      "image_sku": "7_9",
-      "image_version": "7.9.2021071900",
-
-      "azure_tags": {
-        "dept": "Engineering",
-        "task": "PMM Image deployment"
-      },
-
-      "location": "East US",
-      "vm_size": "Standard_B2s",
-      "disk_additional_size": [30],
-      "ssh_clear_authorized_keys": "true"
-    },
-    {
       "type": "virtualbox-ovf",
       "vm_name": "PMM3-Server-{{isotime \"2006-01-02-1504\"}}",
       "export_opts": [
@@ -97,15 +72,6 @@
         ["createhd", "--variant", "STREAM", "--format", "VMDK", "--size", "409600", "--filename", "/tmp/box-disk002.vmdk"],
         ["storageattach", "{{.Name}}", "--storagectl", "SATA Controller", "--port", "1", "--type", "hdd", "--medium", "/tmp/box-disk002.vmdk"]
       ]
-    },
-    {
-      "type": "digitalocean",
-      "ssh_username": "root",
-      "image": "centos-stream-9-x64",
-      "region": "nyc3",
-      "size": "s-2vcpu-2gb",
-      "snapshot_name": "PMM Server [{{isotime \"2006-01-02 1504\"}}]",
-      "ssh_clear_authorized_keys": "true"
     }
   ],
   "provisioners": [
@@ -134,20 +100,6 @@
         "packer/ansible/roles/cloud-node",
         "packer/ansible/roles/podman-setup",
         "packer/ansible/roles/ami-ovf"
-      ]
-    },
-    {
-      "type": "file",
-      "only": ["digitalocean"],
-      "destination": "/home/admin/digitalocean_add_dbaas",
-      "source": "files/digitalocean/digitalocean_add_dbaas.py"
-    },
-    {
-      "type": "shell",
-      "only": ["digitalocean"],
-      "inline": [
-        "curl -s https://raw.githubusercontent.com/digitalocean/marketplace-partners/master/scripts/99-img-check.sh -o img_check.sh",
-        "sudo bash ./img_check.sh"
       ]
     }
   ],

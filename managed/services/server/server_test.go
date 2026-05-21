@@ -20,7 +20,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -44,7 +43,7 @@ func TestServer(t *testing.T) {
 		t.Helper()
 		var r mockSupervisordService
 		r.Test(t)
-		r.On("UpdateConfiguration", mock.Anything, mock.Anything).Return(nil)
+		r.On("UpdateConfiguration", mock.Anything).Return(nil)
 
 		var mvmdb mockPrometheusService
 		mvmdb.Test(t)
@@ -78,6 +77,11 @@ func TestServer(t *testing.T) {
 		nomad.Test(t)
 		nomad.On("UpdateConfiguration", mock.Anything).Return(nil)
 
+		var ha mockHaService
+		ha.Test(t)
+		ha.On("IsLeader").Return(true)
+		ha.On("Params").Return(&models.HAParams{Enabled: false})
+
 		s, err := NewServer(&Params{
 			DB:                   reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)),
 			VMDB:                 &mvmdb,
@@ -89,6 +93,7 @@ func TestServer(t *testing.T) {
 			VMAlertExternalRules: &par,
 			TelemetryService:     &ts,
 			Nomad:                &nomad,
+			HAService:            &ha,
 		})
 		require.NoError(t, err)
 		return s
@@ -203,13 +208,13 @@ func TestServer(t *testing.T) {
 
 		ctx := context.TODO()
 
-		s.envSettings.EnableUpdates = pointer.ToBool(true)
+		s.envSettings.EnableUpdates = new(true)
 		expected := status.New(codes.FailedPrecondition, "Updates are configured via PMM_ENABLE_UPDATES environment variable.")
 		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			EnableUpdates: pointer.ToBool(false),
+			EnableUpdates: new(false),
 		}))
-		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			EnableUpdates: pointer.ToBool(true),
+		require.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
+			EnableUpdates: new(true),
 		}))
 
 		s.envSettings.UpdateSnoozeDuration = 24 * time.Hour
@@ -217,33 +222,33 @@ func TestServer(t *testing.T) {
 		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
 			UpdateSnoozeDuration: durationpb.New(12 * time.Hour),
 		}))
-		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
+		require.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
 			UpdateSnoozeDuration: durationpb.New(24 * time.Hour),
 		}))
 
-		s.envSettings.EnableTelemetry = pointer.ToBool(true)
+		s.envSettings.EnableTelemetry = new(true)
 		expected = status.New(codes.FailedPrecondition, "Telemetry is configured via PMM_ENABLE_TELEMETRY environment variable.")
 		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			EnableTelemetry: pointer.ToBool(false),
+			EnableTelemetry: new(false),
 		}))
-		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			EnableTelemetry: pointer.ToBool(true),
+		require.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
+			EnableTelemetry: new(true),
 		}))
 
-		s.envSettings.EnableInternalPgQAN = pointer.ToBool(true)
+		s.envSettings.EnableInternalPgQAN = new(true)
 		expected = status.New(codes.FailedPrecondition, "QAN for internal PostgreSQL is already configured via an environment variable.")
 		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			EnableInternalPgQan: pointer.ToBool(false),
+			EnableInternalPgQan: new(false),
 		}))
-		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			EnableInternalPgQan: pointer.ToBool(true),
+		require.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
+			EnableInternalPgQan: new(true),
 		}))
 
-		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			EnableAdvisor: pointer.ToBool(false),
+		require.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
+			EnableAdvisor: new(false),
 		}))
-		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			EnableAdvisor: pointer.ToBool(true),
+		require.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
+			EnableAdvisor: new(true),
 		}))
 	})
 
@@ -258,7 +263,7 @@ func TestServer(t *testing.T) {
 		ctx := context.TODO()
 
 		s, err := server.ChangeSettings(ctx, &serverv1.ChangeSettingsRequest{
-			EnableTelemetry: pointer.ToBool(true),
+			EnableTelemetry: new(true),
 		})
 		require.NoError(t, err)
 		require.NotNil(t, s)
@@ -276,13 +281,13 @@ func TestServer(t *testing.T) {
 
 		ctx := context.TODO()
 		s, err := server.ChangeSettings(ctx, &serverv1.ChangeSettingsRequest{
-			EnableAlerting: pointer.ToBool(false),
+			EnableAlerting: new(false),
 		})
 		require.NoError(t, err)
 		require.NotNil(t, s)
 
 		s, err = server.ChangeSettings(ctx, &serverv1.ChangeSettingsRequest{
-			EnableAlerting: pointer.ToBool(true),
+			EnableAlerting: new(true),
 		})
 		require.NoError(t, err)
 		require.NotNil(t, s)

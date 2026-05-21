@@ -2,18 +2,18 @@ import { PMM_NEW_NAV_GRAFANA_PATH, PMM_NEW_NAV_PATH } from 'lib/constants';
 import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
 import { NavItem } from 'types/navigation.types';
 
-export const NAV_DIVIDERS = {
+export const NAV_DIVIDERS: Record<'home' | 'inventory' | 'backups', NavItem> = {
   home: {
     id: 'home-divider',
-    isDivider: true,
+    type: 'menu-divider',
   },
   inventory: {
     id: 'inventory-divider',
-    isDivider: true,
+    type: 'menu-divider',
   },
   backups: {
     id: 'backups-divider',
-    isDivider: true,
+    type: 'menu-divider',
   },
 };
 
@@ -21,13 +21,10 @@ export const NAV_HOME_PAGE: NavItem = {
   id: 'home-page',
   icon: 'home',
   text: 'Home page',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-home`,
-  children: [
-    {
-      id: 'home-page-dashboard',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-home/home-dashboard`,
-      hidden: true,
-    },
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/`,
+  matches: [
+    `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-home/home-dashboard`,
+    `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-home`,
   ],
 };
 
@@ -37,7 +34,7 @@ export const NAV_HOME_PAGE: NavItem = {
 export const NAV_MYSQL: NavItem = {
   id: 'mysql',
   text: 'MySQL',
-  icon: 'mysql',
+  icon: 'percona-my',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-instance-overview/mysql-instances-overview`,
   children: [
     {
@@ -55,7 +52,7 @@ export const NAV_MYSQL: NavItem = {
     {
       id: 'mysql-high-availability',
       icon: 'high-availability',
-      text: 'High Availability',
+      text: 'High availability',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-group-replicaset-summary`,
       children: [
         {
@@ -106,19 +103,14 @@ export const NAV_MYSQL: NavItem = {
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-performance-schema/mysql-performance-schema-details`,
     },
     {
-      id: 'mysql-query-response-time-details',
-      text: 'Query response time',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-queryresponsetime/mysql-query-response-time-details`,
-    },
-    {
       id: 'mysql-table-details',
       text: 'Table details',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-table/mysql-table-details`,
     },
     {
-      id: 'mysql-tokudb-details',
-      text: 'TokuDB details',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-tokudb/mysql-tokudb-details`,
+      id: 'mysql-myrocks-details',
+      text: 'MyRocks details',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-myrocks/mysql-myrocks-details`,
     },
   ],
 };
@@ -128,7 +120,7 @@ export const NAV_MYSQL: NavItem = {
 //
 export const NAV_MONGO: NavItem = {
   id: 'mongo',
-  icon: 'mongo',
+  icon: 'percona-mo',
   text: 'MongoDB',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-instance-overview/mongodb-instances-overview`,
   children: [
@@ -168,14 +160,9 @@ export const NAV_MONGO: NavItem = {
       ],
     },
     {
-      id: 'mongo-memory-details',
-      text: 'InMemory',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-inmemory/mongodb-inmemory-details`,
-    },
-    {
-      id: 'mondo-wiredtiger-details',
-      text: 'WiredTiger',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-wiredtiger/mongodb-wiredtiger-details`,
+      id: 'mongo-backup-details',
+      text: 'Backup status',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-backup-details/mongodb-backup-details`,
     },
     {
       id: 'mongo-collections-overview',
@@ -196,7 +183,7 @@ export const NAV_MONGO: NavItem = {
 export const NAV_POSTGRESQL: NavItem = {
   id: 'postgre',
   text: 'PostgreSQL',
-  icon: 'postgresql',
+  icon: 'percona-po',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/postgresql-instance-overview/postgresql-instances-overview`,
   children: [
     {
@@ -213,7 +200,7 @@ export const NAV_POSTGRESQL: NavItem = {
     },
     {
       id: 'postgresql-ha',
-      text: 'High Availability',
+      text: 'High availability',
       icon: 'high-availability',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/postgresql-replication-overview`,
       children: [
@@ -322,7 +309,7 @@ export const NAV_PROXYSQL: NavItem = {
 export const NAV_VALKEY: NavItem = {
   id: 'valkey',
   text: 'Valkey',
-  icon: 'valkey',
+  icon: 'percona-va',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/valkey-overview/valkey-redis-overview`,
   children: [
     {
@@ -396,6 +383,17 @@ export const NAV_QAN: NavItem = {
   icon: 'qan',
   text: 'Query Analytics (QAN)',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-qan/pmm-query-analytics`,
+  matches: ['*', `${PMM_NEW_NAV_PATH}/rta/*`],
+};
+
+//
+// Real-Time Query Analytics (RTA)
+//
+export const NAV_RTA: NavItem = {
+  id: 'rta',
+  icon: 'qan',
+  text: 'Real-Time Query Analysis',
+  url: `${PMM_NEW_NAV_PATH}/rta/selection`,
 };
 
 //
@@ -453,8 +451,8 @@ export const NAV_EXPLORE_METRICS: NavItem = {
 };
 
 export const NAV_EXPLORE_BUILDER: NavItem = {
-  id: 'explore-promsql-builder',
-  text: 'PromSQL builder',
+  id: 'explore-promql-builder',
+  text: 'PromQL builder',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/explore`,
 };
 
@@ -474,7 +472,7 @@ export const NAV_EXPLORE: NavItem = {
 //
 export const NAV_ALERTS_TEMPLATES: NavItem = {
   id: 'alerts-templates',
-  text: 'Percona Alert Templates',
+  text: 'Alert templates',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/alert-rule-templates`,
   matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/alerting/new-from-template/*`],
 };
@@ -538,13 +536,13 @@ export const NAV_ALERTS: NavItem = {
 export const NAV_ADVISORS: NavItem = {
   id: 'advisors',
   icon: 'intelligence',
-  text: 'Percona Advisors',
+  text: 'Advisors',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/advisors`,
 };
 
 export const NAV_ADVISORS_INSIGHTS = {
   id: 'advisors-insights',
-  text: 'Advisor Insights',
+  text: 'Advisor insights',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/advisors/insights`,
 };
 
@@ -560,15 +558,8 @@ export const NAV_INVENTORY: NavItem = {
     {
       id: 'add-instance',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/add-instance`,
-      text: 'Add Service',
-      children: [
-        {
-          id: 'add-instance-form',
-          url: `${PMM_NEW_NAV_GRAFANA_PATH}/add-instance/:type`,
-          text: 'Add Service',
-          hidden: true,
-        },
-      ],
+      text: 'Add service',
+      matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/add-instance/:type`],
     },
     {
       id: 'inventory-services',
@@ -598,14 +589,7 @@ export const NAV_BACKUPS: NavItem = {
       id: 'backup-inventory',
       text: 'All backups',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/inventory`,
-      children: [
-        {
-          id: 'backups-new',
-          text: 'Create backup',
-          url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/new`,
-          hidden: true,
-        },
-      ],
+      matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/backup/new`],
     },
     {
       id: 'scheduled-backups',
@@ -632,8 +616,10 @@ export const NAV_CONFIGURATION: NavItem = {
   id: 'configuration',
   icon: 'configuration',
   text: 'Configuration',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/settings`,
+  url: `${PMM_NEW_NAV_PATH}/settings`,
   matches: [
+    `${PMM_NEW_NAV_PATH}/settings`,
+    `${PMM_NEW_NAV_PATH}/settings/*`,
     `${PMM_NEW_NAV_GRAFANA_PATH}/plugins`,
     `${PMM_NEW_NAV_GRAFANA_PATH}/admin`,
     `${PMM_NEW_NAV_GRAFANA_PATH}/admin/general`,
@@ -646,8 +632,11 @@ export const NAV_CONFIGURATION: NavItem = {
     {
       id: 'configuration-settings',
       text: 'Settings',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/settings/advanced-settings`,
-      matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/settings/*`],
+      url: `${PMM_NEW_NAV_PATH}/settings`,
+      matches: [
+        `${PMM_NEW_NAV_PATH}/settings`,
+        `${PMM_NEW_NAV_PATH}/settings/*`,
+      ],
     },
     {
       id: 'updates',
@@ -746,7 +735,7 @@ export const NAV_CHANGE_PASSWORD: NavItem = {
 
 export const NAV_THEME_TOGGLE: NavItem = {
   id: 'theme-toggle',
-  text: 'Change to Dark Theme',
+  text: 'Switch to dark mode',
 };
 
 export const NAV_SIGN_OUT: NavItem = {
@@ -788,4 +777,27 @@ export const NAV_FOLDER_MAP: Record<string, string> = {
 export const NAV_OTHER_DASHBOARDS_TEMPLATE: Partial<NavItem> = {
   icon: 'search',
   text: 'Other dashboards',
+};
+
+/*
+ * High Availability
+ */
+export const NAV_HIGH_AVAILABILITY: NavItem = {
+  id: 'high-availability',
+  icon: 'cluster',
+  text: 'PMM HA',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/high-availability`,
+};
+
+export const NAV_HIGH_AVAILABILITY_LEADER: NavItem = {
+  id: 'high-availability-leader',
+  text: 'Leader:',
+  type: 'menu-text',
+};
+
+export const NAV_HIGH_AVAILABILITY_NODES: NavItem = {
+  id: 'high-availability-nodes',
+  icon: 'arrow-link',
+  text: 'Identify Nodes',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory/nodes?isPmmServerNode=true`,
 };

@@ -16,17 +16,17 @@
 package validators
 
 import (
-	"context"
 	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestValidateAlertingRules(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	t.Run("Valid", func(t *testing.T) {
 		t.Parallel()
@@ -44,7 +44,7 @@ groups:
       summary: High request latency
 			`) + "\n"
 		err := ValidateAlertingRules(ctx, rules)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	})
 
 	t.Run("Invalid", func(t *testing.T) {

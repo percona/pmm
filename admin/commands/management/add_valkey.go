@@ -15,6 +15,10 @@
 package management
 
 import (
+	"time"
+
+	"github.com/AlekSi/pointer"
+
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/pkg/flags"
@@ -59,7 +63,9 @@ type AddValkeyCommand struct {
 	TLSCaFile           string            `name:"tls-ca" help:"Path to certificate authority certificate file"`
 	TLSCertFile         string            `name:"tls-cert" help:"Path to client certificate file"`
 	TLSKeyFile          string            `name:"tls-key" help:"Path to client key file"`
+	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	ExposeExporter      bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
+	ConnectionTimeout   *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 
 	AddCommonFlags
 	flags.MetricsModeFlags
@@ -88,7 +94,7 @@ func (cmd *AddValkeyCommand) GetSocket() string {
 
 // RunCmd runs the command for AddValkeyCommand.
 func (cmd *AddValkeyCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(&cmd.CustomLabels)
 
 	var (
 		err                    error
@@ -145,17 +151,18 @@ func (cmd *AddValkeyCommand) RunCmd() (commands.Result, error) {
 				Username:       cmd.Username,
 				Password:       cmd.Password,
 				AgentPassword:  cmd.AgentPassword,
-				CustomLabels:   customLabels,
+				CustomLabels:   pointer.Get(customLabels),
 
 				SkipConnectionCheck: cmd.SkipConnectionCheck,
 
-				TLS:           cmd.TLS,
-				TLSSkipVerify: cmd.TLSSkipVerify,
-				TLSCa:         tlsCa,
-				TLSCert:       tlsCert,
-				TLSKey:        tlsKey,
-				MetricsMode:   cmd.MetricsModeFlags.MetricsMode.EnumValue(),
-				LogLevel:      cmd.LogLevelNoFatalFlags.LogLevel.EnumValue(),
+				TLS:               cmd.TLS,
+				TLSSkipVerify:     cmd.TLSSkipVerify,
+				TLSCa:             tlsCa,
+				TLSCert:           tlsCert,
+				TLSKey:            tlsKey,
+				MetricsMode:       cmd.MetricsModeFlags.MetricsMode.EnumValue(),
+				LogLevel:          cmd.LogLevel.EnumValue(),
+				ConnectionTimeout: commands.DurationString(cmd.ConnectionTimeout),
 			},
 		},
 		Context: commands.Ctx,

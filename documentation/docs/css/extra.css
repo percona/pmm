@@ -28,7 +28,24 @@
   line-height: 1.6;
 }
 
-.edit-page-link {
+/* Banner container */
+.edit-contrib-banner {
+  display: flex;
+  justify-content: center;    /* center horizontally */
+  padding: 0.7rem 0;            /* top and bottom spacing of the banner */
+  background-color: transparent;
+}
+
+/* Inner content stacked vertically */
+.edit-contrib-banner .banner-content {
+  display: flex;
+  flex-direction: column;    /* stack vertically */
+  align-items: center;       /* center horizontally */
+  gap: 0.3rem;               /* small vertical gap between elements */
+}
+
+/* Edit link styling */
+.edit-contrib-banner .edit-page-link {
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
@@ -36,15 +53,30 @@
   font-size: 1.2rem;
   font-weight: normal;
   color: var(--md-typeset-a-color);
-  text-decoration: underline;
 }
 
-.edit-page-icon svg {
-  width: 1.40em;
-  height: 1.40em;
+/* Icon inside edit link */
+.edit-contrib-banner .edit-page-icon svg {
+  width: 1.4em;
+  height: 1.4em;
   fill: currentColor;
   vertical-align: middle;
 }
+
+/* Divider line with small spacing */
+.edit-contrib-banner .banner-divider {
+  width: 40%;                 /* width of the line */
+  border-top: 1px solid var(--md-typeset-a-color);
+  opacity: 0.3;               /* subtle line */
+  margin: 0.2rem 0;           /* smaller space above and below the line */
+}
+
+/* Contributing Guide smaller and below */
+.edit-contrib-banner .contrib-link {
+  font-size: 0.6rem !important;         /* smaller font */
+  color: var(--md-typeset-a-color);
+}
+
 
 /* External link icon */
 .md-content a[href^="http"]:not([href^="https://docs.percona.com/percona-monitoring-and-management/3/"]):not(.md-button):not(.md-icon)::after {
@@ -69,4 +101,15 @@
   .md-content a[href^="http"]:not([href^="https://docs.percona.com/percona-monitoring-and-management/3/"]):not(.md-button):not(.md-icon)::after {
     display: none;
   }
+}
+
+/* Percona live announcement banner */
+
+.md-banner {
+  text-align: center;
+}
+
+.md-banner,
+.md-banner * {
+  font-family: "Poppins", sans-serif !important;
 }

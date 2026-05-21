@@ -16,6 +16,7 @@ package management
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
@@ -76,6 +77,7 @@ type AddPostgreSQLCommand struct {
 	ExposeExporter         bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
 	AutoDiscoveryLimit     int32             `placeholder:"NUMBER" help:"Auto-discovery will be disabled if there are more than that number of databases (default: server-defined, -1: always disabled)"`
 	MaxExporterConnections int32             `placeholder:"NUMBER" help:"Maximum number of connections to PostgreSQL instance that exporter can use (default: server-defined)"`
+	ConnectionTimeout      *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 
 	AddCommonFlags
 	flags.MetricsModeFlags
@@ -119,7 +121,7 @@ func (cmd *AddPostgreSQLCommand) GetCredentials() error {
 
 // RunCmd runs the command for AddPostgreSQLCommand.
 func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(&cmd.CustomLabels)
 
 	if cmd.PMMAgentID == "" || cmd.NodeID == "" {
 		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
@@ -195,7 +197,7 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 				Environment:    cmd.Environment,
 				Cluster:        cmd.Cluster,
 				ReplicationSet: cmd.ReplicationSet,
-				CustomLabels:   customLabels,
+				CustomLabels:   *customLabels,
 
 				QANPostgresqlPgstatementsAgent:  usePgStatements,
 				QANPostgresqlPgstatmonitorAgent: usePgStatMonitor,
@@ -212,7 +214,8 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 				DisableCollectors:      commands.ParseDisableCollectors(cmd.DisableCollectors),
 				AutoDiscoveryLimit:     cmd.AutoDiscoveryLimit,
 				MaxExporterConnections: cmd.MaxExporterConnections,
-				LogLevel:               cmd.LogLevelNoFatalFlags.LogLevel.EnumValue(),
+				LogLevel:               cmd.LogLevel.EnumValue(),
+				ConnectionTimeout:      commands.DurationString(cmd.ConnectionTimeout),
 			},
 		},
 		Context: commands.Ctx,

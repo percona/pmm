@@ -17,6 +17,9 @@ package inventory
 import (
 	"fmt"
 	"strconv"
+	"time"
+
+	"github.com/AlekSi/pointer"
 
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/pkg/flags"
@@ -101,14 +104,15 @@ type AddAgentMysqldExporterCommand struct {
 	PushMetrics               bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
 	ExposeExporter            bool              `help:"Expose the address of the exporter publicly on 0.0.0.0"`
 	DisableCollectors         []string          `help:"Comma-separated list of collector names to exclude from exporter"`
+	ConnectionTimeout         *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 
 	flags.LogLevelNoFatalFlags
 }
 
 // RunCmd executes the AddAgentMysqldExporterCommand and returns the result.
 func (cmd *AddAgentMysqldExporterCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
-	extraDSNParams := commands.ParseKeyValuePair(cmd.ExtraDSNParams)
+	customLabels := commands.ParseKeyValuePair(&cmd.CustomLabels)
+	extraDSNParams := commands.ParseKeyValuePair(&cmd.ExtraDSNParams)
 	var (
 		err                    error
 		tlsCa, tlsCert, tlsKey string
@@ -138,8 +142,8 @@ func (cmd *AddAgentMysqldExporterCommand) RunCmd() (commands.Result, error) {
 				Username:                  cmd.Username,
 				Password:                  cmd.Password,
 				AgentPassword:             cmd.AgentPassword,
-				CustomLabels:              customLabels,
-				ExtraDsnParams:            extraDSNParams,
+				CustomLabels:              pointer.Get(customLabels),
+				ExtraDsnParams:            pointer.Get(extraDSNParams),
 				SkipConnectionCheck:       cmd.SkipConnectionCheck,
 				TLS:                       cmd.TLS,
 				TLSSkipVerify:             cmd.TLSSkipVerify,
@@ -150,7 +154,8 @@ func (cmd *AddAgentMysqldExporterCommand) RunCmd() (commands.Result, error) {
 				PushMetrics:               cmd.PushMetrics,
 				ExposeExporter:            cmd.ExposeExporter,
 				DisableCollectors:         commands.ParseDisableCollectors(cmd.DisableCollectors),
-				LogLevel:                  cmd.LogLevelNoFatalFlags.LogLevel.EnumValue(),
+				LogLevel:                  cmd.LogLevel.EnumValue(),
+				ConnectionTimeout:         commands.DurationString(cmd.ConnectionTimeout),
 			},
 		},
 		Context: commands.Ctx,

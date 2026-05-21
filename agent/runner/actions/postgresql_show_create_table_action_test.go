@@ -154,7 +154,7 @@ Foreign-key constraints:
 
 		_, err = a.Run(ctx)
 		expected := "Table not found: sql: no rows in result set"
-		assert.EqualError(t, err, expected)
+		require.EqualError(t, err, expected)
 
 		var count int
 		err = db.QueryRow("SELECT COUNT(*) FROM city").Scan(&count)

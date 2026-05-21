@@ -19,12 +19,13 @@ import (
 	"database/sql/driver"
 	"time"
 
-	"github.com/percona/saas/pkg/common"
 	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
+
+	"github.com/percona/pmm/managed/pi/common"
 )
 
-//go:generate ../../bin/reform
+//go:generate go tool reform
 
 // Template represents Percona Alerting rule template.
 //
@@ -89,15 +90,6 @@ func (t *Template) GetAnnotations() (map[string]string, error) {
 func (t *Template) SetAnnotations(m map[string]string) error {
 	return setLabels(m, &t.Annotations)
 }
-
-// Tiers represents tiers slice.
-type Tiers []common.Tier
-
-// Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (t Tiers) Value() (driver.Value, error) { return jsonValue(t) }
-
-// Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (t *Tiers) Scan(src interface{}) error { return jsonScan(t, src) }
 
 // AlertExprParamsDefinitions represent AlertExprParamDefinition slice.
 type AlertExprParamsDefinitions []AlertExprParamDefinition

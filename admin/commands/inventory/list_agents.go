@@ -52,6 +52,7 @@ var acceptableAgentTypes = map[string][]string{
 	types.AgentTypeQANPostgreSQLPgStatementsAgent:  {types.AgentTypeName(types.AgentTypeQANPostgreSQLPgStatementsAgent), "qan-postgresql-pgstatements-agent"},
 	types.AgentTypeQANPostgreSQLPgStatMonitorAgent: {types.AgentTypeName(types.AgentTypeQANPostgreSQLPgStatMonitorAgent), "qan-postgresql-pgstatmonitor-agent"},
 	types.AgentTypeRDSExporter:                     {types.AgentTypeName(types.AgentTypeRDSExporter), "rds-exporter"},
+	types.AgentTypeRTAMongoDBAgent:                 {types.AgentTypeName(types.AgentTypeRTAMongoDBAgent), "rta-mongodb-agent"},
 }
 
 type listResultAgent struct {
@@ -112,9 +113,9 @@ func (cmd *ListAgentsCommand) RunCmd() (commands.Result, error) {
 	}
 
 	params := &agents.ListAgentsParams{
-		PMMAgentID: pointer.ToString(cmd.PMMAgentID),
-		ServiceID:  pointer.ToString(cmd.ServiceID),
-		NodeID:     pointer.ToString(cmd.NodeID),
+		PMMAgentID: new(cmd.PMMAgentID),
+		ServiceID:  new(cmd.ServiceID),
+		NodeID:     new(cmd.NodeID),
 		AgentType:  agentType,
 		Context:    commands.Ctx,
 	}
@@ -268,6 +269,17 @@ func (cmd *ListAgentsCommand) RunCmd() (commands.Result, error) {
 			Status:    getAgentStatus(nil),
 			Disabled:  a.Disabled,
 			Port:      a.ListenPort,
+		})
+	}
+
+	for _, a := range agentsRes.Payload.RtaMongodbAgent {
+		agentsList = append(agentsList, listResultAgent{
+			AgentType:  types.AgentTypeRTAMongoDBAgent,
+			AgentID:    a.AgentID,
+			PMMAgentID: a.PMMAgentID,
+			ServiceID:  a.ServiceID,
+			Status:     getAgentStatus(a.Status),
+			Disabled:   a.Disabled,
 		})
 	}
 

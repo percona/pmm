@@ -16,6 +16,7 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"io/fs"
 	"net"
@@ -27,7 +28,6 @@ import (
 	"time"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 	"gopkg.in/yaml.v3"
@@ -139,6 +139,7 @@ type Setup struct {
 	DisableCollectors string
 	CustomLabels      string
 	AgentPassword     string
+	ProcMountsPath    string
 
 	Force            bool
 	SkipRegistration bool
@@ -146,8 +147,6 @@ type Setup struct {
 }
 
 // Config represents pmm-agent's configuration.
-//
-//nolint:maligned
 type Config struct {
 	// no config file there
 
@@ -156,6 +155,7 @@ type Config struct {
 	ListenPort                     uint16 `yaml:"listen-port"`
 	RunnerCapacity                 uint16 `yaml:"runner-capacity,omitempty"`
 	RunnerMaxConnectionsPerService uint16 `yaml:"runner-max-connections-per-service,omitempty"`
+	ProcMountsPath                 string `yaml:"proc-mounts-path,omitempty"`
 
 	Server Server `yaml:"server"`
 	Paths  Paths  `yaml:"paths"`
@@ -170,7 +170,8 @@ type Config struct {
 
 	WindowConnectedTime time.Duration `yaml:"window-connected-time"`
 
-	Setup Setup `yaml:"-"`
+	Setup      Setup      `yaml:"-"`
+	Encryption Encryption `yaml:"-"`
 }
 
 // ConfigFileDoesNotExistError error is returned from Get method if configuration file is expected,
@@ -192,7 +193,7 @@ func getFromCmdLine(cfg *Config, l *logrus.Entry) (string, error) {
 }
 
 // get is Get for unit tests: it parses args instead of command-line.
-func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint:cyclop
+func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint:gocognit,cyclop
 	var configFileF string
 	var err error
 	// tweak configuration on exit to cover all return points
@@ -262,7 +263,7 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 
 		if cfg.Paths.TempDir == "" {
 			cfg.Paths.TempDir = filepath.Join(cfg.Paths.PathsBase, agentTmpPath)
-			l.Infof("Temporary directory is not configured and will be set to %s", cfg.Paths.TempDir)
+			l.Infof("Temporary directory will default to %s", cfg.Paths.TempDir)
 		}
 
 		if cfg.Paths.NomadDataDir == "" {
@@ -335,7 +336,7 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 		return configFileF, err
 	}
 	l.Infof("Loading configuration file %s.", configFileF)
-	fileCfg, err := loadFromFile(configFileF)
+	fileCfg, err := loadFromFile(configFileF, &cfg.Encryption)
 	if err != nil {
 		return configFileF, err
 	}
@@ -365,6 +366,10 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 
 	configFileF := app.Flag("config-file", "Configuration file path [PMM_AGENT_CONFIG_FILE]").
 		Envar("PMM_AGENT_CONFIG_FILE").PlaceHolder("</path/to/pmm-agent.yaml>").String()
+	app.Flag("config-file-key-file", "Path to the key file used to encrypt/decrypt the configuration file").
+		Envar("PMM_AGENT_CONFIG_FILE_KEY_FILE").StringVar(&cfg.Encryption.KeyFile)
+	app.Flag("config-file-key-password", "Password for the key file (if required)").
+		Envar("PMM_AGENT_CONFIG_FILE_KEY_PASSWORD").StringVar(&cfg.Encryption.KeyFilePassword)
 
 	app.Flag("id", "ID of this pmm-agent [PMM_AGENT_ID]").
 		Envar("PMM_AGENT_ID").StringVar(&cfg.ID)
@@ -510,7 +515,7 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 	setupCmd.Flag("metrics-mode", "Metrics flow mode for agents node-exporter, can be push - agent will push metrics,"+
 		"pull - server scrape metrics from agent  or auto - chosen by server. [PMM_AGENT_SETUP_METRICS_MODE]").
 		Envar("PMM_AGENT_SETUP_METRICS_MODE").Default("auto").EnumVar(&cfg.Setup.MetricsMode, "auto", "push", "pull")
-	setupCmd.Flag("disable-collectors", "Comma-separated list of collector names to exclude from exporter. [PMM_AGENT_SETUP_METRICS_MODE]").
+	setupCmd.Flag("disable-collectors", "Comma-separated list of collector names to exclude from exporter. [PMM_AGENT_SETUP_DISABLE_COLLECTORS]").
 		Envar("PMM_AGENT_SETUP_DISABLE_COLLECTORS").Default("").StringVar(&cfg.Setup.DisableCollectors)
 	setupCmd.Flag("custom-labels", "Custom labels [PMM_AGENT_SETUP_CUSTOM_LABELS]").
 		Envar("PMM_AGENT_SETUP_CUSTOM_LABELS").StringVar(&cfg.Setup.CustomLabels)
@@ -518,6 +523,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_SETUP_NODE_PASSWORD").StringVar(&cfg.Setup.AgentPassword)
 	setupCmd.Flag("expose-exporter", "Expose the address of the agent's node-exporter publicly on 0.0.0.0").
 		Envar("PMM_AGENT_EXPOSE_EXPORTER").BoolVar(&cfg.Setup.ExposeExporter)
+	setupCmd.Flag("proc-mounts-path", "Path to /proc/mounts file for the filesystem collector [PMM_AGENT_SETUP_PROC_MOUNTS_PATH]").
+		Envar("PMM_AGENT_SETUP_PROC_MOUNTS_PATH").StringVar(&cfg.Setup.ProcMountsPath)
 
 	return app, configFileF
 }
@@ -526,7 +533,7 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 // As a special case, if file does not exist, it returns ConfigFileDoesNotExistError.
 // Other errors are returned if file exists, but configuration can't be loaded due to permission problems,
 // YAML parsing problems, etc.
-func loadFromFile(path string) (*Config, error) {
+func loadFromFile(path string, enc *Encryption) (*Config, error) {
 	if _, err := os.Stat(path); errors.Is(err, fs.ErrNotExist) {
 		return nil, ConfigFileDoesNotExistError(path)
 	}
@@ -535,10 +542,19 @@ func loadFromFile(path string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	if enc != nil && len(enc.KeyFile) != 0 && len(b) != 0 {
+		b, err = enc.Decrypt(b)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	cfg := &Config{}
 	if err = yaml.Unmarshal(b, cfg); err != nil { //nolint:musttag // false positive
 		return nil, err
 	}
+
 	return cfg, nil
 }
 
@@ -554,9 +570,17 @@ func SaveToFile(path string, cfg *Config, comment string) error {
 	if comment != "" {
 		res = []byte("# " + comment + "\n")
 	}
+
 	res = append(res, "---\n"...)
 	res = append(res, b...)
-	return os.WriteFile(path, res, 0o640) //nolint:gosec
+	if cfg != nil && len(cfg.Encryption.KeyFile) != 0 {
+		res, err = cfg.Encryption.Encrypt(res)
+		if err != nil {
+			return err
+		}
+	}
+
+	return os.WriteFile(path, res, 0o640) //nolint:gosec,mnd
 }
 
 // IsWritable checks if specified path is writable.
@@ -569,5 +593,6 @@ func IsWritable(path string) error {
 		}
 		return err
 	}
+
 	return unix.Access(path, unix.W_OK)
 }

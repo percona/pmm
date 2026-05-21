@@ -23,6 +23,7 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
@@ -174,12 +175,22 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 	ua.MetricsScheme = agent.ExporterOptions.MetricsScheme
 	ua.PushMetrics = agent.ExporterOptions.PushMetrics
 	ua.ExposeExporter = agent.ExporterOptions.ExposeExporter
+	if agent.ExporterOptions.ConnectionTimeout != nil {
+		ua.ConnectionTimeout = durationpb.New(*agent.ExporterOptions.ConnectionTimeout)
+	}
 
 	// QAN options
 	ua.MaxQueryLength = agent.QANOptions.MaxQueryLength
 	ua.MaxQueryLogSize = agent.QANOptions.MaxQueryLogSize
 	ua.QueryExamplesDisabled = agent.QANOptions.QueryExamplesDisabled
 	ua.CommentsParsingDisabled = agent.QANOptions.CommentsParsingDisabled
+
+	// RTA options
+	if !agent.RTAOptions.IsEmpty() {
+		ua.RtaOptions = &inventoryv1.RTAOptions{
+			CollectInterval: durationpb.New(pointer.Get(agent.RTAOptions.CollectInterval)),
+		}
+	}
 
 	switch agent.AgentType {
 	case models.AzureDatabaseExporterType:
@@ -190,7 +201,7 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 			SubscriptionId:    agent.AzureOptions.SubscriptionID,
 			ResourceGroup:     agent.AzureOptions.ResourceGroup,
 		}
-	case models.MongoDBExporterType, models.QANMongoDBProfilerAgentType:
+	case models.MongoDBExporterType, models.QANMongoDBProfilerAgentType, models.RTAMongoDBAgentType:
 		ua.MongoDbOptions = &managementv1.UniversalAgent_MongoDBOptions{
 			AuthenticationMechanism:            agent.MongoDBOptions.AuthenticationMechanism,
 			AuthenticationDatabase:             agent.MongoDBOptions.AuthenticationDatabase,
@@ -245,9 +256,7 @@ func (s *ManagementService) ListAgentVersions(ctx context.Context, _ *management
 
 	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
-		agentType := models.PMMAgentType
-
-		agents, err := models.FindAgents(tx.Querier, models.AgentFilters{AgentType: &agentType})
+		agents, err := models.FindAgents(tx.Querier, models.AgentFilters{AgentType: new(models.PMMAgentType)})
 		if err != nil {
 			return err
 		}
@@ -259,7 +268,7 @@ func (s *ManagementService) ListAgentVersions(ctx context.Context, _ *management
 
 		nodeNames := make(map[string]*string, len(nodes))
 		for _, node := range nodes {
-			nodeNames[node.NodeID] = pointer.ToString(node.NodeName)
+			nodeNames[node.NodeID] = new(node.NodeName)
 		}
 
 		serverVersion, err := version.Parse(version.PMMVersion)

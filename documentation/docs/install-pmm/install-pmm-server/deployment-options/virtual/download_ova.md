@@ -1,5 +1,8 @@
 # Download and verify OVA file
 
+
+!!! warning "OVF support ending in PMM 3.9.0"
+    OVF/OVA distribution is deprecated starting with PMM 3.7.0 and will be removed in PMM 3.9.0 (expected July 2026). No new OVA images will be published after that release. Migrate to [Docker](../docker/index.md) or another supported deployment method before PMM 3.9.0.
 Download the Virtual Appliance (OVA) file to deploy PMM Server as a virtual machine.
 
 ## Supported platforms
@@ -8,7 +11,6 @@ The PMM Server OVA works with:
 
 - Oracle VirtualBox
 - Other OVF-compatible virtualization platforms
-- VMware products (ESXi, Workstation, Fusion) -- **[Deprecated, will be removed in PMM 3.6.0]**
 
 ## Download options
 

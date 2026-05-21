@@ -15,6 +15,10 @@
 package inventory
 
 import (
+	"time"
+
+	"github.com/AlekSi/pointer"
+
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/pkg/flags"
 	"github.com/percona/pmm/api/inventory/v1/json/client"
@@ -65,13 +69,14 @@ type AddAgentMongodbExporterCommand struct {
 	DisableCollectors             []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	StatsCollections              []string          `help:"Collections for collstats & indexstats"`
 	CollectionsLimit              int32             `name:"max-collections-limit" placeholder:"number" help:"Disable collstats & indexstats if there are more than <n> collections"` //nolint:lll
+	ConnectionTimeout             *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 
 	flags.LogLevelFatalFlags
 }
 
 // RunCmd executes the AddAgentMongodbExporterCommand and returns the result.
 func (cmd *AddAgentMongodbExporterCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(&cmd.CustomLabels)
 
 	tlsCertificateKey, err := commands.ReadFile(cmd.TLSCertificateKeyFile)
 	if err != nil {
@@ -90,7 +95,7 @@ func (cmd *AddAgentMongodbExporterCommand) RunCmd() (commands.Result, error) {
 				Username:                      cmd.Username,
 				Password:                      cmd.Password,
 				AgentPassword:                 cmd.AgentPassword,
-				CustomLabels:                  customLabels,
+				CustomLabels:                  pointer.Get(customLabels),
 				SkipConnectionCheck:           cmd.SkipConnectionCheck,
 				TLS:                           cmd.TLS,
 				TLSSkipVerify:                 cmd.TLSSkipVerify,
@@ -102,7 +107,8 @@ func (cmd *AddAgentMongodbExporterCommand) RunCmd() (commands.Result, error) {
 				DisableCollectors:             commands.ParseDisableCollectors(cmd.DisableCollectors),
 				StatsCollections:              commands.ParseDisableCollectors(cmd.StatsCollections),
 				CollectionsLimit:              cmd.CollectionsLimit,
-				LogLevel:                      cmd.LogLevelFatalFlags.LogLevel.EnumValue(),
+				LogLevel:                      cmd.LogLevel.EnumValue(),
+				ConnectionTimeout:             commands.DurationString(cmd.ConnectionTimeout),
 			},
 		},
 		Context: commands.Ctx,

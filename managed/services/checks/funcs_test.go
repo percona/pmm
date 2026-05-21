@@ -19,11 +19,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/percona/saas/pkg/check"
-	"github.com/percona/saas/pkg/common"
-	"github.com/percona/saas/pkg/starlark"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/percona/pmm/managed/pi/check"
+	"github.com/percona/pmm/managed/pi/common"
+	"github.com/percona/pmm/managed/pi/starlark"
 )
 
 func TestVersion(t *testing.T) {
@@ -62,7 +63,7 @@ Traceback (most recent call last):
   TestVersion:2:22: in check_context
   <builtin>: in parse_version
 	`) + "\n"
-	assert.EqualError(t, err, expectedErr)
+	require.EqualError(t, err, expectedErr)
 	assert.Empty(t, res)
 
 	input = []map[string]interface{}{
@@ -75,7 +76,7 @@ Traceback (most recent call last):
   TestVersion:2:22: in check_context
   <builtin>: in parse_version
 	`) + "\n"
-	assert.EqualError(t, err, expectedErr)
+	require.Error(t, err, expectedErr)
 	assert.Empty(t, res)
 
 	input = []map[string]interface{}{
@@ -276,7 +277,7 @@ def check_context(rows, context):
 				require.NoError(t, err)
 				assert.Equal(t, tc.result, res)
 			} else {
-				assert.EqualError(t, err, tc.err)
+				require.Error(t, err, tc.err)
 				assert.Empty(t, res)
 			}
 		})

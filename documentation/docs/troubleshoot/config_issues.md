@@ -22,12 +22,13 @@ In a browser, visit `https://<address-of-your-pmm-server>/logs.zip`.
 
 **From Help menu**
 
-To obtain the logs from the **Help** menu:
+To obtain the logs:
+
 {.power-number}
 
-1. Select <i class="uil uil-question-circle"></i> **Help** → <i class="uil uil-download-alt"></i> **PMM Logs**.
+1. From the main menu, choose **Help > PMM Logs > Export logs**.
 
-2. Click **PMM Logs** to retrieve PMM diagnostics data which can be examined and shared with our support team should you need help.
+2. Save the downloaded file to share with our support team if needed.
 
 ## Connection difficulties
 
@@ -59,7 +60,7 @@ In such a scenario, use [Service Accounts](../api/authentication.md#service-acco
 
 #### PMM Server inaccessible after Docker restart on macOS Sequoia
 
-After restarting Docker, PMM dashboard returns *"500 Internal Server Error"*.
+After restarting Docker, PMM dashboard returns *500 Internal Server Error*.
 
 ##### Root cause
 

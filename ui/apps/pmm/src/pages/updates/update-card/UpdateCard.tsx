@@ -10,7 +10,6 @@ import {
   Alert,
 } from '@mui/material';
 import { FC, useState } from 'react';
-import { formatTimestamp } from 'utils/datetime.utils';
 import { PMM_HOME_URL } from 'lib/constants';
 import { Messages } from './UpdateCard.messages';
 import { FetchingIcon } from 'components/fetching-icon';
@@ -24,6 +23,7 @@ import { UpdateInProgressCard } from '../update-in-progress-card';
 import { useUpdates } from 'contexts/updates';
 import { ChangeLog } from '../change-log';
 import { capitalize } from 'utils/text.utils';
+import { DEPRECATION_DOCKER_UPGRADE_HREF, DEPRECATION_HELM_UPGRADE_HREF, DEPRECATION_PODMAN_UPGRADE_HREF } from './UpdateCard.constants';
 
 export const UpdateCard: FC = () => {
   const { inProgress, status, setStatus } = useUpdates();
@@ -99,7 +99,7 @@ export const UpdateCard: FC = () => {
           </Alert>
         )}
         <Stack spacing={1}>
-          {data.updateAvailable && data?.latest.version && (
+          {data.updateAvailable && data?.latest?.version && (
             <Typography variant="h4">
               {Messages.newUpdateAvailable(data.latest.version)}
             </Typography>
@@ -118,27 +118,46 @@ export const UpdateCard: FC = () => {
               {data?.latest && formatVersion(data.latest)}
             </Typography>
           )}
-          {data.lastCheck && (
-            <Typography>
-              <Typography fontWeight="bold" component="strong">
-                {Messages.lastChecked}
-              </Typography>{' '}
-              {formatTimestamp(data?.lastCheck)}
-            </Typography>
-          )}
         </Stack>
         {data.updateAvailable && <UpdateInfo />}
       </CardContent>
       {data.updateAvailable ? (
-        <CardActions>
-          <Button
-            endIcon={<KeyboardDoubleArrowUp />}
-            variant="contained"
-            onClick={handleStartUpdate}
-          >
-            {Messages.updateNow}
-          </Button>
-        </CardActions>
+        <>
+          {/* TODO temporary solution for link color */}
+          <Alert severity="warning" sx={{ mb: 2, '& a': { color: 'inherit', textDecorationColor: 'inherit' } }}>
+            <Typography variant="body1">
+              <strong>{Messages.deprecation.heading}</strong>
+              {Messages.deprecation.paragraph1BeforeUpdateNow}
+              <strong>{Messages.updateNow}</strong>
+              {Messages.deprecation.paragraph1AfterUpdateNow}
+            </Typography>
+            <Typography>
+              {Messages.deprecation.viaIntro}
+              <Link href={DEPRECATION_DOCKER_UPGRADE_HREF} target="_blank" rel="noopener noreferrer">
+                {Messages.deprecation.docker}
+              </Link>
+              {Messages.deprecation.afterDocker}
+              <Link href={DEPRECATION_PODMAN_UPGRADE_HREF} target="_blank" rel="noopener noreferrer">
+                {Messages.deprecation.podman}
+              </Link>
+              {Messages.deprecation.afterPodman}
+              <Link href={DEPRECATION_HELM_UPGRADE_HREF} target="_blank" rel="noopener noreferrer">
+                {Messages.deprecation.helm}
+              </Link>
+              {Messages.deprecation.afterHelm}
+            </Typography>
+            <Typography>{Messages.deprecation.reminder}</Typography>
+          </Alert>
+          <CardActions>
+            <Button
+              endIcon={<KeyboardDoubleArrowUp />}
+              variant="contained"
+              onClick={handleStartUpdate}
+            >
+              {Messages.updateNow}
+            </Button>
+          </CardActions>
+        </>
       ) : (
         <CardActions>
           <Button

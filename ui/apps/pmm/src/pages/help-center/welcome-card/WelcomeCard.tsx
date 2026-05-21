@@ -1,19 +1,20 @@
 import Card from '@mui/material/Card';
 import CardMedia from '@mui/material/CardMedia';
-import { FC, useCallback } from 'react';
-import WelcomeImage from 'assets/welcome-4x.jpg';
 import CardContent from '@mui/material/CardContent';
 import Stack from '@mui/material/Stack';
-import { Icon } from 'components/icon';
 import Typography from '@mui/material/Typography';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
+import ListItemIcon from '@mui/material/ListItemIcon';
 import CardActions from '@mui/material/CardActions';
 import Button from '@mui/material/Button';
+
+import { FC, useCallback } from 'react';
+import WelcomeImage from 'assets/mountains.jpg';
+import { Icon } from 'components/icon';
 import { Messages } from './WelcomeCard.messages';
 import { ADD_SERVICE_LINK, WELCOME_CARD_LIST } from './WelcomeCard.constants';
-import ListItemIcon from '@mui/material/ListItemIcon';
 import { Link } from 'react-router-dom';
 import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
 import AddIcon from '@mui/icons-material/Add';
@@ -52,7 +53,7 @@ const WelcomeCard: FC = () => {
           position: 'relative',
         }}
       >
-        <CardMedia sx={{ height: 200 }} image={WelcomeImage} />
+        <CardMedia sx={{ height: 240 }} image={WelcomeImage} />
         <Stack
           sx={{
             inset: 0,
@@ -62,11 +63,10 @@ const WelcomeCard: FC = () => {
           }}
         >
           <Icon
-            name="pmm-titled"
+            name="pmm-titled-outlined"
             sx={{
-              height: 80,
+              height: 112,
               width: 'auto',
-              color: 'common.white',
             }}
           />
         </Stack>

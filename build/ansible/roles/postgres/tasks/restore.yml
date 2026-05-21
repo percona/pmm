@@ -32,7 +32,7 @@
     become_method: su
 
   - name: Run Postgres database without supervisor
-    command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14
+    command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -o "-c logging_collector=off"
     become: true
     become_user: pmm
     become_method: su
@@ -42,6 +42,8 @@
       name: pmm-managed
       state: restore
       target: /srv/postgres14/pmm-managed.sql
+    environment:
+      PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
   - name: Restore grafana database
     postgresql_db:
@@ -49,12 +51,16 @@
       state: restore
       target: /srv/postgres14/grafana.sql
     when: not is_ha
+    environment:
+      PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
   - name: Check pg_stat_statements extension
     postgresql_ext:
       db: postgres
       name: pg_stat_statements
       schema: public
+    environment:
+      PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
   - name: Stop Postgres database without supervisor
     command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14

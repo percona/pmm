@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	qanpb "github.com/percona/pmm/api/qan/v1"
@@ -30,11 +29,11 @@ import (
 // GetMetrics implements rpc to get metrics for specific filtering.
 func (s *Service) GetMetrics(ctx context.Context, in *qanpb.GetMetricsRequest) (*qanpb.GetMetricsResponse, error) {
 	if in.PeriodStartFrom == nil {
-		return nil, fmt.Errorf("period_start_from is required:%v", in.PeriodStartFrom)
+		return nil, fmt.Errorf("period_start_from is required: %v", in.PeriodStartFrom)
 	}
 	periodStartFromSec := in.PeriodStartFrom.Seconds
 	if in.PeriodStartTo == nil {
-		return nil, fmt.Errorf("period_start_to is required:%v", in.PeriodStartTo)
+		return nil, fmt.Errorf("period_start_to is required: %v", in.PeriodStartTo)
 	}
 	periodStartToSec := in.PeriodStartTo.Seconds
 
@@ -67,9 +66,10 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.GetMetricsRequest) (
 			in.GroupBy,
 			dimensions,
 			labels,
-			in.Totals)
+			in.Totals,
+		)
 		if err != nil {
-			return nil, fmt.Errorf("error in quering metrics:%w", err)
+			return nil, fmt.Errorf("error in quering metrics: %w", err)
 		}
 
 		if len(metricsList) < 2 {
@@ -88,9 +88,10 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.GetMetricsRequest) (
 		in.GroupBy,
 		dimensions,
 		labels,
-		true) // get Totals
+		true,
+	) // get Totals
 	if err != nil {
-		return nil, errors.Wrapf(err, "cannot get metrics totals")
+		return nil, fmt.Errorf("cannot get metrics totals: %w", err)
 	}
 
 	totalLen := len(totalsList)
@@ -118,7 +119,8 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.GetMetricsRequest) (
 		in.FilterBy,
 		in.GroupBy,
 		dimensions,
-		labels)
+		labels,
+	)
 	if err != nil {
 		return resp, err
 	}
@@ -226,10 +228,10 @@ func makeMetrics(mm, t models.M, durationSec int64) map[string]*qanpb.MetricValu
 // GetQueryExample gets query examples in given time range for queryid.
 func (s *Service) GetQueryExample(ctx context.Context, in *qanpb.GetQueryExampleRequest) (*qanpb.GetQueryExampleResponse, error) {
 	if in.PeriodStartFrom == nil {
-		return nil, fmt.Errorf("period_start_from is required:%v", in.PeriodStartFrom)
+		return nil, fmt.Errorf("period_start_from is required: %v", in.PeriodStartFrom)
 	}
 	if in.PeriodStartTo == nil {
-		return nil, fmt.Errorf("period_start_to is required:%v", in.PeriodStartTo)
+		return nil, fmt.Errorf("period_start_to is required: %v", in.PeriodStartTo)
 	}
 
 	from := time.Unix(in.PeriodStartFrom.Seconds, 0)
@@ -263,9 +265,10 @@ func (s *Service) GetQueryExample(ctx context.Context, in *qanpb.GetQueryExample
 		group,
 		limit,
 		dimensions,
-		labels)
+		labels,
+	)
 	if err != nil {
-		return nil, errors.Wrap(err, "error in selecting query examples")
+		return nil, fmt.Errorf("error in selecting query examples: %w", err)
 	}
 	return resp, nil
 }
@@ -293,9 +296,10 @@ func (s *Service) GetLabels(ctx context.Context, in *qanpb.GetLabelsRequest) (*q
 		from,
 		to,
 		in.FilterBy,
-		in.GroupBy)
+		in.GroupBy,
+	)
 	if err != nil {
-		return nil, fmt.Errorf("error in selecting object details labels:%w", err)
+		return nil, fmt.Errorf("error in selecting object details labels: %w", err)
 	}
 	return resp, nil
 }
@@ -304,9 +308,10 @@ func (s *Service) GetLabels(ctx context.Context, in *qanpb.GetLabelsRequest) (*q
 func (s *Service) GetQueryPlan(ctx context.Context, in *qanpb.GetQueryPlanRequest) (*qanpb.GetQueryPlanResponse, error) {
 	resp, err := s.mm.SelectQueryPlan(
 		ctx,
-		in.Queryid)
+		in.Queryid,
+	)
 	if err != nil {
-		return nil, errors.Wrap(err, "error in selecting query plans")
+		return nil, fmt.Errorf("error in selecting query plans: %w", err)
 	}
 	return resp, nil
 }
@@ -314,16 +319,16 @@ func (s *Service) GetQueryPlan(ctx context.Context, in *qanpb.GetQueryPlanReques
 // GetHistogram gets histogram for given queryid.
 func (s *Service) GetHistogram(ctx context.Context, in *qanpb.GetHistogramRequest) (*qanpb.GetHistogramResponse, error) {
 	if in.PeriodStartFrom == nil {
-		return nil, fmt.Errorf("period_start_from is required:%v", in.PeriodStartFrom)
+		return nil, fmt.Errorf("period_start_from is required: %v", in.PeriodStartFrom)
 	}
 	periodStartFromSec := in.PeriodStartFrom.Seconds
 	if in.PeriodStartTo == nil {
-		return nil, fmt.Errorf("period_start_to is required:%v", in.PeriodStartTo)
+		return nil, fmt.Errorf("period_start_to is required: %v", in.PeriodStartTo)
 	}
 	periodStartToSec := in.PeriodStartTo.Seconds
 
 	if in.Queryid == "" {
-		return nil, fmt.Errorf("queryid is required:%v", in.Queryid)
+		return nil, fmt.Errorf("queryid is required: %v", in.Queryid)
 	}
 
 	labels := make(map[string][]string)
@@ -343,9 +348,10 @@ func (s *Service) GetHistogram(ctx context.Context, in *qanpb.GetHistogramReques
 		periodStartToSec,
 		dimensions,
 		labels,
-		in.Queryid)
+		in.Queryid,
+	)
 	if err != nil {
-		return nil, fmt.Errorf("error in selecting histogram:%w", err)
+		return nil, fmt.Errorf("error in selecting histogram: %w", err)
 	}
 
 	return resp, nil
@@ -356,9 +362,10 @@ func (s *Service) QueryExists(ctx context.Context, in *qanpb.QueryExistsRequest)
 	resp, err := s.mm.QueryExists(
 		ctx,
 		in.Serviceid,
-		in.Query)
+		in.Query,
+	)
 	if err != nil {
-		return nil, fmt.Errorf("error in checking query:%w", err)
+		return nil, fmt.Errorf("error in checking query: %w", err)
 	}
 
 	return &qanpb.QueryExistsResponse{Exists: resp}, nil
@@ -369,9 +376,10 @@ func (s *Service) ExplainFingerprintByQueryID(ctx context.Context, in *qanpb.Exp
 	res, err := s.mm.ExplainFingerprintByQueryID(
 		ctx,
 		in.Serviceid,
-		in.QueryId)
+		in.QueryId,
+	)
 	if err != nil {
-		return nil, fmt.Errorf("error in checking query:%w", err)
+		return nil, fmt.Errorf("error in checking query: %w", err)
 	}
 
 	return res, nil
@@ -382,9 +390,10 @@ func (s *Service) SchemaByQueryID(ctx context.Context, in *qanpb.SchemaByQueryID
 	res, err := s.mm.SchemaByQueryID(
 		ctx,
 		in.ServiceId,
-		in.QueryId)
+		in.QueryId,
+	)
 	if err != nil {
-		return nil, fmt.Errorf("error in checking query:%w", err)
+		return nil, fmt.Errorf("error in checking query: %w", err)
 	}
 
 	return res, nil

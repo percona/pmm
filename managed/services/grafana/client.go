@@ -13,13 +13,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package grafana provides facilities for working with Grafana.
 package grafana
 
 import (
 	"bytes"
 	"context"
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
 	"io"
 	"net"
@@ -113,6 +113,36 @@ func (e *clientError) Error() string {
 	return fmt.Sprintf("clientError: %s %s -> %d %s", e.Method, e.URL, e.Code, e.Body)
 }
 
+// CurrentUserHTTPResponse maps errors returned by Client calls used from current-user HTTP handlers
+// to an HTTP status and a small JSON body. Non-Grafana errors (e.g. dial failures) map to 502.
+func CurrentUserHTTPResponse(err error) (int, map[string]string) {
+	var cErr *clientError
+	if !stderrors.As(err, &cErr) {
+		return http.StatusBadGateway, map[string]string{"message": "Bad Gateway"}
+	}
+
+	switch cErr.Code {
+	case http.StatusUnauthorized:
+		msg := cErr.ErrorMessage
+		if msg == "" {
+			msg = "Unauthorized"
+		}
+		return http.StatusUnauthorized, map[string]string{"message": msg}
+	case http.StatusForbidden:
+		msg := cErr.ErrorMessage
+		if msg == "" {
+			msg = "Forbidden"
+		}
+		return http.StatusForbidden, map[string]string{"message": msg}
+	default:
+		if cErr.Code >= 500 {
+			return http.StatusBadGateway, map[string]string{"message": "Bad Gateway"}
+		}
+		// Other Grafana 4xx responses are treated as upstream errors for this proxy endpoint.
+		return http.StatusBadGateway, map[string]string{"message": "Bad Gateway"}
+	}
+}
+
 // do makes HTTP request with given parameters, and decodes JSON response with 200 OK status
 // to respBody. It returns wrapped clientError on any other status, or other fatal errors.
 // Ctx is used only for cancelation.
@@ -156,7 +186,7 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 		return errors.WithStack(cErr)
 	}
 
-	if len(b) > 0 && target != nil {
+	if len(b) != 0 && target != nil {
 		if err = json.Unmarshal(b, target); err != nil {
 			return errors.WithStack(err)
 		}
@@ -167,6 +197,30 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 type authUser struct {
 	role   role
 	userID int
+}
+
+// CurrentUser represents Grafana user payload.
+type CurrentUser struct {
+	ID                             int    `json:"id"`
+	Email                          string `json:"email"`
+	Name                           string `json:"name"`
+	Login                          string `json:"login"`
+	CreatedAt                      string `json:"createdAt"`
+	OrgID                          int    `json:"orgId"`
+	IsAnonymous                    bool   `json:"isAnonymous"`
+	IsDisabled                     bool   `json:"isDisabled"`
+	IsExternal                     bool   `json:"isExternal"`
+	IsExtarnallySynced             bool   `json:"isExtarnallySynced"`
+	IsGrafanaAdmin                 bool   `json:"isGrafanaAdmin"`
+	IsGrafanaAdminExternallySynced bool   `json:"isGrafanaAdminExternallySynced"`
+	Theme                          string `json:"theme"`
+}
+
+// CurrentUserOrg represents Grafana org payload.
+type CurrentUserOrg struct {
+	OrgID int    `json:"orgId"`
+	Name  string `json:"name"`
+	Role  string `json:"role"`
 }
 
 // role defines Grafana user role within the organization
@@ -247,6 +301,24 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header, l *lo
 	var m map[string]interface{}
 	err := c.do(ctx, http.MethodGet, "/api/user", "", authHeaders, nil, &m)
 	if err != nil {
+		if hasAuthorizationHeader(authHeaders) {
+			return emptyUser, err
+		}
+		var cErr *clientError
+		if !errors.As(err, &cErr) {
+			return emptyUser, err
+		}
+		if cErr.Code != http.StatusUnauthorized {
+			return emptyUser, err
+		}
+		anonymousEnabled, anonymousRole := c.getAnonymousRoleFromSettings(ctx, l)
+		if anonymousEnabled {
+			l.Debugf("Grafana returned 401 for /api/user with no credentials; using anonymous role %q.", anonymousRole.String())
+			return authUser{
+				role:   anonymousRole,
+				userID: 0,
+			}, nil
+		}
 		return emptyUser, err
 	}
 
@@ -301,6 +373,168 @@ func (c *Client) convertRole(role string) role {
 	default:
 		return none
 	}
+}
+
+// Grafana /api/frontend/settings may include user org id/name; org role for anonymous comes from anonymousOrgRole.
+type frontendUserSettingsFull struct {
+	OrgID   int    `json:"orgId"`
+	OrgName string `json:"orgName"`
+}
+
+type frontendSettingsFull struct {
+	AnonymousEnabled bool                     `json:"anonymousEnabled"`
+	AnonymousOrgRole string                   `json:"anonymousOrgRole"`
+	User             frontendUserSettingsFull `json:"user"`
+}
+
+func (c *Client) getAnonymousRoleFromSettings(ctx context.Context, l *logrus.Entry) (bool, role) {
+	settings, err := c.getFrontendSettings(ctx)
+	if err != nil {
+		return false, none
+	}
+
+	if !settings.AnonymousEnabled {
+		return false, none
+	}
+
+	parsedRole := c.convertRole(resolveAnonymousOrgRole(settings.AnonymousOrgRole))
+	if parsedRole == none {
+		return false, none
+	}
+	l.Debugf("Grafana anonymous mode is enabled with role %q.", parsedRole.String())
+	return true, parsedRole
+}
+
+func (c *Client) getFrontendSettings(ctx context.Context) (frontendSettingsFull, error) {
+	var settings frontendSettingsFull
+	if err := c.do(ctx, http.MethodGet, "/api/frontend/settings", "", nil, nil, &settings); err != nil {
+		return frontendSettingsFull{}, err
+	}
+
+	return settings, nil
+}
+
+func hasAuthorizationHeader(authHeaders http.Header) bool {
+	return authHeaders.Get("Authorization") != ""
+}
+
+// Grafana organization role strings as returned by /api/frontend/settings (camelCase JSON keys).
+const (
+	grafanaOrgRoleViewer       = "Viewer"
+	grafanaOrgRoleEditor       = "Editor"
+	grafanaOrgRoleAdmin        = "Admin"
+	grafanaOrgRoleGrafanaAdmin = "GrafanaAdmin"
+	grafanaOrgRoleNone         = "None"
+)
+
+// resolveAnonymousOrgRole maps anonymousOrgRole from /api/frontend/settings ([auth.anonymous] org_role)
+// to the org role string PMM uses for anonymous Grafana auth. Grafana does not populate user.orgRole
+// in this payload; only anonymousOrgRole is authoritative. Deprecated elevated roles are clamped to Viewer.
+func resolveAnonymousOrgRole(anonymousOrgRole string) string {
+	anonymousOrgRole = strings.TrimSpace(anonymousOrgRole)
+
+	switch anonymousOrgRole {
+	case grafanaOrgRoleViewer:
+		return grafanaOrgRoleViewer
+	case grafanaOrgRoleEditor, grafanaOrgRoleAdmin, grafanaOrgRoleGrafanaAdmin:
+		return grafanaOrgRoleViewer
+	default:
+		return grafanaOrgRoleNone
+	}
+}
+
+// GetCurrentUser returns current Grafana user.
+// If anonymous mode is enabled and no auth headers are present, it returns
+// a synthetic anonymous user when /api/user responds with 401.
+func (c *Client) GetCurrentUser(ctx context.Context, authHeaders http.Header) (CurrentUser, error) {
+	var user CurrentUser
+	err := c.do(ctx, http.MethodGet, "/api/user", "", authHeaders, nil, &user)
+	if err == nil {
+		return user, nil
+	}
+
+	if hasAuthorizationHeader(authHeaders) {
+		return CurrentUser{}, err
+	}
+	var cErr *clientError
+	if !errors.As(err, &cErr) {
+		return CurrentUser{}, err
+	}
+	if cErr.Code != http.StatusUnauthorized {
+		return CurrentUser{}, err
+	}
+
+	settings, settingsErr := c.getFrontendSettings(ctx)
+	if settingsErr != nil || !settings.AnonymousEnabled {
+		return CurrentUser{}, err
+	}
+	role := resolveAnonymousOrgRole(settings.AnonymousOrgRole)
+	if role == grafanaOrgRoleNone {
+		return CurrentUser{}, err
+	}
+
+	orgID := settings.User.OrgID
+	if orgID == 0 {
+		orgID = 1
+	}
+
+	return CurrentUser{
+		ID:             0,
+		Email:          "",
+		Name:           "Anonymous",
+		Login:          "anonymous",
+		OrgID:          orgID,
+		IsAnonymous:    true,
+		IsGrafanaAdmin: false,
+	}, nil
+}
+
+// GetCurrentUserOrgs returns current Grafana user organizations.
+// If anonymous mode is enabled and no auth headers are present, it returns
+// a synthetic org list when /api/user/orgs responds with 401.
+func (c *Client) GetCurrentUserOrgs(ctx context.Context, authHeaders http.Header) ([]CurrentUserOrg, error) {
+	var orgs []CurrentUserOrg
+	err := c.do(ctx, http.MethodGet, "/api/user/orgs", "", authHeaders, nil, &orgs)
+	if err == nil {
+		return orgs, nil
+	}
+
+	if hasAuthorizationHeader(authHeaders) {
+		return nil, err
+	}
+	var cErr *clientError
+	if !errors.As(err, &cErr) {
+		return nil, err
+	}
+	if cErr.Code != http.StatusUnauthorized {
+		return nil, err
+	}
+
+	settings, settingsErr := c.getFrontendSettings(ctx)
+	if settingsErr != nil || !settings.AnonymousEnabled {
+		return nil, err
+	}
+	role := resolveAnonymousOrgRole(settings.AnonymousOrgRole)
+	if role == grafanaOrgRoleNone {
+		return nil, err
+	}
+
+	orgID := settings.User.OrgID
+	if orgID == 0 {
+		orgID = 1
+	}
+	orgName := settings.User.OrgName
+	if orgName == "" {
+		orgName = "Main Org."
+	}
+
+	return []CurrentUserOrg{
+		{
+			OrgID: orgID,
+			Name:  orgName,
+			Role:  role,
+		},
+	}, nil
 }
 
 func (c *Client) getRoleForServiceToken(ctx context.Context, token string) (role, error) {
@@ -531,6 +765,20 @@ func validateDurations(intervalD, forD string) error {
 	}
 
 	return nil
+}
+
+// GetDatasourceUIDByID returns grafana datasource UID.
+func (c *Client) GetDatasourceUIDByID(ctx context.Context, id int64) (string, error) {
+	grafanaClient, err := c.createGrafanaClient(ctx)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to create grafana client")
+	}
+
+	ds, err := grafanaClient.DataSource(id)
+	if err != nil {
+		return "", err
+	}
+	return ds.UID, nil
 }
 
 // CreateFolder creates grafana folder.
@@ -801,14 +1049,11 @@ type grafanaHealthResponse struct {
 func (c *Client) IsReady(ctx context.Context) error {
 	var status grafanaHealthResponse
 	if err := c.do(ctx, http.MethodGet, "/api/health", "", nil, nil, &status); err != nil {
-		// since we don't return the error to the user, log it to help debugging
-		logrus.Errorf("grafana status check failed: %s", err)
-		return fmt.Errorf("cannot reach Grafana API")
+		return fmt.Errorf("grafana health check failed: %w", err)
 	}
 
 	if strings.ToLower(status.Database) != "ok" {
-		logrus.Errorf("grafana is up but the database is not ok. Database status is %s", status.Database)
-		return fmt.Errorf("grafana is running with errors")
+		return fmt.Errorf("grafana health check failure: database status is %s", status.Database)
 	}
 
 	return nil

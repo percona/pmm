@@ -14,14 +14,11 @@
 //
 
 // Package mongo_fix provides utilities for fixing MongoDB-related issues.
-//
-//nolint:stylecheck
 package mongo_fix //nolint:revive
 
 import (
 	"net/url"
 
-	"github.com/AlekSi/pointer"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -46,7 +43,7 @@ func ClientOptionsForDSN(dsn string) (*options.ClientOptions, error) {
 		clientOptions.Auth.Password = password
 
 		// set this flag to connect to arbiter when there authentication is enabled
-		clientOptions.AuthenticateToAnything = pointer.ToBool(true) //nolint:staticcheck
+		clientOptions.AuthenticateToAnything = new(true) //nolint:staticcheck
 	}
 
 	return clientOptions, nil

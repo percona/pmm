@@ -26,6 +26,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/encoding/prototext"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -34,6 +35,7 @@ import (
 	"github.com/percona/pmm/agent/runner"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	agentlocal "github.com/percona/pmm/api/agentlocal/v1"
+	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 )
 
 type testServer struct {
@@ -86,7 +88,7 @@ func TestClient(t *testing.T) {
 		client := New(cfgStorage, nil, nil, nil, nil, nil, nil, nil)
 		cancel()
 		err := client.Run(ctx)
-		assert.EqualError(t, err, "missing PMM Server address: context canceled")
+		require.EqualError(t, err, "missing PMM Server address: context canceled")
 	})
 
 	t.Run("NoAgentID", func(t *testing.T) {
@@ -101,7 +103,7 @@ func TestClient(t *testing.T) {
 		client := New(cfgStorage, nil, nil, nil, nil, nil, nil, nil)
 		cancel()
 		err := client.Run(ctx)
-		assert.EqualError(t, err, "missing Agent ID: context canceled")
+		require.EqualError(t, err, "missing Agent ID: context canceled")
 	})
 
 	t.Run("FailedToDial", func(t *testing.T) {
@@ -117,7 +119,7 @@ func TestClient(t *testing.T) {
 		})
 		client := New(cfgStorage, nil, nil, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
 		err := client.Run(ctx)
-		assert.EqualError(t, err, "failed to dial: context deadline exceeded")
+		assert.Equal(t, codes.Canceled, status.Convert(err).Code())
 	})
 
 	t.Run("WithServer", func(t *testing.T) {
@@ -160,13 +162,14 @@ func TestClient(t *testing.T) {
 			var s mockSupervisor
 			s.On("Changes").Return(make(<-chan *agentv1.StateChangedRequest))
 			s.On("QANRequests").Return(make(<-chan *agentv1.QANCollectRequest))
+			s.On("RTARequests").Return(make(<-chan *rtav1.CollectRequest))
 			s.On("AgentsList").Return([]*agentlocal.AgentInfo{})
 			s.On("ClearChangesChannel").Return()
 
 			r := runner.New(cfgStorage.Get().RunnerCapacity, cfgStorage.Get().RunnerMaxConnectionsPerService)
 			client := New(cfgStorage, &s, r, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
 			err := client.Run(context.Background())
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Equal(t, serverMD, client.GetServerConnectMetadata())
 		})
 
@@ -195,7 +198,7 @@ func TestClient(t *testing.T) {
 			client := New(cfgStorage, nil, nil, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
 			client.dialTimeout = 100 * time.Millisecond
 			err := client.Run(ctx)
-			assert.EqualError(t, err, "failed to get server metadata: rpc error: code = Canceled desc = context canceled", "%+v", err)
+			require.EqualError(t, err, "failed to get server metadata: rpc error: code = Canceled desc = context canceled", "%+v", err)
 		})
 	})
 }
@@ -278,13 +281,14 @@ func TestUnexpectedActionType(t *testing.T) {
 	s := &mockSupervisor{}
 	s.On("Changes").Return(make(<-chan *agentv1.StateChangedRequest))
 	s.On("QANRequests").Return(make(<-chan *agentv1.QANCollectRequest))
+	s.On("RTARequests").Return(make(<-chan *rtav1.CollectRequest))
 	s.On("AgentsList").Return([]*agentlocal.AgentInfo{})
 	s.On("ClearChangesChannel").Return()
 
 	r := runner.New(cfgStorage.Get().RunnerCapacity, cfgStorage.Get().RunnerMaxConnectionsPerService)
 	client := New(cfgStorage, s, r, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
 	err := client.Run(context.Background())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, serverMD, client.GetServerConnectMetadata())
 }
 

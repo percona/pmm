@@ -34,8 +34,9 @@ import (
 
 const (
 	// Constants for delayed batch updates.
-	updateBatchDelay   = time.Second
-	stateChangeTimeout = 5 * time.Second
+	updateBatchDelay                = time.Second
+	stateChangeTimeout              = 5 * time.Second
+	loggerComponentNameStateUpdater = "state-updater"
 )
 
 // StateUpdater handles updating status of agents.
@@ -61,7 +62,7 @@ func NewStateUpdater(db *reform.DB, r *Registry, vmdb prometheusService, vmParam
 // RequestStateUpdate requests state update on pmm-agent with given ID. It sets
 // the status to done if the agent is not connected.
 func (u *StateUpdater) RequestStateUpdate(ctx context.Context, pmmAgentID string) {
-	l := logger.Get(ctx)
+	l := logger.Get(ctx).WithField("component", loggerComponentNameStateUpdater)
 
 	agent, err := u.r.get(pmmAgentID)
 	if err != nil {
@@ -82,7 +83,7 @@ func (u *StateUpdater) UpdateAgentsState(ctx context.Context) error {
 		return errors.Wrap(err, "cannot find pmmAgentsIDs for AgentsState update")
 	}
 	var wg sync.WaitGroup
-	limiter := make(chan struct{}, 10)
+	limiter := make(chan struct{}, 10) //nolint:mnd
 	for _, pmmAgentID := range pmmAgents {
 		wg.Add(1)
 		limiter <- struct{}{}
@@ -98,7 +99,9 @@ func (u *StateUpdater) UpdateAgentsState(ctx context.Context) error {
 
 // runStateChangeHandler runs pmm-agent state update loop for given pmm-agent until ctx is canceled or agent is kicked.
 func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent *pmmAgentInfo) {
-	l := logger.Get(ctx).WithField("agent_id", agent.id)
+	l := logger.Get(ctx).
+		WithField("component", loggerComponentNameStateUpdater).
+		WithField("agent_id", agent.id)
 
 	l.Info("Starting runStateChangeHandler ...")
 	defer l.Info("Done runStateChangeHandler.")
@@ -140,8 +143,8 @@ func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent *pmmAgen
 }
 
 // sendSetStateRequest sends SetStateRequest to given pmm-agent.
-func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentInfo) error { //nolint:cyclop
-	l := logger.Get(ctx)
+func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentInfo) error { //nolint:gocognit,cyclop,maintidx
+	l := logger.Get(ctx).WithField("component", loggerComponentNameStateUpdater)
 	start := time.Now()
 	defer func() {
 		if dur := time.Since(start); dur > time.Second {
@@ -165,6 +168,8 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 	filters := models.AgentFilters{
 		PMMAgentID:  agent.id,
 		IgnoreNomad: !settings.IsNomadEnabled(),
+		// fetch enabled only
+		Disabled: new(false),
 	}
 	agents, err := models.FindAgents(u.db.Querier, filters)
 	if err != nil {
@@ -180,15 +185,11 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 	agentProcesses := make(map[string]*agentv1.SetStateRequest_AgentProcess)
 	builtinAgents := make(map[string]*agentv1.SetStateRequest_BuiltinAgent)
 	for _, row := range agents {
-		if row.Disabled {
-			continue
-		}
-
 		switch row.AgentType {
 		case models.PMMAgentType:
 			continue
 		case models.VMAgentType:
-			scrapeCfg, err := u.vmdb.BuildScrapeConfigForVMAgent(agent.id)
+			scrapeCfg, err := u.vmdb.BuildScrapeConfigForVMAgent(ctx, agent.id)
 			if err != nil {
 				return errors.Wrapf(err, "cannot get agent scrape config for agent: %s", agent.id)
 			}
@@ -241,7 +242,8 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		case models.MySQLdExporterType, models.MongoDBExporterType, models.PostgresExporterType, models.ProxySQLExporterType,
 			models.ValkeyExporterType, models.QANMySQLPerfSchemaAgentType, models.QANMySQLSlowlogAgentType,
 			models.QANMongoDBProfilerAgentType, models.QANMongoDBMongologAgentType,
-			models.QANPostgreSQLPgStatementsAgentType, models.QANPostgreSQLPgStatMonitorAgentType:
+			models.QANPostgreSQLPgStatementsAgentType, models.QANPostgreSQLPgStatMonitorAgentType,
+			models.RTAMongoDBAgentType:
 			service, err := models.FindServiceByID(u.db.Querier, pointer.GetString(row.ServiceID))
 			if err != nil {
 				return err
@@ -282,6 +284,8 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 				builtinAgents[row.AgentID] = qanPostgreSQLPgStatementsAgentConfig(service, row, pmmAgentVersion)
 			case models.QANPostgreSQLPgStatMonitorAgentType:
 				builtinAgents[row.AgentID] = qanPostgreSQLPgStatMonitorAgentConfig(service, row, pmmAgentVersion)
+			case models.RTAMongoDBAgentType:
+				builtinAgents[row.AgentID] = rtaMongoDBAgentConfig(service, row, pmmAgentVersion)
 			}
 
 		default:
@@ -320,7 +324,12 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		AgentProcesses: agentProcesses,
 		BuiltinAgents:  builtinAgents,
 	}
-	l.Debugf("sendSetStateRequest:\n%s", prototext.Format(state))
+
+	// Check log level before calling formatting function.
+	// Do not waste resources in case debug level is not enabled.
+	if l.Logger.IsLevelEnabled(logrus.DebugLevel) {
+		l.Debugf("sendSetStateRequest:\n%s\n", prototext.Format(logger.RedactMessage(state)))
+	}
 
 	resp, err := agent.channel.SendAndWaitResponse(state)
 	if err != nil {

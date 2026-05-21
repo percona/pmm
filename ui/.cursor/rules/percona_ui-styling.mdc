@@ -1,0 +1,50 @@
+---
+description: "Percona UI + PMM UI styling — MUI + @percona/percona-ui, theme tokens, layout conventions, what not to do"
+alwaysApply: true
+---
+
+## Stack order
+
+1. **MUI** (mostly `@mui/material`, `@mui/icons-material`, `@mui/x-date-pickers` — though other MUI dependencies may also be in use) is the base component and styling API. Use MUI primitives for layout and composition.
+2. **`@percona/percona-ui`** is the Percona design layer on top of MUI (theme, branded components, tables, dialogs). Prefer exports from `@percona/percona-ui` when they wrap or standardize behavior (e.g. `Table`, `Dialog`, `ThemeContextProvider`, `pmmThemeOptions`, `NotistackMuiSnackbar`, `primitives`).
+
+## Do not introduce
+
+- Do not introduce other CSS/UI frameworks (Tailwind, Bootstrap, styled-components, etc.) or ad-hoc global CSS that fights the theme.
+- Do not introduce hard-coded colors, font families, or spacing that bypass the theme. Prefer `sx` with `theme.palette`, `theme.spacing`, breakpoints, and MUI `Typography` variants.
+- Do not introduce custom component libraries outside MUI + `@percona/percona-ui` unless explicitly requested.
+
+## Theming and color mode
+
+- The app root uses `ThemeContextProvider` with `pmmThemeOptions` from `@percona/percona-ui` — do not replace with a separate `ThemeProvider` or duplicate theme objects in feature code.
+- Use `ColorModeContext` / existing hooks (e.g. `useColorMode` in `hooks/theme.ts`) for light/dark; avoid direct `document` or `localStorage` theme hacks.
+
+## Layout and PMM consistency
+
+- Follow established layout patterns: MUI `Stack`, `Box`, `Grid`, page shells like `components/page/Page.tsx` (max width, padding, `gap` aligned with existing `sx`).
+- Avoid one-off page structures that break alignment with the rest of PMM (arbitrary full-viewport hacks, inconsistent gutters).
+
+## Styling mechanics
+
+- Prefer **`sx`** and **`useTheme()`** from `@mui/material/styles` for component-level styling.
+- For icons, use **`@mui/icons-material`** (Outlined variants where the codebase already does).
+
+## When something is missing
+
+- If a token or component behavior should be shared across products, explain it to them, plan a change, present it as a proposal to extend **`@percona/percona-ui`** (theme / components) rather than embedding one-off design in PMM only.
+- If unsure whether a primitive exists in `percona-ui`, check that package or Storybook before inventing a parallel implementation in PMM.
+
+## Examples
+
+```tsx
+// Good — MUI + theme tokens
+<Stack spacing={2} sx={{ pt: 1, color: 'text.secondary' }}>
+
+// Bad — unrelated styling stack
+<div className="tailwind-p-4 text-gray-500">
+
+// Good — branded table from design system
+import { Table } from '@percona/percona-ui';
+
+// Bad — pulling in another data-table library for the same job
+```

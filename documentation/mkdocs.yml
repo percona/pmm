@@ -3,8 +3,9 @@ INHERIT: mkdocs-base.yml
 
 site_url: https://docs.percona.com/percona-monitoring-and-management/
 
-#Google Analytics configuration 
+# Google Analytics configuration
 extra:
   analytics:
     provider: google
     property: G-J4J70BNH0G
+

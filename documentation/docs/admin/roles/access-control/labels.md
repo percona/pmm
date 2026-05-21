@@ -37,28 +37,24 @@ You can add standard or custom labels while adding a service to monitoring in PM
     To set the labels via the user interface:
     {.power-number}
 
-    1. From the **Main** menu, go to **PMM Configuration > PMM Services > Add Service**.
+    1. From the main menu, go to **Inventory > Add Service**.
 
     2. Select the service you want to monitor.
 
     3. Complete the required connection details. 
 
-    4. Enter standard labels via the input section `Labels`.
-
-    5. Enter custom labels via section `Custom labels`.
-
-    ![PMM Inventory - Add Service](../../../images/lbac/PMM_access_control_add_labels_services.png)
+    4. In the **Labels** section, enter standard and custom labels.
 
 === "Using pmm-admin"
 
-    You can also add standard and custom labels using [pmm-admin](../../../use/commands/pmm-admin.md).
+    You can also add standard and custom labels using [pmm-admin](../../../use/commands/pmm-admin/pmm-admin.md).
 
 ## Modifying existing labels
 PMM allows modifying certain standard labels after a service is created:
 
 - `environment`
 - `cluster`
--  `replication_set`
+- `replication_set`
 - `external_group`
 
 For other standard labels that cannot be modified directly, you must remove the service and re-add it with the desired labels.

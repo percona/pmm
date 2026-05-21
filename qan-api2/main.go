@@ -26,7 +26,6 @@ import (
 	"net"
 	"net/http"
 	_ "net/http/pprof" //nolint:gosec
-	"net/url"
 	"os"
 	"os/signal"
 	"strings"
@@ -56,6 +55,7 @@ import (
 	aservice "github.com/percona/pmm/qan-api2/services/analytics"
 	rservice "github.com/percona/pmm/qan-api2/services/receiver"
 	"github.com/percona/pmm/qan-api2/utils/interceptors"
+	"github.com/percona/pmm/utils/dsnutils"
 	pmmerrors "github.com/percona/pmm/utils/errors"
 	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/utils/sqlmetrics"
@@ -63,10 +63,11 @@ import (
 )
 
 const (
-	shutdownTimeout = 3 * time.Second
-	defaultDsnF     = "clickhouse://%s:%s@%s/%s"
-	maxIdleConns    = 5
-	maxOpenConns    = 10
+	shutdownTimeout                 = 3 * time.Second
+	defaultDropOldPartitionInterval = 24 * time.Hour
+	defaultDsnF                     = "clickhouse://%s:%s@%s/%s"
+	maxIdleConns                    = 5
+	maxOpenConns                    = 10
 )
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -88,13 +89,15 @@ func runGRPCServer(ctx context.Context, db *sqlx.DB, mbm *models.MetricsBucket, 
 
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			interceptors.Unary,
-			grpc_validator.UnaryServerInterceptor())),
+			grpc_validator.UnaryServerInterceptor(),
+		)),
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
 			interceptors.Stream,
-			grpc_validator.StreamServerInterceptor())),
+			grpc_validator.StreamServerInterceptor(),
+		)),
 	)
 
-	aserv := aservice.NewService(rm, mm)
+	aserv := aservice.NewService(db, rm, mm)
 	qanv1.RegisterCollectorServiceServer(grpcServer, rservice.NewService(mbm))
 	qanv1.RegisterQANServiceServer(grpcServer, aserv)
 	reflection.Register(grpcServer)
@@ -106,7 +109,6 @@ func runGRPCServer(ctx context.Context, db *sqlx.DB, mbm *models.MetricsBucket, 
 		l.Debug("RPC response latency histogram enabled.")
 		grpc_prometheus.EnableHandlingTimeHistogram()
 	}
-	grpc_prometheus.Register(grpcServer)
 
 	// run server until it is stopped gracefully or not
 	go func() {
@@ -138,13 +140,13 @@ func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
 	l.Infof("Starting server on http://%s/ ...", jsonBindF)
 
 	marshaller := &grpc_gateway.JSONPb{
-		MarshalOptions: protojson.MarshalOptions{ //nolint:exhaustivestruct
+		MarshalOptions: protojson.MarshalOptions{
 			UseEnumNumbers:  false,
-			EmitUnpopulated: true,
+			EmitUnpopulated: false, // PMM-14566
 			UseProtoNames:   true,
 			Indent:          "  ",
 		},
-		UnmarshalOptions: protojson.UnmarshalOptions{ //nolint:exhaustivestruct
+		UnmarshalOptions: protojson.UnmarshalOptions{
 			DiscardUnknown: true,
 		},
 	}
@@ -153,7 +155,8 @@ func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
 		grpc_gateway.WithIncomingHeaderMatcher(customMatcher),
 		grpc_gateway.WithMetadata(gatewayAnnotator),
 		grpc_gateway.WithMarshalerOption(grpc_gateway.MIMEWildcard, marshaller),
-		grpc_gateway.WithRoutingErrorHandler(pmmerrors.PMMRoutingErrorHandler))
+		grpc_gateway.WithRoutingErrorHandler(pmmerrors.PMMRoutingErrorHandler),
+	)
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 
 	type registrar func(context.Context, *grpc_gateway.ServeMux, string, []grpc.DialOption) error
@@ -170,7 +173,7 @@ func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
 
 	server := &http.Server{ //nolint:gosec
 		Addr:     jsonBindF,
-		ErrorLog: log.New(os.Stderr, "runJSONServer: ", 0),
+		ErrorLog: log.New(logrus.StandardLogger().WriterLevel(logrus.ErrorLevel), "runJSONServer: ", 0),
 		Handler:  mux,
 	}
 	go func() {
@@ -232,7 +235,7 @@ func runDebugServer(ctx context.Context, debugBindF string) {
 
 	server := &http.Server{ //nolint:gosec
 		Addr:     debugBindF,
-		ErrorLog: log.New(os.Stderr, "runDebugServer: ", 0),
+		ErrorLog: log.New(logrus.StandardLogger().WriterLevel(logrus.ErrorLevel), "runDebugServer: ", 0),
 	}
 	go func() {
 		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
@@ -251,7 +254,6 @@ func runDebugServer(ctx context.Context, debugBindF string) {
 
 func main() {
 	log.SetFlags(0)
-	log.SetPrefix("stdlog: ")
 
 	kingpin.Version(version.ShortInfo())
 	kingpin.HelpFlag.Short('h')
@@ -265,14 +267,18 @@ func main() {
 	clickhouseUserF := kingpin.Flag("clickhouse-user", "ClickHouse database user").Default("default").Envar("PMM_CLICKHOUSE_USER").String()
 	clickhousePasswordF := kingpin.Flag("clickhouse-password", "ClickHouse database user password").Default("clickhouse").Envar("PMM_CLICKHOUSE_PASSWORD").String()
 
+	clickhouseIsClusterF := kingpin.Flag("clickhouse-cluster", "Is ClickHouse a cluster").Default("false").Envar("PMM_CLICKHOUSE_IS_CLUSTER").Bool()
+	clickhouseClusterNameF := kingpin.Flag("clickhouse-cluster-name", "ClickHouse cluster name").Default("").Envar("PMM_CLICKHOUSE_CLUSTER_NAME").String()
+
 	debugF := kingpin.Flag("debug", "Enable debug logging").Bool()
 	traceF := kingpin.Flag("trace", "Enable trace logging (implies debug)").Bool()
 
 	kingpin.Parse()
 
-	log.Printf("%s.", version.ShortInfo())
-
 	logger.SetupGlobalLogger()
+
+	logrus.Printf("%s.", version.ShortInfo())
+	logrus.Printf("Clickhouse address: %s", *clickhouseAddrF)
 
 	if *debugF {
 		logrus.SetLevel(logrus.DebugLevel)
@@ -295,16 +301,9 @@ func main() {
 	} else {
 		dsn = *dsnF
 	}
+	l.Info("DSN: ", dsnutils.RedactDSN(dsn))
 
-	u, err := url.Parse(dsn)
-	if err != nil {
-		l.Error("Failed to parse DSN: ", err)
-	} else {
-		l.Info("DSN: ", u.Redacted())
-	}
-
-	db := NewDB(dsn, maxIdleConns, maxOpenConns)
-
+	db := NewDB(dsn, maxIdleConns, maxOpenConns, *clickhouseIsClusterF, *clickhouseClusterNameF)
 	prom.MustRegister(sqlmetrics.NewCollector("clickhouse", "qan-api2", db.DB))
 
 	// handle termination signals
@@ -313,7 +312,7 @@ func main() {
 	go func() {
 		s := <-signals
 		signal.Stop(signals)
-		log.Printf("Got %s, shutting down...\n", unix.SignalName(s.(unix.Signal))) //nolint:forcetypeassert
+		l.Infof("Got %s, shutting down...\n", unix.SignalName(s.(unix.Signal))) //nolint:forcetypeassert
 		cancel()
 	}()
 
@@ -323,11 +322,10 @@ func main() {
 	mbm := models.NewMetricsBucket(db)
 	prom.MustRegister(mbm)
 	mbmCtx, mbmCancel := context.WithCancel(context.Background())
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+
+	wg.Go(func() {
 		mbm.Run(mbmCtx)
-	}()
+	})
 
 	wg.Add(1)
 	go func() {
@@ -339,24 +337,19 @@ func main() {
 		runGRPCServer(ctx, db, mbm, *grpcBindF)
 	}()
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		runJSONServer(ctx, *grpcBindF, *jsonBindF)
-	}()
+	})
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		runDebugServer(ctx, *debugBindF)
-	}()
+	})
 
-	ticker := time.NewTicker(24 * time.Hour)
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
+		ticker := time.NewTicker(defaultDropOldPartitionInterval)
+		defer ticker.Stop()
 		for {
-			// Drop old partitions once in 24h.
+			// Drop old partitions once per interval.
 			DropOldPartition(db, *clickhouseDatabaseF, *dataRetentionF)
 			select {
 			case <-ctx.Done():
@@ -365,7 +358,7 @@ func main() {
 				// nothing
 			}
 		}
-	}()
+	})
 
 	wg.Wait()
 }

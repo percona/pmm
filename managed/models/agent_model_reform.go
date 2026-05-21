@@ -35,6 +35,7 @@ func (v *agentTableType) Columns() []string {
 		"node_id",
 		"pmm_agent_id",
 		"custom_labels",
+		"environment_variables",
 		"created_at",
 		"updated_at",
 		"disabled",
@@ -42,6 +43,7 @@ func (v *agentTableType) Columns() []string {
 		"listen_port",
 		"version",
 		"process_exec_path",
+		"is_connected",
 		"username",
 		"password",
 		"agent_password",
@@ -50,6 +52,7 @@ func (v *agentTableType) Columns() []string {
 		"log_level",
 		"exporter_options",
 		"qan_options",
+		"rta_options",
 		"aws_options",
 		"azure_options",
 		"mongo_options",
@@ -87,6 +90,7 @@ var AgentTable = &agentTableType{
 			{Name: "NodeID", Type: "*string", Column: "node_id"},
 			{Name: "PMMAgentID", Type: "*string", Column: "pmm_agent_id"},
 			{Name: "CustomLabels", Type: "[]uint8", Column: "custom_labels"},
+			{Name: "EnvironmentVariables", Type: "[]uint8", Column: "environment_variables"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
 			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
 			{Name: "Disabled", Type: "bool", Column: "disabled"},
@@ -94,6 +98,7 @@ var AgentTable = &agentTableType{
 			{Name: "ListenPort", Type: "*uint16", Column: "listen_port"},
 			{Name: "Version", Type: "*string", Column: "version"},
 			{Name: "ProcessExecPath", Type: "*string", Column: "process_exec_path"},
+			{Name: "IsConnected", Type: "bool", Column: "is_connected"},
 			{Name: "Username", Type: "*string", Column: "username"},
 			{Name: "Password", Type: "*string", Column: "password"},
 			{Name: "AgentPassword", Type: "*string", Column: "agent_password"},
@@ -102,6 +107,7 @@ var AgentTable = &agentTableType{
 			{Name: "LogLevel", Type: "*string", Column: "log_level"},
 			{Name: "ExporterOptions", Type: "ExporterOptions", Column: "exporter_options"},
 			{Name: "QANOptions", Type: "QANOptions", Column: "qan_options"},
+			{Name: "RTAOptions", Type: "RTAOptions", Column: "rta_options"},
 			{Name: "AWSOptions", Type: "AWSOptions", Column: "aws_options"},
 			{Name: "AzureOptions", Type: "AzureOptions", Column: "azure_options"},
 			{Name: "MongoDBOptions", Type: "MongoDBOptions", Column: "mongo_options"},
@@ -116,7 +122,7 @@ var AgentTable = &agentTableType{
 
 // String returns a string representation of this struct or record.
 func (s Agent) String() string {
-	res := make([]string, 28)
+	res := make([]string, 31)
 	res[0] = "AgentID: " + reform.Inspect(s.AgentID, true)
 	res[1] = "AgentType: " + reform.Inspect(s.AgentType, true)
 	res[2] = "RunsOnNodeID: " + reform.Inspect(s.RunsOnNodeID, true)
@@ -124,27 +130,30 @@ func (s Agent) String() string {
 	res[4] = "NodeID: " + reform.Inspect(s.NodeID, true)
 	res[5] = "PMMAgentID: " + reform.Inspect(s.PMMAgentID, true)
 	res[6] = "CustomLabels: " + reform.Inspect(s.CustomLabels, true)
-	res[7] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
-	res[8] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
-	res[9] = "Disabled: " + reform.Inspect(s.Disabled, true)
-	res[10] = "Status: " + reform.Inspect(s.Status, true)
-	res[11] = "ListenPort: " + reform.Inspect(s.ListenPort, true)
-	res[12] = "Version: " + reform.Inspect(s.Version, true)
-	res[13] = "ProcessExecPath: " + reform.Inspect(s.ProcessExecPath, true)
-	res[14] = "Username: " + reform.Inspect(s.Username, true)
-	res[15] = "Password: " + reform.Inspect(s.Password, true)
-	res[16] = "AgentPassword: " + reform.Inspect(s.AgentPassword, true)
-	res[17] = "TLS: " + reform.Inspect(s.TLS, true)
-	res[18] = "TLSSkipVerify: " + reform.Inspect(s.TLSSkipVerify, true)
-	res[19] = "LogLevel: " + reform.Inspect(s.LogLevel, true)
-	res[20] = "ExporterOptions: " + reform.Inspect(s.ExporterOptions, true)
-	res[21] = "QANOptions: " + reform.Inspect(s.QANOptions, true)
-	res[22] = "AWSOptions: " + reform.Inspect(s.AWSOptions, true)
-	res[23] = "AzureOptions: " + reform.Inspect(s.AzureOptions, true)
-	res[24] = "MongoDBOptions: " + reform.Inspect(s.MongoDBOptions, true)
-	res[25] = "MySQLOptions: " + reform.Inspect(s.MySQLOptions, true)
-	res[26] = "PostgreSQLOptions: " + reform.Inspect(s.PostgreSQLOptions, true)
-	res[27] = "ValkeyOptions: " + reform.Inspect(s.ValkeyOptions, true)
+	res[7] = "EnvironmentVariables: " + reform.Inspect(s.EnvironmentVariables, true)
+	res[8] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[9] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
+	res[10] = "Disabled: " + reform.Inspect(s.Disabled, true)
+	res[11] = "Status: " + reform.Inspect(s.Status, true)
+	res[12] = "ListenPort: " + reform.Inspect(s.ListenPort, true)
+	res[13] = "Version: " + reform.Inspect(s.Version, true)
+	res[14] = "ProcessExecPath: " + reform.Inspect(s.ProcessExecPath, true)
+	res[15] = "IsConnected: " + reform.Inspect(s.IsConnected, true)
+	res[16] = "Username: " + reform.Inspect(s.Username, true)
+	res[17] = "Password: " + reform.Inspect(s.Password, true)
+	res[18] = "AgentPassword: " + reform.Inspect(s.AgentPassword, true)
+	res[19] = "TLS: " + reform.Inspect(s.TLS, true)
+	res[20] = "TLSSkipVerify: " + reform.Inspect(s.TLSSkipVerify, true)
+	res[21] = "LogLevel: " + reform.Inspect(s.LogLevel, true)
+	res[22] = "ExporterOptions: " + reform.Inspect(s.ExporterOptions, true)
+	res[23] = "QANOptions: " + reform.Inspect(s.QANOptions, true)
+	res[24] = "RTAOptions: " + reform.Inspect(s.RTAOptions, true)
+	res[25] = "AWSOptions: " + reform.Inspect(s.AWSOptions, true)
+	res[26] = "AzureOptions: " + reform.Inspect(s.AzureOptions, true)
+	res[27] = "MongoDBOptions: " + reform.Inspect(s.MongoDBOptions, true)
+	res[28] = "MySQLOptions: " + reform.Inspect(s.MySQLOptions, true)
+	res[29] = "PostgreSQLOptions: " + reform.Inspect(s.PostgreSQLOptions, true)
+	res[30] = "ValkeyOptions: " + reform.Inspect(s.ValkeyOptions, true)
 	return strings.Join(res, ", ")
 }
 
@@ -159,6 +168,7 @@ func (s *Agent) Values() []interface{} {
 		s.NodeID,
 		s.PMMAgentID,
 		s.CustomLabels,
+		s.EnvironmentVariables,
 		s.CreatedAt,
 		s.UpdatedAt,
 		s.Disabled,
@@ -166,6 +176,7 @@ func (s *Agent) Values() []interface{} {
 		s.ListenPort,
 		s.Version,
 		s.ProcessExecPath,
+		s.IsConnected,
 		s.Username,
 		s.Password,
 		s.AgentPassword,
@@ -174,6 +185,7 @@ func (s *Agent) Values() []interface{} {
 		s.LogLevel,
 		s.ExporterOptions,
 		s.QANOptions,
+		s.RTAOptions,
 		s.AWSOptions,
 		s.AzureOptions,
 		s.MongoDBOptions,
@@ -194,6 +206,7 @@ func (s *Agent) Pointers() []interface{} {
 		&s.NodeID,
 		&s.PMMAgentID,
 		&s.CustomLabels,
+		&s.EnvironmentVariables,
 		&s.CreatedAt,
 		&s.UpdatedAt,
 		&s.Disabled,
@@ -201,6 +214,7 @@ func (s *Agent) Pointers() []interface{} {
 		&s.ListenPort,
 		&s.Version,
 		&s.ProcessExecPath,
+		&s.IsConnected,
 		&s.Username,
 		&s.Password,
 		&s.AgentPassword,
@@ -209,6 +223,7 @@ func (s *Agent) Pointers() []interface{} {
 		&s.LogLevel,
 		&s.ExporterOptions,
 		&s.QANOptions,
+		&s.RTAOptions,
 		&s.AWSOptions,
 		&s.AzureOptions,
 		&s.MongoDBOptions,

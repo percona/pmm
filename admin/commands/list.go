@@ -136,7 +136,7 @@ func (cmd *ListCommand) RunCmd() (Result, error) {
 	}
 
 	servicesRes, err := client.Default.ServicesService.ListServices(&services.ListServicesParams{
-		NodeID:  pointer.ToString(cmd.NodeID),
+		NodeID:  new(cmd.NodeID),
 		Context: Ctx,
 	})
 	if err != nil {
@@ -307,6 +307,7 @@ func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent
 	agentsList = append(agentsList, externalExporters(agentsRes, nodeID)...)
 	agentsList = append(agentsList, vmAgents(agentsRes, pmmAgentIDs)...)
 	agentsList = append(agentsList, nomadAgents(agentsRes, pmmAgentIDs)...)
+	agentsList = append(agentsList, rtaMongodbAgents(agentsRes, pmmAgentIDs)...)
 
 	return agentsList
 }
@@ -598,5 +599,23 @@ func nodeExporters(agentsRes *agents.ListAgentsOK, pmmAgentIDs map[string]struct
 			})
 		}
 	}
+	return agentsList
+}
+
+func rtaMongodbAgents(agentsRes *agents.ListAgentsOK, pmmAgentIDs map[string]struct{}) []listResultAgent {
+	var agentsList []listResultAgent
+
+	for _, a := range agentsRes.Payload.RtaMongodbAgent {
+		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
+			agentsList = append(agentsList, listResultAgent{
+				AgentType: types.AgentTypeRTAMongoDBAgent,
+				AgentID:   a.AgentID,
+				ServiceID: a.ServiceID,
+				Status:    getStatus(a.Status),
+				Disabled:  a.Disabled,
+			})
+		}
+	}
+
 	return agentsList
 }

@@ -42,7 +42,6 @@ import (
 	backupsClient "github.com/percona/pmm/api/backup/v1/json/client"
 	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
 	managementClient "github.com/percona/pmm/api/management/v1/json/client"
-	platformClient "github.com/percona/pmm/api/platform/v1/json/client"
 	serverClient "github.com/percona/pmm/api/server/v1/json/client"
 	userClient "github.com/percona/pmm/api/user/v1/json/client"
 	"github.com/percona/pmm/utils/tlsconfig"
@@ -55,6 +54,9 @@ var (
 
 	// BaseURL contains PMM Server base URL like https://admin:admin@127.0.0.1:8443/.
 	BaseURL *url.URL
+
+	// ServerInsecureTLS indicates whether TLS cert verification shall be skipped when connecting to PMM Server.
+	ServerInsecureTLS bool
 
 	// Hostname contains local hostname that is used for generating test data.
 	Hostname string
@@ -96,8 +98,7 @@ func Transport(baseURL *url.URL, insecureTLS bool) *httptransport.Runtime {
 	// set error handlers for nginx responses if pmm-managed is down
 	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, _ interface{}) error {
 		b, _ := io.ReadAll(reader)
-		err := NginxError(string(b))
-		return &err
+		return new(NginxError(string(b)))
 	})
 	transport.Consumers = map[string]runtime.Consumer{
 		runtime.JSONMime:    runtime.JSONConsumer(),
@@ -123,14 +124,14 @@ func init() {
 	seed := time.Now().UnixNano()
 	gofakeit.SetGlobalFaker(gofakeit.New(seed))
 
-	debugF := flag.Bool("pmm.debug", false, "Enable debug output [PMM_DEBUG].")
+	flag.BoolVar(&Debug, "pmm.debug", false, "Enable debug output [PMM_DEBUG].")
 	traceF := flag.Bool("pmm.trace", false, "Enable trace output [PMM_TRACE].")
 	serverURLF := flag.String("pmm.server-url", "https://admin:admin@localhost/", "PMM Server URL [PMM_SERVER_URL].")
-	serverInsecureTLSF := flag.Bool("pmm.server-insecure-tls", false, "Skip PMM Server TLS certificate validation [PMM_SERVER_INSECURE_TLS].")
-	runUpdateTestF := flag.Bool("pmm.run-update-test", false, "Run PMM Server update test [PMM_RUN_UPDATE_TEST].")
+	flag.BoolVar(&ServerInsecureTLS, "pmm.server-insecure-tls", false, "Skip PMM Server TLS certificate validation [PMM_SERVER_INSECURE_TLS].")
+	flag.BoolVar(&RunUpdateTest, "pmm.run-update-test", false, "Run PMM Server update test [PMM_RUN_UPDATE_TEST].")
 
 	// FIXME we should rethink it once https://jira.percona.com/browse/PMM-5106 is implemented
-	runAdvisorsTestF := flag.Bool("pmm.run-advisor-tests", false, "Run Advisor tests that require connected clients [PMM_RUN_ADVISOR_TESTS].")
+	flag.BoolVar(&RunAdvisorTests, "pmm.run-advisor-tests", false, "Run Advisor tests that require connected clients [PMM_RUN_ADVISOR_TESTS].")
 
 	testing.Init()
 	flag.Parse()
@@ -152,16 +153,14 @@ func init() {
 		}
 	}
 
-	if *debugF {
+	if Debug {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
 	if *traceF {
 		logrus.SetLevel(logrus.TraceLevel)
 		logrus.SetReportCaller(true)
 	}
-	Debug = *debugF || *traceF
-	RunUpdateTest = *runUpdateTestF
-	RunAdvisorTests = *runAdvisorsTestF
+	Debug = Debug || *traceF
 
 	var cancel context.CancelFunc
 	Context, cancel = context.WithCancel(context.Background())
@@ -194,23 +193,26 @@ func init() {
 		logrus.Fatalf("Failed to detect hostname: %s", err)
 	}
 
-	transport := Transport(BaseURL, *serverInsecureTLSF)
+	transport := Transport(BaseURL, ServerInsecureTLS)
 	transport.Consumers["application/zip"] = runtime.ByteStreamConsumer()
 	inventoryClient.Default = inventoryClient.New(transport, nil)
 	managementClient.Default = managementClient.New(transport, nil)
 	serverClient.Default = serverClient.New(transport, nil)
 	backupsClient.Default = backupsClient.New(transport, nil)
-	platformClient.Default = platformClient.New(transport, nil)
 	alertingClient.Default = alertingClient.New(transport, nil)
 	advisorClient.Default = advisorClient.New(transport, nil)
 	actionsClient.Default = actionsClient.New(transport, nil)
 	userClient.Default = userClient.New(transport, nil)
 
 	// do not run tests if server is not available
-	_, err = serverClient.Default.ServerService.Readiness(nil)
-	if err != nil {
-		logrus.Fatalf("Failed to pass the server readiness probe: %s", err)
+	logrus.Info("Checking PMM Server availability...")
+	serverReadyErr := WaitServerReady(Context)
+
+	if serverReadyErr != nil {
+		logrus.Fatalf("PMM Server is not ready: %s", serverReadyErr)
 	}
+
+	logrus.Info("PMM Server is ready.")
 }
 
 // check interfaces.

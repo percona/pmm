@@ -30,6 +30,8 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/percona/pmm/qan-api2/migrations"
 )
 
 func setup() *sqlx.DB {
@@ -47,7 +49,11 @@ func setup() *sqlx.DB {
 	if err != nil {
 		log.Fatal("Connection: ", err)
 	}
-	err = runMigrations(dsn)
+
+	data := map[string]any{
+		"engine": migrations.GetEngine(false),
+	}
+	err = migrations.Run(dsn, data, false, "")
 	if err != nil {
 		log.Fatal("Migration: ", err)
 	}
@@ -88,7 +94,8 @@ func TestDropOldPartition(t *testing.T) {
 		DropOldPartition(db, "pmm_test_parts", days)
 		err := db.Select(
 			&partitions,
-			query)
+			query,
+		)
 		require.NoError(t, err, "Unexpected error in selecting metrics partition")
 		require.Len(t, partitions, 2, "No one partition were truncated. Partition %+v, days %d", partitions, days)
 		assert.Equal(t, "20190101", partitions[0], "Newest partition was not truncated")
@@ -101,7 +108,8 @@ func TestDropOldPartition(t *testing.T) {
 		DropOldPartition(db, "pmm_test_parts", days)
 		err := db.Select(
 			&partitions,
-			query)
+			query,
+		)
 		require.NoError(t, err, "Unexpected error in selecting metrics partition")
 		require.Len(t, partitions, 1, "Only one partition should left. Partition %+v, days %d", partitions, days)
 		assert.Equal(t, "20190102", partitions[0], "Newest partition was not truncated")
@@ -118,7 +126,7 @@ func TestCreateDbIfNotExists(t *testing.T) {
 			dsn = "clickhouse://default:clickhouse@127.0.0.1:19000/pmm_created_db"
 		}
 
-		err := createDB(dsn)
+		err := createDB(dsn, "")
 
 		require.NoError(t, err, "Check connection after we create database")
 	})

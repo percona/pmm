@@ -103,7 +103,7 @@ func TestPostgreSQLQuerySelect(t *testing.T) {
 			Query: "* FROM city; DROP TABLE city CASCADE; --",
 		}
 		a, err := NewPostgreSQLQuerySelectAction("", 0, params, os.TempDir())
-		assert.EqualError(t, err, "query contains ';'")
+		require.EqualError(t, err, "query contains ';'")
 		assert.Nil(t, a)
 	})
 }

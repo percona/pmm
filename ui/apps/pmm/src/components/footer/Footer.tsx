@@ -17,7 +17,7 @@ export const Footer: FC = () => {
       <Typography variant="body2" color="text.disabled">
         {inProgress
           ? Messages.inProgress
-          : Messages.checkedOn(formatCheckDate(versionInfo.lastCheck))}
+          : Messages.checkedOn(formatCheckDate(versionInfo.lastCheck || 'N/A'))}
       </Typography>
     </Stack>
   );

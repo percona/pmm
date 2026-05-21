@@ -22,8 +22,8 @@ PMM Client supports:
 - Architectures: x86_64 (AMD64) and ARM64 (aarch64)
 - Operating systems:
 
-    - Red Hat/CentOS/Oracle Linux 8 and 9
-    - Debian 11 (Bullseye) and 12 (Bookworm)
+    - Red Hat/CentOS/Oracle Linux 8, 9 and 10
+    - Debian 11 (Bullseye), 12 (Bookworm) and 13 (Trixie)
     - Ubuntu 22.04 (Jammy) and 24.04 (Noble)
     - Amazon Linux 2023
 
@@ -197,7 +197,7 @@ pmm-admin status
 
 - [Install PMM Client using Docker](../install-pmm-client/docker.md) 
 - [Connect database services](../install-pmm-client/connect-database/index.md) 
-- [PMM Client command reference](../../use/commands/pmm-admin.md) 
+- [PMM Client command reference](../../use/commands/pmm-admin/pmm-admin.md) 
 - [Upgrade PMM Client](../../pmm-upgrade/upgrade_client.md) 
 - [Uninstall PMM Client](../../uninstall-pmm/index.md)
 - [Unregister PMM Client](../../uninstall-pmm/unregister_client.md)

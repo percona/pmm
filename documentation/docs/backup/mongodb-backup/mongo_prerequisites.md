@@ -1,5 +1,8 @@
 # MongoDB backup prerequisites
 
+!!! note "PBM version compatibility"
+      PMM 3 and later are not compatible with Percona Backup for MongoDB (PBM) version 2.10 and above. You must use PBM version 2.0.1 to 2.9.x with PMM.
+
 Before creating MongoDB backups, make sure to:
 {.power-number}
 
@@ -21,5 +24,3 @@ Services that do not specify a cluster name should be removed and re-added using
 !!! caution alert alert-warning "Important"
 
       Use `pbm` in manual mode only for restoring sharded cluster backups or other operations that can only be completed via the PBM CLI! Since PMM takes care of the PBM configuration, any unnecessary manual intervention can break the state.
-
-       PMM 3 and later require PBM 2.0.1 or newer.

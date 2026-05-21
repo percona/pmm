@@ -18,9 +18,8 @@ package services
 import (
 	"maps"
 
-	"github.com/percona/saas/pkg/check"
-
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/pi/check"
 )
 
 // Target contains required info about advisor check target.
@@ -45,8 +44,6 @@ func (t *Target) Copy() Target {
 	files := make(map[string]string, len(t.Files))
 	maps.Copy(files, t.Files)
 
-	tdp := *t.TDP
-
 	return Target{
 		AgentID:       t.AgentID,
 		ServiceID:     t.ServiceID,
@@ -56,7 +53,7 @@ func (t *Target) Copy() Target {
 		Labels:        labels,
 		DSN:           t.DSN,
 		Files:         files,
-		TDP:           &tdp,
+		TDP:           new(*t.TDP),
 		TLSSkipVerify: t.TLSSkipVerify,
 	}
 }

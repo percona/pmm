@@ -9,18 +9,19 @@ import {
   addConfiguration,
   addDashboardItems,
   addExplore,
+  addHighAvailability,
   addUsersAndAccess,
+  addHomePage,
 } from './navigation.utils';
 import { useUser } from 'contexts/user';
 import { useAdvisors } from 'hooks/api/useAdvisors';
 import { useColorMode } from 'hooks/theme';
-import { ALL_SERVICE_TYPES, INTERVALS_MS } from 'lib/constants';
+import { INTERVALS_MS } from 'lib/constants';
 import { useSettings } from 'contexts/settings';
 import {
   NAV_BACKUPS,
   NAV_DIVIDERS,
   NAV_HELP,
-  NAV_HOME_PAGE,
   NAV_INVENTORY,
   NAV_QAN,
   NAV_SIGN_IN,
@@ -28,10 +29,12 @@ import {
 import { useFolders } from 'hooks/api/useFolders';
 import { useUpdates } from 'contexts/updates';
 import { useLocalStorage } from 'hooks/utils/useLocalStorage';
+import { useHaInfo } from 'hooks/api/useHA';
 
 export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
   const { user } = useUser();
   const { data: serviceTypes } = useServiceTypes({
+    enabled: !!user,
     refetchInterval: INTERVALS_MS.SERVICE_TYPES,
   });
   const { settings } = useSettings();
@@ -45,25 +48,30 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     'pmm-ui.sidebar.expanded',
     true
   );
+  const { data: haInfo } = useHaInfo({
+    enabled: user?.isAnonymous === false
+  });
 
   const navTree = useMemo<NavItem[]>(() => {
     const items: NavItem[] = [];
-    // provide all service types for anonymous mode
-    const currentServiceTypes = user
-      ? serviceTypes?.serviceTypes || []
-      : ALL_SERVICE_TYPES;
+    // use fetched service types, falling back to an empty list while unavailable
+    const currentServiceTypes = serviceTypes?.serviceTypes || [];
 
-    items.push(NAV_HOME_PAGE);
+    items.push(addHomePage(user?.preferences));
+
+    if (haInfo.enabled) {
+      items.push(addHighAvailability(haInfo));
+    }
 
     items.push(NAV_DIVIDERS.home);
 
     items.push(...addDashboardItems(currentServiceTypes, folders, user));
 
-    if (user && settings) {
-      items.push(NAV_QAN);
+    items.push(NAV_QAN);
 
+    if (user && settings) {
       if (settings.frontend.exploreEnabled && user.isEditor) {
-        items.push(addExplore(settings.frontend));
+        items.push(addExplore('grafana-metricsdrilldown-app' in settings.frontend.apps));
       }
 
       if (settings.frontend.unifiedAlertingEnabled) {
@@ -107,6 +115,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     settings,
     advisors,
     colorMode,
+    haInfo,
     toggleColorMode,
   ]);
 

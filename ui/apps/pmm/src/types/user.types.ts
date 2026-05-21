@@ -12,6 +12,7 @@ export interface User {
   id: number;
   name: string;
   login: string;
+  isAnonymous: boolean;
   orgId: number;
   orgRole: OrgRole | '';
   isAuthorized: boolean;
@@ -20,6 +21,7 @@ export interface User {
   isPMMAdmin: boolean;
   orgs: UserOrg[];
   info: UserInfo;
+  preferences: UserPreferences;
 }
 
 // comes from grafana
@@ -30,6 +32,7 @@ export interface GetUserResponse {
   login: string;
   createdAt: string;
   orgId: number;
+  isAnonymous: boolean;
   isDisabled: boolean;
   isExternal: boolean;
   isExtarnallySynced: boolean;
@@ -44,9 +47,19 @@ export interface UserOrg {
   role: OrgRole;
 }
 
-export interface UpdatePreferencesBody {
-  theme: ColorMode;
+export interface GetPreferenceResponse {
+  theme?: ColorMode;
+  homeDashboardUID?: string;
+  timezone?: string;
 }
+
+export interface UpdatePreferencesBody {
+  theme?: ColorMode;
+  homeDashboardUID?: string;
+  timezone?: string;
+}
+
+export type UserPreferences = GetPreferenceResponse;
 
 export interface UserInfo {
   userId: number;

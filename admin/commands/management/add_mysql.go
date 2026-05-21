@@ -17,7 +17,9 @@ package management
 import (
 	"fmt"
 	"strconv"
+	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/alecthomas/units"
 	"github.com/pkg/errors"
 
@@ -119,6 +121,7 @@ type AddMySQLCommand struct {
 	CreateUser             bool              `hidden:"" help:"Create pmm user"`
 	DisableCollectors      []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	ExposeExporter         bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
+	ConnectionTimeout      *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 
 	AddCommonFlags
 	flags.MetricsModeFlags
@@ -148,12 +151,12 @@ func (cmd *AddMySQLCommand) GetSocket() string {
 
 // RunCmd runs the command for AddMySQLCommand.
 func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
-	extraDSNParams := commands.ParseKeyValuePair(cmd.ExtraDSNParams)
+	customLabels := commands.ParseKeyValuePair(&cmd.CustomLabels)
+	extraDSNParams := commands.ParseKeyValuePair(&cmd.ExtraDSNParams)
 
 	if cmd.CreateUser {
 		return nil, errors.New("Unrecognized option. To create a user, see " +
-			"'https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/mysql.html#create-a-database-account-for-pmm'")
+			"https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/mysql/mysql.html#create-a-database-account-for-pmm") //nolint:lll
 	}
 
 	var (
@@ -220,8 +223,8 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 				Username:       cmd.Username,
 				Password:       cmd.Password,
 				AgentPassword:  cmd.AgentPassword,
-				CustomLabels:   customLabels,
-				ExtraDsnParams: extraDSNParams,
+				CustomLabels:   pointer.Get(customLabels),
+				ExtraDsnParams: pointer.Get(extraDSNParams),
 
 				QANMysqlSlowlog:    cmd.QuerySource == MysqlQuerySourceSlowLog,
 				QANMysqlPerfschema: cmd.QuerySource == MysqlQuerySourcePerfSchema,
@@ -240,7 +243,8 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 				TablestatsGroupTableLimit: tablestatsGroupTableLimit,
 				MetricsMode:               cmd.MetricsModeFlags.MetricsMode.EnumValue(),
 				DisableCollectors:         commands.ParseDisableCollectors(cmd.DisableCollectors),
-				LogLevel:                  cmd.LogLevelNoFatalFlags.LogLevel.EnumValue(),
+				LogLevel:                  cmd.LogLevel.EnumValue(),
+				ConnectionTimeout:         commands.DurationString(cmd.ConnectionTimeout),
 			},
 		},
 		Context: commands.Ctx,
