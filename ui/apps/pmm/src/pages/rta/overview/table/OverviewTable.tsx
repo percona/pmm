@@ -5,7 +5,7 @@ import {
   MaterialReactTableProps,
 } from 'material-react-table';
 import { Table } from '@percona/percona-ui';
-import { FC, useEffect, useRef, useState } from 'react';
+import { FC, useCallback, useEffect, useRef, useState } from 'react';
 import { QueryData } from 'types/rta.types';
 import { OVERVIEW_TABLE_COLUMNS } from './OverviewTable.constants';
 import { RealtimeTableWrapper } from 'pages/rta/components/rta-table-wrapper';
@@ -34,13 +34,21 @@ const OverviewTable: FC<Props> = ({
   const [globalFilter, setGlobalFilter] = useState('');
 
   // Pre-pagination so navigation covers all filtered rows, not only the current page.
-  const getNavigableQueries = () =>
-    tableRef.current?.getPrePaginationRowModel().rows.map((row) => row.original) ??
-    queries;
+  const getNavigableQueries = useCallback(
+    () =>
+      tableRef.current?.getPrePaginationRowModel().rows.map((row) => row.original) ??
+      queries,
+    [queries]
+  );
 
   useEffect(() => {
     onNavigableQueriesChange(getNavigableQueries());
-  }, [queries, columnFilters, globalFilter, onNavigableQueriesChange]);
+  }, [
+    columnFilters,
+    getNavigableQueries,
+    globalFilter,
+    onNavigableQueriesChange,
+  ]);
 
   return (
     <RealtimeTableWrapper>
