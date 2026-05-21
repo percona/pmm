@@ -17,10 +17,6 @@ declare module '@mui/material/styles' {
       dividerStronger?: string;
       contour?: string;
     };
-    tooltips?: {
-      color?: string;
-      background?: string;
-    };
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -511,10 +507,6 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
         dividerStronger: tokens.lines.dividerStronger,
         contour: tokens.lines.contour,
       },
-      tooltips: {
-        background: tokens.neutral.main,
-        color: tokens.neutral.contrastText,
-      },
     },
     typography: {
       h1: {
@@ -937,19 +929,31 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
       },
       MuiTooltip: {
         styleOverrides: {
-          tooltip: ({ theme }) => ({
-            ...theme.typography.helperText,
-            boxShadow: theme.shadows[8],
-            ...(theme.palette.tooltips && {
-              color: theme.palette.tooltips?.color,
-              backgroundColor: theme.palette.tooltips?.background,
-            }),
-          }),
-          arrow: ({ theme }) => ({
-            ...(theme.palette.tooltips && {
-              color: theme.palette.tooltips?.background,
-            }),
-          }),
+          // Tooltips always render in the inverse mode: light app → dark surface, dark app → light surface
+          // The inversion is centralized here so consumers inherit it via deepmerge without their own overrides.
+          tooltip: ({ theme }) => {
+            const inverted =
+              theme.palette.mode === 'light' ? semanticTokensDark : semanticTokensLight;
+            return {
+              ...theme.typography.caption,
+              boxShadow: theme.shadows[8],
+              backgroundColor: inverted.surfaces.elevation1,
+              color: inverted.text.primary,
+              // Links inside tooltips need the inverted accent
+              '& .MuiLink-root': {
+                color: inverted.text.accent1,
+                textDecorationColor: inverted.text.accent1,
+                '&:focus-visible': {
+                  outline: `2px solid ${inverted.text.accent1}`,
+                },
+              },
+            };
+          },
+          arrow: ({ theme }) => {
+            const inverted =
+              theme.palette.mode === 'light' ? semanticTokensDark : semanticTokensLight;
+            return { color: inverted.surfaces.elevation1 };
+          },
         },
       },
       MuiLink: {
