@@ -29,6 +29,23 @@ The **dump.tar.gz** dump file is a .TAR archive compressed via Gzip. Here's what
  - **ch**: Query Analytics (QAN) data stored in ClickHouse format, organized by row count
  - **log.json**: logs detailing the export and archive creation process. Passwords and credentials are automatically masked.
 
+
+## Encrypted dumps
+
+Encrypt your dump when you want to protect sensitive data before sharing it externally, for example when [sending a dump file to Percona Support](#send-a-data-dump-to-percona-support).
+
+When you encrypt a dump, PMM saves the file with an `.enc` suffix, for example `69d4df06-f87a-4cfe-aa7b-9a79d449a9b4.tar.gz.enc`. The encryption password is not stored by PMM so if you lose it, you will need to create a new dump.
+
+PMM encrypts dump files using AES-256-CTR, an encryption algorithm that protects your data by making the contents unreadable without the correct password. To decrypt a dump, use the [pmm-dump CLI tool](https://docs.percona.com/pmm-dump-documentation/installation.html) or run the following `openssl` command:
+
+```bash
+openssl enc -d -aes-256-ctr -pbkdf2 -in dump.tar.gz.enc -out dump.tar.gz
+```
+
+You will be prompted to enter the password you set when creating the dump.
+
+When importing a non-encrypted dump, pass the `--no-encryption` flag to the pmm-dump CLI tool to skip the password prompt.
+
 ## Create a data dump
 
 To create a dump of your dataset:
@@ -39,6 +56,8 @@ To create a dump of your dataset:
 3. Choose the service for which you want to create the dataset or leave it empty to export all data.
 4. Define the time range for the dataset.
 5. Toggle on **Export QAN** to include Query Analytics (QAN) metrics alongside the core metrics.
+6. Toggle on **Enable encryption** to encrypt the dump file. The **Encryption password** field appears below the toggle.
+6. Enter a password and save it somewhere safe. PMM does not store it, and if you lose it you will need to create a new dump.
 7. Click **Create dataset**. This will generate a data dump file and automatically record an entry in the PMM Dump table. From there, you can use the options available in the **Options** menu to send the dump file to Percona Support or download it locally for internal usage.
 
 ## Send a data dump to Percona Support
@@ -53,8 +72,19 @@ If you are a Percona Customer, you can securely share PMM data dumps with Percon
 5. Update your Support ticket to let Percona know that you've uploaded the dataset on the SFTP server.
 
 ## Troubleshoot access issues
-If you experience issues accessing or using PMM Dump, consider the following:
 
-- Cannot see PMM Dump in the Help menu: Verify that you have Admin role or Grafana Admin privileges. **Editor** and **Viewer** roles without Grafana Admin cannot access this feature.
-- Error when creating dump datasets: If you encounter errors such as *Failed to compose meta error* when creating datasets, make sure that the **Ignore load** option is enabled on the **PMM Dump > Export new datasheet**. 
-- Access denied messages: your user account lacks the necessary permissions to access PMM Dump.
+### PMM Dump is missing from the Help menu
+
+Verify that your account has the Admin role or Grafana Admin privileges. Editor and Viewer roles without Grafana Admin cannot access this feature.
+
+### Dump creation fails with "Failed to compose meta error"
+
+Enable the **Ignore load** option on the **PMM Dump > Export new datasheet** page before creating the dataset.
+
+### Access denied messages appear
+
+Your account lacks the permissions required for PMM Dump. Contact your administrator to request access.
+
+### Password prompt appears when importing a non-encrypted dump
+
+Pass the `--no-encryption` flag to the `pmm-dump` CLI tool to skip the password prompt.
