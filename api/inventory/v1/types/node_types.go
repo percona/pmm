@@ -24,6 +24,7 @@ const (
 	NodeTypeRemoteNode              = "NODE_TYPE_REMOTE_NODE"
 	NodeTypeRemoteRDSNode           = "NODE_TYPE_REMOTE_RDS_NODE"
 	NodeTypeRemoteAzureDatabaseNode = "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
+	NodeTypeRemoteElastiCacheNode   = "NODE_TYPE_REMOTE_ELASTICACHE_NODE"
 )
 
 var nodeTypeNames = map[string]string{
@@ -33,6 +34,7 @@ var nodeTypeNames = map[string]string{
 	NodeTypeRemoteNode:              "Remote",
 	NodeTypeRemoteRDSNode:           "Remote RDS",
 	NodeTypeRemoteAzureDatabaseNode: "Remote Azure database",
+	NodeTypeRemoteElastiCacheNode:   "Remote ElastiCache",
 }
 
 // NodeTypeName returns human friendly node type to be used in reports.
