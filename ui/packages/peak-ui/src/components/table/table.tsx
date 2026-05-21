@@ -30,21 +30,16 @@ const NoDataAlertMessage = ({ message, ...rest }: { message: string } & AlertPro
   );
 };
 
-// Shallow merge of MUI sx values. Handles object / function / undefined forms.
-// Consumer values win at the top-level-key level (typical sx override semantics).
 const mergeSx = (
   defaultSx: SxProps<Theme> | undefined,
   consumerSx: SxProps<Theme> | undefined
 ): SxProps<Theme> | undefined => {
   if (!consumerSx) return defaultSx;
   if (!defaultSx) return consumerSx;
-  if (typeof defaultSx === 'function' || typeof consumerSx === 'function') {
-    return (theme: Theme) => ({
-      ...(typeof defaultSx === 'function' ? defaultSx(theme) : (defaultSx as object)),
-      ...(typeof consumerSx === 'function' ? consumerSx(theme) : (consumerSx as object)),
-    });
-  }
-  return { ...(defaultSx as object), ...(consumerSx as object) };
+  return [
+    ...(Array.isArray(defaultSx) ? defaultSx : [defaultSx]),
+    ...(Array.isArray(consumerSx) ? consumerSx : [consumerSx]),
+  ] as SxProps<Theme>;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -197,21 +192,34 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
           '& .MuiAlert-message > .MuiBox-root': { padding: 0 },
         }),
       }}
+      positionExpandColumn="last"
       positionActionsColumn="last"
-      muiTablePaperProps={{
-        elevation: 0,
-        ...((typeof muiTablePaperProps === 'function' ? {} : muiTablePaperProps) as object),
-        sx: { backgroundColor: 'transparent' },
+      muiTablePaperProps={({ table }) => {
+        const consumer =
+          typeof muiTablePaperProps === 'function'
+            ? muiTablePaperProps({ table })
+            : muiTablePaperProps;
+        return {
+          elevation: 0,
+          ...consumer,
+          sx: mergeSx({ backgroundColor: 'transparent' }, consumer?.sx),
+        };
       }}
-      muiTableContainerProps={{
-        ...((typeof muiTableContainerProps === 'function' ? {} : muiTableContainerProps) as object),
-        sx: mergeSx(
-          (theme: Theme) => ({
-            backgroundColor: theme.palette.background.paper,
-            borderBottom: `1px solid ${theme.palette.dividers?.divider}`,
-          }),
-          typeof muiTableContainerProps === 'function' ? undefined : muiTableContainerProps?.sx
-        ),
+      muiTableContainerProps={({ table }) => {
+        const consumer =
+          typeof muiTableContainerProps === 'function'
+            ? muiTableContainerProps({ table })
+            : muiTableContainerProps;
+        return {
+          ...consumer,
+          sx: mergeSx(
+            (theme: Theme) => ({
+              backgroundColor: theme.palette.background.paper,
+              borderBottom: `1px solid ${theme.palette.dividers?.divider}`,
+            }),
+            consumer?.sx
+          ),
+        };
       }}
       muiTopToolbarProps={{
         sx: {
@@ -234,7 +242,7 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
       displayColumnDefOptions={{
         ...displayColumnDefOptions,
         'mrt-row-actions': {
-          header: '',
+          header: 'Actions',
           Header: () => (
             <Box component="span" sx={visuallyHidden}>
               Actions
@@ -341,7 +349,7 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
         return {
           ...consumer,
           sx: mergeSx(
-            { '& tr': { backgroundColor: 'transparent' }, minHeight: 'unset' },
+            { '& tr': { backgroundColor: 'background.paper' }, minHeight: 'unset' },
             consumer?.sx
           ),
         };

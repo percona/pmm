@@ -1288,6 +1288,13 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
             return {
               color: palette?.contrastText,
               padding: '8px 0',
+              '& .MuiLink-root': {
+                color: 'inherit',
+                textDecorationColor: 'inherit',
+                '&:focus-visible': {
+                  outlineColor: 'currentColor',
+                },
+              },
             };
           },
         },
