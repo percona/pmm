@@ -346,9 +346,9 @@ func TestMySQLSoftwaresInstalledAndCompatible(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			err := mySQLBackupSoftwareInstalledAndCompatible(test.input)
 			if test.err != nil {
-				assert.ErrorIs(t, err, test.err)
+				require.ErrorIs(t, err, test.err)
 				if test.errString != "" {
-					assert.Contains(t, err.Error(), test.errString)
+					require.Contains(t, err.Error(), test.errString)
 				}
 			} else {
 				require.NoError(t, err)

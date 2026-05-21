@@ -174,7 +174,8 @@ func mysqlAndXtrabackupCompatibilityError(mysqlVersionString, xtrabackupVersionS
 		if xtrabackupVersion.LessThan(mysqlVersion) {
 			return errors.Wrapf(
 				ErrIncompatibleXtrabackup,
-				"Percona XtraBackup version %q is older than MySQL version %q; for MySQL 8.0.22 and newer 8.0 releases, use Percona XtraBackup 8.0.x with the same or newer core version",
+				"Percona XtraBackup version %q is older than MySQL version %q; "+
+					"for MySQL 8.0.22+, use Percona XtraBackup 8.0.x with the same or newer core version",
 				xtrabackupVersionString,
 				mysqlVersionString,
 			)
