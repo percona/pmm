@@ -176,20 +176,6 @@ const pmmThemeOptions = (mode: PaletteMode): ThemeOptions => {
           },
         },
       },
-      MuiTooltip: {
-        styleOverrides: {
-          tooltip: ({ theme }) => ({
-            ...theme.typography.helperText,
-            p: 6,
-            boxShadow: theme.shadows[8],
-            color: theme.palette.tooltips?.color,
-            backgroundColor: theme.palette.tooltips?.background,
-          }),
-          arrow: ({ theme }) => ({
-            color: theme.palette.tooltips?.background,
-          }),
-        },
-      },
       MuiDialogTitle: {
         styleOverrides: {
           root: {

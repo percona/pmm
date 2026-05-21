@@ -86,3 +86,6 @@ export { default as FileInput } from './form/inputs/file';
 
 export * from './chip';
 export { default as Chip } from './chip';
+
+export * from './tooltip';
+export { default as Tooltip } from './tooltip';
