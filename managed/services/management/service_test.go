@@ -460,7 +460,7 @@ func TestServiceService(t *testing.T) {
 			service, err := models.AddNewService(s.db.Querier, models.ValkeyServiceType, &models.AddDBMSServiceParams{
 				ServiceName: "test-valkey",
 				NodeID:      node.NodeID,
-				Address:     pointer.ToString("test-address"),
+				Address:     pointer.ToString("test-address"), //nolint:modernize
 				Port:        pointer.ToUint16(6379),
 			})
 			require.NoError(t, err)
