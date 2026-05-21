@@ -13,6 +13,7 @@ const RealtimePage: FC<StackProps> = ({ children }) => (
       minHeight: 0,
       position: 'relative',
       maxHeight: `calc(100vh - ${HEADER_HEIGHT}px)`, // Account for header height
+        // There should be a better way to avoid using maxHeight, or forcing hidden overflow. To be improved.
       overflow: 'hidden',
       display: 'flex',
     }}
