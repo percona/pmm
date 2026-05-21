@@ -18,7 +18,7 @@ PMM Dump access is restricted based on user roles:
 | Viewer with Grafana Admin | Yes | Yes  |
 | Viewer without Grafana Admin | No | No |
 
-If you cannot see the **PMM Dump** option in the Help menu or receive access errors when trying to access it directly, check that your user account has the necessary permissions.
+If you cannot see the **PMM Dump** option under **Help > Help Center** or receive access errors when trying to access it directly, check that your user account has the necessary permissions.
 
 ## Dump contents
 
@@ -70,7 +70,7 @@ If you are a Percona Customer, you can securely share PMM data dumps with Percon
 
 ## Troubleshoot access issues
 
-### PMM Dump is missing from the Help menu
+### PMM Dump is missing from the Help Center
 
 Verify that your account has the Admin role or Grafana Admin privileges. Editor and Viewer roles without Grafana Admin cannot access this feature.
 
