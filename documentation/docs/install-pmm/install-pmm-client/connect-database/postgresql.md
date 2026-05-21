@@ -254,11 +254,11 @@ After configuring your database server with the appropriate extension, you need 
     To add the service from the user interface:
     {.power-number}
     
-    1. Go to  **PMM Configuration > Add Service > PostgreSQL**.
+    1. Go to  **Inventory > Add service > PostgreSQL**.
     
     2. Enter or select values for the fields.
 
-    3. (Optional) If using `pgstatmonitor`, check **Disable query examples** under **Additional options** to prevent collection of actual query values. This protects sensitive data while preserving all query metrics and performance statistics in QAN.    
+    3. (Optional) Under **Additional options**, if using `pgstatmonitor`, check **Disable query examples** to prevent collection of actual query values. This protects sensitive data while preserving all query metrics and performance statistics in QAN.
 
     4. Click **Add service**.
     ![!](../../../images/PMM_Add_Instance_PostgreSQL.png)

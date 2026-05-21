@@ -46,8 +46,8 @@ theme:
     - navigation.top
     - content.tabs.link
     - content.code.copy
+    - content.images.zoom
     - navigation.tracking
-#    - content.action.edit
     - content.action.view
 
 extra_css:
@@ -564,12 +564,10 @@ nav:
               - reference/dashboards/dashboard-mongodb-wiredtiger-details.md
               - reference/dashboards/dashboard-mongodb-backup-details.md
           - PostgreSQL dashboards:
-              - reference/dashboards/dashboard-postgresql-checkpoints-buffers-wal-usage.md
               - reference/dashboards/dashboard-postgresql-instance-summary.md
               - reference/dashboards/dashboard-postgresql-instances-compare.md
               - reference/dashboards/dashboard-postgresql-instances-overview.md
               - reference/dashboards/dashboard-postgresql-instances-overview-extended.md
-              - reference/dashboards/dashboard-postgresql-patroni-details.md
               - reference/dashboards/dashboard-postgresql-replication.md
               - reference/dashboards/dashboard-postgresql-topqueries.md
           - ProxySQL dashboards:
@@ -588,7 +586,6 @@ nav:
           - HA dashboards:
               - reference/dashboards/dashboard-ha-health-overview.md
               - reference/dashboards/dashboard-pxc-galera-node-summary.md
-              - reference/dashboards/dashboard-pxc-galera-cluster-summary-experimental.md
               - reference/dashboards/dashboard-pxc-galera-nodes-compare.md
               - reference/dashboards/dashboard-haproxy-instance-summary.md
       - reference/nomad.md

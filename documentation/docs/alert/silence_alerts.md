@@ -32,7 +32,7 @@ For more information on working with silences, see [About alerting silences](htt
 
 After upgrading from the latest PMM 2 version to PMM 3, you will find all your alert templates under **Alerting > Alert rule templates**.
 
-If you have any templates available in the  `/srv/ia/templates` folder, make sure to transfer them to `/srv/alerting/templates` as PMM 3 will look for custom templates in this location.
+If you have any templates available in the `/srv/ia/templates` folder, make sure to transfer them to `/srv/alerting/templates` as PMM 3 will look for custom templates in this location.
 
 ### Template compatibility with other alerting tools
 
