@@ -281,14 +281,14 @@ func TestServiceService(t *testing.T) {
 			node, err := models.CreateNode(s.db.Querier, models.RemoteElastiCacheNodeType, &models.CreateNodeParams{
 				NodeName: "test-elasticache",
 				Address:  "test-address",
-				Region:   pointer.ToString("us-east-1"),
+				Region:   pointer.ToString("us-east-1"), //nolint:modernize
 			})
 			require.NoError(t, err)
 
 			service, err := models.AddNewService(s.db.Querier, models.ValkeyServiceType, &models.AddDBMSServiceParams{
 				ServiceName: "test-valkey",
 				NodeID:      node.NodeID,
-				Address:     pointer.ToString("test-address"),
+				Address:     pointer.ToString("test-address"), //nolint:modernize
 				Port:        pointer.ToUint16(6379),
 			})
 			require.NoError(t, err)
@@ -453,7 +453,7 @@ func TestServiceService(t *testing.T) {
 			node, err := models.CreateNode(s.db.Querier, models.RemoteElastiCacheNodeType, &models.CreateNodeParams{
 				NodeName: "test-elasticache",
 				Address:  "test-address",
-				Region:   pointer.ToString("us-east-1"),
+				Region:   pointer.ToString("us-east-1"), //nolint:modernize
 			})
 			require.NoError(t, err)
 

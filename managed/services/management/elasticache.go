@@ -73,7 +73,7 @@ func listElastiCacheRegions(partitions []string) []string {
 }
 
 // DiscoverElastiCache discovers ElastiCache replication groups (Valkey/Redis).
-func (s *ManagementService) DiscoverElastiCache(ctx context.Context, req *managementv1.DiscoverElastiCacheRequest) (*managementv1.DiscoverElastiCacheResponse, error) { //nolint:gocognit
+func (s *ManagementService) DiscoverElastiCache(ctx context.Context, req *managementv1.DiscoverElastiCacheRequest) (*managementv1.DiscoverElastiCacheResponse, error) { //nolint:gocognit,cyclop
 	l := logger.Get(ctx).WithField("component", "discover/elasticache")
 
 	settings, err := models.GetSettings(s.db.Querier)
