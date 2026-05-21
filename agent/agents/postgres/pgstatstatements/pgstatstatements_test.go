@@ -286,7 +286,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		const n = 500
 		placeholders := db.Placeholders(1, n)
 		args := make([]interface{}, n)
-		for i := 0; i < n; i++ {
+		for i := range n {
 			args[i] = i
 		}
 		q := fmt.Sprintf("SELECT /* AllCitiesTruncated:pgstatstatements controller='test' */ * FROM city WHERE id IN (%s)", strings.Join(placeholders, ", "))
@@ -401,7 +401,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		var waitGroup sync.WaitGroup
 		n := 1000
 		errChan := make(chan error, 1)
-		for i := 0; i < n; i++ {
+		for i := range n {
 			id := i
 			waitGroup.Add(1)
 			go func() {
@@ -519,12 +519,12 @@ func TestPGStatStatementsQPS(t *testing.T) {
 
 		runTimes := 7000
 		t.Cleanup(func() {
-			for i := 0; i < runTimes; i++ {
+			for i := range runTimes {
 				_, _ = db.Exec(fmt.Sprintf("drop table if exists t%d", i))
 			}
 		})
 
-		for i := 0; i < runTimes; i++ {
+		for i := range runTimes {
 			_, err = db.Exec(fmt.Sprintf("create /* controller='test' */ table t%d (id int);", i))
 			require.NoError(t, err)
 			_, err = db.Exec(fmt.Sprintf("insert /* controller='test' */ into t%d values(1);", i))
@@ -543,7 +543,7 @@ func TestPGStatStatementsQPS(t *testing.T) {
 		}
 		assert.Zero(t, mismatchedCount)
 
-		for i := 0; i < runTimes; i++ {
+		for i := range runTimes {
 			_, err = db.Exec(fmt.Sprintf("insert /* controller='test' */ into t%d values(1);", i))
 			require.NoError(t, err)
 		}

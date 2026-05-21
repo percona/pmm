@@ -479,7 +479,7 @@ func TestGetLogs(t *testing.T) {
 			},
 		})
 		require.NoError(t, err)
-		for chunkID := 0; chunkID < 5; chunkID++ {
+		for chunkID := range 5 {
 			_, err = models.CreateJobLog(db.Querier, models.CreateJobLogParams{
 				JobID:   job.ID,
 				ChunkID: chunkID,
