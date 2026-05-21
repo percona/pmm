@@ -36,7 +36,13 @@ Encrypt your dump when you want to protect sensitive data before sharing it exte
 
 When you encrypt a dump, PMM saves the file with an `.enc` suffix, for example `69d4df06-f87a-4cfe-aa7b-9a79d449a9b4.tar.gz.enc`. The encryption password is not stored by PMM so if you lose it, you will need to create a new dump.
 
-To open an encrypted dump, use the [pmm-dump CLI tool](https://docs.percona.com/pmm-dump-documentation/installation.html) to upload the dump file. The CLI tool decrypts it automatically using the password you provided when creating the dump.
+PMM encrypts dump files using AES-256-CTR, an encryption algorithm that protects your data by making the contents unreadable without the correct password. To decrypt a dump, use the [pmm-dump CLI tool](https://docs.percona.com/pmm-dump-documentation/installation.html) or run the following `openssl` command:
+
+```bash
+openssl enc -d -aes-256-ctr -pbkdf2 -in dump.tar.gz.enc -out dump.tar.gz
+```
+
+You will be prompted to enter the password you set when creating the dump.
 
 When importing a non-encrypted dump, pass the `--no-encryption` flag to the pmm-dump CLI tool to skip the password prompt.
 
