@@ -537,7 +537,14 @@ export const InstallClientPage = () => {
                     label="Use insecure TLS"
                   />
 
-                  <Alert severity="warning" variant="outlined">
+                  <Box
+                    sx={{
+                      border: 1,
+                      borderColor: 'warning.main',
+                      borderRadius: 1,
+                      p: 1.5,
+                    }}
+                  >
                     <FormControlLabel
                       sx={{ m: 0, alignItems: 'flex-start' }}
                       control={
@@ -549,8 +556,14 @@ export const InstallClientPage = () => {
                       }
                       label={
                         <Box>
-                          <Typography variant="body2">Force re-register node</Typography>
-                          <Typography variant="caption" color="text.secondary">
+                          <Typography variant="body2" color="text.primary">
+                            Force re-register node
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ mt: 0.5 }}
+                          >
                             Removes the existing node and <strong>all its services</strong> on PMM
                             Server, then registers again. Use only to recover from a failed first
                             install — not when adding another database instance.
@@ -558,7 +571,7 @@ export const InstallClientPage = () => {
                         </Box>
                       }
                     />
-                  </Alert>
+                  </Box>
                 </Stack>
               </AccordionDetails>
             </Accordion>
