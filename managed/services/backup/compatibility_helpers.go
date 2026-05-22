@@ -179,6 +179,8 @@ func mysqlAndXtrabackupCoreVersionsCompatible(mysqlVersion, xtrabackupVersion *v
 				return true
 			}
 		}
+	case mysqlXtrabackupBandUnsupported:
+		return false
 	}
 
 	return false
