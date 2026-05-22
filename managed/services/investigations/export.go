@@ -304,21 +304,20 @@ func blockExportContent(blk *models.InvestigationBlock) (string, error) { //noli
 		b.WriteString("</figure>")
 		return b.String(), nil
 	default:
-		// Generic: show data_json as formatted JSON or title
-		if len(blk.DataJSON) > 0 {
-			var raw map[string]any
-			err := json.Unmarshal(blk.DataJSON, &raw)
-			if err != nil {
-				//nolint:nilerr // fallback: show raw bytes when unmarshal fails
-				return "<pre>" + html.EscapeString(string(blk.DataJSON)) + "</pre>", nil
-			}
-			content, mErr := json.MarshalIndent(raw, "", "  ")
-			if mErr != nil {
-				//nolint:nilerr // fallback: show raw bytes when marshal fails
-				return "<pre>" + html.EscapeString(string(blk.DataJSON)) + "</pre>", nil
-			}
-			return "<pre>" + html.EscapeString(string(content)) + "</pre>", nil
+		// Generic: show data_json as formatted JSON; fall back to raw bytes.
+		if len(blk.DataJSON) == 0 {
+			return "<p>(no data)</p>", nil
 		}
-		return "<p>(no data)</p>", nil
+		rawHTML := "<pre>" + html.EscapeString(string(blk.DataJSON)) + "</pre>"
+		var v any
+		err := json.Unmarshal(blk.DataJSON, &v)
+		if err != nil {
+			return rawHTML, nil //nolint:nilerr // fallback: show raw bytes when unmarshal fails
+		}
+		content, mErr := json.MarshalIndent(v, "", "  ")
+		if mErr != nil {
+			return rawHTML, nil //nolint:nilerr // defensive: re-marshal of already-unmarshalled JSON should not fail
+		}
+		return "<pre>" + html.EscapeString(string(content)) + "</pre>", nil
 	}
 }
