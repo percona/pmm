@@ -1276,6 +1276,7 @@ var (
 		(*ListPitrTimerangesResponse)(nil),             // 27: backup.v1.ListPitrTimerangesResponse
 	}
 )
+
 var file_backup_v1_backup_proto_depIdxs = []int32{
 	15, // 0: backup.v1.StartBackupRequest.retry_interval:type_name -> google.protobuf.Duration
 	16, // 1: backup.v1.StartBackupRequest.data_model:type_name -> backup.v1.DataModel
