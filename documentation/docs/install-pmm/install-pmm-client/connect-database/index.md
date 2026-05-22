@@ -15,6 +15,7 @@ Percona Monitoring and Management (PMM) supports monitoring for MySQL/MariaDB, P
 - [External services](external.md)
 - [HAProxy](haproxy.md)
 - [Remote instances](remote.md)
+- [Kubernetes cluster monitoring](kubernetes.md) (technical preview)
 
 | Database type                                | Local monitoring | Remote monitoring | Query Analytics (QAN) | Performance schema | Backup integration |
 |----------------------------------------------|------------------|-------------------|------------------|---------------------|---------------------|
