@@ -20,7 +20,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -112,12 +111,12 @@ func (s *Service) UpdateUser(ctx context.Context, req *userv1.UpdateUserRequest)
 		if req.SnoozedPmmVersion != nil {
 			if *req.SnoozedPmmVersion != userInfo.SnoozedPMMVersion {
 				params.SnoozedPMMVersion = req.SnoozedPmmVersion
-				params.SnoozeCount = pointer.ToInt(1)
+				params.SnoozeCount = new(1)
 			} else {
-				params.SnoozeCount = pointer.ToInt(userInfo.SnoozeCount + 1)
+				params.SnoozeCount = new(userInfo.SnoozeCount + 1)
 			}
 
-			params.SnoozedAt = pointer.ToTime(time.Now())
+			params.SnoozedAt = new(time.Now())
 		}
 
 		userInfo, err = models.UpdateUser(tx.Querier, params)

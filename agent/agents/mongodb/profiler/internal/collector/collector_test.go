@@ -120,9 +120,6 @@ func TestCollector(t *testing.T) {
 	// cursorTimeout*time.Duration(maxLoops*2): Wait time between loops to produce iter.TryNext to return a false
 	timeout := time.Millisecond*time.Duration(maxDocs*maxLoops) + cursorTimeout*time.Duration(maxLoops*2) + 5*time.Second
 
-	logrus.SetLevel(logrus.TraceLevel)
-	defer logrus.SetLevel(logrus.InfoLevel)
-
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
@@ -168,7 +165,7 @@ func TestCollector(t *testing.T) {
 	wg.Wait()
 	ctr.Stop()
 
-	assert.Equal(t, maxDocs*maxLoops, len(profiles))
+	assert.Len(t, profiles, maxDocs*maxLoops)
 }
 
 func genData(ctx context.Context, client *mongo.Client, maxLoops, maxDocs int) {

@@ -55,7 +55,7 @@ func TestNodeHelpers(t *testing.T) {
 				NodeID:    "MySQLNode",
 				NodeType:  models.ContainerNodeType,
 				NodeName:  "Node for MySQL Service",
-				MachineID: pointer.ToString("MySQLNode"),
+				MachineID: new("MySQLNode"),
 			},
 			&models.Service{
 				ServiceID:   "MySQL",
@@ -69,26 +69,26 @@ func TestNodeHelpers(t *testing.T) {
 				NodeID:    "GenericNode",
 				NodeType:  models.GenericNodeType,
 				NodeName:  "Node for Agents",
-				MachineID: pointer.ToString("GenericNode"),
+				MachineID: new("GenericNode"),
 			},
 			&models.Agent{
 				AgentID:      "pmm-agent",
 				AgentType:    models.PMMAgentType,
-				RunsOnNodeID: pointer.ToString("GenericNode"),
+				RunsOnNodeID: new("GenericNode"),
 			},
 
 			&models.Agent{
 				AgentID:    "node_exporter",
 				AgentType:  models.NodeExporterType,
-				PMMAgentID: pointer.ToString("pmm-agent"),
-				NodeID:     pointer.ToString("GenericNode"),
+				PMMAgentID: new("pmm-agent"),
+				NodeID:     new("GenericNode"),
 			},
 
 			&models.Agent{
 				AgentID:    "mysqld_exporter",
 				AgentType:  models.MySQLdExporterType,
-				PMMAgentID: pointer.ToString("pmm-agent"),
-				ServiceID:  pointer.ToString("MySQL"),
+				PMMAgentID: new("pmm-agent"),
+				ServiceID:  new("MySQL"),
 			},
 
 			&models.Node{
@@ -99,7 +99,7 @@ func TestNodeHelpers(t *testing.T) {
 			&models.Agent{
 				AgentID:      "pmm-agent1",
 				AgentType:    models.PMMAgentType,
-				RunsOnNodeID: pointer.ToString("NodeWithPMMAgent"),
+				RunsOnNodeID: new("NodeWithPMMAgent"),
 			},
 
 			&models.Node{
@@ -128,9 +128,9 @@ func TestNodeHelpers(t *testing.T) {
 			machineID := "GenericNode"
 			_, err := models.CreateNode(q, models.GenericNodeType, &models.CreateNodeParams{
 				NodeName:  t.Name(),
-				MachineID: pointer.ToString(machineID + "\n"),
+				MachineID: new(machineID + "\n"),
 			})
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			structs, err := q.SelectAllFrom(models.NodeTable, "WHERE machine_id = $1 ORDER BY node_id", machineID)
 			require.NoError(t, err)
@@ -173,14 +173,14 @@ func TestNodeHelpers(t *testing.T) {
 			NodeID:    "GenericNode",
 			NodeType:  models.GenericNodeType,
 			NodeName:  "Node for Agents",
-			MachineID: pointer.ToString("GenericNode"),
+			MachineID: new("GenericNode"),
 			CreatedAt: now,
 			UpdatedAt: now,
 		}, {
 			NodeID:    "MySQLNode",
 			NodeType:  models.ContainerNodeType,
 			NodeName:  "Node for MySQL Service",
-			MachineID: pointer.ToString("MySQLNode"),
+			MachineID: new("MySQLNode"),
 			CreatedAt: now,
 			UpdatedAt: now,
 		}, {
@@ -205,7 +205,7 @@ func TestNodeHelpers(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
 
-		nodes, err := models.FindNodes(q, models.NodeFilters{NodeType: pointerToNodeType(models.ContainerNodeType)})
+		nodes, err := models.FindNodes(q, models.NodeFilters{NodeType: new(models.ContainerNodeType)})
 		require.NoError(t, err)
 
 		expected := []*models.Node{
@@ -213,7 +213,7 @@ func TestNodeHelpers(t *testing.T) {
 				NodeID:    "MySQLNode",
 				NodeType:  models.ContainerNodeType,
 				NodeName:  "Node for MySQL Service",
-				MachineID: pointer.ToString("MySQLNode"),
+				MachineID: new("MySQLNode"),
 				CreatedAt: now,
 				UpdatedAt: now,
 			},
@@ -242,21 +242,17 @@ func TestNodeHelpers(t *testing.T) {
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, `Node with ID "MySQLNode" has services.`), err)
 
 		err = models.RemoveNode(q, "EmptyNode", models.RemoveRestrict)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		err = models.RemoveNode(q, "GenericNode", models.RemoveCascade)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		err = models.RemoveNode(q, "NodeWithPMMAgent", models.RemoveCascade)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		err = models.RemoveNode(q, "MySQLNode", models.RemoveCascade)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		nodes, err := models.FindNodes(q, models.NodeFilters{})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.Len(t, nodes, 1) // PMM Server
 	})
-}
-
-func pointerToNodeType(nodeType models.NodeType) *models.NodeType {
-	return &nodeType
 }

@@ -223,9 +223,7 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig, logReadLines
 	if pprofConfig != nil {
 		filesSync := &sync.Mutex{}
 		var wg sync.WaitGroup
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			traceBytes, err := pprofUtils.Trace(ctx, pprofConfig.TraceDuration)
 			filesSync.Lock()
 			files = append(files, fileContent{
@@ -234,11 +232,9 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig, logReadLines
 				Err:  err,
 			})
 			filesSync.Unlock()
-		}()
+		})
 
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			profileBytes, err := pprofUtils.Profile(ctx, pprofConfig.ProfileDuration)
 			filesSync.Lock()
 			files = append(files, fileContent{
@@ -247,11 +243,9 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig, logReadLines
 				Err:  err,
 			})
 			filesSync.Unlock()
-		}()
+		})
 
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			heapBytes, err := pprofUtils.Heap(true)
 			filesSync.Lock()
 			files = append(files, fileContent{
@@ -260,7 +254,7 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig, logReadLines
 				Err:  err,
 			})
 			filesSync.Unlock()
-		}()
+		})
 
 		wg.Wait()
 	}
@@ -315,7 +309,7 @@ func readLog(name string, maxLines int) ([]byte, time.Time, error) {
 	}
 
 	res := []byte{}
-	r.Do(func(v interface{}) {
+	r.Do(func(v any) {
 		if v != nil {
 			res = append(res, v.([]byte)...) //nolint:forcetypeassert
 		}

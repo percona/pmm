@@ -15,10 +15,15 @@ on:
   pull_request:
     paths-ignore:
       - "documentation/**"
-      - "dashboards/**"  
+      - "dashboards/**"
 
 permissions:
   contents: read
+
+env:
+  GONOPROXY: 'github.com/percona,github.com/Percona-Lab'
+  GONOSUMDB: 'github.com/percona,github.com/Percona-Lab'
+  GOPRIVATE: 'github.com/percona,github.com/Percona-Lab'
 
 jobs:
   check:
@@ -57,8 +62,7 @@ jobs:
 
       - name: Download Go modules
         run: |
-          pushd tools && go mod download -x
-          popd        && go mod download -x
+          go mod download -x
 
       - name: Install development tools
         run: make init
@@ -72,8 +76,7 @@ jobs:
       - name: Check files are formatted and no source code changes
         run: |
           make format
-          pushd tools && go mod tidy -v
-          popd        && go mod tidy -v
+          go mod tidy -v
           git status
           git diff --exit-code
 
@@ -86,16 +89,16 @@ jobs:
       - name: Run check-license
         run: |
           # run license checker on configured files
-          bin/license-eye -c .licenserc.yaml header check
+          go tool license-eye -c .licenserc.yaml header check
 
       - name: Run go-sumtype
-        run: bin/go-sumtype ./...
+        run: go tool go-sumtype ./...
 
       - name: Run API linter
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
-          if out=$(bin/buf lint -v api); code="$?"; test "$code" -eq 0; then
+          if out=$(go tool buf lint -v api); code="$?"; test "$code" -eq 0; then
             echo "$out"
             exit 0
           fi
@@ -108,7 +111,7 @@ jobs:
           fi
 
           # One may need to suppress passing to reviewdog because of https://github.com/reviewdog/reviewdog/issues/1696
-          echo "$out" | bin/reviewdog -f=buf -reporter=github-pr-review -fail-level=error
+          echo "$out" | go tool reviewdog -f=buf -reporter=github-pr-review -fail-level=error
 
       - name: Run code linters
         uses: reviewdog/action-golangci-lint@c76cceaaab89abe74e649d2e34c6c9adc26662d2 # v2.10.0
@@ -119,7 +122,7 @@ jobs:
           fail_level: error
           cache: false
           golangci_lint_flags: "-c=.golangci.yml"
-          golangci_lint_version: v2.6.2 # Version should match specified in Makefile
+          golangci_lint_version: v2.12.2 # Version should match specified in Makefile
 
       - name: Test common API
         run: make test-common

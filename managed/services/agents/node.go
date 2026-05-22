@@ -47,7 +47,8 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion 
 
 	// do not tweak collectors on macOS as many (but not) of them are Linux-specific
 	if node.Distro != "darwin" {
-		args = append(args,
+		args = append(
+			args,
 			// LR
 			"--collector.bonding",
 			"--collector.entropy",

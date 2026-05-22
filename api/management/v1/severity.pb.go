@@ -122,7 +122,7 @@ func file_management_v1_severity_proto_rawDescGZIP() []byte {
 var (
 	file_management_v1_severity_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 	file_management_v1_severity_proto_goTypes   = []any{
-		(Severity)(0), // 0: management.v1.Severity
+		Severity(0), // 0: management.v1.Severity
 	}
 )
 

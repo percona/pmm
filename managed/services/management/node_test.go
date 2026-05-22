@@ -119,7 +119,7 @@ func TestNodeService(t *testing.T) {
 				Token: "test-token",
 			}
 			assert.Equal(t, expected, res)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		})
 
 		t.Run("Exist", func(t *testing.T) {
@@ -184,7 +184,7 @@ func TestNodeService(t *testing.T) {
 				Token: "test-token",
 			}
 			assert.Equal(t, expected, res)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		})
 
 		t.Run("Register/Unregister", func(t *testing.T) {
@@ -219,14 +219,14 @@ func TestNodeService(t *testing.T) {
 				Region:     "region",
 				Reregister: true,
 			})
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			res, err := s.UnregisterNode(ctx, &managementv1.UnregisterNodeRequest{
 				NodeId: resRegister.GenericNode.NodeId,
 				Force:  true,
 			})
-			assert.NoError(t, err)
-			assert.Equal(t, "", res.Warning)
+			require.NoError(t, err)
+			assert.Empty(t, res.Warning)
 		})
 	})
 
