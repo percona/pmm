@@ -101,7 +101,7 @@ func TestDumps(t *testing.T) {
 		findTX, err := db.Begin()
 		require.NoError(t, err)
 		t.Cleanup(func() {
-			assert.Error(t, findTX.Rollback())
+			assert.NoError(t, findTX.Rollback())
 		})
 
 		endTime := time.Now()

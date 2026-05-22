@@ -43,8 +43,8 @@ func TestQueryExplain(t *testing.T) {
 	dsn := tests.GetTestMongoDBDSN(t)
 	client := tests.OpenTestMongoDB(t, dsn)
 	t.Cleanup(func() {
-		assert.Error(t, client.Disconnect(ctx))
-		assert.Error(t, client.Database(database).Drop(ctx))
+		assert.NoError(t, client.Disconnect(ctx))
+		assert.NoError(t, client.Database(database).Drop(ctx))
 	})
 
 	t.Run("Find", func(t *testing.T) {
@@ -260,7 +260,7 @@ func TestMongoDBExplain(t *testing.T) {
 	dsn := tests.GetTestMongoDBDSN(t)
 	client := tests.OpenTestMongoDB(t, dsn)
 	t.Cleanup(func() {
-		assert.Error(t, client.Database(database).Drop(ctx))
+		assert.NoError(t, client.Database(database).Drop(ctx))
 	})
 
 	err := prepareData(ctx, client, database, collection)
@@ -330,7 +330,7 @@ func TestNewMongoDBExplain(t *testing.T) {
 	dsn := tests.GetTestMongoDBDSN(t)
 	client := tests.OpenTestMongoDB(t, dsn)
 	t.Cleanup(func() {
-		assert.Error(t, client.Database(database).Drop(ctx))
+		assert.NoError(t, client.Database(database).Drop(ctx))
 	})
 
 	_, err := client.Database(database).Collection("people").InsertOne(ctx, bson.M{"last_name": "Brannigan", "first_name": "Zapp"})

@@ -33,6 +33,7 @@ func TestConnectionRequestUsesExporterConnectionTimeout(t *testing.T) {
 
 	sqlDB, mock, err := sqlmock.New()
 	require.NoError(t, err)
+	_ = mock.ExpectClose()
 	t.Cleanup(func() {
 		assert.NoError(t, sqlDB.Close())
 	})
@@ -122,6 +123,7 @@ func TestConnectionRequestDialTimeoutPostgreSQLCloudDefaults(t *testing.T) {
 
 		sqlDB, mock, err := sqlmock.New()
 		require.NoError(t, err)
+		_ = mock.ExpectClose()
 		t.Cleanup(func() {
 			assert.NoError(t, sqlDB.Close())
 		})

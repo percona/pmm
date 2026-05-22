@@ -31,6 +31,7 @@ func TestGetMySQLVersion(t *testing.T) {
 		t.Log("error creating mock database")
 		return
 	}
+	_ = mock.ExpectClose()
 	t.Cleanup(func() {
 		assert.NoError(t, sqlDB.Close())
 	})

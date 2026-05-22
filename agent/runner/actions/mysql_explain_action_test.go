@@ -310,7 +310,7 @@ func TestMySQLExplain(t *testing.T) {
 				conn, err := sqlDB.Conn(ctx)
 				require.NoError(t, err)
 				t.Cleanup(func() {
-					assert.Error(t, conn.Close())
+					assert.NoError(t, conn.Close())
 				})
 
 				_, err = conn.ExecContext(ctx, "DROP TABLE IF EXISTS test_explain_table")
