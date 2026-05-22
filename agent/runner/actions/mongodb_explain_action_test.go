@@ -44,7 +44,8 @@ func TestQueryExplain(t *testing.T) {
 	dsn := tests.GetTestMongoDBDSN(t)
 	client := tests.OpenTestMongoDB(t, dsn)
 	t.Cleanup(func() {
-		cleanupCtx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+		cleanupCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
 		assert.NoError(t, client.Database(database).Drop(cleanupCtx))
 		assert.NoError(t, client.Disconnect(cleanupCtx))
 	})
