@@ -1,4 +1,5 @@
 import type { AxiosError } from 'axios';
+import type { DefaultError, QueryKey } from '@tanstack/react-query';
 
 export interface ApiErrorResponse {
   error: string;
