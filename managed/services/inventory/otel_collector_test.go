@@ -83,7 +83,7 @@ func TestOtelCollectorDuplicateAddAndChange(t *testing.T) {
 	require.Error(t, err)
 	assert.Equal(t, codes.InvalidArgument, status.Convert(err).Code())
 
-	_, err = as.ChangeOtelCollector(ctx, "00000000-0000-4000-8000-000000000006", &inventoryv1.ChangeOtelCollectorParams{
+	_, err = as.ChangeOtelCollector(ctx, pmmAgentID, &inventoryv1.ChangeOtelCollectorParams{
 		MergeLabels: map[string]string{"x": "y"},
 	})
 	require.Error(t, err)

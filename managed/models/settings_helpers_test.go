@@ -64,6 +64,7 @@ func TestSettings(t *testing.T) {
 		expected.Adre.DefaultChatMode = "investigation"
 		expected.Adre.AdreSchemaVersion = models.AdreSchemaVersionCurrent
 		expected.Adre.AdreMaxConversationMessages = 40
+		expected.Adre.AdreChatRetentionDays = pointer.ToInt(models.AdreChatRetentionDaysDefault)
 		expected.Adre.BehaviorControlsFast = map[string]bool{
 			"time_skills":            false,
 			"todowrite_instructions": false,
@@ -106,6 +107,7 @@ func TestSettings(t *testing.T) {
 		expected.Adre.DefaultChatMode = "investigation"
 		expected.Adre.AdreSchemaVersion = models.AdreSchemaVersionCurrent
 		expected.Adre.AdreMaxConversationMessages = 40
+		expected.Adre.AdreChatRetentionDays = pointer.ToInt(models.AdreChatRetentionDaysDefault)
 		expected.Adre.BehaviorControlsFast = map[string]bool{
 			"time_skills":            false,
 			"todowrite_instructions": false,
