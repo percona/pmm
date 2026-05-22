@@ -1,9 +1,6 @@
 import { type MRT_Row } from 'material-react-table';
 import { QueryData } from 'types/rta.types';
 
-export const getNavigableQueryIdsKey = (queries: QueryData[]) =>
-  queries.map((query) => query.queryId).join('\0');
-
 export const filterElapsedTime = (
   row: MRT_Row<QueryData>,
   id: string,

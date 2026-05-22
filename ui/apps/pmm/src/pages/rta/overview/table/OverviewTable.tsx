@@ -12,7 +12,7 @@ import { OVERVIEW_TABLE_COLUMNS } from './OverviewTable.constants';
 import { RealtimeTableWrapper } from 'pages/rta/components/rta-table-wrapper';
 import { boxClasses } from '@mui/material/Box';
 import { Messages } from './OverviewTable.messages';
-import { filterElapsedTime, getNavigableQueryIdsKey } from './OverviewTable.utils';
+import { filterElapsedTime } from './OverviewTable.utils';
 
 interface Props {
   queries: QueryData[];
@@ -30,7 +30,6 @@ const OverviewTable: FC<Props> = ({
   onRowHover,
 }) => {
   const tableRef = useRef<MRT_TableInstance<QueryData> | null>(null);
-  const navigableQueryIdsKeyRef = useRef('');
   // Controlled table state is required to read the filtered/sorted row model via tableInstanceRef.
   const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>([]);
   const [sorting, setSorting] = useState<MRT_SortingState>([]);
@@ -44,13 +43,7 @@ const OverviewTable: FC<Props> = ({
   );
 
   const syncNavigableQueries = useCallback(() => {
-    const navigableQueries = getNavigableQueries();
-    const nextKey = getNavigableQueryIdsKey(navigableQueries);
-    if (navigableQueryIdsKeyRef.current === nextKey) {
-      return;
-    }
-    navigableQueryIdsKeyRef.current = nextKey;
-    onNavigableQueriesChange(navigableQueries);
+    onNavigableQueriesChange(getNavigableQueries());
   }, [getNavigableQueries, onNavigableQueriesChange]);
 
   useEffect(() => {
