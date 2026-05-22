@@ -32,7 +32,6 @@ const OverviewTable: FC<Props> = ({
   const tableRef = useRef<MRT_TableInstance<QueryData> | null>(null);
   // Controlled table state is required to read the filtered/sorted row model via tableInstanceRef.
   const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>([]);
-  const [globalFilter, setGlobalFilter] = useState('');
   const [sorting, setSorting] = useState<MRT_SortingState>([]);
 
   // Pre-pagination so navigation covers all filtered rows, not only the current page.
@@ -45,13 +44,7 @@ const OverviewTable: FC<Props> = ({
 
   useEffect(() => {
     onNavigableQueriesChange(getNavigableQueries());
-  }, [
-    columnFilters,
-    getNavigableQueries,
-    globalFilter,
-    onNavigableQueriesChange,
-    sorting,
-  ]);
+  }, [columnFilters, getNavigableQueries, onNavigableQueriesChange, sorting]);
 
   return (
     <RealtimeTableWrapper>
@@ -75,11 +68,10 @@ const OverviewTable: FC<Props> = ({
             },
           },
         }}
-        state={{ columnFilters, globalFilter, sorting }}
+        state={{ columnFilters, sorting }}
         onColumnFiltersChange={setColumnFilters}
-        onGlobalFilterChange={setGlobalFilter}
         onSortingChange={setSorting}
-        enableGlobalFilter={true}
+        enableGlobalFilter={false}
         enableHiding={false}
         enableRowHoverAction
         tableInstanceRef={tableRef}
