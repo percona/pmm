@@ -80,7 +80,7 @@ func TestRunMongoDBExplain(t *testing.T) {
 
 	var actionOK *actions.GetActionOK
 
-	for i := 0; i < 6; i++ {
+	for range 6 {
 		var err error
 		actionOK, err = client.Default.ActionsService.GetAction(&actions.GetActionParams{
 			Context:  pmmapitests.Context,
@@ -117,6 +117,6 @@ func TestRunMongoDBExplain(t *testing.T) {
 	}
 	m := make(map[string]interface{})
 	err = json.Unmarshal([]byte(actionOK.Payload.Output), &m)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, want, m["queryPlanner"])
 }

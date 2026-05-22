@@ -66,7 +66,7 @@ func TestJobs(t *testing.T) {
 		assert.Equal(t, createJobParams.Data.MongoDBBackup.ArtifactID, job.Data.MongoDBBackup.ArtifactID)
 
 		_, err = models.CreateJob(tx.Querier, models.CreateJobParams{Type: "unknown"})
-		assert.EqualError(t, err, "unknown job type: unknown")
+		require.EqualError(t, err, "unknown job type: unknown")
 	})
 
 	t.Run("find", func(t *testing.T) {
@@ -76,7 +76,7 @@ func TestJobs(t *testing.T) {
 
 		const jobsCount = 3
 		jobs := make([]*models.Job, 0, jobsCount)
-		for i := 0; i < jobsCount; i++ {
+		for i := range jobsCount {
 			id := strconv.Itoa(i)
 			job, err := models.CreateJob(findTX.Querier, models.CreateJobParams{
 				PMMAgentID: "agentid",
@@ -253,7 +253,7 @@ func TestJobLogs(t *testing.T) {
 			logs, err := models.FindJobLogs(tx.Querier, models.JobLogsFilter{
 				JobID: jobID,
 			})
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Empty(t, logs)
 		}
 	})

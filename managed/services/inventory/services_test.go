@@ -346,7 +346,7 @@ func TestServices(t *testing.T) {
 			Address:     new("127.0.0.1"),
 			Port:        new(uint16(27017)),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		expectedMongoDBService := &inventoryv1.MongoDBService{
 			ServiceId:   "00000000-0000-4000-8000-000000000005",
@@ -960,17 +960,17 @@ func TestServices(t *testing.T) {
 				},
 			)
 			assert.NotNil(t, response)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			service, err = models.FindServiceByID(s.db.Querier, service.ServiceID)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.NotNil(t, service)
 
 			labels, err := service.GetCustomLabels()
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Len(t, labels, 2)
-			assert.Equal(t, labels["newKey"], "newValue")
-			assert.Equal(t, labels["newKey2"], "newValue2")
+			assert.Equal(t, "newValue", labels["newKey"])
+			assert.Equal(t, "newValue2", labels["newKey2"])
 		})
 
 		t.Run("Replace a label", func(t *testing.T) {
@@ -1004,17 +1004,17 @@ func TestServices(t *testing.T) {
 				},
 			)
 
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			service, err = models.FindServiceByID(s.db.Querier, service.ServiceID)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.NotNil(t, service)
 
 			labels, err := service.GetCustomLabels()
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Len(t, labels, 2)
-			assert.Equal(t, labels["newKey"], "newValue")
-			assert.Equal(t, labels["newKey2"], "newValue-replaced")
+			assert.Equal(t, "newValue", labels["newKey"])
+			assert.Equal(t, "newValue-replaced", labels["newKey2"])
 		})
 	})
 
@@ -1055,16 +1055,16 @@ func TestServices(t *testing.T) {
 				},
 				nil,
 			)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			service, err = models.FindServiceByID(s.db.Querier, service.ServiceID)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.NotNil(t, service)
 
 			labels, err := service.GetCustomLabels()
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Len(t, labels, 1)
-			assert.Equal(t, labels["newKey3"], "newValue3")
+			assert.Equal(t, "newValue3", labels["newKey3"])
 		})
 	})
 }
