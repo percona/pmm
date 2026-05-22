@@ -1217,7 +1217,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	wg.Go(func() {
 		err := haService.Run(ctx)
 		if err != nil {
-			l.Panicf("cannot start high availability service: %+v", err)
+			l.Fatalf("cannot start high availability service: %+v", err)
 		}
 	})
 
