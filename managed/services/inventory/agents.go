@@ -592,10 +592,7 @@ func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, p *invento
 	}
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		// tweak according to API docs
-		maxSlowlogFileSize := p.MaxSlowlogFileSize
-		if maxSlowlogFileSize < 0 {
-			maxSlowlogFileSize = 0
-		}
+		maxSlowlogFileSize := max(p.MaxSlowlogFileSize, 0)
 
 		params := &models.CreateAgentParams{
 			PMMAgentID:    p.PmmAgentId,

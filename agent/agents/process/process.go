@@ -78,7 +78,7 @@ type Params struct {
 	Env              []string
 	Type             inventoryv1.AgentType
 	TemplateRenderer *templates.TemplateRenderer
-	TemplateParams   map[string]interface{}
+	TemplateParams   map[string]any
 }
 
 func (p *Params) String() string {

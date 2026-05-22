@@ -285,7 +285,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 		const n = 500
 		placeholders := db.Placeholders(1, n)
-		args := make([]interface{}, n)
+		args := make([]any, n)
 		for i := range n {
 			args[i] = i
 		}
@@ -403,16 +403,14 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		errChan := make(chan error, 1)
 		for i := range n {
 			id := i
-			waitGroup.Add(1)
-			go func() {
-				defer waitGroup.Done()
+			waitGroup.Go(func() {
 				_, err := db.Exec(
 					fmt.Sprintf(`INSERT /* CheckMBlkReadTime controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES (%d, 'John', 'Dow', TRUE)`, tableName, id),
 				)
 				if err != nil {
 					errChan <- err
 				}
-			}()
+			})
 		}
 		go func() {
 			waitGroup.Wait()
