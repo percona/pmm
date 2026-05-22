@@ -42,10 +42,10 @@ type holmesStreamOutcome struct {
 }
 
 // parseHolmesSSEStream tees every line to forward (if non-nil), then parses events for persistence.
-func parseHolmesSSEStream(src io.Reader, forward func([]byte) error) (out holmesStreamOutcome, sawErrorEvent bool, err error) {
+func parseHolmesSSEStream(src io.Reader, forward func([]byte) error) (out holmesStreamOutcome, sawErrorEvent bool, err error) { //nolint:gocognit,nonamedreturns
 	sc := bufio.NewScanner(src)
 	// Large Holmes payloads in a single data: line.
-	sc.Buffer(make([]byte, 64*1024), 1024*1024)
+	sc.Buffer(make([]byte, 64*1024), 1024*1024) //nolint:mnd
 
 	var eventName string
 	var dataLines []string
@@ -119,7 +119,7 @@ func parseHolmesSSEStream(src io.Reader, forward func([]byte) error) (out holmes
 			dispatch()
 		}
 	}
-	if err := sc.Err(); err != nil && !errors.Is(err, io.EOF) {
+	if err := sc.Err(); err != nil && !errors.Is(err, io.EOF) { //nolint:noinlineerr
 		return out, sawErrorEvent, err
 	}
 	dispatch()

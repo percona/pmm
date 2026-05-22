@@ -48,7 +48,7 @@ func EnsureOtelSchema(ctx context.Context, dsn string, retentionDays int) error 
 
 	db.SetConnMaxLifetime(0)
 
-	if err := ensureOtelDatabase(ctx, db); err != nil {
+	if err := ensureOtelDatabase(ctx, db); err != nil { //nolint:noinlineerr
 		return err
 	}
 	logrus.Debug("OTEL schema: database otel ensured")
@@ -86,7 +86,7 @@ ORDER BY (ServiceName, TimestampTime, Timestamp, TraceId)
 TTL TimestampTime + toIntervalDay(%d)
 SETTINGS index_granularity = 8192, ttl_only_drop_parts = 1`, tableEngine, retentionDays)
 
-	if _, err := db.ExecContext(ctx, createTable); err != nil {
+	if _, err := db.ExecContext(ctx, createTable); err != nil { //nolint:noinlineerr
 		return fmt.Errorf("create table otel.logs: %w", err)
 	}
 	logrus.Debug("OTEL schema: table otel.logs ensured")

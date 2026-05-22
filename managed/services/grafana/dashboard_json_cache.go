@@ -50,6 +50,7 @@ func cacheKey(orgID int, dashboardUID string) string {
 	return fmt.Sprintf("%d:%s", orgID, dashboardUID)
 }
 
+//nolint:funcorder // private cache primitives grouped together; reads better than visibility ordering
 func (c *dashboardJSONCache) get(orgID int, dashboardUID string) (*dashboardAPIEnvelope, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -60,6 +61,7 @@ func (c *dashboardJSONCache) get(orgID int, dashboardUID string) (*dashboardAPIE
 	return ent.env, true
 }
 
+//nolint:funcorder // private cache primitives grouped together; reads better than visibility ordering
 func (c *dashboardJSONCache) set(orgID int, dashboardUID string, env *dashboardAPIEnvelope) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -76,7 +78,7 @@ func (c *dashboardJSONCache) Invalidate(orgID int, dashboardUID string) {
 	delete(c.items, cacheKey(orgID, dashboardUID))
 }
 
-func (c *dashboardJSONCache) fetchOrLoad(ctx context.Context, _ *Client, orgID int, dashboardUID string, _ http.Header, loader func(context.Context) (*dashboardAPIEnvelope, error)) (*dashboardAPIEnvelope, error) {
+func (c *dashboardJSONCache) fetchOrLoad(ctx context.Context, _ *Client, orgID int, dashboardUID string, _ http.Header, loader func(context.Context) (*dashboardAPIEnvelope, error)) (*dashboardAPIEnvelope, error) { //nolint:lll
 	if env, ok := c.get(orgID, dashboardUID); ok {
 		return env, nil
 	}

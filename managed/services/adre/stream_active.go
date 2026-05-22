@@ -32,7 +32,7 @@ func NewActiveChatStreams() *ActiveChatStreams {
 }
 
 // Register adds a cancel function; the returned callback unregisters when the stream ends.
-func (a *ActiveChatStreams) Register(conversationID int64, cancel context.CancelFunc) (done func()) {
+func (a *ActiveChatStreams) Register(conversationID int64, cancel context.CancelFunc) (done func()) { //nolint:nonamedreturns
 	a.mu.Lock()
 	a.m[conversationID] = cancel
 	a.mu.Unlock()

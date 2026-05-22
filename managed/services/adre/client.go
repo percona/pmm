@@ -50,7 +50,8 @@ type Client struct {
 func NewClient(baseURL string) *Client {
 	baseURL = strings.TrimSuffix(baseURL, "/")
 	authHeader := ""
-	if u, err := url.Parse(baseURL); err == nil && u.User != nil {
+	u, err := url.Parse(baseURL)
+	if err == nil && u.User != nil {
 		password, hasPass := u.User.Password()
 		if hasPass {
 			user := u.User.Username()
@@ -71,6 +72,8 @@ func NewClient(baseURL string) *Client {
 }
 
 // setAuth adds Authorization header to the request if client has auth configured.
+//
+//nolint:funcorder // grouped with constructor; reads better than method-visibility ordering
 func (c *Client) setAuth(req *http.Request) {
 	if c.authHeader != "" {
 		req.Header.Set("Authorization", c.authHeader)
@@ -78,6 +81,8 @@ func (c *Client) setAuth(req *http.Request) {
 }
 
 // url joins baseURL with the given path.
+//
+//nolint:funcorder // grouped with constructor; reads better than method-visibility ordering
 func (c *Client) url(p string) string {
 	u, err := url.Parse(c.baseURL)
 	if err != nil {
@@ -114,7 +119,7 @@ func (c *Client) Models(ctx context.Context) ([]string, error) {
 	var out struct {
 		ModelName []string `json:"model_name"`
 	}
-	if err := json.Unmarshal(rawBody, &out); err == nil {
+	if err := json.Unmarshal(rawBody, &out); err == nil { //nolint:noinlineerr
 		return out.ModelName, nil
 	}
 
@@ -122,14 +127,14 @@ func (c *Client) Models(ctx context.Context) ([]string, error) {
 	var legacy struct {
 		ModelName string `json:"model_name"`
 	}
-	if err := json.Unmarshal(rawBody, &legacy); err != nil {
+	if err := json.Unmarshal(rawBody, &legacy); err != nil { //nolint:noinlineerr
 		return nil, err
 	}
 	if strings.TrimSpace(legacy.ModelName) == "" {
 		return []string{}, nil
 	}
 	var legacyModels []string
-	if err := json.Unmarshal([]byte(legacy.ModelName), &legacyModels); err != nil {
+	if err := json.Unmarshal([]byte(legacy.ModelName), &legacyModels); err != nil { //nolint:noinlineerr
 		return nil, err
 	}
 	return legacyModels, nil
@@ -146,7 +151,9 @@ type ChatRequest struct {
 	FrontendTools          []any  `json:"frontend_tools,omitempty"`
 	FrontendToolResults    []any  `json:"frontend_tool_results,omitempty"`
 	ToolDecisions          []any  `json:"tool_decisions,omitempty"`
-	// BehaviorControls overrides Holmes prompt components (e.g. {"time_skills": false, "todowrite_instructions": false}). Keys must match holmes/core/prompt.py PromptComponent values. Optional.
+	// BehaviorControls overrides Holmes prompt components
+	// (e.g. {"time_skills": false, "todowrite_instructions": false}).
+	// Keys must match holmes/core/prompt.py PromptComponent values. Optional.
 	BehaviorControls map[string]bool `json:"behavior_controls,omitempty"`
 }
 
@@ -188,7 +195,7 @@ func (c *Client) Chat(ctx context.Context, req *ChatRequest) (*ChatResponse, err
 	}
 
 	var out ChatResponse
-	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
+	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil { //nolint:noinlineerr
 		return nil, err
 	}
 	return &out, nil

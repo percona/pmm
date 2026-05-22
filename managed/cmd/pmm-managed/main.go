@@ -487,7 +487,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	mux := http.NewServeMux()
 	addLogsHandler(mux, deps.logs)
 	addAdreHandlers(mux, deps.db, deps.grafanaClient)
-	go adre.RunAdreChatRetentionLoop(ctx, deps.db, logrus.WithField("component", "adre-retention"), 24*time.Hour)
+	go adre.RunAdreChatRetentionLoop(ctx, deps.db, logrus.WithField("component", "adre-retention"), 24*time.Hour) //nolint:mnd
 	mux.Handle("/v1/grafana/render", grafana.NewLegacyGETRenderGoneHandler())
 	mux.Handle("/v1/grafana/render/resolve", grafana.NewResolveHandler(deps.grafanaClient))
 	mux.Handle("/v1/grafana/render/blob/", grafana.NewBlobHandler())

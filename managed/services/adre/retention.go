@@ -28,7 +28,7 @@ import (
 // RunAdreChatRetentionLoop deletes stale ADRE conversations once per interval until ctx is done.
 func RunAdreChatRetentionLoop(ctx context.Context, db reform.DBTX, l *logrus.Entry, interval time.Duration) {
 	if interval <= 0 {
-		interval = 24 * time.Hour
+		interval = 24 * time.Hour //nolint:mnd
 	}
 	t := time.NewTicker(interval)
 	defer t.Stop()

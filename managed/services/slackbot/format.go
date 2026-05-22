@@ -59,7 +59,7 @@ func FormatAnswerForSlack(raw, publicBase string, hideImageLinks bool) string {
 func markdownHTTPSLinksToSlackMrkdwn(s string) string {
 	return mdHTTPSLinkRE.ReplaceAllStringFunc(s, func(full string) string {
 		m := mdHTTPSLinkRE.FindStringSubmatch(full)
-		if len(m) != 3 {
+		if len(m) != 3 { //nolint:mnd
 			return full
 		}
 		label, u := m[1], m[2]

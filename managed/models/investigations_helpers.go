@@ -48,7 +48,7 @@ func GetInvestigationByID(q *reform.DB, id string) (*Investigation, error) {
 }
 
 // allowedOrderBy columns that can be used in ORDER BY (safe, no user-controlled SQL).
-var allowedOrderBy = map[string]bool{"title": true, "status": true, "created_at": true, "updated_at": true}
+var allowedOrderBy = map[string]bool{"title": true, "status": true, "created_at": true, "updated_at": true} //nolint:goconst
 
 // allowedOrder directions for ORDER BY.
 var allowedOrder = map[string]bool{"asc": true, "desc": true}

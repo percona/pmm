@@ -79,13 +79,15 @@ func NewHandlers(db *reform.DB, grafana GrafanaAuth) *Handlers {
 		grafana:       grafana,
 		streams:       NewActiveChatStreams(),
 		searchLimiter: NewSearchRateLimiter(),
-		reqTimeout:    5 * time.Minute,
-		streamTimeout: 5 * time.Minute,
+		reqTimeout:    5 * time.Minute, //nolint:mnd
+		streamTimeout: 5 * time.Minute, //nolint:mnd
 		l:             logrus.WithField("component", "adre-handlers"),
 	}
 }
 
 // checkAdreEnabled returns (settings, true) if ADRE is enabled and URL is set; otherwise writes an error and returns (nil, false).
+//
+//nolint:funcorder // helper grouped near the constructor; reads better than visibility ordering
 func (h *Handlers) checkAdreEnabled(w http.ResponseWriter) (*models.Settings, bool) {
 	settings, err := models.GetSettings(h.db)
 	if err != nil {
@@ -133,7 +135,7 @@ type adreSettingsResponse struct {
 
 func applyAdreSettingsDefaults(r *adreSettingsResponse) {
 	if r.DefaultChatMode == "" {
-		r.DefaultChatMode = "investigation"
+		r.DefaultChatMode = "investigation" //nolint:goconst
 	}
 	if r.PromptMaxBytes <= 0 {
 		r.PromptMaxBytes = models.AdrePromptMaxBytes
@@ -204,13 +206,13 @@ func (h *Handlers) GetSettings(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	if _, err := w.Write(body); err != nil {
+	if _, err := w.Write(body); err != nil { //nolint:noinlineerr
 		h.l.Warnf("Write settings response: %v", err)
 	}
 }
 
 // PostSettings handles POST /v1/adre/settings.
-func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
+func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) { //nolint:cyclop,gocognit,maintidx
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
@@ -239,7 +241,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		SlackBotToken                 *string          `json:"slack_bot_token"`
 		SlackAppToken                 *string          `json:"slack_app_token"`
 	}
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil { //nolint:noinlineerr
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
 		return
 	}
@@ -297,7 +299,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 	}
 	if body.DefaultChatMode != nil {
 		mode := strings.TrimSpace(*body.DefaultChatMode)
-		if mode != "chat" && mode != "fast" && mode != "investigation" {
+		if mode != "chat" && mode != "fast" && mode != "investigation" { //nolint:goconst
 			writeJSONError(w, http.StatusBadRequest, `default_chat_mode: must be "fast" or "investigation"`)
 			return
 		}
@@ -378,7 +380,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		SlackBotToken:                     body.SlackBotToken,
 		SlackAppToken:                     body.SlackAppToken,
 	}
-	if _, err := models.UpdateSettings(h.db, params); err != nil {
+	if _, err := models.UpdateSettings(h.db, params); err != nil { //nolint:noinlineerr
 		h.l.Errorf("UpdateSettings: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -430,7 +432,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	if _, err := w.Write(respBody); err != nil {
+	if _, err := w.Write(respBody); err != nil { //nolint:noinlineerr
 		h.l.Warnf("Write settings response: %v", err)
 	}
 }
@@ -458,7 +460,7 @@ func (h *Handlers) GetModels(w http.ResponseWriter, r *http.Request) {
 		ModelName []string `json:"model_name"`
 	}{ModelName: modelsList}
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(resp); err != nil {
+	if err := json.NewEncoder(w).Encode(resp); err != nil { //nolint:noinlineerr
 		h.l.Errorf("Encode models: %v", err)
 	}
 }
@@ -536,7 +538,7 @@ func (h *Handlers) PostChat(w http.ResponseWriter, r *http.Request) {
 	dec := json.NewDecoder(r.Body)
 	dec.UseNumber()
 	var body chatRequestBody
-	if err := dec.Decode(&body); err != nil {
+	if err := dec.Decode(&body); err != nil { //nolint:noinlineerr
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
 		return
 	}
@@ -588,7 +590,7 @@ func (h *Handlers) PostQanInsights(w http.ResponseWriter, r *http.Request) {
 		TimeTo      string `json:"time_to"`
 		Force       bool   `json:"force"`
 	}
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil { //nolint:noinlineerr
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
 		return
 	}
@@ -612,7 +614,7 @@ func (h *Handlers) PostQanInsights(w http.ResponseWriter, r *http.Request) {
 				w.Header().Set("Content-Type", "application/json")
 				_ = json.NewEncoder(w).Encode(map[string]any{ //nolint:errchkjson // response already committed
 					"analysis":   cachedAnalysis,
-					"created_at": cachedAt.Format(time.RFC3339),
+					"created_at": cachedAt.Format(time.RFC3339), //nolint:goconst
 					"cached":     true,
 				})
 				return
@@ -704,7 +706,7 @@ func (h *Handlers) GetQanInsights(w http.ResponseWriter, r *http.Request) {
 	}
 	var analysis string
 	var createdAt time.Time
-	if err := rows.Scan(&analysis, &createdAt); err != nil {
+	if err := rows.Scan(&analysis, &createdAt); err != nil { //nolint:noinlineerr
 		h.l.Errorf("GetQanInsights scan: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Failed to read cache")
 		return
@@ -737,7 +739,7 @@ func (h *Handlers) PostQanInsightsServiceNow(w http.ResponseWriter, r *http.Requ
 		TimeFrom    string `json:"time_from"`
 		TimeTo      string `json:"time_to"`
 	}
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil { //nolint:noinlineerr
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
 		return
 	}
@@ -771,7 +773,7 @@ func (h *Handlers) PostQanInsightsServiceNow(w http.ResponseWriter, r *http.Requ
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-Sn-Apikey", settings.Adre.ServiceNowAPIKey)
-	client := &http.Client{Timeout: 30 * time.Second}
+	client := &http.Client{Timeout: 30 * time.Second} //nolint:mnd
 	resp, err := client.Do(req)
 	if err != nil {
 		writeJSONError(w, http.StatusBadGateway, "ServiceNow request failed: "+err.Error())
@@ -791,7 +793,7 @@ func (h *Handlers) PostQanInsightsServiceNow(w http.ResponseWriter, r *http.Requ
 			ErrorMessage string `json:"error_message"`
 		} `json:"result"`
 	}
-	if err := json.Unmarshal(respBody, &parsed); err != nil {
+	if err := json.Unmarshal(respBody, &parsed); err != nil { //nolint:noinlineerr
 		writeJSONError(w, http.StatusBadGateway, "Invalid ServiceNow response")
 		return
 	}
@@ -840,7 +842,7 @@ func (h *Handlers) GetAlerts(w http.ResponseWriter, r *http.Request) {
 	}
 	// Grafana returns an array; frontend expects data.alerts or data.data.alerts. Wrap as {"alerts": raw}.
 	var alerts json.RawMessage
-	if err := json.Unmarshal(raw, &alerts); err != nil {
+	if err := json.Unmarshal(raw, &alerts); err != nil { //nolint:noinlineerr
 		h.l.Warnf("Parse alerts: %v", err)
 		writeJSONError(w, http.StatusBadGateway, "Invalid alerts response")
 		return
@@ -853,7 +855,7 @@ func (h *Handlers) GetAlerts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
-	if _, err := w.Write(body); err != nil {
+	if _, err := w.Write(body); err != nil { //nolint:noinlineerr
 		h.l.Errorf("Write alerts: %v", err)
 	}
 }

@@ -40,9 +40,9 @@ func buildOtelCollectorConfigYAML(endpoint, username, password string, logRetent
 		metricsRetentionDays = 90
 	}
 	chEndpoint := "tcp://" + endpoint
-	logsTTL := fmt.Sprintf("%dh", logRetentionDays*24)
-	tracesTTL := fmt.Sprintf("%dh", spanRetentionDays*24)
-	metricsTTL := fmt.Sprintf("%dh", metricsRetentionDays*24)
+	logsTTL := fmt.Sprintf("%dh", logRetentionDays*24)        //nolint:mnd
+	tracesTTL := fmt.Sprintf("%dh", spanRetentionDays*24)     //nolint:mnd
+	metricsTTL := fmt.Sprintf("%dh", metricsRetentionDays*24) //nolint:mnd
 
 	// Exporter blocks: component type is "clickhouse"; multiple instances use type/name keys (e.g. clickhouse/logs).
 	// Underscore-only keys like "clickhouse_logs" are invalid — the loader treats them as unknown types.

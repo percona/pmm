@@ -1695,8 +1695,8 @@ func OpenDB(params SetupDBParams) (*sql.DB, error) {
 	}
 
 	db.SetConnMaxLifetime(0)
-	db.SetMaxIdleConns(5)
-	db.SetMaxOpenConns(10)
+	db.SetMaxIdleConns(5)  //nolint:mnd
+	db.SetMaxOpenConns(10) //nolint:mnd
 
 	return db, nil
 }
@@ -2047,7 +2047,7 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 	// the hostname / HANodeID is unchanged). Re-use the existing node and pmm-agent IDs so local
 	// pmm-agent setup matches inventory; otherwise createNodeWithID fails with AlreadyExists.
 	existingNode, err := FindNodeByName(q, params.HANodeID)
-	if err == nil {
+	if err == nil { //nolint:nestif
 		pmmAgents, ferr := FindPMMAgentsRunningOnNode(q, existingNode.NodeID)
 		if ferr != nil {
 			return ferr
@@ -2060,7 +2060,7 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 		}
 		existingPmmAgentID := pmmAgents[0].AgentID
 
-		if err := runPMMAgentSetupHA(existingPmmAgentID); err != nil {
+		if err := runPMMAgentSetupHA(existingPmmAgentID); err != nil { //nolint:noinlineerr
 			return err
 		}
 
@@ -2072,7 +2072,7 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 			return err
 		}
 		if len(nodeExporters) == 0 {
-			if _, err := CreateNodeExporter(q, existingPmmAgentID, labels, false, false, []string{}, nil, ""); err != nil {
+			if _, err := CreateNodeExporter(q, existingPmmAgentID, labels, false, false, []string{}, nil, ""); err != nil { //nolint:noinlineerr
 				return err
 			}
 		}
@@ -2087,7 +2087,7 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 		return err
 	}
 
-	if err := runPMMAgentSetupHA(agentID); err != nil {
+	if err := runPMMAgentSetupHA(agentID); err != nil { //nolint:noinlineerr
 		return err
 	}
 

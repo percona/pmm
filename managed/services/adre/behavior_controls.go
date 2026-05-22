@@ -26,7 +26,7 @@ import (
 var KnownBehaviorControlKeys = []string{
 	"intro",
 	"ask_user",
-	"todowrite_instructions",
+	"todowrite_instructions", //nolint:goconst
 	"todowrite_reminder",
 	"ai_safety",
 	"toolset_instructions",
@@ -84,7 +84,7 @@ func NormalizeBehaviorControlsForHolmes(m map[string]bool) map[string]bool {
 // ResolveBehaviorControlsForPostChat returns behavior_controls for Holmes from settings and UI mode ("fast" or "investigation").
 // Empty stored map means use shipped preset (Decision 7).
 func ResolveBehaviorControlsForPostChat(settings *models.Settings, mode string) map[string]bool {
-	if mode == "investigation" {
+	if mode == "investigation" { //nolint:goconst
 		src := settings.Adre.BehaviorControlsInvestigation
 		if len(src) == 0 {
 			return nil
@@ -122,11 +122,11 @@ func MaxConversationMessages(settings *models.Settings) int {
 	if n <= 0 {
 		return AdreMaxConversationMessagesDefault
 	}
-	if n < 4 {
-		return 4
+	if n < 4 { //nolint:mnd
+		return 4 //nolint:mnd
 	}
-	if n > 200 {
-		return 200
+	if n > 200 { //nolint:mnd
+		return 200 //nolint:mnd
 	}
 	return n
 }

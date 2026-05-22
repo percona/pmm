@@ -104,7 +104,8 @@ func (s *Server) AddLogParserPreset(ctx context.Context, req *serverv1.AddLogPar
 	if err != nil {
 		return nil, mapLogParserPresetErr(err)
 	}
-	if err := s.agentsState.UpdateAgentsState(ctx); err != nil {
+	err = s.agentsState.UpdateAgentsState(ctx)
+	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Failed to refresh agents state: %s.", err.Error())
 	}
 	return &serverv1.AddLogParserPresetResponse{Preset: convertLogParserPreset(row)}, nil
@@ -134,7 +135,8 @@ func (s *Server) ChangeLogParserPreset(ctx context.Context, req *serverv1.Change
 		}
 		return nil, mapLogParserPresetErr(err)
 	}
-	if err := s.agentsState.UpdateAgentsState(ctx); err != nil {
+	err = s.agentsState.UpdateAgentsState(ctx)
+	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Failed to refresh agents state: %s.", err.Error())
 	}
 	return &serverv1.ChangeLogParserPresetResponse{Preset: convertLogParserPreset(row)}, nil
@@ -167,10 +169,12 @@ func (s *Server) RemoveLogParserPreset(ctx context.Context, req *serverv1.Remove
 			strings.Join(ids, ", "),
 		)
 	}
-	if err := models.DeleteLogParserPreset(s.db.Querier, req.GetId()); err != nil {
+	err = models.DeleteLogParserPreset(s.db.Querier, req.GetId())
+	if err != nil {
 		return nil, mapLogParserPresetErr(err)
 	}
-	if err := s.agentsState.UpdateAgentsState(ctx); err != nil {
+	err = s.agentsState.UpdateAgentsState(ctx)
+	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Failed to refresh agents state: %s.", err.Error())
 	}
 	return &serverv1.RemoveLogParserPresetResponse{}, nil

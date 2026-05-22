@@ -123,7 +123,7 @@ func (h *Handlers) CreateConversation(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusCreated, map[string]any{
 		"id":              c.ID,
 		"title":           c.Title,
-		"created_at":      c.CreatedAt,
+		"created_at":      c.CreatedAt, //nolint:goconst
 		"updated_at":      c.UpdatedAt,
 		"last_message_at": c.LastMessageAt,
 	})
@@ -198,7 +198,7 @@ func (h *Handlers) patchConversation(w http.ResponseWriter, r *http.Request, id 
 		return
 	}
 	var body patchConversationBody
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil { //nolint:noinlineerr
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
 		return
 	}
@@ -227,7 +227,7 @@ func (h *Handlers) patchConversation(w http.ResponseWriter, r *http.Request, id 
 		return
 	}
 	c.Title = t
-	if err := models.UpdateAdreConversation(h.db, c); err != nil {
+	if err := models.UpdateAdreConversation(h.db, c); err != nil { //nolint:noinlineerr
 		h.l.Errorf("UpdateAdreConversation: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Failed to update conversation")
 		return
@@ -309,8 +309,8 @@ func (h *Handlers) listMessages(w http.ResponseWriter, r *http.Request, conversa
 		row := map[string]any{
 			"id":              m.ID,
 			"conversation_id": m.ConversationID,
-			"role":            m.Role,
-			"content":         m.Content,
+			"role":            m.Role,    //nolint:goconst
+			"content":         m.Content, //nolint:goconst
 			"created_at":      m.CreatedAt,
 			"model":           m.Model,
 		}

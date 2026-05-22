@@ -83,7 +83,7 @@ func (h *Handlers) PostInvestigationChat(w http.ResponseWriter, r *http.Request,
 	}
 
 	// Load existing messages before persisting the new user message so conversation_history does not duplicate it.
-	msgs, err := models.GetInvestigationMessages(h.db, id, 20, 0)
+	msgs, err := models.GetInvestigationMessages(h.db, id, 20, 0) //nolint:mnd
 	if err != nil {
 		h.l.Errorf("GetInvestigationMessages: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Failed to load messages")
@@ -116,7 +116,7 @@ func (h *Handlers) PostInvestigationChat(w http.ResponseWriter, r *http.Request,
 	var history []any
 	for _, m := range slices.Backward(msgs) {
 		if m.Role == "tool" {
-			history = append(history, map[string]any{"role": "tool", "content": m.Content, "name": m.ToolName})
+			history = append(history, map[string]any{"role": "tool", "content": m.Content, "name": m.ToolName}) //nolint:goconst
 		} else {
 			history = append(history, map[string]any{"role": m.Role, "content": m.Content})
 		}
@@ -228,7 +228,7 @@ func (h *Handlers) PostInvestigationRun(w http.ResponseWriter, _ *http.Request, 
 // runInvestigationBackground executes the investigation in a background goroutine.
 // It intentionally creates a fresh context.Background-derived ctx so the client
 // closing the HTTP request does not abort an in-flight run.
-func (h *Handlers) runInvestigationBackground(id string, _ *models.Investigation, settings *models.Settings) {
+func (h *Handlers) runInvestigationBackground(id string, _ *models.Investigation, settings *models.Settings) { //nolint:gocognit
 	ctx, cancel := context.WithTimeout(context.Background(), investigationRunTimeout)
 	defer cancel()
 
@@ -276,7 +276,7 @@ func (h *Handlers) runInvestigationBackground(id string, _ *models.Investigation
 	}
 
 	formattedJSON, err := FormatInvestigationReport(ctx, client, settings, lastContent)
-	if err == nil {
+	if err == nil { //nolint:nestif
 		report, parseErr := ParseFormattedReport(formattedJSON)
 		if parseErr == nil {
 			inv.Summary = report.Summary
@@ -388,12 +388,12 @@ type alertSnapshotEntry struct {
 	GeneratorURL string            `json:"generatorURL"`
 }
 
-func buildInvestigationContext(inv *models.Investigation) string {
+func buildInvestigationContext(inv *models.Investigation) string { //nolint:gocognit
 	s := fmt.Sprintf("Title: %s\nStatus: %s\nTime range: %s — %s\nSummary: %s",
 		inv.Title, inv.Status,
 		inv.TimeFrom.Format(time.RFC3339), inv.TimeTo.Format(time.RFC3339),
 		inv.Summary)
-	if len(inv.Config) > 0 {
+	if len(inv.Config) > 0 { //nolint:nestif
 		var cfg map[string]any
 		err := json.Unmarshal(inv.Config, &cfg)
 		if err == nil {

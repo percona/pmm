@@ -42,7 +42,8 @@ func IsClickhouseClusterReady(ctx context.Context, dsn string, clusterName strin
 
 	row := db.QueryRowContext(ctx, sql, args...)
 	var remoteHosts int
-	if err := row.Scan(&remoteHosts); err != nil {
+	err = row.Scan(&remoteHosts)
+	if err != nil {
 		return false, err
 	}
 	return remoteHosts > 0, nil

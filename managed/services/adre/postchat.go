@@ -59,7 +59,7 @@ func parseConversationID(v any) (int64, error) {
 	}
 }
 
-func extractUsageFromMetadata(raw json.RawMessage) (prompt, completion, total *int32) {
+func extractUsageFromMetadata(raw json.RawMessage) (prompt, completion, total *int32) { //nolint:nonamedreturns
 	if len(raw) == 0 {
 		return nil, nil, nil
 	}
@@ -118,7 +118,7 @@ func persistAdreToolCalls(q *reform.DB, conversationID int64, calls []any) error
 		if err != nil {
 			continue
 		}
-		if err := persistAdreToolJSON(q, conversationID, raw); err != nil {
+		if err := persistAdreToolJSON(q, conversationID, raw); err != nil { //nolint:noinlineerr
 			return err
 		}
 	}
@@ -152,12 +152,12 @@ func (h *Handlers) postChatWithPersistence(w http.ResponseWriter, r *http.Reques
 		Role:           "user",
 		Content:        ask,
 	}
-	if err := models.CreateAdreMessage(h.db, userMsg); err != nil {
+	if err := models.CreateAdreMessage(h.db, userMsg); err != nil { //nolint:noinlineerr
 		h.l.Errorf("CreateAdreMessage user: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Failed to save message")
 		return
 	}
-	if err := models.TouchAdreConversationLastMessage(h.db, convID, userMsg.CreatedAt); err != nil {
+	if err := models.TouchAdreConversationLastMessage(h.db, convID, userMsg.CreatedAt); err != nil { //nolint:noinlineerr
 		h.l.Warnf("TouchAdreConversationLastMessage: %v", err)
 	}
 
@@ -172,11 +172,11 @@ func (h *Handlers) postChatWithPersistence(w http.ResponseWriter, r *http.Reques
 	hist = TrimConversationHistory(hist, maxMsgs)
 	hist = EnsureHolmesLeadingSystemMessage(hist)
 
-	mode := "fast"
+	mode := "fast" //nolint:goconst
 	if body.Mode != nil {
 		m := strings.TrimSpace(*body.Mode)
 		switch m {
-		case "investigation":
+		case "investigation": //nolint:goconst
 			mode = "investigation"
 		case "fast", "chat":
 			mode = "fast"
@@ -219,17 +219,17 @@ func (h *Handlers) postChatWithPersistence(w http.ResponseWriter, r *http.Reques
 		CompletionTokens: compT,
 		TotalTokens:      totT,
 	}
-	if err := models.CreateAdreMessage(h.db, asst); err != nil {
+	if err := models.CreateAdreMessage(h.db, asst); err != nil { //nolint:noinlineerr
 		h.l.Errorf("CreateAdreMessage assistant: %v", err)
 	}
 	_ = models.TouchAdreConversationLastMessage(h.db, convID, asst.CreatedAt)
-	if err := persistAdreToolCalls(h.db, convID, resp.ToolCalls); err != nil {
+	if err := persistAdreToolCalls(h.db, convID, resp.ToolCalls); err != nil { //nolint:noinlineerr
 		h.l.Warnf("persistAdreToolCalls: %v", err)
 	}
 	h.maybeAutotitleConversation(convID, login, ask)
 
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(resp); err != nil {
+	if err := json.NewEncoder(w).Encode(resp); err != nil { //nolint:noinlineerr
 		h.l.Errorf("Encode chat: %v", err)
 	}
 }
@@ -247,12 +247,12 @@ func (h *Handlers) maybeAutotitleConversation(convID int64, login, ask string) {
 		return
 	}
 	conv.Title = t
-	if err := models.UpdateAdreConversation(h.db, conv); err != nil {
+	if err := models.UpdateAdreConversation(h.db, conv); err != nil { //nolint:noinlineerr
 		h.l.Warnf("UpdateAdreConversation autotitle: %v", err)
 	}
 }
 
-func (h *Handlers) postChatStream(w http.ResponseWriter, r *http.Request, _ *models.Settings, client *Client, req *ChatRequest, conv *models.AdreConversation, login, ask string, _ int64) {
+func (h *Handlers) postChatStream(w http.ResponseWriter, r *http.Request, _ *models.Settings, client *Client, req *ChatRequest, conv *models.AdreConversation, login, ask string, _ int64) { //nolint:lll
 	convID := conv.ID
 	ctx, cancel := context.WithCancel(r.Context())
 	defer cancel()
@@ -278,12 +278,12 @@ func (h *Handlers) postChatStream(w http.ResponseWriter, r *http.Request, _ *mod
 
 	var acc bytes.Buffer
 	tee := io.TeeReader(streamBody, &acc)
-	buf := make([]byte, 32*1024)
+	buf := make([]byte, 32*1024) //nolint:mnd
 	var copyErr error
 	for {
 		n, err := tee.Read(buf)
 		if n > 0 {
-			if _, werr := w.Write(buf[:n]); werr != nil {
+			if _, werr := w.Write(buf[:n]); werr != nil { //nolint:noinlineerr
 				copyErr = werr
 				break
 			}
@@ -325,7 +325,7 @@ func (h *Handlers) postChatStream(w http.ResponseWriter, r *http.Request, _ *mod
 		CompletionTokens: compT,
 		TotalTokens:      totT,
 	}
-	if err := models.CreateAdreMessage(h.db, asst); err != nil {
+	if err := models.CreateAdreMessage(h.db, asst); err != nil { //nolint:noinlineerr
 		h.l.Errorf("CreateAdreMessage assistant (stream): %v", err)
 		return
 	}

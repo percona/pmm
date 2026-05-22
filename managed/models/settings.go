@@ -128,7 +128,8 @@ type Settings struct {
 		InvestigationModel string `json:"investigation_model"`
 		// DefaultChatMode: "fast" or "investigation" (empty defaults to "investigation"; legacy "chat" mapped to "fast" in fillDefaults).
 		DefaultChatMode string `json:"default_chat_mode"`
-		// BehaviorControlsFast / Investigation / FormatReport are Holmes behavior_controls maps (see Holmes HTTP API). Empty map uses PMM shipped presets when sending to Holmes.
+		// BehaviorControlsFast / Investigation / FormatReport are Holmes behavior_controls maps
+		// (see Holmes HTTP API). Empty map uses PMM shipped presets when sending to Holmes.
 		BehaviorControlsFast          map[string]bool `json:"behavior_controls_fast,omitempty"`
 		BehaviorControlsInvestigation map[string]bool `json:"behavior_controls_investigation,omitempty"`
 		BehaviorControlsFormatReport  map[string]bool `json:"behavior_controls_format_report,omitempty"`

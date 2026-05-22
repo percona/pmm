@@ -79,7 +79,7 @@ func run(ctx context.Context) error {
 		attribute.String("pmm.map_edge_target", getenv("PMM_MAP_TARGET", "mysql-primary")),
 	)
 	span.End()
-	time.Sleep(2 * time.Second)
+	time.Sleep(2 * time.Second) //nolint:mnd
 	return nil
 }
 

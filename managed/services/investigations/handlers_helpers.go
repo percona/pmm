@@ -50,7 +50,8 @@ func getBlockAndCheckInvestigation(db *reform.DB, investigationID, blockID strin
 		return nil, &httpError{http.StatusNotFound, "Investigation not found"}
 	}
 	var block models.InvestigationBlock
-	if err := db.FindByPrimaryKeyTo(&block, blockID); err != nil {
+	err = db.FindByPrimaryKeyTo(&block, blockID)
+	if err != nil {
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil, &httpError{http.StatusNotFound, "Block not found"}
 		}
@@ -116,7 +117,7 @@ func investigationToResponse(inv *models.Investigation) investigationResponse {
 		ConfidenceRationale:    "",
 		Evidence:               []EvidenceEntry{},
 	}
-	if len(inv.Config) > 0 {
+	if len(inv.Config) > 0 { //nolint:nestif
 		nodeName, serviceName := configNodeService(inv)
 		if nodeName != "" {
 			resp.NodeName = nodeName
@@ -156,7 +157,7 @@ func investigationToResponse(inv *models.Investigation) investigationResponse {
 }
 
 // configNodeService returns node_name and service_name from investigation config JSON.
-func configNodeService(inv *models.Investigation) (nodeName, serviceName string) {
+func configNodeService(inv *models.Investigation) (nodeName, serviceName string) { //nolint:nonamedreturns
 	if len(inv.Config) == 0 {
 		return "", ""
 	}

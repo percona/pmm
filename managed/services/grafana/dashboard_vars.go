@@ -167,7 +167,7 @@ func sanitizeTemplateValue(varName, value string) string {
 // default for that variable by forcing an explicit empty var-* in the final query (var-x=),
 // matching Grafana UI share links for blank cluster/region fields. When the raw value is non-empty
 // but sanitizeTemplateValue returns empty (e.g. invalid agent_id), the default is left unchanged.
-func MergeDashboardVars(d dashboardInner, overrides map[string]string) (map[string]string, error) {
+func MergeDashboardVars(d dashboardInner, overrides map[string]string) (map[string]string, error) { //nolint:gocognit
 	merged := make(map[string]string)
 	validNames := make(map[string]struct{})
 	defByName := make(map[string]templateVariable)

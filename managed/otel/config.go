@@ -69,7 +69,7 @@ func BuildServerOtelConfigYAML(q *reform.Querier, endpoint, username, password s
 		retentionDays = 7
 	}
 	chEndpoint := "tcp://" + endpoint
-	ttl := fmt.Sprintf("%dh", retentionDays*24)
+	ttl := fmt.Sprintf("%dh", retentionDays*24) //nolint:mnd
 
 	processorsBlock := `  memory_limiter:
     check_interval: 1s

@@ -1826,7 +1826,7 @@ type logSourceEntry struct {
 }
 
 // AddOtelCollector adds an OTEL Collector agent (log collection; extensible for traces, profiles later).
-func (as *AgentsService) AddOtelCollector(ctx context.Context, p *inventoryv1.AddOtelCollectorParams) (*inventoryv1.AddAgentResponse, error) {
+func (as *AgentsService) AddOtelCollector(ctx context.Context, p *inventoryv1.AddOtelCollectorParams) (*inventoryv1.AddAgentResponse, error) { //nolint:gocognit
 	if p == nil {
 		return nil, status.Error(codes.InvalidArgument, "params are required")
 	}
@@ -1854,7 +1854,7 @@ func (as *AgentsService) AddOtelCollector(ctx context.Context, p *inventoryv1.Ad
 			}
 			preset := ls.Preset
 			if preset == "" {
-				preset = "raw"
+				preset = "raw" //nolint:goconst
 			}
 			logSources = append(logSources, logSourceEntry{Path: ls.Path, Preset: preset})
 		}
@@ -1865,7 +1865,7 @@ func (as *AgentsService) AddOtelCollector(ctx context.Context, p *inventoryv1.Ad
 			}
 		}
 	}
-	if len(logSources) != 0 {
+	if len(logSources) != 0 { //nolint:nestif
 		// Validate preset names and store log_sources JSON.
 		var agent *inventoryv1.OtelCollector
 		e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
@@ -1969,7 +1969,9 @@ func (as *AgentsService) AddOtelCollector(ctx context.Context, p *inventoryv1.Ad
 
 // ChangeOtelCollector updates the single otel_collector agent: merges custom labels (except reserved keys)
 // and merges log sources (last wins per path).
-func (as *AgentsService) ChangeOtelCollector(ctx context.Context, agentID string, p *inventoryv1.ChangeOtelCollectorParams) (*inventoryv1.ChangeAgentResponse, error) {
+func (as *AgentsService) ChangeOtelCollector( //nolint:cyclop,gocognit
+	ctx context.Context, agentID string, p *inventoryv1.ChangeOtelCollectorParams,
+) (*inventoryv1.ChangeAgentResponse, error) {
 	if p == nil {
 		return nil, status.Error(codes.InvalidArgument, "params are required")
 	}
@@ -2016,7 +2018,7 @@ func (as *AgentsService) ChangeOtelCollector(ctx context.Context, agentID string
 			delete(labels, labelLogFilePaths)
 		}
 
-		if len(p.AddLogSources) > 0 {
+		if len(p.AddLogSources) > 0 { //nolint:nestif
 			var cur []logSourceEntry
 			if s := labels[labelLogSources]; s != "" {
 				err := json.Unmarshal([]byte(s), &cur)

@@ -119,7 +119,7 @@ func ListAdreConversations(q reform.DBTX, createdBy, titleContains string, limit
 	if limit <= 0 {
 		limit = 50
 	}
-	if limit > 100 {
+	if limit > 100 { //nolint:mnd
 		limit = 100
 	}
 	titleContains = strings.TrimSpace(titleContains)
@@ -201,7 +201,7 @@ func DecodeAdreConversationCursor(s string) (*time.Time, *int64, error) {
 		T  string `json:"t"`
 		ID int64  `json:"id"`
 	}
-	if err := json.Unmarshal(raw, &m); err != nil {
+	if err := json.Unmarshal(raw, &m); err != nil { //nolint:noinlineerr
 		return nil, nil, err
 	}
 	t, err := time.Parse(time.RFC3339Nano, m.T)
@@ -216,7 +216,7 @@ func ListAdreMessages(q reform.DBTX, conversationID int64, beforeID *int64, afte
 	if limit <= 0 {
 		limit = 50
 	}
-	if limit > 100 {
+	if limit > 100 { //nolint:mnd
 		limit = 100
 	}
 	var rows *sql.Rows
@@ -269,7 +269,7 @@ func ListAdreMessages(q reform.DBTX, conversationID int64, beforeID *int64, afte
 		}
 		list = append(list, m)
 	}
-	if err := rows.Err(); err != nil {
+	if err := rows.Err(); err != nil { //nolint:noinlineerr
 		return nil, err
 	}
 	// Default branch returns newest-first; reverse to oldest-first for API consistency.
@@ -352,7 +352,7 @@ func SearchAdreMessagesFTS(q reform.DBTX, createdBy, qtext string, limit int) ([
 	if limit <= 0 {
 		limit = 30
 	}
-	if limit > 100 {
+	if limit > 100 { //nolint:mnd
 		limit = 100
 	}
 	rows, err := q.Query(`

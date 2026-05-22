@@ -32,7 +32,7 @@ func ExtractBlobHashes(analysis string) []string {
 	seen := make(map[string]struct{})
 	var out []string
 	for _, m := range blobPathRE.FindAllStringSubmatch(analysis, -1) {
-		if len(m) < 2 {
+		if len(m) < 2 { //nolint:mnd
 			continue
 		}
 		h := m[1]

@@ -23,10 +23,10 @@ import (
 
 // SlackChatMode maps UI default chat mode to Holmes chat modes for the Slack bot (same rules as POST /v1/adre/chat when mode is omitted).
 func SlackChatMode(settings *models.Settings) string {
-	if strings.TrimSpace(settings.Adre.DefaultChatMode) == "investigation" {
+	if strings.TrimSpace(settings.Adre.DefaultChatMode) == "investigation" { //nolint:goconst
 		return "investigation"
 	}
-	return "fast"
+	return "fast" //nolint:goconst
 }
 
 // BuildSlackChatRequest builds a non-streaming Holmes /api/chat body for the PMM Slack integration (mirrors POST /v1/adre/chat without dashboard_context).

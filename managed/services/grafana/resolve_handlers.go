@@ -57,7 +57,7 @@ var (
 	grafanaResolveRenderSeconds = prom.NewHistogram(prom.HistogramOpts{
 		Name:    "pmm_grafana_resolve_render_latency_seconds",
 		Help:    "Time spent waiting on Grafana image renderer when cache missed.",
-		Buckets: prom.ExponentialBuckets(0.05, 2, 12),
+		Buckets: prom.ExponentialBuckets(0.05, 2, 12), //nolint:mnd
 	})
 	grafanaResolveErrorsTotal = prom.NewCounterVec(prom.CounterOpts{
 		Name: "pmm_grafana_resolve_errors_total",
@@ -203,7 +203,8 @@ func (h *ResolveHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var req resolveRequest
 	dec := json.NewDecoder(r.Body)
 	dec.DisallowUnknownFields()
-	if err := dec.Decode(&req); err != nil {
+	err := dec.Decode(&req)
+	if err != nil {
 		grafanaResolveErrorsTotal.WithLabelValues("bad_json").Inc()
 		writeJSONError(w, http.StatusBadRequest, "invalid JSON body", err.Error())
 		return
@@ -353,7 +354,8 @@ func (h *ResolveHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := writeBlobPNG(hash, body); err != nil {
+	err = writeBlobPNG(hash, body)
+	if err != nil {
 		h.l.Warnf("cache write: %v", err)
 		grafanaResolveErrorsTotal.WithLabelValues("cache_write").Inc()
 		writeJSONError(w, http.StatusInternalServerError, "failed to persist rendered PNG", err.Error())
@@ -390,7 +392,7 @@ func forwardAuthHeaders(r *http.Request) http.Header {
 }
 
 func truncateBodySnippet(body []byte) string {
-	if len(body) <= 1024 {
+	if len(body) <= 1024 { //nolint:mnd
 		return string(body)
 	}
 	return string(body[:1024]) + "…"
@@ -405,7 +407,7 @@ func writeResolveJSON(w http.ResponseWriter, status int, resp resolveResponse) {
 func writeJSONError(w http.ResponseWriter, status int, msg, detail string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	m := map[string]string{"error": msg}
+	m := map[string]string{"error": msg} //nolint:goconst
 	if detail != "" {
 		m["detail"] = detail
 	}
@@ -519,11 +521,11 @@ func ReadCachedRenderBlob(contentHash string) ([]byte, error) {
 
 func writeBlobPNG(contentHash string, body []byte) error {
 	dir := renderCacheDir()
-	err := os.MkdirAll(dir, 0o750)
+	err := os.MkdirAll(dir, 0o750) //nolint:mnd
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(blobPNGPath(contentHash), body, 0o600)
+	return os.WriteFile(blobPNGPath(contentHash), body, 0o600) //nolint:mnd
 }
 
 func blobPNGPath(contentHash string) string {

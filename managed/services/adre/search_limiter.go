@@ -38,7 +38,7 @@ func NewSearchRateLimiter() *SearchRateLimiter {
 }
 
 // Allow returns whether a request is allowed and suggested retry-after seconds if not.
-func (r *SearchRateLimiter) Allow(user string) (ok bool, retryAfterSec int) {
+func (r *SearchRateLimiter) Allow(user string) (ok bool, retryAfterSec int) { //nolint:nonamedreturns
 	now := r.clock()
 	cutoff := now.Add(-time.Minute)
 

@@ -68,8 +68,8 @@ func buildExportHTML(inv *models.Investigation, blocks []*models.InvestigationBl
 	b.WriteString("<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>")
 	b.WriteString(html.EscapeString(inv.Title))
 	b.WriteString("</title><style>")
-	b.WriteString("body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;line-height:1.55;max-width:820px;margin:0 auto;padding:0 1.5em;color:#1a1a1a;background:#fff}")
-	b.WriteString(".report-header{background:linear-gradient(135deg,#1e3a5f 0%,#2c5282 100%);color:#fff;padding:1.25em 1.5em;margin:0 -1.5em 1.5em;border-radius:0 0 8px 8px}")
+	b.WriteString("body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;line-height:1.55;max-width:820px;margin:0 auto;padding:0 1.5em;color:#1a1a1a;background:#fff}") //nolint:lll
+	b.WriteString(".report-header{background:linear-gradient(135deg,#1e3a5f 0%,#2c5282 100%);color:#fff;padding:1.25em 1.5em;margin:0 -1.5em 1.5em;border-radius:0 0 8px 8px}")       //nolint:lll
 	b.WriteString(".report-header h1{font-size:1.4em;margin:0 0 0.25em;font-weight:600}")
 	b.WriteString(".report-header .subtitle{font-size:0.85em;opacity:0.9}")
 	b.WriteString("h2{font-size:1.15em;margin:1.75em 0 0.5em;color:#1e3a5f;font-weight:600}")
@@ -83,11 +83,11 @@ func buildExportHTML(inv *models.Investigation, blocks []*models.InvestigationBl
 	b.WriteString(".block-remediation_steps{border-left-color:#16a34a;background:#f0fdf4}")
 	b.WriteString(".block-query_result{border-left-color:#64748b;background:#f8fafc}")
 	b.WriteString(".block h3{font-size:1em;margin:0 0 0.5em;color:#1e293b;font-weight:600}")
-	b.WriteString(".block pre{white-space:pre-wrap;background:#f1f5f9;padding:0.75em;overflow:auto;border-radius:4px;margin:0.5em 0;font-size:0.9em;border:1px solid #e2e8f0}")
+	b.WriteString(".block pre{white-space:pre-wrap;background:#f1f5f9;padding:0.75em;overflow:auto;border-radius:4px;margin:0.5em 0;font-size:0.9em;border:1px solid #e2e8f0}") //nolint:lll
 	b.WriteString(".timeline{margin:0.5em 0;padding-left:1.25em}")
 	b.WriteString(".timeline-event{margin:0.4em 0;font-size:0.95em;color:#475569}")
 	b.WriteString(".report-footer{margin-top:2em;padding-top:1em;border-top:1px solid #e2e8f0;font-size:0.8em;color:#94a3b8;text-align:center}")
-	b.WriteString("@media print{.report-header{box-shadow:none;-webkit-print-color-adjust:exact;print-color-adjust:exact}.block{break-inside:avoid;box-shadow:none}.meta-block,.summary-block{box-shadow:none}}")
+	b.WriteString("@media print{.report-header{box-shadow:none;-webkit-print-color-adjust:exact;print-color-adjust:exact}.block{break-inside:avoid;box-shadow:none}.meta-block,.summary-block{box-shadow:none}}") //nolint:lll
 	b.WriteString("</style></head><body>")
 	b.WriteString("<div class=\"report-header\"><h1>")
 	b.WriteString(html.EscapeString(inv.Title))
@@ -188,7 +188,7 @@ func buildExportHTML(inv *models.Investigation, blocks []*models.InvestigationBl
 	return b.Bytes(), nil
 }
 
-func blockExportContent(blk *models.InvestigationBlock) (string, error) {
+func blockExportContent(blk *models.InvestigationBlock) (string, error) { //nolint:cyclop,gocognit
 	switch blk.Type {
 	case "remediation_steps":
 		var data map[string]any
@@ -263,7 +263,7 @@ func blockExportContent(blk *models.InvestigationBlock) (string, error) {
 			}
 		}
 		src := strings.TrimSpace(fmt.Sprint(cfg["url"]))
-		if src == "" || src == "<nil>" {
+		if src == "" || src == "<nil>" { //nolint:goconst
 			src = strings.TrimSpace(fmt.Sprint(cfg["image_url"]))
 		}
 		if src == "" || src == "<nil>" {

@@ -33,7 +33,8 @@ func ensureOtelDatabase(ctx context.Context, db *sql.DB) error {
 	} else {
 		stmt = `CREATE DATABASE IF NOT EXISTS otel ENGINE = Atomic`
 	}
-	if _, err := db.ExecContext(ctx, stmt); err != nil {
+	_, err := db.ExecContext(ctx, stmt)
+	if err != nil {
 		return fmt.Errorf("%s: %w", stmt, err)
 	}
 	return nil

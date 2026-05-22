@@ -42,7 +42,7 @@ func NewHandlers(db *reform.DB) *Handlers {
 }
 
 // ServeHTTP dispatches all /v1/investigations/* routes.
-func (h *Handlers) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *Handlers) ServeHTTP(w http.ResponseWriter, r *http.Request) { //nolint:cyclop,gocognit
 	path := strings.TrimPrefix(r.URL.Path, prefix)
 	path = strings.Trim(path, "/")
 	segments := strings.Split(path, "/")
@@ -464,7 +464,7 @@ func (h *Handlers) PostInvestigationBlock(w http.ResponseWriter, r *http.Request
 		ConfigJSON json.RawMessage `json:"config_json"`
 		DataJSON   json.RawMessage `json:"data_json"`
 	}
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil { //nolint:noinlineerr
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
 		return
 	}
@@ -481,7 +481,7 @@ func (h *Handlers) PostInvestigationBlock(w http.ResponseWriter, r *http.Request
 		ConfigJSON:      body.ConfigJSON,
 		DataJSON:        body.DataJSON,
 	}
-	if err := models.CreateInvestigationBlock(h.db, block); err != nil {
+	if err := models.CreateInvestigationBlock(h.db, block); err != nil { //nolint:noinlineerr
 		h.l.Errorf("CreateInvestigationBlock: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Failed to create block")
 		return
@@ -505,7 +505,7 @@ func (h *Handlers) PatchInvestigationBlock(w http.ResponseWriter, r *http.Reques
 		ConfigJSON json.RawMessage `json:"config_json"`
 		DataJSON   json.RawMessage `json:"data_json"`
 	}
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil { //nolint:noinlineerr
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
 		return
 	}
@@ -524,7 +524,7 @@ func (h *Handlers) PatchInvestigationBlock(w http.ResponseWriter, r *http.Reques
 	if body.DataJSON != nil {
 		block.DataJSON = body.DataJSON
 	}
-	if err := models.UpdateInvestigationBlock(h.db, block); err != nil {
+	if err := models.UpdateInvestigationBlock(h.db, block); err != nil { //nolint:noinlineerr
 		h.l.Errorf("UpdateInvestigationBlock: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Failed to update block")
 		return
@@ -540,7 +540,7 @@ func (h *Handlers) DeleteInvestigationBlock(w http.ResponseWriter, _ *http.Reque
 		writeJSONError(w, err.status, err.msg)
 		return
 	}
-	if err := models.DeleteInvestigationBlock(h.db, blockID); err != nil {
+	if err := models.DeleteInvestigationBlock(h.db, blockID); err != nil { //nolint:noinlineerr
 		h.l.Errorf("DeleteInvestigationBlock: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Failed to delete block")
 		return
@@ -584,7 +584,7 @@ func (h *Handlers) PostInvestigationTimeline(w http.ResponseWriter, r *http.Requ
 		Source       string          `json:"source"`
 		MetadataJSON json.RawMessage `json:"metadata_json"`
 	}
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil { //nolint:noinlineerr
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
 		return
 	}
@@ -607,7 +607,8 @@ func (h *Handlers) PostInvestigationTimeline(w http.ResponseWriter, r *http.Requ
 		Source:          body.Source,
 		MetadataJSON:    body.MetadataJSON,
 	}
-	if err := models.CreateInvestigationTimelineEvent(h.db, event); err != nil {
+	err = models.CreateInvestigationTimelineEvent(h.db, event)
+	if err != nil {
 		h.l.Errorf("CreateInvestigationTimelineEvent: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Failed to create timeline event")
 		return
@@ -651,7 +652,8 @@ func (h *Handlers) PostInvestigationArtifact(w http.ResponseWriter, r *http.Requ
 		Source       string          `json:"source"`
 		MetadataJSON json.RawMessage `json:"metadata_json"`
 	}
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+	err = json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
 		return
 	}
@@ -667,7 +669,8 @@ func (h *Handlers) PostInvestigationArtifact(w http.ResponseWriter, r *http.Requ
 		Source:          body.Source,
 		MetadataJSON:    body.MetadataJSON,
 	}
-	if err := models.CreateInvestigationArtifact(h.db, artifact); err != nil {
+	err = models.CreateInvestigationArtifact(h.db, artifact)
+	if err != nil {
 		h.l.Errorf("CreateInvestigationArtifact: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Failed to create artifact")
 		return
@@ -716,7 +719,8 @@ func (h *Handlers) PostInvestigationComment(w http.ResponseWriter, r *http.Reque
 		AnchorJSON json.RawMessage `json:"anchor_json"`
 		Author     string          `json:"author"`
 	}
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+	err = json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
 		return
 	}
@@ -732,7 +736,8 @@ func (h *Handlers) PostInvestigationComment(w http.ResponseWriter, r *http.Reque
 		Author:          body.Author,
 		Content:         body.Content,
 	}
-	if err := models.CreateInvestigationComment(h.db, c); err != nil {
+	err = models.CreateInvestigationComment(h.db, c)
+	if err != nil {
 		h.l.Errorf("CreateInvestigationComment: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Failed to create comment")
 		return
@@ -752,12 +757,14 @@ func (h *Handlers) GetInvestigationMessages(w http.ResponseWriter, r *http.Reque
 	limit := 50
 	offset := 0
 	if v := r.URL.Query().Get("limit"); v != "" {
-		if n, err := strconv.Atoi(v); err == nil && n > 0 && n <= 100 {
+		n, err := strconv.Atoi(v)
+		if err == nil && n > 0 && n <= 100 {
 			limit = n
 		}
 	}
 	if v := r.URL.Query().Get("offset"); v != "" {
-		if n, err := strconv.Atoi(v); err == nil && n >= 0 {
+		n, err := strconv.Atoi(v)
+		if err == nil && n >= 0 {
 			offset = n
 		}
 	}

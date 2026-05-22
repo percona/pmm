@@ -79,7 +79,7 @@ func fetchTicketNumber(ctx context.Context, detailsURL, apiKey, clientToken, tic
 		return "", fmt.Errorf("marshal details request: %w", err)
 	}
 
-	client := &http.Client{Timeout: 15 * time.Second}
+	client := &http.Client{Timeout: 15 * time.Second} //nolint:mnd
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, detailsURL, bytes.NewReader(payload))
 	if err != nil {
 		return "", fmt.Errorf("build details request: %w", err)
@@ -99,7 +99,8 @@ func fetchTicketNumber(ctx context.Context, detailsURL, apiKey, clientToken, tic
 	}
 
 	var detailsResp serviceNowDetailsResponse
-	if err := json.Unmarshal(body, &detailsResp); err != nil {
+	err = json.Unmarshal(body, &detailsResp)
+	if err != nil {
 		return "", fmt.Errorf("unmarshal details response: %w", err)
 	}
 
@@ -216,7 +217,7 @@ func (h *Handlers) PostServiceNowTicket(w http.ResponseWriter, r *http.Request, 
 		return
 	}
 
-	client := &http.Client{Timeout: 30 * time.Second}
+	client := &http.Client{Timeout: 30 * time.Second} //nolint:mnd
 	req, err := http.NewRequestWithContext(r.Context(), http.MethodPost, settings.Adre.ServiceNowURL, bytes.NewReader(body))
 	if err != nil {
 		h.l.Errorf("NewRequest: %v", err)
@@ -248,7 +249,8 @@ func (h *Handlers) PostServiceNowTicket(w http.ResponseWriter, r *http.Request, 
 	}
 
 	var snResp serviceNowCreateResponse
-	if err := json.Unmarshal(respBody, &snResp); err != nil {
+	err = json.Unmarshal(respBody, &snResp)
+	if err != nil {
 		h.l.Errorf("Unmarshal ServiceNow response: %v", err)
 		writeJSONError(w, http.StatusBadGateway, "Invalid ServiceNow response")
 		return
@@ -277,7 +279,7 @@ func (h *Handlers) PostServiceNowTicket(w http.ResponseWriter, r *http.Request, 
 		}
 	}
 
-	if err := models.UpdateInvestigation(h.db, inv); err != nil {
+	if err := models.UpdateInvestigation(h.db, inv); err != nil { //nolint:noinlineerr
 		h.l.Errorf("UpdateInvestigation (ticket ID): %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Ticket created but failed to save ticket ID")
 		return

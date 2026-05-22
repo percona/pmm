@@ -42,7 +42,7 @@ type RenderCanonicalParams struct {
 
 // normalizeFromToForCanonical returns stable from/to strings for hashing and Grafana queries.
 // Absolute times are normalized to UTC RFC3339Nano when parseable; relative Grafana tokens are preserved.
-func normalizeFromToForCanonical(from, to string) (fromOut, toOut string) {
+func normalizeFromToForCanonical(from, to string) (fromOut, toOut string) { //nolint:nonamedreturns
 	fromOut = normalizeTimeForCanonical(strings.TrimSpace(from))
 	toOut = normalizeTimeForCanonical(strings.TrimSpace(to))
 	return fromOut, toOut
@@ -72,7 +72,8 @@ func looksLikeGrafanaRelative(s string) bool {
 			return false
 		}
 	}
-	return len(s) >= 10 // heuristic: epoch ms
+	const epochMsMinDigits = 10
+	return len(s) >= epochMsMinDigits
 }
 
 func parseRFC3339MillisUTC(s string) (time.Time, bool) {

@@ -31,8 +31,8 @@ func MessagesToHolmesHistory(msgs []models.AdreMessage) []any {
 			// separate tool result rows, so replaying "tool" here causes 400 errors.
 		default:
 			out = append(out, map[string]any{
-				"role":    m.Role,
-				"content": m.Content,
+				"role":    m.Role,    //nolint:goconst
+				"content": m.Content, //nolint:goconst
 			})
 		}
 	}

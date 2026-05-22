@@ -43,7 +43,7 @@ func EnsureOtelTracesMetricsAndServiceMapTables(ctx context.Context, dsn string,
 
 	db.SetConnMaxLifetime(0)
 
-	if err := ensureOtelDatabase(ctx, db); err != nil {
+	if err := ensureOtelDatabase(ctx, db); err != nil { //nolint:noinlineerr
 		return err
 	}
 
@@ -88,7 +88,7 @@ ORDER BY (ServiceName, SpanName, toDateTime(Timestamp), TraceId)
 TTL toDateTime(Timestamp) + toIntervalDay(%d)
 SETTINGS index_granularity = 8192, ttl_only_drop_parts = 1`, tableEngine, spanRetentionDays)
 
-	if _, err := db.ExecContext(ctx, tracesDDL); err != nil {
+	if _, err := db.ExecContext(ctx, tracesDDL); err != nil { //nolint:noinlineerr
 		return fmt.Errorf("create otel.otel_traces: %w", err)
 	}
 	logrus.Debug("OTEL schema: table otel.otel_traces ensured")
@@ -128,7 +128,7 @@ ORDER BY (ServiceName, MetricName, Attributes, toUnixTimestamp64Nano(TimeUnix))
 TTL toDateTime(TimeUnix) + toIntervalDay(%d)
 SETTINGS index_granularity = 8192, ttl_only_drop_parts = 1`, tableEngine, metricRetentionDays)
 
-	if _, err := db.ExecContext(ctx, metricsSumDDL); err != nil {
+	if _, err := db.ExecContext(ctx, metricsSumDDL); err != nil { //nolint:noinlineerr
 		return fmt.Errorf("create otel.otel_metrics_sum: %w", err)
 	}
 	logrus.Debug("OTEL schema: table otel.otel_metrics_sum ensured")
@@ -150,7 +150,7 @@ ORDER BY (bucket, id)
 TTL bucket + toIntervalDay(32)
 SETTINGS index_granularity = 8192, ttl_only_drop_parts = 1`, tableEngine)
 
-	if _, err := db.ExecContext(ctx, nodesDDL); err != nil {
+	if _, err := db.ExecContext(ctx, nodesDDL); err != nil { //nolint:noinlineerr
 		return fmt.Errorf("create otel.service_map_nodes_1m: %w", err)
 	}
 
@@ -170,7 +170,7 @@ ORDER BY (bucket, source, target)
 TTL bucket + toIntervalDay(32)
 SETTINGS index_granularity = 8192, ttl_only_drop_parts = 1`, tableEngine)
 
-	if _, err := db.ExecContext(ctx, edgesDDL); err != nil {
+	if _, err := db.ExecContext(ctx, edgesDDL); err != nil { //nolint:noinlineerr
 		return fmt.Errorf("create otel.service_map_edges_1m: %w", err)
 	}
 
@@ -194,7 +194,7 @@ func EnsureOtelCorootHelperTables(ctx context.Context, dsn string, logsRetention
 
 	db.SetConnMaxLifetime(0)
 
-	if err := ensureOtelDatabase(ctx, db); err != nil {
+	if err := ensureOtelDatabase(ctx, db); err != nil { //nolint:noinlineerr
 		return err
 	}
 
@@ -209,7 +209,7 @@ ENGINE = %s
 PRIMARY KEY (ServiceName, SeverityText)
 ORDER BY (ServiceName, SeverityText)
 TTL toDateTime(LastSeen) + toIntervalDay(%d)`, replEngine, logsRetentionDays)
-	if _, err := db.ExecContext(ctx, logsHelper); err != nil {
+	if _, err := db.ExecContext(ctx, logsHelper); err != nil { //nolint:noinlineerr
 		return fmt.Errorf("create otel.logs_service_name_severity_text: %w", err)
 	}
 	logsMV := `CREATE MATERIALIZED VIEW IF NOT EXISTS otel.logs_service_name_severity_text_mv
@@ -221,7 +221,7 @@ SELECT
     max(Timestamp) AS LastSeen
 FROM otel.logs
 GROUP BY ServiceName, SeverityText`
-	if _, err := db.ExecContext(ctx, logsMV); err != nil {
+	if _, err := db.ExecContext(ctx, logsMV); err != nil { //nolint:noinlineerr
 		return fmt.Errorf("create logs_service_name_severity_text_mv: %w", err)
 	}
 
@@ -237,7 +237,7 @@ ENGINE = %s
 ORDER BY (TraceId, toUnixTimestamp(Start))
 TTL toDateTime(Start) + toIntervalDay(%d)
 SETTINGS index_granularity = 8192`, traceTSEngine, tracesRetentionDays)
-	if _, err := db.ExecContext(ctx, traceTS); err != nil {
+	if _, err := db.ExecContext(ctx, traceTS); err != nil { //nolint:noinlineerr
 		return fmt.Errorf("create otel.otel_traces_trace_id_ts: %w", err)
 	}
 	traceTSMV := `CREATE MATERIALIZED VIEW IF NOT EXISTS otel.otel_traces_trace_id_ts_mv
@@ -250,7 +250,7 @@ SELECT
 FROM otel.otel_traces
 WHERE TraceId != ''
 GROUP BY TraceId`
-	if _, err := db.ExecContext(ctx, traceTSMV); err != nil {
+	if _, err := db.ExecContext(ctx, traceTSMV); err != nil { //nolint:noinlineerr
 		return fmt.Errorf("create otel_traces_trace_id_ts_mv: %w", err)
 	}
 
@@ -263,7 +263,7 @@ ENGINE = %s
 PRIMARY KEY (ServiceName)
 ORDER BY (ServiceName)
 TTL toDateTime(LastSeen) + toIntervalDay(%d)`, replEngine, tracesRetentionDays)
-	if _, err := db.ExecContext(ctx, traceSvc); err != nil {
+	if _, err := db.ExecContext(ctx, traceSvc); err != nil { //nolint:noinlineerr
 		return fmt.Errorf("create otel.otel_traces_service_name: %w", err)
 	}
 	traceSvcMV := `CREATE MATERIALIZED VIEW IF NOT EXISTS otel.otel_traces_service_name_mv
@@ -274,7 +274,7 @@ SELECT
     max(Timestamp) AS LastSeen
 FROM otel.otel_traces
 GROUP BY ServiceName`
-	if _, err := db.ExecContext(ctx, traceSvcMV); err != nil {
+	if _, err := db.ExecContext(ctx, traceSvcMV); err != nil { //nolint:noinlineerr
 		return fmt.Errorf("create otel_traces_service_name_mv: %w", err)
 	}
 

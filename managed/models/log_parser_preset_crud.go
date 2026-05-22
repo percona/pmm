@@ -101,10 +101,10 @@ func ListOtelCollectorAgentIDsReferencingLogParserPreset(q *reform.Querier, pres
 
 // CreateLogParserPreset inserts a custom preset (built_in=false).
 func CreateLogParserPreset(q *reform.Querier, name, description, operatorYAML string) (*LogParserPreset, error) {
-	if err := ValidateLogParserPresetName(name); err != nil {
+	if err := ValidateLogParserPresetName(name); err != nil { //nolint:noinlineerr
 		return nil, err
 	}
-	if err := ValidateLogParserOperatorYAML(operatorYAML); err != nil {
+	if err := ValidateLogParserOperatorYAML(operatorYAML); err != nil { //nolint:noinlineerr
 		return nil, err
 	}
 	existing, err := FindLogParserPresetByName(q, name)
@@ -129,7 +129,7 @@ func CreateLogParserPreset(q *reform.Querier, name, description, operatorYAML st
 		CreatedAt:    now,
 		UpdatedAt:    now,
 	}
-	if err := q.Insert(row); err != nil {
+	if err := q.Insert(row); err != nil { //nolint:noinlineerr
 		return nil, err
 	}
 	return row, nil
@@ -163,7 +163,7 @@ func UpdateLogParserPreset(q *reform.Querier, id string, description *string, op
 		}
 	}
 	row.UpdatedAt = time.Now()
-	if err := q.Update(row); err != nil {
+	if err := q.Update(row); err != nil { //nolint:noinlineerr
 		return nil, err
 	}
 	return row, nil

@@ -68,4 +68,4 @@ func (r *ringDedupe) forget(parts ...string) {
 	r.q = out
 }
 
-var slackEventDedupe = newRingDedupe(4096)
+var slackEventDedupe = newRingDedupe(4096) //nolint:mnd

@@ -25,7 +25,7 @@ func EnsureHolmesLeadingSystemMessage(hist []any) []any {
 	}
 	first, ok := hist[0].(map[string]any)
 	if !ok {
-		return append([]any{map[string]any{"role": "system", "content": HolmesChatLeadingStub}}, hist...)
+		return append([]any{map[string]any{"role": "system", "content": HolmesChatLeadingStub}}, hist...) //nolint:goconst
 	}
 	if role, _ := first["role"].(string); role == "system" {
 		return hist

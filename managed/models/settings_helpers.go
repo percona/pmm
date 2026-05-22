@@ -397,7 +397,7 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 		settings.Adre.SlackAutoInvestigate = false
 	}
 
-	if err := validateAdreSlackSettings(settings); err != nil {
+	if err := validateAdreSlackSettings(settings); err != nil { //nolint:noinlineerr
 		return nil, NewInvalidArgumentError("%s", err.Error())
 	}
 
@@ -562,7 +562,7 @@ func validateAdreSlackSettings(settings *Settings) error {
 // validateAdreModelAlias caps Holmes model id length and rejects Unicode control characters in ADRE model settings fields.
 func validateAdreModelAlias(field, value string) error {
 	v := strings.TrimSpace(value)
-	if len(v) > 256 {
+	if len(v) > 256 { //nolint:mnd
 		return errors.Errorf("%s: max 256 bytes", field)
 	}
 	for _, r := range v {

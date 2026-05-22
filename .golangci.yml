@@ -41,6 +41,11 @@ linters:
               desc: use "gopkg.in/yaml.v3" instead
     exhaustive:
       default-signifies-exhaustive: true
+    goconst:
+      # Default min-occurrences (3) flags too many JSON map keys, slot names,
+      # and other low-information repeats. 5 is the sweet spot: it still
+      # surfaces high-payoff extractions while ignoring incidental repeats.
+      min-occurrences: 5
     godot:
       scope: toplevel
       exclude:

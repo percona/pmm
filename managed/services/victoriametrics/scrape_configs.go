@@ -52,14 +52,14 @@ func scrapeConfigForCorootNodeAgent(interval time.Duration, target, otelCollecto
 		JobName:        "coroot_node_agent",
 		ScrapeInterval: config.Duration(interval),
 		ScrapeTimeout:  scrapeTimeout(interval),
-		MetricsPath:    "/metrics",
+		MetricsPath:    "/metrics", //nolint:goconst
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{{
 				Targets: []string{target},
 				Labels: map[string]string{
-					"instance":   otelCollectorAgentID,
-					"agent_id":   otelCollectorAgentID,
-					"agent_type": "coroot_node_agent",
+					"instance":   otelCollectorAgentID, //nolint:goconst
+					"agent_id":   otelCollectorAgentID, //nolint:goconst
+					"agent_type": "coroot_node_agent",  //nolint:goconst
 				},
 			}},
 		},

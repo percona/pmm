@@ -27,7 +27,7 @@ var (
 	adreChatSeconds = prom.NewHistogram(prom.HistogramOpts{
 		Name:    "pmm_slack_adre_chat_seconds",
 		Help:    "Latency of ADRE chat requests initiated from the Slack integration.",
-		Buckets: prom.ExponentialBuckets(0.5, 2, 14),
+		Buckets: prom.ExponentialBuckets(0.5, 2, 14), //nolint:mnd
 	})
 	slackUploadsTotal = prom.NewCounter(prom.CounterOpts{
 		Name: "pmm_slack_adre_image_uploads_total",

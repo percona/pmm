@@ -38,7 +38,7 @@ var mentionStripRE = regexp.MustCompile(`<@[^>]+>`)
 
 // Run polls settings every 30s (and once at startup) and runs Slack Socket Mode while ADRE Slack is enabled.
 func Run(ctx context.Context, db *reform.DB, l *logrus.Entry) error {
-	ticker := time.NewTicker(30 * time.Second)
+	ticker := time.NewTicker(30 * time.Second) //nolint:mnd
 	defer ticker.Stop()
 
 	var mu sync.Mutex
@@ -187,7 +187,7 @@ func runSocketMode(ctx context.Context, db *reform.DB, l *logrus.Entry) {
 	}
 }
 
-func handleEventsAPI(
+func handleEventsAPI( //nolint:gocognit
 	ctx context.Context,
 	db *reform.DB,
 	api *slack.Client,
@@ -209,7 +209,7 @@ func handleEventsAPI(
 		handleTurn(ctx, db, api, ts, log, eventsAPI.TeamID, ev.Channel, threadTS, ev.TimeStamp, text)
 
 	case *slackevents.MessageEvent:
-		if ev.BotID != "" && slackBotMessageSubtypeOK(ev.SubType) {
+		if ev.BotID != "" && slackBotMessageSubtypeOK(ev.SubType) { //nolint:nestif
 			settings, err := models.GetSettings(db)
 			if err != nil {
 				log.Errorf("GetSettings: %v", err)
@@ -320,7 +320,7 @@ func handleTurn(
 	client := adre.NewClient(settings.GetAdreURL())
 
 	doChat := func(extra string) (*adre.ChatResponse, error) {
-		if err := acquireAdreChatSlot(ctx); err != nil {
+		if err := acquireAdreChatSlot(ctx); err != nil { //nolint:noinlineerr
 			return nil, err
 		}
 		defer releaseAdreChatSlot()

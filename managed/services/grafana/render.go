@@ -28,7 +28,7 @@ import (
 const defaultRenderCacheDir = "/srv/pmm/grafana_render_cache"
 
 // isoToEpochMs parses from/to as ISO 8601 and returns epoch milliseconds for Grafana dashboard URL. If either parse fails, returns false.
-func isoToEpochMs(from, to string) (fromMs, toMs int64, ok bool) {
+func isoToEpochMs(from, to string) (fromMs, toMs int64, ok bool) { //nolint:nonamedreturns
 	parse := func(s string) (int64, bool) {
 		t, err := time.Parse(time.RFC3339, s)
 		if err != nil {
