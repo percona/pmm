@@ -46,8 +46,8 @@ func TestCheckPortChanged(t *testing.T) {
 
 		sqlDB, mock, err := sqlmock.New()
 		require.NoError(t, err)
-		_ = mock.ExpectClose()
 		t.Cleanup(func() {
+			_ = mock.ExpectClose()
 			assert.NoError(t, sqlDB.Close())
 		})
 
@@ -69,8 +69,8 @@ func TestCheckPortChanged(t *testing.T) {
 
 		sqlDB, mock, err := sqlmock.New()
 		require.NoError(t, err)
-		_ = mock.ExpectClose()
 		t.Cleanup(func() {
+			_ = mock.ExpectClose()
 			assert.NoError(t, sqlDB.Close())
 		})
 
@@ -124,8 +124,8 @@ func TestCheckPortChanged(t *testing.T) {
 
 		sqlDB, mock, err := sqlmock.New()
 		require.NoError(t, err)
-		_ = mock.ExpectClose()
 		t.Cleanup(func() {
+			_ = mock.ExpectClose()
 			assert.NoError(t, sqlDB.Close())
 		})
 
@@ -179,8 +179,8 @@ func TestCheckPortChanged(t *testing.T) {
 
 		sqlDB, mock, err := sqlmock.New()
 		require.NoError(t, err)
-		_ = mock.ExpectClose()
 		t.Cleanup(func() {
+			_ = mock.ExpectClose()
 			assert.NoError(t, sqlDB.Close())
 		})
 
@@ -234,8 +234,8 @@ func TestCheckPortChanged(t *testing.T) {
 
 		sqlDB, mock, err := sqlmock.New()
 		require.NoError(t, err)
-		_ = mock.ExpectClose()
 		t.Cleanup(func() {
+			_ = mock.ExpectClose()
 			assert.NoError(t, sqlDB.Close())
 		})
 

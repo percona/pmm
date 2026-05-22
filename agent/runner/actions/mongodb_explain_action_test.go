@@ -38,13 +38,13 @@ import (
 
 func TestQueryExplain(t *testing.T) {
 	database := "testdb"
-	ctx := context.TODO()
+	ctx := t.Context()
 
 	dsn := tests.GetTestMongoDBDSN(t)
 	client := tests.OpenTestMongoDB(t, dsn)
 	t.Cleanup(func() {
-		assert.NoError(t, client.Disconnect(ctx))
 		assert.NoError(t, client.Database(database).Drop(ctx))
+		assert.NoError(t, client.Disconnect(ctx))
 	})
 
 	t.Run("Find", func(t *testing.T) {
