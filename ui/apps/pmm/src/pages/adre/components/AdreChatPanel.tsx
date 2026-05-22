@@ -32,7 +32,7 @@ import rehypeRaw from 'rehype-raw';
 import { useAdreModels } from 'hooks/api/useAdre';
 import { useAdreChat, formatTimestamp, type ProgressStep } from 'hooks/useAdreChat';
 import { AdreConversationsSidebar } from './AdreConversationsSidebar';
-import { getMarkdownComponents } from 'components/adre/adre-chat-markdown';
+import { getMarkdownComponents } from 'components/adre/adre-chat-markdown.helpers';
 import {
   loadAdreChatUiPreferences,
   saveAdreChatUiPreferences,

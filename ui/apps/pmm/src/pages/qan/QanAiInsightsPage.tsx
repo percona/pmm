@@ -16,14 +16,14 @@ import {
   Typography,
 } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import { FC, useEffect, useRef, useState } from 'react';
+import { FC, useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { Page } from 'components/page';
 import { adreQanInsights, getQanInsightsCache } from 'api/adre';
-import { getMarkdownComponents } from 'components/adre/adre-chat-markdown';
+import { getMarkdownComponents } from 'components/adre/adre-chat-markdown.helpers';
 
 const RUNNING_MESSAGE =
   'Query analysis and optimisation is running. Results will appear here soon.';
@@ -143,7 +143,7 @@ const QanAiInsightsPage: FC = () => {
   const hasContext = Boolean(serviceId.trim() && queryText.trim());
   const analysisSections = analysis ? parseAnalysisSections(analysis) : [];
 
-  const runAnalysis = (force: boolean) => {
+  const runAnalysis = useCallback((force: boolean) => {
     setLoading(true);
     setError(null);
     adreQanInsights({
@@ -169,10 +169,11 @@ const QanAiInsightsPage: FC = () => {
       .finally(() => {
         if (mountedRef.current) setLoading(false);
       });
-  };
+  }, [serviceId, queryText, queryId, fingerprint, timeFrom, timeTo]);
 
   useEffect(() => {
-    if (!hasUrlContext || runOnceRef.current || loading || analysis) return;
+    // runOnceRef enforces single auto-run per URL-context session; handleRunManual resets it.
+    if (!hasUrlContext || runOnceRef.current) return;
     runOnceRef.current = true;
 
     if (queryId) {
@@ -194,7 +195,7 @@ const QanAiInsightsPage: FC = () => {
     } else {
       runAnalysis(false);
     }
-  }, [hasUrlContext, urlServiceId, urlQueryText, queryId, fingerprint, timeFrom, timeTo]);
+  }, [hasUrlContext, urlServiceId, urlQueryText, queryId, fingerprint, timeFrom, timeTo, runAnalysis]);
 
   const handleRunManual = () => {
     if (!manualServiceId.trim() || !manualQueryText.trim()) return;

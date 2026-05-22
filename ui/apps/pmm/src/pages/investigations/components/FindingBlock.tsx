@@ -4,7 +4,7 @@ import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import type { InvestigationBlock } from 'api/investigations';
-import { getMarkdownComponents } from 'components/adre/adre-chat-markdown';
+import { getMarkdownComponents } from 'components/adre/adre-chat-markdown.helpers';
 
 export const FindingBlock: FC<{ block: InvestigationBlock }> = ({ block }) => {
   const data = (block.dataJson || {}) as { content?: string; summary?: string };

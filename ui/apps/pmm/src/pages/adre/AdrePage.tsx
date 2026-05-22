@@ -20,12 +20,12 @@ const AdrePage: FC = () => {
   const { alerts } = useAdreAlerts({ enabled: !!(settings?.enabled && settings?.url) });
   const [localEnabled, setLocalEnabled] = useState(settings?.enabled ?? false);
   const [localUrl, setLocalUrl] = useState(settings?.url ?? '');
+  const settingsEnabled = settings?.enabled;
+  const settingsUrl = settings?.url;
   useEffect(() => {
-    if (settings) {
-      setLocalEnabled(settings.enabled);
-      setLocalUrl(settings.url);
-    }
-  }, [settings?.enabled, settings?.url]);
+    if (settingsEnabled !== undefined) setLocalEnabled(settingsEnabled);
+    if (settingsUrl !== undefined) setLocalUrl(settingsUrl);
+  }, [settingsEnabled, settingsUrl]);
 
   const isConfigured = settings?.enabled && !!settings?.url;
   const isAdmin = user?.isPMMAdmin ?? false;

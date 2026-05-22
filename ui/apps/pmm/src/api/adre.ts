@@ -214,7 +214,7 @@ export const adreChatStream = async (
   const decoder = new TextDecoder();
   let buffer = '';
   let lastEvent = '';
-  while (true) {
+  for (;;) {
     const { done, value } = await reader.read();
     if (done) break;
     buffer += decoder.decode(value, { stream: true });

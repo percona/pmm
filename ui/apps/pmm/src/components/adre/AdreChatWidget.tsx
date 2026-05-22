@@ -23,7 +23,8 @@ import { useLocation } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 import { useAdreChat, formatTimestamp, type ProgressStep, type ChatMessage } from 'hooks/useAdreChat';
 import { useGrafana } from 'contexts/grafana';
-import { getMarkdownComponents, PanelScrollRootProvider } from 'components/adre/adre-chat-markdown';
+import { PanelScrollRootProvider } from 'components/adre/adre-chat-markdown';
+import { getMarkdownComponents } from 'components/adre/adre-chat-markdown.helpers';
 import { buildGrafanaDashboardContext } from 'components/adre/grafana-context';
 
 interface ChatMessageBubbleProps {

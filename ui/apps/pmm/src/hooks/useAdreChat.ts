@@ -14,7 +14,7 @@ import {
 } from 'api/adre';
 import { useAdreSettings } from 'hooks/api/useAdre';
 import { useSnackbar } from 'notistack';
-import { clearPanelImageCache } from 'components/adre/adre-chat-markdown';
+import { clearPanelImageCache } from 'components/adre/adre-chat-markdown.utils';
 import { PMM_BASE_PATH, PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
 import { compactAdreAlertsForToolResult } from 'utils/adreAlertsCompact';
 import { PMM_ADRE_FRONTEND_TOOLS } from 'utils/adreFrontendTools';
@@ -161,9 +161,11 @@ export function useAdreChat() {
 
   /** Invalidates stale async work when the effect re-runs (e.g. React Strict Mode remount or ADRE disabled). */
   const adreInitGenRef = useRef(0);
+  const settingsEnabled = settings?.enabled ?? false;
+  const settingsLoaded = settings !== undefined;
   useEffect(() => {
-    if (!settings?.enabled) {
-      if (settings !== undefined) {
+    if (!settingsEnabled) {
+      if (settingsLoaded) {
         adreInitGenRef.current++;
       }
       return;
@@ -197,7 +199,7 @@ export function useAdreChat() {
         enqueueSnackbar('Failed to initialize chat', { variant: 'error' });
       }
     })();
-  }, [settings?.enabled, selectConversation, refreshConversations, enqueueSnackbar]);
+  }, [settingsEnabled, settingsLoaded, selectConversation, refreshConversations, enqueueSnackbar]);
 
   const runSearch = useCallback(
     async (q: string) => {

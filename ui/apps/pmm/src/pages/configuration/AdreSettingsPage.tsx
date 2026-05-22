@@ -21,10 +21,8 @@ import { FC, useState, useEffect, ChangeEvent, SyntheticEvent } from 'react';
 import { Page } from 'components/page';
 import { useAdreModels, useAdreSettings, useUpdateAdreSettings } from 'hooks/api/useAdre';
 import type { AdreSettings } from 'api/adre';
-import {
-  AdreBehaviorControlsBlock,
-  hydrateAdreBehaviorMap,
-} from 'pages/configuration/AdreBehaviorControlsBlock';
+import { AdreBehaviorControlsBlock } from 'pages/configuration/AdreBehaviorControlsBlock';
+import { hydrateAdreBehaviorMap } from 'pages/configuration/AdreBehaviorControlsBlock.utils';
 import { useSnackbar } from 'notistack';
 import { useUser } from 'contexts/user';
 import { PMM_SETTINGS_URL } from 'lib/constants';

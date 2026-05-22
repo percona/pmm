@@ -4,7 +4,7 @@ import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import type { InvestigationBlock } from 'api/investigations';
-import { getMarkdownComponents } from 'components/adre/adre-chat-markdown';
+import { getMarkdownComponents } from 'components/adre/adre-chat-markdown.helpers';
 
 const LOG_TIMESTAMP_RE = /^(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}(?:\.\d+)?)\s/;
 

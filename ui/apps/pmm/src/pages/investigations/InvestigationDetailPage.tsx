@@ -137,12 +137,15 @@ const InvestigationDetailPage: FC = () => {
     }
   }, [inv?.status]);
 
+  const invId = inv?.id;
+  const invSourceType = inv?.sourceType;
+  const invSourceRef = inv?.sourceRef;
   // When investigation is from an alert but API didn't return node/service, fetch alerts and derive metadata
   useEffect(() => {
-    if (!inv) return;
+    if (invId == null) return;
     setFetchedAlertMeta({});
-    if (inv.sourceType !== 'alert' || !inv.sourceRef) return;
-    const refs = new Set(inv.sourceRef.split(',').map((s) => s.trim()).filter(Boolean));
+    if (invSourceType !== 'alert' || !invSourceRef) return;
+    const refs = new Set(invSourceRef.split(',').map((s) => s.trim()).filter(Boolean));
     if (refs.size === 0) return;
     let cancelled = false;
     getAdreAlerts()
@@ -165,7 +168,7 @@ const InvestigationDetailPage: FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [inv?.id, inv?.sourceType, inv?.sourceRef]);
+  }, [invId, invSourceType, invSourceRef]);
 
   const showError = (msg: string) => {
     setSnackMessage(msg);

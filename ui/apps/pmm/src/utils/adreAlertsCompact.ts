@@ -40,7 +40,7 @@ export function compactAdreAlertsForToolResult(
   const { next, sliced } = cloneSliceAlerts(data, maxAlerts);
   let truncated = sliced;
   const candidate = { ok: true, alerts: next };
-  let json = JSON.stringify(candidate);
+  const json = JSON.stringify(candidate);
   if (json.length <= maxToolJson) {
     return { value: next, truncated };
   }
