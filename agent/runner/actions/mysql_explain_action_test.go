@@ -112,7 +112,7 @@ func TestMySQLExplain(t *testing.T) {
 		default:
 			assert.Equal(t, 1, m.Get("query_block.select_id").Int())
 
-			var table map[string]interface{}
+			var table map[string]any
 			if mySQLVendor == version.MariaDBVendor {
 				if mySQLVersion.Float() >= 11 {
 					table = m.Get("query_block.nested_loop[0].read_sorted_file.filesort.table").MSI()
@@ -126,7 +126,7 @@ func TestMySQLExplain(t *testing.T) {
 
 			assert.Equal(t, "city", table["table_name"])
 			if mySQLVersion.String() != "5.6" && mySQLVendor != version.MariaDBVendor {
-				assert.Equal(t, []interface{}{"ID", "Name", "CountryCode", "District", "Population"}, table["used_columns"])
+				assert.Equal(t, []any{"ID", "Name", "CountryCode", "District", "Population"}, table["used_columns"])
 			}
 
 			if mySQLVendor != version.MariaDBVendor {
@@ -160,7 +160,7 @@ func TestMySQLExplain(t *testing.T) {
 		err = json.Unmarshal(b, &er)
 		require.NoError(t, err)
 
-		var actual [][]interface{}
+		var actual [][]any
 		err = json.Unmarshal(er.ExplainResult, &actual)
 		require.NoError(t, err)
 		require.Len(t, actual, 2)
