@@ -55,7 +55,7 @@ func BenchmarkCollector(b *testing.B) {
 
 	timeout := time.Millisecond*time.Duration(maxDocs*maxLoops) + cursorTimeout*time.Duration(maxLoops*2) + time.Second
 
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	ctx, cancel := context.WithTimeout(b.Context(), timeout)
 	defer cancel()
 
 	url := "mongodb://root:root-password@127.0.0.1:27017"
@@ -64,14 +64,29 @@ func BenchmarkCollector(b *testing.B) {
 
 	client, err := createSession(url, "pmm-agent")
 	if err != nil {
+		b.Fatal(err)
 		return
 	}
 
-	cleanUpDBs(b, client) // Just in case there are old dbs with matching names
-	defer cleanUpDBs(b, client)
+	// Just in case there are old dbs with matching names
+	err = cleanUpDBs(b, client)
+	if err != nil {
+		b.Fatal(err)
+		return
+	}
+	defer func() {
+		err = cleanUpDBs(b, client)
+		if err != nil {
+			return
+		}
+	}()
 
-	ps := ProfilerStatus{}
+	var ps ProfilerStatus
 	err = client.Database("admin").RunCommand(ctx, primitive.M{"profile": -1}).Decode(&ps)
+	if err != nil {
+		b.Fatal(err)
+		return
+	}
 	defer func() { // restore profiler status
 		client.Database("admin").RunCommand(ctx, primitive.D{{"profile", ps.Was}, {"slowms", ps.SlowMs}})
 	}()
@@ -79,6 +94,7 @@ func BenchmarkCollector(b *testing.B) {
 	// Enable profilling all queries (2, slowms = 0)
 	res := client.Database("admin").RunCommand(ctx, primitive.D{{"profile", 2}, {"slowms", 0}})
 	if res.Err() != nil {
+		b.Fatal(err)
 		return
 	}
 
@@ -120,18 +136,27 @@ func TestCollector(t *testing.T) {
 	// cursorTimeout*time.Duration(maxLoops*2): Wait time between loops to produce iter.TryNext to return a false
 	timeout := time.Millisecond*time.Duration(maxDocs*maxLoops) + cursorTimeout*time.Duration(maxLoops*2) + 5*time.Second
 
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	ctx, cancel := context.WithTimeout(t.Context(), timeout)
 	defer cancel()
 
 	client, err := createSession(url, "pmm-agent")
 	require.NoError(t, err)
 
-	cleanUpDBs(t, client) // Just in case there are old dbs with matching names
-	defer cleanUpDBs(t, client)
+	require.NoError(t, cleanUpDBs(t, client)) // Just in case there are old dbs with matching names
+	defer func() {
+		err = cleanUpDBs(t, client)
+		if err != nil {
+			return
+		}
+	}()
 
 	// It's done create DB before the test.
 	doc := bson.M{}
-	client.Database("test_collector").Collection("test").InsertOne(context.TODO(), doc)
+	_, err = client.Database("test_collector").Collection("test").InsertOne(t.Context(), doc)
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
 	<-time.After(time.Second)
 
 	ctr := New(client, "test_collector", logrus.WithField("component", "collector-test"))
@@ -139,6 +164,10 @@ func TestCollector(t *testing.T) {
 	// Start the collector
 	var profiles []proto.SystemProfile
 	docsChan, err := ctr.Start(ctx)
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	<-time.After(time.Second)
@@ -220,13 +249,17 @@ func createSession(dsn string, agentID string) (*mongo.Client, error) {
 
 func cleanUpDBs[T testing.TB](t T, sess *mongo.Client) error {
 	t.Helper()
-	dbs, err := sess.ListDatabaseNames(context.TODO(), bson.M{})
+	dbs, err := sess.ListDatabaseNames(t.Context(), bson.M{})
 	if err != nil {
 		return err
 	}
 	for _, dbname := range dbs {
 		if strings.HasPrefix(dbname, "test_") {
-			err = sess.Database(dbname).Drop(context.TODO())
+			err = sess.Database(dbname).Drop(t.Context())
+			if err != nil {
+				t.Logf("failed to drop database %q: %v", dbname, err)
+				continue
+			}
 		}
 	}
 	return nil

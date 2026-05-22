@@ -43,8 +43,8 @@ func TestQueryExplain(t *testing.T) {
 	dsn := tests.GetTestMongoDBDSN(t)
 	client := tests.OpenTestMongoDB(t, dsn)
 	t.Cleanup(func() {
-		defer client.Disconnect(ctx)              //nolint:errcheck
-		defer client.Database(database).Drop(ctx) //nolint:errcheck
+		assert.Error(t, client.Disconnect(ctx))
+		assert.Error(t, client.Database(database).Drop(ctx))
 	})
 
 	t.Run("Find", func(t *testing.T) {
@@ -259,7 +259,9 @@ func TestMongoDBExplain(t *testing.T) {
 
 	dsn := tests.GetTestMongoDBDSN(t)
 	client := tests.OpenTestMongoDB(t, dsn)
-	defer client.Database(database).Drop(ctx) //nolint:errcheck
+	t.Cleanup(func() {
+		assert.Error(t, client.Database(database).Drop(ctx))
+	})
 
 	err := prepareData(ctx, client, database, collection)
 	require.NoError(t, err)
@@ -327,7 +329,9 @@ func TestNewMongoDBExplain(t *testing.T) {
 
 	dsn := tests.GetTestMongoDBDSN(t)
 	client := tests.OpenTestMongoDB(t, dsn)
-	defer client.Database(database).Drop(ctx) //nolint:errcheck
+	t.Cleanup(func() {
+		assert.Error(t, client.Database(database).Drop(ctx))
+	})
 
 	_, err := client.Database(database).Collection("people").InsertOne(ctx, bson.M{"last_name": "Brannigan", "first_name": "Zapp"})
 	require.NoError(t, err)

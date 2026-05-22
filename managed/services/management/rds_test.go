@@ -50,7 +50,9 @@ func TestRDSService(t *testing.T) {
 	defer uuid.SetRand(nil)
 
 	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
-	defer sqlDB.Close() //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, sqlDB.Close())
+	})
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	cc := &mockConnectionChecker{}

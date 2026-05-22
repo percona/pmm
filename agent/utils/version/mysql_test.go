@@ -31,7 +31,9 @@ func TestGetMySQLVersion(t *testing.T) {
 		t.Log("error creating mock database")
 		return
 	}
-	defer sqlDB.Close() //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, sqlDB.Close())
+	})
 
 	q := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf)).WithTag("pmm-agent:mysqlversion")
 	ctx := context.Background()

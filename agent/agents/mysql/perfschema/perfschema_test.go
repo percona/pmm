@@ -266,7 +266,9 @@ func prepareDBCopy(t *testing.T, db *reform.DB) {
 
 func TestPerfSchema(t *testing.T) {
 	sqlDB := tests.OpenTestMySQL(t)
-	defer sqlDB.Close() //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, sqlDB.Close())
+	})
 	db := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	updateQuery := fmt.Sprintf("UPDATE /* %s */ ", queryTag)

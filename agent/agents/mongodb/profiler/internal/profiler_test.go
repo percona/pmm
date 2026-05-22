@@ -77,7 +77,9 @@ func testProfiler(t *testing.T, url string) {
 	sess, err := createSession(url, "pmm-agent")
 	require.NoError(t, err)
 
-	cleanUpDBs(t, sess) // Just in case there are old dbs with matching names
+	// Just in case there are old dbs with matching names
+	err = cleanUpDBs(t, sess)
+	require.NoError(t, err)
 
 	dbsCount := 10
 	docsCount := float32(10)
@@ -90,7 +92,7 @@ func testProfiler(t *testing.T, url string) {
 		doc := bson.M{"id": i}
 		dbName := fmt.Sprintf("test_%02d", i)
 		logrus.Traceln("create db", dbName)
-		_, err := sess.Database(dbName).Collection("test").InsertOne(context.TODO(), doc)
+		_, err = sess.Database(dbName).Collection("test").InsertOne(t.Context(), doc)
 		require.NoError(t, err)
 		i++
 	}
@@ -102,8 +104,11 @@ func testProfiler(t *testing.T, url string) {
 	}
 	prof := New(url, logrus.WithField("component", "profiler-test"), ms, "test-id", truncate.GetMongoDBDefaultMaxQueryLength())
 	err = prof.Start()
-	defer prof.Stop()
 	require.NoError(t, err)
+	defer func() {
+		err = prof.Stop()
+		require.NoError(t, err)
+	}()
 	<-time.After(aggregator.DefaultInterval * 2) // give it some time to start profiler
 
 	i = 0
@@ -117,20 +122,26 @@ func testProfiler(t *testing.T, url string) {
 		}
 		dbName := fmt.Sprintf("test_%02d", dbNumber)
 		logrus.Tracef("inserting value %d to %s", i, dbName)
-		_, err := sess.Database(dbName).Collection("people").InsertOne(context.TODO(), doc)
+		_, err = sess.Database(dbName).Collection("people").InsertOne(t.Context(), doc)
 		require.NoError(t, err)
 		i++
 	}
-	cursor, err := sess.Database("test_00").Collection("people").Find(context.TODO(), bson.M{"name_00\xff": "value_00\xff"})
+	cursor, err := sess.Database("test_00").Collection("people").Find(t.Context(), bson.M{"name_00\xff": "value_00\xff"})
 	require.NoError(t, err)
-	defer cursor.Close(context.TODO())
+	defer func() {
+		err = cursor.Close(t.Context())
+		require.NoError(t, err)
+	}()
 
 	<-time.After(aggregator.DefaultInterval * 6) // give it some time to catch all metrics
 
 	err = prof.Stop()
 	require.NoError(t, err)
 
-	defer cleanUpDBs(t, sess)
+	defer func() {
+		err = cleanUpDBs(t, sess)
+		require.NoError(t, err)
+	}()
 
 	require.GreaterOrEqual(t, len(ms.reports), 1)
 
@@ -196,14 +207,22 @@ func testProfiler(t *testing.T, url string) {
 	assert.InDelta(t, docsCount, findBucket.Mongodb.MDocsReturnedSum, 0.0001)
 }
 
-func cleanUpDBs(t *testing.T, sess *mongo.Client) {
-	dbs, err := sess.ListDatabaseNames(context.TODO(), bson.M{})
+func cleanUpDBs[T testing.TB](t T, sess *mongo.Client) error {
+	t.Helper()
+	dbs, err := sess.ListDatabaseNames(t.Context(), bson.M{})
+	if err != nil {
+		return err
+	}
 	for _, dbname := range dbs {
 		if strings.HasPrefix(dbname, "test_") {
-			err = sess.Database(dbname).Drop(context.TODO())
-			require.NoError(t, err)
+			err = sess.Database(dbname).Drop(t.Context())
+			if err != nil {
+				t.Logf("failed to drop database %q: %v", dbname, err)
+				continue
+			}
 		}
 	}
+	return nil
 }
 
 type testWriter struct {
