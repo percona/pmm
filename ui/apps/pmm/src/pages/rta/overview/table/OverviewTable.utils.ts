@@ -4,19 +4,6 @@ import { QueryData } from 'types/rta.types';
 export const getNavigableQueryIdsKey = (queries: QueryData[]) =>
   queries.map((query) => query.queryId).join('\0');
 
-export const isSameTableState = <T>(previous: T, next: T) =>
-  JSON.stringify(previous) === JSON.stringify(next);
-
-export const resolveTableStateUpdate = <T>(
-  previous: T,
-  updater: T | ((old: T) => T)
-): T => {
-  if (typeof updater === 'function') {
-    return (updater as (old: T) => T)(previous);
-  }
-  return updater;
-};
-
 export const filterElapsedTime = (
   row: MRT_Row<QueryData>,
   id: string,

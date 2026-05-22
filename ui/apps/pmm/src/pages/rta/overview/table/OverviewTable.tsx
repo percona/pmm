@@ -12,12 +12,7 @@ import { OVERVIEW_TABLE_COLUMNS } from './OverviewTable.constants';
 import { RealtimeTableWrapper } from 'pages/rta/components/rta-table-wrapper';
 import { boxClasses } from '@mui/material/Box';
 import { Messages } from './OverviewTable.messages';
-import {
-  filterElapsedTime,
-  getNavigableQueryIdsKey,
-  isSameTableState,
-  resolveTableStateUpdate,
-} from './OverviewTable.utils';
+import { filterElapsedTime, getNavigableQueryIdsKey } from './OverviewTable.utils';
 
 interface Props {
   queries: QueryData[];
@@ -58,26 +53,6 @@ const OverviewTable: FC<Props> = ({
     onNavigableQueriesChange(navigableQueries);
   }, [getNavigableQueries, onNavigableQueriesChange]);
 
-  const handleColumnFiltersChange = useCallback(
-    (updater: MRT_ColumnFiltersState | ((old: MRT_ColumnFiltersState) => MRT_ColumnFiltersState)) => {
-      setColumnFilters((previous) => {
-        const next = resolveTableStateUpdate(previous, updater);
-        return isSameTableState(previous, next) ? previous : next;
-      });
-    },
-    []
-  );
-
-  const handleSortingChange = useCallback(
-    (updater: MRT_SortingState | ((old: MRT_SortingState) => MRT_SortingState)) => {
-      setSorting((previous) => {
-        const next = resolveTableStateUpdate(previous, updater);
-        return isSameTableState(previous, next) ? previous : next;
-      });
-    },
-    []
-  );
-
   useEffect(() => {
     syncNavigableQueries();
   }, [columnFilters, sorting, syncNavigableQueries]);
@@ -105,8 +80,8 @@ const OverviewTable: FC<Props> = ({
           },
         }}
         state={{ columnFilters, sorting }}
-        onColumnFiltersChange={handleColumnFiltersChange}
-        onSortingChange={handleSortingChange}
+        onColumnFiltersChange={setColumnFilters}
+        onSortingChange={setSorting}
         enableGlobalFilter={false}
         enableHiding={false}
         enableRowHoverAction
