@@ -56,7 +56,6 @@
     "fiscalYearStartMonth": 0,
     "graphTooltip": 1,
     "links": [],
-    "liveNow": false,
     "panels": [
         {
             "collapsed": false,
@@ -75,6 +74,7 @@
             "datasource": {
                 "type": "prometheus"
             },
+            "description": "Monitored database endpoints per technology. A higher count than Monitored DB Instances is expected when one service has multiple exporters.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -93,7 +93,98 @@
                     },
                     "unit": "none"
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "MySQL"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": true,
+                                        "title": "MySQL Instances Overview",
+                                        "url": "/graph/d/mysql-instance-overview/mysql-instances-overview?$__url_time_range"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "MongoDB"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": true,
+                                        "title": "MongoDB Instances Overview",
+                                        "url": "/graph/d/mongodb-instance-overview/mongodb-instances-overview?$__url_time_range"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "PostgreSQL"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": true,
+                                        "title": "PostgreSQL Instances Overview",
+                                        "url": "/graph/d/postgresql-instance-overview/postgresql-instances-overview?$__url_time_range"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "ProxySQL"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": true,
+                                        "title": "ProxySQL Instance Summary",
+                                        "url": "/graph/d/proxysql-instance-summary/proxysql-instance-summary?$__url_time_range"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Valkey"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": true,
+                                        "title": "Valkey Overview",
+                                        "url": "/graph/d/valkey-overview/valkey-redis-overview?$__url_time_range"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
                 "h": 4,
@@ -180,6 +271,7 @@
         },
         {
             "datasource": "Metrics",
+            "description": "Distinct database services per technology. Unlike Monitored DB Services, each service is counted once regardless of how many exporters report for it. If lower than expected, a service may not be registered with PMM or its exporter may be down.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -312,7 +404,7 @@
         },
         {
             "datasource": "Metrics",
-            "description": "",
+            "description": "Total monitored nodes matching the current filters. If lower than expected, a node may not be registered with PMM or its agent may be offline.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -410,7 +502,7 @@
         },
         {
             "datasource": "Metrics",
-            "description": "Minimal Uptime",
+            "description": "Shortest node uptime across all filtered nodes. Red means under 1 hour, orange means 1–24 hours, green means over 24 hours. A red value means at least one node restarted recently and may need investigation.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -495,7 +587,7 @@
         },
         {
             "datasource": "Metrics",
-            "description": "Minimal DB Uptime",
+            "description": "Shortest database process uptime across all monitored services. Red means under 1 hour, orange means 1–24 hours, green means over 24 hours. A low value outside a maintenance window may indicate a crash.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -581,6 +673,7 @@
         },
         {
             "datasource": "Metrics",
+            "description": "Total active connections across all monitored database services. A sudden spike can indicate a connection leak or unusual traffic.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -690,7 +783,7 @@
         },
         {
             "datasource": "Metrics",
-            "description": "Query per second",
+            "description": "Combined query rate across all monitored services. A sudden drop or spike often points to a traffic change, a slow query blocking others, or a scheduled job.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -808,7 +901,7 @@
         },
         {
             "datasource": "Metrics",
-            "description": "RAM (Random Access Memory) is the hardware in a computing device where the operating system, application programs, and data in current use are kept so the device's processor can quickly reach them. ",
+            "description": "Total physical memory across all filtered nodes. Click to open Memory Details panel.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -905,7 +998,7 @@
         },
         {
             "datasource": "Metrics",
-            "description": "",
+            "description": "Total memory including swap across all filtered nodes. A value much higher than Total RAM means swap is heavily configured. Check whether swap is actively being used.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1002,7 +1095,7 @@
         },
         {
             "datasource": "Metrics",
-            "description": "",
+            "description": "Total filesystem capacity across all filtered nodes. If the value seems higher than expected, the same storage may be counted more than once across mount points.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1097,6 +1190,7 @@
         },
         {
             "datasource": "Metrics",
+            "description": "Total disk read throughput across all filtered nodes. If reads stay high alongside rising query latency, the database is likely fetching data from disk because it does not fit in memory.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1193,6 +1287,7 @@
         },
         {
             "datasource": "Metrics",
+            "description": "Total disk write throughput across all filtered nodes. Sustained high writes can mean the database is flushing large amounts of dirty data to disk, which can slow down write operations.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1291,6 +1386,7 @@
         },
         {
             "datasource": "Metrics",
+            "description": "Total virtual CPUs across all filtered nodes. Click to open the Nodes Overview.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1384,7 +1480,7 @@
             "type": "stat"
         },
         {
-            "description": "Display the number of Advisors identified as failed during its most recent run.",
+            "description": "Number of advisor checks that failed in the most recent run. A non-zero count means PMM has detected conditions that need attention. Review which checks failed and why.",
             "fieldConfig": {
                 "defaults": {},
                 "overrides": []
@@ -1405,6 +1501,7 @@
         },
         {
             "datasource": "Metrics",
+            "description": "Current PMM version and whether a newer version is available.",
             "fieldConfig": {
                 "defaults": {},
                 "overrides": []
@@ -1445,7 +1542,7 @@
         },
         {
             "datasource": "Metrics",
-            "description": "Difference between the current CPU value and the CPU value a week ago. Considerable differences in these values result from a significant change in the CPU utilisation of the resources.",
+            "description": "Nodes where CPU usage is above 60% and has increased by more than 30 percentage points compared to the same time last week. Investigate if the spike coincides with a deployment, query regression, or unexpected workload.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1526,7 +1623,7 @@
         },
         {
             "datasource": "Metrics",
-            "description": "CPU usage above 90%",
+            "description": "Nodes with CPU usage above 90% over the last 15 minutes. Sustained high CPU usually means a runaway query, a missing index, or the instance is undersized for its workload.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1610,7 +1707,7 @@
         },
         {
             "datasource": "Metrics",
-            "description": "Difference between the current Disk Queue value and the value a week ago. Considerable differences result from a significant change in the usage of the Disk queue resource and a warning.",
+            "description": "Nodes where disk I/O queue depth is above 2 and has grown significantly compared to last week. A growing queue is an early warning of storage saturation.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1691,7 +1788,7 @@
         },
         {
             "datasource": "Metrics",
-            "description": "Disk queue size above <XX> requests, regardless of time. A sustained average queue length > 1 per physical disk is often an indication of device saturation, unless it’s a high-throughput device (like an NVMe SSD) designed for deep queues.",
+            "description": "Nodes with a disk I/O queue depth above 2 over the last minute. A sustained queue above 1 per physical disk indicates the storage layer cannot keep up with demand. NVMe SSDs can handle deeper queues normally.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1773,7 +1870,7 @@
         },
         {
             "datasource": "Metrics",
-            "description": "Difference between the current Used Memory value and the value a week ago. Considerable differences result from a significant change in the usage of the Memory resource and a warning.",
+            "description": "Nodes where memory usage is above 80% and has grown by more than 30 percentage points compared to last week. Check whether a new workload or memory leak is responsible.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1854,7 +1951,7 @@
         },
         {
             "datasource": "Metrics",
-            "description": "Memory usage above 80% regardless of time",
+            "description": "Nodes with memory usage above 80%. On Linux, high memory usage is not always a problem. Check whether swap is being used and whether the OOM killer has triggered.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1937,7 +2034,7 @@
         },
         {
             "datasource": "Metrics",
-            "description": "Difference between the current CPU value and the CPU value a week ago. Considerable differences in these values result from a significant change in the CPU utilisation of the resources.",
+            "description": "Nodes where CPU usage is below 30% and has dropped significantly compared to last week. May indicate a service that went down, traffic that was redirected, or a workload that finished.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -2019,7 +2116,7 @@
         },
         {
             "datasource": "Metrics",
-            "description": "CPU usage less 30%, regardless of time",
+            "description": "Nodes with CPU usage below 30% over the last 15 minutes. Use this to identify underutilized servers that could be rightsized or consolidated.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -2112,7 +2209,7 @@
             "panels": [
                 {
                     "datasource": "Metrics",
-                    "description": "Measured in clock ticks or seconds. It is useful to measure CPU time as a percentage of the CPU's capacity, called CPU usage.",
+                    "description": "Shows CPU utilization for the 20 most CPU-intensive nodes over the last hour. If a node is consistently near 100%, check for slow queries or missing indexes.",
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -2217,7 +2314,7 @@
                 },
                 {
                     "datasource": "Metrics",
-                    "description": "Measured in clock ticks or seconds. It is useful to measure CPU time as a percentage of the CPU's capacity, called CPU usage.",
+                    "description": "Shows how CPU utilization has changed compared to the same time last week. Positive bars mean usage has increased, negative bars mean it has decreased. A large positive spike is worth investigating.",
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -2325,7 +2422,7 @@
                 },
                 {
                     "datasource": "Metrics",
-                    "description": "The CPU time is measured in clock ticks or seconds. This graph shows the top 20. It is useful to measure CPU time as a percentage of the CPU's capacity, which is called the CPU usage.",
+                    "description": "Shows CPU utilization for the top 20 nodes from one week ago. If current values are significantly higher, investigate what changed in your workload or configuration.",
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -2431,7 +2528,7 @@
                 },
                 {
                     "datasource": "Metrics",
-                    "description": "Disk loaded for reads or writes as an average number of outstanding requests at different periods. A high disk load is a good measure of actual storage utilization. Different storage types handle load differently - some will show latency increases on low loads others can handle higher loads with no problems.",
+                    "description": "Shows average disk queue depth for the 20 most I/O-loaded nodes. A queue depth consistently above 1 per physical disk means storage is under pressure. NVMe SSDs can handle deeper queues without latency issues.",
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -2543,7 +2640,7 @@
                 },
                 {
                     "datasource": "Metrics",
-                    "description": "Disk loaded for reads or writes as an average number of outstanding requests at different periods. A high disk load is a good measure of actual storage utilization. Different storage types handle load differently. For some, latency increases on low loads. Others can handle higher loads with no problems.",
+                    "description": "Shows nodes where disk queue depth has increased compared to the same time last week. Only nodes with a higher queue than last week appear. A growing queue suggests increasing I/O pressure.",
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -2656,7 +2753,7 @@
                 },
                 {
                     "datasource": "Metrics",
-                    "description": "Shows how much disk was loaded for reads or writes as average number of outstanding requests at different period of time. This graph lists the top 20. High disk load is a good measure of actual storage utilization. Different storage types handle load differently - some will show latency increases on low loads others can handle higher load with no problems.",
+                    "description": "Shows disk queue depth for the top 20 nodes from one week ago. Compare with Top 20 Disk Queue to confirm whether current depth is unusual.",
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -2774,7 +2871,7 @@
                 },
                 {
                     "datasource": "Metrics",
-                    "description": "The average latency for Reads and Writes for IO Devices. This graph lists the top 20. Higher than expected latency for highly loaded storage indicates saturation (overload) and is a frequent cause of performance problems. Also, it might indicate internal storage problems.",
+                    "description": "Shows average write latency for the 20 nodes with the highest write latency. Latency rising alongside a growing disk queue confirms storage saturation.",
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -2891,7 +2988,7 @@
                 },
                 {
                     "datasource": "Metrics",
-                    "description": "Shows average latency for Reads and Writes IO Devices. Higher than typical latency for highly loaded storage indicates saturation (overload) and is frequent cause of performance problems. Higher than normal latency also can indicate internal storage problems.",
+                    "description": "Shows nodes where write latency has increased compared to the same time last week. Only nodes with higher write latency than last week appear. A rising trend alongside high disk queue depth confirms storage saturation.",
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -3004,7 +3101,7 @@
                 },
                 {
                     "datasource": "Metrics",
-                    "description": "Shows average latency for Reads and Writes IO Devices. Higher than typical latency for highly loaded storage indicates saturation (overload) and is frequent cause of performance problems. Higher than normal latency also can indicate internal storage problems.",
+                    "description": "Shows write latency for the top 20 nodes from one week ago. Compare with Top 20 Write Latency to confirm whether current latency is a regression.",
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -3119,7 +3216,7 @@
                 },
                 {
                     "datasource": "Metrics",
-                    "description": "Shows average latency for Reads and Writes IO Devices. Higher than typical latency for highly loaded storage indicates saturation (overload) and is frequent cause of performance problems. Higher than normal latency also can indicate internal storage problems.",
+                    "description": "Shows average read latency for the 20 nodes with the highest read latency. High read latency often points to cache misses. Check whether the working set fits in available memory.",
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -3232,7 +3329,7 @@
                 },
                 {
                     "datasource": "Metrics",
-                    "description": "Shows average latency for Reads and Writes IO Devices. Higher than typical latency for highly loaded storage indicates saturation (overload) and is frequent cause of performance problems. Higher than normal latency also can indicate internal storage problems.",
+                    "description": "Shows read latency above last week's baseline. Spikes indicate storage saturation or internal storage issues.",
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -3330,7 +3427,7 @@
                         {
                             "datasource": "Metrics",
                             "exemplar": true,
-                            "expr": "(rate(node_disk_read_time_seconds_total{node_name=~\"$node_name\"}[$interval]) / rate(node_disk_reads_completed_total{node_name=~\"$node_name\"}[$interval])) offset 1w - (rate(node_disk_read_time_seconds_total{node_name=~\"$node_name\"}[$interval]) / rate(node_disk_reads_completed_total{node_name=~\"$node_name\"}[$interval])) > 0 ",
+                            "expr": "(rate(node_disk_read_time_seconds_total{node_name=~\"$node_name\"}[$interval]) / rate(node_disk_reads_completed_total{node_name=~\"$node_name\"}[$interval])) - (rate(node_disk_read_time_seconds_total{node_name=~\"$node_name\"}[$interval]) / rate(node_disk_reads_completed_total{node_name=~\"$node_name\"}[$interval])) offset 1w > 0 ",
                             "format": "time_series",
                             "hide": false,
                             "instant": false,
@@ -3346,7 +3443,7 @@
                 },
                 {
                     "datasource": "Metrics",
-                    "description": "Shows average latency for Reads and Writes IO Devices. Higher than typical latency for highly loaded storage indicates saturation (overload) and is frequent cause of performance problems. Higher than normal latency also can indicate internal storage problems.",
+                    "description": "Shows read latency for the top 20 nodes from one week ago. Compare with Top 20 Read Latency to confirm whether current latency is higher than usual.",
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -3461,7 +3558,7 @@
                 },
                 {
                     "datasource": "Metrics",
-                    "description": "Basic memory usage as a percentage of the available physical memory.",
+                    "description": "Shows memory utilization as a percentage for the 20 most memory-intensive nodes. Nodes consistently above 80% risk swapping, which will significantly degrade performance.",
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -3573,7 +3670,7 @@
                 },
                 {
                     "datasource": "Metrics",
-                    "description": "Difference between the current Memory value and the Memory value a week ago. Considerable differences in these values result from a significant change in the Memory utilization of the resources. Big differences are the result of a significant change in the usage of the Memory resource and a warning.",
+                    "description": "Shows nodes where memory usage has increased compared to the same time last week. Only nodes with higher memory than last week appear. A sudden increase may indicate a memory leak or a new workload.",
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -3719,7 +3816,7 @@
                 },
                 {
                     "datasource": "Metrics",
-                    "description": "Difference between the current Memory value and the Memory value a week ago. Considerable differences in these values result from a significant change in the Memory utilization of the resources. Big differences are the result of a significant change in the usage of the Memory resource and a warning.",
+                    "description": "Shows memory utilization for the top 20 nodes from one week ago. Compare with Top 20 Used Memory to see whether current memory pressure is higher than usual.",
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -3847,7 +3944,7 @@
             "panels": [
                 {
                     "datasource": "Metrics",
-                    "description": "",
+                    "description": "Per-service health snapshot showing current status, connections, query rate, uptime, and key resource metrics for each monitored database service.",
                     "fieldConfig": {
                         "defaults": {
                             "custom": {

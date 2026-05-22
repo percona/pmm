@@ -15,20 +15,22 @@
 
 package models
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // InvalidArgumentError returned when some passed argument is invalid.
 type InvalidArgumentError struct {
 	Details string
 }
 
-func (e *InvalidArgumentError) Error() string {
-	return "invalid argument: " + e.Details
+// NewInvalidArgumentError creates InvalidArgumentError with given formatting.
+func NewInvalidArgumentError(format string, a ...any) *InvalidArgumentError {
+	return &InvalidArgumentError{Details: fmt.Sprintf(format, a...)}
 }
 
-// NewInvalidArgumentError creates InvalidArgumentError with given formatting.
-func NewInvalidArgumentError(format string, a ...interface{}) *InvalidArgumentError {
-	return &InvalidArgumentError{Details: fmt.Sprintf(format, a...)}
+func (e *InvalidArgumentError) Error() string {
+	return "invalid argument: " + e.Details
 }
 
 // localhost is the IPv4 loopback address used by PMM Server's

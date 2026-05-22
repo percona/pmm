@@ -872,12 +872,12 @@ scrape_configs:
     labels:
       instance: pmm-server
   follow_redirects: false`)))
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	})
 
 	t.Run("Bad scrape config file", func(t *testing.T) {
 		err := svc.configAndReload(context.TODO(), []byte(`unexpected input`))
-		assert.Errorf(t, err, "error when checking Prometheus config")
+		require.Errorf(t, err, "error when checking Prometheus config")
 	})
 
 	t.Run("Scrape config file with unknown params", func(t *testing.T) {
@@ -991,7 +991,7 @@ scrape_configs:
       follow_redirects: false
 `) + "\n"
 	newcfg, err := svc.marshalConfig(svc.loadBaseConfig())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, expected, string(newcfg), "actual:\n%s", newcfg)
 }
 

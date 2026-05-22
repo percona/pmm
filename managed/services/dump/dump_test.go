@@ -13,18 +13,41 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-//go:build !linux
-
-// Package pdeathsig contains function for setting deaths singal.
-package pdeathsig
+package dump
 
 import (
-	"os/exec"
-
-	"golang.org/x/sys/unix"
+	"testing"
 )
 
-// Set works only on Linux.
-func Set(_ *exec.Cmd, _ unix.Signal) {
-	// nothing, see pdeathsig_linux.go
+func Test_getDumpFilePath(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name      string
+		id        string
+		encrypted bool
+		want      string
+	}{
+		{
+			name:      "Usual dump",
+			id:        "123456789",
+			encrypted: false,
+			want:      dumpsDir + "/123456789.tar.gz",
+		},
+		{
+			name:      "Encrypted dump",
+			id:        "123456789",
+			encrypted: true,
+			want:      dumpsDir + "/123456789.tar.gz.enc",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			if got := getDumpFilePath(tt.id, tt.encrypted); got != tt.want {
+				t.Errorf("getDumpFilePath() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
