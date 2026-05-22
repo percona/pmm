@@ -1625,6 +1625,10 @@ $yaml$,
 	135: {
 		`DROP TABLE IF EXISTS percona_sso_details`,
 	},
+	118: {
+		`ALTER TABLE dumps ADD COLUMN encrypted boolean NOT NULL DEFAULT false`,
+		`UPDATE dumps SET encrypted = false`,
+	},
 	136: {
 		`CREATE TABLE adre_conversations (
 			id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -1896,6 +1900,15 @@ func initWithRoot(params SetupDBParams) error {
 		_, err = db.Exec(`GRANT ALL PRIVILEGES ON DATABASE $1 TO $2`, params.Name, params.Username)
 		if err != nil {
 			return fmt.Errorf("failed to grant privileges to user %s on database %s: %w", params.Username, params.Name, err)
+		}
+	} else {
+		// Role exists but authentication failed (e.g. pg_hba.conf switched from trust to
+		// scram-sha-256 during an upgrade, leaving the role with no usable password hash).
+		// initWithRoot is only ever called after a 28000/28P01 auth error, so resetting the
+		// password to the currently configured value is OK.
+		_, err = db.Exec(fmt.Sprintf(`ALTER USER "%s" WITH PASSWORD '%s'`, params.Username, params.Password))
+		if err != nil {
+			return fmt.Errorf("failed to update password for user %s: %w", params.Username, err)
 		}
 	}
 	return nil

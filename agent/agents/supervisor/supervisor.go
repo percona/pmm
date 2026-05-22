@@ -447,7 +447,7 @@ const (
 
 func (s *Supervisor) tryStartProcess(agentID string, agentProcess *agentv1.SetStateRequest_AgentProcess, port uint16) error {
 	var err error
-	for i := 0; i < process_Retry_Time; i++ {
+	for range process_Retry_Time {
 		if port == 0 {
 			_port, err := s.portsRegistry.Reserve()
 			if err != nil {
@@ -748,7 +748,7 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStat
 	processParams.Type = agentProcess.Type
 
 	cfg := s.cfg.Get()
-	templateParams := map[string]interface{}{
+	templateParams := map[string]any{
 		"listen_port": port,
 	}
 	switch agentProcess.Type {
@@ -828,6 +828,10 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStat
 			return nil, err
 		}
 		processParams.Args[i] = string(b)
+	}
+
+	if agentProcess.Type == inventoryv1.AgentType_AGENT_TYPE_NODE_EXPORTER && cfg.ProcMountsPath != "" {
+		processParams.Args = append(processParams.Args, "--collector.filesystem.proc-mounts-path="+cfg.ProcMountsPath)
 	}
 
 	env := make([]string, len(agentProcess.Env))

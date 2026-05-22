@@ -55,7 +55,7 @@ func TestMySQLShowIndex(t *testing.T) {
 		require.NoError(t, err)
 		t.Logf("Full JSON:\n%s", b)
 
-		var actual [][]interface{}
+		var actual [][]any
 		err = json.Unmarshal(b, &actual)
 		require.NoError(t, err)
 		require.Len(t, actual, 3)
@@ -66,36 +66,36 @@ func TestMySQLShowIndex(t *testing.T) {
 
 		switch {
 		case mySQLVendor == version.MariaDBVendor && mySQLVersion.Float() >= 10.5:
-			assert.Equal(t, []interface{}{
+			assert.Equal(t, []any{
 				"Table", "Non_unique", "Key_name", "Seq_in_index", "Column_name", "Collation", "Cardinality",
 				"Sub_part", "Packed", "Null", "Index_type", "Comment", "Index_comment", "Ignored",
 			}, actual[0])
-			assert.Equal(t, []interface{}{"city", float64(0), "PRIMARY", float64(1), "ID", "A", "CARDINALITY", nil, nil, "", "BTREE", "", "", "NO"}, actual[1])
-			assert.Equal(t, []interface{}{"city", float64(1), "CountryCode", float64(1), "CountryCode", "A", "CARDINALITY", nil, nil, "", "BTREE", "", "", "NO"}, actual[2])
+			assert.Equal(t, []any{"city", float64(0), "PRIMARY", float64(1), "ID", "A", "CARDINALITY", nil, nil, "", "BTREE", "", "", "NO"}, actual[1])
+			assert.Equal(t, []any{"city", float64(1), "CountryCode", float64(1), "CountryCode", "A", "CARDINALITY", nil, nil, "", "BTREE", "", "", "NO"}, actual[2])
 
 		case mySQLVersion.String() == "5.6" || mySQLVendor == version.MariaDBVendor:
-			assert.Equal(t, []interface{}{
+			assert.Equal(t, []any{
 				"Table", "Non_unique", "Key_name", "Seq_in_index", "Column_name", "Collation", "Cardinality",
 				"Sub_part", "Packed", "Null", "Index_type", "Comment", "Index_comment",
 			}, actual[0])
-			assert.Equal(t, []interface{}{"city", float64(0), "PRIMARY", float64(1), "ID", "A", "CARDINALITY", nil, nil, "", "BTREE", "", ""}, actual[1])
-			assert.Equal(t, []interface{}{"city", float64(1), "CountryCode", float64(1), "CountryCode", "A", "CARDINALITY", nil, nil, "", "BTREE", "", ""}, actual[2])
+			assert.Equal(t, []any{"city", float64(0), "PRIMARY", float64(1), "ID", "A", "CARDINALITY", nil, nil, "", "BTREE", "", ""}, actual[1])
+			assert.Equal(t, []any{"city", float64(1), "CountryCode", float64(1), "CountryCode", "A", "CARDINALITY", nil, nil, "", "BTREE", "", ""}, actual[2])
 
 		case mySQLVersion.String() == "5.7":
-			assert.Equal(t, []interface{}{
+			assert.Equal(t, []any{
 				"Table", "Non_unique", "Key_name", "Seq_in_index", "Column_name", "Collation", "Cardinality",
 				"Sub_part", "Packed", "Null", "Index_type", "Comment", "Index_comment",
 			}, actual[0])
-			assert.Equal(t, []interface{}{"city", float64(0), "PRIMARY", float64(1), "ID", "A", "CARDINALITY", nil, nil, "", "BTREE", "", ""}, actual[1])
-			assert.Equal(t, []interface{}{"city", float64(1), "CountryCode", float64(1), "CountryCode", "A", "CARDINALITY", nil, nil, "", "BTREE", "", ""}, actual[2])
+			assert.Equal(t, []any{"city", float64(0), "PRIMARY", float64(1), "ID", "A", "CARDINALITY", nil, nil, "", "BTREE", "", ""}, actual[1])
+			assert.Equal(t, []any{"city", float64(1), "CountryCode", float64(1), "CountryCode", "A", "CARDINALITY", nil, nil, "", "BTREE", "", ""}, actual[2])
 
 		default: // >= MySQL 8.0
-			assert.Equal(t, []interface{}{
+			assert.Equal(t, []any{
 				"Table", "Non_unique", "Key_name", "Seq_in_index", "Column_name", "Collation", "Cardinality",
 				"Sub_part", "Packed", "Null", "Index_type", "Comment", "Index_comment", "Visible", "Expression",
 			}, actual[0])
-			assert.Equal(t, []interface{}{"city", float64(0), "PRIMARY", float64(1), "ID", "A", "CARDINALITY", nil, nil, "", "BTREE", "", "", "YES", nil}, actual[1])
-			assert.Equal(t, []interface{}{"city", float64(1), "CountryCode", float64(1), "CountryCode", "A", "CARDINALITY", nil, nil, "", "BTREE", "", "", "YES", nil}, actual[2])
+			assert.Equal(t, []any{"city", float64(0), "PRIMARY", float64(1), "ID", "A", "CARDINALITY", nil, nil, "", "BTREE", "", "", "YES", nil}, actual[1])
+			assert.Equal(t, []any{"city", float64(1), "CountryCode", float64(1), "CountryCode", "A", "CARDINALITY", nil, nil, "", "BTREE", "", "", "YES", nil}, actual[2])
 		}
 	})
 
@@ -110,7 +110,7 @@ func TestMySQLShowIndex(t *testing.T) {
 		defer cancel()
 
 		_, err := a.Run(ctx)
-		assert.EqualError(t, err, `Error 1146 (42S02): Table 'world.no_such_table' doesn't exist`)
+		require.EqualError(t, err, `Error 1146 (42S02): Table 'world.no_such_table' doesn't exist`)
 	})
 
 	t.Run("LittleBobbyTables", func(t *testing.T) {
@@ -125,7 +125,7 @@ func TestMySQLShowIndex(t *testing.T) {
 
 		_, err := a.Run(ctx)
 		expected := "Error 1146 (42S02): Table 'world.city; DROP TABLE city; --' doesn't exist"
-		assert.EqualError(t, err, expected)
+		require.EqualError(t, err, expected)
 
 		var count int
 		err = q.QueryRow("SELECT COUNT(*) FROM city").Scan(&count)

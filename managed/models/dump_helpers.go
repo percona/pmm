@@ -57,6 +57,7 @@ type CreateDumpParams struct {
 	EndTime      *time.Time
 	ExportQAN    bool
 	IgnoreLoad   bool
+	Encrypted    bool
 }
 
 // Validate checks the validity of CreateDumpParams.
@@ -87,6 +88,7 @@ func CreateDump(q *reform.Querier, params CreateDumpParams) (*Dump, error) {
 		EndTime:      params.EndTime,
 		ExportQAN:    params.ExportQAN,
 		IgnoreLoad:   params.IgnoreLoad,
+		Encrypted:    params.Encrypted,
 	}
 	if err := q.Insert(dump); err != nil {
 		return nil, errors.WithStack(err)
@@ -98,7 +100,7 @@ func CreateDump(q *reform.Querier, params CreateDumpParams) (*Dump, error) {
 // FindDumps returns dumps list sorted by creation time in DESCENDING order.
 func FindDumps(q *reform.Querier, filters DumpFilters) ([]*Dump, error) {
 	var conditions []string
-	var args []interface{}
+	var args []any
 	var idx int
 
 	if filters.Status != "" {
@@ -132,7 +134,7 @@ func FindDumpsByIDs(q *reform.Querier, ids []string) (map[string]*Dump, error) {
 
 	p := strings.Join(q.Placeholders(1, len(ids)), ", ")
 	tail := fmt.Sprintf("WHERE id IN (%s)", p)
-	args := make([]interface{}, 0, len(ids))
+	args := make([]any, 0, len(ids))
 	for _, id := range ids {
 		args = append(args, id)
 	}
@@ -232,7 +234,7 @@ func FindDumpLogs(q *reform.Querier, filters DumpLogsFilter) ([]*DumpLog, error)
 	if filters.Limit != nil {
 		limit = *filters.Limit
 	}
-	args := []interface{}{
+	args := []any{
 		filters.DumpID,
 		filters.Offset,
 		limit,

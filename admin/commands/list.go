@@ -136,7 +136,7 @@ func (cmd *ListCommand) RunCmd() (Result, error) {
 	}
 
 	servicesRes, err := client.Default.ServicesService.ListServices(&services.ListServicesParams{
-		NodeID:  pointer.ToString(cmd.NodeID),
+		NodeID:  new(cmd.NodeID),
 		Context: Ctx,
 	})
 	if err != nil {

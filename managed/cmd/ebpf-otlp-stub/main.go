@@ -38,7 +38,8 @@ func run(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	res, err := resource.New(ctx,
+	res, err := resource.New(
+		ctx,
 		resource.WithAttributes(
 			attribute.String("service.name", "ebpf-otlp-stub"),
 			attribute.String("pmm.node_id", getenv("PMM_NODE_ID", "stub-node")),

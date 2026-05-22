@@ -28,11 +28,15 @@ const Providers: FC<PropsWithChildren> = () => (
                     styles={{
                       html: {
                         height: '100%',
+                        scrollbarGutter: 'stable',
                       },
                       body: {
                         margin: 0,
                         height: '100%',
                         minHeight: '100%',
+                      },
+                      'html, body, div#root': {
+                        minHeight: '100vh',
                       },
                       'div#root': {
                         display: 'flex',

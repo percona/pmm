@@ -46,7 +46,6 @@ digraph packages {
 	"/services/server" -> "/services";
 	"/services/server.test" -> "/services/server";
 	"/services/supervisord" -> "/models";
-	"/services/supervisord" -> "/otel";
 	"/services/supervisord.test" -> "/services/supervisord";
 	"/services/telemetry" -> "/models";
 	"/services/telemetry.test" -> "/services/telemetry";

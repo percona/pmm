@@ -15,7 +15,6 @@
 package management
 
 import (
-	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/admin/agentlocal"
@@ -65,7 +64,7 @@ func (cmd *RemoveCommand) RunCmd() (commands.Result, error) {
 		}
 
 		servicesRes, err := inventoryClient.Default.ServicesService.ListServices(&services.ListServicesParams{
-			NodeID:      pointer.ToString(status.NodeID),
+			NodeID:      new(status.NodeID),
 			ServiceType: cmd.serviceType(),
 			Context:     commands.Ctx,
 		})

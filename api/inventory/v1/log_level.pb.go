@@ -111,7 +111,7 @@ func file_inventory_v1_log_level_proto_rawDescGZIP() []byte {
 var (
 	file_inventory_v1_log_level_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 	file_inventory_v1_log_level_proto_goTypes   = []any{
-		(LogLevel)(0), // 0: inventory.v1.LogLevel
+		LogLevel(0), // 0: inventory.v1.LogLevel
 	}
 )
 

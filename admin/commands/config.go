@@ -91,8 +91,8 @@ func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) ([]string, bool) {
 		res = append(res, "--server-insecure-tls")
 	}
 
-	if cmd.LogLevelFatalFlags.LogLevel != "" {
-		res = append(res, fmt.Sprintf("--log-level=%s", cmd.LogLevelFatalFlags.LogLevel))
+	if cmd.LogLevel != "" {
+		res = append(res, fmt.Sprintf("--log-level=%s", cmd.LogLevel))
 	}
 	if globals.EnableDebug {
 		res = append(res, "--debug")

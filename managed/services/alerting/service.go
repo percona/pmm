@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"maps"
 	"os"
 	"path/filepath"
 	"sort"
@@ -104,9 +105,7 @@ func (s *Service) GetTemplates() map[string]models.Template {
 	defer s.rw.RUnlock()
 
 	res := make(map[string]models.Template, len(s.templates))
-	for n, r := range s.templates {
-		res[n] = r
-	}
+	maps.Copy(res, s.templates)
 	return res
 }
 

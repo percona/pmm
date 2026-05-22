@@ -1,7 +1,8 @@
 # keep that format for easier search
-ARG GO_VERSION=1.25.8
+ARG GO_VERSION
+ARG GO_BASE_IMAGE="golang:$GO_VERSION"
 
-FROM golang:${GO_VERSION} AS golang
+FROM $GO_BASE_IMAGE  AS golang
 
 FROM oraclelinux:8-slim
 

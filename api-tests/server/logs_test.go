@@ -31,6 +31,8 @@ import (
 )
 
 func TestDownloadLogs(t *testing.T) {
+	t.Parallel()
+
 	var buf bytes.Buffer
 	res, err := serverClient.Default.ServerService.Logs(&server_service.LogsParams{
 		Context: pmmapitests.Context,
@@ -40,7 +42,7 @@ func TestDownloadLogs(t *testing.T) {
 
 	r := bytes.NewReader(buf.Bytes())
 	zipR, err := zip.NewReader(r, r.Size())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	expected := []string{
 		"clickhouse-server.log",

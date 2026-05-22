@@ -23,7 +23,7 @@ import { adjustToolbar } from 'compat/toolbar';
 import { isWithinIframe, getLinkWithVariables } from 'lib/utils';
 import { documentTitleObserver, updateBodyClassByLocation } from 'lib/utils/document';
 import { isFirstLogin, updateIsFirstLogin, isUserLoggedIn } from 'lib/utils/login';
-import { ServiceAddedEvent, ServiceDeletedEvent, SettingsUpdatedEvent, TimeZoneUpdatedEvent } from 'lib/events';
+import { ServiceAddedEvent, ServiceDeletedEvent, SettingsUpdatedEvent, FrontendSettingsUpdatedEvent, TimeZoneUpdatedEvent } from 'lib/events';
 import { handleExternalLinks } from 'compat/links';
 
 export const initialize = () => {
@@ -46,6 +46,19 @@ export const initialize = () => {
       // redirect user to the new UI
       window.location.replace(window.location.href.replace(GRAFANA_SUB_PATH, PMM_UI_GRAFANA_PATH));
     }
+    return;
+  }
+
+  // Collapse Grafana docked nav via localStorage before the shell reads it on boot. If keys were
+  // missing or not "false" (e.g. after "clear site data"), Grafana may have mounted nav already;
+  // reload once so the next boot sees the correct keys. When both are already "false", skip reload.
+  const prevOpen = localStorage.getItem(GRAFANA_DOCKED_MENU_OPEN_LOCAL_STORAGE_KEY);
+  const prevDock = localStorage.getItem(GRAFANA_DOCKED_LOCAL_STORAGE_KEY);
+  const needsNavReload = prevOpen !== 'false' || prevDock !== 'false';
+  localStorage.setItem(GRAFANA_DOCKED_MENU_OPEN_LOCAL_STORAGE_KEY, 'false');
+  localStorage.setItem(GRAFANA_DOCKED_LOCAL_STORAGE_KEY, 'false');
+  if (needsNavReload) {
+    window.location.reload();
     return;
   }
 
@@ -160,10 +173,22 @@ export const initialize = () => {
     },
   });
 
+  messenger.addListener({
+    type: 'SETTINGS_CHANGED',
+    onMessage: () => getAppEvents().publish(new SettingsUpdatedEvent()),
+  });
+
   getAppEvents().subscribe(SettingsUpdatedEvent, () => {
     messenger.sendMessage({
       type: 'SETTINGS_CHANGED',
     });
+  });
+
+  getAppEvents().subscribe(FrontendSettingsUpdatedEvent, () => {
+    messenger.sendMessage({
+      type: 'FRONTEND_SETTINGS_CHANGED',
+    });
+    window.location.reload();
   });
 
   getAppEvents().subscribe(ServiceAddedEvent, () => {

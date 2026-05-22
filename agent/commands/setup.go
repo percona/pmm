@@ -73,6 +73,8 @@ func Setup() {
 		register(cfg, l)
 	}
 
+	cfg.ProcMountsPath = cfg.Setup.ProcMountsPath
+
 	if err = config.SaveToFile(configFilepath, cfg, "Updated by `pmm-agent setup`."); err != nil {
 		fmt.Printf("Failed to write configuration file %s: %s.\n", configFilepath, err)
 		os.Exit(1)

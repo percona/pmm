@@ -249,7 +249,8 @@ func stripMentions(s string) string {
 var adreChatSem = make(chan struct{}, maxConcurrentAdreChatSlots)
 
 func postThreadLine(ctx context.Context, log *logrus.Entry, api *slack.Client, channelID, threadTS, msg string) {
-	_, _, err := api.PostMessageContext(ctx, channelID,
+	_, _, err := api.PostMessageContext(
+		ctx, channelID,
 		slack.MsgOptionText(msg, false),
 		slack.MsgOptionTS(threadTS),
 	)
@@ -293,7 +294,8 @@ func handleTurn(
 	store.AppendUser(key, userText)
 	history := store.Snapshot(key)
 
-	_, thinkingTS, err := api.PostMessageContext(ctx, channelID,
+	_, thinkingTS, err := api.PostMessageContext(
+		ctx, channelID,
 		slack.MsgOptionText("Thinking…", false),
 		slack.MsgOptionTS(threadTS),
 	)

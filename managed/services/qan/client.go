@@ -20,6 +20,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"maps"
 	"strings"
 	"time"
 
@@ -169,7 +170,7 @@ func (c *Client) SchemaByQueryID(ctx context.Context, serviceID, queryID string)
 }
 
 // Collect adds labels to the data from pmm-agent and sends it to qan-api.
-func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentv1.MetricsBucket) error {
+func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentv1.MetricsBucket) error { //nolint:gocognit
 	start := time.Now()
 	defer func() {
 		if dur := time.Since(start); dur > time.Second {
@@ -298,9 +299,7 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentv1.MetricsB
 			delete(labels, labelName)
 		}
 
-		for k, l := range m.Common.Comments {
-			labels[k] = l
-		}
+		maps.Copy(labels, m.Common.Comments)
 		mb.Labels = labels
 
 		convertedMetricsBuckets = append(convertedMetricsBuckets, mb)

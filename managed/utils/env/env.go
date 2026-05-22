@@ -26,9 +26,6 @@ const (
 	// PlatformInsecure allows PMM to skip TLS verification when connecting to Percona Platform.
 	PlatformInsecure = "PMM_DEV_PERCONA_PLATFORM_INSECURE"
 
-	// PlatformPublicKey is used to store the public key for Percona Platform.
-	PlatformPublicKey = "PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY"
-
 	// InterfaceToBind specifies the network interface that the PMM Server should bind to.
 	InterfaceToBind = "PMM_INTERFACE_TO_BIND"
 

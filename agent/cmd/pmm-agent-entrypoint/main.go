@@ -40,9 +40,9 @@ It is configured entirely by environment variables. Arguments or flags are not u
 
 The following environment variables are recognized by the Docker entrypoint:
 * PMM_AGENT_SETUP            - if true, 'pmm-agent setup' is called before 'pmm-agent run'.
-* PMM_AGENT_PRERUN_FILE      - if non-empty, runs given file with 'pmm-agent run' running in the background.
-* PMM_AGENT_PRERUN_SCRIPT    - if non-empty, runs given shell script content with 'pmm-agent run' running in the background.
-* PMM_AGENT_SIDECAR          - if true, 'pmm-agent' will be restarted in case of it's failed.
+* PMM_AGENT_PRERUN_FILE      - if non-empty, runs given file while 'pmm-agent run' is running in the background.
+* PMM_AGENT_PRERUN_SCRIPT    - if non-empty, runs given shell script content while 'pmm-agent run' is running in the background.
+* PMM_AGENT_SIDECAR          - if true, 'pmm-agent' will be restarted in case it fails.
 * PMM_AGENT_SIDECAR_SLEEP    - time to wait before restarting pmm-agent if PMM_AGENT_SIDECAR is true. 1 second by default.
 
 Additionally, the many environment variables are recognized by pmm-agent itself.
@@ -127,7 +127,7 @@ func sendSIGKILLwithTimeout(process *os.Process, timeout int, l *logrus.Entry) *
 	})
 }
 
-func main() {
+func main() { //nolint:gocognit
 	config := reaper.MakeConfig()
 	config.Debug = false
 	reaper.RunForked(config)

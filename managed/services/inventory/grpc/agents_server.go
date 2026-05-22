@@ -65,8 +65,7 @@ func agentType(req *inventoryv1.ListAgentsRequest) *models.AgentType {
 	if req.AgentType == inventoryv1.AgentType_AGENT_TYPE_UNSPECIFIED {
 		return nil
 	}
-	agentType := agentTypes[req.AgentType]
-	return &agentType
+	return new(agentTypes[req.AgentType])
 }
 
 // ListAgents returns a list of Agents for a given filters.

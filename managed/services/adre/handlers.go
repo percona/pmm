@@ -618,7 +618,8 @@ func (h *Handlers) PostQanInsights(w http.ResponseWriter, r *http.Request) {
 	userMessage := fmt.Sprintf(
 		"Analyze this query and provide optimization suggestions based on QAN metrics and schema.\n"+
 			"service_id: %s\nquery_id: %s\nfingerprint: %s\nquery_text: %s\ntime_from: %s\ntime_to: %s",
-		body.ServiceID, body.QueryID, body.Fingerprint, body.QueryText, body.TimeFrom, body.TimeTo)
+		body.ServiceID, body.QueryID, body.Fingerprint, body.QueryText, body.TimeFrom, body.TimeTo,
+	)
 	pageContext := map[string]string{
 		"service_id":  body.ServiceID,
 		"query_text":  body.QueryText,

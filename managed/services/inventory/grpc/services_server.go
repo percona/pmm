@@ -57,8 +57,7 @@ func serviceType(serviceType inventoryv1.ServiceType) *models.ServiceType {
 	if serviceType == inventoryv1.ServiceType_SERVICE_TYPE_UNSPECIFIED {
 		return nil
 	}
-	result := serviceTypes[serviceType]
-	return &result
+	return new(serviceTypes[serviceType])
 }
 
 // ListServices returns a list of Services for a given filters.

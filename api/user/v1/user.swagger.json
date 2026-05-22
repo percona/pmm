@@ -1,0 +1,243 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "User API",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "UserService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/users": {
+      "get": {
+        "summary": "List all users",
+        "description": "Retrieve user details for all users from PMM server",
+        "operationId": "ListUsers",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListUsersResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "UserService"
+        ]
+      }
+    },
+    "/v1/users/me": {
+      "get": {
+        "summary": "Get user details",
+        "description": "Retrieve user details from PMM server",
+        "operationId": "GetUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetUserResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "UserService"
+        ]
+      },
+      "put": {
+        "summary": "Update a user",
+        "description": "Update user details in PMM server",
+        "operationId": "UpdateUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1UpdateUserResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UpdateUserRequest"
+            }
+          }
+        ],
+        "tags": [
+          "UserService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "ListUsersResponseUserDetail": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "role_ids": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "description": "List of role IDs assigned to the user."
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1GetUserResponse": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "integer",
+          "format": "int64",
+          "title": "User ID"
+        },
+        "product_tour_completed": {
+          "type": "boolean",
+          "title": "Product Tour"
+        },
+        "alerting_tour_completed": {
+          "type": "boolean",
+          "title": "Alerting Tour"
+        },
+        "snoozed_pmm_version": {
+          "type": "string",
+          "title": "Snoozed PMM version update"
+        },
+        "snoozed_at": {
+          "type": "string",
+          "format": "date-time",
+          "title": "Timestamp of last snooze"
+        },
+        "snooze_count": {
+          "type": "integer",
+          "format": "int64",
+          "title": "Number of times the update was snoozed"
+        }
+      }
+    },
+    "v1ListUsersResponse": {
+      "type": "object",
+      "properties": {
+        "users": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/ListUsersResponseUserDetail"
+          }
+        }
+      }
+    },
+    "v1UpdateUserRequest": {
+      "type": "object",
+      "properties": {
+        "product_tour_completed": {
+          "type": "boolean",
+          "x-nullable": true,
+          "title": "Product Tour"
+        },
+        "alerting_tour_completed": {
+          "type": "boolean",
+          "x-nullable": true,
+          "title": "Alerting Tour"
+        },
+        "snoozed_pmm_version": {
+          "type": "string",
+          "x-nullable": true,
+          "title": "Snooze update alert for a PMM version"
+        }
+      }
+    },
+    "v1UpdateUserResponse": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "integer",
+          "format": "int64",
+          "title": "User ID"
+        },
+        "product_tour_completed": {
+          "type": "boolean",
+          "title": "Product Tour"
+        },
+        "alerting_tour_completed": {
+          "type": "boolean",
+          "title": "Alerting Tour"
+        },
+        "snoozed_pmm_version": {
+          "type": "string",
+          "title": "Snooze update alert for a PMM version"
+        },
+        "snoozed_at": {
+          "type": "string",
+          "format": "date-time",
+          "title": "Timestamp of last snooze"
+        },
+        "snooze_count": {
+          "type": "integer",
+          "format": "int64",
+          "title": "Number of times the update was snoozed"
+        }
+      }
+    }
+  }
+}
