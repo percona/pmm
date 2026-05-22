@@ -320,7 +320,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	// run server until it is stopped gracefully or not
 	listener, err := net.Listen("tcp", gRPCAddr)
 	if err != nil {
-		l.Panic(err)
+		l.Fatal(err)
 	}
 	go func() {
 		for {
@@ -383,7 +383,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	// Create a shared gRPC connection for handlers that use Register*Handler
 	sharedConn, err := grpc.NewClient(gRPCAddr, opts...)
 	if err != nil {
-		l.Panic(err)
+		l.Fatal(err)
 	}
 	go func() {
 		<-ctx.Done()
@@ -423,7 +423,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		hav1beta1.RegisterHAServiceHandler,
 	} {
 		if err := r(ctx, proxyMux, sharedConn); err != nil {
-			l.Panic(err)
+			l.Fatal(err)
 		}
 	}
 
@@ -441,7 +441,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	}
 	go func() {
 		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
-			l.Panic(err)
+			l.Fatal(err)
 		}
 		l.Info("Server stopped.")
 	}()
@@ -489,7 +489,7 @@ func runDebugServer(ctx context.Context) {
 	</html>
 	`)).Execute(&buf, handlers)
 	if err != nil {
-		l.Panic(err)
+		l.Fatal(err)
 	}
 	http.HandleFunc("/debug", func(rw http.ResponseWriter, _ *http.Request) {
 		rw.Write(buf.Bytes()) //nolint:errcheck
@@ -502,7 +502,7 @@ func runDebugServer(ctx context.Context) {
 	}
 	go func() {
 		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
-			l.Panic(err)
+			l.Fatal(err)
 		}
 		l.Info("Server stopped.")
 	}()
