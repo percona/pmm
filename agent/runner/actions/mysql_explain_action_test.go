@@ -17,7 +17,6 @@ package actions
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -44,6 +43,12 @@ func TestMySQLExplain(t *testing.T) {
 	ctx := context.Background()
 	mySQLVersion, mySQLVendor, _ := version.GetMySQLVersion(ctx, q)
 
+	// Oracle MySQL >= 9.5 switched the default EXPLAIN output to tree format
+	// (single "EXPLAIN" column with "-> ..." rows) for both TRADITIONAL and
+	// TRADITIONAL_JSON modes, so the column-name/value assertions below no
+	// longer apply. See: PMM-14426
+	isNewExplainFormat := mySQLVendor == version.OracleVendor && mySQLVersion.Float() >= 9.5
+
 	const query = "SELECT * FROM city ORDER BY Population"
 
 	t.Run("Default", func(t *testing.T) {
@@ -67,11 +72,9 @@ func TestMySQLExplain(t *testing.T) {
 		assert.NoError(t, err)
 
 		actual := strings.TrimSpace(string(er.ExplainResult))
-		switch fmt.Sprintf("%s-%s", mySQLVersion, mySQLVendor) {
-		case "9.5-oracle", "9.6-oracle":
-			// Explain output changed. More checks should be done. See: PMM-14426
+		if isNewExplainFormat {
 			assert.Contains(t, actual, "Table scan on city")
-		default:
+		} else {
 			// Check some columns names
 			assert.Contains(t, actual, "id |select_type |table")
 			assert.Contains(t, actual, "|type |possible_keys |key  |key_len |ref  |rows")
@@ -105,11 +108,9 @@ func TestMySQLExplain(t *testing.T) {
 		m, err := objx.FromJSON(string(er.ExplainResult))
 		require.NoError(t, err)
 
-		switch fmt.Sprintf("%s-%s", mySQLVersion, mySQLVendor) {
-		case "9.5-oracle", "9.6-oracle":
-			// Explain output changed. More checks should be done. See: PMM-14426
+		if isNewExplainFormat {
 			require.Empty(t, m.Get("warnings").InterSlice())
-		default:
+		} else {
 			assert.Equal(t, 1, m.Get("query_block.select_id").Int())
 
 			var table map[string]interface{}
@@ -165,10 +166,7 @@ func TestMySQLExplain(t *testing.T) {
 		require.NoError(t, err)
 		require.Len(t, actual, 2)
 
-		switch fmt.Sprintf("%s-%s", mySQLVersion, mySQLVendor) {
-		case "9.5-oracle", "9.6-oracle":
-			// Explain output changed. More checks should be done. See: PMM-14426
-		default:
+		if !isNewExplainFormat {
 			// Check some columns names
 			assert.Contains(t, actual[0], "id")
 			assert.Contains(t, actual[0], "select_type")
