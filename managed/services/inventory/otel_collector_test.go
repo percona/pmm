@@ -25,7 +25,14 @@ func TestOtelCollectorDuplicateAddAndChange(t *testing.T) {
 	_, as, _, teardown, ctx, _ := setup(t)
 	t.Cleanup(func() { teardown(t) })
 
-	as.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true)
+	// IsConnected is only called from toInventoryAgent for rows of type
+	// PMMAgentType. This test never calls List or otherwise enumerates the
+	// seeded pmm-server pmm-agent row, so the only IsConnected call that
+	// actually happens is for the newly created pmm-agent (id ...005).
+	// Mark the PMMServerAgentID expectation Maybe() so the mock doesn't fail
+	// AssertExpectations if it's never hit, while still permitting the call
+	// in case the call graph changes.
+	as.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Maybe()
 	as.r.(*mockAgentsRegistry).On("IsConnected", "00000000-0000-4000-8000-000000000005").Return(true)
 	as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, mock.AnythingOfType("string")).Return()
 
