@@ -1,6 +1,7 @@
 import {
   type MRT_ColumnFiltersState,
   type MRT_Row,
+  type MRT_SortingState,
   type MRT_TableInstance,
   MaterialReactTableProps,
 } from 'material-react-table';
@@ -29,9 +30,10 @@ const OverviewTable: FC<Props> = ({
   onRowHover,
 }) => {
   const tableRef = useRef<MRT_TableInstance<QueryData> | null>(null);
-  // Controlled filter state is required to read the filtered row model via tableInstanceRef.
+  // Controlled table state is required to read the filtered/sorted row model via tableInstanceRef.
   const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState('');
+  const [sorting, setSorting] = useState<MRT_SortingState>([]);
 
   // Pre-pagination so navigation covers all filtered rows, not only the current page.
   const getNavigableQueries = useCallback(
@@ -48,6 +50,7 @@ const OverviewTable: FC<Props> = ({
     getNavigableQueries,
     globalFilter,
     onNavigableQueriesChange,
+    sorting,
   ]);
 
   return (
@@ -72,14 +75,18 @@ const OverviewTable: FC<Props> = ({
             },
           },
         }}
-        state={{ columnFilters, globalFilter }}
+        state={{ columnFilters, globalFilter, sorting }}
         onColumnFiltersChange={setColumnFilters}
         onGlobalFilterChange={setGlobalFilter}
+        onSortingChange={setSorting}
         enableGlobalFilter={true}
         enableHiding={false}
         enableRowHoverAction
         tableInstanceRef={tableRef}
-        rowHoverAction={(row) => onQuerySelected(row.original)}
+        rowHoverAction={(row) => {
+          onNavigableQueriesChange(getNavigableQueries());
+          onQuerySelected(row.original);
+        }}
         renderTopToolbarCustomActions={actions}
         filterFns={{
           // default 'betweenInclusive' filter fails on values like '1.50', discarding the row that has 1.5 seconds
