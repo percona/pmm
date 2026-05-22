@@ -84,7 +84,7 @@
             }
         ]
     },
-    "description": "OpenTelemetry traces in ClickHouse (otel.otel_traces). Uses PMM-provisioned datasources **ClickHouse-OTEL** (default database `otel`) and **Metrics** (VictoriaMetrics/Prometheus). Assumes: Timestamp (DateTime/DateTime64), Duration in nanoseconds, SpanAttributes as Map (use JSON functions if your column is String). Adjust StatusCode / SpanKind literals if your exporter normalizes differently.\n\nOverview counts use $__timeFilter(Timestamp): they are totals inside the dashboard time range only (not monotonic all-time counters).\n\nThe Traces panel uses the official Grafana ClickHouse datasource trace mode (queryType traces, format 3)\u2014the same pattern as Percona\u2019s opentelemetry-clickhouse dashboard\u2014not Tempo/Jaeger. Set Trace ID from the top variable or click a TraceId in the tables below. If your table has no ResourceAttributes column, edit the Traces panel SQL and replace the serviceTags expression with CAST([], 'Array(Map(String, String))') AS serviceTags.",
+    "description": "OpenTelemetry traces in ClickHouse (otel.otel_traces). Uses PMM-provisioned datasources **ClickHouse-OTEL** (default database `otel`) and **Metrics** (VictoriaMetrics/Prometheus). Assumes: Timestamp (DateTime/DateTime64), Duration in nanoseconds, SpanAttributes as Map (use JSON functions if your column is String). Adjust StatusCode / SpanKind literals if your exporter normalizes differently.\n\nOverview counts use $__timeFilter(Timestamp): they are totals inside the dashboard time range only (not monotonic all-time counters).\n\nThe Traces panel uses the official Grafana ClickHouse datasource trace mode (queryType traces, format 3)—the same pattern as Percona’s opentelemetry-clickhouse dashboard—not Tempo/Jaeger. Set Trace ID from the top variable or click a TraceId in the tables below. If your table has no ResourceAttributes column, edit the Traces panel SQL and replace the serviceTags expression with CAST([], 'Array(Map(String, String))') AS serviceTags.",
     "editable": false,
     "fiscalYearStartMonth": 0,
     "graphTooltip": 1,
@@ -107,7 +107,7 @@
         },
         {
             "datasource": "ClickHouse-OTEL",
-            "description": "Number of span rows with Timestamp in the selected dashboard time range. Compare to \u201cDistinct traces\u201d to see average spans per trace. Not a cumulative counter unless your query ignores the time filter.",
+            "description": "Number of span rows with Timestamp in the selected dashboard time range. Compare to “Distinct traces” to see average spans per trace. Not a cumulative counter unless your query ignores the time filter.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -174,7 +174,7 @@
         },
         {
             "datasource": "ClickHouse-OTEL",
-            "description": "Distinct TraceId values in the selected time range. Useful with \u201cSpans in time range\u201d for spans-per-trace; shrink the range to see if load is bursty vs steady.",
+            "description": "Distinct TraceId values in the selected time range. Useful with “Spans in time range” for spans-per-trace; shrink the range to see if load is bursty vs steady.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -430,7 +430,7 @@
         },
         {
             "datasource": "ClickHouse-OTEL",
-            "description": "Click a point \u2192 context menu (or tooltip) \u2192 data link sets dashboard time to a 2m window centered on that point and scrolls to \u201cSpans in dashboard time range\u201d below. TraceId column there opens the Traces panel.",
+            "description": "Click a point → context menu (or tooltip) → data link sets dashboard time to a 2m window centered on that point and scrolls to “Spans in dashboard time range” below. TraceId column there opens the Traces panel.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -656,7 +656,7 @@
             },
             "id": 7,
             "panels": [],
-            "title": "Latency (Duration stored as nanoseconds \u2192 ms)",
+            "title": "Latency (Duration stored as nanoseconds → ms)",
             "type": "row"
         },
         {
@@ -1229,7 +1229,7 @@
                         }
                     },
                     "queryType": "sql",
-                    "rawSql": "SELECT\n  concat(source, '\u2192', target) AS id,\n  source,\n  target,\n  sum(calls) AS mainstat,\n  round(sum(weighted_p95_ms_numer) / greatest(toFloat64(sum(calls)), 1), 2) AS detail__p95_ms,\n  round(100.0 * sum(errors) / greatest(toFloat64(sum(calls)), 1), 2) AS detail__error_pct,\n  sum(calls) AS detail__calls,\n  if(sum(errors) > 0, 'red', 'green') AS color\nFROM (\n  SELECT\n    coalesce(nullIf(parent.ServiceName, ''), '(unknown)') AS source,\n    coalesce(nullIf(child.ServiceName, ''), '(unknown)') AS target,\n    count() AS calls,\n    quantile(0.95)(child.Duration / 1000000) AS p95_ms,\n    countIf(child.StatusCode IN ('Error', 'STATUS_CODE_ERROR')) AS errors,\n    quantile(0.95)(child.Duration / 1000000) * count() AS weighted_p95_ms_numer\n  FROM otel.otel_traces AS child\n  INNER JOIN otel.otel_traces AS parent\n    ON child.TraceId = parent.TraceId\n   AND child.ParentSpanId = parent.SpanId\n   AND parent.SpanId != ''\n  WHERE $__timeFilter(child.Timestamp)\n  GROUP BY source, target\n  HAVING source != target\n\n  UNION ALL\n\n  SELECT\n    coalesce(nullIf(ServiceName, ''), '(unknown)') AS source,\n    coalesce(nullIf(trim(BOTH '\"' FROM toString(SpanAttributes['peer.service'])), ''), '(external)') AS target,\n    count() AS calls,\n    quantile(0.95)(Duration / 1000000) AS p95_ms,\n    countIf(StatusCode IN ('Error', 'STATUS_CODE_ERROR')) AS errors,\n    quantile(0.95)(Duration / 1000000) * count() AS weighted_p95_ms_numer\n  FROM otel.otel_traces\n  WHERE $__timeFilter(Timestamp)\n    AND (\n      positionCaseInsensitive(SpanKind, 'CLIENT') > 0\n      OR SpanKind IN ('SPAN_KIND_CLIENT', 'Client', '3')\n    )\n  GROUP BY source, target\n  HAVING source != target\n)\nGROUP BY source, target\nORDER BY sum(calls) DESC\nLIMIT 500",
+                    "rawSql": "SELECT\n  concat(source, '→', target) AS id,\n  source,\n  target,\n  sum(calls) AS mainstat,\n  round(sum(weighted_p95_ms_numer) / greatest(toFloat64(sum(calls)), 1), 2) AS detail__p95_ms,\n  round(100.0 * sum(errors) / greatest(toFloat64(sum(calls)), 1), 2) AS detail__error_pct,\n  sum(calls) AS detail__calls,\n  if(sum(errors) > 0, 'red', 'green') AS color\nFROM (\n  SELECT\n    coalesce(nullIf(parent.ServiceName, ''), '(unknown)') AS source,\n    coalesce(nullIf(child.ServiceName, ''), '(unknown)') AS target,\n    count() AS calls,\n    quantile(0.95)(child.Duration / 1000000) AS p95_ms,\n    countIf(child.StatusCode IN ('Error', 'STATUS_CODE_ERROR')) AS errors,\n    quantile(0.95)(child.Duration / 1000000) * count() AS weighted_p95_ms_numer\n  FROM otel.otel_traces AS child\n  INNER JOIN otel.otel_traces AS parent\n    ON child.TraceId = parent.TraceId\n   AND child.ParentSpanId = parent.SpanId\n   AND parent.SpanId != ''\n  WHERE $__timeFilter(child.Timestamp)\n  GROUP BY source, target\n  HAVING source != target\n\n  UNION ALL\n\n  SELECT\n    coalesce(nullIf(ServiceName, ''), '(unknown)') AS source,\n    coalesce(nullIf(trim(BOTH '\"' FROM toString(SpanAttributes['peer.service'])), ''), '(external)') AS target,\n    count() AS calls,\n    quantile(0.95)(Duration / 1000000) AS p95_ms,\n    countIf(StatusCode IN ('Error', 'STATUS_CODE_ERROR')) AS errors,\n    quantile(0.95)(Duration / 1000000) * count() AS weighted_p95_ms_numer\n  FROM otel.otel_traces\n  WHERE $__timeFilter(Timestamp)\n    AND (\n      positionCaseInsensitive(SpanKind, 'CLIENT') > 0\n      OR SpanKind IN ('SPAN_KIND_CLIENT', 'Client', '3')\n    )\n  GROUP BY source, target\n  HAVING source != target\n)\nGROUP BY source, target\nORDER BY sum(calls) DESC\nLIMIT 500",
                     "refId": "B"
                 }
             ],
@@ -1312,7 +1312,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "label_join(sum by (source, target) (label_replace(label_replace(rr_connection_l7_requests, \"source\", \"$1\", \"app_id\", \"(.*)\"), \"target\", \"$1\", \"destination\", \"(.*)\")), \"id\", \"\u2192\", \"source\", \"target\")",
+                    "expr": "label_join(sum by (source, target) (label_replace(label_replace(rr_connection_l7_requests, \"source\", \"$1\", \"app_id\", \"(.*)\"), \"target\", \"$1\", \"destination\", \"(.*)\")), \"id\", \"→\", \"source\", \"target\")",
                     "format": "table",
                     "instant": true,
                     "legendFormat": "__auto",
@@ -1489,7 +1489,7 @@
                     "refId": "A"
                 }
             ],
-            "title": "Client spans \u2192 peer (server.address / net.peer.name)",
+            "title": "Client spans → peer (server.address / net.peer.name)",
             "type": "table"
         },
         {
@@ -1590,7 +1590,7 @@
         },
         {
             "datasource": "ClickHouse-OTEL",
-            "description": "Native Grafana Traces visualization fed by ClickHouse (grafana-clickhouse-datasource queryType=traces). Enter Trace ID above or click a TraceId in the tables below. duration is ns\u2192ms via multiply(Duration, 1e-6).",
+            "description": "Native Grafana Traces visualization fed by ClickHouse (grafana-clickhouse-datasource queryType=traces). Enter Trace ID above or click a TraceId in the tables below. duration is ns→ms via multiply(Duration, 1e-6).",
             "gridPos": {
                 "h": 14,
                 "w": 24,
@@ -1702,7 +1702,7 @@
                     "refId": "A"
                 }
             ],
-            "title": "Trace (ClickHouse \u2192 Traces panel)",
+            "title": "Trace (ClickHouse → Traces panel)",
             "type": "traces"
         },
         {
@@ -1998,8 +1998,8 @@
         "to": "now"
     },
     "timepicker": {},
-    "timezone": "browser",
-    "title": "OTEL traces \u2014 ClickHouse (otel.otel_traces)",
+    "timezone": "",
+    "title": "OTEL traces — ClickHouse (otel.otel_traces)",
     "uid": "otel-traces-clickhouse",
     "version": 2,
     "weekStart": ""
