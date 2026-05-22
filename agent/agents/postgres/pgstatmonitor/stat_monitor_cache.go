@@ -17,6 +17,7 @@ package pgstatmonitor
 import (
 	"context"
 	"fmt"
+	"maps"
 	"sync"
 	"time"
 
@@ -80,9 +81,7 @@ func (ssc *statMonitorCache) getStatMonitorExtended(
 	ssc.rw.RLock()
 	current := make(map[time.Time]map[string]*pgStatMonitorExtended)
 	cache := make(map[time.Time]map[string]*pgStatMonitorExtended)
-	for k, v := range ssc.items {
-		cache[k] = v
-	}
+	maps.Copy(cache, ssc.items)
 	ssc.rw.RUnlock()
 
 	// load all databases and usernames first as we can't use querier while iterating over rows below

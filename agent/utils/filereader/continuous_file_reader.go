@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"io"
 	"os"
+	"strings"
 	"sync"
 	"time"
 )
@@ -65,25 +66,25 @@ func (r *ContinuousFileReader) NextLine() (string, error) {
 	r.m.Lock()
 	defer r.m.Unlock()
 
-	var line string
+	var line strings.Builder
 	for {
 		l, err := r.r.ReadString('\n')
 		r.l.Tracef("ReadLine: %q %v", l, err)
-		line += l
+		line.WriteString(l)
 
 		switch {
 		case err == nil:
 			// Full line successfully read - return it.
-			return line, nil
+			return line.String(), nil
 
 		case r.closed:
 			// If file is closed, err would be os.PathError{"read", filename, os.ErrClosed}.
 			// Return simple io.EOF instead.
-			return line, io.EOF
+			return line.String(), io.EOF
 
 		case err != io.EOF:
 			// Return unexpected error as is.
-			return line, err
+			return line.String(), err
 
 		default:
 			// err is io.EOF, but reader is not closed - reopen or sleep.

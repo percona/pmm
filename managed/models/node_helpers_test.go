@@ -256,7 +256,3 @@ func TestNodeHelpers(t *testing.T) {
 		require.Len(t, nodes, 1) // PMM Server
 	})
 }
-
-func pointerToNodeType(nodeType models.NodeType) *models.NodeType {
-	return &nodeType
-}

@@ -59,7 +59,7 @@ type JobsFilter struct {
 
 // FindJobs returns logs satisfying filters.
 func FindJobs(q *reform.Querier, filters JobsFilter) ([]*Job, error) {
-	var args []interface{}
+	var args []any
 	var andConds []string
 	idx := 1
 	if len(filters.Types) != 0 {
@@ -193,7 +193,7 @@ func FindJobLogs(q *reform.Querier, filters JobLogsFilter) ([]*JobLog, error) {
 	if filters.Limit != nil {
 		limit = *filters.Limit
 	}
-	args := []interface{}{
+	args := []any{
 		filters.JobID,
 		filters.Offset,
 		limit,

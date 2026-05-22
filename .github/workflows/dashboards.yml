@@ -25,6 +25,16 @@ jobs:
           cache: "yarn"
           cache-dependency-path: dashboards/pmm-app/yarn.lock
 
+      - name: Verify plugin.json dashboard paths exist
+        run: |
+          missing=$(jq -r '.includes[] | select(.path) | .path' dashboards/pmm-app/src/plugin.json \
+            | while read -r p; do [ -f "dashboards/$p" ] || echo "$p"; done)
+          if [ -n "$missing" ]; then
+            echo "::error::plugin.json references dashboard files that do not exist:"
+            echo "$missing" | sed 's/^/  - /'
+            exit 1
+          fi
+
       - name: Install deps
         run: make -C dashboards install
 
