@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: pages-main
+  group: gh-pages
   cancel-in-progress: false
 
 jobs:
