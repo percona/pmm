@@ -14,6 +14,7 @@ declare module 'axios' {
 }
 
 declare module '@tanstack/react-query' {
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   interface UseQueryOptions<
     TQueryFnData = unknown,
     TError = DefaultError,
@@ -22,6 +23,7 @@ declare module '@tanstack/react-query' {
   > {
     axios?: import('axios').AxiosRequestConfig;
   }
+  /* eslint-enable @typescript-eslint/no-unused-vars */
 }
 
 export interface ApiError extends AxiosError<ApiErrorResponse> {}
