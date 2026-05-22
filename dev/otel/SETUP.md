@@ -9,7 +9,6 @@ This project has the following directory structure:
 │   │   └── config-override.xml
 │   ├── client-config.xml
 │   ├── config-override.xml
-│   ├── generate-certs.sh
 │   └── test.sql
 ├── doc
 │   ├── otel-collector.png

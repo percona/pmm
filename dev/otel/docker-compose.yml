@@ -1,20 +1,4 @@
 services:
-  # Certificate generator - runs once to create SSL certificates
-  # cert-generator:
-  #   image: alpine:latest
-  #   container_name: cert-generator
-  #   restart: on-failure
-  #   volumes:
-  #     - clickhouse-certs:/certs
-  #     - ./clickhouse/generate-certs.sh:/app/generate-certs.sh
-  #   command: |
-  #     sh -c "
-  #       apk add --no-cache openssl && \
-  #       CHOWN_TO=1000 /app/generate-certs.sh
-  #     "
-  #   networks:
-  #     - otel
-
   # PMM Server with built-in ClickHouse
   pmm-server:
     # image: percona/pmm-server:3
@@ -23,10 +7,6 @@ services:
     container_name: pmm-server
     hostname: pmm-server
     restart: always
-    # depends_on:
-    #   cert-generator:
-    #     condition: service_completed_successfully
-    #     required: false
     environment:
       - GF_ANALYTICS_ENABLED=0
       - GF_ANALYTICS_REPORTING_ENABLED=0
@@ -44,7 +24,6 @@ services:
       - "9000:9000"
     volumes:
       - pmm-data:/srv
-      # - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./grafana/change-admin-password:/usr/local/sbin/change-admin-password:ro
       - ./grafana/datasources.yml:/usr/share/grafana/conf/provisioning/datasources/otel-ds.yml:ro
       - ./grafana/alert-rules.yml:/usr/share/grafana/conf/provisioning/alerting/otel-alert-rules.yml:ro
@@ -52,7 +31,6 @@ services:
       - ./grafana/notification-policies.yml:/usr/share/grafana/conf/provisioning/alerting/otel-policies.yml:ro
       - ./clickhouse/config.d/config-override.xml:/etc/clickhouse-server/config.d/config-override.xml:ro
       - ./clickhouse/client-config.xml:/etc/clickhouse-client/config.xml:ro
-      - clickhouse-certs:/etc/clickhouse-server/certs:ro
     networks:
       - otel
 
