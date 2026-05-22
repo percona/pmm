@@ -234,7 +234,6 @@ func TestJobLogs(t *testing.T) {
 		}
 
 		for _, tc := range testCases {
-			tc := tc
 			t.Run(tc.Name, func(t *testing.T) {
 				logs, err := models.FindJobLogs(tx.Querier, tc.Filters)
 				require.NoError(t, err)

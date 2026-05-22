@@ -14,7 +14,6 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 //go:build !linux
-// +build !linux
 
 // Package pdeathsig contains function for setting deaths singal.
 package pdeathsig

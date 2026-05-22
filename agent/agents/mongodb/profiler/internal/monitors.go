@@ -16,6 +16,7 @@ package profiler
 
 import (
 	"context"
+	"maps"
 	"sync"
 	"time"
 
@@ -133,9 +134,7 @@ func (ms *monitors) GetAll() map[string]*monitor {
 	defer ms.rw.RUnlock()
 
 	list := make(map[string]*monitor)
-	for dbName, m := range ms.monitors {
-		list[dbName] = m
-	}
+	maps.Copy(list, ms.monitors)
 
 	return list
 }

@@ -171,7 +171,7 @@ func TestMongoDBActionsReplWithSSL(t *testing.T) {
 	})
 }
 
-func runAction(t *testing.T, id string, timeout time.Duration, dsn string, files *agentv1.TextFiles, command string, arg interface{}, tempDir string) []byte { //nolint:unparam
+func runAction(t *testing.T, id string, timeout time.Duration, dsn string, files *agentv1.TextFiles, command string, arg any, tempDir string) []byte { //nolint:unparam
 	t.Helper()
 	a, err := NewMongoDBQueryAdmincommandAction(id, timeout, dsn, files, command, arg, tempDir)
 	require.NoError(t, err)
@@ -222,7 +222,7 @@ func replSetGetStatusAssertionsReplicated(t *testing.T, b []byte) { //nolint:the
 	assert.Len(t, objxM.Get("members").Data(), 2)
 }
 
-func replSetGetStatusAssertionsStandalone(t *testing.T, id string, timeout time.Duration, dsn string, files *agentv1.TextFiles, command string, arg interface{}, tempDir string) { //nolint:thelper
+func replSetGetStatusAssertionsStandalone(t *testing.T, id string, timeout time.Duration, dsn string, files *agentv1.TextFiles, command string, arg any, tempDir string) { //nolint:thelper
 	a, err := NewMongoDBQueryAdmincommandAction(id, timeout, dsn, files, command, arg, tempDir)
 	require.NoError(t, err)
 
@@ -248,7 +248,7 @@ func getCmdLineOptsAssertionsWithAuth(t *testing.T, b []byte) { //nolint:thelper
 	assert.Equal(t, "enabled", security.Get("authorization").String())
 
 	argv := objxM.Get("argv").InterSlice()
-	for _, v := range []interface{}{"mongod", "--profile=2", "--auth"} {
+	for _, v := range []any{"mongod", "--profile=2", "--auth"} {
 		assert.Contains(t, argv, v)
 	}
 }
@@ -266,7 +266,7 @@ func getCmdLineOptsAssertionsWithoutAuth(t *testing.T, b []byte) { //nolint:thel
 	assert.Equal(t, "disabled", security.Get("authorization").String())
 
 	argv := objxM.Get("argv").InterSlice()
-	for _, v := range []interface{}{"mongod", "--profile=2", "--noauth"} {
+	for _, v := range []any{"mongod", "--profile=2", "--noauth"} {
 		assert.Contains(t, argv, v)
 	}
 }
@@ -283,6 +283,6 @@ func getCmdLineOptsAssertionsWithSSL(t *testing.T, b []byte) { //nolint:thelper
 	assert.Empty(t, security)
 
 	argv := objxM.Get("argv").InterSlice()
-	expected := []interface{}{"mongod", "--tlsMode=requireTLS", "--tlsCertificateKeyFile=/etc/tls/certificates/server.pem"}
+	expected := []any{"mongod", "--tlsMode=requireTLS", "--tlsCertificateKeyFile=/etc/tls/certificates/server.pem"}
 	assert.Subset(t, argv, expected)
 }

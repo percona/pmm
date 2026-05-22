@@ -28,6 +28,7 @@ package models
 import (
 	"database/sql/driver"
 	"encoding/json"
+	"maps"
 	"regexp"
 	"sort"
 	"strings"
@@ -62,9 +63,7 @@ func MergeLabels(node *Node, service *Service, agent *Agent) (map[string]string,
 		if err != nil {
 			return nil, err
 		}
-		for name, value := range labels {
-			res[name] = value
-		}
+		maps.Copy(res, labels)
 	}
 
 	if service != nil {
@@ -72,9 +71,7 @@ func MergeLabels(node *Node, service *Service, agent *Agent) (map[string]string,
 		if err != nil {
 			return nil, err
 		}
-		for name, value := range labels {
-			res[name] = value
-		}
+		maps.Copy(res, labels)
 	}
 
 	if agent != nil {
@@ -82,9 +79,7 @@ func MergeLabels(node *Node, service *Service, agent *Agent) (map[string]string,
 		if err != nil {
 			return nil, err
 		}
-		for name, value := range labels {
-			res[name] = value
-		}
+		maps.Copy(res, labels)
 	}
 
 	return res, nil
@@ -163,7 +158,7 @@ func setLabels(m map[string]string, res *[]byte) error {
 }
 
 // jsonValue implements database/sql/driver.Valuer interface for v that should be a value.
-func jsonValue(v interface{}) (driver.Value, error) {
+func jsonValue(v any) (driver.Value, error) {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to marshal JSON column")
@@ -172,7 +167,7 @@ func jsonValue(v interface{}) (driver.Value, error) {
 }
 
 // jsonScan implements database/sql.Scanner interface for v that should be a pointer.
-func jsonScan(v, src interface{}) error {
+func jsonScan(v, src any) error {
 	var b []byte
 	switch v := src.(type) {
 	case []byte:
