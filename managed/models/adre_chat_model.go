@@ -19,7 +19,7 @@ import (
 	"time"
 )
 
-//go:generate ../../bin/reform
+//go:generate go tool reform
 
 // AdreConversation is a persisted ADRE chat thread (PMM shell).
 //

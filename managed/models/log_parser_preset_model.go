@@ -17,7 +17,7 @@ package models
 
 import "time"
 
-//go:generate ../../bin/reform
+//go:generate go tool reform
 
 // LogParserPreset represents a parser preset for OTEL filelog receivers (e.g. mysql_error).
 // Presets define the operator YAML fragment used to parse log lines; they are stored in DB

@@ -21,7 +21,7 @@ import (
 	"github.com/google/uuid"
 )
 
-//go:generate ../../bin/reform
+//go:generate go tool reform
 
 // Investigation represents an incident investigation (report) as stored in the database.
 //
