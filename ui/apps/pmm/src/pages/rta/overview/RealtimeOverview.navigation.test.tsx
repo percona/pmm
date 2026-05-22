@@ -34,10 +34,20 @@ const queryFilteredOut: QueryData = {
 
 const navigableQueries = [queryOne, queryTwo];
 
-const { searchQueries, getRunningSessions } = vi.hoisted(() => ({
-  searchQueries: vi.fn(),
-  getRunningSessions: vi.fn(),
-}));
+const { searchQueries, getRunningSessions, mockNavigableQueries } = vi.hoisted(() => {
+  let navigable: QueryData[] = [];
+
+  return {
+    searchQueries: vi.fn(),
+    getRunningSessions: vi.fn(),
+    mockNavigableQueries: {
+      get: () => navigable,
+      set: (queries: QueryData[]) => {
+        navigable = queries;
+      },
+    },
+  };
+});
 
 vi.mock('api/rta', () => ({
   searchQueries,
@@ -50,17 +60,29 @@ vi.mock('./table/OverviewTable', () => {
     onNavigableQueriesChange: (queries: QueryData[]) => void;
   }> = ({ onQuerySelected, onNavigableQueriesChange }) => {
     useEffect(() => {
-      onNavigableQueriesChange(navigableQueries);
+      onNavigableQueriesChange(mockNavigableQueries.get());
     }, [onNavigableQueriesChange]);
 
     return (
-      <button
-        type="button"
-        data-testid="mock-select-first-query"
-        onClick={() => onQuerySelected(queryOne)}
-      >
-        Select first query
-      </button>
+      <>
+        <button
+          type="button"
+          data-testid="mock-select-first-query"
+          onClick={() => onQuerySelected(queryOne)}
+        >
+          Select first query
+        </button>
+        <button
+          type="button"
+          data-testid="mock-drop-selected-from-navigable"
+          onClick={() => {
+            mockNavigableQueries.set([queryTwo]);
+            onNavigableQueriesChange(mockNavigableQueries.get());
+          }}
+        >
+          Drop selected from navigable
+        </button>
+      </>
     );
   };
 
@@ -100,6 +122,7 @@ const getOperationId = () => screen.getByTestId('operation-id-value');
 describe('RealtimeOverview details pane navigation', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockNavigableQueries.set(navigableQueries);
 
     searchQueries.mockResolvedValue({
       queries: [...navigableQueries, queryFilteredOut],
@@ -142,5 +165,21 @@ describe('RealtimeOverview details pane navigation', () => {
 
     expect(screen.getByTestId('details-pane-prev-button')).not.toBeDisabled();
     expect(screen.getByTestId('details-pane-next-button')).toBeDisabled();
+  });
+
+  it('disables navigation when the selected query is not in navigableQueries', async () => {
+    renderComponent();
+    await openDetailsPaneOnFirstQuery();
+
+    expect(getOperationId()).toHaveTextContent('query-1');
+
+    fireEvent.click(screen.getByTestId('mock-drop-selected-from-navigable'));
+
+    expect(screen.getByTestId('details-pane-prev-button')).toBeDisabled();
+    expect(screen.getByTestId('details-pane-next-button')).toBeDisabled();
+
+    fireEvent.click(screen.getByTestId('details-pane-next-button'));
+
+    expect(getOperationId()).toHaveTextContent('query-1');
   });
 });

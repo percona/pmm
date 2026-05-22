@@ -54,6 +54,9 @@ const RealtimeOverviewPage: FC = () => {
   };
 
   const handleAdjacentQuery = (offset: -1 | 1) => {
+    if (selectedQueryIndex < 0) {
+      return;
+    }
     const nextIndex = selectedQueryIndex + offset;
     if (nextIndex < 0 || nextIndex >= navigableQueries.length) {
       return;
@@ -174,8 +177,11 @@ const RealtimeOverviewPage: FC = () => {
       <DetailsPane
         query={selectedQuery}
         onClose={handleCloseDetails}
-        isFirstQuery={selectedQueryIndex === 0}
-        isLastQuery={selectedQueryIndex === navigableQueries.length - 1}
+        isFirstQuery={selectedQueryIndex <= 0}
+        isLastQuery={
+          selectedQueryIndex < 0 ||
+          selectedQueryIndex >= navigableQueries.length - 1
+        }
         onNext={() => handleAdjacentQuery(1)}
         onPrevious={() => handleAdjacentQuery(-1)}
       />
