@@ -28,7 +28,7 @@ import (
 
 //go-sumtype:decl isQueryActionValue_Kind
 
-func makeValue(value interface{}) (*QueryActionValue, error) { //nolint:cyclop
+func makeValue(value any) (*QueryActionValue, error) { //nolint:cyclop
 	// In the future, we may decide to:
 	// * dereference pointers;
 	// * handle other types of the same kind (like `type String string`);
@@ -156,7 +156,7 @@ func makeValue(value interface{}) (*QueryActionValue, error) { //nolint:cyclop
 //   - time.Time;
 //   - []T for any T from above, including other slices and maps;
 //   - map[string]T for any T from above, including other slices and maps.
-func MarshalActionQuerySQLResult(columns []string, rows [][]interface{}) ([]byte, error) {
+func MarshalActionQuerySQLResult(columns []string, rows [][]any) ([]byte, error) {
 	res := QueryActionResult{
 		Columns: columns,
 		Rows:    make([]*QueryActionSlice, len(rows)),
@@ -189,7 +189,7 @@ func MarshalActionQuerySQLResult(columns []string, rows [][]interface{}) ([]byte
 //
 // It supports the same types as MarshalActionQuerySQLResult plus:
 // * MongoDB's primitive.DateTime and primitive.Timestamp are converted to time.Time.
-func MarshalActionQueryDocsResult(docs []map[string]interface{}) ([]byte, error) {
+func MarshalActionQueryDocsResult(docs []map[string]any) ([]byte, error) {
 	res := QueryActionResult{
 		Docs: make([]*QueryActionMap, len(docs)),
 	}
@@ -219,7 +219,7 @@ type BinaryActionValue struct {
 	Bytes   []byte `json:"bytes"`
 }
 
-func makeInterface(value *QueryActionValue) (interface{}, error) {
+func makeInterface(value *QueryActionValue) (any, error) {
 	var err error
 	switch v := value.Kind.(type) {
 	case *QueryActionValue_Nil:
@@ -244,7 +244,7 @@ func makeInterface(value *QueryActionValue) (interface{}, error) {
 		return v.Timestamp.AsTime(), nil
 
 	case *QueryActionValue_Slice:
-		s := make([]interface{}, len(v.Slice.Slice))
+		s := make([]any, len(v.Slice.Slice))
 		for i, v := range v.Slice.Slice {
 			s[i], err = makeInterface(v)
 			if err != nil {
@@ -254,7 +254,7 @@ func makeInterface(value *QueryActionValue) (interface{}, error) {
 		return s, nil
 
 	case *QueryActionValue_Map:
-		m := make(map[string]interface{}, len(v.Map.Map))
+		m := make(map[string]any, len(v.Map.Map))
 		for k, v := range v.Map.Map {
 			m[k], err = makeInterface(v)
 			if err != nil {
@@ -273,8 +273,8 @@ func makeInterface(value *QueryActionValue) (interface{}, error) {
 	}
 }
 
-func unmarshalActionQuerySQLResult(columns []string, rows []*QueryActionSlice) ([]map[string]interface{}, error) {
-	data := make([]map[string]interface{}, len(rows))
+func unmarshalActionQuerySQLResult(columns []string, rows []*QueryActionSlice) ([]map[string]any, error) {
+	data := make([]map[string]any, len(rows))
 
 	var err error
 	for i, s := range rows {
@@ -282,7 +282,7 @@ func unmarshalActionQuerySQLResult(columns []string, rows []*QueryActionSlice) (
 			return nil, errors.Errorf("invalid result: expected %d columns in row %d, got %d", len(columns), i, len(s.Slice))
 		}
 
-		row := make(map[string]interface{}, len(s.Slice))
+		row := make(map[string]any, len(s.Slice))
 
 		for si, sv := range s.Slice {
 			row[columns[si]], err = makeInterface(sv)
@@ -297,12 +297,12 @@ func unmarshalActionQuerySQLResult(columns []string, rows []*QueryActionSlice) (
 	return data, nil
 }
 
-func unmarshalActionQueryDocsResult(docs []*QueryActionMap) ([]map[string]interface{}, error) {
-	data := make([]map[string]interface{}, len(docs))
+func unmarshalActionQueryDocsResult(docs []*QueryActionMap) ([]map[string]any, error) {
+	data := make([]map[string]any, len(docs))
 
 	var err error
 	for i, m := range docs {
-		row := make(map[string]interface{}, len(m.Map))
+		row := make(map[string]any, len(m.Map))
 
 		for mk, mv := range m.Map {
 			row[mk], err = makeInterface(mv)
@@ -318,7 +318,7 @@ func unmarshalActionQueryDocsResult(docs []*QueryActionMap) ([]map[string]interf
 }
 
 // UnmarshalActionQueryResult returns deserialized form of query Action result, both SQL and documents.
-func UnmarshalActionQueryResult(b []byte) ([]map[string]interface{}, error) {
+func UnmarshalActionQueryResult(b []byte) ([]map[string]any, error) {
 	var res QueryActionResult
 	if err := proto.Unmarshal(b, &res); err != nil {
 		return nil, err

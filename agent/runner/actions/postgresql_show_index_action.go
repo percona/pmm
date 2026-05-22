@@ -91,7 +91,7 @@ func (a *postgresqlShowIndexAction) Run(ctx context.Context) ([]byte, error) {
 	defer db.Close() //nolint:errcheck
 
 	var namespaceQuery string
-	var args []interface{}
+	var args []any
 	table := strings.Split(a.params.Table, ".")
 	switch len(table) {
 	case 2:
