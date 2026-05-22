@@ -139,7 +139,9 @@ describe('RealtimeOverview details pane navigation', () => {
 
     fireEvent.click(screen.getByTestId('details-pane-next-button'));
 
-    expect(getOperationId()).toHaveTextContent('query-2');
+    await waitFor(() => {
+      expect(getOperationId()).toHaveTextContent('query-2');
+    });
     expect(getOperationId()).not.toHaveTextContent('query-3');
   });
 
@@ -148,10 +150,14 @@ describe('RealtimeOverview details pane navigation', () => {
     await openDetailsPaneOnFirstQuery();
 
     fireEvent.click(screen.getByTestId('details-pane-next-button'));
-    expect(getOperationId()).toHaveTextContent('query-2');
+    await waitFor(() => {
+      expect(getOperationId()).toHaveTextContent('query-2');
+    });
 
     fireEvent.click(screen.getByTestId('details-pane-prev-button'));
-    expect(getOperationId()).toHaveTextContent('query-1');
+    await waitFor(() => {
+      expect(getOperationId()).toHaveTextContent('query-1');
+    });
   });
 
   it('disables prev on the first visible query and next on the last', async () => {
@@ -163,8 +169,10 @@ describe('RealtimeOverview details pane navigation', () => {
 
     fireEvent.click(screen.getByTestId('details-pane-next-button'));
 
-    expect(screen.getByTestId('details-pane-prev-button')).not.toBeDisabled();
-    expect(screen.getByTestId('details-pane-next-button')).toBeDisabled();
+    await waitFor(() => {
+      expect(screen.getByTestId('details-pane-prev-button')).not.toBeDisabled();
+      expect(screen.getByTestId('details-pane-next-button')).toBeDisabled();
+    });
   });
 
   it('disables navigation when the selected query is not in navigableQueries', async () => {
@@ -175,11 +183,15 @@ describe('RealtimeOverview details pane navigation', () => {
 
     fireEvent.click(screen.getByTestId('mock-drop-selected-from-navigable'));
 
-    expect(screen.getByTestId('details-pane-prev-button')).toBeDisabled();
-    expect(screen.getByTestId('details-pane-next-button')).toBeDisabled();
+    await waitFor(() => {
+      expect(screen.getByTestId('details-pane-prev-button')).toBeDisabled();
+      expect(screen.getByTestId('details-pane-next-button')).toBeDisabled();
+    });
 
     fireEvent.click(screen.getByTestId('details-pane-next-button'));
 
-    expect(getOperationId()).toHaveTextContent('query-1');
+    await waitFor(() => {
+      expect(getOperationId()).toHaveTextContent('query-1');
+    });
   });
 });
