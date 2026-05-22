@@ -105,7 +105,6 @@ func (o *UpdateUserOK) GetPayload() *UpdateUserOKBody {
 }
 
 func (o *UpdateUserOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(UpdateUserOKBody)
 
 	// response payload
@@ -179,7 +178,6 @@ func (o *UpdateUserDefault) GetPayload() *UpdateUserDefaultBody {
 }
 
 func (o *UpdateUserDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(UpdateUserDefaultBody)
 
 	// response payload
@@ -195,7 +193,6 @@ UpdateUserBody update user body
 swagger:model UpdateUserBody
 */
 type UpdateUserBody struct {
-
 	// Product Tour
 	ProductTourCompleted *bool `json:"product_tour_completed,omitempty"`
 
@@ -239,7 +236,6 @@ UpdateUserDefaultBody update user default body
 swagger:model UpdateUserDefaultBody
 */
 type UpdateUserDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -309,9 +305,7 @@ func (o *UpdateUserDefaultBody) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *UpdateUserDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -331,7 +325,6 @@ func (o *UpdateUserDefaultBody) contextValidateDetails(ctx context.Context, form
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -360,7 +353,6 @@ UpdateUserDefaultBodyDetailsItems0 update user default body details items0
 swagger:model UpdateUserDefaultBodyDetailsItems0
 */
 type UpdateUserDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -372,7 +364,6 @@ type UpdateUserDefaultBodyDetailsItems0 struct {
 func (o *UpdateUserDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -410,7 +401,6 @@ func (o *UpdateUserDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o UpdateUserDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -474,7 +464,6 @@ UpdateUserOKBody update user OK body
 swagger:model UpdateUserOKBody
 */
 type UpdateUserOKBody struct {
-
 	// User ID
 	UserID int64 `json:"user_id,omitempty"`
 

@@ -851,7 +851,6 @@ func (m *ListTemplatesRequest) validate(all bool) error {
 	// no validation rules for Reload
 
 	if m.PageSize != nil {
-
 		if m.GetPageSize() < 1 {
 			err := ListTemplatesRequestValidationError{
 				field:  "PageSize",
@@ -862,11 +861,9 @@ func (m *ListTemplatesRequest) validate(all bool) error {
 			}
 			errors = append(errors, err)
 		}
-
 	}
 
 	if m.PageIndex != nil {
-
 		if m.GetPageIndex() < 0 {
 			err := ListTemplatesRequestValidationError{
 				field:  "PageIndex",
@@ -877,7 +874,6 @@ func (m *ListTemplatesRequest) validate(all bool) error {
 			}
 			errors = append(errors, err)
 		}
-
 	}
 
 	if len(errors) > 0 {

@@ -33,9 +33,9 @@ import (
 // chatRequestBody is the incoming POST /v1/adre/chat body.
 type chatRequestBody struct {
 	ChatRequest
-	ConversationID interface{} `json:"conversation_id"`
-	Mode           *string     `json:"mode,omitempty"`
-	DashboardContext string    `json:"dashboard_context,omitempty"`
+	ConversationID   interface{} `json:"conversation_id"`
+	Mode             *string     `json:"mode,omitempty"`
+	DashboardContext string      `json:"dashboard_context,omitempty"`
 }
 
 func parseConversationID(v interface{}) (int64, error) {

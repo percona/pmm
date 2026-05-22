@@ -104,7 +104,6 @@ func (o *LeaderHealthCheckOK) GetPayload() any {
 }
 
 func (o *LeaderHealthCheckOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
@@ -176,7 +175,6 @@ func (o *LeaderHealthCheckDefault) GetPayload() *LeaderHealthCheckDefaultBody {
 }
 
 func (o *LeaderHealthCheckDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(LeaderHealthCheckDefaultBody)
 
 	// response payload
@@ -192,7 +190,6 @@ LeaderHealthCheckDefaultBody leader health check default body
 swagger:model LeaderHealthCheckDefaultBody
 */
 type LeaderHealthCheckDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -262,9 +259,7 @@ func (o *LeaderHealthCheckDefaultBody) ContextValidate(ctx context.Context, form
 }
 
 func (o *LeaderHealthCheckDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -284,7 +279,6 @@ func (o *LeaderHealthCheckDefaultBody) contextValidateDetails(ctx context.Contex
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -397,7 +391,6 @@ LeaderHealthCheckDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized
 swagger:model LeaderHealthCheckDefaultBodyDetailsItems0
 */
 type LeaderHealthCheckDefaultBodyDetailsItems0 struct {
-
 	// A URL/resource name that uniquely identifies the type of the serialized
 	// protocol buffer message. This string must contain at least
 	// one "/" character. The last segment of the URL's path must represent
@@ -436,7 +429,6 @@ type LeaderHealthCheckDefaultBodyDetailsItems0 struct {
 func (o *LeaderHealthCheckDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// A URL/resource name that uniquely identifies the type of the serialized
 		// protocol buffer message. This string must contain at least
 		// one "/" character. The last segment of the URL's path must represent
@@ -501,7 +493,6 @@ func (o *LeaderHealthCheckDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) e
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o LeaderHealthCheckDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// A URL/resource name that uniquely identifies the type of the serialized
 		// protocol buffer message. This string must contain at least
 		// one "/" character. The last segment of the URL's path must represent

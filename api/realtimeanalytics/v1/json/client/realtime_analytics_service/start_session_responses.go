@@ -105,7 +105,6 @@ func (o *StartSessionOK) GetPayload() *StartSessionOKBody {
 }
 
 func (o *StartSessionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(StartSessionOKBody)
 
 	// response payload
@@ -179,7 +178,6 @@ func (o *StartSessionDefault) GetPayload() *StartSessionDefaultBody {
 }
 
 func (o *StartSessionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(StartSessionDefaultBody)
 
 	// response payload
@@ -195,7 +193,6 @@ StartSessionBody StartSessionRequest contains parameters for starting Real-Time 
 swagger:model StartSessionBody
 */
 type StartSessionBody struct {
-
 	// Required service identifier the Real-Time Analytics session shall be started for.
 	ServiceID string `json:"service_id,omitempty"`
 }
@@ -233,7 +230,6 @@ StartSessionDefaultBody start session default body
 swagger:model StartSessionDefaultBody
 */
 type StartSessionDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -303,9 +299,7 @@ func (o *StartSessionDefaultBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *StartSessionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -325,7 +319,6 @@ func (o *StartSessionDefaultBody) contextValidateDetails(ctx context.Context, fo
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -354,7 +347,6 @@ StartSessionDefaultBodyDetailsItems0 start session default body details items0
 swagger:model StartSessionDefaultBodyDetailsItems0
 */
 type StartSessionDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -366,7 +358,6 @@ type StartSessionDefaultBodyDetailsItems0 struct {
 func (o *StartSessionDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -404,7 +395,6 @@ func (o *StartSessionDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error 
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o StartSessionDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -468,7 +458,6 @@ StartSessionOKBody StartSessionResponse is the response for starting Real-Time A
 swagger:model StartSessionOKBody
 */
 type StartSessionOKBody struct {
-
 	// session
 	Session *StartSessionOKBodySession `json:"session,omitempty"`
 }
@@ -525,7 +514,6 @@ func (o *StartSessionOKBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *StartSessionOKBody) contextValidateSession(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Session != nil {
 
 		if swag.IsZero(o.Session) { // not required
@@ -572,7 +560,6 @@ StartSessionOKBodySession Session represents an active Real-Time Analytics sessi
 swagger:model StartSessionOKBodySession
 */
 type StartSessionOKBodySession struct {
-
 	// Service identifier that has enabled Real-Time Analytics session.
 	ServiceID string `json:"service_id,omitempty"`
 

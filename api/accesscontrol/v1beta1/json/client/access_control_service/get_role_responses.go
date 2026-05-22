@@ -104,7 +104,6 @@ func (o *GetRoleOK) GetPayload() *GetRoleOKBody {
 }
 
 func (o *GetRoleOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetRoleOKBody)
 
 	// response payload
@@ -178,7 +177,6 @@ func (o *GetRoleDefault) GetPayload() *GetRoleDefaultBody {
 }
 
 func (o *GetRoleDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetRoleDefaultBody)
 
 	// response payload
@@ -194,7 +192,6 @@ GetRoleDefaultBody get role default body
 swagger:model GetRoleDefaultBody
 */
 type GetRoleDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -264,9 +261,7 @@ func (o *GetRoleDefaultBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *GetRoleDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -286,7 +281,6 @@ func (o *GetRoleDefaultBody) contextValidateDetails(ctx context.Context, formats
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -315,7 +309,6 @@ GetRoleDefaultBodyDetailsItems0 get role default body details items0
 swagger:model GetRoleDefaultBodyDetailsItems0
 */
 type GetRoleDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -327,7 +320,6 @@ type GetRoleDefaultBodyDetailsItems0 struct {
 func (o *GetRoleDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -365,7 +357,6 @@ func (o *GetRoleDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o GetRoleDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -429,7 +420,6 @@ GetRoleOKBody get role OK body
 swagger:model GetRoleOKBody
 */
 type GetRoleOKBody struct {
-
 	// role id
 	RoleID int64 `json:"role_id,omitempty"`
 

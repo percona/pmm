@@ -16,13 +16,14 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/services/adre"
 	"github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
 	"github.com/slack-go/slack/socketmode"
 	"gopkg.in/reform.v1"
+
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/adre"
 )
 
 var mentionStripRE = regexp.MustCompile(`<@[^>]+>`)

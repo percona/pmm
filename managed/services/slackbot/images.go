@@ -14,8 +14,10 @@ import (
 	"github.com/percona/pmm/managed/services/grafana"
 )
 
-var blobPathRE = regexp.MustCompile(`/v1/grafana/render/blob/([a-f0-9]{64})\.png`)
-var hexHashRE = regexp.MustCompile(`^[a-f0-9]{64}$`)
+var (
+	blobPathRE = regexp.MustCompile(`/v1/grafana/render/blob/([a-f0-9]{64})\.png`)
+	hexHashRE  = regexp.MustCompile(`^[a-f0-9]{64}$`)
+)
 
 // ExtractBlobHashes finds Tier-1 render blob SHA-256 hashes referenced in analysis text (paths only).
 func ExtractBlobHashes(analysis string) []string {

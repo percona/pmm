@@ -99,12 +99,12 @@ type resolveRequest struct {
 
 // resolveResponse is the JSON body for a successful resolve.
 type resolveResponse struct {
-	ContentHash   string            `json:"content_hash"`
-	ImageURL      string            `json:"image_url"`
-	DashboardURL  string            `json:"dashboard_url"`
-	ResolvedVars  map[string]string `json:"resolved_vars"`
-	CacheHit      bool              `json:"cache_hit"`
-	RenderMs      int64             `json:"render_ms"`
+	ContentHash  string            `json:"content_hash"`
+	ImageURL     string            `json:"image_url"`
+	DashboardURL string            `json:"dashboard_url"`
+	ResolvedVars map[string]string `json:"resolved_vars"`
+	CacheHit     bool              `json:"cache_hit"`
+	RenderMs     int64             `json:"render_ms"`
 }
 
 func parsePanelIDField(raw json.RawMessage) (string, error) {
@@ -439,8 +439,8 @@ func (h *BlobHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusNotFound)
 		_ = json.NewEncoder(w).Encode(map[string]string{
-			"error":         "snapshot not found",
-			"content_hash":  hash,
+			"error":        "snapshot not found",
+			"content_hash": hash,
 		})
 		return
 	}

@@ -104,7 +104,6 @@ func (o *AddLocationOK) GetPayload() *AddLocationOKBody {
 }
 
 func (o *AddLocationOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddLocationOKBody)
 
 	// response payload
@@ -178,7 +177,6 @@ func (o *AddLocationDefault) GetPayload() *AddLocationDefaultBody {
 }
 
 func (o *AddLocationDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddLocationDefaultBody)
 
 	// response payload
@@ -194,7 +192,6 @@ AddLocationBody add location body
 swagger:model AddLocationBody
 */
 type AddLocationBody struct {
-
 	// Location name
 	Name string `json:"name,omitempty"`
 
@@ -291,7 +288,6 @@ func (o *AddLocationBody) ContextValidate(ctx context.Context, formats strfmt.Re
 }
 
 func (o *AddLocationBody) contextValidateFilesystemConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.FilesystemConfig != nil {
 
 		if swag.IsZero(o.FilesystemConfig) { // not required
@@ -316,7 +312,6 @@ func (o *AddLocationBody) contextValidateFilesystemConfig(ctx context.Context, f
 }
 
 func (o *AddLocationBody) contextValidateS3Config(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.S3Config != nil {
 
 		if swag.IsZero(o.S3Config) { // not required
@@ -363,7 +358,6 @@ AddLocationDefaultBody add location default body
 swagger:model AddLocationDefaultBody
 */
 type AddLocationDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -433,9 +427,7 @@ func (o *AddLocationDefaultBody) ContextValidate(ctx context.Context, formats st
 }
 
 func (o *AddLocationDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -455,7 +447,6 @@ func (o *AddLocationDefaultBody) contextValidateDetails(ctx context.Context, for
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -484,7 +475,6 @@ AddLocationDefaultBodyDetailsItems0 add location default body details items0
 swagger:model AddLocationDefaultBodyDetailsItems0
 */
 type AddLocationDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -496,7 +486,6 @@ type AddLocationDefaultBodyDetailsItems0 struct {
 func (o *AddLocationDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -534,7 +523,6 @@ func (o *AddLocationDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o AddLocationDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -598,7 +586,6 @@ AddLocationOKBody add location OK body
 swagger:model AddLocationOKBody
 */
 type AddLocationOKBody struct {
-
 	// Machine-readable ID.
 	LocationID string `json:"location_id,omitempty"`
 }
@@ -636,7 +623,6 @@ AddLocationParamsBodyFilesystemConfig FilesystemLocationConfig represents file s
 swagger:model AddLocationParamsBodyFilesystemConfig
 */
 type AddLocationParamsBodyFilesystemConfig struct {
-
 	// path
 	Path string `json:"path,omitempty"`
 }
@@ -674,7 +660,6 @@ AddLocationParamsBodyS3Config S3LocationConfig represents S3 bucket configuratio
 swagger:model AddLocationParamsBodyS3Config
 */
 type AddLocationParamsBodyS3Config struct {
-
 	// endpoint
 	Endpoint string `json:"endpoint,omitempty"`
 

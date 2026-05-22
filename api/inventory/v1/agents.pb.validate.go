@@ -3021,7 +3021,6 @@ func (m *ChangeCommonAgentParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
-
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -3050,7 +3049,6 @@ func (m *ChangeCommonAgentParams) validate(all bool) error {
 				}
 			}
 		}
-
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -8963,7 +8961,6 @@ func (m *ChangeNodeExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
-
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -8992,7 +8989,6 @@ func (m *ChangeNodeExporterParams) validate(all bool) error {
 				}
 			}
 		}
-
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -9306,7 +9302,6 @@ func (m *ChangeMySQLdExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
-
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -9335,7 +9330,6 @@ func (m *ChangeMySQLdExporterParams) validate(all bool) error {
 				}
 			}
 		}
-
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -9684,7 +9678,6 @@ func (m *ChangeMongoDBExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
-
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -9713,7 +9706,6 @@ func (m *ChangeMongoDBExporterParams) validate(all bool) error {
 				}
 			}
 		}
-
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -10080,7 +10072,6 @@ func (m *ChangePostgresExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
-
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -10109,7 +10100,6 @@ func (m *ChangePostgresExporterParams) validate(all bool) error {
 				}
 			}
 		}
-
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -10458,7 +10448,6 @@ func (m *ChangeProxySQLExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
-
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -10487,7 +10476,6 @@ func (m *ChangeProxySQLExporterParams) validate(all bool) error {
 				}
 			}
 		}
-
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -10824,7 +10812,6 @@ func (m *ChangeQANMySQLPerfSchemaAgentParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
-
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -10853,7 +10840,6 @@ func (m *ChangeQANMySQLPerfSchemaAgentParams) validate(all bool) error {
 				}
 			}
 		}
-
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -11211,7 +11197,6 @@ func (m *ChangeQANMySQLSlowlogAgentParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
-
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -11240,7 +11225,6 @@ func (m *ChangeQANMySQLSlowlogAgentParams) validate(all bool) error {
 				}
 			}
 		}
-
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -11591,7 +11575,6 @@ func (m *ChangeQANMongoDBProfilerAgentParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
-
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -11620,7 +11603,6 @@ func (m *ChangeQANMongoDBProfilerAgentParams) validate(all bool) error {
 				}
 			}
 		}
-
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -11963,7 +11945,6 @@ func (m *ChangeQANMongoDBMongologAgentParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
-
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -11992,7 +11973,6 @@ func (m *ChangeQANMongoDBMongologAgentParams) validate(all bool) error {
 				}
 			}
 		}
-
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -12344,7 +12324,6 @@ func (m *ChangeQANPostgreSQLPgStatementsAgentParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
-
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -12373,7 +12352,6 @@ func (m *ChangeQANPostgreSQLPgStatementsAgentParams) validate(all bool) error {
 				}
 			}
 		}
-
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -12723,7 +12701,6 @@ func (m *ChangeQANPostgreSQLPgStatMonitorAgentParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
-
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -12752,7 +12729,6 @@ func (m *ChangeQANPostgreSQLPgStatMonitorAgentParams) validate(all bool) error {
 				}
 			}
 		}
-
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -13081,7 +13057,6 @@ func (m *ChangeRDSExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
-
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -13110,7 +13085,6 @@ func (m *ChangeRDSExporterParams) validate(all bool) error {
 				}
 			}
 		}
-
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -13413,7 +13387,6 @@ func (m *ChangeExternalExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
-
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -13442,7 +13415,6 @@ func (m *ChangeExternalExporterParams) validate(all bool) error {
 				}
 			}
 		}
-
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -13757,7 +13729,6 @@ func (m *ChangeAzureDatabaseExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
-
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -13786,7 +13757,6 @@ func (m *ChangeAzureDatabaseExporterParams) validate(all bool) error {
 				}
 			}
 		}
-
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -14229,7 +14199,6 @@ func (m *ChangeValkeyExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
-
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -14258,7 +14227,6 @@ func (m *ChangeValkeyExporterParams) validate(all bool) error {
 				}
 			}
 		}
-
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -14266,7 +14234,6 @@ func (m *ChangeValkeyExporterParams) validate(all bool) error {
 	}
 
 	if m.Username != nil {
-
 		if utf8.RuneCountInString(m.GetUsername()) < 1 {
 			err := ChangeValkeyExporterParamsValidationError{
 				field:  "Username",
@@ -14277,7 +14244,6 @@ func (m *ChangeValkeyExporterParams) validate(all bool) error {
 			}
 			errors = append(errors, err)
 		}
-
 	}
 
 	if m.Password != nil {
@@ -15003,7 +14969,6 @@ func (m *ChangeRTAMongoDBAgentParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
-
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -15032,7 +14997,6 @@ func (m *ChangeRTAMongoDBAgentParams) validate(all bool) error {
 				}
 			}
 		}
-
 	}
 
 	if m.LogLevel != nil {
@@ -15072,7 +15036,6 @@ func (m *ChangeRTAMongoDBAgentParams) validate(all bool) error {
 	}
 
 	if m.RtaOptions != nil {
-
 		if all {
 			switch v := interface{}(m.GetRtaOptions()).(type) {
 			case interface{ ValidateAll() error }:
@@ -15101,7 +15064,6 @@ func (m *ChangeRTAMongoDBAgentParams) validate(all bool) error {
 				}
 			}
 		}
-
 	}
 
 	if len(errors) > 0 {

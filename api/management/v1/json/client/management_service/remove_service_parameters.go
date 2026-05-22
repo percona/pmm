@@ -60,7 +60,6 @@ RemoveServiceParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type RemoveServiceParams struct {
-
 	/* ServiceID.
 
 	   Either a Service ID or a Service Name.
@@ -92,9 +91,7 @@ func (o *RemoveServiceParams) WithDefaults() *RemoveServiceParams {
 //
 // All values with no default are reset to their zero value.
 func (o *RemoveServiceParams) SetDefaults() {
-	var (
-		serviceTypeDefault = string("SERVICE_TYPE_UNSPECIFIED")
-	)
+	serviceTypeDefault := string("SERVICE_TYPE_UNSPECIFIED")
 
 	val := RemoveServiceParams{
 		ServiceType: &serviceTypeDefault,
@@ -163,7 +160,6 @@ func (o *RemoveServiceParams) SetServiceType(serviceType *string) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *RemoveServiceParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}
@@ -184,7 +180,6 @@ func (o *RemoveServiceParams) WriteToRequest(r runtime.ClientRequest, reg strfmt
 		}
 		qServiceType := qrServiceType
 		if qServiceType != "" {
-
 			if err := r.SetQueryParam("service_type", qServiceType); err != nil {
 				return err
 			}

@@ -15,7 +15,7 @@ import (
 
 func TestNormalizeBehaviorControlsForHolmes_legacyTimeRunbooks(t *testing.T) {
 	in := map[string]bool{
-		"time_runbooks":            false,
+		"time_runbooks":          false,
 		"todowrite_instructions": false,
 	}
 	out := NormalizeBehaviorControlsForHolmes(in)

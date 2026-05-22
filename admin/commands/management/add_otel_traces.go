@@ -15,9 +15,8 @@
 package management
 
 import (
-	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
-
 	"github.com/percona/pmm/admin/commands"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
 
 // AddOtelTracesCommand records trace-ingestion intent via labels; OTLP receivers are already enabled on the collector.

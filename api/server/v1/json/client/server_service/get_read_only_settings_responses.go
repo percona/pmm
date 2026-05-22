@@ -104,7 +104,6 @@ func (o *GetReadOnlySettingsOK) GetPayload() *GetReadOnlySettingsOKBody {
 }
 
 func (o *GetReadOnlySettingsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetReadOnlySettingsOKBody)
 
 	// response payload
@@ -178,7 +177,6 @@ func (o *GetReadOnlySettingsDefault) GetPayload() *GetReadOnlySettingsDefaultBod
 }
 
 func (o *GetReadOnlySettingsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetReadOnlySettingsDefaultBody)
 
 	// response payload
@@ -194,7 +192,6 @@ GetReadOnlySettingsDefaultBody get read only settings default body
 swagger:model GetReadOnlySettingsDefaultBody
 */
 type GetReadOnlySettingsDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -264,9 +261,7 @@ func (o *GetReadOnlySettingsDefaultBody) ContextValidate(ctx context.Context, fo
 }
 
 func (o *GetReadOnlySettingsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -286,7 +281,6 @@ func (o *GetReadOnlySettingsDefaultBody) contextValidateDetails(ctx context.Cont
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -399,7 +393,6 @@ GetReadOnlySettingsDefaultBodyDetailsItems0 `Any` contains an arbitrary serializ
 swagger:model GetReadOnlySettingsDefaultBodyDetailsItems0
 */
 type GetReadOnlySettingsDefaultBodyDetailsItems0 struct {
-
 	// A URL/resource name that uniquely identifies the type of the serialized
 	// protocol buffer message. This string must contain at least
 	// one "/" character. The last segment of the URL's path must represent
@@ -438,7 +431,6 @@ type GetReadOnlySettingsDefaultBodyDetailsItems0 struct {
 func (o *GetReadOnlySettingsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// A URL/resource name that uniquely identifies the type of the serialized
 		// protocol buffer message. This string must contain at least
 		// one "/" character. The last segment of the URL's path must represent
@@ -503,7 +495,6 @@ func (o *GetReadOnlySettingsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte)
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o GetReadOnlySettingsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// A URL/resource name that uniquely identifies the type of the serialized
 		// protocol buffer message. This string must contain at least
 		// one "/" character. The last segment of the URL's path must represent
@@ -594,7 +585,6 @@ GetReadOnlySettingsOKBody get read only settings OK body
 swagger:model GetReadOnlySettingsOKBody
 */
 type GetReadOnlySettingsOKBody struct {
-
 	// settings
 	Settings *GetReadOnlySettingsOKBodySettings `json:"settings,omitempty"`
 }
@@ -651,7 +641,6 @@ func (o *GetReadOnlySettingsOKBody) ContextValidate(ctx context.Context, formats
 }
 
 func (o *GetReadOnlySettingsOKBody) contextValidateSettings(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Settings != nil {
 
 		if swag.IsZero(o.Settings) { // not required
@@ -698,7 +687,6 @@ GetReadOnlySettingsOKBodySettings ReadOnlySettings represents a stripped-down ve
 swagger:model GetReadOnlySettingsOKBodySettings
 */
 type GetReadOnlySettingsOKBodySettings struct {
-
 	// True if updates are enabled.
 	UpdatesEnabled bool `json:"updates_enabled,omitempty"`
 

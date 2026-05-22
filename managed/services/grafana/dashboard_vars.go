@@ -36,13 +36,13 @@ type templatingWrapper struct {
 }
 
 type templateVariable struct {
-	Name        string          `json:"name"`
-	Type        string          `json:"type"`
-	Multi       bool            `json:"multi"`
-	IncludeAll  bool            `json:"includeAll"`
-	AllValue    string          `json:"allValue"`
-	Current     json.RawMessage `json:"current"`
-	Hide        int             `json:"hide"` // 2 = hidden
+	Name       string          `json:"name"`
+	Type       string          `json:"type"`
+	Multi      bool            `json:"multi"`
+	IncludeAll bool            `json:"includeAll"`
+	AllValue   string          `json:"allValue"`
+	Current    json.RawMessage `json:"current"`
+	Hide       int             `json:"hide"` // 2 = hidden
 }
 
 type dashboardPanel struct {
@@ -212,7 +212,7 @@ func MergeDashboardVars(d dashboardInner, overrides map[string]string) (map[stri
 		}
 		tv := defByName[canonical]
 		if val == "$__all" && !(tv.IncludeAll && tv.Multi) {
-				return nil, fmt.Errorf("override %q cannot use $__all for variable %q", k, canonical)
+			return nil, fmt.Errorf("override %q cannot use $__all for variable %q", k, canonical)
 		}
 		val = sanitizeTemplateValue(canonical, val)
 		if val == "" {

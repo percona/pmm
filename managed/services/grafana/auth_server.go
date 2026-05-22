@@ -122,8 +122,8 @@ var rules = map[string]role{
 
 	// ADRE (Autonomous Database Reliability Engineer) / HolmesGPT.
 	"/v1/adre/qan-insights/servicenow": admin,
-	"/v1/adre/settings": viewer,
-	"/v1/adre":          viewer,
+	"/v1/adre/settings":                viewer,
+	"/v1/adre":                         viewer,
 
 	// Grafana panel render (image or JSON with image_url/dashboard_url).
 	"/v1/grafana/render": viewer,

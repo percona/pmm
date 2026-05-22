@@ -33,11 +33,11 @@ const (
 
 // holmesStreamOutcome is the parsed result of a Holmes streaming response.
 type holmesStreamOutcome struct {
-	Analysis         string
+	Analysis           string
 	ToolResultJSONRows [][]byte
-	PromptTokens     *int32
-	CompletionTokens *int32
-	TotalTokens      *int32
+	PromptTokens       *int32
+	CompletionTokens   *int32
+	TotalTokens        *int32
 }
 
 // parseHolmesSSEStream tees every line to forward (if non-nil), then parses events for persistence.

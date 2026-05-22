@@ -60,7 +60,6 @@ ListPitrTimerangesParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type ListPitrTimerangesParams struct {
-
 	/* ArtifactID.
 
 	   Artifact ID represents artifact whose location has PITR timeranges to be retrieved.
@@ -133,7 +132,6 @@ func (o *ListPitrTimerangesParams) SetArtifactID(artifactID string) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *ListPitrTimerangesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

@@ -13,16 +13,16 @@ import (
 
 // Phase1 identity: resource attribute keys required for service-map rollups (see docs/internal/ebpf-otel-identity-v1.md).
 const (
-	AttrServiceName       = "service.name"
-	AttrPMMNodeID         = "pmm.node_id"
-	AttrPMMAgentID        = "pmm.agent_id"
-	AttrNetPeerName       = "net.peer.name"
-	AttrNetPeerIP         = "net.peer.ip"
-	AttrNetPeerPort       = "net.peer.port"
-	AttrDBSystem          = "db.system"
-	AttrPMMComponentRole  = "pmm.component_role"
-	AttrPMMMapEdgeTarget  = "pmm.map_edge_target"
-	AttrErrorType         = "error.type"
+	AttrServiceName      = "service.name"
+	AttrPMMNodeID        = "pmm.node_id"
+	AttrPMMAgentID       = "pmm.agent_id"
+	AttrNetPeerName      = "net.peer.name"
+	AttrNetPeerIP        = "net.peer.ip"
+	AttrNetPeerPort      = "net.peer.port"
+	AttrDBSystem         = "db.system"
+	AttrPMMComponentRole = "pmm.component_role"
+	AttrPMMMapEdgeTarget = "pmm.map_edge_target"
+	AttrErrorType        = "error.type"
 )
 
 // IdentityCheck reports whether resource attributes satisfy Phase 1 map eligibility.

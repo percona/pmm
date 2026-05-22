@@ -104,7 +104,6 @@ func (o *GetLogsOK) GetPayload() *GetLogsOKBody {
 }
 
 func (o *GetLogsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetLogsOKBody)
 
 	// response payload
@@ -178,7 +177,6 @@ func (o *GetLogsDefault) GetPayload() *GetLogsDefaultBody {
 }
 
 func (o *GetLogsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetLogsDefaultBody)
 
 	// response payload
@@ -194,7 +192,6 @@ GetLogsDefaultBody get logs default body
 swagger:model GetLogsDefaultBody
 */
 type GetLogsDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -264,9 +261,7 @@ func (o *GetLogsDefaultBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *GetLogsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -286,7 +281,6 @@ func (o *GetLogsDefaultBody) contextValidateDetails(ctx context.Context, formats
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -315,7 +309,6 @@ GetLogsDefaultBodyDetailsItems0 get logs default body details items0
 swagger:model GetLogsDefaultBodyDetailsItems0
 */
 type GetLogsDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -327,7 +320,6 @@ type GetLogsDefaultBodyDetailsItems0 struct {
 func (o *GetLogsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -365,7 +357,6 @@ func (o *GetLogsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o GetLogsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -429,7 +420,6 @@ GetLogsOKBody get logs OK body
 swagger:model GetLogsOKBody
 */
 type GetLogsOKBody struct {
-
 	// logs
 	Logs []*GetLogsOKBodyLogsItems0 `json:"logs"`
 
@@ -496,9 +486,7 @@ func (o *GetLogsOKBody) ContextValidate(ctx context.Context, formats strfmt.Regi
 }
 
 func (o *GetLogsOKBody) contextValidateLogs(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Logs); i++ {
-
 		if o.Logs[i] != nil {
 
 			if swag.IsZero(o.Logs[i]) { // not required
@@ -518,7 +506,6 @@ func (o *GetLogsOKBody) contextValidateLogs(ctx context.Context, formats strfmt.
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -547,7 +534,6 @@ GetLogsOKBodyLogsItems0 LogChunk represent one chunk of logs.
 swagger:model GetLogsOKBodyLogsItems0
 */
 type GetLogsOKBodyLogsItems0 struct {
-
 	// chunk id
 	ChunkID int64 `json:"chunk_id,omitempty"`
 

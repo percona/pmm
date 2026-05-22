@@ -12,10 +12,12 @@ import (
 	"strings"
 )
 
-var toolDirectiveRE = regexp.MustCompile(`<<\s*\{.*?\}\s*>>`)
-var mdImgHideRE = regexp.MustCompile(`!\[[^\]]*\]\([^)]+\)`)
-var blobURLHideRE = regexp.MustCompile(`https?://\S+/v1/grafana/render/blob/[a-f0-9]{64}\.png`)
-var imageLineHideRE = regexp.MustCompile(`(?im)^\s*image:\s*\S+\s*$`)
+var (
+	toolDirectiveRE = regexp.MustCompile(`<<\s*\{.*?\}\s*>>`)
+	mdImgHideRE     = regexp.MustCompile(`!\[[^\]]*\]\([^)]+\)`)
+	blobURLHideRE   = regexp.MustCompile(`https?://\S+/v1/grafana/render/blob/[a-f0-9]{64}\.png`)
+	imageLineHideRE = regexp.MustCompile(`(?im)^\s*image:\s*\S+\s*$`)
+)
 
 // ADRE/Holmes emits Markdown links [label](https://...). Slack mrkdwn uses <https://...|label> instead.
 var mdHTTPSLinkRE = regexp.MustCompile(`\[([^\]]+)\]\((https?://[^)]+)\)`)

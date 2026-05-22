@@ -189,15 +189,15 @@ func (h *Handlers) ListInvestigations(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	type item struct {
-		ID         string `json:"id"`
-		Title      string `json:"title"`
-		Status     string `json:"status"`
-		CreatedAt  string `json:"created_at"`
-		UpdatedAt  string `json:"updated_at"`
-		TimeFrom   string `json:"time_from,omitempty"`
-		TimeTo     string `json:"time_to,omitempty"`
-		SourceType string `json:"source_type,omitempty"`
-		NodeName   string `json:"node_name,omitempty"`
+		ID          string `json:"id"`
+		Title       string `json:"title"`
+		Status      string `json:"status"`
+		CreatedAt   string `json:"created_at"`
+		UpdatedAt   string `json:"updated_at"`
+		TimeFrom    string `json:"time_from,omitempty"`
+		TimeTo      string `json:"time_to,omitempty"`
+		SourceType  string `json:"source_type,omitempty"`
+		NodeName    string `json:"node_name,omitempty"`
 		ServiceName string `json:"service_name,omitempty"`
 	}
 	out := make([]item, len(list))
@@ -222,15 +222,15 @@ func (h *Handlers) ListInvestigations(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handlers) CreateInvestigation(w http.ResponseWriter, r *http.Request) {
 	var body struct {
-		Title        string          `json:"title"`
-		TimeFrom     string          `json:"time_from"`
-		TimeTo       string          `json:"time_to"`
-		SourceType   string          `json:"source_type"`
-		SourceRef    string          `json:"source_ref"`
-		Summary      string          `json:"summary"`
-		NodeName     string          `json:"node_name"`
-		ServiceName  string          `json:"service_name"`
-		ClusterName  string          `json:"cluster_name"`
+		Title         string          `json:"title"`
+		TimeFrom      string          `json:"time_from"`
+		TimeTo        string          `json:"time_to"`
+		SourceType    string          `json:"source_type"`
+		SourceRef     string          `json:"source_ref"`
+		Summary       string          `json:"summary"`
+		NodeName      string          `json:"node_name"`
+		ServiceName   string          `json:"service_name"`
+		ClusterName   string          `json:"cluster_name"`
 		AlertSnapshot json.RawMessage `json:"alert_snapshot"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {

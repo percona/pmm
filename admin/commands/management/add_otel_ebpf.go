@@ -15,9 +15,8 @@
 package management
 
 import (
-	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
-
 	"github.com/percona/pmm/admin/commands"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
 
 // AddOtelEbpfCommand enables eBPF-related labels on the single node OTEL collector.

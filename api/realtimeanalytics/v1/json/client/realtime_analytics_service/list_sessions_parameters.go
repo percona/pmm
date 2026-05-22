@@ -60,7 +60,6 @@ ListSessionsParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type ListSessionsParams struct {
-
 	/* ClusterName.
 
 	   Optional filter by cluster name.
@@ -133,7 +132,6 @@ func (o *ListSessionsParams) SetClusterName(clusterName *string) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *ListSessionsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}
@@ -149,7 +147,6 @@ func (o *ListSessionsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.
 		}
 		qClusterName := qrClusterName
 		if qClusterName != "" {
-
 			if err := r.SetQueryParam("cluster_name", qClusterName); err != nil {
 				return err
 			}

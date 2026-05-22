@@ -24,7 +24,7 @@ func TestContentHashFromRenderParams_orderIndependentVars(t *testing.T) {
 		Height:       500,
 		Scale:        1,
 		TZ:           "browser",
-		Vars: map[string]string{"var-b": "2", "var-a": "1"},
+		Vars:         map[string]string{"var-b": "2", "var-a": "1"},
 	})
 	b := ContentHashFromRenderParams(RenderCanonicalParams{
 		DashboardUID: "dash",
@@ -36,7 +36,7 @@ func TestContentHashFromRenderParams_orderIndependentVars(t *testing.T) {
 		Height:       500,
 		Scale:        1,
 		TZ:           "browser",
-		Vars: map[string]string{"var-a": "1", "var-b": "2"},
+		Vars:         map[string]string{"var-a": "1", "var-b": "2"},
 	})
 	assert.Equal(t, a, b)
 }

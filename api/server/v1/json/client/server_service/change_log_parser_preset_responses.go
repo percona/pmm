@@ -105,7 +105,6 @@ func (o *ChangeLogParserPresetOK) GetPayload() *ChangeLogParserPresetOKBody {
 }
 
 func (o *ChangeLogParserPresetOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ChangeLogParserPresetOKBody)
 
 	// response payload
@@ -179,7 +178,6 @@ func (o *ChangeLogParserPresetDefault) GetPayload() *ChangeLogParserPresetDefaul
 }
 
 func (o *ChangeLogParserPresetDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ChangeLogParserPresetDefaultBody)
 
 	// response payload
@@ -195,7 +193,6 @@ ChangeLogParserPresetBody change log parser preset body
 swagger:model ChangeLogParserPresetBody
 */
 type ChangeLogParserPresetBody struct {
-
 	// description
 	Description *string `json:"description,omitempty"`
 
@@ -236,7 +233,6 @@ ChangeLogParserPresetDefaultBody change log parser preset default body
 swagger:model ChangeLogParserPresetDefaultBody
 */
 type ChangeLogParserPresetDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -306,9 +302,7 @@ func (o *ChangeLogParserPresetDefaultBody) ContextValidate(ctx context.Context, 
 }
 
 func (o *ChangeLogParserPresetDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -328,7 +322,6 @@ func (o *ChangeLogParserPresetDefaultBody) contextValidateDetails(ctx context.Co
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -441,7 +434,6 @@ ChangeLogParserPresetDefaultBodyDetailsItems0 `Any` contains an arbitrary serial
 swagger:model ChangeLogParserPresetDefaultBodyDetailsItems0
 */
 type ChangeLogParserPresetDefaultBodyDetailsItems0 struct {
-
 	// A URL/resource name that uniquely identifies the type of the serialized
 	// protocol buffer message. This string must contain at least
 	// one "/" character. The last segment of the URL's path must represent
@@ -480,7 +472,6 @@ type ChangeLogParserPresetDefaultBodyDetailsItems0 struct {
 func (o *ChangeLogParserPresetDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// A URL/resource name that uniquely identifies the type of the serialized
 		// protocol buffer message. This string must contain at least
 		// one "/" character. The last segment of the URL's path must represent
@@ -545,7 +536,6 @@ func (o *ChangeLogParserPresetDefaultBodyDetailsItems0) UnmarshalJSON(data []byt
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o ChangeLogParserPresetDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// A URL/resource name that uniquely identifies the type of the serialized
 		// protocol buffer message. This string must contain at least
 		// one "/" character. The last segment of the URL's path must represent
@@ -636,7 +626,6 @@ ChangeLogParserPresetOKBody change log parser preset OK body
 swagger:model ChangeLogParserPresetOKBody
 */
 type ChangeLogParserPresetOKBody struct {
-
 	// preset
 	Preset *ChangeLogParserPresetOKBodyPreset `json:"preset,omitempty"`
 }
@@ -693,7 +682,6 @@ func (o *ChangeLogParserPresetOKBody) ContextValidate(ctx context.Context, forma
 }
 
 func (o *ChangeLogParserPresetOKBody) contextValidatePreset(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Preset != nil {
 
 		if swag.IsZero(o.Preset) { // not required
@@ -740,7 +728,6 @@ ChangeLogParserPresetOKBodyPreset LogParserPreset is one row in PostgreSQL log_p
 swagger:model ChangeLogParserPresetOKBodyPreset
 */
 type ChangeLogParserPresetOKBodyPreset struct {
-
 	// id
 	ID string `json:"id,omitempty"`
 

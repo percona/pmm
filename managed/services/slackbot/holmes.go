@@ -12,8 +12,10 @@ import (
 	"strings"
 )
 
-var graphIntentRE = regexp.MustCompile(`(?i)\b(graph|chart|panel|visuali[sz]ation|show me)\b`)
-var mdImgRE = regexp.MustCompile(`!\[[^\]]*\]\([^)]+\)`)
+var (
+	graphIntentRE = regexp.MustCompile(`(?i)\b(graph|chart|panel|visuali[sz]ation|show me)\b`)
+	mdImgRE       = regexp.MustCompile(`!\[[^\]]*\]\([^)]+\)`)
+)
 
 // NeedsGraphRetry mirrors the standalone Slack bot: user asked for a graph, no blob image in answer, leaked tool markers.
 // Heuristic only (wording and markdown variants differ); optional second chat may still not produce a panel.

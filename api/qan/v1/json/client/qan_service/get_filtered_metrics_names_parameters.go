@@ -60,7 +60,6 @@ GetFilteredMetricsNamesParams contains all the parameters to send to the API end
 	Typically these are written to a http.Request.
 */
 type GetFilteredMetricsNamesParams struct {
-
 	/* Body.
 
 	   GetFilteredMetricsNamesRequest contains period for which we need filters.
@@ -133,7 +132,6 @@ func (o *GetFilteredMetricsNamesParams) SetBody(body GetFilteredMetricsNamesBody
 
 // WriteToRequest writes these params to a swagger request
 func (o *GetFilteredMetricsNamesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

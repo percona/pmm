@@ -105,7 +105,6 @@ func (o *ListRestoresOK) GetPayload() *ListRestoresOKBody {
 }
 
 func (o *ListRestoresOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListRestoresOKBody)
 
 	// response payload
@@ -179,7 +178,6 @@ func (o *ListRestoresDefault) GetPayload() *ListRestoresDefaultBody {
 }
 
 func (o *ListRestoresDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListRestoresDefaultBody)
 
 	// response payload
@@ -195,7 +193,6 @@ ListRestoresDefaultBody list restores default body
 swagger:model ListRestoresDefaultBody
 */
 type ListRestoresDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -265,9 +262,7 @@ func (o *ListRestoresDefaultBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *ListRestoresDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -287,7 +282,6 @@ func (o *ListRestoresDefaultBody) contextValidateDetails(ctx context.Context, fo
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -316,7 +310,6 @@ ListRestoresDefaultBodyDetailsItems0 list restores default body details items0
 swagger:model ListRestoresDefaultBodyDetailsItems0
 */
 type ListRestoresDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -328,7 +321,6 @@ type ListRestoresDefaultBodyDetailsItems0 struct {
 func (o *ListRestoresDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -366,7 +358,6 @@ func (o *ListRestoresDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error 
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o ListRestoresDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -430,7 +421,6 @@ ListRestoresOKBody list restores OK body
 swagger:model ListRestoresOKBody
 */
 type ListRestoresOKBody struct {
-
 	// items
 	Items []*ListRestoresOKBodyItemsItems0 `json:"items"`
 }
@@ -494,9 +484,7 @@ func (o *ListRestoresOKBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *ListRestoresOKBody) contextValidateItems(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Items); i++ {
-
 		if o.Items[i] != nil {
 
 			if swag.IsZero(o.Items[i]) { // not required
@@ -516,7 +504,6 @@ func (o *ListRestoresOKBody) contextValidateItems(ctx context.Context, formats s
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -545,7 +532,6 @@ ListRestoresOKBodyItemsItems0 RestoreHistoryItem represents single backup restor
 swagger:model ListRestoresOKBodyItemsItems0
 */
 type ListRestoresOKBodyItemsItems0 struct {
-
 	// Machine-readable restore id.
 	RestoreID string `json:"restore_id,omitempty"`
 
