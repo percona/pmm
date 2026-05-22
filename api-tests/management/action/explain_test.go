@@ -80,7 +80,7 @@ func TestRunMongoDBExplain(t *testing.T) {
 
 	var actionOK *actions.GetActionOK
 
-	for i := 0; i < 6; i++ {
+	for range 6 {
 		var err error
 		actionOK, err = client.Default.ActionsService.GetAction(&actions.GetActionParams{
 			Context:  pmmapitests.Context,

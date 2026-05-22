@@ -116,7 +116,7 @@ func makeValue(value interface{}) (*QueryActionValue, error) { //nolint:cyclop
 	case reflect.Slice:
 		size := v.Len()
 		s := make([]*QueryActionValue, size)
-		for i := 0; i < size; i++ {
+		for i := range size {
 			s[i], err = makeValue(v.Index(i).Interface())
 			if err != nil {
 				return nil, err

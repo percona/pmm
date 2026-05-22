@@ -254,7 +254,7 @@ func getLogFilePath(ctx context.Context, client *mongo.Client) (string, error) {
 	}
 
 	if argv, ok := result["argv"].([]any); ok {
-		for i := 0; i < len(argv); i++ {
+		for i := range argv {
 			if arg, ok := argv[i].(string); ok && arg == "--logpath" && i+1 < len(argv) {
 				if value, ok := argv[i+1].(string); ok {
 					return value, nil

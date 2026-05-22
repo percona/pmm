@@ -481,7 +481,7 @@ func BenchmarkMergeTimelines(b *testing.B) {
 			{Start: 20, End: 30},
 		},
 	}
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		mergeTimelines(tl...)
 	}
 }
