@@ -19,6 +19,7 @@ package inventory
 import (
 	"context"
 	"encoding/json"
+	"maps"
 	"os"
 	"strings"
 
@@ -1842,9 +1843,7 @@ func (as *AgentsService) AddOtelCollector(ctx context.Context, p *inventoryv1.Ad
 
 	customLabels := make(map[string]string)
 	if p.CustomLabels != nil {
-		for k, v := range p.CustomLabels {
-			customLabels[k] = v
-		}
+		maps.Copy(customLabels, p.CustomLabels)
 	}
 
 	var logSources []logSourceEntry
@@ -2020,11 +2019,12 @@ func (as *AgentsService) ChangeOtelCollector(ctx context.Context, agentID string
 		if len(p.AddLogSources) > 0 {
 			var cur []logSourceEntry
 			if s := labels[labelLogSources]; s != "" {
-				if err := json.Unmarshal([]byte(s), &cur); err != nil {
+				err := json.Unmarshal([]byte(s), &cur)
+				if err != nil {
 					return status.Errorf(codes.Internal, "invalid log_sources JSON on agent: %v", err)
 				}
 			} else if s := labels[labelLogFilePaths]; s != "" {
-				for _, path := range strings.Split(s, ",") {
+				for path := range strings.SplitSeq(s, ",") {
 					path = strings.TrimSpace(path)
 					if path != "" {
 						cur = append(cur, logSourceEntry{Path: path, Preset: "raw"})
@@ -2072,11 +2072,11 @@ func (as *AgentsService) ChangeOtelCollector(ctx context.Context, agentID string
 			return err
 		}
 
-		encrypted := pointer.To(models.EncryptAgent(*row))
+		encrypted := new(models.EncryptAgent(*row))
 		if err := q.Update(encrypted); err != nil {
 			return err
 		}
-		decrypted := pointer.To(models.DecryptAgent(*encrypted))
+		decrypted := new(models.DecryptAgent(*encrypted))
 		aa, err := services.ToAPIAgent(q, decrypted)
 		if err != nil {
 			return err

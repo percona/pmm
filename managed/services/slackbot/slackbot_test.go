@@ -85,7 +85,7 @@ func TestThreadStoreUndoLastUser(t *testing.T) {
 	k := ThreadKey{TeamID: "t", ChannelID: "c", ThreadTS: "1"}
 	ts.AppendUser(k, "hello")
 	ts.UndoLastUserMessage(k, "hello")
-	assert.Len(t, ts.Snapshot(k), 0)
+	assert.Empty(t, ts.Snapshot(k))
 	ts.AppendUser(k, "a")
 	ts.AppendAssistant(k, "b")
 	ts.UndoLastUserMessage(k, "a")
@@ -96,7 +96,7 @@ func TestThreadStoreUndoLastUser(t *testing.T) {
 func TestThreadStoreCap(t *testing.T) {
 	ts := NewThreadStore()
 	k := ThreadKey{TeamID: "t", ChannelID: "c", ThreadTS: "1"}
-	for i := 0; i < maxThreadMessagesRAM+10; i++ {
+	for range maxThreadMessagesRAM + 10 {
 		ts.AppendUser(k, "u")
 	}
 	assert.Len(t, ts.Snapshot(k), maxThreadMessagesRAM)

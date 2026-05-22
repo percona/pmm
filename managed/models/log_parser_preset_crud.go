@@ -47,8 +47,9 @@ func ValidateLogParserOperatorYAML(operatorYAML string) error {
 	if operatorYAML == "" {
 		return errors.New("operator_yaml is required")
 	}
-	var ops []map[string]interface{}
-	if err := yaml.Unmarshal([]byte(operatorYAML), &ops); err != nil {
+	var ops []map[string]any
+	err := yaml.Unmarshal([]byte(operatorYAML), &ops)
+	if err != nil {
 		return errors.Wrap(err, "operator_yaml must be a YAML array of operator objects")
 	}
 	if len(ops) == 0 {
@@ -147,7 +148,8 @@ func UpdateLogParserPreset(q *reform.Querier, id string, description *string, op
 		return nil, reform.ErrNoRows
 	}
 	if operatorYAML != nil {
-		if err := ValidateLogParserOperatorYAML(*operatorYAML); err != nil {
+		err := ValidateLogParserOperatorYAML(*operatorYAML)
+		if err != nil {
 			return nil, err
 		}
 		row.OperatorYAML = strings.TrimSpace(*operatorYAML)

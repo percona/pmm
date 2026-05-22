@@ -124,8 +124,9 @@ func investigationToResponse(inv *models.Investigation) investigationResponse {
 		if serviceName != "" {
 			resp.ServiceName = serviceName
 		}
-		var cfg map[string]interface{}
-		if err := json.Unmarshal(inv.Config, &cfg); err == nil {
+		var cfg map[string]any
+		err := json.Unmarshal(inv.Config, &cfg)
+		if err == nil {
 			if v, _ := cfg["cluster_name"].(string); v != "" {
 				resp.ClusterName = v
 			}
@@ -137,7 +138,8 @@ func investigationToResponse(inv *models.Investigation) investigationResponse {
 					Rationale string          `json:"rationale"`
 					Evidence  []EvidenceEntry `json:"evidence"`
 				}
-				if err := json.Unmarshal(b, &cp); err == nil {
+				err := json.Unmarshal(b, &cp)
+				if err == nil {
 					if cp.Band != "" {
 						resp.Confidence = cp.Band
 					}
@@ -158,8 +160,9 @@ func configNodeService(inv *models.Investigation) (nodeName, serviceName string)
 	if len(inv.Config) == 0 {
 		return "", ""
 	}
-	var cfg map[string]interface{}
-	if err := json.Unmarshal(inv.Config, &cfg); err != nil {
+	var cfg map[string]any
+	err := json.Unmarshal(inv.Config, &cfg)
+	if err != nil {
 		return "", ""
 	}
 	n, _ := cfg["node_name"].(string)

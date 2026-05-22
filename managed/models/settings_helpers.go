@@ -373,7 +373,7 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 		settings.Adre.PromptMaxBytes = *params.PromptMaxBytes
 	}
 	if params.AdreChatRetentionDays != nil {
-		settings.Adre.AdreChatRetentionDays = pointer.ToInt(*params.AdreChatRetentionDays)
+		settings.Adre.AdreChatRetentionDays = new(*params.AdreChatRetentionDays)
 	}
 
 	if params.EnableSlackBot != nil {
@@ -491,17 +491,20 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 		}
 	}
 	if params.AdreChatModel != nil {
-		if err := validateAdreModelAlias("chat_model", *params.AdreChatModel); err != nil {
+		err := validateAdreModelAlias("chat_model", *params.AdreChatModel)
+		if err != nil {
 			return err
 		}
 	}
 	if params.AdreInvestigationModel != nil {
-		if err := validateAdreModelAlias("investigation_model", *params.AdreInvestigationModel); err != nil {
+		err := validateAdreModelAlias("investigation_model", *params.AdreInvestigationModel)
+		if err != nil {
 			return err
 		}
 	}
 	if params.AdreQanInsightsModel != nil {
-		if err := validateAdreModelAlias("qan_insights_model", *params.AdreQanInsightsModel); err != nil {
+		err := validateAdreModelAlias("qan_insights_model", *params.AdreQanInsightsModel)
+		if err != nil {
 			return err
 		}
 	}
@@ -512,17 +515,20 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 		}
 	}
 	if params.AdreBehaviorControlsFast != nil {
-		if err := validateAdreBehaviorControlsMap("behavior_controls_fast", *params.AdreBehaviorControlsFast); err != nil {
+		err := validateAdreBehaviorControlsMap("behavior_controls_fast", *params.AdreBehaviorControlsFast)
+		if err != nil {
 			return err
 		}
 	}
 	if params.AdreBehaviorControlsInvestigation != nil {
-		if err := validateAdreBehaviorControlsMap("behavior_controls_investigation", *params.AdreBehaviorControlsInvestigation); err != nil {
+		err := validateAdreBehaviorControlsMap("behavior_controls_investigation", *params.AdreBehaviorControlsInvestigation)
+		if err != nil {
 			return err
 		}
 	}
 	if params.AdreBehaviorControlsFormatReport != nil {
-		if err := validateAdreBehaviorControlsMap("behavior_controls_format_report", *params.AdreBehaviorControlsFormatReport); err != nil {
+		err := validateAdreBehaviorControlsMap("behavior_controls_format_report", *params.AdreBehaviorControlsFormatReport)
+		if err != nil {
 			return err
 		}
 	}

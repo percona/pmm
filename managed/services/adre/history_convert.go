@@ -20,8 +20,8 @@ import (
 )
 
 // AdreMessagesToHolmesHistory converts persisted rows (oldest first) to Holmes conversation_history entries.
-func AdreMessagesToHolmesHistory(msgs []models.AdreMessage) []interface{} {
-	out := make([]interface{}, 0, len(msgs))
+func AdreMessagesToHolmesHistory(msgs []models.AdreMessage) []any {
+	out := make([]any, 0, len(msgs))
 	for _, m := range msgs {
 		switch m.Role {
 		case "tool":
@@ -30,7 +30,7 @@ func AdreMessagesToHolmesHistory(msgs []models.AdreMessage) []interface{} {
 			// that includes matching tool_calls; we only persist plain assistant text plus
 			// separate tool result rows, so replaying "tool" here causes 400 errors.
 		default:
-			out = append(out, map[string]interface{}{
+			out = append(out, map[string]any{
 				"role":    m.Role,
 				"content": m.Content,
 			})

@@ -60,7 +60,7 @@ func TestMergeDashboardVarsGolden(t *testing.T) {
 		require.NoError(t, err)
 		v, has := m["var-service_name"]
 		assert.True(t, has, "empty override should produce explicit var-service_name= in render query")
-		assert.Equal(t, "", v)
+		assert.Empty(t, v)
 		assert.Equal(t, "$__all", m["var-region"])
 	})
 }
@@ -96,14 +96,14 @@ func TestBuildGrafanaRenderQueryValues_EmitsExplicitEmptyVars(t *testing.T) {
 	})
 	_, hasCluster := q["var-cluster"]
 	assert.True(t, hasCluster, "empty variable must still be emitted as var-cluster= to match Grafana share URLs")
-	assert.Equal(t, "", q.Get("var-cluster"))
+	assert.Empty(t, q.Get("var-cluster"))
 	assert.Equal(t, "y", q.Get("var-x"))
 }
 
 func TestSanitizeTemplateValue(t *testing.T) {
 	assert.Equal(t, "$__auto", sanitizeTemplateValue("interval", "$__auto_interval_interval"))
 	assert.Equal(t, "$__auto", sanitizeTemplateValue("interval", "$__auto_interval"))
-	assert.Equal(t, "", sanitizeTemplateValue("agent_id", "/agent_id/1093bb03-007c-41e9-80f2-930f37fa1733"))
+	assert.Empty(t, sanitizeTemplateValue("agent_id", "/agent_id/1093bb03-007c-41e9-80f2-930f37fa1733"))
 	assert.Equal(t, "e30e782e-8384-47e6-80d6-6187391f2f35", sanitizeTemplateValue("agent_id", "e30e782e-8384-47e6-80d6-6187391f2f35"))
 	assert.Equal(t, "b658dda3-8571-47be-a40e-46daa78f9c54", sanitizeTemplateValue("node_id", "/node_id/b658dda3-8571-47be-a40e-46daa78f9c54"))
 	assert.Equal(t, "a9cecc72-2add-4c24-a47c-2dd2dec8f02c", sanitizeTemplateValue("service_id", "/service_id/a9cecc72-2add-4c24-a47c-2dd2dec8f02c"))

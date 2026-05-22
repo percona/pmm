@@ -29,16 +29,16 @@ type ThreadKey struct {
 // ThreadStore holds recent user/assistant messages per thread (RAM only; leader process).
 type ThreadStore struct {
 	mu    sync.Mutex
-	items map[ThreadKey][]interface{}
+	items map[ThreadKey][]any
 }
 
 // NewThreadStore creates an empty thread store.
 func NewThreadStore() *ThreadStore {
-	return &ThreadStore{items: make(map[ThreadKey][]interface{})}
+	return &ThreadStore{items: make(map[ThreadKey][]any)}
 }
 
-func msgMap(role, content string) map[string]interface{} {
-	return map[string]interface{}{"role": role, "content": content}
+func msgMap(role, content string) map[string]any {
+	return map[string]any{"role": role, "content": content}
 }
 
 // AppendUser appends a user message and caps length.
@@ -57,7 +57,7 @@ func (ts *ThreadStore) UndoLastUserMessage(key ThreadKey, content string) {
 	if len(arr) == 0 {
 		return
 	}
-	last, ok := arr[len(arr)-1].(map[string]interface{})
+	last, ok := arr[len(arr)-1].(map[string]any)
 	if !ok {
 		return
 	}
@@ -84,16 +84,16 @@ func (ts *ThreadStore) AppendAssistant(key ThreadKey, text string) {
 }
 
 // Snapshot returns a shallow copy of messages for ADRE /api/chat conversation_history (oldest first).
-func (ts *ThreadStore) Snapshot(key ThreadKey) []interface{} {
+func (ts *ThreadStore) Snapshot(key ThreadKey) []any {
 	ts.mu.Lock()
 	defer ts.mu.Unlock()
 	src := ts.items[key]
-	out := make([]interface{}, len(src))
+	out := make([]any, len(src))
 	copy(out, src)
 	return out
 }
 
-func trimHistory(h []interface{}, max int) []interface{} {
+func trimHistory(h []any, max int) []any {
 	if len(h) <= max {
 		return h
 	}

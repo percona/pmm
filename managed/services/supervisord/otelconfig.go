@@ -22,7 +22,7 @@ import (
 
 // buildOtelCollectorConfigYAML returns the server-side otel-collector config YAML.
 // OTLP receives logs, traces, and metrics; separate ClickHouse exporter instances apply TTL per signal.
-// logRetentionDays, spanRetentionDays, metricsRetentionDays control exporter TTL (table-level TTL also set in PMM DDL).
+// LogRetentionDays, spanRetentionDays, metricsRetentionDays control exporter TTL (table-level TTL also set in PMM DDL).
 func buildOtelCollectorConfigYAML(endpoint, username, password string, logRetentionDays, spanRetentionDays, metricsRetentionDays int) string {
 	if endpoint == "" {
 		endpoint = "127.0.0.1:9000"

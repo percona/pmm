@@ -19,6 +19,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"errors"
 	"io"
 	"strings"
 )
@@ -71,7 +72,8 @@ func parseHolmesSSEStream(src io.Reader, forward func([]byte) error) (out holmes
 				Analysis string          `json:"analysis"`
 				Metadata json.RawMessage `json:"metadata"`
 			}
-			if err := json.Unmarshal(raw, &d); err != nil {
+			err := json.Unmarshal(raw, &d)
+			if err != nil {
 				return
 			}
 			out.Analysis = d.Analysis
@@ -99,7 +101,8 @@ func parseHolmesSSEStream(src io.Reader, forward func([]byte) error) (out holmes
 	for sc.Scan() {
 		line := sc.Bytes()
 		if forward != nil {
-			if err := forward(append(append([]byte(nil), line...), '\n')); err != nil {
+			err := forward(append(append([]byte(nil), line...), '\n'))
+			if err != nil {
 				return out, sawErrorEvent, err
 			}
 		}
@@ -108,15 +111,15 @@ func parseHolmesSSEStream(src io.Reader, forward func([]byte) error) (out holmes
 			eventName = strings.TrimSpace(string(bytes.TrimPrefix(line, []byte("event:"))))
 			continue
 		}
-		if bytes.HasPrefix(line, []byte("data:")) {
-			dataLines = append(dataLines, strings.TrimSpace(string(bytes.TrimPrefix(line, []byte("data:")))))
+		if after, ok := bytes.CutPrefix(line, []byte("data:")); ok {
+			dataLines = append(dataLines, strings.TrimSpace(string(after)))
 			continue
 		}
 		if len(bytes.TrimSpace(line)) == 0 {
 			dispatch()
 		}
 	}
-	if err := sc.Err(); err != nil && err != io.EOF {
+	if err := sc.Err(); err != nil && !errors.Is(err, io.EOF) {
 		return out, sawErrorEvent, err
 	}
 	dispatch()

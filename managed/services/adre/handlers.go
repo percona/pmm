@@ -323,19 +323,22 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if body.BehaviorControlsFast != nil {
-		if err := ValidateBehaviorControlsMap(*body.BehaviorControlsFast); err != nil {
+		err := ValidateBehaviorControlsMap(*body.BehaviorControlsFast)
+		if err != nil {
 			writeJSONError(w, http.StatusBadRequest, "behavior_controls_fast: "+err.Error())
 			return
 		}
 	}
 	if body.BehaviorControlsInvestigation != nil {
-		if err := ValidateBehaviorControlsMap(*body.BehaviorControlsInvestigation); err != nil {
+		err := ValidateBehaviorControlsMap(*body.BehaviorControlsInvestigation)
+		if err != nil {
 			writeJSONError(w, http.StatusBadRequest, "behavior_controls_investigation: "+err.Error())
 			return
 		}
 	}
 	if body.BehaviorControlsFormatReport != nil {
-		if err := ValidateBehaviorControlsMap(*body.BehaviorControlsFormatReport); err != nil {
+		err := ValidateBehaviorControlsMap(*body.BehaviorControlsFormatReport)
+		if err != nil {
 			writeJSONError(w, http.StatusBadRequest, "behavior_controls_format_report: "+err.Error())
 			return
 		}
@@ -544,9 +547,10 @@ func (h *Handlers) PostChat(w http.ResponseWriter, r *http.Request) {
 	mode := "fast"
 	if body.Mode != nil {
 		m := strings.TrimSpace(*body.Mode)
-		if m == "investigation" {
+		switch m {
+		case "investigation":
 			mode = "investigation"
-		} else if m == "fast" || m == "chat" {
+		case "fast", "chat":
 			mode = "fast"
 		}
 	} else if settings.Adre.DefaultChatMode == "investigation" {
@@ -606,7 +610,7 @@ func (h *Handlers) PostQanInsights(w http.ResponseWriter, r *http.Request) {
 			rows.Close()
 			if found {
 				w.Header().Set("Content-Type", "application/json")
-				_ = json.NewEncoder(w).Encode(map[string]interface{}{
+				_ = json.NewEncoder(w).Encode(map[string]any{
 					"analysis":   cachedAnalysis,
 					"created_at": cachedAt.Format(time.RFC3339),
 					"cached":     true,
@@ -656,7 +660,7 @@ func (h *Handlers) PostQanInsights(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(map[string]interface{}{
+	_ = json.NewEncoder(w).Encode(map[string]any{
 		"analysis":   analysis,
 		"created_at": time.Now().Format(time.RFC3339),
 		"cached":     false,
@@ -692,7 +696,7 @@ func (h *Handlers) GetQanInsights(w http.ResponseWriter, r *http.Request) {
 	defer rows.Close()
 	if !rows.Next() {
 		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+		_ = json.NewEncoder(w).Encode(map[string]any{
 			"analysis": "",
 			"cached":   false,
 		})
@@ -706,7 +710,7 @@ func (h *Handlers) GetQanInsights(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(map[string]interface{}{
+	_ = json.NewEncoder(w).Encode(map[string]any{
 		"analysis":   analysis,
 		"created_at": createdAt.Format(time.RFC3339),
 		"cached":     true,
@@ -751,7 +755,7 @@ func (h *Handlers) PostQanInsightsServiceNow(w http.ResponseWriter, r *http.Requ
 	)
 	payload := map[string]string{
 		"client_token":      settings.Adre.ServiceNowClientToken,
-		"short_description": fmt.Sprintf("QAN AI Insight: %s", body.ServiceID),
+		"short_description": "QAN AI Insight: " + body.ServiceID,
 		"description":       description,
 		"ticket_type":       "incident",
 	}
@@ -801,7 +805,7 @@ func (h *Handlers) PostQanInsightsServiceNow(w http.ResponseWriter, r *http.Requ
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	_ = json.NewEncoder(w).Encode(map[string]interface{}{
+	_ = json.NewEncoder(w).Encode(map[string]any{
 		"success":       true,
 		"ticket_id":     parsed.Result.TicketID,
 		"ticket_number": parsed.Result.TicketID,

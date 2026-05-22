@@ -30,7 +30,7 @@ func SlackChatMode(settings *models.Settings) string {
 }
 
 // BuildSlackChatRequest builds a non-streaming Holmes /api/chat body for the PMM Slack integration (mirrors POST /v1/adre/chat without dashboard_context).
-func BuildSlackChatRequest(settings *models.Settings, ask string, history []interface{}, extraSystemPrompt string) *ChatRequest {
+func BuildSlackChatRequest(settings *models.Settings, ask string, history []any, extraSystemPrompt string) *ChatRequest {
 	mode := SlackChatMode(settings)
 	maxN := MaxConversationMessages(settings)
 	hist := TrimConversationHistory(history, maxN)

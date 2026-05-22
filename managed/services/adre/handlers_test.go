@@ -23,7 +23,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
@@ -130,7 +129,7 @@ func TestHandlers_GetModels_AdreDisabled(t *testing.T) {
 	defer func() { require.NoError(t, sqlDB.Close()) }()
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 	_, err := models.UpdateSettings(db, &models.ChangeSettingsParams{
-		EnableAdre: pointer.ToBool(false),
+		EnableAdre: new(false),
 	})
 	require.NoError(t, err)
 
@@ -150,8 +149,8 @@ func TestHandlers_GetModels_AdreEnabled_NoURL(t *testing.T) {
 	defer func() { require.NoError(t, sqlDB.Close()) }()
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 	_, err := models.UpdateSettings(db, &models.ChangeSettingsParams{
-		EnableAdre: pointer.ToBool(true),
-		AdreURL:    pointer.ToString(""),
+		EnableAdre: new(true),
+		AdreURL:    new(""),
 	})
 	require.NoError(t, err)
 
@@ -178,8 +177,8 @@ func TestHandlers_ListConversations_Empty(t *testing.T) {
 
 	require.Equal(t, http.StatusOK, rec.Code)
 	var body struct {
-		Conversations []interface{} `json:"conversations"`
-		NextCursor    string        `json:"next_cursor"`
+		Conversations []any  `json:"conversations"`
+		NextCursor    string `json:"next_cursor"`
 	}
 	require.NoError(t, json.NewDecoder(rec.Body).Decode(&body))
 	assert.Empty(t, body.Conversations)
@@ -207,7 +206,7 @@ func TestHandlers_CreateAndListConversations(t *testing.T) {
 	h.ListConversations(listRec, listReq)
 	require.Equal(t, http.StatusOK, listRec.Code)
 	var listBody struct {
-		Conversations []map[string]interface{} `json:"conversations"`
+		Conversations []map[string]any `json:"conversations"`
 	}
 	require.NoError(t, json.NewDecoder(listRec.Body).Decode(&listBody))
 	require.Len(t, listBody.Conversations, 1)
@@ -236,7 +235,7 @@ func TestHandlers_SearchMessages_EmptyHits(t *testing.T) {
 	h.SearchMessages(rec, req)
 	require.Equal(t, http.StatusOK, rec.Code)
 	var body struct {
-		Hits []interface{} `json:"hits"`
+		Hits []any `json:"hits"`
 	}
 	require.NoError(t, json.NewDecoder(rec.Body).Decode(&body))
 	assert.Empty(t, body.Hits)
@@ -247,8 +246,8 @@ func TestHandlers_PostChat_MissingConversationID(t *testing.T) {
 	defer func() { require.NoError(t, sqlDB.Close()) }()
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 	_, err := models.UpdateSettings(db, &models.ChangeSettingsParams{
-		EnableAdre: pointer.ToBool(true),
-		AdreURL:    pointer.ToString("http://holmes:8080"),
+		EnableAdre: new(true),
+		AdreURL:    new("http://holmes:8080"),
 	})
 	require.NoError(t, err)
 
@@ -265,8 +264,8 @@ func TestHandlers_GetAlerts(t *testing.T) {
 	defer func() { require.NoError(t, sqlDB.Close()) }()
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 	_, err := models.UpdateSettings(db, &models.ChangeSettingsParams{
-		EnableAdre: pointer.ToBool(true),
-		AdreURL:    pointer.ToString("http://holmes:8080"),
+		EnableAdre: new(true),
+		AdreURL:    new("http://holmes:8080"),
 	})
 	require.NoError(t, err)
 
@@ -279,7 +278,7 @@ func TestHandlers_GetAlerts(t *testing.T) {
 
 		assert.Equal(t, http.StatusOK, rec.Code)
 		var body struct {
-			Alerts []interface{} `json:"alerts"`
+			Alerts []any `json:"alerts"`
 		}
 		require.NoError(t, json.NewDecoder(rec.Body).Decode(&body))
 		require.Len(t, body.Alerts, 1)
@@ -293,7 +292,7 @@ func TestHandlers_GetAlerts(t *testing.T) {
 
 		assert.Equal(t, http.StatusOK, rec.Code)
 		var body struct {
-			Alerts []interface{} `json:"alerts"`
+			Alerts []any `json:"alerts"`
 		}
 		require.NoError(t, json.NewDecoder(rec.Body).Decode(&body))
 		assert.Empty(t, body.Alerts)

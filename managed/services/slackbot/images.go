@@ -16,7 +16,7 @@
 package slackbot
 
 import (
-	"fmt"
+	"errors"
 	"regexp"
 
 	"github.com/percona/pmm/managed/services/grafana"
@@ -48,7 +48,7 @@ func ExtractBlobHashes(analysis string) []string {
 // LoadBlobPNG loads PNG bytes from the local Grafana render cache (trusted hash only).
 func LoadBlobPNG(hash string) ([]byte, error) {
 	if !hexHashRE.MatchString(hash) {
-		return nil, fmt.Errorf("invalid blob hash")
+		return nil, errors.New("invalid blob hash")
 	}
 	b, err := grafana.ReadCachedRenderBlob(hash)
 	if err != nil {

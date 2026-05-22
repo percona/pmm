@@ -107,7 +107,8 @@ func EnsureOtelSchemaFromEnv(ctx context.Context, retentionDays int) {
 	}
 	dsn := chURI.String()
 	WaitForClickhouseClusterReady(ctx, dsn)
-	if err := EnsureOtelSchema(ctx, dsn, retentionDays); err != nil {
+	err := EnsureOtelSchema(ctx, dsn, retentionDays)
+	if err != nil {
 		logrus.WithError(err).Warn("Failed to ensure OTEL ClickHouse schema")
 	}
 }

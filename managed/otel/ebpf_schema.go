@@ -27,7 +27,7 @@ import (
 // EnsureOtelTracesMetricsAndServiceMapTables creates ClickHouse tables used by the OTEL ClickHouse exporter
 // for traces and sum metrics, plus Phase 1 service map rollup targets. DDL aligns with
 // opentelemetry-collector-contrib clickhouseexporter (MergeTree, column names).
-// create_schema on the collector remains false; PMM-managed owns DDL.
+// Create_schema on the collector remains false; PMM-managed owns DDL.
 func EnsureOtelTracesMetricsAndServiceMapTables(ctx context.Context, dsn string, spanRetentionDays, metricRetentionDays int) error {
 	if spanRetentionDays <= 0 {
 		spanRetentionDays = 7

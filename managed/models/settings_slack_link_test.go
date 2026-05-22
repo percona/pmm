@@ -24,7 +24,7 @@ import (
 )
 
 func TestNormalizePMMPublicAddressOrigin(t *testing.T) {
-	assert.Equal(t, "", models.NormalizePMMPublicAddressOrigin(""))
+	assert.Empty(t, models.NormalizePMMPublicAddressOrigin(""))
 	assert.Equal(t, "https://192.168.2.33", models.NormalizePMMPublicAddressOrigin("192.168.2.33"))
 	assert.Equal(t, "https://pmm.example.com:8443", models.NormalizePMMPublicAddressOrigin("https://pmm.example.com:8443"))
 }

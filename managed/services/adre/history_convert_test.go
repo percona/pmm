@@ -32,10 +32,10 @@ func TestAdreMessagesToHolmesHistory_OmitsToolRows(t *testing.T) {
 	}
 	out := AdreMessagesToHolmesHistory(msgs)
 	require.Len(t, out, 2)
-	m0, ok := out[0].(map[string]interface{})
+	m0, ok := out[0].(map[string]any)
 	require.True(t, ok)
 	assert.Equal(t, "user", m0["role"])
-	m1, ok := out[1].(map[string]interface{})
+	m1, ok := out[1].(map[string]any)
 	require.True(t, ok)
 	assert.Equal(t, "assistant", m1["role"])
 }

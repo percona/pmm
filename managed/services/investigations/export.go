@@ -99,7 +99,8 @@ func buildExportHTML(inv *models.Investigation, blocks []*models.InvestigationBl
 	nodeName, serviceName, clusterName := "", "", ""
 	if len(inv.Config) > 0 {
 		var cfg map[string]string
-		if err := json.Unmarshal(inv.Config, &cfg); err == nil {
+		err := json.Unmarshal(inv.Config, &cfg)
+		if err == nil {
 			nodeName = cfg["node_name"]
 			serviceName = cfg["service_name"]
 			clusterName = cfg["cluster_name"]
@@ -192,13 +193,14 @@ func buildExportHTML(inv *models.Investigation, blocks []*models.InvestigationBl
 func blockExportContent(blk *models.InvestigationBlock) (string, error) {
 	switch blk.Type {
 	case "remediation_steps":
-		var data map[string]interface{}
+		var data map[string]any
 		if len(blk.DataJSON) > 0 {
-			if err := json.Unmarshal(blk.DataJSON, &data); err != nil {
+			err := json.Unmarshal(blk.DataJSON, &data)
+			if err != nil {
 				return "", errors.Wrap(err, "data_json")
 			}
 		}
-		steps, _ := data["steps"].([]interface{})
+		steps, _ := data["steps"].([]any)
 		if len(steps) == 0 {
 			return "<p>(no steps)</p>", nil
 		}
@@ -213,9 +215,10 @@ func blockExportContent(blk *models.InvestigationBlock) (string, error) {
 		b.WriteString("</ul>")
 		return b.String(), nil
 	case "summary", "markdown", "finding":
-		var data map[string]interface{}
+		var data map[string]any
 		if len(blk.DataJSON) > 0 {
-			if err := json.Unmarshal(blk.DataJSON, &data); err != nil {
+			err := json.Unmarshal(blk.DataJSON, &data)
+			if err != nil {
 				return "", errors.Wrap(err, "data_json")
 			}
 		}
@@ -231,9 +234,10 @@ func blockExportContent(blk *models.InvestigationBlock) (string, error) {
 		}
 		return "<pre>" + html.EscapeString(text) + "</pre>", nil
 	case "query_result":
-		var data map[string]interface{}
+		var data map[string]any
 		if len(blk.DataJSON) > 0 {
-			if err := json.Unmarshal(blk.DataJSON, &data); err != nil {
+			err := json.Unmarshal(blk.DataJSON, &data)
+			if err != nil {
 				return "", errors.Wrap(err, "data_json")
 			}
 		}
@@ -246,15 +250,17 @@ func blockExportContent(blk *models.InvestigationBlock) (string, error) {
 		}
 		return "<pre>" + html.EscapeString(result) + "</pre>", nil
 	case "image":
-		var cfg map[string]interface{}
+		var cfg map[string]any
 		if len(blk.ConfigJSON) > 0 {
-			if err := json.Unmarshal(blk.ConfigJSON, &cfg); err != nil {
+			err := json.Unmarshal(blk.ConfigJSON, &cfg)
+			if err != nil {
 				return "", errors.Wrap(err, "config_json")
 			}
 		}
-		var data map[string]interface{}
+		var data map[string]any
 		if len(blk.DataJSON) > 0 {
-			if err := json.Unmarshal(blk.DataJSON, &data); err != nil {
+			err := json.Unmarshal(blk.DataJSON, &data)
+			if err != nil {
 				return "", errors.Wrap(err, "data_json")
 			}
 		}
@@ -302,8 +308,9 @@ func blockExportContent(blk *models.InvestigationBlock) (string, error) {
 	default:
 		// Generic: show data_json as formatted JSON or title
 		if len(blk.DataJSON) > 0 {
-			var raw map[string]interface{}
-			if err := json.Unmarshal(blk.DataJSON, &raw); err != nil {
+			var raw map[string]any
+			err := json.Unmarshal(blk.DataJSON, &raw)
+			if err != nil {
 				return "<pre>" + html.EscapeString(string(blk.DataJSON)) + "</pre>", nil
 			}
 			content, _ := json.MarshalIndent(raw, "", "  ")

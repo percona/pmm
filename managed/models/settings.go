@@ -388,17 +388,17 @@ func (s *Settings) fillDefaults() {
 	}
 
 	if s.Otel.LogsRetentionDays == nil || (s.Otel.LogsRetentionDays != nil && *s.Otel.LogsRetentionDays <= 0) {
-		s.Otel.LogsRetentionDays = pointer.ToInt(OtelLogsRetentionDaysDefault)
+		s.Otel.LogsRetentionDays = new(OtelLogsRetentionDaysDefault)
 	}
 	if s.Otel.TracesRetentionDays == nil || (s.Otel.TracesRetentionDays != nil && *s.Otel.TracesRetentionDays <= 0) {
-		s.Otel.TracesRetentionDays = pointer.ToInt(OtelTracesRetentionDaysDefault)
+		s.Otel.TracesRetentionDays = new(OtelTracesRetentionDaysDefault)
 	}
 	if s.Otel.MetricsRetentionDays == nil || (s.Otel.MetricsRetentionDays != nil && *s.Otel.MetricsRetentionDays <= 0) {
-		s.Otel.MetricsRetentionDays = pointer.ToInt(OtelClickHouseMetricsRetentionDaysDefault)
+		s.Otel.MetricsRetentionDays = new(OtelClickHouseMetricsRetentionDaysDefault)
 	}
 
 	if s.Adre.Enabled == nil {
-		s.Adre.Enabled = pointer.ToBool(AdreEnabledDefault)
+		s.Adre.Enabled = new(AdreEnabledDefault)
 	}
 	if s.Adre.AdreSchemaVersion < AdreSchemaVersionCurrent {
 		// One-way migration: new behavior_controls model, Fast/Investigation prompts reset to built-in defaults (empty = use code defaults).
@@ -433,6 +433,6 @@ func (s *Settings) fillDefaults() {
 		s.Adre.AdreMaxConversationMessages = 40
 	}
 	if s.Adre.AdreChatRetentionDays == nil {
-		s.Adre.AdreChatRetentionDays = pointer.ToInt(AdreChatRetentionDaysDefault)
+		s.Adre.AdreChatRetentionDays = new(AdreChatRetentionDaysDefault)
 	}
 }

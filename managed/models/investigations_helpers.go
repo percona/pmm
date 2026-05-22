@@ -37,7 +37,8 @@ func CreateInvestigation(q *reform.DB, inv *Investigation) error {
 // GetInvestigationByID loads an investigation by id. Returns nil, nil if not found.
 func GetInvestigationByID(q *reform.DB, id string) (*Investigation, error) {
 	var inv Investigation
-	if err := q.FindByPrimaryKeyTo(&inv, id); err != nil {
+	err := q.FindByPrimaryKeyTo(&inv, id)
+	if err != nil {
 		if errors.As(err, &reform.ErrNoRows) {
 			return nil, nil
 		}
@@ -52,7 +53,7 @@ var allowedOrderBy = map[string]bool{"title": true, "status": true, "created_at"
 // allowedOrder directions for ORDER BY.
 var allowedOrder = map[string]bool{"asc": true, "desc": true}
 
-// ListInvestigations returns investigations with optional status filter and configurable sort. statusFilter empty means all.
+// ListInvestigations returns investigations with optional status filter and configurable sort. StatusFilter empty means all.
 func ListInvestigations(q *reform.DB, statusFilter string, limit, offset int, orderBy, order string) ([]*Investigation, error) {
 	if !allowedOrderBy[orderBy] {
 		orderBy = "updated_at"
@@ -61,7 +62,7 @@ func ListInvestigations(q *reform.DB, statusFilter string, limit, offset int, or
 		order = "desc"
 	}
 	where := fmt.Sprintf("ORDER BY %s %s", orderBy, order)
-	var args []interface{}
+	var args []any
 	if statusFilter != "" {
 		where = fmt.Sprintf("WHERE status = $1 ORDER BY %s %s", orderBy, order)
 		args = append(args, statusFilter)
@@ -92,7 +93,8 @@ func UpdateInvestigation(q *reform.DB, inv *Investigation) error {
 // DeleteInvestigation deletes an investigation (cascade deletes blocks, messages, etc.).
 func DeleteInvestigation(q *reform.DB, id string) error {
 	var inv Investigation
-	if err := q.FindByPrimaryKeyTo(&inv, id); err != nil {
+	err := q.FindByPrimaryKeyTo(&inv, id)
+	if err != nil {
 		if errors.As(err, &reform.ErrNoRows) {
 			return nil
 		}
@@ -131,7 +133,8 @@ func UpdateInvestigationBlock(q *reform.DB, b *InvestigationBlock) error {
 // DeleteInvestigationBlock deletes a block.
 func DeleteInvestigationBlock(q *reform.DB, id string) error {
 	var b InvestigationBlock
-	if err := q.FindByPrimaryKeyTo(&b, id); err != nil {
+	err := q.FindByPrimaryKeyTo(&b, id)
+	if err != nil {
 		if errors.As(err, &reform.ErrNoRows) {
 			return nil
 		}
@@ -157,7 +160,7 @@ func CreateInvestigationMessage(q *reform.DB, m *InvestigationMessage) error {
 // GetInvestigationMessages returns messages for an investigation, newest first, with limit and offset.
 func GetInvestigationMessages(q *reform.DB, investigationID string, limit, offset int) ([]*InvestigationMessage, error) {
 	where := "WHERE investigation_id = $1 ORDER BY created_at DESC"
-	args := []interface{}{investigationID}
+	args := []any{investigationID}
 	if limit > 0 {
 		where += fmt.Sprintf(" LIMIT %d", limit)
 	}
@@ -186,7 +189,7 @@ func CreateInvestigationComment(q *reform.DB, c *InvestigationComment) error {
 // GetInvestigationComments returns comments for an investigation, optionally filtered by block_id.
 func GetInvestigationComments(q *reform.DB, investigationID string, blockID *string) ([]*InvestigationComment, error) {
 	where := "WHERE investigation_id = $1"
-	args := []interface{}{investigationID}
+	args := []any{investigationID}
 	if blockID != nil && *blockID != "" {
 		where += " AND block_id = $2"
 		args = append(args, *blockID)

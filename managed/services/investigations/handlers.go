@@ -233,7 +233,8 @@ func (h *Handlers) CreateInvestigation(w http.ResponseWriter, r *http.Request) {
 		ClusterName   string          `json:"cluster_name"`
 		AlertSnapshot json.RawMessage `json:"alert_snapshot"`
 	}
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
 		return
 	}
@@ -293,7 +294,8 @@ func (h *Handlers) CreateInvestigation(w http.ResponseWriter, r *http.Request) {
 	if inv.SourceType == "" {
 		inv.SourceType = "manual"
 	}
-	if err := models.CreateInvestigation(h.db, inv); err != nil {
+	err = models.CreateInvestigation(h.db, inv)
+	if err != nil {
 		h.l.Errorf("CreateInvestigation: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Failed to create investigation")
 		return
@@ -407,7 +409,8 @@ func (h *Handlers) PatchInvestigation(w http.ResponseWriter, r *http.Request, id
 }
 
 func (h *Handlers) DeleteInvestigation(w http.ResponseWriter, r *http.Request, id string) {
-	if err := models.DeleteInvestigation(h.db, id); err != nil {
+	err := models.DeleteInvestigation(h.db, id)
+	if err != nil {
 		h.l.Errorf("DeleteInvestigation: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Failed to delete investigation")
 		return

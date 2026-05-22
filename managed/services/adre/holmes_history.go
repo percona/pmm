@@ -19,16 +19,16 @@ package adre
 const HolmesChatLeadingStub = "PMM session. Full system instructions and Grafana context (if any) are provided via additional_system_prompt."
 
 // EnsureHolmesLeadingSystemMessage ensures the first message in history is role=system when history is non-empty.
-func EnsureHolmesLeadingSystemMessage(hist []interface{}) []interface{} {
+func EnsureHolmesLeadingSystemMessage(hist []any) []any {
 	if len(hist) == 0 {
 		return hist
 	}
-	first, ok := hist[0].(map[string]interface{})
+	first, ok := hist[0].(map[string]any)
 	if !ok {
-		return append([]interface{}{map[string]interface{}{"role": "system", "content": HolmesChatLeadingStub}}, hist...)
+		return append([]any{map[string]any{"role": "system", "content": HolmesChatLeadingStub}}, hist...)
 	}
 	if role, _ := first["role"].(string); role == "system" {
 		return hist
 	}
-	return append([]interface{}{map[string]interface{}{"role": "system", "content": HolmesChatLeadingStub}}, hist...)
+	return append([]any{map[string]any{"role": "system", "content": HolmesChatLeadingStub}}, hist...)
 }

@@ -2068,7 +2068,7 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 
 		nodeExporters, err := FindAgents(q, AgentFilters{
 			PMMAgentID: existingPmmAgentID,
-			AgentType:  pointer.To(NodeExporterType),
+			AgentType:  new(NodeExporterType),
 		})
 		if err != nil {
 			return err

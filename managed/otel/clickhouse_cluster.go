@@ -18,7 +18,6 @@ package otel
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"time"
 
 	_ "github.com/ClickHouse/clickhouse-go/v2" // register clickhouse driver for cluster checks
@@ -36,7 +35,7 @@ func IsClickhouseClusterReady(ctx context.Context, dsn string, clusterName strin
 	sql := "SELECT sum(is_local = 0) AS remote_hosts FROM system.clusters"
 	args := []any{}
 	if clusterName != "" {
-		sql = fmt.Sprintf("%s WHERE cluster = ?", sql)
+		sql = sql + " WHERE cluster = ?"
 		args = append(args, clusterName)
 	}
 	sql += " FORMAT TabSeparated"

@@ -157,7 +157,8 @@ func runSocketMode(ctx context.Context, db *reform.DB, l *logrus.Entry) {
 	ts := NewThreadStore()
 
 	go func() {
-		if err := sm.RunContext(ctx); err != nil && ctx.Err() == nil {
+		err := sm.RunContext(ctx)
+		if err != nil && ctx.Err() == nil {
 			log.Warnf("socket mode ended: %v", err)
 		}
 	}()

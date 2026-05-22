@@ -55,10 +55,7 @@ func (r *SearchRateLimiter) Allow(user string) (ok bool, retryAfterSec int) {
 	if len(kept) >= adreSearchMaxPerMinute {
 		// Next slot when oldest in window expires.
 		oldest := kept[0]
-		retry := int(oldest.Add(time.Minute).Sub(now)/time.Second) + 1
-		if retry < 1 {
-			retry = 1
-		}
+		retry := max(int(oldest.Add(time.Minute).Sub(now)/time.Second)+1, 1)
 		return false, retry
 	}
 	kept = append(kept, now)

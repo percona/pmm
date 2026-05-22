@@ -42,14 +42,15 @@ func ParseOtelLogSourcesFromLabels(labels map[string]string) ([]OtelLogSourceEnt
 	}
 	if s := labels[otelLogSourcesLabel]; s != "" {
 		var entries []OtelLogSourceEntry
-		if err := json.Unmarshal([]byte(s), &entries); err != nil {
+		err := json.Unmarshal([]byte(s), &entries)
+		if err != nil {
 			return nil, errors.WithStack(err)
 		}
 		return entries, nil
 	}
 	if s := labels[otelLogFilePathsLabel]; s != "" {
 		var entries []OtelLogSourceEntry
-		for _, p := range strings.Split(s, ",") {
+		for p := range strings.SplitSeq(s, ",") {
 			p = strings.TrimSpace(p)
 			if p != "" {
 				entries = append(entries, OtelLogSourceEntry{Path: p, Preset: otelPresetRaw})

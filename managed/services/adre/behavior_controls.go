@@ -133,11 +133,11 @@ func MaxConversationMessages(settings *models.Settings) int {
 
 // TrimConversationHistory keeps the leading system message (if any) and the last N non-system messages,
 // preserving order. If there is no system first, only tail is kept (callers should run ensureHolmesLeadingSystemMessage after).
-func TrimConversationHistory(hist []interface{}, maxMsgs int) []interface{} {
+func TrimConversationHistory(hist []any, maxMsgs int) []any {
 	if maxMsgs <= 0 || len(hist) <= maxMsgs {
 		return hist
 	}
-	first, ok := hist[0].(map[string]interface{})
+	first, ok := hist[0].(map[string]any)
 	hasSystemFirst := ok && first != nil
 	if role, _ := first["role"].(string); !hasSystemFirst || role != "system" {
 		// No leading system: keep last maxMsgs entries as-is.
@@ -148,7 +148,7 @@ func TrimConversationHistory(hist []interface{}, maxMsgs int) []interface{} {
 		return hist
 	}
 	tail := rest[len(rest)-(maxMsgs-1):]
-	out := make([]interface{}, 0, len(tail)+1)
+	out := make([]any, 0, len(tail)+1)
 	out = append(out, first)
 	out = append(out, tail...)
 	return out

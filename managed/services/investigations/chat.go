@@ -255,7 +255,8 @@ func (h *Handlers) runInvestigationBackground(id string, _ *models.Investigation
 	if runErr != nil {
 		h.l.Errorf("Investigation run failed [%s]: %v", id, runErr)
 		inv.Status = "failed"
-		if err := models.UpdateInvestigation(h.db, inv); err != nil {
+		err := models.UpdateInvestigation(h.db, inv)
+		if err != nil {
 			h.l.Errorf("UpdateInvestigation (failed): %v", err)
 		}
 		errMsg := &models.InvestigationMessage{
@@ -289,10 +290,12 @@ func (h *Handlers) runInvestigationBackground(id string, _ *models.Investigation
 			if b, err := json.Marshal(cfg); err == nil {
 				inv.Config = b
 			}
-			if err := models.DeleteInvestigationBlocksForInvestigation(h.db, id); err != nil {
+			err := models.DeleteInvestigationBlocksForInvestigation(h.db, id)
+			if err != nil {
 				h.l.Warnf("DeleteInvestigationBlocksForInvestigation: %v", err)
 			}
-			if err := models.DeleteInvestigationTimelineEventsForInvestigation(h.db, id); err != nil {
+			err = models.DeleteInvestigationTimelineEventsForInvestigation(h.db, id)
+			if err != nil {
 				h.l.Warnf("DeleteInvestigationTimelineEventsForInvestigation: %v", err)
 			}
 			for pos, sec := range report.Sections {
@@ -318,7 +321,8 @@ func (h *Handlers) runInvestigationBackground(id string, _ *models.Investigation
 					Position:        pos,
 					DataJSON:        dataJSON,
 				}
-				if err := models.CreateInvestigationBlock(h.db, block); err != nil {
+				err := models.CreateInvestigationBlock(h.db, block)
+				if err != nil {
 					h.l.Warnf("CreateInvestigationBlock: %v", err)
 				}
 			}
@@ -382,43 +386,48 @@ func buildInvestigationContext(inv *models.Investigation) string {
 		inv.Summary)
 	if len(inv.Config) > 0 {
 		var cfg map[string]interface{}
-		if err := json.Unmarshal(inv.Config, &cfg); err == nil {
+		err := json.Unmarshal(inv.Config, &cfg)
+		if err == nil {
 			if v, _ := cfg["node_name"].(string); v != "" {
-				s += fmt.Sprintf("\nNode: %s", v)
+				s += "\nNode: " + v
 			}
 			if v, _ := cfg["service_name"].(string); v != "" {
-				s += fmt.Sprintf("\nService: %s", v)
+				s += "\nService: " + v
 			}
 			if v, _ := cfg["cluster_name"].(string); v != "" {
-				s += fmt.Sprintf("\nCluster: %s", v)
+				s += "\nCluster: " + v
 			}
 			if raw, ok := cfg["alert_snapshot"].(string); ok && raw != "" {
 				var alerts []alertSnapshotEntry
-				if err := json.Unmarshal([]byte(raw), &alerts); err == nil && len(alerts) > 0 {
+				err := json.Unmarshal([]byte(raw), &alerts)
+				if err == nil && len(alerts) > 0 {
 					s += "\n\nFull alert(s):"
+					var sSb399 strings.Builder
 					for i, a := range alerts {
-						s += fmt.Sprintf("\n[Alert %d]", i+1)
+						sSb399.WriteString(fmt.Sprintf("\n[Alert %d]", i+1))
 						if len(a.Labels) > 0 {
 							pairs := make([]string, 0, len(a.Labels))
 							for k, v := range a.Labels {
 								pairs = append(pairs, k+"="+v)
 							}
-							s += "\nLabels: " + strings.Join(pairs, ", ")
+							sSb399.WriteString("\nLabels: " + strings.Join(pairs, ", "))
 						}
 						if len(a.Annotations) > 0 {
 							pairs := make([]string, 0, len(a.Annotations))
 							for k, v := range a.Annotations {
 								pairs = append(pairs, k+"="+v)
 							}
-							s += "\nAnnotations: " + strings.Join(pairs, ", ")
+							sSb399.WriteString("\nAnnotations: " + strings.Join(pairs, ", "))
 						}
 						if a.Fingerprint != "" {
-							s += "\nFingerprint: " + a.Fingerprint
+							sSb399.WriteString("\nFingerprint: " + a.Fingerprint)
 						}
 					}
+					s += sSb399.String()
 				} else {
 					var single alertSnapshotEntry
-					if err := json.Unmarshal([]byte(raw), &single); err == nil {
+					err := json.Unmarshal([]byte(raw), &single)
+					if err == nil {
 						s += "\n\nFull alert(s):\n[Alert 1]"
 						if len(single.Labels) > 0 {
 							pairs := make([]string, 0, len(single.Labels))

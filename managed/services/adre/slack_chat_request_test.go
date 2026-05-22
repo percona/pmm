@@ -31,14 +31,14 @@ func TestBuildSlackChatRequestPrependsSystemWhenMissing(t *testing.T) {
 	s.Adre.URL = "http://holmes.test"
 	s.Adre.AdreMaxConversationMessages = 40
 
-	hist := []interface{}{
-		map[string]interface{}{"role": "user", "content": "prior"},
+	hist := []any{
+		map[string]any{"role": "user", "content": "prior"},
 	}
 	req := BuildSlackChatRequest(s, "ask", hist, "")
 	require.NotNil(t, req)
 	require.GreaterOrEqual(t, len(req.ConversationHistory), 2)
 
-	first, ok := req.ConversationHistory[0].(map[string]interface{})
+	first, ok := req.ConversationHistory[0].(map[string]any)
 	require.True(t, ok)
 	assert.Equal(t, "system", first["role"])
 }

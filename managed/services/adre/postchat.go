@@ -19,7 +19,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
+	"errors"
 	"io"
 	"net/http"
 	"strconv"
@@ -33,14 +33,15 @@ import (
 // chatRequestBody is the incoming POST /v1/adre/chat body.
 type chatRequestBody struct {
 	ChatRequest
-	ConversationID   interface{} `json:"conversation_id"`
-	Mode             *string     `json:"mode,omitempty"`
-	DashboardContext string      `json:"dashboard_context,omitempty"`
+
+	ConversationID   any     `json:"conversation_id"`
+	Mode             *string `json:"mode,omitempty"`
+	DashboardContext string  `json:"dashboard_context,omitempty"`
 }
 
-func parseConversationID(v interface{}) (int64, error) {
+func parseConversationID(v any) (int64, error) {
 	if v == nil {
-		return 0, fmt.Errorf("conversation_id is required")
+		return 0, errors.New("conversation_id is required")
 	}
 	switch t := v.(type) {
 	case float64:
@@ -50,11 +51,11 @@ func parseConversationID(v interface{}) (int64, error) {
 	case string:
 		s := strings.TrimSpace(t)
 		if s == "" {
-			return 0, fmt.Errorf("conversation_id is required")
+			return 0, errors.New("conversation_id is required")
 		}
 		return strconv.ParseInt(s, 10, 64)
 	default:
-		return 0, fmt.Errorf("invalid conversation_id type")
+		return 0, errors.New("invalid conversation_id type")
 	}
 }
 
@@ -65,7 +66,8 @@ func extractUsageFromMetadata(raw json.RawMessage) (prompt, completion, total *i
 	var meta struct {
 		Usage json.RawMessage `json:"usage"`
 	}
-	if err := json.Unmarshal(raw, &meta); err != nil {
+	err := json.Unmarshal(raw, &meta)
+	if err != nil {
 		return nil, nil, nil
 	}
 	if len(meta.Usage) == 0 {
@@ -83,8 +85,9 @@ func extractUsageFromMetadata(raw json.RawMessage) (prompt, completion, total *i
 }
 
 func toolNameFromHolmesToolPayload(raw []byte) string {
-	var m map[string]interface{}
-	if err := json.Unmarshal(raw, &m); err != nil {
+	var m map[string]any
+	err := json.Unmarshal(raw, &m)
+	if err != nil {
 		return ""
 	}
 	if s, ok := m["tool_name"].(string); ok && s != "" {
@@ -109,7 +112,7 @@ func persistAdreToolJSON(q *reform.DB, conversationID int64, raw []byte) error {
 	return models.CreateAdreMessage(q, msg)
 }
 
-func persistAdreToolCalls(q *reform.DB, conversationID int64, calls []interface{}) error {
+func persistAdreToolCalls(q *reform.DB, conversationID int64, calls []any) error {
 	for _, c := range calls {
 		raw, err := json.Marshal(c)
 		if err != nil {
@@ -172,9 +175,10 @@ func (h *Handlers) postChatWithPersistence(w http.ResponseWriter, r *http.Reques
 	mode := "fast"
 	if body.Mode != nil {
 		m := strings.TrimSpace(*body.Mode)
-		if m == "investigation" {
+		switch m {
+		case "investigation":
 			mode = "investigation"
-		} else if m == "fast" || m == "chat" {
+		case "fast", "chat":
 			mode = "fast"
 		}
 	} else if settings.Adre.DefaultChatMode == "investigation" {
@@ -308,7 +312,7 @@ func (h *Handlers) postChatStream(w http.ResponseWriter, r *http.Request, settin
 		h.l.Debug("Holmes stream ended with error event; assistant message not persisted")
 		return
 	}
-	if copyErr != nil && copyErr != io.EOF {
+	if copyErr != nil && !errors.Is(copyErr, io.EOF) {
 		h.l.Warnf("ChatStream client write: %v", copyErr)
 	}
 	promptT, compT, totT := out.PromptTokens, out.CompletionTokens, out.TotalTokens
@@ -327,7 +331,8 @@ func (h *Handlers) postChatStream(w http.ResponseWriter, r *http.Request, settin
 	}
 	_ = models.TouchAdreConversationLastMessage(h.db, convID, asst.CreatedAt)
 	for _, raw := range out.ToolResultJSONRows {
-		if err := persistAdreToolJSON(h.db, convID, raw); err != nil {
+		err := persistAdreToolJSON(h.db, convID, raw)
+		if err != nil {
 			h.l.Warnf("persistAdreToolJSON stream: %v", err)
 		}
 	}

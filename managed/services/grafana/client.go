@@ -319,7 +319,7 @@ func (c *Client) GetUserID(ctx context.Context) (int, error) {
 
 // GetCurrentUserLogin returns Grafana /api/user login (or uid:N fallback) for the given auth headers.
 func (c *Client) GetCurrentUserLogin(ctx context.Context, authHeaders http.Header) (string, error) {
-	var m map[string]interface{}
+	var m map[string]any
 	err := c.do(ctx, http.MethodGet, "/api/user", "", authHeaders, nil, &m)
 	if err != nil {
 		return "", err
@@ -753,7 +753,7 @@ func (c *Client) DeleteServiceAccount(ctx context.Context, nodeName string, forc
 }
 
 // GetAlertmanagerAlerts fetches firing alerts from Grafana's Alertmanager API.
-// authHeaders should contain Authorization and/or Cookie from the incoming request to forward user auth.
+// AuthHeaders should contain Authorization and/or Cookie from the incoming request to forward user auth.
 func (c *Client) GetAlertmanagerAlerts(ctx context.Context, authHeaders http.Header) ([]byte, error) {
 	var raw json.RawMessage
 	err := c.do(ctx, http.MethodGet, "/api/alertmanager/grafana/api/v2/alerts", "active=true", authHeaders, nil, &raw)

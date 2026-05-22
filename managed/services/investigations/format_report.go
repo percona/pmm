@@ -122,7 +122,8 @@ func (e *parseError) Error() string { return e.msg }
 // ParseFormattedReport unmarshals JSON into FormattedReport and validates required fields.
 func ParseFormattedReport(jsonBytes []byte) (*FormattedReport, error) {
 	var fr FormattedReport
-	if err := json.Unmarshal(jsonBytes, &fr); err != nil {
+	err := json.Unmarshal(jsonBytes, &fr)
+	if err != nil {
 		return nil, err
 	}
 	if fr.ConfidenceScore < 0 || fr.ConfidenceScore > 100 {
@@ -143,7 +144,7 @@ func buildBlockDataJSON(blockType, content string) []byte {
 	if blockType == BlockTypeRemediationSteps {
 		steps := parseRemediationSteps(content)
 		if len(steps) > 0 {
-			b, _ := json.Marshal(map[string]interface{}{"steps": steps})
+			b, _ := json.Marshal(map[string]any{"steps": steps})
 			return b
 		}
 	}
@@ -189,10 +190,7 @@ func ComputeConfidence(fr FormattedReport) (band string, score int, rationale st
 	score = 50
 
 	// Evidence quality (+0..25)
-	evidenceN := len(fr.Evidence)
-	if evidenceN > 4 {
-		evidenceN = 4
-	}
+	evidenceN := min(len(fr.Evidence), 4)
 	score += evidenceN * 5
 	if hasAtLeastTwoEvidenceKinds(fr.Evidence) {
 		score += 5

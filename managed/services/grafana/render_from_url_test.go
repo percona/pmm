@@ -27,7 +27,7 @@ func TestFromToForGrafanaImageRendererQuery_AbsoluteToEpochMs(t *testing.T) {
 	assert.NotContains(t, to, ":")
 	assert.Len(t, from, 13)
 	assert.Len(t, to, 13)
-	assert.NotEqual(t, from, "2026-04-29T14:30:00Z")
+	assert.NotEqual(t, "2026-04-29T14:30:00Z", from)
 }
 
 func TestFromToForGrafanaImageRendererQuery_RelativePassthrough(t *testing.T) {

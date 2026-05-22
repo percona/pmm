@@ -22,6 +22,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"time"
@@ -34,7 +35,8 @@ import (
 )
 
 func main() {
-	if err := run(context.Background()); err != nil {
+	err := run(context.Background())
+	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
@@ -43,7 +45,7 @@ func main() {
 func run(ctx context.Context) error {
 	endpoint := os.Getenv("PMM_OTLP_URL")
 	if endpoint == "" {
-		return fmt.Errorf("set PMM_OTLP_URL to OTLP HTTP traces endpoint (e.g. https://pmm.example:8443/otlp/v1/traces)")
+		return errors.New("set PMM_OTLP_URL to OTLP HTTP traces endpoint (e.g. https://pmm.example:8443/otlp/v1/traces)")
 	}
 	opts := []otlptracehttp.Option{otlptracehttp.WithEndpointURL(endpoint)}
 	if os.Getenv("PMM_OTLP_INSECURE") == "1" {

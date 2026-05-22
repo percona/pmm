@@ -142,15 +142,16 @@ func buildDescription(inv *models.Investigation, blocks []*models.InvestigationB
 			sb.WriteString("\n")
 		}
 		if len(b.DataJSON) > 0 {
-			var data map[string]interface{}
-			if err := json.Unmarshal(b.DataJSON, &data); err == nil {
+			var data map[string]any
+			err := json.Unmarshal(b.DataJSON, &data)
+			if err == nil {
 				if content, ok := data["content"].(string); ok && content != "" {
 					sb.WriteString(content)
 					sb.WriteString("\n\n")
 					continue
 				}
 			}
-			sb.WriteString(string(b.DataJSON))
+			sb.Write(b.DataJSON)
 			sb.WriteString("\n\n")
 		}
 	}
@@ -172,7 +173,7 @@ func (h *Handlers) PostServiceNowTicket(w http.ResponseWriter, r *http.Request, 
 	}
 
 	if inv.ServiceNowTicketID != "" {
-		writeJSONError(w, http.StatusConflict, fmt.Sprintf("ServiceNow ticket already exists: %s", inv.ServiceNowTicketID))
+		writeJSONError(w, http.StatusConflict, "ServiceNow ticket already exists: "+inv.ServiceNowTicketID)
 		return
 	}
 
@@ -284,7 +285,7 @@ func (h *Handlers) PostServiceNowTicket(w http.ResponseWriter, r *http.Request, 
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	_ = json.NewEncoder(w).Encode(map[string]interface{}{
+	_ = json.NewEncoder(w).Encode(map[string]any{
 		"success":       true,
 		"ticket_id":     snResp.Result.TicketID,
 		"ticket_number": inv.ServiceNowTicketNumber,

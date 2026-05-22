@@ -137,15 +137,15 @@ func (c *Client) Models(ctx context.Context) ([]string, error) {
 
 // ChatRequest is the request body for POST /api/chat.
 type ChatRequest struct {
-	Ask                    string        `json:"ask"`
-	ConversationHistory    []interface{} `json:"conversation_history,omitempty"`
-	Model                  string        `json:"model,omitempty"`
-	Stream                 bool          `json:"stream,omitempty"`
-	AdditionalSystemPrompt string        `json:"additional_system_prompt,omitempty"`
-	PageContext            interface{}   `json:"page_context,omitempty"`
-	FrontendTools          []interface{} `json:"frontend_tools,omitempty"`
-	FrontendToolResults    []interface{} `json:"frontend_tool_results,omitempty"`
-	ToolDecisions          []interface{} `json:"tool_decisions,omitempty"`
+	Ask                    string `json:"ask"`
+	ConversationHistory    []any  `json:"conversation_history,omitempty"`
+	Model                  string `json:"model,omitempty"`
+	Stream                 bool   `json:"stream,omitempty"`
+	AdditionalSystemPrompt string `json:"additional_system_prompt,omitempty"`
+	PageContext            any    `json:"page_context,omitempty"`
+	FrontendTools          []any  `json:"frontend_tools,omitempty"`
+	FrontendToolResults    []any  `json:"frontend_tool_results,omitempty"`
+	ToolDecisions          []any  `json:"tool_decisions,omitempty"`
 	// BehaviorControls overrides Holmes prompt components (e.g. {"time_skills": false, "todowrite_instructions": false}). Keys must match holmes/core/prompt.py PromptComponent values. Optional.
 	BehaviorControls map[string]bool `json:"behavior_controls,omitempty"`
 }
@@ -153,9 +153,9 @@ type ChatRequest struct {
 // ChatResponse is the response from POST /api/chat.
 type ChatResponse struct {
 	Analysis            string          `json:"analysis"`
-	ConversationHistory []interface{}   `json:"conversation_history,omitempty"`
-	ToolCalls           []interface{}   `json:"tool_calls,omitempty"`
-	FollowUpActions     []interface{}   `json:"follow_up_actions,omitempty"`
+	ConversationHistory []any           `json:"conversation_history,omitempty"`
+	ToolCalls           []any           `json:"tool_calls,omitempty"`
+	FollowUpActions     []any           `json:"follow_up_actions,omitempty"`
 	Metadata            json.RawMessage `json:"metadata,omitempty"`
 }
 

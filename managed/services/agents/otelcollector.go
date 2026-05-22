@@ -54,7 +54,8 @@ func getLogSourcesFromAgent(row *models.Agent) ([]logSourceEntry, error) {
 	}
 	if s := labels[logSourcesLabel]; s != "" {
 		var entries []logSourceEntry
-		if err := json.Unmarshal([]byte(s), &entries); err != nil {
+		err := json.Unmarshal([]byte(s), &entries)
+		if err != nil {
 			return nil, err
 		}
 		return entries, nil
@@ -176,6 +177,7 @@ func otelCollectorConfig(row *models.Agent, q *reform.Querier) *agentv1.SetState
       http:
         endpoint: 0.0.0.0:4318
 `
+	var configYamlSb179 strings.Builder
 	for preset, paths := range byPreset {
 		if len(paths) == 0 {
 			continue
@@ -191,13 +193,14 @@ func otelCollectorConfig(row *models.Agent, q *reform.Querier) *agentv1.SetState
 		if len(quoted) == 0 {
 			continue
 		}
-		configYaml += fmt.Sprintf("  %s:\n    include: [%s]\n    start_at: end\n", receiverID, strings.Join(quoted, ", "))
+		configYamlSb179.WriteString(fmt.Sprintf("  %s:\n    include: [%s]\n    start_at: end\n", receiverID, strings.Join(quoted, ", ")))
 		if preset != presetRaw {
 			if yaml, ok := presetYAML[preset]; ok && yaml != "" {
-				configYaml += "    operators:\n" + otel.IndentYAML(yaml, "      ")
+				configYamlSb179.WriteString("    operators:\n" + otel.IndentYAML(yaml, "      "))
 			}
 		}
 	}
+	configYaml += configYamlSb179.String()
 	sort.Strings(receivers)
 	receivers = append(receivers, "otlp")
 	configYaml += baseOtelConfigYaml(receivers, []string{"otlp"}, resourceAttrs)
@@ -237,8 +240,8 @@ func quoteYAMLAttrValue(v string) string {
 }
 
 // baseOtelConfigYaml returns processors, exporters, and service.pipelines.
-// logPipelineReceivers lists receivers for the logs pipeline (OTLP plus any filelog/* receivers).
-// tracesMetricsReceivers lists receivers for traces and metrics only — must not include filelog,
+// LogPipelineReceivers lists receivers for the logs pipeline (OTLP plus any filelog/* receivers).
+// TracesMetricsReceivers lists receivers for traces and metrics only — must not include filelog,
 // which emits logs only and cannot be wired into traces or metrics pipelines.
 // If resourceAttrs is non-nil and non-empty, a resource processor is added to set PMM context (agent_id, node_id, etc.)
 // so logs in ClickHouse match VictoriaMetrics labels.
@@ -265,9 +268,11 @@ func baseOtelConfigYaml(logPipelineReceivers, tracesMetricsReceivers []string, r
 			keys = append(keys, k)
 		}
 		sort.Strings(keys)
+		var processorsBlockSb268 strings.Builder
 		for _, k := range keys {
-			processorsBlock += fmt.Sprintf("      - key: %s\n        value: %s\n        action: upsert\n", k, quoteYAMLAttrValue(resourceAttrs[k]))
+			processorsBlockSb268.WriteString(fmt.Sprintf("      - key: %s\n        value: %s\n        action: upsert\n", k, quoteYAMLAttrValue(resourceAttrs[k])))
 		}
+		processorsBlock += processorsBlockSb268.String()
 		processorsBlock += `  memory_limiter:
     check_interval: 1s
     limit_mib: 128

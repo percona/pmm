@@ -91,21 +91,23 @@ func panelExistsWalk(panels []dashboardPanel, panelID string) bool {
 
 func variableCurrentValue(raw json.RawMessage) string {
 	var cur map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &cur); err != nil {
+	err := json.Unmarshal(raw, &cur)
+	if err != nil {
 		return ""
 	}
 	valRaw, ok := cur["value"]
 	if !ok || len(valRaw) == 0 {
 		return ""
 	}
-	var v interface{}
-	if err := json.Unmarshal(valRaw, &v); err != nil {
+	var v any
+	err = json.Unmarshal(valRaw, &v)
+	if err != nil {
 		return ""
 	}
 	return formatVarValue(v)
 }
 
-func formatVarValue(v interface{}) string {
+func formatVarValue(v any) string {
 	switch t := v.(type) {
 	case string:
 		return t
@@ -113,7 +115,7 @@ func formatVarValue(v interface{}) string {
 		return strconv.FormatInt(int64(t), 10)
 	case bool:
 		return strconv.FormatBool(t)
-	case []interface{}:
+	case []any:
 		parts := make([]string, 0, len(t))
 		for _, x := range t {
 			parts = append(parts, formatVarValue(x))
@@ -219,7 +221,7 @@ func MergeDashboardVars(d dashboardInner, overrides map[string]string) (map[stri
 			return nil, fmt.Errorf("unknown override %q; valid template variables: %v", k, valid)
 		}
 		tv := defByName[canonical]
-		if val == "$__all" && !(tv.IncludeAll && tv.Multi) {
+		if val == "$__all" && (!tv.IncludeAll || !tv.Multi) {
 			return nil, fmt.Errorf("override %q cannot use $__all for variable %q", k, canonical)
 		}
 		val = sanitizeTemplateValue(canonical, val)

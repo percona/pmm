@@ -24,7 +24,7 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-func writeJSON(w http.ResponseWriter, status int, v interface{}) {
+func writeJSON(w http.ResponseWriter, status int, v any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	_ = json.NewEncoder(w).Encode(v)
@@ -38,7 +38,7 @@ func writeRateLimited(w http.ResponseWriter, retryAfterSec int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Retry-After", strconv.Itoa(retryAfterSec))
 	w.WriteHeader(http.StatusTooManyRequests)
-	_ = json.NewEncoder(w).Encode(map[string]interface{}{
+	_ = json.NewEncoder(w).Encode(map[string]any{
 		"code":            "rate_limited",
 		"message":         "Too many search requests. Try again later.",
 		"retry_after_sec": retryAfterSec,
@@ -73,7 +73,7 @@ func (h *Handlers) ListConversations(w http.ResponseWriter, r *http.Request) {
 		last := rows[len(rows)-1]
 		nextCursor = models.EncodeAdreConversationCursor(last.LastMessageAt, last.ID)
 	}
-	writeJSON(w, http.StatusOK, map[string]interface{}{
+	writeJSON(w, http.StatusOK, map[string]any{
 		"conversations": rows,
 		"next_cursor":   nextCursor,
 	})
@@ -94,7 +94,8 @@ func (h *Handlers) CreateConversation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var body createConversationBody
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
 		return
 	}
@@ -113,12 +114,13 @@ func (h *Handlers) CreateConversation(w http.ResponseWriter, r *http.Request) {
 		Title:     title,
 		CreatedBy: login,
 	}
-	if err := models.CreateAdreConversation(h.db, c); err != nil {
+	err = models.CreateAdreConversation(h.db, c)
+	if err != nil {
 		h.l.Errorf("CreateAdreConversation: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Failed to create conversation")
 		return
 	}
-	writeJSON(w, http.StatusCreated, map[string]interface{}{
+	writeJSON(w, http.StatusCreated, map[string]any{
 		"id":              c.ID,
 		"title":           c.Title,
 		"created_at":      c.CreatedAt,
@@ -176,7 +178,7 @@ func (h *Handlers) getConversation(w http.ResponseWriter, r *http.Request, id in
 		writeNotFound(w)
 		return
 	}
-	writeJSON(w, http.StatusOK, map[string]interface{}{
+	writeJSON(w, http.StatusOK, map[string]any{
 		"id":              c.ID,
 		"title":           c.Title,
 		"created_at":      c.CreatedAt,
@@ -230,7 +232,7 @@ func (h *Handlers) patchConversation(w http.ResponseWriter, r *http.Request, id 
 		writeJSONError(w, http.StatusInternalServerError, "Failed to update conversation")
 		return
 	}
-	writeJSON(w, http.StatusOK, map[string]interface{}{
+	writeJSON(w, http.StatusOK, map[string]any{
 		"id":         c.ID,
 		"title":      c.Title,
 		"updated_at": c.UpdatedAt,
@@ -302,9 +304,9 @@ func (h *Handlers) listMessages(w http.ResponseWriter, r *http.Request, conversa
 		writeJSONError(w, http.StatusInternalServerError, "Failed to load messages")
 		return
 	}
-	out := make([]map[string]interface{}, 0, len(msgs))
+	out := make([]map[string]any, 0, len(msgs))
 	for _, m := range msgs {
-		row := map[string]interface{}{
+		row := map[string]any{
 			"id":              m.ID,
 			"conversation_id": m.ConversationID,
 			"role":            m.Role,
@@ -329,7 +331,7 @@ func (h *Handlers) listMessages(w http.ResponseWriter, r *http.Request, conversa
 		}
 		out = append(out, row)
 	}
-	writeJSON(w, http.StatusOK, map[string]interface{}{"messages": out})
+	writeJSON(w, http.StatusOK, map[string]any{"messages": out})
 }
 
 // SearchMessages handles GET /v1/adre/messages/search.
@@ -360,7 +362,7 @@ func (h *Handlers) SearchMessages(w http.ResponseWriter, r *http.Request) {
 		writeJSONError(w, http.StatusInternalServerError, "Search failed")
 		return
 	}
-	writeJSON(w, http.StatusOK, map[string]interface{}{"hits": hits})
+	writeJSON(w, http.StatusOK, map[string]any{"hits": hits})
 }
 
 func (h *Handlers) resolveUserLogin(w http.ResponseWriter, r *http.Request) (string, bool) {

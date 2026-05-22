@@ -30,7 +30,7 @@ import (
 
 func TestIndentYAML(t *testing.T) {
 	t.Run("empty", func(t *testing.T) {
-		assert.Equal(t, "", IndentYAML("", "  "))
+		assert.Empty(t, IndentYAML("", "  "))
 	})
 	t.Run("single_line", func(t *testing.T) {
 		assert.Equal(t, "    - type: foo\n", IndentYAML("- type: foo", "    "))

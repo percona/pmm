@@ -112,7 +112,7 @@ type AdreConversationListRow struct {
 }
 
 // ListAdreConversations returns conversations for a user, newest activity first, keyset pagination.
-// titleContains filters by case-insensitive substring on title when non-empty.
+// TitleContains filters by case-insensitive substring on title when non-empty.
 func ListAdreConversations(q reform.DBTX, createdBy, titleContains string, limit int, afterLastMsgAt *time.Time, afterID *int64) ([]AdreConversationListRow, error) {
 	if limit <= 0 {
 		limit = 50
@@ -165,7 +165,8 @@ func ListAdreConversations(q reform.DBTX, createdBy, titleContains string, limit
 	var out []AdreConversationListRow
 	for rows.Next() {
 		var r AdreConversationListRow
-		if err := rows.Scan(&r.ID, &r.Title, &r.CreatedAt, &r.UpdatedAt, &r.LastMessageAt); err != nil {
+		err := rows.Scan(&r.ID, &r.Title, &r.CreatedAt, &r.UpdatedAt, &r.LastMessageAt)
+		if err != nil {
 			return nil, err
 		}
 		out = append(out, r)
@@ -175,7 +176,7 @@ func ListAdreConversations(q reform.DBTX, createdBy, titleContains string, limit
 
 // EncodeAdreConversationCursor encodes keyset position for pagination.
 func EncodeAdreConversationCursor(lastMsgAt time.Time, id int64) string {
-	b, _ := json.Marshal(map[string]interface{}{
+	b, _ := json.Marshal(map[string]any{
 		"t":  lastMsgAt.UTC().Format(time.RFC3339Nano),
 		"id": id,
 	})
@@ -254,10 +255,11 @@ func ListAdreMessages(q reform.DBTX, conversationID int64, beforeID *int64, afte
 	var list []AdreMessage
 	for rows.Next() {
 		var m AdreMessage
-		if err := rows.Scan(
+		err := rows.Scan(
 			&m.ID, &m.ConversationID, &m.Role, &m.Content, &m.ToolName, &m.ToolResultJSON, &m.Model,
 			&m.PromptTokens, &m.CompletionTokens, &m.TotalTokens, &m.CreatedAt,
-		); err != nil {
+		)
+		if err != nil {
 			return nil, err
 		}
 		list = append(list, m)
@@ -289,10 +291,11 @@ func LoadAdreMessagesForHolmesHistory(q reform.DBTX, conversationID int64, exclu
 	var list []AdreMessage
 	for rows.Next() {
 		var m AdreMessage
-		if err := rows.Scan(
+		err := rows.Scan(
 			&m.ID, &m.ConversationID, &m.Role, &m.Content, &m.ToolName, &m.ToolResultJSON, &m.Model,
 			&m.PromptTokens, &m.CompletionTokens, &m.TotalTokens, &m.CreatedAt,
-		); err != nil {
+		)
+		if err != nil {
 			return nil, err
 		}
 		list = append(list, m)
@@ -367,7 +370,8 @@ func SearchAdreMessagesFTS(q reform.DBTX, createdBy, qtext string, limit int) ([
 	var out []AdreSearchHit
 	for rows.Next() {
 		var h AdreSearchHit
-		if err := rows.Scan(&h.MessageID, &h.ConversationID, &h.Role, &h.CreatedAt, &h.Snippet); err != nil {
+		err := rows.Scan(&h.MessageID, &h.ConversationID, &h.Role, &h.CreatedAt, &h.Snippet)
+		if err != nil {
 			return nil, err
 		}
 		out = append(out, h)

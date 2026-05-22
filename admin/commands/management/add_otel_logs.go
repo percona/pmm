@@ -15,7 +15,7 @@
 package management
 
 import (
-	"fmt"
+	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/admin/commands"
 	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
@@ -67,7 +67,7 @@ func (cmd *AddOtelLogsCommand) RunCmd() (commands.Result, error) {
 		chBody.AddLogSources = toChangeAddLogSources(srcItems)
 	}
 	if len(chBody.MergeLabels) == 0 && len(chBody.AddLogSources) == 0 {
-		return nil, fmt.Errorf("nothing to change: set --log-sources, --log-file-paths, or --custom-labels")
+		return nil, errors.New("nothing to change: set --log-sources, --log-file-paths, or --custom-labels")
 	}
 	return changeOtelCollectorAPI(rows[0].AgentID, chBody)
 }

@@ -15,8 +15,9 @@
 package management
 
 import (
-	"fmt"
 	"strings"
+
+	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
@@ -88,7 +89,7 @@ func ensureAtMostOneOtelCollector(pmmAgentID string) ([]*agents.ListAgentsOKBody
 		return nil, err
 	}
 	if len(rows) > 1 {
-		return nil, fmt.Errorf("multiple otel_collector agents exist for this pmm-agent; remove extras with `pmm-admin inventory remove agent` until only one remains")
+		return nil, errors.New("multiple otel_collector agents exist for this pmm-agent; remove extras with `pmm-admin inventory remove agent` until only one remains")
 	}
 	return rows, nil
 }
@@ -139,16 +140,16 @@ func changeOtelCollectorAPI(agentID string, body *agents.ChangeAgentParamsBodyOt
 func appendLogSourcesFromCLI(logSources string, logFilePaths []string, parserPreset string) ([]*agents.AddAgentParamsBodyOtelCollectorLogSourcesItems0, error) {
 	var out []*agents.AddAgentParamsBodyOtelCollectorLogSourcesItems0
 	if logSources != "" {
-		for _, pair := range strings.Split(logSources, ",") {
+		for pair := range strings.SplitSeq(logSources, ",") {
 			pair = strings.TrimSpace(pair)
 			if pair == "" {
 				continue
 			}
 			path := pair
 			preset := "raw"
-			if idx := strings.Index(pair, ":"); idx >= 0 {
-				path = strings.TrimSpace(pair[:idx])
-				preset = strings.TrimSpace(pair[idx+1:])
+			if before, after, ok := strings.Cut(pair, ":"); ok {
+				path = strings.TrimSpace(before)
+				preset = strings.TrimSpace(after)
 				if preset == "" {
 					preset = "raw"
 				}

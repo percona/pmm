@@ -29,14 +29,15 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 )
 
 const (
-	// defaultMinRenderPNGBytes rejects tiny PNG bodies that usually indicate an empty or error panel.
+	// DefaultMinRenderPNGBytes rejects tiny PNG bodies that usually indicate an empty or error panel.
 	defaultMinRenderPNGBytes int64 = 2048
-	// maxCachedRenderBlobBytes caps internal reads (e.g. Slack uploads) from the Tier-1 PNG cache.
+	// MaxCachedRenderBlobBytes caps internal reads (e.g. Slack uploads) from the Tier-1 PNG cache.
 	maxCachedRenderBlobBytes int64 = 15 << 20
 )
 
@@ -118,21 +119,23 @@ type resolveResponse struct {
 func parsePanelIDField(raw json.RawMessage) (string, error) {
 	raw = bytes.TrimSpace(raw)
 	if len(raw) == 0 {
-		return "", fmt.Errorf("panel_id is required")
+		return "", errors.New("panel_id is required")
 	}
 	var n json.Number
-	if err := json.Unmarshal(raw, &n); err == nil {
+	err := json.Unmarshal(raw, &n)
+	if err == nil {
 		panel := strings.TrimSpace(n.String())
 		if !safePanelIDRe.MatchString(panel) {
-			return "", fmt.Errorf("panel_id must be an integer")
+			return "", errors.New("panel_id must be an integer")
 		}
 		return panel, nil
 	}
 	var s string
-	if err := json.Unmarshal(raw, &s); err == nil {
+	err = json.Unmarshal(raw, &s)
+	if err == nil {
 		return NormalizePanelID(s), nil
 	}
-	return "", fmt.Errorf("invalid panel_id")
+	return "", errors.New("invalid panel_id")
 }
 
 func buildDashboardViewerURL(dashboardUID, panelID, from, to string, mergedVars map[string]string) string {
@@ -497,7 +500,7 @@ func readBlobPNG(contentHash string) ([]byte, error) {
 // Callers that serve arbitrary HTTP clients should use BlobHandler; this API is for trusted in-process use (e.g. Slack uploads).
 func ReadCachedRenderBlob(contentHash string) ([]byte, error) {
 	if !hexSHA256Re.MatchString(contentHash) {
-		return nil, fmt.Errorf("invalid content hash")
+		return nil, errors.New("invalid content hash")
 	}
 	f, err := os.Open(blobPNGPath(contentHash))
 	if err != nil {
@@ -509,14 +512,15 @@ func ReadCachedRenderBlob(contentHash string) ([]byte, error) {
 		return nil, err
 	}
 	if int64(len(data)) > maxCachedRenderBlobBytes {
-		return nil, fmt.Errorf("cached blob exceeds max size")
+		return nil, errors.New("cached blob exceeds max size")
 	}
 	return data, nil
 }
 
 func writeBlobPNG(contentHash string, body []byte) error {
 	dir := renderCacheDir()
-	if err := os.MkdirAll(dir, 0o750); err != nil {
+	err := os.MkdirAll(dir, 0o750)
+	if err != nil {
 		return err
 	}
 	return os.WriteFile(blobPNGPath(contentHash), body, 0o644)
