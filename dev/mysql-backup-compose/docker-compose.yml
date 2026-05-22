@@ -1,0 +1,35 @@
+---
+name: pmm-mysql-backup
+
+services:
+  pmm-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        PMM_SERVER_IMAGE: ${PMM_SERVER_IMAGE:-perconalab/pmm-server-fb:PR-4368-377dfd9}
+        MYSQL_SERVER_RPM_VERSION: ${MYSQL_SERVER_RPM_VERSION:-8.4.6-6.1.el9}
+        XTRABACKUP_RPM_VERSION: ${XTRABACKUP_RPM_VERSION:-8.4.0-4.1.el9}
+    image: pmm-mysql-backup-server:local
+    platform: linux/amd64
+    container_name: pmm-backup-server
+    hostname: pmm-server
+    healthcheck:
+      test: ["CMD", "curl", "-k", "-f", "https://127.0.0.1:8443/ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 120s
+    environment:
+      GF_SECURITY_ADMIN_USER: ${PMM_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${PMM_ADMIN_PASSWORD:-admin}
+      PMM_ENABLE_BACKUP_MANAGEMENT: "true"
+      PMM_PUBLIC_ADDRESS: localhost
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-secret}
+    ports:
+      - "${PMM_PORT_HTTPS:-443}:8443"
+    volumes:
+      - pmm-data:/srv
+
+volumes:
+  pmm-data:
