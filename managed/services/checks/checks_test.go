@@ -435,8 +435,6 @@ func TestMinPMMAgents(t *testing.T) {
 	s := New(nil, nil, vmClient, clickhouseDB)
 
 	for _, test := range tests {
-		test := test
-
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, test.minVersion, s.minPMMAgentVersion(test.check))
@@ -531,8 +529,6 @@ func TestFindTargets(t *testing.T) {
 		}
 
 		for _, test := range tests {
-			test := test
-
 			t.Run(test.name, func(t *testing.T) {
 				t.Parallel()
 
@@ -770,7 +766,6 @@ func TestFillQueryPlaceholders(t *testing.T) {
 	}
 
 	for _, tt := range cases {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 

@@ -55,7 +55,7 @@ func TestSerialization(t *testing.T) {
 	b, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
 
-	var data map[string]interface{}
+	var data map[string]any
 	err = json.Unmarshal(b, &data)
 	require.NoError(t, err)
 

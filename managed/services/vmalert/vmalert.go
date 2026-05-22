@@ -98,7 +98,7 @@ func (svc *Service) Run(ctx context.Context) {
 	// is reloaded when requested, but several requests are batched together to avoid too often reloads.
 	// That allows the caller to just call RequestConfigurationUpdate when it seems fit.
 	if cap(svc.reloadCh) != 1 {
-		panic("reloadCh should have capacity 1")
+		svc.l.Fatal("reloadCh should have capacity 1")
 	}
 
 	for {
