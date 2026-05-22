@@ -135,7 +135,7 @@ func TestDumps(t *testing.T) {
 		})
 		require.NoError(t, err)
 		dump3.Status = models.DumpStatusError
-		err = findTX.Querier.Update(dump3)
+		err = findTX.Update(dump3)
 		require.NoError(t, err)
 
 		type testCase struct {

@@ -538,10 +538,8 @@ func TestPerfSchema(t *testing.T) {
 
 		require.NoError(t, m.refreshHistoryCache(t.Context()))
 		var example string
-		isTruncated := true
-		if mySQLVendor != version.MariaDBVendor && mySQLVersion.Float() >= 8.0 {
-			isTruncated = false
-		}
+		isTruncated := !(mySQLVendor != version.MariaDBVendor && mySQLVersion.Float() >= 8.0)
+
 		switch {
 		// Perf schema truncates queries with non-utf8 characters.
 		case (mySQLVendor == version.PerconaVendor || mySQLVendor == version.OracleVendor) && mySQLVersion.Float() >= 8.0:
