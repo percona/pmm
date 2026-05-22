@@ -1,5 +1,20 @@
-import { type MRT_Row } from 'material-react-table';
+import {
+  type MRT_ColumnFiltersState,
+  type MRT_Row,
+  type MRT_SortingState,
+} from 'material-react-table';
 import { QueryData } from 'types/rta.types';
+
+export const getNavigableQueryIdsKey = (queries: QueryData[]) =>
+  queries.map((query) => query.queryId).join('\0');
+
+export const isSameTableState = <T>(previous: T, next: T) =>
+  JSON.stringify(previous) === JSON.stringify(next);
+
+export const resolveTableStateUpdate = <T>(
+  previous: T,
+  updater: T | ((old: T) => T)
+) => (typeof updater === 'function' ? updater(previous) : updater);
 
 export const filterElapsedTime = (
   row: MRT_Row<QueryData>,

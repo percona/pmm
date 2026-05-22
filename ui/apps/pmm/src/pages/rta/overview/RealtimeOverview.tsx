@@ -17,18 +17,21 @@ import Button from '@mui/material/Button';
 import { ServicesAutocompleteInput } from '../components/services-autocomplete-input';
 import { AutoRefreshSelect } from './auto-refresh-select';
 
+const EMPTY_QUERIES: QueryData[] = [];
+
 const RealtimeOverviewPage: FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const serviceIds = searchParams.getAll('serviceIds');
   const [fetching, setFetching] = useState(serviceIds.length > 0);
   const [refreshInterval, setRefreshInterval] = useState(2000);
-  const { data: queries = [], refetch } = useRealtimeQueries(
+  const { data: queries, refetch } = useRealtimeQueries(
     { serviceIds },
     {
       enabled: fetching,
       refetchInterval: refreshInterval,
     }
   );
+  const tableQueries = queries ?? EMPTY_QUERIES;
   // Synced from the table after filters; details-pane arrows use this list, not the full API result.
   const [navigableQueries, setNavigableQueries] = useState<QueryData[]>([]);
   const [selectedQuery, setSelectedQuery] = useState<QueryData>();
@@ -93,7 +96,7 @@ const RealtimeOverviewPage: FC = () => {
   return (
     <RealtimePage>
       <OverviewTable
-        queries={queries || []}
+        queries={tableQueries}
         onQuerySelected={handleQuerySelected}
         onNavigableQueriesChange={setNavigableQueries}
         actions={() => (

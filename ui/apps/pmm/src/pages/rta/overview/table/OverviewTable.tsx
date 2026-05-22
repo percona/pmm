@@ -12,7 +12,12 @@ import { OVERVIEW_TABLE_COLUMNS } from './OverviewTable.constants';
 import { RealtimeTableWrapper } from 'pages/rta/components/rta-table-wrapper';
 import { boxClasses } from '@mui/material/Box';
 import { Messages } from './OverviewTable.messages';
-import { filterElapsedTime } from './OverviewTable.utils';
+import {
+  filterElapsedTime,
+  getNavigableQueryIdsKey,
+  isSameTableState,
+  resolveTableStateUpdate,
+} from './OverviewTable.utils';
 
 interface Props {
   queries: QueryData[];
@@ -30,6 +35,7 @@ const OverviewTable: FC<Props> = ({
   onRowHover,
 }) => {
   const tableRef = useRef<MRT_TableInstance<QueryData> | null>(null);
+  const navigableQueryIdsKeyRef = useRef('');
   // Controlled table state is required to read the filtered/sorted row model via tableInstanceRef.
   const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>([]);
   const [sorting, setSorting] = useState<MRT_SortingState>([]);
@@ -42,9 +48,39 @@ const OverviewTable: FC<Props> = ({
     [queries]
   );
 
+  const syncNavigableQueries = useCallback(() => {
+    const navigableQueries = getNavigableQueries();
+    const nextKey = getNavigableQueryIdsKey(navigableQueries);
+    if (navigableQueryIdsKeyRef.current === nextKey) {
+      return;
+    }
+    navigableQueryIdsKeyRef.current = nextKey;
+    onNavigableQueriesChange(navigableQueries);
+  }, [getNavigableQueries, onNavigableQueriesChange]);
+
+  const handleColumnFiltersChange = useCallback(
+    (updater: MRT_ColumnFiltersState | ((old: MRT_ColumnFiltersState) => MRT_ColumnFiltersState)) => {
+      setColumnFilters((previous) => {
+        const next = resolveTableStateUpdate(previous, updater);
+        return isSameTableState(previous, next) ? previous : next;
+      });
+    },
+    []
+  );
+
+  const handleSortingChange = useCallback(
+    (updater: MRT_SortingState | ((old: MRT_SortingState) => MRT_SortingState)) => {
+      setSorting((previous) => {
+        const next = resolveTableStateUpdate(previous, updater);
+        return isSameTableState(previous, next) ? previous : next;
+      });
+    },
+    []
+  );
+
   useEffect(() => {
-    onNavigableQueriesChange(getNavigableQueries());
-  }, [columnFilters, getNavigableQueries, onNavigableQueriesChange, sorting]);
+    syncNavigableQueries();
+  }, [columnFilters, sorting, syncNavigableQueries]);
 
   return (
     <RealtimeTableWrapper>
@@ -69,14 +105,14 @@ const OverviewTable: FC<Props> = ({
           },
         }}
         state={{ columnFilters, sorting }}
-        onColumnFiltersChange={setColumnFilters}
-        onSortingChange={setSorting}
+        onColumnFiltersChange={handleColumnFiltersChange}
+        onSortingChange={handleSortingChange}
         enableGlobalFilter={false}
         enableHiding={false}
         enableRowHoverAction
         tableInstanceRef={tableRef}
         rowHoverAction={(row) => {
-          onNavigableQueriesChange(getNavigableQueries());
+          syncNavigableQueries();
           onQuerySelected(row.original);
         }}
         renderTopToolbarCustomActions={actions}
