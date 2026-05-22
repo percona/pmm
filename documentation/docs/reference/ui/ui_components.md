@@ -78,6 +78,6 @@ Starting with PMM 3.8.0, **Explore metrics** (part of the Grafana Metrics Drilld
 2. Search for **Grafana Metrics Drilldown**.
 3. Select the plugin and click **Install**.
 
-Once enabled, **Explore metrics** reappears under **Explore** in the left sidebar.
+Once installed, **Explore metrics** appears under **Explore** in the left sidebar.
 
 ![Explore metrics in the PMM sidebar](../../images/PMM_Explore_metrics.jpg)
