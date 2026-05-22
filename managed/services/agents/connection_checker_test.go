@@ -82,7 +82,6 @@ func TestConnectionRequestDialTimeoutRoundsWholeSecondTimeoutsUp(t *testing.T) {
 			agentType:   models.PostgresExporterType,
 		},
 	} {
-		tc := tc
 		t.Run(string(tc.serviceType), func(t *testing.T) {
 			t.Parallel()
 

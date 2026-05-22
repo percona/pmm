@@ -98,7 +98,7 @@ type AlertExprParamsDefinitions []AlertExprParamDefinition
 func (p AlertExprParamsDefinitions) Value() (driver.Value, error) { return jsonValue(p) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (p *AlertExprParamsDefinitions) Scan(src interface{}) error { return jsonScan(p, src) }
+func (p *AlertExprParamsDefinitions) Scan(src any) error { return jsonScan(p, src) }
 
 // AlertExprParamDefinition represents query parameter definition.
 type AlertExprParamDefinition struct {
@@ -163,7 +163,7 @@ func (s Severity) Value() (driver.Value, error) {
 }
 
 // Scan implements database/sql Scanner interface.
-func (s *Severity) Scan(src interface{}) error {
+func (s *Severity) Scan(src any) error {
 	switch src := src.(type) {
 	case string:
 		cs := common.ParseSeverity(src)

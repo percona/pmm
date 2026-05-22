@@ -106,13 +106,13 @@ type pgStatMonitor struct {
 	ParallelWorkersLaunched int64
 
 	// reform related fields
-	pointers []interface{}
+	pointers []any
 	view     reform.View
 }
 
 type field struct {
 	info    parse.FieldInfo
-	pointer interface{}
+	pointer any
 }
 
 func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStatMonitor, reform.View) { //nolint:ireturn
@@ -248,7 +248,7 @@ func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStat
 			field{info: parse.FieldInfo{Name: "UserName", Type: "string", Column: "username"}, pointer: &s.UserName})
 	}
 
-	s.pointers = make([]interface{}, len(fields))
+	s.pointers = make([]any, len(fields))
 	pgStatMonitorDefaultView := &pgStatMonitorAllViewType{
 		s: parse.StructInfo{
 			Type:         "pgStatMonitor",
@@ -272,7 +272,7 @@ func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStat
 
 type pgStatMonitorAllViewType struct {
 	s     parse.StructInfo
-	z     []interface{}
+	z     []any
 	c     []string
 	vPGSM pgStatMonitorVersion
 	vPG   pgVersion
@@ -361,8 +361,8 @@ func (s pgStatMonitor) String() string {
 
 // Values returns a slice of struct or record field values.
 // Returned interface{} values are never untyped nils.
-func (s *pgStatMonitor) Values() []interface{} {
-	values := make([]interface{}, len(s.pointers))
+func (s *pgStatMonitor) Values() []any {
+	values := make([]any, len(s.pointers))
 	for i, pointer := range s.pointers {
 		values[i] = reflect.ValueOf(pointer).Interface()
 	}
@@ -371,7 +371,7 @@ func (s *pgStatMonitor) Values() []interface{} {
 
 // Pointers returns a slice of pointers to struct or record fields.
 // Returned interface{} values are never untyped nils.
-func (s *pgStatMonitor) Pointers() []interface{} {
+func (s *pgStatMonitor) Pointers() []any {
 	return s.pointers
 }
 

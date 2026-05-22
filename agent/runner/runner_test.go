@@ -44,8 +44,7 @@ func TestConcurrentRunnerRun(t *testing.T) {
 	t.Parallel()
 	cr := New(0, 0)
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx := t.Context()
 	go cr.Run(ctx)
 	a1 := actions.NewProcessAction("6a479303-5081-46d0-baa0-87d6248c987b", 5*time.Second, "echo", []string{"test"})
 	a2 := actions.NewProcessAction("84140ab2-612d-4d93-9360-162a4bd5de14", 5*time.Second, "echo", []string{"test2"})
@@ -69,8 +68,7 @@ func TestCapacityLimit(t *testing.T) {
 	t.Parallel()
 
 	cr := New(2, 0)
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx := t.Context()
 	go cr.Run(ctx)
 
 	j1 := testJob{id: "test-1", timeout: time.Second}
@@ -118,8 +116,7 @@ func TestDefaultCapacityLimit(t *testing.T) {
 
 	// Use default capacity
 	cr := New(0, 0)
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx := t.Context()
 	go cr.Run(ctx)
 
 	totalJobs := 2 * defaultTotalCapacity
@@ -145,8 +142,7 @@ func TestPerDBInstanceLimit(t *testing.T) {
 	t.Parallel()
 
 	cr := New(10, 1)
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx := t.Context()
 	go cr.Run(ctx)
 
 	db1j1 := testJob{id: "test-1", timeout: time.Second, dsn: "postgresql://db1"}
@@ -192,8 +188,7 @@ func TestDefaultPerDBInstanceLimit(t *testing.T) {
 	t.Parallel()
 
 	cr := New(10, 0)
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx := t.Context()
 	go cr.Run(ctx)
 
 	db1j1 := testJob{id: "test-1", timeout: time.Second, dsn: "postgresql://db1"}
@@ -239,8 +234,7 @@ func TestConcurrentRunnerTimeout(t *testing.T) {
 	t.Parallel()
 	cr := New(0, 0)
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx := t.Context()
 	go cr.Run(ctx)
 	a1 := actions.NewProcessAction("6a479303-5081-46d0-baa0-87d6248c987b", time.Second, "sleep", []string{"20"})
 	a2 := actions.NewProcessAction("84140ab2-612d-4d93-9360-162a4bd5de14", time.Second, "sleep", []string{"30"})
@@ -265,8 +259,7 @@ func TestConcurrentRunnerStop(t *testing.T) {
 	t.Parallel()
 	cr := New(0, 0)
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx := t.Context()
 	go cr.Run(ctx)
 	a1 := actions.NewProcessAction("6a479303-5081-46d0-baa0-87d6248c987b", 5*time.Second, "sleep", []string{"20"})
 	a2 := actions.NewProcessAction("84140ab2-612d-4d93-9360-162a4bd5de14", 5*time.Second, "sleep", []string{"30"})

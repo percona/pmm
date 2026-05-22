@@ -147,13 +147,13 @@ func TestServices(t *testing.T) {
 		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "pmm-server")
 		as.vmdb.(*mockPrometheusService).On("RequestConfigurationUpdate")
 		as.cc.(*mockConnectionChecker).On("CheckConnectionToService", ctx,
-			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 		as.sib.(*mockServiceInfoBroker).On("GetInfoFromService", ctx,
-			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 
 		node, err := ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test1", Region: "test-region", Address: "test"})
 		require.NoError(t, err)
@@ -209,13 +209,13 @@ func TestServices(t *testing.T) {
 		as.vmdb.(*mockPrometheusService).On("RequestConfigurationUpdate")
 		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "pmm-server").Times(0)
 		as.cc.(*mockConnectionChecker).On("CheckConnectionToService", ctx,
-			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 		as.sib.(*mockServiceInfoBroker).On("GetInfoFromService", ctx,
-			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 
 		node, err := ns.AddRemoteAzureDatabaseNode(ctx, &inventoryv1.AddRemoteAzureNodeParams{NodeName: "test1", Region: "test-region", Address: "test"})
 		require.NoError(t, err)

@@ -431,8 +431,6 @@ func TestCreateComment(t *testing.T) {
 		},
 	}
 	for _, tc := range testCases {
-		tc := tc
-
 		t.Run(tc.Name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tc.Comment, createComment(tc.Checks))

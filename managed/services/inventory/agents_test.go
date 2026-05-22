@@ -63,13 +63,13 @@ func TestAgents(t *testing.T) {
 			as.r.(*mockAgentsRegistry).On("IsConnected", "00000000-0000-4000-8000-000000000005").Return(true)
 			as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "00000000-0000-4000-8000-000000000005")
 			as.cc.(*mockConnectionChecker).On("CheckConnectionToService", ctx,
-				mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-				mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-				mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+				mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+				mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+				mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 			as.sib.(*mockServiceInfoBroker).On("GetInfoFromService", ctx,
-				mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-				mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-				mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+				mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+				mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+				mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 			as.vmdb.(*mockPrometheusService).On("RequestConfigurationUpdate").Return()
 
 			pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
@@ -571,13 +571,13 @@ func TestAgents(t *testing.T) {
 		as.r.(*mockAgentsRegistry).On("IsConnected", "00000000-0000-4000-8000-000000000005").Return(true)
 		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "00000000-0000-4000-8000-000000000005")
 		as.cc.(*mockConnectionChecker).On("CheckConnectionToService", ctx,
-			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 		as.sib.(*mockServiceInfoBroker).On("GetInfoFromService", ctx,
-			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 
 		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
 			RunsOnNodeId: models.PMMServerNodeID,
@@ -663,13 +663,13 @@ func TestAgents(t *testing.T) {
 		as.r.(*mockAgentsRegistry).On("IsConnected", "00000000-0000-4000-8000-000000000005").Return(true)
 		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "00000000-0000-4000-8000-000000000005")
 		as.cc.(*mockConnectionChecker).On("CheckConnectionToService", ctx,
-			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 		as.sib.(*mockServiceInfoBroker).On("GetInfoFromService", ctx,
-			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 
 		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
 			RunsOnNodeId: models.PMMServerNodeID,
@@ -719,13 +719,13 @@ func TestAgents(t *testing.T) {
 		as.r.(*mockAgentsRegistry).On("IsConnected", "00000000-0000-4000-8000-000000000005").Return(true)
 		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "00000000-0000-4000-8000-000000000005")
 		as.cc.(*mockConnectionChecker).On("CheckConnectionToService", ctx,
-			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 		as.sib.(*mockServiceInfoBroker).On("GetInfoFromService", ctx,
-			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 
 		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
 			RunsOnNodeId: models.PMMServerNodeID,

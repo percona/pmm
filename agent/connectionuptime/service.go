@@ -17,6 +17,7 @@ package connectionuptime
 
 import (
 	"context"
+	"slices"
 	"sync"
 	"time"
 
@@ -84,8 +85,8 @@ func (c *Service) deleteOldEvents(toTime time.Time) {
 	// The latest expired element in the slice will be the first one to calculate
 	// uptime correctly during set up window time
 	boundaryTimestamp := toTime.Add(-c.windowPeriod)
-	for i := len(c.events) - 1; i >= 0; i-- {
-		if c.events[i].Timestamp.Before(boundaryTimestamp) {
+	for i, v := range slices.Backward(c.events) {
+		if v.Timestamp.Before(boundaryTimestamp) {
 			c.removeFirstElementsUntilIndex(i)
 
 			return
