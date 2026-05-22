@@ -71,7 +71,7 @@ func deriveTicketDetailsURL(createURL string) string {
 
 // fetchTicketNumber calls the ServiceNow /ticket_details endpoint to get the human-readable ticket number.
 func fetchTicketNumber(ctx context.Context, detailsURL, apiKey, clientToken, ticketID string) (string, error) {
-	payload, err := json.Marshal(serviceNowDetailsRequest{
+	payload, err := json.Marshal(serviceNowDetailsRequest{ //nolint:gosec // ClientToken is the documented ServiceNow API auth payload; we send it, never log it
 		ClientToken: clientToken,
 		TicketID:    ticketID,
 	})
@@ -85,13 +85,13 @@ func fetchTicketNumber(ctx context.Context, detailsURL, apiKey, clientToken, tic
 		return "", fmt.Errorf("build details request: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("x-sn-apikey", apiKey)
+	req.Header.Set("X-Sn-Apikey", apiKey)
 
 	resp, err := client.Do(req)
 	if err != nil {
 		return "", fmt.Errorf("details request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -209,7 +209,7 @@ func (h *Handlers) PostServiceNowTicket(w http.ResponseWriter, r *http.Request, 
 		TicketType:       "incident",
 	}
 
-	body, err := json.Marshal(payload)
+	body, err := json.Marshal(payload) //nolint:gosec // ClientToken is the documented ServiceNow API auth payload; we send it, never log it
 	if err != nil {
 		h.l.Errorf("Marshal ServiceNow request: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Failed to build request")
@@ -224,7 +224,7 @@ func (h *Handlers) PostServiceNowTicket(w http.ResponseWriter, r *http.Request, 
 		return
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("x-sn-apikey", settings.Adre.ServiceNowAPIKey)
+	req.Header.Set("X-Sn-Apikey", settings.Adre.ServiceNowAPIKey)
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -232,7 +232,7 @@ func (h *Handlers) PostServiceNowTicket(w http.ResponseWriter, r *http.Request, 
 		writeJSONError(w, http.StatusBadGateway, "ServiceNow request failed: "+err.Error())
 		return
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -285,7 +285,7 @@ func (h *Handlers) PostServiceNowTicket(w http.ResponseWriter, r *http.Request, 
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	_ = json.NewEncoder(w).Encode(map[string]any{
+	_ = json.NewEncoder(w).Encode(map[string]any{ //nolint:errchkjson // response already committed
 		"success":       true,
 		"ticket_id":     snResp.Result.TicketID,
 		"ticket_number": inv.ServiceNowTicketNumber,

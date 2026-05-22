@@ -101,10 +101,10 @@ func (c *Client) Collect(ch chan<- prom.Metric) {
 
 // clientError contains error response details.
 type clientError struct {
-	Method       string
-	URL          string
-	Code         int
-	Body         string
+	Method       string `json:"-"`
+	URL          string `json:"-"`
+	Code         int    `json:"-"`
+	Body         string `json:"-"`
 	ErrorMessage string `json:"message"` // from response JSON object, if any
 }
 
@@ -203,7 +203,7 @@ func (c *Client) DoRaw(ctx context.Context, method, path, rawQuery string, heade
 		Path:     path,
 		RawQuery: rawQuery,
 	}
-	req, err := http.NewRequest(method, u.String(), bytes.NewReader(body))
+	req, err := http.NewRequestWithContext(ctx, method, u.String(), bytes.NewReader(body))
 	if err != nil {
 		return nil, "", errors.WithStack(err)
 	}
@@ -213,7 +213,6 @@ func (c *Client) DoRaw(ctx context.Context, method, path, rawQuery string, heade
 	for k := range headers {
 		req.Header.Set(k, headers.Get(k))
 	}
-	req = req.WithContext(ctx)
 	resp, err := c.http.Do(req)
 	if err != nil {
 		return nil, "", errors.WithStack(err)

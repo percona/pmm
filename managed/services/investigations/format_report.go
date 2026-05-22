@@ -144,19 +144,19 @@ func buildBlockDataJSON(blockType, content string) []byte {
 	if blockType == BlockTypeRemediationSteps {
 		steps := parseRemediationSteps(content)
 		if len(steps) > 0 {
-			b, _ := json.Marshal(map[string]any{"steps": steps})
+			b, _ := json.Marshal(map[string]any{"steps": steps}) //nolint:errchkjson // []string is always marshalable
 			return b
 		}
 	}
 	if blockType == BlockTypeImage {
 		url := strings.TrimSpace(content)
 		if url != "" {
-			b, _ := json.Marshal(map[string]string{"url": url})
+			b, _ := json.Marshal(map[string]string{"url": url}) //nolint:errchkjson // map[string]string is always marshalable
 			return b
 		}
 	}
 	// markdown / finding: {"content": "..."}
-	b, _ := json.Marshal(map[string]string{"content": content})
+	b, _ := json.Marshal(map[string]string{"content": content}) //nolint:errchkjson // map[string]string is always marshalable
 	return b
 }
 
@@ -261,7 +261,8 @@ func hasTwoValidTimelineEvents(events []TimelineEvent) bool {
 		if strings.TrimSpace(ev.EventTime) == "" {
 			continue
 		}
-		if _, err := time.Parse(time.RFC3339, ev.EventTime); err != nil {
+		_, err := time.Parse(time.RFC3339, ev.EventTime)
+		if err != nil {
 			continue
 		}
 		valid++

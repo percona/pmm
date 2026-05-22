@@ -18,8 +18,6 @@ package models
 import (
 	"encoding/json"
 	"strings"
-
-	"github.com/pkg/errors"
 )
 
 const (
@@ -44,7 +42,7 @@ func ParseOtelLogSourcesFromLabels(labels map[string]string) ([]OtelLogSourceEnt
 		var entries []OtelLogSourceEntry
 		err := json.Unmarshal([]byte(s), &entries)
 		if err != nil {
-			return nil, errors.WithStack(err)
+			return nil, err
 		}
 		return entries, nil
 	}

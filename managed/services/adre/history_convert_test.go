@@ -24,13 +24,13 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-func TestAdreMessagesToHolmesHistory_OmitsToolRows(t *testing.T) {
+func TestMessagesToHolmesHistory_OmitsToolRows(t *testing.T) {
 	msgs := []models.AdreMessage{
 		{Role: "user", Content: "hi"},
 		{Role: "assistant", Content: "hello"},
 		{Role: "tool", ToolName: "navigate", ToolResultJSON: []byte(`{"ok":true}`)},
 	}
-	out := AdreMessagesToHolmesHistory(msgs)
+	out := MessagesToHolmesHistory(msgs)
 	require.Len(t, out, 2)
 	m0, ok := out[0].(map[string]any)
 	require.True(t, ok)

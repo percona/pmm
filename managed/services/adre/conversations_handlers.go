@@ -27,7 +27,7 @@ import (
 func writeJSON(w http.ResponseWriter, status int, v any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(v)
+	_ = json.NewEncoder(w).Encode(v) //nolint:errchkjson // response already committed; nothing actionable on encode failure
 }
 
 func writeNotFound(w http.ResponseWriter) {
@@ -38,7 +38,7 @@ func writeRateLimited(w http.ResponseWriter, retryAfterSec int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Retry-After", strconv.Itoa(retryAfterSec))
 	w.WriteHeader(http.StatusTooManyRequests)
-	_ = json.NewEncoder(w).Encode(map[string]any{
+	_ = json.NewEncoder(w).Encode(map[string]any{ //nolint:errchkjson // response already committed; nothing actionable on encode failure
 		"code":            "rate_limited",
 		"message":         "Too many search requests. Try again later.",
 		"retry_after_sec": retryAfterSec,

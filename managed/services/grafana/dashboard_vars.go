@@ -24,8 +24,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-
-	"github.com/pkg/errors"
 )
 
 // dashboardAPIEnvelope matches Grafana GET /api/dashboards/uid/:uid top-level JSON.
@@ -67,8 +65,9 @@ func fetchDashboardEnvelope(ctx context.Context, client *Client, dashboardUID st
 		return nil, err
 	}
 	var env dashboardAPIEnvelope
-	if err := json.Unmarshal(body, &env); err != nil {
-		return nil, errors.Wrap(err, "decode dashboard JSON")
+	err = json.Unmarshal(body, &env)
+	if err != nil {
+		return nil, fmt.Errorf("decode dashboard JSON: %w", err)
 	}
 	return &env, nil
 }

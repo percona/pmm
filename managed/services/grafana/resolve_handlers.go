@@ -18,6 +18,7 @@ package grafana
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -29,7 +30,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 )
@@ -399,7 +399,7 @@ func truncateBodySnippet(body []byte) string {
 func writeResolveJSON(w http.ResponseWriter, status int, resp resolveResponse) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(resp)
+	_ = json.NewEncoder(w).Encode(resp) //nolint:errchkjson // response already committed
 }
 
 func writeJSONError(w http.ResponseWriter, status int, msg, detail string) {
@@ -409,7 +409,7 @@ func writeJSONError(w http.ResponseWriter, status int, msg, detail string) {
 	if detail != "" {
 		m["detail"] = detail
 	}
-	_ = json.NewEncoder(w).Encode(m)
+	_ = json.NewEncoder(w).Encode(m) //nolint:errchkjson // response already committed
 }
 
 // BlobHandler serves GET /v1/grafana/render/blob/{sha256}.png from disk.
@@ -449,7 +449,7 @@ func (h *BlobHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		h.l.Debugf("blob miss %s: %v", hash, err)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusNotFound)
-		_ = json.NewEncoder(w).Encode(map[string]string{
+		_ = json.NewEncoder(w).Encode(map[string]string{ //nolint:errchkjson // response already committed
 			"error":        "snapshot not found",
 			"content_hash": hash,
 		})
@@ -458,13 +458,13 @@ func (h *BlobHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "image/png")
 	w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
 	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(data)
+	_, _ = w.Write(data) //nolint:gosec // Content-Type=image/png; data is binary PNG addressed by sha256 (validated above)
 }
 
 func writeBlobNotFound(w http.ResponseWriter, suffix string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusNotFound)
-	_ = json.NewEncoder(w).Encode(map[string]string{"error": "snapshot not found", "detail": suffix})
+	_ = json.NewEncoder(w).Encode(map[string]string{"error": "snapshot not found", "detail": suffix}) //nolint:errchkjson // response already committed
 }
 
 // LegacyGETRenderGoneHandler responds to legacy GET /v1/grafana/render with 410 and migration hint.
@@ -484,7 +484,7 @@ func (h *LegacyGETRenderGoneHandler) ServeHTTP(w http.ResponseWriter, r *http.Re
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusGone)
-	_ = json.NewEncoder(w).Encode(map[string]string{
+	_ = json.NewEncoder(w).Encode(map[string]string{ //nolint:errchkjson // response already committed
 		"error":      "This endpoint was removed. Use POST /v1/grafana/render/resolve with a JSON body, then embed image_url (blob path).",
 		"migration":  "POST /v1/grafana/render/resolve",
 		"blob_fetch": "GET /v1/grafana/render/blob/{content_hash}.png",
@@ -506,7 +506,7 @@ func ReadCachedRenderBlob(contentHash string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 	data, err := io.ReadAll(io.LimitReader(f, maxCachedRenderBlobBytes+1))
 	if err != nil {
 		return nil, err
@@ -523,7 +523,7 @@ func writeBlobPNG(contentHash string, body []byte) error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(blobPNGPath(contentHash), body, 0o644)
+	return os.WriteFile(blobPNGPath(contentHash), body, 0o600)
 }
 
 func blobPNGPath(contentHash string) string {

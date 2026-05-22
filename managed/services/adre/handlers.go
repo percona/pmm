@@ -607,10 +607,10 @@ func (h *Handlers) PostQanInsights(w http.ResponseWriter, r *http.Request) {
 			var cachedAnalysis string
 			var cachedAt time.Time
 			found := rows.Next() && rows.Scan(&cachedAnalysis, &cachedAt) == nil
-			rows.Close()
+			_ = rows.Close()
 			if found {
 				w.Header().Set("Content-Type", "application/json")
-				_ = json.NewEncoder(w).Encode(map[string]any{
+				_ = json.NewEncoder(w).Encode(map[string]any{ //nolint:errchkjson // response already committed
 					"analysis":   cachedAnalysis,
 					"created_at": cachedAt.Format(time.RFC3339),
 					"cached":     true,
@@ -660,7 +660,7 @@ func (h *Handlers) PostQanInsights(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(map[string]any{
+	_ = json.NewEncoder(w).Encode(map[string]any{ //nolint:errchkjson // response already committed
 		"analysis":   analysis,
 		"created_at": time.Now().Format(time.RFC3339),
 		"cached":     false,
@@ -693,10 +693,10 @@ func (h *Handlers) GetQanInsights(w http.ResponseWriter, r *http.Request) {
 		writeJSONError(w, http.StatusInternalServerError, "Failed to check cache")
 		return
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 	if !rows.Next() {
 		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(map[string]any{
+		_ = json.NewEncoder(w).Encode(map[string]any{ //nolint:errchkjson // response already committed
 			"analysis": "",
 			"cached":   false,
 		})
@@ -710,7 +710,7 @@ func (h *Handlers) GetQanInsights(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(map[string]any{
+	_ = json.NewEncoder(w).Encode(map[string]any{ //nolint:errchkjson // response already committed
 		"analysis":   analysis,
 		"created_at": createdAt.Format(time.RFC3339),
 		"cached":     true,
@@ -770,14 +770,14 @@ func (h *Handlers) PostQanInsightsServiceNow(w http.ResponseWriter, r *http.Requ
 		return
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("x-sn-apikey", settings.Adre.ServiceNowAPIKey)
+	req.Header.Set("X-Sn-Apikey", settings.Adre.ServiceNowAPIKey)
 	client := &http.Client{Timeout: 30 * time.Second}
 	resp, err := client.Do(req)
 	if err != nil {
 		writeJSONError(w, http.StatusBadGateway, "ServiceNow request failed: "+err.Error())
 		return
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	respBody, _ := io.ReadAll(resp.Body)
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		writeJSONError(w, http.StatusBadGateway, fmt.Sprintf("ServiceNow returned HTTP %d", resp.StatusCode))
@@ -805,7 +805,7 @@ func (h *Handlers) PostQanInsightsServiceNow(w http.ResponseWriter, r *http.Requ
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	_ = json.NewEncoder(w).Encode(map[string]any{
+	_ = json.NewEncoder(w).Encode(map[string]any{ //nolint:errchkjson // response already committed
 		"success":       true,
 		"ticket_id":     parsed.Result.TicketID,
 		"ticket_number": parsed.Result.TicketID,
@@ -861,5 +861,5 @@ func (h *Handlers) GetAlerts(w http.ResponseWriter, r *http.Request) {
 func writeJSONError(w http.ResponseWriter, status int, message string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(map[string]string{"error": message})
+	_ = json.NewEncoder(w).Encode(map[string]string{"error": message}) //nolint:errchkjson // response already committed
 }

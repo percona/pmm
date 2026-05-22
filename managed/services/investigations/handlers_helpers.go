@@ -17,10 +17,10 @@ package investigations
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"time"
 
-	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
@@ -51,7 +51,7 @@ func getBlockAndCheckInvestigation(db *reform.DB, investigationID, blockID strin
 	}
 	var block models.InvestigationBlock
 	if err := db.FindByPrimaryKeyTo(&block, blockID); err != nil {
-		if errors.As(err, &reform.ErrNoRows) {
+		if errors.Is(err, reform.ErrNoRows) {
 			return nil, &httpError{http.StatusNotFound, "Block not found"}
 		}
 		return nil, &httpError{http.StatusInternalServerError, "Failed to get block"}
@@ -131,7 +131,7 @@ func investigationToResponse(inv *models.Investigation) investigationResponse {
 				resp.ClusterName = v
 			}
 			if raw, ok := cfg["confidence"]; ok && raw != nil {
-				b, _ := json.Marshal(raw)
+				b, _ := json.Marshal(raw) //nolint:errchkjson // cfg comes from prior Unmarshal; re-marshal is safe
 				var cp struct {
 					Band      string          `json:"band"`
 					Score     int             `json:"score"`

@@ -15,9 +15,8 @@
 package management
 
 import (
+	"errors"
 	"strings"
-
-	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
@@ -137,7 +136,7 @@ func changeOtelCollectorAPI(agentID string, body *agents.ChangeAgentParamsBodyOt
 }
 
 // appendLogSourcesFromCLI parses --log-sources and --log-file-paths / --parser-preset into swagger log source items.
-func appendLogSourcesFromCLI(logSources string, logFilePaths []string, parserPreset string) ([]*agents.AddAgentParamsBodyOtelCollectorLogSourcesItems0, error) {
+func appendLogSourcesFromCLI(logSources string, logFilePaths []string, parserPreset string) []*agents.AddAgentParamsBodyOtelCollectorLogSourcesItems0 {
 	var out []*agents.AddAgentParamsBodyOtelCollectorLogSourcesItems0
 	if logSources != "" {
 		for pair := range strings.SplitSeq(logSources, ",") {
@@ -161,10 +160,10 @@ func appendLogSourcesFromCLI(logSources string, logFilePaths []string, parserPre
 				})
 			}
 		}
-		return out, nil
+		return out
 	}
 	if len(logFilePaths) == 0 {
-		return nil, nil
+		return nil
 	}
 	preset := parserPreset
 	if preset == "" {
@@ -180,7 +179,7 @@ func appendLogSourcesFromCLI(logSources string, logFilePaths []string, parserPre
 			Preset: preset,
 		})
 	}
-	return out, nil
+	return out
 }
 
 func toChangeAddLogSources(in []*agents.AddAgentParamsBodyOtelCollectorLogSourcesItems0) []*agents.ChangeAgentParamsBodyOtelCollectorAddLogSourcesItems0 {

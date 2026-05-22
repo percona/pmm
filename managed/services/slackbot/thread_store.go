@@ -45,8 +45,8 @@ func msgMap(role, content string) map[string]any {
 func (ts *ThreadStore) AppendUser(key ThreadKey, text string) {
 	ts.mu.Lock()
 	defer ts.mu.Unlock()
-	h := append(ts.items[key], msgMap("user", text))
-	ts.items[key] = trimHistory(h, maxThreadMessagesRAM)
+	ts.items[key] = append(ts.items[key], msgMap("user", text))
+	ts.items[key] = trimHistory(ts.items[key], maxThreadMessagesRAM)
 }
 
 // UndoLastUserMessage removes the last message if it is a user turn matching content (used when PostMessage fails after append).
@@ -79,8 +79,8 @@ func (ts *ThreadStore) UndoLastUserMessage(key ThreadKey, content string) {
 func (ts *ThreadStore) AppendAssistant(key ThreadKey, text string) {
 	ts.mu.Lock()
 	defer ts.mu.Unlock()
-	h := append(ts.items[key], msgMap("assistant", text))
-	ts.items[key] = trimHistory(h, maxThreadMessagesRAM)
+	ts.items[key] = append(ts.items[key], msgMap("assistant", text))
+	ts.items[key] = trimHistory(ts.items[key], maxThreadMessagesRAM)
 }
 
 // Snapshot returns a shallow copy of messages for ADRE /api/chat conversation_history (oldest first).
@@ -93,9 +93,9 @@ func (ts *ThreadStore) Snapshot(key ThreadKey) []any {
 	return out
 }
 
-func trimHistory(h []any, max int) []any {
-	if len(h) <= max {
+func trimHistory(h []any, maxLen int) []any {
+	if len(h) <= maxLen {
 		return h
 	}
-	return h[len(h)-max:]
+	return h[len(h)-maxLen:]
 }

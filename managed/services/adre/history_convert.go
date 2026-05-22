@@ -19,8 +19,8 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// AdreMessagesToHolmesHistory converts persisted rows (oldest first) to Holmes conversation_history entries.
-func AdreMessagesToHolmesHistory(msgs []models.AdreMessage) []any {
+// MessagesToHolmesHistory converts persisted rows (oldest first) to Holmes conversation_history entries.
+func MessagesToHolmesHistory(msgs []models.AdreMessage) []any {
 	out := make([]any, 0, len(msgs))
 	for _, m := range msgs {
 		switch m.Role {

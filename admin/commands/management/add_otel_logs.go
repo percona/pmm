@@ -15,7 +15,7 @@
 package management
 
 import (
-	"github.com/pkg/errors"
+	"errors"
 
 	"github.com/percona/pmm/admin/commands"
 	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
@@ -42,10 +42,7 @@ func (cmd *AddOtelLogsCommand) RunCmd() (commands.Result, error) {
 		return nil, err
 	}
 
-	srcItems, err := appendLogSourcesFromCLI(cmd.LogSources, cmd.LogFilePaths, cmd.ParserPreset)
-	if err != nil {
-		return nil, err
-	}
+	srcItems := appendLogSourcesFromCLI(cmd.LogSources, cmd.LogFilePaths, cmd.ParserPreset)
 
 	custom := commands.ParseKeyValuePair(&cmd.CustomLabels)
 

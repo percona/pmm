@@ -24,13 +24,11 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/pkg/errors"
-
 	"github.com/percona/pmm/managed/models"
 )
 
 // GetInvestigationExportPDF returns an HTML report for the investigation so the client can print to PDF.
-func (h *Handlers) GetInvestigationExportPDF(w http.ResponseWriter, r *http.Request, id string) {
+func (h *Handlers) GetInvestigationExportPDF(w http.ResponseWriter, _ *http.Request, id string) {
 	inv, err := models.GetInvestigationByID(h.db, id)
 	if err != nil {
 		h.l.Errorf("GetInvestigationByID: %v", err)
@@ -197,7 +195,7 @@ func blockExportContent(blk *models.InvestigationBlock) (string, error) {
 		if len(blk.DataJSON) > 0 {
 			err := json.Unmarshal(blk.DataJSON, &data)
 			if err != nil {
-				return "", errors.Wrap(err, "data_json")
+				return "", fmt.Errorf("data_json: %w", err)
 			}
 		}
 		steps, _ := data["steps"].([]any)
@@ -219,7 +217,7 @@ func blockExportContent(blk *models.InvestigationBlock) (string, error) {
 		if len(blk.DataJSON) > 0 {
 			err := json.Unmarshal(blk.DataJSON, &data)
 			if err != nil {
-				return "", errors.Wrap(err, "data_json")
+				return "", fmt.Errorf("data_json: %w", err)
 			}
 		}
 		text := ""
@@ -238,7 +236,7 @@ func blockExportContent(blk *models.InvestigationBlock) (string, error) {
 		if len(blk.DataJSON) > 0 {
 			err := json.Unmarshal(blk.DataJSON, &data)
 			if err != nil {
-				return "", errors.Wrap(err, "data_json")
+				return "", fmt.Errorf("data_json: %w", err)
 			}
 		}
 		result, _ := data["result"].(string)
@@ -254,14 +252,14 @@ func blockExportContent(blk *models.InvestigationBlock) (string, error) {
 		if len(blk.ConfigJSON) > 0 {
 			err := json.Unmarshal(blk.ConfigJSON, &cfg)
 			if err != nil {
-				return "", errors.Wrap(err, "config_json")
+				return "", fmt.Errorf("config_json: %w", err)
 			}
 		}
 		var data map[string]any
 		if len(blk.DataJSON) > 0 {
 			err := json.Unmarshal(blk.DataJSON, &data)
 			if err != nil {
-				return "", errors.Wrap(err, "data_json")
+				return "", fmt.Errorf("data_json: %w", err)
 			}
 		}
 		src := strings.TrimSpace(fmt.Sprint(cfg["url"]))
@@ -311,9 +309,14 @@ func blockExportContent(blk *models.InvestigationBlock) (string, error) {
 			var raw map[string]any
 			err := json.Unmarshal(blk.DataJSON, &raw)
 			if err != nil {
+				//nolint:nilerr // fallback: show raw bytes when unmarshal fails
 				return "<pre>" + html.EscapeString(string(blk.DataJSON)) + "</pre>", nil
 			}
-			content, _ := json.MarshalIndent(raw, "", "  ")
+			content, mErr := json.MarshalIndent(raw, "", "  ")
+			if mErr != nil {
+				//nolint:nilerr // fallback: show raw bytes when marshal fails
+				return "<pre>" + html.EscapeString(string(blk.DataJSON)) + "</pre>", nil
+			}
 			return "<pre>" + html.EscapeString(string(content)) + "</pre>", nil
 		}
 		return "<p>(no data)</p>", nil

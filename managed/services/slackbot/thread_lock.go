@@ -23,7 +23,7 @@ var threadLocks sync.Map // ThreadKey -> *sync.Mutex
 
 func acquireThreadLock(k ThreadKey) func() {
 	v, _ := threadLocks.LoadOrStore(k, new(sync.Mutex))
-	m := v.(*sync.Mutex)
+	m := v.(*sync.Mutex) //nolint:forcetypeassert // we just stored *sync.Mutex above
 	m.Lock()
 	return m.Unlock
 }

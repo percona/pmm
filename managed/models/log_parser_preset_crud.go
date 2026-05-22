@@ -16,13 +16,13 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"regexp"
 	"strings"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 	"gopkg.in/yaml.v3"
 )
@@ -36,7 +36,7 @@ func ValidateLogParserPresetName(name string) error {
 		return errors.New("empty preset name")
 	}
 	if !logParserPresetNameRe.MatchString(name) {
-		return errors.Errorf("preset name %q must match %s", name, logParserPresetNameRe.String())
+		return fmt.Errorf("preset name %q must match %s", name, logParserPresetNameRe.String())
 	}
 	return nil
 }
@@ -50,7 +50,7 @@ func ValidateLogParserOperatorYAML(operatorYAML string) error {
 	var ops []map[string]any
 	err := yaml.Unmarshal([]byte(operatorYAML), &ops)
 	if err != nil {
-		return errors.Wrap(err, "operator_yaml must be a YAML array of operator objects")
+		return fmt.Errorf("operator_yaml must be a YAML array of operator objects: %w", err)
 	}
 	if len(ops) == 0 {
 		return errors.New("operator_yaml must contain at least one operator")
@@ -58,7 +58,7 @@ func ValidateLogParserOperatorYAML(operatorYAML string) error {
 	for i, op := range ops {
 		t, ok := op["type"].(string)
 		if !ok || strings.TrimSpace(t) == "" {
-			return errors.Errorf("operator %d: missing or invalid type", i)
+			return fmt.Errorf("operator %d: missing or invalid type", i)
 		}
 	}
 	return nil
@@ -79,7 +79,7 @@ func ListOtelCollectorAgentIDsReferencingLogParserPreset(q *reform.Querier, pres
 	for _, a := range agents {
 		labels, err := a.GetCustomLabels()
 		if err != nil {
-			return nil, errors.WithStack(err)
+			return nil, err
 		}
 		entries, err := ParseOtelLogSourcesFromLabels(labels)
 		if err != nil {
@@ -130,7 +130,7 @@ func CreateLogParserPreset(q *reform.Querier, name, description, operatorYAML st
 		UpdatedAt:    now,
 	}
 	if err := q.Insert(row); err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	return row, nil
 }
@@ -164,7 +164,7 @@ func UpdateLogParserPreset(q *reform.Querier, id string, description *string, op
 	}
 	row.UpdatedAt = time.Now()
 	if err := q.Update(row); err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	return row, nil
 }
@@ -184,5 +184,5 @@ func DeleteLogParserPreset(q *reform.Querier, id string) error {
 	if row.BuiltIn {
 		return errors.New("cannot delete built-in log parser preset")
 	}
-	return errors.WithStack(q.Delete(row))
+	return q.Delete(row)
 }

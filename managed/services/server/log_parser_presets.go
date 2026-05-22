@@ -17,9 +17,9 @@ package server
 
 import (
 	"context"
+	"errors"
 	"strings"
 
-	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -71,7 +71,7 @@ func mapLogParserPresetErr(err error) error {
 }
 
 // ListLogParserPresets returns all log parser presets.
-func (s *Server) ListLogParserPresets(ctx context.Context, _ *serverv1.ListLogParserPresetsRequest) (*serverv1.ListLogParserPresetsResponse, error) {
+func (s *Server) ListLogParserPresets(_ context.Context, _ *serverv1.ListLogParserPresetsRequest) (*serverv1.ListLogParserPresetsResponse, error) {
 	rows, err := models.FindAllLogParserPresets(s.db.Querier)
 	if err != nil {
 		return nil, err
@@ -84,7 +84,7 @@ func (s *Server) ListLogParserPresets(ctx context.Context, _ *serverv1.ListLogPa
 }
 
 // GetLogParserPreset returns one preset by id.
-func (s *Server) GetLogParserPreset(ctx context.Context, req *serverv1.GetLogParserPresetRequest) (*serverv1.GetLogParserPresetResponse, error) {
+func (s *Server) GetLogParserPreset(_ context.Context, req *serverv1.GetLogParserPresetRequest) (*serverv1.GetLogParserPresetResponse, error) {
 	if strings.TrimSpace(req.GetId()) == "" {
 		return nil, status.Error(codes.InvalidArgument, "id is required.")
 	}

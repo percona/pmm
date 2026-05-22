@@ -13,6 +13,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+// Package investigations implements the HTTP/JSON API and helpers for
+// the Investigations feature (incident reports, blocks, timeline, comments).
 package investigations
 
 // Block type constants for investigation_blocks.type.

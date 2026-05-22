@@ -136,7 +136,7 @@ func (h *Handlers) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 		case len(segments) == 2 && segments[1] == "run":
 			if r.Method == http.MethodPost {
-				h.PostInvestigationRun(w, r, id)
+				h.PostInvestigationRun(w, r, id) //nolint:contextcheck // run spawns a goroutine with a fresh detached context (see runInvestigationBackground)
 				return
 			}
 		case len(segments) == 2 && segments[1] == "servicenow":
@@ -157,20 +157,23 @@ func (h *Handlers) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func writeJSONError(w http.ResponseWriter, status int, message string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(map[string]string{"error": message})
+	_ = json.NewEncoder(w).Encode(map[string]string{"error": message}) //nolint:errchkjson // response already committed
 }
 
+// ListInvestigations handles GET /v1/investigations.
 func (h *Handlers) ListInvestigations(w http.ResponseWriter, r *http.Request) {
 	status := r.URL.Query().Get("status")
 	limit := 50
 	offset := 0
 	if v := r.URL.Query().Get("limit"); v != "" {
-		if n, err := strconv.Atoi(v); err == nil && n > 0 && n <= 100 {
+		n, err := strconv.Atoi(v)
+		if err == nil && n > 0 && n <= 100 {
 			limit = n
 		}
 	}
 	if v := r.URL.Query().Get("offset"); v != "" {
-		if n, err := strconv.Atoi(v); err == nil && n >= 0 {
+		n, err := strconv.Atoi(v)
+		if err == nil && n >= 0 {
 			offset = n
 		}
 	}
@@ -217,9 +220,10 @@ func (h *Handlers) ListInvestigations(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(out)
+	_ = json.NewEncoder(w).Encode(out) //nolint:errchkjson // response already committed
 }
 
+// CreateInvestigation handles POST /v1/investigations.
 func (h *Handlers) CreateInvestigation(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		Title         string          `json:"title"`
@@ -276,7 +280,8 @@ func (h *Handlers) CreateInvestigation(w http.ResponseWriter, r *http.Request) {
 		cfg["alert_snapshot"] = string(body.AlertSnapshot)
 	}
 	if len(cfg) > 0 {
-		if b, err := json.Marshal(cfg); err == nil {
+		b, mErr := json.Marshal(cfg)
+		if mErr == nil {
 			config = b
 		}
 	}
@@ -302,10 +307,11 @@ func (h *Handlers) CreateInvestigation(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	_ = json.NewEncoder(w).Encode(investigationToResponse(inv))
+	_ = json.NewEncoder(w).Encode(investigationToResponse(inv)) //nolint:errchkjson // response already committed
 }
 
-func (h *Handlers) GetInvestigation(w http.ResponseWriter, r *http.Request, id string) {
+// GetInvestigation handles GET /v1/investigations/:id.
+func (h *Handlers) GetInvestigation(w http.ResponseWriter, _ *http.Request, id string) {
 	inv, err := models.GetInvestigationByID(h.db, id)
 	if err != nil {
 		h.l.Errorf("GetInvestigationByID: %v", err)
@@ -325,9 +331,10 @@ func (h *Handlers) GetInvestigation(w http.ResponseWriter, r *http.Request, id s
 	resp := investigationToResponse(inv)
 	resp.Blocks = blocksToResponse(blocks)
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(resp)
+	_ = json.NewEncoder(w).Encode(resp) //nolint:errchkjson // response already committed
 }
 
+// PatchInvestigation handles PATCH /v1/investigations/:id.
 func (h *Handlers) PatchInvestigation(w http.ResponseWriter, r *http.Request, id string) {
 	inv, err := models.GetInvestigationByID(h.db, id)
 	if err != nil || inv == nil {
@@ -350,7 +357,8 @@ func (h *Handlers) PatchInvestigation(w http.ResponseWriter, r *http.Request, id
 		TimeFrom          *string `json:"time_from"`
 		TimeTo            *string `json:"time_to"`
 	}
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+	err = json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
 		return
 	}
@@ -399,16 +407,18 @@ func (h *Handlers) PatchInvestigation(w http.ResponseWriter, r *http.Request, id
 			inv.TimeTo = t
 		}
 	}
-	if err := models.UpdateInvestigation(h.db, inv); err != nil {
+	err = models.UpdateInvestigation(h.db, inv)
+	if err != nil {
 		h.l.Errorf("UpdateInvestigation: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Failed to update investigation")
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(investigationToResponse(inv))
+	_ = json.NewEncoder(w).Encode(investigationToResponse(inv)) //nolint:errchkjson // response already committed
 }
 
-func (h *Handlers) DeleteInvestigation(w http.ResponseWriter, r *http.Request, id string) {
+// DeleteInvestigation handles DELETE /v1/investigations/:id.
+func (h *Handlers) DeleteInvestigation(w http.ResponseWriter, _ *http.Request, id string) {
 	err := models.DeleteInvestigation(h.db, id)
 	if err != nil {
 		h.l.Errorf("DeleteInvestigation: %v", err)
@@ -418,7 +428,8 @@ func (h *Handlers) DeleteInvestigation(w http.ResponseWriter, r *http.Request, i
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func (h *Handlers) GetInvestigationBlocks(w http.ResponseWriter, r *http.Request, id string) {
+// GetInvestigationBlocks handles GET /v1/investigations/:id/blocks.
+func (h *Handlers) GetInvestigationBlocks(w http.ResponseWriter, _ *http.Request, id string) {
 	inv, _ := models.GetInvestigationByID(h.db, id)
 	if inv == nil {
 		writeJSONError(w, http.StatusNotFound, "Investigation not found")
@@ -431,9 +442,10 @@ func (h *Handlers) GetInvestigationBlocks(w http.ResponseWriter, r *http.Request
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(blocksToResponse(blocks))
+	_ = json.NewEncoder(w).Encode(blocksToResponse(blocks)) //nolint:errchkjson // response already committed
 }
 
+// PostInvestigationBlock handles POST /v1/investigations/:id/blocks.
 func (h *Handlers) PostInvestigationBlock(w http.ResponseWriter, r *http.Request, id string) {
 	inv, err := models.GetInvestigationByID(h.db, id)
 	if err != nil {
@@ -476,9 +488,10 @@ func (h *Handlers) PostInvestigationBlock(w http.ResponseWriter, r *http.Request
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	_ = json.NewEncoder(w).Encode(blockToResponse(block))
+	_ = json.NewEncoder(w).Encode(blockToResponse(block)) //nolint:errchkjson // response already committed
 }
 
+// PatchInvestigationBlock handles PATCH /v1/investigations/:id/blocks/:blockID.
 func (h *Handlers) PatchInvestigationBlock(w http.ResponseWriter, r *http.Request, id, blockID string) {
 	block, err := getBlockAndCheckInvestigation(h.db, id, blockID)
 	if err != nil {
@@ -517,10 +530,11 @@ func (h *Handlers) PatchInvestigationBlock(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(blockToResponse(block))
+	_ = json.NewEncoder(w).Encode(blockToResponse(block)) //nolint:errchkjson // response already committed
 }
 
-func (h *Handlers) DeleteInvestigationBlock(w http.ResponseWriter, r *http.Request, id, blockID string) {
+// DeleteInvestigationBlock handles DELETE /v1/investigations/:id/blocks/:blockID.
+func (h *Handlers) DeleteInvestigationBlock(w http.ResponseWriter, _ *http.Request, id, blockID string) {
 	_, err := getBlockAndCheckInvestigation(h.db, id, blockID)
 	if err != nil {
 		writeJSONError(w, err.status, err.msg)
@@ -534,7 +548,8 @@ func (h *Handlers) DeleteInvestigationBlock(w http.ResponseWriter, r *http.Reque
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func (h *Handlers) GetInvestigationTimeline(w http.ResponseWriter, r *http.Request, id string) {
+// GetInvestigationTimeline handles GET /v1/investigations/:id/timeline.
+func (h *Handlers) GetInvestigationTimeline(w http.ResponseWriter, _ *http.Request, id string) {
 	inv, _ := models.GetInvestigationByID(h.db, id)
 	if inv == nil {
 		writeJSONError(w, http.StatusNotFound, "Investigation not found")
@@ -547,9 +562,10 @@ func (h *Handlers) GetInvestigationTimeline(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(timelineToResponse(events))
+	_ = json.NewEncoder(w).Encode(timelineToResponse(events)) //nolint:errchkjson // response already committed
 }
 
+// PostInvestigationTimeline handles POST /v1/investigations/:id/timeline.
 func (h *Handlers) PostInvestigationTimeline(w http.ResponseWriter, r *http.Request, id string) {
 	inv, err := models.GetInvestigationByID(h.db, id)
 	if err != nil || inv == nil {
@@ -598,10 +614,11 @@ func (h *Handlers) PostInvestigationTimeline(w http.ResponseWriter, r *http.Requ
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	_ = json.NewEncoder(w).Encode(timelineEventToResponse(event))
+	_ = json.NewEncoder(w).Encode(timelineEventToResponse(event)) //nolint:errchkjson // response already committed
 }
 
-func (h *Handlers) GetInvestigationArtifacts(w http.ResponseWriter, r *http.Request, id string) {
+// GetInvestigationArtifacts handles GET /v1/investigations/:id/artifacts.
+func (h *Handlers) GetInvestigationArtifacts(w http.ResponseWriter, _ *http.Request, id string) {
 	inv, _ := models.GetInvestigationByID(h.db, id)
 	if inv == nil {
 		writeJSONError(w, http.StatusNotFound, "Investigation not found")
@@ -614,9 +631,10 @@ func (h *Handlers) GetInvestigationArtifacts(w http.ResponseWriter, r *http.Requ
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(artifactsToResponse(artifacts))
+	_ = json.NewEncoder(w).Encode(artifactsToResponse(artifacts)) //nolint:errchkjson // response already committed
 }
 
+// PostInvestigationArtifact handles POST /v1/investigations/:id/artifacts.
 func (h *Handlers) PostInvestigationArtifact(w http.ResponseWriter, r *http.Request, id string) {
 	inv, err := models.GetInvestigationByID(h.db, id)
 	if err != nil || inv == nil {
@@ -656,9 +674,10 @@ func (h *Handlers) PostInvestigationArtifact(w http.ResponseWriter, r *http.Requ
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	_ = json.NewEncoder(w).Encode(artifactToResponse(artifact))
+	_ = json.NewEncoder(w).Encode(artifactToResponse(artifact)) //nolint:errchkjson // response already committed
 }
 
+// GetInvestigationComments handles GET /v1/investigations/:id/comments.
 func (h *Handlers) GetInvestigationComments(w http.ResponseWriter, r *http.Request, id string) {
 	inv, _ := models.GetInvestigationByID(h.db, id)
 	if inv == nil {
@@ -677,9 +696,10 @@ func (h *Handlers) GetInvestigationComments(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(commentsToResponse(comments))
+	_ = json.NewEncoder(w).Encode(commentsToResponse(comments)) //nolint:errchkjson // response already committed
 }
 
+// PostInvestigationComment handles POST /v1/investigations/:id/comments.
 func (h *Handlers) PostInvestigationComment(w http.ResponseWriter, r *http.Request, id string) {
 	inv, err := models.GetInvestigationByID(h.db, id)
 	if err != nil || inv == nil {
@@ -719,9 +739,10 @@ func (h *Handlers) PostInvestigationComment(w http.ResponseWriter, r *http.Reque
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	_ = json.NewEncoder(w).Encode(commentToResponse(c))
+	_ = json.NewEncoder(w).Encode(commentToResponse(c)) //nolint:errchkjson // response already committed
 }
 
+// GetInvestigationMessages handles GET /v1/investigations/:id/messages.
 func (h *Handlers) GetInvestigationMessages(w http.ResponseWriter, r *http.Request, id string) {
 	inv, _ := models.GetInvestigationByID(h.db, id)
 	if inv == nil {
@@ -747,5 +768,5 @@ func (h *Handlers) GetInvestigationMessages(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(messagesToResponse(messages))
+	_ = json.NewEncoder(w).Encode(messagesToResponse(messages)) //nolint:errchkjson // response already committed
 }

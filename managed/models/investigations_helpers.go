@@ -16,10 +16,10 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
-	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 )
 
@@ -39,8 +39,8 @@ func GetInvestigationByID(q *reform.DB, id string) (*Investigation, error) {
 	var inv Investigation
 	err := q.FindByPrimaryKeyTo(&inv, id)
 	if err != nil {
-		if errors.As(err, &reform.ErrNoRows) {
-			return nil, nil
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, nil //nolint:nilnil // "not found" sentinel matching managed/models convention
 		}
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func ListInvestigations(q *reform.DB, statusFilter string, limit, offset int, or
 	}
 	result := make([]*Investigation, len(records))
 	for i, r := range records {
-		result[i] = r.(*Investigation)
+		result[i] = r.(*Investigation) //nolint:forcetypeassert // reform.SelectAllFrom on InvestigationTable guarantees this type
 	}
 	return result, nil
 }
@@ -95,7 +95,7 @@ func DeleteInvestigation(q *reform.DB, id string) error {
 	var inv Investigation
 	err := q.FindByPrimaryKeyTo(&inv, id)
 	if err != nil {
-		if errors.As(err, &reform.ErrNoRows) {
+		if errors.Is(err, reform.ErrNoRows) {
 			return nil
 		}
 		return err
@@ -119,7 +119,7 @@ func GetInvestigationBlocks(q *reform.DB, investigationID string) ([]*Investigat
 	}
 	result := make([]*InvestigationBlock, len(records))
 	for i, r := range records {
-		result[i] = r.(*InvestigationBlock)
+		result[i] = r.(*InvestigationBlock) //nolint:forcetypeassert // reform.SelectAllFrom on InvestigationBlockTable guarantees this type
 	}
 	return result, nil
 }
@@ -135,7 +135,7 @@ func DeleteInvestigationBlock(q *reform.DB, id string) error {
 	var b InvestigationBlock
 	err := q.FindByPrimaryKeyTo(&b, id)
 	if err != nil {
-		if errors.As(err, &reform.ErrNoRows) {
+		if errors.Is(err, reform.ErrNoRows) {
 			return nil
 		}
 		return err
@@ -173,7 +173,7 @@ func GetInvestigationMessages(q *reform.DB, investigationID string, limit, offse
 	}
 	result := make([]*InvestigationMessage, len(records))
 	for i, r := range records {
-		result[i] = r.(*InvestigationMessage)
+		result[i] = r.(*InvestigationMessage) //nolint:forcetypeassert // reform.SelectAllFrom on InvestigationMessageTable guarantees this type
 	}
 	return result, nil
 }
@@ -201,7 +201,7 @@ func GetInvestigationComments(q *reform.DB, investigationID string, blockID *str
 	}
 	result := make([]*InvestigationComment, len(records))
 	for i, r := range records {
-		result[i] = r.(*InvestigationComment)
+		result[i] = r.(*InvestigationComment) //nolint:forcetypeassert // reform.SelectAllFrom on InvestigationCommentTable guarantees this type
 	}
 	return result, nil
 }
@@ -219,7 +219,7 @@ func GetInvestigationTimelineEvents(q *reform.DB, investigationID string) ([]*In
 	}
 	result := make([]*InvestigationTimelineEvent, len(records))
 	for i, r := range records {
-		result[i] = r.(*InvestigationTimelineEvent)
+		result[i] = r.(*InvestigationTimelineEvent) //nolint:forcetypeassert // reform.SelectAllFrom on InvestigationTimelineEventTable guarantees this type
 	}
 	return result, nil
 }
@@ -246,7 +246,7 @@ func GetInvestigationArtifacts(q *reform.DB, investigationID string) ([]*Investi
 	}
 	result := make([]*InvestigationArtifact, len(records))
 	for i, r := range records {
-		result[i] = r.(*InvestigationArtifact)
+		result[i] = r.(*InvestigationArtifact) //nolint:forcetypeassert // reform.SelectAllFrom on InvestigationArtifactTable guarantees this type
 	}
 	return result, nil
 }

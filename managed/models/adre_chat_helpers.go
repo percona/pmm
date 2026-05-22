@@ -19,11 +19,11 @@ import (
 	"database/sql"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"strings"
 	"time"
 	"unicode/utf8"
 
-	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 )
 
@@ -47,12 +47,14 @@ func TruncateAdreTitle(s string) string {
 }
 
 // GetAdreConversationOwned loads a conversation by id only if created_by matches.
+// Returns (nil, nil) when the row is not found, matching the convention used
+// throughout managed/models for nullable lookups.
 func GetAdreConversationOwned(q *reform.DB, id int64, createdBy string) (*AdreConversation, error) {
 	var c AdreConversation
 	err := q.SelectOneTo(&c, "WHERE id = $1 AND created_by = $2", id, createdBy)
 	if err != nil {
 		if errors.Is(err, reform.ErrNoRows) {
-			return nil, nil
+			return nil, nil //nolint:nilnil // "not found" sentinel matching managed/models convention
 		}
 		return nil, err
 	}
@@ -161,7 +163,7 @@ func ListAdreConversations(q reform.DBTX, createdBy, titleContains string, limit
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 	var out []AdreConversationListRow
 	for rows.Next() {
 		var r AdreConversationListRow
@@ -176,10 +178,13 @@ func ListAdreConversations(q reform.DBTX, createdBy, titleContains string, limit
 
 // EncodeAdreConversationCursor encodes keyset position for pagination.
 func EncodeAdreConversationCursor(lastMsgAt time.Time, id int64) string {
-	b, _ := json.Marshal(map[string]any{
+	b, err := json.Marshal(map[string]any{
 		"t":  lastMsgAt.UTC().Format(time.RFC3339Nano),
 		"id": id,
 	})
+	if err != nil {
+		return ""
+	}
 	return base64.RawURLEncoding.EncodeToString(b)
 }
 
@@ -251,7 +256,7 @@ func ListAdreMessages(q reform.DBTX, conversationID int64, beforeID *int64, afte
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 	var list []AdreMessage
 	for rows.Next() {
 		var m AdreMessage
@@ -287,7 +292,7 @@ func LoadAdreMessagesForHolmesHistory(q reform.DBTX, conversationID int64, exclu
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 	var list []AdreMessage
 	for rows.Next() {
 		var m AdreMessage
@@ -366,7 +371,7 @@ func SearchAdreMessagesFTS(q reform.DBTX, createdBy, qtext string, limit int) ([
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 	var out []AdreSearchHit
 	for rows.Next() {
 		var h AdreSearchHit

@@ -178,7 +178,7 @@ func runSocketMode(ctx context.Context, db *reform.DB, l *logrus.Entry) {
 			if !ok {
 				continue
 			}
-			sm.Ack(*evt.Request)
+			_ = sm.Ack(*evt.Request)
 			if eventsAPI.Type != slackevents.CallbackEvent {
 				continue
 			}
@@ -381,6 +381,7 @@ func handleTurn(
 	if formatted == "" {
 		formatted = " "
 	}
+	//nolint:dogsled // slack-go returns (channelID, ts, text, error); we only need err
 	_, _, _, err = api.UpdateMessageContext(ctx, channelID, thinkingTS, slack.MsgOptionText(formatted, false))
 	if err != nil {
 		log.Warnf("UpdateMessage: %v", err)

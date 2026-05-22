@@ -20,6 +20,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"slices"
 	"strings"
 	"time"
 
@@ -61,7 +62,8 @@ func (h *Handlers) PostInvestigationChat(w http.ResponseWriter, r *http.Request,
 	var body struct {
 		Message string `json:"message"`
 	}
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+	err = json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
 		return
 	}
@@ -95,7 +97,8 @@ func (h *Handlers) PostInvestigationChat(w http.ResponseWriter, r *http.Request,
 		Role:            "user",
 		Content:         body.Message,
 	}
-	if err := models.CreateInvestigationMessage(h.db, userMsg); err != nil {
+	err = models.CreateInvestigationMessage(h.db, userMsg)
+	if err != nil {
 		h.l.Errorf("CreateInvestigationMessage: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Failed to save message")
 		return
@@ -110,21 +113,20 @@ func (h *Handlers) PostInvestigationChat(w http.ResponseWriter, r *http.Request,
 	systemWithContext := investigationPrompt + "\n\nCurrent investigation context:\n" + ctxStr
 
 	// Build history from existing messages only (oldest first); new user message is sent as Ask.
-	var history []interface{}
-	for i := len(msgs) - 1; i >= 0; i-- {
-		m := msgs[i]
+	var history []any
+	for _, m := range slices.Backward(msgs) {
 		if m.Role == "tool" {
-			history = append(history, map[string]interface{}{"role": "tool", "content": m.Content, "name": m.ToolName})
+			history = append(history, map[string]any{"role": "tool", "content": m.Content, "name": m.ToolName})
 		} else {
-			history = append(history, map[string]interface{}{"role": m.Role, "content": m.Content})
+			history = append(history, map[string]any{"role": m.Role, "content": m.Content})
 		}
 	}
 
 	// HolmesGPT requires the first item in conversation_history to be role "system" when history is non-empty.
 	historyForHolmes := history
 	if len(historyForHolmes) > 0 {
-		withSystem := make([]interface{}, 0, len(historyForHolmes)+1)
-		withSystem = append(withSystem, map[string]interface{}{"role": "system", "content": systemWithContext})
+		withSystem := make([]any, 0, len(historyForHolmes)+1)
+		withSystem = append(withSystem, map[string]any{"role": "system", "content": systemWithContext})
 		withSystem = append(withSystem, historyForHolmes...)
 		historyForHolmes = withSystem
 	}
@@ -156,12 +158,12 @@ func (h *Handlers) PostInvestigationChat(w http.ResponseWriter, r *http.Request,
 	_ = models.CreateInvestigationMessage(h.db, assistantMsg)
 
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(map[string]string{"content": lastContent})
+	_ = json.NewEncoder(w).Encode(map[string]string{"content": lastContent}) //nolint:errchkjson // response already committed
 }
 
 // PostInvestigationRun handles POST /v1/investigations/:id/run.
 // Sets status to "running", returns 202 immediately, and runs the investigation in a background goroutine.
-func (h *Handlers) PostInvestigationRun(w http.ResponseWriter, r *http.Request, id string) {
+func (h *Handlers) PostInvestigationRun(w http.ResponseWriter, _ *http.Request, id string) {
 	inv, err := models.GetInvestigationByID(h.db, id)
 	if err != nil || inv == nil {
 		if inv == nil {
@@ -198,7 +200,8 @@ func (h *Handlers) PostInvestigationRun(w http.ResponseWriter, r *http.Request, 
 	}
 
 	inv.Status = "running"
-	if err := models.UpdateInvestigation(h.db, inv); err != nil {
+	err = models.UpdateInvestigation(h.db, inv)
+	if err != nil {
 		h.l.Errorf("UpdateInvestigation (running): %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Failed to update investigation status")
 		return
@@ -210,18 +213,21 @@ func (h *Handlers) PostInvestigationRun(w http.ResponseWriter, r *http.Request, 
 		Role:            "user",
 		Content:         "Generate the full investigation report.",
 	}
-	if err := models.CreateInvestigationMessage(h.db, userMsg); err != nil {
+	err = models.CreateInvestigationMessage(h.db, userMsg)
+	if err != nil {
 		h.l.Warnf("CreateInvestigationMessage run user: %v", err)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusAccepted)
-	_ = json.NewEncoder(w).Encode(map[string]string{"status": "running"})
+	_ = json.NewEncoder(w).Encode(map[string]string{"status": "running"}) //nolint:errchkjson // response already committed
 
 	go h.runInvestigationBackground(id, inv, settings)
 }
 
-// runInvestigationBackground executes the investigation in a background goroutine (not tied to the HTTP request).
+// runInvestigationBackground executes the investigation in a background goroutine.
+// It intentionally creates a fresh context.Background-derived ctx so the client
+// closing the HTTP request does not abort an in-flight run.
 func (h *Handlers) runInvestigationBackground(id string, _ *models.Investigation, settings *models.Settings) {
 	ctx, cancel := context.WithTimeout(context.Background(), investigationRunTimeout)
 	defer cancel()
@@ -247,7 +253,7 @@ func (h *Handlers) runInvestigationBackground(id string, _ *models.Investigation
 	var runErr error
 	chatResp, err := client.Chat(ctx, chatReq)
 	if err != nil {
-		runErr = fmt.Errorf("Holmes Chat (investigation run): %w", err)
+		runErr = fmt.Errorf("holmes chat (investigation run): %w", err)
 	} else {
 		lastContent = chatResp.Analysis
 	}
@@ -277,7 +283,7 @@ func (h *Handlers) runInvestigationBackground(id string, _ *models.Investigation
 			inv.SummaryDetailed = report.SummaryDetailed
 			inv.RootCauseSummary = report.RootCauseSummary
 			inv.ResolutionSummary = report.ResolutionSummary
-			cfg := map[string]interface{}{}
+			cfg := map[string]any{}
 			if len(inv.Config) > 0 {
 				_ = json.Unmarshal(inv.Config, &cfg)
 			}
@@ -287,7 +293,8 @@ func (h *Handlers) runInvestigationBackground(id string, _ *models.Investigation
 				Rationale: report.ConfidenceRationale,
 				Evidence:  report.Evidence,
 			}
-			if b, err := json.Marshal(cfg); err == nil {
+			b, mErr := json.Marshal(cfg)
+			if mErr == nil {
 				inv.Config = b
 			}
 			err := models.DeleteInvestigationBlocksForInvestigation(h.db, id)
@@ -344,8 +351,9 @@ func (h *Handlers) runInvestigationBackground(id string, _ *models.Investigation
 					Description:     te.Description,
 					Source:          "format",
 				}
-				if err := models.CreateInvestigationTimelineEvent(h.db, event); err != nil {
-					h.l.Warnf("CreateInvestigationTimelineEvent: %v", err)
+				teErr := models.CreateInvestigationTimelineEvent(h.db, event)
+				if teErr != nil {
+					h.l.Warnf("CreateInvestigationTimelineEvent: %v", teErr)
 				}
 			}
 		} else {
@@ -356,8 +364,9 @@ func (h *Handlers) runInvestigationBackground(id string, _ *models.Investigation
 	}
 
 	inv.Status = "completed"
-	if err := models.UpdateInvestigation(h.db, inv); err != nil {
-		h.l.Errorf("UpdateInvestigation (completed): %v", err)
+	uErr := models.UpdateInvestigation(h.db, inv)
+	if uErr != nil {
+		h.l.Errorf("UpdateInvestigation (completed): %v", uErr)
 	}
 
 	assistantMsg := &models.InvestigationMessage{
@@ -385,7 +394,7 @@ func buildInvestigationContext(inv *models.Investigation) string {
 		inv.TimeFrom.Format(time.RFC3339), inv.TimeTo.Format(time.RFC3339),
 		inv.Summary)
 	if len(inv.Config) > 0 {
-		var cfg map[string]interface{}
+		var cfg map[string]any
 		err := json.Unmarshal(inv.Config, &cfg)
 		if err == nil {
 			if v, _ := cfg["node_name"].(string); v != "" {
@@ -404,7 +413,7 @@ func buildInvestigationContext(inv *models.Investigation) string {
 					s += "\n\nFull alert(s):"
 					var sSb399 strings.Builder
 					for i, a := range alerts {
-						sSb399.WriteString(fmt.Sprintf("\n[Alert %d]", i+1))
+						fmt.Fprintf(&sSb399, "\n[Alert %d]", i+1)
 						if len(a.Labels) > 0 {
 							pairs := make([]string, 0, len(a.Labels))
 							for k, v := range a.Labels {

@@ -2068,12 +2068,14 @@ func (as *AgentsService) ChangeOtelCollector(ctx context.Context, agentID string
 			delete(labels, labelLogFilePaths)
 		}
 
-		if err := row.SetCustomLabels(labels); err != nil {
+		err = row.SetCustomLabels(labels)
+		if err != nil {
 			return err
 		}
 
 		encrypted := new(models.EncryptAgent(*row))
-		if err := q.Update(encrypted); err != nil {
+		err = q.Update(encrypted)
+		if err != nil {
 			return err
 		}
 		decrypted := new(models.DecryptAgent(*encrypted))

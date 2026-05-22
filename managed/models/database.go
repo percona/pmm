@@ -12,10 +12,8 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-// Package models provides the data models for the managed package.
-//
-
-// Package models provides functionality for handling database models and related tasks.
+// Package models provides the data models for the managed package and
+// the schema-migration machinery used by pmm-managed at startup.
 //
 //nolint:lll
 package models
@@ -1995,7 +1993,7 @@ func runPMMAgentSetupHA(pmmAgentID string) error {
 		"--skip-registration",
 		"--server-insecure-tls",
 	}
-	cmd := exec.Command("pmm-agent", args...) //nolint:gosec
+	cmd := exec.CommandContext(context.Background(), "pmm-agent", args...) //nolint:gosec
 	logrus.Debugf("Running: pmm-agent %s", strings.Join(cmd.Args, " "))
 	output, err := cmd.CombinedOutput()
 	if err != nil {

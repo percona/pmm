@@ -63,7 +63,7 @@ func getLogSourcesFromAgent(row *models.Agent) ([]logSourceEntry, error) {
 	// Legacy: log_file_paths as comma-separated paths with preset "raw".
 	if s := labels[logFilePathsLabel]; s != "" {
 		var entries []logSourceEntry
-		for _, p := range strings.Split(s, ",") {
+		for p := range strings.SplitSeq(s, ",") {
 			p = strings.TrimSpace(p)
 			if p != "" {
 				entries = append(entries, logSourceEntry{Path: p, Preset: presetRaw})
@@ -193,7 +193,7 @@ func otelCollectorConfig(row *models.Agent, q *reform.Querier) *agentv1.SetState
 		if len(quoted) == 0 {
 			continue
 		}
-		configYamlSb179.WriteString(fmt.Sprintf("  %s:\n    include: [%s]\n    start_at: end\n", receiverID, strings.Join(quoted, ", ")))
+		fmt.Fprintf(&configYamlSb179, "  %s:\n    include: [%s]\n    start_at: end\n", receiverID, strings.Join(quoted, ", "))
 		if preset != presetRaw {
 			if yaml, ok := presetYAML[preset]; ok && yaml != "" {
 				configYamlSb179.WriteString("    operators:\n" + otel.IndentYAML(yaml, "      "))
@@ -270,7 +270,7 @@ func baseOtelConfigYaml(logPipelineReceivers, tracesMetricsReceivers []string, r
 		sort.Strings(keys)
 		var processorsBlockSb268 strings.Builder
 		for _, k := range keys {
-			processorsBlockSb268.WriteString(fmt.Sprintf("      - key: %s\n        value: %s\n        action: upsert\n", k, quoteYAMLAttrValue(resourceAttrs[k])))
+			fmt.Fprintf(&processorsBlockSb268, "      - key: %s\n        value: %s\n        action: upsert\n", k, quoteYAMLAttrValue(resourceAttrs[k]))
 		}
 		processorsBlock += processorsBlockSb268.String()
 		processorsBlock += `  memory_limiter:

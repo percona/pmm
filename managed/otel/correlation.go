@@ -18,6 +18,7 @@ package otel
 // ProxyComponent identifies proxy / router legs for Phase 1 topology stitching (see docs/internal/ebpf-proxy-ha-correlation.md).
 type ProxyComponent string
 
+// Proxy component identifiers used in topology stitching.
 const (
 	ProxyHAProxy   ProxyComponent = "haproxy"
 	ProxyProxySQL  ProxyComponent = "proxysql"
@@ -28,6 +29,7 @@ const (
 // OrchestratorKind marks control-plane enrichers (Patroni, etc.).
 type OrchestratorKind string
 
+// Orchestrator kinds known to PMM.
 const (
 	OrchestratorPatroni OrchestratorKind = "patroni"
 )

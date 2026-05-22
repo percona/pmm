@@ -35,7 +35,7 @@ func IsClickhouseClusterReady(ctx context.Context, dsn string, clusterName strin
 	sql := "SELECT sum(is_local = 0) AS remote_hosts FROM system.clusters"
 	args := []any{}
 	if clusterName != "" {
-		sql = sql + " WHERE cluster = ?"
+		sql += " WHERE cluster = ?"
 		args = append(args, clusterName)
 	}
 	sql += " FORMAT TabSeparated"
@@ -58,12 +58,13 @@ func WaitForClickhouseClusterReady(ctx context.Context, dsn string) {
 	name := clickhouseClusterName()
 	for {
 		ready, err := IsClickhouseClusterReady(ctx, dsn, name)
-		if err != nil {
+		switch {
+		case err != nil:
 			l.WithError(err).Warn("ClickHouse cluster readiness check failed; retrying")
-		} else if ready {
+		case ready:
 			l.Info("ClickHouse cluster is ready for OTEL DDL")
 			return
-		} else {
+		default:
 			l.Info("Waiting for ClickHouse cluster to be ready (system.clusters, remote_hosts > 0)...")
 		}
 		select {

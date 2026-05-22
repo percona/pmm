@@ -21,8 +21,6 @@ import (
 	"net/http"
 	"sync"
 	"time"
-
-	"github.com/pkg/errors"
 )
 
 const defaultDashboardCacheTTL = 60 * time.Second
@@ -78,7 +76,7 @@ func (c *dashboardJSONCache) Invalidate(orgID int, dashboardUID string) {
 	delete(c.items, cacheKey(orgID, dashboardUID))
 }
 
-func (c *dashboardJSONCache) fetchOrLoad(ctx context.Context, client *Client, orgID int, dashboardUID string, headers http.Header, loader func(context.Context) (*dashboardAPIEnvelope, error)) (*dashboardAPIEnvelope, error) {
+func (c *dashboardJSONCache) fetchOrLoad(ctx context.Context, _ *Client, orgID int, dashboardUID string, _ http.Header, loader func(context.Context) (*dashboardAPIEnvelope, error)) (*dashboardAPIEnvelope, error) {
 	if env, ok := c.get(orgID, dashboardUID); ok {
 		return env, nil
 	}
@@ -95,7 +93,7 @@ func wrapFetchDashboard(client *Client, dashboardUID string, headers http.Header
 	return func(ctx context.Context) (*dashboardAPIEnvelope, error) {
 		env, err := fetchDashboardEnvelope(ctx, client, dashboardUID, headers)
 		if err != nil {
-			return nil, errors.Wrap(err, "fetch dashboard")
+			return nil, fmt.Errorf("fetch dashboard: %w", err)
 		}
 		return env, nil
 	}

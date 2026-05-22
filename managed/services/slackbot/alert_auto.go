@@ -13,6 +13,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+// Package slackbot implements PMM's Slack integration: a Socket Mode
+// bot that proxies user messages and alerts into the ADRE chat backend
+// and posts answers back into Slack threads.
 package slackbot
 
 import (

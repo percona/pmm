@@ -16,7 +16,8 @@
 package models
 
 import (
-	"github.com/pkg/errors"
+	"errors"
+
 	"gopkg.in/reform.v1"
 )
 
@@ -32,10 +33,10 @@ func FindLogParserPresetByID(q *reform.Querier, id string) (*LogParserPreset, er
 			return nil, nil //nolint:nilnil
 		}
 
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
-	return s.(*LogParserPreset), nil
+	return s.(*LogParserPreset), nil //nolint:forcetypeassert // reform.FindByPrimaryKeyFrom on LogParserPresetTable guarantees this type
 }
 
 // FindLogParserPresetByName returns a log parser preset by name.
@@ -50,22 +51,22 @@ func FindLogParserPresetByName(q *reform.Querier, name string) (*LogParserPreset
 			return nil, nil //nolint:nilnil
 		}
 
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
-	return s.(*LogParserPreset), nil
+	return s.(*LogParserPreset), nil //nolint:forcetypeassert // reform.FindOneFrom on LogParserPresetTable guarantees this type
 }
 
 // FindAllLogParserPresets returns all log parser presets ordered by name.
 func FindAllLogParserPresets(q *reform.Querier) ([]*LogParserPreset, error) {
 	structs, err := q.SelectAllFrom(LogParserPresetTable, "ORDER BY name")
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	res := make([]*LogParserPreset, len(structs))
 	for i, s := range structs {
-		res[i] = s.(*LogParserPreset)
+		res[i] = s.(*LogParserPreset) //nolint:forcetypeassert // reform.SelectAllFrom on LogParserPresetTable guarantees this type
 	}
 
 	return res, nil

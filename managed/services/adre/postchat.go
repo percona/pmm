@@ -167,7 +167,7 @@ func (h *Handlers) postChatWithPersistence(w http.ResponseWriter, r *http.Reques
 		writeJSONError(w, http.StatusInternalServerError, "Failed to load history")
 		return
 	}
-	hist := AdreMessagesToHolmesHistory(prior)
+	hist := MessagesToHolmesHistory(prior)
 	maxMsgs := MaxConversationMessages(settings)
 	hist = TrimConversationHistory(hist, maxMsgs)
 	hist = EnsureHolmesLeadingSystemMessage(hist)
@@ -252,7 +252,7 @@ func (h *Handlers) maybeAutotitleConversation(convID int64, login, ask string) {
 	}
 }
 
-func (h *Handlers) postChatStream(w http.ResponseWriter, r *http.Request, settings *models.Settings, client *Client, req *ChatRequest, conv *models.AdreConversation, login, ask string, _ int64) {
+func (h *Handlers) postChatStream(w http.ResponseWriter, r *http.Request, _ *models.Settings, client *Client, req *ChatRequest, conv *models.AdreConversation, login, ask string, _ int64) {
 	convID := conv.ID
 	ctx, cancel := context.WithCancel(r.Context())
 	defer cancel()
@@ -265,7 +265,7 @@ func (h *Handlers) postChatStream(w http.ResponseWriter, r *http.Request, settin
 		writeJSONError(w, http.StatusBadGateway, err.Error())
 		return
 	}
-	defer streamBody.Close()
+	defer func() { _ = streamBody.Close() }()
 
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
