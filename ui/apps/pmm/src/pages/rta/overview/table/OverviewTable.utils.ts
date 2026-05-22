@@ -10,7 +10,12 @@ export const isSameTableState = <T>(previous: T, next: T) =>
 export const resolveTableStateUpdate = <T>(
   previous: T,
   updater: T | ((old: T) => T)
-) => (typeof updater === 'function' ? updater(previous) : updater);
+): T => {
+  if (typeof updater === 'function') {
+    return (updater as (old: T) => T)(previous);
+  }
+  return updater;
+};
 
 export const filterElapsedTime = (
   row: MRT_Row<QueryData>,
