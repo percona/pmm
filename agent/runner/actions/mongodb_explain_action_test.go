@@ -24,6 +24,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -43,8 +44,9 @@ func TestQueryExplain(t *testing.T) {
 	dsn := tests.GetTestMongoDBDSN(t)
 	client := tests.OpenTestMongoDB(t, dsn)
 	t.Cleanup(func() {
-		assert.NoError(t, client.Database(database).Drop(ctx))
-		assert.NoError(t, client.Disconnect(ctx))
+		cleanupCtx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+		assert.NoError(t, client.Database(database).Drop(cleanupCtx))
+		assert.NoError(t, client.Disconnect(cleanupCtx))
 	})
 
 	t.Run("Find", func(t *testing.T) {
