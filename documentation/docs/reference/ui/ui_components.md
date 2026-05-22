@@ -71,13 +71,13 @@ These selectors change based on the dashboard you're viewing, showing only relev
 
 ## Enable Explore metrics
 
-Starting with PMM 3.8.0, **Explore metrics** (part of the Grafana Metrics Drilldown app) is no longer enabled by default. To re-enable it:
+Explore metrics lets you visually browse and filter available metrics without writing PromQL queries. It is powered by the Grafana Metrics Drilldown plugin, which you can enable from the **Plugins** page:
 {.power-number}
 
-1. Go to **Users and Access > Plugins and data > Plugins**.
-2. Search for **Grafana Metrics Drilldown**.
+1. Go to the **Home** page and type **plugins** in the search bar.
+2. On the **Plugins** page, search for **Grafana Metrics Drilldown**.
 3. Select the plugin and click **Install**.
 
-Once installed, **Explore metrics** appears under **Explore** in the left sidebar.
+This adds the **Explore metrics** option under **Explore** in the left sidebar. For more information, see [Grafana Metrics Drilldown](https://grafana.com/docs/grafana-cloud/visualizations/simplified-exploration/metrics).
 
 ![Explore metrics in the PMM sidebar](../../images/PMM_Explore_metrics.jpg)
