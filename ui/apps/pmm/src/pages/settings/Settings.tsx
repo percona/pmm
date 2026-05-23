@@ -47,7 +47,7 @@ export const Settings: FC = () => {
       surface="paper"
       roles={[OrgRole.Admin]}
     >
-      <Stack gap={3} sx={{ flex: 1 }}>
+      <Stack gap={3} sx={{ flex: 1, minHeight: 0 }}>
         <Tabs
           data-testid="settings-tabs"
           value={tab}
@@ -78,7 +78,16 @@ export const Settings: FC = () => {
           />
         </Tabs>
 
-        <Box sx={{ flex: 1 }} data-testid="settings-tab-content">
+        <Box
+          sx={{
+            flex: 1,
+            minHeight: 0,
+            minWidth: 0,
+            overflowY: 'auto',
+            WebkitOverflowScrolling: 'touch',
+          }}
+          data-testid="settings-tab-content"
+        >
           {tab === 'metrics-resolution' && (
             <MetricsResolutionForm settings={settings!} />
           )}

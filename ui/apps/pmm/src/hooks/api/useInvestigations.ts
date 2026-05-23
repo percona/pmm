@@ -29,6 +29,8 @@ export const INVESTIGATIONS_KEYS = {
     ['investigations', id, 'comments', blockId] as const,
   messages: (id: string, params?: { limit?: number; offset?: number }) =>
     ['investigations', id, 'messages', params] as const,
+  /** Prefix for all message queries (matches any limit/offset params). */
+  messagesPrefix: (id: string) => ['investigations', id, 'messages'] as const,
   timeline: (id: string) => ['investigations', id, 'timeline'] as const,
   usage: (id: string) => ['investigationUsage', id] as const,
 };
@@ -147,7 +149,7 @@ export const usePostInvestigationChat = (investigationId: string) => {
         queryKey: INVESTIGATIONS_KEYS.detail(investigationId),
       });
       queryClient.invalidateQueries({
-        queryKey: INVESTIGATIONS_KEYS.messages(investigationId),
+        queryKey: INVESTIGATIONS_KEYS.messagesPrefix(investigationId),
       });
       queryClient.invalidateQueries({
         queryKey: INVESTIGATIONS_KEYS.usage(investigationId),
@@ -165,7 +167,7 @@ export const usePostInvestigationRun = (investigationId: string) => {
         queryKey: INVESTIGATIONS_KEYS.detail(investigationId),
       });
       queryClient.invalidateQueries({
-        queryKey: INVESTIGATIONS_KEYS.messages(investigationId),
+        queryKey: INVESTIGATIONS_KEYS.messagesPrefix(investigationId),
       });
       queryClient.invalidateQueries({
         queryKey: INVESTIGATIONS_KEYS.timeline(investigationId),

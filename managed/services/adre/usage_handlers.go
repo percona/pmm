@@ -368,25 +368,26 @@ func (h *Handlers) GetInvestigationUsage(w http.ResponseWriter, r *http.Request,
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	if _, ok := h.checkAdreEnabled(w); !ok {
-		return
-	}
 	investigationID = strings.TrimSpace(investigationID)
 	if investigationID == "" {
 		writeJSONError(w, http.StatusBadRequest, "investigation id is required")
 		return
 	}
-	rows, err := h.db.Query(`
-		SELECT id, created_at, feature, model, total_tokens, cached_tokens, total_cost, latency_ms
-		FROM holmes_usage_events
-		WHERE investigation_id = $1
-		ORDER BY created_at ASC`, investigationID)
+	events, err := QueryInvestigationUsageEvents(h.db, investigationID)
 	if err != nil {
 		h.l.Errorf("investigation usage: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Failed to load investigation usage")
 		return
 	}
-	defer func() { _ = rows.Close() }()
+	writeInvestigationUsageResponse(w, investigationID, events)
+}
+
+// WriteInvestigationUsageResponse writes the standard investigation usage JSON payload.
+func WriteInvestigationUsageResponse(w http.ResponseWriter, investigationID string, events []InvestigationUsageEvent) {
+	writeInvestigationUsageResponse(w, investigationID, events)
+}
+
+func writeInvestigationUsageResponse(w http.ResponseWriter, investigationID string, events []InvestigationUsageEvent) {
 	type step struct {
 		ID           int64    `json:"id"`
 		CreatedAt    string   `json:"created_at"`
@@ -397,20 +398,18 @@ func (h *Handlers) GetInvestigationUsage(w http.ResponseWriter, r *http.Request,
 		TotalCost    *float64 `json:"total_cost,omitempty"`
 		LatencyMs    *int32   `json:"latency_ms,omitempty"`
 	}
-	var steps []step
-	for rows.Next() {
-		var s step
-		var t time.Time
-		if err := rows.Scan(&s.ID, &t, &s.Feature, &s.Model, &s.TotalTokens, &s.CachedTokens, &s.TotalCost, &s.LatencyMs); err != nil { //nolint:noinlineerr
-			h.l.Errorf("investigation usage scan: %v", err)
-			writeJSONError(w, http.StatusInternalServerError, "Failed to load investigation usage")
-			return
-		}
-		s.CreatedAt = t.Format(time.RFC3339)
-		steps = append(steps, s)
-	}
-	if steps == nil {
-		steps = []step{}
+	steps := make([]step, 0, len(events))
+	for _, ev := range events {
+		steps = append(steps, step{
+			ID:           ev.ID,
+			CreatedAt:    ev.CreatedAt.Format(time.RFC3339),
+			Feature:      ev.Feature,
+			Model:        ev.Model,
+			TotalTokens:  ev.TotalTokens,
+			CachedTokens: ev.CachedTokens,
+			TotalCost:    ev.TotalCost,
+			LatencyMs:    ev.LatencyMs,
+		})
 	}
 	writeJSON(w, http.StatusOK, map[string]any{"investigation_id": investigationID, "events": steps})
 }

@@ -1,10 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import {
-  getAdreUsageEvents,
-  getAdreUsageSummary,
-  getInvestigationUsage,
-  type AdreUsageSummaryResponse,
-} from 'api/adre';
+import { getAdreUsageEvents, getAdreUsageSummary, type AdreUsageSummaryResponse } from 'api/adre';
+import { getInvestigationUsage } from 'api/investigations';
 
 export function useAdreUsageSummary(params?: {
   from?: string;
@@ -26,6 +22,7 @@ export function useAdreUsageEvents(params?: {
   offset?: number;
   feature?: string;
   model?: string;
+  investigationId?: string;
 }) {
   return useQuery({
     queryKey: ['adreUsageEvents', params],

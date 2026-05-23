@@ -129,6 +129,11 @@ func (h *Handlers) ServeHTTP(w http.ResponseWriter, r *http.Request) { //nolint:
 				h.GetInvestigationMessages(w, r, id)
 				return
 			}
+		case len(segments) == 2 && segments[1] == "usage":
+			if r.Method == http.MethodGet {
+				h.GetInvestigationUsage(w, r, id)
+				return
+			}
 		case len(segments) == 2 && segments[1] == "chat":
 			if r.Method == http.MethodPost {
 				h.PostInvestigationChat(w, r, id)

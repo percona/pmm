@@ -1,4 +1,20 @@
 import { api } from './api';
+import type { AdreUsageEvent } from './adre';
+
+export type InvestigationUsageEvent = Pick<
+  AdreUsageEvent,
+  | 'id'
+  | 'feature'
+  | 'model'
+  | 'createdAt'
+  | 'created_at'
+  | 'totalTokens'
+  | 'total_tokens'
+  | 'cachedTokens'
+  | 'cached_tokens'
+  | 'totalCost'
+  | 'total_cost'
+>;
 
 export interface InvestigationListItem {
   id: string;
@@ -346,6 +362,15 @@ export const createServiceNowTicket = async (
   const res = await api.post<CreateServiceNowTicketResponse>(
     `/investigations/${id}/servicenow`,
     {}
+  );
+  return res.data;
+};
+
+export const getInvestigationUsage = async (
+  investigationId: string
+): Promise<{ investigationId: string; events: InvestigationUsageEvent[] }> => {
+  const res = await api.get<{ investigationId: string; events: InvestigationUsageEvent[] }>(
+    `/investigations/${investigationId}/usage`
   );
   return res.data;
 };

@@ -18,7 +18,7 @@ import {
   TableRow,
   Typography,
 } from '@mui/material';
-import { FC, useMemo, useState } from 'react';
+import { FC, useEffect, useMemo, useRef, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { Page } from 'components/page';
 import { useAdreUsageEvents, useAdreUsageSummary } from 'hooks/api/useAdreUsage';
@@ -76,6 +76,11 @@ const AdreUsagePage: FC = () => {
 
   const maxSeriesCost = Math.max(...dailyCostSeries.map((s) => s.totalCost), 0.0001);
   const hasAnyDailyCost = dailyCostSeries.some((s) => s.totalCost > 0);
+  const costSeriesRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    costSeriesRef.current?.scrollTo({ top: 0 });
+  }, [preset, featureFilter, dailyCostSeries.length, dailyCostSeries[0]?.bucket]);
 
   const exportCsv = () => {
     const url = `/v1/adre/usage/events?from=${encodeURIComponent(range.from)}&to=${encodeURIComponent(range.to)}&format=csv&limit=500${featureFilter ? `&feature=${encodeURIComponent(featureFilter)}` : ''}`;
@@ -185,7 +190,7 @@ const AdreUsagePage: FC = () => {
                   <RouterLink to={`${PMM_NEW_NAV_PATH}/adre`}>Open AI Assistant</RouterLink>
                 </Typography>
               ) : (
-                <Box sx={{ maxHeight: 280, overflow: 'auto', pr: 0.5 }}>
+                <Box ref={costSeriesRef} sx={{ maxHeight: 280, overflow: 'auto', pr: 0.5 }}>
                   <Stack spacing={0.75}>
                     {dailyCostSeries.map((row) => {
                       const cost = row.totalCost;

@@ -27,6 +27,7 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { FC, useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { Page } from 'components/page';
 import {
   useInvestigation,
@@ -40,6 +41,7 @@ import {
   usePatchInvestigationBlock,
   useDeleteInvestigationBlock,
   useCreateServiceNowTicket,
+  INVESTIGATIONS_KEYS,
 } from 'hooks/api/useInvestigations';
 import { useAdreSettings } from 'hooks/api/useAdre';
 import { useInvestigationUsage } from 'hooks/api/useAdreUsage';
@@ -53,7 +55,7 @@ import {
 } from 'api/adre';
 import { HolmesUsageFooter } from 'components/adre/HolmesUsageFooter';
 import {
-  aggregateAssistantMessageUsage,
+  aggregateInvestigationUsage,
   formatTokensWithCached,
   formatUsdCost,
   HOLMES_FEATURE_LABELS,
@@ -126,6 +128,7 @@ const BlockWithActions: FC<{
 const InvestigationDetailPage: FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [isRunning, setIsRunning] = useState(false);
   const { data: inv, isLoading, isError, error } = useInvestigation(id, {
     refetchInterval: isRunning ? 5000 : false,
@@ -145,11 +148,9 @@ const InvestigationDetailPage: FC = () => {
   const deleteBlock = useDeleteInvestigationBlock(id ?? '');
   const createSNTicket = useCreateServiceNowTicket(id ?? '');
   const { data: adreSettings } = useAdreSettings();
-  const {
-    data: usageBreakdown,
-    isLoading: usageLoading,
-    refetch: refetchUsage,
-  } = useInvestigationUsage(id, { refetchInterval: isRunning ? 5000 : false });
+  const { data: usageBreakdown, isLoading: usageLoading } = useInvestigationUsage(id, {
+    refetchInterval: isRunning ? 5000 : false,
+  });
   const [commentText, setCommentText] = useState('');
   const [chatText, setChatText] = useState('');
   const [copyDone, setCopyDone] = useState(false);
@@ -159,19 +160,32 @@ const InvestigationDetailPage: FC = () => {
   const [showEvidence, setShowEvidence] = useState(false);
   const prevStatusRef = useRef<string | undefined>();
 
+  const showError = (msg: string) => {
+    setSnackMessage(msg);
+    setSnackSeverity('error');
+  };
+  const showSuccess = (msg: string) => {
+    setSnackMessage(msg);
+    setSnackSeverity('success');
+  };
+
   useEffect(() => {
-    const status = inv?.status;
+    if (!inv || inv.id !== id) return;
+    const status = inv.status;
     const prev = prevStatusRef.current;
     prevStatusRef.current = status;
     setIsRunning(status === 'running');
     if (prev === 'running' && status === 'completed') {
       showSuccess('Investigation completed');
-      void refetchUsage();
     } else if (prev === 'running' && status === 'failed') {
       showError('Investigation failed');
-      void refetchUsage();
     }
-  }, [inv?.status, refetchUsage]);
+    if (prev === 'running' && (status === 'completed' || status === 'failed') && id) {
+      void queryClient.invalidateQueries({ queryKey: INVESTIGATIONS_KEYS.detail(id) });
+      void queryClient.invalidateQueries({ queryKey: INVESTIGATIONS_KEYS.messagesPrefix(id) });
+      void queryClient.invalidateQueries({ queryKey: INVESTIGATIONS_KEYS.usage(id) });
+    }
+  }, [inv, id, queryClient]);
 
   const invId = inv?.id;
   const invSourceType = inv?.sourceType;
@@ -206,14 +220,6 @@ const InvestigationDetailPage: FC = () => {
     };
   }, [invId, invSourceType, invSourceRef]);
 
-  const showError = (msg: string) => {
-    setSnackMessage(msg);
-    setSnackSeverity('error');
-  };
-  const showSuccess = (msg: string) => {
-    setSnackMessage(msg);
-    setSnackSeverity('success');
-  };
   const getErrorMessage = (err: unknown): string => {
     const ax = err as { response?: { data?: { error?: string } } };
     return ax?.response?.data?.error ?? (err as Error)?.message ?? 'Request failed';
@@ -333,25 +339,18 @@ const InvestigationDetailPage: FC = () => {
       ? `${new Date(timeFrom).toLocaleString()} — ${new Date(timeTo).toLocaleString()}`
       : null;
 
-  const usageEvents = usageBreakdown?.events ?? [];
-  const messageUsage = aggregateAssistantMessageUsage(messages);
-  const holmesCallCount = Math.max(
-    inv.holmesCallCount ?? inv.holmes_call_count ?? 0,
-    messageUsage.callCount
-  );
-  const holmesTotalTokens = Math.max(
-    inv.holmesTotalTokens ?? inv.holmes_total_tokens ?? 0,
-    messageUsage.totalTokens
-  );
-  const holmesTotalCost = Math.max(
-    inv.holmesTotalCost ?? inv.holmes_total_cost ?? 0,
-    messageUsage.totalCost
-  );
-  const holmesTotalCached = Math.max(
-    usageEvents.reduce((sum, ev) => sum + (ev.cachedTokens ?? ev.cached_tokens ?? 0), 0),
-    messageUsage.totalCached
-  );
-  const hasHolmesUsage = holmesCallCount > 0 || usageEvents.length > 0 || messageUsage.callCount > 0;
+  const usageSummary = aggregateInvestigationUsage({
+    holmesCallCount: inv.holmesCallCount,
+    holmes_call_count: inv.holmes_call_count,
+    holmesTotalTokens: inv.holmesTotalTokens,
+    holmes_total_tokens: inv.holmes_total_tokens,
+    holmesTotalCost: inv.holmesTotalCost,
+    holmes_total_cost: inv.holmes_total_cost,
+    messages,
+    events: usageBreakdown?.events,
+  });
+
+  const showUsageLoading = usageLoading && !usageSummary.hasUsage;
 
   return (
     <Page
@@ -686,44 +685,44 @@ const InvestigationDetailPage: FC = () => {
       </Typography>
       <Card variant="outlined" sx={{ mb: 2 }}>
         <CardContent sx={{ py: 2 }}>
-          {usageLoading && !hasHolmesUsage ? (
+          {showUsageLoading ? (
             <Stack direction="row" spacing={1} alignItems="center">
               <CircularProgress size={16} />
               <Typography variant="body2" color="text.secondary">
                 Loading usage…
               </Typography>
             </Stack>
-          ) : hasHolmesUsage ? (
+          ) : usageSummary.hasUsage ? (
             <>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: usageEvents.length > 0 ? 1.5 : 0 }}>
-                {holmesCallCount} {holmesCallCount === 1 ? 'call' : 'calls'} ·{' '}
-                {formatTokensWithCached(holmesTotalTokens, holmesTotalCached > 0 ? holmesTotalCached : undefined)} ·{' '}
-                {formatUsdCost(holmesTotalCost)}
+              <Typography variant="body2" sx={{ mb: usageSummary.steps.length > 0 ? 1.5 : 0 }}>
+                {usageSummary.callCount} {usageSummary.callCount === 1 ? 'call' : 'calls'} ·{' '}
+                {formatTokensWithCached(
+                  usageSummary.totalTokens,
+                  usageSummary.totalCached > 0 ? usageSummary.totalCached : undefined
+                )}{' '}
+                · {formatUsdCost(usageSummary.totalCost)}
               </Typography>
-              {usageEvents.length > 0 ? (
+              {usageSummary.steps.length > 0 ? (
                 <Stack spacing={0.75}>
-                  {usageEvents.map((ev) => (
+                  {usageSummary.steps.map((step) => (
                     <Stack
-                      key={ev.id}
+                      key={step.id}
                       direction={{ xs: 'column', sm: 'row' }}
                       spacing={{ xs: 0.25, sm: 2 }}
                       sx={{ py: 0.25 }}
                     >
                       <Typography variant="caption" color="text.secondary" sx={{ minWidth: 140 }}>
-                        {new Date(ev.createdAt ?? ev.created_at ?? '').toLocaleString()}
+                        {step.createdAt ? new Date(step.createdAt).toLocaleString() : '—'}
                       </Typography>
                       <Typography variant="caption" color="text.secondary" sx={{ minWidth: 120 }}>
-                        {HOLMES_FEATURE_LABELS[ev.feature] ?? ev.feature}
+                        {HOLMES_FEATURE_LABELS[step.feature] ?? step.feature}
                       </Typography>
                       <Typography variant="caption" color="text.secondary" sx={{ minWidth: 80 }}>
-                        {ev.model || 'default'}
+                        {step.model || 'default'}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
-                        {formatTokensWithCached(
-                          ev.totalTokens ?? ev.total_tokens,
-                          ev.cachedTokens ?? ev.cached_tokens
-                        )}{' '}
-                        · {formatUsdCost(ev.totalCost ?? ev.total_cost)}
+                        {formatTokensWithCached(step.totalTokens, step.cachedTokens)}{' '}
+                        · {formatUsdCost(step.totalCost)}
                       </Typography>
                     </Stack>
                   ))}

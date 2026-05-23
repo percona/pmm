@@ -131,7 +131,7 @@ export function aggregateUsageSeriesByDay(
   return [...byDay.values()].sort((a, b) => a.bucket.localeCompare(b.bucket));
 }
 
-/** One row per calendar day in [from, to], including zero-cost days. */
+/** One row per calendar day from first usage through [from, to], newest first. */
 export function fillDailyCostSeries(
   series: DailyCostPoint[],
   fromISO: string,
@@ -141,7 +141,7 @@ export function fillDailyCostSeries(
   const start = new Date(fromISO);
   const end = new Date(toISO);
   if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
-    return series;
+    return [...series].sort((a, b) => b.bucket.localeCompare(a.bucket));
   }
   start.setUTCHours(0, 0, 0, 0);
   end.setUTCHours(0, 0, 0, 0);
@@ -157,11 +157,184 @@ export function fillDailyCostSeries(
       }
     );
   }
-  return out;
+  let first = 0;
+  while (first < out.length - 1 && out[first].totalCost === 0) {
+    first++;
+  }
+  return out.slice(first).reverse();
 }
 
 export function formatUsageDayLabel(bucket: string): string {
   const d = new Date(`${bucket}T12:00:00Z`);
   if (Number.isNaN(d.getTime())) return bucket;
   return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+export interface InvestigationUsageStep {
+  id: string | number;
+  createdAt: string;
+  feature: string;
+  model: string;
+  totalTokens?: number;
+  cachedTokens?: number;
+  totalCost?: number;
+}
+
+export interface InvestigationUsageSummary {
+  callCount: number;
+  totalTokens: number;
+  totalCached: number;
+  totalCost: number;
+  hasUsage: boolean;
+  steps: InvestigationUsageStep[];
+}
+
+type UsageMessageRow = {
+  id?: string;
+  role?: string;
+  createdAt?: string;
+  created_at?: string;
+  model?: string;
+  holmesFeature?: string;
+  holmes_feature?: string;
+  totalTokens?: number;
+  total_tokens?: number;
+  cachedTokens?: number;
+  cached_tokens?: number;
+  totalCost?: number;
+  total_cost?: number;
+};
+
+type UsageEventRow = {
+  id?: number;
+  createdAt?: string;
+  created_at?: string;
+  feature?: string;
+  model?: string;
+  totalTokens?: number;
+  total_tokens?: number;
+  cachedTokens?: number;
+  cached_tokens?: number;
+  totalCost?: number;
+  total_cost?: number;
+};
+
+function num(v: number | undefined, fallback = 0): number {
+  return v ?? fallback;
+}
+
+function maxNum(...values: number[]): number {
+  return values.reduce((max, v) => (v > max ? v : max), 0);
+}
+
+function messageHasUsage(m: UsageMessageRow): boolean {
+  if (m.role !== 'assistant') return false;
+  const tokens = m.totalTokens ?? m.total_tokens;
+  const cost = m.totalCost ?? m.total_cost ?? 0;
+  const model = m.model?.trim();
+  return tokens != null || cost > 0 || !!model;
+}
+
+function usageStepsFromMessages(messages: UsageMessageRow[]): InvestigationUsageStep[] {
+  return messages
+    .filter(messageHasUsage)
+    .map((m) => ({
+      id: m.id ?? `${m.createdAt ?? m.created_at ?? ''}-${m.holmesFeature ?? m.holmes_feature ?? 'assistant'}`,
+      createdAt: m.createdAt ?? m.created_at ?? '',
+      feature: m.holmesFeature ?? m.holmes_feature ?? 'investigation_chat',
+      model: m.model ?? 'default',
+      totalTokens: m.totalTokens ?? m.total_tokens,
+      cachedTokens: m.cachedTokens ?? m.cached_tokens,
+      totalCost: m.totalCost ?? m.total_cost,
+    }))
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+}
+
+function normalizeUsageEvents(events: unknown): InvestigationUsageStep[] {
+  if (!Array.isArray(events)) return [];
+  return events
+    .map((row) => {
+      const ev = row as UsageEventRow;
+      return {
+        id: ev.id ?? `${ev.createdAt ?? ev.created_at ?? ''}-${ev.feature ?? 'usage'}`,
+        createdAt: ev.createdAt ?? ev.created_at ?? '',
+        feature: ev.feature ?? 'investigation_run',
+        model: ev.model ?? 'default',
+        totalTokens: ev.totalTokens ?? ev.total_tokens,
+        cachedTokens: ev.cachedTokens ?? ev.cached_tokens,
+        totalCost: ev.totalCost ?? ev.total_cost,
+      };
+    })
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+}
+
+function sumSteps(steps: InvestigationUsageStep[]) {
+  return steps.reduce(
+    (acc, step) => ({
+      callCount: acc.callCount + 1,
+      totalTokens: acc.totalTokens + num(step.totalTokens),
+      totalCached: acc.totalCached + num(step.cachedTokens),
+      totalCost: acc.totalCost + num(step.totalCost),
+    }),
+    { callCount: 0, totalTokens: 0, totalCached: 0, totalCost: 0 }
+  );
+}
+
+function mergeUsageSteps(
+  apiSteps: InvestigationUsageStep[],
+  messageSteps: InvestigationUsageStep[]
+): InvestigationUsageStep[] {
+  const merged = [...apiSteps];
+  for (const msgStep of messageSteps) {
+    const duplicate = merged.some(
+      (apiStep) =>
+        apiStep.feature === msgStep.feature &&
+        apiStep.createdAt === msgStep.createdAt &&
+        num(apiStep.totalTokens) === num(msgStep.totalTokens) &&
+        num(apiStep.totalCost) === num(msgStep.totalCost)
+    );
+    if (!duplicate) {
+      merged.push(msgStep);
+    }
+  }
+  return merged.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+}
+
+/** Merge investigation totals, chat messages, and usage events into one display model. */
+export function aggregateInvestigationUsage(input: {
+  holmesCallCount?: number;
+  holmes_call_count?: number;
+  holmesTotalTokens?: number;
+  holmes_total_tokens?: number;
+  holmesTotalCost?: number;
+  holmes_total_cost?: number;
+  messages?: UsageMessageRow[];
+  events?: unknown;
+}): InvestigationUsageSummary {
+  const messageUsage = aggregateAssistantMessageUsage(input.messages ?? []);
+  const apiSteps = normalizeUsageEvents(input.events);
+  const messageSteps = usageStepsFromMessages(input.messages ?? []);
+  const steps = mergeUsageSteps(apiSteps, messageSteps);
+  const stepTotals = sumSteps(steps);
+
+  const callCount = maxNum(
+    num(input.holmesCallCount ?? input.holmes_call_count),
+    messageUsage.callCount,
+    stepTotals.callCount
+  );
+  const totalTokens = maxNum(
+    num(input.holmesTotalTokens ?? input.holmes_total_tokens),
+    messageUsage.totalTokens,
+    stepTotals.totalTokens
+  );
+  const totalCached = maxNum(stepTotals.totalCached, messageUsage.totalCached);
+  const totalCost = maxNum(
+    num(input.holmesTotalCost ?? input.holmes_total_cost),
+    messageUsage.totalCost,
+    stepTotals.totalCost
+  );
+
+  const hasUsage = callCount > 0 || totalTokens > 0 || totalCost > 0 || steps.length > 0;
+
+  return { callCount, totalTokens, totalCached, totalCost, hasUsage, steps };
 }

@@ -206,18 +206,10 @@ export const getAdreUsageEvents = async (params?: {
   offset?: number;
   feature?: string;
   model?: string;
+  investigationId?: string;
   format?: string;
 }): Promise<{ events: AdreUsageEvent[] }> => {
   const res = await api.get<{ events: AdreUsageEvent[] }>('/adre/usage/events', { params });
-  return res.data;
-};
-
-export const getInvestigationUsage = async (
-  investigationId: string
-): Promise<{ investigationId: string; events: AdreUsageEvent[] }> => {
-  const res = await api.get<{ investigationId: string; events: AdreUsageEvent[] }>(
-    `/adre/usage/investigations/${investigationId}`
-  );
   return res.data;
 };
 
