@@ -98,6 +98,20 @@ export function useAdreChat() {
     setHistory(mapServerRowsToChat(messages));
   }, []);
 
+  const clearActiveConversation = useCallback(() => {
+    setConversationId(null);
+    setHistory([]);
+    setResponse('');
+    setReasoning('');
+    setChatError(null);
+    setScrollToMessageId(null);
+    try {
+      sessionStorage.removeItem(SESSION_CONV_ID_KEY);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
   const selectConversation = useCallback(
     async (id: number, options?: { focusMessageId?: number }) => {
       if (typeof id !== 'number' || Number.isNaN(id)) {
@@ -150,20 +164,21 @@ export function useAdreChat() {
       if (!window.confirm('Delete this conversation? This cannot be undone.')) return;
       try {
         await deleteAdreConversation(id);
-        await refreshConversations();
+        const { conversations: rows } = await listAdreConversations({ limit: 50 });
+        setConversations(rows ?? []);
         if (conversationId === id) {
-          try {
-            sessionStorage.removeItem(SESSION_CONV_ID_KEY);
-          } catch {
-            /* ignore */
+          const next = rows?.[0];
+          if (next) {
+            await selectConversation(next.id);
+          } else {
+            clearActiveConversation();
           }
-          await newChat();
         }
       } catch (e) {
         enqueueSnackbar(e instanceof Error ? e.message : 'Failed to delete conversation', { variant: 'error' });
       }
     },
-    [conversationId, enqueueSnackbar, refreshConversations, newChat]
+    [conversationId, enqueueSnackbar, selectConversation, clearActiveConversation]
   );
 
   /** Invalidates stale async work when the effect re-runs (e.g. React Strict Mode remount or ADRE disabled). */
@@ -180,33 +195,29 @@ export function useAdreChat() {
     const gen = ++adreInitGenRef.current;
     (async () => {
       try {
+        const { conversations: rows } = await listAdreConversations({ limit: 50 });
+        if (gen !== adreInitGenRef.current) return;
+        setConversations(rows ?? []);
+
         const raw = sessionStorage.getItem(SESSION_CONV_ID_KEY);
         if (raw) {
           const id = parseInt(raw, 10);
-          if (!Number.isNaN(id)) {
+          if (!Number.isNaN(id) && (rows ?? []).some((c) => c.id === id)) {
             await selectConversation(id);
-            if (gen !== adreInitGenRef.current) return;
-            await refreshConversations();
             return;
           }
         }
-        const c = await createAdreConversation();
-        if (gen !== adreInitGenRef.current) return;
-        setConversationId(c.id);
-        try {
-          sessionStorage.setItem(SESSION_CONV_ID_KEY, String(c.id));
-        } catch {
-          /* ignore */
+        if ((rows ?? []).length > 0) {
+          await selectConversation(rows![0].id);
+          return;
         }
-        setHistory([]);
-        await refreshConversations();
-        if (gen !== adreInitGenRef.current) return;
+        clearActiveConversation();
       } catch {
         if (gen !== adreInitGenRef.current) return;
         enqueueSnackbar('Failed to initialize chat', { variant: 'error' });
       }
     })();
-  }, [settingsEnabled, settingsLoaded, selectConversation, refreshConversations, enqueueSnackbar]);
+  }, [settingsEnabled, settingsLoaded, selectConversation, clearActiveConversation, enqueueSnackbar]);
 
   const runSearch = useCallback(
     async (q: string) => {
@@ -233,9 +244,24 @@ export function useAdreChat() {
     async (ask: string, options?: SendOptions) => {
       const userAsk = ask.trim();
       if (!userAsk) return;
-      if (conversationId == null) {
-        enqueueSnackbar('No active conversation', { variant: 'warning' });
-        return;
+
+      let activeConversationId = conversationId;
+      if (activeConversationId == null) {
+        try {
+          const c = await createAdreConversation();
+          activeConversationId = c.id;
+          setConversationId(c.id);
+          try {
+            sessionStorage.setItem(SESSION_CONV_ID_KEY, String(c.id));
+          } catch {
+            /* ignore */
+          }
+          setHistory([]);
+          await refreshConversations();
+        } catch (e) {
+          enqueueSnackbar(e instanceof Error ? e.message : 'Failed to start chat', { variant: 'error' });
+          return;
+        }
       }
 
       setLoading(true);
@@ -259,7 +285,7 @@ export function useAdreChat() {
               : undefined;
         const req = {
           ask: userAsk,
-          conversation_id: conversationId,
+          conversation_id: activeConversationId,
           model: options?.model || undefined,
           stream: true,
           mode,
@@ -312,6 +338,18 @@ export function useAdreChat() {
         });
 
         const finalProgressSteps = progressStepsRef.current;
+        let assistantUsage: HolmesUsage | undefined;
+        let serverMessageId: number | undefined;
+        try {
+          const { messages } = await getAdreMessages(activeConversationId, { limit: 20 });
+          const mapped = mapServerRowsToChat(messages);
+          const lastAsst = [...mapped].reverse().find((m) => m.role === 'assistant');
+          assistantUsage = lastAsst?.usage;
+          serverMessageId = lastAsst?.serverMessageId;
+        } catch {
+          /* usage footer is optional; ignore refetch errors */
+        }
+
         setHistory((prev: ChatMessage[]) => [
           ...prev,
           {
@@ -320,6 +358,8 @@ export function useAdreChat() {
             timestamp: Date.now(),
             reasoning: fullReasoning || undefined,
             ...(finalProgressSteps.length > 0 && { progressSteps: finalProgressSteps }),
+            ...(assistantUsage && { usage: assistantUsage }),
+            ...(serverMessageId != null && { serverMessageId }),
           },
         ]);
         setResponse('');
@@ -331,7 +371,7 @@ export function useAdreChat() {
         setChatError(normalizedMessage);
         enqueueSnackbar(normalizedMessage, { variant: 'error' });
         try {
-          await loadMessagesFor(conversationId);
+          await loadMessagesFor(activeConversationId);
         } catch {
           /* ignore */
         }

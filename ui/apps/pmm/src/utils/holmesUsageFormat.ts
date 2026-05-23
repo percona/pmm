@@ -21,15 +21,20 @@ export function formatUsdCost(cost: number | undefined): string {
   return `$${cost.toFixed(4)}`;
 }
 
+export function formatTokensWithCached(total?: number, cached?: number): string {
+  const totalStr = formatTokenCount(total);
+  if (!totalStr) return '';
+  if (cached != null && cached > 0) {
+    return `${totalStr} tokens (${formatTokenCount(cached)} cached)`;
+  }
+  return `${totalStr} tokens`;
+}
+
 export function holmesUsageSummaryLine(usage: HolmesUsageDisplay): string | null {
   const parts: string[] = [];
   if (usage.model) parts.push(usage.model);
   if (usage.totalTokens != null) {
-    let tok = `${formatTokenCount(usage.totalTokens)} tokens`;
-    if (usage.cachedTokens != null && usage.cachedTokens > 0) {
-      tok += ` (${formatTokenCount(usage.cachedTokens)} cached)`;
-    }
-    parts.push(tok);
+    parts.push(formatTokensWithCached(usage.totalTokens, usage.cachedTokens));
   }
   const cost = formatUsdCost(usage.totalCost);
   if (cost) parts.push(cost);

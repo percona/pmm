@@ -25,6 +25,7 @@ import { useAdreUsageEvents, useAdreUsageSummary } from 'hooks/api/useAdreUsage'
 import { PMM_NEW_NAV_PATH } from 'lib/constants';
 import {
   formatTokenCount,
+  formatTokensWithCached,
   formatUsdCost,
   HOLMES_FEATURE_LABELS,
 } from 'utils/holmesUsageFormat';
@@ -73,13 +74,22 @@ const AdreUsagePage: FC = () => {
 
   return (
     <Page title="AI Usage">
-      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
+      <Stack
+        direction="row"
+        alignItems="flex-end"
+        justifyContent="space-between"
+        flexWrap="wrap"
+        gap={1}
+        sx={{ mb: 2 }}
+      >
         <Typography variant="body2" color="text.secondary">
           Holmes token and cost usage across PMM AI features
         </Typography>
-        <Stack direction="row" spacing={1}>
+        <Stack direction="row" spacing={1} alignItems="flex-end" flexWrap="wrap">
           <FormControl size="small" sx={{ minWidth: 140 }}>
-            <InputLabel id="usage-range-label">Range</InputLabel>
+            <InputLabel id="usage-range-label" shrink>
+              Range
+            </InputLabel>
             <Select
               labelId="usage-range-label"
               label="Range"
@@ -92,7 +102,9 @@ const AdreUsagePage: FC = () => {
             </Select>
           </FormControl>
           <FormControl size="small" sx={{ minWidth: 160 }}>
-            <InputLabel id="usage-feature-label">Feature</InputLabel>
+            <InputLabel id="usage-feature-label" shrink>
+              Feature
+            </InputLabel>
             <Select
               labelId="usage-feature-label"
               label="Feature"
@@ -248,7 +260,10 @@ const AdreUsagePage: FC = () => {
                     <TableCell>{HOLMES_FEATURE_LABELS[ev.feature] ?? ev.feature}</TableCell>
                     <TableCell>{ev.model || 'default'}</TableCell>
                     <TableCell align="right">
-                      {formatTokenCount(ev.totalTokens ?? ev.total_tokens)}
+                      {formatTokensWithCached(
+                        ev.totalTokens ?? ev.total_tokens,
+                        ev.cachedTokens ?? ev.cached_tokens
+                      )}
                     </TableCell>
                     <TableCell align="right">
                       {formatUsdCost(ev.totalCost ?? ev.total_cost)}

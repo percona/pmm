@@ -53,7 +53,7 @@ import {
 } from 'api/adre';
 import { HolmesUsageFooter } from 'components/adre/HolmesUsageFooter';
 import {
-  formatTokenCount,
+  formatTokensWithCached,
   formatUsdCost,
   HOLMES_FEATURE_LABELS,
 } from 'utils/holmesUsageFormat';
@@ -131,7 +131,6 @@ const InvestigationDetailPage: FC = () => {
   const [snackSeverity, setSnackSeverity] = useState<'error' | 'success'>('error');
   const [fetchedAlertMeta, setFetchedAlertMeta] = useState<AlertMetadataFromLabels>({});
   const [showEvidence, setShowEvidence] = useState(false);
-  const [showUsageDetails, setShowUsageDetails] = useState(false);
   const prevStatusRef = useRef<string | undefined>();
 
   useEffect(() => {
@@ -306,6 +305,16 @@ const InvestigationDetailPage: FC = () => {
       ? `${new Date(timeFrom).toLocaleString()} — ${new Date(timeTo).toLocaleString()}`
       : null;
 
+  const usageEvents = usageBreakdown?.events ?? [];
+  const holmesCallCount = inv.holmesCallCount ?? inv.holmes_call_count ?? 0;
+  const holmesTotalTokens = inv.holmesTotalTokens ?? inv.holmes_total_tokens ?? 0;
+  const holmesTotalCost = inv.holmesTotalCost ?? inv.holmes_total_cost ?? 0;
+  const holmesTotalCached = usageEvents.reduce(
+    (sum, ev) => sum + (ev.cachedTokens ?? ev.cached_tokens ?? 0),
+    0
+  );
+  const hasHolmesUsage = holmesCallCount > 0 || usageEvents.length > 0;
+
   return (
     <Page
       title={inv.title || 'Investigation'}
@@ -336,13 +345,6 @@ const InvestigationDetailPage: FC = () => {
           </FormControl>
           {inv.severity && (
             <Chip label={inv.severity} size="small" variant="outlined" />
-          )}
-          {(inv.holmesCallCount ?? inv.holmes_call_count ?? 0) > 0 && (
-            <Typography variant="caption" color="text.secondary">
-              AI usage: {inv.holmesCallCount ?? inv.holmes_call_count} calls ·{' '}
-              {formatTokenCount(inv.holmesTotalTokens ?? inv.holmes_total_tokens)} tokens ·{' '}
-              {formatUsdCost(inv.holmesTotalCost ?? inv.holmes_total_cost)}
-            </Typography>
           )}
           <Box sx={{ flex: 1 }} />
           <Button
@@ -621,6 +623,60 @@ const InvestigationDetailPage: FC = () => {
         </>
       )}
 
+      <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
+        Usage details
+      </Typography>
+      <Card variant="outlined" sx={{ mb: 2 }}>
+        <CardContent>
+          {hasHolmesUsage ? (
+            <>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: usageEvents.length > 0 ? 1.5 : 0 }}>
+                {holmesCallCount} {holmesCallCount === 1 ? 'call' : 'calls'} ·{' '}
+                {formatTokensWithCached(holmesTotalTokens, holmesTotalCached > 0 ? holmesTotalCached : undefined)} ·{' '}
+                {formatUsdCost(holmesTotalCost)}
+              </Typography>
+              {usageEvents.length > 0 ? (
+                <Stack spacing={0.75}>
+                  {usageEvents.map((ev) => (
+                    <Stack
+                      key={ev.id}
+                      direction={{ xs: 'column', sm: 'row' }}
+                      spacing={{ xs: 0.25, sm: 2 }}
+                      sx={{ py: 0.25 }}
+                    >
+                      <Typography variant="caption" color="text.secondary" sx={{ minWidth: 140 }}>
+                        {new Date(ev.createdAt ?? ev.created_at ?? '').toLocaleString()}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ minWidth: 120 }}>
+                        {HOLMES_FEATURE_LABELS[ev.feature] ?? ev.feature}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ minWidth: 80 }}>
+                        {ev.model || 'default'}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {formatTokensWithCached(
+                          ev.totalTokens ?? ev.total_tokens,
+                          ev.cachedTokens ?? ev.cached_tokens
+                        )}{' '}
+                        · {formatUsdCost(ev.totalCost ?? ev.total_cost)}
+                      </Typography>
+                    </Stack>
+                  ))}
+                </Stack>
+              ) : (
+                <Typography variant="body2" color="text.secondary">
+                  Per-step breakdown will appear after Holmes calls complete.
+                </Typography>
+              )}
+            </>
+          ) : (
+            <Typography variant="body2" color="text.secondary">
+              No Holmes usage recorded yet. Run the investigation or send a chat message to generate usage data.
+            </Typography>
+          )}
+        </CardContent>
+      </Card>
+
       <Divider sx={{ my: 3 }} />
 
       {/* Comments */}
@@ -672,25 +728,6 @@ const InvestigationDetailPage: FC = () => {
       </Stack>
 
       <Divider sx={{ my: 3 }} />
-
-      {(usageBreakdown?.events?.length ?? 0) > 0 && (
-        <Box sx={{ mb: 2 }}>
-          <Button size="small" onClick={() => setShowUsageDetails((v) => !v)}>
-            {showUsageDetails ? 'Hide usage details' : 'Usage details'}
-          </Button>
-          {showUsageDetails && (
-            <Stack spacing={0.5} sx={{ mt: 1 }}>
-              {usageBreakdown!.events.map((ev) => (
-                <Typography key={ev.id} variant="caption" color="text.secondary">
-                  {HOLMES_FEATURE_LABELS[ev.feature] ?? ev.feature} · {ev.model || 'default'} ·{' '}
-                  {formatTokenCount(ev.totalTokens ?? ev.total_tokens)} ·{' '}
-                  {formatUsdCost(ev.totalCost ?? ev.total_cost)}
-                </Typography>
-              ))}
-            </Stack>
-          )}
-        </Box>
-      )}
 
       <Typography variant="h6" sx={{ mb: 2 }}>
         Chat
