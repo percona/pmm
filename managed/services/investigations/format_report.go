@@ -18,6 +18,7 @@ package investigations
 import (
 	"context"
 	"encoding/json"
+	"net/url"
 	"regexp"
 	"strings"
 	"time"
@@ -140,6 +141,25 @@ func ParseFormattedReport(jsonBytes []byte) (*FormattedReport, error) {
 	return &fr, nil
 }
 
+// normalizeInvestigationImageURL stores relative PMM render paths so UI works regardless of public address host.
+func normalizeInvestigationImageURL(raw string) string {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return ""
+	}
+	if strings.HasPrefix(raw, "/v1/grafana/render/") || strings.HasPrefix(raw, "/graph/render/") {
+		return raw
+	}
+	u, err := url.Parse(raw)
+	if err != nil {
+		return raw
+	}
+	if strings.HasPrefix(u.Path, "/v1/grafana/render/") || strings.HasPrefix(u.Path, "/graph/render/") {
+		return u.Path
+	}
+	return raw
+}
+
 // buildBlockDataJSON produces data_json for markdown, finding, or remediation_steps blocks.
 func buildBlockDataJSON(blockType, content string) []byte {
 	if blockType == BlockTypeRemediationSteps {
@@ -150,7 +170,7 @@ func buildBlockDataJSON(blockType, content string) []byte {
 		}
 	}
 	if blockType == BlockTypeImage {
-		url := strings.TrimSpace(content)
+		url := normalizeInvestigationImageURL(content)
 		if url != "" {
 			b, _ := json.Marshal(map[string]string{"url": url}) //nolint:errchkjson // map[string]string is always marshalable
 			return b

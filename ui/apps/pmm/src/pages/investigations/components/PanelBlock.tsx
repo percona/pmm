@@ -2,6 +2,7 @@ import { Box, Card, CardContent, Link, Typography } from '@mui/material';
 import { FC, useEffect, useState } from 'react';
 import type { InvestigationBlock } from 'api/investigations';
 import { PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
+import { toSameOriginUrl, withRenderCacheParam } from 'components/adre/adre-chat-markdown.utils';
 
 const RENDER_IMAGE_TIMEOUT_MS = 60000;
 
@@ -120,7 +121,8 @@ export const PanelBlock: FC<{ block: InvestigationBlock }> = ({ block }) => {
   const panelId = config.panelId ?? config.panel_id;
   const timeFrom = config.timeFrom ?? config.time_from;
   const timeTo = config.timeTo ?? config.time_to;
-  const imageUrl = typeof config.image_url === 'string' ? config.image_url : null;
+  const imageUrlRaw = typeof config.image_url === 'string' ? config.image_url : null;
+  const imageUrl = imageUrlRaw ? toSameOriginUrl(withRenderCacheParam(imageUrlRaw)) : null;
   const dashboardUrl = typeof config.dashboard_url === 'string' ? config.dashboard_url : null;
 
   const toEpochMsOrOriginal = (s: string) => {
