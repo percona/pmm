@@ -89,3 +89,79 @@ export function aggregateAssistantMessageUsage(
   }
   return { callCount, totalTokens, totalCached, totalCost };
 }
+
+export interface DailyCostPoint {
+  bucket: string;
+  totalCost: number;
+  totalTokens: number;
+  callCount: number;
+}
+
+/** Merge API series rows that share the same day bucket (defensive if grouped by day+feature). */
+export function aggregateUsageSeriesByDay(
+  series: Array<{
+    bucket?: string;
+    totalCost?: number;
+    total_cost?: number;
+    totalTokens?: number;
+    total_tokens?: number;
+    callCount?: number;
+    call_count?: number;
+  }>
+): DailyCostPoint[] {
+  const byDay = new Map<string, DailyCostPoint>();
+  for (const row of series) {
+    const bucket = row.bucket?.trim();
+    if (!bucket) continue;
+    const cost = row.totalCost ?? row.total_cost ?? 0;
+    const tokens = row.totalTokens ?? row.total_tokens ?? 0;
+    const calls = row.callCount ?? row.call_count ?? 0;
+    const prev = byDay.get(bucket);
+    if (prev) {
+      byDay.set(bucket, {
+        bucket,
+        totalCost: prev.totalCost + cost,
+        totalTokens: prev.totalTokens + tokens,
+        callCount: prev.callCount + calls,
+      });
+    } else {
+      byDay.set(bucket, { bucket, totalCost: cost, totalTokens: tokens, callCount: calls });
+    }
+  }
+  return [...byDay.values()].sort((a, b) => a.bucket.localeCompare(b.bucket));
+}
+
+/** One row per calendar day in [from, to], including zero-cost days. */
+export function fillDailyCostSeries(
+  series: DailyCostPoint[],
+  fromISO: string,
+  toISO: string
+): DailyCostPoint[] {
+  const byDay = new Map(series.map((row) => [row.bucket, row]));
+  const start = new Date(fromISO);
+  const end = new Date(toISO);
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+    return series;
+  }
+  start.setUTCHours(0, 0, 0, 0);
+  end.setUTCHours(0, 0, 0, 0);
+  const out: DailyCostPoint[] = [];
+  for (let t = start.getTime(); t <= end.getTime(); t += 86400000) {
+    const bucket = new Date(t).toISOString().slice(0, 10);
+    out.push(
+      byDay.get(bucket) ?? {
+        bucket,
+        totalCost: 0,
+        totalTokens: 0,
+        callCount: 0,
+      }
+    );
+  }
+  return out;
+}
+
+export function formatUsageDayLabel(bucket: string): string {
+  const d = new Date(`${bucket}T12:00:00Z`);
+  if (Number.isNaN(d.getTime())) return bucket;
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}

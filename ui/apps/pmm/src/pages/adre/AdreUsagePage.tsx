@@ -24,9 +24,12 @@ import { Page } from 'components/page';
 import { useAdreUsageEvents, useAdreUsageSummary } from 'hooks/api/useAdreUsage';
 import { PMM_NEW_NAV_PATH } from 'lib/constants';
 import {
+  aggregateUsageSeriesByDay,
+  fillDailyCostSeries,
   formatTokenCount,
   formatTokensWithCached,
   formatUsdCost,
+  formatUsageDayLabel,
   HOLMES_FEATURE_LABELS,
 } from 'utils/holmesUsageFormat';
 
@@ -65,7 +68,14 @@ const AdreUsagePage: FC = () => {
   const byModel = summaryQuery.data?.byModel ?? summaryQuery.data?.by_model ?? [];
   const events = eventsQuery.data?.events ?? [];
 
-  const maxSeriesCost = Math.max(...series.map((s) => num(s.totalCost ?? s.total_cost)), 0.0001);
+  const dailyCostSeries = useMemo(() => {
+    const from = summaryQuery.data?.from ?? range.from;
+    const to = summaryQuery.data?.to ?? range.to;
+    return fillDailyCostSeries(aggregateUsageSeriesByDay(series), from, to);
+  }, [series, summaryQuery.data?.from, summaryQuery.data?.to, range.from, range.to]);
+
+  const maxSeriesCost = Math.max(...dailyCostSeries.map((s) => s.totalCost), 0.0001);
+  const hasAnyDailyCost = dailyCostSeries.some((s) => s.totalCost > 0);
 
   const exportCsv = () => {
     const url = `/v1/adre/usage/events?from=${encodeURIComponent(range.from)}&to=${encodeURIComponent(range.to)}&format=csv&limit=500${featureFilter ? `&feature=${encodeURIComponent(featureFilter)}` : ''}`;
@@ -163,40 +173,63 @@ const AdreUsagePage: FC = () => {
 
           <Card variant="outlined" sx={{ mb: 3 }}>
             <CardContent>
-              <Typography variant="subtitle2" sx={{ mb: 2 }}>
+              <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
                 Cost over time
               </Typography>
-              {series.length === 0 ? (
+              <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 2 }}>
+                Daily cost in the selected range (UTC days)
+              </Typography>
+              {!hasAnyDailyCost ? (
                 <Typography variant="body2" color="text.secondary">
                   No usage recorded in this range.{' '}
                   <RouterLink to={`${PMM_NEW_NAV_PATH}/adre`}>Open AI Assistant</RouterLink>
                 </Typography>
               ) : (
-                <Stack spacing={0.75}>
-                  {series.map((row) => {
-                    const cost = num(row.totalCost ?? row.total_cost);
-                    const pct = Math.max(4, (cost / maxSeriesCost) * 100);
-                    return (
-                      <Stack key={row.bucket ?? row.feature} direction="row" alignItems="center" spacing={1}>
-                        <Typography variant="caption" sx={{ width: 88, flexShrink: 0 }}>
-                          {row.bucket}
-                        </Typography>
-                        <Box
-                          sx={{
-                            height: 10,
-                            width: `${pct}%`,
-                            minWidth: 4,
-                            bgcolor: 'primary.main',
-                            borderRadius: 1,
-                          }}
-                        />
-                        <Typography variant="caption" color="text.secondary">
-                          {formatUsdCost(cost)}
-                        </Typography>
-                      </Stack>
-                    );
-                  })}
-                </Stack>
+                <Box sx={{ maxHeight: 280, overflow: 'auto', pr: 0.5 }}>
+                  <Stack spacing={0.75}>
+                    {dailyCostSeries.map((row) => {
+                      const cost = row.totalCost;
+                      const pct = cost > 0 ? Math.max(2, (cost / maxSeriesCost) * 100) : 0;
+                      return (
+                        <Stack key={row.bucket} direction="row" alignItems="center" spacing={1}>
+                          <Typography
+                            variant="caption"
+                            sx={{ width: 56, flexShrink: 0, color: cost > 0 ? 'text.primary' : 'text.secondary' }}
+                          >
+                            {formatUsageDayLabel(row.bucket)}
+                          </Typography>
+                          <Box
+                            sx={{
+                              flex: 1,
+                              minWidth: 0,
+                              height: 10,
+                              bgcolor: 'action.hover',
+                              borderRadius: 1,
+                            }}
+                          >
+                            {cost > 0 ? (
+                              <Box
+                                sx={{
+                                  height: '100%',
+                                  width: `${pct}%`,
+                                  bgcolor: 'primary.main',
+                                  borderRadius: 1,
+                                }}
+                              />
+                            ) : null}
+                          </Box>
+                          <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            sx={{ width: 52, flexShrink: 0, textAlign: 'right' }}
+                          >
+                            {cost > 0 ? formatUsdCost(cost) : '—'}
+                          </Typography>
+                        </Stack>
+                      );
+                    })}
+                  </Stack>
+                </Box>
               )}
             </CardContent>
           </Card>
@@ -239,16 +272,24 @@ const AdreUsagePage: FC = () => {
           <Typography variant="h6" sx={{ mb: 1 }}>
             Recent events
           </Typography>
-          <TableContainer component={Card} variant="outlined">
-            <Table size="small">
+          <TableContainer
+            component={Card}
+            variant="outlined"
+            sx={{ maxHeight: 400, overflow: 'auto' }}
+          >
+            <Table size="small" stickyHeader>
               <TableHead>
                 <TableRow>
-                  <TableCell>Time</TableCell>
-                  <TableCell>Feature</TableCell>
-                  <TableCell>Model</TableCell>
-                  <TableCell align="right">Tokens</TableCell>
-                  <TableCell align="right">Cost</TableCell>
-                  <TableCell>User</TableCell>
+                  <TableCell sx={{ bgcolor: 'background.paper' }}>Time</TableCell>
+                  <TableCell sx={{ bgcolor: 'background.paper' }}>Feature</TableCell>
+                  <TableCell sx={{ bgcolor: 'background.paper' }}>Model</TableCell>
+                  <TableCell align="right" sx={{ bgcolor: 'background.paper' }}>
+                    Tokens
+                  </TableCell>
+                  <TableCell align="right" sx={{ bgcolor: 'background.paper' }}>
+                    Cost
+                  </TableCell>
+                  <TableCell sx={{ bgcolor: 'background.paper' }}>User</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

@@ -53,6 +53,8 @@ export interface Investigation {
   timeFrom: string;
   timeTo: string;
   summary: string;
+  userRequest?: string;
+  user_request?: string;
   summaryDetailed: string;
   rootCauseSummary: string;
   resolutionSummary: string;

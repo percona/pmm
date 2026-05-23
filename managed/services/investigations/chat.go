@@ -313,6 +313,7 @@ func (h *Handlers) runInvestigationBackground(id string, _ *models.Investigation
 	if formatErr == nil { //nolint:nestif
 		report, parseErr := ParseFormattedReport(formattedJSON)
 		if parseErr == nil {
+			preserveUserRequest(inv)
 			inv.Summary = report.Summary
 			inv.SummaryDetailed = report.SummaryDetailed
 			inv.RootCauseSummary = report.RootCauseSummary
@@ -437,10 +438,15 @@ type alertSnapshotEntry struct {
 }
 
 func buildInvestigationContext(inv *models.Investigation) string { //nolint:gocognit
-	s := fmt.Sprintf("Title: %s\nStatus: %s\nTime range: %s — %s\nSummary: %s",
+	userRequest := userRequestFromInvestigation(inv)
+	contextLine := "Summary: " + inv.Summary
+	if userRequest != "" {
+		contextLine = "User request: " + userRequest
+	}
+	s := fmt.Sprintf("Title: %s\nStatus: %s\nTime range: %s — %s\n%s",
 		inv.Title, inv.Status,
 		inv.TimeFrom.Format(time.RFC3339), inv.TimeTo.Format(time.RFC3339),
-		inv.Summary)
+		contextLine)
 	if len(inv.Config) > 0 { //nolint:nestif
 		var cfg map[string]any
 		err := json.Unmarshal(inv.Config, &cfg)

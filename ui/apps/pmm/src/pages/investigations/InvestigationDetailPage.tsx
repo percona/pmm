@@ -45,7 +45,7 @@ import { useAdreSettings } from 'hooks/api/useAdre';
 import { useInvestigationUsage } from 'hooks/api/useAdreUsage';
 import { PMM_NEW_NAV_PATH } from 'lib/constants';
 import { getInvestigationExportPdfUrl } from 'api/investigations';
-import type { InvestigationBlock } from 'api/investigations';
+import type { Investigation, InvestigationBlock } from 'api/investigations';
 import {
   getAdreAlerts,
   getAlertMetadataFromLabels,
@@ -62,6 +62,23 @@ import { BlockRenderer } from './components/BlockRenderer';
 import { TimelineSection } from './components/TimelineSection';
 
 const STATUS_OPTIONS = ['open', 'in_progress', 'investigating', 'running', 'completed', 'failed', 'resolved', 'archived'] as const;
+
+function investigationUserRequest(inv: Investigation): string {
+  const fromApi = (inv.userRequest ?? inv.user_request ?? '').trim();
+  if (fromApi) {
+    return fromApi;
+  }
+  const summary = (inv.summary ?? '').trim();
+  if (!summary) {
+    return '';
+  }
+  const hasReport =
+    !!inv.rootCauseSummary?.trim() ||
+    !!inv.summaryDetailed?.trim() ||
+    (inv.blocks?.length ?? 0) > 0 ||
+    ['completed', 'resolved', 'failed'].includes(inv.status);
+  return hasReport ? '' : summary;
+}
 
 const BlockWithActions: FC<{
   block: InvestigationBlock;
@@ -460,6 +477,26 @@ const InvestigationDetailPage: FC = () => {
           Investigation is running. Results will appear automatically when complete.
         </Alert>
       )}
+      {(() => {
+        const userRequest = investigationUserRequest(inv);
+        if (!userRequest) {
+          return null;
+        }
+        return (
+          <>
+            <Typography variant="h6" sx={{ mb: 1 }}>
+              Your request
+            </Typography>
+            <Card variant="outlined" sx={{ mb: 2 }}>
+              <CardContent>
+                <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
+                  {userRequest}
+                </Typography>
+              </CardContent>
+            </Card>
+          </>
+        );
+      })()}
       {/* Summary */}
       {inv.summary && (
         <>

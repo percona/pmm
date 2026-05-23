@@ -76,6 +76,7 @@ type investigationResponse struct {
 	TimeFrom               string          `json:"time_from"`
 	TimeTo                 string          `json:"time_to"`
 	Summary                string          `json:"summary"`
+	UserRequest            string          `json:"user_request,omitempty"`
 	SummaryDetailed        string          `json:"summary_detailed"`
 	RootCauseSummary       string          `json:"root_cause_summary"`
 	ResolutionSummary      string          `json:"resolution_summary"`
@@ -134,6 +135,9 @@ func investigationToResponse(inv *models.Investigation) investigationResponse {
 		var cfg map[string]any
 		err := json.Unmarshal(inv.Config, &cfg)
 		if err == nil {
+			if v, _ := cfg["user_request"].(string); v != "" {
+				resp.UserRequest = v
+			}
 			if v, _ := cfg["cluster_name"].(string); v != "" {
 				resp.ClusterName = v
 			}

@@ -279,6 +279,9 @@ func (h *Handlers) CreateInvestigation(w http.ResponseWriter, r *http.Request) {
 	if len(body.AlertSnapshot) > 0 {
 		cfg["alert_snapshot"] = string(body.AlertSnapshot)
 	}
+	if strings.TrimSpace(body.Summary) != "" {
+		cfg["user_request"] = strings.TrimSpace(body.Summary)
+	}
 	if len(cfg) > 0 {
 		b, mErr := json.Marshal(cfg)
 		if mErr == nil {

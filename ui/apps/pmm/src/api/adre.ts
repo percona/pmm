@@ -187,7 +187,15 @@ export const getAdreUsageSummary = async (params?: {
   feature?: string;
   model?: string;
 }): Promise<AdreUsageSummaryResponse> => {
-  const res = await api.get<AdreUsageSummaryResponse>('/adre/usage/summary', { params });
+  const res = await api.get<AdreUsageSummaryResponse>('/adre/usage/summary', {
+    params: {
+      from: params?.from,
+      to: params?.to,
+      feature: params?.feature,
+      model: params?.model,
+      ...(params?.groupBy ? { group_by: params.groupBy } : {}),
+    },
+  });
   return res.data;
 };
 
