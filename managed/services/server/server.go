@@ -503,6 +503,12 @@ func (s *Server) convertSettings(settings *models.Settings, disableInternalPgQan
 		EnableAccessControl:  settings.IsAccessControlEnabled(),
 		DefaultRoleId:        uint32(settings.DefaultRoleID),
 		UpdateSnoozeDuration: durationpb.New(settings.Updates.SnoozeDuration),
+		Otel: &serverv1.OtelSettings{
+			CollectorEnabled:     settings.IsOtelCollectorEnabled(),
+			LogsRetentionDays:    int32(settings.GetOtelLogsRetentionDays()),
+			TracesRetentionDays:  int32(settings.GetOtelTracesRetentionDays()),
+			MetricsRetentionDays: int32(settings.GetOtelMetricsRetentionDays()),
+		},
 	}
 
 	return res
@@ -667,6 +673,22 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		if req.AwsPartitions != nil {
 			// Nil treated as "do not change", empty slice treated as "reset to default"
 			settingsParams.AWSPartitions = req.AwsPartitions.Values
+		}
+
+		if req.Otel != nil {
+			settingsParams.OtelCollectorEnabled = &req.Otel.CollectorEnabled
+			if req.Otel.LogsRetentionDays != 0 {
+				d := int(req.Otel.LogsRetentionDays)
+				settingsParams.OtelLogsRetentionDays = &d
+			}
+			if req.Otel.TracesRetentionDays != 0 {
+				d := int(req.Otel.TracesRetentionDays)
+				settingsParams.OtelTracesRetentionDays = &d
+			}
+			if req.Otel.MetricsRetentionDays != 0 {
+				d := int(req.Otel.MetricsRetentionDays)
+				settingsParams.OtelMetricsRetentionDays = &d
+			}
 		}
 
 		var errInvalidArgument *models.InvalidArgumentError

@@ -57,6 +57,7 @@ GetMetricsParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type GetMetricsParams struct {
+
 	/* Body.
 
 	   GetMetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
@@ -129,6 +130,7 @@ func (o *GetMetricsParams) SetBody(body GetMetricsBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *GetMetricsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

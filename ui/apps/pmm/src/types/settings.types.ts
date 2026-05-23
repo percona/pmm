@@ -35,6 +35,18 @@ export interface Settings extends ReadonlySettings {
   telemetrySummaries?: string[];
   enableInternalPgQan?: boolean;
   defaultRoleId?: number;
+  otel?: OtelSettings;
+}
+
+export interface OtelSettings {
+  collectorEnabled?: boolean;
+  collector_enabled?: boolean;
+  logsRetentionDays?: number;
+  logs_retention_days?: number;
+  tracesRetentionDays?: number;
+  traces_retention_days?: number;
+  metricsRetentionDays?: number;
+  metrics_retention_days?: number;
 }
 
 /** Payload for PUT /server/settings - partial updates supported */
@@ -54,6 +66,12 @@ export interface UpdateSettingsPayload {
   enableInternalPgQan?: boolean;
   awsPartitions?: string[];
   updateSnoozeDuration?: string;
+  otel?: {
+    collectorEnabled?: boolean;
+    logsRetentionDays?: number;
+    tracesRetentionDays?: number;
+    metricsRetentionDays?: number;
+  };
 }
 
 export interface FrontendSettings extends GetFrontendSettingsResponse {}

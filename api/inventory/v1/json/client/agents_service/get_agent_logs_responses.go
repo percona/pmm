@@ -101,6 +101,7 @@ func (o *GetAgentLogsOK) GetPayload() *GetAgentLogsOKBody {
 }
 
 func (o *GetAgentLogsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetAgentLogsOKBody)
 
 	// response payload
@@ -174,6 +175,7 @@ func (o *GetAgentLogsDefault) GetPayload() *GetAgentLogsDefaultBody {
 }
 
 func (o *GetAgentLogsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetAgentLogsDefaultBody)
 
 	// response payload
@@ -189,6 +191,7 @@ GetAgentLogsDefaultBody get agent logs default body
 swagger:model GetAgentLogsDefaultBody
 */
 type GetAgentLogsDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -258,7 +261,9 @@ func (o *GetAgentLogsDefaultBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *GetAgentLogsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -278,6 +283,7 @@ func (o *GetAgentLogsDefaultBody) contextValidateDetails(ctx context.Context, fo
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -306,6 +312,7 @@ GetAgentLogsDefaultBodyDetailsItems0 get agent logs default body details items0
 swagger:model GetAgentLogsDefaultBodyDetailsItems0
 */
 type GetAgentLogsDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -317,6 +324,7 @@ type GetAgentLogsDefaultBodyDetailsItems0 struct {
 func (o *GetAgentLogsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -354,6 +362,7 @@ func (o *GetAgentLogsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error 
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o GetAgentLogsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -417,6 +426,7 @@ GetAgentLogsOKBody get agent logs OK body
 swagger:model GetAgentLogsOKBody
 */
 type GetAgentLogsOKBody struct {
+
 	// logs
 	Logs []string `json:"logs"`
 

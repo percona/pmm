@@ -102,6 +102,7 @@ func (o *GetQueryExampleOK) GetPayload() *GetQueryExampleOKBody {
 }
 
 func (o *GetQueryExampleOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetQueryExampleOKBody)
 
 	// response payload
@@ -175,6 +176,7 @@ func (o *GetQueryExampleDefault) GetPayload() *GetQueryExampleDefaultBody {
 }
 
 func (o *GetQueryExampleDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetQueryExampleDefaultBody)
 
 	// response payload
@@ -191,6 +193,7 @@ GetQueryExampleBody GetQueryExampleRequest defines filtering of query examples f
 swagger:model GetQueryExampleBody
 */
 type GetQueryExampleBody struct {
+
 	// period start from
 	// Format: date-time
 	PeriodStartFrom strfmt.DateTime `json:"period_start_from,omitempty"`
@@ -303,7 +306,9 @@ func (o *GetQueryExampleBody) ContextValidate(ctx context.Context, formats strfm
 }
 
 func (o *GetQueryExampleBody) contextValidateLabels(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Labels); i++ {
+
 		if o.Labels[i] != nil {
 
 			if swag.IsZero(o.Labels[i]) { // not required
@@ -323,6 +328,7 @@ func (o *GetQueryExampleBody) contextValidateLabels(ctx context.Context, formats
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -351,6 +357,7 @@ GetQueryExampleDefaultBody get query example default body
 swagger:model GetQueryExampleDefaultBody
 */
 type GetQueryExampleDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -420,7 +427,9 @@ func (o *GetQueryExampleDefaultBody) ContextValidate(ctx context.Context, format
 }
 
 func (o *GetQueryExampleDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -440,6 +449,7 @@ func (o *GetQueryExampleDefaultBody) contextValidateDetails(ctx context.Context,
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -468,6 +478,7 @@ GetQueryExampleDefaultBodyDetailsItems0 get query example default body details i
 swagger:model GetQueryExampleDefaultBodyDetailsItems0
 */
 type GetQueryExampleDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -479,6 +490,7 @@ type GetQueryExampleDefaultBodyDetailsItems0 struct {
 func (o *GetQueryExampleDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -516,6 +528,7 @@ func (o *GetQueryExampleDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) err
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o GetQueryExampleDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -579,6 +592,7 @@ GetQueryExampleOKBody GetQueryExampleResponse list of query examples.
 swagger:model GetQueryExampleOKBody
 */
 type GetQueryExampleOKBody struct {
+
 	// query examples
 	QueryExamples []*GetQueryExampleOKBodyQueryExamplesItems0 `json:"query_examples"`
 }
@@ -642,7 +656,9 @@ func (o *GetQueryExampleOKBody) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *GetQueryExampleOKBody) contextValidateQueryExamples(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.QueryExamples); i++ {
+
 		if o.QueryExamples[i] != nil {
 
 			if swag.IsZero(o.QueryExamples[i]) { // not required
@@ -662,6 +678,7 @@ func (o *GetQueryExampleOKBody) contextValidateQueryExamples(ctx context.Context
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -690,6 +707,7 @@ GetQueryExampleOKBodyQueryExamplesItems0 QueryExample shows query examples and t
 swagger:model GetQueryExampleOKBodyQueryExamplesItems0
 */
 type GetQueryExampleOKBodyQueryExamplesItems0 struct {
+
 	// example
 	Example string `json:"example,omitempty"`
 
@@ -818,6 +836,7 @@ GetQueryExampleParamsBodyLabelsItems0 MapFieldEntry allows to pass labels/dimens
 swagger:model GetQueryExampleParamsBodyLabelsItems0
 */
 type GetQueryExampleParamsBodyLabelsItems0 struct {
+
 	// key
 	Key string `json:"key,omitempty"`
 

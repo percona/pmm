@@ -102,6 +102,7 @@ func (o *ListScheduledBackupsOK) GetPayload() *ListScheduledBackupsOKBody {
 }
 
 func (o *ListScheduledBackupsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListScheduledBackupsOKBody)
 
 	// response payload
@@ -175,6 +176,7 @@ func (o *ListScheduledBackupsDefault) GetPayload() *ListScheduledBackupsDefaultB
 }
 
 func (o *ListScheduledBackupsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListScheduledBackupsDefaultBody)
 
 	// response payload
@@ -190,6 +192,7 @@ ListScheduledBackupsDefaultBody list scheduled backups default body
 swagger:model ListScheduledBackupsDefaultBody
 */
 type ListScheduledBackupsDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -259,7 +262,9 @@ func (o *ListScheduledBackupsDefaultBody) ContextValidate(ctx context.Context, f
 }
 
 func (o *ListScheduledBackupsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -279,6 +284,7 @@ func (o *ListScheduledBackupsDefaultBody) contextValidateDetails(ctx context.Con
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -307,6 +313,7 @@ ListScheduledBackupsDefaultBodyDetailsItems0 list scheduled backups default body
 swagger:model ListScheduledBackupsDefaultBodyDetailsItems0
 */
 type ListScheduledBackupsDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -318,6 +325,7 @@ type ListScheduledBackupsDefaultBodyDetailsItems0 struct {
 func (o *ListScheduledBackupsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -355,6 +363,7 @@ func (o *ListScheduledBackupsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o ListScheduledBackupsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -418,6 +427,7 @@ ListScheduledBackupsOKBody list scheduled backups OK body
 swagger:model ListScheduledBackupsOKBody
 */
 type ListScheduledBackupsOKBody struct {
+
 	// scheduled backups
 	ScheduledBackups []*ListScheduledBackupsOKBodyScheduledBackupsItems0 `json:"scheduled_backups"`
 }
@@ -481,7 +491,9 @@ func (o *ListScheduledBackupsOKBody) ContextValidate(ctx context.Context, format
 }
 
 func (o *ListScheduledBackupsOKBody) contextValidateScheduledBackups(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.ScheduledBackups); i++ {
+
 		if o.ScheduledBackups[i] != nil {
 
 			if swag.IsZero(o.ScheduledBackups[i]) { // not required
@@ -501,6 +513,7 @@ func (o *ListScheduledBackupsOKBody) contextValidateScheduledBackups(ctx context
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -529,6 +542,7 @@ ListScheduledBackupsOKBodyScheduledBackupsItems0 ScheduledBackup represents sche
 swagger:model ListScheduledBackupsOKBodyScheduledBackupsItems0
 */
 type ListScheduledBackupsOKBodyScheduledBackupsItems0 struct {
+
 	// Machine-readable ID.
 	ScheduledBackupID string `json:"scheduled_backup_id,omitempty"`
 

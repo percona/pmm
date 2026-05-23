@@ -101,6 +101,7 @@ func (o *GetDumpLogsOK) GetPayload() *GetDumpLogsOKBody {
 }
 
 func (o *GetDumpLogsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetDumpLogsOKBody)
 
 	// response payload
@@ -174,6 +175,7 @@ func (o *GetDumpLogsDefault) GetPayload() *GetDumpLogsDefaultBody {
 }
 
 func (o *GetDumpLogsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetDumpLogsDefaultBody)
 
 	// response payload
@@ -189,6 +191,7 @@ GetDumpLogsDefaultBody get dump logs default body
 swagger:model GetDumpLogsDefaultBody
 */
 type GetDumpLogsDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -258,7 +261,9 @@ func (o *GetDumpLogsDefaultBody) ContextValidate(ctx context.Context, formats st
 }
 
 func (o *GetDumpLogsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -278,6 +283,7 @@ func (o *GetDumpLogsDefaultBody) contextValidateDetails(ctx context.Context, for
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -306,6 +312,7 @@ GetDumpLogsDefaultBodyDetailsItems0 get dump logs default body details items0
 swagger:model GetDumpLogsDefaultBodyDetailsItems0
 */
 type GetDumpLogsDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -317,6 +324,7 @@ type GetDumpLogsDefaultBodyDetailsItems0 struct {
 func (o *GetDumpLogsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -354,6 +362,7 @@ func (o *GetDumpLogsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o GetDumpLogsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -417,6 +426,7 @@ GetDumpLogsOKBody get dump logs OK body
 swagger:model GetDumpLogsOKBody
 */
 type GetDumpLogsOKBody struct {
+
 	// logs
 	Logs []*GetDumpLogsOKBodyLogsItems0 `json:"logs"`
 
@@ -483,7 +493,9 @@ func (o *GetDumpLogsOKBody) ContextValidate(ctx context.Context, formats strfmt.
 }
 
 func (o *GetDumpLogsOKBody) contextValidateLogs(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Logs); i++ {
+
 		if o.Logs[i] != nil {
 
 			if swag.IsZero(o.Logs[i]) { // not required
@@ -503,6 +515,7 @@ func (o *GetDumpLogsOKBody) contextValidateLogs(ctx context.Context, formats str
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -531,6 +544,7 @@ GetDumpLogsOKBodyLogsItems0 LogChunk represent one chunk of logs.
 swagger:model GetDumpLogsOKBodyLogsItems0
 */
 type GetDumpLogsOKBodyLogsItems0 struct {
+
 	// chunk id
 	ChunkID int64 `json:"chunk_id,omitempty"`
 

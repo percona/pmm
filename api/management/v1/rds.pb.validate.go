@@ -140,8 +140,7 @@ func (e DiscoverRDSInstanceValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = DiscoverRDSInstanceValidationError{}
@@ -247,8 +246,7 @@ func (e DiscoverRDSRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = DiscoverRDSRequestValidationError{}
@@ -384,8 +382,7 @@ func (e DiscoverRDSResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = DiscoverRDSResponseValidationError{}
@@ -630,8 +627,7 @@ func (e AddRDSServiceParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddRDSServiceParamsValidationError{}
@@ -963,8 +959,7 @@ func (e RDSServiceResultValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = RDSServiceResultValidationError{}

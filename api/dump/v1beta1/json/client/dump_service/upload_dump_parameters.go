@@ -57,6 +57,7 @@ UploadDumpParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type UploadDumpParams struct {
+
 	// Body.
 	Body UploadDumpBody
 
@@ -126,6 +127,7 @@ func (o *UploadDumpParams) SetBody(body UploadDumpBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *UploadDumpParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

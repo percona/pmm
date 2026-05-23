@@ -122,8 +122,7 @@ func (e GetUserRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetUserRequestValidationError{}
@@ -262,8 +261,7 @@ func (e GetUserResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetUserResponseValidationError{}
@@ -377,8 +375,7 @@ func (e UpdateUserRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = UpdateUserRequestValidationError{}
@@ -519,8 +516,7 @@ func (e UpdateUserResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = UpdateUserResponseValidationError{}
@@ -620,8 +616,7 @@ func (e ListUsersRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListUsersRequestValidationError{}
@@ -757,8 +752,7 @@ func (e ListUsersResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListUsersResponseValidationError{}
@@ -863,8 +857,7 @@ func (e ListUsersResponse_UserDetailValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListUsersResponse_UserDetailValidationError{}

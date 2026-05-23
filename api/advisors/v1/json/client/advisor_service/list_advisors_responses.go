@@ -102,6 +102,7 @@ func (o *ListAdvisorsOK) GetPayload() *ListAdvisorsOKBody {
 }
 
 func (o *ListAdvisorsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListAdvisorsOKBody)
 
 	// response payload
@@ -175,6 +176,7 @@ func (o *ListAdvisorsDefault) GetPayload() *ListAdvisorsDefaultBody {
 }
 
 func (o *ListAdvisorsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListAdvisorsDefaultBody)
 
 	// response payload
@@ -190,6 +192,7 @@ ListAdvisorsDefaultBody list advisors default body
 swagger:model ListAdvisorsDefaultBody
 */
 type ListAdvisorsDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -259,7 +262,9 @@ func (o *ListAdvisorsDefaultBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *ListAdvisorsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -279,6 +284,7 @@ func (o *ListAdvisorsDefaultBody) contextValidateDetails(ctx context.Context, fo
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -307,6 +313,7 @@ ListAdvisorsDefaultBodyDetailsItems0 list advisors default body details items0
 swagger:model ListAdvisorsDefaultBodyDetailsItems0
 */
 type ListAdvisorsDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -318,6 +325,7 @@ type ListAdvisorsDefaultBodyDetailsItems0 struct {
 func (o *ListAdvisorsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -355,6 +363,7 @@ func (o *ListAdvisorsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error 
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o ListAdvisorsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -418,6 +427,7 @@ ListAdvisorsOKBody list advisors OK body
 swagger:model ListAdvisorsOKBody
 */
 type ListAdvisorsOKBody struct {
+
 	// advisors
 	Advisors []*ListAdvisorsOKBodyAdvisorsItems0 `json:"advisors"`
 }
@@ -481,7 +491,9 @@ func (o *ListAdvisorsOKBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *ListAdvisorsOKBody) contextValidateAdvisors(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Advisors); i++ {
+
 		if o.Advisors[i] != nil {
 
 			if swag.IsZero(o.Advisors[i]) { // not required
@@ -501,6 +513,7 @@ func (o *ListAdvisorsOKBody) contextValidateAdvisors(ctx context.Context, format
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -529,6 +542,7 @@ ListAdvisorsOKBodyAdvisorsItems0 list advisors OK body advisors items0
 swagger:model ListAdvisorsOKBodyAdvisorsItems0
 */
 type ListAdvisorsOKBodyAdvisorsItems0 struct {
+
 	// Machine-readable name (ID) that is used in expression.
 	Name string `json:"name,omitempty"`
 
@@ -607,7 +621,9 @@ func (o *ListAdvisorsOKBodyAdvisorsItems0) ContextValidate(ctx context.Context, 
 }
 
 func (o *ListAdvisorsOKBodyAdvisorsItems0) contextValidateChecks(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Checks); i++ {
+
 		if o.Checks[i] != nil {
 
 			if swag.IsZero(o.Checks[i]) { // not required
@@ -627,6 +643,7 @@ func (o *ListAdvisorsOKBodyAdvisorsItems0) contextValidateChecks(ctx context.Con
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -655,6 +672,7 @@ ListAdvisorsOKBodyAdvisorsItems0ChecksItems0 AdvisorCheck contains check name an
 swagger:model ListAdvisorsOKBodyAdvisorsItems0ChecksItems0
 */
 type ListAdvisorsOKBodyAdvisorsItems0ChecksItems0 struct {
+
 	// Machine-readable name (ID) that is used in expression.
 	Name string `json:"name,omitempty"`
 

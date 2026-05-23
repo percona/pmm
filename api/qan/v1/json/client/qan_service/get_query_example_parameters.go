@@ -57,6 +57,7 @@ GetQueryExampleParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type GetQueryExampleParams struct {
+
 	/* Body.
 
 	     GetQueryExampleRequest defines filtering of query examples for specific value of
@@ -130,6 +131,7 @@ func (o *GetQueryExampleParams) SetBody(body GetQueryExampleBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *GetQueryExampleParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

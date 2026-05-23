@@ -102,6 +102,7 @@ func (o *AddLogParserPresetOK) GetPayload() *AddLogParserPresetOKBody {
 }
 
 func (o *AddLogParserPresetOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddLogParserPresetOKBody)
 
 	// response payload
@@ -175,6 +176,7 @@ func (o *AddLogParserPresetDefault) GetPayload() *AddLogParserPresetDefaultBody 
 }
 
 func (o *AddLogParserPresetDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddLogParserPresetDefaultBody)
 
 	// response payload
@@ -190,6 +192,7 @@ AddLogParserPresetBody add log parser preset body
 swagger:model AddLogParserPresetBody
 */
 type AddLogParserPresetBody struct {
+
 	// name
 	Name string `json:"name,omitempty"`
 
@@ -233,6 +236,7 @@ AddLogParserPresetDefaultBody add log parser preset default body
 swagger:model AddLogParserPresetDefaultBody
 */
 type AddLogParserPresetDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -302,7 +306,9 @@ func (o *AddLogParserPresetDefaultBody) ContextValidate(ctx context.Context, for
 }
 
 func (o *AddLogParserPresetDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -322,6 +328,7 @@ func (o *AddLogParserPresetDefaultBody) contextValidateDetails(ctx context.Conte
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -434,6 +441,7 @@ AddLogParserPresetDefaultBodyDetailsItems0 `Any` contains an arbitrary serialize
 swagger:model AddLogParserPresetDefaultBodyDetailsItems0
 */
 type AddLogParserPresetDefaultBodyDetailsItems0 struct {
+
 	// A URL/resource name that uniquely identifies the type of the serialized
 	// protocol buffer message. This string must contain at least
 	// one "/" character. The last segment of the URL's path must represent
@@ -472,6 +480,7 @@ type AddLogParserPresetDefaultBodyDetailsItems0 struct {
 func (o *AddLogParserPresetDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// A URL/resource name that uniquely identifies the type of the serialized
 		// protocol buffer message. This string must contain at least
 		// one "/" character. The last segment of the URL's path must represent
@@ -536,6 +545,7 @@ func (o *AddLogParserPresetDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) 
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o AddLogParserPresetDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// A URL/resource name that uniquely identifies the type of the serialized
 		// protocol buffer message. This string must contain at least
 		// one "/" character. The last segment of the URL's path must represent
@@ -626,6 +636,7 @@ AddLogParserPresetOKBody add log parser preset OK body
 swagger:model AddLogParserPresetOKBody
 */
 type AddLogParserPresetOKBody struct {
+
 	// preset
 	Preset *AddLogParserPresetOKBodyPreset `json:"preset,omitempty"`
 }
@@ -682,6 +693,7 @@ func (o *AddLogParserPresetOKBody) ContextValidate(ctx context.Context, formats 
 }
 
 func (o *AddLogParserPresetOKBody) contextValidatePreset(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Preset != nil {
 
 		if swag.IsZero(o.Preset) { // not required
@@ -728,6 +740,7 @@ AddLogParserPresetOKBodyPreset LogParserPreset is one row in PostgreSQL log_pars
 swagger:model AddLogParserPresetOKBodyPreset
 */
 type AddLogParserPresetOKBodyPreset struct {
+
 	// id
 	ID string `json:"id,omitempty"`
 
@@ -750,6 +763,9 @@ type AddLogParserPresetOKBodyPreset struct {
 	// updated at
 	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updated_at,omitempty"`
+
+	// Number of OTEL collector agents referencing this preset name (list API only).
+	UsageCount int32 `json:"usage_count,omitempty"`
 }
 
 // Validate validates this add log parser preset OK body preset

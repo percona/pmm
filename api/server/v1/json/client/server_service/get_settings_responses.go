@@ -101,6 +101,7 @@ func (o *GetSettingsOK) GetPayload() *GetSettingsOKBody {
 }
 
 func (o *GetSettingsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetSettingsOKBody)
 
 	// response payload
@@ -174,6 +175,7 @@ func (o *GetSettingsDefault) GetPayload() *GetSettingsDefaultBody {
 }
 
 func (o *GetSettingsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetSettingsDefaultBody)
 
 	// response payload
@@ -189,6 +191,7 @@ GetSettingsDefaultBody get settings default body
 swagger:model GetSettingsDefaultBody
 */
 type GetSettingsDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -258,7 +261,9 @@ func (o *GetSettingsDefaultBody) ContextValidate(ctx context.Context, formats st
 }
 
 func (o *GetSettingsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -278,6 +283,7 @@ func (o *GetSettingsDefaultBody) contextValidateDetails(ctx context.Context, for
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -390,6 +396,7 @@ GetSettingsDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized proto
 swagger:model GetSettingsDefaultBodyDetailsItems0
 */
 type GetSettingsDefaultBodyDetailsItems0 struct {
+
 	// A URL/resource name that uniquely identifies the type of the serialized
 	// protocol buffer message. This string must contain at least
 	// one "/" character. The last segment of the URL's path must represent
@@ -428,6 +435,7 @@ type GetSettingsDefaultBodyDetailsItems0 struct {
 func (o *GetSettingsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// A URL/resource name that uniquely identifies the type of the serialized
 		// protocol buffer message. This string must contain at least
 		// one "/" character. The last segment of the URL's path must represent
@@ -492,6 +500,7 @@ func (o *GetSettingsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o GetSettingsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// A URL/resource name that uniquely identifies the type of the serialized
 		// protocol buffer message. This string must contain at least
 		// one "/" character. The last segment of the URL's path must represent
@@ -582,6 +591,7 @@ GetSettingsOKBody get settings OK body
 swagger:model GetSettingsOKBody
 */
 type GetSettingsOKBody struct {
+
 	// settings
 	Settings *GetSettingsOKBodySettings `json:"settings,omitempty"`
 }
@@ -638,6 +648,7 @@ func (o *GetSettingsOKBody) ContextValidate(ctx context.Context, formats strfmt.
 }
 
 func (o *GetSettingsOKBody) contextValidateSettings(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Settings != nil {
 
 		if swag.IsZero(o.Settings) { // not required
@@ -684,6 +695,7 @@ GetSettingsOKBodySettings Settings represents PMM Server settings.
 swagger:model GetSettingsOKBodySettings
 */
 type GetSettingsOKBodySettings struct {
+
 	// True if updates are enabled.
 	UpdatesEnabled bool `json:"updates_enabled,omitempty"`
 
@@ -740,6 +752,9 @@ type GetSettingsOKBodySettings struct {
 
 	// metrics resolutions
 	MetricsResolutions *GetSettingsOKBodySettingsMetricsResolutions `json:"metrics_resolutions,omitempty"`
+
+	// otel
+	Otel *GetSettingsOKBodySettingsOtel `json:"otel,omitempty"`
 }
 
 // Validate validates this get settings OK body settings
@@ -751,6 +766,10 @@ func (o *GetSettingsOKBodySettings) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateOtel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -806,6 +825,29 @@ func (o *GetSettingsOKBodySettings) validateMetricsResolutions(formats strfmt.Re
 	return nil
 }
 
+func (o *GetSettingsOKBodySettings) validateOtel(formats strfmt.Registry) error {
+	if swag.IsZero(o.Otel) { // not required
+		return nil
+	}
+
+	if o.Otel != nil {
+		if err := o.Otel.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("getSettingsOk" + "." + "settings" + "." + "otel")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("getSettingsOk" + "." + "settings" + "." + "otel")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this get settings OK body settings based on the context it is used
 func (o *GetSettingsOKBodySettings) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -818,6 +860,10 @@ func (o *GetSettingsOKBodySettings) ContextValidate(ctx context.Context, formats
 		res = append(res, err)
 	}
 
+	if err := o.contextValidateOtel(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -825,6 +871,7 @@ func (o *GetSettingsOKBodySettings) ContextValidate(ctx context.Context, formats
 }
 
 func (o *GetSettingsOKBodySettings) contextValidateAdvisorRunIntervals(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.AdvisorRunIntervals != nil {
 
 		if swag.IsZero(o.AdvisorRunIntervals) { // not required
@@ -849,6 +896,7 @@ func (o *GetSettingsOKBodySettings) contextValidateAdvisorRunIntervals(ctx conte
 }
 
 func (o *GetSettingsOKBodySettings) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MetricsResolutions != nil {
 
 		if swag.IsZero(o.MetricsResolutions) { // not required
@@ -863,6 +911,31 @@ func (o *GetSettingsOKBodySettings) contextValidateMetricsResolutions(ctx contex
 			ce := new(errors.CompositeError)
 			if stderrors.As(err, &ce) {
 				return ce.ValidateName("getSettingsOk" + "." + "settings" + "." + "metrics_resolutions")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetSettingsOKBodySettings) contextValidateOtel(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Otel != nil {
+
+		if swag.IsZero(o.Otel) { // not required
+			return nil
+		}
+
+		if err := o.Otel.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("getSettingsOk" + "." + "settings" + "." + "otel")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("getSettingsOk" + "." + "settings" + "." + "otel")
 			}
 
 			return err
@@ -895,6 +968,7 @@ GetSettingsOKBodySettingsAdvisorRunIntervals AdvisorRunIntervals represents inte
 swagger:model GetSettingsOKBodySettingsAdvisorRunIntervals
 */
 type GetSettingsOKBodySettingsAdvisorRunIntervals struct {
+
 	// Standard check interval.
 	StandardInterval string `json:"standard_interval,omitempty"`
 
@@ -938,6 +1012,7 @@ GetSettingsOKBodySettingsMetricsResolutions MetricsResolutions represents Promet
 swagger:model GetSettingsOKBodySettingsMetricsResolutions
 */
 type GetSettingsOKBodySettingsMetricsResolutions struct {
+
 	// High resolution. Should have a suffix in JSON: 1s, 1m, 1h.
 	Hr string `json:"hr,omitempty"`
 
@@ -969,6 +1044,53 @@ func (o *GetSettingsOKBodySettingsMetricsResolutions) MarshalBinary() ([]byte, e
 // UnmarshalBinary interface implementation
 func (o *GetSettingsOKBodySettingsMetricsResolutions) UnmarshalBinary(b []byte) error {
 	var res GetSettingsOKBodySettingsMetricsResolutions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+GetSettingsOKBodySettingsOtel OtelSettings configures the server-side OTEL receiver and ClickHouse retention.
+swagger:model GetSettingsOKBodySettingsOtel
+*/
+type GetSettingsOKBodySettingsOtel struct {
+
+	// True if the OTEL collector on PMM Server is enabled (OTLP receiver → ClickHouse).
+	CollectorEnabled bool `json:"collector_enabled,omitempty"`
+
+	// TTL in days for otel.logs in ClickHouse.
+	LogsRetentionDays int32 `json:"logs_retention_days,omitempty"`
+
+	// TTL in days for otel.otel_traces in ClickHouse.
+	TracesRetentionDays int32 `json:"traces_retention_days,omitempty"`
+
+	// TTL in days for otel.otel_metrics_sum in ClickHouse.
+	MetricsRetentionDays int32 `json:"metrics_retention_days,omitempty"`
+}
+
+// Validate validates this get settings OK body settings otel
+func (o *GetSettingsOKBodySettingsOtel) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get settings OK body settings otel based on context it is used
+func (o *GetSettingsOKBodySettingsOtel) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetSettingsOKBodySettingsOtel) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetSettingsOKBodySettingsOtel) UnmarshalBinary(b []byte) error {
+	var res GetSettingsOKBodySettingsOtel
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -1,0 +1,1568 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "qan/v1/service.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "QANService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/qan/health": {
+      "get": {
+        "summary": "Health Check",
+        "description": "Returns readiness of QAN API2 service.",
+        "operationId": "HealthCheck",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1HealthCheckResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "QANService"
+        ]
+      }
+    },
+    "/v1/qan/metrics:getFilters": {
+      "post": {
+        "summary": "Get Filters",
+        "description": "Provides a filtered map of metrics names.",
+        "operationId": "GetFilteredMetricsNames",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetFilteredMetricsNamesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "GetFilteredMetricsNamesRequest contains period for which we need filters.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetFilteredMetricsNamesRequest"
+            }
+          }
+        ],
+        "tags": [
+          "QANService"
+        ]
+      }
+    },
+    "/v1/qan/metrics:getNames": {
+      "post": {
+        "summary": "Get Metrics Names",
+        "description": "Provides a map of all metrics names.",
+        "operationId": "GetMetricsNames",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetMetricsNamesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "MetricsNamesRequest is empty.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetMetricsNamesRequest"
+            }
+          }
+        ],
+        "tags": [
+          "QANService"
+        ]
+      }
+    },
+    "/v1/qan/metrics:getReport": {
+      "post": {
+        "summary": "Get Report",
+        "description": "Returns a list of metrics grouped by queryid or other dimensions.",
+        "operationId": "GetReport",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetReportResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "ReportRequest defines filtering of metrics report for db server or other dimentions.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetReportRequest"
+            }
+          }
+        ],
+        "tags": [
+          "QANService"
+        ]
+      }
+    },
+    "/v1/qan/query/{queryid}/plan": {
+      "get": {
+        "summary": "Get Query Plan",
+        "description": "Provides a query plan and plan id for specific filtering.",
+        "operationId": "GetQueryPlan",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetQueryPlanResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "queryid",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "QANService"
+        ]
+      }
+    },
+    "/v1/qan/query:exists": {
+      "post": {
+        "summary": "Check Query Existence",
+        "description": "Checks if query exists in clickhouse.",
+        "operationId": "QueryExists",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1QueryExistsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "QueryExistsRequest check if provided query exists or not.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1QueryExistsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "QANService"
+        ]
+      }
+    },
+    "/v1/qan/query:getExample": {
+      "post": {
+        "summary": "Get Query Example",
+        "description": "Provides a list of query examples.",
+        "operationId": "GetQueryExample",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetQueryExampleResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "GetQueryExampleRequest defines filtering of query examples for specific value of\ndimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetQueryExampleRequest"
+            }
+          }
+        ],
+        "tags": [
+          "QANService"
+        ]
+      }
+    },
+    "/v1/qan/query:getSchema": {
+      "post": {
+        "summary": "Get Schema",
+        "description": "Provides the schema for a given queryID and serviceID.",
+        "operationId": "SchemaByQueryID",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1SchemaByQueryIDResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "SchemaByQueryIDRequest returns schema for given query ID and service ID.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1SchemaByQueryIDRequest"
+            }
+          }
+        ],
+        "tags": [
+          "QANService"
+        ]
+      }
+    },
+    "/v1/qan:explainFingerprint": {
+      "post": {
+        "summary": "Get Explain Fingerprint",
+        "description": "Provides an explain fingerprint for given query ID.",
+        "operationId": "ExplainFingerprintByQueryID",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ExplainFingerprintByQueryIDResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "ExplainFingerprintByQueryIDRequest get explain fingerprint for given query ID.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ExplainFingerprintByQueryIDRequest"
+            }
+          }
+        ],
+        "tags": [
+          "QANService"
+        ]
+      }
+    },
+    "/v1/qan:getHistogram": {
+      "post": {
+        "summary": "Get Histogram",
+        "description": "Provides histogram items for specific filtering.",
+        "operationId": "GetHistogram",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetHistogramResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "GetHistogramRequest defines filtering by time range, labels and queryid.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetHistogramRequest"
+            }
+          }
+        ],
+        "tags": [
+          "QANService"
+        ]
+      }
+    },
+    "/v1/qan:getLabels": {
+      "post": {
+        "summary": "Get Labels",
+        "description": "Provides a list of labels for object details.",
+        "operationId": "GetLabels",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetLabelsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "GetLabelsRequest defines filtering of object detail's labels for specific value of\ndimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetLabelsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "QANService"
+        ]
+      }
+    },
+    "/v1/qan:getMetrics": {
+      "post": {
+        "summary": "Get Metrics",
+        "description": "Provides a map of metrics for specific filtering.",
+        "operationId": "GetMetrics",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetMetricsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "GetMetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetMetricsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "QANService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1ExampleType": {
+      "type": "string",
+      "enum": [
+        "EXAMPLE_TYPE_UNSPECIFIED",
+        "EXAMPLE_TYPE_RANDOM",
+        "EXAMPLE_TYPE_SLOWEST",
+        "EXAMPLE_TYPE_FASTEST",
+        "EXAMPLE_TYPE_WITH_ERROR"
+      ],
+      "default": "EXAMPLE_TYPE_UNSPECIFIED",
+      "description": "ExampleType is a type of query example selected for this query class in given period of time."
+    },
+    "v1ExplainFingerprintByQueryIDRequest": {
+      "type": "object",
+      "properties": {
+        "serviceid": {
+          "type": "string"
+        },
+        "query_id": {
+          "type": "string"
+        }
+      },
+      "description": "ExplainFingerprintByQueryIDRequest get explain fingerprint for given query ID."
+    },
+    "v1ExplainFingerprintByQueryIDResponse": {
+      "type": "object",
+      "properties": {
+        "explain_fingerprint": {
+          "type": "string"
+        },
+        "placeholders_count": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "description": "ExplainFingerprintByQueryIDResponse is explain fingerprint and placeholders count for given query ID."
+    },
+    "v1GetFilteredMetricsNamesRequest": {
+      "type": "object",
+      "properties": {
+        "period_start_from": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "period_start_to": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "main_metric_name": {
+          "type": "string"
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1MapFieldEntry"
+          }
+        }
+      },
+      "description": "GetFilteredMetricsNamesRequest contains period for which we need filters."
+    },
+    "v1GetFilteredMetricsNamesResponse": {
+      "type": "object",
+      "properties": {
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/v1ListLabels"
+          }
+        }
+      },
+      "description": "GetFilteredMetricsNamesResponse is map of labels for given period by key.\nKey is label's name and value is label's value and how many times it occur."
+    },
+    "v1GetHistogramRequest": {
+      "type": "object",
+      "properties": {
+        "period_start_from": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "period_start_to": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1MapFieldEntry"
+          }
+        },
+        "queryid": {
+          "type": "string"
+        }
+      },
+      "description": "GetHistogramRequest defines filtering by time range, labels and queryid."
+    },
+    "v1GetHistogramResponse": {
+      "type": "object",
+      "properties": {
+        "histogram_items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1HistogramItem"
+          }
+        }
+      },
+      "description": "GetHistogramResponse is histogram items as a list."
+    },
+    "v1GetLabelsRequest": {
+      "type": "object",
+      "properties": {
+        "period_start_from": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "period_start_to": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "filter_by": {
+          "type": "string",
+          "description": "dimension value: ex: queryid - 1D410B4BE5060972."
+        },
+        "group_by": {
+          "type": "string",
+          "description": "one of dimension: queryid | host ..."
+        }
+      },
+      "description": "GetLabelsRequest defines filtering of object detail's labels for specific value of\ndimension (ex.: host=hostname1 or queryid=1D410B4BE5060972."
+    },
+    "v1GetLabelsResponse": {
+      "type": "object",
+      "properties": {
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/v1ListLabelValues"
+          }
+        }
+      },
+      "description": "GetLabelsResponse is a map of labels names as keys and labels values as a list."
+    },
+    "v1GetMetricsNamesRequest": {
+      "type": "object",
+      "description": "MetricsNamesRequest is empty."
+    },
+    "v1GetMetricsNamesResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "MetricsNamesReply is map of stored metrics:\nkey is root of metric name in db (Ex:. [m_]query_time[_sum]);\nvalue - Human readable name of metrics."
+    },
+    "v1GetMetricsRequest": {
+      "type": "object",
+      "properties": {
+        "period_start_from": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "period_start_to": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "filter_by": {
+          "type": "string",
+          "description": "dimension value: ex: queryid - 1D410B4BE5060972."
+        },
+        "group_by": {
+          "type": "string",
+          "description": "one of dimension: queryid | host ..."
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1MapFieldEntry"
+          }
+        },
+        "include_only_fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "totals": {
+          "type": "boolean",
+          "title": "retrieve only values for totals, excluding N/A values"
+        }
+      },
+      "description": "GetMetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972."
+    },
+    "v1GetMetricsResponse": {
+      "type": "object",
+      "properties": {
+        "metrics": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/v1MetricValues"
+          }
+        },
+        "text_metrics": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "sparkline": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Point"
+          }
+        },
+        "totals": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/v1MetricValues"
+          }
+        },
+        "fingerprint": {
+          "type": "string"
+        },
+        "metadata": {
+          "$ref": "#/definitions/v1GetSelectedQueryMetadataResponse"
+        }
+      },
+      "description": "GetMetricsResponse defines metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972."
+    },
+    "v1GetQueryExampleRequest": {
+      "type": "object",
+      "properties": {
+        "period_start_from": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "period_start_to": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "filter_by": {
+          "type": "string",
+          "description": "dimension value: ex: queryid - 1D410B4BE5060972."
+        },
+        "group_by": {
+          "type": "string",
+          "description": "one of dimension: queryid | host ..."
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1MapFieldEntry"
+          }
+        },
+        "limit": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "description": "GetQueryExampleRequest defines filtering of query examples for specific value of\ndimension (ex.: host=hostname1 or queryid=1D410B4BE5060972."
+    },
+    "v1GetQueryExampleResponse": {
+      "type": "object",
+      "properties": {
+        "query_examples": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1QueryExample"
+          }
+        }
+      },
+      "description": "GetQueryExampleResponse list of query examples."
+    },
+    "v1GetQueryPlanResponse": {
+      "type": "object",
+      "properties": {
+        "planid": {
+          "type": "string"
+        },
+        "query_plan": {
+          "type": "string"
+        }
+      },
+      "description": "GetQueryPlanResponse contains planid and query_plan."
+    },
+    "v1GetReportRequest": {
+      "type": "object",
+      "properties": {
+        "period_start_from": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "period_start_to": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "group_by": {
+          "type": "string"
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1ReportMapFieldEntry"
+          }
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "order_by": {
+          "type": "string"
+        },
+        "offset": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "limit": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "main_metric": {
+          "type": "string"
+        },
+        "search": {
+          "type": "string"
+        }
+      },
+      "description": "ReportRequest defines filtering of metrics report for db server or other dimentions."
+    },
+    "v1GetReportResponse": {
+      "type": "object",
+      "properties": {
+        "total_rows": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "offset": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "limit": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Row"
+          }
+        }
+      },
+      "description": "ReportReply is list of reports per quieryids, hosts etc."
+    },
+    "v1GetSelectedQueryMetadataResponse": {
+      "type": "object",
+      "properties": {
+        "service_name": {
+          "type": "string"
+        },
+        "database": {
+          "type": "string"
+        },
+        "schema": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "replication_set": {
+          "type": "string"
+        },
+        "cluster": {
+          "type": "string"
+        },
+        "service_type": {
+          "type": "string"
+        },
+        "service_id": {
+          "type": "string"
+        },
+        "environment": {
+          "type": "string"
+        },
+        "node_id": {
+          "type": "string"
+        },
+        "node_name": {
+          "type": "string"
+        },
+        "node_type": {
+          "type": "string"
+        }
+      },
+      "description": "GetSlecetedQueryMetadataResponse consists selected query metadata to show in details for given query ID."
+    },
+    "v1HealthCheckResponse": {
+      "type": "object",
+      "description": "HealthCheckResponse is empty, based on returned error qan-api2 is ready or not."
+    },
+    "v1HistogramItem": {
+      "type": "object",
+      "properties": {
+        "range": {
+          "type": "string"
+        },
+        "frequency": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "description": "HistogramItem represents one item in histogram."
+    },
+    "v1ListLabelValues": {
+      "type": "object",
+      "properties": {
+        "values": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "ListLabelValues is list of label's values."
+    },
+    "v1ListLabels": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Values"
+          }
+        }
+      },
+      "description": "ListLabels is list of label's values: duplicates are impossible."
+    },
+    "v1MapFieldEntry": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "value": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "MapFieldEntry allows to pass labels/dimensions in form like {\"server\": [\"db1\", \"db2\"...]}."
+    },
+    "v1Metric": {
+      "type": "object",
+      "properties": {
+        "stats": {
+          "$ref": "#/definitions/v1Stat"
+        }
+      },
+      "description": "Metric cell."
+    },
+    "v1MetricValues": {
+      "type": "object",
+      "properties": {
+        "rate": {
+          "type": "number",
+          "format": "float"
+        },
+        "cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "sum": {
+          "type": "number",
+          "format": "float"
+        },
+        "min": {
+          "type": "number",
+          "format": "float"
+        },
+        "max": {
+          "type": "number",
+          "format": "float"
+        },
+        "avg": {
+          "type": "number",
+          "format": "float"
+        },
+        "p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "percent_of_total": {
+          "type": "number",
+          "format": "float"
+        }
+      },
+      "description": "MetricValues is statistics of specific metric."
+    },
+    "v1Point": {
+      "type": "object",
+      "properties": {
+        "point": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The serial number of the chart point from the largest time in the time interval to the lowest time in the time range."
+        },
+        "time_frame": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Duration beetween two points."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Time of point in format RFC3339."
+        },
+        "load": {
+          "type": "number",
+          "format": "float",
+          "description": "load is query_time / time_range."
+        },
+        "num_queries_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "number of queries in bucket."
+        },
+        "num_queries_with_errors_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "number of queries with errors."
+        },
+        "num_queries_with_warnings_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "number of queries with warnings."
+        },
+        "m_query_time_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "The statement execution time in seconds."
+        },
+        "m_lock_time_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "The time to acquire locks in seconds."
+        },
+        "m_rows_sent_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of rows sent to the client."
+        },
+        "m_rows_examined_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Number of rows scanned - SELECT."
+        },
+        "m_rows_affected_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Number of rows changed - UPDATE, DELETE, INSERT."
+        },
+        "m_rows_read_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of rows read from tables."
+        },
+        "m_merge_passes_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of merge passes that the sort algorithm has had to do."
+        },
+        "m_innodb_io_r_ops_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Counts the number of page read operations scheduled."
+        },
+        "m_innodb_io_r_bytes_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Similar to innodb_IO_r_ops, but the unit is bytes."
+        },
+        "m_innodb_io_r_wait_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Shows how long (in seconds) it took InnoDB to actually read the data from storage."
+        },
+        "m_innodb_rec_lock_wait_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Shows how long (in seconds) the query waited for row locks."
+        },
+        "m_innodb_queue_wait_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Shows how long (in seconds) the query spent either waiting to enter the InnoDB queue or inside that queue waiting for execution."
+        },
+        "m_innodb_pages_distinct_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Counts approximately the number of unique pages the query accessed."
+        },
+        "m_query_length_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Shows how long the query is."
+        },
+        "m_bytes_sent_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of bytes sent to all clients."
+        },
+        "m_tmp_tables_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Number of temporary tables created on memory for the query."
+        },
+        "m_tmp_disk_tables_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Number of temporary tables created on disk for the query."
+        },
+        "m_tmp_table_sizes_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Total Size in bytes for all temporary tables used in the query."
+        },
+        "m_qc_hit_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Query Cache hits."
+        },
+        "m_full_scan_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "The query performed a full table scan."
+        },
+        "m_full_join_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "The query performed a full join (a join without indexes)."
+        },
+        "m_tmp_table_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "The query created an implicit internal temporary table."
+        },
+        "m_tmp_table_on_disk_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "The querys temporary table was stored on disk."
+        },
+        "m_filesort_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "The query used a filesort."
+        },
+        "m_filesort_on_disk_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "The filesort was performed on disk."
+        },
+        "m_select_full_range_join_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of joins that used a range search on a reference table."
+        },
+        "m_select_range_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of joins that used ranges on the first table."
+        },
+        "m_select_range_check_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of joins without keys that check for key usage after each row."
+        },
+        "m_sort_range_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of sorts that were done using ranges."
+        },
+        "m_sort_rows_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of sorted rows."
+        },
+        "m_sort_scan_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of sorts that were done by scanning the table."
+        },
+        "m_no_index_used_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of queries without index."
+        },
+        "m_no_good_index_used_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of queries without good index."
+        },
+        "m_docs_returned_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of returned documents."
+        },
+        "m_response_length_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "The response length of the query result in bytes."
+        },
+        "m_docs_scanned_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of scanned documents."
+        },
+        "m_docs_examined_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of documents scanned during query execution."
+        },
+        "m_keys_examined_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of index keys scanned during query execution."
+        },
+        "m_locks_global_acquire_count_read_shared_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Number of times a global read lock was acquired during query execution."
+        },
+        "m_locks_global_acquire_count_write_shared_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Number of times a global write lock was acquired during query execution."
+        },
+        "m_locks_database_acquire_count_read_shared_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Number of times a read lock was acquired at the database level during query execution."
+        },
+        "m_locks_database_acquire_wait_count_read_shared_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Number of times a read lock at the database level was requested but had to wait before being granted."
+        },
+        "m_locks_database_time_acquiring_micros_read_shared_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Indicates the time, spent acquiring a read lock at the database level during an operation."
+        },
+        "m_locks_collection_acquire_count_read_shared_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Number of times a read lock was acquired on a specific collection during operations."
+        },
+        "m_storage_bytes_read_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of bytes read from storage during a specific operation."
+        },
+        "m_storage_time_reading_micros_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Indicates the time, spent reading data from storage during an operation."
+        },
+        "m_shared_blks_hit_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of shared block cache hits by the statement."
+        },
+        "m_shared_blks_read_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of shared blocks read by the statement."
+        },
+        "m_shared_blks_dirtied_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of shared blocks dirtied by the statement."
+        },
+        "m_shared_blks_written_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of shared blocks written by the statement."
+        },
+        "m_shared_blk_read_time_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Total time the statement spent reading shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero)."
+        },
+        "m_shared_blk_write_time_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Total time the statement spent writing shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero)."
+        },
+        "m_local_blk_read_time_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Total time the statement spent reading shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero)."
+        },
+        "m_local_blk_write_time_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Total time the statement spent writing shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero)."
+        },
+        "m_local_blks_hit_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of local block cache hits by the statement."
+        },
+        "m_local_blks_read_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of local blocks read by the statement."
+        },
+        "m_local_blks_dirtied_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of local blocks dirtied by the statement."
+        },
+        "m_local_blks_written_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of local blocks written by the statement."
+        },
+        "m_temp_blks_read_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of temp blocks read by the statement."
+        },
+        "m_temp_blks_written_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of temp blocks written by the statement."
+        },
+        "m_blk_read_time_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Total time the statement spent reading blocks, in milliseconds (if track_io_timing is enabled, otherwise zero)."
+        },
+        "m_blk_write_time_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Total time the statement spent writing blocks, in milliseconds (if track_io_timing is enabled, otherwise zero)."
+        },
+        "m_cpu_user_time_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Total time user spent in query."
+        },
+        "m_cpu_sys_time_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Total time system spent in query."
+        },
+        "m_plans_calls_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of planned calls."
+        },
+        "m_wal_records_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of WAL (Write-ahead logging) records."
+        },
+        "m_wal_fpi_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of FPI (full page images) in WAL (Write-ahead logging) records."
+        },
+        "m_wal_bytes_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Total bytes of WAL (Write-ahead logging) records."
+        },
+        "m_wal_buffers_full_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of times WAL buffers become full."
+        },
+        "m_parallel_workers_to_launch_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of parallel workers to launch."
+        },
+        "m_parallel_workers_launched_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of parallel workers launched."
+        },
+        "m_plan_time_sum_per_sec": {
+          "type": "number",
+          "format": "float",
+          "description": "Plan time in per seconds."
+        }
+      },
+      "description": "Point contains values that represents abscissa (time) and ordinate (volume etc.)\nof every point in a coordinate system of Sparklines."
+    },
+    "v1QueryExample": {
+      "type": "object",
+      "properties": {
+        "example": {
+          "type": "string"
+        },
+        "example_type": {
+          "$ref": "#/definitions/v1ExampleType"
+        },
+        "is_truncated": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "placeholders_count": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explain_fingerprint": {
+          "type": "string"
+        },
+        "query_id": {
+          "type": "string"
+        },
+        "example_metrics": {
+          "type": "string"
+        },
+        "service_id": {
+          "type": "string"
+        },
+        "service_type": {
+          "type": "string"
+        },
+        "schema": {
+          "type": "string"
+        },
+        "tables": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "QueryExample shows query examples and their metrics."
+    },
+    "v1QueryExistsRequest": {
+      "type": "object",
+      "properties": {
+        "serviceid": {
+          "type": "string"
+        },
+        "query": {
+          "type": "string"
+        }
+      },
+      "description": "QueryExistsRequest check if provided query exists or not."
+    },
+    "v1QueryExistsResponse": {
+      "type": "object",
+      "properties": {
+        "exists": {
+          "type": "boolean"
+        }
+      },
+      "description": "QueryExistsResponse returns true if query exists."
+    },
+    "v1ReportMapFieldEntry": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "value": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "ReportMapFieldEntry allows to pass labels/dimentions in form like {\"server\": [\"db1\", \"db2\"...]}."
+    },
+    "v1Row": {
+      "type": "object",
+      "properties": {
+        "rank": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "dimension": {
+          "type": "string"
+        },
+        "database": {
+          "type": "string"
+        },
+        "metrics": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/v1Metric"
+          }
+        },
+        "sparkline": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Point"
+          }
+        },
+        "fingerprint": {
+          "type": "string"
+        },
+        "num_queries": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "qps": {
+          "type": "number",
+          "format": "float"
+        },
+        "load": {
+          "type": "number",
+          "format": "float"
+        }
+      },
+      "description": "Row define metrics for selected dimention."
+    },
+    "v1SchemaByQueryIDRequest": {
+      "type": "object",
+      "properties": {
+        "service_id": {
+          "type": "string"
+        },
+        "query_id": {
+          "type": "string"
+        }
+      },
+      "description": "SchemaByQueryIDRequest returns schema for given query ID and service ID."
+    },
+    "v1SchemaByQueryIDResponse": {
+      "type": "object",
+      "properties": {
+        "schema": {
+          "type": "string"
+        }
+      },
+      "description": "SchemaByQueryIDResponse is schema for given query ID and service ID."
+    },
+    "v1Stat": {
+      "type": "object",
+      "properties": {
+        "rate": {
+          "type": "number",
+          "format": "float"
+        },
+        "cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "sum": {
+          "type": "number",
+          "format": "float"
+        },
+        "min": {
+          "type": "number",
+          "format": "float"
+        },
+        "max": {
+          "type": "number",
+          "format": "float"
+        },
+        "p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "avg": {
+          "type": "number",
+          "format": "float"
+        },
+        "sum_per_sec": {
+          "type": "number",
+          "format": "float"
+        }
+      },
+      "description": "Stat is statistics of specific metric."
+    },
+    "v1Values": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string"
+        },
+        "main_metric_percent": {
+          "type": "number",
+          "format": "float"
+        },
+        "main_metric_per_sec": {
+          "type": "number",
+          "format": "float"
+        }
+      },
+      "description": "Values is label values and main metric percent and per second."
+    }
+  }
+}

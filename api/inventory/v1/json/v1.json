@@ -10224,6 +10224,39 @@
                       "description": "If true, remove legacy log_file_paths label when present.",
                       "type": "boolean",
                       "x-order": 3
+                    },
+                    "set_log_sources": {
+                      "description": "Replace log_sources entirely (mutually exclusive with add_log_sources in one request).",
+                      "type": "array",
+                      "items": {
+                        "description": "LogSource binds a log file path to a parser preset (e.g. mysql_error or raw for no parsing).",
+                        "type": "object",
+                        "properties": {
+                          "path": {
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "preset": {
+                            "description": "Preset name from log_parser_presets table, or \"raw\" for no operators.",
+                            "type": "string",
+                            "x-order": 1
+                          }
+                        }
+                      },
+                      "x-order": 4
+                    },
+                    "remove_log_source_paths": {
+                      "description": "Remove log source entries by file path.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    },
+                    "replace_log_sources": {
+                      "description": "When true, set_log_sources replaces log_sources (including empty list to clear).",
+                      "type": "boolean",
+                      "x-order": 6
                     }
                   },
                   "x-order": 17

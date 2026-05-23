@@ -102,6 +102,7 @@ func (o *ListNodesOK) GetPayload() *ListNodesOKBody {
 }
 
 func (o *ListNodesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListNodesOKBody)
 
 	// response payload
@@ -175,6 +176,7 @@ func (o *ListNodesDefault) GetPayload() *ListNodesDefaultBody {
 }
 
 func (o *ListNodesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListNodesDefaultBody)
 
 	// response payload
@@ -190,6 +192,7 @@ ListNodesDefaultBody list nodes default body
 swagger:model ListNodesDefaultBody
 */
 type ListNodesDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -259,7 +262,9 @@ func (o *ListNodesDefaultBody) ContextValidate(ctx context.Context, formats strf
 }
 
 func (o *ListNodesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -279,6 +284,7 @@ func (o *ListNodesDefaultBody) contextValidateDetails(ctx context.Context, forma
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -307,6 +313,7 @@ ListNodesDefaultBodyDetailsItems0 list nodes default body details items0
 swagger:model ListNodesDefaultBodyDetailsItems0
 */
 type ListNodesDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -318,6 +325,7 @@ type ListNodesDefaultBodyDetailsItems0 struct {
 func (o *ListNodesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -355,6 +363,7 @@ func (o *ListNodesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o ListNodesDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -418,6 +427,7 @@ ListNodesOKBody list nodes OK body
 swagger:model ListNodesOKBody
 */
 type ListNodesOKBody struct {
+
 	// List of nodes in the HA cluster.
 	Nodes []*ListNodesOKBodyNodesItems0 `json:"nodes"`
 }
@@ -481,7 +491,9 @@ func (o *ListNodesOKBody) ContextValidate(ctx context.Context, formats strfmt.Re
 }
 
 func (o *ListNodesOKBody) contextValidateNodes(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Nodes); i++ {
+
 		if o.Nodes[i] != nil {
 
 			if swag.IsZero(o.Nodes[i]) { // not required
@@ -501,6 +513,7 @@ func (o *ListNodesOKBody) contextValidateNodes(ctx context.Context, formats strf
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -529,6 +542,7 @@ ListNodesOKBodyNodesItems0 HANode represents a single node in the HA cluster.
 swagger:model ListNodesOKBodyNodesItems0
 */
 type ListNodesOKBodyNodesItems0 struct {
+
 	// Human-readable name of the node.
 	NodeName string `json:"node_name,omitempty"`
 

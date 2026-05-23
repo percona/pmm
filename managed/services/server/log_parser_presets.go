@@ -78,7 +78,13 @@ func (s *Server) ListLogParserPresets(_ context.Context, _ *serverv1.ListLogPars
 	}
 	out := make([]*serverv1.LogParserPreset, 0, len(rows))
 	for _, r := range rows {
-		out = append(out, convertLogParserPreset(r))
+		preset := convertLogParserPreset(r)
+		ids, uerr := models.ListOtelCollectorAgentIDsReferencingLogParserPreset(s.db.Querier, r.Name)
+		if uerr != nil {
+			return nil, uerr
+		}
+		preset.UsageCount = int32(len(ids))
+		out = append(out, preset)
 	}
 	return &serverv1.ListLogParserPresetsResponse{Presets: out}, nil
 }

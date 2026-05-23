@@ -15512,6 +15512,39 @@
                       "description": "If true, remove legacy log_file_paths label when present.",
                       "type": "boolean",
                       "x-order": 3
+                    },
+                    "set_log_sources": {
+                      "description": "Replace log_sources entirely (mutually exclusive with add_log_sources in one request).",
+                      "type": "array",
+                      "items": {
+                        "description": "LogSource binds a log file path to a parser preset (e.g. mysql_error or raw for no parsing).",
+                        "type": "object",
+                        "properties": {
+                          "path": {
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "preset": {
+                            "description": "Preset name from log_parser_presets table, or \"raw\" for no operators.",
+                            "type": "string",
+                            "x-order": 1
+                          }
+                        }
+                      },
+                      "x-order": 4
+                    },
+                    "remove_log_source_paths": {
+                      "description": "Remove log source entries by file path.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    },
+                    "replace_log_sources": {
+                      "description": "When true, set_log_sources replaces log_sources (including empty list to clear).",
+                      "type": "boolean",
+                      "x-order": 6
                     }
                   },
                   "x-order": 17
@@ -32337,6 +32370,12 @@
                         "type": "string",
                         "format": "date-time",
                         "x-order": 6
+                      },
+                      "usage_count": {
+                        "description": "Number of OTEL collector agents referencing this preset name (list API only).",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 7
                       }
                     }
                   },
@@ -32450,6 +32489,12 @@
                       "type": "string",
                       "format": "date-time",
                       "x-order": 6
+                    },
+                    "usage_count": {
+                      "description": "Number of OTEL collector agents referencing this preset name (list API only).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
                     }
                   },
                   "x-order": 0
@@ -32548,6 +32593,12 @@
                       "type": "string",
                       "format": "date-time",
                       "x-order": 6
+                    },
+                    "usage_count": {
+                      "description": "Number of OTEL collector agents referencing this preset name (list API only).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
                     }
                   },
                   "x-order": 0
@@ -32664,6 +32715,12 @@
                       "type": "string",
                       "format": "date-time",
                       "x-order": 6
+                    },
+                    "usage_count": {
+                      "description": "Number of OTEL collector agents referencing this preset name (list API only).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
                     }
                   },
                   "x-order": 0
@@ -33013,6 +33070,36 @@
                       "type": "string",
                       "title": "Duration for which an update is snoozed",
                       "x-order": 18
+                    },
+                    "otel": {
+                      "description": "OtelSettings configures the server-side OTEL receiver and ClickHouse retention.",
+                      "type": "object",
+                      "properties": {
+                        "collector_enabled": {
+                          "description": "True if the OTEL collector on PMM Server is enabled (OTLP receiver → ClickHouse).",
+                          "type": "boolean",
+                          "x-order": 0
+                        },
+                        "logs_retention_days": {
+                          "description": "TTL in days for otel.logs in ClickHouse.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 1
+                        },
+                        "traces_retention_days": {
+                          "description": "TTL in days for otel.otel_traces in ClickHouse.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 2
+                        },
+                        "metrics_retention_days": {
+                          "description": "TTL in days for otel.otel_metrics_sum in ClickHouse.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 3
+                        }
+                      },
+                      "x-order": 19
                     }
                   },
                   "x-order": 0
@@ -33195,6 +33282,37 @@
                   "description": "A number of full days for which an update is snoozed, i.e. a multiple of 24h: 2592000s, 43200m, 720h.",
                   "type": "string",
                   "x-order": 14
+                },
+                "otel": {
+                  "description": "OtelSettings configures the server-side OTEL receiver and ClickHouse retention.",
+                  "type": "object",
+                  "properties": {
+                    "collector_enabled": {
+                      "description": "True if the OTEL collector on PMM Server is enabled (OTLP receiver → ClickHouse).",
+                      "type": "boolean",
+                      "x-order": 0
+                    },
+                    "logs_retention_days": {
+                      "description": "TTL in days for otel.logs in ClickHouse.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 1
+                    },
+                    "traces_retention_days": {
+                      "description": "TTL in days for otel.otel_traces in ClickHouse.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 2
+                    },
+                    "metrics_retention_days": {
+                      "description": "TTL in days for otel.otel_metrics_sum in ClickHouse.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 3
+                    }
+                  },
+                  "x-nullable": true,
+                  "x-order": 15
                 }
               }
             }
@@ -33341,6 +33459,36 @@
                       "type": "string",
                       "title": "Duration for which an update is snoozed",
                       "x-order": 18
+                    },
+                    "otel": {
+                      "description": "OtelSettings configures the server-side OTEL receiver and ClickHouse retention.",
+                      "type": "object",
+                      "properties": {
+                        "collector_enabled": {
+                          "description": "True if the OTEL collector on PMM Server is enabled (OTLP receiver → ClickHouse).",
+                          "type": "boolean",
+                          "x-order": 0
+                        },
+                        "logs_retention_days": {
+                          "description": "TTL in days for otel.logs in ClickHouse.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 1
+                        },
+                        "traces_retention_days": {
+                          "description": "TTL in days for otel.otel_traces in ClickHouse.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 2
+                        },
+                        "metrics_retention_days": {
+                          "description": "TTL in days for otel.otel_metrics_sum in ClickHouse.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 3
+                        }
+                      },
+                      "x-order": 19
                     }
                   },
                   "x-order": 0

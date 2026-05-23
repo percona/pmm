@@ -154,8 +154,7 @@ func (e VersionInfoValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = VersionInfoValidationError{}
@@ -257,8 +256,7 @@ func (e VersionRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = VersionRequestValidationError{}
@@ -420,8 +418,7 @@ func (e VersionResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = VersionResponseValidationError{}
@@ -521,8 +518,7 @@ func (e ReadinessRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ReadinessRequestValidationError{}
@@ -624,8 +620,7 @@ func (e ReadinessResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ReadinessResponseValidationError{}
@@ -727,8 +722,7 @@ func (e LeaderHealthCheckRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = LeaderHealthCheckRequestValidationError{}
@@ -830,8 +824,7 @@ func (e LeaderHealthCheckResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = LeaderHealthCheckResponseValidationError{}
@@ -937,8 +930,7 @@ func (e CheckUpdatesRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = CheckUpdatesRequestValidationError{}
@@ -1077,8 +1069,7 @@ func (e DockerVersionInfoValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = DockerVersionInfoValidationError{}
@@ -1271,8 +1262,7 @@ func (e CheckUpdatesResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = CheckUpdatesResponseValidationError{}
@@ -1374,8 +1364,7 @@ func (e ListChangeLogsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListChangeLogsRequestValidationError{}
@@ -1540,8 +1529,7 @@ func (e ListChangeLogsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListChangeLogsResponseValidationError{}
@@ -1645,8 +1633,7 @@ func (e StartUpdateRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartUpdateRequestValidationError{}
@@ -1752,8 +1739,7 @@ func (e StartUpdateResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartUpdateResponseValidationError{}
@@ -1859,8 +1845,7 @@ func (e UpdateStatusRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = UpdateStatusRequestValidationError{}
@@ -1966,8 +1951,7 @@ func (e UpdateStatusResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = UpdateStatusResponseValidationError{}
@@ -2156,8 +2140,7 @@ func (e MetricsResolutionsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = MetricsResolutionsValidationError{}
@@ -2346,8 +2329,7 @@ func (e AdvisorRunIntervalsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AdvisorRunIntervalsValidationError{}
@@ -2524,6 +2506,35 @@ func (m *Settings) validate(all bool) error {
 		}
 	}
 
+	if all {
+		switch v := interface{}(m.GetOtel()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, SettingsValidationError{
+					field:  "Otel",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, SettingsValidationError{
+					field:  "Otel",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetOtel()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return SettingsValidationError{
+				field:  "Otel",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return SettingsMultiError(errors)
 	}
@@ -2588,8 +2599,7 @@ func (e SettingsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = SettingsValidationError{}
@@ -2601,6 +2611,113 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = SettingsValidationError{}
+
+// Validate checks the field values on OtelSettings with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *OtelSettings) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on OtelSettings with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in OtelSettingsMultiError, or
+// nil if none found.
+func (m *OtelSettings) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *OtelSettings) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for CollectorEnabled
+
+	// no validation rules for LogsRetentionDays
+
+	// no validation rules for TracesRetentionDays
+
+	// no validation rules for MetricsRetentionDays
+
+	if len(errors) > 0 {
+		return OtelSettingsMultiError(errors)
+	}
+
+	return nil
+}
+
+// OtelSettingsMultiError is an error wrapping multiple validation errors
+// returned by OtelSettings.ValidateAll() if the designated constraints aren't met.
+type OtelSettingsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m OtelSettingsMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m OtelSettingsMultiError) AllErrors() []error { return m }
+
+// OtelSettingsValidationError is the validation error returned by
+// OtelSettings.Validate if the designated constraints aren't met.
+type OtelSettingsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e OtelSettingsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e OtelSettingsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e OtelSettingsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e OtelSettingsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e OtelSettingsValidationError) ErrorName() string { return "OtelSettingsValidationError" }
+
+// Error satisfies the builtin error interface
+func (e OtelSettingsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sOtelSettings.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = OtelSettingsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = OtelSettingsValidationError{}
 
 // Validate checks the field values on ReadOnlySettings with the rules defined
 // in the proto definition for this message. If any rules are violated, the
@@ -2705,8 +2822,7 @@ func (e ReadOnlySettingsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ReadOnlySettingsValidationError{}
@@ -2808,8 +2924,7 @@ func (e GetSettingsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetSettingsRequestValidationError{}
@@ -2911,8 +3026,7 @@ func (e GetReadOnlySettingsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetReadOnlySettingsRequestValidationError{}
@@ -3043,8 +3157,7 @@ func (e GetSettingsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetSettingsResponseValidationError{}
@@ -3176,8 +3289,7 @@ func (e GetReadOnlySettingsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetReadOnlySettingsResponseValidationError{}
@@ -3341,6 +3453,7 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 	}
 
 	if m.AwsPartitions != nil {
+
 		if all {
 			switch v := interface{}(m.GetAwsPartitions()).(type) {
 			case interface{ ValidateAll() error }:
@@ -3369,6 +3482,7 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnableAdvisor != nil {
@@ -3397,6 +3511,39 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 
 	if m.EnableInternalPgQan != nil {
 		// no validation rules for EnableInternalPgQan
+	}
+
+	if m.Otel != nil {
+
+		if all {
+			switch v := interface{}(m.GetOtel()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeSettingsRequestValidationError{
+						field:  "Otel",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeSettingsRequestValidationError{
+						field:  "Otel",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetOtel()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeSettingsRequestValidationError{
+					field:  "Otel",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	}
 
 	if len(errors) > 0 {
@@ -3466,8 +3613,7 @@ func (e ChangeSettingsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeSettingsRequestValidationError{}
@@ -3598,8 +3744,7 @@ func (e ChangeSettingsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeSettingsResponseValidationError{}
@@ -3702,6 +3847,8 @@ func (m *LogParserPreset) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for UsageCount
+
 	if len(errors) > 0 {
 		return LogParserPresetMultiError(errors)
 	}
@@ -3767,8 +3914,7 @@ func (e LogParserPresetValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = LogParserPresetValidationError{}
@@ -3871,8 +4017,7 @@ func (e ListLogParserPresetsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListLogParserPresetsRequestValidationError{}
@@ -4009,8 +4154,7 @@ func (e ListLogParserPresetsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListLogParserPresetsResponseValidationError{}
@@ -4114,8 +4258,7 @@ func (e GetLogParserPresetRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetLogParserPresetRequestValidationError{}
@@ -4246,8 +4389,7 @@ func (e GetLogParserPresetResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetLogParserPresetResponseValidationError{}
@@ -4355,8 +4497,7 @@ func (e AddLogParserPresetRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddLogParserPresetRequestValidationError{}
@@ -4487,8 +4628,7 @@ func (e AddLogParserPresetResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddLogParserPresetResponseValidationError{}
@@ -4601,8 +4741,7 @@ func (e ChangeLogParserPresetRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeLogParserPresetRequestValidationError{}
@@ -4734,8 +4873,7 @@ func (e ChangeLogParserPresetResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeLogParserPresetResponseValidationError{}
@@ -4840,8 +4978,7 @@ func (e RemoveLogParserPresetRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = RemoveLogParserPresetRequestValidationError{}
@@ -4944,8 +5081,7 @@ func (e RemoveLogParserPresetResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = RemoveLogParserPresetResponseValidationError{}

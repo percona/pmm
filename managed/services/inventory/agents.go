@@ -1825,6 +1825,71 @@ type logSourceEntry struct {
 	Preset string `json:"preset"`
 }
 
+func loadOtelLogSourcesFromLabels(labels map[string]string) ([]logSourceEntry, error) {
+	if labels == nil {
+		return nil, nil
+	}
+	const labelLogSources = "log_sources"
+	const labelLogFilePaths = "log_file_paths"
+	if s := labels[labelLogSources]; s != "" {
+		var cur []logSourceEntry
+		err := json.Unmarshal([]byte(s), &cur)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "invalid log_sources JSON on agent: %v", err)
+		}
+		return cur, nil
+	}
+	if s := labels[labelLogFilePaths]; s != "" {
+		var cur []logSourceEntry
+		for path := range strings.SplitSeq(s, ",") {
+			path = strings.TrimSpace(path)
+			if path != "" {
+				cur = append(cur, logSourceEntry{Path: path, Preset: "raw"})
+			}
+		}
+		return cur, nil
+	}
+	return nil, nil
+}
+
+func logSourceEntryFromAPI(q *reform.Querier, ls *inventoryv1.LogSource) (logSourceEntry, error) {
+	path := strings.TrimSpace(ls.Path)
+	preset := strings.TrimSpace(ls.Preset)
+	if preset == "" {
+		preset = "raw"
+	}
+	if preset != "raw" {
+		presetRow, err := models.FindLogParserPresetByName(q, preset)
+		if err != nil {
+			return logSourceEntry{}, err
+		}
+		if presetRow == nil {
+			return logSourceEntry{}, status.Errorf(codes.InvalidArgument, "unknown log parser preset %q", preset)
+		}
+	}
+	return logSourceEntry{Path: path, Preset: preset}, nil
+}
+
+func normalizeOtelLogSources(q *reform.Querier, sources []*inventoryv1.LogSource) ([]logSourceEntry, error) {
+	out := make([]logSourceEntry, 0, len(sources))
+	seen := make(map[string]struct{}, len(sources))
+	for _, ls := range sources {
+		if ls == nil || strings.TrimSpace(ls.Path) == "" {
+			continue
+		}
+		entry, err := logSourceEntryFromAPI(q, ls)
+		if err != nil {
+			return nil, err
+		}
+		if _, dup := seen[entry.Path]; dup {
+			continue
+		}
+		seen[entry.Path] = struct{}{}
+		out = append(out, entry)
+	}
+	return out, nil
+}
+
 // AddOtelCollector adds an OTEL Collector agent (log collection; extensible for traces, profiles later).
 func (as *AgentsService) AddOtelCollector(ctx context.Context, p *inventoryv1.AddOtelCollectorParams) (*inventoryv1.AddAgentResponse, error) { //nolint:gocognit
 	if p == nil {
@@ -2018,56 +2083,73 @@ func (as *AgentsService) ChangeOtelCollector( //nolint:cyclop,gocognit
 			delete(labels, labelLogFilePaths)
 		}
 
-		if len(p.AddLogSources) > 0 { //nolint:nestif
-			var cur []logSourceEntry
-			if s := labels[labelLogSources]; s != "" {
-				err := json.Unmarshal([]byte(s), &cur)
-				if err != nil {
-					return status.Errorf(codes.Internal, "invalid log_sources JSON on agent: %v", err)
-				}
-			} else if s := labels[labelLogFilePaths]; s != "" {
-				for path := range strings.SplitSeq(s, ",") {
+		if len(p.SetLogSources) > 0 && len(p.AddLogSources) > 0 {
+			return status.Error(codes.InvalidArgument, "set_log_sources and add_log_sources are mutually exclusive")
+		}
+
+		cur, err := loadOtelLogSourcesFromLabels(labels)
+		if err != nil {
+			return err
+		}
+
+		if p.ReplaceLogSources {
+			cur, err = normalizeOtelLogSources(q, p.SetLogSources)
+			if err != nil {
+				return err
+			}
+			delete(labels, labelLogFilePaths)
+		} else if len(p.SetLogSources) > 0 {
+			return status.Error(codes.InvalidArgument, "set_log_sources requires replace_log_sources=true")
+		} else {
+			if len(p.RemoveLogSourcePaths) > 0 {
+				remove := make(map[string]struct{}, len(p.RemoveLogSourcePaths))
+				for _, path := range p.RemoveLogSourcePaths {
 					path = strings.TrimSpace(path)
 					if path != "" {
-						cur = append(cur, logSourceEntry{Path: path, Preset: "raw"})
+						remove[path] = struct{}{}
 					}
 				}
-			}
-			byPath := make(map[string]int)
-			for i := range cur {
-				byPath[cur[i].Path] = i
-			}
-			for _, ls := range p.AddLogSources {
-				if ls == nil || ls.Path == "" {
-					continue
-				}
-				preset := ls.Preset
-				if preset == "" {
-					preset = "raw"
-				}
-				if preset != "raw" {
-					presetRow, perr := models.FindLogParserPresetByName(q, preset)
-					if perr != nil {
-						return perr
+				if len(remove) > 0 {
+					filtered := cur[:0]
+					for _, e := range cur {
+						if _, drop := remove[e.Path]; !drop {
+							filtered = append(filtered, e)
+						}
 					}
-					if presetRow == nil {
-						return status.Errorf(codes.InvalidArgument, "unknown log parser preset %q", preset)
-					}
-				}
-				entry := logSourceEntry{Path: ls.Path, Preset: preset}
-				if idx, ok := byPath[ls.Path]; ok {
-					cur[idx] = entry
-				} else {
-					byPath[ls.Path] = len(cur)
-					cur = append(cur, entry)
+					cur = filtered
 				}
 			}
+
+			if len(p.AddLogSources) > 0 {
+				byPath := make(map[string]int, len(cur))
+				for i := range cur {
+					byPath[cur[i].Path] = i
+				}
+				for _, ls := range p.AddLogSources {
+					if ls == nil || strings.TrimSpace(ls.Path) == "" {
+						continue
+					}
+					entry, nerr := logSourceEntryFromAPI(q, ls)
+					if nerr != nil {
+						return nerr
+					}
+					if idx, ok := byPath[entry.Path]; ok {
+						cur[idx] = entry
+					} else {
+						byPath[entry.Path] = len(cur)
+						cur = append(cur, entry)
+					}
+				}
+				delete(labels, labelLogFilePaths)
+			}
+		}
+
+		if p.ReplaceLogSources || len(p.AddLogSources) > 0 || len(p.RemoveLogSourcePaths) > 0 {
 			raw, mErr := json.Marshal(cur)
 			if mErr != nil {
 				return mErr
 			}
 			labels[labelLogSources] = string(raw)
-			delete(labels, labelLogFilePaths)
 		}
 
 		err = row.SetCustomLabels(labels)

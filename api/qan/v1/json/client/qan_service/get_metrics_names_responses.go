@@ -101,6 +101,7 @@ func (o *GetMetricsNamesOK) GetPayload() *GetMetricsNamesOKBody {
 }
 
 func (o *GetMetricsNamesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetMetricsNamesOKBody)
 
 	// response payload
@@ -174,6 +175,7 @@ func (o *GetMetricsNamesDefault) GetPayload() *GetMetricsNamesDefaultBody {
 }
 
 func (o *GetMetricsNamesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetMetricsNamesDefaultBody)
 
 	// response payload
@@ -189,6 +191,7 @@ GetMetricsNamesDefaultBody get metrics names default body
 swagger:model GetMetricsNamesDefaultBody
 */
 type GetMetricsNamesDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -258,7 +261,9 @@ func (o *GetMetricsNamesDefaultBody) ContextValidate(ctx context.Context, format
 }
 
 func (o *GetMetricsNamesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -278,6 +283,7 @@ func (o *GetMetricsNamesDefaultBody) contextValidateDetails(ctx context.Context,
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -306,6 +312,7 @@ GetMetricsNamesDefaultBodyDetailsItems0 get metrics names default body details i
 swagger:model GetMetricsNamesDefaultBodyDetailsItems0
 */
 type GetMetricsNamesDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -317,6 +324,7 @@ type GetMetricsNamesDefaultBodyDetailsItems0 struct {
 func (o *GetMetricsNamesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -354,6 +362,7 @@ func (o *GetMetricsNamesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) err
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o GetMetricsNamesDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -419,6 +428,7 @@ GetMetricsNamesOKBody MetricsNamesReply is map of stored metrics:
 swagger:model GetMetricsNamesOKBody
 */
 type GetMetricsNamesOKBody struct {
+
 	// data
 	Data map[string]string `json:"data,omitempty"`
 }

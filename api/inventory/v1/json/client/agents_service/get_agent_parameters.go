@@ -57,6 +57,7 @@ GetAgentParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type GetAgentParams struct {
+
 	/* AgentID.
 
 	   Unique randomly generated instance identifier.
@@ -129,6 +130,7 @@ func (o *GetAgentParams) SetAgentID(agentID string) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *GetAgentParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

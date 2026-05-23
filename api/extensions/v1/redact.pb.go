@@ -7,13 +7,12 @@
 package extensionsv1
 
 import (
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
-
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	descriptorpb "google.golang.org/protobuf/types/descriptorpb"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -128,14 +127,11 @@ func file_extensions_v1_redact_proto_rawDescGZIP() []byte {
 	return file_extensions_v1_redact_proto_rawDescData
 }
 
-var (
-	file_extensions_v1_redact_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_extensions_v1_redact_proto_goTypes   = []any{
-		RedactType(0),                     // 0: extensions.v1.RedactType
-		(*descriptorpb.FieldOptions)(nil), // 1: google.protobuf.FieldOptions
-	}
-)
-
+var file_extensions_v1_redact_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_extensions_v1_redact_proto_goTypes = []any{
+	(RedactType)(0),                   // 0: extensions.v1.RedactType
+	(*descriptorpb.FieldOptions)(nil), // 1: google.protobuf.FieldOptions
+}
 var file_extensions_v1_redact_proto_depIdxs = []int32{
 	1, // 0: extensions.v1.sensitive:extendee -> google.protobuf.FieldOptions
 	0, // 1: extensions.v1.sensitive:type_name -> extensions.v1.RedactType

@@ -7,17 +7,15 @@
 package managementv1
 
 import (
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
-
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	_ "github.com/percona/pmm/api/extensions/v1"
+	v1 "github.com/percona/pmm/api/inventory/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
-
-	_ "github.com/percona/pmm/api/extensions/v1"
-	v1 "github.com/percona/pmm/api/inventory/v1"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -519,23 +517,20 @@ func file_management_v1_postgresql_proto_rawDescGZIP() []byte {
 	return file_management_v1_postgresql_proto_rawDescData
 }
 
-var (
-	file_management_v1_postgresql_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-	file_management_v1_postgresql_proto_goTypes  = []any{
-		(*AddPostgreSQLServiceParams)(nil),         // 0: management.v1.AddPostgreSQLServiceParams
-		(*PostgreSQLServiceResult)(nil),            // 1: management.v1.PostgreSQLServiceResult
-		nil,                                        // 2: management.v1.AddPostgreSQLServiceParams.CustomLabelsEntry
-		(*AddNodeParams)(nil),                      // 3: management.v1.AddNodeParams
-		MetricsMode(0),                             // 4: management.v1.MetricsMode
-		v1.LogLevel(0),                             // 5: inventory.v1.LogLevel
-		(*durationpb.Duration)(nil),                // 6: google.protobuf.Duration
-		(*v1.PostgreSQLService)(nil),               // 7: inventory.v1.PostgreSQLService
-		(*v1.PostgresExporter)(nil),                // 8: inventory.v1.PostgresExporter
-		(*v1.QANPostgreSQLPgStatementsAgent)(nil),  // 9: inventory.v1.QANPostgreSQLPgStatementsAgent
-		(*v1.QANPostgreSQLPgStatMonitorAgent)(nil), // 10: inventory.v1.QANPostgreSQLPgStatMonitorAgent
-	}
-)
-
+var file_management_v1_postgresql_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_management_v1_postgresql_proto_goTypes = []any{
+	(*AddPostgreSQLServiceParams)(nil),         // 0: management.v1.AddPostgreSQLServiceParams
+	(*PostgreSQLServiceResult)(nil),            // 1: management.v1.PostgreSQLServiceResult
+	nil,                                        // 2: management.v1.AddPostgreSQLServiceParams.CustomLabelsEntry
+	(*AddNodeParams)(nil),                      // 3: management.v1.AddNodeParams
+	(MetricsMode)(0),                           // 4: management.v1.MetricsMode
+	(v1.LogLevel)(0),                           // 5: inventory.v1.LogLevel
+	(*durationpb.Duration)(nil),                // 6: google.protobuf.Duration
+	(*v1.PostgreSQLService)(nil),               // 7: inventory.v1.PostgreSQLService
+	(*v1.PostgresExporter)(nil),                // 8: inventory.v1.PostgresExporter
+	(*v1.QANPostgreSQLPgStatementsAgent)(nil),  // 9: inventory.v1.QANPostgreSQLPgStatementsAgent
+	(*v1.QANPostgreSQLPgStatMonitorAgent)(nil), // 10: inventory.v1.QANPostgreSQLPgStatMonitorAgent
+}
 var file_management_v1_postgresql_proto_depIdxs = []int32{
 	3,  // 0: management.v1.AddPostgreSQLServiceParams.add_node:type_name -> management.v1.AddNodeParams
 	2,  // 1: management.v1.AddPostgreSQLServiceParams.custom_labels:type_name -> management.v1.AddPostgreSQLServiceParams.CustomLabelsEntry

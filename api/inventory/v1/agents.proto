@@ -2094,6 +2094,12 @@ message ChangeOtelCollectorParams {
   repeated LogSource add_log_sources = 3;
   // If true, remove legacy log_file_paths label when present.
   bool remove_legacy_log_file_paths = 4;
+  // Replace log_sources entirely (mutually exclusive with add_log_sources in one request).
+  repeated LogSource set_log_sources = 5;
+  // Remove log source entries by file path.
+  repeated string remove_log_source_paths = 6;
+  // When true, set_log_sources replaces log_sources (including empty list to clear).
+  bool replace_log_sources = 7;
 }
 
 message ChangeRTAMongoDBAgentParams {

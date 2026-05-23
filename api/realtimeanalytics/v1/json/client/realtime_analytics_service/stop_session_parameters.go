@@ -57,6 +57,7 @@ StopSessionParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type StopSessionParams struct {
+
 	/* Body.
 
 	   StopSessionRequest contains parameters for stopping Real-Time Analytics session.
@@ -129,6 +130,7 @@ func (o *StopSessionParams) SetBody(body StopSessionBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *StopSessionParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

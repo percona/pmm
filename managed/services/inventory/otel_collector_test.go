@@ -110,4 +110,15 @@ func TestOtelCollectorDuplicateAddAndChange(t *testing.T) {
 	require.NoError(t, err)
 	_, hasTier := chEmpty.GetOtelCollector().CustomLabels["tier"]
 	assert.False(t, hasTier)
+
+	chReplace, err := as.ChangeOtelCollector(ctx, otelID, &inventoryv1.ChangeOtelCollectorParams{
+		ReplaceLogSources: true,
+		SetLogSources: []*inventoryv1.LogSource{
+			{Path: "/var/log/only.log", Preset: "raw"},
+		},
+	})
+	require.NoError(t, err)
+	require.NoError(t, json.Unmarshal([]byte(chReplace.GetOtelCollector().CustomLabels["log_sources"]), &sources))
+	require.Len(t, sources, 1)
+	assert.Equal(t, "/var/log/only.log", sources[0].Path)
 }

@@ -102,6 +102,7 @@ func (o *ListAgentVersionsOK) GetPayload() *ListAgentVersionsOKBody {
 }
 
 func (o *ListAgentVersionsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListAgentVersionsOKBody)
 
 	// response payload
@@ -175,6 +176,7 @@ func (o *ListAgentVersionsDefault) GetPayload() *ListAgentVersionsDefaultBody {
 }
 
 func (o *ListAgentVersionsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListAgentVersionsDefaultBody)
 
 	// response payload
@@ -190,6 +192,7 @@ ListAgentVersionsDefaultBody list agent versions default body
 swagger:model ListAgentVersionsDefaultBody
 */
 type ListAgentVersionsDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -259,7 +262,9 @@ func (o *ListAgentVersionsDefaultBody) ContextValidate(ctx context.Context, form
 }
 
 func (o *ListAgentVersionsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -279,6 +284,7 @@ func (o *ListAgentVersionsDefaultBody) contextValidateDetails(ctx context.Contex
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -307,6 +313,7 @@ ListAgentVersionsDefaultBodyDetailsItems0 list agent versions default body detai
 swagger:model ListAgentVersionsDefaultBodyDetailsItems0
 */
 type ListAgentVersionsDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -318,6 +325,7 @@ type ListAgentVersionsDefaultBodyDetailsItems0 struct {
 func (o *ListAgentVersionsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -355,6 +363,7 @@ func (o *ListAgentVersionsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) e
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o ListAgentVersionsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -418,6 +427,7 @@ ListAgentVersionsOKBody list agent versions OK body
 swagger:model ListAgentVersionsOKBody
 */
 type ListAgentVersionsOKBody struct {
+
 	// List of Agent versions.
 	AgentVersions []*ListAgentVersionsOKBodyAgentVersionsItems0 `json:"agent_versions"`
 }
@@ -481,7 +491,9 @@ func (o *ListAgentVersionsOKBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *ListAgentVersionsOKBody) contextValidateAgentVersions(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.AgentVersions); i++ {
+
 		if o.AgentVersions[i] != nil {
 
 			if swag.IsZero(o.AgentVersions[i]) { // not required
@@ -501,6 +513,7 @@ func (o *ListAgentVersionsOKBody) contextValidateAgentVersions(ctx context.Conte
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -529,6 +542,7 @@ ListAgentVersionsOKBodyAgentVersionsItems0 list agent versions OK body agent ver
 swagger:model ListAgentVersionsOKBodyAgentVersionsItems0
 */
 type ListAgentVersionsOKBodyAgentVersionsItems0 struct {
+
 	// Agent ID.
 	AgentID string `json:"agent_id,omitempty"`
 

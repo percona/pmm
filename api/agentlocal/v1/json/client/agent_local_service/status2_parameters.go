@@ -58,6 +58,7 @@ Status2Params contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type Status2Params struct {
+
 	/* GetNetworkInfo.
 
 	   Returns network info (latency and clock_drift) if true.
@@ -130,6 +131,7 @@ func (o *Status2Params) SetGetNetworkInfo(getNetworkInfo *bool) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *Status2Params) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}
@@ -145,6 +147,7 @@ func (o *Status2Params) WriteToRequest(r runtime.ClientRequest, reg strfmt.Regis
 		}
 		qGetNetworkInfo := swag.FormatBool(qrGetNetworkInfo)
 		if qGetNetworkInfo != "" {
+
 			if err := r.SetQueryParam("get_network_info", qGetNetworkInfo); err != nil {
 				return err
 			}

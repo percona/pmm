@@ -101,6 +101,7 @@ func (o *CreateRoleOK) GetPayload() *CreateRoleOKBody {
 }
 
 func (o *CreateRoleOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(CreateRoleOKBody)
 
 	// response payload
@@ -174,6 +175,7 @@ func (o *CreateRoleDefault) GetPayload() *CreateRoleDefaultBody {
 }
 
 func (o *CreateRoleDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(CreateRoleDefaultBody)
 
 	// response payload
@@ -189,6 +191,7 @@ CreateRoleBody create role body
 swagger:model CreateRoleBody
 */
 type CreateRoleBody struct {
+
 	// title
 	Title string `json:"title,omitempty"`
 
@@ -232,6 +235,7 @@ CreateRoleDefaultBody create role default body
 swagger:model CreateRoleDefaultBody
 */
 type CreateRoleDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -301,7 +305,9 @@ func (o *CreateRoleDefaultBody) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *CreateRoleDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -321,6 +327,7 @@ func (o *CreateRoleDefaultBody) contextValidateDetails(ctx context.Context, form
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -349,6 +356,7 @@ CreateRoleDefaultBodyDetailsItems0 create role default body details items0
 swagger:model CreateRoleDefaultBodyDetailsItems0
 */
 type CreateRoleDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -360,6 +368,7 @@ type CreateRoleDefaultBodyDetailsItems0 struct {
 func (o *CreateRoleDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -397,6 +406,7 @@ func (o *CreateRoleDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o CreateRoleDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -460,6 +470,7 @@ CreateRoleOKBody create role OK body
 swagger:model CreateRoleOKBody
 */
 type CreateRoleOKBody struct {
+
 	// role id
 	RoleID int64 `json:"role_id,omitempty"`
 }

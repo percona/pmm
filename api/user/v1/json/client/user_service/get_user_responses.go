@@ -102,6 +102,7 @@ func (o *GetUserOK) GetPayload() *GetUserOKBody {
 }
 
 func (o *GetUserOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetUserOKBody)
 
 	// response payload
@@ -175,6 +176,7 @@ func (o *GetUserDefault) GetPayload() *GetUserDefaultBody {
 }
 
 func (o *GetUserDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetUserDefaultBody)
 
 	// response payload
@@ -190,6 +192,7 @@ GetUserDefaultBody get user default body
 swagger:model GetUserDefaultBody
 */
 type GetUserDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -259,7 +262,9 @@ func (o *GetUserDefaultBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *GetUserDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -279,6 +284,7 @@ func (o *GetUserDefaultBody) contextValidateDetails(ctx context.Context, formats
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -307,6 +313,7 @@ GetUserDefaultBodyDetailsItems0 get user default body details items0
 swagger:model GetUserDefaultBodyDetailsItems0
 */
 type GetUserDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -318,6 +325,7 @@ type GetUserDefaultBodyDetailsItems0 struct {
 func (o *GetUserDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -355,6 +363,7 @@ func (o *GetUserDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o GetUserDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -418,6 +427,7 @@ GetUserOKBody get user OK body
 swagger:model GetUserOKBody
 */
 type GetUserOKBody struct {
+
 	// User ID
 	UserID int64 `json:"user_id,omitempty"`
 

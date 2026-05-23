@@ -101,6 +101,7 @@ func (o *StopSessionOK) GetPayload() any {
 }
 
 func (o *StopSessionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
@@ -172,6 +173,7 @@ func (o *StopSessionDefault) GetPayload() *StopSessionDefaultBody {
 }
 
 func (o *StopSessionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(StopSessionDefaultBody)
 
 	// response payload
@@ -187,6 +189,7 @@ StopSessionBody StopSessionRequest contains parameters for stopping Real-Time An
 swagger:model StopSessionBody
 */
 type StopSessionBody struct {
+
 	// Required service identifier the Real-Time Analytics session shall be stopped for.
 	ServiceID string `json:"service_id,omitempty"`
 }
@@ -224,6 +227,7 @@ StopSessionDefaultBody stop session default body
 swagger:model StopSessionDefaultBody
 */
 type StopSessionDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -293,7 +297,9 @@ func (o *StopSessionDefaultBody) ContextValidate(ctx context.Context, formats st
 }
 
 func (o *StopSessionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -313,6 +319,7 @@ func (o *StopSessionDefaultBody) contextValidateDetails(ctx context.Context, for
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -341,6 +348,7 @@ StopSessionDefaultBodyDetailsItems0 stop session default body details items0
 swagger:model StopSessionDefaultBodyDetailsItems0
 */
 type StopSessionDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -352,6 +360,7 @@ type StopSessionDefaultBodyDetailsItems0 struct {
 func (o *StopSessionDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -389,6 +398,7 @@ func (o *StopSessionDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o StopSessionDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}

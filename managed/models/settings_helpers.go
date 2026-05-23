@@ -173,6 +173,12 @@ type ChangeSettingsParams struct {
 	// SlackBotToken / SlackAppToken: empty string in params means clear when pointer non-nil (same as ServiceNow keys).
 	SlackBotToken *string
 	SlackAppToken *string
+
+	// OTEL server collector and ClickHouse retention (nil sub-fields = no change).
+	OtelCollectorEnabled     *bool
+	OtelLogsRetentionDays    *int
+	OtelTracesRetentionDays  *int
+	OtelMetricsRetentionDays *int
 }
 
 // SetPMMServerID should be run on start up to generate unique PMM Server ID.
@@ -392,6 +398,19 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 		settings.Adre.SlackAppToken = pointer.GetString(params.SlackAppToken)
 	}
 
+	if params.OtelCollectorEnabled != nil {
+		settings.Otel.CollectorEnabled = params.OtelCollectorEnabled
+	}
+	if params.OtelLogsRetentionDays != nil {
+		settings.Otel.LogsRetentionDays = params.OtelLogsRetentionDays
+	}
+	if params.OtelTracesRetentionDays != nil {
+		settings.Otel.TracesRetentionDays = params.OtelTracesRetentionDays
+	}
+	if params.OtelMetricsRetentionDays != nil {
+		settings.Otel.MetricsRetentionDays = params.OtelMetricsRetentionDays
+	}
+
 	if params.EnableAdre != nil && !*params.EnableAdre {
 		settings.Adre.SlackEnabled = false
 		settings.Adre.SlackAutoInvestigate = false
@@ -542,6 +561,32 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 		}
 	}
 
+	if err := validateOtelSettingsParams(params); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func validateOtelSettingsParams(params *ChangeSettingsParams) error {
+	checkRetention := func(name string, days *int) error {
+		if days == nil {
+			return nil
+		}
+		if *days <= 0 || *days > 365 {
+			return errors.Errorf("%s: must be between 1 and 365 days", name)
+		}
+		return nil
+	}
+	if err := checkRetention("otel_logs_retention_days", params.OtelLogsRetentionDays); err != nil {
+		return err
+	}
+	if err := checkRetention("otel_traces_retention_days", params.OtelTracesRetentionDays); err != nil {
+		return err
+	}
+	if err := checkRetention("otel_metrics_retention_days", params.OtelMetricsRetentionDays); err != nil {
+		return err
+	}
 	return nil
 }
 

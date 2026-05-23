@@ -29,7 +29,7 @@ Phase 1 adds **log collection** via an OTEL collector: agents send logs to the P
 
 Presets define the OTEL filelog operator chain (regex, time, severity, etc.) and are stored in `log_parser_presets`. Each path can be bound to a preset (or `raw` for no parsing).
 
-- **Built-in presets**: `mysql_error`, `syslog_mysql_systemd` (journal/syslog-style ISO8601 lines: `timestamp host tag[pid]: message`), `nginx_access`, `nginx_error`, `grafana`, `pmm_managed`, `pmm_agent`, `postgres`, `clickhouse_server`, `otel_collector`, `supervisord`, `raw`. Manage presets in the UI under **Configuration → OTEL → Log parser presets** (or add rows via API / migrations).
+- **Built-in presets**: `mysql_error`, `syslog_mysql_systemd` (journal/syslog-style ISO8601 lines: `timestamp host tag[pid]: message`), `nginx_access`, `nginx_error`, `grafana`, `pmm_managed`, `pmm_agent`, `postgres`, `clickhouse_server`, `otel_collector`, `supervisord`, `raw`. Manage presets in the UI under **Settings → OTEL** (or add rows via API / migrations).
 - **Storage**: Table columns: `id`, `name`, `description`, `operator_yaml`, `built_in`, timestamps. The server validates preset names and stores `log_sources` as JSON in the agent’s `custom_labels`.
 - **API**: Add/change OTEL collector with `log_sources`: list of `{ path, preset }`. Config generator groups paths by preset and emits one filelog receiver per preset.
 
@@ -62,7 +62,7 @@ Presets define the OTEL filelog operator chain (regex, time, severity, etc.) and
 
 ### Recently added
 
-- **Preset management API** and **UI** (Configuration → OTEL → Log parser presets): list/get/add/change/remove custom presets; built-in rows editable; delete blocked while an OTEL collector still references the preset.
+- **Preset management API** and **UI** (**Settings → OTEL**): list/get/add/change/remove custom presets; built-in rows editable; delete blocked while an OTEL collector still references the preset.
 - **Traces, profiles, eBPF**: Same agent type and server pipeline can be extended later.
 
 ## See also

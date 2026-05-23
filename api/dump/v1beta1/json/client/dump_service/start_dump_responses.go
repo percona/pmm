@@ -102,6 +102,7 @@ func (o *StartDumpOK) GetPayload() *StartDumpOKBody {
 }
 
 func (o *StartDumpOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(StartDumpOKBody)
 
 	// response payload
@@ -175,6 +176,7 @@ func (o *StartDumpDefault) GetPayload() *StartDumpDefaultBody {
 }
 
 func (o *StartDumpDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(StartDumpDefaultBody)
 
 	// response payload
@@ -190,6 +192,7 @@ StartDumpBody start dump body
 swagger:model StartDumpBody
 */
 type StartDumpBody struct {
+
 	// service names
 	ServiceNames []string `json:"service_names"`
 
@@ -284,6 +287,7 @@ StartDumpDefaultBody start dump default body
 swagger:model StartDumpDefaultBody
 */
 type StartDumpDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -353,7 +357,9 @@ func (o *StartDumpDefaultBody) ContextValidate(ctx context.Context, formats strf
 }
 
 func (o *StartDumpDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -373,6 +379,7 @@ func (o *StartDumpDefaultBody) contextValidateDetails(ctx context.Context, forma
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -401,6 +408,7 @@ StartDumpDefaultBodyDetailsItems0 start dump default body details items0
 swagger:model StartDumpDefaultBodyDetailsItems0
 */
 type StartDumpDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -412,6 +420,7 @@ type StartDumpDefaultBodyDetailsItems0 struct {
 func (o *StartDumpDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -449,6 +458,7 @@ func (o *StartDumpDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o StartDumpDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -512,6 +522,7 @@ StartDumpOKBody start dump OK body
 swagger:model StartDumpOKBody
 */
 type StartDumpOKBody struct {
+
 	// dump id
 	DumpID string `json:"dump_id,omitempty"`
 }
