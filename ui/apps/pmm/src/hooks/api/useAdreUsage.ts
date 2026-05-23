@@ -33,10 +33,14 @@ export function useAdreUsageEvents(params?: {
   });
 }
 
-export function useInvestigationUsage(investigationId: string | undefined) {
+export function useInvestigationUsage(
+  investigationId: string | undefined,
+  options?: { refetchInterval?: number | false }
+) {
   return useQuery({
     queryKey: ['investigationUsage', investigationId],
     queryFn: () => getInvestigationUsage(investigationId!),
     enabled: !!investigationId,
+    refetchInterval: options?.refetchInterval,
   });
 }

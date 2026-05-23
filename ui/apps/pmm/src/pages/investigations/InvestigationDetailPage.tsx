@@ -53,6 +53,7 @@ import {
 } from 'api/adre';
 import { HolmesUsageFooter } from 'components/adre/HolmesUsageFooter';
 import {
+  aggregateAssistantMessageUsage,
   formatTokensWithCached,
   formatUsdCost,
   HOLMES_FEATURE_LABELS,
@@ -113,7 +114,11 @@ const InvestigationDetailPage: FC = () => {
     refetchInterval: isRunning ? 5000 : false,
   });
   const { data: comments = [] } = useInvestigationComments(id);
-  const { data: messages = [] } = useInvestigationMessages(id, { limit: 50 });
+  const { data: messages = [] } = useInvestigationMessages(
+    id,
+    { limit: 50 },
+    { refetchInterval: isRunning ? 5000 : false }
+  );
   const { data: timelineEvents = [] } = useInvestigationTimeline(id);
   const postComment = usePostInvestigationComment(id ?? '');
   const postChat = usePostInvestigationChat(id ?? '');
@@ -123,7 +128,11 @@ const InvestigationDetailPage: FC = () => {
   const deleteBlock = useDeleteInvestigationBlock(id ?? '');
   const createSNTicket = useCreateServiceNowTicket(id ?? '');
   const { data: adreSettings } = useAdreSettings();
-  const { data: usageBreakdown } = useInvestigationUsage(id);
+  const {
+    data: usageBreakdown,
+    isLoading: usageLoading,
+    refetch: refetchUsage,
+  } = useInvestigationUsage(id, { refetchInterval: isRunning ? 5000 : false });
   const [commentText, setCommentText] = useState('');
   const [chatText, setChatText] = useState('');
   const [copyDone, setCopyDone] = useState(false);
@@ -140,10 +149,12 @@ const InvestigationDetailPage: FC = () => {
     setIsRunning(status === 'running');
     if (prev === 'running' && status === 'completed') {
       showSuccess('Investigation completed');
+      void refetchUsage();
     } else if (prev === 'running' && status === 'failed') {
       showError('Investigation failed');
+      void refetchUsage();
     }
-  }, [inv?.status]);
+  }, [inv?.status, refetchUsage]);
 
   const invId = inv?.id;
   const invSourceType = inv?.sourceType;
@@ -306,14 +317,24 @@ const InvestigationDetailPage: FC = () => {
       : null;
 
   const usageEvents = usageBreakdown?.events ?? [];
-  const holmesCallCount = inv.holmesCallCount ?? inv.holmes_call_count ?? 0;
-  const holmesTotalTokens = inv.holmesTotalTokens ?? inv.holmes_total_tokens ?? 0;
-  const holmesTotalCost = inv.holmesTotalCost ?? inv.holmes_total_cost ?? 0;
-  const holmesTotalCached = usageEvents.reduce(
-    (sum, ev) => sum + (ev.cachedTokens ?? ev.cached_tokens ?? 0),
-    0
+  const messageUsage = aggregateAssistantMessageUsage(messages);
+  const holmesCallCount = Math.max(
+    inv.holmesCallCount ?? inv.holmes_call_count ?? 0,
+    messageUsage.callCount
   );
-  const hasHolmesUsage = holmesCallCount > 0 || usageEvents.length > 0;
+  const holmesTotalTokens = Math.max(
+    inv.holmesTotalTokens ?? inv.holmes_total_tokens ?? 0,
+    messageUsage.totalTokens
+  );
+  const holmesTotalCost = Math.max(
+    inv.holmesTotalCost ?? inv.holmes_total_cost ?? 0,
+    messageUsage.totalCost
+  );
+  const holmesTotalCached = Math.max(
+    usageEvents.reduce((sum, ev) => sum + (ev.cachedTokens ?? ev.cached_tokens ?? 0), 0),
+    messageUsage.totalCached
+  );
+  const hasHolmesUsage = holmesCallCount > 0 || usageEvents.length > 0 || messageUsage.callCount > 0;
 
   return (
     <Page
@@ -627,8 +648,15 @@ const InvestigationDetailPage: FC = () => {
         Usage details
       </Typography>
       <Card variant="outlined" sx={{ mb: 2 }}>
-        <CardContent>
-          {hasHolmesUsage ? (
+        <CardContent sx={{ py: 2 }}>
+          {usageLoading && !hasHolmesUsage ? (
+            <Stack direction="row" spacing={1} alignItems="center">
+              <CircularProgress size={16} />
+              <Typography variant="body2" color="text.secondary">
+                Loading usage…
+              </Typography>
+            </Stack>
+          ) : hasHolmesUsage ? (
             <>
               <Typography variant="body2" color="text.secondary" sx={{ mb: usageEvents.length > 0 ? 1.5 : 0 }}>
                 {holmesCallCount} {holmesCallCount === 1 ? 'call' : 'calls'} ·{' '}
@@ -665,13 +693,17 @@ const InvestigationDetailPage: FC = () => {
                 </Stack>
               ) : (
                 <Typography variant="body2" color="text.secondary">
-                  Per-step breakdown will appear after AI calls complete.
+                  {isRunning
+                    ? 'Investigation in progress — per-step breakdown will appear as AI calls complete.'
+                    : 'Per-step breakdown will appear after AI calls complete.'}
                 </Typography>
               )}
             </>
           ) : (
             <Typography variant="body2" color="text.secondary">
-              No AI usage recorded yet. Run the investigation or send a chat message to generate usage data.
+              {isRunning
+                ? 'Investigation in progress — usage will appear when AI calls complete.'
+                : 'No AI usage recorded yet. Run the investigation or send a chat message to generate usage data.'}
             </Typography>
           )}
         </CardContent>

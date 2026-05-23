@@ -30,6 +30,7 @@ export const INVESTIGATIONS_KEYS = {
   messages: (id: string, params?: { limit?: number; offset?: number }) =>
     ['investigations', id, 'messages', params] as const,
   timeline: (id: string) => ['investigations', id, 'timeline'] as const,
+  usage: (id: string) => ['investigationUsage', id] as const,
 };
 
 export const useInvestigationsList = (params?: {
@@ -104,12 +105,13 @@ export const useInvestigationComments = (
 export const useInvestigationMessages = (
   id: string | undefined,
   params?: { limit?: number; offset?: number },
-  options?: { enabled?: boolean }
+  options?: { enabled?: boolean; refetchInterval?: number | false }
 ) =>
   useQuery({
     queryKey: INVESTIGATIONS_KEYS.messages(id ?? '', params),
     queryFn: () => getInvestigationMessages(id!, params),
     enabled: (options?.enabled ?? true) && !!id,
+    refetchInterval: options?.refetchInterval,
   });
 
 export const useInvestigationTimeline = (
@@ -147,6 +149,9 @@ export const usePostInvestigationChat = (investigationId: string) => {
       queryClient.invalidateQueries({
         queryKey: INVESTIGATIONS_KEYS.messages(investigationId),
       });
+      queryClient.invalidateQueries({
+        queryKey: INVESTIGATIONS_KEYS.usage(investigationId),
+      });
     },
   });
 };
@@ -164,6 +169,9 @@ export const usePostInvestigationRun = (investigationId: string) => {
       });
       queryClient.invalidateQueries({
         queryKey: INVESTIGATIONS_KEYS.timeline(investigationId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: INVESTIGATIONS_KEYS.usage(investigationId),
       });
     },
   });

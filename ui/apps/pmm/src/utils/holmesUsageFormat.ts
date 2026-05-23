@@ -58,3 +58,34 @@ export const HOLMES_FEATURE_LABELS: Record<string, string> = {
   qan_insights: 'QAN insights',
   slack_chat: 'Slack',
 };
+
+export function aggregateAssistantMessageUsage(
+  messages: Array<{
+    role?: string;
+    totalTokens?: number;
+    total_tokens?: number;
+    cachedTokens?: number;
+    cached_tokens?: number;
+    totalCost?: number;
+    total_cost?: number;
+    model?: string;
+  }>
+): { callCount: number; totalTokens: number; totalCached: number; totalCost: number } {
+  let callCount = 0;
+  let totalTokens = 0;
+  let totalCached = 0;
+  let totalCost = 0;
+  for (const m of messages) {
+    if (m.role !== 'assistant') continue;
+    const tokens = m.totalTokens ?? m.total_tokens;
+    const cached = m.cachedTokens ?? m.cached_tokens ?? 0;
+    const cost = m.totalCost ?? m.total_cost ?? 0;
+    const hasUsage = tokens != null || cost > 0 || (m.model != null && m.model !== '');
+    if (!hasUsage) continue;
+    callCount++;
+    totalTokens += tokens ?? 0;
+    totalCached += cached;
+    totalCost += cost;
+  }
+  return { callCount, totalTokens, totalCached, totalCost };
+}
