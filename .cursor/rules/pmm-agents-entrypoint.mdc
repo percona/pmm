@@ -1,0 +1,10 @@
+---
+description: PMM — read AGENTS.md before any code change
+alwaysApply: true
+---
+
+# PMM agent entrypoint
+
+Before planning, implementing, or reviewing changes in this repository, **read and follow** `AGENTS.md` at the repo root — including its component guide table and linked process docs.
+
+Do **not** skip this because the task looks small (CI fix, one-file bug, etc.). State which guides you read when you start.

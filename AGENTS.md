@@ -1,8 +1,20 @@
 # PMM Development Guide for AI Agents
 
+## How AI tools load this document
+
+This file is the **single authoritative entry point** for AI agents. Tools are wired to it as follows:
+
+| Tool | Entry file |
+|------|------------|
+| **Cursor** | `.cursor/rules/pmm-agents-entrypoint.mdc` (`alwaysApply: true`) → read this file |
+| **Claude Code** | [CLAUDE.md](CLAUDE.md) → read this file |
+| **GitHub Copilot** | [.github/copilot-instructions.md](.github/copilot-instructions.md) → read this file |
+
+Local-only AI skills under `.claude/` and other `.cursor/` paths remain gitignored for personal experimentation.
+
 ## Maintaining This Document
 
-This file is read by every AI agent at session start. **You are responsible for keeping it accurate.** After completing work, check whether any of these apply:
+**You are responsible for keeping this file accurate.** After completing work, check whether any of these apply:
 
 - Added, removed, or renamed a top-level directory or component
 - Added or removed a per-component `AGENTS.md`
@@ -18,7 +30,7 @@ Do **not** update this file for routine code changes (bug fixes, minor feature i
 
 ## How This Documentation Is Organized
 
-This file is the **single authoritative entry point** for AI agents working with PMM. It provides the product-wide overview, architecture, domain model, conventions, and cross-links to component-specific guides.
+This guide provides the product-wide overview, architecture, domain model, conventions, and cross-links to component-specific guides.
 
 ### Component Guides
 
