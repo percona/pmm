@@ -52,8 +52,10 @@ RTA-Jira-Tasks-Summary.md
 # PMM Demo backups (it would increase repository size significantly)
 dev/clickhouse-backups/
 
-# Exclude AI skills to support fast local experimentation
+# Exclude local AI skills/settings; team rules live in .cursor/rules/
 .claude/
-.cursor/
+.cursor/*
+!.cursor/rules/
+!.cursor/rules/**
 .cursorrules/
 build/.cache/
