@@ -1,7 +1,6 @@
 import {
   Button,
   FormControlLabel,
-  Link,
   Stack,
   Switch,
   TextField,
@@ -15,9 +14,6 @@ import {
   labelForKey,
   shippedPreset,
 } from './AdreBehaviorControlsBlock.utils';
-
-const HOLMES_PROMPT_CONTROLS =
-  'https://holmesgpt.dev/dev/reference/http-api/?h=fast#fast-mode--prompt-controls';
 
 export interface AdreBehaviorControlsBlockProps {
   variant: AdreBehaviorVariant;
@@ -50,10 +46,9 @@ export const AdreBehaviorControlsBlock: FC<AdreBehaviorControlsBlockProps> = ({
       </Typography>
       <Typography variant="body2" color="text.secondary">
         {description}{' '}
-        <Link href={HOLMES_PROMPT_CONTROLS} target="_blank" rel="noreferrer">
-          Holmes fast mode / prompt controls
-        </Link>
-        . Clearing the map to <code>{'{}'}</code> in Advanced JSON makes PMM use the shipped preset for that mode when calling Holmes. On the Holmes container,{' '}
+        See your AI service documentation for{' '}
+        fast mode / prompt controls
+        . Clearing the map to <code>{'{}'}</code> in Advanced JSON makes PMM use the shipped preset for that mode when calling the AI backend. On the AI service container,{' '}
         <code>ENABLED_PROMPTS</code> can still override what the API enables.
       </Typography>
       <Stack gap={0.5} sx={{ pl: 0.5 }}>

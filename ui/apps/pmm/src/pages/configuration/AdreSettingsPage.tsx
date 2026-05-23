@@ -202,7 +202,7 @@ const AdreSettingsPage: FC = () => {
           <Stack gap={3}>
             <Typography variant="body2" color="text.secondary">
               Configure the Autonomous Database Reliability Engineer (ADRE) and
-              HolmesGPT integration for AI-assisted investigations.
+              AI backend for AI-assisted investigations.
             </Typography>
             {isAdmin ? (
               <Stack gap={3}>
@@ -220,8 +220,8 @@ const AdreSettingsPage: FC = () => {
                     label="Enable ADRE"
                   />
                   <TextField
-                    label="HolmesGPT URL"
-                    placeholder="http://holmesgpt:8080"
+                    label="AI service URL"
+                    placeholder="http://localhost:8080"
                     value={localUrl}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalUrl(e.target.value)}
                     size="small"
@@ -266,12 +266,12 @@ const AdreSettingsPage: FC = () => {
                   />
                   <Typography variant="caption" color="text.secondary" display="block">
                     When enabled, channel messages from integrations whose text contains FIRING (and not
-                    RESOLVED) are sent to Holmes like a thread reply. Alert text usually lives in
+                    RESOLVED) are sent to the AI backend like a thread reply. Alert text usually lives in
                     attachments—ensure your Grafana template includes FIRING.
                   </Typography>
                   {!localEnabled || !localUrl.trim() ? (
                     <Typography variant="caption" color="text.secondary">
-                      Enable ADRE and set HolmesGPT URL first.
+                      Enable ADRE and set the AI service URL first.
                     </Typography>
                   ) : null}
                   <Typography variant="body2" color="text.secondary">
@@ -304,7 +304,7 @@ const AdreSettingsPage: FC = () => {
                 <Divider />
                 <Stack gap={2}>
                   <Typography variant="subtitle1" fontWeight={600}>
-                    ADRE panel &amp; Holmes
+                    ADRE panel
                   </Typography>
                   <FormControl size="small" fullWidth>
                     <InputLabel>Default mode in ADRE panel</InputLabel>
@@ -326,7 +326,7 @@ const AdreSettingsPage: FC = () => {
                       label="Fast mode model"
                       onChange={(e: SelectChangeEvent<string>) => setLocalFastModel(e.target.value)}
                     >
-                      <MenuItem value="">Holmes default</MenuItem>
+                      <MenuItem value="">Service default</MenuItem>
                       {models.map((m) => (
                         <MenuItem key={`fast-${m}`} value={m}>
                           {m}
@@ -343,7 +343,7 @@ const AdreSettingsPage: FC = () => {
                         setLocalInvestigationModel(e.target.value)
                       }
                     >
-                      <MenuItem value="">Holmes default</MenuItem>
+                      <MenuItem value="">Service default</MenuItem>
                       {models.map((m) => (
                         <MenuItem key={`investigation-${m}`} value={m}>
                           {m}
@@ -360,7 +360,7 @@ const AdreSettingsPage: FC = () => {
                         setLocalQanInsightsModel(e.target.value)
                       }
                     >
-                      <MenuItem value="">Holmes default</MenuItem>
+                      <MenuItem value="">Service default</MenuItem>
                       {models.map((m) => (
                         <MenuItem key={`qan-insights-${m}`} value={m}>
                           {m}
@@ -369,7 +369,7 @@ const AdreSettingsPage: FC = () => {
                     </Select>
                   </FormControl>
                   <TextField
-                    label="Max conversation messages to Holmes"
+                    label="Max conversation messages to AI"
                     type="number"
                     inputProps={{ min: 4, max: 200 }}
                     value={localAdreMaxConversationMessages}
@@ -378,7 +378,7 @@ const AdreSettingsPage: FC = () => {
                     }
                     size="small"
                     fullWidth
-                    helperText="Caps conversation_history size (4–200). Reduces Holmes context-overflow failures."
+                    helperText="Caps conversation_history size (4–200). Reduces context-overflow failures."
                   />
                   <TextField
                     label="Prompt max bytes"
@@ -395,7 +395,7 @@ const AdreSettingsPage: FC = () => {
                 <AdreBehaviorControlsBlock
                   variant="fast"
                   title="Fast mode — behavior controls"
-                  description="Tuning for the Fast path in the ADRE chat panel (Holmes skills / TodoWrite, etc.)."
+                  description="Tuning for the Fast path in the ADRE chat panel (tools / TodoWrite, etc.)."
                   value={localBehaviorFast}
                   onChange={setLocalBehaviorFast}
                   onJsonError={(msg) => enqueueSnackbar(msg, { variant: 'error' })}
@@ -404,7 +404,7 @@ const AdreSettingsPage: FC = () => {
                 <AdreBehaviorControlsBlock
                   variant="investigation"
                   title="Investigation mode — behavior controls"
-                  description="Used for investigation chat and investigation runs. Empty preset means Holmes defaults for omitted keys."
+                  description="Used for investigation chat and investigation runs. Empty preset means service defaults for omitted keys."
                   value={localBehaviorInvestigation}
                   onChange={setLocalBehaviorInvestigation}
                   onJsonError={(msg) => enqueueSnackbar(msg, { variant: 'error' })}
@@ -413,7 +413,7 @@ const AdreSettingsPage: FC = () => {
                 <AdreBehaviorControlsBlock
                   variant="format"
                   title="Format investigation report — behavior controls"
-                  description="Used when PMM asks Holmes to turn a raw investigation report into structured JSON."
+                  description="Used when PMM turns a raw investigation report into structured JSON."
                   value={localBehaviorFormat}
                   onChange={setLocalBehaviorFormat}
                   onJsonError={(msg) => enqueueSnackbar(msg, { variant: 'error' })}
@@ -425,7 +425,7 @@ const AdreSettingsPage: FC = () => {
                   </Typography>
                   <TextField
                     label="Fast mode prompt"
-                    placeholder="Additional system prompt for Fast mode (Holmes additional_system_prompt)"
+                    placeholder="Additional system prompt for Fast mode"
                     value={localChatPrompt}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalChatPrompt(e.target.value)}
                     size="small"

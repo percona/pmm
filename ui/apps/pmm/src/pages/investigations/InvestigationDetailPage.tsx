@@ -665,13 +665,13 @@ const InvestigationDetailPage: FC = () => {
                 </Stack>
               ) : (
                 <Typography variant="body2" color="text.secondary">
-                  Per-step breakdown will appear after Holmes calls complete.
+                  Per-step breakdown will appear after AI calls complete.
                 </Typography>
               )}
             </>
           ) : (
             <Typography variant="body2" color="text.secondary">
-              No Holmes usage recorded yet. Run the investigation or send a chat message to generate usage data.
+              No AI usage recorded yet. Run the investigation or send a chat message to generate usage data.
             </Typography>
           )}
         </CardContent>

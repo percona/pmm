@@ -79,8 +79,8 @@ const AdrePage: FC = () => {
           <CardContent>
             <Stack gap={2}>
               <Alert severity="info">
-                Configure HolmesGPT in Settings to enable the Autonomous Database
-                Reliability Engineer (ADRE). Set the HolmesGPT base URL and
+                Configure the AI backend in Settings to enable the Autonomous Database
+                Reliability Engineer (ADRE). Set the service URL and
                 enable the feature.
               </Alert>
               {isAdmin && (
@@ -98,8 +98,8 @@ const AdrePage: FC = () => {
                     label="Enable ADRE"
                   />
                   <TextField
-                    label="HolmesGPT URL"
-                    placeholder="http://holmesgpt:8080"
+                    label="AI service URL"
+                    placeholder="http://localhost:8080"
                     value={localUrl}
                     onChange={(e) => setLocalUrl(e.target.value)}
                     size="small"

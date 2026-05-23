@@ -83,7 +83,7 @@ const AdreUsagePage: FC = () => {
         sx={{ mb: 2 }}
       >
         <Typography variant="body2" color="text.secondary">
-          Holmes token and cost usage across PMM AI features
+          Token and cost usage across PMM AI features
         </Typography>
         <Stack direction="row" spacing={1} alignItems="flex-end" flexWrap="wrap">
           <FormControl size="small" sx={{ minWidth: 140 }}>
@@ -148,7 +148,7 @@ const AdreUsagePage: FC = () => {
                     : ''
                 }`,
               },
-              { label: 'Holmes calls', value: String(num(totals?.callCount ?? totals?.call_count)) },
+              { label: 'AI calls', value: String(num(totals?.callCount ?? totals?.call_count)) },
             ].map((card) => (
               <Card key={card.label} variant="outlined" sx={{ flex: 1 }}>
                 <CardContent>

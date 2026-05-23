@@ -239,7 +239,7 @@ export const AdreChatWidget: FC = () => {
   const copyResetTimerRef = useRef<number | null>(null);
 
   const isConfigured = settings?.enabled && !!settings?.url;
-  const chatViaLabel = isConfigured ? 'Chat via Holmes' : 'ADRE';
+  const chatViaLabel = isConfigured ? 'ADRE chat' : 'ADRE';
 
   const scrollToBottom = useCallback((instant?: boolean) => {
     const now = Date.now();

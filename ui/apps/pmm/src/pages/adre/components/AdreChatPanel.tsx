@@ -510,7 +510,7 @@ export const AdreChatPanel: FC = () => {
                         Chat Mode
                       </Typography>
                       <Typography variant="body2">Fast: quick answers, lighter analysis.</Typography>
-                      <Typography variant="body2">Investigation: deeper analysis with Holmes skills and Todo steps.</Typography>
+                      <Typography variant="body2">Investigation: deeper analysis with tools and todo steps.</Typography>
                     </Box>
                   }
                   placement="top"
