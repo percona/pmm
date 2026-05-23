@@ -139,8 +139,10 @@ func (h *Handlers) PostInvestigationChat(w http.ResponseWriter, r *http.Request,
 		ConversationHistory:    historyForHolmes,
 		AdditionalSystemPrompt: systemWithContext,
 		BehaviorControls:       adre.ResolveBehaviorControlsForInvestigation(settings),
+		Model:                  strings.TrimSpace(settings.Adre.InvestigationModel),
 		Stream:                 false,
 	}
+	chatStart := time.Now()
 	resp, err := client.Chat(ctx, req)
 	if err != nil {
 		h.l.Errorf("Holmes Chat: %v", err)
@@ -155,7 +157,23 @@ func (h *Handlers) PostInvestigationChat(w http.ResponseWriter, r *http.Request,
 		Role:            "assistant",
 		Content:         lastContent,
 	}
-	_ = models.CreateInvestigationMessage(h.db, assistantMsg)
+	adre.ApplyHolmesUsageToInvestigationMessage(assistantMsg, adre.HolmesFeatureInvestigationChat, req.Model, resp.Metadata)
+	if err := models.CreateInvestigationMessage(h.db, assistantMsg); err != nil {
+		h.l.Errorf("CreateInvestigationMessage assistant: %v", err)
+	}
+	msgID := assistantMsg.ID
+	invID := id
+	_, _ = adre.RecordHolmesUsage(ctx, adre.UsageRecordInput{
+		DB:                     h.db,
+		Feature:                adre.HolmesFeatureInvestigationChat,
+		FeatureRef:             msgID,
+		InvestigationID:        invID,
+		Model:                  req.Model,
+		Metadata:               resp.Metadata,
+		TriggeredBy:            inv.CreatedBy,
+		LatencyMs:              int(time.Since(chatStart).Milliseconds()),
+		InvestigationMessageID: &msgID,
+	})
 
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(map[string]string{"content": lastContent}) //nolint:errchkjson // response already committed
@@ -247,15 +265,19 @@ func (h *Handlers) runInvestigationBackground(id string, _ *models.Investigation
 		Ask:                    ask,
 		AdditionalSystemPrompt: invPrompt + "\n\nCurrent investigation context:\n" + ctxStr,
 		BehaviorControls:       adre.ResolveBehaviorControlsForInvestigation(settings),
+		Model:                  strings.TrimSpace(settings.Adre.InvestigationModel),
 		Stream:                 false,
 	}
 	var lastContent string
 	var runErr error
+	var runMetadata json.RawMessage
+	runStart := time.Now()
 	chatResp, err := client.Chat(ctx, chatReq)
 	if err != nil {
 		runErr = fmt.Errorf("holmes chat (investigation run): %w", err)
 	} else {
 		lastContent = chatResp.Analysis
+		runMetadata = chatResp.Metadata
 	}
 
 	if runErr != nil {
@@ -275,8 +297,20 @@ func (h *Handlers) runInvestigationBackground(id string, _ *models.Investigation
 		return
 	}
 
-	formattedJSON, err := FormatInvestigationReport(ctx, client, settings, lastContent)
-	if err == nil { //nolint:nestif
+	formatStart := time.Now()
+	formattedJSON, formatMetadata, formatErr := FormatInvestigationReport(ctx, client, settings, lastContent)
+	if formatErr == nil {
+		_, _ = adre.RecordHolmesUsage(ctx, adre.UsageRecordInput{
+			DB:              h.db,
+			Feature:         adre.HolmesFeatureInvestigationFormat,
+			FeatureRef:      id,
+			InvestigationID: id,
+			Metadata:        formatMetadata,
+			TriggeredBy:     inv.CreatedBy,
+			LatencyMs:       int(time.Since(formatStart).Milliseconds()),
+		})
+	}
+	if formatErr == nil { //nolint:nestif
 		report, parseErr := ParseFormattedReport(formattedJSON)
 		if parseErr == nil {
 			inv.Summary = report.Summary
@@ -360,7 +394,7 @@ func (h *Handlers) runInvestigationBackground(id string, _ *models.Investigation
 			h.l.Warnf("ParseFormattedReport: %v", parseErr)
 		}
 	} else {
-		h.l.Warnf("FormatInvestigationReport: %v (fallback: raw report only)", err)
+		h.l.Warnf("FormatInvestigationReport: %v (fallback: raw report only)", formatErr)
 	}
 
 	inv.Status = "completed"
@@ -375,7 +409,21 @@ func (h *Handlers) runInvestigationBackground(id string, _ *models.Investigation
 		Role:            "assistant",
 		Content:         lastContent,
 	}
+	adre.ApplyHolmesUsageToInvestigationMessage(assistantMsg, adre.HolmesFeatureInvestigationRun, chatReq.Model, runMetadata)
 	_ = models.CreateInvestigationMessage(h.db, assistantMsg)
+	runMsgID := assistantMsg.ID
+	invID := id
+	_, _ = adre.RecordHolmesUsage(ctx, adre.UsageRecordInput{
+		DB:                     h.db,
+		Feature:                adre.HolmesFeatureInvestigationRun,
+		FeatureRef:             runMsgID,
+		InvestigationID:        invID,
+		Model:                  chatReq.Model,
+		Metadata:               runMetadata,
+		TriggeredBy:            inv.CreatedBy,
+		LatencyMs:              int(time.Since(runStart).Milliseconds()),
+		InvestigationMessageID: &runMsgID,
+	})
 }
 
 // alertSnapshotEntry is a single alert from Grafana Alertmanager (labels, annotations, fingerprint, etc.).

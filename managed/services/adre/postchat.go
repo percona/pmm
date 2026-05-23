@@ -24,6 +24,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"gopkg.in/reform.v1"
 
@@ -57,31 +58,6 @@ func parseConversationID(v any) (int64, error) {
 	default:
 		return 0, errors.New("invalid conversation_id type")
 	}
-}
-
-func extractUsageFromMetadata(raw json.RawMessage) (prompt, completion, total *int32) { //nolint:nonamedreturns
-	if len(raw) == 0 {
-		return nil, nil, nil
-	}
-	var meta struct {
-		Usage json.RawMessage `json:"usage"`
-	}
-	err := json.Unmarshal(raw, &meta)
-	if err != nil {
-		return nil, nil, nil
-	}
-	if len(meta.Usage) == 0 {
-		return nil, nil, nil
-	}
-	var u struct {
-		PromptTokens     *int32 `json:"prompt_tokens"`
-		CompletionTokens *int32 `json:"completion_tokens"`
-		TotalTokens      *int32 `json:"total_tokens"`
-	}
-	if json.Unmarshal(meta.Usage, &u) != nil {
-		return nil, nil, nil
-	}
-	return u.PromptTokens, u.CompletionTokens, u.TotalTokens
 }
 
 func toolNameFromHolmesToolPayload(raw []byte) string {
@@ -203,25 +179,37 @@ func (h *Handlers) postChatWithPersistence(w http.ResponseWriter, r *http.Reques
 	}
 	ctx, cancel := context.WithTimeout(r.Context(), h.reqTimeout)
 	defer cancel()
+	chatStart := time.Now()
 	resp, err := client.Chat(ctx, req)
 	if err != nil {
 		h.l.Warnf("HolmesGPT Chat: %v", err)
 		writeJSONError(w, http.StatusBadGateway, err.Error())
 		return
 	}
-	promptT, compT, totT := extractUsageFromMetadata(resp.Metadata)
 	asst := &models.AdreMessage{
-		ConversationID:   convID,
-		Role:             "assistant",
-		Content:          resp.Analysis,
-		Model:            req.Model,
-		PromptTokens:     promptT,
-		CompletionTokens: compT,
-		TotalTokens:      totT,
+		ConversationID: convID,
+		Role:           "assistant",
+		Content:        resp.Analysis,
+		Model:          req.Model,
 	}
+	ApplyHolmesUsageToAdreMessage(asst, req.Model, resp.Metadata)
 	if err := models.CreateAdreMessage(h.db, asst); err != nil { //nolint:noinlineerr
 		h.l.Errorf("CreateAdreMessage assistant: %v", err)
 	}
+	msgID := asst.ID
+	convIDCopy := convID
+	_, _ = RecordHolmesUsage(ctx, UsageRecordInput{
+		DB:                 h.db,
+		Feature:            HolmesFeatureAdreChat,
+		FeatureRef:         strconv.FormatInt(msgID, 10),
+		AdreConversationID: &convIDCopy,
+		Model:              req.Model,
+		Metadata:           resp.Metadata,
+		TriggeredBy:        login,
+		Stream:             false,
+		LatencyMs:          int(time.Since(chatStart).Milliseconds()),
+		AdreMessageID:      &msgID,
+	})
 	_ = models.TouchAdreConversationLastMessage(h.db, convID, asst.CreatedAt)
 	if err := persistAdreToolCalls(h.db, convID, resp.ToolCalls); err != nil { //nolint:noinlineerr
 		h.l.Warnf("persistAdreToolCalls: %v", err)
@@ -259,6 +247,7 @@ func (h *Handlers) postChatStream(w http.ResponseWriter, r *http.Request, _ *mod
 	unreg := h.streams.Register(convID, cancel)
 	defer unreg()
 
+	streamStart := time.Now()
 	streamBody, err := client.ChatStream(ctx, req)
 	if err != nil {
 		h.l.Warnf("HolmesGPT ChatStream: %v", err)
@@ -315,20 +304,31 @@ func (h *Handlers) postChatStream(w http.ResponseWriter, r *http.Request, _ *mod
 	if copyErr != nil && !errors.Is(copyErr, io.EOF) {
 		h.l.Warnf("ChatStream client write: %v", copyErr)
 	}
-	promptT, compT, totT := out.PromptTokens, out.CompletionTokens, out.TotalTokens
 	asst := &models.AdreMessage{
-		ConversationID:   convID,
-		Role:             "assistant",
-		Content:          out.Analysis,
-		Model:            req.Model,
-		PromptTokens:     promptT,
-		CompletionTokens: compT,
-		TotalTokens:      totT,
+		ConversationID: convID,
+		Role:           "assistant",
+		Content:        out.Analysis,
+		Model:          req.Model,
 	}
+	ApplyHolmesUsageToAdreMessage(asst, req.Model, out.Metadata)
 	if err := models.CreateAdreMessage(h.db, asst); err != nil { //nolint:noinlineerr
 		h.l.Errorf("CreateAdreMessage assistant (stream): %v", err)
 		return
 	}
+	msgID := asst.ID
+	convIDCopy := convID
+	_, _ = RecordHolmesUsage(ctx, UsageRecordInput{
+		DB:                 h.db,
+		Feature:            HolmesFeatureAdreChat,
+		FeatureRef:         strconv.FormatInt(msgID, 10),
+		AdreConversationID: &convIDCopy,
+		Model:              req.Model,
+		Metadata:           out.Metadata,
+		TriggeredBy:        login,
+		Stream:             true,
+		LatencyMs:          int(time.Since(streamStart).Milliseconds()),
+		AdreMessageID:      &msgID,
+	})
 	_ = models.TouchAdreConversationLastMessage(h.db, convID, asst.CreatedAt)
 	for _, raw := range out.ToolResultJSONRows {
 		err := persistAdreToolJSON(h.db, convID, raw)

@@ -24,6 +24,7 @@ import rehypeRaw from 'rehype-raw';
 import { Page } from 'components/page';
 import { adreQanInsights, getQanInsightsCache } from 'api/adre';
 import { getMarkdownComponents } from 'components/adre/adre-chat-markdown.helpers';
+import { holmesUsageSummaryLine } from 'utils/holmesUsageFormat';
 
 const RUNNING_MESSAGE =
   'Query analysis and optimisation is running. Results will appear here soon.';
@@ -115,6 +116,8 @@ const QanAiInsightsPage: FC = () => {
   const [searchParams] = useSearchParams();
   const [analysis, setAnalysis] = useState<string | null>(null);
   const [cachedAt, setCachedAt] = useState<string | null>(null);
+  const [usageLine, setUsageLine] = useState<string | null>(null);
+  const [fromCache, setFromCache] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [manualServiceId, setManualServiceId] = useState('');
@@ -158,7 +161,15 @@ const QanAiInsightsPage: FC = () => {
       .then((res) => {
         if (mountedRef.current) {
           setAnalysis(res.analysis ?? '');
-          setCachedAt(res.created_at ?? null);
+          setCachedAt(res.created_at ?? res.createdAt ?? null);
+          setFromCache(!!res.cached);
+          const u = res.usage;
+          setUsageLine(u ? holmesUsageSummaryLine({
+            model: u.model,
+            totalTokens: u.totalTokens ?? u.total_tokens,
+            cachedTokens: u.cachedTokens ?? u.cached_tokens,
+            totalCost: u.totalCost ?? u.total_cost,
+          }) : null);
         }
       })
       .catch((err: Error & { response?: { data?: { error?: string } } }) => {
@@ -183,7 +194,15 @@ const QanAiInsightsPage: FC = () => {
           if (!mountedRef.current) return;
           if (cached?.analysis) {
             setAnalysis(cached.analysis);
-            setCachedAt(cached.created_at ?? null);
+            setCachedAt(cached.created_at ?? cached.createdAt ?? null);
+            setFromCache(true);
+            const u = cached.usage;
+            setUsageLine(u ? holmesUsageSummaryLine({
+              model: u.model,
+              totalTokens: u.totalTokens ?? u.total_tokens,
+              cachedTokens: u.cachedTokens ?? u.cached_tokens,
+              totalCost: u.totalCost ?? u.total_cost,
+            }) : null);
             setLoading(false);
           } else {
             runAnalysis(false);
@@ -270,6 +289,12 @@ const QanAiInsightsPage: FC = () => {
                     {cachedAt && (
                       <Typography variant="caption" color="text.secondary">
                         Last analyzed: {formatCacheTimestamp(cachedAt)}
+                        {fromCache ? ' (cached)' : ''}
+                      </Typography>
+                    )}
+                    {usageLine && (
+                      <Typography variant="caption" color="text.secondary" display="block">
+                        {usageLine}
                       </Typography>
                     )}
                   </Stack>

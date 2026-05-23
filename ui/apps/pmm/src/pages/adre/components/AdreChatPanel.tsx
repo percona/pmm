@@ -33,6 +33,7 @@ import { useAdreModels } from 'hooks/api/useAdre';
 import { useAdreChat, formatTimestamp, type ProgressStep } from 'hooks/useAdreChat';
 import { AdreConversationsSidebar } from './AdreConversationsSidebar';
 import { getMarkdownComponents } from 'components/adre/adre-chat-markdown.helpers';
+import { HolmesUsageFooter } from 'components/adre/HolmesUsageFooter';
 import {
   loadAdreChatUiPreferences,
   saveAdreChatUiPreferences,
@@ -445,6 +446,9 @@ export const AdreChatPanel: FC = () => {
                           <Typography color="text.secondary" variant="body2">
                             {progressSteps.length > 0 ? 'Working…' : 'Typing...'}
                           </Typography>
+                        ) : null}
+                        {!msg.streaming && msg.role === 'assistant' && msg.usage ? (
+                          <HolmesUsageFooter usage={msg.usage} />
                         ) : null}
                       </Box>
                     )}

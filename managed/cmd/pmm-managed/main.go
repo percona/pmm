@@ -247,6 +247,9 @@ func addAdreHandlers(mux *http.ServeMux, db *reform.DB, grafanaClient adre.Grafa
 	})
 	mux.HandleFunc("/v1/adre/conversations/", h.ServeConversationSubroutes)
 	mux.HandleFunc("/v1/adre/messages/search", h.SearchMessages)
+	mux.HandleFunc("/v1/adre/usage/summary", h.GetUsageSummary)
+	mux.HandleFunc("/v1/adre/usage/events", h.GetUsageEvents)
+	mux.HandleFunc("/v1/adre/usage/", h.ServeUsageSubroutes)
 }
 
 func addInvestigationsHandlers(mux *http.ServeMux, db *reform.DB) {

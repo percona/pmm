@@ -7,10 +7,12 @@ import {
   listAdreConversations,
   getAdreMessages,
   searchAdreMessages,
+  normalizeHolmesUsage,
   type AdreStreamProgressEvent,
   type AdreConversation,
   type AdreSearchHit,
   type AdreMessageRow,
+  type HolmesUsage,
 } from 'api/adre';
 import { useAdreSettings } from 'hooks/api/useAdre';
 import { useSnackbar } from 'notistack';
@@ -33,17 +35,22 @@ export interface ChatMessage {
   progressSteps?: ProgressStep[];
   /** Persisted message id from PMM API (for scroll-to from search). */
   serverMessageId?: number;
+  usage?: HolmesUsage;
 }
 
 function mapServerRowsToChat(messages: AdreMessageRow[]): ChatMessage[] {
   const out: ChatMessage[] = [];
   for (const m of messages) {
     if (m.role !== 'user' && m.role !== 'assistant') continue;
+    const usage = normalizeHolmesUsage(m);
+    const hasUsage =
+      usage.totalTokens != null || usage.totalCost != null || (usage.model != null && usage.model !== '');
     out.push({
       role: m.role as 'user' | 'assistant',
       content: m.content,
       timestamp: new Date(m.createdAt).getTime(),
       serverMessageId: m.id,
+      usage: hasUsage ? usage : undefined,
     });
   }
   return out;

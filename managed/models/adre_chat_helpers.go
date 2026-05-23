@@ -225,7 +225,7 @@ func ListAdreMessages(q reform.DBTX, conversationID int64, beforeID *int64, afte
 	case beforeID != nil:
 		rows, err = q.Query(`
 			SELECT id, conversation_id, role, content, tool_name, tool_result_json, model,
-			       prompt_tokens, completion_tokens, total_tokens, created_at
+			       prompt_tokens, completion_tokens, total_tokens, cached_tokens, total_cost, usage_event_id, created_at
 			FROM adre_messages
 			WHERE conversation_id = $1
 			  AND (created_at, id) < (
@@ -236,7 +236,7 @@ func ListAdreMessages(q reform.DBTX, conversationID int64, beforeID *int64, afte
 	case afterID != nil:
 		rows, err = q.Query(`
 			SELECT id, conversation_id, role, content, tool_name, tool_result_json, model,
-			       prompt_tokens, completion_tokens, total_tokens, created_at
+			       prompt_tokens, completion_tokens, total_tokens, cached_tokens, total_cost, usage_event_id, created_at
 			FROM adre_messages
 			WHERE conversation_id = $1
 			  AND (created_at, id) > (
@@ -247,7 +247,7 @@ func ListAdreMessages(q reform.DBTX, conversationID int64, beforeID *int64, afte
 	default:
 		rows, err = q.Query(`
 			SELECT id, conversation_id, role, content, tool_name, tool_result_json, model,
-			       prompt_tokens, completion_tokens, total_tokens, created_at
+			       prompt_tokens, completion_tokens, total_tokens, cached_tokens, total_cost, usage_event_id, created_at
 			FROM adre_messages
 			WHERE conversation_id = $1
 			ORDER BY created_at DESC, id DESC
@@ -262,7 +262,7 @@ func ListAdreMessages(q reform.DBTX, conversationID int64, beforeID *int64, afte
 		var m AdreMessage
 		err := rows.Scan(
 			&m.ID, &m.ConversationID, &m.Role, &m.Content, &m.ToolName, &m.ToolResultJSON, &m.Model,
-			&m.PromptTokens, &m.CompletionTokens, &m.TotalTokens, &m.CreatedAt,
+			&m.PromptTokens, &m.CompletionTokens, &m.TotalTokens, &m.CachedTokens, &m.TotalCost, &m.UsageEventID, &m.CreatedAt,
 		)
 		if err != nil {
 			return nil, err
@@ -285,7 +285,7 @@ func ListAdreMessages(q reform.DBTX, conversationID int64, beforeID *int64, afte
 func LoadAdreMessagesForHolmesHistory(q reform.DBTX, conversationID int64, excludeFromID int64) ([]AdreMessage, error) {
 	rows, err := q.Query(`
 		SELECT id, conversation_id, role, content, tool_name, tool_result_json, model,
-		       prompt_tokens, completion_tokens, total_tokens, created_at
+		       prompt_tokens, completion_tokens, total_tokens, cached_tokens, total_cost, usage_event_id, created_at
 		FROM adre_messages
 		WHERE conversation_id = $1 AND id < $2
 		ORDER BY created_at ASC, id ASC`, conversationID, excludeFromID)
@@ -298,7 +298,7 @@ func LoadAdreMessagesForHolmesHistory(q reform.DBTX, conversationID int64, exclu
 		var m AdreMessage
 		err := rows.Scan(
 			&m.ID, &m.ConversationID, &m.Role, &m.Content, &m.ToolName, &m.ToolResultJSON, &m.Model,
-			&m.PromptTokens, &m.CompletionTokens, &m.TotalTokens, &m.CreatedAt,
+			&m.PromptTokens, &m.CompletionTokens, &m.TotalTokens, &m.CachedTokens, &m.TotalCost, &m.UsageEventID, &m.CreatedAt,
 		)
 		if err != nil {
 			return nil, err

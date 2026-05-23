@@ -49,5 +49,8 @@ type AdreMessage struct {
 	PromptTokens     *int32    `reform:"prompt_tokens"`
 	CompletionTokens *int32    `reform:"completion_tokens"`
 	TotalTokens      *int32    `reform:"total_tokens"`
+	CachedTokens     *int32    `reform:"cached_tokens"`
+	TotalCost        *float64  `reform:"total_cost"`
+	UsageEventID     *int64    `reform:"usage_event_id"`
 	CreatedAt        time.Time `reform:"created_at"`
 }

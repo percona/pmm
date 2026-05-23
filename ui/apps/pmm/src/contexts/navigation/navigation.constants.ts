@@ -417,6 +417,13 @@ export const NAV_ADRE: NavItem = {
   url: `${PMM_NEW_NAV_PATH}/adre`,
 };
 
+export const NAV_ADRE_USAGE: NavItem = {
+  id: 'adre-usage',
+  icon: 'intelligence',
+  text: 'AI Usage',
+  url: `${PMM_NEW_NAV_PATH}/adre/usage`,
+};
+
 export const NAV_INVESTIGATIONS: NavItem = {
   id: 'investigations',
   icon: 'intelligence',

@@ -65,6 +65,12 @@ export interface Investigation {
   servicenow_ticket_id?: string;
   servicenowTicketNumber?: string;
   servicenow_ticket_number?: string;
+  holmesTotalTokens?: number;
+  holmes_total_tokens?: number;
+  holmesTotalCost?: number;
+  holmes_total_cost?: number;
+  holmesCallCount?: number;
+  holmes_call_count?: number;
   confidence: 'high' | 'medium' | 'low';
   confidenceScore: number;
   confidenceRationale: string;
@@ -91,6 +97,19 @@ export interface InvestigationMessage {
   toolName?: string;
   toolResultJson?: Record<string, unknown>;
   createdAt: string;
+  model?: string;
+  promptTokens?: number;
+  prompt_tokens?: number;
+  completionTokens?: number;
+  completion_tokens?: number;
+  totalTokens?: number;
+  total_tokens?: number;
+  cachedTokens?: number;
+  cached_tokens?: number;
+  totalCost?: number;
+  total_cost?: number;
+  holmesFeature?: string;
+  holmes_feature?: string;
 }
 
 export interface CreateInvestigationBody {

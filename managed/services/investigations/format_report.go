@@ -70,7 +70,8 @@ type Section struct {
 }
 
 // FormatInvestigationReport calls Holmes Chat to convert raw markdown into structured JSON.
-func FormatInvestigationReport(ctx context.Context, client *adre.Client, settings *models.Settings, rawMarkdown string) ([]byte, error) {
+// metadata is the Holmes response metadata for usage tracking (may be nil).
+func FormatInvestigationReport(ctx context.Context, client *adre.Client, settings *models.Settings, rawMarkdown string) ([]byte, json.RawMessage, error) {
 	ctx, cancel := context.WithTimeout(ctx, formatReportTimeout)
 	defer cancel()
 
@@ -84,10 +85,10 @@ func FormatInvestigationReport(ctx context.Context, client *adre.Client, setting
 
 	resp, err := client.Chat(ctx, req)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	if resp.Analysis == "" {
-		return nil, errEmptyResponse
+		return nil, resp.Metadata, errEmptyResponse
 	}
 
 	jsonBytes := []byte(strings.TrimSpace(resp.Analysis))
@@ -95,7 +96,7 @@ func FormatInvestigationReport(ctx context.Context, client *adre.Client, setting
 	if strings.HasPrefix(string(jsonBytes), "```") {
 		jsonBytes = stripCodeFence(jsonBytes)
 	}
-	return jsonBytes, nil
+	return jsonBytes, resp.Metadata, nil
 }
 
 var codeFenceRe = regexp.MustCompile("(?s)^\\s*" + "```" + "(?:json)?\\s*\\n(.*)\\n" + "```" + "\\s*$")

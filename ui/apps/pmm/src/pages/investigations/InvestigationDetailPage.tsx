@@ -42,6 +42,7 @@ import {
   useCreateServiceNowTicket,
 } from 'hooks/api/useInvestigations';
 import { useAdreSettings } from 'hooks/api/useAdre';
+import { useInvestigationUsage } from 'hooks/api/useAdreUsage';
 import { PMM_NEW_NAV_PATH } from 'lib/constants';
 import { getInvestigationExportPdfUrl } from 'api/investigations';
 import type { InvestigationBlock } from 'api/investigations';
@@ -50,6 +51,12 @@ import {
   getAlertMetadataFromLabels,
   type AlertMetadataFromLabels,
 } from 'api/adre';
+import { HolmesUsageFooter } from 'components/adre/HolmesUsageFooter';
+import {
+  formatTokenCount,
+  formatUsdCost,
+  HOLMES_FEATURE_LABELS,
+} from 'utils/holmesUsageFormat';
 import { BlockRenderer } from './components/BlockRenderer';
 import { TimelineSection } from './components/TimelineSection';
 
@@ -116,6 +123,7 @@ const InvestigationDetailPage: FC = () => {
   const deleteBlock = useDeleteInvestigationBlock(id ?? '');
   const createSNTicket = useCreateServiceNowTicket(id ?? '');
   const { data: adreSettings } = useAdreSettings();
+  const { data: usageBreakdown } = useInvestigationUsage(id);
   const [commentText, setCommentText] = useState('');
   const [chatText, setChatText] = useState('');
   const [copyDone, setCopyDone] = useState(false);
@@ -123,6 +131,7 @@ const InvestigationDetailPage: FC = () => {
   const [snackSeverity, setSnackSeverity] = useState<'error' | 'success'>('error');
   const [fetchedAlertMeta, setFetchedAlertMeta] = useState<AlertMetadataFromLabels>({});
   const [showEvidence, setShowEvidence] = useState(false);
+  const [showUsageDetails, setShowUsageDetails] = useState(false);
   const prevStatusRef = useRef<string | undefined>();
 
   useEffect(() => {
@@ -327,6 +336,13 @@ const InvestigationDetailPage: FC = () => {
           </FormControl>
           {inv.severity && (
             <Chip label={inv.severity} size="small" variant="outlined" />
+          )}
+          {(inv.holmesCallCount ?? inv.holmes_call_count ?? 0) > 0 && (
+            <Typography variant="caption" color="text.secondary">
+              AI usage: {inv.holmesCallCount ?? inv.holmes_call_count} calls ·{' '}
+              {formatTokenCount(inv.holmesTotalTokens ?? inv.holmes_total_tokens)} tokens ·{' '}
+              {formatUsdCost(inv.holmesTotalCost ?? inv.holmes_total_cost)}
+            </Typography>
           )}
           <Box sx={{ flex: 1 }} />
           <Button
@@ -657,6 +673,25 @@ const InvestigationDetailPage: FC = () => {
 
       <Divider sx={{ my: 3 }} />
 
+      {(usageBreakdown?.events?.length ?? 0) > 0 && (
+        <Box sx={{ mb: 2 }}>
+          <Button size="small" onClick={() => setShowUsageDetails((v) => !v)}>
+            {showUsageDetails ? 'Hide usage details' : 'Usage details'}
+          </Button>
+          {showUsageDetails && (
+            <Stack spacing={0.5} sx={{ mt: 1 }}>
+              {usageBreakdown!.events.map((ev) => (
+                <Typography key={ev.id} variant="caption" color="text.secondary">
+                  {HOLMES_FEATURE_LABELS[ev.feature] ?? ev.feature} · {ev.model || 'default'} ·{' '}
+                  {formatTokenCount(ev.totalTokens ?? ev.total_tokens)} ·{' '}
+                  {formatUsdCost(ev.totalCost ?? ev.total_cost)}
+                </Typography>
+              ))}
+            </Stack>
+          )}
+        </Box>
+      )}
+
       <Typography variant="h6" sx={{ mb: 2 }}>
         Chat
       </Typography>
@@ -688,6 +723,19 @@ const InvestigationDetailPage: FC = () => {
                   <Typography variant="body2" sx={{ mt: 0.5, whiteSpace: 'pre-wrap' }}>
                     {m.content}
                   </Typography>
+                  {m.role === 'assistant' ? (
+                    <HolmesUsageFooter
+                      usage={{
+                        model: m.model,
+                        promptTokens: m.promptTokens ?? m.prompt_tokens,
+                        completionTokens: m.completionTokens ?? m.completion_tokens,
+                        totalTokens: m.totalTokens ?? m.total_tokens,
+                        cachedTokens: m.cachedTokens ?? m.cached_tokens,
+                        totalCost: m.totalCost ?? m.total_cost,
+                      }}
+                      align="left"
+                    />
+                  ) : null}
                 </CardContent>
               </Card>
             ))

@@ -120,7 +120,108 @@ export interface AdreQanInsightsRequest {
 export interface AdreQanInsightsResponse {
   analysis: string;
   created_at?: string;
+  createdAt?: string;
   cached?: boolean;
+  usage?: HolmesUsage;
+}
+
+export interface AdreUsageTotals {
+  totalTokens: number;
+  total_tokens?: number;
+  cachedTokens: number;
+  cached_tokens?: number;
+  totalCost: number;
+  total_cost?: number;
+  callCount: number;
+  call_count?: number;
+}
+
+export interface AdreUsageBucket {
+  bucket?: string;
+  feature?: string;
+  model?: string;
+  totalTokens: number;
+  total_tokens?: number;
+  cachedTokens: number;
+  cached_tokens?: number;
+  totalCost: number;
+  total_cost?: number;
+  callCount: number;
+  call_count?: number;
+}
+
+export interface AdreUsageSummaryResponse {
+  from: string;
+  to: string;
+  totals: AdreUsageTotals;
+  series: AdreUsageBucket[];
+  byFeature: AdreUsageBucket[];
+  by_feature?: AdreUsageBucket[];
+  byModel: AdreUsageBucket[];
+  by_model?: AdreUsageBucket[];
+}
+
+export interface AdreUsageEvent {
+  id: number;
+  createdAt: string;
+  created_at?: string;
+  feature: string;
+  featureRef: string;
+  feature_ref?: string;
+  model: string;
+  totalTokens?: number;
+  total_tokens?: number;
+  cachedTokens?: number;
+  cached_tokens?: number;
+  totalCost?: number;
+  total_cost?: number;
+  triggeredBy?: string;
+  triggered_by?: string;
+  stream: boolean;
+}
+
+export const getAdreUsageSummary = async (params?: {
+  from?: string;
+  to?: string;
+  groupBy?: string;
+  feature?: string;
+  model?: string;
+}): Promise<AdreUsageSummaryResponse> => {
+  const res = await api.get<AdreUsageSummaryResponse>('/adre/usage/summary', { params });
+  return res.data;
+};
+
+export const getAdreUsageEvents = async (params?: {
+  from?: string;
+  to?: string;
+  limit?: number;
+  offset?: number;
+  feature?: string;
+  model?: string;
+  format?: string;
+}): Promise<{ events: AdreUsageEvent[] }> => {
+  const res = await api.get<{ events: AdreUsageEvent[] }>('/adre/usage/events', { params });
+  return res.data;
+};
+
+export const getInvestigationUsage = async (
+  investigationId: string
+): Promise<{ investigationId: string; events: AdreUsageEvent[] }> => {
+  const res = await api.get<{ investigationId: string; events: AdreUsageEvent[] }>(
+    `/adre/usage/investigations/${investigationId}`
+  );
+  return res.data;
+};
+
+export function normalizeHolmesUsage(row: Partial<HolmesUsage & AdreMessageRow>): HolmesUsage {
+  return {
+    model: row.model,
+    promptTokens: row.promptTokens ?? row.prompt_tokens,
+    completionTokens: row.completionTokens ?? row.completion_tokens,
+    totalTokens: row.totalTokens ?? row.total_tokens,
+    cachedTokens: row.cachedTokens ?? row.cached_tokens,
+    totalCost: row.totalCost ?? row.total_cost,
+  };
 }
 
 export const getAdreSettings = async (): Promise<AdreSettings> => {
@@ -329,6 +430,20 @@ export interface AdreConversation {
   lastMessageAt: string;
 }
 
+export interface HolmesUsage {
+  model?: string;
+  promptTokens?: number;
+  prompt_tokens?: number;
+  completionTokens?: number;
+  completion_tokens?: number;
+  totalTokens?: number;
+  total_tokens?: number;
+  cachedTokens?: number;
+  cached_tokens?: number;
+  totalCost?: number;
+  total_cost?: number;
+}
+
 export interface AdreMessageRow {
   id: number;
   conversationId: number;
@@ -338,6 +453,16 @@ export interface AdreMessageRow {
   model?: string;
   toolName?: string;
   toolResultJson?: unknown;
+  promptTokens?: number;
+  prompt_tokens?: number;
+  completionTokens?: number;
+  completion_tokens?: number;
+  totalTokens?: number;
+  total_tokens?: number;
+  cachedTokens?: number;
+  cached_tokens?: number;
+  totalCost?: number;
+  total_cost?: number;
 }
 
 export interface AdreSearchHit {

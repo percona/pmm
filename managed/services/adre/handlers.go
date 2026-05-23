@@ -637,9 +637,11 @@ func (h *Handlers) PostQanInsights(w http.ResponseWriter, r *http.Request) {
 	client := NewClient(settings.GetAdreURL())
 	ctx, cancel := context.WithTimeout(r.Context(), h.reqTimeout)
 	defer cancel()
+	qanModel := strings.TrimSpace(settings.Adre.QanInsightsModel)
+	qanStart := time.Now()
 	chatResp, err := client.Chat(ctx, &ChatRequest{
 		Ask:                    userMessage,
-		Model:                  strings.TrimSpace(settings.Adre.QanInsightsModel),
+		Model:                  qanModel,
 		AdditionalSystemPrompt: ResolveQanInsightsSystemPrompt(settings),
 		PageContext:            pageContext,
 		Stream:                 false,
@@ -650,6 +652,8 @@ func (h *Handlers) PostQanInsights(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	analysis := sanitizeQanInsightsAnalysis(chatResp.Analysis)
+	triggeredBy := h.userLoginFromRequest(r)
+	featureRef := body.QueryID + "|" + body.ServiceID
 	if body.QueryID != "" {
 		_, err := h.db.Exec(
 			`INSERT INTO qan_insights_cache (id, query_id, service_id, fingerprint, time_from, time_to, analysis, created_at)
@@ -661,12 +665,28 @@ func (h *Handlers) PostQanInsights(w http.ResponseWriter, r *http.Request) {
 			h.l.Warnf("QanInsights cache upsert: %v", err)
 		}
 	}
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(map[string]any{ //nolint:errchkjson // response already committed
+	_, _ = RecordHolmesUsage(ctx, UsageRecordInput{
+		DB:           h.db,
+		Feature:      HolmesFeatureQanInsights,
+		FeatureRef:   featureRef,
+		Model:        qanModel,
+		Metadata:     chatResp.Metadata,
+		TriggeredBy:  triggeredBy,
+		LatencyMs:    int(time.Since(qanStart).Milliseconds()),
+		QanQueryID:   body.QueryID,
+		QanServiceID: body.ServiceID,
+	})
+	usage := ParseHolmesMetadata(chatResp.Metadata)
+	resp := map[string]any{
 		"analysis":   analysis,
 		"created_at": time.Now().Format(time.RFC3339),
 		"cached":     false,
-	})
+	}
+	if usage != nil {
+		resp["usage"] = HolmesUsageMap(usage, qanModel)
+	}
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(resp) //nolint:errchkjson // response already committed
 }
 
 // GetQanInsights handles GET /v1/adre/qan-insights. Returns cached analysis for a query+service pair.
@@ -687,7 +707,8 @@ func (h *Handlers) GetQanInsights(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	rows, err := h.db.Query(
-		"SELECT analysis, created_at FROM qan_insights_cache WHERE query_id = $1 AND service_id = $2 ORDER BY created_at DESC LIMIT 1",
+		`SELECT analysis, created_at, model, prompt_tokens, completion_tokens, total_tokens, cached_tokens, total_cost
+		 FROM qan_insights_cache WHERE query_id = $1 AND service_id = $2 ORDER BY created_at DESC LIMIT 1`,
 		queryID, serviceID,
 	)
 	if err != nil {
@@ -706,17 +727,32 @@ func (h *Handlers) GetQanInsights(w http.ResponseWriter, r *http.Request) {
 	}
 	var analysis string
 	var createdAt time.Time
-	if err := rows.Scan(&analysis, &createdAt); err != nil { //nolint:noinlineerr
+	var model string
+	var promptTokens, completionTokens, totalTokens, cachedTokens *int32
+	var totalCost *float64
+	if err := rows.Scan(&analysis, &createdAt, &model, &promptTokens, &completionTokens, &totalTokens, &cachedTokens, &totalCost); err != nil { //nolint:noinlineerr
 		h.l.Errorf("GetQanInsights scan: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Failed to read cache")
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(map[string]any{ //nolint:errchkjson // response already committed
+	resp := map[string]any{
 		"analysis":   analysis,
 		"created_at": createdAt.Format(time.RFC3339),
 		"cached":     true,
-	})
+	}
+	if model != "" || promptTokens != nil || totalTokens != nil || totalCost != nil {
+		u := &HolmesUsage{
+			Model:            model,
+			PromptTokens:     promptTokens,
+			CompletionTokens: completionTokens,
+			TotalTokens:      totalTokens,
+			CachedTokens:     cachedTokens,
+			TotalCost:        totalCost,
+		}
+		resp["usage"] = HolmesUsageMap(u, model)
+	}
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(resp) //nolint:errchkjson // response already committed
 }
 
 // PostQanInsightsServiceNow handles POST /v1/adre/qan-insights/servicenow.

@@ -329,6 +329,12 @@ func (h *Handlers) listMessages(w http.ResponseWriter, r *http.Request, conversa
 		if m.TotalTokens != nil {
 			row["total_tokens"] = *m.TotalTokens
 		}
+		if m.CachedTokens != nil {
+			row["cached_tokens"] = *m.CachedTokens
+		}
+		if m.TotalCost != nil {
+			row["total_cost"] = *m.TotalCost
+		}
 		out = append(out, row)
 	}
 	writeJSON(w, http.StatusOK, map[string]any{"messages": out})
@@ -375,4 +381,12 @@ func (h *Handlers) resolveUserLogin(w http.ResponseWriter, r *http.Request) (str
 		return "", false
 	}
 	return login, true
+}
+
+func (h *Handlers) userLoginFromRequest(r *http.Request) string {
+	login, err := h.grafana.GetCurrentUserLogin(r.Context(), grafanaAuthHeadersFromRequest(r))
+	if err != nil {
+		return ""
+	}
+	return login
 }

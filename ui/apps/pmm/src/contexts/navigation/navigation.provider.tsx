@@ -25,6 +25,7 @@ import {
   NAV_HELP,
   NAV_INVESTIGATIONS,
   NAV_ADRE,
+  NAV_ADRE_USAGE,
   NAV_INVENTORY,
   NAV_QAN,
   NAV_SIGN_IN,
@@ -77,6 +78,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     if (user && settings) {
       items.push(NAV_INVESTIGATIONS);
       items.push(NAV_ADRE);
+      items.push(NAV_ADRE_USAGE);
 
       if (settings.frontend.exploreEnabled && user.isEditor) {
         items.push(addExplore('grafana-metricsdrilldown-app' in settings.frontend.apps));

@@ -86,6 +86,9 @@ type investigationResponse struct {
 	ClusterName            string          `json:"cluster_name,omitempty"`
 	ServiceNowTicketID     string          `json:"servicenow_ticket_id,omitempty"`
 	ServiceNowTicketNumber string          `json:"servicenow_ticket_number,omitempty"`
+	HolmesTotalTokens      int64           `json:"holmes_total_tokens"`
+	HolmesTotalCost        float64         `json:"holmes_total_cost"`
+	HolmesCallCount        int             `json:"holmes_call_count"`
 	Confidence             string          `json:"confidence"`
 	ConfidenceScore        int             `json:"confidence_score"`
 	ConfidenceRationale    string          `json:"confidence_rationale"`
@@ -112,6 +115,9 @@ func investigationToResponse(inv *models.Investigation) investigationResponse {
 		SourceRef:              inv.SourceRef,
 		ServiceNowTicketID:     inv.ServiceNowTicketID,
 		ServiceNowTicketNumber: inv.ServiceNowTicketNumber,
+		HolmesTotalTokens:      inv.HolmesTotalTokens,
+		HolmesTotalCost:        inv.HolmesTotalCost,
+		HolmesCallCount:        inv.HolmesCallCount,
 		Confidence:             "medium",
 		ConfidenceScore:        0,
 		ConfidenceRationale:    "",
@@ -300,24 +306,38 @@ func commentsToResponse(comments []*models.InvestigationComment) []commentRespon
 }
 
 type messageResponse struct {
-	ID              string          `json:"id"`
-	InvestigationID string          `json:"investigation_id"`
-	Role            string          `json:"role"`
-	Content         string          `json:"content"`
-	ToolName        string          `json:"tool_name,omitempty"`
-	ToolResultJSON  json.RawMessage `json:"tool_result_json,omitempty"`
-	CreatedAt       string          `json:"created_at"`
+	ID               string          `json:"id"`
+	InvestigationID  string          `json:"investigation_id"`
+	Role             string          `json:"role"`
+	Content          string          `json:"content"`
+	ToolName         string          `json:"tool_name,omitempty"`
+	ToolResultJSON   json.RawMessage `json:"tool_result_json,omitempty"`
+	Model            string          `json:"model,omitempty"`
+	PromptTokens     *int32          `json:"prompt_tokens,omitempty"`
+	CompletionTokens *int32          `json:"completion_tokens,omitempty"`
+	TotalTokens      *int32          `json:"total_tokens,omitempty"`
+	CachedTokens     *int32          `json:"cached_tokens,omitempty"`
+	TotalCost        *float64        `json:"total_cost,omitempty"`
+	HolmesFeature    string          `json:"holmes_feature,omitempty"`
+	CreatedAt        string          `json:"created_at"`
 }
 
 func messageToResponse(m *models.InvestigationMessage) messageResponse {
 	return messageResponse{
-		ID:              m.ID,
-		InvestigationID: m.InvestigationID,
-		Role:            m.Role,
-		Content:         m.Content,
-		ToolName:        m.ToolName,
-		ToolResultJSON:  m.ToolResultJSON,
-		CreatedAt:       formatTime(m.CreatedAt),
+		ID:               m.ID,
+		InvestigationID:  m.InvestigationID,
+		Role:             m.Role,
+		Content:          m.Content,
+		ToolName:         m.ToolName,
+		ToolResultJSON:   m.ToolResultJSON,
+		Model:            m.Model,
+		PromptTokens:     m.PromptTokens,
+		CompletionTokens: m.CompletionTokens,
+		TotalTokens:      m.TotalTokens,
+		CachedTokens:     m.CachedTokens,
+		TotalCost:        m.TotalCost,
+		HolmesFeature:    m.HolmesFeature,
+		CreatedAt:        formatTime(m.CreatedAt),
 	}
 }
 

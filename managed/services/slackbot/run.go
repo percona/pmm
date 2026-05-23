@@ -327,7 +327,20 @@ func handleTurn(
 		start := time.Now()
 		req := adre.BuildSlackChatRequest(settings, userText, history, extra)
 		resp, err := client.Chat(ctx, req)
+		latencyMs := int(time.Since(start).Milliseconds())
 		adreChatSeconds.Observe(time.Since(start).Seconds())
+		if err == nil && resp != nil {
+			featureRef := teamID + ":" + channelID + ":" + threadTS
+			_, _ = adre.RecordHolmesUsage(ctx, adre.UsageRecordInput{
+				DB:          db,
+				Feature:     adre.HolmesFeatureSlackChat,
+				FeatureRef:  featureRef,
+				Model:       req.Model,
+				Metadata:    resp.Metadata,
+				TriggeredBy: "slack",
+				LatencyMs:   latencyMs,
+			})
+		}
 		return resp, err
 	}
 

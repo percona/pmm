@@ -184,6 +184,9 @@ func (v *adreMessageTableType) Columns() []string {
 		"prompt_tokens",
 		"completion_tokens",
 		"total_tokens",
+		"cached_tokens",
+		"total_cost",
+		"usage_event_id",
 		"created_at",
 	}
 }
@@ -219,6 +222,9 @@ var AdreMessageTable = &adreMessageTableType{
 			{Name: "PromptTokens", Type: "*int32", Column: "prompt_tokens"},
 			{Name: "CompletionTokens", Type: "*int32", Column: "completion_tokens"},
 			{Name: "TotalTokens", Type: "*int32", Column: "total_tokens"},
+			{Name: "CachedTokens", Type: "*int32", Column: "cached_tokens"},
+			{Name: "TotalCost", Type: "*float64", Column: "total_cost"},
+			{Name: "UsageEventID", Type: "*int64", Column: "usage_event_id"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
 		},
 		PKFieldIndex: 0,
@@ -228,7 +234,7 @@ var AdreMessageTable = &adreMessageTableType{
 
 // String returns a string representation of this struct or record.
 func (s AdreMessage) String() string {
-	res := make([]string, 11)
+	res := make([]string, 14)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "ConversationID: " + reform.Inspect(s.ConversationID, true)
 	res[2] = "Role: " + reform.Inspect(s.Role, true)
@@ -239,7 +245,10 @@ func (s AdreMessage) String() string {
 	res[7] = "PromptTokens: " + reform.Inspect(s.PromptTokens, true)
 	res[8] = "CompletionTokens: " + reform.Inspect(s.CompletionTokens, true)
 	res[9] = "TotalTokens: " + reform.Inspect(s.TotalTokens, true)
-	res[10] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[10] = "CachedTokens: " + reform.Inspect(s.CachedTokens, true)
+	res[11] = "TotalCost: " + reform.Inspect(s.TotalCost, true)
+	res[12] = "UsageEventID: " + reform.Inspect(s.UsageEventID, true)
+	res[13] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
 	return strings.Join(res, ", ")
 }
 
@@ -257,6 +266,9 @@ func (s *AdreMessage) Values() []interface{} {
 		s.PromptTokens,
 		s.CompletionTokens,
 		s.TotalTokens,
+		s.CachedTokens,
+		s.TotalCost,
+		s.UsageEventID,
 		s.CreatedAt,
 	}
 }
@@ -275,6 +287,9 @@ func (s *AdreMessage) Pointers() []interface{} {
 		&s.PromptTokens,
 		&s.CompletionTokens,
 		&s.TotalTokens,
+		&s.CachedTokens,
+		&s.TotalCost,
+		&s.UsageEventID,
 		&s.CreatedAt,
 	}
 }

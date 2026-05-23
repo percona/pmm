@@ -25,6 +25,7 @@ import { useAdreChat, formatTimestamp, type ProgressStep, type ChatMessage } fro
 import { useGrafana } from 'contexts/grafana';
 import { PanelScrollRootProvider } from 'components/adre/adre-chat-markdown';
 import { getMarkdownComponents } from 'components/adre/adre-chat-markdown.helpers';
+import { HolmesUsageFooter } from 'components/adre/HolmesUsageFooter';
 import { buildGrafanaDashboardContext } from 'components/adre/grafana-context';
 
 interface ChatMessageBubbleProps {
@@ -211,6 +212,9 @@ const ChatMessageBubble = memo<ChatMessageBubbleProps>(({
               <Typography color="text.secondary" variant="body2" sx={{ fontSize: '0.8rem' }}>
                 {progressSteps.length > 0 ? 'Working…' : 'Typing...'}
               </Typography>
+            ) : null}
+            {!msg.streaming && msg.role === 'assistant' && msg.usage ? (
+              <HolmesUsageFooter usage={msg.usage} />
             ) : null}
           </Box>
         )}

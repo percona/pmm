@@ -36,6 +36,7 @@ const (
 type holmesStreamOutcome struct {
 	Analysis           string
 	ToolResultJSONRows [][]byte
+	Metadata           json.RawMessage
 	PromptTokens       *int32
 	CompletionTokens   *int32
 	TotalTokens        *int32
@@ -78,21 +79,12 @@ func parseHolmesSSEStream(src io.Reader, forward func([]byte) error) (out holmes
 			}
 			out.Analysis = d.Analysis
 			if len(d.Metadata) > 0 {
-				var meta struct {
-					Usage json.RawMessage `json:"usage"`
-				}
-				_ = json.Unmarshal(d.Metadata, &meta)
-				if len(meta.Usage) > 0 {
-					var u struct {
-						PromptTokens     *int32 `json:"prompt_tokens"`
-						CompletionTokens *int32 `json:"completion_tokens"`
-						TotalTokens      *int32 `json:"total_tokens"`
-					}
-					if json.Unmarshal(meta.Usage, &u) == nil {
-						out.PromptTokens = u.PromptTokens
-						out.CompletionTokens = u.CompletionTokens
-						out.TotalTokens = u.TotalTokens
-					}
+				out.Metadata = append(json.RawMessage(nil), d.Metadata...)
+				usage := ParseHolmesMetadata(d.Metadata)
+				if usage != nil {
+					out.PromptTokens = usage.PromptTokens
+					out.CompletionTokens = usage.CompletionTokens
+					out.TotalTokens = usage.TotalTokens
 				}
 			}
 		}

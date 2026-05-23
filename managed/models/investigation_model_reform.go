@@ -47,6 +47,9 @@ func (v *investigationTableType) Columns() []string {
 		"config",
 		"servicenow_ticket_id",
 		"servicenow_ticket_number",
+		"holmes_total_tokens",
+		"holmes_total_cost",
+		"holmes_call_count",
 	}
 }
 
@@ -90,6 +93,9 @@ var InvestigationTable = &investigationTableType{
 			{Name: "Config", Type: "[]uint8", Column: "config"},
 			{Name: "ServiceNowTicketID", Type: "string", Column: "servicenow_ticket_id"},
 			{Name: "ServiceNowTicketNumber", Type: "string", Column: "servicenow_ticket_number"},
+			{Name: "HolmesTotalTokens", Type: "int64", Column: "holmes_total_tokens"},
+			{Name: "HolmesTotalCost", Type: "float64", Column: "holmes_total_cost"},
+			{Name: "HolmesCallCount", Type: "int", Column: "holmes_call_count"},
 		},
 		PKFieldIndex: 0,
 	},
@@ -98,7 +104,7 @@ var InvestigationTable = &investigationTableType{
 
 // String returns a string representation of this struct or record.
 func (s Investigation) String() string {
-	res := make([]string, 19)
+	res := make([]string, 22)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Title: " + reform.Inspect(s.Title, true)
 	res[2] = "Status: " + reform.Inspect(s.Status, true)
@@ -118,6 +124,9 @@ func (s Investigation) String() string {
 	res[16] = "Config: " + reform.Inspect(s.Config, true)
 	res[17] = "ServiceNowTicketID: " + reform.Inspect(s.ServiceNowTicketID, true)
 	res[18] = "ServiceNowTicketNumber: " + reform.Inspect(s.ServiceNowTicketNumber, true)
+	res[19] = "HolmesTotalTokens: " + reform.Inspect(s.HolmesTotalTokens, true)
+	res[20] = "HolmesTotalCost: " + reform.Inspect(s.HolmesTotalCost, true)
+	res[21] = "HolmesCallCount: " + reform.Inspect(s.HolmesCallCount, true)
 	return strings.Join(res, ", ")
 }
 
@@ -144,6 +153,9 @@ func (s *Investigation) Values() []interface{} {
 		s.Config,
 		s.ServiceNowTicketID,
 		s.ServiceNowTicketNumber,
+		s.HolmesTotalTokens,
+		s.HolmesTotalCost,
+		s.HolmesCallCount,
 	}
 }
 
@@ -170,6 +182,9 @@ func (s *Investigation) Pointers() []interface{} {
 		&s.Config,
 		&s.ServiceNowTicketID,
 		&s.ServiceNowTicketNumber,
+		&s.HolmesTotalTokens,
+		&s.HolmesTotalCost,
+		&s.HolmesCallCount,
 	}
 }
 
@@ -552,6 +567,14 @@ func (v *investigationMessageTableType) Columns() []string {
 		"content",
 		"tool_name",
 		"tool_result_json",
+		"model",
+		"prompt_tokens",
+		"completion_tokens",
+		"total_tokens",
+		"cached_tokens",
+		"total_cost",
+		"usage_event_id",
+		"holmes_feature",
 		"created_at",
 	}
 }
@@ -583,6 +606,14 @@ var InvestigationMessageTable = &investigationMessageTableType{
 			{Name: "Content", Type: "string", Column: "content"},
 			{Name: "ToolName", Type: "string", Column: "tool_name"},
 			{Name: "ToolResultJSON", Type: "[]uint8", Column: "tool_result_json"},
+			{Name: "Model", Type: "string", Column: "model"},
+			{Name: "PromptTokens", Type: "*int32", Column: "prompt_tokens"},
+			{Name: "CompletionTokens", Type: "*int32", Column: "completion_tokens"},
+			{Name: "TotalTokens", Type: "*int32", Column: "total_tokens"},
+			{Name: "CachedTokens", Type: "*int32", Column: "cached_tokens"},
+			{Name: "TotalCost", Type: "*float64", Column: "total_cost"},
+			{Name: "UsageEventID", Type: "*int64", Column: "usage_event_id"},
+			{Name: "HolmesFeature", Type: "string", Column: "holmes_feature"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
 		},
 		PKFieldIndex: 0,
@@ -592,14 +623,22 @@ var InvestigationMessageTable = &investigationMessageTableType{
 
 // String returns a string representation of this struct or record.
 func (s InvestigationMessage) String() string {
-	res := make([]string, 7)
+	res := make([]string, 15)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "InvestigationID: " + reform.Inspect(s.InvestigationID, true)
 	res[2] = "Role: " + reform.Inspect(s.Role, true)
 	res[3] = "Content: " + reform.Inspect(s.Content, true)
 	res[4] = "ToolName: " + reform.Inspect(s.ToolName, true)
 	res[5] = "ToolResultJSON: " + reform.Inspect(s.ToolResultJSON, true)
-	res[6] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[6] = "Model: " + reform.Inspect(s.Model, true)
+	res[7] = "PromptTokens: " + reform.Inspect(s.PromptTokens, true)
+	res[8] = "CompletionTokens: " + reform.Inspect(s.CompletionTokens, true)
+	res[9] = "TotalTokens: " + reform.Inspect(s.TotalTokens, true)
+	res[10] = "CachedTokens: " + reform.Inspect(s.CachedTokens, true)
+	res[11] = "TotalCost: " + reform.Inspect(s.TotalCost, true)
+	res[12] = "UsageEventID: " + reform.Inspect(s.UsageEventID, true)
+	res[13] = "HolmesFeature: " + reform.Inspect(s.HolmesFeature, true)
+	res[14] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
 	return strings.Join(res, ", ")
 }
 
@@ -613,6 +652,14 @@ func (s *InvestigationMessage) Values() []interface{} {
 		s.Content,
 		s.ToolName,
 		s.ToolResultJSON,
+		s.Model,
+		s.PromptTokens,
+		s.CompletionTokens,
+		s.TotalTokens,
+		s.CachedTokens,
+		s.TotalCost,
+		s.UsageEventID,
+		s.HolmesFeature,
 		s.CreatedAt,
 	}
 }
@@ -627,6 +674,14 @@ func (s *InvestigationMessage) Pointers() []interface{} {
 		&s.Content,
 		&s.ToolName,
 		&s.ToolResultJSON,
+		&s.Model,
+		&s.PromptTokens,
+		&s.CompletionTokens,
+		&s.TotalTokens,
+		&s.CachedTokens,
+		&s.TotalCost,
+		&s.UsageEventID,
+		&s.HolmesFeature,
 		&s.CreatedAt,
 	}
 }

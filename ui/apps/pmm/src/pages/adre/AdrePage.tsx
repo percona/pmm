@@ -1,9 +1,10 @@
 import { Alert, Box, Button, Card, CardContent, FormControlLabel, Link, Stack, Switch, TextField, Typography } from '@mui/material';
 import { FC, useState, useEffect } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import { Page } from 'components/page';
 import { useAdreSettings, useAdreAlerts, useUpdateAdreSettings } from 'hooks/api/useAdre';
 import { useUser } from 'contexts/user';
-import { PMM_SETTINGS_URL } from 'lib/constants';
+import { PMM_NEW_NAV_PATH, PMM_SETTINGS_URL } from 'lib/constants';
 import { AdreChatPanel } from './components/AdreChatPanel';
 import { AdreAlertsPanel, type AlertItem } from './components/AdreAlertsPanel';
 
@@ -159,6 +160,11 @@ const AdrePage: FC = () => {
           '& #messages-container': { bgcolor: '#1e1e1e' },
         }}
       >
+        <Box sx={{ px: 1 }}>
+          <Link component={RouterLink} to={`${PMM_NEW_NAV_PATH}/adre/usage`} variant="caption" underline="hover">
+            View AI usage dashboard
+          </Link>
+        </Box>
         <Stack
           direction={{ xs: 'column', md: alerts.length > 0 ? 'row' : 'column' }}
           gap={2}

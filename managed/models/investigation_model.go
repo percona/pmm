@@ -46,6 +46,9 @@ type Investigation struct {
 	Config                 []byte    `reform:"config"`
 	ServiceNowTicketID     string    `reform:"servicenow_ticket_id"`
 	ServiceNowTicketNumber string    `reform:"servicenow_ticket_number"`
+	HolmesTotalTokens      int64     `reform:"holmes_total_tokens"`
+	HolmesTotalCost        float64   `reform:"holmes_total_cost"`
+	HolmesCallCount        int       `reform:"holmes_call_count"`
 }
 
 // InvestigationBlock represents a block (section) within an investigation report.
@@ -82,13 +85,21 @@ type InvestigationArtifact struct {
 //
 //reform:investigation_messages
 type InvestigationMessage struct {
-	ID              string    `reform:"id,pk"`
-	InvestigationID string    `reform:"investigation_id"`
-	Role            string    `reform:"role"`
-	Content         string    `reform:"content"`
-	ToolName        string    `reform:"tool_name"`
-	ToolResultJSON  []byte    `reform:"tool_result_json"`
-	CreatedAt       time.Time `reform:"created_at"`
+	ID               string    `reform:"id,pk"`
+	InvestigationID  string    `reform:"investigation_id"`
+	Role             string    `reform:"role"`
+	Content          string    `reform:"content"`
+	ToolName         string    `reform:"tool_name"`
+	ToolResultJSON   []byte    `reform:"tool_result_json"`
+	Model            string    `reform:"model"`
+	PromptTokens     *int32    `reform:"prompt_tokens"`
+	CompletionTokens *int32    `reform:"completion_tokens"`
+	TotalTokens      *int32    `reform:"total_tokens"`
+	CachedTokens     *int32    `reform:"cached_tokens"`
+	TotalCost        *float64  `reform:"total_cost"`
+	UsageEventID     *int64    `reform:"usage_event_id"`
+	HolmesFeature    string    `reform:"holmes_feature"`
+	CreatedAt        time.Time `reform:"created_at"`
 }
 
 // InvestigationComment represents a comment on an investigation or a block.
