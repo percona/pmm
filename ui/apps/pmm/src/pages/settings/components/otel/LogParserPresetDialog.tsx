@@ -11,6 +11,7 @@ import { FC, useEffect, useState } from 'react';
 import { enqueueSnackbar } from 'notistack';
 import { LogParserPreset, presetOperatorYaml } from 'api/logParserPresets';
 import { useAddLogParserPreset, useChangeLogParserPreset } from 'hooks/api/useLogParserPresets';
+import { apiErrorMessage } from 'utils/apiErrorMessage';
 import { Messages } from '../../Settings.messages';
 
 const PRESET_NAME_RE = /^[a-zA-Z][a-zA-Z0-9_]*$/;
@@ -23,11 +24,6 @@ export const DEFAULT_OPERATOR_YAML = `- type: regex_parser
 export type PresetDialogState =
   | { mode: 'create' }
   | { mode: 'edit'; preset: LogParserPreset };
-
-function apiErrorMessage(err: unknown): string {
-  if (err instanceof Error) return err.message;
-  return Messages.unauthorized;
-}
 
 export const LogParserPresetDialog: FC<{
   state: PresetDialogState | null;
@@ -78,7 +74,7 @@ export const LogParserPresetDialog: FC<{
       enqueueSnackbar(m.saved, { variant: 'success' });
       onClose();
     } catch (err) {
-      enqueueSnackbar(apiErrorMessage(err), { variant: 'error' });
+      enqueueSnackbar(apiErrorMessage(err, Messages.unauthorized), { variant: 'error' });
     }
   };
 
@@ -117,7 +113,12 @@ export const LogParserPresetDialog: FC<{
             minRows={10}
             slotProps={{
               input: {
-                sx: { fontFamily: 'Roboto Mono, monospace', fontSize: '0.85rem' },
+                sx: {
+                  fontFamily: 'Roboto Mono, monospace',
+                  fontSize: '0.85rem',
+                  whiteSpace: 'pre',
+                  overflowX: 'auto',
+                },
               },
             }}
             helperText={m.yamlHelp}

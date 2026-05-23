@@ -28,6 +28,21 @@ export function presetUsageCount(p: LogParserPreset): number {
   return p.usageCount ?? p.usage_count ?? 0;
 }
 
+/** Fix common copy/paste issues before sending operator YAML to the API. Keep in sync with Go NormalizeLogParserOperatorYAML. */
+export function normalizeOperatorYaml(yaml: string): string {
+  let s = yaml.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  if (!s.includes('\n') && s.includes('\\n')) {
+    s = s.replace(/\\n/g, '\n');
+  }
+  s = s.replace(/' parse_from:/g, "'\n  parse_from:");
+  s = s.replace(/' parse_to:/g, "'\n  parse_to:");
+  s = s.replace(/' - type:/g, "'\n- type:");
+  s = s.replace(/" parse_from:/g, '"\n  parse_from:');
+  s = s.replace(/" parse_to:/g, '"\n  parse_to:');
+  s = s.replace(/" - type:/g, '"\n- type:');
+  return s.trim();
+}
+
 export async function listLogParserPresets(): Promise<LogParserPreset[]> {
   const res = await api.get<{ presets: LogParserPreset[] }>('/server/log-parser-presets');
   return res.data.presets ?? [];
@@ -38,11 +53,15 @@ export async function addLogParserPreset(body: {
   description?: string;
   operatorYaml: string;
 }): Promise<LogParserPreset> {
-  const res = await api.post<{ preset: LogParserPreset }>('/server/log-parser-presets', {
-    name: body.name,
-    description: body.description ?? '',
-    operatorYaml: body.operatorYaml,
-  });
+  const res = await api.post<{ preset: LogParserPreset }>(
+    '/server/log-parser-presets',
+    {
+      name: body.name,
+      description: body.description ?? '',
+      operatorYaml: normalizeOperatorYaml(body.operatorYaml),
+    },
+    { disableNotifications: true }
+  );
   return res.data.preset;
 }
 
@@ -52,8 +71,12 @@ export async function changeLogParserPreset(
 ): Promise<LogParserPreset> {
   const payload: Record<string, string> = {};
   if (body.description !== undefined) payload.description = body.description;
-  if (body.operatorYaml !== undefined) payload.operatorYaml = body.operatorYaml;
-  const res = await api.put<{ preset: LogParserPreset }>(`/server/log-parser-presets/${id}`, payload);
+  if (body.operatorYaml !== undefined) payload.operatorYaml = normalizeOperatorYaml(body.operatorYaml);
+  const res = await api.put<{ preset: LogParserPreset }>(
+    `/server/log-parser-presets/${id}`,
+    payload,
+    { disableNotifications: true }
+  );
   return res.data.preset;
 }
 

@@ -145,7 +145,8 @@ export const Messages = {
       nameHelp: 'Letters, digits, underscore; must start with a letter (used in pmm-admin and log_sources).',
       descriptionLabel: 'Description',
       yamlLabel: 'Operator YAML',
-      yamlHelp: 'YAML array of OTEL filelog operator objects (must include type on each item).',
+      yamlHelp:
+        'YAML array of OTEL filelog operator objects (must include type on each item). Quote regex values and put each field on its own line.',
       invalidName: 'Invalid preset name',
       cancel: 'Cancel',
       save: 'Save',

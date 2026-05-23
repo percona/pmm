@@ -41,27 +41,70 @@ func ValidateLogParserPresetName(name string) error {
 	return nil
 }
 
-// ValidateLogParserOperatorYAML ensures operator_yaml is a non-empty YAML sequence of objects with a type field.
-func ValidateLogParserOperatorYAML(operatorYAML string) error {
-	operatorYAML = strings.TrimSpace(operatorYAML)
+// NormalizeLogParserOperatorYAML fixes common copy/paste issues before validation.
+// Keep in sync with ui/apps/pmm/src/api/logParserPresets.ts normalizeOperatorYaml.
+func NormalizeLogParserOperatorYAML(operatorYAML string) string {
+	s := strings.ReplaceAll(operatorYAML, "\r\n", "\n")
+	s = strings.ReplaceAll(s, "\r", "\n")
+	// Pasted from JSON string literals (literal \n instead of newlines).
+	if !strings.Contains(s, "\n") && strings.Contains(s, `\n`) {
+		s = strings.ReplaceAll(s, `\n`, "\n")
+	}
+	// Regex value run into the next field on the same line (common when copying presets).
+	s = strings.ReplaceAll(s, "' parse_from:", "'\n  parse_from:")
+	s = strings.ReplaceAll(s, "' parse_to:", "'\n  parse_to:")
+	s = strings.ReplaceAll(s, "' - type:", "'\n- type:")
+	s = strings.ReplaceAll(s, "\" parse_from:", "\"\n  parse_from:")
+	s = strings.ReplaceAll(s, "\" parse_to:", "\"\n  parse_to:")
+	s = strings.ReplaceAll(s, "\" - type:", "\"\n- type:")
+	return strings.TrimSpace(s)
+}
+
+func normalizeAndValidateLogParserOperatorYAML(operatorYAML string) (string, error) {
+	operatorYAML = NormalizeLogParserOperatorYAML(operatorYAML)
 	if operatorYAML == "" {
-		return errors.New("operator_yaml is required")
+		return "", errors.New("operator_yaml is required")
 	}
 	var ops []map[string]any
 	err := yaml.Unmarshal([]byte(operatorYAML), &ops)
 	if err != nil {
-		return fmt.Errorf("operator_yaml must be a YAML array of operator objects: %w", err)
+		hint := operatorYAMLValidationHint(err)
+		if hint != "" {
+			return "", fmt.Errorf("operator_yaml must be a YAML array of operator objects: %w; %s", err, hint)
+		}
+		return "", fmt.Errorf("operator_yaml must be a YAML array of operator objects: %w", err)
 	}
 	if len(ops) == 0 {
-		return errors.New("operator_yaml must contain at least one operator")
+		return "", errors.New("operator_yaml must contain at least one operator")
 	}
 	for i, op := range ops {
 		t, ok := op["type"].(string)
 		if !ok || strings.TrimSpace(t) == "" {
-			return fmt.Errorf("operator %d: missing or invalid type", i)
+			return "", fmt.Errorf("operator %d: missing or invalid type", i)
 		}
 	}
-	return nil
+	return operatorYAML, nil
+}
+
+// ValidateLogParserOperatorYAML ensures operator_yaml is a non-empty YAML sequence of objects with a type field.
+func ValidateLogParserOperatorYAML(operatorYAML string) error {
+	_, err := normalizeAndValidateLogParserOperatorYAML(operatorYAML)
+	return err
+}
+
+func operatorYAMLValidationHint(err error) string {
+	if err == nil {
+		return ""
+	}
+	msg := err.Error()
+	switch {
+	case strings.Contains(msg, "mapping values are not allowed"):
+		return "quote regex values that contain colons and put each field (parse_from, parse_to, etc.) on its own line"
+	case strings.Contains(msg, "found unexpected end of stream"):
+		return "check that quoted regex values are closed before the next field"
+	default:
+		return ""
+	}
 }
 
 // ListOtelCollectorAgentIDsReferencingLogParserPreset returns agent_ids of OTEL collectors using presetName in log_sources.
@@ -104,7 +147,8 @@ func CreateLogParserPreset(q *reform.Querier, name, description, operatorYAML st
 	if err := ValidateLogParserPresetName(name); err != nil { //nolint:noinlineerr
 		return nil, err
 	}
-	if err := ValidateLogParserOperatorYAML(operatorYAML); err != nil { //nolint:noinlineerr
+	operatorYAML, err := normalizeAndValidateLogParserOperatorYAML(operatorYAML)
+	if err != nil { //nolint:noinlineerr
 		return nil, err
 	}
 	existing, err := FindLogParserPresetByName(q, name)
@@ -148,11 +192,11 @@ func UpdateLogParserPreset(q *reform.Querier, id string, description *string, op
 		return nil, reform.ErrNoRows
 	}
 	if operatorYAML != nil {
-		err := ValidateLogParserOperatorYAML(*operatorYAML)
+		normalized, err := normalizeAndValidateLogParserOperatorYAML(*operatorYAML)
 		if err != nil {
 			return nil, err
 		}
-		row.OperatorYAML = strings.TrimSpace(*operatorYAML)
+		row.OperatorYAML = normalized
 	}
 	if description != nil {
 		d := strings.TrimSpace(*description)

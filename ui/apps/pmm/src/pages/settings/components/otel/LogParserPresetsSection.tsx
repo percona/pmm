@@ -17,13 +17,9 @@ import {
   useLogParserPresets,
   useRemoveLogParserPreset,
 } from 'hooks/api/useLogParserPresets';
+import { apiErrorMessage } from 'utils/apiErrorMessage';
 import { Messages } from '../../Settings.messages';
 import { LogParserPresetDialog, PresetDialogState } from './LogParserPresetDialog';
-
-function apiErrorMessage(err: unknown): string {
-  if (err instanceof Error) return err.message;
-  return Messages.unauthorized;
-}
 
 export const LogParserPresetsSection: FC = () => {
   const { data: presets = [], isLoading, isError } = useLogParserPresets();
@@ -44,7 +40,7 @@ export const LogParserPresetsSection: FC = () => {
       await removePreset.mutateAsync(preset.id);
       enqueueSnackbar(m.deleted, { variant: 'success' });
     } catch (err) {
-      enqueueSnackbar(apiErrorMessage(err), { variant: 'error' });
+      enqueueSnackbar(apiErrorMessage(err, Messages.unauthorized), { variant: 'error' });
     }
   };
 
