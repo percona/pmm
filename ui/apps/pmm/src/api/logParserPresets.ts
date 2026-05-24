@@ -31,6 +31,7 @@ export function presetUsageCount(p: LogParserPreset): number {
 /** Fix common copy/paste issues before sending operator YAML to the API. Keep in sync with Go NormalizeLogParserOperatorYAML. */
 export function normalizeOperatorYaml(yaml: string): string {
   let s = yaml.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  s = s.replace(/[\u2018\u2019]/g, "'").replace(/[\u201c\u201d]/g, '"');
   if (!s.includes('\n') && s.includes('\\n')) {
     s = s.replace(/\\n/g, '\n');
   }
@@ -40,6 +41,17 @@ export function normalizeOperatorYaml(yaml: string): string {
   s = s.replace(/" parse_from:/g, '"\n  parse_from:');
   s = s.replace(/" parse_to:/g, '"\n  parse_to:');
   s = s.replace(/" - type:/g, '"\n- type:');
+  s = s.replace(/^(\s*regex:\s+)(.+?\$\s*)parse_from:/gm, "$1'$2'\n  parse_from:");
+  s = s.replace(/^(\s*regex:\s+)([^'"\n][^\n]*)$/gm, (line, prefix: string, value: string) => {
+    const trimmed = value.trim();
+    if (!trimmed || trimmed.startsWith("'") || trimmed.startsWith('"')) {
+      return line;
+    }
+    if (trimmed.includes(':')) {
+      return `${prefix}'${trimmed}'`;
+    }
+    return line;
+  });
   return s.trim();
 }
 

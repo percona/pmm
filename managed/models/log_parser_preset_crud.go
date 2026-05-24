@@ -29,6 +29,10 @@ import (
 
 var logParserPresetNameRe = regexp.MustCompile(`^[a-zA-Z][a-zA-Z0-9_]*$`)
 
+var logParserRegexFieldLineRe = regexp.MustCompile(`(?m)^(\s*regex:\s+)([^'"\n][^\n]*)$`)
+
+var logParserUnquotedRegexRunOnRe = regexp.MustCompile(`(?m)^(\s*regex:\s+)(.+?\$\s*)parse_from:`)
+
 // ValidateLogParserPresetName checks name matches OtelCollector receiver id rules (alphanumeric + underscore).
 func ValidateLogParserPresetName(name string) error {
 	name = strings.TrimSpace(name)
@@ -46,6 +50,10 @@ func ValidateLogParserPresetName(name string) error {
 func NormalizeLogParserOperatorYAML(operatorYAML string) string {
 	s := strings.ReplaceAll(operatorYAML, "\r\n", "\n")
 	s = strings.ReplaceAll(s, "\r", "\n")
+	s = strings.NewReplacer(
+		"\u2018", "'", "\u2019", "'",
+		"\u201c", "\"", "\u201d", "\"",
+	).Replace(s)
 	// Pasted from JSON string literals (literal \n instead of newlines).
 	if !strings.Contains(s, "\n") && strings.Contains(s, `\n`) {
 		s = strings.ReplaceAll(s, `\n`, "\n")
@@ -57,7 +65,26 @@ func NormalizeLogParserOperatorYAML(operatorYAML string) string {
 	s = strings.ReplaceAll(s, "\" parse_from:", "\"\n  parse_from:")
 	s = strings.ReplaceAll(s, "\" parse_to:", "\"\n  parse_to:")
 	s = strings.ReplaceAll(s, "\" - type:", "\"\n- type:")
+	s = logParserUnquotedRegexRunOnRe.ReplaceAllString(s, "$1'$2'\n  parse_from:")
+	s = quoteUnquotedRegexLines(s)
 	return strings.TrimSpace(s)
+}
+
+func quoteUnquotedRegexLines(s string) string {
+	return logParserRegexFieldLineRe.ReplaceAllStringFunc(s, func(line string) string {
+		sub := logParserRegexFieldLineRe.FindStringSubmatch(line)
+		if len(sub) != 3 {
+			return line
+		}
+		prefix, value := sub[1], strings.TrimSpace(sub[2])
+		if value == "" || value[0] == '\'' || value[0] == '"' {
+			return line
+		}
+		if strings.Contains(value, ":") {
+			return prefix + "'" + value + "'"
+		}
+		return line
+	})
 }
 
 func normalizeAndValidateLogParserOperatorYAML(operatorYAML string) (string, error) {

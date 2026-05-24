@@ -31,7 +31,19 @@ describe('normalizeOperatorYaml', () => {
 
     const normalized = normalizeOperatorYaml(collapsed);
 
-    expect(normalized).toContain('\n  regex:');
     expect(normalized).toContain('\n  parse_from:');
+  });
+
+  it('quotes unquoted regex values that contain colons', () => {
+    const collapsed = [
+      '- type: regex_parser',
+      '  regex: ^(?P<timestamp>\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d+Z) (?P<message>.*)$',
+      '  parse_from: body',
+    ].join('\n');
+
+    const normalized = normalizeOperatorYaml(collapsed);
+
+    expect(normalized).toContain("regex: '^(?P<timestamp>");
+    expect(normalized).toContain('\n  parse_from: body');
   });
 });

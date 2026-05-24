@@ -107,4 +107,17 @@ func TestNormalizeLogParserOperatorYAML(t *testing.T) {
 		require.NoError(t, ValidateLogParserOperatorYAML(normalized))
 		assert.Contains(t, normalized, "\"\n  parse_from: body")
 	})
+
+	t.Run("unquoted regex with colons", func(t *testing.T) {
+		t.Parallel()
+		collapsed := strings.Join([]string{
+			"- type: regex_parser",
+			"  regex: ^(?P<timestamp>\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d+Z) (?P<message>.*)$",
+			"  parse_from: body",
+			"  parse_to: attributes",
+		}, "\n")
+		normalized := NormalizeLogParserOperatorYAML(collapsed)
+		require.NoError(t, ValidateLogParserOperatorYAML(normalized))
+		assert.Contains(t, normalized, "regex: '^(?P<timestamp>")
+	})
 }
