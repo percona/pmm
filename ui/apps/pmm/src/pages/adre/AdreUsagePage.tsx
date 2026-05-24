@@ -89,22 +89,13 @@ const AdreUsagePage: FC = () => {
 
   return (
     <Page title="AI Usage">
-      <Stack
-        direction="row"
-        alignItems="flex-end"
-        justifyContent="space-between"
-        flexWrap="wrap"
-        gap={1}
-        sx={{ mb: 2 }}
-      >
+      <Stack spacing={2} sx={{ mb: 2, overflow: 'visible' }}>
         <Typography variant="body2" color="text.secondary">
           Token and cost usage across PMM AI features
         </Typography>
-        <Stack direction="row" spacing={1} alignItems="flex-end" flexWrap="wrap">
+        <Stack direction="row" spacing={1.5} alignItems="center" flexWrap="wrap" useFlexGap>
           <FormControl size="small" sx={{ minWidth: 140 }}>
-            <InputLabel id="usage-range-label" shrink>
-              Range
-            </InputLabel>
+            <InputLabel id="usage-range-label">Range</InputLabel>
             <Select
               labelId="usage-range-label"
               label="Range"
@@ -117,14 +108,16 @@ const AdreUsagePage: FC = () => {
             </Select>
           </FormControl>
           <FormControl size="small" sx={{ minWidth: 160 }}>
-            <InputLabel id="usage-feature-label" shrink>
-              Feature
-            </InputLabel>
+            <InputLabel id="usage-feature-label">Feature</InputLabel>
             <Select
               labelId="usage-feature-label"
               label="Feature"
               value={featureFilter}
               onChange={(e) => setFeatureFilter(e.target.value)}
+              displayEmpty
+              renderValue={(value) =>
+                value ? (HOLMES_FEATURE_LABELS[value] ?? value) : 'All'
+              }
             >
               <MenuItem value="">All</MenuItem>
               {Object.entries(HOLMES_FEATURE_LABELS).map(([k, label]) => (
@@ -134,7 +127,7 @@ const AdreUsagePage: FC = () => {
               ))}
             </Select>
           </FormControl>
-          <Button size="small" variant="outlined" onClick={exportCsv}>
+          <Button size="small" variant="outlined" onClick={exportCsv} sx={{ flexShrink: 0 }}>
             Export CSV
           </Button>
         </Stack>

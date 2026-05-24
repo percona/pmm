@@ -193,7 +193,7 @@ export const getAdreUsageSummary = async (params?: {
       to: params?.to,
       feature: params?.feature,
       model: params?.model,
-      ...(params?.groupBy ? { group_by: params.groupBy } : {}),
+      groupBy: params?.groupBy,
     },
   });
   return res.data;
