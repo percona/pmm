@@ -35,6 +35,8 @@ import {
 
 type RangePreset = '7d' | '30d' | '90d';
 
+const ALL_FEATURES = '__all__';
+
 function rangeFromPreset(preset: RangePreset): { from: string; to: string } {
   const to = new Date();
   const from = new Date();
@@ -49,17 +51,17 @@ function num(v: number | undefined, fallback?: number): number {
 
 const AdreUsagePage: FC = () => {
   const [preset, setPreset] = useState<RangePreset>('30d');
-  const [featureFilter, setFeatureFilter] = useState('');
+  const [featureFilter, setFeatureFilter] = useState(ALL_FEATURES);
   const range = useMemo(() => rangeFromPreset(preset), [preset]);
   const summaryQuery = useAdreUsageSummary({
     ...range,
     groupBy: 'day',
-    feature: featureFilter || undefined,
+    feature: featureFilter === ALL_FEATURES ? undefined : featureFilter,
   });
   const eventsQuery = useAdreUsageEvents({
     ...range,
     limit: 100,
-    feature: featureFilter || undefined,
+    feature: featureFilter === ALL_FEATURES ? undefined : featureFilter,
   });
 
   const totals = summaryQuery.data?.totals;
@@ -83,7 +85,7 @@ const AdreUsagePage: FC = () => {
   }, [preset, featureFilter, dailyCostSeries.length, dailyCostSeries[0]?.bucket]);
 
   const exportCsv = () => {
-    const url = `/v1/adre/usage/events?from=${encodeURIComponent(range.from)}&to=${encodeURIComponent(range.to)}&format=csv&limit=500${featureFilter ? `&feature=${encodeURIComponent(featureFilter)}` : ''}`;
+    const url = `/v1/adre/usage/events?from=${encodeURIComponent(range.from)}&to=${encodeURIComponent(range.to)}&format=csv&limit=500${featureFilter !== ALL_FEATURES ? `&feature=${encodeURIComponent(featureFilter)}` : ''}`;
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
@@ -114,12 +116,8 @@ const AdreUsagePage: FC = () => {
               label="Feature"
               value={featureFilter}
               onChange={(e) => setFeatureFilter(e.target.value)}
-              displayEmpty
-              renderValue={(value) =>
-                value ? (HOLMES_FEATURE_LABELS[value] ?? value) : 'All'
-              }
             >
-              <MenuItem value="">All</MenuItem>
+              <MenuItem value={ALL_FEATURES}>All</MenuItem>
               {Object.entries(HOLMES_FEATURE_LABELS).map(([k, label]) => (
                 <MenuItem key={k} value={k}>
                   {label}
@@ -183,16 +181,25 @@ const AdreUsagePage: FC = () => {
                   <RouterLink to={`${PMM_NEW_NAV_PATH}/adre`}>Open AI Assistant</RouterLink>
                 </Typography>
               ) : (
-                <Box ref={costSeriesRef} sx={{ maxHeight: 280, overflow: 'auto', pr: 0.5 }}>
-                  <Stack spacing={0.75}>
+                <Box
+                  ref={costSeriesRef}
+                  sx={{
+                    minHeight: Math.max(120, dailyCostSeries.length * 32),
+                    maxHeight: 480,
+                    overflowY: 'auto',
+                    overflowX: 'hidden',
+                    pr: 0.5,
+                  }}
+                >
+                  <Stack spacing={1.25}>
                     {dailyCostSeries.map((row) => {
                       const cost = row.totalCost;
-                      const pct = cost > 0 ? Math.max(2, (cost / maxSeriesCost) * 100) : 0;
+                      const pct = cost > 0 ? Math.max(4, (cost / maxSeriesCost) * 100) : 0;
                       return (
-                        <Stack key={row.bucket} direction="row" alignItems="center" spacing={1}>
+                        <Stack key={row.bucket} direction="row" alignItems="center" spacing={1.5}>
                           <Typography
-                            variant="caption"
-                            sx={{ width: 56, flexShrink: 0, color: cost > 0 ? 'text.primary' : 'text.secondary' }}
+                            variant="body2"
+                            sx={{ width: 64, flexShrink: 0, color: cost > 0 ? 'text.primary' : 'text.secondary' }}
                           >
                             {formatUsageDayLabel(row.bucket)}
                           </Typography>
@@ -200,7 +207,7 @@ const AdreUsagePage: FC = () => {
                             sx={{
                               flex: 1,
                               minWidth: 0,
-                              height: 10,
+                              height: 20,
                               bgcolor: 'action.hover',
                               borderRadius: 1,
                             }}
@@ -217,9 +224,9 @@ const AdreUsagePage: FC = () => {
                             ) : null}
                           </Box>
                           <Typography
-                            variant="caption"
+                            variant="body2"
                             color="text.secondary"
-                            sx={{ width: 52, flexShrink: 0, textAlign: 'right' }}
+                            sx={{ width: 56, flexShrink: 0, textAlign: 'right' }}
                           >
                             {cost > 0 ? formatUsdCost(cost) : '—'}
                           </Typography>

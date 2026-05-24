@@ -67,7 +67,39 @@ func NormalizeLogParserOperatorYAML(operatorYAML string) string {
 	s = strings.ReplaceAll(s, "\" - type:", "\"\n- type:")
 	s = logParserUnquotedRegexRunOnRe.ReplaceAllString(s, "$1'$2'\n  parse_from:")
 	s = quoteUnquotedRegexLines(s)
+	s = dedentOperatorYAML(s)
 	return strings.TrimSpace(s)
+}
+
+// dedentOperatorYAML removes common leading indentation (TrimSpace only strips the first line).
+func dedentOperatorYAML(s string) string {
+	lines := strings.Split(s, "\n")
+	min := -1
+	for _, line := range lines {
+		if strings.TrimSpace(line) == "" {
+			continue
+		}
+		indent := len(line) - len(strings.TrimLeft(line, " \t"))
+		if min == -1 || indent < min {
+			min = indent
+		}
+	}
+	if min <= 0 {
+		return s
+	}
+	out := make([]string, 0, len(lines))
+	for _, line := range lines {
+		if strings.TrimSpace(line) == "" {
+			out = append(out, "")
+			continue
+		}
+		if len(line) >= min {
+			out = append(out, line[min:])
+			continue
+		}
+		out = append(out, strings.TrimLeft(line, " \t"))
+	}
+	return strings.Join(out, "\n")
 }
 
 func quoteUnquotedRegexLines(s string) string {

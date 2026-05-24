@@ -28,6 +28,24 @@ export function presetUsageCount(p: LogParserPreset): number {
   return p.usageCount ?? p.usage_count ?? 0;
 }
 
+/** Remove common leading indent (String.trim only affects the first line). */
+function dedentOperatorYaml(yaml: string): string {
+  const lines = yaml.split('\n');
+  let min: number | null = null;
+  for (const line of lines) {
+    if (!line.trim()) continue;
+    const indent = line.length - line.trimStart().length;
+    if (min === null || indent < min) min = indent;
+  }
+  if (!min) return yaml;
+  return lines
+    .map((line) => {
+      if (!line.trim()) return '';
+      return line.length >= min! ? line.slice(min!) : line.trimStart();
+    })
+    .join('\n');
+}
+
 /** Fix common copy/paste issues before sending operator YAML to the API. Keep in sync with Go NormalizeLogParserOperatorYAML. */
 export function normalizeOperatorYaml(yaml: string): string {
   let s = yaml.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
@@ -52,6 +70,7 @@ export function normalizeOperatorYaml(yaml: string): string {
     }
     return line;
   });
+  s = dedentOperatorYaml(s);
   return s.trim();
 }
 

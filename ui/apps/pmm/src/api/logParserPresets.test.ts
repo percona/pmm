@@ -46,4 +46,18 @@ describe('normalizeOperatorYaml', () => {
     expect(normalized).toContain("regex: '^(?P<timestamp>");
     expect(normalized).toContain('\n  parse_from: body');
   });
+
+  it('dedents indented preset YAML from the database', () => {
+    const indented = [
+      '    - type: regex_parser',
+      "      regex: '^(?P<timestamp>\\\\d{4})'",
+      '      parse_from: body',
+    ].join('\n');
+
+    const normalized = normalizeOperatorYaml(indented);
+
+    expect(normalized).toBe(
+      ["- type: regex_parser", "  regex: '^(?P<timestamp>\\\\d{4})'", '  parse_from: body'].join('\n')
+    );
+  });
 });

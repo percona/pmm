@@ -1195,24 +1195,24 @@ var databaseSchema = [][]string{
 			'00000000-0000-4000-8000-000000000001',
 			'mysql_error',
 			'MySQL 8 error log format (timestamp thread_id [Subsystem] [CODE] [Component] message)',
-			$yaml$    - type: regex_parser
-      regex: '^(?P<timestamp>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z) (?P<thread_id>\d+) \[(?P<subsystem>[^\]]+)\] \[(?P<code>[^\]]+)\] \[(?P<component>[^\]]+)\] (?P<message>.*)$'
-      parse_from: body
-      parse_to: attributes
-    - type: time_parser
-      parse_from: attributes.timestamp
-      layout: '2006-01-02T15:04:05.000000Z'
-      layout_type: gotime
-    - type: severity_parser
-      parse_from: attributes.subsystem
-      preset: none
-      mapping:
-        System: info
-        Warning: warn
-        Error: error
-    - type: move
-      from: attributes.message
-      to: body
+			$yaml$- type: regex_parser
+  regex: '^(?P<timestamp>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z) (?P<thread_id>\d+) \[(?P<subsystem>[^\]]+)\] \[(?P<code>[^\]]+)\] \[(?P<component>[^\]]+)\] (?P<message>.*)$'
+  parse_from: body
+  parse_to: attributes
+- type: time_parser
+  parse_from: attributes.timestamp
+  layout: '2006-01-02T15:04:05.000000Z'
+  layout_type: gotime
+- type: severity_parser
+  parse_from: attributes.subsystem
+  preset: none
+  mapping:
+    System: info
+    Warning: warn
+    Error: error
+- type: move
+  from: attributes.message
+  to: body
 $yaml$,
 			true,
 			NOW(),
