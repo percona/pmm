@@ -38,7 +38,7 @@ func main() {
 		logrus.SetLevel(logrus.TraceLevel)
 	}
 	envSettings, errs, warns := envvars.ParseEnvVars(os.Environ())
-	clickHouseConfig, err := clickhouse.GetClickhouseConfig(os.Getenv(env.ClickHouseConfig))
+	clickHouseConfig, err := clickhouse.GetClickHouseConfig(os.Getenv(env.ClickHouseConfig))
 	if err != nil {
 		errs = append(errs, err)
 	}
@@ -61,7 +61,7 @@ func main() {
 	pmmConfigParams["DisableInternalDB"], _ = strconv.ParseBool(os.Getenv("PMM_DISABLE_BUILTIN_POSTGRES"))
 	pmmConfigParams["DisableInternalClickhouse"], _ = strconv.ParseBool(os.Getenv("PMM_DISABLE_BUILTIN_CLICKHOUSE"))
 	pmmConfigParams["AgentConfigFilePath"] = models.AgentConfigFilePath
-	pmmConfigParams["ClickhouseConfig"] = clickHouseConfig
+	pmmConfigParams["ClickHouseConfig"] = clickHouseConfig
 
 	isHAEnabled, _ := strconv.ParseBool(os.Getenv("PMM_HA_ENABLE"))
 	if isHAEnabled {

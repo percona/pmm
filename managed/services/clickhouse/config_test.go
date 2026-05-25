@@ -32,16 +32,16 @@ func writeConfigFiles(t *testing.T, dir string, names ...string) {
 	}
 }
 
-func TestGetClickhouseConfig(t *testing.T) {
+func TestGetClickHouseConfig(t *testing.T) {
 	t.Parallel()
 
 	// Empty input falls back to the default config.
-	got, err := GetClickhouseConfig("")
+	got, err := GetClickHouseConfig("")
 	require.NoError(t, err)
-	assert.Equal(t, defaultClickhouseConfig, got)
+	assert.Equal(t, defaultClickHouseConfig, got)
 }
 
-func TestValidateClickhouseConfigAt(t *testing.T) {
+func TestValidateClickHouseConfigAt(t *testing.T) {
 	t.Parallel()
 
 	dir := t.TempDir()
@@ -72,7 +72,7 @@ func TestValidateClickhouseConfigAt(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			err := validateClickhouseConfigAt(tt.config, dir)
+			err := validateClickHouseConfigAt(tt.config, dir)
 			if tt.errContains == nil {
 				require.NoError(t, err)
 				return
@@ -85,13 +85,13 @@ func TestValidateClickhouseConfigAt(t *testing.T) {
 	}
 }
 
-func TestAvailableClickhouseConfigs(t *testing.T) {
+func TestAvailableClickHouseConfigs(t *testing.T) {
 	t.Parallel()
 
 	t.Run("empty dir", func(t *testing.T) {
 		t.Parallel()
 
-		got, err := availableClickhouseConfigs(t.TempDir())
+		got, err := availableClickHouseConfigs(t.TempDir())
 		require.NoError(t, err)
 		assert.Empty(t, got)
 	})
@@ -106,7 +106,7 @@ func TestAvailableClickhouseConfigs(t *testing.T) {
 			"dhparam.pem", // not a *-config.xml, must be ignored
 		)
 
-		got, err := availableClickhouseConfigs(dir)
+		got, err := availableClickHouseConfigs(dir)
 		require.NoError(t, err)
 		assert.Equal(t, []string{"default", "low-memory"}, got)
 	})

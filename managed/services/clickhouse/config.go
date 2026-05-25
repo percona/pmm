@@ -25,24 +25,24 @@ import (
 )
 
 const (
-	defaultClickhouseConfig = "default"
-	clickhouseConfigDir     = "/etc/clickhouse-server"
+	defaultClickHouseConfig = "default"
+	clickHouseConfigDir     = "/etc/clickhouse-server"
 )
 
-// GetClickhouseConfig returns the config name if the matching
+// GetClickHouseConfig returns the config name if the matching
 // <config>-config.xml files exist on disk.
-// Empty input falls back to defaultClickhouseConfig.
-func GetClickhouseConfig(config string) (string, error) {
+// Empty input falls back to defaultClickHouseConfig.
+func GetClickHouseConfig(config string) (string, error) {
 	if config == "" {
-		return defaultClickhouseConfig, nil
+		return defaultClickHouseConfig, nil
 	}
 
-	return config, validateClickhouseConfigAt(config, clickhouseConfigDir)
+	return config, validateClickHouseConfigAt(config, clickHouseConfigDir)
 }
 
-// validateClickhouseConfigAt returns an error if configuration files are missing for given config
-func validateClickhouseConfigAt(config, dir string) error {
-	availableConfigs, err := availableClickhouseConfigs(dir)
+// validateClickHouseConfigAt returns an error if configuration files are missing for given config
+func validateClickHouseConfigAt(config, dir string) error {
+	availableConfigs, err := availableClickHouseConfigs(dir)
 	if err != nil {
 		return fmt.Errorf("unable to get available ClickHouse configs: %w", err)
 	}
@@ -60,8 +60,8 @@ func validateClickhouseConfigAt(config, dir string) error {
 	return nil
 }
 
-// availableClickhouseConfigs lists config names that are present in the dir
-func availableClickhouseConfigs(dir string) ([]string, error) {
+// availableClickHouseConfigs lists config names that are present in the dir
+func availableClickHouseConfigs(dir string) ([]string, error) {
 	var configs []string
 
 	matches, err := filepath.Glob(filepath.Join(dir, "*-config.xml"))
