@@ -359,10 +359,7 @@ func (c *Client) processJobsResults(ctx context.Context) {
 func (c *Client) processSupervisorRequests(ctx context.Context) { //nolint:gocognit
 	var wg sync.WaitGroup
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-
+	wg.Go(func() {
 		for {
 			select {
 			case state := <-c.supervisor.Changes():
@@ -382,12 +379,9 @@ func (c *Client) processSupervisorRequests(ctx context.Context) { //nolint:gocog
 				return
 			}
 		}
-	}()
+	})
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-
+	wg.Go(func() {
 		for {
 			select {
 			case collect := <-c.supervisor.QANRequests():
@@ -407,7 +401,7 @@ func (c *Client) processSupervisorRequests(ctx context.Context) { //nolint:gocog
 				return
 			}
 		}
-	}()
+	})
 
 	wg.Go(func() {
 		for {

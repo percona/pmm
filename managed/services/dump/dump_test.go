@@ -13,22 +13,41 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package models
+package dump
 
 import (
-	"fmt"
+	"testing"
 )
 
-// InvalidArgumentError returned when some passed argument is invalid.
-type InvalidArgumentError struct {
-	Details string
-}
+func Test_getDumpFilePath(t *testing.T) {
+	t.Parallel()
 
-// NewInvalidArgumentError creates InvalidArgumentError with given formatting.
-func NewInvalidArgumentError(format string, a ...any) *InvalidArgumentError {
-	return &InvalidArgumentError{Details: fmt.Sprintf(format, a...)}
-}
+	tests := []struct {
+		name      string
+		id        string
+		encrypted bool
+		want      string
+	}{
+		{
+			name:      "Usual dump",
+			id:        "123456789",
+			encrypted: false,
+			want:      dumpsDir + "/123456789.tar.gz",
+		},
+		{
+			name:      "Encrypted dump",
+			id:        "123456789",
+			encrypted: true,
+			want:      dumpsDir + "/123456789.tar.gz.enc",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
-func (e *InvalidArgumentError) Error() string {
-	return "invalid argument: " + e.Details
+			if got := getDumpFilePath(tt.id, tt.encrypted); got != tt.want {
+				t.Errorf("getDumpFilePath() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }

@@ -42,7 +42,7 @@ func TestStartAdvisorChecks(t *testing.T) {
 		s := NewChecksAPIService(&checksService)
 
 		resp, err := s.StartAdvisorChecks(t.Context(), &advisorsv1.StartAdvisorChecksRequest{})
-		assert.EqualError(t, err, "failed to start advisor checks: random error")
+		require.EqualError(t, err, "failed to start advisor checks: random error")
 		assert.Nil(t, resp)
 	})
 
@@ -73,7 +73,7 @@ func TestGetFailedChecks(t *testing.T) {
 		resp, err := s.GetFailedChecks(t.Context(), &advisorsv1.GetFailedChecksRequest{
 			ServiceId: serviceID,
 		})
-		assert.EqualError(t, err, fmt.Sprintf("failed to get check results for service '%s': random error", serviceID))
+		require.EqualError(t, err, fmt.Sprintf("failed to get check results for service '%s': random error", serviceID))
 		assert.Nil(t, resp)
 	})
 
@@ -217,7 +217,7 @@ func TestListFailedServices(t *testing.T) {
 		s := NewChecksAPIService(&checksService)
 
 		resp, err := s.ListFailedServices(t.Context(), &advisorsv1.ListFailedServicesRequest{})
-		assert.EqualError(t, err, "failed to get check results: random error")
+		require.EqualError(t, err, "failed to get check results: random error")
 		assert.Nil(t, resp)
 	})
 
@@ -333,7 +333,7 @@ func TestListAdvisorChecks(t *testing.T) {
 		s := NewChecksAPIService(&checksService)
 
 		resp, err := s.ListAdvisorChecks(t.Context(), nil)
-		assert.EqualError(t, err, "failed to get disabled checks list: random error")
+		require.EqualError(t, err, "failed to get disabled checks list: random error")
 		assert.Nil(t, resp)
 	})
 }
@@ -346,7 +346,7 @@ func TestUpdateAdvisorChecks(t *testing.T) {
 		s := NewChecksAPIService(&checksService)
 
 		resp, err := s.ChangeAdvisorChecks(t.Context(), &advisorsv1.ChangeAdvisorChecksRequest{})
-		assert.EqualError(t, err, "failed to enable disabled advisor checks: random error")
+		require.EqualError(t, err, "failed to enable disabled advisor checks: random error")
 		assert.Nil(t, resp)
 	})
 
@@ -358,7 +358,7 @@ func TestUpdateAdvisorChecks(t *testing.T) {
 		s := NewChecksAPIService(&checksService)
 
 		resp, err := s.ChangeAdvisorChecks(t.Context(), &advisorsv1.ChangeAdvisorChecksRequest{})
-		assert.EqualError(t, err, "failed to disable advisor checks: random error")
+		require.EqualError(t, err, "failed to disable advisor checks: random error")
 		assert.Nil(t, resp)
 	})
 
@@ -374,7 +374,7 @@ func TestUpdateAdvisorChecks(t *testing.T) {
 				Interval: advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD,
 			}},
 		})
-		assert.EqualError(t, err, "failed to change advisor check interval: random error")
+		require.EqualError(t, err, "failed to change advisor check interval: random error")
 		assert.Nil(t, resp)
 	})
 
@@ -431,8 +431,6 @@ func TestCreateComment(t *testing.T) {
 		},
 	}
 	for _, tc := range testCases {
-		tc := tc
-
 		t.Run(tc.Name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tc.Comment, createComment(tc.Checks))

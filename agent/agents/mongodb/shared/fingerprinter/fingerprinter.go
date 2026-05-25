@@ -95,7 +95,7 @@ func (pf *ProfilerFingerprinter) fingerprintFind(fp fingerprinter.Fingerprint, d
 		case bson.D:
 			sortJSON, _ := json.Marshal(s.Map()) //nolint:errchkjson,staticcheck // PMM-13964
 			fp.Fingerprint += fmt.Sprintf(`.sort(%s)`, sortJSON)
-		case map[string]interface{}:
+		case map[string]any:
 			sortJSON, _ := json.Marshal(s) //nolint:errchkjson // PMM-13964
 			fp.Fingerprint += fmt.Sprintf(`.sort(%s)`, sortJSON)
 		default:
@@ -130,7 +130,7 @@ func (pf *ProfilerFingerprinter) fingerprintUpdate(fp fingerprinter.Fingerprint,
 	fp.Keys = string(filterJSON)
 
 	if command["upsert"] == true || command["multi"] == true {
-		options := make(map[string]interface{})
+		options := make(map[string]any)
 		if command["upsert"] == true {
 			options["upsert"] = true
 		}
@@ -224,7 +224,7 @@ type maskOption struct {
 }
 
 // maskValues replaces all values within a map or slice with "?" recursively and removes keys in the filter.
-func maskValues(data interface{}, options map[string]maskOption) interface{} {
+func maskValues(data any, options map[string]maskOption) any {
 	switch v := data.(type) {
 	case bson.D:
 		masked := make(bson.M)
