@@ -83,6 +83,19 @@ func TestValidateClickHouseConfigAt(t *testing.T) {
 			}
 		})
 	}
+
+	t.Run("invalid config dir", func(t *testing.T) {
+		t.Parallel()
+
+		base := t.TempDir()
+		// "notdir" is a regular file; using it as the config dir makes os.Stat fail
+		require.NoError(t, os.WriteFile(filepath.Join(base, "notdir"), nil, 0o600))
+
+		err := validateClickHouseConfigAt("default", filepath.Join(base, "notdir"))
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "cannot stat")
+		assert.NotContains(t, err.Error(), "available configs:")
+	})
 }
 
 func TestAvailableClickHouseConfigs(t *testing.T) {
