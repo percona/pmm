@@ -37,6 +37,12 @@ Resource requirements scale with the number of nodes and services monitored. Her
     - **Storage**: 500+ GB
     - **Example workloads**: Large enterprises, mission-critical database fleets
 
+=== "Extra Large (500+ nodes)"
+
+    Get free database assistance or contact our experts for personalized support.   
+    [Get help from Percona](../../get-help.md)
+
+
 ### Optimize ClickHouse for limited memory
 
 If you experience ClickHouse memory issues (such as "memory limit exceeded" errors), you can switch to a low-memory configuration optimized for constrained environments. See [ClickHouse memory issues](../../troubleshoot/qan_issues.md#clickhouse-memory-issues-in-low-memory-environments) for details.
