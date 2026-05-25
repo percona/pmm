@@ -203,8 +203,8 @@ func addLogsHandler(mux *http.ServeMux, logs *server.Logs) {
 	})
 }
 
-func addAdreHandlers(mux *http.ServeMux, db *reform.DB, grafanaClient adre.GrafanaAuth) {
-	h := adre.NewHandlers(db, grafanaClient)
+func addAdreHandlers(mux *http.ServeMux, db *reform.DB, grafanaClient adre.GrafanaAuth, vm v1.API) {
+	h := adre.NewHandlers(db, grafanaClient, vm)
 	mux.HandleFunc("/v1/adre/settings", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
@@ -250,6 +250,7 @@ func addAdreHandlers(mux *http.ServeMux, db *reform.DB, grafanaClient adre.Grafa
 	mux.HandleFunc("/v1/adre/usage/summary", h.GetUsageSummary)
 	mux.HandleFunc("/v1/adre/usage/events", h.GetUsageEvents)
 	mux.HandleFunc("/v1/adre/usage/", h.ServeUsageSubroutes)
+	mux.HandleFunc("/v1/adre/metrics/snapshot", h.PostMetricsSnapshot)
 }
 
 func addInvestigationsHandlers(mux *http.ServeMux, db *reform.DB) {
@@ -408,6 +409,7 @@ type http1ServerDeps struct {
 	authServer         *grafana.AuthServer
 	db                 *reform.DB
 	grafanaClient      *grafana.Client
+	vmClient           *metrics.Client
 	currentUserHandler http.Handler
 }
 
@@ -489,10 +491,11 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 
 	mux := http.NewServeMux()
 	addLogsHandler(mux, deps.logs)
-	addAdreHandlers(mux, deps.db, deps.grafanaClient)
+	addAdreHandlers(mux, deps.db, deps.grafanaClient, v1.NewAPI(*deps.vmClient))
 	go adre.RunAdreChatRetentionLoop(ctx, deps.db, logrus.WithField("component", "adre-retention"), 24*time.Hour) //nolint:mnd
 	mux.Handle("/v1/grafana/render", grafana.NewLegacyGETRenderGoneHandler())
 	mux.Handle("/v1/grafana/render/resolve", grafana.NewResolveHandler(deps.grafanaClient))
+	mux.Handle("/v1/grafana/observability-map", grafana.NewObservabilityMapHandler(deps.grafanaClient))
 	mux.Handle("/v1/grafana/render/blob/", grafana.NewBlobHandler())
 	addInvestigationsHandlers(mux, deps.db)
 	mux.Handle("/auth_request", deps.authServer)
@@ -1269,6 +1272,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 			authServer:         authServer,
 			db:                 db,
 			grafanaClient:      grafanaClient,
+			vmClient:           &vmClient,
 			currentUserHandler: user.NewCurrentHTTPHandler(grafanaClient),
 		})
 	})

@@ -137,8 +137,53 @@ PMM proxies requests to HolmesGPT where noted. Endpoints **require PMM authentic
 | POST | /v1/grafana/render/resolve | Resolve vars server-side, return `image_url` (blob) + `dashboard_url`; see section above |
 | GET | /v1/grafana/render/blob/{hash}.png | Cached panel PNG |
 | GET | /v1/grafana/render | **410 Gone** — use `POST /v1/grafana/render/resolve` |
+| GET | /v1/grafana/observability-map | Intent-based dashboard/panel routing for ADRE/Holmes (see below) |
+| POST | /v1/adre/metrics/snapshot | Tier-1 compressed metrics stats for a PromQL range query (see below) |
 
 **Investigations** live under `/v1/investigations/*` — see [dev/investigations/README.md](../investigations/README.md).
+
+### Observability map (`GET /v1/grafana/observability-map`)
+
+Returns a compact routing payload for Holmes/ADRE: primary dashboard UID, optional panel PromQL `expr` values extracted from Grafana JSON, secondary dashboards, and scoped fallback hints. **Does not require ADRE to be enabled** — only PMM authentication (viewer role).
+
+Query parameters:
+
+| Param | Required | Description |
+|-------|----------|-------------|
+| `engine` | yes | `mysql`, `postgresql`, `mongodb`, `valkey`, `node` |
+| `intent` | yes | e.g. `workload`, `connections`, `slow_queries`, `replication`, `innodb`, `wal`, `locks`, `latency`, `memory`, `cpu_memory`, `disk_io`, `network`, `availability` |
+| `service_id` | no | Used to build `fallback.scoped_series_match` for scoped series discovery |
+| `include_panel_queries` | no | Default `true`; set `false` to skip Grafana dashboard fetch |
+| `panel_ids` | no | Comma-separated override of default panel IDs for the route |
+| `org_id` | no | Grafana org (default `1`) |
+
+Panels without a PromQL target are omitted from `panels` and listed in `warnings`.
+
+### Metrics snapshot (`POST /v1/adre/metrics/snapshot`)
+
+Runs a PromQL **range** query against VictoriaMetrics and returns **server-computed** summaries per series — not raw matrices. **Requires ADRE enabled** and a configured Holmes URL (same gate as other `/v1/adre/*` endpoints).
+
+**Request body (JSON):**
+
+```json
+{
+  "query": "rate(mysql_global_status_questions[5m])",
+  "start": "2026-05-24T00:00:00Z",
+  "end": "2026-05-24T06:00:00Z",
+  "step": "5m",
+  "max_series": 5
+}
+```
+
+**Time bounds:** `start` is required. `end` omitted defaults to now. Accepted formats:
+
+- RFC3339 UTC (e.g. `2026-05-24T12:00:00Z`)
+- Unix epoch seconds (positive = absolute time)
+- Negative Unix seconds = relative to `end` (or now if `end` omitted), e.g. `-43200` = 12 hours before end
+
+**Stats semantics:** For each series, PMM loads the query range from VictoriaMetrics, keeps the **last up to 500 points** (most recent window), then computes min/max/mean/median/p25/p75/p95/p99, top change points (largest step deltas), and top anomalies (z-score &gt; 2σ, capped at 10). This is **not** `quantile_over_time()` in PromQL — percentiles describe the sampled point window only. Response field `truncated: true` when any series had more than 500 raw points before sampling.
+
+**Limits:** Default `max_series` is 5; queries returning more series get HTTP 400 with a hint to tighten matchers or use `topk`.
 
 ### End-to-end flow (mermaid)
 

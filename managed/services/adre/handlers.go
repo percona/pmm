@@ -26,6 +26,7 @@ import (
 	"strings"
 	"time"
 
+	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
@@ -65,6 +66,7 @@ const (
 type Handlers struct {
 	db            *reform.DB
 	grafana       GrafanaAuth
+	vm            v1.API
 	streams       *ActiveChatStreams
 	searchLimiter *SearchRateLimiter
 	reqTimeout    time.Duration
@@ -73,10 +75,11 @@ type Handlers struct {
 }
 
 // NewHandlers creates new ADRE HTTP handlers.
-func NewHandlers(db *reform.DB, grafana GrafanaAuth) *Handlers {
+func NewHandlers(db *reform.DB, grafana GrafanaAuth, vm v1.API) *Handlers {
 	return &Handlers{
 		db:            db,
 		grafana:       grafana,
+		vm:            vm,
 		streams:       NewActiveChatStreams(),
 		searchLimiter: NewSearchRateLimiter(),
 		reqTimeout:    5 * time.Minute, //nolint:mnd

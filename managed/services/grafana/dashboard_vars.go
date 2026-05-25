@@ -52,10 +52,19 @@ type templateVariable struct {
 }
 
 type dashboardPanel struct {
-	ID       int              `json:"id"`
-	Type     string           `json:"type"`
-	Panels   []dashboardPanel `json:"panels"`
-	Repeated json.RawMessage  `json:"repeat"` // presence indicates repeat row
+	ID          int              `json:"id"`
+	Type        string           `json:"type"`
+	Title       string           `json:"title"`
+	Description string           `json:"description"`
+	Targets     []panelTarget    `json:"targets"`
+	Panels      []dashboardPanel `json:"panels"`
+	Repeated    json.RawMessage  `json:"repeat"` // presence indicates repeat row
+}
+
+type panelTarget struct {
+	Expr         string `json:"expr"`
+	LegendFormat string `json:"legendFormat"`
+	RefID        string `json:"refId"`
 }
 
 func fetchDashboardEnvelope(ctx context.Context, client *Client, dashboardUID string, headers http.Header) (*dashboardAPIEnvelope, error) {

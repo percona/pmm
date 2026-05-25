@@ -56,7 +56,7 @@ func TestHandlers_GetSettings(t *testing.T) {
 	defer func() { require.NoError(t, sqlDB.Close()) }()
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
-	h := NewHandlers(db, &mockGrafanaAlertsFetcher{})
+	h := NewHandlers(db, &mockGrafanaAlertsFetcher{}, nil)
 	req := httptest.NewRequest(http.MethodGet, "/v1/adre/settings", nil)
 	rec := httptest.NewRecorder()
 	h.GetSettings(rec, req)
@@ -77,7 +77,7 @@ func TestHandlers_PostSettings_Validation(t *testing.T) {
 	defer func() { require.NoError(t, sqlDB.Close()) }()
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
-	h := NewHandlers(db, &mockGrafanaAlertsFetcher{})
+	h := NewHandlers(db, &mockGrafanaAlertsFetcher{}, nil)
 
 	t.Run("EmptyBody", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodPost, "/v1/adre/settings", bytes.NewReader([]byte("{}")))
@@ -133,7 +133,7 @@ func TestHandlers_GetModels_AdreDisabled(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	h := NewHandlers(db, &mockGrafanaAlertsFetcher{})
+	h := NewHandlers(db, &mockGrafanaAlertsFetcher{}, nil)
 	req := httptest.NewRequest(http.MethodGet, "/v1/adre/models", nil)
 	rec := httptest.NewRecorder()
 	h.GetModels(rec, req)
@@ -154,7 +154,7 @@ func TestHandlers_GetModels_AdreEnabled_NoURL(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	h := NewHandlers(db, &mockGrafanaAlertsFetcher{})
+	h := NewHandlers(db, &mockGrafanaAlertsFetcher{}, nil)
 	req := httptest.NewRequest(http.MethodGet, "/v1/adre/models", nil)
 	rec := httptest.NewRecorder()
 	h.GetModels(rec, req)
@@ -170,7 +170,7 @@ func TestHandlers_ListConversations_Empty(t *testing.T) {
 	defer func() { require.NoError(t, sqlDB.Close()) }()
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
-	h := NewHandlers(db, &mockGrafanaAlertsFetcher{})
+	h := NewHandlers(db, &mockGrafanaAlertsFetcher{}, nil)
 	req := httptest.NewRequest(http.MethodGet, "/v1/adre/conversations", nil)
 	rec := httptest.NewRecorder()
 	h.ListConversations(rec, req)
@@ -190,7 +190,7 @@ func TestHandlers_CreateAndListConversations(t *testing.T) {
 	defer func() { require.NoError(t, sqlDB.Close()) }()
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
-	h := NewHandlers(db, &mockGrafanaAlertsFetcher{})
+	h := NewHandlers(db, &mockGrafanaAlertsFetcher{}, nil)
 	createReq := httptest.NewRequest(http.MethodPost, "/v1/adre/conversations", bytes.NewReader([]byte("{}")))
 	rec := httptest.NewRecorder()
 	h.CreateConversation(rec, createReq)
@@ -217,7 +217,7 @@ func TestHandlers_SearchMessages_MissingQuery(t *testing.T) {
 	defer func() { require.NoError(t, sqlDB.Close()) }()
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
-	h := NewHandlers(db, &mockGrafanaAlertsFetcher{})
+	h := NewHandlers(db, &mockGrafanaAlertsFetcher{}, nil)
 	req := httptest.NewRequest(http.MethodGet, "/v1/adre/messages/search", nil)
 	rec := httptest.NewRecorder()
 	h.SearchMessages(rec, req)
@@ -229,7 +229,7 @@ func TestHandlers_SearchMessages_EmptyHits(t *testing.T) {
 	defer func() { require.NoError(t, sqlDB.Close()) }()
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
-	h := NewHandlers(db, &mockGrafanaAlertsFetcher{})
+	h := NewHandlers(db, &mockGrafanaAlertsFetcher{}, nil)
 	req := httptest.NewRequest(http.MethodGet, "/v1/adre/messages/search?q=nonexistenttermxyz", nil)
 	rec := httptest.NewRecorder()
 	h.SearchMessages(rec, req)
@@ -251,7 +251,7 @@ func TestHandlers_PostChat_MissingConversationID(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	h := NewHandlers(db, &mockGrafanaAlertsFetcher{})
+	h := NewHandlers(db, &mockGrafanaAlertsFetcher{}, nil)
 	req := httptest.NewRequest(http.MethodPost, "/v1/adre/chat", bytes.NewReader([]byte(`{"ask":"hello"}`)))
 	req.Header.Set("Content-Type", "application/json")
 	rec := httptest.NewRecorder()
@@ -271,7 +271,7 @@ func TestHandlers_GetAlerts(t *testing.T) {
 
 	t.Run("Success", func(t *testing.T) {
 		alerts := []byte(`[{"labels":{"alertname":"test"},"annotations":{"summary":"Test"}}]`)
-		h := NewHandlers(db, &mockGrafanaAlertsFetcher{alerts: alerts})
+		h := NewHandlers(db, &mockGrafanaAlertsFetcher{alerts: alerts}, nil)
 		req := httptest.NewRequest(http.MethodGet, "/v1/adre/alerts", nil)
 		rec := httptest.NewRecorder()
 		h.GetAlerts(rec, req)
@@ -285,7 +285,7 @@ func TestHandlers_GetAlerts(t *testing.T) {
 	})
 
 	t.Run("EmptyAlerts", func(t *testing.T) {
-		h := NewHandlers(db, &mockGrafanaAlertsFetcher{})
+		h := NewHandlers(db, &mockGrafanaAlertsFetcher{}, nil)
 		req := httptest.NewRequest(http.MethodGet, "/v1/adre/alerts", nil)
 		rec := httptest.NewRecorder()
 		h.GetAlerts(rec, req)

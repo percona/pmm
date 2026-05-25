@@ -130,6 +130,8 @@ var rules = map[string]role{
 
 	// Grafana panel render (image or JSON with image_url/dashboard_url).
 	"/v1/grafana/render": viewer,
+	// Observability map (intent-based dashboard/panel routing for ADRE/Holmes).
+	"/v1/grafana/observability-map": viewer,
 
 	// Investigations (AI Investigations).
 	"/v1/investigations": viewer,
