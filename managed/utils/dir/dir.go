@@ -19,6 +19,7 @@ package dir
 import (
 	"os"
 	"path/filepath"
+	"slices"
 
 	"github.com/pkg/errors"
 )
@@ -43,15 +44,6 @@ func CreateDataDir(path string, perm os.FileMode) error {
 // File name is joined with provided path.
 func FindFilesWithExtensions(path string, extensions ...string) ([]string, error) {
 	var paths []string
-	match := func(ext string) bool {
-		for _, e := range extensions {
-			if e == ext {
-				return true
-			}
-		}
-		return false
-	}
-
 	entries, err := os.ReadDir(path)
 	if err != nil {
 		return nil, err
@@ -61,7 +53,7 @@ func FindFilesWithExtensions(path string, extensions ...string) ([]string, error
 		if entry.IsDir() {
 			continue
 		}
-		if ext := filepath.Ext(entry.Name()); len(ext) > 0 && match(ext[1:]) {
+		if ext := filepath.Ext(entry.Name()); len(ext) > 0 && slices.Contains(extensions, ext[1:]) {
 			paths = append(paths, filepath.Join(path, entry.Name()))
 		}
 	}

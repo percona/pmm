@@ -121,7 +121,7 @@ func TestAgentRequestWithTruncatedInvalidUTF8(t *testing.T) {
 			Id:      uint32(1),
 			Payload: (&agentv1.QANCollectResponse{}).ServerMessageResponsePayload(),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, "SELECT * FROM contacts t0 WHERE t0.person_id = '\u0241\ufffd\\uD83D\ufffdÃ¼\ufffd'", msg.GetQanCollect().MetricsBucket[0].Common.Example)
 
 		_, err = stream.Recv()
@@ -170,7 +170,7 @@ func TestAgentRequest(t *testing.T) {
 				Id:      i,
 				Payload: (&agentv1.QANCollectResponse{}).ServerMessageResponsePayload(),
 			})
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		}
 
 		return nil
@@ -229,7 +229,7 @@ func TestServerRequest(t *testing.T) {
 				Id:      i,
 				Payload: (&agentv1.Ping{}).ServerMessageRequestPayload(),
 			})
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		}
 
 		for i := uint32(1); i <= count; i++ {
@@ -302,7 +302,7 @@ func TestAgentClosesStream(t *testing.T) {
 			Id:      1,
 			Payload: (&agentv1.Ping{}).ServerMessageRequestPayload(),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		msg, err := stream.Recv()
 		assert.Equal(t, io.EOF, err)
@@ -319,7 +319,7 @@ func TestAgentClosesStream(t *testing.T) {
 	assert.IsType(t, &agentv1.Ping{}, req.Payload)
 
 	err := channel.s.CloseSend()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }
 
 func TestAgentClosesConnection(t *testing.T) {
@@ -331,7 +331,7 @@ func TestAgentClosesConnection(t *testing.T) {
 			Id:      1,
 			Payload: (&agentv1.Ping{}).ServerMessageRequestPayload(),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		msg, err := stream.Recv()
 		assert.Equal(t, status.Error(codes.Canceled, context.Canceled.Error()).Error(), err.Error())
@@ -355,7 +355,7 @@ func TestAgentClosesConnection(t *testing.T) {
 	assert.IsType(t, &agentv1.Ping{}, req.Payload)
 
 	err := cc.Close()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	wg.Wait()
 }
 
@@ -367,7 +367,7 @@ func TestUnexpectedResponseIDFromServer(t *testing.T) {
 			Id:      111,
 			Payload: (&agentv1.QANCollectResponse{}).ServerMessageResponsePayload(),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		close(unexpectedIDSent)
 
 		// Check that channel is still open.
@@ -375,9 +375,9 @@ func TestUnexpectedResponseIDFromServer(t *testing.T) {
 			Id:      1,
 			Payload: (&agentv1.Ping{}).ServerMessageRequestPayload(),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		pong, err := stream.Recv()
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, pong)
 		return nil
 	}
@@ -401,7 +401,7 @@ func TestUnexpectedResponsePayloadFromServer(t *testing.T) {
 			Id:      1,
 			Payload: (&agentv1.Ping{}).ServerMessageRequestPayload(),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		_, _ = stream.Recv()
 
 		// test unexpected payload
@@ -411,7 +411,7 @@ func TestUnexpectedResponsePayloadFromServer(t *testing.T) {
 		require.NoError(t, err)
 
 		msg, err := stream.Recv()
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, int32(codes.Unimplemented), msg.GetStatus().GetCode())
 		return nil
 	}

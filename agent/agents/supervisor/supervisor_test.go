@@ -259,8 +259,7 @@ func TestSupervisor(t *testing.T) {
 }
 
 func TestStartProcessFail(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx := t.Context()
 	tempDir := t.TempDir()
 	cfgStorage := config.NewStorage(&config.Config{
 		Paths:         config.Paths{TempDir: tempDir},

@@ -27,7 +27,6 @@
         - /var/log/clickhouse-keeper
         - /var/log/nginx
         - /var/lib/pgsql
-        - /var/lib/rpm
         - /var/cache/dnf
         - /var/cache/yum
         - /usr/local/percona/pmm/config/pmm-agent.yaml
