@@ -406,35 +406,11 @@ To disable query examples for data privacy:
 
 ### Add service to PMM
 
-After creating your PMM database user, you can quickly add your MySQL service to PMM. You can do this either through the PMM user interface or via the command line.
+After creating your PMM database user, you can add your MySQL service to PMM using the command line or the UI.
 
-=== "Via UI"
+The **command line** (`pmm-admin`) deploys an exporter directly on the database host and automatically collects node-level metrics (CPU, memory, disk I/O) alongside MySQL metrics. Use the UI only if you cannot install PMM Client on the database host.
 
-    To add the service from the user interface:
-    {.power-number}
-    
-    1. Go to **Inventory > Add Service**.
-    
-    2. Select **MySQL** service type.
-    
-    3. Enter or select values for the fields:
-
-        - **Service Name**: A descriptive name for your MySQL instance
-        - **Host/Socket**: Use `localhost` for local monitoring or hostname/IP for remote monitoring
-        - **Port**: MySQL port (default: 3306)
-        - **Username**: The PMM user created earlier
-        - **Password**: Your PMM user password
-        - **Query Source**: Choose between **Slow Log** or **Performance Schema**
-        - **PMM Agent**: Select which PMM agent should monitor this instance
-        - **Disable query examples**: Check this option to prevent collection of actual query values in QAN. When enabled, PMM will continue to collect query metrics and statistics but will not store the actual query examples with real data values.
-        - **Connection timeout**: How long PMM should wait when connecting to this service. Increase this for remote or high-latency databases. If the connection times out, PMM retries the next time it collects metrics. Leave empty to use the default of 2s.
-
-    4. Click **Add Service**.
-
-    5. If using TLS, check **Use TLS for database connections** and fill in your TLS certificates and key information. 
-    ![TLS Configuration Screen](../../../../images/PMM_Add_Instance_MySQL_TLS.png)
-
-=== "Via command line "
+=== "Via command line (recommended)"
 
     === "Basic setup"
     
@@ -530,6 +506,32 @@ After creating your PMM database user, you can quickly add your MySQL service to
         !!! caution "Security warning"
             The `allowCleartextPasswords=1` parameter transmits passwords without encryption. 
             Only use when connections are secured with TLS/SSL or over trusted networks.
+
+=== "Via UI"
+
+    To add the service from the user interface:
+    {.power-number}
+    
+    1. Go to **Inventory > Add Service**.
+    
+    2. Select **MySQL** service type.
+    
+    3. Enter or select values for the fields:
+
+        - **Service Name**: A descriptive name for your MySQL instance
+        - **Host/Socket**: Use `localhost` for local monitoring or hostname/IP for remote monitoring
+        - **Port**: MySQL port (default: 3306)
+        - **Username**: The PMM user created earlier
+        - **Password**: Your PMM user password
+        - **Query Source**: Choose between **Slow Log** or **Performance Schema**
+        - **PMM Agent**: Select which PMM agent should monitor this instance
+        - **Disable query examples**: Check this option to prevent collection of actual query values in QAN. When enabled, PMM will continue to collect query metrics and statistics but will not store the actual query examples with real data values.
+        - **Connection timeout**: How long PMM should wait when connecting to this service. Increase this for remote or high-latency databases. If the connection times out, PMM retries the next time it collects metrics. Leave empty to use the default of 2s.
+
+    4. Click **Add Service**.
+
+    5. If using TLS, check **Use TLS for database connections** and fill in your TLS certificates and key information. 
+    ![TLS Configuration Screen](../../../../images/PMM_Add_Instance_MySQL_TLS.png)
 
 #### TLS/SSL certificate configuration
 
