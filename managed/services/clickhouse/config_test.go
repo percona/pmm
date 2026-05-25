@@ -46,7 +46,8 @@ func TestValidateClickHouseConfigAt(t *testing.T) {
 
 	dir := t.TempDir()
 	// A config is valid as long as <name>-config.xml exists.
-	writeConfigFiles(t, dir,
+	writeConfigFiles(
+		t, dir,
 		"default-config.xml",
 		"low-memory-config.xml",
 	)
@@ -113,7 +114,8 @@ func TestAvailableClickHouseConfigs(t *testing.T) {
 		t.Parallel()
 
 		dir := t.TempDir()
-		writeConfigFiles(t, dir,
+		writeConfigFiles(
+			t, dir,
 			"low-memory-config.xml",
 			"default-config.xml",
 			"dhparam.pem", // not a *-config.xml, must be ignored
