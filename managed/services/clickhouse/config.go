@@ -30,7 +30,7 @@ const (
 )
 
 // GetClickhouseConfig returns the config name if the matching
-// <config>-config.xml and <config>-users.xml files exist on disk.
+// <config>-config.xml files exist on disk.
 // Empty input falls back to defaultClickhouseConfig.
 func GetClickhouseConfig(config string) (string, error) {
 	if config == "" {
@@ -47,7 +47,7 @@ func validateClickhouseConfigAt(config, dir string) error {
 		return fmt.Errorf("unable to get available ClickHouse configs: %w", err)
 	}
 
-	for _, suffix := range []string{"-config.xml", "-users.xml"} {
+	for _, suffix := range []string{"-config.xml"} {
 		path := filepath.Join(dir, config+suffix)
 		if _, err := os.Stat(path); err != nil {
 			if errors.Is(err, os.ErrNotExist) {
