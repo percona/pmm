@@ -22,7 +22,9 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/clickhouse"
 	"github.com/percona/pmm/managed/services/supervisord"
+	"github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/utils/logger"
 )
@@ -36,6 +38,10 @@ func main() {
 		logrus.SetLevel(logrus.TraceLevel)
 	}
 	envSettings, errs, warns := envvars.ParseEnvVars(os.Environ())
+	clickHouseConfig, err := clickhouse.GetClickhouseConfig(os.Getenv(env.ClickHouseConfig))
+	if err != nil {
+		errs = append(errs, err)
+	}
 	for _, warn := range warns {
 		logrus.Warnf("Configuration warning: %s", warn)
 	}
@@ -46,8 +52,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	err := models.ValidateSettings(envSettings)
-	if err != nil {
+	if err := models.ValidateSettings(envSettings); err != nil {
 		logrus.Errorf("Configuration error: %s.", err)
 		os.Exit(1)
 	}
@@ -56,6 +61,7 @@ func main() {
 	pmmConfigParams["DisableInternalDB"], _ = strconv.ParseBool(os.Getenv("PMM_DISABLE_BUILTIN_POSTGRES"))
 	pmmConfigParams["DisableInternalClickhouse"], _ = strconv.ParseBool(os.Getenv("PMM_DISABLE_BUILTIN_CLICKHOUSE"))
 	pmmConfigParams["AgentConfigFilePath"] = models.AgentConfigFilePath
+	pmmConfigParams["ClickhouseConfig"] = clickHouseConfig
 
 	isHAEnabled, _ := strconv.ParseBool(os.Getenv("PMM_HA_ENABLE"))
 	if isHAEnabled {

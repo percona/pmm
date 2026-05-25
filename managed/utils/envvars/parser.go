@@ -106,8 +106,8 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			"PMM_CLICKHOUSE_USER", "PMM_CLICKHOUSE_PASSWORD",
 			"PMM_CLICKHOUSE_HOST", "PMM_CLICKHOUSE_PORT",
 			"PMM_CLICKHOUSE_IS_CLUSTER", "PMM_CLICKHOUSE_CLUSTER_NAME",
-			"PMM_CLICKHOUSE_NODES", "PMM_DISABLE_BUILTIN_CLICKHOUSE":
-			// skip env variables for external clickhouse
+			"PMM_CLICKHOUSE_NODES", "PMM_DISABLE_BUILTIN_CLICKHOUSE",
+			pkgenv.ClickHouseConfig:
 			continue
 		case "PMM_POSTGRES_ADDR",
 			"PMM_POSTGRES_DBNAME",

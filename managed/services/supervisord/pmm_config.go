@@ -134,7 +134,7 @@ redirect_stderr = true
 
 [program:clickhouse]
 priority = 2
-command = /usr/bin/clickhouse-server --config-file=/etc/clickhouse-server/config.xml
+command = /usr/bin/clickhouse-server --config-file=/etc/clickhouse-server/{{ .ClickhouseConfig }}-config.xml
 autorestart = true
 autostart = true
 startretries = 10
