@@ -639,7 +639,7 @@
             "targets": [
                 {
                     "editorMode": "code",
-                    "expr": "sum(mongodb_dbstats_dataSize{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$rs_nm\", rs_state=\"1\", database!~\"admin|local|config\"}) + sum(mongodb_dbstats_indexSize{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$rs_nm\", rs_state=\"1\", database!~\"admin|local|config\"})",
+                    "expr": "sum(mongodb_dbstats_dataSize{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$rs_nm\", rs_state=\"1\", database!~\"^(admin|local|config)$\"}) + sum(mongodb_dbstats_indexSize{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$rs_nm\", rs_state=\"1\", database!~\"^(admin|local|config)$\"})",
                     "interval": "5m",
                     "intervalFactor": 1,
                     "legendFormat": "Total",
@@ -736,7 +736,7 @@
             "targets": [
                 {
                     "editorMode": "code",
-                    "expr": "sum(mongodb_dbstats_dataSize{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$rs_nm\", rs_state=\"1\", database!~\"admin|local|config\"}) + sum(mongodb_dbstats_indexSize{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$rs_nm\", rs_state=\"1\", database!~\"admin|local|config\"})",
+                    "expr": "sum(mongodb_dbstats_dataSize{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$rs_nm\", rs_state=\"1\", database!~\"^(admin|local|config)$\"}) + sum(mongodb_dbstats_indexSize{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$rs_nm\", rs_state=\"1\", database!~\"^(admin|local|config)$\"})",
                     "interval": "$interval",
                     "legendFormat": "Total Data Size",
                     "range": true,
@@ -2565,7 +2565,7 @@
                                 "value": [
                                     {
                                         "title": "",
-                                        "url": "/graph/d/mongodb-instance-summary/mongodb-instance-summary?${__data.fields.Node}\ufeff&\ufeff${__url_time_range}\ufeff&\ufeff${interval:queryparam}\ufeff&\ufeff${cluster:queryparam}\ufeff"
+                                        "url": "/graph/d/mongodb-instance-summary/mongodb-instance-summary?${__data.fields.Node}&${__url_time_range}&${interval:queryparam}&${cluster:queryparam}"
                                     }
                                 ]
                             }
@@ -2714,7 +2714,7 @@
                                 "value": [
                                     {
                                         "title": "",
-                                        "url": "/graph/d/mongodb-instance-summary/mongodb-instance-summary?${__data.fields.Node}\ufeff&\ufeff${__url_time_range}\ufeff&\ufeff${interval:queryparam}\ufeff&\ufeff${cluster:queryparam}"
+                                        "url": "/graph/d/mongodb-instance-summary/mongodb-instance-summary?${__data.fields.Node}&${__url_time_range}&${interval:queryparam}&${cluster:queryparam}"
                                     }
                                 ]
                             }
@@ -2876,7 +2876,7 @@
                                 "value": [
                                     {
                                         "title": "",
-                                        "url": "/graph/d/mongodb-instance-summary/mongodb-instance-summary?${__data.fields.Node}\ufeff&\ufeff${__url_time_range}\ufeff&\ufeff${interval:queryparam}\ufeff&\ufeff${cluster:queryparam}"
+                                        "url": "/graph/d/mongodb-instance-summary/mongodb-instance-summary?${__data.fields.Node}&${__url_time_range}&${interval:queryparam}&${cluster:queryparam}"
                                     }
                                 ]
                             }
@@ -3052,7 +3052,7 @@
                                 "value": [
                                     {
                                         "title": "",
-                                        "url": "/graph/d/mongodb-instance-summary/mongodb-instance-summary?${__data.fields.Node}\ufeff&\ufeff${__url_time_range}\ufeff&\ufeff${interval:queryparam}\ufeff&\ufeff${cluster:queryparam}"
+                                        "url": "/graph/d/mongodb-instance-summary/mongodb-instance-summary?${__data.fields.Node}&${__url_time_range}&${interval:queryparam}&${cluster:queryparam}"
                                     }
                                 ]
                             }
@@ -3278,7 +3278,7 @@
                     "targets": [
                         {
                             "editorMode": "code",
-                            "expr": "max_over_time(mongodb_mongod_replset_member_replication_lag{environment=~\"$environment\",cluster=~\"$cluster\",set=\"$rs_nm\",self=~\"|1\",service_name=~\"$secondary\"}[$interval]) > 0 ",
+                            "expr": "max_over_time(mongodb_mongod_replset_member_replication_lag{environment=~\"$environment\",cluster=~\"$cluster\",set=~\"$rs_nm\",self=~\"|1\",service_name=~\"$secondary\"}[$interval]) > 0 ",
                             "interval": "$interval",
                             "intervalFactor": 1,
                             "legendFormat": "{{service_name}}",

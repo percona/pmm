@@ -1371,7 +1371,7 @@
             "targets": [
                 {
                     "editorMode": "code",
-                    "expr": "sum(\n  sum by (rs_nm) (\n    sum(mongodb_dbstats_dataSize{environment=~\"$environment\", cluster=~\"$cluster\", cl_role=\"shardsvr\", rs_state=\"1\", database!~\"admin|local|config\"}) +\n    sum(mongodb_dbstats_indexSize{environment=~\"$environment\", cluster=~\"$cluster\", cl_role=\"shardsvr\", rs_state=\"1\", database!~\"admin|local|config\"})\n  )\n)",
+                    "expr": "sum(mongodb_dbstats_dataSize{environment=~\"$environment\", cluster=~\"$cluster\", cl_role=\"shardsvr\", rs_state=\"1\", database!~\"^(admin|local|config)$\"}) + sum(mongodb_dbstats_indexSize{environment=~\"$environment\", cluster=~\"$cluster\", cl_role=\"shardsvr\", rs_state=\"1\", database!~\"^(admin|local|config)$\"})",
                     "interval": "5m",
                     "intervalFactor": 1,
                     "legendFormat": "Total",
@@ -1468,7 +1468,7 @@
             "targets": [
                 {
                     "editorMode": "code",
-                    "expr": "sum(\n  sum by (rs_nm) (\n    sum(mongodb_dbstats_dataSize{environment=~\"$environment\", cluster=~\"$cluster\", cl_role=\"shardsvr\", rs_state=\"1\", database!~\"admin|local|config\"}) +\n    sum(mongodb_dbstats_indexSize{environment=~\"$environment\", cluster=~\"$cluster\", cl_role=\"shardsvr\", rs_state=\"1\", database!~\"admin|local|config\"})\n  )\n)",
+                    "expr": "sum(mongodb_dbstats_dataSize{environment=~\"$environment\", cluster=~\"$cluster\", cl_role=\"shardsvr\", rs_state=\"1\", database!~\"^(admin|local|config)$\"}) + sum(mongodb_dbstats_indexSize{environment=~\"$environment\", cluster=~\"$cluster\", cl_role=\"shardsvr\", rs_state=\"1\", database!~\"^(admin|local|config)$\"})",
                     "interval": "$interval",
                     "legendFormat": "Total Data Size",
                     "range": true,
@@ -2974,7 +2974,7 @@
                                         "value": [
                                             {
                                                 "title": "",
-                                                "url": "/graph/d/mongodb-instance-summary/mongodb-instance-summary?${__data.fields.Node}\ufeff&\ufeff${__url_time_range}\ufeff&\ufeff${interval:queryparam}\ufeff&\ufeff${cluster:queryparam}"
+                                                "url": "/graph/d/mongodb-instance-summary/mongodb-instance-summary?${__data.fields.Node}&${__url_time_range}&${interval:queryparam}&${cluster:queryparam}"
                                             }
                                         ]
                                     }
