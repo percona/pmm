@@ -27,6 +27,13 @@ Frequent elections can indicate connectivity issues or node failures. A stable r
 
 If the value is low, it may indicate a problem that needs investigation.
 
+### Total Data Size
+Shows the total logical data size (uncompressed data plus indexes) across all user databases on the replica set primary. System databases (`admin`, `local`, and `config`) are excluded.
+
+Use this metric to monitor data growth for the replica set, similar to the cluster data size view in Ops Manager. The **Data Size Over Time** graph shows the same total over the selected time range.
+
+This panel requires the MongoDB exporter **dbstats** collector. Enable it by turning on **Enable all collectors** for the MongoDB service in PMM (or ensure `dbstats` is not listed under disabled collectors).
+
 ### State
 Shows the current replica set state of this MongoDB node. MongoDB replica set members can be in various states including PRIMARY (handling all write operations), SECONDARY (replicating data from the primary), ARBITER (participating in elections but not storing data), or several transitional states.
 

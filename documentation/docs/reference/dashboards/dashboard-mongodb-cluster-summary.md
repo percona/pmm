@@ -79,6 +79,14 @@ Elections occur when a new primary node needs to be chosen, which can happen dur
 
 A very recent election might indicate a recent change or issue in your cluster that warrants investigation, while a long time since the last election suggests stability in the primary node assignment.
 
+### Total Data Size
+
+Shows the total logical data size (uncompressed data plus indexes) summed across all shard primaries in the cluster. System databases (`admin`, `local`, and `config`) are excluded. Config server metadata is not included in this total.
+
+Use this metric to monitor overall data growth for the sharded cluster, similar to the cluster data size view in Ops Manager. The **Data Size Over Time** graph shows the same total over the selected time range.
+
+This panel requires the MongoDB exporter **dbstats** collector on shard `mongod` nodes. Enable it by turning on **Enable all collectors** for the MongoDB service in PMM (or ensure `dbstats` is not listed under disabled collectors).
+
 ### Chunks distribution
 
 Displays the distribution of chunks across different shards in a MongoDB cluster as a series of horizontal bars. It updates every minute, showing the percentage of total chunks each shard holds.
