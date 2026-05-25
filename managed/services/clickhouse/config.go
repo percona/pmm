@@ -47,17 +47,16 @@ func validateClickhouseConfigAt(config, dir string) error {
 		return fmt.Errorf("unable to get available ClickHouse configs: %w", err)
 	}
 
-	for _, suffix := range []string{"-config.xml"} {
-		path := filepath.Join(dir, config+suffix)
-		if _, err := os.Stat(path); err != nil {
-			if errors.Is(err, os.ErrNotExist) {
-				return fmt.Errorf(
-					"invalid PMM_CLICKHOUSE_CONFIG=%q: %s not found; available configs: %v",
-					config, path, availableConfigs)
-			}
-			return fmt.Errorf("cannot stat %s: %w", path, err)
+	path := filepath.Join(dir, config+"-config.xml")
+	if _, err := os.Stat(path); err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return fmt.Errorf(
+				"invalid PMM_CLICKHOUSE_CONFIG=%q: %s not found; available configs: %v",
+				config, path, availableConfigs)
 		}
+		return fmt.Errorf("cannot stat %s: %w", path, err)
 	}
+
 	return nil
 }
 
