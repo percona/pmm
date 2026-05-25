@@ -39,6 +39,12 @@ import (
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/dump"
 	"github.com/percona/pmm/managed/services/grafana"
+	validators "github.com/percona/pmm/managed/utils/validators"
+)
+
+const (
+	// DumpEncryptionMinPasswordLength is the minimum length for dump encryption password if set.
+	dumpEncryptionMinPasswordLength = 8
 )
 
 // Service represents a structure for managing dump-related operations.
@@ -97,8 +103,8 @@ func (s *Service) StartDump(ctx context.Context, req *dumpv1beta1.StartDumpReque
 
 	// If auth cookie is present try to extract cookie value.
 	if len(cookieHeader) != 0 {
-		cookies := strings.Split(cookieHeader[0], ";")
-		for _, c := range cookies {
+		cookies := strings.SplitSeq(cookieHeader[0], ";")
+		for c := range cookies {
 			// The name of the cookie is defined in `./build/ansible/roles/grafana/files/grafana.ini`.
 			if auth, ok := strings.CutPrefix(strings.TrimSpace(c), "pmm_session="); ok {
 				cookie = auth
@@ -106,14 +112,26 @@ func (s *Service) StartDump(ctx context.Context, req *dumpv1beta1.StartDumpReque
 		}
 	}
 
+	if req.EnableEncryption {
+		if req.EncryptionPassword == "" {
+			return nil, status.Error(codes.InvalidArgument, "Encryption password must be provided when encryption is enabled")
+		}
+		err := validators.ValidatePassword(req.EncryptionPassword, dumpEncryptionMinPasswordLength)
+		if err != nil {
+			return nil, status.Error(codes.InvalidArgument, "Invalid encryption password: "+err.Error())
+		}
+	}
+
 	params := &dump.Params{
-		Token:        token,
-		Cookie:       cookie,
-		User:         user,
-		Password:     password,
-		ServiceNames: req.ServiceNames,
-		ExportQAN:    req.ExportQan,
-		IgnoreLoad:   req.IgnoreLoad,
+		Token:              token,
+		Cookie:             cookie,
+		User:               user,
+		Password:           password,
+		ServiceNames:       req.ServiceNames,
+		ExportQAN:          req.ExportQan,
+		IgnoreLoad:         req.IgnoreLoad,
+		EnableEncryption:   req.EnableEncryption,
+		EncryptionPassword: req.EncryptionPassword,
 	}
 
 	if req.StartTime != nil {
@@ -286,6 +304,7 @@ func convertDump(dump *models.Dump) (*dumpv1beta1.Dump, error) {
 		Status:       ds,
 		ServiceNames: dump.ServiceNames,
 		CreatedAt:    timestamppb.New(dump.CreatedAt),
+		Encrypted:    dump.Encrypted,
 	}
 
 	if dump.StartTime != nil {

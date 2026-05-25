@@ -37,7 +37,7 @@ type mongodbQueryAdmincommandAction struct {
 	dsn     string
 	files   *agentv1.TextFiles //nolint:unused
 	command string
-	arg     interface{}
+	arg     any
 	tmpDir  string
 }
 
@@ -48,7 +48,7 @@ func NewMongoDBQueryAdmincommandAction(
 	dsn string,
 	files *agentv1.TextFiles,
 	command string,
-	arg interface{},
+	arg any,
 	tempDir string,
 ) (Action, error) {
 	tmpDir := filepath.Join(tempDir, mongoDBQueryAdminCommandActionType, id)
@@ -104,12 +104,12 @@ func (a *mongodbQueryAdmincommandAction) Run(ctx context.Context) ([]byte, error
 	runCommand := bson.D{{a.command, a.arg}} //nolint:govet
 	res := client.Database("admin").RunCommand(ctx, runCommand)
 
-	var doc map[string]interface{}
+	var doc map[string]any
 	if err = res.Decode(&doc); err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	data := []map[string]interface{}{doc}
+	data := []map[string]any{doc}
 	return agentv1.MarshalActionQueryDocsResult(data)
 }
 

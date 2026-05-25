@@ -247,29 +247,11 @@ For `pg_stat_statements`, query examples are never collected by design, providin
 
 ## Add service to PMM
 
-After configuring your database server with the appropriate extension, you need to add it as a service to PMM. You can do this either through the PMM user interface or via the command line.
+After configuring your database server with the appropriate extension, you need to add it as a service to PMM. You can do this using the command line or the UI.
 
-=== "Via UI"
+The **command line** (`pmm-admin`) deploys an exporter directly on the database host and automatically collects node-level metrics (CPU, memory, disk I/O) alongside PostgreSQL metrics. Use the UI only if you cannot install PMM Client on the database host.
 
-    To add the service from the user interface:
-    {.power-number}
-    
-    1. Go to  **Inventory > Add service > PostgreSQL**.
-    
-    2. Enter or select values for the fields.
-
-    3. (Optional) Under **Additional options**, if using `pgstatmonitor`, check **Disable query examples** to prevent collection of actual query values. This protects sensitive data while preserving all query metrics and performance statistics in QAN.
-
-    4. Click **Add service**.
-    ![!](../../../images/PMM_Add_Instance_PostgreSQL.png)
-
-    5. If using TLS, check **Use TLS for database connections** and fill in your TLS certificates and key.        
-    For TLS connection, make sure SSL is configured in your PostgreSQL instance. 
-    
-    Make sure SSL is enabled in the server configuration file `postgresql.conf`, and that hosts are allowed to connect in the client authentication configuration file `pg_hba.conf`. 
-    See PostgreSQL documentation on [Secure TCP/IP Connections with SSL].
-
-=== "Via command line"
+=== "Via command line (recommended)"
 
     === "Basic setup"
     
@@ -334,6 +316,26 @@ After configuring your database server with the appropriate extension, you need 
         - `PORT`: PostgreSQL service port number
         - `USER`: Database user allowed to connect via TLS (should match the CN in the client certificate)
         - `SERVICE-NAME`: Name to give to the service within PMM
+
+=== "Via UI"
+
+    To add the service from the user interface:
+    {.power-number}
+    
+    1. Go to  **Inventory > Add service > PostgreSQL**.
+    
+    2. Enter or select values for the fields.
+
+    3. (Optional) Under **Additional options**, if using `pgstatmonitor`, check **Disable query examples** to prevent collection of actual query values. This protects sensitive data while preserving all query metrics and performance statistics in QAN.
+
+    4. Click **Add service**.
+    ![!](../../../images/PMM_Add_Instance_PostgreSQL.png)
+
+    5. If using TLS, check **Use TLS for database connections** and fill in your TLS certificates and key.        
+    For TLS connection, make sure SSL is configured in your PostgreSQL instance. 
+    
+    Make sure SSL is enabled in the server configuration file `postgresql.conf`, and that hosts are allowed to connect in the client authentication configuration file `pg_hba.conf`. 
+    See PostgreSQL documentation on [Secure TCP/IP Connections with SSL].
 
 ### Configure auto-discovery
 

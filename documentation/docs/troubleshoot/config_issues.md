@@ -20,6 +20,11 @@ You can get PMM Server logs with either of these methods:
 
 In a browser, visit `https://<address-of-your-pmm-server>/logs.zip`.
 
+By default, this returns the last 50,000 lines per log file. To control how many lines are included, add the `line-count` parameter to the URL:
+
+- specific line count: `https://<address-of-your-pmm-server>/logs.zip?line-count=10000`
+- full logs (all lines): `https://<address-of-your-pmm-server>/logs.zip?line-count=-1`
+
 **From Help menu**
 
 To obtain the logs:
@@ -29,6 +34,23 @@ To obtain the logs:
 1. From the main menu, choose **Help > PMM Logs > Export logs**.
 
 2. Save the downloaded file to share with our support team if needed.
+
+## Log file locations
+
+PMM Server stores all component logs in the `/srv/logs/` directory inside the container.
+
+To see which log files are available, run:
+
+=== "Docker"
+    ```bash
+    docker exec pmm-server ls /srv/logs/
+    ```
+
+=== "Podman"
+    ```bash
+    podman exec pmm-server ls /srv/logs/
+    ```
+
 
 ## Connection difficulties
 

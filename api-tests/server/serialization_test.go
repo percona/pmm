@@ -55,7 +55,7 @@ func TestSerialization(t *testing.T) {
 	b, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
 
-	var data map[string]interface{}
+	var data map[string]any
 	err = json.Unmarshal(b, &data)
 	require.NoError(t, err)
 
@@ -68,8 +68,8 @@ func TestSerialization(t *testing.T) {
 func extractJSONTagNames(v any) []string {
 	var res []string
 	t := reflect.ValueOf(v).Type()
-	for i := 0; i < t.NumField(); i++ {
-		if tag, ok := t.Field(i).Tag.Lookup("json"); ok {
+	for field := range t.Fields() {
+		if tag, ok := field.Tag.Lookup("json"); ok {
 			s := strings.Split(tag, ",")
 			res = append(res, s[0])
 		}

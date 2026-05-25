@@ -173,6 +173,24 @@ Check the following requirements:
 - **MongoDB exporter**: Must be configured and running. Go to **PMM Inventory > Services**, select your MongoDB service, and check that the MongoDB exporter shows **Running**.
 - **Admin role**: Only users with the **Admin** [role](../../admin/roles/index.md) can start or stop sessions. Users with other roles can view live data from running sessions.
 
+### Check RTA logs inside the container
+
+For deeper troubleshooting, you can inspect RTA-related logs directly inside the PMM Server container. RTA logs are written to `/srv/logs/qan-api2.log`.
+
+To follow the log as new entries are written:
+
+=== "Docker"
+    ```bash
+    docker exec pmm-server tail -f /srv/logs/qan-api2.log
+    ```
+
+=== "Podman"
+    ```bash
+    podman exec pmm-server tail -f /srv/logs/qan-api2.log
+    ```
+
+For a full list of available log files, see [Log file locations](../../troubleshoot/config_issues.md#log-file-locations).
+
 ## See also
 
 - [Query Analytics overview](index.md)
