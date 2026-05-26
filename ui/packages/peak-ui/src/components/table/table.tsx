@@ -167,7 +167,18 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
           variant: 'outlined',
           size: 'small',
           ...consumer,
-          sx: mergeSx(isRangeInput ? { minWidth: 0, width: '100%', mx: 0 } : {}, consumer?.sx),
+          sx: mergeSx(
+            isRangeInput
+              ? {
+                  minWidth: 0,
+                  width: '100%',
+                  mx: 0,
+                  '& .MuiInputAdornment-positionEnd': { display: 'none' },
+                  '& .MuiOutlinedInput-root': { paddingRight: 0 },
+                }
+              : {},
+            consumer?.sx
+          ),
         };
       }}
       muiToolbarAlertBannerProps={{
