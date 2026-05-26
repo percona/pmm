@@ -995,7 +995,8 @@
         <buffer_size_rows_flush_threshold>524288</buffer_size_rows_flush_threshold>
         <flush_on_crash>false</flush_on_crash>
         <ttl>event_date + INTERVAL 30 DAY DELETE</ttl>
-    </trace_log> -->
+    </trace_log>
+    -->
 
     <!-- Query thread log. Has information about all threads participated in query execution.
          Used only for queries with setting log_query_threads = 1. -->
@@ -1063,7 +1064,8 @@
         <collect_interval_milliseconds>1000</collect_interval_milliseconds>
         <flush_on_crash>false</flush_on_crash>
         <ttl>event_date + INTERVAL 30 DAY DELETE</ttl>
-    </metric_log> -->
+    </metric_log>
+    -->
 
     <!--
         Asynchronous metric log contains values of metrics from
@@ -1080,7 +1082,8 @@
         <buffer_size_rows_flush_threshold>524288</buffer_size_rows_flush_threshold>
         <flush_on_crash>false</flush_on_crash>
         <ttl>event_date + INTERVAL 30 DAY DELETE</ttl>
-    </asynchronous_metric_log> -->
+    </asynchronous_metric_log>
+    -->
 
     <!--
         OpenTelemetry log contains OpenTelemetry trace spans.
@@ -1138,7 +1141,8 @@
 
     <!-- Profiling on Processors level. -->
     <!-- PMM: processors_profile_log disabled — pipeline-level CH dev profiling, not used by PMM (PMM-15054). -->
-    <!-- <processors_profile_log>
+    <!--
+    <processors_profile_log>
         <database>system</database>
         <table>processors_profile_log</table>
 
@@ -1285,6 +1289,7 @@
     <!-- <max_partition_size_to_drop>0</max_partition_size_to_drop> -->
 
     <!-- Example of parameters for GraphiteMergeTree table engine -->
+    <!--
     <graphite_rollup_example>
         <pattern>
             <regexp>click_cost</regexp>
@@ -1314,6 +1319,7 @@
             </retention>
         </default>
     </graphite_rollup_example>
+    -->
 
     <!-- Directory in <clickhouse-path> containing schema files for various input formats.
          The directory will be created if it doesn't exist.

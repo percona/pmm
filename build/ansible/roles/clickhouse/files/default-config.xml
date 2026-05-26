@@ -1142,7 +1142,8 @@
 
     <!-- Profiling on Processors level. -->
     <!-- PMM: processors_profile_log disabled — pipeline-level CH dev profiling, not used by PMM (PMM-15054). -->
-    <!-- <processors_profile_log>
+    <!--
+    <processors_profile_log>
         <database>system</database>
         <table>processors_profile_log</table>
 
@@ -1159,7 +1160,8 @@
          of insert query in fire-and-forget mode.
     -->
     <!-- PMM: asynchronous_insert_log disabled — PMM does not use async inserts (PMM-15054). -->
-    <!-- <asynchronous_insert_log>
+    <!--
+    <asynchronous_insert_log>
         <database>system</database>
         <table>asynchronous_insert_log</table>
 
@@ -1200,7 +1202,7 @@
 
     <!-- Uncomment if you want data to be compressed 30-100% better.
          Don't do that if you just started using ClickHouse.
-      -->
+    -->
     <!--
     <compression>
         <!- - Set of variants. Checked in order. Last matching case wins. If nothing matches, lz4 will be used. - ->
@@ -1288,6 +1290,7 @@
     <!-- <max_partition_size_to_drop>0</max_partition_size_to_drop> -->
 
     <!-- Example of parameters for GraphiteMergeTree table engine -->
+    <!--
     <graphite_rollup_example>
         <pattern>
             <regexp>click_cost</regexp>
@@ -1317,6 +1320,7 @@
             </retention>
         </default>
     </graphite_rollup_example>
+    -->
 
     <!-- Directory in <clickhouse-path> containing schema files for various input formats.
          The directory will be created if it doesn't exist.
