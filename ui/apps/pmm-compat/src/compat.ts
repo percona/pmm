@@ -9,6 +9,7 @@ import {
   isRenderingServer,
 } from '@pmm/shared';
 import {
+  GRAFANA_DOCKED_LOCAL_STORAGE_KEY,
   GRAFANA_DOCKED_MENU_OPEN_LOCAL_STORAGE_KEY,
   GRAFANA_LOGIN_PATH,
   GRAFANA_SUB_PATH,
@@ -22,7 +23,7 @@ import { adjustToolbar } from 'compat/toolbar';
 import { isWithinIframe, getLinkWithVariables } from 'lib/utils';
 import { documentTitleObserver, updateBodyClassByLocation } from 'lib/utils/document';
 import { isFirstLogin, updateIsFirstLogin, isUserLoggedIn } from 'lib/utils/login';
-import { ServiceAddedEvent, ServiceDeletedEvent, SettingsUpdatedEvent, TimeZoneUpdatedEvent } from 'lib/events';
+import { ServiceAddedEvent, ServiceDeletedEvent, SettingsUpdatedEvent, FrontendSettingsUpdatedEvent, TimeZoneUpdatedEvent } from 'lib/events';
 import { handleExternalLinks } from 'compat/links';
 
 export const initialize = () => {
@@ -48,6 +49,19 @@ export const initialize = () => {
     return;
   }
 
+  // Collapse Grafana docked nav via localStorage before the shell reads it on boot. If keys were
+  // missing or not "false" (e.g. after "clear site data"), Grafana may have mounted nav already;
+  // reload once so the next boot sees the correct keys. When both are already "false", skip reload.
+  const prevOpen = localStorage.getItem(GRAFANA_DOCKED_MENU_OPEN_LOCAL_STORAGE_KEY);
+  const prevDock = localStorage.getItem(GRAFANA_DOCKED_LOCAL_STORAGE_KEY);
+  const needsNavReload = prevOpen !== 'false' || prevDock !== 'false';
+  localStorage.setItem(GRAFANA_DOCKED_MENU_OPEN_LOCAL_STORAGE_KEY, 'false');
+  localStorage.setItem(GRAFANA_DOCKED_LOCAL_STORAGE_KEY, 'false');
+  if (needsNavReload) {
+    window.location.reload();
+    return;
+  }
+
   // Register messenger to communicate with PMM UI (top frame)
   const messenger = new CrossFrameMessenger('GRAFANA').setTargetWindow(window.top!).register();
 
@@ -64,9 +78,6 @@ export const initialize = () => {
   });
 
   messenger.sendMessage({ type: 'MESSENGER_READY' });
-
-  // Ensure docked menu is closed in the iframe
-  localStorage.setItem(GRAFANA_DOCKED_MENU_OPEN_LOCAL_STORAGE_KEY, 'false');
 
   updateBodyClassByLocation(window.location);
   applyCustomStyles();
@@ -158,10 +169,22 @@ export const initialize = () => {
     },
   });
 
+  messenger.addListener({
+    type: 'SETTINGS_CHANGED',
+    onMessage: () => getAppEvents().publish(new SettingsUpdatedEvent()),
+  });
+
   getAppEvents().subscribe(SettingsUpdatedEvent, () => {
     messenger.sendMessage({
       type: 'SETTINGS_CHANGED',
     });
+  });
+
+  getAppEvents().subscribe(FrontendSettingsUpdatedEvent, () => {
+    messenger.sendMessage({
+      type: 'FRONTEND_SETTINGS_CHANGED',
+    });
+    window.location.reload();
   });
 
   getAppEvents().subscribe(ServiceAddedEvent, () => {

@@ -187,7 +187,7 @@ func FindServicesSoftwareVersions(
 	filter FindServicesSoftwareVersionsFilter,
 	orderBy SoftwareVersionsOrderBy,
 ) ([]*ServiceSoftwareVersions, error) {
-	var args []interface{}
+	var args []any
 	var tail strings.Builder
 	idx := 1
 

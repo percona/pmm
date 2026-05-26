@@ -178,3 +178,4 @@ Check the following requirements:
 - [Query Analytics overview](index.md)
 - [Connect MongoDB to PMM](../../install-pmm/install-pmm-client/connect-database/mongodb.md)
 - [MongoDB dashboards](../../reference/dashboards/dashboard-mongodb-instance-summary.md)
+- [Configuration issues](../../troubleshoot/config_issues.md)

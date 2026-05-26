@@ -147,6 +147,14 @@ Shows current, available, and idle connections over time.
 
 When current connections approach the maximum, the instance is near its connection limit. A high idle count suggests inefficient connection pooling. A sudden drop to zero means the instance became unreachable.
 
+### Fragmentation Analysis
+
+Shows the estimated fragmentation percentage for each collection, organized by database and node. The value is calculated as the ratio of free (unused) storage to total allocated storage, and the table is sorted from most to least fragmented. Only the top 100 collections are shown; admin and config databases are excluded.
+
+Fragmentation builds up when documents are deleted or moved, leaving gaps in storage blocks that MongoDB has not yet reclaimed. A value of 30% means roughly 30% of that collection's allocated space is wasted. 
+
+Use this table to identify collections worth compacting — run `compact` on the affected nodes during a maintenance window to reclaim disk space.
+
 ## Replication
 
 ### Replication Lag

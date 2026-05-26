@@ -64,11 +64,11 @@ func TestMySQLExplain(t *testing.T) {
 
 		var er explainResponse
 		err = json.Unmarshal(b, &er)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		actual := strings.TrimSpace(string(er.ExplainResult))
 		switch fmt.Sprintf("%s-%s", mySQLVersion, mySQLVendor) {
-		case "9.5-oracle", "9.6-oracle":
+		case "9.5-oracle", "9.6-oracle", "9.7-oracle":
 			// Explain output changed. More checks should be done. See: PMM-14426
 			assert.Contains(t, actual, "Table scan on city")
 		default:
@@ -100,19 +100,19 @@ func TestMySQLExplain(t *testing.T) {
 
 		var er explainResponse
 		err = json.Unmarshal(b, &er)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		m, err := objx.FromJSON(string(er.ExplainResult))
 		require.NoError(t, err)
 
 		switch fmt.Sprintf("%s-%s", mySQLVersion, mySQLVendor) {
-		case "9.5-oracle", "9.6-oracle":
+		case "9.5-oracle", "9.6-oracle", "9.7-oracle":
 			// Explain output changed. More checks should be done. See: PMM-14426
 			require.Empty(t, m.Get("warnings").InterSlice())
 		default:
 			assert.Equal(t, 1, m.Get("query_block.select_id").Int())
 
-			var table map[string]interface{}
+			var table map[string]any
 			if mySQLVendor == version.MariaDBVendor {
 				if mySQLVersion.Float() >= 11 {
 					table = m.Get("query_block.nested_loop[0].read_sorted_file.filesort.table").MSI()
@@ -126,7 +126,7 @@ func TestMySQLExplain(t *testing.T) {
 
 			assert.Equal(t, "city", table["table_name"])
 			if mySQLVersion.String() != "5.6" && mySQLVendor != version.MariaDBVendor {
-				assert.Equal(t, []interface{}{"ID", "Name", "CountryCode", "District", "Population"}, table["used_columns"])
+				assert.Equal(t, []any{"ID", "Name", "CountryCode", "District", "Population"}, table["used_columns"])
 			}
 
 			if mySQLVendor != version.MariaDBVendor {
@@ -158,15 +158,15 @@ func TestMySQLExplain(t *testing.T) {
 
 		var er explainResponse
 		err = json.Unmarshal(b, &er)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
-		var actual [][]interface{}
+		var actual [][]any
 		err = json.Unmarshal(er.ExplainResult, &actual)
 		require.NoError(t, err)
 		require.Len(t, actual, 2)
 
 		switch fmt.Sprintf("%s-%s", mySQLVersion, mySQLVendor) {
-		case "9.5-oracle", "9.6-oracle":
+		case "9.5-oracle", "9.6-oracle", "9.7-oracle":
 			// Explain output changed. More checks should be done. See: PMM-14426
 		default:
 			// Check some columns names
@@ -182,9 +182,9 @@ func TestMySQLExplain(t *testing.T) {
 			assert.Contains(t, actual[0], "Extra")
 
 			// Checks some stable values
-			assert.InEpsilon(t, float64(1), actual[1][0], 0.0001) // id
-			assert.Equal(t, "SIMPLE", actual[1][1])               // select_type
-			assert.Equal(t, "city", actual[1][2])                 // table
+			assert.InDelta(t, float64(1), actual[1][0], 0.0001) // id
+			assert.Equal(t, "SIMPLE", actual[1][1])             // select_type
+			assert.Equal(t, "city", actual[1][2])               // table
 		}
 	})
 
@@ -196,7 +196,7 @@ func TestMySQLExplain(t *testing.T) {
 			OutputFormat: agentv1.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
 		}
 		a, err := NewMySQLExplainAction("", time.Second, params)
-		assert.ErrorContains(t, err, `Query to EXPLAIN is empty`)
+		require.ErrorContains(t, err, `Query to EXPLAIN is empty`)
 		assert.Nil(t, a)
 	})
 
@@ -218,7 +218,7 @@ func TestMySQLExplain(t *testing.T) {
 		require.NoError(t, err)
 		var er explainResponse
 		err = json.Unmarshal(resp, &er)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.True(t, er.IsDMLQuery)
 		assert.Equal(t, `SELECT * FROM city  WHERE Name='Rosario'`, er.Query)
 	})
@@ -232,7 +232,7 @@ func TestMySQLExplain(t *testing.T) {
 			OutputFormat: agentv1.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
 		}
 		a, err := NewMySQLExplainAction("", time.Second, params)
-		assert.ErrorContains(t, err, "EXPLAIN failed because the query exceeded max length and got trimmed. Set max-query-length to a larger value.")
+		require.ErrorContains(t, err, "EXPLAIN failed because the query exceeded max length and got trimmed. Set max-query-length to a larger value.")
 		assert.Nil(t, a)
 	})
 

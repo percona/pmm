@@ -20,7 +20,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/percona/pmm/managed/models"
@@ -43,8 +42,8 @@ func TestEnvVarValidator(t *testing.T) {
 		}
 		expectedEnvVars := &models.ChangeSettingsParams{
 			DataRetention:   72 * time.Hour,
-			EnableTelemetry: pointer.ToBool(true),
-			EnableUpdates:   pointer.ToBool(false),
+			EnableTelemetry: new(true),
+			EnableUpdates:   new(false),
 			EnableAdvisors:  nil,
 			MetricsResolutions: models.MetricsResolutions{
 				HR: 5 * time.Minute,
@@ -220,7 +219,7 @@ func TestEnvVarValidator(t *testing.T) {
 		expectedEnvVars := &models.ChangeSettingsParams{}
 
 		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
-		assert.Equal(t, gotEnvVars, expectedEnvVars)
+		assert.Equal(t, expectedEnvVars, gotEnvVars)
 		assert.Nil(t, gotErrs)
 		assert.Nil(t, gotWarns)
 	})
@@ -241,7 +240,7 @@ func TestEnvVarValidator(t *testing.T) {
 		expectedEnvVars := &models.ChangeSettingsParams{}
 
 		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
-		assert.Equal(t, gotEnvVars, expectedEnvVars)
+		assert.Equal(t, expectedEnvVars, gotEnvVars)
 		assert.Nil(t, gotErrs)
 		assert.Nil(t, gotWarns)
 	})

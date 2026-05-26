@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package management.v1;
 
+import "extensions/v1/redact.proto";
+import "google/protobuf/duration.proto";
 import "inventory/v1/agents.proto";
 import "inventory/v1/log_level.proto";
 import "inventory/v1/services.proto";
@@ -39,9 +41,9 @@ message AddValkeyServiceParams {
   // The "pmm-agent" identifier which should run agents. Required.
   string pmm_agent_id = 8 [(validate.rules).string.min_len = 1];
   // Valkey username for scraping metrics.
-  string username = 9;
+  string username = 9 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Valkey password for scraping metrics.
-  string password = 10;
+  string password = 10 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Environment name.
   string environment = 11;
   // Cluster name.
@@ -67,11 +69,15 @@ message AddValkeyServiceParams {
   // TLS CA certificate.
   string tls_ca = 21;
   // TLS Certifcate.
-  string tls_cert = 22;
+  string tls_cert = 22 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // TLS Certificate Key.
-  string tls_key = 23;
+  string tls_key = 23 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Custom password for exporter endpoint /metrics.
-  string agent_password = 24;
+  string agent_password = 24 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 25 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 message ValkeyServiceResult {

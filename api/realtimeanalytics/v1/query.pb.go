@@ -15,6 +15,8 @@ import (
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
+
+	_ "github.com/percona/pmm/api/extensions/v1"
 )
 
 const (
@@ -280,7 +282,7 @@ var File_realtimeanalytics_v1_query_proto protoreflect.FileDescriptor
 
 const file_realtimeanalytics_v1_query_proto_rawDesc = "" +
 	"\n" +
-	" realtimeanalytics/v1/query.proto\x12\x14realtimeanalytics.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xda\x02\n" +
+	" realtimeanalytics/v1/query.proto\x12\x14realtimeanalytics.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe0\x02\n" +
 	"\x10QueryMongoDBData\x12.\n" +
 	"\x13db_instance_address\x18\x01 \x01(\tR\x11dbInstanceAddress\x12&\n" +
 	"\x0fclient_app_name\x18\x02 \x01(\tR\rclientAppName\x12#\n" +
@@ -289,8 +291,8 @@ const file_realtimeanalytics_v1_query_proto_rawDesc = "" +
 	"collection\x18\x04 \x01(\tR\n" +
 	"collection\x12\x1c\n" +
 	"\toperation\x18\x05 \x01(\tR\toperation\x12L\n" +
-	"\x14operation_start_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\x12operationStartTime\x12\x1a\n" +
-	"\busername\x18\a \x01(\tR\busername\x12!\n" +
+	"\x14operation_start_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\x12operationStartTime\x12 \n" +
+	"\busername\x18\a \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12!\n" +
 	"\fplan_summary\x18\b \x01(\tR\vplanSummary\"\xd2\x03\n" +
 	"\tQueryData\x12\x1d\n" +
 	"\n" +

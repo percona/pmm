@@ -117,6 +117,14 @@ Shows the MongoDB version running on each service in the cluster. Check this aft
 
 Shows the PRIMARY, SECONDARY, ARBITER, or other state of each node in a replica set over time as a state timeline. One timeline is shown per replica set. Use this to identify when role changes happened and whether any node has been in an unexpected state for an extended period.
 
+### Fragmentation Analysis
+
+Shows the estimated fragmentation percentage for each collection, broken down by shard. The value is calculated as the ratio of free (unused) storage to total allocated storage, and the table is sorted from most to least fragmented. Only the top 100 collections are shown; admin and config databases are excluded.
+
+Fragmentation builds up when documents are deleted or moved, leaving gaps in storage blocks that MongoDB has not yet reclaimed. A value of 30% means roughly 30% of that collection's allocated space is wasted. 
+
+Use this table to identify collections worth compacting — run `compact` on the affected nodes during a maintenance window to reclaim disk space.
+
 ## Connections
 
 ### Current Connections Per Shard

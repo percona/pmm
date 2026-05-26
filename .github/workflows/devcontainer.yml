@@ -36,6 +36,10 @@ jobs:
         with:
           ref: ${{ github.event.inputs.branch }}
 
+      - name: Detect GO Version
+        run: |
+          echo "GO_VERSION=$(grep '^go ' ./go.mod | awk '{print $2}')" >> $GITHUB_ENV
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
 
@@ -54,7 +58,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Build and push to registries
-        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
         with:
           file: ./.devcontainer/Dockerfile
           context: .
@@ -62,3 +66,5 @@ jobs:
           tags: |
             ${{ env.GH_DEVCONTAINER_IMAGE }}
             ${{ env.LAB_DEVCONTAINER_IMAGE }}
+          build-args: |
+              GO_VERSION=${{ env.GO_VERSION }}

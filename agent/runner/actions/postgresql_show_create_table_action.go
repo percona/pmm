@@ -167,7 +167,7 @@ func (a *postgresqlShowCreateTableAction) Run(ctx context.Context) ([]byte, erro
 func (a *postgresqlShowCreateTableAction) printTableInit(ctx context.Context, w io.Writer, db *sql.DB) (string, error) {
 	var tableID, schema, relname string
 	var namespaceQuery string
-	var args []interface{}
+	var args []any
 	table := strings.Split(a.params.Table, ".")
 	switch len(table) {
 	case 2:
@@ -240,7 +240,8 @@ ORDER BY a.attnum;`, tableID)
 			&ci.Attidentity,
 			&ci.Attstorage,
 			&ci.Attstattarget,
-			&ci.ColDescription)
+			&ci.ColDescription,
+		)
 		if err != nil {
 			return errors.WithStack(err)
 		}
@@ -311,7 +312,8 @@ ORDER BY i.indisprimary DESC, i.indisunique DESC, c2.relname`, tableID)
 			&info.Condeferrable,
 			&info.Condeferred,
 			&info.Indisreplident,
-			&info.Reltablespace)
+			&info.Reltablespace,
+		)
 		if err != nil {
 			return errors.WithStack(err)
 		}
@@ -384,7 +386,8 @@ ORDER BY conname`, tableID)
 		var conname, condef string
 		err = rows.Scan(
 			&conname,
-			&condef)
+			&condef,
+		)
 		if err != nil {
 			return errors.WithStack(err)
 		}
@@ -426,7 +429,8 @@ ORDER BY conname`, tableID)
 		err = rows.Scan(
 			&conname,
 			&conrelid,
-			&condef)
+			&condef,
+		)
 		if err != nil {
 			return errors.WithStack(err)
 		}
@@ -466,7 +470,8 @@ ORDER BY conname`, tableID)
 		var conname, condef string
 		err = rows.Scan(
 			&conname,
-			&condef)
+			&condef,
+		)
 		if err != nil {
 			return errors.WithStack(err)
 		}
