@@ -59,7 +59,7 @@ func NewMetrics(db *sqlx.DB) Metrics {
 func (m *Metrics) Get(ctx context.Context, periodStartFromSec, periodStartToSec int64, filter, group string,
 	dimensions, labels map[string][]string, totals bool,
 ) ([]M, error) {
-	arg := map[string]interface{}{
+	arg := map[string]any{
 		"period_start_from": periodStartFromSec,
 		"period_start_to":   periodStartToSec,
 	}
@@ -519,7 +519,7 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 	amountOfPoints += remainder / minutesInPoint
 	timeFrame := minutesInPoint * secondsPerMinute
 
-	arg := map[string]interface{}{
+	arg := map[string]any{
 		"period_start_from": periodStartFromSec,
 		"period_start_to":   periodStartToSec,
 	}
@@ -626,7 +626,7 @@ var tmplQueryExample = template.Must(template.New("queryExampleTmpl").Funcs(func
 func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, periodStartTo time.Time, filter,
 	group string, limit uint32, dimensions, labels map[string][]string,
 ) (*qanv1.GetQueryExampleResponse, error) {
-	arg := map[string]interface{}{
+	arg := map[string]any{
 		"filter":            filter,
 		"group":             group,
 		"period_start_to":   periodStartTo,
@@ -739,7 +739,7 @@ type queryRowsLabels struct {
 func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, periodStartFrom, periodStartTo time.Time, filter,
 	group string,
 ) (*qanv1.GetLabelsResponse, error) {
-	arg := map[string]interface{}{
+	arg := map[string]any{
 		"filter":            filter,
 		"group":             group,
 		"period_start_to":   periodStartTo,
@@ -890,7 +890,7 @@ func (m *Metrics) GetFingerprintByQueryID(ctx context.Context, queryID string) (
 	defer cancel()
 
 	var fingerprint string
-	err := m.db.GetContext(queryCtx, &fingerprint, fingerprintByQueryID, []interface{}{queryID}...)
+	err := m.db.GetContext(queryCtx, &fingerprint, fingerprintByQueryID, []any{queryID}...)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return "", fmt.Errorf("QueryxContext error:%v", err) //nolint:errorlint
 	}
@@ -934,7 +934,7 @@ ORDER BY period_start DESC;
 func (m *Metrics) SelectHistogram(ctx context.Context, periodStartFromSec, periodStartToSec int64,
 	dimensions, labels map[string][]string, queryID string,
 ) (*qanv1.GetHistogramResponse, error) {
-	arg := map[string]interface{}{
+	arg := map[string]any{
 		"period_start_from": periodStartFromSec,
 		"period_start_to":   periodStartToSec,
 		"queryid":           queryID,
@@ -1025,7 +1025,7 @@ WHERE service_id = :service_id AND example = :query LIMIT 1;
 
 // QueryExists check if query value in request exists by example in clickhouse.
 func (m *Metrics) QueryExists(ctx context.Context, serviceID, query string) (bool, error) {
-	arg := map[string]interface{}{
+	arg := map[string]any{
 		"service_id": serviceID,
 		"query":      query,
 	}
@@ -1064,7 +1064,7 @@ WHERE service_id = :service_id AND queryid = :query_id LIMIT 1;`
 
 // SchemaByQueryID returns schema for given queryID and serviceID.
 func (m *Metrics) SchemaByQueryID(ctx context.Context, serviceID, queryID string) (*qanv1.SchemaByQueryIDResponse, error) {
-	arg := map[string]interface{}{
+	arg := map[string]any{
 		"service_id": serviceID,
 		"query_id":   queryID,
 	}
@@ -1110,7 +1110,7 @@ WHERE service_id = :service_id AND queryid = :query_id LIMIT 1;
 
 // ExplainFingerprintByQueryID get explain fingerprint and placeholders count for given queryid.
 func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, queryID string) (*qanv1.ExplainFingerprintByQueryIDResponse, error) {
-	arg := map[string]interface{}{
+	arg := map[string]any{
 		"service_id": serviceID,
 		"query_id":   queryID,
 	}
@@ -1198,7 +1198,7 @@ WHERE period_start >= :period_start_from AND period_start <= :period_start_to
 func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromSec, periodStartToSec int64, filter, group string,
 	dimensions, labels map[string][]string, totals bool,
 ) (*qanv1.GetSelectedQueryMetadataResponse, error) {
-	arg := map[string]interface{}{
+	arg := map[string]any{
 		"period_start_from": periodStartFromSec,
 		"period_start_to":   periodStartToSec,
 	}

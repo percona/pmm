@@ -21,6 +21,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"slices"
 	"strings"
 	"time"
 
@@ -175,7 +176,7 @@ type pbmConfigParams struct {
 	dsn            string
 }
 
-func execPBMCommand(ctx context.Context, dsn string, to interface{}, args ...string) error {
+func execPBMCommand(ctx context.Context, dsn string, to any, args ...string) error {
 	nCtx, cancel := context.WithTimeout(ctx, cmdTimeout)
 	defer cancel()
 
@@ -289,13 +290,13 @@ func waitForPBMBackup(ctx context.Context, l logrus.FieldLogger, dsn string, nam
 }
 
 func findPITRRestore(list []pbmListRestore, restoreInfoPITRTime int64, startedAt time.Time) *pbmListRestore {
-	for i := len(list) - 1; i >= 0; i-- {
+	for _, v := range slices.Backward(list) {
 		// TODO when PITR restore invoked with wrong timestamp pbm marks this restore operation as "snapshot" type.
-		if list[i].Type == "snapshot" && list[i].Snapshot != "" {
+		if v.Type == "snapshot" && v.Snapshot != "" {
 			continue
 		}
 		// list[i].Name is a string which represents time the restore was started.
-		restoreStartedAt, err := time.Parse(time.RFC3339Nano, list[i].Name)
+		restoreStartedAt, err := time.Parse(time.RFC3339Nano, v.Name)
 		if err != nil {
 			continue
 		}
@@ -303,8 +304,8 @@ func findPITRRestore(list []pbmListRestore, restoreInfoPITRTime int64, startedAt
 		// 1. We received PITR field as a response on starting process
 		// 2. There is a record with the same PITR field in the list of restoring records
 		// 3. Start time of this record is not before the time we asked for restoring.
-		if list[i].PITR == restoreInfoPITRTime && !restoreStartedAt.Before(startedAt) {
-			return &list[i]
+		if v.PITR == restoreInfoPITRTime && !restoreStartedAt.Before(startedAt) {
+			return &v
 		}
 	}
 	return nil
