@@ -588,6 +588,7 @@ nav:
               - reference/dashboards/dashboard-ha-health-overview.md
               - reference/dashboards/dashboard-pxc-galera-node-summary.md
               - reference/dashboards/dashboard-pxc-galera-nodes-compare.md
+              - reference/dashboards/dashboard-pxc-galera-cluster-summary.md
               - reference/dashboards/dashboard-haproxy-instance-summary.md
       - reference/nomad.md
       - reference/glossary.md

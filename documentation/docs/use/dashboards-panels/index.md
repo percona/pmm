@@ -182,4 +182,5 @@ Performance Monitoring and Management (PMM) offers a range of dashboards you can
 [Valkey/Redis Slowlog]: ../../reference/dashboards/dashboard-valkey-redis-slowlog.md
 [PXC/Galera Node Summary]: ../../reference/dashboards/dashboard-pxc-galera-node-summary.md
 [PXC/Galera Nodes Compare]: ../../reference/dashboards/dashboard-pxc-galera-nodes-compare.md
-[HAProxy Instance Summary]: ../../reference/dashboards/dashboard-haproxy-instance-summary.md
+[HAProxy Instance Summary]: ../../reference/dashboards/
+[PXC/Galera Cluster Summary]:../../reference/dashboards/dashboard-mongodb-cluster-summary.md
