@@ -51,6 +51,8 @@ var (
 	}
 	tableRefPattern = regexp.MustCompile(`(?is)\b(?:FROM|JOIN)\s+(?:ONLY\s+)?([a-zA-Z][a-zA-Z0-9_.]*)`)
 	limitPattern    = regexp.MustCompile(`(?is)\blimit\s+(\d+)\s*(?:offset\s+\d+)?\s*$`)
+	// LLM often emits JSON-style map keys; ClickHouse requires single-quoted keys in ['key'].
+	clickHouseMapDoubleQuoteKey = regexp.MustCompile(`(?i)(ResourceAttributes|LogAttributes|ScopeAttributes|InstrumentationScopeAttributes)\["([^"]+)"\]`)
 )
 
 // ClickHousePools holds native-protocol connections for ADRE read-only queries.
@@ -188,7 +190,7 @@ func validateClickHouseQuery(database, query string, maxRows int) (string, error
 		return "", fmt.Errorf("database must be pmm or otel")
 	}
 
-	q := trimClickHouseQueryQuotes(strings.TrimSpace(query))
+	q := normalizeClickHouseQuerySQL(query)
 	q = strings.TrimSuffix(q, ";")
 	q = strings.TrimSpace(q)
 	if q == "" {
@@ -250,6 +252,17 @@ func trimClickHouseQueryQuotes(q string) string {
 		break
 	}
 	return q
+}
+
+// normalizeClickHouseQuerySQL fixes common LLM/JSON quoting before ClickHouse executes the query.
+func normalizeClickHouseQuerySQL(query string) string {
+	q := trimClickHouseQueryQuotes(strings.TrimSpace(query))
+	// Holmes/JSON sometimes sends backslash-escaped quotes; ClickHouse rejects \' (syntax error 62).
+	q = strings.ReplaceAll(q, `\'`, `'`)
+	q = strings.ReplaceAll(q, `\"`, `"`)
+	// JSON-style map keys ["key"] are parsed as identifiers (error 47); rewrite to ['key'].
+	q = clickHouseMapDoubleQuoteKey.ReplaceAllString(q, "$1['$2']")
+	return strings.TrimSpace(q)
 }
 
 func extractClickHouseTables(query string) ([]string, error) {

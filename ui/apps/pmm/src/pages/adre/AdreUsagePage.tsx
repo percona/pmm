@@ -145,7 +145,7 @@ const AdreUsagePage: FC = () => {
       ) : summaryQuery.isError ? (
         <Alert severity="error">Failed to load usage summary.</Alert>
       ) : (
-        <>
+        <Box sx={{ flexShrink: 0 }}>
           <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 3 }}>
             {[
               { label: 'Total cost', value: formatUsdCost(num(totals?.totalCost ?? totals?.total_cost)) || '$0' },
@@ -193,9 +193,8 @@ const AdreUsagePage: FC = () => {
                   ref={costSeriesRef}
                   component={Box}
                   sx={{
-                    height: Math.max(420, dailyCostSeries.length * 52 + 56),
-                    minHeight: 420,
-                    maxHeight: '70vh',
+                    minHeight: Math.max(120, dailyCostSeries.length * 52 + 56),
+                    maxHeight: 360,
                     flexShrink: 0,
                     overflowY: 'auto',
                     overflowX: 'auto',
@@ -299,53 +298,69 @@ const AdreUsagePage: FC = () => {
             </Card>
           </Stack>
 
-          <Typography variant="h6" sx={{ mb: 1 }}>
-            Recent events
-          </Typography>
-          <TableContainer
-            component={Card}
-            variant="outlined"
-            sx={{ maxHeight: 400, overflow: 'auto' }}
-          >
-            <Table size="small" stickyHeader>
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ bgcolor: 'background.paper' }}>Time</TableCell>
-                  <TableCell sx={{ bgcolor: 'background.paper' }}>Feature</TableCell>
-                  <TableCell sx={{ bgcolor: 'background.paper' }}>Model</TableCell>
-                  <TableCell align="right" sx={{ bgcolor: 'background.paper' }}>
-                    Tokens
-                  </TableCell>
-                  <TableCell align="right" sx={{ bgcolor: 'background.paper' }}>
-                    Cost
-                  </TableCell>
-                  <TableCell sx={{ bgcolor: 'background.paper' }}>User</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {events.map((ev) => (
-                  <TableRow key={ev.id}>
-                    <TableCell>
-                      {new Date(ev.createdAt ?? ev.created_at ?? '').toLocaleString()}
-                    </TableCell>
-                    <TableCell>{HOLMES_FEATURE_LABELS[ev.feature] ?? ev.feature}</TableCell>
-                    <TableCell>{ev.model || 'default'}</TableCell>
-                    <TableCell align="right">
-                      {formatTokensWithCached(
-                        ev.totalTokens ?? ev.total_tokens,
-                        ev.cachedTokens ?? ev.cached_tokens
-                      )}
-                    </TableCell>
-                    <TableCell align="right">
-                      {formatUsdCost(ev.totalCost ?? ev.total_cost)}
-                    </TableCell>
-                    <TableCell>{ev.triggeredBy ?? ev.triggered_by ?? '—'}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </>
+          <Box sx={{ flexShrink: 0 }}>
+            <Typography variant="h6" sx={{ mb: 1 }}>
+              Recent events
+            </Typography>
+            {eventsQuery.isLoading ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
+                <CircularProgress size={24} />
+              </Box>
+            ) : eventsQuery.isError ? (
+              <Alert severity="error" sx={{ mb: 2 }}>
+                Failed to load recent events.
+              </Alert>
+            ) : events.length === 0 ? (
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                No events in this range.
+              </Typography>
+            ) : (
+              <TableContainer
+                component={Card}
+                variant="outlined"
+                sx={{ maxHeight: 400, overflow: 'auto', flexShrink: 0 }}
+              >
+                <Table size="small" stickyHeader>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={{ bgcolor: 'background.paper' }}>Time</TableCell>
+                      <TableCell sx={{ bgcolor: 'background.paper' }}>Feature</TableCell>
+                      <TableCell sx={{ bgcolor: 'background.paper' }}>Model</TableCell>
+                      <TableCell align="right" sx={{ bgcolor: 'background.paper' }}>
+                        Tokens
+                      </TableCell>
+                      <TableCell align="right" sx={{ bgcolor: 'background.paper' }}>
+                        Cost
+                      </TableCell>
+                      <TableCell sx={{ bgcolor: 'background.paper' }}>User</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {events.map((ev) => (
+                      <TableRow key={ev.id}>
+                        <TableCell>
+                          {new Date(ev.createdAt ?? ev.created_at ?? '').toLocaleString()}
+                        </TableCell>
+                        <TableCell>{HOLMES_FEATURE_LABELS[ev.feature] ?? ev.feature}</TableCell>
+                        <TableCell>{ev.model || 'default'}</TableCell>
+                        <TableCell align="right">
+                          {formatTokensWithCached(
+                            ev.totalTokens ?? ev.total_tokens,
+                            ev.cachedTokens ?? ev.cached_tokens
+                          )}
+                        </TableCell>
+                        <TableCell align="right">
+                          {formatUsdCost(ev.totalCost ?? ev.total_cost)}
+                        </TableCell>
+                        <TableCell>{ev.triggeredBy ?? ev.triggered_by ?? '—'}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+          </Box>
+        </Box>
       )}
     </Page>
   );
