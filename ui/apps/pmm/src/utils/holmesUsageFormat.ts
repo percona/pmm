@@ -97,6 +97,17 @@ export interface DailyCostPoint {
   callCount: number;
 }
 
+function usageMetricNumber(value: number | string | undefined | null): number {
+  if (value == null) return 0;
+  const n = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function normalizeUsageDayBucket(bucket?: string): string {
+  if (!bucket) return '';
+  return bucket.trim().slice(0, 10);
+}
+
 /** Merge API series rows that share the same day bucket (defensive if grouped by day+feature). */
 export function aggregateUsageSeriesByDay(
   series: Array<{
@@ -111,11 +122,11 @@ export function aggregateUsageSeriesByDay(
 ): DailyCostPoint[] {
   const byDay = new Map<string, DailyCostPoint>();
   for (const row of series) {
-    const bucket = row.bucket?.trim();
+    const bucket = normalizeUsageDayBucket(row.bucket);
     if (!bucket) continue;
-    const cost = row.totalCost ?? row.total_cost ?? 0;
-    const tokens = row.totalTokens ?? row.total_tokens ?? 0;
-    const calls = row.callCount ?? row.call_count ?? 0;
+    const cost = usageMetricNumber(row.totalCost ?? row.total_cost);
+    const tokens = usageMetricNumber(row.totalTokens ?? row.total_tokens);
+    const calls = usageMetricNumber(row.callCount ?? row.call_count);
     const prev = byDay.get(bucket);
     if (prev) {
       byDay.set(bucket, {
@@ -131,13 +142,67 @@ export function aggregateUsageSeriesByDay(
   return [...byDay.values()].sort((a, b) => a.bucket.localeCompare(b.bucket));
 }
 
+/** Build daily buckets from usage events when summary series is empty or all-zero. */
+export function dailySeriesFromUsageEvents(
+  events: Array<{
+    createdAt?: string;
+    created_at?: string;
+    totalCost?: number;
+    total_cost?: number;
+    totalTokens?: number;
+    total_tokens?: number;
+  }>
+): DailyCostPoint[] {
+  const rows = events.map((ev) => ({
+    bucket: normalizeUsageDayBucket(ev.createdAt ?? ev.created_at),
+    total_cost: ev.totalCost ?? ev.total_cost,
+    total_tokens: ev.totalTokens ?? ev.total_tokens,
+    call_count: 1,
+  }));
+  return aggregateUsageSeriesByDay(rows);
+}
+
+/** Prefer API series; fall back to events; return newest-first rows with spend for the chart. */
+export function resolveDailyCostChartRows(input: {
+  series: Parameters<typeof aggregateUsageSeriesByDay>[0];
+  events: Parameters<typeof dailySeriesFromUsageEvents>[0];
+  fromISO: string;
+  toISO: string;
+  totalCost?: number;
+  total_cost?: number;
+}): DailyCostPoint[] {
+  let daySeries = aggregateUsageSeriesByDay(input.series);
+  if (!daySeries.some((row) => row.totalCost > 0) && input.events.length > 0) {
+    daySeries = dailySeriesFromUsageEvents(input.events);
+  }
+  const filled = fillDailyCostSeries(daySeries, input.fromISO, input.toISO);
+  const withCost = filled.filter((row) => row.totalCost > 0);
+  if (withCost.length > 0) {
+    return withCost;
+  }
+  const total = usageMetricNumber(input.totalCost ?? input.total_cost);
+  if (total > 0) {
+    if (filled.length > 0) {
+      return filled.slice(0, Math.min(14, filled.length));
+    }
+    if (daySeries.length > 0) {
+      return [...daySeries].sort((a, b) => b.bucket.localeCompare(a.bucket));
+    }
+    const fromEvents = dailySeriesFromUsageEvents(input.events).filter((row) => row.totalCost > 0);
+    if (fromEvents.length > 0) {
+      return fromEvents.sort((a, b) => b.bucket.localeCompare(a.bucket));
+    }
+  }
+  return filled;
+}
+
 /** One row per calendar day from first usage through [from, to], newest first. */
 export function fillDailyCostSeries(
   series: DailyCostPoint[],
   fromISO: string,
   toISO: string
 ): DailyCostPoint[] {
-  const byDay = new Map(series.map((row) => [row.bucket, row]));
+  const byDay = new Map(series.map((row) => [normalizeUsageDayBucket(row.bucket), row]));
   const start = new Date(fromISO);
   const end = new Date(toISO);
   if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {

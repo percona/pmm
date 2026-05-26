@@ -24,13 +24,12 @@ import { Page } from 'components/page';
 import { useAdreUsageEvents, useAdreUsageSummary } from 'hooks/api/useAdreUsage';
 import { PMM_NEW_NAV_PATH } from 'lib/constants';
 import {
-  aggregateUsageSeriesByDay,
-  fillDailyCostSeries,
   formatTokenCount,
   formatTokensWithCached,
   formatUsdCost,
   formatUsageDayLabel,
   HOLMES_FEATURE_LABELS,
+  resolveDailyCostChartRows,
 } from 'utils/holmesUsageFormat';
 
 type RangePreset = '7d' | '30d' | '90d';
@@ -71,13 +70,21 @@ const AdreUsagePage: FC = () => {
   const events = eventsQuery.data?.events ?? [];
 
   const dailyCostSeries = useMemo(() => {
-    const from = summaryQuery.data?.from ?? range.from;
-    const to = summaryQuery.data?.to ?? range.to;
-    return fillDailyCostSeries(aggregateUsageSeriesByDay(series), from, to);
-  }, [series, summaryQuery.data?.from, summaryQuery.data?.to, range.from, range.to]);
+    if (!summaryQuery.data) {
+      return [];
+    }
+    return resolveDailyCostChartRows({
+      series,
+      events,
+      fromISO: summaryQuery.data.from ?? range.from,
+      toISO: summaryQuery.data.to ?? range.to,
+      totalCost: totals?.totalCost ?? totals?.total_cost,
+    });
+  }, [series, events, summaryQuery.data, range.from, range.to, totals]);
 
   const maxSeriesCost = Math.max(...dailyCostSeries.map((s) => s.totalCost), 0.0001);
-  const hasAnyDailyCost = dailyCostSeries.some((s) => s.totalCost > 0);
+  const daysWithCost = dailyCostSeries.filter((s) => s.totalCost > 0).length;
+  const showCostChart = dailyCostSeries.length > 0;
   const costSeriesRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -167,74 +174,92 @@ const AdreUsagePage: FC = () => {
             ))}
           </Stack>
 
-          <Card variant="outlined" sx={{ mb: 3 }}>
-            <CardContent>
+          <Card variant="outlined" sx={{ mb: 3, flexShrink: 0, overflow: 'visible' }}>
+            <CardContent sx={{ overflow: 'visible', pb: 2 }}>
               <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
                 Cost over time
               </Typography>
               <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 2 }}>
                 Daily cost in the selected range (UTC days)
+                {daysWithCost > 0 ? ` · ${daysWithCost} day${daysWithCost === 1 ? '' : 's'} with usage` : ''}
               </Typography>
-              {!hasAnyDailyCost ? (
+              {!showCostChart ? (
                 <Typography variant="body2" color="text.secondary">
-                  No usage recorded in this range.{' '}
+                  No daily breakdown yet for this range.{' '}
                   <RouterLink to={`${PMM_NEW_NAV_PATH}/adre`}>Open AI Assistant</RouterLink>
                 </Typography>
               ) : (
-                <Box
+                <TableContainer
                   ref={costSeriesRef}
+                  component={Box}
                   sx={{
-                    minHeight: Math.max(280, dailyCostSeries.length * 36),
-                    maxHeight: 560,
+                    height: Math.max(420, dailyCostSeries.length * 52 + 56),
+                    minHeight: 420,
+                    maxHeight: '70vh',
+                    flexShrink: 0,
                     overflowY: 'auto',
-                    overflowX: 'hidden',
-                    pr: 0.5,
+                    overflowX: 'auto',
+                    border: 1,
+                    borderColor: 'divider',
+                    borderRadius: 1,
+                    bgcolor: 'background.default',
                   }}
                 >
-                  <Stack spacing={1.25}>
-                    {dailyCostSeries.map((row) => {
-                    const cost = row.totalCost;
-                    const pct = cost > 0 ? Math.max(4, (cost / maxSeriesCost) * 100) : 0;
-                    return (
-                      <Stack key={row.bucket} direction="row" alignItems="center" spacing={1.5}>
-                        <Typography
-                          variant="body2"
-                          sx={{ width: 64, flexShrink: 0, color: cost > 0 ? 'text.primary' : 'text.secondary' }}
-                        >
-                          {formatUsageDayLabel(row.bucket)}
-                        </Typography>
-                        <Box
-                          sx={{
-                            flex: 1,
-                            minWidth: 0,
-                            height: 20,
-                            bgcolor: 'action.hover',
-                            borderRadius: 1,
-                          }}
-                        >
-                          {cost > 0 ? (
-                            <Box
-                              sx={{
-                                height: '100%',
-                                width: `${pct}%`,
-                                bgcolor: 'primary.main',
-                                borderRadius: 1,
-                              }}
-                            />
-                          ) : null}
-                        </Box>
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          sx={{ width: 56, flexShrink: 0, textAlign: 'right' }}
-                        >
-                          {cost > 0 ? formatUsdCost(cost) : '—'}
-                        </Typography>
-                      </Stack>
-                    );
-                    })}
-                  </Stack>
-                </Box>
+                  <Table size="medium" stickyHeader>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell sx={{ bgcolor: 'background.paper', width: 110, py: 1.5 }}>
+                          Day (UTC)
+                        </TableCell>
+                        <TableCell sx={{ bgcolor: 'background.paper', py: 1.5 }}>Cost</TableCell>
+                        <TableCell align="right" sx={{ bgcolor: 'background.paper', width: 110, py: 1.5 }}>
+                          Amount
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {dailyCostSeries.map((row) => {
+                        const cost = row.totalCost;
+                        const pct = cost > 0 ? Math.max(8, (cost / maxSeriesCost) * 100) : 0;
+                        return (
+                          <TableRow key={row.bucket} hover={cost > 0} sx={{ '&:last-child td': { borderBottom: 0 } }}>
+                            <TableCell sx={{ fontWeight: cost > 0 ? 600 : 400, py: 1.5 }}>
+                              {formatUsageDayLabel(row.bucket)}
+                            </TableCell>
+                            <TableCell sx={{ py: 1.5 }}>
+                              <Box
+                                sx={{
+                                  width: '100%',
+                                  minWidth: 200,
+                                  height: 36,
+                                  bgcolor: 'action.hover',
+                                  borderRadius: 1,
+                                  border: 1,
+                                  borderColor: 'divider',
+                                  overflow: 'hidden',
+                                }}
+                              >
+                                {cost > 0 ? (
+                                  <Box
+                                    sx={{
+                                      height: '100%',
+                                      width: `${pct}%`,
+                                      minWidth: 8,
+                                      bgcolor: 'secondary.main',
+                                    }}
+                                  />
+                                ) : null}
+                              </Box>
+                            </TableCell>
+                            <TableCell align="right" sx={{ fontWeight: cost > 0 ? 600 : 400, py: 1.5 }}>
+                              {cost > 0 ? formatUsdCost(cost) : '—'}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
               )}
             </CardContent>
           </Card>

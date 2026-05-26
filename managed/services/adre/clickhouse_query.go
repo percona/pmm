@@ -188,7 +188,7 @@ func validateClickHouseQuery(database, query string, maxRows int) (string, error
 		return "", fmt.Errorf("database must be pmm or otel")
 	}
 
-	q := strings.TrimSpace(query)
+	q := trimClickHouseQueryQuotes(strings.TrimSpace(query))
 	q = strings.TrimSuffix(q, ";")
 	q = strings.TrimSpace(q)
 	if q == "" {
@@ -236,6 +236,20 @@ func validateClickHouseQuery(database, query string, maxRows int) (string, error
 	}
 
 	return q + " SETTINGS max_execution_time=30, readonly=1", nil
+}
+
+// trimClickHouseQueryQuotes removes one or more layers of surrounding ' or " the LLM may add.
+func trimClickHouseQueryQuotes(q string) string {
+	q = strings.TrimSpace(q)
+	for len(q) >= 2 {
+		start, end := q[0], q[len(q)-1]
+		if (start == '\'' && end == '\'') || (start == '"' && end == '"') {
+			q = strings.TrimSpace(q[1 : len(q)-1])
+			continue
+		}
+		break
+	}
+	return q
 }
 
 func extractClickHouseTables(query string) ([]string, error) {

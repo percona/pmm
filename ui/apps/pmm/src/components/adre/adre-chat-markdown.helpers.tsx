@@ -1,6 +1,5 @@
 import { Box, Link } from '@mui/material';
 import { ReactNode } from 'react';
-import { CodeBlock } from 'pages/updates/change-log/code-block';
 import { GrafanaPanelImage } from './adre-chat-markdown';
 import {
   dashboardUrlFromRenderUrl,
@@ -50,8 +49,40 @@ export function getMarkdownComponents(content: string) {
         );
       }
 
-      return <CodeBlock>{children}</CodeBlock>;
+      return (
+        <Box
+          component="code"
+          sx={{
+            display: 'block',
+            fontFamily: 'Roboto Mono, monospace',
+            fontSize: '0.8125rem',
+            whiteSpace: 'pre',
+          }}
+        >
+          {children}
+        </Box>
+      );
     },
+    pre: ({ children }: { children?: ReactNode }) => (
+      <Box
+        component="pre"
+        sx={(theme) => ({
+          maxWidth: '100%',
+          minWidth: 0,
+          overflowX: 'auto',
+          my: 1,
+          py: 1,
+          px: 1.5,
+          m: 0,
+          border: 2,
+          borderColor: 'divider',
+          borderRadius: Number(theme.shape.borderRadius) / 4,
+          bgcolor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.action.hover,
+        })}
+      >
+        {children}
+      </Box>
+    ),
     table: ({ children }: { children?: ReactNode }) => (
       <Box sx={{ width: '100%', overflowX: 'auto', my: 1 }}>
         <Box component="table" sx={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>

@@ -99,6 +99,21 @@ func TestValidateClickHouseQuery_allowsReplaceAndFormatFunctions(t *testing.T) {
 	}
 }
 
+func TestValidateClickHouseQuery_stripsSurroundingQuotes(t *testing.T) {
+	t.Parallel()
+
+	cases := []string{
+		"'SELECT count() FROM metrics LIMIT 1'",
+		"\"SELECT count() FROM metrics LIMIT 1\"",
+		"''SELECT count() FROM metrics LIMIT 1''",
+	}
+	for _, q := range cases {
+		got, err := validateClickHouseQuery("pmm", q, 500)
+		require.NoError(t, err, "query: %s", q)
+		assert.Contains(t, got, "SELECT count() FROM metrics")
+	}
+}
+
 func TestValidateClickHouseQuery_rejectsFormatExportAndReplaceTable(t *testing.T) {
 	t.Parallel()
 

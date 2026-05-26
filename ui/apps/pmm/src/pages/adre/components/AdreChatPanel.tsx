@@ -282,6 +282,7 @@ export const AdreChatPanel: FC = () => {
                       py: 1.5,
                       borderRadius: 2,
                       '& img': { maxWidth: '100%', height: 'auto', display: 'block' },
+                      '& pre': { maxWidth: '100%', minWidth: 0 },
                       ...(msg.role === 'user'
                         ? {
                             bgcolor: '#2d3748',

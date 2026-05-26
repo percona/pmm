@@ -1,4 +1,4 @@
-import { aggregateInvestigationUsage, aggregateUsageSeriesByDay, fillDailyCostSeries } from './holmesUsageFormat';
+import { aggregateInvestigationUsage, aggregateUsageSeriesByDay, fillDailyCostSeries, resolveDailyCostChartRows } from './holmesUsageFormat';
 
 describe('fillDailyCostSeries', () => {
   it('returns newest day first and drops leading zero-cost days', () => {
@@ -19,6 +19,38 @@ describe('fillDailyCostSeries', () => {
     const filled = fillDailyCostSeries([], '2026-05-20T00:00:00.000Z', '2026-05-23T12:00:00.000Z');
 
     expect(filled).toEqual([expect.objectContaining({ bucket: '2026-05-23', totalCost: 0 })]);
+  });
+});
+
+describe('resolveDailyCostChartRows', () => {
+  it('returns only days with cost for the chart', () => {
+    const rows = resolveDailyCostChartRows({
+      series: [
+        { bucket: '2026-05-20', total_cost: 1.5 },
+        { bucket: '2026-05-22', total_cost: 0.84 },
+      ],
+      events: [],
+      fromISO: '2026-04-23T00:00:00.000Z',
+      toISO: '2026-05-23T12:00:00.000Z',
+    });
+
+    expect(rows.every((row) => row.totalCost > 0)).toBe(true);
+    expect(rows.map((row) => row.bucket)).toEqual(['2026-05-22', '2026-05-20']);
+  });
+
+  it('falls back to events when summary series is empty but totals exist', () => {
+    const rows = resolveDailyCostChartRows({
+      series: [],
+      events: [
+        { created_at: '2026-05-23T10:00:00Z', total_cost: 0.42 },
+        { created_at: '2026-05-23T11:00:00Z', total_cost: 0.18 },
+      ],
+      fromISO: '2026-05-20T00:00:00.000Z',
+      toISO: '2026-05-23T12:00:00.000Z',
+      total_cost: 0.6,
+    });
+
+    expect(rows).toEqual([expect.objectContaining({ bucket: '2026-05-23', totalCost: 0.6 })]);
   });
 });
 
