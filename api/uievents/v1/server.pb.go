@@ -11,8 +11,6 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
-	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
-	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 )
@@ -420,7 +418,7 @@ var File_uievents_v1_server_proto protoreflect.FileDescriptor
 
 const file_uievents_v1_server_proto_rawDesc = "" +
 	"\n" +
-	"\x18uievents/v1/server.proto\x12\vuievents.v1\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\x82\x01\n" +
+	"\x18uievents/v1/server.proto\x12\vuievents.v1\"\x82\x01\n" +
 	"\x11NotificationEvent\x12\x14\n" +
 	"\x05title\x18\x01 \x01(\tR\x05title\x12\x12\n" +
 	"\x04text\x18\x02 \x01(\tR\x04text\x12\x1a\n" +
@@ -451,9 +449,9 @@ const file_uievents_v1_server_proto_rawDesc = "" +
 	"\bfetching\x18\x02 \x03(\v2\x1a.uievents.v1.FetchingEventR\bfetching\x12I\n" +
 	"\x0fdashboard_usage\x18\x03 \x03(\v2 .uievents.v1.DashboardUsageEventR\x0edashboardUsage\x12D\n" +
 	"\x10user_flow_events\x18\x04 \x03(\v2\x1a.uievents.v1.UserFlowEventR\x0euserFlowEvents\"\x0f\n" +
-	"\rStoreResponse2\xbd\x01\n" +
-	"\x0fUIEventsService\x12\xa9\x01\n" +
-	"\x05Store\x12\x19.uievents.v1.StoreRequest\x1a\x1a.uievents.v1.StoreResponse\"i\x92AH\x12\x11Persist UI events\x1a3Persists received UI events for further processing.\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/v1/ui-events/StoreB\x9e\x01\n" +
+	"\rStoreResponse2V\n" +
+	"\x0fUIEventsService\x12C\n" +
+	"\x05Store\x12\x19.uievents.v1.StoreRequest\x1a\x1a.uievents.v1.StoreResponse\"\x03\x88\x02\x01B\x9e\x01\n" +
 	"\x0fcom.uievents.v1B\vServerProtoP\x01Z1github.com/percona/pmm/api/uievents/v1;uieventsv1\xa2\x02\x03UXX\xaa\x02\vUievents.V1\xca\x02\vUievents\\V1\xe2\x02\x17Uievents\\V1\\GPBMetadata\xea\x02\fUievents::V1b\x06proto3"
 
 var (
@@ -480,7 +478,6 @@ var (
 		nil,                         // 6: uievents.v1.UserFlowEvent.ParamsEntry
 	}
 )
-
 var file_uievents_v1_server_proto_depIdxs = []int32{
 	6, // 0: uievents.v1.UserFlowEvent.params:type_name -> uievents.v1.UserFlowEvent.ParamsEntry
 	0, // 1: uievents.v1.StoreRequest.notifications:type_name -> uievents.v1.NotificationEvent

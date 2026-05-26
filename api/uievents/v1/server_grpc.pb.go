@@ -29,7 +29,9 @@ const (
 //
 // UIEvents collects UI related events.
 type UIEventsServiceClient interface {
+	// Deprecated: Do not use.
 	// Store persists received UI events for further processing.
+	// Deprecated: UI events are no longer collected by PMM Server.
 	Store(ctx context.Context, in *StoreRequest, opts ...grpc.CallOption) (*StoreResponse, error)
 }
 
@@ -41,6 +43,7 @@ func NewUIEventsServiceClient(cc grpc.ClientConnInterface) UIEventsServiceClient
 	return &uIEventsServiceClient{cc}
 }
 
+// Deprecated: Do not use.
 func (c *uIEventsServiceClient) Store(ctx context.Context, in *StoreRequest, opts ...grpc.CallOption) (*StoreResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(StoreResponse)
@@ -57,7 +60,9 @@ func (c *uIEventsServiceClient) Store(ctx context.Context, in *StoreRequest, opt
 //
 // UIEvents collects UI related events.
 type UIEventsServiceServer interface {
+	// Deprecated: Do not use.
 	// Store persists received UI events for further processing.
+	// Deprecated: UI events are no longer collected by PMM Server.
 	Store(context.Context, *StoreRequest) (*StoreResponse, error)
 	mustEmbedUnimplementedUIEventsServiceServer()
 }

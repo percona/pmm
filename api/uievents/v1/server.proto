@@ -2,9 +2,6 @@ syntax = "proto3";
 
 package uievents.v1;
 
-import "google/api/annotations.proto";
-import "protoc-gen-openapiv2/options/annotations.proto";
-
 message NotificationEvent {
   string title = 1;
   string text = 2;
@@ -47,14 +44,8 @@ message StoreResponse {}
 // UIEvents collects UI related events.
 service UIEventsService {
   // Store persists received UI events for further processing.
+  // Deprecated: UI events are no longer collected by PMM Server.
   rpc Store(StoreRequest) returns (StoreResponse) {
-    option (google.api.http) = {
-      post: "/v1/ui-events/Store"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Persist UI events"
-      description: "Persists received UI events for further processing."
-    };
+    option deprecated = true;
   }
 }
