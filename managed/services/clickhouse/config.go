@@ -52,7 +52,7 @@ func validateClickHouseConfigAt(config, dir string) error {
 	if _, err := os.Stat(path); err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			return fmt.Errorf(
-				"invalid PMM_CLICKHOUSE_CONFIG=%q: %s not found; available configs: %v",
+				"invalid PMM_CLICKHOUSE_CONFIG=%s: %s not found; available configs: %v",
 				config, path, availableConfigs,
 			)
 		}
