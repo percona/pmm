@@ -1,4 +1,3 @@
-import { listItemTextClasses } from '@mui/material/ListItemText';
 import { PaletteMode, ThemeOptions } from '@mui/material';
 import { deepmerge } from '@mui/utils';
 
@@ -140,17 +139,10 @@ const pmmThemeOptions = (mode: PaletteMode): ThemeOptions => {
       MuiDrawer: {
         styleOverrides: {
           root: {
-            fontFamily: 'Poppins',
-
-            [`.${listItemTextClasses.root} *`]: {
-              fontFamily: 'Poppins',
-            },
-
             [`.${iconButtonClasses.root}:hover`]: {
               color: primary.main,
               backgroundColor: primary.hover,
             },
-
             [`.${iconButtonClasses.root}:focus`]: {
               color: primary.main,
               backgroundColor: primary.focus,
@@ -182,20 +174,6 @@ const pmmThemeOptions = (mode: PaletteMode): ThemeOptions => {
               },
             },
           },
-        },
-      },
-      MuiTooltip: {
-        styleOverrides: {
-          tooltip: ({ theme }) => ({
-            ...theme.typography.helperText,
-            p: 6,
-            boxShadow: theme.shadows[8],
-            color: theme.palette.tooltips?.color,
-            backgroundColor: theme.palette.tooltips?.background,
-          }),
-          arrow: ({ theme }) => ({
-            color: theme.palette.tooltips?.background,
-          }),
         },
       },
       MuiDialogTitle: {

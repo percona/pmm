@@ -91,7 +91,8 @@ const preview: Preview = {
             'Typography',
             'Icons'
           ],
-          'Data display', ['Chip'],
+          'Data display', ['Chip', 'Tooltip'],
+          'Navigation',
           '*'
         ],
       },
