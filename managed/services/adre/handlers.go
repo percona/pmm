@@ -67,6 +67,7 @@ type Handlers struct {
 	db            *reform.DB
 	grafana       GrafanaAuth
 	vm            v1.API
+	clickhouse    ClickHousePools
 	streams       *ActiveChatStreams
 	searchLimiter *SearchRateLimiter
 	reqTimeout    time.Duration
@@ -75,11 +76,12 @@ type Handlers struct {
 }
 
 // NewHandlers creates new ADRE HTTP handlers.
-func NewHandlers(db *reform.DB, grafana GrafanaAuth, vm v1.API) *Handlers {
+func NewHandlers(db *reform.DB, grafana GrafanaAuth, vm v1.API, clickhouse ClickHousePools) *Handlers {
 	return &Handlers{
 		db:            db,
 		grafana:       grafana,
 		vm:            vm,
+		clickhouse:    clickhouse,
 		streams:       NewActiveChatStreams(),
 		searchLimiter: NewSearchRateLimiter(),
 		reqTimeout:    5 * time.Minute, //nolint:mnd

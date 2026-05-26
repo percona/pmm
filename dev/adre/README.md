@@ -7,7 +7,7 @@ This branch targets **HolmesGPT 0.22+**: PMM uses **`POST /api/chat` only** (no 
 ## Prerequisites
 
 - HolmesGPT running in a container (or elsewhere) and reachable from the PMM server
-- Optional: [mcp-clickhouse](https://github.com/ClickHouse/mcp-clickhouse) for ClickHouse/otel.logs/QAN analysis
+- Optional: ADRE ClickHouse proxy (`POST /v1/adre/clickhouse/query`) for QAN/logs — preferred over direct ClickHouse or mcp-clickhouse
 
 ## Configuration
 
@@ -38,14 +38,34 @@ Configure HolmesGPT to use PMM data sources:
 
 ## ClickHouse (Logs, QAN)
 
-HolmesGPT has no built-in ClickHouse toolset. To enable log and QAN analysis:
+Holmes should **not** connect to ClickHouse directly. PMM exposes a read-only proxy:
 
-1. Run [mcp-clickhouse](https://github.com/ClickHouse/mcp-clickhouse) in a container
-2. Point it at PMM’s ClickHouse (host, port, user, password must be reachable from HolmesGPT)
-3. Add it as an MCP server in HolmesGPT config (streamable-http transport)
-   - Example: `url: "http://mcp-clickhouse:8000/mcp/messages"`, `mode: streamable-http`
+**`POST /v1/adre/clickhouse/query`** — same Grafana viewer auth as other ADRE routes (Bearer service account token from Holmes).
 
-PMM does not run or configure mcp-clickhouse; you manage it and HolmesGPT configuration yourself.
+Request body:
+
+```json
+{
+  "database": "pmm",
+  "query": "SELECT fingerprint, schema, any(queryid) AS queryid FROM metrics WHERE service_id = '...' GROUP BY fingerprint, schema LIMIT 5",
+  "max_rows": 500
+}
+```
+
+- `database`: `pmm` (QAN table `metrics`) or `otel` (logs table `logs`)
+- Single SELECT only; PMM enforces table allowlist, row cap (max 1000), and 30s timeout
+- ClickHouse stays on localhost; Holmes uses `PMM_URL` + `PMM_API_TOKEN` only
+
+In Holmes config, use the **`pmm-clickhouse`** custom toolset (`pmm_clickhouse_query` curl tool). Disable legacy `clickhouse-pmm-http` / `clickhouse-logs-http` database toolsets that pointed at `:8123`.
+
+### Legacy: external mcp-clickhouse
+
+Optional alternative (not required when ADRE proxy is deployed):
+
+1. Run [mcp-clickhouse](https://github.com/ClickHouse/mcp-clickhouse) on the PMM Docker network (ClickHouse remains localhost-only)
+2. Add as MCP server in HolmesGPT config
+
+PMM does not run or configure mcp-clickhouse.
 
 ## Adding custom tools to HolmesGPT
 
@@ -93,7 +113,7 @@ The UI sends it as **`dashboard_context`** on `POST /v1/adre/chat`. **pmm-manage
 
 PMM **does not** ship `holmes_config.yaml` or Holmes **skills** (`SKILL.md` trees) in the repository. Operators maintain them on the **HolmesGPT** deployment:
 
-- **Toolsets** — Often defined in YAML (custom toolsets) or via **MCP** servers. Point Prometheus/VictoriaMetrics, PMM inventory tools, ClickHouse (QAN/logs), and optional `curl` tools at URLs reachable from Holmes (see [HolmesGPT docs](https://holmesgpt.dev)).
+- **Toolsets** — Often defined in YAML (custom toolsets) or via **MCP** servers. Point Prometheus/VictoriaMetrics, PMM inventory tools, and **`pmm_clickhouse_query`** (ADRE proxy for QAN/logs — not direct ClickHouse) at URLs reachable from Holmes (see [HolmesGPT docs](https://holmesgpt.dev)).
 - **Skills** — Directories of `SKILL.md` files plus Holmes **`custom_skill_paths`** so the `fetch_skill` tool can load methodology. Paths are configured in Holmes, not in PMM.
 - **PMM-facing URLs** — Use a **browser-reachable** PMM base URL for markdown images and Grafana links where Holmes embeds `/v1/grafana/render/blob/...` or `/graph/...`.
 
@@ -139,6 +159,7 @@ PMM proxies requests to HolmesGPT where noted. Endpoints **require PMM authentic
 | GET | /v1/grafana/render | **410 Gone** — use `POST /v1/grafana/render/resolve` |
 | GET | /v1/grafana/observability-map | Intent-based dashboard/panel routing for ADRE/Holmes (see below) |
 | POST | /v1/adre/metrics/snapshot | Tier-1 compressed metrics stats for a PromQL range query (see below) |
+| POST | /v1/adre/clickhouse/query | Read-only ClickHouse SQL for QAN (`database=pmm`) and logs (`database=otel`) — see below |
 
 **Investigations** live under `/v1/investigations/*` — see [dev/investigations/README.md](../investigations/README.md).
 
@@ -184,6 +205,28 @@ Runs a PromQL **range** query against VictoriaMetrics and returns **server-compu
 **Stats semantics:** For each series, PMM loads the query range from VictoriaMetrics, keeps the **last up to 500 points** (most recent window), then computes min/max/mean/median/p25/p75/p95/p99, top change points (largest step deltas), and top anomalies (z-score &gt; 2σ, capped at 10). This is **not** `quantile_over_time()` in PromQL — percentiles describe the sampled point window only. Response field `truncated: true` when any series had more than 500 raw points before sampling.
 
 **Limits:** Default `max_series` is 5; queries returning more series get HTTP 400 with a hint to tighten matchers or use `topk`.
+
+### ClickHouse query proxy (`POST /v1/adre/clickhouse/query`)
+
+Executes a **single read-only SELECT** against PMM’s local ClickHouse (`pmm.metrics` or `otel.logs`). **Requires ADRE enabled.** Auth: Grafana viewer (Bearer service account for Holmes).
+
+**Request body (JSON):**
+
+```json
+{
+  "database": "pmm",
+  "query": "SELECT count() FROM metrics WHERE service_id = '…' LIMIT 10",
+  "max_rows": 500
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `database` | `pmm` (QAN) or `otel` (logs) |
+| `query` | Single SELECT; tables limited to `metrics` / `pmm.metrics` or `logs` / `otel.logs` |
+| `max_rows` | Default 500, hard cap 1000 |
+
+**Guardrails:** SELECT-only, no multi-statement, 30s execution timeout, `readonly=1` ClickHouse setting. Response: `columns`, `rows`, `row_count`, `truncated`, `execution_ms`.
 
 ### End-to-end flow (mermaid)
 

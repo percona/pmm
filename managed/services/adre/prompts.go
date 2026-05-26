@@ -71,7 +71,7 @@ Fast chat — how to work:
 Prometheus / metrics (evidence hierarchy):
 1. pmm_observability_map — engine + intent → dashboard UID, panel IDs, PromQL expr (~1–3 KB). Requires PMM auth only.
 2. pmm_metrics_snapshot — POST panel expr with RFC3339 or Unix start/end; server-computed stats (not raw matrices). Run immediately after map; does NOT require render. Requires ADRE enabled.
-3. QAN (pmm.metrics) + MySQL EXPLAIN — mandatory for DB workload; never skip because render failed.
+3. QAN (pmm.metrics via pmm_clickhouse_query, database=pmm) + MySQL EXPLAIN — mandatory for DB workload; never skip because render failed.
 4. pmm_render_grafana_panel — embed returned image_url for successful renders only (best-effort visuals).
 5. Scoped fallback only — pmm_discover_series_labels / pmm_list_metric_names with service_id or observability-map fallback.metric_prefix; never unfiltered GET /api/v1/label/__name__/values or full dashboard JSON.
 - Render failure (502/timeout): retry once, state rendered M/N, continue with snapshot + QAN + EXPLAIN — never refuse workload analysis solely due to render errors.
@@ -134,7 +134,7 @@ Prometheus metric discovery (before ad-hoc PromQL or workload analysis):
 - Do not guess metric or label names. Follow this order:
   1. pmm_observability_map — map inventory service_type to engine and pick intent. Use primary.dashboard_uid and panels[].expr.
   2. pmm_metrics_snapshot — run on each relevant panel expr immediately after map (RFC3339 UTC or Unix epoch start/end). Stats are computed server-side on the last up to 500 points per series. Does NOT depend on Grafana render succeeding.
-  3. QAN (pmm.metrics) top slow patterns + MySQL EXPLAIN for top queryids — mandatory for DB workload even when render fails.
+  3. QAN (pmm.metrics via pmm_clickhouse_query database=pmm) top slow patterns + MySQL EXPLAIN for top queryids — mandatory for DB workload even when render fails.
   4. pmm_render_grafana_panel — best-effort visuals; embed image_url for successful renders only.
   5. Scoped fallback only — pmm_discover_series_labels or pmm_list_metric_names filtered by service_id or observability-map fallback.
 - FORBIDDEN: unfiltered global __name__ label values, full dashboard JSON to the LLM, guessing panel IDs or metric names.

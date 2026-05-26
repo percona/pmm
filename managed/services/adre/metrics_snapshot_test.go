@@ -157,7 +157,7 @@ func TestPostMetricsSnapshot_HandlerErrors(t *testing.T) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 	t.Run("MethodNotAllowed", func(t *testing.T) {
-		h := NewHandlers(db, &mockGrafanaAlertsFetcher{}, nil)
+		h := NewHandlers(db, &mockGrafanaAlertsFetcher{}, nil, ClickHousePools{})
 		req := httptest.NewRequest(http.MethodGet, "/v1/adre/metrics/snapshot", nil)
 		rec := httptest.NewRecorder()
 		h.PostMetricsSnapshot(rec, req)
@@ -168,7 +168,7 @@ func TestPostMetricsSnapshot_HandlerErrors(t *testing.T) {
 	})
 
 	t.Run("AdreDisabled", func(t *testing.T) {
-		h := NewHandlers(db, &mockGrafanaAlertsFetcher{}, &mockVMAPI{})
+		h := NewHandlers(db, &mockGrafanaAlertsFetcher{}, &mockVMAPI{}, ClickHousePools{})
 		req := httptest.NewRequest(http.MethodPost, "/v1/adre/metrics/snapshot", bytes.NewReader([]byte(`{"query":"up","start":"2026-05-24T00:00:00Z"}`)))
 		rec := httptest.NewRecorder()
 		h.PostMetricsSnapshot(rec, req)
@@ -182,7 +182,7 @@ func TestPostMetricsSnapshot_HandlerErrors(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		h := NewHandlers(db, &mockGrafanaAlertsFetcher{}, nil)
+		h := NewHandlers(db, &mockGrafanaAlertsFetcher{}, nil, ClickHousePools{})
 		req := httptest.NewRequest(http.MethodPost, "/v1/adre/metrics/snapshot", bytes.NewReader([]byte(`{"query":"up","start":"2026-05-24T00:00:00Z"}`)))
 		rec := httptest.NewRecorder()
 		h.PostMetricsSnapshot(rec, req)
@@ -210,7 +210,7 @@ func TestPostMetricsSnapshot_Success(t *testing.T) {
 			},
 		},
 	}
-	h := NewHandlers(db, &mockGrafanaAlertsFetcher{}, &mockVMAPI{matrix: matrix})
+	h := NewHandlers(db, &mockGrafanaAlertsFetcher{}, &mockVMAPI{matrix: matrix}, ClickHousePools{})
 
 	body := `{"query":"up","start":"2026-05-24T00:00:00Z","end":"2026-05-24T06:00:00Z"}`
 	req := httptest.NewRequest(http.MethodPost, "/v1/adre/metrics/snapshot", bytes.NewReader([]byte(body)))
