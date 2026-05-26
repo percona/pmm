@@ -18,6 +18,14 @@ export const establishClientSession = () => {
   notifySessionChange();
 };
 
+export const clearClientSession = () => {
+  localStorage.removeItem(CLIENT_SESSION_KEY);
+  notifySessionChange();
+};
+
+export const isGrafanaLoginPath = (pathname: string | null | undefined) =>
+  Boolean(pathname?.includes('/login'));
+
 export const isClientSessionEstablished = () =>
   localStorage.getItem(CLIENT_SESSION_KEY) === 'true';
 
