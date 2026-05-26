@@ -34,7 +34,7 @@ type versionRange struct {
 	max *version.Version
 }
 
-func (r versionRange) contains(v *version.Version) bool {
+func (r versionRange) isSupported(v *version.Version) bool {
 	return !v.LessThan(r.min) && v.LessThan(r.max)
 }
 
@@ -125,9 +125,9 @@ const (
 
 func mysqlXtrabackupBandFor(mysqlVersion *version.Version) mysqlXtrabackupBand {
 	switch {
-	case versionRange{min: mysql84Version, max: mysql85Version}.contains(mysqlVersion):
+	case versionRange{min: mysql84Version, max: mysql85Version}.isSupported(mysqlVersion):
 		return mysqlXtrabackupBand84
-	case versionRange{min: alignedXtrabackupVersion, max: mysql84Version}.contains(mysqlVersion):
+	case versionRange{min: alignedXtrabackupVersion, max: mysql84Version}.isSupported(mysqlVersion):
 		return mysqlXtrabackupBand80Aligned
 	case mysqlVersion.LessThan(alignedXtrabackupVersion):
 		return mysqlXtrabackupBandLegacy
@@ -148,12 +148,12 @@ func incompatibleXtrabackupError(message, xtrabackupVersionString, mysqlVersionS
 func mysqlAndXtrabackupCoreVersionsCompatible(mysqlVersion, xtrabackupVersion *version.Version) bool {
 	switch mysqlXtrabackupBandFor(mysqlVersion) {
 	case mysqlXtrabackupBand84:
-		return versionRange{min: mysql84Version, max: mysql85Version}.contains(xtrabackupVersion)
+		return versionRange{min: mysql84Version, max: mysql85Version}.isSupported(xtrabackupVersion)
 	case mysqlXtrabackupBand80Aligned:
-		return versionRange{min: mysqlVersion, max: mysql81Version}.contains(xtrabackupVersion)
+		return versionRange{min: mysqlVersion, max: mysql81Version}.isSupported(xtrabackupVersion)
 	case mysqlXtrabackupBandLegacy:
 		for _, cv := range mysqlAndXtrabackupCompatibleVersions {
-			if cv.dbVersions.contains(mysqlVersion) && cv.backupToolVersions.contains(xtrabackupVersion) {
+			if cv.dbVersions.isSupported(mysqlVersion) && cv.backupToolVersions.isSupported(xtrabackupVersion) {
 				return true
 			}
 		}
