@@ -30,10 +30,11 @@ Select the configuration profile for the built-in ClickHouse instance
 
 | Variable | Default | Description | Example |
 |----------|---------|-------------|----------|
-| `PMM_CLICKHOUSE_CONFIG` | `default` | Configuration profile for the built-in ClickHouse instance. Use `low-memory` for PMM Server environments with less than 16 GB RAM to avoid "memory limit exceeded" errors. | `low-memory` |
+| `PMM_CLICKHOUSE_CONFIG` | `default` | Use `low-memory` for PMM Server environments with less than 16 GB RAM. | `low-memory` |
 
-!!! note
-    This applies only to the built-in ClickHouse instance. For details, see [ClickHouse memory issues](../../../../troubleshoot/qan_issues.md#clickhouse-memory-issues-in-low-memory-environments).
+!!! note "low-memory config" 
+    While this configuration attempts to optimize ClickHouse for low-memory environments, we highly recommend users to follow our configuration guide. 
+    For details, see [ClickHouse memory issues](../../../../troubleshoot/qan_issues.md#clickhouse-memory-issues-in-low-memory-environments).
 
 ### Feature controls
 Enable or disable specific PMM features:
