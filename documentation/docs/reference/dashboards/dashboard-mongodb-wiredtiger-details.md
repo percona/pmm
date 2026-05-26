@@ -26,7 +26,7 @@ Shows the percentage of system memory currently available for use. Turns orange 
 
 Shows the rate of WiredTiger internal transactions per second, broken down by type: begin, commit, and rollback.
 
-A high rollback rate relative to commit rate can indicate write conflicts under concurrent workloads. Use this alongside **Queued Operations** to understand whether contention is causing transactions to fail and retry.
+A high rollback rate is expected and not a cause for concern, since MongoDB uses rollbacks internally even for read queries to keep your data views consistent. Focus instead on whether transaction activity correlates with growing **Queued Operations**, which would mean your queries are starting to wait on locks.
 
 ### WiredTiger Cache Activity
 
@@ -38,7 +38,7 @@ Writes from the cache always go to disk. Reads into the cache may be served from
 
 Shows the rate of data handled by the WiredTiger block manager per second, broken down by operation type (read, write, map read).
 
-The block manager is the layer below the cache that handles physical reads and writes to data files. High block write rates indicate frequent flushing of dirty cache pages. Elevated read rates mean the cache is being populated from disk, which points to working set pressure.
+This tells you how much physical disk I/O MongoDB is doing behind the scenes. If you see high read rates, your working dataset doesn't fit in the cache and MongoDB is constantly loading data from disk, which slows down your queries. High write rates mean MongoDB is flushing a lot of modified data to disk, which can compete with reads for disk bandwidth.
 
 ## WiredTiger Sessions
 
@@ -46,13 +46,17 @@ Shows the number of open WiredTiger internal cursors and sessions over time.
 
 Each MongoDB operation opens one or more WiredTiger cursors. A steadily growing cursor count can indicate cursors are not being closed promptly, which may eventually cause resource exhaustion.
 
-## WiredTiger Concurrency Tickets Available
 
-Shows the number of available WiredTiger concurrency tickets for read (positive Y axis) and write (negative Y axis) operations over time. Each simultaneous operation in the WiredTiger engine consumes one ticket. Available tickets equal the total pool minus tickets currently in use.
+Shows the number of available WiredTiger concurrency tickets for read (positive Y axis) and write (negative Y axis) operations over time.
 
-When available tickets approach zero for either read or write, new operations must wait before entering the storage engine. This is one of the most direct indicators of storage engine saturation. If tickets are consistently depleted, check **Queued Operations** and consider whether the workload or hardware is the limiting factor.
+MongoDB uses a ticket system to limit how many operations can run simultaneously in the storage engine. When available tickets drop toward zero, your new queries and writes must wait in line before they can execute, which directly increases your response times. This is one of the most direct indicators of storage engine saturation.
+
+In newer MongoDB versions, the ticket pool is dynamically resized, so a temporarily low count may not indicate real saturation. However, if tickets are consistently depleted, your instance is genuinely overloaded. 
+
+Check **Queued Operations** to confirm, and consider reducing concurrent connections, adding indexes to speed up operations, or scaling your hardware.
 
 ### Queued Operations
+
 Shows the number of operations waiting to acquire a global lock, broken down by read and write queues over time.
 
 Any value above zero means lock contention is occurring. A queue that grows and stays elevated points to long-running write operations blocking other work. Use this alongside **WiredTiger Concurrency Tickets Available** to distinguish between lock queue pressure and ticket exhaustion.
@@ -61,13 +65,13 @@ Any value above zero means lock contention is occurring. A queue that grows and 
 
 Shows the time spent in the WiredTiger checkpoint phase, displayed as a per-second average of a cyclical event that runs approximately every 60 seconds by default.
 
-Checkpoints flush dirty cache pages to disk to create a consistent on-disk snapshot. A rising trend in checkpoint time means each checkpoint is taking longer, usually because there are more dirty pages to flush or the disk cannot keep up. Long checkpoints can cause brief latency spikes for write operations. Check **Disk I/O and Swap Activity** to confirm whether disk throughput is the constraint.
+MongoDB periodically saves modified data to disk (roughly every 60 seconds). If this panel shows a rising trend, each save is taking longer, usually because your write volume is growing or your disk can't keep up. You may notice brief latency spikes during these saves. If checkpoint times keep climbing, check **Disk I/O and Swap Activity** to confirm whether your disk is the bottleneck.
 
 ### WiredTiger Cache Eviction
 
 Shows the rate of cache page evictions per second, broken down by type (modified and unmodified pages).
 
-Eviction happens when the cache fills up and WiredTiger needs to make room for new data. Unmodified page evictions are inexpensive. Modified (dirty) page evictions require writing to disk first and are more expensive. A sustained high rate of dirty page evictions means the cache is consistently full and cannot absorb write bursts without stalling application threads.
+When the cache is full, MongoDB must remove older data to make room for new requests. Removing unmodified data is fast and won't affect your performance. However, removing modified data requires writing to disk first, which is slower and can stall your application's operations. If you see a sustained high rate of dirty page evictions, your cache is too small for your workload and your queries will experience delays during write-heavy periods.
 
 ### WiredTiger Cache Capacity
 
@@ -79,17 +83,17 @@ Use this to see how cache utilization trends over the selected time range. A **U
 
 Shows the number of pages in the WiredTiger cache over time, broken down by state (clean, dirty, internal).
 
-A high dirty page count relative to total pages means a large fraction of the cache contains modified data that has not yet been flushed to disk. If dirty pages stay elevated, checkpoint and eviction pressure will follow.
+If dirty pages make up a large fraction of the total, your workload is generating changes faster than MongoDB can write them to disk. This buildup will eventually lead to longer checkpoint pauses and more aggressive eviction, both of which can increase your query latency.
 
 ### WiredTiger Log Operations
 
-Shows the rate of WiredTiger write-ahead log (WAL) operations per second, broken down by type (write, sync, read, compress, compress failure, compress uncompressed, read).
+Shows the rate of WiredTiger write-ahead log (WAL) operations per second, broken down by type (write, sync, read, compress, compress failure, compress uncompressed, read). The WiredTiger WAL is also referred to as the journal.
 
-The WiredTiger WAL provides durability for writes. High sync rates indicate frequent fsync calls, which can limit write throughput on slow storage. High compress failure rates mean WAL data is not compressing well, which increases log volume.
+If sync rates are high, MongoDB is frequently forcing data to disk, which can limit your write throughput on slower storage. High compress failure rates mean your write data isn't compressing well, so the journal takes up more space and disk bandwidth than usual.
 
 ## WiredTiger Log Activity
 
-Shows the rate of data moved through the WiredTiger write-ahead log in bytes per second, broken down by operation type.
+Shows the rate of data moved through the WiredTiger write-ahead log (journal) in bytes per second, broken down by operation type.
 
 Rising log write rates indicate increasing write activity. If log sync bytes are high relative to log write bytes, individual writes are being fsynced frequently rather than batched, which can reduce write throughput.
 
@@ -115,33 +119,36 @@ High scan rates relative to documents returned point to collection scans that wo
 
 Shows the rate of OS memory page faults per second on the host. Page faults are not exclusive to MongoDB and can be caused by any process on the host.
 
-For WiredTiger instances, page faults typically happen when the OS filesystem cache does not contain data that MongoDB needs to read. A sustained high rate means the working set is larger than available memory and MongoDB is reading frequently from disk. Check **Memory Available** and **Memory Cached** in the Overview to confirm the host is under memory pressure.
+For WiredTiger instances, page faults mean your data isn't available in any memory cache and must be read directly from disk, which is the slowest path for your queries. A sustained high rate tells you that your working dataset has outgrown the available memory on this host. Check **Memory Available** and **Memory Cached** in the Overview to confirm, and consider adding more RAM or reducing the dataset this instance handles.
 
 ## MongoDB Summary
 
 ### MongoDB Uptime
+
 Shows how long the MongoDB instance has been running since its last restart. Red means under 5 minutes, orange means under 1 hour, green means over 1 hour.
 
 A recent restart may cause temporarily elevated cache miss rates and page faults as the WiredTiger cache warms up.
 
 ### QPS
+
 Shows the current query rate in operations per second, excluding commands.
 
 ### Latency
+
 Shows the average command latency in microseconds.
 
 ### Service
+
 Links to the **MongoDB Instance Summary** for the selected service.
 
 ### Connections
-Tracks the number of active client connections to the MongoDB instance over   
-time, averaged per service. The metric is collected from mongod, mongos, or generic MongoDB exporters depending on your deployment type.                  
-   
-Monitor this panel to detect unusual spikes or sustained growth in connection  counts, which may indicate connection leaks, misconfigured connection pools,
-or increased load.      
-                                                
-MongoDB enforces a hard cap via `maxIncomingConnections`, which you can tune using  [Number of Connections](https://docs.mongodb.com/manual/administration/analyzing-mongodb-performance/#number-of-connections).                     
-                  
+
+Tracks the number of active client connections to the MongoDB instance over time, averaged per service. The metric is collected from mongod, mongos, or generic MongoDB exporters depending on your deployment type.
+
+Monitor this panel to detect unusual spikes or sustained growth in connection counts, which may indicate connection leaks, misconfigured connection pools, or increased load.
+
+MongoDB enforces a hard cap via `maxIncomingConnections`, which you can tune using [Number of Connections](https://docs.mongodb.com/manual/administration/analyzing-mongodb-performance/#number-of-connections).
+
 ### Cursors
 
 Tracks the number of open cursors per service, broken down by state. A cursor is a pointer to a query result set that MongoDB holds open while a client iterates over it.

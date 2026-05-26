@@ -1,6 +1,6 @@
 # MongoDB InMemory Details
 
-This dashboard focuses on the WiredTiger InMemory storage engine. It shows cache usage, eviction behavior, transaction activity, and the underlying node health for any MongoDB instance running with `--storageEngine inMemory`.
+This dashboard focuses on the InMemory storage engine. It shows cache usage, eviction behavior, transaction activity, and the underlying node health for any MongoDB instance running with `--storageEngine inMemory`.
 
 Use the filters at the top to scope the view to a specific service.
 
@@ -10,15 +10,15 @@ Use the filters at the top to scope the view to a specific service.
 
 ### InMemory Data Size
 
-Shows the current amount of uncompressed data in the WiredTiger InMemory cache in bytes.
+Shows the current amount of uncompressed data in the InMemory cache in bytes.
 
 Use this alongside **InMemory Max Data Size** to understand how full the cache is in absolute terms.
 
 A value that keeps climbing toward the maximum is a signal to plan a cache size increase before you run out of headroom.
- 
+
 ### InMemory Max Data Size
 
-Shows the configured maximum size of the WiredTiger InMemory cache in bytes as a single number. This is the hard ceiling for how much data can reside in memory at once. It corresponds to the `--inMemoryCacheSizeGB` startup parameter. 
+Shows the configured maximum size of the InMemory cache in bytes as a single number. This is the hard ceiling for how much data can reside in memory at once. It corresponds to the `--inMemoryCacheSizeGB` startup parameter.
 
 Use this as your reference point when reading the **InMemory Available** and **InMemory Capacity** panels: all usage figures are relative to this limit.
 
@@ -34,15 +34,15 @@ If you regularly see orange or red, consider increasing `--inMemoryCacheSizeGB` 
 
 Shows the percentage of InMemory cache occupied by dirty pages (modified data not yet consolidated) as a single number. The gauge turns orange at 30% and red at 50%.
 
-Dirty pages represent data that has been modified in memory but not yet reconciled. A high percentage means the engine is accumulating changes faster than it can consolidate them, which increases eviction pressure. 
+Dirty pages are changes that MongoDB has accepted but not yet cleaned up internally. When this percentage climbs, your writes are arriving faster than they can be processed, which puts pressure on the cache and can slow down your queries.
 
-If this stays elevated, look at **InMemory Cache Eviction** to see how aggressively the engine is evicting modified pages.
+If this stays elevated, check **InMemory Cache Eviction** to see whether MongoDB is struggling to free space fast enough to keep up with your workload.
 
 ### InMemory Transactions
 
-Shows the rate of WiredTiger internal transactions per second, broken down by type (begin, commit, rollback).
+Shows the rate of internal transactions per second, broken down by type (begin, commit, rollback).
 
-Use this to understand internal transaction activity in the storage engine. A high rollback rate relative to commits can indicate contention or application-level errors causing transactions to abort. Compare against **Queued Operations** to see whether transaction pressure is translating into lock waits.
+A high rollback rate is expected and not a cause for concern, since MongoDB uses rollbacks internally even for read queries to keep your data views consistent. Focus instead on whether transaction activity correlates with growing **Queued Operations**, which would mean your queries are starting to wait on locks.
 
 ### InMemory Capacity
 
@@ -52,7 +52,7 @@ Use this to track cache utilization trends. If the used line is trending toward 
 
 ### InMemory Sessions
 
-Shows the number of open WiredTiger cursors and sessions over time.
+Shows the number of open cursors and sessions over time.
 
 Cursors represent active query positions inside the storage engine. A large number of open cursors often means long-running queries or applications that open cursors without closing them promptly. 
 
@@ -60,7 +60,7 @@ If this number grows continuously without returning to a baseline, investigate w
 
 ### InMemory Pages
 
-Shows the number of pages in the WiredTiger InMemory cache over time, broken down into dirty pages (modified, not yet reconciled) and total pages.
+Shows the number of pages in the InMemory cache over time, broken down into dirty pages (modified, not yet reconciled) and total pages.
 
 Use this to understand the composition of the cache. A high proportion of dirty pages relative to total pages means the engine is under write pressure and may be struggling to keep up with reconciliation. 
 
@@ -68,9 +68,9 @@ Watch this alongside **InMemory Dirty Pages** (the percentage stat) to get both 
 
 ### InMemory Concurrency Tickets
 
-Shows the number of available WiredTiger concurrency tickets for read and write operations over time. Write tickets are plotted on the negative Y axis so reads and writes can be read independently at the same scale.
+Shows the number of available concurrency tickets for read and write operations over time. Write tickets are plotted on the negative Y axis so reads and writes can be read independently at the same scale.
 
-WiredTiger limits simultaneous operations using a ticket system. When available tickets approach zero, new operations must wait. A sustained drop toward zero on either axis means the engine is saturated for that operation type and latency will rise. 
+MongoDB limits simultaneous operations using a ticket system. When available tickets approach zero, new operations must wait. A sustained drop toward zero on either axis means the engine is saturated for that operation type and latency will rise.
 
 If you see this frequently, the workload may need tuning (fewer simultaneous connections, index improvements to reduce scan time) or the concurrency limits may need adjusting.
 
@@ -90,7 +90,7 @@ Compare the insert and delete rates to understand net data growth.
 
 ### InMemory Cache Eviction
 
-Shows the rate of modified (dirty) pages evicted from the WiredTiger InMemory cache per second.
+Shows the rate of modified (dirty) pages evicted from the InMemory cache per second.
 
 The InMemory engine only evicts modified pages, which happens during data compaction when dirty pages are consolidated and removed. 
 
@@ -110,7 +110,7 @@ Shows the rate of operating system memory page faults per second.
 
 A page fault occurs when a process accesses a memory page that isn't currently in RAM, either because it was never loaded yet or because it was swapped out. 
 
-For the InMemory storage engine, page faults won't come from MongoDB data access (all data stays in the WiredTiger cache in RAM), so they typically come from MongoDB's own process memory or from other processes on the host. 
+For the InMemory storage engine, page faults won't come from MongoDB data access (all data stays in the cache in RAM), so they typically come from MongoDB's own process memory or from other processes on the host. 
 
 A consistently high rate can indicate memory pressure on the host. Check **Memory Available** in the node section to confirm.
 

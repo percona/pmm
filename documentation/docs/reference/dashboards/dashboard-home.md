@@ -12,21 +12,21 @@ The Overview section shows key counts and capacity metrics across all monitored 
 
 ### Monitored DB Services
 
-Shows the count of monitored database endpoints (scrape targets) broken down by technology: MySQL, MongoDB, PostgreSQL, ProxySQL, and Valkey. 
+Shows how many database services PMM is actively collecting data from, broken down by technology: MySQL, MongoDB, PostgreSQL, ProxySQL, and Valkey.
 
-This count can be higher than **Monitored DB Instances** because one database service can appear as multiple monitoring targets. For example, when multiple nodes or exporters report for the same service.
+This count can be higher than **Monitored DB Instances** because a single database may have more than one monitoring connection. For example, if you have multiple exporters or nodes reporting for the same service, each one counts separately here.
 
 Use this to quickly see which technologies are in your environment and jump directly to their overview dashboards. Click MySQL, MongoDB, PostgreSQL, ProxySQL, or Valkey to open that technology's Instances Overview.
 
 ### Monitored DB Instances
 
-Shows the number of distinct logical database services per technology, deduplicated by service name. Unlike Monitored DB Services, this count is not inflated by multiple exporters reporting for the same service.
+Shows the number of distinct database services per technology. Unlike Monitored DB Services, this count is not inflated by multiple exporters reporting for the same service.
 
 Use this alongside Monitored DB Services to confirm whether a high service count reflects genuine instances or just multiple exporters for the same service.
 
 ### Monitored Nodes
 
-Shows the total number of infrastructure nodes matching the current dashboard filters.
+Shows the total number of infrastructure nodes matching the current dashboard filters. A node is either a physical server, VM, or Kubernetes node.
 
 Use this to confirm all expected nodes are registered with PMM. Click to open the **Nodes Overview** dashboard.
 
@@ -50,9 +50,9 @@ Use this to gauge overall connection load. A sudden spike may indicate a connect
 
 ### Database Queries/s (QPS)
 
-Shows the combined query rate per second across all monitored database services. MySQL uses query counters, MongoDB uses op counters (excluding the command type), and PostgreSQL uses transaction commit and rollback rates.
+Shows the combined query rate per second across all your monitored databases, regardless of technology.
 
-Use this to understand overall workload at a glance. A sudden change often points to a traffic spike, a slow query, or a scheduled job that started or stopped running.
+Use this to understand your overall workload at a glance. A sudden jump often points to a traffic spike or a scheduled job kicking in, while an unexpected drop may mean a service went down or queries are getting stuck somewhere.
 
 ### Total RAM
 

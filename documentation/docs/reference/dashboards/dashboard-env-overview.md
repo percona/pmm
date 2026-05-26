@@ -1,4 +1,9 @@
 # Environments Overview
+
+
+!!! caution alert alert-warning "Disclaimer"
+    This is an Experimental Dashboard that is not part of the official Percona Monitoring and Management (PMM) deployment and might be updated. We ship this Dashboard to obtain feedback from our users
+    
 ![Environment Overview Dashboard](../../images/PMM_Environment_Overview_Dashboard.png)
 
 The **Environments Overview** dashboard gives you a high-level view of all environments monitored by PMM. Use it to quickly see how your infrastructure is doing and drill into individual environments or services.
