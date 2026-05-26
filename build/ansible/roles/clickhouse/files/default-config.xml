@@ -1451,10 +1451,10 @@
         PMM-15054: drop ClickHouse system log tables PMM does not consume,
         plus orphan "*_log_0" tables left over from past CH schema upgrades.
         Runs on every server start; DROP IF EXISTS makes each call idempotent.
-        Per-script errors are non-fatal (startup_scripts.throw_on_error is set to false).
+        Per-script errors are non-fatal: ClickHouse catches exceptions inside
+        loadStartupScripts and only logs them.
     -->
     <startup_scripts>
-        <throw_on_error>false</throw_on_error>
         <scripts><query>DROP TABLE IF EXISTS system.trace_log SYNC</query></scripts>
         <scripts><query>DROP TABLE IF EXISTS system.trace_log_0 SYNC</query></scripts>
         <scripts><query>DROP TABLE IF EXISTS system.metric_log SYNC</query></scripts>
