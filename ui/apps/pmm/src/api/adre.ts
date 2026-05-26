@@ -193,7 +193,7 @@ export const getAdreUsageSummary = async (params?: {
       to: params?.to,
       feature: params?.feature,
       model: params?.model,
-      groupBy: params?.groupBy,
+      group_by: params?.groupBy ?? 'day',
     },
   });
   return res.data;

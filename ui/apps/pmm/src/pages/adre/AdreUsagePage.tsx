@@ -184,8 +184,8 @@ const AdreUsagePage: FC = () => {
                 <Box
                   ref={costSeriesRef}
                   sx={{
-                    minHeight: Math.max(120, dailyCostSeries.length * 32),
-                    maxHeight: 480,
+                    minHeight: Math.max(280, dailyCostSeries.length * 36),
+                    maxHeight: 560,
                     overflowY: 'auto',
                     overflowX: 'hidden',
                     pr: 0.5,
@@ -193,45 +193,45 @@ const AdreUsagePage: FC = () => {
                 >
                   <Stack spacing={1.25}>
                     {dailyCostSeries.map((row) => {
-                      const cost = row.totalCost;
-                      const pct = cost > 0 ? Math.max(4, (cost / maxSeriesCost) * 100) : 0;
-                      return (
-                        <Stack key={row.bucket} direction="row" alignItems="center" spacing={1.5}>
-                          <Typography
-                            variant="body2"
-                            sx={{ width: 64, flexShrink: 0, color: cost > 0 ? 'text.primary' : 'text.secondary' }}
-                          >
-                            {formatUsageDayLabel(row.bucket)}
-                          </Typography>
-                          <Box
-                            sx={{
-                              flex: 1,
-                              minWidth: 0,
-                              height: 20,
-                              bgcolor: 'action.hover',
-                              borderRadius: 1,
-                            }}
-                          >
-                            {cost > 0 ? (
-                              <Box
-                                sx={{
-                                  height: '100%',
-                                  width: `${pct}%`,
-                                  bgcolor: 'primary.main',
-                                  borderRadius: 1,
-                                }}
-                              />
-                            ) : null}
-                          </Box>
-                          <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            sx={{ width: 56, flexShrink: 0, textAlign: 'right' }}
-                          >
-                            {cost > 0 ? formatUsdCost(cost) : '—'}
-                          </Typography>
-                        </Stack>
-                      );
+                    const cost = row.totalCost;
+                    const pct = cost > 0 ? Math.max(4, (cost / maxSeriesCost) * 100) : 0;
+                    return (
+                      <Stack key={row.bucket} direction="row" alignItems="center" spacing={1.5}>
+                        <Typography
+                          variant="body2"
+                          sx={{ width: 64, flexShrink: 0, color: cost > 0 ? 'text.primary' : 'text.secondary' }}
+                        >
+                          {formatUsageDayLabel(row.bucket)}
+                        </Typography>
+                        <Box
+                          sx={{
+                            flex: 1,
+                            minWidth: 0,
+                            height: 20,
+                            bgcolor: 'action.hover',
+                            borderRadius: 1,
+                          }}
+                        >
+                          {cost > 0 ? (
+                            <Box
+                              sx={{
+                                height: '100%',
+                                width: `${pct}%`,
+                                bgcolor: 'primary.main',
+                                borderRadius: 1,
+                              }}
+                            />
+                          ) : null}
+                        </Box>
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{ width: 56, flexShrink: 0, textAlign: 'right' }}
+                        >
+                          {cost > 0 ? formatUsdCost(cost) : '—'}
+                        </Typography>
+                      </Stack>
+                    );
                     })}
                   </Stack>
                 </Box>
