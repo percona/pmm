@@ -1,6 +1,7 @@
 import { ComponentsOverrides, createTheme, PaletteMode, ThemeOptions } from '@mui/material';
 import { DatePickerToolbarClassKey } from '@mui/x-date-pickers/DatePicker';
 import { MultiSectionDigitalClockClassKey } from '@mui/x-date-pickers';
+import { inputBaseClasses } from '@mui/material/InputBase';
 import { outlinedInputClasses } from '@mui/material/OutlinedInput';
 
 declare module '@mui/material/styles' {
@@ -918,6 +919,7 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
               opacity: 0.5,
             },
           }),
+          // Polish styling override for the menu divider variant so the divider visual element is properly positioned and spaced
           divider: ({ theme }) => ({
             borderBottom: 'none',
             marginBottom: '16px !important',
@@ -977,14 +979,14 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
           }),
           input: {
             lineHeight: 1.5,
-            '&:not(.MuiInputBase-inputMultiline)': {
+            [`&:not(.${inputBaseClasses.inputMultiline})`]: {
               padding: '16px 12px',
               height: '1.5em',
             },
           },
           inputSizeSmall: {
             lineHeight: 1.5,
-            '&:not(.MuiInputBase-inputMultiline)': {
+            [`&:not(.${inputBaseClasses.inputMultiline})`]: {
               padding: '8px 12px',
               height: '1.5em',
             },
