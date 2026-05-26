@@ -131,7 +131,7 @@ func TestClient(t *testing.T) {
 			db: db,
 			l:  logrus.WithField("test", t.Name()),
 		}
-		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeOf(&qanpb.CollectRequest{}).String())).Return(&qanpb.CollectResponse{}, nil)
+		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeFor[*qanpb.CollectRequest]().String())).Return(&qanpb.CollectResponse{}, nil)
 		metricsBuckets := []*agentv1.MetricsBucket{
 			{
 				Common: &agentv1.MetricsBucket_Common{
@@ -217,7 +217,7 @@ func TestClient(t *testing.T) {
 			db: db,
 			l:  logrus.WithField("test", t.Name()),
 		}
-		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeOf(&qanpb.CollectRequest{}).String())).Return(&qanpb.CollectResponse{}, nil)
+		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeFor[*qanpb.CollectRequest]().String())).Return(&qanpb.CollectResponse{}, nil)
 		metricsBuckets := []*agentv1.MetricsBucket{
 			{
 				Common: &agentv1.MetricsBucket_Common{
@@ -283,7 +283,7 @@ func TestClient(t *testing.T) {
 			db: db,
 			l:  logrus.WithField("test", t.Name()),
 		}
-		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeOf(&qanpb.CollectRequest{}).String())).Return(&qanpb.CollectResponse{}, nil)
+		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeFor[*qanpb.CollectRequest]().String())).Return(&qanpb.CollectResponse{}, nil)
 		metricsBuckets := []*agentv1.MetricsBucket{
 			{
 				Common: &agentv1.MetricsBucket_Common{
@@ -418,7 +418,7 @@ func TestClient(t *testing.T) {
 			db: db,
 			l:  logrus.WithField("test", t.Name()),
 		}
-		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeOf(&qanpb.CollectRequest{}).String())).Return(&qanpb.CollectResponse{}, nil)
+		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeFor[*qanpb.CollectRequest]().String())).Return(&qanpb.CollectResponse{}, nil)
 		metricsBuckets := []*agentv1.MetricsBucket{
 			{
 				Common: &agentv1.MetricsBucket_Common{
@@ -468,7 +468,7 @@ func TestClientPerformance(t *testing.T) {
 	ctx := logger.Set(t.Context(), t.Name())
 	c := &mockQanCollectorClient{}
 	c.Test(t)
-	c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeOf(&qanpb.CollectRequest{}).String())).Return(&qanpb.CollectResponse{}, nil)
+	c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeFor[*qanpb.CollectRequest]().String())).Return(&qanpb.CollectResponse{}, nil)
 	defer c.AssertExpectations(t)
 
 	reformL.Reset()

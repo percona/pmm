@@ -180,7 +180,6 @@ func TestCheckCompatibility(t *testing.T) {
 			expectedError: ErrIncompatibleService,
 		},
 	} {
-		tc := tc
 		t.Run(string(tc.serviceType)+"_"+tc.name, func(t *testing.T) {
 			t.Parallel()
 			var sw []agents.Software
@@ -689,7 +688,6 @@ func TestArtifactCompatibility(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			err := cSvc.artifactCompatibility(tc.artifact, tc.service, tc.targetDBVersion)

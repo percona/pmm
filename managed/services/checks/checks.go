@@ -197,11 +197,9 @@ func (s *Service) Run(ctx context.Context) {
 
 	var wg sync.WaitGroup
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		s.runChecksLoop(ctx)
-	}()
+	})
 
 	wg.Wait()
 }
