@@ -20,9 +20,9 @@ You can get PMM Server logs with either of these methods:
 
 In a browser, visit `https://<address-of-your-pmm-server>/logs.zip`.
 
-This downloads a bundle of PMM Server log files from `/srv/logs/` inside the container. 
+This downloads a bundle containing PMM Server and PMM Client log files from `/srv/logs/` inside the container. 
 
-By default, this returns the last 50,000 lines per log file. To control how many lines are included, add the `line-count` parameter to the URL:
+To control how many lines are included, add the `line-count` parameter to the URL:
 
 - specific line count: `https://<address-of-your-pmm-server>/logs.zip?line-count=10000`
 - full logs (all lines): `https://<address-of-your-pmm-server>/logs.zip?line-count=-1`

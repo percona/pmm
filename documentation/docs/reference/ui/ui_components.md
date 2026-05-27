@@ -69,7 +69,7 @@ Filter your monitoring data using these contextual options:
 
 These selectors change based on the dashboard you're viewing, showing only relevant options.
 
-## Enable Explore metrics
+## Enable **Explore metrics** menu
 
 Explore metrics lets you visually browse and filter available metrics without writing PromQL queries. It is powered by the Grafana Metrics Drilldown plugin, which you can enable from the **Plugins** page:
 {.power-number}
