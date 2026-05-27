@@ -19,7 +19,7 @@ To create a new silence:
 1. Click the **Create silence** button.
 2. Select the start and end date to indicate when the silence should go into effect and expire.
 3. Optionally, update the duration to alter the time for the end of silence in the previous step to correspond to the start plus the duration.
-4. Enter one or more matching labels by filling out the **Name** and **Value** fields. Matchers determine which rules the silence will apply to. Note that all labels specified here must be matched by an alert for it to be silenced.
+4. Enter one or more matching labels by filling out the **Name** and **Value** fields. Matchers determine which rules the silence will apply to. Note that all labels specified here must be matched by an alert for it to be silenced. For a list of available labels, see [Labels reference](../reference/labels-reference.md).
 5. Enter any additional comments you would like about this silence - by default, the date the silence was created is placed here.
 6. Review the affected alert instances that will be silenced.
 7. Click **Save silence**.

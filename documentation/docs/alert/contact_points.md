@@ -90,7 +90,7 @@ Percona Alerting comes pre-configured with a Notification Root Policy, which is 
 
 ### How matching works
 
-Policies can have one or more child policies. An alert matches if the alert’s labels match all the **Matching Labels** specified on the policy.
+Policies can have one or more child policies. An alert matches if the alert’s labels match all the **Matching Labels** specified on the policy. For a list of available labels, see [Labels reference](../reference/labels-reference.md).
 
 Alerts that don't match any specific policies are handled by the root policy. The root policy also handles any alert rules for which the assigned custom notification policy has been deleted, to ensure notifications for existing alerts continue to be delivered.
 

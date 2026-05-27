@@ -590,6 +590,7 @@ nav:
               - reference/dashboards/dashboard-pxc-galera-nodes-compare.md
               - reference/dashboards/dashboard-pxc-galera-cluster-summary.md
               - reference/dashboards/dashboard-haproxy-instance-summary.md
+      - reference/labels-reference.md
       - reference/nomad.md
       - reference/glossary.md
       - reference/faq.md
