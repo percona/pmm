@@ -14,20 +14,28 @@ const notifySessionChange = () => {
 };
 
 export const establishClientSession = () => {
+  if (isClientSessionEstablished()) {
+    return;
+  }
+
   localStorage.setItem(CLIENT_SESSION_KEY, 'true');
   notifySessionChange();
 };
 
 export const clearClientSession = () => {
+  if (!isClientSessionEstablished()) {
+    return;
+  }
+
   localStorage.removeItem(CLIENT_SESSION_KEY);
   notifySessionChange();
 };
 
-export const isGrafanaLoginPath = (pathname: string | null | undefined) =>
-  Boolean(pathname?.includes('/login'));
-
 export const isClientSessionEstablished = () =>
   localStorage.getItem(CLIENT_SESSION_KEY) === 'true';
+
+export const isGrafanaLoginPath = (pathname: string | null | undefined) =>
+  Boolean(pathname?.includes('/login'));
 
 const subscribeToClientSession = (onChange: () => void) => {
   window.addEventListener(SESSION_CHANGE_EVENT, onChange);
