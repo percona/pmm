@@ -279,7 +279,7 @@ func TestRDSService(t *testing.T) {
 			TlsSkipVerify:             false,
 			DisableQueryExamples:      true,
 			TablestatsGroupTableLimit: 0,
-			DisableCollectors:         []string{"global_status", "info_schema.innodb_metrics"},
+			MysqlDisableCollectors:    []string{"global_status", "info_schema.innodb_metrics"},
 		}
 
 		state.On("RequestStateUpdate", ctx, "pmm-server")
@@ -375,7 +375,7 @@ func TestRDSService(t *testing.T) {
 			TablestatsGroupTableLimit:        0,
 			AutoDiscoveryLimit:               10,
 			MaxPostgresqlExporterConnections: 15,
-			DisableCollectors:                []string{"stat_database", "stat_bgwriter"},
+			PostgresqlDisableCollectors:      []string{"stat_database", "stat_bgwriter"},
 		}
 
 		state.On("RequestStateUpdate", ctx, "pmm-server")

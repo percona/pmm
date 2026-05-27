@@ -7,17 +7,15 @@
 package managementv1
 
 import (
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
-
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	_ "github.com/percona/pmm/api/extensions/v1"
+	v1 "github.com/percona/pmm/api/inventory/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
-
-	_ "github.com/percona/pmm/api/extensions/v1"
-	v1 "github.com/percona/pmm/api/inventory/v1"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -359,10 +357,12 @@ type AddRDSServiceParams struct {
 	MaxPostgresqlExporterConnections int32 `protobuf:"varint,33,opt,name=max_postgresql_exporter_connections,json=maxPostgresqlExporterConnections,proto3" json:"max_postgresql_exporter_connections,omitempty"`
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,35,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
-	// List of collector names to disable in the database exporter.
-	DisableCollectors []string `protobuf:"bytes,36,rep,name=disable_collectors,json=disableCollectors,proto3" json:"disable_collectors,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// List of collector names to disable in the MySQL database exporter.
+	MysqlDisableCollectors []string `protobuf:"bytes,37,rep,name=mysql_disable_collectors,json=mysqlDisableCollectors,proto3" json:"mysql_disable_collectors,omitempty"`
+	// List of collector names to disable in the PostgreSQL database exporter.
+	PostgresqlDisableCollectors []string `protobuf:"bytes,38,rep,name=postgresql_disable_collectors,json=postgresqlDisableCollectors,proto3" json:"postgresql_disable_collectors,omitempty"`
+	unknownFields               protoimpl.UnknownFields
+	sizeCache                   protoimpl.SizeCache
 }
 
 func (x *AddRDSServiceParams) Reset() {
@@ -640,9 +640,16 @@ func (x *AddRDSServiceParams) GetConnectionTimeout() *durationpb.Duration {
 	return nil
 }
 
-func (x *AddRDSServiceParams) GetDisableCollectors() []string {
+func (x *AddRDSServiceParams) GetMysqlDisableCollectors() []string {
 	if x != nil {
-		return x.DisableCollectors
+		return x.MysqlDisableCollectors
+	}
+	return nil
+}
+
+func (x *AddRDSServiceParams) GetPostgresqlDisableCollectors() []string {
+	if x != nil {
+		return x.PostgresqlDisableCollectors
 	}
 	return nil
 }
@@ -767,7 +774,7 @@ const file_management_v1_rds_proto_rawDesc = "" +
 	"\x0eaws_access_key\x18\x01 \x01(\tB\x04\x88\xb5\x18\x01R\fawsAccessKey\x12*\n" +
 	"\x0eaws_secret_key\x18\x02 \x01(\tB\x04\x88\xb5\x18\x01R\fawsSecretKey\"^\n" +
 	"\x13DiscoverRDSResponse\x12G\n" +
-	"\rrds_instances\x18\x01 \x03(\v2\".management.v1.DiscoverRDSInstanceR\frdsInstances\"\xbd\r\n" +
+	"\rrds_instances\x18\x01 \x03(\v2\".management.v1.DiscoverRDSInstanceR\frdsInstances\"\xa6\x0e\n" +
 	"\x13AddRDSServiceParams\x12\x1f\n" +
 	"\x06region\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06region\x12\x0e\n" +
 	"\x02az\x18\x02 \x01(\tR\x02az\x12(\n" +
@@ -807,11 +814,12 @@ const file_management_v1_rds_proto_rawDesc = "" +
 	"\x14auto_discovery_limit\x18\x1f \x01(\x05R\x12autoDiscoveryLimit\x128\n" +
 	"\x18disable_comments_parsing\x18  \x01(\bR\x16disableCommentsParsing\x12M\n" +
 	"#max_postgresql_exporter_connections\x18! \x01(\x05R maxPostgresqlExporterConnections\x12R\n" +
-	"\x12connection_timeout\x18# \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x12-\n" +
-	"\x12disable_collectors\x18$ \x03(\tR\x11disableCollectors\x1a?\n" +
+	"\x12connection_timeout\x18# \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x128\n" +
+	"\x18mysql_disable_collectors\x18% \x03(\tR\x16mysqlDisableCollectors\x12B\n" +
+	"\x1dpostgresql_disable_collectors\x18& \x03(\tR\x1bpostgresqlDisableCollectors\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd3\x04\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b$\x10%R\x12disable_collectors\"\xd3\x04\n" +
 	"\x10RDSServiceResult\x12/\n" +
 	"\x04node\x18\x01 \x01(\v2\x1b.inventory.v1.RemoteRDSNodeR\x04node\x12<\n" +
 	"\frds_exporter\x18\x02 \x01(\v2\x19.inventory.v1.RDSExporterR\vrdsExporter\x120\n" +
@@ -841,30 +849,27 @@ func file_management_v1_rds_proto_rawDescGZIP() []byte {
 	return file_management_v1_rds_proto_rawDescData
 }
 
-var (
-	file_management_v1_rds_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_management_v1_rds_proto_msgTypes  = make([]protoimpl.MessageInfo, 6)
-	file_management_v1_rds_proto_goTypes   = []any{
-		DiscoverRDSEngine(0),                      // 0: management.v1.DiscoverRDSEngine
-		(*DiscoverRDSInstance)(nil),               // 1: management.v1.DiscoverRDSInstance
-		(*DiscoverRDSRequest)(nil),                // 2: management.v1.DiscoverRDSRequest
-		(*DiscoverRDSResponse)(nil),               // 3: management.v1.DiscoverRDSResponse
-		(*AddRDSServiceParams)(nil),               // 4: management.v1.AddRDSServiceParams
-		(*RDSServiceResult)(nil),                  // 5: management.v1.RDSServiceResult
-		nil,                                       // 6: management.v1.AddRDSServiceParams.CustomLabelsEntry
-		MetricsMode(0),                            // 7: management.v1.MetricsMode
-		(*durationpb.Duration)(nil),               // 8: google.protobuf.Duration
-		(*v1.RemoteRDSNode)(nil),                  // 9: inventory.v1.RemoteRDSNode
-		(*v1.RDSExporter)(nil),                    // 10: inventory.v1.RDSExporter
-		(*v1.MySQLService)(nil),                   // 11: inventory.v1.MySQLService
-		(*v1.MySQLdExporter)(nil),                 // 12: inventory.v1.MySQLdExporter
-		(*v1.QANMySQLPerfSchemaAgent)(nil),        // 13: inventory.v1.QANMySQLPerfSchemaAgent
-		(*v1.PostgreSQLService)(nil),              // 14: inventory.v1.PostgreSQLService
-		(*v1.PostgresExporter)(nil),               // 15: inventory.v1.PostgresExporter
-		(*v1.QANPostgreSQLPgStatementsAgent)(nil), // 16: inventory.v1.QANPostgreSQLPgStatementsAgent
-	}
-)
-
+var file_management_v1_rds_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_management_v1_rds_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_management_v1_rds_proto_goTypes = []any{
+	(DiscoverRDSEngine)(0),                    // 0: management.v1.DiscoverRDSEngine
+	(*DiscoverRDSInstance)(nil),               // 1: management.v1.DiscoverRDSInstance
+	(*DiscoverRDSRequest)(nil),                // 2: management.v1.DiscoverRDSRequest
+	(*DiscoverRDSResponse)(nil),               // 3: management.v1.DiscoverRDSResponse
+	(*AddRDSServiceParams)(nil),               // 4: management.v1.AddRDSServiceParams
+	(*RDSServiceResult)(nil),                  // 5: management.v1.RDSServiceResult
+	nil,                                       // 6: management.v1.AddRDSServiceParams.CustomLabelsEntry
+	(MetricsMode)(0),                          // 7: management.v1.MetricsMode
+	(*durationpb.Duration)(nil),               // 8: google.protobuf.Duration
+	(*v1.RemoteRDSNode)(nil),                  // 9: inventory.v1.RemoteRDSNode
+	(*v1.RDSExporter)(nil),                    // 10: inventory.v1.RDSExporter
+	(*v1.MySQLService)(nil),                   // 11: inventory.v1.MySQLService
+	(*v1.MySQLdExporter)(nil),                 // 12: inventory.v1.MySQLdExporter
+	(*v1.QANMySQLPerfSchemaAgent)(nil),        // 13: inventory.v1.QANMySQLPerfSchemaAgent
+	(*v1.PostgreSQLService)(nil),              // 14: inventory.v1.PostgreSQLService
+	(*v1.PostgresExporter)(nil),               // 15: inventory.v1.PostgresExporter
+	(*v1.QANPostgreSQLPgStatementsAgent)(nil), // 16: inventory.v1.QANPostgreSQLPgStatementsAgent
+}
 var file_management_v1_rds_proto_depIdxs = []int32{
 	0,  // 0: management.v1.DiscoverRDSInstance.engine:type_name -> management.v1.DiscoverRDSEngine
 	1,  // 1: management.v1.DiscoverRDSResponse.rds_instances:type_name -> management.v1.DiscoverRDSInstance

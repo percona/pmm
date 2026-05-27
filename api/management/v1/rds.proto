@@ -49,6 +49,9 @@ message DiscoverRDSResponse {
 }
 
 message AddRDSServiceParams {
+  reserved 36;
+  reserved "disable_collectors";
+
   // AWS region.
   string region = 1 [(validate.rules).string.min_len = 1];
   // AWS availability zone.
@@ -127,8 +130,10 @@ message AddRDSServiceParams {
   google.protobuf.Duration connection_timeout = 35 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
-  // List of collector names to disable in the database exporter.
-  repeated string disable_collectors = 36;
+  // List of collector names to disable in the MySQL database exporter.
+  repeated string mysql_disable_collectors = 37;
+  // List of collector names to disable in the PostgreSQL database exporter.
+  repeated string postgresql_disable_collectors = 38;
 }
 
 message RDSServiceResult {

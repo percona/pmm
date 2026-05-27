@@ -3587,13 +3587,21 @@
                       "type": "string",
                       "x-order": 34
                     },
-                    "disable_collectors": {
-                      "description": "List of collector names to disable in the database exporter.",
+                    "mysql_disable_collectors": {
+                      "description": "List of collector names to disable in the MySQL database exporter.",
                       "type": "array",
                       "items": {
                         "type": "string"
                       },
                       "x-order": 35
+                    },
+                    "postgresql_disable_collectors": {
+                      "description": "List of collector names to disable in the PostgreSQL database exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 36
                     }
                   },
                   "x-order": 6
