@@ -2,9 +2,17 @@
 
 set -euo pipefail
 
-GIT_BRANCH="${GIT_BRANCH:-v3}"
-WORKSPACE="${WORKSPACE:-$(pwd)/pmm-build-workspace}"
-SCRIPTS="${WORKSPACE}/sources/pmm/src/github.com/percona/pmm/build/scripts"
+declare WORKSPACE="${WORKSPACE:-$(pwd)/pmm-workspace}"
+if [ ! -d "${WORKSPACE}" ]; then
+    mkdir -p "${WORKSPACE}"
+fi
+
+echo -n > "${WORKSPACE}/build.log"
+exec >  >(tee -a "${WORKSPACE}/build.log")
+exec 2> >(tee -a "${WORKSPACE}/build.log" >&2)
+
+declare GIT_BRANCH="${GIT_BRANCH:-v3}"
+declare SCRIPTS="${WORKSPACE}/sources/pmm/src/github.com/percona/pmm/build/scripts"
 export DOCKER_TAG="${DOCKER_TAG:-pmm-server:local}"
 export DOCKERFILE="Dockerfile.el9"
 export ROOT_DIR="${WORKSPACE}"  # override the build scripts relative-path-walking
@@ -12,7 +20,7 @@ export FORCE_REBUILD=1          # skip the public S3 build cache lookup
 
 if [ ! -d "${WORKSPACE}/.git" ]; then
     echo "Cloning pmm-submodules (${GIT_BRANCH}) into ${WORKSPACE}"
-    git clone --branch "${GIT_BRANCH}" https://github.com/Percona-Lab/pmm-submodules "${WORKSPACE}"
+    git clone --single-branch --branch "${GIT_BRANCH}" https://github.com/Percona-Lab/pmm-submodules "${WORKSPACE}"
 fi
 
 cd "${WORKSPACE}"
