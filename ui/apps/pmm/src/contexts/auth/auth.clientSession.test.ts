@@ -61,4 +61,54 @@ describe('auth.clientSession', () => {
     expect(isGrafanaLoginPath('/graph/login')).toBe(true);
     expect(isGrafanaLoginPath('/graph/admin/users/edit/id')).toBe(false);
   });
+
+  describe('ensureClientSessionListener', () => {
+    const sessionChangeEvent = expect.objectContaining({
+      type: 'pmm-client-session-change',
+    });
+
+    beforeAll(() => {
+      ensureClientSessionListener();
+    });
+
+    it('notifies on localStorage.clear()', () => {
+      establishClientSession();
+      const dispatchSpy = vi.spyOn(window, 'dispatchEvent');
+
+      localStorage.clear();
+
+      expect(dispatchSpy).toHaveBeenCalledWith(sessionChangeEvent);
+      dispatchSpy.mockRestore();
+    });
+
+    it('notifies when removing a tracked key', () => {
+      localStorage.setItem('pmm-ui.session.active', 'true');
+      const dispatchSpy = vi.spyOn(window, 'dispatchEvent');
+
+      localStorage.removeItem('pmm-ui.session.active');
+
+      expect(dispatchSpy).toHaveBeenCalledWith(sessionChangeEvent);
+      dispatchSpy.mockRestore();
+    });
+
+    it('notifies when removing a grafana-prefixed key', () => {
+      localStorage.setItem('grafana.test', 'value');
+      const dispatchSpy = vi.spyOn(window, 'dispatchEvent');
+
+      localStorage.removeItem('grafana.test');
+
+      expect(dispatchSpy).toHaveBeenCalledWith(sessionChangeEvent);
+      dispatchSpy.mockRestore();
+    });
+
+    it('does not notify when removing an unrelated key', () => {
+      localStorage.setItem('other-app.key', 'value');
+      const dispatchSpy = vi.spyOn(window, 'dispatchEvent');
+
+      localStorage.removeItem('other-app.key');
+
+      expect(dispatchSpy).not.toHaveBeenCalled();
+      dispatchSpy.mockRestore();
+    });
+  });
 });
