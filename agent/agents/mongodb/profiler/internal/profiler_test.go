@@ -15,6 +15,7 @@
 package profiler
 
 import (
+	"context"
 	"fmt"
 	"sort"
 	"strings"
@@ -62,9 +63,11 @@ func testProfiler(t *testing.T, url string) {
 	require.NoError(t, err)
 
 	// Just in case there are old dbs with matching names
-	require.NoError(t, cleanUpDBs(t, sess))
+	require.NoError(t, cleanUpDBs(t.Context(), t, sess))
 	t.Cleanup(func() {
-		assert.NoError(t, cleanUpDBs(t, sess))
+		cleanupCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		assert.NoError(t, cleanUpDBs(cleanupCtx, t, sess))
 	})
 
 	dbsCount := 10
@@ -114,7 +117,9 @@ func testProfiler(t *testing.T, url string) {
 	cursor, err := sess.Database("test_00").Collection("people").Find(t.Context(), bson.M{"name_00\xff": "value_00\xff"})
 	require.NoError(t, err)
 	t.Cleanup(func() {
-		assert.NoError(t, cursor.Close(t.Context()))
+		cursorCtx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+		defer cancel()
+		assert.NoError(t, cursor.Close(cursorCtx))
 	})
 
 	<-time.After(aggregator.DefaultInterval * 6) // give it some time to catch all metrics
@@ -186,15 +191,15 @@ func testProfiler(t *testing.T, url string) {
 	assert.InDelta(t, docsCount, findBucket.Mongodb.MDocsReturnedSum, 0.0001)
 }
 
-func cleanUpDBs[T testing.TB](t T, sess *mongo.Client) error {
+func cleanUpDBs(ctx context.Context, t *testing.T, sess *mongo.Client) error {
 	t.Helper()
-	dbs, err := sess.ListDatabaseNames(t.Context(), bson.M{})
+	dbs, err := sess.ListDatabaseNames(ctx, bson.M{})
 	if err != nil {
 		return err
 	}
 	for _, dbname := range dbs {
 		if strings.HasPrefix(dbname, "test_") {
-			err = sess.Database(dbname).Drop(t.Context())
+			err = sess.Database(dbname).Drop(ctx)
 			if err != nil {
 				t.Logf("failed to drop database %q: %v", dbname, err)
 				continue

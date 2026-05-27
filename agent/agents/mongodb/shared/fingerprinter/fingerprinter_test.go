@@ -98,7 +98,9 @@ func TestProfilerFingerprinter(t *testing.T) {
 		err = client.Database(dbName).Drop(ctx)
 		require.NoError(t, err)
 		t.Cleanup(func() {
-			err = client.Database(dbName).Drop(t.Context())
+			dropCtx, cancelCtx := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancelCtx()
+			err = client.Database(dbName).Drop(dropCtx)
 			require.NoError(t, err)
 		})
 
@@ -106,7 +108,9 @@ func TestProfilerFingerprinter(t *testing.T) {
 		err = client.Database("admin").RunCommand(ctx, primitive.M{"profile": -1}).Decode(&ps)
 		require.NoError(t, err)
 		t.Cleanup(func() {
-			client.Database("admin").RunCommand(t.Context(), primitive.D{{Key: "profile", Value: ps.Was}, {Key: "slowms", Value: ps.SlowMs}})
+			cmdCtx, cancelCtx := context.WithTimeout(context.Background(), 1*time.Second)
+			defer cancelCtx()
+			client.Database("admin").RunCommand(cmdCtx, primitive.D{{Key: "profile", Value: ps.Was}, {Key: "slowms", Value: ps.SlowMs}})
 		})
 
 		// Enable profilling all queries (2, slowms = 0)
@@ -170,7 +174,9 @@ func TestProfilerFingerprinter(t *testing.T) {
 		cursor, err := createIterator(ctx, profilerCollection, query)
 		require.NoError(t, err)
 		t.Cleanup(func() {
-			require.NoError(t, cursor.Close(t.Context()))
+			cursorCtx, cancelCtx := context.WithTimeout(context.Background(), 1*time.Second)
+			defer cancelCtx()
+			require.NoError(t, cursor.Close(cursorCtx))
 		})
 
 		pf := &ProfilerFingerprinter{}
