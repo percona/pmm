@@ -129,7 +129,7 @@ func TestSwagger(t *testing.T) {
 				resp, err := http.DefaultClient.Do(req)
 				require.NoError(t, err)
 				t.Cleanup(func() {
-					assert.Error(t, resp.Body.Close())
+					assert.NoError(t, resp.Body.Close())
 				})
 
 				assert.Equal(t, 401, resp.StatusCode)
@@ -159,7 +159,7 @@ func TestSwagger(t *testing.T) {
 				resp, err := client.Do(req)
 				require.NoError(t, err)
 				t.Cleanup(func() {
-					assert.Error(t, resp.Body.Close())
+					assert.NoError(t, resp.Body.Close())
 				})
 
 				assert.Equal(t, 200, resp.StatusCode)
@@ -174,7 +174,7 @@ func doRequest(tb testing.TB, client *http.Client, req *http.Request) (*http.Res
 	require.NoError(tb, err)
 
 	tb.Cleanup(func() {
-		assert.Error(tb, resp.Body.Close())
+		assert.NoError(tb, resp.Body.Close())
 	})
 
 	b, err := io.ReadAll(resp.Body)
@@ -389,7 +389,7 @@ func TestServiceAccountPermissions(t *testing.T) {
 					resp, err := http.DefaultClient.Do(req)
 					require.NoError(t, err)
 					t.Cleanup(func() {
-						assert.Error(t, resp.Body.Close())
+						assert.NoError(t, resp.Body.Close())
 					})
 
 					assert.Equal(t, user.statusCode, resp.StatusCode)
@@ -407,7 +407,7 @@ func TestServiceAccountPermissions(t *testing.T) {
 					resp, err := http.DefaultClient.Do(req)
 					require.NoError(t, err)
 					t.Cleanup(func() {
-						assert.Error(t, resp.Body.Close())
+						assert.NoError(t, resp.Body.Close())
 					})
 
 					assert.Equal(t, user.statusCode, resp.StatusCode)
@@ -435,10 +435,7 @@ func createServiceAccountWithRole(t *testing.T, role, nodeName string) int {
 
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 
-	resp, b := doRequest(t, http.DefaultClient, req)
-	t.Cleanup(func() {
-		assert.Error(t, resp.Body.Close())
-	})
+	resp, b := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
 
 	require.Equalf(t, http.StatusCreated, resp.StatusCode, "failed to create Service account, status code: %d, response: %s", resp.StatusCode, b)
 
@@ -458,10 +455,7 @@ func createServiceAccountWithRole(t *testing.T, role, nodeName string) int {
 
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 
-	resp1, b := doRequest(t, http.DefaultClient, req)
-	t.Cleanup(func() {
-		assert.Error(t, resp1.Body.Close())
-	})
+	resp, b = doRequest(t, http.DefaultClient, req) //nolint:bodyclose
 
 	require.Equalf(t, http.StatusCreated, resp.StatusCode, "failed to set orgId=1 to Service account, status code: %d, response: %s", resp.StatusCode, b)
 
@@ -477,10 +471,7 @@ func deleteServiceAccount(t *testing.T, serviceAccountID int) {
 	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodDelete, u.String(), nil)
 	require.NoError(t, err)
 
-	resp, b := doRequest(t, http.DefaultClient, req)
-	t.Cleanup(func() {
-		assert.Error(t, resp.Body.Close())
-	})
+	resp, b := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete service account, status code: %d, response: %s", resp.StatusCode, b)
 }
@@ -502,10 +493,7 @@ func createServiceToken(t *testing.T, serviceAccountID int, nodeName string) (in
 
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 
-	resp, b := doRequest(t, http.DefaultClient, req)
-	t.Cleanup(func() {
-		assert.Error(t, resp.Body.Close())
-	})
+	resp, b := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to create Service account, status code: %d, response: %s", resp.StatusCode, b)
 
@@ -525,10 +513,7 @@ func deleteServiceToken(t *testing.T, serviceAccountID, serviceTokenID int) {
 	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodDelete, u.String(), nil)
 	require.NoError(t, err)
 
-	resp, b := doRequest(t, http.DefaultClient, req)
-	t.Cleanup(func() {
-		assert.Error(t, resp.Body.Close())
-	})
+	resp, b := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete service token, status code: %d, response: %s", resp.StatusCode, b)
 }
