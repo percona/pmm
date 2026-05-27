@@ -28,7 +28,9 @@ export const clearClientSession = () => {
   }
 
   localStorage.removeItem(CLIENT_SESSION_KEY);
-  notifySessionChange();
+  if (!listenerInstalled) {
+    notifySessionChange();
+  }
 };
 
 export const isClientSessionEstablished = () =>

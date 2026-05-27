@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   clearClientSession,
+  ensureClientSessionListener,
   establishClientSession,
   isClientSessionEstablished,
   isGrafanaLoginPath,
@@ -34,6 +35,17 @@ describe('auth.clientSession', () => {
     establishClientSession();
     clearClientSession();
     expect(isClientSessionEstablished()).toBe(false);
+  });
+
+  it('notifies once when clearing with session listener installed', () => {
+    ensureClientSessionListener();
+    establishClientSession();
+    const dispatchSpy = vi.spyOn(window, 'dispatchEvent');
+
+    clearClientSession();
+
+    expect(dispatchSpy).toHaveBeenCalledTimes(1);
+    dispatchSpy.mockRestore();
   });
 
   it('does not notify when session is already cleared', () => {
