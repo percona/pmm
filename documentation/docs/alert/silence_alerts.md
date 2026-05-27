@@ -11,7 +11,7 @@ Silenced alerts are still recorded under **Alerting > Fired Alerts** so that you
 
 ## Using silences
 
-You can silence an alert by creating a silence from the **Silences** page.  Here you define labels that match the alert that you want to silence.
+You can silence an alert by creating a silence from the **Alerts > Silences** page.  Here you define labels that match the alert that you want to silence.
 
 To create a new silence:
 {.power-number}
@@ -39,7 +39,7 @@ If you have any templates available in the `/srv/ia/templates` folder, make sure
 If you have existing YAML alert templates that you want to leverage in Percona Alerting:
 {.power-number}
 
-1. Go to **Alerting > Alert rule templates** tab and click **Add template** at the top right-hand side of the table.
+1. Go to **Alerts > Alert templates** tab and click **Add template** at the top right-hand side of the table.
 2. Upload a local .yaml file that contains the definition of one or more alert templates then click **Add**. Alert templates added in bulk will be displayed individually on **Alert rule templates** page.
 
 #### Script commands

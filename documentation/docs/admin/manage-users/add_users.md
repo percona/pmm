@@ -8,11 +8,7 @@ To add a new user in PMM:
 {.power-number}
 
 1. Go to **Users and access** page, click **New user**.
-2. On the **Add new user** dialog box, enter the following:
-    - **Name** - Full name of the user
-    - **Email** - Email address or username (if this is an existing Grafana user)
-    - **Username** - Login username for this user
-    - **Password** - Secure password for this user
+2. On the **Add new user** dialog box, fill in the user's details. For existing Grafana users, you can enter their Grafana username in the **Email** field.
 
 3. Click **Create user**.
 

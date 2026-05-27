@@ -175,7 +175,7 @@ This method supports Amazon RDS database instances that use Amazon Aurora, MySQL
 The following steps are needed to add an Amazon RDS database instance to PMM:
 {.power-number}
 
-1. In the PMM web interface, go to **Inventory > Add Instance > Amazon RDS**.
+1. In the PMM web interface, go to **Inventory > Add service > Amazon RDS**.
 
     ![!image](../../../images/PMM_Add_Instance_AWS_RDS.png)
 
@@ -282,7 +282,7 @@ When using TLS certificates with Amazon RDS MySQL, make sure to:
 For PostgreSQL, use the same method described above.
 {.power-number}
 
-1. In the PMM web interface, go to **PMM Inventory > Add service > Amazon RDS**.
+1. In the PMM web interface, go to **Inventory > Add service > Amazon RDS**.
 
     ![!image](../../../images/PMM_rds_postgre_02_discover.png)
 

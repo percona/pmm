@@ -25,7 +25,7 @@ You can check the alert templates available for your account under **Alerting > 
 
 ## Accessing alert templates
 
-To check the alert templates for your PMM instance, go to PMM > **Alerting > Alert Rule Templates** tab.
+To check the alert templates for your PMM instance, go to **Alerts > Alert templates** tab.
 
 To check the full list of available PMM templates, see the [List of available alert templates topic](../alert/templates_list.md)
 
@@ -39,8 +39,8 @@ Before creating PMM alert rules, configure the required alert resources:
 {.power-number}
 
 1. Go to **Configuration > Settings > Advanced settings** and ensure that the **Percona Alerting** option is enabled. When this is disabled, the **Alerting** page displays only Grafana-managed alert rules. This means that you will not be able to create alerts based on PMM templates.
-2. Go to **Dashboards** and check the folders available for storing alert rules. If none of the available folders are relevant for your future alert rules, click **New > New Folder** and create a custom one.
-3. Go to **Alerting > Alert rule templates** and check the default PMM templates. If none of the templates include a relevant expression for the type of alerts that you want to create, click **Add template** to create a custom template instead.
+2. Go to **All dashboards > Browse all dashboards** and check the folders available for storing alert rules. If none of the available folders are relevant for your future alert rules, click **New > New folder** and create a custom one.
+3. Go to **Alerts > Alert rule templates** and check the default PMM templates. If none of the templates include a relevant expression for the type of alerts that you want to create, click **Add template** to create a custom template instead.
 
 ### Configure alert templates
 
@@ -142,4 +142,4 @@ If you want to learn about creating Grafana alerts instead, check out [Grafana's
 
 Record an alert rules to pre-compute a query on a schedule and store the result as a new metric, which you can then reference in alert rules. This is useful when the same query powers multiple alert rules, for example, average CPU load across all nodes or replication lag across a cluster.
 
-To create a recording rule, click **Alerting > Alert rules** + New recording rule**. For full instructions, see [Create recording rules](https://grafana.com/docs/grafana/latest/alerting/alerting-rules/create-recording-rules/) in the Grafana documentation.
+To create a recording rule, click **Alerts > Alert rules** + New recording rule**. For full instructions, see [Create recording rules](https://grafana.com/docs/grafana/latest/alerting/alerting-rules/create-recording-rules/) in the Grafana documentation.
