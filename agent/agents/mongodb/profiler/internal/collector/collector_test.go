@@ -66,16 +66,20 @@ func BenchmarkCollector(b *testing.B) {
 	require.NoError(b, err)
 
 	// Just in case there are old dbs with matching names
-	require.NoError(b, cleanUpDBs(b, client))
+	require.NoError(b, cleanUpDBs(b.Context(), b, client))
 	b.Cleanup(func() {
-		assert.NoError(b, cleanUpDBs(b, client))
+		cleanupCtx, cancelCtx := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancelCtx()
+		assert.NoError(b, cleanUpDBs(cleanupCtx, b, client))
 	})
 
 	var ps ProfilerStatus
 	err = client.Database("admin").RunCommand(ctx, primitive.M{"profile": -1}).Decode(&ps)
 	require.NoError(b, err)
 	b.Cleanup(func() { // restore profiler status
-		client.Database("admin").RunCommand(ctx, primitive.D{{"profile", ps.Was}, {"slowms", ps.SlowMs}})
+		cmdCtx, cancelCtx := context.WithTimeout(context.Background(), 1*time.Second)
+		defer cancelCtx()
+		client.Database("admin").RunCommand(cmdCtx, primitive.D{{"profile", ps.Was}, {"slowms", ps.SlowMs}})
 	})
 
 	// Enable profilling all queries (2, slowms = 0)
@@ -126,9 +130,11 @@ func TestCollector(t *testing.T) {
 	client, err := createSession(url, "pmm-agent")
 	require.NoError(t, err)
 
-	require.NoError(t, cleanUpDBs(t, client)) // Just in case there are old dbs with matching names
+	require.NoError(t, cleanUpDBs(t.Context(), t, client)) // Just in case there are old dbs with matching names
 	t.Cleanup(func() {
-		assert.NoError(t, cleanUpDBs(t, client))
+		cleanupCtx, cancelCtx := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancelCtx()
+		assert.NoError(t, cleanUpDBs(cleanupCtx, t, client))
 	})
 
 	// It's done create DB before the test.
@@ -223,15 +229,15 @@ func createSession(dsn string, agentID string) (*mongo.Client, error) {
 	return client, nil
 }
 
-func cleanUpDBs[T testing.TB](t T, sess *mongo.Client) error {
+func cleanUpDBs[T testing.TB](ctx context.Context, t T, sess *mongo.Client) error {
 	t.Helper()
-	dbs, err := sess.ListDatabaseNames(t.Context(), bson.M{})
+	dbs, err := sess.ListDatabaseNames(ctx, bson.M{})
 	if err != nil {
 		return err
 	}
 	for _, dbname := range dbs {
 		if strings.HasPrefix(dbname, "test_") {
-			err = sess.Database(dbname).Drop(t.Context())
+			err = sess.Database(dbname).Drop(ctx)
 			if err != nil {
 				t.Logf("failed to drop database %q: %v", dbname, err)
 				continue
