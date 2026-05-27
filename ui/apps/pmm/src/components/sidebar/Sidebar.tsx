@@ -51,7 +51,6 @@ export const Sidebar: FC = () => {
       open={navOpen}
       variant="permanent"
       anchor="left"
-      disablePortal
       data-testid="pmm-sidebar"
     >
       <NavigationHeading
