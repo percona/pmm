@@ -58,8 +58,6 @@ type Service struct {
 	sendCh              chan *telemetryv1.GenericReport
 	dataSourcesMap      map[DataSourceName]DataSource
 
-	extensions map[ExtensionType]Extension
-
 	dus distributionUtilService
 }
 
@@ -90,7 +88,7 @@ func getLogger() *logrus.Entry {
 
 // NewService creates a new service.
 func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string,
-	dus distributionUtilService, config ServiceConfig, extensions map[ExtensionType]Extension,
+	dus distributionUtilService, config ServiceConfig,
 ) (*Service, error) {
 	if config.SaasHostname == "" {
 		return nil, errors.New("empty host")
@@ -112,7 +110,6 @@ func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string,
 		dsRegistry:   registry,
 		dus:          dus,
 		sendCh:       make(chan *telemetryv1.GenericReport, sendChSize),
-		extensions:   extensions,
 	}
 
 	s.sDistributionMethod, s.tDistributionMethod, s.os = dus.GetDistributionMethodAndOS()
@@ -256,23 +253,6 @@ func (s *Service) prepareReport(ctx context.Context) *telemetryv1.GenericReport 
 	}
 
 	for _, telemetry := range s.config.telemetry {
-		if telemetry.Extension != "" {
-			extension, ok := s.extensions[telemetry.Extension]
-			if !ok {
-				s.l.Errorf("telemetry extension [%s] is not supported", telemetry.Extension)
-				continue
-			}
-
-			metrics, err := extension.FetchMetrics(ctx, telemetry)
-			if err != nil {
-				s.l.Debugf("failed while calling extension [%s]:%s", telemetry.Extension, err)
-				continue
-			}
-			telemetryMetric.Metrics = append(telemetryMetric.Metrics, metrics...)
-
-			continue
-		}
-
 		// locate DS in initialized state
 		ds := initializedDataSources[DataSourceName(telemetry.Source)]
 		if ds == nil {

@@ -120,7 +120,6 @@ type Config struct {
 	Query     string           `yaml:"query"`
 	Summary   string           `yaml:"summary"`
 	Transform *ConfigTransform `yaml:"transform"`
-	Extension ExtensionType    `yaml:"extension"`
 	Data      []ConfigData
 }
 
@@ -168,9 +167,6 @@ type ReportingConfig struct {
 
 //go:embed config.default.yml
 var defaultConfig string
-
-// ExtensionType represents the type of telemetry extension.
-type ExtensionType string
 
 // Init initializes telemetry config.
 func (c *ServiceConfig) Init(l *logrus.Entry) error {

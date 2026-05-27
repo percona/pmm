@@ -950,7 +950,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	}
 
 	dus := distribution.NewService(distributionInfoFilePath, osInfoFilePath, l)
-	telemetry, err := telemetry.NewService(db, platformClient, version.Version, dus, cfg.Config.Services.Telemetry, nil)
+	telemetry, err := telemetry.NewService(db, platformClient, version.Version, dus, cfg.Config.Services.Telemetry)
 	if err != nil {
 		l.Fatalf("Could not create telemetry service: %s", err)
 	}
