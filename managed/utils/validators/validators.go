@@ -19,6 +19,7 @@ package validators
 import (
 	"errors"
 	"fmt"
+	"slices"
 	"time"
 	"unicode"
 )
@@ -87,14 +88,7 @@ func ValidateAWSPartitions(partitions []string) error {
 	}
 
 	for _, p := range partitions {
-		var valid bool
-		for _, partition := range AWSPartitions() {
-			if p == partition {
-				valid = true
-				break
-			}
-		}
-		if !valid {
+		if !slices.Contains(AWSPartitions(), p) {
 			return fmt.Errorf("aws_partitions: partition %q is invalid", p)
 		}
 	}

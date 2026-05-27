@@ -76,7 +76,7 @@ func TestJobs(t *testing.T) {
 
 		const jobsCount = 3
 		jobs := make([]*models.Job, 0, jobsCount)
-		for i := 0; i < jobsCount; i++ {
+		for i := range jobsCount {
 			id := strconv.Itoa(i)
 			job, err := models.CreateJob(findTX.Querier, models.CreateJobParams{
 				PMMAgentID: "agentid",
@@ -234,7 +234,6 @@ func TestJobLogs(t *testing.T) {
 		}
 
 		for _, tc := range testCases {
-			tc := tc
 			t.Run(tc.Name, func(t *testing.T) {
 				logs, err := models.FindJobLogs(tx.Querier, tc.Filters)
 				require.NoError(t, err)
