@@ -42,7 +42,6 @@ PMM supports two types of labels:
     | `environment` | Service | No | Yes |
     | `cluster` | Service | No | Yes |
     | `replication_set` | Service | No | Yes |
-    | `service_role` | Service | No | No |
     | `external_group` | Service | No | Yes |
     | `agent_id` | Agent | Yes | No |
     | `agent_type` | Agent | Yes | No |
