@@ -1,3 +1,5 @@
+import { PMM_BASE_PATH } from 'lib/constants';
+
 export const getIframePathname = (
   iframe: HTMLIFrameElement | null | undefined
 ): string | null => {
@@ -15,7 +17,7 @@ export const redirectIframeFromPmmShell = (
 ): boolean => {
   try {
     const pathname = iframe.contentWindow?.location.pathname;
-    if (!pathname?.startsWith('/pmm-ui')) {
+    if (!pathname?.startsWith(PMM_BASE_PATH)) {
       return false;
     }
     iframe.src = grafanaSrc;
