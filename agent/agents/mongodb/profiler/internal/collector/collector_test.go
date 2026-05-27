@@ -79,11 +79,11 @@ func BenchmarkCollector(b *testing.B) {
 	b.Cleanup(func() { // restore profiler status
 		cmdCtx, cancelCtx := context.WithTimeout(context.Background(), 1*time.Second)
 		defer cancelCtx()
-		client.Database("admin").RunCommand(cmdCtx, primitive.D{{"profile", ps.Was}, {"slowms", ps.SlowMs}})
+		client.Database("admin").RunCommand(cmdCtx, primitive.D{{Key: "profile", Value: ps.Was}, {Key: "slowms", Value: ps.SlowMs}})
 	})
 
 	// Enable profilling all queries (2, slowms = 0)
-	res := client.Database("admin").RunCommand(ctx, primitive.D{{"profile", 2}, {"slowms", 0}})
+	res := client.Database("admin").RunCommand(ctx, primitive.D{{Key: "profile", Value: 2}, {Key: "slowms", Value: 0}})
 	require.NoError(b, res.Err())
 
 	for b.Loop() {
