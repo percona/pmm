@@ -18,7 +18,6 @@ package inventory
 import (
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -35,49 +34,39 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for QAN PostgreSQL Agent pg_stat_statements")).NodeID
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Postgresql: &services.AddServiceParamsBodyPostgresql{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        5432,
 				ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for QanAgent test"),
 			},
 		})
 		serviceID := service.Postgresql.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
-
-		res, err := client.Default.AgentsService.AddAgent(
-			&agents.AddAgentParams{
-				Body: agents.AddAgentBody{
-					QANPostgresqlPgstatementsAgent: &agents.AddAgentParamsBodyQANPostgresqlPgstatementsAgent{
-						ServiceID:  serviceID,
-						Username:   "username",
-						Password:   "password",
-						PMMAgentID: pmmAgentID,
-						CustomLabels: map[string]string{
-							"new_label": "QANPostgreSQLPgStatementsAgent",
-						},
-
-						SkipConnectionCheck: true,
-					},
+		res := pmmapitests.AddAgent(t, agents.AddAgentBody{
+			QANPostgresqlPgstatementsAgent: &agents.AddAgentParamsBodyQANPostgresqlPgstatementsAgent{
+				ServiceID:  serviceID,
+				Username:   "username",
+				Password:   "password",
+				PMMAgentID: pmmAgentID,
+				CustomLabels: map[string]string{
+					"new_label": "QANPostgreSQLPgStatementsAgent",
 				},
-				Context: pmmapitests.Context,
-			})
-		require.NoError(t, err)
-		agentID := res.Payload.QANPostgresqlPgstatementsAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
+
+				SkipConnectionCheck: true,
+			},
+		})
+		agentID := res.QANPostgresqlPgstatementsAgent.AgentID
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(
 			&agents.GetAgentParams{
 				AgentID: agentID,
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.GetAgentOK{
 			Payload: &agents.GetAgentOKBody{
@@ -90,7 +79,7 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 						"new_label": "QANPostgreSQLPgStatementsAgent",
 					},
 					Status:   &AgentStatusUnknown,
-					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel: new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, getAgentRes)
@@ -101,12 +90,13 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					QANPostgresqlPgstatementsAgent: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgent{
-						Enable:       pointer.ToBool(false),
+						Enable:       new(false),
 						CustomLabels: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCustomLabels{},
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
@@ -118,7 +108,7 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 					Disabled:     true,
 					Status:       &AgentStatusDone,
 					CustomLabels: map[string]string{},
-					LogLevel:     pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:     new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeQANPostgreSQLPgStatementsAgentOK)
@@ -128,7 +118,7 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					QANPostgresqlPgstatementsAgent: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgent{
-						Enable: pointer.ToBool(true),
+						Enable: new(true),
 						CustomLabels: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCustomLabels{
 							Values: map[string]string{
 								"new_label": "QANPostgreSQLPgStatementsAgent",
@@ -137,7 +127,8 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
@@ -151,7 +142,7 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 						"new_label": "QANPostgreSQLPgStatementsAgent",
 					},
 					Status:   &AgentStatusDone,
-					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel: new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeQANPostgreSQLPgStatementsAgentOK)
@@ -161,46 +152,37 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for QAN PostgreSQL PgStatements password rotation")).NodeID
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Postgresql: &services.AddServiceParamsBodyPostgresql{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        5432,
 				ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for QAN PgStatements password rotation test"),
 			},
 		})
 		serviceID := service.Postgresql.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
 
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
 		// Create QAN PostgreSQL PgStatements agent with initial credentials
-		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
-			Body: agents.AddAgentBody{
-				QANPostgresqlPgstatementsAgent: &agents.AddAgentParamsBodyQANPostgresqlPgstatementsAgent{
-					ServiceID:           serviceID,
-					Username:            "initial-postgres-qan-user",
-					Password:            "initial-postgres-qan-password",
-					PMMAgentID:          pmmAgentID,
-					SkipConnectionCheck: true,
-				},
+		res := pmmapitests.AddAgent(t, agents.AddAgentBody{
+			QANPostgresqlPgstatementsAgent: &agents.AddAgentParamsBodyQANPostgresqlPgstatementsAgent{
+				ServiceID:           serviceID,
+				Username:            "initial-postgres-qan-user",
+				Password:            "initial-postgres-qan-password",
+				PMMAgentID:          pmmAgentID,
+				SkipConnectionCheck: true,
 			},
-			Context: pmmapitests.Context,
 		})
-		require.NoError(t, err)
-		agentID := res.Payload.QANPostgresqlPgstatementsAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
+		agentID := res.QANPostgresqlPgstatementsAgent.AgentID
 
 		// Test password rotation
 		changeQANAgentOK, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				QANPostgresqlPgstatementsAgent: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgent{
-					Password: pointer.ToString("new-rotated-postgres-qan-password"),
+					Password: new("new-rotated-postgres-qan-password"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -214,8 +196,8 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				QANPostgresqlPgstatementsAgent: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgent{
-					Username: pointer.ToString("new-postgres-qan-user"),
-					Password: pointer.ToString("another-new-postgres-qan-password"),
+					Username: new("new-postgres-qan-user"),
+					Password: new("another-new-postgres-qan-password"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -236,55 +218,46 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for QAN PostgreSQL PgStatements partial update")).NodeID
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Postgresql: &services.AddServiceParamsBodyPostgresql{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        5432,
 				ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for QAN PgStatements partial update test"),
 			},
 		})
 		serviceID := service.Postgresql.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
 
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
 		// Create QAN PostgreSQL PgStatements agent with comprehensive initial configuration
-		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
-			Body: agents.AddAgentBody{
-				QANPostgresqlPgstatementsAgent: &agents.AddAgentParamsBodyQANPostgresqlPgstatementsAgent{
-					ServiceID:      serviceID,
-					Username:       "initial-pgstatements-user",
-					Password:       "initial-pgstatements-password",
-					PMMAgentID:     pmmAgentID,
-					MaxQueryLength: 2048,
-					TLS:            true,
-					TLSSkipVerify:  false,
-					CustomLabels: map[string]string{
-						"environment": "test",
-						"team":        "dev",
-					},
-					LogLevel:               pointer.ToString("LOG_LEVEL_INFO"),
-					SkipConnectionCheck:    true,
-					DisableCommentsParsing: true,
+		res := pmmapitests.AddAgent(t, agents.AddAgentBody{
+			QANPostgresqlPgstatementsAgent: &agents.AddAgentParamsBodyQANPostgresqlPgstatementsAgent{
+				ServiceID:      serviceID,
+				Username:       "initial-pgstatements-user",
+				Password:       "initial-pgstatements-password",
+				PMMAgentID:     pmmAgentID,
+				MaxQueryLength: 2048,
+				TLS:            true,
+				TLSSkipVerify:  false,
+				CustomLabels: map[string]string{
+					"environment": "test",
+					"team":        "dev",
 				},
+				LogLevel:               new("LOG_LEVEL_INFO"),
+				SkipConnectionCheck:    true,
+				DisableCommentsParsing: true,
 			},
-			Context: pmmapitests.Context,
 		})
-		require.NoError(t, err)
-		agentID := res.Payload.QANPostgresqlPgstatementsAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
+		agentID := res.QANPostgresqlPgstatementsAgent.AgentID
 
 		// Change only username, verify all other fields remain unchanged
-		_, err = client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+		_, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				QANPostgresqlPgstatementsAgent: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgent{
-					Username: pointer.ToString("updated-pgstatements-user"),
+					Username: new("updated-pgstatements-user"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -308,67 +281,58 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 			"environment": "test",
 			"team":        "dev",
 		}, agent.CustomLabels) // Unchanged
-		assert.Equal(t, pointer.ToString("LOG_LEVEL_INFO"), agent.LogLevel) // Unchanged
-		assert.False(t, agent.Disabled)                                     // Unchanged
+		assert.Equal(t, new("LOG_LEVEL_INFO"), agent.LogLevel) // Unchanged
+		assert.False(t, agent.Disabled)                        // Unchanged
 	})
 
 	t.Run("ChangeAllAvailableFields", func(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for QAN PostgreSQL PgStatements change all fields")).NodeID
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Postgresql: &services.AddServiceParamsBodyPostgresql{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        5432,
 				ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for QAN PgStatements change all fields test"),
 			},
 		})
 		serviceID := service.Postgresql.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
 
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
 		// Create QAN PostgreSQL PgStatements agent with initial configuration
-		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
-			Body: agents.AddAgentBody{
-				QANPostgresqlPgstatementsAgent: &agents.AddAgentParamsBodyQANPostgresqlPgstatementsAgent{
-					ServiceID:      serviceID,
-					Username:       "initial-pgstatements-user",
-					Password:       "initial-pgstatements-password",
-					PMMAgentID:     pmmAgentID,
-					MaxQueryLength: 1024,
-					TLS:            false,
-					TLSSkipVerify:  true,
-					CustomLabels: map[string]string{
-						"environment": "staging",
-						"version":     "1.0",
-					},
-					LogLevel:               pointer.ToString("LOG_LEVEL_WARN"),
-					SkipConnectionCheck:    true,
-					DisableCommentsParsing: false,
+		res := pmmapitests.AddAgent(t, agents.AddAgentBody{
+			QANPostgresqlPgstatementsAgent: &agents.AddAgentParamsBodyQANPostgresqlPgstatementsAgent{
+				ServiceID:      serviceID,
+				Username:       "initial-pgstatements-user",
+				Password:       "initial-pgstatements-password",
+				PMMAgentID:     pmmAgentID,
+				MaxQueryLength: 1024,
+				TLS:            false,
+				TLSSkipVerify:  true,
+				CustomLabels: map[string]string{
+					"environment": "staging",
+					"version":     "1.0",
 				},
+				LogLevel:               new("LOG_LEVEL_WARN"),
+				SkipConnectionCheck:    true,
+				DisableCommentsParsing: false,
 			},
-			Context: pmmapitests.Context,
 		})
-		require.NoError(t, err)
-		agentID := res.Payload.QANPostgresqlPgstatementsAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
+		agentID := res.QANPostgresqlPgstatementsAgent.AgentID
 
 		// Change ALL available fields at once
 		changeQANAgentOK, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				QANPostgresqlPgstatementsAgent: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgent{
-					Username:       pointer.ToString("changed-pgstatements-user"),
-					Password:       pointer.ToString("changed-pgstatements-password"),
-					MaxQueryLength: pointer.ToInt32(4096),
-					TLS:            pointer.ToBool(true),
-					TLSSkipVerify:  pointer.ToBool(false),
+					Username:       new("changed-pgstatements-user"),
+					Password:       new("changed-pgstatements-password"),
+					MaxQueryLength: new(int32(4096)),
+					TLS:            new(true),
+					TLSSkipVerify:  new(false),
 					CustomLabels: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCustomLabels{
 						Values: map[string]string{
 							"environment": "production",
@@ -376,9 +340,9 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 							"team":        "backend",
 						},
 					},
-					LogLevel:               pointer.ToString("LOG_LEVEL_DEBUG"),
-					DisableCommentsParsing: pointer.ToBool(true),
-					Enable:                 pointer.ToBool(false), // disable the agent
+					LogLevel:               new("LOG_LEVEL_DEBUG"),
+					DisableCommentsParsing: new(true),
+					Enable:                 new(false), // disable the agent
 				},
 			},
 			Context: pmmapitests.Context,
@@ -402,7 +366,7 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 				"team":        "backend",
 			},
 			Status:   &AgentStatusDone,
-			LogLevel: pointer.ToString("LOG_LEVEL_DEBUG"),
+			LogLevel: new("LOG_LEVEL_DEBUG"),
 		}
 
 		assert.Equal(t, expectedAgent, changeQANAgentOK.Payload.QANPostgresqlPgstatementsAgent)
@@ -430,7 +394,7 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 				"team":        "backend",
 			},
 			Status:   &AgentStatusDone,
-			LogLevel: pointer.ToString("LOG_LEVEL_DEBUG"),
+			LogLevel: new("LOG_LEVEL_DEBUG"),
 		}
 
 		assert.Equal(t, expectedGetAgent, getAgentRes.Payload.QANPostgresqlPgstatementsAgent)
@@ -440,11 +404,7 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for QAN Agent")).NodeID
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
 		res, err := client.Default.AgentsService.AddAgent(
 			&agents.AddAgentParams{
@@ -459,7 +419,8 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddQANPostgreSQLPgStatementsAgentParams.ServiceId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.QANPostgresqlPgstatementsAgent.AgentID)
@@ -470,18 +431,16 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for QAN Agent")).NodeID
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Postgresql: &services.AddServiceParamsBodyPostgresql{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        5432,
 				ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for agent"),
 			},
 		})
 		serviceID := service.Postgresql.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
 
 		res, err := client.Default.AgentsService.AddAgent(
 			&agents.AddAgentParams{
@@ -496,7 +455,8 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddQANPostgreSQLPgStatementsAgentParams.PmmAgentId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.QANPostgresqlPgstatementsAgent.AgentID)
@@ -507,11 +467,7 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for QAN Agent")).NodeID
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
 
 		res, err := client.Default.AgentsService.AddAgent(
 			&agents.AddAgentParams{
@@ -524,7 +480,8 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Service with ID \"pmm-service-id\" not found.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.QANPostgresqlPgstatementsAgent.AgentID)
@@ -535,18 +492,16 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for QAN Agent")).NodeID
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Postgresql: &services.AddServiceParamsBodyPostgresql{
 				NodeID:      genericNodeID,
-				Address:     "localhost",
+				Address:     pmmapitests.TestString(t, "localhost"),
 				Port:        5432,
 				ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for not exists node ID"),
 			},
 		})
 		serviceID := service.Postgresql.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
 
 		res, err := client.Default.AgentsService.AddAgent(
 			&agents.AddAgentParams{
@@ -559,7 +514,8 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID pmm-not-exist-server not found.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.QANPostgresqlPgstatementsAgent.AgentID)

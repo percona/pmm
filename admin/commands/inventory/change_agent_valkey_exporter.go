@@ -16,6 +16,7 @@ package inventory
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/pkg/flags"
@@ -81,9 +82,10 @@ type ChangeAgentValkeyExporterCommand struct {
 	TLSKeyFile    *string `help:"TLS certificate key file"`
 
 	// Exporter options
-	DisableCollectors []string `help:"List of collector names to disable"`
-	ExposeExporter    *bool    `help:"Expose the exporter process on all public interfaces"`
-	PushMetrics       *bool    `help:"Enable push metrics with vmagent"`
+	DisableCollectors []string       `help:"List of collector names to disable"`
+	ExposeExporter    *bool          `help:"Expose the exporter process on all public interfaces"`
+	PushMetrics       *bool          `help:"Enable push metrics with vmagent"`
+	ConnectionTimeout *time.Duration `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
@@ -137,6 +139,7 @@ func (cmd *ChangeAgentValkeyExporterCommand) RunCmd() (commands.Result, error) {
 		ExposeExporter:    cmd.ExposeExporter,
 		EnablePushMetrics: cmd.PushMetrics,
 		LogLevel:          convertLogLevelPtr(cmd.LogLevel),
+		ConnectionTimeout: commands.DurationString(cmd.ConnectionTimeout),
 	}
 
 	if customLabels != nil {

@@ -16,19 +16,15 @@
 package alerting
 
 import (
-	"bytes"
-	"encoding/base64"
-	"encoding/json"
+	"errors"
 	"fmt"
-	"io"
-	"net/http"
-	"net/url"
 	"os"
+	"path"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	gapi "github.com/grafana/grafana-api-golang-client"
 	"github.com/stretchr/testify/assert"
@@ -46,40 +42,18 @@ import (
 // we don't enable or disable Alerting explicitly in our tests since it is enabled by default through
 // PMM_ENABLE_ALERTING env var.
 func TestRulesAPI(t *testing.T) {
-	t.Parallel()
-	const foldersAPI = "https://127.0.0.1/graph/api/folders"
 	client := alertingClient.Default.AlertingService
 
 	// Create grafana folder for test alert rules
-	b, err := json.Marshal(gapi.Folder{Title: "test-folder-" + uuid.NewString()})
+	gClient := pmmapitests.GetGrafanaClient(t)
+	folder, err := gClient.NewFolder(pmmapitests.TestString(t, "test-folder"))
 	require.NoError(t, err)
-
-	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodPost, foldersAPI, bytes.NewReader(b))
-	require.NoError(t, err)
-
-	req.Header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte("admin:admin")))
-	req.Header.Set("Content-Type", "application/json")
-
-	res, err := http.DefaultClient.Do(req)
-	require.NoError(t, err)
-	defer res.Body.Close() //nolint:errcheck
-
-	b, err = io.ReadAll(res.Body)
-	require.NoError(t, err)
-
-	var folder gapi.Folder
-	err = json.Unmarshal(b, &folder)
-	require.NoError(t, err)
-
 	t.Cleanup(func() {
-		query := make(url.Values, 1)
-		query.Set("forceDeleteRules", "true")
-		_, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodDelete, fmt.Sprintf("%s/%s?%s", foldersAPI, folder.UID, query.Encode()), nil)
-		require.NoError(t, err)
+		_ = gClient.DeleteFolder(folder.UID, gapi.ForceDeleteFolderRules())
 	})
 
 	dummyFilter := &alerting.CreateRuleParamsBodyFiltersItems0{
-		Type:   pointer.ToString("FILTER_TYPE_MATCH"),
+		Type:   new("FILTER_TYPE_MATCH"),
 		Label:  "threshold",
 		Regexp: "12",
 	}
@@ -90,23 +64,17 @@ func TestRulesAPI(t *testing.T) {
 	})
 
 	t.Run("add", func(t *testing.T) {
-		t.Parallel()
-
 		t.Run("normal from template", func(t *testing.T) {
-			t.Parallel()
-
-			params := createAlertRuleParams(templateName, folder.UID, dummyFilter)
+			params := createAlertRuleParams(t, templateName, folder.UID, dummyFilter)
 			_, err := client.CreateRule(params)
 			require.NoError(t, err)
 		})
 
 		t.Run("builtin_template", func(t *testing.T) {
-			t.Parallel()
-
-			params := createAlertRuleParams("pmm_mongodb_restarted", folder.UID, dummyFilter)
+			params := createAlertRuleParams(t, "pmm_mongodb_restarted", folder.UID, dummyFilter)
 			params.Body.Params = []*alerting.CreateRuleParamsBodyParamsItems0{{
 				Name:  "threshold",
-				Type:  pointer.ToString("PARAM_TYPE_FLOAT"),
+				Type:  new("PARAM_TYPE_FLOAT"),
 				Float: 3.14,
 			}}
 			_, err := client.CreateRule(params)
@@ -114,9 +82,7 @@ func TestRulesAPI(t *testing.T) {
 		})
 
 		t.Run("use default value for parameter", func(t *testing.T) {
-			t.Parallel()
-
-			params := createAlertRuleParams(templateName, folder.UID, dummyFilter)
+			params := createAlertRuleParams(t, templateName, folder.UID, dummyFilter)
 			_, err := client.CreateRule(params)
 			require.NoError(t, err)
 		})
@@ -125,7 +91,7 @@ func TestRulesAPI(t *testing.T) {
 			t.Parallel()
 
 			templateName := uuid.New().String()
-			params := createAlertRuleParams(templateName, folder.UID, dummyFilter)
+			params := createAlertRuleParams(t, templateName, folder.UID, dummyFilter)
 			_, err := client.CreateRule(params)
 			pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Unknown template %s.", templateName)
 		})
@@ -133,14 +99,15 @@ func TestRulesAPI(t *testing.T) {
 		t.Run("wrong parameter", func(t *testing.T) {
 			t.Parallel()
 
-			params := createAlertRuleParams(templateName, folder.UID, dummyFilter)
+			params := createAlertRuleParams(t, templateName, folder.UID, dummyFilter)
 			params.Body.Params = append(
 				params.Body.Params,
 				&alerting.CreateRuleParamsBodyParamsItems0{
 					Name:  "unknown parameter",
-					Type:  pointer.ToString("PARAM_TYPE_FLOAT"),
+					Type:  new("PARAM_TYPE_FLOAT"),
 					Float: 12,
-				})
+				},
+			)
 			_, err := client.CreateRule(params)
 			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Expression requires 2 parameters, but got 3.")
 		})
@@ -148,15 +115,15 @@ func TestRulesAPI(t *testing.T) {
 		t.Run("wrong parameter type", func(t *testing.T) {
 			t.Parallel()
 
-			params := createAlertRuleParams(templateName, folder.UID, dummyFilter)
+			params := createAlertRuleParams(t, templateName, folder.UID, dummyFilter)
 			params.Body.Params = []*alerting.CreateRuleParamsBodyParamsItems0{
 				{
 					Name: "param1",
-					Type: pointer.ToString("PARAM_TYPE_BOOL"),
+					Type: new("PARAM_TYPE_BOOL"),
 					Bool: true,
 				}, {
 					Name:  "param2",
-					Type:  pointer.ToString("PARAM_TYPE_FLOAT"),
+					Type:  new("PARAM_TYPE_FLOAT"),
 					Float: 12,
 				},
 			}
@@ -170,13 +137,13 @@ func TestModifyTemplatesAPI(t *testing.T) {
 	t.Parallel()
 	client := alertingClient.Default.AlertingService
 
-	templateData, err := os.ReadFile("../testdata/alerting/template.yaml")
+	templateData, err := readTemplateContent(t, "../testdata/alerting/template.yaml")
 	require.NoError(t, err)
 
-	multipleTemplatesData, err := os.ReadFile("../testdata/alerting/multiple-templates.yaml")
+	multipleTemplatesData, err := readTemplateContent(t, "../testdata/alerting/multiple-templates.yaml")
 	require.NoError(t, err)
 
-	invalidTemplateData, err := os.ReadFile("../testdata/alerting/invalid-template.yaml")
+	invalidTemplateData, err := readTemplateContent(t, "../testdata/alerting/invalid-template.yaml")
 	require.NoError(t, err)
 
 	t.Run("add", func(t *testing.T) {
@@ -185,8 +152,8 @@ func TestModifyTemplatesAPI(t *testing.T) {
 		t.Run("normal", func(t *testing.T) {
 			t.Parallel()
 
-			name := uuid.New().String()
-			expr := uuid.New().String()
+			name := pmmapitests.TestString(t, "test-template-add-normal")
+			expr := pmmapitests.TestString(t, "test-template-add-normal")
 			alertTemplates, yml := formatTemplateYaml(t, fmt.Sprintf(string(templateData), name, expr, "%", "s"))
 			_, err := client.CreateTemplate(&alerting.CreateTemplateParams{
 				Body: alerting.CreateTemplateBody{
@@ -195,10 +162,12 @@ func TestModifyTemplatesAPI(t *testing.T) {
 				Context: pmmapitests.Context,
 			})
 			require.NoError(t, err)
-			defer deleteTemplate(t, client, name)
+			t.Cleanup(func() {
+				deleteTemplate(t, client, name)
+			})
 
 			resp, err := client.ListTemplates(&alerting.ListTemplatesParams{
-				Reload:  pointer.ToBool(true),
+				Reload:  new(true),
 				Context: pmmapitests.Context,
 			})
 			require.NoError(t, err)
@@ -224,7 +193,7 @@ func TestModifyTemplatesAPI(t *testing.T) {
 			})
 
 			resp, err := client.ListTemplates(&alerting.ListTemplatesParams{
-				Reload:  pointer.ToBool(true),
+				Reload:  new(true),
 				Context: pmmapitests.Context,
 			})
 			require.NoError(t, err)
@@ -245,7 +214,9 @@ func TestModifyTemplatesAPI(t *testing.T) {
 				Context: pmmapitests.Context,
 			})
 			require.NoError(t, err)
-			defer deleteTemplate(t, client, name)
+			t.Cleanup(func() {
+				deleteTemplate(t, client, name)
+			})
 
 			_, err = client.CreateTemplate(&alerting.CreateTemplateParams{
 				Body: alerting.CreateTemplateBody{
@@ -288,8 +259,8 @@ func TestModifyTemplatesAPI(t *testing.T) {
 		t.Run("normal", func(t *testing.T) {
 			t.Parallel()
 
-			name := uuid.New().String()
-			expr := uuid.New().String()
+			name := pmmapitests.TestString(t, "test-template-change-normal")
+			expr := pmmapitests.TestString(t, "test-template-change-normal")
 			_, err := client.CreateTemplate(&alerting.CreateTemplateParams{
 				Body: alerting.CreateTemplateBody{
 					Yaml: fmt.Sprintf(string(templateData), name, expr, "s", "%"),
@@ -297,9 +268,11 @@ func TestModifyTemplatesAPI(t *testing.T) {
 				Context: pmmapitests.Context,
 			})
 			require.NoError(t, err)
-			defer deleteTemplate(t, client, name)
+			t.Cleanup(func() {
+				deleteTemplate(t, client, name)
+			})
 
-			newExpr := uuid.New().String()
+			newExpr := pmmapitests.TestString(t, "test-template-change-normal-new-expr")
 			alertTemplates, yml := formatTemplateYaml(t, fmt.Sprintf(string(templateData), name, newExpr, "s", "%"))
 			_, err = client.UpdateTemplate(&alerting.UpdateTemplateParams{
 				Name: name,
@@ -311,7 +284,7 @@ func TestModifyTemplatesAPI(t *testing.T) {
 			require.NoError(t, err)
 
 			resp, err := client.ListTemplates(&alerting.ListTemplatesParams{
-				Reload:  pointer.ToBool(true),
+				Reload:  new(true),
 				Context: pmmapitests.Context,
 			})
 			require.NoError(t, err)
@@ -322,7 +295,7 @@ func TestModifyTemplatesAPI(t *testing.T) {
 		t.Run("unknown template", func(t *testing.T) {
 			t.Parallel()
 
-			name := uuid.New().String()
+			name := pmmapitests.TestString(t, "test-template-change-unknown")
 			_, err := client.UpdateTemplate(&alerting.UpdateTemplateParams{
 				Name: name,
 				Body: alerting.UpdateTemplateBody{
@@ -336,7 +309,7 @@ func TestModifyTemplatesAPI(t *testing.T) {
 		t.Run("invalid yaml", func(t *testing.T) {
 			t.Parallel()
 
-			name := uuid.New().String()
+			name := pmmapitests.TestString(t, "test-template-change-invalid")
 			_, err := client.CreateTemplate(&alerting.CreateTemplateParams{
 				Body: alerting.CreateTemplateBody{
 					Yaml: fmt.Sprintf(string(templateData), name, uuid.New().String(), "s", "%"),
@@ -344,7 +317,9 @@ func TestModifyTemplatesAPI(t *testing.T) {
 				Context: pmmapitests.Context,
 			})
 			require.NoError(t, err)
-			defer deleteTemplate(t, client, name)
+			t.Cleanup(func() {
+				deleteTemplate(t, client, name)
+			})
 
 			_, err = client.UpdateTemplate(&alerting.UpdateTemplateParams{
 				Name: name,
@@ -367,7 +342,9 @@ func TestModifyTemplatesAPI(t *testing.T) {
 				Context: pmmapitests.Context,
 			})
 			require.NoError(t, err)
-			defer deleteTemplate(t, client, name)
+			t.Cleanup(func() {
+				deleteTemplate(t, client, name)
+			})
 
 			_, err = client.UpdateTemplate(&alerting.UpdateTemplateParams{
 				Name: name,
@@ -386,7 +363,7 @@ func TestModifyTemplatesAPI(t *testing.T) {
 		t.Run("normal", func(t *testing.T) {
 			t.Parallel()
 
-			name := uuid.New().String()
+			name := pmmapitests.TestString(t, "test-template-delete-normal")
 			_, err := client.CreateTemplate(&alerting.CreateTemplateParams{
 				Body: alerting.CreateTemplateBody{
 					Yaml: fmt.Sprintf(string(templateData), name, uuid.New().String(), "s", "%"),
@@ -402,7 +379,7 @@ func TestModifyTemplatesAPI(t *testing.T) {
 			require.NoError(t, err)
 
 			resp, err := client.ListTemplates(&alerting.ListTemplatesParams{
-				Reload:  pointer.ToBool(true),
+				Reload:  new(true),
 				Context: pmmapitests.Context,
 			})
 			require.NoError(t, err)
@@ -415,7 +392,7 @@ func TestModifyTemplatesAPI(t *testing.T) {
 		t.Run("unknown template", func(t *testing.T) {
 			t.Parallel()
 
-			name := uuid.New().String()
+			name := pmmapitests.TestString(t, "test-template-delete-unknown")
 			_, err := client.DeleteTemplate(&alerting.DeleteTemplateParams{
 				Name:    name,
 				Context: pmmapitests.Context,
@@ -429,14 +406,18 @@ func TestModifyTemplatesAPI(t *testing.T) {
 // We keep it separate from the tests in TestModifyTemplatesAPI to avoid
 // race conditions when other tests add or remove templates while we are listing them.
 func TestListTemplatesAPI(t *testing.T) {
+	// t.Parallel()
+
 	client := alertingClient.Default.AlertingService
 
-	templateData, err := os.ReadFile("../testdata/alerting/template.yaml")
+	templateData, err := readTemplateContent(t, "../testdata/alerting/template.yaml")
 	require.NoError(t, err)
 	t.Run("list", func(t *testing.T) {
+		// t.Parallel()
+
 		t.Run("without pagination", func(t *testing.T) {
-			name := uuid.New().String()
-			expr := uuid.New().String()
+			name := pmmapitests.TestString(t, "test-template-list-wo-pagination")
+			expr := pmmapitests.TestString(t, "test-template-list-wo-pagination")
 			alertTemplates, yml := formatTemplateYaml(t, fmt.Sprintf(string(templateData), name, expr, "%", "s"))
 			_, err := client.CreateTemplate(&alerting.CreateTemplateParams{
 				Body: alerting.CreateTemplateBody{
@@ -450,7 +431,7 @@ func TestListTemplatesAPI(t *testing.T) {
 			})
 
 			resp, err := client.ListTemplates(&alerting.ListTemplatesParams{
-				Reload:  pointer.ToBool(true),
+				Reload:  new(true),
 				Context: pmmapitests.Context,
 			})
 			require.NoError(t, err)
@@ -464,8 +445,8 @@ func TestListTemplatesAPI(t *testing.T) {
 			templateNames := make(map[string]struct{})
 
 			for range templatesCount {
-				name := uuid.New().String()
-				expr := uuid.New().String()
+				name := pmmapitests.TestString(t, "test-template-list-w-pagination")
+				expr := pmmapitests.TestString(t, "test-template-list-w-pagination")
 				_, yml := formatTemplateYaml(t, fmt.Sprintf(string(templateData), name, expr, "%", "s"))
 				_, err := client.CreateTemplate(&alerting.CreateTemplateParams{
 					Body: alerting.CreateTemplateBody{
@@ -474,22 +455,19 @@ func TestListTemplatesAPI(t *testing.T) {
 					Context: pmmapitests.Context,
 				})
 				require.NoError(t, err)
+				t.Cleanup(func() {
+					deleteTemplate(t, client, name)
+				})
 
 				templateNames[name] = struct{}{}
 			}
 
-			t.Cleanup(func() {
-				for name := range templateNames {
-					deleteTemplate(t, client, name)
-				}
-			})
-
 			// list rules, so they are all on the first page
 			listAllTemplates, err := client.ListTemplates(&alerting.ListTemplatesParams{
-				PageSize:  pointer.ToInt32(100),
-				PageIndex: pointer.ToInt32(0),
+				PageSize:  new(int32(100)),
+				PageIndex: new(int32(0)),
 				Context:   pmmapitests.Context,
-				Reload:    pointer.ToBool(true),
+				Reload:    new(true),
 			})
 			require.NoError(t, err)
 
@@ -516,8 +494,8 @@ func TestListTemplatesAPI(t *testing.T) {
 			// last iteration checks that there is no elements for inexistent page.
 			for pageIndex := 0; pageIndex <= len(listAllTemplates.Payload.Templates); pageIndex++ {
 				listOneTemplate, err := client.ListTemplates(&alerting.ListTemplatesParams{
-					PageIndex: pointer.ToInt32(int32(pageIndex)), //nolint:gosec // pageIndex is an int32
-					PageSize:  pointer.ToInt32(1),
+					PageIndex: new(int32(pageIndex)),
+					PageSize:  new(int32(1)),
 					Context:   pmmapitests.Context,
 				})
 				require.NoError(t, err)
@@ -591,14 +569,14 @@ func assertTemplate(t *testing.T, expectedTemplate alert.Template, listTemplates
 				require.NotNil(t, param.Float)
 				value, err := expectedParam.GetValueForFloat()
 				require.NoError(t, err)
-				assert.Equal(t, value, *param.Float.Default) //nolint:testifylint
+				assert.InDelta(t, value, *param.Float.Default, 0.0001)
 			}
 
 			if len(expectedParam.Range) != 0 {
-				min, max, err := expectedParam.GetRangeForFloat()
+				minR, maxR, err := expectedParam.GetRangeForFloat()
 				require.NoError(t, err)
-				assert.Equal(t, min, *param.Float.Min) //nolint:testifylint
-				assert.Equal(t, max, *param.Float.Max) //nolint:testifylint
+				assert.InDelta(t, minR, *param.Float.Min, 0.0001)
+				assert.InDelta(t, maxR, *param.Float.Max, 0.0001)
 			}
 
 			assert.Nil(t, param.Bool)
@@ -620,11 +598,10 @@ func assertTemplate(t *testing.T, expectedTemplate alert.Template, listTemplates
 func deleteTemplate(t *testing.T, client alerting.ClientService, name string) {
 	t.Helper()
 
-	_, err := client.DeleteTemplate(&alerting.DeleteTemplateParams{
+	_, _ = client.DeleteTemplate(&alerting.DeleteTemplateParams{
 		Name:    name,
 		Context: pmmapitests.Context,
 	})
-	assert.NoError(t, err)
 }
 
 func formatTemplateYaml(t *testing.T, yml string) ([]alert.Template, string) {
@@ -644,27 +621,29 @@ func formatTemplateYaml(t *testing.T, yml string) ([]alert.Template, string) {
 	return r, string(s)
 }
 
-func createAlertRuleParams(templateName, folderUID string, filter *alerting.CreateRuleParamsBodyFiltersItems0) *alerting.CreateRuleParams {
+func createAlertRuleParams(t *testing.T, templateName, folderUID string, filter *alerting.CreateRuleParamsBodyFiltersItems0) *alerting.CreateRuleParams {
+	t.Helper()
+
 	rule := &alerting.CreateRuleParams{
 		Body: alerting.CreateRuleBody{
 			TemplateName: templateName,
-			Name:         "test-rule-" + uuid.NewString(),
+			Name:         pmmapitests.TestString(t, "test-rule"),
 			FolderUID:    folderUID,
 			Group:        "test",
 			Params: []*alerting.CreateRuleParamsBodyParamsItems0{
 				{
 					Name:  "param1",
-					Type:  pointer.ToString("PARAM_TYPE_FLOAT"),
+					Type:  new("PARAM_TYPE_FLOAT"),
 					Float: 4,
 				},
 				{
 					Name:  "param2",
-					Type:  pointer.ToString("PARAM_TYPE_FLOAT"),
+					Type:  new("PARAM_TYPE_FLOAT"),
 					Float: 12,
 				},
 			},
 			For:          "90s",
-			Severity:     pointer.ToString("SEVERITY_WARNING"),
+			Severity:     new("SEVERITY_WARNING"),
 			CustomLabels: map[string]string{"foo": "bar"},
 		},
 		Context: pmmapitests.Context,
@@ -680,10 +659,10 @@ func createAlertRuleParams(templateName, folderUID string, filter *alerting.Crea
 func createTemplate(t *testing.T) string {
 	t.Helper()
 
-	b, err := os.ReadFile("../testdata/alerting/template.yaml")
+	b, err := readTemplateContent(t, "../testdata/alerting/template.yaml")
 	require.NoError(t, err)
 
-	templateName := uuid.New().String()
+	templateName := pmmapitests.TestString(t, "test-template")
 	expression := "'[[ .param1 ]] > 2 and 2 < [[ .param2 ]]'"
 	_, err = alertingClient.Default.AlertingService.CreateTemplate(&alerting.CreateTemplateParams{
 		Body: alerting.CreateTemplateBody{
@@ -694,4 +673,14 @@ func createTemplate(t *testing.T) string {
 	require.NoError(t, err)
 
 	return templateName
+}
+
+func readTemplateContent(t *testing.T, filePath string) ([]byte, error) {
+	t.Helper()
+
+	_, file, _, ok := runtime.Caller(0)
+	if !ok {
+		return nil, errors.New("failed to get current file path")
+	}
+	return os.ReadFile(path.Join(path.Dir(file), filePath)) //nolint:gosec
 }

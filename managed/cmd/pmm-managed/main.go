@@ -250,11 +250,13 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			interceptors.UnaryAdd(grpcMetrics.UnaryServerInterceptor()),
 			interceptors.UnaryServiceEnabledInterceptor(),
-			grpc_validator.UnaryServerInterceptor())),
+			grpc_validator.UnaryServerInterceptor(),
+		)),
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
 			interceptors.Stream(grpcMetrics.StreamServerInterceptor()),
 			interceptors.StreamServiceEnabledInterceptor(),
-			grpc_validator.StreamServerInterceptor())),
+			grpc_validator.StreamServerInterceptor(),
+		)),
 	)
 
 	if l.Logger.GetLevel() >= logrus.DebugLevel {
@@ -272,7 +274,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	nodesSvc := inventory.NewNodesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb)
 	agentsSvc := inventory.NewAgentsService(
 		deps.db, deps.agentsRegistry, deps.agentsStateUpdater,
-		deps.vmdb, deps.connectionCheck, deps.serviceInfoBroker, deps.agentService)
+		deps.vmdb, deps.connectionCheck, deps.serviceInfoBroker, deps.agentService,
+	)
 
 	mgmtBackupService := managementbackup.NewBackupsService(deps.db, deps.backupService, deps.compatibilityService, deps.schedulerService, deps.backupRemovalService, deps.pbmPITRService)
 	mgmtRestoreService := managementbackup.NewRestoreService(deps.db, deps.backupService, deps.schedulerService)
@@ -317,7 +320,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	// run server until it is stopped gracefully or not
 	listener, err := net.Listen("tcp", gRPCAddr)
 	if err != nil {
-		l.Panic(err)
+		l.Fatal(err)
 	}
 	go func() {
 		for {
@@ -343,8 +346,9 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 }
 
 type http1ServerDeps struct {
-	logs       *server.Logs
-	authServer *grafana.AuthServer
+	logs               *server.Logs
+	authServer         *grafana.AuthServer
+	currentUserHandler http.Handler
 }
 
 // runHTTP1Server runs grpc-gateway and other HTTP 1.1 APIs (like auth_request and logs.zip)
@@ -368,7 +372,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	proxyMux := grpc_gateway.NewServeMux(
 		grpc_gateway.WithMarshalerOption(grpc_gateway.MIMEWildcard, marshaller),
 		grpc_gateway.WithErrorHandler(pmmerrors.PMMHTTPErrorHandler),
-		grpc_gateway.WithRoutingErrorHandler(pmmerrors.PMMRoutingErrorHandler))
+		grpc_gateway.WithRoutingErrorHandler(pmmerrors.PMMRoutingErrorHandler),
+	)
 
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -378,7 +383,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	// Create a shared gRPC connection for handlers that use Register*Handler
 	sharedConn, err := grpc.NewClient(gRPCAddr, opts...)
 	if err != nil {
-		l.Panic(err)
+		l.Fatal(err)
 	}
 	go func() {
 		<-ctx.Done()
@@ -418,13 +423,15 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		hav1beta1.RegisterHAServiceHandler,
 	} {
 		if err := r(ctx, proxyMux, sharedConn); err != nil {
-			l.Panic(err)
+			l.Fatal(err)
 		}
 	}
 
 	mux := http.NewServeMux()
 	addLogsHandler(mux, deps.logs)
 	mux.Handle("/auth_request", deps.authServer)
+	mux.Handle("/v1/users/current/orgs", deps.currentUserHandler)
+	mux.Handle("/v1/users/current", deps.currentUserHandler)
 	mux.Handle("/", proxyMux)
 
 	server := &http.Server{ //nolint:gosec
@@ -434,7 +441,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	}
 	go func() {
 		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
-			l.Panic(err)
+			l.Fatal(err)
 		}
 		l.Info("Server stopped.")
 	}()
@@ -482,7 +489,7 @@ func runDebugServer(ctx context.Context) {
 	</html>
 	`)).Execute(&buf, handlers)
 	if err != nil {
-		l.Panic(err)
+		l.Fatal(err)
 	}
 	http.HandleFunc("/debug", func(rw http.ResponseWriter, _ *http.Request) {
 		rw.Write(buf.Bytes()) //nolint:errcheck
@@ -495,7 +502,7 @@ func runDebugServer(ctx context.Context) {
 	}
 	go func() {
 		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
-			l.Panic(err)
+			l.Fatal(err)
 		}
 		l.Info("Server stopped.")
 	}()
@@ -635,7 +642,7 @@ func newClickhouseDB(dsn string, maxIdleConns, maxOpenConns int) (*sql.DB, error
 	return db, nil
 }
 
-func main() { //nolint:maintidx,cyclop
+func main() { //nolint:gocognit,maintidx,cyclop
 	// empty version breaks much of pmm-managed logic
 	if version.Version == "" {
 		panic("pmm-managed version is not set during build.")
@@ -831,7 +838,8 @@ func main() { //nolint:maintidx,cyclop
 
 	vmParams, err := models.NewVictoriaMetricsParams(
 		models.BasePrometheusConfigPath,
-		*victoriaMetricsURLF)
+		*victoriaMetricsURLF,
+	)
 	if err != nil {
 		l.Panicf("cannot load victoriametrics params problem: %+v", err)
 	}
@@ -929,7 +937,8 @@ func main() { //nolint:maintidx,cyclop
 				SSLCertPath: *postgresSSLCertPathF,
 			},
 			HAParams: haParams,
-		})
+		},
+	)
 
 	// Keep the agent always running, even on follower nodes.
 	err = supervisord.StartSupervisedService("pmm-agent")
@@ -1117,11 +1126,9 @@ func main() { //nolint:maintidx,cyclop
 		vmdb.Run(ctx)
 	})
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		externalExporterStatusSvc.Run(ctx)
-	}()
+	})
 
 	haService.AddLeaderService(ha.NewContextService("checks", func(ctx context.Context) error {
 		checksService.Run(ctx)
@@ -1192,8 +1199,9 @@ func main() { //nolint:maintidx,cyclop
 
 	wg.Go(func() {
 		runHTTP1Server(ctx, &http1ServerDeps{
-			logs:       logs,
-			authServer: authServer,
+			logs:               logs,
+			authServer:         authServer,
+			currentUserHandler: user.NewCurrentHTTPHandler(grafanaClient),
 		})
 	})
 
@@ -1206,14 +1214,12 @@ func main() { //nolint:maintidx,cyclop
 		return nil
 	}))
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		err := haService.Run(ctx)
 		if err != nil {
-			l.Panicf("cannot start high availability service: %+v", err)
+			l.Fatalf("cannot start high availability service: %+v", err)
 		}
-	}()
+	})
 
 	wg.Wait()
 }

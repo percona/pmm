@@ -76,34 +76,34 @@ func TestAgentHelpers(t *testing.T) {
 			&models.Agent{
 				AgentID:      "A1",
 				AgentType:    models.PMMAgentType,
-				RunsOnNodeID: pointer.ToString("N1"),
+				RunsOnNodeID: new("N1"),
 			},
 			&models.Agent{
 				AgentID:      "A2",
 				AgentType:    models.MySQLdExporterType,
-				PMMAgentID:   pointer.ToString("A1"),
+				PMMAgentID:   new("A1"),
 				RunsOnNodeID: nil,
-				ServiceID:    pointer.ToString("S1"),
+				ServiceID:    new("S1"),
 			},
 			&models.Agent{
 				AgentID:      "A3",
 				AgentType:    models.NodeExporterType,
-				PMMAgentID:   pointer.ToString("A1"),
+				PMMAgentID:   new("A1"),
 				RunsOnNodeID: nil,
-				NodeID:       pointer.ToString("N1"),
+				NodeID:       new("N1"),
 			},
 			&models.Agent{
 				AgentID:      "A4",
 				AgentType:    models.PMMAgentType,
-				RunsOnNodeID: pointer.ToString("N2"),
+				RunsOnNodeID: new("N2"),
 			},
 			&models.Agent{
 				AgentID:      "A5",
 				AgentType:    models.NodeExporterType,
-				PMMAgentID:   pointer.ToString("A4"),
+				PMMAgentID:   new("A4"),
 				RunsOnNodeID: nil,
-				NodeID:       pointer.ToString("N2"),
-				ListenPort:   pointer.ToUint16(8200),
+				NodeID:       new("N2"),
+				ListenPort:   new(uint16(8200)),
 				ExporterOptions: models.ExporterOptions{
 					PushMetrics: true,
 				},
@@ -111,18 +111,18 @@ func TestAgentHelpers(t *testing.T) {
 			&models.Agent{
 				AgentID:      "A6",
 				AgentType:    models.MySQLdExporterType,
-				PMMAgentID:   pointer.ToString("A4"),
+				PMMAgentID:   new("A4"),
 				RunsOnNodeID: nil,
-				NodeID:       pointer.ToString("N2"),
-				ListenPort:   pointer.ToUint16(8200),
+				NodeID:       new("N2"),
+				ListenPort:   new(uint16(8200)),
 			},
 			&models.Agent{
 				AgentID:       "A7",
 				AgentType:     models.PostgresExporterType,
-				PMMAgentID:    pointer.ToString("A4"),
+				PMMAgentID:    new("A4"),
 				RunsOnNodeID:  nil,
-				NodeID:        pointer.ToString("N1"),
-				ListenPort:    pointer.ToUint16(8200),
+				NodeID:        new("N1"),
+				ListenPort:    new(uint16(8200)),
 				TLS:           true,
 				TLSSkipVerify: true,
 				ExporterOptions: models.ExporterOptions{
@@ -141,15 +141,15 @@ func TestAgentHelpers(t *testing.T) {
 			&models.Agent{
 				AgentID:      "A12",
 				AgentType:    models.PMMAgentType,
-				RunsOnNodeID: pointer.ToString("N1"),
+				RunsOnNodeID: new("N1"),
 			},
 			&models.Agent{
 				AgentID:       "A8",
 				AgentType:     models.MongoDBExporterType,
-				PMMAgentID:    pointer.ToString("A12"),
+				PMMAgentID:    new("A12"),
 				RunsOnNodeID:  nil,
-				NodeID:        pointer.ToString("N1"),
-				ListenPort:    pointer.ToUint16(8200),
+				NodeID:        new("N1"),
+				ListenPort:    new(uint16(8200)),
 				TLS:           true,
 				TLSSkipVerify: true,
 				MongoDBOptions: models.MongoDBOptions{
@@ -165,10 +165,10 @@ func TestAgentHelpers(t *testing.T) {
 			&models.Agent{
 				AgentID:       "A9",
 				AgentType:     models.MongoDBExporterType,
-				PMMAgentID:    pointer.ToString("A12"),
+				PMMAgentID:    new("A12"),
 				RunsOnNodeID:  nil,
-				NodeID:        pointer.ToString("N1"),
-				ListenPort:    pointer.ToUint16(8200),
+				NodeID:        new("N1"),
+				ListenPort:    new(uint16(8200)),
 				TLS:           true,
 				TLSSkipVerify: true,
 				MongoDBOptions: models.MongoDBOptions{
@@ -185,28 +185,27 @@ func TestAgentHelpers(t *testing.T) {
 			&models.Agent{
 				AgentID:       "A10",
 				AgentType:     models.MongoDBExporterType,
-				PMMAgentID:    pointer.ToString("A12"),
+				PMMAgentID:    new("A12"),
 				RunsOnNodeID:  nil,
-				NodeID:        pointer.ToString("N1"),
-				ListenPort:    pointer.ToUint16(8200),
+				NodeID:        new("N1"),
+				ListenPort:    new(uint16(8200)),
 				TLS:           true,
 				TLSSkipVerify: true,
 			},
 			&models.Agent{
 				AgentID:      "A11",
 				AgentType:    models.NomadAgentType,
-				PMMAgentID:   pointer.ToString("A12"),
+				PMMAgentID:   new("A12"),
 				RunsOnNodeID: nil,
-				NodeID:       pointer.ToString("N1"),
-				ListenPort:   pointer.ToUint16(8201),
+				NodeID:       new("N1"),
+				ListenPort:   new(uint16(8201)),
 				ExporterOptions: models.ExporterOptions{
 					PushMetrics: true,
 				},
 			},
 		} {
 			if v, ok := str.(*models.Agent); ok {
-				encryptedAgent := models.EncryptAgent(*v)
-				str = &encryptedAgent
+				str = new(models.EncryptAgent(*v))
 			}
 			require.NoError(t, q.Insert(str))
 		}
@@ -231,10 +230,10 @@ func TestAgentHelpers(t *testing.T) {
 				Status:        models.AgentStatusUnknown,
 				AgentID:       "A10",
 				AgentType:     models.MongoDBExporterType,
-				PMMAgentID:    pointer.ToString("A12"),
+				PMMAgentID:    new("A12"),
 				RunsOnNodeID:  nil,
-				NodeID:        pointer.ToString("N1"),
-				ListenPort:    pointer.ToUint16(8200),
+				NodeID:        new("N1"),
+				ListenPort:    new(uint16(8200)),
 				TLS:           true,
 				TLSSkipVerify: true,
 			},
@@ -244,10 +243,10 @@ func TestAgentHelpers(t *testing.T) {
 				Status:       models.AgentStatusUnknown,
 				AgentID:      "A11",
 				AgentType:    models.NomadAgentType,
-				PMMAgentID:   pointer.ToString("A12"),
+				PMMAgentID:   new("A12"),
 				RunsOnNodeID: nil,
-				NodeID:       pointer.ToString("N1"),
-				ListenPort:   pointer.ToUint16(8201),
+				NodeID:       new("N1"),
+				ListenPort:   new(uint16(8201)),
 				ExporterOptions: models.ExporterOptions{
 					PushMetrics: true,
 				},
@@ -259,7 +258,7 @@ func TestAgentHelpers(t *testing.T) {
 				RunsOnNodeID: nil,
 				CreatedAt:    now,
 				UpdatedAt:    now,
-				NodeID:       pointer.ToString("N1"),
+				NodeID:       new("N1"),
 				Status:       models.AgentStatusUnknown,
 			},
 			{
@@ -343,7 +342,7 @@ func TestAgentHelpers(t *testing.T) {
 			AgentID:      "A2",
 			AgentType:    models.MySQLdExporterType,
 			PMMAgentID:   pointer.ToStringOrNil("A1"),
-			ServiceID:    pointer.ToString("S1"),
+			ServiceID:    new("S1"),
 			RunsOnNodeID: nil,
 			CreatedAt:    now,
 			UpdatedAt:    now,
@@ -352,7 +351,7 @@ func TestAgentHelpers(t *testing.T) {
 			AgentID:      "A3",
 			AgentType:    models.NodeExporterType,
 			PMMAgentID:   pointer.ToStringOrNil("A1"),
-			NodeID:       pointer.ToString("N1"),
+			NodeID:       new("N1"),
 			RunsOnNodeID: nil,
 			CreatedAt:    now,
 			UpdatedAt:    now,
@@ -365,13 +364,13 @@ func TestAgentHelpers(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
 
-		agents, err := models.FindAgents(q, models.AgentFilters{PMMAgentID: "A1", AgentType: pointer.To(models.MySQLdExporterType)})
+		agents, err := models.FindAgents(q, models.AgentFilters{PMMAgentID: "A1", AgentType: new(models.MySQLdExporterType)})
 		require.NoError(t, err)
 		expected := []*models.Agent{{
 			AgentID:      "A2",
 			AgentType:    models.MySQLdExporterType,
 			PMMAgentID:   pointer.ToStringOrNil("A1"),
-			ServiceID:    pointer.ToString("S1"),
+			ServiceID:    new("S1"),
 			RunsOnNodeID: nil,
 			CreatedAt:    now,
 			UpdatedAt:    now,
@@ -390,7 +389,7 @@ func TestAgentHelpers(t *testing.T) {
 			AgentID:      "A2",
 			AgentType:    models.MySQLdExporterType,
 			PMMAgentID:   pointer.ToStringOrNil("A1"),
-			ServiceID:    pointer.ToString("S1"),
+			ServiceID:    new("S1"),
 			RunsOnNodeID: nil,
 			CreatedAt:    now,
 			UpdatedAt:    now,
@@ -398,13 +397,13 @@ func TestAgentHelpers(t *testing.T) {
 		}}
 		assert.Equal(t, expected, agents)
 
-		agents, err = models.FindAgents(q, models.AgentFilters{ServiceID: "S1", AgentType: pointer.To(models.MySQLdExporterType)})
+		agents, err = models.FindAgents(q, models.AgentFilters{ServiceID: "S1", AgentType: new(models.MySQLdExporterType)})
 		require.NoError(t, err)
 		expected = []*models.Agent{{
 			AgentID:      "A2",
 			AgentType:    models.MySQLdExporterType,
 			PMMAgentID:   pointer.ToStringOrNil("A1"),
-			ServiceID:    pointer.ToString("S1"),
+			ServiceID:    new("S1"),
 			RunsOnNodeID: nil,
 			CreatedAt:    now,
 			UpdatedAt:    now,
@@ -412,7 +411,7 @@ func TestAgentHelpers(t *testing.T) {
 		}}
 		assert.Equal(t, expected, agents)
 
-		agents, err = models.FindAgents(q, models.AgentFilters{ServiceID: "S1", AgentType: pointer.To(models.MongoDBExporterType)})
+		agents, err = models.FindAgents(q, models.AgentFilters{ServiceID: "S1", AgentType: new(models.MongoDBExporterType)})
 		require.NoError(t, err)
 		assert.Equal(t, []*models.Agent{}, agents)
 	})
@@ -440,13 +439,13 @@ func TestAgentHelpers(t *testing.T) {
 		expected := &models.Agent{
 			AgentID:      "A1",
 			AgentType:    models.PMMAgentType,
-			RunsOnNodeID: pointer.ToString("N1"),
+			RunsOnNodeID: new("N1"),
 			CreatedAt:    now,
 			UpdatedAt:    now,
 		}
 		agent, err = models.RemoveAgent(q, "A1", models.RemoveCascade)
 		assert.Equal(t, expected, agent)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		_, err = models.FindAgentByID(q, "A1")
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID A1 not found.`), err)
 	})
@@ -502,9 +501,9 @@ func TestAgentHelpers(t *testing.T) {
 			assert.Equal(t, &models.Agent{
 				AgentID:      agent.AgentID,
 				AgentType:    models.ExternalExporterType,
-				RunsOnNodeID: pointer.ToString("N1"),
-				ServiceID:    pointer.ToString("S1"),
-				ListenPort:   pointer.ToUint16(9104),
+				RunsOnNodeID: new("N1"),
+				ServiceID:    new("S1"),
+				ListenPort:   new(uint16(9104)),
 				Status:       models.AgentStatusUnknown,
 				ExporterOptions: models.ExporterOptions{
 					MetricsPath:   "/metrics",
@@ -529,13 +528,13 @@ func TestAgentHelpers(t *testing.T) {
 	t.Run("TestFindPMMAgentsForVersion", func(t *testing.T) {
 		l := logrus.WithField("component", "test")
 		agentInvalid := &models.Agent{
-			Version: pointer.ToString("invalid"),
+			Version: new("invalid"),
 		}
 		agent260 := &models.Agent{
-			Version: pointer.ToString("2.6.0"),
+			Version: new("2.6.0"),
 		}
 		agent270 := &models.Agent{
-			Version: pointer.ToString("2.7.0"),
+			Version: new("2.7.0"),
 		}
 		agents := []*models.Agent{agentInvalid, agent260, agent270}
 
@@ -556,12 +555,12 @@ func TestAgentHelpers(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
 
-		agents, err := models.FindAgentsForScrapeConfig(q, pointer.ToString("A4"), true)
+		agents, err := models.FindAgentsForScrapeConfig(q, new("A4"), true)
 		require.NoError(t, err)
 		assert.Equal(t, "A5", agents[0].AgentID)
 
 		// find with empty response.
-		agents, err = models.FindAgentsForScrapeConfig(q, pointer.ToString("A1"), true)
+		agents, err = models.FindAgentsForScrapeConfig(q, new("A1"), true)
 		assert.Empty(t, agents)
 		require.NoError(t, err)
 
@@ -605,7 +604,7 @@ func TestAgentHelpers(t *testing.T) {
 
 			// Test changing enabled status
 			agent, err := models.ChangeAgent(q, "A2", &models.ChangeAgentParams{
-				Enabled: pointer.ToBool(false),
+				Enabled: new(false),
 			})
 			require.NoError(t, err)
 			assert.True(t, agent.Disabled) // Disabled should be true when Enabled is false
@@ -617,7 +616,7 @@ func TestAgentHelpers(t *testing.T) {
 
 			// Change it back
 			agent, err = models.ChangeAgent(q, "A2", &models.ChangeAgentParams{
-				Enabled: pointer.ToBool(true),
+				Enabled: new(true),
 			})
 			require.NoError(t, err)
 			assert.False(t, agent.Disabled)
@@ -654,9 +653,8 @@ func TestAgentHelpers(t *testing.T) {
 			assert.Equal(t, customLabels, persistedLabels)
 
 			// Clear custom labels
-			emptyLabels := make(map[string]string)
 			agent, err = models.ChangeAgent(q, "A2", &models.ChangeAgentParams{
-				CustomLabels: &emptyLabels,
+				CustomLabels: new(make(map[string]string)),
 			})
 			require.NoError(t, err)
 
@@ -679,7 +677,7 @@ func TestAgentHelpers(t *testing.T) {
 			// Test changing push metrics
 			agent, err := models.ChangeAgent(q, "A5", &models.ChangeAgentParams{
 				ExporterOptions: &models.ChangeExporterOptions{
-					PushMetrics: pointer.ToBool(false),
+					PushMetrics: new(false),
 				},
 			})
 			require.NoError(t, err)
@@ -708,7 +706,7 @@ func TestAgentHelpers(t *testing.T) {
 			// Test changing expose exporter
 			agent, err = models.ChangeAgent(q, "A5", &models.ChangeAgentParams{
 				ExporterOptions: &models.ChangeExporterOptions{
-					ExposeExporter: pointer.ToBool(true),
+					ExposeExporter: new(true),
 				},
 			})
 			require.NoError(t, err)
@@ -722,8 +720,8 @@ func TestAgentHelpers(t *testing.T) {
 			// Test changing metrics scheme and path
 			agent, err = models.ChangeAgent(q, "A5", &models.ChangeAgentParams{
 				ExporterOptions: &models.ChangeExporterOptions{
-					MetricsScheme: pointer.ToString("https"),
-					MetricsPath:   pointer.ToString("/custom-metrics"),
+					MetricsScheme: new("https"),
+					MetricsPath:   new("/custom-metrics"),
 				},
 			})
 			require.NoError(t, err)
@@ -745,9 +743,9 @@ func TestAgentHelpers(t *testing.T) {
 			agent, err := models.ChangeAgent(q, "A7", &models.ChangeAgentParams{
 				ExporterOptions: &models.ChangeExporterOptions{
 					MetricsResolutions: &models.ChangeMetricsResolutionsParams{
-						HR: pointer.ToDuration(30 * time.Second),
-						MR: pointer.ToDuration(2 * time.Minute),
-						LR: pointer.ToDuration(10 * time.Minute),
+						HR: new(30 * time.Second),
+						MR: new(2 * time.Minute),
+						LR: new(10 * time.Minute),
 					},
 				},
 			})
@@ -767,9 +765,9 @@ func TestAgentHelpers(t *testing.T) {
 			agent, err = models.ChangeAgent(q, "A7", &models.ChangeAgentParams{
 				ExporterOptions: &models.ChangeExporterOptions{
 					MetricsResolutions: &models.ChangeMetricsResolutionsParams{
-						HR: pointer.ToDuration(0),
-						MR: pointer.ToDuration(0),
-						LR: pointer.ToDuration(0),
+						HR: new(time.Duration(0)),
+						MR: new(time.Duration(0)),
+						LR: new(time.Duration(0)),
 					},
 				},
 			})
@@ -788,9 +786,9 @@ func TestAgentHelpers(t *testing.T) {
 
 			// Test changing username and password
 			agent, err := models.ChangeAgent(q, "A2", &models.ChangeAgentParams{
-				Username:      pointer.ToString("new_user"),
-				Password:      pointer.ToString("new_password"),
-				AgentPassword: pointer.ToString("agent_pass"),
+				Username:      new("new_user"),
+				Password:      new("new_password"),
+				AgentPassword: new("agent_pass"),
 			})
 			require.NoError(t, err)
 			assert.Equal(t, "new_user", pointer.GetString(agent.Username))
@@ -812,11 +810,11 @@ func TestAgentHelpers(t *testing.T) {
 			// Test changing PostgreSQL options
 			agent, err := models.ChangeAgent(q, "A7", &models.ChangeAgentParams{
 				PostgreSQLOptions: &models.ChangePostgreSQLOptions{
-					SSLCa:                  pointer.ToString("new_ca"),
-					SSLCert:                pointer.ToString("new_cert"),
-					SSLKey:                 pointer.ToString("new_key"),
-					AutoDiscoveryLimit:     pointer.ToInt32(100),
-					MaxExporterConnections: pointer.ToInt32(5),
+					SSLCa:                  new("new_ca"),
+					SSLCert:                new("new_cert"),
+					SSLKey:                 new("new_key"),
+					AutoDiscoveryLimit:     new(int32(100)),
+					MaxExporterConnections: new(int32(5)),
 				},
 			})
 			require.NoError(t, err)
@@ -844,14 +842,14 @@ func TestAgentHelpers(t *testing.T) {
 			statsCollections := []string{"stats1", "stats2"}
 			agent, err := models.ChangeAgent(q, "A8", &models.ChangeAgentParams{
 				MongoDBOptions: &models.ChangeMongoDBOptions{
-					TLSCertificateKey:             pointer.ToString("new_cert_key"),
-					TLSCertificateKeyFilePassword: pointer.ToString("new_password"),
-					TLSCa:                         pointer.ToString("new_ca"),
-					AuthenticationMechanism:       pointer.ToString("SCRAM-SHA-256"),
-					AuthenticationDatabase:        pointer.ToString("admin"),
+					TLSCertificateKey:             new("new_cert_key"),
+					TLSCertificateKeyFilePassword: new("new_password"),
+					TLSCa:                         new("new_ca"),
+					AuthenticationMechanism:       new("SCRAM-SHA-256"),
+					AuthenticationDatabase:        new("admin"),
 					StatsCollections:              statsCollections,
-					CollectionsLimit:              pointer.ToInt32(500),
-					EnableAllCollectors:           pointer.ToBool(false),
+					CollectionsLimit:              new(int32(500)),
+					EnableAllCollectors:           new(false),
 				},
 			})
 			require.NoError(t, err)
@@ -884,10 +882,10 @@ func TestAgentHelpers(t *testing.T) {
 			// Test changing QAN options
 			agent, err := models.ChangeAgent(q, "A7", &models.ChangeAgentParams{
 				QANOptions: &models.ChangeQANOptions{
-					MaxQueryLength:          pointer.ToInt32(2048),
-					QueryExamplesDisabled:   pointer.ToBool(true),
-					CommentsParsingDisabled: pointer.ToBool(false),
-					MaxQueryLogSize:         pointer.ToInt64(1024000),
+					MaxQueryLength:          new(int32(2048)),
+					QueryExamplesDisabled:   new(true),
+					CommentsParsingDisabled: new(false),
+					MaxQueryLogSize:         new(int64(1024000)),
 				},
 			})
 			require.NoError(t, err)
@@ -913,9 +911,9 @@ func TestAgentHelpers(t *testing.T) {
 			awsAgent := &models.Agent{
 				AgentID:      "AWS1",
 				AgentType:    models.RDSExporterType,
-				PMMAgentID:   pointer.ToString("A1"),
+				PMMAgentID:   new("A1"),
 				RunsOnNodeID: nil,
-				NodeID:       pointer.ToString("N1"),
+				NodeID:       new("N1"),
 				AWSOptions: models.AWSOptions{
 					AWSAccessKey:               "old-access-key",
 					AWSSecretKey:               "old-secret-key",
@@ -931,10 +929,10 @@ func TestAgentHelpers(t *testing.T) {
 			// Test changing AWS options
 			agent, err := models.ChangeAgent(q, "AWS1", &models.ChangeAgentParams{
 				AWSOptions: &models.ChangeAWSOptions{
-					AWSAccessKey:               pointer.ToString("new-access-key"),
-					AWSSecretKey:               pointer.ToString("new-secret-key"),
-					RDSBasicMetricsDisabled:    pointer.ToBool(true),
-					RDSEnhancedMetricsDisabled: pointer.ToBool(true),
+					AWSAccessKey:               new("new-access-key"),
+					AWSSecretKey:               new("new-secret-key"),
+					RDSBasicMetricsDisabled:    new(true),
+					RDSEnhancedMetricsDisabled: new(true),
 				},
 			})
 			require.NoError(t, err)
@@ -960,9 +958,9 @@ func TestAgentHelpers(t *testing.T) {
 			mysqlAgent := &models.Agent{
 				AgentID:      "MYSQL1",
 				AgentType:    models.MySQLdExporterType,
-				PMMAgentID:   pointer.ToString("A1"),
+				PMMAgentID:   new("A1"),
 				RunsOnNodeID: nil,
-				ServiceID:    pointer.ToString("S1"),
+				ServiceID:    new("S1"),
 				MySQLOptions: models.MySQLOptions{
 					TLSCa:                          "old-ca",
 					TLSCert:                        "old-cert",
@@ -978,10 +976,10 @@ func TestAgentHelpers(t *testing.T) {
 			// Test changing MySQL options
 			agent, err := models.ChangeAgent(q, "MYSQL1", &models.ChangeAgentParams{
 				MySQLOptions: &models.ChangeMySQLOptions{
-					TLSCa:                          pointer.ToString("new-mysql-ca"),
-					TLSCert:                        pointer.ToString("new-mysql-cert"),
-					TLSKey:                         pointer.ToString("new-mysql-key"),
-					TableCountTablestatsGroupLimit: pointer.ToInt32(200),
+					TLSCa:                          new("new-mysql-ca"),
+					TLSCert:                        new("new-mysql-cert"),
+					TLSKey:                         new("new-mysql-key"),
+					TableCountTablestatsGroupLimit: new(int32(200)),
 				},
 			})
 			require.NoError(t, err)
@@ -1007,9 +1005,9 @@ func TestAgentHelpers(t *testing.T) {
 			valkeyAgent := &models.Agent{
 				AgentID:      "VALKEY1",
 				AgentType:    models.ExternalExporterType, // Using external exporter type for Valkey
-				PMMAgentID:   pointer.ToString("A1"),
+				PMMAgentID:   new("A1"),
 				RunsOnNodeID: nil,
-				NodeID:       pointer.ToString("N1"),
+				NodeID:       new("N1"),
 				ValkeyOptions: models.ValkeyOptions{
 					SSLCa:   "old-valkey-ca",
 					SSLCert: "old-valkey-cert",
@@ -1024,9 +1022,9 @@ func TestAgentHelpers(t *testing.T) {
 			// Test changing Valkey options
 			agent, err := models.ChangeAgent(q, "VALKEY1", &models.ChangeAgentParams{
 				ValkeyOptions: &models.ChangeValkeyOptions{
-					SSLCa:   pointer.ToString("new-valkey-ca"),
-					SSLCert: pointer.ToString("new-valkey-cert"),
-					SSLKey:  pointer.ToString("new-valkey-key"),
+					SSLCa:   new("new-valkey-ca"),
+					SSLCert: new("new-valkey-cert"),
+					SSLKey:  new("new-valkey-key"),
 				},
 			})
 			require.NoError(t, err)
@@ -1048,8 +1046,8 @@ func TestAgentHelpers(t *testing.T) {
 
 			// Test changing TLS fields
 			agent, err := models.ChangeAgent(q, "A7", &models.ChangeAgentParams{
-				TLS:           pointer.ToBool(false),
-				TLSSkipVerify: pointer.ToBool(false),
+				TLS:           new(false),
+				TLSSkipVerify: new(false),
 			})
 			require.NoError(t, err)
 			assert.False(t, agent.TLS)
@@ -1067,9 +1065,8 @@ func TestAgentHelpers(t *testing.T) {
 			defer teardown(t)
 
 			// Test changing log level
-			logLevel := "debug"
 			agent, err := models.ChangeAgent(q, "A2", &models.ChangeAgentParams{
-				LogLevel: &logLevel,
+				LogLevel: new("debug"),
 			})
 			require.NoError(t, err)
 			assert.Equal(t, "debug", pointer.GetString(agent.LogLevel))
@@ -1085,9 +1082,8 @@ func TestAgentHelpers(t *testing.T) {
 			defer teardown(t)
 
 			// Test changing listen port (for external exporter)
-			port := uint32(9999)
 			agent, err := models.ChangeAgent(q, "A5", &models.ChangeAgentParams{
-				ListenPort: &port,
+				ListenPort: new(uint32(9999)),
 			})
 			require.NoError(t, err)
 			assert.Equal(t, uint16(9999), pointer.GetUint16(agent.ListenPort))
@@ -1104,7 +1100,7 @@ func TestAgentHelpers(t *testing.T) {
 
 			// Test with non-existent agent ID
 			_, err := models.ChangeAgent(q, "INVALID", &models.ChangeAgentParams{
-				Enabled: pointer.ToBool(false),
+				Enabled: new(false),
 			})
 			tests.AssertGRPCError(t, status.New(codes.NotFound, "Agent with ID INVALID not found."), err)
 		})
@@ -1117,9 +1113,9 @@ func TestAgentHelpers(t *testing.T) {
 			azureAgent := &models.Agent{
 				AgentID:      "AZURE1",
 				AgentType:    models.AzureDatabaseExporterType,
-				PMMAgentID:   pointer.ToString("A1"),
+				PMMAgentID:   new("A1"),
 				RunsOnNodeID: nil,
-				NodeID:       pointer.ToString("N1"),
+				NodeID:       new("N1"),
 				AzureOptions: models.AzureOptions{
 					SubscriptionID: "old-subscription",
 					ClientID:       "old-client-id",
@@ -1136,11 +1132,11 @@ func TestAgentHelpers(t *testing.T) {
 			// Test changing Azure options
 			agent, err := models.ChangeAgent(q, "AZURE1", &models.ChangeAgentParams{
 				AzureOptions: &models.ChangeAzureOptions{
-					SubscriptionID: pointer.ToString("new-subscription"),
-					ClientID:       pointer.ToString("new-client-id"),
-					ClientSecret:   pointer.ToString("new-secret"),
-					TenantID:       pointer.ToString("new-tenant"),
-					ResourceGroup:  pointer.ToString("new-group"),
+					SubscriptionID: new("new-subscription"),
+					ClientID:       new("new-client-id"),
+					ClientSecret:   new("new-secret"),
+					TenantID:       new("new-tenant"),
+					ResourceGroup:  new("new-group"),
 				},
 			})
 			require.NoError(t, err)
@@ -1167,12 +1163,12 @@ func TestAgentHelpers(t *testing.T) {
 			// Test changing multiple fields at once
 			customLabels := map[string]string{"env": "prod"}
 			agent, err := models.ChangeAgent(q, "A2", &models.ChangeAgentParams{
-				Enabled:      pointer.ToBool(false),
-				Username:     pointer.ToString("multi_user"),
-				Password:     pointer.ToString("multi_pass"),
+				Enabled:      new(false),
+				Username:     new("multi_user"),
+				Password:     new("multi_pass"),
 				CustomLabels: &customLabels,
 				ExporterOptions: &models.ChangeExporterOptions{
-					PushMetrics: pointer.ToBool(true),
+					PushMetrics: new(true),
 				},
 			})
 			require.NoError(t, err)
@@ -1206,17 +1202,17 @@ func TestAgentHelpers(t *testing.T) {
 			// First, set up agent A7 (PostgreSQL exporter) with some initial values
 			initialCustomLabels := map[string]string{"initial": "value", "env": "test"}
 			_, err := models.ChangeAgent(q, "A7", &models.ChangeAgentParams{
-				Username:     pointer.ToString("initial_user"),
-				Password:     pointer.ToString("initial_pass"),
+				Username:     new("initial_user"),
+				Password:     new("initial_pass"),
 				CustomLabels: &initialCustomLabels,
-				LogLevel:     pointer.ToString("info"),
+				LogLevel:     new("info"),
 				ExporterOptions: &models.ChangeExporterOptions{
-					PushMetrics:    pointer.ToBool(true),
-					ExposeExporter: pointer.ToBool(true),
+					PushMetrics:    new(true),
+					ExposeExporter: new(true),
 				},
 				PostgreSQLOptions: &models.ChangePostgreSQLOptions{
-					AutoDiscoveryLimit:     pointer.ToInt32(200),
-					MaxExporterConnections: pointer.ToInt32(10),
+					AutoDiscoveryLimit:     new(int32(200)),
+					MaxExporterConnections: new(int32(10)),
 				},
 			})
 			require.NoError(t, err)
@@ -1238,7 +1234,7 @@ func TestAgentHelpers(t *testing.T) {
 
 			// Now change only the username - all other fields should remain unchanged
 			agent, err := models.ChangeAgent(q, "A7", &models.ChangeAgentParams{
-				Username: pointer.ToString("changed_user"),
+				Username: new("changed_user"),
 			})
 			require.NoError(t, err)
 
@@ -1271,7 +1267,7 @@ func TestAgentHelpers(t *testing.T) {
 			// Test changing only exporter options - other fields should remain unchanged
 			agent, err = models.ChangeAgent(q, "A7", &models.ChangeAgentParams{
 				ExporterOptions: &models.ChangeExporterOptions{
-					PushMetrics: pointer.ToBool(false), // Change this
+					PushMetrics: new(false), // Change this
 					// Don't specify ExposeExporter - it should remain true
 				},
 			})
@@ -1297,7 +1293,7 @@ func TestAgentHelpers(t *testing.T) {
 			// Test changing only PostgreSQL options - other fields should remain unchanged
 			agent, err = models.ChangeAgent(q, "A7", &models.ChangeAgentParams{
 				PostgreSQLOptions: &models.ChangePostgreSQLOptions{
-					AutoDiscoveryLimit: pointer.ToInt32(500), // Change this
+					AutoDiscoveryLimit: new(int32(500)), // Change this
 					// Don't specify MaxExporterConnections - it should remain 10
 				},
 			})
@@ -1333,91 +1329,91 @@ func TestAgentHelpers(t *testing.T) {
 
 			changeParams := &models.ChangeAgentParams{
 				// Basic fields
-				Enabled:       pointer.ToBool(false),
-				Username:      pointer.ToString("comprehensive_user"),
-				Password:      pointer.ToString("comprehensive_password"),
-				AgentPassword: pointer.ToString("comprehensive_agent_password"),
-				LogLevel:      pointer.ToString("debug"),
-				TLS:           pointer.ToBool(false),
-				TLSSkipVerify: pointer.ToBool(false),
-				ListenPort:    pointer.ToUint32(9090),
+				Enabled:       new(false),
+				Username:      new("comprehensive_user"),
+				Password:      new("comprehensive_password"),
+				AgentPassword: new("comprehensive_agent_password"),
+				LogLevel:      new("debug"),
+				TLS:           new(false),
+				TLSSkipVerify: new(false),
+				ListenPort:    new(uint32(9090)),
 
 				// Custom labels
 				CustomLabels: &customLabels,
 
 				// Exporter options
 				ExporterOptions: &models.ChangeExporterOptions{
-					PushMetrics:        pointer.ToBool(true),
+					PushMetrics:        new(true),
 					DisabledCollectors: disabledCollectors,
-					ExposeExporter:     pointer.ToBool(true),
-					MetricsScheme:      pointer.ToString("https"),
-					MetricsPath:        pointer.ToString("/custom-metrics"),
+					ExposeExporter:     new(true),
+					MetricsScheme:      new("https"),
+					MetricsPath:        new("/custom-metrics"),
 					MetricsResolutions: &models.ChangeMetricsResolutionsParams{
-						HR: pointer.ToDuration(15 * time.Second),
-						MR: pointer.ToDuration(90 * time.Second),
-						LR: pointer.ToDuration(8 * time.Minute),
+						HR: new(15 * time.Second),
+						MR: new(90 * time.Second),
+						LR: new(8 * time.Minute),
 					},
 				},
 
 				// QAN options
 				QANOptions: &models.ChangeQANOptions{
-					MaxQueryLength:          pointer.ToInt32(4096),
-					QueryExamplesDisabled:   pointer.ToBool(false),
-					CommentsParsingDisabled: pointer.ToBool(true),
-					MaxQueryLogSize:         pointer.ToInt64(2048000),
+					MaxQueryLength:          new(int32(4096)),
+					QueryExamplesDisabled:   new(false),
+					CommentsParsingDisabled: new(true),
+					MaxQueryLogSize:         new(int64(2048000)),
 				},
 
 				// AWS options
 				AWSOptions: &models.ChangeAWSOptions{
-					AWSAccessKey:               pointer.ToString("comprehensive-aws-key"),
-					AWSSecretKey:               pointer.ToString("comprehensive-aws-secret"),
-					RDSBasicMetricsDisabled:    pointer.ToBool(true),
-					RDSEnhancedMetricsDisabled: pointer.ToBool(false),
+					AWSAccessKey:               new("comprehensive-aws-key"),
+					AWSSecretKey:               new("comprehensive-aws-secret"),
+					RDSBasicMetricsDisabled:    new(true),
+					RDSEnhancedMetricsDisabled: new(false),
 				},
 
 				// Azure options
 				AzureOptions: &models.ChangeAzureOptions{
-					SubscriptionID: pointer.ToString("comprehensive-subscription"),
-					ClientID:       pointer.ToString("comprehensive-client-id"),
-					ClientSecret:   pointer.ToString("comprehensive-client-secret"),
-					TenantID:       pointer.ToString("comprehensive-tenant"),
-					ResourceGroup:  pointer.ToString("comprehensive-resource-group"),
+					SubscriptionID: new("comprehensive-subscription"),
+					ClientID:       new("comprehensive-client-id"),
+					ClientSecret:   new("comprehensive-client-secret"),
+					TenantID:       new("comprehensive-tenant"),
+					ResourceGroup:  new("comprehensive-resource-group"),
 				},
 
 				// MongoDB options
 				MongoDBOptions: &models.ChangeMongoDBOptions{
-					TLSCertificateKey:             pointer.ToString("comprehensive-mongo-cert-key"),
-					TLSCertificateKeyFilePassword: pointer.ToString("comprehensive-mongo-password"),
-					TLSCa:                         pointer.ToString("comprehensive-mongo-ca"),
-					AuthenticationMechanism:       pointer.ToString("SCRAM-SHA-256"),
-					AuthenticationDatabase:        pointer.ToString("admin"),
+					TLSCertificateKey:             new("comprehensive-mongo-cert-key"),
+					TLSCertificateKeyFilePassword: new("comprehensive-mongo-password"),
+					TLSCa:                         new("comprehensive-mongo-ca"),
+					AuthenticationMechanism:       new("SCRAM-SHA-256"),
+					AuthenticationDatabase:        new("admin"),
 					StatsCollections:              mongoCollections,
-					CollectionsLimit:              pointer.ToInt32(1000),
-					EnableAllCollectors:           pointer.ToBool(true),
+					CollectionsLimit:              new(int32(1000)),
+					EnableAllCollectors:           new(true),
 				},
 
 				// MySQL options
 				MySQLOptions: &models.ChangeMySQLOptions{
-					TLSCa:                          pointer.ToString("comprehensive-mysql-ca"),
-					TLSCert:                        pointer.ToString("comprehensive-mysql-cert"),
-					TLSKey:                         pointer.ToString("comprehensive-mysql-key"),
-					TableCountTablestatsGroupLimit: pointer.ToInt32(500),
+					TLSCa:                          new("comprehensive-mysql-ca"),
+					TLSCert:                        new("comprehensive-mysql-cert"),
+					TLSKey:                         new("comprehensive-mysql-key"),
+					TableCountTablestatsGroupLimit: new(int32(500)),
 				},
 
 				// PostgreSQL-specific options
 				PostgreSQLOptions: &models.ChangePostgreSQLOptions{
-					SSLCa:                  pointer.ToString("comprehensive-ca-cert"),
-					SSLCert:                pointer.ToString("comprehensive-ssl-cert"),
-					SSLKey:                 pointer.ToString("comprehensive-ssl-key"),
-					AutoDiscoveryLimit:     pointer.ToInt32(150),
-					MaxExporterConnections: pointer.ToInt32(8),
+					SSLCa:                  new("comprehensive-ca-cert"),
+					SSLCert:                new("comprehensive-ssl-cert"),
+					SSLKey:                 new("comprehensive-ssl-key"),
+					AutoDiscoveryLimit:     new(int32(150)),
+					MaxExporterConnections: new(int32(8)),
 				},
 
 				// Valkey options
 				ValkeyOptions: &models.ChangeValkeyOptions{
-					SSLCa:   pointer.ToString("comprehensive-valkey-ca"),
-					SSLCert: pointer.ToString("comprehensive-valkey-cert"),
-					SSLKey:  pointer.ToString("comprehensive-valkey-key"),
+					SSLCa:   new("comprehensive-valkey-ca"),
+					SSLCert: new("comprehensive-valkey-cert"),
+					SSLKey:  new("comprehensive-valkey-key"),
 				},
 			}
 
@@ -1438,13 +1434,13 @@ func TestAgentHelpers(t *testing.T) {
 
 				// Fields that should be changed
 				Disabled:      true, // Enabled=false means Disabled=true
-				Username:      pointer.ToString("comprehensive_user"),
-				Password:      pointer.ToString("comprehensive_password"),
-				AgentPassword: pointer.ToString("comprehensive_agent_password"),
-				LogLevel:      pointer.ToString("debug"),
+				Username:      new("comprehensive_user"),
+				Password:      new("comprehensive_password"),
+				AgentPassword: new("comprehensive_agent_password"),
+				LogLevel:      new("debug"),
 				TLS:           false,
 				TLSSkipVerify: false,
-				ListenPort:    pointer.ToUint16(9090),
+				ListenPort:    new(uint16(9090)),
 
 				ExporterOptions: models.ExporterOptions{
 					PushMetrics:        true,
@@ -1503,7 +1499,7 @@ func TestAgentHelpers(t *testing.T) {
 					SSLCa:                  "comprehensive-ca-cert",
 					SSLCert:                "comprehensive-ssl-cert",
 					SSLKey:                 "comprehensive-ssl-key",
-					AutoDiscoveryLimit:     pointer.ToInt32(150),
+					AutoDiscoveryLimit:     new(int32(150)),
 					MaxExporterConnections: 8,
 				},
 
@@ -1582,8 +1578,8 @@ func TestAgentHelpers(t *testing.T) {
 			agent, err := models.FindAgentByID(q, "A2")
 			require.NoError(t, err)
 
-			agent.Username = pointer.ToString("user")
-			agent.Password = pointer.ToString("secret")
+			agent.Username = new("user")
+			agent.Password = new("secret")
 
 			err = models.UpdateAgent(q, agent)
 			require.NoError(t, err)
@@ -1591,8 +1587,8 @@ func TestAgentHelpers(t *testing.T) {
 			// Verify the decrypted view matches what we set.
 			updated, err := models.FindAgentByID(q, "A2")
 			require.NoError(t, err)
-			assert.Equal(t, pointer.ToString("user"), updated.Username)
-			assert.Equal(t, pointer.ToString("secret"), updated.Password)
+			assert.Equal(t, new("user"), updated.Username)
+			assert.Equal(t, new("secret"), updated.Password)
 
 			// Verify the raw row in the DB is NOT plain-text (i.e. it was encrypted).
 			raw := &models.Agent{AgentID: "A2"}
@@ -1617,7 +1613,7 @@ func TestAgentHelpers(t *testing.T) {
 			require.NoError(t, err)
 			assert.Equal(t, "RUNNING", updated.Status)
 			assert.Equal(t, models.NodeExporterType, updated.AgentType)
-			assert.Equal(t, pointer.ToString("N1"), updated.NodeID)
+			assert.Equal(t, new("N1"), updated.NodeID)
 		})
 	})
 }

@@ -299,7 +299,8 @@ func (c *Client) SendActualStatuses() {
 				Status:          agent.Status,
 				ListenPort:      agent.ListenPort,
 				ProcessExecPath: agent.GetProcessExecPath(),
-			})
+			},
+		)
 		if err != nil {
 			c.l.Error(err)
 			continue
@@ -355,13 +356,10 @@ func (c *Client) processJobsResults(ctx context.Context) {
 	}
 }
 
-func (c *Client) processSupervisorRequests(ctx context.Context) {
+func (c *Client) processSupervisorRequests(ctx context.Context) { //nolint:gocognit
 	var wg sync.WaitGroup
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-
+	wg.Go(func() {
 		for {
 			select {
 			case state := <-c.supervisor.Changes():
@@ -381,12 +379,9 @@ func (c *Client) processSupervisorRequests(ctx context.Context) {
 				return
 			}
 		}
-	}()
+	})
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-
+	wg.Go(func() {
 		for {
 			select {
 			case collect := <-c.supervisor.QANRequests():
@@ -406,7 +401,7 @@ func (c *Client) processSupervisorRequests(ctx context.Context) {
 				return
 			}
 		}
-	}()
+	})
 
 	wg.Go(func() {
 		for {
@@ -566,7 +561,8 @@ func (c *Client) handleStartActionRequest(p *agentv1.StartActionRequest) error {
 			params.MongodbQueryGetparameterParams.TextFiles,
 			"getParameter",
 			"*",
-			cfg.Paths.TempDir)
+			cfg.Paths.TempDir,
+		)
 
 	case *agentv1.StartActionRequest_MongodbQueryBuildinfoParams:
 		action, err = actions.NewMongoDBQueryAdmincommandAction(
@@ -576,7 +572,8 @@ func (c *Client) handleStartActionRequest(p *agentv1.StartActionRequest) error {
 			params.MongodbQueryBuildinfoParams.TextFiles,
 			"buildInfo",
 			1,
-			cfg.Paths.TempDir)
+			cfg.Paths.TempDir,
+		)
 
 	case *agentv1.StartActionRequest_MongodbQueryGetcmdlineoptsParams:
 		action, err = actions.NewMongoDBQueryAdmincommandAction(
@@ -586,7 +583,8 @@ func (c *Client) handleStartActionRequest(p *agentv1.StartActionRequest) error {
 			params.MongodbQueryGetcmdlineoptsParams.TextFiles,
 			"getCmdLineOpts",
 			1,
-			cfg.Paths.TempDir)
+			cfg.Paths.TempDir,
+		)
 
 	case *agentv1.StartActionRequest_MongodbQueryReplsetgetstatusParams:
 		action, err = actions.NewMongoDBQueryAdmincommandAction(
@@ -596,7 +594,8 @@ func (c *Client) handleStartActionRequest(p *agentv1.StartActionRequest) error {
 			params.MongodbQueryReplsetgetstatusParams.TextFiles,
 			"replSetGetStatus",
 			1,
-			cfg.Paths.TempDir)
+			cfg.Paths.TempDir,
+		)
 
 	case *agentv1.StartActionRequest_MongodbQueryGetdiagnosticdataParams:
 		action, err = actions.NewMongoDBQueryAdmincommandAction(
@@ -606,7 +605,8 @@ func (c *Client) handleStartActionRequest(p *agentv1.StartActionRequest) error {
 			params.MongodbQueryGetdiagnosticdataParams.TextFiles,
 			"getDiagnosticData",
 			1,
-			cfg.Paths.TempDir)
+			cfg.Paths.TempDir,
+		)
 
 	case *agentv1.StartActionRequest_PtSummaryParams:
 		action = actions.NewProcessAction(p.ActionId, timeout, cfg.Paths.PTSummary, []string{})

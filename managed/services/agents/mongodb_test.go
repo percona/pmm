@@ -36,15 +36,15 @@ func TestMongodbExporterConfig225(t *testing.T) {
 		Address: "1.2.3.4",
 	}
 	mongodb := &models.Service{
-		Address: pointer.ToString("1.2.3.4"),
-		Port:    pointer.ToUint16(27017),
+		Address: new("1.2.3.4"),
+		Port:    new(uint16(27017)),
 	}
 	exporter := &models.Agent{
 		AgentID:         "agent-id",
 		AgentType:       models.MongoDBExporterType,
-		Username:        pointer.ToString("username"),
-		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
-		AgentPassword:   pointer.ToString("agent-password"),
+		Username:        new("username"),
+		Password:        new("s3cur3 p@$$w0r4."),
+		AgentPassword:   new("agent-password"),
 		ExporterOptions: models.ExporterOptions{},
 		MongoDBOptions:  models.MongoDBOptions{},
 	}
@@ -62,7 +62,7 @@ func TestMongodbExporterConfig225(t *testing.T) {
 			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 		},
 		Env: []string{
-			"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:27017/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000",
+			"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:27017/?connectTimeoutMS=2000&directConnection=true&serverSelectionTimeoutMS=2000",
 			"HTTP_AUTH=pmm:agent-password",
 		},
 		RedactWords: []string{"s3cur3 p@$$w0r4.", "agent-password"},
@@ -98,15 +98,15 @@ func TestMongodbExporterConfig226(t *testing.T) {
 		Address: "1.2.3.4",
 	}
 	mongodb := &models.Service{
-		Address: pointer.ToString("1.2.3.4"),
-		Port:    pointer.ToUint16(27017),
+		Address: new("1.2.3.4"),
+		Port:    new(uint16(27017)),
 	}
 	exporter := &models.Agent{
 		AgentID:         "agent-id",
 		AgentType:       models.MongoDBExporterType,
-		Username:        pointer.ToString("username"),
-		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
-		AgentPassword:   pointer.ToString("agent-password"),
+		Username:        new("username"),
+		Password:        new("s3cur3 p@$$w0r4."),
+		AgentPassword:   new("agent-password"),
 		ExporterOptions: models.ExporterOptions{},
 		MongoDBOptions:  models.MongoDBOptions{},
 	}
@@ -125,7 +125,7 @@ func TestMongodbExporterConfig226(t *testing.T) {
 			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 		},
 		Env: []string{
-			"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:27017/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000",
+			"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:27017/?connectTimeoutMS=2000&directConnection=true&serverSelectionTimeoutMS=2000",
 			"HTTP_AUTH=pmm:agent-password",
 		},
 		RedactWords: []string{"s3cur3 p@$$w0r4.", "agent-password"},
@@ -246,15 +246,15 @@ func TestMongodbExporterConfig2411(t *testing.T) {
 		Address: "1.2.3.4",
 	}
 	mongodb := &models.Service{
-		Address: pointer.ToString("1.2.3.4"),
-		Port:    pointer.ToUint16(27017),
+		Address: new("1.2.3.4"),
+		Port:    new(uint16(27017)),
 	}
 	exporter := &models.Agent{
 		AgentID:         "agent-id",
 		AgentType:       models.MongoDBExporterType,
-		Username:        pointer.ToString("username"),
-		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
-		AgentPassword:   pointer.ToString("agent-password"),
+		Username:        new("username"),
+		Password:        new("s3cur3 p@$$w0r4."),
+		AgentPassword:   new("agent-password"),
 		ExporterOptions: models.ExporterOptions{},
 		MongoDBOptions:  models.MongoDBOptions{},
 	}
@@ -274,7 +274,7 @@ func TestMongodbExporterConfig2411(t *testing.T) {
 			"--web.config={{ .TextFiles.webConfig }}",
 		},
 		Env: []string{
-			"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:27017/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000",
+			"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:27017/?connectTimeoutMS=2000&directConnection=true&serverSelectionTimeoutMS=2000",
 		},
 		RedactWords: []string{"s3cur3 p@$$w0r4.", "agent-password"},
 		TextFiles: map[string]string{
@@ -435,15 +435,15 @@ func TestMongodbExporterConfig2432(t *testing.T) {
 		Address: "1.2.3.4",
 	}
 	mongodb := &models.Service{
-		Address: pointer.ToString("1.2.3.4"),
-		Port:    pointer.ToUint16(27017),
+		Address: new("1.2.3.4"),
+		Port:    new(uint16(27017)),
 	}
 	exporter := &models.Agent{
 		AgentID:         "agent-id",
 		AgentType:       models.MongoDBExporterType,
-		Username:        pointer.ToString("username"),
-		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
-		AgentPassword:   pointer.ToString("agent-password"),
+		Username:        new("username"),
+		Password:        new("s3cur3 p@$$w0r4."),
+		AgentPassword:   new("agent-password"),
 		ExporterOptions: models.ExporterOptions{},
 		MongoDBOptions:  models.MongoDBOptions{},
 	}
@@ -465,7 +465,7 @@ func TestMongodbExporterConfig2432(t *testing.T) {
 			"--web.config={{ .TextFiles.webConfig }}",
 		},
 		Env: []string{
-			"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:27017/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000",
+			"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:27017/?connectTimeoutMS=2000&directConnection=true&serverSelectionTimeoutMS=2000",
 		},
 		RedactWords: []string{"s3cur3 p@$$w0r4.", "agent-password"},
 		TextFiles: map[string]string{
@@ -518,15 +518,15 @@ func TestMongodbExporterConfig(t *testing.T) {
 		Address: "1.2.3.4",
 	}
 	mongodb := &models.Service{
-		Address: pointer.ToString("1.2.3.4"),
-		Port:    pointer.ToUint16(27017),
+		Address: new("1.2.3.4"),
+		Port:    new(uint16(27017)),
 	}
 	exporter := &models.Agent{
 		AgentID:         "agent-id",
 		AgentType:       models.MongoDBExporterType,
-		Username:        pointer.ToString("username"),
-		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
-		AgentPassword:   pointer.ToString("agent-password"),
+		Username:        new("username"),
+		Password:        new("s3cur3 p@$$w0r4."),
+		AgentPassword:   new("agent-password"),
 		ExporterOptions: models.ExporterOptions{},
 		MongoDBOptions:  models.MongoDBOptions{},
 	}
@@ -544,7 +544,7 @@ func TestMongodbExporterConfig(t *testing.T) {
 			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 		},
 		Env: []string{
-			"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:27017/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000",
+			"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:27017/?connectTimeoutMS=2000&directConnection=true&serverSelectionTimeoutMS=2000",
 			"HTTP_AUTH=pmm:agent-password",
 		},
 		RedactWords: []string{"s3cur3 p@$$w0r4.", "agent-password"},
@@ -559,14 +559,14 @@ func TestMongodbExporterConfig(t *testing.T) {
 		exporter.Password = nil
 		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
-		assert.Equal(t, "MONGODB_URI=mongodb://username@1.2.3.4:27017/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000", actual.Env[0])
+		assert.Equal(t, "MONGODB_URI=mongodb://username@1.2.3.4:27017/?connectTimeoutMS=2000&directConnection=true&serverSelectionTimeoutMS=2000", actual.Env[0])
 	})
 
 	t.Run("EmptyUsername", func(t *testing.T) {
 		exporter.Username = nil
 		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
-		assert.Equal(t, "MONGODB_URI=mongodb://1.2.3.4:27017/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000", actual.Env[0])
+		assert.Equal(t, "MONGODB_URI=mongodb://1.2.3.4:27017/?connectTimeoutMS=2000&directConnection=true&serverSelectionTimeoutMS=2000", actual.Env[0])
 	})
 	t.Run("SSLEnabled", func(t *testing.T) {
 		exporter.TLS = true
@@ -576,7 +576,7 @@ func TestMongodbExporterConfig(t *testing.T) {
 			TLSCa:                         "content-of-tls-ca",
 		}
 		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
-		expected := "MONGODB_URI=mongodb://1.2.3.4:27017/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000&ssl=true&" +
+		expected := "MONGODB_URI=mongodb://1.2.3.4:27017/?connectTimeoutMS=2000&directConnection=true&serverSelectionTimeoutMS=2000&ssl=true&" +
 			"tlsCaFile={{.TextFiles.caFilePlaceholder}}&tlsCertificateKeyFile={{.TextFiles.certificateKeyFilePlaceholder}}&tlsCertificateKeyFilePassword=passwordoftls"
 		assert.Equal(t, expected, actual.Env[0])
 		expectedFiles := map[string]string{
@@ -598,9 +598,9 @@ func TestMongodbExporterConfig(t *testing.T) {
 		}
 		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		expected := `MONGODB_URI=mongodb://1.2.3.4:27017/$external?authMechanism=MONGODB-X509` +
-			`&authSource=%24external&connectTimeoutMS=1000` +
+			`&authSource=%24external&connectTimeoutMS=2000` +
 			`&directConnection=true` +
-			`&serverSelectionTimeoutMS=1000` +
+			`&serverSelectionTimeoutMS=2000` +
 			`&ssl=true` +
 			`&tlsCaFile={{.TextFiles.caFilePlaceholder}}` +
 			`&tlsCertificateKeyFile={{.TextFiles.certificateKeyFilePlaceholder}}` +
@@ -643,14 +643,14 @@ func TestNewMongodbExporterConfig(t *testing.T) {
 		Address: "1.2.3.4",
 	}
 	mongodb := &models.Service{
-		Address: pointer.ToString("1.2.3.4"),
-		Port:    pointer.ToUint16(27017),
+		Address: new("1.2.3.4"),
+		Port:    new(uint16(27017)),
 	}
 	exporter := &models.Agent{
 		AgentID:         "agent-id",
 		AgentType:       models.MongoDBExporterType,
-		Username:        pointer.ToString("username"),
-		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+		Username:        new("username"),
+		Password:        new("s3cur3 p@$$w0r4."),
 		ExporterOptions: models.ExporterOptions{},
 		MongoDBOptions:  models.MongoDBOptions{},
 	}
@@ -666,7 +666,7 @@ func TestNewMongodbExporterConfig(t *testing.T) {
 			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 		},
 		Env: []string{
-			"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:27017/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000",
+			"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:27017/?connectTimeoutMS=2000&directConnection=true&serverSelectionTimeoutMS=2000",
 			"HTTP_AUTH=pmm:agent-id",
 		},
 		RedactWords: []string{"s3cur3 p@$$w0r4."},
@@ -680,14 +680,23 @@ func TestNewMongodbExporterConfig(t *testing.T) {
 		exporter.Password = nil
 		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
-		assert.Equal(t, "MONGODB_URI=mongodb://username@1.2.3.4:27017/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000", actual.Env[0])
+		assert.Equal(t, "MONGODB_URI=mongodb://username@1.2.3.4:27017/?connectTimeoutMS=2000&directConnection=true&serverSelectionTimeoutMS=2000", actual.Env[0])
 	})
 
 	t.Run("EmptyUsername", func(t *testing.T) {
 		exporter.Username = nil
 		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
-		assert.Equal(t, "MONGODB_URI=mongodb://1.2.3.4:27017/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000", actual.Env[0])
+		assert.Equal(t, "MONGODB_URI=mongodb://1.2.3.4:27017/?connectTimeoutMS=2000&directConnection=true&serverSelectionTimeoutMS=2000", actual.Env[0])
+	})
+
+	t.Run("ConnectionTimeout", func(t *testing.T) {
+		exporter.ExporterOptions = models.ExporterOptions{
+			ConnectionTimeout: pointer.ToDuration(1 * time.Minute),
+		}
+		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
+		require.NoError(t, err)
+		assert.Equal(t, "MONGODB_URI=mongodb://1.2.3.4:27017/?connectTimeoutMS=60000&directConnection=true&serverSelectionTimeoutMS=60000", actual.Env[0])
 	})
 }
 
@@ -701,14 +710,14 @@ func TestMongodbExporterConfig228_WebConfigAuth(t *testing.T) {
 	}
 
 	mongodb := &models.Service{
-		Address: pointer.ToString("1.2.3.4"),
-		Port:    pointer.ToUint16(27017),
+		Address: new("1.2.3.4"),
+		Port:    new(uint16(27017)),
 	}
 	exporter := &models.Agent{
 		AgentID:         "agent-id",
 		AgentType:       models.MongoDBExporterType,
-		Username:        pointer.ToString("username"),
-		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+		Username:        new("username"),
+		Password:        new("s3cur3 p@$$w0r4."),
 		ExporterOptions: models.ExporterOptions{},
 		MongoDBOptions:  models.MongoDBOptions{},
 	}
@@ -725,7 +734,7 @@ func TestMongodbExporterConfig228_WebConfigAuth(t *testing.T) {
 	}
 
 	expectedEnv := []string{
-		"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:27017/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000",
+		"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:27017/?connectTimeoutMS=2000&directConnection=true&serverSelectionTimeoutMS=2000",
 	}
 
 	t.Run("Custom_Password", func(t *testing.T) {
@@ -736,7 +745,7 @@ func TestMongodbExporterConfig228_WebConfigAuth(t *testing.T) {
 			AgentType:       exporter.AgentType,
 			Username:        exporter.Username,
 			Password:        exporter.Password,
-			AgentPassword:   pointer.ToString("agent-custom-password"),
+			AgentPassword:   new("agent-custom-password"),
 			ExporterOptions: models.ExporterOptions{},
 			MongoDBOptions:  models.MongoDBOptions{},
 		}
@@ -805,16 +814,16 @@ func Test_rtaMongoDBAgentConfig(t *testing.T) {
 			service: &models.Service{
 				ServiceID:   "service-id-1",
 				ServiceName: "mongodb-service-1",
-				Address:     pointer.ToString("127.0.0.1"),
-				Port:        pointer.ToUint16(27017),
+				Address:     new("127.0.0.1"),
+				Port:        new(uint16(27017)),
 			},
 			agent: &models.Agent{
 				AgentID:   "agent-id-1",
 				AgentType: models.RTAMongoDBAgentType,
-				Username:  pointer.ToString("username"),
-				Password:  pointer.ToString("password"),
+				Username:  new("username"),
+				Password:  new("password"),
 				RTAOptions: models.RTAOptions{
-					CollectInterval: pointer.ToDuration(2 * time.Second),
+					CollectInterval: new(2 * time.Second),
 				},
 			},
 			pmmAgentVersion: version.MustParse("3.7.0"),

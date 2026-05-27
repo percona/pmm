@@ -48,22 +48,26 @@ var (
 		prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "messages_sent_total"),
 		"A total number of messages sent to pmm-agent.",
 		[]string{"agent_id"},
-		nil)
+		nil,
+	)
 	mRecvDesc = prom.NewDesc(
 		prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "messages_received_total"),
 		"A total number of messages received from pmm-agent.",
 		[]string{"agent_id"},
-		nil)
+		nil,
+	)
 	mResponsesDesc = prom.NewDesc(
 		prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "messages_response_queue_length"),
 		"The current length of the response queue.",
 		[]string{"agent_id"},
-		nil)
+		nil,
+	)
 	mRequestsDesc = prom.NewDesc(
 		prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "messages_request_queue_length"),
 		"The current length of the request queue.",
 		[]string{"agent_id"},
-		nil)
+		nil,
+	)
 )
 
 type pmmAgentInfo struct {
@@ -201,8 +205,7 @@ func (r *Registry) rebuildConnectionCache() {
 
 	// Fetch pmm-agents from the database, reset cache to empty on error.
 	_ = r.db.InTransaction(func(tx *reform.TX) error {
-		agentType := models.PMMAgentType
-		agents, err := models.FindAgents(tx.Querier, models.AgentFilters{AgentType: &agentType})
+		agents, err := models.FindAgents(tx.Querier, models.AgentFilters{AgentType: new(models.PMMAgentType)})
 		if err != nil {
 			return err
 		}
@@ -444,8 +447,7 @@ func (r *Registry) addVMAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOnNod
 	if runsOnNodeID == models.PMMServerNodeID && !r.isExternalVM {
 		return nil
 	}
-	vmAgentType := models.VMAgentType
-	vmAgent, err := models.FindAgents(q, models.AgentFilters{PMMAgentID: pmmAgentID, AgentType: &vmAgentType})
+	vmAgent, err := models.FindAgents(q, models.AgentFilters{PMMAgentID: pmmAgentID, AgentType: new(models.VMAgentType)})
 	if err != nil {
 		return status.Errorf(codes.Internal, "Can't get 'vmAgent' for pmm-agent with ID %q", pmmAgentID)
 	}
@@ -467,7 +469,7 @@ func (r *Registry) addNomadAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOn
 	if !pmmAgentVersion.IsFeatureSupported(version.NomadAgentSupportVersion) {
 		return nil
 	}
-	nomadClient, err := models.FindAgents(q, models.AgentFilters{PMMAgentID: pmmAgentID, AgentType: pointer.To(models.NomadAgentType)})
+	nomadClient, err := models.FindAgents(q, models.AgentFilters{PMMAgentID: pmmAgentID, AgentType: new(models.NomadAgentType)})
 	if err != nil {
 		return status.Errorf(codes.Internal, "Can't get 'nomadClient' for pmm-agent with ID %q", pmmAgentID)
 	}
