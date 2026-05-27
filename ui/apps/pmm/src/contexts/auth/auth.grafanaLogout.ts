@@ -1,7 +1,6 @@
 import type { QueryClient } from '@tanstack/react-query';
 import { clearClientSession } from './auth.clientSession';
-
-const ROTATE_TOKEN_QUERY_KEY = ['rotateToken'] as const;
+import { ROTATE_TOKEN_QUERY_KEY } from './auth.queryKeys';
 
 /** Grafana logged the user out (e.g. password change); sync PMM shell auth state. */
 export const handleGrafanaUserLoggedOut = (queryClient: QueryClient) => {

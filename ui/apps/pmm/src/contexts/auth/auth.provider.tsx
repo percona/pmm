@@ -7,6 +7,7 @@ import {
   ensureClientSessionListener,
   useClientSession,
 } from './auth.clientSession';
+import { ROTATE_TOKEN_QUERY_KEY } from './auth.queryKeys';
 import { getRefetchInterval, redirectToLogin } from './auth.utils';
 import { AxiosError, HttpStatusCode } from 'axios';
 import { useFrontendSettings } from 'hooks/api/useSettings';
@@ -20,7 +21,7 @@ export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
   }, []);
 
   const { error, isLoading, data } = useQuery({
-    queryKey: ['rotateToken'],
+    queryKey: ROTATE_TOKEN_QUERY_KEY,
     queryFn: async () => {
       const token = await rotateToken();
       establishClientSession();
