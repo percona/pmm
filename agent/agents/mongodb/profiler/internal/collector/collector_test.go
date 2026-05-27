@@ -63,40 +63,24 @@ func BenchmarkCollector(b *testing.B) {
 	// cursorTimeout*time.Duration(maxLoops*2): Wait time between loops to produce iter.TryNext to return a false
 
 	client, err := createSession(url, "pmm-agent")
-	if err != nil {
-		b.Fatal(err)
-		return
-	}
+	require.NoError(b, err)
 
 	// Just in case there are old dbs with matching names
-	err = cleanUpDBs(b, client)
-	if err != nil {
-		b.Fatal(err)
-		return
-	}
-	defer func() {
-		err = cleanUpDBs(b, client)
-		if err != nil {
-			return
-		}
-	}()
+	require.NoError(b, cleanUpDBs(b, client))
+	b.Cleanup(func() {
+		assert.NoError(b, cleanUpDBs(b, client))
+	})
 
 	var ps ProfilerStatus
 	err = client.Database("admin").RunCommand(ctx, primitive.M{"profile": -1}).Decode(&ps)
-	if err != nil {
-		b.Fatal(err)
-		return
-	}
-	defer func() { // restore profiler status
+	require.NoError(b, err)
+	b.Cleanup(func() { // restore profiler status
 		client.Database("admin").RunCommand(ctx, primitive.D{{"profile", ps.Was}, {"slowms", ps.SlowMs}})
-	}()
+	})
 
 	// Enable profilling all queries (2, slowms = 0)
 	res := client.Database("admin").RunCommand(ctx, primitive.D{{"profile", 2}, {"slowms", 0}})
-	if res.Err() != nil {
-		b.Fatal(res.Err())
-		return
-	}
+	require.NoError(b, res.Err())
 
 	for b.Loop() {
 		ctr := New(client, "test", logrus.WithField("component", "profiler-test"))
@@ -143,20 +127,14 @@ func TestCollector(t *testing.T) {
 	require.NoError(t, err)
 
 	require.NoError(t, cleanUpDBs(t, client)) // Just in case there are old dbs with matching names
-	defer func() {
-		err = cleanUpDBs(t, client)
-		if err != nil {
-			return
-		}
-	}()
+	t.Cleanup(func() {
+		assert.NoError(t, cleanUpDBs(t, client))
+	})
 
 	// It's done create DB before the test.
 	doc := bson.M{}
 	_, err = client.Database("test_collector").Collection("test").InsertOne(t.Context(), doc)
-	if err != nil {
-		t.Fatal(err)
-		return
-	}
+	require.NoError(t, err)
 	<-time.After(time.Second)
 
 	ctr := New(client, "test_collector", logrus.WithField("component", "collector-test"))
@@ -164,10 +142,8 @@ func TestCollector(t *testing.T) {
 	// Start the collector
 	var profiles []proto.SystemProfile
 	docsChan, err := ctr.Start(ctx)
-	if err != nil {
-		t.Fatal(err)
-		return
-	}
+	require.NoError(t, err)
+
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	<-time.After(time.Second)

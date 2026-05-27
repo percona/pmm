@@ -59,7 +59,7 @@ func TestReadyz(t *testing.T) {
 					return false
 				}
 				t.Cleanup(func() {
-					assert.Error(t, resp.Body.Close())
+					assert.NoError(t, resp.Body.Close())
 				})
 
 				b, err := io.ReadAll(resp.Body)

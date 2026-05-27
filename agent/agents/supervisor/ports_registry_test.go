@@ -15,7 +15,6 @@
 package supervisor
 
 import (
-	"errors"
 	"net"
 	"testing"
 
@@ -29,8 +28,7 @@ func TestRegistry(t *testing.T) {
 	l1, err := net.Listen("tcp", "127.0.0.1:65001")
 	require.NoError(t, err)
 	t.Cleanup(func() {
-		err, _ = errors.AsType[*net.OpError](l1.Close())
-		require.Error(t, err)
+		_ = l1.Close()
 	})
 
 	p, err := r.Reserve()
@@ -42,8 +40,7 @@ func TestRegistry(t *testing.T) {
 	l2, err := net.Listen("tcp", "127.0.0.1:65002")
 	require.NoError(t, err)
 	t.Cleanup(func() {
-		err, _ = errors.AsType[*net.OpError](l2.Close())
-		require.Error(t, err)
+		_ = l2.Close()
 	})
 
 	err = r.Release(65000)

@@ -15,7 +15,6 @@
 package profiler
 
 import (
-	"context"
 	"fmt"
 	"sort"
 	"strings"
@@ -37,27 +36,12 @@ import (
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
-type MongoVersion struct {
-	VersionString string `bson:"version"`
-	PSMDBVersion  string `bson:"psmdbVersion"`
-	Version       []int  `bson:"versionArray"`
-}
-
-func GetMongoVersion(ctx context.Context, client *mongo.Client) (string, error) {
-	var ver MongoVersion
-	err := client.Database("admin").RunCommand(ctx, bson.D{{"buildInfo", 1}}).Decode(&ver)
-	if err != nil {
-		return "", nil
-	}
-
-	version := fmt.Sprintf("%d.%d", ver.Version[0], ver.Version[1])
-	return version, err
-}
-
 func TestProfiler(t *testing.T) {
 	defaultInterval := aggregator.DefaultInterval
 	aggregator.DefaultInterval = time.Second
-	defer func() { aggregator.DefaultInterval = defaultInterval }()
+	t.Cleanup(func() {
+		aggregator.DefaultInterval = defaultInterval
+	})
 
 	sslDSNTemplate, files := tests.GetTestMongoDBWithSSLDSN(t, "../../../../")
 	tempDir := t.TempDir()
@@ -78,8 +62,10 @@ func testProfiler(t *testing.T, url string) {
 	require.NoError(t, err)
 
 	// Just in case there are old dbs with matching names
-	err = cleanUpDBs(t, sess)
-	require.NoError(t, err)
+	require.NoError(t, cleanUpDBs(t, sess))
+	t.Cleanup(func() {
+		assert.NoError(t, cleanUpDBs(t, sess))
+	})
 
 	dbsCount := 10
 	docsCount := float32(10)
@@ -105,10 +91,9 @@ func testProfiler(t *testing.T, url string) {
 	prof := New(url, logrus.WithField("component", "profiler-test"), ms, "test-id", truncate.GetMongoDBDefaultMaxQueryLength())
 	err = prof.Start()
 	require.NoError(t, err)
-	defer func() {
-		err = prof.Stop()
-		require.NoError(t, err)
-	}()
+	t.Cleanup(func() {
+		assert.NoError(t, prof.Stop())
+	})
 	<-time.After(aggregator.DefaultInterval * 2) // give it some time to start profiler
 
 	i = 0
@@ -128,20 +113,14 @@ func testProfiler(t *testing.T, url string) {
 	}
 	cursor, err := sess.Database("test_00").Collection("people").Find(t.Context(), bson.M{"name_00\xff": "value_00\xff"})
 	require.NoError(t, err)
-	defer func() {
-		err = cursor.Close(t.Context())
-		require.NoError(t, err)
-	}()
+	t.Cleanup(func() {
+		assert.NoError(t, cursor.Close(t.Context()))
+	})
 
 	<-time.After(aggregator.DefaultInterval * 6) // give it some time to catch all metrics
 
 	err = prof.Stop()
 	require.NoError(t, err)
-
-	defer func() {
-		err = cleanUpDBs(t, sess)
-		require.NoError(t, err)
-	}()
 
 	require.GreaterOrEqual(t, len(ms.reports), 1)
 
