@@ -127,6 +127,8 @@ message AddRDSServiceParams {
   google.protobuf.Duration connection_timeout = 35 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
+  // List of collector names to disable in the database exporter.
+  repeated string disable_collectors = 36;
 }
 
 message RDSServiceResult {

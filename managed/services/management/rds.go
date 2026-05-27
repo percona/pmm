@@ -366,8 +366,9 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				TLS:           req.Tls,
 				TLSSkipVerify: req.TlsSkipVerify,
 				ExporterOptions: models.ExporterOptions{
-					PushMetrics:       isPushMode(metricsMode),
-					ConnectionTimeout: duration.OptionalFromProto(req.ConnectionTimeout),
+					PushMetrics:        isPushMode(metricsMode),
+					DisabledCollectors: req.DisableCollectors,
+					ConnectionTimeout:  duration.OptionalFromProto(req.ConnectionTimeout),
 				},
 				MySQLOptions: models.MySQLOptions{
 					TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,

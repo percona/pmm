@@ -11894,6 +11894,9 @@ type AddServiceParamsBodyRDS struct {
 
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
+	// List of collector names to disable in the database exporter.
+	DisableCollectors []string `json:"disable_collectors"`
 }
 
 // Validate validates this add service params body RDS

@@ -279,6 +279,7 @@ func TestRDSService(t *testing.T) {
 			TlsSkipVerify:             false,
 			DisableQueryExamples:      true,
 			TablestatsGroupTableLimit: 0,
+			DisableCollectors:         []string{"global_status", "info_schema.innodb_metrics"},
 		}
 
 		state.On("RequestStateUpdate", ctx, "pmm-server")
@@ -325,6 +326,7 @@ func TestRDSService(t *testing.T) {
 						PmmAgentId:                "pmm-server",
 						ServiceId:                 "00000000-0000-4000-8000-000000000007",
 						Username:                  "username",
+						DisabledCollectors:        []string{"global_status", "info_schema.innodb_metrics"},
 						TablestatsGroupTableLimit: 1000,
 						Status:                    inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 					},
@@ -373,6 +375,7 @@ func TestRDSService(t *testing.T) {
 			TablestatsGroupTableLimit:        0,
 			AutoDiscoveryLimit:               10,
 			MaxPostgresqlExporterConnections: 15,
+			DisableCollectors:                []string{"stat_database", "stat_bgwriter"},
 		}
 
 		state.On("RequestStateUpdate", ctx, "pmm-server")
@@ -420,6 +423,7 @@ func TestRDSService(t *testing.T) {
 						PmmAgentId:             "pmm-server",
 						ServiceId:              "00000000-0000-4000-8000-00000000000c",
 						Username:               "username",
+						DisabledCollectors:     []string{"stat_database", "stat_bgwriter"},
 						Status:                 inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 						AutoDiscoveryLimit:     10,
 						MaxExporterConnections: 15,
