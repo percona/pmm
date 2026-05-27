@@ -26,7 +26,7 @@ import (
 const (
 	AdvisorsEnabledDefault             = true
 	AlertingEnabledDefault             = true
-	TelemetryEnabledDefault            = true
+	TelemetryEnabledDefault            = false
 	UpdatesEnabledDefault              = true
 	BackupManagementEnabledDefault     = true
 	VictoriaMetricsCacheEnabledDefault = false
