@@ -52,7 +52,7 @@
       }
     ]
   },
-  "editable": false,
+  "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
   "links": [],
@@ -132,6 +132,9 @@
           "values": false
         },
         "showPercentChange": false,
+        "text": {
+          "valueSize": 24
+        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -211,6 +214,9 @@
           "values": false
         },
         "showPercentChange": false,
+        "text": {
+          "valueSize": 24
+        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -290,6 +296,9 @@
           "values": false
         },
         "showPercentChange": false,
+        "text": {
+          "valueSize": 24
+        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -657,12 +666,24 @@
             "mode": "thresholds"
           },
           "decimals": 2,
-          "mappings": [],
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "color": "text",
+                  "index": 0,
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "rgba(245, 54, 54, 0.9)",
+                "color": "red",
                 "value": 0
               },
               {
@@ -2218,6 +2239,9 @@
           "values": false
         },
         "showPercentChange": false,
+        "text": {
+          "valueSize": 24
+        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -2281,6 +2305,9 @@
           "values": false
         },
         "showPercentChange": false,
+        "text": {
+          "valueSize": 24
+        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -2345,7 +2372,7 @@
         },
         "showPercentChange": false,
         "text": {
-          "titleSize": 2
+          "valueSize": 24
         },
         "textMode": "auto",
         "wideLayout": true
@@ -2411,6 +2438,9 @@
           "values": false
         },
         "showPercentChange": false,
+        "text": {
+          "valueSize": 24
+        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -2475,6 +2505,9 @@
           "values": false
         },
         "showPercentChange": false,
+        "text": {
+          "valueSize": 24
+        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -2966,6 +2999,9 @@
           "values": false
         },
         "showPercentChange": false,
+        "text": {
+          "valueSize": 24
+        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -3096,7 +3132,7 @@
         },
         "showPercentChange": false,
         "text": {
-          "titleSize": 2
+          "valueSize": 24
         },
         "textMode": "auto",
         "wideLayout": true
@@ -3162,7 +3198,7 @@
         },
         "showPercentChange": false,
         "text": {
-          "titleSize": 2
+          "valueSize": 24
         },
         "textMode": "auto",
         "wideLayout": true
@@ -3228,7 +3264,7 @@
         },
         "showPercentChange": false,
         "text": {
-          "titleSize": 2
+          "valueSize": 24
         },
         "textMode": "auto",
         "wideLayout": true
@@ -3294,7 +3330,7 @@
         },
         "showPercentChange": false,
         "text": {
-          "titleSize": 2
+          "valueSize": 24
         },
         "textMode": "auto",
         "wideLayout": true
@@ -3790,6 +3826,9 @@
           "values": false
         },
         "showPercentChange": false,
+        "text": {
+          "valueSize": 24
+        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -3853,6 +3892,9 @@
           "values": false
         },
         "showPercentChange": false,
+        "text": {
+          "valueSize": 24
+        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -3915,6 +3957,9 @@
           "values": false
         },
         "showPercentChange": false,
+        "text": {
+          "valueSize": 24
+        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -3941,17 +3986,7 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": [
-            {
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "N/A"
-                }
-              },
-              "type": "special"
-            }
-          ],
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -3991,6 +4026,9 @@
           "values": false
         },
         "showPercentChange": false,
+        "text": {
+          "valueSize": 24
+        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -4017,17 +4055,7 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": [
-            {
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "N/A"
-                }
-              },
-              "type": "special"
-            }
-          ],
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -4067,6 +4095,9 @@
           "values": false
         },
         "showPercentChange": false,
+        "text": {
+          "valueSize": 24
+        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -4093,17 +4124,7 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": [
-            {
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "N/A"
-                }
-              },
-              "type": "special"
-            }
-          ],
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -4139,6 +4160,9 @@
           "values": false
         },
         "showPercentChange": false,
+        "text": {
+          "valueSize": 24
+        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -5535,6 +5559,9 @@
           "values": false
         },
         "showPercentChange": false,
+        "text": {
+          "valueSize": 24
+        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -5614,6 +5641,9 @@
           "values": false
         },
         "showPercentChange": false,
+        "text": {
+          "valueSize": 24
+        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -5693,6 +5723,9 @@
           "values": false
         },
         "showPercentChange": false,
+        "text": {
+          "valueSize": 24
+        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -5773,6 +5806,9 @@
           "values": false
         },
         "showPercentChange": false,
+        "text": {
+          "valueSize": 24
+        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -5853,6 +5889,9 @@
           "values": false
         },
         "showPercentChange": false,
+        "text": {
+          "valueSize": 24
+        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -5933,6 +5972,9 @@
           "values": false
         },
         "showPercentChange": false,
+        "text": {
+          "valueSize": 24
+        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -5967,7 +6009,7 @@
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
-            "fillOpacity": 0,
+            "fillOpacity": 10,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -5976,6 +6018,9 @@
             },
             "insertNulls": false,
             "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
             "lineWidth": 2,
             "pointSize": 5,
             "scaleDistribution": {
@@ -6045,7 +6090,6 @@
         }
       ],
       "title": "Memory",
-      "transparent": true,
       "type": "timeseries"
     },
     {
@@ -6065,7 +6109,7 @@
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
-            "fillOpacity": 0,
+            "fillOpacity": 10,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -6153,7 +6197,6 @@
         }
       ],
       "title": "Connections",
-      "transparent": true,
       "type": "timeseries"
     },
     {
@@ -6173,7 +6216,7 @@
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
-            "fillOpacity": 0,
+            "fillOpacity": 10,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -6251,7 +6294,6 @@
         }
       ],
       "title": "Read backoff",
-      "transparent": true,
       "type": "timeseries"
     },
     {
@@ -6271,7 +6313,7 @@
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
-            "fillOpacity": 0,
+            "fillOpacity": 10,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -6349,7 +6391,6 @@
         }
       ],
       "title": "Slow reads",
-      "transparent": true,
       "type": "timeseries"
     },
     {
@@ -6492,7 +6533,19 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": [],
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "color": "text",
+                  "index": 0,
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -6526,6 +6579,9 @@
           "values": false
         },
         "showPercentChange": false,
+        "text": {
+          "valueSize": 24
+        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -7865,7 +7921,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "browser",
   "title": "PMM Health",
   "uid": "pmm-health",
   "version": 1,
