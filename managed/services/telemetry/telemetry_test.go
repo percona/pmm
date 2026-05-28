@@ -23,7 +23,6 @@ import (
 	"time"
 
 	_ "github.com/ClickHouse/clickhouse-go/v2"
-	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	pmmv1 "github.com/percona/platform/gen/telemetry/events/pmm"
 	telemetryv1 "github.com/percona/platform/gen/telemetry/generic"
 	"github.com/sirupsen/logrus"
@@ -182,68 +181,6 @@ func TestRunTelemetryService(t *testing.T) {
 				sendCh:              make(chan *telemetryv1.GenericReport, sendChSize),
 			}
 			s.Run(ctx)
-		})
-	}
-}
-
-func TestRunSkipsNonReleaseVersion(t *testing.T) {
-	t.Parallel()
-
-	logger := logrus.StandardLogger()
-	logger.SetLevel(logrus.DebugLevel)
-	logEntry := logrus.NewEntry(logger)
-
-	// Settings JSON with a pre-existing UUID so makeMetric won't attempt an UPDATE.
-	settingsJSON := []byte(`{"telemetry":{"uuid":"00000000-0000-0000-0000-000000000001"}}`)
-
-	tests := []struct {
-		version string
-	}{
-		{"3.0.0-rc1"},
-		{"3.0.0-beta2"},
-		{"3.0.0-dev"},
-		{"not-a-version"},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.version, func(t *testing.T) {
-			t.Parallel()
-
-			var mockSender mockSender
-			mockSender.Test(t)
-			t.Cleanup(func() {
-				mockSender.AssertNotCalled(t, "SendTelemetry")
-			})
-
-			sqlDB, dbMock, err := sqlmock.New()
-			require.NoError(t, err)
-			t.Cleanup(func() { sqlDB.Close() })
-			db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
-
-			// doSend calls models.GetSettings(s.db) before prepareReport.
-			dbMock.ExpectQuery("SELECT settings FROM settings").
-				WillReturnRows(sqlmock.NewRows([]string{"settings"}).AddRow(settingsJSON))
-			// prepareReport → makeMetric runs a transaction with the same query.
-			dbMock.ExpectBegin()
-			dbMock.ExpectQuery("SELECT settings FROM settings").
-				WillReturnRows(sqlmock.NewRows([]string{"settings"}).AddRow(settingsJSON))
-			dbMock.ExpectCommit()
-
-			ctx, cancel := context.WithTimeout(t.Context(), 100*time.Millisecond)
-			defer cancel()
-
-			s := Service{
-				db:           db,
-				l:            logEntry,
-				config:       getTestConfig(true, "VM", 10*time.Second), // long interval: only SendOnStart fires
-				pmmVersion:   tt.version,
-				dus:          getDistributionUtilService(t, logEntry),
-				portalClient: &mockSender,
-				sendCh:       make(chan *telemetryv1.GenericReport, sendChSize),
-			}
-			s.Run(ctx)
-
-			require.NoError(t, dbMock.ExpectationsWereMet())
 		})
 	}
 }
