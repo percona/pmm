@@ -46,8 +46,8 @@ theme:
     - navigation.top
     - content.tabs.link
     - content.code.copy
+    - content.images.zoom
     - navigation.tracking
-#    - content.action.edit
     - content.action.view
 
 extra_css:
@@ -474,6 +474,7 @@ nav:
       - troubleshoot/data_issues.md
   - Release notes:
       - Release notes index: release-notes/index.md
+      - "PMM 3.8.0 (2026-05-28)": release-notes/3.8.0.md
       - "PMM 3.7.1 (2026-04-30)": release-notes/3.7.1.md
       - "PMM 3.7.0 (2026-04-01)": release-notes/3.7.0.md
       - "PMM 3.6.0 (2026-02-05)": release-notes/3.6.0.md 
@@ -552,7 +553,7 @@ nav:
               - reference/dashboards/dashboard-mysql-user-details.md
           - MongoDB dashboards:
               - reference/dashboards/dashboard-mongodb-collection_overview.md
-              - reference/dashboards/dashboard-mongodb-experimental_oplog.md
+              - reference/dashboards/dashboard-mongodb-oplog-details.md
               - reference/dashboards/dashboard-mongodb-cluster-summary.md
               - reference/dashboards/dashboard-mongodb-instance-summary.md
               - reference/dashboards/dashboard-mongodb-instances-overview.md
@@ -564,12 +565,10 @@ nav:
               - reference/dashboards/dashboard-mongodb-wiredtiger-details.md
               - reference/dashboards/dashboard-mongodb-backup-details.md
           - PostgreSQL dashboards:
-              - reference/dashboards/dashboard-postgresql-checkpoints-buffers-wal-usage.md
               - reference/dashboards/dashboard-postgresql-instance-summary.md
               - reference/dashboards/dashboard-postgresql-instances-compare.md
               - reference/dashboards/dashboard-postgresql-instances-overview.md
               - reference/dashboards/dashboard-postgresql-instances-overview-extended.md
-              - reference/dashboards/dashboard-postgresql-patroni-details.md
               - reference/dashboards/dashboard-postgresql-replication.md
               - reference/dashboards/dashboard-postgresql-topqueries.md
           - ProxySQL dashboards:
@@ -588,9 +587,10 @@ nav:
           - HA dashboards:
               - reference/dashboards/dashboard-ha-health-overview.md
               - reference/dashboards/dashboard-pxc-galera-node-summary.md
-              - reference/dashboards/dashboard-pxc-galera-cluster-summary-experimental.md
               - reference/dashboards/dashboard-pxc-galera-nodes-compare.md
+              - reference/dashboards/dashboard-pxc-galera-cluster-summary.md
               - reference/dashboards/dashboard-haproxy-instance-summary.md
+      - reference/labels-reference.md
       - reference/nomad.md
       - reference/glossary.md
       - reference/faq.md

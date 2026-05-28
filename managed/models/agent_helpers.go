@@ -17,6 +17,7 @@ package models
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
@@ -232,7 +233,7 @@ type AgentFilters struct {
 // FindAgents returns Agents by filters.
 func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 	var conditions []string
-	var args []interface{}
+	var args []any
 	idx := 1
 	if filters.PMMAgentID != "" {
 		if _, err := FindAgentByID(q, filters.PMMAgentID); err != nil {
@@ -322,7 +323,7 @@ func FindAgentsByIDs(q *reform.Querier, ids []string) ([]*Agent, error) {
 
 	p := strings.Join(q.Placeholders(1, len(ids)), ", ")
 	tail := fmt.Sprintf("WHERE agent_id IN (%s) ORDER BY agent_id", p)
-	args := make([]interface{}, len(ids))
+	args := make([]any, len(ids))
 	for i, id := range ids {
 		args[i] = id
 	}
@@ -373,7 +374,7 @@ func FindDBConfigForService(q *reform.Querier, serviceID string) (*DBConfig, err
 	p := strings.Join(q.Placeholders(2, len(agentTypes)), ", ") //nolint:mnd
 	tail := fmt.Sprintf("WHERE service_id = $1 AND agent_type IN (%s) ORDER BY agent_id", p)
 
-	args := make([]interface{}, len(agentTypes)+1)
+	args := make([]any, len(agentTypes)+1)
 	args[0] = serviceID
 	for i, agentType := range agentTypes {
 		args[i+1] = agentType
@@ -433,7 +434,7 @@ func FindPMMAgentsForService(q *reform.Querier, serviceID string) ([]*Agent, err
 	if err != nil {
 		return nil, status.Errorf(codes.FailedPrecondition, "Couldn't get all agents for service %s", serviceID)
 	}
-	pmmAgentIDs := make([]interface{}, len(allAgents))
+	pmmAgentIDs := make([]any, len(allAgents))
 	for _, str := range allAgents {
 		row := str.(*Agent) //nolint:forcetypeassert
 		if row.PMMAgentID != nil {
@@ -518,7 +519,7 @@ func FindPMMAgentsForVersion(logger *logrus.Entry, agents []*Agent, minPMMAgentV
 // FindAgentsForScrapeConfig returns Agents for scrape config generation by pmm_agent_id and push_metrics value.
 func FindAgentsForScrapeConfig(q *reform.Querier, pmmAgentID *string, pushMetrics bool) ([]*Agent, error) {
 	var (
-		args       []interface{}
+		args       []any
 		conditions []string
 	)
 	if pmmAgentID != nil {
@@ -890,13 +891,7 @@ func compatibleServiceAndAgent(serviceType ServiceType, agentType AgentType) boo
 		return false
 	}
 
-	for _, svcType := range allowed {
-		if svcType == serviceType {
-			return true
-		}
-	}
-
-	return false
+	return slices.Contains(allowed, serviceType)
 }
 
 // CreateAgent creates Agent with given type.
@@ -933,6 +928,11 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		}
 	}
 
+	exporterOptions := params.ExporterOptions
+	if pointer.Get(exporterOptions.ConnectionTimeout) == 0 {
+		exporterOptions.ConnectionTimeout = nil
+	}
+
 	row := &Agent{
 		AgentID:           id,
 		AgentType:         agentType,
@@ -944,7 +944,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		AgentPassword:     pointer.ToStringOrNil(params.AgentPassword),
 		TLS:               params.TLS,
 		TLSSkipVerify:     params.TLSSkipVerify,
-		ExporterOptions:   params.ExporterOptions,
+		ExporterOptions:   exporterOptions,
 		QANOptions:        params.QANOptions,
 		AWSOptions:        params.AWSOptions,
 		AzureOptions:      params.AzureOptions,
@@ -1016,6 +1016,7 @@ type ChangeExporterOptions struct {
 	MetricsScheme      *string
 	MetricsPath        *string
 	MetricsResolutions *ChangeMetricsResolutionsParams
+	ConnectionTimeout  *time.Duration
 }
 
 // ChangeQANOptions contains QANOptions fields that can be changed.
@@ -1175,6 +1176,12 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 		}
 		if params.ExporterOptions.MetricsPath != nil {
 			row.ExporterOptions.MetricsPath = *params.ExporterOptions.MetricsPath
+		}
+
+		if pointer.Get(params.ExporterOptions.ConnectionTimeout) == 0 {
+			row.ExporterOptions.ConnectionTimeout = nil
+		} else {
+			row.ExporterOptions.ConnectionTimeout = params.ExporterOptions.ConnectionTimeout
 		}
 	}
 

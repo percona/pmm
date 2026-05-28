@@ -19,7 +19,7 @@ The Filters panel on the left hand side of the [QAN dashboard](../../qan/index.m
 The available filter groups depend on the database type you're monitoring.
 
 ### Common filter groups
-These filter groups are available for all database types:
+These filter groups are available for all database types. Most of them correspond to standard labels assigned when you add a service. For the full list of labels and how to set them, see [Labels reference](../../../reference/labels-reference.md). 
 
 - **Command Type**: filters by SQL command class (SELECT, INSERT, UPDATE, etc.) 
 - **Fingerprint**: filters by normalized query pattern

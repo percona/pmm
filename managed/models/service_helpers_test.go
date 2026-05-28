@@ -160,13 +160,13 @@ func TestServiceHelpers(t *testing.T) {
 		defer teardown(t)
 
 		services, err := models.FindServices(q, models.ServiceFilters{})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Len(t, services, 9)
 
 		services, err = models.FindServices(q, models.ServiceFilters{NodeID: "N1"})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Len(t, services, 4)
-		assert.Equal(t, services, []*models.Service{{
+		assert.Equal(t, []*models.Service{{
 			ServiceID:   "S1",
 			ServiceType: models.MongoDBServiceType,
 			ServiceName: "Service without Agents",
@@ -202,12 +202,12 @@ func TestServiceHelpers(t *testing.T) {
 			Port:        pointer.ToUint16OrNil(6032),
 			CreatedAt:   now,
 			UpdatedAt:   now,
-		}})
+		}}, services)
 
 		services, err = models.FindServices(q, models.ServiceFilters{NodeID: "N1", ServiceType: new(models.MySQLServiceType)})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Len(t, services, 1)
-		assert.Equal(t, services, []*models.Service{{
+		assert.Equal(t, []*models.Service{{
 			ServiceID:   "S2",
 			ServiceType: models.MySQLServiceType,
 			ServiceName: "Service with Agents",
@@ -216,12 +216,12 @@ func TestServiceHelpers(t *testing.T) {
 			Port:        pointer.ToUint16OrNil(3306),
 			CreatedAt:   now,
 			UpdatedAt:   now,
-		}})
+		}}, services)
 
 		services, err = models.FindServices(q, models.ServiceFilters{NodeID: "N2", ServiceType: new(models.ExternalServiceType)})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Len(t, services, 2)
-		assert.Equal(t, services, []*models.Service{
+		assert.Equal(t, []*models.Service{
 			{
 				ServiceID:     "S4",
 				ServiceType:   models.ExternalServiceType,
@@ -242,12 +242,12 @@ func TestServiceHelpers(t *testing.T) {
 				CreatedAt:     now,
 				UpdatedAt:     now,
 			},
-		})
+		}, services)
 
 		services, err = models.FindServices(q, models.ServiceFilters{NodeID: "N2", ServiceType: new(models.ProxySQLServiceType)})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Len(t, services, 1)
-		assert.Equal(t, services, []*models.Service{{
+		assert.Equal(t, []*models.Service{{
 			ServiceID:   "S6",
 			ServiceType: models.ProxySQLServiceType,
 			ServiceName: "Sixth service",
@@ -255,12 +255,12 @@ func TestServiceHelpers(t *testing.T) {
 			NodeID:      "N2",
 			CreatedAt:   now,
 			UpdatedAt:   now,
-		}})
+		}}, services)
 
 		services, err = models.FindServices(q, models.ServiceFilters{ExternalGroup: "redis"})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Len(t, services, 1)
-		assert.Equal(t, services, []*models.Service{{
+		assert.Equal(t, []*models.Service{{
 			ServiceID:     "S7",
 			ServiceType:   models.ExternalServiceType,
 			ServiceName:   "Seventh service",
@@ -270,19 +270,19 @@ func TestServiceHelpers(t *testing.T) {
 			ExternalGroup: "redis",
 			CreatedAt:     now,
 			UpdatedAt:     now,
-		}})
+		}}, services)
 
 		services, err = models.FindServices(q, models.ServiceFilters{NodeID: "N2", ServiceType: new(models.HAProxyServiceType)})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Len(t, services, 1)
-		assert.Equal(t, services, []*models.Service{{
+		assert.Equal(t, []*models.Service{{
 			ServiceID:   "S8",
 			ServiceType: models.HAProxyServiceType,
 			ServiceName: "Eighth service",
 			NodeID:      "N2",
 			CreatedAt:   now,
 			UpdatedAt:   now,
-		}})
+		}}, services)
 	})
 
 	t.Run("FindActiveServiceTypes", func(t *testing.T) {
@@ -290,7 +290,7 @@ func TestServiceHelpers(t *testing.T) {
 		defer teardown(t)
 
 		types, err := models.FindActiveServiceTypes(q)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Len(t, types, 6)
 	})
 
@@ -307,7 +307,7 @@ func TestServiceHelpers(t *testing.T) {
 		_, err = models.FindServiceByID(q, "S1")
 		require.NoError(t, err)
 		err = models.RemoveService(q, "S1", models.RemoveRestrict)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		_, err = models.FindServiceByID(q, "S1")
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "S1" not found.`), err)
 
@@ -317,7 +317,7 @@ func TestServiceHelpers(t *testing.T) {
 		_, err = models.FindServiceByID(q, "S2")
 		require.NoError(t, err)
 		err = models.RemoveService(q, "S2", models.RemoveCascade)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		_, err = models.FindServiceByID(q, "S2")
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "S2" not found.`), err)
 	})
@@ -454,7 +454,7 @@ func TestServiceHelpers(t *testing.T) {
 			ServiceType: new(models.MongoDBServiceType),
 			Cluster:     "cluster0",
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, services)
 		assert.ElementsMatch(t, []*models.Service{s1, s2}, services)
 	})
@@ -483,10 +483,10 @@ func TestServiceHelpers(t *testing.T) {
 		ns, err := models.FindServiceByID(q, s.ServiceID)
 		require.NoError(t, err)
 
-		assert.Equal(t, ns.Cluster, "cluster")
-		assert.Equal(t, ns.Environment, "env")
-		assert.Equal(t, ns.ReplicationSet, "rs")
-		assert.Equal(t, ns.ExternalGroup, "external")
+		assert.Equal(t, "cluster", ns.Cluster)
+		assert.Equal(t, "env", ns.Environment)
+		assert.Equal(t, "rs", ns.ReplicationSet)
+		assert.Equal(t, "external", ns.ExternalGroup)
 	})
 
 	t.Run("Software versions record created when adding a service", func(t *testing.T) {
@@ -533,12 +533,8 @@ func TestServiceHelpers(t *testing.T) {
 				return
 			}
 
-			assert.ErrorIs(t, err, models.ErrNotFound)
+			require.ErrorIs(t, err, models.ErrNotFound)
 			assert.Nil(t, swVersions)
 		}
 	})
-}
-
-func pointerToServiceType(serviceType models.ServiceType) *models.ServiceType {
-	return &serviceType
 }

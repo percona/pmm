@@ -274,44 +274,44 @@ func TestMongoDBExplain(t *testing.T) {
 		require.NoError(t, err)
 
 		res, err := ex.Run(ctx)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
-		want := map[string]interface{}{
+		want := map[string]any{
 			"indexFilterSet": false,
 			"namespace":      "test.coll",
-			"parsedQuery": map[string]interface{}{
-				"k": map[string]interface{}{"$lte": map[string]interface{}{"$numberInt": "1"}},
+			"parsedQuery": map[string]any{
+				"k": map[string]any{"$lte": map[string]any{"$numberInt": "1"}},
 			},
-			"rejectedPlans": []interface{}{},
-			"winningPlan":   map[string]interface{}{"stage": "EOF"},
+			"rejectedPlans": []any{},
+			"winningPlan":   map[string]any{"stage": "EOF"},
 		}
 		mongoDBVersion, _ := tests.MongoDBVersion(t, client)
 
 		switch {
 		case mongoDBVersion.Major < 5:
-			want["plannerVersion"] = map[string]interface{}{"$numberInt": "1"}
+			want["plannerVersion"] = map[string]any{"$numberInt": "1"}
 		case mongoDBVersion.Major < 8:
 			want["maxIndexedAndSolutionsReached"] = false
 			want["maxIndexedOrSolutionsReached"] = false
 			want["maxScansToExplodeReached"] = false
 			if mongoDBVersion.Major == 7 {
-				want["optimizationTimeMillis"] = map[string]interface{}{"$numberInt": "0"}
+				want["optimizationTimeMillis"] = map[string]any{"$numberInt": "0"}
 			}
 		case mongoDBVersion.Major == 8:
 			want["maxIndexedAndSolutionsReached"] = false
 			want["maxIndexedOrSolutionsReached"] = false
 			want["maxScansToExplodeReached"] = false
-			want["optimizationTimeMillis"] = map[string]interface{}{"$numberInt": "0"}
-			want["winningPlan"] = map[string]interface{}{"stage": "EOF", "isCached": false}
+			want["optimizationTimeMillis"] = map[string]any{"$numberInt": "0"}
+			want["winningPlan"] = map[string]any{"stage": "EOF", "isCached": false}
 			want["prunedSimilarIndexes"] = false
 			if mongoDBVersion.Minor >= 2 {
-				want["winningPlan"] = map[string]interface{}{"stage": "EOF", "isCached": false, "type": "nonExistentNamespace"}
+				want["winningPlan"] = map[string]any{"stage": "EOF", "isCached": false, "type": "nonExistentNamespace"}
 			}
 		}
 
-		explainM := make(map[string]interface{})
+		explainM := make(map[string]any)
 		err = json.Unmarshal(res, &explainM)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		queryPlanner, ok := explainM["queryPlanner"]
 		assert.True(t, ok)
 		assert.NotEmpty(t, queryPlanner)
@@ -355,7 +355,7 @@ func TestNewMongoDBExplain(t *testing.T) {
 	for _, tf := range testFiles {
 		t.Run(tf.in, func(t *testing.T) {
 			query, err := os.ReadFile(filepath.Join("testdata/", filepath.Clean(tf.in)))
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			params := &agentv1.StartActionRequest_MongoDBExplainParams{
 				Dsn:   tests.GetTestMongoDBDSN(t),
 				Query: string(query),
@@ -365,11 +365,11 @@ func TestNewMongoDBExplain(t *testing.T) {
 			require.NoError(t, err)
 
 			res, err := ex.Run(ctx)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
-			explainM := make(map[string]interface{})
+			explainM := make(map[string]any)
 			err = json.Unmarshal(res, &explainM)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			// Just test not empty because different versions and environments return different
 			// explain results
@@ -383,7 +383,7 @@ func prepareData(ctx context.Context, client *mongo.Client, database, collection
 	count, _ := client.Database(database).Collection(collection).CountDocuments(ctx, nil)
 
 	if count < limit {
-		for i := int64(0); i < limit; i++ {
+		for i := range limit {
 			doc := primitive.M{"f1": i, "f2": fmt.Sprintf("text_%5d", limit-i)}
 			if _, err := client.Database(database).Collection(collection).InsertOne(ctx, doc); err != nil {
 				return err

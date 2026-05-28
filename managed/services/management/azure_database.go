@@ -30,6 +30,7 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/duration"
 	"github.com/percona/pmm/utils/logger"
 )
 
@@ -64,15 +65,15 @@ func (s *ManagementService) isAzureEnabled() bool {
 
 // AzureDatabaseInstanceData reflects Azure Database Instance Data of Discovery Response.
 type AzureDatabaseInstanceData struct {
-	ID            string                 `json:"id"`
-	Location      string                 `json:"location"`
-	Name          string                 `json:"name"`
-	Properties    map[string]interface{} `json:"properties"`
-	Tags          map[string]string      `json:"tags"`
-	Sku           map[string]interface{} `json:"sku"`
-	ResourceGroup string                 `json:"resourceGroup"`
-	Type          string                 `json:"type"`
-	Zones         string                 `json:"zones"`
+	ID            string            `json:"id"`
+	Location      string            `json:"location"`
+	Name          string            `json:"name"`
+	Properties    map[string]any    `json:"properties"`
+	Tags          map[string]string `json:"tags"`
+	Sku           map[string]any    `json:"sku"`
+	ResourceGroup string            `json:"resourceGroup"`
+	Type          string            `json:"type"`
+	Zones         string            `json:"zones"`
 }
 
 func (s *ManagementService) getAzureClient(req *managementv1.DiscoverAzureDatabaseRequest) (*armresourcegraph.Client, error) {
@@ -276,6 +277,9 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 			Password:      req.Password,
 			TLS:           req.Tls,
 			TLSSkipVerify: req.TlsSkipVerify,
+			ExporterOptions: models.ExporterOptions{
+				ConnectionTimeout: duration.OptionalFromProto(req.ConnectionTimeout),
+			},
 			MySQLOptions: models.MySQLOptions{
 				TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
 			},

@@ -269,6 +269,9 @@ type AddAzureDatabaseBody struct {
 	//  - DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL: PostgreSQL type: microsoft.dbformysql
 	// Enum: ["DISCOVER_AZURE_DATABASE_TYPE_UNSPECIFIED","DISCOVER_AZURE_DATABASE_TYPE_MYSQL","DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL"]
 	Type *string `json:"type,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 }
 
 // Validate validates this add azure database body

@@ -30,8 +30,8 @@ func requireNoDuplicateFlags(t *testing.T, flags []string) {
 	s := make(map[string]struct{})
 	for _, f := range flags {
 		name := strings.Split(f, "=")[0]
-		if strings.HasPrefix(name, "--no-") { // kingpin's --no-<name> disables --<name>
-			name = "--" + strings.TrimPrefix(name, "--no-")
+		if after, ok := strings.CutPrefix(name, "--no-"); ok { // kingpin's --no-<name> disables --<name>
+			name = "--" + after
 		}
 		if _, present := s[name]; present {
 			assert.Failf(t, "flag (or --no- form) is already present", "%q", name)
