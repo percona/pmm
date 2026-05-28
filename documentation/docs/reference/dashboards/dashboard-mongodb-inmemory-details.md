@@ -1,179 +1,225 @@
 # MongoDB InMemory Details
 
-This dashboard helps you monitor MongoDB instances that use the InMemory storage engine. It shows cache usage, transaction rate, session activity, and node resource use.
+This dashboard focuses on the InMemory storage engine. It shows cache usage, eviction behavior, transaction activity, and the underlying node health for any MongoDB instance running with `--storageEngine inMemory`.
+
+Use the filters at the top to scope the view to a specific service.
 
 ![MongoDB InMemory Details dashboard](../../images/PMM_MongoDB_InMemory_Details.jpg)
 
-## InMemory Storage
-
-Shows the current state of the InMemory cache at a glance. Use these panels to quickly assess how much of your configured memory is in use and whether your data is approaching the configured size limit.
+## Overview
 
 ### InMemory Data Size
 
-Shows the amount of data currently stored in the InMemory cache in its uncompressed format. This reflects the actual working dataset in memory, not how data is stored on disk.
+Shows the current amount of uncompressed data in the InMemory cache in bytes.
 
-This value will always be lower than the limit shown in **InMemory Max Data Size**. If it's consistently close to that limit, consider increasing the configured cache size to avoid evictions or degraded performance.
+Use this alongside **InMemory Max Data Size** to understand how full the cache is in absolute terms.
+
+A value that keeps climbing toward the maximum is a signal to plan a cache size increase before you run out of headroom.
 
 ### InMemory Max Data Size
 
-Shows the maximum amount of data the InMemory storage engine is configured to hold. Once your dataset reaches this limit, MongoDB begins evicting data to make room for new writes, which can impact performance.
+Shows the configured maximum size of the InMemory cache in bytes as a single number. This is the hard ceiling for how much data can reside in memory at once. It corresponds to the `--inMemoryCacheSizeGB` startup parameter.
 
-You can adjust this limit by setting `storage.inMemory.engineConfig.inMemorySizeGB` in the MongoDB configuration file or by passing the `--inMemorySizeGB` flag at startup.
+Use this as your reference point when reading the **InMemory Available** and **InMemory Capacity** panels: all usage figures are relative to this limit.
 
 ### InMemory Available
 
-Shows the percentage of InMemory capacity that is still free, calculated as the ratio of unused space to the total configured size. The panel uses color-coded thresholds: green when availability is healthy, orange as it drops below 10%, and red when critically low.
+Shows the percentage of InMemory cache that is still available, as a single number. The gauge turns orange at 90% used (10% remaining) and red at 95% used (5% remaining).
 
-Use this panel to detect when your dataset is approaching its configured limit. Proactively increasing capacity before this panel turns red helps avoid write stalls or data eviction under load.
+When this value is consistently low, your working dataset is close to the cache limit. Because the InMemory engine keeps all data in memory and discards it on shutdown, running near the limit increases eviction pressure and can degrade performance. 
+
+If you regularly see orange or red, consider increasing `--inMemoryCacheSizeGB` or reducing the dataset size.
 
 ### InMemory Dirty Pages
 
-Shows the percentage of pages in the InMemory cache that contain modified data not yet consolidated. A small percentage of dirty pages is normal during active write workloads.
+Shows the percentage of InMemory cache occupied by dirty pages (modified data not yet consolidated) as a single number. The gauge turns orange at 30% and red at 50%.
 
-If this value is persistently high (above 30%, marked orange, or above 50%, marked red), it may indicate that the configured InMemory size is too small for the current write rate and the engine is under pressure to consolidate data faster than it can.
+Dirty pages are changes that MongoDB has accepted but not yet cleaned up internally. When this percentage climbs, your writes are arriving faster than they can be processed, which puts pressure on the cache and can slow down your queries.
 
-## InMemory Engine
-
-These panels help you understand how hard the InMemory storage engine is working over time. You can see how quickly activity is growing, how close the cache is to its limit, and how many sessions and pages the engine is handling.
+If this stays elevated, check **InMemory Cache Eviction** to see whether MongoDB is struggling to free space fast enough to keep up with your workload.
 
 ### InMemory Transactions
 
-Shows how many transactions the InMemory engine commits each second. Spikes usually mean a burst of writes or mixed read and write traffic.
+Shows the rate of internal transactions per second, broken down by type (begin, commit, rollback).
 
-Use this panel with latency and cache pressure panels to understand cause and effect. If transaction rate stays high while dirty pages keep rising, the engine may be nearing its throughput limit.
+A high rollback rate is expected and not a cause for concern, since MongoDB uses rollbacks internally even for read queries to keep your data views consistent. Focus instead on whether transaction activity correlates with growing **Queued Operations**, which would mean your queries are starting to wait on locks.
 
 ### InMemory Capacity
 
-Shows the configured cache limit (**Maximum**) and current cache usage (**Used**) over time, in bytes. When **Used** gets close to **Maximum**, the engine is running out of headroom.
+Shows the configured maximum cache size and the currently used cache size over time, both in bytes, as two lines on the same chart.
 
-Use this panel together with **InMemory Available** to spot growth trends early. If **Used** keeps climbing without leveling off, increase cache size before performance starts to drop.
+Use this to track cache utilization trends. If the used line is trending toward the max line, you're approaching the cache limit. A sudden drop in used size can mean a large portion of data expired or was explicitly removed. A flat used line near the max means the cache is effectively full and eviction is keeping usage in check.
 
 ### InMemory Sessions
 
-Shows how many sessions and open cursors the InMemory engine is handling over time. A moderate and stable level is normal.
+Shows the number of open cursors and sessions over time.
 
-If these counts stay high or keep rising, especially when cursors do not drop, you may have long-running operations, too many concurrent connections, or cursor leaks in application code. Check this panel together with **Connections** and **Cursors** in MongoDB Summary for a clearer diagnosis.
+Cursors represent active query positions inside the storage engine. A large number of open cursors often means long-running queries or applications that open cursors without closing them promptly. 
+
+If this number grows continuously without returning to a baseline, investigate whether your application is leaking cursors.
 
 ### InMemory Pages
 
-Shows how many pages are currently stored in the InMemory cache. This number naturally moves up and down as the working dataset and access pattern change.
+Shows the number of pages in the InMemory cache over time, broken down into dirty pages (modified, not yet reconciled) and total pages.
 
-Use this panel to see how the cache reacts to workload shifts. A sudden drop can indicate a restart or cache flush. A long plateau near capacity often means the dataset is larger than available memory.
+Use this to understand the composition of the cache. A high proportion of dirty pages relative to total pages means the engine is under write pressure and may be struggling to keep up with reconciliation. 
 
-## Operations
+Watch this alongside **InMemory Dirty Pages** (the percentage stat) to get both the proportion and the absolute scale.
 
-These panels track MongoDB document-level operations, locking behavior, query execution efficiency, and OS-level memory events on the selected node.
+### InMemory Concurrency Tickets
 
-### Document Changes
+Shows the number of available concurrency tickets for read and write operations over time. Write tickets are plotted on the negative Y axis so reads and writes can be read independently at the same scale.
 
-Shows the rate of document-level operations per second, including inserts, updates, deletes, and returned documents on both primary and secondary nodes. Also includes replicated write operations (`repl_inserted`, `repl_updated`, `repl_deleted`) and documents removed by TTL expiration (`ttl_deleted`).
+MongoDB limits simultaneous operations using a ticket system. When available tickets approach zero, new operations must wait. A sustained drop toward zero on either axis means the engine is saturated for that operation type and latency will rise.
 
-Use this panel to understand the write and read workload profile of the node, monitor replication activity, and track whether TTL-based cleanup is running at the expected rate.
+If you see this frequently, the workload may need tuning (fewer simultaneous connections, index improvements to reduce scan time) or the concurrency limits may need adjusting.
 
 ### Queued Operations
 
-Shows the number of operations currently waiting to acquire a global lock, broken down into read and write queues. A value of zero is the expected baseline under normal operation.
+Shows the number of operations queued because they are waiting for a lock, broken down by read and write queues.
 
-If this queue does not return to zero, and especially if it keeps growing, lock contention is likely. The most common cause is long-running write operations. Check this panel with **Operations Latency** to confirm whether queueing is driving slower response times.
+Any value above zero means lock contention is occurring. A small queue that resolves quickly is usually normal. A queue that grows and stays elevated means long-running operations are blocking others, which will increase latency across the board. Use this panel alongside **InMemory Concurrency Tickets** to distinguish between ticket exhaustion and lock contention.
+
+### Document Changes
+
+Shows the rate of document operations per second, stacked by type: inserts, updates, deletes, returned (query results), replicated write operations, and TTL deletes.
+
+Use this to understand the overall write workload and its composition. A sudden spike in TTL deletes means a large amount of data is expiring at once, which can briefly increase cache eviction activity. A spike in replicated writes on a secondary means replication is catching up. 
+
+Compare the insert and delete rates to understand net data growth.
+
+### InMemory Cache Eviction
+
+Shows the rate of modified (dirty) pages evicted from the InMemory cache per second.
+
+The InMemory engine only evicts modified pages, which happens during data compaction when dirty pages are consolidated and removed. 
+
+A consistently high eviction rate means the cache is under sustained write pressure. If eviction spikes correlate with performance degradation, consider increasing the cache size so the engine has more room before it must evict.
 
 ### Scanned and Moved Objects
 
-Shows how many objects are scanned each second during query execution, split into data objects (`scanned_objects`) and index entries (`scanned`). If scanned objects are much higher than returned documents, queries may be doing full collection scans or using low-selectivity indexes.
+Shows the rate of objects scanned per second, broken down by data objects and index objects. Also shows the rate of documents moved to a new location per second.
 
-Use this panel to spot query efficiency problems. High `scanned_objects` values compared to actual query results usually point to missing or inefficient indexes that add unnecessary load.
+Scanned objects measure how much data and index the query engine is reading to satisfy queries. High scan rates relative to returned documents indicate full or partial collection scans, which can be improved with indexes. 
+
+The moved documents metric only applies to the MMAPv1 storage engine, which is no longer used in modern MongoDB versions; expect this to show zero on current deployments.
 
 ### Page Faults
 
-Shows OS-level memory page faults per second on the node running MongoDB. Page faults happen when the OS must load data from disk because it is not in RAM, and they can come from MongoDB or other processes on the same host.
+Shows the rate of operating system memory page faults per second.
 
-In an InMemory deployment, a sustained rise in page faults is an important warning sign because the engine depends on RAM. If page faults keep increasing, the host is likely under memory pressure, either because it needs more RAM or because other processes are competing for memory.
+A page fault occurs when a process accesses a memory page that isn't currently in RAM, either because it was never loaded yet or because it was swapped out. 
+
+For the InMemory storage engine, page faults won't come from MongoDB data access (all data stays in the cache in RAM), so they typically come from MongoDB's own process memory or from other processes on the host. 
+
+A consistently high rate can indicate memory pressure on the host. Check **Memory Available** in the node section to confirm.
 
 ## MongoDB Summary
 
-Gives you a quick health and activity summary for the selected MongoDB service.
-
 ### MongoDB Uptime
 
-Shows how long the selected MongoDB instance has been running since its last restart. The panel highlights recent restarts with color thresholds: red for under 5 minutes, orange for under 1 hour, and green for over 1 hour.
+Shows how long the MongoDB instance has been running since its last restart, in seconds. The display turns green once the instance has been up for at least one hour.
 
-Use this panel to quickly verify that the service has not restarted unexpectedly, especially after maintenance or during incident response.
+A recently restarted instance will have a low uptime. For the InMemory engine, a restart means all data is gone, so a low uptime here is more significant than for a persistent storage engine. Investigate unexpected restarts immediately.
 
 ### QPS
 
-Shows total query operations per second across all operation types (excluding internal commands) for the selected service. It gives you a quick view of current request load.
+Shows the current query throughput in operations per second, excluding internal command traffic.
 
-Use this panel with resource metrics to connect throughput changes to system behavior. If QPS spikes while latency or queued operations also rise, you are likely seeing a workload surge that needs investigation.
+Use this as a baseline reference for the instance's overall load. Compare against your normal operating range to spot unexpected spikes or drops.
 
 ### Latency
 
-Shows average command execution latency in microseconds for the selected MongoDB service. Low and stable latency usually means the instance is responding well.
+Shows the average command latency in microseconds.
 
-Sudden spikes or a slowly rising baseline are early warning signs. Compare this panel with **Queued Operations** and **InMemory Transactions** to tell whether latency is coming from lock contention, throughput saturation, or cache pressure.
+Rising latency alongside stable QPS usually points to a resource bottleneck (cache pressure, lock contention, or CPU saturation). Use this alongside **Queued Operations** and **InMemory Concurrency Tickets** to narrow down the cause.
+
+### Service
+
+Shows the name of the current service as a link. Click it to open the **MongoDB Instance Summary** dashboard for this service.
 
 ### Connections
 
-Shows active client connections to MongoDB over time. Connection counts that stay high can put pressure on both MongoDB and the operating system.
+Shows the number of active connections to the MongoDB instance over time.
 
-Use this panel to track connection trends and identify high-demand periods. If the count stays near the configured maximum, tune application-side connection pooling to reduce pressure on the database.
+Monitor this against your configured `maxIncomingConnections` limit. A connection count climbing toward the limit means the instance is approaching saturation. A sudden drop to zero or near-zero means the instance became unreachable.
 
 ### Cursors
 
-Shows open cursors on the selected MongoDB service over time, broken down by state. Cursors are pointers to query result sets and expire after 10 minutes by default.
+Shows the number of open cursors over time, broken down by state (idle, timed out, etc.).
 
-A rising count of open or pinned cursors is worth investigating. It often indicates long-running queries or application code that is not closing cursors properly, which can eventually exhaust server resources.
+Cursor accumulation without a corresponding increase in active queries usually points to cursors not being closed by the application. Timed-out cursors can cause application errors and indicate queries that ran longer than the cursor timeout.
 
 ## Node Summary
 
-Provides OS-level metrics for the host running the selected MongoDB service. Because the InMemory engine keeps all data in RAM, node memory and CPU health are especially important.
+### System Uptime
+
+Shows how long the host node has been running since its last boot.
+
+A low value means the host was recently restarted. For an InMemory MongoDB instance, a host restart implies a MongoDB restart and full data loss, so correlate this with **MongoDB Uptime** to confirm.
+
+### Load Average
+
+Shows the host's 1-minute load average.
+
+Values above the number of CPU cores mean the system is overloaded. Use this alongside **CPU Usage** to see which CPU modes are contributing to the load.
 
 ### RAM
 
-Shows total physical memory available on the node. In containerized environments, this reflects the container memory limit, not total host memory.
+Shows the total installed RAM on the host.
 
-Use this panel as a baseline when reviewing pressure indicators such as **Memory Available** and **Disk I/O and Swap Activity**.
+Use this as context when reading the **InMemory Max Data Size** and **Memory Available** panels. The InMemory cache must fit within available host RAM along with all other processes.
 
 ### Memory Available
 
-Shows the percentage of memory currently available for application use. On modern Linux kernels, this includes reclaimable cache and buffer memory, so it is more useful than raw free memory.
+Shows how much RAM is currently free on the host.
 
-The panel turns orange below 5% and red when available memory is very low.
-
-For InMemory deployments, this value must stay safely above zero. If the OS runs out of available memory, it starts swapping, which severely hurts performance for an engine that depends on RAM.
+For InMemory deployments, this matters both for the MongoDB cache and for the OS's own memory needs. If available memory drops below a safe margin (roughly 10-15% of total RAM), the OS may start swapping, which will cause page faults and degrade performance.
 
 ### Virtual Memory
 
-Shows total virtual memory on the node, calculated as RAM plus swap space. In containerized environments, this reflects container memory and swap limits.
+Shows the total virtual memory allocated by processes on the host.
+
+A very high virtual memory figure relative to physical RAM isn't always a problem (many allocations are never actually used), but a sustained increase can indicate memory growth worth investigating.
 
 ### Disk Space
 
-Shows total disk capacity across all monitored partitions on the node. In some setups, such as overlapping or shared mount points, this value can be over-reported.
+Shows the total disk capacity on the host. Links to the Disk Details dashboard for more information.
+
+Even though the InMemory engine doesn't persist data, MongoDB still writes logs and diagnostic data to disk. Make sure there's enough free space for these.                           
 
 ### Min Space Available
 
-Shows the lowest free-space percentage across monitored disk partitions. The panel turns orange below 5% and green at 20% or higher.
+Shows the percentage of free space on the most-utilized filesystem on the host.
 
-Use this panel to quickly identify the most constrained partition. Even in InMemory deployments, disk space still matters because MongoDB writes journal files, logs, and diagnostic data to disk.
+A low value here means one of the host's filesystems is nearly full. Even for InMemory deployments, a full disk can cause MongoDB to crash if it can't write logs or temporary files.
+
+### Node
+
+Shows the name of the host node as a link. Click it to open the Node Summary dashboard for this host.          
 
 ### CPU Usage
 
-Shows CPU time by mode (user, system, iowait, steal, and others) as a percentage of total capacity over time.
+Shows CPU utilization over time, stacked by mode: user, system, iowait, steal, and others.
 
-High `iowait` can point to disk bottlenecks, and high `steal` can indicate resource contention in virtualized or cloud environments. For InMemory deployments, watch for `system` CPU spikes, which can signal OS memory-management pressure.
+A high user percentage means application processes (including MongoDB) are driving the load. A high iowait percentage means the CPU is often waiting for disk I/O, which is unusual for InMemory deployments and may indicate another process doing disk work. 
+
+A high steal percentage means the host's vCPU is being time-sliced by the hypervisor.
 
 ### CPU Saturation and Max Core Usage
 
-Shows CPU saturation as normalized load (running processes divided by available cores), along with peak utilization on any single core.
+Shows normalized CPU load (load average divided by CPU count) and the utilization of the most-loaded CPU core over time.
 
-Use this panel to see whether the node is CPU-bound and whether load is evenly distributed or concentrated on one core. High **Max Core Usage** with low overall CPU usage usually points to a single-threaded bottleneck, not a total capacity issue.
+The normalized load shows whether the system is overloaded overall. The max core metric shows whether work is concentrated on a single core, which can create a bottleneck even when overall CPU usage looks low.
 
 ### Disk I/O and Swap Activity
 
-Shows disk read and write throughput (bytes per second) together with swap read (**Swap In**) and write (**Swap Out**) activity. Disk writes appear on the negative Y axis.
+Shows disk read throughput (positive Y axis) and disk write throughput (negative Y axis), plus swap I/O, over time. Links to the Disk Performance dashboard.
 
-For InMemory deployments, sustained swap activity is a critical warning sign. Swapping means the OS is using disk as overflow memory, which directly undermines InMemory performance. If **Swap Out** stays non-zero, the node needs more RAM.
+Persistent disk activity on an InMemory MongoDB host usually comes from logging, other processes, or OS activity rather than MongoDB data writes. Swap activity is a warning sign: if the host is swapping, it means physical RAM is exhausted and performance will degrade significantly.
 
 ### Network Traffic
 
-Shows inbound and outbound network throughput (bytes per second) for the node. Outbound traffic appears on the negative Y axis.
+Shows inbound network throughput (positive Y axis) and outbound network throughput (negative Y axis) over time.
 
-Use this panel to spot network saturation or unexpected traffic spikes. Sudden drops in inbound traffic can indicate client connectivity issues, while high outbound traffic can correlate with replication or large query result sets sent to clients.
+Unexpected spikes in network traffic on an InMemory host can indicate replication traffic, a client sending or receiving large result sets, or backup activity.

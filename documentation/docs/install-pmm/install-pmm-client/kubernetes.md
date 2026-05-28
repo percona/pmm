@@ -346,7 +346,7 @@ Choose your deployment approach:
 To confirm your node is being monitored:
 {.power-number}
 
-1. Go to the main menu and select **Operating System (OS) > Overview**.
+1. Go to the main menu and select **Operating system > Overview**.
 
 2. In the **Node Names** drop-down menu, select the node you recently registered.
 
