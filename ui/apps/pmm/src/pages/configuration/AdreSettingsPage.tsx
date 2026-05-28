@@ -1,5 +1,6 @@
 import {
   Alert,
+  Box,
   Button,
   Card,
   CardContent,
@@ -50,6 +51,13 @@ function behaviorFromSettings(
   if (!v || typeof v !== 'object' || Array.isArray(v)) return undefined;
   return v as Record<string, boolean>;
 }
+
+const pageProps = {
+  title: 'AI Assistant Settings',
+  fullWidth: true as const,
+  surface: 'paper' as const,
+  footer: null,
+};
 
 const AdreSettingsPage: FC = () => {
   const { user } = useUser();
@@ -157,7 +165,7 @@ const AdreSettingsPage: FC = () => {
 
   if (isLoading) {
     return (
-      <Page title="AI Assistant Settings">
+      <Page {...pageProps}>
         <Typography>Loading...</Typography>
       </Page>
     );
@@ -165,7 +173,7 @@ const AdreSettingsPage: FC = () => {
 
   if (isError && !isForbidden) {
     return (
-      <Page title="AI Assistant Settings">
+      <Page {...pageProps}>
         <Card variant="outlined">
           <CardContent>
             <Alert severity="error">
@@ -179,7 +187,7 @@ const AdreSettingsPage: FC = () => {
 
   if (isForbidden) {
     return (
-      <Page title="AI Assistant Settings">
+      <Page {...pageProps}>
         <Card variant="outlined">
           <CardContent>
             <Alert severity="info">
@@ -196,9 +204,19 @@ const AdreSettingsPage: FC = () => {
   }
 
   return (
-    <Page title="AI Assistant Settings">
-      <Card variant="outlined" sx={{ maxWidth: 640 }}>
-        <CardContent>
+    <Page {...pageProps}>
+      <Box
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          minWidth: 0,
+          overflowY: 'auto',
+          WebkitOverflowScrolling: 'touch',
+        }}
+        data-testid="adre-settings-scroll"
+      >
+        <Card variant="outlined" sx={{ maxWidth: 640, mx: 'auto', width: '100%' }}>
+          <CardContent>
           <Stack gap={3}>
             <Typography variant="body2" color="text.secondary">
               Configure the Autonomous Database Reliability Engineer (ADRE) and
@@ -552,8 +570,9 @@ const AdreSettingsPage: FC = () => {
               </Alert>
             )}
           </Stack>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </Box>
     </Page>
   );
 };

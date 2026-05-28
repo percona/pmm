@@ -64,11 +64,8 @@ export const Page: FC<PageProps> = ({
               }
             : {
                 width: '100%',
-                height: '100%',
-                maxHeight: '100%',
                 minWidth: 0,
                 alignSelf: 'stretch',
-                overflow: 'hidden',
                 [theme.breakpoints.up('lg')]: {
                   maxWidth: 1000,
                 },
