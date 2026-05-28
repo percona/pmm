@@ -73,3 +73,9 @@ The `scripts/tokensync/` workflow syncs Figma design tokens into theme TypeScrip
 ## Storybook
 
 Storybook supports theme switching (base/pmm/sep) and color mode switching (light/dark) via toolbar globals. Stories are organized: Introduction → Foundations (Colors, Typography, Icons) → Components.
+
+## Code Comments (CRITICAL)
+
+- Prefer no comment over a long one. Code should be self-explanatory.
+- One short line per comment; no paragraph-style or multi-sentence docblocks for obvious logic.
+- If something needs more explanation, refactor the code or document it in the PR — not in source.

@@ -4,7 +4,7 @@ import { TextArrayProps } from './text-array.types';
 import TextArray from './text-array';
 
 const meta = {
-  title: 'Others/TextArray',
+  title: 'To be reviewed/TextArray',
   component: TextArray,
   parameters: {
     layout: 'centered',

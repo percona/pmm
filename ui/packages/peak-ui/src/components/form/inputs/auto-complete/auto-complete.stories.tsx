@@ -11,7 +11,7 @@ type CustomArgs = React.ComponentProps<typeof AutoCompleteInput> & {
 };
 
 const meta = {
-  title: 'Inputs/AutoComplete',
+  title: 'To be reviewed/AutoComplete',
   component: AutoCompleteInput,
   tags: ['autodocs'],
   parameters: {

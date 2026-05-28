@@ -1,10 +1,12 @@
 import { ComponentsOverrides, createTheme, PaletteMode, ThemeOptions } from '@mui/material';
 import { DatePickerToolbarClassKey } from '@mui/x-date-pickers/DatePicker';
 import { MultiSectionDigitalClockClassKey } from '@mui/x-date-pickers';
+import { inputBaseClasses } from '@mui/material/InputBase';
 import { outlinedInputClasses } from '@mui/material/OutlinedInput';
 
 declare module '@mui/material/styles' {
   interface PaletteOptions {
+    neutral?: SimplePaletteColorOptions;
     surfaces?: {
       default?: string;
       backdrop?: string;
@@ -90,6 +92,12 @@ declare module '@mui/material/Typography' {
     menuText: true;
     inputText: true;
     inputLabel: true;
+  }
+}
+
+declare module '@mui/material/Alert' {
+  interface AlertPropsColorOverrides {
+    neutral: true;
   }
 }
 
@@ -271,9 +279,15 @@ export const semanticTokensLight = {
     dividerStronger: 'rgb(40, 39, 39)',
   },
   action: {
+    active: 'rgb(40, 39, 39)',
     hover: 'rgba(40, 39, 39, 0.04)',
+    hoverOpacity: 0.04,
+    selected: 'rgba(40, 39, 39, 0.08)',
+    selectedOpacity: 0.08,
     disabled: 'rgba(40, 39, 39, 0.12)',
+    disabledOpacity: 0.12,
     focus: 'rgba(40, 39, 39, 0.12)',
+    focusOpacity: 0.12,
   },
   // Semantic (light mode)
   success: {
@@ -346,9 +360,15 @@ export const semanticTokensDark = {
     dividerStronger: 'rgb(255, 255, 255)',
   },
   action: {
+    active: 'rgb(246, 245, 245)',
     hover: 'rgba(246, 245, 245, 0.08)',
+    hoverOpacity: 0.08,
+    selected: 'rgba(246, 245, 245, 0.16)',
+    selectedOpacity: 0.16,
     disabled: 'rgba(246, 245, 245, 0.15)',
+    disabledOpacity: 0.15,
     focus: 'rgba(246, 245, 245, 0.15)',
+    focusOpacity: 0.15,
   },
   // Semantic (dark mode)
   success: {
@@ -481,14 +501,24 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
         contrastText: tokens.success.contrastText,
         surface: tokens.success.surface,
       },
+      neutral: {
+        main: tokens.neutral.main,
+        light: tokens.neutral.light,
+        dark: tokens.neutral.dark,
+        contrastText: tokens.neutral.contrastText,
+        surface: tokens.neutral.surface,
+      },
       // Action colors
       action: {
+        active: tokens.action.active,
         hover: tokens.action.hover,
-        hoverOpacity: 0.04,
+        hoverOpacity: tokens.action.hoverOpacity,
+        selected: tokens.action.selected,
+        selectedOpacity: tokens.action.selectedOpacity,
         disabled: tokens.action.disabled,
-        disabledOpacity: 0.12,
+        disabledOpacity: tokens.action.disabledOpacity,
         focus: tokens.action.focus,
-        focusOpacity: 0.12,
+        focusOpacity: tokens.action.focusOpacity,
       },
       // Background/Surfaces
       background: {
@@ -501,6 +531,7 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
         high: tokens.surfaces.elevation1,
       },
       // Other color tokens
+      divider: tokens.lines.divider,
       dividers: {
         divider: tokens.lines.divider,
         dividerStrong: tokens.lines.dividerStrong,
@@ -628,7 +659,7 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
       },
       menuText: {
         fontFamily: fontDisplay,
-        fontWeight: 600,
+        fontWeight: 500,
         fontSize: '0.875rem',
         lineHeight: '1.25',
       },
@@ -696,13 +727,36 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
           }),
         },
       },
+      MuiSelect: {
+        styleOverrides: {
+          select: {
+            [`.${outlinedInputClasses.adornedEnd} &`]: {
+              paddingRight: '64px !important',
+              '& > *': {
+                maxWidth: '100%',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              },
+            },
+          },
+          icon: {
+            [`.${outlinedInputClasses.root}:not(.${outlinedInputClasses.adornedEnd}) &`]: {
+              right: '12px !important',
+            },
+            [`.${outlinedInputClasses.adornedEnd} &`]: {
+              marginRight: '32px !important',
+            },
+          },
+        },
+      },
       MuiButtonBase: {
         defaultProps: {
           disableRipple: true,
         },
         styleOverrides: {
           root: ({ theme }) => ({
-            '&.MuiIconButton-root:not(:focus-visible):focus': {
+            '&.MuiIconButton-root:not(:focus-visible):focus:not(:hover)': {
               backgroundColor: 'transparent',
             },
             '&.MuiIconButton-root:focus-visible:focus': {
@@ -712,6 +766,47 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
               backgroundColor: theme.palette.primary.focusVisible,
             },
           }),
+        },
+      },
+      MuiSvgIcon: {
+        styleOverrides: {
+          fontSizeSmall: { fontSize: 16 },
+          fontSizeMedium: { fontSize: 20 },
+          fontSizeLarge: { fontSize: 24 },
+        },
+      },
+      MuiIconButton: {
+        styleOverrides: {
+          root: ({ theme, ownerState }) => ({
+            ...((!ownerState.color || ownerState.color === 'default') && {
+              color: theme.palette.text.primary,
+            }),
+            '&.Mui-disabled': {
+              color: theme.palette.text.disabled,
+            },
+          }),
+          colorSecondary: ({ theme }) => ({
+            color: theme.palette.text.secondary,
+            '--IconButton-hoverBg': theme.palette.action.hover,
+          }),
+          sizeSmall: {
+            width: 40,
+            height: 40,
+            padding: 12,
+            '& > .MuiSvgIcon-root': { width: 16, height: 16 },
+          },
+          sizeMedium: {
+            width: 40,
+            height: 40,
+            padding: 10,
+            '& > .MuiSvgIcon-root': { width: 20, height: 20 },
+          },
+          sizeLarge: {
+            width: 40,
+            height: 40,
+            padding: 8,
+            '& > .MuiSvgIcon-root': { width: 24, height: 24 },
+          },
         },
       },
       MuiButton: {
@@ -817,7 +912,6 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
         styleOverrides: {
           root: ({ theme }) => ({
             ...theme.typography.menuText,
-            // This should override any other nested typography (e.g. form labels)
             '.MuiTypography-root': {
               ...theme.typography.menuText,
             },
@@ -825,32 +919,117 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
               opacity: 0.5,
             },
           }),
+          // Polish styling override for the menu divider variant so the divider visual element is properly positioned and spaced
+          divider: ({ theme }) => ({
+            borderBottom: 'none',
+            marginBottom: '16px !important',
+            '&::after': {
+              content: '""',
+              position: 'absolute',
+              right: 0,
+              bottom: '-8px',
+              left: 0,
+              borderBottom: `1px solid ${theme.palette.divider}`,
+            },
+          }),
         },
       },
       MuiOutlinedInput: {
         styleOverrides: {
-          root: ({ theme }) => ({
+          root: ({ theme, ownerState }) => ({
             ...theme.typography.inputText,
-            '& fieldset': {
+            borderRadius: 5,
+            [`& .${outlinedInputClasses.notchedOutline}`]: {
+              borderWidth: 2,
               borderColor: theme.palette.dividers?.divider,
+              padding: '0 6px',
+              '& > legend > span:not(.notranslate)': {
+                paddingLeft: 4,
+                paddingRight: 4,
+              },
             },
             [`&:hover .${outlinedInputClasses.notchedOutline}`]: {
+              borderWidth: 2,
               borderColor: theme.palette.dividers?.dividerStrong,
             },
             [`&.Mui-focused .${outlinedInputClasses.notchedOutline}`]: {
+              borderWidth: 2,
               borderColor: theme.palette.dividers?.dividerStronger,
             },
-            [`&:disabled .${outlinedInputClasses.notchedOutline}`]: {
-              borderColor: theme.palette.dividers?.contour,
+            [`&.Mui-disabled .${outlinedInputClasses.notchedOutline}`]: {
+              borderWidth: 2,
+              borderColor: theme.palette.dividers?.divider,
             },
+            [`&.Mui-error .${outlinedInputClasses.notchedOutline}`]: {
+              borderWidth: 2,
+              borderColor: theme.palette.error.main,
+            },
+            [`&.${outlinedInputClasses.adornedStart}`]: {
+              paddingLeft: 10,
+              '& > .MuiSvgIcon-root:first-of-type': {
+                marginRight: '-4px',
+              },
+            },
+            [`&.${outlinedInputClasses.adornedEnd}`]: {
+              paddingRight: 10,
+            },
+            ...(ownerState.multiline && {
+              padding: ownerState.size === 'small' ? '8px 12px' : '16px 12px',
+            }),
           }),
+          input: {
+            lineHeight: 1.5,
+            [`&:not(.${inputBaseClasses.inputMultiline})`]: {
+              padding: '16px 12px',
+              height: '1.5em',
+            },
+          },
+          inputSizeSmall: {
+            lineHeight: 1.5,
+            [`&:not(.${inputBaseClasses.inputMultiline})`]: {
+              padding: '8px 12px',
+              height: '1.5em',
+            },
+          },
+        },
+      },
+      MuiInputAdornment: {
+        styleOverrides: {
+          root: {
+            '& .MuiIconButton-root': {
+              margin: -8,
+              width: 40,
+              height: 40,
+            },
+            '& > span': {
+              display: 'flex',
+            },
+          },
+          positionStart: {
+            marginRight: -4,
+          },
+          positionEnd: {
+            marginLeft: -4,
+          },
         },
       },
       MuiInputLabel: {
         styleOverrides: {
           root: ({ theme }) => ({
             ...theme.typography.inputText,
+            '&:not(.MuiInputLabel-shrink)': {
+              transform: 'translate(12px, 16px) scale(1)',
+              '&.MuiInputLabel-sizeSmall': {
+                transform: 'translate(12px, 8px) scale(1)',
+              },
+            },
           }),
+          shrink: {
+            fontWeight: 500,
+            letterSpacing: '0.12px',
+            lineHeight: '1',
+            transform: 'translate(12px, -5px) scale(0.75)',
+          },
         },
       },
       MuiFormGroup: {
@@ -876,10 +1055,11 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
       },
       MuiFormHelperText: {
         styleOverrides: {
-          root: {
-            fontSize: '12px',
-            fontWeight: 400,
-          },
+          root: ({ theme }) => ({
+            ...theme.typography.helperText,
+            marginLeft: 0,
+            marginRight: 0,
+          }),
         },
       },
       MuiTabs: {
@@ -1073,20 +1253,52 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
       },
       MuiAlert: {
         styleOverrides: {
-          root: ({ theme, ownerState: { severity } }) => ({
-            ...theme.typography.body2,
-            borderRadius: '4px',
-            borderWidth: '1px',
-            borderStyle: 'solid',
-            borderColor: theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.059)' : 'transparent',
-            backgroundColor: theme.palette[severity!].surface,
-          }),
-          icon: ({ theme, ownerState: { severity } }) => ({
-            color: `${theme.palette[severity!].contrastText} !important`,
-          }),
-          message: ({ theme, ownerState: { severity } }) => ({
-            color: theme.palette[severity!].contrastText,
-          }),
+          root: ({ theme, ownerState: { color, severity } }) => {
+            const key = (color ?? severity ?? 'info') as keyof typeof theme.palette;
+            const palette = theme.palette[key] as
+              | { surface?: string; contrastText?: string }
+              | undefined;
+            const surface = palette?.surface;
+            const isTranslucent = surface?.startsWith('rgba');
+            const bg = isTranslucent
+              ? {
+                  background: `linear-gradient(${surface}, ${surface}), linear-gradient(${theme.palette.background.paper}, ${theme.palette.background.paper})`,
+                }
+              : { backgroundColor: surface };
+            return {
+              ...theme.typography.body1,
+              minHeight: 40,
+              borderRadius: 5,
+              border: `1px solid ${theme.palette.dividers?.divider}`,
+              ...bg,
+              padding: '4px 8px',
+              alignItems: 'center',
+            };
+          },
+          icon: ({ theme, ownerState: { color, severity } }) => {
+            const key = (color ?? severity ?? 'info') as keyof typeof theme.palette;
+            const palette = theme.palette[key] as { contrastText?: string } | undefined;
+            return {
+              color: `${palette?.contrastText} !important`,
+              padding: '8px 0',
+              marginRight: 8,
+            };
+          },
+          message: ({ theme, ownerState: { color, severity } }) => {
+            const key = (color ?? severity ?? 'info') as keyof typeof theme.palette;
+            const palette = theme.palette[key] as { contrastText?: string } | undefined;
+            return {
+              color: palette?.contrastText,
+              padding: '8px 0',
+              '& .MuiLink-root': {
+                color: 'inherit',
+                textDecorationColor: 'inherit',
+                '&:focus-visible': {
+                  outlineColor: 'currentColor',
+                },
+              },
+            };
+          },
         },
       },
       MuiChip: {

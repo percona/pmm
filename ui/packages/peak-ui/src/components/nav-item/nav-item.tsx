@@ -34,6 +34,10 @@ const NavItem = forwardRef<HTMLDivElement, NavItemProps>(
             color: selected ? theme.palette.primary.main : theme.palette.text.primary,
           },
 
+          [`.${listItemIconClasses.root} .MuiSvgIcon-root`]: {
+            fontSize: theme.typography.pxToRem(24),
+          },
+
           [`.${listItemTextClasses.secondary}`]: {
             ...theme.typography.helperText,
             textOverflow: 'ellipsis',

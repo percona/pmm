@@ -12,6 +12,8 @@
     "format:check": "prettier --check src/",
     "storybook:dev": "storybook dev -p 6006 --no-open",
     "storybook:build": "storybook build",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "prepack": "pnpm build"
   },
   "main": "dist/index.js",
@@ -49,6 +51,7 @@
     "@storybook/blocks": "^8.6.15",
     "@storybook/react": "^8.6.15",
     "@storybook/react-vite": "^8.6.15",
+    "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/react": "^18.2.15",
     "date-fns": "^3.6.0",
@@ -57,6 +60,7 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-storybook": "^0.11.6",
+    "jsdom": "^29.1.1",
     "notistack": "^3.0.2",
     "prettier": "^3.8.3",
     "react": "^18.3.1",
@@ -71,7 +75,8 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.59.0",
     "vite": "^7.3.0",
-    "vite-tsconfig-paths": "^6.0.3"
+    "vite-tsconfig-paths": "^6.0.3",
+    "vitest": "^4.1.7"
   },
   "peerDependencies": {
     "@emotion/react": "^11.11.4",

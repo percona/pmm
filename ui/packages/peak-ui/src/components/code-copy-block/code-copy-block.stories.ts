@@ -3,7 +3,7 @@ import CodeCopyBlock from './code-copy-block';
 import { CodeCopyBlockProps } from './code-copy-block.types';
 
 const meta = {
-  title: 'Inputs/Buttons/CodeCopyBlock',
+  title: 'To be reviewed/Buttons/CodeCopyBlock',
   component: CodeCopyBlock,
   parameters: {
     layout: 'centered',
