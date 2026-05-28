@@ -19,7 +19,7 @@ dashboards/dashboards/*.json
       → Grafana UI (visualization)
 ```
 
-## Dashboard Categories
+## Dashboard categories
 
 | Directory | Domain |
 |-----------|--------|
