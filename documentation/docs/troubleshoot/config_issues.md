@@ -30,7 +30,6 @@ To control how many lines are included, add the `line-count` parameter to the UR
 **From Help menu**
 
 To obtain the logs:
-
 {.power-number}
 
 1. From the main menu, choose **Help > PMM Logs > Export logs**.
@@ -91,23 +90,27 @@ PMM Server stores all component logs in the `/srv/logs/` directory inside the co
 To see which log files are available, run:
 
 === "Docker"
-```bash
+
+    ```bash
     docker exec pmm-server ls /srv/logs/
-```
+    ```
 
 === "Podman"
-```bash
+
+    ```bash
     podman exec pmm-server ls /srv/logs/
-```
+    ```
 
 To follow a log file in real time, use `tail -f`. For example, to monitor QAN API logs:
 
 === "Docker"
-```bash
+
+    ```bash
     docker exec pmm-server tail -f /srv/logs/qan-api2.log
-```
+    ```
 
 === "Podman"
-```bash
+
+    ```bash
     podman exec pmm-server tail -f /srv/logs/qan-api2.log
-```
+    ```
