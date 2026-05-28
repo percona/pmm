@@ -153,7 +153,7 @@ RTA displays exactly what MongoDB returns and does not expose any additional inf
 
 ### No data appears
 
-In **PMM Inventory > Services**, verify the RTA agent is running and the session shows **Running** status. Make sure your database has active queries since RTA won't display operations that finish between collection intervals.
+In **Inventory > Services**, verify the RTA agent is running and the session shows **Running** status. Make sure your database has active queries since RTA won't display operations that finish between collection intervals.
 
 ### Some fields show "Unavailable"
 
