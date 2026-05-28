@@ -1,13 +1,9 @@
-# Upgrade PMM v3 Server from the UI
+# Upgrade PMM Server from the UI
 
 !!! warning "GUI-based upgrades ending in PMM 3.9.0"
-    GUI-based upgrades are deprecated starting with PMM 3.7.0. This upgrade method will be formally deprecated in PMM 3.8 (end of May 2026) and removed in PMM 3.9 (end of July 2026).
+    GUI-based upgrades are deprecated and will be removed in PMM 3.9.0 (end of July 2026).
 
-    The underlying Watchtower project used for GUI upgrades is no longer maintained. Switch to one of the supported upgrade methods:
-
-    - [Upgrade PMM Server using Docker](upgrade_docker.md)
-    - [Upgrade PMM Server using Podman](upgrade_podman.md)
-    - [Upgrade PMM Server using Helm](upgrade_helm.md)
+    To continue upgrading PMM after version 3.9.0, use [Docker](upgrade_docker.md) (recommended), [Podman](upgrade_podman.md), or [Helm](upgrade_helm.md). 
 
 PMM Server and Client components are installed and updated separately.
 
@@ -38,4 +34,4 @@ For a quick overview of your PMM v3 Server's update status, you can also check t
 ![PMM Home Dashboard Upgrade Panel](../images/PMM_Home_Dashboard_Panels_Upgrade.png)
 
 !!! note
-    The Upgrade panel on the Home dashboard will be removed when GUI upgrades are removed in PMM 3.9.0. After that, use `docker pull` or your container runtime's equivalent to check for updates.
+    The **Upgrade** panel on the Home dashboard will be removed when GUI upgrades are removed in PMM 3.9.0. After that, use `docker pull` or your container runtime's equivalent to check for updates.
