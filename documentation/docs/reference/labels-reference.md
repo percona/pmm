@@ -80,11 +80,7 @@ pmm-admin add mysql --custom-labels="owner=joe,team=backend" ...
 
 You can also set labels through the PMM UI when adding a service under **Inventory > Add Service**, or via the [PMM API](https://percona-pmm.readme.io/reference/changeservice).
 
-To view labels on existing services:
-
-```sh
-pmm-admin list
-```
+To view labels on existing services, go to **Inventory > Services** in the PMM UI and expand the **Details** section :material-arrow-downward: on the **Options** column.
 
 ## Modify labels
 
@@ -93,7 +89,6 @@ You can update the following standard labels after a service is created, without
 - `environment`
 - `cluster`
 - `replication_set`
-- `external_group`
 
 For all other standard labels, remove the service and re-add it with the correct values. Custom labels can be updated at any time via the PMM UI or the [API](https://percona-pmm.readme.io/reference/changeservice).
 
