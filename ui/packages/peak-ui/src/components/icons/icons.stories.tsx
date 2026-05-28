@@ -20,7 +20,7 @@ import {
   WarningIcon,
 } from './status';
 import { Stack, Typography } from '@mui/material';
-import * as DocBlock from '@storybook/blocks';
+import * as DocBlock from '@storybook/addon-docs/blocks';
 
 const meta = {
   title: 'Foundations/Icons',

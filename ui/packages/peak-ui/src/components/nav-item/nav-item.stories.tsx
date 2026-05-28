@@ -1,15 +1,14 @@
 import { type Meta, type StoryObj } from '@storybook/react';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
-import * as DocBlock from '@storybook/blocks';
+import * as DocBlock from '@storybook/addon-docs/blocks';
 import HomeOutlined from '@mui/icons-material/HomeOutlined';
 import SettingsOutlined from '@mui/icons-material/SettingsOutlined';
 import StorageOutlined from '@mui/icons-material/StorageOutlined';
 import MonitorHeartOutlined from '@mui/icons-material/MonitorHeartOutlined';
 import NavItem from './nav-item';
-import type { NavItemProps } from './nav-item.types';
 
-const meta: Meta<NavItemProps> = {
+const meta: Meta<typeof NavItem> = {
   title: 'Navigation/Navigation Item',
   component: NavItem,
   tags: ['autodocs'],

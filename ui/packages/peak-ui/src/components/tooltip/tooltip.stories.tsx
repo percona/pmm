@@ -6,7 +6,7 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import InfoOutlined from '@mui/icons-material/InfoOutlined';
-import * as DocBlock from '@storybook/blocks';
+import * as DocBlock from '@storybook/addon-docs/blocks';
 import { getThemeOptions } from '../../design';
 import Tooltip from './tooltip';
 import type { TooltipProps } from './tooltip.types';
@@ -28,7 +28,7 @@ const PLACEMENTS: TooltipPlacement[] = [
   'bottom-end',
 ];
 
-const meta: Meta<TooltipProps> = {
+const meta: Meta<typeof Tooltip> = {
   title: 'Data display/Tooltip',
   component: Tooltip,
   tags: ['autodocs'],
