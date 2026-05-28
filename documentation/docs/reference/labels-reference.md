@@ -4,7 +4,9 @@ PMM uses labels (key/value pairs) to tag the monitoring data it collects. Labels
 
 ## Where labels appear in PMM
 
-Labels are available as filters in Query Analytics and the **Explore** section.
+Labels are available as filters in dashboards, Query Analytics, and the **Explore** section.
+
+On **dashboards**, labels appear as variable dropdowns at the top of the page. Use them to filter the metrics displayed, for example, to show only a specific environment, cluster, or service type.
 
 In **Query Analytics**, labels appear as filter groups in the Filters panel on the left. Use them to narrow query data by environment, cluster, service, node, and more.
 

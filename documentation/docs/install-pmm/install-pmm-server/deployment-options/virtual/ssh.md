@@ -11,7 +11,7 @@ To configure SSH access:
 
 1. Go to **Configuration > Settings > SSH key**.
 2. Enter your public key in the **SSH Key** field.
-3. Click **Apply SSH key**.
+3. Click **Apply changes**.
 
 For more information on virtual machine deployments, see [Virtual appliance](../virtual/index.md).
 
