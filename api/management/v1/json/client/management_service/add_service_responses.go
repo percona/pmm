@@ -11896,9 +11896,11 @@ type AddServiceParamsBodyRDS struct {
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// List of collector names to disable in the MySQL database exporter.
+	// Applies only when engine is DISCOVER_RDS_ENGINE_MYSQL, otherwise it is ignored.
 	MysqlDisableCollectors []string `json:"mysql_disable_collectors"`
 
 	// List of collector names to disable in the PostgreSQL database exporter.
+	// Applies only when engine is DISCOVER_RDS_ENGINE_POSTGRESQL, otherwise it is ignored.
 	PostgresqlDisableCollectors []string `json:"postgresql_disable_collectors"`
 }
 

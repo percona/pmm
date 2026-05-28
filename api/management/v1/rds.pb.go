@@ -360,8 +360,10 @@ type AddRDSServiceParams struct {
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,35,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
 	// List of collector names to disable in the MySQL database exporter.
+	// Applies only when engine is DISCOVER_RDS_ENGINE_MYSQL, otherwise it is ignored.
 	MysqlDisableCollectors []string `protobuf:"bytes,36,rep,name=mysql_disable_collectors,json=mysqlDisableCollectors,proto3" json:"mysql_disable_collectors,omitempty"`
 	// List of collector names to disable in the PostgreSQL database exporter.
+	// Applies only when engine is DISCOVER_RDS_ENGINE_POSTGRESQL, otherwise it is ignored.
 	PostgresqlDisableCollectors []string `protobuf:"bytes,37,rep,name=postgresql_disable_collectors,json=postgresqlDisableCollectors,proto3" json:"postgresql_disable_collectors,omitempty"`
 	unknownFields               protoimpl.UnknownFields
 	sizeCache                   protoimpl.SizeCache
