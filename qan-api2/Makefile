@@ -3,10 +3,10 @@ include Makefile.clickhouse
 
 default: help
 
-help:                           ## Display this help message
-	@echo "Please use \`make <target>\` where <target> is one of:"
-	@grep '^[a-zA-Z]' $(MAKEFILE_LIST) | \
-	    awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
+help:                 ## Display this help message
+	@echo "Please use \`make <target>\`, where <target> is one of the following:"
+	@grep -h '^[a-zA-Z]' $(MAKEFILE_LIST) | awk -F ':.*## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
+	@echo
 
 # `cut` is used to remove the leading `v` from the version
 PMM_RELEASE_PATH ?= ../bin

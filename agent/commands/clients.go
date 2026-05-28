@@ -50,7 +50,6 @@ func setLocalTransport(host string, port uint16, l *logrus.Entry) {
 	transport := httptransport.New(address, "/", []string{"http"})
 	transport.SetLogger(l)
 	transport.SetDebug(l.Logger.GetLevel() >= logrus.DebugLevel)
-	transport.Context = context.Background()
 
 	// disable HTTP/2
 	httpTransport := transport.Transport.(*http.Transport) //nolint:forcetypeassert
@@ -113,7 +112,6 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 	}
 	transport.SetLogger(l)
 	transport.SetDebug(l.Logger.GetLevel() >= logrus.DebugLevel)
-	transport.Context = context.Background()
 
 	// set error handlers for nginx responses if pmm-managed is down
 	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, _ any) error {

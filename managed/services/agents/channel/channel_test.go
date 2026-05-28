@@ -48,11 +48,8 @@ func (s *testServer) Connect(stream agentv1.AgentService_ConnectServer) error {
 
 var _ agentv1.AgentServiceServer = (*testServer)(nil)
 
-func setup(t *testing.T, connect func(*Channel) error, expected ...error) (agentv1.AgentService_ConnectClient, *grpc.ClientConn, func(*testing.T)) {
+func setup(t *testing.T, connect func(*Channel) error, expected ...error) (agentv1.AgentService_ConnectClient, *grpc.ClientConn, func()) {
 	t.Helper()
-	// logrus.SetLevel(logrus.DebugLevel)
-
-	t.Parallel()
 
 	// start server with given connect handler
 	var channel *Channel
@@ -83,16 +80,18 @@ func setup(t *testing.T, connect func(*Channel) error, expected ...error) (agent
 
 	// make client and channel
 	opts := []grpc.DialOption{
-		grpc.WithBlock(),
+		grpc.WithDefaultCallOptions(
+			// Wait for connection to be ready before sending RPC calls
+			grpc.WaitForReady(true),
+		),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	}
-	cc, err := grpc.DialContext(ctx, lis.Addr().String(), opts...)
+	cc, err := grpc.NewClient(lis.Addr().String(), opts...)
 	require.NoError(t, err, "failed to dial server")
 	stream, err := agentv1.NewAgentServiceClient(cc).Connect(ctx)
 	require.NoError(t, err, "failed to create stream")
 
-	teardown := func(t *testing.T) {
-		t.Helper()
+	teardown := func() {
 		require.NotNil(t, channel, "Test exited before first message reached connect handler.")
 
 		err := channel.Wait()
@@ -110,6 +109,8 @@ func setup(t *testing.T, connect func(*Channel) error, expected ...error) (agent
 }
 
 func TestAgentRequest(t *testing.T) {
+	t.Parallel()
+
 	const count = 50
 	require.Greater(t, count, agentRequestsCap)
 
@@ -134,7 +135,7 @@ func TestAgentRequest(t *testing.T) {
 	}
 
 	stream, _, teardown := setup(t, connect, io.EOF) // EOF = server exits from handler
-	defer teardown(t)
+	t.Cleanup(teardown)
 
 	for i := uint32(1); i <= count; i++ {
 		collectReq := &agentv1.QANCollectRequest{}
@@ -162,6 +163,8 @@ func TestAgentRequest(t *testing.T) {
 }
 
 func TestServerRequest(t *testing.T) {
+	t.Parallel()
+
 	const count = 50
 	require.Greater(t, count, agentRequestsCap)
 
@@ -181,7 +184,7 @@ func TestServerRequest(t *testing.T) {
 	}
 
 	stream, _, teardown := setup(t, connect, io.EOF) // EOF = server exits from handler
-	defer teardown(t)
+	t.Cleanup(teardown)
 
 	for i := uint32(1); i <= count; i++ {
 		msg, err := stream.Recv()
@@ -203,6 +206,8 @@ func TestServerRequest(t *testing.T) {
 }
 
 func TestServerExitsWithGRPCError(t *testing.T) {
+	t.Parallel()
+
 	errUnimplemented := status.Error(codes.Unimplemented, "Test error")
 	connect := func(ch *Channel) error {
 		req := <-ch.Requests()
@@ -214,7 +219,7 @@ func TestServerExitsWithGRPCError(t *testing.T) {
 	}
 
 	stream, _, teardown := setup(t, connect, status.Error(codes.Canceled, context.Canceled.Error()))
-	defer teardown(t)
+	t.Cleanup(teardown)
 
 	collectReq := &agentv1.QANCollectRequest{}
 	err := stream.Send(&agentv1.AgentMessage{
@@ -228,6 +233,8 @@ func TestServerExitsWithGRPCError(t *testing.T) {
 }
 
 func TestServerExitsWithUnknownErrorIntercepted(t *testing.T) {
+	t.Parallel()
+
 	connect := func(ch *Channel) error {
 		req := <-ch.Requests()
 		require.NotNil(t, req)
@@ -238,7 +245,7 @@ func TestServerExitsWithUnknownErrorIntercepted(t *testing.T) {
 	}
 
 	stream, _, teardown := setup(t, connect, status.Error(codes.Canceled, context.Canceled.Error()))
-	defer teardown(t)
+	t.Cleanup(teardown)
 
 	collectReq := &agentv1.QANCollectRequest{}
 	err := stream.Send(&agentv1.AgentMessage{
@@ -252,6 +259,8 @@ func TestServerExitsWithUnknownErrorIntercepted(t *testing.T) {
 }
 
 func TestAgentClosesStream(t *testing.T) {
+	t.Parallel()
+
 	connect := func(ch *Channel) error {
 		resp, err := ch.SendAndWaitResponse(&agentv1.Ping{})
 		require.Errorf(t, err, "channel is closed")
@@ -262,7 +271,7 @@ func TestAgentClosesStream(t *testing.T) {
 	}
 
 	stream, _, teardown := setup(t, connect, io.EOF)
-	defer teardown(t)
+	t.Cleanup(teardown)
 
 	msg, err := stream.Recv()
 	require.NoError(t, err)
@@ -273,6 +282,8 @@ func TestAgentClosesStream(t *testing.T) {
 }
 
 func TestAgentClosesConnection(t *testing.T) {
+	t.Parallel()
+
 	connect := func(ch *Channel) error {
 		resp, err := ch.SendAndWaitResponse(&agentv1.Ping{})
 		require.Errorf(t, err, "channel is closed")
@@ -283,7 +294,7 @@ func TestAgentClosesConnection(t *testing.T) {
 	}
 
 	stream, cc, teardown := setup(t, connect, status.Error(codes.Canceled, context.Canceled.Error()))
-	defer teardown(t)
+	t.Cleanup(teardown)
 
 	msg, err := stream.Recv()
 	require.NoError(t, err)
@@ -294,6 +305,8 @@ func TestAgentClosesConnection(t *testing.T) {
 }
 
 func TestUnexpectedResponseIdFromAgent(t *testing.T) {
+	t.Parallel()
+
 	invalidIDSent := make(chan struct{})
 	connect := func(ch *Channel) error {
 		<-invalidIDSent
@@ -317,7 +330,7 @@ func TestUnexpectedResponseIdFromAgent(t *testing.T) {
 	}
 
 	stream, _, teardown := setup(t, connect, status.Error(codes.Canceled, context.Canceled.Error()))
-	defer teardown(t)
+	t.Cleanup(teardown)
 
 	// This request with unexpected id is ignored by the pmm-managed, channel stays open.
 	pong := &agentv1.Pong{}
@@ -341,6 +354,8 @@ func TestUnexpectedResponseIdFromAgent(t *testing.T) {
 }
 
 func TestUnexpectedResponsePayloadFromAgent(t *testing.T) {
+	t.Parallel()
+
 	stop := make(chan struct{})
 	stopServer := make(chan struct{})
 	connect := func(_ *Channel) error {
@@ -349,7 +364,7 @@ func TestUnexpectedResponsePayloadFromAgent(t *testing.T) {
 		return nil
 	}
 	stream, _, teardown := setup(t, connect, status.Error(codes.Canceled, context.Canceled.Error()))
-	defer teardown(t)
+	t.Cleanup(teardown)
 
 	err := stream.Send(&agentv1.AgentMessage{
 		Id: 4242,
@@ -357,8 +372,8 @@ func TestUnexpectedResponsePayloadFromAgent(t *testing.T) {
 	require.NoError(t, err)
 
 	msg, err := stream.Recv()
-	assert.Equal(t, int32(codes.Unimplemented), msg.GetStatus().GetCode())
 	require.NoError(t, err)
+	assert.Equal(t, int32(codes.Unimplemented), msg.GetStatus().GetCode())
 	close(stopServer)
 	<-stop
 }
