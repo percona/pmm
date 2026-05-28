@@ -1,70 +1,106 @@
 # MongoDB Router Summary
 
-This dashboard monitors mongos router nodes in sharded MongoDB clusters.
+This dashboard monitors mongos router nodes in a sharded MongoDB cluster, covering router availability, resource usage, and query activity. Use it to confirm your routing layer is healthy and to identify routers under load.
 
-![!image](../../images/MongoDB_Router_Summary.png)
+![MongoDB Router Summary](../../images/MongoDB_Router_Summary.png)
 
-## Routers
+## Current Topology
 
-Shows the current status of all mongos router nodes in the selected cluster at a glance. Each hexagon represents a router, color-coded by status: green indicates the router is UP and operational, while red shows it's DOWN or unreachable.
+### Routers
 
-Use this panel to quickly identify the health of your routing layer and spot any routers that need attention.
+A hexagon grid showing the current status of each mongos router. Green means the router is UP and reachable. Red means it is DOWN or unreachable.
 
+Use this for an instant view of routing layer health across the cluster. Any red hexagon means a router is offline and clients connecting through it will fail.
 
 ## Overview
-For each mongos in the cluster, this section includes main monitoring metrics like CPU, memory and disk usage. Uptime and mongos version are reported as well.
 
 ### CPU Usage
-Shows CPU usage as a percentage from 0% to 100%. It updates every minute, turning from green to red when usage exceeds 80%. This helps quickly spot high CPU load, which could affect system performance, and monitor how hard the CPU is working at a glance.
+
+Shows current CPU utilization as a gauge from 0 to 100%. Turns orange at 80% and red at 90%.
 
 ### Memory Used
-Displays the percentage of total system memory currently in use. It updates regularly, showing green up to 80% of usage and red beyond that threshold.
 
-Use this for a quick visual indicator of memory consumption to monitor available memory without swapping as it's an easy way to assess how close the system is to its memory limits.
+Shows the percentage of total host memory currently in use. Turns orange at 80% and red at 90%.
 
 ### Disk IO Utilization
-Shows how busy the disk is handling read/write requests. The meter turns red above 80%, warning of potential slowdowns. It updates regularly, giving administrators a quick way to check if the disk is keeping up with demand or if it's becoming a bottleneck in system performance.
+
+Shows the percentage of elapsed time the disk was busy servicing read or write requests.
+
+A value approaching 100% over sustained periods suggests disk saturation. For storage that supports parallelism (SSDs, NVMe, RAID), high values do not always indicate a problem. Check I/O latency and queue depth alongside this value for a full picture.
 
 ### Disk Space Utilization
-Shows how much of the total disk space is currently in use. The meter turns red when usage exceeds 80%, warning of low free space. It updates regularly, giving you a quick way to check if the disk is nearing capacity. This helps prevent "disk full" errors that could disrupt services or system operation.
+
+Shows how much of the host filesystem is currently in use. Turns orange at 80% and red at 90%.
+
+Watch this to prevent disk full conditions that would disrupt the router.
 
 ### Disk IOPS
-Shows how many read and write operations the disk performs each second. The blue color helps spot spikes in disk activity. These spikes could mean the disk is struggling to keep up, which might slow down the system. It's a quick way for you to check if the disk is working too hard.
+
+Shows current read and write operations per second on the host disk.
+
+Spikes in IOPS can indicate increased query routing load or background processes competing for disk.
 
 ### Network Traffic
-Combines both incoming (received) and outgoing (transmitted) data, excluding local traffic. It gives you a quick view of overall network activity, helping spot unusual spikes or drops in data flow that might affect system performance.
+
+Shows current inbound and outbound network throughput in bytes per second, excluding loopback traffic. Click to open **Network Details** for this node.
 
 ### Uptime
-Shows how long the system has been running without a restart. As uptime increases, the color changes from red to orange to green, giving a quick visual indicator of system stability. Red indicates very recent restarts (less than 5 minutes), orange shows short uptimes (5 minutes to 1 hour), and green represents longer uptimes (over 1 hour). This helps you easily spot recent system restarts or confirm continuous operation.
+
+Shows how long the mongos process has been running since its last restart. Red means under 5 minutes, orange means 5 minutes to 1 hour, green means over 1 hour.
+
+A recent restart may indicate a crash or planned maintenance. Mongos routers are stateless, so a restart is less disruptive than a mongod restart, but it still interrupts any in-flight connections.
 
 ### Version
-Displays the current version of MongoDB running on the system. This information is crucial for ensuring the system is running the intended version and for quickly identifying any nodes that might need updates.
 
-## Node States
-Shows the status of all MongoDB Shard (mongos) nodes in the selected cluster over time. It uses a color-coded timeline: green bars mean a node is "UP" and working, while red bars show it's "DOWN" or unreachable. This simple view helps you quickly spot which nodes are active, see any recent status changes, and identify patterns in node availability.
+Shows the mongos version running on the selected service.
+
+Check this after upgrades to confirm all routers are running the expected version.
 
 ## Details
 
 ### Command Operations
-Shows MongoDB command operations over time, displaying rates for inserts, updates, deletes, queries, and TTL deletions per second.
 
-Use this to monitor overall database workload, compare operation types, spot peak usage and unusual patterns, assess replication activity, and track automatic data cleanup.
+Shows operation rates per second, broken down by type: query, insert, update, delete, getmore, replicated write operations, and TTL index document deletions.
 
-### Connections
-Shows current, available, and idle MongoDB connections over time for each service. Current connections represent all established connections. Available connections indicate remaining capacity. Idle connections are calculated as current minus active connections, representing established connections not actively processing requests. 
+Use this to understand the workload being routed. A spike in any operation type can help correlate with latency increases in **Operation Latencies**.
 
-Use this to monitor connection usage trends, identify periods of high demand, and ensure the database isn't reaching its connection limits. 
+### Queued Operations
 
-By comparing current to available connections, it’s easy to spot potential bottlenecks or capacity issues before they impact performance.
+Shows the number of operations waiting to acquire a lock, broken down by read and write queues.
 
-### Operations Latency
-Shows the average execution times for MongoDB queries over time, categorized into read, write, and other command operations.
+Any value above zero means lock contention is occurring. A queue that stays elevated points to long-running write operations blocking other work.
 
-Use this to identify slow queries, performance bottlenecks, and unusual spikes in execution times. Comparing latencies across operation types can also guide decisions on indexing strategies and query optimizations.
+### Operation Latencies
+
+Shows average operation latency in microseconds over time, broken down by operation type: reads, writes, and commands.
+
+Rising read latency alongside normal write latency usually points to a query or index problem on the shards. If all operation types are elevated, look at resource contention on the router host or the shards it is routing to.
+
+### Average Connections
+
+Shows current, available, and idle connections over time.
+
+When current connections approach the maximum, the router is near its connection limit. A high idle count suggests inefficient connection pooling from clients. A sudden drop to zero means the router became unreachable.
+
+### Reads & Writes
+
+Shows active readers, active writers, queued readers, and queued writers over time.
+
+Use this alongside **Queued Operations** to understand whether contention is read-driven or write-driven. A growing queued writers count typically indicates write lock pressure being passed through from the shards.
 
 ### Query Efficiency
-Visualizes MongoDB query efficiency over time, displaying the ratio of scanned documents or index entries to returned documents, along with operation latencies.
 
-A ratio near 1 indicates highly efficient queries, while higher values (e.g., 100) suggest inefficiency.
+Shows two scan ratios over time:
 
-Compare document scans, index scans, and operation latencies to quickly identify poorly performing queries, and ensure that queries execute as efficiently as possible.
+- **Scanned objects / returned**: documents scanned per document returned. A value of 1 means every scanned document matched the query. Higher values indicate queries scanning many documents to return few, which usually points to a missing or poorly selective index on the target shard.
+- **Scanned idx / returned**: index entries scanned per document returned. Lower is better.
+
+Rising ratios indicate worsening query efficiency. Use this alongside **Operation Latencies** to confirm whether high latency is query-driven.
+
+## Status
+
+### Router Status
+
+Shows the UP/DOWN status of each mongos router over the selected time range as a state timeline. Each row represents one router, with green meaning UP and red meaning DOWN.
+
+Use this to identify when a router went down or came back up and whether outages coincide with other events such as deployments or network changes.

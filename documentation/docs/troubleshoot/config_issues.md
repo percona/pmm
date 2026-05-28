@@ -20,10 +20,16 @@ You can get PMM Server logs with either of these methods:
 
 In a browser, visit `https://<address-of-your-pmm-server>/logs.zip`.
 
+This downloads a bundle containing PMM Server and PMM Client log files from `/srv/logs/` inside the container. 
+
+To control how many lines are included, add the `line-count` parameter to the URL:
+
+- specific line count: `https://<address-of-your-pmm-server>/logs.zip?line-count=10000`
+- full logs (all lines): `https://<address-of-your-pmm-server>/logs.zip?line-count=-1`
+
 **From Help menu**
 
 To obtain the logs:
-
 {.power-number}
 
 1. From the main menu, choose **Help > PMM Logs > Export logs**.
@@ -77,3 +83,34 @@ docker exec pmm-server supervisorctl status
 - upgrade Docker Desktop to a newer version or downgrade it to v4.48.0 (test with your specific setup)
 - consider using PMM Server on Linux or cloud environments for production
 
+## Log file locations
+
+PMM Server stores all component logs in the `/srv/logs/` directory inside the container.
+
+To see which log files are available, run:
+
+=== "Docker"
+
+    ```bash
+    docker exec pmm-server ls /srv/logs/
+    ```
+
+=== "Podman"
+
+    ```bash
+    podman exec pmm-server ls /srv/logs/
+    ```
+
+To follow a log file in real time, use `tail -f`. For example, to monitor QAN API logs:
+
+=== "Docker"
+
+    ```bash
+    docker exec pmm-server tail -f /srv/logs/qan-api2.log
+    ```
+
+=== "Podman"
+
+    ```bash
+    podman exec pmm-server tail -f /srv/logs/qan-api2.log
+    ```
