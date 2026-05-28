@@ -194,7 +194,7 @@ For a more detailed comparison of extensions, see the [pg_stat_monitor documenta
     {.power-number}
     
     1. Install the required package:
-        -  Debian/Ubuntu: `apt install -y postgresql-contrib`
+        - Debian/Ubuntu: `apt install -y postgresql-contrib`
         - Red Hat/CentOS: `yum install -y postgresql-contrib`
     
     2. Add these lines to your `postgresql.conf` file:
@@ -410,9 +410,7 @@ After adding a PostgreSQL service, verify that it's properly connected and sendi
     Use the UI to confirm that your service was added and is actively monitored:
     {.power-number}
     
-    1. Select **Configuration > Inventory**.
-    
-    2. In the **Services** tab, verify that **Service name** matches what you configured, **Address** points to your PostgreSQL instance and **Status** shows as "Active".
+    1. Select **Inventory > Services** and verify that **Service name** matches what you configured, **Address** points to your PostgreSQL instance and **Status** shows as "Active".
     
     3. In the **Options** column, expand the **Details** section to check that agents are properly registered and that the expected data source is being used.
 
