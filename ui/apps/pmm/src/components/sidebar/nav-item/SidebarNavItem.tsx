@@ -1,12 +1,11 @@
 import { useLinkWithVariables } from 'hooks/utils/useLinkWithVariables';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
-import { NavItemProps } from './NavItem.types';
+import { NavItemProps } from './SidebarNavItem.types';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import { getLinkProps, hasChildMatch, shouldShowBadge } from './NavItem.utils';
-import { getStyles } from './NavItem.styles';
+import { getLinkProps, hasChildMatch, shouldShowBadge } from './SidebarNavItem.utils';
+import { getStyles } from './SidebarNavItem.styles';
 import { useTheme } from '@mui/material/styles';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
+import { NavItem } from '@percona/percona-ui';
 import ListItemText from '@mui/material/ListItemText';
 import Stack from '@mui/material/Stack';
 import ListItem from '@mui/material/ListItem';
@@ -14,14 +13,12 @@ import List from '@mui/material/List';
 import Collapse from '@mui/material/Collapse';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import Box from '@mui/material/Box';
 import NavItemIcon from './nav-item-icon/NavItemIcon';
 import NavItemTooltip from './nav-item-tooltip/NavItemTooltip';
 import { DRAWER_WIDTH } from '../drawer/Drawer.constants';
-import NavItemDot from './nav-item-dot/NavItemDot';
 import NavItemBadge from './nav-item-badge/NavItemBadge';
 
-const NavItem: FC<NavItemProps> = ({
+const SidebarNavItem: FC<NavItemProps> = ({
   activeItem,
   item,
   drawerOpen,
@@ -38,7 +35,7 @@ const NavItem: FC<NavItemProps> = ({
   );
   const linkProps = getLinkProps(item, url);
   const theme = useTheme();
-  const styles = getStyles(theme, active, drawerOpen, level);
+  const styles = getStyles(theme, drawerOpen, level);
   const dataTestid = `navitem-${item.id}`;
   const showBadge = shouldShowBadge(item, open);
 
@@ -93,38 +90,29 @@ const NavItem: FC<NavItemProps> = ({
             alignItems="center"
             justifyContent="space-between"
             sx={{
-              width: level === 0 ? DRAWER_WIDTH : undefined,
+              width: level === 0 ? DRAWER_WIDTH : '100%',
             }}
             data-testid={dataTestid + '-list-item'}
           >
-            <ListItemButton
-              color="primary.main"
-              disableGutters
+            <NavItem
+              text={item.text ?? ''}
+              icon={item.icon ? <NavItemIcon icon={item.icon} /> : undefined}
+              showDot={showBadge && !!item.icon}
+              badge={
+                item.badge && item.badgeAlwaysVisible && drawerOpen
+                  ? <NavItemBadge badge={item.badge} />
+                  : undefined
+              }
+              selected={active}
               sx={[
-                styles.listItemButton,
                 level === 0 && styles.navItemRootCollapsible,
+                !drawerOpen && { justifyContent: 'center' },
               ]}
+              {...(linkProps as Omit<typeof linkProps, 'component'> & { component?: React.ElementType })}
               onClick={handleOpenCollapsible}
-              {...linkProps}
               data-testid={dataTestid}
               data-navlevel={level}
-            >
-              {item.icon && (
-                <NavItemDot show={showBadge}>
-                  <ListItemIcon sx={styles.listItemIcon}>
-                    <NavItemIcon icon={item.icon} />
-                  </ListItemIcon>
-                </NavItemDot>
-              )}
-              <ListItemText
-                primary={item.text}
-                className="navitem-primary-text"
-                sx={styles.text}
-              />
-              {item.badge && item.badgeAlwaysVisible && drawerOpen && (
-                <NavItemBadge badge={item.badge} />
-              )}
-            </ListItemButton>
+            />
             {drawerOpen && (
               <IconButton
                 data-testid={`${dataTestid}-toggle`}
@@ -154,7 +142,7 @@ const NavItem: FC<NavItemProps> = ({
         >
           <List component="div" disablePadding sx={styles.listCollapsible}>
             {item.children.map((item) => (
-              <NavItem
+              <SidebarNavItem
                 key={item.id}
                 item={item}
                 activeItem={activeItem}
@@ -212,41 +200,29 @@ const NavItem: FC<NavItemProps> = ({
       <ListItem
         disablePadding
         sx={{
-          width: level === 0 ? DRAWER_WIDTH : undefined,
+          width: level === 0 ? DRAWER_WIDTH : '100%',
         }}
         data-testid={dataTestid + '-list-item'}
       >
-        <ListItemButton
-          disableGutters
+        <NavItem
+          text={item.text ?? ''}
+          secondaryText={item.secondaryText}
+          icon={item.icon ? <NavItemIcon icon={item.icon} /> : undefined}
+          badge={item.badge ? <NavItemBadge badge={item.badge} /> : undefined}
+          selected={active}
           sx={[
-            styles.listItemButton,
             styles.leafItem,
             level === 0 && styles.navItemRoot,
+            !drawerOpen && { justifyContent: 'center' },
           ]}
-          selected={active}
-          {...linkProps}
+          {...(linkProps as Omit<typeof linkProps, 'component'> & { component?: React.ElementType })}
           onClick={handleItemClick}
           data-testid={dataTestid}
           data-navlevel={level}
-        >
-          {item.icon ? (
-            <ListItemIcon sx={styles.listItemIcon}>
-              <NavItemIcon icon={item.icon} />
-            </ListItemIcon>
-          ) : (
-            <Box sx={{ mr: -1 }} />
-          )}
-          <ListItemText
-            primary={item.text}
-            secondary={item.secondaryText}
-            className="navitem-primary-text"
-            sx={styles.text}
-          />
-          {item.badge && <NavItemBadge badge={item.badge} />}
-        </ListItemButton>
+        />
       </ListItem>
     </NavItemTooltip>
   );
 };
 
-export default NavItem;
+export default SidebarNavItem;
