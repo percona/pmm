@@ -114,6 +114,23 @@ func TestValidateClickHouseQuery_stripsSurroundingQuotes(t *testing.T) {
 	}
 }
 
+func TestValidateClickHouseQuery_normalizesHolmesShellEscaping(t *testing.T) {
+	t.Parallel()
+
+	logs := `'SELECT Timestamp, Body FROM logs WHERE ResourceAttributes['"node_name"'] = '"mysql"' ORDER BY Timestamp DESC LIMIT 10'`
+	got, err := validateClickHouseQuery("otel", logs, 10)
+	require.NoError(t, err)
+	assert.Contains(t, got, "ResourceAttributes['node_name']")
+	assert.Contains(t, got, "= 'mysql'")
+	assert.NotContains(t, got, `'"`)
+
+	holmesJoin := `SELECT Timestamp, Body FROM logs WHERE ResourceAttributes['"'"'node_name'"'"'] = '"'"'mysql'"'"' ORDER BY Timestamp DESC LIMIT 10`
+	got, err = validateClickHouseQuery("otel", holmesJoin, 10)
+	require.NoError(t, err)
+	assert.Contains(t, got, "ResourceAttributes['node_name']")
+	assert.Contains(t, got, "= 'mysql'")
+}
+
 func TestValidateClickHouseQuery_normalizesLLMEscaping(t *testing.T) {
 	t.Parallel()
 

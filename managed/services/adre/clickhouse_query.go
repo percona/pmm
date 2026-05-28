@@ -53,6 +53,8 @@ var (
 	limitPattern    = regexp.MustCompile(`(?is)\blimit\s+(\d+)\s*(?:offset\s+\d+)?\s*$`)
 	// LLM often emits JSON-style map keys; ClickHouse requires single-quoted keys in ['key'].
 	clickHouseMapDoubleQuoteKey = regexp.MustCompile(`(?i)(ResourceAttributes|LogAttributes|ScopeAttributes|InstrumentationScopeAttributes)\["([^"]+)"\]`)
+	// Holmes bash escaping for jq --arg / "{{ query }}" becomes '"key"' or '"'"' in SQL.
+	clickHouseHolmesQuotedSingleton = regexp.MustCompile(`'"([^']+)"'`)
 )
 
 // ClickHousePools holds native-protocol connections for ADRE read-only queries.
@@ -260,6 +262,10 @@ func normalizeClickHouseQuerySQL(query string) string {
 	// Holmes/JSON sometimes sends backslash-escaped quotes; ClickHouse rejects \' (syntax error 62).
 	q = strings.ReplaceAll(q, `\'`, `'`)
 	q = strings.ReplaceAll(q, `\"`, `"`)
+	// Holmes shell quote-joining for jq --arg: collapse '"'"' to '.
+	q = strings.ReplaceAll(q, `'"'"'`, `'`)
+	// Holmes mangling: '"node_name"' -> 'node_name' (wrong quotes, often returns 0 rows without syntax error).
+	q = clickHouseHolmesQuotedSingleton.ReplaceAllString(q, "'$1'")
 	// JSON-style map keys ["key"] are parsed as identifiers (error 47); rewrite to ['key'].
 	q = clickHouseMapDoubleQuoteKey.ReplaceAllString(q, "$1['$2']")
 	return strings.TrimSpace(q)
