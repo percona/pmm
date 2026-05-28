@@ -49,9 +49,6 @@ message DiscoverRDSResponse {
 }
 
 message AddRDSServiceParams {
-  reserved 36;
-  reserved "disable_collectors";
-
   // AWS region.
   string region = 1 [(validate.rules).string.min_len = 1];
   // AWS availability zone.
@@ -131,9 +128,9 @@ message AddRDSServiceParams {
     gte: {seconds: 0}
   }];
   // List of collector names to disable in the MySQL database exporter.
-  repeated string mysql_disable_collectors = 37;
+  repeated string mysql_disable_collectors = 36;
   // List of collector names to disable in the PostgreSQL database exporter.
-  repeated string postgresql_disable_collectors = 38;
+  repeated string postgresql_disable_collectors = 37;
 }
 
 message RDSServiceResult {
