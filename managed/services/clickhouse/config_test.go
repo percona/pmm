@@ -63,7 +63,7 @@ func TestValidateClickHouseConfigAt(t *testing.T) {
 			name:   "missing",
 			config: "nonexistent",
 			errContains: []string{
-				`invalid PMM_CLICKHOUSE_CONFIG="nonexistent"`,
+				`invalid PMM_CLICKHOUSE_CONFIG=nonexistent`,
 				"available configs:",
 				"default", "low-memory",
 			},
