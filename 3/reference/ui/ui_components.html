@@ -3876,6 +3876,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#enable-explore-metrics-menu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Enable Explore metrics menu
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3927,7 +3938,7 @@
   <span class="md-ellipsis">
     
   
-    Set timezones
+    Set time zone
   
 
     
@@ -10966,7 +10977,7 @@
   <span class="md-ellipsis">
     
   
-    Upgrade PMM v3 Server from the UI
+    Upgrade PMM Server from the UI
   
 
     
@@ -11946,6 +11957,34 @@
     
   
     Release notes index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../release-notes/3.8.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PMM 3.8.0 (2026-05-28)
   
 
     
@@ -14511,14 +14550,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../dashboards/dashboard-mongodb-experimental_oplog.html" class="md-nav__link">
+      <a href="../dashboards/dashboard-mongodb-oplog-details.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Experimental MongoDB Oplog Details
+    MongoDB Oplog Details
   
 
     
@@ -14546,7 +14585,7 @@
   <span class="md-ellipsis">
     
   
-    MongoDB Sharded Cluster Summary
+    MongoDB Cluster Summary
   
 
     
@@ -15599,6 +15638,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../dashboards/dashboard-pxc-galera-cluster-summary.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PXC/Galera Cluster Summary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../dashboards/dashboard-haproxy-instance-summary.html" class="md-nav__link">
         
   
@@ -15631,6 +15698,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../labels-reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Monitoring labels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -16129,6 +16224,17 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#enable-explore-metrics-menu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Enable Explore metrics menu
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -16216,7 +16322,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <tr>
 <td style="text-align: center;"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m7 17 3.2-6.8L17 7l-3.2 6.8zm5-5.9a.9.9 0 0 0-.9.9.9.9 0 0 0 .9.9.9.9 0 0 0 .9-.9.9.9 0 0 0-.9-.9M12 2a10 10 0 0 1 10 10 10 10 0 0 1-10 10A10 10 0 0 1 2 12 10 10 0 0 1 12 2m0 2a8 8 0 0 0-8 8 8 8 0 0 0 8 8 8 8 0 0 0 8-8 8 8 0 0 0-8-8"/></svg></span></td>
 <td>Explore</td>
-<td>Run ad-hoc queries with <a href="https://prometheus.io/docs/prometheus/latest/querying/basics/">PromQL</a> to investigate specific metrics without creating dashboards.</td>
+<td>Investigate metrics without creating dashboards. <strong>PromQL builder</strong> lets you write custom <a href="https://prometheus.io/docs/prometheus/latest/querying/basics/">PromQL</a> queries. You can also enable <strong>Explore metrics</strong> to visually browse metrics without writing queries. <strong>Explore metrics</strong> requires <a href="#enable-explore-metrics">enabling the Grafana Metrics Drilldown plugin</a>.</td>
 </tr>
 <tr>
 <td style="text-align: center;"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 21h4c0 1.1-.9 2-2 2s-2-.9-2-2m11-2v1H3v-1l2-2v-6c0-3.1 2-5.8 5-6.7V4c0-1.1.9-2 2-2s2 .9 2 2v.3c3 .9 5 3.6 5 6.7v6zm-4-8c0-2.8-2.2-5-5-5s-5 2.2-5 5v7h10z"/></svg></span></td>
@@ -16291,6 +16397,15 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <li><strong>PMM Annotations</strong>: Toggle visibility of important events on your timelines</li>
 </ul>
 <p>These selectors change based on the dashboard you&rsquo;re viewing, showing only relevant options.</p>
+<h2 id="enable-explore-metrics-menu">Enable <strong>Explore metrics</strong> menu<a class="headerlink" href="#enable-explore-metrics-menu" title="Permanent link">&para;</a></h2>
+<p class="power-number">Explore metrics lets you visually browse and filter available metrics without writing PromQL queries. It is powered by the Grafana Metrics Drilldown plugin, which you can enable from the <strong>Plugins</strong> page:</p>
+<ol>
+<li>Go to the <strong>Home</strong> page and type <strong>plugins</strong> in the search bar.</li>
+<li>On the <strong>Plugins</strong> page, search for <strong>Grafana Metrics Drilldown</strong>.</li>
+<li>Select the plugin and click <strong>Install</strong>.</li>
+</ol>
+<p>This adds the <strong>Explore metrics</strong> option under <strong>Explore</strong> in the left sidebar. For more information, see <a href="https://grafana.com/docs/grafana-cloud/visualizations/simplified-exploration/metrics">Grafana Metrics Drilldown</a>.</p>
+<p><img alt="Explore metrics in the PMM sidebar" src="../../images/PMM_Explore_metrics.jpg" /></p>
 
 
 
@@ -16313,7 +16428,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="February 5, 2026 14:46:56 UTC">February 5, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 28, 2026 10:01:59 UTC">May 28, 2026</span>
   </span>
 
     

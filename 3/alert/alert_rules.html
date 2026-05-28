@@ -3823,7 +3823,7 @@
   <span class="md-ellipsis">
     
   
-    Set timezones
+    Set time zone
   
 
     
@@ -9139,10 +9139,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#alert-rules-templates" class="md-nav__link">
+  <a href="#alert-rule-templates" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Alert rules templates
+        Alert rule templates
       
     </span>
   </a>
@@ -9240,6 +9240,17 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#recording-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recording rules
+      
+    </span>
+  </a>
   
 </li>
       
@@ -11016,7 +11027,7 @@
   <span class="md-ellipsis">
     
   
-    Upgrade PMM v3 Server from the UI
+    Upgrade PMM Server from the UI
   
 
     
@@ -11996,6 +12007,34 @@
     
   
     Release notes index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../release-notes/3.8.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PMM 3.8.0 (2026-05-28)
   
 
     
@@ -14561,14 +14600,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../reference/dashboards/dashboard-mongodb-experimental_oplog.html" class="md-nav__link">
+      <a href="../reference/dashboards/dashboard-mongodb-oplog-details.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Experimental MongoDB Oplog Details
+    MongoDB Oplog Details
   
 
     
@@ -14596,7 +14635,7 @@
   <span class="md-ellipsis">
     
   
-    MongoDB Sharded Cluster Summary
+    MongoDB Cluster Summary
   
 
     
@@ -15649,6 +15688,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../reference/dashboards/dashboard-pxc-galera-cluster-summary.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PXC/Galera Cluster Summary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../reference/dashboards/dashboard-haproxy-instance-summary.html" class="md-nav__link">
         
   
@@ -15681,6 +15748,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/labels-reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Monitoring labels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -16125,10 +16220,10 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#alert-rules-templates" class="md-nav__link">
+  <a href="#alert-rule-templates" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Alert rules templates
+        Alert rule templates
       
     </span>
   </a>
@@ -16229,6 +16324,17 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#recording-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recording rules
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -16264,14 +16370,15 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <h1 id="alert-rules-and-alert-templates">Alert rules and alert templates<a class="headerlink" href="#alert-rules-and-alert-templates" title="Permanent link">&para;</a></h1>
 <p>Alert rules describe the circumstances under which you want to be alerted. The evaluation criteria that you define determine whether an alert will fire. </p>
 <p>An alert rule consists of one or more queries and expressions, a condition, the frequency of evaluation, and the duration over which the condition is met. For example, you might configure an alert to fire and trigger a notification when MongoDB is down.</p>
-<p>An alert rule can be in three possible states:</p>
+<p>During evaluation, an alert rule moves through the following states:</p>
 <ul>
-<li>Normal: Everything is working correctly and the conditions specified in the rule has not been met. This is the default state for newly created rules.</li>
-<li>Pending: The conditions specified in the alert rule has been met, but for a time that is less than the configured duration.</li>
-<li>Firing: Both the conditions and the duration specified in the alert rule have both been met.</li>
+<li><strong>Normal</strong>: Everything is working correctly, and the conditions specified in the rule have not been met. This is the default state for newly created rules.</li>
+<li><strong>Pending</strong>: The conditions specified in the alert rule have been met, but for less time than the configured duration.</li>
+<li><strong>Firing</strong>: Both the alert condition and the configured duration have been met.</li>
+<li><strong>Recovering</strong>: The alert conditions are no longer met, but the alert remains active until the metric is stable below the threshold. This prevents alerts from repeatedly flipping between <strong>Firing</strong> and <strong>Normal</strong> when metrics briefly cross a threshold.</li>
 </ul>
 <p>It takes at least one evaluation cycle for an alert rule to transition from one state to another (e.g., from <code>Normal</code> to <code>Pending</code>).</p>
-<h2 id="alert-rules-templates">Alert rules templates<a class="headerlink" href="#alert-rules-templates" title="Permanent link">&para;</a></h2>
+<h2 id="alert-rule-templates">Alert rule templates<a class="headerlink" href="#alert-rule-templates" title="Permanent link">&para;</a></h2>
 <p>PMM provides a set of Alert Rule templates with common events and expressions for alerting. These templates can be used as a basis for creating Alert Rules. You can also create your own templates if you need custom expressions.</p>
 <p>You can check the alert templates available for your account under <strong>Alerting &gt; Alert rule templates</strong> tab. PMM lists here the following types of templates:</p>
 <ul>
@@ -16279,16 +16386,16 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <li>Custom templates created or uploaded on the <strong>Alerting page &gt; Alert Templates</strong> tab. You can also store your custom template files in your <code>/srv/alerting/templates</code> directory and PMM will load them during startup.</li>
 </ul>
 <h2 id="accessing-alert-templates">Accessing alert templates<a class="headerlink" href="#accessing-alert-templates" title="Permanent link">&para;</a></h2>
-<p>To check the alert templates for your PMM instance, go to PMM &gt; <strong>Alerting &gt; Alert Rule Templates</strong> tab.</p>
+<p>To check the alert templates for your PMM instance, go to <strong>Alerts &gt; Alert templates</strong> tab.</p>
 <p>To check the full list of available PMM templates, see the <a href="templates_list.html">List of available alert templates topic</a></p>
 <h3 id="create-alert-rules-from-alert-rule-templates">Create alert rules from alert rule templates<a class="headerlink" href="#create-alert-rules-from-alert-rule-templates" title="Permanent link">&para;</a></h3>
 <p>This section focuses on creating an alert rule based on PMM templates. For information on working with the other alert types, check the Grafana documentation on <a href="https://grafana.com/docs/grafana/latest/alerting/">Grafana Labs</a>.</p>
 <h3 id="provision-alert-resources">Provision alert resources<a class="headerlink" href="#provision-alert-resources" title="Permanent link">&para;</a></h3>
 <p class="power-number">Before creating PMM alert rules, configure the required alert resources:</p>
 <ol>
-<li>Go to <strong>PMM Configuration &gt; Settings &gt; Advanced Settings</strong> and ensure that the <strong>Percona Alerting</strong> option is enabled. When this is disabled, the <strong>Alerting</strong> page displays only Grafana-managed alert rules. This means that you will not be able to create alerts based on PMM templates.</li>
-<li>Go to <strong>Dashboards</strong> and check the folders available for storing alert rules. If none of the available folders are relevant for your future alert rules, click <strong>New &gt; New Folder</strong> and create a custom one.</li>
-<li>Go to <strong>Alerting &gt; Alert rule templates</strong> and check the default PMM templates. If none of the templates include a relevant expression for the type of alerts that you want to create, click <strong>Add template</strong> to create a custom template instead.</li>
+<li>Go to <strong>Configuration &gt; Settings &gt; Advanced settings</strong> and ensure that the <strong>Percona Alerting</strong> option is enabled. When this is disabled, the <strong>Alerting</strong> page displays only Grafana-managed alert rules. This means that you will not be able to create alerts based on PMM templates.</li>
+<li>Go to <strong>All dashboards &gt; Browse all dashboards</strong> and check the folders available for storing alert rules. If none of the available folders are relevant for your future alert rules, click <strong>New &gt; New folder</strong> and create a custom one.</li>
+<li>Go to <strong>Alerts &gt; Alert rule templates</strong> and check the default PMM templates. If none of the templates include a relevant expression for the type of alerts that you want to create, click <strong>Add template</strong> to create a custom template instead.</li>
 </ol>
 <h3 id="configure-alert-templates">Configure alert templates<a class="headerlink" href="#configure-alert-templates" title="Permanent link">&para;</a></h3>
 <p>Alerts templates are YAML files that provide the source framework for alert rules.
@@ -16351,7 +16458,7 @@ Alert templates contain general template details and an alert expression defined
 <p>If you want to create custom templates, you can test the MetricsQL expressions for your custom template in the <strong>Explore</strong> section of PMM. Here you can also query any PMM internal database.</p>
 <p class="power-number">To test expressions for custom templates:</p>
 <ol>
-<li>On the main menu in PMM, choose <strong>Explore &gt; Metrics</strong>.</li>
+<li>On the main menu in PMM, choose <strong>Explore &gt; PromQL builder</strong>.</li>
 <li>Enter your expression in the <strong>Metrics</strong> field and click <strong>Run query</strong>.</li>
 </ol>
 <p>For example, to check the CPU usage, Go to <strong>Explore &gt; PromQL builder</strong> and run the query expression below:
@@ -16370,13 +16477,16 @@ Alert templates contain general template details and an alert expression defined
 <p>In the <strong>Filters</strong> section, specify if you want the alert rule to apply only to specific services or nodes. For example: <code>service_name=ps5.7</code>. When creating alert rule filters, consider the following:</p>
 <ul>
 <li>Filters use conjunction semantics. This means that if you add more than one filter, PMM will combine their conditions to search for matches: filter 1 AND filter 2 AND filter 3.</li>
-<li><strong>Label</strong> must be an exact match. You can find a complete list of labels using the <i class="uil uil-compass"></i> <strong>Explore</strong> menu in PMM.</li>
+<li><strong>Label</strong> must be an exact match. You can find a complete list of labels using the <i class="uil uil-compass"></i> <strong>Explore</strong> menu in PMM, or see <a href="../reference/labels-reference.html">Labels reference</a>.</li>
 </ul>
 </li>
 <li>
 <p>Click <strong>Save and Exit</strong> to close the page and go to the <strong>Alert Rules</strong> tab where you can review, edit and silence your new alert.</p>
 </li>
 </ol>
+<h2 id="recording-rules">Recording rules<a class="headerlink" href="#recording-rules" title="Permanent link">&para;</a></h2>
+<p>Record an alert rules to pre-compute a query on a schedule and store the result as a new metric, which you can then reference in alert rules. This is useful when the same query powers multiple alert rules, for example, average CPU load across all nodes or replication lag across a cluster.</p>
+<p>To create a recording rule, click <strong>Alerts &gt; Alert rules</strong> + New recording rule**. For full instructions, see <a href="https://grafana.com/docs/grafana/latest/alerting/alerting-rules/create-recording-rules/">Create recording rules</a> in the Grafana documentation.</p>
 
 
 
@@ -16399,7 +16509,7 @@ Alert templates contain general template details and an alert expression defined
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="February 20, 2026 11:21:41 UTC">February 20, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 28, 2026 10:01:59 UTC">May 28, 2026</span>
   </span>
 
     

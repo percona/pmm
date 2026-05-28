@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Documentation">
+        <meta name="description" content="This dashboard gives you a consolidated view of a MongoDB replica set, covering member states, database activity, replication health, and host-level resources.">
       
       
         <meta name="author" content="Percona LLC">
@@ -3821,7 +3821,7 @@
   <span class="md-ellipsis">
     
   
-    Set timezones
+    Set time zone
   
 
     
@@ -10860,7 +10860,7 @@
   <span class="md-ellipsis">
     
   
-    Upgrade PMM v3 Server from the UI
+    Upgrade PMM Server from the UI
   
 
     
@@ -11840,6 +11840,34 @@
     
   
     Release notes index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../release-notes/3.8.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PMM 3.8.0 (2026-05-28)
   
 
     
@@ -14411,14 +14439,14 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboard-mongodb-experimental_oplog.html" class="md-nav__link">
+      <a href="dashboard-mongodb-oplog-details.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Experimental MongoDB Oplog Details
+    MongoDB Oplog Details
   
 
     
@@ -14446,7 +14474,7 @@
   <span class="md-ellipsis">
     
   
-    MongoDB Sharded Cluster Summary
+    MongoDB Cluster Summary
   
 
     
@@ -14611,6 +14639,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#members" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Members
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#overview" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -14634,10 +14673,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#nodes" class="md-nav__link">
+  <a href="#members_1" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Nodes
+        Members
       
     </span>
   </a>
@@ -14771,43 +14810,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#states" class="md-nav__link">
+  <a href="#operations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        States
+        Operations
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="States">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#node-states" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Node States
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#details" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Details
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Details">
+    <nav class="md-nav" aria-label="Operations">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -14826,6 +14837,17 @@
     <span class="md-ellipsis">
       
         Top Hottest Collections by Read
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#operation-latencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operation Latencies
       
     </span>
   </a>
@@ -14877,60 +14899,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#connections" class="md-nav__link">
+  <a href="#average-connections" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Connections
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#operations-latency" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Operations Latency
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#collection-details" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Collection Details
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Collection Details">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#size-of-collections" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Size of Collections
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#number-of-collections" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Number of Collections
+        Average Connections
       
     </span>
   </a>
@@ -14988,6 +14960,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#flow-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Flow Control
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#oplog-gbhour" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -15004,57 +14987,17 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#performance" class="md-nav__link">
+  <a href="#member-states" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Performance
+        Member States
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Performance">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#flow-control" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Flow Control
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#wiredtiger-concurrency-tickets-available" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        WiredTiger Concurrency Tickets Available
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#nodes-summary" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Nodes Summary
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Nodes Summary">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#nodes-overview" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -15062,11 +15005,6 @@
       
     </span>
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -15082,18 +15020,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#cpu-saturation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        CPU Saturation
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="CPU Saturation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#cpu-saturation-and-max-core-usage" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -15101,11 +15027,6 @@
       
     </span>
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -16067,6 +15988,34 @@
   
   
     <li class="md-nav__item">
+      <a href="dashboard-pxc-galera-cluster-summary.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PXC/Galera Cluster Summary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="dashboard-haproxy-instance-summary.html" class="md-nav__link">
         
   
@@ -16099,6 +16048,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../labels-reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Monitoring labels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -16543,6 +16520,17 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#members" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Members
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#overview" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -16566,10 +16554,10 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
         
           <li class="md-nav__item">
-  <a href="#nodes" class="md-nav__link">
+  <a href="#members_1" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Nodes
+        Members
       
     </span>
   </a>
@@ -16703,43 +16691,15 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
       
         <li class="md-nav__item">
-  <a href="#states" class="md-nav__link">
+  <a href="#operations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        States
+        Operations
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="States">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#node-states" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Node States
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#details" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Details
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Details">
+    <nav class="md-nav" aria-label="Operations">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -16758,6 +16718,17 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-ellipsis">
       
         Top Hottest Collections by Read
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#operation-latencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operation Latencies
       
     </span>
   </a>
@@ -16809,60 +16780,10 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
         
           <li class="md-nav__item">
-  <a href="#connections" class="md-nav__link">
+  <a href="#average-connections" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Connections
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#operations-latency" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Operations Latency
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#collection-details" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Collection Details
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Collection Details">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#size-of-collections" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Size of Collections
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#number-of-collections" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Number of Collections
+        Average Connections
       
     </span>
   </a>
@@ -16920,6 +16841,17 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
         
           <li class="md-nav__item">
+  <a href="#flow-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Flow Control
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#oplog-gbhour" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -16936,57 +16868,17 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
       
         <li class="md-nav__item">
-  <a href="#performance" class="md-nav__link">
+  <a href="#member-states" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Performance
+        Member States
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Performance">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#flow-control" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Flow Control
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#wiredtiger-concurrency-tickets-available" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        WiredTiger Concurrency Tickets Available
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#nodes-summary" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Nodes Summary
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Nodes Summary">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#nodes-overview" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -16994,11 +16886,6 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
       
     </span>
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -17014,18 +16901,6 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
       
         <li class="md-nav__item">
-  <a href="#cpu-saturation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        CPU Saturation
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="CPU Saturation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#cpu-saturation-and-max-core-usage" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -17033,11 +16908,6 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
       
     </span>
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -17096,100 +16966,122 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 
 
 <h1 id="mongodb-replset-summary">MongoDB ReplSet Summary<a class="headerlink" href="#mongodb-replset-summary" title="Permanent link">&para;</a></h1>
-<p><img alt="!image" src="../../images/PMM_MongoDB_ReplSet_Summary.jpg" /></p>
+<p>This dashboard gives you a consolidated view of a MongoDB replica set, covering member states, database activity, replication health, and host-level resources. </p>
+<p>Use it to monitor the health of a specific replica set and drill into nodes that need attention.</p>
+<p><img alt="MongoDB ReplSet Summary" src="../../images/PMM_MongoDB_ReplSet_Summary.jpg" /></p>
+<h2 id="members">Members<a class="headerlink" href="#members" title="Permanent link">&para;</a></h2>
+<p>A hexagon grid showing the current state of each replica set member. Each hexagon displays the member&rsquo;s service name and role. Green means PRIMARY, yellow means SECONDARY, dark yellow means ARBITER, and red means a problem state such as DOWN, RECOVERING, or ROLLBACK.</p>
+<p>Use this for an instant topology view of the entire replica set. Any red hexagon means a member is in an unexpected state and needs investigation before you check detailed metrics.</p>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>Displays key metrics for individual nodes, such as their role, CPU usage, memory consumption, disk space, network traffic, uptime, and current MongoDB version.</p>
 <h3 id="feature-compatibility-version">Feature Compatibility Version<a class="headerlink" href="#feature-compatibility-version" title="Permanent link">&para;</a></h3>
-<p>Shows the Feature Compatibility Version (FCV) currently active in your MongoDB deployment. The FCV controls which database features are available and affects data file format compatibility between MongoDB versions.</p>
-<p>This panel helps you confirm that your cluster is running the expected FCV—especially useful after upgrades, when the FCV may lag behind the MongoDB binary version.</p>
-<p>Monitoring FCV is important when planning upgrades or downgrades, as setting a newer FCV can enable advanced features but may prevent rolling back to older MongoDB versions.</p>
-<h3 id="nodes">Nodes<a class="headerlink" href="#nodes" title="Permanent link">&para;</a></h3>
-<p>Displays the total number of nodes in the replica set, including all members regardless of state. </p>
-<p>Monitoring this value ensures the replica set maintains the expected number of nodes for proper replication and fault tolerance.</p>
+<p>Shows the Feature Compatibility Version (FCV) currently active in the selected replica set deployment. </p>
+<p>The FCV controls which features are available and determines data file format compatibility between MongoDB versions.</p>
+<p>Check this after upgrades to confirm the FCV has been advanced as expected. A value lower than your MongoDB binary version is normal immediately after an upgrade, but should be updated once you are ready to enable new features. </p>
+<p>You cannot roll back to an older FCV without a full downgrade.</p>
+<h3 id="members_1">Members<a class="headerlink" href="#members_1" title="Permanent link">&para;</a></h3>
+<p>Shows the total number of members in the replica set.</p>
+<p>A count lower than expected means a member may be offline or removed. Fewer members than planned reduces fault tolerance.</p>
 <h3 id="dbs">DBs<a class="headerlink" href="#dbs" title="Permanent link">&para;</a></h3>
-<p>Shows the total number of user-created databases, excluding system databases (like admin, local, and config). This metric helps track database growth and understand the scale of your MongoDB deployment.</p>
+<p>Shows the total number of user-created databases in the replica set.</p>
 <h3 id="last-election">Last Election<a class="headerlink" href="#last-election" title="Permanent link">&para;</a></h3>
-<p>Displays the time elapsed since the most recent primary election.</p>
-<p>Frequent elections can indicate connectivity issues or node failures. A stable replica set should show a relatively high value.</p>
-<p>If the value is low, it may indicate a problem that needs investigation.</p>
+<p>Shows the time elapsed since the most recent primary election.</p>
+<p>A recent election is worth investigating to find out whether it was a planned failover or an unexpected event. Frequent elections indicate connectivity issues or node instability.</p>
 <h3 id="state">State<a class="headerlink" href="#state" title="Permanent link">&para;</a></h3>
-<p>Shows the current replica set state of this MongoDB node. MongoDB replica set members can be in various states including PRIMARY (handling all write operations), SECONDARY (replicating data from the primary), ARBITER (participating in elections but not storing data), or several transitional states.</p>
-<p>This status indicator helps you quickly identify the role of each node and spot any nodes experiencing issues. Color coding makes it easy to distinguish primaries (green) from secondaries (yellow) and problem states.</p>
+<p>Shows the current replica set state for each selected service: PRIMARY, SECONDARY, ARBITER, or a problem state such as RECOVERING, ROLLBACK, or DOWN. &ldquo;Exporter is not connected&rdquo; means PMM cannot reach the MongoDB exporter for that service.</p>
+<p>To recover, verify that <code>pmm-agent</code> is running on that node, confirm PMM can reach the MongoDB exporter endpoint, and then restart <code>pmm-agent</code>. </p>
+<p>If the state persists, re-check MongoDB monitoring credentials and TLS settings, then re-register the MongoDB service in PMM.</p>
+<p>Make sure to investigate any state other than PRIMARY, SECONDARY, or ARBITER.</p>
 <h3 id="cpu-usage">CPU Usage<a class="headerlink" href="#cpu-usage" title="Permanent link">&para;</a></h3>
-<p>Shows CPU usage as a percentage from 0% to 100%. It updates every minute, turning from green to red when usage exceeds 80%. This helps quickly spot high CPU load, which could affect system performance, and monitor how hard the CPU is working at a glance.</p>
+<p>Shows current CPU utilization as a gauge from 0 to 100%. Turns orange at 80% and red at 90%.</p>
 <h3 id="memory-used">Memory Used<a class="headerlink" href="#memory-used" title="Permanent link">&para;</a></h3>
-<p>Displays the percentage of total system memory currently in use. It updates regularly, showing green up to 80% of usage and red beyond that threshold.</p>
-<p>Use this for a quick visual indicator of memory consumption to monitor available memory without swapping as it&rsquo;s an easy way to assess how close the system is to its memory limits.</p>
+<p>Shows the percentage of total host memory currently in use. Turns orange at 80% and red at 90%.</p>
 <h3 id="disk-io-utilization">Disk IO Utilization<a class="headerlink" href="#disk-io-utilization" title="Permanent link">&para;</a></h3>
-<p>Shows how busy the disk is handling read/write requests. The meter turns red above 80%, warning of potential slowdowns. It updates regularly, giving administrators a quick way to check if the disk is keeping up with demand or if it&rsquo;s becoming a bottleneck in system performance.</p>
+<p>Shows the percentage of elapsed time the disk was busy servicing read or write requests.</p>
+<p>A value approaching 100% over sustained periods suggests disk saturation. </p>
+<p>For storage that supports parallelism (SSDs, NVMe, RAID), high values do not always indicate a performance problem. Check I/O latency and queue depth alongside this value for a full picture.</p>
 <h3 id="disk-space-utilization">Disk Space Utilization<a class="headerlink" href="#disk-space-utilization" title="Permanent link">&para;</a></h3>
-<p>Shows how much of the total disk space is currently in use. The meter turns red when usage exceeds 80%, warning of low free space. It updates regularly, giving you a quick way to check if the disk is nearing capacity. This helps prevent &ldquo;disk full&rdquo; errors that could disrupt services or system operation.</p>
+<p>Shows how much of the filesystem where MongoDB stores data is currently in use. Turns orange at 80% and red at 90%.</p>
+<p>Watch this to prevent disk full conditions that would cause MongoDB to stop accepting writes.</p>
 <h3 id="disk-iops">Disk IOPS<a class="headerlink" href="#disk-iops" title="Permanent link">&para;</a></h3>
-<p>Shows how many read and write operations the disk performs each second. The blue color helps spot spikes in disk activity. These spikes could mean the disk is struggling to keep up, which might slow down the system. It&rsquo;s a quick way for you to check if the disk is working too hard.</p>
+<p>Shows current read and write operations per second on the host disk.</p>
+<p>Spikes in IOPS often correspond to increased query load, index builds, or compaction. A sudden sustained increase may indicate an I/O subsystem bottleneck.</p>
 <h3 id="network-traffic">Network Traffic<a class="headerlink" href="#network-traffic" title="Permanent link">&para;</a></h3>
-<p>Combines both incoming (received) and outgoing (transmitted) data, excluding local traffic. It gives you a quick view of overall network activity, helping spot unusual spikes or drops in data flow that might affect system performance.</p>
+<p>Shows current inbound and outbound network throughput in bytes per second, excluding loopback traffic. Click to open <strong>Network Details</strong> for this node.</p>
 <h3 id="uptime">Uptime<a class="headerlink" href="#uptime" title="Permanent link">&para;</a></h3>
-<p>Shows how long the system has been running without a restart. As uptime increases, the color changes from red to orange to green, giving a quick visual indicator of system stability. Red indicates very recent restarts (less than 5 minutes), orange shows short uptimes (5 minutes to 1 hour), and green represents longer uptimes (over 1 hour). This helps you easily spot recent system restarts or confirm continuous operation.</p>
+<p>Shows how long the host has been running since its last boot. Red means under 5 minutes, orange means 5 minutes to 1 hour, green means over 1 hour.</p>
+<p>A recent restart may indicate an unexpected crash or planned maintenance.</p>
 <h3 id="version">Version<a class="headerlink" href="#version" title="Permanent link">&para;</a></h3>
-<p>Displays the current version of MongoDB running on the system. This information is crucial for ensuring the system is running the intended version and for quickly identifying any nodes that might need updates.</p>
-<h2 id="states">States<a class="headerlink" href="#states" title="Permanent link">&para;</a></h2>
-<h3 id="node-states">Node States<a class="headerlink" href="#node-states" title="Permanent link">&para;</a></h3>
-<p>Shows the state timeline of MongoDB replica set members during the selected time range. Each node&rsquo;s state (PRIMARY, SECONDARY, ARBITER, etc.) is color-coded for easy monitoring, with green indicating healthy states and red showing potential issues. Use this to track role changes and identify stability problems across your replica set.</p>
-<h2 id="details">Details<a class="headerlink" href="#details" title="Permanent link">&para;</a></h2>
+<p>Shows the MongoDB version running on the selected service.</p>
+<p>Check this after upgrades to confirm all members are running the expected version.</p>
+<h2 id="operations">Operations<a class="headerlink" href="#operations" title="Permanent link">&para;</a></h2>
 <h3 id="command-operations">Command Operations<a class="headerlink" href="#command-operations" title="Permanent link">&para;</a></h3>
-<p>Shows the rate of MongoDB operations per second, including both regular and replicated operations (query, insert, update, delete, getmore), as well as document deletions by TTL indexes. Use this metric to monitor database activity patterns and identify potential performance bottlenecks.</p>
+<p>Shows operation rates per second, broken down by type: query, insert, update, delete, getmore, replicated write operations (repl_insert, repl_update, repl_delete), and TTL index document deletions.</p>
+<p>Use this to understand the workload mix. A spike in <code>repl_*</code> operations on a secondary means it is catching up on replication. A high <code>ttl_delete</code> rate means a batch of documents expired at once.</p>
 <h3 id="top-hottest-collections-by-read">Top Hottest Collections by Read<a class="headerlink" href="#top-hottest-collections-by-read" title="Permanent link">&para;</a></h3>
-<p>Shows the five MongoDB collections with the highest read operations per second. Use this to identify your most frequently accessed collections and optimize their performance.</p>
+<p>Shows the five collections with the highest read operation rate per second.</p>
+<p>Use this to identify which collections are driving the most read traffic. High-traffic collections are the first place to look when investigating read latency or indexing opportunities.</p>
+<h3 id="operation-latencies">Operation Latencies<a class="headerlink" href="#operation-latencies" title="Permanent link">&para;</a></h3>
+<p>Shows average operation latency in microseconds over time, broken down by operation type: reads, writes, and commands.</p>
+<p>Rising read latency alongside normal write latency usually points to a query or index problem. If all operation types are elevated, look at resource contention such as CPU usage or lock queues.</p>
 <h3 id="top-hottest-collections-by-write">Top Hottest Collections by Write<a class="headerlink" href="#top-hottest-collections-by-write" title="Permanent link">&para;</a></h3>
-<p>Shows the five MongoDB collections with the highest write operations (inserts, updates, and deletes) per second. Use this to identify your most frequently modified collections and optimize their write performance.</p>
+<p>Shows the five collections with the highest write operation rate per second, combining inserts, updates, and deletes.</p>
+<p>Use this to identify which collections are driving the most write traffic and where write optimization would have the most impact.</p>
 <h3 id="query-efficiency">Query Efficiency<a class="headerlink" href="#query-efficiency" title="Permanent link">&para;</a></h3>
-<p>Shows the ratio of documents or index entries scanned versus documents returned. A ratio of 1 indicates optimal query performance where each scanned document matches the query criteria. </p>
-<p>Higher values suggest less efficient queries that scan many documents to find matches. Use this to identify queries that might need index optimization.</p>
+<p>Shows two scan ratios over time:</p>
+<ul>
+<li><strong>Scanned objects / returned</strong>: documents scanned per document returned. A value of 1 means every scanned document matched the query. Higher values mean queries are scanning many documents to return few, which usually indicates a missing or poorly selective index.</li>
+<li><strong>Scanned idx / returned</strong>: index entries scanned per document returned. Lower is better.</li>
+</ul>
+<p>Rising ratios indicate worsening query efficiency. Compare with <strong>Command Operations</strong> to identify which workloads are driving the inefficiency.</p>
 <h3 id="queued-operations">Queued Operations<a class="headerlink" href="#queued-operations" title="Permanent link">&para;</a></h3>
-<p>Shows the number of operations waiting because the database is busy with other operations. Use this to identify when MongoDB operations are being delayed due to resource conflicts.</p>
+<p>Shows the number of operations waiting to acquire a lock, broken down by read and write queues.</p>
+<p>Any value above zero means lock contention is occurring. A queue that stays elevated points to long-running write operations blocking other work.</p>
 <h3 id="reads-writes">Reads &amp; Writes<a class="headerlink" href="#reads-writes" title="Permanent link">&para;</a></h3>
-<p>Shows both active and queued read/write operations in your MongoDB deployment. Use this to monitor database activity and identify when operations are being delayed due to high load.</p>
-<h3 id="connections">Connections<a class="headerlink" href="#connections" title="Permanent link">&para;</a></h3>
-<p>Shows the number of current, available, and idle MongoDB connections. Current connections represent all established connections to the database. </p>
-<p>Available connections indicate remaining connection capacity. Idle connections (calculated as current minus active connections) represent established connections that are not actively processing requests. </p>
-<p>Use this to monitor connection capacity and identify connection pool inefficiencies.</p>
-<h3 id="operations-latency">Operations Latency<a class="headerlink" href="#operations-latency" title="Permanent link">&para;</a></h3>
-<p>Shows the average latency in microseconds (µs) for read, write, and command operations. Use this metric to monitor query performance and identify slow operations that may need optimization.</p>
-<h2 id="collection-details">Collection Details<a class="headerlink" href="#collection-details" title="Permanent link">&para;</a></h2>
-<h3 id="size-of-collections">Size of Collections<a class="headerlink" href="#size-of-collections" title="Permanent link">&para;</a></h3>
-<p>Shows storage size of MongoDB collections across different databases. Use this to monitor database growth and plan storage capacity needs.</p>
-<h3 id="number-of-collections">Number of Collections<a class="headerlink" href="#number-of-collections" title="Permanent link">&para;</a></h3>
-<p>Shows the total number of collections in each MongoDB database. Use this to track database organization and growth patterns.</p>
+<p>Shows active readers, active writers, queued readers, and queued writers over time.</p>
+<p>Use this alongside <strong>Queued Operations</strong> to understand whether contention is read-driven or write-driven. A growing queued writers count typically indicates write lock pressure.</p>
+<h3 id="average-connections">Average Connections<a class="headerlink" href="#average-connections" title="Permanent link">&para;</a></h3>
+<p>Shows current, available, and idle connections over time.</p>
+<p>When current connections approach the maximum, the instance is near its connection limit. A high idle count suggests inefficient connection pooling. A sudden drop to zero means the instance became unreachable.</p>
 <h3 id="fragmentation-analysis">Fragmentation Analysis<a class="headerlink" href="#fragmentation-analysis" title="Permanent link">&para;</a></h3>
 <p>Shows the estimated fragmentation percentage for each collection, organized by database and node. The value is calculated as the ratio of free (unused) storage to total allocated storage, and the table is sorted from most to least fragmented. Only the top 100 collections are shown; admin and config databases are excluded.</p>
 <p>Fragmentation builds up when documents are deleted or moved, leaving gaps in storage blocks that MongoDB has not yet reclaimed. A value of 30% means roughly 30% of that collection&rsquo;s allocated space is wasted. </p>
 <p>Use this table to identify collections worth compacting — run <code>compact</code> on the affected nodes during a maintenance window to reclaim disk space.</p>
 <h2 id="replication">Replication<a class="headerlink" href="#replication" title="Permanent link">&para;</a></h2>
 <h3 id="replication-lag">Replication Lag<a class="headerlink" href="#replication-lag" title="Permanent link">&para;</a></h3>
-<p>Shows how many seconds Secondary nodes are behind the Primary in replicating data. Higher values indicate potential issues with network latency or system resources. The red threshold line at 10 seconds helps identify when lag requires attention.</p>
+<p>Shows how many seconds each secondary is behind the primary. A red threshold line appears at 10 seconds.</p>
+<p>Sustained lag above 10 seconds means the secondary cannot keep up with the primary write rate. </p>
+<p>Causes include network latency, I/O bottlenecks on the secondary, or excessive write load on the primary. Click a series to open the <strong>MongoDB Instance Summary</strong> for that service.</p>
 <h3 id="oplog-recovery-window">Oplog Recovery Window<a class="headerlink" href="#oplog-recovery-window" title="Permanent link">&para;</a></h3>
-<p>Shows the time range (in seconds) between the newest and oldest operations in the oplog. Use this to ensure sufficient history is maintained for recovery and secondary synchronization.</p>
-<h3 id="oplog-gbhour">Oplog GB/Hour<a class="headerlink" href="#oplog-gbhour" title="Permanent link">&para;</a></h3>
-<p>Shows the size of the MongoDB oplog generated by the Primary server. Use this to track oplog growth, plan storage needs, and detect high-write periods. Values are displayed in bytes with hourly intervals.</p>
-<h2 id="performance">Performance<a class="headerlink" href="#performance" title="Permanent link">&para;</a></h2>
+<p>Shows the time span in seconds between the newest and oldest entries in the oplog.</p>
+<p>This is the window within which a secondary can resync using the oplog alone. If replication lag approaches this value, the secondary may fall out of sync and require a full resync. </p>
+<p>A shrinking window means the oplog is rolling over faster than expected. </p>
+<p>Consider increasing the oplog size. Click a series to open the <strong>MongoDB Instance Summary</strong> for that service.</p>
 <h3 id="flow-control">Flow Control<a class="headerlink" href="#flow-control" title="Permanent link">&para;</a></h3>
-<p>Shows the frequency and duration (in microseconds) of MongoDB write throttling. Use this to understand when your deployment is slowing down writes to keep replication lag under control.</p>
-<h3 id="wiredtiger-concurrency-tickets-available">WiredTiger Concurrency Tickets Available<a class="headerlink" href="#wiredtiger-concurrency-tickets-available" title="Permanent link">&para;</a></h3>
-<p>Shows how many more read and write operations your MongoDB deployment can handle simultaneously. Use this to monitor database concurrency limits and potential bottlenecks.</p>
-<h2 id="nodes-summary">Nodes Summary<a class="headerlink" href="#nodes-summary" title="Permanent link">&para;</a></h2>
-<h3 id="nodes-overview">Nodes Overview<a class="headerlink" href="#nodes-overview" title="Permanent link">&para;</a></h3>
-<p>Shows key system metrics for each node: uptime, load average, memory usage, disk space, and more. Use this table to monitor the health and resource utilization of your infrastructure at a glance.</p>
+<p>Shows the rate of flow control events (<code>fc_count</code>) and the additional latency they introduce in microseconds (<code>fc_time</code>).</p>
+<p>MongoDB uses flow control to throttle primary writes when secondaries fall behind. </p>
+<p>A non-zero and rising <code>fc_count</code> means the primary is being throttled to protect replication. Investigate secondary lag and resource usage when this appears.</p>
+<h3 id="oplog-gbhour">Oplog GB/Hour<a class="headerlink" href="#oplog-gbhour" title="Permanent link">&para;</a></h3>
+<p>Shows the average hourly oplog data written by the primary, displayed as a bar chart.</p>
+<p>Use this to validate oplog sizing. If oplog GB/Hour is high relative to your configured oplog size, the <strong>Oplog Recovery Window</strong> will be short. A rising value means write activity on the primary is increasing.</p>
+<h2 id="member-states">Member States<a class="headerlink" href="#member-states" title="Permanent link">&para;</a></h2>
+<p>Shows the replica set state of each member over the selected time range as a state timeline. Each row represents one member, color-coded by state: green for PRIMARY, yellow for SECONDARY, dark yellow for ARBITER, and red for any problem state.</p>
+<p>Use this to identify when role changes or state transitions occurred and whether they coincide with an incident.</p>
+<h2 id="nodes-overview">Nodes Overview<a class="headerlink" href="#nodes-overview" title="Permanent link">&para;</a></h2>
+<p>A table showing key host metrics for each node: uptime, load average, available memory, total RAM, virtual memory, disk space, and minimum available disk space. Click a node name to open the <strong>Node Summary</strong> dashboard for that node.</p>
+<p>Use this to check host health across all replica set members without opening each node&rsquo;s dashboard individually.</p>
 <h2 id="cpu-usage_1">CPU Usage<a class="headerlink" href="#cpu-usage_1" title="Permanent link">&para;</a></h2>
-<p>Shows CPU utilization as a percentage of total capacity, broken down by user and system activity. Use this to monitor CPU load and identify potential performance bottlenecks.</p>
-<h2 id="cpu-saturation">CPU Saturation<a class="headerlink" href="#cpu-saturation" title="Permanent link">&para;</a></h2>
-<h3 id="cpu-saturation-and-max-core-usage">CPU Saturation and Max Core Usage<a class="headerlink" href="#cpu-saturation-and-max-core-usage" title="Permanent link">&para;</a></h3>
-<p>Shows how heavily your CPU is loaded with waiting processes and maximum core utilization. Use this to identify when your system needs more CPU capacity or when processes are competing for CPU time.</p>
+<p>Shows CPU utilization as a stacked time series, broken down by mode: user, system, iowait, and others.</p>
+<p>High iowait combined with replication lag often means the secondary disk cannot keep up with oplog apply. High user or system time points to CPU-bound workloads.</p>
+<h2 id="cpu-saturation-and-max-core-usage">CPU Saturation and Max Core Usage<a class="headerlink" href="#cpu-saturation-and-max-core-usage" title="Permanent link">&para;</a></h2>
+<p>Shows normalized CPU load (running processes divided by CPU count) and the utilization of the most-loaded core over time.</p>
+<p>Normalized load above 1.0 means processes are waiting for CPU time. A high <strong>Max CPU Core Utilization</strong> with low overall load means work is concentrated on a single core, which can bottleneck single-threaded workloads like oplog application.</p>
 <h2 id="disk-io-and-swap-activity">Disk I/O and Swap Activity<a class="headerlink" href="#disk-io-and-swap-activity" title="Permanent link">&para;</a></h2>
-<p>Shows disk I/O operations (reads/writes) and memory swap activity for each MongoDB node, measuring data flow between storage and RAM. </p>
-<p>Use this metric to monitor storage performance, detect memory pressure, and identify when MongoDB&rsquo;s working set may exceed available RAM.</p>
+<p>Shows disk read throughput (positive) and write throughput (negative) in bytes per second, plus swap in and swap out activity. Links to the Disk Performance dashboard.</p>
+<p>Sustained swap activity means the host working set no longer fits in RAM, which will severely degrade MongoDB performance. </p>
+<p>High disk reads alongside replication lag suggest the secondary is reading from disk frequently due to a cold page cache.</p>
 <h2 id="network-traffic_1">Network Traffic<a class="headerlink" href="#network-traffic_1" title="Permanent link">&para;</a></h2>
-<p>Shows inbound and outbound network traffic for each MongoDB node, measuring data flow in bytes per second. </p>
-<p>Use this metric to monitor bandwidth usage, identify unusual traffic patterns, and detect potential network bottlenecks that could affect replication performance.</p>
+<p>Shows inbound network throughput (positive) and outbound network throughput (negative) in bytes per second.</p>
+<p>Unexpected spikes can indicate replication traffic, a backup in progress, or a client sending or receiving large result sets.</p>
 
 
 
@@ -17212,7 +17104,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 30, 2026 09:30:47 UTC">April 30, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 28, 2026 10:01:59 UTC">May 28, 2026</span>
   </span>
 
     

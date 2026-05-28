@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="The Home Dashboard provides a high-level overview of your environment, such as the services, infrastructure, and critical issues (if any). It is the starting page of PMM from which you can open the tools of PMM and browse online resources.">
+        <meta name="description" content="The Home Dashboard is the default landing page in PMM. It gives you a unified view of your monitored databases and infrastructure, highlights unusual behavior, and helps you spot trends by comparing current resource usage with the same time last week.">
       
       
         <meta name="author" content="Percona LLC">
@@ -3821,7 +3821,7 @@
   <span class="md-ellipsis">
     
   
-    Set timezones
+    Set time zone
   
 
     
@@ -10860,7 +10860,7 @@
   <span class="md-ellipsis">
     
   
-    Upgrade PMM v3 Server from the UI
+    Upgrade PMM Server from the UI
   
 
     
@@ -11840,6 +11840,34 @@
     
   
     Release notes index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../release-notes/3.8.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PMM 3.8.0 (2026-05-28)
   
 
     
@@ -13113,6 +13141,177 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#monitored-db-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Monitored DB Services
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#monitored-db-instances" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Monitored DB Instances
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#monitored-nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Monitored Nodes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#min-node-uptime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Min Node Uptime
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#min-db-uptime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Min DB Uptime
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#database-connections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database Connections
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#database-queriess-qps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database Queries/s (QPS)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#total-ram" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Total RAM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#virtual-memory-total" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Virtual Memory Total
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#disk-space-total" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Disk Space Total
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#disk-reads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Disk Reads
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#disk-writes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Disk Writes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#total-virtual-cpus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Total Virtual CPUs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#failed-advisors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Failed Advisors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pmm-upgrade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PMM Upgrade
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -13124,6 +13323,100 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Anomaly Detection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cpu-anomalies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPU Anomalies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#high-cpu-servers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        High CPU Servers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#disk-queue-anomalies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Disk Queue Anomalies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#high-disk-queue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        High Disk Queue
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#used-memory-anomaly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Used Memory Anomaly
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#high-memory-used" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        High Memory Used
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#low-cpu-anomalies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Low CPU Anomalies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#low-cpu-servers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Low CPU Servers
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -13134,6 +13427,177 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Command Center">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#top-20-cpu-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 20 CPU Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cpu-anomaly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPU Anomaly
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-20-cpu-usage-prev-week" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 20 CPU Usage (prev week)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-20-disk-queue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 20 Disk Queue
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#disk-queue-anomaly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Disk Queue Anomaly
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-20-disk-queue-prev-week" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 20 Disk Queue (prev week)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-20-write-latency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 20 Write Latency
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#write-latency-anomaly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Write Latency Anomaly
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-20-write-latency-prev-week" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 20 Write Latency (prev week)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-20-read-latency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 20 Read Latency
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#read-latency-anomaly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Read Latency Anomaly
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-20-read-latency-prev-week" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 20 Read Latency (prev week)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-20-used-memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 20 Used Memory
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#used-memory-anomaly_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Used Memory Anomaly
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-20-used-memory-prev-week" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 20 Used Memory (prev week)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -14502,14 +14966,14 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboard-mongodb-experimental_oplog.html" class="md-nav__link">
+      <a href="dashboard-mongodb-oplog-details.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Experimental MongoDB Oplog Details
+    MongoDB Oplog Details
   
 
     
@@ -14537,7 +15001,7 @@
   <span class="md-ellipsis">
     
   
-    MongoDB Sharded Cluster Summary
+    MongoDB Cluster Summary
   
 
     
@@ -15590,6 +16054,34 @@
   
   
     <li class="md-nav__item">
+      <a href="dashboard-pxc-galera-cluster-summary.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PXC/Galera Cluster Summary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="dashboard-haproxy-instance-summary.html" class="md-nav__link">
         
   
@@ -15622,6 +16114,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../labels-reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Monitoring labels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -16074,6 +16594,177 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#monitored-db-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Monitored DB Services
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#monitored-db-instances" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Monitored DB Instances
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#monitored-nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Monitored Nodes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#min-node-uptime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Min Node Uptime
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#min-db-uptime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Min DB Uptime
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#database-connections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database Connections
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#database-queriess-qps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database Queries/s (QPS)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#total-ram" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Total RAM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#virtual-memory-total" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Virtual Memory Total
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#disk-space-total" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Disk Space Total
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#disk-reads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Disk Reads
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#disk-writes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Disk Writes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#total-virtual-cpus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Total Virtual CPUs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#failed-advisors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Failed Advisors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pmm-upgrade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PMM Upgrade
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -16085,6 +16776,100 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Anomaly Detection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cpu-anomalies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPU Anomalies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#high-cpu-servers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        High CPU Servers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#disk-queue-anomalies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Disk Queue Anomalies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#high-disk-queue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        High Disk Queue
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#used-memory-anomaly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Used Memory Anomaly
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#high-memory-used" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        High Memory Used
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#low-cpu-anomalies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Low CPU Anomalies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#low-cpu-servers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Low CPU Servers
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -16095,6 +16880,177 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Command Center">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#top-20-cpu-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 20 CPU Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cpu-anomaly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPU Anomaly
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-20-cpu-usage-prev-week" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 20 CPU Usage (prev week)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-20-disk-queue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 20 Disk Queue
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#disk-queue-anomaly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Disk Queue Anomaly
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-20-disk-queue-prev-week" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 20 Disk Queue (prev week)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-20-write-latency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 20 Write Latency
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#write-latency-anomaly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Write Latency Anomaly
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-20-write-latency-prev-week" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 20 Write Latency (prev week)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-20-read-latency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 20 Read Latency
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#read-latency-anomaly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Read Latency Anomaly
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-20-read-latency-prev-week" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 20 Read Latency (prev week)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-20-used-memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 20 Used Memory
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#used-memory-anomaly_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Used Memory Anomaly
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-20-used-memory-prev-week" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 20 Used Memory (prev week)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -16142,58 +17098,144 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 
 
 <h1 id="home-dashboard">Home Dashboard<a class="headerlink" href="#home-dashboard" title="Permanent link">&para;</a></h1>
-<p>The Home Dashboard provides a high-level overview of your environment, such as the services, infrastructure, and critical issues (if any). It is the starting page of PMM from which you can open the tools of PMM and browse online resources.</p>
-<p>This Home Dashboard displays data that is organized in panels as given below.</p>
-<p><img alt="!image" src="../../images/PMM_Home_Dashboard.png" /></p>
+<p>The Home Dashboard is the default landing page in PMM. It gives you a unified view of your monitored databases and infrastructure, highlights unusual behavior, and helps you spot trends by comparing current resource usage with the same time last week.</p>
+<p>Use this dashboard as your starting point, then drill down into technology-specific dashboards (such as MySQL, MongoDB, or PostgreSQL) or node-level dashboards when you need more detail.</p>
+<p><img alt="Home Dashboard" src="../../images/PMM_Home_Dashboard.png" /></p>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>This panel lists all added hosts along with essential information about their performance. For each host, you can find the current values of the following metrics:</p>
-<ul>
-<li>Monitored DB Services</li>
-<li>Monitored DB Instances</li>
-<li>Monitored Nodes</li>
-<li>Memory Available</li>
-<li>Disk Reads</li>
-<li>Disk Writes</li>
-<li>Network IO</li>
-<li>DB Connections</li>
-<li>DB QPS</li>
-<li>Virtual CPUs</li>
-<li>RAM</li>
-<li>Host Uptime</li>
-<li>DB Uptime</li>
-<li>Advisors check</li>
-</ul>
-<p>This panel also displays the current version number. Use <strong>Upgrade to X.X.X version</strong> to upgrade to the most recent version of PMM.</p>
+<p>The Overview section shows key counts and capacity metrics across all monitored services and nodes.</p>
+<h3 id="monitored-db-services">Monitored DB Services<a class="headerlink" href="#monitored-db-services" title="Permanent link">&para;</a></h3>
+<p>Shows how many database services PMM is actively collecting data from, broken down by technology: MySQL, MongoDB, PostgreSQL, ProxySQL, and Valkey.</p>
+<p>This count can be higher than <strong>Monitored DB Instances</strong> because a single database may have more than one monitoring connection. For example, if you have multiple exporters or nodes reporting for the same service, each one counts separately here.</p>
+<p>Use this to quickly see which technologies are in your environment and jump directly to their overview dashboards. Click MySQL, MongoDB, PostgreSQL, ProxySQL, or Valkey to open that technology&rsquo;s Instances Overview.</p>
+<h3 id="monitored-db-instances">Monitored DB Instances<a class="headerlink" href="#monitored-db-instances" title="Permanent link">&para;</a></h3>
+<p>Shows the number of distinct database services per technology. Unlike Monitored DB Services, this count is not inflated by multiple exporters reporting for the same service.</p>
+<p>Use this alongside Monitored DB Services to confirm whether a high service count reflects genuine instances or just multiple exporters for the same service.</p>
+<h3 id="monitored-nodes">Monitored Nodes<a class="headerlink" href="#monitored-nodes" title="Permanent link">&para;</a></h3>
+<p>Shows the total number of infrastructure nodes matching the current dashboard filters. A node is either a physical server, VM, or Kubernetes node.</p>
+<p>Use this to confirm all expected nodes are registered with PMM. Click to open the <strong>Nodes Overview</strong> dashboard.</p>
+<h3 id="min-node-uptime">Min Node Uptime<a class="headerlink" href="#min-node-uptime" title="Permanent link">&para;</a></h3>
+<p>Shows the minimum uptime across all filtered nodes. Red means less than 1 hour, orange means 1-24 hours, green means over 24 hours.</p>
+<p>Use this to spot recently restarted nodes at a glance. Pay attention when the value turns red. An unexpected restart may need investigation.</p>
+<h3 id="min-db-uptime">Min DB Uptime<a class="headerlink" href="#min-db-uptime" title="Permanent link">&para;</a></h3>
+<p>Shows the minimum uptime across all monitored database processes (MySQL, MongoDB, PostgreSQL). Color thresholds match <strong>Min Node Uptime</strong>.</p>
+<p>Use this to spot recently restarted database instances. A low value after a planned maintenance window is expected. A low value at other times warrants investigation.</p>
+<h3 id="database-connections">Database Connections<a class="headerlink" href="#database-connections" title="Permanent link">&para;</a></h3>
+<p>Shows the total number of active connections aggregated across all monitored database services, including MySQL, MongoDB, PostgreSQL, ProxySQL, HAProxy, and Valkey.</p>
+<p>Use this to gauge overall connection load. A sudden spike may indicate a connection leak or unusual traffic surge. Click to drill down to per-technology instance overviews.</p>
+<h3 id="database-queriess-qps">Database Queries/s (QPS)<a class="headerlink" href="#database-queriess-qps" title="Permanent link">&para;</a></h3>
+<p>Shows the combined query rate per second across all your monitored databases, regardless of technology.</p>
+<p>Use this to understand your overall workload at a glance. A sudden jump often points to a traffic spike or a scheduled job kicking in, while an unexpected drop may mean a service went down or queries are getting stuck somewhere.</p>
+<h3 id="total-ram">Total RAM<a class="headerlink" href="#total-ram" title="Permanent link">&para;</a></h3>
+<p>Shows the total physical memory across all filtered nodes.</p>
+<p>Use this to quickly understand the total memory capacity across your environment. Click to open <strong>Memory Details</strong>.</p>
+<h3 id="virtual-memory-total">Virtual Memory Total<a class="headerlink" href="#virtual-memory-total" title="Permanent link">&para;</a></h3>
+<p>Shows total memory capacity including swap space across all filtered nodes.</p>
+<p>Use this to check whether swap is being used heavily, which can indicate memory pressure across the environment.</p>
+<h3 id="disk-space-total">Disk Space Total<a class="headerlink" href="#disk-space-total" title="Permanent link">&para;</a></h3>
+<p>Shows total filesystem capacity across all filtered nodes.</p>
+<p>Use this to confirm sufficient storage capacity. Watch for this value remaining flat while data volumes grow.</p>
+<h3 id="disk-reads">Disk Reads<a class="headerlink" href="#disk-reads" title="Permanent link">&para;</a></h3>
+<p>Shows aggregate disk read throughput (bytes/sec) across all filtered nodes.</p>
+<p>Use this to spot I/O spikes that may affect database read performance. Click to open <strong>Disk Details</strong>.</p>
+<h3 id="disk-writes">Disk Writes<a class="headerlink" href="#disk-writes" title="Permanent link">&para;</a></h3>
+<p>Shows aggregate disk write throughput (bytes/sec) across all filtered nodes.</p>
+<p>Use this to spot I/O spikes that may affect database write performance. Click to open <strong>Disk Details</strong>.</p>
+<h3 id="total-virtual-cpus">Total Virtual CPUs<a class="headerlink" href="#total-virtual-cpus" title="Permanent link">&para;</a></h3>
+<p>Shows the total number of virtual CPUs across all filtered nodes.</p>
+<p>Use this to understand total compute capacity across your environment. Click to open the <strong>Nodes Overview</strong> dashboard.</p>
+<h3 id="failed-advisors">Failed Advisors<a class="headerlink" href="#failed-advisors" title="Permanent link">&para;</a></h3>
+<p>Shows the number of advisor checks that failed during the most recent run.</p>
+<p>Use this to stay on top of advisor findings. A non-zero count means PMM has flagged conditions that need your attention. </p>
+<p>Click to open the <strong>Advisors</strong> page and see which specific checks need attention.</p>
+<h3 id="pmm-upgrade">PMM Upgrade<a class="headerlink" href="#pmm-upgrade" title="Permanent link">&para;</a></h3>
+<p>Shows the current PMM version and whether a newer version is available. Use this to stay current. You can start an upgrade directly from the dashboard.</p>
 <h2 id="anomaly-detection">Anomaly Detection<a class="headerlink" href="#anomaly-detection" title="Permanent link">&para;</a></h2>
-<p>The <strong>Anomaly Detection</strong> panel lists all the anomalies in your environment. Color-coded states on the panels provide a quick visual representation of the problem areas.</p>
-<p>The following anomalies are displayed on this panel:</p>
-<ul>
-<li>CPU anomalies (high as well as low)</li>
-<li>High CPU servers</li>
-<li>Low CPU servers</li>
-<li>Disk Queue anomalies</li>
-<li>High disk queue</li>
-<li>High Memory Used</li>
-</ul>
+<p>The <strong>Anomaly Detection</strong> section highlights two types of conditions: nodes that currently exceed a resource threshold, and nodes whose usage has changed significantly compared to the same time last week.</p>
+<p>For each metric, one panel shows nodes with a notable week-over-week change, and a paired panel shows nodes that currently exceed a fixed threshold.</p>
+<h3 id="cpu-anomalies">CPU Anomalies<a class="headerlink" href="#cpu-anomalies" title="Permanent link">&para;</a></h3>
+<p>Shows nodes where CPU usage is above 60% and has increased by more than 30 percentage points compared to the same time last week, up to 10 nodes.</p>
+<p>Use this to catch servers that have recently become CPU-intensive, for example after a deployment, a query regression, or a new batch job. </p>
+<p>If nothing appears, no significant CPU spikes have been detected in the last 7 days.</p>
+<h3 id="high-cpu-servers">High CPU Servers<a class="headerlink" href="#high-cpu-servers" title="Permanent link">&para;</a></h3>
+<p>Shows nodes with CPU usage above 90% over the last 15 minutes, up to 10 nodes.</p>
+<p>Use this to quickly find servers that need immediate CPU investigation. Click a node name to open its <strong>CPU Utilization Details</strong> dashboard. If nothing appears, all nodes are below 90% CPU.</p>
+<h3 id="disk-queue-anomalies">Disk Queue Anomalies<a class="headerlink" href="#disk-queue-anomalies" title="Permanent link">&para;</a></h3>
+<p>Shows nodes where disk I/O queue depth is above 2 and has grown significantly compared to the same time last week.</p>
+<p>Use this to catch storage pressure that has developed recently. A growing queue compared to last week is an early warning before latency becomes visibly impacted. </p>
+<p>A sustained queue above 1 per physical disk may indicate storage saturation.</p>
+<h3 id="high-disk-queue">High Disk Queue<a class="headerlink" href="#high-disk-queue" title="Permanent link">&para;</a></h3>
+<p>Shows nodes with a disk I/O queue depth above 2 over the last minute, up to 10 nodes.</p>
+<p>Use this to identify storage that is currently saturated or approaching its limits. A sustained queue above 1 per physical disk often indicates saturation, though high-throughput devices like NVMe SSDs can handle deeper queues without latency impact.</p>
+<h3 id="used-memory-anomaly">Used Memory Anomaly<a class="headerlink" href="#used-memory-anomaly" title="Permanent link">&para;</a></h3>
+<p>Shows up to 10 nodes where memory usage is above 80% and more than 30 percentage points higher than at the same time last week.</p>
+<p>Use this to detect memory growth trends that may indicate a leak, a growing dataset, or unexpected load.</p>
+<h3 id="high-memory-used">High Memory Used<a class="headerlink" href="#high-memory-used" title="Permanent link">&para;</a></h3>
+<p>Shows nodes with memory usage above 80%, up to 10 nodes.</p>
+<p>Use this to find nodes with active memory pressure. Check <strong>Memory Details</strong> to understand whether the usage is from application data or OS buffers, and whether it requires action. If nothing appears, all nodes are below 80%.</p>
+<h3 id="low-cpu-anomalies">Low CPU Anomalies<a class="headerlink" href="#low-cpu-anomalies" title="Permanent link">&para;</a></h3>
+<p>Shows nodes where CPU usage is below 30% and has dropped significantly compared to the same time last week.</p>
+<p>This can help you identify servers that were previously busy but are now mostly idle. This may indicate a service that went down, traffic that was redirected, or a workload that finished.</p>
+<h3 id="low-cpu-servers">Low CPU Servers<a class="headerlink" href="#low-cpu-servers" title="Permanent link">&para;</a></h3>
+<p>Shows nodes with CPU usage below 30% over the last 15 minutes, up to 10 nodes.</p>
+<p>Use this to identify chronically underutilized servers that could be rightsized or consolidated.</p>
 <h2 id="command-center">Command Center<a class="headerlink" href="#command-center" title="Permanent link">&para;</a></h2>
-<p>You can find critical information such as CPU utlization, memory utilization, anomalies, read and write latency, etc., about your environment on the <strong>Command Center</strong> panel. </p>
-<p>The information is represented graphically on the <strong>Command Center</strong> panel. In this panel, the graphs for the last hour and the previous week are displayed adjacently, making it easy to identify the trends.</p>
-<p>The following information is displayed on the <strong>Command Center</strong> for the <strong>Top 20</strong> nodes:</p>
-<ul>
-<li>CPU usage</li>
-<li>Disk queue</li>
-<li>Disk Write latency</li>
-<li>Disk Read latency</li>
-<li>Memory usage</li>
-</ul>
-<p>Command Center lists the </p>
+<p>The Command Center shows time series data for the top 20 nodes across key performance metrics. Each metric is displayed as a set of three panels: current usage, the delta from the same time last week, and the previous week&rsquo;s usage for direct side-by-side comparison.</p>
+<p>Use this section to go deeper after the Anomaly Detection section flags a problem. The time series view shows you whether an issue is persistent or a spike, and the week-over-week comparison tells you whether it&rsquo;s a new pattern or business as usual.</p>
+<p>Click any series name to drill down to that node&rsquo;s details dashboard.</p>
+<h3 id="top-20-cpu-usage">Top 20 CPU Usage<a class="headerlink" href="#top-20-cpu-usage" title="Permanent link">&para;</a></h3>
+<p>Shows CPU utilization for the 20 most CPU-intensive nodes over the last hour.</p>
+<h3 id="cpu-anomaly">CPU Anomaly<a class="headerlink" href="#cpu-anomaly" title="Permanent link">&para;</a></h3>
+<p>Shows the change in CPU utilization compared to the same time last week. Positive bars mean CPU usage has increased. Negative bars mean it has decreased. </p>
+<p>Use this alongside <strong>Top 20 CPU Usage</strong> to distinguish a sustained load increase from a one-time spike.</p>
+<h3 id="top-20-cpu-usage-prev-week">Top 20 CPU Usage (prev week)<a class="headerlink" href="#top-20-cpu-usage-prev-week" title="Permanent link">&para;</a></h3>
+<p>Shows CPU utilization for the same nodes from one week ago. Use this as a baseline to judge whether current CPU usage is normal for these nodes.</p>
+<h3 id="top-20-disk-queue">Top 20 Disk Queue<a class="headerlink" href="#top-20-disk-queue" title="Permanent link">&para;</a></h3>
+<p>Shows the average number of outstanding I/O requests for the 20 busiest nodes over the last hour. A higher queue depth means more I/O operations are waiting.</p>
+<h3 id="disk-queue-anomaly">Disk Queue Anomaly<a class="headerlink" href="#disk-queue-anomaly" title="Permanent link">&para;</a></h3>
+<p>Shows the change in disk queue depth compared to the same time last week. Positive bars indicate increased I/O pressure. Use this to distinguish new I/O load from steady-state behavior.</p>
+<h3 id="top-20-disk-queue-prev-week">Top 20 Disk Queue (prev week)<a class="headerlink" href="#top-20-disk-queue-prev-week" title="Permanent link">&para;</a></h3>
+<p>Shows disk queue depth from one week ago. Use this to confirm whether the current queue depth is unusual for these nodes.</p>
+<h3 id="top-20-write-latency">Top 20 Write Latency<a class="headerlink" href="#top-20-write-latency" title="Permanent link">&para;</a></h3>
+<p>Shows average disk write latency for the 20 nodes with the highest write latency over the last hour. </p>
+<p>Latency above typical values on heavily loaded storage may indicate saturation or internal storage problems.</p>
+<h3 id="write-latency-anomaly">Write Latency Anomaly<a class="headerlink" href="#write-latency-anomaly" title="Permanent link">&para;</a></h3>
+<p>Shows the change in write latency compared to the same time last week. Positive bars mean latency has increased. Use this to spot storage degradation that may not stand out from absolute values alone.</p>
+<h3 id="top-20-write-latency-prev-week">Top 20 Write Latency (prev week)<a class="headerlink" href="#top-20-write-latency-prev-week" title="Permanent link">&para;</a></h3>
+<p>Shows write latency from one week ago, for baseline comparison.</p>
+<h3 id="top-20-read-latency">Top 20 Read Latency<a class="headerlink" href="#top-20-read-latency" title="Permanent link">&para;</a></h3>
+<p>Shows average disk read latency for the 20 nodes with the highest read latency over the last hour.</p>
+<h3 id="read-latency-anomaly">Read Latency Anomaly<a class="headerlink" href="#read-latency-anomaly" title="Permanent link">&para;</a></h3>
+<p>Shows the change in read latency compared to the same time last week. Positive bars mean latency has increased. </p>
+<p>Use this to detect read performance degradation, such as after storage configuration changes or increased read load.</p>
+<h3 id="top-20-read-latency-prev-week">Top 20 Read Latency (prev week)<a class="headerlink" href="#top-20-read-latency-prev-week" title="Permanent link">&para;</a></h3>
+<p>Shows read latency from one week ago, for baseline comparison.</p>
+<h3 id="top-20-used-memory">Top 20 Used Memory<a class="headerlink" href="#top-20-used-memory" title="Permanent link">&para;</a></h3>
+<p>Shows memory utilization as a percentage for the 20 most memory-intensive nodes over the last hour.</p>
+<h3 id="used-memory-anomaly_1">Used Memory Anomaly<a class="headerlink" href="#used-memory-anomaly_1" title="Permanent link">&para;</a></h3>
+<p>Shows the change in memory usage compared to the same time last week. Only nodes where usage has increased are shown. </p>
+<p>Use this to identify memory growth trends that may indicate a leak or an expanding workload.</p>
+<h3 id="top-20-used-memory-prev-week">Top 20 Used Memory (prev week)<a class="headerlink" href="#top-20-used-memory-prev-week" title="Permanent link">&para;</a></h3>
+<p>Shows memory usage from one week ago. Use this to confirm whether current memory consumption is higher than the previous week&rsquo;s baseline.</p>
 <h2 id="service-summary">Service Summary<a class="headerlink" href="#service-summary" title="Permanent link">&para;</a></h2>
-<p>The Service Summary panel provides the following information for the services being monitored:</p>
+<p>This table lists all monitored database services with their current status and resource metrics.</p>
+<p>Use this to get a per-service health snapshot without navigating to individual dashboards. Pay attention to services with a red Status or a low DB Uptime value. </p>
+<p>These indicate services that are down or have recently restarted and may need investigation.</p>
+<p>Each row represents a service, with these columns:</p>
 <ul>
-<li>DB connections</li>
-<li>DB QPS (Query per sec)</li>
-<li>DB uptime</li>
+<li><strong>Status</strong>: Up (green) or Down (red).</li>
+<li><strong>Environment</strong>: The environment label assigned to the service.</li>
+<li><strong>Region</strong>: The region label assigned to the service.</li>
+<li><strong>DB QPS</strong>: Current query rate per second.</li>
+<li><strong>DB Conns</strong>: Current connection count.</li>
+<li><strong>DB Uptime</strong>: Time since the database process last started, color-coded: red for under 1 hour, yellow for 1-24 hours, green for over 24 hours.</li>
+<li><strong>Avail Memory</strong>: Available memory as a percentage of total RAM on the host node.</li>
+<li><strong>Disk Reads</strong>: Current disk read throughput on the host node.</li>
+<li><strong>Disk Writes</strong>: Current disk write throughput on the host node.</li>
+<li><strong>Network IO</strong>: Combined inbound and outbound network throughput on the host node.</li>
+<li><strong>vCPU</strong>: Number of virtual CPUs on the host node.</li>
+<li><strong>RAM</strong>: Total physical memory on the host node.</li>
 </ul>
+<p>The row count at the bottom shows the total number of services currently displayed.</p>
 
 
 
@@ -16216,7 +17258,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="February 5, 2026 14:46:56 UTC">February 5, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 28, 2026 10:01:59 UTC">May 28, 2026</span>
   </span>
 
     

@@ -4266,7 +4266,7 @@
   <span class="md-ellipsis">
     
   
-    Set timezones
+    Set time zone
   
 
     
@@ -11305,7 +11305,7 @@
   <span class="md-ellipsis">
     
   
-    Upgrade PMM v3 Server from the UI
+    Upgrade PMM Server from the UI
   
 
     
@@ -12285,6 +12285,34 @@
     
   
     Release notes index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../release-notes/3.8.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PMM 3.8.0 (2026-05-28)
   
 
     
@@ -14850,14 +14878,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-experimental_oplog.html" class="md-nav__link">
+      <a href="../../../../reference/dashboards/dashboard-mongodb-oplog-details.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Experimental MongoDB Oplog Details
+    MongoDB Oplog Details
   
 
     
@@ -14885,7 +14913,7 @@
   <span class="md-ellipsis">
     
   
-    MongoDB Sharded Cluster Summary
+    MongoDB Cluster Summary
   
 
     
@@ -15938,6 +15966,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../reference/dashboards/dashboard-pxc-galera-cluster-summary.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PXC/Galera Cluster Summary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../reference/dashboards/dashboard-haproxy-instance-summary.html" class="md-nav__link">
         
   
@@ -15970,6 +16026,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../reference/labels-reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Monitoring labels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -17364,40 +17448,10 @@ To disable query examples for data privacy:</p>
 </div>
 </div>
 <h3 id="add-service-to-pmm">Add service to PMM<a class="headerlink" href="#add-service-to-pmm" title="Permanent link">&para;</a></h3>
-<p>After creating your PMM database user, you can quickly add your MySQL service to PMM. You can do this either through the PMM user interface or via the command line.</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="8:2"><input checked="checked" id="__tabbed_8_1" name="__tabbed_8" type="radio" /><input id="__tabbed_8_2" name="__tabbed_8" type="radio" /><div class="tabbed-labels"><label for="__tabbed_8_1">Via UI</label><label for="__tabbed_8_2">Via command line </label></div>
+<p>After creating your PMM database user, you can add your MySQL service to PMM using the command line or the UI.</p>
+<p>The <strong>command line</strong> (<code>pmm-admin</code>) deploys an exporter directly on the database host and automatically collects node-level metrics (CPU, memory, disk I/O) alongside MySQL metrics. Use the UI only if you cannot install PMM Client on the database host.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="8:2"><input checked="checked" id="__tabbed_8_1" name="__tabbed_8" type="radio" /><input id="__tabbed_8_2" name="__tabbed_8" type="radio" /><div class="tabbed-labels"><label for="__tabbed_8_1">Via command line (recommended)</label><label for="__tabbed_8_2">Via UI</label></div>
 <div class="tabbed-content">
-<div class="tabbed-block">
-<p class="power-number">To add the service from the user interface:</p>
-<ol>
-<li>
-<p>Go to <strong>PMM Configuration &gt; PMM Inventory &gt; Add Service</strong>.</p>
-</li>
-<li>
-<p>Select <strong>MySQL</strong> service type.</p>
-</li>
-<li>
-<p>Enter or select values for the fields:</p>
-<ul>
-<li><strong>Service Name</strong>: A descriptive name for your MySQL instance</li>
-<li><strong>Host/Socket</strong>: Use <code>localhost</code> for local monitoring or hostname/IP for remote monitoring</li>
-<li><strong>Port</strong>: MySQL port (default: 3306)</li>
-<li><strong>Username</strong>: The PMM user created earlier</li>
-<li><strong>Password</strong>: Your PMM user password</li>
-<li><strong>Query Source</strong>: Choose between <strong>Slow Log</strong> or <strong>Performance Schema</strong></li>
-<li><strong>PMM Agent</strong>: Select which PMM agent should monitor this instance</li>
-<li><strong>Disable query examples</strong>: Check this option to prevent collection of actual query values in QAN. When enabled, PMM will continue to collect query metrics and statistics but will not store the actual query examples with real data values.</li>
-</ul>
-</li>
-<li>
-<p>Click <strong>Add Service</strong>.</p>
-</li>
-<li>
-<p>If using TLS, check <strong>Use TLS for database connections</strong> and fill in your TLS certificates and key information. 
-<img alt="TLS Configuration Screen" src="../../../../images/PMM_Add_Instance_MySQL_TLS.png" /></p>
-</li>
-</ol>
-</div>
 <div class="tabbed-block">
 <div class="tabbed-set tabbed-alternate" data-tabs="9:5"><input checked="checked" id="__tabbed_9_1" name="__tabbed_9" type="radio" /><input id="__tabbed_9_2" name="__tabbed_9" type="radio" /><input id="__tabbed_9_3" name="__tabbed_9" type="radio" /><input id="__tabbed_9_4" name="__tabbed_9" type="radio" /><input id="__tabbed_9_5" name="__tabbed_9" type="radio" /><div class="tabbed-labels"><label for="__tabbed_9_1">Basic setup</label><label for="__tabbed_9_2">Remote monitoring</label><label for="__tabbed_9_3">With custom labels</label><label for="__tabbed_9_4">TLS connection</label><label for="__tabbed_9_5">PAM and cleartext authentication</label></div>
 <div class="tabbed-content">
@@ -17482,6 +17536,38 @@ Only use when connections are secured with TLS/SSL or over trusted networks.</p>
 </div>
 </div>
 </div>
+<div class="tabbed-block">
+<p class="power-number">To add the service from the user interface:</p>
+<ol>
+<li>
+<p>Go to <strong>Inventory &gt; Add Service</strong>.</p>
+</li>
+<li>
+<p>Select <strong>MySQL</strong> service type.</p>
+</li>
+<li>
+<p>Enter or select values for the fields:</p>
+<ul>
+<li><strong>Service Name</strong>: A descriptive name for your MySQL instance</li>
+<li><strong>Host/Socket</strong>: Use <code>localhost</code> for local monitoring or hostname/IP for remote monitoring</li>
+<li><strong>Port</strong>: MySQL port (default: 3306)</li>
+<li><strong>Username</strong>: The PMM user created earlier</li>
+<li><strong>Password</strong>: Your PMM user password</li>
+<li><strong>Query Source</strong>: Choose between <strong>Slow Log</strong> or <strong>Performance Schema</strong></li>
+<li><strong>PMM Agent</strong>: Select which PMM agent should monitor this instance</li>
+<li><strong>Disable query examples</strong>: Check this option to prevent collection of actual query values in QAN. When enabled, PMM will continue to collect query metrics and statistics but will not store the actual query examples with real data values.</li>
+<li><strong>Connection timeout</strong>: How long PMM should wait when connecting to this service. Increase this for remote or high-latency databases. If the connection times out, PMM retries the next time it collects metrics. Leave empty to use the default of 2s.</li>
+</ul>
+</li>
+<li>
+<p>Click <strong>Add Service</strong>.</p>
+</li>
+<li>
+<p>If using TLS, check <strong>Use TLS for database connections</strong> and fill in your TLS certificates and key information. 
+<img alt="TLS Configuration Screen" src="../../../../images/PMM_Add_Instance_MySQL_TLS.png" /></p>
+</li>
+</ol>
+</div>
 </div>
 </div>
 <h4 id="tlsssl-certificate-configuration">TLS/SSL certificate configuration<a class="headerlink" href="#tlsssl-certificate-configuration" title="Permanent link">&para;</a></h4>
@@ -17559,7 +17645,7 @@ Service<span class="w"> </span>name:<span class="w"> </span>MySQL-Primary
 <div class="tabbed-block">
 <p class="power-number">To verify your service in the web interface:</p>
 <ol>
-<li>Navigate to <strong>PMM Configuration &gt; PMM Inventory</strong>.</li>
+<li>Navigate to <strong>Inventory &gt; Services</strong>.</li>
 <li>In the <strong>Services</strong> tab, find your newly added MySQL service.</li>
 <li>Verify the <strong>Service Name</strong> and <strong>Address</strong> match your configuration.</li>
 <li>Check the <strong>Status</strong> column shows as <em>Active</em>.</li>
@@ -17638,7 +17724,7 @@ To verify XtraDB Cluster monitoring:</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 21, 2026 16:57:59 UTC">April 21, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 28, 2026 10:01:59 UTC">May 28, 2026</span>
   </span>
 
     

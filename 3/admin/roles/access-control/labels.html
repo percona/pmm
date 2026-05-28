@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Label-based access control in PMM allows you to precisely manage which monitoring data users can access based on their roles and responsibilities.">
+        <meta name="description" content="In PMM, labels are key/value pairs attached to every monitored service, node, and agent, such as environment=production, service_type=mysql, or cluster=eu-west. You can use these labels to control which monitoring data each user can see.">
       
       
         <meta name="author" content="Percona LLC">
@@ -3821,7 +3821,7 @@
   <span class="md-ellipsis">
     
   
-    Set timezones
+    Set time zone
   
 
     
@@ -10606,10 +10606,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#how-lbac-works" class="md-nav__link">
+  <a href="#how-label-based-access-control-works" class="md-nav__link">
     <span class="md-ellipsis">
       
-        How LBAC works
+        How label-based access control works
       
     </span>
   </a>
@@ -10957,7 +10957,7 @@
   <span class="md-ellipsis">
     
   
-    Upgrade PMM v3 Server from the UI
+    Upgrade PMM Server from the UI
   
 
     
@@ -11937,6 +11937,34 @@
     
   
     Release notes index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../release-notes/3.8.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PMM 3.8.0 (2026-05-28)
   
 
     
@@ -14502,14 +14530,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../reference/dashboards/dashboard-mongodb-experimental_oplog.html" class="md-nav__link">
+      <a href="../../../reference/dashboards/dashboard-mongodb-oplog-details.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Experimental MongoDB Oplog Details
+    MongoDB Oplog Details
   
 
     
@@ -14537,7 +14565,7 @@
   <span class="md-ellipsis">
     
   
-    MongoDB Sharded Cluster Summary
+    MongoDB Cluster Summary
   
 
     
@@ -15590,6 +15618,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../reference/dashboards/dashboard-pxc-galera-cluster-summary.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PXC/Galera Cluster Summary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../reference/dashboards/dashboard-haproxy-instance-summary.html" class="md-nav__link">
         
   
@@ -15622,6 +15678,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/labels-reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Monitoring labels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -16066,10 +16150,10 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#how-lbac-works" class="md-nav__link">
+  <a href="#how-label-based-access-control-works" class="md-nav__link">
     <span class="md-ellipsis">
       
-        How LBAC works
+        How label-based access control works
       
     </span>
   </a>
@@ -16142,10 +16226,11 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 
 
 <h1 id="labels-for-access-control">Labels for access control<a class="headerlink" href="#labels-for-access-control" title="Permanent link">&para;</a></h1>
-<p>Label-based access control in PMM allows you to precisely manage which monitoring data users can access based on their roles and responsibilities. </p>
-<p>This feature is essential for organizations with multiple teams, compliance requirements, or where different users need different levels of visibility.</p>
-<h2 id="how-lbac-works">How LBAC works<a class="headerlink" href="#how-lbac-works" title="Permanent link">&para;</a></h2>
-<p>Access control in PMM uses Prometheus label selectors to filter metrics and Query Analytics data.</p>
+<p>In PMM, labels are key/value pairs attached to every monitored service, node, and agent, such as <code>environment=production</code>, <code>service_type=mysql</code>, or <code>cluster=eu-west</code>. You can use these labels to control which monitoring data each user can see.</p>
+<p>When you create a role and assign it to a user, you specify which label values that user is allowed to access. PMM then filters dashboards and Query Analytics so that user only sees data from services that match those labels. A DBA responsible for production MySQL databases, for example, could be restricted to <code>environment=production</code> and <code>service_type=mysql</code>, with no visibility into staging or other database types.</p>
+<p>To see the standard labels PMM assigns automatically and learn how to add custom labels when adding a service, see <a href="../../../reference/labels-reference.html">Labels reference</a>.</p>
+<h2 id="how-label-based-access-control-works">How label-based access control works<a class="headerlink" href="#how-label-based-access-control-works" title="Permanent link">&para;</a></h2>
+<p>Label-based access control (LBAC) restricts what each user can see by matching the labels on their role against the labels on monitored services. When a user opens a dashboard or Query Analytics, PMM automatically filters the data to show only the services whose labels match the user&rsquo;s role.</p>
 <p class="power-number">Here&rsquo;s how it works: </p>
 <ol>
 <li>Create roles with specific label selectors. For example, you might allow the QA team to access only metrics related to test environments by assigning them a role with the <code>environment=test</code> label or limit visibility to metrics related only to MySQL services with the <code>service_type=mysql</code> label.</li>
@@ -16195,7 +16280,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <p class="power-number">To set the labels via the user interface:</p>
 <ol>
 <li>
-<p>From the main menu, go to <strong>Inventory &gt; Add Service</strong>.</p>
+<p>From the main menu, go to <strong>Inventory &gt; Add service</strong>.</p>
 </li>
 <li>
 <p>Select the service you want to monitor.</p>
@@ -16246,7 +16331,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 1, 2026 14:08:36 UTC">April 1, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 28, 2026 10:01:59 UTC">May 28, 2026</span>
   </span>
 
     

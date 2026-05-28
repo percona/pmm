@@ -4015,7 +4015,7 @@
   <span class="md-ellipsis">
     
   
-    Set timezones
+    Set time zone
   
 
     
@@ -11054,7 +11054,7 @@
   <span class="md-ellipsis">
     
   
-    Upgrade PMM v3 Server from the UI
+    Upgrade PMM Server from the UI
   
 
     
@@ -12034,6 +12034,34 @@
     
   
     Release notes index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../release-notes/3.8.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PMM 3.8.0 (2026-05-28)
   
 
     
@@ -14599,14 +14627,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../reference/dashboards/dashboard-mongodb-experimental_oplog.html" class="md-nav__link">
+      <a href="../../../reference/dashboards/dashboard-mongodb-oplog-details.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Experimental MongoDB Oplog Details
+    MongoDB Oplog Details
   
 
     
@@ -14634,7 +14662,7 @@
   <span class="md-ellipsis">
     
   
-    MongoDB Sharded Cluster Summary
+    MongoDB Cluster Summary
   
 
     
@@ -15687,6 +15715,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../reference/dashboards/dashboard-pxc-galera-cluster-summary.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PXC/Galera Cluster Summary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../reference/dashboards/dashboard-haproxy-instance-summary.html" class="md-nav__link">
         
   
@@ -15719,6 +15775,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/labels-reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Monitoring labels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -16342,7 +16426,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <p class="power-number">The Microsoft Azure feature is turned off by default. To turn it on:</p>
 <ol>
 <li>
-<p>Go to  <strong>PMM Configuration &gt; Settings &gt; Advanced Settings</strong>.</p>
+<p>Go to <strong>Configuration &gt; Settings &gt; Advanced Settings</strong>.</p>
 </li>
 <li>
 <p>Click the <i class="uil uil-toggle-off"></i> toggle in the <strong>Technical preview features</strong> section of the page.</p>
@@ -16418,8 +16502,7 @@ won&rsquo;t receive any query data.</p>
 <img alt="!" src="../../../images/azure_app_secret_03.png" /></p>
 </li>
 <li>
-<p>Copy the <strong>value</strong> of the application secret. Once you leave this page you won&rsquo;t be able to see the secret again and you will have to generate a new
-   one.
+<p>Copy the <strong>value</strong> of the application secret. Once you leave this page you won&rsquo;t be able to see the secret again and you will have to generate a new one.
 <img alt="!" src="../../../images/azure_app_secret_04.png" /></p>
 </li>
 <li>
@@ -16438,7 +16521,7 @@ won&rsquo;t receive any query data.</p>
 <img alt="!" src="../../../images/azure_app_permissions_02.png" />
 <img alt="!" src="../../../images/azure_app_permissions_03.png" />
 <img alt="!" src="../../../images/azure_app_permissions_04.png" /></p>
-<p>When you fill in all fields press the <em>Discover</em> button and you will see a list of available databases for monitoring.</p>
+<p>When you fill in all fields press the <strong>Discover</strong> button and you will see a list of available databases for monitoring.</p>
 <p><img alt="!" src="../../../images/PMM_Add_Instance_Azure_2.png" /></p>
 <p>You can monitor 6 types of databases:</p>
 <ul>
@@ -16456,11 +16539,11 @@ won&rsquo;t receive any query data.</p>
 </ul>
 <div class="admonition hint alert alert-success">
 <p class="admonition-title">Tip</p>
-<p>You must set <code>pg_stat_statements.track = all</code> in your PostgreSQL Server settings to use PMM Query Analytics. [Read more](../connect-database/postgresql.md#configure-monitoring-extension.</p>
+<p>You must set <code>pg_stat_statements.track = all</code> in your PostgreSQL Server settings to use PMM Query Analytics. <a href="postgresql.html#configure-monitoring-extension">Read more</a>.</p>
 </div>
 <p><img alt="!" src="../../../images/PMM_Add_Instance_Azure_3.png" /></p>
-<p>In the list of databases on the Discovery page click <strong>Start Monitoring</strong> to add the selected Azure Database to PMM.</p>
-<p>Fill in all required fields and click <strong>Add service</strong>.</p>
+<p>In the list of databases on the <strong>Discovery</strong> page click <strong>Start Monitoring</strong> to add the selected Azure Database to PMM.</p>
+<p>Fill in all required fields. To set how long PMM waits when connecting, enter a value in <strong>Connection timeout</strong>. Leave it empty to use the default of 2s. Click <strong>Add service</strong>.</p>
 <p>PMM can use 3 exporters to collect metrics:</p>
 <ul>
 <li>
@@ -16558,7 +16641,7 @@ won&rsquo;t receive any query data.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 17, 2025 10:29:06 UTC">October 17, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 28, 2026 10:01:59 UTC">May 28, 2026</span>
   </span>
 
     

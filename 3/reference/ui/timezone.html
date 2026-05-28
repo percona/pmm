@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="By default Grafana uses the timezone from your web browser. However, you can change this setting.">
+        <meta name="description" content="By default, PMM uses the time zone from your web browser. You can change this in your profile preferences, and all dashboards will use your chosen time zone.">
       
       
         <meta name="author" content="Percona LLC">
@@ -30,7 +30,7 @@
     
     
       
-        <title>Set timezones - Percona Monitoring and Management</title>
+        <title>Set time zone - Percona Monitoring and Management</title>
       
     
     
@@ -94,7 +94,7 @@
                  
                  
                  <meta property="og:type" content="website" />
-                 <meta property="og:title" content="Percona Monitoring and Management - Set timezones" />
+                 <meta property="og:title" content="Percona Monitoring and Management - Set time zone" />
                  <meta property="og:image" content="https://docs.percona.com/percona-monitoring-and-management/images/PMM.png">
                  <meta property="og:url" content="https://docs.percona.com/percona-monitoring-and-management/">
               
@@ -117,7 +117,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#set-timezones" class="md-skip">
+        <a href="#set-time-zone" class="md-skip">
           Skip to content
         </a>
       
@@ -224,7 +224,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Set timezones
+              Set time zone
             
           </span>
         </div>
@@ -3827,6 +3827,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Set time zone
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="timezone.html" class="md-nav__link md-nav__link--active">
         
   
@@ -3834,7 +3852,7 @@
   <span class="md-ellipsis">
     
   
-    Set timezones
+    Set time zone
   
 
     
@@ -3843,6 +3861,36 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#override-time-zone-for-a-specific-dashboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Override time zone for a specific dashboard
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -10874,7 +10922,7 @@
   <span class="md-ellipsis">
     
   
-    Upgrade PMM v3 Server from the UI
+    Upgrade PMM Server from the UI
   
 
     
@@ -11854,6 +11902,34 @@
     
   
     Release notes index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../release-notes/3.8.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PMM 3.8.0 (2026-05-28)
   
 
     
@@ -14419,14 +14495,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../dashboards/dashboard-mongodb-experimental_oplog.html" class="md-nav__link">
+      <a href="../dashboards/dashboard-mongodb-oplog-details.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Experimental MongoDB Oplog Details
+    MongoDB Oplog Details
   
 
     
@@ -14454,7 +14530,7 @@
   <span class="md-ellipsis">
     
   
-    MongoDB Sharded Cluster Summary
+    MongoDB Cluster Summary
   
 
     
@@ -15507,6 +15583,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../dashboards/dashboard-pxc-galera-cluster-summary.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PXC/Galera Cluster Summary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../dashboards/dashboard-haproxy-instance-summary.html" class="md-nav__link">
         
   
@@ -15539,6 +15643,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../labels-reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Monitoring labels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -15976,6 +16108,25 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#override-time-zone-for-a-specific-dashboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Override time zone for a specific dashboard
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                     </div>
                   </div>
@@ -16006,14 +16157,18 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   
 
 
-<h1 id="set-timezones">Set timezones<a class="headerlink" href="#set-timezones" title="Permanent link">&para;</a></h1>
-<p>By default Grafana uses the timezone from your web browser. However, you can change this setting.</p>
-<p class="power-number">To set the timezone:</p>
+<h1 id="set-time-zone">Set time zone<a class="headerlink" href="#set-time-zone" title="Permanent link">&para;</a></h1>
+<p>By default, PMM uses the time zone from your web browser. You can change this in your profile preferences, and all dashboards will use your chosen time zone.</p>
+<p class="power-number">To set the time zone:</p>
 <ol>
 <li>On the main menu, go to <strong>Account &gt; Profile &gt; Preferences</strong>.</li>
-<li>Click to select an option in the <strong>Timezone</strong>.</li>
+<li>Select a time zone from the <strong>Timezone</strong> dropdown.</li>
 <li>Click <strong>Save</strong>.</li>
 </ol>
+<h2 id="override-time-zone-for-a-specific-dashboard">Override time zone for a specific dashboard<a class="headerlink" href="#override-time-zone-for-a-specific-dashboard" title="Permanent link">&para;</a></h2>
+<p>You can also change the time zone directly from a dashboard using the time range picker in the top right. This overrides your profile preference for that dashboard only.</p>
+<p><img alt="Time range picker showing timezone selector" src="../../images/PMM_timezone_picker.png" /></p>
+<p>This change does not update your profile preference and does not affect other dashboards.</p>
 
 
 
@@ -16036,7 +16191,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="February 5, 2026 14:46:56 UTC">February 5, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 28, 2026 10:01:59 UTC">May 28, 2026</span>
   </span>
 
     

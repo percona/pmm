@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Provides a high-level view of all MongoDB deployments monitored by PMM, including sharded clusters, replica sets, and standalone instances.">
+        <meta name="description" content="This dashboard provides a high-level view of all MongoDB deployments monitored by PMM, including sharded clusters, replica sets, and standalone instances.">
       
       
         <meta name="author" content="Percona LLC">
@@ -3821,7 +3821,7 @@
   <span class="md-ellipsis">
     
   
-    Set timezones
+    Set time zone
   
 
     
@@ -10860,7 +10860,7 @@
   <span class="md-ellipsis">
     
   
-    Upgrade PMM v3 Server from the UI
+    Upgrade PMM Server from the UI
   
 
     
@@ -11840,6 +11840,34 @@
     
   
     Release notes index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../release-notes/3.8.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PMM 3.8.0 (2026-05-28)
   
 
     
@@ -14411,14 +14439,14 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboard-mongodb-experimental_oplog.html" class="md-nav__link">
+      <a href="dashboard-mongodb-oplog-details.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Experimental MongoDB Oplog Details
+    MongoDB Oplog Details
   
 
     
@@ -14446,7 +14474,7 @@
   <span class="md-ellipsis">
     
   
-    MongoDB Sharded Cluster Summary
+    MongoDB Cluster Summary
   
 
     
@@ -14715,32 +14743,21 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#router-summary" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Router Summary
-      
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#connections-detail" class="md-nav__link">
+  <a href="#connections-details" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Connections Detail
+        Connections Details
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Connections Detail">
+    <nav class="md-nav" aria-label="Connections Details">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -14771,22 +14788,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#opcounters-detail" class="md-nav__link">
+  <a href="#opcounters-details" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Opcounters Detail
+        Opcounters Details
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Opcounters Detail">
+    <nav class="md-nav" aria-label="Opcounters Details">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#top-5-command-operationscommand-operations" class="md-nav__link">
+  <a href="#top-5-command-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Top 5 Command Operations/Command Operations
+        Top 5 Command Operations
       
     </span>
   </a>
@@ -14794,10 +14811,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#top-5-getmore-operationsgetmore-operations" class="md-nav__link">
+  <a href="#command-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Top 5 Getmore Operations/Getmore Operations
+        Command Operations
       
     </span>
   </a>
@@ -14805,10 +14822,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#top-5-delete-operationsdelete-operations" class="md-nav__link">
+  <a href="#top-5-getmore-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Top 5 Delete Operations/Delete Operations
+        Top 5 Getmore Operations
       
     </span>
   </a>
@@ -14816,10 +14833,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#top-5-insert-operationsinsert-operations" class="md-nav__link">
+  <a href="#getmore-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Top 5 Insert Operations/Insert Operations
+        Getmore Operations
       
     </span>
   </a>
@@ -14827,10 +14844,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#top-5-update-operationsupdate-operations" class="md-nav__link">
+  <a href="#top-5-delete-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Top 5 Update Operations/Update Operations
+        Top 5 Delete Operations
       
     </span>
   </a>
@@ -14838,10 +14855,76 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#top-5-query-operationsquery-operations" class="md-nav__link">
+  <a href="#delete-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Top 5 Query Operations/Query Operations
+        Delete Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-5-insert-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 5 Insert Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#insert-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Insert Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-5-update-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 5 Update Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Update Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-5-query-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 5 Query Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#query-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query Operations
       
     </span>
   </a>
@@ -14854,22 +14937,99 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#document-operations-detail" class="md-nav__link">
+  <a href="#document-operations-details" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Document Operations Detail
+        Document Operations Details
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Document Operations Detail">
+    <nav class="md-nav" aria-label="Document Operations Details">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#top-5-document-deleteinsertreturnupdate-operations" class="md-nav__link">
+  <a href="#top-5-document-delete-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Top 5 Document Delete/Insert/Return/Update Operations
+        Top 5 Document Delete Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#document-delete-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Document Delete Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-5-document-insert-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 5 Document Insert Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#document-insert-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Document Insert Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-5-document-return-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 5 Document Return Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#document-return-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Document Return Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-5-document-update-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 5 Document Update Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#document-update-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Document Update Operations
       
     </span>
   </a>
@@ -14882,22 +15042,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#queued-operations-detail" class="md-nav__link">
+  <a href="#queued-operations-details" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Queued Operations Detail
+        Queued Operations Details
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Queued Operations Detail">
+    <nav class="md-nav" aria-label="Queued Operations Details">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#top-5-queued-read-operationsqueued-read-operations" class="md-nav__link">
+  <a href="#top-5-queued-read-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Top 5 Queued Read Operations/Queued Read Operations
+        Top 5 Queued Read Operations
       
     </span>
   </a>
@@ -14905,10 +15065,32 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#top-5-queued-write-operationsqueued-write-operations" class="md-nav__link">
+  <a href="#queued-read-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Top 5 Queued Write Operations/Queued Write Operations
+        Queued Read Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-5-queued-write-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 5 Queued Write Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#queued-write-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Queued Write Operations
       
     </span>
   </a>
@@ -15912,6 +16094,34 @@
   
   
     <li class="md-nav__item">
+      <a href="dashboard-pxc-galera-cluster-summary.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PXC/Galera Cluster Summary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="dashboard-haproxy-instance-summary.html" class="md-nav__link">
         
   
@@ -15944,6 +16154,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../labels-reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Monitoring labels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -16548,32 +16786,21 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#router-summary" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Router Summary
-      
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#connections-detail" class="md-nav__link">
+  <a href="#connections-details" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Connections Detail
+        Connections Details
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Connections Detail">
+    <nav class="md-nav" aria-label="Connections Details">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -16604,22 +16831,22 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
       
         <li class="md-nav__item">
-  <a href="#opcounters-detail" class="md-nav__link">
+  <a href="#opcounters-details" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Opcounters Detail
+        Opcounters Details
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Opcounters Detail">
+    <nav class="md-nav" aria-label="Opcounters Details">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#top-5-command-operationscommand-operations" class="md-nav__link">
+  <a href="#top-5-command-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Top 5 Command Operations/Command Operations
+        Top 5 Command Operations
       
     </span>
   </a>
@@ -16627,10 +16854,10 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
         
           <li class="md-nav__item">
-  <a href="#top-5-getmore-operationsgetmore-operations" class="md-nav__link">
+  <a href="#command-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Top 5 Getmore Operations/Getmore Operations
+        Command Operations
       
     </span>
   </a>
@@ -16638,10 +16865,10 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
         
           <li class="md-nav__item">
-  <a href="#top-5-delete-operationsdelete-operations" class="md-nav__link">
+  <a href="#top-5-getmore-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Top 5 Delete Operations/Delete Operations
+        Top 5 Getmore Operations
       
     </span>
   </a>
@@ -16649,10 +16876,10 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
         
           <li class="md-nav__item">
-  <a href="#top-5-insert-operationsinsert-operations" class="md-nav__link">
+  <a href="#getmore-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Top 5 Insert Operations/Insert Operations
+        Getmore Operations
       
     </span>
   </a>
@@ -16660,10 +16887,10 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
         
           <li class="md-nav__item">
-  <a href="#top-5-update-operationsupdate-operations" class="md-nav__link">
+  <a href="#top-5-delete-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Top 5 Update Operations/Update Operations
+        Top 5 Delete Operations
       
     </span>
   </a>
@@ -16671,10 +16898,76 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
         
           <li class="md-nav__item">
-  <a href="#top-5-query-operationsquery-operations" class="md-nav__link">
+  <a href="#delete-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Top 5 Query Operations/Query Operations
+        Delete Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-5-insert-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 5 Insert Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#insert-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Insert Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-5-update-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 5 Update Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Update Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-5-query-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 5 Query Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#query-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query Operations
       
     </span>
   </a>
@@ -16687,22 +16980,99 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
       
         <li class="md-nav__item">
-  <a href="#document-operations-detail" class="md-nav__link">
+  <a href="#document-operations-details" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Document Operations Detail
+        Document Operations Details
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Document Operations Detail">
+    <nav class="md-nav" aria-label="Document Operations Details">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#top-5-document-deleteinsertreturnupdate-operations" class="md-nav__link">
+  <a href="#top-5-document-delete-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Top 5 Document Delete/Insert/Return/Update Operations
+        Top 5 Document Delete Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#document-delete-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Document Delete Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-5-document-insert-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 5 Document Insert Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#document-insert-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Document Insert Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-5-document-return-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 5 Document Return Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#document-return-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Document Return Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-5-document-update-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 5 Document Update Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#document-update-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Document Update Operations
       
     </span>
   </a>
@@ -16715,22 +17085,22 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
       
         <li class="md-nav__item">
-  <a href="#queued-operations-detail" class="md-nav__link">
+  <a href="#queued-operations-details" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Queued Operations Detail
+        Queued Operations Details
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Queued Operations Detail">
+    <nav class="md-nav" aria-label="Queued Operations Details">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#top-5-queued-read-operationsqueued-read-operations" class="md-nav__link">
+  <a href="#top-5-queued-read-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Top 5 Queued Read Operations/Queued Read Operations
+        Top 5 Queued Read Operations
       
     </span>
   </a>
@@ -16738,10 +17108,32 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
         
           <li class="md-nav__item">
-  <a href="#top-5-queued-write-operationsqueued-write-operations" class="md-nav__link">
+  <a href="#queued-read-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Top 5 Queued Write Operations/Queued Write Operations
+        Queued Read Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-5-queued-write-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 5 Queued Write Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#queued-write-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Queued Write Operations
       
     </span>
   </a>
@@ -16786,72 +17178,103 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 
 
 <h1 id="mongodb-instances-overview">MongoDB Instances Overview<a class="headerlink" href="#mongodb-instances-overview" title="Permanent link">&para;</a></h1>
-<p>Provides a high-level view of all MongoDB deployments monitored by PMM, including sharded clusters, replica sets, and standalone instances. </p>
-<p>Use this dashboard as your starting point for MongoDB monitoring to quickly assess overall health before drilling down into specific instances.</p>
-<p><img alt="!image" src="../../images/PMM_MongoDB_Instances_Overview.png" /></p>
+<p>This dashboard provides a high-level view of all MongoDB deployments monitored by PMM, including sharded clusters, replica sets, and standalone instances.</p>
+<p>Start with this dashboard to get a quick view of overall fleet health before drilling into specific instances or replica sets.</p>
+<p><img alt="PMM MongoDB Instances Overview" src="../../images/PMM_MongoDB_Instances_Overview.png" /></p>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
 <h3 id="sharded-clusters">Sharded Clusters<a class="headerlink" href="#sharded-clusters" title="Permanent link">&para;</a></h3>
-<p>Displays the total number of sharded clusters currently being monitored by PMM.</p>
+<p>Shows the total number of sharded clusters currently monitored by PMM as a single number.</p>
 <h3 id="replica-sets">Replica Sets<a class="headerlink" href="#replica-sets" title="Permanent link">&para;</a></h3>
-<p>Shows the count of replica sets that are not part of a sharded cluster. This helps you understand your standalone replica set deployment scope.</p>
+<p>Shows the number of replica sets that are not part of a sharded cluster.</p>
 <h3 id="processes">Processes<a class="headerlink" href="#processes" title="Permanent link">&para;</a></h3>
-<p>Displays the total number of MongoDB processes (mongod + mongos) being monitored across all environments and clusters.</p>
+<p>Shows the total number of MongoDB processes (mongod and mongos) currently monitored across all environments and clusters as a single number.</p>
 <h3 id="availability">Availability<a class="headerlink" href="#availability" title="Permanent link">&para;</a></h3>
-<p>Shows the percentage of time each cluster or replica set had a primary node available during the selected time range. </p>
-<p>Color-coded thresholds help identify availability concerns: red indicates low availability, yellow shows moderate availability, and green confirms healthy uptime.</p>
+<p>Shows the percentage of time each cluster or replica set had a primary node available during the selected time range.</p>
+<p>Color thresholds show availability health: dark green means 100% availability (primary was always present), dark yellow means availability was between 50% and 100%, and dark red means availability was below 50% or no data was recorded. Use this to quickly spot replica sets that experienced prolonged primary outages during the time range.</p>
 <h3 id="operations">Operations<a class="headerlink" href="#operations" title="Permanent link">&para;</a></h3>
-<p>Displays the total rate of read/write operations per second across selected instances, excluding administrative commands.</p>
+<p>Shows the total rate of read and write operations per second across all selected instances, excluding administrative commands.</p>
+<p>Use this for a quick sense of overall fleet throughput. A spike here means something is driving unusually high traffic across your deployment.</p>
 <h3 id="docs-accessed">Docs Accessed<a class="headerlink" href="#docs-accessed" title="Permanent link">&para;</a></h3>
-<p>Shows the rate of documents being inserted, updated, deleted, or returned per second across selected instances.</p>
+<p>Shows the rate of documents inserted, updated, deleted, or returned per second across all selected instances.</p>
+<p>Use this alongside <strong>Operations</strong> to understand both the operation rate and the volume of data each operation is touching fleet-wide.</p>
 <h3 id="time-since-election">Time Since Election<a class="headerlink" href="#time-since-election" title="Permanent link">&para;</a></h3>
-<p>Displays how long ago the most recent replica set election occurred. </p>
-<p>Color-coded to highlight recent elections: red (less than 5 minutes), yellow (5-60 minutes), and green (over 1 hour). Frequent elections may indicate cluster instability.</p>
+<p>Shows how long ago the most recent replica set election occurred.</p>
+<p>The display turns dark red if an election happened less than 5 minutes ago, dark yellow for elections between 5 minutes and 1 hour ago, and dark green for elections older than 1 hour. A recent election (red or yellow) is worth investigating to find out whether it was a planned failover or an unexpected event.</p>
 <h3 id="min-uptime">Min Uptime<a class="headerlink" href="#min-uptime" title="Permanent link">&para;</a></h3>
-<p>Shows the minimum uptime among all monitored MongoDB processes. This helps quickly identify recently restarted nodes that may need attention.</p>
+<p>Shows the lowest uptime value among all monitored MongoDB processes.</p>
+<p>The display turns red when the minimum uptime is zero (meaning at least one process just started or restarted), orange when it is under 5 minutes, and green once it is over 1 hour. A red or orange value means at least one instance restarted recently. Use this to catch unexpected restarts without having to check each instance individually.</p>
 <h2 id="status">Status<a class="headerlink" href="#status" title="Permanent link">&para;</a></h2>
 <h3 id="node-summary">Node Summary<a class="headerlink" href="#node-summary" title="Permanent link">&para;</a></h3>
-<p>A donut chart showing the count of mongod nodes grouped by health status. Green represents nodes in healthy states (PRIMARY, SECONDARY, ARBITER), while red flags nodes requiring attention.</p>
+<p>A donut chart showing the distribution of mongod node states across your fleet. Nodes in healthy states (PRIMARY, SECONDARY, ARBITER) are grouped as OK. Nodes in any other state are grouped as CHECK and shown in red.</p>
+<p>A large OK segment means your fleet is healthy. Any CHECK slice means some nodes are in unexpected states and should be investigated. Click through to find the affected instances.</p>
 <h3 id="replica-set-status">Replica Set Status<a class="headerlink" href="#replica-set-status" title="Permanent link">&para;</a></h3>
-<p>A hexagon grid displaying each replica set&rsquo;s health status. </p>
-<p>Each hexagon represents a replica set and is color-coded: green for OK, red for CHECK. </p>
-<p>Click any hexagon to open the Replica Set Summary dashboard for detailed monitoring.</p>
+<p>A hexagon grid showing the health of each replica set, with one hexagon per replica set. Green means OK; red means CHECK. Click any hexagon to open the Replica Set Summary dashboard for that replica set.</p>
+<p>Use this to scan your entire replica set fleet at once. Red hexagons pinpoint which replica sets need attention.</p>
 <h3 id="sharded-cluster-status">Sharded Cluster Status<a class="headerlink" href="#sharded-cluster-status" title="Permanent link">&para;</a></h3>
-<p>A hexagon grid showing the health of each sharded cluster. Click any cluster hexagon to navigate to its Sharded Cluster Summary dashboard for detailed metrics.</p>
+<p>A hexagon grid showing the health of each sharded cluster. Click any hexagon to navigate to the Sharded Cluster Summary dashboard for that cluster.</p>
 <h3 id="router-status">Router Status<a class="headerlink" href="#router-status" title="Permanent link">&para;</a></h3>
-<p>A hexagon grid displaying individual MongoS router status. Each hexagon represents a router and shows OK (green) or CHECK (red). Click any router to open its Router Summary dashboard.</p>
-<h3 id="router-summary">Router Summary<a class="headerlink" href="#router-summary" title="Permanent link">&para;</a></h3>
-<p>A donut chart showing the count of MongoS routers registered with PMM Server, grouped by status. Green (OK) indicates routers that are up and operational, while red (CHECK) flags routers that are down or unreachable.</p>
-<h2 id="connections-detail">Connections Detail<a class="headerlink" href="#connections-detail" title="Permanent link">&para;</a></h2>
+<p>A hexagon grid showing the status of each mongos router, with one hexagon per router. Green means OK; red means CHECK. Click any hexagon to open the Router Summary dashboard for that router.</p>
+<h2 id="connections-details">Connections Details<a class="headerlink" href="#connections-details" title="Permanent link">&para;</a></h2>
 <h3 id="top-5-connections">Top 5 Connections<a class="headerlink" href="#top-5-connections" title="Permanent link">&para;</a></h3>
-<p>Shows a time series of the five services with the highest TCP connection counts, plus the overall average. </p>
+<p>Shows a time series of the five services with the highest current TCP connection counts, plus a red reference line for the fleet average.</p>
+<p>Use this to spot which services are absorbing the most connections and whether any stand out relative to the average. A service with connections far above the average may be receiving uneven traffic or have a connection pooling issue.</p>
 <h3 id="current-connections">Current Connections<a class="headerlink" href="#current-connections" title="Permanent link">&para;</a></h3>
-<p>The Current Connections hexagon grid displays the current connection count for each service. </p>
-<p>Click any hexagon to drill down to that instance&rsquo;s summary.</p>
-<h2 id="opcounters-detail">Opcounters Detail<a class="headerlink" href="#opcounters-detail" title="Permanent link">&para;</a></h2>
-<h3 id="top-5-command-operationscommand-operations">Top 5 Command Operations/Command Operations<a class="headerlink" href="#top-5-command-operationscommand-operations" title="Permanent link">&para;</a></h3>
-<p>Shows the rate of administrative commands processed per second. The Top 5 panel displays a time series of the busiest services, while the hexagon grid shows all services at a glance.</p>
-<h3 id="top-5-getmore-operationsgetmore-operations">Top 5 Getmore Operations/Getmore Operations<a class="headerlink" href="#top-5-getmore-operationsgetmore-operations" title="Permanent link">&para;</a></h3>
-<p>Tracks requests to fetch more results from a query cursor, such as when iterating through large result sets.</p>
-<p>Useful for identifying services with heavy cursor activity.</p>
-<h3 id="top-5-delete-operationsdelete-operations">Top 5 Delete Operations/Delete Operations<a class="headerlink" href="#top-5-delete-operationsdelete-operations" title="Permanent link">&para;</a></h3>
-<p>Displays the rate of delete commands per second across your MongoDB instances.</p>
-<h3 id="top-5-insert-operationsinsert-operations">Top 5 Insert Operations/Insert Operations<a class="headerlink" href="#top-5-insert-operationsinsert-operations" title="Permanent link">&para;</a></h3>
-<p>Shows the rate of insert commands per second, helping you identify write-heavy services.</p>
-<h3 id="top-5-update-operationsupdate-operations">Top 5 Update Operations/Update Operations<a class="headerlink" href="#top-5-update-operationsupdate-operations" title="Permanent link">&para;</a></h3>
-<p>Displays the rate of update commands per second across monitored instances.</p>
-<h3 id="top-5-query-operationsquery-operations">Top 5 Query Operations/Query Operations<a class="headerlink" href="#top-5-query-operationsquery-operations" title="Permanent link">&para;</a></h3>
-<p>Shows the rate of query/find operations per second, helping identify read-heavy services.</p>
-<h2 id="document-operations-detail">Document Operations Detail<a class="headerlink" href="#document-operations-detail" title="Permanent link">&para;</a></h2>
-<h3 id="top-5-document-deleteinsertreturnupdate-operations">Top 5 Document Delete/Insert/Return/Update Operations<a class="headerlink" href="#top-5-document-deleteinsertreturnupdate-operations" title="Permanent link">&para;</a></h3>
-<p>Track the actual number of documents affected by operations, as opposed to the command count. </p>
-<p>A single update command, for example, could affect hundreds of documents. </p>
-<p>High values may indicate queries operating on more documents than expected.</p>
-<h2 id="queued-operations-detail">Queued Operations Detail<a class="headerlink" href="#queued-operations-detail" title="Permanent link">&para;</a></h2>
-<h3 id="top-5-queued-read-operationsqueued-read-operations">Top 5 Queued Read Operations/Queued Read Operations<a class="headerlink" href="#top-5-queued-read-operationsqueued-read-operations" title="Permanent link">&para;</a></h3>
-<p>Shows read operations waiting for a lock. </p>
-<p>Consistently small values are normal, but persistently high values indicate queries causing long lock times that should be investigated.</p>
-<h3 id="top-5-queued-write-operationsqueued-write-operations">Top 5 Queued Write Operations/Queued Write Operations<a class="headerlink" href="#top-5-queued-write-operationsqueued-write-operations" title="Permanent link">&para;</a></h3>
-<p>Displays write operations waiting for a lock. High values may indicate write contention that could impact performance.</p>
+<p>A hexagon grid showing the current connection count for each service. Click any hexagon to open the <strong>MongoDB Instance Summary</strong> for that service.</p>
+<p>Use this to see the full fleet at once after checking the Top 5 time series. Services with higher connection counts stand out by color.</p>
+<h2 id="opcounters-details">Opcounters Details<a class="headerlink" href="#opcounters-details" title="Permanent link">&para;</a></h2>
+<h3 id="top-5-command-operations">Top 5 Command Operations<a class="headerlink" href="#top-5-command-operations" title="Permanent link">&para;</a></h3>
+<p>Shows a time series of the five services with the highest rate of command operations per second, plus a red reference line for the fleet average.</p>
+<h3 id="command-operations">Command Operations<a class="headerlink" href="#command-operations" title="Permanent link">&para;</a></h3>
+<p>A hexagon grid showing the current command operation rate for each service. Click any hexagon to open the <strong>MongoDB Instance Summary</strong> for that service.</p>
+<h3 id="top-5-getmore-operations">Top 5 Getmore Operations<a class="headerlink" href="#top-5-getmore-operations" title="Permanent link">&para;</a></h3>
+<p>Shows a time series of the five services with the highest getmore rate per second, plus a red reference line for the fleet average.</p>
+<p>Getmore operations fetch additional results from an open cursor. A high getmore rate means services are paginating through large result sets. Use this to identify services with heavy cursor-based query patterns.</p>
+<h3 id="getmore-operations">Getmore Operations<a class="headerlink" href="#getmore-operations" title="Permanent link">&para;</a></h3>
+<p>A hexagon grid showing the current getmore rate for each service. Click any hexagon to open the <strong>MongoDB Instance Summary</strong> for that service.</p>
+<h3 id="top-5-delete-operations">Top 5 Delete Operations<a class="headerlink" href="#top-5-delete-operations" title="Permanent link">&para;</a></h3>
+<p>Shows a time series of the five services with the highest delete command rate per second, plus a red reference line for the fleet average.</p>
+<h3 id="delete-operations">Delete Operations<a class="headerlink" href="#delete-operations" title="Permanent link">&para;</a></h3>
+<p>A hexagon grid showing the current delete rate for each service. Click any hexagon to open the <strong>MongoDB Instance Summary</strong> for that service.</p>
+<h3 id="top-5-insert-operations">Top 5 Insert Operations<a class="headerlink" href="#top-5-insert-operations" title="Permanent link">&para;</a></h3>
+<p>Shows a time series of the five services with the highest insert command rate per second, plus a red reference line for the fleet average.</p>
+<h3 id="insert-operations">Insert Operations<a class="headerlink" href="#insert-operations" title="Permanent link">&para;</a></h3>
+<p>A hexagon grid showing the current insert rate for each service. Click any hexagon to open the <strong>MongoDB Instance Summary</strong> for that service.</p>
+<h3 id="top-5-update-operations">Top 5 Update Operations<a class="headerlink" href="#top-5-update-operations" title="Permanent link">&para;</a></h3>
+<p>Shows a time series of the five services with the highest update command rate per second, plus a red reference line for the fleet average.</p>
+<h3 id="update-operations">Update Operations<a class="headerlink" href="#update-operations" title="Permanent link">&para;</a></h3>
+<p>A hexagon grid showing the current update rate for each service. Click any hexagon to open the <strong>MongoDB Instance Summary</strong> for that service.</p>
+<h3 id="top-5-query-operations">Top 5 Query Operations<a class="headerlink" href="#top-5-query-operations" title="Permanent link">&para;</a></h3>
+<p>Shows a time series of the five services with the highest query (find) operation rate per second, plus a red reference line for the fleet average.</p>
+<h3 id="query-operations">Query Operations<a class="headerlink" href="#query-operations" title="Permanent link">&para;</a></h3>
+<p>A hexagon grid showing the current query rate for each service. Click any hexagon to open the <strong>MongoDB Instance Summary</strong> for that service.</p>
+<h2 id="document-operations-details">Document Operations Details<a class="headerlink" href="#document-operations-details" title="Permanent link">&para;</a></h2>
+<p>These panels count the actual number of documents affected by operations, not the number of operations issued. A single update command can affect many documents, so document counts can be much higher than operation counts for bulk workloads.</p>
+<h3 id="top-5-document-delete-operations">Top 5 Document Delete Operations<a class="headerlink" href="#top-5-document-delete-operations" title="Permanent link">&para;</a></h3>
+<p>Shows a time series of the five services with the highest rate of documents deleted per second, plus a red reference line for the fleet average.</p>
+<h3 id="document-delete-operations">Document Delete Operations<a class="headerlink" href="#document-delete-operations" title="Permanent link">&para;</a></h3>
+<p>A hexagon grid showing the current document delete rate for each service. Click any hexagon to open the <strong>MongoDB Instance Summary</strong> for that service.</p>
+<h3 id="top-5-document-insert-operations">Top 5 Document Insert Operations<a class="headerlink" href="#top-5-document-insert-operations" title="Permanent link">&para;</a></h3>
+<p>Shows a time series of the five services with the highest rate of documents inserted per second, plus a red reference line for the fleet average.</p>
+<h3 id="document-insert-operations">Document Insert Operations<a class="headerlink" href="#document-insert-operations" title="Permanent link">&para;</a></h3>
+<p>A hexagon grid showing the current document insert rate for each service. Click any hexagon to open the <strong>MongoDB Instance Summary</strong> for that service.</p>
+<h3 id="top-5-document-return-operations">Top 5 Document Return Operations<a class="headerlink" href="#top-5-document-return-operations" title="Permanent link">&para;</a></h3>
+<p>Shows a time series of the five services with the highest rate of documents returned per second, plus a red reference line for the fleet average.</p>
+<h3 id="document-return-operations">Document Return Operations<a class="headerlink" href="#document-return-operations" title="Permanent link">&para;</a></h3>
+<p>A hexagon grid showing the current document return rate for each service. Click any hexagon to open the <strong>MongoDB Instance Summary</strong> for that service.</p>
+<h3 id="top-5-document-update-operations">Top 5 Document Update Operations<a class="headerlink" href="#top-5-document-update-operations" title="Permanent link">&para;</a></h3>
+<p>Shows a time series of the five services with the highest rate of documents updated per second, plus a red reference line for the fleet average.</p>
+<h3 id="document-update-operations">Document Update Operations<a class="headerlink" href="#document-update-operations" title="Permanent link">&para;</a></h3>
+<p>A hexagon grid showing the current document update rate for each service. Click any hexagon to open the <strong>MongoDB Instance Summary</strong> for that service.</p>
+<h2 id="queued-operations-details">Queued Operations Details<a class="headerlink" href="#queued-operations-details" title="Permanent link">&para;</a></h2>
+<p>Queued operations are operations waiting to acquire a lock. Any value above zero means lock contention is occurring. Use these panels to identify which services are experiencing the most contention.</p>
+<h3 id="top-5-queued-read-operations">Top 5 Queued Read Operations<a class="headerlink" href="#top-5-queued-read-operations" title="Permanent link">&para;</a></h3>
+<p>Shows a time series of the five services with the highest number of read operations queued waiting for a lock, plus a red reference line for the fleet average.</p>
+<h3 id="queued-read-operations">Queued Read Operations<a class="headerlink" href="#queued-read-operations" title="Permanent link">&para;</a></h3>
+<p>A hexagon grid showing the current read queue depth for each service. The hexagon turns orange when any operations are queued (1 or more). Click any hexagon to open the <strong>MongoDB Instance Summary</strong> for that service.</p>
+<h3 id="top-5-queued-write-operations">Top 5 Queued Write Operations<a class="headerlink" href="#top-5-queued-write-operations" title="Permanent link">&para;</a></h3>
+<p>Shows a time series of the five services with the highest number of write operations queued waiting for a lock, plus a red reference line for the fleet average.</p>
+<h3 id="queued-write-operations">Queued Write Operations<a class="headerlink" href="#queued-write-operations" title="Permanent link">&para;</a></h3>
+<p>A hexagon grid showing the current write queue depth for each service. The hexagon turns orange when any operations are queued (1 or more). Click any hexagon to open the <strong>MongoDB Instance Summary</strong> for that service.</p>
 
 
 
@@ -16874,7 +17297,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="February 5, 2026 14:46:56 UTC">February 5, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 28, 2026 10:01:59 UTC">May 28, 2026</span>
   </span>
 
     

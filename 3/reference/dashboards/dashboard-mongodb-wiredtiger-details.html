@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Documentation">
+        <meta name="description" content="This dashboard shows internal WiredTiger storage engine metrics for a MongoDB instance, covering cache usage, concurrency, checkpoint behavior, write-ahead log activity, and document-level operation counts. Use it to diagnose storage engine bottlenecks when query latency or throughput problems cannot be explained by query patterns alone.">
       
       
         <meta name="author" content="Percona LLC">
@@ -3821,7 +3821,7 @@
   <span class="md-ellipsis">
     
   
-    Set timezones
+    Set time zone
   
 
     
@@ -10860,7 +10860,7 @@
   <span class="md-ellipsis">
     
   
-    Upgrade PMM v3 Server from the UI
+    Upgrade PMM Server from the UI
   
 
     
@@ -11840,6 +11840,34 @@
     
   
     Release notes index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../release-notes/3.8.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PMM 3.8.0 (2026-05-28)
   
 
     
@@ -14411,14 +14439,14 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboard-mongodb-experimental_oplog.html" class="md-nav__link">
+      <a href="dashboard-mongodb-oplog-details.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Experimental MongoDB Oplog Details
+    MongoDB Oplog Details
   
 
     
@@ -14446,7 +14474,7 @@
   <span class="md-ellipsis">
     
   
-    MongoDB Sharded Cluster Summary
+    MongoDB Cluster Summary
   
 
     
@@ -14723,6 +14751,62 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#wiredtiger-cache-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WiredTiger Cache Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wiredtiger-max-cache-size" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WiredTiger Max Cache Size
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-cached" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory Cached
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-available" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory Available
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#wiredtiger-transactions" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -14732,8 +14816,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#wiredtiger-cache-activity" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -14741,6 +14825,11 @@
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -14764,20 +14853,10 @@
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#wiredtiger-concurrency-tickets-available" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        WiredTiger Concurrency Tickets Available
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
+    <nav class="md-nav" aria-label="WiredTiger Sessions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#queued-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -14787,8 +14866,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#wiredtiger-checkpoint-time" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -14798,8 +14877,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#wiredtiger-cache-eviction" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -14809,8 +14888,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#wiredtiger-cache-capacity" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -14820,8 +14899,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#wiredtiger-cache-pages" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -14831,8 +14910,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#wiredtiger-log-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -14840,6 +14919,11 @@
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -14852,9 +14936,10 @@
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
+    <nav class="md-nav" aria-label="WiredTiger Log Activity">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#wiredtiger-log-records" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -14864,8 +14949,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#document-changes" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -14875,8 +14960,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#scanned-and-moved-objects" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -14886,12 +14971,238 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#page-faults" class="md-nav__link">
     <span class="md-ellipsis">
       
         Page Faults
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mongodb-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MongoDB Summary
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MongoDB Summary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mongodb-uptime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MongoDB Uptime
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        QPS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#latency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Latency
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#service" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Service
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#connections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Connections
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cursors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cursors
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#node-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Node Summary
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Node Summary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#system-uptime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System Uptime
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#load-average" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Load Average
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ram" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RAM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#virtual-memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Virtual Memory
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#disk-space" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Disk Space
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#min-space-available" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Min Space Available
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#node" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Node
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cpu-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPU Usage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cpu-saturation-and-max-core-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPU Saturation and Max Core Usage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#disk-io-and-swap-activity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Disk I/O and Swap Activity
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#network-traffic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Network Traffic
       
     </span>
   </a>
@@ -15722,6 +16033,34 @@
   
   
     <li class="md-nav__item">
+      <a href="dashboard-pxc-galera-cluster-summary.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PXC/Galera Cluster Summary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="dashboard-haproxy-instance-summary.html" class="md-nav__link">
         
   
@@ -15754,6 +16093,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../labels-reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Monitoring labels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -16198,6 +16565,62 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#wiredtiger-cache-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WiredTiger Cache Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wiredtiger-max-cache-size" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WiredTiger Max Cache Size
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-cached" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory Cached
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-available" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory Available
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#wiredtiger-transactions" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -16207,8 +16630,8 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#wiredtiger-cache-activity" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -16216,6 +16639,11 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -16239,20 +16667,10 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#wiredtiger-concurrency-tickets-available" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        WiredTiger Concurrency Tickets Available
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
+    <nav class="md-nav" aria-label="WiredTiger Sessions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#queued-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -16262,8 +16680,8 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#wiredtiger-checkpoint-time" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -16273,8 +16691,8 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#wiredtiger-cache-eviction" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -16284,8 +16702,8 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#wiredtiger-cache-capacity" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -16295,8 +16713,8 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#wiredtiger-cache-pages" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -16306,8 +16724,8 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#wiredtiger-log-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -16315,6 +16733,11 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -16327,9 +16750,10 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
+    <nav class="md-nav" aria-label="WiredTiger Log Activity">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#wiredtiger-log-records" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -16339,8 +16763,8 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#document-changes" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -16350,8 +16774,8 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#scanned-and-moved-objects" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -16361,12 +16785,238 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#page-faults" class="md-nav__link">
     <span class="md-ellipsis">
       
         Page Faults
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mongodb-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MongoDB Summary
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MongoDB Summary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mongodb-uptime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MongoDB Uptime
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        QPS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#latency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Latency
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#service" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Service
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#connections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Connections
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cursors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cursors
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#node-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Node Summary
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Node Summary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#system-uptime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System Uptime
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#load-average" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Load Average
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ram" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RAM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#virtual-memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Virtual Memory
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#disk-space" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Disk Space
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#min-space-available" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Min Space Available
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#node" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Node
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cpu-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPU Usage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cpu-saturation-and-max-core-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPU Saturation and Max Core Usage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#disk-io-and-swap-activity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Disk I/O and Swap Activity
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#network-traffic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Network Traffic
       
     </span>
   </a>
@@ -16406,38 +17056,111 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 
 
 <h1 id="mongodb-wiredtiger-details">MongoDB WiredTiger Details<a class="headerlink" href="#mongodb-wiredtiger-details" title="Permanent link">&para;</a></h1>
-<p><img alt="!image" src="../../images/PMM_MongoDB_WiredTiger_Details.jpg" /></p>
-<h2 id="wiredtiger-transactions">WiredTiger Transactions<a class="headerlink" href="#wiredtiger-transactions" title="Permanent link">&para;</a></h2>
-<p>WiredTiger internal transactions</p>
-<h2 id="wiredtiger-cache-activity">WiredTiger Cache Activity<a class="headerlink" href="#wiredtiger-cache-activity" title="Permanent link">&para;</a></h2>
-<p>Data volume transferred per second between the WT cache and data files. Writes out always imply disk; Reads are often from OS file buffer cache already in RAM, but disk if not.</p>
+<p>This dashboard shows internal WiredTiger storage engine metrics for a MongoDB instance, covering cache usage, concurrency, checkpoint behavior, write-ahead log activity, and document-level operation counts. Use it to diagnose storage engine bottlenecks when query latency or throughput problems cannot be explained by query patterns alone.</p>
+<p><img alt="MongoDB WiredTiger Details" src="../../images/PMM_MongoDB_WiredTiger_Details.jpg" /></p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<h3 id="wiredtiger-cache-usage">WiredTiger Cache Usage<a class="headerlink" href="#wiredtiger-cache-usage" title="Permanent link">&para;</a></h3>
+<p>Shows the current amount of data in the WiredTiger cache in bytes. This is the uncompressed in-memory representation, which is larger than the on-disk size. Compare this with <strong>WiredTiger Max Cache Size</strong> to see how full the cache is.</p>
+<h3 id="wiredtiger-max-cache-size">WiredTiger Max Cache Size<a class="headerlink" href="#wiredtiger-max-cache-size" title="Permanent link">&para;</a></h3>
+<p>Shows the configured maximum size for the WiredTiger cache. The default is 50% of available RAM minus 1 GB, with a minimum of 256 MB. To change it, set <code>storage.wiredTiger.engineConfig.cacheSizeGB</code> in the config file or pass <code>--wiredTigerCacheSizeGB</code> on the command line. If <strong>WiredTiger Cache Usage</strong> is consistently close to this value, the cache is under pressure and eviction will be occurring.</p>
+<h3 id="memory-cached">Memory Cached<a class="headerlink" href="#memory-cached" title="Permanent link">&para;</a></h3>
+<p>Shows the amount of memory in the OS filesystem cache on the host. WiredTiger stores data in its own cache, but the OS filesystem cache also holds recently accessed data files. A large filesystem cache can reduce disk reads even when the WiredTiger cache is under pressure.</p>
+<h3 id="memory-available">Memory Available<a class="headerlink" href="#memory-available" title="Permanent link">&para;</a></h3>
+<p>Shows the percentage of system memory currently available for use. Turns orange at 90% and red at 95%. If available memory is critically low, the OS may begin evicting filesystem cache pages, which will increase disk reads for data not in the WiredTiger cache.</p>
+<h3 id="wiredtiger-transactions">WiredTiger Transactions<a class="headerlink" href="#wiredtiger-transactions" title="Permanent link">&para;</a></h3>
+<p>Shows the rate of WiredTiger internal transactions per second, broken down by type: begin, commit, and rollback.</p>
+<p>A high rollback rate is expected and not a cause for concern, since MongoDB uses rollbacks internally even for read queries to keep your data views consistent. Focus instead on whether transaction activity correlates with growing <strong>Queued Operations</strong>, which would mean your queries are starting to wait on locks.</p>
+<h3 id="wiredtiger-cache-activity">WiredTiger Cache Activity<a class="headerlink" href="#wiredtiger-cache-activity" title="Permanent link">&para;</a></h3>
+<p>Shows the rate of data transfer between the WiredTiger cache and storage in bytes per second. Two series are shown: <strong>Read into</strong> (data loaded from storage into the cache) and <strong>Written from</strong> (dirty data flushed from the cache to disk).</p>
+<p>Writes from the cache always go to disk. Reads into the cache may be served from the OS filesystem cache if the data is already in RAM. A sustained high <strong>Read into</strong> rate means the working set is not fitting in the WiredTiger cache and data is being loaded frequently.</p>
 <h2 id="wiredtiger-block-activity">WiredTiger Block Activity<a class="headerlink" href="#wiredtiger-block-activity" title="Permanent link">&para;</a></h2>
-<p>Data volume handled by the WT block manager per second</p>
+<p>Shows the rate of data handled by the WiredTiger block manager per second, broken down by operation type (read, write, map read).</p>
+<p>This tells you how much physical disk I/O MongoDB is doing behind the scenes. If you see high read rates, your working dataset doesn&rsquo;t fit in the cache and MongoDB is constantly loading data from disk, which slows down your queries. High write rates mean MongoDB is flushing a lot of modified data to disk, which can compete with reads for disk bandwidth.</p>
 <h2 id="wiredtiger-sessions">WiredTiger Sessions<a class="headerlink" href="#wiredtiger-sessions" title="Permanent link">&para;</a></h2>
-<p>Internal WT storage engine cursors and sessions currently open</p>
-<h2 id="wiredtiger-concurrency-tickets-available">WiredTiger Concurrency Tickets Available<a class="headerlink" href="#wiredtiger-concurrency-tickets-available" title="Permanent link">&para;</a></h2>
-<p>A WT &lsquo;ticket&rsquo; is assigned out for every operation running simultaneously in the WT storage engine. &ldquo;Available&rdquo; = hard-coded high value - &ldquo;Out&rdquo;.</p>
-<h2 id="queued-operations">Queued Operations<a class="headerlink" href="#queued-operations" title="Permanent link">&para;</a></h2>
-<p>Operations queued due to a lock.</p>
-<h2 id="wiredtiger-checkpoint-time">WiredTiger Checkpoint Time<a class="headerlink" href="#wiredtiger-checkpoint-time" title="Permanent link">&para;</a></h2>
-<p>The time spent in WT checkpoint phase. Warning: This calculation averages the cyclical event (default: 1 min) execution to a per-second value.</p>
-<h2 id="wiredtiger-cache-eviction">WiredTiger Cache Eviction<a class="headerlink" href="#wiredtiger-cache-eviction" title="Permanent link">&para;</a></h2>
-<p>Least-recently used pages being evicted due to WT cache becoming full.</p>
-<h2 id="wiredtiger-cache-capacity">WiredTiger Cache Capacity<a class="headerlink" href="#wiredtiger-cache-capacity" title="Permanent link">&para;</a></h2>
-<p>Configured max and current size of the WT cache.</p>
-<h2 id="wiredtiger-cache-pages">WiredTiger Cache Pages<a class="headerlink" href="#wiredtiger-cache-pages" title="Permanent link">&para;</a></h2>
-<h2 id="wiredtiger-log-operations">WiredTiger Log Operations<a class="headerlink" href="#wiredtiger-log-operations" title="Permanent link">&para;</a></h2>
-<p>WT internal write-ahead log operations.</p>
+<p>Shows the number of open WiredTiger internal cursors and sessions over time.</p>
+<p>Each MongoDB operation opens one or more WiredTiger cursors. A steadily growing cursor count can indicate cursors are not being closed promptly, which may eventually cause resource exhaustion.</p>
+<p>Shows the number of available WiredTiger concurrency tickets for read (positive Y axis) and write (negative Y axis) operations over time.</p>
+<p>MongoDB uses a ticket system to limit how many operations can run simultaneously in the storage engine. When available tickets drop toward zero, your new queries and writes must wait in line before they can execute, which directly increases your response times. This is one of the most direct indicators of storage engine saturation.</p>
+<p>In newer MongoDB versions, the ticket pool is dynamically resized, so a temporarily low count may not indicate real saturation. However, if tickets are consistently depleted, your instance is genuinely overloaded. </p>
+<p>Check <strong>Queued Operations</strong> to confirm, and consider reducing concurrent connections, adding indexes to speed up operations, or scaling your hardware.</p>
+<h3 id="queued-operations">Queued Operations<a class="headerlink" href="#queued-operations" title="Permanent link">&para;</a></h3>
+<p>Shows the number of operations waiting to acquire a global lock, broken down by read and write queues over time.</p>
+<p>Any value above zero means lock contention is occurring. A queue that grows and stays elevated points to long-running write operations blocking other work. Use this alongside <strong>WiredTiger Concurrency Tickets Available</strong> to distinguish between lock queue pressure and ticket exhaustion.</p>
+<h3 id="wiredtiger-checkpoint-time">WiredTiger Checkpoint Time<a class="headerlink" href="#wiredtiger-checkpoint-time" title="Permanent link">&para;</a></h3>
+<p>Shows the time spent in the WiredTiger checkpoint phase, displayed as a per-second average of a cyclical event that runs approximately every 60 seconds by default.</p>
+<p>MongoDB periodically saves modified data to disk (roughly every 60 seconds). If this panel shows a rising trend, each save is taking longer, usually because your write volume is growing or your disk can&rsquo;t keep up. You may notice brief latency spikes during these saves. If checkpoint times keep climbing, check <strong>Disk I/O and Swap Activity</strong> to confirm whether your disk is the bottleneck.</p>
+<h3 id="wiredtiger-cache-eviction">WiredTiger Cache Eviction<a class="headerlink" href="#wiredtiger-cache-eviction" title="Permanent link">&para;</a></h3>
+<p>Shows the rate of cache page evictions per second, broken down by type (modified and unmodified pages).</p>
+<p>When the cache is full, MongoDB must remove older data to make room for new requests. Removing unmodified data is fast and won&rsquo;t affect your performance. However, removing modified data requires writing to disk first, which is slower and can stall your application&rsquo;s operations. If you see a sustained high rate of dirty page evictions, your cache is too small for your workload and your queries will experience delays during write-heavy periods.</p>
+<h3 id="wiredtiger-cache-capacity">WiredTiger Cache Capacity<a class="headerlink" href="#wiredtiger-cache-capacity" title="Permanent link">&para;</a></h3>
+<p>Shows the configured maximum cache size (<strong>Max</strong>) alongside the current cache usage (<strong>Used</strong>) over time.</p>
+<p>Use this to see how cache utilization trends over the selected time range. A <strong>Used</strong> line that hugs the <strong>Max</strong> line means the cache is always full and eviction pressure is constant. This is a signal to increase the cache size if memory allows, or to reduce the working set.</p>
+<h3 id="wiredtiger-cache-pages">WiredTiger Cache Pages<a class="headerlink" href="#wiredtiger-cache-pages" title="Permanent link">&para;</a></h3>
+<p>Shows the number of pages in the WiredTiger cache over time, broken down by state (clean, dirty, internal).</p>
+<p>If dirty pages make up a large fraction of the total, your workload is generating changes faster than MongoDB can write them to disk. This buildup will eventually lead to longer checkpoint pauses and more aggressive eviction, both of which can increase your query latency.</p>
+<h3 id="wiredtiger-log-operations">WiredTiger Log Operations<a class="headerlink" href="#wiredtiger-log-operations" title="Permanent link">&para;</a></h3>
+<p>Shows the rate of WiredTiger write-ahead log (WAL) operations per second, broken down by type (write, sync, read, compress, compress failure, compress uncompressed, read). The WiredTiger WAL is also referred to as the journal.</p>
+<p>If sync rates are high, MongoDB is frequently forcing data to disk, which can limit your write throughput on slower storage. High compress failure rates mean your write data isn&rsquo;t compressing well, so the journal takes up more space and disk bandwidth than usual.</p>
 <h2 id="wiredtiger-log-activity">WiredTiger Log Activity<a class="headerlink" href="#wiredtiger-log-activity" title="Permanent link">&para;</a></h2>
-<p>Data volume moved per second in WT internal write-ahead log.</p>
-<h2 id="wiredtiger-log-records">WiredTiger Log Records<a class="headerlink" href="#wiredtiger-log-records" title="Permanent link">&para;</a></h2>
-<p>Number of records appended per second in WT internal log.</p>
-<h2 id="document-changes">Document Changes<a class="headerlink" href="#document-changes" title="Permanent link">&para;</a></h2>
-<p>Mixed metrics: Docs per second inserted, updated, deleted or returned on any type of node (primary or secondary); + replicated write Ops/sec; + TTL deletes per second.</p>
-<h2 id="scanned-and-moved-objects">Scanned and Moved Objects<a class="headerlink" href="#scanned-and-moved-objects" title="Permanent link">&para;</a></h2>
-<p>This panel shows the number of objects (both data (<code>scanned_objects</code>) and index (<code>scanned</code>)) as well as the number of documents that were moved to a new location due to the size of the document growing. Moved documents only apply to the MMAPv1 storage engine.</p>
-<h2 id="page-faults">Page Faults<a class="headerlink" href="#page-faults" title="Permanent link">&para;</a></h2>
-<p>Unix or Window memory page faults. Not necessarily from MongoDB.</p>
+<p>Shows the rate of data moved through the WiredTiger write-ahead log (journal) in bytes per second, broken down by operation type.</p>
+<p>Rising log write rates indicate increasing write activity. If log sync bytes are high relative to log write bytes, individual writes are being fsynced frequently rather than batched, which can reduce write throughput.</p>
+<h3 id="wiredtiger-log-records">WiredTiger Log Records<a class="headerlink" href="#wiredtiger-log-records" title="Permanent link">&para;</a></h3>
+<p>Shows the rate of records appended to the WiredTiger internal log per second, broken down by type (compressed and uncompressed).</p>
+<p>Use this alongside <strong>WiredTiger Log Activity</strong> to understand whether rising log volume is driven by more records or larger records.</p>
+<h3 id="document-changes">Document Changes<a class="headerlink" href="#document-changes" title="Permanent link">&para;</a></h3>
+<p>Shows the rate of document-level changes per second, broken down by operation type: <code>inserted</code>, <code>updated</code>, <code>deleted</code>, and <code>returned</code> (query results), plus replicated write operations (<code>repl_inserted</code>, <code>repl_updated</code>, <code>repl_deleted</code>) and TTL index deletions (<code>ttl_deleted</code>).</p>
+<p>Use this to understand overall data throughput and its composition. A spike in <code>ttl_deleted</code> means a large batch of documents expired at once. High <code>repl_*</code> rates on a secondary mean replication is catching up. Compare insert and delete rates to track net data growth.</p>
+<h3 id="scanned-and-moved-objects">Scanned and Moved Objects<a class="headerlink" href="#scanned-and-moved-objects" title="Permanent link">&para;</a></h3>
+<p>Shows the rate of objects scanned per second, broken down into data objects (<code>scanned_objects</code>) and index entries (<code>scanned</code>). Also shows the rate of documents moved per second (<code>moved</code>).</p>
+<p>High scan rates relative to documents returned point to collection scans that would benefit from better indexes. The <code>moved</code> metric applies to MMAPv1 only: documents are moved when they grow beyond their allocated space. If you see a non-zero <code>moved</code> rate, the instance is running MMAPv1.</p>
+<h3 id="page-faults">Page Faults<a class="headerlink" href="#page-faults" title="Permanent link">&para;</a></h3>
+<p>Shows the rate of OS memory page faults per second on the host. Page faults are not exclusive to MongoDB and can be caused by any process on the host.</p>
+<p>For WiredTiger instances, page faults mean your data isn&rsquo;t available in any memory cache and must be read directly from disk, which is the slowest path for your queries. A sustained high rate tells you that your working dataset has outgrown the available memory on this host. Check <strong>Memory Available</strong> and <strong>Memory Cached</strong> in the Overview to confirm, and consider adding more RAM or reducing the dataset this instance handles.</p>
+<h2 id="mongodb-summary">MongoDB Summary<a class="headerlink" href="#mongodb-summary" title="Permanent link">&para;</a></h2>
+<h3 id="mongodb-uptime">MongoDB Uptime<a class="headerlink" href="#mongodb-uptime" title="Permanent link">&para;</a></h3>
+<p>Shows how long the MongoDB instance has been running since its last restart. Red means under 5 minutes, orange means under 1 hour, green means over 1 hour.</p>
+<p>A recent restart may cause temporarily elevated cache miss rates and page faults as the WiredTiger cache warms up.</p>
+<h3 id="qps">QPS<a class="headerlink" href="#qps" title="Permanent link">&para;</a></h3>
+<p>Shows the current query rate in operations per second, excluding commands.</p>
+<h3 id="latency">Latency<a class="headerlink" href="#latency" title="Permanent link">&para;</a></h3>
+<p>Shows the average command latency in microseconds.</p>
+<h3 id="service">Service<a class="headerlink" href="#service" title="Permanent link">&para;</a></h3>
+<p>Links to the <strong>MongoDB Instance Summary</strong> for the selected service.</p>
+<h3 id="connections">Connections<a class="headerlink" href="#connections" title="Permanent link">&para;</a></h3>
+<p>Tracks the number of active client connections to the MongoDB instance over time, averaged per service. The metric is collected from mongod, mongos, or generic MongoDB exporters depending on your deployment type.</p>
+<p>Monitor this panel to detect unusual spikes or sustained growth in connection counts, which may indicate connection leaks, misconfigured connection pools, or increased load.</p>
+<p>MongoDB enforces a hard cap via <code>maxIncomingConnections</code>, which you can tune using <a href="https://docs.mongodb.com/manual/administration/analyzing-mongodb-performance/#number-of-connections">Number of Connections</a>.</p>
+<h3 id="cursors">Cursors<a class="headerlink" href="#cursors" title="Permanent link">&para;</a></h3>
+<p>Tracks the number of open cursors per service, broken down by state. A cursor is a pointer to a query result set that MongoDB holds open while a client iterates over it.</p>
+<p>Monitor this panel to detect cursor accumulation, which can indicate cursor leaks, long-running queries, or clients that are not closing cursors properly. Cursors with the <code>noTimeout</code> flag set never expire and require explicit closure by the application.</p>
+<p>By default, idle cursors time out after 10 minutes. If cursor counts increase steadily beyond your normal query patterns, investigate for leaks or unclosed cursors.</p>
+<h2 id="node-summary">Node Summary<a class="headerlink" href="#node-summary" title="Permanent link">&para;</a></h2>
+<h3 id="system-uptime">System Uptime<a class="headerlink" href="#system-uptime" title="Permanent link">&para;</a></h3>
+<p>Shows how long the host has been running since last boot. Red means under 5 minutes, green means over 1 hour.</p>
+<h3 id="load-average">Load Average<a class="headerlink" href="#load-average" title="Permanent link">&para;</a></h3>
+<p>Shows the 1-minute load average. Turns orange at 10 and red at 20. Values above the number of CPU cores indicate the system is overloaded.</p>
+<h3 id="ram">RAM<a class="headerlink" href="#ram" title="Permanent link">&para;</a></h3>
+<p>Shows the total physical memory on the host.</p>
+<h3 id="virtual-memory">Virtual Memory<a class="headerlink" href="#virtual-memory" title="Permanent link">&para;</a></h3>
+<p>Shows total memory including swap (RAM + swap).</p>
+<h3 id="disk-space">Disk Space<a class="headerlink" href="#disk-space" title="Permanent link">&para;</a></h3>
+<p>Shows total disk capacity across all partitions. Click to open <strong>Disk Details</strong>. Note this value can be over-reported on systems where the same storage is counted multiple times.</p>
+<h3 id="min-space-available">Min Space Available<a class="headerlink" href="#min-space-available" title="Permanent link">&para;</a></h3>
+<p>Shows the lowest free disk space percentage across all partitions. Red below 5%, orange at 5%, green above 20%.</p>
+<h3 id="node">Node<a class="headerlink" href="#node" title="Permanent link">&para;</a></h3>
+<p>Links to the <strong>Node Summary</strong> dashboard for the host.</p>
+<h2 id="cpu-usage">CPU Usage<a class="headerlink" href="#cpu-usage" title="Permanent link">&para;</a></h2>
+<p>Shows CPU utilization over time as a stacked chart, broken down by mode: user, system, iowait, steal, and others.</p>
+<p>High iowait alongside elevated WiredTiger eviction or checkpoint times confirms that disk I/O is the bottleneck. High steal values in virtualized environments mean the host is competing for CPU with other tenants.</p>
+<h2 id="cpu-saturation-and-max-core-usage">CPU Saturation and Max Core Usage<a class="headerlink" href="#cpu-saturation-and-max-core-usage" title="Permanent link">&para;</a></h2>
+<p>Shows normalized CPU load (load average divided by CPU count) and the utilization of the most-loaded CPU core over time.</p>
+<p>A normalized load above 1.0 means processes are waiting for CPU. If the max core utilization is high while normalized load is moderate, work is concentrated on a single core, which is common for single-threaded operations or heavily skewed workloads.</p>
+<h2 id="disk-io-and-swap-activity">Disk I/O and Swap Activity<a class="headerlink" href="#disk-io-and-swap-activity" title="Permanent link">&para;</a></h2>
+<p>Shows disk read and write throughput alongside swap in and swap out activity over time. Click to open <strong>Disk Performance</strong>.</p>
+<p>For WiredTiger instances, high disk reads indicate cache misses and working set pressure. High disk writes indicate checkpoint flushing or heavy write throughput. Any swap activity is a serious warning: if the host is swapping, available memory for both the WiredTiger cache and the OS filesystem cache is critically low, and performance will degrade significantly.</p>
+<h2 id="network-traffic">Network Traffic<a class="headerlink" href="#network-traffic" title="Permanent link">&para;</a></h2>
+<p>Shows inbound and outbound network throughput in bytes per second, excluding loopback traffic.</p>
+<p>Unexpected spikes can indicate replication traffic, a client sending or receiving large result sets, or a backup in progress.</p>
 
 
 
@@ -16460,7 +17183,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="December 18, 2024 14:22:49 UTC">December 18, 2024</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 28, 2026 10:01:59 UTC">May 28, 2026</span>
   </span>
 
     

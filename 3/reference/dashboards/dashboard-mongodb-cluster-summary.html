@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Documentation">
+        <meta name="description" content="This dashboard gives you a unified view of your MongoDB sharded cluster, covering topology, query load, chunk distribution, replication health, and resource usage across config servers, mongos routers, and all shards. Use it as your starting point when investigating cluster-wide performance or confirming the cluster is balanced and healthy.">
       
       
         <meta name="author" content="Percona LLC">
@@ -16,7 +16,7 @@
         <link rel="canonical" href="https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mongodb-cluster-summary.html">
       
       
-        <link rel="prev" href="dashboard-mongodb-experimental_oplog.html">
+        <link rel="prev" href="dashboard-mongodb-oplog-details.html">
       
       
         <link rel="next" href="dashboard-mongodb-instance-summary.html">
@@ -30,7 +30,7 @@
     
     
       
-        <title>MongoDB Sharded Cluster Summary - Percona Monitoring and Management</title>
+        <title>MongoDB Cluster Summary - Percona Monitoring and Management</title>
       
     
     
@@ -94,7 +94,7 @@
                  
                  
                  <meta property="og:type" content="website" />
-                 <meta property="og:title" content="Percona Monitoring and Management - MongoDB Sharded Cluster Summary" />
+                 <meta property="og:title" content="Percona Monitoring and Management - MongoDB Cluster Summary" />
                  <meta property="og:image" content="https://docs.percona.com/percona-monitoring-and-management/images/PMM.png">
                  <meta property="og:url" content="https://docs.percona.com/percona-monitoring-and-management/">
               
@@ -117,7 +117,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#mongodb-sharded-cluster-summary" class="md-skip">
+        <a href="#mongodb-cluster-summary" class="md-skip">
           Skip to content
         </a>
       
@@ -224,7 +224,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              MongoDB Sharded Cluster Summary
+              MongoDB Cluster Summary
             
           </span>
         </div>
@@ -3821,7 +3821,7 @@
   <span class="md-ellipsis">
     
   
-    Set timezones
+    Set time zone
   
 
     
@@ -10860,7 +10860,7 @@
   <span class="md-ellipsis">
     
   
-    Upgrade PMM v3 Server from the UI
+    Upgrade PMM Server from the UI
   
 
     
@@ -11840,6 +11840,34 @@
     
   
     Release notes index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../release-notes/3.8.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PMM 3.8.0 (2026-05-28)
   
 
     
@@ -14411,14 +14439,14 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboard-mongodb-experimental_oplog.html" class="md-nav__link">
+      <a href="dashboard-mongodb-oplog-details.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Experimental MongoDB Oplog Details
+    MongoDB Oplog Details
   
 
     
@@ -14455,7 +14483,7 @@
   <span class="md-ellipsis">
     
   
-    MongoDB Sharded Cluster Summary
+    MongoDB Cluster Summary
   
 
     
@@ -14473,7 +14501,7 @@
   <span class="md-ellipsis">
     
   
-    MongoDB Sharded Cluster Summary
+    MongoDB Cluster Summary
   
 
     
@@ -14499,6 +14527,56 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#current-topology" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Current Topology
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Current Topology">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#config-servers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Config Servers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mongos-routers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mongos Routers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shards
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#overview" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -14509,6 +14587,17 @@
   
     <nav class="md-nav" aria-label="Overview">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#qps-of-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        QPS of Services
+      
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#feature-compatibility-version" class="md-nav__link">
@@ -14522,18 +14611,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#qps-of-services-in-shard" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        QPS of Services in Shard
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#shards" class="md-nav__link">
+  <a href="#shards_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Shards
@@ -14577,17 +14655,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#sharded-collections" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Sharded Collections
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#balancer-enabled" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -14599,10 +14666,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#total-amount-of-chunks" class="md-nav__link">
+  <a href="#chunks" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Total amount of Chunks
+        Chunks
       
     </span>
   </a>
@@ -14621,10 +14688,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#chunks-distribution" class="md-nav__link">
+  <a href="#data-distribution" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Chunks distribution
+        Data distribution
       
     </span>
   </a>
@@ -14654,10 +14721,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#operations-latency" class="md-nav__link">
+  <a href="#operations-latencies" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Operations Latency
+        Operations Latencies
       
     </span>
   </a>
@@ -14703,67 +14770,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#current-topology" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Current Topology
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Current Topology">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#config-servers" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Config Servers
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#mongos-routers" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Mongos Routers
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#shards_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Shards
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#configuration-for-visualizing-mongodb-cluster-topology-correctly" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Configuration for visualizing MongoDB cluster topology correctly
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#node-states" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -14772,36 +14778,14 @@
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#collection-details" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Collection Details
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Collection Details">
+    <nav class="md-nav" aria-label="Node States">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#size-of-collections-in-shards" class="md-nav__link">
+  <a href="#all-node-states" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Size of Collections in Shards
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#number-of-collections-in-shards" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Number of Collections in Shards
+        All Node States
       
     </span>
   </a>
@@ -14864,6 +14848,67 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#collection-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Collection Details
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Collection Details">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#number-of-collections-in-shards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Number of Collections in Shards
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#size-of-collections-in-shards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Size of Collections in Shards
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fragmentation-analysis_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fragmentation Analysis
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#count-of-documents-in-shards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Count of Documents in Shards
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#chunks-in-shards" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -14874,6 +14919,17 @@
   
     <nav class="md-nav" aria-label="Chunks in Shards">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#chunk-distribution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chunk distribution
+      
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#amount-of-chunks-in-shards" class="md-nav__link">
@@ -14909,10 +14965,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#chunk-split-activity" class="md-nav__link">
+  <a href="#chunk-split-events" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Chunk Split Activity
+        Chunk Split Events
       
     </span>
   </a>
@@ -14959,10 +15015,49 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#flow-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Flow Control
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#oplog-gbhour" class="md-nav__link">
     <span class="md-ellipsis">
       
         Oplog GB/Hour
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nodes-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Nodes Summary
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Nodes Summary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nodes-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Nodes Overview
       
     </span>
   </a>
@@ -16022,6 +16117,34 @@
   
   
     <li class="md-nav__item">
+      <a href="dashboard-pxc-galera-cluster-summary.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PXC/Galera Cluster Summary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="dashboard-haproxy-instance-summary.html" class="md-nav__link">
         
   
@@ -16054,6 +16177,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../labels-reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Monitoring labels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -16498,6 +16649,56 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#current-topology" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Current Topology
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Current Topology">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#config-servers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Config Servers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mongos-routers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mongos Routers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shards
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#overview" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -16508,6 +16709,17 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   
     <nav class="md-nav" aria-label="Overview">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#qps-of-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        QPS of Services
+      
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#feature-compatibility-version" class="md-nav__link">
@@ -16521,18 +16733,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
         
           <li class="md-nav__item">
-  <a href="#qps-of-services-in-shard" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        QPS of Services in Shard
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#shards" class="md-nav__link">
+  <a href="#shards_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Shards
@@ -16576,17 +16777,6 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
         
           <li class="md-nav__item">
-  <a href="#sharded-collections" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Sharded Collections
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#balancer-enabled" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -16598,10 +16788,10 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
         
           <li class="md-nav__item">
-  <a href="#total-amount-of-chunks" class="md-nav__link">
+  <a href="#chunks" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Total amount of Chunks
+        Chunks
       
     </span>
   </a>
@@ -16620,10 +16810,10 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
         
           <li class="md-nav__item">
-  <a href="#chunks-distribution" class="md-nav__link">
+  <a href="#data-distribution" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Chunks distribution
+        Data distribution
       
     </span>
   </a>
@@ -16653,10 +16843,10 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
         
           <li class="md-nav__item">
-  <a href="#operations-latency" class="md-nav__link">
+  <a href="#operations-latencies" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Operations Latency
+        Operations Latencies
       
     </span>
   </a>
@@ -16702,67 +16892,6 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
       
         <li class="md-nav__item">
-  <a href="#current-topology" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Current Topology
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Current Topology">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#config-servers" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Config Servers
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#mongos-routers" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Mongos Routers
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#shards_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Shards
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#configuration-for-visualizing-mongodb-cluster-topology-correctly" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Configuration for visualizing MongoDB cluster topology correctly
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#node-states" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -16771,36 +16900,14 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#collection-details" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Collection Details
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Collection Details">
+    <nav class="md-nav" aria-label="Node States">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#size-of-collections-in-shards" class="md-nav__link">
+  <a href="#all-node-states" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Size of Collections in Shards
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#number-of-collections-in-shards" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Number of Collections in Shards
+        All Node States
       
     </span>
   </a>
@@ -16863,6 +16970,67 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
       
         <li class="md-nav__item">
+  <a href="#collection-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Collection Details
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Collection Details">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#number-of-collections-in-shards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Number of Collections in Shards
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#size-of-collections-in-shards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Size of Collections in Shards
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fragmentation-analysis_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fragmentation Analysis
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#count-of-documents-in-shards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Count of Documents in Shards
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#chunks-in-shards" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -16873,6 +17041,17 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   
     <nav class="md-nav" aria-label="Chunks in Shards">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#chunk-distribution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chunk distribution
+      
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#amount-of-chunks-in-shards" class="md-nav__link">
@@ -16908,10 +17087,10 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
         
           <li class="md-nav__item">
-  <a href="#chunk-split-activity" class="md-nav__link">
+  <a href="#chunk-split-events" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Chunk Split Activity
+        Chunk Split Events
       
     </span>
   </a>
@@ -16958,10 +17137,49 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
         
           <li class="md-nav__item">
+  <a href="#flow-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Flow Control
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#oplog-gbhour" class="md-nav__link">
     <span class="md-ellipsis">
       
         Oplog GB/Hour
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nodes-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Nodes Summary
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Nodes Summary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nodes-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Nodes Overview
       
     </span>
   </a>
@@ -17005,150 +17223,113 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   
 
 
-<h1 id="mongodb-sharded-cluster-summary">MongoDB Sharded Cluster Summary<a class="headerlink" href="#mongodb-sharded-cluster-summary" title="Permanent link">&para;</a></h1>
-<p><img alt="!image" src="../../images/PMM_MongoDB_Cluster_Summary.jpg" /></p>
-<p>This dashboard provides a comprehensive view of your MongoDB sharded cluster&rsquo;s performance, health, and resource utilization. It displays essential data for individual nodes organized by component type (shards, config servers, and mongos routers), offering insights into:</p>
-<ul>
-<li>shard distribution and balance</li>
-<li>query operations and performance</li>
-<li>resource utilization (CPU, memory, disk, network)</li>
-<li>replication status across the cluster</li>
-<li>component-specific health indicators</li>
-</ul>
-<p>For MongoS (Router) specific monitoring, see the <a href="dashboard-mongodb-router-summary.html">MongoDB Router Summary</a> dashboard.</p>
-<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<h3 id="feature-compatibility-version">Feature Compatibility Version<a class="headerlink" href="#feature-compatibility-version" title="Permanent link">&para;</a></h3>
-<p>Displays the Feature Compatibility Version (FCV) currently active in your MongoDB deployment. The FCV controls which database features are available and affects data file format compatibility between MongoDB versions.</p>
-<p>This panel helps you confirm that your cluster is running the expected FCV—especially useful after upgrades, when the FCV may lag behind the MongoDB binary version.</p>
-<p>Monitoring FCV is important when planning upgrades or downgrades, as setting a newer FCV can enable advanced features but may prevent rolling back to older MongoDB versions.</p>
-<h3 id="qps-of-services-in-shard">QPS of Services in Shard<a class="headerlink" href="#qps-of-services-in-shard" title="Permanent link">&para;</a></h3>
-<p>Displays the Queries Per Second (QPS) for each shard and the config server replica set in your MongoDB cluster. It shows the rate of operations (excluding commands) for each component, helping you quickly assess the query load distribution across your sharded environment.</p>
-<p>The chart uses the most recent non-null value and updates based on your selected time interval. This visualization allows you to easily identify which shards are handling the most queries and spot any potential load imbalances. </p>
-<h3 id="shards">Shards<a class="headerlink" href="#shards" title="Permanent link">&para;</a></h3>
-<p>Reports the number of shards in your MongoDB cluster. The number of shards indicates how your data is distributed across the cluster, which is crucial for understanding your database&rsquo;s scalability and performance.</p>
-<p>A shard contains a subset of sharded data for a sharded cluster. Together, the cluster&rsquo;s shards hold the entire data set for the cluster.</p>
-<h3 id="mongos">Mongos<a class="headerlink" href="#mongos" title="Permanent link">&para;</a></h3>
-<p>Number of mongos routers registered as part of the cluster.</p>
-<h3 id="draining-shards">Draining Shards<a class="headerlink" href="#draining-shards" title="Permanent link">&para;</a></h3>
-<p>Displays a single number representing the current count of shards that are in the process of being drained from your MongoDB cluster.</p>
-<p>When you run <code>removeShard</code>, MongoDB drains the shard by using the balancer to move the shard&rsquo;s chunks to other shards in the cluster. Once the shard is drained, MongoDB removes the shard from the cluster. The number shown here indicates how many shards are currently undergoing this draining process.</p>
-<h3 id="dbs">DBs<a class="headerlink" href="#dbs" title="Permanent link">&para;</a></h3>
-<p>Shows the number of user-created databases in your MongoDB sharded cluster. It provides a quick view of how many databases your cluster is managing, updating every 5 minutes.</p>
-<p>This simple count helps you track database growth and understand the scale of your MongoDB deployment at a glance.</p>
-<h3 id="sharded-collections">Sharded Collections<a class="headerlink" href="#sharded-collections" title="Permanent link">&para;</a></h3>
-<p>Provides a quick view of how many collections in your MongoDB cluster are sharded. This is an important metric for understanding the scale and distribution of your data across the sharded cluster. </p>
-<p>A higher number indicates more collections are distributed across multiple shards, which can improve performance for large datasets.
-However, it also implies more complex data management.</p>
-<h3 id="balancer-enabled">Balancer Enabled<a class="headerlink" href="#balancer-enabled" title="Permanent link">&para;</a></h3>
-<p>Background process that monitors the number of chunks on each shard and whether the MongoDB Balancer is currently enabled in your sharded cluster.</p>
-<p>The balancer is crucial for maintaining an even distribution of chunks across shards, so knowing its status is important for cluster health and performance.</p>
-<p>A <strong>YES</strong> indicates that the balancer is active and working to keep your data evenly distributed, while a <strong>NO</strong> might indicate a manual override or a potential issue that needs investigation.</p>
-<h3 id="total-amount-of-chunks">Total amount of Chunks<a class="headerlink" href="#total-amount-of-chunks" title="Permanent link">&para;</a></h3>
-<p>Provides a quick view of the total number of chunks in your sharded MongoDB cluster to give you an idea of how your data is distributed across the cluster.</p>
-<p>A high number of chunks could indicate a well-distributed dataset, while a sudden increase might suggest increased data volume or changes in your sharding strategy.</p>
-<h3 id="last-election">Last Election<a class="headerlink" href="#last-election" title="Permanent link">&para;</a></h3>
-<p>Provides a quick view of how long it has been since the last election in your MongoDB replica set.</p>
-<p>Elections occur when a new primary node needs to be chosen, which can happen during normal operations (like planned maintenance) or due to issues (like a primary node failure).</p>
-<p>A very recent election might indicate a recent change or issue in your cluster that warrants investigation, while a long time since the last election suggests stability in the primary node assignment.</p>
-<h3 id="chunks-distribution">Chunks distribution<a class="headerlink" href="#chunks-distribution" title="Permanent link">&para;</a></h3>
-<p>Displays the distribution of chunks across different shards in a MongoDB cluster as a series of horizontal bars. It updates every minute, showing the percentage of total chunks each shard holds.</p>
-<p>Use this to quickly identify any imbalances in data distribution among shards, which is crucial for maintaining optimal performance in a sharded MongoDB setup.</p>
-<h3 id="command-operations">Command Operations<a class="headerlink" href="#command-operations" title="Permanent link">&para;</a></h3>
-<p>Provides a comprehensive overview of MongoDB operation rates across your deployment. It displays the frequency of primary operations (query, insert, update, delete, and getmore), replicated operations on secondary nodes, and document deletions by Time-To-Live (TTL) indexes. </p>
-<p>By aggregating data from selected environments, clusters, and replica sets over customizable time intervals, the graph enables you to quickly identify workload patterns, potential replication lags, and the impact of automated data cleanup processes.</p>
-<h3 id="top-hottest-collections-by-read">Top Hottest Collections by Read<a class="headerlink" href="#top-hottest-collections-by-read" title="Permanent link">&para;</a></h3>
-<p>Displays the five MongoDB collections with the highest read rates. It shows the number of read operations per second for each collection, aggregated across your selected environment and cluster. </p>
-<p>The bar gauge visualization helps quickly identify which collections are experiencing the most read activity, useful for performance monitoring and resource planning. Data is updated regularly to reflect recent changes in read patterns.</p>
-<h3 id="operations-latency">Operations Latency<a class="headerlink" href="#operations-latency" title="Permanent link">&para;</a></h3>
-<p>Shows the average time taken for MongoDB to execute read, write, and other operations. It displays latency in microseconds over time, helping you spot performance trends or issues across different operation types. </p>
-<p>Use this to quickly identify any unusual delays in database operations.</p>
-<h3 id="top-hottest-collections-by-write">Top Hottest Collections by Write<a class="headerlink" href="#top-hottest-collections-by-write" title="Permanent link">&para;</a></h3>
-<p>Displays the five MongoDB collections with the highest write activity. It shows the number of write operations (inserts, updates, and deletes) per second for each collection, aggregated across your selected environment and cluster. </p>
-<p>The bar gauge visualization helps quickly identify which collections are experiencing the most write activity, useful for performance monitoring and resource planning. Data is updated regularly to reflect recent changes in write patterns.</p>
-<h3 id="operations-per-shard">Operations Per Shard<a class="headerlink" href="#operations-per-shard" title="Permanent link">&para;</a></h3>
-<p>Shows the total number of operations per second for each shard in your MongoDB cluster. </p>
-<p>It combines all types of operations (queries, inserts, updates, deletes, and getmore) into a single metric for each shard. The stacked area chart allows you to see both individual shard activity and total cluster activity over time. </p>
-<p>This visualization helps you monitor the distribution of workload across shards and identify any imbalances or unusual patterns in operation rates.</p>
-<h3 id="mongodb-versions">MongoDB Versions<a class="headerlink" href="#mongodb-versions" title="Permanent link">&para;</a></h3>
-<p>Displays the current MongoDB version for each service in your cluster.</p>
-<p>This information helps you quickly identify which version of MongoDB is running on each service, ensuring all parts of your cluster are using consistent and up-to-date software.</p>
-<p>Use this to track version differences across your MongoDB deployment and plan upgrades as needed.</p>
+<h1 id="mongodb-cluster-summary">MongoDB Cluster Summary<a class="headerlink" href="#mongodb-cluster-summary" title="Permanent link">&para;</a></h1>
+<p>This dashboard gives you a unified view of your MongoDB sharded cluster, covering topology, query load, chunk distribution, replication health, and resource usage across config servers, mongos routers, and all shards. Use it as your starting point when investigating cluster-wide performance or confirming the cluster is balanced and healthy.</p>
+<p>For mongos-specific monitoring, see the <a href="dashboard-mongodb-router-summary.html">MongoDB Router Summary</a> dashboard.</p>
+<p><img alt="MongoDB Cluster Summary" src="../../images/PMM_MongoDB_Cluster_Summary.jpg" /></p>
 <h2 id="current-topology">Current Topology<a class="headerlink" href="#current-topology" title="Permanent link">&para;</a></h2>
-<p>Displays a visual representation of your MongoDB sharded cluster&rsquo;s architecture, organizing nodes into their respective functional groups. Each node is represented by a hexagonal icon with color-coding to indicate its role:</p>
-<ul>
-<li>Green: Primary nodes or &ldquo;UP&rdquo; status for mongos routers</li>
-<li>Yellow: Secondary nodes</li>
-<li>Orange: Arbiter nodes (when present)</li>
-<li>Red: Nodes in &ldquo;DOWN&rdquo; state</li>
-</ul>
-<p>This visualization provides a clear overview of your cluster&rsquo;s structure, making it easy to verify configuration, monitor health status, and ensure replication sets maintain the expected primary-secondary relationships.</p>
 <h3 id="config-servers">Config Servers<a class="headerlink" href="#config-servers" title="Permanent link">&para;</a></h3>
-<p>Displays config server nodes that store metadata and configuration settings for the entire cluster. These servers maintain the mapping of chunks to shards.</p>
+<p>A hexagon grid showing the current status of each config server. Green means UP, red means DOWN.</p>
+<p>Config servers run as a replica set (typically 3 nodes) and store the cluster&rsquo;s metadata and chunk mappings. One red hexagon means reduced redundancy but the cluster is still operational. Two or more red hexagons in a 3-node config server set means quorum is lost and the cluster can no longer route queries or perform metadata operations. This panel shows UP/DOWN status only, not which node is the primary.</p>
 <h3 id="mongos-routers">Mongos Routers<a class="headerlink" href="#mongos-routers" title="Permanent link">&para;</a></h3>
-<p>Shows router instances that direct queries to appropriate shards. These routers process queries from the application layer and determine the location of data within the sharded cluster.</p>
-<h3 id="shards_1">Shards<a class="headerlink" href="#shards_1" title="Permanent link">&para;</a></h3>
-<p>Groups data-bearing nodes by shard name (e.g., <code>Shard - rs1</code>, <code>Shard - rs2</code>). Each shard contains a subset of the sharded data.</p>
-<h3 id="configuration-for-visualizing-mongodb-cluster-topology-correctly">Configuration for visualizing MongoDB cluster topology correctly<a class="headerlink" href="#configuration-for-visualizing-mongodb-cluster-topology-correctly" title="Permanent link">&para;</a></h3>
-<p>To ensure your MongoDB sharded cluster components appear in the correct sections of the dashboard, follow these configuration guidelines when adding MongoDB instances using the <code>pmm-admin add mongodb</code> command or via the PMM UI:</p>
-<ul>
-<li>use the same <code>--cluster</code> name for all components of your sharded cluster</li>
-<li>add each component (config servers, shard nodes, and mongos routers) as a separate service. </li>
-</ul>
-<p>For detailed instructions on adding MongoDB nodes, see <a href="../../install-pmm/install-pmm-client/connect-database/mongodb.html#step-3-add-mongodb-service-to-pmm">Add MongoDB services via CLI</a>.</p>
+<p>A hexagon grid showing the current status of each mongos router. Green means UP, red means DOWN.</p>
+<h3 id="shards">Shards<a class="headerlink" href="#shards" title="Permanent link">&para;</a></h3>
+<p>A hexagon grid per shard, showing the status of each replica set member. Green means PRIMARY or SECONDARY and reachable. Red means the node is unreachable or in an error state.</p>
+<p>Use these grids to confirm all cluster components are healthy before investigating performance metrics.</p>
 <details class="info">
-<summary>Example command for adding a MongoDB shard node</summary>
-<div class="highlight"><pre><span></span><code><span class="w"> </span>pmm-admin<span class="w"> </span>add<span class="w"> </span>mongodb<span class="w"> </span>--username<span class="o">=</span>pmm<span class="w"> </span>--password<span class="o">=</span>password<span class="w"> </span><span class="se">\</span>
-<span class="w"> </span>--service-name<span class="o">=</span>rs-0-1<span class="w"> </span>--replication-set<span class="o">=</span>shard0<span class="w"> </span><span class="se">\</span>
-<span class="w"> </span>--host<span class="o">=</span><span class="m">127</span>.0.0.1<span class="w"> </span>--port<span class="o">=</span><span class="m">27018</span><span class="w"> </span>--cluster<span class="o">=</span>myMongoCluster
+<summary>Configuration for correct topology display</summary>
+<p>To ensure each component appears in the correct section when adding MongoDB services with <code>pmm-admin add mongodb</code> or via the PMM UI:</p>
+<ul>
+<li>use the same <code>--cluster</code> name for all components of your sharded cluster.</li>
+<li>add config servers, shard nodes, and mongos routers as separate services.</li>
+</ul>
+<p>For details, see <a href="../../install-pmm/install-pmm-client/connect-database/mongodb.html#step-3-add-mongodb-service-to-pmm">Add MongoDB services via CLI</a>.</p>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>add<span class="w"> </span>mongodb<span class="w"> </span>--username<span class="o">=</span>pmm<span class="w"> </span>--password<span class="o">=</span>password<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--service-name<span class="o">=</span>rs-0-1<span class="w"> </span>--replication-set<span class="o">=</span>shard0<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--host<span class="o">=</span><span class="m">127</span>.0.0.1<span class="w"> </span>--port<span class="o">=</span><span class="m">27018</span><span class="w"> </span>--cluster<span class="o">=</span>myMongoCluster
 </code></pre></div>
 </details>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<h3 id="qps-of-services">QPS of Services<a class="headerlink" href="#qps-of-services" title="Permanent link">&para;</a></h3>
+<p>Shows the current query rate per second for each replica set in the cluster, excluding commands. Use this to quickly see which shards are carrying the most query load and spot any that stand out.</p>
+<h3 id="feature-compatibility-version">Feature Compatibility Version<a class="headerlink" href="#feature-compatibility-version" title="Permanent link">&para;</a></h3>
+<p>Shows the Feature Compatibility Version (FCV) currently active in the cluster. The FCV controls which MongoDB features are available and determines the data file format. Check this after upgrades to confirm the FCV has been updated as expected. An FCV that lags the binary version means some new features are not yet enabled.</p>
+<h3 id="shards_1">Shards<a class="headerlink" href="#shards_1" title="Permanent link">&para;</a></h3>
+<p>Shows the total number of shards in the cluster.</p>
+<h3 id="mongos">Mongos<a class="headerlink" href="#mongos" title="Permanent link">&para;</a></h3>
+<p>Shows the number of mongos routers registered in the cluster.</p>
+<h3 id="draining-shards">Draining Shards<a class="headerlink" href="#draining-shards" title="Permanent link">&para;</a></h3>
+<p>Shows how many shards are currently being drained via <code>removeShard</code>. A non-zero value means the balancer is actively moving chunks off a shard being removed. Watch this alongside <strong>Chunks Move Events</strong> to track progress.</p>
+<h3 id="dbs">DBs<a class="headerlink" href="#dbs" title="Permanent link">&para;</a></h3>
+<p>Shows the number of user-created databases in the cluster. Watch this over time to track database growth.</p>
+<h3 id="balancer-enabled">Balancer Enabled<a class="headerlink" href="#balancer-enabled" title="Permanent link">&para;</a></h3>
+<p>Shows whether the cluster balancer is currently enabled. YES means the balancer is active and will redistribute chunks when shards become unbalanced. NO means balancing is paused, which may cause chunk distribution to drift over time. Investigate if the balancer is unexpectedly disabled.</p>
+<h3 id="chunks">Chunks<a class="headerlink" href="#chunks" title="Permanent link">&para;</a></h3>
+<p>Shows the total number of chunks across all shards. A sudden increase may indicate rapid data growth or a change in sharding key selectivity.</p>
+<h3 id="last-election">Last Election<a class="headerlink" href="#last-election" title="Permanent link">&para;</a></h3>
+<p>Shows how long ago the most recent primary election occurred in the cluster. A very recent election may indicate an unexpected failover or replica set instability. Click to open the <strong>MongoDB ReplSet Summary</strong> for more context.</p>
+<h3 id="data-distribution">Data distribution<a class="headerlink" href="#data-distribution" title="Permanent link">&para;</a></h3>
+<p>Shows the total storage size of user-created collections per shard in bytes. </p>
+<p>A balanced cluster should show roughly equal bars across shards. Large differences between shards indicate data is not evenly distributed, which can cause some shards to become storage or query hotspots.</p>
+<h3 id="command-operations">Command Operations<a class="headerlink" href="#command-operations" title="Permanent link">&para;</a></h3>
+<p>Shows operation rates per second broken down by type: query, insert, update, delete, getmore, replicated write operations, and TTL index document deletions. Use this to understand the overall workload mix. A spike in any operation type helps correlate with latency changes in <strong>Operations Latencies</strong>.</p>
+<h3 id="top-hottest-collections-by-read">Top Hottest Collections by Read<a class="headerlink" href="#top-hottest-collections-by-read" title="Permanent link">&para;</a></h3>
+<p>Shows the five collections with the highest read rates, in operations per second. Use this to identify collections that may need index tuning or caching improvements.</p>
+<h3 id="operations-latencies">Operations Latencies<a class="headerlink" href="#operations-latencies" title="Permanent link">&para;</a></h3>
+<p>Shows average operation latency in microseconds over time, broken down by reads, writes, and commands. Rising latency on one operation type while others remain stable usually points to a query or index problem specific to that operation type.</p>
+<h3 id="top-hottest-collections-by-write">Top Hottest Collections by Write<a class="headerlink" href="#top-hottest-collections-by-write" title="Permanent link">&para;</a></h3>
+<p>Shows the five collections with the highest write rates, in operations per second. Use this to identify collections that may be driving lock contention or replication lag.</p>
+<h3 id="operations-per-shard">Operations Per Shard<a class="headerlink" href="#operations-per-shard" title="Permanent link">&para;</a></h3>
+<p>Shows total operations per second for each shard as a stacked area chart, combining all operation types. Use this to see how query load is distributed across shards and whether any shard is taking a disproportionate share of the work.</p>
+<h3 id="mongodb-versions">MongoDB Versions<a class="headerlink" href="#mongodb-versions" title="Permanent link">&para;</a></h3>
+<p>Shows the MongoDB version running on each service in the cluster. Check this after upgrades to confirm all nodes are on the expected version. Mixed versions in a cluster can indicate a rolling upgrade is in progress or stalled.</p>
 <h2 id="node-states">Node States<a class="headerlink" href="#node-states" title="Permanent link">&para;</a></h2>
-<p>Displays a timeline of each node&rsquo;s status in your MongoDB replica set over the selected time period. Node states (PRIMARY, SECONDARY, ARBITER, etc.) are color-coded for easy monitoring, with green indicating healthy states and red showing potential issues.</p>
-<p>Use this visualization to track role changes, identify replica set instability, and monitor the overall health of your MongoDB cluster at a glance.</p>
-<h2 id="collection-details">Collection Details<a class="headerlink" href="#collection-details" title="Permanent link">&para;</a></h2>
-<h3 id="size-of-collections-in-shards">Size of Collections in Shards<a class="headerlink" href="#size-of-collections-in-shards" title="Permanent link">&para;</a></h3>
-<p>Displays the storage size of MongoDB collections across different shards in your cluster, excluding system databases, excluding system databases. The data is organized by database and collection, with separate columns for each shard.</p>
-<p>This visualization helps you understand how your data is distributed and identify which collections are using the most storage space. Use this information to optimize data distribution and storage usage in your MongoDB cluster.</p>
-<h3 id="number-of-collections-in-shards">Number of Collections in Shards<a class="headerlink" href="#number-of-collections-in-shards" title="Permanent link">&para;</a></h3>
-<p>Shows how many collections each database has across different shards in your MongoDB cluster, excluding system databases. It lists database names in rows and shard names in columns, with the number of collections at each intersection.</p>
-<p>This overview helps you quickly see how your data is spread out, identify databases with many collections, and check if collections are evenly distributed across shards. </p>
-<p>Use this information to optimize your database structure and sharding strategy for better performance and resource usage.</p>
+<h3 id="all-node-states">All Node States<a class="headerlink" href="#all-node-states" title="Permanent link">&para;</a></h3>
+<p>Shows the PRIMARY, SECONDARY, ARBITER, or other state of each node in a replica set over time as a state timeline. One timeline is shown per replica set. Use this to identify when role changes happened and whether any node has been in an unexpected state for an extended period.</p>
 <h3 id="fragmentation-analysis">Fragmentation Analysis<a class="headerlink" href="#fragmentation-analysis" title="Permanent link">&para;</a></h3>
 <p>Shows the estimated fragmentation percentage for each collection, broken down by shard. The value is calculated as the ratio of free (unused) storage to total allocated storage, and the table is sorted from most to least fragmented. Only the top 100 collections are shown; admin and config databases are excluded.</p>
 <p>Fragmentation builds up when documents are deleted or moved, leaving gaps in storage blocks that MongoDB has not yet reclaimed. A value of 30% means roughly 30% of that collection&rsquo;s allocated space is wasted. </p>
 <p>Use this table to identify collections worth compacting — run <code>compact</code> on the affected nodes during a maintenance window to reclaim disk space.</p>
 <h2 id="connections">Connections<a class="headerlink" href="#connections" title="Permanent link">&para;</a></h2>
 <h3 id="current-connections-per-shard">Current Connections Per Shard<a class="headerlink" href="#current-connections-per-shard" title="Permanent link">&para;</a></h3>
-<p>Shows the number of current TCP connections for each shard in your MongoDB cluster over time. It uses a stacked area chart to display incoming connections across different shards, allowing you to see both individual shard activity and total cluster connections at a glance. </p>
-<p>This visualization helps you monitor connection load distribution, identify any shards experiencing unusual connection patterns, and track overall cluster usage. Use this information to balance workloads, plan for capacity, and ensure your MongoDB cluster is handling connections efficiently.</p>
+<p>Shows the number of incoming connections per shard over time as a stacked area chart. Use this to spot shards that are receiving significantly more connections than others, which can indicate uneven client routing.</p>
 <h3 id="available-connections">Available Connections<a class="headerlink" href="#available-connections" title="Permanent link">&para;</a></h3>
-<p>Displays the number of available connections for each service in your MongoDB cluster over time. It uses a stacked area chart to show how many connections are still open for new client requests across different services.</p>
-<p>This visualization helps you monitor connection capacity, identify services that might be reaching their connection limits, and track overall cluster availability. Use this information to ensure your MongoDB cluster has sufficient capacity to handle incoming connections, plan for scaling, and prevent potential connection-related issues before they impact performance or availability.</p>
+<p>Shows the number of remaining available connections per service over time. When available connections approach zero for a service, that service is near its connection limit and new client connections will be rejected. Use this to plan connection pool sizing and scaling.</p>
+<h2 id="collection-details">Collection Details<a class="headerlink" href="#collection-details" title="Permanent link">&para;</a></h2>
+<h3 id="number-of-collections-in-shards">Number of Collections in Shards<a class="headerlink" href="#number-of-collections-in-shards" title="Permanent link">&para;</a></h3>
+<p>Shows the number of collections per database in each shard, excluding system databases. Use this to verify collections are distributed as expected across shards.</p>
+<h3 id="size-of-collections-in-shards">Size of Collections in Shards<a class="headerlink" href="#size-of-collections-in-shards" title="Permanent link">&para;</a></h3>
+<p>Shows the storage size of collections per shard, excluding system databases. Use this to identify which collections are consuming the most storage and whether data is evenly distributed.</p>
+<h3 id="fragmentation-analysis_1">Fragmentation Analysis<a class="headerlink" href="#fragmentation-analysis_1" title="Permanent link">&para;</a></h3>
+<p>Shows the fragmentation ratio for collections across shards. A high fragmentation value means a collection has significant wasted space from deleted or moved documents. Use this to identify collections that would benefit from a compact operation.</p>
+<h3 id="count-of-documents-in-shards">Count of Documents in Shards<a class="headerlink" href="#count-of-documents-in-shards" title="Permanent link">&para;</a></h3>
+<p>Shows the number of documents per collection across shards. Use this alongside <strong>Size of Collections</strong> to detect unusually large average document sizes or collections growing faster than expected.</p>
 <h2 id="chunks-in-shards">Chunks in Shards<a class="headerlink" href="#chunks-in-shards" title="Permanent link">&para;</a></h2>
+<h3 id="chunk-distribution">Chunk distribution<a class="headerlink" href="#chunk-distribution" title="Permanent link">&para;</a></h3>
+<p>Shows the percentage of total chunks held by each shard as a bar chart. Use this to confirm chunk distribution matches your expected layout.</p>
+<p>With standard sharding, chunks should spread roughly evenly, but zoned sharding intentionally concentrates chunks on specific shards. If distribution looks uneven and you are not using zones, check whether the balancer is enabled and running.</p>
 <h3 id="amount-of-chunks-in-shards">Amount of Chunks in Shards<a class="headerlink" href="#amount-of-chunks-in-shards" title="Permanent link">&para;</a></h3>
-<p>Shows how data chunks are distributed across shards in your MongoDB cluster. It displays the shard names and the number of chunks each shard contains. Chunks are subsets of your sharded data, and their distribution indicates how evenly your data is spread across the cluster.</p>
-<p>This overview helps you quickly identify any imbalances in data distribution, which could affect query performance and storage utilization. Use this information to assess your sharding strategy and determine if rebalancing is needed to optimize your MongoDB cluster&rsquo;s performance and resource usage.</p>
+<p>Shows the number of chunks per shard as a bar chart and table. Use this alongside <strong>Chunk distribution</strong> in the Overview to confirm the balancer is keeping chunks evenly spread.</p>
 <h3 id="dynamic-of-chunks">Dynamic of Chunks<a class="headerlink" href="#dynamic-of-chunks" title="Permanent link">&para;</a></h3>
-<p>Shows how the number of data chunks changes over time for each shard in your MongoDB cluster. It displays the rate of change in chunks per second, helping you visualize the balancer&rsquo;s activity in redistributing data across shards.</p>
-<p>This dynamic view allows you to monitor how your cluster adapts to data growth and changing query patterns. Use this information to assess the effectiveness of your sharding strategy, identify periods of high balancing activity, and ensure that your data remains evenly distributed for optimal performance and scalability.</p>
+<p>Shows the rate of change in chunks per shard over time. Positive values mean chunks are being added to a shard. Negative values mean chunks are being moved away. Elevated activity here indicates the balancer is actively rebalancing data.</p>
 <h3 id="chunks-move-events">Chunks Move Events<a class="headerlink" href="#chunks-move-events" title="Permanent link">&para;</a></h3>
-<p>Displays the frequency of chunk movement events in your MongoDB sharded cluster over time. It shows how often chunks are being migrated between shards to maintain an even data distribution. The graph helps you visualize the balancer&rsquo;s activity, with higher bars indicating periods of more frequent chunk migrations. </p>
-<p>This information is crucial for understanding your cluster&rsquo;s balancing behavior, identifying times of high data redistribution activity, and ensuring that your sharded data remains optimally distributed for efficient query performance and storage utilization across all shards.</p>
-<h3 id="chunk-split-activity">Chunk Split Activity<a class="headerlink" href="#chunk-split-activity" title="Permanent link">&para;</a></h3>
-<p>Shows how frequently chunks are being split in your MongoDB sharded cluster over time. It visualizes the rate at which chunks grow beyond their configured size limit and need to be divided, typically due to data insertions or updates.</p>
-<p>Higher bars indicate periods of more frequent chunk splits, which can signal rapid data growth or changes in data distribution.</p>
-<p>This information helps you understand your cluster&rsquo;s data growth patterns, assess the effectiveness of your current chunk size configuration, and anticipate when you might need to adjust your sharding strategy or add capacity to maintain optimal performance.</p>
+<p>Shows the rate of chunk migrations between shards over time. Sustained high migration rates can consume network and disk I/O on the affected shards and increase replication lag. Investigate if chunk moves are frequent during peak traffic hours.</p>
+<h3 id="chunk-split-events">Chunk Split Events<a class="headerlink" href="#chunk-split-events" title="Permanent link">&para;</a></h3>
+<p>Shows the rate at which chunks are being split over time. Splits happen automatically when a chunk grows beyond the configured maximum size. A high split rate indicates rapid data growth or a sharding key with low cardinality that is causing hotspots.</p>
 <h2 id="replication">Replication<a class="headerlink" href="#replication" title="Permanent link">&para;</a></h2>
 <h3 id="replication-lag-by-shard">Replication Lag by Shard<a class="headerlink" href="#replication-lag-by-shard" title="Permanent link">&para;</a></h3>
-<p>Displays the maximum replication lag for each shard in your MongoDB cluster over time. Replication lag shows how far behind secondary nodes are in applying operations from the primary node. </p>
-<p>The chart helps you visualize lag trends across different shards, with higher values indicating longer delays in data replication. This information is crucial for monitoring the health of your replica sets, identifying potential performance issues, and ensuring data consistency across your sharded cluster.</p>
-<p>Use this graph to quickly spot any shards experiencing significant replication delays, which could impact read operations directed to secondary nodes and overall cluster reliability.</p>
+<p>Shows the maximum replication lag across replica set members for each shard over time. Any shard with consistently rising lag may be under disk or CPU pressure on its secondaries, or the primary may be generating more write traffic than the secondaries can keep up with.</p>
 <h3 id="oplog-range-by-shard">Oplog Range by Shard<a class="headerlink" href="#oplog-range-by-shard" title="Permanent link">&para;</a></h3>
-<p>Shows the time span covered by the oplog (operation log) for each shard in your MongoDB cluster. It displays the duration between the oldest and newest operations stored in the oplog, measured in seconds. </p>
-<p>This information is crucial for understanding your cluster&rsquo;s replication capacity and resilience. A larger time range indicates a longer history of operations is available for replication, which can be beneficial for recovery scenarios or when secondary nodes fall behind.</p>
-<p>Monitor this graph to ensure your oplogs maintain sufficient history across all shards, helping you manage replication health and plan for potential adjustments to oplog size if needed.</p>
+<p>Shows the time span covered by the oplog for each shard, representing the effective recovery window. If the oplog range is shorter than your backup window, a secondary that falls behind cannot be recovered to a consistent point in time without a full resync. A shrinking range means the oplog is rolling over faster than expected. Increase the oplog size if this occurs.</p>
+<h3 id="flow-control">Flow Control<a class="headerlink" href="#flow-control" title="Permanent link">&para;</a></h3>
+<p>Shows the flow control throttle rate per shard over time. Flow control is a mechanism MongoDB uses to keep replica set lag below a configurable threshold by slowing write operations on the primary. A non-zero throttle rate means the primary is being intentionally slowed to allow secondaries to catch up. Persistent flow control activity is a signal that secondaries are struggling to keep pace with the primary.</p>
 <h3 id="oplog-gbhour">Oplog GB/Hour<a class="headerlink" href="#oplog-gbhour" title="Permanent link">&para;</a></h3>
-<p>Shows the size of the MongoDB oplog generated by the Primary server. Use this to track oplog growth, plan storage needs, and detect high-write periods. Values are displayed in bytes with hourly intervals.</p>
+<p>Shows the average gigabytes of oplog data generated per hour by the primary for each shard. Use this to validate oplog sizing. If this value is high relative to your configured oplog size, the recovery window in <strong>Oplog Range by Shard</strong> will shrink quickly. A rising trend means write activity is increasing.</p>
+<h2 id="nodes-summary">Nodes Summary<a class="headerlink" href="#nodes-summary" title="Permanent link">&para;</a></h2>
+<h3 id="nodes-overview">Nodes Overview<a class="headerlink" href="#nodes-overview" title="Permanent link">&para;</a></h3>
+<p>A table listing all nodes across the cluster with their current status and key metrics, including replication state, uptime, and version. </p>
+<p>Use this to get a per-node health snapshot without navigating to individual dashboards. Click a node name to open its <strong>Node Summary</strong> dashboard.</p>
 
 
 
@@ -17171,7 +17352,7 @@ However, it also implies more complex data management.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 30, 2026 09:30:47 UTC">April 30, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 28, 2026 10:01:59 UTC">May 28, 2026</span>
   </span>
 
     

@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="This realtime dashboard contains panels of data about the Hottest Collections in the MongoDB database.">
+        <meta name="description" content="This dashboard gives you a view of database and collection-level activity in MongoDB. Use it to understand how your data is distributed across databases, which collections are getting the most traffic, and how different operation types break down over time.">
       
       
         <meta name="author" content="Percona LLC">
@@ -19,7 +19,7 @@
         <link rel="prev" href="dashboard-mysql-user-details.html">
       
       
-        <link rel="next" href="dashboard-mongodb-experimental_oplog.html">
+        <link rel="next" href="dashboard-mongodb-oplog-details.html">
       
       
         
@@ -3821,7 +3821,7 @@
   <span class="md-ellipsis">
     
   
-    Set timezones
+    Set time zone
   
 
     
@@ -10860,7 +10860,7 @@
   <span class="md-ellipsis">
     
   
-    Upgrade PMM v3 Server from the UI
+    Upgrade PMM Server from the UI
   
 
     
@@ -11840,6 +11840,34 @@
     
   
     Release notes index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../release-notes/3.8.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PMM 3.8.0 (2026-05-28)
   
 
     
@@ -14392,6 +14420,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MongoDB Collections Overview
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="dashboard-mongodb-collection_overview.html" class="md-nav__link md-nav__link--active">
         
   
@@ -14409,6 +14455,219 @@
 
       </a>
       
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#data-size" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data size
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data size">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#top-5-databases-by-size" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 5 Databases By Size
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#collections-in-database" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Collections in Database
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#indexes-in-database" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Indexes in Database
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#avg-object-size-in-database" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Avg Object Size in Database
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#index-size-in-database" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Index Size in Database
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-size-for-database" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Size for Database
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#instance-level" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Instance Level
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Instance Level">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#top-5-hottest-collections-by-read-total" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 5 Hottest Collections by Read (Total)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-5-hottest-collections-by-write-total" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 5 Hottest Collections by Write (Total)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-5-hottest-collections-by-read-rate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 5 Hottest Collections by Read (Rate)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-5-hottest-collections-by-write-rate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 5 Hottest Collections by Write (Rate)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database-level" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database Level
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Database Level">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#collections-statistics-for-database-rate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Collections statistics for $database (rate)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#collections-statistics-for-database-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Collections statistics for $database (summary)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#collections-statistics-database" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Collections statistics $database
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -14421,14 +14680,14 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboard-mongodb-experimental_oplog.html" class="md-nav__link">
+      <a href="dashboard-mongodb-oplog-details.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Experimental MongoDB Oplog Details
+    MongoDB Oplog Details
   
 
     
@@ -14456,7 +14715,7 @@
   <span class="md-ellipsis">
     
   
-    MongoDB Sharded Cluster Summary
+    MongoDB Cluster Summary
   
 
     
@@ -15509,6 +15768,34 @@
   
   
     <li class="md-nav__item">
+      <a href="dashboard-pxc-galera-cluster-summary.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PXC/Galera Cluster Summary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="dashboard-haproxy-instance-summary.html" class="md-nav__link">
         
   
@@ -15541,6 +15828,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../labels-reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Monitoring labels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -15978,6 +16293,208 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#data-size" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data size
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data size">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#top-5-databases-by-size" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 5 Databases By Size
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#collections-in-database" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Collections in Database
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#indexes-in-database" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Indexes in Database
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#avg-object-size-in-database" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Avg Object Size in Database
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#index-size-in-database" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Index Size in Database
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-size-for-database" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Size for Database
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#instance-level" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Instance Level
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Instance Level">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#top-5-hottest-collections-by-read-total" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 5 Hottest Collections by Read (Total)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-5-hottest-collections-by-write-total" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 5 Hottest Collections by Write (Total)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-5-hottest-collections-by-read-rate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 5 Hottest Collections by Read (Rate)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-5-hottest-collections-by-write-rate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top 5 Hottest Collections by Write (Rate)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database-level" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database Level
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Database Level">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#collections-statistics-for-database-rate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Collections statistics for $database (rate)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#collections-statistics-for-database-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Collections statistics for $database (summary)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#collections-statistics-database" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Collections statistics $database
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                     </div>
                   </div>
@@ -16009,15 +16526,54 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 
 
 <h1 id="mongodb-collections-overview">MongoDB Collections Overview<a class="headerlink" href="#mongodb-collections-overview" title="Permanent link">&para;</a></h1>
-<div class="admonition caution alert alert-warning">
-<p class="admonition-title">Disclaimer</p>
-<p>This is an Experimental Dashboard that is not part of the official Percona Monitoring and Management (PMM) deployment and might be updated. We ship this Dashboard to obtain feedback from our users.</p>
-</div>
-<p>This realtime dashboard contains panels of data about the Hottest Collections in the MongoDB database.</p>
-<p>The Instance level includes two panels, one for the <strong>Hottest Collections by Read (Total)</strong> and the <strong>Hottest Collections by Write (total)</strong>. </p>
-<p>The next panel displays data at the <strong>Database Level</strong>, where you can view MongoDB metrics such as <strong>Commands</strong>, <strong>Inserts</strong>, <strong>Updates</strong>, <strong>Removes</strong>, and <strong>Getmore</strong>.</p>
-<p>The last panel shows the number of operations in the chosen database.</p>
-<p><img alt="!image" src="../../images/PMM_Mongodb_Collections_Overview.png" /></p>
+<p>This dashboard gives you a view of database and collection-level activity in MongoDB. Use it to understand how your data is distributed across databases, which collections are getting the most traffic, and how different operation types break down over time.</p>
+<p>Use the filters at the top to scope the view to a specific service, cluster, replication set, or database.</p>
+<p><img alt="MongoDB Collections Overview dashboard" src="../../images/PMM_Mongodb_Collections_Overview.png" /></p>
+<h2 id="data-size">Data size<a class="headerlink" href="#data-size" title="Permanent link">&para;</a></h2>
+<h3 id="top-5-databases-by-size">Top 5 Databases By Size<a class="headerlink" href="#top-5-databases-by-size" title="Permanent link">&para;</a></h3>
+<p>Shows the five largest databases in your instance or cluster as time series lines, measured in bytes. The legend table below the chart includes the mean, max, and min size for each database over the selected time range.</p>
+<p>Use this to understand which databases are consuming the most storage and how their size is changing over time. A steadily growing line is expected for active databases. A sudden jump can indicate a bulk import, a runaway process, or unexpectedly large documents being written.</p>
+<p>Note that data in this panel comes from the primary node only in a replica set.</p>
+<h3 id="collections-in-database">Collections in Database<a class="headerlink" href="#collections-in-database" title="Permanent link">&para;</a></h3>
+<p>Shows the current number of collections in the selected database as a single number.</p>
+<p>Use this alongside <strong>Indexes in Database</strong> to get a quick sense of the database&rsquo;s structure. A much higher index count relative to collection count means each collection has many indexes, which increases write overhead and memory usage.</p>
+<h3 id="indexes-in-database">Indexes in Database<a class="headerlink" href="#indexes-in-database" title="Permanent link">&para;</a></h3>
+<p>Shows the current total number of indexes across all collections in the selected database.</p>
+<p>High index counts improve read performance but slow down writes and increase memory pressure. Use this to spot databases where index sprawl may be contributing to performance issues.</p>
+<h3 id="avg-object-size-in-database">Avg Object Size in Database<a class="headerlink" href="#avg-object-size-in-database" title="Permanent link">&para;</a></h3>
+<p>Shows the average document size in bytes for the selected database over time. This is calculated as <code>dataSize</code> divided by the number of documents.</p>
+<p>Use this to understand your typical document size and track how it changes. A rising average can mean documents are growing (for example, arrays being appended to), which affects memory usage, query performance, and backup size. A sudden drop may indicate a bulk delete or compaction.</p>
+<h3 id="index-size-in-database">Index Size in Database<a class="headerlink" href="#index-size-in-database" title="Permanent link">&para;</a></h3>
+<p>Shows the total size of all indexes in the selected database over time, in bytes.</p>
+<p>Use this to track index memory consumption. If index size is growing faster than data size, you may have indexes accumulating without a corresponding increase in documents, which can happen when TTL indexes aren&rsquo;t cleaning up data as expected, or when new indexes are being created without removing old ones.</p>
+<h3 id="data-size-for-database">Data Size for Database<a class="headerlink" href="#data-size-for-database" title="Permanent link">&para;</a></h3>
+<p>Shows the total uncompressed data size in the selected database over time, in bytes.</p>
+<p>Note that this value represents the logical data size before WiredTiger compression, so it will typically be larger than the actual storage used on disk. Use this to track data growth trends and plan capacity. Compare with <strong>Index Size</strong> to understand the ratio of index overhead to actual data.</p>
+<h2 id="instance-level">Instance Level<a class="headerlink" href="#instance-level" title="Permanent link">&para;</a></h2>
+<h3 id="top-5-hottest-collections-by-read-total">Top 5 Hottest Collections by Read (Total)<a class="headerlink" href="#top-5-hottest-collections-by-read-total" title="Permanent link">&para;</a></h3>
+<p>Shows the five most-read collections in the selected database as a table, with the database name, collection name, and total read count since the service started.</p>
+<p>Use this to identify which collections are driving the most read traffic. High read counts on a small number of collections can point to candidates for caching or index optimization.</p>
+<h3 id="top-5-hottest-collections-by-write-total">Top 5 Hottest Collections by Write (Total)<a class="headerlink" href="#top-5-hottest-collections-by-write-total" title="Permanent link">&para;</a></h3>
+<p>Shows the five most-written collections in the selected database as a table, with the database name, collection name, and total write count (inserts, updates, and deletes combined) since the service started.</p>
+<p>Use this to find collections under the heaviest write load. Collections with very high write counts are the most sensitive to index overhead, as every write must update all indexes on that collection.</p>
+<h3 id="top-5-hottest-collections-by-read-rate">Top 5 Hottest Collections by Read (Rate)<a class="headerlink" href="#top-5-hottest-collections-by-read-rate" title="Permanent link">&para;</a></h3>
+<p>Shows the five most-read collections as a horizontal bar gauge, ranked by current read rate (reads per second) over the selected interval.</p>
+<p>Unlike the Total panels above, this reflects recent activity rather than cumulative counts, so it&rsquo;s more useful for spotting what&rsquo;s hot right now. Use it during an incident or after a deployment to see which collections are suddenly receiving more traffic than usual.</p>
+<h3 id="top-5-hottest-collections-by-write-rate">Top 5 Hottest Collections by Write (Rate)<a class="headerlink" href="#top-5-hottest-collections-by-write-rate" title="Permanent link">&para;</a></h3>
+<p>Shows the five most-written collections as a horizontal bar gauge, ranked by current write rate (inserts, updates, and deletes per second) over the selected interval.</p>
+<p>Use this alongside the Read Rate panel to get a full picture of which collections are under the most active load right now. A collection appearing in both the read and write rate charts is handling high traffic on both sides and is worth watching closely for performance issues.</p>
+<h2 id="database-level">Database Level<a class="headerlink" href="#database-level" title="Permanent link">&para;</a></h2>
+<h3 id="collections-statistics-for-database-rate">Collections statistics for $database (rate)<a class="headerlink" href="#collections-statistics-for-database-rate" title="Permanent link">&para;</a></h3>
+<p>Shows the rate of operations per second for the selected database, broken down by operation type: <code>Commands</code>, <code>Insert</code>, <code>Update</code>, <code>Remove</code>, <code>Getmore</code>, and <code>Queries</code>. Each line in the chart represents one operation type for one database.</p>
+<p>Use this to understand the current workload mix hitting each database. A spike in Remove rate can signal a bulk cleanup job. A spike in <code>Getmore</code> can indicate large cursor-based queries paginating through results. The legend table shows mean, max, and min rates to help you compare types over the time range.</p>
+<h3 id="collections-statistics-for-database-summary">Collections statistics for $database (summary)<a class="headerlink" href="#collections-statistics-for-database-summary" title="Permanent link">&para;</a></h3>
+<p>Shows the cumulative operation counts for the selected database over the selected time range, broken down by the same operation types as the rate panel above.</p>
+<p>Use this alongside the rate panel to distinguish between a high burst of activity in a short window and sustained ongoing load. High cumulative counts with a flat rate line mean the activity happened earlier in the time range.</p>
+<h3 id="collections-statistics-database">Collections statistics $database<a class="headerlink" href="#collections-statistics-database" title="Permanent link">&para;</a></h3>
+<p>Shows a per-collection breakdown of total operation counts for the selected database, with one row per collection and columns for <code>Queries</code>, <code>Insert</code>, <code>Remove</code>, <code>Update</code>, and <code>Getmore</code>.</p>
+<p>Use this to drill down from the dashboard-level summaries to individual collections. The table is sorted by <strong>Queries</strong> descending by default. </p>
+<p>Sort by any other column to find collections with the highest count for a specific operation type. 
+If you&rsquo;ve selected multiple databases using the filter, a separate table appears for each one.</p>
 
 
 
@@ -16040,7 +16596,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="December 18, 2024 14:22:49 UTC">December 18, 2024</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 28, 2026 10:01:59 UTC">May 28, 2026</span>
   </span>
 
     

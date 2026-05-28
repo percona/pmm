@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Documentation">
+        <meta name="description" content="This dashboard lets you compare multiple MongoDB services side by side.">
       
       
         <meta name="author" content="Percona LLC">
@@ -3821,7 +3821,7 @@
   <span class="md-ellipsis">
     
   
-    Set timezones
+    Set time zone
   
 
     
@@ -10860,7 +10860,7 @@
   <span class="md-ellipsis">
     
   
-    Upgrade PMM v3 Server from the UI
+    Upgrade PMM Server from the UI
   
 
     
@@ -11840,6 +11840,34 @@
     
   
     Release notes index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../release-notes/3.8.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PMM 3.8.0 (2026-05-28)
   
 
     
@@ -14411,14 +14439,14 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboard-mongodb-experimental_oplog.html" class="md-nav__link">
+      <a href="dashboard-mongodb-oplog-details.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Experimental MongoDB Oplog Details
+    MongoDB Oplog Details
   
 
     
@@ -14446,7 +14474,7 @@
   <span class="md-ellipsis">
     
   
-    MongoDB Sharded Cluster Summary
+    MongoDB Cluster Summary
   
 
     
@@ -14583,6 +14611,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#connections" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -14605,6 +14644,18 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#query-efficiency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query Efficiency
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Query Efficiency">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#latency" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -14614,8 +14665,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#scan-ratios" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -14625,8 +14676,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#index-filtering-effectiveness" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -14636,8 +14687,25 @@
   </a>
   
 </li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
         <li class="md-nav__item">
+  <a href="#operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#requests" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -14647,8 +14715,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#document-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -14658,8 +14726,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#queued-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -14669,8 +14737,25 @@
   </a>
   
 </li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
         <li class="md-nav__item">
+  <a href="#memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Memory">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#used-memory" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -14678,6 +14763,11 @@
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -15645,6 +15735,34 @@
   
   
     <li class="md-nav__item">
+      <a href="dashboard-pxc-galera-cluster-summary.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PXC/Galera Cluster Summary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="dashboard-haproxy-instance-summary.html" class="md-nav__link">
         
   
@@ -15677,6 +15795,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../labels-reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Monitoring labels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -16121,6 +16267,17 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#connections" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -16143,6 +16300,18 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
       
         <li class="md-nav__item">
+  <a href="#query-efficiency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query Efficiency
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Query Efficiency">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#latency" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -16152,8 +16321,8 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#scan-ratios" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -16163,8 +16332,8 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#index-filtering-effectiveness" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -16174,8 +16343,25 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   </a>
   
 </li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
         <li class="md-nav__item">
+  <a href="#operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#requests" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -16185,8 +16371,8 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#document-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -16196,8 +16382,8 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#queued-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -16207,8 +16393,25 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   </a>
   
 </li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
         <li class="md-nav__item">
+  <a href="#memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Memory">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#used-memory" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -16216,6 +16419,11 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -16252,25 +16460,62 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 
 
 <h1 id="mongodb-instances-compare">MongoDB Instances Compare<a class="headerlink" href="#mongodb-instances-compare" title="Permanent link">&para;</a></h1>
-<p><img alt="!image" src="../../images/PMM_MongoDB_Instances_Compare.jpg" /></p>
+<p>This dashboard lets you compare multiple MongoDB services side by side.</p>
+<p>Select two or more services using the <strong>Service Name</strong> filter at the top, and each panel repeats once per service so you can spot differences in behavior, load, or resource usage across your fleet.</p>
+<p>Use this dashboard when you need to compare a healthy instance against a degraded one, benchmark instances after configuration changes, or check whether load is distributed evenly across services.</p>
+<p><img alt="PMM MongoDB Instances Compare dashboard" src="../../images/PMM_MongoDB_Instances_Compare.jpg" /></p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>A row of stat panels showing the current value of key metrics for each selected service. Each panel repeats horizontally so you can compare values across services at a glance:</p>
+<ul>
+<li><strong>Service Info</strong>: Metadata table for each selected service, including service name, node name, MongoDB version, cluster, replication set, node type, and other PMM labels. Use this to verify you are comparing equivalent services.</li>
+<li><strong>MongoDB Uptime</strong>: How long the service has been running. Turns orange after 5 minutes and green after 1 hour. A recently restarted service may show temporarily different behavior in other panels. Click to open the <strong>MongoDB Instance Summary</strong> for that service.</li>
+<li><strong>Current QPS</strong>: Current query throughput in operations per second, excluding commands. Use this to compare load levels across services.</li>
+<li><strong>DB Connections</strong>: Current number of active connections. Use this alongside the <strong>Connections</strong> timeseries below to see which services are under connection pressure.</li>
+<li><strong>Latency</strong>: Average command latency in milliseconds. Turns orange at 90ms and red at 95ms. Use this for a quick health check before drilling into the <strong>Latency</strong> timeseries for detail.</li>
+<li><strong>Opened Cursors</strong>: Total number of open cursors across all cursor states. A high value on one service relative to others can indicate cursor leaks or long-running queries on that service.</li>
+<li><strong>Replica Set</strong>: The name of the replica set each service belongs to. Click to open the MongoDB Replica Set Summary.</li>
+</ul>
 <h2 id="connections">Connections<a class="headerlink" href="#connections" title="Permanent link">&para;</a></h2>
-<p>No description</p>
+<p>Shows the number of current and available connections over time for each selected service, using a logarithmic scale.</p>
+<p>Use this to compare connection usage patterns across services. The &ldquo;available&rdquo; line shows remaining connection capacity. When it approaches zero, the service is near its connection limit. </p>
+<p>A service with much higher current connections than others may be receiving uneven traffic or have connection pooling misconfigured. Click a series to open the <strong>MongoDB Instance Summary</strong> for that service.</p>
 <h2 id="cursors">Cursors<a class="headerlink" href="#cursors" title="Permanent link">&para;</a></h2>
-<p>No description</p>
-<h2 id="latency">Latency<a class="headerlink" href="#latency" title="Permanent link">&para;</a></h2>
-<p>Average latency of operations (classified by read, write, or (other) command)</p>
-<h2 id="scan-ratios">Scan Ratios<a class="headerlink" href="#scan-ratios" title="Permanent link">&para;</a></h2>
-<p>Ratio of index entries scanned or whole docs scanned / number of documents returned</p>
-<h2 id="index-filtering-effectiveness">Index Filtering Effectiveness<a class="headerlink" href="#index-filtering-effectiveness" title="Permanent link">&para;</a></h2>
-<p>No description</p>
-<h2 id="requests">Requests<a class="headerlink" href="#requests" title="Permanent link">&para;</a></h2>
-<p>Ops/sec (classified by (legacy) wire protocol request type)</p>
-<h2 id="document-operations">Document Operations<a class="headerlink" href="#document-operations" title="Permanent link">&para;</a></h2>
-<p>Documents inserted/updated/deleted or returned per sec</p>
-<h2 id="queued-operations">Queued Operations<a class="headerlink" href="#queued-operations" title="Permanent link">&para;</a></h2>
-<p>The number of operations that are currently queued and waiting for a lock</p>
-<h2 id="used-memory">Used Memory<a class="headerlink" href="#used-memory" title="Permanent link">&para;</a></h2>
-<p>No description</p>
+<p>Shows the number of open cursors over time, broken down by state (including idle cursors), for each selected service.</p>
+<p>Use this to compare cursor behavior across services. A service with a steadily growing cursor count relative to others may have an application not closing cursors properly. Click a series to open the <strong>MongoDB Instance Summary</strong> for that service.</p>
+<h2 id="query-efficiency">Query Efficiency<a class="headerlink" href="#query-efficiency" title="Permanent link">&para;</a></h2>
+<h3 id="latency">Latency<a class="headerlink" href="#latency" title="Permanent link">&para;</a></h3>
+<p>Shows average operation latency in microseconds over time, broken down by operation type (read, write, command), for each selected service. Uses a logarithmic scale. </p>
+<p>Use this to compare latency profiles across services. If one service has higher read latency but similar write latency, the difference is likely query-related (indexes, working set size).</p>
+<p>If all latency types are elevated on one service, look at resource contention (CPU, memory, lock queues). Click a series to open the <strong>MongoDB Instance Summary</strong> for that service.</p>
+<h3 id="scan-ratios">Scan Ratios<a class="headerlink" href="#scan-ratios" title="Permanent link">&para;</a></h3>
+<p>Shows two scan efficiency ratios over time for each selected service:</p>
+<ul>
+<li><strong>Index</strong>: Index entries scanned per document returned. Lower is better. A value close to 1 means index scans are highly selective. A high value means many index entries are being scanned to return few documents, which can indicate a poorly selective index.</li>
+<li><strong>Document</strong>: Documents returned per document scanned. Higher is better. A value close to 1 means almost every document scanned is returned. A low value means many documents are being scanned but few match the query, which usually points to a missing or unused index.</li>
+</ul>
+<p>Use this to compare query efficiency across services. A service with worse ratios than others may have different query patterns, different indexes, or a different data distribution. Click a series to open the <strong>MongoDB Instance Summary</strong> for that service.</p>
+<h3 id="index-filtering-effectiveness">Index Filtering Effectiveness<a class="headerlink" href="#index-filtering-effectiveness" title="Permanent link">&para;</a></h3>
+<p>Shows the ratio of full document scans to total scan operations (index + document) over time, for each selected service, as a percentage.</p>
+<p>A value close to 0% means most scans are going through indexes (good). A value close to 100% means most scans are full document scans, which suggests queries are not using indexes effectively.</p>
+<p>Use this alongside <strong>Scan Ratios</strong> to understand whether query inefficiency is consistent across services or isolated to one. Click a series to open the <strong>MongoDB Instance Summary</strong> for that service.</p>
+<h2 id="operations">Operations<a class="headerlink" href="#operations" title="Permanent link">&para;</a></h2>
+<h3 id="requests">Requests<a class="headerlink" href="#requests" title="Permanent link">&para;</a></h3>
+<p>Shows operation rates per second over time, broken down by legacy wire protocol type (<code>query</code>, <code>insert</code>, <code>update</code>, <code>delete</code>, <code>getmore</code>, <code>command</code>), for each selected service.</p>
+<p>Use this to compare the workload mix across services. If one service has significantly higher insert or update rates, it may be handling a disproportionate share of write traffic.</p>
+<p>Click a series to open the <strong>MongoDB Instance Summary</strong> for that service.</p>
+<h3 id="document-operations">Document Operations<a class="headerlink" href="#document-operations" title="Permanent link">&para;</a></h3>
+<p>Shows the rate of documents per second inserted, updated, deleted, or returned for each selected service.</p>
+<p>Use this alongside <strong>Requests</strong> to understand both the operation rate and the volume of data each operation touches. A service with similar request rates but much higher document counts may be processing bulk operations or larger result sets. Click a series to open the <strong>MongoDB Instance Summary</strong> for that service.</p>
+<h3 id="queued-operations">Queued Operations<a class="headerlink" href="#queued-operations" title="Permanent link">&para;</a></h3>
+<p>Shows the number of operations queued waiting for a lock, broken down by read and write queues, for each selected service.</p>
+<p>Any queued operations mean lock contention is occurring. Use this to compare contention levels across services. A service with consistently higher queue depths than others is likely experiencing more write conflicts or long-running operations that are blocking others.</p>
+<p>Click a series to open the <strong>MongoDB Instance Summary</strong> for that service.</p>
+<h2 id="memory">Memory<a class="headerlink" href="#memory" title="Permanent link">&para;</a></h2>
+<h3 id="used-memory">Used Memory<a class="headerlink" href="#used-memory" title="Permanent link">&para;</a></h3>
+<p>Shows MongoDB memory usage in megabytes over time, broken down by type (resident, virtual, and mapped), for each selected service. Uses a logarithmic scale.</p>
+<p>Resident memory is the physical RAM MongoDB is actively using. Virtual memory includes memory-mapped files and other allocations.</p>
+<p>A service with much higher resident memory than others may have a larger working set or different caching behavior. If resident memory is growing continuously, the working set may be expanding beyond available RAM.</p>
+<p>Click a series to open the <strong>MongoDB Instance Summary</strong> for that service.</p>
 
 
 
@@ -16293,7 +16538,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="December 18, 2024 14:22:49 UTC">December 18, 2024</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 28, 2026 10:01:59 UTC">May 28, 2026</span>
   </span>
 
     

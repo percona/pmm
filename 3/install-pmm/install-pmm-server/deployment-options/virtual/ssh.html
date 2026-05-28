@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="When you run PMM Server as a virtual machine (AMI or OVF), you can upload your public SSH key to access the server via SSH and manage or troubleshoot it directly.">
+        <meta name="description" content="When you run PMM Server as a virtual machine (AMI or OVF), you can upload your public SSH key to enable SSH access for direct management and troubleshooting.">
       
       
         <meta name="author" content="Percona LLC">
@@ -2232,34 +2232,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Connect via SSH">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#using-ssh-with-a-private-key" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Using SSH with a private key
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#examples" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Examples
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
     </ul>
@@ -3918,7 +3890,7 @@
   <span class="md-ellipsis">
     
   
-    Set timezones
+    Set time zone
   
 
     
@@ -10096,34 +10068,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Connect via SSH">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#using-ssh-with-a-private-key" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Using SSH with a private key
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#examples" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Examples
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
     </ul>
@@ -11056,7 +11000,7 @@
   <span class="md-ellipsis">
     
   
-    Upgrade PMM v3 Server from the UI
+    Upgrade PMM Server from the UI
   
 
     
@@ -12036,6 +11980,34 @@
     
   
     Release notes index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../release-notes/3.8.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PMM 3.8.0 (2026-05-28)
   
 
     
@@ -14601,14 +14573,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-experimental_oplog.html" class="md-nav__link">
+      <a href="../../../../reference/dashboards/dashboard-mongodb-oplog-details.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Experimental MongoDB Oplog Details
+    MongoDB Oplog Details
   
 
     
@@ -14636,7 +14608,7 @@
   <span class="md-ellipsis">
     
   
-    MongoDB Sharded Cluster Summary
+    MongoDB Cluster Summary
   
 
     
@@ -15689,6 +15661,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../reference/dashboards/dashboard-pxc-galera-cluster-summary.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PXC/Galera Cluster Summary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../reference/dashboards/dashboard-haproxy-instance-summary.html" class="md-nav__link">
         
   
@@ -15721,6 +15721,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../reference/labels-reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Monitoring labels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -16184,34 +16212,6 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Connect via SSH">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#using-ssh-with-a-private-key" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Using SSH with a private key
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#examples" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Examples
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
     </ul>
@@ -16247,30 +16247,21 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 
 
 <h1 id="ssh-key">SSH Key<a class="headerlink" href="#ssh-key" title="Permanent link">&para;</a></h1>
-<p>When you run PMM Server as a virtual machine (AMI or OVF), you can upload your public SSH key to access the server via SSH and manage or troubleshoot it directly.</p>
+<p>When you run PMM Server as a virtual machine (AMI or OVF), you can upload your public SSH key to enable SSH access for direct management and troubleshooting.</p>
 <p><img alt="PMM Settings SSH Key" src="../../../../images/PMM_Settings_SSH_Key.jpg" /></p>
 <h2 id="configure-ssh-access">Configure SSH access<a class="headerlink" href="#configure-ssh-access" title="Permanent link">&para;</a></h2>
 <p class="power-number">To configure SSH access:</p>
 <ol>
-<li>Enter your <strong>public key</strong> in the <strong>SSH Key</strong> field.</li>
-<li>Click <strong>Apply SSH key</strong>.</li>
+<li>Go to <strong>Configuration &gt; Settings &gt; SSH key</strong>.</li>
+<li>Enter your public key in the <strong>SSH Key</strong> field.</li>
+<li>Click <strong>Apply changes</strong>.</li>
 </ol>
-<p>This adds the key to the virtual machine so you can connect to your PMM Server instance via SSH.</p>
-<p>For more information on virtual machine deployments, see <a href="index.html">virtual appliance</a> index.md.</p>
+<p>For more information on virtual machine deployments, see <a href="index.html">Virtual appliance</a>.</p>
 <h2 id="connect-via-ssh">Connect via SSH<a class="headerlink" href="#connect-via-ssh" title="Permanent link">&para;</a></h2>
-<p>Once your public key is configured, you can connect to your PMM Server using SSH:</p>
-<h3 id="using-ssh-with-a-private-key">Using SSH with a private key<a class="headerlink" href="#using-ssh-with-a-private-key" title="Permanent link">&para;</a></h3>
-<p>Connect to your PMM Server using the <code>admin</code> user and your private key:</p>
+<p>Once your public key is configured, connect using the <code>admin</code> user:</p>
 <div class="highlight"><pre><span></span><code>ssh<span class="w"> </span>-i<span class="w"> </span>your-private-key<span class="w"> </span>admin@&lt;pmm-server-ip&gt;
 </code></pre></div>
-<p>where:</p>
-<ul>
-<li><code>your-private-key</code> is the path to your private key file (can be <code>.pem</code>, <code>.key</code>, or no extension)</li>
-<li><code>&lt;pmm-server-ip&gt;</code> is your PMM Server&rsquo;s IP address or hostname</li>
-<li>The username is always <code>admin</code> for PMM virtual machine deployments</li>
-</ul>
-<h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">AWS EC2 instance</label><label for="__tabbed_1_2">Local virtual appliance</label><label for="__tabbed_1_3">Using default SSH key</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">AWS EC2 instance</label><label for="__tabbed_1_2">Local virtual appliance</label><label for="__tabbed_1_3">Default key location</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code>ssh<span class="w"> </span>-i<span class="w"> </span>~/keys/my-aws-key.pem<span class="w"> </span>admin@ec2-203-0-113-42.compute-1.amazonaws.com
@@ -16309,7 +16300,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="February 5, 2026 14:46:56 UTC">February 5, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 28, 2026 10:01:59 UTC">May 28, 2026</span>
   </span>
 
     
