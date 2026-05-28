@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import * as DocBlock from '@storybook/blocks';
+import * as DocBlock from '@storybook/addon-docs/blocks';
 import { FormProvider, useForm } from 'react-hook-form';
 import AutoCompleteInput from './auto-complete';
 
