@@ -68,6 +68,8 @@ Control connection settings, TLS, query collection, metric collectors, and servi
 
 ### Service organization flags
 
+For a complete list of standard and custom labels, see [Labels reference](../../../reference/labels-reference.md).
+
 | Flag | MySQL | PostgreSQL | MongoDB | Valkey | ProxySQL | HAProxy |
 |------|:-----:|:----------:|:-------:|:------:|:--------:|:-------:|
 | `--environment`<br>Environment name | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
