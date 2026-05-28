@@ -134,7 +134,7 @@ After basic installation, you may want to customize your PMM Server setup:
 - Disable updates if needed:
 
     - **via Docker**:  add `-e PMM_ENABLE_UPDATES=0` to the `docker run` command (for the life of the container)
-    - **via UI**: go to **PMM Configuration > Settings > Advanced Settings** and disable **Check for Updates** (can be turned back on by any admin in the UI)
+    - **via UI**: go to **Configuration > Settings > Advanced settings** and disable **Check for Updates** (can be turned back on by any admin in the UI)
 
 - Enable HTTP (insecure, NOT recommended): add `--publish 80:8080` to the `docker run` command.
 
