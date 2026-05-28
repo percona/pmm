@@ -18,7 +18,7 @@ In **Explore > PromQL builder**, labels appear as **Label filters** next to the 
 
 If you prefer to browse metrics without writing queries, you can also enable the **Explore metrics** plugin. Once enabled, it appears under **Explore** in the left sidebar and supports the same label-based filtering. See [Enable Explore metrics](../reference/ui/ui_components.md).
 
-![Explore metrics showing label filters](../images/PMM_Explore_metrics_drilldown.jpg)
+![Explore metrics showing label filters](../images/PMM_Explore_metrics.png)
 
 ## Label types
 
