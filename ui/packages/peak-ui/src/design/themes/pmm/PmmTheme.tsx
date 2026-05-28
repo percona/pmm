@@ -57,37 +57,6 @@ const pmmThemeOptions = (mode: PaletteMode): ThemeOptions => {
           },
         }),
       },
-      MuiIconButton: {
-        defaultProps: {
-          disableTouchRipple: true,
-        },
-        styleOverrides: {
-          root: ({ theme, ownerState }) => ({
-            color: theme.palette.text.primary,
-            ...(ownerState.color === 'primary' && {
-              color: theme.palette.primary.main,
-            }),
-            '&:hover': {
-              backgroundColor: theme.palette.action.selected,
-            },
-            '&:focus': {
-              backgroundColor: theme.palette.action.focusVisible,
-            },
-            ...(ownerState.size === 'large' && {
-              svg: {
-                width: 40,
-                height: 40,
-              },
-            }),
-            ...(ownerState.size === 'small' && {
-              svg: {
-                width: 20,
-                height: 20,
-              },
-            }),
-          }),
-        },
-      },
       MuiAppBar: {
         styleOverrides: {
           root: () => ({
@@ -147,13 +116,6 @@ const pmmThemeOptions = (mode: PaletteMode): ThemeOptions => {
               color: primary.main,
               backgroundColor: primary.focus,
             },
-          },
-        },
-      },
-      MuiMenuItem: {
-        styleOverrides: {
-          root: {
-            fontFamily: 'Poppins',
           },
         },
       },

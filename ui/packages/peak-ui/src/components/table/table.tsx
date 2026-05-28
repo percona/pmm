@@ -5,9 +5,11 @@ import {
   Search as SearchIcon,
   ViewColumn as ViewColumnIcon,
 } from '@mui/icons-material';
-import { Alert, AlertProps, Box } from '@mui/material';
+import { Alert, AlertProps, Box, Theme } from '@mui/material';
+import visuallyHidden from '@mui/utils/visuallyHidden';
 import { MaterialReactTable, MRT_VisibilityState } from 'material-react-table';
 import { useEffect } from 'react';
+import { mergeSx } from '@/utils';
 import { ICONS_OPACITY } from './table.constants';
 import { TableProps } from './table.types';
 import usePersistentColumnVisibility from './usePersistentColumnVisibility';
@@ -18,11 +20,8 @@ const NoDataAlertMessage = ({ message, ...rest }: { message: string } & AlertPro
     <Alert
       severity="info"
       sx={{
-        width: '100%',
         alignItems: 'center',
-        marginTop: 1,
-        marginBottom: 1,
-        height: '60px',
+        margin: 1,
         ...sx,
       }}
       {...alertProps}
@@ -39,6 +38,8 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
     columns,
     muiTablePaperProps,
     muiTopToolbarProps,
+    muiSearchTextFieldProps,
+    muiTableHeadCellFilterTextFieldProps,
     displayColumnDefOptions,
     noDataMessage = 'No data',
     noDataAlertProps,
@@ -51,6 +52,11 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
     enableRowHoverAction = false,
     rowHoverAction = () => {},
     muiTableBodyRowProps,
+    muiTableProps,
+    muiTableHeadProps,
+    muiTableBodyProps,
+    muiTableDetailPanelProps,
+    muiTableContainerProps,
     ...rest
   } = props;
   const [columnVisibility, setColumnVisibility] = usePersistentColumnVisibility(tableName);
@@ -104,6 +110,9 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
     return col;
   });
 
+  const rowActionsConsumerOpts = displayColumnDefOptions?.['mrt-row-actions'];
+  const rowExpandConsumerOpts = displayColumnDefOptions?.['mrt-row-expand'];
+
   return (
     <MaterialReactTable
       renderEmptyRowsFallback={({ table: { getPreFilteredRowModel } }) => (
@@ -120,7 +129,7 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
       )}
       layoutMode="grid"
       enablePagination={data.length > 10}
-      enableBottomToolbar={data.length > 10}
+      enableBottomToolbar={rest.enablePagination ?? data.length > 10}
       enableDensityToggle={false}
       enableFullScreenToggle={false}
       enableSorting={!!data.length}
@@ -139,16 +148,89 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
         ViewColumnIcon: () => <ViewColumnIcon sx={{ opacity: !data.length ? ICONS_OPACITY : 1 }} />,
         MoreVertIcon: () => <MoreVertIcon sx={{ opacity: !data.length ? ICONS_OPACITY : 1 }} />,
       }}
-      positionActionsColumn="last"
+      muiExpandAllButtonProps={{ sx: { height: 40, width: 40 } }}
+      muiExpandButtonProps={{ sx: { height: 40, width: 40 } }}
+      muiSearchTextFieldProps={({ table }) => ({
+        variant: 'outlined',
+        size: 'small',
+        ...(typeof muiSearchTextFieldProps === 'function'
+          ? muiSearchTextFieldProps({ table })
+          : muiSearchTextFieldProps),
+      })}
+      muiTableHeadCellFilterTextFieldProps={({ column, table, rangeFilterIndex }) => {
+        const consumer =
+          typeof muiTableHeadCellFilterTextFieldProps === 'function'
+            ? muiTableHeadCellFilterTextFieldProps({ column, table, rangeFilterIndex })
+            : muiTableHeadCellFilterTextFieldProps;
+        const isRangeInput = rangeFilterIndex !== undefined;
+        return {
+          variant: 'outlined',
+          size: 'small',
+          ...consumer,
+          sx: mergeSx(
+            isRangeInput
+              ? {
+                  minWidth: 0,
+                  width: '100%',
+                  mx: 0,
+                  '& .MuiInputAdornment-positionEnd': { display: 'none' },
+                  '& .MuiOutlinedInput-root': { paddingRight: 0 },
+                }
+              : {},
+            consumer?.sx
+          ),
+        };
+      }}
+      muiToolbarAlertBannerProps={{
+        color: 'neutral',
+        icon: false,
+        sx: (theme: Theme) => ({
+          borderRadius: 1.25,
+          fontSize: theme.typography.body2.fontSize,
+          padding: '4px 8px',
+          '& .MuiAlert-message': { padding: 0 },
+          '& .MuiAlert-message > .MuiBox-root': { padding: 0 },
+        }),
+      }}
       positionExpandColumn="last"
-      muiTablePaperProps={{ elevation: 0, ...muiTablePaperProps }}
+      positionActionsColumn="last"
+      muiTablePaperProps={({ table }) => {
+        const consumer =
+          typeof muiTablePaperProps === 'function'
+            ? muiTablePaperProps({ table })
+            : muiTablePaperProps;
+        return {
+          elevation: 0,
+          ...consumer,
+          sx: mergeSx({ backgroundColor: 'transparent' }, consumer?.sx),
+        };
+      }}
+      muiTableContainerProps={({ table }) => {
+        const consumer =
+          typeof muiTableContainerProps === 'function'
+            ? muiTableContainerProps({ table })
+            : muiTableContainerProps;
+        return {
+          ...consumer,
+          sx: mergeSx(
+            (theme: Theme) => ({
+              backgroundColor: theme.palette.background.paper,
+              borderBottom: `1px solid ${theme.palette.dividers?.divider}`,
+            }),
+            consumer?.sx
+          ),
+        };
+      }}
       muiTopToolbarProps={{
         sx: {
           backgroundColor: 'transparent',
           '& > .MuiBox-root': {
+            alignItems: 'center',
             flexDirection: 'row-reverse',
             flexWrap: 'wrap',
-
+            '& > .MuiBox-root:has(.MuiCollapse-root)': {
+              gap: 1,
+            },
             '& > .MuiBox-root:has(.percona-table-internal-actions)': {
               marginRight: 'auto',
             },
@@ -158,95 +240,129 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
         ...muiTopToolbarRestProps,
       }}
       displayColumnDefOptions={{
+        ...displayColumnDefOptions,
         'mrt-row-actions': {
-          size: 30,
-          muiTableBodyCellProps: {
-            sx: {
-              flex: 'none',
-              width: '75px',
-              // prettier-ignore
-              ...displayColumnDefOptions?.['mrt-row-actions']
-                // @ts-expect-error MRT displayColumnDefOptions type doesn't expose nested sx
-                ?.muiTableBodyCellProps?.sx,
-            },
-            ...displayColumnDefOptions?.['mrt-row-actions']?.muiTableBodyCellProps,
-          },
-          muiTableHeadCellProps: {
-            sx: {
-              flex: 'none',
-              width: '75px',
-              // We could simply set "mrt-row-actions.header" to ""
-              // However, MRT takes that string and shows it in the show/hide columns menu
-              // By doing this, we still have "Actions" in that menu, but no text (i.e. transparent) in the header cell
-              color: 'transparent',
-              userSelect: 'none',
-              WebkitUserSelect: 'none',
-              MozUserSelect: 'none',
-              msUserSelect: 'none',
-              // prettier-ignore
-              ...displayColumnDefOptions?.['mrt-row-actions']
-                // @ts-expect-error MRT displayColumnDefOptions type doesn't expose nested sx
-                ?.muiTableHeadCellProps?.sx,
-            },
-            ...displayColumnDefOptions?.['mrt-row-actions']?.muiTableHeadCellProps,
-          },
-          ...displayColumnDefOptions?.['mrt-row-actions'],
+          header: 'Actions',
+          Header: () => (
+            <Box component="span" sx={visuallyHidden}>
+              Actions
+            </Box>
+          ),
+          size: 56,
+          muiTableBodyCellProps: { align: 'right', sx: { px: 1 } },
+          muiTableHeadCellProps: { align: 'right', sx: { px: 1 } },
+          ...rowActionsConsumerOpts,
         },
         'mrt-row-expand': {
-          size: 40,
-          muiTableBodyCellProps: {
-            sx: {
-              flex: 'none',
-              width: '60px',
-              // prettier-ignore
-              ...displayColumnDefOptions?.['mrt-row-expand']?.muiTableBodyCellProps
-                // @ts-expect-error MRT displayColumnDefOptions type doesn't expose nested sx
-                ?.sx,
-            },
-            ...displayColumnDefOptions?.['mrt-row-expand']?.muiTableBodyCellProps,
+          ...rowExpandConsumerOpts,
+          muiTableHeadCellProps: (args) => {
+            const consumer = rowExpandConsumerOpts?.muiTableHeadCellProps;
+            const resolved = typeof consumer === 'function' ? consumer(args) : consumer;
+            return {
+              ...resolved,
+              sx: mergeSx(
+                hideExpandAllIcon ? { '& button': { display: 'none' } } : {},
+                resolved?.sx
+              ),
+            };
           },
-          muiTableHeadCellProps: {
-            sx: {
-              flex: 'none',
-              width: '60px',
-              ...(!!hideExpandAllIcon && {
-                '& button': {
-                  display: 'none',
+        },
+      }}
+      muiTableHeadCellColumnActionsButtonProps={{
+        size: 'medium',
+        sx: {
+          height: 40,
+          width: 40,
+          m: 0,
+          transform: 'none',
+        },
+      }}
+      muiTableProps={({ table }) => {
+        const consumer =
+          typeof muiTableProps === 'function' ? muiTableProps({ table }) : muiTableProps;
+        return {
+          'data-testid': tableName,
+          ...consumer,
+          sx: mergeSx(
+            (theme: Theme) => ({
+              '& .MuiTableCell-root': {
+                borderBottomColor: theme.palette.dividers?.divider,
+              },
+              '& .MuiTableCell-head': {
+                typography: 'subHead2',
+                transition: theme.transitions.create('background-color', {
+                  duration: theme.transitions.duration.shortest,
+                }),
+              },
+              '& .MuiTableCell-head:has(.MuiCheckbox-root), & .MuiTableCell-head:has([aria-label="Expand all"])':
+                {
+                  paddingTop: '18px',
                 },
-              }),
-              // prettier-ignore
-              ...displayColumnDefOptions?.['mrt-row-expand']?.muiTableHeadCellProps
-                // @ts-expect-error MRT displayColumnDefOptions type doesn't expose nested sx
-                ?.sx,
-            },
-            ...displayColumnDefOptions?.['mrt-row-expand']?.muiTableHeadCellProps,
-          },
-          ...displayColumnDefOptions?.['mrt-row-expand'],
-        },
-        ...displayColumnDefOptions,
+              '& .MuiTableCell-body': {
+                typography: 'body1',
+              },
+              '& .MuiTableBody-root tr:last-of-type td': {
+                borderBottom: 'none',
+              },
+              '& .MuiTableCell-head .MuiCollapse-wrapperInner > .MuiBox-root': {
+                gap: 0.5,
+              },
+              '& .MuiTableCell-head .Mui-TableHeadCell-Content-Actions': {
+                marginLeft: 'auto',
+              },
+              '& .MuiTableCell-head .Mui-TableHeadCell-Content-Labels': {
+                gap: 0.5,
+              },
+              '& .MuiTableCell-head .Mui-TableHeadCell-Content-Labels .MuiTableSortLabel-root': {
+                transform: 'none',
+              },
+              '& .MuiTableCell-head:has(.Mui-TableHeadCell-Content-Actions .MuiIconButton-root:hover)':
+                {
+                  backgroundColor: theme.palette.action.hover,
+                },
+            }),
+            consumer?.sx
+          ),
+        };
       }}
-      muiTableProps={{
-        // @ts-expect-error MRT muiTableProps type doesn't include data-testid HTML attribute
-        'data-testid': tableName,
+      muiTableHeadProps={({ table }) => {
+        const consumer =
+          typeof muiTableHeadProps === 'function'
+            ? muiTableHeadProps({ table })
+            : muiTableHeadProps;
+        return {
+          ...consumer,
+          sx: mergeSx(
+            { '& tr': { backgroundColor: 'background.paper', boxShadow: 'none' } },
+            consumer?.sx
+          ),
+        };
       }}
-      muiTableHeadProps={{
-        sx: {
-          '& tr': {
-            backgroundColor: 'transparent',
-          },
-        },
+      muiBottomToolbarProps={{
+        sx: { backgroundColor: 'transparent', boxShadow: 'none' },
       }}
-      muiTableBodyProps={{
-        sx: {
-          '& tr': {
-            backgroundColor: 'transparent',
-          },
-        },
+      muiTableBodyProps={({ table }) => {
+        const consumer =
+          typeof muiTableBodyProps === 'function'
+            ? muiTableBodyProps({ table })
+            : muiTableBodyProps;
+        return {
+          ...consumer,
+          sx: mergeSx(
+            { '& tr': { backgroundColor: 'background.paper' }, minHeight: 'unset' },
+            consumer?.sx
+          ),
+        };
       }}
-      muiTableDetailPanelProps={{
-        sx: {
-          width: '100%',
-        },
+      muiTableDetailPanelProps={({ table, row }) => {
+        const consumer =
+          typeof muiTableDetailPanelProps === 'function'
+            ? muiTableDetailPanelProps({ table, row })
+            : muiTableDetailPanelProps;
+        return {
+          ...consumer,
+          sx: mergeSx({ width: '100%' }, consumer?.sx),
+        };
       }}
       {...rest}
       columns={customColumns}
@@ -277,13 +393,24 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
               onClick?.(e);
             }
           },
-          sx: {
-            ...(!isDetailPanel &&
-              enableRowHoverAction && {
-                cursor: 'pointer', // you might want to change the cursor too when adding an onClick
-              }),
-            ...sx,
-          },
+          sx: mergeSx(
+            (theme: Theme) => ({
+              ...(!isDetailPanel &&
+                enableRowHoverAction && {
+                  cursor: 'pointer',
+                }),
+              '&:hover td': {
+                backgroundColor: theme.palette.primary.hover,
+              },
+              '&.Mui-selected td': {
+                backgroundColor: theme.palette.primary.selected,
+              },
+              '&.Mui-selected:hover td': {
+                backgroundColor: theme.palette.primary.focus,
+              },
+            }),
+            sx
+          ),
           ...restOfProps,
         };
       }}
