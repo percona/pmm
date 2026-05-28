@@ -16,7 +16,7 @@ In **Explore > PromQL builder**, labels appear as **Label filters** next to the 
 
 ![PromQL builder showing Label filters](../images/metrics_labels.jpg)
 
-If you prefer to browse metrics without writing queries, you can also enable the **Explore metrics** plugin. Once enabled, it appears under **Explore** in the left sidebar and supports the same label-based filtering. See [Enable Explore metrics](../reference/ui/ui_components.md)
+If you prefer to browse metrics without writing queries, you can also enable the **Explore metrics** plugin. Once enabled, it appears under **Explore** in the left sidebar and supports the same label-based filtering. See [Enable Explore metrics](../reference/ui/ui_components.md).
 
 ![Explore metrics showing label filters](../images/PMM_Explore_metrics_drilldown.jpg)
 
@@ -25,7 +25,9 @@ If you prefer to browse metrics without writing queries, you can also enable the
 PMM supports two types of labels:
 
 === "Standard labels"
-    Standard labels are automatically assigned by PMM based on detected characteristics of the monitored object. Required standard labels are created when you add a Node, Service, or Agent. Those records cannot be created without them. Optional standard labels are populated when PMM can detect the value. You can set an initial value for a standard label when adding a service, but PMM may update it automatically if it detects a change.
+    Standard labels are automatically assigned by PMM based on detected characteristics of the monitored object. Required standard labels are created when you add a Node, Service, or Agent. 
+    
+    Those records cannot be created without them. Optional standard labels are populated when PMM can detect the value. You can set an initial value for a standard label when adding a service, but PMM may update it automatically if it detects a change.
 
     | Label | Applies to | Required | Modifiable |
     |---|---|---|---|
