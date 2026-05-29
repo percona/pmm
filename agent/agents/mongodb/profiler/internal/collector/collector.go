@@ -94,7 +94,8 @@ func (c *Collector) Start(context.Context) (<-chan proto.SystemProfile, error) {
 			c.docsChan,
 			c.doneChan,
 			ready,
-			c.logger)
+			c.logger,
+		)
 	})
 
 	// wait until we actually fetch data from db
@@ -143,7 +144,8 @@ func start(ctx context.Context, wg *sync.WaitGroup, client *mongo.Client, dbName
 			doneChan,
 			ready,
 			logger,
-			lastCollectTime)
+			lastCollectTime,
+		)
 		lastCollectTime = time.Now()
 
 		select {

@@ -18,7 +18,6 @@ package inventory
 import (
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -79,7 +78,7 @@ func TestQANMySQLPerfSchemaAgent(t *testing.T) {
 					},
 					ExtraDsnParams: map[string]string{},
 					Status:         &AgentStatusUnknown,
-					LogLevel:       pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:       new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, getAgentRes)
@@ -90,12 +89,13 @@ func TestQANMySQLPerfSchemaAgent(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					QANMysqlPerfschemaAgent: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgent{
-						Enable:       pointer.ToBool(false),
+						Enable:       new(false),
 						CustomLabels: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgentCustomLabels{},
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
@@ -108,7 +108,7 @@ func TestQANMySQLPerfSchemaAgent(t *testing.T) {
 					Status:         &AgentStatusDone,
 					CustomLabels:   map[string]string{},
 					ExtraDsnParams: map[string]string{},
-					LogLevel:       pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:       new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeQANMySQLPerfSchemaAgentOK)
@@ -118,7 +118,7 @@ func TestQANMySQLPerfSchemaAgent(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					QANMysqlPerfschemaAgent: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgent{
-						Enable: pointer.ToBool(true),
+						Enable: new(true),
 						CustomLabels: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgentCustomLabels{
 							Values: map[string]string{
 								"new_label": "QANMysqlPerfschemaAgent",
@@ -127,7 +127,8 @@ func TestQANMySQLPerfSchemaAgent(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
@@ -142,7 +143,7 @@ func TestQANMySQLPerfSchemaAgent(t *testing.T) {
 					},
 					ExtraDsnParams: map[string]string{},
 					Status:         &AgentStatusDone,
-					LogLevel:       pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:       new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeQANMySQLPerfSchemaAgentOK)
@@ -181,7 +182,7 @@ func TestQANMySQLPerfSchemaAgent(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				QANMysqlPerfschemaAgent: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgent{
-					Password: pointer.ToString("new-rotated-mysql-qan-password"),
+					Password: new("new-rotated-mysql-qan-password"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -195,8 +196,8 @@ func TestQANMySQLPerfSchemaAgent(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				QANMysqlPerfschemaAgent: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgent{
-					Username: pointer.ToString("new-mysql-qan-user"),
-					Password: pointer.ToString("another-new-mysql-qan-password"),
+					Username: new("new-mysql-qan-user"),
+					Password: new("another-new-mysql-qan-password"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -243,7 +244,7 @@ func TestQANMySQLPerfSchemaAgent(t *testing.T) {
 					"team":    "analytics",
 					"service": "mysql-qan",
 				},
-				LogLevel: pointer.ToString("LOG_LEVEL_DEBUG"),
+				LogLevel: new("LOG_LEVEL_DEBUG"),
 			},
 		})
 		agentID := res.QANMysqlPerfschemaAgent.AgentID
@@ -253,7 +254,7 @@ func TestQANMySQLPerfSchemaAgent(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				QANMysqlPerfschemaAgent: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgent{
-					Username: pointer.ToString("changed-mysql-qan-user"),
+					Username: new("changed-mysql-qan-user"),
 					// Note: password, custom labels, and log level are NOT specified
 				},
 			},
@@ -277,7 +278,7 @@ func TestQANMySQLPerfSchemaAgent(t *testing.T) {
 			"team":    "analytics",
 			"service": "mysql-qan",
 		}, getAgentRes.Payload.QANMysqlPerfschemaAgent.CustomLabels)
-		assert.Equal(t, pointer.ToString("LOG_LEVEL_DEBUG"), getAgentRes.Payload.QANMysqlPerfschemaAgent.LogLevel)
+		assert.Equal(t, new("LOG_LEVEL_DEBUG"), getAgentRes.Payload.QANMysqlPerfschemaAgent.LogLevel)
 		assert.False(t, getAgentRes.Payload.QANMysqlPerfschemaAgent.Disabled)
 	})
 
@@ -312,7 +313,7 @@ func TestQANMySQLPerfSchemaAgent(t *testing.T) {
 					"environment": "staging",
 					"version":     "1.0",
 				},
-				LogLevel:               pointer.ToString("LOG_LEVEL_WARN"),
+				LogLevel:               new("LOG_LEVEL_WARN"),
 				SkipConnectionCheck:    true,
 				DisableCommentsParsing: false,
 			},
@@ -324,12 +325,12 @@ func TestQANMySQLPerfSchemaAgent(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				QANMysqlPerfschemaAgent: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgent{
-					Username:             pointer.ToString("changed-perfschema-user"),
-					Password:             pointer.ToString("changed-perfschema-password"),
-					MaxQueryLength:       pointer.ToInt32(1536),
-					DisableQueryExamples: pointer.ToBool(true),
-					TLS:                  pointer.ToBool(true),
-					TLSSkipVerify:        pointer.ToBool(false),
+					Username:             new("changed-perfschema-user"),
+					Password:             new("changed-perfschema-password"),
+					MaxQueryLength:       new(int32(1536)),
+					DisableQueryExamples: new(true),
+					TLS:                  new(true),
+					TLSSkipVerify:        new(false),
 					CustomLabels: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgentCustomLabels{
 						Values: map[string]string{
 							"environment": "production",
@@ -337,9 +338,9 @@ func TestQANMySQLPerfSchemaAgent(t *testing.T) {
 							"team":        "backend",
 						},
 					},
-					LogLevel:               pointer.ToString("LOG_LEVEL_DEBUG"),
-					DisableCommentsParsing: pointer.ToBool(true),
-					Enable:                 pointer.ToBool(false), // disable the agent
+					LogLevel:               new("LOG_LEVEL_DEBUG"),
+					DisableCommentsParsing: new(true),
+					Enable:                 new(false), // disable the agent
 				},
 			},
 			Context: pmmapitests.Context,
@@ -365,7 +366,7 @@ func TestQANMySQLPerfSchemaAgent(t *testing.T) {
 			},
 			ExtraDsnParams: map[string]string{},
 			Status:         &AgentStatusDone,
-			LogLevel:       pointer.ToString("LOG_LEVEL_DEBUG"),
+			LogLevel:       new("LOG_LEVEL_DEBUG"),
 		}
 
 		assert.Equal(t, expectedAgent, changeQANAgentOK.Payload.QANMysqlPerfschemaAgent)
@@ -395,7 +396,7 @@ func TestQANMySQLPerfSchemaAgent(t *testing.T) {
 			},
 			ExtraDsnParams: map[string]string{},
 			Status:         &AgentStatusDone,
-			LogLevel:       pointer.ToString("LOG_LEVEL_DEBUG"),
+			LogLevel:       new("LOG_LEVEL_DEBUG"),
 		}
 
 		assert.Equal(t, expectedGetAgent, getAgentRes.Payload.QANMysqlPerfschemaAgent)
@@ -420,7 +421,8 @@ func TestQANMySQLPerfSchemaAgent(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddQANMySQLPerfSchemaAgentParams.ServiceId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.QANMysqlPerfschemaAgent.AgentID)
@@ -455,7 +457,8 @@ func TestQANMySQLPerfSchemaAgent(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddQANMySQLPerfSchemaAgentParams.PmmAgentId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.QANMysqlPerfschemaAgent.AgentID)
@@ -479,7 +482,8 @@ func TestQANMySQLPerfSchemaAgent(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Service with ID \"pmm-service-id\" not found.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.QANMysqlPerfschemaAgent.AgentID)
@@ -512,7 +516,8 @@ func TestQANMySQLPerfSchemaAgent(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID pmm-not-exist-server not found.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.QANMysqlPerfschemaAgent.AgentID)

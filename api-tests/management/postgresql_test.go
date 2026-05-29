@@ -18,7 +18,6 @@ package management
 import (
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -43,7 +42,7 @@ func TestAddPostgreSQL(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-for-basic-name")
 		nodeID, pmmAgentID := RegisterNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 
 		serviceName := pmmapitests.TestString(t, "service-for-basic-name")
@@ -81,7 +80,7 @@ func TestAddPostgreSQL(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Postgresql: &services.GetServiceOKBodyPostgresql{
@@ -98,9 +97,9 @@ func TestAddPostgreSQL(t *testing.T) {
 		// Check that no one exporter is added.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 			Context:   pmmapitests.Context,
-			ServiceID: pointer.ToString(serviceID),
+			ServiceID: new(serviceID),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyPostgresExporterItems0{
 			{
 				AgentID:                listAgents.Payload.PostgresExporter[0].AgentID,
@@ -112,7 +111,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				Status:                 &AgentStatusUnknown,
 				AutoDiscoveryLimit:     0,
 				CustomLabels:           make(map[string]string),
-				LogLevel:               pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				LogLevel:               new("LOG_LEVEL_UNSPECIFIED"),
 				MaxExporterConnections: 0,
 			},
 		}, listAgents.Payload.PostgresExporter)
@@ -124,7 +123,7 @@ func TestAddPostgreSQL(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-for-all-fields-name")
 		nodeID, pmmAgentID := RegisterNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 
 		serviceName := pmmapitests.TestString(t, "service-for-all-fields-name")
@@ -165,7 +164,7 @@ func TestAddPostgreSQL(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Postgresql: &services.GetServiceOKBodyPostgresql{
@@ -182,9 +181,9 @@ func TestAddPostgreSQL(t *testing.T) {
 		// Check that exporters are added.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 			Context:   pmmapitests.Context,
-			ServiceID: pointer.ToString(serviceID),
+			ServiceID: new(serviceID),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, listAgents)
 		require.Len(t, listAgents.Payload.PostgresExporter, 1)
 		require.Len(t, listAgents.Payload.QANPostgresqlPgstatementsAgent, 1)
@@ -200,7 +199,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				AutoDiscoveryLimit:     15,
 				CustomLabels:           make(map[string]string),
 				DisabledCollectors:     make([]string, 0),
-				LogLevel:               pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				LogLevel:               new("LOG_LEVEL_UNSPECIFIED"),
 				MaxExporterConnections: 10,
 			},
 		}, listAgents.Payload.PostgresExporter)
@@ -213,7 +212,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				Username:     "username",
 				Status:       &AgentStatusUnknown,
 				CustomLabels: map[string]string{},
-				LogLevel:     pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				LogLevel:     new("LOG_LEVEL_UNSPECIFIED"),
 			},
 		}, listAgents.Payload.QANPostgresqlPgstatementsAgent)
 
@@ -226,7 +225,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				QueryExamplesDisabled: true,
 				Status:                &AgentStatusUnknown,
 				CustomLabels:          map[string]string{},
-				LogLevel:              pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				LogLevel:              new("LOG_LEVEL_UNSPECIFIED"),
 			},
 		}, listAgents.Payload.QANPostgresqlPgstatmonitorAgent)
 	})
@@ -237,7 +236,7 @@ func TestAddPostgreSQL(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-for-all-fields-name")
 		nodeID, pmmAgentID := RegisterNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 
 		serviceName := pmmapitests.TestString(t, "service-for-all-fields-name")
@@ -274,7 +273,7 @@ func TestAddPostgreSQL(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Postgresql: &services.GetServiceOKBodyPostgresql{
@@ -296,7 +295,7 @@ func TestAddPostgreSQL(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-for-the-same-name")
 		nodeID, pmmAgentID := RegisterNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 
 		serviceName := pmmapitests.TestString(t, "service-for-the-same-name")
@@ -351,7 +350,7 @@ func TestAddPostgreSQL(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-for-basic-name")
 		nodeID, pmmAgentID := RegisterNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 
 		nodeNameAddNode := pmmapitests.TestString(t, "node-for-add-node-name")
@@ -364,7 +363,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				Body: mservice.AddServiceBody{
 					Postgresql: &mservice.AddServiceParamsBodyPostgresql{
 						AddNode: &mservice.AddServiceParamsBodyPostgresqlAddNode{
-							NodeType: pointer.ToString(mservice.AddServiceParamsBodyPostgresqlAddNodeNodeTypeNODETYPEGENERICNODE),
+							NodeType: new(mservice.AddServiceParamsBodyPostgresqlAddNodeNodeTypeNODETYPEGENERICNODE),
 							NodeName: nodeNameAddNode,
 						},
 						PMMAgentID:  pmmAgentID,
@@ -390,7 +389,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				Body: mservice.AddServiceBody{
 					Postgresql: &mservice.AddServiceParamsBodyPostgresql{
 						AddNode: &mservice.AddServiceParamsBodyPostgresqlAddNode{
-							NodeType: pointer.ToString(mservice.AddServiceParamsBodyPostgresqlAddNodeNodeTypeNODETYPEREMOTERDSNODE),
+							NodeType: new(mservice.AddServiceParamsBodyPostgresqlAddNodeNodeTypeNODETYPEREMOTERDSNODE),
 							NodeName: nodeNameAddNode,
 						},
 						PMMAgentID:  pmmAgentID,
@@ -416,7 +415,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				Body: mservice.AddServiceBody{
 					Postgresql: &mservice.AddServiceParamsBodyPostgresql{
 						AddNode: &mservice.AddServiceParamsBodyPostgresqlAddNode{
-							NodeType: pointer.ToString(mservice.AddServiceParamsBodyPostgresqlAddNodeNodeTypeNODETYPEREMOTENODE),
+							NodeType: new(mservice.AddServiceParamsBodyPostgresqlAddNodeNodeTypeNODETYPEREMOTENODE),
 							NodeName: nodeNameAddNode,
 						},
 						PMMAgentID:  pmmAgentID,
@@ -466,7 +465,7 @@ func TestAddPostgreSQL(t *testing.T) {
 			// Check that postgresql exporter is added by default.
 			listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 				Context:   pmmapitests.Context,
-				ServiceID: pointer.ToString(serviceID),
+				ServiceID: new(serviceID),
 			})
 			require.NoError(t, err)
 			assert.Equal(t, []*agents.ListAgentsOKBodyPostgresExporterItems0{
@@ -480,7 +479,7 @@ func TestAddPostgreSQL(t *testing.T) {
 					AutoDiscoveryLimit: 5,
 					CustomLabels:       make(map[string]string),
 					DisabledCollectors: make([]string, 0),
-					LogLevel:           pointer.ToString(agents.ListAgentsOKBodyPostgresExporterItems0LogLevelLOGLEVELUNSPECIFIED),
+					LogLevel:           new(agents.ListAgentsOKBodyPostgresExporterItems0LogLevelLOGLEVELUNSPECIFIED),
 				},
 			}, listAgents.Payload.PostgresExporter)
 		})
@@ -492,7 +491,7 @@ func TestAddPostgreSQL(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "generic-node-for-wrong-node-type")
 		_, pmmAgentID := RegisterNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 
 		remoteNodeOKBody := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote Node for wrong type test"))
@@ -525,7 +524,7 @@ func TestAddPostgreSQL(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-name")
 		nodeID, _ := RegisterNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 
 		params := &mservice.AddServiceParams{
@@ -547,7 +546,7 @@ func TestAddPostgreSQL(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-name")
 		nodeID, pmmAgentID := RegisterNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 
 		serviceName := pmmapitests.TestString(t, "service-name")
@@ -573,7 +572,7 @@ func TestAddPostgreSQL(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-name")
 		nodeID, pmmAgentID := RegisterNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 
 		serviceName := pmmapitests.TestString(t, "service-name")
@@ -600,7 +599,7 @@ func TestAddPostgreSQL(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-name")
 		nodeID, _ := RegisterNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 
 		serviceName := pmmapitests.TestString(t, "service-name")
@@ -626,7 +625,7 @@ func TestAddPostgreSQL(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-name")
 		nodeID, pmmAgentID := RegisterNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 
 		serviceName := pmmapitests.TestString(t, "service-name")
@@ -656,7 +655,7 @@ func TestAddPostgreSQL(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-for-basic-name")
 		nodeID, pmmAgentID := RegisterNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 
 		serviceName := pmmapitests.TestString(t, "service-for-basic-name")
@@ -674,7 +673,7 @@ func TestAddPostgreSQL(t *testing.T) {
 					Username:    "username",
 
 					SkipConnectionCheck: true,
-					MetricsMode:         pointer.ToString("METRICS_MODE_PUSH"),
+					MetricsMode:         new("METRICS_MODE_PUSH"),
 				},
 			},
 		}
@@ -692,7 +691,7 @@ func TestAddPostgreSQL(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Postgresql: &services.GetServiceOKBodyPostgresql{
@@ -709,9 +708,9 @@ func TestAddPostgreSQL(t *testing.T) {
 		// Check that no one exporter is added.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 			Context:   pmmapitests.Context,
-			ServiceID: pointer.ToString(serviceID),
+			ServiceID: new(serviceID),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyPostgresExporterItems0{
 			{
 				AgentID:            listAgents.Payload.PostgresExporter[0].AgentID,
@@ -723,7 +722,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				AutoDiscoveryLimit: 0,
 				CustomLabels:       make(map[string]string),
 				DisabledCollectors: make([]string, 0),
-				LogLevel:           pointer.ToString(agents.ListAgentsOKBodyPostgresExporterItems0LogLevelLOGLEVELUNSPECIFIED),
+				LogLevel:           new(agents.ListAgentsOKBodyPostgresExporterItems0LogLevelLOGLEVELUNSPECIFIED),
 			},
 		}, listAgents.Payload.PostgresExporter)
 	})
@@ -734,7 +733,7 @@ func TestAddPostgreSQL(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-for-basic-name")
 		nodeID, pmmAgentID := RegisterNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 
 		serviceName := pmmapitests.TestString(t, "service-for-basic-name")
@@ -752,7 +751,7 @@ func TestAddPostgreSQL(t *testing.T) {
 					Username:    "username",
 
 					SkipConnectionCheck: true,
-					MetricsMode:         pointer.ToString("METRICS_MODE_PULL"),
+					MetricsMode:         new("METRICS_MODE_PULL"),
 				},
 			},
 		}
@@ -770,7 +769,7 @@ func TestAddPostgreSQL(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Postgresql: &services.GetServiceOKBodyPostgresql{
@@ -787,9 +786,9 @@ func TestAddPostgreSQL(t *testing.T) {
 		// Check that no one exporter is added.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 			Context:   pmmapitests.Context,
-			ServiceID: pointer.ToString(serviceID),
+			ServiceID: new(serviceID),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyPostgresExporterItems0{
 			{
 				AgentID:            listAgents.Payload.PostgresExporter[0].AgentID,
@@ -800,7 +799,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				AutoDiscoveryLimit: 0,
 				CustomLabels:       make(map[string]string),
 				DisabledCollectors: make([]string, 0),
-				LogLevel:           pointer.ToString(agents.ListAgentsOKBodyPostgresExporterItems0LogLevelLOGLEVELUNSPECIFIED),
+				LogLevel:           new(agents.ListAgentsOKBodyPostgresExporterItems0LogLevelLOGLEVELUNSPECIFIED),
 			},
 		}, listAgents.Payload.PostgresExporter)
 	})
@@ -811,7 +810,7 @@ func TestAddPostgreSQL(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-for-basic-name")
 		nodeID, pmmAgentID := RegisterNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 
 		serviceName := pmmapitests.TestString(t, "service-for-basic-name")
@@ -829,7 +828,7 @@ func TestAddPostgreSQL(t *testing.T) {
 					Username:    "username",
 
 					SkipConnectionCheck: true,
-					MetricsMode:         pointer.ToString("METRICS_MODE_UNSPECIFIED"),
+					MetricsMode:         new("METRICS_MODE_UNSPECIFIED"),
 				},
 			},
 		}
@@ -847,7 +846,7 @@ func TestAddPostgreSQL(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Postgresql: &services.GetServiceOKBodyPostgresql{
@@ -864,9 +863,9 @@ func TestAddPostgreSQL(t *testing.T) {
 		// Check that no one exporter is added.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 			Context:   pmmapitests.Context,
-			ServiceID: pointer.ToString(serviceID),
+			ServiceID: new(serviceID),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyPostgresExporterItems0{
 			{
 				AgentID:                listAgents.Payload.PostgresExporter[0].AgentID,
@@ -878,7 +877,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				AutoDiscoveryLimit:     0,
 				CustomLabels:           make(map[string]string),
 				DisabledCollectors:     make([]string, 0),
-				LogLevel:               pointer.ToString(agents.ListAgentsOKBodyPostgresExporterItems0LogLevelLOGLEVELUNSPECIFIED),
+				LogLevel:               new(agents.ListAgentsOKBodyPostgresExporterItems0LogLevelLOGLEVELUNSPECIFIED),
 				MaxExporterConnections: 0,
 			},
 		}, listAgents.Payload.PostgresExporter)
@@ -892,7 +891,7 @@ func TestRemovePostgreSQL(t *testing.T) {
 		t.Helper()
 		nodeID, pmmAgentID := RegisterNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 
 		params := &mservice.AddServiceParams{
@@ -932,7 +931,7 @@ func TestRemovePostgreSQL(t *testing.T) {
 
 		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
 			ServiceID:   serviceName,
-			ServiceType: pointer.ToString(types.ServiceTypePostgreSQLService),
+			ServiceType: new(types.ServiceTypePostgreSQLService),
 			Context:     pmmapitests.Context,
 		})
 		require.NoError(t, err)
@@ -941,7 +940,7 @@ func TestRemovePostgreSQL(t *testing.T) {
 		// Check that the service removed with agents.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 			Context:   pmmapitests.Context,
-			ServiceID: pointer.ToString(serviceID),
+			ServiceID: new(serviceID),
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Service with ID %q not found.", serviceID)
 		assert.Nil(t, listAgents)
@@ -956,7 +955,7 @@ func TestRemovePostgreSQL(t *testing.T) {
 
 		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
 			ServiceID:   serviceID,
-			ServiceType: pointer.ToString(types.ServiceTypePostgreSQLService),
+			ServiceType: new(types.ServiceTypePostgreSQLService),
 			Context:     pmmapitests.Context,
 		})
 		require.NoError(t, err)
@@ -965,7 +964,7 @@ func TestRemovePostgreSQL(t *testing.T) {
 		// Check that the service removed with agents.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 			Context:   pmmapitests.Context,
-			ServiceID: pointer.ToString(serviceID),
+			ServiceID: new(serviceID),
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Service with ID %q not found.", serviceID)
 		assert.Nil(t, listAgents)
@@ -980,7 +979,7 @@ func TestRemovePostgreSQL(t *testing.T) {
 
 		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
 			ServiceID:   serviceID,
-			ServiceType: pointer.ToString(types.ServiceTypeMySQLService),
+			ServiceType: new(types.ServiceTypeMySQLService),
 			Context:     pmmapitests.Context,
 		})
 		assert.Nil(t, removeServiceOK)

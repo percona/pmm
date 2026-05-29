@@ -20,7 +20,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -97,7 +96,7 @@ type ServiceFilters struct {
 // FindServices returns Services by filters.
 func FindServices(q *reform.Querier, filters ServiceFilters) ([]*Service, error) {
 	var conditions []string
-	var args []interface{}
+	var args []any
 	idx := 1
 	if filters.NodeID != "" {
 		conditions = append(conditions, fmt.Sprintf("node_id = %s", q.Placeholder(idx)))
@@ -392,7 +391,7 @@ func RemoveService(q *reform.Querier, id string, mode RemoveMode) error { //noli
 		}
 		for _, a := range artifacts {
 			if _, err := UpdateArtifact(q, a.ID, UpdateArtifactParams{
-				ServiceID: pointer.ToString(""),
+				ServiceID: new(""),
 			}); err != nil {
 				return err
 			}

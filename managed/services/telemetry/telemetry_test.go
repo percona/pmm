@@ -24,8 +24,8 @@ import (
 
 	_ "github.com/ClickHouse/clickhouse-go/v2"
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
-	pmmv1 "github.com/percona/saas/gen/telemetry/events/pmm"
-	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
+	pmmv1 "github.com/percona/platform/gen/telemetry/events/pmm"
+	telemetryv1 "github.com/percona/platform/gen/telemetry/generic"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -165,7 +165,7 @@ func TestRunTelemetryService(t *testing.T) {
 			serviceConfig := getServiceConfig(pgHostPort, qanDSN, vmDSN)
 
 			registry, err := NewDataSourceRegistry(serviceConfig, logEntry)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			s := Service{
 				db:                  db,
@@ -344,7 +344,8 @@ func initMockTelemetrySender(t *testing.T, expectedReport *telemetryv1.ReportReq
 	return func() sender {
 		var mockTelemetrySender mockSender
 		mockTelemetrySender.Test(t)
-		mockTelemetrySender.On("SendTelemetry",
+		mockTelemetrySender.On(
+			"SendTelemetry",
 			mock.Anything,
 			mock.MatchedBy(func(report *telemetryv1.ReportRequest) bool {
 				return matchExpectedReport(report, expectedReport)

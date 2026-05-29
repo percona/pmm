@@ -27,7 +27,7 @@ import (
 // Reform is a SQL logger with metrics.
 type Reform struct {
 	l          *reform.PrintfLogger
-	requests   int64
+	requests   atomic.Int64
 	mRequests  *prom.CounterVec
 	mResponses *prom.SummaryVec
 }
@@ -69,16 +69,16 @@ func statement(query string) string {
 }
 
 // Before implements reform.Logger.
-func (r *Reform) Before(query string, args []interface{}) {
+func (r *Reform) Before(query string, args []any) {
 	r.l.Before(query, args)
 
-	atomic.AddInt64(&r.requests, 1)
+	r.requests.Add(1)
 
 	r.mRequests.WithLabelValues(statement(query)).Inc()
 }
 
 // After implements reform.Logger.
-func (r *Reform) After(query string, args []interface{}, d time.Duration, err error) {
+func (r *Reform) After(query string, args []any, d time.Duration, err error) {
 	r.l.After(query, args, d, err)
 
 	e := "0"
@@ -102,12 +102,12 @@ func (r *Reform) Collect(ch chan<- prom.Metric) {
 
 // Requests returns a total number of queries started.
 func (r *Reform) Requests() int {
-	return int(atomic.LoadInt64(&r.requests))
+	return int(r.requests.Load())
 }
 
 // Reset sets all metrics to 0.
 func (r *Reform) Reset() {
-	atomic.StoreInt64(&r.requests, 0)
+	r.requests.Store(0)
 
 	r.mRequests.Reset()
 	r.mResponses.Reset()

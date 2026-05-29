@@ -15,6 +15,8 @@
 package inventory
 
 import (
+	"time"
+
 	"github.com/AlekSi/pointer"
 
 	"github.com/percona/pmm/admin/commands"
@@ -67,6 +69,7 @@ type AddAgentMongodbExporterCommand struct {
 	DisableCollectors             []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	StatsCollections              []string          `help:"Collections for collstats & indexstats"`
 	CollectionsLimit              int32             `name:"max-collections-limit" placeholder:"number" help:"Disable collstats & indexstats if there are more than <n> collections"` //nolint:lll
+	ConnectionTimeout             *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 
 	flags.LogLevelFatalFlags
 }
@@ -104,7 +107,8 @@ func (cmd *AddAgentMongodbExporterCommand) RunCmd() (commands.Result, error) {
 				DisableCollectors:             commands.ParseDisableCollectors(cmd.DisableCollectors),
 				StatsCollections:              commands.ParseDisableCollectors(cmd.StatsCollections),
 				CollectionsLimit:              cmd.CollectionsLimit,
-				LogLevel:                      cmd.LogLevelFatalFlags.LogLevel.EnumValue(),
+				LogLevel:                      cmd.LogLevel.EnumValue(),
+				ConnectionTimeout:             commands.DurationString(cmd.ConnectionTimeout),
 			},
 		},
 		Context: commands.Ctx,

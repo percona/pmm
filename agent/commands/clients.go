@@ -27,7 +27,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/AlekSi/pointer"
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/pkg/errors"
@@ -117,7 +116,7 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 	transport.Context = context.Background()
 
 	// set error handlers for nginx responses if pmm-managed is down
-	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, _ interface{}) error {
+	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, _ any) error {
 		b, _ := io.ReadAll(reader)
 		return nginxError(string(b))
 	})
@@ -147,8 +146,8 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 // as [[region=us-east1, mylabel=mylab-22]].
 func ParseKeyValuePair(labels string) (map[string]string, error) {
 	result := make(map[string]string)
-	parts := strings.Split(labels, ",")
-	for _, part := range parts {
+	parts := strings.SplitSeq(labels, ",")
+	for part := range parts {
 		part = strings.TrimSpace(part)
 		if part == "" {
 			continue
@@ -172,7 +171,7 @@ func serverRegister(cfgSetup *config.Setup) (agentID, token string, _ error) { /
 	}
 
 	var disableCollectors []string
-	for _, v := range strings.Split(cfgSetup.DisableCollectors, ",") {
+	for v := range strings.SplitSeq(cfgSetup.DisableCollectors, ",") {
 		disableCollector := strings.TrimSpace(v)
 		if disableCollector != "" {
 			disableCollectors = append(disableCollectors, disableCollector)
@@ -186,7 +185,7 @@ func serverRegister(cfgSetup *config.Setup) (agentID, token string, _ error) { /
 
 	res, err := managementClient.Default.ManagementService.RegisterNode(&mservice.RegisterNodeParams{
 		Body: mservice.RegisterNodeBody{
-			NodeType:      pointer.ToString(nodeTypes[cfgSetup.NodeType]),
+			NodeType:      new(nodeTypes[cfgSetup.NodeType]),
 			NodeName:      cfgSetup.NodeName,
 			MachineID:     cfgSetup.MachineID,
 			Distro:        cfgSetup.Distro,
@@ -200,7 +199,7 @@ func serverRegister(cfgSetup *config.Setup) (agentID, token string, _ error) { /
 			AgentPassword: cfgSetup.AgentPassword,
 
 			Reregister:        cfgSetup.Force,
-			MetricsMode:       pointer.ToString(strings.ToUpper("METRICS_MODE_" + cfgSetup.MetricsMode)),
+			MetricsMode:       new(strings.ToUpper("METRICS_MODE_" + cfgSetup.MetricsMode)),
 			DisableCollectors: disableCollectors,
 			ExposeExporter:    cfgSetup.ExposeExporter,
 		},
@@ -208,6 +207,10 @@ func serverRegister(cfgSetup *config.Setup) (agentID, token string, _ error) { /
 	})
 	if err != nil {
 		return "", "", err
+	}
+	// TODO: Investigate what can lead to PMMAgent being nil in the response
+	if res.Payload == nil || res.Payload.PMMAgent == nil {
+		return "", "", errors.New("unexpected empty response from PMM Server (missing pmm_agent)")
 	}
 	return res.Payload.PMMAgent.AgentID, res.Payload.Token, nil
 }

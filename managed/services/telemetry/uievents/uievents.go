@@ -24,7 +24,7 @@ import (
 	"time"
 
 	"github.com/HdrHistogram/hdrhistogram-go"
-	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
+	telemetryv1 "github.com/percona/platform/gen/telemetry/generic"
 	"github.com/sirupsen/logrus"
 
 	uieventsv1 "github.com/percona/pmm/api/uievents/v1"
@@ -144,7 +144,7 @@ func (s *Service) processDashboardMetrics() *telemetryv1.GenericReport_Metric {
 	sort.SliceStable(keys, func(i, j int) bool {
 		return s.dashboardUsage[keys[i]].useCount > s.dashboardUsage[keys[j]].useCount
 	})
-	for i := 0; i < len(keys); i++ {
+	for i := range keys {
 		sortedKey := keys[i]
 		stat := s.dashboardUsage[sortedKey]
 		dashboardStat.TopDashboards = append(dashboardStat.TopDashboards, stat.uid)
@@ -154,7 +154,7 @@ func (s *Service) processDashboardMetrics() *telemetryv1.GenericReport_Metric {
 	sort.SliceStable(keys, func(i, j int) bool {
 		return s.dashboardUsage[keys[i]].loadTime.ValueAtPercentile(p95Percentile) > s.dashboardUsage[keys[j]].loadTime.ValueAtPercentile(p95Percentile)
 	})
-	for i := 0; i < len(keys); i++ {
+	for i := range keys {
 		sortedKey := keys[i]
 		stat := s.dashboardUsage[sortedKey]
 		p95 := stat.loadTime.ValueAtPercentile(p95Percentile)
@@ -205,7 +205,7 @@ func (s *Service) processComponentMetrics() *telemetryv1.GenericReport_Metric {
 	sort.SliceStable(keys, func(i, j int) bool {
 		return s.componentsUsage[keys[i]].loadTime.ValueAtPercentile(p95Percentile) > s.componentsUsage[keys[j]].loadTime.ValueAtPercentile(p95Percentile)
 	})
-	for i := 0; i < len(keys); i++ {
+	for i := range keys {
 		sortedKey := keys[i]
 		stat := s.componentsUsage[sortedKey]
 		p95 := stat.loadTime.ValueAtPercentile(p95Percentile)

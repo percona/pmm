@@ -18,7 +18,6 @@ package inventory
 import (
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -73,7 +72,7 @@ func TestExternalExporter(t *testing.T) {
 				CustomLabels: map[string]string{
 					"custom_label_for_external_exporter": "external_exporter",
 				},
-				Status: pointer.ToString(AgentStatusUnknown),
+				Status: new(AgentStatusUnknown),
 			},
 		}, getAgentRes.Payload)
 	})
@@ -128,7 +127,7 @@ func TestExternalExporter(t *testing.T) {
 					"custom_label_external_exporter": "external_exporter",
 				},
 				TLSSkipVerify: true,
-				Status:        pointer.ToString(AgentStatusUnknown),
+				Status:        new(AgentStatusUnknown),
 			},
 		}, getAgentRes.Payload)
 
@@ -138,12 +137,13 @@ func TestExternalExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					ExternalExporter: &agents.ChangeAgentParamsBodyExternalExporter{
-						Enable:       pointer.ToBool(false),
+						Enable:       new(false),
 						CustomLabels: &agents.ChangeAgentParamsBodyExternalExporterCustomLabels{},
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOKBody{
 			ExternalExporter: &agents.ChangeAgentOKBodyExternalExporter{
@@ -157,7 +157,7 @@ func TestExternalExporter(t *testing.T) {
 				Disabled:      true,
 				CustomLabels:  map[string]string{},
 				TLSSkipVerify: true,
-				Status:        pointer.ToString(AgentStatusDone),
+				Status:        new(AgentStatusDone),
 			},
 		}, changeExternalExporterOK.Payload)
 
@@ -166,7 +166,7 @@ func TestExternalExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					ExternalExporter: &agents.ChangeAgentParamsBodyExternalExporter{
-						Enable: pointer.ToBool(true),
+						Enable: new(true),
 						CustomLabels: &agents.ChangeAgentParamsBodyExternalExporterCustomLabels{
 							Values: map[string]string{
 								"new_label": "external_exporter",
@@ -175,7 +175,8 @@ func TestExternalExporter(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOKBody{
 			ExternalExporter: &agents.ChangeAgentOKBodyExternalExporter{
@@ -191,7 +192,7 @@ func TestExternalExporter(t *testing.T) {
 					"new_label": "external_exporter",
 				},
 				TLSSkipVerify: true,
-				Status:        pointer.ToString(AgentStatusDone),
+				Status:        new(AgentStatusDone),
 			},
 		}, changeExternalExporterOK.Payload)
 	})
@@ -354,7 +355,7 @@ func TestExternalExporter(t *testing.T) {
 					"custom_label_for_external_exporter": "external_exporter",
 				},
 				PushMetricsEnabled: true,
-				Status:             pointer.ToString(AgentStatusUnknown),
+				Status:             new(AgentStatusUnknown),
 			},
 		}, getAgentRes.Payload)
 
@@ -364,11 +365,12 @@ func TestExternalExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					ExternalExporter: &agents.ChangeAgentParamsBodyExternalExporter{
-						EnablePushMetrics: pointer.ToBool(false),
+						EnablePushMetrics: new(false),
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOKBody{
 			ExternalExporter: &agents.ChangeAgentOKBodyExternalExporter{
@@ -382,7 +384,7 @@ func TestExternalExporter(t *testing.T) {
 					"custom_label_for_external_exporter": "external_exporter",
 				},
 				PushMetricsEnabled: false,
-				Status:             pointer.ToString(AgentStatusUnknown),
+				Status:             new(AgentStatusUnknown),
 			},
 		}, changeExternalExporterOK.Payload)
 
@@ -391,11 +393,12 @@ func TestExternalExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					ExternalExporter: &agents.ChangeAgentParamsBodyExternalExporter{
-						EnablePushMetrics: pointer.ToBool(true),
+						EnablePushMetrics: new(true),
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOKBody{
 			ExternalExporter: &agents.ChangeAgentOKBodyExternalExporter{
@@ -409,7 +412,7 @@ func TestExternalExporter(t *testing.T) {
 					"custom_label_for_external_exporter": "external_exporter",
 				},
 				PushMetricsEnabled: true,
-				Status:             pointer.ToString(AgentStatusUnknown),
+				Status:             new(AgentStatusUnknown),
 			},
 		}, changeExternalExporterOK.Payload)
 	})
@@ -450,7 +453,7 @@ func TestExternalExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				ExternalExporter: &agents.ChangeAgentParamsBodyExternalExporter{
-					Username: pointer.ToString("rotated-external-user"),
+					Username: new("rotated-external-user"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -464,8 +467,8 @@ func TestExternalExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				ExternalExporter: &agents.ChangeAgentParamsBodyExternalExporter{
-					Scheme:      pointer.ToString("http"),
-					MetricsPath: pointer.ToString("/new-metrics"),
+					Scheme:      new("http"),
+					MetricsPath: new("/new-metrics"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -524,7 +527,7 @@ func TestExternalExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				ExternalExporter: &agents.ChangeAgentParamsBodyExternalExporter{
-					Username: pointer.ToString("changed-external-user"),
+					Username: new("changed-external-user"),
 					// Note: custom labels, scheme, metrics path, push metrics are NOT specified
 				},
 			},
@@ -595,10 +598,10 @@ func TestExternalExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				ExternalExporter: &agents.ChangeAgentParamsBodyExternalExporter{
-					Username:    pointer.ToString("changed-external-user"),
-					Scheme:      pointer.ToString("https"),
-					MetricsPath: pointer.ToString("/new-metrics"),
-					ListenPort:  pointer.ToInt64(8080),
+					Username:    new("changed-external-user"),
+					Scheme:      new("https"),
+					MetricsPath: new("/new-metrics"),
+					ListenPort:  new(int64(8080)),
 					CustomLabels: &agents.ChangeAgentParamsBodyExternalExporterCustomLabels{
 						Values: map[string]string{
 							"environment": "production",
@@ -606,8 +609,8 @@ func TestExternalExporter(t *testing.T) {
 							"team":        "infrastructure",
 						},
 					},
-					EnablePushMetrics: pointer.ToBool(true),
-					Enable:            pointer.ToBool(false), // disable the agent
+					EnablePushMetrics: new(true),
+					Enable:            new(false), // disable the agent
 				},
 			},
 			Context: pmmapitests.Context,

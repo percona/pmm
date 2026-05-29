@@ -28,7 +28,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	gapi "github.com/grafana/grafana-api-golang-client"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -97,7 +96,7 @@ func UnregisterNodes(t *testing.T, nodeIDs ...string) {
 	for _, nodeID := range nodeIDs {
 		params := &mservice.UnregisterNodeParams{
 			NodeID:  nodeID,
-			Force:   pointer.ToBool(true),
+			Force:   new(true),
 			Context: context.Background(),
 		}
 
@@ -117,7 +116,7 @@ func RemoveNodes(t *testing.T, nodeIDs ...string) {
 	for _, nodeID := range nodeIDs {
 		params := &nodes.RemoveNodeParams{
 			NodeID:  nodeID,
-			Force:   pointer.ToBool(true),
+			Force:   new(true),
 			Context: context.Background(),
 		}
 		res, err := client.Default.NodesService.RemoveNode(params)
@@ -134,7 +133,7 @@ func RemoveServices(t *testing.T, serviceIDs ...string) {
 	for _, serviceID := range serviceIDs {
 		params := &services.RemoveServiceParams{
 			ServiceID: serviceID,
-			Force:     pointer.ToBool(true),
+			Force:     new(true),
 			Context:   context.Background(),
 		}
 		res, err := client.Default.ServicesService.RemoveService(params)
@@ -151,7 +150,7 @@ func RemoveAgents(t *testing.T, agentIDs ...string) {
 	for _, agentID := range agentIDs {
 		params := &agents.RemoveAgentParams{
 			AgentID: agentID,
-			Force:   pointer.ToBool(true),
+			Force:   new(true),
 			Context: t.Context(),
 		}
 		res, err := client.Default.AgentsService.RemoveAgent(params)
@@ -472,7 +471,7 @@ func GetGrafanaClient(t *testing.T) *gapi.Client {
 				Transport: adminTransport,
 			},
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		gClient = grafanaClient
 	})

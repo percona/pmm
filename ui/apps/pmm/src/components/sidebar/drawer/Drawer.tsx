@@ -16,6 +16,17 @@ const Drawer = styled(MuiDrawer, {
       style: {
         ...openedMixin(theme),
         '& .MuiDrawer-paper': openedMixin(theme),
+        [theme.breakpoints.down('md')]: {
+          ...closedMixin(theme),
+          '& .MuiDrawer-paper': {
+            ...openedMixin(theme),
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            height: '100vh',
+            zIndex: theme.zIndex.drawer + 1,
+          },
+        },
       },
     },
     {

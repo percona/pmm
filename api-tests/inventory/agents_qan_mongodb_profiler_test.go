@@ -18,7 +18,6 @@ package inventory
 import (
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -79,7 +78,7 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 						"new_label": "QANMongodbProfilerAgent",
 					},
 					Status:   &AgentStatusUnknown,
-					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel: new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, getAgentRes)
@@ -90,12 +89,13 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					QANMongodbProfilerAgent: &agents.ChangeAgentParamsBodyQANMongodbProfilerAgent{
-						Enable:       pointer.ToBool(false),
+						Enable:       new(false),
 						CustomLabels: &agents.ChangeAgentParamsBodyQANMongodbProfilerAgentCustomLabels{},
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
@@ -107,7 +107,7 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 					Disabled:     true,
 					Status:       &AgentStatusDone,
 					CustomLabels: map[string]string{},
-					LogLevel:     pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:     new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeQANMongoDBProfilerAgentOK)
@@ -117,7 +117,7 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					QANMongodbProfilerAgent: &agents.ChangeAgentParamsBodyQANMongodbProfilerAgent{
-						Enable: pointer.ToBool(true),
+						Enable: new(true),
 						CustomLabels: &agents.ChangeAgentParamsBodyQANMongodbProfilerAgentCustomLabels{
 							Values: map[string]string{
 								"new_label": "QANMongodbProfilerAgent",
@@ -126,7 +126,8 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
@@ -140,7 +141,7 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 						"new_label": "QANMongodbProfilerAgent",
 					},
 					Status:   &AgentStatusDone,
-					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel: new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeQANMongoDBProfilerAgentOK)
@@ -180,7 +181,7 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				QANMongodbProfilerAgent: &agents.ChangeAgentParamsBodyQANMongodbProfilerAgent{
-					Password: pointer.ToString("new-rotated-mongodb-profiler-password"),
+					Password: new("new-rotated-mongodb-profiler-password"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -194,8 +195,8 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				QANMongodbProfilerAgent: &agents.ChangeAgentParamsBodyQANMongodbProfilerAgent{
-					Username: pointer.ToString("new-mongodb-profiler-user"),
-					Password: pointer.ToString("another-new-mongodb-profiler-password"),
+					Username: new("new-mongodb-profiler-user"),
+					Password: new("another-new-mongodb-profiler-password"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -244,7 +245,7 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 					"environment": "test",
 					"team":        "dev",
 				},
-				LogLevel:            pointer.ToString("LOG_LEVEL_DEBUG"),
+				LogLevel:            new("LOG_LEVEL_DEBUG"),
 				SkipConnectionCheck: true,
 			},
 		})
@@ -255,7 +256,7 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				QANMongodbProfilerAgent: &agents.ChangeAgentParamsBodyQANMongodbProfilerAgent{
-					Username: pointer.ToString("updated-profiler-user"),
+					Username: new("updated-profiler-user"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -278,8 +279,8 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 			"environment": "test",
 			"team":        "dev",
 		}, agent.CustomLabels) // Unchanged
-		assert.Equal(t, pointer.ToString("LOG_LEVEL_DEBUG"), agent.LogLevel) // Unchanged
-		assert.False(t, agent.Disabled)                                      // Unchanged
+		assert.Equal(t, new("LOG_LEVEL_DEBUG"), agent.LogLevel) // Unchanged
+		assert.False(t, agent.Disabled)                         // Unchanged
 	})
 
 	t.Run("ChangeAllAvailableFields", func(t *testing.T) {
@@ -313,7 +314,7 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 					"environment": "staging",
 					"version":     "1.0",
 				},
-				LogLevel:            pointer.ToString("LOG_LEVEL_WARN"),
+				LogLevel:            new("LOG_LEVEL_WARN"),
 				SkipConnectionCheck: true,
 			},
 		})
@@ -324,11 +325,11 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				QANMongodbProfilerAgent: &agents.ChangeAgentParamsBodyQANMongodbProfilerAgent{
-					Username:       pointer.ToString("changed-mongodb-user"),
-					Password:       pointer.ToString("changed-mongodb-password"),
-					MaxQueryLength: pointer.ToInt32(4096),
-					TLS:            pointer.ToBool(true),
-					TLSSkipVerify:  pointer.ToBool(false),
+					Username:       new("changed-mongodb-user"),
+					Password:       new("changed-mongodb-password"),
+					MaxQueryLength: new(int32(4096)),
+					TLS:            new(true),
+					TLSSkipVerify:  new(false),
 					CustomLabels: &agents.ChangeAgentParamsBodyQANMongodbProfilerAgentCustomLabels{
 						Values: map[string]string{
 							"environment": "production",
@@ -336,8 +337,8 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 							"team":        "backend",
 						},
 					},
-					LogLevel: pointer.ToString("LOG_LEVEL_DEBUG"),
-					Enable:   pointer.ToBool(false), // disable the agent
+					LogLevel: new("LOG_LEVEL_DEBUG"),
+					Enable:   new(false), // disable the agent
 				},
 			},
 			Context: pmmapitests.Context,
@@ -360,7 +361,7 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 				"team":        "backend",
 			},
 			Status:   &AgentStatusDone,
-			LogLevel: pointer.ToString("LOG_LEVEL_DEBUG"),
+			LogLevel: new("LOG_LEVEL_DEBUG"),
 		}
 
 		assert.Equal(t, expectedAgent, changeQANAgentOK.Payload.QANMongodbProfilerAgent)
@@ -387,7 +388,7 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 				"team":        "backend",
 			},
 			Status:   &AgentStatusDone,
-			LogLevel: pointer.ToString("LOG_LEVEL_DEBUG"),
+			LogLevel: new("LOG_LEVEL_DEBUG"),
 		}
 
 		assert.Equal(t, expectedGetAgent, getAgentRes.Payload.QANMongodbProfilerAgent)
@@ -412,7 +413,8 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddQANMongoDBProfilerAgentParams.ServiceId: value length must be at least 1 runes")
 
 		if !assert.Nil(t, res) {
@@ -448,7 +450,8 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddQANMongoDBProfilerAgentParams.PmmAgentId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.QANMongodbProfilerAgent.AgentID)
@@ -472,7 +475,8 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Service with ID \"pmm-service-id\" not found.")
 
 		if !assert.Nil(t, res) {
@@ -506,7 +510,8 @@ func TestQANMongoDBProfilerAgent(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID pmm-not-exist-server not found.")
 
 		if !assert.Nil(t, res) {

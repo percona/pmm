@@ -45,7 +45,8 @@ func TestNodeExporter(t *testing.T) {
 			&agents.GetAgentParams{
 				AgentID: agentID,
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.GetAgentOK{
 			Payload: &agents.GetAgentOKBody{
@@ -56,7 +57,7 @@ func TestNodeExporter(t *testing.T) {
 					CustomLabels:       customLabels,
 					Status:             &AgentStatusUnknown,
 					DisabledCollectors: make([]string, 0),
-					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:           new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, getAgentRes)
@@ -67,12 +68,13 @@ func TestNodeExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					NodeExporter: &agents.ChangeAgentParamsBodyNodeExporter{
-						Enable:       pointer.ToBool(false),
+						Enable:       new(false),
 						CustomLabels: &agents.ChangeAgentParamsBodyNodeExporterCustomLabels{},
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
@@ -83,7 +85,7 @@ func TestNodeExporter(t *testing.T) {
 					Status:             &AgentStatusDone,
 					CustomLabels:       map[string]string{},
 					DisabledCollectors: make([]string, 0),
-					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:           new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeNodeExporterOK)
@@ -93,7 +95,7 @@ func TestNodeExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					NodeExporter: &agents.ChangeAgentParamsBodyNodeExporter{
-						Enable: pointer.ToBool(true),
+						Enable: new(true),
 						CustomLabels: &agents.ChangeAgentParamsBodyNodeExporterCustomLabels{
 							Values: map[string]string{
 								"new_label": "node_exporter",
@@ -102,7 +104,8 @@ func TestNodeExporter(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
@@ -115,7 +118,7 @@ func TestNodeExporter(t *testing.T) {
 					},
 					Status:             &AgentStatusDone,
 					DisabledCollectors: make([]string, 0),
-					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:           new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeNodeExporterOK)
@@ -195,7 +198,7 @@ func TestNodeExporter(t *testing.T) {
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
 					DisabledCollectors: make([]string, 0),
-					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:           new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, getAgentRes)
@@ -205,7 +208,7 @@ func TestNodeExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				NodeExporter: &agents.ChangeAgentParamsBodyNodeExporter{
-					EnablePushMetrics: pointer.ToBool(false),
+					EnablePushMetrics: new(false),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -220,7 +223,7 @@ func TestNodeExporter(t *testing.T) {
 					CustomLabels:       customLabels,
 					Status:             &AgentStatusUnknown,
 					DisabledCollectors: make([]string, 0),
-					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:           new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeNodeExporterOK)
@@ -230,11 +233,12 @@ func TestNodeExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					NodeExporter: &agents.ChangeAgentParamsBodyNodeExporter{
-						EnablePushMetrics: pointer.ToBool(true),
+						EnablePushMetrics: new(true),
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOK{
 			Payload: &agents.ChangeAgentOKBody{
@@ -246,7 +250,7 @@ func TestNodeExporter(t *testing.T) {
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
 					DisabledCollectors: make([]string, 0),
-					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:           new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeNodeExporterOK)
@@ -265,8 +269,8 @@ func TestNodeExporter(t *testing.T) {
 			Body: agents.ChangeAgentBody{
 				NodeExporter: &agents.ChangeAgentParamsBodyNodeExporter{
 					DisableCollectors: []string{"cpu", "diskstats"},
-					LogLevel:          pointer.ToString(agents.ChangeAgentParamsBodyNodeExporterLogLevelLOGLEVELDEBUG),
-					ExposeExporter:    pointer.ToBool(true),
+					LogLevel:          new(agents.ChangeAgentParamsBodyNodeExporterLogLevelLOGLEVELDEBUG),
+					ExposeExporter:    new(true),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -344,8 +348,8 @@ func TestNodeExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				NodeExporter: &agents.ChangeAgentParamsBodyNodeExporter{
-					EnablePushMetrics: pointer.ToBool(true),
-					LogLevel:          pointer.ToString("LOG_LEVEL_DEBUG"),
+					EnablePushMetrics: new(true),
+					LogLevel:          new("LOG_LEVEL_DEBUG"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -360,7 +364,7 @@ func TestNodeExporter(t *testing.T) {
 			Body: agents.ChangeAgentBody{
 				NodeExporter: &agents.ChangeAgentParamsBodyNodeExporter{
 					DisableCollectors: []string{"cpu", "diskstats"},
-					ExposeExporter:    pointer.ToBool(true),
+					ExposeExporter:    new(true),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -390,7 +394,7 @@ func TestNodeExporter(t *testing.T) {
 				NodeExporter: &agents.AddAgentParamsBodyNodeExporter{
 					PMMAgentID:  pmmAgentID,
 					PushMetrics: true,
-					LogLevel:    pointer.ToString("LOG_LEVEL_WARN"),
+					LogLevel:    new("LOG_LEVEL_WARN"),
 					CustomLabels: map[string]string{
 						"environment": "staging",
 						"team":        "infrastructure",
@@ -410,7 +414,7 @@ func TestNodeExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				NodeExporter: &agents.ChangeAgentParamsBodyNodeExporter{
-					LogLevel: pointer.ToString("LOG_LEVEL_ERROR"),
+					LogLevel: new("LOG_LEVEL_ERROR"),
 					// All other fields are intentionally NOT set
 				},
 			},
@@ -426,7 +430,7 @@ func TestNodeExporter(t *testing.T) {
 		require.NoError(t, err)
 
 		agent := getAgentRes.Payload.NodeExporter
-		assert.Equal(t, pointer.ToString("LOG_LEVEL_ERROR"), agent.LogLevel)        // Changed
+		assert.Equal(t, new("LOG_LEVEL_ERROR"), agent.LogLevel)                     // Changed
 		assert.True(t, agent.PushMetricsEnabled)                                    // Unchanged
 		assert.True(t, agent.ExposeExporter)                                        // Unchanged
 		assert.Equal(t, []string{"filesystem", "netdev"}, agent.DisabledCollectors) // Unchanged
@@ -462,16 +466,16 @@ func TestNodeExporter(t *testing.T) {
 							"team":        "sre",
 						},
 					},
-					LogLevel:          pointer.ToString("LOG_LEVEL_DEBUG"),
-					EnablePushMetrics: pointer.ToBool(true),
+					LogLevel:          new("LOG_LEVEL_DEBUG"),
+					EnablePushMetrics: new(true),
 					DisableCollectors: []string{"cpu", "diskstats", "loadavg"},
-					ExposeExporter:    pointer.ToBool(true),
+					ExposeExporter:    new(true),
 					MetricsResolutions: &agents.ChangeAgentParamsBodyNodeExporterMetricsResolutions{
 						Hr: "5s",
 						Mr: "30s",
 						Lr: "300s",
 					},
-					Enable: pointer.ToBool(false), // disable the agent
+					Enable: new(false), // disable the agent
 				},
 			},
 			Context: pmmapitests.Context,
@@ -487,7 +491,7 @@ func TestNodeExporter(t *testing.T) {
 				"version":     "2.0",
 				"team":        "sre",
 			},
-			LogLevel:           pointer.ToString("LOG_LEVEL_DEBUG"),
+			LogLevel:           new("LOG_LEVEL_DEBUG"),
 			PushMetricsEnabled: true,
 			DisabledCollectors: []string{"cpu", "diskstats", "loadavg"},
 			ExposeExporter:     true,
@@ -517,7 +521,7 @@ func TestNodeExporter(t *testing.T) {
 				"version":     "2.0",
 				"team":        "sre",
 			},
-			LogLevel:           pointer.ToString("LOG_LEVEL_DEBUG"),
+			LogLevel:           new("LOG_LEVEL_DEBUG"),
 			PushMetricsEnabled: true,
 			DisabledCollectors: []string{"cpu", "diskstats", "loadavg"},
 			ExposeExporter:     true,

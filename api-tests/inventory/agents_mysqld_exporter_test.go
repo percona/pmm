@@ -18,7 +18,6 @@ package inventory
 import (
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -73,7 +72,8 @@ func TestMySQLdExporter(t *testing.T) {
 			&agents.GetAgentParams{
 				AgentID: agentID,
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.GetAgentOKBody{
 			MysqldExporter: &agents.GetAgentOKBodyMysqldExporter{
@@ -88,7 +88,7 @@ func TestMySQLdExporter(t *testing.T) {
 				TablestatsGroupTableLimit: 2000,
 				Status:                    &AgentStatusUnknown,
 				DisabledCollectors:        make([]string, 0),
-				LogLevel:                  pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				LogLevel:                  new("LOG_LEVEL_UNSPECIFIED"),
 			},
 		}, getAgentRes.Payload)
 
@@ -98,12 +98,13 @@ func TestMySQLdExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					MysqldExporter: &agents.ChangeAgentParamsBodyMysqldExporter{
-						Enable:       pointer.ToBool(false),
+						Enable:       new(false),
 						CustomLabels: &agents.ChangeAgentParamsBodyMysqldExporterCustomLabels{},
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOKBody{
 			MysqldExporter: &agents.ChangeAgentOKBodyMysqldExporter{
@@ -117,7 +118,7 @@ func TestMySQLdExporter(t *testing.T) {
 				DisabledCollectors:        make([]string, 0),
 				CustomLabels:              map[string]string{},
 				ExtraDsnParams:            map[string]string{"allowCleartextPasswords": "1"},
-				LogLevel:                  pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				LogLevel:                  new("LOG_LEVEL_UNSPECIFIED"),
 			},
 		}, changeMySQLdExporterOK.Payload)
 
@@ -126,7 +127,7 @@ func TestMySQLdExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					MysqldExporter: &agents.ChangeAgentParamsBodyMysqldExporter{
-						Enable: pointer.ToBool(true),
+						Enable: new(true),
 						CustomLabels: &agents.ChangeAgentParamsBodyMysqldExporterCustomLabels{
 							Values: map[string]string{
 								"new_label": "mysql_exporter",
@@ -135,7 +136,8 @@ func TestMySQLdExporter(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOKBody{
 			MysqldExporter: &agents.ChangeAgentOKBodyMysqldExporter{
@@ -151,7 +153,7 @@ func TestMySQLdExporter(t *testing.T) {
 				TablestatsGroupTableLimit: 2000,
 				Status:                    &AgentStatusDone,
 				DisabledCollectors:        make([]string, 0),
-				LogLevel:                  pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				LogLevel:                  new("LOG_LEVEL_UNSPECIFIED"),
 			},
 		}, changeMySQLdExporterOK.Payload)
 	})
@@ -354,7 +356,8 @@ func TestMySQLdExporter(t *testing.T) {
 			&agents.GetAgentParams{
 				AgentID: agentID,
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.GetAgentOKBody{
 			MysqldExporter: &agents.GetAgentOKBodyMysqldExporter{
@@ -370,7 +373,7 @@ func TestMySQLdExporter(t *testing.T) {
 				PushMetricsEnabled:        true,
 				Status:                    &AgentStatusUnknown,
 				DisabledCollectors:        make([]string, 0),
-				LogLevel:                  pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				LogLevel:                  new("LOG_LEVEL_UNSPECIFIED"),
 			},
 		}, getAgentRes.Payload)
 
@@ -380,11 +383,12 @@ func TestMySQLdExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					MysqldExporter: &agents.ChangeAgentParamsBodyMysqldExporter{
-						EnablePushMetrics: pointer.ToBool(false),
+						EnablePushMetrics: new(false),
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOKBody{
 			MysqldExporter: &agents.ChangeAgentOKBodyMysqldExporter{
@@ -399,7 +403,7 @@ func TestMySQLdExporter(t *testing.T) {
 				TablestatsGroupTableLimit: 2000,
 				Status:                    &AgentStatusUnknown,
 				DisabledCollectors:        make([]string, 0),
-				LogLevel:                  pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				LogLevel:                  new("LOG_LEVEL_UNSPECIFIED"),
 			},
 		}, changeMySQLdExporterOK.Payload)
 
@@ -408,11 +412,12 @@ func TestMySQLdExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					MysqldExporter: &agents.ChangeAgentParamsBodyMysqldExporter{
-						EnablePushMetrics: pointer.ToBool(true),
+						EnablePushMetrics: new(true),
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOKBody{
 			MysqldExporter: &agents.ChangeAgentOKBodyMysqldExporter{
@@ -428,7 +433,7 @@ func TestMySQLdExporter(t *testing.T) {
 				PushMetricsEnabled:        true,
 				Status:                    &AgentStatusUnknown,
 				DisabledCollectors:        make([]string, 0),
-				LogLevel:                  pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				LogLevel:                  new("LOG_LEVEL_UNSPECIFIED"),
 			},
 		}, changeMySQLdExporterOK.Payload)
 	})
@@ -473,28 +478,28 @@ func TestMySQLdExporter(t *testing.T) {
 			Body: agents.ChangeAgentBody{
 				MysqldExporter: &agents.ChangeAgentParamsBodyMysqldExporter{
 					// Core agent settings
-					Enable:            pointer.ToBool(true),
-					EnablePushMetrics: pointer.ToBool(true),
-					Username:          pointer.ToString("new-mysql-user"),
+					Enable:            new(true),
+					EnablePushMetrics: new(true),
+					Username:          new("new-mysql-user"),
 
 					// TLS configuration
-					TLS:           pointer.ToBool(true),
-					TLSSkipVerify: pointer.ToBool(false),
-					TLSCa:         pointer.ToString("test-ca-cert"),
-					TLSCert:       pointer.ToString("test-client-cert"),
-					TLSKey:        pointer.ToString("test-client-key"),
+					TLS:           new(true),
+					TLSSkipVerify: new(false),
+					TLSCa:         new("test-ca-cert"),
+					TLSCert:       new("test-client-cert"),
+					TLSKey:        new("test-client-key"),
 
 					// Tablestats configuration
-					TablestatsGroupTableLimit: pointer.ToInt32(1000),
+					TablestatsGroupTableLimit: new(int32(1000)),
 
 					// Connection and monitoring settings
-					SkipConnectionCheck: pointer.ToBool(true),
+					SkipConnectionCheck: new(true),
 					DisableCollectors:   []string{"info_schema.innodb_metrics", "info_schema.processlist"},
 
 					// Agent configuration
-					AgentPassword:  pointer.ToString("new-agent-password"),
-					LogLevel:       pointer.ToString(agents.ChangeAgentParamsBodyMysqldExporterLogLevelLOGLEVELDEBUG),
-					ExposeExporter: pointer.ToBool(true),
+					AgentPassword:  new("new-agent-password"),
+					LogLevel:       new(agents.ChangeAgentParamsBodyMysqldExporterLogLevelLOGLEVELDEBUG),
+					ExposeExporter: new(true),
 
 					// Metrics configuration
 					MetricsResolutions: &agents.ChangeAgentParamsBodyMysqldExporterMetricsResolutions{
@@ -534,7 +539,7 @@ func TestMySQLdExporter(t *testing.T) {
 		assert.ElementsMatch(t, []string{"info_schema.innodb_metrics", "info_schema.processlist"}, mysqldExporter.DisabledCollectors)
 
 		// Agent configuration
-		assert.Equal(t, pointer.ToString("LOG_LEVEL_DEBUG"), mysqldExporter.LogLevel)
+		assert.Equal(t, new("LOG_LEVEL_DEBUG"), mysqldExporter.LogLevel)
 		assert.True(t, mysqldExporter.ExposeExporter)
 
 		// Metrics configuration
@@ -575,7 +580,7 @@ func TestMySQLdExporter(t *testing.T) {
 					TablestatsGroupTableLimit: 1500,
 					DisableCollectors:         []string{"info_schema.innodb_metrics", "performance_schema.file_events"},
 					AgentPassword:             "initial-agent-password",
-					LogLevel:                  pointer.ToString("LOG_LEVEL_INFO"),
+					LogLevel:                  new("LOG_LEVEL_INFO"),
 					ExposeExporter:            true,
 					CustomLabels: map[string]string{
 						"environment": "staging",
@@ -596,7 +601,7 @@ func TestMySQLdExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				MysqldExporter: &agents.ChangeAgentParamsBodyMysqldExporter{
-					LogLevel: pointer.ToString("LOG_LEVEL_ERROR"),
+					LogLevel: new("LOG_LEVEL_ERROR"),
 					// Note: All other fields are intentionally NOT specified
 				},
 			},
@@ -613,7 +618,7 @@ func TestMySQLdExporter(t *testing.T) {
 
 		agent := getAgentRes.Payload.MysqldExporter
 		// Log level should be changed
-		assert.Equal(t, pointer.ToString("LOG_LEVEL_ERROR"), agent.LogLevel)
+		assert.Equal(t, new("LOG_LEVEL_ERROR"), agent.LogLevel)
 
 		// Everything else should remain unchanged
 		assert.Equal(t, "initial-mysql-user", agent.Username)
@@ -765,7 +770,7 @@ func TestMySQLdExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				MysqldExporter: &agents.ChangeAgentParamsBodyMysqldExporter{
-					Password: pointer.ToString("rotated-password-456"),
+					Password: new("rotated-password-456"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -793,8 +798,8 @@ func TestMySQLdExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				MysqldExporter: &agents.ChangeAgentParamsBodyMysqldExporter{
-					Username: pointer.ToString("new-mysql-user"),
-					Password: pointer.ToString("final-password-789"),
+					Username: new("new-mysql-user"),
+					Password: new("final-password-789"),
 				},
 			},
 			Context: pmmapitests.Context,

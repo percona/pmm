@@ -18,7 +18,6 @@ package management
 import (
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -72,7 +71,7 @@ func TestAddExternal(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			External: &services.GetServiceOKBodyExternal{
@@ -89,9 +88,9 @@ func TestAddExternal(t *testing.T) {
 		// Check that external exporter is added by default.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 			Context:   pmmapitests.Context,
-			ServiceID: pointer.ToString(serviceID),
+			ServiceID: new(serviceID),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyExternalExporterItems0{
 			{
 				AgentID:      listAgents.Payload.ExternalExporter[0].AgentID,
@@ -101,7 +100,7 @@ func TestAddExternal(t *testing.T) {
 				Scheme:       "http",
 				MetricsPath:  "/metrics",
 				CustomLabels: map[string]string{},
-				Status:       pointer.ToString(AgentStatusUnknown),
+				Status:       new(AgentStatusUnknown),
 			},
 		}, listAgents.Payload.ExternalExporter)
 	})
@@ -150,7 +149,7 @@ func TestAddExternal(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			External: &services.GetServiceOKBodyExternal{
@@ -181,7 +180,7 @@ func TestAddExternal(t *testing.T) {
 			Body: mservice.AddServiceBody{
 				External: &mservice.AddServiceParamsBodyExternal{
 					AddNode: &mservice.AddServiceParamsBodyExternalAddNode{
-						NodeType:     pointer.ToString(mservice.AddServiceParamsBodyExternalAddNodeNodeTypeNODETYPEREMOTENODE),
+						NodeType:     new(mservice.AddServiceParamsBodyExternalAddNodeNodeTypeNODETYPEREMOTENODE),
 						NodeName:     nodeName,
 						MachineID:    "/machine-id/",
 						Distro:       "linux",
@@ -214,7 +213,7 @@ func TestAddExternal(t *testing.T) {
 			NodeID:  nodeID,
 			Context: pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, node)
 		assert.Equal(t, nodes.GetNodeOKBody{
 			Remote: &nodes.GetNodeOKBodyRemote{
@@ -231,7 +230,7 @@ func TestAddExternal(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			External: &services.GetServiceOKBodyExternal{
@@ -248,9 +247,9 @@ func TestAddExternal(t *testing.T) {
 		// Check that external exporter is added.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 			Context:   pmmapitests.Context,
-			ServiceID: pointer.ToString(serviceID),
+			ServiceID: new(serviceID),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyExternalExporterItems0{
 			{
 				AgentID:      listAgents.Payload.ExternalExporter[0].AgentID,
@@ -260,7 +259,7 @@ func TestAddExternal(t *testing.T) {
 				Scheme:       "http",
 				MetricsPath:  "/metrics",
 				CustomLabels: map[string]string{},
-				Status:       pointer.ToString(AgentStatusUnknown),
+				Status:       new(AgentStatusUnknown),
 			},
 		}, listAgents.Payload.ExternalExporter)
 	})
@@ -420,7 +419,7 @@ func TestAddExternal(t *testing.T) {
 			Body: mservice.AddServiceBody{
 				External: &mservice.AddServiceParamsBodyExternal{
 					AddNode: &mservice.AddServiceParamsBodyExternalAddNode{
-						NodeType: pointer.ToString(mservice.AddServiceParamsBodyExternalAddNodeNodeTypeNODETYPEREMOTENODE),
+						NodeType: new(mservice.AddServiceParamsBodyExternalAddNodeNodeTypeNODETYPEREMOTENODE),
 						NodeName: "external-serverless",
 					},
 					ServiceName:         serviceName,
@@ -480,7 +479,7 @@ func TestRemoveExternal(t *testing.T) {
 
 		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
 			ServiceID:   serviceName,
-			ServiceType: pointer.ToString(types.ServiceTypeExternalService),
+			ServiceType: new(types.ServiceTypeExternalService),
 			Context:     pmmapitests.Context,
 		})
 		require.NoError(t, err)
@@ -489,7 +488,7 @@ func TestRemoveExternal(t *testing.T) {
 		// Check that the service removed with agents.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 			Context:   pmmapitests.Context,
-			ServiceID: pointer.ToString(serviceID),
+			ServiceID: new(serviceID),
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Service with ID %q not found.", serviceID)
 		assert.Nil(t, listAgents)
@@ -504,7 +503,7 @@ func TestRemoveExternal(t *testing.T) {
 
 		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
 			ServiceID:   serviceID,
-			ServiceType: pointer.ToString(types.ServiceTypeExternalService),
+			ServiceType: new(types.ServiceTypeExternalService),
 			Context:     pmmapitests.Context,
 		})
 		require.NoError(t, err)
@@ -513,7 +512,7 @@ func TestRemoveExternal(t *testing.T) {
 		// Check that the service removed with agents.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 			Context:   pmmapitests.Context,
-			ServiceID: pointer.ToString(serviceID),
+			ServiceID: new(serviceID),
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Service with ID %q not found.", serviceID)
 		assert.Nil(t, listAgents)
@@ -528,7 +527,7 @@ func TestRemoveExternal(t *testing.T) {
 
 		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
 			ServiceID:   serviceID,
-			ServiceType: pointer.ToString(types.ServiceTypePostgreSQLService),
+			ServiceType: new(types.ServiceTypePostgreSQLService),
 			Context:     pmmapitests.Context,
 		})
 		assert.Nil(t, removeServiceOK)

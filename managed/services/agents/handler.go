@@ -199,7 +199,8 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedReq
 				req.Status,
 				req.ListenPort,
 				pointer.ToStringOrNil(req.ProcessExecPath),
-				pointer.ToStringOrNil(req.Version))
+				pointer.ToStringOrNil(req.Version),
+			)
 			if err != nil {
 				return err
 			}
@@ -282,7 +283,7 @@ func updateAgentStatus(
 
 	agent.Status = status.String()
 	agent.ProcessExecPath = processExecPath
-	agent.ListenPort = pointer.ToUint16(uint16(listenPort)) //nolint:gosec // port is uint16
+	agent.ListenPort = new(uint16(listenPort)) //nolint:gosec // port is uint16
 	if version != nil {
 		agent.Version = version
 	}
