@@ -52,7 +52,7 @@
       }
     ]
   },
-  "editable": true,
+  "editable": false,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
   "links": [],
@@ -553,7 +553,7 @@
         {
           "datasource": "Metrics",
           "editorMode": "code",
-          "expr": "min by(node_name) (up{ node_name=\"pmm-server\"})",
+          "expr": "min by(node_name) (up{node_name=\"pmm-server\"})",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -7789,8 +7789,7 @@
   "refresh": false,
   "schemaVersion": 42,
   "tags": [
-    "Percona",
-    "experimental"
+    "Percona"
   ],
   "templating": {
     "list": [
@@ -7921,7 +7920,7 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "browser",
+  "timezone": "",
   "title": "PMM Health",
   "uid": "pmm-health",
   "version": 1,
