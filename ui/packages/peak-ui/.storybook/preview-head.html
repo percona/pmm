@@ -130,10 +130,12 @@
 
   /* Inline story preview in a doc page */
 
-  .sbdocs .docs-story > *:first-child {
+  /* SB10 puts the preview padding on .docs-story; remove it so the gray surface reaches the edges */
+  .sbdocs .docs-story {
     padding: 0;
   }
-  .sbdocs .docs-story > *:first-child > * {
+  /* .docs-story is flex; stretch its child to full width so the gray fills like the canvas */
+  .sbdocs .docs-story > *:first-child {
     width: 100%;
   }
   .sbdocs .docs-story .innerZoomElementWrapper > * {
