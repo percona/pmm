@@ -37,7 +37,7 @@ export const QanExamplesTab: FC = () => {
               {ex.exampleType}
             </Typography>
           ) : null}
-          <SyntaxHighlighter language="sql" content={ex.example ?? ''} showCopyButton />
+          <SyntaxHighlighter language="text" content={ex.example ?? ''} showCopyButton />
         </Stack>
       ))}
     </Stack>

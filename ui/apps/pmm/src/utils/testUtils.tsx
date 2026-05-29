@@ -106,6 +106,7 @@ export const wrapWithSettings = (
         telemetryEnabled: false,
         advisorEnabled: false,
         alertingEnabled: false,
+        nativeQanEnabled: false,
         pmmPublicAddress: '',
         backupManagementEnabled: false,
         azurediscoverEnabled: false,

@@ -112,7 +112,8 @@ export const QanAiAside: FC = () => {
                 }}
               >
                 <Typography variant="caption" color="text.secondary">
-                  {msg.role} · {formatTimestamp(msg.timestamp)}
+                  {msg.role}
+                  {msg.timestamp != null ? ` · ${formatTimestamp(msg.timestamp)}` : ''}
                 </Typography>
                 <Markdown
                   remarkPlugins={[remarkGfm]}

@@ -57,7 +57,7 @@ export const QanExplainTab: FC = () => {
       {data?.classic ? (
         <Stack>
           <Typography variant="subtitle2">Classic</Typography>
-          <SyntaxHighlighter language="sql" content={data.classic} showCopyButton />
+          <SyntaxHighlighter language="text" content={data.classic} showCopyButton />
         </Stack>
       ) : null}
       {data?.json ? (

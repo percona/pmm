@@ -35,7 +35,6 @@ export interface Settings extends ReadonlySettings {
   advisorRunIntervals?: AdvisorRunIntervals;
   telemetrySummaries?: string[];
   enableInternalPgQan?: boolean;
-  nativeQanEnabled?: boolean;
   defaultRoleId?: number;
   otel?: OtelSettings;
 }
