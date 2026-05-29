@@ -1,22 +1,15 @@
 import { Table } from '@percona/percona-ui';
-import { Box, CircularProgress, Typography } from '@mui/material';
+import { Box, CircularProgress, Stack, Typography } from '@mui/material';
 import { FC, useMemo } from 'react';
 import type { MRT_ColumnDef, MRT_SortingState } from 'material-react-table';
 import { useQanReport } from 'hooks/api/useQan';
 import { useQanPanelActions, useQanPanelState } from '../hooks/useQanPanelState';
 import { getLabelQueryParams, DEFAULT_QAN_COLUMNS } from '../utils/qanTools';
-import { qanMetricDisplayValue } from '../utils/qanMetrics';
+import { qanMetricDisplayValue, qanMetricSparkline } from '../utils/qanMetrics';
+import { formatQanMetricFigure, qanColumnLabel } from '../utils/qanDisplay';
 import type { QanReportRow } from 'types/qan.types';
-
-function formatMetric(value: unknown): string {
-  if (value == null || Number.isNaN(value)) return '—';
-  if (typeof value === 'number') {
-    if (Math.abs(value) >= 1000) return value.toFixed(1);
-    if (Math.abs(value) >= 1) return value.toFixed(3);
-    return value.toFixed(4);
-  }
-  return String(value);
-}
+import { QanMetricSparkline } from './QanMetricSparkline';
+import { QanQueryCell } from './QanQueryCell';
 
 function sortingFromOrderBy(orderBy: string): MRT_SortingState {
   const id = orderBy.replace(/^-/, '');
@@ -70,42 +63,65 @@ export const QanListing: FC = () => {
       {
         accessorKey: 'rank',
         header: '#',
-        size: 48,
+        size: 40,
         enableSorting: false,
         Cell: ({ row }) =>
           row.index === 0 && tableRows.length > 1 ? '' : row.index,
       },
       {
         id: 'main',
-        header: state.groupBy === 'queryid' ? 'Query' : 'Dimension',
+        header: 'Query Fingerprint',
         accessorFn: (row) => row.fingerprint || row.dimension || '',
         Cell: ({ row }) => {
           const isTotalsRow = row.index === 0 && tableRows.length > 1;
-          const label = isTotalsRow
-            ? 'TOTAL'
-            : row.original.fingerprint || row.original.dimension || 'N/A';
           return (
-            <Typography variant="body2" noWrap title={label}>
-              {label}
-            </Typography>
+            <QanQueryCell
+              fingerprint={row.original.fingerprint}
+              dimension={row.original.dimension}
+              isTotals={isTotalsRow}
+            />
           );
         },
-        size: 320,
+        size: 360,
         enableSorting: false,
       },
     ];
     metricColumns.forEach((col) => {
       base.push({
         id: col,
-        header: col.replace(/_/g, ' '),
+        header: qanColumnLabel(col),
         accessorFn: (row) => qanMetricDisplayValue(col, row),
-        Cell: ({ row }) => formatMetric(qanMetricDisplayValue(col, row.original)),
-        size: 120,
+        Cell: ({ row }) => {
+          const isTotalsRow = row.index === 0 && tableRows.length > 1;
+          const value = qanMetricDisplayValue(col, row.original);
+          const sparkline = qanMetricSparkline(row.original.metrics, col);
+          return (
+            <Stack
+              spacing={1}
+              alignItems="flex-end"
+              sx={{ py: 0.5, minWidth: 120 }}
+            >
+              <Typography
+                sx={{
+                  fontFamily: '"Roboto Mono", monospace',
+                  fontSize: 16,
+                  fontWeight: 500,
+                  lineHeight: 1.5,
+                  textAlign: 'right',
+                }}
+              >
+                {formatQanMetricFigure(col, value)}
+              </Typography>
+              {!isTotalsRow ? <QanMetricSparkline points={sparkline} /> : null}
+            </Stack>
+          );
+        },
+        size: 145,
         enableSorting: true,
       });
     });
     return base;
-  }, [metricColumns, state.groupBy, tableRows.length]);
+  }, [metricColumns, tableRows.length]);
 
   if (isError) {
     return (
@@ -163,7 +179,21 @@ export const QanListing: FC = () => {
               'data-testid': `qan-row-${row.original.dimension ?? row.index}`,
               sx: {
                 cursor: 'pointer',
-                ...(selected ? { backgroundColor: 'action.selected' } : {}),
+                ...(isTotalsRow
+                  ? {
+                      bgcolor: 'background.paper',
+                      '& td': { borderTop: 1, borderColor: 'divider' },
+                    }
+                  : {}),
+                ...(selected
+                  ? {
+                      bgcolor: 'rgba(32, 68, 147, 0.12)',
+                      outline: 2,
+                      outlineStyle: 'dashed',
+                      outlineColor: 'primary.light',
+                      outlineOffset: -2,
+                    }
+                  : {}),
               },
             };
           }}
@@ -183,8 +213,15 @@ export const QanListing: FC = () => {
             actions.setPage(next.pageIndex + 1, next.pageSize);
           }}
           muiTableContainerProps={{ sx: { flex: 1 } }}
+          muiTableHeadCellProps={{
+            sx: {
+              fontWeight: 500,
+              fontSize: 16,
+              '&:not(:first-of-type):not(:nth-of-type(2))': { textAlign: 'right' },
+            },
+          }}
           muiBottomToolbarProps={{
-            sx: { borderTop: 1, borderColor: 'divider' },
+            sx: { borderTop: 1, borderColor: 'divider', minHeight: 48 },
           }}
           noDataMessage="No queries found for the selected filters and time range."
         />

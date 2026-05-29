@@ -65,12 +65,18 @@ export const QanControls: FC = () => {
 
   return (
     <Stack
-      spacing={0}
+      direction="row"
+      alignItems="center"
+      justifyContent="space-between"
+      spacing={2}
       sx={{
-        py: 1.5,
+        minHeight: 48,
+        py: 1,
         borderBottom: 1,
         borderColor: 'divider',
         mb: 1,
+        flexWrap: 'wrap',
+        rowGap: 1,
       }}
       data-testid="qan-controls"
     >
@@ -78,70 +84,70 @@ export const QanControls: FC = () => {
       <Stack
         direction="row"
         alignItems="center"
-        spacing={2}
-        sx={{ mt: 1.5, minHeight: 40, flexWrap: 'wrap', rowGap: 1 }}
+        spacing={1.5}
+        sx={{ flexWrap: 'wrap', rowGap: 1, flexShrink: 0 }}
       >
-      <TextField
-        label="From"
-        type="datetime-local"
-        size="small"
-        value={fromLocal}
-        onChange={(e) => {
-          const ms = new Date(e.target.value).getTime();
-          if (!Number.isNaN(ms)) {
-            actions.setTimeRange(ms, toUnixTimestamp(state.to));
-          }
-        }}
-        InputLabelProps={{ shrink: true }}
-        sx={{ width: 210 }}
-      />
-      <TextField
-        label="To"
-        type="datetime-local"
-        size="small"
-        value={toLocal}
-        onChange={(e) => {
-          const ms = new Date(e.target.value).getTime();
-          if (!Number.isNaN(ms)) {
-            actions.setTimeRange(toUnixTimestamp(state.from), ms);
-          }
-        }}
-        InputLabelProps={{ shrink: true }}
-        sx={{ width: 210 }}
-      />
-      <FormControl size="small" sx={{ minWidth: 140 }}>
-        <InputLabel>Group by</InputLabel>
-        <Select
-          label="Group by"
-          value={state.groupBy}
-          onChange={(e) => actions.setGroupBy(e.target.value as QanGroupBy)}
-        >
-          {GROUP_BY_OPTIONS.map((o) => (
-            <MenuItem key={o.value} value={o.value}>
-              {o.label}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-      <TextField
-        label="Search"
-        size="small"
-        value={searchDraft}
-        onChange={(e) => setSearchDraft(e.target.value)}
-        sx={{ minWidth: 180 }}
-      />
-      <QanManageColumns />
-      <Tooltip title="Copy share link">
-        <Button
-          variant="outlined"
+        <TextField
+          label="From"
+          type="datetime-local"
           size="small"
-          startIcon={<ContentCopyIcon />}
-          onClick={copyLink}
-          data-testid="copy-link-button"
-        >
-          Copy link
-        </Button>
-      </Tooltip>
+          value={fromLocal}
+          onChange={(e) => {
+            const ms = new Date(e.target.value).getTime();
+            if (!Number.isNaN(ms)) {
+              actions.setTimeRange(ms, toUnixTimestamp(state.to));
+            }
+          }}
+          InputLabelProps={{ shrink: true }}
+          sx={{ width: 200 }}
+        />
+        <TextField
+          label="To"
+          type="datetime-local"
+          size="small"
+          value={toLocal}
+          onChange={(e) => {
+            const ms = new Date(e.target.value).getTime();
+            if (!Number.isNaN(ms)) {
+              actions.setTimeRange(toUnixTimestamp(state.from), ms);
+            }
+          }}
+          InputLabelProps={{ shrink: true }}
+          sx={{ width: 200 }}
+        />
+        <FormControl size="small" sx={{ minWidth: 130 }}>
+          <InputLabel>Group by</InputLabel>
+          <Select
+            label="Group by"
+            value={state.groupBy}
+            onChange={(e) => actions.setGroupBy(e.target.value as QanGroupBy)}
+          >
+            {GROUP_BY_OPTIONS.map((o) => (
+              <MenuItem key={o.value} value={o.value}>
+                {o.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <TextField
+          label="Search"
+          size="small"
+          value={searchDraft}
+          onChange={(e) => setSearchDraft(e.target.value)}
+          sx={{ minWidth: 160 }}
+        />
+        <QanManageColumns />
+        <Tooltip title="Copy share link">
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={<ContentCopyIcon />}
+            onClick={copyLink}
+            data-testid="copy-link-button"
+          >
+            Copy link
+          </Button>
+        </Tooltip>
       </Stack>
     </Stack>
   );

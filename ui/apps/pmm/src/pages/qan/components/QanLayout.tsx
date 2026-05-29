@@ -23,6 +23,7 @@ export const QanLayout: FC<PropsWithChildren> = ({ children }) => {
           flex: 1,
           minHeight: 0,
           overflow: 'hidden',
+          gap: 3,
         }}
       >
         <QanFilterDrawer />
@@ -60,8 +61,6 @@ export const QanLayout: FC<PropsWithChildren> = ({ children }) => {
                   flex: detailsFlex ? `1 1 ${detailsFlex}` : '1 1 50%',
                   minHeight: '20%',
                   overflow: 'hidden',
-                  borderTop: 1,
-                  borderColor: 'divider',
                   display: 'flex',
                   flexDirection: 'column',
                 }}

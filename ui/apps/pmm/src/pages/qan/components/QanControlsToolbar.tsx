@@ -19,36 +19,58 @@ export const QanControlsToolbar: FC = () => {
     <Stack
       direction="row"
       alignItems="center"
-      spacing={1}
-      sx={{ flexWrap: 'wrap', rowGap: 1 }}
+      spacing={2}
+      sx={{ flexWrap: 'wrap', rowGap: 1, flex: 1, minWidth: 0 }}
       data-testid="qan-controls-toolbar"
     >
       <Button
-        variant="outlined"
+        variant="text"
+        color="primary"
         size="small"
-        startIcon={<FilterListIcon />}
+        startIcon={<FilterListIcon sx={{ fontSize: 18 }} />}
         onClick={toggle}
+        sx={{
+          fontWeight: 600,
+          fontSize: 15,
+          px: 1.25,
+          py: 1,
+          flexShrink: 0,
+        }}
         data-testid="qan-filters-button"
       >
         Filters
       </Button>
-      {chips.map((chip) => (
-        <Chip
-          key={`${chip.key}-${chip.value}`}
-          label={chip.label}
-          size="small"
-          onDelete={() => actions.setLabels(removeFilterChip(state.labels, chip.key, chip.value))}
-        />
-      ))}
-      {chips.length ? (
-        <Button
-          size="small"
-          onClick={() => actions.setLabels(clearAllFilters(state.labels))}
-          data-testid="qan-clear-filters"
-        >
-          Clear all
-        </Button>
-      ) : null}
+      <Stack direction="row" alignItems="center" spacing={0.5} sx={{ flexWrap: 'wrap' }}>
+        {chips.map((chip) => (
+          <Chip
+            key={`${chip.key}-${chip.value}`}
+            label={chip.label}
+            size="medium"
+            onDelete={() =>
+              actions.setLabels(removeFilterChip(state.labels, chip.key, chip.value))
+            }
+            sx={{
+              borderRadius: '100px',
+              bgcolor: 'action.selected',
+              height: 'auto',
+              py: 0.5,
+              '& .MuiChip-label': { fontSize: 16, px: 0.5 },
+            }}
+          />
+        ))}
+        {chips.length ? (
+          <Button
+            variant="text"
+            color="primary"
+            size="small"
+            onClick={() => actions.setLabels(clearAllFilters(state.labels))}
+            sx={{ fontWeight: 600, fontSize: 13, minWidth: 'auto', px: 1 }}
+            data-testid="qan-clear-filters"
+          >
+            Clear all
+          </Button>
+        ) : null}
+      </Stack>
     </Stack>
   );
 };

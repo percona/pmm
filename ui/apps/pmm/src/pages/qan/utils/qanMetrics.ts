@@ -1,4 +1,4 @@
-import type { QanMetricCell, QanReportRow } from 'types/qan.types';
+import type { QanMetricCell, QanMetricPoint, QanReportRow } from 'types/qan.types';
 
 /** axios-case-converter: API metric keys become camelCase (`numQueries`). */
 export function qanMetricKey(column: string): string {
@@ -40,6 +40,13 @@ export function qanMetricDisplayValue(column: string, row: QanReportRow): number
   }
 
   return undefined;
+}
+
+export function qanMetricSparkline(
+  metrics: QanReportRow['metrics'] | undefined,
+  column: string
+): QanMetricPoint[] | undefined {
+  return qanMetricCell(metrics, column)?.sparkline;
 }
 
 /** Params using `filter_` prefix that are not QAN dimension labels. */
