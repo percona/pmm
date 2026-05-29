@@ -18,11 +18,11 @@ import {
   appendLabelsToSearchParams,
   DEFAULT_PAGE_NUMBER,
   DEFAULT_PAGE_SIZE,
-  DEFAULT_QAN_COLUMNS,
   labelsFromSearchParams,
   mergeServiceIdFromSearchParams,
   toIsoPeriod,
 } from 'pages/qan/utils/qanTools';
+import { parseQanColumns } from 'pages/qan/utils/qanNormalize';
 import { serviceUuidFromLabels } from 'pages/qan/utils/qanServiceResolve';
 import { parseQanDetailsTab } from 'pages/qan/utils/qanSectionTabs';
 
@@ -72,12 +72,7 @@ export const QanPanelProvider: FC<PropsWithChildren> = ({ children }) => {
     const toParam = searchParams.get('to');
     const fallback = defaultTimeRange();
     const columnsRaw = searchParams.get('columns');
-    let columns = DEFAULT_QAN_COLUMNS;
-    try {
-      if (columnsRaw) columns = JSON.parse(columnsRaw);
-    } catch {
-      columns = DEFAULT_QAN_COLUMNS;
-    }
+    const columns = parseQanColumns(columnsRaw);
     const queryId = searchParams.get('query_id') ?? searchParams.get('filter_by') ?? undefined;
     const groupBy = (searchParams.get('group_by') ?? 'queryid') as QanGroupBy;
     return {

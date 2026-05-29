@@ -4,7 +4,7 @@ import { FC, useMemo } from 'react';
 import type { MRT_ColumnDef, MRT_SortingState } from 'material-react-table';
 import { useQanReport } from 'hooks/api/useQan';
 import { useQanPanelActions, useQanPanelState } from '../hooks/useQanPanelState';
-import { getLabelQueryParams } from '../utils/qanTools';
+import { getLabelQueryParams, DEFAULT_QAN_COLUMNS } from '../utils/qanTools';
 import type { QanReportRow } from 'types/qan.types';
 
 function formatMetric(value: unknown): string {
@@ -28,21 +28,25 @@ function orderByFromSorting(sorting: MRT_SortingState): string {
 export const QanListing: FC = () => {
   const state = useQanPanelState();
   const actions = useQanPanelActions();
+  const metricColumns =
+    Array.isArray(state.columns) && state.columns.length
+      ? state.columns
+      : DEFAULT_QAN_COLUMNS;
 
   const reportParams = useMemo(
     () => ({
-      columns: state.columns,
+      columns: metricColumns,
       groupBy: state.groupBy,
       labels: getLabelQueryParams(state.labels),
       limit: state.pageSize,
       offset: (state.pageNumber - 1) * state.pageSize,
       orderBy: state.orderBy,
-      mainMetric: state.columns[0] ?? 'load',
+      mainMetric: metricColumns[0] ?? 'load',
       periodStartFrom: state.from,
       periodStartTo: state.to,
       search: state.dimensionSearchText,
     }),
-    [state]
+    [state, metricColumns]
   );
 
   const { data, isLoading, isError } = useQanReport(reportParams);
@@ -56,7 +60,7 @@ export const QanListing: FC = () => {
     [state.pageNumber, state.pageSize]
   );
 
-  const columns = useMemo<MRT_ColumnDef<QanReportRow>[]>(() => {
+  const tableColumns = useMemo<MRT_ColumnDef<QanReportRow>[]>(() => {
     const base: MRT_ColumnDef<QanReportRow>[] = [
       {
         accessorKey: 'rank',
@@ -85,7 +89,7 @@ export const QanListing: FC = () => {
         enableSorting: false,
       },
     ];
-    state.columns.forEach((col) => {
+    metricColumns.forEach((col) => {
       base.push({
         id: col,
         header: col,
@@ -101,7 +105,7 @@ export const QanListing: FC = () => {
       });
     });
     return base;
-  }, [state.columns, state.groupBy, tableRows.length]);
+  }, [metricColumns, state.groupBy, tableRows.length]);
 
   if (isError) {
     return (
@@ -120,7 +124,7 @@ export const QanListing: FC = () => {
       ) : (
         <Table
           tableName="native-qan-overview"
-          columns={columns}
+          columns={tableColumns}
           data={tableRows}
           enableGlobalFilter={false}
           enableRowHoverAction

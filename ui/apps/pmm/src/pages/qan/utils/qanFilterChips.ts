@@ -1,4 +1,5 @@
 import { ALL_VARIABLE_TEXT, ALL_VARIABLE_VALUE } from './qanTools';
+import { asStringList } from './qanNormalize';
 import type { QanLabelsMap } from 'types/qan.types';
 
 const hasAllValueOrText = (element: string) =>
@@ -14,7 +15,7 @@ export function getActiveFilterChips(labels: QanLabelsMap): QanFilterChip[] {
   const chips: QanFilterChip[] = [];
   Object.entries(labels).forEach(([key, values]) => {
     if (key === 'interval') return;
-    values.filter(hasAllValueOrText).forEach((value) => {
+    asStringList(values).filter(hasAllValueOrText).forEach((value) => {
       chips.push({
         key,
         value,
@@ -39,7 +40,7 @@ export function removeFilterChip(
   value: string
 ): QanLabelsMap {
   const next: QanLabelsMap = { ...labels };
-  const current = next[key] ?? [];
+  const current = asStringList(next[key]);
   const filtered = current.filter((v) => v !== value);
   next[key] = filtered.length ? filtered : [ALL_VARIABLE_VALUE];
   return next;

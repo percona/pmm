@@ -142,7 +142,8 @@ export interface QanMetricName {
 }
 
 export interface QanGetMetricNamesResponse {
-  data?: QanMetricName[];
+  /** Metric key → human-readable label (qan-api2 map). Legacy array shape tolerated in UI. */
+  data?: Record<string, string> | QanMetricName[];
 }
 
 export interface QanPanelState {

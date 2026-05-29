@@ -9,6 +9,7 @@ import { FC, useMemo } from 'react';
 import { useQanFilters } from 'hooks/api/useQan';
 import { useQanPanelActions, useQanPanelState } from '../hooks/useQanPanelState';
 import { getLabelQueryParams } from '../utils/qanTools';
+import { asLabelValueList, asStringList } from '../utils/qanNormalize';
 import type { QanLabelsMap } from 'types/qan.types';
 
 export const QanFiltersPanel: FC = () => {
@@ -30,7 +31,7 @@ export const QanFiltersPanel: FC = () => {
 
   const toggleLabel = (key: string, value: string, checked: boolean) => {
     const next: QanLabelsMap = { ...state.labels };
-    const current = next[key] ?? [];
+    const current = asStringList(next[key]);
     if (checked) {
       next[key] = [...new Set([...current.filter((v) => v !== '$__all'), value])];
     } else {
@@ -57,9 +58,9 @@ export const QanFiltersPanel: FC = () => {
                 {key}
               </Typography>
               <Stack>
-                {group.name?.slice(0, 20).map((item) => {
+                {asLabelValueList(group.name).slice(0, 20).map((item) => {
                   const val = item.value ?? '';
-                  const selected = (state.labels[key] ?? []).includes(val);
+                  const selected = asStringList(state.labels[key]).includes(val);
                   return (
                     <FormControlLabel
                       key={`${key}-${val}`}

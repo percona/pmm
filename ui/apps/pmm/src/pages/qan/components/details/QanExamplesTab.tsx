@@ -23,7 +23,7 @@ export const QanExamplesTab: FC = () => {
   if (isLoading) return <QanDetailsLoading />;
   if (isError) return <QanDetailsError />;
 
-  const examples = data?.examples ?? [];
+  const examples = Array.isArray(data?.examples) ? data.examples : [];
   if (!examples.length) {
     return <Typography color="text.secondary">No examples found.</Typography>;
   }

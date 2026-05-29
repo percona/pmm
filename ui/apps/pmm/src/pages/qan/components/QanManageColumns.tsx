@@ -12,6 +12,7 @@ import { FC, useMemo } from 'react';
 import { useQanMetricNames } from 'hooks/api/useQan';
 import { useQanPanelActions, useQanPanelState } from '../hooks/useQanPanelState';
 import { DEFAULT_QAN_COLUMNS } from '../utils/qanTools';
+import { metricNamesFromResponse } from '../utils/qanNormalize';
 
 export const QanManageColumns: FC = () => {
   const state = useQanPanelState();
@@ -20,9 +21,11 @@ export const QanManageColumns: FC = () => {
   const { data } = useQanMetricNames(mainMetric, state.groupBy);
 
   const available = useMemo(() => {
-    const names = data?.data?.map((m) => m.name) ?? DEFAULT_QAN_COLUMNS;
+    const names = metricNamesFromResponse(data);
     return [...new Set([...DEFAULT_QAN_COLUMNS, ...names])];
   }, [data]);
+
+  const selectedColumns = Array.isArray(state.columns) ? state.columns : DEFAULT_QAN_COLUMNS;
 
   const onChange = (e: SelectChangeEvent<string[]>) => {
     const value = e.target.value;
@@ -35,14 +38,14 @@ export const QanManageColumns: FC = () => {
       <InputLabel>Columns</InputLabel>
       <Select
         multiple
-        value={state.columns}
+        value={selectedColumns}
         onChange={onChange}
         input={<OutlinedInput label="Columns" />}
         renderValue={(selected) => selected.join(', ')}
       >
         {available.map((name) => (
           <MenuItem key={name} value={name}>
-            <Checkbox checked={state.columns.includes(name)} />
+            <Checkbox checked={selectedColumns.includes(name)} />
             <ListItemText primary={name} />
           </MenuItem>
         ))}

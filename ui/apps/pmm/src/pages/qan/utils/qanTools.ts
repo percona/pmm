@@ -2,6 +2,7 @@ import { stripQanServiceId } from 'utils/qanServiceId';
 
 export { buildNativeQanPath } from 'utils/nativeQanNav';
 import type { QanLabelFilter, QanLabelsMap } from 'types/qan.types';
+import { asStringList } from 'pages/qan/utils/qanNormalize';
 
 export const ALL_VARIABLE_VALUE = '$__all';
 export const ALL_VARIABLE_TEXT = 'All';
@@ -17,7 +18,7 @@ export const getLabelQueryParams = (labels: QanLabelsMap): QanLabelFilter[] =>
     .filter((key) => key !== 'interval')
     .map((key) => ({
       key,
-      value: labels[key],
+      value: asStringList(labels[key]),
     }))
     .filter((item) => item.value.filter(hasAllValueOrText).length > 0);
 
@@ -79,7 +80,7 @@ export function appendLabelsToSearchParams(
 ): void {
   [...params.keys()].filter((k) => k.startsWith('filter_')).forEach((k) => params.delete(k));
   Object.entries(labels).forEach(([key, values]) => {
-    const filtered = values.filter(hasAllValueOrText);
+    const filtered = asStringList(values).filter(hasAllValueOrText);
     if (filtered.length) {
       params.set(`filter_${key}`, filtered.join(','));
     }
