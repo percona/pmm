@@ -54,7 +54,7 @@ Currently exports string utilities only.
 - **MUI v7** (`@mui/material`, `@mui/icons-material`, `@mui/x-date-pickers`)
 - **Emotion** for styling
 - **Rollup** for library bundling (ESM output with sourcemaps, peer deps externalized)
-- **Storybook 8** for component development and documentation
+- **Storybook 10** for component development and documentation
 - **react-hook-form** for form state management
 - **material-react-table** for table component
 - **Fonts:** Poppins, Roboto, Roboto Mono (via `@fontsource`)
