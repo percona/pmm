@@ -19,6 +19,7 @@ import {
 } from '../utils/qanTools';
 import type { QanGroupBy } from 'types/qan.types';
 import { QanManageColumns } from './QanManageColumns';
+import { QanControlsToolbar } from './QanControlsToolbar';
 
 const SEARCH_DEBOUNCE_MS = 400;
 
@@ -63,13 +64,14 @@ export const QanControls: FC = () => {
   }, [state.from, state.to, enqueueSnackbar]);
 
   return (
-    <Stack
-      direction="row"
-      alignItems="center"
-      spacing={2}
-      sx={{ py: 1, minHeight: 48, flexWrap: 'wrap' }}
-      data-testid="qan-controls"
-    >
+    <Stack spacing={1} sx={{ py: 1 }} data-testid="qan-controls">
+      <QanControlsToolbar />
+      <Stack
+        direction="row"
+        alignItems="center"
+        spacing={2}
+        sx={{ minHeight: 40, flexWrap: 'wrap' }}
+      >
       <TextField
         label="From"
         type="datetime-local"
@@ -131,6 +133,7 @@ export const QanControls: FC = () => {
           Copy link
         </Button>
       </Tooltip>
+      </Stack>
     </Stack>
   );
 };

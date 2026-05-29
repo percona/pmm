@@ -6,9 +6,11 @@ export function getVisibleQanTabs(state: QanPanelState, databaseType: QanDatabas
   return {
     details: true,
     examples: groupByQuery && notTotals,
-    explain: groupByQuery && notTotals && databaseType !== 'mongodb' && databaseType !== 'postgresql',
+    explainPlan:
+      groupByQuery &&
+      notTotals &&
+      databaseType !== 'mongodb',
     tables: groupByQuery && notTotals && databaseType !== 'mongodb',
-    plan: groupByQuery && notTotals && databaseType === 'postgresql',
     aiInsights: groupByQuery && notTotals,
   } satisfies Record<QanDetailsTab, boolean>;
 }

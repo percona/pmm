@@ -3,7 +3,7 @@ import { FC } from 'react';
 import { SyntaxHighlighter } from 'components/syntax-highlighter';
 import { useQanPlan } from 'hooks/api/useQan';
 import { useQanPanelState } from '../../hooks/useQanPanelState';
-import { QanDetailsError, QanDetailsLoading } from '../QanDetailsPane';
+import { QanDetailsError, QanDetailsLoading } from '../QanSectionShared';
 
 export const QanPlanTab: FC = () => {
   const state = useQanPanelState();

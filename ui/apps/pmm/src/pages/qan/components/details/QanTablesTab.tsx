@@ -3,7 +3,7 @@ import { FC, useMemo } from 'react';
 import { useQanExamples, useQanSchema } from 'hooks/api/useQan';
 import { useQanPanelState } from '../../hooks/useQanPanelState';
 import { getLabelQueryParams } from '../../utils/qanTools';
-import { QanDetailsError, QanDetailsLoading } from '../QanDetailsPane';
+import { QanDetailsError, QanDetailsLoading } from '../QanSectionShared';
 
 export const QanTablesTab: FC = () => {
   const state = useQanPanelState();

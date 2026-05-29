@@ -15,7 +15,7 @@ The Grafana plugin remains feature-complete but uses Ant Design / Grafana UI, co
 - Build a **native QAN page** at `/pmm-ui/qan` using MUI and `@percona/percona-ui`.
 - Reuse existing **qan-api2** REST endpoints (`/v1/qan/*`); no new QAN backend for v1.
 - Ship behind **`nativeQanEnabled`** server setting (Technical Preview, default `false`).
-- Target **full functional parity** with Grafana QAN (all engines, detail tabs) before switching default navigation.
+- Follow the **Figma design lock** ([native-qan-design-lock.md](../native-qan-design-lock.md)): three-zone layout (listing + Query Fingerprint section tabs + 400px AI aside), filters drawer + chips, advisory-only AI. Grafana QAN remains fallback while the flag is off — not a pixel port target.
 - Embed a **400px AI aside** (ADRE chat + QAN context); hide global chat widget on QAN routes.
 - **Advisory-only AI:** PMM recommends optimizations; customers copy and execute manually. No IDE integration, no auto-apply of DDL or query changes.
 

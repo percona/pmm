@@ -5,7 +5,7 @@ import { useQanExamples, useQanExplain } from 'hooks/api/useQan';
 import { useQanPanelState } from '../../hooks/useQanPanelState';
 import { getLabelQueryParams } from '../../utils/qanTools';
 import { useQanServiceId } from '../../hooks/useQanServiceId';
-import { QanDetailsError, QanDetailsLoading } from '../QanDetailsPane';
+import { QanDetailsError, QanDetailsLoading } from '../QanSectionShared';
 
 export const QanExplainTab: FC = () => {
   const state = useQanPanelState();

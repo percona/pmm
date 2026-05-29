@@ -3,9 +3,8 @@ export type QanGroupBy = 'queryid' | 'service_name' | 'database' | 'schema' | 'u
 export type QanDetailsTab =
   | 'details'
   | 'examples'
-  | 'explain'
+  | 'explainPlan'
   | 'tables'
-  | 'plan'
   | 'aiInsights';
 
 export type QanDatabaseType = 'mysql' | 'postgresql' | 'mongodb' | 'unknown';

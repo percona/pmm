@@ -20,20 +20,18 @@ describe('getVisibleQanTabs', () => {
     const v = getVisibleQanTabs(baseState, 'mysql');
     expect(v.details).toBe(true);
     expect(v.examples).toBe(true);
-    expect(v.explain).toBe(true);
+    expect(v.explainPlan).toBe(true);
     expect(v.aiInsights).toBe(true);
-    expect(v.plan).toBe(false);
   });
 
-  it('hides explain for postgresql', () => {
+  it('shows explain plan for postgresql', () => {
     const v = getVisibleQanTabs(baseState, 'postgresql');
-    expect(v.explain).toBe(false);
-    expect(v.plan).toBe(true);
+    expect(v.explainPlan).toBe(true);
   });
 
-  it('hides explain for mongodb', () => {
+  it('hides explain plan and tables for mongodb', () => {
     const v = getVisibleQanTabs(baseState, 'mongodb');
-    expect(v.explain).toBe(false);
+    expect(v.explainPlan).toBe(false);
     expect(v.tables).toBe(false);
   });
 });

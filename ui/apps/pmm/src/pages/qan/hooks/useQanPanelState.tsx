@@ -5,6 +5,7 @@ import {
   useCallback,
   useContext,
   useMemo,
+  useState,
 } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type {
@@ -23,8 +24,15 @@ import {
   toIsoPeriod,
 } from 'pages/qan/utils/qanTools';
 import { serviceUuidFromLabels } from 'pages/qan/utils/qanServiceResolve';
+import { parseQanDetailsTab } from 'pages/qan/utils/qanSectionTabs';
 
 const SPLIT_STORAGE_KEY = 'pmm-native-qan-split-ratio';
+
+function readSplitRatio(): number {
+  const raw = sessionStorage.getItem(SPLIT_STORAGE_KEY);
+  const n = raw ? Number(raw) : 0.5;
+  return Number.isFinite(n) && n > 0.2 && n < 0.8 ? n : 0.5;
+}
 
 export interface QanPanelActions {
   setTimeRange: (from: number, to: number) => void;
@@ -49,18 +57,6 @@ type QanContextValue = {
 
 const QanPanelContext = createContext<QanContextValue | null>(null);
 
-function parseTab(raw: string | null): QanDetailsTab {
-  const allowed: QanDetailsTab[] = [
-    'details',
-    'examples',
-    'explain',
-    'tables',
-    'plan',
-    'aiInsights',
-  ];
-  return (allowed.includes(raw as QanDetailsTab) ? raw : 'details') as QanDetailsTab;
-}
-
 function defaultTimeRange(): { from: string; to: string } {
   const to = Date.now();
   const from = to - 60 * 60 * 1000;
@@ -69,6 +65,7 @@ function defaultTimeRange(): { from: string; to: string } {
 
 export const QanPanelProvider: FC<PropsWithChildren> = ({ children }) => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [splitRatio, setSplitRatioState] = useState(readSplitRatio);
 
   const state = useMemo<QanPanelState>(() => {
     const fromParam = searchParams.get('from');
@@ -98,7 +95,7 @@ export const QanPanelProvider: FC<PropsWithChildren> = ({ children }) => {
       totals: searchParams.get('totals') === 'true',
       querySelected: !!queryId || searchParams.get('query_selected') === 'true',
       groupBy,
-      openDetailsTab: parseTab(searchParams.get('tab') ?? searchParams.get('details_tab')),
+      openDetailsTab: parseQanDetailsTab(searchParams.get('tab') ?? searchParams.get('details_tab')),
       fingerprint: searchParams.get('fingerprint') ?? undefined,
       database: searchParams.get('selected_query_database') ?? undefined,
       dimensionSearchText: searchParams.get('dimensionSearchText') ?? '',
@@ -142,8 +139,13 @@ export const QanPanelProvider: FC<PropsWithChildren> = ({ children }) => {
           next.set('query_id', queryId);
           next.set('filter_by', queryId);
           next.set('query_selected', 'true');
-          if (totals) next.set('totals', 'true');
-          else next.delete('totals');
+          if (totals) {
+            next.set('totals', 'true');
+            next.delete('tab');
+            next.delete('details_tab');
+          } else {
+            next.delete('totals');
+          }
           if (fingerprint) next.set('fingerprint', fingerprint);
           else next.delete('fingerprint');
           if (database) next.set('selected_query_database', database);
@@ -178,16 +180,13 @@ export const QanPanelProvider: FC<PropsWithChildren> = ({ children }) => {
       setTab: (tab) => patchParams({ tab }),
       setTotals: (totals) => patchParams({ totals: totals ? 'true' : null }),
       setSearchText: (text) => patchParams({ dimensionSearchText: text || null }),
-      getSplitRatio: () => {
-        const raw = sessionStorage.getItem(SPLIT_STORAGE_KEY);
-        const n = raw ? Number(raw) : 0.5;
-        return Number.isFinite(n) && n > 0.2 && n < 0.8 ? n : 0.5;
-      },
+      getSplitRatio: () => splitRatio,
       setSplitRatio: (ratio) => {
         sessionStorage.setItem(SPLIT_STORAGE_KEY, String(ratio));
+        setSplitRatioState(ratio);
       },
     }),
-    [patchParams, setSearchParams]
+    [patchParams, setSearchParams, splitRatio]
   );
 
   const value = useMemo(() => ({ state, actions }), [state, actions]);

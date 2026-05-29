@@ -4,7 +4,7 @@ import { SyntaxHighlighter } from 'components/syntax-highlighter';
 import { useQanExamples } from 'hooks/api/useQan';
 import { useQanPanelState } from '../../hooks/useQanPanelState';
 import { getLabelQueryParams } from '../../utils/qanTools';
-import { QanDetailsError, QanDetailsLoading } from '../QanDetailsPane';
+import { QanDetailsError, QanDetailsLoading } from '../QanSectionShared';
 
 export const QanExamplesTab: FC = () => {
   const state = useQanPanelState();
