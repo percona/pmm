@@ -64,13 +64,22 @@ export const QanControls: FC = () => {
   }, [state.from, state.to, enqueueSnackbar]);
 
   return (
-    <Stack spacing={1} sx={{ py: 1 }} data-testid="qan-controls">
+    <Stack
+      spacing={0}
+      sx={{
+        py: 1.5,
+        borderBottom: 1,
+        borderColor: 'divider',
+        mb: 1,
+      }}
+      data-testid="qan-controls"
+    >
       <QanControlsToolbar />
       <Stack
         direction="row"
         alignItems="center"
         spacing={2}
-        sx={{ minHeight: 40, flexWrap: 'wrap' }}
+        sx={{ mt: 1.5, minHeight: 40, flexWrap: 'wrap', rowGap: 1 }}
       >
       <TextField
         label="From"

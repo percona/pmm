@@ -1,8 +1,10 @@
 import { stripQanServiceId } from 'utils/qanServiceId';
 
 export { buildNativeQanPath } from 'utils/nativeQanNav';
+export { RESERVED_FILTER_PARAM_KEYS } from 'pages/qan/utils/qanMetrics';
 import type { QanLabelFilter, QanLabelsMap } from 'types/qan.types';
 import { asStringList } from 'pages/qan/utils/qanNormalize';
+import { isQanDimensionFilterParam } from 'pages/qan/utils/qanMetrics';
 
 export const ALL_VARIABLE_VALUE = '$__all';
 export const ALL_VARIABLE_TEXT = 'All';
@@ -15,7 +17,7 @@ const hasAllValueOrText = (element: string) =>
 
 export const getLabelQueryParams = (labels: QanLabelsMap): QanLabelFilter[] =>
   Object.keys(labels)
-    .filter((key) => key !== 'interval')
+    .filter((key) => key !== 'interval' && key !== 'by')
     .map((key) => ({
       key,
       value: asStringList(labels[key]),
@@ -66,10 +68,9 @@ export function buildNativeQanShareLink(from: number, to: number): string {
 export function labelsFromSearchParams(params: URLSearchParams): QanLabelsMap {
   const labels: QanLabelsMap = {};
   params.forEach((value, key) => {
-    if (key.startsWith('filter_')) {
-      const labelKey = key.slice('filter_'.length);
-      labels[labelKey] = value.split(',').filter(Boolean);
-    }
+    if (!isQanDimensionFilterParam(key)) return;
+    const labelKey = key.slice('filter_'.length);
+    labels[labelKey] = value.split(',').filter(Boolean);
   });
   return labels;
 }
@@ -78,7 +79,9 @@ export function appendLabelsToSearchParams(
   params: URLSearchParams,
   labels: QanLabelsMap
 ): void {
-  [...params.keys()].filter((k) => k.startsWith('filter_')).forEach((k) => params.delete(k));
+  [...params.keys()]
+    .filter((k) => isQanDimensionFilterParam(k))
+    .forEach((k) => params.delete(k));
   Object.entries(labels).forEach(([key, values]) => {
     const filtered = asStringList(values).filter(hasAllValueOrText);
     if (filtered.length) {

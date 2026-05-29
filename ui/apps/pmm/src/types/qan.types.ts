@@ -45,6 +45,9 @@ export interface QanMetricCell {
     min?: number;
     max?: number;
     rate?: number;
+    sumPerSec?: number;
+    sum_per_sec?: number;
+    qps?: number;
   };
   sparkline?: QanMetricPoint[];
 }

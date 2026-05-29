@@ -5,11 +5,16 @@ import type { MRT_ColumnDef, MRT_SortingState } from 'material-react-table';
 import { useQanReport } from 'hooks/api/useQan';
 import { useQanPanelActions, useQanPanelState } from '../hooks/useQanPanelState';
 import { getLabelQueryParams, DEFAULT_QAN_COLUMNS } from '../utils/qanTools';
+import { qanMetricDisplayValue } from '../utils/qanMetrics';
 import type { QanReportRow } from 'types/qan.types';
 
 function formatMetric(value: unknown): string {
-  if (value == null) return '—';
-  if (typeof value === 'number') return value.toFixed(3);
+  if (value == null || Number.isNaN(value)) return '—';
+  if (typeof value === 'number') {
+    if (Math.abs(value) >= 1000) return value.toFixed(1);
+    if (Math.abs(value) >= 1) return value.toFixed(3);
+    return value.toFixed(4);
+  }
   return String(value);
 }
 
@@ -52,7 +57,7 @@ export const QanListing: FC = () => {
   const { data, isLoading, isError } = useQanReport(reportParams);
 
   const rows = data?.rows ?? [];
-  const tableRows = rows.length > 1 ? rows : [];
+  const tableRows = rows.length > 1 ? rows : rows.length === 1 ? rows : [];
 
   const sorting = useMemo(() => sortingFromOrderBy(state.orderBy), [state.orderBy]);
   const pagination = useMemo(
@@ -92,14 +97,9 @@ export const QanListing: FC = () => {
     metricColumns.forEach((col) => {
       base.push({
         id: col,
-        header: col,
-        accessorFn: (row) => row.metrics?.[col]?.stats?.sum ?? row[col as keyof QanReportRow],
-        Cell: ({ row }) =>
-          formatMetric(
-            row.original.metrics?.[col]?.stats?.sum ??
-              row.original.metrics?.[col]?.stats?.avg ??
-              row.original[col as keyof QanReportRow]
-          ),
+        header: col.replace(/_/g, ' '),
+        accessorFn: (row) => qanMetricDisplayValue(col, row),
+        Cell: ({ row }) => formatMetric(qanMetricDisplayValue(col, row.original)),
         size: 120,
         enableSorting: true,
       });
@@ -116,7 +116,19 @@ export const QanListing: FC = () => {
   }
 
   return (
-    <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+    <Box
+      sx={{
+        flex: 1,
+        minHeight: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        border: 1,
+        borderColor: 'divider',
+        borderRadius: 1,
+        overflow: 'hidden',
+        bgcolor: 'background.paper',
+      }}
+    >
       {isLoading && !data ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
           <CircularProgress size={32} />
@@ -127,6 +139,8 @@ export const QanListing: FC = () => {
           columns={tableColumns}
           data={tableRows}
           enableGlobalFilter={false}
+          enablePagination
+          enableBottomToolbar
           enableRowHoverAction
           rowHoverAction={(row) => {
             const isTotalsRow = row.index === 0 && tableRows.length > 1;
@@ -167,6 +181,10 @@ export const QanListing: FC = () => {
             const current = pagination;
             const next = typeof updater === 'function' ? updater(current) : updater;
             actions.setPage(next.pageIndex + 1, next.pageSize);
+          }}
+          muiTableContainerProps={{ sx: { flex: 1 } }}
+          muiBottomToolbarProps={{
+            sx: { borderTop: 1, borderColor: 'divider' },
           }}
           noDataMessage="No queries found for the selected filters and time range."
         />

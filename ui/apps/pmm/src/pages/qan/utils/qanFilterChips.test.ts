@@ -25,4 +25,10 @@ describe('qanFilterChips', () => {
     expect(chips).toHaveLength(1);
     expect(chips[0].key).toBe('database');
   });
+
+  it('ignores spurious by label from legacy filter_by param', () => {
+    const chips = getActiveFilterChips({ by: ['query-id'], service_id: ['svc-1'] });
+    expect(chips).toHaveLength(1);
+    expect(chips[0].key).toBe('service_id');
+  });
 });
