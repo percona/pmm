@@ -241,6 +241,8 @@ export const AdreChatWidget: FC = () => {
 
   const isConfigured = settings?.enabled && !!settings?.url;
   const chatViaLabel = isConfigured ? 'ADRE chat' : 'ADRE';
+  const hideOnNativeQan =
+    location.pathname.includes('/qan') && !location.pathname.includes('/qan/ai-insights');
 
   const scrollToBottom = useCallback((instant?: boolean) => {
     const now = Date.now();
@@ -298,7 +300,7 @@ export const AdreChatWidget: FC = () => {
     await handleSend(userAsk, { dashboardContext: dashboardContext || undefined });
   }, [ask, isConfigured, location.pathname, location.search, handleSend, grafanaDocumentTitle]);
 
-  if (!isConfigured) return null;
+  if (!isConfigured || hideOnNativeQan) return null;
 
   return (
     <>

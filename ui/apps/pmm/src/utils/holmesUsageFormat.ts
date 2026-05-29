@@ -56,6 +56,7 @@ export const HOLMES_FEATURE_LABELS: Record<string, string> = {
   investigation_run: 'Full report',
   investigation_format: 'Format report',
   qan_insights: 'QAN insights',
+  qan_chat: 'QAN chat',
   slack_chat: 'Slack',
 };
 

@@ -1,0 +1,172 @@
+import { Table } from '@percona/percona-ui';
+import { Box, CircularProgress, Typography } from '@mui/material';
+import { FC, useMemo } from 'react';
+import type { MRT_ColumnDef, MRT_SortingState } from 'material-react-table';
+import { useQanReport } from 'hooks/api/useQan';
+import { useQanPanelActions, useQanPanelState } from '../hooks/useQanPanelState';
+import { getLabelQueryParams } from '../utils/qanTools';
+import type { QanReportRow } from 'types/qan.types';
+
+function formatMetric(value: unknown): string {
+  if (value == null) return '—';
+  if (typeof value === 'number') return value.toFixed(3);
+  return String(value);
+}
+
+function sortingFromOrderBy(orderBy: string): MRT_SortingState {
+  const id = orderBy.replace(/^-/, '');
+  if (!id) return [];
+  return [{ id, desc: !orderBy.startsWith('-') }];
+}
+
+function orderByFromSorting(sorting: MRT_SortingState): string {
+  const first = sorting[0];
+  if (!first) return '';
+  return first.desc ? first.id : `-${first.id}`;
+}
+
+export const QanListing: FC = () => {
+  const state = useQanPanelState();
+  const actions = useQanPanelActions();
+
+  const reportParams = useMemo(
+    () => ({
+      columns: state.columns,
+      groupBy: state.groupBy,
+      labels: getLabelQueryParams(state.labels),
+      limit: state.pageSize,
+      offset: (state.pageNumber - 1) * state.pageSize,
+      orderBy: state.orderBy,
+      mainMetric: state.columns[0] ?? 'load',
+      periodStartFrom: state.from,
+      periodStartTo: state.to,
+      search: state.dimensionSearchText,
+    }),
+    [state]
+  );
+
+  const { data, isLoading, isError } = useQanReport(reportParams);
+
+  const rows = data?.rows ?? [];
+  const tableRows = rows.length > 1 ? rows : [];
+
+  const sorting = useMemo(() => sortingFromOrderBy(state.orderBy), [state.orderBy]);
+  const pagination = useMemo(
+    () => ({ pageIndex: state.pageNumber - 1, pageSize: state.pageSize }),
+    [state.pageNumber, state.pageSize]
+  );
+
+  const columns = useMemo<MRT_ColumnDef<QanReportRow>[]>(() => {
+    const base: MRT_ColumnDef<QanReportRow>[] = [
+      {
+        accessorKey: 'rank',
+        header: '#',
+        size: 48,
+        enableSorting: false,
+        Cell: ({ row }) =>
+          row.index === 0 && tableRows.length > 1 ? '' : row.index,
+      },
+      {
+        id: 'main',
+        header: state.groupBy === 'queryid' ? 'Query' : 'Dimension',
+        accessorFn: (row) => row.fingerprint || row.dimension || '',
+        Cell: ({ row }) => {
+          const isTotalsRow = row.index === 0 && tableRows.length > 1;
+          const label = isTotalsRow
+            ? 'TOTAL'
+            : row.original.fingerprint || row.original.dimension || 'N/A';
+          return (
+            <Typography variant="body2" noWrap title={label}>
+              {label}
+            </Typography>
+          );
+        },
+        size: 320,
+        enableSorting: false,
+      },
+    ];
+    state.columns.forEach((col) => {
+      base.push({
+        id: col,
+        header: col,
+        accessorFn: (row) => row.metrics?.[col]?.stats?.sum ?? row[col as keyof QanReportRow],
+        Cell: ({ row }) =>
+          formatMetric(
+            row.original.metrics?.[col]?.stats?.sum ??
+              row.original.metrics?.[col]?.stats?.avg ??
+              row.original[col as keyof QanReportRow]
+          ),
+        size: 120,
+        enableSorting: true,
+      });
+    });
+    return base;
+  }, [state.columns, state.groupBy, tableRows.length]);
+
+  if (isError) {
+    return (
+      <Typography color="error" sx={{ p: 2 }}>
+        Failed to load query overview.
+      </Typography>
+    );
+  }
+
+  return (
+    <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+      {isLoading && !data ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+          <CircularProgress size={32} />
+        </Box>
+      ) : (
+        <Table
+          tableName="native-qan-overview"
+          columns={columns}
+          data={tableRows}
+          enableGlobalFilter={false}
+          enableRowHoverAction
+          rowHoverAction={(row) => {
+            const isTotalsRow = row.index === 0 && tableRows.length > 1;
+            const id = row.original.dimension ?? '';
+            actions.selectQuery(
+              id,
+              row.original.fingerprint,
+              row.original.database,
+              isTotalsRow
+            );
+          }}
+          muiTableBodyRowProps={({ row }) => {
+            const isTotalsRow = row.index === 0 && tableRows.length > 1;
+            const selected =
+              state.querySelected &&
+              (isTotalsRow
+                ? state.totals
+                : !state.totals && state.queryId === row.original.dimension);
+            return {
+              'data-testid': `qan-row-${row.original.dimension ?? row.index}`,
+              sx: {
+                cursor: 'pointer',
+                ...(selected ? { backgroundColor: 'action.selected' } : {}),
+              },
+            };
+          }}
+          state={{ sorting, pagination }}
+          manualSorting
+          onSortingChange={(updater) => {
+            const current = sortingFromOrderBy(state.orderBy);
+            const next = typeof updater === 'function' ? updater(current) : updater;
+            const orderBy = orderByFromSorting(next);
+            if (orderBy) actions.setOrderBy(orderBy);
+          }}
+          manualPagination
+          rowCount={data?.totalRows ?? 0}
+          onPaginationChange={(updater) => {
+            const current = pagination;
+            const next = typeof updater === 'function' ? updater(current) : updater;
+            actions.setPage(next.pageIndex + 1, next.pageSize);
+          }}
+          noDataMessage="No queries found for the selected filters and time range."
+        />
+      )}
+    </Box>
+  );
+};

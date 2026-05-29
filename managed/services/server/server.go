@@ -509,6 +509,7 @@ func (s *Server) convertSettings(settings *models.Settings, disableInternalPgQan
 			TracesRetentionDays:  int32(settings.GetOtelTracesRetentionDays()),
 			MetricsRetentionDays: int32(settings.GetOtelMetricsRetentionDays()),
 		},
+		NativeQanEnabled: settings.IsNativeQanEnabled(),
 	}
 
 	return res
@@ -525,6 +526,7 @@ func (s *Server) convertReadOnlySettings(settings *models.Settings) *serverv1.Re
 		BackupManagementEnabled: settings.IsBackupManagementEnabled(),
 		AzurediscoverEnabled:    settings.IsAzureDiscoverEnabled(),
 		EnableAccessControl:     settings.IsAccessControlEnabled(),
+		NativeQanEnabled:        settings.IsNativeQanEnabled(),
 	}
 
 	return res
@@ -653,6 +655,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 			EnableAzurediscover:    req.EnableAzurediscover,
 			PMMPublicAddress:       req.PmmPublicAddress,
 			EnableAlerting:         req.EnableAlerting,
+			EnableNativeQan:        req.EnableNativeQan,
 			EnableBackupManagement: req.EnableBackupManagement,
 			EnableAccessControl:    req.EnableAccessControl,
 			EnableInternalPgQAN:    req.EnableInternalPgQan,

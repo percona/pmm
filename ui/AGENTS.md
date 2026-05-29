@@ -54,6 +54,10 @@ Routes are defined in `ui/apps/pmm/src/router.tsx` using React Router's `createB
 | `/rta/selection` | RTA service selection |
 | `/rta/sessions` | RTA sessions list |
 | `/rta/overview` | RTA overview |
+| `/qan` | Native Query Analytics (when `nativeQanEnabled`) |
+| `/qan/ai-insights` | QAN AI Insights (redirects to `/qan?tab=aiInsights` when flag on) |
+| `/adre` | ADRE chat |
+| `/investigations` | Investigations list |
 | `/graph/*` | Grafana iframe |
 | `*` | 404 fallback |
 

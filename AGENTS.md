@@ -198,6 +198,7 @@ Some areas span multiple directories. When working on them, read **both** the co
 |------|---------|-----|-------|
 | **ADRE / AI Assistant** | `managed/services/adre/` | `ui/apps/pmm/src/pages/adre/`, `components/adre/` | HolmesGPT integration, chat, usage |
 | **Investigations** | `managed/services/investigations/` | `ui/apps/pmm/src/pages/investigations/` | AI investigation workflows |
+| **Native QAN** | `qan-api2/` (existing `/v1/qan/*`) | `ui/apps/pmm/src/pages/qan/` | Native Query Analytics UI at `/pmm-ui/qan` (flag: `nativeQanEnabled`) |
 | **OTEL** | `managed/otel/`, `dev/otel/` | Settings → OTEL tab | Log collectors, parser presets |
 | **User docs** | — | — | [`documentation/`](documentation/) (MkDocs), not [`docs/process/`](docs/process/) |
 

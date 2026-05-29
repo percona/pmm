@@ -3,6 +3,7 @@ export interface ReadonlySettings {
   telemetryEnabled: boolean;
   advisorEnabled: boolean;
   alertingEnabled: boolean;
+  nativeQanEnabled: boolean;
   pmmPublicAddress: string;
   backupManagementEnabled: boolean;
   azurediscoverEnabled: boolean;
@@ -34,6 +35,7 @@ export interface Settings extends ReadonlySettings {
   advisorRunIntervals?: AdvisorRunIntervals;
   telemetrySummaries?: string[];
   enableInternalPgQan?: boolean;
+  nativeQanEnabled?: boolean;
   defaultRoleId?: number;
   otel?: OtelSettings;
 }
@@ -64,6 +66,7 @@ export interface UpdateSettingsPayload {
   enableUpdates?: boolean;
   enableAccessControl?: boolean;
   enableInternalPgQan?: boolean;
+  enableNativeQan?: boolean;
   awsPartitions?: string[];
   updateSnoozeDuration?: string;
   otel?: {

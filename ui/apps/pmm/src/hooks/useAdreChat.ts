@@ -18,12 +18,26 @@ import { useAdreSettings } from 'hooks/api/useAdre';
 import { useSnackbar } from 'notistack';
 import { clearPanelImageCache } from 'components/adre/adre-chat-markdown.utils';
 import { PMM_BASE_PATH, PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
+import { getNativeQanEnabledSnapshot } from 'utils/pmmFeatureFlags';
+import { buildNativeQanPath } from 'utils/nativeQanNav';
 import { compactAdreAlertsForToolResult } from 'utils/adreAlertsCompact';
 import { PMM_ADRE_FRONTEND_TOOLS } from 'utils/adreFrontendTools';
 import { stripQanServiceId } from 'utils/qanServiceId';
 
 /** Resume active conversation after navigation (not legacy chat import). */
 const SESSION_CONV_ID_KEY = 'pmm-adre-active-conversation-id';
+const SESSION_CONV_ID_KEY_QAN_ASIDE = 'pmm-adre-qan-aside-conversation-id';
+
+export type AdreChatContext = 'default' | 'qan-aside';
+
+export interface UseAdreChatOptions {
+  /** Embedded contexts use a separate session key and skip global conversation auto-select. */
+  context?: AdreChatContext;
+}
+
+function sessionKeyForContext(context: AdreChatContext): string {
+  return context === 'qan-aside' ? SESSION_CONV_ID_KEY_QAN_ASIDE : SESSION_CONV_ID_KEY;
+}
 
 export type ProgressStep = { id: string; toolName: string; description?: string; status: 'running' | 'done' };
 
@@ -62,7 +76,11 @@ export interface SendOptions {
   dashboardContext?: string;
 }
 
-export function useAdreChat() {
+export function useAdreChat(options: UseAdreChatOptions = {}) {
+  const chatContext = options.context ?? 'default';
+  const sessionStorageKey = sessionKeyForContext(chatContext);
+  const isolatedSession = chatContext === 'qan-aside';
+
   const { data: settings } = useAdreSettings();
   const { enqueueSnackbar } = useSnackbar();
   const [response, setResponse] = useState('');
@@ -106,11 +124,27 @@ export function useAdreChat() {
     setChatError(null);
     setScrollToMessageId(null);
     try {
-      sessionStorage.removeItem(SESSION_CONV_ID_KEY);
+      sessionStorage.removeItem(sessionStorageKey);
     } catch {
       /* ignore */
     }
-  }, []);
+  }, [sessionStorageKey]);
+
+  /** Clear displayed chat without creating a new server conversation (embedded QAN aside). */
+  const resetEphemeralChat = useCallback(() => {
+    setConversationId(null);
+    setHistory([]);
+    setResponse('');
+    setReasoning('');
+    setChatError(null);
+    setProgressSteps([]);
+    progressStepsRef.current = [];
+    try {
+      sessionStorage.removeItem(sessionStorageKey);
+    } catch {
+      /* ignore */
+    }
+  }, [sessionStorageKey]);
 
   const selectConversation = useCallback(
     async (id: number, options?: { focusMessageId?: number }) => {
@@ -121,7 +155,7 @@ export function useAdreChat() {
       setScrollToMessageId(options?.focusMessageId ?? null);
       setConversationId(id);
       try {
-        sessionStorage.setItem(SESSION_CONV_ID_KEY, String(id));
+        sessionStorage.setItem(sessionStorageKey, String(id));
       } catch {
         /* ignore */
       }
@@ -135,7 +169,7 @@ export function useAdreChat() {
         setScrollToMessageId(null);
       }
     },
-    [loadMessagesFor, enqueueSnackbar]
+    [loadMessagesFor, enqueueSnackbar, sessionStorageKey]
   );
 
   const clearScrollToMessage = useCallback(() => setScrollToMessageId(null), []);
@@ -145,7 +179,7 @@ export function useAdreChat() {
       const c = await createAdreConversation();
       setConversationId(c.id);
       try {
-        sessionStorage.setItem(SESSION_CONV_ID_KEY, String(c.id));
+        sessionStorage.setItem(sessionStorageKey, String(c.id));
       } catch {
         /* ignore */
       }
@@ -157,7 +191,7 @@ export function useAdreChat() {
     } catch (e) {
       enqueueSnackbar(e instanceof Error ? e.message : 'Failed to start chat', { variant: 'error' });
     }
-  }, [enqueueSnackbar, refreshConversations]);
+  }, [enqueueSnackbar, refreshConversations, sessionStorageKey]);
 
   const deleteConversation = useCallback(
     async (id: number) => {
@@ -199,7 +233,7 @@ export function useAdreChat() {
         if (gen !== adreInitGenRef.current) return;
         setConversations(rows ?? []);
 
-        const raw = sessionStorage.getItem(SESSION_CONV_ID_KEY);
+        const raw = sessionStorage.getItem(sessionStorageKey);
         if (raw) {
           const id = parseInt(raw, 10);
           if (!Number.isNaN(id) && (rows ?? []).some((c) => c.id === id)) {
@@ -207,7 +241,7 @@ export function useAdreChat() {
             return;
           }
         }
-        if ((rows ?? []).length > 0) {
+        if (!isolatedSession && (rows ?? []).length > 0) {
           await selectConversation(rows![0].id);
           return;
         }
@@ -217,7 +251,15 @@ export function useAdreChat() {
         enqueueSnackbar('Failed to initialize chat', { variant: 'error' });
       }
     })();
-  }, [settingsEnabled, settingsLoaded, selectConversation, clearActiveConversation, enqueueSnackbar]);
+  }, [
+    settingsEnabled,
+    settingsLoaded,
+    selectConversation,
+    clearActiveConversation,
+    enqueueSnackbar,
+    sessionStorageKey,
+    isolatedSession,
+  ]);
 
   const runSearch = useCallback(
     async (q: string) => {
@@ -252,7 +294,7 @@ export function useAdreChat() {
           activeConversationId = c.id;
           setConversationId(c.id);
           try {
-            sessionStorage.setItem(SESSION_CONV_ID_KEY, String(c.id));
+            sessionStorage.setItem(sessionStorageKey, String(c.id));
           } catch {
             /* ignore */
           }
@@ -416,6 +458,7 @@ export function useAdreChat() {
     chatError,
     handleSend,
     clearHistory,
+    resetEphemeralChat,
     conversationId,
     conversations,
     conversationsLoading,
@@ -528,10 +571,28 @@ async function executeFrontendTool(
       case 'pmm_ui_focus_qan_query': {
         const serviceId = stripQanServiceId(String(argsNorm.serviceId ?? ''));
         const queryId = String(argsNorm.queryId ?? '');
-        window.open(
-          `${PMM_BASE_PATH}/qan/ai-insights?service_id=${encodeURIComponent(serviceId)}&query_id=${encodeURIComponent(queryId)}`,
-          '_self'
-        );
+        if (getNativeQanEnabledSnapshot()) {
+          window.open(
+            buildNativeQanPath({
+              query_id: queryId,
+              filter_by: queryId,
+              query_selected: 'true',
+              service_id: serviceId || undefined,
+            }),
+            '_self'
+          );
+        } else {
+          const params = new URLSearchParams();
+          if (queryId) {
+            params.set('filter_by', queryId);
+            params.set('query_selected', 'true');
+          }
+          if (serviceId) params.set('var-service_id', serviceId);
+          window.open(
+            `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-qan/pmm-query-analytics?${params.toString()}`,
+            '_self'
+          );
+        }
         audit('success');
         return { ok: true };
       }

@@ -185,6 +185,8 @@ message Settings {
   google.protobuf.Duration update_snooze_duration = 20;
   // OTEL collector and ClickHouse retention settings.
   OtelSettings otel = 21;
+  // True if native Query Analytics UI is enabled (Technical Preview).
+  bool native_qan_enabled = 22;
 }
 
 // OtelSettings configures the server-side OTEL receiver and ClickHouse retention.
@@ -217,6 +219,8 @@ message ReadOnlySettings {
   bool azurediscover_enabled = 7;
   // True if Access Control is enabled.
   bool enable_access_control = 8;
+  // True if native Query Analytics UI is enabled.
+  bool native_qan_enabled = 9;
 }
 
 message GetSettingsRequest {}
@@ -259,6 +263,8 @@ message ChangeSettingsRequest {
   google.protobuf.Duration update_snooze_duration = 15;
   // OTEL settings (partial update).
   optional OtelSettings otel = 16;
+  // Enable native Query Analytics UI (Technical Preview).
+  optional bool enable_native_qan = 17;
 }
 
 message ChangeSettingsResponse {

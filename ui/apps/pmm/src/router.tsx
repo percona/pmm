@@ -18,6 +18,7 @@ import AdreUsagePage from 'pages/adre/AdreUsagePage';
 import AdreSettingsPage from 'pages/configuration/AdreSettingsPage';
 import InvestigationsListPage from 'pages/investigations/InvestigationsListPage';
 import InvestigationDetailPage from 'pages/investigations/InvestigationDetailPage';
+import QanPage from 'pages/qan/QanPage';
 import QanAiInsightsPage from 'pages/qan/QanAiInsightsPage';
 
 const router = createBrowserRouter(
@@ -69,6 +70,10 @@ const router = createBrowserRouter(
             {
               path: 'investigations/:id',
               element: <InvestigationDetailPage />,
+            },
+            {
+              path: 'qan',
+              element: <QanPage />,
             },
             {
               path: 'qan/ai-insights',

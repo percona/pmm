@@ -28,6 +28,7 @@ import (
 const (
 	AdvisorsEnabledDefault                    = true
 	AlertingEnabledDefault                    = true
+	NativeQanEnabledDefault                   = false
 	TelemetryEnabledDefault                   = true
 	UpdatesEnabledDefault                     = true
 	BackupManagementEnabledDefault            = true
@@ -160,6 +161,10 @@ type Settings struct {
 		Enabled *bool `json:"enabled"`
 	} `json:"alerting"`
 
+	NativeQan struct {
+		Enabled *bool `json:"enabled"`
+	} `json:"native_qan"`
+
 	Azurediscover struct {
 		Enabled *bool `json:"enabled"`
 	} `json:"azure"`
@@ -190,6 +195,14 @@ func (s *Settings) IsAlertingEnabled() bool {
 		return *s.Alerting.Enabled
 	}
 	return AlertingEnabledDefault
+}
+
+// IsNativeQanEnabled returns true if native Query Analytics UI is enabled.
+func (s *Settings) IsNativeQanEnabled() bool {
+	if s.NativeQan.Enabled != nil {
+		return *s.NativeQan.Enabled
+	}
+	return NativeQanEnabledDefault
 }
 
 // IsTelemetryEnabled returns true if telemetry is enabled.

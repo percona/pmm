@@ -28,6 +28,7 @@ import {
   NAV_ADRE_USAGE,
   NAV_INVENTORY,
   NAV_QAN,
+  NAV_QAN_NATIVE,
   NAV_SIGN_IN,
 } from './navigation.constants';
 import { useFolders } from 'hooks/api/useFolders';
@@ -73,7 +74,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
 
     items.push(NAV_EBPF);
 
-    items.push(NAV_QAN);
+    items.push(settings?.nativeQanEnabled ? NAV_QAN_NATIVE : NAV_QAN);
 
     if (user && settings) {
       items.push(NAV_INVESTIGATIONS);

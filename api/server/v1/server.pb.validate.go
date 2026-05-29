@@ -2535,6 +2535,8 @@ func (m *Settings) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for NativeQanEnabled
+
 	if len(errors) > 0 {
 		return SettingsMultiError(errors)
 	}
@@ -2756,6 +2758,8 @@ func (m *ReadOnlySettings) validate(all bool) error {
 	// no validation rules for AzurediscoverEnabled
 
 	// no validation rules for EnableAccessControl
+
+	// no validation rules for NativeQanEnabled
 
 	if len(errors) > 0 {
 		return ReadOnlySettingsMultiError(errors)
@@ -3544,6 +3548,10 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 			}
 		}
 
+	}
+
+	if m.EnableNativeQan != nil {
+		// no validation rules for EnableNativeQan
 	}
 
 	if len(errors) > 0 {

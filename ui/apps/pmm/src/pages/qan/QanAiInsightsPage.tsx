@@ -1,3 +1,6 @@
+import { Navigate, useSearchParams } from 'react-router-dom';
+import { useSettings } from 'contexts/settings';
+import { PMM_NEW_NAV_PATH } from 'lib/constants';
 import {
   Alert,
   Button,
@@ -17,7 +20,6 @@ import {
 } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { FC, useCallback, useEffect, useRef, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
@@ -112,7 +114,7 @@ function isStructuredSection(title: string): boolean {
   return t.includes('explain') || t.includes('show index') || t.includes('show create table');
 }
 
-const QanAiInsightsPage: FC = () => {
+const QanAiInsightsPageContent: FC = () => {
   const [searchParams] = useSearchParams();
   const [analysis, setAnalysis] = useState<string | null>(null);
   const [cachedAt, setCachedAt] = useState<string | null>(null);
@@ -417,6 +419,17 @@ const QanAiInsightsPage: FC = () => {
       </Stack>
     </Page>
   );
+};
+
+const QanAiInsightsPage: FC = () => {
+  const { settings } = useSettings();
+  const [searchParams] = useSearchParams();
+  if (settings?.nativeQanEnabled) {
+    const next = new URLSearchParams(searchParams);
+    next.set('tab', 'aiInsights');
+    return <Navigate to={`${PMM_NEW_NAV_PATH}/qan?${next.toString()}`} replace />;
+  }
+  return <QanAiInsightsPageContent />;
 };
 
 export default QanAiInsightsPage;

@@ -110,6 +110,9 @@ type ChangeSettingsParams struct {
 	// Enable Percona Alerting features.
 	EnableAlerting *bool
 
+	// Enable native Query Analytics UI (Technical Preview).
+	EnableNativeQan *bool
+
 	// Enable Access Control features.
 	EnableAccessControl *bool
 
@@ -305,6 +308,10 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 
 	if params.EnableAlerting != nil {
 		settings.Alerting.Enabled = params.EnableAlerting
+	}
+
+	if params.EnableNativeQan != nil {
+		settings.NativeQan.Enabled = params.EnableNativeQan
 	}
 
 	if params.EnableAccessControl != nil {

@@ -1100,9 +1100,11 @@ type Settings struct {
 	// Duration for which an update is snoozed
 	UpdateSnoozeDuration *durationpb.Duration `protobuf:"bytes,20,opt,name=update_snooze_duration,json=updateSnoozeDuration,proto3" json:"update_snooze_duration,omitempty"`
 	// OTEL collector and ClickHouse retention settings.
-	Otel          *OtelSettings `protobuf:"bytes,21,opt,name=otel,proto3" json:"otel,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Otel *OtelSettings `protobuf:"bytes,21,opt,name=otel,proto3" json:"otel,omitempty"`
+	// True if native Query Analytics UI is enabled (Technical Preview).
+	NativeQanEnabled bool `protobuf:"varint,22,opt,name=native_qan_enabled,json=nativeQanEnabled,proto3" json:"native_qan_enabled,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *Settings) Reset() {
@@ -1277,6 +1279,13 @@ func (x *Settings) GetOtel() *OtelSettings {
 	return nil
 }
 
+func (x *Settings) GetNativeQanEnabled() bool {
+	if x != nil {
+		return x.NativeQanEnabled
+	}
+	return false
+}
+
 // OtelSettings configures the server-side OTEL receiver and ClickHouse retention.
 type OtelSettings struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -1369,8 +1378,10 @@ type ReadOnlySettings struct {
 	AzurediscoverEnabled bool `protobuf:"varint,7,opt,name=azurediscover_enabled,json=azurediscoverEnabled,proto3" json:"azurediscover_enabled,omitempty"`
 	// True if Access Control is enabled.
 	EnableAccessControl bool `protobuf:"varint,8,opt,name=enable_access_control,json=enableAccessControl,proto3" json:"enable_access_control,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// True if native Query Analytics UI is enabled.
+	NativeQanEnabled bool `protobuf:"varint,9,opt,name=native_qan_enabled,json=nativeQanEnabled,proto3" json:"native_qan_enabled,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *ReadOnlySettings) Reset() {
@@ -1455,6 +1466,13 @@ func (x *ReadOnlySettings) GetAzurediscoverEnabled() bool {
 func (x *ReadOnlySettings) GetEnableAccessControl() bool {
 	if x != nil {
 		return x.EnableAccessControl
+	}
+	return false
+}
+
+func (x *ReadOnlySettings) GetNativeQanEnabled() bool {
+	if x != nil {
+		return x.NativeQanEnabled
 	}
 	return false
 }
@@ -1647,9 +1665,11 @@ type ChangeSettingsRequest struct {
 	// A number of full days for which an update is snoozed, i.e. a multiple of 24h: 2592000s, 43200m, 720h.
 	UpdateSnoozeDuration *durationpb.Duration `protobuf:"bytes,15,opt,name=update_snooze_duration,json=updateSnoozeDuration,proto3" json:"update_snooze_duration,omitempty"`
 	// OTEL settings (partial update).
-	Otel          *OtelSettings `protobuf:"bytes,16,opt,name=otel,proto3,oneof" json:"otel,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Otel *OtelSettings `protobuf:"bytes,16,opt,name=otel,proto3,oneof" json:"otel,omitempty"`
+	// Enable native Query Analytics UI (Technical Preview).
+	EnableNativeQan *bool `protobuf:"varint,17,opt,name=enable_native_qan,json=enableNativeQan,proto3,oneof" json:"enable_native_qan,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *ChangeSettingsRequest) Reset() {
@@ -1792,6 +1812,13 @@ func (x *ChangeSettingsRequest) GetOtel() *OtelSettings {
 		return x.Otel
 	}
 	return nil
+}
+
+func (x *ChangeSettingsRequest) GetEnableNativeQan() bool {
+	if x != nil && x.EnableNativeQan != nil {
+		return *x.EnableNativeQan
+	}
+	return false
 }
 
 type ChangeSettingsResponse struct {
@@ -2461,7 +2488,7 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x13AdvisorRunIntervals\x12F\n" +
 	"\x11standard_interval\x18\x01 \x01(\v2\x19.google.protobuf.DurationR\x10standardInterval\x12>\n" +
 	"\rrare_interval\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\frareInterval\x12F\n" +
-	"\x11frequent_interval\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x10frequentInterval\"\x9c\b\n" +
+	"\x11frequent_interval\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x10frequentInterval\"\xca\b\n" +
 	"\bSettings\x12'\n" +
 	"\x0fupdates_enabled\x18\x01 \x01(\bR\x0eupdatesEnabled\x12+\n" +
 	"\x11telemetry_enabled\x18\x02 \x01(\bR\x10telemetryEnabled\x12N\n" +
@@ -2483,12 +2510,13 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x0fdefault_role_id\x18\x12 \x01(\rR\rdefaultRoleId\x123\n" +
 	"\x16enable_internal_pg_qan\x18\x13 \x01(\bR\x13enableInternalPgQan\x12O\n" +
 	"\x16update_snooze_duration\x18\x14 \x01(\v2\x19.google.protobuf.DurationR\x14updateSnoozeDuration\x12+\n" +
-	"\x04otel\x18\x15 \x01(\v2\x17.server.v1.OtelSettingsR\x04otel\"\xd5\x01\n" +
+	"\x04otel\x18\x15 \x01(\v2\x17.server.v1.OtelSettingsR\x04otel\x12,\n" +
+	"\x12native_qan_enabled\x18\x16 \x01(\bR\x10nativeQanEnabled\"\xd5\x01\n" +
 	"\fOtelSettings\x12+\n" +
 	"\x11collector_enabled\x18\x01 \x01(\bR\x10collectorEnabled\x12.\n" +
 	"\x13logs_retention_days\x18\x02 \x01(\x05R\x11logsRetentionDays\x122\n" +
 	"\x15traces_retention_days\x18\x03 \x01(\x05R\x13tracesRetentionDays\x124\n" +
-	"\x16metrics_retention_days\x18\x04 \x01(\x05R\x14metricsRetentionDays\"\x8f\x03\n" +
+	"\x16metrics_retention_days\x18\x04 \x01(\x05R\x14metricsRetentionDays\"\xbd\x03\n" +
 	"\x10ReadOnlySettings\x12'\n" +
 	"\x0fupdates_enabled\x18\x01 \x01(\bR\x0eupdatesEnabled\x12+\n" +
 	"\x11telemetry_enabled\x18\x02 \x01(\bR\x10telemetryEnabled\x12'\n" +
@@ -2497,13 +2525,14 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x12pmm_public_address\x18\x05 \x01(\tR\x10pmmPublicAddress\x12:\n" +
 	"\x19backup_management_enabled\x18\x06 \x01(\bR\x17backupManagementEnabled\x123\n" +
 	"\x15azurediscover_enabled\x18\a \x01(\bR\x14azurediscoverEnabled\x122\n" +
-	"\x15enable_access_control\x18\b \x01(\bR\x13enableAccessControl\"\x14\n" +
+	"\x15enable_access_control\x18\b \x01(\bR\x13enableAccessControl\x12,\n" +
+	"\x12native_qan_enabled\x18\t \x01(\bR\x10nativeQanEnabled\"\x14\n" +
 	"\x12GetSettingsRequest\"\x1c\n" +
 	"\x1aGetReadOnlySettingsRequest\"F\n" +
 	"\x13GetSettingsResponse\x12/\n" +
 	"\bsettings\x18\x01 \x01(\v2\x13.server.v1.SettingsR\bsettings\"V\n" +
 	"\x1bGetReadOnlySettingsResponse\x127\n" +
-	"\bsettings\x18\x01 \x01(\v2\x1b.server.v1.ReadOnlySettingsR\bsettings\"\xab\t\n" +
+	"\bsettings\x18\x01 \x01(\v2\x1b.server.v1.ReadOnlySettingsR\bsettings\"\xf2\t\n" +
 	"\x15ChangeSettingsRequest\x12*\n" +
 	"\x0eenable_updates\x18\x01 \x01(\bH\x00R\renableUpdates\x88\x01\x01\x12.\n" +
 	"\x10enable_telemetry\x18\x02 \x01(\bH\x01R\x0fenableTelemetry\x88\x01\x01\x12N\n" +
@@ -2522,7 +2551,8 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x16enable_internal_pg_qan\x18\x0e \x01(\bH\n" +
 	"R\x13enableInternalPgQan\x88\x01\x01\x12O\n" +
 	"\x16update_snooze_duration\x18\x0f \x01(\v2\x19.google.protobuf.DurationR\x14updateSnoozeDuration\x120\n" +
-	"\x04otel\x18\x10 \x01(\v2\x17.server.v1.OtelSettingsH\vR\x04otel\x88\x01\x01B\x11\n" +
+	"\x04otel\x18\x10 \x01(\v2\x17.server.v1.OtelSettingsH\vR\x04otel\x88\x01\x01\x12/\n" +
+	"\x11enable_native_qan\x18\x11 \x01(\bH\fR\x0fenableNativeQan\x88\x01\x01B\x11\n" +
 	"\x0f_enable_updatesB\x13\n" +
 	"\x11_enable_telemetryB\n" +
 	"\n" +
@@ -2535,7 +2565,8 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x19_enable_backup_managementB\x18\n" +
 	"\x16_enable_access_controlB\x19\n" +
 	"\x17_enable_internal_pg_qanB\a\n" +
-	"\x05_otel\"I\n" +
+	"\x05_otelB\x14\n" +
+	"\x12_enable_native_qan\"I\n" +
 	"\x16ChangeSettingsResponse\x12/\n" +
 	"\bsettings\x18\x01 \x01(\v2\x13.server.v1.SettingsR\bsettings\"\xae\x02\n" +
 	"\x0fLogParserPreset\x12\x0e\n" +

@@ -62,6 +62,10 @@ export const Messages = {
     enableInternalPgQanTooltip:
       "Displays queries from PMM Server's internal PostgreSQL database in Query Analytics (QAN). Enable to troubleshoot PMM Server's database performance alongside your monitored instances.",
     enableInternalPgQanLink: 'https://per.co.na/qan-pmm-server',
+    nativeQanLabel: 'Native Query Analytics UI',
+    nativeQanTooltip:
+      'Use the native PMM Query Analytics page instead of the Grafana QAN panel. Technical preview — Grafana QAN remains available via direct link.',
+    nativeQanLink: 'https://per.co.na/pmm-feature-status',
     featureManagementLabel: 'Feature management',
     featureManagementDescription:
       'Enable or disable core PMM capabilities. Turning off unused features can help conserve system resources and simplify your navigation menu.',

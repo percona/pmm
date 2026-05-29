@@ -400,6 +400,18 @@ export const NAV_QAN: NavItem = {
   matches: ['*', `${PMM_NEW_NAV_PATH}/rta/*`],
 };
 
+export const NAV_QAN_NATIVE: NavItem = {
+  id: 'qan',
+  icon: 'qan',
+  text: 'Query Analytics (QAN)',
+  url: `${PMM_NEW_NAV_PATH}/qan`,
+  matches: [
+    `${PMM_NEW_NAV_PATH}/qan`,
+    `${PMM_NEW_NAV_PATH}/qan/*`,
+    `${PMM_NEW_NAV_PATH}/rta/*`,
+  ],
+};
+
 //
 // Real-Time Query Analytics (RTA)
 //

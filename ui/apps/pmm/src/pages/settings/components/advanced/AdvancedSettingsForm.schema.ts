@@ -33,6 +33,7 @@ export const advancedSettingsSchema = z
     alerting: z.boolean(),
     backup: z.boolean(),
     enableInternalPgQan: z.boolean(),
+    nativeQan: z.boolean(),
     publicAddress: z.string(),
     stt: z.boolean(),
     rareInterval: z.string(),

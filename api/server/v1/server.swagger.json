@@ -643,6 +643,11 @@
           "$ref": "#/definitions/v1OtelSettings",
           "x-nullable": true,
           "description": "OTEL settings (partial update)."
+        },
+        "enable_native_qan": {
+          "type": "boolean",
+          "x-nullable": true,
+          "description": "Enable native Query Analytics UI (Technical Preview)."
         }
       }
     },
@@ -888,6 +893,10 @@
         "enable_access_control": {
           "type": "boolean",
           "description": "True if Access Control is enabled."
+        },
+        "native_qan_enabled": {
+          "type": "boolean",
+          "description": "True if native Query Analytics UI is enabled."
         }
       },
       "description": "ReadOnlySettings represents a stripped-down version of PMM Server settings that can be accessed by users of all roles."
@@ -983,6 +992,10 @@
         "otel": {
           "$ref": "#/definitions/v1OtelSettings",
           "description": "OTEL collector and ClickHouse retention settings."
+        },
+        "native_qan_enabled": {
+          "type": "boolean",
+          "description": "True if native Query Analytics UI is enabled (Technical Preview)."
         }
       },
       "description": "Settings represents PMM Server settings."
