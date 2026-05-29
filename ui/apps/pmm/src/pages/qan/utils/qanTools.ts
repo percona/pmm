@@ -1,10 +1,13 @@
 import { stripQanServiceId } from 'utils/qanServiceId';
 
 export { buildNativeQanPath } from 'utils/nativeQanNav';
-export { RESERVED_FILTER_PARAM_KEYS } from 'pages/qan/utils/qanMetrics';
+export {
+  isQanDimensionFilterParam,
+  RESERVED_FILTER_PARAM_KEYS,
+} from 'pages/qan/utils/qanUrlParams';
 import type { QanLabelFilter, QanLabelsMap } from 'types/qan.types';
 import { asStringList } from 'pages/qan/utils/qanNormalize';
-import { isQanDimensionFilterParam } from 'pages/qan/utils/qanMetrics';
+import { isQanDimensionFilterParam } from 'pages/qan/utils/qanUrlParams';
 
 export const ALL_VARIABLE_VALUE = '$__all';
 export const ALL_VARIABLE_TEXT = 'All';

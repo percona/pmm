@@ -17,6 +17,11 @@ describe('qanDisplay', () => {
     expect(formatQanMetricFigure('query_time', 2.8)).toBe('2800.00 ms');
   });
 
+  it('formats query_time avg in seconds as milliseconds', () => {
+    expect(formatQanMetricFigure('query_time', 0.33)).toBe('330.00 ms');
+    expect(formatQanMetricFigure('query_time', 0.001)).toBe('1.00 ms');
+  });
+
   it('buckets sparkline points for bar segments', () => {
     const buckets = bucketSparklineValues(
       [

@@ -1,27 +1,16 @@
 import { Table } from '@percona/percona-ui';
 import { Box, CircularProgress, Stack, Typography } from '@mui/material';
 import { FC, useMemo } from 'react';
-import type { MRT_ColumnDef, MRT_SortingState } from 'material-react-table';
+import type { MRT_ColumnDef } from 'material-react-table';
 import { useQanReport } from 'hooks/api/useQan';
 import { useQanPanelActions, useQanPanelState } from '../hooks/useQanPanelState';
 import { getLabelQueryParams, DEFAULT_QAN_COLUMNS } from '../utils/qanTools';
 import { qanMetricDisplayValue, qanMetricSparkline } from '../utils/qanMetrics';
 import { formatQanMetricFigure, qanColumnLabel } from '../utils/qanDisplay';
+import { orderByFromSorting, sortingFromOrderBy } from '../utils/qanOrderBy';
 import type { QanReportRow } from 'types/qan.types';
 import { QanMetricSparkline } from './QanMetricSparkline';
 import { QanQueryCell } from './QanQueryCell';
-
-function sortingFromOrderBy(orderBy: string): MRT_SortingState {
-  const id = orderBy.replace(/^-/, '');
-  if (!id) return [];
-  return [{ id, desc: !orderBy.startsWith('-') }];
-}
-
-function orderByFromSorting(sorting: MRT_SortingState): string {
-  const first = sorting[0];
-  if (!first) return '';
-  return first.desc ? first.id : `-${first.id}`;
-}
 
 export const QanListing: FC = () => {
   const state = useQanPanelState();

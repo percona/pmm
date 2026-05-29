@@ -24,8 +24,8 @@ export function formatQanMetricFigure(column: string, value: unknown): string {
   if (column === 'load') return `${num} load`;
   if (column === 'num_queries') return `${num} QPS`;
   if (column === 'query_time' || column.endsWith('_time')) {
-    const ms = value < 20 ? value * 1000 : value;
-    return `${ms.toFixed(2)} ms`;
+    // qan-api2 returns time-metric avg in seconds (Grafana QAN humanize semantics).
+    return `${(value * 1000).toFixed(2)} ms`;
   }
   return num;
 }

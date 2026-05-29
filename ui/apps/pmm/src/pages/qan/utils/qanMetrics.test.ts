@@ -2,7 +2,6 @@ import {
   qanMetricCell,
   qanMetricDisplayValue,
   qanMetricKey,
-  isQanDimensionFilterParam,
 } from './qanMetrics';
 import type { QanReportRow } from 'types/qan.types';
 
@@ -32,11 +31,6 @@ describe('qanMetrics', () => {
     expect(qanMetricDisplayValue('num_queries', row)).toBe(1.2);
     expect(qanMetricDisplayValue('query_time', row)).toBe(0.33);
     expect(qanMetricDisplayValue('load', row)).toBe(0.05);
-  });
-
-  it('treats filter_by as reserved, not a dimension filter', () => {
-    expect(isQanDimensionFilterParam('filter_by')).toBe(false);
-    expect(isQanDimensionFilterParam('filter_service_name')).toBe(true);
   });
 
   it('converts snake_case column ids to camelCase metric keys', () => {

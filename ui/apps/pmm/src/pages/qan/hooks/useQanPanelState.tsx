@@ -132,7 +132,6 @@ export const QanPanelProvider: FC<PropsWithChildren> = ({ children }) => {
           );
           const serviceId = serviceUuidFromLabels(labels);
           next.set('query_id', queryId);
-          next.set('filter_by', queryId);
           next.set('query_selected', 'true');
           if (totals) {
             next.set('totals', 'true');
