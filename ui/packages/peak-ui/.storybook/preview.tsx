@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import type { Preview } from "@storybook/react";
 import { CssBaseline, createTheme, ThemeProvider } from "@mui/material";
 import { getThemeOptions } from "../src/design";
@@ -47,7 +47,6 @@ const preview: Preview = {
           { value: "light", icon: "sun", title: "Light mode" },
           { value: "dark", icon: "moon", title: "Dark mode" },
         ],
-        showName: true,
         dynamicTitle: true,
       },
     },
@@ -61,7 +60,6 @@ const preview: Preview = {
           { value: "pmm", icon: "hearthollow", title: "PMM theme" },
           { value: "sep", icon: "database", title: "SEP theme" },
         ],
-        showName: true,
         dynamicTitle: true,
       },
     },
