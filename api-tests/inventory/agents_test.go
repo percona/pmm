@@ -174,7 +174,7 @@ func TestAgents(t *testing.T) {
 		assertPMMAgentNotExists(t, res, pmmAgentID)
 		assertNodeExporterNotExists(t, res, nodeExporterID)
 
-		// Filter by agent type, scoped to this test's pmm-agent to avoid the TOCTOU 404
+		// Filter by agent type, scoped to this test's pmm-agent to avoid the 404
 		// race an unscoped type filter hits (see the List subtest).
 		res, err = client.Default.AgentsService.ListAgents(
 			&agents.ListAgentsParams{
