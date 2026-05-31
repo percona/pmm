@@ -18,7 +18,6 @@ package inventory
 import (
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -79,7 +78,7 @@ func TestPostgresExporter(t *testing.T) {
 						"custom_label_postgres_exporter": "postgres_exporter",
 					},
 					DisabledCollectors:     make([]string, 0),
-					LogLevel:               pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:               new("LOG_LEVEL_UNSPECIFIED"),
 					Status:                 &AgentStatusUnknown,
 					MaxExporterConnections: 10,
 				},
@@ -92,7 +91,7 @@ func TestPostgresExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					PostgresExporter: &agents.ChangeAgentParamsBodyPostgresExporter{
-						Enable:       pointer.ToBool(false),
+						Enable:       new(false),
 						CustomLabels: &agents.ChangeAgentParamsBodyPostgresExporterCustomLabels{},
 					},
 				},
@@ -111,7 +110,7 @@ func TestPostgresExporter(t *testing.T) {
 					Status:                 &AgentStatusDone,
 					CustomLabels:           map[string]string{},
 					DisabledCollectors:     make([]string, 0),
-					LogLevel:               pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:               new("LOG_LEVEL_UNSPECIFIED"),
 					MaxExporterConnections: 10,
 				},
 			},
@@ -122,7 +121,7 @@ func TestPostgresExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					PostgresExporter: &agents.ChangeAgentParamsBodyPostgresExporter{
-						Enable: pointer.ToBool(true),
+						Enable: new(true),
 						CustomLabels: &agents.ChangeAgentParamsBodyPostgresExporterCustomLabels{
 							Values: map[string]string{
 								"new_label": "postgres_exporter",
@@ -147,7 +146,7 @@ func TestPostgresExporter(t *testing.T) {
 					},
 					Status:                 &AgentStatusDone,
 					DisabledCollectors:     make([]string, 0),
-					LogLevel:               pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:               new("LOG_LEVEL_UNSPECIFIED"),
 					MaxExporterConnections: 10,
 				},
 			},
@@ -314,7 +313,7 @@ func TestPostgresExporter(t *testing.T) {
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
 					DisabledCollectors: make([]string, 0),
-					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:           new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, getAgentRes)
@@ -325,7 +324,7 @@ func TestPostgresExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					PostgresExporter: &agents.ChangeAgentParamsBodyPostgresExporter{
-						EnablePushMetrics: pointer.ToBool(false),
+						EnablePushMetrics: new(false),
 					},
 				},
 				Context: pmmapitests.Context,
@@ -344,7 +343,7 @@ func TestPostgresExporter(t *testing.T) {
 					},
 					Status:             &AgentStatusUnknown,
 					DisabledCollectors: make([]string, 0),
-					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:           new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changePostgresExporterOK)
@@ -354,7 +353,7 @@ func TestPostgresExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					PostgresExporter: &agents.ChangeAgentParamsBodyPostgresExporter{
-						EnablePushMetrics: pointer.ToBool(true),
+						EnablePushMetrics: new(true),
 					},
 				},
 				Context: pmmapitests.Context,
@@ -374,7 +373,7 @@ func TestPostgresExporter(t *testing.T) {
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
 					DisabledCollectors: make([]string, 0),
-					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:           new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changePostgresExporterOK)
@@ -414,12 +413,12 @@ func TestPostgresExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				PostgresExporter: &agents.ChangeAgentParamsBodyPostgresExporter{
-					TLS:               pointer.ToBool(true),
-					TLSSkipVerify:     pointer.ToBool(false),
-					AgentPassword:     pointer.ToString("new-agent-password"),
-					LogLevel:          pointer.ToString(agents.ChangeAgentParamsBodyPostgresExporterLogLevelLOGLEVELWARN),
+					TLS:               new(true),
+					TLSSkipVerify:     new(false),
+					AgentPassword:     new("new-agent-password"),
+					LogLevel:          new(agents.ChangeAgentParamsBodyPostgresExporterLogLevelLOGLEVELWARN),
 					DisableCollectors: []string{"collector1", "collector2"},
-					ExposeExporter:    pointer.ToBool(true),
+					ExposeExporter:    new(true),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -437,7 +436,7 @@ func TestPostgresExporter(t *testing.T) {
 		postgresExporter := getAgentRes.Payload.PostgresExporter
 		assert.True(t, postgresExporter.TLS)
 		assert.False(t, postgresExporter.TLSSkipVerify)
-		assert.Equal(t, pointer.ToString("LOG_LEVEL_WARN"), postgresExporter.LogLevel)
+		assert.Equal(t, new("LOG_LEVEL_WARN"), postgresExporter.LogLevel)
 		assert.ElementsMatch(t, []string{"collector1", "collector2"}, postgresExporter.DisabledCollectors)
 		assert.True(t, postgresExporter.ExposeExporter)
 		// Note: TLS cert/key and agent_password are not returned in GetAgent for security reasons
@@ -477,7 +476,7 @@ func TestPostgresExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				PostgresExporter: &agents.ChangeAgentParamsBodyPostgresExporter{
-					Password: pointer.ToString("rotated-postgres-password-456"),
+					Password: new("rotated-postgres-password-456"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -505,10 +504,10 @@ func TestPostgresExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				PostgresExporter: &agents.ChangeAgentParamsBodyPostgresExporter{
-					Username:      pointer.ToString("new-postgres-user"),
-					Password:      pointer.ToString("final-postgres-password-789"),
-					TLS:           pointer.ToBool(true),
-					TLSSkipVerify: pointer.ToBool(false),
+					Username:      new("new-postgres-user"),
+					Password:      new("final-postgres-password-789"),
+					TLS:           new(true),
+					TLSSkipVerify: new(false),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -566,7 +565,7 @@ func TestPostgresExporter(t *testing.T) {
 				TLSCert:        "initial-client-cert",
 				TLSKey:         "initial-client-key",
 				PushMetrics:    true,
-				LogLevel:       pointer.ToString("LOG_LEVEL_ERROR"),
+				LogLevel:       new("LOG_LEVEL_ERROR"),
 				ExposeExporter: true,
 				DisableCollectors: []string{
 					"pg_stat_bgwriter",
@@ -592,7 +591,7 @@ func TestPostgresExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				PostgresExporter: &agents.ChangeAgentParamsBodyPostgresExporter{
-					Password: pointer.ToString("new-password-only"),
+					Password: new("new-password-only"),
 					// All other fields are intentionally NOT set (nil)
 				},
 			},
@@ -628,7 +627,7 @@ func TestPostgresExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				PostgresExporter: &agents.ChangeAgentParamsBodyPostgresExporter{
-					MaxExporterConnections: pointer.ToInt32(50),
+					MaxExporterConnections: new(int32(50)),
 					// All other fields are intentionally NOT set (nil)
 				},
 			},

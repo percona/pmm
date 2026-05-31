@@ -7,7 +7,7 @@ category:
 
 ## List Nodes
 
-This section describes how to list PMM Inventory Nodes.
+This section describes how to list Inventory Nodes.
 
 Example:
 

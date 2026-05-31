@@ -25,7 +25,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	gapi "github.com/grafana/grafana-api-golang-client"
 	"github.com/stretchr/testify/assert"
@@ -54,7 +53,7 @@ func TestRulesAPI(t *testing.T) {
 	})
 
 	dummyFilter := &alerting.CreateRuleParamsBodyFiltersItems0{
-		Type:   pointer.ToString("FILTER_TYPE_MATCH"),
+		Type:   new("FILTER_TYPE_MATCH"),
 		Label:  "threshold",
 		Regexp: "12",
 	}
@@ -75,7 +74,7 @@ func TestRulesAPI(t *testing.T) {
 			params := createAlertRuleParams(t, "pmm_mongodb_restarted", folder.UID, dummyFilter)
 			params.Body.Params = []*alerting.CreateRuleParamsBodyParamsItems0{{
 				Name:  "threshold",
-				Type:  pointer.ToString("PARAM_TYPE_FLOAT"),
+				Type:  new("PARAM_TYPE_FLOAT"),
 				Float: 3.14,
 			}}
 			_, err := client.CreateRule(params)
@@ -105,7 +104,7 @@ func TestRulesAPI(t *testing.T) {
 				params.Body.Params,
 				&alerting.CreateRuleParamsBodyParamsItems0{
 					Name:  "unknown parameter",
-					Type:  pointer.ToString("PARAM_TYPE_FLOAT"),
+					Type:  new("PARAM_TYPE_FLOAT"),
 					Float: 12,
 				},
 			)
@@ -120,11 +119,11 @@ func TestRulesAPI(t *testing.T) {
 			params.Body.Params = []*alerting.CreateRuleParamsBodyParamsItems0{
 				{
 					Name: "param1",
-					Type: pointer.ToString("PARAM_TYPE_BOOL"),
+					Type: new("PARAM_TYPE_BOOL"),
 					Bool: true,
 				}, {
 					Name:  "param2",
-					Type:  pointer.ToString("PARAM_TYPE_FLOAT"),
+					Type:  new("PARAM_TYPE_FLOAT"),
 					Float: 12,
 				},
 			}
@@ -168,7 +167,7 @@ func TestModifyTemplatesAPI(t *testing.T) {
 			})
 
 			resp, err := client.ListTemplates(&alerting.ListTemplatesParams{
-				Reload:  pointer.ToBool(true),
+				Reload:  new(true),
 				Context: pmmapitests.Context,
 			})
 			require.NoError(t, err)
@@ -194,7 +193,7 @@ func TestModifyTemplatesAPI(t *testing.T) {
 			})
 
 			resp, err := client.ListTemplates(&alerting.ListTemplatesParams{
-				Reload:  pointer.ToBool(true),
+				Reload:  new(true),
 				Context: pmmapitests.Context,
 			})
 			require.NoError(t, err)
@@ -285,7 +284,7 @@ func TestModifyTemplatesAPI(t *testing.T) {
 			require.NoError(t, err)
 
 			resp, err := client.ListTemplates(&alerting.ListTemplatesParams{
-				Reload:  pointer.ToBool(true),
+				Reload:  new(true),
 				Context: pmmapitests.Context,
 			})
 			require.NoError(t, err)
@@ -380,7 +379,7 @@ func TestModifyTemplatesAPI(t *testing.T) {
 			require.NoError(t, err)
 
 			resp, err := client.ListTemplates(&alerting.ListTemplatesParams{
-				Reload:  pointer.ToBool(true),
+				Reload:  new(true),
 				Context: pmmapitests.Context,
 			})
 			require.NoError(t, err)
@@ -432,7 +431,7 @@ func TestListTemplatesAPI(t *testing.T) {
 			})
 
 			resp, err := client.ListTemplates(&alerting.ListTemplatesParams{
-				Reload:  pointer.ToBool(true),
+				Reload:  new(true),
 				Context: pmmapitests.Context,
 			})
 			require.NoError(t, err)
@@ -465,10 +464,10 @@ func TestListTemplatesAPI(t *testing.T) {
 
 			// list rules, so they are all on the first page
 			listAllTemplates, err := client.ListTemplates(&alerting.ListTemplatesParams{
-				PageSize:  pointer.ToInt32(100),
-				PageIndex: pointer.ToInt32(0),
+				PageSize:  new(int32(100)),
+				PageIndex: new(int32(0)),
 				Context:   pmmapitests.Context,
-				Reload:    pointer.ToBool(true),
+				Reload:    new(true),
 			})
 			require.NoError(t, err)
 
@@ -495,8 +494,8 @@ func TestListTemplatesAPI(t *testing.T) {
 			// last iteration checks that there is no elements for inexistent page.
 			for pageIndex := 0; pageIndex <= len(listAllTemplates.Payload.Templates); pageIndex++ {
 				listOneTemplate, err := client.ListTemplates(&alerting.ListTemplatesParams{
-					PageIndex: pointer.ToInt32(int32(pageIndex)), //nolint:gosec // pageIndex is an int32
-					PageSize:  pointer.ToInt32(1),
+					PageIndex: new(int32(pageIndex)),
+					PageSize:  new(int32(1)),
 					Context:   pmmapitests.Context,
 				})
 				require.NoError(t, err)
@@ -570,14 +569,14 @@ func assertTemplate(t *testing.T, expectedTemplate alert.Template, listTemplates
 				require.NotNil(t, param.Float)
 				value, err := expectedParam.GetValueForFloat()
 				require.NoError(t, err)
-				assert.Equal(t, value, *param.Float.Default) //nolint:testifylint
+				assert.InDelta(t, value, *param.Float.Default, 0.0001)
 			}
 
 			if len(expectedParam.Range) != 0 {
-				min, max, err := expectedParam.GetRangeForFloat()
+				minR, maxR, err := expectedParam.GetRangeForFloat()
 				require.NoError(t, err)
-				assert.Equal(t, min, *param.Float.Min) //nolint:testifylint
-				assert.Equal(t, max, *param.Float.Max) //nolint:testifylint
+				assert.InDelta(t, minR, *param.Float.Min, 0.0001)
+				assert.InDelta(t, maxR, *param.Float.Max, 0.0001)
 			}
 
 			assert.Nil(t, param.Bool)
@@ -634,17 +633,17 @@ func createAlertRuleParams(t *testing.T, templateName, folderUID string, filter 
 			Params: []*alerting.CreateRuleParamsBodyParamsItems0{
 				{
 					Name:  "param1",
-					Type:  pointer.ToString("PARAM_TYPE_FLOAT"),
+					Type:  new("PARAM_TYPE_FLOAT"),
 					Float: 4,
 				},
 				{
 					Name:  "param2",
-					Type:  pointer.ToString("PARAM_TYPE_FLOAT"),
+					Type:  new("PARAM_TYPE_FLOAT"),
 					Float: 12,
 				},
 			},
 			For:          "90s",
-			Severity:     pointer.ToString("SEVERITY_WARNING"),
+			Severity:     new("SEVERITY_WARNING"),
 			CustomLabels: map[string]string{"foo": "bar"},
 		},
 		Context: pmmapitests.Context,

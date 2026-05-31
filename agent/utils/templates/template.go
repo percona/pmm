@@ -40,7 +40,7 @@ type TemplateRenderer struct {
 }
 
 // RenderTemplate replaces placeholders with real values in text.
-func (tr *TemplateRenderer) RenderTemplate(name, text string, templateParams map[string]interface{}) ([]byte, error) {
+func (tr *TemplateRenderer) RenderTemplate(name, text string, templateParams map[string]any) ([]byte, error) {
 	t := template.New(name)
 	t.Delims(tr.TemplateLeftDelim, tr.TemplateRightDelim)
 	t.Option("missingkey=error")
@@ -56,7 +56,7 @@ func (tr *TemplateRenderer) RenderTemplate(name, text string, templateParams map
 }
 
 // RenderFiles creates temporary files and returns paths to created files.
-func (tr *TemplateRenderer) RenderFiles(templateParams map[string]interface{}) (map[string]interface{}, error) {
+func (tr *TemplateRenderer) RenderFiles(templateParams map[string]any) (map[string]any, error) {
 	// render files only if they are present to avoid creating temporary directory for every agent
 	if len(tr.TextFiles) == 0 {
 		return templateParams, nil
@@ -108,7 +108,7 @@ func RenderDSN(dsn string, files *agentv1.TextFiles, tempDir string) (string, er
 			TempDir:            tempDir,
 		}
 
-		templateParams, err := tr.RenderFiles(make(map[string]interface{}))
+		templateParams, err := tr.RenderFiles(make(map[string]any))
 		if err != nil {
 			return "", err
 		}

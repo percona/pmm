@@ -34,7 +34,6 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
@@ -170,194 +169,6 @@ func (s *Service) Run(ctx context.Context) { //nolint:gocognit
 			s.l.Errorf("%s: wait failed: %s", cmdLine, err)
 		}
 	}
-}
-
-func (s *Service) supervisorctl(args ...string) ([]byte, error) {
-	if s.supervisorctlPath == "" {
-		return nil, errors.New("supervisorctl not found")
-	}
-
-	cmd := exec.Command(s.supervisorctlPath, args...) //nolint:gosec
-	cmdLine := strings.Join(cmd.Args, " ")
-	s.l.Debugf("Running %q...", cmdLine)
-	pdeathsig.Set(cmd, unix.SIGKILL)
-	b, err := cmd.Output()
-	return b, errors.Wrapf(err, "%s failed", cmdLine)
-}
-
-// parseStatus parses `supervisorctl status <name>` output, returns true if <name> is running,
-// false if definitely not, and nil if status can't be determined.
-func parseStatus(status string) *bool {
-	if f := strings.Fields(status); len(f) > 1 {
-		switch status := f[1]; status {
-		case "FATAL", "STOPPED": // will not be restarted
-			return pointer.ToBool(false)
-		case "STARTING", "RUNNING", "BACKOFF", "STOPPING":
-			return pointer.ToBool(true)
-		case "EXITED":
-			// it might be restarted - we need to inspect last event
-		default:
-			// something else - we need to inspect last event
-		}
-	}
-	return nil
-}
-
-// reload asks supervisord to reload configuration.
-func (s *Service) reload(name string) error {
-	if _, err := s.supervisorctl("reread"); err != nil {
-		s.l.Warn(err)
-	}
-
-	path := filepath.Join(s.configDir, name+".ini")
-	if _, err := os.Stat(path); errors.Is(err, fs.ErrNotExist) {
-		s.l.Warnf("Config file %s does not exist, skipping update", path)
-		return nil
-	}
-
-	_, err := s.supervisorctl("update", name)
-	return err
-}
-
-// marshalConfig marshals supervisord program configuration.
-func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settings) ([]byte, error) {
-	clickhouseDatabase := envvars.GetEnv("PMM_CLICKHOUSE_DATABASE", defaultClickhouseDatabase)
-	clickhouseAddr := envvars.GetEnv("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
-	clickhouseAddrPair := strings.SplitN(clickhouseAddr, ":", 2) //nolint:mnd
-	clickhouseUser := envvars.GetEnv("PMM_CLICKHOUSE_USER", defaultClickhouseUser)
-	clickhousePassword := envvars.GetEnv("PMM_CLICKHOUSE_PASSWORD", defaultClickhousePassword)
-	vmSearchDisableCache := envvars.GetEnv("VM_search_disableCache", strconv.FormatBool(!settings.IsVictoriaMetricsCacheEnabled()))
-	vmSearchMaxQueryLen := envvars.GetEnv("VM_search_maxQueryLen", defaultVMSearchMaxQueryLen)
-	vmSearchLatencyOffset := envvars.GetEnv("VM_search_latencyOffset", defaultVMSearchLatencyOffset)
-	vmSearchMaxUniqueTimeseries := envvars.GetEnv("VM_search_maxUniqueTimeseries", defaultVMSearchMaxUniqueTimeseries)
-	vmSearchMaxSamplesPerQuery := envvars.GetEnv("VM_search_maxSamplesPerQuery", defaultVMSearchMaxSamplesPerQuery)
-	vmSearchMaxQueueDuration := envvars.GetEnv("VM_search_maxQueueDuration", defaultVMSearchMaxQueueDuration)
-	vmSearchMaxQueryDuration := envvars.GetEnv("VM_search_maxQueryDuration", defaultVMSearchMaxQueryDuration)
-	vmSearchLogSlowQueryDuration := envvars.GetEnv("VM_search_logSlowQueryDuration", defaultVMSearchLogSlowQueryDuration)
-	vmPromscrapeStreamParse := envvars.GetEnv("VM_promscrape_streamParse", defaultVMPromscrapeStreamParse)
-
-	templateParams := map[string]interface{}{
-		"DataRetentionHours":           int(settings.DataRetention.Hours()),
-		"DataRetentionDays":            int(settings.DataRetention.Hours() / 24), //nolint:mnd
-		"VMAlertFlags":                 s.vmParams.VMAlertFlags,
-		"VMSearchDisableCache":         vmSearchDisableCache,
-		"VMSearchMaxQueryLen":          vmSearchMaxQueryLen,
-		"VMSearchLatencyOffset":        vmSearchLatencyOffset,
-		"VMSearchMaxUniqueTimeseries":  vmSearchMaxUniqueTimeseries,
-		"VMSearchMaxSamplesPerQuery":   vmSearchMaxSamplesPerQuery,
-		"VMSearchMaxQueueDuration":     vmSearchMaxQueueDuration,
-		"VMSearchMaxQueryDuration":     vmSearchMaxQueryDuration,
-		"VMSearchLogSlowQueryDuration": vmSearchLogSlowQueryDuration,
-		"VMPromscrapeStreamParse":      vmPromscrapeStreamParse,
-		"VMURL":                        s.vmParams.URL(),
-		"ExternalVM":                   s.vmParams.ExternalVM(),
-		"NomadEnabled":                 settings.IsNomadEnabled(),
-		"InterfaceToBind":              envvars.GetInterfaceToBind(),
-		"ClickhouseAddr":               clickhouseAddr,
-		"ClickhouseDatabase":           clickhouseDatabase,
-		"ClickhouseHost":               clickhouseAddrPair[0],
-		"ClickhousePort":               clickhouseAddrPair[1],
-		"ClickhouseUser":               clickhouseUser,
-		"ClickhousePassword":           clickhousePassword,
-		"PMMServerHost":                "",
-	}
-
-	s.addPostgresParams(templateParams)
-	s.addClusterParams(templateParams)
-
-	if settings.PMMPublicAddress != "" {
-		pmmPublicAddress := settings.PMMPublicAddress
-		if !strings.HasPrefix(pmmPublicAddress, "https://") && !strings.HasPrefix(pmmPublicAddress, "http://") {
-			pmmPublicAddress = "https://" + pmmPublicAddress
-		}
-		publicURL, err := url.Parse(pmmPublicAddress)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to parse PMM public address.") //nolint:revive
-		}
-		templateParams["PMMServerHost"] = publicURL.Host
-	}
-
-	var buf bytes.Buffer
-	if err := tmpl.Execute(&buf, templateParams); err != nil {
-		return nil, errors.Wrapf(err, "failed to render template %q", tmpl.Name())
-	}
-	b := append([]byte("; Managed by pmm-managed. DO NOT EDIT.\n"), buf.Bytes()...)
-	return b, nil
-}
-
-// addPostgresParams adds pmm-server postgres database params to template config for grafana.
-func (s *Service) addPostgresParams(templateParams map[string]interface{}) {
-	if s.pgParams == nil {
-		return
-	}
-	templateParams["PostgresAddr"] = s.pgParams.Addr
-	templateParams["PostgresDBName"] = s.pgParams.DBName
-	templateParams["PostgresDBUsername"] = s.pgParams.DBUsername
-	templateParams["PostgresDBPassword"] = s.pgParams.DBPassword
-	templateParams["PostgresSSLMode"] = s.pgParams.SSLMode
-	templateParams["PostgresSSLCAPath"] = s.pgParams.SSLCAPath
-	templateParams["PostgresSSLKeyPath"] = s.pgParams.SSLKeyPath
-	templateParams["PostgresSSLCertPath"] = s.pgParams.SSLCertPath
-}
-
-func (s *Service) addClusterParams(templateParams map[string]interface{}) {
-	templateParams["HAEnabled"] = s.haParams.Enabled
-	if s.haParams.Enabled {
-		templateParams["GrafanaGossipPort"] = s.haParams.GrafanaGossipPort
-		templateParams["HAAdvertiseAddress"] = s.haParams.AdvertiseAddress
-		nodes := make([]string, len(s.haParams.Nodes))
-		for i, node := range s.haParams.Nodes {
-			nodes[i] = fmt.Sprintf("%s:%d", node, s.haParams.GrafanaGossipPort)
-		}
-		templateParams["HANodes"] = strings.Join(nodes, ",")
-	}
-	// - GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS=172.20.0.5:9095
-	// - GF_UNIFIED_ALERTING_HA_PEERS=pmm-server-active:9095,pmm-server-passive:9095
-}
-
-// saveConfigAndReload saves given supervisord program configuration to file and reloads it.
-// If configuration can't be reloaded for some reason, old file is restored, and configuration is reloaded again.
-// Returns true if configuration was changed.
-func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
-	// read existing content
-	path := filepath.Join(s.configDir, name+".ini")
-	oldCfg, err := os.ReadFile(path) //nolint:gosec
-	if errors.Is(err, fs.ErrNotExist) {
-		err = nil
-	}
-	if err != nil {
-		return false, errors.WithStack(err)
-	}
-
-	// compare with new config
-	if reflect.DeepEqual(cfg, oldCfg) {
-		s.l.Infof("%s configuration not changed, doing nothing.", name)
-		return false, nil
-	}
-
-	// restore old content and reload in case of error
-	restore := oldCfg != nil
-	defer func() {
-		if restore {
-			if err = os.WriteFile(path, oldCfg, 0o664); err != nil { //nolint:gosec,mnd
-				s.l.Errorf("Failed to restore: %s.", err)
-			}
-			if err = s.reload(name); err != nil {
-				s.l.Errorf("Failed to restore/reload: %s.", err)
-			}
-		}
-	}()
-
-	// write and reload
-	if err = os.WriteFile(path, cfg, 0o664); err != nil { //nolint:gosec,mnd
-		return false, errors.WithStack(err)
-	}
-	if err = s.reload(name); err != nil {
-		return false, err
-	}
-	s.l.Infof("%s configuration reloaded.", name)
-	restore = false
-	return true, nil
 }
 
 // UpdateConfiguration updates VictoriaMetrics, Grafana and qan-api2 configurations, restarting them if needed.
@@ -589,3 +400,199 @@ stdout_logfile_backups = 3
 redirect_stderr = true
 {{end}}
 `))
+
+func (s *Service) supervisorctl(args ...string) ([]byte, error) { //nolint:unparam
+	if s.supervisorctlPath == "" {
+		return nil, errors.New("supervisorctl not found")
+	}
+
+	cmd := exec.Command(s.supervisorctlPath, args...) //nolint:gosec,noctx
+	cmdLine := strings.Join(cmd.Args, " ")
+	s.l.Debugf("Running %q...", cmdLine)
+	pdeathsig.Set(cmd, unix.SIGKILL)
+	b, err := cmd.Output()
+	return b, errors.Wrapf(err, "%s failed", cmdLine)
+}
+
+// parseStatus parses `supervisorctl status <name>` output, returns true if <name> is running,
+// false if definitely not, and nil if status can't be determined.
+func parseStatus(status string) *bool {
+	if f := strings.Fields(status); len(f) > 1 {
+		switch status := f[1]; status {
+		case "FATAL", "STOPPED": // will not be restarted
+			return new(false)
+		case "STARTING", "RUNNING", "BACKOFF", "STOPPING":
+			return new(true)
+		case "EXITED":
+			// it might be restarted - we need to inspect last event
+		default:
+			// something else - we need to inspect last event
+		}
+	}
+	return nil
+}
+
+// reload asks supervisord to reload configuration.
+func (s *Service) reload(name string) error {
+	_, err := s.supervisorctl("reread")
+	if err != nil {
+		s.l.Warn(err)
+	}
+
+	path := filepath.Join(s.configDir, name+".ini")
+	_, err = os.Stat(path)
+	if errors.Is(err, fs.ErrNotExist) {
+		s.l.Warnf("Config file %s does not exist, skipping update", path)
+		return nil
+	}
+
+	_, err = s.supervisorctl("update", name)
+	return err
+}
+
+// marshalConfig marshals supervisord program configuration.
+func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settings) ([]byte, error) {
+	clickhouseDatabase := envvars.GetEnv("PMM_CLICKHOUSE_DATABASE", defaultClickhouseDatabase)
+	clickhouseAddr := envvars.GetEnv("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
+	clickhouseAddrPair := strings.SplitN(clickhouseAddr, ":", 2) //nolint:mnd
+	clickhouseUser := envvars.GetEnv("PMM_CLICKHOUSE_USER", defaultClickhouseUser)
+	clickhousePassword := envvars.GetEnv("PMM_CLICKHOUSE_PASSWORD", defaultClickhousePassword)
+	vmSearchDisableCache := envvars.GetEnv("VM_search_disableCache", strconv.FormatBool(!settings.IsVictoriaMetricsCacheEnabled()))
+	vmSearchMaxQueryLen := envvars.GetEnv("VM_search_maxQueryLen", defaultVMSearchMaxQueryLen)
+	vmSearchLatencyOffset := envvars.GetEnv("VM_search_latencyOffset", defaultVMSearchLatencyOffset)
+	vmSearchMaxUniqueTimeseries := envvars.GetEnv("VM_search_maxUniqueTimeseries", defaultVMSearchMaxUniqueTimeseries)
+	vmSearchMaxSamplesPerQuery := envvars.GetEnv("VM_search_maxSamplesPerQuery", defaultVMSearchMaxSamplesPerQuery)
+	vmSearchMaxQueueDuration := envvars.GetEnv("VM_search_maxQueueDuration", defaultVMSearchMaxQueueDuration)
+	vmSearchMaxQueryDuration := envvars.GetEnv("VM_search_maxQueryDuration", defaultVMSearchMaxQueryDuration)
+	vmSearchLogSlowQueryDuration := envvars.GetEnv("VM_search_logSlowQueryDuration", defaultVMSearchLogSlowQueryDuration)
+	vmPromscrapeStreamParse := envvars.GetEnv("VM_promscrape_streamParse", defaultVMPromscrapeStreamParse)
+
+	templateParams := map[string]any{
+		"DataRetentionHours":           int(settings.DataRetention.Hours()),
+		"DataRetentionDays":            int(settings.DataRetention.Hours() / 24), //nolint:mnd
+		"VMAlertFlags":                 s.vmParams.VMAlertFlags,
+		"VMSearchDisableCache":         vmSearchDisableCache,
+		"VMSearchMaxQueryLen":          vmSearchMaxQueryLen,
+		"VMSearchLatencyOffset":        vmSearchLatencyOffset,
+		"VMSearchMaxUniqueTimeseries":  vmSearchMaxUniqueTimeseries,
+		"VMSearchMaxSamplesPerQuery":   vmSearchMaxSamplesPerQuery,
+		"VMSearchMaxQueueDuration":     vmSearchMaxQueueDuration,
+		"VMSearchMaxQueryDuration":     vmSearchMaxQueryDuration,
+		"VMSearchLogSlowQueryDuration": vmSearchLogSlowQueryDuration,
+		"VMPromscrapeStreamParse":      vmPromscrapeStreamParse,
+		"VMURL":                        s.vmParams.URL(),
+		"ExternalVM":                   s.vmParams.ExternalVM(),
+		"NomadEnabled":                 settings.IsNomadEnabled(),
+		"InterfaceToBind":              envvars.GetInterfaceToBind(),
+		"ClickhouseAddr":               clickhouseAddr,
+		"ClickhouseDatabase":           clickhouseDatabase,
+		"ClickhouseHost":               clickhouseAddrPair[0],
+		"ClickhousePort":               clickhouseAddrPair[1],
+		"ClickhouseUser":               clickhouseUser,
+		"ClickhousePassword":           clickhousePassword,
+		"PMMServerHost":                "",
+	}
+
+	s.addPostgresParams(templateParams)
+	s.addClusterParams(templateParams)
+
+	if settings.PMMPublicAddress != "" {
+		pmmPublicAddress := settings.PMMPublicAddress
+		if !strings.HasPrefix(pmmPublicAddress, "https://") && !strings.HasPrefix(pmmPublicAddress, "http://") {
+			pmmPublicAddress = "https://" + pmmPublicAddress
+		}
+		publicURL, err := url.Parse(pmmPublicAddress)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to parse PMM public address.") //nolint:revive
+		}
+		templateParams["PMMServerHost"] = publicURL.Host
+	}
+
+	var buf bytes.Buffer
+	err := tmpl.Execute(&buf, templateParams)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to render template %q", tmpl.Name())
+	}
+	b := append([]byte("; Managed by pmm-managed. DO NOT EDIT.\n"), buf.Bytes()...)
+	return b, nil
+}
+
+// addPostgresParams adds pmm-server postgres database params to template config for grafana.
+func (s *Service) addPostgresParams(templateParams map[string]any) {
+	if s.pgParams == nil {
+		return
+	}
+	templateParams["PostgresAddr"] = s.pgParams.Addr
+	templateParams["PostgresDBName"] = s.pgParams.DBName
+	templateParams["PostgresDBUsername"] = s.pgParams.DBUsername
+	templateParams["PostgresDBPassword"] = s.pgParams.DBPassword
+	templateParams["PostgresSSLMode"] = s.pgParams.SSLMode
+	templateParams["PostgresSSLCAPath"] = s.pgParams.SSLCAPath
+	templateParams["PostgresSSLKeyPath"] = s.pgParams.SSLKeyPath
+	templateParams["PostgresSSLCertPath"] = s.pgParams.SSLCertPath
+}
+
+func (s *Service) addClusterParams(templateParams map[string]any) {
+	templateParams["HAEnabled"] = s.haParams.Enabled
+	if s.haParams.Enabled {
+		templateParams["GrafanaGossipPort"] = s.haParams.GrafanaGossipPort
+		templateParams["HAAdvertiseAddress"] = s.haParams.AdvertiseAddress
+		nodes := make([]string, len(s.haParams.Nodes))
+		for i, node := range s.haParams.Nodes {
+			nodes[i] = fmt.Sprintf("%s:%d", node, s.haParams.GrafanaGossipPort)
+		}
+		templateParams["HANodes"] = strings.Join(nodes, ",")
+	}
+	// - GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS=172.20.0.5:9095
+	// - GF_UNIFIED_ALERTING_HA_PEERS=pmm-server-active:9095,pmm-server-passive:9095
+}
+
+// saveConfigAndReload saves given supervisord program configuration to file and reloads it.
+// If configuration can't be reloaded for some reason, old file is restored, and configuration is reloaded again.
+// Returns true if configuration was changed.
+func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
+	// read existing content
+	path := filepath.Join(s.configDir, name+".ini")
+	oldCfg, err := os.ReadFile(path) //nolint:gosec
+	if errors.Is(err, fs.ErrNotExist) {
+		err = nil
+	}
+	if err != nil {
+		return false, errors.WithStack(err)
+	}
+
+	// compare with new config
+	if reflect.DeepEqual(cfg, oldCfg) {
+		s.l.Infof("%s configuration not changed, doing nothing.", name)
+		return false, nil
+	}
+
+	// restore old content and reload in case of error
+	restore := oldCfg != nil
+	defer func() {
+		if restore {
+			err = os.WriteFile(path, oldCfg, 0o664) //nolint:gosec,mnd
+			if err != nil {
+				s.l.Errorf("Failed to restore: %s.", err)
+			}
+			err = s.reload(name)
+			if err != nil {
+				s.l.Errorf("Failed to restore/reload: %s.", err)
+			}
+		}
+	}()
+
+	// write and reload
+	err = os.WriteFile(path, cfg, 0o664) //nolint:gosec,mnd
+	if err != nil {
+		return false, errors.WithStack(err)
+	}
+
+	err = s.reload(name)
+	if err != nil {
+		return false, err
+	}
+	s.l.Infof("%s configuration reloaded.", name)
+	restore = false
+	return true, nil
+}

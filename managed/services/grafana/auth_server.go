@@ -86,6 +86,8 @@ var rules = map[string]role{
 	"/v1/platform:":                   admin,
 	"/v1/platform":                    viewer,
 	"/v1/users":                       viewer,
+	"/v1/users/current":               none,
+	"/v1/users/current/orgs":          none,
 
 	// must be available without authentication for health checking
 	"/v1/server/readyz":            none,
@@ -290,6 +292,7 @@ func (s *AuthServer) returnError(rw http.ResponseWriter, msg map[string]any, l *
 // In case the request is not proxied through VMProxy, this is a no-op.
 func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWriter, req *http.Request, userID int, l *logrus.Entry) error {
 	if !s.shallAddLBACFilters(req) {
+		l.Debugf("Skipping LBAC filters for non-proxied request.")
 		return nil
 	}
 
@@ -308,7 +311,10 @@ func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWr
 	}
 
 	if userID <= 0 {
-		return ErrInvalidUserID
+		// Anonymous users don't have a numeric user ID and cannot have LBAC roles.
+		// Skip adding filters and allow the request to proceed.
+		l.Debugf("Skipping LBAC filters for anonymous user.")
+		return nil
 	}
 
 	filters, err := s.getLBACFilters(ctx, userID)

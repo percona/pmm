@@ -320,7 +320,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	// run server until it is stopped gracefully or not
 	listener, err := net.Listen("tcp", gRPCAddr)
 	if err != nil {
-		l.Panic(err)
+		l.Fatal(err)
 	}
 	go func() {
 		for {
@@ -346,8 +346,9 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 }
 
 type http1ServerDeps struct {
-	logs       *server.Logs
-	authServer *grafana.AuthServer
+	logs               *server.Logs
+	authServer         *grafana.AuthServer
+	currentUserHandler http.Handler
 }
 
 // runHTTP1Server runs grpc-gateway and other HTTP 1.1 APIs (like auth_request and logs.zip)
@@ -382,7 +383,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	// Create a shared gRPC connection for handlers that use Register*Handler
 	sharedConn, err := grpc.NewClient(gRPCAddr, opts...)
 	if err != nil {
-		l.Panic(err)
+		l.Fatal(err)
 	}
 	go func() {
 		<-ctx.Done()
@@ -422,13 +423,15 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		hav1beta1.RegisterHAServiceHandler,
 	} {
 		if err := r(ctx, proxyMux, sharedConn); err != nil {
-			l.Panic(err)
+			l.Fatal(err)
 		}
 	}
 
 	mux := http.NewServeMux()
 	addLogsHandler(mux, deps.logs)
 	mux.Handle("/auth_request", deps.authServer)
+	mux.Handle("/v1/users/current/orgs", deps.currentUserHandler)
+	mux.Handle("/v1/users/current", deps.currentUserHandler)
 	mux.Handle("/", proxyMux)
 
 	server := &http.Server{ //nolint:gosec
@@ -438,7 +441,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	}
 	go func() {
 		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
-			l.Panic(err)
+			l.Fatal(err)
 		}
 		l.Info("Server stopped.")
 	}()
@@ -486,7 +489,7 @@ func runDebugServer(ctx context.Context) {
 	</html>
 	`)).Execute(&buf, handlers)
 	if err != nil {
-		l.Panic(err)
+		l.Fatal(err)
 	}
 	http.HandleFunc("/debug", func(rw http.ResponseWriter, _ *http.Request) {
 		rw.Write(buf.Bytes()) //nolint:errcheck
@@ -499,7 +502,7 @@ func runDebugServer(ctx context.Context) {
 	}
 	go func() {
 		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
-			l.Panic(err)
+			l.Fatal(err)
 		}
 		l.Info("Server stopped.")
 	}()
@@ -1123,11 +1126,9 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		vmdb.Run(ctx)
 	})
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		externalExporterStatusSvc.Run(ctx)
-	}()
+	})
 
 	haService.AddLeaderService(ha.NewContextService("checks", func(ctx context.Context) error {
 		checksService.Run(ctx)
@@ -1198,8 +1199,9 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	wg.Go(func() {
 		runHTTP1Server(ctx, &http1ServerDeps{
-			logs:       logs,
-			authServer: authServer,
+			logs:               logs,
+			authServer:         authServer,
+			currentUserHandler: user.NewCurrentHTTPHandler(grafanaClient),
 		})
 	})
 
@@ -1212,14 +1214,12 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		return nil
 	}))
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		err := haService.Run(ctx)
 		if err != nil {
-			l.Panicf("cannot start high availability service: %+v", err)
+			l.Fatalf("cannot start high availability service: %+v", err)
 		}
-	}()
+	})
 
 	wg.Wait()
 }

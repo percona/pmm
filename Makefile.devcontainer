@@ -23,7 +23,7 @@ PMM_RELEASE_PATH ?= ./bin
 run-managed-ci: release-dev-managed    ## Replace pmm-managed from build, restart (used in CI)	supervisorctl stop pmm-managed
 	supervisorctl stop pmm-managed
 	truncate -s 0 /srv/logs/pmm-managed.log
-	cp $(PMM_RELEASE_PATH)/pmm-managed /usr/sbin/pmm-managed
+	install -m 755 $(PMM_RELEASE_PATH)/pmm-managed /usr/sbin/
 	supervisorctl start pmm-managed
 
 run-managed: run-managed-ci    		## Replace pmm-managed from build, restart and tail logs
@@ -32,7 +32,7 @@ run-managed: run-managed-ci    		## Replace pmm-managed from build, restart and 
 run-agent-ci: release-dev-agent		## Replace pmm-agent from build and restart (used in CI)
 	supervisorctl stop pmm-agent
 	truncate -s 0 /srv/logs/pmm-agent.log
-	cp $(PMM_RELEASE_PATH)/pmm-agent /usr/sbin/pmm-agent
+	install -m 755 $(PMM_RELEASE_PATH)/pmm-agent /usr/sbin/
 	supervisorctl start pmm-agent
 
 run-agent: run-agent-ci				## Replace pmm-agent from build, restart and tail logs
@@ -41,7 +41,7 @@ run-agent: run-agent-ci				## Replace pmm-agent from build, restart and tail log
 run-vmproxy-ci: release-vmproxy		## Replace vmproxy from build and restart (used in CI)
 	supervisorctl stop vmproxy
 	truncate -s 0 /srv/logs/vmproxy.log
-	cp $(PMM_RELEASE_PATH)/vmproxy /usr/sbin/vmproxy
+	install -m 755 $(PMM_RELEASE_PATH)/vmproxy /usr/sbin/
 	supervisorctl start vmproxy
 
 run-vmproxy: run-vmproxy-ci			## Replace vmproxy from build, restart and tail logs
@@ -49,7 +49,7 @@ run-vmproxy: run-vmproxy-ci			## Replace vmproxy from build, restart and tail lo
 
 run-qan-ci: release-qan	            ## Replace qan-api2 from build and restart (used in CI)
 	supervisorctl stop qan-api2
-	cp $(PMM_RELEASE_PATH)/qan-api2 /usr/sbin/percona-qan-api2
+	install -m 755 $(PMM_RELEASE_PATH)/qan-api2 /usr/sbin/percona-qan-api2
 	truncate -s 0 /srv/logs/qan-api2.log
 	supervisorctl start qan-api2
 
@@ -76,7 +76,7 @@ psql-test:                      ## Open database used in unit tests in psql shel
 	env psql -U postgres pmm-managed-dev
 
 dlv/attach:                     ## Attach Delve to `pmm-managed`
-	dlv --listen=:2345 --headless=true --api-version=2 --continue=true --accept-multiclient attach $(shell pgrep pmm-managed)
+	go tool dlv --listen=:2345 --headless=true --api-version=2 --continue=true --accept-multiclient attach $(shell pgrep pmm-managed)
 
 refresh-swagger:                ## Refresh swagger files
 	cp /root/go/src/github.com/percona/pmm/api/swagger/swagger.json /usr/share/pmm-managed/swagger/swagger.json

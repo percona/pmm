@@ -112,8 +112,8 @@ func (s *Service) Add(task Task, params AddParams) (*models.ScheduledTask, error
 		// If it's not disabled, update next run.
 		if scheduleJob != nil {
 			scheduledTask, err = models.ChangeScheduledTask(tx.Querier, scheduledTask.ID, models.ChangeScheduledTaskParams{
-				NextRun: pointer.ToTime(scheduleJob.NextRun().UTC()),
-				LastRun: pointer.ToTime(scheduleJob.LastRun().UTC()),
+				NextRun: new(scheduleJob.NextRun().UTC()),
+				LastRun: new(scheduleJob.LastRun().UTC()),
 			})
 			if err != nil {
 				s.l.WithField("id", scheduledTask.ID).Errorf("failed to set next run for new created task")
@@ -178,7 +178,7 @@ func (s *Service) Update(id string, params models.ChangeScheduledTaskParams) err
 
 func (s *Service) loadFromDB() error {
 	dbTasks, err := models.FindScheduledTasks(s.db.Querier, models.ScheduledTasksFilter{
-		Disabled: pointer.ToBool(false),
+		Disabled: new(false),
 	})
 	if err != nil {
 		return err
@@ -249,7 +249,7 @@ func (s *Service) wrapTask(task Task, id string) func() {
 		t := time.Now()
 		l.Debug("Starting task")
 		_, err = models.ChangeScheduledTask(s.db.Querier, id, models.ChangeScheduledTaskParams{
-			Running: pointer.ToBool(true),
+			Running: new(true),
 		})
 		if err != nil {
 			l.Errorf("failed to change running state: %v", err)
@@ -274,18 +274,18 @@ func (s *Service) taskFinished(id string, taskErr error) {
 
 	txErr := s.db.InTransaction(func(tx *reform.TX) error {
 		params := models.ChangeScheduledTaskParams{
-			Running: pointer.ToBool(false),
+			Running: new(false),
 		}
 
 		if taskErr != nil {
-			params.Error = pointer.ToString(taskErr.Error())
+			params.Error = new(taskErr.Error())
 		} else {
-			params.Error = pointer.ToString("")
+			params.Error = new("")
 		}
 
 		if job != nil {
-			params.NextRun = pointer.ToTime(job.NextRun().UTC())
-			params.LastRun = pointer.ToTime(job.LastRun().UTC())
+			params.NextRun = new(job.NextRun().UTC())
+			params.LastRun = new(job.LastRun().UTC())
 		} else {
 			l.Errorf("failed to find scheduled task")
 		}

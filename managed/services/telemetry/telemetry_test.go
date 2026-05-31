@@ -165,7 +165,7 @@ func TestRunTelemetryService(t *testing.T) {
 			serviceConfig := getServiceConfig(pgHostPort, qanDSN, vmDSN)
 
 			registry, err := NewDataSourceRegistry(serviceConfig, logEntry)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			s := Service{
 				db:                  db,

@@ -238,8 +238,8 @@ func makeStats(metricNameRoot string, total, res models.M, numQueries float32, p
 func getOrderBy(reqOrder, defaultOrder string) (string, string) {
 	var queryOrder, orderCol string
 	direction := "ASC"
-	if strings.HasPrefix(reqOrder, "-") {
-		reqOrder = strings.TrimPrefix(reqOrder, "-")
+	if after, ok := strings.CutPrefix(reqOrder, "-"); ok {
+		reqOrder = after
 		direction = "DESC"
 	}
 

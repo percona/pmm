@@ -160,7 +160,7 @@ func generateNomadAgentConfig(node *models.Node, exporter *models.Agent, tdp mod
 		return "", errors.Wrap(err, "Failed to get unified labels")
 	}
 
-	nomadConfigParams := map[string]interface{}{
+	nomadConfigParams := map[string]any{
 		"NodeName":              node.NodeName,
 		"NodeID":                node.NodeID,
 		"Labels":                labels,

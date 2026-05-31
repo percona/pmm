@@ -27,7 +27,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -90,7 +89,7 @@ func TestAuth(t *testing.T) {
 				t.Parallel()
 
 				res, err := serverClient.Default.ServerService.Version(&server.VersionParams{
-					Dummy:   pointer.ToString(fmt.Sprintf("grpccode-%d", grpcCode)),
+					Dummy:   new(fmt.Sprintf("grpccode-%d", grpcCode)),
 					Context: pmmapitests.Context,
 				})
 				assert.Empty(t, res)
@@ -286,7 +285,7 @@ func createUser(t *testing.T, login string) int {
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to create user, status code: %d, response: %s", resp.StatusCode, b)
 
-	var m map[string]interface{}
+	var m map[string]any
 	err = json.Unmarshal(b, &m)
 	require.NoError(t, err)
 
@@ -427,7 +426,7 @@ func createServiceAccountWithRole(t *testing.T, role, nodeName string) int {
 
 	require.Equalf(t, http.StatusCreated, resp.StatusCode, "failed to create Service account, status code: %d, response: %s", resp.StatusCode, b)
 
-	var m map[string]interface{}
+	var m map[string]any
 	err = json.Unmarshal(b, &m)
 	require.NoError(t, err)
 
@@ -488,7 +487,7 @@ func createServiceToken(t *testing.T, serviceAccountID int, nodeName string) (in
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to create Service account, status code: %d, response: %s", resp.StatusCode, b)
 
-	var m map[string]interface{}
+	var m map[string]any
 	err = json.Unmarshal(b, &m)
 	require.NoError(t, err)
 

@@ -20,6 +20,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"io"
 	"strings"
 	"text/tabwriter"
 	"time"
@@ -185,17 +186,32 @@ func (a *mysqlExplainAction) explainDefault(ctx context.Context, tx *sql.Tx) ([]
 
 	var buf bytes.Buffer
 	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.Debug)
-	w.Write([]byte(strings.Join(columns, "\t"))) //nolint:errcheck
+	_, wErr := io.WriteString(w, strings.Join(columns, "\t"))
+	if wErr != nil {
+		return nil, wErr
+	}
 	for _, dataRow := range dataRows {
-		row := "\n"
-		for _, d := range dataRow {
-			v := "NULL"
-			if d != nil {
-				v = fmt.Sprint(d)
-			}
-			row += v + "\t"
+		_, wErr = w.Write([]byte{'\n'})
+		if wErr != nil {
+			return nil, wErr
 		}
-		w.Write([]byte(row)) //nolint:errcheck
+		for _, d := range dataRow {
+			if d != nil {
+				_, wErr := io.WriteString(w, fmt.Sprint(d))
+				if wErr != nil {
+					return nil, wErr
+				}
+			} else {
+				_, wErr = io.WriteString(w, "NULL")
+				if wErr != nil {
+					return nil, wErr
+				}
+			}
+			_, wErr = w.Write([]byte{'\t'})
+			if wErr != nil {
+				return nil, wErr
+			}
+		}
 	}
 	if err = w.Flush(); err != nil {
 		return nil, err
@@ -214,7 +230,7 @@ func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byt
 		return nil, err
 	}
 
-	var m map[string]interface{}
+	var m map[string]any
 	if err = json.Unmarshal(b, &m); err != nil {
 		return nil, err
 	}
@@ -227,14 +243,14 @@ func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byt
 	}
 	defer rows.Close() //nolint:errcheck
 
-	var warnings []map[string]interface{}
+	var warnings []map[string]any
 	for rows.Next() {
 		var level, message string
 		var code int
 		if err = rows.Scan(&level, &code, &message); err != nil {
 			continue
 		}
-		warnings = append(warnings, map[string]interface{}{
+		warnings = append(warnings, map[string]any{
 			"Level":   level,
 			"Code":    code,
 			"Message": message,

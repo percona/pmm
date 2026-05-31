@@ -19,9 +19,9 @@ package sqlrows
 import "database/sql"
 
 // ReadRows reads and closes given *sql.Rows, returning columns, data rows, and first encountered error.
-func ReadRows(rows *sql.Rows) ([]string, [][]interface{}, error) {
+func ReadRows(rows *sql.Rows) ([]string, [][]any, error) {
 	var columns []string
-	var dataRows [][]interface{}
+	var dataRows [][]any
 	var err error
 
 	defer func() {
@@ -37,9 +37,9 @@ func ReadRows(rows *sql.Rows) ([]string, [][]interface{}, error) {
 	}
 
 	for rows.Next() {
-		dest := make([]interface{}, len(columns))
+		dest := make([]any, len(columns))
 		for i := range dest {
-			var ei interface{}
+			var ei any
 			dest[i] = &ei
 		}
 		if err = rows.Scan(dest...); err != nil {
@@ -52,7 +52,7 @@ func ReadRows(rows *sql.Rows) ([]string, [][]interface{}, error) {
 		// (Go string can contain any byte sequence), but prevents json.Marshal (at jsonRows) from encoding
 		// them as base64 strings.
 		for i, d := range dest {
-			ei := *d.(*interface{}) //nolint:forcetypeassert
+			ei := *d.(*any) //nolint:forcetypeassert
 			dest[i] = ei
 			if b, ok := ei.([]byte); ok {
 				dest[i] = string(b)

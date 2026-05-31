@@ -175,6 +175,9 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 	ua.MetricsScheme = agent.ExporterOptions.MetricsScheme
 	ua.PushMetrics = agent.ExporterOptions.PushMetrics
 	ua.ExposeExporter = agent.ExporterOptions.ExposeExporter
+	if agent.ExporterOptions.ConnectionTimeout != nil {
+		ua.ConnectionTimeout = durationpb.New(*agent.ExporterOptions.ConnectionTimeout)
+	}
 
 	// QAN options
 	ua.MaxQueryLength = agent.QANOptions.MaxQueryLength
@@ -253,9 +256,7 @@ func (s *ManagementService) ListAgentVersions(ctx context.Context, _ *management
 
 	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
-		agentType := models.PMMAgentType
-
-		agents, err := models.FindAgents(tx.Querier, models.AgentFilters{AgentType: &agentType})
+		agents, err := models.FindAgents(tx.Querier, models.AgentFilters{AgentType: new(models.PMMAgentType)})
 		if err != nil {
 			return err
 		}
@@ -267,7 +268,7 @@ func (s *ManagementService) ListAgentVersions(ctx context.Context, _ *management
 
 		nodeNames := make(map[string]*string, len(nodes))
 		for _, node := range nodes {
-			nodeNames[node.NodeID] = pointer.ToString(node.NodeName)
+			nodeNames[node.NodeID] = new(node.NodeName)
 		}
 
 		serverVersion, err := version.Parse(version.PMMVersion)

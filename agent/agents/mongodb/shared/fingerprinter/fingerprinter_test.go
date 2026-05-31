@@ -114,16 +114,16 @@ func TestProfilerFingerprinter(t *testing.T) {
 
 		database := client.Database(dbName)
 		_, err = database.Collection("test").InsertOne(ctx, bson.M{"id": 0, "name": "test", "value": 1, "time": time.Now()})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		_, err = database.Collection("secondcollection").InsertOne(ctx, bson.M{"id": 0, "name": "sec", "value": 2})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		database.Collection("test").FindOne(ctx, bson.M{"id": 0})
 		database.Collection("test").FindOne(ctx, bson.M{"id": 1, "name": "test", "time": time.Now()})
 		database.Collection("test").FindOneAndUpdate(ctx, bson.M{"id": 0}, bson.M{"$set": bson.M{"name": "new"}})
 		database.Collection("test").FindOneAndDelete(ctx, bson.M{"id": 1})
 		database.Collection("secondcollection").Find(ctx, bson.M{"name": "sec"}, options.Find().SetLimit(1).SetSort(bson.M{"id": -1})) //nolint:errcheck
 		database.Collection("test").Aggregate(
-			ctx, //nolint:errcheck
+			ctx,
 			[]bson.M{
 				{
 					"$match": bson.M{"id": 0, "time": bson.M{"$gt": time.Now().Add(-time.Hour)}},

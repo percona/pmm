@@ -127,7 +127,7 @@ func Test_distributionUtilServiceImpl_getDistributionMethodAndOS(t *testing.T) {
 			require.NoError(t, err)
 			if tt.dockerVersion != "" {
 				f2, err := writeToTmpFile(t, "", tt.dockerVersion)
-				assert.NoError(t, err)
+				require.NoError(t, err)
 
 				tmpOsInfoFilePath = f2.Name()
 			}
@@ -154,7 +154,7 @@ func writeToTmpFile(t *testing.T, tmpDistributionFile string, s string) (*os.Fil
 
 	t.Cleanup(func() {
 		err := os.Remove(f.Name())
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	})
 	return f, nil
 }

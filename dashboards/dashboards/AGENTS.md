@@ -19,7 +19,7 @@ dashboards/dashboards/*.json
       → Grafana UI (visualization)
 ```
 
-## Dashboard Categories
+## Dashboard categories
 
 | Directory | Domain |
 |-----------|--------|
@@ -29,7 +29,8 @@ dashboards/dashboards/*.json
 | `OS/` | Node, CPU, memory, disk, network, NUMA, processes |
 | `Valkey/` | Valkey/Redis clients, cluster, memory, replication, slowlog |
 | `Insight/` | Home Dashboard, Advanced Data Exploration, VictoriaMetrics, Exporters |
-| `Experimental/` | Environment, DB Cluster, PMM Health, PostgreSQL Vacuum |
+| `Experimental/` | Databases Overview, DB Cluster Summary |
+| `PMM Health/` | Environments Overview, PMM Health Overview, HA Health Overview |
 | `Query Analytics/` | QAN panel wrapper (`pmm-qan.json`) |
 | `Kubernetes (experimental)/` | Kubernetes operator monitoring |
 
