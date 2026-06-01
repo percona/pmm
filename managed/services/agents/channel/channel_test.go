@@ -22,7 +22,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -48,7 +47,7 @@ func (s *testServer) Connect(stream agentv1.AgentService_ConnectServer) error {
 
 var _ agentv1.AgentServiceServer = (*testServer)(nil)
 
-func setup(t *testing.T, connect func(*Channel) error, expected ...error) (agentv1.AgentService_ConnectClient, *grpc.ClientConn, func()) {
+func setup(t *testing.T, connect func(*Channel) error, expected error) (agentv1.AgentService_ConnectClient, *grpc.ClientConn, func()) {
 	t.Helper()
 
 	// start server with given connect handler
@@ -76,7 +75,7 @@ func setup(t *testing.T, connect func(*Channel) error, expected ...error) (agent
 		assert.NoError(t, err)
 	}()
 
-	ctx, cancel := context.WithTimeout(t.Context(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 
 	// make client and channel
 	opts := []grpc.DialOption{
@@ -95,12 +94,7 @@ func setup(t *testing.T, connect func(*Channel) error, expected ...error) (agent
 		require.NotNil(t, channel, "Test exited before first message reached connect handler.")
 
 		err := channel.Wait()
-		stringExpected := make([]string, len(expected))
-		for i, e := range expected {
-			stringExpected[i] = e.Error()
-		}
-		assert.Contains(t, stringExpected, errors.Cause(err).Error(), "%+v", err)
-
+		assert.ErrorIs(t, err, expected)
 		server.GracefulStop()
 		cancel()
 	}
