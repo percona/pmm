@@ -36,6 +36,7 @@ import (
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/platform"
 	"github.com/percona/pmm/utils/logger"
+	"github.com/percona/pmm/version"
 )
 
 const (
@@ -155,6 +156,12 @@ func (s *Service) Run(ctx context.Context) {
 
 		if !s.config.Reporting.Send {
 			s.l.Info("Sending telemetry is disabled.")
+			return
+		}
+
+		p, err := version.Parse(s.pmmVersion)
+		// do not send telemetry if this is a feature build, match only clean release versions like "3.7.1"
+		if err != nil || p.Rest != "" {
 			return
 		}
 
