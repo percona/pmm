@@ -32,6 +32,7 @@ const (
 	ManagementService_DiscoverRDS_FullMethodName           = "/management.v1.ManagementService/DiscoverRDS"
 	ManagementService_DiscoverAzureDatabase_FullMethodName = "/management.v1.ManagementService/DiscoverAzureDatabase"
 	ManagementService_AddAzureDatabase_FullMethodName      = "/management.v1.ManagementService/AddAzureDatabase"
+	ManagementService_DiscoverElastiCache_FullMethodName   = "/management.v1.ManagementService/DiscoverElastiCache"
 	ManagementService_RemoveService_FullMethodName         = "/management.v1.ManagementService/RemoveService"
 )
 
@@ -65,6 +66,8 @@ type ManagementServiceClient interface {
 	DiscoverAzureDatabase(ctx context.Context, in *DiscoverAzureDatabaseRequest, opts ...grpc.CallOption) (*DiscoverAzureDatabaseResponse, error)
 	// AddAzureDatabase adds Azure Database instance.
 	AddAzureDatabase(ctx context.Context, in *AddAzureDatabaseRequest, opts ...grpc.CallOption) (*AddAzureDatabaseResponse, error)
+	// DiscoverElastiCache discovers ElastiCache replication groups (Valkey/Redis).
+	DiscoverElastiCache(ctx context.Context, in *DiscoverElastiCacheRequest, opts ...grpc.CallOption) (*DiscoverElastiCacheResponse, error)
 	// RemoveService removes a Service along with its Agents.
 	RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*RemoveServiceResponse, error)
 }
@@ -197,6 +200,16 @@ func (c *managementServiceClient) AddAzureDatabase(ctx context.Context, in *AddA
 	return out, nil
 }
 
+func (c *managementServiceClient) DiscoverElastiCache(ctx context.Context, in *DiscoverElastiCacheRequest, opts ...grpc.CallOption) (*DiscoverElastiCacheResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DiscoverElastiCacheResponse)
+	err := c.cc.Invoke(ctx, ManagementService_DiscoverElastiCache_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *managementServiceClient) RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*RemoveServiceResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(RemoveServiceResponse)
@@ -237,6 +250,8 @@ type ManagementServiceServer interface {
 	DiscoverAzureDatabase(context.Context, *DiscoverAzureDatabaseRequest) (*DiscoverAzureDatabaseResponse, error)
 	// AddAzureDatabase adds Azure Database instance.
 	AddAzureDatabase(context.Context, *AddAzureDatabaseRequest) (*AddAzureDatabaseResponse, error)
+	// DiscoverElastiCache discovers ElastiCache replication groups (Valkey/Redis).
+	DiscoverElastiCache(context.Context, *DiscoverElastiCacheRequest) (*DiscoverElastiCacheResponse, error)
 	// RemoveService removes a Service along with its Agents.
 	RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error)
 	mustEmbedUnimplementedManagementServiceServer()
@@ -295,6 +310,10 @@ func (UnimplementedManagementServiceServer) DiscoverAzureDatabase(context.Contex
 
 func (UnimplementedManagementServiceServer) AddAzureDatabase(context.Context, *AddAzureDatabaseRequest) (*AddAzureDatabaseResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method AddAzureDatabase not implemented")
+}
+
+func (UnimplementedManagementServiceServer) DiscoverElastiCache(context.Context, *DiscoverElastiCacheRequest) (*DiscoverElastiCacheResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DiscoverElastiCache not implemented")
 }
 
 func (UnimplementedManagementServiceServer) RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error) {
@@ -537,6 +556,24 @@ func _ManagementService_AddAzureDatabase_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ManagementService_DiscoverElastiCache_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DiscoverElastiCacheRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ManagementServiceServer).DiscoverElastiCache(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ManagementService_DiscoverElastiCache_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ManagementServiceServer).DiscoverElastiCache(ctx, req.(*DiscoverElastiCacheRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ManagementService_RemoveService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RemoveServiceRequest)
 	if err := dec(in); err != nil {
@@ -609,6 +646,10 @@ var ManagementService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AddAzureDatabase",
 			Handler:    _ManagementService_AddAzureDatabase_Handler,
+		},
+		{
+			MethodName: "DiscoverElastiCache",
+			Handler:    _ManagementService_DiscoverElastiCache_Handler,
 		},
 		{
 			MethodName: "RemoveService",

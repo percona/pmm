@@ -101,6 +101,18 @@ func ToAPINode(node *models.Node) (inventoryv1.Node, error) { //nolint:ireturn
 			Address:      node.Address,
 		}, nil
 
+	case models.RemoteElastiCacheNodeType:
+		return &inventoryv1.RemoteElastiCacheNode{
+			NodeId:       node.NodeID,
+			NodeName:     node.NodeName,
+			NodeModel:    node.NodeModel,
+			Region:       pointer.GetString(node.Region),
+			Az:           node.AZ,
+			CustomLabels: labels,
+			Address:      node.Address,
+			InstanceId:   node.InstanceID,
+		}, nil
+
 	default:
 		panic(fmt.Errorf("unhandled Node type %s", node.NodeType))
 	}
@@ -666,6 +678,7 @@ var nodeTypes = map[inventoryv1.NodeType]models.NodeType{
 	inventoryv1.NodeType_NODE_TYPE_REMOTE_NODE:                models.RemoteNodeType,
 	inventoryv1.NodeType_NODE_TYPE_REMOTE_RDS_NODE:            models.RemoteRDSNodeType,
 	inventoryv1.NodeType_NODE_TYPE_REMOTE_AZURE_DATABASE_NODE: models.RemoteAzureDatabaseNodeType,
+	inventoryv1.NodeType_NODE_TYPE_REMOTE_ELASTICACHE_NODE:    models.RemoteElastiCacheNodeType,
 }
 
 // ProtoToModelNodeType converts a NodeType from protobuf to model.

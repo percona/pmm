@@ -1020,6 +1020,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	schedulerService := scheduler.New(db, backupService)
 	versionCache := versioncache.New(db, versioner)
+	elasticacheDiscovery := management.NewElastiCacheDiscovery(db, agentsStateUpdater)
 
 	dumpService := dump.New(db, &dump.URLs{
 		ClickhouseURL: chURI.String(),
@@ -1157,6 +1158,11 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	haService.AddLeaderService(ha.NewContextService("versionCache", func(ctx context.Context) error {
 		versionCache.Run(ctx)
+		return nil
+	}))
+
+	haService.AddLeaderService(ha.NewContextService("elasticacheDiscovery", func(ctx context.Context) error {
+		elasticacheDiscovery.Run(ctx)
 		return nil
 	}))
 

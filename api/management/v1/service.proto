@@ -8,6 +8,7 @@ import "inventory/v1/services.proto";
 import "management/v1/agent.proto";
 import "management/v1/annotation.proto";
 import "management/v1/azure.proto";
+import "management/v1/elasticache.proto";
 import "management/v1/external.proto";
 import "management/v1/haproxy.proto";
 import "management/v1/mongodb.proto";
@@ -29,6 +30,7 @@ message AddServiceRequest {
     AddExternalServiceParams external = 6;
     AddRDSServiceParams rds = 7;
     AddValkeyServiceParams valkey = 8;
+    AddElastiCacheServiceParams elasticache = 9;
   }
 }
 
@@ -42,6 +44,7 @@ message AddServiceResponse {
     ExternalServiceResult external = 6;
     RDSServiceResult rds = 7;
     ValkeyServiceResult valkey = 8;
+    ElastiCacheServiceResult elasticache = 9;
   }
 }
 
@@ -268,6 +271,17 @@ service ManagementService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Add Azure Database"
       description: "Adds an Azure Database instance."
+    };
+  }
+  // DiscoverElastiCache discovers ElastiCache replication groups (Valkey/Redis).
+  rpc DiscoverElastiCache(DiscoverElastiCacheRequest) returns (DiscoverElastiCacheResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/services:discoverElastiCache"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Discover ElastiCache"
+      description: "Discovers ElastiCache replication groups (Valkey/Redis)."
     };
   }
   // RemoveService removes a Service along with its Agents.

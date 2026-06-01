@@ -626,6 +626,125 @@ var _ interface {
 	ErrorName() string
 } = RemoteAzureDatabaseNodeValidationError{}
 
+// Validate checks the field values on RemoteElastiCacheNode with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *RemoteElastiCacheNode) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on RemoteElastiCacheNode with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// RemoteElastiCacheNodeMultiError, or nil if none found.
+func (m *RemoteElastiCacheNode) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *RemoteElastiCacheNode) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for NodeId
+
+	// no validation rules for NodeName
+
+	// no validation rules for Address
+
+	// no validation rules for NodeModel
+
+	// no validation rules for Region
+
+	// no validation rules for Az
+
+	// no validation rules for CustomLabels
+
+	// no validation rules for InstanceId
+
+	if len(errors) > 0 {
+		return RemoteElastiCacheNodeMultiError(errors)
+	}
+
+	return nil
+}
+
+// RemoteElastiCacheNodeMultiError is an error wrapping multiple validation
+// errors returned by RemoteElastiCacheNode.ValidateAll() if the designated
+// constraints aren't met.
+type RemoteElastiCacheNodeMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m RemoteElastiCacheNodeMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m RemoteElastiCacheNodeMultiError) AllErrors() []error { return m }
+
+// RemoteElastiCacheNodeValidationError is the validation error returned by
+// RemoteElastiCacheNode.Validate if the designated constraints aren't met.
+type RemoteElastiCacheNodeValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RemoteElastiCacheNodeValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RemoteElastiCacheNodeValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RemoteElastiCacheNodeValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RemoteElastiCacheNodeValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RemoteElastiCacheNodeValidationError) ErrorName() string {
+	return "RemoteElastiCacheNodeValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e RemoteElastiCacheNodeValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRemoteElastiCacheNode.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = RemoteElastiCacheNodeValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RemoteElastiCacheNodeValidationError{}
+
 // Validate checks the field values on ListNodesRequest with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -913,6 +1032,40 @@ func (m *ListNodesResponse) validate(all bool) error {
 			if err := v.Validate(); err != nil {
 				return ListNodesResponseValidationError{
 					field:  fmt.Sprintf("RemoteAzureDatabase[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	for idx, item := range m.GetRemoteElasticache() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ListNodesResponseValidationError{
+						field:  fmt.Sprintf("RemoteElasticache[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ListNodesResponseValidationError{
+						field:  fmt.Sprintf("RemoteElasticache[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ListNodesResponseValidationError{
+					field:  fmt.Sprintf("RemoteElasticache[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -1342,6 +1495,47 @@ func (m *GetNodeResponse) validate(all bool) error {
 			}
 		}
 
+	case *GetNodeResponse_RemoteElasticache:
+		if v == nil {
+			err := GetNodeResponseValidationError{
+				field:  "Node",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRemoteElasticache()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetNodeResponseValidationError{
+						field:  "RemoteElasticache",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetNodeResponseValidationError{
+						field:  "RemoteElasticache",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRemoteElasticache()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetNodeResponseValidationError{
+					field:  "RemoteElasticache",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	default:
 		_ = v // ensures v is used
 	}
@@ -1653,6 +1847,47 @@ func (m *AddNodeRequest) validate(all bool) error {
 			}
 		}
 
+	case *AddNodeRequest_RemoteElasticache:
+		if v == nil {
+			err := AddNodeRequestValidationError{
+				field:  "Node",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRemoteElasticache()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddNodeRequestValidationError{
+						field:  "RemoteElasticache",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddNodeRequestValidationError{
+						field:  "RemoteElasticache",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRemoteElasticache()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddNodeRequestValidationError{
+					field:  "RemoteElasticache",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	default:
 		_ = v // ensures v is used
 	}
@@ -1958,6 +2193,47 @@ func (m *AddNodeResponse) validate(all bool) error {
 			if err := v.Validate(); err != nil {
 				return AddNodeResponseValidationError{
 					field:  "RemoteAzureDatabase",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddNodeResponse_RemoteElasticache:
+		if v == nil {
+			err := AddNodeResponseValidationError{
+				field:  "Node",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRemoteElasticache()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddNodeResponseValidationError{
+						field:  "RemoteElasticache",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddNodeResponseValidationError{
+						field:  "RemoteElasticache",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRemoteElasticache()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddNodeResponseValidationError{
+					field:  "RemoteElasticache",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -2739,6 +3015,151 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = AddRemoteAzureNodeParamsValidationError{}
+
+// Validate checks the field values on AddRemoteElastiCacheNodeParams with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AddRemoteElastiCacheNodeParams) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AddRemoteElastiCacheNodeParams with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// AddRemoteElastiCacheNodeParamsMultiError, or nil if none found.
+func (m *AddRemoteElastiCacheNodeParams) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AddRemoteElastiCacheNodeParams) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetNodeName()) < 1 {
+		err := AddRemoteElastiCacheNodeParamsValidationError{
+			field:  "NodeName",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetAddress()) < 1 {
+		err := AddRemoteElastiCacheNodeParamsValidationError{
+			field:  "Address",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for NodeModel
+
+	if utf8.RuneCountInString(m.GetRegion()) < 1 {
+		err := AddRemoteElastiCacheNodeParamsValidationError{
+			field:  "Region",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for Az
+
+	// no validation rules for CustomLabels
+
+	// no validation rules for InstanceId
+
+	if len(errors) > 0 {
+		return AddRemoteElastiCacheNodeParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+// AddRemoteElastiCacheNodeParamsMultiError is an error wrapping multiple
+// validation errors returned by AddRemoteElastiCacheNodeParams.ValidateAll()
+// if the designated constraints aren't met.
+type AddRemoteElastiCacheNodeParamsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AddRemoteElastiCacheNodeParamsMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AddRemoteElastiCacheNodeParamsMultiError) AllErrors() []error { return m }
+
+// AddRemoteElastiCacheNodeParamsValidationError is the validation error
+// returned by AddRemoteElastiCacheNodeParams.Validate if the designated
+// constraints aren't met.
+type AddRemoteElastiCacheNodeParamsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AddRemoteElastiCacheNodeParamsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AddRemoteElastiCacheNodeParamsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AddRemoteElastiCacheNodeParamsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AddRemoteElastiCacheNodeParamsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AddRemoteElastiCacheNodeParamsValidationError) ErrorName() string {
+	return "AddRemoteElastiCacheNodeParamsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AddRemoteElastiCacheNodeParamsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAddRemoteElastiCacheNodeParams.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = AddRemoteElastiCacheNodeParamsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AddRemoteElastiCacheNodeParamsValidationError{}
 
 // Validate checks the field values on RemoveNodeRequest with the rules defined
 // in the proto definition for this message. If any rules are violated, the

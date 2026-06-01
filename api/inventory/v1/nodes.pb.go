@@ -35,6 +35,7 @@ const (
 	NodeType_NODE_TYPE_REMOTE_NODE                NodeType = 3
 	NodeType_NODE_TYPE_REMOTE_RDS_NODE            NodeType = 4
 	NodeType_NODE_TYPE_REMOTE_AZURE_DATABASE_NODE NodeType = 5
+	NodeType_NODE_TYPE_REMOTE_ELASTICACHE_NODE    NodeType = 6
 )
 
 // Enum value maps for NodeType.
@@ -46,6 +47,7 @@ var (
 		3: "NODE_TYPE_REMOTE_NODE",
 		4: "NODE_TYPE_REMOTE_RDS_NODE",
 		5: "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE",
+		6: "NODE_TYPE_REMOTE_ELASTICACHE_NODE",
 	}
 	NodeType_value = map[string]int32{
 		"NODE_TYPE_UNSPECIFIED":                0,
@@ -54,6 +56,7 @@ var (
 		"NODE_TYPE_REMOTE_NODE":                3,
 		"NODE_TYPE_REMOTE_RDS_NODE":            4,
 		"NODE_TYPE_REMOTE_AZURE_DATABASE_NODE": 5,
+		"NODE_TYPE_REMOTE_ELASTICACHE_NODE":    6,
 	}
 )
 
@@ -656,6 +659,115 @@ func (x *RemoteAzureDatabaseNode) GetCustomLabels() map[string]string {
 	return nil
 }
 
+// RemoteElastiCacheNode represents remote ElastiCache Node. Agents can't run on Remote ElastiCache Nodes.
+type RemoteElastiCacheNode struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Unique randomly generated instance identifier.
+	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	// Unique across all Nodes user-defined name.
+	NodeName string `protobuf:"bytes,2,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
+	// ElastiCache primary endpoint address.
+	Address string `protobuf:"bytes,3,opt,name=address,proto3" json:"address,omitempty"`
+	// Node model (cache node type).
+	NodeModel string `protobuf:"bytes,4,opt,name=node_model,json=nodeModel,proto3" json:"node_model,omitempty"`
+	// Node region.
+	Region string `protobuf:"bytes,5,opt,name=region,proto3" json:"region,omitempty"`
+	// Node availability zone.
+	Az string `protobuf:"bytes,6,opt,name=az,proto3" json:"az,omitempty"`
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `protobuf:"bytes,7,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// AWS instance ID (replication group ID).
+	InstanceId    string `protobuf:"bytes,8,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RemoteElastiCacheNode) Reset() {
+	*x = RemoteElastiCacheNode{}
+	mi := &file_inventory_v1_nodes_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RemoteElastiCacheNode) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RemoteElastiCacheNode) ProtoMessage() {}
+
+func (x *RemoteElastiCacheNode) ProtoReflect() protoreflect.Message {
+	mi := &file_inventory_v1_nodes_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RemoteElastiCacheNode.ProtoReflect.Descriptor instead.
+func (*RemoteElastiCacheNode) Descriptor() ([]byte, []int) {
+	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *RemoteElastiCacheNode) GetNodeId() string {
+	if x != nil {
+		return x.NodeId
+	}
+	return ""
+}
+
+func (x *RemoteElastiCacheNode) GetNodeName() string {
+	if x != nil {
+		return x.NodeName
+	}
+	return ""
+}
+
+func (x *RemoteElastiCacheNode) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+func (x *RemoteElastiCacheNode) GetNodeModel() string {
+	if x != nil {
+		return x.NodeModel
+	}
+	return ""
+}
+
+func (x *RemoteElastiCacheNode) GetRegion() string {
+	if x != nil {
+		return x.Region
+	}
+	return ""
+}
+
+func (x *RemoteElastiCacheNode) GetAz() string {
+	if x != nil {
+		return x.Az
+	}
+	return ""
+}
+
+func (x *RemoteElastiCacheNode) GetCustomLabels() map[string]string {
+	if x != nil {
+		return x.CustomLabels
+	}
+	return nil
+}
+
+func (x *RemoteElastiCacheNode) GetInstanceId() string {
+	if x != nil {
+		return x.InstanceId
+	}
+	return ""
+}
+
 type ListNodesRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Return only Nodes with matching Node type.
@@ -666,7 +778,7 @@ type ListNodesRequest struct {
 
 func (x *ListNodesRequest) Reset() {
 	*x = ListNodesRequest{}
-	mi := &file_inventory_v1_nodes_proto_msgTypes[5]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -678,7 +790,7 @@ func (x *ListNodesRequest) String() string {
 func (*ListNodesRequest) ProtoMessage() {}
 
 func (x *ListNodesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_nodes_proto_msgTypes[5]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -691,7 +803,7 @@ func (x *ListNodesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListNodesRequest.ProtoReflect.Descriptor instead.
 func (*ListNodesRequest) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{5}
+	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ListNodesRequest) GetNodeType() NodeType {
@@ -708,13 +820,14 @@ type ListNodesResponse struct {
 	Remote              []*RemoteNode              `protobuf:"bytes,3,rep,name=remote,proto3" json:"remote,omitempty"`
 	RemoteRds           []*RemoteRDSNode           `protobuf:"bytes,4,rep,name=remote_rds,json=remoteRds,proto3" json:"remote_rds,omitempty"`
 	RemoteAzureDatabase []*RemoteAzureDatabaseNode `protobuf:"bytes,5,rep,name=remote_azure_database,json=remoteAzureDatabase,proto3" json:"remote_azure_database,omitempty"`
+	RemoteElasticache   []*RemoteElastiCacheNode   `protobuf:"bytes,6,rep,name=remote_elasticache,json=remoteElasticache,proto3" json:"remote_elasticache,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
 
 func (x *ListNodesResponse) Reset() {
 	*x = ListNodesResponse{}
-	mi := &file_inventory_v1_nodes_proto_msgTypes[6]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -726,7 +839,7 @@ func (x *ListNodesResponse) String() string {
 func (*ListNodesResponse) ProtoMessage() {}
 
 func (x *ListNodesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_nodes_proto_msgTypes[6]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -739,7 +852,7 @@ func (x *ListNodesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListNodesResponse.ProtoReflect.Descriptor instead.
 func (*ListNodesResponse) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{6}
+	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ListNodesResponse) GetGeneric() []*GenericNode {
@@ -777,6 +890,13 @@ func (x *ListNodesResponse) GetRemoteAzureDatabase() []*RemoteAzureDatabaseNode 
 	return nil
 }
 
+func (x *ListNodesResponse) GetRemoteElasticache() []*RemoteElastiCacheNode {
+	if x != nil {
+		return x.RemoteElasticache
+	}
+	return nil
+}
+
 type GetNodeRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Unique randomly generated instance identifier.
@@ -787,7 +907,7 @@ type GetNodeRequest struct {
 
 func (x *GetNodeRequest) Reset() {
 	*x = GetNodeRequest{}
-	mi := &file_inventory_v1_nodes_proto_msgTypes[7]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -799,7 +919,7 @@ func (x *GetNodeRequest) String() string {
 func (*GetNodeRequest) ProtoMessage() {}
 
 func (x *GetNodeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_nodes_proto_msgTypes[7]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -812,7 +932,7 @@ func (x *GetNodeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetNodeRequest.ProtoReflect.Descriptor instead.
 func (*GetNodeRequest) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{7}
+	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetNodeRequest) GetNodeId() string {
@@ -831,6 +951,7 @@ type GetNodeResponse struct {
 	//	*GetNodeResponse_Remote
 	//	*GetNodeResponse_RemoteRds
 	//	*GetNodeResponse_RemoteAzureDatabase
+	//	*GetNodeResponse_RemoteElasticache
 	Node          isGetNodeResponse_Node `protobuf_oneof:"node"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -838,7 +959,7 @@ type GetNodeResponse struct {
 
 func (x *GetNodeResponse) Reset() {
 	*x = GetNodeResponse{}
-	mi := &file_inventory_v1_nodes_proto_msgTypes[8]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -850,7 +971,7 @@ func (x *GetNodeResponse) String() string {
 func (*GetNodeResponse) ProtoMessage() {}
 
 func (x *GetNodeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_nodes_proto_msgTypes[8]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -863,7 +984,7 @@ func (x *GetNodeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetNodeResponse.ProtoReflect.Descriptor instead.
 func (*GetNodeResponse) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{8}
+	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GetNodeResponse) GetNode() isGetNodeResponse_Node {
@@ -918,6 +1039,15 @@ func (x *GetNodeResponse) GetRemoteAzureDatabase() *RemoteAzureDatabaseNode {
 	return nil
 }
 
+func (x *GetNodeResponse) GetRemoteElasticache() *RemoteElastiCacheNode {
+	if x != nil {
+		if x, ok := x.Node.(*GetNodeResponse_RemoteElasticache); ok {
+			return x.RemoteElasticache
+		}
+	}
+	return nil
+}
+
 type isGetNodeResponse_Node interface {
 	isGetNodeResponse_Node()
 }
@@ -942,6 +1072,10 @@ type GetNodeResponse_RemoteAzureDatabase struct {
 	RemoteAzureDatabase *RemoteAzureDatabaseNode `protobuf:"bytes,5,opt,name=remote_azure_database,json=remoteAzureDatabase,proto3,oneof"`
 }
 
+type GetNodeResponse_RemoteElasticache struct {
+	RemoteElasticache *RemoteElastiCacheNode `protobuf:"bytes,6,opt,name=remote_elasticache,json=remoteElasticache,proto3,oneof"`
+}
+
 func (*GetNodeResponse_Generic) isGetNodeResponse_Node() {}
 
 func (*GetNodeResponse_Container) isGetNodeResponse_Node() {}
@@ -952,6 +1086,8 @@ func (*GetNodeResponse_RemoteRds) isGetNodeResponse_Node() {}
 
 func (*GetNodeResponse_RemoteAzureDatabase) isGetNodeResponse_Node() {}
 
+func (*GetNodeResponse_RemoteElasticache) isGetNodeResponse_Node() {}
+
 type AddNodeRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Node:
@@ -961,6 +1097,7 @@ type AddNodeRequest struct {
 	//	*AddNodeRequest_Remote
 	//	*AddNodeRequest_RemoteRds
 	//	*AddNodeRequest_RemoteAzure
+	//	*AddNodeRequest_RemoteElasticache
 	Node          isAddNodeRequest_Node `protobuf_oneof:"node"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -968,7 +1105,7 @@ type AddNodeRequest struct {
 
 func (x *AddNodeRequest) Reset() {
 	*x = AddNodeRequest{}
-	mi := &file_inventory_v1_nodes_proto_msgTypes[9]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -980,7 +1117,7 @@ func (x *AddNodeRequest) String() string {
 func (*AddNodeRequest) ProtoMessage() {}
 
 func (x *AddNodeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_nodes_proto_msgTypes[9]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -993,7 +1130,7 @@ func (x *AddNodeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddNodeRequest.ProtoReflect.Descriptor instead.
 func (*AddNodeRequest) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{9}
+	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *AddNodeRequest) GetNode() isAddNodeRequest_Node {
@@ -1048,6 +1185,15 @@ func (x *AddNodeRequest) GetRemoteAzure() *AddRemoteAzureNodeParams {
 	return nil
 }
 
+func (x *AddNodeRequest) GetRemoteElasticache() *AddRemoteElastiCacheNodeParams {
+	if x != nil {
+		if x, ok := x.Node.(*AddNodeRequest_RemoteElasticache); ok {
+			return x.RemoteElasticache
+		}
+	}
+	return nil
+}
+
 type isAddNodeRequest_Node interface {
 	isAddNodeRequest_Node()
 }
@@ -1072,6 +1218,10 @@ type AddNodeRequest_RemoteAzure struct {
 	RemoteAzure *AddRemoteAzureNodeParams `protobuf:"bytes,5,opt,name=remote_azure,json=remoteAzure,proto3,oneof"`
 }
 
+type AddNodeRequest_RemoteElasticache struct {
+	RemoteElasticache *AddRemoteElastiCacheNodeParams `protobuf:"bytes,6,opt,name=remote_elasticache,json=remoteElasticache,proto3,oneof"`
+}
+
 func (*AddNodeRequest_Generic) isAddNodeRequest_Node() {}
 
 func (*AddNodeRequest_Container) isAddNodeRequest_Node() {}
@@ -1082,6 +1232,8 @@ func (*AddNodeRequest_RemoteRds) isAddNodeRequest_Node() {}
 
 func (*AddNodeRequest_RemoteAzure) isAddNodeRequest_Node() {}
 
+func (*AddNodeRequest_RemoteElasticache) isAddNodeRequest_Node() {}
+
 type AddNodeResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Node:
@@ -1091,6 +1243,7 @@ type AddNodeResponse struct {
 	//	*AddNodeResponse_Remote
 	//	*AddNodeResponse_RemoteRds
 	//	*AddNodeResponse_RemoteAzureDatabase
+	//	*AddNodeResponse_RemoteElasticache
 	Node          isAddNodeResponse_Node `protobuf_oneof:"node"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1098,7 +1251,7 @@ type AddNodeResponse struct {
 
 func (x *AddNodeResponse) Reset() {
 	*x = AddNodeResponse{}
-	mi := &file_inventory_v1_nodes_proto_msgTypes[10]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1110,7 +1263,7 @@ func (x *AddNodeResponse) String() string {
 func (*AddNodeResponse) ProtoMessage() {}
 
 func (x *AddNodeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_nodes_proto_msgTypes[10]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1123,7 +1276,7 @@ func (x *AddNodeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddNodeResponse.ProtoReflect.Descriptor instead.
 func (*AddNodeResponse) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{10}
+	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *AddNodeResponse) GetNode() isAddNodeResponse_Node {
@@ -1178,6 +1331,15 @@ func (x *AddNodeResponse) GetRemoteAzureDatabase() *RemoteAzureDatabaseNode {
 	return nil
 }
 
+func (x *AddNodeResponse) GetRemoteElasticache() *RemoteElastiCacheNode {
+	if x != nil {
+		if x, ok := x.Node.(*AddNodeResponse_RemoteElasticache); ok {
+			return x.RemoteElasticache
+		}
+	}
+	return nil
+}
+
 type isAddNodeResponse_Node interface {
 	isAddNodeResponse_Node()
 }
@@ -1202,6 +1364,10 @@ type AddNodeResponse_RemoteAzureDatabase struct {
 	RemoteAzureDatabase *RemoteAzureDatabaseNode `protobuf:"bytes,5,opt,name=remote_azure_database,json=remoteAzureDatabase,proto3,oneof"`
 }
 
+type AddNodeResponse_RemoteElasticache struct {
+	RemoteElasticache *RemoteElastiCacheNode `protobuf:"bytes,6,opt,name=remote_elasticache,json=remoteElasticache,proto3,oneof"`
+}
+
 func (*AddNodeResponse_Generic) isAddNodeResponse_Node() {}
 
 func (*AddNodeResponse_Container) isAddNodeResponse_Node() {}
@@ -1211,6 +1377,8 @@ func (*AddNodeResponse_Remote) isAddNodeResponse_Node() {}
 func (*AddNodeResponse_RemoteRds) isAddNodeResponse_Node() {}
 
 func (*AddNodeResponse_RemoteAzureDatabase) isAddNodeResponse_Node() {}
+
+func (*AddNodeResponse_RemoteElasticache) isAddNodeResponse_Node() {}
 
 type AddGenericNodeParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -1236,7 +1404,7 @@ type AddGenericNodeParams struct {
 
 func (x *AddGenericNodeParams) Reset() {
 	*x = AddGenericNodeParams{}
-	mi := &file_inventory_v1_nodes_proto_msgTypes[11]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1248,7 +1416,7 @@ func (x *AddGenericNodeParams) String() string {
 func (*AddGenericNodeParams) ProtoMessage() {}
 
 func (x *AddGenericNodeParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_nodes_proto_msgTypes[11]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1261,7 +1429,7 @@ func (x *AddGenericNodeParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddGenericNodeParams.ProtoReflect.Descriptor instead.
 func (*AddGenericNodeParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{11}
+	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *AddGenericNodeParams) GetNodeName() string {
@@ -1346,7 +1514,7 @@ type AddContainerNodeParams struct {
 
 func (x *AddContainerNodeParams) Reset() {
 	*x = AddContainerNodeParams{}
-	mi := &file_inventory_v1_nodes_proto_msgTypes[12]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1358,7 +1526,7 @@ func (x *AddContainerNodeParams) String() string {
 func (*AddContainerNodeParams) ProtoMessage() {}
 
 func (x *AddContainerNodeParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_nodes_proto_msgTypes[12]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1371,7 +1539,7 @@ func (x *AddContainerNodeParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddContainerNodeParams.ProtoReflect.Descriptor instead.
 func (*AddContainerNodeParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{12}
+	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *AddContainerNodeParams) GetNodeName() string {
@@ -1457,7 +1625,7 @@ type AddRemoteNodeParams struct {
 
 func (x *AddRemoteNodeParams) Reset() {
 	*x = AddRemoteNodeParams{}
-	mi := &file_inventory_v1_nodes_proto_msgTypes[13]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1469,7 +1637,7 @@ func (x *AddRemoteNodeParams) String() string {
 func (*AddRemoteNodeParams) ProtoMessage() {}
 
 func (x *AddRemoteNodeParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_nodes_proto_msgTypes[13]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1482,7 +1650,7 @@ func (x *AddRemoteNodeParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddRemoteNodeParams.ProtoReflect.Descriptor instead.
 func (*AddRemoteNodeParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{13}
+	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *AddRemoteNodeParams) GetNodeName() string {
@@ -1547,7 +1715,7 @@ type AddRemoteRDSNodeParams struct {
 
 func (x *AddRemoteRDSNodeParams) Reset() {
 	*x = AddRemoteRDSNodeParams{}
-	mi := &file_inventory_v1_nodes_proto_msgTypes[14]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1559,7 +1727,7 @@ func (x *AddRemoteRDSNodeParams) String() string {
 func (*AddRemoteRDSNodeParams) ProtoMessage() {}
 
 func (x *AddRemoteRDSNodeParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_nodes_proto_msgTypes[14]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1572,7 +1740,7 @@ func (x *AddRemoteRDSNodeParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddRemoteRDSNodeParams.ProtoReflect.Descriptor instead.
 func (*AddRemoteRDSNodeParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{14}
+	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *AddRemoteRDSNodeParams) GetNodeName() string {
@@ -1637,7 +1805,7 @@ type AddRemoteAzureNodeParams struct {
 
 func (x *AddRemoteAzureNodeParams) Reset() {
 	*x = AddRemoteAzureNodeParams{}
-	mi := &file_inventory_v1_nodes_proto_msgTypes[15]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1649,7 +1817,7 @@ func (x *AddRemoteAzureNodeParams) String() string {
 func (*AddRemoteAzureNodeParams) ProtoMessage() {}
 
 func (x *AddRemoteAzureNodeParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_nodes_proto_msgTypes[15]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1662,7 +1830,7 @@ func (x *AddRemoteAzureNodeParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddRemoteAzureNodeParams.ProtoReflect.Descriptor instead.
 func (*AddRemoteAzureNodeParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{15}
+	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *AddRemoteAzureNodeParams) GetNodeName() string {
@@ -1707,6 +1875,105 @@ func (x *AddRemoteAzureNodeParams) GetCustomLabels() map[string]string {
 	return nil
 }
 
+type AddRemoteElastiCacheNodeParams struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Unique across all Nodes user-defined name.
+	NodeName string `protobuf:"bytes,1,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
+	// ElastiCache primary endpoint address.
+	Address string `protobuf:"bytes,2,opt,name=address,proto3" json:"address,omitempty"`
+	// Node model (cache node type).
+	NodeModel string `protobuf:"bytes,3,opt,name=node_model,json=nodeModel,proto3" json:"node_model,omitempty"`
+	// Node region.
+	Region string `protobuf:"bytes,4,opt,name=region,proto3" json:"region,omitempty"`
+	// Node availability zone.
+	Az string `protobuf:"bytes,5,opt,name=az,proto3" json:"az,omitempty"`
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `protobuf:"bytes,6,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// AWS instance ID (replication group ID).
+	InstanceId    string `protobuf:"bytes,7,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AddRemoteElastiCacheNodeParams) Reset() {
+	*x = AddRemoteElastiCacheNodeParams{}
+	mi := &file_inventory_v1_nodes_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AddRemoteElastiCacheNodeParams) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AddRemoteElastiCacheNodeParams) ProtoMessage() {}
+
+func (x *AddRemoteElastiCacheNodeParams) ProtoReflect() protoreflect.Message {
+	mi := &file_inventory_v1_nodes_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AddRemoteElastiCacheNodeParams.ProtoReflect.Descriptor instead.
+func (*AddRemoteElastiCacheNodeParams) Descriptor() ([]byte, []int) {
+	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *AddRemoteElastiCacheNodeParams) GetNodeName() string {
+	if x != nil {
+		return x.NodeName
+	}
+	return ""
+}
+
+func (x *AddRemoteElastiCacheNodeParams) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+func (x *AddRemoteElastiCacheNodeParams) GetNodeModel() string {
+	if x != nil {
+		return x.NodeModel
+	}
+	return ""
+}
+
+func (x *AddRemoteElastiCacheNodeParams) GetRegion() string {
+	if x != nil {
+		return x.Region
+	}
+	return ""
+}
+
+func (x *AddRemoteElastiCacheNodeParams) GetAz() string {
+	if x != nil {
+		return x.Az
+	}
+	return ""
+}
+
+func (x *AddRemoteElastiCacheNodeParams) GetCustomLabels() map[string]string {
+	if x != nil {
+		return x.CustomLabels
+	}
+	return nil
+}
+
+func (x *AddRemoteElastiCacheNodeParams) GetInstanceId() string {
+	if x != nil {
+		return x.InstanceId
+	}
+	return ""
+}
+
 type RemoveNodeRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Unique randomly generated instance identifier.
@@ -1719,7 +1986,7 @@ type RemoveNodeRequest struct {
 
 func (x *RemoveNodeRequest) Reset() {
 	*x = RemoveNodeRequest{}
-	mi := &file_inventory_v1_nodes_proto_msgTypes[16]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1731,7 +1998,7 @@ func (x *RemoveNodeRequest) String() string {
 func (*RemoveNodeRequest) ProtoMessage() {}
 
 func (x *RemoveNodeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_nodes_proto_msgTypes[16]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1744,7 +2011,7 @@ func (x *RemoveNodeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoveNodeRequest.ProtoReflect.Descriptor instead.
 func (*RemoveNodeRequest) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{16}
+	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *RemoveNodeRequest) GetNodeId() string {
@@ -1769,7 +2036,7 @@ type RemoveNodeResponse struct {
 
 func (x *RemoveNodeResponse) Reset() {
 	*x = RemoveNodeResponse{}
-	mi := &file_inventory_v1_nodes_proto_msgTypes[17]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1781,7 +2048,7 @@ func (x *RemoveNodeResponse) String() string {
 func (*RemoveNodeResponse) ProtoMessage() {}
 
 func (x *RemoveNodeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_nodes_proto_msgTypes[17]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1794,7 +2061,7 @@ func (x *RemoveNodeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoveNodeResponse.ProtoReflect.Descriptor instead.
 func (*RemoveNodeResponse) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{17}
+	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{19}
 }
 
 var File_inventory_v1_nodes_proto protoreflect.FileDescriptor
@@ -1875,41 +2142,59 @@ const file_inventory_v1_nodes_proto_rawDesc = "" +
 	"\rcustom_labels\x18\a \x03(\v27.inventory.v1.RemoteAzureDatabaseNode.CustomLabelsEntryR\fcustomLabels\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xec\x02\n" +
+	"\x15RemoteElastiCacheNode\x12\x17\n" +
+	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
+	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x12\x18\n" +
+	"\aaddress\x18\x03 \x01(\tR\aaddress\x12\x1d\n" +
+	"\n" +
+	"node_model\x18\x04 \x01(\tR\tnodeModel\x12\x16\n" +
+	"\x06region\x18\x05 \x01(\tR\x06region\x12\x0e\n" +
+	"\x02az\x18\x06 \x01(\tR\x02az\x12Z\n" +
+	"\rcustom_labels\x18\a \x03(\v25.inventory.v1.RemoteElastiCacheNode.CustomLabelsEntryR\fcustomLabels\x12\x1f\n" +
+	"\vinstance_id\x18\b \x01(\tR\n" +
+	"instanceId\x1a?\n" +
+	"\x11CustomLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"G\n" +
 	"\x10ListNodesRequest\x123\n" +
-	"\tnode_type\x18\x01 \x01(\x0e2\x16.inventory.v1.NodeTypeR\bnodeType\"\xcc\x02\n" +
+	"\tnode_type\x18\x01 \x01(\x0e2\x16.inventory.v1.NodeTypeR\bnodeType\"\xa0\x03\n" +
 	"\x11ListNodesResponse\x123\n" +
 	"\ageneric\x18\x01 \x03(\v2\x19.inventory.v1.GenericNodeR\ageneric\x129\n" +
 	"\tcontainer\x18\x02 \x03(\v2\x1b.inventory.v1.ContainerNodeR\tcontainer\x120\n" +
 	"\x06remote\x18\x03 \x03(\v2\x18.inventory.v1.RemoteNodeR\x06remote\x12:\n" +
 	"\n" +
 	"remote_rds\x18\x04 \x03(\v2\x1b.inventory.v1.RemoteRDSNodeR\tremoteRds\x12Y\n" +
-	"\x15remote_azure_database\x18\x05 \x03(\v2%.inventory.v1.RemoteAzureDatabaseNodeR\x13remoteAzureDatabase\"2\n" +
+	"\x15remote_azure_database\x18\x05 \x03(\v2%.inventory.v1.RemoteAzureDatabaseNodeR\x13remoteAzureDatabase\x12R\n" +
+	"\x12remote_elasticache\x18\x06 \x03(\v2#.inventory.v1.RemoteElastiCacheNodeR\x11remoteElasticache\"2\n" +
 	"\x0eGetNodeRequest\x12 \n" +
-	"\anode_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06nodeId\"\xdc\x02\n" +
+	"\anode_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06nodeId\"\xb2\x03\n" +
 	"\x0fGetNodeResponse\x125\n" +
 	"\ageneric\x18\x01 \x01(\v2\x19.inventory.v1.GenericNodeH\x00R\ageneric\x12;\n" +
 	"\tcontainer\x18\x02 \x01(\v2\x1b.inventory.v1.ContainerNodeH\x00R\tcontainer\x122\n" +
 	"\x06remote\x18\x03 \x01(\v2\x18.inventory.v1.RemoteNodeH\x00R\x06remote\x12<\n" +
 	"\n" +
 	"remote_rds\x18\x04 \x01(\v2\x1b.inventory.v1.RemoteRDSNodeH\x00R\tremoteRds\x12[\n" +
-	"\x15remote_azure_database\x18\x05 \x01(\v2%.inventory.v1.RemoteAzureDatabaseNodeH\x00R\x13remoteAzureDatabaseB\x06\n" +
-	"\x04node\"\xef\x02\n" +
+	"\x15remote_azure_database\x18\x05 \x01(\v2%.inventory.v1.RemoteAzureDatabaseNodeH\x00R\x13remoteAzureDatabase\x12T\n" +
+	"\x12remote_elasticache\x18\x06 \x01(\v2#.inventory.v1.RemoteElastiCacheNodeH\x00R\x11remoteElasticacheB\x06\n" +
+	"\x04node\"\xce\x03\n" +
 	"\x0eAddNodeRequest\x12>\n" +
 	"\ageneric\x18\x01 \x01(\v2\".inventory.v1.AddGenericNodeParamsH\x00R\ageneric\x12D\n" +
 	"\tcontainer\x18\x02 \x01(\v2$.inventory.v1.AddContainerNodeParamsH\x00R\tcontainer\x12;\n" +
 	"\x06remote\x18\x03 \x01(\v2!.inventory.v1.AddRemoteNodeParamsH\x00R\x06remote\x12E\n" +
 	"\n" +
 	"remote_rds\x18\x04 \x01(\v2$.inventory.v1.AddRemoteRDSNodeParamsH\x00R\tremoteRds\x12K\n" +
-	"\fremote_azure\x18\x05 \x01(\v2&.inventory.v1.AddRemoteAzureNodeParamsH\x00R\vremoteAzureB\x06\n" +
-	"\x04node\"\xdc\x02\n" +
+	"\fremote_azure\x18\x05 \x01(\v2&.inventory.v1.AddRemoteAzureNodeParamsH\x00R\vremoteAzure\x12]\n" +
+	"\x12remote_elasticache\x18\x06 \x01(\v2,.inventory.v1.AddRemoteElastiCacheNodeParamsH\x00R\x11remoteElasticacheB\x06\n" +
+	"\x04node\"\xb2\x03\n" +
 	"\x0fAddNodeResponse\x125\n" +
 	"\ageneric\x18\x01 \x01(\v2\x19.inventory.v1.GenericNodeH\x00R\ageneric\x12;\n" +
 	"\tcontainer\x18\x02 \x01(\v2\x1b.inventory.v1.ContainerNodeH\x00R\tcontainer\x122\n" +
 	"\x06remote\x18\x03 \x01(\v2\x18.inventory.v1.RemoteNodeH\x00R\x06remote\x12<\n" +
 	"\n" +
 	"remote_rds\x18\x04 \x01(\v2\x1b.inventory.v1.RemoteRDSNodeH\x00R\tremoteRds\x12[\n" +
-	"\x15remote_azure_database\x18\x05 \x01(\v2%.inventory.v1.RemoteAzureDatabaseNodeH\x00R\x13remoteAzureDatabaseB\x06\n" +
+	"\x15remote_azure_database\x18\x05 \x01(\v2%.inventory.v1.RemoteAzureDatabaseNodeH\x00R\x13remoteAzureDatabase\x12T\n" +
+	"\x12remote_elasticache\x18\x06 \x01(\v2#.inventory.v1.RemoteElastiCacheNodeH\x00R\x11remoteElasticacheB\x06\n" +
 	"\x04node\"\xf9\x02\n" +
 	"\x14AddGenericNodeParams\x12$\n" +
 	"\tnode_name\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\bnodeName\x12!\n" +
@@ -1972,18 +2257,32 @@ const file_inventory_v1_nodes_proto_rawDesc = "" +
 	"\rcustom_labels\x18\x06 \x03(\v28.inventory.v1.AddRemoteAzureNodeParams.CustomLabelsEntryR\fcustomLabels\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x80\x03\n" +
+	"\x1eAddRemoteElastiCacheNodeParams\x12$\n" +
+	"\tnode_name\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\bnodeName\x12!\n" +
+	"\aaddress\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\aaddress\x12\x1d\n" +
+	"\n" +
+	"node_model\x18\x03 \x01(\tR\tnodeModel\x12\x1f\n" +
+	"\x06region\x18\x04 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06region\x12\x0e\n" +
+	"\x02az\x18\x05 \x01(\tR\x02az\x12c\n" +
+	"\rcustom_labels\x18\x06 \x03(\v2>.inventory.v1.AddRemoteElastiCacheNodeParams.CustomLabelsEntryR\fcustomLabels\x12\x1f\n" +
+	"\vinstance_id\x18\a \x01(\tR\n" +
+	"instanceId\x1a?\n" +
+	"\x11CustomLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"K\n" +
 	"\x11RemoveNodeRequest\x12 \n" +
 	"\anode_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06nodeId\x12\x14\n" +
 	"\x05force\x18\x02 \x01(\bR\x05force\"\x14\n" +
-	"\x12RemoveNodeResponse*\xc3\x01\n" +
+	"\x12RemoveNodeResponse*\xea\x01\n" +
 	"\bNodeType\x12\x19\n" +
 	"\x15NODE_TYPE_UNSPECIFIED\x10\x00\x12\x1a\n" +
 	"\x16NODE_TYPE_GENERIC_NODE\x10\x01\x12\x1c\n" +
 	"\x18NODE_TYPE_CONTAINER_NODE\x10\x02\x12\x19\n" +
 	"\x15NODE_TYPE_REMOTE_NODE\x10\x03\x12\x1d\n" +
 	"\x19NODE_TYPE_REMOTE_RDS_NODE\x10\x04\x12(\n" +
-	"$NODE_TYPE_REMOTE_AZURE_DATABASE_NODE\x10\x052\xe6\x04\n" +
+	"$NODE_TYPE_REMOTE_AZURE_DATABASE_NODE\x10\x05\x12%\n" +
+	"!NODE_TYPE_REMOTE_ELASTICACHE_NODE\x10\x062\xe6\x04\n" +
 	"\fNodesService\x12\x96\x01\n" +
 	"\tListNodes\x12\x1e.inventory.v1.ListNodesRequest\x1a\x1f.inventory.v1.ListNodesResponse\"H\x92A*\x12\n" +
 	"List Nodes\x1a\x1cReturns a list of all Nodes.\x82\xd3\xe4\x93\x02\x15\x12\x13/v1/inventory/nodes\x12\x9a\x01\n" +
@@ -2010,85 +2309,95 @@ func file_inventory_v1_nodes_proto_rawDescGZIP() []byte {
 
 var (
 	file_inventory_v1_nodes_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_inventory_v1_nodes_proto_msgTypes  = make([]protoimpl.MessageInfo, 28)
+	file_inventory_v1_nodes_proto_msgTypes  = make([]protoimpl.MessageInfo, 32)
 	file_inventory_v1_nodes_proto_goTypes   = []any{
-		NodeType(0),                      // 0: inventory.v1.NodeType
-		(*GenericNode)(nil),              // 1: inventory.v1.GenericNode
-		(*ContainerNode)(nil),            // 2: inventory.v1.ContainerNode
-		(*RemoteNode)(nil),               // 3: inventory.v1.RemoteNode
-		(*RemoteRDSNode)(nil),            // 4: inventory.v1.RemoteRDSNode
-		(*RemoteAzureDatabaseNode)(nil),  // 5: inventory.v1.RemoteAzureDatabaseNode
-		(*ListNodesRequest)(nil),         // 6: inventory.v1.ListNodesRequest
-		(*ListNodesResponse)(nil),        // 7: inventory.v1.ListNodesResponse
-		(*GetNodeRequest)(nil),           // 8: inventory.v1.GetNodeRequest
-		(*GetNodeResponse)(nil),          // 9: inventory.v1.GetNodeResponse
-		(*AddNodeRequest)(nil),           // 10: inventory.v1.AddNodeRequest
-		(*AddNodeResponse)(nil),          // 11: inventory.v1.AddNodeResponse
-		(*AddGenericNodeParams)(nil),     // 12: inventory.v1.AddGenericNodeParams
-		(*AddContainerNodeParams)(nil),   // 13: inventory.v1.AddContainerNodeParams
-		(*AddRemoteNodeParams)(nil),      // 14: inventory.v1.AddRemoteNodeParams
-		(*AddRemoteRDSNodeParams)(nil),   // 15: inventory.v1.AddRemoteRDSNodeParams
-		(*AddRemoteAzureNodeParams)(nil), // 16: inventory.v1.AddRemoteAzureNodeParams
-		(*RemoveNodeRequest)(nil),        // 17: inventory.v1.RemoveNodeRequest
-		(*RemoveNodeResponse)(nil),       // 18: inventory.v1.RemoveNodeResponse
-		nil,                              // 19: inventory.v1.GenericNode.CustomLabelsEntry
-		nil,                              // 20: inventory.v1.ContainerNode.CustomLabelsEntry
-		nil,                              // 21: inventory.v1.RemoteNode.CustomLabelsEntry
-		nil,                              // 22: inventory.v1.RemoteRDSNode.CustomLabelsEntry
-		nil,                              // 23: inventory.v1.RemoteAzureDatabaseNode.CustomLabelsEntry
-		nil,                              // 24: inventory.v1.AddGenericNodeParams.CustomLabelsEntry
-		nil,                              // 25: inventory.v1.AddContainerNodeParams.CustomLabelsEntry
-		nil,                              // 26: inventory.v1.AddRemoteNodeParams.CustomLabelsEntry
-		nil,                              // 27: inventory.v1.AddRemoteRDSNodeParams.CustomLabelsEntry
-		nil,                              // 28: inventory.v1.AddRemoteAzureNodeParams.CustomLabelsEntry
+		NodeType(0),                            // 0: inventory.v1.NodeType
+		(*GenericNode)(nil),                    // 1: inventory.v1.GenericNode
+		(*ContainerNode)(nil),                  // 2: inventory.v1.ContainerNode
+		(*RemoteNode)(nil),                     // 3: inventory.v1.RemoteNode
+		(*RemoteRDSNode)(nil),                  // 4: inventory.v1.RemoteRDSNode
+		(*RemoteAzureDatabaseNode)(nil),        // 5: inventory.v1.RemoteAzureDatabaseNode
+		(*RemoteElastiCacheNode)(nil),          // 6: inventory.v1.RemoteElastiCacheNode
+		(*ListNodesRequest)(nil),               // 7: inventory.v1.ListNodesRequest
+		(*ListNodesResponse)(nil),              // 8: inventory.v1.ListNodesResponse
+		(*GetNodeRequest)(nil),                 // 9: inventory.v1.GetNodeRequest
+		(*GetNodeResponse)(nil),                // 10: inventory.v1.GetNodeResponse
+		(*AddNodeRequest)(nil),                 // 11: inventory.v1.AddNodeRequest
+		(*AddNodeResponse)(nil),                // 12: inventory.v1.AddNodeResponse
+		(*AddGenericNodeParams)(nil),           // 13: inventory.v1.AddGenericNodeParams
+		(*AddContainerNodeParams)(nil),         // 14: inventory.v1.AddContainerNodeParams
+		(*AddRemoteNodeParams)(nil),            // 15: inventory.v1.AddRemoteNodeParams
+		(*AddRemoteRDSNodeParams)(nil),         // 16: inventory.v1.AddRemoteRDSNodeParams
+		(*AddRemoteAzureNodeParams)(nil),       // 17: inventory.v1.AddRemoteAzureNodeParams
+		(*AddRemoteElastiCacheNodeParams)(nil), // 18: inventory.v1.AddRemoteElastiCacheNodeParams
+		(*RemoveNodeRequest)(nil),              // 19: inventory.v1.RemoveNodeRequest
+		(*RemoveNodeResponse)(nil),             // 20: inventory.v1.RemoveNodeResponse
+		nil,                                    // 21: inventory.v1.GenericNode.CustomLabelsEntry
+		nil,                                    // 22: inventory.v1.ContainerNode.CustomLabelsEntry
+		nil,                                    // 23: inventory.v1.RemoteNode.CustomLabelsEntry
+		nil,                                    // 24: inventory.v1.RemoteRDSNode.CustomLabelsEntry
+		nil,                                    // 25: inventory.v1.RemoteAzureDatabaseNode.CustomLabelsEntry
+		nil,                                    // 26: inventory.v1.RemoteElastiCacheNode.CustomLabelsEntry
+		nil,                                    // 27: inventory.v1.AddGenericNodeParams.CustomLabelsEntry
+		nil,                                    // 28: inventory.v1.AddContainerNodeParams.CustomLabelsEntry
+		nil,                                    // 29: inventory.v1.AddRemoteNodeParams.CustomLabelsEntry
+		nil,                                    // 30: inventory.v1.AddRemoteRDSNodeParams.CustomLabelsEntry
+		nil,                                    // 31: inventory.v1.AddRemoteAzureNodeParams.CustomLabelsEntry
+		nil,                                    // 32: inventory.v1.AddRemoteElastiCacheNodeParams.CustomLabelsEntry
 	}
 )
 
 var file_inventory_v1_nodes_proto_depIdxs = []int32{
-	19, // 0: inventory.v1.GenericNode.custom_labels:type_name -> inventory.v1.GenericNode.CustomLabelsEntry
-	20, // 1: inventory.v1.ContainerNode.custom_labels:type_name -> inventory.v1.ContainerNode.CustomLabelsEntry
-	21, // 2: inventory.v1.RemoteNode.custom_labels:type_name -> inventory.v1.RemoteNode.CustomLabelsEntry
-	22, // 3: inventory.v1.RemoteRDSNode.custom_labels:type_name -> inventory.v1.RemoteRDSNode.CustomLabelsEntry
-	23, // 4: inventory.v1.RemoteAzureDatabaseNode.custom_labels:type_name -> inventory.v1.RemoteAzureDatabaseNode.CustomLabelsEntry
-	0,  // 5: inventory.v1.ListNodesRequest.node_type:type_name -> inventory.v1.NodeType
-	1,  // 6: inventory.v1.ListNodesResponse.generic:type_name -> inventory.v1.GenericNode
-	2,  // 7: inventory.v1.ListNodesResponse.container:type_name -> inventory.v1.ContainerNode
-	3,  // 8: inventory.v1.ListNodesResponse.remote:type_name -> inventory.v1.RemoteNode
-	4,  // 9: inventory.v1.ListNodesResponse.remote_rds:type_name -> inventory.v1.RemoteRDSNode
-	5,  // 10: inventory.v1.ListNodesResponse.remote_azure_database:type_name -> inventory.v1.RemoteAzureDatabaseNode
-	1,  // 11: inventory.v1.GetNodeResponse.generic:type_name -> inventory.v1.GenericNode
-	2,  // 12: inventory.v1.GetNodeResponse.container:type_name -> inventory.v1.ContainerNode
-	3,  // 13: inventory.v1.GetNodeResponse.remote:type_name -> inventory.v1.RemoteNode
-	4,  // 14: inventory.v1.GetNodeResponse.remote_rds:type_name -> inventory.v1.RemoteRDSNode
-	5,  // 15: inventory.v1.GetNodeResponse.remote_azure_database:type_name -> inventory.v1.RemoteAzureDatabaseNode
-	12, // 16: inventory.v1.AddNodeRequest.generic:type_name -> inventory.v1.AddGenericNodeParams
-	13, // 17: inventory.v1.AddNodeRequest.container:type_name -> inventory.v1.AddContainerNodeParams
-	14, // 18: inventory.v1.AddNodeRequest.remote:type_name -> inventory.v1.AddRemoteNodeParams
-	15, // 19: inventory.v1.AddNodeRequest.remote_rds:type_name -> inventory.v1.AddRemoteRDSNodeParams
-	16, // 20: inventory.v1.AddNodeRequest.remote_azure:type_name -> inventory.v1.AddRemoteAzureNodeParams
-	1,  // 21: inventory.v1.AddNodeResponse.generic:type_name -> inventory.v1.GenericNode
-	2,  // 22: inventory.v1.AddNodeResponse.container:type_name -> inventory.v1.ContainerNode
-	3,  // 23: inventory.v1.AddNodeResponse.remote:type_name -> inventory.v1.RemoteNode
-	4,  // 24: inventory.v1.AddNodeResponse.remote_rds:type_name -> inventory.v1.RemoteRDSNode
-	5,  // 25: inventory.v1.AddNodeResponse.remote_azure_database:type_name -> inventory.v1.RemoteAzureDatabaseNode
-	24, // 26: inventory.v1.AddGenericNodeParams.custom_labels:type_name -> inventory.v1.AddGenericNodeParams.CustomLabelsEntry
-	25, // 27: inventory.v1.AddContainerNodeParams.custom_labels:type_name -> inventory.v1.AddContainerNodeParams.CustomLabelsEntry
-	26, // 28: inventory.v1.AddRemoteNodeParams.custom_labels:type_name -> inventory.v1.AddRemoteNodeParams.CustomLabelsEntry
-	27, // 29: inventory.v1.AddRemoteRDSNodeParams.custom_labels:type_name -> inventory.v1.AddRemoteRDSNodeParams.CustomLabelsEntry
-	28, // 30: inventory.v1.AddRemoteAzureNodeParams.custom_labels:type_name -> inventory.v1.AddRemoteAzureNodeParams.CustomLabelsEntry
-	6,  // 31: inventory.v1.NodesService.ListNodes:input_type -> inventory.v1.ListNodesRequest
-	8,  // 32: inventory.v1.NodesService.GetNode:input_type -> inventory.v1.GetNodeRequest
-	10, // 33: inventory.v1.NodesService.AddNode:input_type -> inventory.v1.AddNodeRequest
-	17, // 34: inventory.v1.NodesService.RemoveNode:input_type -> inventory.v1.RemoveNodeRequest
-	7,  // 35: inventory.v1.NodesService.ListNodes:output_type -> inventory.v1.ListNodesResponse
-	9,  // 36: inventory.v1.NodesService.GetNode:output_type -> inventory.v1.GetNodeResponse
-	11, // 37: inventory.v1.NodesService.AddNode:output_type -> inventory.v1.AddNodeResponse
-	18, // 38: inventory.v1.NodesService.RemoveNode:output_type -> inventory.v1.RemoveNodeResponse
-	35, // [35:39] is the sub-list for method output_type
-	31, // [31:35] is the sub-list for method input_type
-	31, // [31:31] is the sub-list for extension type_name
-	31, // [31:31] is the sub-list for extension extendee
-	0,  // [0:31] is the sub-list for field type_name
+	21, // 0: inventory.v1.GenericNode.custom_labels:type_name -> inventory.v1.GenericNode.CustomLabelsEntry
+	22, // 1: inventory.v1.ContainerNode.custom_labels:type_name -> inventory.v1.ContainerNode.CustomLabelsEntry
+	23, // 2: inventory.v1.RemoteNode.custom_labels:type_name -> inventory.v1.RemoteNode.CustomLabelsEntry
+	24, // 3: inventory.v1.RemoteRDSNode.custom_labels:type_name -> inventory.v1.RemoteRDSNode.CustomLabelsEntry
+	25, // 4: inventory.v1.RemoteAzureDatabaseNode.custom_labels:type_name -> inventory.v1.RemoteAzureDatabaseNode.CustomLabelsEntry
+	26, // 5: inventory.v1.RemoteElastiCacheNode.custom_labels:type_name -> inventory.v1.RemoteElastiCacheNode.CustomLabelsEntry
+	0,  // 6: inventory.v1.ListNodesRequest.node_type:type_name -> inventory.v1.NodeType
+	1,  // 7: inventory.v1.ListNodesResponse.generic:type_name -> inventory.v1.GenericNode
+	2,  // 8: inventory.v1.ListNodesResponse.container:type_name -> inventory.v1.ContainerNode
+	3,  // 9: inventory.v1.ListNodesResponse.remote:type_name -> inventory.v1.RemoteNode
+	4,  // 10: inventory.v1.ListNodesResponse.remote_rds:type_name -> inventory.v1.RemoteRDSNode
+	5,  // 11: inventory.v1.ListNodesResponse.remote_azure_database:type_name -> inventory.v1.RemoteAzureDatabaseNode
+	6,  // 12: inventory.v1.ListNodesResponse.remote_elasticache:type_name -> inventory.v1.RemoteElastiCacheNode
+	1,  // 13: inventory.v1.GetNodeResponse.generic:type_name -> inventory.v1.GenericNode
+	2,  // 14: inventory.v1.GetNodeResponse.container:type_name -> inventory.v1.ContainerNode
+	3,  // 15: inventory.v1.GetNodeResponse.remote:type_name -> inventory.v1.RemoteNode
+	4,  // 16: inventory.v1.GetNodeResponse.remote_rds:type_name -> inventory.v1.RemoteRDSNode
+	5,  // 17: inventory.v1.GetNodeResponse.remote_azure_database:type_name -> inventory.v1.RemoteAzureDatabaseNode
+	6,  // 18: inventory.v1.GetNodeResponse.remote_elasticache:type_name -> inventory.v1.RemoteElastiCacheNode
+	13, // 19: inventory.v1.AddNodeRequest.generic:type_name -> inventory.v1.AddGenericNodeParams
+	14, // 20: inventory.v1.AddNodeRequest.container:type_name -> inventory.v1.AddContainerNodeParams
+	15, // 21: inventory.v1.AddNodeRequest.remote:type_name -> inventory.v1.AddRemoteNodeParams
+	16, // 22: inventory.v1.AddNodeRequest.remote_rds:type_name -> inventory.v1.AddRemoteRDSNodeParams
+	17, // 23: inventory.v1.AddNodeRequest.remote_azure:type_name -> inventory.v1.AddRemoteAzureNodeParams
+	18, // 24: inventory.v1.AddNodeRequest.remote_elasticache:type_name -> inventory.v1.AddRemoteElastiCacheNodeParams
+	1,  // 25: inventory.v1.AddNodeResponse.generic:type_name -> inventory.v1.GenericNode
+	2,  // 26: inventory.v1.AddNodeResponse.container:type_name -> inventory.v1.ContainerNode
+	3,  // 27: inventory.v1.AddNodeResponse.remote:type_name -> inventory.v1.RemoteNode
+	4,  // 28: inventory.v1.AddNodeResponse.remote_rds:type_name -> inventory.v1.RemoteRDSNode
+	5,  // 29: inventory.v1.AddNodeResponse.remote_azure_database:type_name -> inventory.v1.RemoteAzureDatabaseNode
+	6,  // 30: inventory.v1.AddNodeResponse.remote_elasticache:type_name -> inventory.v1.RemoteElastiCacheNode
+	27, // 31: inventory.v1.AddGenericNodeParams.custom_labels:type_name -> inventory.v1.AddGenericNodeParams.CustomLabelsEntry
+	28, // 32: inventory.v1.AddContainerNodeParams.custom_labels:type_name -> inventory.v1.AddContainerNodeParams.CustomLabelsEntry
+	29, // 33: inventory.v1.AddRemoteNodeParams.custom_labels:type_name -> inventory.v1.AddRemoteNodeParams.CustomLabelsEntry
+	30, // 34: inventory.v1.AddRemoteRDSNodeParams.custom_labels:type_name -> inventory.v1.AddRemoteRDSNodeParams.CustomLabelsEntry
+	31, // 35: inventory.v1.AddRemoteAzureNodeParams.custom_labels:type_name -> inventory.v1.AddRemoteAzureNodeParams.CustomLabelsEntry
+	32, // 36: inventory.v1.AddRemoteElastiCacheNodeParams.custom_labels:type_name -> inventory.v1.AddRemoteElastiCacheNodeParams.CustomLabelsEntry
+	7,  // 37: inventory.v1.NodesService.ListNodes:input_type -> inventory.v1.ListNodesRequest
+	9,  // 38: inventory.v1.NodesService.GetNode:input_type -> inventory.v1.GetNodeRequest
+	11, // 39: inventory.v1.NodesService.AddNode:input_type -> inventory.v1.AddNodeRequest
+	19, // 40: inventory.v1.NodesService.RemoveNode:input_type -> inventory.v1.RemoveNodeRequest
+	8,  // 41: inventory.v1.NodesService.ListNodes:output_type -> inventory.v1.ListNodesResponse
+	10, // 42: inventory.v1.NodesService.GetNode:output_type -> inventory.v1.GetNodeResponse
+	12, // 43: inventory.v1.NodesService.AddNode:output_type -> inventory.v1.AddNodeResponse
+	20, // 44: inventory.v1.NodesService.RemoveNode:output_type -> inventory.v1.RemoveNodeResponse
+	41, // [41:45] is the sub-list for method output_type
+	37, // [37:41] is the sub-list for method input_type
+	37, // [37:37] is the sub-list for extension type_name
+	37, // [37:37] is the sub-list for extension extendee
+	0,  // [0:37] is the sub-list for field type_name
 }
 
 func init() { file_inventory_v1_nodes_proto_init() }
@@ -2096,26 +2405,29 @@ func file_inventory_v1_nodes_proto_init() {
 	if File_inventory_v1_nodes_proto != nil {
 		return
 	}
-	file_inventory_v1_nodes_proto_msgTypes[8].OneofWrappers = []any{
+	file_inventory_v1_nodes_proto_msgTypes[9].OneofWrappers = []any{
 		(*GetNodeResponse_Generic)(nil),
 		(*GetNodeResponse_Container)(nil),
 		(*GetNodeResponse_Remote)(nil),
 		(*GetNodeResponse_RemoteRds)(nil),
 		(*GetNodeResponse_RemoteAzureDatabase)(nil),
+		(*GetNodeResponse_RemoteElasticache)(nil),
 	}
-	file_inventory_v1_nodes_proto_msgTypes[9].OneofWrappers = []any{
+	file_inventory_v1_nodes_proto_msgTypes[10].OneofWrappers = []any{
 		(*AddNodeRequest_Generic)(nil),
 		(*AddNodeRequest_Container)(nil),
 		(*AddNodeRequest_Remote)(nil),
 		(*AddNodeRequest_RemoteRds)(nil),
 		(*AddNodeRequest_RemoteAzure)(nil),
+		(*AddNodeRequest_RemoteElasticache)(nil),
 	}
-	file_inventory_v1_nodes_proto_msgTypes[10].OneofWrappers = []any{
+	file_inventory_v1_nodes_proto_msgTypes[11].OneofWrappers = []any{
 		(*AddNodeResponse_Generic)(nil),
 		(*AddNodeResponse_Container)(nil),
 		(*AddNodeResponse_Remote)(nil),
 		(*AddNodeResponse_RemoteRds)(nil),
 		(*AddNodeResponse_RemoteAzureDatabase)(nil),
+		(*AddNodeResponse_RemoteElasticache)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -2123,7 +2435,7 @@ func file_inventory_v1_nodes_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_inventory_v1_nodes_proto_rawDesc), len(file_inventory_v1_nodes_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   28,
+			NumMessages:   32,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

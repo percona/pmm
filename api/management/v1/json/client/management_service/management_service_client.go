@@ -59,6 +59,8 @@ type ClientService interface {
 
 	DiscoverAzureDatabase(params *DiscoverAzureDatabaseParams, opts ...ClientOption) (*DiscoverAzureDatabaseOK, error)
 
+	DiscoverElastiCache(params *DiscoverElastiCacheParams, opts ...ClientOption) (*DiscoverElastiCacheOK, error)
+
 	DiscoverRDS(params *DiscoverRDSParams, opts ...ClientOption) (*DiscoverRDSOK, error)
 
 	GetNode(params *GetNodeParams, opts ...ClientOption) (*GetNodeOK, error)
@@ -252,6 +254,50 @@ func (a *Client) DiscoverAzureDatabase(params *DiscoverAzureDatabaseParams, opts
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*DiscoverAzureDatabaseDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+DiscoverElastiCache discovers elasti cache
+
+Discovers ElastiCache replication groups (Valkey/Redis).
+*/
+func (a *Client) DiscoverElastiCache(params *DiscoverElastiCacheParams, opts ...ClientOption) (*DiscoverElastiCacheOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewDiscoverElastiCacheParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "DiscoverElastiCache",
+		Method:             "POST",
+		PathPattern:        "/v1/management/services:discoverElastiCache",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &DiscoverElastiCacheReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*DiscoverElastiCacheOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*DiscoverElastiCacheDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }

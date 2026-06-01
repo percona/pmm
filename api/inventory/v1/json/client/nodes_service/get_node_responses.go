@@ -429,6 +429,9 @@ type GetNodeOKBody struct {
 	// remote azure database
 	RemoteAzureDatabase *GetNodeOKBodyRemoteAzureDatabase `json:"remote_azure_database,omitempty"`
 
+	// remote elasticache
+	RemoteElasticache *GetNodeOKBodyRemoteElasticache `json:"remote_elasticache,omitempty"`
+
 	// remote rds
 	RemoteRDS *GetNodeOKBodyRemoteRDS `json:"remote_rds,omitempty"`
 }
@@ -450,6 +453,10 @@ func (o *GetNodeOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateRemoteAzureDatabase(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRemoteElasticache(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -555,6 +562,29 @@ func (o *GetNodeOKBody) validateRemoteAzureDatabase(formats strfmt.Registry) err
 	return nil
 }
 
+func (o *GetNodeOKBody) validateRemoteElasticache(formats strfmt.Registry) error {
+	if swag.IsZero(o.RemoteElasticache) { // not required
+		return nil
+	}
+
+	if o.RemoteElasticache != nil {
+		if err := o.RemoteElasticache.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("getNodeOk" + "." + "remote_elasticache")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("getNodeOk" + "." + "remote_elasticache")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *GetNodeOKBody) validateRemoteRDS(formats strfmt.Registry) error {
 	if swag.IsZero(o.RemoteRDS) { // not required
 		return nil
@@ -595,6 +625,10 @@ func (o *GetNodeOKBody) ContextValidate(ctx context.Context, formats strfmt.Regi
 	}
 
 	if err := o.contextValidateRemoteAzureDatabase(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateRemoteElasticache(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -695,6 +729,30 @@ func (o *GetNodeOKBody) contextValidateRemoteAzureDatabase(ctx context.Context, 
 			ce := new(errors.CompositeError)
 			if stderrors.As(err, &ce) {
 				return ce.ValidateName("getNodeOk" + "." + "remote_azure_database")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetNodeOKBody) contextValidateRemoteElasticache(ctx context.Context, formats strfmt.Registry) error {
+	if o.RemoteElasticache != nil {
+
+		if swag.IsZero(o.RemoteElasticache) { // not required
+			return nil
+		}
+
+		if err := o.RemoteElasticache.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("getNodeOk" + "." + "remote_elasticache")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("getNodeOk" + "." + "remote_elasticache")
 			}
 
 			return err
@@ -980,6 +1038,64 @@ func (o *GetNodeOKBodyRemoteAzureDatabase) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetNodeOKBodyRemoteAzureDatabase) UnmarshalBinary(b []byte) error {
 	var res GetNodeOKBodyRemoteAzureDatabase
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+GetNodeOKBodyRemoteElasticache RemoteElastiCacheNode represents remote ElastiCache Node. Agents can't run on Remote ElastiCache Nodes.
+swagger:model GetNodeOKBodyRemoteElasticache
+*/
+type GetNodeOKBodyRemoteElasticache struct {
+	// Unique randomly generated instance identifier.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Unique across all Nodes user-defined name.
+	NodeName string `json:"node_name,omitempty"`
+
+	// ElastiCache primary endpoint address.
+	Address string `json:"address,omitempty"`
+
+	// Node model (cache node type).
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Node region.
+	Region string `json:"region,omitempty"`
+
+	// Node availability zone.
+	Az string `json:"az,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AWS instance ID (replication group ID).
+	InstanceID string `json:"instance_id,omitempty"`
+}
+
+// Validate validates this get node OK body remote elasticache
+func (o *GetNodeOKBodyRemoteElasticache) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get node OK body remote elasticache based on context it is used
+func (o *GetNodeOKBodyRemoteElasticache) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetNodeOKBodyRemoteElasticache) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetNodeOKBodyRemoteElasticache) UnmarshalBinary(b []byte) error {
+	var res GetNodeOKBodyRemoteElasticache
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
