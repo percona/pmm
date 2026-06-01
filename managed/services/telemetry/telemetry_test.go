@@ -199,7 +199,7 @@ func TestRunSkipsNonReleaseVersion(t *testing.T) {
 	logEntry := logrus.NewEntry(logger)
 
 	// Settings JSON with a pre-existing UUID so makeMetric won't attempt an UPDATE.
-	settingsJSON := []byte(`{"telemetry":{"uuid":"00000000-0000-0000-0000-000000000001"}}`)
+	settingsJSON := []byte(`{"telemetry":{"enabled":true,"uuid":"00000000-0000-0000-0000-000000000001"}}`)
 
 	tests := []struct {
 		version string
