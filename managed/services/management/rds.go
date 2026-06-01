@@ -337,6 +337,10 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 
 		switch req.Engine {
 		case managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_MYSQL:
+			if len(req.PostgresqlDisableCollectors) != 0 {
+				s.l.Warn("postgresql_disable_collectors is ignored for MySQL RDS engine.")
+			}
+
 			// add MySQL Service
 			service, err := models.AddNewService(tx.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 				ServiceName:    req.ServiceName,
@@ -419,6 +423,10 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 			return nil
 		// PostgreSQL RDS
 		case managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_POSTGRESQL:
+			if len(req.MysqlDisableCollectors) != 0 {
+				s.l.Warn("mysql_disable_collectors is ignored for PostgreSQL RDS engine.")
+			}
+
 			// add PostgreSQL Service
 			service, err := models.AddNewService(tx.Querier, models.PostgreSQLServiceType, &models.AddDBMSServiceParams{
 				ServiceName:    req.ServiceName,
