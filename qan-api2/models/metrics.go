@@ -1092,13 +1092,16 @@ func (m *Metrics) SchemaByQueryID(ctx context.Context, serviceID, queryID string
 	defer rows.Close() //nolint:errcheck
 
 	res := &qanv1.SchemaByQueryIDResponse{}
-	for rows.Next() {
+	if rows.Next() {
 		err = rows.Scan(&res.Schema)
 		if err != nil {
 			return res, errors.Wrap(err, "failed to scan query")
 		}
+	}
 
-		return res, nil //nolint:staticcheck
+	err = rows.Err()
+	if err != nil {
+		return res, errors.Wrap(err, "failed to read query")
 	}
 
 	return res, nil
@@ -1139,7 +1142,7 @@ func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, qu
 	defer rows.Close() //nolint:errcheck
 
 	var fingerprint, example string
-	for rows.Next() {
+	if rows.Next() {
 		err = rows.Scan(
 			&res.ExplainFingerprint,
 			&fingerprint,
@@ -1161,7 +1164,12 @@ func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, qu
 			res.ExplainFingerprint = fingerprint
 		}
 
-		return res, nil //nolint:staticcheck
+		return res, nil
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return res, errors.Wrap(err, "failed to read query")
 	}
 
 	return res, errors.New("query_id doesnt exists")
