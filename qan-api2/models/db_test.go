@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package main
+package models
 
 import (
 	"fmt"
@@ -34,7 +34,7 @@ import (
 	"github.com/percona/pmm/qan-api2/migrations"
 )
 
-func setup() *sqlx.DB {
+func setupDB() *sqlx.DB {
 	cmdStr := `docker exec pmm-clickhouse-test clickhouse client -n --password=clickhouse --query='DROP DATABASE IF EXISTS pmm_test_parts; CREATE DATABASE pmm_test_parts;'`
 	if out, err := exec.Command("/bin/sh", "-c", cmdStr).Output(); err != nil {
 		log.Printf("Docker create db: %v, %v", out, err)
@@ -66,7 +66,7 @@ func setup() *sqlx.DB {
 	return db
 }
 
-func cleanup() {
+func cleanupDB() {
 	cleanupDatabases := []string{"pmm_test_parts", "pmm_created_db"}
 	for _, database := range cleanupDatabases {
 		cmdStr := fmt.Sprintf(`docker exec pmm-clickhouse-test clickhouse client --password=clickhouse --query='DROP DATABASE IF EXISTS %s;'`, database)
@@ -77,7 +77,8 @@ func cleanup() {
 }
 
 func TestDropOldPartition(t *testing.T) {
-	db := setup()
+	t.Parallel()
+	db := setupDB()
 
 	const query = `SELECT DISTINCT partition FROM system.parts WHERE database = 'pmm_test_parts' and visible = 1 ORDER BY partition`
 
@@ -114,10 +115,12 @@ func TestDropOldPartition(t *testing.T) {
 		require.Len(t, partitions, 1, "Only one partition should left. Partition %+v, days %d", partitions, days)
 		assert.Equal(t, "20190102", partitions[0], "Newest partition was not truncated")
 	})
-	cleanup()
+	cleanupDB()
 }
 
 func TestCreateDbIfNotExists(t *testing.T) {
+	t.Parallel()
+
 	t.Run("connect to db that doesnt exist", func(t *testing.T) {
 		dsn, ok := os.LookupEnv("QANAPI_DSN_TEST")
 

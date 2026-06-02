@@ -303,7 +303,7 @@ func main() {
 	}
 	l.Info("DSN: ", dsnutils.RedactDSN(dsn))
 
-	db := NewDB(dsn, maxIdleConns, maxOpenConns, *clickhouseIsClusterF, *clickhouseClusterNameF)
+	db := models.NewDB(dsn, maxIdleConns, maxOpenConns, *clickhouseIsClusterF, *clickhouseClusterNameF)
 	prom.MustRegister(sqlmetrics.NewCollector("clickhouse", "qan-api2", db.DB))
 
 	// handle termination signals
@@ -350,7 +350,7 @@ func main() {
 		defer ticker.Stop()
 		for {
 			// Drop old partitions once per interval.
-			DropOldPartition(db, *clickhouseDatabaseF, *dataRetentionF)
+			models.DropOldPartition(db, *clickhouseDatabaseF, *dataRetentionF)
 			select {
 			case <-ctx.Done():
 				return

@@ -1,12 +1,12 @@
+.DEFAULT_GOAL := help
+.PHONY: help release install install-race test-env-up test-env test-env-down
+.PHONY: test test-race run-race-cover _run env-up env-down pmm-env-up deploy
 # PMM Demo benchmark
 include Makefile.clickhouse
 
-default: help
-
-help:                           ## Display this help message
-	@echo "Please use \`make <target>\` where <target> is one of:"
-	@grep '^[a-zA-Z]' $(MAKEFILE_LIST) | \
-	    awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
+help: ## Display this help message
+	@echo "Please use \`make <target>\`, where <target> is one of the following:"
+	@grep -h '^[a-zA-Z]' $(MAKEFILE_LIST) | awk -F ':.*## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
 
 # `cut` is used to remove the leading `v` from the version
 PMM_RELEASE_PATH ?= ../bin
@@ -33,28 +33,40 @@ install:                        ## Install qan-api2 binary
 install-race:                   ## Install qan-api2 binary with race detector
 	go install -v -race ./...
 
+TEST_CONTAINER_NAME := pmm-clickhouse-test
+TEST_IMAGE_NAME := clickhouse/clickhouse-server:25.3.6.56
+
 test-env-up:                    ## Start docker containers used for testing
-	docker run -d \
+	@echo "Starting container $(TEST_CONTAINER_NAME)..."
+	@docker run -d \
 		--platform=linux/amd64 \
-		--name pmm-clickhouse-test \
+		--name  $(TEST_CONTAINER_NAME) \
 		-p 19000:9000 \
 		-p 18123:8123 \
 		-e CLICKHOUSE_USER=default \
 		-e CLICKHOUSE_PASSWORD=clickhouse \
-		clickhouse/clickhouse-server:25.3.6.56
+		$(TEST_IMAGE_NAME)
+	@echo "Waiting for container to become healthy..."
+	@while true; do \
+		if curl http://127.0.0.1:18123/ping > /dev/null 2>&1; then \
+			break; \
+		fi; \
+		sleep 1; \
+	done
 	make test-env
 
 test-env:                       ## Create pmm_test DB and load test data
-	sleep 10
+	@echo "Importing test data..."
 	docker exec pmm-clickhouse-test clickhouse client --password=clickhouse --query="CREATE DATABASE IF NOT EXISTS pmm_test;"
 	go run ./cmd/render-migrations | docker exec -i pmm-clickhouse-test clickhouse client --password=clickhouse -d pmm_test --multiline --multiquery
 	cat fixture/metrics.part_*.json | docker exec -i pmm-clickhouse-test clickhouse client --password=clickhouse -d pmm_test --query="INSERT INTO metrics FORMAT JSONEachRow"
 
 test-env-down:                  ## Stop and remove docker containers used for testing
+	@echo "Terminating test container $(TEST_CONTAINER_NAME)..."
 	docker stop pmm-clickhouse-test
 	docker rm pmm-clickhouse-test
 
-test:                           ## Run tests
+test:                           ## Run tests (run `make test-env-up` beforehand)
 	go test ./...
 
 test-race:                      ## Run tests with race detector
