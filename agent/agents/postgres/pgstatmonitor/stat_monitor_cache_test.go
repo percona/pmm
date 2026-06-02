@@ -18,6 +18,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
@@ -28,7 +29,9 @@ import (
 
 func TestPGStatMonitorStructs(t *testing.T) {
 	sqlDB := tests.OpenTestPostgreSQL(t)
-	defer sqlDB.Close() //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, sqlDB.Close())
+	})
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	majorVersion, _ := tests.PostgreSQLVersion(t, sqlDB)
