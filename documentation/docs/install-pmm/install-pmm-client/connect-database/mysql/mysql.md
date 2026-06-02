@@ -427,6 +427,10 @@ After creating your PMM database user, you can quickly add your MySQL service to
         - **Query Source**: Choose between **Slow Log** or **Performance Schema**
         - **PMM Agent**: Select which PMM agent should monitor this instance
         - **Disable query examples**: Check this option to prevent collection of actual query values in QAN. When enabled, PMM will continue to collect query metrics and statistics but will not store the actual query examples with real data values.
+        - **Disable collectors**: Under **Additional options**, enter a comma-separated list of collector names to exclude from metric collection. Use this to reduce monitoring overhead or suppress metrics that are not relevant to your environment.
+
+            ??? info "Available MySQL collectors"
+                `auto_increment.columns`, `binlog_size`, `custom_query.hr`, `custom_query.lr`, `custom_query.mr`, `engine_innodb_status`, `engine_tokudb_status`, `global_status`, `global_variables`, `heartbeat`, `info_schema.clientstats`, `info_schema.innodb_cmp`, `info_schema.innodb_cmpmem`, `info_schema.innodb_metrics`, `info_schema.innodb_tablespaces`, `info_schema.processlist`, `info_schema.query_response_time`, `info_schema.tables`, `info_schema.tablestats`, `info_schema.userstats`, `perf_schema.eventsstatements`, `perf_schema.eventswaits`, `perf_schema.file_events`, `perf_schema.file_instances`, `perf_schema.indexiowaits`, `perf_schema.tableiowaits`, `perf_schema.tablelocks`, `plugins`, `slave_status`, `standard.go`, `standard.process`
 
     4. Click **Add Service**.
 

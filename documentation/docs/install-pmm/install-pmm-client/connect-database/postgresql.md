@@ -260,7 +260,12 @@ After configuring your database server with the appropriate extension, you need 
 
     3. (Optional) If using `pgstatmonitor`, check **Disable query examples** under **Additional options** to prevent collection of actual query values. This protects sensitive data while preserving all query metrics and performance statistics in QAN.    
 
-    4. Click **Add service**.
+    4. (Optional) Under **Additional options**, in the **Disable collectors** field, enter a comma-separated list of collector names to exclude from metric collection. Use this to reduce monitoring overhead or suppress metrics that are not relevant to your environment.
+
+        ??? info "Available PostgreSQL collectors"
+            `custom_query.hr`, `custom_query.lr`, `custom_query.mr`, `database`, `database_wraparound`, `extensions`, `locks`, `replication`, `replication_slot`, `stat_bgwriter`, `stat_database`, `stat_user_tables`, `statio_user_tables`, `wal`
+
+    5. Click **Add service**.
     ![!](../../../images/PMM_Add_Instance_PostgreSQL.png)
 
     5. If using TLS, check **Use TLS for database connections** and fill in your TLS certificates and key.        
