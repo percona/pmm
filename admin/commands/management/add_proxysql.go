@@ -151,7 +151,7 @@ func (cmd *AddProxySQLCommand) RunCmd() (commands.Result, error) {
 				SkipConnectionCheck: cmd.SkipConnectionCheck,
 				TLS:                 cmd.TLS,
 				TLSSkipVerify:       cmd.TLSSkipVerify,
-				MetricsMode:         cmd.MetricsModeFlags.MetricsMode.EnumValue(),
+				MetricsMode:         cmd.MetricsMode.EnumValue(),
 				DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
 				LogLevel:            cmd.LogLevel.EnumValue(),
 				ConnectionTimeout:   commands.DurationString(cmd.ConnectionTimeout),
