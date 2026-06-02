@@ -465,7 +465,11 @@ const queryDimension = `
 SELECT
     '{{ .DimensionName }}' AS key,
     {{ .DimensionName }} AS value,
-    sumIf({{ .MainMetric }}, {{ if .Dimensions }}{{ $i := 0 }}{{ range $key, $vals := .Dimensions }}{{ $i = inc $i }}{{ if gt $i 1 }} AND {{ end }}{{ $key }} IN ('{{ StringsJoin $vals "', '" }}'){{ end }}{{ else }}1{{ end }}) AS main_metric_sum
+    sumIf({{ .MainMetric }},
+        {{ if .Dimensions }}{{ $i := 0 }}
+        {{ range $key, $vals := .Dimensions }}{{ $i = inc $i }}{{ if gt $i 1 }} AND {{ end }}{{ $key }} IN ('{{ StringsJoin $vals "', '" }}'){{ end }}
+        {{ else }}1{{ end }}
+    ) AS main_metric_sum
 FROM metrics
 WHERE (period_start >= ?) AND (period_start <= ?)
 {{ if .LbacFilter }}
@@ -547,7 +551,10 @@ func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, period
 				}
 				subDimensions[k] = v
 			}
-			values, mainMetricPerSec, err := r.queryFilters(gCtx, periodStartFromSec, periodStartToSec, dimensionName, mainMetricName, dimensionQueries[dimensionName], subDimensions, labels)
+			values, mainMetricPerSec, err := r.queryFilters(
+				gCtx, periodStartFromSec, periodStartToSec, dimensionName,
+				mainMetricName, dimensionQueries[dimensionName], subDimensions, labels,
+			)
 			if err != nil {
 				return fmt.Errorf("cannot select %s dimension: %w", dimensionName, err)
 			}

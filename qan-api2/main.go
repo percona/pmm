@@ -269,7 +269,8 @@ func main() {
 
 	clickhouseIsClusterF := kingpin.Flag("clickhouse-cluster", "Is ClickHouse a cluster").Default("false").Envar("PMM_CLICKHOUSE_IS_CLUSTER").Bool()
 	clickhouseClusterNameF := kingpin.Flag("clickhouse-cluster-name", "ClickHouse cluster name").Default("").Envar("PMM_CLICKHOUSE_CLUSTER_NAME").String()
-	clickhousePoolSizeF := kingpin.Flag("clickhouse-pool-size", "Maximum number of ClickHouse connections (shared by analytics and ingestion)").Default(strconv.Itoa(defaultPoolSize)).Envar("PMM_CLICKHOUSE_POOL_SIZE").Int()
+	ps := strconv.Itoa(defaultPoolSize)
+	clickhousePoolSizeF := kingpin.Flag("clickhouse-pool-size", "Maximum number of ClickHouse connections").Default(ps).Envar("PMM_CLICKHOUSE_POOL_SIZE").Int()
 
 	debugF := kingpin.Flag("debug", "Enable debug logging").Bool()
 	traceF := kingpin.Flag("trace", "Enable trace logging (implies debug)").Bool()
