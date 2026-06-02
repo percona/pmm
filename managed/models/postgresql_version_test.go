@@ -74,7 +74,10 @@ func TestGetPostgreSQLVersion(t *testing.T) {
 
 			sqlDB, mock, err := sqlmock.New()
 			require.NoError(t, err)
-			t.Cleanup(func() { sqlDB.Close() }) //nolint:errcheck
+			t.Cleanup(func() {
+				_ = mock.ExpectClose()
+				assert.NoError(t, sqlDB.Close())
+			})
 
 			q := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)).WithTag("pmm-agent:postgresqlversion")
 			ctx := t.Context()
