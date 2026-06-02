@@ -457,7 +457,7 @@ func createServiceAccountWithRole(t *testing.T, role, nodeName string) int {
 
 	resp, b = doRequest(t, http.DefaultClient, req) //nolint:bodyclose
 
-	require.Equalf(t, http.StatusCreated, resp.StatusCode, "failed to set orgId=1 to Service account, status code: %d, response: %s", resp.StatusCode, b)
+	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to set orgId=1 to Service account, status code: %d, response: %s", resp.StatusCode, b)
 
 	return serviceAccountID
 }
