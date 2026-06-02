@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/managed/models"
@@ -40,7 +41,9 @@ const (
 
 func TestEncryptionRotation(t *testing.T) {
 	db := testdb.Open(t, models.SkipFixtures, nil)
-	defer db.Close() //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, db.Close())
+	})
 
 	err := createOriginalEncryptionKey(t)
 	require.NoError(t, err)
