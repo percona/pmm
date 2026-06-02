@@ -59,12 +59,14 @@ extra_css:
   - css/pmm.css
   - css/extra.css
   - css/rating.css
+  - css/kapa.css
 
 extra_javascript:
   - js/extra.js
   - js/consent.js
   - js/version-select.js
   - js/rating.js
+  - js/kapa.js
 
 markdown_extensions:
   attr_list: {}
