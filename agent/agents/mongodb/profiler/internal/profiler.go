@@ -80,7 +80,7 @@ func (p *profiler) Start() error {
 	p.client = client
 
 	// create aggregator which collects documents and aggregates them into qan report
-	p.aggregator = aggregator.New(time.Now(), p.agentID, p.logger, p.maxQueryLength)
+	p.aggregator = aggregator.NewWithRandomMinuteOffset(time.Now(), p.agentID, p.logger, p.maxQueryLength)
 	reportChan := p.aggregator.Start()
 
 	// create sender which sends qan reports and start it

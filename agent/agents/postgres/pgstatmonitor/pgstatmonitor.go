@@ -314,10 +314,14 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 	}
 	running = running && m.checkDefaultWaitTime(waitTime)
 
-	// query pg_stat_monitor every waitTime seconds
+	offset, releaseOffset := agents.RandomMinuteOffset(m.agentID)
+	defer releaseOffset()
+
+	// query pg_stat_monitor every waitTime seconds at assigned second
 	start := time.Now()
-	m.l.Debugf("Scheduling next collection in %s at %s.", waitTime, start.Add(waitTime).Format("15:04:05"))
-	t := time.NewTimer(waitTime)
+	wait := agents.NextIntervalWait(start, waitTime, offset)
+	m.l.Debugf("Scheduling next collection in %s at %s with %s offset.", wait, start.Add(wait).Format("15:04:05"), offset)
+	t := time.NewTimer(wait)
 	defer t.Stop()
 
 	for {
@@ -337,7 +341,7 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 				m.l.WithError(err).Errorf("failed to get pg_stat_monitor settings")
 				running = false
 				m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
-				m.resetWaitTime(t, waitTime)
+				m.resetWaitTime(t, waitTime, offset)
 				continue
 			}
 			normalizedQuery, err := settings.getNormalizedQueryValue()
@@ -345,7 +349,7 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 				m.l.WithError(err).Errorf("failed to get pg_stat_monitor settings normalizedQuery value")
 				running = false
 				m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
-				m.resetWaitTime(t, waitTime)
+				m.resetWaitTime(t, waitTime, offset)
 				continue
 			}
 
@@ -355,14 +359,14 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 			}
 			running = m.checkDefaultWaitTime(waitTime)
 			if !running {
-				m.resetWaitTime(t, waitTime)
+				m.resetWaitTime(t, waitTime, offset)
 				continue
 			}
 
 			lengthS := uint32(waitTime.Seconds())
 			buckets, err := m.getNewBuckets(ctx, lengthS, normalizedQuery)
 
-			m.resetWaitTime(t, waitTime)
+			m.resetWaitTime(t, waitTime, offset)
 
 			if err != nil {
 				m.l.Error(errors.Wrap(err, "getNewBuckets failed"))
@@ -396,10 +400,11 @@ func (m *PGStatMonitorQAN) Collect(ch chan<- prometheus.Metric) { //nolint:reviv
 	// This method is needed to satisfy interface.
 }
 
-func (m *PGStatMonitorQAN) resetWaitTime(t *time.Timer, waitTime time.Duration) {
+func (m *PGStatMonitorQAN) resetWaitTime(t *time.Timer, waitTime, offset time.Duration) {
 	start := time.Now()
-	m.l.Debugf("Scheduling next collection in %s at %s.", waitTime, start.Add(waitTime).Format("15:04:05"))
-	t.Reset(waitTime)
+	wait := agents.NextIntervalWait(start, waitTime, offset)
+	m.l.Debugf("Scheduling next collection in %s at %s with %s offset.", wait, start.Add(wait).Format("15:04:05"), offset)
+	t.Reset(wait)
 }
 
 func (m *PGStatMonitorQAN) checkDefaultWaitTime(waitTime time.Duration) bool {

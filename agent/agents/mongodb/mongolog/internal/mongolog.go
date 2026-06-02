@@ -101,7 +101,7 @@ func (l *Mongolog) Start(ctx context.Context) error {
 	}
 
 	// create aggregator which collects documents and aggregates them into qan report
-	l.aggregator = aggregator.New(time.Now(), l.agentID, l.logger, l.maxQueryLength)
+	l.aggregator = aggregator.NewWithRandomMinuteOffset(time.Now(), l.agentID, l.logger, l.maxQueryLength)
 	reportChan := l.aggregator.Start() //nolint:contextcheck // PMM-13947
 
 	// create sender which sends qan reports and start it

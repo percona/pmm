@@ -26,6 +26,7 @@ import (
 	mongostats "github.com/percona/percona-toolkit/src/go/mongolib/stats"
 	"github.com/sirupsen/logrus"
 
+	"github.com/percona/pmm/agent/agents"
 	"github.com/percona/pmm/agent/agents/mongodb/shared/fingerprinter"
 	"github.com/percona/pmm/agent/agents/mongodb/shared/report"
 	"github.com/percona/pmm/agent/utils/truncate"
@@ -44,10 +45,23 @@ const (
 
 // New returns configured *Aggregator.
 func New(timeStart time.Time, agentID string, logger *logrus.Entry, maxQueryLength int32) *Aggregator {
+	return newAggregator(timeStart, agentID, logger, maxQueryLength, 0, nil)
+}
+
+// NewWithRandomMinuteOffset returns configured *Aggregator with randomized report scheduling.
+func NewWithRandomMinuteOffset(timeStart time.Time, agentID string, logger *logrus.Entry, maxQueryLength int32) *Aggregator {
+	offset, releaseOffset := agents.RandomMinuteOffset(agentID)
+
+	return newAggregator(timeStart, agentID, logger, maxQueryLength, offset, releaseOffset)
+}
+
+func newAggregator(timeStart time.Time, agentID string, logger *logrus.Entry, maxQueryLength int32, timerOffset time.Duration, releaseOffset func()) *Aggregator {
 	aggregator := &Aggregator{
 		agentID:        agentID,
 		logger:         logger,
 		maxQueryLength: maxQueryLength,
+		timerOffset:    timerOffset,
+		releaseOffset:  releaseOffset,
 	}
 
 	// create duration from interval
@@ -73,18 +87,21 @@ type Aggregator struct {
 	reportChan chan *report.Report
 
 	// interval
-	mx         sync.RWMutex
-	timeStart  time.Time
-	timeEnd    time.Time
-	d          time.Duration
-	t          *time.Timer
-	mongostats *mongostats.Stats
+	mx          sync.RWMutex
+	timeStart   time.Time
+	timeEnd     time.Time
+	d           time.Duration
+	t           *time.Timer
+	timerOffset time.Duration
+	mongostats  *mongostats.Stats
 
 	// state
 	m        sync.Mutex      // Lock() to protect internal consistency of the service
 	running  bool            // Is this service running?
 	doneChan chan struct{}   // close(doneChan) to notify goroutines that they should shutdown
 	wg       *sync.WaitGroup // Wait() for goroutines to stop after being notified they should shutdown
+
+	releaseOffset func()
 }
 
 // Add aggregates new system.profile document.
@@ -103,7 +120,7 @@ func (a *Aggregator) Add(ctx context.Context, doc proto.SystemProfile) error {
 	}
 
 	// we had some activity so reset timer
-	a.t.Reset(a.d)
+	a.t.Reset(a.nextWait())
 
 	return a.mongostats.Add(doc)
 }
@@ -124,7 +141,9 @@ func (a *Aggregator) Start() <-chan *report.Report { //nolint:unparam
 	a.doneChan = make(chan struct{})
 
 	// timeout after not receiving data for interval time
-	a.t = time.NewTimer(a.d)
+	wait := a.nextWait()
+	a.logger.Debugf("Scheduling next aggregation in %s at %s with %s offset.", wait, time.Now().Add(wait).Format("15:04:05"), a.timerOffset)
+	a.t = time.NewTimer(wait)
 
 	// start a goroutine and Add() it to WaitGroup
 	// so we could later Wait() for it to finish
@@ -149,6 +168,10 @@ func (a *Aggregator) Stop() {
 		return
 	}
 	a.running = false
+	if a.releaseOffset != nil {
+		a.releaseOffset()
+		a.releaseOffset = nil
+	}
 
 	// notify goroutine to close
 	close(a.doneChan)
@@ -176,13 +199,23 @@ func start(ctx context.Context, wg *sync.WaitGroup, aggregator *Aggregator, done
 			aggregator.Flush(ctx)
 
 			aggregator.m.Lock()
-			aggregator.t.Reset(aggregator.d)
+			wait := aggregator.nextWait()
+			aggregator.logger.Debugf("Scheduling next aggregation in %s at %s with %s offset.", wait, time.Now().Add(wait).Format("15:04:05"), aggregator.timerOffset)
+			aggregator.t.Reset(wait)
 			aggregator.m.Unlock()
 		case <-doneChan:
 			// Check if we should shutdown.
 			return
 		}
 	}
+}
+
+func (a *Aggregator) nextWait() time.Duration {
+	if a.releaseOffset == nil {
+		return a.d
+	}
+
+	return agents.NextIntervalWait(time.Now(), a.d, a.timerOffset)
 }
 
 // Flush sends data to report chan.
