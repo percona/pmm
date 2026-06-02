@@ -171,8 +171,8 @@ func (j *MySQLBackupJob) backup(ctx context.Context) (rerr error) {
 	}
 
 	var xbcloudCmd *exec.Cmd
-	switch {
-	case j.locationConfig.Type == S3BackupLocationType:
+	switch j.locationConfig.Type {
+	case S3BackupLocationType:
 		xtrabackupCmd.Args = append(xtrabackupCmd.Args, "--stream=xbstream")
 
 		artifactFolder := path.Join(j.folder, j.name)

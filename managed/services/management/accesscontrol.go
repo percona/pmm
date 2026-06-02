@@ -128,7 +128,8 @@ func (acs *AccessControlService) DeleteRole(ctx context.Context, req *rolev1beta
 // GetRole retrieves a Role.
 func (acs *AccessControlService) GetRole(_ context.Context, req *rolev1beta1.GetRoleRequest) (*rolev1beta1.GetRoleResponse, error) {
 	var role models.Role
-	if err := acs.db.Querier.FindByPrimaryKeyTo(&role, req.RoleId); err != nil {
+	err := acs.db.FindByPrimaryKeyTo(&role, req.RoleId)
+	if err != nil {
 		if errors.As(err, &reform.ErrNoRows) {
 			return nil, status.Errorf(codes.NotFound, "Role not found")
 		}
@@ -146,7 +147,7 @@ func (acs *AccessControlService) GetRole(_ context.Context, req *rolev1beta1.Get
 
 // ListRoles lists all Roles.
 func (acs *AccessControlService) ListRoles(_ context.Context, _ *rolev1beta1.ListRolesRequest) (*rolev1beta1.ListRolesResponse, error) {
-	rows, err := acs.db.Querier.SelectAllFrom(models.RoleTable, "")
+	rows, err := acs.db.SelectAllFrom(models.RoleTable, "")
 	if err != nil {
 		return nil, err
 	}

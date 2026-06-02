@@ -191,7 +191,7 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 				Database:               cmd.Database,
 				AgentPassword:          cmd.AgentPassword,
 				SkipConnectionCheck:    cmd.SkipConnectionCheck,
-				DisableCommentsParsing: !cmd.CommentsParsingFlags.CommentsParsingEnabled(),
+				DisableCommentsParsing: !cmd.CommentsParsingEnabled(),
 
 				PMMAgentID:     cmd.PMMAgentID,
 				Environment:    cmd.Environment,
@@ -210,7 +210,7 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 
 				MaxQueryLength:         cmd.MaxQueryLength,
 				DisableQueryExamples:   cmd.DisableQueryExamples,
-				MetricsMode:            cmd.MetricsModeFlags.MetricsMode.EnumValue(),
+				MetricsMode:            cmd.MetricsMode.EnumValue(),
 				DisableCollectors:      commands.ParseDisableCollectors(cmd.DisableCollectors),
 				AutoDiscoveryLimit:     cmd.AutoDiscoveryLimit,
 				MaxExporterConnections: cmd.MaxExporterConnections,
