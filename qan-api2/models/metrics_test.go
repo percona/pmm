@@ -61,7 +61,7 @@ func TestMetrics_Get(t *testing.T) {
 		t.Parallel()
 		res, err := m.Get(ctx, periodFrom, periodTo, "B305F6354FA21F2A", "queryid", nil, nil, false)
 		require.NoError(t, err)
-		require.Len(t, res, 2) // 1 metric
+		require.Len(t, res, 2) // 1 metric + total
 		assert.InDelta(t, float64(340703), res[0]["num_queries"], 0.1)
 		assert.InDelta(t, 0.02430000001913868, res[0]["m_query_time_sum"], 0.00000000000000001)
 	})
