@@ -78,7 +78,7 @@ exit 0
 
 %changelog
 * Tue Jun 02 2026 Matej Kubinec <matej.kubinec@ext.percona.com> - 12.4.4-1
-- PMM-14213 Upgrade Grafana to v12.4.3+security-02
+- PMM-14213 Upgrade Grafana to v12.4.4
 
 * Thu May 14 2026 Fábio Silva <ffjs1993@gmail.com> - 12.4.3
 - PMM-14213 Upgrade Grafana to v12.4.2
