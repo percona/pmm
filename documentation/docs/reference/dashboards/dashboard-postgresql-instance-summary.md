@@ -6,7 +6,7 @@ This is essential for database administrators who need to troubleshoot specific 
 
 Start here when you need to focus on one specific PostgreSQL instance, investigate slow queries, check connection usage, or analyze database-specific performance trends.
 
-![!image](../../images/PMM_PostgreSQL_Instance_Summary.jpg)
+![PMM_PostgreSQL_Instance_Summary](../../images/PMM_PostgreSQL_Instance_Summary.png)
 
 ## Service
 Shows essential information about your PostgreSQL instance including service name, version, uptime in days, and the server hostname. The server name is clickable to navigate to detailed node monitoring. This gives you quick access to basic instance identification and health information.
