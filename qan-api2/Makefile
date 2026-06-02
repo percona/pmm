@@ -47,12 +47,14 @@ test-env-up:                    ## Start docker containers used for testing
 		-e CLICKHOUSE_PASSWORD=clickhouse \
 		$(TEST_IMAGE_NAME)
 	@echo "Waiting for container to become healthy..."
-	@while true; do \
-		if curl http://127.0.0.1:18123/ping > /dev/null 2>&1; then \
+	@i=0; while [ $$i -lt 60 ]; do \
+		if curl -fsS --max-time 1 http://127.0.0.1:18123/ping > /dev/null 2>&1; then \
 			break; \
 		fi; \
+		i=$$((i+1)); \
 		sleep 1; \
-	done
+	done; \
+	if [ $$i -ge 60 ]; then echo "Timed out waiting for ClickHouse to become ready"; exit 1; fi
 	make test-env
 
 test-env:                       ## Create pmm_test DB and load test data
