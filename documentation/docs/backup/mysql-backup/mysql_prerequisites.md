@@ -45,7 +45,11 @@ Before creating MySQL backups, make sure to:
        |---------------|----------------------------|
        | MySQL 5.5, 5.6, or 5.7 | Percona XtraBackup 2.4.x |
        | MySQL 8.0.0 through 8.0.21 | Percona XtraBackup 8.0.x, using the minimum version required for your MySQL release |
-       | MySQL 8.0.22 and newer 8.0 releases | Percona XtraBackup 8.0.x with the same or newer core version |
-       | MySQL 8.4.x | Percona XtraBackup 8.4.x |
+       | MySQL 8.0.22 through 8.0.33 | Percona XtraBackup 8.0.x with the same or newer core version |
+       | MySQL 8.0.34 and newer 8.0 releases | Percona XtraBackup 8.0.34 or newer 8.0.x |
+       | MySQL 8.1.x | Percona XtraBackup 8.1.x |
+       | MySQL 8.2.x | Percona XtraBackup 8.2.x |
+       | MySQL 8.3.x | Percona XtraBackup 8.3.x |
+       | MySQL 8.4.x | Any Percona XtraBackup 8.4.x release |
 
-       Percona XtraBackup 8.4.x supports MySQL 8.4 LTS releases, including future 8.4 patch releases. It does not support backing up MySQL 8.0 or 9.x servers.
+       Percona XtraBackup 8.4.x supports MySQL 8.4 LTS releases, including future 8.4 patch releases. It does not support backing up MySQL 8.0 or 9.x servers. Percona XtraBackup 8.1.x, 8.2.x, and 8.3.x support only the matching MySQL Innovation release series.

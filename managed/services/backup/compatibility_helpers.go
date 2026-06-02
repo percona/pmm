@@ -47,9 +47,18 @@ var (
 	// processing will be stopped and Percona XtraBackup will not be allowed to continue.
 	// https://www.percona.com/blog/2020/08/18/aligning-percona-xtrabackup-versions-with-percona-server-for-mysql/
 	alignedXtrabackupVersion = mustVersion("8.0.22")
-	mysql81Version           = mustVersion("8.1.0")
-	mysql84Version           = mustVersion("8.4.0")
-	mysql85Version           = mustVersion("8.5.0")
+	// Starting with Percona XtraBackup 8.0.34, any 8.0.34+ PXB can back up 8.0.34+
+	// servers within the 8.0 series.
+	// https://docs.percona.com/percona-xtrabackup/8.0/release-notes/8.0/8.0.34-29.0.html
+	universal80Version = mustVersion("8.0.34")
+
+	mysql81Version = mustVersion("8.1.0")
+	mysql82Version = mustVersion("8.2.0")
+	mysql83Version = mustVersion("8.3.0")
+	// Any Percona XtraBackup 8.4 release can work with any MySQL 8.4 release.
+	// https://docs.percona.com/percona-xtrabackup/8.4/xtrabackup-version-numbers.html
+	mysql84Version = mustVersion("8.4.0")
+	mysql85Version = mustVersion("8.5.0")
 
 	pbmMinSupportedVersion = mustVersion("2.0.1")
 
@@ -89,6 +98,8 @@ var (
 	}
 )
 
+// mysqlAndXtrabackupCompatible is kept for compatibility matrix tests; production code uses
+// mysqlAndXtrabackupCompatibilityError to return user-facing guidance.
 func mysqlAndXtrabackupCompatible(mysqlVersionString, xtrabackupVersionString string) (bool, error) {
 	mysqlVersion, xtrabackupVersion, err := mysqlAndXtrabackupCoreVersions(mysqlVersionString, xtrabackupVersionString)
 	if err != nil {
@@ -118,6 +129,10 @@ type mysqlXtrabackupBand int
 
 const (
 	mysqlXtrabackupBand84 mysqlXtrabackupBand = iota
+	mysqlXtrabackupBand83
+	mysqlXtrabackupBand82
+	mysqlXtrabackupBand81
+	mysqlXtrabackupBand80Universal
 	mysqlXtrabackupBand80Aligned
 	mysqlXtrabackupBandLegacy
 	mysqlXtrabackupBandUnsupported
@@ -127,7 +142,15 @@ func mysqlXtrabackupBandFor(mysqlVersion *version.Version) mysqlXtrabackupBand {
 	switch {
 	case versionRange{min: mysql84Version, max: mysql85Version}.isSupported(mysqlVersion):
 		return mysqlXtrabackupBand84
-	case versionRange{min: alignedXtrabackupVersion, max: mysql84Version}.isSupported(mysqlVersion):
+	case versionRange{min: mysql83Version, max: mysql84Version}.isSupported(mysqlVersion):
+		return mysqlXtrabackupBand83
+	case versionRange{min: mysql82Version, max: mysql83Version}.isSupported(mysqlVersion):
+		return mysqlXtrabackupBand82
+	case versionRange{min: mysql81Version, max: mysql82Version}.isSupported(mysqlVersion):
+		return mysqlXtrabackupBand81
+	case versionRange{min: universal80Version, max: mysql81Version}.isSupported(mysqlVersion):
+		return mysqlXtrabackupBand80Universal
+	case versionRange{min: alignedXtrabackupVersion, max: universal80Version}.isSupported(mysqlVersion):
 		return mysqlXtrabackupBand80Aligned
 	case mysqlVersion.LessThan(alignedXtrabackupVersion):
 		return mysqlXtrabackupBandLegacy
@@ -149,6 +172,14 @@ func mysqlAndXtrabackupCoreVersionsCompatible(mysqlVersion, xtrabackupVersion *v
 	switch mysqlXtrabackupBandFor(mysqlVersion) {
 	case mysqlXtrabackupBand84:
 		return versionRange{min: mysql84Version, max: mysql85Version}.isSupported(xtrabackupVersion)
+	case mysqlXtrabackupBand83:
+		return versionRange{min: mysql83Version, max: mysql84Version}.isSupported(xtrabackupVersion)
+	case mysqlXtrabackupBand82:
+		return versionRange{min: mysql82Version, max: mysql83Version}.isSupported(xtrabackupVersion)
+	case mysqlXtrabackupBand81:
+		return versionRange{min: mysql81Version, max: mysql82Version}.isSupported(xtrabackupVersion)
+	case mysqlXtrabackupBand80Universal:
+		return versionRange{min: universal80Version, max: mysql81Version}.isSupported(xtrabackupVersion)
 	case mysqlXtrabackupBand80Aligned:
 		return versionRange{min: mysqlVersion, max: mysql81Version}.isSupported(xtrabackupVersion)
 	case mysqlXtrabackupBandLegacy:
@@ -157,8 +188,6 @@ func mysqlAndXtrabackupCoreVersionsCompatible(mysqlVersion, xtrabackupVersion *v
 				return true
 			}
 		}
-	case mysqlXtrabackupBandUnsupported:
-		return false
 	}
 
 	return false
@@ -177,6 +206,30 @@ func mysqlAndXtrabackupCompatibilityError(mysqlVersionString, xtrabackupVersionS
 	case mysqlXtrabackupBand84:
 		return incompatibleXtrabackupError(
 			"Percona XtraBackup version %q is not compatible with MySQL version %q; use Percona XtraBackup 8.4.x for MySQL 8.4.x",
+			xtrabackupVersionString,
+			mysqlVersionString,
+		)
+	case mysqlXtrabackupBand83:
+		return incompatibleXtrabackupError(
+			"Percona XtraBackup version %q is not compatible with MySQL version %q; use Percona XtraBackup 8.3.x for MySQL 8.3.x",
+			xtrabackupVersionString,
+			mysqlVersionString,
+		)
+	case mysqlXtrabackupBand82:
+		return incompatibleXtrabackupError(
+			"Percona XtraBackup version %q is not compatible with MySQL version %q; use Percona XtraBackup 8.2.x for MySQL 8.2.x",
+			xtrabackupVersionString,
+			mysqlVersionString,
+		)
+	case mysqlXtrabackupBand81:
+		return incompatibleXtrabackupError(
+			"Percona XtraBackup version %q is not compatible with MySQL version %q; use Percona XtraBackup 8.1.x for MySQL 8.1.x",
+			xtrabackupVersionString,
+			mysqlVersionString,
+		)
+	case mysqlXtrabackupBand80Universal:
+		return incompatibleXtrabackupError(
+			"Percona XtraBackup version %q is not compatible with MySQL version %q; use Percona XtraBackup 8.0.34 or newer 8.0.x for MySQL 8.0.34+",
 			xtrabackupVersionString,
 			mysqlVersionString,
 		)

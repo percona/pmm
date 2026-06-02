@@ -32,7 +32,7 @@ func TestMysqlAndXtrabackupCompatible(t *testing.T) {
 	t.Parallel()
 
 	compatible := []mysqlAndPXBVersions{
-		// MySQL [5.5; 5.8), PXB [2.4.18; 5.2)
+		// MySQL [5.5; 5.8), PXB [2.4.18; 2.5)
 		{"5.5", "2.4.18"},
 		{"5.5", "2.4.20"},
 		{"5.5", "2.4.99"},
@@ -64,7 +64,7 @@ func TestMysqlAndXtrabackupCompatible(t *testing.T) {
 		{"8.0.21", "8.0.18"},
 		{"8.0.21", "8.0.99"},
 
-		// MySQL [8.0.22; 8.4.0), PXB [MySQL version; 8.1.0)
+		// MySQL [8.0.22; 8.0.34), PXB [MySQL version; 8.1.0)
 		{"8.0.22", "8.0.22"},
 		{"8.0.22", "8.0.22-15.0"},
 		{"8.0.22", "8.0.50"},
@@ -73,6 +73,25 @@ func TestMysqlAndXtrabackupCompatible(t *testing.T) {
 		{"8.0.22-13", "8.0.50"},
 		{"8.0.28", "8.0.28"},
 		{"8.0.28", "8.0.50"},
+
+		// MySQL [8.0.34; 8.1.0), PXB [8.0.34; 8.1.0)
+		{"8.0.34", "8.0.34"},
+		{"8.0.34", "8.0.35"},
+		{"8.0.44", "8.0.34"},
+		{"8.0.44", "8.0.35"},
+		{"8.0.44-35.1", "8.0.35-35"},
+
+		// MySQL [8.1.0; 8.2.0), PXB [8.1.0; 8.2.0)
+		{"8.1.0", "8.1.0"},
+		{"8.1.0-1", "8.1.0-1"},
+
+		// MySQL [8.2.0; 8.3.0), PXB [8.2.0; 8.3.0)
+		{"8.2.0", "8.2.0"},
+		{"8.2.0-1", "8.2.0-1"},
+
+		// MySQL [8.3.0; 8.4.0), PXB [8.3.0; 8.4.0)
+		{"8.3.0", "8.3.0"},
+		{"8.3.0-1", "8.3.0-1"},
 
 		// MySQL [8.4.0; 8.5.0), PXB [8.4.0; 8.5.0)
 		{"8.4.0", "8.4.0"},
@@ -145,7 +164,7 @@ func TestMysqlAndXtrabackupCompatible(t *testing.T) {
 		{"8.0.21", "8.4.0"},
 		{"8.0.21", "9.0"},
 
-		// MySQL [8.0.22; 8.4.0), PXB [MySQL version; 8.1.0)
+		// MySQL [8.0.22; 8.0.34), PXB [MySQL version; 8.1.0)
 		{"8.0.22", "8.0.21"},
 		{"8.0.22", "8.1.0"},
 		{"8.0.22", "8.3.0"},
@@ -158,6 +177,33 @@ func TestMysqlAndXtrabackupCompatible(t *testing.T) {
 		{"8.0.28", "8.3.0"},
 		{"8.0.28", "8.4.0"},
 		{"8.0.28", "9.0"},
+		//
+		// MySQL [8.0.34; 8.1.0), PXB [8.0.34; 8.1.0)
+		{"8.0.34", "8.0.33"},
+		{"8.0.44", "8.0.33"},
+		{"8.0.44", "8.1.0"},
+		{"8.0.44", "8.3.0"},
+		{"8.0.44", "8.4.0"},
+		{"8.0.44", "9.0"},
+		//
+		// MySQL [8.1.0; 8.2.0), PXB [8.1.0; 8.2.0)
+		{"8.1.0", "8.0.35"},
+		{"8.1.0", "8.2.0"},
+		{"8.1.0", "8.4.0"},
+		{"8.1.0", "9.0"},
+		//
+		// MySQL [8.2.0; 8.3.0), PXB [8.2.0; 8.3.0)
+		{"8.2.0", "8.0.35"},
+		{"8.2.0", "8.1.0"},
+		{"8.2.0", "8.3.0"},
+		{"8.2.0", "8.4.0"},
+		{"8.2.0", "9.0"},
+		//
+		// MySQL [8.3.0; 8.4.0), PXB [8.3.0; 8.4.0)
+		{"8.3.0", "8.0.35"},
+		{"8.3.0", "8.2.0"},
+		{"8.3.0", "8.4.0"},
+		{"8.3.0", "9.0"},
 		//
 		// MySQL [8.4.0; 8.5.0), PXB [8.4.0; 8.5.0)
 		{"8.4.0", "8.0.35"},
@@ -193,6 +239,102 @@ func TestMysqlAndXtrabackupCompatible(t *testing.T) {
 
 	_, err = mysqlAndXtrabackupCompatible("8.0", "eight")
 	require.Error(t, err)
+}
+
+func TestMysqlAndXtrabackupCompatibilityError(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name       string
+		mysql      string
+		pxb        string
+		errMessage string
+	}{
+		{
+			name:  "compatible",
+			mysql: "8.4.6",
+			pxb:   "8.4.0",
+		},
+		{
+			name:       "invalid mysql version",
+			mysql:      "eight",
+			pxb:        "8.0.6",
+			errMessage: "malformed version",
+		},
+		{
+			name:       "invalid xtrabackup version",
+			mysql:      "8.0",
+			pxb:        "eight",
+			errMessage: "malformed version",
+		},
+		{
+			name:       "mysql 8.4 requires xtrabackup 8.4",
+			mysql:      "8.4.6",
+			pxb:        "8.3.0",
+			errMessage: "use Percona XtraBackup 8.4.x for MySQL 8.4.x",
+		},
+		{
+			name:       "mysql 8.3 requires xtrabackup 8.3",
+			mysql:      "8.3.0",
+			pxb:        "8.4.0",
+			errMessage: "use Percona XtraBackup 8.3.x for MySQL 8.3.x",
+		},
+		{
+			name:       "mysql 8.2 requires xtrabackup 8.2",
+			mysql:      "8.2.0",
+			pxb:        "8.3.0",
+			errMessage: "use Percona XtraBackup 8.2.x for MySQL 8.2.x",
+		},
+		{
+			name:       "mysql 8.1 requires xtrabackup 8.1",
+			mysql:      "8.1.0",
+			pxb:        "8.2.0",
+			errMessage: "use Percona XtraBackup 8.1.x for MySQL 8.1.x",
+		},
+		{
+			name:       "mysql 8.0.34+ requires universal 8.0 xtrabackup",
+			mysql:      "8.0.44",
+			pxb:        "8.0.33",
+			errMessage: "use Percona XtraBackup 8.0.34 or newer 8.0.x for MySQL 8.0.34+",
+		},
+		{
+			name:       "mysql 8.0 aligned rejects older xtrabackup",
+			mysql:      "8.0.28",
+			pxb:        "8.0.27",
+			errMessage: "older than MySQL",
+		},
+		{
+			name:       "mysql 8.0 aligned rejects non 8.0 xtrabackup",
+			mysql:      "8.0.28",
+			pxb:        "8.1.0",
+			errMessage: "use Percona XtraBackup 8.0.x for MySQL 8.0.x",
+		},
+		{
+			name:       "legacy mysql rejects unsupported xtrabackup",
+			mysql:      "8.0.20",
+			pxb:        "8.0.11",
+			errMessage: "install a Percona XtraBackup version supported for this MySQL version",
+		},
+		{
+			name:       "unsupported mysql",
+			mysql:      "9.0",
+			pxb:        "9.0",
+			errMessage: "PMM does not support Percona XtraBackup",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			err := mysqlAndXtrabackupCompatibilityError(test.mysql, test.pxb)
+			if test.errMessage == "" {
+				require.NoError(t, err)
+				return
+			}
+
+			require.Error(t, err)
+			require.Contains(t, err.Error(), test.errMessage)
+		})
+	}
 }
 
 func TestVendorToServiceType(t *testing.T) {
