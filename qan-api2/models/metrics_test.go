@@ -37,6 +37,10 @@ func setupTestClickHouse(t *testing.T) *sqlx.DB {
 	db, err := sqlx.Connect("clickhouse", dsn)
 	require.NoError(t, err)
 
+	t.Cleanup(func() {
+		assert.NoError(t, db.Close())
+	})
+
 	return db
 }
 
