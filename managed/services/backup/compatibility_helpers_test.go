@@ -325,6 +325,8 @@ func TestMysqlAndXtrabackupCompatibilityError(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
 			err := mysqlAndXtrabackupCompatibilityError(test.mysql, test.pxb)
 			if test.errMessage == "" {
 				require.NoError(t, err)
