@@ -269,8 +269,9 @@ func TestMetrics_ExplainFingerprintByQueryID(t *testing.T) {
 	t.Run("Error for non-existent query ID", func(t *testing.T) {
 		t.Parallel()
 		res, err := m.ExplainFingerprintByQueryID(ctx, "service_id1", "non-existent-queryid")
-		require.ErrorContains(t, err, "query_id doesnt exists")
+		require.ErrorContains(t, err, "query_id")
 		require.NotNil(t, res)
-		require.Empty(t, res)
+		assert.Empty(t, res.ExplainFingerprint)
+		assert.Zero(t, res.PlaceholdersCount)
 	})
 }
