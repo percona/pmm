@@ -66,7 +66,7 @@ func TestExtractTables(t *testing.T) {
 	}
 }
 
-var actualB interface{}
+var actualB any
 
 func BenchmarkExtractTables(b *testing.B) {
 	files, err := filepath.Glob(filepath.FromSlash("./testdata/*.sql"))
@@ -90,7 +90,7 @@ func BenchmarkExtractTables(b *testing.B) {
 			b.ReportAllocs()
 			b.ResetTimer()
 
-			for i := 0; i < b.N; i++ {
+			for range b.N {
 				actualB, err = ExtractTables(query)
 			}
 

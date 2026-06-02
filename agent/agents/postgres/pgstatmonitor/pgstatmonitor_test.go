@@ -98,7 +98,9 @@ func TestVersion(t *testing.T) {
 func TestPGStatMonitorSchema(t *testing.T) {
 	t.Skip("Skip it until the sandbox supports pg_stat_monitor by default. The current PostgreSQL image is the official, not the one from PerconaLab")
 	sqlDB := tests.OpenTestPostgreSQL(t)
-	defer sqlDB.Close() //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, sqlDB.Close())
+	})
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	majorVersion, _ := tests.PostgreSQLVersion(t, sqlDB)
@@ -343,8 +345,8 @@ func TestPGStatMonitorSchema(t *testing.T) {
 
 		const n = 500
 		placeholders := db.Placeholders(1, n)
-		args := make([]interface{}, n)
-		for i := 0; i < n; i++ {
+		args := make([]any, n)
+		for i := range n {
 			args[i] = i
 		}
 		q := fmt.Sprintf("SELECT /* AllCountriesTruncated:PGStatMonitor controller='test' */ * FROM country WHERE capital IN (%s)", strings.Join(placeholders, ", "))
@@ -496,7 +498,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 
 		var waitGroup sync.WaitGroup
 		n := 1000
-		for i := 0; i < n; i++ {
+		for i := range n {
 			id := i
 			query := fmt.Sprintf(`INSERT /* CheckMBlkReadTime controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES (%d, 'John', 'Dow', TRUE)`, tableName, id)
 			waitGroup.Go(func() {
@@ -512,7 +514,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		require.NoError(t, err)
 
 		var buckets []*agentv1.MetricsBucket
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			buckets, err = m.getNewBuckets(context.Background(), 60, normalizedQuery)
 			require.NoError(t, err)
 			buckets = filter(buckets)

@@ -38,7 +38,9 @@ func TestMySQLExplain(t *testing.T) {
 
 	dsn := tests.GetTestMySQLDSN(t)
 	sqlDB := tests.OpenTestMySQL(t)
-	t.Cleanup(func() { sqlDB.Close() }) //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, sqlDB.Close())
+	})
 
 	q := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf)).WithTag(queryTag)
 	ctx := context.Background()
@@ -112,7 +114,7 @@ func TestMySQLExplain(t *testing.T) {
 		default:
 			assert.Equal(t, 1, m.Get("query_block.select_id").Int())
 
-			var table map[string]interface{}
+			var table map[string]any
 			if mySQLVendor == version.MariaDBVendor {
 				if mySQLVersion.Float() >= 11 {
 					table = m.Get("query_block.nested_loop[0].read_sorted_file.filesort.table").MSI()
@@ -126,7 +128,7 @@ func TestMySQLExplain(t *testing.T) {
 
 			assert.Equal(t, "city", table["table_name"])
 			if mySQLVersion.String() != "5.6" && mySQLVendor != version.MariaDBVendor {
-				assert.Equal(t, []interface{}{"ID", "Name", "CountryCode", "District", "Population"}, table["used_columns"])
+				assert.Equal(t, []any{"ID", "Name", "CountryCode", "District", "Population"}, table["used_columns"])
 			}
 
 			if mySQLVendor != version.MariaDBVendor {
@@ -160,7 +162,7 @@ func TestMySQLExplain(t *testing.T) {
 		err = json.Unmarshal(b, &er)
 		require.NoError(t, err)
 
-		var actual [][]interface{}
+		var actual [][]any
 		err = json.Unmarshal(er.ExplainResult, &actual)
 		require.NoError(t, err)
 		require.Len(t, actual, 2)
@@ -303,11 +305,13 @@ func TestMySQLExplain(t *testing.T) {
 			// setup
 			func(t *testing.T) {
 				t.Helper()
-				ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
+				ctx, cancel := context.WithTimeout(t.Context(), time.Second*2)
 				defer cancel()
 				conn, err := sqlDB.Conn(ctx)
 				require.NoError(t, err)
-				defer conn.Close() //nolint:errcheck
+				t.Cleanup(func() {
+					assert.NoError(t, conn.Close())
+				})
 
 				_, err = conn.ExecContext(ctx, "DROP TABLE IF EXISTS test_explain_table")
 				require.NoError(t, err)
