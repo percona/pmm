@@ -117,6 +117,32 @@ func TestDropOldPartition(t *testing.T) {
 	cleanup()
 }
 
+func TestEnsureTTL(t *testing.T) {
+	db := setup()
+	defer cleanup()
+
+	readCreateQuery := func() string {
+		var createQuery string
+		err := db.Get(&createQuery, `SELECT create_table_query FROM system.tables WHERE database = 'pmm_test_parts' AND name = 'metrics'`)
+		require.NoError(t, err, "Unexpected error reading create_table_query")
+		return createQuery
+	}
+
+	t.Run("sets ttl and ttl_only_drop_parts", func(t *testing.T) {
+		EnsureTTL(db, "pmm_test_parts", "", 7)
+		createQuery := readCreateQuery()
+		assert.Contains(t, createQuery, "period_start + toIntervalDay(7)", "TTL was not set")
+		assert.Contains(t, createQuery, "ttl_only_drop_parts = 1", "ttl_only_drop_parts was not set")
+	})
+
+	t.Run("reconciles when retention changes", func(t *testing.T) {
+		EnsureTTL(db, "pmm_test_parts", "", 14)
+		createQuery := readCreateQuery()
+		assert.Contains(t, createQuery, "period_start + toIntervalDay(14)", "TTL was not updated")
+		assert.NotContains(t, createQuery, "toIntervalDay(7)", "old TTL was not replaced")
+	})
+}
+
 func TestCreateDbIfNotExists(t *testing.T) {
 	t.Run("connect to db that doesnt exist", func(t *testing.T) {
 		dsn, ok := os.LookupEnv("QANAPI_DSN_TEST")

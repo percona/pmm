@@ -306,6 +306,10 @@ func main() {
 	db := NewDB(dsn, maxIdleConns, maxOpenConns, *clickhouseIsClusterF, *clickhouseClusterNameF)
 	prom.MustRegister(sqlmetrics.NewCollector("clickhouse", "qan-api2", db.DB))
 
+	// Reconcile the metrics TTL to the configured retention. qan-api2 is restarted whenever
+	// the retention setting changes, so doing this once at startup is sufficient.
+	EnsureTTL(db, *clickhouseDatabaseF, *clickhouseClusterNameF, *dataRetentionF)
+
 	// handle termination signals
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, unix.SIGTERM, unix.SIGINT)

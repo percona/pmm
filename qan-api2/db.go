@@ -144,6 +144,46 @@ func createDB(dsn string, clusterName string) error {
 	return nil
 }
 
+// EnsureTTL sets the data-retention TTL on pmm.metrics so ClickHouse drops expired
+// daily partitions on its own. It is idempotent: it only issues MODIFY TTL when the
+// current retention differs, and does so as a metadata-only change
+// (materialize_ttl_after_modify = 0) to avoid a full-table mutation. Errors are logged,
+// not fatal, so a ClickHouse without ALTER privileges (e.g. an externally managed one)
+// still starts; DropOldPartition remains the backstop in that case.
+func EnsureTTL(db *sqlx.DB, dbName, clusterName string, days uint) {
+	l := logrus.WithField("component", "db")
+
+	onCluster := ""
+	if clusterName != "" {
+		onCluster = fmt.Sprintf(" ON CLUSTER %q", clusterName)
+	}
+
+	setting := fmt.Sprintf("ALTER TABLE %s.metrics%s MODIFY SETTING ttl_only_drop_parts = 1", dbName, onCluster)
+	if _, err := db.Exec(setting); err != nil {
+		l.Infof("Set ttl_only_drop_parts on %s.metrics. Error: %v", dbName, err)
+	}
+
+	var createQuery string
+	const q = `SELECT create_table_query FROM system.tables WHERE database = ? AND name = 'metrics'`
+	if err := db.Get(&createQuery, q, dbName); err != nil {
+		l.Infof("Read create_table_query of %s.metrics. Error: %v", dbName, err)
+		return
+	}
+
+	// ClickHouse normalizes "period_start + INTERVAL N DAY" to "period_start + toIntervalDay(N)"
+	// in create_table_query, so detecting that marker tells us the TTL already matches.
+	marker := fmt.Sprintf("period_start + toIntervalDay(%d)", days)
+	if strings.Contains(createQuery, marker) {
+		return
+	}
+
+	alter := fmt.Sprintf(
+		"ALTER TABLE %s.metrics%s MODIFY TTL period_start + INTERVAL %d DAY DELETE SETTINGS materialize_ttl_after_modify = 0",
+		dbName, onCluster, days)
+	result, err := db.Exec(alter)
+	l.Infof("Set %d-day TTL on %s.metrics. Result: %v, Error: %v", days, dbName, result, err)
+}
+
 // DropOldPartition drops number of days old partitions of pmm.metrics in ClickHouse.
 func DropOldPartition(db *sqlx.DB, dbName string, days uint) {
 	l := logrus.WithField("component", "db")
