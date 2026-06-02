@@ -57,14 +57,14 @@ test-env-up:                    ## Start docker containers used for testing
 
 test-env:                       ## Create pmm_test DB and load test data
 	@echo "Importing test data..."
-	docker exec pmm-clickhouse-test clickhouse client --password=clickhouse --query="CREATE DATABASE IF NOT EXISTS pmm_test;"
-	go run ./cmd/render-migrations | docker exec -i pmm-clickhouse-test clickhouse client --password=clickhouse -d pmm_test --multiline --multiquery
-	cat fixture/metrics.part_*.json | docker exec -i pmm-clickhouse-test clickhouse client --password=clickhouse -d pmm_test --query="INSERT INTO metrics FORMAT JSONEachRow"
+	docker exec $(TEST_CONTAINER_NAME) clickhouse client --password=clickhouse --query="CREATE DATABASE IF NOT EXISTS pmm_test;"
+	go run ./cmd/render-migrations | docker exec -i $(TEST_CONTAINER_NAME) clickhouse client --password=clickhouse -d pmm_test --multiline --multiquery
+	cat fixture/metrics.part_*.json | docker exec -i $(TEST_CONTAINER_NAME) clickhouse client --password=clickhouse -d pmm_test --query="INSERT INTO metrics FORMAT JSONEachRow"
 
 test-env-down:                  ## Stop and remove docker containers used for testing
 	@echo "Terminating test container $(TEST_CONTAINER_NAME)..."
-	docker stop pmm-clickhouse-test
-	docker rm pmm-clickhouse-test
+	docker stop $(TEST_CONTAINER_NAME)
+	docker rm $(TEST_CONTAINER_NAME)
 
 test:                           ## Run tests (run `make test-env-up` beforehand)
 	go test ./...
@@ -110,7 +110,7 @@ pmm-env-up:                     ## Run PMM server, MySQL Server and sysbench con
 	docker exec -i $(PMM_CONTAINER) clickhouse client -d pmm --password=clickhouse --query="create database pmm"
 	docker cp bin/qan-api2 $(PMM_CONTAINER):/usr/sbin/percona-qan-api2
 	docker exec $(PMM_CONTAINER) supervisorctl start qan-api2
-	cat fixture/metrics.part_*.json | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test --password=clickhouse --query="INSERT INTO metrics FORMAT JSONEachRow"
+	cat fixture/metrics.part_*.json | docker exec -i $(TEST_CONTAINER_NAME) clickhouse client -d pmm_test --password=clickhouse --query="INSERT INTO metrics FORMAT JSONEachRow"
 
 deploy:
 	GOOS=linux GOARCH=amd64 make release
