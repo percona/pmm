@@ -43,6 +43,33 @@ const (
 	microsecondsToSeconds = 1000000
 )
 
+// Aggregator aggregates system.profile document.
+type Aggregator struct {
+	agentID        string
+	maxQueryLength int32
+	logger         *logrus.Entry
+
+	// provides
+	reportChan chan *report.Report
+
+	// interval
+	mx          sync.RWMutex
+	timeStart   time.Time
+	timeEnd     time.Time
+	d           time.Duration
+	t           *time.Timer
+	timerOffset time.Duration
+	mongostats  *mongostats.Stats
+
+	// state
+	m        sync.Mutex      // Lock() to protect internal consistency of the service
+	running  bool            // Is this service running?
+	doneChan chan struct{}   // close(doneChan) to notify goroutines that they should shutdown
+	wg       *sync.WaitGroup // Wait() for goroutines to stop after being notified they should shutdown
+
+	releaseOffset func()
+}
+
 // New returns configured *Aggregator.
 func New(timeStart time.Time, agentID string, logger *logrus.Entry, maxQueryLength int32) *Aggregator {
 	return newAggregator(timeStart, agentID, logger, maxQueryLength, 0, nil)
@@ -75,33 +102,6 @@ func newAggregator(timeStart time.Time, agentID string, logger *logrus.Entry, ma
 	aggregator.newInterval(timeStart)
 
 	return aggregator
-}
-
-// Aggregator aggregates system.profile document.
-type Aggregator struct {
-	agentID        string
-	maxQueryLength int32
-	logger         *logrus.Entry
-
-	// provides
-	reportChan chan *report.Report
-
-	// interval
-	mx          sync.RWMutex
-	timeStart   time.Time
-	timeEnd     time.Time
-	d           time.Duration
-	t           *time.Timer
-	timerOffset time.Duration
-	mongostats  *mongostats.Stats
-
-	// state
-	m        sync.Mutex      // Lock() to protect internal consistency of the service
-	running  bool            // Is this service running?
-	doneChan chan struct{}   // close(doneChan) to notify goroutines that they should shutdown
-	wg       *sync.WaitGroup // Wait() for goroutines to stop after being notified they should shutdown
-
-	releaseOffset func()
 }
 
 // Add aggregates new system.profile document.
@@ -210,14 +210,6 @@ func start(ctx context.Context, wg *sync.WaitGroup, aggregator *Aggregator, done
 	}
 }
 
-func (a *Aggregator) nextWait() time.Duration {
-	if a.releaseOffset == nil {
-		return a.d
-	}
-
-	return agents.NextIntervalWait(time.Now(), a.d, a.timerOffset)
-}
-
 // Flush sends data to report chan.
 func (a *Aggregator) Flush(ctx context.Context) {
 	a.m.Lock()
@@ -267,6 +259,14 @@ func (a *Aggregator) TimeEnd() time.Time {
 	a.mx.RLock()
 	defer a.mx.RUnlock()
 	return a.timeEnd
+}
+
+func (a *Aggregator) nextWait() time.Duration {
+	if a.releaseOffset == nil {
+		return a.d
+	}
+
+	return agents.NextIntervalWait(time.Now(), a.d, a.timerOffset)
 }
 
 func (a *Aggregator) newInterval(ts time.Time) {
