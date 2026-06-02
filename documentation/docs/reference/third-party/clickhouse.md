@@ -31,6 +31,9 @@ To use ClickHouse as an external database instance, provide the following enviro
 
 `PMM_CLICKHOUSE_DATABASE` -> database name
 :   Database name of the external ClickHouse database instance.
+
+`PMM_CLICKHOUSE_POOL_SIZE` -> number of connections
+:   Maximum number of ClickHouse connections used by Query Analytics (QAN), shared by data ingestion and analytics. Default: `20`. Applies to both the built-in and an external ClickHouse instance. See [Tune the ClickHouse connection pool size](#tune-the-clickhouse-connection-pool-size).
  
 **Example**
 
@@ -53,6 +56,41 @@ Alternatively, you can use the `PMM_CLICKHOUSE_HOST` and `PMM_CLICKHOUSE_PORT` v
 -e PMM_CLICKHOUSE_USER=<username>
 -e PMM_CLICKHOUSE_PASSWORD=<password>
 -e PMM_DISABLE_BUILTIN_CLICKHOUSE=1
+```
+
+## Tune the ClickHouse connection pool size
+
+Query Analytics (QAN) keeps a pool of connections to ClickHouse that is shared between two workloads:
+
+- **Data ingestion** — one connection used to write incoming query metrics.
+- **Analytics** — each QAN report or filter panel a user opens runs several ClickHouse queries in parallel (up to 4 per page).
+
+Use `PMM_CLICKHOUSE_POOL_SIZE` (default: `20`) to set the maximum number of connections in this pool. If the pool is too small, QAN requests queue and can time out under concurrent use; if it is too large, too many heavy ClickHouse queries can run at once and exhaust ClickHouse CPU or memory.
+
+### Formula
+
+```text
+PMM_CLICKHOUSE_POOL_SIZE = 1 + (C × 4)
+```
+
+where:
+
+- `1` — one connection reserved for QAN data ingestion.
+- `C` — the peak number of users or browser tabs loading QAN reports at the same time.
+- `4` — the maximum number of queries a single QAN page runs in parallel (fixed internally).
+
+**Example:** to support 4 concurrent QAN users, set `1 + (4 × 4) = 17`, rounded up to the default of `20`.
+
+### Guidelines
+
+- **Minimum `5`** — enough for one QAN page (4 queries) plus ingestion.
+- **Upper bound** — a larger pool only helps up to what ClickHouse can serve. QAN report queries are heavy scans, so as a rule of thumb keep the pool at or below the number of ClickHouse CPU cores, unless you have confirmed there is enough memory for that many concurrent aggregations.
+- Raise the value only if you observe QAN requests queuing during peak usage **and** ClickHouse has spare CPU and memory; otherwise the default is sufficient for a typical single-host deployment.
+
+Set it like any other PMM environment variable, for example:
+
+```sh
+docker run -d ... -e PMM_CLICKHOUSE_POOL_SIZE=30 ... percona/pmm-server:3
 ```
 
 ## Enhance ClickHouse security for PMM

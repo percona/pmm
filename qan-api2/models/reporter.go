@@ -31,6 +31,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/prometheus/prometheus/model/labels"
 	"github.com/prometheus/prometheus/promql/parser"
+	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc/metadata"
 
 	qanpbv1 "github.com/percona/pmm/api/qan/v1"
@@ -456,40 +457,22 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	return results, err
 }
 
+// queryDimension lists every value of a dimension in the period (so the filter panel
+// can show values that currently match no active filter) together with the main metric
+// summed only over rows matching the other selected dimensions. A single scan with
+// sumIf replaces the previous filtered + "enumerate with 0" UNION ALL (two scans).
 const queryDimension = `
 SELECT
-    key,
-    value,
-    sum(main_metric_sum) AS main_metric_sum
-FROM
-(
-    SELECT
-        '{{ .DimensionName }}' AS key,
-        {{ .DimensionName }} AS value,
-        SUM({{ .MainMetric }}) AS main_metric_sum
-    FROM metrics
-    WHERE (period_start >= ?) AND (period_start <= ?)
-    {{range $key, $vals := .Dimensions }} AND ({{ $key }} IN ('{{ StringsJoin $vals "', '" }}')){{ end }}
-    {{ if .LbacFilter }}
-      AND ({{ .LbacFilter }})
-    {{ end }}
-    GROUP BY {{ .DimensionName }}
-    UNION ALL
-    SELECT
-        '{{ .DimensionName }}' AS key,
-        {{ .DimensionName }} AS value,
-        0 AS main_metric_sum
-    FROM metrics
-    WHERE (period_start >= ?) AND (period_start <= ?)
-    {{ if .LbacFilter }}
-      AND ({{ .LbacFilter }})
-    {{ end }}
-    GROUP BY {{ .DimensionName }}
-)
-GROUP BY
-    key,
-    value
-    WITH TOTALS
+    '{{ .DimensionName }}' AS key,
+    {{ .DimensionName }} AS value,
+    sumIf({{ .MainMetric }}, {{ if .Dimensions }}{{ $i := 0 }}{{ range $key, $vals := .Dimensions }}{{ $i = inc $i }}{{ if gt $i 1 }} AND {{ end }}{{ $key }} IN ('{{ StringsJoin $vals "', '" }}'){{ end }}{{ else }}1{{ end }}) AS main_metric_sum
+FROM metrics
+WHERE (period_start >= ?) AND (period_start <= ?)
+{{ if .LbacFilter }}
+  AND ({{ .LbacFilter }})
+{{ end }}
+GROUP BY {{ .DimensionName }}
+WITH TOTALS
 ORDER BY
     main_metric_sum DESC,
     value ASC
@@ -541,18 +524,44 @@ func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, period
 		Labels: r.commentsIntoGroupLabels(ctx, periodStartFromSec, periodStartToSec),
 	}
 
-	for dimensionName, dimensionQuery := range dimensionQueries {
-		subDimensions := make(map[string][]string)
-		for k, v := range dimensions {
-			if k == dimensionName {
-				continue
+	// Query each dimension concurrently instead of in series, then merge the results.
+	dimensionNames := make([]string, 0, len(dimensionQueries))
+	for dimensionName := range dimensionQueries {
+		dimensionNames = append(dimensionNames, dimensionName)
+	}
+
+	type dimensionResult struct {
+		values           []*customLabel
+		mainMetricPerSec float32
+	}
+	dimResults := make([]*dimensionResult, len(dimensionNames))
+
+	g, gCtx := errgroup.WithContext(ctx)
+	g.SetLimit(MaxParallelQueries)
+	for i, dimensionName := range dimensionNames {
+		g.Go(func() error {
+			subDimensions := make(map[string][]string)
+			for k, v := range dimensions {
+				if k == dimensionName {
+					continue
+				}
+				subDimensions[k] = v
 			}
-			subDimensions[k] = v
-		}
-		values, mainMetricPerSec, err := r.queryFilters(ctx, periodStartFromSec, periodStartToSec, dimensionName, mainMetricName, dimensionQuery, subDimensions, labels)
-		if err != nil {
-			return nil, fmt.Errorf("cannot select %s dimension: %w", dimensionName, err)
-		}
+			values, mainMetricPerSec, err := r.queryFilters(gCtx, periodStartFromSec, periodStartToSec, dimensionName, mainMetricName, dimensionQueries[dimensionName], subDimensions, labels)
+			if err != nil {
+				return fmt.Errorf("cannot select %s dimension: %w", dimensionName, err)
+			}
+			dimResults[i] = &dimensionResult{values: values, mainMetricPerSec: mainMetricPerSec}
+			return nil
+		})
+	}
+	if err := g.Wait(); err != nil {
+		return nil, err
+	}
+
+	for _, dr := range dimResults {
+		values := dr.values
+		mainMetricPerSec := dr.mainMetricPerSec
 
 		totals := make(map[string]float32)
 		if mainMetricPerSec == 0 {
@@ -614,7 +623,7 @@ func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec,
 		return nil, 0, fmt.Errorf("cannot execute tmplQueryFilter %s: %w", queryBuffer.String(), err)
 	}
 
-	rows, err := r.db.QueryContext(ctx, queryBuffer.String(), periodStartFromSec, periodStartToSec, periodStartFromSec, periodStartToSec)
+	rows, err := r.db.QueryContext(ctx, queryBuffer.String(), periodStartFromSec, periodStartToSec)
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to select for QueryFilter %s: %w", queryBuffer.String(), err)
 	}
