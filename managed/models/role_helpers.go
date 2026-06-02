@@ -173,7 +173,7 @@ func replaceRole(tx *reform.TX, roleID, newRoleID int) error {
 
 // findRole retrieves a role by ID.
 func findRole(tx *reform.TX, roleID int, role *Role) error {
-	err := tx.Querier.SelectOneTo(role, "WHERE id = $1", roleID)
+	err := tx.SelectOneTo(role, "WHERE id = $1", roleID)
 	if err != nil {
 		if errors.Is(err, reform.ErrNoRows) {
 			return ErrRoleNotFound

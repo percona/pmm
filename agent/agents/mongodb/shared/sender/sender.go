@@ -88,7 +88,6 @@ func (s *Sender) Stop() {
 
 	// wait for goroutines to exit
 	s.wg.Wait()
-	return
 }
 
 func start(ctx context.Context, wg *sync.WaitGroup, reportChan <-chan *report.Report, w Writer, logger *logrus.Entry, doneChan <-chan struct{}) {

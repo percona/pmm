@@ -72,7 +72,9 @@ func TestProxy(t *testing.T) {
 
 		handler.ServeHTTP(rec, req)
 		resp := rec.Result()
-		defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
+		t.Cleanup(func() {
+			assert.NoError(t, resp.Body.Close())
+		})
 
 		require.Equal(t, http.StatusOK, resp.StatusCode)
 	})
@@ -159,7 +161,9 @@ func TestProxy(t *testing.T) {
 
 				handler.ServeHTTP(rec, req)
 				resp := rec.Result()
-				defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
+				t.Cleanup(func() {
+					assert.NoError(t, resp.Body.Close())
+				})
 
 				require.Equal(t, tc.expectedStatus, resp.StatusCode)
 			})

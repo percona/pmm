@@ -604,12 +604,12 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 				},
 				Postgresql: &agentv1.MetricsBucket_PostgreSQL{},
 			}
-			if currentPSM.pgStatMonitor.CmdType >= 0 &&
-				currentPSM.pgStatMonitor.CmdType < int32(len(commandTypeToText)) { //nolint:gosec // len(commandTypeToText) is not expected to overflow int32
-				mb.Postgresql.CmdType = commandTypeToText[currentPSM.pgStatMonitor.CmdType]
+			if currentPSM.CmdType >= 0 &&
+				currentPSM.CmdType < int32(len(commandTypeToText)) { //nolint:gosec // len(commandTypeToText) is not expected to overflow int32
+				mb.Postgresql.CmdType = commandTypeToText[currentPSM.CmdType]
 			} else {
 				mb.Postgresql.CmdType = commandTextNotAvailable
-				m.l.Warnf("failed to translate command type '%d' into text", currentPSM.pgStatMonitor.CmdType)
+				m.l.Warnf("failed to translate command type '%d' into text", currentPSM.CmdType)
 			}
 
 			mb.Postgresql.TopQueryid = pointer.GetString(currentPSM.TopQueryID)
