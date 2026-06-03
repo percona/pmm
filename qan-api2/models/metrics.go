@@ -1295,7 +1295,7 @@ func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromS
 }
 
 func prepareMetadataProperty(metadata map[string]struct{}) string {
-	res := []string{}
+	res := make([]string, 0, len(metadata))
 	for k := range metadata {
 		res = append(res, k)
 	}
