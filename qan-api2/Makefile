@@ -1,18 +1,22 @@
 .DEFAULT_GOAL := help
-.PHONY: help release install install-race test-env-up test-env test-env-down
-.PHONY: test test-race run-race-cover _run env-up env-down pmm-env-up deploy
+CURDIR := $(shell dirname $(realpath $(MAKEFILE_LIST)))
+BIN_DIR := $(CURDIR)/../bin
+
 # PMM Demo benchmark
 include Makefile.clickhouse
+
+.PHONY: help release install install-race test-env-up test-env test-env-down _start-clickhouse _stop-clickhouse
+.PHONY: test test-race run-race-cover _run env-up env-down pmm-env-up deploy
 
 help: ## Display this help message
 	@echo "Please use \`make <target>\`, where <target> is one of the following:"
 	@grep -h '^[a-zA-Z]' $(MAKEFILE_LIST) | awk -F ':.*## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
 
 # `cut` is used to remove the leading `v` from the version
-PMM_RELEASE_PATH ?= ../bin
+PMM_RELEASE_PATH ?= $(BIN_DIR)
 PMM_RELEASE_VERSION ?= $(shell git describe --always --dirty | cut -b2-)
-PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
-PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
+PMM_RELEASE_TIMESTAMP ?= $(shell date -u +%Y-%m-%dT%H:%M:%SZ)
+PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse --short HEAD)
 PMM_RELEASE_BRANCH ?= $(shell git describe --always --contains --all)
 
 PMM_CONTAINER ?= pmm-server
@@ -36,8 +40,13 @@ install-race:                   ## Install qan-api2 binary with race detector
 TEST_CONTAINER_NAME := pmm-clickhouse-test
 TEST_IMAGE_NAME := clickhouse/clickhouse-server:25.3.6.56
 
-test-env-up:                    ## Start docker containers used for testing
-	@echo "Starting container $(TEST_CONTAINER_NAME)..."
+_start-clickhouse:
+	@if [[ "$$OSTYPE" == "darwin"* ]]; then \
+		if ! command -v timeout > /dev/null 2>&1; then \
+			echo "Error: missing timeout (run 'brew install coreutils')"; exit 1; \
+		fi; \
+	fi
+	@echo "-> Starting Clickhouse container $(TEST_CONTAINER_NAME)"
 	@docker run -d \
 		--platform=linux/amd64 \
 		--name  $(TEST_CONTAINER_NAME) \
@@ -46,36 +55,34 @@ test-env-up:                    ## Start docker containers used for testing
 		-e CLICKHOUSE_USER=default \
 		-e CLICKHOUSE_PASSWORD=clickhouse \
 		$(TEST_IMAGE_NAME)
-	@echo "Waiting for container to become healthy..."
-	@i=0; while [ $$i -lt 60 ]; do \
-		if curl -fsS --max-time 1 http://127.0.0.1:18123/ping > /dev/null 2>&1; then \
-			break; \
-		fi; \
-		i=$$((i+1)); \
-		sleep 1; \
-	done; \
-	if [ $$i -ge 60 ]; then echo "Timed out waiting for ClickHouse to become ready"; exit 1; fi
-	make test-env
+	@echo "Waiting for Clickhouse container to become healthy..."
+	@timeout 60 sh -c 'until curl -fsS --max-time 1 http://127.0.0.1:18123/ping > /dev/null 2>&1; do sleep 1; done' || \
+	   (echo "Timed out waiting for ClickHouse to become ready" && exit 1)
+	@echo "✅ Clickhouse container is ready for use"
 
-test-env:                       ## Create pmm_test DB and load test data
-	@echo "Importing test data..."
-	docker exec $(TEST_CONTAINER_NAME) clickhouse client --password=clickhouse --query="CREATE DATABASE IF NOT EXISTS pmm_test;"
-	go run ./cmd/render-migrations | docker exec -i $(TEST_CONTAINER_NAME) clickhouse client --password=clickhouse -d pmm_test --multiline --multiquery
-	cat fixture/metrics.part_*.json | docker exec -i $(TEST_CONTAINER_NAME) clickhouse client --password=clickhouse -d pmm_test --query="INSERT INTO metrics FORMAT JSONEachRow"
-
-test-env-down:                  ## Stop and remove docker containers used for testing
-	@echo "Terminating test container $(TEST_CONTAINER_NAME)..."
+_stop-clickhouse:
+	@echo "-> Terminating Clickhouse container $(TEST_CONTAINER_NAME)"
 	docker stop $(TEST_CONTAINER_NAME)
 	docker rm $(TEST_CONTAINER_NAME)
 
+_import-test-data:				## Create pmm_test DB and load test data
+	@echo "-> Importing test data..."
+	docker exec $(TEST_CONTAINER_NAME) clickhouse client --password=clickhouse --query="CREATE DATABASE IF NOT EXISTS pmm_test;"
+	go run $(CURDIR)/cmd/render-migrations | docker exec -i $(TEST_CONTAINER_NAME) clickhouse client --password=clickhouse -d pmm_test --multiline --multiquery
+	cat $(CURDIR)/fixture/metrics.part_*.json | docker exec -i $(TEST_CONTAINER_NAME) clickhouse client --password=clickhouse -d pmm_test --query="INSERT INTO metrics FORMAT JSONEachRow"
+	@echo "✅ Test data is ready for use"
+
+test-env-up: _start-clickhouse  _import-test-data	## Start docker containers used for testing and import test data
+	@echo "✅ Clickhouse is ready for use on address 127.0.0.1 ports 18123,19000"
+
+test-env-down:  _stop-clickhouse	## Stop and remove docker containers used for testing
+	@echo "✅ Clickhouse container has been cleaned up"
+
 test:                           ## Run tests (run `make test-env-up` beforehand)
-	go test ./...
+	go test -race -count=1 ./...
 
-test-race:                      ## Run tests with race detector
-	go test -race ./...
-
-test-cover:                     ## Run tests and collect coverage information
-	go test -coverprofile=cover.out -covermode=count ./...
+test-cover:                     ## Run tests and collect coverage information (run `make test-env-up` beforehand)
+	go test -count=1 -coverprofile=cover.out -covermode=count ./...
 
 RUN_FLAGS = ## -todo-use-kingpin-for-flags
 

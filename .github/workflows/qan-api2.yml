@@ -79,7 +79,10 @@ jobs:
 
       - name: Run Tests
         run: |
-          make test-race
+          make test
+
+      - name: Run Tests Coverage
+        run: |
           make test-cover
 
       - name: Run debug commands on failure
