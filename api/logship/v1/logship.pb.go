@@ -7,13 +7,14 @@
 package logshipv1
 
 import (
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
+
 	_ "google.golang.org/genproto/googleapis/api/visibility"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
 )
 
 const (
@@ -241,15 +242,17 @@ func file_logship_v1_logship_proto_rawDescGZIP() []byte {
 	return file_logship_v1_logship_proto_rawDescData
 }
 
-var file_logship_v1_logship_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
-var file_logship_v1_logship_proto_goTypes = []any{
-	(*LogRecord)(nil),             // 0: logship.v1.LogRecord
-	(*ShipRequest)(nil),           // 1: logship.v1.ShipRequest
-	(*ShipResponse)(nil),          // 2: logship.v1.ShipResponse
-	nil,                           // 3: logship.v1.LogRecord.AttributesEntry
-	nil,                           // 4: logship.v1.ShipRequest.ResourceAttributesEntry
-	(*timestamppb.Timestamp)(nil), // 5: google.protobuf.Timestamp
-}
+var (
+	file_logship_v1_logship_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+	file_logship_v1_logship_proto_goTypes  = []any{
+		(*LogRecord)(nil),             // 0: logship.v1.LogRecord
+		(*ShipRequest)(nil),           // 1: logship.v1.ShipRequest
+		(*ShipResponse)(nil),          // 2: logship.v1.ShipResponse
+		nil,                           // 3: logship.v1.LogRecord.AttributesEntry
+		nil,                           // 4: logship.v1.ShipRequest.ResourceAttributesEntry
+		(*timestamppb.Timestamp)(nil), // 5: google.protobuf.Timestamp
+	}
+)
 var file_logship_v1_logship_proto_depIdxs = []int32{
 	5, // 0: logship.v1.LogRecord.time:type_name -> google.protobuf.Timestamp
 	3, // 1: logship.v1.LogRecord.attributes:type_name -> logship.v1.LogRecord.AttributesEntry

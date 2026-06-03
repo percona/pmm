@@ -156,7 +156,8 @@ func (e LogRecordValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = LogRecordValidationError{}
@@ -293,7 +294,8 @@ func (e ShipRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ShipRequestValidationError{}
@@ -392,7 +394,8 @@ func (e ShipResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ShipResponseValidationError{}

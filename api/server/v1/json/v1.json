@@ -316,6 +316,11 @@
                       "type": "string",
                       "title": "Duration for which an update is snoozed",
                       "x-order": 18
+                    },
+                    "logs_retention": {
+                      "description": "A number of full days for log and trace data retention in ClickHouse (pmm.logs / pmm.traces).",
+                      "type": "string",
+                      "x-order": 19
                     }
                   },
                   "x-order": 0
@@ -498,6 +503,11 @@
                   "description": "A number of full days for which an update is snoozed, i.e. a multiple of 24h: 2592000s, 43200m, 720h.",
                   "type": "string",
                   "x-order": 14
+                },
+                "logs_retention": {
+                  "description": "A number of full days for log and trace data retention in ClickHouse. Should have a suffix in JSON: 2592000s, 43200m, 720h.",
+                  "type": "string",
+                  "x-order": 15
                 }
               }
             }
@@ -644,6 +654,11 @@
                       "type": "string",
                       "title": "Duration for which an update is snoozed",
                       "x-order": 18
+                    },
+                    "logs_retention": {
+                      "description": "A number of full days for log and trace data retention in ClickHouse (pmm.logs / pmm.traces).",
+                      "type": "string",
+                      "x-order": 19
                     }
                   },
                   "x-order": 0

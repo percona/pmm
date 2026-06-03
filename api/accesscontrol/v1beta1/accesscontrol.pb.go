@@ -844,7 +844,6 @@ var (
 		(*ListRolesResponse_RoleData)(nil), // 14: accesscontrol.v1beta1.ListRolesResponse.RoleData
 	}
 )
-
 var file_accesscontrol_v1beta1_accesscontrol_proto_depIdxs = []int32{
 	14, // 0: accesscontrol.v1beta1.ListRolesResponse.roles:type_name -> accesscontrol.v1beta1.ListRolesResponse.RoleData
 	0,  // 1: accesscontrol.v1beta1.AccessControlService.CreateRole:input_type -> accesscontrol.v1beta1.CreateRoleRequest

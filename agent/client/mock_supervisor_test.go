@@ -102,6 +102,26 @@ func (_m *mockSupervisor) Describe(_a0 chan<- *prometheus.Desc) {
 	_m.Called(_a0)
 }
 
+// LogRequests provides a mock function with no fields
+func (_m *mockSupervisor) LogRequests() <-chan *logshipv1.ShipRequest {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for LogRequests")
+	}
+
+	var r0 <-chan *logshipv1.ShipRequest
+	if rf, ok := ret.Get(0).(func() <-chan *logshipv1.ShipRequest); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(<-chan *logshipv1.ShipRequest)
+		}
+	}
+
+	return r0
+}
+
 // QANRequests provides a mock function with no fields
 func (_m *mockSupervisor) QANRequests() <-chan *agentv1.QANCollectRequest {
 	ret := _m.Called()
@@ -136,26 +156,6 @@ func (_m *mockSupervisor) RTARequests() <-chan *realtimeanalyticsv1.CollectReque
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(<-chan *realtimeanalyticsv1.CollectRequest)
-		}
-	}
-
-	return r0
-}
-
-// LogRequests provides a mock function with no fields
-func (_m *mockSupervisor) LogRequests() <-chan *logshipv1.ShipRequest {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for LogRequests")
-	}
-
-	var r0 <-chan *logshipv1.ShipRequest
-	if rf, ok := ret.Get(0).(func() <-chan *logshipv1.ShipRequest); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(<-chan *logshipv1.ShipRequest)
 		}
 	}
 

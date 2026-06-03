@@ -735,6 +735,9 @@ type GetSettingsOKBodySettings struct {
 	// Duration for which an update is snoozed
 	UpdateSnoozeDuration string `json:"update_snooze_duration,omitempty"`
 
+	// A number of full days for log and trace data retention in ClickHouse (pmm.logs / pmm.traces).
+	LogsRetention string `json:"logs_retention,omitempty"`
+
 	// advisor run intervals
 	AdvisorRunIntervals *GetSettingsOKBodySettingsAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`
 

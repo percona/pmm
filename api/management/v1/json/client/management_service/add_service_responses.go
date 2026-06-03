@@ -10515,12 +10515,6 @@ type AddServiceParamsBodyMysql struct {
 	// If true, adds qan-mysql-slowlog-agent for provided service.
 	QANMysqlSlowlog bool `json:"qan_mysql_slowlog,omitempty"`
 
-	// Watch this service's database log files and ship them to PMM Server.
-	WatchLogs bool `json:"watch_logs,omitempty"`
-
-	// Absolute paths of the database log files to watch.
-	LogFiles []string `json:"log_files,omitempty"`
-
 	// Custom user-assigned labels for Service.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
@@ -10588,6 +10582,12 @@ type AddServiceParamsBodyMysql struct {
 
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
+	// Watch this service's database log files and ship them to PMM Server.
+	WatchLogs bool `json:"watch_logs,omitempty"`
+
+	// Absolute paths of the database log files to watch (e.g. the MySQL error log).
+	LogFiles []string `json:"log_files"`
 
 	// add node
 	AddNode *AddServiceParamsBodyMysqlAddNode `json:"add_node,omitempty"`

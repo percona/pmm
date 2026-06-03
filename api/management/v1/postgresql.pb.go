@@ -535,7 +535,6 @@ var (
 		(*v1.QANPostgreSQLPgStatMonitorAgent)(nil), // 10: inventory.v1.QANPostgreSQLPgStatMonitorAgent
 	}
 )
-
 var file_management_v1_postgresql_proto_depIdxs = []int32{
 	3,  // 0: management.v1.AddPostgreSQLServiceParams.add_node:type_name -> management.v1.AddNodeParams
 	2,  // 1: management.v1.AddPostgreSQLServiceParams.custom_labels:type_name -> management.v1.AddPostgreSQLServiceParams.CustomLabelsEntry

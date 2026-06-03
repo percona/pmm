@@ -78,7 +78,7 @@ func (_m *mockGrafanaClient) GetDatasourceUIDByName(ctx context.Context, name st
 	if rf, ok := ret.Get(0).(func(context.Context, string) string); ok {
 		r0 = rf(ctx, name)
 	} else {
-		r0 = ret.Get(0).(string) //nolint:forcetypeassert
+		r0 = ret.Get(0).(string)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
