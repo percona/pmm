@@ -65,22 +65,19 @@ func setupDB(t *testing.T) *sqlx.DB {
 	return db
 }
 
-func cleanupDB(t *testing.T) {
+func cleanupDB(t *testing.T, dbName string) {
 	t.Helper()
 
-	cleanupDatabases := []string{"pmm_test_parts", "pmm_created_db"}
-	for _, database := range cleanupDatabases {
-		cmdStr := fmt.Sprintf(`docker exec pmm-clickhouse-test clickhouse client --password=clickhouse --query='DROP DATABASE IF EXISTS %s;'`, database)
-		out, err := exec.CommandContext(context.Background(), "/bin/sh", "-c", cmdStr).Output() //nolint:gosec
-		assert.NoError(t, err, "Docker drop db: %v", out)
-	}
+	cmdStr := fmt.Sprintf(`docker exec pmm-clickhouse-test clickhouse client --password=clickhouse --query='DROP DATABASE IF EXISTS %s;'`, dbName)
+	out, err := exec.CommandContext(context.Background(), "/bin/sh", "-c", cmdStr).Output() //nolint:gosec
+	assert.NoError(t, err, "Docker drop db: %v", out)
 }
 
 func TestDropOldPartition(t *testing.T) {
 	t.Parallel()
 	db := setupDB(t)
 	t.Cleanup(func() {
-		cleanupDB(t)
+		cleanupDB(t, "pmm_test_parts")
 	})
 
 	const query = `SELECT DISTINCT partition FROM system.parts WHERE database = 'pmm_test_parts' and visible = 1 ORDER BY partition`
@@ -123,7 +120,11 @@ func TestDropOldPartition(t *testing.T) {
 func TestCreateDbIfNotExists(t *testing.T) {
 	t.Parallel()
 
-	t.Run("connect to db that doesnt exist", func(t *testing.T) {
+	t.Cleanup(func() {
+		cleanupDB(t, "pmm_created_db")
+	})
+
+	t.Run("connect to db that is absent", func(t *testing.T) {
 		dsn, ok := os.LookupEnv("QANAPI_DSN_TEST")
 
 		dsn = strings.Replace(dsn, "/pmm_test", "/pmm_created_db", 1)

@@ -3,14 +3,14 @@ CURDIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 BIN_DIR := $(CURDIR)/../bin
 
 # PMM Demo benchmark
-include Makefile.clickhouse
+include Makefile.mk
 
-.PHONY: help release install install-race test-env-up test-env test-env-down _start-clickhouse _stop-clickhouse
-.PHONY: test test-race run-race-cover _run env-up env-down pmm-env-up deploy
+.PHONY: help release install install-race test-env-up test-env-down _start-clickhouse _stop-clickhouse
+.PHONY: test run-race-cover _run env-up env-down pmm-env-up deploy _import-test-data
 
 help: ## Display this help message
 	@echo "Please use \`make <target>\`, where <target> is one of the following:"
-	@grep -h '^[a-zA-Z]' $(MAKEFILE_LIST) | awk -F ':.*## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
+	@awk 'BEGIN {FS = ":.*## "}; /^[a-zA-Z0-9-]+:.*## / {printf "  %-28s%s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 # `cut` is used to remove the leading `v` from the version
 PMM_RELEASE_PATH ?= $(BIN_DIR)
