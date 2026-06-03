@@ -50,7 +50,9 @@ func TestSerialization(t *testing.T) {
 
 	resp, err := http.DefaultClient.Do(req)
 	require.NoError(t, err)
-	defer resp.Body.Close() //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, resp.Body.Close())
+	})
 
 	b, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)

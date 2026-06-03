@@ -198,7 +198,7 @@ func (cmd *AddMongoDBCommand) RunCmd() (commands.Result, error) {
 				AuthenticationMechanism:       cmd.AuthenticationMechanism,
 				AuthenticationDatabase:        cmd.AuthenticationDatabase,
 
-				MetricsMode: cmd.MetricsModeFlags.MetricsMode.EnumValue(),
+				MetricsMode: cmd.MetricsMode.EnumValue(),
 
 				EnableAllCollectors: cmd.EnableAllCollectors,
 				DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
