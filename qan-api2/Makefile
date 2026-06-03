@@ -41,7 +41,7 @@ TEST_CONTAINER_NAME := pmm-clickhouse-test
 TEST_IMAGE_NAME := clickhouse/clickhouse-server:25.3.6.56
 
 _start-clickhouse:
-	@if [[ "$$OSTYPE" == "darwin"* ]]; then \
+	@if [ "$$(uname)" = "Darwin" ]; then \
 		if ! command -v timeout > /dev/null 2>&1; then \
 			echo "Error: missing timeout (run 'brew install coreutils')"; exit 1; \
 		fi; \
