@@ -264,7 +264,7 @@ func (svc *Service) validateConfig(ctx context.Context, cfg []byte) error {
 	defer func() {
 		err = f.Close()
 		if err != nil {
-			svc.l.Error(err)
+			svc.l.Debug(err)
 		}
 		err = os.Remove(f.Name())
 		if err != nil {
