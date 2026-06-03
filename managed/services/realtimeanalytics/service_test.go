@@ -781,7 +781,7 @@ func bufDialer(context.Context, string) (net.Conn, error) {
 	return lis.Dial()
 }
 
-func getTestClient(t *testing.T) (rtav1.CollectorServiceClient, func()) {
+func getTestClient(t *testing.T) rtav1.CollectorServiceClient {
 	t.Helper()
 
 	conn, err := grpc.NewClient(
@@ -794,8 +794,11 @@ func getTestClient(t *testing.T) (rtav1.CollectorServiceClient, func()) {
 	}
 
 	client := rtav1.NewCollectorServiceClient(conn)
+	t.Cleanup(func() {
+		require.NoError(t, conn.Close())
+	})
 
-	return client, func() { _ = conn.Close() }
+	return client
 }
 
 func TestService_Collect(t *testing.T) {
@@ -859,13 +862,13 @@ func TestService_Collect(t *testing.T) {
 		serveError <- s.Serve(lis)
 	}()
 	t.Cleanup(func() {
+		s.GracefulStop()
 		require.NoError(t, <-serveError)
 	})
 
 	time.Sleep(1 * time.Second) // Give server time to start
 
-	client, cleanup := getTestClient(t)
-	t.Cleanup(cleanup)
+	client := getTestClient(t)
 
 	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
 	t.Cleanup(cancel)
