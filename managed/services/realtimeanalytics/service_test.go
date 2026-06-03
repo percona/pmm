@@ -854,10 +854,13 @@ func TestService_Collect(t *testing.T) {
 	)
 	rtav1.RegisterCollectorServiceServer(s, svc)
 
+	serveError := make(chan error)
 	go func() {
-		err := s.Serve(lis)
-		assert.NoError(t, err)
+		serveError <- s.Serve(lis)
 	}()
+	t.Cleanup(func() {
+		require.NoError(t, <-serveError)
+	})
 
 	time.Sleep(1 * time.Second) // Give server time to start
 

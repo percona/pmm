@@ -47,7 +47,7 @@ func (s *testServer) Connect(stream agentv1.AgentService_ConnectServer) error {
 
 var _ agentv1.AgentServiceServer = (*testServer)(nil)
 
-func setup(t *testing.T, connect func(*Channel) error, expected error) (agentv1.AgentService_ConnectClient, *grpc.ClientConn, func()) {
+func setup(t *testing.T, connect func(*Channel) error, expected error) (agentv1.AgentService_ConnectClient, *grpc.ClientConn) {
 	t.Helper()
 
 	// start server with given connect handler
@@ -70,12 +70,16 @@ func setup(t *testing.T, connect func(*Channel) error, expected error) (agentv1.
 			return connect(channel)
 		},
 	})
+	serveError := make(chan error)
 	go func() {
-		err = server.Serve(lis)
-		assert.NoError(t, err)
+		serveError <- server.Serve(lis)
 	}()
+	t.Cleanup(func() {
+		require.NoError(t, <-serveError)
+	})
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	t.Cleanup(cancel)
 
 	// make client and channel
 	opts := []grpc.DialOption{
@@ -90,16 +94,13 @@ func setup(t *testing.T, connect func(*Channel) error, expected error) (agentv1.
 	stream, err := agentv1.NewAgentServiceClient(cc).Connect(ctx)
 	require.NoError(t, err, "failed to create stream")
 
-	teardown := func() {
+	t.Cleanup(func() {
 		require.NotNil(t, channel, "Test exited before first message reached connect handler.")
-
-		err := channel.Wait()
-		assert.ErrorIs(t, err, expected)
+		require.ErrorContains(t, channel.Wait(), expected.Error())
 		server.GracefulStop()
-		cancel()
-	}
+	})
 
-	return stream, cc, teardown
+	return stream, cc
 }
 
 func TestAgentRequest(t *testing.T) {
@@ -128,8 +129,7 @@ func TestAgentRequest(t *testing.T) {
 		return nil
 	}
 
-	stream, _, teardown := setup(t, connect, io.EOF) // EOF = server exits from handler
-	t.Cleanup(teardown)
+	stream, _ := setup(t, connect, io.EOF) // EOF = server exits from handler
 
 	for i := uint32(1); i <= count; i++ {
 		collectReq := &agentv1.QANCollectRequest{}
@@ -177,8 +177,7 @@ func TestServerRequest(t *testing.T) {
 		return nil
 	}
 
-	stream, _, teardown := setup(t, connect, io.EOF) // EOF = server exits from handler
-	t.Cleanup(teardown)
+	stream, _ := setup(t, connect, io.EOF) // EOF = server exits from handler
 
 	for i := uint32(1); i <= count; i++ {
 		msg, err := stream.Recv()
@@ -212,8 +211,7 @@ func TestServerExitsWithGRPCError(t *testing.T) {
 		return errUnimplemented
 	}
 
-	stream, _, teardown := setup(t, connect, status.Error(codes.Canceled, context.Canceled.Error()))
-	t.Cleanup(teardown)
+	stream, _ := setup(t, connect, status.Error(codes.Canceled, context.Canceled.Error()))
 
 	collectReq := &agentv1.QANCollectRequest{}
 	err := stream.Send(&agentv1.AgentMessage{
@@ -238,8 +236,7 @@ func TestServerExitsWithUnknownErrorIntercepted(t *testing.T) {
 		return io.EOF // any error without GRPCStatus() method
 	}
 
-	stream, _, teardown := setup(t, connect, status.Error(codes.Canceled, context.Canceled.Error()))
-	t.Cleanup(teardown)
+	stream, _ := setup(t, connect, status.Error(codes.Canceled, context.Canceled.Error()))
 
 	collectReq := &agentv1.QANCollectRequest{}
 	err := stream.Send(&agentv1.AgentMessage{
@@ -264,8 +261,7 @@ func TestAgentClosesStream(t *testing.T) {
 		return nil
 	}
 
-	stream, _, teardown := setup(t, connect, io.EOF)
-	t.Cleanup(teardown)
+	stream, _ := setup(t, connect, io.EOF)
 
 	msg, err := stream.Recv()
 	require.NoError(t, err)
@@ -287,15 +283,12 @@ func TestAgentClosesConnection(t *testing.T) {
 		return nil
 	}
 
-	stream, cc, teardown := setup(t, connect, status.Error(codes.Canceled, context.Canceled.Error()))
-	t.Cleanup(teardown)
+	stream, cc := setup(t, connect, status.Error(codes.Canceled, context.Canceled.Error()))
 
 	msg, err := stream.Recv()
 	require.NoError(t, err)
 	assert.NotNil(t, msg)
-
-	err = cc.Close()
-	require.NoError(t, err)
+	require.NoError(t, cc.Close())
 }
 
 func TestUnexpectedResponseIdFromAgent(t *testing.T) {
@@ -323,8 +316,7 @@ func TestUnexpectedResponseIdFromAgent(t *testing.T) {
 		return nil
 	}
 
-	stream, _, teardown := setup(t, connect, status.Error(codes.Canceled, context.Canceled.Error()))
-	t.Cleanup(teardown)
+	stream, _ := setup(t, connect, status.Error(codes.Canceled, context.Canceled.Error()))
 
 	// This request with unexpected id is ignored by the pmm-managed, channel stays open.
 	pong := &agentv1.Pong{}
@@ -357,8 +349,7 @@ func TestUnexpectedResponsePayloadFromAgent(t *testing.T) {
 		close(stop)
 		return nil
 	}
-	stream, _, teardown := setup(t, connect, status.Error(codes.Canceled, context.Canceled.Error()))
-	t.Cleanup(teardown)
+	stream, _ := setup(t, connect, status.Error(codes.Canceled, context.Canceled.Error()))
 
 	err := stream.Send(&agentv1.AgentMessage{
 		Id: 4242,
