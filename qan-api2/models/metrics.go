@@ -1095,7 +1095,7 @@ func (m *Metrics) SchemaByQueryID(ctx context.Context, serviceID, queryID string
 	err = row.Scan(&res.Schema)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, errors.New("query_id doesnt exists")
+			return res, nil
 		}
 		return res, errors.Wrap(err, "failed to scan query")
 	}
