@@ -186,7 +186,7 @@ func (s *RemovalService) lockArtifact(artifactID string, lockingStatus models.Ba
 		err      error
 	)
 
-	errTx := s.db.InTransactionContext(s.db.Querier.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
+	errTx := s.db.InTransactionContext(s.db.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
 		artifact, err = models.FindArtifactByID(tx.Querier, artifactID)
 		if err != nil {
 			return err

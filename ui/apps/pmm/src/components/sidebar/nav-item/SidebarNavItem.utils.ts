@@ -8,7 +8,7 @@ export const getLinkProps = (item: NavItem, url?: string) => {
 
   if (item.target && item.url) {
     return {
-      component: 'a',
+      component: 'a' as const,
       target: item.target,
       href: url,
     };
