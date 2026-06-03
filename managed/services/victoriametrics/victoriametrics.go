@@ -261,15 +261,22 @@ func (svc *Service) validateConfig(ctx context.Context, cfg []byte) error {
 	if err != nil {
 		return err
 	}
+	defer func() {
+		err = f.Close()
+		if err != nil {
+			svc.l.Debug(err)
+		}
+		err = os.Remove(f.Name())
+		if err != nil {
+			svc.l.Debug(err)
+		}
+	}()
 	if _, err = f.Write(cfg); err != nil {
 		return err
 	}
-	defer func() {
-		_ = f.Close()
-		_ = os.Remove(f.Name())
-	}()
 
-	args := []string{"-promscrape.config.dryRun=true", "-promscrape.config", f.Name()}
+	args := make([]string, 0, 4) //nolint:mnd
+	args = append(args, "-promscrape.config.dryRun=true", "-promscrape.config", f.Name())
 	cmd := exec.CommandContext(ctx, "victoriametrics", args...) //nolint:gosec
 	pdeathsig.Set(cmd, unix.SIGKILL)
 

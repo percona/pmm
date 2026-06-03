@@ -85,7 +85,7 @@ func (s *Service) Add(task Task, params AddParams) (*models.ScheduledTask, error
 	var scheduledTask *models.ScheduledTask
 
 	// This transaction is valid only with serializable isolation level. On lower isolation levels it can produce anomalies.
-	errTx := s.db.InTransactionContext(s.db.Querier.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
+	errTx := s.db.InTransactionContext(s.db.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
 		var err error
 		if err = checkAddPreconditions(tx.Querier, task.Data(), !params.Disabled, ""); err != nil {
 			return err
@@ -157,7 +157,7 @@ func (s *Service) Remove(id string) error {
 
 // Update changes scheduled task in DB and re-add it to scheduler.
 func (s *Service) Update(id string, params models.ChangeScheduledTaskParams) error {
-	return s.db.InTransactionContext(s.db.Querier.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
+	return s.db.InTransactionContext(s.db.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
 		if err := checkUpdatePreconditions(tx.Querier, params.Data, !pointer.GetBool(params.Disable), id); err != nil {
 			return err
 		}

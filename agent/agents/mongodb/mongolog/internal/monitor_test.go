@@ -32,6 +32,7 @@ import (
 
 	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/bson"
 
@@ -63,9 +64,9 @@ func TestCollector(t *testing.T) {
 
 			file, err := os.Create(destination) //nolint:gosec
 			require.NoError(t, err)
-			file.Close() //nolint:errcheck
+			require.NoError(t, file.Close())
 			t.Cleanup(func() {
-				os.Remove(destination) //nolint:errcheck
+				assert.NoError(t, os.Remove(destination))
 			})
 
 			reader, err := filereader.NewContinuousFileReader(destination, l)
@@ -87,12 +88,11 @@ func TestCollector(t *testing.T) {
 			go readSourceWriteDestination(ctx, t, errChan, fmt.Sprintf("./testdata/logs/%s.log", test), destination, delay)
 
 			var wg sync.WaitGroup
-			wg.Add(2)
+			wg.Add(1)
 			monitor.Start(ctx, docsChan, doneChan, &wg)
 
 			var data []proto.SystemProfile
-			go func() {
-				defer wg.Done()
+			wg.Go(func() {
 				for {
 					select {
 					case <-ctx.Done():
@@ -106,7 +106,7 @@ func TestCollector(t *testing.T) {
 						data = append(data, row)
 					}
 				}
-			}()
+			})
 
 			err = <-errChan
 			require.NoError(t, err)
@@ -120,7 +120,8 @@ func TestCollector(t *testing.T) {
 
 			expectedFile := fmt.Sprintf("./testdata/expected/%s", test)
 			if os.Getenv("REFRESH_TEST_DATA") != "" {
-				writeData(t, data, expectedFile)
+				err = writeData(t, data, expectedFile)
+				require.NoError(t, err)
 				return
 			}
 
@@ -153,7 +154,7 @@ func testFileNames(t *testing.T) ([]string, error) {
 		return nil, err
 	}
 
-	var names []string //nolint:prealloc
+	names := make([]string, 0, len(files))
 	for _, file := range files {
 		if file.IsDir() {
 			continue
@@ -170,7 +171,7 @@ func testFileNames(t *testing.T) ([]string, error) {
 func reorderData(t *testing.T, data []proto.SystemProfile) []proto.SystemProfile {
 	t.Helper()
 
-	var res []proto.SystemProfile //nolint:prealloc
+	res := make([]proto.SystemProfile, 0, len(data))
 	for _, d := range data {
 		d.Ts = d.Ts.UTC()
 
@@ -188,7 +189,7 @@ func reorderData(t *testing.T, data []proto.SystemProfile) []proto.SystemProfile
 func reorderBSOND(t *testing.T, data bson.D) bson.D {
 	t.Helper()
 
-	var res []bson.E //nolint:prealloc
+	res := make([]bson.E, 0, len(data))
 	for _, d := range data {
 		res = append(res, d)
 	}
@@ -218,7 +219,9 @@ func writeData(t *testing.T, data []proto.SystemProfile, name string) error {
 	if err != nil {
 		return err
 	}
-	defer file.Close() //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, file.Close())
+	})
 
 	jsonData, err := dataToJSON(t, data)
 	if err != nil {
@@ -239,7 +242,9 @@ func readData(t *testing.T, name string) ([]proto.SystemProfile, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close() //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, file.Close())
+	})
 
 	var data []proto.SystemProfile
 	err = json.NewDecoder(file).Decode(&data)
@@ -258,6 +263,10 @@ func readSourceWriteDestination(ctx context.Context, t *testing.T, errChan chan 
 		errChan <- err
 		return
 	}
+	defer func() {
+		assert.NoError(t, srcFile.Close())
+	}()
+
 	scanner := bufio.NewScanner(srcFile)
 	var lines []string
 	for scanner.Scan() {
@@ -273,14 +282,15 @@ func readSourceWriteDestination(ctx context.Context, t *testing.T, errChan chan 
 		errChan <- err
 		return
 	}
-	srcFile.Close() //nolint:errcheck
 
 	dstFile, err := os.Create(destination) //nolint:gosec
 	if err != nil {
 		errChan <- err
 		return
 	}
-	defer dstFile.Close() //nolint:errcheck
+	defer func() {
+		assert.NoError(t, dstFile.Close())
+	}()
 
 	writer := bufio.NewWriter(dstFile)
 	for _, line := range lines {
