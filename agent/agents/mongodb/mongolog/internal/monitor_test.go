@@ -154,7 +154,7 @@ func testFileNames(t *testing.T) ([]string, error) {
 		return nil, err
 	}
 
-	var names []string //nolint:prealloc
+	names := make([]string, 0, len(files))
 	for _, file := range files {
 		if file.IsDir() {
 			continue
@@ -171,7 +171,7 @@ func testFileNames(t *testing.T) ([]string, error) {
 func reorderData(t *testing.T, data []proto.SystemProfile) []proto.SystemProfile {
 	t.Helper()
 
-	var res []proto.SystemProfile //nolint:prealloc
+	res := make([]proto.SystemProfile, 0, len(data))
 	for _, d := range data {
 		d.Ts = d.Ts.UTC()
 
@@ -189,7 +189,7 @@ func reorderData(t *testing.T, data []proto.SystemProfile) []proto.SystemProfile
 func reorderBSOND(t *testing.T, data bson.D) bson.D {
 	t.Helper()
 
-	var res []bson.E //nolint:prealloc
+	res := make([]bson.E, 0, len(data))
 	for _, d := range data {
 		res = append(res, d)
 	}
