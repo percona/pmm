@@ -69,10 +69,12 @@ func (s *MgmtServices) RemoveScheduledTasks(ctx context.Context, db *reform.DB, 
 		return err
 	}
 
-	allServices := append(servicesInCurrentCluster, servicesInNewCluster...) //nolint:gocritic
+	allServices := make([]*models.Service, 0, len(servicesInCurrentCluster)+len(servicesInNewCluster)+1)
+	allServices = append(allServices, servicesInCurrentCluster...)
+	allServices = append(allServices, servicesInNewCluster...)
 	allServices = append(allServices, service)
 
-	sMap := make(map[string]struct{})
+	sMap := make(map[string]struct{}, len(allServices))
 	for _, service := range allServices {
 		sMap[service.ServiceID] = struct{}{}
 	}
