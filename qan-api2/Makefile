@@ -15,8 +15,8 @@ help: ## Display this help message
 # `cut` is used to remove the leading `v` from the version
 PMM_RELEASE_PATH ?= $(BIN_DIR)
 PMM_RELEASE_VERSION ?= $(shell git describe --always --dirty | cut -b2-)
-PMM_RELEASE_TIMESTAMP ?= $(shell date -u +%Y-%m-%dT%H:%M:%SZ)
-PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse --short HEAD)
+PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
+PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
 PMM_RELEASE_BRANCH ?= $(shell git describe --always --contains --all)
 
 PMM_CONTAINER ?= pmm-server
