@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-CURDIR := $(shell dirname $(realpath $(MAKEFILE_LIST)))
+CURDIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 BIN_DIR := $(CURDIR)/../bin
 
 # PMM Demo benchmark
