@@ -184,7 +184,7 @@ message Settings {
   // Duration for which an update is snoozed
   google.protobuf.Duration update_snooze_duration = 20;
   // A number of full days for log and trace data retention in ClickHouse (pmm.logs / pmm.traces).
-  google.protobuf.Duration logs_retention = 21;
+  google.protobuf.Duration log_retention = 21;
 }
 
 // ReadOnlySettings represents a stripped-down version of PMM Server settings that can be accessed by users of all roles.
@@ -246,7 +246,7 @@ message ChangeSettingsRequest {
   // A number of full days for which an update is snoozed, i.e. a multiple of 24h: 2592000s, 43200m, 720h.
   google.protobuf.Duration update_snooze_duration = 15;
   // A number of full days for log and trace data retention in ClickHouse. Should have a suffix in JSON: 2592000s, 43200m, 720h.
-  google.protobuf.Duration logs_retention = 16;
+  google.protobuf.Duration log_retention = 16;
 }
 
 message ChangeSettingsResponse {

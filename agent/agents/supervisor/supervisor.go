@@ -27,7 +27,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
@@ -234,8 +233,8 @@ func (s *Supervisor) RTARequests() <-chan *rtav1.CollectRequest {
 	return s.rtaRequests
 }
 
-// LogRequests returns the channel with log records to be shipped to pmm-managed. It must be read until
-// it is closed.
+// LogRequests returns the channel with log records to be shipped to pmm-managed.
+// It must be read until it is closed.
 func (s *Supervisor) LogRequests() <-chan *logshipv1.ShipRequest {
 	return s.logRequests
 }
@@ -263,7 +262,8 @@ func (w *logShipWriter) Write(b []byte) (int, error) {
 		}
 		select {
 		case w.ch <- req:
-		default: // drop to never block agent logging
+		// drop to never block agent logging
+		default:
 		}
 	}
 	return len(b), nil
@@ -718,7 +718,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 		agent = noop.New()
 
 	default:
-		err = errors.Errorf("unhandled agent type %[1]s (%[1]d)", builtinAgent.Type)
+		err = fmt.Errorf("unhandled agent type %[1]s (%[1]d)", builtinAgent.Type)
 	}
 
 	if err != nil {
@@ -858,11 +858,11 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStat
 		processParams.Path = cfg.Paths.Nomad
 		processParams.Env = append(processParams.Env, os.Environ()...)
 	default:
-		return nil, errors.Errorf("unhandled agent type %[1]s (%[1]d).", agentProcess.Type) //nolint:revive
+		return nil, fmt.Errorf("unhandled agent type %[1]s (%[1]d).", agentProcess.Type) //nolint:revive
 	}
 
 	if processParams.Path == "" {
-		return nil, errors.Errorf("no path for agent type %[1]s (%[1]d).", agentProcess.Type) //nolint:revive
+		return nil, fmt.Errorf("no path for agent type %[1]s (%[1]d).", agentProcess.Type) //nolint:revive
 	}
 
 	tr := &templates.TemplateRenderer{

@@ -491,7 +491,7 @@ func (s *Server) convertSettings(settings *models.Settings, disableInternalPgQan
 			FrequentInterval: durationpb.New(settings.SaaS.AdvisorRunIntervals.FrequentInterval),
 		},
 		DataRetention:        durationpb.New(settings.DataRetention),
-		LogsRetention:        durationpb.New(settings.LogsRetention),
+		LogRetention:         durationpb.New(settings.LogRetention),
 		SshKey:               settings.SSHKey,
 		AwsPartitions:        settings.AWSPartitions,
 		AdvisorEnabled:       settings.IsAdvisorsEnabled(),
@@ -665,7 +665,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 				LR: metricsRes.GetLr().AsDuration(),
 			},
 			DataRetention: req.DataRetention.AsDuration(),
-			LogsRetention: req.LogsRetention.AsDuration(),
+			LogRetention:  req.LogRetention.AsDuration(),
 			SSHKey:        req.SshKey,
 		}
 
@@ -743,8 +743,8 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	}
 
 	// Apply the log/trace retention TTL to ClickHouse when it changes (instant, no qan-api2 restart).
-	if s.logsClickhouse != nil && oldSettings.LogsRetention != newSettings.LogsRetention {
-		if err := s.logsClickhouse.ApplyTTL(ctx, newSettings.LogsRetention); err != nil {
+	if s.logsClickhouse != nil && oldSettings.LogRetention != newSettings.LogRetention {
+		if err := s.logsClickhouse.ApplyTTL(ctx, newSettings.LogRetention); err != nil {
 			s.l.Errorf("Failed to apply logs retention TTL: %s", err)
 		}
 	}

@@ -2525,11 +2525,11 @@ func (m *Settings) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetLogsRetention()).(type) {
+		switch v := interface{}(m.GetLogRetention()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, SettingsValidationError{
-					field:  "LogsRetention",
+					field:  "LogRetention",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -2537,16 +2537,16 @@ func (m *Settings) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, SettingsValidationError{
-					field:  "LogsRetention",
+					field:  "LogRetention",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetLogsRetention()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetLogRetention()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return SettingsValidationError{
-				field:  "LogsRetention",
+				field:  "LogRetention",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -3358,11 +3358,11 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetLogsRetention()).(type) {
+		switch v := interface{}(m.GetLogRetention()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeSettingsRequestValidationError{
-					field:  "LogsRetention",
+					field:  "LogRetention",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -3370,16 +3370,16 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, ChangeSettingsRequestValidationError{
-					field:  "LogsRetention",
+					field:  "LogRetention",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetLogsRetention()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetLogRetention()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeSettingsRequestValidationError{
-				field:  "LogsRetention",
+				field:  "LogRetention",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}

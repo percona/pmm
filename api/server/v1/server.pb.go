@@ -1102,7 +1102,7 @@ type Settings struct {
 	// Duration for which an update is snoozed
 	UpdateSnoozeDuration *durationpb.Duration `protobuf:"bytes,20,opt,name=update_snooze_duration,json=updateSnoozeDuration,proto3" json:"update_snooze_duration,omitempty"`
 	// A number of full days for log and trace data retention in ClickHouse (pmm.logs / pmm.traces).
-	LogsRetention *durationpb.Duration `protobuf:"bytes,21,opt,name=logs_retention,json=logsRetention,proto3" json:"logs_retention,omitempty"`
+	LogRetention  *durationpb.Duration `protobuf:"bytes,21,opt,name=log_retention,json=logRetention,proto3" json:"log_retention,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1272,9 +1272,9 @@ func (x *Settings) GetUpdateSnoozeDuration() *durationpb.Duration {
 	return nil
 }
 
-func (x *Settings) GetLogsRetention() *durationpb.Duration {
+func (x *Settings) GetLogRetention() *durationpb.Duration {
 	if x != nil {
-		return x.LogsRetention
+		return x.LogRetention
 	}
 	return nil
 }
@@ -1576,7 +1576,7 @@ type ChangeSettingsRequest struct {
 	// A number of full days for which an update is snoozed, i.e. a multiple of 24h: 2592000s, 43200m, 720h.
 	UpdateSnoozeDuration *durationpb.Duration `protobuf:"bytes,15,opt,name=update_snooze_duration,json=updateSnoozeDuration,proto3" json:"update_snooze_duration,omitempty"`
 	// A number of full days for log and trace data retention in ClickHouse. Should have a suffix in JSON: 2592000s, 43200m, 720h.
-	LogsRetention *durationpb.Duration `protobuf:"bytes,16,opt,name=logs_retention,json=logsRetention,proto3" json:"logs_retention,omitempty"`
+	LogRetention  *durationpb.Duration `protobuf:"bytes,16,opt,name=log_retention,json=logRetention,proto3" json:"log_retention,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1716,9 +1716,9 @@ func (x *ChangeSettingsRequest) GetUpdateSnoozeDuration() *durationpb.Duration {
 	return nil
 }
 
-func (x *ChangeSettingsRequest) GetLogsRetention() *durationpb.Duration {
+func (x *ChangeSettingsRequest) GetLogRetention() *durationpb.Duration {
 	if x != nil {
-		return x.LogsRetention
+		return x.LogRetention
 	}
 	return nil
 }
@@ -1832,7 +1832,7 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x13AdvisorRunIntervals\x12F\n" +
 	"\x11standard_interval\x18\x01 \x01(\v2\x19.google.protobuf.DurationR\x10standardInterval\x12>\n" +
 	"\rrare_interval\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\frareInterval\x12F\n" +
-	"\x11frequent_interval\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x10frequentInterval\"\xb1\b\n" +
+	"\x11frequent_interval\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x10frequentInterval\"\xaf\b\n" +
 	"\bSettings\x12'\n" +
 	"\x0fupdates_enabled\x18\x01 \x01(\bR\x0eupdatesEnabled\x12+\n" +
 	"\x11telemetry_enabled\x18\x02 \x01(\bR\x10telemetryEnabled\x12N\n" +
@@ -1853,8 +1853,8 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x15enable_access_control\x18\x11 \x01(\bR\x13enableAccessControl\x12&\n" +
 	"\x0fdefault_role_id\x18\x12 \x01(\rR\rdefaultRoleId\x123\n" +
 	"\x16enable_internal_pg_qan\x18\x13 \x01(\bR\x13enableInternalPgQan\x12O\n" +
-	"\x16update_snooze_duration\x18\x14 \x01(\v2\x19.google.protobuf.DurationR\x14updateSnoozeDuration\x12@\n" +
-	"\x0elogs_retention\x18\x15 \x01(\v2\x19.google.protobuf.DurationR\rlogsRetention\"\x8f\x03\n" +
+	"\x16update_snooze_duration\x18\x14 \x01(\v2\x19.google.protobuf.DurationR\x14updateSnoozeDuration\x12>\n" +
+	"\rlog_retention\x18\x15 \x01(\v2\x19.google.protobuf.DurationR\flogRetention\"\x8f\x03\n" +
 	"\x10ReadOnlySettings\x12'\n" +
 	"\x0fupdates_enabled\x18\x01 \x01(\bR\x0eupdatesEnabled\x12+\n" +
 	"\x11telemetry_enabled\x18\x02 \x01(\bR\x10telemetryEnabled\x12'\n" +
@@ -1869,7 +1869,7 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x13GetSettingsResponse\x12/\n" +
 	"\bsettings\x18\x01 \x01(\v2\x13.server.v1.SettingsR\bsettings\"V\n" +
 	"\x1bGetReadOnlySettingsResponse\x127\n" +
-	"\bsettings\x18\x01 \x01(\v2\x1b.server.v1.ReadOnlySettingsR\bsettings\"\xb2\t\n" +
+	"\bsettings\x18\x01 \x01(\v2\x1b.server.v1.ReadOnlySettingsR\bsettings\"\xb0\t\n" +
 	"\x15ChangeSettingsRequest\x12*\n" +
 	"\x0eenable_updates\x18\x01 \x01(\bH\x00R\renableUpdates\x88\x01\x01\x12.\n" +
 	"\x10enable_telemetry\x18\x02 \x01(\bH\x01R\x0fenableTelemetry\x88\x01\x01\x12N\n" +
@@ -1887,8 +1887,8 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x15enable_access_control\x18\r \x01(\bH\tR\x13enableAccessControl\x88\x01\x01\x128\n" +
 	"\x16enable_internal_pg_qan\x18\x0e \x01(\bH\n" +
 	"R\x13enableInternalPgQan\x88\x01\x01\x12O\n" +
-	"\x16update_snooze_duration\x18\x0f \x01(\v2\x19.google.protobuf.DurationR\x14updateSnoozeDuration\x12@\n" +
-	"\x0elogs_retention\x18\x10 \x01(\v2\x19.google.protobuf.DurationR\rlogsRetentionB\x11\n" +
+	"\x16update_snooze_duration\x18\x0f \x01(\v2\x19.google.protobuf.DurationR\x14updateSnoozeDuration\x12>\n" +
+	"\rlog_retention\x18\x10 \x01(\v2\x19.google.protobuf.DurationR\flogRetentionB\x11\n" +
 	"\x0f_enable_updatesB\x13\n" +
 	"\x11_enable_telemetryB\n" +
 	"\n" +
@@ -1972,7 +1972,6 @@ var (
 		(*common.StringArray)(nil),          // 29: common.StringArray
 	}
 )
-
 var file_server_v1_server_proto_depIdxs = []int32{
 	27, // 0: server.v1.VersionInfo.timestamp:type_name -> google.protobuf.Timestamp
 	1,  // 1: server.v1.VersionResponse.server:type_name -> server.v1.VersionInfo
@@ -1994,7 +1993,7 @@ var file_server_v1_server_proto_depIdxs = []int32{
 	28, // 17: server.v1.Settings.data_retention:type_name -> google.protobuf.Duration
 	18, // 18: server.v1.Settings.advisor_run_intervals:type_name -> server.v1.AdvisorRunIntervals
 	28, // 19: server.v1.Settings.update_snooze_duration:type_name -> google.protobuf.Duration
-	28, // 20: server.v1.Settings.logs_retention:type_name -> google.protobuf.Duration
+	28, // 20: server.v1.Settings.log_retention:type_name -> google.protobuf.Duration
 	19, // 21: server.v1.GetSettingsResponse.settings:type_name -> server.v1.Settings
 	20, // 22: server.v1.GetReadOnlySettingsResponse.settings:type_name -> server.v1.ReadOnlySettings
 	17, // 23: server.v1.ChangeSettingsRequest.metrics_resolutions:type_name -> server.v1.MetricsResolutions
@@ -2002,7 +2001,7 @@ var file_server_v1_server_proto_depIdxs = []int32{
 	29, // 25: server.v1.ChangeSettingsRequest.aws_partitions:type_name -> common.StringArray
 	18, // 26: server.v1.ChangeSettingsRequest.advisor_run_intervals:type_name -> server.v1.AdvisorRunIntervals
 	28, // 27: server.v1.ChangeSettingsRequest.update_snooze_duration:type_name -> google.protobuf.Duration
-	28, // 28: server.v1.ChangeSettingsRequest.logs_retention:type_name -> google.protobuf.Duration
+	28, // 28: server.v1.ChangeSettingsRequest.log_retention:type_name -> google.protobuf.Duration
 	19, // 29: server.v1.ChangeSettingsResponse.settings:type_name -> server.v1.Settings
 	2,  // 30: server.v1.ServerService.Version:input_type -> server.v1.VersionRequest
 	4,  // 31: server.v1.ServerService.Readiness:input_type -> server.v1.ReadinessRequest

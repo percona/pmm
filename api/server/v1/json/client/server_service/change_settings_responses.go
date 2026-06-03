@@ -226,7 +226,7 @@ type ChangeSettingsBody struct {
 	UpdateSnoozeDuration string `json:"update_snooze_duration,omitempty"`
 
 	// A number of full days for log and trace data retention in ClickHouse. Should have a suffix in JSON: 2592000s, 43200m, 720h.
-	LogsRetention string `json:"logs_retention,omitempty"`
+	LogRetention string `json:"log_retention,omitempty"`
 
 	// advisor run intervals
 	AdvisorRunIntervals *ChangeSettingsParamsBodyAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`
@@ -993,7 +993,7 @@ type ChangeSettingsOKBodySettings struct {
 	UpdateSnoozeDuration string `json:"update_snooze_duration,omitempty"`
 
 	// A number of full days for log and trace data retention in ClickHouse (pmm.logs / pmm.traces).
-	LogsRetention string `json:"logs_retention,omitempty"`
+	LogRetention string `json:"log_retention,omitempty"`
 
 	// advisor run intervals
 	AdvisorRunIntervals *ChangeSettingsOKBodySettingsAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`

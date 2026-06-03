@@ -253,7 +253,6 @@ var (
 		(*timestamppb.Timestamp)(nil), // 5: google.protobuf.Timestamp
 	}
 )
-
 var file_logship_v1_logship_proto_depIdxs = []int32{
 	5, // 0: logship.v1.LogRecord.time:type_name -> google.protobuf.Timestamp
 	3, // 1: logship.v1.LogRecord.attributes:type_name -> logship.v1.LogRecord.AttributesEntry

@@ -77,9 +77,9 @@ type Settings struct {
 
 	DataRetention time.Duration `json:"data_retention"`
 
-	// LogsRetention is the duration to keep log and trace data in ClickHouse (pmm.logs / pmm.traces).
+	// LogRetention is the duration to keep log and trace data in ClickHouse (pmm.logs / pmm.traces).
 	// It is independent of DataRetention, which governs metrics/QAN.
-	LogsRetention time.Duration `json:"logs_retention"`
+	LogRetention time.Duration `json:"log_retention"`
 
 	AWSPartitions []string `json:"aws_partitions"`
 
@@ -221,8 +221,8 @@ func (s *Settings) fillDefaults() {
 		s.DataRetention = 30 * 24 * time.Hour //nolint:mnd
 	}
 
-	if s.LogsRetention == 0 {
-		s.LogsRetention = 30 * 24 * time.Hour //nolint:mnd
+	if s.LogRetention == 0 {
+		s.LogRetention = 7 * 24 * time.Hour //nolint:mnd
 	}
 
 	if len(s.AWSPartitions) == 0 {
