@@ -44,6 +44,7 @@ func TestSettings(t *testing.T) {
 				LR: time.Minute,
 			},
 			DataRetention: 30 * 24 * time.Hour,
+			LogsRetention: 30 * 24 * time.Hour,
 			AWSPartitions: []string{"aws"},
 			SaaS: models.Advisors{
 				AdvisorRunIntervals: models.AdvisorsRunIntervals{
@@ -70,6 +71,7 @@ func TestSettings(t *testing.T) {
 				LR: time.Minute,
 			},
 			DataRetention: 30 * 24 * time.Hour,
+			LogsRetention: 30 * 24 * time.Hour,
 			AWSPartitions: []string{"aws"},
 			SaaS: models.Advisors{
 				AdvisorRunIntervals: models.AdvisorsRunIntervals{
