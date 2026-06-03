@@ -230,8 +230,8 @@ func TestRDSService(t *testing.T) {
 				opts := []func(*config.LoadOptions) error{
 					config.WithCredentialsProvider(creds),
 					config.WithHTTPClient(&http.Client{}),
+					config.WithClientLogMode(aws.LogRetries | aws.LogRequestWithBody | aws.LogResponseWithBody),
 				}
-				opts = append(opts, config.WithClientLogMode(aws.LogRetries|aws.LogRequestWithBody|aws.LogResponseWithBody))
 				cfg, err := config.LoadDefaultConfig(ctx, opts...)
 				require.NoError(t, err)
 
