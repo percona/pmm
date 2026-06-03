@@ -19,8 +19,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 	"github.com/percona/pmm/api/inventory/v1/json/client/services_service"
@@ -192,7 +192,7 @@ func TestListJSONOutput(t *testing.T) {
 						AgentID:            "8b732ac3-8256-40b0-a98b-0fd5fa9a1198",
 						PMMAgentID:         "8b732ac3-8256-40b0-a98b-0fd5fa9a1140",
 						ServiceID:          "4ff49c41-80a1-4030-bc02-cd76e3b0b84a",
-						Status:             pointer.ToString("RUNNING"),
+						Status:             new("RUNNING"),
 						PushMetricsEnabled: false,
 						ListenPort:         3306,
 					},
@@ -202,7 +202,7 @@ func TestListJSONOutput(t *testing.T) {
 						AgentID:            "8b732ac3-8256-40b0-a98b-0fd5fa9a1198",
 						PMMAgentID:         "8b732ac3-8256-40b0-a98b-0fd5fa9a1140",
 						ServiceID:          "b9983cb2-7705-4fdc-9df6-9ec4e9f34251",
-						Status:             pointer.ToString("RUNNING"),
+						Status:             new("RUNNING"),
 						PushMetricsEnabled: false,
 						ListenPort:         6379,
 					},
@@ -212,7 +212,7 @@ func TestListJSONOutput(t *testing.T) {
 						AgentID:    "8b732ac3-8256-40b0-a98b-0fd5fa9a1456",
 						PMMAgentID: "8b732ac3-8256-40b0-a98b-0fd5fa9a1140",
 						ServiceID:  "b9983cb2-7705-4fdc-9df6-9ec4e9f33261",
-						Status:     pointer.ToString("RUNNING"),
+						Status:     new("RUNNING"),
 					},
 				},
 			},
@@ -223,7 +223,7 @@ func TestListJSONOutput(t *testing.T) {
 		}
 
 		res, err := json.Marshal(result)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		expected := `
 		{
 			"service": [
@@ -302,7 +302,7 @@ func TestListJSONOutput(t *testing.T) {
 		}
 
 		res, err := json.Marshal(result)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		expected := `{"service":[],"agent":[]}`
 		assert.Equal(t, expected, string(res))
 	})
@@ -339,7 +339,7 @@ func TestAgentsList(t *testing.T) {
 					{
 						AgentID:            "node-exporter-id",
 						PMMAgentID:         pmmAgentID,
-						Status:             pointer.ToString("AGENT_STATUS_RUNNING"),
+						Status:             new("AGENT_STATUS_RUNNING"),
 						PushMetricsEnabled: false,
 						ListenPort:         9100,
 					},
@@ -349,7 +349,7 @@ func TestAgentsList(t *testing.T) {
 						AgentID:            "mysqld-exporter-id",
 						PMMAgentID:         pmmAgentID,
 						ServiceID:          "mysql-service-id",
-						Status:             pointer.ToString("AGENT_STATUS_RUNNING"),
+						Status:             new("AGENT_STATUS_RUNNING"),
 						PushMetricsEnabled: true,
 						ListenPort:         9104,
 					},
@@ -359,7 +359,7 @@ func TestAgentsList(t *testing.T) {
 						AgentID:            "mongodb-exporter-id",
 						PMMAgentID:         pmmAgentID,
 						ServiceID:          "mongodb-service-id",
-						Status:             pointer.ToString("AGENT_STATUS_RUNNING"),
+						Status:             new("AGENT_STATUS_RUNNING"),
 						PushMetricsEnabled: false,
 						ListenPort:         9216,
 					},
@@ -369,7 +369,7 @@ func TestAgentsList(t *testing.T) {
 						AgentID:            "postgres-exporter-id",
 						PMMAgentID:         pmmAgentID,
 						ServiceID:          "postgres-service-id",
-						Status:             pointer.ToString("AGENT_STATUS_RUNNING"),
+						Status:             new("AGENT_STATUS_RUNNING"),
 						PushMetricsEnabled: true,
 						ListenPort:         9187,
 					},
@@ -379,7 +379,7 @@ func TestAgentsList(t *testing.T) {
 						AgentID:            "proxysql-exporter-id",
 						PMMAgentID:         pmmAgentID,
 						ServiceID:          "proxysql-service-id",
-						Status:             pointer.ToString("AGENT_STATUS_RUNNING"),
+						Status:             new("AGENT_STATUS_RUNNING"),
 						PushMetricsEnabled: false,
 						ListenPort:         6032,
 					},
@@ -388,7 +388,7 @@ func TestAgentsList(t *testing.T) {
 					{
 						AgentID:            "rds-exporter-id",
 						PMMAgentID:         pmmAgentID,
-						Status:             pointer.ToString("AGENT_STATUS_RUNNING"),
+						Status:             new("AGENT_STATUS_RUNNING"),
 						PushMetricsEnabled: true,
 						ListenPort:         9042,
 					},
@@ -398,7 +398,7 @@ func TestAgentsList(t *testing.T) {
 						AgentID:    "qan-mysql-perfschema-id",
 						PMMAgentID: pmmAgentID,
 						ServiceID:  "mysql-service-id",
-						Status:     pointer.ToString("AGENT_STATUS_RUNNING"),
+						Status:     new("AGENT_STATUS_RUNNING"),
 					},
 				},
 				QANMysqlSlowlogAgent: []*agents_service.ListAgentsOKBodyQANMysqlSlowlogAgentItems0{
@@ -406,7 +406,7 @@ func TestAgentsList(t *testing.T) {
 						AgentID:    "qan-mysql-slowlog-id",
 						PMMAgentID: pmmAgentID,
 						ServiceID:  "mysql-service-id",
-						Status:     pointer.ToString("AGENT_STATUS_RUNNING"),
+						Status:     new("AGENT_STATUS_RUNNING"),
 					},
 				},
 				QANMongodbProfilerAgent: []*agents_service.ListAgentsOKBodyQANMongodbProfilerAgentItems0{
@@ -414,7 +414,7 @@ func TestAgentsList(t *testing.T) {
 						AgentID:    "qan-mongodb-profiler-id",
 						PMMAgentID: pmmAgentID,
 						ServiceID:  "mongodb-service-id",
-						Status:     pointer.ToString("AGENT_STATUS_RUNNING"),
+						Status:     new("AGENT_STATUS_RUNNING"),
 					},
 				},
 				QANPostgresqlPgstatementsAgent: []*agents_service.ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0{
@@ -422,7 +422,7 @@ func TestAgentsList(t *testing.T) {
 						AgentID:    "qan-postgres-pgstatements-id",
 						PMMAgentID: pmmAgentID,
 						ServiceID:  "postgres-service-id",
-						Status:     pointer.ToString("AGENT_STATUS_RUNNING"),
+						Status:     new("AGENT_STATUS_RUNNING"),
 					},
 				},
 				QANPostgresqlPgstatmonitorAgent: []*agents_service.ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0{
@@ -430,7 +430,7 @@ func TestAgentsList(t *testing.T) {
 						AgentID:    "qan-postgres-pgstatmonitor-id",
 						PMMAgentID: pmmAgentID,
 						ServiceID:  "postgres-service-id",
-						Status:     pointer.ToString("AGENT_STATUS_RUNNING"),
+						Status:     new("AGENT_STATUS_RUNNING"),
 					},
 				},
 				ExternalExporter: []*agents_service.ListAgentsOKBodyExternalExporterItems0{
@@ -446,7 +446,7 @@ func TestAgentsList(t *testing.T) {
 					{
 						AgentID:    "vm-agent-id",
 						PMMAgentID: pmmAgentID,
-						Status:     pointer.ToString("AGENT_STATUS_RUNNING"),
+						Status:     new("AGENT_STATUS_RUNNING"),
 						ListenPort: 8429,
 					},
 				},
@@ -454,7 +454,7 @@ func TestAgentsList(t *testing.T) {
 					{
 						AgentID:    "nomad-agent-id",
 						PMMAgentID: pmmAgentID,
-						Status:     pointer.ToString("AGENT_STATUS_RUNNING"),
+						Status:     new("AGENT_STATUS_RUNNING"),
 						ListenPort: 4646,
 					},
 				},
@@ -463,7 +463,7 @@ func TestAgentsList(t *testing.T) {
 						AgentID:    "rta-mongodb-id",
 						PMMAgentID: pmmAgentID,
 						ServiceID:  "mongodb-service-id",
-						Status:     pointer.ToString("AGENT_STATUS_RUNNING"),
+						Status:     new("AGENT_STATUS_RUNNING"),
 					},
 				},
 			},
@@ -593,7 +593,7 @@ func TestMongodbExporters(t *testing.T) {
 						AgentID:            "mongodb-exporter-1",
 						PMMAgentID:         "pmm-agent-1",
 						ServiceID:          "mongodb-service-1",
-						Status:             pointer.ToString("AGENT_STATUS_RUNNING"),
+						Status:             new("AGENT_STATUS_RUNNING"),
 						Disabled:           false,
 						PushMetricsEnabled: true,
 						ListenPort:         9216,
@@ -650,7 +650,7 @@ func TestPostgresExporters(t *testing.T) {
 						AgentID:            "postgres-exporter-1",
 						PMMAgentID:         "pmm-agent-1",
 						ServiceID:          "postgres-service-1",
-						Status:             pointer.ToString("AGENT_STATUS_STOPPED"),
+						Status:             new("AGENT_STATUS_STOPPED"),
 						Disabled:           true,
 						PushMetricsEnabled: false,
 						ListenPort:         9187,
@@ -686,7 +686,7 @@ func TestProxysqlExporters(t *testing.T) {
 					AgentID:            "proxysql-exporter-1",
 					PMMAgentID:         "pmm-agent-1",
 					ServiceID:          "proxysql-service-1",
-					Status:             pointer.ToString("AGENT_STATUS_RUNNING"),
+					Status:             new("AGENT_STATUS_RUNNING"),
 					PushMetricsEnabled: true,
 					ListenPort:         6032,
 				},
@@ -714,7 +714,7 @@ func TestRdsExporters(t *testing.T) {
 				{
 					AgentID:            "rds-exporter-1",
 					PMMAgentID:         "pmm-agent-1",
-					Status:             pointer.ToString("AGENT_STATUS_RUNNING"),
+					Status:             new("AGENT_STATUS_RUNNING"),
 					PushMetricsEnabled: false,
 					ListenPort:         9042,
 				},
@@ -743,7 +743,7 @@ func TestQanMysqlPerfschemaAgents(t *testing.T) {
 					AgentID:    "qan-mysql-perfschema-1",
 					PMMAgentID: "pmm-agent-1",
 					ServiceID:  "mysql-service-1",
-					Status:     pointer.ToString("AGENT_STATUS_RUNNING"),
+					Status:     new("AGENT_STATUS_RUNNING"),
 					Disabled:   false,
 				},
 			},
@@ -772,7 +772,7 @@ func TestQanMysqlSlowlogAgents(t *testing.T) {
 					AgentID:    "qan-mysql-slowlog-1",
 					PMMAgentID: "pmm-agent-1",
 					ServiceID:  "mysql-service-1",
-					Status:     pointer.ToString("AGENT_STATUS_RUNNING"),
+					Status:     new("AGENT_STATUS_RUNNING"),
 				},
 			},
 		},
@@ -798,7 +798,7 @@ func TestQanMongodbProfilerAgents(t *testing.T) {
 					AgentID:    "qan-mongodb-profiler-1",
 					PMMAgentID: "pmm-agent-1",
 					ServiceID:  "mongodb-service-1",
-					Status:     pointer.ToString("AGENT_STATUS_RUNNING"),
+					Status:     new("AGENT_STATUS_RUNNING"),
 				},
 			},
 		},
@@ -824,7 +824,7 @@ func TestQanMongodbMongologAgents(t *testing.T) {
 					AgentID:    "qan-mongodb-monoglog-1",
 					PMMAgentID: "pmm-agent-1",
 					ServiceID:  "mongodb-service-1",
-					Status:     pointer.ToString("AGENT_STATUS_RUNNING"),
+					Status:     new("AGENT_STATUS_RUNNING"),
 				},
 			},
 		},
@@ -850,7 +850,7 @@ func TestQanPostgresqlPgstatementsAgents(t *testing.T) {
 					AgentID:    "qan-postgres-pgstatements-1",
 					PMMAgentID: "pmm-agent-1",
 					ServiceID:  "postgres-service-1",
-					Status:     pointer.ToString("AGENT_STATUS_RUNNING"),
+					Status:     new("AGENT_STATUS_RUNNING"),
 				},
 			},
 		},
@@ -876,7 +876,7 @@ func TestQanPostgresqlPgstatmonitorAgents(t *testing.T) {
 					AgentID:    "qan-postgres-pgstatmonitor-1",
 					PMMAgentID: "pmm-agent-1",
 					ServiceID:  "postgres-service-1",
-					Status:     pointer.ToString("AGENT_STATUS_RUNNING"),
+					Status:     new("AGENT_STATUS_RUNNING"),
 				},
 			},
 		},
@@ -954,7 +954,7 @@ func TestVmAgents(t *testing.T) {
 				{
 					AgentID:    "vm-agent-1",
 					PMMAgentID: "pmm-agent-1",
-					Status:     pointer.ToString("AGENT_STATUS_RUNNING"),
+					Status:     new("AGENT_STATUS_RUNNING"),
 					ListenPort: 8429,
 				},
 			},
@@ -982,7 +982,7 @@ func TestNomadAgents(t *testing.T) {
 				{
 					AgentID:    "nomad-agent-1",
 					PMMAgentID: "pmm-agent-1",
-					Status:     pointer.ToString("AGENT_STATUS_RUNNING"),
+					Status:     new("AGENT_STATUS_RUNNING"),
 					Disabled:   false,
 					ListenPort: 4646,
 				},
@@ -1012,7 +1012,7 @@ func TestRtaMongodbAgents(t *testing.T) {
 					AgentID:    "rta-mongodb-1",
 					PMMAgentID: "pmm-agent-1",
 					ServiceID:  "mongodb-service-1",
-					Status:     pointer.ToString("AGENT_STATUS_RUNNING"),
+					Status:     new("AGENT_STATUS_RUNNING"),
 				},
 			},
 		},
@@ -1039,17 +1039,17 @@ func TestGetStatus(t *testing.T) {
 		},
 		{
 			name:     "empty status",
-			status:   pointer.ToString(""),
+			status:   new(""),
 			expected: "UNKNOWN",
 		},
 		{
 			name:     "status with prefix",
-			status:   pointer.ToString("AGENT_STATUS_RUNNING"),
+			status:   new("AGENT_STATUS_RUNNING"),
 			expected: "RUNNING",
 		},
 		{
 			name:     "status without prefix",
-			status:   pointer.ToString("RUNNING"),
+			status:   new("RUNNING"),
 			expected: "RUNNING",
 		},
 	}

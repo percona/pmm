@@ -5,13 +5,17 @@ import { FC } from 'react';
 import { useCreateShortUrl } from 'hooks/api/useShortUrls';
 import { constructUrl } from 'utils/link.utils';
 import { enqueueSnackbar } from 'notistack';
+import Tooltip from '@mui/material/Tooltip';
 
 export const QanHeaderActions: FC = () => {
   const { mutateAsync: createShortUrl } = useCreateShortUrl();
 
   const handleCopy = async () => {
     try {
-      const path = constructUrl(location).replace('/pmm-ui/next/graph/', '');
+      const path = constructUrl(location).replace(
+        /\/pmm-ui\/(next\/)?graph\//,
+        ''
+      );
       const res = location.pathname.includes('/graph')
         ? await createShortUrl(path)
         : { url: window.location.href };
@@ -30,12 +34,15 @@ export const QanHeaderActions: FC = () => {
 
   return (
     <Stack gap={1} flex={1} flexDirection="row" justifyContent="flex-end">
-      <IconButton
-        data-testid="qan-header-actions-copy-button"
-        onClick={handleCopy}
-      >
-        <ShareOutlinedIcon />
-      </IconButton>
+      <Tooltip title="Share session settings" arrow>
+        <IconButton
+          data-testid="qan-header-actions-copy-button"
+          onClick={handleCopy}
+          aria-label="Share session settings"
+        >
+          <ShareOutlinedIcon />
+        </IconButton>
+      </Tooltip>
     </Stack>
   );
 };

@@ -136,7 +136,7 @@ func (cmd *ListCommand) RunCmd() (Result, error) {
 	}
 
 	servicesRes, err := client.Default.ServicesService.ListServices(&services.ListServicesParams{
-		NodeID:  pointer.ToString(cmd.NodeID),
+		NodeID:  new(cmd.NodeID),
 		Context: Ctx,
 	})
 	if err != nil {
@@ -287,8 +287,8 @@ func getMetricsMode(s bool) string {
 }
 
 func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent {
-	pmmAgentIDs := make(map[string]struct{})
-	agentsList := []listResultAgent{}
+	pmmAgentIDs := make(map[string]struct{}, len(agentsRes.Payload.PMMAgent))
+	agentsList := make([]listResultAgent, 0, len(agentsRes.Payload.PMMAgent))
 
 	agentsList = append(agentsList, pmmAgents(agentsRes, nodeID, pmmAgentIDs)...)
 	agentsList = append(agentsList, nodeExporters(agentsRes, pmmAgentIDs)...)

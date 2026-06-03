@@ -2,19 +2,16 @@
 .PHONY: default init release gen test clean all
 default: help
 
-.PHONY: help
-help: ## Display this help message.
-	@echo "Please use \`make <target>\` where <target> is one of:\n"
-	@awk 'BEGIN {FS = ":.*##"; } /^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-17s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
+help:                 ## Display this help message
+	@echo "Please use \`make <target>\`, where <target> is one of the following:"
+	@grep -h '^[a-zA-Z]' $(MAKEFILE_LIST) | awk -F ':.*## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
 	@echo
-	@echo Check the docker-compose.yml file to see which environment variables are available.
+	@echo Check docker-compose.yml to see which environment variables are available.
 
-init:                 ## Install tools
+init:                ## Install tools
 	rm -rf bin/*
-	cd tools && go generate -x -tags=tools
-
 	# Install golangci-lint
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v2.6.2 # Version should match specified in CI
+	curl -sSfL https://golangci-lint.run/install.sh | sh -s -- -b $(CURDIR)/bin v2.12.2 # Version should match specified in CI
 
 release:              ## Build release versions of all components
 	make -C agent release
@@ -33,7 +30,6 @@ gen: clean            ## Generate files
 	make gen-mocks      ## Generate mocks
 
 	make format
-	make format ## TODO: One formatting run is not enough, figure out why.
 	go install -v ./...
 
 clean:                ## Remove generated files
@@ -41,7 +37,7 @@ clean:                ## Remove generated files
 
 gen-mocks:
 	find . -name mock_*.go -delete
-	./bin/mockery --config .mockery.yaml
+	go tool mockery --config .mockery.yaml
 
 test-common:          ## Run tests from API (and other shared) packages only (i.e it ignores directories that are explicitly listed)
 	go test $(shell go list ./... | grep -v -e admin -e agent -e managed -e api-tests -e qan-api2 -e update)
@@ -50,28 +46,30 @@ api-test:             ## Run API tests on dev env.
 	go test -count=1 -race -p 1 -v ./api-tests/... -pmm.server-insecure-tls
 
 GOLANG_CI_LINT_RUN_OPTS ?=
-check:                ## Run required checkers and linters
-	bin/buf lint -v api
+check:                ## Run required checks and linters
+	go tool buf lint -v api
 	LOG_LEVEL=error bin/golangci-lint run -c=.golangci.yml --new-from-rev=$(shell git merge-base v3 HEAD) --new $(GOLANG_CI_LINT_RUN_OPTS)
-	bin/go-sumtype ./...
-	bin/go-consistent -pedantic -exclude "tests|api/agent" ./...
+	go tool go-sumtype ./...
 
 check-license:        ## Run license header checks against source files
-	bin/license-eye -c .licenserc.yaml header check
+	go tool license-eye -c .licenserc.yaml header check
 
-check-all: check-license check    ## Run golangci linter to check for changes against main
+check-all: check-license check    ## Run linter and license checks
+
+check-new:
+	bin/golangci-lint run -c=.golangci.yml --new-from-rev=origin/v3 --new
 
 FILES = $(shell find . -type f -name '*.go')
 
 format:               ## Format source code
 	make -C api format
-	bin/gofumpt -l -w $(FILES)
-	bin/goimports -local github.com/percona/pmm -l -w $(FILES)
-	bin/gci write --section Standard --section Default --section "Prefix(github.com/percona/pmm)" $(FILES)
+	go tool gofumpt -l -w $(FILES)
+	go tool goimports -local github.com/percona/pmm -l -w $(FILES)
+	go tool gci write --section Standard --section Default --section "Prefix(github.com/percona/pmm)" $(FILES)
 
 serve:                ## Serve API documentation with nginx
 	nginx -p . -c api/nginx/nginx.conf
 
-.PHONY: prepare-pr
 GOLANG_CI_LINT_RUN_OPTS=--fix
-prepare-pr: gen check-all
+prepare-pr: gen check-all format
+	go mod tidy

@@ -16,7 +16,6 @@
 package backup
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -36,7 +35,7 @@ import (
 )
 
 func TestCreateBackupLocation(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
@@ -101,7 +100,7 @@ func TestCreateBackupLocation(t *testing.T) {
 }
 
 func TestListBackupLocations(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
@@ -172,7 +171,7 @@ func TestListBackupLocations(t *testing.T) {
 }
 
 func TestChangeBackupLocation(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
@@ -272,7 +271,7 @@ func TestChangeBackupLocation(t *testing.T) {
 }
 
 func TestRemoveBackupLocation(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
@@ -305,12 +304,12 @@ func TestRemoveBackupLocation(t *testing.T) {
 	_, err = svc.RemoveLocation(ctx, &backuppb.RemoveLocationRequest{
 		LocationId: res1.LocationId,
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	_, err = svc.RemoveLocation(ctx, &backuppb.RemoveLocationRequest{
 		LocationId: res3.LocationId,
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	res, err := svc.ListLocations(ctx, &backuppb.ListLocationsRequest{})
 	require.NoError(t, err)
@@ -323,11 +322,11 @@ func TestRemoveBackupLocation(t *testing.T) {
 	_, err = svc.RemoveLocation(ctx, &backuppb.RemoveLocationRequest{
 		LocationId: "non-existing",
 	})
-	assert.ErrorIs(t, err, models.ErrNotFound)
+	require.ErrorIs(t, err, models.ErrNotFound)
 }
 
 func TestVerifyBackupLocationValidation(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
@@ -446,10 +445,10 @@ func TestVerifyBackupLocationValidation(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			_, err := svc.TestLocationConfig(ctx, test.req)
 			if test.errorMsg != "" {
-				assert.EqualError(t, err, test.errorMsg)
+				require.EqualError(t, err, test.errorMsg)
 				return
 			}
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		})
 	}
 }

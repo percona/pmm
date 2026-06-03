@@ -8,21 +8,21 @@ import {
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { RealtimeSelection } from './RealtimeSelection';
 import { Messages } from './RealtimeSelection.messages';
-import * as servicesApi from 'api/services';
 import * as realtimeApi from 'api/rta';
 import {
   wrapWithQueryProvider,
-  wrapWithRouter,
   wrapWithSnackbarProvider,
   wrapWithUserProvider,
 } from 'utils/testUtils';
 import {
-  TEST_MANAGED_SERVICE_MONGO,
+  TEST_VERSIONED_MONGO_SERVICE,
   TEST_REAL_TIME_SESSION,
   TEST_USER_ADMIN,
   TEST_USER_EDITOR,
   TEST_USER_VIEWER,
 } from 'utils/testStubs';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { Messages as RtaMessages } from '../messages';
 
 vi.mock('api/services');
 vi.mock('api/rta');
@@ -39,18 +39,27 @@ vi.mock('react-router-dom', async () => {
 });
 
 const setupMocks = () => {
-  vi.mocked(servicesApi.listManagedServices).mockResolvedValue({
-    services: [],
-  });
   vi.mocked(realtimeApi.getRunningSessions).mockResolvedValue([]);
+  vi.mocked(realtimeApi.getAvailableServices).mockResolvedValue({
+    mongodb: [],
+  });
 };
 
 const renderComponent = (user = TEST_USER_ADMIN) =>
   render(
     wrapWithQueryProvider(
-      wrapWithRouter(
-        wrapWithSnackbarProvider(
-          wrapWithUserProvider(<RealtimeSelection />, { user })
+      wrapWithSnackbarProvider(
+        wrapWithUserProvider(
+          <MemoryRouter initialEntries={['/rta/selection']} initialIndex={0}>
+            <Routes>
+              <Route path="/rta/selection" element={<RealtimeSelection />} />
+              <Route
+                path="/rta/sessions"
+                element={<div data-testid="realtime-sessions">Sessions</div>}
+              />
+            </Routes>
+          </MemoryRouter>,
+          { user }
         )
       )
     )
@@ -103,11 +112,11 @@ describe('RealtimeSelection', () => {
       expect(screen.getByText(Messages.feedback)).toBeInTheDocument();
     });
 
-    it('renders MongoDB only message', async () => {
+    it('renders disclaimer message', async () => {
       renderComponent();
 
       await waitFor(() => {
-        expect(screen.getByText(Messages.mongoOnly)).toBeInTheDocument();
+        expect(screen.getByText(RtaMessages.disclaimer)).toBeInTheDocument();
       });
     });
   });
@@ -128,7 +137,7 @@ describe('RealtimeSelection', () => {
       renderComponent(TEST_USER_EDITOR);
 
       await waitFor(() => {
-        // Viewer should see empty state, not the form
+        // Editor should see empty state, not the form
         expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
       });
     });
@@ -197,8 +206,8 @@ describe('RealtimeSelection', () => {
       vi.mocked(realtimeApi.startSession).mockResolvedValue({
         session: TEST_REAL_TIME_SESSION,
       });
-      vi.mocked(servicesApi.listManagedServices).mockResolvedValue({
-        services: [TEST_MANAGED_SERVICE_MONGO],
+      vi.mocked(realtimeApi.getAvailableServices).mockResolvedValue({
+        mongodb: [TEST_VERSIONED_MONGO_SERVICE],
       });
 
       renderComponent();
@@ -209,7 +218,7 @@ describe('RealtimeSelection', () => {
 
       const listbox = await screen.findByRole('listbox');
       const option = within(listbox).getByText(
-        TEST_MANAGED_SERVICE_MONGO.serviceName
+        TEST_VERSIONED_MONGO_SERVICE.serviceName
       );
       fireEvent.click(option);
 
@@ -226,7 +235,7 @@ describe('RealtimeSelection', () => {
 
   describe('Loading States', () => {
     it('shows loading indicator while fetching services', () => {
-      vi.mocked(servicesApi.listManagedServices).mockImplementation(
+      vi.mocked(realtimeApi.getAvailableServices).mockImplementation(
         () => new Promise(() => {})
       );
 
@@ -238,7 +247,7 @@ describe('RealtimeSelection', () => {
 
   describe('Error Handling', () => {
     it('renders form even when service fetch fails', async () => {
-      vi.mocked(servicesApi.listManagedServices).mockRejectedValueOnce(
+      vi.mocked(realtimeApi.getAvailableServices).mockRejectedValueOnce(
         new Error('Failed to fetch services')
       );
       vi.mocked(realtimeApi.getRunningSessions).mockResolvedValueOnce([]);
@@ -251,6 +260,20 @@ describe('RealtimeSelection', () => {
           expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
         },
         { timeout: 3000 }
+      );
+    });
+  });
+
+  describe('Navigation', () => {
+    it('navigates to sessions page when there are any running sessions', async () => {
+      vi.mocked(realtimeApi.getRunningSessions).mockResolvedValueOnce([
+        TEST_REAL_TIME_SESSION,
+      ]);
+
+      renderComponent();
+
+      await waitFor(() =>
+        expect(screen.getByTestId('realtime-sessions')).toBeInTheDocument()
       );
     });
   });

@@ -12,11 +12,7 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-// Package models provides the data models for the managed package.
-//
 
-// Package models provides functionality for handling database models and related tasks.
-//
 //nolint:lll
 package models
 
@@ -1177,9 +1173,16 @@ var databaseSchema = [][]string{
 		`ALTER TABLE agents ADD COLUMN is_connected BOOLEAN NOT NULL DEFAULT false`,
 		`ALTER TABLE nodes ADD COLUMN is_pmm_server_node BOOLEAN NOT NULL DEFAULT false`,
 	},
-	126: {
+	116: {
 		`ALTER TABLE agents ADD COLUMN rta_options JSONB`,
 		`UPDATE agents SET rta_options = '{}'::jsonb`,
+	},
+	117: {
+		`DROP TABLE IF EXISTS percona_sso_details`,
+	},
+	118: {
+		`ALTER TABLE dumps ADD COLUMN encrypted boolean NOT NULL DEFAULT false`,
+		`UPDATE dumps SET encrypted = false`,
 	},
 }
 
@@ -1219,8 +1222,8 @@ func OpenDB(params SetupDBParams) (*sql.DB, error) {
 	}
 
 	db.SetConnMaxLifetime(0)
-	db.SetMaxIdleConns(5)
-	db.SetMaxOpenConns(10)
+	db.SetMaxIdleConns(5)  //nolint:mnd
+	db.SetMaxOpenConns(10) //nolint:mnd
 
 	return db, nil
 }
@@ -1261,10 +1264,20 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 
 	db := reform.NewDB(sqlDB, postgresql.Dialect, logger)
 	errCV := checkVersion(ctx, db)
-	if pErr, ok := errCV.(*pq.Error); ok && pErr.Code == "28000" { //nolint:errorlint
-		// invalid_authorization_specification	(see https://www.postgresql.org/docs/current/errcodes-appendix.html)
+	var pErr *pq.Error
+	if errors.As(errCV, &pErr) && (pErr.Code == "28000" || pErr.Code == "28P01") {
+		// 28000: invalid_authorization_specification (role does not exist, e.g. with trust auth)
+		// 28P01: invalid_password - with password-based auth (md5/scram-sha-256), PostgreSQL returns this
+		//        even when the role doesn't exist at all, to prevent user enumeration.
+		// See https://www.postgresql.org/docs/current/errcodes-appendix.html
+		//
+		// In HA mode the external PostgreSQL must be pre-provisioned; auto-provisioning via the
+		// embedded superuser password file is not available and must not be attempted.
+		if params.HANodeID != "" {
+			return nil, fmt.Errorf("cannot auto-provision database in HA mode: %w", errCV)
+		}
 		if err := initWithRoot(params); err != nil {
-			return nil, errors.Wrapf(err, "couldn't connect to database with provided credentials. Tried to create user and database. Error: %s", errCV)
+			return nil, err
 		}
 		errCV = checkVersion(ctx, db)
 	}
@@ -1364,46 +1377,63 @@ func checkVersion(ctx context.Context, db reform.DBTXContext) error {
 	return nil
 }
 
-// initWithRoot tries to create given user and database under default postgres role.
+// initWithRoot tries to create the user and the database.
 func initWithRoot(params SetupDBParams) error {
 	if params.Logf != nil {
 		params.Logf("Creating database %s and role %s", params.Name, params.Username)
 	}
-	// we use empty password/db and postgres user for creating database
-	db, err := OpenDB(SetupDBParams{Address: params.Address, Username: "postgres"})
+
+	// Read postgres password from the secure file
+	passwordFile := "/srv/.postgres_password" //nolint:gosec
+	passwordBytes, err := os.ReadFile(passwordFile)
 	if err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("failed to read postgres password from %s: %w", passwordFile, err)
+	}
+
+	// we use postgres user for creating database
+	db, err := OpenDB(SetupDBParams{Address: params.Address, Username: "postgres", Password: string(passwordBytes)})
+	if err != nil {
+		return fmt.Errorf("failed to open the database: %w", err)
 	}
 	defer db.Close() //nolint:errcheck
 
 	var countDatabases int
 	err = db.QueryRow(`SELECT COUNT(*) FROM pg_database WHERE datname = $1`, params.Name).Scan(&countDatabases)
 	if err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("failed to select records from the database: %w", err)
 	}
 
 	if countDatabases == 0 {
 		_, err = db.Exec(fmt.Sprintf(`CREATE DATABASE "%s"`, params.Name))
 		if err != nil {
-			return errors.WithStack(err)
+			return fmt.Errorf("failed to create database %s: %w", params.Name, err)
 		}
 	}
 
 	var countRoles int
 	err = db.QueryRow(`SELECT COUNT(*) FROM pg_roles WHERE rolname=$1`, params.Username).Scan(&countRoles)
 	if err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("failed to select records from the database: %w", err)
 	}
 
 	if countRoles == 0 {
 		_, err = db.Exec(fmt.Sprintf(`CREATE USER "%s" LOGIN PASSWORD '%s'`, params.Username, params.Password))
 		if err != nil {
-			return errors.WithStack(err)
+			return fmt.Errorf("failed to create user %s: %w", params.Username, err)
 		}
 
 		_, err = db.Exec(`GRANT ALL PRIVILEGES ON DATABASE $1 TO $2`, params.Name, params.Username)
 		if err != nil {
-			return errors.WithStack(err)
+			return fmt.Errorf("failed to grant privileges to user %s on database %s: %w", params.Username, params.Name, err)
+		}
+	} else {
+		// Role exists but authentication failed (e.g. pg_hba.conf switched from trust to
+		// scram-sha-256 during an upgrade, leaving the role with no usable password hash).
+		// initWithRoot is only ever called after a 28000/28P01 auth error, so resetting the
+		// password to the currently configured value is OK.
+		_, err = db.Exec(fmt.Sprintf(`ALTER USER "%s" WITH PASSWORD '%s'`, params.Username, params.Password))
+		if err != nil {
+			return fmt.Errorf("failed to update password for user %s: %w", params.Username, err)
 		}
 	}
 	return nil

@@ -8,8 +8,8 @@ import {
   ListServicesResponse,
   ManagedService,
   ManagedServicesResponse,
-  ManagedServiceType,
   MySqlService,
+  VersionedService,
 } from 'types/services.types';
 import { OrgRole, User } from 'types/user.types';
 
@@ -17,6 +17,7 @@ export const TEST_USER_ADMIN: User = {
   id: 1,
   login: 'admin',
   name: 'admin',
+  isAnonymous: false,
   isAuthorized: true,
   isViewer: true,
   isEditor: true,
@@ -96,9 +97,18 @@ export const TEST_MANAGED_SERVICE: ManagedService = {
   version: '8.0.0',
 };
 
-export const TEST_MANAGED_SERVICE_MONGO: ManagedService = {
-  ...TEST_MANAGED_SERVICE,
-  serviceType: ManagedServiceType.mongodb,
+export const TEST_VERSIONED_MONGO_SERVICE: VersionedService = {
+  serviceId: 'service-1',
+  serviceName: 'Service 1',
+  nodeId: 'node-1',
+  environment: 'production',
+  cluster: 'cluster-1',
+  replicationSet: 'replication-set-1',
+  customLabels: {},
+  address: '127.0.0.1',
+  port: 27017,
+  socket: '',
+  version: '8.0.0',
 };
 
 export const TEST_MANAGED_SERVICES_WITH_ONE_MYSQL: ManagedServicesResponse = {

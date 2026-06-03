@@ -21,7 +21,7 @@ import (
 	"testing"
 
 	"github.com/sirupsen/logrus"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestVerifySignatures(t *testing.T) {
@@ -51,7 +51,7 @@ uEF33ScMPYpvHvBKv8+yBkJ9k4+DCfV4nDs6kKYwGhalvkkqwWkyfJffO+KW7a1m3y42WHpOnzBxLJ+I
 `)
 
 		err := Verify(l, "random data", []string{invalidSign, validSign}, publicKeys)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	})
 
 	t.Run("empty signatures", func(t *testing.T) {
@@ -60,6 +60,6 @@ uEF33ScMPYpvHvBKv8+yBkJ9k4+DCfV4nDs6kKYwGhalvkkqwWkyfJffO+KW7a1m3y42WHpOnzBxLJ+I
 		publicKeys := []string{"RWSdGihBPffV2c4IysqHAIxc5c5PLfmQStbRPkuLXDr3igJOqFWt7aml"}
 
 		err := Verify(l, "random data", []string{}, publicKeys)
-		assert.EqualError(t, err, "zero signatures received")
+		require.EqualError(t, err, "zero signatures received")
 	})
 }

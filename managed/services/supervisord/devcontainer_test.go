@@ -38,7 +38,7 @@ func TestDevContainer(t *testing.T) {
 		s := New("/etc/supervisord.d", &models.Params{VMParams: vmParams, PGParams: &models.PGParams{}, HAParams: &models.HAParams{}})
 		require.NotEmpty(t, s.supervisorctlPath)
 
-		ctx, cancel := context.WithCancel(context.Background())
+		ctx, cancel := context.WithCancel(t.Context())
 		defer cancel()
 		go s.Run(ctx)
 
@@ -54,18 +54,18 @@ func TestDevContainer(t *testing.T) {
 		defer func() {
 			for name, b := range originals {
 				err = os.WriteFile(name, b, 0)
-				assert.NoError(t, err)
+				require.NoError(t, err)
 			}
 			// force update supervisor config
 			_, err := s.supervisorctl("update")
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		}()
 
 		settings := &models.Settings{
 			DataRetention: 3600 * time.Hour,
 		}
 
-		b, err := s.marshalConfig(templates.Lookup("victoriametrics"), settings, nil)
+		b, err := s.marshalConfig(templates.Lookup("victoriametrics"), settings)
 		require.NoError(t, err)
 		changed, err := s.saveConfigAndReload("victoriametrics", b)
 		require.NoError(t, err)
@@ -74,7 +74,7 @@ func TestDevContainer(t *testing.T) {
 		require.NoError(t, err)
 		assert.False(t, changed)
 
-		err = s.UpdateConfiguration(settings, nil)
+		err = s.UpdateConfiguration(settings)
 		require.NoError(t, err)
 	})
 }

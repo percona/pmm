@@ -88,7 +88,7 @@ type AddAgentQANMySQLSlowlogAgentCommand struct {
 
 // RunCmd executes the AddAgentQANMySQLSlowlogAgentCommand and returns the result.
 func (cmd *AddAgentQANMySQLSlowlogAgentCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(&cmd.CustomLabels)
 
 	var (
 		err                    error
@@ -118,9 +118,9 @@ func (cmd *AddAgentQANMySQLSlowlogAgentCommand) RunCmd() (commands.Result, error
 				ServiceID:              cmd.ServiceID,
 				Username:               cmd.Username,
 				Password:               cmd.Password,
-				CustomLabels:           customLabels,
+				CustomLabels:           *customLabels,
 				SkipConnectionCheck:    cmd.SkipConnectionCheck,
-				DisableCommentsParsing: !cmd.CommentsParsingFlags.CommentsParsingEnabled(),
+				DisableCommentsParsing: !cmd.CommentsParsingEnabled(),
 				MaxQueryLength:         cmd.MaxQueryLength,
 				DisableQueryExamples:   cmd.DisableQueryExamples,
 				MaxSlowlogFileSize:     strconv.FormatInt(int64(cmd.MaxSlowlogFileSize), 10),
@@ -129,7 +129,7 @@ func (cmd *AddAgentQANMySQLSlowlogAgentCommand) RunCmd() (commands.Result, error
 				TLSCa:                  tlsCa,
 				TLSCert:                tlsCert,
 				TLSKey:                 tlsKey,
-				LogLevel:               cmd.LogLevelFatalFlags.LogLevel.EnumValue(),
+				LogLevel:               cmd.LogLevel.EnumValue(),
 			},
 		},
 		Context: commands.Ctx,

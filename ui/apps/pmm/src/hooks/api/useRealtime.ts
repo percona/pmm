@@ -6,6 +6,7 @@ import {
   UseQueryOptions,
 } from '@tanstack/react-query';
 import {
+  getAvailableServices,
   getRunningSessions,
   searchQueries,
   startSession,
@@ -20,8 +21,7 @@ import {
   QueryData,
   RawQueryData,
 } from 'types/rta.types';
-import { ManagedService, ServiceType } from 'types/services.types';
-import { useManagedServices } from './useServices';
+import { ServiceType, VersionedService } from 'types/services.types';
 import { useMemo } from 'react';
 import { EmptyResponse } from 'types/util.types';
 import { parseDuration } from 'utils/duration.utils';
@@ -34,6 +34,7 @@ const KEYS = {
   STOP_SESSION: 'rta:stop-session',
   STOP_SESSIONS: 'rta:stop-sessions',
   SEARCH_QUERIES: 'rta:search-queries',
+  AVAILABLE_SERVICES: 'rta:available-services',
 };
 
 export const useRealtimeSessions = (
@@ -118,35 +119,32 @@ export const useStopSessions = (
 /**
  * Hook to get MongoDB services that don't have running RTA agents
  */
-export const useAvailableServices = () => {
+export const useAvailableServices = (serviceTypes?: ServiceType[]) => {
   const { user } = useUser();
   const { data: sessions, isLoading: isLoadingSessions } =
     useRealtimeSessions();
-  const { data: services, isLoading: isLoadingServices } = useManagedServices({
-    serviceType: ServiceType.mongodb,
-  }, {
-    enabled: user?.isPMMAdmin,
-  });
+  const { data: services = { mongodb: [] }, isLoading: isLoadingServices } =
+    useQuery({
+      queryKey: [KEYS.AVAILABLE_SERVICES],
+      queryFn: () => getAvailableServices(serviceTypes),
+      enabled: !!user,
+    });
 
-  const availableServices = useMemo<ManagedService[]>(() => {
-    if (!services?.services) {
-      return [];
-    }
-
+  const availableServices = useMemo<VersionedService[]>(() => {
     const runningServiceIds = (sessions || []).map(
       (session) => session.serviceId
     );
 
     // Filter out services that already have running RTA agents
-    return services.services.filter(
-      (service) => !runningServiceIds.includes(service.serviceId)
-    );
+    return Object.values(services)
+      .flat()
+      .filter((service) => !runningServiceIds.includes(service.serviceId));
   }, [services, sessions]);
 
   return {
     availableServices,
     isLoading: isLoadingSessions || isLoadingServices,
-    services: services?.services || [],
+    services,
     sessions: sessions || [],
   };
 };

@@ -36,14 +36,16 @@ func TestNewInventoryMetricsCollector(t *testing.T) {
 	t.Run("Metrics returns inventory metrics", func(t *testing.T) {
 		client := http.Client{}
 
-		ctx, cancelCtx := context.WithTimeout(context.Background(), 3*time.Second)
+		ctx, cancelCtx := context.WithTimeout(t.Context(), 3*time.Second)
 		defer cancelCtx()
 
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "http://localhost:7773/debug/metrics", nil)
 		require.NoError(t, err)
 		resp, err := client.Do(req)
 		require.NoError(t, err)
-		defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
+		t.Cleanup(func() {
+			assert.NoError(t, resp.Body.Close())
+		})
 
 		body, err := io.ReadAll(resp.Body)
 		require.NoError(t, err)
@@ -109,21 +111,24 @@ func TestNewInventoryMetricsCollector(t *testing.T) {
 		if err := testutil.CollectAndCompare(
 			inventoryCollector,
 			strings.NewReader(expectedAgentMetrics),
-			"pmm_managed_inventory_agents"); err != nil {
+			"pmm_managed_inventory_agents",
+		); err != nil {
 			t.Errorf("Unexpected collecting result:\n%s", err)
 		}
 
 		if err := testutil.CollectAndCompare(
 			inventoryCollector,
 			strings.NewReader(expectedNodeMetrics),
-			"pmm_managed_inventory_nodes"); err != nil {
+			"pmm_managed_inventory_nodes",
+		); err != nil {
 			t.Errorf("Unexpected collecting result:\n%s", err)
 		}
 
 		if err := testutil.CollectAndCompare(
 			inventoryCollector,
 			strings.NewReader(expectedServiceMetrics),
-			"pmm_managed_inventory_services"); err != nil {
+			"pmm_managed_inventory_services",
+		); err != nil {
 			t.Errorf("Unexpected collecting result:\n%s", err)
 		}
 	})

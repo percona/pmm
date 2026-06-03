@@ -89,7 +89,7 @@ func (cmd *AddExternalCommand) GetCredentials() error {
 
 // RunCmd runs the command for AddExternalCommand.
 func (cmd *AddExternalCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(&cmd.CustomLabels)
 
 	if cmd.RunsOnNodeID == "" || cmd.NodeID == "" {
 		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
@@ -135,8 +135,8 @@ func (cmd *AddExternalCommand) RunCmd() (commands.Result, error) {
 				Environment:         cmd.Environment,
 				Cluster:             cmd.Cluster,
 				ReplicationSet:      cmd.ReplicationSet,
-				CustomLabels:        customLabels,
-				MetricsMode:         cmd.MetricsModeFlags.MetricsMode.EnumValue(),
+				CustomLabels:        *customLabels,
+				MetricsMode:         cmd.MetricsMode.EnumValue(),
 				Group:               cmd.Group,
 				SkipConnectionCheck: cmd.SkipConnectionCheck,
 				TLSSkipVerify:       cmd.TLSSkipVerify,

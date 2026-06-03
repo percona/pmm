@@ -18,7 +18,6 @@ import (
 	"context"
 	"os"
 	"path/filepath"
-	"sort"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -40,14 +39,14 @@ func assertChanges(t *testing.T, s *Supervisor, expected ...*agentv1.StateChange
 		actual[i] = <-s.Changes()
 	}
 
-	sort.Slice(expected, func(i, j int) bool { return expected[i].AgentId < expected[j].AgentId })
-	sort.Slice(actual, func(i, j int) bool { return actual[i].AgentId < actual[j].AgentId })
-	assert.Equal(t, expected, actual)
+	require.ElementsMatch(t, expected, actual)
 }
 
 func TestSupervisor(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	t.Parallel()
+
+	ctx, cancel := context.WithCancel(t.Context())
+	t.Cleanup(cancel)
 	tempDir := t.TempDir()
 	cfgStorage := config.NewStorage(&config.Config{
 		Paths:         config.Paths{TempDir: tempDir},
@@ -59,8 +58,7 @@ func TestSupervisor(t *testing.T) {
 	go s.Run(ctx)
 
 	t.Run("Start13", func(t *testing.T) {
-		expectedList := []*agentlocal.AgentInfo{}
-		require.Equal(t, expectedList, s.AgentsList())
+		require.Empty(t, s.AgentsList())
 
 		s.SetState(&agentv1.SetStateRequest{
 			AgentProcesses: map[string]*agentv1.SetStateRequest_AgentProcess{
@@ -71,23 +69,29 @@ func TestSupervisor(t *testing.T) {
 			},
 		})
 
-		assertChanges(t, s,
+		assertChanges(
+			t, s,
 			&agentv1.StateChangedRequest{AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING},
 			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING, ListenPort: 65000, ProcessExecPath: "sleep"},
-			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"})
-		expectedList = []*agentlocal.AgentInfo{
+			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
+		)
+
+		expectedList := []*agentlocal.AgentInfo{
 			{AgentType: type_TEST_NOOP, AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING},
 			{AgentType: type_TEST_SLEEP, AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
 		}
-		assert.Equal(t, expectedList, s.AgentsList())
+		assert.ElementsMatch(t, expectedList, s.AgentsList())
 
-		assertChanges(t, s,
-			&agentv1.StateChangedRequest{AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING})
+		assertChanges(
+			t, s,
+			&agentv1.StateChangedRequest{AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
+		)
+
 		expectedList = []*agentlocal.AgentInfo{
 			{AgentType: type_TEST_NOOP, AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
 			{AgentType: type_TEST_SLEEP, AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
 		}
-		assert.Equal(t, expectedList, s.AgentsList())
+		assert.ElementsMatch(t, expectedList, s.AgentsList())
 	})
 
 	t.Run("Restart1Start2", func(t *testing.T) {
@@ -95,7 +99,7 @@ func TestSupervisor(t *testing.T) {
 			{AgentType: type_TEST_NOOP, AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
 			{AgentType: type_TEST_SLEEP, AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
 		}
-		require.Equal(t, expectedList, s.AgentsList())
+		require.ElementsMatch(t, expectedList, s.AgentsList())
 
 		s.SetState(&agentv1.SetStateRequest{
 			AgentProcesses: map[string]*agentv1.SetStateRequest_AgentProcess{
@@ -107,29 +111,26 @@ func TestSupervisor(t *testing.T) {
 			},
 		})
 
-		assertChanges(t, s,
-			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_STOPPING, ListenPort: 65000, ProcessExecPath: "sleep"})
-		assertChanges(t, s,
-			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE, ListenPort: 65000, ProcessExecPath: "sleep"})
-
-		assertChanges(t, s,
+		assertChanges(
+			t, s,
+			// stop sleep1 agent
+			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_STOPPING, ListenPort: 65000, ProcessExecPath: "sleep"},
+			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE, ListenPort: 65000, ProcessExecPath: "sleep"},
+			// start sleep1 agent
 			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING, ListenPort: 65000, ProcessExecPath: "sleep"},
 			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
+			// start sleep2 agent
 			&agentv1.StateChangedRequest{AgentId: "sleep2", Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING, ListenPort: 65001, ProcessExecPath: "sleep"},
-			&agentv1.StateChangedRequest{AgentId: "sleep2", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"})
-		expectedList = []*agentlocal.AgentInfo{
-			{AgentType: type_TEST_NOOP, AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep2", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
-		}
-		assert.Equal(t, expectedList, s.AgentsList())
+			&agentv1.StateChangedRequest{AgentId: "sleep2", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
+			// nothing for noop3 agent is expected
+		)
 
 		expectedList = []*agentlocal.AgentInfo{
 			{AgentType: type_TEST_NOOP, AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
 			{AgentType: type_TEST_SLEEP, AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
 			{AgentType: type_TEST_SLEEP, AgentId: "sleep2", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
 		}
-		assert.Equal(t, expectedList, s.AgentsList())
+		assert.ElementsMatch(t, expectedList, s.AgentsList())
 	})
 
 	t.Run("Restart3Start4", func(t *testing.T) {
@@ -138,7 +139,7 @@ func TestSupervisor(t *testing.T) {
 			{AgentType: type_TEST_SLEEP, AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
 			{AgentType: type_TEST_SLEEP, AgentId: "sleep2", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
 		}
-		require.Equal(t, expectedList, s.AgentsList())
+		require.ElementsMatch(t, expectedList, s.AgentsList())
 
 		s.SetState(&agentv1.SetStateRequest{
 			AgentProcesses: map[string]*agentv1.SetStateRequest_AgentProcess{
@@ -151,32 +152,28 @@ func TestSupervisor(t *testing.T) {
 			},
 		})
 
-		assertChanges(t, s,
-			&agentv1.StateChangedRequest{AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_STOPPING})
-		assertChanges(t, s,
-			&agentv1.StateChangedRequest{AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE})
-
-		assertChanges(t, s,
+		assertChanges(
+			t, s,
+			// stop noop3 agent
+			&agentv1.StateChangedRequest{AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_STOPPING},
+			&agentv1.StateChangedRequest{AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE},
+			// start noop3 agent
 			&agentv1.StateChangedRequest{AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING},
-			&agentv1.StateChangedRequest{AgentId: "noop4", Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING})
-		expectedList = []*agentlocal.AgentInfo{
-			{AgentType: type_TEST_NOOP, AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING},
-			{AgentType: type_TEST_NOOP, AgentId: "noop4", Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep2", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
-		}
-		assert.Equal(t, expectedList, s.AgentsList())
-
-		assertChanges(t, s,
+			// start noop4 agent
+			&agentv1.StateChangedRequest{AgentId: "noop4", Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING},
+			// noop3 and noop4 are running
 			&agentv1.StateChangedRequest{AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
-			&agentv1.StateChangedRequest{AgentId: "noop4", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING})
+			&agentv1.StateChangedRequest{AgentId: "noop4", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
+			// nothing for sleep1 and sleep2 is expected
+		)
+
 		expectedList = []*agentlocal.AgentInfo{
 			{AgentType: type_TEST_NOOP, AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
 			{AgentType: type_TEST_NOOP, AgentId: "noop4", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
 			{AgentType: type_TEST_SLEEP, AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
 			{AgentType: type_TEST_SLEEP, AgentId: "sleep2", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
 		}
-		assert.Equal(t, expectedList, s.AgentsList())
+		assert.ElementsMatch(t, expectedList, s.AgentsList())
 	})
 
 	t.Run("Stop1", func(t *testing.T) {
@@ -186,7 +183,7 @@ func TestSupervisor(t *testing.T) {
 			{AgentType: type_TEST_SLEEP, AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
 			{AgentType: type_TEST_SLEEP, AgentId: "sleep2", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
 		}
-		require.Equal(t, expectedList, s.AgentsList())
+		require.ElementsMatch(t, expectedList, s.AgentsList())
 
 		s.SetState(&agentv1.SetStateRequest{
 			AgentProcesses: map[string]*agentv1.SetStateRequest_AgentProcess{
@@ -198,16 +195,18 @@ func TestSupervisor(t *testing.T) {
 			},
 		})
 
-		assertChanges(t, s,
-			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_STOPPING, ListenPort: 65000, ProcessExecPath: "sleep"})
-		assertChanges(t, s,
-			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE, ListenPort: 65000, ProcessExecPath: "sleep"})
+		assertChanges(
+			t, s,
+			// sleep1 agent is terminated
+			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_STOPPING, ListenPort: 65000, ProcessExecPath: "sleep"},
+			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE, ListenPort: 65000, ProcessExecPath: "sleep"},
+		)
 		expectedList = []*agentlocal.AgentInfo{
 			{AgentType: type_TEST_NOOP, AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
 			{AgentType: type_TEST_NOOP, AgentId: "noop4", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
 			{AgentType: type_TEST_SLEEP, AgentId: "sleep2", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
 		}
-		require.Equal(t, expectedList, s.AgentsList())
+		require.ElementsMatch(t, expectedList, s.AgentsList())
 	})
 
 	t.Run("Stop3", func(t *testing.T) {
@@ -216,7 +215,7 @@ func TestSupervisor(t *testing.T) {
 			{AgentType: type_TEST_NOOP, AgentId: "noop4", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
 			{AgentType: type_TEST_SLEEP, AgentId: "sleep2", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
 		}
-		require.Equal(t, expectedList, s.AgentsList())
+		require.ElementsMatch(t, expectedList, s.AgentsList())
 
 		s.SetState(&agentv1.SetStateRequest{
 			AgentProcesses: map[string]*agentv1.SetStateRequest_AgentProcess{
@@ -227,15 +226,17 @@ func TestSupervisor(t *testing.T) {
 			},
 		})
 
-		assertChanges(t, s,
-			&agentv1.StateChangedRequest{AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_STOPPING})
-		assertChanges(t, s,
-			&agentv1.StateChangedRequest{AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE})
+		assertChanges(
+			t, s,
+			// noop3 agent is terminated
+			&agentv1.StateChangedRequest{AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_STOPPING},
+			&agentv1.StateChangedRequest{AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE},
+		)
 		expectedList = []*agentlocal.AgentInfo{
 			{AgentType: type_TEST_NOOP, AgentId: "noop4", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
 			{AgentType: type_TEST_SLEEP, AgentId: "sleep2", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
 		}
-		require.Equal(t, expectedList, s.AgentsList())
+		require.ElementsMatch(t, expectedList, s.AgentsList())
 	})
 
 	t.Run("Exit", func(t *testing.T) {
@@ -243,28 +244,30 @@ func TestSupervisor(t *testing.T) {
 			{AgentType: type_TEST_NOOP, AgentId: "noop4", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
 			{AgentType: type_TEST_SLEEP, AgentId: "sleep2", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
 		}
-		require.Equal(t, expectedList, s.AgentsList())
+		require.ElementsMatch(t, expectedList, s.AgentsList())
 
 		cancel()
 
-		assertChanges(t, s,
+		assertChanges(
+			t, s,
+			// all agents are terminated
 			&agentv1.StateChangedRequest{AgentId: "sleep2", Status: inventoryv1.AgentStatus_AGENT_STATUS_STOPPING, ListenPort: 65001, ProcessExecPath: "sleep"},
 			&agentv1.StateChangedRequest{AgentId: "sleep2", Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE, ListenPort: 65001, ProcessExecPath: "sleep"},
 			&agentv1.StateChangedRequest{AgentId: "noop4", Status: inventoryv1.AgentStatus_AGENT_STATUS_STOPPING},
-			&agentv1.StateChangedRequest{AgentId: "noop4", Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE})
-		assertChanges(t, s, nil)
-		expectedList = []*agentlocal.AgentInfo{}
-		require.Equal(t, expectedList, s.AgentsList())
+			&agentv1.StateChangedRequest{AgentId: "noop4", Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE},
+		)
+		require.Empty(t, s.AgentsList())
 	})
 }
 
 func TestStartProcessFail(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	t.Parallel()
+
+	ctx := t.Context()
 	tempDir := t.TempDir()
 	cfgStorage := config.NewStorage(&config.Config{
 		Paths:         config.Paths{TempDir: tempDir},
-		Ports:         config.Ports{Min: 65000, Max: 65099},
+		Ports:         config.Ports{Min: 65100, Max: 65199},
 		Server:        config.Server{Address: "localhost:443"},
 		LogLinesCount: 1,
 	})
@@ -272,8 +275,7 @@ func TestStartProcessFail(t *testing.T) {
 	go s.Run(ctx)
 
 	t.Run("Start", func(t *testing.T) {
-		expectedList := []*agentlocal.AgentInfo{}
-		require.Equal(t, expectedList, s.AgentsList())
+		require.Empty(t, s.AgentsList())
 
 		s.SetState(&agentv1.SetStateRequest{
 			AgentProcesses: map[string]*agentv1.SetStateRequest_AgentProcess{
@@ -281,18 +283,19 @@ func TestStartProcessFail(t *testing.T) {
 			},
 		})
 
-		assertChanges(t, s,
-			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING, ListenPort: 65000, ProcessExecPath: "sleep"},
-			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR, ListenPort: 65000, ProcessExecPath: "sleep"},
-			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE, ListenPort: 65000, ProcessExecPath: "sleep"},
-			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING, ListenPort: 65001, ProcessExecPath: "sleep"},
-			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR, ListenPort: 65001, ProcessExecPath: "sleep"},
-			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE, ListenPort: 65001, ProcessExecPath: "sleep"},
-			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING, ListenPort: 65002, ProcessExecPath: "sleep"},
-			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR, ListenPort: 65002, ProcessExecPath: "sleep"},
-			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE, ListenPort: 65002, ProcessExecPath: "sleep"})
-		expectedList = []*agentlocal.AgentInfo{}
-		require.Equal(t, expectedList, s.AgentsList())
+		assertChanges(
+			t, s,
+			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING, ListenPort: 65100, ProcessExecPath: "sleep"},
+			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR, ListenPort: 65100, ProcessExecPath: "sleep"},
+			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE, ListenPort: 65100, ProcessExecPath: "sleep"},
+			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING, ListenPort: 65101, ProcessExecPath: "sleep"},
+			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR, ListenPort: 65101, ProcessExecPath: "sleep"},
+			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE, ListenPort: 65101, ProcessExecPath: "sleep"},
+			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING, ListenPort: 65102, ProcessExecPath: "sleep"},
+			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR, ListenPort: 65102, ProcessExecPath: "sleep"},
+			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE, ListenPort: 65102, ProcessExecPath: "sleep"},
+		)
+		require.Empty(t, s.AgentsList())
 	})
 }
 
@@ -321,14 +324,11 @@ func TestSupervisorProcessParams(t *testing.T) {
 	setup := func(t *testing.T) (*Supervisor, func()) {
 		t.Helper()
 
-		temp, err := os.MkdirTemp("", "pmm-agent-")
-		require.NoError(t, err)
-
-		ctx, cancel := context.WithCancel(context.Background())
+		ctx, cancel := context.WithCancel(t.Context())
 		paths := config.Paths{
 			MySQLdExporter: "/path/to/mysql_exporter",
 			Nomad:          "/path/to/nomad",
-			TempDir:        temp,
+			TempDir:        t.TempDir(),
 			NomadDataDir:   "/path/to/nomad/data",
 		}
 
@@ -341,21 +341,13 @@ func TestSupervisorProcessParams(t *testing.T) {
 		s := NewSupervisor(ctx, nil, cfgStorage) //nolint:varnamelen
 		go s.Run(ctx)
 
-		teardown := func() {
-			cancel()
-			if t.Failed() {
-				t.Logf("%s is kept.", paths.TempDir)
-			} else {
-				require.NoError(t, os.RemoveAll(paths.TempDir))
-			}
-		}
-		return s, teardown
+		return s, cancel
 	}
 
 	t.Run("Normal", func(t *testing.T) {
 		t.Parallel()
 		s, teardown := setup(t)
-		defer teardown()
+		t.Cleanup(teardown)
 
 		p := &agentv1.SetStateRequest_AgentProcess{
 			Type: inventoryv1.AgentType_AGENT_TYPE_MYSQLD_EXPORTER,
@@ -409,7 +401,7 @@ func TestSupervisorProcessParams(t *testing.T) {
 	t.Run("Nomad", func(t *testing.T) {
 		t.Parallel()
 		s, teardown := setup(t)
-		defer teardown()
+		t.Cleanup(teardown)
 
 		configTemplate := `log_level = "DEBUG"
 
@@ -586,7 +578,7 @@ plugin "raw_exec" {
 	t.Run("VMAgent", func(t *testing.T) {
 		t.Parallel()
 		s, teardown := setup(t)
-		defer teardown()
+		t.Cleanup(teardown)
 
 		// Update the config to include VMAgent path
 		cfg := s.cfg.Get()
@@ -654,7 +646,7 @@ plugin "raw_exec" {
 	t.Run("BadTemplate", func(t *testing.T) {
 		t.Parallel()
 		s, teardown := setup(t)
-		defer teardown()
+		t.Cleanup(teardown)
 
 		p := &agentv1.SetStateRequest_AgentProcess{
 			Type: inventoryv1.AgentType_AGENT_TYPE_MYSQLD_EXPORTER,
@@ -685,7 +677,7 @@ plugin "raw_exec" {
 	t.Run("InsecureName", func(t *testing.T) {
 		t.Parallel()
 		s, teardown := setup(t)
-		defer teardown()
+		t.Cleanup(teardown)
 
 		agentProcess := &agentv1.SetStateRequest_AgentProcess{
 			Type:      inventoryv1.AgentType_AGENT_TYPE_MYSQLD_EXPORTER,

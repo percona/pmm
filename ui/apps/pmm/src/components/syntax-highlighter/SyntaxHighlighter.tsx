@@ -38,7 +38,9 @@ const SyntaxHighlighter: FC<SyntaxHighlighterProps> = ({
         await navigator.clipboard.writeText(content);
         enqueueSnackbar('Query copied to clipboard', { variant: 'success' });
       } catch (error) {
-        enqueueSnackbar('Failed to copy query to clipboard', { variant: 'error' });
+        enqueueSnackbar('Failed to copy query to clipboard', {
+          variant: 'error',
+        });
       }
     } else {
       enqueueSnackbar('Clipboard is not available', { variant: 'error' });
@@ -66,9 +68,9 @@ const SyntaxHighlighter: FC<SyntaxHighlighterProps> = ({
           borderWidth: 1,
           borderStyle: 'solid',
           borderColor: theme.palette.divider,
-          borderRadius: theme.shape.borderRadius / 2,
+          borderRadius: Number(theme.shape.borderRadius) / 2,
         }),
-        backgroundColor: theme.palette.surfaces?.elevation1 || 'transparent',
+        backgroundColor: theme.palette.surfaces?.high || 'transparent',
         position: 'relative',
       }}
     >

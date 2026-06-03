@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package qan.v1;
 
+import "extensions/v1/redact.proto";
 import "google/protobuf/timestamp.proto";
 import "qan/v1/qan.proto";
 
@@ -171,7 +172,7 @@ message GetSelectedQueryMetadataResponse {
   string service_name = 1;
   string database = 2;
   string schema = 3;
-  string username = 4;
+  string username = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   string replication_set = 5;
   string cluster = 6;
   string service_type = 7;

@@ -76,14 +76,12 @@ type Stream interface { //nolint:revive
 // Channel encapsulates two-way communication channel between pmm-managed and pmm-agent.
 //
 // All exported methods are thread-safe.
-//
-//nolint:maligned
 type Channel struct {
 	s Stream
 
 	mSent, mRecv uint32
 
-	lastSentRequestID uint32
+	lastSentRequestID atomic.Uint32
 
 	sendM sync.Mutex
 
@@ -164,7 +162,7 @@ func (c *Channel) Send(resp *ServerResponse) {
 // Response and error will be both nil if channel is closed.
 // It is no-op once channel is closed (see Wait).
 func (c *Channel) SendAndWaitResponse(payload agentv1.ServerRequestPayload) (agentv1.AgentResponsePayload, error) { //nolint:ireturn
-	id := atomic.AddUint32(&c.lastSentRequestID, 1)
+	id := c.lastSentRequestID.Add(1)
 	ch := c.subscribe(id)
 
 	c.send(&agentv1.ServerMessage{
@@ -193,9 +191,9 @@ func (c *Channel) send(msg *agentv1.ServerMessage) {
 	if c.l.Logger.IsLevelEnabled(logrus.DebugLevel) {
 		// do not use default compact representation for large/complex messages
 		if size := proto.Size(msg); size < 100 {
-			c.l.Debugf("Sending message (%d bytes): %s.", size, msg)
+			c.l.Debugf("Sending message (%d bytes): %s.", size, logger.RedactMessage(msg))
 		} else {
-			c.l.Debugf("Sending message (%d bytes):\n%s\n", size, prototext.Format(msg))
+			c.l.Debugf("Sending message (%d bytes):\n%s\n", size, prototext.Format(logger.RedactMessage(msg)))
 		}
 	}
 
@@ -228,9 +226,9 @@ func (c *Channel) runReceiver() {
 		if c.l.Logger.IsLevelEnabled(logrus.DebugLevel) {
 			// do not use default compact representation for large/complex messages
 			if size := proto.Size(msg); size < 100 {
-				c.l.Debugf("Received message (%d bytes): %s.", size, msg)
+				c.l.Debugf("Received message (%d bytes): %s.", size, logger.RedactMessage(msg))
 			} else {
-				c.l.Debugf("Received message (%d bytes):\n%s\n", size, prototext.Format(msg))
+				c.l.Debugf("Received message (%d bytes):\n%s\n", size, prototext.Format(logger.RedactMessage(msg)))
 			}
 		}
 

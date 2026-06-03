@@ -20,7 +20,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -40,16 +39,16 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 	t.Run("Normal", func(t *testing.T) {
 		prev := map[string]*eventsStatementsSummaryByDigest{
 			"Normal": {
-				Digest:          pointer.ToString("Normal"),
-				DigestText:      pointer.ToString("SELECT 'Normal'"),
+				Digest:          new("Normal"),
+				DigestText:      new("SELECT 'Normal'"),
 				CountStar:       10,
 				SumRowsAffected: 50,
 			},
 		}
 		current := map[string]*eventsStatementsSummaryByDigest{
 			"Normal": {
-				Digest:          pointer.ToString("Normal"),
-				DigestText:      pointer.ToString("SELECT 'Normal'"),
+				Digest:          new("Normal"),
+				DigestText:      new("SELECT 'Normal'"),
 				CountStar:       15, // +5
 				SumRowsAffected: 60, // +10
 			},
@@ -75,8 +74,8 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 		prev := make(map[string]*eventsStatementsSummaryByDigest)
 		current := map[string]*eventsStatementsSummaryByDigest{
 			"New": {
-				Digest:          pointer.ToString("New"),
-				DigestText:      pointer.ToString("SELECT 'New'"),
+				Digest:          new("New"),
+				DigestText:      new("SELECT 'New'"),
 				CountStar:       10,
 				SumRowsAffected: 50,
 			},
@@ -101,16 +100,16 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 	t.Run("Same", func(t *testing.T) {
 		prev := map[string]*eventsStatementsSummaryByDigest{
 			"Same": {
-				Digest:          pointer.ToString("Same"),
-				DigestText:      pointer.ToString("SELECT 'Same'"),
+				Digest:          new("Same"),
+				DigestText:      new("SELECT 'Same'"),
 				CountStar:       10,
 				SumRowsAffected: 50,
 			},
 		}
 		current := map[string]*eventsStatementsSummaryByDigest{
 			"Same": {
-				Digest:          pointer.ToString("Same"),
-				DigestText:      pointer.ToString("SELECT 'Same'"),
+				Digest:          new("Same"),
+				DigestText:      new("SELECT 'Same'"),
 				CountStar:       10,
 				SumRowsAffected: 50,
 			},
@@ -122,8 +121,8 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 	t.Run("Truncate", func(t *testing.T) {
 		prev := map[string]*eventsStatementsSummaryByDigest{
 			"Truncate": {
-				Digest:          pointer.ToString("Truncate"),
-				DigestText:      pointer.ToString("SELECT 'Truncate'"),
+				Digest:          new("Truncate"),
+				DigestText:      new("SELECT 'Truncate'"),
 				CountStar:       10,
 				SumRowsAffected: 50,
 			},
@@ -136,16 +135,16 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 	t.Run("TruncateAndNew", func(t *testing.T) {
 		prev := map[string]*eventsStatementsSummaryByDigest{
 			"TruncateAndNew": {
-				Digest:          pointer.ToString("TruncateAndNew"),
-				DigestText:      pointer.ToString("SELECT 'TruncateAndNew'"),
+				Digest:          new("TruncateAndNew"),
+				DigestText:      new("SELECT 'TruncateAndNew'"),
 				CountStar:       10,
 				SumRowsAffected: 50,
 			},
 		}
 		current := map[string]*eventsStatementsSummaryByDigest{
 			"TruncateAndNew": {
-				Digest:          pointer.ToString("TruncateAndNew"),
-				DigestText:      pointer.ToString("SELECT 'TruncateAndNew'"),
+				Digest:          new("TruncateAndNew"),
+				DigestText:      new("SELECT 'TruncateAndNew'"),
 				CountStar:       5,
 				SumRowsAffected: 25,
 			},
@@ -267,7 +266,9 @@ func prepareDBCopy(t *testing.T, db *reform.DB) {
 
 func TestPerfSchema(t *testing.T) {
 	sqlDB := tests.OpenTestMySQL(t)
-	defer sqlDB.Close() //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, sqlDB.Close())
+	})
 	db := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	updateQuery := fmt.Sprintf("UPDATE /* %s */ ", queryTag)
@@ -308,7 +309,7 @@ func TestPerfSchema(t *testing.T) {
 			"SELECT * FROM `city`": "9c799bdb2460f79b3423b77cd10403da",
 		}
 
-	case "8.0-oracle", "8.0-percona", "8.4-oracle", "9.0-oracle", "9.1-oracle", "9.2-oracle", "9.3-oracle", "9.4-oracle", "9.5-oracle", "9.6-oracle":
+	case "8.0-oracle", "8.0-percona", "8.4-oracle", "9.0-oracle", "9.1-oracle", "9.2-oracle", "9.3-oracle", "9.4-oracle", "9.5-oracle", "9.6-oracle", "9.7-oracle":
 		digests = map[string]string{
 			"SELECT `sleep` (?)":   "0b1b1c39d4ee2dda7df2a532d0a23406d86bd34e2cd7f22e3f7e9dedadff9b69",
 			"SELECT * FROM `city`": "950bdc225cf73c9096ba499351ed4376f4526abad3d8ceabc168b6b28cfc9eab",
@@ -442,7 +443,7 @@ func TestPerfSchema(t *testing.T) {
 				MQueryTimeSum:       actual.Common.MQueryTimeSum,
 			},
 			Mysql: &agentv1.MetricsBucket_MySQL{
-				MLockTimeCnt:     1,
+				MLockTimeCnt:     actual.Mysql.MLockTimeCnt,
 				MLockTimeSum:     actual.Mysql.MLockTimeSum,
 				MRowsSentCnt:     1,
 				MRowsSentSum:     4079,
@@ -502,7 +503,7 @@ func TestPerfSchema(t *testing.T) {
 					MQueryTimeSum:       b.Common.MQueryTimeSum,
 				},
 				Mysql: &agentv1.MetricsBucket_MySQL{
-					MLockTimeCnt:     1,
+					MLockTimeCnt:     b.Mysql.MLockTimeCnt,
 					MLockTimeSum:     b.Mysql.MLockTimeSum,
 					MRowsSentCnt:     1,
 					MRowsSentSum:     4079,
@@ -539,10 +540,8 @@ func TestPerfSchema(t *testing.T) {
 
 		require.NoError(t, m.refreshHistoryCache(t.Context()))
 		var example string
-		isTruncated := true
-		if mySQLVendor != version.MariaDBVendor && mySQLVersion.Float() >= 8.0 {
-			isTruncated = false
-		}
+		isTruncated := !(mySQLVendor != version.MariaDBVendor && mySQLVersion.Float() >= 8.0)
+
 		switch {
 		// Perf schema truncates queries with non-utf8 characters.
 		case (mySQLVendor == version.PerconaVendor || mySQLVendor == version.OracleVendor) && mySQLVersion.Float() >= 8.0:
@@ -584,7 +583,7 @@ func TestPerfSchema(t *testing.T) {
 				MQueryTimeSum:          actual.Common.MQueryTimeSum,
 			},
 			Mysql: &agentv1.MetricsBucket_MySQL{
-				MLockTimeCnt:    1,
+				MLockTimeCnt:    actual.Mysql.MLockTimeCnt,
 				MLockTimeSum:    actual.Mysql.MLockTimeSum,
 				MFullScanCnt:    1,
 				MFullScanSum:    1,

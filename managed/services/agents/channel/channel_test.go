@@ -65,7 +65,8 @@ func setup(t *testing.T, connect func(*Channel) error, expected ...error) (agent
 
 	server := grpc.NewServer(
 		grpc.UnaryInterceptor(interceptors.UnaryAdd(grpcUnaryInterceptor)),
-		grpc.StreamInterceptor(interceptors.Stream(grpcStreamInterceptor)))
+		grpc.StreamInterceptor(interceptors.Stream(grpcStreamInterceptor)),
+	)
 
 	agentv1.RegisterAgentServiceServer(server, &testServer{
 		connectFunc: func(stream agentv1.AgentService_ConnectServer) error {
@@ -78,7 +79,7 @@ func setup(t *testing.T, connect func(*Channel) error, expected ...error) (agent
 		assert.NoError(t, err)
 	}()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(t.Context(), 3*time.Second)
 
 	// make client and channel
 	opts := []grpc.DialOption{
@@ -150,7 +151,7 @@ func TestAgentRequest(t *testing.T) {
 	}
 
 	err := stream.CloseSend()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// check metrics
 	expectedMetrics := &Metrics{
@@ -171,7 +172,7 @@ func TestServerRequest(t *testing.T) {
 			pong := resp.(*agentv1.Pong)
 			ts := pong.CurrentTime.AsTime()
 			err = pong.CurrentTime.CheckValid()
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.InDelta(t, time.Now().Unix(), ts.Unix(), 1)
 		}
 
@@ -194,11 +195,11 @@ func TestServerRequest(t *testing.T) {
 				CurrentTime: timestamppb.Now(),
 			}).AgentMessageResponsePayload(),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	}
 
 	err := stream.CloseSend()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }
 
 func TestServerExitsWithGRPCError(t *testing.T) {
@@ -220,10 +221,10 @@ func TestServerExitsWithGRPCError(t *testing.T) {
 		Id:      1,
 		Payload: collectReq.AgentMessageRequestPayload(),
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	_, err = stream.Recv()
-	assert.ErrorIs(t, err, errUnimplemented)
+	require.ErrorIs(t, err, errUnimplemented)
 }
 
 func TestServerExitsWithUnknownErrorIntercepted(t *testing.T) {
@@ -244,7 +245,7 @@ func TestServerExitsWithUnknownErrorIntercepted(t *testing.T) {
 		Id:      1,
 		Payload: collectReq.AgentMessageRequestPayload(),
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	_, err = stream.Recv()
 	tests.AssertGRPCError(t, status.New(codes.Internal, "Internal server error."), err)
@@ -253,7 +254,7 @@ func TestServerExitsWithUnknownErrorIntercepted(t *testing.T) {
 func TestAgentClosesStream(t *testing.T) {
 	connect := func(ch *Channel) error {
 		resp, err := ch.SendAndWaitResponse(&agentv1.Ping{})
-		assert.Errorf(t, err, "channel is closed")
+		require.Errorf(t, err, "channel is closed")
 		assert.Nil(t, resp)
 
 		assert.Nil(t, <-ch.Requests())
@@ -268,13 +269,13 @@ func TestAgentClosesStream(t *testing.T) {
 	assert.NotNil(t, msg)
 
 	err = stream.CloseSend()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }
 
 func TestAgentClosesConnection(t *testing.T) {
 	connect := func(ch *Channel) error {
 		resp, err := ch.SendAndWaitResponse(&agentv1.Ping{})
-		assert.Errorf(t, err, "channel is closed")
+		require.Errorf(t, err, "channel is closed")
 		assert.Nil(t, resp)
 
 		assert.Nil(t, <-ch.Requests())
@@ -289,7 +290,7 @@ func TestAgentClosesConnection(t *testing.T) {
 	assert.NotNil(t, msg)
 
 	err = cc.Close()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }
 
 func TestUnexpectedResponseIdFromAgent(t *testing.T) {
@@ -324,7 +325,7 @@ func TestUnexpectedResponseIdFromAgent(t *testing.T) {
 		Id:      111,
 		Payload: pong.AgentMessageResponsePayload(),
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	close(invalidIDSent)
 
 	// This is a request with a proper id.
@@ -333,10 +334,10 @@ func TestUnexpectedResponseIdFromAgent(t *testing.T) {
 		Id:      9898,
 		Payload: pong.AgentMessageResponsePayload(),
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	_, err = stream.Recv()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }
 
 func TestUnexpectedResponsePayloadFromAgent(t *testing.T) {
@@ -357,7 +358,7 @@ func TestUnexpectedResponsePayloadFromAgent(t *testing.T) {
 
 	msg, err := stream.Recv()
 	assert.Equal(t, int32(codes.Unimplemented), msg.GetStatus().GetCode())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	close(stopServer)
 	<-stop
 }

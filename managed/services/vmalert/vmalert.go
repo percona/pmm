@@ -98,7 +98,7 @@ func (svc *Service) Run(ctx context.Context) {
 	// is reloaded when requested, but several requests are batched together to avoid too often reloads.
 	// That allows the caller to just call RequestConfigurationUpdate when it seems fit.
 	if cap(svc.reloadCh) != 1 {
-		panic("reloadCh should have capacity 1")
+		svc.l.Fatal("reloadCh should have capacity 1")
 	}
 
 	for {
@@ -132,6 +132,13 @@ func (svc *Service) RequestConfigurationUpdate() {
 	case svc.reloadCh <- struct{}{}:
 	default:
 	}
+}
+
+// ForceConfigurationUpdate triggers immediate synchronous configuration update,
+// bypassing the batch delay. Use this for critical updates like port changes.
+func (svc *Service) ForceConfigurationUpdate(ctx context.Context) error {
+	svc.l.Debug("ForceConfigurationUpdate: triggering immediate configuration update")
+	return svc.updateConfiguration(ctx)
 }
 
 // updateConfiguration reads alerts configuration from file

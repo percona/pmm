@@ -78,8 +78,8 @@ func TestCredentials(t *testing.T) {
 	credSourceX, _ := CreateDummyCredentialsExecutable(data)
 
 	t.Cleanup(func() {
-		assert.NoError(t, os.Remove(credSource))
-		assert.NoError(t, os.Remove(credSourceX))
+		require.NoError(t, os.Remove(credSource))
+		require.NoError(t, os.Remove(credSourceX))
 	})
 
 	t.Run("Reading", func(t *testing.T) {
@@ -124,20 +124,26 @@ func TestParseCustomLabel(t *testing.T) {
 	t.Parallel()
 	for _, tt := range []struct {
 		name     string
-		input    map[string]string
-		expected map[string]string
+		input    *map[string]string
+		expected *map[string]string
 	}{
-		{"simple label", map[string]string{"foo": "bar"}, map[string]string{"foo": "bar"}},
-		{"two labels", map[string]string{"foo": "bar", "bar": "foo"}, map[string]string{"foo": "bar", "bar": "foo"}},
-		{"no value", map[string]string{"foo": ""}, make(map[string]string)},
-		{"trim spaces", map[string]string{"foo": " bar "}, map[string]string{"foo": "bar"}},
-		{"PMM-4078 hyphen", map[string]string{"region": "us-east1", "mylabel": "mylab-22"}, map[string]string{"region": "us-east1", "mylabel": "mylab-22"}},
+		{"simple label", &map[string]string{"foo": "bar"}, &map[string]string{"foo": "bar"}},
+		{"two labels", &map[string]string{"foo": "bar", "bar": "foo"}, &map[string]string{"foo": "bar", "bar": "foo"}},
+		{"no value", &map[string]string{"foo": ""}, &map[string]string{}},
+		{"trim spaces", &map[string]string{"foo": " bar "}, &map[string]string{"foo": "bar"}},
+		{"PMM-4078 hyphen", &map[string]string{"region": "us-east1", "mylabel": "mylab-22"}, &map[string]string{"region": "us-east1", "mylabel": "mylab-22"}},
+		{"empty map", &map[string]string{}, &map[string]string{}},
+		{"nil input", nil, nil},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
 			customLabels := ParseKeyValuePair(tt.input)
-			assert.Equal(t, tt.expected, customLabels)
+			if tt.expected == nil {
+				assert.Nil(t, customLabels)
+			} else {
+				assert.Equal(t, *tt.expected, *customLabels)
+			}
 		})
 	}
 }
@@ -156,8 +162,8 @@ func TestParseKeyValuePair(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			extraDSNParams := ParseKeyValuePair(tt.input)
-			assert.Equal(t, tt.expected, extraDSNParams)
+			extraDSNParams := ParseKeyValuePair(&tt.input)
+			assert.Equal(t, tt.expected, *extraDSNParams)
 		})
 	}
 }
@@ -168,19 +174,19 @@ func TestReadFile(t *testing.T) {
 	t.Run("Normal", func(t *testing.T) {
 		t.Parallel()
 
-		cert, err := os.CreateTemp("", "cert")
+		cert, err := os.CreateTemp(t.TempDir(), "cert")
 		require.NoError(t, err)
 		defer func() {
 			err = cert.Close()
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			err = os.Remove(cert.Name())
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		}()
 		_, err = cert.WriteString("cert")
 		require.NoError(t, err)
 
 		certificate, err := ReadFile(cert.Name())
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, "cert", certificate)
 	})
 
@@ -189,7 +195,7 @@ func TestReadFile(t *testing.T) {
 
 		filepath := "not-existed-file"
 		certificate, err := ReadFile(filepath)
-		assert.EqualError(t, err, fmt.Sprintf("cannot load file in path %q: open not-existed-file: no such file or directory", filepath))
+		require.EqualError(t, err, fmt.Sprintf("cannot load file in path %q: open not-existed-file: no such file or directory", filepath))
 		assert.Empty(t, certificate)
 	})
 

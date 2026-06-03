@@ -15,8 +15,6 @@
 package management
 
 import (
-	"github.com/AlekSi/pointer"
-
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/pkg/flags"
 	"github.com/percona/pmm/api/management/v1/json/client"
@@ -67,11 +65,11 @@ type RegisterCommand struct {
 
 // RunCmd runs the command for RegisterCommand.
 func (cmd *RegisterCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(&cmd.CustomLabels)
 
 	params := &mservice.RegisterNodeParams{
 		Body: mservice.RegisterNodeBody{
-			NodeType:      pointer.ToString(allNodeTypes[cmd.NodeType]),
+			NodeType:      new(allNodeTypes[cmd.NodeType]),
 			NodeName:      cmd.NodeName,
 			MachineID:     cmd.MachineID,
 			Distro:        cmd.Distro,
@@ -80,12 +78,12 @@ func (cmd *RegisterCommand) RunCmd() (commands.Result, error) {
 			NodeModel:     cmd.NodeModel,
 			Region:        cmd.Region,
 			Az:            cmd.Az,
-			CustomLabels:  customLabels,
+			CustomLabels:  *customLabels,
 			Address:       cmd.Address,
 			AgentPassword: cmd.AgentPassword,
 
 			Reregister:        cmd.Force,
-			MetricsMode:       cmd.MetricsModeFlags.MetricsMode.EnumValue(),
+			MetricsMode:       cmd.MetricsMode.EnumValue(),
 			DisableCollectors: commands.ParseDisableCollectors(cmd.DisableCollectors),
 		},
 		Context: commands.Ctx,

@@ -89,10 +89,12 @@ func runGRPCServer(ctx context.Context, db *sqlx.DB, mbm *models.MetricsBucket, 
 
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			interceptors.Unary,
-			grpc_validator.UnaryServerInterceptor())),
+			grpc_validator.UnaryServerInterceptor(),
+		)),
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
 			interceptors.Stream,
-			grpc_validator.StreamServerInterceptor())),
+			grpc_validator.StreamServerInterceptor(),
+		)),
 	)
 
 	aserv := aservice.NewService(db, rm, mm)
@@ -138,13 +140,13 @@ func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
 	l.Infof("Starting server on http://%s/ ...", jsonBindF)
 
 	marshaller := &grpc_gateway.JSONPb{
-		MarshalOptions: protojson.MarshalOptions{ //nolint:exhaustivestruct
+		MarshalOptions: protojson.MarshalOptions{
 			UseEnumNumbers:  false,
-			EmitUnpopulated: true,
+			EmitUnpopulated: false, // PMM-14566
 			UseProtoNames:   true,
 			Indent:          "  ",
 		},
-		UnmarshalOptions: protojson.UnmarshalOptions{ //nolint:exhaustivestruct
+		UnmarshalOptions: protojson.UnmarshalOptions{
 			DiscardUnknown: true,
 		},
 	}
@@ -153,7 +155,8 @@ func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
 		grpc_gateway.WithIncomingHeaderMatcher(customMatcher),
 		grpc_gateway.WithMetadata(gatewayAnnotator),
 		grpc_gateway.WithMarshalerOption(grpc_gateway.MIMEWildcard, marshaller),
-		grpc_gateway.WithRoutingErrorHandler(pmmerrors.PMMRoutingErrorHandler))
+		grpc_gateway.WithRoutingErrorHandler(pmmerrors.PMMRoutingErrorHandler),
+	)
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 
 	type registrar func(context.Context, *grpc_gateway.ServeMux, string, []grpc.DialOption) error

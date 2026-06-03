@@ -76,34 +76,34 @@ func TestAgentHelpers(t *testing.T) {
 			&models.Agent{
 				AgentID:      "A1",
 				AgentType:    models.PMMAgentType,
-				RunsOnNodeID: pointer.ToString("N1"),
+				RunsOnNodeID: new("N1"),
 			},
 			&models.Agent{
 				AgentID:      "A2",
 				AgentType:    models.MySQLdExporterType,
-				PMMAgentID:   pointer.ToString("A1"),
+				PMMAgentID:   new("A1"),
 				RunsOnNodeID: nil,
-				ServiceID:    pointer.ToString("S1"),
+				ServiceID:    new("S1"),
 			},
 			&models.Agent{
 				AgentID:      "A3",
 				AgentType:    models.NodeExporterType,
-				PMMAgentID:   pointer.ToString("A1"),
+				PMMAgentID:   new("A1"),
 				RunsOnNodeID: nil,
-				NodeID:       pointer.ToString("N1"),
+				NodeID:       new("N1"),
 			},
 			&models.Agent{
 				AgentID:      "A4",
 				AgentType:    models.PMMAgentType,
-				RunsOnNodeID: pointer.ToString("N2"),
+				RunsOnNodeID: new("N2"),
 			},
 			&models.Agent{
 				AgentID:      "A5",
 				AgentType:    models.NodeExporterType,
-				PMMAgentID:   pointer.ToString("A4"),
+				PMMAgentID:   new("A4"),
 				RunsOnNodeID: nil,
-				NodeID:       pointer.ToString("N2"),
-				ListenPort:   pointer.ToUint16(8200),
+				NodeID:       new("N2"),
+				ListenPort:   new(uint16(8200)),
 				ExporterOptions: models.ExporterOptions{
 					PushMetrics: true,
 				},
@@ -111,18 +111,18 @@ func TestAgentHelpers(t *testing.T) {
 			&models.Agent{
 				AgentID:      "A6",
 				AgentType:    models.MySQLdExporterType,
-				PMMAgentID:   pointer.ToString("A4"),
+				PMMAgentID:   new("A4"),
 				RunsOnNodeID: nil,
-				NodeID:       pointer.ToString("N2"),
-				ListenPort:   pointer.ToUint16(8200),
+				NodeID:       new("N2"),
+				ListenPort:   new(uint16(8200)),
 			},
 			&models.Agent{
 				AgentID:       "A7",
 				AgentType:     models.PostgresExporterType,
-				PMMAgentID:    pointer.ToString("A4"),
+				PMMAgentID:    new("A4"),
 				RunsOnNodeID:  nil,
-				NodeID:        pointer.ToString("N1"),
-				ListenPort:    pointer.ToUint16(8200),
+				NodeID:        new("N1"),
+				ListenPort:    new(uint16(8200)),
 				TLS:           true,
 				TLSSkipVerify: true,
 				ExporterOptions: models.ExporterOptions{
@@ -141,15 +141,15 @@ func TestAgentHelpers(t *testing.T) {
 			&models.Agent{
 				AgentID:      "A12",
 				AgentType:    models.PMMAgentType,
-				RunsOnNodeID: pointer.ToString("N1"),
+				RunsOnNodeID: new("N1"),
 			},
 			&models.Agent{
 				AgentID:       "A8",
 				AgentType:     models.MongoDBExporterType,
-				PMMAgentID:    pointer.ToString("A12"),
+				PMMAgentID:    new("A12"),
 				RunsOnNodeID:  nil,
-				NodeID:        pointer.ToString("N1"),
-				ListenPort:    pointer.ToUint16(8200),
+				NodeID:        new("N1"),
+				ListenPort:    new(uint16(8200)),
 				TLS:           true,
 				TLSSkipVerify: true,
 				MongoDBOptions: models.MongoDBOptions{
@@ -165,10 +165,10 @@ func TestAgentHelpers(t *testing.T) {
 			&models.Agent{
 				AgentID:       "A9",
 				AgentType:     models.MongoDBExporterType,
-				PMMAgentID:    pointer.ToString("A12"),
+				PMMAgentID:    new("A12"),
 				RunsOnNodeID:  nil,
-				NodeID:        pointer.ToString("N1"),
-				ListenPort:    pointer.ToUint16(8200),
+				NodeID:        new("N1"),
+				ListenPort:    new(uint16(8200)),
 				TLS:           true,
 				TLSSkipVerify: true,
 				MongoDBOptions: models.MongoDBOptions{
@@ -185,28 +185,27 @@ func TestAgentHelpers(t *testing.T) {
 			&models.Agent{
 				AgentID:       "A10",
 				AgentType:     models.MongoDBExporterType,
-				PMMAgentID:    pointer.ToString("A12"),
+				PMMAgentID:    new("A12"),
 				RunsOnNodeID:  nil,
-				NodeID:        pointer.ToString("N1"),
-				ListenPort:    pointer.ToUint16(8200),
+				NodeID:        new("N1"),
+				ListenPort:    new(uint16(8200)),
 				TLS:           true,
 				TLSSkipVerify: true,
 			},
 			&models.Agent{
 				AgentID:      "A11",
 				AgentType:    models.NomadAgentType,
-				PMMAgentID:   pointer.ToString("A12"),
+				PMMAgentID:   new("A12"),
 				RunsOnNodeID: nil,
-				NodeID:       pointer.ToString("N1"),
-				ListenPort:   pointer.ToUint16(8201),
+				NodeID:       new("N1"),
+				ListenPort:   new(uint16(8201)),
 				ExporterOptions: models.ExporterOptions{
 					PushMetrics: true,
 				},
 			},
 		} {
 			if v, ok := str.(*models.Agent); ok {
-				encryptedAgent := models.EncryptAgent(*v)
-				str = &encryptedAgent
+				str = new(models.EncryptAgent(*v))
 			}
 			require.NoError(t, q.Insert(str))
 		}
@@ -231,10 +230,10 @@ func TestAgentHelpers(t *testing.T) {
 				Status:        models.AgentStatusUnknown,
 				AgentID:       "A10",
 				AgentType:     models.MongoDBExporterType,
-				PMMAgentID:    pointer.ToString("A12"),
+				PMMAgentID:    new("A12"),
 				RunsOnNodeID:  nil,
-				NodeID:        pointer.ToString("N1"),
-				ListenPort:    pointer.ToUint16(8200),
+				NodeID:        new("N1"),
+				ListenPort:    new(uint16(8200)),
 				TLS:           true,
 				TLSSkipVerify: true,
 			},
@@ -244,10 +243,10 @@ func TestAgentHelpers(t *testing.T) {
 				Status:       models.AgentStatusUnknown,
 				AgentID:      "A11",
 				AgentType:    models.NomadAgentType,
-				PMMAgentID:   pointer.ToString("A12"),
+				PMMAgentID:   new("A12"),
 				RunsOnNodeID: nil,
-				NodeID:       pointer.ToString("N1"),
-				ListenPort:   pointer.ToUint16(8201),
+				NodeID:       new("N1"),
+				ListenPort:   new(uint16(8201)),
 				ExporterOptions: models.ExporterOptions{
 					PushMetrics: true,
 				},
@@ -259,7 +258,7 @@ func TestAgentHelpers(t *testing.T) {
 				RunsOnNodeID: nil,
 				CreatedAt:    now,
 				UpdatedAt:    now,
-				NodeID:       pointer.ToString("N1"),
+				NodeID:       new("N1"),
 				Status:       models.AgentStatusUnknown,
 			},
 			{
@@ -343,7 +342,7 @@ func TestAgentHelpers(t *testing.T) {
 			AgentID:      "A2",
 			AgentType:    models.MySQLdExporterType,
 			PMMAgentID:   pointer.ToStringOrNil("A1"),
-			ServiceID:    pointer.ToString("S1"),
+			ServiceID:    new("S1"),
 			RunsOnNodeID: nil,
 			CreatedAt:    now,
 			UpdatedAt:    now,
@@ -352,7 +351,7 @@ func TestAgentHelpers(t *testing.T) {
 			AgentID:      "A3",
 			AgentType:    models.NodeExporterType,
 			PMMAgentID:   pointer.ToStringOrNil("A1"),
-			NodeID:       pointer.ToString("N1"),
+			NodeID:       new("N1"),
 			RunsOnNodeID: nil,
 			CreatedAt:    now,
 			UpdatedAt:    now,
@@ -365,13 +364,13 @@ func TestAgentHelpers(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
 
-		agents, err := models.FindAgents(q, models.AgentFilters{PMMAgentID: "A1", AgentType: pointer.To(models.MySQLdExporterType)})
+		agents, err := models.FindAgents(q, models.AgentFilters{PMMAgentID: "A1", AgentType: new(models.MySQLdExporterType)})
 		require.NoError(t, err)
 		expected := []*models.Agent{{
 			AgentID:      "A2",
 			AgentType:    models.MySQLdExporterType,
 			PMMAgentID:   pointer.ToStringOrNil("A1"),
-			ServiceID:    pointer.ToString("S1"),
+			ServiceID:    new("S1"),
 			RunsOnNodeID: nil,
 			CreatedAt:    now,
 			UpdatedAt:    now,
@@ -390,7 +389,7 @@ func TestAgentHelpers(t *testing.T) {
 			AgentID:      "A2",
 			AgentType:    models.MySQLdExporterType,
 			PMMAgentID:   pointer.ToStringOrNil("A1"),
-			ServiceID:    pointer.ToString("S1"),
+			ServiceID:    new("S1"),
 			RunsOnNodeID: nil,
 			CreatedAt:    now,
 			UpdatedAt:    now,
@@ -398,13 +397,13 @@ func TestAgentHelpers(t *testing.T) {
 		}}
 		assert.Equal(t, expected, agents)
 
-		agents, err = models.FindAgents(q, models.AgentFilters{ServiceID: "S1", AgentType: pointer.To(models.MySQLdExporterType)})
+		agents, err = models.FindAgents(q, models.AgentFilters{ServiceID: "S1", AgentType: new(models.MySQLdExporterType)})
 		require.NoError(t, err)
 		expected = []*models.Agent{{
 			AgentID:      "A2",
 			AgentType:    models.MySQLdExporterType,
 			PMMAgentID:   pointer.ToStringOrNil("A1"),
-			ServiceID:    pointer.ToString("S1"),
+			ServiceID:    new("S1"),
 			RunsOnNodeID: nil,
 			CreatedAt:    now,
 			UpdatedAt:    now,
@@ -412,7 +411,7 @@ func TestAgentHelpers(t *testing.T) {
 		}}
 		assert.Equal(t, expected, agents)
 
-		agents, err = models.FindAgents(q, models.AgentFilters{ServiceID: "S1", AgentType: pointer.To(models.MongoDBExporterType)})
+		agents, err = models.FindAgents(q, models.AgentFilters{ServiceID: "S1", AgentType: new(models.MongoDBExporterType)})
 		require.NoError(t, err)
 		assert.Equal(t, []*models.Agent{}, agents)
 	})
@@ -440,13 +439,13 @@ func TestAgentHelpers(t *testing.T) {
 		expected := &models.Agent{
 			AgentID:      "A1",
 			AgentType:    models.PMMAgentType,
-			RunsOnNodeID: pointer.ToString("N1"),
+			RunsOnNodeID: new("N1"),
 			CreatedAt:    now,
 			UpdatedAt:    now,
 		}
 		agent, err = models.RemoveAgent(q, "A1", models.RemoveCascade)
 		assert.Equal(t, expected, agent)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		_, err = models.FindAgentByID(q, "A1")
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID A1 not found.`), err)
 	})
@@ -502,9 +501,9 @@ func TestAgentHelpers(t *testing.T) {
 			assert.Equal(t, &models.Agent{
 				AgentID:      agent.AgentID,
 				AgentType:    models.ExternalExporterType,
-				RunsOnNodeID: pointer.ToString("N1"),
-				ServiceID:    pointer.ToString("S1"),
-				ListenPort:   pointer.ToUint16(9104),
+				RunsOnNodeID: new("N1"),
+				ServiceID:    new("S1"),
+				ListenPort:   new(uint16(9104)),
 				Status:       models.AgentStatusUnknown,
 				ExporterOptions: models.ExporterOptions{
 					MetricsPath:   "/metrics",
@@ -529,13 +528,13 @@ func TestAgentHelpers(t *testing.T) {
 	t.Run("TestFindPMMAgentsForVersion", func(t *testing.T) {
 		l := logrus.WithField("component", "test")
 		agentInvalid := &models.Agent{
-			Version: pointer.ToString("invalid"),
+			Version: new("invalid"),
 		}
 		agent260 := &models.Agent{
-			Version: pointer.ToString("2.6.0"),
+			Version: new("2.6.0"),
 		}
 		agent270 := &models.Agent{
-			Version: pointer.ToString("2.7.0"),
+			Version: new("2.7.0"),
 		}
 		agents := []*models.Agent{agentInvalid, agent260, agent270}
 
@@ -556,12 +555,12 @@ func TestAgentHelpers(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
 
-		agents, err := models.FindAgentsForScrapeConfig(q, pointer.ToString("A4"), true)
+		agents, err := models.FindAgentsForScrapeConfig(q, new("A4"), true)
 		require.NoError(t, err)
 		assert.Equal(t, "A5", agents[0].AgentID)
 
 		// find with empty response.
-		agents, err = models.FindAgentsForScrapeConfig(q, pointer.ToString("A1"), true)
+		agents, err = models.FindAgentsForScrapeConfig(q, new("A1"), true)
 		assert.Empty(t, agents)
 		require.NoError(t, err)
 
@@ -596,5 +595,1025 @@ func TestAgentHelpers(t *testing.T) {
 		assert.Equal(t, "A10", agents[0].AgentID)
 		assert.Equal(t, "A8", agents[1].AgentID)
 		assert.Equal(t, "A9", agents[2].AgentID)
+	})
+
+	t.Run("ChangeAgent", func(t *testing.T) {
+		t.Run("ChangeBasicFields", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			// Test changing enabled status
+			agent, err := models.ChangeAgent(q, "A2", &models.ChangeAgentParams{
+				Enabled: new(false),
+			})
+			require.NoError(t, err)
+			assert.True(t, agent.Disabled) // Disabled should be true when Enabled is false
+
+			// Verify persistence in database
+			persistedAgent, err := models.FindAgentByID(q, "A2")
+			require.NoError(t, err)
+			assert.True(t, persistedAgent.Disabled)
+
+			// Change it back
+			agent, err = models.ChangeAgent(q, "A2", &models.ChangeAgentParams{
+				Enabled: new(true),
+			})
+			require.NoError(t, err)
+			assert.False(t, agent.Disabled)
+
+			// Verify persistence in database
+			persistedAgent, err = models.FindAgentByID(q, "A2")
+			require.NoError(t, err)
+			assert.False(t, persistedAgent.Disabled)
+		})
+
+		t.Run("ChangeCustomLabels", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			// Set custom labels
+			customLabels := map[string]string{
+				"environment": "test",
+				"team":        "qa",
+			}
+			agent, err := models.ChangeAgent(q, "A2", &models.ChangeAgentParams{
+				CustomLabels: &customLabels,
+			})
+			require.NoError(t, err)
+
+			retrievedLabels, err := agent.GetCustomLabels()
+			require.NoError(t, err)
+			assert.Equal(t, customLabels, retrievedLabels)
+
+			// Verify persistence in database
+			persistedAgent, err := models.FindAgentByID(q, "A2")
+			require.NoError(t, err)
+			persistedLabels, err := persistedAgent.GetCustomLabels()
+			require.NoError(t, err)
+			assert.Equal(t, customLabels, persistedLabels)
+
+			// Clear custom labels
+			agent, err = models.ChangeAgent(q, "A2", &models.ChangeAgentParams{
+				CustomLabels: new(make(map[string]string)),
+			})
+			require.NoError(t, err)
+
+			retrievedLabels, err = agent.GetCustomLabels()
+			require.NoError(t, err)
+			assert.Empty(t, retrievedLabels)
+
+			// Verify persistence in database
+			persistedAgent, err = models.FindAgentByID(q, "A2")
+			require.NoError(t, err)
+			persistedLabels, err = persistedAgent.GetCustomLabels()
+			require.NoError(t, err)
+			assert.Empty(t, persistedLabels)
+		})
+
+		t.Run("ChangeExporterOptions", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			// Test changing push metrics
+			agent, err := models.ChangeAgent(q, "A5", &models.ChangeAgentParams{
+				ExporterOptions: &models.ChangeExporterOptions{
+					PushMetrics: new(false),
+				},
+			})
+			require.NoError(t, err)
+			assert.False(t, agent.ExporterOptions.PushMetrics)
+
+			// Verify persistence in database
+			persistedAgent, err := models.FindAgentByID(q, "A5")
+			require.NoError(t, err)
+			assert.False(t, persistedAgent.ExporterOptions.PushMetrics)
+
+			// Test changing disabled collectors
+			disabledCollectors := []string{"collector1", "collector2"}
+			agent, err = models.ChangeAgent(q, "A5", &models.ChangeAgentParams{
+				ExporterOptions: &models.ChangeExporterOptions{
+					DisabledCollectors: disabledCollectors,
+				},
+			})
+			require.NoError(t, err)
+			assert.Equal(t, disabledCollectors, []string(agent.ExporterOptions.DisabledCollectors))
+
+			// Verify persistence in database
+			persistedAgent, err = models.FindAgentByID(q, "A5")
+			require.NoError(t, err)
+			assert.Equal(t, disabledCollectors, []string(persistedAgent.ExporterOptions.DisabledCollectors))
+
+			// Test changing expose exporter
+			agent, err = models.ChangeAgent(q, "A5", &models.ChangeAgentParams{
+				ExporterOptions: &models.ChangeExporterOptions{
+					ExposeExporter: new(true),
+				},
+			})
+			require.NoError(t, err)
+			assert.True(t, agent.ExporterOptions.ExposeExporter)
+
+			// Verify persistence in database
+			persistedAgent, err = models.FindAgentByID(q, "A5")
+			require.NoError(t, err)
+			assert.True(t, persistedAgent.ExporterOptions.ExposeExporter)
+
+			// Test changing metrics scheme and path
+			agent, err = models.ChangeAgent(q, "A5", &models.ChangeAgentParams{
+				ExporterOptions: &models.ChangeExporterOptions{
+					MetricsScheme: new("https"),
+					MetricsPath:   new("/custom-metrics"),
+				},
+			})
+			require.NoError(t, err)
+			assert.Equal(t, "https", agent.ExporterOptions.MetricsScheme)
+			assert.Equal(t, "/custom-metrics", agent.ExporterOptions.MetricsPath)
+
+			// Verify persistence in database
+			persistedAgent, err = models.FindAgentByID(q, "A5")
+			require.NoError(t, err)
+			assert.Equal(t, "https", persistedAgent.ExporterOptions.MetricsScheme)
+			assert.Equal(t, "/custom-metrics", persistedAgent.ExporterOptions.MetricsPath)
+		})
+
+		t.Run("ChangeMetricsResolutions", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			// Test changing metrics resolutions
+			agent, err := models.ChangeAgent(q, "A7", &models.ChangeAgentParams{
+				ExporterOptions: &models.ChangeExporterOptions{
+					MetricsResolutions: &models.ChangeMetricsResolutionsParams{
+						HR: new(30 * time.Second),
+						MR: new(2 * time.Minute),
+						LR: new(10 * time.Minute),
+					},
+				},
+			})
+			require.NoError(t, err)
+			assert.Equal(t, 30*time.Second, agent.ExporterOptions.MetricsResolutions.HR)
+			assert.Equal(t, 2*time.Minute, agent.ExporterOptions.MetricsResolutions.MR)
+			assert.Equal(t, 10*time.Minute, agent.ExporterOptions.MetricsResolutions.LR)
+
+			// Verify persistence in database
+			persistedAgent, err := models.FindAgentByID(q, "A7")
+			require.NoError(t, err)
+			assert.Equal(t, 30*time.Second, persistedAgent.ExporterOptions.MetricsResolutions.HR)
+			assert.Equal(t, 2*time.Minute, persistedAgent.ExporterOptions.MetricsResolutions.MR)
+			assert.Equal(t, 10*time.Minute, persistedAgent.ExporterOptions.MetricsResolutions.LR)
+
+			// Test clearing all metrics resolutions (should set to nil)
+			agent, err = models.ChangeAgent(q, "A7", &models.ChangeAgentParams{
+				ExporterOptions: &models.ChangeExporterOptions{
+					MetricsResolutions: &models.ChangeMetricsResolutionsParams{
+						HR: new(time.Duration(0)),
+						MR: new(time.Duration(0)),
+						LR: new(time.Duration(0)),
+					},
+				},
+			})
+			require.NoError(t, err)
+			assert.Nil(t, agent.ExporterOptions.MetricsResolutions)
+
+			// Verify persistence in database
+			persistedAgent, err = models.FindAgentByID(q, "A7")
+			require.NoError(t, err)
+			assert.Nil(t, persistedAgent.ExporterOptions.MetricsResolutions)
+		})
+
+		t.Run("ChangeConnectionFields", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			// Test changing username and password
+			agent, err := models.ChangeAgent(q, "A2", &models.ChangeAgentParams{
+				Username:      new("new_user"),
+				Password:      new("new_password"),
+				AgentPassword: new("agent_pass"),
+			})
+			require.NoError(t, err)
+			assert.Equal(t, "new_user", pointer.GetString(agent.Username))
+			assert.Equal(t, "new_password", pointer.GetString(agent.Password))
+			assert.Equal(t, "agent_pass", pointer.GetString(agent.AgentPassword))
+
+			// Verify persistence in database
+			persistedAgent, err := models.FindAgentByID(q, "A2")
+			require.NoError(t, err)
+			assert.Equal(t, "new_user", pointer.GetString(persistedAgent.Username))
+			assert.Equal(t, "new_password", pointer.GetString(persistedAgent.Password))
+			assert.Equal(t, "agent_pass", pointer.GetString(persistedAgent.AgentPassword))
+		})
+
+		t.Run("ChangePostgreSQLOptions", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			// Test changing PostgreSQL options
+			agent, err := models.ChangeAgent(q, "A7", &models.ChangeAgentParams{
+				PostgreSQLOptions: &models.ChangePostgreSQLOptions{
+					SSLCa:                  new("new_ca"),
+					SSLCert:                new("new_cert"),
+					SSLKey:                 new("new_key"),
+					AutoDiscoveryLimit:     new(int32(100)),
+					MaxExporterConnections: new(int32(5)),
+				},
+			})
+			require.NoError(t, err)
+			assert.Equal(t, "new_ca", agent.PostgreSQLOptions.SSLCa)
+			assert.Equal(t, "new_cert", agent.PostgreSQLOptions.SSLCert)
+			assert.Equal(t, "new_key", agent.PostgreSQLOptions.SSLKey)
+			assert.Equal(t, int32(100), pointer.GetInt32(agent.PostgreSQLOptions.AutoDiscoveryLimit))
+			assert.Equal(t, int32(5), agent.PostgreSQLOptions.MaxExporterConnections)
+
+			// Verify persistence in database
+			persistedAgent, err := models.FindAgentByID(q, "A7")
+			require.NoError(t, err)
+			assert.Equal(t, "new_ca", persistedAgent.PostgreSQLOptions.SSLCa)
+			assert.Equal(t, "new_cert", persistedAgent.PostgreSQLOptions.SSLCert)
+			assert.Equal(t, "new_key", persistedAgent.PostgreSQLOptions.SSLKey)
+			assert.Equal(t, int32(100), pointer.GetInt32(persistedAgent.PostgreSQLOptions.AutoDiscoveryLimit))
+			assert.Equal(t, int32(5), persistedAgent.PostgreSQLOptions.MaxExporterConnections)
+		})
+
+		t.Run("ChangeMongoDBOptions", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			// Test changing MongoDB options
+			statsCollections := []string{"stats1", "stats2"}
+			agent, err := models.ChangeAgent(q, "A8", &models.ChangeAgentParams{
+				MongoDBOptions: &models.ChangeMongoDBOptions{
+					TLSCertificateKey:             new("new_cert_key"),
+					TLSCertificateKeyFilePassword: new("new_password"),
+					TLSCa:                         new("new_ca"),
+					AuthenticationMechanism:       new("SCRAM-SHA-256"),
+					AuthenticationDatabase:        new("admin"),
+					StatsCollections:              statsCollections,
+					CollectionsLimit:              new(int32(500)),
+					EnableAllCollectors:           new(false),
+				},
+			})
+			require.NoError(t, err)
+			assert.Equal(t, "new_cert_key", agent.MongoDBOptions.TLSCertificateKey)
+			assert.Equal(t, "new_password", agent.MongoDBOptions.TLSCertificateKeyFilePassword)
+			assert.Equal(t, "new_ca", agent.MongoDBOptions.TLSCa)
+			assert.Equal(t, "SCRAM-SHA-256", agent.MongoDBOptions.AuthenticationMechanism)
+			assert.Equal(t, "admin", agent.MongoDBOptions.AuthenticationDatabase)
+			assert.Equal(t, statsCollections, agent.MongoDBOptions.StatsCollections)
+			assert.Equal(t, int32(500), agent.MongoDBOptions.CollectionsLimit)
+			assert.False(t, agent.MongoDBOptions.EnableAllCollectors)
+
+			// Verify persistence in database
+			persistedAgent, err := models.FindAgentByID(q, "A8")
+			require.NoError(t, err)
+			assert.Equal(t, "new_cert_key", persistedAgent.MongoDBOptions.TLSCertificateKey)
+			assert.Equal(t, "new_password", persistedAgent.MongoDBOptions.TLSCertificateKeyFilePassword)
+			assert.Equal(t, "new_ca", persistedAgent.MongoDBOptions.TLSCa)
+			assert.Equal(t, "SCRAM-SHA-256", persistedAgent.MongoDBOptions.AuthenticationMechanism)
+			assert.Equal(t, "admin", persistedAgent.MongoDBOptions.AuthenticationDatabase)
+			assert.Equal(t, statsCollections, persistedAgent.MongoDBOptions.StatsCollections)
+			assert.Equal(t, int32(500), persistedAgent.MongoDBOptions.CollectionsLimit)
+			assert.False(t, persistedAgent.MongoDBOptions.EnableAllCollectors)
+		})
+
+		t.Run("ChangeQANOptions", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			// Test changing QAN options
+			agent, err := models.ChangeAgent(q, "A7", &models.ChangeAgentParams{
+				QANOptions: &models.ChangeQANOptions{
+					MaxQueryLength:          new(int32(2048)),
+					QueryExamplesDisabled:   new(true),
+					CommentsParsingDisabled: new(false),
+					MaxQueryLogSize:         new(int64(1024000)),
+				},
+			})
+			require.NoError(t, err)
+			assert.Equal(t, int32(2048), agent.QANOptions.MaxQueryLength)
+			assert.True(t, agent.QANOptions.QueryExamplesDisabled)
+			assert.False(t, agent.QANOptions.CommentsParsingDisabled)
+			assert.Equal(t, int64(1024000), agent.QANOptions.MaxQueryLogSize)
+
+			// Verify persistence in database
+			persistedAgent, err := models.FindAgentByID(q, "A7")
+			require.NoError(t, err)
+			assert.Equal(t, int32(2048), persistedAgent.QANOptions.MaxQueryLength)
+			assert.True(t, persistedAgent.QANOptions.QueryExamplesDisabled)
+			assert.False(t, persistedAgent.QANOptions.CommentsParsingDisabled)
+			assert.Equal(t, int64(1024000), persistedAgent.QANOptions.MaxQueryLogSize)
+		})
+
+		t.Run("ChangeAWSOptions", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			// Create an AWS RDS Exporter for testing
+			awsAgent := &models.Agent{
+				AgentID:      "AWS1",
+				AgentType:    models.RDSExporterType,
+				PMMAgentID:   new("A1"),
+				RunsOnNodeID: nil,
+				NodeID:       new("N1"),
+				AWSOptions: models.AWSOptions{
+					AWSAccessKey:               "old-access-key",
+					AWSSecretKey:               "old-secret-key",
+					RDSBasicMetricsDisabled:    false,
+					RDSEnhancedMetricsDisabled: false,
+				},
+				CreatedAt: now,
+				UpdatedAt: now,
+			}
+			err := q.Insert(awsAgent)
+			require.NoError(t, err)
+
+			// Test changing AWS options
+			agent, err := models.ChangeAgent(q, "AWS1", &models.ChangeAgentParams{
+				AWSOptions: &models.ChangeAWSOptions{
+					AWSAccessKey:               new("new-access-key"),
+					AWSSecretKey:               new("new-secret-key"),
+					RDSBasicMetricsDisabled:    new(true),
+					RDSEnhancedMetricsDisabled: new(true),
+				},
+			})
+			require.NoError(t, err)
+			assert.Equal(t, "new-access-key", agent.AWSOptions.AWSAccessKey)
+			assert.Equal(t, "new-secret-key", agent.AWSOptions.AWSSecretKey)
+			assert.True(t, agent.AWSOptions.RDSBasicMetricsDisabled)
+			assert.True(t, agent.AWSOptions.RDSEnhancedMetricsDisabled)
+
+			// Verify persistence in database
+			persistedAgent, err := models.FindAgentByID(q, "AWS1")
+			require.NoError(t, err)
+			assert.Equal(t, "new-access-key", persistedAgent.AWSOptions.AWSAccessKey)
+			assert.Equal(t, "new-secret-key", persistedAgent.AWSOptions.AWSSecretKey)
+			assert.True(t, persistedAgent.AWSOptions.RDSBasicMetricsDisabled)
+			assert.True(t, persistedAgent.AWSOptions.RDSEnhancedMetricsDisabled)
+		})
+
+		t.Run("ChangeMySQLOptions", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			// Create a MySQL Exporter for testing
+			mysqlAgent := &models.Agent{
+				AgentID:      "MYSQL1",
+				AgentType:    models.MySQLdExporterType,
+				PMMAgentID:   new("A1"),
+				RunsOnNodeID: nil,
+				ServiceID:    new("S1"),
+				MySQLOptions: models.MySQLOptions{
+					TLSCa:                          "old-ca",
+					TLSCert:                        "old-cert",
+					TLSKey:                         "old-key",
+					TableCountTablestatsGroupLimit: 100,
+				},
+				CreatedAt: now,
+				UpdatedAt: now,
+			}
+			err := q.Insert(mysqlAgent)
+			require.NoError(t, err)
+
+			// Test changing MySQL options
+			agent, err := models.ChangeAgent(q, "MYSQL1", &models.ChangeAgentParams{
+				MySQLOptions: &models.ChangeMySQLOptions{
+					TLSCa:                          new("new-mysql-ca"),
+					TLSCert:                        new("new-mysql-cert"),
+					TLSKey:                         new("new-mysql-key"),
+					TableCountTablestatsGroupLimit: new(int32(200)),
+				},
+			})
+			require.NoError(t, err)
+			assert.Equal(t, "new-mysql-ca", agent.MySQLOptions.TLSCa)
+			assert.Equal(t, "new-mysql-cert", agent.MySQLOptions.TLSCert)
+			assert.Equal(t, "new-mysql-key", agent.MySQLOptions.TLSKey)
+			assert.Equal(t, int32(200), agent.MySQLOptions.TableCountTablestatsGroupLimit)
+
+			// Verify persistence in database
+			persistedAgent, err := models.FindAgentByID(q, "MYSQL1")
+			require.NoError(t, err)
+			assert.Equal(t, "new-mysql-ca", persistedAgent.MySQLOptions.TLSCa)
+			assert.Equal(t, "new-mysql-cert", persistedAgent.MySQLOptions.TLSCert)
+			assert.Equal(t, "new-mysql-key", persistedAgent.MySQLOptions.TLSKey)
+			assert.Equal(t, int32(200), persistedAgent.MySQLOptions.TableCountTablestatsGroupLimit)
+		})
+
+		t.Run("ChangeValkeyOptions", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			// Create a Valkey Exporter for testing
+			valkeyAgent := &models.Agent{
+				AgentID:      "VALKEY1",
+				AgentType:    models.ExternalExporterType, // Using external exporter type for Valkey
+				PMMAgentID:   new("A1"),
+				RunsOnNodeID: nil,
+				NodeID:       new("N1"),
+				ValkeyOptions: models.ValkeyOptions{
+					SSLCa:   "old-valkey-ca",
+					SSLCert: "old-valkey-cert",
+					SSLKey:  "old-valkey-key",
+				},
+				CreatedAt: now,
+				UpdatedAt: now,
+			}
+			err := q.Insert(valkeyAgent)
+			require.NoError(t, err)
+
+			// Test changing Valkey options
+			agent, err := models.ChangeAgent(q, "VALKEY1", &models.ChangeAgentParams{
+				ValkeyOptions: &models.ChangeValkeyOptions{
+					SSLCa:   new("new-valkey-ca"),
+					SSLCert: new("new-valkey-cert"),
+					SSLKey:  new("new-valkey-key"),
+				},
+			})
+			require.NoError(t, err)
+			assert.Equal(t, "new-valkey-ca", agent.ValkeyOptions.SSLCa)
+			assert.Equal(t, "new-valkey-cert", agent.ValkeyOptions.SSLCert)
+			assert.Equal(t, "new-valkey-key", agent.ValkeyOptions.SSLKey)
+
+			// Verify persistence in database
+			persistedAgent, err := models.FindAgentByID(q, "VALKEY1")
+			require.NoError(t, err)
+			assert.Equal(t, "new-valkey-ca", persistedAgent.ValkeyOptions.SSLCa)
+			assert.Equal(t, "new-valkey-cert", persistedAgent.ValkeyOptions.SSLCert)
+			assert.Equal(t, "new-valkey-key", persistedAgent.ValkeyOptions.SSLKey)
+		})
+
+		t.Run("ChangeTLSFields", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			// Test changing TLS fields
+			agent, err := models.ChangeAgent(q, "A7", &models.ChangeAgentParams{
+				TLS:           new(false),
+				TLSSkipVerify: new(false),
+			})
+			require.NoError(t, err)
+			assert.False(t, agent.TLS)
+			assert.False(t, agent.TLSSkipVerify)
+
+			// Verify persistence in database
+			persistedAgent, err := models.FindAgentByID(q, "A7")
+			require.NoError(t, err)
+			assert.False(t, persistedAgent.TLS)
+			assert.False(t, persistedAgent.TLSSkipVerify)
+		})
+
+		t.Run("ChangeLogLevel", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			// Test changing log level
+			agent, err := models.ChangeAgent(q, "A2", &models.ChangeAgentParams{
+				LogLevel: new("debug"),
+			})
+			require.NoError(t, err)
+			assert.Equal(t, "debug", pointer.GetString(agent.LogLevel))
+
+			// Verify persistence in database
+			persistedAgent, err := models.FindAgentByID(q, "A2")
+			require.NoError(t, err)
+			assert.Equal(t, "debug", pointer.GetString(persistedAgent.LogLevel))
+		})
+
+		t.Run("ChangeListenPort", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			// Test changing listen port (for external exporter)
+			agent, err := models.ChangeAgent(q, "A5", &models.ChangeAgentParams{
+				ListenPort: new(uint32(9999)),
+			})
+			require.NoError(t, err)
+			assert.Equal(t, uint16(9999), pointer.GetUint16(agent.ListenPort))
+
+			// Verify persistence in database
+			persistedAgent, err := models.FindAgentByID(q, "A5")
+			require.NoError(t, err)
+			assert.Equal(t, uint16(9999), pointer.GetUint16(persistedAgent.ListenPort))
+		})
+
+		t.Run("InvalidAgentID", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			// Test with non-existent agent ID
+			_, err := models.ChangeAgent(q, "INVALID", &models.ChangeAgentParams{
+				Enabled: new(false),
+			})
+			tests.AssertGRPCError(t, status.New(codes.NotFound, "Agent with ID INVALID not found."), err)
+		})
+
+		t.Run("ChangeAzureOptions", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			// Create an Azure Database Exporter for testing
+			azureAgent := &models.Agent{
+				AgentID:      "AZURE1",
+				AgentType:    models.AzureDatabaseExporterType,
+				PMMAgentID:   new("A1"),
+				RunsOnNodeID: nil,
+				NodeID:       new("N1"),
+				AzureOptions: models.AzureOptions{
+					SubscriptionID: "old-subscription",
+					ClientID:       "old-client-id",
+					ClientSecret:   "old-secret",
+					TenantID:       "old-tenant",
+					ResourceGroup:  "old-group",
+				},
+				CreatedAt: now,
+				UpdatedAt: now,
+			}
+			err := q.Insert(azureAgent)
+			require.NoError(t, err)
+
+			// Test changing Azure options
+			agent, err := models.ChangeAgent(q, "AZURE1", &models.ChangeAgentParams{
+				AzureOptions: &models.ChangeAzureOptions{
+					SubscriptionID: new("new-subscription"),
+					ClientID:       new("new-client-id"),
+					ClientSecret:   new("new-secret"),
+					TenantID:       new("new-tenant"),
+					ResourceGroup:  new("new-group"),
+				},
+			})
+			require.NoError(t, err)
+			assert.Equal(t, "new-subscription", agent.AzureOptions.SubscriptionID)
+			assert.Equal(t, "new-client-id", agent.AzureOptions.ClientID)
+			assert.Equal(t, "new-secret", agent.AzureOptions.ClientSecret)
+			assert.Equal(t, "new-tenant", agent.AzureOptions.TenantID)
+			assert.Equal(t, "new-group", agent.AzureOptions.ResourceGroup)
+
+			// Verify persistence in database
+			persistedAgent, err := models.FindAgentByID(q, "AZURE1")
+			require.NoError(t, err)
+			assert.Equal(t, "new-subscription", persistedAgent.AzureOptions.SubscriptionID)
+			assert.Equal(t, "new-client-id", persistedAgent.AzureOptions.ClientID)
+			assert.Equal(t, "new-secret", persistedAgent.AzureOptions.ClientSecret)
+			assert.Equal(t, "new-tenant", persistedAgent.AzureOptions.TenantID)
+			assert.Equal(t, "new-group", persistedAgent.AzureOptions.ResourceGroup)
+		})
+
+		t.Run("ChangeMultipleFields", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			// Test changing multiple fields at once
+			customLabels := map[string]string{"env": "prod"}
+			agent, err := models.ChangeAgent(q, "A2", &models.ChangeAgentParams{
+				Enabled:      new(false),
+				Username:     new("multi_user"),
+				Password:     new("multi_pass"),
+				CustomLabels: &customLabels,
+				ExporterOptions: &models.ChangeExporterOptions{
+					PushMetrics: new(true),
+				},
+			})
+			require.NoError(t, err)
+
+			assert.True(t, agent.Disabled)
+			assert.Equal(t, "multi_user", pointer.GetString(agent.Username))
+			assert.Equal(t, "multi_pass", pointer.GetString(agent.Password))
+			assert.True(t, agent.ExporterOptions.PushMetrics)
+
+			retrievedLabels, err := agent.GetCustomLabels()
+			require.NoError(t, err)
+			assert.Equal(t, customLabels, retrievedLabels)
+
+			// Verify persistence in database
+			persistedAgent, err := models.FindAgentByID(q, "A2")
+			require.NoError(t, err)
+			assert.True(t, persistedAgent.Disabled)
+			assert.Equal(t, "multi_user", pointer.GetString(persistedAgent.Username))
+			assert.Equal(t, "multi_pass", pointer.GetString(persistedAgent.Password))
+			assert.True(t, persistedAgent.ExporterOptions.PushMetrics)
+
+			persistedLabels, err := persistedAgent.GetCustomLabels()
+			require.NoError(t, err)
+			assert.Equal(t, customLabels, persistedLabels)
+		})
+
+		t.Run("UnspecifiedFieldsRemainUnchanged", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			// First, set up agent A7 (PostgreSQL exporter) with some initial values
+			initialCustomLabels := map[string]string{"initial": "value", "env": "test"}
+			_, err := models.ChangeAgent(q, "A7", &models.ChangeAgentParams{
+				Username:     new("initial_user"),
+				Password:     new("initial_pass"),
+				CustomLabels: &initialCustomLabels,
+				LogLevel:     new("info"),
+				ExporterOptions: &models.ChangeExporterOptions{
+					PushMetrics:    new(true),
+					ExposeExporter: new(true),
+				},
+				PostgreSQLOptions: &models.ChangePostgreSQLOptions{
+					AutoDiscoveryLimit:     new(int32(200)),
+					MaxExporterConnections: new(int32(10)),
+				},
+			})
+			require.NoError(t, err)
+
+			// Verify initial state
+			initialAgent, err := models.FindAgentByID(q, "A7")
+			require.NoError(t, err)
+			assert.Equal(t, "initial_user", pointer.GetString(initialAgent.Username))
+			assert.Equal(t, "initial_pass", pointer.GetString(initialAgent.Password))
+			assert.Equal(t, "info", pointer.GetString(initialAgent.LogLevel))
+			assert.True(t, initialAgent.ExporterOptions.PushMetrics)
+			assert.True(t, initialAgent.ExporterOptions.ExposeExporter)
+			assert.Equal(t, int32(200), pointer.GetInt32(initialAgent.PostgreSQLOptions.AutoDiscoveryLimit))
+			assert.Equal(t, int32(10), initialAgent.PostgreSQLOptions.MaxExporterConnections)
+
+			initialLabels, err := initialAgent.GetCustomLabels()
+			require.NoError(t, err)
+			assert.Equal(t, initialCustomLabels, initialLabels)
+
+			// Now change only the username - all other fields should remain unchanged
+			agent, err := models.ChangeAgent(q, "A7", &models.ChangeAgentParams{
+				Username: new("changed_user"),
+			})
+			require.NoError(t, err)
+
+			// Verify that only username changed
+			assert.Equal(t, "changed_user", pointer.GetString(agent.Username))
+			// All other fields should remain unchanged
+			assert.Equal(t, "initial_pass", pointer.GetString(agent.Password))
+			assert.Equal(t, "info", pointer.GetString(agent.LogLevel))
+			assert.True(t, agent.ExporterOptions.PushMetrics)
+			assert.True(t, agent.ExporterOptions.ExposeExporter)
+			assert.Equal(t, int32(200), pointer.GetInt32(agent.PostgreSQLOptions.AutoDiscoveryLimit))
+			assert.Equal(t, int32(10), agent.PostgreSQLOptions.MaxExporterConnections)
+
+			// Verify persistence in database
+			persistedAgent, err := models.FindAgentByID(q, "A7")
+			require.NoError(t, err)
+			assert.Equal(t, "changed_user", pointer.GetString(persistedAgent.Username))
+			assert.Equal(t, "initial_pass", pointer.GetString(persistedAgent.Password))
+			assert.Equal(t, "info", pointer.GetString(persistedAgent.LogLevel))
+			assert.True(t, persistedAgent.ExporterOptions.PushMetrics)
+			assert.True(t, persistedAgent.ExporterOptions.ExposeExporter)
+			assert.Equal(t, int32(200), pointer.GetInt32(persistedAgent.PostgreSQLOptions.AutoDiscoveryLimit))
+			assert.Equal(t, int32(10), persistedAgent.PostgreSQLOptions.MaxExporterConnections)
+
+			// Custom labels should also remain unchanged
+			persistedLabels, err := persistedAgent.GetCustomLabels()
+			require.NoError(t, err)
+			assert.Equal(t, initialCustomLabels, persistedLabels)
+
+			// Test changing only exporter options - other fields should remain unchanged
+			agent, err = models.ChangeAgent(q, "A7", &models.ChangeAgentParams{
+				ExporterOptions: &models.ChangeExporterOptions{
+					PushMetrics: new(false), // Change this
+					// Don't specify ExposeExporter - it should remain true
+				},
+			})
+			require.NoError(t, err)
+
+			// Verify that only PushMetrics changed, ExposeExporter remains true
+			assert.False(t, agent.ExporterOptions.PushMetrics)   // Changed
+			assert.True(t, agent.ExporterOptions.ExposeExporter) // Unchanged
+			// Other fields should still be unchanged
+			assert.Equal(t, "changed_user", pointer.GetString(agent.Username))
+			assert.Equal(t, "initial_pass", pointer.GetString(agent.Password))
+			assert.Equal(t, "info", pointer.GetString(agent.LogLevel))
+
+			// Verify persistence in database
+			persistedAgent, err = models.FindAgentByID(q, "A7")
+			require.NoError(t, err)
+			assert.False(t, persistedAgent.ExporterOptions.PushMetrics)   // Changed
+			assert.True(t, persistedAgent.ExporterOptions.ExposeExporter) // Unchanged
+			assert.Equal(t, "changed_user", pointer.GetString(persistedAgent.Username))
+			assert.Equal(t, "initial_pass", pointer.GetString(persistedAgent.Password))
+			assert.Equal(t, "info", pointer.GetString(persistedAgent.LogLevel))
+
+			// Test changing only PostgreSQL options - other fields should remain unchanged
+			agent, err = models.ChangeAgent(q, "A7", &models.ChangeAgentParams{
+				PostgreSQLOptions: &models.ChangePostgreSQLOptions{
+					AutoDiscoveryLimit: new(int32(500)), // Change this
+					// Don't specify MaxExporterConnections - it should remain 10
+				},
+			})
+			require.NoError(t, err)
+
+			// Verify that only AutoDiscoveryLimit changed
+			assert.Equal(t, int32(500), pointer.GetInt32(agent.PostgreSQLOptions.AutoDiscoveryLimit)) // Changed
+			assert.Equal(t, int32(10), agent.PostgreSQLOptions.MaxExporterConnections)                // Unchanged
+
+			// Verify persistence in database
+			persistedAgent, err = models.FindAgentByID(q, "A7")
+			require.NoError(t, err)
+			assert.Equal(t, int32(500), pointer.GetInt32(persistedAgent.PostgreSQLOptions.AutoDiscoveryLimit)) // Changed
+			assert.Equal(t, int32(10), persistedAgent.PostgreSQLOptions.MaxExporterConnections)                // Unchanged
+		})
+
+		t.Run("ChangeAllFields", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			// Test changing ALL possible fields at once for a PostgreSQL exporter (A7)
+			// This is the most comprehensive test to ensure the function handles complex scenarios
+
+			customLabels := map[string]string{
+				"environment": "production",
+				"team":        "platform",
+				"region":      "us-west-2",
+				"service":     "core-db",
+			}
+
+			disabledCollectors := []string{"stat_database", "stat_bgwriter", "stat_wal"}
+			mongoCollections := []string{"users", "orders", "products"}
+
+			changeParams := &models.ChangeAgentParams{
+				// Basic fields
+				Enabled:       new(false),
+				Username:      new("comprehensive_user"),
+				Password:      new("comprehensive_password"),
+				AgentPassword: new("comprehensive_agent_password"),
+				LogLevel:      new("debug"),
+				TLS:           new(false),
+				TLSSkipVerify: new(false),
+				ListenPort:    new(uint32(9090)),
+
+				// Custom labels
+				CustomLabels: &customLabels,
+
+				// Exporter options
+				ExporterOptions: &models.ChangeExporterOptions{
+					PushMetrics:        new(true),
+					DisabledCollectors: disabledCollectors,
+					ExposeExporter:     new(true),
+					MetricsScheme:      new("https"),
+					MetricsPath:        new("/custom-metrics"),
+					MetricsResolutions: &models.ChangeMetricsResolutionsParams{
+						HR: new(15 * time.Second),
+						MR: new(90 * time.Second),
+						LR: new(8 * time.Minute),
+					},
+				},
+
+				// QAN options
+				QANOptions: &models.ChangeQANOptions{
+					MaxQueryLength:          new(int32(4096)),
+					QueryExamplesDisabled:   new(false),
+					CommentsParsingDisabled: new(true),
+					MaxQueryLogSize:         new(int64(2048000)),
+				},
+
+				// AWS options
+				AWSOptions: &models.ChangeAWSOptions{
+					AWSAccessKey:               new("comprehensive-aws-key"),
+					AWSSecretKey:               new("comprehensive-aws-secret"),
+					RDSBasicMetricsDisabled:    new(true),
+					RDSEnhancedMetricsDisabled: new(false),
+				},
+
+				// Azure options
+				AzureOptions: &models.ChangeAzureOptions{
+					SubscriptionID: new("comprehensive-subscription"),
+					ClientID:       new("comprehensive-client-id"),
+					ClientSecret:   new("comprehensive-client-secret"),
+					TenantID:       new("comprehensive-tenant"),
+					ResourceGroup:  new("comprehensive-resource-group"),
+				},
+
+				// MongoDB options
+				MongoDBOptions: &models.ChangeMongoDBOptions{
+					TLSCertificateKey:             new("comprehensive-mongo-cert-key"),
+					TLSCertificateKeyFilePassword: new("comprehensive-mongo-password"),
+					TLSCa:                         new("comprehensive-mongo-ca"),
+					AuthenticationMechanism:       new("SCRAM-SHA-256"),
+					AuthenticationDatabase:        new("admin"),
+					StatsCollections:              mongoCollections,
+					CollectionsLimit:              new(int32(1000)),
+					EnableAllCollectors:           new(true),
+				},
+
+				// MySQL options
+				MySQLOptions: &models.ChangeMySQLOptions{
+					TLSCa:                          new("comprehensive-mysql-ca"),
+					TLSCert:                        new("comprehensive-mysql-cert"),
+					TLSKey:                         new("comprehensive-mysql-key"),
+					TableCountTablestatsGroupLimit: new(int32(500)),
+				},
+
+				// PostgreSQL-specific options
+				PostgreSQLOptions: &models.ChangePostgreSQLOptions{
+					SSLCa:                  new("comprehensive-ca-cert"),
+					SSLCert:                new("comprehensive-ssl-cert"),
+					SSLKey:                 new("comprehensive-ssl-key"),
+					AutoDiscoveryLimit:     new(int32(150)),
+					MaxExporterConnections: new(int32(8)),
+				},
+
+				// Valkey options
+				ValkeyOptions: &models.ChangeValkeyOptions{
+					SSLCa:   new("comprehensive-valkey-ca"),
+					SSLCert: new("comprehensive-valkey-cert"),
+					SSLKey:  new("comprehensive-valkey-key"),
+				},
+			}
+
+			agent, err := models.ChangeAgent(q, "A7", changeParams)
+			require.NoError(t, err)
+
+			// Build expected agent structure for comparison
+			expectedAgent := &models.Agent{
+				// Copy basic fields from actual agent (timestamps, IDs, etc. should remain the same)
+				AgentID:    agent.AgentID,
+				AgentType:  agent.AgentType,
+				PMMAgentID: agent.PMMAgentID,
+				NodeID:     agent.NodeID,
+				ServiceID:  agent.ServiceID,
+				CreatedAt:  agent.CreatedAt,
+				UpdatedAt:  agent.UpdatedAt,
+				Status:     agent.Status,
+
+				// Fields that should be changed
+				Disabled:      true, // Enabled=false means Disabled=true
+				Username:      new("comprehensive_user"),
+				Password:      new("comprehensive_password"),
+				AgentPassword: new("comprehensive_agent_password"),
+				LogLevel:      new("debug"),
+				TLS:           false,
+				TLSSkipVerify: false,
+				ListenPort:    new(uint16(9090)),
+
+				ExporterOptions: models.ExporterOptions{
+					PushMetrics:        true,
+					DisabledCollectors: disabledCollectors,
+					ExposeExporter:     true,
+					MetricsScheme:      "https",
+					MetricsPath:        "/custom-metrics",
+					MetricsResolutions: &models.MetricsResolutions{
+						HR: 15 * time.Second,
+						MR: 90 * time.Second,
+						LR: 8 * time.Minute,
+					},
+				},
+
+				QANOptions: models.QANOptions{
+					MaxQueryLength:          4096,
+					QueryExamplesDisabled:   false,
+					CommentsParsingDisabled: true,
+					MaxQueryLogSize:         2048000,
+				},
+
+				AWSOptions: models.AWSOptions{
+					AWSAccessKey:               "comprehensive-aws-key",
+					AWSSecretKey:               "comprehensive-aws-secret",
+					RDSBasicMetricsDisabled:    true,
+					RDSEnhancedMetricsDisabled: false,
+				},
+
+				AzureOptions: models.AzureOptions{
+					SubscriptionID: "comprehensive-subscription",
+					ClientID:       "comprehensive-client-id",
+					ClientSecret:   "comprehensive-client-secret",
+					TenantID:       "comprehensive-tenant",
+					ResourceGroup:  "comprehensive-resource-group",
+				},
+
+				MongoDBOptions: models.MongoDBOptions{
+					TLSCertificateKey:             "comprehensive-mongo-cert-key",
+					TLSCertificateKeyFilePassword: "comprehensive-mongo-password",
+					TLSCa:                         "comprehensive-mongo-ca",
+					AuthenticationMechanism:       "SCRAM-SHA-256",
+					AuthenticationDatabase:        "admin",
+					StatsCollections:              mongoCollections,
+					CollectionsLimit:              1000,
+					EnableAllCollectors:           true,
+				},
+
+				MySQLOptions: models.MySQLOptions{
+					TLSCa:                          "comprehensive-mysql-ca",
+					TLSCert:                        "comprehensive-mysql-cert",
+					TLSKey:                         "comprehensive-mysql-key",
+					TableCountTablestatsGroupLimit: 500,
+				},
+
+				PostgreSQLOptions: models.PostgreSQLOptions{
+					SSLCa:                  "comprehensive-ca-cert",
+					SSLCert:                "comprehensive-ssl-cert",
+					SSLKey:                 "comprehensive-ssl-key",
+					AutoDiscoveryLimit:     new(int32(150)),
+					MaxExporterConnections: 8,
+				},
+
+				ValkeyOptions: models.ValkeyOptions{
+					SSLCa:   "comprehensive-valkey-ca",
+					SSLCert: "comprehensive-valkey-cert",
+					SSLKey:  "comprehensive-valkey-key",
+				},
+			}
+
+			// Set custom labels on expected agent
+			err = expectedAgent.SetCustomLabels(customLabels)
+			require.NoError(t, err)
+
+			// Compare the structures
+			assert.Equal(t, expectedAgent.Disabled, agent.Disabled)
+			assert.Equal(t, expectedAgent.Username, agent.Username)
+			assert.Equal(t, expectedAgent.Password, agent.Password)
+			assert.Equal(t, expectedAgent.AgentPassword, agent.AgentPassword)
+			assert.Equal(t, expectedAgent.LogLevel, agent.LogLevel)
+			assert.Equal(t, expectedAgent.TLS, agent.TLS)
+			assert.Equal(t, expectedAgent.TLSSkipVerify, agent.TLSSkipVerify)
+			assert.Equal(t, expectedAgent.ListenPort, agent.ListenPort)
+
+			// Compare options structures
+			assert.Equal(t, expectedAgent.ExporterOptions, agent.ExporterOptions)
+			assert.Equal(t, expectedAgent.QANOptions, agent.QANOptions)
+			assert.Equal(t, expectedAgent.AWSOptions, agent.AWSOptions)
+			assert.Equal(t, expectedAgent.AzureOptions, agent.AzureOptions)
+			assert.Equal(t, expectedAgent.MongoDBOptions, agent.MongoDBOptions)
+			assert.Equal(t, expectedAgent.MySQLOptions, agent.MySQLOptions)
+			assert.Equal(t, expectedAgent.PostgreSQLOptions, agent.PostgreSQLOptions)
+			assert.Equal(t, expectedAgent.ValkeyOptions, agent.ValkeyOptions)
+
+			// Verify custom labels
+			actualLabels, err := agent.GetCustomLabels()
+			require.NoError(t, err)
+			assert.Equal(t, customLabels, actualLabels)
+
+			// Verify persistence in database by comparing with fresh fetch
+			persistedAgent, err := models.FindAgentByID(q, "A7")
+			require.NoError(t, err)
+
+			// Compare all the changed fields with persisted agent
+			assert.Equal(t, expectedAgent.Disabled, persistedAgent.Disabled)
+			assert.Equal(t, expectedAgent.Username, persistedAgent.Username)
+			assert.Equal(t, expectedAgent.Password, persistedAgent.Password)
+			assert.Equal(t, expectedAgent.AgentPassword, persistedAgent.AgentPassword)
+			assert.Equal(t, expectedAgent.LogLevel, persistedAgent.LogLevel)
+			assert.Equal(t, expectedAgent.TLS, persistedAgent.TLS)
+			assert.Equal(t, expectedAgent.TLSSkipVerify, persistedAgent.TLSSkipVerify)
+			assert.Equal(t, expectedAgent.ListenPort, persistedAgent.ListenPort)
+
+			// Compare persisted structures
+			assert.Equal(t, expectedAgent.ExporterOptions, persistedAgent.ExporterOptions)
+			assert.Equal(t, expectedAgent.QANOptions, persistedAgent.QANOptions)
+			assert.Equal(t, expectedAgent.AWSOptions, persistedAgent.AWSOptions)
+			assert.Equal(t, expectedAgent.AzureOptions, persistedAgent.AzureOptions)
+			assert.Equal(t, expectedAgent.MongoDBOptions, persistedAgent.MongoDBOptions)
+			assert.Equal(t, expectedAgent.MySQLOptions, persistedAgent.MySQLOptions)
+			assert.Equal(t, expectedAgent.PostgreSQLOptions, persistedAgent.PostgreSQLOptions)
+			assert.Equal(t, expectedAgent.ValkeyOptions, persistedAgent.ValkeyOptions)
+
+			// Verify persisted custom labels
+			persistedLabels, err := persistedAgent.GetCustomLabels()
+			require.NoError(t, err)
+			assert.Equal(t, customLabels, persistedLabels)
+		})
+	})
+
+	t.Run("UpdateAgent", func(t *testing.T) {
+		t.Run("PersistsCredentialsEncrypted", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			agent, err := models.FindAgentByID(q, "A2")
+			require.NoError(t, err)
+
+			agent.Username = new("user")
+			agent.Password = new("secret")
+
+			err = models.UpdateAgent(q, agent)
+			require.NoError(t, err)
+
+			// Verify the decrypted view matches what we set.
+			updated, err := models.FindAgentByID(q, "A2")
+			require.NoError(t, err)
+			assert.Equal(t, new("user"), updated.Username)
+			assert.Equal(t, new("secret"), updated.Password)
+
+			// Verify the raw row in the DB is NOT plain-text (i.e. it was encrypted).
+			raw := &models.Agent{AgentID: "A2"}
+			require.NoError(t, q.Reload(raw))
+			assert.NotEqual(t, "user", pointer.GetString(raw.Username))
+			assert.NotEqual(t, "secret", pointer.GetString(raw.Password))
+		})
+
+		t.Run("PreservesNonSensitiveFields", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			agent, err := models.FindAgentByID(q, "A3")
+			require.NoError(t, err)
+
+			agent.Status = "RUNNING"
+
+			err = models.UpdateAgent(q, agent)
+			require.NoError(t, err)
+
+			updated, err := models.FindAgentByID(q, "A3")
+			require.NoError(t, err)
+			assert.Equal(t, "RUNNING", updated.Status)
+			assert.Equal(t, models.NodeExporterType, updated.AgentType)
+			assert.Equal(t, new("N1"), updated.NodeID)
+		})
 	})
 }

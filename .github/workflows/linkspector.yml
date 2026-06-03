@@ -1,8 +1,14 @@
 name: Linkspector
-on: 
+on:
   pull_request:
     paths:
       - "documentation/**"
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Git ref (branch, tag, or SHA) to check links in."
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -15,12 +21,21 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+
+      - name: Install Chrome for linkspector
+        id: setup-chrome
+        uses: browser-actions/setup-chrome@2e1d749697dd1612b833dba4a722266286fbefcd # v2.1.2
+
+      - name: Configure Chrome path for puppeteer
+        run: echo "PUPPETEER_EXECUTABLE_PATH=${{ steps.setup-chrome.outputs.chrome-path }}" >> "$GITHUB_ENV"
 
       - name: Run linkspector
-        uses: umbrelladocs/action-linkspector@652f85bc57bb1e7d4327260decc10aa68f7694c3 # v1.4.0
+        uses: umbrelladocs/action-linkspector@036f295d12b67b0c4b445bc83db0538afb78db69 # v1.5.2
         with:
           github_token: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
-          reporter: github-pr-review
+          reporter: ${{ github.event_name == 'pull_request' && 'github-pr-review' || 'github-check' }}
           fail_level: error
           filter_mode: nofilter
           config_file: documentation/.linkspector.yml
