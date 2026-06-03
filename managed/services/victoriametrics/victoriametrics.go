@@ -268,7 +268,7 @@ func (svc *Service) validateConfig(ctx context.Context, cfg []byte) error {
 		}
 		err = os.Remove(f.Name())
 		if err != nil {
-			svc.l.Error(err)
+			svc.l.Debug(err)
 		}
 	}()
 	if _, err = f.Write(cfg); err != nil {
