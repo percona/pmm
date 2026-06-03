@@ -48,6 +48,7 @@ import (
 	agenterrors "github.com/percona/pmm/agent/utils/errors"
 	"github.com/percona/pmm/agent/utils/templates"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
+	logshipv1 "github.com/percona/pmm/api/logship/v1"
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 	"github.com/percona/pmm/utils/tlsconfig"
 	"github.com/percona/pmm/version"
@@ -82,10 +83,11 @@ type Client struct {
 
 	runner *runner.Runner
 
-	rw         sync.RWMutex
-	md         *agentv1.ServerConnectMetadata
-	channel    *channel.Channel
-	rtaChannel *channel.RTAChannel
+	rw             sync.RWMutex
+	md             *agentv1.ServerConnectMetadata
+	channel        *channel.Channel
+	rtaChannel     *channel.RTAChannel
+	logShipChannel *channel.LogShipChannel
 
 	cus      *connectionuptime.Service
 	logStore *tailog.Store
@@ -145,6 +147,7 @@ func (c *Client) Run(ctx context.Context) error {
 	var (
 		agentServiceDialResult                          *dialResult
 		rtaChannel                                      *channel.RTAChannel
+		logShipChannel                                  *channel.LogShipChannel
 		sharedConn                                      *grpc.ClientConn
 		connErr, agentServiceDialErr, rtaServiceDialErr error
 	)
@@ -174,6 +177,19 @@ func (c *Client) Run(ctx context.Context) error {
 				if rtaServiceDialErr != nil {
 					c.l.Errorf("Failed to create communication channel to Real-Time Analytics service: %s.", rtaServiceDialErr)
 				} else {
+					// Optionally create the log-shipping channel over the same connection. A failure here
+					// must not block the agent (monitoring works without log shipping), so we log and continue.
+					if cfg.LogShip {
+						logShipDialCtx, logShipDialCancel := context.WithTimeout(ctx, c.dialTimeout)
+						var logShipErr error
+						logShipChannel, logShipErr = createChannelToLogShipService(logShipDialCtx, sharedConn, cfg, c.l)
+						logShipDialCancel()
+						if logShipErr != nil {
+							c.l.Warnf("Failed to create log shipping channel (logs will not be shipped): %s.", logShipErr)
+							logShipChannel = nil
+						}
+					}
+
 					// stop connection loop retries - we are connected to both Agents and RTA services successfully.
 					break
 				}
@@ -231,6 +247,7 @@ func (c *Client) Run(ctx context.Context) error {
 	c.md = agentServiceDialResult.md
 	c.channel = agentServiceDialResult.channel
 	c.rtaChannel = rtaChannel
+	c.logShipChannel = logShipChannel
 	c.rw.Unlock()
 
 	// Once the client is connected, ctx cancellation is ignored by it.
@@ -414,6 +431,23 @@ func (c *Client) processSupervisorRequests(ctx context.Context) { //nolint:gocog
 				c.rtaChannel.Send(collect)
 			case <-ctx.Done():
 				c.l.Infof("Supervisor RTARequests() channel drained.")
+				return
+			}
+		}
+	})
+
+	wg.Go(func() {
+		for {
+			select {
+			case req := <-c.supervisor.LogRequests():
+				// logShipChannel is nil when log shipping is disabled or its channel failed to open.
+				if req == nil || c.logShipChannel == nil {
+					continue
+				}
+
+				c.logShipChannel.Send(req)
+			case <-ctx.Done():
+				c.l.Infof("Supervisor LogRequests() channel drained.")
 				return
 			}
 		}
@@ -978,6 +1012,34 @@ func createChannelToRealTimeAnalyticsService(dialCtx context.Context, conn *grpc
 	return channel.NewRTAChannel(stream), nil
 }
 
+// createChannelToLogShipService creates a uni-directional log-shipping channel over the shared gRPC
+// connection. Unlike the RTA channel it does NOT close the shared connection on failure (the agent and
+// RTA channels keep using it); log shipping is best-effort.
+func createChannelToLogShipService(dialCtx context.Context, conn *grpc.ClientConn, cfg *config.Config, l *logrus.Entry) (*channel.LogShipChannel, error) {
+	streamCtx, streamCancel := context.WithCancel(context.Background())
+
+	d, ok := dialCtx.Deadline()
+	if !ok {
+		panic("no deadline in dialCtx")
+	}
+	streamCancelT := time.AfterFunc(time.Until(d), streamCancel)
+	defer streamCancelT.Stop()
+
+	l.Infof("Establishing client streaming communication channel to Log Ship Service at %s ...", cfg.Server.FilteredURL())
+
+	streamCtx = agentv1.AddAgentConnectMetadata(streamCtx, &agentv1.AgentConnectMetadata{
+		ID:      cfg.ID,
+		Version: version.Version,
+	})
+	stream, err := logshipv1.NewLogShipServiceClient(conn).Ship(streamCtx, grpc.UseCompressor(grpc_gzip.Name)) //nolint:contextcheck
+	if err != nil {
+		streamCancel()
+		return nil, errors.Wrap(err, "failed to connect")
+	}
+
+	return channel.NewLogShipChannel(stream), nil
+}
+
 func getNetworkInformation(channel *channel.Channel) (latency, clockDrift time.Duration, err error) { //nolint:nonamedreturns
 	start := time.Now()
 	var resp agentv1.ServerResponsePayload
@@ -1041,6 +1103,7 @@ func (c *Client) Collect(ch chan<- prometheus.Metric) {
 	c.rw.RLock()
 	channel := c.channel
 	rtaChannel := c.rtaChannel
+	logShipChannel := c.logShipChannel
 	c.rw.RUnlock()
 
 	desc := prometheus.NewDesc("pmm_agent_connected", "Has value 1 if two-way communication channel is established.", nil, nil)
@@ -1053,6 +1116,10 @@ func (c *Client) Collect(ch chan<- prometheus.Metric) {
 
 	if rtaChannel != nil {
 		rtaChannel.Collect(ch)
+	}
+
+	if logShipChannel != nil {
+		logShipChannel.Collect(ch)
 	}
 
 	c.supervisor.Collect(ch)

@@ -1184,6 +1184,13 @@ var databaseSchema = [][]string{
 		`ALTER TABLE dumps ADD COLUMN encrypted boolean NOT NULL DEFAULT false`,
 		`UPDATE dumps SET encrypted = false`,
 	},
+	119: {
+		`ALTER TABLE agents ADD COLUMN log_watcher_options JSONB`,
+		`UPDATE agents SET log_watcher_options = '{}'::jsonb`,
+	},
+	120: {
+		`ALTER TABLE alert_rule_templates ADD COLUMN datasource VARCHAR NOT NULL DEFAULT ''`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

@@ -121,6 +121,10 @@
   include_role:
     name: clickhouse
 
+- name: Install otelcol
+  include_role:
+    name: otelcol
+
 - name: Install postgres
   include_role:
     name: postgres

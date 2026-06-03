@@ -1,0 +1,30 @@
+---
+templates:
+  - name: pmm_mysql_log_down
+    version: 1
+    summary: MySQL down (detected in logs)
+    datasource: clickhouse
+    expr: |-
+      SELECT
+        ServiceName AS service_name,
+        count() AS value
+      FROM logs
+      WHERE TimestampTime >= now() - INTERVAL 5 MINUTE
+        AND ServiceName ILIKE '%mysql%'
+        AND (SeverityText IN ('ERROR', 'FATAL')
+             OR Body ILIKE '%shutdown complete%'
+             OR Body ILIKE '%Got signal % to shutdown%')
+      GROUP BY ServiceName
+    params:
+      - name: threshold
+        summary: Number of shutdown/error log lines in the window above which the alert fires
+        type: float
+        range: [0, 100000]
+        value: 0
+    for: 1m
+    severity: critical
+    annotations:
+      summary: MySQL down ({{ $labels.service_name }})
+      description: |-
+        MySQL {{ $labels.service_name }} reported {{ $value }} shutdown/error log lines in the last
+        5 minutes (threshold [[ .threshold ]]).

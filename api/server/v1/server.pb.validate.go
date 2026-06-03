@@ -154,8 +154,7 @@ func (e VersionInfoValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = VersionInfoValidationError{}
@@ -257,8 +256,7 @@ func (e VersionRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = VersionRequestValidationError{}
@@ -420,8 +418,7 @@ func (e VersionResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = VersionResponseValidationError{}
@@ -521,8 +518,7 @@ func (e ReadinessRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ReadinessRequestValidationError{}
@@ -624,8 +620,7 @@ func (e ReadinessResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ReadinessResponseValidationError{}
@@ -727,8 +722,7 @@ func (e LeaderHealthCheckRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = LeaderHealthCheckRequestValidationError{}
@@ -830,8 +824,7 @@ func (e LeaderHealthCheckResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = LeaderHealthCheckResponseValidationError{}
@@ -937,8 +930,7 @@ func (e CheckUpdatesRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = CheckUpdatesRequestValidationError{}
@@ -1077,8 +1069,7 @@ func (e DockerVersionInfoValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = DockerVersionInfoValidationError{}
@@ -1271,8 +1262,7 @@ func (e CheckUpdatesResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = CheckUpdatesResponseValidationError{}
@@ -1374,8 +1364,7 @@ func (e ListChangeLogsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListChangeLogsRequestValidationError{}
@@ -1540,8 +1529,7 @@ func (e ListChangeLogsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListChangeLogsResponseValidationError{}
@@ -1645,8 +1633,7 @@ func (e StartUpdateRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartUpdateRequestValidationError{}
@@ -1752,8 +1739,7 @@ func (e StartUpdateResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartUpdateResponseValidationError{}
@@ -1859,8 +1845,7 @@ func (e UpdateStatusRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = UpdateStatusRequestValidationError{}
@@ -1966,8 +1951,7 @@ func (e UpdateStatusResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = UpdateStatusResponseValidationError{}
@@ -2156,8 +2140,7 @@ func (e MetricsResolutionsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = MetricsResolutionsValidationError{}
@@ -2346,8 +2329,7 @@ func (e AdvisorRunIntervalsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AdvisorRunIntervalsValidationError{}
@@ -2524,6 +2506,35 @@ func (m *Settings) validate(all bool) error {
 		}
 	}
 
+	if all {
+		switch v := interface{}(m.GetLogsRetention()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, SettingsValidationError{
+					field:  "LogsRetention",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, SettingsValidationError{
+					field:  "LogsRetention",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetLogsRetention()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return SettingsValidationError{
+				field:  "LogsRetention",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return SettingsMultiError(errors)
 	}
@@ -2588,8 +2599,7 @@ func (e SettingsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = SettingsValidationError{}
@@ -2705,8 +2715,7 @@ func (e ReadOnlySettingsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ReadOnlySettingsValidationError{}
@@ -2808,8 +2817,7 @@ func (e GetSettingsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetSettingsRequestValidationError{}
@@ -2911,8 +2919,7 @@ func (e GetReadOnlySettingsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetReadOnlySettingsRequestValidationError{}
@@ -3043,8 +3050,7 @@ func (e GetSettingsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetSettingsResponseValidationError{}
@@ -3176,8 +3182,7 @@ func (e GetReadOnlySettingsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetReadOnlySettingsResponseValidationError{}
@@ -3328,6 +3333,35 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 		}
 	}
 
+	if all {
+		switch v := interface{}(m.GetLogsRetention()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ChangeSettingsRequestValidationError{
+					field:  "LogsRetention",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ChangeSettingsRequestValidationError{
+					field:  "LogsRetention",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetLogsRetention()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ChangeSettingsRequestValidationError{
+				field:  "LogsRetention",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if m.EnableUpdates != nil {
 		// no validation rules for EnableUpdates
 	}
@@ -3341,6 +3375,7 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 	}
 
 	if m.AwsPartitions != nil {
+
 		if all {
 			switch v := interface{}(m.GetAwsPartitions()).(type) {
 			case interface{ ValidateAll() error }:
@@ -3369,6 +3404,7 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnableAdvisor != nil {
@@ -3466,8 +3502,7 @@ func (e ChangeSettingsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeSettingsRequestValidationError{}
@@ -3598,8 +3633,7 @@ func (e ChangeSettingsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeSettingsResponseValidationError{}

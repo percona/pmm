@@ -811,6 +811,7 @@ type CreateAgentParams struct {
 	MySQLOptions             MySQLOptions
 	PostgreSQLOptions        PostgreSQLOptions
 	ValkeyOptions            ValkeyOptions
+	LogWatcherOptions        LogWatcherOptions
 }
 
 func compatibleNodeAndAgent(nodeType NodeType, agentType AgentType) bool {
@@ -884,6 +885,12 @@ func compatibleServiceAndAgent(serviceType ServiceType, agentType AgentType) boo
 		ExternalExporterType: {
 			ExternalServiceType,
 		},
+		DBLogWatcherAgentType: {
+			MySQLServiceType,
+			PostgreSQLServiceType,
+			MongoDBServiceType,
+			ValkeyServiceType,
+		},
 	}
 
 	allowed, ok := allow[agentType]
@@ -952,6 +959,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		MySQLOptions:      params.MySQLOptions,
 		PostgreSQLOptions: params.PostgreSQLOptions,
 		ValkeyOptions:     params.ValkeyOptions,
+		LogWatcherOptions: params.LogWatcherOptions,
 		LogLevel:          pointer.ToStringOrNil(params.LogLevel),
 		Disabled:          params.Disabled,
 	}

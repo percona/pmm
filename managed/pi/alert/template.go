@@ -102,9 +102,18 @@ type Template struct {
 	Severity    common.Severity     `yaml:"severity"`              // required
 	Labels      map[string]string   `yaml:"labels,omitempty"`      // optional
 	Annotations map[string]string   `yaml:"annotations,omitempty"` // optional
+	// Datasource selects the backend the rule queries: empty (default) means the metrics datasource
+	// (PromQL via VictoriaMetrics); "clickhouse" means a SQL log/trace alert over the ClickHouse datasource.
+	Datasource string `yaml:"datasource,omitempty"` // optional
 	// TODO: Tiers field is deprecated and must be removed in PMM v4.
 	Tiers []string `yaml:"tiers,omitempty"` // optional
 }
+
+// Datasource values for Template.Datasource.
+const (
+	DatasourceMetrics    = ""
+	DatasourceClickHouse = "clickhouse"
+)
 
 // Validate validates template.
 func (r *Template) Validate() error {
@@ -124,6 +133,12 @@ func (r *Template) Validate() error {
 
 	if r.Expr == "" {
 		return errors.New("template expression is empty")
+	}
+
+	switch r.Datasource {
+	case DatasourceMetrics, DatasourceClickHouse:
+	default:
+		return fmt.Errorf("unexpected datasource %q", r.Datasource)
 	}
 
 	// Log deprecation warning for tiers field (once per template name)

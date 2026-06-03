@@ -34,8 +34,38 @@ type RelativeTimeRange struct {
 // Model represents grafana query model.
 type Model struct {
 	RefID   string `json:"refId"`
-	Expr    string `json:"expr"`
-	Instant bool   `json:"instant"`
+	Expr    string `json:"expr,omitempty"`
+	Instant bool   `json:"instant,omitempty"`
+
+	// Datasource reference (used by SQL and expression nodes).
+	Datasource *ModelDatasource `json:"datasource,omitempty"`
+
+	// ClickHouse / SQL datasource query.
+	RawSQL    string `json:"rawSql,omitempty"`
+	QueryType string `json:"queryType,omitempty"`
+
+	// Server-side expression nodes (reduce, threshold).
+	Type       string           `json:"type,omitempty"`
+	Expression string           `json:"expression,omitempty"`
+	Reducer    string           `json:"reducer,omitempty"`
+	Conditions []ModelCondition `json:"conditions,omitempty"`
+}
+
+// ModelDatasource references a datasource within a query/expression model.
+type ModelDatasource struct {
+	Type string `json:"type"`
+	UID  string `json:"uid"`
+}
+
+// ModelCondition represents a server-side expression threshold condition.
+type ModelCondition struct {
+	Evaluator ModelEvaluator `json:"evaluator"`
+}
+
+// ModelEvaluator represents a threshold evaluator (e.g. "gt").
+type ModelEvaluator struct {
+	Type   string    `json:"type"`
+	Params []float64 `json:"params"`
 }
 
 // Data represents grafana API alert rule data.

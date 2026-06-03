@@ -781,6 +781,20 @@ func (c *Client) GetDatasourceUIDByID(ctx context.Context, id int64) (string, er
 	return ds.UID, nil
 }
 
+// GetDatasourceUIDByName returns the UID of the datasource with the given name (e.g. "ClickHouse").
+func (c *Client) GetDatasourceUIDByName(ctx context.Context, name string) (string, error) {
+	grafanaClient, err := c.createGrafanaClient(ctx)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to create grafana client")
+	}
+
+	ds, err := grafanaClient.DataSourceByName(name)
+	if err != nil {
+		return "", err
+	}
+	return ds.UID, nil
+}
+
 // CreateFolder creates grafana folder.
 func (c *Client) CreateFolder(ctx context.Context, title string) (*gapi.Folder, error) {
 	grafanaClient, err := c.createGrafanaClient(ctx)

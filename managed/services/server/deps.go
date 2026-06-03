@@ -117,3 +117,8 @@ type victoriaMetricsParams interface {
 type nomadService interface {
 	UpdateConfiguration(settings *models.Settings) error
 }
+
+// logsClickhouseService applies the log/trace retention TTL to the ClickHouse logs/traces tables.
+type logsClickhouseService interface {
+	ApplyTTL(retention time.Duration) error
+}

@@ -69,6 +69,14 @@ func Run() {
 		prepareLogger(cfg, logStore, l)
 
 		supervisor := supervisor.NewSupervisor(ctx, v, configStorage)
+		if cfg.LogShip {
+			// Also ship pmm-agent's own logs (in addition to stderr and the in-memory store) through the
+			// same supervisor channel the client drains.
+			logrus.SetOutput(io.MultiWriter(os.Stderr, logStore, supervisor.LogWriter("pmm-agent", map[string]string{
+				"pmm.agent_id": cfg.ID,
+				"pmm.source":   "client",
+			})))
+		}
 		connectionChecker := connectionchecker.New(configStorage)
 		serviceInfoBroker := serviceinfobroker.New(configStorage)
 		r := runner.New(cfg.RunnerCapacity, cfg.RunnerMaxConnectionsPerService)

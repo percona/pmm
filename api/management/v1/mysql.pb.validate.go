@@ -209,6 +209,8 @@ func (m *AddMySQLServiceParams) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for WatchLogs
+
 	if len(errors) > 0 {
 		return AddMySQLServiceParamsMultiError(errors)
 	}
@@ -276,8 +278,7 @@ func (e AddMySQLServiceParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddMySQLServiceParamsValidationError{}
@@ -497,8 +498,7 @@ func (e MySQLServiceResultValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = MySQLServiceResultValidationError{}

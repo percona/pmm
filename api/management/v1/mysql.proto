@@ -99,6 +99,10 @@ message AddMySQLServiceParams {
   google.protobuf.Duration connection_timeout = 34 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
+  // Watch this service's database log files and ship them to PMM Server.
+  bool watch_logs = 35;
+  // Absolute paths of the database log files to watch (e.g. the MySQL error log).
+  repeated string log_files = 36;
 }
 
 message MySQLServiceResult {

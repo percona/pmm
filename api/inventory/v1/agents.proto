@@ -34,6 +34,15 @@ enum AgentType {
   AGENT_TYPE_AZURE_DATABASE_EXPORTER = 15;
   AGENT_TYPE_NOMAD_AGENT = 16;
   AGENT_TYPE_RTA_MONGODB_AGENT = 19;
+  AGENT_TYPE_DB_LOG_WATCHER_AGENT = 20;
+}
+
+// WatchedLog identifies a single database log file to watch and its type.
+message WatchedLog {
+  // Absolute path of the log file on the client node.
+  string path = 1;
+  // Log type: error, slow or general.
+  string type = 2;
 }
 
 // PMMAgent runs on Generic or Container Node.
@@ -468,6 +477,34 @@ message QANMySQLSlowlogAgent {
   map<string, string> extra_dsn_params = 23;
 }
 
+// DBLogWatcherAgent runs within pmm-agent and ships watched database log files to the PMM Server.
+message DBLogWatcherAgent {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 2;
+  // Desired Agent status: enabled (false) or disabled (true).
+  bool disabled = 3;
+  // Service identifier.
+  string service_id = 4;
+  // Database engine: mysql, postgresql, mongodb, valkey or redis.
+  string db_system = 5;
+  // Log files being watched and shipped.
+  repeated WatchedLog watched_logs = 6;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 7;
+
+  //
+  // Status fields below.
+  //
+
+  // Actual Agent status.
+  AgentStatus status = 20;
+  string process_exec_path = 21;
+  // Log level for the agent.
+  LogLevel log_level = 22;
+}
+
 // QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
 message QANMongoDBProfilerAgent {
   reserved 8; // TODO https://jira.percona.com/browse/PMM-4650
@@ -805,6 +842,7 @@ message ListAgentsResponse {
   repeated NomadAgent nomad_agent = 16;
   repeated ValkeyExporter valkey_exporter = 17;
   repeated RTAMongoDBAgent rta_mongodb_agent = 19;
+  repeated DBLogWatcherAgent db_log_watcher_agent = 20;
 }
 
 // Get
@@ -835,6 +873,7 @@ message GetAgentResponse {
     NomadAgent nomad_agent = 16;
     ValkeyExporter valkey_exporter = 17;
     RTAMongoDBAgent rta_mongodb_agent = 19;
+    DBLogWatcherAgent db_log_watcher_agent = 20;
   }
 }
 

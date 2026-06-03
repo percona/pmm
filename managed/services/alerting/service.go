@@ -640,14 +640,17 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		return nil, errors.Wrap(err, "failed to fill rule expression with parameters")
 	}
 
-	for _, filter := range req.Filters {
-		switch filter.Type {
-		case alerting.FilterType_FILTER_TYPE_MATCH:
-			expr = fmt.Sprintf(`label_match(%s, "%s", "%s")`, expr, filter.Label, filter.Regexp)
-		case alerting.FilterType_FILTER_TYPE_MISMATCH:
-			expr = fmt.Sprintf(`label_mismatch(%s, "%s", "%s")`, expr, filter.Label, filter.Regexp)
-		default:
-			return nil, errors.Errorf("unknown filter type: %T", filter)
+	// Label filters apply to PromQL/metrics rules only.
+	if sourceTemplate.Datasource == alert.DatasourceMetrics {
+		for _, filter := range req.Filters {
+			switch filter.Type {
+			case alerting.FilterType_FILTER_TYPE_MATCH:
+				expr = fmt.Sprintf(`label_match(%s, "%s", "%s")`, expr, filter.Label, filter.Regexp)
+			case alerting.FilterType_FILTER_TYPE_MISMATCH:
+				expr = fmt.Sprintf(`label_mismatch(%s, "%s", "%s")`, expr, filter.Label, filter.Regexp)
+			default:
+				return nil, errors.Errorf("unknown filter type: %T", filter)
+			}
 		}
 	}
 
@@ -683,8 +686,14 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 	labels["severity"] = common.Severity(req.Severity).String()
 	labels["template_name"] = req.TemplateName
 
-	rule := services.Rule{
-		GrafanaAlert: services.GrafanaAlert{
+	var grafanaAlert services.GrafanaAlert
+	if sourceTemplate.Datasource == alert.DatasourceClickHouse {
+		grafanaAlert, err = s.clickhouseGrafanaAlert(ctx, req.Name, expr, paramsValues)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		grafanaAlert = services.GrafanaAlert{
 			Title:        req.Name,
 			Condition:    "A",
 			NoDataState:  "OK",
@@ -702,10 +711,14 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 					},
 				},
 			},
-		},
-		For:         forDuration.String(),
-		Annotations: annotations,
-		Labels:      labels,
+		}
+	}
+
+	rule := services.Rule{
+		GrafanaAlert: grafanaAlert,
+		For:          forDuration.String(),
+		Annotations:  annotations,
+		Labels:       labels,
 	}
 
 	// TODO: align it with grafanas default value: https://grafana.com/docs/grafana/v9.0/setup-grafana/configure-grafana/#min_interval
@@ -720,6 +733,73 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 	}
 
 	return &alerting.CreateRuleResponse{}, nil
+}
+
+const (
+	clickhouseDatasourceName = "ClickHouseLogs"
+	clickhouseDatasourceType = "grafana-clickhouse-datasource"
+	exprDatasourceUID        = "__expr__"
+	// logAlertTimeRange is the relative time window (seconds) over which the log query is evaluated.
+	logAlertTimeRange = 300
+)
+
+// clickhouseGrafanaAlert builds a 3-node Grafana rule for a ClickHouse log/trace alert:
+// A = SQL query, B = reduce(last), C = threshold(B > threshold). The "threshold" template parameter,
+// if present, sets the threshold; otherwise it defaults to 0 (fire when the query returns any value).
+func (s *Service) clickhouseGrafanaAlert(ctx context.Context, title, rawSQL string, params AlertExprParamsValues) (services.GrafanaAlert, error) {
+	chUID, err := s.grafanaClient.GetDatasourceUIDByName(ctx, clickhouseDatasourceName)
+	if err != nil {
+		return services.GrafanaAlert{}, errors.Wrap(err, "failed to resolve ClickHouse datasource")
+	}
+
+	var threshold float64
+	if v, ok := params.AsStringMap()["threshold"]; ok {
+		threshold, _ = strconv.ParseFloat(v, 64) //nolint:errcheck
+	}
+
+	return services.GrafanaAlert{
+		Title:        title,
+		Condition:    "C",
+		NoDataState:  "OK",
+		ExecErrState: "Alerting",
+		Data: []services.Data{
+			{
+				RefID:             "A",
+				DatasourceUID:     chUID,
+				RelativeTimeRange: services.RelativeTimeRange{From: logAlertTimeRange, To: 0},
+				Model: services.Model{
+					RefID:      "A",
+					Datasource: &services.ModelDatasource{Type: clickhouseDatasourceType, UID: chUID},
+					RawSQL:     rawSQL,
+					QueryType:  "table",
+				},
+			},
+			{
+				RefID:         "B",
+				DatasourceUID: exprDatasourceUID,
+				Model: services.Model{
+					RefID:      "B",
+					Datasource: &services.ModelDatasource{Type: exprDatasourceUID, UID: exprDatasourceUID},
+					Type:       "reduce",
+					Expression: "A",
+					Reducer:    "last",
+				},
+			},
+			{
+				RefID:         "C",
+				DatasourceUID: exprDatasourceUID,
+				Model: services.Model{
+					RefID:      "C",
+					Datasource: &services.ModelDatasource{Type: exprDatasourceUID, UID: exprDatasourceUID},
+					Type:       "threshold",
+					Expression: "B",
+					Conditions: []services.ModelCondition{
+						{Evaluator: services.ModelEvaluator{Type: "gt", Params: []float64{threshold}}},
+					},
+				},
+			},
+		},
+	}, nil
 }
 
 func convertParamsValuesToModel(params []*alerting.ParamValue) (AlertExprParamsValues, error) {

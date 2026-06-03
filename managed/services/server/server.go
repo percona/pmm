@@ -65,6 +65,7 @@ type Server struct {
 	haService            haService
 	updater              *Updater
 	nomad                nomadService
+	logsClickhouse       logsClickhouseService
 
 	l *logrus.Entry
 
@@ -100,6 +101,7 @@ type Params struct {
 	Dus                  *distribution.Service
 	HAService            haService
 	Nomad                nomadService
+	LogsClickhouse       logsClickhouseService
 }
 
 // NewServer returns new server for Server service.
@@ -125,6 +127,7 @@ func NewServer(params *Params) (*Server, error) {
 		updater:              params.Updater,
 		haService:            params.HAService,
 		nomad:                params.Nomad,
+		logsClickhouse:       params.LogsClickhouse,
 		l:                    logrus.WithField("component", "server"),
 		pmmUpdateAuthFile:    path,
 		envSettings:          &models.ChangeSettingsParams{},
@@ -488,6 +491,7 @@ func (s *Server) convertSettings(settings *models.Settings, disableInternalPgQan
 			FrequentInterval: durationpb.New(settings.SaaS.AdvisorRunIntervals.FrequentInterval),
 		},
 		DataRetention:        durationpb.New(settings.DataRetention),
+		LogsRetention:        durationpb.New(settings.LogsRetention),
 		SshKey:               settings.SSHKey,
 		AwsPartitions:        settings.AWSPartitions,
 		AdvisorEnabled:       settings.IsAdvisorsEnabled(),
@@ -661,6 +665,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 				LR: metricsRes.GetLr().AsDuration(),
 			},
 			DataRetention: req.DataRetention.AsDuration(),
+			LogsRetention: req.LogsRetention.AsDuration(),
 			SSHKey:        req.SshKey,
 		}
 
@@ -734,6 +739,13 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		s.templatesService.CollectTemplates(ctx)
 		if !advisorsStarted {
 			s.checksService.UpdateAdvisorsList(ctx)
+		}
+	}
+
+	// Apply the log/trace retention TTL to ClickHouse when it changes (instant, no qan-api2 restart).
+	if s.logsClickhouse != nil && oldSettings.LogsRetention != newSettings.LogsRetention {
+		if err := s.logsClickhouse.ApplyTTL(newSettings.LogsRetention); err != nil {
+			s.l.Errorf("Failed to apply logs retention TTL: %s", err)
 		}
 	}
 

@@ -1,0 +1,7 @@
+# otelcol-contrib (OpenTelemetry Collector, contrib distribution) version.
+# IMPORTANT: the clickhouseexporter schema is version-sensitive. This MUST stay in sync with the
+# ClickHouse OTel schema in qan-api2/migrations/sql/23_logs.up.sql and 24_traces.up.sql — bump together.
+otelcol_version: "0.120.0"
+otelcol_arch_map:
+  x86_64: amd64
+  aarch64: arm64

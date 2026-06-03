@@ -34,6 +34,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/percona/pmm/agent/agents"
+	"github.com/percona/pmm/agent/agents/logs/dbwatcher"
 	"github.com/percona/pmm/agent/agents/mongodb/mongolog"
 	mongoprofiler "github.com/percona/pmm/agent/agents/mongodb/profiler"
 	mongorta "github.com/percona/pmm/agent/agents/mongodb/realtimeanalytics"
@@ -49,6 +50,7 @@ import (
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	agentlocal "github.com/percona/pmm/api/agentlocal/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	logshipv1 "github.com/percona/pmm/api/logship/v1"
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 )
 
@@ -56,6 +58,7 @@ const (
 	changesBufferSize     = 100
 	qanRequestsBufferSize = 100
 	rtaRequestsBufferSize = 100
+	logRequestsBufferSize = 1000 // logs are higher volume than RTA/QAN.
 )
 
 // configGetter allows for getting a config.
@@ -73,6 +76,7 @@ type Supervisor struct {
 	changes        chan *agentv1.StateChangedRequest
 	qanRequests    chan *agentv1.QANCollectRequest
 	rtaRequests    chan *rtav1.CollectRequest
+	logRequests    chan *logshipv1.ShipRequest
 	l              *logrus.Entry
 
 	rw             sync.RWMutex
@@ -118,6 +122,7 @@ func NewSupervisor(ctx context.Context, av agentVersioner, cfg configGetter) *Su
 		changes:        make(chan *agentv1.StateChangedRequest, changesBufferSize),
 		qanRequests:    make(chan *agentv1.QANCollectRequest, qanRequestsBufferSize),
 		rtaRequests:    make(chan *rtav1.CollectRequest, rtaRequestsBufferSize),
+		logRequests:    make(chan *logshipv1.ShipRequest, logRequestsBufferSize),
 		l:              logrus.WithField("component", "supervisor"),
 
 		agentProcesses: make(map[string]*agentProcessInfo),
@@ -227,6 +232,41 @@ func (s *Supervisor) QANRequests() <-chan *agentv1.QANCollectRequest {
 // RTARequests returns channel with Agent's RTA Collect requests.
 func (s *Supervisor) RTARequests() <-chan *rtav1.CollectRequest {
 	return s.rtaRequests
+}
+
+// LogRequests returns the channel with log records to be shipped to pmm-managed. It must be read until
+// it is closed.
+func (s *Supervisor) LogRequests() <-chan *logshipv1.ShipRequest {
+	return s.logRequests
+}
+
+// LogWriter returns an io.Writer that ships every written line to pmm-managed as a log record tagged
+// with the given service name and resource attributes. Lines are dropped (never blocking the writer)
+// when the buffer is full. It is also used for pmm-agent's own logs (see agent/commands/run.go).
+func (s *Supervisor) LogWriter(serviceName string, attrs map[string]string) io.Writer {
+	return &logShipWriter{serviceName: serviceName, attrs: attrs, ch: s.logRequests}
+}
+
+// logShipWriter forwards each written log line to the supervisor's logRequests channel.
+type logShipWriter struct {
+	serviceName string
+	attrs       map[string]string
+	ch          chan<- *logshipv1.ShipRequest
+}
+
+func (w *logShipWriter) Write(b []byte) (int, error) {
+	if line := strings.TrimRight(string(b), "\n"); line != "" {
+		req := &logshipv1.ShipRequest{
+			ServiceName:        w.serviceName,
+			ResourceAttributes: w.attrs,
+			Records:            []*logshipv1.LogRecord{{Time: timestamppb.Now(), Body: line}},
+		}
+		select {
+		case w.ch <- req:
+		default: // drop to never block agent logging
+		}
+	}
+	return len(b), nil
 }
 
 // SetState starts or updates all agents placed in args and stops all agents not placed in args, but already run.
@@ -475,7 +515,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 	ctx, cancel := context.WithCancel(s.ctx)
 	agentType := trimPrefix(agentProcess.Type.String())
 	logStore := tailog.NewStore(s.cfg.Get().LogLinesCount)
-	l := s.agentLogger(logStore).WithFields(logrus.Fields{
+	l := s.agentLogger(logStore, agentID, agentType).WithFields(logrus.Fields{
 		"component": "agent-process",
 		"agentID":   agentID,
 		"type":      agentType,
@@ -562,7 +602,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 	ctx, cancel := context.WithCancel(s.ctx)
 	agentType := trimPrefix(builtinAgent.Type.String())
 	logStore := tailog.NewStore(cfg.LogLinesCount)
-	l := s.agentLogger(logStore).WithFields(logrus.Fields{
+	l := s.agentLogger(logStore, agentID, agentType).WithFields(logrus.Fields{
 		"component": "agent-builtin",
 		"agentID":   agentID,
 		"type":      agentType,
@@ -660,6 +700,20 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 		}
 		agent, err = mongorta.New(params, l)
 
+	case inventoryv1.AgentType_AGENT_TYPE_DB_LOG_WATCHER_AGENT:
+		files := make([]dbwatcher.WatchedFile, 0, len(builtinAgent.WatchedLogs))
+		for _, wl := range builtinAgent.WatchedLogs {
+			files = append(files, dbwatcher.WatchedFile{Path: wl.Path, Type: wl.Type})
+		}
+		params := &dbwatcher.Params{
+			AgentID:     agentID,
+			ServiceID:   builtinAgent.ServiceId,
+			ServiceName: builtinAgent.ServiceName,
+			DBSystem:    builtinAgent.DbSystem,
+			Files:       files,
+		}
+		agent, err = dbwatcher.New(params, l)
+
 	case type_TEST_NOOP:
 		agent = noop.New()
 
@@ -712,6 +766,14 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 					Queries: change.RTAQueriesBucket,
 				}
 			}
+
+			for _, req := range change.LogShipRequests {
+				// Non-blocking: drop under backpressure so the watcher is never blocked by a slow channel.
+				select {
+				case s.logRequests <- req:
+				default:
+				}
+			}
 		}
 		close(done)
 	}()
@@ -728,10 +790,18 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 	return nil
 }
 
-// agentLogger write logs to Store so can get last N.
-func (s *Supervisor) agentLogger(logStore *tailog.Store) *logrus.Logger {
+// agentLogger writes logs to Store (so we can get the last N) and, when log shipping is enabled, also
+// ships them to pmm-managed tagged with the agent type and id.
+func (s *Supervisor) agentLogger(logStore *tailog.Store, agentID, agentType string) *logrus.Logger {
+	writers := []io.Writer{os.Stderr, logStore}
+	if s.cfg.Get().LogShip {
+		writers = append(writers, s.LogWriter(agentType, map[string]string{
+			"pmm.agent_id": agentID,
+			"pmm.source":   "client",
+		}))
+	}
 	return &logrus.Logger{
-		Out:          io.MultiWriter(os.Stderr, logStore),
+		Out:          io.MultiWriter(writers...),
 		Hooks:        logrus.StandardLogger().Hooks,
 		Formatter:    logrus.StandardLogger().Formatter,
 		ReportCaller: logrus.StandardLogger().ReportCaller,
@@ -881,6 +951,7 @@ func (s *Supervisor) stopAll() {
 	s.l.Infof("Done.")
 	close(s.qanRequests)
 	close(s.rtaRequests)
+	close(s.logRequests)
 	close(s.changes)
 }
 

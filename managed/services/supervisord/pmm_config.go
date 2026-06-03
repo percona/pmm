@@ -149,6 +149,20 @@ stdout_logfile_backups = 2
 redirect_stderr = true
 {{- end }}
 
+[program:otelcol]
+priority = 3
+command = /usr/sbin/otelcol-contrib --config=/etc/otelcol/config.yaml
+autorestart = true
+autostart = true
+startretries = 10
+startsecs = 1
+stopsignal = TERM
+stopwaitsecs = 30
+stdout_logfile = /srv/logs/otelcol.log
+stdout_logfile_maxbytes = 30MB
+stdout_logfile_backups = 2
+redirect_stderr = true
+
 [program:nginx]
 priority = 4
 command = nginx

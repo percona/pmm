@@ -38,6 +38,109 @@ var (
 // define the regex for a UUID once up-front
 var _agents_uuidPattern = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
 
+// Validate checks the field values on WatchedLog with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *WatchedLog) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on WatchedLog with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in WatchedLogMultiError, or
+// nil if none found.
+func (m *WatchedLog) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *WatchedLog) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Path
+
+	// no validation rules for Type
+
+	if len(errors) > 0 {
+		return WatchedLogMultiError(errors)
+	}
+
+	return nil
+}
+
+// WatchedLogMultiError is an error wrapping multiple validation errors
+// returned by WatchedLog.ValidateAll() if the designated constraints aren't met.
+type WatchedLogMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m WatchedLogMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m WatchedLogMultiError) AllErrors() []error { return m }
+
+// WatchedLogValidationError is the validation error returned by
+// WatchedLog.Validate if the designated constraints aren't met.
+type WatchedLogValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e WatchedLogValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e WatchedLogValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e WatchedLogValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e WatchedLogValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e WatchedLogValidationError) ErrorName() string { return "WatchedLogValidationError" }
+
+// Error satisfies the builtin error interface
+func (e WatchedLogValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sWatchedLog.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = WatchedLogValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = WatchedLogValidationError{}
+
 // Validate checks the field values on PMMAgent with the rules defined in the
 // proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
@@ -134,8 +237,7 @@ func (e PMMAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = PMMAgentValidationError{}
@@ -243,8 +345,7 @@ func (e VMAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = VMAgentValidationError{}
@@ -355,8 +456,7 @@ func (e NomadAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = NomadAgentValidationError{}
@@ -504,8 +604,7 @@ func (e NodeExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = NodeExporterValidationError{}
@@ -705,8 +804,7 @@ func (e MySQLdExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = MySQLdExporterValidationError{}
@@ -896,8 +994,7 @@ func (e MongoDBExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = MongoDBExporterValidationError{}
@@ -1087,8 +1184,7 @@ func (e PostgresExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = PostgresExporterValidationError{}
@@ -1274,8 +1370,7 @@ func (e ProxySQLExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ProxySQLExporterValidationError{}
@@ -1459,8 +1554,7 @@ func (e ValkeyExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ValkeyExporterValidationError{}
@@ -1598,8 +1692,7 @@ func (e QANMySQLPerfSchemaAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QANMySQLPerfSchemaAgentValidationError{}
@@ -1739,8 +1832,7 @@ func (e QANMySQLSlowlogAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QANMySQLSlowlogAgentValidationError{}
@@ -1752,6 +1844,160 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = QANMySQLSlowlogAgentValidationError{}
+
+// Validate checks the field values on DBLogWatcherAgent with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *DBLogWatcherAgent) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on DBLogWatcherAgent with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// DBLogWatcherAgentMultiError, or nil if none found.
+func (m *DBLogWatcherAgent) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *DBLogWatcherAgent) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for AgentId
+
+	// no validation rules for PmmAgentId
+
+	// no validation rules for Disabled
+
+	// no validation rules for ServiceId
+
+	// no validation rules for DbSystem
+
+	for idx, item := range m.GetWatchedLogs() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, DBLogWatcherAgentValidationError{
+						field:  fmt.Sprintf("WatchedLogs[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, DBLogWatcherAgentValidationError{
+						field:  fmt.Sprintf("WatchedLogs[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return DBLogWatcherAgentValidationError{
+					field:  fmt.Sprintf("WatchedLogs[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	// no validation rules for CustomLabels
+
+	// no validation rules for Status
+
+	// no validation rules for ProcessExecPath
+
+	// no validation rules for LogLevel
+
+	if len(errors) > 0 {
+		return DBLogWatcherAgentMultiError(errors)
+	}
+
+	return nil
+}
+
+// DBLogWatcherAgentMultiError is an error wrapping multiple validation errors
+// returned by DBLogWatcherAgent.ValidateAll() if the designated constraints
+// aren't met.
+type DBLogWatcherAgentMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m DBLogWatcherAgentMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m DBLogWatcherAgentMultiError) AllErrors() []error { return m }
+
+// DBLogWatcherAgentValidationError is the validation error returned by
+// DBLogWatcherAgent.Validate if the designated constraints aren't met.
+type DBLogWatcherAgentValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e DBLogWatcherAgentValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e DBLogWatcherAgentValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e DBLogWatcherAgentValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e DBLogWatcherAgentValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e DBLogWatcherAgentValidationError) ErrorName() string {
+	return "DBLogWatcherAgentValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e DBLogWatcherAgentValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sDBLogWatcherAgent.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = DBLogWatcherAgentValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = DBLogWatcherAgentValidationError{}
 
 // Validate checks the field values on QANMongoDBProfilerAgent with the rules
 // defined in the proto definition for this message. If any rules are
@@ -1866,8 +2112,7 @@ func (e QANMongoDBProfilerAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QANMongoDBProfilerAgentValidationError{}
@@ -1993,8 +2238,7 @@ func (e QANMongoDBMongologAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QANMongoDBMongologAgentValidationError{}
@@ -2123,8 +2367,7 @@ func (e RTAOptionsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = RTAOptionsValidationError{}
@@ -2273,8 +2516,7 @@ func (e RTAMongoDBAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = RTAMongoDBAgentValidationError{}
@@ -2403,8 +2645,7 @@ func (e QANPostgreSQLPgStatementsAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QANPostgreSQLPgStatementsAgentValidationError{}
@@ -2535,8 +2776,7 @@ func (e QANPostgreSQLPgStatMonitorAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QANPostgreSQLPgStatMonitorAgentValidationError{}
@@ -2692,8 +2932,7 @@ func (e RDSExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = RDSExporterValidationError{}
@@ -2848,8 +3087,7 @@ func (e ExternalExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ExternalExporterValidationError{}
@@ -3004,8 +3242,7 @@ func (e AzureDatabaseExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AzureDatabaseExporterValidationError{}
@@ -3074,6 +3311,7 @@ func (m *ChangeCommonAgentParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -3102,6 +3340,7 @@ func (m *ChangeCommonAgentParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -3175,8 +3414,7 @@ func (e ChangeCommonAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeCommonAgentParamsValidationError{}
@@ -3286,8 +3524,7 @@ func (e ListAgentsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListAgentsRequestValidationError{}
@@ -3968,6 +4205,40 @@ func (m *ListAgentsResponse) validate(all bool) error {
 
 	}
 
+	for idx, item := range m.GetDbLogWatcherAgent() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ListAgentsResponseValidationError{
+						field:  fmt.Sprintf("DbLogWatcherAgent[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ListAgentsResponseValidationError{
+						field:  fmt.Sprintf("DbLogWatcherAgent[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ListAgentsResponseValidationError{
+					field:  fmt.Sprintf("DbLogWatcherAgent[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
 	if len(errors) > 0 {
 		return ListAgentsResponseMultiError(errors)
 	}
@@ -4035,8 +4306,7 @@ func (e ListAgentsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListAgentsResponseValidationError{}
@@ -4147,8 +4417,7 @@ func (e GetAgentRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetAgentRequestValidationError{}
@@ -4963,6 +5232,47 @@ func (m *GetAgentResponse) validate(all bool) error {
 			}
 		}
 
+	case *GetAgentResponse_DbLogWatcherAgent:
+		if v == nil {
+			err := GetAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetDbLogWatcherAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetAgentResponseValidationError{
+						field:  "DbLogWatcherAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetAgentResponseValidationError{
+						field:  "DbLogWatcherAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetDbLogWatcherAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetAgentResponseValidationError{
+					field:  "DbLogWatcherAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	default:
 		_ = v // ensures v is used
 	}
@@ -5032,8 +5342,7 @@ func (e GetAgentResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetAgentResponseValidationError{}
@@ -5148,8 +5457,7 @@ func (e GetAgentLogsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetAgentLogsRequestValidationError{}
@@ -5253,8 +5561,7 @@ func (e GetAgentLogsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetAgentLogsResponseValidationError{}
@@ -6056,8 +6363,7 @@ func (e AddAgentRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddAgentRequestValidationError{}
@@ -6859,8 +7165,7 @@ func (e AddAgentResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddAgentResponseValidationError{}
@@ -7675,8 +7980,7 @@ func (e ChangeAgentRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeAgentRequestValidationError{}
@@ -8480,8 +8784,7 @@ func (e ChangeAgentResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeAgentResponseValidationError{}
@@ -8596,8 +8899,7 @@ func (e AddPMMAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddPMMAgentParamsValidationError{}
@@ -8718,8 +9020,7 @@ func (e AddNodeExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddNodeExporterParamsValidationError{}
@@ -8788,6 +9089,7 @@ func (m *ChangeNodeExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -8816,6 +9118,7 @@ func (m *ChangeNodeExporterParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -8897,8 +9200,7 @@ func (e ChangeNodeExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeNodeExporterParamsValidationError{}
@@ -9091,8 +9393,7 @@ func (e AddMySQLdExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddMySQLdExporterParamsValidationError{}
@@ -9191,6 +9492,7 @@ func (m *ChangeMySQLdExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -9219,6 +9521,7 @@ func (m *ChangeMySQLdExporterParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -9340,8 +9643,7 @@ func (e ChangeMySQLdExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeMySQLdExporterParamsValidationError{}
@@ -9529,8 +9831,7 @@ func (e AddMongoDBExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddMongoDBExporterParamsValidationError{}
@@ -9629,6 +9930,7 @@ func (m *ChangeMongoDBExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -9657,6 +9959,7 @@ func (m *ChangeMongoDBExporterParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -9791,8 +10094,7 @@ func (e ChangeMongoDBExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeMongoDBExporterParamsValidationError{}
@@ -9985,8 +10287,7 @@ func (e AddPostgresExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddPostgresExporterParamsValidationError{}
@@ -10085,6 +10386,7 @@ func (m *ChangePostgresExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -10113,6 +10415,7 @@ func (m *ChangePostgresExporterParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -10239,8 +10542,7 @@ func (e ChangePostgresExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangePostgresExporterParamsValidationError{}
@@ -10423,8 +10725,7 @@ func (e AddProxySQLExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddProxySQLExporterParamsValidationError{}
@@ -10523,6 +10824,7 @@ func (m *ChangeProxySQLExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -10551,6 +10853,7 @@ func (m *ChangeProxySQLExporterParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -10653,8 +10956,7 @@ func (e ChangeProxySQLExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeProxySQLExporterParamsValidationError{}
@@ -10818,8 +11120,7 @@ func (e AddQANMySQLPerfSchemaAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddQANMySQLPerfSchemaAgentParamsValidationError{}
@@ -10889,6 +11190,7 @@ func (m *ChangeQANMySQLPerfSchemaAgentParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -10917,6 +11219,7 @@ func (m *ChangeQANMySQLPerfSchemaAgentParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -11040,8 +11343,7 @@ func (e ChangeQANMySQLPerfSchemaAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeQANMySQLPerfSchemaAgentParamsValidationError{}
@@ -11205,8 +11507,7 @@ func (e AddQANMySQLSlowlogAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddQANMySQLSlowlogAgentParamsValidationError{}
@@ -11276,6 +11577,7 @@ func (m *ChangeQANMySQLSlowlogAgentParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -11304,6 +11606,7 @@ func (m *ChangeQANMySQLSlowlogAgentParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -11431,8 +11734,7 @@ func (e ChangeQANMySQLSlowlogAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeQANMySQLSlowlogAgentParamsValidationError{}
@@ -11585,8 +11887,7 @@ func (e AddQANMongoDBProfilerAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddQANMongoDBProfilerAgentParamsValidationError{}
@@ -11656,6 +11957,7 @@ func (m *ChangeQANMongoDBProfilerAgentParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -11684,6 +11986,7 @@ func (m *ChangeQANMongoDBProfilerAgentParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -11803,8 +12106,7 @@ func (e ChangeQANMongoDBProfilerAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeQANMongoDBProfilerAgentParamsValidationError{}
@@ -11957,8 +12259,7 @@ func (e AddQANMongoDBMongologAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddQANMongoDBMongologAgentParamsValidationError{}
@@ -12028,6 +12329,7 @@ func (m *ChangeQANMongoDBMongologAgentParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -12056,6 +12358,7 @@ func (m *ChangeQANMongoDBMongologAgentParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -12175,8 +12478,7 @@ func (e ChangeQANMongoDBMongologAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeQANMongoDBMongologAgentParamsValidationError{}
@@ -12337,8 +12639,7 @@ func (e AddQANPostgreSQLPgStatementsAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddQANPostgreSQLPgStatementsAgentParamsValidationError{}
@@ -12409,6 +12710,7 @@ func (m *ChangeQANPostgreSQLPgStatementsAgentParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -12437,6 +12739,7 @@ func (m *ChangeQANPostgreSQLPgStatementsAgentParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -12552,8 +12855,7 @@ func (e ChangeQANPostgreSQLPgStatementsAgentParamsValidationError) Error() strin
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeQANPostgreSQLPgStatementsAgentParamsValidationError{}
@@ -12716,8 +13018,7 @@ func (e AddQANPostgreSQLPgStatMonitorAgentParamsValidationError) Error() string 
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddQANPostgreSQLPgStatMonitorAgentParamsValidationError{}
@@ -12788,6 +13089,7 @@ func (m *ChangeQANPostgreSQLPgStatMonitorAgentParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -12816,6 +13118,7 @@ func (m *ChangeQANPostgreSQLPgStatMonitorAgentParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -12935,8 +13238,7 @@ func (e ChangeQANPostgreSQLPgStatMonitorAgentParamsValidationError) Error() stri
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeQANPostgreSQLPgStatMonitorAgentParamsValidationError{}
@@ -13076,8 +13378,7 @@ func (e AddRDSExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddRDSExporterParamsValidationError{}
@@ -13146,6 +13447,7 @@ func (m *ChangeRDSExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -13174,6 +13476,7 @@ func (m *ChangeRDSExporterParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -13267,8 +13570,7 @@ func (e ChangeRDSExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeRDSExporterParamsValidationError{}
@@ -13408,8 +13710,7 @@ func (e AddExternalExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddExternalExporterParamsValidationError{}
@@ -13478,6 +13779,7 @@ func (m *ChangeExternalExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -13506,6 +13808,7 @@ func (m *ChangeExternalExporterParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -13596,8 +13899,7 @@ func (e ChangeExternalExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeExternalExporterParamsValidationError{}
@@ -13751,8 +14053,7 @@ func (e AddAzureDatabaseExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddAzureDatabaseExporterParamsValidationError{}
@@ -13822,6 +14123,7 @@ func (m *ChangeAzureDatabaseExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -13850,6 +14152,7 @@ func (m *ChangeAzureDatabaseExporterParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -13949,8 +14252,7 @@ func (e ChangeAzureDatabaseExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeAzureDatabaseExporterParamsValidationError{}
@@ -14056,8 +14358,7 @@ func (e ChangeNomadAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeNomadAgentParamsValidationError{}
@@ -14255,8 +14556,7 @@ func (e AddValkeyExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddValkeyExporterParamsValidationError{}
@@ -14355,6 +14655,7 @@ func (m *ChangeValkeyExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -14383,6 +14684,7 @@ func (m *ChangeValkeyExporterParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -14390,6 +14692,7 @@ func (m *ChangeValkeyExporterParams) validate(all bool) error {
 	}
 
 	if m.Username != nil {
+
 		if utf8.RuneCountInString(m.GetUsername()) < 1 {
 			err := ChangeValkeyExporterParamsValidationError{
 				field:  "Username",
@@ -14400,6 +14703,7 @@ func (m *ChangeValkeyExporterParams) validate(all bool) error {
 			}
 			errors = append(errors, err)
 		}
+
 	}
 
 	if m.Password != nil {
@@ -14505,8 +14809,7 @@ func (e ChangeValkeyExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeValkeyExporterParamsValidationError{}
@@ -14681,8 +14984,7 @@ func (e AddRTAMongoDBAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddRTAMongoDBAgentParamsValidationError{}
@@ -14722,6 +15024,7 @@ func (m *ChangeRTAMongoDBAgentParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -14750,6 +15053,7 @@ func (m *ChangeRTAMongoDBAgentParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.LogLevel != nil {
@@ -14789,6 +15093,7 @@ func (m *ChangeRTAMongoDBAgentParams) validate(all bool) error {
 	}
 
 	if m.RtaOptions != nil {
+
 		if all {
 			switch v := interface{}(m.GetRtaOptions()).(type) {
 			case interface{ ValidateAll() error }:
@@ -14817,6 +15122,7 @@ func (m *ChangeRTAMongoDBAgentParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if len(errors) > 0 {
@@ -14887,8 +15193,7 @@ func (e ChangeRTAMongoDBAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeRTAMongoDBAgentParamsValidationError{}
@@ -15003,8 +15308,7 @@ func (e RemoveAgentRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = RemoveAgentRequestValidationError{}
@@ -15106,8 +15410,7 @@ func (e RemoveAgentResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = RemoveAgentResponseValidationError{}
