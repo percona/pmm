@@ -287,8 +287,8 @@ func getMetricsMode(s bool) string {
 }
 
 func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent {
-	pmmAgentIDs := make(map[string]struct{})
-	agentsList := []listResultAgent{}
+	pmmAgentIDs := make(map[string]struct{}, len(agentsRes.Payload.PMMAgent))
+	agentsList := make([]listResultAgent, 0, len(agentsRes.Payload.PMMAgent))
 
 	agentsList = append(agentsList, pmmAgents(agentsRes, nodeID, pmmAgentIDs)...)
 	agentsList = append(agentsList, nodeExporters(agentsRes, pmmAgentIDs)...)
