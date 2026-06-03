@@ -744,7 +744,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 
 	// Apply the log/trace retention TTL to ClickHouse when it changes (instant, no qan-api2 restart).
 	if s.logsClickhouse != nil && oldSettings.LogsRetention != newSettings.LogsRetention {
-		if err := s.logsClickhouse.ApplyTTL(newSettings.LogsRetention); err != nil {
+		if err := s.logsClickhouse.ApplyTTL(ctx, newSettings.LogsRetention); err != nil {
 			s.l.Errorf("Failed to apply logs retention TTL: %s", err)
 		}
 	}

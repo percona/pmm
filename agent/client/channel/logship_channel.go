@@ -68,40 +68,6 @@ func NewLogShipChannel(stream logshipv1.LogShipService_ShipClient) *LogShipChann
 	return c
 }
 
-// runHealthPing sends an empty ShipRequest periodically to keep the stream alive during quiet periods,
-// the same way RTAChannel does.
-func (c *LogShipChannel) runHealthPing() {
-	pingReq := &logshipv1.ShipRequest{}
-
-	ticker := time.NewTicker(pingInterval)
-	defer ticker.Stop()
-
-	for {
-		select {
-		case <-c.closeWait:
-			return
-		case <-ticker.C:
-			c.Send(pingReq)
-		}
-	}
-}
-
-func (c *LogShipChannel) close(err error) {
-	c.closeOnce.Do(func() {
-		c.l.Debugf("Closing with error: %+v", err)
-		c.closeErr = err
-
-		c.sendM.Lock()
-		_, closeErr := c.s.CloseAndRecv()
-		if closeErr != nil {
-			c.l.Errorf("Failed to receive final response: %v", closeErr)
-		}
-
-		close(c.closeWait)
-		c.sendM.Unlock()
-	})
-}
-
 // Wait blocks until the channel is closed and returns the reason why it was closed.
 func (c *LogShipChannel) Wait() error {
 	<-c.closeWait
@@ -139,6 +105,40 @@ func (c *LogShipChannel) Describe(ch chan<- *prometheus.Desc) {
 // Collect implements prometheus.Collector.
 func (c *LogShipChannel) Collect(ch chan<- prometheus.Metric) {
 	c.mSend.Collect(ch)
+}
+
+// runHealthPing sends an empty ShipRequest periodically to keep the stream alive during quiet periods,
+// the same way RTAChannel does.
+func (c *LogShipChannel) runHealthPing() {
+	pingReq := &logshipv1.ShipRequest{}
+
+	ticker := time.NewTicker(pingInterval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-c.closeWait:
+			return
+		case <-ticker.C:
+			c.Send(pingReq)
+		}
+	}
+}
+
+func (c *LogShipChannel) close(err error) {
+	c.closeOnce.Do(func() {
+		c.l.Debugf("Closing with error: %+v", err)
+		c.closeErr = err
+
+		c.sendM.Lock()
+		_, closeErr := c.s.CloseAndRecv()
+		if closeErr != nil {
+			c.l.Errorf("Failed to receive final response: %v", closeErr)
+		}
+
+		close(c.closeWait)
+		c.sendM.Unlock()
+	})
 }
 
 // check interfaces.

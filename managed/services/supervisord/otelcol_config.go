@@ -17,12 +17,12 @@ package supervisord
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 	"text/template"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/managed/utils/envvars"
@@ -40,11 +40,13 @@ func SaveOtelcolConfig() error {
 	if err != nil {
 		return err
 	}
-	if err := os.MkdirAll(filepath.Dir(otelcolConfig), 0o755); err != nil { //nolint:gosec,mnd
-		return errors.Wrapf(err, "failed to create otelcol config directory")
+	err = os.MkdirAll(filepath.Dir(otelcolConfig), 0o755) //nolint:gosec,mnd
+	if err != nil {
+		return fmt.Errorf("failed to create otelcol config directory: %w", err)
 	}
-	if err := saveConfig(otelcolConfig, cfg); err != nil {
-		return errors.Wrapf(err, "failed to save otelcol config")
+	err = saveConfig(otelcolConfig, cfg)
+	if err != nil {
+		return fmt.Errorf("failed to save otelcol config: %w", err)
 	}
 	logrus.Info("otelcol config.yaml has been updated.")
 	return nil
@@ -54,7 +56,7 @@ func marshalOtelcolConfig() ([]byte, error) {
 	clickhouseAddr := envvars.GetEnv("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
 	clickhouseAddrPair := strings.SplitN(clickhouseAddr, ":", 2) //nolint:mnd
 	if len(clickhouseAddrPair) != 2 {                            //nolint:mnd
-		return nil, errors.Errorf("unexpected PMM_CLICKHOUSE_ADDR format: %q", clickhouseAddr)
+		return nil, fmt.Errorf("unexpected PMM_CLICKHOUSE_ADDR format: %q", clickhouseAddr)
 	}
 
 	params := map[string]any{
@@ -66,8 +68,9 @@ func marshalOtelcolConfig() ([]byte, error) {
 	}
 
 	var buf bytes.Buffer
-	if err := otelcolTemplate.Execute(&buf, params); err != nil {
-		return nil, errors.Wrapf(err, "failed to render otelcol template")
+	err := otelcolTemplate.Execute(&buf, params)
+	if err != nil {
+		return nil, fmt.Errorf("failed to render otelcol template: %w", err)
 	}
 	return buf.Bytes(), nil
 }

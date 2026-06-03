@@ -120,5 +120,5 @@ type nomadService interface {
 
 // logsClickhouseService applies the log/trace retention TTL to the ClickHouse logs/traces tables.
 type logsClickhouseService interface {
-	ApplyTTL(retention time.Duration) error
+	ApplyTTL(ctx context.Context, retention time.Duration) error
 }

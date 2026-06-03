@@ -46,12 +46,12 @@ const exportTimeout = 10 * time.Second
 
 // Service implements the LogShipService gRPC server.
 type Service struct {
+	logshipv1.UnimplementedLogShipServiceServer
+
 	db       *reform.DB
 	endpoint string
 	client   *http.Client
 	l        *logrus.Entry
-
-	logshipv1.UnimplementedLogShipServiceServer
 }
 
 // New creates a new log-shipping service forwarding to the given OTLP/HTTP logs endpoint.
@@ -105,7 +105,8 @@ func (s *Service) Ship(stream grpc.ClientStreamingServer[logshipv1.ShipRequest, 
 
 		// Log shipping is best-effort: on a forwarding error we drop the batch and keep the stream open
 		// rather than disconnecting the agent, since the collector outage is usually transient.
-		if err := s.export(streamCtx, agentMD.ID, msg); err != nil {
+		err = s.export(streamCtx, agentMD.ID, msg)
+		if err != nil {
 			s.l.Warnf("Failed to forward %d log records to the collector: %s", len(msg.Records), err)
 		}
 	}

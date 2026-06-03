@@ -18,12 +18,12 @@ package dbwatcher
 
 import (
 	"context"
+	"fmt"
 	"path/filepath"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -66,12 +66,12 @@ type DBLogWatcher struct {
 }
 
 // New creates a new database log-watcher agent.
-func New(params *Params, l *logrus.Entry) (*DBLogWatcher, error) {
+func New(params *Params, l *logrus.Entry) *DBLogWatcher {
 	return &DBLogWatcher{
 		params:  params,
 		l:       l,
 		changes: make(chan agents.Change, 100), //nolint:mnd
-	}, nil
+	}
 }
 
 // Run tails the configured files until ctx is canceled.
@@ -109,6 +109,17 @@ func (s *DBLogWatcher) Run(ctx context.Context) {
 	s.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING}
 	wg.Wait()
 }
+
+// Changes returns the channel of agent changes.
+func (s *DBLogWatcher) Changes() <-chan agents.Change {
+	return s.changes
+}
+
+// Describe implements prometheus.Collector.
+func (s *DBLogWatcher) Describe(chan<- *prometheus.Desc) {}
+
+// Collect implements prometheus.Collector.
+func (s *DBLogWatcher) Collect(chan<- prometheus.Metric) {}
 
 // watchFile tails a single file, reopening it (with backoff) until ctx is canceled.
 func (s *DBLogWatcher) watchFile(ctx context.Context, path, logType string) {
@@ -196,7 +207,7 @@ func (s *DBLogWatcher) validatePath(p string) (string, error) {
 			}
 		}
 		if !allowed {
-			return "", errors.Errorf("path %q is not within an allowed directory", resolved)
+			return "", fmt.Errorf("path %q is not within an allowed directory", resolved)
 		}
 	}
 	return resolved, nil
@@ -210,17 +221,6 @@ func pathWithin(path, dir string) bool {
 	}
 	return rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator))
 }
-
-// Changes returns the channel of agent changes.
-func (s *DBLogWatcher) Changes() <-chan agents.Change {
-	return s.changes
-}
-
-// Describe implements prometheus.Collector.
-func (s *DBLogWatcher) Describe(chan<- *prometheus.Desc) {}
-
-// Collect implements prometheus.Collector.
-func (s *DBLogWatcher) Collect(chan<- prometheus.Metric) {}
 
 // check interface.
 var _ agents.BuiltinAgent = (*DBLogWatcher)(nil)

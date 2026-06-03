@@ -31,14 +31,13 @@ func TestDBLogWatcherTailsAndShips(t *testing.T) {
 	logPath := filepath.Join(dir, "error.log")
 	require.NoError(t, os.WriteFile(logPath, []byte("preexisting line\n"), 0o600))
 
-	w, err := New(&Params{
+	w := New(&Params{
 		AgentID:     "agent-1",
 		ServiceID:   "service-1",
 		ServiceName: "mysql-svc",
 		DBSystem:    "mysql",
 		Files:       []WatchedFile{{Path: logPath, Type: "error"}},
 	}, logrus.WithField("test", t.Name()))
-	require.NoError(t, err)
 
 	ctx, cancel := context.WithTimeout(t.Context(), 10*time.Second)
 	defer cancel()
@@ -75,12 +74,11 @@ func TestDBLogWatcherTailsAndShips(t *testing.T) {
 }
 
 func TestDBLogWatcherAllowlistRejectsOutsidePaths(t *testing.T) {
-	w, err := New(&Params{
+	w := New(&Params{
 		Files:       []WatchedFile{{Path: "/etc/shadow", Type: "error"}},
 		AllowedDirs: []string{t.TempDir()},
 	}, logrus.WithField("test", t.Name()))
-	require.NoError(t, err)
 
-	_, err = w.validatePath("/etc/shadow")
+	_, err := w.validatePath("/etc/shadow")
 	require.Error(t, err)
 }

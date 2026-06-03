@@ -23,6 +23,7 @@ import (
 	"context"
 	"database/sql"
 	"embed"
+	"errors"
 	"fmt"
 	"io"
 	"net/url"
@@ -33,7 +34,6 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/clickhouse" // register golang-migrate clickhouse driver
 	bindata "github.com/golang-migrate/migrate/v4/source/go_bindata"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/managed/utils/envvars"
@@ -65,8 +65,8 @@ type Service struct {
 	l          *logrus.Entry
 }
 
-// New returns a ClickHouse logs/traces lifecycle service. db is reused for DDL (TTL); golang-migrate
-// opens its own connection from a DSN built out of the same connection parameters.
+// New returns a ClickHouse logs/traces lifecycle service. The db handle is reused for DDL (TTL);
+// golang-migrate opens its own connection from a DSN built out of the same connection parameters.
 func New(db *sql.DB, addr, database, user, password string) *Service {
 	isCluster, _ := strconv.ParseBool(envvars.GetEnv("PMM_CLICKHOUSE_IS_CLUSTER", "false"))
 	dsn := url.URL{
@@ -95,9 +95,9 @@ func (s *Service) Bootstrap(ctx context.Context) error {
 			s.l.Info("logs/traces schema is up to date")
 			return nil
 		case !errors.Is(err, errNotReady):
-			return errors.Wrap(err, "logs/traces migrations failed")
+			return fmt.Errorf("logs/traces migrations failed: %w", err)
 		case attempt >= migrateMaxAttempts:
-			return errors.Wrapf(err, "ClickHouse still not ready after %d attempts", attempt)
+			return fmt.Errorf("ClickHouse still not ready after %d attempts: %w", attempt, err)
 		}
 
 		s.l.Warnf("ClickHouse not ready (attempt %d/%d), retrying in %s: %s", attempt, migrateMaxAttempts, migrateRetryInterval, err)
@@ -118,7 +118,7 @@ func (s *Service) Migrate() error {
 
 	entries, err := migrationsFS.ReadDir("migrations/sql")
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	names := make([]string, 0, len(entries))
 	for _, e := range entries {
@@ -135,7 +135,8 @@ func (s *Service) Migrate() error {
 			return nil, err
 		}
 		var buf bytes.Buffer
-		if err := tmpl.Execute(&buf, data); err != nil {
+		err = tmpl.Execute(&buf, data)
+		if err != nil {
 			return nil, err
 		}
 		return buf.Bytes(), nil
@@ -143,7 +144,7 @@ func (s *Service) Migrate() error {
 
 	src, err := bindata.WithInstance(res)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	dsn, err := s.dsnForMigrate()
@@ -165,36 +166,38 @@ func (s *Service) Migrate() error {
 	}
 
 	// Recover from a dirty migration state by forcing back one version and retrying (PMM-14305).
-	var errDirty *migrate.ErrDirty
-	if errors.As(err, &errDirty) {
+	if errDirty, ok := errors.AsType[*migrate.ErrDirty](err); ok {
 		s.l.Warnf("Migration %d left the schema dirty, attempting recovery...", errDirty.Version)
 		ver := errDirty.Version - 1
 		if ver == 0 {
 			ver = -1 // golang-migrate's "no migration applied" sentinel.
 		}
-		if ferr := m.Force(ver); ferr != nil {
-			return errors.Wrapf(ferr, "can't force migration %d", ver)
+		ferr := m.Force(ver)
+		if ferr != nil {
+			return fmt.Errorf("can't force migration %d: %w", ver, ferr)
 		}
-		if uerr := m.Up(); uerr != nil && !errors.Is(uerr, migrate.ErrNoChange) && !errors.Is(uerr, io.EOF) {
-			return errors.WithStack(uerr)
+		uerr := m.Up()
+		if uerr != nil && !errors.Is(uerr, migrate.ErrNoChange) && !errors.Is(uerr, io.EOF) {
+			return uerr
 		}
 		return nil
 	}
 
-	return errors.WithStack(err)
+	return err
 }
 
 // ApplyTTL sets the retention TTL on the logs and traces tables. In cluster mode the DDL is replicated
 // automatically by the Replicated `pmm` database engine, so no ON CLUSTER clause is needed.
-func (s *Service) ApplyTTL(retention time.Duration) error {
+func (s *Service) ApplyTTL(ctx context.Context, retention time.Duration) error {
 	days := max(int(retention.Hours())/24, 1) //nolint:mnd
 	stmts := []string{
 		fmt.Sprintf("ALTER TABLE %s.logs MODIFY TTL TimestampTime + INTERVAL %d DAY", s.database, days),
 		fmt.Sprintf("ALTER TABLE %s.traces MODIFY TTL toDateTime(Timestamp) + INTERVAL %d DAY", s.database, days),
 	}
 	for _, stmt := range stmts {
-		if _, err := s.db.Exec(stmt); err != nil {
-			return errors.Wrapf(err, "failed to apply TTL (%q)", stmt)
+		_, err := s.db.ExecContext(ctx, stmt)
+		if err != nil {
+			return fmt.Errorf("failed to apply TTL (%q): %w", stmt, err)
 		}
 		s.l.Infof("Applied retention TTL: %s", stmt)
 	}
@@ -211,7 +214,7 @@ func (s *Service) engine() string {
 func (s *Service) dsnForMigrate() (string, error) {
 	u, err := url.Parse(s.migrateDSN)
 	if err != nil {
-		return "", errors.WithStack(err)
+		return "", err
 	}
 	q := u.Query()
 	q.Set("x-migrations-table", migrationsTable)

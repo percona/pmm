@@ -1019,7 +1019,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 			l.Errorf("Could not load settings for initial logs retention TTL: %s", err)
 			return
 		}
-		if err := logsClickhouse.ApplyTTL(settings.LogsRetention); err != nil {
+		if err := logsClickhouse.ApplyTTL(ctx, settings.LogsRetention); err != nil {
 			l.Errorf("Could not apply initial logs retention TTL: %s", err)
 		}
 	}()

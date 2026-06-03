@@ -712,7 +712,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 			DBSystem:    builtinAgent.DbSystem,
 			Files:       files,
 		}
-		agent, err = dbwatcher.New(params, l)
+		agent = dbwatcher.New(params, l)
 
 	case type_TEST_NOOP:
 		agent = noop.New()

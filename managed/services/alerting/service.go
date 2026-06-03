@@ -739,7 +739,7 @@ const (
 	clickhouseDatasourceName = "ClickHouseLogs"
 	clickhouseDatasourceType = "grafana-clickhouse-datasource"
 	exprDatasourceUID        = "__expr__"
-	// logAlertTimeRange is the relative time window (seconds) over which the log query is evaluated.
+	// Relative time window in seconds over which the ClickHouse log query is evaluated.
 	logAlertTimeRange = 300
 )
 
@@ -754,7 +754,7 @@ func (s *Service) clickhouseGrafanaAlert(ctx context.Context, title, rawSQL stri
 
 	var threshold float64
 	if v, ok := params.AsStringMap()["threshold"]; ok {
-		threshold, _ = strconv.ParseFloat(v, 64) //nolint:errcheck
+		threshold, _ = strconv.ParseFloat(v, 64)
 	}
 
 	return services.GrafanaAlert{
