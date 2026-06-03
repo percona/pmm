@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package models
+package main
 
 import (
 	"context"
@@ -58,7 +58,7 @@ func setupDB(t *testing.T) *sqlx.DB {
 	err = migrations.Run(dsn, data, false, "")
 	require.NoError(t, err, "Migration failed")
 
-	cmdStr = `cat ../fixture/metrics.part_*.json | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test_parts --password=clickhouse --query="INSERT INTO metrics FORMAT JSONEachRow"`
+	cmdStr = `cat fixture/metrics.part_*.json | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test_parts --password=clickhouse --query="INSERT INTO metrics FORMAT JSONEachRow"`
 	out, err = exec.CommandContext(t.Context(), "/bin/sh", "-c", cmdStr).Output()
 	require.NoError(t, err, "Docker load fixture: %v", out)
 

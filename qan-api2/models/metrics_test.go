@@ -20,6 +20,7 @@ import (
 	"testing"
 	"time"
 
+	_ "github.com/ClickHouse/clickhouse-go/v2" // register database/sql driver
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
