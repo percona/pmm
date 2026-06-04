@@ -843,7 +843,7 @@ func (a *Agent) ExporterURL(q *reform.Querier) (string, error) {
 	username := pointer.GetString(a.Username)
 	password := pointer.GetString(a.Password)
 
-	host := localhost
+	host := LocalhostAddr
 	if !a.ExporterOptions.PushMetrics {
 		node, err := FindNodeByID(q, *a.RunsOnNodeID)
 		if err != nil {
