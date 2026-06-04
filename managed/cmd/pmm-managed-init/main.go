@@ -68,7 +68,8 @@ func main() {
 	}
 
 	// Render the OpenTelemetry Collector config. Retention is enforced on the ClickHouse tables by
-	// qan-api2, not by the collector, so the collector config does not depend on any setting.
+	// pmm-managed (managed/services/clickhouse), not by the collector, so the collector config does
+	// not depend on any setting.
 	if err := supervisord.SaveOtelcolConfig(); err != nil {
 		logrus.Errorf("OpenTelemetry Collector configuration error: %s.", err)
 		os.Exit(1)
