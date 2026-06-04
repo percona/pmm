@@ -47,9 +47,8 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   const { refetch: refetchSettings } = useSettings({
     enabled: false,
   });
-  const { refetch: refetchFrontendSettings } = useFrontendSettings({
-    enabled: false,
-  });
+  const { data: frontendSettings, refetch: refetchFrontendSettings } =
+    useFrontendSettings({ retry: false });
   const { refetch: refetchServiceTypes } = useServiceTypes({
     enabled: false,
   });
@@ -67,8 +66,10 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   const { colorMode, setFromGrafana } = useColorMode();
 
   useEffect(() => {
-    setIsLoaded(isGrafanaPage && isLoggedIn);
-  }, [isGrafanaPage, isLoggedIn]);
+    const canLoadGrafanaIframe =
+      isLoggedIn || Boolean(frontendSettings?.anonymousEnabled);
+    setIsLoaded(isGrafanaPage && canLoadGrafanaIframe);
+  }, [isGrafanaPage, isLoggedIn, frontendSettings?.anonymousEnabled]);
 
   // Register messenger, set iframe target, and add INCOMING listeners
   useEffect(() => {
