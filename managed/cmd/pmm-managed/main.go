@@ -581,7 +581,7 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 	return true
 }
 
-func getQANClient(ctx context.Context, sqlDB *sql.DB, dbName, qanAPIAddr string) *qan.Client {
+func getQANClient(sqlDB *sql.DB, dbName, qanAPIAddr string) *qan.Client {
 	bc := backoff.DefaultConfig
 	bc.MaxDelay = time.Second
 
@@ -591,12 +591,14 @@ func getQANClient(ctx context.Context, sqlDB *sql.DB, dbName, qanAPIAddr string)
 			Backoff: bc,
 		}),
 		grpc.WithUserAgent("pmm-managed/" + version.Version),
-		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(gRPCMessageMaxSize)),
+		grpc.WithDefaultCallOptions(
+			grpc.MaxCallRecvMsgSize(gRPCMessageMaxSize),
+			// Wait for connection to be ready before sending RPC calls
+			grpc.WaitForReady(true),
+		),
 	}
 
-	// Without grpc.WithBlock() DialContext returns an error only if something very wrong with address or options;
-	// it does not return an error of connection failure but tries to reconnect in the background.
-	conn, err := grpc.DialContext(ctx, qanAPIAddr, opts...)
+	conn, err := grpc.NewClient(qanAPIAddr, opts...)
 	if err != nil {
 		logrus.Fatalf("Failed to connect QAN API %s: %s.", qanAPIAddr, err)
 	}
@@ -901,7 +903,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	minioClient := minio.New()
 
-	qanClient := getQANClient(ctx, sqlDB, *postgresDBNameF, *qanAPIAddrF)
+	qanClient := getQANClient(sqlDB, *postgresDBNameF, *qanAPIAddrF)
 
 	agentsRegistry := agents.NewRegistry(db, vmParams, haService)
 
