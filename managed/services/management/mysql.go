@@ -191,12 +191,13 @@ func (s *ManagementService) addMySQL(ctx context.Context, req *managementv1.AddM
 			for _, f := range req.LogFiles {
 				files = append(files, models.WatchedLogFile{Path: f, Type: "error"})
 			}
-			if _, err := models.CreateAgent(tx.Querier, models.DBLogWatcherAgentType, &models.CreateAgentParams{
+			_, err := models.CreateAgent(tx.Querier, models.DBLogWatcherAgentType, &models.CreateAgentParams{
 				PMMAgentID:        req.PmmAgentId,
 				ServiceID:         service.ServiceID,
 				LogWatcherOptions: models.LogWatcherOptions{Files: files},
 				LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
-			}); err != nil {
+			})
+			if err != nil {
 				return err
 			}
 		}

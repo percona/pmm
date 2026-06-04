@@ -485,6 +485,7 @@ var (
 		v1.AgentStatus(0),           // 8: inventory.v1.AgentStatus
 	}
 )
+
 var file_agentlocal_v1_agentlocal_proto_depIdxs = []int32{
 	6, // 0: agentlocal.v1.ServerInfo.latency:type_name -> google.protobuf.Duration
 	6, // 1: agentlocal.v1.ServerInfo.clock_drift:type_name -> google.protobuf.Duration
