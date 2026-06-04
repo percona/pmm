@@ -2291,6 +2291,19 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 33
+                    },
+                    "watch_logs": {
+                      "description": "Watch this service's database log files and ship them to PMM Server.",
+                      "type": "boolean",
+                      "x-order": 34
+                    },
+                    "log_files": {
+                      "description": "Absolute paths of the database log files to watch (e.g. the MySQL error log).",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 35
                     }
                   },
                   "x-order": 0

@@ -421,6 +421,9 @@ type GetAgentOKBody struct {
 	// azure database exporter
 	AzureDatabaseExporter *GetAgentOKBodyAzureDatabaseExporter `json:"azure_database_exporter,omitempty"`
 
+	// db log watcher agent
+	DBLogWatcherAgent *GetAgentOKBodyDBLogWatcherAgent `json:"db_log_watcher_agent,omitempty"`
+
 	// external exporter
 	ExternalExporter *GetAgentOKBodyExternalExporter `json:"external_exporter,omitempty"`
 
@@ -481,6 +484,10 @@ func (o *GetAgentOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateAzureDatabaseExporter(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateDBLogWatcherAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -576,6 +583,29 @@ func (o *GetAgentOKBody) validateAzureDatabaseExporter(formats strfmt.Registry) 
 			ce := new(errors.CompositeError)
 			if stderrors.As(err, &ce) {
 				return ce.ValidateName("getAgentOk" + "." + "azure_database_exporter")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetAgentOKBody) validateDBLogWatcherAgent(formats strfmt.Registry) error {
+	if swag.IsZero(o.DBLogWatcherAgent) { // not required
+		return nil
+	}
+
+	if o.DBLogWatcherAgent != nil {
+		if err := o.DBLogWatcherAgent.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("getAgentOk" + "." + "db_log_watcher_agent")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("getAgentOk" + "." + "db_log_watcher_agent")
 			}
 
 			return err
@@ -1007,6 +1037,10 @@ func (o *GetAgentOKBody) ContextValidate(ctx context.Context, formats strfmt.Reg
 		res = append(res, err)
 	}
 
+	if err := o.contextValidateDBLogWatcherAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.contextValidateExternalExporter(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -1100,6 +1134,30 @@ func (o *GetAgentOKBody) contextValidateAzureDatabaseExporter(ctx context.Contex
 			ce := new(errors.CompositeError)
 			if stderrors.As(err, &ce) {
 				return ce.ValidateName("getAgentOk" + "." + "azure_database_exporter")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetAgentOKBody) contextValidateDBLogWatcherAgent(ctx context.Context, formats strfmt.Registry) error {
+	if o.DBLogWatcherAgent != nil {
+
+		if swag.IsZero(o.DBLogWatcherAgent) { // not required
+			return nil
+		}
+
+		if err := o.DBLogWatcherAgent.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("getAgentOk" + "." + "db_log_watcher_agent")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("getAgentOk" + "." + "db_log_watcher_agent")
 			}
 
 			return err
@@ -1867,6 +1925,318 @@ func (o *GetAgentOKBodyAzureDatabaseExporterMetricsResolutions) MarshalBinary() 
 // UnmarshalBinary interface implementation
 func (o *GetAgentOKBodyAzureDatabaseExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
 	var res GetAgentOKBodyAzureDatabaseExporterMetricsResolutions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+GetAgentOKBodyDBLogWatcherAgent DBLogWatcherAgent runs within pmm-agent and ships watched database log files to the PMM Server.
+swagger:model GetAgentOKBodyDBLogWatcherAgent
+*/
+type GetAgentOKBodyDBLogWatcherAgent struct {
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// Database engine: mysql, postgresql, mongodb, valkey or redis.
+	DBSystem string `json:"db_system,omitempty"`
+
+	// Log files being watched and shipped.
+	WatchedLogs []*GetAgentOKBodyDBLogWatcherAgentWatchedLogsItems0 `json:"watched_logs"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
+	Status *string `json:"status,omitempty"`
+
+	// process exec path
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+}
+
+// Validate validates this get agent OK body DB log watcher agent
+func (o *GetAgentOKBodyDBLogWatcherAgent) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateWatchedLogs(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyDBLogWatcherAgent) validateWatchedLogs(formats strfmt.Registry) error {
+	if swag.IsZero(o.WatchedLogs) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.WatchedLogs); i++ {
+		if swag.IsZero(o.WatchedLogs[i]) { // not required
+			continue
+		}
+
+		if o.WatchedLogs[i] != nil {
+			if err := o.WatchedLogs[i].Validate(formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("getAgentOk" + "." + "db_log_watcher_agent" + "." + "watched_logs" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("getAgentOk" + "." + "db_log_watcher_agent" + "." + "watched_logs" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+var getAgentOkBodyDbLogWatcherAgentTypeStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getAgentOkBodyDbLogWatcherAgentTypeStatusPropEnum = append(getAgentOkBodyDbLogWatcherAgentTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// GetAgentOKBodyDBLogWatcherAgentStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	GetAgentOKBodyDBLogWatcherAgentStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// GetAgentOKBodyDBLogWatcherAgentStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	GetAgentOKBodyDBLogWatcherAgentStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// GetAgentOKBodyDBLogWatcherAgentStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	GetAgentOKBodyDBLogWatcherAgentStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// GetAgentOKBodyDBLogWatcherAgentStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	GetAgentOKBodyDBLogWatcherAgentStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// GetAgentOKBodyDBLogWatcherAgentStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	GetAgentOKBodyDBLogWatcherAgentStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// GetAgentOKBodyDBLogWatcherAgentStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	GetAgentOKBodyDBLogWatcherAgentStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// GetAgentOKBodyDBLogWatcherAgentStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	GetAgentOKBodyDBLogWatcherAgentStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// GetAgentOKBodyDBLogWatcherAgentStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	GetAgentOKBodyDBLogWatcherAgentStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *GetAgentOKBodyDBLogWatcherAgent) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getAgentOkBodyDbLogWatcherAgentTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyDBLogWatcherAgent) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("getAgentOk"+"."+"db_log_watcher_agent"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var getAgentOkBodyDbLogWatcherAgentTypeLogLevelPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getAgentOkBodyDbLogWatcherAgentTypeLogLevelPropEnum = append(getAgentOkBodyDbLogWatcherAgentTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// GetAgentOKBodyDBLogWatcherAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	GetAgentOKBodyDBLogWatcherAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+
+	// GetAgentOKBodyDBLogWatcherAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	GetAgentOKBodyDBLogWatcherAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+
+	// GetAgentOKBodyDBLogWatcherAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	GetAgentOKBodyDBLogWatcherAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+
+	// GetAgentOKBodyDBLogWatcherAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	GetAgentOKBodyDBLogWatcherAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+
+	// GetAgentOKBodyDBLogWatcherAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	GetAgentOKBodyDBLogWatcherAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+
+	// GetAgentOKBodyDBLogWatcherAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	GetAgentOKBodyDBLogWatcherAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+)
+
+// prop value enum
+func (o *GetAgentOKBodyDBLogWatcherAgent) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getAgentOkBodyDbLogWatcherAgentTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyDBLogWatcherAgent) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("getAgentOk"+"."+"db_log_watcher_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get agent OK body DB log watcher agent based on the context it is used
+func (o *GetAgentOKBodyDBLogWatcherAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateWatchedLogs(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyDBLogWatcherAgent) contextValidateWatchedLogs(ctx context.Context, formats strfmt.Registry) error {
+	for i := 0; i < len(o.WatchedLogs); i++ {
+		if o.WatchedLogs[i] != nil {
+
+			if swag.IsZero(o.WatchedLogs[i]) { // not required
+				return nil
+			}
+
+			if err := o.WatchedLogs[i].ContextValidate(ctx, formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("getAgentOk" + "." + "db_log_watcher_agent" + "." + "watched_logs" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("getAgentOk" + "." + "db_log_watcher_agent" + "." + "watched_logs" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetAgentOKBodyDBLogWatcherAgent) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetAgentOKBodyDBLogWatcherAgent) UnmarshalBinary(b []byte) error {
+	var res GetAgentOKBodyDBLogWatcherAgent
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+GetAgentOKBodyDBLogWatcherAgentWatchedLogsItems0 WatchedLog identifies a single database log file to watch and its type.
+swagger:model GetAgentOKBodyDBLogWatcherAgentWatchedLogsItems0
+*/
+type GetAgentOKBodyDBLogWatcherAgentWatchedLogsItems0 struct {
+	// Absolute path of the log file on the client node.
+	Path string `json:"path,omitempty"`
+
+	// Log type: error, slow or general.
+	Type string `json:"type,omitempty"`
+}
+
+// Validate validates this get agent OK body DB log watcher agent watched logs items0
+func (o *GetAgentOKBodyDBLogWatcherAgentWatchedLogsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get agent OK body DB log watcher agent watched logs items0 based on context it is used
+func (o *GetAgentOKBodyDBLogWatcherAgentWatchedLogsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetAgentOKBodyDBLogWatcherAgentWatchedLogsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetAgentOKBodyDBLogWatcherAgentWatchedLogsItems0) UnmarshalBinary(b []byte) error {
+	var res GetAgentOKBodyDBLogWatcherAgentWatchedLogsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -83,6 +83,7 @@ const (
 	NomadAgentType                      AgentType = "nomad-agent"
 	ValkeyExporterType                  AgentType = "valkey_exporter"
 	RTAMongoDBAgentType                 AgentType = "rta-mongodb-agent"
+	DBLogWatcherAgentType               AgentType = "db-log-watcher-agent"
 )
 
 // GetRTAAgentTypes returns all Real-Time Analytics Agent types.
@@ -153,6 +154,26 @@ func (c QANOptions) IsEmpty() bool {
 		!c.QueryExamplesDisabled &&
 		!c.CommentsParsingDisabled
 }
+
+// WatchedLogFile is a single database log file watched by the DB log-watcher agent.
+type WatchedLogFile struct {
+	Path string `json:"path"`
+	Type string `json:"type"` // error, slow or general
+}
+
+// LogWatcherOptions represents structure for the database log-watcher agent options.
+type LogWatcherOptions struct {
+	Files []WatchedLogFile `json:"files"`
+}
+
+// Value implements database/sql/driver.Valuer interface. Should be defined on the value.
+func (c LogWatcherOptions) Value() (driver.Value, error) { return jsonValue(c) }
+
+// Scan implements database/sql.Scanner interface. Should be defined on the pointer.
+func (c *LogWatcherOptions) Scan(src any) error { return jsonScan(c, src) }
+
+// IsEmpty returns true if no log files are configured.
+func (c LogWatcherOptions) IsEmpty() bool { return len(c.Files) == 0 }
 
 // AWSOptions represents structure for special AWS options.
 type AWSOptions struct {
@@ -382,6 +403,7 @@ type Agent struct {
 	MySQLOptions      MySQLOptions      `reform:"mysql_options"`
 	PostgreSQLOptions PostgreSQLOptions `reform:"postgresql_options"`
 	ValkeyOptions     ValkeyOptions     `reform:"valkey_options"`
+	LogWatcherOptions LogWatcherOptions `reform:"log_watcher_options"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.

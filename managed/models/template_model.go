@@ -42,6 +42,8 @@ type Template struct {
 	Annotations []byte                     `reform:"annotations"`
 	Source      Source                     `reform:"source"`
 	Yaml        string                     `reform:"yaml"`
+	// Datasource selects the query backend: empty = metrics (PromQL), "clickhouse" = SQL log/trace alert.
+	Datasource string `reform:"datasource"`
 
 	CreatedAt time.Time `reform:"created_at"`
 	UpdatedAt time.Time `reform:"updated_at"`

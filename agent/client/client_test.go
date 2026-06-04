@@ -35,6 +35,7 @@ import (
 	"github.com/percona/pmm/agent/runner"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	agentlocal "github.com/percona/pmm/api/agentlocal/v1"
+	logshipv1 "github.com/percona/pmm/api/logship/v1"
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 )
 
@@ -163,6 +164,7 @@ func TestClient(t *testing.T) {
 			s.On("Changes").Return(make(<-chan *agentv1.StateChangedRequest))
 			s.On("QANRequests").Return(make(<-chan *agentv1.QANCollectRequest))
 			s.On("RTARequests").Return(make(<-chan *rtav1.CollectRequest))
+			s.On("LogRequests").Return(make(<-chan *logshipv1.ShipRequest))
 			s.On("AgentsList").Return([]*agentlocal.AgentInfo{})
 			s.On("ClearChangesChannel").Return()
 
@@ -282,6 +284,7 @@ func TestUnexpectedActionType(t *testing.T) {
 	s.On("Changes").Return(make(<-chan *agentv1.StateChangedRequest))
 	s.On("QANRequests").Return(make(<-chan *agentv1.QANCollectRequest))
 	s.On("RTARequests").Return(make(<-chan *rtav1.CollectRequest))
+	s.On("LogRequests").Return(make(<-chan *logshipv1.ShipRequest))
 	s.On("AgentsList").Return([]*agentlocal.AgentInfo{})
 	s.On("ClearChangesChannel").Return()
 

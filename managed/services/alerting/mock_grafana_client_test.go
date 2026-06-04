@@ -62,6 +62,34 @@ func (_m *mockGrafanaClient) GetDatasourceUIDByID(ctx context.Context, id int64)
 	return r0, r1
 }
 
+// GetDatasourceUIDByName provides a mock function with given fields: ctx, name
+func (_m *mockGrafanaClient) GetDatasourceUIDByName(ctx context.Context, name string) (string, error) {
+	ret := _m.Called(ctx, name)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetDatasourceUIDByName")
+	}
+
+	var r0 string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (string, error)); ok {
+		return rf(ctx, name)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) string); ok {
+		r0 = rf(ctx, name)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, name)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetFolderByUID provides a mock function with given fields: ctx, uid
 func (_m *mockGrafanaClient) GetFolderByUID(ctx context.Context, uid string) (*gapi.Folder, error) {
 	ret := _m.Called(ctx, uid)

@@ -121,6 +121,8 @@ func (s *agentsServer) ListAgents(ctx context.Context, req *inventoryv1.ListAgen
 			res.NomadAgent = append(res.NomadAgent, agent)
 		case *inventoryv1.RTAMongoDBAgent:
 			res.RtaMongodbAgent = append(res.RtaMongodbAgent, agent)
+		case *inventoryv1.DBLogWatcherAgent:
+			res.DbLogWatcherAgent = append(res.DbLogWatcherAgent, agent)
 		default:
 			panic(fmt.Errorf("unhandled inventory Agent type %T", agent))
 		}
@@ -175,6 +177,8 @@ func (s *agentsServer) GetAgent(ctx context.Context, req *inventoryv1.GetAgentRe
 		res.Agent = &inventoryv1.GetAgentResponse_NomadAgent{NomadAgent: agent}
 	case *inventoryv1.RTAMongoDBAgent:
 		res.Agent = &inventoryv1.GetAgentResponse_RtaMongodbAgent{RtaMongodbAgent: agent}
+	case *inventoryv1.DBLogWatcherAgent:
+		res.Agent = &inventoryv1.GetAgentResponse_DbLogWatcherAgent{DbLogWatcherAgent: agent}
 	default:
 		panic(fmt.Errorf("unhandled inventory Agent type %T", agent))
 	}

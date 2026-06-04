@@ -122,6 +122,8 @@ type AddMySQLCommand struct {
 	DisableCollectors      []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	ExposeExporter         bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
 	ConnectionTimeout      *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
+	WatchLogs              bool              `name:"watch-logs" help:"Watch this service's database log files and ship them to PMM Server"`
+	LogFiles               []string          `name:"log-file" placeholder:"PATH" help:"Absolute path of a database log file to watch (repeatable)"`
 
 	AddCommonFlags
 	flags.MetricsModeFlags
@@ -228,6 +230,9 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 
 				QANMysqlSlowlog:    cmd.QuerySource == MysqlQuerySourceSlowLog,
 				QANMysqlPerfschema: cmd.QuerySource == MysqlQuerySourcePerfSchema,
+
+				WatchLogs: cmd.WatchLogs,
+				LogFiles:  cmd.LogFiles,
 
 				SkipConnectionCheck:    cmd.SkipConnectionCheck,
 				DisableCommentsParsing: !cmd.CommentsParsingEnabled(),

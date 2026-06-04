@@ -71,6 +71,7 @@ import (
 	dumpv1beta1 "github.com/percona/pmm/api/dump/v1beta1"
 	hav1beta1 "github.com/percona/pmm/api/ha/v1beta1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	logshipv1 "github.com/percona/pmm/api/logship/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
@@ -82,12 +83,14 @@ import (
 	"github.com/percona/pmm/managed/services/alerting"
 	"github.com/percona/pmm/managed/services/backup"
 	"github.com/percona/pmm/managed/services/checks"
+	"github.com/percona/pmm/managed/services/clickhouse"
 	"github.com/percona/pmm/managed/services/config" //nolint:staticcheck
 	"github.com/percona/pmm/managed/services/dump"
 	"github.com/percona/pmm/managed/services/grafana"
 	"github.com/percona/pmm/managed/services/ha"
 	"github.com/percona/pmm/managed/services/inventory"
 	inventorygrpc "github.com/percona/pmm/managed/services/inventory/grpc"
+	"github.com/percona/pmm/managed/services/logship"
 	"github.com/percona/pmm/managed/services/management"
 	managementbackup "github.com/percona/pmm/managed/services/management/backup"
 	"github.com/percona/pmm/managed/services/management/common"
@@ -313,6 +316,9 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	rtaSvc := realtimeanalytics.NewService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, rtaStore)
 	rtav1.RegisterRealtimeAnalyticsServiceServer(gRPCServer, rtaSvc)
 	rtav1.RegisterCollectorServiceServer(gRPCServer, rtaSvc)
+
+	// Register the log-shipping service that forwards client/database logs to the local collector.
+	logshipv1.RegisterLogShipServiceServer(gRPCServer, logship.New(deps.db, logship.DefaultCollectorLogsEndpoint))
 
 	// Start RTA store cleanup goroutine
 	go rtaStore.Run(ctx)
@@ -1001,6 +1007,25 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	if err != nil {
 		l.Fatalf("Could not create Clickhouse client: %s", err)
 	}
+
+	// pmm-managed owns the lifecycle (schema + retention TTL) of the OpenTelemetry logs/traces tables.
+	logService := clickhouse.New(clickhouseClient, *clickhouseAddrF, *clickHouseDatabaseF, *clickhouseUsernameF, *clickhousePasswordF)
+	go func() {
+		// Migrations run independently of settings; only the initial TTL needs the retention setting.
+		if err := logService.Bootstrap(ctx); err != nil {
+			l.Errorf("Could not bootstrap logs/traces schema: %s", err)
+			return
+		}
+		settings, err := models.GetSettings(db)
+		if err != nil {
+			l.Errorf("Could not load settings for initial logs retention TTL: %s", err)
+			return
+		}
+		if err := logService.ApplyTTL(ctx, settings.LogRetention); err != nil {
+			l.Errorf("Could not apply initial logs retention TTL: %s", err)
+		}
+	}()
+
 	externalExporterStatusSvc := agents.NewExternalExporterStatusService(db, v1.NewAPI(vmClient))
 
 	checksService := checks.New(db, actionsService, v1.NewAPI(vmClient), clickhouseClient)
@@ -1044,6 +1069,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		HAService:            haService,
 		Nomad:                nomad,
 		QANClient:            qanClient,
+		LogService:           logService,
 	}
 
 	server, err := server.NewServer(serverParams)

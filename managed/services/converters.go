@@ -607,6 +607,23 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			RtaOptions:    ToAPIRTAOptions(&agent.RTAOptions),
 		}, nil
 
+	case models.DBLogWatcherAgentType:
+		watchedLogs := make([]*inventoryv1.WatchedLog, 0, len(agent.LogWatcherOptions.Files))
+		for _, f := range agent.LogWatcherOptions.Files {
+			watchedLogs = append(watchedLogs, &inventoryv1.WatchedLog{Path: f.Path, Type: f.Type})
+		}
+		return &inventoryv1.DBLogWatcherAgent{
+			AgentId:         agent.AgentID,
+			PmmAgentId:      pointer.GetString(agent.PMMAgentID),
+			ServiceId:       serviceID,
+			Disabled:        agent.Disabled,
+			Status:          inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
+			CustomLabels:    labels,
+			ProcessExecPath: processExecPath,
+			LogLevel:        inventoryv1.LogLevelAPIValue(agent.LogLevel),
+			WatchedLogs:     watchedLogs,
+		}, nil
+
 	default:
 		panic(fmt.Errorf("cannot convert unknown agent type %s", agent.AgentType))
 	}

@@ -10583,6 +10583,12 @@ type AddServiceParamsBodyMysql struct {
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
+	// Watch this service's database log files and ship them to PMM Server.
+	WatchLogs bool `json:"watch_logs,omitempty"`
+
+	// Absolute paths of the database log files to watch (e.g. the MySQL error log).
+	LogFiles []string `json:"log_files"`
+
 	// add node
 	AddNode *AddServiceParamsBodyMysqlAddNode `json:"add_node,omitempty"`
 }

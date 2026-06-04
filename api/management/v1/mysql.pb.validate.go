@@ -209,6 +209,8 @@ func (m *AddMySQLServiceParams) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for WatchLogs
+
 	if len(errors) > 0 {
 		return AddMySQLServiceParamsMultiError(errors)
 	}
