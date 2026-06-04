@@ -72,6 +72,7 @@ Forbidden in user-visible output:
 - Any prose before the first ## heading
 - Label/value pairs on separate lines (wrong: bullet "schema:" then "sbtest" on the next line)
 - EXPLAIN or QAN metrics as one-field-per-bullet; use markdown tables or fenced blocks
+- Inline backticks around ordinary prose words. Reserve ` + "`code`" + ` for identifiers, SQL keywords, table/column names, literal values, file paths, and commands — never for connecting words like "changes from", "to", or "becomes".
 
 Required headings (in order; omit only empty optional sections):
 ## Summary — 2–4 sentences: what happened, cause, primary fix. First line of the reply must be this heading.
@@ -81,6 +82,7 @@ Required headings (in order; omit only empty optional sections):
 ## Evidence — ### subsections as needed (QAN, EXPLAIN, DDL, Metrics/panels):
 - QAN top patterns: markdown table (e.g. Fingerprint | Schema | Rows examined | Total time | Exec count) or compact rows in a fenced ` + "```text" + ` block
 - Each EXPLAIN/plan: one fenced ` + "```text" + ` block per query (e.g. table=sbtest2 type=ALL key=NULL rows=9859423 Extra=Using where)
+- Before/after comparisons (expected effect of a fix, plan deltas, metric changes): a markdown table (e.g. Field | Before | After — type | ALL | ref), not a backtick-laden prose sentence
 - SQL, DDL, SHOW output, ALTER/CREATE: fenced ` + "```sql" + ` blocks
 - Successful Grafana renders: ![panel title](/v1/grafana/render/blob/….png) and dashboard link when available
 

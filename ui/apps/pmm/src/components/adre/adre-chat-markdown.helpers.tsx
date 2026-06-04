@@ -26,43 +26,23 @@ export function getMarkdownComponents(content: string) {
         {children}
       </Box>
     ),
-    code: ({
-      inline,
-      children,
-    }: {
-      inline?: boolean;
-      children?: ReactNode;
-    }) => {
-      if (inline) {
-        return (
-          <Box
-            component="code"
-            sx={{
-              px: 0.5,
-              borderRadius: 0.5,
-              fontFamily: 'Roboto Mono, monospace',
-              bgcolor: 'action.hover',
-            }}
-          >
-            {children}
-          </Box>
-        );
-      }
-
-      return (
-        <Box
-          component="code"
-          sx={{
-            display: 'block',
-            fontFamily: 'Roboto Mono, monospace',
-            fontSize: '0.8125rem',
-            whiteSpace: 'pre',
-          }}
-        >
-          {children}
-        </Box>
-      );
-    },
+    // react-markdown v9 removed the `inline` prop, so we can no longer branch on it here.
+    // Render every <code> with inline styling; the `pre` override below neutralizes this
+    // chrome for fenced blocks (whose <code> is nested inside <pre>).
+    code: ({ children }: { children?: ReactNode }) => (
+      <Box
+        component="code"
+        sx={{
+          px: 0.5,
+          borderRadius: 0.5,
+          fontFamily: 'Roboto Mono, monospace',
+          bgcolor: 'action.hover',
+          overflowWrap: 'anywhere',
+        }}
+      >
+        {children}
+      </Box>
+    ),
     pre: ({ children }: { children?: ReactNode }) => (
       <Box
         component="pre"
@@ -78,6 +58,16 @@ export function getMarkdownComponents(content: string) {
           borderColor: 'divider',
           borderRadius: Number(theme.shape.borderRadius) / 4,
           bgcolor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.action.hover,
+          // Fenced code: undo the inline <code> chrome so the block reads as one preformatted unit.
+          '& code': {
+            display: 'block',
+            p: 0,
+            bgcolor: 'transparent',
+            borderRadius: 0,
+            whiteSpace: 'pre',
+            overflowWrap: 'normal',
+            fontSize: '0.8125rem',
+          },
         })}
       >
         {children}
@@ -101,6 +91,8 @@ export function getMarkdownComponents(content: string) {
           borderColor: 'divider',
           bgcolor: 'action.hover',
           fontWeight: 600,
+          overflowWrap: 'anywhere',
+          wordBreak: 'break-word',
         }}
       >
         {children}
@@ -115,6 +107,8 @@ export function getMarkdownComponents(content: string) {
           border: 1,
           borderColor: 'divider',
           verticalAlign: 'top',
+          overflowWrap: 'anywhere',
+          wordBreak: 'break-word',
         }}
       >
         {children}
