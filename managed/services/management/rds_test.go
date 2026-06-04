@@ -50,7 +50,9 @@ func TestRDSService(t *testing.T) {
 	defer uuid.SetRand(nil)
 
 	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
-	defer sqlDB.Close() //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, sqlDB.Close())
+	})
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	cc := &mockConnectionChecker{}
@@ -228,8 +230,8 @@ func TestRDSService(t *testing.T) {
 				opts := []func(*config.LoadOptions) error{
 					config.WithCredentialsProvider(creds),
 					config.WithHTTPClient(&http.Client{}),
+					config.WithClientLogMode(aws.LogRetries | aws.LogRequestWithBody | aws.LogResponseWithBody),
 				}
-				opts = append(opts, config.WithClientLogMode(aws.LogRetries|aws.LogRequestWithBody|aws.LogResponseWithBody))
 				cfg, err := config.LoadDefaultConfig(ctx, opts...)
 				require.NoError(t, err)
 
