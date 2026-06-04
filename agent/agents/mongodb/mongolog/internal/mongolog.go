@@ -115,6 +115,9 @@ func (l *Mongolog) Start(ctx context.Context) error {
 	err = l.sender.Start() //nolint:contextcheck // PMM-13947
 	if err != nil {
 		l.aggregator.Stop()
+		if closeErr := reader.Close(); closeErr != nil {
+			l.logger.Warningln(closeErr)
+		}
 		return err
 	}
 
