@@ -26,11 +26,11 @@ import (
 )
 
 const (
-	// DefaultTTL is the time-to-live for query data buckets in the store.
+	// The time-to-live for query data buckets in the store.
 	defaultTTL = 30 * time.Second
-	// CleanupInterval is how often to run TTL cleanup.
+	// How often to run TTL cleanup.
 	cleanupInterval = 5 * time.Second
-	// NumShards is the number of shards for the store.
+	// Number of shards for the store.
 	// We use 256 shards to minimize lock contention in high-throughput scenarios.
 	//
 	// Performance characteristics:
