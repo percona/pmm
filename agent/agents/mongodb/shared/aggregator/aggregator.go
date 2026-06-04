@@ -201,7 +201,7 @@ func (a *Aggregator) flush(ctx context.Context, ts time.Time) {
 	}
 }
 
-// interval sets interval if necessary and returns *qan.Report for old interval if not empty
+// interval sets interval if necessary and returns *qan.Report for old interval if not empty.
 func (a *Aggregator) interval(ctx context.Context, ts time.Time) *report.Report {
 	// create new interval
 	defer a.newInterval(ts)
