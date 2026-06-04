@@ -314,7 +314,7 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentv1.SetSta
 
 		delete(s.agentProcesses, agentID)
 
-		agentTmp := filepath.Join(s.cfg.Get().Paths.TempDir, strings.ToLower(agent.requestedState.Type.String()), agentID)
+		agentTmp := filepath.Join(s.cfg.Get().Paths.TempDir, trimPrefix(agent.requestedState.Type.String()), agentID)
 		err := os.RemoveAll(agentTmp)
 		if err != nil {
 			s.l.Warnf("Failed to cleanup directory '%s': %s", agentTmp, err.Error())
@@ -370,7 +370,7 @@ func (s *Supervisor) setBuiltinAgents(builtinAgents map[string]*agentv1.SetState
 
 		delete(s.builtinAgents, agentID)
 
-		agentTmp := filepath.Join(s.cfg.Get().Paths.TempDir, strings.ToLower(agent.requestedState.Type.String()), agentID)
+		agentTmp := filepath.Join(s.cfg.Get().Paths.TempDir, trimPrefix(agent.requestedState.Type.String()), agentID)
 		err := os.RemoveAll(agentTmp)
 		if err != nil {
 			s.l.Warnf("Failed to cleanup directory '%s': %s", agentTmp, err.Error())
@@ -579,7 +579,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 
 	var dsn string
 	if builtinAgent.TextFiles != nil {
-		tempDir := filepath.Join(cfg.Paths.TempDir, strings.ToLower(builtinAgent.Type.String()), agentID)
+		tempDir := filepath.Join(cfg.Paths.TempDir, trimPrefix(builtinAgent.Type.String()), agentID)
 		dsn, err = templates.RenderDSN(builtinAgent.Dsn, builtinAgent.TextFiles, tempDir)
 		if err != nil {
 			cancel()
@@ -804,7 +804,7 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStat
 		TextFiles:          agentProcess.TextFiles,
 		TemplateLeftDelim:  agentProcess.TemplateLeftDelim,
 		TemplateRightDelim: agentProcess.TemplateRightDelim,
-		TempDir:            filepath.Join(cfg.Paths.TempDir, strings.ToLower(agentProcess.Type.String()), agentID),
+		TempDir:            filepath.Join(cfg.Paths.TempDir, trimPrefix(agentProcess.Type.String()), agentID),
 	}
 
 	processParams.TemplateRenderer = tr
