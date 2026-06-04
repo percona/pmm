@@ -858,11 +858,11 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStat
 		processParams.Path = cfg.Paths.Nomad
 		processParams.Env = append(processParams.Env, os.Environ()...)
 	default:
-		return nil, fmt.Errorf("unhandled agent type %[1]s (%[1]d)", agentProcess.Type) //nolint:revive
+		return nil, fmt.Errorf("unhandled agent type %[1]s (%[1]d)", agentProcess.Type)
 	}
 
 	if processParams.Path == "" {
-		return nil, fmt.Errorf("no path for agent type %[1]s (%[1]d)", agentProcess.Type) //nolint:revive
+		return nil, fmt.Errorf("no path for agent type %[1]s (%[1]d)", agentProcess.Type)
 	}
 
 	tr := &templates.TemplateRenderer{
