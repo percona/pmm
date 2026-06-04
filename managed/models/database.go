@@ -13,7 +13,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-//nolint:lll
 package models
 
 import (
@@ -84,6 +83,8 @@ var DefaultAgentEncryptionColumnsV3 = []encryption.Table{
 }
 
 // databaseSchema maps schema version from schema_migrations table (id column) to a slice of DDL queries.
+//
+//nolint:lll
 var databaseSchema = [][]string{
 	1: {
 		`CREATE TABLE schema_migrations (
