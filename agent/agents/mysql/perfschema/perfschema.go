@@ -218,13 +218,10 @@ func (m *PerfSchema) Run(ctx context.Context) {
 
 	go m.runHistoryCacheRefresher(ctx)
 
-	offset, releaseOffset := agents.RandomMinuteOffset(m.agentID)
-	defer releaseOffset()
-
-	// query events_statements_summary_by_digest every minute at assigned second
+	// query events_statements_summary_by_digest every minute at 00 seconds
 	start := time.Now()
-	wait := agents.NextIntervalWait(start, querySummaries, offset)
-	m.l.Debugf("Scheduling next collection in %s at %s with %s offset.", wait, start.Add(wait).Format("15:04:05"), offset)
+	wait := start.Truncate(querySummaries).Add(querySummaries).Sub(start)
+	m.l.Debugf("Scheduling next collection in %s at %s.", wait, start.Add(wait).Format("15:04:05"))
 	t := time.NewTimer(wait)
 	defer t.Stop()
 
@@ -244,8 +241,8 @@ func (m *PerfSchema) Run(ctx context.Context) {
 			buckets, err := m.getNewBuckets(start, lengthS)
 
 			start = time.Now()
-			wait = agents.NextIntervalWait(start, querySummaries, offset)
-			m.l.Debugf("Scheduling next collection in %s at %s with %s offset.", wait, start.Add(wait).Format("15:04:05"), offset)
+			wait = start.Truncate(querySummaries).Add(querySummaries).Sub(start)
+			m.l.Debugf("Scheduling next collection in %s at %s.", wait, start.Add(wait).Format("15:04:05"))
 			t.Reset(wait)
 
 			if err != nil {

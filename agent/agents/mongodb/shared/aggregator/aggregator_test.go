@@ -43,21 +43,6 @@ func TestAggregator(t *testing.T) {
 		})
 	})
 
-	t.Run("NewWithRandomMinuteOffset", func(t *testing.T) {
-		a := NewWithRandomMinuteOffset(time.Now(), "test-agent-offset", logrus.WithField("component", "test"), truncate.GetMongoDBDefaultMaxQueryLength())
-		require.NotNil(t, a.releaseOffset)
-		assert.GreaterOrEqual(t, a.timerOffset, time.Duration(0))
-		assert.Less(t, a.timerOffset, DefaultInterval)
-
-		wait := a.nextWait()
-		assert.Greater(t, wait, time.Duration(0))
-		assert.LessOrEqual(t, wait, DefaultInterval)
-
-		a.Start()
-		a.Stop()
-		assert.Nil(t, a.releaseOffset)
-	})
-
 	t.Run("createResult", func(t *testing.T) {
 		agentID := "test-agent"
 		startPeriod := time.Now()

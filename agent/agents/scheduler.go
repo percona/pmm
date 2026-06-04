@@ -36,7 +36,7 @@ func newOffsetSchedule() *offsetSchedule {
 	}
 }
 
-// RandomMinuteOffset assigns a random second within a minute.
+// RandomMinuteOffset assigns a random delay within a minute.
 // Offsets are unique while there are no more than 60 active agents.
 func RandomMinuteOffset(agentID string) (time.Duration, func()) {
 	return minuteSchedule.assign(agentID, time.Minute)
@@ -110,23 +110,4 @@ func randomInt(n int) int {
 	}
 
 	return int(v.Int64())
-}
-
-// NextIntervalWait returns duration until the next interval boundary shifted by offset.
-func NextIntervalWait(now time.Time, interval, offset time.Duration) time.Duration {
-	if interval <= 0 {
-		return 0
-	}
-
-	offset %= interval
-	if offset < 0 {
-		offset += interval
-	}
-
-	next := now.Truncate(interval).Add(offset)
-	if !next.After(now) {
-		next = next.Add(interval)
-	}
-
-	return next.Sub(now)
 }

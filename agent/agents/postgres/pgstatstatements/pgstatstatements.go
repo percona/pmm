@@ -108,7 +108,14 @@ func getPgStatStatementsCacheSize(q *reform.Querier, l *logrus.Entry) uint {
 	return pgSSCacheSize
 }
 
-func newPgStatStatementsQAN(q *reform.Querier, dbCloser io.Closer, agentID string, maxQueryLength int32, disableCommentsParsing bool, l *logrus.Entry) (*PGStatStatementsQAN, error) { //nolint:lll
+func newPgStatStatementsQAN(
+	q *reform.Querier,
+	dbCloser io.Closer,
+	agentID string,
+	maxQueryLength int32,
+	disableCommentsParsing bool,
+	l *logrus.Entry,
+) (*PGStatStatementsQAN, error) {
 	cacheSize := getPgStatStatementsCacheSize(q, l)
 	statementCache, err := newStatementsCache(statementsMap{}, retainStatStatements, cacheSize, l)
 	if err != nil {
@@ -172,13 +179,10 @@ func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
 	}
 
-	offset, releaseOffset := agents.RandomMinuteOffset(m.agentID)
-	defer releaseOffset()
-
-	// query pg_stat_statements every minute at assigned second
+	// query pg_stat_statements every minute at 00 seconds
 	start := time.Now()
-	wait := agents.NextIntervalWait(start, queryStatStatements, offset)
-	m.l.Debugf("Scheduling next collection in %s at %s with %s offset.", wait, start.Add(wait).Format("15:04:05"), offset)
+	wait := start.Truncate(queryStatStatements).Add(queryStatStatements).Sub(start)
+	m.l.Debugf("Scheduling next collection in %s at %s.", wait, start.Add(wait).Format("15:04:05"))
 	t := time.NewTimer(wait)
 	defer t.Stop()
 
@@ -198,8 +202,8 @@ func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 			buckets, err := m.getNewBuckets(ctx, start, lengthS)
 
 			start = time.Now()
-			wait = agents.NextIntervalWait(start, queryStatStatements, offset)
-			m.l.Debugf("Scheduling next collection in %s at %s with %s offset.", wait, start.Add(wait).Format("15:04:05"), offset)
+			wait = start.Truncate(queryStatStatements).Add(queryStatStatements).Sub(start)
+			m.l.Debugf("Scheduling next collection in %s at %s.", wait, start.Add(wait).Format("15:04:05"))
 			t.Reset(wait)
 
 			if err != nil {

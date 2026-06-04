@@ -54,6 +54,29 @@ func TestOffsetSchedule(t *testing.T) {
 		}
 	})
 
+	t.Run("distributes offsets evenly", func(t *testing.T) {
+		for _, agentsCount := range []int{60, 120, 180, 181} {
+			s := newOffsetSchedule()
+			counts := make(map[time.Duration]int)
+
+			for i := range agentsCount {
+				offset, release := s.assign(fmt.Sprintf("agent-%d", i), time.Minute)
+				defer release()
+
+				counts[offset]++
+			}
+
+			require.Len(t, counts, 60)
+			minCount := agentsCount
+			maxCount := 0
+			for _, count := range counts {
+				minCount = min(minCount, count)
+				maxCount = max(maxCount, count)
+			}
+			assert.LessOrEqual(t, maxCount-minCount, 1)
+		}
+	})
+
 	t.Run("releases offsets", func(t *testing.T) {
 		s := newOffsetSchedule()
 		offset, release := s.assign("agent-1", time.Minute)
@@ -67,12 +90,4 @@ func TestOffsetSchedule(t *testing.T) {
 
 		assert.Equal(t, offset%time.Second, newOffset)
 	})
-}
-
-func TestNextIntervalWait(t *testing.T) {
-	now := time.Date(2026, 6, 1, 12, 0, 10, 0, time.UTC)
-
-	assert.Equal(t, 15*time.Second, NextIntervalWait(now, time.Minute, 25*time.Second))
-	assert.Equal(t, 50*time.Second, NextIntervalWait(now, time.Minute, 0))
-	assert.Equal(t, time.Minute, NextIntervalWait(now, time.Minute, 10*time.Second))
 }

@@ -20,7 +20,6 @@ import (
 	"database/sql"
 	"fmt"
 	"io"
-	"math"
 	"strconv"
 	"time"
 
@@ -153,7 +152,15 @@ func areSettingsTextValues(q *reform.Querier) (bool, error) {
 	return false, nil
 }
 
-func newPgStatMonitorQAN(q *reform.Querier, dbCloser io.Closer, agentID string, disableCommentsParsing, disableQueryExamples bool, maxQueryLength int32, l *logrus.Entry) (*PGStatMonitorQAN, error) { //nolint:lll
+func newPgStatMonitorQAN(
+	q *reform.Querier,
+	dbCloser io.Closer,
+	agentID string,
+	disableCommentsParsing,
+	disableQueryExamples bool,
+	maxQueryLength int32,
+	l *logrus.Entry,
+) (*PGStatMonitorQAN, error) {
 	return &PGStatMonitorQAN{
 		q:                      q,
 		dbCloser:               dbCloser,
@@ -315,14 +322,10 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 	}
 	running = running && m.checkDefaultWaitTime(waitTime)
 
-	offset, releaseOffset := agents.RandomMinuteOffset(m.agentID)
-	defer releaseOffset()
-
-	// query pg_stat_monitor every waitTime seconds at assigned second
+	// query pg_stat_monitor every waitTime seconds
 	start := time.Now()
-	wait := agents.NextIntervalWait(start, waitTime, offset)
-	m.l.Debugf("Scheduling next collection in %s at %s with %s offset.", wait, start.Add(wait).Format("15:04:05"), offset)
-	t := time.NewTimer(wait)
+	m.l.Debugf("Scheduling next collection in %s at %s.", waitTime, start.Add(waitTime).Format("15:04:05"))
+	t := time.NewTimer(waitTime)
 	defer t.Stop()
 
 	for {
@@ -342,7 +345,7 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 				m.l.WithError(err).Errorf("failed to get pg_stat_monitor settings")
 				running = false
 				m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
-				wait = m.resetWaitTime(t, waitTime, offset)
+				m.resetWaitTime(t, waitTime)
 				continue
 			}
 			normalizedQuery, err := settings.getNormalizedQueryValue()
@@ -350,7 +353,7 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 				m.l.WithError(err).Errorf("failed to get pg_stat_monitor settings normalizedQuery value")
 				running = false
 				m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
-				wait = m.resetWaitTime(t, waitTime, offset)
+				m.resetWaitTime(t, waitTime)
 				continue
 			}
 
@@ -360,14 +363,14 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 			}
 			running = m.checkDefaultWaitTime(waitTime)
 			if !running {
-				wait = m.resetWaitTime(t, waitTime, offset)
+				m.resetWaitTime(t, waitTime)
 				continue
 			}
 
-			lengthS := uint32(math.Round(wait.Seconds()))
+			lengthS := uint32(waitTime.Seconds())
 			buckets, err := m.getNewBuckets(ctx, lengthS, normalizedQuery)
 
-			wait = m.resetWaitTime(t, waitTime, offset)
+			m.resetWaitTime(t, waitTime)
 
 			if err != nil {
 				m.l.Error(errors.Wrap(err, "getNewBuckets failed"))
@@ -401,12 +404,10 @@ func (m *PGStatMonitorQAN) Collect(ch chan<- prometheus.Metric) { //nolint:reviv
 	// This method is needed to satisfy interface.
 }
 
-func (m *PGStatMonitorQAN) resetWaitTime(t *time.Timer, waitTime, offset time.Duration) time.Duration {
+func (m *PGStatMonitorQAN) resetWaitTime(t *time.Timer, waitTime time.Duration) {
 	start := time.Now()
-	wait := agents.NextIntervalWait(start, waitTime, offset)
-	m.l.Debugf("Scheduling next collection in %s at %s with %s offset.", wait, start.Add(wait).Format("15:04:05"), offset)
-	t.Reset(wait)
-	return wait
+	m.l.Debugf("Scheduling next collection in %s at %s.", waitTime, start.Add(waitTime).Format("15:04:05"))
+	t.Reset(waitTime)
 }
 
 func (m *PGStatMonitorQAN) checkDefaultWaitTime(waitTime time.Duration) bool {

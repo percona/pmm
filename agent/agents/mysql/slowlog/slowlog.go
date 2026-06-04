@@ -351,13 +351,10 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 	aggregator := event.NewAggregator(true, 0, outlierTime)
 	ctxDone := ctx.Done()
 
-	offset, releaseOffset := agents.RandomMinuteOffset(s.params.AgentID)
-	defer releaseOffset()
-
-	// aggregate every minute at assigned second
+	// aggregate every minute at 00 seconds
 	start := time.Now()
-	wait := agents.NextIntervalWait(start, aggregateInterval, offset)
-	s.l.Debugf("Scheduling next aggregation in %s at %s with %s offset.", wait, start.Add(wait).Format("15:04:05"), offset)
+	wait := start.Truncate(aggregateInterval).Add(aggregateInterval).Sub(start)
+	s.l.Debugf("Scheduling next aggregation in %s at %s.", wait, start.Add(wait).Format("15:04:05"))
 	t := time.NewTimer(wait)
 	defer t.Stop()
 
@@ -388,8 +385,8 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 
 			aggregator = event.NewAggregator(true, 0, outlierTime)
 			start = time.Now()
-			wait = agents.NextIntervalWait(start, aggregateInterval, offset)
-			s.l.Debugf("Scheduling next aggregation in %s at %s with %s offset.", wait, start.Add(wait).Format("15:04:05"), offset)
+			wait = start.Truncate(aggregateInterval).Add(aggregateInterval).Sub(start)
+			s.l.Debugf("Scheduling next aggregation in %s at %s.", wait, start.Add(wait).Format("15:04:05"))
 			t.Reset(wait)
 
 			s.changes <- agents.Change{MetricsBucket: buckets}

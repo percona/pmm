@@ -30,7 +30,7 @@ import (
 	"github.com/percona/pmm/agent/utils/mongo_fix"
 )
 
-// New creates new Profiler
+// New creates new Profiler.
 func New(mongoDSN string, logger *logrus.Entry, w sender.Writer, agentID string, maxQueryLength int32) *profiler {
 	return &profiler{
 		mongoDSN:       mongoDSN,
@@ -80,7 +80,7 @@ func (p *profiler) Start() error {
 	p.client = client
 
 	// create aggregator which collects documents and aggregates them into qan report
-	p.aggregator = aggregator.NewWithRandomMinuteOffset(time.Now(), p.agentID, p.logger, p.maxQueryLength)
+	p.aggregator = aggregator.New(time.Now(), p.agentID, p.logger, p.maxQueryLength)
 	reportChan := p.aggregator.Start()
 
 	// create sender which sends qan reports and start it

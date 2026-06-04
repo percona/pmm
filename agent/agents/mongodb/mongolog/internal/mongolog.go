@@ -101,14 +101,13 @@ func (l *Mongolog) Start(ctx context.Context) error {
 	}
 
 	// create aggregator which collects documents and aggregates them into qan report
-	l.aggregator = aggregator.NewWithRandomMinuteOffset(time.Now(), l.agentID, l.logger, l.maxQueryLength)
+	l.aggregator = aggregator.New(time.Now(), l.agentID, l.logger, l.maxQueryLength)
 	reportChan := l.aggregator.Start() //nolint:contextcheck // PMM-13947
 
 	// create sender which sends qan reports and start it
 	l.sender = sender.New(reportChan, l.w, l.logger)
 	err = l.sender.Start() //nolint:contextcheck // PMM-13947
 	if err != nil {
-		l.aggregator.Stop()
 		return err
 	}
 
@@ -129,8 +128,6 @@ func (l *Mongolog) Start(ctx context.Context) error {
 	logsPathWithPrefix := path.Join(l.logFilePrefix, logsPath)
 	reader, err := filereader.NewContinuousFileReader(logsPathWithPrefix, l.logger)
 	if err != nil {
-		l.sender.Stop()
-		l.aggregator.Stop()
 		return err
 	}
 	// create monitors service which we use to periodically scan server for new/removed databases
@@ -162,9 +159,6 @@ func (l *Mongolog) Stop() error {
 
 	// wait for goroutine to exit
 	l.wg.Wait()
-
-	l.aggregator.Stop()
-	l.sender.Stop()
 
 	// set state to "not running"
 	l.running = false
