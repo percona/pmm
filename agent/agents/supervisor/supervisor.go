@@ -675,6 +675,13 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 	go pprof.Do(ctx, pprof.Labels("agentID", agentID, "type", agentType), agent.Run)
 
 	go func() {
+		var qanDeliveryOffset time.Duration
+		qanDeliveryOffsetAssigned := false
+		releaseQANDeliveryOffset := func() {}
+		defer func() {
+			releaseQANDeliveryOffset()
+		}()
+
 		rtaBucketLastCollectTime := timestamppb.New(time.Now()).AsTime()
 
 		for change := range agent.Changes() {
@@ -687,10 +694,14 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 				}
 			}
 			if change.MetricsBucket != nil {
-				l.Infof("Sending %d metrics buckets.", len(change.MetricsBucket))
-				s.qanRequests <- &agentv1.QANCollectRequest{
+				if !qanDeliveryOffsetAssigned {
+					qanDeliveryOffset, releaseQANDeliveryOffset = agents.RandomMinuteOffset(agentID)
+					qanDeliveryOffsetAssigned = true
+				}
+				request := &agentv1.QANCollectRequest{
 					MetricsBucket: change.MetricsBucket,
 				}
+				s.sendQANRequest(ctx, l, request, qanDeliveryOffset)
 			}
 
 			if len(change.RTAQueriesBucket) != 0 {
@@ -726,6 +737,30 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 		logStore:       logStore,
 	}
 	return nil
+}
+
+func (s *Supervisor) sendQANRequest(ctx context.Context, l *logrus.Entry, request *agentv1.QANCollectRequest, delay time.Duration) {
+	if delay > 0 {
+		l.Debugf("Scheduling QAN delivery in %s with %s offset.", delay, delay)
+		t := time.NewTimer(delay)
+		select {
+		case <-t.C:
+		case <-ctx.Done():
+			if !t.Stop() {
+				select {
+				case <-t.C:
+				default:
+				}
+			}
+			return
+		}
+	}
+
+	l.Infof("Sending %d metrics buckets.", len(request.MetricsBucket))
+	select {
+	case s.qanRequests <- request:
+	case <-ctx.Done():
+	}
 }
 
 // agentLogger write logs to Store so can get last N.
