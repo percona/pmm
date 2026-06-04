@@ -123,7 +123,7 @@ func start(ctx context.Context, wg *sync.WaitGroup, reportChan <-chan *report.Re
 	}
 }
 
-// Writer write QAN Report.
+// Writer writes QAN report.
 type Writer interface {
 	Write(r *report.Report) error
 }

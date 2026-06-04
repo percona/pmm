@@ -544,7 +544,12 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 	return nil
 }
 
-func (s *Supervisor) handleNomadAgent(agentID string, processInfo *agentProcessInfo, l *logrus.Entry) { //nolint:lll
+//nolint:funcorder
+func (s *Supervisor) handleNomadAgent(
+	agentID string,
+	processInfo *agentProcessInfo,
+	l *logrus.Entry,
+) {
 	done := make(chan struct{})
 	s.agentProcesses[agentID] = processInfo
 

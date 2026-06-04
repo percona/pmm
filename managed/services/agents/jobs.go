@@ -381,7 +381,14 @@ func (s *JobsService) handleJobProgress(_ context.Context, progress *agentv1.Job
 }
 
 // StartMySQLBackupJob starts mysql backup job on the pmm-agent.
-func (s *JobsService) StartMySQLBackupJob(jobID, pmmAgentID string, timeout time.Duration, name string, dbConfig *models.DBConfig, locationConfig *models.BackupLocationConfig, folder string) error { //nolint:lll
+func (s *JobsService) StartMySQLBackupJob(
+	jobID, pmmAgentID string,
+	timeout time.Duration,
+	name string,
+	dbConfig *models.DBConfig,
+	locationConfig *models.BackupLocationConfig,
+	folder string,
+) error {
 	if err := models.PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 		"mysql backup", pmmAgentMinVersionForMySQLBackupAndRestore); err != nil {
 		return err

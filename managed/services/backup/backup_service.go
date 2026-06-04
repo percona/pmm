@@ -178,7 +178,12 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 				}
 			}
 
-			if job, dbConfig, err = s.prepareBackupJob(tx.Querier, svc, artifact.ID, jobType, params.Mode, params.DataModel, params.Retries, params.RetryInterval); err != nil { //nolint:lll
+			//nolint:noinlineerr
+			if job, dbConfig, err = s.prepareBackupJob(
+				tx.Querier, svc, artifact.ID,
+				jobType, params.Mode, params.DataModel, params.Retries,
+				params.RetryInterval,
+			); err != nil {
 				return err
 			}
 			return nil

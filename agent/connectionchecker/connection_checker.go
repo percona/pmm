@@ -108,7 +108,13 @@ func (cc *ConnectionChecker) sqlPing(ctx context.Context, db *sql.DB) error {
 	return err
 }
 
-func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn string, files *agentv1.TextFiles, tlsSkipVerify bool, id uint32) *agentv1.CheckConnectionResponse { //nolint:lll
+func (cc *ConnectionChecker) checkMySQLConnection(
+	ctx context.Context,
+	dsn string,
+	files *agentv1.TextFiles,
+	tlsSkipVerify bool,
+	id uint32,
+) *agentv1.CheckConnectionResponse {
 	var res agentv1.CheckConnectionResponse
 	var err error
 
