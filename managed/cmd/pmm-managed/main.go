@@ -1007,10 +1007,10 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	}
 
 	// pmm-managed owns the lifecycle (schema + retention TTL) of the OpenTelemetry logs/traces tables.
-	logsClickhouse := clickhouse.New(clickhouseClient, *clickhouseAddrF, *clickHouseDatabaseF, *clickhouseUsernameF, *clickhousePasswordF)
+	logService := clickhouse.New(clickhouseClient, *clickhouseAddrF, *clickHouseDatabaseF, *clickhouseUsernameF, *clickhousePasswordF)
 	go func() {
 		// Migrations run independently of settings; only the initial TTL needs the retention setting.
-		if err := logsClickhouse.Bootstrap(ctx); err != nil {
+		if err := logService.Bootstrap(ctx); err != nil {
 			l.Errorf("Could not bootstrap logs/traces schema: %s", err)
 			return
 		}
@@ -1019,7 +1019,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 			l.Errorf("Could not load settings for initial logs retention TTL: %s", err)
 			return
 		}
-		if err := logsClickhouse.ApplyTTL(ctx, settings.LogRetention); err != nil {
+		if err := logService.ApplyTTL(ctx, settings.LogRetention); err != nil {
 			l.Errorf("Could not apply initial logs retention TTL: %s", err)
 		}
 	}()
@@ -1067,7 +1067,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		HAService:            haService,
 		Nomad:                nomad,
 		QANClient:            qanClient,
-		LogsClickhouse:       logsClickhouse,
+		LogService:           logService,
 	}
 
 	server, err := server.NewServer(serverParams)

@@ -65,7 +65,7 @@ type Server struct {
 	haService            haService
 	updater              *Updater
 	nomad                nomadService
-	logsClickhouse       logsClickhouseService
+	logService           logService
 
 	l *logrus.Entry
 
@@ -101,7 +101,7 @@ type Params struct {
 	Dus                  *distribution.Service
 	HAService            haService
 	Nomad                nomadService
-	LogsClickhouse       logsClickhouseService
+	LogService           logService
 }
 
 // NewServer returns new server for Server service.
@@ -127,7 +127,7 @@ func NewServer(params *Params) (*Server, error) {
 		updater:              params.Updater,
 		haService:            params.HAService,
 		nomad:                params.Nomad,
-		logsClickhouse:       params.LogsClickhouse,
+		logService:           params.LogService,
 		l:                    logrus.WithField("component", "server"),
 		pmmUpdateAuthFile:    path,
 		envSettings:          &models.ChangeSettingsParams{},
@@ -743,8 +743,8 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	}
 
 	// Apply the log/trace retention TTL to ClickHouse when it changes (instant, no qan-api2 restart).
-	if s.logsClickhouse != nil && oldSettings.LogRetention != newSettings.LogRetention {
-		if err := s.logsClickhouse.ApplyTTL(ctx, newSettings.LogRetention); err != nil {
+	if s.logService != nil && oldSettings.LogRetention != newSettings.LogRetention {
+		if err := s.logService.ApplyTTL(ctx, newSettings.LogRetention); err != nil {
 			s.l.Errorf("Failed to apply logs retention TTL: %s", err)
 		}
 	}
