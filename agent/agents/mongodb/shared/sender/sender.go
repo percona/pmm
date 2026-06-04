@@ -112,7 +112,8 @@ func start(ctx context.Context, wg *sync.WaitGroup, reportChan <-chan *report.Re
 			}
 
 			// sent report
-			if err := w.Write(report); err != nil {
+			err := w.Write(report)
+			if err != nil {
 				logger.Warn("Lost report:", err)
 				continue
 			}

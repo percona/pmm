@@ -105,7 +105,8 @@ type Params struct {
 // NewServer returns new server for Server service.
 func NewServer(params *Params) (*Server, error) {
 	path := "/srv"
-	if _, err := os.Stat(path); err != nil {
+	_, err := os.Stat(path)
+	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 	path = filepath.Join(path, "pmm-update.json")
@@ -225,7 +226,8 @@ func (s *Server) Readiness(ctx context.Context, req *serverv1.ReadinessRequest) 
 		"vmalert":         s.vmalert,
 		"qan":             s.qanClient,
 	} {
-		if err := svc.IsReady(ctx); err != nil {
+		err := svc.IsReady(ctx)
+		if err != nil {
 			s.l.Errorf("%s readiness check failed: %+v", n, err)
 			notReady = true
 		}
@@ -266,7 +268,8 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverv1.CheckUpdatesReq
 	}
 
 	if req.Force {
-		if err := s.updater.ForceCheckUpdates(ctx); err != nil {
+		err := s.updater.ForceCheckUpdates(ctx)
+		if err != nil {
 			return nil, err
 		}
 	}
@@ -384,7 +387,8 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverv1.StartUpdateReque
 
 // UpdateStatus returns PMM Server update status.
 func (s *Server) UpdateStatus(ctx context.Context, req *serverv1.UpdateStatusRequest) (*serverv1.UpdateStatusResponse, error) {
-	if _, err := os.Stat(s.pmmUpdateAuthFile); err != nil && os.IsNotExist(err) {
+	_, err := os.Stat(s.pmmUpdateAuthFile)
+	if err != nil && os.IsNotExist(err) {
 		return &serverv1.UpdateStatusResponse{
 			Done: true,
 		}, nil
@@ -444,7 +448,8 @@ func (s *Server) writeUpdateAuthToken(token string) error {
 		return errors.WithStack(err)
 	}
 	defer func() {
-		if err = f.Close(); err != nil {
+		err = f.Close()
+		if err != nil {
 			s.l.Error(err)
 		}
 	}()
@@ -462,7 +467,8 @@ func (s *Server) readUpdateAuthToken() (string, error) {
 		return "", errors.WithStack(err)
 	}
 	defer func() {
-		if err = f.Close(); err != nil {
+		err = f.Close()
+		if err != nil {
 			s.l.Error(err)
 		}
 	}()
@@ -572,7 +578,8 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 	metricsRes := req.MetricsResolutions
 
 	if req.SshKey != nil {
-		if err := s.validateSSHKey(ctx, *req.SshKey); err != nil {
+		err := s.validateSSHKey(ctx, *req.SshKey)
+		if err != nil {
 			return err
 		}
 	}
@@ -626,7 +633,8 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSettingsRequest) (*serverv1.ChangeSettingsResponse, error) {
 	s.envRW.RLock()
 	defer s.envRW.RUnlock()
-	if err := s.validateChangeSettingsRequest(ctx, req); err != nil {
+	err := s.validateChangeSettingsRequest(ctx, req)
+	if err != nil {
 		return nil, err
 	}
 
@@ -681,7 +689,8 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 
 		// absent value means "do not change"
 		if req.SshKey != nil {
-			if err = s.writeSSHKey(pointer.GetString(req.SshKey)); err != nil {
+			err = s.writeSSHKey(pointer.GetString(req.SshKey))
+			if err != nil {
 				s.l.Error(errors.WithStack(err))
 				return status.Errorf(codes.Internal, "failed to write SSH key: %s", err.Error())
 			}
@@ -701,7 +710,8 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	if errTX != nil {
 		return nil, errTX
 	}
-	if err := s.UpdateConfigurations(ctx); err != nil {
+	err = s.UpdateConfigurations(ctx)
+	if err != nil {
 		return nil, err
 	}
 
@@ -718,7 +728,8 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	var advisorsStarted bool
 	if !oldSettings.IsAdvisorsEnabled() && newSettings.IsAdvisorsEnabled() {
 		advisorsStarted = true
-		if err := s.checksService.StartChecks(nil); err != nil {
+		err := s.checksService.StartChecks(nil)
+		if err != nil {
 			s.l.Error(err)
 		}
 	}

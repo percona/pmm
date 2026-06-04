@@ -149,7 +149,8 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 		res.RedactWords = redactWords(exporter)
 	}
 
-	if err := ensureAuthParams(exporter, res, pmmAgentVersion, postgresExporterWebConfigVersion, false); err != nil {
+	err := ensureAuthParams(exporter, res, pmmAgentVersion, postgresExporterWebConfigVersion, false)
+	if err != nil {
 		return nil, err
 	}
 

@@ -221,7 +221,8 @@ func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn str
 
 	if !serverInfo.ArbiterOnly {
 		resp := client.Database("admin").RunCommand(ctx, bson.D{{Key: "getDiagnosticData", Value: 1}})
-		if err = resp.Err(); err != nil {
+		err = resp.Err()
+		if err != nil {
 			cc.l.Debugf("checkMongoDBConnection: failed to runCommand getDiagnosticData: %s", err)
 			res.Error = err.Error()
 			return &res

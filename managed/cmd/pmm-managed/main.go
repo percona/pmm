@@ -387,7 +387,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	}
 	go func() {
 		<-ctx.Done()
-		if err := sharedConn.Close(); err != nil {
+		err := sharedConn.Close()
+		if err != nil {
 			l.Errorf("Failed to close the shared gRPC connection: %s", err)
 		}
 	}()
@@ -422,7 +423,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 
 		hav1beta1.RegisterHAServiceHandler,
 	} {
-		if err := r(ctx, proxyMux, sharedConn); err != nil {
+		err := r(ctx, proxyMux, sharedConn)
+		if err != nil {
 			l.Fatal(err)
 		}
 	}
@@ -440,7 +442,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		Handler:  mux,
 	}
 	go func() {
-		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+		err := server.ListenAndServe()
+		if !errors.Is(err, http.ErrServerClosed) {
 			l.Fatal(err)
 		}
 		l.Info("Server stopped.")
@@ -501,7 +504,8 @@ func runDebugServer(ctx context.Context) {
 		ErrorLog: log.New(os.Stderr, "runDebugServer: ", 0),
 	}
 	go func() {
-		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+		err := server.ListenAndServe()
+		if !errors.Is(err, http.ErrServerClosed) {
 			l.Fatal(err)
 		}
 		l.Info("Server stopped.")

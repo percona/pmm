@@ -160,7 +160,8 @@ func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 
 	if current, _, err = m.getStatStatementsExtended(ctx); err == nil {
-		if err = m.statementsCache.Set(current); err == nil {
+		err = m.statementsCache.Set(current)
+		if err == nil {
 			m.l.Debugf("Got %d initial stat statements.", len(current))
 			running = true
 			m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING}
@@ -256,7 +257,8 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(
 	defer rows.Close() //nolint:errcheck
 
 	for ctx.Err() == nil {
-		if err = q.NextRow(row, rows); err != nil {
+		err = q.NextRow(row, rows)
+		if err != nil {
 			if errors.Is(err, reform.ErrNoRows) {
 				err = nil
 			}

@@ -91,7 +91,8 @@ func (v *Versioner) binaryVersion(
 	ctx, cancel := context.WithTimeout(context.Background(), versionCheckTimeout)
 	defer cancel()
 
-	if _, err := v.ef.LookPath(binaryName); err != nil {
+	_, err := v.ef.LookPath(binaryName)
+	if err != nil {
 		if errors.Is(err.(*exec.Error).Err, exec.ErrNotFound) { //nolint:forcetypeassert,errorlint
 			return "", ErrNotFound
 		}

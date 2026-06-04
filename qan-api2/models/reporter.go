@@ -644,7 +644,8 @@ func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec,
 			}
 			totalMainMetricPerSec = labelTotal.mainMetricPerSec / float32(durationSec)
 		}
-		if err = rows.Err(); err != nil {
+		err = rows.Err()
+		if err != nil {
 			return nil, 0, fmt.Errorf("failed to select total for QueryFilter %s: %w", queryBuffer.String(), err)
 		}
 	}

@@ -124,7 +124,8 @@ func (ssc *statMonitorCache) getStatMonitorExtended(
 	defer rows.Close() //nolint:errcheck
 
 	for ctx.Err() == nil {
-		if err = q.NextRow(row, rows); err != nil {
+		err = q.NextRow(row, rows)
+		if err != nil {
 			if errors.Is(err, reform.ErrNoRows) {
 				err = nil
 			}
