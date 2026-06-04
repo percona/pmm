@@ -124,3 +124,21 @@ func TestInvestigationFormatPromptUntouched(t *testing.T) {
 	t.Parallel()
 	assert.NotContains(t, InvestigationFormatPrompt, scopeGuardrailMarker, "ScopeGuardrail must not be applied to InvestigationFormatPrompt (would corrupt strict JSON output)")
 }
+
+func TestSubstantiveResponseFormatPresentInDefaults(t *testing.T) {
+	t.Parallel()
+	settings := &models.Settings{}
+
+	for name, got := range map[string]string{
+		"fast":          ResolveChatSystemPrompt(settings, "fast"),
+		"investigation": ResolveChatSystemPrompt(settings, "investigation"),
+		"qan":           ResolveQanInsightsSystemPrompt(settings),
+	} {
+		assert.Contains(t, got, substantiveResponseFormatMarker, "%s: substantive format marker missing", name)
+		assert.Contains(t, got, SubstantiveResponseFormat, "%s: full SubstantiveResponseFormat missing", name)
+		assert.Contains(t, got, "## Summary", "%s: ## Summary heading rule missing", name)
+		assert.Contains(t, got, "I found a skill", "%s: forbidden narration example missing", name)
+	}
+	assert.NotContains(t, InvestigationFormatPrompt, substantiveResponseFormatMarker,
+		"SubstantiveResponseFormat must not be applied to InvestigationFormatPrompt (strict JSON contract)")
+}
