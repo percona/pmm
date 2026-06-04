@@ -147,6 +147,31 @@ func TestValidateClickHouseQuery_normalizesLLMEscaping(t *testing.T) {
 	assert.Contains(t, got, "ResourceAttributes['node_name']")
 }
 
+func TestValidateClickHouseQuery_repairsDateTimeMissingSpace(t *testing.T) {
+	t.Parallel()
+
+	// Non-frontier models (e.g. the Holmes default model used by the Slack path when no model is
+	// pinned) sometimes drop the space in datetime literals, producing ClickHouse error 53.
+	qan := `SELECT fingerprint, SUM(m_query_time_sum) AS total_query_time
+FROM pmm.metrics
+WHERE service_id = 'abc' AND period_start >= '2026-06-0408:10:08' AND period_start <= '2026-06-0420:10:08'
+GROUP BY fingerprint
+LIMIT 5`
+	got, err := validateClickHouseQuery("pmm", qan, 500)
+	require.NoError(t, err)
+	assert.Contains(t, got, "'2026-06-04 08:10:08'")
+	assert.Contains(t, got, "'2026-06-04 20:10:08'")
+	assert.NotContains(t, got, "'2026-06-0408:10:08'")
+
+	// Already-valid formats (space or ISO 'T') must be left untouched.
+	for _, ts := range []string{"'2026-06-04 08:10:08'", "'2026-06-04T08:10:08'"} {
+		q := "SELECT count() FROM metrics WHERE period_start >= " + ts + " LIMIT 1"
+		got, err := validateClickHouseQuery("pmm", q, 500)
+		require.NoError(t, err, "query: %s", q)
+		assert.Contains(t, got, ts, "valid datetime literal must be preserved")
+	}
+}
+
 func TestValidateClickHouseQuery_rejectsFormatExportAndReplaceTable(t *testing.T) {
 	t.Parallel()
 

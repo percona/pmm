@@ -55,6 +55,11 @@ var (
 	clickHouseMapDoubleQuoteKey = regexp.MustCompile(`(?i)(ResourceAttributes|LogAttributes|ScopeAttributes|InstrumentationScopeAttributes)\["([^"]+)"\]`)
 	// Holmes bash escaping for jq --arg / "{{ query }}" becomes '"key"' or '"'"' in SQL.
 	clickHouseHolmesQuotedSingleton = regexp.MustCompile(`'"([^']+)"'`)
+	// LLMs (esp. non-frontier models) sometimes drop the space in datetime literals,
+	// e.g. '2026-06-0408:10:08' instead of '2026-06-04 08:10:08', which ClickHouse rejects
+	// with "Cannot convert string ... to type DateTime" (code 53). There is no valid format
+	// where YYYY-MM-DD is immediately followed by HH:MM:SS, so re-inserting the space is safe.
+	clickHouseDateTimeMissingSpace = regexp.MustCompile(`(\d{4}-\d{2}-\d{2})(\d{2}:\d{2}:\d{2})`)
 )
 
 // ClickHousePools holds native-protocol connections for ADRE read-only queries.
@@ -268,6 +273,8 @@ func normalizeClickHouseQuerySQL(query string) string {
 	q = clickHouseHolmesQuotedSingleton.ReplaceAllString(q, "'$1'")
 	// JSON-style map keys ["key"] are parsed as identifiers (error 47); rewrite to ['key'].
 	q = clickHouseMapDoubleQuoteKey.ReplaceAllString(q, "$1['$2']")
+	// Repair datetime literals missing the date/time space (error 53). Safe: no valid format joins them.
+	q = clickHouseDateTimeMissingSpace.ReplaceAllString(q, "$1 $2")
 	return strings.TrimSpace(q)
 }
 
