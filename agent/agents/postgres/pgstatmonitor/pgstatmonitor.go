@@ -20,6 +20,7 @@ import (
 	"database/sql"
 	"fmt"
 	"io"
+	"math"
 	"strconv"
 	"time"
 
@@ -341,7 +342,7 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 				m.l.WithError(err).Errorf("failed to get pg_stat_monitor settings")
 				running = false
 				m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
-				m.resetWaitTime(t, waitTime, offset)
+				wait = m.resetWaitTime(t, waitTime, offset)
 				continue
 			}
 			normalizedQuery, err := settings.getNormalizedQueryValue()
@@ -349,7 +350,7 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 				m.l.WithError(err).Errorf("failed to get pg_stat_monitor settings normalizedQuery value")
 				running = false
 				m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
-				m.resetWaitTime(t, waitTime, offset)
+				wait = m.resetWaitTime(t, waitTime, offset)
 				continue
 			}
 
@@ -359,14 +360,14 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 			}
 			running = m.checkDefaultWaitTime(waitTime)
 			if !running {
-				m.resetWaitTime(t, waitTime, offset)
+				wait = m.resetWaitTime(t, waitTime, offset)
 				continue
 			}
 
-			lengthS := uint32(waitTime.Seconds())
+			lengthS := uint32(math.Round(wait.Seconds()))
 			buckets, err := m.getNewBuckets(ctx, lengthS, normalizedQuery)
 
-			m.resetWaitTime(t, waitTime, offset)
+			wait = m.resetWaitTime(t, waitTime, offset)
 
 			if err != nil {
 				m.l.Error(errors.Wrap(err, "getNewBuckets failed"))
@@ -400,11 +401,12 @@ func (m *PGStatMonitorQAN) Collect(ch chan<- prometheus.Metric) { //nolint:reviv
 	// This method is needed to satisfy interface.
 }
 
-func (m *PGStatMonitorQAN) resetWaitTime(t *time.Timer, waitTime, offset time.Duration) {
+func (m *PGStatMonitorQAN) resetWaitTime(t *time.Timer, waitTime, offset time.Duration) time.Duration {
 	start := time.Now()
 	wait := agents.NextIntervalWait(start, waitTime, offset)
 	m.l.Debugf("Scheduling next collection in %s at %s with %s offset.", wait, start.Add(wait).Format("15:04:05"), offset)
 	t.Reset(wait)
+	return wait
 }
 
 func (m *PGStatMonitorQAN) checkDefaultWaitTime(waitTime time.Duration) bool {
