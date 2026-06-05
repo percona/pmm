@@ -243,6 +243,6 @@ All long-running daemons expose on `127.0.0.1`:
 - `go.mod` — Go module definition
 - `.golangci.yml` — linter configuration
 - `.mockery.yaml` — mock generation configuration
-- `docs/process/tech_stack.md` — technology choices and rationale
-- `docs/process/best_practices.md` — coding best practices
-- `docs/process/GIT_AND_GITHUB.md` — git workflow
+- `dev/docs/process/tech_stack.md` — technology choices and rationale
+- `dev/docs/process/best_practices.md` — coding best practices
+- `dev/docs/process/GIT_AND_GITHUB.md` — git workflow
