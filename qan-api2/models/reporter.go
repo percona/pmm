@@ -31,7 +31,6 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/prometheus/prometheus/model/labels"
 	"github.com/prometheus/prometheus/promql/parser"
-	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc/metadata"
 
 	qanpbv1 "github.com/percona/pmm/api/qan/v1"
@@ -533,47 +532,18 @@ func (r *Reporter) SelectFilters(
 		Labels: r.commentsIntoGroupLabels(ctx, periodStartFromSec, periodStartToSec),
 	}
 
-	// Query each dimension concurrently instead of in series, then merge the results.
-	dimensionNames := make([]string, 0, len(dimensionQueries))
-	for dimensionName := range dimensionQueries {
-		dimensionNames = append(dimensionNames, dimensionName)
-	}
-
-	type dimensionResult struct {
-		values           []*customLabel
-		mainMetricPerSec float32
-	}
-	dimResults := make([]*dimensionResult, len(dimensionNames))
-
-	g, gCtx := errgroup.WithContext(ctx)
-	g.SetLimit(MaxParallelQueries)
-	for i, dimensionName := range dimensionNames {
-		g.Go(func() error {
-			subDimensions := make(map[string][]string)
-			for k, v := range dimensions {
-				if k == dimensionName {
-					continue
-				}
-				subDimensions[k] = v
+	for dimensionName, dimensionQuery := range dimensionQueries {
+		subDimensions := make(map[string][]string)
+		for k, v := range dimensions {
+			if k == dimensionName {
+				continue
 			}
-			values, mainMetricPerSec, err := r.queryFilters(
-				gCtx, periodStartFromSec, periodStartToSec, dimensionName,
-				mainMetricName, dimensionQueries[dimensionName], subDimensions, labels,
-			)
-			if err != nil {
-				return fmt.Errorf("cannot select %s dimension: %w", dimensionName, err)
-			}
-			dimResults[i] = &dimensionResult{values: values, mainMetricPerSec: mainMetricPerSec}
-			return nil
-		})
-	}
-	if err := g.Wait(); err != nil {
-		return nil, err
-	}
-
-	for _, dr := range dimResults {
-		values := dr.values
-		mainMetricPerSec := dr.mainMetricPerSec
+			subDimensions[k] = v
+		}
+		values, mainMetricPerSec, err := r.queryFilters(ctx, periodStartFromSec, periodStartToSec, dimensionName, mainMetricName, dimensionQuery, subDimensions, labels)
+		if err != nil {
+			return nil, fmt.Errorf("cannot select %s dimension: %w", dimensionName, err)
+		}
 
 		totals := make(map[string]float32)
 		if mainMetricPerSec == 0 {
