@@ -234,7 +234,7 @@ func (c *ServiceConfig) Init(l *logrus.Entry) error {
 }
 
 func (c *ServiceConfig) loadMetricsConfig(configFile string) ([]Config, error) {
-	var fileConfigs []FileConfig
+	fileConfigs := make([]FileConfig, 0, 1)
 	var fileCfg FileConfig
 
 	var config []byte

@@ -67,7 +67,9 @@ func filter(mb []*agentv1.MetricsBucket) []*agentv1.MetricsBucket {
 
 func TestPGStatStatementsQAN(t *testing.T) {
 	sqlDB := tests.OpenTestPostgreSQL(t)
-	defer sqlDB.Close() //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, sqlDB.Close())
+	})
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	_, err := db.Exec("CREATE EXTENSION IF NOT EXISTS pg_stat_statements SCHEMA public")
@@ -478,7 +480,9 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 func TestPGStatStatementsQPS(t *testing.T) {
 	sqlDB := tests.OpenTestPostgreSQL(t)
-	defer sqlDB.Close() //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, sqlDB.Close())
+	})
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 	_, err := db.Exec("CREATE EXTENSION IF NOT EXISTS pg_stat_statements SCHEMA public")

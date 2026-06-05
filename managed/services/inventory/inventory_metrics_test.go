@@ -43,7 +43,9 @@ func TestNewInventoryMetricsCollector(t *testing.T) {
 		require.NoError(t, err)
 		resp, err := client.Do(req)
 		require.NoError(t, err)
-		defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
+		t.Cleanup(func() {
+			assert.NoError(t, resp.Body.Close())
+		})
 
 		body, err := io.ReadAll(resp.Body)
 		require.NoError(t, err)

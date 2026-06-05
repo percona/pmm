@@ -201,7 +201,7 @@ func (a *Aggregator) flush(ctx context.Context, ts time.Time) {
 	}
 }
 
-// interval sets interval if necessary and returns *qan.Report for old interval if not empty
+// interval sets interval if necessary and returns *report.Report for old interval if not empty.
 func (a *Aggregator) interval(ctx context.Context, ts time.Time) *report.Report {
 	// create new interval
 	defer a.newInterval(ts)
@@ -251,7 +251,7 @@ func (a *Aggregator) newInterval(ts time.Time) {
 func (a *Aggregator) createResult(_ context.Context) *report.Result {
 	queries := a.mongostats.Queries()
 	queryStats := queries.CalcQueriesStats(int64(DefaultInterval))
-	var buckets []*agentv1.MetricsBucket //nolint:prealloc
+	buckets := make([]*agentv1.MetricsBucket, 0, len(queryStats))
 
 	a.logger.Tracef("Queries: %#v", queries)
 	a.logger.Tracef("Query Stats: %#v", queryStats)
