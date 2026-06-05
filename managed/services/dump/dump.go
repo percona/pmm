@@ -257,7 +257,7 @@ func (s *Service) GetFilePathsForDumps(dumpIDs []string) (map[string]string, err
 	res := make(map[string]string, len(dumps))
 	for _, d := range dumps {
 		if d.Status != models.DumpStatusSuccess {
-			s.l.Warnf("Dump with id %s is in %s state. Skiping it.", d.ID, d.Status)
+			s.l.Warnf("Dump with id %s is in %s state. Skipping it.", d.ID, d.Status)
 			continue
 		}
 		filePath := getDumpFilePath(d.ID, d.Encrypted)
@@ -277,7 +277,7 @@ func (s *Service) setDumpStatus(dumpID string, status models.DumpStatus) {
 		return models.UpdateDumpStatus(t.Querier, dumpID, status)
 	})
 	if err != nil {
-		s.l.Warnf("Failed to update dupm status: %+v", err)
+		s.l.Warnf("Failed to update dump status: %+v", err)
 	}
 }
 

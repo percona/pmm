@@ -450,7 +450,7 @@ func writePBMConfigFile(conf *PBMConfig) (string, error) {
 	bytes, err := yaml.Marshal(&conf)
 	if err != nil {
 		tmp.Close() //nolint:errcheck
-		return "", errors.Wrap(err, "failed to marshall pbm configuration")
+		return "", errors.Wrap(err, "failed to marshal pbm configuration")
 	}
 
 	_, err = tmp.Write(bytes)

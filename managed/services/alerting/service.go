@@ -416,7 +416,7 @@ func (s *Service) CreateTemplate(ctx context.Context, req *alerting.CreateTempla
 	uniqueNames := make(map[string]struct{}, len(templates))
 	for _, t := range templates {
 		if _, ok := uniqueNames[t.Name]; ok {
-			return nil, status.Errorf(codes.InvalidArgument, "Template with name '%s' declared more that once.", t.Name)
+			return nil, status.Errorf(codes.InvalidArgument, "Template with name '%s' declared more than once.", t.Name)
 		}
 		uniqueNames[t.Name] = struct{}{}
 		err = validateUserTemplate(&t)
