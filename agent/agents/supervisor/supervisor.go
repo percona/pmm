@@ -751,12 +751,12 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 func (s *Supervisor) deliverQANRequests(ctx context.Context, l *logrus.Entry, agentID string, requests <-chan *agentv1.QANCollectRequest) {
 	var qanDeliveryOffset time.Duration
 	qanDeliveryOffsetAssigned := false
-	releaseQANDeliveryOffset := func() {}
-	defer releaseQANDeliveryOffset()
+	var releaseQANDeliveryOffset func()
 
 	for request := range requests {
 		if !qanDeliveryOffsetAssigned {
 			qanDeliveryOffset, releaseQANDeliveryOffset = agents.RandomMinuteOffset(agentID)
+			defer releaseQANDeliveryOffset()
 			qanDeliveryOffsetAssigned = true
 		}
 
