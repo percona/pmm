@@ -33,12 +33,11 @@ import (
 )
 
 // SetTransport configures transport for accessing local pmm-agent API.
-func SetTransport(ctx context.Context, debug bool, port uint32) {
+func SetTransport(debug bool, port uint32) {
 	// use JSON APIs over HTTP/1.1
 	transport := httptransport.New(fmt.Sprintf("%s:%d", Localhost, port), "/", []string{"http"})
 	transport.SetLogger(logrus.WithField("component", "agentlocal-transport"))
 	transport.SetDebug(debug)
-	transport.Context = ctx
 
 	// disable HTTP/2
 	httpTransport := transport.Transport.(*http.Transport) //nolint:forcetypeassert
