@@ -1,7 +1,9 @@
 # HolmesGPT config for PMM (metrics, logs, QAN, Grafana, MySQL actions, inventory).
 # Env: PMM_URL (no trailing slash), PMM_API_TOKEN (Bearer). Optional: PMM_GRAFANA_TZ (default Europe/Amsterdam).
-# Browser-facing PMM_URL for panel image links (e.g. https://192.168.2.33:8443) — not Docker-only hostnames in user-visible URLs.
-# Inside-container API calls may use https://pmm-server:8443 (prometheus_url, api_url below).
+# Everything (bash toolsets via $PMM_URL, and prometheus_url/api_url via {{ env.PMM_URL }}) uses the
+# single PMM_URL — set it (Provisioning tab) to an address reachable BOTH from the Holmes container
+# and the browser (panel image links embed it). The host address (e.g. https://192.168.2.33:8443)
+# satisfies both; a Docker-only name like pmm-server:8443 is not browser-reachable.
 # Skills are provided by PMM via the CUSTOM_SKILL_PATHS env var (=/config/skills). Do NOT set
 # custom_skill_paths here — Holmes only applies the env var when this file omits it, so a value
 # here would override it and point Holmes at the wrong directory.
@@ -35,7 +37,7 @@ toolsets:
     enabled: true
     description: "PMM Prometheus / VictoriaMetrics metrics and alerting."
     config:
-      prometheus_url: https://pmm-server:8443/prometheus
+      prometheus_url: "{{ env.PMM_URL }}/prometheus"
       additional_headers:
         Authorization: "Bearer __PMM_GRAFANA_TOKEN__"
       verify_ssl: false
@@ -132,7 +134,7 @@ toolsets:
     description: "Grafana dashboards and PMM dashboard context (not inventory)."
     config:
       api_key: __PMM_GRAFANA_TOKEN__
-      api_url: https://pmm-server:8443/graph
+      api_url: "{{ env.PMM_URL }}/graph"
       verify_ssl: false
     llm_instructions: |
       Use only for dashboard and panel context. Do not use as primary source for metrics. For listing nodes, agents, or services (and getting node_id, agent_id, service_id), always use the pmm-inventory toolset instead.
