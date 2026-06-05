@@ -16,6 +16,7 @@ import RealtimeTab from 'pages/rta/tab/RealtimeTab';
 import AdrePage from 'pages/adre/AdrePage';
 import AdreUsagePage from 'pages/adre/AdreUsagePage';
 import AdreSettingsPage from 'pages/configuration/AdreSettingsPage';
+import AdreDeploymentPage from 'pages/configuration/AdreDeploymentPage';
 import InvestigationsListPage from 'pages/investigations/InvestigationsListPage';
 import InvestigationDetailPage from 'pages/investigations/InvestigationDetailPage';
 import QanPage from 'pages/qan/QanPage';
@@ -62,6 +63,10 @@ const router = createBrowserRouter(
             {
               path: 'configuration/ai-assistant',
               element: <AdreSettingsPage />,
+            },
+            {
+              path: 'configuration/ai-deployment',
+              element: <AdreDeploymentPage />,
             },
             {
               path: 'investigations',

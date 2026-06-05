@@ -78,6 +78,7 @@ import (
 	userv1 "github.com/percona/pmm/api/user/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/adre"
+	"github.com/percona/pmm/managed/services/adre/deployment"
 	"github.com/percona/pmm/managed/services/agents"
 	agentgrpc "github.com/percona/pmm/managed/services/agents/grpc"
 	"github.com/percona/pmm/managed/services/alerting"
@@ -204,6 +205,10 @@ func addLogsHandler(mux *http.ServeMux, logs *server.Logs) {
 }
 
 func addAdreHandlers(mux *http.ServeMux, db *reform.DB, grafanaClient adre.GrafanaAuth, vm v1.API, ch adre.ClickHousePools) {
+	// Seed the shipped HolmesGPT skills on first run (idempotent: no-op when adre_skills is populated).
+	if err := deployment.SeedBuiltinSkills(db); err != nil {
+		logrus.Warnf("Failed to seed built-in ADRE skills: %v", err)
+	}
 	h := adre.NewHandlers(db, grafanaClient, vm, ch)
 	mux.HandleFunc("/v1/adre/settings", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
@@ -246,6 +251,8 @@ func addAdreHandlers(mux *http.ServeMux, db *reform.DB, grafanaClient adre.Grafa
 		}
 	})
 	mux.HandleFunc("/v1/adre/conversations/", h.ServeConversationSubroutes)
+	mux.HandleFunc("/v1/adre/deployment", h.ServeDeploymentSubroutes)
+	mux.HandleFunc("/v1/adre/deployment/", h.ServeDeploymentSubroutes)
 	mux.HandleFunc("/v1/adre/messages/search", h.SearchMessages)
 	mux.HandleFunc("/v1/adre/usage/summary", h.GetUsageSummary)
 	mux.HandleFunc("/v1/adre/usage/events", h.GetUsageEvents)

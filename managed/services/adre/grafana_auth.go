@@ -24,4 +24,8 @@ import (
 type GrafanaAuth interface {
 	GetAlertmanagerAlerts(ctx context.Context, authHeaders http.Header) ([]byte, error)
 	GetCurrentUserLogin(ctx context.Context, authHeaders http.Header) (string, error)
+	// IsCurrentUserAdmin gates admin-only deployment-config endpoints (org Admin or Grafana super-admin).
+	IsCurrentUserAdmin(ctx context.Context, authHeaders http.Header) (bool, error)
+	// CreateServiceAccount mints the Grafana service-account token PMM injects as Holmes's PMM_API_TOKEN.
+	CreateServiceAccount(ctx context.Context, nodeName string, reregister bool) (int, string, error)
 }

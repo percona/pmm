@@ -332,6 +332,16 @@ func (c *Client) GetCurrentUserLogin(ctx context.Context, authHeaders http.Heade
 	return "", errors.New("Grafana user login not available")
 }
 
+// IsCurrentUserAdmin reports whether the authenticated user is a PMM admin (org Admin or Grafana
+// super-admin) — the server-side equivalent of the UI's isPMMAdmin gate.
+func (c *Client) IsCurrentUserAdmin(ctx context.Context, authHeaders http.Header) (bool, error) {
+	u, err := c.getAuthUser(ctx, authHeaders, logrus.WithField("component", "grafana/admin-check"))
+	if err != nil {
+		return false, err
+	}
+	return u.role >= admin, nil
+}
+
 var emptyUser = authUser{
 	role:   none,
 	userID: 0,

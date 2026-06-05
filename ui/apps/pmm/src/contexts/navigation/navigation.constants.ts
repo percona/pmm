@@ -676,6 +676,7 @@ export const NAV_CONFIGURATION: NavItem = {
     `${PMM_NEW_NAV_GRAFANA_PATH}/datasources/correlations`,
     `${PMM_NEW_NAV_GRAFANA_PATH}/admin/extensions`,
     `${PMM_NEW_NAV_PATH}/configuration/ai-assistant`,
+    `${PMM_NEW_NAV_PATH}/configuration/ai-deployment`,
   ],
   children: [
     {
@@ -696,6 +697,11 @@ export const NAV_CONFIGURATION: NavItem = {
       id: 'ai-assistant',
       text: 'AI Assistant',
       url: `${PMM_NEW_NAV_PATH}/configuration/ai-assistant`,
+    },
+    {
+      id: 'ai-deployment',
+      text: 'AI Deployment',
+      url: `${PMM_NEW_NAV_PATH}/configuration/ai-deployment`,
     },
     {
       id: 'org-management',

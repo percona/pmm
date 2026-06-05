@@ -636,3 +636,96 @@ function stringFromValue(v: unknown): string | undefined {
   }
   return undefined;
 }
+
+// --- ADRE deployment config (admin-only): config.yaml, model_list.yaml, skills, provisioning ---
+
+export interface AdreDeploymentModel {
+  name: string;
+  litellmModel: string;
+  apiBase: string;
+  /** Whether an api_key is stored (the key itself is write-only and never returned). */
+  keyConfigured: boolean;
+}
+
+export interface AdreDeploymentSkill {
+  name: string;
+  description: string;
+  body: string;
+  /** 'builtin' (shipped) or 'user'. */
+  source: string;
+  enabled: boolean;
+}
+
+export interface AdreDeploymentProvisioning {
+  pmmUrl: string;
+  tokenConfigured: boolean;
+  holmesApiKeyConfigured: boolean;
+  restartRequired: boolean;
+  lastRenderAt?: string;
+  renderStatus: string;
+  configDir: string;
+}
+
+export interface AdreDeployment {
+  configYaml: string;
+  models: AdreDeploymentModel[];
+  skills: AdreDeploymentSkill[];
+  provisioning: AdreDeploymentProvisioning;
+}
+
+/** Model upsert payload; apiKey empty = keep existing key. */
+export interface AdreDeploymentModelInput {
+  name: string;
+  litellmModel: string;
+  apiBase?: string;
+  apiKey?: string;
+}
+
+export interface AdreDeploymentSkillInput {
+  name: string;
+  description?: string;
+  body: string;
+  enabled?: boolean;
+}
+
+export const getAdreDeployment = async (): Promise<AdreDeployment> => {
+  const res = await api.get<AdreDeployment>('/adre/deployment');
+  return res.data;
+};
+
+export const updateAdreDeploymentConfig = async (configYaml: string): Promise<void> => {
+  await api.put('/adre/deployment/config', { configYaml });
+};
+
+export const updateAdreDeploymentModels = async (
+  models: AdreDeploymentModelInput[]
+): Promise<void> => {
+  await api.put('/adre/deployment/models', { models });
+};
+
+export const deleteAdreDeploymentModel = async (name: string): Promise<void> => {
+  await api.delete(`/adre/deployment/models/${encodeURIComponent(name)}`);
+};
+
+export const updateAdreDeploymentPmmUrl = async (pmmUrl: string): Promise<void> => {
+  await api.put('/adre/deployment/provisioning', { pmmUrl });
+};
+
+export const upsertAdreDeploymentSkill = async (
+  skill: AdreDeploymentSkillInput
+): Promise<void> => {
+  await api.put(`/adre/deployment/skills/${encodeURIComponent(skill.name)}`, skill);
+};
+
+export const deleteAdreDeploymentSkill = async (name: string): Promise<void> => {
+  await api.delete(`/adre/deployment/skills/${encodeURIComponent(name)}`);
+};
+
+export const applyAdreDeployment = async (): Promise<{ restartRequired: boolean; message?: string }> => {
+  const res = await api.post<{ restartRequired: boolean; message?: string }>('/adre/deployment/apply', {});
+  return res.data;
+};
+
+export const provisionAdreDeployment = async (): Promise<void> => {
+  await api.post('/adre/deployment/provision', {});
+};

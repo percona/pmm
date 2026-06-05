@@ -51,6 +51,14 @@ func (m *mockGrafanaAlertsFetcher) GetCurrentUserLogin(_ context.Context, _ http
 	return "testuser", nil
 }
 
+func (m *mockGrafanaAlertsFetcher) IsCurrentUserAdmin(_ context.Context, _ http.Header) (bool, error) {
+	return true, nil
+}
+
+func (m *mockGrafanaAlertsFetcher) CreateServiceAccount(_ context.Context, _ string, _ bool) (int, string, error) {
+	return 1, "test-token", nil
+}
+
 func TestHandlers_GetSettings(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	defer func() { require.NoError(t, sqlDB.Close()) }()

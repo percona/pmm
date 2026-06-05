@@ -1706,6 +1706,60 @@ $yaml$,
 		`ALTER TABLE qan_insights_cache ADD COLUMN IF NOT EXISTS total_cost NUMERIC(14, 8)`,
 		`ALTER TABLE qan_insights_cache ADD COLUMN IF NOT EXISTS usage_event_id BIGINT`,
 	},
+	138: {
+		// ADRE/HolmesGPT deployment config managed by PMM and rendered to the shared config dir.
+		// Secrets (api_key, holmes_api_key, pmm_sa_token) are stored here like settings.Adre ServiceNow
+		// keys (plaintext in DB, masked on the API). Singleton tables use a BOOLEAN id with a CHECK.
+		`CREATE TABLE adre_holmes_config (
+			id BOOLEAN PRIMARY KEY DEFAULT TRUE,
+			config_yaml TEXT NOT NULL DEFAULT '',
+			updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+			updated_by VARCHAR NOT NULL DEFAULT '',
+			CONSTRAINT adre_holmes_config_singleton CHECK (id)
+		)`,
+		// The default chat/fast model is the config.yaml model: / fast_model: (what HolmesGPT honors);
+		// this table only defines the available models rendered into model_list.yaml.
+		`CREATE TABLE adre_models (
+			id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+			name VARCHAR NOT NULL UNIQUE,
+			litellm_model VARCHAR NOT NULL,
+			api_base VARCHAR NOT NULL DEFAULT '',
+			api_key TEXT NOT NULL DEFAULT '',
+			created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+			updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+		)`,
+		`CREATE TABLE adre_skills (
+			id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+			name VARCHAR NOT NULL UNIQUE,
+			description TEXT NOT NULL DEFAULT '',
+			body TEXT NOT NULL DEFAULT '',
+			source VARCHAR NOT NULL DEFAULT 'user',
+			enabled BOOLEAN NOT NULL DEFAULT TRUE,
+			created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+			updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+			updated_by VARCHAR NOT NULL DEFAULT ''
+		)`,
+		`CREATE TABLE adre_provisioning (
+			id BOOLEAN PRIMARY KEY DEFAULT TRUE,
+			holmes_api_key TEXT NOT NULL DEFAULT '',
+			pmm_sa_token TEXT NOT NULL DEFAULT '',
+			pmm_sa_id INTEGER NOT NULL DEFAULT 0,
+			pmm_url VARCHAR NOT NULL DEFAULT '',
+			last_render_at TIMESTAMPTZ,
+			render_status VARCHAR NOT NULL DEFAULT '',
+			restart_required BOOLEAN NOT NULL DEFAULT FALSE,
+			CONSTRAINT adre_provisioning_singleton CHECK (id)
+		)`,
+		`CREATE TABLE adre_config_audit (
+			id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+			actor VARCHAR NOT NULL DEFAULT '',
+			action VARCHAR NOT NULL,
+			target VARCHAR NOT NULL DEFAULT '',
+			at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+			diff TEXT NOT NULL DEFAULT ''
+		)`,
+		`CREATE INDEX idx_adre_config_audit_at ON adre_config_audit (at DESC)`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
