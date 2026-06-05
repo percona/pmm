@@ -2,15 +2,15 @@
 # Env: PMM_URL (no trailing slash), PMM_API_TOKEN (Bearer). Optional: PMM_GRAFANA_TZ (default Europe/Amsterdam).
 # Browser-facing PMM_URL for panel image links (e.g. https://192.168.2.33:8443) — not Docker-only hostnames in user-visible URLs.
 # Inside-container API calls may use https://pmm-server:8443 (prometheus_url, api_url below).
-# Skills: custom_skill_paths → /root/runbooks/skills (generate from work_in_progress/runbooks/).
+# Skills are provided by PMM via the CUSTOM_SKILL_PATHS env var (=/config/skills). Do NOT set
+# custom_skill_paths here — Holmes only applies the env var when this file omits it, so a value
+# here would override it and point Holmes at the wrong directory.
 # Nomad (optional pmm-nomad toolset): PMM_NOMAD_API_BASE, PMM_NOMAD_BASIC_USER/PASSWORD, PMM_NOMAD_DATACENTER.
 # Model rules live in toolset llm_instructions and skills — not in this comment block.
-custom_skill_paths:
-  - /root/runbooks/skills
 
-# Fast model for llm_summarize on large tool output (LiteLLM id). Inject OPENAI_API_KEY into the Holmes container.
-model: openai/gpt-4.1
-fast_model: openai/gpt-4o-mini
+# Default model / fast_model are intentionally NOT hardcoded here. The chat model is chosen per
+# request by PMM, and the available models + provider keys live in model_list.yaml (Models tab).
+# To pin a fixed default or a fast model for llm_summarize, add `model:` / `fast_model:` here.
 
 toolsets:
   # Typical PMM Holmes has no usable kubeconfig; these toolsets still inject large schemas into every Opus call and burn TPM. Disable unless you run Holmes in-cluster with a real kubeconfig.
