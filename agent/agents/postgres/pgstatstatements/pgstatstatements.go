@@ -108,7 +108,14 @@ func getPgStatStatementsCacheSize(q *reform.Querier, l *logrus.Entry) uint {
 	return pgSSCacheSize
 }
 
-func newPgStatStatementsQAN(q *reform.Querier, dbCloser io.Closer, agentID string, maxQueryLength int32, disableCommentsParsing bool, l *logrus.Entry) (*PGStatStatementsQAN, error) { //nolint:lll
+func newPgStatStatementsQAN(
+	q *reform.Querier,
+	dbCloser io.Closer,
+	agentID string,
+	maxQueryLength int32,
+	disableCommentsParsing bool,
+	l *logrus.Entry,
+) (*PGStatStatementsQAN, error) {
 	cacheSize := getPgStatStatementsCacheSize(q, l)
 	statementCache, err := newStatementsCache(statementsMap{}, retainStatStatements, cacheSize, l)
 	if err != nil {

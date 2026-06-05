@@ -519,7 +519,12 @@ var (
 )
 
 // SelectFilters selects dimension and their values, and also keys and values of labels.
-func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, periodStartToSec int64, mainMetricName string, dimensions, labels map[string][]string) (*qanpbv1.GetFilteredMetricsNamesResponse, error) { //nolint:lll
+func (r *Reporter) SelectFilters(
+	ctx context.Context,
+	periodStartFromSec, periodStartToSec int64,
+	mainMetricName string,
+	dimensions, labels map[string][]string,
+) (*qanpbv1.GetFilteredMetricsNamesResponse, error) {
 	if !isValidMetricColumn(mainMetricName) {
 		return nil, fmt.Errorf("invalid main metric name %s", mainMetricName)
 	}
