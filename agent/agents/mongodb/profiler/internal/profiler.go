@@ -30,7 +30,7 @@ import (
 	"github.com/percona/pmm/agent/utils/mongo_fix"
 )
 
-// New creates new Profiler
+// New creates new Profiler.
 func New(mongoDSN string, logger *logrus.Entry, w sender.Writer, agentID string, maxQueryLength int32) *profiler {
 	return &profiler{
 		mongoDSN:       mongoDSN,
