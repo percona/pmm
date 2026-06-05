@@ -36,6 +36,29 @@ var builtinSkillsFS embed.FS
 
 const builtinSkillsDir = "builtin_skills"
 
+// defaultConfigYAML is the shipped HolmesGPT config.yaml (PMM toolsets), seeded into
+// adre_holmes_config on first run. The Grafana service-account token is stored as
+// grafanaTokenPlaceholder and substituted by the renderer with the minted PMM token.
+//
+//go:embed default_config.yaml
+var defaultConfigYAML string
+
+// grafanaTokenPlaceholder marks where the minted PMM service-account token is injected into
+// config.yaml at render time (the prometheus/metrics and grafana/dashboards toolsets).
+const grafanaTokenPlaceholder = "__PMM_GRAFANA_TOKEN__"
+
+// SeedDefaultConfig seeds adre_holmes_config with the shipped default config.yaml when empty (first run).
+func SeedDefaultConfig(db *reform.DB) error {
+	cfg, err := models.GetAdreHolmesConfig(db)
+	if err != nil {
+		return err
+	}
+	if strings.TrimSpace(cfg.ConfigYAML) != "" {
+		return nil
+	}
+	return models.SaveAdreHolmesConfig(db, defaultConfigYAML, "system")
+}
+
 type builtinSkill struct {
 	name        string
 	description string

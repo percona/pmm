@@ -205,7 +205,10 @@ func addLogsHandler(mux *http.ServeMux, logs *server.Logs) {
 }
 
 func addAdreHandlers(mux *http.ServeMux, db *reform.DB, grafanaClient adre.GrafanaAuth, vm v1.API, ch adre.ClickHousePools) {
-	// Seed the shipped HolmesGPT skills on first run (idempotent: no-op when adre_skills is populated).
+	// Seed the shipped HolmesGPT config.yaml and skills on first run (idempotent: no-op once populated).
+	if err := deployment.SeedDefaultConfig(db); err != nil {
+		logrus.Warnf("Failed to seed default ADRE config.yaml: %v", err)
+	}
 	if err := deployment.SeedBuiltinSkills(db); err != nil {
 		logrus.Warnf("Failed to seed built-in ADRE skills: %v", err)
 	}

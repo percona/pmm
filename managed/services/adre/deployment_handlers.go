@@ -143,7 +143,12 @@ func (h *Handlers) buildDeploymentResponse() (*deploymentResponse, error) {
 		return nil, err
 	}
 
-	resp := &deploymentResponse{ConfigYAML: cfg.ConfigYAML}
+	// Non-nil slices so JSON renders [] (not null) for clients that map() over them.
+	resp := &deploymentResponse{
+		ConfigYAML: cfg.ConfigYAML,
+		Models:     []deploymentModelView{},
+		Skills:     []deploymentSkillView{},
+	}
 	for _, m := range mdls {
 		resp.Models = append(resp.Models, deploymentModelView{
 			Name: m.Name, LitellmModel: m.LitellmModel, APIBase: m.APIBase, KeyConfigured: m.APIKey != "",
@@ -211,6 +216,10 @@ func (h *Handlers) PutDeploymentModels(w http.ResponseWriter, r *http.Request) {
 		name := strings.TrimSpace(m.Name)
 		if name == "" || strings.TrimSpace(m.LitellmModel) == "" {
 			writeJSONError(w, http.StatusBadRequest, "each model requires name and litellm_model")
+			return
+		}
+		if !validModelName(name) {
+			writeJSONError(w, http.StatusBadRequest, "model name may contain only letters, digits, '.', '-' or '_'")
 			return
 		}
 		if err := models.UpsertAdreModel(h.db, &models.AdreModel{ //nolint:noinlineerr
@@ -436,6 +445,20 @@ func validSkillNameAPI(name string) bool {
 	}
 	for _, c := range name {
 		if !(c >= 'a' && c <= 'z') && !(c >= 'A' && c <= 'Z') && !(c >= '0' && c <= '9') && c != '-' && c != '_' {
+			return false
+		}
+	}
+	return true
+}
+
+// validModelName allows model_list keys like "gpt-5.4" while rejecting "/", whitespace and other
+// characters that would break URL routing for DELETE /models/{name}.
+func validModelName(name string) bool {
+	if name == "" {
+		return false
+	}
+	for _, c := range name {
+		if !(c >= 'a' && c <= 'z') && !(c >= 'A' && c <= 'Z') && !(c >= '0' && c <= '9') && c != '.' && c != '-' && c != '_' {
 			return false
 		}
 	}

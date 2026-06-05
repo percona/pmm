@@ -59,7 +59,10 @@ func (p *Provisioner) EnsureProvisioned(ctx context.Context, pmmURL string) (*mo
 	changed := false
 
 	if prov.PMMSAToken == "" {
-		id, token, err := p.sa.CreateServiceAccount(ctx, holmesServiceAccountName, false)
+		// reregister=true so a retry recovers cleanly if the service account already exists from a
+		// prior partial provision (e.g. SA created but token never persisted). Only runs when no
+		// token is stored, so it does not rotate an existing working token.
+		id, token, err := p.sa.CreateServiceAccount(ctx, holmesServiceAccountName, true)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to mint HolmesGPT service-account token")
 		}

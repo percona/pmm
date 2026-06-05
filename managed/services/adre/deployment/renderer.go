@@ -84,8 +84,17 @@ func (r *Renderer) Render() error {
 	if err := r.renderModelList(mdls); err != nil {
 		return err
 	}
-	if err := writeFileAtomic(filepath.Join(r.dir, "config.yaml"), []byte(cfg.ConfigYAML), configFileMode); err != nil {
-		return errors.Wrap(err, "failed to render config.yaml")
+	// Inject the minted PMM service-account token where config.yaml references it (the Grafana-token
+	// placeholder used by the prometheus/metrics and grafana/dashboards toolsets).
+	configYAML := strings.ReplaceAll(cfg.ConfigYAML, grafanaTokenPlaceholder, prov.PMMSAToken)
+	// Never overwrite an existing config.yaml with an empty one — an empty config.yaml strips all
+	// PMM toolsets from Holmes. A fresh setup must populate config.yaml before it is rendered.
+	if strings.TrimSpace(configYAML) != "" {
+		if err := writeFileAtomic(filepath.Join(r.dir, "config.yaml"), []byte(configYAML), configFileMode); err != nil {
+			return errors.Wrap(err, "failed to render config.yaml")
+		}
+	} else {
+		r.l.Warn("ADRE config.yaml is empty in DB; leaving any existing config.yaml on disk untouched")
 	}
 	if err := r.renderSkills(skills); err != nil {
 		return err

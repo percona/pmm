@@ -18,6 +18,7 @@ package deployment
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/sirupsen/logrus"
@@ -80,6 +81,30 @@ func TestRenderModelList(t *testing.T) {
 	info, err := os.Stat(filepath.Join(r.dir, "model_list.yaml"))
 	require.NoError(t, err)
 	assert.Equal(t, os.FileMode(0o600), info.Mode().Perm(), "model_list.yaml holds secrets → 0600")
+}
+
+func TestDefaultConfigEmbedAndPlaceholder(t *testing.T) {
+	t.Parallel()
+	// The shipped default config.yaml must be embedded, carry the token placeholder (not a real
+	// glsa_ token), and define the PMM toolsets.
+	assert.NotEmpty(t, defaultConfigYAML, "default config.yaml must be embedded")
+	assert.Contains(t, defaultConfigYAML, grafanaTokenPlaceholder)
+	assert.NotContains(t, defaultConfigYAML, "glsa_", "no real Grafana token may ship in the template")
+	assert.Contains(t, defaultConfigYAML, "pmm-inventory", "default config must define the PMM toolsets")
+}
+
+func TestRenderConfigYAMLSubstitutesToken(t *testing.T) {
+	t.Parallel()
+	r := testRenderer(t)
+	// Mimic Render's substitution + write for a config holding the placeholder.
+	const cfg = "model: openai/gpt-4.1\ntoolsets:\n  grafana/dashboards:\n    config:\n      api_key: __PMM_GRAFANA_TOKEN__\n"
+	out := strings.ReplaceAll(cfg, grafanaTokenPlaceholder, "glsa_minted_123")
+	require.NoError(t, writeFileAtomic(filepath.Join(r.dir, "config.yaml"), []byte(out), configFileMode))
+
+	b, err := os.ReadFile(filepath.Join(r.dir, "config.yaml"))
+	require.NoError(t, err)
+	assert.Contains(t, string(b), "api_key: glsa_minted_123")
+	assert.NotContains(t, string(b), grafanaTokenPlaceholder)
 }
 
 func TestRenderEnv(t *testing.T) {

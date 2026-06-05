@@ -96,10 +96,30 @@ const AdreDeploymentPage: FC = () => {
     );
   }
 
+  // Go marshals empty slices as JSON null; normalize so the tabs can map() safely.
+  const safeData: AdreDeployment = {
+    configYaml: data.configYaml ?? '',
+    models: data.models ?? [],
+    skills: data.skills ?? [],
+    provisioning: data.provisioning ?? {
+      pmmUrl: '',
+      tokenConfigured: false,
+      holmesApiKeyConfigured: false,
+      restartRequired: false,
+      renderStatus: '',
+      configDir: '',
+    },
+  };
+
+  const notify = {
+    onError: (e: unknown) => enqueueSnackbar(errMessage(e), { variant: 'error' }),
+    onOk: (m: string) => enqueueSnackbar(m, { variant: 'success' }),
+  };
+
   return (
     <Page {...pageProps}>
       <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto', p: 2 }}>
-        {data.provisioning.restartRequired && (
+        {safeData.provisioning.restartRequired && (
           <Alert severity="warning" sx={{ mb: 2 }}>
             Configuration changed. Click <strong>Apply</strong>, then restart the HolmesGPT container to take effect.
           </Alert>
@@ -111,10 +131,10 @@ const AdreDeploymentPage: FC = () => {
           <Tab label="Provisioning & Apply" />
         </Tabs>
 
-        {tab === 0 && <ModelsTab data={data} onError={(e) => enqueueSnackbar(errMessage(e), { variant: 'error' })} onOk={(m) => enqueueSnackbar(m, { variant: 'success' })} />}
-        {tab === 1 && <ConfigTab data={data} onError={(e) => enqueueSnackbar(errMessage(e), { variant: 'error' })} onOk={(m) => enqueueSnackbar(m, { variant: 'success' })} />}
-        {tab === 2 && <SkillsTab data={data} onError={(e) => enqueueSnackbar(errMessage(e), { variant: 'error' })} onOk={(m) => enqueueSnackbar(m, { variant: 'success' })} />}
-        {tab === 3 && <ProvisioningTab data={data} onError={(e) => enqueueSnackbar(errMessage(e), { variant: 'error' })} onOk={(m) => enqueueSnackbar(m, { variant: 'success' })} />}
+        {tab === 0 && <ModelsTab data={safeData} {...notify} />}
+        {tab === 1 && <ConfigTab data={safeData} {...notify} />}
+        {tab === 2 && <SkillsTab data={safeData} {...notify} />}
+        {tab === 3 && <ProvisioningTab data={safeData} {...notify} />}
       </Box>
     </Page>
   );
