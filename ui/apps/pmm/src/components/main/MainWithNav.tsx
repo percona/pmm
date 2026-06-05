@@ -38,9 +38,9 @@ export const MainWithNav = () => {
   }
 
   return (
-    <Stack direction="row" flex={1}>
+    <Stack direction="row" flex={1} sx={{ minWidth: 0 }}>
       {showNav && <Sidebar />}
-      <Stack flex={1} direction="column">
+      <Stack flex={1} direction="column" sx={{ minWidth: 0 }}>
         {showNav && <Header />}
         <Outlet />
         <GrafanaPage />
