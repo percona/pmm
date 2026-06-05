@@ -91,3 +91,62 @@ func TestOffsetSchedule(t *testing.T) {
 		assert.Equal(t, offset%time.Second, newOffset)
 	})
 }
+
+func TestDelayUntilOffset(t *testing.T) {
+	t.Parallel()
+
+	now := time.Date(2026, 6, 4, 18, 47, 10, 0, time.UTC)
+
+	tests := []struct {
+		name     string
+		now      time.Time
+		interval time.Duration
+		offset   time.Duration
+		expected time.Duration
+	}{
+		{
+			name:     "before offset",
+			now:      now,
+			interval: time.Minute,
+			offset:   30 * time.Second,
+			expected: 20 * time.Second,
+		},
+		{
+			name:     "at offset",
+			now:      now.Add(20 * time.Second),
+			interval: time.Minute,
+			offset:   30 * time.Second,
+			expected: 0,
+		},
+		{
+			name:     "after offset",
+			now:      now.Add(21 * time.Second),
+			interval: time.Minute,
+			offset:   30 * time.Second,
+			expected: 0,
+		},
+		{
+			name:     "offset outside interval",
+			now:      now,
+			interval: time.Minute,
+			offset:   90 * time.Second,
+			expected: 20 * time.Second,
+		},
+		{
+			name:     "non positive interval",
+			now:      now,
+			interval: 0,
+			offset:   30 * time.Second,
+			expected: 0,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			actual := DelayUntilOffset(tt.now, tt.interval, tt.offset)
+			assert.Equal(t, tt.expected, actual)
+		})
+	}
+}

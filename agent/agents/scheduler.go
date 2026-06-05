@@ -42,6 +42,22 @@ func RandomMinuteOffset(agentID string) (time.Duration, func()) {
 	return minuteSchedule.assign(agentID, time.Minute)
 }
 
+// DelayUntilOffset returns the time left before the offset slot in the current interval.
+func DelayUntilOffset(now time.Time, interval, offset time.Duration) time.Duration {
+	if interval <= 0 || offset <= 0 {
+		return 0
+	}
+
+	offset %= interval
+	periodStart := now.Truncate(interval)
+	target := periodStart.Add(offset)
+	if !target.After(now) {
+		return 0
+	}
+
+	return target.Sub(now)
+}
+
 func (s *offsetSchedule) assign(agentID string, interval time.Duration) (time.Duration, func()) {
 	s.m.Lock()
 	defer s.m.Unlock()

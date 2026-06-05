@@ -19,7 +19,9 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -317,6 +319,52 @@ func TestFilter(t *testing.T) {
 	assert.Equal(t, []string{"toStart"}, toStart)
 	assert.Equal(t, []string{"toRestart"}, toRestart)
 	assert.Equal(t, []string{"toStop"}, toStop)
+}
+
+func TestSupervisorSendQANRequest(t *testing.T) {
+	t.Parallel()
+
+	request := &agentv1.QANCollectRequest{
+		MetricsBucket: []*agentv1.MetricsBucket{{}},
+	}
+	l := logrus.NewEntry(logrus.New())
+
+	t.Run("sends without delay", func(t *testing.T) {
+		t.Parallel()
+
+		s := &Supervisor{
+			qanRequests: make(chan *agentv1.QANCollectRequest, 1),
+		}
+
+		sent := s.sendQANRequest(t.Context(), l, request, 0)
+		require.True(t, sent)
+		assert.Same(t, request, <-s.QANRequests())
+	})
+
+	t.Run("cancels pending delivery", func(t *testing.T) {
+		t.Parallel()
+
+		ctx, cancel := context.WithCancel(t.Context())
+		s := &Supervisor{
+			qanRequests: make(chan *agentv1.QANCollectRequest, 1),
+		}
+
+		done := make(chan bool, 1)
+		go func() {
+			done <- s.sendQANRequest(ctx, l, request, time.Hour)
+		}()
+
+		cancel()
+
+		select {
+		case sent := <-done:
+			assert.False(t, sent)
+		case <-time.After(time.Second):
+			t.Fatal("sendQANRequest did not stop after context cancellation")
+		}
+
+		assert.Empty(t, s.qanRequests)
+	})
 }
 
 func TestSupervisorProcessParams(t *testing.T) {

@@ -680,11 +680,16 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 	go pprof.Do(ctx, pprof.Labels("agentID", agentID, "type", agentType), agent.Run)
 
 	go func() {
-		var qanDeliveryOffset time.Duration
-		qanDeliveryOffsetAssigned := false
-		releaseQANDeliveryOffset := func() {}
+		qanDeliveryRequests := make(chan *agentv1.QANCollectRequest, qanRequestsBufferSize)
+		qanDeliveryDone := make(chan struct{})
+		go func() {
+			defer close(qanDeliveryDone)
+			s.deliverQANRequests(ctx, l, agentID, qanDeliveryRequests)
+		}()
+		defer close(done)
 		defer func() {
-			releaseQANDeliveryOffset()
+			close(qanDeliveryRequests)
+			<-qanDeliveryDone
 		}()
 
 		rtaBucketLastCollectTime := timestamppb.New(time.Now()).AsTime()
@@ -699,14 +704,14 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 				}
 			}
 			if change.MetricsBucket != nil {
-				if !qanDeliveryOffsetAssigned {
-					qanDeliveryOffset, releaseQANDeliveryOffset = agents.RandomMinuteOffset(agentID)
-					qanDeliveryOffsetAssigned = true
-				}
 				request := &agentv1.QANCollectRequest{
 					MetricsBucket: change.MetricsBucket,
 				}
-				s.sendQANRequest(ctx, l, request, qanDeliveryOffset)
+				select {
+				case qanDeliveryRequests <- request:
+				case <-ctx.Done():
+					return
+				}
 			}
 
 			if len(change.RTAQueriesBucket) != 0 {
@@ -729,7 +734,6 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 				}
 			}
 		}
-		close(done)
 	}()
 
 	//nolint:forcetypeassert
@@ -744,9 +748,26 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 	return nil
 }
 
-func (s *Supervisor) sendQANRequest(ctx context.Context, l *logrus.Entry, request *agentv1.QANCollectRequest, delay time.Duration) {
+func (s *Supervisor) deliverQANRequests(ctx context.Context, l *logrus.Entry, agentID string, requests <-chan *agentv1.QANCollectRequest) {
+	var qanDeliveryOffset time.Duration
+	qanDeliveryOffsetAssigned := false
+	releaseQANDeliveryOffset := func() {}
+	defer releaseQANDeliveryOffset()
+
+	for request := range requests {
+		if !qanDeliveryOffsetAssigned {
+			qanDeliveryOffset, releaseQANDeliveryOffset = agents.RandomMinuteOffset(agentID)
+			qanDeliveryOffsetAssigned = true
+		}
+
+		delay := agents.DelayUntilOffset(time.Now(), time.Minute, qanDeliveryOffset)
+		s.sendQANRequest(ctx, l, request, delay)
+	}
+}
+
+func (s *Supervisor) sendQANRequest(ctx context.Context, l *logrus.Entry, request *agentv1.QANCollectRequest, delay time.Duration) bool {
 	if delay > 0 {
-		l.Debugf("Scheduling QAN delivery in %s with %s offset.", delay, delay)
+		l.Debugf("Scheduling QAN delivery in %s.", delay)
 		t := time.NewTimer(delay)
 		select {
 		case <-t.C:
@@ -757,14 +778,16 @@ func (s *Supervisor) sendQANRequest(ctx context.Context, l *logrus.Entry, reques
 				default:
 				}
 			}
-			return
+			return false
 		}
 	}
 
 	l.Infof("Sending %d metrics buckets.", len(request.MetricsBucket))
 	select {
 	case s.qanRequests <- request:
+		return true
 	case <-ctx.Done():
+		return false
 	}
 }
 
