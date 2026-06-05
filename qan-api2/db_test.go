@@ -52,9 +52,7 @@ func setupDB(t *testing.T) *sqlx.DB {
 		assert.NoError(t, db.Close())
 	})
 
-	data := map[string]any{
-		"engine": migrations.GetEngine(false),
-	}
+	data := migrations.TemplateData(false)
 	err = migrations.Run(dsn, data, false, "")
 	require.NoError(t, err, "Migration failed")
 
@@ -80,7 +78,7 @@ func TestDropOldPartition(t *testing.T) {
 		cleanupDB(t, "pmm_test_parts")
 	})
 
-	const query = `SELECT DISTINCT partition FROM system.parts WHERE database = 'pmm_test_parts' and visible = 1 ORDER BY partition`
+	const query = `SELECT DISTINCT partition FROM system.parts WHERE database = 'pmm_test_parts' and table = 'metrics' and visible = 1 ORDER BY partition`
 
 	start := time.Now()
 	// fixtures have two partition 20190101 and 20190102

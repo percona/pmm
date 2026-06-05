@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"text/template"
 )
 
@@ -33,9 +34,15 @@ func main() {
 	flag.StringVar(&cluster, "cluster", "", "Cluster clause (e.g. ON CLUSTER 'test_cluster')")
 	flag.Parse()
 
+	aggregatingEngine := "AggregatingMergeTree"
+	if strings.HasPrefix(engine, "Replicated") {
+		aggregatingEngine = "ReplicatedAggregatingMergeTree"
+	}
+
 	data := map[string]any{
-		"engine":  engine,
-		"cluster": cluster,
+		"engine":            engine,
+		"cluster":           cluster,
+		"aggregatingEngine": aggregatingEngine,
 	}
 
 	files, err := filepath.Glob(filepath.Join("migrations/sql", "*.up.sql"))

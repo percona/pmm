@@ -98,9 +98,7 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 	db.SetMaxIdleConns(maxIdleConns)
 	db.SetMaxOpenConns(maxOpenConns)
 
-	data := map[string]any{
-		"engine": migrations.GetEngine(isCluster),
-	}
+	data := migrations.TemplateData(isCluster)
 	if err := migrations.Run(dsn, data, isCluster, clusterName); err != nil {
 		l.Fatalf("migrations: %v", err)
 	}
