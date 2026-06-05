@@ -755,13 +755,18 @@ func (s *Supervisor) deliverQANRequests(ctx context.Context, l *logrus.Entry, ag
 
 	for request := range requests {
 		if !qanDeliveryOffsetAssigned {
-			qanDeliveryOffset, releaseQANDeliveryOffset = agents.RandomMinuteOffset(agentID)
-			defer releaseQANDeliveryOffset()
+			var offset time.Duration
+			offset, releaseQANDeliveryOffset = agents.RandomMinuteOffset(agentID)
+			qanDeliveryOffset = offset
 			qanDeliveryOffsetAssigned = true
 		}
 
 		delay := agents.DelayUntilOffset(time.Now(), time.Minute, qanDeliveryOffset)
 		s.sendQANRequest(ctx, l, request, delay)
+	}
+
+	if releaseQANDeliveryOffset != nil {
+		releaseQANDeliveryOffset()
 	}
 }
 
