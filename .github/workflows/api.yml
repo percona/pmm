@@ -6,7 +6,7 @@ on:
       - v3
     paths:
       - "api/**"
-      - "docs/api/**"
+      - "documentation/api/**"
 
   workflow_dispatch:
 
@@ -38,4 +38,4 @@ jobs:
       - name: Markdown docs
         uses: readmeio/rdme@ec5cd68823bff400ae286b6698c29f81e21f08d6 # v10.9.0
         with:
-          rdme: reference upload docs/api/ --branch=${{ env.VERSION }}  --key=${{ secrets.README_TOKEN }}
+          rdme: reference upload documentation/api/ --branch=${{ env.VERSION }}  --key=${{ secrets.README_TOKEN }}

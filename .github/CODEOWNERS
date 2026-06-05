@@ -1,5 +1,5 @@
 *                                       @percona/pmm-review-be
-/docs/                                  @percona/pmm-docs @percona/pmm-review-be
+/dev/docs/                              @percona/pmm-docs @percona/pmm-review-be
 /documentation/                         @percona/pmm-docs
 /ui/                                    @percona/pmm-review-fe
 /dashboards/                            @nailya @percona/pmm-review-fe

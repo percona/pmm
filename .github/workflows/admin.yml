@@ -16,7 +16,7 @@ on:
     paths-ignore:
       - "agent/**"
       - "api-tests/**"
-      - "docs/**"
+      - "dev/docs/**"
       - "documentation/**"
       - "managed/**"
       - "qan-api2/**"
