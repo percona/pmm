@@ -41,13 +41,23 @@ jobs:
             "refs/remotes/upstream/${UPSTREAM_BRANCH}:refs/heads/${SYNC_BRANCH}"
 
       - name: Open or refresh the sync pull request
+        # Prefer a PAT if provided (can create PRs on a fork); fall back to the
+        # App token. The branch was already mirrored in the step above, so PR
+        # creation is best-effort: when no PR-capable token exists the run still
+        # succeeds with the branch synced.
+        env:
+          GH_TOKEN: ${{ secrets.UPSTREAM_SYNC_PAT || secrets.GITHUB_TOKEN }}
         run: |
           open_pr="$(gh pr list --head "$SYNC_BRANCH" --base main \
             --state open --json number --jq '.[].number')"
           if [ -n "$open_pr" ]; then
             echo "Sync PR #${open_pr} already open - its branch was updated."
+            exit 0
+          fi
+          if gh pr create --head "$SYNC_BRANCH" --base main \
+            --title "chore: sync upstream percona/pmm" \
+            --body "Automated upstream sync from percona/pmm (branch v3). Review and merge to bring main up to date; resolve any conflicts with the datacosmos customizations."; then
+            echo "Opened a new sync PR."
           else
-            gh pr create --head "$SYNC_BRANCH" --base main \
-              --title "chore: sync upstream percona/pmm" \
-              --body "Automated upstream sync from percona/pmm (branch v3). Review and merge to bring main up to date; resolve any conflicts with the datacosmos customizations."
+            echo "::warning::Could not open the sync PR automatically. GITHUB_TOKEN cannot create pull requests on a fork; the upstream-sync branch is updated — open the PR manually, or add an UPSTREAM_SYNC_PAT secret (scope: repo + workflow) to automate it."
           fi
