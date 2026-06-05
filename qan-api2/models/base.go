@@ -26,9 +26,9 @@ import (
 const queryTimeout = 30 * time.Second
 
 // MaxParallelQueries bounds the number of ClickHouse queries a single request may
-// run concurrently. It is kept well below the connection pool size
-// (--clickhouse-pool-size) so one request cannot monopolize the pool — which is
-// shared with the data ingestion writer — or flood ClickHouse with concurrent scans.
+// run concurrently. It is kept well below the connection pool size (see maxOpenConns
+// in main.go) so one request cannot monopolize the pool — which is shared with the
+// data ingestion writer — or flood ClickHouse with concurrent scans.
 const MaxParallelQueries = 4
 
 var sparklinePointAllFields = []string{

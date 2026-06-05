@@ -28,7 +28,6 @@ import (
 	_ "net/http/pprof" //nolint:gosec
 	"os"
 	"os/signal"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -67,7 +66,8 @@ const (
 	shutdownTimeout                 = 3 * time.Second
 	defaultDropOldPartitionInterval = 24 * time.Hour
 	defaultDsnF                     = "clickhouse://%s:%s@%s/%s"
-	defaultPoolSize                 = 20
+	maxIdleConns                    = 5
+	maxOpenConns                    = 10
 )
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -269,8 +269,6 @@ func main() {
 
 	clickhouseIsClusterF := kingpin.Flag("clickhouse-cluster", "Is ClickHouse a cluster").Default("false").Envar("PMM_CLICKHOUSE_IS_CLUSTER").Bool()
 	clickhouseClusterNameF := kingpin.Flag("clickhouse-cluster-name", "ClickHouse cluster name").Default("").Envar("PMM_CLICKHOUSE_CLUSTER_NAME").String()
-	ps := strconv.Itoa(defaultPoolSize)
-	clickhousePoolSizeF := kingpin.Flag("clickhouse-pool-size", "Maximum number of ClickHouse connections").Default(ps).Envar("PMM_CLICKHOUSE_POOL_SIZE").Int()
 
 	debugF := kingpin.Flag("debug", "Enable debug logging").Bool()
 	traceF := kingpin.Flag("trace", "Enable trace logging (implies debug)").Bool()
@@ -305,9 +303,7 @@ func main() {
 	}
 	l.Info("DSN: ", dsnutils.RedactDSN(dsn))
 
-	// Use the same value for idle and open connections to avoid churn (closing and
-	// reopening connections) under bursty QAN load.
-	db := NewDB(dsn, *clickhousePoolSizeF, *clickhousePoolSizeF, *clickhouseIsClusterF, *clickhouseClusterNameF)
+	db := NewDB(dsn, maxIdleConns, maxOpenConns, *clickhouseIsClusterF, *clickhouseClusterNameF)
 	prom.MustRegister(sqlmetrics.NewCollector("clickhouse", "qan-api2", db.DB))
 
 	// handle termination signals
