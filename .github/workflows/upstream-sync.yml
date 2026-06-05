@@ -25,6 +25,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          # Push via an SSH deploy key, not GITHUB_TOKEN: the default App token is
+          # refused when the upstream branch touches .github/workflows/** ("refusing
+          # to allow a GitHub App to ... update workflow ... without workflows
+          # permission"). A deploy key is not an App token, so it can mirror workflow
+          # files. Read-write deploy key; private half in secrets.
+          ssh-key: ${{ secrets.UPSTREAM_SYNC_DEPLOY_KEY }}
 
       - name: Refresh the sync branch from upstream
         run: |
