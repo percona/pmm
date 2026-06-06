@@ -15,6 +15,8 @@ import {
   SelectChangeEvent,
   Stack,
   Switch,
+  Tab,
+  Tabs,
   TextField,
   Typography,
 } from '@mui/material';
@@ -65,6 +67,7 @@ const AdreSettingsPage: FC = () => {
   const { data: settings, isLoading, isError, error } = useAdreSettings();
   const { data: models = [] } = useAdreModels({ enabled: true });
   const updateSettings = useUpdateAdreSettings();
+  const [tab, setTab] = useState(0);
   const [localEnabled, setLocalEnabled] = useState(settings?.enabled ?? false);
   const [localUrl, setLocalUrl] = useState(settings?.url ?? '');
   const [localDefaultChatMode, setLocalDefaultChatMode] = useState<'fast' | 'investigation'>('investigation');
@@ -163,6 +166,45 @@ const AdreSettingsPage: FC = () => {
   const isAdmin = user?.isPMMAdmin ?? false;
   const isForbidden = isError && isForbiddenError(error);
 
+  const onSave = () =>
+    updateSettings.mutate(
+      {
+        enabled: localEnabled,
+        url: localUrl,
+        default_chat_mode: localDefaultChatMode,
+        chat_model: localFastModel || undefined,
+        investigation_model: localInvestigationModel || undefined,
+        qan_insights_model: localQanInsightsModel || undefined,
+        adre_max_conversation_messages: localAdreMaxConversationMessages,
+        behavior_controls_fast: localBehaviorFast,
+        behavior_controls_investigation: localBehaviorInvestigation,
+        behavior_controls_format_report: localBehaviorFormat,
+        chat_prompt: localChatPrompt || undefined,
+        investigation_prompt: localInvestigationPrompt || undefined,
+        qan_insights_prompt: localQanInsightsPrompt || undefined,
+        prompt_max_bytes: localPromptMaxBytes,
+        servicenow_url: localServiceNowURL || undefined,
+        ...(localServiceNowAPIKey ? { servicenow_api_key: localServiceNowAPIKey } : {}),
+        ...(localServiceNowClientToken ? { servicenow_client_token: localServiceNowClientToken } : {}),
+        slack_enabled: localSlackEnabled,
+        slack_auto_investigate: localSlackAutoInvestigate,
+        ...(localSlackBotToken ? { slack_bot_token: localSlackBotToken } : {}),
+        ...(localSlackAppToken ? { slack_app_token: localSlackAppToken } : {}),
+      } as Partial<AdreSettings> & Record<string, unknown>,
+      {
+        onError: (err: unknown) => {
+          const msg =
+            (err as { response?: { data?: { error?: string } } })?.response?.data?.error ??
+            (err as Error)?.message ??
+            'Failed to save settings';
+          enqueueSnackbar(msg, { variant: 'error' });
+        },
+        onSuccess: () => {
+          enqueueSnackbar('Settings saved', { variant: 'success' });
+        },
+      }
+    );
+
   if (isLoading) {
     return (
       <Page {...pageProps}>
@@ -203,50 +245,247 @@ const AdreSettingsPage: FC = () => {
     );
   }
 
+  if (!isAdmin) {
+    return (
+      <Page {...pageProps}>
+        <Card variant="outlined" sx={{ maxWidth: 720, mx: 'auto', width: '100%' }}>
+          <CardContent>
+            <Alert severity="info">
+              Admin access is required to modify AI Assistant settings. Contact your administrator or
+              open PMM Settings.
+            </Alert>
+          </CardContent>
+        </Card>
+      </Page>
+    );
+  }
+
   return (
     <Page {...pageProps}>
       <Box
-        sx={{
-          flex: 1,
-          minHeight: 0,
-          minWidth: 0,
-          overflowY: 'auto',
-          WebkitOverflowScrolling: 'touch',
-        }}
+        sx={{ flex: 1, minHeight: 0, minWidth: 0, overflowY: 'auto', WebkitOverflowScrolling: 'touch', p: 2 }}
         data-testid="adre-settings-scroll"
       >
-        <Card variant="outlined" sx={{ maxWidth: 640, mx: 'auto', width: '100%' }}>
-          <CardContent>
-          <Stack gap={3}>
-            <Typography variant="body2" color="text.secondary">
-              Configure the Autonomous Database Reliability Engineer (ADRE) and
-              AI backend for AI-assisted investigations.
-            </Typography>
-            {isAdmin ? (
-              <Stack gap={3}>
+        <Box sx={{ maxWidth: 720, mx: 'auto', width: '100%' }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Configure the Autonomous Database Reliability Engineer (ADRE) and AI backend for
+            AI-assisted investigations.
+          </Typography>
+
+          <Tabs
+            value={tab}
+            onChange={(_: SyntheticEvent, v: number) => setTab(v)}
+            variant="scrollable"
+            scrollButtons="auto"
+            sx={{ mb: 2 }}
+          >
+            <Tab label="General" />
+            <Tab label="Prompts" />
+            <Tab label="Behavior" />
+            <Tab label="Slack" />
+            <Tab label="ServiceNow" />
+          </Tabs>
+
+          {tab === 0 && (
+            <Card variant="outlined">
+              <CardContent>
+                <Stack gap={3}>
+                  <Stack gap={2}>
+                    <Typography variant="subtitle1" fontWeight={600}>
+                      Connection
+                    </Typography>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={localEnabled}
+                          onChange={(_e: SyntheticEvent, v: boolean) => setLocalEnabled(v)}
+                        />
+                      }
+                      label="Enable ADRE"
+                    />
+                    <TextField
+                      label="AI service URL"
+                      placeholder="http://localhost:8080"
+                      value={localUrl}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalUrl(e.target.value)}
+                      size="small"
+                      fullWidth
+                    />
+                  </Stack>
+                  <Divider />
+                  <Stack gap={2}>
+                    <Typography variant="subtitle1" fontWeight={600}>
+                      ADRE panel
+                    </Typography>
+                    <FormControl size="small" fullWidth>
+                      <InputLabel>Default mode in ADRE panel</InputLabel>
+                      <Select
+                        value={localDefaultChatMode}
+                        label="Default mode in ADRE panel"
+                        onChange={(e: SelectChangeEvent<'fast' | 'investigation'>) =>
+                          setLocalDefaultChatMode(e.target.value as 'fast' | 'investigation')
+                        }
+                      >
+                        <MenuItem value="fast">Fast</MenuItem>
+                        <MenuItem value="investigation">Investigation</MenuItem>
+                      </Select>
+                    </FormControl>
+                    <FormControl size="small" fullWidth>
+                      <InputLabel>Fast mode model</InputLabel>
+                      <Select
+                        value={localFastModel}
+                        label="Fast mode model"
+                        onChange={(e: SelectChangeEvent<string>) => setLocalFastModel(e.target.value)}
+                      >
+                        <MenuItem value="">Service default</MenuItem>
+                        {models.map((m) => (
+                          <MenuItem key={`fast-${m}`} value={m}>
+                            {m}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                    <FormControl size="small" fullWidth>
+                      <InputLabel>Investigation mode model</InputLabel>
+                      <Select
+                        value={localInvestigationModel}
+                        label="Investigation mode model"
+                        onChange={(e: SelectChangeEvent<string>) =>
+                          setLocalInvestigationModel(e.target.value)
+                        }
+                      >
+                        <MenuItem value="">Service default</MenuItem>
+                        {models.map((m) => (
+                          <MenuItem key={`investigation-${m}`} value={m}>
+                            {m}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                    <FormControl size="small" fullWidth>
+                      <InputLabel>QAN Insights model</InputLabel>
+                      <Select
+                        value={localQanInsightsModel}
+                        label="QAN Insights model"
+                        onChange={(e: SelectChangeEvent<string>) =>
+                          setLocalQanInsightsModel(e.target.value)
+                        }
+                      >
+                        <MenuItem value="">Service default</MenuItem>
+                        {models.map((m) => (
+                          <MenuItem key={`qan-insights-${m}`} value={m}>
+                            {m}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                    <TextField
+                      label="Max conversation messages to AI"
+                      type="number"
+                      inputProps={{ min: 4, max: 200 }}
+                      value={localAdreMaxConversationMessages}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                        setLocalAdreMaxConversationMessages(parseInt(e.target.value, 10) || 40)
+                      }
+                      size="small"
+                      fullWidth
+                      helperText="Caps conversation_history size (4–200). Reduces context-overflow failures."
+                    />
+                    <TextField
+                      label="Prompt max bytes"
+                      type="number"
+                      inputProps={{ min: 1024, max: 65536 }}
+                      value={localPromptMaxBytes}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                        setLocalPromptMaxBytes(parseInt(e.target.value, 10) || 16 * 1024)
+                      }
+                      size="small"
+                      fullWidth
+                      helperText="Allowed range: 1024–65536. Default recommended: 16384."
+                    />
+                  </Stack>
+                </Stack>
+              </CardContent>
+            </Card>
+          )}
+
+          {tab === 1 && (
+            <Card variant="outlined">
+              <CardContent>
                 <Stack gap={2}>
                   <Typography variant="subtitle1" fontWeight={600}>
-                    Connection
+                    Prompts
                   </Typography>
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={localEnabled}
-                        onChange={(_e: SyntheticEvent, v: boolean) => setLocalEnabled(v)}
-                      />
-                    }
-                    label="Enable ADRE"
-                  />
                   <TextField
-                    label="AI service URL"
-                    placeholder="http://localhost:8080"
-                    value={localUrl}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalUrl(e.target.value)}
+                    label="Fast mode prompt"
+                    placeholder="Additional system prompt for Fast mode"
+                    value={localChatPrompt}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalChatPrompt(e.target.value)}
                     size="small"
                     fullWidth
+                    multiline
+                    minRows={4}
+                    helperText={`Fast mode (${byteCount(localChatPrompt)} / ${localPromptMaxBytes} bytes)`}
+                  />
+                  <TextField
+                    label="Investigation mode prompt"
+                    placeholder="Additional system prompt for Investigation mode"
+                    value={localInvestigationPrompt}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalInvestigationPrompt(e.target.value)}
+                    size="small"
+                    fullWidth
+                    multiline
+                    minRows={4}
+                    helperText={`Investigation mode (${byteCount(localInvestigationPrompt)} / ${localPromptMaxBytes} bytes)`}
+                  />
+                  <TextField
+                    label="QAN AI Insights prompt"
+                    placeholder="System prompt for QAN AI Insights (query analytics and optimization). Leave empty for default."
+                    value={localQanInsightsPrompt}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalQanInsightsPrompt(e.target.value)}
+                    size="small"
+                    fullWidth
+                    multiline
+                    minRows={4}
+                    helperText={`Used when analyzing a query from Query Analytics; leave empty for default (${byteCount(localQanInsightsPrompt)} / ${localPromptMaxBytes} bytes)`}
                   />
                 </Stack>
-                <Divider />
+              </CardContent>
+            </Card>
+          )}
+
+          {tab === 2 && (
+            <Stack gap={2}>
+              <AdreBehaviorControlsBlock
+                variant="fast"
+                title="Fast mode — behavior controls"
+                description="Tuning for the Fast path in the ADRE chat panel (tools / TodoWrite, etc.)."
+                value={localBehaviorFast}
+                onChange={setLocalBehaviorFast}
+                onJsonError={(msg) => enqueueSnackbar(msg, { variant: 'error' })}
+              />
+              <AdreBehaviorControlsBlock
+                variant="investigation"
+                title="Investigation mode — behavior controls"
+                description="Used for investigation chat and investigation runs. Empty preset means service defaults for omitted keys."
+                value={localBehaviorInvestigation}
+                onChange={setLocalBehaviorInvestigation}
+                onJsonError={(msg) => enqueueSnackbar(msg, { variant: 'error' })}
+              />
+              <AdreBehaviorControlsBlock
+                variant="format"
+                title="Format investigation report — behavior controls"
+                description="Used when PMM turns a raw investigation report into structured JSON."
+                value={localBehaviorFormat}
+                onChange={setLocalBehaviorFormat}
+                onJsonError={(msg) => enqueueSnackbar(msg, { variant: 'error' })}
+              />
+            </Stack>
+          )}
+
+          {tab === 3 && (
+            <Card variant="outlined">
+              <CardContent>
                 <Stack gap={2}>
                   <Typography variant="subtitle1" fontWeight={600}>
                     Slack integration
@@ -289,7 +528,7 @@ const AdreSettingsPage: FC = () => {
                   </Typography>
                   {!localEnabled || !localUrl.trim() ? (
                     <Typography variant="caption" color="text.secondary">
-                      Enable ADRE and set the AI service URL first.
+                      Enable ADRE and set the AI service URL first (General tab).
                     </Typography>
                   ) : null}
                   <Typography variant="body2" color="text.secondary">
@@ -319,163 +558,13 @@ const AdreSettingsPage: FC = () => {
                     helperText="xapp-… with connections:write; leave empty to keep current"
                   />
                 </Stack>
-                <Divider />
-                <Stack gap={2}>
-                  <Typography variant="subtitle1" fontWeight={600}>
-                    ADRE panel
-                  </Typography>
-                  <FormControl size="small" fullWidth>
-                    <InputLabel>Default mode in ADRE panel</InputLabel>
-                    <Select
-                      value={localDefaultChatMode}
-                      label="Default mode in ADRE panel"
-                      onChange={(e: SelectChangeEvent<'fast' | 'investigation'>) =>
-                        setLocalDefaultChatMode(e.target.value as 'fast' | 'investigation')
-                      }
-                    >
-                      <MenuItem value="fast">Fast</MenuItem>
-                      <MenuItem value="investigation">Investigation</MenuItem>
-                    </Select>
-                  </FormControl>
-                  <FormControl size="small" fullWidth>
-                    <InputLabel>Fast mode model</InputLabel>
-                    <Select
-                      value={localFastModel}
-                      label="Fast mode model"
-                      onChange={(e: SelectChangeEvent<string>) => setLocalFastModel(e.target.value)}
-                    >
-                      <MenuItem value="">Service default</MenuItem>
-                      {models.map((m) => (
-                        <MenuItem key={`fast-${m}`} value={m}>
-                          {m}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                  <FormControl size="small" fullWidth>
-                    <InputLabel>Investigation mode model</InputLabel>
-                    <Select
-                      value={localInvestigationModel}
-                      label="Investigation mode model"
-                      onChange={(e: SelectChangeEvent<string>) =>
-                        setLocalInvestigationModel(e.target.value)
-                      }
-                    >
-                      <MenuItem value="">Service default</MenuItem>
-                      {models.map((m) => (
-                        <MenuItem key={`investigation-${m}`} value={m}>
-                          {m}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                  <FormControl size="small" fullWidth>
-                    <InputLabel>QAN Insights model</InputLabel>
-                    <Select
-                      value={localQanInsightsModel}
-                      label="QAN Insights model"
-                      onChange={(e: SelectChangeEvent<string>) =>
-                        setLocalQanInsightsModel(e.target.value)
-                      }
-                    >
-                      <MenuItem value="">Service default</MenuItem>
-                      {models.map((m) => (
-                        <MenuItem key={`qan-insights-${m}`} value={m}>
-                          {m}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                  <TextField
-                    label="Max conversation messages to AI"
-                    type="number"
-                    inputProps={{ min: 4, max: 200 }}
-                    value={localAdreMaxConversationMessages}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                      setLocalAdreMaxConversationMessages(parseInt(e.target.value, 10) || 40)
-                    }
-                    size="small"
-                    fullWidth
-                    helperText="Caps conversation_history size (4–200). Reduces context-overflow failures."
-                  />
-                  <TextField
-                    label="Prompt max bytes"
-                    type="number"
-                    inputProps={{ min: 1024, max: 65536 }}
-                    value={localPromptMaxBytes}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalPromptMaxBytes(parseInt(e.target.value, 10) || 16 * 1024)}
-                    size="small"
-                    fullWidth
-                    helperText="Allowed range: 1024–65536. Default recommended: 16384."
-                  />
-                </Stack>
-                <Divider />
-                <AdreBehaviorControlsBlock
-                  variant="fast"
-                  title="Fast mode — behavior controls"
-                  description="Tuning for the Fast path in the ADRE chat panel (tools / TodoWrite, etc.)."
-                  value={localBehaviorFast}
-                  onChange={setLocalBehaviorFast}
-                  onJsonError={(msg) => enqueueSnackbar(msg, { variant: 'error' })}
-                />
-                <Divider />
-                <AdreBehaviorControlsBlock
-                  variant="investigation"
-                  title="Investigation mode — behavior controls"
-                  description="Used for investigation chat and investigation runs. Empty preset means service defaults for omitted keys."
-                  value={localBehaviorInvestigation}
-                  onChange={setLocalBehaviorInvestigation}
-                  onJsonError={(msg) => enqueueSnackbar(msg, { variant: 'error' })}
-                />
-                <Divider />
-                <AdreBehaviorControlsBlock
-                  variant="format"
-                  title="Format investigation report — behavior controls"
-                  description="Used when PMM turns a raw investigation report into structured JSON."
-                  value={localBehaviorFormat}
-                  onChange={setLocalBehaviorFormat}
-                  onJsonError={(msg) => enqueueSnackbar(msg, { variant: 'error' })}
-                />
-                <Divider />
-                <Stack gap={2}>
-                  <Typography variant="subtitle1" fontWeight={600}>
-                    Prompts
-                  </Typography>
-                  <TextField
-                    label="Fast mode prompt"
-                    placeholder="Additional system prompt for Fast mode"
-                    value={localChatPrompt}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalChatPrompt(e.target.value)}
-                    size="small"
-                    fullWidth
-                    multiline
-                    minRows={3}
-                    helperText={`Fast mode (${byteCount(localChatPrompt)} / ${localPromptMaxBytes} bytes)`}
-                  />
-                  <TextField
-                    label="Investigation mode prompt"
-                    placeholder="Additional system prompt for Investigation mode"
-                    value={localInvestigationPrompt}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalInvestigationPrompt(e.target.value)}
-                    size="small"
-                    fullWidth
-                    multiline
-                    minRows={3}
-                    helperText={`Investigation mode (${byteCount(localInvestigationPrompt)} / ${localPromptMaxBytes} bytes)`}
-                  />
-                  <TextField
-                    label="QAN AI Insights prompt"
-                    placeholder="System prompt for QAN AI Insights (query analytics and optimization). Leave empty for default."
-                    value={localQanInsightsPrompt}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalQanInsightsPrompt(e.target.value)}
-                    size="small"
-                    fullWidth
-                    multiline
-                    minRows={3}
-                    helperText={`Used when analyzing a query from Query Analytics; leave empty for default (${byteCount(localQanInsightsPrompt)} / ${localPromptMaxBytes} bytes)`}
-                  />
-                </Stack>
-                <Divider />
+              </CardContent>
+            </Card>
+          )}
+
+          {tab === 4 && (
+            <Card variant="outlined">
+              <CardContent>
                 <Stack gap={2}>
                   <Typography variant="subtitle1" fontWeight={600}>
                     ServiceNow Integration
@@ -516,62 +605,19 @@ const AdreSettingsPage: FC = () => {
                     helperText="ServiceNow client token; leave empty to keep the current value"
                   />
                 </Stack>
-                <Button
-                  variant="contained"
-                  onClick={() =>
-                    updateSettings.mutate(
-                      {
-                        enabled: localEnabled,
-                        url: localUrl,
-                        default_chat_mode: localDefaultChatMode,
-                        chat_model: localFastModel || undefined,
-                        investigation_model: localInvestigationModel || undefined,
-                        qan_insights_model: localQanInsightsModel || undefined,
-                        adre_max_conversation_messages: localAdreMaxConversationMessages,
-                        behavior_controls_fast: localBehaviorFast,
-                        behavior_controls_investigation: localBehaviorInvestigation,
-                        behavior_controls_format_report: localBehaviorFormat,
-                        chat_prompt: localChatPrompt || undefined,
-                        investigation_prompt: localInvestigationPrompt || undefined,
-                        qan_insights_prompt: localQanInsightsPrompt || undefined,
-                        prompt_max_bytes: localPromptMaxBytes,
-                        servicenow_url: localServiceNowURL || undefined,
-                        ...(localServiceNowAPIKey ? { servicenow_api_key: localServiceNowAPIKey } : {}),
-                        ...(localServiceNowClientToken ? { servicenow_client_token: localServiceNowClientToken } : {}),
-                        slack_enabled: localSlackEnabled,
-                        slack_auto_investigate: localSlackAutoInvestigate,
-                        ...(localSlackBotToken ? { slack_bot_token: localSlackBotToken } : {}),
-                        ...(localSlackAppToken ? { slack_app_token: localSlackAppToken } : {}),
-                      } as Partial<AdreSettings> & Record<string, unknown>,
-                      {
-                        onError: (err: unknown) => {
-                          const msg =
-                            (err as { response?: { data?: { error?: string } } })?.response?.data
-                              ?.error ??
-                            (err as Error)?.message ??
-                            'Failed to save settings';
-                          enqueueSnackbar(msg, { variant: 'error' });
-                        },
-                        onSuccess: () => {
-                          enqueueSnackbar('Settings saved', { variant: 'success' });
-                        },
-                      }
-                    )
-                  }
-                  disabled={updateSettings.isPending}
-                >
-                  {updateSettings.isPending ? 'Saving...' : 'Save'}
-                </Button>
-              </Stack>
-            ) : (
-              <Alert severity="info">
-                Admin access is required to modify AI Assistant settings. Contact
-                your administrator or open PMM Settings.
-              </Alert>
-            )}
-          </Stack>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          )}
+
+          <Box sx={{ mt: 2 }}>
+            <Button variant="contained" onClick={onSave} disabled={updateSettings.isPending}>
+              {updateSettings.isPending ? 'Saving...' : 'Save'}
+            </Button>
+            <Typography variant="caption" color="text.secondary" sx={{ ml: 2 }}>
+              Save applies changes from all tabs.
+            </Typography>
+          </Box>
+        </Box>
       </Box>
     </Page>
   );
