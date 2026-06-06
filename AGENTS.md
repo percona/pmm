@@ -180,7 +180,7 @@ Relationships:
 - Use `status.Error()` with proper gRPC codes for API errors
 - Wrap errors with context: `fmt.Errorf("descriptive context: %w", err)`
 - Return early on errors to avoid deep nesting
-- Use `errors.Is()` and `errors.As()` for type checking
+- Use `errors.Is()`, `errors.As()` or `errors.AsType()` for error inspection
 - Use standard `errors` package, not `github.com/pkg/errors`
 - Check `reform.ErrNoRows` for "not found" scenarios in pmm-managed
 
