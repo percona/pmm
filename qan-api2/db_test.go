@@ -78,7 +78,19 @@ func TestDropOldPartition(t *testing.T) {
 		cleanupDB(t, "pmm_test_parts")
 	})
 
-	const query = `SELECT DISTINCT partition FROM system.parts WHERE database = 'pmm_test_parts' and table = 'metrics' and visible = 1 ORDER BY partition`
+	// Retention prunes the raw metrics table and the 1-hour rollup identically.
+	tables := []string{"metrics", "metrics_rollup_1h"}
+	selectPartitions := func(t *testing.T, table string) []string {
+		t.Helper()
+		var partitions []string
+		err := db.Select(
+			&partitions,
+			`SELECT DISTINCT partition FROM system.parts WHERE database = 'pmm_test_parts' and table = ? and visible = 1 ORDER BY partition`,
+			table,
+		)
+		require.NoError(t, err, "Unexpected error in selecting %s partition", table)
+		return partitions
+	}
 
 	start := time.Now()
 	// fixtures have two partition 20190101 and 20190102
@@ -88,30 +100,24 @@ func TestDropOldPartition(t *testing.T) {
 	daysNewestPartition := uint(math.Abs(difference.Hours()) / 24)
 
 	t.Run("no so old partition", func(t *testing.T) {
-		partitions := []string{}
 		days := daysNewestPartition + 1
 		DropOldPartition(db, "pmm_test_parts", days)
-		err := db.Select(
-			&partitions,
-			query,
-		)
-		require.NoError(t, err, "Unexpected error in selecting metrics partition")
-		require.Len(t, partitions, 2, "No one partition were truncated. Partition %+v, days %d", partitions, days)
-		assert.Equal(t, "20190101", partitions[0], "Newest partition was not truncated")
-		assert.Equal(t, "20190102", partitions[1], "Oldest partition was not truncated")
+		for _, table := range tables {
+			partitions := selectPartitions(t, table)
+			require.Len(t, partitions, 2, "No one partition were truncated in %s. Partition %+v, days %d", table, partitions, days)
+			assert.Equal(t, "20190101", partitions[0], "Newest partition was not truncated in %s", table)
+			assert.Equal(t, "20190102", partitions[1], "Oldest partition was not truncated in %s", table)
+		}
 	})
 
 	t.Run("delete one day old partition", func(t *testing.T) {
-		partitions := []string{}
 		days := daysNewestPartition
 		DropOldPartition(db, "pmm_test_parts", days)
-		err := db.Select(
-			&partitions,
-			query,
-		)
-		require.NoError(t, err, "Unexpected error in selecting metrics partition")
-		require.Len(t, partitions, 1, "Only one partition should left. Partition %+v, days %d", partitions, days)
-		assert.Equal(t, "20190102", partitions[0], "Newest partition was not truncated")
+		for _, table := range tables {
+			partitions := selectPartitions(t, table)
+			require.Len(t, partitions, 1, "Only one partition should left in %s. Partition %+v, days %d", table, partitions, days)
+			assert.Equal(t, "20190102", partitions[0], "Newest partition was not truncated in %s", table)
+		}
 	})
 }
 

@@ -143,15 +143,26 @@ func createDB(dsn string, clusterName string) error {
 	return nil
 }
 
-// DropOldPartition drops number of days old partitions of pmm.metrics in ClickHouse.
+// retentionTables are the QAN data tables pruned by data retention. The 1-hour
+// rollup uses the same retention as the raw metrics table.
+var retentionTables = []string{"metrics", "metrics_rollup_1h"}
+
+// DropOldPartition drops partitions older than `days` from the QAN data tables.
 func DropOldPartition(db *sqlx.DB, dbName string, days uint) {
+	for _, table := range retentionTables {
+		dropOldPartitions(db, dbName, table, days)
+	}
+}
+
+// dropOldPartitions drops partitions older than `days` from a single table.
+func dropOldPartitions(db *sqlx.DB, dbName, table string, days uint) {
 	l := logrus.WithField("component", "db")
 	partitions := []string{}
 	const query = `
 		SELECT DISTINCT partition
 		FROM system.parts
 		WHERE database = ?
-			AND table = 'metrics'
+			AND table = ?
 			AND visible = 1
 			AND match(partition, '^[0-9]{8}$')
 			AND toUInt32(partition) < toYYYYMMDD(now() - toIntervalDay(?))
@@ -161,14 +172,15 @@ func DropOldPartition(db *sqlx.DB, dbName string, days uint) {
 		&partitions,
 		query,
 		dbName,
+		table,
 		days,
 	)
 	if err != nil {
-		l.Infof("Select %d days old partitions of system.parts. Result: %v, Error: %v", days, partitions, err)
+		l.Infof("Select %d days old partitions of %s. Result: %v, Error: %v", days, table, partitions, err)
 		return
 	}
 	for _, part := range partitions {
-		result, err := db.Exec(fmt.Sprintf(`ALTER TABLE %s.metrics DROP PARTITION %s`, dbName, part))
-		l.Infof("Drop partition %s of %s.metrics. Result: %v, Error: %v", part, dbName, result, err)
+		result, err := db.Exec(fmt.Sprintf(`ALTER TABLE %s.%s DROP PARTITION %s`, dbName, table, part))
+		l.Infof("Drop partition %s of %s.%s. Result: %v, Error: %v", part, dbName, table, result, err)
 	}
 }
