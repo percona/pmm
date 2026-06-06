@@ -131,7 +131,7 @@ func parseDay(s string) (int, error) {
 	if s == "" {
 		return 0, nil
 	}
-	if len(s) != 8 {
+	if len(s) != 8 { //nolint:mnd
 		return 0, fmt.Errorf("expected YYYYMMDD, got %q", s)
 	}
 	d, err := strconv.Atoi(s)
