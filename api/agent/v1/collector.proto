@@ -86,6 +86,10 @@ message MetricsBucket {
     float m_query_time_max = 22;
     // 99 percentile of value of query_time in bucket.
     float m_query_time_p99 = 23;
+    // DDSketch of query_time as bucket index -> count, using the frozen layout in
+    // github.com/percona/pmm/utils/ddsketch. Enables mergeable percentiles server-side.
+    // Empty from agents older than the version that emits it (backwards compatible).
+    map<uint32, uint64> m_query_time_sketch = 28;
   }
   // MySQL contains metrics for MySQL.
   message MySQL {

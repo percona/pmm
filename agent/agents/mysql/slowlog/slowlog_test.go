@@ -35,6 +35,7 @@ import (
 	"github.com/percona/pmm/agent/utils/version"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	"github.com/percona/pmm/utils/ddsketch"
 )
 
 func getDataFromFile(t *testing.T, filePath string, data any) {
@@ -62,7 +63,7 @@ func TestSlowLogMakeBucketsInvalidUTF8(t *testing.T) {
 		},
 	}
 
-	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60, false, false, truncate.GetDefaultMaxQueryLength(), logrus.NewEntry(logrus.New()))
+	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60, false, false, truncate.GetDefaultMaxQueryLength(), nil, logrus.NewEntry(logrus.New()))
 	expectedBuckets := []*agentv1.MetricsBucket{
 		{
 			Common: &agentv1.MetricsBucket_Common{
@@ -87,6 +88,27 @@ func TestSlowLogMakeBucketsInvalidUTF8(t *testing.T) {
 	tests.AssertBucketsEqual(t, expectedBuckets[0], actualBuckets[0])
 }
 
+func TestSlowLogMakeBucketsSketch(t *testing.T) {
+	t.Parallel()
+
+	const agentID = "73ee2f92-d5aa-45f0-8b09-6d3df605fd44"
+	parsingResult := event.Result{
+		Class: map[string]*event.Class{
+			"q1": {Id: "q1", Metrics: &event.Metrics{}, Fingerprint: "SELECT 1"},
+		},
+	}
+	dense := ddsketch.New()
+	for i := 1; i <= 100; i++ {
+		ddsketch.Add(dense, float64(i)/1000.0)
+	}
+	sketches := map[string][]uint64{"q1": dense}
+
+	buckets := makeBuckets(agentID, parsingResult, time.Unix(1557137220, 0), 60, false, false, truncate.GetDefaultMaxQueryLength(), sketches, logrus.NewEntry(logrus.New()))
+	require.Len(t, buckets, 1)
+	require.NotEmpty(t, buckets[0].Common.MQueryTimeSketch)
+	require.Equal(t, sketchToWire(dense), buckets[0].Common.MQueryTimeSketch)
+}
+
 func TestSlowLogMakeBuckets(t *testing.T) {
 	t.Parallel()
 
@@ -96,7 +118,7 @@ func TestSlowLogMakeBuckets(t *testing.T) {
 	parsingResult := event.Result{}
 	getDataFromFile(t, "slowlog_fixture.json", &parsingResult)
 
-	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60, false, false, truncate.GetDefaultMaxQueryLength(), logrus.NewEntry(logrus.New()))
+	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60, false, false, truncate.GetDefaultMaxQueryLength(), nil, logrus.NewEntry(logrus.New()))
 
 	var expectedBuckets []*agentv1.MetricsBucket
 	getDataFromFile(t, "slowlog_expected.json", &expectedBuckets)

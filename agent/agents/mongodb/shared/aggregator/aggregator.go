@@ -31,6 +31,7 @@ import (
 	"github.com/percona/pmm/agent/utils/truncate"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	"github.com/percona/pmm/utils/ddsketch"
 )
 
 // DefaultInterval is interval for aggregator tick.
@@ -253,6 +254,17 @@ func (a *Aggregator) createResult(_ context.Context) *report.Result {
 	queryStats := queries.CalcQueriesStats(int64(DefaultInterval))
 	buckets := make([]*agentv1.MetricsBucket, 0, len(queryStats))
 
+	// Build a query_time DDSketch per class from the raw per-op times (ms -> s),
+	// keyed by class ID (shared with QueryStats.ID below).
+	sketches := make(map[string]map[uint32]uint64, len(queries))
+	for i := range queries {
+		dense := ddsketch.New()
+		for _, ms := range queries[i].QueryTime {
+			ddsketch.Add(dense, ms/millisecondsToSeconds)
+		}
+		sketches[queries[i].ID] = ddsketch.ToWire(dense)
+	}
+
 	a.logger.Tracef("Queries: %#v", queries)
 	a.logger.Tracef("Query Stats: %#v", queryStats)
 
@@ -293,6 +305,7 @@ func (a *Aggregator) createResult(_ context.Context) *report.Result {
 		bucket.Common.MQueryTimeMin = float32(v.QueryTime.Min) / millisecondsToSeconds
 		bucket.Common.MQueryTimeP99 = float32(v.QueryTime.Pct99) / millisecondsToSeconds
 		bucket.Common.MQueryTimeSum = float32(v.QueryTime.Total) / millisecondsToSeconds
+		bucket.Common.MQueryTimeSketch = sketches[v.ID]
 
 		bucket.Mongodb.MDocsReturnedCnt = float32(v.Count) // PMM-13788
 		bucket.Mongodb.MDocsReturnedMax = float32(v.Returned.Max)

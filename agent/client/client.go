@@ -38,6 +38,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/percona/pmm/agent/client/channel"
+	"github.com/percona/pmm/agent/client/wal"
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/connectionuptime"
 	"github.com/percona/pmm/agent/runner"
@@ -58,6 +59,11 @@ const (
 	backoffMinDelay   = 1 * time.Second
 	backoffMaxDelay   = 15 * time.Second
 	clockDriftWarning = 5 * time.Second
+
+	// qanWALMaxBytes caps the on-disk QAN write-ahead log; the oldest entries are dropped beyond it.
+	qanWALMaxBytes = 100 << 20
+	// qanSendRetryDelay is how long the WAL sender waits before retrying a failed QAN send.
+	qanSendRetryDelay = 3 * time.Second
 )
 
 // configGetter allows to get a config.
@@ -89,6 +95,8 @@ type Client struct {
 
 	cus      *connectionuptime.Service
 	logStore *tailog.Store
+
+	qanWAL *wal.Spool
 }
 
 // New creates new client.
@@ -104,7 +112,7 @@ func New(
 	cus *connectionuptime.Service,
 	logStore *tailog.Store,
 ) *Client {
-	return &Client{
+	c := &Client{
 		cfg:               cfg,
 		supervisor:        supervisor,
 		connectionChecker: connectionChecker,
@@ -117,6 +125,18 @@ func New(
 		cus:               cus,
 		logStore:          logStore,
 	}
+
+	// Initialize the durable QAN write-ahead log under the agent base path. On
+	// failure, fall back to best-effort direct delivery so the agent still runs.
+	walDir := filepath.Join(cfg.Get().Paths.PathsBase, wal.DirName)
+	w, err := wal.New(walDir, qanWALMaxBytes, c.l)
+	if err != nil {
+		c.l.Errorf("Failed to initialize QAN write-ahead log at %s; QAN delivery will be best-effort: %s", walDir, err)
+	} else {
+		c.qanWAL = w
+	}
+
+	return c
 }
 
 // Run connects to the server, processes requests and sends responses.
@@ -390,27 +410,53 @@ func (c *Client) processSupervisorRequests(ctx context.Context) { //nolint:gocog
 		}
 	})
 
-	wg.Go(func() {
-		for {
-			select {
-			case collect := <-c.supervisor.QANRequests():
-				if collect == nil {
-					continue
+	if c.qanWAL == nil {
+		// No durable WAL: best-effort direct delivery (drops on send failure).
+		wg.Go(func() {
+			for {
+				select {
+				case collect := <-c.supervisor.QANRequests():
+					if collect == nil {
+						continue
+					}
+					resp, err := c.channel.SendAndWaitResponse(collect)
+					if err != nil {
+						c.l.Error(err)
+						continue
+					}
+					if resp == nil {
+						c.l.Warn("Failed to send QanCollect request.")
+					}
+				case <-ctx.Done():
+					c.l.Infof("Supervisor QANRequests() channel drained.")
+					return
 				}
-				resp, err := c.channel.SendAndWaitResponse(collect)
-				if err != nil {
-					c.l.Error(err)
-					continue
-				}
-				if resp == nil {
-					c.l.Warn("Failed to send QanCollect request.")
-				}
-			case <-ctx.Done():
-				c.l.Infof("Supervisor QANRequests() channel drained.")
-				return
 			}
-		}
-	})
+		})
+	} else {
+		// Durable path: persist to the WAL, then send from it with retry. Entries
+		// are removed only after the server acks; the receiver dedups replays.
+		wg.Go(func() {
+			for {
+				select {
+				case collect := <-c.supervisor.QANRequests():
+					if collect == nil {
+						continue
+					}
+					err := c.qanWAL.Enqueue(collect)
+					if err != nil {
+						c.l.Errorf("Failed to write QanCollect request to WAL: %s", err)
+					}
+				case <-ctx.Done():
+					c.l.Infof("Supervisor QANRequests() channel drained.")
+					return
+				}
+			}
+		})
+		wg.Go(func() {
+			c.sendQANFromWAL(ctx)
+		})
+	}
 
 	wg.Go(func() {
 		for {
@@ -428,6 +474,41 @@ func (c *Client) processSupervisorRequests(ctx context.Context) { //nolint:gocog
 		}
 	})
 	wg.Wait()
+}
+
+// sendQANFromWAL drains the durable QAN write-ahead log, sending each entry and
+// removing it only after the server acknowledges it. On failure it retries the
+// same entry after a delay, so nothing is lost while the connection is alive;
+// across reconnects and restarts the WAL replays from disk.
+func (c *Client) sendQANFromWAL(ctx context.Context) {
+	for {
+		item, ok := c.qanWAL.Next()
+		if !ok {
+			select {
+			case <-c.qanWAL.Notify():
+				continue
+			case <-ctx.Done():
+				c.l.Infof("QAN WAL sender stopped.")
+				return
+			}
+		}
+
+		resp, err := c.channel.SendAndWaitResponse(item.Request)
+		if err != nil || resp == nil {
+			if err != nil {
+				c.l.Warnf("Failed to send QanCollect request, will retry: %s", err)
+			} else {
+				c.l.Warn("Failed to send QanCollect request (no response), will retry.")
+			}
+			select {
+			case <-time.After(qanSendRetryDelay):
+			case <-ctx.Done():
+				return
+			}
+			continue
+		}
+		c.qanWAL.Remove(item.Seq)
+	}
 }
 
 func (c *Client) processChannelRequests(ctx context.Context) {

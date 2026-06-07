@@ -102,6 +102,7 @@
       - percona-grafana
       - percona-victoriametrics
       - percona-qan-api2
+      - percona-qan
       - percona-dashboards
       - pmm-managed
       - pmm-dump

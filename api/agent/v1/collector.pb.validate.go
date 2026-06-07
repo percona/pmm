@@ -433,6 +433,8 @@ func (m *MetricsBucket_Common) validate(all bool) error {
 
 	// no validation rules for MQueryTimeP99
 
+	// no validation rules for MQueryTimeSketch
+
 	if len(errors) > 0 {
 		return MetricsBucket_CommonMultiError(errors)
 	}

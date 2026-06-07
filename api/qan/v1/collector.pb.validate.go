@@ -732,6 +732,8 @@ func (m *MetricsBucket) validate(all bool) error {
 
 	// no validation rules for QueryPlan
 
+	// no validation rules for MQueryTimeSketch
+
 	if len(errors) > 0 {
 		return MetricsBucketMultiError(errors)
 	}

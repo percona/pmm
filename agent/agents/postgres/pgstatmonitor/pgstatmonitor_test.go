@@ -17,6 +17,7 @@ package pgstatmonitor
 import (
 	"context"
 	"fmt"
+	"math"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -36,6 +37,7 @@ import (
 	"github.com/percona/pmm/agent/utils/truncate"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	"github.com/percona/pmm/utils/ddsketch"
 )
 
 func setup(t *testing.T, db *reform.DB, disableCommentsParsing, disableQueryExamples bool) *PGStatMonitorQAN { //nolint:unparam
@@ -93,6 +95,46 @@ func TestVersion(t *testing.T) {
 	pgsmVersion, err := ver.NewVersion("1.0.0-beta-2")
 	require.NoError(t, err)
 	require.True(t, pgsmVersion.LessThan(v10))
+}
+
+func TestHistogramBucketSeconds(t *testing.T) {
+	t.Parallel()
+	check := func(rng string, wantSec float64) {
+		got, ok := histogramBucketSeconds(rng)
+		require.Truef(t, ok, "range %q", rng)
+		require.InDeltaf(t, wantSec, got, 1e-12, "range %q", rng)
+	}
+	check("(1 - 2)", math.Sqrt(1*2)/1000)  // geometric mean
+	check("(0 - 1)", 1.0/1000)             // first bucket -> upper bound
+	check("(100000 - ...)", 100000.0/1000) // open-ended -> lower bound
+
+	_, ok := histogramBucketSeconds("garbage")
+	require.False(t, ok)
+}
+
+func TestQuerySketchFromHistogram(t *testing.T) {
+	t.Parallel()
+
+	require.Nil(t, querySketchFromHistogram(nil), "empty histogram -> nil sketch")
+
+	// Put all calls in one bucket; every quantile must equal that bucket's
+	// representative latency, within the DDSketch error bound.
+	hist := getHistogramRangesArray(pgStatMonitorVersion20PG12)
+	for _, it := range hist {
+		if it.Range == "(57 - 100)" {
+			it.Frequency = 100
+		}
+	}
+	wire := querySketchFromHistogram(hist)
+	require.NotEmpty(t, wire)
+
+	dense := ddsketch.New()
+	for idx, c := range wire {
+		dense[idx] = c
+	}
+	want := math.Sqrt(57*100) / 1000
+	require.InDelta(t, want, ddsketch.Quantile(dense, 0.5), want*ddsketch.Alpha+1e-9)
+	require.InDelta(t, want, ddsketch.Quantile(dense, 0.99), want*ddsketch.Alpha+1e-9)
 }
 
 func TestPGStatMonitorSchema(t *testing.T) {
