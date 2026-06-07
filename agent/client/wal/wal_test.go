@@ -15,7 +15,9 @@
 package wal
 
 import (
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
@@ -93,5 +95,43 @@ func TestSpoolEmpty(t *testing.T) {
 	require.NoError(t, err)
 	_, ok := s.Next()
 	require.False(t, ok)
+	require.Zero(t, s.Len())
+}
+
+// TestSpoolConcurrent runs the single producer (Enqueue) and single consumer
+// (Next/Remove) concurrently; run under -race it proves disk I/O happens off the
+// lock without a data race, and that every entry is delivered and drained.
+func TestSpoolConcurrent(t *testing.T) {
+	t.Parallel()
+	s, err := New(t.TempDir(), 1<<20, logrus.WithField("test", t.Name()))
+	require.NoError(t, err)
+
+	const n = 200
+	done := make(chan struct{})
+	go func() { // consumer
+		defer close(done)
+		for got := 0; got < n; {
+			item, ok := s.Next()
+			if !ok {
+				select {
+				case <-s.Notify():
+				case <-time.After(time.Second):
+				}
+				continue
+			}
+			s.Remove(item.Seq)
+			got++
+		}
+	}()
+
+	for i := range n { // producer
+		require.NoError(t, s.Enqueue(req(fmt.Sprintf("q%d", i))))
+	}
+
+	select {
+	case <-done:
+	case <-time.After(15 * time.Second):
+		t.Fatal("consumer did not drain the spool")
+	}
 	require.Zero(t, s.Len())
 }

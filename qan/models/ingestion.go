@@ -38,6 +38,9 @@ import (
 const (
 	dedupTTL        = 3 * time.Minute
 	maxDedupEntries = 500000
+	// dedupHighWater is the size the cache is trimmed back to once it reaches the
+	// cap, leaving headroom so the O(n) expired sweep is amortized across inserts.
+	dedupHighWater = maxDedupEntries * 9 / 10
 )
 
 // insertCols lists the metrics_raw columns we populate, in the order bucketArgs returns values.
@@ -217,7 +220,7 @@ func longTail(mb *qanv1.MetricsBucket) (map[string]float64, map[string]uint64) {
 // idempotencyKey identifies a bucket so at-least-once retries don't double-count.
 func idempotencyKey(mb *qanv1.MetricsBucket) uint64 {
 	h := fnv.New64a()
-	for _, s := range []string{mb.AgentId, mb.Queryid, mb.Database, mb.Schema, mb.Username, mb.ClientHost} {
+	for _, s := range []string{mb.AgentId, mb.ServiceId, mb.Queryid, mb.Database, mb.Schema, mb.CmdType, mb.Username, mb.ClientHost} {
 		_, _ = h.Write([]byte(s))
 		_, _ = h.Write([]byte{0})
 	}
@@ -263,12 +266,27 @@ func (d *dedupCache) seenBefore(key uint64) bool {
 		return true
 	}
 	if len(d.seen) >= maxDedupEntries {
-		for k, exp := range d.seen {
-			if !exp.After(now) {
-				delete(d.seen, k)
-			}
-		}
+		d.trimLocked(now)
 	}
 	d.seen[key] = now.Add(d.ttl)
 	return false
+}
+
+// trimLocked bounds the cache: it reclaims expired entries first, then — if a
+// high-cardinality burst kept the cache full of unexpired keys — drops arbitrary
+// entries down to dedupHighWater. The uniform TTL means any evicted key is close
+// to expiry; the only cost is one re-counted bucket if that exact key is retried
+// before it would have expired. The caller must hold d.mu.
+func (d *dedupCache) trimLocked(now time.Time) {
+	for k, exp := range d.seen {
+		if !exp.After(now) {
+			delete(d.seen, k)
+		}
+	}
+	for len(d.seen) > dedupHighWater {
+		for k := range d.seen {
+			delete(d.seen, k)
+			break
+		}
+	}
 }

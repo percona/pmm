@@ -78,3 +78,18 @@ func TestDedupCache(t *testing.T) {
 	require.True(t, c.seenBefore(42))
 	require.False(t, c.seenBefore(43))
 }
+
+// TestDedupCacheBounded proves a high-cardinality burst (more distinct keys than
+// the cap, none expired) cannot grow the cache past maxDedupEntries.
+func TestDedupCacheBounded(t *testing.T) {
+	t.Parallel()
+	c := newDedupCache(dedupTTL) // 3m TTL: nothing expires during the test
+	for i := range maxDedupEntries + maxDedupEntries/4 {
+		c.seenBefore(uint64(i))
+	}
+	c.mu.Lock()
+	size := len(c.seen)
+	c.mu.Unlock()
+	require.LessOrEqual(t, size, maxDedupEntries, "cache must stay bounded under a high-cardinality burst")
+	require.Positive(t, size)
+}

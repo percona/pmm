@@ -118,6 +118,8 @@ func New(dir string, maxBytes int64, l *logrus.Entry) (*Spool, error) {
 		}
 	}
 	sort.Slice(s.entries, func(i, j int) bool { return s.entries[i].seq < s.entries[j].seq })
+	// No concurrency before New returns; trim a recovered over-capacity spool.
+	s.removeFiles(s.takeOverCapLocked())
 
 	if n := len(s.entries); n > 0 {
 		l.Infof("Recovered %d spooled QAN requests (%d bytes) from %s.", n, s.totalSize, dir)
@@ -134,12 +136,12 @@ func (s *Spool) Enqueue(req *agentv1.QANCollectRequest) error {
 		return fmt.Errorf("marshal QAN request: %w", err)
 	}
 
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
+	// seq is owned by the single producer goroutine; no other goroutine touches it.
 	seq := s.seq
 	s.seq++
 
+	// Write the file outside the lock: it is not referenced by s.entries yet, so
+	// the consumer cannot observe it and a slow fsync must not block Next/Remove.
 	tmp := filepath.Join(s.dir, fmt.Sprintf("%020d%s", seq, tmpExt))
 	err = writeFileSync(tmp, data)
 	if err != nil {
@@ -149,51 +151,56 @@ func (s *Spool) Enqueue(req *agentv1.QANCollectRequest) error {
 	if err != nil {
 		return fmt.Errorf("rename wal file: %w", err)
 	}
+	s.syncDir()
 
+	// Publish the entry and pick over-capacity victims under the lock (in-memory
+	// only); delete the victim files afterwards, off the lock.
+	s.mu.Lock()
 	s.entries = append(s.entries, entry{seq: seq, size: int64(len(data))})
 	s.totalSize += int64(len(data))
-	s.enforceCapLocked()
+	victims := s.takeOverCapLocked()
 	s.signal()
+	s.mu.Unlock()
+
+	s.removeFiles(victims)
 	return nil
 }
 
 // Next returns the oldest entry without removing it, skipping (and discarding)
 // any unreadable entries. The second result is false when the spool is empty.
 func (s *Spool) Next() (*Item, bool) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	for {
+		s.mu.Lock()
+		if len(s.entries) == 0 {
+			s.mu.Unlock()
+			return nil, false
+		}
+		seq := s.entries[0].seq
+		s.mu.Unlock()
 
-	for len(s.entries) > 0 {
-		oldest := s.entries[0]
-		data, err := os.ReadFile(s.fileName(oldest.seq)) //nolint:gosec
+		// Read the file outside the lock. If it was evicted concurrently (producer
+		// over-capacity drop), the read fails and we skip to the next entry.
+		data, err := os.ReadFile(s.fileName(seq)) //nolint:gosec
 		if err != nil {
-			s.l.Warnf("Failed to read spooled QAN request %d, dropping: %s", oldest.seq, err)
-			s.removeIndexLocked(0)
+			s.l.Warnf("Failed to read spooled QAN request %d, dropping: %s", seq, err)
+			s.removeBySeq(seq)
 			continue
 		}
 		req := &agentv1.QANCollectRequest{}
 		err = proto.Unmarshal(data, req)
 		if err != nil {
-			s.l.Warnf("Failed to unmarshal spooled QAN request %d, dropping: %s", oldest.seq, err)
-			s.removeIndexLocked(0)
+			s.l.Warnf("Failed to unmarshal spooled QAN request %d, dropping: %s", seq, err)
+			s.removeBySeq(seq)
 			continue
 		}
-		return &Item{Seq: oldest.seq, Request: req}, true
+		return &Item{Seq: seq, Request: req}, true
 	}
-	return nil, false
 }
 
 // Remove discards the entry with the given sequence number after it has been
 // acknowledged by the server. It is a no-op if the entry is already gone.
 func (s *Spool) Remove(seq uint64) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	for i, e := range s.entries {
-		if e.seq == seq {
-			s.removeIndexLocked(i)
-			return
-		}
-	}
+	s.removeBySeq(seq)
 }
 
 // Notify returns a channel that receives a value whenever an entry is enqueued,
@@ -218,24 +225,50 @@ func (s *Spool) fileName(seq uint64) string {
 	return filepath.Join(s.dir, fmt.Sprintf("%020d%s", seq, fileExt))
 }
 
-func (s *Spool) enforceCapLocked() {
+// takeOverCapLocked evicts the oldest entries while over the size cap and returns
+// their sequence numbers so the caller can delete the files outside the lock.
+// The caller must hold s.mu.
+func (s *Spool) takeOverCapLocked() []uint64 {
+	var victims []uint64
 	for s.totalSize > s.maxBytes && len(s.entries) > 1 {
-		oldest := s.entries[0]
-		s.removeIndexLocked(0)
+		v := s.entries[0]
+		s.entries = s.entries[1:]
+		s.totalSize -= v.size
 		s.dropped++
+		victims = append(victims, v.seq)
 		s.l.Warnf("QAN wal over capacity (%d bytes); dropped oldest request %d. Total dropped: %d.",
-			s.maxBytes, oldest.seq, s.dropped)
+			s.maxBytes, v.seq, s.dropped)
+	}
+	return victims
+}
+
+// removeBySeq drops the entry with the given sequence number from the in-memory
+// index (under the lock) and deletes its file (outside the lock).
+func (s *Spool) removeBySeq(seq uint64) {
+	s.mu.Lock()
+	found := false
+	for i, e := range s.entries {
+		if e.seq == seq {
+			s.totalSize -= e.size
+			s.entries = append(s.entries[:i], s.entries[i+1:]...)
+			found = true
+			break
+		}
+	}
+	s.mu.Unlock()
+	if found {
+		s.removeFiles([]uint64{seq})
 	}
 }
 
-func (s *Spool) removeIndexLocked(i int) {
-	e := s.entries[i]
-	rerr := os.Remove(s.fileName(e.seq))
-	if rerr != nil && !os.IsNotExist(rerr) {
-		s.l.Warnf("Failed to remove spooled QAN request %d: %s", e.seq, rerr)
+// removeFiles deletes spool files by sequence number. Safe to call without the lock.
+func (s *Spool) removeFiles(seqs []uint64) {
+	for _, seq := range seqs {
+		err := os.Remove(s.fileName(seq))
+		if err != nil && !os.IsNotExist(err) {
+			s.l.Warnf("Failed to remove spooled QAN request %d: %s", seq, err)
+		}
 	}
-	s.entries = append(s.entries[:i], s.entries[i+1:]...)
-	s.totalSize -= e.size
 }
 
 func (s *Spool) signal() {
@@ -271,4 +304,23 @@ func writeFileSync(path string, data []byte) error {
 
 func closeQuietly(f *os.File) {
 	_ = f.Close() //nolint:errcheck,gosec
+}
+
+// syncDir fsyncs the spool directory so a rename is durable. Best-effort: some
+// platforms do not support directory fsync, so a failure is logged, not fatal
+// (the file's own contents are already fsynced before the rename).
+func (s *Spool) syncDir() {
+	d, err := os.Open(s.dir) //nolint:gosec
+	if err != nil {
+		s.l.Warnf("Failed to open wal dir for sync: %s", err)
+		return
+	}
+	err = d.Sync()
+	if err != nil {
+		s.l.Warnf("Failed to fsync wal dir: %s", err)
+	}
+	cerr := d.Close()
+	if cerr != nil {
+		s.l.Warnf("Failed to close wal dir: %s", cerr)
+	}
 }

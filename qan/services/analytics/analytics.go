@@ -109,7 +109,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanv1.GetReportRequest) (*q
 	resp := &qanv1.GetReportResponse{
 		TotalRows: uint32(res.Total.TotalRows),
 		Offset:    in.Offset,
-		Limit:     in.Limit,
+		Limit:     limit,
 	}
 	// Row 0 is the grand total (fingerprint "TOTAL").
 	totalRow := buildRow(in.Offset, "TOTAL", &res.Total, &res.Total, columns, durSec)
