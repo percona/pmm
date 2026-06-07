@@ -107,7 +107,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanv1.GetReportRequest) (*q
 	}
 
 	resp := &qanv1.GetReportResponse{
-		TotalRows: uint32(res.Total.TotalRows),
+		TotalRows: uint32(res.Total.TotalRows), //nolint:gosec // row count fits uint32
 		Offset:    in.Offset,
 		Limit:     limit,
 	}

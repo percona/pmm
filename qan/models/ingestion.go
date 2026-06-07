@@ -45,7 +45,8 @@ const (
 
 // insertCols lists the metrics_raw columns we populate, in the order bucketArgs returns values.
 var insertCols = []string{
-	"queryid", "service_id", "service_name", "service_type", "`database`", "`schema`", "username", "client_host",
+	"queryid", "service_id", "service_name", "service_type",
+	"`database`", "`schema`", "username", "client_host",
 	"cluster", "environment", "replication_set", "node_id", "node_name", "az", "region", "container_name",
 	"cmd_type", "agent_id", "agent_type", "labels",
 	"fingerprint", "tables", "explain_fingerprint", "placeholders_count", "example", "example_metrics", "query_plan", "planid", "plan_summary", "is_truncated", "example_type",
@@ -77,7 +78,7 @@ var longTailSum, longTailCnt []longTailField
 
 func init() {
 	fields := (&qanv1.MetricsBucket{}).ProtoReflect().Descriptor().Fields()
-	for i := 0; i < fields.Len(); i++ {
+	for i := range fields.Len() {
 		fd := fields.Get(i)
 		if fd.Kind() != protoreflect.FloatKind {
 			continue
@@ -151,6 +152,7 @@ func (i *Ingestor) Save(ctx context.Context, buckets []*qanv1.MetricsBucket) err
 	if err != nil {
 		return fmt.Errorf("prepare batch: %w", err)
 	}
+	defer batch.Close() //nolint:errcheck
 	for _, mb := range fresh {
 		err = batch.Append(bucketArgs(mb)...)
 		if err != nil {
@@ -183,7 +185,8 @@ func bucketArgs(mb *qanv1.MetricsBucket) []any {
 	emptySketch := map[uint16]uint64{}
 
 	return []any{
-		mb.Queryid, mb.ServiceId, mb.ServiceName, mb.ServiceType, mb.Database, mb.Schema, mb.Username, mb.ClientHost,
+		mb.Queryid, mb.ServiceId, mb.ServiceName, mb.ServiceType,
+		mb.Database, mb.Schema, mb.Username, mb.ClientHost,
 		mb.Cluster, mb.Environment, mb.ReplicationSet, mb.NodeId, mb.NodeName, mb.Az, mb.Region, mb.ContainerName,
 		mb.CmdType, mb.AgentId, mb.AgentType.String(), labels,
 		mb.Fingerprint, tables, mb.ExplainFingerprint, mb.PlaceholdersCount, mb.Example, mb.ExampleMetrics, mb.QueryPlan, mb.Planid, mb.PlanSummary, boolToUint8(mb.IsTruncated), mb.ExampleType.String(),
@@ -234,7 +237,8 @@ func idempotencyKey(mb *qanv1.MetricsBucket) uint64 {
 func sketchToMap(s map[uint32]uint64) map[uint16]uint64 {
 	out := make(map[uint16]uint64, len(s))
 	for k, v := range s {
-		out[uint16(k)] = v
+		// Bucket indices are bounded by the frozen layout (< 2^16), so the cast is safe.
+		out[uint16(k)] = v //nolint:gosec
 	}
 	return out
 }

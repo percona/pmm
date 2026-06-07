@@ -39,6 +39,9 @@ const DirName = "wal"
 const (
 	fileExt = ".pb"
 	tmpExt  = ".tmp"
+
+	dirPerm  = 0o700
+	filePerm = 0o600
 )
 
 type entry struct {
@@ -71,7 +74,7 @@ type Spool struct {
 // New opens (creating if needed) a spool in dir, replaying entries left by a
 // previous run so that no collected-but-unsent data is lost across restarts.
 func New(dir string, maxBytes int64, l *logrus.Entry) (*Spool, error) {
-	err := os.MkdirAll(dir, 0o700)
+	err := os.MkdirAll(dir, dirPerm)
 	if err != nil {
 		return nil, fmt.Errorf("create wal dir: %w", err)
 	}
@@ -280,7 +283,7 @@ func (s *Spool) signal() {
 
 // writeFileSync writes data to path and fsyncs it before returning.
 func writeFileSync(path string, data []byte) error {
-	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600) //nolint:gosec
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, filePerm) //nolint:gosec
 	if err != nil {
 		return fmt.Errorf("create wal file: %w", err)
 	}
@@ -303,7 +306,7 @@ func writeFileSync(path string, data []byte) error {
 }
 
 func closeQuietly(f *os.File) {
-	_ = f.Close() //nolint:errcheck,gosec
+	_ = f.Close() //nolint:gosec
 }
 
 // syncDir fsyncs the spool directory so a rename is durable. Best-effort: some

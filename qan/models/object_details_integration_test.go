@@ -60,6 +60,7 @@ func TestObjectDetailsIntegration(t *testing.T) {
 	// the same fingerprint (queryid is its hash), so dim_query stays consistent.
 	batch, err := conn.PrepareBatch(ctx, "INSERT INTO metrics_raw (queryid, service_id, service_name, `database`, `schema`, cmd_type, fingerprint, explain_fingerprint, placeholders_count, period_start, num_queries, m_query_time_sum, m_query_time_cnt, m_query_time_sketch)")
 	require.NoError(t, err)
+	defer batch.Close()
 	require.NoError(t, batch.Append("q1", "svc1", "mysql-1", "db1", "public", "SELECT", "SELECT 1", "SELECT ?", uint32(1), time.Unix(int64(base), 0).UTC(), float64(0), float64(0), uint64(0), sketch))
 	require.NoError(t, batch.Send())
 

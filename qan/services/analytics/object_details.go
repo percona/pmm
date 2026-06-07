@@ -44,7 +44,7 @@ var metricsNames = map[string]string{
 var detailColumns = []string{"query_time", "lock_time", "rows_sent", "rows_examined", "rows_affected", "bytes_sent"}
 
 // GetMetricsNames returns the catalog of metric names.
-func (s *Service) GetMetricsNames(_ context.Context, _ *qanv1.GetMetricsNamesRequest) (*qanv1.GetMetricsNamesResponse, error) {
+func (s *Service) GetMetricsNames(_ context.Context, _ *qanv1.GetMetricsNamesRequest) (*qanv1.GetMetricsNamesResponse, error) { //nolint:unparam
 	return &qanv1.GetMetricsNamesResponse{Data: metricsNames}, nil
 }
 
@@ -57,10 +57,6 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanv1.GetMetricsRequest) (
 		return nil, status.Errorf(codes.InvalidArgument, "unsupported group_by: %q", in.GroupBy)
 	}
 	from, to := in.PeriodStartFrom.GetSeconds(), in.PeriodStartTo.GetSeconds()
-	durSec := float32(to - from)
-	if durSec <= 0 {
-		durSec = 1
-	}
 
 	dimensions := make(map[string][]string)
 	for _, l := range in.GetLabels() {
@@ -115,7 +111,7 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanv1.GetMetricsRequest) (
 
 func metricValues(col string, row, total *models.ReportRow) *qanv1.MetricValues {
 	sum, cnt, mn, mx, sketch := row.Metric(col)
-	totalSum, _, _, _, _ := total.Metric(col)
+	totalSum, _, _, _, _ := total.Metric(col) //nolint:dogsled
 	mv := &qanv1.MetricValues{Sum: float32(sum), Cnt: float32(cnt), Min: mn, Max: mx}
 	if cnt > 0 {
 		mv.Avg = float32(sum / float64(cnt))
@@ -180,7 +176,7 @@ func (s *Service) GetHistogram(ctx context.Context, in *qanv1.GetHistogramReques
 		lo, hi := ddsketch.BucketBounds(idx)
 		resp.HistogramItems = append(resp.HistogramItems, &qanv1.HistogramItem{
 			Range:     fmt.Sprintf("%.4gs - %.4gs", lo, hi),
-			Frequency: uint32(sketch[uint16(idx)]),
+			Frequency: uint32(sketch[uint16(idx)]), //nolint:gosec
 		})
 	}
 	return resp, nil

@@ -57,7 +57,7 @@ const (
 // runGRPCServer runs the gRPC server until the context is canceled.
 func runGRPCServer(ctx context.Context, bind string, collector qanv1.CollectorServiceServer, analytics qanv1.QANServiceServer) {
 	l := logrus.WithField("component", "gRPC")
-	lis, err := net.Listen("tcp", bind)
+	lis, err := (&net.ListenConfig{}).Listen(ctx, "tcp", bind)
 	if err != nil {
 		l.Fatalf("Cannot start gRPC server: %v", err)
 	}

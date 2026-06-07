@@ -155,6 +155,7 @@ func TestReportSketchP99Integration(t *testing.T) {
 
 	batch, err := conn.PrepareBatch(ctx, "INSERT INTO metrics_raw (queryid, service_id, `database`, `schema`, cmd_type, period_start, num_queries, m_query_time_sum, m_query_time_cnt, m_query_time_sketch)")
 	require.NoError(t, err)
+	defer batch.Close()
 	require.NoError(t, batch.Append("q2", "svc1", "db1", "public", "SELECT", time.Unix(int64(base), 0).UTC(), float64(1000), 500.5, uint64(1000), sketch))
 	require.NoError(t, batch.Send())
 

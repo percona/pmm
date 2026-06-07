@@ -34,9 +34,19 @@ const qanMigrationsTable = "qan_schema_migrations"
 
 const dbConnectTimeout = 10 * time.Second
 
+// Per-tier retention caps (days). --data-retention is the overall window (the
+// daily tier); finer tiers keep these shorter operational caps but never exceed it.
+const (
+	rawRetentionDays      = 7
+	hourlyRetentionDays   = 90
+	endpointRetentionDays = 30
+	filtersRetentionDays  = 90
+	examplesRetentionDays = 8
+)
+
 // NewDB opens a native ClickHouse connection, creates the database if needed,
 // and applies the schema migrations.
-func NewDB(addr, database, user, password string, maxIdle, maxOpen int, retentionDays uint) driver.Conn {
+func NewDB(addr, database, user, password string, maxIdle, maxOpen int, retentionDays uint) driver.Conn { //nolint:ireturn
 	l := logrus.WithField("component", "db")
 
 	err := createDB(addr, database, user, password)
@@ -85,12 +95,12 @@ func applyRetention(conn driver.Conn, days uint) error {
 		table   string
 		ttlDays uint
 	}{
-		{"metrics_raw", min(uint(7), days)},
-		{"metrics_1h", min(uint(90), days)},
+		{"metrics_raw", min(uint(rawRetentionDays), days)},
+		{"metrics_1h", min(uint(hourlyRetentionDays), days)},
 		{"metrics_1d", days},
-		{"metrics_by_endpoint_1h", min(uint(30), days)},
-		{"dim_values", min(uint(90), days)},
-		{"query_examples", min(uint(8), days)},
+		{"metrics_by_endpoint_1h", min(uint(endpointRetentionDays), days)},
+		{"dim_values", min(uint(filtersRetentionDays), days)},
+		{"query_examples", min(uint(examplesRetentionDays), days)},
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), dbConnectTimeout)
 	defer cancel()

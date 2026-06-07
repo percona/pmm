@@ -60,9 +60,9 @@ const (
 	backoffMaxDelay   = 15 * time.Second
 	clockDriftWarning = 5 * time.Second
 
-	// qanWALMaxBytes caps the on-disk QAN write-ahead log; the oldest entries are dropped beyond it.
+	// Cap on the on-disk QAN write-ahead log; the oldest entries are dropped beyond it.
 	qanWALMaxBytes = 100 << 20
-	// qanSendRetryDelay is how long the WAL sender waits before retrying a failed QAN send.
+	// Delay before the WAL sender retries a failed QAN send.
 	qanSendRetryDelay = 3 * time.Second
 )
 

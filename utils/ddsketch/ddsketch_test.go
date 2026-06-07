@@ -19,7 +19,6 @@ import (
 	"math"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -40,7 +39,7 @@ func TestLen(t *testing.T) {
 	t.Parallel()
 	// Layout is deterministic and large enough to cover the range with overflow buckets.
 	require.Equal(t, (iMax-iMin+1)+2, Len())
-	require.Equal(t, Len(), len(New()))
+	require.Len(t, New(), Len())
 	require.Greater(t, Len(), 400)
 }
 
@@ -89,11 +88,7 @@ func TestMergeMatchesUnion(t *testing.T) {
 	merged := New()
 	Merge(merged, a)
 	Merge(merged, b)
-	require.Equal(t, union, merged)
-
-	for _, q := range []float64{0.5, 0.9, 0.99} {
-		assert.Equal(t, Quantile(union, q), Quantile(merged, q))
-	}
+	require.Equal(t, union, merged) // identical sketches => identical quantiles
 }
 
 func TestUnderflowOverflow(t *testing.T) {
@@ -103,8 +98,8 @@ func TestUnderflowOverflow(t *testing.T) {
 	Add(counts, MaxValue*10) // overflow
 	require.Equal(t, uint64(1), counts[0])
 	require.Equal(t, uint64(1), counts[Len()-1])
-	require.Equal(t, MinValue, Quantile(counts, 0))
-	require.Equal(t, MaxValue, Quantile(counts, 1))
+	require.InDelta(t, MinValue, Quantile(counts, 0), 1e-9)
+	require.InDelta(t, MaxValue, Quantile(counts, 1), 1e-9)
 }
 
 func TestEmpty(t *testing.T) {

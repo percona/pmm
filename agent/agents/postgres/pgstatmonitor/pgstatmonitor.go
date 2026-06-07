@@ -817,6 +817,7 @@ func querySketchFromHistogram(histogram []*agentv1.HistogramItem) map[uint32]uin
 // seconds: the geometric mean for finite buckets, the upper bound for the
 // first [0, hi) bucket, and the lower bound for the open-ended top bucket.
 func histogramBucketSeconds(rng string) (float64, bool) {
+	const msPerSec = 1000.0
 	loStr, hiStr, ok := strings.Cut(strings.TrimSuffix(strings.TrimPrefix(rng, "("), ")"), " - ")
 	if !ok {
 		return 0, false
@@ -827,7 +828,7 @@ func histogramBucketSeconds(rng string) (float64, bool) {
 	}
 	hiStr = strings.TrimSpace(hiStr)
 	if hiStr == "..." {
-		return lo / 1000, true
+		return lo / msPerSec, true
 	}
 	hi, err := strconv.ParseFloat(hiStr, 64)
 	if err != nil {
@@ -837,7 +838,7 @@ func histogramBucketSeconds(rng string) (float64, bool) {
 	if lo == 0 {
 		rep = hi
 	}
-	return rep / 1000, true
+	return rep / msPerSec, true
 }
 
 // check interfaces.

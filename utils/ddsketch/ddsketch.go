@@ -26,8 +26,9 @@ const (
 	// Alpha is the frozen relative accuracy: every returned quantile is within
 	// Alpha of the true value. Changing it is an explicit schema migration.
 	Alpha = 0.02
-	// MinValue and MaxValue bound the represented latency range, in seconds.
+	// MinValue is the smallest representable latency, in seconds.
 	MinValue = 1e-6
+	// MaxValue is the largest representable latency, in seconds.
 	MaxValue = 1000.0
 	// LayoutVersion tags stored arrays so a future layout change is detectable.
 	LayoutVersion = 1
@@ -38,7 +39,7 @@ var (
 	logGamma = math.Log(gamma)
 	iMin     = int(math.Ceil(math.Log(MinValue) / logGamma))
 	iMax     = int(math.Ceil(math.Log(MaxValue) / logGamma))
-	// size = in-range buckets + underflow (index 0) + overflow (last index).
+	// Total size = in-range buckets + underflow (index 0) + overflow (last index).
 	size = (iMax - iMin + 1) + 2
 )
 
@@ -74,7 +75,7 @@ func value(a int) float64 {
 }
 
 // BucketBounds returns the latency range (lo, hi] that array position a covers.
-func BucketBounds(a int) (lo, hi float64) {
+func BucketBounds(a int) (float64, float64) {
 	switch {
 	case a <= 0:
 		return 0, MinValue

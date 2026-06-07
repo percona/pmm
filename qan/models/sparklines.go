@@ -32,10 +32,7 @@ const (
 // value (filterBy), or the grand total when filterBy is empty. Points are bucketed
 // into ~sparklinePoints intervals (minimum 1 minute).
 func (r *Reporter) Sparklines(ctx context.Context, p ReportParams, groupBy, filterBy string) ([]*qanv1.Point, error) {
-	tf := (p.ToSec - p.FromSec) / sparklinePoints
-	if tf < sparklineMinTfS {
-		tf = sparklineMinTfS
-	}
+	tf := max((p.ToSec-p.FromSec)/sparklinePoints, sparklineMinTfS)
 
 	dims := p.Dimensions
 	if filterBy != "" {

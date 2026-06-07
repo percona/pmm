@@ -31,7 +31,7 @@ type QueryMetadata struct {
 
 // Metrics returns the aggregates for a single dimension value plus the grand total
 // over the period (for percent-of-total), both as ReportRows.
-func (r *Reporter) Metrics(ctx context.Context, p ReportParams, filterBy string) (value, total ReportRow, err error) {
+func (r *Reporter) Metrics(ctx context.Context, p ReportParams, filterBy string) (value, total ReportRow, err error) { //nolint:nonamedreturns
 	if _, ok := GroupByColumn[p.GroupBy]; !ok {
 		return value, total, fmt.Errorf("unsupported group_by: %q", p.GroupBy)
 	}
@@ -114,7 +114,7 @@ func (r *Reporter) SchemaForQuery(ctx context.Context, serviceID, queryID string
 }
 
 // QueryPlan returns the most recent stored plan id and query plan for a queryid.
-func (r *Reporter) QueryPlan(ctx context.Context, queryid string) (planid, plan string, err error) {
+func (r *Reporter) QueryPlan(ctx context.Context, queryid string) (planid, plan string, err error) { //nolint:nonamedreturns
 	rows, err := r.conn.Query(ctx, "SELECT planid, query_plan FROM query_examples WHERE queryid = ? ORDER BY period_start DESC LIMIT 1", queryid)
 	if err != nil {
 		return "", "", err

@@ -164,7 +164,7 @@ type ReportRow struct {
 }
 
 // Metric returns a metric root's aggregated values from the row.
-func (r *ReportRow) Metric(root string) (sum float64, cnt uint64, mn, mx float32, sketch map[uint16]uint64) {
+func (r *ReportRow) Metric(root string) (sum float64, cnt uint64, mn, mx float32, sketch map[uint16]uint64) { //nolint:nonamedreturns
 	switch root {
 	case "query_time":
 		return r.QueryTimeSum, r.QueryTimeCnt, r.QueryTimeMin, r.QueryTimeMax, r.QueryTimeSketch
@@ -447,7 +447,7 @@ func (r *Reporter) QueryExamples(ctx context.Context, queryid string, fromSec, t
 		limit = 5
 	}
 	rows, err := r.conn.Query(ctx,
-		fmt.Sprintf("SELECT example, example_type, is_truncated, query_plan FROM query_examples WHERE queryid = ? AND period_start >= ? AND period_start <= ? ORDER BY period_start DESC LIMIT %d", limit),
+		fmt.Sprintf("SELECT example, example_type, is_truncated, query_plan FROM query_examples WHERE queryid = ? AND period_start >= ? AND period_start <= ? ORDER BY period_start DESC LIMIT %d", limit), //nolint:lll
 		queryid, time.Unix(fromSec, 0).UTC(), time.Unix(toSec, 0).UTC())
 	if err != nil {
 		return nil, fmt.Errorf("examples query: %w", err)

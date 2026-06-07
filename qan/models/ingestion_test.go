@@ -39,8 +39,8 @@ func TestLongTailRouting(t *testing.T) {
 	}
 	sums, cnts := longTail(mb)
 
-	assert.Equal(t, float64(100), sums["rows_read"])
-	assert.Equal(t, float64(2), sums["full_scan"])
+	assert.InDelta(t, float64(100), sums["rows_read"], 1e-9)
+	assert.InDelta(t, float64(2), sums["full_scan"], 1e-9)
 	assert.Equal(t, uint64(5), cnts["rows_read"])
 	assert.Equal(t, uint64(3), cnts["full_scan"])
 

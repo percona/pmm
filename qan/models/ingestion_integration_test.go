@@ -102,7 +102,7 @@ func TestIngestIntegration(t *testing.T) {
 		ctx,
 		"SELECT sum(num_queries), sum(m_query_time_sum), sumMap(m_sum) FROM metrics_1h GROUP BY queryid",
 	).Scan(&nq, &qtSum, &rowsRead))
-	require.Equal(t, float64(8), nq)
+	require.InDelta(t, float64(8), nq, 1e-9)
 	require.InDelta(t, 0.8, qtSum, 1e-6)
 	require.InDelta(t, 14.0, rowsRead["rows_read"], 1e-6) // 7 + 7
 }
