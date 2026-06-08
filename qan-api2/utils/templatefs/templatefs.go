@@ -61,7 +61,8 @@ func (tfs *TemplateFS) ReadFile(name string) ([]byte, error) {
 	if tfs.Data != nil {
 		if tmpl, err := template.New(name).Parse(upSQL); err == nil {
 			var buf bytes.Buffer
-			if err := tmpl.Execute(&buf, tfs.Data); err == nil {
+			err := tmpl.Execute(&buf, tfs.Data)
+			if err == nil {
 				upSQL = buf.String()
 			}
 		}

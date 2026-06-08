@@ -54,7 +54,8 @@ func main() {
 		}),
 	)
 
-	if err := runProxy(opts, proxy.RunProxy); err != nil {
+	err := runProxy(opts, proxy.RunProxy)
+	if err != nil {
 		logrus.Fatal(err)
 	}
 }

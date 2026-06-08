@@ -72,7 +72,8 @@ func PMMHTTPErrorHandler(ctx context.Context, mux *runtime.ServeMux, marshaler r
 	if merr != nil {
 		grpclog.Infof("Failed to marshal error message %q: %v", body, merr)
 		w.WriteHeader(http.StatusInternalServerError)
-		if _, err := io.WriteString(w, fallback); err != nil {
+		_, err = io.WriteString(w, fallback)
+		if err != nil {
 			grpclog.Infof("Failed to write response: %v", err)
 		}
 		return
@@ -103,7 +104,8 @@ func PMMHTTPErrorHandler(ctx context.Context, mux *runtime.ServeMux, marshaler r
 	}
 
 	w.WriteHeader(st)
-	if _, err := w.Write(buf); err != nil {
+	_, err = w.Write(buf)
+	if err != nil {
 		grpclog.Infof("Failed to write response: %v", err)
 	}
 

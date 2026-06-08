@@ -108,7 +108,8 @@ func (j *MongoDBBackupJob) DSN() string {
 func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 	defer j.jobLogger.sendLog(send, "", true)
 
-	if _, err := exec.LookPath(pbmBin); err != nil {
+	_, err := exec.LookPath(pbmBin)
+	if err != nil {
 		return errors.Wrapf(err, "lookpath: %s", pbmBin)
 	}
 
@@ -216,7 +217,8 @@ func (j *MongoDBBackupJob) startBackup(ctx context.Context) (*pbmBackup, error) 
 		return nil, errors.Errorf("'%s' is not a supported data model for backups", j.dataModel)
 	}
 
-	if err := execPBMCommand(ctx, j.dsn, &result, pbmArgs...); err != nil {
+	err := execPBMCommand(ctx, j.dsn, &result, pbmArgs...)
+	if err != nil {
 		return nil, err
 	}
 
