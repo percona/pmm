@@ -54,8 +54,7 @@ const (
 	defaultIdleConnTimeout       = 90 * time.Second
 	defaultExpectContinueTimeout = 1 * time.Second
 	// Sized to absorb a reconnect storm from a fleet of PMM clients (hundreds of agents
-	// reconnecting simultaneously after a server restart). Go's default per-host idle
-	// pool is 2, which forces a TCP/TLS handshake on almost every burst request.
+	// reconnecting simultaneously after a server restart).
 	defaultMaxIdleConns        = 200
 	defaultMaxIdleConnsPerHost = 100
 )

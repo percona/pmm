@@ -56,10 +56,8 @@ const (
 	defaultVMSearchMaxQueryDuration     = "90s"
 	defaultVMSearchLogSlowQueryDuration = "30s"
 	defaultVMPromscrapeStreamParse      = "true"
-	// defaultVMMaxIngestionRate caps the samples/sec VictoriaMetrics will accept.
-	// Sized to absorb a reconnect storm from a fleet of agents (each holding up
-	// to 1 GiB of buffered metrics) without overwhelming VM. ~3x steady-state
-	// load of an 800-agent fleet; tunable via the VM_maxIngestionRate env var.
+	// Set defaultVMMaxIngestionRate to cap the samples/sec VictoriaMetrics will accept.
+	// It helps absorb a reconnect storm from a fleet of agents without overwhelming VM.
 	defaultVMMaxIngestionRate = "3000000"
 )
 
