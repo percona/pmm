@@ -156,7 +156,8 @@ type Severity common.Severity
 // Value implements database/sql/driver Valuer interface.
 func (s Severity) Value() (driver.Value, error) {
 	cs := common.Severity(s)
-	if err := cs.Validate(); err != nil {
+	err := cs.Validate()
+	if err != nil {
 		return nil, err
 	}
 	return cs.String(), nil
@@ -167,7 +168,8 @@ func (s *Severity) Scan(src any) error {
 	switch src := src.(type) {
 	case string:
 		cs := common.ParseSeverity(src)
-		if err := cs.Validate(); err != nil {
+		err := cs.Validate()
+		if err != nil {
 			return err
 		}
 		*s = Severity(cs)

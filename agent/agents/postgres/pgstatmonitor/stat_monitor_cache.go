@@ -124,7 +124,8 @@ func (ssc *statMonitorCache) getStatMonitorExtended(
 	defer rows.Close() //nolint:errcheck
 
 	for ctx.Err() == nil {
-		if err = q.NextRow(row, rows); err != nil {
+		err = q.NextRow(row, rows)
+		if err != nil {
 			if errors.Is(err, reform.ErrNoRows) {
 				err = nil
 			}
@@ -173,7 +174,7 @@ func (ssc *statMonitorCache) getStatMonitorExtended(
 			}
 			if err != nil {
 				// Either real syntax error in the query or pg_stat_monitor truncated the query and it causes the syntax error.
-				if c.pgStatMonitor.Elevel != 0 {
+				if c.Elevel != 0 {
 					c.IsQueryTruncated = false
 					ssc.l.Warnf("generating fingerprint failed for query with id %v: %v", c.QueryID, err)
 				} else {

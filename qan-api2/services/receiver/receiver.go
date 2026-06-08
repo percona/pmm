@@ -45,7 +45,8 @@ func NewService(mbm *models.MetricsBucket) *Service {
 func (s *Service) Collect(ctx context.Context, req *qanpb.CollectRequest) (*qanpb.CollectResponse, error) {
 	logger.Get(ctx).Infof("Saving %d MetricsBucket(s).", len(req.MetricsBucket))
 
-	if err := s.mbm.Save(req); err != nil {
+	err := s.mbm.Save(req)
+	if err != nil {
 		return nil, err
 	}
 	return &qanpb.CollectResponse{}, nil

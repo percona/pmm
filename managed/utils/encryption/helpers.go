@@ -86,7 +86,7 @@ func decryptColumnStringHandler(e *Encryption, val any) (any, error) {
 }
 
 func (table Table) columnsList() []string {
-	res := []string{}
+	res := make([]string, 0, len(table.Columns))
 	for _, c := range table.Columns {
 		res = append(res, c.Name)
 	}

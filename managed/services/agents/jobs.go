@@ -238,7 +238,7 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 					return errors.Wrapf(err, "cannot get scheduled task %s", scheduleID)
 				}
 				taskData := task.Data
-				taskData.MongoDBBackupTask.CommonBackupTaskData.Folder = artifact.Name
+				taskData.MongoDBBackupTask.Folder = artifact.Name
 
 				params := models.ChangeScheduledTaskParams{
 					Data: taskData,
@@ -272,9 +272,10 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 				return errors.Errorf("result type %s doesn't match job type %s", models.MongoDBRestoreBackupJob, job.Type)
 			}
 
-			if job.Data.MongoDBRestoreBackup.DataModel == models.LogicalDataModel {
+			switch job.Data.MongoDBRestoreBackup.DataModel {
+			case models.LogicalDataModel:
 				s.l.Info("restore successfully completed")
-			} else if job.Data.MongoDBRestoreBackup.DataModel == models.PhysicalDataModel {
+			case models.PhysicalDataModel:
 				s.l.Info("restore successfully completed, PMM will restart mongod and pbm-agent")
 				if err := s.runMongoPostRestore(t.Querier, job.Data.MongoDBRestoreBackup.ServiceID); err != nil {
 					s.l.WithError(err).Error("failed to restart components after restore from a physical backup")
@@ -380,7 +381,14 @@ func (s *JobsService) handleJobProgress(_ context.Context, progress *agentv1.Job
 }
 
 // StartMySQLBackupJob starts mysql backup job on the pmm-agent.
-func (s *JobsService) StartMySQLBackupJob(jobID, pmmAgentID string, timeout time.Duration, name string, dbConfig *models.DBConfig, locationConfig *models.BackupLocationConfig, folder string) error { //nolint:lll
+func (s *JobsService) StartMySQLBackupJob(
+	jobID, pmmAgentID string,
+	timeout time.Duration,
+	name string,
+	dbConfig *models.DBConfig,
+	locationConfig *models.BackupLocationConfig,
+	folder string,
+) error {
 	if err := models.PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 		"mysql backup", pmmAgentMinVersionForMySQLBackupAndRestore); err != nil {
 		return err

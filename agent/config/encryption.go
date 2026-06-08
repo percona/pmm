@@ -48,7 +48,8 @@ func (enc Encryption) Encrypt(plain []byte) ([]byte, error) {
 	}
 
 	aesKey := make([]byte, aesKeySize)
-	if _, err := io.ReadFull(rand.Reader, aesKey); err != nil {
+	_, err = io.ReadFull(rand.Reader, aesKey)
+	if err != nil {
 		return nil, fmt.Errorf("unable to generate AES key: %w", err)
 	}
 
@@ -61,7 +62,8 @@ func (enc Encryption) Encrypt(plain []byte) ([]byte, error) {
 		return nil, fmt.Errorf("unable to init GCM: %w", err)
 	}
 	nonce := make([]byte, gcmNonceSize)
-	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
+	_, err = io.ReadFull(rand.Reader, nonce)
+	if err != nil {
 		return nil, fmt.Errorf("unable to generate nonce: %w", err)
 	}
 
