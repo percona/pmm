@@ -42,7 +42,8 @@ func ReadRows(rows *sql.Rows) ([]string, [][]any, error) {
 			var ei any
 			dest[i] = &ei
 		}
-		if err = rows.Scan(dest...); err != nil {
+		err = rows.Scan(dest...)
+		if err != nil {
 			return columns, dataRows, err
 		}
 

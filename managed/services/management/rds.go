@@ -383,10 +383,12 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 			rds.MysqldExporter = invMySQLdExporter.(*inventoryv1.MySQLdExporter) //nolint:forcetypeassert
 
 			if !req.SkipConnectionCheck {
-				if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, mysqldExporter); err != nil {
+				err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, mysqldExporter)
+				if err != nil {
 					return err
 				}
-				if err = s.sib.GetInfoFromService(ctx, tx.Querier, service, mysqldExporter); err != nil {
+				err = s.sib.GetInfoFromService(ctx, tx.Querier, service, mysqldExporter)
+				if err != nil {
 					return err
 				}
 			}
@@ -469,10 +471,12 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 			rds.PostgresqlExporter = invPostgresExporter.(*inventoryv1.PostgresExporter) //nolint:forcetypeassert
 
 			if !req.SkipConnectionCheck {
-				if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, postgresExporter); err != nil {
+				err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, postgresExporter)
+				if err != nil {
 					return err
 				}
-				if err = s.sib.GetInfoFromService(ctx, tx.Querier, service, postgresExporter); err != nil {
+				err = s.sib.GetInfoFromService(ctx, tx.Querier, service, postgresExporter)
+				if err != nil {
 					return err
 				}
 			}
