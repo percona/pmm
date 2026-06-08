@@ -229,7 +229,8 @@ func connectAndCollect(ctx context.Context, collection *mongo.Collection, dbName
 				return
 			}
 		}
-		if err := cursor.Err(); err != nil {
+		err := cursor.Err()
+		if err != nil {
 			logger.Warnln("couldn't retrieve data from cursor", err)
 			return
 		}

@@ -205,15 +205,17 @@ func (s *LocationsService) TestLocationConfig(
 		}
 	}
 
-	if err := locationConfig.Validate(models.BackupLocationValidationParams{
+	err := locationConfig.Validate(models.BackupLocationValidationParams{
 		RequireConfig:    true,
 		WithBucketRegion: false,
-	}); err != nil {
+	})
+	if err != nil {
 		return nil, err
 	}
 
 	if req.S3Config != nil {
-		if err := s.checkBucket(ctx, locationConfig.S3Config); err != nil {
+		err := s.checkBucket(ctx, locationConfig.S3Config)
+		if err != nil {
 			return nil, err
 		}
 	}

@@ -101,7 +101,8 @@ func (j *MongoDBRestoreJob) DSN() string {
 func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 	defer j.jobLogger.sendLog(send, "", true)
 
-	if _, err := exec.LookPath(pbmBin); err != nil {
+	_, err := exec.LookPath(pbmBin)
+	if err != nil {
 		return errors.Wrapf(err, "lookpath: %s", pbmBin)
 	}
 

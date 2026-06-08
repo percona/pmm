@@ -330,7 +330,8 @@ func (s *ManagementService) RemoveService(ctx context.Context, req *managementv1
 			}
 
 			if len(pmmAgentIDs) <= 1 {
-				if err = models.RemoveNode(tx.Querier, node.NodeID, models.RemoveCascade); err != nil {
+				err = models.RemoveNode(tx.Querier, node.NodeID, models.RemoveCascade)
+				if err != nil {
 					return err
 				}
 			}

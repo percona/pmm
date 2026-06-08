@@ -120,7 +120,8 @@ func (cmd *AddExternalServerlessCommand) RunCmd() (commands.Result, error) {
 	}
 
 	if cmd.CredentialsSource != "" {
-		if err := cmd.GetCredentials(); err != nil {
+		err := cmd.GetCredentials()
+		if err != nil {
 			return nil, fmt.Errorf("failed to retrieve credentials from %s: %w", cmd.CredentialsSource, err)
 		}
 	}
