@@ -94,10 +94,12 @@ func (svc *Service) Run(ctx context.Context) {
 	svc.l.Info("Starting...")
 	defer svc.l.Info("Done.")
 
-	if err := dir.CreateDataDir(victoriametricsDir, dirPerm); err != nil {
+	err := dir.CreateDataDir(victoriametricsDir, dirPerm)
+	if err != nil {
 		svc.l.Error(err)
 	}
-	if err := dir.CreateDataDir(victoriametricsDataDir, dirPerm); err != nil {
+	err = dir.CreateDataDir(victoriametricsDataDir, dirPerm)
+	if err != nil {
 		svc.l.Error(err)
 	}
 
@@ -124,7 +126,8 @@ func (svc *Service) Run(ctx context.Context) {
 			}
 
 			nCtx, cancel := context.WithTimeout(ctx, configurationUpdateTimeout)
-			if err := svc.updateConfiguration(nCtx); err != nil {
+			err := svc.updateConfiguration(nCtx)
+			if err != nil {
 				svc.l.Errorf("Failed to update configuration, will retry: %+v.", err)
 				svc.RequestConfigurationUpdate()
 			}
@@ -261,15 +264,22 @@ func (svc *Service) validateConfig(ctx context.Context, cfg []byte) error {
 	if err != nil {
 		return err
 	}
+	defer func() {
+		err = f.Close()
+		if err != nil {
+			svc.l.Debug(err)
+		}
+		err = os.Remove(f.Name())
+		if err != nil {
+			svc.l.Debug(err)
+		}
+	}()
 	if _, err = f.Write(cfg); err != nil {
 		return err
 	}
-	defer func() {
-		_ = f.Close()
-		_ = os.Remove(f.Name())
-	}()
 
-	args := []string{"-promscrape.config.dryRun=true", "-promscrape.config", f.Name()}
+	args := make([]string, 0, 4) //nolint:mnd
+	args = append(args, "-promscrape.config.dryRun=true", "-promscrape.config", f.Name())
 	cmd := exec.CommandContext(ctx, "victoriametrics", args...) //nolint:gosec
 	pdeathsig.Set(cmd, unix.SIGKILL)
 
@@ -320,10 +330,12 @@ func (svc *Service) configAndReload(ctx context.Context, b []byte) error {
 	var restore bool
 	defer func() {
 		if restore {
-			if err = os.WriteFile(svc.scrapeConfigPath, oldCfg, fi.Mode()); err != nil {
+			err = os.WriteFile(svc.scrapeConfigPath, oldCfg, fi.Mode()) //nolint:gosec
+			if err != nil {
 				svc.l.Error(err)
 			}
-			if err = svc.reload(ctx); err != nil {
+			err = svc.reload(ctx)
+			if err != nil {
 				svc.l.Error(err)
 			}
 		}

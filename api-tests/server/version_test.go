@@ -48,7 +48,9 @@ func TestVersion(t *testing.T) {
 			req, _ := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
 			resp, err := http.DefaultClient.Do(req)
 			require.NoError(t, err)
-			defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
+			t.Cleanup(func() {
+				assert.NoError(t, resp.Body.Close())
+			})
 
 			b, err := io.ReadAll(resp.Body)
 			require.NoError(t, err)

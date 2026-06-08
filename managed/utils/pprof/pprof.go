@@ -31,7 +31,8 @@ import (
 // Profiling lasts for duration specified in seconds.
 func Profile(ctx context.Context, duration time.Duration) ([]byte, error) {
 	var profileBuf bytes.Buffer
-	if err := pprof.StartCPUProfile(&profileBuf); err != nil {
+	err := pprof.StartCPUProfile(&profileBuf)
+	if err != nil {
 		return nil, err
 	}
 
@@ -49,7 +50,8 @@ func Profile(ctx context.Context, duration time.Duration) ([]byte, error) {
 // Tracing lasts for duration specified in seconds.
 func Trace(ctx context.Context, duration time.Duration) ([]byte, error) {
 	var traceBuf bytes.Buffer
-	if err := trace.Start(&traceBuf); err != nil {
+	err := trace.Start(&traceBuf)
+	if err != nil {
 		return nil, err
 	}
 

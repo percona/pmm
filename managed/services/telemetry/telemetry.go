@@ -408,7 +408,8 @@ func (s *Service) send(ctx context.Context, report *telemetryv1.ReportRequest) e
 		<-retryCtx.Done()
 		retryCancel()
 
-		if err = ctx.Err(); err != nil {
+		err = ctx.Err()
+		if err != nil {
 			s.l.Debugf("Will not retry sending v2 event: %s.", err)
 			return err
 		}

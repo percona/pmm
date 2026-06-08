@@ -283,7 +283,8 @@ func (s *AuthServer) returnError(rw http.ResponseWriter, msg map[string]any, l *
 	rw.Header().Set("Content-Type", "application/json")
 
 	rw.WriteHeader(authenticationErrorCode)
-	if err := json.NewEncoder(rw).Encode(msg); err != nil {
+	err := json.NewEncoder(rw).Encode(msg)
+	if err != nil {
 		l.Warnf("%s", err)
 	}
 }

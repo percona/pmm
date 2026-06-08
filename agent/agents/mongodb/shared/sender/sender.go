@@ -88,7 +88,6 @@ func (s *Sender) Stop() {
 
 	// wait for goroutines to exit
 	s.wg.Wait()
-	return
 }
 
 func start(ctx context.Context, wg *sync.WaitGroup, reportChan <-chan *report.Report, w Writer, logger *logrus.Entry, doneChan <-chan struct{}) {
@@ -113,7 +112,8 @@ func start(ctx context.Context, wg *sync.WaitGroup, reportChan <-chan *report.Re
 			}
 
 			// sent report
-			if err := w.Write(report); err != nil {
+			err := w.Write(report)
+			if err != nil {
 				logger.Warn("Lost report:", err)
 				continue
 			}
@@ -123,7 +123,7 @@ func start(ctx context.Context, wg *sync.WaitGroup, reportChan <-chan *report.Re
 	}
 }
 
-// Writer write QAN Report
+// Writer writes QAN report.
 type Writer interface {
 	Write(r *report.Report) error
 }
