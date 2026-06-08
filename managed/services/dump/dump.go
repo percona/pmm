@@ -257,11 +257,12 @@ func (s *Service) GetFilePathsForDumps(dumpIDs []string) (map[string]string, err
 	res := make(map[string]string, len(dumps))
 	for _, d := range dumps {
 		if d.Status != models.DumpStatusSuccess {
-			s.l.Warnf("Dump with id %s is in %s state. Skiping it.", d.ID, d.Status)
+			s.l.Warnf("Dump with id %s is in %s state. Skipping it.", d.ID, d.Status)
 			continue
 		}
 		filePath := getDumpFilePath(d.ID, d.Encrypted)
-		if err = validateFilePath(filePath); err != nil {
+		err = validateFilePath(filePath)
+		if err != nil {
 			return nil, errors.WithStack(err)
 		}
 
@@ -272,10 +273,11 @@ func (s *Service) GetFilePathsForDumps(dumpIDs []string) (map[string]string, err
 }
 
 func (s *Service) setDumpStatus(dumpID string, status models.DumpStatus) {
-	if err := s.db.InTransaction(func(t *reform.TX) error {
+	err := s.db.InTransaction(func(t *reform.TX) error {
 		return models.UpdateDumpStatus(t.Querier, dumpID, status)
-	}); err != nil {
-		s.l.Warnf("Failed to update dupm status: %+v", err)
+	})
+	if err != nil {
+		s.l.Warnf("Failed to update dump status: %+v", err)
 	}
 }
 
@@ -309,12 +311,13 @@ func (s *Service) persistLogs(dumpID string, r io.Reader) error {
 }
 
 func (s *Service) saveLogChunk(dumpID string, chunkN uint32, text string, last bool) error {
-	if _, err := models.CreateDumpLog(s.db.Querier, models.CreateDumpLogParams{
+	_, err := models.CreateDumpLog(s.db.Querier, models.CreateDumpLogParams{
 		DumpID:    dumpID,
 		ChunkID:   atomic.AddUint32(&chunkN, 1) - 1,
 		Data:      text,
 		LastChunk: last,
-	}); err != nil {
+	})
+	if err != nil {
 		return errors.Wrap(err, "failed to save pmm-dump log chunk")
 	}
 

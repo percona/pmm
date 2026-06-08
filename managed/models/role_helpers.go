@@ -26,7 +26,8 @@ import (
 
 // CreateRole creates a new role.
 func CreateRole(q *reform.Querier, role *Role) error {
-	if err := q.Insert(role); err != nil {
+	err := q.Insert(role)
+	if err != nil {
 		return err
 	}
 
@@ -37,14 +38,16 @@ func CreateRole(q *reform.Querier, role *Role) error {
 func AssignRoles(tx *reform.TX, userID int, roleIDs []int) error {
 	q := tx.Querier
 
-	if _, err := q.DeleteFrom(UserRolesView, " WHERE user_id = $1", userID); err != nil {
+	_, err := q.DeleteFrom(UserRolesView, " WHERE user_id = $1", userID)
+	if err != nil {
 		return err
 	}
 
 	s := make([]reform.Struct, 0, len(roleIDs))
 	for _, roleID := range roleIDs {
 		var role Role
-		if err := findRole(tx, roleID, &role); err != nil {
+		err = findRole(tx, roleID, &role)
+		if err != nil {
 			return err
 		}
 
@@ -222,7 +225,8 @@ func GetUserRoles(q *reform.Querier, userID int) ([]Role, error) {
 	roles := []Role{}
 	for rows.Next() {
 		var role Role
-		if err := rows.Scan(role.Pointers()...); err != nil {
+		err := rows.Scan(role.Pointers()...)
+		if err != nil {
 			return nil, err
 		}
 

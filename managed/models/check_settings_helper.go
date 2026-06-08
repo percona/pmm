@@ -65,7 +65,8 @@ func CreateCheckSettings(q *reform.Querier, name string, interval Interval) (*Ch
 		Interval: interval,
 	}
 
-	if err := q.Insert(row); err != nil {
+	err := q.Insert(row)
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to create check setting")
 	}
 

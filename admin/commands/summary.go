@@ -367,7 +367,8 @@ func (cmd *SummaryCommand) makeArchive(ctx context.Context, globals *flags.Globa
 	}
 
 	defer func() {
-		if e := f.Close(); e != nil && err == nil {
+		e := f.Close()
+		if e != nil && err == nil {
 			err = errors.WithStack(e)
 		}
 	}()
@@ -375,7 +376,8 @@ func (cmd *SummaryCommand) makeArchive(ctx context.Context, globals *flags.Globa
 	zipW := zip.NewWriter(f)
 
 	defer func() {
-		if e := zipW.Close(); e != nil && err == nil {
+		e := zipW.Close()
+		if e != nil && err == nil {
 			err = errors.WithStack(e)
 		}
 	}()
@@ -399,7 +401,8 @@ func (cmd *SummaryCommand) RunCmdWithContext(ctx context.Context, globals *flags
 		cmd.Filename = filename
 	}
 
-	if err := cmd.makeArchive(ctx, globals); err != nil {
+	err := cmd.makeArchive(ctx, globals)
+	if err != nil {
 		return nil, err
 	}
 

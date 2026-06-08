@@ -211,7 +211,8 @@ func (s *SlowLog) recheck(ctx context.Context) *slowLogInfo {
 	}
 	if size := fi.Size(); size > maxSize {
 		s.l.Infof("Rotating slowlog file: %d > %d.", size, maxSize)
-		if err = s.rotateSlowLog(ctx, newInfo.path); err != nil {
+		err = s.rotateSlowLog(ctx, newInfo.path)
+		if err != nil {
 			s.l.Error(err)
 		}
 	}
@@ -242,7 +243,8 @@ func (s *SlowLog) getSlowLogInfo(ctx context.Context) (*slowLogInfo, error) {
 	if !filepath.IsAbs(path) {
 		var dataDir string
 		row = db.QueryRowContext(ctx, selectQuery+"@@datadir")
-		if err := row.Scan(&dataDir); err != nil {
+		err := row.Scan(&dataDir)
+		if err != nil {
 			return nil, errors.Wrap(err, "cannot select @@datadir")
 		}
 		path = filepath.Join(dataDir, path)
@@ -338,7 +340,8 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 				continue
 			}
 
-			if err := parser.Err(); !errors.Is(err, io.EOF) {
+			err := parser.Err()
+			if !errors.Is(err, io.EOF) {
 				s.l.Warnf("Parser error: %v.", err)
 			}
 			close(events)
