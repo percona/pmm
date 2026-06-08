@@ -112,15 +112,7 @@ func (l *Mongolog) Start(ctx context.Context) error {
 
 	// create sender which sends qan reports and start it
 	l.sender = sender.New(reportChan, l.w, l.logger)
-	err = l.sender.Start() //nolint:contextcheck // PMM-13947
-	if err != nil {
-		l.aggregator.Stop()
-		closeErr := reader.Close()
-		if closeErr != nil {
-			l.logger.Warningln(closeErr)
-		}
-		return err
-	}
+	l.sender.Start() //nolint:contextcheck // PMM-13947
 
 	// create new channel over which
 	// we will tell goroutine it should close
@@ -129,7 +121,7 @@ func (l *Mongolog) Start(ctx context.Context) error {
 	// start a goroutine and Add() it to WaitGroup
 	// so we could later Wait() for it to finish
 	l.wg = &sync.WaitGroup{}
-	l.wg.Add(2)
+	l.wg.Add(2) //nolint:mnd
 
 	// create ready sync.Cond so we could know when goroutine actually started getting data from db
 	ready := sync.NewCond(&sync.Mutex{})
