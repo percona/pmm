@@ -147,28 +147,28 @@ func (s *Service) StartDump(params *Params) (string, error) {
 		"--dump-path="+getDumpFilePath(dump.ID, false))
 
 	if params.Token != "" {
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf(`--pmm-token=%s`, params.Token))
+		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--pmm-token="+params.Token)
 	}
 
 	if params.Cookie != "" {
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf(`--pmm-cookie=%s`, params.Cookie))
+		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--pmm-cookie="+params.Cookie)
 	}
 
 	if params.User != "" {
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf(`--pmm-user=%s`, params.User))
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf(`--pmm-pass=%s`, params.Password))
+		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--pmm-user="+params.User)
+		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--pmm-pass="+params.Password)
 	}
 
 	for _, instance := range instances {
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf("--instance=%s", instance))
+		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--instance="+instance)
 	}
 
 	if params.StartTime != nil {
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf("--start-ts=%s", params.StartTime.Format(time.RFC3339)))
+		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--start-ts="+params.StartTime.Format(time.RFC3339))
 	}
 
 	if params.EndTime != nil {
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf("--end-ts=%s", params.EndTime.Format(time.RFC3339)))
+		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--end-ts="+params.EndTime.Format(time.RFC3339))
 	}
 
 	if params.ExportQAN {

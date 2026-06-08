@@ -315,7 +315,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				continue
 			}
 
-			warns = append(warns, fmt.Sprintf("unknown environment variable %s", env))
+			warns = append(warns, "unknown environment variable "+env)
 		}
 	}
 

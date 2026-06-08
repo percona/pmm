@@ -16,7 +16,6 @@
 package models
 
 import (
-	"fmt"
 	"strings"
 	"time"
 
@@ -47,7 +46,7 @@ func FindRestoreHistoryItems(q *reform.Querier, filters RestoreHistoryItemFilter
 			return nil, err
 		}
 
-		conditions = append(conditions, fmt.Sprintf("service_id = %s", q.Placeholder(idx)))
+		conditions = append(conditions, "service_id = "+q.Placeholder(idx))
 		args = append(args, filters.ServiceID)
 		idx++
 	}
@@ -58,21 +57,21 @@ func FindRestoreHistoryItems(q *reform.Querier, filters RestoreHistoryItemFilter
 			return nil, err
 		}
 
-		conditions = append(conditions, fmt.Sprintf("artifact_id = %s", q.Placeholder(idx)))
+		conditions = append(conditions, "artifact_id = "+q.Placeholder(idx))
 		args = append(args, filters.ArtifactID)
 		idx++
 	}
 
 	if filters.Status != nil {
-		conditions = append(conditions, fmt.Sprintf("status = %s", q.Placeholder(idx)))
+		conditions = append(conditions, "status = "+q.Placeholder(idx))
 		args = append(args, *filters.Status)
 	}
 
 	var whereClause string
 	if len(conditions) != 0 {
-		whereClause = fmt.Sprintf("WHERE %s", strings.Join(conditions, " AND "))
+		whereClause = "WHERE " + strings.Join(conditions, " AND ")
 	}
-	rows, err := q.SelectAllFrom(RestoreHistoryItemTable, fmt.Sprintf("%s ORDER BY started_at DESC", whereClause), args...)
+	rows, err := q.SelectAllFrom(RestoreHistoryItemTable, whereClause+" ORDER BY started_at DESC", args...)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to select restore history")
 	}

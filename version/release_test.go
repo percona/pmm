@@ -98,12 +98,12 @@ func TestFullInfoPlainExporter(t *testing.T) {
 	setupDataForExporter()
 
 	expected := strings.Join([]string{
-		fmt.Sprintf("ProjectName: %s", ProjectName),
-		fmt.Sprintf("Version: %s", Version),
-		fmt.Sprintf("PMMVersion: %s", PMMVersion),
-		fmt.Sprintf("Timestamp: %s", timestampFormatted()),
-		fmt.Sprintf("FullCommit: %s", FullCommit),
-		fmt.Sprintf("Branch: %s", Branch),
+		"ProjectName: " + ProjectName,
+		"Version: " + Version,
+		"PMMVersion: " + PMMVersion,
+		"Timestamp: " + timestampFormatted(),
+		"FullCommit: " + FullCommit,
+		"Branch: " + Branch,
 	}, "\n")
 
 	actual := FullInfo()

@@ -333,19 +333,19 @@ func TestServiceAccountPermissions(t *testing.T) {
 	nodeName, err := stringsgen.GenerateRandomString(256)
 	require.NoError(t, err)
 
-	viewerNodeName := fmt.Sprintf("%s-viewer", nodeName)
+	viewerNodeName := nodeName + "-viewer"
 	viewerAccountID := createServiceAccountWithRole(t, "Viewer", viewerNodeName)
 	viewerTokenID, viewerToken := createServiceToken(t, viewerAccountID, viewerNodeName)
 	defer deleteServiceAccount(t, viewerAccountID)
 	defer deleteServiceToken(t, viewerAccountID, viewerTokenID)
 
-	editorNodeName := fmt.Sprintf("%s-editor", nodeName)
+	editorNodeName := nodeName + "-editor"
 	editorAccountID := createServiceAccountWithRole(t, "Editor", editorNodeName)
 	editorTokenID, editorToken := createServiceToken(t, editorAccountID, editorNodeName)
 	defer deleteServiceAccount(t, editorAccountID)
 	defer deleteServiceToken(t, editorAccountID, editorTokenID)
 
-	adminNodeName := fmt.Sprintf("%s-admin", nodeName)
+	adminNodeName := nodeName + "-admin"
 	adminAccountID := createServiceAccountWithRole(t, "Admin", adminNodeName)
 	adminTokenID, adminToken := createServiceToken(t, adminAccountID, adminNodeName)
 	defer deleteServiceAccount(t, adminAccountID)
@@ -384,7 +384,7 @@ func TestServiceAccountPermissions(t *testing.T) {
 					req, err := http.NewRequestWithContext(pmmapitests.Context, test.method, u.String(), nil)
 					require.NoError(t, err)
 
-					req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", user.serviceToken))
+					req.Header.Set("Authorization", "Bearer "+user.serviceToken)
 
 					resp, err := http.DefaultClient.Do(req)
 					require.NoError(t, err)
