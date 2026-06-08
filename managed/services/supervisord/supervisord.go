@@ -56,6 +56,11 @@ const (
 	defaultVMSearchMaxQueryDuration     = "90s"
 	defaultVMSearchLogSlowQueryDuration = "30s"
 	defaultVMPromscrapeStreamParse      = "true"
+	// defaultVMMaxIngestionRate caps the samples/sec VictoriaMetrics will accept.
+	// Sized to absorb a reconnect storm from a fleet of agents (each holding up
+	// to 1 GiB of buffered metrics) without overwhelming VM. ~3x steady-state
+	// load of an 800-agent fleet; tunable via the VM_maxIngestionRate env var.
+	defaultVMMaxIngestionRate = "3000000"
 )
 
 // Service is responsible for interactions with Supervisord via supervisorctl.
@@ -256,6 +261,7 @@ command =
 		--search.logSlowQueryDuration={{ .VMSearchLogSlowQueryDuration }}
 		--search.maxQueryDuration={{ .VMSearchMaxQueryDuration }}
 		--promscrape.streamParse={{ .VMPromscrapeStreamParse }}
+		--maxIngestionRate={{ .VMMaxIngestionRate }}
 		--http.pathPrefix=/prometheus
 		--envflag.enable
 		--envflag.prefix=VM_
@@ -466,6 +472,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	vmSearchMaxQueryDuration := envvars.GetEnv("VM_search_maxQueryDuration", defaultVMSearchMaxQueryDuration)
 	vmSearchLogSlowQueryDuration := envvars.GetEnv("VM_search_logSlowQueryDuration", defaultVMSearchLogSlowQueryDuration)
 	vmPromscrapeStreamParse := envvars.GetEnv("VM_promscrape_streamParse", defaultVMPromscrapeStreamParse)
+	vmMaxIngestionRate := envvars.GetEnv("VM_maxIngestionRate", defaultVMMaxIngestionRate)
 
 	templateParams := map[string]any{
 		"DataRetentionHours":           int(settings.DataRetention.Hours()),
@@ -480,6 +487,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"VMSearchMaxQueryDuration":     vmSearchMaxQueryDuration,
 		"VMSearchLogSlowQueryDuration": vmSearchLogSlowQueryDuration,
 		"VMPromscrapeStreamParse":      vmPromscrapeStreamParse,
+		"VMMaxIngestionRate":           vmMaxIngestionRate,
 		"VMURL":                        s.vmParams.URL(),
 		"ExternalVM":                   s.vmParams.ExternalVM(),
 		"NomadEnabled":                 settings.IsNomadEnabled(),
