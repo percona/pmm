@@ -122,6 +122,8 @@ func (s *Service) findServiceForUpdate() (*service, error) {
 
 		results.PMMAgentID = pmmAgents[0].AgentID
 
+		// shift the next check time for this service, so, in case of versions fetch error,
+		// it will not loop in trying, but will continue with other services.
 		_, err = models.UpdateServiceSoftwareVersions(
 			tx.Querier, servicesVersions[0].ServiceID,
 			models.UpdateServiceSoftwareVersionsParams{NextCheckAt: new(time.Now().UTC().Add(serviceCheckShortInterval))},

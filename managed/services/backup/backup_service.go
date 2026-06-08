@@ -360,6 +360,7 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 
 		var artifactFolder string
 
+		// Only artifacts taken with new agents can be restored from a folder.
 		if len(artifact.MetadataList) != 0 {
 			artifactFolder = artifact.Folder
 		}
