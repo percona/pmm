@@ -152,7 +152,15 @@ func areSettingsTextValues(q *reform.Querier) (bool, error) {
 	return false, nil
 }
 
-func newPgStatMonitorQAN(q *reform.Querier, dbCloser io.Closer, agentID string, disableCommentsParsing, disableQueryExamples bool, maxQueryLength int32, l *logrus.Entry) (*PGStatMonitorQAN, error) { //nolint:lll
+func newPgStatMonitorQAN(
+	q *reform.Querier,
+	dbCloser io.Closer,
+	agentID string,
+	disableCommentsParsing,
+	disableQueryExamples bool,
+	maxQueryLength int32,
+	l *logrus.Entry,
+) (*PGStatMonitorQAN, error) {
 	return &PGStatMonitorQAN{
 		q:                      q,
 		dbCloser:               dbCloser,

@@ -115,7 +115,12 @@ func (s *ActionsService) StartMySQLExplainAction(
 }
 
 // StartMySQLShowCreateTableAction starts mysql-show-create-table action on pmm-agent.
-func (s *ActionsService) StartMySQLShowCreateTableAction(_ context.Context, id, pmmAgentID, dsn, table string, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error { //nolint:lll
+func (s *ActionsService) StartMySQLShowCreateTableAction(
+	_ context.Context,
+	id, pmmAgentID, dsn, table string,
+	files map[string]string,
+	tdp *models.DelimiterPair, tlsSkipVerify bool,
+) error {
 	aRequest := &agentv1.StartActionRequest{
 		ActionId: id,
 		Params: &agentv1.StartActionRequest_MysqlShowCreateTableParams{
@@ -137,7 +142,11 @@ func (s *ActionsService) StartMySQLShowCreateTableAction(_ context.Context, id, 
 }
 
 // StartMySQLShowTableStatusAction starts mysql-show-table-status action on pmm-agent.
-func (s *ActionsService) StartMySQLShowTableStatusAction(_ context.Context, id, pmmAgentID, dsn, table string, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error { //nolint:lll
+func (s *ActionsService) StartMySQLShowTableStatusAction(
+	_ context.Context, id, pmmAgentID, dsn, table string,
+	files map[string]string,
+	tdp *models.DelimiterPair, tlsSkipVerify bool,
+) error {
 	aRequest := &agentv1.StartActionRequest{
 		ActionId: id,
 		Params: &agentv1.StartActionRequest_MysqlShowTableStatusParams{
@@ -159,7 +168,11 @@ func (s *ActionsService) StartMySQLShowTableStatusAction(_ context.Context, id, 
 }
 
 // StartMySQLShowIndexAction starts mysql-show-index action on pmm-agent.
-func (s *ActionsService) StartMySQLShowIndexAction(_ context.Context, id, pmmAgentID, dsn, table string, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error { //nolint:lll
+func (s *ActionsService) StartMySQLShowIndexAction(
+	_ context.Context, id, pmmAgentID, dsn, table string,
+	files map[string]string,
+	tdp *models.DelimiterPair, tlsSkipVerify bool,
+) error {
 	aRequest := &agentv1.StartActionRequest{
 		ActionId: id,
 		Params: &agentv1.StartActionRequest_MysqlShowIndexParams{
@@ -234,7 +247,11 @@ func (s *ActionsService) StartMongoDBExplainAction(_ context.Context, id, pmmAge
 }
 
 // StartMySQLQueryShowAction starts MySQL SHOW query action on pmm-agent.
-func (s *ActionsService) StartMySQLQueryShowAction(_ context.Context, id, pmmAgentID, dsn, query string, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error { //nolint:lll
+func (s *ActionsService) StartMySQLQueryShowAction(
+	_ context.Context, id, pmmAgentID, dsn, query string,
+	files map[string]string,
+	tdp *models.DelimiterPair, tlsSkipVerify bool,
+) error {
 	aRequest := &agentv1.StartActionRequest{
 		ActionId: id,
 		Params: &agentv1.StartActionRequest_MysqlQueryShowParams{
@@ -256,7 +273,11 @@ func (s *ActionsService) StartMySQLQueryShowAction(_ context.Context, id, pmmAge
 }
 
 // StartMySQLQuerySelectAction starts MySQL SELECT query action on pmm-agent.
-func (s *ActionsService) StartMySQLQuerySelectAction(_ context.Context, id, pmmAgentID, dsn, query string, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error { //nolint:lll
+func (s *ActionsService) StartMySQLQuerySelectAction(
+	_ context.Context, id, pmmAgentID, dsn, query string,
+	files map[string]string,
+	tdp *models.DelimiterPair, tlsSkipVerify bool,
+) error {
 	aRequest := &agentv1.StartActionRequest{
 		ActionId: id,
 		Params: &agentv1.StartActionRequest_MysqlQuerySelectParams{
@@ -349,7 +370,11 @@ func (s *ActionsService) StartMongoDBQueryBuildInfoAction(_ context.Context, id,
 }
 
 // StartMongoDBQueryGetCmdLineOptsAction starts MongoDB getCmdLineOpts query action on pmm-agent.
-func (s *ActionsService) StartMongoDBQueryGetCmdLineOptsAction(_ context.Context, id, pmmAgentID, dsn string, files map[string]string, tdp *models.DelimiterPair) error { //nolint:lll
+func (s *ActionsService) StartMongoDBQueryGetCmdLineOptsAction(
+	_ context.Context, id, pmmAgentID, dsn string,
+	files map[string]string,
+	tdp *models.DelimiterPair,
+) error {
 	aRequest := &agentv1.StartActionRequest{
 		ActionId: id,
 		Params: &agentv1.StartActionRequest_MongodbQueryGetcmdlineoptsParams{
@@ -369,7 +394,11 @@ func (s *ActionsService) StartMongoDBQueryGetCmdLineOptsAction(_ context.Context
 }
 
 // StartMongoDBQueryReplSetGetStatusAction starts MongoDB replSetGetStatus query action on pmm-agent.
-func (s *ActionsService) StartMongoDBQueryReplSetGetStatusAction(_ context.Context, id, pmmAgentID, dsn string, files map[string]string, tdp *models.DelimiterPair) error { //nolint:lll
+func (s *ActionsService) StartMongoDBQueryReplSetGetStatusAction(
+	_ context.Context, id, pmmAgentID, dsn string,
+	files map[string]string,
+	tdp *models.DelimiterPair,
+) error {
 	aRequest := &agentv1.StartActionRequest{
 		ActionId: id,
 		Params: &agentv1.StartActionRequest_MongodbQueryReplsetgetstatusParams{
@@ -389,7 +418,11 @@ func (s *ActionsService) StartMongoDBQueryReplSetGetStatusAction(_ context.Conte
 }
 
 // StartMongoDBQueryGetDiagnosticDataAction starts MongoDB getDiagnosticData query action on pmm-agent.
-func (s *ActionsService) StartMongoDBQueryGetDiagnosticDataAction(_ context.Context, id, pmmAgentID, dsn string, files map[string]string, tdp *models.DelimiterPair) error { //nolint:lll
+func (s *ActionsService) StartMongoDBQueryGetDiagnosticDataAction(
+	_ context.Context, id, pmmAgentID, dsn string,
+	files map[string]string,
+	tdp *models.DelimiterPair,
+) error {
 	aRequest := &agentv1.StartActionRequest{
 		ActionId: id,
 		Params: &agentv1.StartActionRequest_MongodbQueryGetdiagnosticdataParams{

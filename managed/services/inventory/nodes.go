@@ -306,7 +306,7 @@ func (s *NodesService) Remove(ctx context.Context, id string, force bool) error 
 	idsToKick := make(map[string]struct{})
 	idsToSetState := make(map[string]struct{})
 
-	if e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+	e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		mode := models.RemoveRestrict
 		if force {
 			mode = models.RemoveCascade
@@ -338,7 +338,8 @@ func (s *NodesService) Remove(ctx context.Context, id string, force bool) error 
 			}
 		}
 		return models.RemoveNode(tx.Querier, id, mode)
-	}); e != nil {
+	})
+	if e != nil {
 		return e
 	}
 

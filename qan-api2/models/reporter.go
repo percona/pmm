@@ -532,7 +532,12 @@ var (
 )
 
 // SelectFilters selects dimension and their values, and also keys and values of labels.
-func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, periodStartToSec int64, mainMetricName string, dimensions, labels map[string][]string) (*qanpbv1.GetFilteredMetricsNamesResponse, error) { //nolint:lll
+func (r *Reporter) SelectFilters(
+	ctx context.Context,
+	periodStartFromSec, periodStartToSec int64,
+	mainMetricName string,
+	dimensions, labels map[string][]string,
+) (*qanpbv1.GetFilteredMetricsNamesResponse, error) {
 	if !isValidMetricColumn(mainMetricName) {
 		return nil, fmt.Errorf("invalid main metric name %s", mainMetricName)
 	}
@@ -644,7 +649,8 @@ func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec,
 			}
 			totalMainMetricPerSec = labelTotal.mainMetricPerSec / float32(durationSec)
 		}
-		if err = rows.Err(); err != nil {
+		err = rows.Err()
+		if err != nil {
 			return nil, 0, fmt.Errorf("failed to select total for QueryFilter %s: %w", queryBuffer.String(), err)
 		}
 	}

@@ -42,7 +42,8 @@ func FindRestoreHistoryItems(q *reform.Querier, filters RestoreHistoryItemFilter
 
 	idx := 1
 	if filters.ServiceID != "" {
-		if _, err := FindServiceByID(q, filters.ServiceID); err != nil {
+		_, err := FindServiceByID(q, filters.ServiceID)
+		if err != nil {
 			return nil, err
 		}
 
@@ -52,7 +53,8 @@ func FindRestoreHistoryItems(q *reform.Querier, filters RestoreHistoryItemFilter
 	}
 
 	if filters.ArtifactID != "" {
-		if _, err := FindArtifactByID(q, filters.ArtifactID); err != nil {
+		_, err := FindArtifactByID(q, filters.ArtifactID)
+		if err != nil {
 			return nil, err
 		}
 
@@ -182,11 +184,13 @@ func ChangeRestoreHistoryItem(
 
 // RemoveRestoreHistoryItem removes restore history item by ID.
 func RemoveRestoreHistoryItem(q *reform.Querier, id string) error {
-	if _, err := FindRestoreHistoryItemByID(q, id); err != nil {
+	_, err := FindRestoreHistoryItemByID(q, id)
+	if err != nil {
 		return err
 	}
 
-	if err := q.Delete(&RestoreHistoryItem{ID: id}); err != nil {
+	err = q.Delete(&RestoreHistoryItem{ID: id})
+	if err != nil {
 		return errors.Wrapf(err, "failed to remove restore history item by id '%s'", id)
 	}
 	return nil
