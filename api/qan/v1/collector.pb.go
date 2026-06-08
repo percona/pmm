@@ -467,8 +467,12 @@ type MetricsBucket struct {
 	Planid          string   `protobuf:"bytes,266,opt,name=planid,proto3" json:"planid,omitempty"`
 	QueryPlan       string   `protobuf:"bytes,267,opt,name=query_plan,json=queryPlan,proto3" json:"query_plan,omitempty"`
 	HistogramItems  []string `protobuf:"bytes,268,rep,name=histogram_items,json=histogramItems,proto3" json:"histogram_items,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// DDSketch of query_time as bucket index -> count, using the frozen layout in
+	// github.com/percona/pmm/utils/ddsketch. Enables mergeable percentiles; empty from
+	// agents older than the version that emits it (backwards compatible).
+	MQueryTimeSketch map[uint32]uint64 `protobuf:"bytes,310,rep,name=m_query_time_sketch,json=mQueryTimeSketch,proto3" json:"m_query_time_sketch,omitempty" protobuf_key:"varint,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *MetricsBucket) Reset() {
@@ -2391,6 +2395,13 @@ func (x *MetricsBucket) GetHistogramItems() []string {
 	return nil
 }
 
+func (x *MetricsBucket) GetMQueryTimeSketch() map[uint32]uint64 {
+	if x != nil {
+		return x.MQueryTimeSketch
+	}
+	return nil
+}
+
 type CollectResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -2433,7 +2444,7 @@ const file_qan_v1_collector_proto_rawDesc = "" +
 	"\n" +
 	"\x16qan/v1/collector.proto\x12\x06qan.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1bgoogle/api/visibility.proto\x1a\x19inventory/v1/agents.proto\x1a\x10qan/v1/qan.proto\"N\n" +
 	"\x0eCollectRequest\x12<\n" +
-	"\x0emetrics_bucket\x18\x01 \x03(\v2\x15.qan.v1.MetricsBucketR\rmetricsBucket\"\xe4k\n" +
+	"\x0emetrics_bucket\x18\x01 \x03(\v2\x15.qan.v1.MetricsBucketR\rmetricsBucket\"\x86m\n" +
 	"\rMetricsBucket\x12\x18\n" +
 	"\aqueryid\x18\x01 \x01(\tR\aqueryid\x12/\n" +
 	"\x13explain_fingerprint\x18\x02 \x01(\tR\x12explainFingerprint\x12-\n" +
@@ -2715,7 +2726,8 @@ const file_qan_v1_collector_proto_rawDesc = "" +
 	"\x06planid\x18\x8a\x02 \x01(\tR\x06planid\x12\x1e\n" +
 	"\n" +
 	"query_plan\x18\x8b\x02 \x01(\tR\tqueryPlan\x12(\n" +
-	"\x0fhistogram_items\x18\x8c\x02 \x03(\tR\x0ehistogramItems\x1a9\n" +
+	"\x0fhistogram_items\x18\x8c\x02 \x03(\tR\x0ehistogramItems\x12[\n" +
+	"\x13m_query_time_sketch\x18\xb6\x02 \x03(\v2+.qan.v1.MetricsBucket.MQueryTimeSketchEntryR\x10mQueryTimeSketch\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a;\n" +
@@ -2724,6 +2736,9 @@ const file_qan_v1_collector_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\x04R\x05value:\x028\x01\x1a9\n" +
 	"\vErrorsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\x04R\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\x04R\x05value:\x028\x01\x1aC\n" +
+	"\x15MQueryTimeSketchEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\rR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\x04R\x05value:\x028\x01\"\x11\n" +
 	"\x0fCollectResponse2`\n" +
 	"\x10CollectorService\x12:\n" +
@@ -2745,7 +2760,7 @@ func file_qan_v1_collector_proto_rawDescGZIP() []byte {
 }
 
 var (
-	file_qan_v1_collector_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+	file_qan_v1_collector_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 	file_qan_v1_collector_proto_goTypes  = []any{
 		(*CollectRequest)(nil),  // 0: qan.v1.CollectRequest
 		(*MetricsBucket)(nil),   // 1: qan.v1.MetricsBucket
@@ -2753,25 +2768,27 @@ var (
 		nil,                     // 3: qan.v1.MetricsBucket.LabelsEntry
 		nil,                     // 4: qan.v1.MetricsBucket.WarningsEntry
 		nil,                     // 5: qan.v1.MetricsBucket.ErrorsEntry
-		v1.AgentType(0),         // 6: inventory.v1.AgentType
-		ExampleType(0),          // 7: qan.v1.ExampleType
+		nil,                     // 6: qan.v1.MetricsBucket.MQueryTimeSketchEntry
+		v1.AgentType(0),         // 7: inventory.v1.AgentType
+		ExampleType(0),          // 8: qan.v1.ExampleType
 	}
 )
 
 var file_qan_v1_collector_proto_depIdxs = []int32{
 	1, // 0: qan.v1.CollectRequest.metrics_bucket:type_name -> qan.v1.MetricsBucket
-	6, // 1: qan.v1.MetricsBucket.agent_type:type_name -> inventory.v1.AgentType
+	7, // 1: qan.v1.MetricsBucket.agent_type:type_name -> inventory.v1.AgentType
 	3, // 2: qan.v1.MetricsBucket.labels:type_name -> qan.v1.MetricsBucket.LabelsEntry
-	7, // 3: qan.v1.MetricsBucket.example_type:type_name -> qan.v1.ExampleType
+	8, // 3: qan.v1.MetricsBucket.example_type:type_name -> qan.v1.ExampleType
 	4, // 4: qan.v1.MetricsBucket.warnings:type_name -> qan.v1.MetricsBucket.WarningsEntry
 	5, // 5: qan.v1.MetricsBucket.errors:type_name -> qan.v1.MetricsBucket.ErrorsEntry
-	0, // 6: qan.v1.CollectorService.Collect:input_type -> qan.v1.CollectRequest
-	2, // 7: qan.v1.CollectorService.Collect:output_type -> qan.v1.CollectResponse
-	7, // [7:8] is the sub-list for method output_type
-	6, // [6:7] is the sub-list for method input_type
-	6, // [6:6] is the sub-list for extension type_name
-	6, // [6:6] is the sub-list for extension extendee
-	0, // [0:6] is the sub-list for field type_name
+	6, // 6: qan.v1.MetricsBucket.m_query_time_sketch:type_name -> qan.v1.MetricsBucket.MQueryTimeSketchEntry
+	0, // 7: qan.v1.CollectorService.Collect:input_type -> qan.v1.CollectRequest
+	2, // 8: qan.v1.CollectorService.Collect:output_type -> qan.v1.CollectResponse
+	8, // [8:9] is the sub-list for method output_type
+	7, // [7:8] is the sub-list for method input_type
+	7, // [7:7] is the sub-list for extension type_name
+	7, // [7:7] is the sub-list for extension extendee
+	0, // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_qan_v1_collector_proto_init() }
@@ -2786,7 +2803,7 @@ func file_qan_v1_collector_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_qan_v1_collector_proto_rawDesc), len(file_qan_v1_collector_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

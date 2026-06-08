@@ -20,7 +20,9 @@ import (
 	"database/sql"
 	"fmt"
 	"io"
+	"math"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -37,6 +39,7 @@ import (
 	"github.com/percona/pmm/agent/utils/version"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	"github.com/percona/pmm/utils/ddsketch"
 	"github.com/percona/pmm/utils/sqlmetrics"
 )
 
@@ -631,6 +634,7 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 				m.l.WithError(err).Warnf("failed to parse histogram from resp calls")
 			} else {
 				mb.Postgresql.HistogramItems = histogram
+				mb.Common.MQueryTimeSketch = querySketchFromHistogram(histogram)
 			}
 
 			if (currentPSM.TotalPlanTime - prevPSM.TotalPlanTime) != 0 {
@@ -787,6 +791,54 @@ func getHistogramRangesArray(vPGSM pgStatMonitorVersion) []*agentv1.HistogramIte
 		{Range: "(10000 - 31622)"},
 		{Range: "(31622 - 100000)"},
 	}
+}
+
+// querySketchFromHistogram remaps the pg_stat_monitor response-time histogram
+// (per-bucket call counts over millisecond ranges) onto the frozen DDSketch
+// layout, using each bucket's representative latency. It is the pg_stat_monitor
+// source of mergeable query_time percentiles.
+func querySketchFromHistogram(histogram []*agentv1.HistogramItem) map[uint32]uint64 {
+	dense := ddsketch.New()
+	for _, item := range histogram {
+		if item.Frequency == 0 {
+			continue
+		}
+		rep, ok := histogramBucketSeconds(item.Range)
+		if !ok {
+			continue
+		}
+		ddsketch.AddN(dense, rep, uint64(item.Frequency))
+	}
+	return ddsketch.ToWire(dense)
+}
+
+// histogramBucketSeconds parses a pg_stat_monitor range such as "(1 - 2)" or
+// "(100000 - ...)" (milliseconds) and returns a representative latency in
+// seconds: the geometric mean for finite buckets, the upper bound for the
+// first [0, hi) bucket, and the lower bound for the open-ended top bucket.
+func histogramBucketSeconds(rng string) (float64, bool) {
+	const msPerSec = 1000.0
+	loStr, hiStr, ok := strings.Cut(strings.TrimSuffix(strings.TrimPrefix(rng, "("), ")"), " - ")
+	if !ok {
+		return 0, false
+	}
+	lo, err := strconv.ParseFloat(strings.TrimSpace(loStr), 64)
+	if err != nil {
+		return 0, false
+	}
+	hiStr = strings.TrimSpace(hiStr)
+	if hiStr == "..." {
+		return lo / msPerSec, true
+	}
+	hi, err := strconv.ParseFloat(hiStr, 64)
+	if err != nil {
+		return 0, false
+	}
+	rep := math.Sqrt(lo * hi)
+	if lo == 0 {
+		rep = hi
+	}
+	return rep / msPerSec, true
 }
 
 // check interfaces.

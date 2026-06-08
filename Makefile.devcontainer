@@ -12,7 +12,7 @@ release-vmproxy:                  ## Build vmproxy
 	make -C vmproxy release
 
 release-qan:                      ## Build QAN
-	make -C qan-api2 release
+	make -C qan release
 
 # used by host Makefile
 _bash:
@@ -47,9 +47,9 @@ run-vmproxy-ci: release-vmproxy		## Replace vmproxy from build and restart (used
 run-vmproxy: run-vmproxy-ci			## Replace vmproxy from build, restart and tail logs
 	tail -f /srv/logs/vmproxy.log
 
-run-qan-ci: release-qan	            ## Replace qan-api2 from build and restart (used in CI)
+run-qan-ci: release-qan	            ## Replace qan from build and restart (used in CI)
 	supervisorctl stop qan-api2
-	install -m 755 $(PMM_RELEASE_PATH)/qan-api2 /usr/sbin/percona-qan-api2
+	install -m 755 $(PMM_RELEASE_PATH)/qan /usr/sbin/percona-qan
 	truncate -s 0 /srv/logs/qan-api2.log
 	supervisorctl start qan-api2
 

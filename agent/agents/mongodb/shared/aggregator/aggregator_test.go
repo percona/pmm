@@ -31,6 +31,7 @@ import (
 	"github.com/percona/pmm/agent/utils/truncate"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	"github.com/percona/pmm/utils/ddsketch"
 )
 
 func TestAggregator(t *testing.T) {
@@ -78,6 +79,7 @@ func TestAggregator(t *testing.T) {
 						ExampleType:         agentv1.ExampleType_EXAMPLE_TYPE_RANDOM,
 						NumQueries:          1,
 						MQueryTimeCnt:       1,
+						MQueryTimeSketch:    map[uint32]uint64{0: 1},
 					},
 					Mongodb: &agentv1.MetricsBucket_MongoDB{
 						MDocsReturnedCnt:   1,
@@ -100,6 +102,30 @@ func TestAggregator(t *testing.T) {
 				},
 			},
 		}, *result)
+	})
+
+	t.Run("queryTimeSketch", func(t *testing.T) {
+		aggregator := New(time.Now(), "test-agent", logrus.WithField("component", "test"), truncate.GetMongoDBDefaultMaxQueryLength())
+		aggregator.Start()
+		defer aggregator.Stop()
+		ctx := context.TODO()
+		// 100 ops of the same class with 1..100 ms latency.
+		for i := 1; i <= 100; i++ {
+			err := aggregator.Add(ctx, proto.SystemProfile{Ns: "collection.people", Op: "insert", Millis: i})
+			require.NoError(t, err)
+		}
+
+		result := aggregator.createResult(ctx)
+		require.Len(t, result.Buckets, 1)
+
+		wire := result.Buckets[0].Common.MQueryTimeSketch
+		require.NotEmpty(t, wire)
+		dense := ddsketch.New()
+		for idx, c := range wire {
+			dense[idx] = c
+		}
+		// p99 of 1..100 ms is ~0.099 s, recovered within the DDSketch error bound.
+		require.InDelta(t, 0.099, ddsketch.Quantile(dense, 0.99), 0.099*ddsketch.Alpha+1e-3)
 	})
 
 	t.Run("createResultInvalidUTF8", func(t *testing.T) {
@@ -147,6 +173,7 @@ func TestAggregator(t *testing.T) {
 						ExampleType:         agentv1.ExampleType_EXAMPLE_TYPE_RANDOM,
 						NumQueries:          1,
 						MQueryTimeCnt:       1,
+						MQueryTimeSketch:    map[uint32]uint64{0: 1},
 					},
 					Mongodb: &agentv1.MetricsBucket_MongoDB{
 						MDocsReturnedCnt:   1,

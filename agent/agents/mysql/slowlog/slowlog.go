@@ -45,6 +45,7 @@ import (
 	"github.com/percona/pmm/agent/utils/truncate"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	"github.com/percona/pmm/utils/ddsketch"
 )
 
 const (
@@ -352,6 +353,9 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 	s.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING}
 
 	aggregator := event.NewAggregator(true, 0, outlierTime)
+	// Per-query-class DDSketch of query_time, built from individual events alongside
+	// the aggregator so the server can compute mergeable percentiles.
+	sketches := make(map[string][]uint64)
 	ctxDone := ctx.Done()
 
 	// aggregate every minute at 00 seconds
@@ -378,15 +382,23 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 			fingerprint := query.Fingerprint(e.Query)
 			digest := hashIntoQueryID(fingerprint)
 			aggregator.AddEvent(e, digest, e.User, e.Host, e.Db, e.Server, e.Query)
+			if qt, ok := e.TimeMetrics["Query_time"]; ok {
+				if sketches[digest] == nil {
+					sketches[digest] = ddsketch.New()
+				}
+				ddsketch.Add(sketches[digest], qt)
+			}
 
 		case <-t.C:
 			lengthS := uint32(math.Round(wait.Seconds())) // round 59.9s/60.1s to 60s
 			res := aggregator.Finalize()
-			buckets := makeBuckets(s.params.AgentID, res, start, lengthS, s.params.DisableCommentsParsing, s.params.DisableQueryExamples, s.params.MaxQueryLength, s.l)
+			buckets := makeBuckets(s.params.AgentID, res, start, lengthS, s.params.DisableCommentsParsing,
+				s.params.DisableQueryExamples, s.params.MaxQueryLength, sketches, s.l)
 			s.l.Debugf("Made %d buckets out of %d classes in %s+%d interval. Wait time: %s.",
 				len(buckets), len(res.Class), start.Format("15:04:05"), lengthS, time.Since(start))
 
 			aggregator = event.NewAggregator(true, 0, outlierTime)
+			sketches = make(map[string][]uint64)
 			start = time.Now()
 			wait = start.Truncate(aggregateInterval).Add(aggregateInterval).Sub(start)
 			s.l.Debugf("Scheduling next aggregation in %s at %s.", wait, start.Add(wait).Format("15:04:05"))
@@ -409,6 +421,24 @@ func hashIntoQueryID(fingerprint string) string {
 	return strings.ToUpper(hex.EncodeToString(id.Sum(nil)))
 }
 
+// sketchToWire converts a dense DDSketch into the wire map (bucket index -> count),
+// returning nil when there is no data so older behavior (no sketch) is preserved.
+func sketchToWire(dense []uint64) map[uint32]uint64 {
+	if dense == nil {
+		return nil
+	}
+	out := make(map[uint32]uint64)
+	for i, c := range dense {
+		if c > 0 {
+			out[uint32(i)] = c
+		}
+	}
+	if len(out) == 0 {
+		return nil
+	}
+	return out
+}
+
 // makeBuckets is a pure function for easier testing.
 //
 //nolint:gocognit,cyclop,maintidx
@@ -420,6 +450,7 @@ func makeBuckets(
 	disableCommentsParsing bool,
 	disableQueryExamples bool,
 	maxQueryLength int32,
+	sketches map[string][]uint64,
 	l *logrus.Entry,
 ) []*agentv1.MetricsBucket {
 	buckets := make([]*agentv1.MetricsBucket, 0, len(res.Class))
@@ -501,6 +532,7 @@ func makeBuckets(
 			mb.Common.MQueryTimeMin = float32(*m.Min)
 			mb.Common.MQueryTimeP99 = float32(*m.P99)
 		}
+		mb.Common.MQueryTimeSketch = sketchToWire(sketches[v.Id])
 		// lock_time - Lock_time
 		if m, ok := v.Metrics.TimeMetrics["Lock_time"]; ok {
 			mb.Mysql.MLockTimeCnt = float32(m.Cnt)

@@ -251,6 +251,7 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentv1.MetricsB
 			MQueryTimeMin:        m.Common.MQueryTimeMin,
 			MQueryTimeMax:        m.Common.MQueryTimeMax,
 			MQueryTimeP99:        m.Common.MQueryTimeP99,
+			MQueryTimeSketch:     m.Common.MQueryTimeSketch,
 		}
 
 		switch {

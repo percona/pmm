@@ -459,6 +459,11 @@ message MetricsBucket {
   string planid = 266;
   string query_plan = 267;
   repeated string histogram_items = 268;
+
+  // DDSketch of query_time as bucket index -> count, using the frozen layout in
+  // github.com/percona/pmm/utils/ddsketch. Enables mergeable percentiles; empty from
+  // agents older than the version that emits it (backwards compatible).
+  map<uint32, uint64> m_query_time_sketch = 310;
 }
 
 message CollectResponse {}

@@ -262,8 +262,12 @@ type MetricsBucket_Common struct {
 	MQueryTimeMax float32 `protobuf:"fixed32,22,opt,name=m_query_time_max,json=mQueryTimeMax,proto3" json:"m_query_time_max,omitempty"`
 	// 99 percentile of value of query_time in bucket.
 	MQueryTimeP99 float32 `protobuf:"fixed32,23,opt,name=m_query_time_p99,json=mQueryTimeP99,proto3" json:"m_query_time_p99,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// DDSketch of query_time as bucket index -> count, using the frozen layout in
+	// github.com/percona/pmm/utils/ddsketch. Enables mergeable percentiles server-side.
+	// Empty from agents older than the version that emits it (backwards compatible).
+	MQueryTimeSketch map[uint32]uint64 `protobuf:"bytes,28,rep,name=m_query_time_sketch,json=mQueryTimeSketch,proto3" json:"m_query_time_sketch,omitempty" protobuf_key:"varint,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *MetricsBucket_Common) Reset() {
@@ -476,6 +480,13 @@ func (x *MetricsBucket_Common) GetMQueryTimeP99() float32 {
 		return x.MQueryTimeP99
 	}
 	return 0
+}
+
+func (x *MetricsBucket_Common) GetMQueryTimeSketch() map[uint32]uint64 {
+	if x != nil {
+		return x.MQueryTimeSketch
+	}
+	return nil
 }
 
 // MySQL contains metrics for MySQL.
@@ -2502,14 +2513,14 @@ var File_agent_v1_collector_proto protoreflect.FileDescriptor
 
 const file_agent_v1_collector_proto_rawDesc = "" +
 	"\n" +
-	"\x18agent/v1/collector.proto\x12\bagent.v1\x1a\x1aextensions/v1/redact.proto\x1a\x19inventory/v1/agents.proto\"\xb1h\n" +
+	"\x18agent/v1/collector.proto\x12\bagent.v1\x1a\x1aextensions/v1/redact.proto\x1a\x19inventory/v1/agents.proto\"\xdbi\n" +
 	"\rMetricsBucket\x126\n" +
 	"\x06common\x18\x01 \x01(\v2\x1e.agent.v1.MetricsBucket.CommonR\x06common\x123\n" +
 	"\x05mysql\x18\x02 \x01(\v2\x1d.agent.v1.MetricsBucket.MySQLR\x05mysql\x129\n" +
 	"\amongodb\x18\x03 \x01(\v2\x1f.agent.v1.MetricsBucket.MongoDBR\amongodb\x12B\n" +
 	"\n" +
 	"postgresql\x18\x04 \x01(\v2\".agent.v1.MetricsBucket.PostgreSQLR\n" +
-	"postgresql\x1a\xdc\t\n" +
+	"postgresql\x1a\x86\v\n" +
 	"\x06Common\x12\x18\n" +
 	"\aqueryid\x18\x01 \x01(\tR\aqueryid\x12/\n" +
 	"\x13explain_fingerprint\x18\x19 \x01(\tR\x12explainFingerprint\x12-\n" +
@@ -2540,12 +2551,16 @@ const file_agent_v1_collector_proto_rawDesc = "" +
 	"\x10m_query_time_sum\x18\x14 \x01(\x02R\rmQueryTimeSum\x12'\n" +
 	"\x10m_query_time_min\x18\x15 \x01(\x02R\rmQueryTimeMin\x12'\n" +
 	"\x10m_query_time_max\x18\x16 \x01(\x02R\rmQueryTimeMax\x12'\n" +
-	"\x10m_query_time_p99\x18\x17 \x01(\x02R\rmQueryTimeP99\x1a;\n" +
+	"\x10m_query_time_p99\x18\x17 \x01(\x02R\rmQueryTimeP99\x12c\n" +
+	"\x13m_query_time_sketch\x18\x1c \x03(\v24.agent.v1.MetricsBucket.Common.MQueryTimeSketchEntryR\x10mQueryTimeSketch\x1a;\n" +
 	"\rCommentsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a9\n" +
 	"\vErrorsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\x04R\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\x04R\x05value:\x028\x01\x1aC\n" +
+	"\x15MQueryTimeSketchEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\rR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\x04R\x05value:\x028\x01J\x04\b\r\x10\x0eR\x0eexample_format\x1a\xa8*\n" +
 	"\x05MySQL\x12%\n" +
 	"\x0fm_lock_time_cnt\x18\x01 \x01(\x02R\fmLockTimeCnt\x12%\n" +
@@ -2813,7 +2828,7 @@ func file_agent_v1_collector_proto_rawDescGZIP() []byte {
 
 var (
 	file_agent_v1_collector_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_agent_v1_collector_proto_msgTypes  = make([]protoimpl.MessageInfo, 8)
+	file_agent_v1_collector_proto_msgTypes  = make([]protoimpl.MessageInfo, 9)
 	file_agent_v1_collector_proto_goTypes   = []any{
 		ExampleType(0),                   // 0: agent.v1.ExampleType
 		(*MetricsBucket)(nil),            // 1: agent.v1.MetricsBucket
@@ -2824,25 +2839,27 @@ var (
 		(*MetricsBucket_PostgreSQL)(nil), // 6: agent.v1.MetricsBucket.PostgreSQL
 		nil,                              // 7: agent.v1.MetricsBucket.Common.CommentsEntry
 		nil,                              // 8: agent.v1.MetricsBucket.Common.ErrorsEntry
-		v1.AgentType(0),                  // 9: inventory.v1.AgentType
+		nil,                              // 9: agent.v1.MetricsBucket.Common.MQueryTimeSketchEntry
+		v1.AgentType(0),                  // 10: inventory.v1.AgentType
 	}
 )
 
 var file_agent_v1_collector_proto_depIdxs = []int32{
-	3, // 0: agent.v1.MetricsBucket.common:type_name -> agent.v1.MetricsBucket.Common
-	4, // 1: agent.v1.MetricsBucket.mysql:type_name -> agent.v1.MetricsBucket.MySQL
-	5, // 2: agent.v1.MetricsBucket.mongodb:type_name -> agent.v1.MetricsBucket.MongoDB
-	6, // 3: agent.v1.MetricsBucket.postgresql:type_name -> agent.v1.MetricsBucket.PostgreSQL
-	7, // 4: agent.v1.MetricsBucket.Common.comments:type_name -> agent.v1.MetricsBucket.Common.CommentsEntry
-	9, // 5: agent.v1.MetricsBucket.Common.agent_type:type_name -> inventory.v1.AgentType
-	0, // 6: agent.v1.MetricsBucket.Common.example_type:type_name -> agent.v1.ExampleType
-	8, // 7: agent.v1.MetricsBucket.Common.errors:type_name -> agent.v1.MetricsBucket.Common.ErrorsEntry
-	2, // 8: agent.v1.MetricsBucket.PostgreSQL.histogram_items:type_name -> agent.v1.HistogramItem
-	9, // [9:9] is the sub-list for method output_type
-	9, // [9:9] is the sub-list for method input_type
-	9, // [9:9] is the sub-list for extension type_name
-	9, // [9:9] is the sub-list for extension extendee
-	0, // [0:9] is the sub-list for field type_name
+	3,  // 0: agent.v1.MetricsBucket.common:type_name -> agent.v1.MetricsBucket.Common
+	4,  // 1: agent.v1.MetricsBucket.mysql:type_name -> agent.v1.MetricsBucket.MySQL
+	5,  // 2: agent.v1.MetricsBucket.mongodb:type_name -> agent.v1.MetricsBucket.MongoDB
+	6,  // 3: agent.v1.MetricsBucket.postgresql:type_name -> agent.v1.MetricsBucket.PostgreSQL
+	7,  // 4: agent.v1.MetricsBucket.Common.comments:type_name -> agent.v1.MetricsBucket.Common.CommentsEntry
+	10, // 5: agent.v1.MetricsBucket.Common.agent_type:type_name -> inventory.v1.AgentType
+	0,  // 6: agent.v1.MetricsBucket.Common.example_type:type_name -> agent.v1.ExampleType
+	8,  // 7: agent.v1.MetricsBucket.Common.errors:type_name -> agent.v1.MetricsBucket.Common.ErrorsEntry
+	9,  // 8: agent.v1.MetricsBucket.Common.m_query_time_sketch:type_name -> agent.v1.MetricsBucket.Common.MQueryTimeSketchEntry
+	2,  // 9: agent.v1.MetricsBucket.PostgreSQL.histogram_items:type_name -> agent.v1.HistogramItem
+	10, // [10:10] is the sub-list for method output_type
+	10, // [10:10] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_agent_v1_collector_proto_init() }
@@ -2856,7 +2873,7 @@ func file_agent_v1_collector_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_agent_v1_collector_proto_rawDesc), len(file_agent_v1_collector_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   8,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
