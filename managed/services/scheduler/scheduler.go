@@ -65,7 +65,8 @@ func New(db *reform.DB, backupService backupService) *Service {
 
 // Run loads tasks from DB and starts scheduler.
 func (s *Service) Run(ctx context.Context) {
-	if err := s.loadFromDB(); err != nil { //nolint:contextcheck
+	err := s.loadFromDB() //nolint:contextcheck
+	if err != nil {
 		s.l.Warn(err)
 	}
 	s.scheduler.StartAsync()
@@ -189,7 +190,8 @@ func (s *Service) loadFromDB() error {
 	s.mx.Unlock()
 
 	for _, dbTask := range dbTasks {
-		if err := s.addDBTask(dbTask); err != nil {
+		err := s.addDBTask(dbTask)
+		if err != nil {
 			return err
 		}
 	}
@@ -354,11 +356,13 @@ func (s *Service) convertDBTask(dbTask *models.ScheduledTask) (Task, error) { //
 func checkAddPreconditions(q *reform.Querier, data *models.ScheduledTaskData, enabled bool, scheduledTaskID string) error {
 	switch {
 	case data.MySQLBackupTask != nil:
-		if err := services.CheckArtifactOverlapping(q, data.MySQLBackupTask.ServiceID, data.MySQLBackupTask.LocationID, data.MySQLBackupTask.Folder); err != nil {
+		err := services.CheckArtifactOverlapping(q, data.MySQLBackupTask.ServiceID, data.MySQLBackupTask.LocationID, data.MySQLBackupTask.Folder)
+		if err != nil {
 			return err
 		}
 	case data.MongoDBBackupTask != nil:
-		if err := services.CheckArtifactOverlapping(q, data.MongoDBBackupTask.ServiceID, data.MongoDBBackupTask.LocationID, data.MongoDBBackupTask.Folder); err != nil {
+		err := services.CheckArtifactOverlapping(q, data.MongoDBBackupTask.ServiceID, data.MongoDBBackupTask.LocationID, data.MongoDBBackupTask.Folder)
+		if err != nil {
 			return err
 		}
 		if enabled {

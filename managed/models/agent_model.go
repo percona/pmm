@@ -449,7 +449,8 @@ func (a *Agent) GetEnvironmentVariableNames() ([]string, error) {
 	}
 
 	var names []string
-	if err := json.Unmarshal(a.EnvironmentVariables, &names); err != nil {
+	err := json.Unmarshal(a.EnvironmentVariables, &names)
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to unmarshal shared environment variable names")
 	}
 	return names, nil

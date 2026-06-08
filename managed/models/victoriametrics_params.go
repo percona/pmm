@@ -66,7 +66,8 @@ func NewVictoriaMetricsParams(basePath string, vmURL string) (*VictoriaMetricsPa
 
 // UpdateParams - reads configuration file and updates corresponding flags.
 func (vmp *VictoriaMetricsParams) UpdateParams() error {
-	if err := vmp.loadVMAlertParams(); err != nil {
+	err := vmp.loadVMAlertParams()
+	if err != nil {
 		return errors.Wrap(err, "cannot update VMAlertFlags config param")
 	}
 

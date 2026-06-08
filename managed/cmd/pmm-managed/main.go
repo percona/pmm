@@ -235,8 +235,6 @@ type gRPCServerDeps struct {
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
-//
-//nolint:lll
 func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	l := logrus.WithField("component", "gRPC")
 	l.Infof("Starting server on http://%s/ ...", gRPCAddr)
@@ -277,16 +275,27 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 		deps.vmdb, deps.connectionCheck, deps.serviceInfoBroker, deps.agentService,
 	)
 
-	mgmtBackupService := managementbackup.NewBackupsService(deps.db, deps.backupService, deps.compatibilityService, deps.schedulerService, deps.backupRemovalService, deps.pbmPITRService)
+	mgmtBackupService := managementbackup.NewBackupsService(
+		deps.db, deps.backupService,
+		deps.compatibilityService, deps.schedulerService,
+		deps.backupRemovalService, deps.pbmPITRService,
+	)
 	mgmtRestoreService := managementbackup.NewRestoreService(deps.db, deps.backupService, deps.schedulerService)
 	mgmtServices := common.NewMgmtServices(mgmtBackupService, mgmtRestoreService)
 
-	servicesSvc := inventory.NewServicesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, deps.versionCache, mgmtServices)
+	servicesSvc := inventory.NewServicesService(
+		deps.db, deps.agentsRegistry, deps.agentsStateUpdater,
+		deps.vmdb, deps.versionCache, mgmtServices,
+	)
 	inventoryv1.RegisterNodesServiceServer(gRPCServer, inventorygrpc.NewNodesServer(nodesSvc))
 	inventoryv1.RegisterServicesServiceServer(gRPCServer, inventorygrpc.NewServicesServer(servicesSvc))
 	inventoryv1.RegisterAgentsServiceServer(gRPCServer, inventorygrpc.NewAgentsServer(agentsSvc))
 
-	managementSvc := management.NewManagementService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker, deps.vmdb, deps.versionCache, deps.grafanaClient, v1.NewAPI(*deps.vmClient))
+	managementSvc := management.NewManagementService(
+		deps.db, deps.agentsRegistry, deps.agentsStateUpdater,
+		deps.connectionCheck, deps.serviceInfoBroker, deps.vmdb,
+		deps.versionCache, deps.grafanaClient, v1.NewAPI(*deps.vmClient),
+	)
 
 	managementv1.RegisterManagementServiceServer(gRPCServer, managementSvc)
 	actionsv1.RegisterActionsServiceServer(gRPCServer, managementgrpc.NewActionsServer(deps.actions, deps.db))
@@ -387,7 +396,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	}
 	go func() {
 		<-ctx.Done()
-		if err := sharedConn.Close(); err != nil {
+		err := sharedConn.Close()
+		if err != nil {
 			l.Errorf("Failed to close the shared gRPC connection: %s", err)
 		}
 	}()
@@ -422,7 +432,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 
 		hav1beta1.RegisterHAServiceHandler,
 	} {
-		if err := r(ctx, proxyMux, sharedConn); err != nil {
+		err := r(ctx, proxyMux, sharedConn)
+		if err != nil {
 			l.Fatal(err)
 		}
 	}
@@ -440,7 +451,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		Handler:  mux,
 	}
 	go func() {
-		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+		err := server.ListenAndServe()
+		if !errors.Is(err, http.ErrServerClosed) {
 			l.Fatal(err)
 		}
 		l.Info("Server stopped.")
@@ -501,7 +513,8 @@ func runDebugServer(ctx context.Context) {
 		ErrorLog: log.New(os.Stderr, "runDebugServer: ", 0),
 	}
 	go func() {
-		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+		err := server.ListenAndServe()
+		if !errors.Is(err, http.ErrServerClosed) {
 			l.Fatal(err)
 		}
 		l.Info("Server stopped.")
@@ -575,7 +588,7 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 	return true
 }
 
-func getQANClient(ctx context.Context, sqlDB *sql.DB, dbName, qanAPIAddr string) *qan.Client {
+func getQANClient(sqlDB *sql.DB, dbName, qanAPIAddr string) *qan.Client {
 	bc := backoff.DefaultConfig
 	bc.MaxDelay = time.Second
 
@@ -585,12 +598,14 @@ func getQANClient(ctx context.Context, sqlDB *sql.DB, dbName, qanAPIAddr string)
 			Backoff: bc,
 		}),
 		grpc.WithUserAgent("pmm-managed/" + version.Version),
-		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(gRPCMessageMaxSize)),
+		grpc.WithDefaultCallOptions(
+			grpc.MaxCallRecvMsgSize(gRPCMessageMaxSize),
+			// Wait for connection to be ready before sending RPC calls
+			grpc.WaitForReady(true),
+		),
 	}
 
-	// Without grpc.WithBlock() DialContext returns an error only if something very wrong with address or options;
-	// it does not return an error of connection failure but tries to reconnect in the background.
-	conn, err := grpc.DialContext(ctx, qanAPIAddr, opts...)
+	conn, err := grpc.NewClient(qanAPIAddr, opts...)
 	if err != nil {
 		logrus.Fatalf("Failed to connect QAN API %s: %s.", qanAPIAddr, err)
 	}
@@ -897,7 +912,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	minioClient := minio.New()
 
-	qanClient := getQANClient(ctx, sqlDB, *postgresDBNameF, *qanAPIAddrF)
+	qanClient := getQANClient(sqlDB, *postgresDBNameF, *qanAPIAddrF)
 
 	agentsRegistry := agents.NewRegistry(db, vmParams, haService)
 

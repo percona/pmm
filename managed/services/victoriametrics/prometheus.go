@@ -90,13 +90,15 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 			paramsHost = models.LocalhostAddr
 		case agent.PMMAgentID != nil:
 			pmmAgentNode = &models.Node{NodeID: pointer.GetString(pmmAgent.RunsOnNodeID)}
-			if err = q.Reload(pmmAgentNode); err != nil {
+			err = q.Reload(pmmAgentNode)
+			if err != nil {
 				return errors.WithStack(err)
 			}
 			paramsHost = pmmAgentNode.Address
 		case agent.RunsOnNodeID != nil:
 			externalExporterNode := &models.Node{NodeID: pointer.GetString(agent.RunsOnNodeID)}
-			if err = q.Reload(externalExporterNode); err != nil {
+			err = q.Reload(externalExporterNode)
+			if err != nil {
 				return errors.WithStack(err)
 			}
 			paramsHost = externalExporterNode.Address

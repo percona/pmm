@@ -266,7 +266,8 @@ func ChangeScheduledTask(q *reform.Querier, id string, params ChangeScheduledTas
 		}
 
 		if newName != oldName {
-			if err := checkUniqueScheduledTaskName(q, newName); err != nil {
+			err := checkUniqueScheduledTaskName(q, newName)
+			if err != nil {
 				return nil, errors.Wrapf(err, "couldn't change task name to %s", newName)
 			}
 		}
@@ -291,10 +292,12 @@ func ChangeScheduledTask(q *reform.Querier, id string, params ChangeScheduledTas
 
 // RemoveScheduledTask removes task from DB.
 func RemoveScheduledTask(q *reform.Querier, id string) error {
-	if _, err := FindScheduledTaskByID(q, id); err != nil {
+	_, err := FindScheduledTaskByID(q, id)
+	if err != nil {
 		return err
 	}
-	if err := q.Delete(&ScheduledTask{ID: id}); err != nil {
+	err = q.Delete(&ScheduledTask{ID: id})
+	if err != nil {
 		return errors.Wrap(err, "failed to delete scheduled task")
 	}
 

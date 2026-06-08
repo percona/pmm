@@ -534,7 +534,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 // Other errors are returned if file exists, but configuration can't be loaded due to permission problems,
 // YAML parsing problems, etc.
 func loadFromFile(path string, enc *Encryption) (*Config, error) {
-	if _, err := os.Stat(path); errors.Is(err, fs.ErrNotExist) {
+	_, err := os.Stat(path)
+	if errors.Is(err, fs.ErrNotExist) {
 		return nil, ConfigFileDoesNotExistError(path)
 	}
 
