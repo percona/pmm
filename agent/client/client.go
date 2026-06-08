@@ -94,7 +94,16 @@ type Client struct {
 // New creates new client.
 //
 // Caller should call Run.
-func New(cfg configGetter, supervisor supervisor, r *runner.Runner, connectionChecker connectionChecker, sv softwareVersioner, sib serviceInfoBroker, cus *connectionuptime.Service, logStore *tailog.Store) *Client { //nolint:lll
+func New(
+	cfg configGetter,
+	supervisor supervisor,
+	r *runner.Runner,
+	connectionChecker connectionChecker,
+	sv softwareVersioner,
+	sib serviceInfoBroker,
+	cus *connectionuptime.Service,
+	logStore *tailog.Store,
+) *Client {
 	return &Client{
 		cfg:               cfg,
 		supervisor:        supervisor,
