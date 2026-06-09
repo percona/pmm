@@ -16,7 +16,7 @@ require (
 	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/alecthomas/kong v1.15.0
 	github.com/alecthomas/units v0.0.0-20240927000941-0f3dac36c52b
-	github.com/aws/aws-sdk-go-v2 v1.41.12
+	github.com/aws/aws-sdk-go-v2 v1.42.0
 	github.com/aws/aws-sdk-go-v2/config v1.32.18
 	github.com/aws/aws-sdk-go-v2/credentials v1.19.17
 	github.com/aws/aws-sdk-go-v2/service/rds v1.119.1
