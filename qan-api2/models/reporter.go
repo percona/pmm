@@ -120,7 +120,7 @@ SUM(num_queries) AS num_queries,
         SUM({{ $col }}) AS {{ $col }},
     {{ end }}
 {{ end }}
-uniq({{ .Group }}) AS total_rows
+count(DISTINCT dimension) AS total_rows
 FROM metrics
 WHERE period_start >= :period_start_from AND period_start <= :period_start_to
 {{ if .Search }}
@@ -150,136 +150,6 @@ LIMIT :offset, :limit
 `
 
 var tmplQueryReport = template.Must(template.New("queryReportTmpl").Funcs(funcMap).Parse(queryReportTmpl))
-
-// queryReportRollupTmpl is the metrics_rollup_1h variant of queryReportTmpl: it
-// reads pre-aggregated 1-hour states with *Merge instead of re-scanning raw
-// per-minute buckets. Only requests eligible for the rollup (see rollupEligible)
-// reach this template, so it omits the bool/sum, label and LBAC handling.
-const queryReportRollupTmpl = `
-SELECT
-{{ .Group }} AS dimension,
-any(database) as database_name,
-any(fingerprint) AS fingerprint,
-sumMerge(num_queries) AS num_queries,
-{{range $j, $col := .CommonColumns}}
-    sumMerge(m_{{ $col }}_cnt) AS m_{{ $col }}_cnt,
-    sumMerge(m_{{ $col }}_sum) AS m_{{ $col }}_sum,
-    minMerge(m_{{ $col }}_min) AS m_{{ $col }}_min,
-    maxMerge(m_{{ $col }}_max) AS m_{{ $col }}_max,
-    avgMerge(m_{{ $col }}_p99) AS m_{{ $col }}_p99,
-    m_{{ $col }}_sum/num_queries AS m_{{ $col }}_avg,
-{{ end }}
-{{range $j, $col := .SpecialColumns}}
-    {{ if eq $col "load" }}
-        {{ if $.IsQueryTimeInSelect }}
-            m_query_time_sum / {{ $.PeriodDuration }} AS load,
-        {{ else }}
-            sumMerge(m_query_time_sum) / {{ $.PeriodDuration }} AS load,
-        {{ end }}
-    {{ end }}
-{{ end }}
-uniq({{ .Group }}) AS total_rows
-FROM metrics_rollup_1h
-WHERE period_start >= :period_start_from AND period_start <= :period_start_to
-{{ if .Search }}
-    AND ( lowerUTF8(queryid) LIKE :search OR lowerUTF8(fingerprint) LIKE :search )
-{{ end }}
-{{ if .Dimensions }}
-    {{range $key, $vals := .Dimensions }}
-        AND {{ $key }} IN ( '{{ StringsJoin $vals "', '" }}' )
-    {{ end }}
-{{ end }}
-GROUP BY {{ .Group }}
-WITH TOTALS
-ORDER BY {{ .Order }}
-LIMIT :offset, :limit
-`
-
-var tmplQueryReportRollup = template.Must(template.New("queryReportRollupTmpl").Funcs(funcMap).Parse(queryReportRollupTmpl))
-
-const rollupMinWindowSeconds = 24 * 60 * 60
-
-// secondsPerHour is the rollup bucket size; report ranges are snapped to it.
-const secondsPerHour = 60 * 60
-
-// rollupDimensions are the dimensions metrics_rollup_1h is keyed on, so a report
-// may only be served from the rollup when its filters use this subset.
-var rollupDimensions = map[string]struct{}{
-	"service_name":    {},
-	"database":        {},
-	"schema":          {},
-	"username":        {},
-	"service_type":    {},
-	"environment":     {},
-	"cluster":         {},
-	"replication_set": {},
-}
-
-// rollupCommonMetrics and rollupSpecialMetrics are the metrics the rollup stores.
-var (
-	rollupCommonMetrics = map[string]struct{}{
-		"query_time":    {},
-		"lock_time":     {},
-		"rows_examined": {},
-		"rows_sent":     {},
-	}
-	rollupSpecialMetrics = map[string]struct{}{
-		"load":        {},
-		"num_queries": {},
-	}
-)
-
-// rollupEligible reports whether a report request can be served from
-// metrics_rollup_1h: grouped by queryid, no custom-label filter, no bool/sum
-// metrics, only keyed dimensions, only rolled-up metrics, and a window wide
-// enough that the hour-snapped boundaries are negligible.
-func rollupEligible(group string, dimensions, labels map[string][]string,
-	commonColumns, sumColumns, specialColumns []string, fromSec, toSec int64,
-) bool {
-	if group != "queryid" || len(labels) != 0 || len(sumColumns) != 0 {
-		return false
-	}
-	if toSec-fromSec <= rollupMinWindowSeconds {
-		return false
-	}
-	for k := range dimensions {
-		if _, ok := rollupDimensions[k]; !ok {
-			return false
-		}
-	}
-	for _, c := range commonColumns {
-		if _, ok := rollupCommonMetrics[c]; !ok {
-			return false
-		}
-	}
-	for _, c := range specialColumns {
-		if _, ok := rollupSpecialMetrics[c]; !ok {
-			return false
-		}
-	}
-	return true
-}
-
-// rollupCovers reports whether metrics_rollup_1h has data going back to fromSec,
-// so a report routed to it returns complete results (until backfill, the rollup
-// only covers data inserted after the view was created).
-func (r *Reporter) rollupCovers(ctx context.Context, fromSec int64) (bool, error) {
-	queryCtx, cancel := context.WithTimeout(ctx, queryTimeout)
-	defer cancel()
-
-	var (
-		minStart uint32
-		cnt      uint64
-	)
-	row := r.db.QueryRowxContext(queryCtx, "SELECT toUInt32(min(period_start)), count() FROM metrics_rollup_1h")
-	if err := row.Scan(&minStart, &cnt); err != nil {
-		return false, err
-	}
-	if cnt == 0 {
-		return false, nil
-	}
-	return fromSec >= int64(minStart), nil
-}
 
 // workaround to issues in closed PR https://github.com/jmoiron/sqlx/pull/579
 func escapeColons(in string) string {
@@ -321,23 +191,6 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 		return nil, err
 	}
 
-	// Route wide queryid reports to the 1-hour rollup when eligible and covered;
-	// the range is snapped to whole hours since the rollup buckets by hour.
-	// LBAC filters can reference non-keyed dimensions or labels, so keep them on raw.
-	reportTmpl := tmplQueryReport
-	if lbacFilter == "" && rollupEligible(group, dimensions, labels, commonColumns, sumColumns, specialColumns, periodStartFromSec, periodStartToSec) {
-		snappedFrom := periodStartFromSec / secondsPerHour * secondsPerHour
-		snappedTo := periodStartToSec / secondsPerHour * secondsPerHour
-		covered, coverErr := r.rollupCovers(ctx, snappedFrom)
-		if coverErr != nil {
-			logger.Get(ctx).Warnf("rollup coverage check failed, using raw metrics: %s", coverErr)
-		} else if covered {
-			reportTmpl = tmplQueryReportRollup
-			arg["period_start_from"] = snappedFrom
-			arg["period_start_to"] = snappedTo
-		}
-	}
-
 	tmplArgs := struct {
 		PeriodStartFrom     int64
 		PeriodStartTo       int64
@@ -374,8 +227,8 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 
 	var queryBuffer bytes.Buffer
 
-	if err := reportTmpl.Execute(&queryBuffer, tmplArgs); err != nil {
-		return nil, fmt.Errorf("cannot execute report template: %w", err)
+	if err := tmplQueryReport.Execute(&queryBuffer, tmplArgs); err != nil {
+		return nil, fmt.Errorf("cannot execute tmplQueryReport: %w", err)
 	}
 
 	var results []M

@@ -286,62 +286,6 @@ func TestMatchersToSQL(t *testing.T) {
 	})
 }
 
-func TestRollupEligible(t *testing.T) {
-	const wide = rollupMinWindowSeconds + 1 // window wider than the 24h threshold
-
-	base := func() (string, map[string][]string, map[string][]string, []string, []string, []string, int64, int64) {
-		return "queryid", nil, nil, []string{"query_time"}, nil, []string{"load", "num_queries"}, int64(0), int64(wide)
-	}
-
-	t.Run("eligible", func(t *testing.T) {
-		g, d, l, cc, sc, spc, from, to := base()
-		require.True(t, rollupEligible(g, d, l, cc, sc, spc, from, to))
-	})
-
-	t.Run("eligible with keyed dimension filter", func(t *testing.T) {
-		g, _, l, cc, sc, spc, from, to := base()
-		d := map[string][]string{"service_name": {"svc"}, "environment": {"prod"}}
-		require.True(t, rollupEligible(g, d, l, cc, sc, spc, from, to))
-	})
-
-	t.Run("group other than queryid", func(t *testing.T) {
-		_, d, l, cc, sc, spc, from, to := base()
-		require.False(t, rollupEligible("service_name", d, l, cc, sc, spc, from, to))
-	})
-
-	t.Run("custom label filter", func(t *testing.T) {
-		g, d, _, cc, sc, spc, from, to := base()
-		l := map[string][]string{"custom": {"v"}}
-		require.False(t, rollupEligible(g, d, l, cc, sc, spc, from, to))
-	})
-
-	t.Run("bool/sum metric requested", func(t *testing.T) {
-		g, d, l, cc, _, spc, from, to := base()
-		require.False(t, rollupEligible(g, d, l, cc, []string{"full_scan"}, spc, from, to))
-	})
-
-	t.Run("window at threshold", func(t *testing.T) {
-		g, d, l, cc, sc, spc, _, _ := base()
-		require.False(t, rollupEligible(g, d, l, cc, sc, spc, 0, rollupMinWindowSeconds))
-	})
-
-	t.Run("non-keyed dimension filter", func(t *testing.T) {
-		g, _, l, cc, sc, spc, from, to := base()
-		d := map[string][]string{"client_host": {"h"}}
-		require.False(t, rollupEligible(g, d, l, cc, sc, spc, from, to))
-	})
-
-	t.Run("non-rolled common metric", func(t *testing.T) {
-		g, d, l, _, sc, spc, from, to := base()
-		require.False(t, rollupEligible(g, d, l, []string{"rows_read"}, sc, spc, from, to))
-	})
-
-	t.Run("non-rolled special metric", func(t *testing.T) {
-		g, d, l, cc, sc, _, from, to := base()
-		require.False(t, rollupEligible(g, d, l, cc, sc, []string{"num_queries_with_errors"}, from, to))
-	})
-}
-
 func TestQueryDimensionTemplate(t *testing.T) {
 	type tmplArgs struct {
 		MainMetric    string

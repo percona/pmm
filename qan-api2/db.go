@@ -98,7 +98,9 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 	db.SetMaxIdleConns(maxIdleConns)
 	db.SetMaxOpenConns(maxOpenConns)
 
-	data := migrations.TemplateData(isCluster)
+	data := map[string]any{
+		"engine": migrations.GetEngine(isCluster),
+	}
 	if err := migrations.Run(dsn, data, isCluster, clusterName); err != nil {
 		l.Fatalf("migrations: %v", err)
 	}
@@ -143,26 +145,15 @@ func createDB(dsn string, clusterName string) error {
 	return nil
 }
 
-// retentionTables are the QAN data tables pruned by data retention. The 1-hour
-// rollup uses the same retention as the raw metrics table.
-var retentionTables = []string{"metrics", "metrics_rollup_1h"}
-
-// DropOldPartition drops partitions older than `days` from the QAN data tables.
+// DropOldPartition drops number of days old partitions of pmm.metrics in ClickHouse.
 func DropOldPartition(db *sqlx.DB, dbName string, days uint) {
-	for _, table := range retentionTables {
-		dropOldPartitions(db, dbName, table, days)
-	}
-}
-
-// dropOldPartitions drops partitions older than `days` from a single table.
-func dropOldPartitions(db *sqlx.DB, dbName, table string, days uint) {
 	l := logrus.WithField("component", "db")
 	partitions := []string{}
 	const query = `
 		SELECT DISTINCT partition
 		FROM system.parts
 		WHERE database = ?
-			AND table = ?
+			AND table = 'metrics'
 			AND visible = 1
 			AND match(partition, '^[0-9]{8}$')
 			AND toUInt32(partition) < toYYYYMMDD(now() - toIntervalDay(?))
@@ -172,15 +163,14 @@ func dropOldPartitions(db *sqlx.DB, dbName, table string, days uint) {
 		&partitions,
 		query,
 		dbName,
-		table,
 		days,
 	)
 	if err != nil {
-		l.Infof("Select %d days old partitions of %s. Result: %v, Error: %v", days, table, partitions, err)
+		l.Infof("Select %d days old partitions of system.parts. Result: %v, Error: %v", days, partitions, err)
 		return
 	}
 	for _, part := range partitions {
-		result, err := db.Exec(fmt.Sprintf(`ALTER TABLE %s.%s DROP PARTITION %s`, dbName, table, part))
-		l.Infof("Drop partition %s of %s.%s. Result: %v, Error: %v", part, dbName, table, result, err)
+		result, err := db.Exec(fmt.Sprintf(`ALTER TABLE %s.metrics DROP PARTITION %s`, dbName, part))
+		l.Infof("Drop partition %s of %s.metrics. Result: %v, Error: %v", part, dbName, result, err)
 	}
 }

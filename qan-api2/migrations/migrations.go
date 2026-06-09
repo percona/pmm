@@ -19,8 +19,6 @@ import (
 const (
 	metricsEngineSimple           = "MergeTree"
 	metricsEngineCluster          = "ReplicatedMergeTree"
-	rollupEngineSimple            = "AggregatingMergeTree"
-	rollupEngineCluster           = "ReplicatedAggregatingMergeTree"
 	schemaMigrationsEngineCluster = "ReplicatedMergeTree ORDER BY version"
 )
 
@@ -83,23 +81,6 @@ func GetEngine(isCluster bool) string {
 	}
 
 	return metricsEngineSimple
-}
-
-// GetAggregatingEngine returns the engine for AggregatingMergeTree rollup tables.
-func GetAggregatingEngine(isCluster bool) string {
-	if isCluster {
-		return rollupEngineCluster
-	}
-
-	return rollupEngineSimple
-}
-
-// TemplateData returns the variables used to render migration SQL templates.
-func TemplateData(isCluster bool) map[string]any {
-	return map[string]any{
-		"engine":            GetEngine(isCluster),
-		"aggregatingEngine": GetAggregatingEngine(isCluster),
-	}
 }
 
 func Run(dsn string, templateData map[string]any, isCluster bool, clusterName string) error {
