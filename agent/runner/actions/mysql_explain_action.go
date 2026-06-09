@@ -247,7 +247,8 @@ func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byt
 	for rows.Next() {
 		var level, message string
 		var code int
-		if err = rows.Scan(&level, &code, &message); err != nil {
+		err = rows.Scan(&level, &code, &message)
+		if err != nil {
 			continue
 		}
 		warnings = append(warnings, map[string]any{

@@ -133,7 +133,8 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 					return errors.New("the only supported backups mode for mongoDB is snapshot and PITR")
 				}
 
-				if err = services.CheckMongoDBBackupPreconditions(tx.Querier, params.Mode, svc.Cluster, svc.ServiceID, params.ScheduleID); err != nil {
+				err = services.CheckMongoDBBackupPreconditions(tx.Querier, params.Mode, svc.Cluster, svc.ServiceID, params.ScheduleID)
+				if err != nil {
 					return err
 				}
 
@@ -277,7 +278,7 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 
 	var params restoreJobParams
 	var restoreID string
-	if errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+	errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 		service, err := models.FindServiceByID(tx.Querier, serviceID)
 		if err != nil {
@@ -383,7 +384,8 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 		}
 
 		return nil
-	}); errTx != nil {
+	})
+	if errTx != nil {
 		return "", errTx
 	}
 

@@ -108,7 +108,8 @@ func (c *Client) makeRequest(ctx context.Context, method, path string, body io.R
 			Code    uint32 `json:"code"`
 		}
 
-		if err := json.Unmarshal(bodyBytes, &gwErr); err != nil {
+		err := json.Unmarshal(bodyBytes, &gwErr)
+		if err != nil {
 			c.l.Errorf("Failed to send telemetry and failed to decode error message: %s", err)
 			return nil, err
 		}
