@@ -84,6 +84,7 @@ func saveConfig(path string, cfg []byte) (err error) {
 	return err
 }
 
+// TODO: remove [unix_http_server] and [supervisorctl] as they duplicate supervisord.conf.
 var pmmTemplate = template.Must(template.New("").Option("missingkey=error").Parse(`[unix_http_server]
 chmod = 0700
 username = dummy
