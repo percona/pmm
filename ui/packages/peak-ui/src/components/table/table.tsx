@@ -192,7 +192,6 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
           '& .MuiAlert-message > .MuiBox-root': { padding: 0 },
         }),
       }}
-      positionExpandColumn="last"
       positionActionsColumn="last"
       muiTablePaperProps={({ table }) => {
         const consumer =

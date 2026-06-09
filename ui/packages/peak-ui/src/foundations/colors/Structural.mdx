@@ -42,7 +42,13 @@ These tokens form the architectural skeleton of our interface. They govern the b
     <ColorItem
       title="Action overlays"
       subtitle="For states of actionable components, like buttons, form elements, etc."
-      colors={semanticTokensLight.action}
+      colors={{
+        active: semanticTokensLight.action.active,
+        hover: semanticTokensLight.action.hover,
+        selected: semanticTokensLight.action.selected,
+        disabled: semanticTokensLight.action.disabled,
+        focus: semanticTokensLight.action.focus,
+      }}
     />
   </ColorPalette>
 </div>
@@ -69,6 +75,15 @@ These tokens form the architectural skeleton of our interface. They govern the b
       }}
     />
     <ColorItem title="Lines" colors={semanticTokensDark.lines} />
-    <ColorItem title="Action overlays" colors={semanticTokensDark.action} />
+    <ColorItem
+      title="Action overlays"
+      colors={{
+        active: semanticTokensDark.action.active,
+        hover: semanticTokensDark.action.hover,
+        selected: semanticTokensDark.action.selected,
+        disabled: semanticTokensDark.action.disabled,
+        focus: semanticTokensDark.action.focus,
+      }}
+    />
   </ColorPalette>
 </div>
