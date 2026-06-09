@@ -19,7 +19,6 @@ package server
 import (
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -31,15 +30,16 @@ import (
 	server "github.com/percona/pmm/api/server/v1/json/client/server_service"
 )
 
-func restoreSettingsDefaults(t *testing.T) {
+// RestoreSettingsDefaults restores PMM Server settings to their default values.
+func RestoreSettingsDefaults(t *testing.T) {
 	t.Helper()
 
 	res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 		Body: server.ChangeSettingsBody{
-			EnableAdvisor:   pointer.ToBool(true),
-			EnableTelemetry: pointer.ToBool(true),
-			EnableAlerting:  pointer.ToBool(true),
-			EnableUpdates:   pointer.ToBool(true),
+			EnableAdvisor:   new(true),
+			EnableTelemetry: new(false),
+			EnableAlerting:  new(true),
+			EnableUpdates:   new(true),
 			MetricsResolutions: &server.ChangeSettingsParamsBodyMetricsResolutions{
 				Hr: "5s",
 				Mr: "10s",
@@ -58,7 +58,7 @@ func restoreSettingsDefaults(t *testing.T) {
 		Context: pmmapitests.Context,
 	})
 	require.NoError(t, err)
-	assert.True(t, res.Payload.Settings.TelemetryEnabled)
+	assert.False(t, res.Payload.Settings.TelemetryEnabled)
 	assert.True(t, res.Payload.Settings.AdvisorEnabled)
 	expectedResolutions := &server.ChangeSettingsOKBodySettingsMetricsResolutions{
 		Hr: "5s",
@@ -91,7 +91,7 @@ func restoreCheckIntervalDefaults(t *testing.T) {
 				Params: []*advisor.ChangeAdvisorChecksParamsBodyParamsItems0{
 					{
 						Name:     check.Name,
-						Interval: pointer.ToString(advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD.String()),
+						Interval: new(advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD.String()),
 					},
 				},
 			},

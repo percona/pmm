@@ -16,13 +16,10 @@
 package services
 
 import (
-	"context"
 	"database/sql"
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -78,70 +75,70 @@ func TestCheckMongoDBBackupPreconditions(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("unable to create snapshot backup for cluster with enabled PITR backup", func(t *testing.T) {
-		err := db.InTransactionContext(context.Background(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(_ *reform.TX) error {
+		err := db.InTransactionContext(t.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(_ *reform.TX) error {
 			return CheckMongoDBBackupPreconditions(db.Querier, models.Snapshot, "cluster1", "", "")
 		})
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "A snapshot backup for cluster 'cluster1' can be performed only if there is no enabled PITR backup for this cluster."), err)
 	})
 
 	t.Run("unable to create second PITR backup for cluster", func(t *testing.T) {
-		err := db.InTransactionContext(context.Background(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(_ *reform.TX) error {
+		err := db.InTransactionContext(t.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(_ *reform.TX) error {
 			return CheckMongoDBBackupPreconditions(db.Querier, models.PITR, "cluster1", "", "")
 		})
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "A PITR backup for the cluster 'cluster1' can be enabled only if there are no other scheduled backups for this cluster."), err)
 	})
 
 	t.Run("able to update existing PITR backup for cluster", func(t *testing.T) {
-		err := db.InTransactionContext(context.Background(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(_ *reform.TX) error {
+		err := db.InTransactionContext(t.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(_ *reform.TX) error {
 			return CheckMongoDBBackupPreconditions(db.Querier, models.PITR, "cluster1", "", schedule1.ID)
 		})
 		require.NoError(t, err)
 	})
 
 	t.Run("unable to create second PITR backup for service", func(t *testing.T) {
-		err := db.InTransactionContext(context.Background(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(_ *reform.TX) error {
+		err := db.InTransactionContext(t.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(_ *reform.TX) error {
 			return CheckMongoDBBackupPreconditions(db.Querier, models.Snapshot, "", "service1", "")
 		})
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "A snapshot backup for service 'service1' can be performed only if there are no other scheduled backups for this service."), err)
 	})
 
 	t.Run("able to update existing PITR backup for service", func(t *testing.T) {
-		err := db.InTransactionContext(context.Background(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(_ *reform.TX) error {
+		err := db.InTransactionContext(t.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(_ *reform.TX) error {
 			return CheckMongoDBBackupPreconditions(db.Querier, models.PITR, "", "service1", schedule1.ID)
 		})
 		require.NoError(t, err)
 	})
 
 	t.Run("unable to create PITR backup for cluster with scheduled snapshot backup", func(t *testing.T) {
-		err := db.InTransactionContext(context.Background(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(_ *reform.TX) error {
+		err := db.InTransactionContext(t.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(_ *reform.TX) error {
 			return CheckMongoDBBackupPreconditions(db.Querier, models.PITR, "cluster2", "", "")
 		})
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "A PITR backup for the cluster 'cluster2' can be enabled only if there are no other scheduled backups for this cluster."), err)
 	})
 
 	t.Run("able to create second snapshot backup for cluster", func(t *testing.T) {
-		err := db.InTransactionContext(context.Background(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(_ *reform.TX) error {
+		err := db.InTransactionContext(t.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(_ *reform.TX) error {
 			return CheckMongoDBBackupPreconditions(db.Querier, models.Snapshot, "cluster2", "", "")
 		})
 		require.NoError(t, err)
 	})
 
 	t.Run("unable to create PITR backup for service with scheduled snapshot backup", func(t *testing.T) {
-		err := db.InTransactionContext(context.Background(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(_ *reform.TX) error {
+		err := db.InTransactionContext(t.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(_ *reform.TX) error {
 			return CheckMongoDBBackupPreconditions(db.Querier, models.PITR, "", "service2", "")
 		})
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "A PITR backup for the service with ID 'service2' can be enabled only if there are no other scheduled backups for this service."), err)
 	})
 
 	t.Run("able to create second snapshot backup for service", func(t *testing.T) {
-		err := db.InTransactionContext(context.Background(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(_ *reform.TX) error {
+		err := db.InTransactionContext(t.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(_ *reform.TX) error {
 			return CheckMongoDBBackupPreconditions(db.Querier, models.Snapshot, "", "service2", "")
 		})
 		require.NoError(t, err)
 	})
 
 	t.Run("incremental backups are not supported", func(t *testing.T) {
-		err := db.InTransactionContext(context.Background(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(_ *reform.TX) error {
+		err := db.InTransactionContext(t.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(_ *reform.TX) error {
 			return CheckMongoDBBackupPreconditions(db.Querier, models.Incremental, "cluster1", "", "")
 		})
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Incremental backups unsupported for MongoDB"), err)
@@ -165,8 +162,8 @@ func TestCheckArtifactOverlapping(t *testing.T) {
 	mongoSvc1, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
 		ServiceName: "mongodb1",
 		NodeID:      node.NodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(60000),
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(60000)),
 		Cluster:     "cluster1",
 	})
 	require.NoError(t, err)
@@ -174,8 +171,8 @@ func TestCheckArtifactOverlapping(t *testing.T) {
 	mongoSvc2, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
 		ServiceName: "mongodb2",
 		NodeID:      node.NodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(60000),
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(60000)),
 		Cluster:     "cluster1",
 	})
 	require.NoError(t, err)
@@ -183,8 +180,8 @@ func TestCheckArtifactOverlapping(t *testing.T) {
 	mongoSvc3, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
 		ServiceName: "mongodb3",
 		NodeID:      node.NodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(60000),
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(60000)),
 		Cluster:     "cluster2",
 	})
 	require.NoError(t, err)
@@ -192,8 +189,8 @@ func TestCheckArtifactOverlapping(t *testing.T) {
 	mysqlSvc1, err := models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 		ServiceName: "mysql1",
 		NodeID:      node.NodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(60000),
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(60000)),
 		Cluster:     "mysql_cluster_1",
 	})
 	require.NoError(t, err)
@@ -201,8 +198,8 @@ func TestCheckArtifactOverlapping(t *testing.T) {
 	mysqlSvc2, err := models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 		ServiceName: "mysql2",
 		NodeID:      node.NodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(60000),
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(60000)),
 		Cluster:     "mysql_cluster_2",
 	})
 	require.NoError(t, err)
@@ -254,17 +251,17 @@ func TestCheckArtifactOverlapping(t *testing.T) {
 	require.NoError(t, err)
 
 	err = CheckArtifactOverlapping(db.Querier, mongoSvc2.ServiceID, location.ID, folder1)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	err = CheckArtifactOverlapping(db.Querier, mongoSvc3.ServiceID, location.ID, folder1)
-	assert.ErrorIs(t, err, ErrLocationFolderPairAlreadyUsed)
+	require.ErrorIs(t, err, ErrLocationFolderPairAlreadyUsed)
 
 	err = CheckArtifactOverlapping(db.Querier, mysqlSvc1.ServiceID, location.ID, folder1)
-	assert.ErrorIs(t, err, ErrLocationFolderPairAlreadyUsed)
+	require.ErrorIs(t, err, ErrLocationFolderPairAlreadyUsed)
 
 	err = CheckArtifactOverlapping(db.Querier, mysqlSvc2.ServiceID, location.ID, folder2)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	err = CheckArtifactOverlapping(db.Querier, mongoSvc1.ServiceID, location.ID, folder2)
-	assert.ErrorIs(t, err, ErrLocationFolderPairAlreadyUsed)
+	require.ErrorIs(t, err, ErrLocationFolderPairAlreadyUsed)
 }

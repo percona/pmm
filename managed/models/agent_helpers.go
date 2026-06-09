@@ -17,6 +17,7 @@ package models
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
@@ -89,7 +90,7 @@ func PostgreSQLOptionsFromRequest(params PostgreSQLOptionsParams) PostgreSQLOpti
 
 	// PostgreSQL exporter has these parameters but they are not needed for QAN agent.
 	if extendedOptions, ok := params.(PostgreSQLExtendedOptionsParams); ok && extendedOptions != nil {
-		res.AutoDiscoveryLimit = pointer.ToInt32(extendedOptions.GetAutoDiscoveryLimit())
+		res.AutoDiscoveryLimit = new(extendedOptions.GetAutoDiscoveryLimit())
 		res.MaxExporterConnections = extendedOptions.GetMaxExporterConnections()
 	}
 
@@ -188,7 +189,7 @@ func RTAOptionsFromRequest(params RTAOptionsParams) *RTAOptions {
 	rtaOptions := &RTAOptions{}
 
 	if params.GetCollectInterval() != nil {
-		rtaOptions.CollectInterval = pointer.To(params.GetCollectInterval().AsDuration())
+		rtaOptions.CollectInterval = new(params.GetCollectInterval().AsDuration())
 	}
 
 	return rtaOptions
@@ -232,10 +233,11 @@ type AgentFilters struct {
 // FindAgents returns Agents by filters.
 func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 	var conditions []string
-	var args []interface{}
+	var args []any
 	idx := 1
 	if filters.PMMAgentID != "" {
-		if _, err := FindAgentByID(q, filters.PMMAgentID); err != nil {
+		_, err := FindAgentByID(q, filters.PMMAgentID)
+		if err != nil {
 			return nil, err
 		}
 		conditions = append(conditions, fmt.Sprintf("pmm_agent_id = %s", q.Placeholder(idx)))
@@ -243,7 +245,8 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 		idx++
 	}
 	if filters.NodeID != "" {
-		if _, err := FindNodeByID(q, filters.NodeID); err != nil {
+		_, err := FindNodeByID(q, filters.NodeID)
+		if err != nil {
 			return nil, err
 		}
 		conditions = append(conditions, fmt.Sprintf("node_id = %s", q.Placeholder(idx)))
@@ -251,7 +254,8 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 		idx++
 	}
 	if filters.ServiceID != "" {
-		if _, err := FindServiceByID(q, filters.ServiceID); err != nil {
+		_, err := FindServiceByID(q, filters.ServiceID)
+		if err != nil {
 			return nil, err
 		}
 		conditions = append(conditions, fmt.Sprintf("service_id = %s", q.Placeholder(idx)))
@@ -311,9 +315,7 @@ func FindAgentByID(q *reform.Querier, id string) (*Agent, error) {
 		}
 		return nil, errors.WithStack(err)
 	}
-	decryptedAgent := DecryptAgent(*agent)
-
-	return &decryptedAgent, nil
+	return new(DecryptAgent(*agent)), nil
 }
 
 // FindAgentsByIDs finds Agents by IDs.
@@ -324,7 +326,7 @@ func FindAgentsByIDs(q *reform.Querier, ids []string) ([]*Agent, error) {
 
 	p := strings.Join(q.Placeholders(1, len(ids)), ", ")
 	tail := fmt.Sprintf("WHERE agent_id IN (%s) ORDER BY agent_id", p)
-	args := make([]interface{}, len(ids))
+	args := make([]any, len(ids))
 	for i, id := range ids {
 		args[i] = id
 	}
@@ -375,7 +377,7 @@ func FindDBConfigForService(q *reform.Querier, serviceID string) (*DBConfig, err
 	p := strings.Join(q.Placeholders(2, len(agentTypes)), ", ") //nolint:mnd
 	tail := fmt.Sprintf("WHERE service_id = $1 AND agent_type IN (%s) ORDER BY agent_id", p)
 
-	args := make([]interface{}, len(agentTypes)+1)
+	args := make([]any, len(agentTypes)+1)
 	args[0] = serviceID
 	for i, agentType := range agentTypes {
 		args[i+1] = agentType
@@ -435,7 +437,7 @@ func FindPMMAgentsForService(q *reform.Querier, serviceID string) ([]*Agent, err
 	if err != nil {
 		return nil, status.Errorf(codes.FailedPrecondition, "Couldn't get all agents for service %s", serviceID)
 	}
-	pmmAgentIDs := make([]interface{}, len(allAgents))
+	pmmAgentIDs := make([]any, len(allAgents))
 	for _, str := range allAgents {
 		row := str.(*Agent) //nolint:forcetypeassert
 		if row.PMMAgentID != nil {
@@ -520,7 +522,7 @@ func FindPMMAgentsForVersion(logger *logrus.Entry, agents []*Agent, minPMMAgentV
 // FindAgentsForScrapeConfig returns Agents for scrape config generation by pmm_agent_id and push_metrics value.
 func FindAgentsForScrapeConfig(q *reform.Querier, pmmAgentID *string, pushMetrics bool) ([]*Agent, error) {
 	var (
-		args       []interface{}
+		args       []any
 		conditions []string
 	)
 	if pmmAgentID != nil {
@@ -588,8 +590,7 @@ func FindPmmAgentIDToRunActionOrJob(pmmAgentID string, agents []*Agent) (string,
 
 // UpdateAgent updates the Agent in the database.
 func UpdateAgent(q *reform.Querier, agent *Agent) error {
-	eAgent := EncryptAgent(*agent)
-	err := q.Update(&eAgent)
+	err := q.Update(new(EncryptAgent(*agent)))
 	if err != nil {
 		return fmt.Errorf("failed to update Agent: %w", err)
 	}
@@ -627,11 +628,13 @@ func ExtractPmmAgentID(agent *Agent) (string, error) {
 
 // createPMMAgentWithID creates PMMAgent with given ID.
 func createPMMAgentWithID(q *reform.Querier, id, runsOnNodeID string, customLabels map[string]string) (*Agent, error) {
-	if err := checkUniqueAgentID(q, id); err != nil {
+	err := checkUniqueAgentID(q, id)
+	if err != nil {
 		return nil, err
 	}
 
-	if _, err := FindNodeByID(q, runsOnNodeID); err != nil {
+	_, err = FindNodeByID(q, runsOnNodeID)
+	if err != nil {
 		return nil, err
 	}
 
@@ -643,11 +646,13 @@ func createPMMAgentWithID(q *reform.Querier, id, runsOnNodeID string, customLabe
 		AgentType:    PMMAgentType,
 		RunsOnNodeID: &runsOnNodeID,
 	}
-	if err := agent.SetCustomLabels(customLabels); err != nil {
+	err = agent.SetCustomLabels(customLabels)
+	if err != nil {
 		return nil, err
 	}
 
-	if err := q.Insert(agent); err != nil {
+	err = q.Insert(agent)
+	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
@@ -702,9 +707,7 @@ func CreateNodeExporter(q *reform.Querier,
 	if err := q.Insert(&encryptedAgent); err != nil {
 		return nil, errors.WithStack(err)
 	}
-	agent := DecryptAgent(encryptedAgent)
-
-	return &agent, nil
+	return new(DecryptAgent(encryptedAgent)), nil
 }
 
 // CreateExternalExporterParams params for add external exporter.
@@ -723,13 +726,14 @@ type CreateExternalExporterParams struct {
 
 // CreateExternalExporter creates ExternalExporter.
 func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterParams) (*Agent, error) {
-	if !(params.ListenPort > 0 && params.ListenPort < 65536) {
+	if params.ListenPort <= 0 || params.ListenPort >= 65536 {
 		return nil, status.Errorf(codes.InvalidArgument, "Listen port should be between 1 and 65535.")
 	}
 	var pmmAgentID *string
-	runsOnNodeID := pointer.ToString(params.RunsOnNodeID)
+	runsOnNodeID := new(params.RunsOnNodeID)
 	id := uuid.New().String()
-	if err := checkUniqueAgentID(q, id); err != nil {
+	err := checkUniqueAgentID(q, id)
+	if err != nil {
 		return nil, err
 	}
 	// with push metrics we have to detect pmm_agent_id for external exporter.
@@ -746,14 +750,16 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 			return nil, errors.Errorf("exactly one pmm_agent expected for external exporter, but "+
 				"(%d) found at node: %s", len(agentIDs), params.RunsOnNodeID)
 		}
-		pmmAgentID = pointer.ToString(agentIDs[0].AgentID)
+		pmmAgentID = new(agentIDs[0].AgentID)
 		runsOnNodeID = nil
 	}
 
-	if _, err := FindNodeByID(q, params.RunsOnNodeID); err != nil {
+	_, err = FindNodeByID(q, params.RunsOnNodeID)
+	if err != nil {
 		return nil, err
 	}
-	if _, err := FindServiceByID(q, params.ServiceID); err != nil {
+	_, err = FindServiceByID(q, params.ServiceID)
+	if err != nil {
 		return nil, err
 	}
 
@@ -773,7 +779,7 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 		ServiceID:    pointer.ToStringOrNil(params.ServiceID),
 		Username:     pointer.ToStringOrNil(params.Username),
 		Password:     pointer.ToStringOrNil(params.Password),
-		ListenPort:   pointer.ToUint16(uint16(params.ListenPort)),
+		ListenPort:   new(uint16(params.ListenPort)),
 		ExporterOptions: ExporterOptions{
 			PushMetrics:   params.PushMetrics,
 			MetricsPath:   metricsPath,
@@ -781,17 +787,17 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 		},
 		TLSSkipVerify: params.TLSSkipVerify,
 	}
-	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
+	err = row.SetCustomLabels(params.CustomLabels)
+	if err != nil {
 		return nil, err
 	}
 
 	encryptedAgent := EncryptAgent(*row)
-	if err := q.Insert(&encryptedAgent); err != nil {
+	err = q.Insert(&encryptedAgent)
+	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	agent := DecryptAgent(encryptedAgent)
-
-	return &agent, nil
+	return new(DecryptAgent(encryptedAgent)), nil
 }
 
 // CreateAgentParams params for add common exporter.
@@ -897,13 +903,7 @@ func compatibleServiceAndAgent(serviceType ServiceType, agentType AgentType) boo
 		return false
 	}
 
-	for _, svcType := range allowed {
-		if svcType == serviceType {
-			return true
-		}
-	}
-
-	return false
+	return slices.Contains(allowed, serviceType)
 }
 
 // CreateAgent creates Agent with given type.
@@ -940,6 +940,11 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		}
 	}
 
+	exporterOptions := params.ExporterOptions
+	if pointer.Get(exporterOptions.ConnectionTimeout) == 0 {
+		exporterOptions.ConnectionTimeout = nil
+	}
+
 	row := &Agent{
 		AgentID:           id,
 		AgentType:         agentType,
@@ -951,7 +956,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		AgentPassword:     pointer.ToStringOrNil(params.AgentPassword),
 		TLS:               params.TLS,
 		TLSSkipVerify:     params.TLSSkipVerify,
-		ExporterOptions:   params.ExporterOptions,
+		ExporterOptions:   exporterOptions,
 		QANOptions:        params.QANOptions,
 		AWSOptions:        params.AWSOptions,
 		AzureOptions:      params.AzureOptions,
@@ -975,7 +980,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 	case RTAMongoDBAgentType:
 		row.RTAOptions = RTAOptions{
 			// default value
-			CollectInterval: pointer.To(2 * time.Second), //nolint:mnd
+			CollectInterval: new(2 * time.Second), //nolint:mnd
 		}
 		// RTA options
 		row.RTAOptions.Merge(&params.RTAOptions)
@@ -987,9 +992,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 	if err := q.Insert(&encryptedAgent); err != nil {
 		return nil, errors.WithStack(err)
 	}
-	agent := DecryptAgent(encryptedAgent)
-
-	return &agent, nil
+	return new(DecryptAgent(encryptedAgent)), nil
 }
 
 func trimUnicodeNilsInCertFiles(agent Agent) Agent {
@@ -1025,6 +1028,7 @@ type ChangeExporterOptions struct {
 	MetricsScheme      *string
 	MetricsPath        *string
 	MetricsResolutions *ChangeMetricsResolutionsParams
+	ConnectionTimeout  *time.Duration
 }
 
 // ChangeQANOptions contains QANOptions fields that can be changed.
@@ -1131,11 +1135,13 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 
 	if params.CustomLabels != nil {
 		if len(*params.CustomLabels) == 0 {
-			if err = row.SetCustomLabels(nil); err != nil {
+			err = row.SetCustomLabels(nil)
+			if err != nil {
 				return nil, err
 			}
 		} else {
-			if err = row.SetCustomLabels(*params.CustomLabels); err != nil {
+			err = row.SetCustomLabels(*params.CustomLabels)
+			if err != nil {
 				return nil, err
 			}
 		}
@@ -1184,6 +1190,12 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 		}
 		if params.ExporterOptions.MetricsPath != nil {
 			row.ExporterOptions.MetricsPath = *params.ExporterOptions.MetricsPath
+		}
+
+		if pointer.Get(params.ExporterOptions.ConnectionTimeout) == 0 {
+			row.ExporterOptions.ConnectionTimeout = nil
+		} else {
+			row.ExporterOptions.ConnectionTimeout = params.ExporterOptions.ConnectionTimeout
 		}
 	}
 
@@ -1358,12 +1370,12 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 	row.RTAOptions.Merge(params.RTAOptions)
 
 	// need to encrypt Agent's sensitive data before update
-	row = pointer.To(EncryptAgent(*row))
+	row = new(EncryptAgent(*row))
 	if err = q.Update(row); err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	return pointer.To(DecryptAgent(*row)), nil
+	return new(DecryptAgent(*row)), nil
 }
 
 // RemoveAgent removes Agent by ID.
@@ -1422,7 +1434,7 @@ func updateExternalExporterParams(q *reform.Querier, row *Agent) error {
 		}
 
 		row.RunsOnNodeID = nil
-		row.PMMAgentID = pointer.ToString(pmmAgent[0].AgentID)
+		row.PMMAgentID = new(pmmAgent[0].AgentID)
 	}
 	// without push metrics, external exporter must have RunsOnNodeID without PMMAgentID
 	if !row.ExporterOptions.PushMetrics && row.RunsOnNodeID == nil {

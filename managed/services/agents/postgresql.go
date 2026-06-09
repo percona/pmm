@@ -31,6 +31,8 @@ import (
 	"github.com/percona/pmm/version"
 )
 
+const postgresCloudConnectionTimeout = 5 * time.Second
+
 var (
 	postgresExporterAutodiscoveryVersion = version.MustParse("2.15.99")
 	postgresExporterWebConfigVersion     = version.MustParse("2.30.99")
@@ -116,7 +118,11 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 	args = collectors.FilterOutCollectors("--collect.", args, exporter.ExporterOptions.DisabledCollectors)
 
 	if !pmmAgentVersion.Less(postgresExporterCollectorsVersion) {
-		disableCollectorArgs := collectors.DisableDefaultEnabledCollectors("--no-collector.", defaultPostgresExporterCollectors, exporter.ExporterOptions.DisabledCollectors) //nolint:lll
+		disableCollectorArgs := collectors.DisableDefaultEnabledCollectors(
+			"--no-collector.",
+			defaultPostgresExporterCollectors,
+			exporter.ExporterOptions.DisabledCollectors,
+		)
 		args = append(args, disableCollectorArgs...)
 	}
 
@@ -125,21 +131,12 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 	sort.Strings(args)
 
 	dsnParams := models.DSNParams{
-		DialTimeout:              1 * time.Second,
 		Database:                 service.DatabaseName,
 		PostgreSQLSupportsSSLSNI: !pmmAgentVersion.Less(postgresSSLSniVersion),
 	}
 
-	// On AWS and Azure, we need to have a higher value for DialTimeout to avoid connection issues
-
-	// TODO: refactor with https://perconadev.atlassian.net/browse/PMM-12832
-	if node.NodeType == models.RemoteRDSNodeType {
-		dsnParams.DialTimeout = 5 * time.Second
-	}
-
-	if exporter.AzureOptions.ClientID != "" {
-		dsnParams.DialTimeout = 5 * time.Second
-	}
+	connectionTimeout := postgresExporterDialTimeout(node, exporter)
+	dsnParams.DialTimeout = connectionTimeout
 
 	res := &agentv1.SetStateRequest_AgentProcess{
 		Type:               inventoryv1.AgentType_AGENT_TYPE_POSTGRES_EXPORTER,
@@ -156,15 +153,33 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 		res.RedactWords = redactWords(exporter)
 	}
 
-	if err := ensureAuthParams(exporter, res, pmmAgentVersion, postgresExporterWebConfigVersion, false); err != nil {
+	err := ensureAuthParams(exporter, res, pmmAgentVersion, postgresExporterWebConfigVersion, false)
+	if err != nil {
 		return nil, err
 	}
 
 	return res, nil
 }
 
+func postgresExporterDialTimeout(node *models.Node, exporter *models.Agent) time.Duration {
+	timeout := exporter.EffectiveDialTimeout()
+	if exporter.ExporterOptions.ConnectionTimeout != nil {
+		return roundUpToSecond(timeout)
+	}
+
+	if exporter.AzureOptions.ClientID != "" || (node != nil && node.NodeType == models.RemoteRDSNodeType) {
+		timeout = postgresCloudConnectionTimeout
+	}
+
+	return roundUpToSecond(timeout)
+}
+
 // qanPostgreSQLPgStatementsAgentConfig returns desired configuration of qan-postgresql-pgstatements-agent built-in agent.
-func qanPostgreSQLPgStatementsAgentConfig(service *models.Service, agent *models.Agent, pmmAgentVersion *version.Parsed) *agentv1.SetStateRequest_BuiltinAgent { //nolint:lll
+func qanPostgreSQLPgStatementsAgentConfig(
+	service *models.Service,
+	agent *models.Agent,
+	pmmAgentVersion *version.Parsed,
+) *agentv1.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
 	dnsParams := models.DSNParams{
 		DialTimeout:              5 * time.Second,

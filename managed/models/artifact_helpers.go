@@ -43,7 +43,7 @@ type ArtifactFilters struct {
 // FindArtifacts returns artifact list sorted by creation time in DESCENDING order.
 func FindArtifacts(q *reform.Querier, filters ArtifactFilters) ([]*Artifact, error) {
 	var conditions []string
-	var args []interface{}
+	var args []any
 	idx := 1
 	if filters.ServiceID != "" {
 		conditions = append(conditions, fmt.Sprintf("service_id = %s", q.Placeholder(idx)))
@@ -52,7 +52,8 @@ func FindArtifacts(q *reform.Querier, filters ArtifactFilters) ([]*Artifact, err
 	}
 
 	if filters.LocationID != "" {
-		if _, err := FindBackupLocationByID(q, filters.LocationID); err != nil {
+		_, err := FindBackupLocationByID(q, filters.LocationID)
+		if err != nil {
 			return nil, err
 		}
 		conditions = append(conditions, fmt.Sprintf("location_id = %s", q.Placeholder(idx)))
@@ -103,7 +104,7 @@ func FindArtifactsByIDs(q *reform.Querier, ids []string) (map[string]*Artifact, 
 
 	p := strings.Join(q.Placeholders(1, len(ids)), ", ")
 	tail := fmt.Sprintf("WHERE id IN (%s)", p)
-	args := make([]interface{}, 0, len(ids))
+	args := make([]any, 0, len(ids))
 	for _, id := range ids {
 		args = append(args, id)
 	}
@@ -203,11 +204,13 @@ func (p *CreateArtifactParams) Validate() error {
 		return NewInvalidArgumentError("service_id shouldn't be empty")
 	}
 
-	if err := p.Mode.Validate(); err != nil {
+	err := p.Mode.Validate()
+	if err != nil {
 		return err
 	}
 
-	if err := p.DataModel.Validate(); err != nil {
+	err = p.DataModel.Validate()
+	if err != nil {
 		return err
 	}
 
@@ -309,11 +312,13 @@ func UpdateArtifact(q *reform.Querier, artifactID string, params UpdateArtifactP
 
 // DeleteArtifact removes artifact by ID.
 func DeleteArtifact(q *reform.Querier, id string) error {
-	if _, err := FindArtifactByID(q, id); err != nil {
+	_, err := FindArtifactByID(q, id)
+	if err != nil {
 		return err
 	}
 
-	if err := q.Delete(&Artifact{ID: id}); err != nil {
+	err = q.Delete(&Artifact{ID: id})
+	if err != nil {
 		return errors.Wrapf(err, "failed to delete artifact by id '%s'", id)
 	}
 	return nil
@@ -325,7 +330,8 @@ func (s *Artifact) MetadataRemoveFirstN(q *reform.Querier, n uint32) error {
 		n = uint32(len(s.MetadataList))
 	}
 	s.MetadataList = s.MetadataList[n:]
-	if err := q.Update(s); err != nil {
+	err := q.Update(s)
+	if err != nil {
 		return errors.Wrap(err, "failed to remove artifact metadata records")
 	}
 	return nil

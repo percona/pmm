@@ -2,8 +2,11 @@ import { FC } from 'react';
 import { PageProps } from './Page.types';
 import {
   Alert,
+  Box,
   Card,
   CardActions,
+  Divider,
+  GlobalStyles,
   Link,
   Stack,
   Typography,
@@ -13,47 +16,77 @@ import { Messages } from './Page.messages';
 import { PMM_HOME_URL } from 'lib/constants';
 import { Footer } from 'components/footer';
 import { updateDocumentTitle } from 'utils/document.utils';
+import { Link as RouterLink } from 'react-router-dom';
 
-export const Page: FC<PageProps> = ({ title, topBar, footer, children }) => {
+export const Page: FC<PageProps> = ({
+  title,
+  topBar,
+  footer,
+  children,
+  fullWidth,
+  surface,
+  roles,
+}) => {
   const { user } = useUser();
   updateDocumentTitle(title);
+  const hasAccess = !roles || roles?.some((role) => user?.orgRole === role);
 
   return (
-    <Stack
-      sx={(theme) => ({
-        flex: 1,
-        [theme.breakpoints.up('lg')]: {
-          width: 1000,
-        },
-        width: {
-          md: 'auto',
-        },
-        p: {
-          xs: 2,
-        },
-        mx: 'auto',
-        gap: 3,
-        mt: 1,
-      })}
-    >
-      {topBar}
-      {!!title && <Typography variant="h2">{title}</Typography>}
-      {user?.isAuthorized ? (
-        children
-      ) : (
-        <Card variant="outlined" sx={{ p: 2 }}>
-          <Alert severity="error" sx={{ mb: 1 }}>
-            {Messages.noAcccess}
-          </Alert>
-          <CardActions>
-            <Typography>
-              {Messages.goBack}
-              <Link href={PMM_HOME_URL}>{Messages.home}</Link>
-            </Typography>
-          </CardActions>
-        </Card>
+    <>
+      {surface && (
+        <GlobalStyles
+          styles={(theme) => ({
+            'html, body': {
+              backgroundColor:
+                surface === 'paper'
+                  ? theme.palette.background.paper
+                  : theme.palette.background.default,
+            },
+          })}
+        />
       )}
-      {footer !== undefined ? footer : <Footer />}
-    </Stack>
+      <Stack
+        sx={{
+          flex: 1,
+          width: '100%',
+          maxWidth: {
+            lg: 1000,
+          },
+          p: {
+            xs: 2,
+          },
+          px: {
+            md: fullWidth ? 4 : undefined,
+          },
+          mx: 'auto',
+          gap: 2,
+          mt: 1,
+        }}
+      >
+        {topBar}
+        {!!title && <Typography variant="h2">{title}</Typography>}
+        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          {user?.isAuthorized && hasAccess ? (
+            children
+          ) : (
+            <Card variant="outlined" sx={{ p: 2 }}>
+              <Alert severity="error" sx={{ mb: 1 }} data-testid="unauthorized">
+                {Messages.noAcccess}
+              </Alert>
+              <CardActions>
+                <Typography>
+                  {Messages.goBack}
+                  <Link to={PMM_HOME_URL} component={RouterLink}>
+                    {Messages.home}
+                  </Link>
+                </Typography>
+              </CardActions>
+            </Card>
+          )}
+        </Box>
+        <Divider />
+        {footer !== undefined ? footer : <Footer />}
+      </Stack>
+    </>
   );
 };

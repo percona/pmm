@@ -22,7 +22,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -46,10 +45,13 @@ func setup(t *testing.T) (*reform.DB, *Service, []byte) {
 	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
 	check.NoError(err)
 
+	chParams, err := models.NewClickHouseParams("127.0.0.1:9000", "pmm", "default", "clickhouse")
+	check.NoError(err)
+
 	mockHaService := newMockHaService(t)
 	mockHaService.On("Params").Return(&models.HAParams{Enabled: false, NodeID: "pmm-ha-service-0"}).Maybe()
 	mockHaService.On("IsLeader").Return(true).Maybe()
-	svc, err := NewVictoriaMetrics(configPath, db, vmParams, mockHaService)
+	svc, err := NewVictoriaMetrics(configPath, db, vmParams, chParams, mockHaService)
 	check.NoError(err)
 
 	original, err := os.ReadFile(configPath)
@@ -88,7 +90,7 @@ func TestVictoriaMetrics(t *testing.T) {
 		db, svc, original := setup(t)
 		defer teardown(t, db, svc, original)
 		settings := &models.Settings{}
-		settings.Nomad.Enabled = pointer.ToBool(true)
+		settings.Nomad.Enabled = new(true)
 		err := models.SaveSettings(db.Querier, settings)
 		check.NoError(err)
 
@@ -110,16 +112,16 @@ func TestVictoriaMetrics(t *testing.T) {
 			&models.Agent{
 				AgentID:      "217907dc-d34d-4e2e-aa84-a1b765d49853",
 				AgentType:    models.PMMAgentType,
-				RunsOnNodeID: pointer.ToString("cc663f36-18ca-40a1-aea9-c6310bb4738d"),
-				Version:      pointer.ToString("2.26.0"),
+				RunsOnNodeID: new("cc663f36-18ca-40a1-aea9-c6310bb4738d"),
+				Version:      new("2.26.0"),
 			},
 
 			// listen port is not known
 			&models.Agent{
 				AgentID:    "711674c2-36e6-42d5-8e63-5d7c84c9053a",
 				AgentType:  models.NodeExporterType,
-				PMMAgentID: pointer.ToString("217907dc-d34d-4e2e-aa84-a1b765d49853"),
-				NodeID:     pointer.ToString("cc663f36-18ca-40a1-aea9-c6310bb4738d"),
+				PMMAgentID: new("217907dc-d34d-4e2e-aa84-a1b765d49853"),
+				NodeID:     new("cc663f36-18ca-40a1-aea9-c6310bb4738d"),
 				ListenPort: nil,
 			},
 
@@ -128,8 +130,8 @@ func TestVictoriaMetrics(t *testing.T) {
 				ServiceType:  models.MySQLServiceType,
 				ServiceName:  "test-mysql",
 				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
-				Address:      pointer.ToString("5.6.7.8"),
-				Port:         pointer.ToUint16(3306),
+				Address:      new("5.6.7.8"),
+				Port:         new(uint16(3306)),
 				CustomLabels: []byte(`{"_service_label": "bar"}`),
 			},
 
@@ -138,8 +140,8 @@ func TestVictoriaMetrics(t *testing.T) {
 				ServiceType:  models.MySQLServiceType,
 				ServiceName:  "test-remote-mysql",
 				NodeID:       "4e2e07dc-40a1-18ca-aea9-d943260a9653",
-				Address:      pointer.ToString("50.60.70.80"),
-				Port:         pointer.ToUint16(3306),
+				Address:      new("50.60.70.80"),
+				Port:         new(uint16(3306)),
 				CustomLabels: []byte(`{"_service_label": "bar"}`),
 			},
 
@@ -148,8 +150,8 @@ func TestVictoriaMetrics(t *testing.T) {
 				ServiceType:  models.MongoDBServiceType,
 				ServiceName:  "test-mongodb",
 				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
-				Address:      pointer.ToString("5.6.7.8"),
-				Port:         pointer.ToUint16(27017),
+				Address:      new("5.6.7.8"),
+				Port:         new(uint16(27017)),
 				CustomLabels: []byte(`{"_service_label": "bam"}`),
 			},
 
@@ -158,37 +160,37 @@ func TestVictoriaMetrics(t *testing.T) {
 				ServiceType:  models.ValkeyServiceType,
 				ServiceName:  "test-valkey",
 				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
-				Address:      pointer.ToString("1.3.5.7"),
-				Port:         pointer.ToUint16(6379),
+				Address:      new("1.3.5.7"),
+				Port:         new(uint16(6379)),
 				CustomLabels: []byte(`{"_service_label": "bam"}`),
 			},
 
 			&models.Agent{
 				AgentID:        "ecd8995a-d479-4b4d-bfb7-865bac4ac2fb",
 				AgentType:      models.MongoDBExporterType,
-				PMMAgentID:     pointer.ToString("217907dc-d34d-4e2e-aa84-a1b765d49853"),
-				ServiceID:      pointer.ToString("acds89846-3cd2-47f8-a5f9-ac789513cde4"),
+				PMMAgentID:     new("217907dc-d34d-4e2e-aa84-a1b765d49853"),
+				ServiceID:      new("acds89846-3cd2-47f8-a5f9-ac789513cde4"),
 				CustomLabels:   []byte(`{"_agent_label": "mongodb-baz"}`),
-				ListenPort:     pointer.ToUint16(12346),
+				ListenPort:     new(uint16(12346)),
 				MongoDBOptions: models.MongoDBOptions{EnableAllCollectors: true},
 			},
 
 			&models.Agent{
 				AgentID:      "75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:    models.MySQLdExporterType,
-				PMMAgentID:   pointer.ToString("217907dc-d34d-4e2e-aa84-a1b765d49853"),
-				ServiceID:    pointer.ToString("014647c3-b2f5-44eb-94f4-d943260a968c"),
+				PMMAgentID:   new("217907dc-d34d-4e2e-aa84-a1b765d49853"),
+				ServiceID:    new("014647c3-b2f5-44eb-94f4-d943260a968c"),
 				CustomLabels: []byte(`{"_agent_label": "baz"}`),
-				ListenPort:   pointer.ToUint16(12345),
+				ListenPort:   new(uint16(12345)),
 			},
 
 			&models.Agent{
 				AgentID:      "f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a",
 				AgentType:    models.MySQLdExporterType,
-				PMMAgentID:   pointer.ToString("217907dc-d34d-4e2e-aa84-a1b765d49853"),
-				ServiceID:    pointer.ToString("4f1508fd-12c4-4ecf-b0a4-7ab19c996f61"),
+				PMMAgentID:   new("217907dc-d34d-4e2e-aa84-a1b765d49853"),
+				ServiceID:    new("4f1508fd-12c4-4ecf-b0a4-7ab19c996f61"),
 				CustomLabels: []byte(`{"_agent_label": "baz"}`),
-				ListenPort:   pointer.ToUint16(12345),
+				ListenPort:   new(uint16(12345)),
 			},
 
 			&models.Service{
@@ -196,36 +198,36 @@ func TestVictoriaMetrics(t *testing.T) {
 				ServiceType:  models.PostgreSQLServiceType,
 				ServiceName:  "test-postgresql",
 				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
-				Address:      pointer.ToString("5.6.7.8"),
-				Port:         pointer.ToUint16(5432),
+				Address:      new("5.6.7.8"),
+				Port:         new(uint16(5432)),
 				CustomLabels: []byte(`{"_service_label": "bar"}`),
 			},
 
 			&models.Agent{
 				AgentID:      "29e14468-d479-4b4d-bfb7-4ac2fb865bac",
 				AgentType:    models.PostgresExporterType,
-				PMMAgentID:   pointer.ToString("217907dc-d34d-4e2e-aa84-a1b765d49853"),
-				ServiceID:    pointer.ToString("9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1"),
+				PMMAgentID:   new("217907dc-d34d-4e2e-aa84-a1b765d49853"),
+				ServiceID:    new("9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1"),
 				CustomLabels: []byte(`{"_agent_label": "postgres-baz"}`),
-				ListenPort:   pointer.ToUint16(12345),
+				ListenPort:   new(uint16(12345)),
 			},
 
 			&models.Agent{
 				AgentID:      "fd2dcf41-0718-4319-9fa9-b7a509787c98",
 				AgentType:    models.ValkeyExporterType,
-				PMMAgentID:   pointer.ToString("217907dc-d34d-4e2e-aa84-a1b765d49853"),
-				ServiceID:    pointer.ToString("a04c391a-b3d0-40c2-95c5-3cfec462c8e5"),
+				PMMAgentID:   new("217907dc-d34d-4e2e-aa84-a1b765d49853"),
+				ServiceID:    new("a04c391a-b3d0-40c2-95c5-3cfec462c8e5"),
 				CustomLabels: []byte(`{"_agent_label": "valkey-baz"}`),
-				ListenPort:   pointer.ToUint16(12345),
+				ListenPort:   new(uint16(12345)),
 			},
 
 			&models.Agent{
 				AgentID:       "75bb30d3-ef4a-4147-97a8-621a996612dd",
 				AgentType:     models.ExternalExporterType,
-				PMMAgentID:    pointer.ToString("217907dc-d34d-4e2e-aa84-a1b765d49853"),
-				ServiceID:     pointer.ToString("014647c3-b2f5-44eb-94f4-d943260a968c"),
+				PMMAgentID:    new("217907dc-d34d-4e2e-aa84-a1b765d49853"),
+				ServiceID:     new("014647c3-b2f5-44eb-94f4-d943260a968c"),
 				CustomLabels:  []byte(`{"_agent_label": "baz"}`),
-				ListenPort:    pointer.ToUint16(22345),
+				ListenPort:    new(uint16(22345)),
 				TLSSkipVerify: true,
 			},
 
@@ -233,17 +235,17 @@ func TestVictoriaMetrics(t *testing.T) {
 			&models.Agent{
 				AgentID:    "4226ddb5-8197-443c-9891-7772b38324a7",
 				AgentType:  models.NodeExporterType,
-				PMMAgentID: pointer.ToString("217907dc-d34d-4e2e-aa84-a1b765d49853"),
-				NodeID:     pointer.ToString("cc663f36-18ca-40a1-aea9-c6310bb4738d"),
+				PMMAgentID: new("217907dc-d34d-4e2e-aa84-a1b765d49853"),
+				NodeID:     new("cc663f36-18ca-40a1-aea9-c6310bb4738d"),
 				Disabled:   true,
-				ListenPort: pointer.ToUint16(12346),
+				ListenPort: new(uint16(12346)),
 			},
 
 			// PMM Agent without version
 			&models.Agent{
 				AgentID:      "892b3d86-12e5-4765-aa32-e5092ecd78e1",
 				AgentType:    models.PMMAgentType,
-				RunsOnNodeID: pointer.ToString("cc663f36-18ca-40a1-aea9-c6310bb4738d"),
+				RunsOnNodeID: new("cc663f36-18ca-40a1-aea9-c6310bb4738d"),
 			},
 
 			&models.Service{
@@ -251,8 +253,8 @@ func TestVictoriaMetrics(t *testing.T) {
 				ServiceType:  models.MongoDBServiceType,
 				ServiceName:  "test-mongodb-noversion",
 				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
-				Address:      pointer.ToString("5.6.7.9"),
-				Port:         pointer.ToUint16(27017),
+				Address:      new("5.6.7.9"),
+				Port:         new(uint16(27017)),
 				CustomLabels: []byte(`{"_service_label": "bam"}`),
 			},
 
@@ -260,10 +262,10 @@ func TestVictoriaMetrics(t *testing.T) {
 			&models.Agent{
 				AgentID:        "386c4ce6-7cd2-4bc9-9d6f-b4691c6e7eb7",
 				AgentType:      models.MongoDBExporterType,
-				PMMAgentID:     pointer.ToString("892b3d86-12e5-4765-aa32-e5092ecd78e1"),
-				ServiceID:      pointer.ToString("1eae647b-f1e2-4e15-bc58-dfdbc3c37cbf"),
+				PMMAgentID:     new("892b3d86-12e5-4765-aa32-e5092ecd78e1"),
+				ServiceID:      new("1eae647b-f1e2-4e15-bc58-dfdbc3c37cbf"),
 				CustomLabels:   []byte(`{"_agent_label": "mongodb-baz-push"}`),
-				ListenPort:     pointer.ToUint16(12346),
+				ListenPort:     new(uint16(12346)),
 				MongoDBOptions: models.MongoDBOptions{EnableAllCollectors: true},
 				ExporterOptions: models.ExporterOptions{
 					PushMetrics: true,
@@ -274,10 +276,10 @@ func TestVictoriaMetrics(t *testing.T) {
 			&models.Agent{
 				AgentID:        "cfec996c-4fe6-41d9-83cb-e1a3b1fe10a8",
 				AgentType:      models.MongoDBExporterType,
-				PMMAgentID:     pointer.ToString("892b3d86-12e5-4765-aa32-e5092ecd78e1"),
-				ServiceID:      pointer.ToString("1eae647b-f1e2-4e15-bc58-dfdbc3c37cbf"),
+				PMMAgentID:     new("892b3d86-12e5-4765-aa32-e5092ecd78e1"),
+				ServiceID:      new("1eae647b-f1e2-4e15-bc58-dfdbc3c37cbf"),
 				CustomLabels:   []byte(`{"_agent_label": "mongodb-baz-pull"}`),
-				ListenPort:     pointer.ToUint16(12346),
+				ListenPort:     new(uint16(12346)),
 				MongoDBOptions: models.MongoDBOptions{EnableAllCollectors: true},
 				ExporterOptions: models.ExporterOptions{
 					PushMetrics: false,
@@ -870,12 +872,12 @@ scrape_configs:
     labels:
       instance: pmm-server
   follow_redirects: false`)))
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	})
 
 	t.Run("Bad scrape config file", func(t *testing.T) {
 		err := svc.configAndReload(context.TODO(), []byte(`unexpected input`))
-		assert.Errorf(t, err, "error when checking Prometheus config")
+		require.Errorf(t, err, "error when checking Prometheus config")
 	})
 
 	t.Run("Scrape config file with unknown params", func(t *testing.T) {
@@ -888,7 +890,8 @@ global:
 unknown_filed: unknown_value
 
 `)))
-		tests.AssertGRPCError(t, status.New(codes.Aborted,
+		tests.AssertGRPCError(t, status.New(
+			codes.Aborted,
 			"yaml: unmarshal errors:\n  line 6: field unknown_filed not found in type promscrape.Config;"+
 				" pass -promscrape.config.strictParse=false command-line flag for ignoring unknown fields in yaml config\n",
 		), err)
@@ -988,6 +991,69 @@ scrape_configs:
       follow_redirects: false
 `) + "\n"
 	newcfg, err := svc.marshalConfig(svc.loadBaseConfig())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, expected, string(newcfg), "actual:\n%s", newcfg)
+}
+
+func TestVMConfig_OmitsClickhouseScrape(t *testing.T) {
+	newSvc := func(t *testing.T, chParams *models.ClickHouseParams, vmURL string) (*reform.DB, *Service) {
+		t.Helper()
+		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, vmURL)
+		require.NoError(t, err)
+
+		mockHaService := newMockHaService(t)
+		mockHaService.On("Params").Return(&models.HAParams{Enabled: false, NodeID: "pmm-ha-service-0"}).Maybe()
+		mockHaService.On("IsLeader").Return(true).Maybe()
+
+		svc, err := NewVictoriaMetrics(configPath, db, vmParams, chParams, mockHaService)
+		require.NoError(t, err)
+		require.NoError(t, svc.IsReady(t.Context()))
+		t.Cleanup(func() { _ = db.DBInterface().(*sql.DB).Close() })
+		return db, svc
+	}
+
+	newCHParams := func(t *testing.T, addr string) *models.ClickHouseParams {
+		t.Helper()
+		chp, err := models.NewClickHouseParams(addr, "pmm", "default", "clickhouse")
+		require.NoError(t, err)
+		return chp
+	}
+
+	cases := []struct {
+		name           string
+		addr           string
+		wantClickhouse bool
+	}{
+		{"internal enabled positive control", "127.0.0.1:9000", true},
+		{"external addr skips scrape", "ch.external:9000", false},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			_, svc := newSvc(t, newCHParams(t, tc.addr), models.VMBaseURL)
+			cfg, err := svc.marshalConfig(svc.loadBaseConfig())
+			require.NoError(t, err)
+			assert.Contains(t, string(cfg), "job_name: grafana")
+			assert.Contains(t, string(cfg), "job_name: pmm-managed")
+			assert.Contains(t, string(cfg), "job_name: qan-api2")
+			if tc.wantClickhouse {
+				assert.Contains(t, string(cfg), "127.0.0.1:9363")
+				assert.Contains(t, string(cfg), "job_name: clickhouse")
+			} else {
+				assert.NotContains(t, string(cfg), "127.0.0.1:9363")
+				assert.NotContains(t, string(cfg), "job_name: clickhouse")
+			}
+		})
+	}
+}
+
+func TestNewVictoriaMetrics_NilClickHouseParams(t *testing.T) {
+	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
+	require.NoError(t, err)
+
+	svc, err := NewVictoriaMetrics(configPath, nil, vmParams, nil, newMockHaService(t))
+	require.Error(t, err)
+	assert.Nil(t, svc)
+	assert.Contains(t, err.Error(), "ClickHouse params is required")
 }

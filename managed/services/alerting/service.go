@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"maps"
 	"os"
 	"path/filepath"
 	"sort"
@@ -104,9 +105,7 @@ func (s *Service) GetTemplates() map[string]models.Template {
 	defer s.rw.RUnlock()
 
 	res := make(map[string]models.Template, len(s.templates))
-	for n, r := range s.templates {
-		res[n] = r
-	}
+	maps.Copy(res, s.templates)
 	return res
 }
 
@@ -289,7 +288,8 @@ func validateUserTemplate(t *alert.Template) error {
 		params[p.Name] = value
 	}
 
-	if _, err := fillExprWithParams(t.Expr, params); err != nil {
+	_, err := fillExprWithParams(t.Expr, params)
+	if err != nil {
 		return err
 	}
 
@@ -416,10 +416,11 @@ func (s *Service) CreateTemplate(ctx context.Context, req *alerting.CreateTempla
 	uniqueNames := make(map[string]struct{}, len(templates))
 	for _, t := range templates {
 		if _, ok := uniqueNames[t.Name]; ok {
-			return nil, status.Errorf(codes.InvalidArgument, "Template with name '%s' declared more that once.", t.Name)
+			return nil, status.Errorf(codes.InvalidArgument, "Template with name '%s' declared more than once.", t.Name)
 		}
 		uniqueNames[t.Name] = struct{}{}
-		if err = validateUserTemplate(&t); err != nil {
+		err = validateUserTemplate(&t)
+		if err != nil {
 			return nil, status.Errorf(codes.InvalidArgument, "%s.", err)
 		}
 	}

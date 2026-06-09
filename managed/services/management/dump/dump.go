@@ -25,7 +25,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/pkg/sftp"
 	"github.com/sirupsen/logrus"
@@ -40,6 +39,12 @@ import (
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/dump"
 	"github.com/percona/pmm/managed/services/grafana"
+	validators "github.com/percona/pmm/managed/utils/validators"
+)
+
+const (
+	// DumpEncryptionMinPasswordLength is the minimum length for dump encryption password if set.
+	dumpEncryptionMinPasswordLength = 8
 )
 
 // Service represents a structure for managing dump-related operations.
@@ -98,8 +103,8 @@ func (s *Service) StartDump(ctx context.Context, req *dumpv1beta1.StartDumpReque
 
 	// If auth cookie is present try to extract cookie value.
 	if len(cookieHeader) != 0 {
-		cookies := strings.Split(cookieHeader[0], ";")
-		for _, c := range cookies {
+		cookies := strings.SplitSeq(cookieHeader[0], ";")
+		for c := range cookies {
 			// The name of the cookie is defined in `./build/ansible/roles/grafana/files/grafana.ini`.
 			if auth, ok := strings.CutPrefix(strings.TrimSpace(c), "pmm_session="); ok {
 				cookie = auth
@@ -107,24 +112,34 @@ func (s *Service) StartDump(ctx context.Context, req *dumpv1beta1.StartDumpReque
 		}
 	}
 
+	if req.EnableEncryption {
+		if req.EncryptionPassword == "" {
+			return nil, status.Error(codes.InvalidArgument, "Encryption password must be provided when encryption is enabled")
+		}
+		err := validators.ValidatePassword(req.EncryptionPassword, dumpEncryptionMinPasswordLength)
+		if err != nil {
+			return nil, status.Error(codes.InvalidArgument, "Invalid encryption password: "+err.Error())
+		}
+	}
+
 	params := &dump.Params{
-		Token:        token,
-		Cookie:       cookie,
-		User:         user,
-		Password:     password,
-		ServiceNames: req.ServiceNames,
-		ExportQAN:    req.ExportQan,
-		IgnoreLoad:   req.IgnoreLoad,
+		Token:              token,
+		Cookie:             cookie,
+		User:               user,
+		Password:           password,
+		ServiceNames:       req.ServiceNames,
+		ExportQAN:          req.ExportQan,
+		IgnoreLoad:         req.IgnoreLoad,
+		EnableEncryption:   req.EnableEncryption,
+		EncryptionPassword: req.EncryptionPassword,
 	}
 
 	if req.StartTime != nil {
-		startTime := req.StartTime.AsTime()
-		params.StartTime = &startTime
+		params.StartTime = new(req.StartTime.AsTime())
 	}
 
 	if req.EndTime != nil {
-		endTime := req.EndTime.AsTime()
-		params.EndTime = &endTime
+		params.EndTime = new(req.EndTime.AsTime())
 	}
 
 	if params.StartTime != nil && params.EndTime != nil {
@@ -166,7 +181,8 @@ func (s *Service) ListDumps(_ context.Context, _ *dumpv1beta1.ListDumpsRequest) 
 // DeleteDump deletes a dump based on the provided context and request.
 func (s *Service) DeleteDump(_ context.Context, req *dumpv1beta1.DeleteDumpRequest) (*dumpv1beta1.DeleteDumpResponse, error) {
 	for _, id := range req.DumpIds {
-		if err := s.dumpService.DeleteDump(id); err != nil {
+		err := s.dumpService.DeleteDump(id)
+		if err != nil {
 			return nil, err
 		}
 	}
@@ -181,7 +197,7 @@ func (s *Service) GetDumpLogs(_ context.Context, req *dumpv1beta1.GetDumpLogsReq
 		Offset: int(req.Offset),
 	}
 	if req.Limit > 0 {
-		filter.Limit = pointer.ToInt(int(req.Limit))
+		filter.Limit = new(int(req.Limit))
 	}
 
 	dumpLogs, err := models.FindDumpLogs(s.db.Querier, filter)
@@ -245,7 +261,8 @@ func (s *Service) UploadDump(_ context.Context, req *dumpv1beta1.UploadDumpReque
 	defer sftpClient.Close() //nolint:errcheck
 
 	for _, filePath := range filePaths {
-		if err = s.uploadFile(sftpClient, filePath, req.SftpParameters.Directory); err != nil {
+		err = s.uploadFile(sftpClient, filePath, req.SftpParameters.Directory)
+		if err != nil {
 			return nil, errors.Wrap(err, "failed to upload file on SFTP server")
 		}
 	}
@@ -267,7 +284,8 @@ func (s *Service) uploadFile(client *sftp.Client, localFilePath, remoteDir strin
 		return errors.Wrap(err, "failed to open dump file")
 	}
 	defer func() {
-		if err := f.Close(); err != nil {
+		err := f.Close()
+		if err != nil {
 			s.l.Errorf("Failed to close file: %+v", err)
 		}
 	}()
@@ -289,6 +307,7 @@ func convertDump(dump *models.Dump) (*dumpv1beta1.Dump, error) {
 		Status:       ds,
 		ServiceNames: dump.ServiceNames,
 		CreatedAt:    timestamppb.New(dump.CreatedAt),
+		Encrypted:    dump.Encrypted,
 	}
 
 	if dump.StartTime != nil {

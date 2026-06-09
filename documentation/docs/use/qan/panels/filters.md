@@ -1,6 +1,6 @@
-# QAN Filters panel
+# QAN Stored metrics: Filters panel
 
-The Filters panel on the left hand side of the [QAN dashboard](../../qan/index.md) helps you narrow down query data to focus on specific metrics, database instances, or performance issues.
+The Filters panel on the left hand side of the [QAN dashboard](../../qan/index.md) helps you narrow down query data in the **Stored metrics** tab. Use it to focus on specific metrics, database instances, or performance issues.
 
 ![!image](../../../images/PMM_Query_Analytics_Panels_Filters.jpg)
 
@@ -19,7 +19,7 @@ The Filters panel on the left hand side of the [QAN dashboard](../../qan/index.m
 The available filter groups depend on the database type you're monitoring.
 
 ### Common filter groups
-These filter groups are available for all database types:
+These filter groups are available for all database types. Most of them correspond to standard labels assigned when you add a service. For the full list of labels and how to set them, see [Labels reference](../../../reference/labels-reference.md). 
 
 - **Command Type**: filters by SQL command class (SELECT, INSERT, UPDATE, etc.) 
 - **Fingerprint**: filters by normalized query pattern

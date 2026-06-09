@@ -65,7 +65,8 @@ func New(db *reform.DB, backupService backupService) *Service {
 
 // Run loads tasks from DB and starts scheduler.
 func (s *Service) Run(ctx context.Context) {
-	if err := s.loadFromDB(); err != nil { //nolint:contextcheck
+	err := s.loadFromDB() //nolint:contextcheck
+	if err != nil {
 		s.l.Warn(err)
 	}
 	s.scheduler.StartAsync()
@@ -85,7 +86,7 @@ func (s *Service) Add(task Task, params AddParams) (*models.ScheduledTask, error
 	var scheduledTask *models.ScheduledTask
 
 	// This transaction is valid only with serializable isolation level. On lower isolation levels it can produce anomalies.
-	errTx := s.db.InTransactionContext(s.db.Querier.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
+	errTx := s.db.InTransactionContext(s.db.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
 		var err error
 		if err = checkAddPreconditions(tx.Querier, task.Data(), !params.Disabled, ""); err != nil {
 			return err
@@ -112,8 +113,8 @@ func (s *Service) Add(task Task, params AddParams) (*models.ScheduledTask, error
 		// If it's not disabled, update next run.
 		if scheduleJob != nil {
 			scheduledTask, err = models.ChangeScheduledTask(tx.Querier, scheduledTask.ID, models.ChangeScheduledTaskParams{
-				NextRun: pointer.ToTime(scheduleJob.NextRun().UTC()),
-				LastRun: pointer.ToTime(scheduleJob.LastRun().UTC()),
+				NextRun: new(scheduleJob.NextRun().UTC()),
+				LastRun: new(scheduleJob.LastRun().UTC()),
 			})
 			if err != nil {
 				s.l.WithField("id", scheduledTask.ID).Errorf("failed to set next run for new created task")
@@ -157,7 +158,7 @@ func (s *Service) Remove(id string) error {
 
 // Update changes scheduled task in DB and re-add it to scheduler.
 func (s *Service) Update(id string, params models.ChangeScheduledTaskParams) error {
-	return s.db.InTransactionContext(s.db.Querier.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
+	return s.db.InTransactionContext(s.db.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
 		if err := checkUpdatePreconditions(tx.Querier, params.Data, !pointer.GetBool(params.Disable), id); err != nil {
 			return err
 		}
@@ -178,7 +179,7 @@ func (s *Service) Update(id string, params models.ChangeScheduledTaskParams) err
 
 func (s *Service) loadFromDB() error {
 	dbTasks, err := models.FindScheduledTasks(s.db.Querier, models.ScheduledTasksFilter{
-		Disabled: pointer.ToBool(false),
+		Disabled: new(false),
 	})
 	if err != nil {
 		return err
@@ -189,7 +190,8 @@ func (s *Service) loadFromDB() error {
 	s.mx.Unlock()
 
 	for _, dbTask := range dbTasks {
-		if err := s.addDBTask(dbTask); err != nil {
+		err := s.addDBTask(dbTask)
+		if err != nil {
 			return err
 		}
 	}
@@ -249,7 +251,7 @@ func (s *Service) wrapTask(task Task, id string) func() {
 		t := time.Now()
 		l.Debug("Starting task")
 		_, err = models.ChangeScheduledTask(s.db.Querier, id, models.ChangeScheduledTaskParams{
-			Running: pointer.ToBool(true),
+			Running: new(true),
 		})
 		if err != nil {
 			l.Errorf("failed to change running state: %v", err)
@@ -274,18 +276,18 @@ func (s *Service) taskFinished(id string, taskErr error) {
 
 	txErr := s.db.InTransaction(func(tx *reform.TX) error {
 		params := models.ChangeScheduledTaskParams{
-			Running: pointer.ToBool(false),
+			Running: new(false),
 		}
 
 		if taskErr != nil {
-			params.Error = pointer.ToString(taskErr.Error())
+			params.Error = new(taskErr.Error())
 		} else {
-			params.Error = pointer.ToString("")
+			params.Error = new("")
 		}
 
 		if job != nil {
-			params.NextRun = pointer.ToTime(job.NextRun().UTC())
-			params.LastRun = pointer.ToTime(job.LastRun().UTC())
+			params.NextRun = new(job.NextRun().UTC())
+			params.LastRun = new(job.LastRun().UTC())
 		} else {
 			l.Errorf("failed to find scheduled task")
 		}
@@ -354,11 +356,13 @@ func (s *Service) convertDBTask(dbTask *models.ScheduledTask) (Task, error) { //
 func checkAddPreconditions(q *reform.Querier, data *models.ScheduledTaskData, enabled bool, scheduledTaskID string) error {
 	switch {
 	case data.MySQLBackupTask != nil:
-		if err := services.CheckArtifactOverlapping(q, data.MySQLBackupTask.ServiceID, data.MySQLBackupTask.LocationID, data.MySQLBackupTask.Folder); err != nil {
+		err := services.CheckArtifactOverlapping(q, data.MySQLBackupTask.ServiceID, data.MySQLBackupTask.LocationID, data.MySQLBackupTask.Folder)
+		if err != nil {
 			return err
 		}
 	case data.MongoDBBackupTask != nil:
-		if err := services.CheckArtifactOverlapping(q, data.MongoDBBackupTask.ServiceID, data.MongoDBBackupTask.LocationID, data.MongoDBBackupTask.Folder); err != nil {
+		err := services.CheckArtifactOverlapping(q, data.MongoDBBackupTask.ServiceID, data.MongoDBBackupTask.LocationID, data.MongoDBBackupTask.Folder)
+		if err != nil {
 			return err
 		}
 		if enabled {
@@ -367,7 +371,8 @@ func checkAddPreconditions(q *reform.Querier, data *models.ScheduledTaskData, en
 				data.MongoDBBackupTask.Mode,
 				data.MongoDBBackupTask.ClusterName,
 				data.MongoDBBackupTask.ServiceID,
-				scheduledTaskID)
+				scheduledTaskID,
+			)
 		}
 	}
 	return nil
@@ -383,7 +388,8 @@ func checkUpdatePreconditions(q *reform.Querier, data *models.ScheduledTaskData,
 				data.MongoDBBackupTask.Mode,
 				data.MongoDBBackupTask.ClusterName,
 				data.MongoDBBackupTask.ServiceID,
-				scheduledTaskID)
+				scheduledTaskID,
+			)
 		}
 	}
 	return nil

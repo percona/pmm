@@ -45,7 +45,8 @@ func (s *Service) HealthCheck(ctx context.Context, _ *qanpb.HealthCheckRequest) 
 	if s.db == nil {
 		return nil, fmt.Errorf("DB not initialized")
 	}
-	if err := s.db.PingContext(ctx); err != nil {
+	err := s.db.PingContext(ctx)
+	if err != nil {
 		return nil, err
 	}
 

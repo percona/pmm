@@ -385,6 +385,11 @@
                           }
                         },
                         "x-order": 41
+                      },
+                      "connection_timeout": {
+                        "description": "Connection timeout for exporter (if set).",
+                        "type": "string",
+                        "x-order": 42
                       }
                     }
                   },
@@ -1939,6 +1944,11 @@
                                 }
                               },
                               "x-order": 41
+                            },
+                            "connection_timeout": {
+                              "description": "Connection timeout for exporter (if set).",
+                              "type": "string",
+                              "x-order": 42
                             }
                           }
                         },
@@ -2276,6 +2286,11 @@
                         "type": "string"
                       },
                       "x-order": 32
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 33
                     }
                   },
                   "x-order": 0
@@ -2552,6 +2567,11 @@
                       "description": "If true, adds Real-Time Analytics agent for the provided service.",
                       "type": "boolean",
                       "x-order": 34
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 35
                     }
                   },
                   "x-order": 1
@@ -2813,6 +2833,11 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 32
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 33
                     }
                   },
                   "x-order": 2
@@ -3016,6 +3041,11 @@
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 21
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 22
                     }
                   },
                   "x-order": 3
@@ -3551,6 +3581,11 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 33
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 34
                     }
                   },
                   "x-order": 6
@@ -3761,6 +3796,11 @@
                       "description": "Custom password for exporter endpoint /metrics.",
                       "type": "string",
                       "x-order": 23
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 24
                     }
                   },
                   "x-order": 7
@@ -4020,6 +4060,11 @@
                             "type": "string"
                           },
                           "x-order": 22
+                        },
+                        "connection_timeout": {
+                          "description": "Connection timeout for exporter (if set).",
+                          "type": "string",
+                          "x-order": 23
                         }
                       },
                       "x-order": 1
@@ -4513,6 +4558,11 @@
                             "type": "string"
                           },
                           "x-order": 19
+                        },
+                        "connection_timeout": {
+                          "description": "Connection timeout for exporter (if set).",
+                          "type": "string",
+                          "x-order": 20
                         }
                       },
                       "x-order": 1
@@ -5017,6 +5067,11 @@
                             }
                           },
                           "x-order": 17
+                        },
+                        "connection_timeout": {
+                          "description": "Connection timeout for exporter (if set).",
+                          "type": "string",
+                          "x-order": 18
                         }
                       },
                       "x-order": 1
@@ -5425,6 +5480,11 @@
                             }
                           },
                           "x-order": 15
+                        },
+                        "connection_timeout": {
+                          "description": "Connection timeout for exporter (if set).",
+                          "type": "string",
+                          "x-order": 16
                         }
                       },
                       "x-order": 1
@@ -6188,6 +6248,11 @@
                             "type": "string"
                           },
                           "x-order": 22
+                        },
+                        "connection_timeout": {
+                          "description": "Connection timeout for exporter (if set).",
+                          "type": "string",
+                          "x-order": 23
                         }
                       },
                       "x-order": 3
@@ -6534,6 +6599,11 @@
                             }
                           },
                           "x-order": 17
+                        },
+                        "connection_timeout": {
+                          "description": "Connection timeout for exporter (if set).",
+                          "type": "string",
+                          "x-order": 18
                         }
                       },
                       "x-order": 6
@@ -6820,6 +6890,11 @@
                             }
                           },
                           "x-order": 14
+                        },
+                        "connection_timeout": {
+                          "description": "Connection timeout for exporter (if set).",
+                          "type": "string",
+                          "x-order": 15
                         }
                       },
                       "x-order": 1
@@ -7015,6 +7090,11 @@
                     "DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL"
                   ],
                   "x-order": 24
+                },
+                "connection_timeout": {
+                  "description": "Connection timeout for exporter (if set).",
+                  "type": "string",
+                  "x-order": 25
                 }
               }
             }

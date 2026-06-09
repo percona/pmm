@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 // Package main.
+
 package main
 
 import (
@@ -69,8 +70,8 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 	db, err := sqlx.Connect("clickhouse", dsn)
 	if err != nil {
 		l.Errorf("Error connecting to ClickHouse: %v", err)
-		var exception *clickhouse.Exception
-		if errors.As(err, &exception) && exception.Code == databaseNotExistErrorCode {
+		exception, ok := errors.AsType[*clickhouse.Exception](err)
+		if ok && exception.Code == databaseNotExistErrorCode {
 			err = createDB(dsn, clusterName)
 			if err != nil {
 				l.Fatalf("Database wasn't created: %v", err)
@@ -162,7 +163,8 @@ func DropOldPartition(db *sqlx.DB, dbName string, days uint) {
 		&partitions,
 		query,
 		dbName,
-		days)
+		days,
+	)
 	if err != nil {
 		l.Infof("Select %d days old partitions of system.parts. Result: %v, Error: %v", days, partitions, err)
 		return

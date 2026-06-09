@@ -64,8 +64,7 @@ func agentType(req *inventoryv1.ListAgentsRequest) *models.AgentType {
 	if req.AgentType == inventoryv1.AgentType_AGENT_TYPE_UNSPECIFIED {
 		return nil
 	}
-	agentType := agentTypes[req.AgentType]
-	return &agentType
+	return new(agentTypes[req.AgentType])
 }
 
 // ListAgents returns a list of Agents for a given filters.
@@ -283,7 +282,8 @@ func (s *agentsServer) ChangeAgent(ctx context.Context, req *inventoryv1.ChangeA
 
 // RemoveAgent removes the Agent.
 func (s *agentsServer) RemoveAgent(ctx context.Context, req *inventoryv1.RemoveAgentRequest) (*inventoryv1.RemoveAgentResponse, error) {
-	if err := s.s.Remove(ctx, req.GetAgentId(), req.GetForce()); err != nil {
+	err := s.s.Remove(ctx, req.GetAgentId(), req.GetForce())
+	if err != nil {
 		return nil, err
 	}
 

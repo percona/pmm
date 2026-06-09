@@ -113,9 +113,9 @@ func (cmd *ListAgentsCommand) RunCmd() (commands.Result, error) {
 	}
 
 	params := &agents.ListAgentsParams{
-		PMMAgentID: pointer.ToString(cmd.PMMAgentID),
-		ServiceID:  pointer.ToString(cmd.ServiceID),
-		NodeID:     pointer.ToString(cmd.NodeID),
+		PMMAgentID: new(cmd.PMMAgentID),
+		ServiceID:  new(cmd.ServiceID),
+		NodeID:     new(cmd.NodeID),
 		AgentType:  agentType,
 		Context:    commands.Ctx,
 	}
@@ -124,7 +124,25 @@ func (cmd *ListAgentsCommand) RunCmd() (commands.Result, error) {
 		return nil, err
 	}
 
-	var agentsList []listResultAgent //nolint:prealloc
+	agentsList := make(
+		[]listResultAgent, 0,
+		len(agentsRes.Payload.PMMAgent)+
+			len(agentsRes.Payload.NodeExporter)+
+			len(agentsRes.Payload.MysqldExporter)+
+			len(agentsRes.Payload.MongodbExporter)+
+			len(agentsRes.Payload.PostgresExporter)+
+			len(agentsRes.Payload.ValkeyExporter)+
+			len(agentsRes.Payload.ProxysqlExporter)+
+			len(agentsRes.Payload.RDSExporter)+
+			len(agentsRes.Payload.QANMysqlPerfschemaAgent)+
+			len(agentsRes.Payload.QANMysqlSlowlogAgent)+
+			len(agentsRes.Payload.QANMongodbProfilerAgent)+
+			len(agentsRes.Payload.QANMongodbMongologAgent)+
+			len(agentsRes.Payload.QANPostgresqlPgstatementsAgent)+
+			len(agentsRes.Payload.QANPostgresqlPgstatmonitorAgent)+
+			len(agentsRes.Payload.ExternalExporter)+
+			len(agentsRes.Payload.RtaMongodbAgent),
+	)
 	for _, a := range agentsRes.Payload.PMMAgent {
 		status := "disconnected"
 		if a.Connected {
@@ -241,6 +259,16 @@ func (cmd *ListAgentsCommand) RunCmd() (commands.Result, error) {
 			Disabled:   a.Disabled,
 		})
 	}
+	for _, a := range agentsRes.Payload.QANMongodbMongologAgent {
+		agentsList = append(agentsList, listResultAgent{
+			AgentType:  types.AgentTypeQANMongoDBMongologAgent,
+			AgentID:    a.AgentID,
+			PMMAgentID: a.PMMAgentID,
+			ServiceID:  a.ServiceID,
+			Status:     getAgentStatus(a.Status),
+			Disabled:   a.Disabled,
+		})
+	}
 	for _, a := range agentsRes.Payload.QANPostgresqlPgstatementsAgent {
 		agentsList = append(agentsList, listResultAgent{
 			AgentType:  types.AgentTypeQANPostgreSQLPgStatementsAgent,
@@ -271,7 +299,6 @@ func (cmd *ListAgentsCommand) RunCmd() (commands.Result, error) {
 			Port:      a.ListenPort,
 		})
 	}
-
 	for _, a := range agentsRes.Payload.RtaMongodbAgent {
 		agentsList = append(agentsList, listResultAgent{
 			AgentType:  types.AgentTypeRTAMongoDBAgent,

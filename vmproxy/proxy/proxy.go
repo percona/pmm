@@ -67,7 +67,8 @@ func getHandler(cfg Config) http.HandlerFunc {
 
 func failOnInvalidHeader(rw http.ResponseWriter, req *http.Request, headerName string) bool {
 	if filters := req.Header.Get(headerName); filters != "" {
-		if _, err := parseFilters(filters); err != nil {
+		_, err := parseFilters(filters)
+		if err != nil {
 			rw.Header().Set("Content-Type", "text/plain; charset=utf-8")
 			rw.WriteHeader(http.StatusPreconditionFailed)
 			io.WriteString(rw, fmt.Sprintf("Failed to parse %s header", headerName)) //nolint:errcheck
@@ -123,7 +124,8 @@ func prepareRequest(req *http.Request, target *url.URL, headerName string) {
 
 		logrus.Debugf(
 			"Parsed filters: %#v, Target URL: %s, Time spent: %s",
-			parsed, req.URL, time.Since(now))
+			parsed, req.URL, time.Since(now),
+		)
 	}
 
 	// Do not trust the client

@@ -16,8 +16,8 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"log"
 	"math"
 	"os"
 	"os/exec"
@@ -34,11 +34,12 @@ import (
 	"github.com/percona/pmm/qan-api2/migrations"
 )
 
-func setup() *sqlx.DB {
+func setupDB(t *testing.T) *sqlx.DB {
+	t.Helper()
+
 	cmdStr := `docker exec pmm-clickhouse-test clickhouse client -n --password=clickhouse --query='DROP DATABASE IF EXISTS pmm_test_parts; CREATE DATABASE pmm_test_parts;'`
-	if out, err := exec.Command("/bin/sh", "-c", cmdStr).Output(); err != nil {
-		log.Printf("Docker create db: %v, %v", out, err)
-	}
+	out, err := exec.CommandContext(t.Context(), "/bin/sh", "-c", cmdStr).Output()
+	require.NoError(t, err, "Docker create db: %v", out)
 
 	dsn, ok := os.LookupEnv("QANAPI_DSN_TEST")
 	dsn = strings.Replace(dsn, "/pmm_test", "/pmm_test_parts", 1)
@@ -46,38 +47,38 @@ func setup() *sqlx.DB {
 		dsn = "clickhouse://default:clickhouse@127.0.0.1:19000/pmm_test_parts"
 	}
 	db, err := sqlx.Connect("clickhouse", dsn)
-	if err != nil {
-		log.Fatal("Connection: ", err)
-	}
+	require.NoError(t, err, "Connection failed")
+	t.Cleanup(func() {
+		assert.NoError(t, db.Close())
+	})
 
 	data := map[string]any{
 		"engine": migrations.GetEngine(false),
 	}
 	err = migrations.Run(dsn, data, false, "")
-	if err != nil {
-		log.Fatal("Migration: ", err)
-	}
+	require.NoError(t, err, "Migration failed")
 
 	cmdStr = `cat fixture/metrics.part_*.json | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test_parts --password=clickhouse --query="INSERT INTO metrics FORMAT JSONEachRow"`
-	if out, err := exec.Command("/bin/sh", "-c", cmdStr).Output(); err != nil {
-		log.Fatalf("Docker load fixture: %v, %v", out, err)
-	}
+	out, err = exec.CommandContext(t.Context(), "/bin/sh", "-c", cmdStr).Output()
+	require.NoError(t, err, "Docker load fixture: %v", out)
 
 	return db
 }
 
-func cleanup() {
-	cleanupDatabases := []string{"pmm_test_parts", "pmm_created_db"}
-	for _, database := range cleanupDatabases {
-		cmdStr := fmt.Sprintf(`docker exec pmm-clickhouse-test clickhouse client --password=clickhouse --query='DROP DATABASE IF EXISTS %s;'`, database)
-		if out, err := exec.Command("/bin/sh", "-c", cmdStr).Output(); err != nil { //nolint:gosec
-			log.Fatalf("Docker drop db: %v, %v", out, err)
-		}
-	}
+func cleanupDB(t *testing.T, dbName string) {
+	t.Helper()
+
+	cmdStr := fmt.Sprintf(`docker exec pmm-clickhouse-test clickhouse client --password=clickhouse --query='DROP DATABASE IF EXISTS %s;'`, dbName)
+	out, err := exec.CommandContext(context.Background(), "/bin/sh", "-c", cmdStr).Output() //nolint:gosec
+	assert.NoError(t, err, "Docker drop db: %v", out)
 }
 
 func TestDropOldPartition(t *testing.T) {
-	db := setup()
+	t.Parallel()
+	db := setupDB(t)
+	t.Cleanup(func() {
+		cleanupDB(t, "pmm_test_parts")
+	})
 
 	const query = `SELECT DISTINCT partition FROM system.parts WHERE database = 'pmm_test_parts' and visible = 1 ORDER BY partition`
 
@@ -94,7 +95,8 @@ func TestDropOldPartition(t *testing.T) {
 		DropOldPartition(db, "pmm_test_parts", days)
 		err := db.Select(
 			&partitions,
-			query)
+			query,
+		)
 		require.NoError(t, err, "Unexpected error in selecting metrics partition")
 		require.Len(t, partitions, 2, "No one partition were truncated. Partition %+v, days %d", partitions, days)
 		assert.Equal(t, "20190101", partitions[0], "Newest partition was not truncated")
@@ -107,16 +109,22 @@ func TestDropOldPartition(t *testing.T) {
 		DropOldPartition(db, "pmm_test_parts", days)
 		err := db.Select(
 			&partitions,
-			query)
+			query,
+		)
 		require.NoError(t, err, "Unexpected error in selecting metrics partition")
 		require.Len(t, partitions, 1, "Only one partition should left. Partition %+v, days %d", partitions, days)
 		assert.Equal(t, "20190102", partitions[0], "Newest partition was not truncated")
 	})
-	cleanup()
 }
 
 func TestCreateDbIfNotExists(t *testing.T) {
-	t.Run("connect to db that doesnt exist", func(t *testing.T) {
+	t.Parallel()
+
+	t.Cleanup(func() {
+		cleanupDB(t, "pmm_created_db")
+	})
+
+	t.Run("connect to db that is absent", func(t *testing.T) {
 		dsn, ok := os.LookupEnv("QANAPI_DSN_TEST")
 
 		dsn = strings.Replace(dsn, "/pmm_test", "/pmm_created_db", 1)

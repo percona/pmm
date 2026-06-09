@@ -9,14 +9,17 @@ Advisors are bundled with every PMM installation and automatically loaded by PMM
 
 ## Automatic checks
 Advisor checks can be executed manually or automatically.
-By default, PMM runs all the checks available for your PMM instances every 24 hours.
+
+By default, PMM runs checks every 24 hours, only for database types present in your inventory. This keeps your results focused and avoids unnecessary checks.
+
+For example, if you only monitor PostgreSQL services, PMM skips MySQL and MongoDB checks. The **Advisors** page still lists all available checks, but only PostgreSQL checks are executed and can show as Failed.
 
 Check results *always* remain on the PMM Server. They are never sent as part of Telemetry.
 
 ## Configure execution intervals
 To control when and how often advisor checks run:
 
-- for all checks: Navigate to **PMM Configuration > Settings > Execution Intervals** to set global default intervals.
+- for all checks: Navigate to **Configuration > Settings > Advanced settings** and use the **Rare**, **Standard**, and **Frequent** interval fields in the **Advisors** section to set global default intervals.
 - for individual checks: Navigate to the specific advisor category (such as **Advisors > Security Advisors**, **Configuration Advisors**, **Query Advisors**, or **Performance Advisors**), then click the Edit icon in the **Actions** column to override the global setting for specific checks.
 
 ### Change run interval for automatic advisors

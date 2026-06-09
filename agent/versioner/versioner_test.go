@@ -21,6 +21,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 type mockedExec struct {
@@ -40,7 +41,7 @@ func TestVersioner(t *testing.T) {
 
 		version, err := versioner.MySQLdVersion()
 		assert.True(t, errors.Is(err, ErrNotFound))
-		assert.Equal(t, "", version)
+		assert.Empty(t, version)
 	})
 
 	// mysql software
@@ -51,7 +52,7 @@ func TestVersioner(t *testing.T) {
 		execMock.On("CommandContext", mock.Anything, mysqldBin, "--version").
 			Return(&mockedExec{Output: mysqldVersionOutput}).Once()
 		version, err := versioner.MySQLdVersion()
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, "8.0.22-13", version)
 	})
 
@@ -63,7 +64,7 @@ xtrabackup version 2.4.23 based on MySQL server 5.7.34 Linux (x86_64) (revision 
 		execMock.On("CommandContext", mock.Anything, xtrabackupBin, "--version").
 			Return(&mockedExec{Output: xtrabackup2VersionOutput}).Once()
 		version, err := versioner.XtrabackupVersion()
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, "2.4.23", version)
 	})
 
@@ -74,7 +75,7 @@ xtrabackup version 2.4.23 based on MySQL server 5.7.34 Linux (x86_64) (revision 
 		execMock.On("CommandContext", mock.Anything, xtrabackupBin, "--version").
 			Return(&mockedExec{Output: xtrabackup8VersionOutput}).Once()
 		version, err := versioner.XtrabackupVersion()
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, "8.0.23-16", version)
 	})
 
@@ -85,7 +86,7 @@ xtrabackup version 2.4.23 based on MySQL server 5.7.34 Linux (x86_64) (revision 
 		execMock.On("CommandContext", mock.Anything, xbcloudBin, "--version").
 			Return(&mockedExec{Output: xbcloudVersionOutput}).Once()
 		version, err := versioner.XbcloudVersion()
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, "8.0.23-16", version)
 	})
 
@@ -99,7 +100,7 @@ Compiled for: Windows [*nix]    [x86/x64] RISC    32-bit [64-bit]
 		execMock.On("CommandContext", mock.Anything, qpressBin).
 			Return(&mockedExec{Output: qpressVersionOutput}).Once()
 		version, err := versioner.QpressVersion()
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, "1.1", version)
 	})
 
@@ -114,7 +115,7 @@ Build Info: {
 		execMock.On("CommandContext", mock.Anything, mongodbBin, "--version").
 			Return(&mockedExec{Output: mongodVersionOutput}).Once()
 		version, err := versioner.MongoDBVersion()
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, "6.0.2-1", version)
 	})
 
@@ -128,7 +129,7 @@ GitCommit: 3ec38a5fc6706515fb1be72b015972af1500aa17
 		execMock.On("CommandContext", mock.Anything, pbmBin, "version").
 			Return(&mockedExec{Output: pbmVersionOutput}).Once()
 		version, err := versioner.PBMVersion()
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, "2.0.2", version)
 	})
 

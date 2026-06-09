@@ -1,12 +1,6 @@
 # Documentation Makefile.
 
-DOCDIR := documentation
-
-ifeq ($(shell basename $(CURDIR)),$(DOCDIR))
-	DIR := $(CURDIR)
-else
-	DIR := $(CURDIR)/$(DOCDIR)
-endif
+DIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 
 doc-check-images:   ## Check if all images are used in documentation
 	@$(DIR)/resources/bin/check-images.sh

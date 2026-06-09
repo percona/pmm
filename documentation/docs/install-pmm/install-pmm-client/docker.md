@@ -56,8 +56,8 @@ To deploy and register PMM Client using Docker:
         {.power-number}
     
         1. Log into PMM web interface.
-        2. Navigate to **Administration > Users and access > Service Accounts**.
-        3. Click **Add Service account**.
+        2. Navigate to **Users and access > Service accounts**.
+        3. Click **Add service account**.
         4. Enter a descriptive name (e.g.: `pmm-client-prod-db01`). Keep in mind that PMM automatically shortens names exceeding 200 characters using a `{prefix}_{hash}` pattern.
         5. Select the **Admin** role from the drop-down. For detailed information about what each role can do, see [Role types in PMM](../../admin/roles/index.md).
         6. Click **Create > Add service account token**.
@@ -153,7 +153,7 @@ If the connection is successful, you should also see an increased number of moni
 To confirm your node is being monitored:
 {.power-number}
 
-  1. Go to the main menu and select **Operating System (OS) > Overview**.
+  1. Go to the main menu and select **Operating System > Overview**.
 
   2. In the **Node Names** drop-down menu, select the node you recently registered.
 
@@ -161,7 +161,7 @@ To confirm your node is being monitored:
 
 ## Add monitoring services
 
-After installing PMM Client, you add database services to monitor with the [`pmm-admin`](../../use/commands/pmm-admin.md) command. 
+After installing PMM Client, you add database services to monitor with the [`pmm-admin`](../../use/commands/pmm-admin/pmm-admin.md) command. 
 
 When running PMM Client in Docker, use the `PMM_AGENT_PRERUN_SCRIPT` argument to pass a script containing any required `pmm-admin add DATABASE [FLAGS] [NAME] [ADDRESS]` commands. The `pmm-agent` runs the script automatically after registering with PMM Server. For example:
 

@@ -15,6 +15,9 @@ Resource requirements scale with the number of nodes and services monitored. Her
     - **Storage**: 100 GB
     - **Example workloads**: Development environments, small businesses, initial deployments
 
+    !!! tip "Low-memory environments"
+        With 8 GB RAM, you may need to switch ClickHouse to its low-memory configuration if you see "memory limit exceeded" errors. See [ClickHouse memory issues](../../troubleshoot/qan_issues.md#clickhouse-memory-issues-in-low-memory-environments).
+
 === "Medium (31-200 nodes)"
 
     Recommended for environments monitoring MySQL, PostgreSQL, or MongoDB at scale:
@@ -33,6 +36,11 @@ Resource requirements scale with the number of nodes and services monitored. Her
     - **Memory**: 32+ GB
     - **Storage**: 500+ GB
     - **Example workloads**: Large enterprises, mission-critical database fleets
+
+### Optimize ClickHouse for limited memory
+
+If you experience ClickHouse memory issues (such as "memory limit exceeded" errors), you can switch to a low-memory configuration optimized for constrained environments. See [ClickHouse memory issues](../../troubleshoot/qan_issues.md#clickhouse-memory-issues-in-low-memory-environments) for details.
+
 
 ## Storage planning
 Adjust storage calculations based on your data retention period and the number of metrics collected. To estimate storage requirements:
@@ -61,7 +69,7 @@ To reduce storage usage, consider [disable table statistics](../install-pmm-clie
 - **Architecture support**: Compatible with both x86_64 and ARM64 architectures
 - **Operating systems**: Compatible with modern 64-bit Linux distributions including Debian, Ubuntu, Oracle Linux, and "Red Hat" derivatives
 
-For specific version support details, see [Percona software support life cycle](https://www.percona.com/services/policies/percona-software-support-lifecycle#pt).
+For specific version support details, see [Percona software support life cycle](https://www.percona.com/services/policies/percona-services-lifecycle-policy/).
 
 ### ARM-specific considerations
 

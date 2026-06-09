@@ -191,11 +191,13 @@ type CreateNodeParams struct {
 
 // createNodeWithID creates a Node with given ID.
 func createNodeWithID(q *reform.Querier, id string, nodeType NodeType, params *CreateNodeParams) (*Node, error) {
-	if err := checkUniqueNodeID(q, id); err != nil {
+	err := checkUniqueNodeID(q, id)
+	if err != nil {
 		return nil, err
 	}
 
-	if err := checkUniqueNodeName(q, params.NodeName); err != nil {
+	err = checkUniqueNodeName(q, params.NodeName)
+	if err != nil {
 		return nil, err
 	}
 
@@ -207,7 +209,8 @@ func createNodeWithID(q *reform.Querier, id string, nodeType NodeType, params *C
 		}
 	}
 
-	if _, err := CheckUniqueNodeAddressRegion(q, params.Address, params.Region); err != nil {
+	_, err = CheckUniqueNodeAddressRegion(q, params.Address, params.Region)
+	if err != nil {
 		return nil, err
 	}
 
@@ -230,10 +233,12 @@ func createNodeWithID(q *reform.Querier, id string, nodeType NodeType, params *C
 		Region:          params.Region,
 		IsPMMServerNode: params.IsPMMServerNode,
 	}
-	if err := node.SetCustomLabels(params.CustomLabels); err != nil {
+	err = node.SetCustomLabels(params.CustomLabels)
+	if err != nil {
 		return nil, err
 	}
-	if err := q.Insert(node); err != nil {
+	err = q.Insert(node)
+	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
@@ -247,7 +252,7 @@ func CreateNode(q *reform.Querier, nodeType NodeType, params *CreateNodeParams) 
 }
 
 // RemoveNode removes single Node.
-func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error {
+func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error { //nolint:gocognit
 	n, err := FindNodeByID(q, id)
 	if err != nil {
 		return err
@@ -311,7 +316,8 @@ func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error {
 		case RemoveCascade:
 			for _, str := range structs {
 				serviceID := str.(*Service).ServiceID //nolint:forcetypeassert
-				if err = RemoveService(q, serviceID, RemoveCascade); err != nil {
+				err = RemoveService(q, serviceID, RemoveCascade)
+				if err != nil {
 					return err
 				}
 			}

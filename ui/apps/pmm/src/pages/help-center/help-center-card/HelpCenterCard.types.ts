@@ -1,3 +1,7 @@
+import type { SemanticTokens } from '@percona/percona-ui';
+
+export type HelpCardChartKey = keyof SemanticTokens['charts'];
+
 export interface HelpCardButton {
   text: string;
   target?: string;
@@ -14,7 +18,7 @@ export interface HelpCard {
   description: string;
   buttons: HelpCardButton[];
   adminOnly: boolean;
-  borderColor?: string;
+  borderColorKey?: HelpCardChartKey;
 }
 
 export interface HelpCenterCardProps {

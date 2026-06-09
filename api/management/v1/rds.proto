@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package management.v1;
 
+import "extensions/v1/redact.proto";
+import "google/protobuf/duration.proto";
 import "inventory/v1/agents.proto";
 import "inventory/v1/nodes.proto";
 import "inventory/v1/services.proto";
@@ -37,9 +39,9 @@ message DiscoverRDSInstance {
 
 message DiscoverRDSRequest {
   // AWS Access key. Optional.
-  string aws_access_key = 1;
+  string aws_access_key = 1 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // AWS Secret key. Optional.
-  string aws_secret_key = 2;
+  string aws_secret_key = 2 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
 }
 
 message DiscoverRDSResponse {
@@ -74,13 +76,16 @@ message AddRDSServiceParams {
   // Replication set name.
   string replication_set = 12;
   // Username for scraping metrics.
-  string username = 13 [(validate.rules).string.min_len = 1];
+  string username = 13 [
+    (validate.rules).string.min_len = 1,
+    (extensions.v1.sensitive) = REDACT_TYPE_FULL
+  ];
   // Password for scraping metrics.
-  string password = 14;
+  string password = 14 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // AWS Access key.
-  string aws_access_key = 15;
+  string aws_access_key = 15 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // AWS Secret key.
-  string aws_secret_key = 16;
+  string aws_secret_key = 16 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // If true, adds rds_exporter.
   bool rds_exporter = 17;
   // If true, adds qan-mysql-perfschema-agent.
@@ -109,7 +114,7 @@ message AddRDSServiceParams {
   // If true, add qan-pgstatements
   bool qan_postgresql_pgstatements = 28;
   // Custom password for exporter endpoint /metrics.
-  string agent_password = 29;
+  string agent_password = 29 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Database name.
   string database = 30;
   // Limit of databases for auto-discovery.
@@ -118,6 +123,10 @@ message AddRDSServiceParams {
   bool disable_comments_parsing = 32;
   // Maximum number of exporter connections to PostgreSQL instance.
   int32 max_postgresql_exporter_connections = 33;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 35 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 message RDSServiceResult {

@@ -181,11 +181,11 @@ func finishBootstrap(globalFlags *flags.GlobalFlags) {
 		cancel()
 	}()
 
-	agentlocal.SetTransport(ctx, globalFlags.EnableDebug || globalFlags.EnableTrace, globalFlags.PMMAgentListenPort)
+	agentlocal.SetTransport(globalFlags.EnableDebug || globalFlags.EnableTrace, globalFlags.PMMAgentListenPort)
 
 	// pmm-admin status command don't connect to PMM Server.
 	if commands.SetupClientsEnabled {
-		base.SetupClients(ctx, globalFlags)
+		base.SetupClients(globalFlags)
 	}
 
 	commands.CLICtx = ctx

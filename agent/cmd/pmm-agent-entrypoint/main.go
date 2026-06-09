@@ -40,9 +40,9 @@ It is configured entirely by environment variables. Arguments or flags are not u
 
 The following environment variables are recognized by the Docker entrypoint:
 * PMM_AGENT_SETUP            - if true, 'pmm-agent setup' is called before 'pmm-agent run'.
-* PMM_AGENT_PRERUN_FILE      - if non-empty, runs given file with 'pmm-agent run' running in the background.
-* PMM_AGENT_PRERUN_SCRIPT    - if non-empty, runs given shell script content with 'pmm-agent run' running in the background.
-* PMM_AGENT_SIDECAR          - if true, 'pmm-agent' will be restarted in case of it's failed.
+* PMM_AGENT_PRERUN_FILE      - if non-empty, runs given file while 'pmm-agent run' is running in the background.
+* PMM_AGENT_PRERUN_SCRIPT    - if non-empty, runs given shell script content while 'pmm-agent run' is running in the background.
+* PMM_AGENT_SIDECAR          - if true, 'pmm-agent' will be restarted in case it fails.
 * PMM_AGENT_SIDECAR_SLEEP    - time to wait before restarting pmm-agent if PMM_AGENT_SIDECAR is true. 1 second by default.
 
 Additionally, the many environment variables are recognized by pmm-agent itself.
@@ -83,12 +83,14 @@ func runPmmAgent(ctx context.Context, commandLineArgs []string, restartPolicy re
 		var exitCode int
 		l.Infof("Starting 'pmm-agent %s'...", strings.Join(commandLineArgs, " "))
 		cmd := commandPmmAgent(commandLineArgs)
-		if err := cmd.Start(); err != nil {
+		err := cmd.Start()
+		if err != nil {
 			l.Errorf("Can't run: '%s', Error: %s", commandLineArgs, err)
 			exitCode = -1
 		} else {
 			pmmAgentProcessID = cmd.Process.Pid
-			if err := cmd.Wait(); err != nil {
+			err := cmd.Wait()
+			if err != nil {
 				var exitErr *exec.ExitError
 				if !errors.As(err, &exitErr) {
 					l.Errorf("Can't get exit code for '%s'. err: %s", pmmAgentFullCommand, err)
@@ -127,7 +129,7 @@ func sendSIGKILLwithTimeout(process *os.Process, timeout int, l *logrus.Entry) *
 	})
 }
 
-func main() {
+func main() { //nolint:gocognit
 	config := reaper.MakeConfig()
 	config.Debug = false
 	reaper.RunForked(config)
@@ -198,7 +200,8 @@ func main() {
 		}
 		if *pmmAgentSidecar {
 			l.Info("Stopping pmm-agent...")
-			if err := agent.Process.Signal(syscall.SIGTERM); err != nil {
+			err := agent.Process.Signal(syscall.SIGTERM)
+			if err != nil {
 				l.Fatal("Failed to kill pmm-agent: ", err)
 			}
 		}
@@ -218,7 +221,8 @@ func main() {
 			cmd := exec.CommandContext(ctx, *pmmAgentPrerunFile) //nolint:gosec
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
-			if err := cmd.Run(); err != nil {
+			err := cmd.Run()
+			if err != nil {
 				var exitErr *exec.ExitError
 				if errors.As(err, &exitErr) {
 					status = exitErr.ExitCode()
@@ -232,7 +236,8 @@ func main() {
 			cmd := exec.CommandContext(ctx, "/bin/sh", "-c", *pmmAgentPrerunScript) //nolint:gosec
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
-			if err := cmd.Run(); err != nil {
+			err := cmd.Run()
+			if err != nil {
 				var exitErr *exec.ExitError
 				if errors.As(err, &exitErr) {
 					status = exitErr.ExitCode()

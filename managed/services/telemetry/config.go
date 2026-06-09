@@ -178,7 +178,7 @@ const (
 )
 
 // Init initializes telemetry config.
-func (c *ServiceConfig) Init(l *logrus.Entry) error { //nolint:gocognit
+func (c *ServiceConfig) Init(l *logrus.Entry) error {
 	c.l = l
 
 	configFile := os.Getenv(envConfigFile)
@@ -234,7 +234,7 @@ func (c *ServiceConfig) Init(l *logrus.Entry) error { //nolint:gocognit
 }
 
 func (c *ServiceConfig) loadMetricsConfig(configFile string) ([]Config, error) {
-	var fileConfigs []FileConfig
+	fileConfigs := make([]FileConfig, 0, 1)
 	var fileCfg FileConfig
 
 	var config []byte
@@ -248,12 +248,14 @@ func (c *ServiceConfig) loadMetricsConfig(configFile string) ([]Config, error) {
 		c.l.Info("Using default metrics config")
 		config = []byte(defaultConfig)
 	}
-	if err := yaml.Unmarshal(config, &fileCfg); err != nil { //nolint:musttag // false positive
+	err := yaml.Unmarshal(config, &fileCfg) //nolint:musttag
+	if err != nil {
 		return nil, errors.Wrap(err, "cannot unmarshal default config")
 	}
 	fileConfigs = append(fileConfigs, fileCfg)
 
-	if err := c.validateConfig(fileConfigs); err != nil {
+	err = c.validateConfig(fileConfigs)
+	if err != nil {
 		c.l.Errorf("failed to validate config: %s", err)
 	}
 

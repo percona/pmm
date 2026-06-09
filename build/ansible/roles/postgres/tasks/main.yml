@@ -9,8 +9,6 @@
     gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
 
 - name: Install Postgres
-  when:
-    - not ansible_check_mode
   dnf:
     name:
       - percona-postgresql14-server
@@ -112,13 +110,8 @@
     priv: 'ALL'
     expires: infinity
     state: present
-  when: not ansible_check_mode
   environment:
     PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
-
-- name: Upgrade grafana database to the latest schema
-  command: grafana cli --homepath=/usr/share/grafana --config=/etc/grafana/grafana.ini admin data-migration encrypt-datasource-passwords
-  changed_when: true
 
 - name: Stop Postgres 14 database
   command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
