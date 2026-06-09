@@ -181,12 +181,12 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 				}
 			}
 
-			//nolint:noinlineerr
-			if job, dbConfig, err = s.prepareBackupJob(
+			job, dbConfig, err = s.prepareBackupJob(
 				tx.Querier, svc, artifact.ID,
 				jobType, params.Mode, params.DataModel, params.Retries,
 				params.RetryInterval,
-			); err != nil {
+			)
+			if err != nil {
 				return err
 			}
 			return nil
