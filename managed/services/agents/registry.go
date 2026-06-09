@@ -452,13 +452,14 @@ func (r *Registry) addVMAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOnNod
 		return status.Errorf(codes.Internal, "Can't get 'vmAgent' for pmm-agent with ID %q", pmmAgentID)
 	}
 	if len(vmAgent) == 0 {
-		if _, err := models.CreateAgent(q, models.VMAgentType, &models.CreateAgentParams{
+		_, err = models.CreateAgent(q, models.VMAgentType, &models.CreateAgentParams{
 			PMMAgentID: pmmAgentID,
 			NodeID:     runsOnNodeID,
 			ExporterOptions: models.ExporterOptions{
 				PushMetrics: true,
 			},
-		}); err != nil {
+		})
+		if err != nil {
 			return fmt.Errorf("can't create 'vmAgent' for pmm-agent with ID %q: %w", pmmAgentID, err)
 		}
 	}
@@ -474,10 +475,11 @@ func (r *Registry) addNomadAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOn
 		return status.Errorf(codes.Internal, "Can't get 'nomadClient' for pmm-agent with ID %q", pmmAgentID)
 	}
 	if len(nomadClient) == 0 {
-		if _, err := models.CreateAgent(q, models.NomadAgentType, &models.CreateAgentParams{
+		_, err = models.CreateAgent(q, models.NomadAgentType, &models.CreateAgentParams{
 			PMMAgentID: pmmAgentID,
 			NodeID:     runsOnNodeID,
-		}); err != nil {
+		})
+		if err != nil {
 			return fmt.Errorf("can't create 'nomadClient' for pmm-agent with ID %q: %w", pmmAgentID, err)
 		}
 	}

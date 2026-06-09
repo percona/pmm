@@ -155,6 +155,11 @@ func TestRunTelemetryService(t *testing.T) {
 	})
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
+	_, err := models.UpdateSettings(db, &models.ChangeSettingsParams{
+		EnableTelemetry: new(true),
+	})
+	require.NoError(t, err)
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
@@ -194,7 +199,7 @@ func TestRunSkipsNonReleaseVersion(t *testing.T) {
 	logEntry := logrus.NewEntry(logger)
 
 	// Settings JSON with a pre-existing UUID so makeMetric won't attempt an UPDATE.
-	settingsJSON := []byte(`{"telemetry":{"uuid":"00000000-0000-0000-0000-000000000001"}}`)
+	settingsJSON := []byte(`{"telemetry":{"enabled":true,"uuid":"00000000-0000-0000-0000-000000000001"}}`)
 
 	tests := []struct {
 		version string

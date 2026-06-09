@@ -122,12 +122,14 @@ func (l *Logs) Zip(ctx context.Context, w io.Writer, pprofConfig *PprofConfig, l
 		}
 	}
 
-	if err := addAdminSummary(ctx, zw); err != nil {
+	err := addAdminSummary(ctx, zw)
+	if err != nil {
 		// do not let it break the whole archive
 		log.WithField("d", time.Since(start).Seconds()).Errorf("addAdminSummary: %+v", err)
 	}
 
-	if err := zw.Close(); err != nil {
+	err = zw.Close()
+	if err != nil {
 		return errors.Wrap(err, "failed to close zip file")
 	}
 	return nil

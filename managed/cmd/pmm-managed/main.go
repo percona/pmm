@@ -396,7 +396,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	}
 	go func() {
 		<-ctx.Done()
-		if err := sharedConn.Close(); err != nil {
+		err := sharedConn.Close()
+		if err != nil {
 			l.Errorf("Failed to close the shared gRPC connection: %s", err)
 		}
 	}()
@@ -431,7 +432,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 
 		hav1beta1.RegisterHAServiceHandler,
 	} {
-		if err := r(ctx, proxyMux, sharedConn); err != nil {
+		err := r(ctx, proxyMux, sharedConn)
+		if err != nil {
 			l.Fatal(err)
 		}
 	}
@@ -449,7 +451,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		Handler:  mux,
 	}
 	go func() {
-		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+		err := server.ListenAndServe()
+		if !errors.Is(err, http.ErrServerClosed) {
 			l.Fatal(err)
 		}
 		l.Info("Server stopped.")
@@ -510,7 +513,8 @@ func runDebugServer(ctx context.Context) {
 		ErrorLog: log.New(os.Stderr, "runDebugServer: ", 0),
 	}
 	go func() {
-		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+		err := server.ListenAndServe()
+		if !errors.Is(err, http.ErrServerClosed) {
 			l.Fatal(err)
 		}
 		l.Info("Server stopped.")
@@ -740,7 +744,6 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PMM_CLICKHOUSE_ADDR").String()
 	clickhouseUsernameF := kingpin.Flag("clickhouse-username", "Clickhouse database user").Default("default").Envar("PMM_CLICKHOUSE_USER").String()
 	clickhousePasswordF := kingpin.Flag("clickhouse-password", "Clickhouse database user password").Default("clickhouse").Envar("PMM_CLICKHOUSE_PASSWORD").String()
-
 	watchtowerHostF := kingpin.Flag("watchtower-host", "Watchtower host").Default("http://watchtower:8080").Envar("PMM_WATCHTOWER_HOST").URL()
 
 	// Nomad garbage collection flags
@@ -835,15 +838,18 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	grafanadb.DSN.DB = "grafana"
 	grafanadb.DSN.Params = q.Encode()
 
-	chURI := url.URL{
-		Scheme: "tcp",
-		User:   url.UserPassword(*clickhouseUsernameF, *clickhousePasswordF),
-		Host:   *clickhouseAddrF,
-		Path:   *clickHouseDatabaseF,
+	chParams, err := models.NewClickHouseParams(
+		*clickhouseAddrF,
+		*clickHouseDatabaseF,
+		*clickhouseUsernameF,
+		*clickhousePasswordF,
+	)
+	if err != nil {
+		l.Panicf("cannot load clickhouse params: %+v", err)
 	}
 
 	qanDB := ds.QanDBSelect
-	qanDB.DSN = chURI.String()
+	qanDB.DSN = chParams.URL().String()
 
 	ds.VM.Address = *victoriaMetricsURLF
 
@@ -893,7 +899,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	cleaner := clean.New(db)
 	externalRules := vmalert.NewExternalRules()
-	vmdb, err := victoriametrics.NewVictoriaMetrics(*victoriaMetricsConfigF, db, vmParams, haService)
+	vmdb, err := victoriametrics.NewVictoriaMetrics(*victoriaMetricsConfigF, db, vmParams, chParams, haService)
 	if err != nil {
 		l.Panicf("VictoriaMetrics service problem: %+v", err)
 	}
@@ -1033,7 +1039,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	versionCache := versioncache.New(db, versioner)
 
 	dumpService := dump.New(db, &dump.URLs{
-		ClickhouseURL: chURI.String(),
+		ClickhouseURL: chParams.URL().String(),
 		VMURL:         *victoriaMetricsURLF,
 	})
 
