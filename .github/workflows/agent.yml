@@ -17,7 +17,7 @@ on:
       - "admin/**"
       - "api-tests/**"
       - "dashboards/**"
-      - "docs/**"
+      - "dev/docs/**"
       - "documentation/**"
       - "managed/**"
       - "qan-api2/**"
