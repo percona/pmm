@@ -42,7 +42,7 @@ func main() {
 	kong.Parse(
 		&opts,
 		kong.Name("encryption-rotation"),
-		kong.Description(fmt.Sprintf("Version %s", version.Version)), //nolint:perfsprint
+		kong.Description("Version "+version.Version),
 		kong.UsageOnError(),
 		kong.ConfigureHelp(kong.HelpOptions{
 			Compact:             true,
