@@ -1,5 +1,5 @@
 import { type Meta, type StoryObj } from '@storybook/react';
-import * as DocBlock from '@storybook/blocks';
+import * as DocBlock from '@storybook/addon-docs/blocks';
 import ActionableLabeledContent, {
   ActionableLabeledContentProps,
 } from './actionable-labeled-content';

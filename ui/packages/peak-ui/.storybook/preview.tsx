@@ -33,11 +33,14 @@ const preview: Preview = {
       return content;
     },
   ],
+  initialGlobals: {
+    mode: "light",
+    theme: "base",
+  },
   globalTypes: {
     mode: {
       name: "mode",
       description: "Color mode",
-      defaultValue: "light",
       toolbar: {
         icon: "sun",
         items: [
@@ -51,7 +54,6 @@ const preview: Preview = {
     theme: {
       name: "theme",
       description: "GUI theme",
-      defaultValue: "base",
       toolbar: {
         icon: "circlehollow",
         items: [
@@ -65,7 +67,6 @@ const preview: Preview = {
     },
   },
   parameters: {
-    actions: { argTypesRegex: "^on[A-Z].*" },
     controls: {
       matchers: {
         color: /(background|color)$/i,

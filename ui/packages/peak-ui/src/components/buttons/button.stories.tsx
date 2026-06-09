@@ -1,6 +1,6 @@
 import { type Meta, type StoryObj } from '@storybook/react';
 import { Box, Button, ButtonProps } from '@mui/material';
-import * as DocBlock from '@storybook/blocks';
+import * as DocBlock from '@storybook/addon-docs/blocks';
 import { ArrowBack, ArrowForward } from '@mui/icons-material';
 
 const meta = {
