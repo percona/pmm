@@ -60,7 +60,8 @@ type Service struct {
 	baseURL          *url.URL
 	client           *http.Client
 
-	params *models.VictoriaMetricsParams
+	params   *models.VictoriaMetricsParams
+	chParams *models.ClickHouseParams
 
 	l         *logrus.Entry
 	reloadCh  chan struct{}
@@ -68,7 +69,16 @@ type Service struct {
 }
 
 // NewVictoriaMetrics creates new VictoriaMetrics service.
-func NewVictoriaMetrics(scrapeConfigPath string, db *reform.DB, params *models.VictoriaMetricsParams, haService haService) (*Service, error) {
+func NewVictoriaMetrics(
+	scrapeConfigPath string,
+	db *reform.DB,
+	params *models.VictoriaMetricsParams,
+	chParams *models.ClickHouseParams,
+	haService haService,
+) (*Service, error) {
+	if chParams == nil {
+		return nil, fmt.Errorf("ClickHouse params is required")
+	}
 	u, err := url.Parse(params.URL())
 	if err != nil {
 		return nil, err
@@ -80,6 +90,7 @@ func NewVictoriaMetrics(scrapeConfigPath string, db *reform.DB, params *models.V
 		baseURL:          u,
 		client:           &http.Client{}, // TODO instrument with utils/irt; see vmalert package https://jira.percona.com/browse/PMM-7229
 		params:           params,
+		chParams:         chParams,
 		l:                logrus.WithField("component", "victoriametrics"),
 		reloadCh:         make(chan struct{}, 1),
 		haService:        haService,
@@ -447,7 +458,7 @@ func scrapeConfigForVMAlert(interval time.Duration, pmmServerNodeName string) *c
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{
 				{
-					Targets: []string{"127.0.0.1:8880"},
+					Targets: []string{models.LocalhostAddr + ":8880"},
 					Labels:  map[string]string{"instance": pmmServerNodeName},
 				},
 			},

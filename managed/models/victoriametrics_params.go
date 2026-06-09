@@ -104,7 +104,7 @@ func (vmp *VictoriaMetricsParams) loadVMAlertParams() error {
 
 // ExternalVM returns true if VictoriaMetrics is configured to run externally.
 func (vmp *VictoriaMetricsParams) ExternalVM() bool {
-	return vmp.url.Hostname() != "127.0.0.1"
+	return !internalAddr(vmp.url.Hostname())
 }
 
 // URL returns the base URL for VictoriaMetrics.
