@@ -1,6 +1,6 @@
 module github.com/percona/pmm
 
-go 1.26.3
+go 1.26.4
 
 replace github.com/go-openapi/spec => github.com/Percona-Lab/spec v0.0.0-20260107142235-15cbcf569b9f
 
@@ -16,11 +16,11 @@ require (
 	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/alecthomas/kong v1.15.0
 	github.com/alecthomas/units v0.0.0-20240927000941-0f3dac36c52b
-	github.com/aws/aws-sdk-go-v2 v1.41.7
+	github.com/aws/aws-sdk-go-v2 v1.41.12
 	github.com/aws/aws-sdk-go-v2/config v1.32.18
 	github.com/aws/aws-sdk-go-v2/credentials v1.19.17
-	github.com/aws/aws-sdk-go-v2/service/rds v1.118.2
-	github.com/aws/smithy-go v1.27.0
+	github.com/aws/aws-sdk-go-v2/service/rds v1.119.1
+	github.com/aws/smithy-go v1.27.1
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/brianvoe/gofakeit/v6 v6.28.0
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
@@ -121,11 +121,11 @@ require (
 	github.com/apache/skywalking-eyes v0.8.0 // indirect
 	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.18.23 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.23 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.7.23 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.28 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.7.28 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/v4a v1.4.24 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.13.9 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.13.23 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.13.12 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.13.28 // indirect
 	github.com/aws/aws-sdk-go-v2/service/signin v1.0.11 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sso v1.30.17 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.36.0 // indirect
