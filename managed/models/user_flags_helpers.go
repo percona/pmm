@@ -85,7 +85,8 @@ func CreateUser(q *reform.Querier, params *CreateUserParams) (*UserDetails, erro
 
 	// Add user entry
 	row = &UserDetails{ID: params.UserID}
-	if err := q.Insert(row); err != nil {
+	err = q.Insert(row)
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to create user")
 	}
 
@@ -119,7 +120,8 @@ func UpdateUser(q *reform.Querier, params *UpdateUserParams) (*UserDetails, erro
 		row.SnoozeCount = *params.SnoozeCount
 	}
 
-	if err = q.Update(row); err != nil {
+	err = q.Update(row)
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to update user")
 	}
 

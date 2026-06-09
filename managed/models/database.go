@@ -1447,7 +1447,9 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 	var currentVersion int
 	errDB := db.QueryRow("SELECT id FROM schema_migrations ORDER BY id DESC LIMIT 1").Scan(&currentVersion)
 	// undefined_table (see https://www.postgresql.org/docs/current/errcodes-appendix.html)
-	if pErr, ok := errDB.(*pq.Error); ok && pErr.Code == "42P01" { //nolint:errorlint
+	pErr := &pq.Error{}
+	ok := errors.As(errDB, &pErr)
+	if ok && pErr.Code == "42P01" {
 		errDB = nil
 	}
 	if errDB != nil {
@@ -1494,7 +1496,8 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 		if err != nil {
 			return err
 		}
-		if err = SaveSettings(tx, s); err != nil {
+		err = SaveSettings(tx, s)
+		if err != nil {
 			return err
 		}
 
@@ -1587,7 +1590,8 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 		return err
 	}
 
-	if _, err = CreateNodeExporter(q, agent.AgentID, labels, false, false, []string{}, nil, ""); err != nil {
+	_, err = CreateNodeExporter(q, agent.AgentID, labels, false, false, []string{}, nil, "")
+	if err != nil {
 		return err
 	}
 
@@ -1615,10 +1619,12 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 		return err
 	}
 
-	if _, err = createPMMAgentWithID(q, PMMServerAgentID, node.NodeID, nil); err != nil {
+	_, err = createPMMAgentWithID(q, PMMServerAgentID, node.NodeID, nil)
+	if err != nil {
 		return err
 	}
-	if _, err = CreateNodeExporter(q, PMMServerAgentID, nil, false, false, []string{}, nil, ""); err != nil {
+	_, err = CreateNodeExporter(q, PMMServerAgentID, nil, false, false, []string{}, nil, "")
+	if err != nil {
 		return err
 	}
 

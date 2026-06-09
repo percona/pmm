@@ -50,7 +50,8 @@ func ValidateAlertingRules(ctx context.Context, rules string) error {
 	tempFile.Close()                 //nolint:errcheck
 	defer os.Remove(tempFile.Name()) //nolint:errcheck
 
-	if err = os.WriteFile(tempFile.Name(), []byte(rules), 0o644); err != nil { //nolint:gosec
+	err = os.WriteFile(tempFile.Name(), []byte(rules), 0o644) //nolint:gosec,mnd
+	if err != nil {
 		return errors.WithStack(err)
 	}
 
@@ -63,7 +64,9 @@ func ValidateAlertingRules(ctx context.Context, rules string) error {
 	b, err := cmd.CombinedOutput()
 	logrus.Debugf("ValidateAlertingRules: %v\n%s", err, b)
 	if err != nil {
-		if e, ok := err.(*exec.ExitError); ok && e.ExitCode() != 0 { //nolint:errorlint
+		e := &exec.ExitError{}
+		ok := errors.As(err, &e)
+		if ok && e.ExitCode() != 0 {
 			return &InvalidAlertingRuleError{
 				Msg: "Invalid alerting rules.",
 			}

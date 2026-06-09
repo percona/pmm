@@ -57,7 +57,8 @@ func NewVictoriaMetricsParams(basePath string, vmURL string) (*VictoriaMetricsPa
 		BaseConfigPath: basePath,
 		url:            URL,
 	}
-	if err := vmp.UpdateParams(); err != nil {
+	err = vmp.UpdateParams()
+	if err != nil {
 		return vmp, err
 	}
 
@@ -87,7 +88,8 @@ func (vmp *VictoriaMetricsParams) loadVMAlertParams() error {
 		return nil
 	}
 	var cfg config.Config
-	if err = yaml.Unmarshal(buf, &cfg); err != nil {
+	err = yaml.Unmarshal(buf, &cfg)
+	if err != nil {
 		return errors.Wrap(err, "cannot unmarshal baseConfigPath for VMAlertFlags")
 	}
 	vmalertFlags := make([]string, 0, len(vmp.VMAlertFlags))

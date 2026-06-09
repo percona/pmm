@@ -240,7 +240,8 @@ func (s *Service) DeleteDump(dumpID string) error {
 		return errors.Wrap(err, "failed to remove pmm-dump files")
 	}
 
-	if err = models.DeleteDump(s.db.Querier, dumpID); err != nil {
+	err = models.DeleteDump(s.db.Querier, dumpID)
+	if err != nil {
 		return errors.Wrap(err, "failed to delete dump")
 	}
 
@@ -294,7 +295,8 @@ func (s *Service) persistLogs(dumpID string, r io.Reader) error {
 		}
 	}
 
-	if err = scanner.Err(); err != nil {
+	err = scanner.Err()
+	if err != nil {
 		s.l.Warnf("Failed to read pmm-dump logs: %+v", err)
 		nErr := s.saveLogChunk(dumpID, chunkN.Add(1)-1, err.Error(), false)
 		if nErr != nil {

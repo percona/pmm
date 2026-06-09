@@ -165,7 +165,8 @@ func mysqldExporterConfig(
 		res.TextFiles["myCnf"] = cfg
 		res.Args = append(res.Args, "--config.my-cnf="+tdp.Left+" .TextFiles.myCnf "+tdp.Right)
 
-		if err := ensureAuthParams(exporter, res, pmmAgentVersion, version.MysqlExporterV0_17_2, true); err != nil {
+		err = ensureAuthParams(exporter, res, pmmAgentVersion, version.MysqlExporterV0_17_2, true)
+		if err != nil {
 			return nil, err
 		}
 	} else {
@@ -292,7 +293,8 @@ func buildMyCnfConfig(service *models.Service, agent *models.Agent, files map[st
 			myCnfParams.EnableClearTextPassword = true
 		}
 	}
-	if err = tmpl.Execute(&configBuffer, myCnfParams); err != nil {
+	err = tmpl.Execute(&configBuffer, myCnfParams)
+	if err != nil {
 		return "", fmt.Errorf("failed to execute myCnf template: %w", err)
 	}
 

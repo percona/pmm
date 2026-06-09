@@ -84,7 +84,8 @@ func (s *JobsService) RestartJob(ctx context.Context, jobID string) error { //no
 		}
 
 		job.Retries--
-		if err = tx.Update(job); err != nil {
+		err = tx.Update(job)
+		if err != nil {
 			return err
 		}
 
@@ -148,7 +149,8 @@ func (s *JobsService) RestartJob(ctx context.Context, jobID string) error { //no
 
 	switch job.Type {
 	case models.MySQLBackupJob:
-		if err := s.StartMySQLBackupJob(job.ID, job.PMMAgentID, job.Timeout, artifact.Name, dbConfig, locationConfig, artifact.Folder); err != nil {
+		err := s.StartMySQLBackupJob(job.ID, job.PMMAgentID, job.Timeout, artifact.Name, dbConfig, locationConfig, artifact.Folder)
+		if err != nil {
 			return errors.WithStack(err)
 		}
 	case models.MongoDBBackupJob:
@@ -157,8 +159,9 @@ func (s *JobsService) RestartJob(ctx context.Context, jobID string) error { //no
 			return err
 		}
 
-		if err := s.StartMongoDBBackupJob(service, job.ID, job.PMMAgentID, job.Timeout, artifact.Name,
-			job.Data.MongoDBBackup.Mode, job.Data.MongoDBBackup.DataModel, locationConfig, artifact.Folder); err != nil {
+		err = s.StartMongoDBBackupJob(service, job.ID, job.PMMAgentID, job.Timeout, artifact.Name,
+			job.Data.MongoDBBackup.Mode, job.Data.MongoDBBackup.DataModel, locationConfig, artifact.Folder)
+		if err != nil {
 			return errors.WithStack(err)
 		}
 	case models.MySQLRestoreBackupJob:
@@ -170,7 +173,7 @@ func (s *JobsService) RestartJob(ctx context.Context, jobID string) error { //no
 
 func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result *agentv1.JobResult) { //nolint:gocognit,cyclop
 	var scheduleID string
-	if errTx := s.db.InTransaction(func(t *reform.TX) error { //nolint:contextcheck
+	errTx := s.db.InTransaction(func(t *reform.TX) error { //nolint:contextcheck
 		job, err := models.FindJobByID(t.Querier, result.JobId)
 		if err != nil {
 			return err
@@ -178,7 +181,8 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 
 		switch result := result.Result.(type) {
 		case *agentv1.JobResult_Error_:
-			if err := s.handleJobError(job); err != nil {
+			err = s.handleJobError(job)
+			if err != nil {
 				l.Errorf("failed to handle job error: %s", err)
 			}
 			job.Error = result.Error.Message
@@ -255,7 +259,7 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 				return errors.Errorf("result type %s doesn't match job type %s", models.MySQLRestoreBackupJob, job.Type)
 			}
 
-			_, err := models.ChangeRestoreHistoryItem(
+			_, err = models.ChangeRestoreHistoryItem(
 				t.Querier,
 				job.Data.MySQLRestoreBackup.RestoreID,
 				models.ChangeRestoreHistoryItemParams{
@@ -277,7 +281,8 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 				s.l.Info("restore successfully completed")
 			case models.PhysicalDataModel:
 				s.l.Info("restore successfully completed, PMM will restart mongod and pbm-agent")
-				if err := s.runMongoPostRestore(t.Querier, job.Data.MongoDBRestoreBackup.ServiceID); err != nil {
+				err = s.runMongoPostRestore(t.Querier, job.Data.MongoDBRestoreBackup.ServiceID)
+				if err != nil {
 					s.l.WithError(err).Error("failed to restart components after restore from a physical backup")
 
 					_, err = models.ChangeRestoreHistoryItem(
@@ -289,9 +294,9 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 						},
 					)
 					return err
-				} else {
-					s.l.Info("successfully restarted mongod and pbm-agent on all cluster members")
 				}
+
+				s.l.Info("successfully restarted mongod and pbm-agent on all cluster members")
 			}
 
 			_, err = models.ChangeRestoreHistoryItem(
@@ -310,13 +315,15 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 		}
 		job.Done = true
 		return t.Update(job)
-	}); errTx != nil {
+	})
+	if errTx != nil {
 		l.Errorf("Failed to save job result: %+v", errTx)
 	}
 
 	if scheduleID != "" {
 		go func() {
-			if err := s.retentionService.EnforceRetention(scheduleID); err != nil {
+			err := s.retentionService.EnforceRetention(scheduleID)
+			if err != nil {
 				l.Errorf("failed to enforce retention: %v", err)
 			}
 		}()
@@ -389,8 +396,9 @@ func (s *JobsService) StartMySQLBackupJob(
 	locationConfig *models.BackupLocationConfig,
 	folder string,
 ) error {
-	if err := models.PMMAgentSupported(s.r.db.Querier, pmmAgentID,
-		"mysql backup", pmmAgentMinVersionForMySQLBackupAndRestore); err != nil {
+	err := models.PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+		"mysql backup", pmmAgentMinVersionForMySQLBackupAndRestore)
+	if err != nil {
 		return err
 	}
 
@@ -481,7 +489,8 @@ func (s *JobsService) StartMongoDBBackupJob(
 			TemplateRightDelim: delimiters.Right,
 		},
 	}
-	if mongoDBReq.DataModel, err = convertDataModel(dataModel); err != nil {
+	mongoDBReq.DataModel, err = convertDataModel(dataModel)
+	if err != nil {
 		return err
 	}
 
@@ -491,9 +500,10 @@ func (s *JobsService) StartMongoDBBackupJob(
 			S3Config: convertS3ConfigModel(locationConfig.S3Config),
 		}
 	case locationConfig.FilesystemConfig != nil:
-		if err := models.PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+		err = models.PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 			"mongodb backup to client local storage",
-			pmmAgentMinVersionForMongoDBUseFilesystemStorage); err != nil {
+			pmmAgentMinVersionForMongoDBUseFilesystemStorage)
+		if err != nil {
 			return err
 		}
 		mongoDBReq.LocationConfig = &agentv1.StartJobRequest_MongoDBBackup_FilesystemConfig{
@@ -536,8 +546,9 @@ func (s *JobsService) StartMySQLRestoreBackupJob(
 	locationConfig *models.BackupLocationConfig,
 	folder string,
 ) error {
-	if err := models.PMMAgentSupported(s.r.db.Querier, pmmAgentID,
-		"mysql restore", pmmAgentMinVersionForMySQLBackupAndRestore); err != nil {
+	err := models.PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+		"mysql restore", pmmAgentMinVersionForMySQLBackupAndRestore)
+	if err != nil {
 		return err
 	}
 
@@ -607,8 +618,9 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 	if pitrTimestamp.Unix() != 0 {
 		// TODO refactor pmm agent version checking. First detect minimum required version needed for operations and
 		// then invoke PMMAgentSupported
-		if err = models.PMMAgentSupported(s.r.db.Querier, pmmAgentID,
-			"mongodb pitr restore", pmmAgentMinVersionForMongoPITRRestore); err != nil {
+		err = models.PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+			"mongodb pitr restore", pmmAgentMinVersionForMongoPITRRestore)
+		if err != nil {
 			return err
 		}
 	}
@@ -639,9 +651,10 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 			S3Config: convertS3ConfigModel(locationConfig.S3Config),
 		}
 	case locationConfig.FilesystemConfig != nil:
-		if err := models.PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+		err := models.PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 			"mongodb restore from client local storage",
-			pmmAgentMinVersionForMongoDBUseFilesystemStorage); err != nil {
+			pmmAgentMinVersionForMongoDBUseFilesystemStorage)
+		if err != nil {
 			return err
 		}
 		mongoDBReq.LocationConfig = &agentv1.StartJobRequest_MongoDBRestoreBackup_FilesystemConfig{
@@ -714,7 +727,8 @@ func (s *JobsService) runMongoPostRestore(querier *reform.Querier, serviceID str
 	pbmAgentRestarts := make(map[string]struct{})
 
 	for _, pmmAgent := range clusterAgents {
-		if err = s.restartSystemService(pmmAgent.AgentID, agentv1.StartActionRequest_RestartSystemServiceParams_SYSTEM_SERVICE_MONGOD); err != nil {
+		err = s.restartSystemService(pmmAgent.AgentID, agentv1.StartActionRequest_RestartSystemServiceParams_SYSTEM_SERVICE_MONGOD)
+		if err != nil {
 			return err
 		}
 		mongoRestarts[pmmAgent.AgentID] = struct{}{}
@@ -724,7 +738,8 @@ func (s *JobsService) runMongoPostRestore(querier *reform.Querier, serviceID str
 	// pbm-agents will fail if all members of the mongo replica set are not available,
 	// hence we restart them only if mongod have been started on all the member agents.
 	for _, pmmAgent := range clusterAgents {
-		if err = s.restartSystemService(pmmAgent.AgentID, agentv1.StartActionRequest_RestartSystemServiceParams_SYSTEM_SERVICE_PBM_AGENT); err != nil {
+		err = s.restartSystemService(pmmAgent.AgentID, agentv1.StartActionRequest_RestartSystemServiceParams_SYSTEM_SERVICE_PBM_AGENT)
+		if err != nil {
 			return err
 		}
 		pbmAgentRestarts[pmmAgent.AgentID] = struct{}{}

@@ -32,7 +32,8 @@ func SavePMMConfig(params map[string]any) error {
 	if err != nil {
 		return err
 	}
-	if err := saveConfig(pmmConfig, cfg); err != nil {
+	err = saveConfig(pmmConfig, cfg)
+	if err != nil {
 		return errors.Wrapf(err, "failed to save pmm config")
 	}
 	logrus.Info("pmm.ini configuration has been updated.")
@@ -76,7 +77,8 @@ func saveConfig(path string, cfg []byte) (err error) {
 		}
 	}()
 
-	if err = os.WriteFile(path, cfg, wwrPermissions); err != nil { //nolint:gosec
+	err = os.WriteFile(path, cfg, wwrPermissions)
+	if err != nil {
 		err = errors.Wrap(err, "failed to write new config")
 	}
 	return err

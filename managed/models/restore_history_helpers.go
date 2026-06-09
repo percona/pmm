@@ -124,12 +124,13 @@ func (p *CreateRestoreHistoryItemParams) Validate() error {
 
 // CreateRestoreHistoryItem creates a restore history item entry in DB.
 func CreateRestoreHistoryItem(q *reform.Querier, params CreateRestoreHistoryItemParams) (*RestoreHistoryItem, error) {
-	if err := params.Validate(); err != nil {
+	err := params.Validate()
+	if err != nil {
 		return nil, err
 	}
 
 	id := uuid.New().String()
-	_, err := FindRestoreHistoryItemByID(q, id)
+	_, err = FindRestoreHistoryItemByID(q, id)
 	switch {
 	case err == nil:
 		return nil, errors.Errorf("restore history item with id '%s' already exists", id)
@@ -145,7 +146,8 @@ func CreateRestoreHistoryItem(q *reform.Querier, params CreateRestoreHistoryItem
 		PITRTimestamp: params.PITRTimestamp,
 		Status:        params.Status,
 	}
-	if err := q.Insert(row); err != nil {
+	err = q.Insert(row)
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to insert restore history item")
 	}
 
@@ -174,7 +176,8 @@ func ChangeRestoreHistoryItem(
 		row.FinishedAt = params.FinishedAt
 	}
 
-	if err := q.Update(row); err != nil {
+	err = q.Update(row)
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to update restore history item")
 	}
 

@@ -167,8 +167,9 @@ func GetRequiredBackupSoftwareList(serviceType models.ServiceType) []Software {
 
 // GetVersions retrieves software versions.
 func (s *VersionerService) GetVersions(pmmAgentID string, softwareList []Software) ([]Version, error) {
-	if err := models.PMMAgentSupported(s.r.db.Querier, pmmAgentID,
-		"versions retrieving", pmmAgentMinVersionForSoftwareVersions); err != nil {
+	err := models.PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+		"versions retrieving", pmmAgentMinVersionForSoftwareVersions)
+	if err != nil {
 		return nil, err
 	}
 
