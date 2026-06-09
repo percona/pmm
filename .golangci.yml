@@ -16,13 +16,13 @@ linters:
     - err113              # extra work & poor benefit (renamed from goerr113)
     - exhaustruct         # too many files to fix/nolint
     - funlen              # useless
-    - funcorder         # too many so far
+    - funcorder           # too many so far
     - gochecknoglobals    # mostly useless
     - gochecknoinits      # we use init functions
     - gocyclo             # using cyclop with the max 30 instead
     - godox               # we sometimes leave TODOS right in the code
     - gomoddirectives     # we use replace directives
-    - gomodguard  # deprecated
+    - gomodguard          # deprecated
     - nlreturn            # too annoying
     - paralleltest
     - protogetter         # we need direct access to proto fields
