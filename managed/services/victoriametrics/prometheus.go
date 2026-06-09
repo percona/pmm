@@ -87,7 +87,7 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 		}
 		switch {
 		case pushMetrics:
-			paramsHost = "127.0.0.1"
+			paramsHost = models.LocalhostAddr
 		case agent.PMMAgentID != nil:
 			pmmAgentNode = &models.Node{NodeID: pointer.GetString(pmmAgent.RunsOnNodeID)}
 			err = q.Reload(pmmAgentNode)
@@ -276,7 +276,8 @@ func addInternalServicesToScrape(s models.MetricsResolutions, svc *Service, pmmS
 		scrapeConfigForQANAPI2(s.MR, pmmServerNodeName),
 	)
 
-	if svc.params.ExternalVM() {
+	if svc.chParams.ExternalClickHouse() {
+		svc.l.Warnf("Skip internal ClickHouse scrape config, ClickHouse is configured to run externally.")
 		return cfg
 	}
 

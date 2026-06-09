@@ -84,10 +84,7 @@ func (p *profiler) Start() error {
 
 	// create sender which sends qan reports and start it
 	p.sender = sender.New(reportChan, p.w, p.logger)
-	err = p.sender.Start()
-	if err != nil {
-		return err
-	}
+	p.sender.Start()
 
 	f := func(client *mongo.Client, logger *logrus.Entry, dbName string) *monitor {
 		return NewMonitor(client, dbName, p.aggregator, logger)

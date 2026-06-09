@@ -16,7 +16,7 @@ on:
       - 'admin/**'
       - 'agent/**'
       - 'api-tests/**'
-      - 'docs/**'
+      - 'dev/docs/**'
       - "documentation/**"
       - "dashboards/**"
       - 'qan-api2/**'
