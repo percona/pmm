@@ -36,6 +36,10 @@ import (
 
 var mentionStripRE = regexp.MustCompile(`<@[^>]+>`)
 
+// slackTurnTimeout bounds a single Slack turn (investigation + posting). It must exceed the Holmes
+// client timeout (adre streamTimeout, 5m) so a completed investigation can still be posted back.
+const slackTurnTimeout = 10 * time.Minute
+
 // Run polls settings every 30s (and once at startup) and runs Slack Socket Mode while ADRE Slack is enabled.
 func Run(ctx context.Context, db *reform.DB, l *logrus.Entry) error {
 	ticker := time.NewTicker(30 * time.Second) //nolint:mnd
@@ -182,7 +186,10 @@ func runSocketMode(ctx context.Context, db *reform.DB, l *logrus.Entry) {
 			if eventsAPI.Type != slackevents.CallbackEvent {
 				continue
 			}
-			handleEventsAPI(ctx, db, api, ts, log, eventsAPI, botUserID)
+			// Handle in a goroutine so a long investigation does not block the event loop (which
+			// would freeze the bot for every channel). Per-thread serialization and the chat-slot
+			// semaphore in handleTurn keep concurrency safe.
+			go handleEventsAPI(ctx, db, api, ts, log, eventsAPI, botUserID)
 		}
 	}
 }
@@ -280,6 +287,11 @@ func handleTurn(
 	if userText == "" {
 		return
 	}
+
+	// Detach from the socket/supervisor context so a websocket reconnect or settings reload mid-turn
+	// cannot cancel the Holmes call or the final Slack post; bound the whole turn with a timeout.
+	ctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), slackTurnTimeout)
+	defer cancel()
 
 	settings, err := models.GetSettings(db)
 	if err != nil {
@@ -391,13 +403,26 @@ func handleTurn(
 
 	hideLinks := len(hashes) > 0 && uploaded == len(hashes)
 	formatted := FormatAnswerForSlack(analysis, settings.GetEffectiveSlackLinkBaseURL(), hideLinks)
-	if formatted == "" {
-		formatted = " "
+	postAnswer(ctx, api, log, channelID, threadTS, thinkingTS, formatted)
+}
+
+// postAnswer replaces the "Thinking…" placeholder with the answer. Slack rejects over-long messages
+// (msg_too_long), so long investigation reports are split into chunks: the first edits the
+// placeholder, the rest are posted as threaded replies. If the edit fails for any reason, the first
+// chunk is re-posted as a fresh reply so the result is never silently dropped (stuck on "Thinking…").
+func postAnswer(ctx context.Context, api *slack.Client, log *logrus.Entry, channelID, threadTS, thinkingTS, answer string) {
+	chunks := chunkForSlack(answer)
+	if len(chunks) == 0 {
+		chunks = []string{" "}
 	}
 	//nolint:dogsled // slack-go returns (channelID, ts, text, error); we only need err
-	_, _, _, err = api.UpdateMessageContext(ctx, channelID, thinkingTS, slack.MsgOptionText(formatted, false))
+	_, _, _, err := api.UpdateMessageContext(ctx, channelID, thinkingTS, slack.MsgOptionText(chunks[0], false))
 	if err != nil {
 		log.Warnf("UpdateMessage: %v", err)
+		postThreadLine(ctx, log, api, channelID, threadTS, chunks[0])
+	}
+	for _, c := range chunks[1:] {
+		postThreadLine(ctx, log, api, channelID, threadTS, c)
 	}
 }
 

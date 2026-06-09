@@ -18,7 +18,49 @@ package slackbot
 import (
 	"regexp"
 	"strings"
+	"unicode/utf8"
 )
+
+// slackMaxMessageLen is a conservative byte cap for a single Slack message body. Slack rejects
+// over-long messages with "msg_too_long"; long investigation reports are split into chunks below this.
+const slackMaxMessageLen = 3500
+
+// chunkForSlack splits text into pieces no larger than slackMaxMessageLen, preferring to break on a
+// blank line, then a newline, then a UTF-8-safe hard cut. Returns nil for empty input.
+func chunkForSlack(text string) []string {
+	text = strings.TrimRight(text, "\n")
+	if text == "" {
+		return nil
+	}
+	var chunks []string
+	for len(text) > slackMaxMessageLen {
+		cut := slackSplitIndex(text)
+		chunks = append(chunks, strings.TrimRight(text[:cut], "\n"))
+		text = strings.TrimLeft(text[cut:], "\n")
+	}
+	if text != "" {
+		chunks = append(chunks, text)
+	}
+	return chunks
+}
+
+// slackSplitIndex returns a byte index (<= slackMaxMessageLen) to cut at: the last blank line, else
+// the last newline, else a hard cut backed up to a UTF-8 rune boundary. Only called when the input
+// is longer than slackMaxMessageLen.
+func slackSplitIndex(s string) int {
+	window := s[:slackMaxMessageLen]
+	if i := strings.LastIndex(window, "\n\n"); i > 0 {
+		return i
+	}
+	if i := strings.LastIndex(window, "\n"); i > 0 {
+		return i
+	}
+	limit := slackMaxMessageLen
+	for limit > 0 && !utf8.RuneStart(s[limit]) {
+		limit--
+	}
+	return limit
+}
 
 var (
 	toolDirectiveRE = regexp.MustCompile(`<<\s*\{.*?\}\s*>>`)
