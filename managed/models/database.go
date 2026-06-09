@@ -1447,9 +1447,8 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 	var currentVersion int
 	errDB := db.QueryRow("SELECT id FROM schema_migrations ORDER BY id DESC LIMIT 1").Scan(&currentVersion)
 	// undefined_table (see https://www.postgresql.org/docs/current/errcodes-appendix.html)
-	pErr := &pq.Error{}
-	ok := errors.As(errDB, &pErr)
-	if ok && pErr.Code == "42P01" {
+	var pErr *pq.Error
+	if errors.As(errDB, &pErr) && pErr.Code == "42P01" {
 		errDB = nil
 	}
 	if errDB != nil {

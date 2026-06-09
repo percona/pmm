@@ -55,7 +55,7 @@ func ValidateAlertingRules(ctx context.Context, rules string) error {
 		return errors.WithStack(err)
 	}
 
-	timeoutCtx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	timeoutCtx, cancel := context.WithTimeout(ctx, 3*time.Second) //nolint:mnd
 	defer cancel()
 
 	cmd := exec.CommandContext(timeoutCtx, "vmalert", "-loggerLevel", "WARN", "-dryRun", "-rule", tempFile.Name()) //nolint:gosec
@@ -64,9 +64,8 @@ func ValidateAlertingRules(ctx context.Context, rules string) error {
 	b, err := cmd.CombinedOutput()
 	logrus.Debugf("ValidateAlertingRules: %v\n%s", err, b)
 	if err != nil {
-		e := &exec.ExitError{}
-		ok := errors.As(err, &e)
-		if ok && e.ExitCode() != 0 {
+		var e *exec.ExitError
+		if errors.As(err, &e) && e.ExitCode() != 0 {
 			return &InvalidAlertingRuleError{
 				Msg: "Invalid alerting rules.",
 			}
