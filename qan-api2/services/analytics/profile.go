@@ -193,7 +193,8 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.GetReportRequest) (*q
 			return nil
 		})
 	}
-	if err := g.Wait(); err != nil {
+	err = g.Wait()
+	if err != nil {
 		return nil, err
 	}
 
