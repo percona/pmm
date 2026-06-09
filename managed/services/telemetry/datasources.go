@@ -106,7 +106,8 @@ func fetchMetricsFromDB(ctx context.Context, l *logrus.Entry, timeout time.Durat
 
 	var metrics []*telemetryv1.GenericReport_Metric
 	for rows.Next() {
-		if err := rows.Scan(values...); err != nil {
+		err := rows.Scan(values...)
+		if err != nil {
 			l.Error(err)
 			continue
 		}

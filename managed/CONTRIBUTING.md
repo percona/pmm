@@ -99,7 +99,7 @@ If need to change the logic of Advisor checks (actual logic executed in advisors
 
 Changes to Advisors will be most visible in the list of all advisors by categories, such as https://pmmdemo.percona.com/graph/advisors/configuration.
 
-![Advisors interface](../docs/assets/advisors/pmm-advisor-interface.png)
+![Advisors interface](../dev/docs/assets/advisors/pmm-advisor-interface.png)
 
 ``advisors.summary`` = https://github.com/percona/pmm/blob/b951d3c14eb1d5e4d716a61811da599af869054b/managed/data/advisors/example.yml.example#L5
 
@@ -110,7 +110,7 @@ Changes to Advisors will be most visible in the list of all advisors by categori
 Advisor checks are organized into categories by topic and can be viewed in the [Advisor Insight](https://pmmdemo.percona.com/graph/advisors/configuration). Each check provides detailed information and recommendations. To see these details, expand an Advisor to open its **Insights** section:
 
 
-![Advisors by categories](../docs/assets/advisors/pmm-configuration-advisors.png)
+![Advisors by categories](../dev/docs/assets/advisors/pmm-configuration-advisors.png)
 
 ``checks.summary`` = https://github.com/percona/checked/blob/223ae162ced83793bc00e5e6c29edfbf1bf5e27e/data/checks/exampleV2.yml.example#L5
 ``checks.description`` = https://github.com/percona/checked/blob/223ae162ced83793bc00e5e6c29edfbf1bf5e27e/data/checks/exampleV2.yml.example#L6
@@ -150,7 +150,7 @@ Devcontainer initialization code is located in `.devcontainer/setup.py`. It prov
 # How to make a pull request (PR)
 
 - If the changes require multiple PRs spanning multiple repos, make sure to keep the branch names the same.
-- If the PR requires any API changes, make sure to contribute to the API docs (/docs/api).
+- If the PR requires any API changes, make sure to contribute to the API docs (/documentation/api).
 - If the PR changes any of `deps.go` files, make sure to run `make gen` to generate mock clients.
 
 Before making a PR, please run these commands locally:

@@ -100,7 +100,8 @@ func (s *RetentionService) retentionSnapshot(storage Storage, scheduleID string,
 	}
 
 	for _, artifact := range artifacts[retention:] {
-		if err := s.removalSVC.DeleteArtifact(storage, artifact.ID, true); err != nil {
+		err := s.removalSVC.DeleteArtifact(storage, artifact.ID, true)
+		if err != nil {
 			return err
 		}
 	}

@@ -208,10 +208,7 @@ func createMinioClient(endpoint, accessKey, secretKey string) (*minio.Client, er
 		return nil, err
 	}
 
-	secure := true
-	if url.Scheme == "http" {
-		secure = false
-	}
+	secure := url.Scheme != "http"
 
 	return minio.New(url.Host, &minio.Options{
 		Secure: secure,

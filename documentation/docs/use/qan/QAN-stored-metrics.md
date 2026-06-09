@@ -57,7 +57,7 @@ Enable this when you need to troubleshoot PMM Server performance, check resource
 To enable:
 {.power-number}
 
-1. Go to **PMM Configuration > Settings > Advanced Settings**.
+1. Go to **Configuration > Settings > Advanced settings**.
 2. Switch on the **QAN for PMM Server** option.
 3. Open **Query Analytics** and filter by `pmm-server-postgresql` to view queries.
 

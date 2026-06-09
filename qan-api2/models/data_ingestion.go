@@ -688,7 +688,8 @@ func (mb *MetricsBucket) Run(ctx context.Context) {
 	}()
 
 	for ctx.Err() == nil {
-		if err := mb.insertBatch(batchTimeout); err != nil {
+		err := mb.insertBatch(batchTimeout)
+		if err != nil {
 			time.Sleep(batchErrorDelay)
 		}
 	}
@@ -731,7 +732,8 @@ func (mb *MetricsBucket) insertBatch(timeout time.Duration) error {
 	}
 	defer func() {
 		if err == nil {
-			if err = tx.Commit(); err != nil {
+			err = tx.Commit()
+			if err != nil {
 				err = errors.Wrap(err, "failed to commit transaction")
 			}
 		} else {
@@ -745,7 +747,8 @@ func (mb *MetricsBucket) insertBatch(timeout time.Duration) error {
 		return errors.Wrap(err, "failed to prepare statement")
 	}
 	defer func() {
-		if e := stmt.Close(); e != nil && err == nil {
+		e := stmt.Close()
+		if e != nil && err == nil {
 			err = errors.Wrap(e, "failed to close statement")
 		}
 	}()

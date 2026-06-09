@@ -46,10 +46,12 @@ func (tr *TemplateRenderer) RenderTemplate(name, text string, templateParams map
 	t.Option("missingkey=error")
 
 	var buf bytes.Buffer
-	if _, err := t.Parse(text); err != nil {
+	_, err := t.Parse(text)
+	if err != nil {
 		return nil, err
 	}
-	if err := t.Execute(&buf, templateParams); err != nil {
+	err = t.Execute(&buf, templateParams)
+	if err != nil {
 		return nil, err
 	}
 	return buf.Bytes(), nil
@@ -124,7 +126,8 @@ func RenderDSN(dsn string, files *agentv1.TextFiles, tempDir string) (string, er
 
 // CleanupTempDir removes the temporary directory.
 func CleanupTempDir(tempDir string, logger *logrus.Entry) {
-	if err := os.RemoveAll(tempDir); err != nil {
+	err := os.RemoveAll(tempDir)
+	if err != nil {
 		if logger != nil {
 			logger.Debugf("failed to remove the temporary directory: %s", err)
 		}
