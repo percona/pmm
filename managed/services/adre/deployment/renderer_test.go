@@ -68,6 +68,7 @@ func TestRenderModelList(t *testing.T) {
 	mdls := []*models.AdreModel{
 		{Name: "openai/gpt-4.1", LitellmModel: "openai/gpt-4.1", APIKey: "sk-literal"},
 		{Name: "anthropic-opus", LitellmModel: "anthropic/claude-opus-4-5", APIBase: "https://api.anthropic.com"},
+		{Name: "local-llama", LitellmModel: "ollama_chat/llama3", APIBase: "http://ollama:11434", ExtraParams: "temperature: 1\nnum_ctx: 8192"},
 	}
 	require.NoError(t, r.renderModelList(mdls))
 
@@ -77,6 +78,11 @@ func TestRenderModelList(t *testing.T) {
 	assert.Contains(t, out, "api_key: sk-literal", "provider key rendered literally (no env var)")
 	assert.Contains(t, out, "model: openai/gpt-4.1")
 	assert.Contains(t, out, "api_base: https://api.anthropic.com")
+	// Local-model extra params merge into the model entry.
+	assert.Contains(t, out, "model: ollama_chat/llama3")
+	assert.Contains(t, out, "api_base: http://ollama:11434")
+	assert.Contains(t, out, "temperature: 1")
+	assert.Contains(t, out, "num_ctx: 8192")
 
 	info, err := os.Stat(filepath.Join(r.dir, "model_list.yaml"))
 	require.NoError(t, err)

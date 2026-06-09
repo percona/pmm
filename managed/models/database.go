@@ -1760,6 +1760,10 @@ $yaml$,
 		)`,
 		`CREATE INDEX idx_adre_config_audit_at ON adre_config_audit (at DESC)`,
 	},
+	139: {
+		// Per-model extra LiteLLM params (YAML) for local/self-hosted models (temperature, num_ctx, etc.).
+		`ALTER TABLE adre_models ADD COLUMN IF NOT EXISTS extra_params TEXT NOT NULL DEFAULT ''`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

@@ -42,12 +42,14 @@ type AdreHolmesConfig struct {
 
 // AdreModel is one entry rendered into model_list.yaml. APIKey is a secret (masked on the API).
 // The default chat/fast model is config.yaml's model:/fast_model:, not a flag here.
+// ExtraParams is optional YAML of extra LiteLLM params (e.g. temperature, num_ctx) merged into the entry.
 type AdreModel struct {
 	ID           int64
 	Name         string
 	LitellmModel string
 	APIBase      string
 	APIKey       string
+	ExtraParams  string
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 }
@@ -113,7 +115,7 @@ func SaveAdreHolmesConfig(q reform.DBTX, configYAML, updatedBy string) error {
 // ListAdreModels returns all configured models ordered by name.
 func ListAdreModels(q reform.DBTX) ([]*AdreModel, error) {
 	rows, err := q.Query(
-		`SELECT id, name, litellm_model, api_base, api_key, created_at, updated_at
+		`SELECT id, name, litellm_model, api_base, api_key, extra_params, created_at, updated_at
 		 FROM adre_models ORDER BY name`)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to select adre_models")
@@ -123,7 +125,7 @@ func ListAdreModels(q reform.DBTX) ([]*AdreModel, error) {
 	var out []*AdreModel
 	for rows.Next() {
 		var m AdreModel
-		if err := rows.Scan(&m.ID, &m.Name, &m.LitellmModel, &m.APIBase, &m.APIKey, &m.CreatedAt, &m.UpdatedAt); err != nil { //nolint:noinlineerr
+		if err := rows.Scan(&m.ID, &m.Name, &m.LitellmModel, &m.APIBase, &m.APIKey, &m.ExtraParams, &m.CreatedAt, &m.UpdatedAt); err != nil { //nolint:noinlineerr
 			return nil, errors.Wrap(err, "failed to scan adre_models")
 		}
 		out = append(out, &m)
@@ -135,18 +137,19 @@ func ListAdreModels(q reform.DBTX) ([]*AdreModel, error) {
 func UpsertAdreModel(q reform.DBTX, m *AdreModel) error {
 	if m.APIKey == "" {
 		_, err := q.Exec(
-			`INSERT INTO adre_models (name, litellm_model, api_base, updated_at)
-			 VALUES ($1, $2, $3, NOW())
-			 ON CONFLICT (name) DO UPDATE SET litellm_model = EXCLUDED.litellm_model, api_base = EXCLUDED.api_base, updated_at = NOW()`,
-			m.Name, m.LitellmModel, m.APIBase)
+			`INSERT INTO adre_models (name, litellm_model, api_base, extra_params, updated_at)
+			 VALUES ($1, $2, $3, $4, NOW())
+			 ON CONFLICT (name) DO UPDATE SET litellm_model = EXCLUDED.litellm_model, api_base = EXCLUDED.api_base,
+			   extra_params = EXCLUDED.extra_params, updated_at = NOW()`,
+			m.Name, m.LitellmModel, m.APIBase, m.ExtraParams)
 		return errors.Wrap(err, "failed to upsert adre_models")
 	}
 	_, err := q.Exec(
-		`INSERT INTO adre_models (name, litellm_model, api_base, api_key, updated_at)
-		 VALUES ($1, $2, $3, $4, NOW())
+		`INSERT INTO adre_models (name, litellm_model, api_base, api_key, extra_params, updated_at)
+		 VALUES ($1, $2, $3, $4, $5, NOW())
 		 ON CONFLICT (name) DO UPDATE SET litellm_model = EXCLUDED.litellm_model, api_base = EXCLUDED.api_base,
-		   api_key = EXCLUDED.api_key, updated_at = NOW()`,
-		m.Name, m.LitellmModel, m.APIBase, m.APIKey)
+		   api_key = EXCLUDED.api_key, extra_params = EXCLUDED.extra_params, updated_at = NOW()`,
+		m.Name, m.LitellmModel, m.APIBase, m.APIKey, m.ExtraParams)
 	return errors.Wrap(err, "failed to upsert adre_models")
 }
 

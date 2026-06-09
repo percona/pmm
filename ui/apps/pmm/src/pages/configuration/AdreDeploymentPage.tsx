@@ -16,6 +16,7 @@ import {
   TableRow,
   Tabs,
   TextField,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import { FC, SyntheticEvent, useEffect, useMemo, useState } from 'react';
@@ -148,6 +149,43 @@ interface TabProps {
 
 type ModelRow = AdreDeploymentModel & { apiKey: string };
 
+const localModelHelp = (
+  <Box sx={{ p: 0.5 }}>
+    <Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.5 }}>
+      Local / self-hosted models (via LiteLLM)
+    </Typography>
+    <Box
+      component="pre"
+      sx={{ m: 0, fontFamily: 'Roboto Mono, monospace', fontSize: '0.72rem', whiteSpace: 'pre-wrap' }}
+    >
+      {`OpenAI-compatible (vLLM, LM Studio, llama.cpp, LiteLLM proxy):
+  LiteLLM model:  openai/<your-model>
+  API base:       http://host:port/v1
+  API key:        none   (placeholder — LiteLLM requires one)
+
+Ollama (native):
+  LiteLLM model:  ollama_chat/llama3
+  API base:       http://host:11434
+  API key:        (leave blank)
+
+Extra params (YAML), e.g.:
+  temperature: 1
+  num_ctx: 8192
+
+The endpoint must be reachable from the HolmesGPT container
+(use the service name on the shared docker network).`}
+    </Box>
+  </Box>
+);
+
+const modelHelpTooltip = (
+  <Tooltip arrow title={localModelHelp} slotProps={{ tooltip: { sx: { maxWidth: 540 } } }}>
+    <Box component="span" sx={{ ml: 0.5, cursor: 'help', color: 'primary.light', fontWeight: 700 }}>
+      (?)
+    </Box>
+  </Tooltip>
+);
+
 const ModelsTab: FC<TabProps> = ({ data, onError, onOk }) => {
   const [rows, setRows] = useState<ModelRow[]>([]);
   const save = useUpdateAdreDeploymentModels();
@@ -163,7 +201,7 @@ const ModelsTab: FC<TabProps> = ({ data, onError, onOk }) => {
     setRows((r) => r.map((row, idx) => (idx === i ? { ...row, ...patch } : row)));
 
   const addRow = () =>
-    setRows((r) => [...r, { name: '', litellmModel: '', apiBase: '', keyConfigured: false, apiKey: '' }]);
+    setRows((r) => [...r, { name: '', litellmModel: '', apiBase: '', keyConfigured: false, apiKey: '', extraParams: '' }]);
 
   const onDelete = async (i: number) => {
     const row = rows[i];
@@ -187,6 +225,7 @@ const ModelsTab: FC<TabProps> = ({ data, onError, onOk }) => {
         litellmModel: r.litellmModel.trim(),
         apiBase: r.apiBase,
         apiKey: r.apiKey, // empty = keep existing
+        extraParams: r.extraParams,
       }));
     try {
       await save.mutateAsync(payload);
@@ -200,15 +239,16 @@ const ModelsTab: FC<TabProps> = ({ data, onError, onOk }) => {
     <Card variant="outlined">
       <CardContent>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          Models render into <code>model_list.yaml</code>. Provider keys are stored here (not as env vars) and are write-only — leave a key blank to keep the existing one. The <strong>default</strong> chat / fast model is set in the <strong>config.yaml</strong> tab (<code>model:</code> / <code>fast_model:</code>), which is what HolmesGPT honors.
+          Models render into <code>model_list.yaml</code>. Provider keys are stored here (not as env vars) and are write-only — leave a key blank to keep the existing one. The <strong>default</strong> chat / fast model is set in the <strong>config.yaml</strong> tab (<code>model:</code> / <code>fast_model:</code>), which is what HolmesGPT honors. For a <strong>local / self-hosted</strong> model, set <strong>API base</strong> to its endpoint URL and use a provider prefix in <strong>LiteLLM model</strong> — see the {modelHelpTooltip} next to “LiteLLM model”.
         </Typography>
         <Table size="small">
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
-              <TableCell>LiteLLM model</TableCell>
-              <TableCell>API base</TableCell>
+              <TableCell>LiteLLM model{modelHelpTooltip}</TableCell>
+              <TableCell>API base (endpoint)</TableCell>
               <TableCell>API key</TableCell>
+              <TableCell>Extra params (YAML)</TableCell>
               <TableCell align="right" />
             </TableRow>
           </TableHead>
@@ -217,7 +257,7 @@ const ModelsTab: FC<TabProps> = ({ data, onError, onOk }) => {
               <TableRow key={i}>
                 <TableCell><TextField size="small" value={r.name} onChange={(e) => update(i, { name: e.target.value })} placeholder="gpt-5.4" /></TableCell>
                 <TableCell><TextField size="small" value={r.litellmModel} onChange={(e) => update(i, { litellmModel: e.target.value })} placeholder="openai/gpt-4.1" /></TableCell>
-                <TableCell><TextField size="small" value={r.apiBase} onChange={(e) => update(i, { apiBase: e.target.value })} placeholder="(optional)" /></TableCell>
+                <TableCell><TextField size="small" value={r.apiBase} onChange={(e) => update(i, { apiBase: e.target.value })} placeholder="http://host:port/v1" /></TableCell>
                 <TableCell>
                   <TextField
                     size="small"
@@ -225,6 +265,16 @@ const ModelsTab: FC<TabProps> = ({ data, onError, onOk }) => {
                     value={r.apiKey}
                     onChange={(e) => update(i, { apiKey: e.target.value })}
                     placeholder={r.keyConfigured ? 'saved — leave blank to keep' : 'sk-…'}
+                  />
+                </TableCell>
+                <TableCell>
+                  <TextField
+                    size="small"
+                    multiline
+                    value={r.extraParams}
+                    onChange={(e) => update(i, { extraParams: e.target.value })}
+                    placeholder={'temperature: 1\nnum_ctx: 8192'}
+                    slotProps={{ input: { sx: { fontFamily: 'Roboto Mono, monospace', fontSize: '0.8rem' } } }}
                   />
                 </TableCell>
                 <TableCell align="right">

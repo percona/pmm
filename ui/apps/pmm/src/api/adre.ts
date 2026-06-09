@@ -645,6 +645,8 @@ export interface AdreDeploymentModel {
   apiBase: string;
   /** Whether an api_key is stored (the key itself is write-only and never returned). */
   keyConfigured: boolean;
+  /** Optional extra LiteLLM params (YAML) merged into this model's model_list.yaml entry. */
+  extraParams: string;
 }
 
 export interface AdreDeploymentSkill {
@@ -679,6 +681,7 @@ export interface AdreDeploymentModelInput {
   litellmModel: string;
   apiBase?: string;
   apiKey?: string;
+  extraParams?: string;
 }
 
 export interface AdreDeploymentSkillInput {

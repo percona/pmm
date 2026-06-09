@@ -84,6 +84,7 @@ type deploymentModelView struct {
 	LitellmModel  string `json:"litellm_model"`
 	APIBase       string `json:"api_base"`
 	KeyConfigured bool   `json:"key_configured"`
+	ExtraParams   string `json:"extra_params"`
 }
 
 type deploymentSkillView struct {
@@ -151,7 +152,8 @@ func (h *Handlers) buildDeploymentResponse() (*deploymentResponse, error) {
 	}
 	for _, m := range mdls {
 		resp.Models = append(resp.Models, deploymentModelView{
-			Name: m.Name, LitellmModel: m.LitellmModel, APIBase: m.APIBase, KeyConfigured: m.APIKey != "",
+			Name: m.Name, LitellmModel: m.LitellmModel, APIBase: m.APIBase,
+			KeyConfigured: m.APIKey != "", ExtraParams: m.ExtraParams,
 		})
 	}
 	for _, s := range skills {
@@ -207,6 +209,7 @@ func (h *Handlers) PutDeploymentModels(w http.ResponseWriter, r *http.Request) {
 			LitellmModel string `json:"litellm_model"`
 			APIBase      string `json:"api_base"`
 			APIKey       string `json:"api_key"`
+			ExtraParams  string `json:"extra_params"`
 		} `json:"models"`
 	}
 	if !decodeJSON(w, r, &body) {
@@ -222,8 +225,16 @@ func (h *Handlers) PutDeploymentModels(w http.ResponseWriter, r *http.Request) {
 			writeJSONError(w, http.StatusBadRequest, "model name may contain only letters, digits, '.', '-' or '_'")
 			return
 		}
+		// Extra params must be a YAML mapping (e.g. "temperature: 1") so the renderer can merge them.
+		if strings.TrimSpace(m.ExtraParams) != "" {
+			probe := map[string]any{}
+			if err := yaml.Unmarshal([]byte(m.ExtraParams), &probe); err != nil {
+				writeJSONError(w, http.StatusBadRequest, "model "+name+": extra params must be valid YAML key: value pairs: "+err.Error())
+				return
+			}
+		}
 		if err := models.UpsertAdreModel(h.db, &models.AdreModel{ //nolint:noinlineerr
-			Name: name, LitellmModel: m.LitellmModel, APIBase: m.APIBase, APIKey: m.APIKey,
+			Name: name, LitellmModel: m.LitellmModel, APIBase: m.APIBase, APIKey: m.APIKey, ExtraParams: m.ExtraParams,
 		}); err != nil {
 			h.l.Errorf("UpsertAdreModel: %v", err)
 			writeJSONError(w, http.StatusInternalServerError, "Failed to save model")

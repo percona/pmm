@@ -112,16 +112,28 @@ func (r *Renderer) renderEnv(p *models.AdreProvisioning) error {
 	return errors.Wrap(writeFileAtomic(filepath.Join(r.dir, ".env"), []byte(sb.String()), envFileMode), "failed to render .env")
 }
 
-type modelEntry struct {
-	Model   string `yaml:"model"`
-	APIBase string `yaml:"api_base,omitempty"`
-	APIKey  string `yaml:"api_key,omitempty"`
-}
-
 func (r *Renderer) renderModelList(mdls []*models.AdreModel) error {
-	ml := make(map[string]modelEntry, len(mdls))
+	ml := make(map[string]map[string]any, len(mdls))
 	for _, m := range mdls {
-		ml[m.Name] = modelEntry{Model: m.LitellmModel, APIBase: m.APIBase, APIKey: m.APIKey}
+		entry := map[string]any{"model": m.LitellmModel}
+		if m.APIBase != "" {
+			entry["api_base"] = m.APIBase
+		}
+		if m.APIKey != "" {
+			entry["api_key"] = m.APIKey
+		}
+		// Merge optional per-model LiteLLM params (temperature, num_ctx, api_version, …) for
+		// local/self-hosted models. Extra keys win over the base fields if the user repeats them.
+		if strings.TrimSpace(m.ExtraParams) != "" {
+			extra := map[string]any{}
+			if err := yaml.Unmarshal([]byte(m.ExtraParams), &extra); err != nil { //nolint:noinlineerr
+				return errors.Wrapf(err, "model %q: invalid extra params YAML", m.Name)
+			}
+			for k, v := range extra {
+				entry[k] = v
+			}
+		}
+		ml[m.Name] = entry
 	}
 	b, err := yaml.Marshal(ml) // yaml.v3 sorts map keys → deterministic output
 	if err != nil {
