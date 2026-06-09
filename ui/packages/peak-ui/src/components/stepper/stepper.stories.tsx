@@ -3,7 +3,7 @@ import Stepper from './stepper';
 import { StepperProps } from './stepper.types';
 import { Box, Button, Step, StepButton, StepContent, StepLabel, Typography } from '@mui/material';
 import React from 'react';
-import * as DocBlock from '@storybook/blocks';
+import * as DocBlock from '@storybook/addon-docs/blocks';
 
 const steps = ['Step 1', 'Step 2', 'Step 3', 'Step 4'];
 

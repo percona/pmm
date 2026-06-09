@@ -1,6 +1,6 @@
 import { type Meta, type StoryObj } from '@storybook/react';
 import { useState } from 'react';
-import * as DocBlock from '@storybook/blocks';
+import * as DocBlock from '@storybook/addon-docs/blocks';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';

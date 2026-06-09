@@ -1,8 +1,9 @@
+import React from 'react';
 import { type Meta, type StoryObj } from '@storybook/react';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import * as DocBlock from '@storybook/blocks';
+import * as DocBlock from '@storybook/addon-docs/blocks';
 import Chip from './chip';
 import type { ChipProps } from './chip.types';
 
@@ -26,9 +27,11 @@ const stackSx = {
   gap: '16px',
 };
 
-const meta: Meta<ChipProps> = {
+type ChipStoryProps = ChipProps & { withAvatar?: boolean; withDelete?: boolean };
+
+const meta: Meta<ChipStoryProps> = {
   title: 'Data display/Chip',
-  component: Chip,
+  component: Chip as React.ComponentType<ChipStoryProps>,
   tags: ['autodocs'],
   parameters: {
     layout: 'centered',
@@ -146,9 +149,9 @@ export const Playground: Story = {
     clickable: false,
   },
   argTypes: {
-    withAvatar: { control: { type: 'boolean' }, name: 'avatar' },
-    withDelete: { control: { type: 'boolean' }, name: 'onDelete' },
-    clickable: { control: { type: 'boolean' }, name: 'clickable' },
+    withAvatar: { control: { type: 'boolean' } },
+    withDelete: { control: { type: 'boolean' } },
+    clickable: { control: { type: 'boolean' } },
   },
   render: function Render({ withAvatar, withDelete, clickable, ...rest }) {
     return (

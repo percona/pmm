@@ -2,7 +2,7 @@ import { MenuItem } from '@mui/material';
 import type { Meta, StoryObj } from '@storybook/react';
 import { FormProvider, useForm } from 'react-hook-form';
 import SelectInput from './select';
-import * as DocBlock from '@storybook/blocks';
+import * as DocBlock from '@storybook/addon-docs/blocks';
 
 type CustomArgs = React.ComponentProps<typeof SelectInput> & {
   disabled?: boolean;
