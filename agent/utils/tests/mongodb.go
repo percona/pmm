@@ -130,7 +130,8 @@ func MongoDBVersion(tb testing.TB, client *mongo.Client) (*version.Parsed, bool)
 		Version      string `bson:"version"`
 		PSMDBVersion string `bson:"psmdbVersion"`
 	}{}
-	if err := res.Decode(&bi); err != nil {
+	err := res.Decode(&bi)
+	if err != nil {
 		tb.Fatalf("Cannot decode buildInfo response: %s", err)
 	}
 	parsed, err := version.Parse(bi.Version)

@@ -121,7 +121,8 @@ func addClientData(ctx context.Context, zipW *zip.Writer) {
 	addVMAgentTargets(ctx, zipW, status.AgentsInfo)
 
 	// Redact user credentials if they exist
-	if u, err := url.Parse(status.ServerInfo.URL); err == nil {
+	u, err := url.Parse(status.ServerInfo.URL)
+	if err == nil {
 		if u.User.String() != "" {
 			u.User = url.UserPassword("xxxxx", "xxxxx")
 			status.ServerInfo.URL = u.String()
@@ -362,7 +363,8 @@ func (cmd *SummaryCommand) makeArchive(ctx context.Context, globals *flags.Globa
 	var f *os.File
 	var err error
 
-	if f, err = os.Create(cmd.Filename); err != nil {
+	f, err = os.Create(cmd.Filename)
+	if err != nil {
 		return errors.WithStack(err)
 	}
 

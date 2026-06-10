@@ -129,12 +129,14 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 		forceResync:    false,
 		dsn:            j.dsn,
 	}
-	if err := pbmConfigure(ctx, j.l, configParams); err != nil {
+	err = pbmConfigure(ctx, j.l, configParams)
+	if err != nil {
 		return errors.Wrap(err, "failed to configure pbm")
 	}
 
 	rCtx, cancel := context.WithTimeout(ctx, resyncTimeout)
-	if err := waitForPBMNoRunningOperations(rCtx, j.l, j.dsn); err != nil {
+	err = waitForPBMNoRunningOperations(rCtx, j.l, j.dsn)
+	if err != nil {
 		cancel()
 		return errors.Wrap(err, "failed to wait configuration completion")
 	}
@@ -154,7 +156,8 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 		}
 	}()
 
-	if err := waitForPBMBackup(ctx, j.l, j.dsn, pbmBackupOut.Name); err != nil {
+	err = waitForPBMBackup(ctx, j.l, j.dsn, pbmBackupOut.Name)
+	if err != nil {
 		j.jobLogger.sendLog(send, err.Error(), false)
 		return errors.Wrap(err, "failed to wait backup completion")
 	}
