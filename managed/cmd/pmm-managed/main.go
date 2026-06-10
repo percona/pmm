@@ -1146,9 +1146,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		updater.Run(ctx)
 	})
 
-	wg.Add(1)
 	haService.AddLeaderService(ha.NewContextService("telemetry", func(ctx context.Context) error {
-		defer wg.Done()
 		telemetry.Run(ctx)
 		return nil
 	}))
