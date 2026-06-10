@@ -75,12 +75,12 @@ type clickHouseQueryRequest struct {
 }
 
 type clickHouseQueryResponse struct {
-	Database     string   `json:"database"`
-	Columns      []string `json:"columns"`
-	Rows         [][]any  `json:"rows"`
-	RowCount     int      `json:"row_count"`
-	Truncated    bool     `json:"truncated"`
-	ExecutionMS  int64    `json:"execution_ms"`
+	Database    string   `json:"database"`
+	Columns     []string `json:"columns"`
+	Rows        [][]any  `json:"rows"`
+	RowCount    int      `json:"row_count"`
+	Truncated   bool     `json:"truncated"`
+	ExecutionMS int64    `json:"execution_ms"`
 }
 
 // PostClickHouseQuery handles POST /v1/adre/clickhouse/query.

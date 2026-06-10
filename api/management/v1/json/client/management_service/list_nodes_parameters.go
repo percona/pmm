@@ -57,7 +57,6 @@ ListNodesParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type ListNodesParams struct {
-
 	/* NodeType.
 
 	   Node type to be filtered out.
@@ -83,9 +82,7 @@ func (o *ListNodesParams) WithDefaults() *ListNodesParams {
 //
 // All values with no default are reset to their zero value.
 func (o *ListNodesParams) SetDefaults() {
-	var (
-		nodeTypeDefault = string("NODE_TYPE_UNSPECIFIED")
-	)
+	nodeTypeDefault := string("NODE_TYPE_UNSPECIFIED")
 
 	val := ListNodesParams{
 		NodeType: &nodeTypeDefault,
@@ -143,7 +140,6 @@ func (o *ListNodesParams) SetNodeType(nodeType *string) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *ListNodesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}
@@ -159,7 +155,6 @@ func (o *ListNodesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Reg
 		}
 		qNodeType := qrNodeType
 		if qNodeType != "" {
-
 			if err := r.SetQueryParam("node_type", qNodeType); err != nil {
 				return err
 			}

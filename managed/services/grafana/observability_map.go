@@ -51,8 +51,8 @@ type observabilityMapResponse struct {
 	Panels    []PanelQuery     `json:"panels,omitempty"`
 	Secondary []secondaryRoute `json:"secondary,omitempty"`
 	Fallback  struct {
-		MetricPrefix       string `json:"metric_prefix"`
-		ScopedSeriesMatch  string `json:"scoped_series_match"`
+		MetricPrefix      string `json:"metric_prefix"`
+		ScopedSeriesMatch string `json:"scoped_series_match"`
 	} `json:"fallback"`
 	Warnings []string `json:"warnings,omitempty"`
 }

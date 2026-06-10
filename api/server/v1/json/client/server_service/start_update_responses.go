@@ -101,7 +101,6 @@ func (o *StartUpdateOK) GetPayload() *StartUpdateOKBody {
 }
 
 func (o *StartUpdateOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(StartUpdateOKBody)
 
 	// response payload
@@ -175,7 +174,6 @@ func (o *StartUpdateDefault) GetPayload() *StartUpdateDefaultBody {
 }
 
 func (o *StartUpdateDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(StartUpdateDefaultBody)
 
 	// response payload
@@ -191,7 +189,6 @@ StartUpdateBody start update body
 swagger:model StartUpdateBody
 */
 type StartUpdateBody struct {
-
 	// new image
 	NewImage string `json:"new_image,omitempty"`
 }
@@ -229,7 +226,6 @@ StartUpdateDefaultBody start update default body
 swagger:model StartUpdateDefaultBody
 */
 type StartUpdateDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -299,9 +295,7 @@ func (o *StartUpdateDefaultBody) ContextValidate(ctx context.Context, formats st
 }
 
 func (o *StartUpdateDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -321,7 +315,6 @@ func (o *StartUpdateDefaultBody) contextValidateDetails(ctx context.Context, for
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -434,7 +427,6 @@ StartUpdateDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized proto
 swagger:model StartUpdateDefaultBodyDetailsItems0
 */
 type StartUpdateDefaultBodyDetailsItems0 struct {
-
 	// A URL/resource name that uniquely identifies the type of the serialized
 	// protocol buffer message. This string must contain at least
 	// one "/" character. The last segment of the URL's path must represent
@@ -473,7 +465,6 @@ type StartUpdateDefaultBodyDetailsItems0 struct {
 func (o *StartUpdateDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// A URL/resource name that uniquely identifies the type of the serialized
 		// protocol buffer message. This string must contain at least
 		// one "/" character. The last segment of the URL's path must represent
@@ -538,7 +529,6 @@ func (o *StartUpdateDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o StartUpdateDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// A URL/resource name that uniquely identifies the type of the serialized
 		// protocol buffer message. This string must contain at least
 		// one "/" character. The last segment of the URL's path must represent
@@ -629,7 +619,6 @@ StartUpdateOKBody start update OK body
 swagger:model StartUpdateOKBody
 */
 type StartUpdateOKBody struct {
-
 	// Authentication token for getting update statuses.
 	AuthToken string `json:"auth_token,omitempty"`
 

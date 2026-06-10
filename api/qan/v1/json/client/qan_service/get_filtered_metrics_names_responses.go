@@ -102,7 +102,6 @@ func (o *GetFilteredMetricsNamesOK) GetPayload() *GetFilteredMetricsNamesOKBody 
 }
 
 func (o *GetFilteredMetricsNamesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetFilteredMetricsNamesOKBody)
 
 	// response payload
@@ -176,7 +175,6 @@ func (o *GetFilteredMetricsNamesDefault) GetPayload() *GetFilteredMetricsNamesDe
 }
 
 func (o *GetFilteredMetricsNamesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetFilteredMetricsNamesDefaultBody)
 
 	// response payload
@@ -192,7 +190,6 @@ GetFilteredMetricsNamesBody GetFilteredMetricsNamesRequest contains period for w
 swagger:model GetFilteredMetricsNamesBody
 */
 type GetFilteredMetricsNamesBody struct {
-
 	// period start from
 	// Format: date-time
 	PeriodStartFrom strfmt.DateTime `json:"period_start_from,omitempty"`
@@ -299,9 +296,7 @@ func (o *GetFilteredMetricsNamesBody) ContextValidate(ctx context.Context, forma
 }
 
 func (o *GetFilteredMetricsNamesBody) contextValidateLabels(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Labels); i++ {
-
 		if o.Labels[i] != nil {
 
 			if swag.IsZero(o.Labels[i]) { // not required
@@ -321,7 +316,6 @@ func (o *GetFilteredMetricsNamesBody) contextValidateLabels(ctx context.Context,
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -350,7 +344,6 @@ GetFilteredMetricsNamesDefaultBody get filtered metrics names default body
 swagger:model GetFilteredMetricsNamesDefaultBody
 */
 type GetFilteredMetricsNamesDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -420,9 +413,7 @@ func (o *GetFilteredMetricsNamesDefaultBody) ContextValidate(ctx context.Context
 }
 
 func (o *GetFilteredMetricsNamesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -442,7 +433,6 @@ func (o *GetFilteredMetricsNamesDefaultBody) contextValidateDetails(ctx context.
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -471,7 +461,6 @@ GetFilteredMetricsNamesDefaultBodyDetailsItems0 get filtered metrics names defau
 swagger:model GetFilteredMetricsNamesDefaultBodyDetailsItems0
 */
 type GetFilteredMetricsNamesDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -483,7 +472,6 @@ type GetFilteredMetricsNamesDefaultBodyDetailsItems0 struct {
 func (o *GetFilteredMetricsNamesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -521,7 +509,6 @@ func (o *GetFilteredMetricsNamesDefaultBodyDetailsItems0) UnmarshalJSON(data []b
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o GetFilteredMetricsNamesDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -586,7 +573,6 @@ GetFilteredMetricsNamesOKBody GetFilteredMetricsNamesResponse is map of labels f
 swagger:model GetFilteredMetricsNamesOKBody
 */
 type GetFilteredMetricsNamesOKBody struct {
-
 	// labels
 	Labels map[string]GetFilteredMetricsNamesOKBodyLabelsAnon `json:"labels,omitempty"`
 }
@@ -650,15 +636,12 @@ func (o *GetFilteredMetricsNamesOKBody) ContextValidate(ctx context.Context, for
 }
 
 func (o *GetFilteredMetricsNamesOKBody) contextValidateLabels(ctx context.Context, formats strfmt.Registry) error {
-
 	for k := range o.Labels {
-
 		if val, ok := o.Labels[k]; ok {
 			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -687,7 +670,6 @@ GetFilteredMetricsNamesOKBodyLabelsAnon ListLabels is list of label's values: du
 swagger:model GetFilteredMetricsNamesOKBodyLabelsAnon
 */
 type GetFilteredMetricsNamesOKBodyLabelsAnon struct {
-
 	// name
 	Name []*GetFilteredMetricsNamesOKBodyLabelsAnonNameItems0 `json:"name"`
 }
@@ -751,9 +733,7 @@ func (o *GetFilteredMetricsNamesOKBodyLabelsAnon) ContextValidate(ctx context.Co
 }
 
 func (o *GetFilteredMetricsNamesOKBodyLabelsAnon) contextValidateName(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Name); i++ {
-
 		if o.Name[i] != nil {
 
 			if swag.IsZero(o.Name[i]) { // not required
@@ -773,7 +753,6 @@ func (o *GetFilteredMetricsNamesOKBodyLabelsAnon) contextValidateName(ctx contex
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -802,7 +781,6 @@ GetFilteredMetricsNamesOKBodyLabelsAnonNameItems0 Values is label values and mai
 swagger:model GetFilteredMetricsNamesOKBodyLabelsAnonNameItems0
 */
 type GetFilteredMetricsNamesOKBodyLabelsAnonNameItems0 struct {
-
 	// value
 	Value string `json:"value,omitempty"`
 
@@ -846,7 +824,6 @@ GetFilteredMetricsNamesParamsBodyLabelsItems0 MapFieldEntry allows to pass label
 swagger:model GetFilteredMetricsNamesParamsBodyLabelsItems0
 */
 type GetFilteredMetricsNamesParamsBodyLabelsItems0 struct {
-
 	// key
 	Key string `json:"key,omitempty"`
 

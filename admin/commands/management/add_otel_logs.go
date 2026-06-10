@@ -25,7 +25,7 @@ import (
 type AddOtelLogsCommand struct {
 	PMMAgentID   string            `help:"PMM Agent ID (default: local pmm-agent)"`
 	LogFilePaths []string          `name:"log-file-paths" help:"Log file paths. Used with --parser-preset or as raw if --log-sources not set."`
-	LogSources   string            `name:"log-sources" help:"Comma-separated path:preset pairs (e.g. /var/log/mysql/error.log:mysql_error,/var/log/messages:syslog_mysql_systemd). Overrides --log-file-paths."`                      //nolint:lll
+	LogSources   string            `name:"log-sources" help:"Comma-separated path:preset pairs (e.g. /var/log/mysql/error.log:mysql_error,/var/log/messages:syslog_mysql_systemd). Overrides --log-file-paths."`                 //nolint:lll
 	ParserPreset string            `name:"parser-preset" help:"Preset for all --log-file-paths when --log-sources is not set (built-ins include mysql_error, syslog_mysql_systemd, nginx_access, raw, …; UI: Settings → OTEL)."` //nolint:lll
 	CustomLabels map[string]string `mapsep:"," help:"Custom labels merged into the collector agent"`
 }

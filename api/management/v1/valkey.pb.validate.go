@@ -62,7 +62,6 @@ func (m *AddValkeyServiceParams) validate(all bool) error {
 	var errors []error
 
 	if m.GetNodeId() != "" {
-
 		if utf8.RuneCountInString(m.GetNodeId()) < 1 {
 			err := AddValkeyServiceParamsValidationError{
 				field:  "NodeId",
@@ -73,11 +72,9 @@ func (m *AddValkeyServiceParams) validate(all bool) error {
 			}
 			errors = append(errors, err)
 		}
-
 	}
 
 	if m.GetNodeName() != "" {
-
 		if utf8.RuneCountInString(m.GetNodeName()) < 1 {
 			err := AddValkeyServiceParamsValidationError{
 				field:  "NodeName",
@@ -88,7 +85,6 @@ func (m *AddValkeyServiceParams) validate(all bool) error {
 			}
 			errors = append(errors, err)
 		}
-
 	}
 
 	if all {
@@ -277,7 +273,8 @@ func (e AddValkeyServiceParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AddValkeyServiceParamsValidationError{}
@@ -437,7 +434,8 @@ func (e ValkeyServiceResultValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ValkeyServiceResultValidationError{}

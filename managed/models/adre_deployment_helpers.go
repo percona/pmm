@@ -108,7 +108,8 @@ func SaveAdreHolmesConfig(q reform.DBTX, configYAML, updatedBy string) error {
 		`INSERT INTO adre_holmes_config (id, config_yaml, updated_at, updated_by)
 		 VALUES (TRUE, $1, NOW(), $2)
 		 ON CONFLICT (id) DO UPDATE SET config_yaml = EXCLUDED.config_yaml, updated_at = NOW(), updated_by = EXCLUDED.updated_by`,
-		configYAML, updatedBy)
+		configYAML, updatedBy,
+	)
 	return errors.Wrap(err, "failed to save adre_holmes_config")
 }
 
@@ -116,7 +117,8 @@ func SaveAdreHolmesConfig(q reform.DBTX, configYAML, updatedBy string) error {
 func ListAdreModels(q reform.DBTX) ([]*AdreModel, error) {
 	rows, err := q.Query(
 		`SELECT id, name, litellm_model, api_base, api_key, extra_params, created_at, updated_at
-		 FROM adre_models ORDER BY name`)
+		 FROM adre_models ORDER BY name`,
+	)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to select adre_models")
 	}
@@ -141,7 +143,8 @@ func UpsertAdreModel(q reform.DBTX, m *AdreModel) error {
 			 VALUES ($1, $2, $3, $4, NOW())
 			 ON CONFLICT (name) DO UPDATE SET litellm_model = EXCLUDED.litellm_model, api_base = EXCLUDED.api_base,
 			   extra_params = EXCLUDED.extra_params, updated_at = NOW()`,
-			m.Name, m.LitellmModel, m.APIBase, m.ExtraParams)
+			m.Name, m.LitellmModel, m.APIBase, m.ExtraParams,
+		)
 		return errors.Wrap(err, "failed to upsert adre_models")
 	}
 	_, err := q.Exec(
@@ -149,7 +152,8 @@ func UpsertAdreModel(q reform.DBTX, m *AdreModel) error {
 		 VALUES ($1, $2, $3, $4, $5, NOW())
 		 ON CONFLICT (name) DO UPDATE SET litellm_model = EXCLUDED.litellm_model, api_base = EXCLUDED.api_base,
 		   api_key = EXCLUDED.api_key, extra_params = EXCLUDED.extra_params, updated_at = NOW()`,
-		m.Name, m.LitellmModel, m.APIBase, m.APIKey, m.ExtraParams)
+		m.Name, m.LitellmModel, m.APIBase, m.APIKey, m.ExtraParams,
+	)
 	return errors.Wrap(err, "failed to upsert adre_models")
 }
 
@@ -188,7 +192,8 @@ func GetAdreSkill(q reform.DBTX, name string) (*AdreSkill, error) {
 	var s AdreSkill
 	err := q.QueryRow(
 		`SELECT id, name, description, body, source, enabled, created_at, updated_at, updated_by
-		 FROM adre_skills WHERE name = $1`, name).
+		 FROM adre_skills WHERE name = $1`, name,
+	).
 		Scan(&s.ID, &s.Name, &s.Description, &s.Body, &s.Source, &s.Enabled, &s.CreatedAt, &s.UpdatedAt, &s.UpdatedBy)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, nil //nolint:nilnil
@@ -210,7 +215,8 @@ func UpsertAdreSkill(q reform.DBTX, s *AdreSkill) error {
 		 VALUES ($1, $2, $3, $4, $5, NOW(), $6)
 		 ON CONFLICT (name) DO UPDATE SET description = EXCLUDED.description, body = EXCLUDED.body,
 		   enabled = EXCLUDED.enabled, updated_at = NOW(), updated_by = EXCLUDED.updated_by`,
-		s.Name, s.Description, s.Body, source, s.Enabled, s.UpdatedBy)
+		s.Name, s.Description, s.Body, source, s.Enabled, s.UpdatedBy,
+	)
 	return errors.Wrap(err, "failed to upsert adre_skills")
 }
 
@@ -233,7 +239,8 @@ func GetAdreProvisioning(q reform.DBTX) (*AdreProvisioning, error) {
 	var lastRender sql.NullTime
 	err := q.QueryRow(
 		`SELECT holmes_api_key, pmm_sa_token, pmm_sa_id, pmm_url, last_render_at, render_status, restart_required
-		 FROM adre_provisioning WHERE id = TRUE`).
+		 FROM adre_provisioning WHERE id = TRUE`,
+	).
 		Scan(&p.HolmesAPIKey, &p.PMMSAToken, &p.PMMSAID, &p.PMMURL, &lastRender, &p.RenderStatus, &p.RestartRequired)
 	if errors.Is(err, sql.ErrNoRows) {
 		return &AdreProvisioning{}, nil
@@ -259,7 +266,8 @@ func SaveAdreProvisioning(q reform.DBTX, p *AdreProvisioning) error {
 		 ON CONFLICT (id) DO UPDATE SET holmes_api_key = EXCLUDED.holmes_api_key, pmm_sa_token = EXCLUDED.pmm_sa_token,
 		   pmm_sa_id = EXCLUDED.pmm_sa_id, pmm_url = EXCLUDED.pmm_url, last_render_at = EXCLUDED.last_render_at,
 		   render_status = EXCLUDED.render_status, restart_required = EXCLUDED.restart_required`,
-		p.HolmesAPIKey, p.PMMSAToken, p.PMMSAID, p.PMMURL, lastRender, p.RenderStatus, p.RestartRequired)
+		p.HolmesAPIKey, p.PMMSAToken, p.PMMSAID, p.PMMURL, lastRender, p.RenderStatus, p.RestartRequired,
+	)
 	return errors.Wrap(err, "failed to save adre_provisioning")
 }
 
@@ -267,6 +275,7 @@ func SaveAdreProvisioning(q reform.DBTX, p *AdreProvisioning) error {
 func InsertAdreConfigAudit(q reform.DBTX, actor, action, target, diff string) error {
 	_, err := q.Exec(
 		`INSERT INTO adre_config_audit (actor, action, target, diff) VALUES ($1, $2, $3, $4)`,
-		actor, action, target, diff)
+		actor, action, target, diff,
+	)
 	return errors.Wrap(err, "failed to insert adre_config_audit")
 }

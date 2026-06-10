@@ -33100,6 +33100,11 @@
                         }
                       },
                       "x-order": 19
+                    },
+                    "native_qan_enabled": {
+                      "description": "True if native Query Analytics UI is enabled (Technical Preview).",
+                      "type": "boolean",
+                      "x-order": 20
                     }
                   },
                   "x-order": 0
@@ -33313,6 +33318,12 @@
                   },
                   "x-nullable": true,
                   "x-order": 15
+                },
+                "enable_native_qan": {
+                  "description": "Enable native Query Analytics UI (Technical Preview).",
+                  "type": "boolean",
+                  "x-nullable": true,
+                  "x-order": 16
                 }
               }
             }
@@ -33489,6 +33500,11 @@
                         }
                       },
                       "x-order": 19
+                    },
+                    "native_qan_enabled": {
+                      "description": "True if native Query Analytics UI is enabled (Technical Preview).",
+                      "type": "boolean",
+                      "x-order": 20
                     }
                   },
                   "x-order": 0
@@ -33589,6 +33605,11 @@
                       "description": "True if Access Control is enabled.",
                       "type": "boolean",
                       "x-order": 7
+                    },
+                    "native_qan_enabled": {
+                      "description": "True if native Query Analytics UI is enabled.",
+                      "type": "boolean",
+                      "x-order": 8
                     }
                   },
                   "x-order": 0

@@ -101,7 +101,6 @@ func (o *SchemaByQueryIDOK) GetPayload() *SchemaByQueryIDOKBody {
 }
 
 func (o *SchemaByQueryIDOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(SchemaByQueryIDOKBody)
 
 	// response payload
@@ -175,7 +174,6 @@ func (o *SchemaByQueryIDDefault) GetPayload() *SchemaByQueryIDDefaultBody {
 }
 
 func (o *SchemaByQueryIDDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(SchemaByQueryIDDefaultBody)
 
 	// response payload
@@ -191,7 +189,6 @@ SchemaByQueryIDBody SchemaByQueryIDRequest returns schema for given query ID and
 swagger:model SchemaByQueryIDBody
 */
 type SchemaByQueryIDBody struct {
-
 	// service id
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -232,7 +229,6 @@ SchemaByQueryIDDefaultBody schema by query ID default body
 swagger:model SchemaByQueryIDDefaultBody
 */
 type SchemaByQueryIDDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -302,9 +298,7 @@ func (o *SchemaByQueryIDDefaultBody) ContextValidate(ctx context.Context, format
 }
 
 func (o *SchemaByQueryIDDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -324,7 +318,6 @@ func (o *SchemaByQueryIDDefaultBody) contextValidateDetails(ctx context.Context,
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -353,7 +346,6 @@ SchemaByQueryIDDefaultBodyDetailsItems0 schema by query ID default body details 
 swagger:model SchemaByQueryIDDefaultBodyDetailsItems0
 */
 type SchemaByQueryIDDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -365,7 +357,6 @@ type SchemaByQueryIDDefaultBodyDetailsItems0 struct {
 func (o *SchemaByQueryIDDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -403,7 +394,6 @@ func (o *SchemaByQueryIDDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) err
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o SchemaByQueryIDDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -467,7 +457,6 @@ SchemaByQueryIDOKBody SchemaByQueryIDResponse is schema for given query ID and s
 swagger:model SchemaByQueryIDOKBody
 */
 type SchemaByQueryIDOKBody struct {
-
 	// schema
 	Schema string `json:"schema,omitempty"`
 }

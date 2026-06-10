@@ -31,10 +31,10 @@ import (
 )
 
 const (
-	defaultMaxSeries     = 5
-	defaultMaxPoints     = 500
-	defaultChangePoints  = 3
-	defaultSnapshotStep  = 5 * time.Minute
+	defaultMaxSeries    = 5
+	defaultMaxPoints    = 500
+	defaultChangePoints = 3
+	defaultSnapshotStep = 5 * time.Minute
 )
 
 type metricsSnapshotRequest struct {
@@ -46,20 +46,20 @@ type metricsSnapshotRequest struct {
 }
 
 type metricsSnapshotSeries struct {
-	Metric        model.Metric     `json:"metric"`
-	Stats         SeriesStats      `json:"stats"`
-	ChangePoints  []ChangePoint    `json:"change_points"`
-	Anomalies     []Anomaly        `json:"anomalies"`
-	PointCount    int              `json:"point_count"`
+	Metric       model.Metric  `json:"metric"`
+	Stats        SeriesStats   `json:"stats"`
+	ChangePoints []ChangePoint `json:"change_points"`
+	Anomalies    []Anomaly     `json:"anomalies"`
+	PointCount   int           `json:"point_count"`
 }
 
 type metricsSnapshotResponse struct {
-	From         string                  `json:"from"`
-	To           string                  `json:"to"`
-	Step         string                  `json:"step"`
-	Series       []metricsSnapshotSeries `json:"series"`
-	SeriesCount  int                     `json:"series_count"`
-	Truncated    bool                    `json:"truncated"`
+	From        string                  `json:"from"`
+	To          string                  `json:"to"`
+	Step        string                  `json:"step"`
+	Series      []metricsSnapshotSeries `json:"series"`
+	SeriesCount int                     `json:"series_count"`
+	Truncated   bool                    `json:"truncated"`
 }
 
 // PostMetricsSnapshot handles POST /v1/adre/metrics/snapshot.

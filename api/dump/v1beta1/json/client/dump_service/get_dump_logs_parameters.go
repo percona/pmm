@@ -58,7 +58,6 @@ GetDumpLogsParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type GetDumpLogsParams struct {
-
 	// DumpID.
 	DumpID string
 
@@ -160,7 +159,6 @@ func (o *GetDumpLogsParams) SetOffset(offset *int64) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *GetDumpLogsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}
@@ -181,7 +179,6 @@ func (o *GetDumpLogsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.R
 		}
 		qLimit := swag.FormatInt64(qrLimit)
 		if qLimit != "" {
-
 			if err := r.SetQueryParam("limit", qLimit); err != nil {
 				return err
 			}
@@ -198,7 +195,6 @@ func (o *GetDumpLogsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.R
 		}
 		qOffset := swag.FormatInt64(qrOffset)
 		if qOffset != "" {
-
 			if err := r.SetQueryParam("offset", qOffset); err != nil {
 				return err
 			}

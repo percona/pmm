@@ -101,7 +101,6 @@ func (o *HealthCheckOK) GetPayload() any {
 }
 
 func (o *HealthCheckOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
@@ -173,7 +172,6 @@ func (o *HealthCheckDefault) GetPayload() *HealthCheckDefaultBody {
 }
 
 func (o *HealthCheckDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(HealthCheckDefaultBody)
 
 	// response payload
@@ -189,7 +187,6 @@ HealthCheckDefaultBody health check default body
 swagger:model HealthCheckDefaultBody
 */
 type HealthCheckDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -259,9 +256,7 @@ func (o *HealthCheckDefaultBody) ContextValidate(ctx context.Context, formats st
 }
 
 func (o *HealthCheckDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -281,7 +276,6 @@ func (o *HealthCheckDefaultBody) contextValidateDetails(ctx context.Context, for
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -310,7 +304,6 @@ HealthCheckDefaultBodyDetailsItems0 health check default body details items0
 swagger:model HealthCheckDefaultBodyDetailsItems0
 */
 type HealthCheckDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -322,7 +315,6 @@ type HealthCheckDefaultBodyDetailsItems0 struct {
 func (o *HealthCheckDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -360,7 +352,6 @@ func (o *HealthCheckDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o HealthCheckDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}

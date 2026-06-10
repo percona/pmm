@@ -28,20 +28,20 @@ import (
 
 // UsageRecordInput describes one Holmes /api/chat completion to persist.
 type UsageRecordInput struct {
-	DB                   *reform.DB
-	Feature              string
-	FeatureRef           string
-	AdreConversationID   *int64
-	InvestigationID      string
-	Model                string
-	Metadata             json.RawMessage
-	TriggeredBy          string
-	Stream               bool
-	LatencyMs            int
-	AdreMessageID        *int64
+	DB                     *reform.DB
+	Feature                string
+	FeatureRef             string
+	AdreConversationID     *int64
+	InvestigationID        string
+	Model                  string
+	Metadata               json.RawMessage
+	TriggeredBy            string
+	Stream                 bool
+	LatencyMs              int
+	AdreMessageID          *int64
 	InvestigationMessageID *string
-	QanQueryID           string
-	QanServiceID         string
+	QanQueryID             string
+	QanServiceID           string
 }
 
 // RecordHolmesUsage inserts a holmes_usage_events row and updates linked entities.

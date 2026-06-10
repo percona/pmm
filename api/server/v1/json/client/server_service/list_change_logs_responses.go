@@ -102,7 +102,6 @@ func (o *ListChangeLogsOK) GetPayload() *ListChangeLogsOKBody {
 }
 
 func (o *ListChangeLogsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListChangeLogsOKBody)
 
 	// response payload
@@ -176,7 +175,6 @@ func (o *ListChangeLogsDefault) GetPayload() *ListChangeLogsDefaultBody {
 }
 
 func (o *ListChangeLogsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListChangeLogsDefaultBody)
 
 	// response payload
@@ -192,7 +190,6 @@ ListChangeLogsDefaultBody list change logs default body
 swagger:model ListChangeLogsDefaultBody
 */
 type ListChangeLogsDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -262,9 +259,7 @@ func (o *ListChangeLogsDefaultBody) ContextValidate(ctx context.Context, formats
 }
 
 func (o *ListChangeLogsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -284,7 +279,6 @@ func (o *ListChangeLogsDefaultBody) contextValidateDetails(ctx context.Context, 
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -397,7 +391,6 @@ ListChangeLogsDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized pr
 swagger:model ListChangeLogsDefaultBodyDetailsItems0
 */
 type ListChangeLogsDefaultBodyDetailsItems0 struct {
-
 	// A URL/resource name that uniquely identifies the type of the serialized
 	// protocol buffer message. This string must contain at least
 	// one "/" character. The last segment of the URL's path must represent
@@ -436,7 +429,6 @@ type ListChangeLogsDefaultBodyDetailsItems0 struct {
 func (o *ListChangeLogsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// A URL/resource name that uniquely identifies the type of the serialized
 		// protocol buffer message. This string must contain at least
 		// one "/" character. The last segment of the URL's path must represent
@@ -501,7 +493,6 @@ func (o *ListChangeLogsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) erro
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o ListChangeLogsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// A URL/resource name that uniquely identifies the type of the serialized
 		// protocol buffer message. This string must contain at least
 		// one "/" character. The last segment of the URL's path must represent
@@ -592,7 +583,6 @@ ListChangeLogsOKBody list change logs OK body
 swagger:model ListChangeLogsOKBody
 */
 type ListChangeLogsOKBody struct {
-
 	// List of available updates.
 	Updates []*ListChangeLogsOKBodyUpdatesItems0 `json:"updates"`
 
@@ -676,9 +666,7 @@ func (o *ListChangeLogsOKBody) ContextValidate(ctx context.Context, formats strf
 }
 
 func (o *ListChangeLogsOKBody) contextValidateUpdates(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Updates); i++ {
-
 		if o.Updates[i] != nil {
 
 			if swag.IsZero(o.Updates[i]) { // not required
@@ -698,7 +686,6 @@ func (o *ListChangeLogsOKBody) contextValidateUpdates(ctx context.Context, forma
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -727,7 +714,6 @@ ListChangeLogsOKBodyUpdatesItems0 list change logs OK body updates items0
 swagger:model ListChangeLogsOKBodyUpdatesItems0
 */
 type ListChangeLogsOKBodyUpdatesItems0 struct {
-
 	// PMM Version.
 	Version string `json:"version,omitempty"`
 

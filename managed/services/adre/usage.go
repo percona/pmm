@@ -75,10 +75,10 @@ func ParseHolmesMetadata(raw json.RawMessage) *HolmesUsage {
 	}
 	if len(meta.Costs) > 0 {
 		var c struct {
-			TotalCost      *float64 `json:"total_cost"`
-			PromptTokens   *float64 `json:"prompt_tokens"`
+			TotalCost        *float64 `json:"total_cost"`
+			PromptTokens     *float64 `json:"prompt_tokens"`
 			CompletionTokens *float64 `json:"completion_tokens"`
-			CachedTokens   *float64 `json:"cached_tokens"`
+			CachedTokens     *float64 `json:"cached_tokens"`
 		}
 		if json.Unmarshal(meta.Costs, &c) == nil {
 			out.TotalCost = c.TotalCost

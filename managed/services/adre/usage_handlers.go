@@ -286,21 +286,21 @@ func (h *Handlers) GetUsageEvents(w http.ResponseWriter, r *http.Request) {
 	defer func() { _ = rows.Close() }()
 
 	type eventRow struct {
-		ID                 int64   `json:"id"`
-		CreatedAt          string  `json:"created_at"`
-		Feature            string  `json:"feature"`
-		FeatureRef         string  `json:"feature_ref"`
-		AdreConversationID *int64  `json:"adre_conversation_id,omitempty"`
-		InvestigationID    string  `json:"investigation_id,omitempty"`
-		Model              string  `json:"model"`
-		PromptTokens       *int32  `json:"prompt_tokens,omitempty"`
-		CompletionTokens   *int32  `json:"completion_tokens,omitempty"`
-		TotalTokens        *int32  `json:"total_tokens,omitempty"`
-		CachedTokens       *int32  `json:"cached_tokens,omitempty"`
+		ID                 int64    `json:"id"`
+		CreatedAt          string   `json:"created_at"`
+		Feature            string   `json:"feature"`
+		FeatureRef         string   `json:"feature_ref"`
+		AdreConversationID *int64   `json:"adre_conversation_id,omitempty"`
+		InvestigationID    string   `json:"investigation_id,omitempty"`
+		Model              string   `json:"model"`
+		PromptTokens       *int32   `json:"prompt_tokens,omitempty"`
+		CompletionTokens   *int32   `json:"completion_tokens,omitempty"`
+		TotalTokens        *int32   `json:"total_tokens,omitempty"`
+		CachedTokens       *int32   `json:"cached_tokens,omitempty"`
 		TotalCost          *float64 `json:"total_cost,omitempty"`
-		LatencyMs          *int32  `json:"latency_ms,omitempty"`
-		TriggeredBy        string  `json:"triggered_by,omitempty"`
-		Stream             bool    `json:"stream"`
+		LatencyMs          *int32   `json:"latency_ms,omitempty"`
+		TriggeredBy        string   `json:"triggered_by,omitempty"`
+		Stream             bool     `json:"stream"`
 	}
 
 	var events []eventRow

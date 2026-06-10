@@ -58,7 +58,6 @@ DeleteArtifactParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type DeleteArtifactParams struct {
-
 	/* ArtifactID.
 
 	   Machine-readable artifact ID.
@@ -148,7 +147,6 @@ func (o *DeleteArtifactParams) SetRemoveFiles(removeFiles *bool) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *DeleteArtifactParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}
@@ -169,7 +167,6 @@ func (o *DeleteArtifactParams) WriteToRequest(r runtime.ClientRequest, reg strfm
 		}
 		qRemoveFiles := swag.FormatBool(qrRemoveFiles)
 		if qRemoveFiles != "" {
-
 			if err := r.SetQueryParam("remove_files", qRemoveFiles); err != nil {
 				return err
 			}

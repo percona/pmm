@@ -102,7 +102,6 @@ func (o *DiscoverAzureDatabaseOK) GetPayload() *DiscoverAzureDatabaseOKBody {
 }
 
 func (o *DiscoverAzureDatabaseOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(DiscoverAzureDatabaseOKBody)
 
 	// response payload
@@ -176,7 +175,6 @@ func (o *DiscoverAzureDatabaseDefault) GetPayload() *DiscoverAzureDatabaseDefaul
 }
 
 func (o *DiscoverAzureDatabaseDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(DiscoverAzureDatabaseDefaultBody)
 
 	// response payload
@@ -192,7 +190,6 @@ DiscoverAzureDatabaseBody DiscoverAzureDatabaseRequest discover azure databases 
 swagger:model DiscoverAzureDatabaseBody
 */
 type DiscoverAzureDatabaseBody struct {
-
 	// Azure client ID.
 	AzureClientID string `json:"azure_client_id,omitempty"`
 
@@ -239,7 +236,6 @@ DiscoverAzureDatabaseDefaultBody discover azure database default body
 swagger:model DiscoverAzureDatabaseDefaultBody
 */
 type DiscoverAzureDatabaseDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -309,9 +305,7 @@ func (o *DiscoverAzureDatabaseDefaultBody) ContextValidate(ctx context.Context, 
 }
 
 func (o *DiscoverAzureDatabaseDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -331,7 +325,6 @@ func (o *DiscoverAzureDatabaseDefaultBody) contextValidateDetails(ctx context.Co
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -360,7 +353,6 @@ DiscoverAzureDatabaseDefaultBodyDetailsItems0 discover azure database default bo
 swagger:model DiscoverAzureDatabaseDefaultBodyDetailsItems0
 */
 type DiscoverAzureDatabaseDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -372,7 +364,6 @@ type DiscoverAzureDatabaseDefaultBodyDetailsItems0 struct {
 func (o *DiscoverAzureDatabaseDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -410,7 +401,6 @@ func (o *DiscoverAzureDatabaseDefaultBodyDetailsItems0) UnmarshalJSON(data []byt
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o DiscoverAzureDatabaseDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -474,7 +464,6 @@ DiscoverAzureDatabaseOKBody DiscoverAzureDatabaseResponse discover azure databas
 swagger:model DiscoverAzureDatabaseOKBody
 */
 type DiscoverAzureDatabaseOKBody struct {
-
 	// azure database instance
 	AzureDatabaseInstance []*DiscoverAzureDatabaseOKBodyAzureDatabaseInstanceItems0 `json:"azure_database_instance"`
 }
@@ -538,9 +527,7 @@ func (o *DiscoverAzureDatabaseOKBody) ContextValidate(ctx context.Context, forma
 }
 
 func (o *DiscoverAzureDatabaseOKBody) contextValidateAzureDatabaseInstance(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.AzureDatabaseInstance); i++ {
-
 		if o.AzureDatabaseInstance[i] != nil {
 
 			if swag.IsZero(o.AzureDatabaseInstance[i]) { // not required
@@ -560,7 +547,6 @@ func (o *DiscoverAzureDatabaseOKBody) contextValidateAzureDatabaseInstance(ctx c
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -589,7 +575,6 @@ DiscoverAzureDatabaseOKBodyAzureDatabaseInstanceItems0 DiscoverAzureDatabaseInst
 swagger:model DiscoverAzureDatabaseOKBodyAzureDatabaseInstanceItems0
 */
 type DiscoverAzureDatabaseOKBodyAzureDatabaseInstanceItems0 struct {
-
 	// Azure database instance ID.
 	InstanceID string `json:"instance_id,omitempty"`
 

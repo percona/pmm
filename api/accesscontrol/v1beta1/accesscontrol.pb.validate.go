@@ -139,7 +139,8 @@ func (e CreateRoleRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = CreateRoleRequestValidationError{}
@@ -243,7 +244,8 @@ func (e CreateRoleResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = CreateRoleResponseValidationError{}
@@ -290,7 +292,6 @@ func (m *UpdateRoleRequest) validate(all bool) error {
 	}
 
 	if m.Title != nil {
-
 		if utf8.RuneCountInString(m.GetTitle()) < 1 {
 			err := UpdateRoleRequestValidationError{
 				field:  "Title",
@@ -301,7 +302,6 @@ func (m *UpdateRoleRequest) validate(all bool) error {
 			}
 			errors = append(errors, err)
 		}
-
 	}
 
 	if m.Filter != nil {
@@ -379,7 +379,8 @@ func (e UpdateRoleRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = UpdateRoleRequestValidationError{}
@@ -481,7 +482,8 @@ func (e UpdateRoleResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = UpdateRoleResponseValidationError{}
@@ -596,7 +598,8 @@ func (e DeleteRoleRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = DeleteRoleRequestValidationError{}
@@ -698,7 +701,8 @@ func (e DeleteRoleResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = DeleteRoleResponseValidationError{}
@@ -809,7 +813,8 @@ func (e GetRoleRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = GetRoleRequestValidationError{}
@@ -917,7 +922,8 @@ func (e GetRoleResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = GetRoleResponseValidationError{}
@@ -1030,7 +1036,8 @@ func (e SetDefaultRoleRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = SetDefaultRoleRequestValidationError{}
@@ -1132,7 +1139,8 @@ func (e SetDefaultRoleResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = SetDefaultRoleResponseValidationError{}
@@ -1245,7 +1253,8 @@ func (e AssignRolesRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AssignRolesRequestValidationError{}
@@ -1347,7 +1356,8 @@ func (e AssignRolesResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AssignRolesResponseValidationError{}
@@ -1447,7 +1457,8 @@ func (e ListRolesRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ListRolesRequestValidationError{}
@@ -1583,7 +1594,8 @@ func (e ListRolesResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ListRolesResponseValidationError{}
@@ -1693,7 +1705,8 @@ func (e ListRolesResponse_RoleDataValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ListRolesResponse_RoleDataValidationError{}

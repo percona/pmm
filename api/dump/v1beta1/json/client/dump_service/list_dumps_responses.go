@@ -102,7 +102,6 @@ func (o *ListDumpsOK) GetPayload() *ListDumpsOKBody {
 }
 
 func (o *ListDumpsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListDumpsOKBody)
 
 	// response payload
@@ -176,7 +175,6 @@ func (o *ListDumpsDefault) GetPayload() *ListDumpsDefaultBody {
 }
 
 func (o *ListDumpsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListDumpsDefaultBody)
 
 	// response payload
@@ -192,7 +190,6 @@ ListDumpsDefaultBody list dumps default body
 swagger:model ListDumpsDefaultBody
 */
 type ListDumpsDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -262,9 +259,7 @@ func (o *ListDumpsDefaultBody) ContextValidate(ctx context.Context, formats strf
 }
 
 func (o *ListDumpsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -284,7 +279,6 @@ func (o *ListDumpsDefaultBody) contextValidateDetails(ctx context.Context, forma
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -313,7 +307,6 @@ ListDumpsDefaultBodyDetailsItems0 list dumps default body details items0
 swagger:model ListDumpsDefaultBodyDetailsItems0
 */
 type ListDumpsDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -325,7 +318,6 @@ type ListDumpsDefaultBodyDetailsItems0 struct {
 func (o *ListDumpsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -363,7 +355,6 @@ func (o *ListDumpsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o ListDumpsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -427,7 +418,6 @@ ListDumpsOKBody list dumps OK body
 swagger:model ListDumpsOKBody
 */
 type ListDumpsOKBody struct {
-
 	// dumps
 	Dumps []*ListDumpsOKBodyDumpsItems0 `json:"dumps"`
 }
@@ -491,9 +481,7 @@ func (o *ListDumpsOKBody) ContextValidate(ctx context.Context, formats strfmt.Re
 }
 
 func (o *ListDumpsOKBody) contextValidateDumps(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Dumps); i++ {
-
 		if o.Dumps[i] != nil {
 
 			if swag.IsZero(o.Dumps[i]) { // not required
@@ -513,7 +501,6 @@ func (o *ListDumpsOKBody) contextValidateDumps(ctx context.Context, formats strf
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -542,7 +529,6 @@ ListDumpsOKBodyDumpsItems0 list dumps OK body dumps items0
 swagger:model ListDumpsOKBodyDumpsItems0
 */
 type ListDumpsOKBodyDumpsItems0 struct {
-
 	// dump id
 	DumpID string `json:"dump_id,omitempty"`
 

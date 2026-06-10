@@ -27,27 +27,27 @@ type Engine string
 type Intent string
 
 const (
-	EngineMySQL       Engine = "mysql"
-	EnginePostgreSQL  Engine = "postgresql"
-	EngineMongoDB     Engine = "mongodb"
-	EngineValkey      Engine = "valkey"
-	EngineNode        Engine = "node"
+	EngineMySQL      Engine = "mysql"
+	EnginePostgreSQL Engine = "postgresql"
+	EngineMongoDB    Engine = "mongodb"
+	EngineValkey     Engine = "valkey"
+	EngineNode       Engine = "node"
 
-	IntentWorkload        Intent = "workload"
-	IntentConnections     Intent = "connections"
-	IntentSlowQueries     Intent = "slow_queries"
-	IntentReplication     Intent = "replication"
+	IntentWorkload         Intent = "workload"
+	IntentConnections      Intent = "connections"
+	IntentSlowQueries      Intent = "slow_queries"
+	IntentReplication      Intent = "replication"
 	IntentGroupReplication Intent = "group_replication"
-	IntentInnoDB          Intent = "innodb"
-	IntentWAL             Intent = "wal"
-	IntentLocks           Intent = "locks"
-	IntentLatency         Intent = "latency"
-	IntentMemory          Intent = "memory"
-	IntentCPUMemory       Intent = "cpu_memory"
-	IntentDiskIO          Intent = "disk_io"
-	IntentNetwork         Intent = "network"
-	IntentAvailability    Intent = "availability"
-	IntentOverview        Intent = "overview"
+	IntentInnoDB           Intent = "innodb"
+	IntentWAL              Intent = "wal"
+	IntentLocks            Intent = "locks"
+	IntentLatency          Intent = "latency"
+	IntentMemory           Intent = "memory"
+	IntentCPUMemory        Intent = "cpu_memory"
+	IntentDiskIO           Intent = "disk_io"
+	IntentNetwork          Intent = "network"
+	IntentAvailability     Intent = "availability"
+	IntentOverview         Intent = "overview"
 )
 
 type secondaryRoute struct {
@@ -67,38 +67,38 @@ type observabilityRoute struct {
 var observabilityRoutes = map[Engine]map[Intent]observabilityRoute{
 	EngineMySQL: {
 		IntentWorkload: {
-			DashboardUID: "mysql-instance-summary",
-			Title:        "MySQL Instance Summary",
-			UseWhen:      "General instance workload, connections, slow queries, host CPU/disk",
-			PanelIDs:     []int{8, 92, 48, 337, 341},
+			DashboardUID:   "mysql-instance-summary",
+			Title:          "MySQL Instance Summary",
+			UseWhen:        "General instance workload, connections, slow queries, host CPU/disk",
+			PanelIDs:       []int{8, 92, 48, 337, 341},
 			FallbackPrefix: "mysql_",
 		},
 		IntentConnections: {
-			DashboardUID: "mysql-instance-summary",
-			Title:        "MySQL Instance Summary",
-			UseWhen:      "Connection and thread saturation",
-			PanelIDs:     []int{92, 8},
+			DashboardUID:   "mysql-instance-summary",
+			Title:          "MySQL Instance Summary",
+			UseWhen:        "Connection and thread saturation",
+			PanelIDs:       []int{92, 8},
 			FallbackPrefix: "mysql_",
 		},
 		IntentSlowQueries: {
-			DashboardUID: "mysql-instance-summary",
-			Title:        "MySQL Instance Summary",
-			UseWhen:      "Slow query volume",
-			PanelIDs:     []int{48},
+			DashboardUID:   "mysql-instance-summary",
+			Title:          "MySQL Instance Summary",
+			UseWhen:        "Slow query volume",
+			PanelIDs:       []int{48},
 			FallbackPrefix: "mysql_",
 		},
 		IntentReplication: {
-			DashboardUID: "mysql-replicaset-summary",
-			Title:        "MySQL Replication Summary",
-			UseWhen:      "Async replication lag and binlog health",
-			PanelIDs:     []int{16, 17, 26, 33, 35},
+			DashboardUID:   "mysql-replicaset-summary",
+			Title:          "MySQL Replication Summary",
+			UseWhen:        "Async replication lag and binlog health",
+			PanelIDs:       []int{16, 17, 26, 33, 35},
 			FallbackPrefix: "mysql_",
 		},
 		IntentGroupReplication: {
-			DashboardUID: "mysql-group-replicaset-summary",
-			Title:        "MySQL Group Replication Summary",
-			UseWhen:      "Group Replication member state",
-			PanelIDs:     []int{1016, 1044},
+			DashboardUID:   "mysql-group-replicaset-summary",
+			Title:          "MySQL Group Replication Summary",
+			UseWhen:        "Group Replication member state",
+			PanelIDs:       []int{1016, 1044},
 			FallbackPrefix: "mysql_",
 		},
 		IntentInnoDB: {
@@ -112,119 +112,119 @@ var observabilityRoutes = map[Engine]map[Intent]observabilityRoute{
 			FallbackPrefix: "mysql_",
 		},
 		IntentLocks: {
-			DashboardUID: "mysql-innodb",
-			Title:        "MySQL InnoDB Details",
-			UseWhen:      "Row lock waits and lock activity",
-			PanelIDs:     []int{47, 69, 207, 208, 209},
+			DashboardUID:   "mysql-innodb",
+			Title:          "MySQL InnoDB Details",
+			UseWhen:        "Row lock waits and lock activity",
+			PanelIDs:       []int{47, 69, 207, 208, 209},
 			FallbackPrefix: "mysql_",
 		},
 		IntentOverview: {
-			DashboardUID: "mysql-instance-overview",
-			Title:        "MySQL Instances Overview",
-			UseWhen:      "Fleet-wide MySQL comparison",
-			PanelIDs:     []int{9, 10, 11, 12, 13},
+			DashboardUID:   "mysql-instance-overview",
+			Title:          "MySQL Instances Overview",
+			UseWhen:        "Fleet-wide MySQL comparison",
+			PanelIDs:       []int{9, 10, 11, 12, 13},
 			FallbackPrefix: "mysql_",
 		},
 		IntentAvailability: {
-			DashboardUID: "mysql-instance-summary",
-			Title:        "MySQL Instance Summary",
-			UseWhen:      "Use mysql_up instant check; panels optional",
-			PanelIDs:     []int{92},
+			DashboardUID:   "mysql-instance-summary",
+			Title:          "MySQL Instance Summary",
+			UseWhen:        "Use mysql_up instant check; panels optional",
+			PanelIDs:       []int{92},
 			FallbackPrefix: "mysql_up",
 		},
 	},
 	EnginePostgreSQL: {
 		IntentWorkload: {
-			DashboardUID: "postgresql-instance-summary",
-			Title:        "PostgreSQL Instance Summary",
-			UseWhen:      "General PostgreSQL workload",
-			PanelIDs:     []int{23, 1025, 1057, 337, 341},
+			DashboardUID:   "postgresql-instance-summary",
+			Title:          "PostgreSQL Instance Summary",
+			UseWhen:        "General PostgreSQL workload",
+			PanelIDs:       []int{23, 1025, 1057, 337, 341},
 			FallbackPrefix: "pg_",
 		},
 		IntentConnections: {
-			DashboardUID: "postgresql-instance-summary",
-			Title:        "PostgreSQL Instance Summary",
-			UseWhen:      "Connections and session state",
-			PanelIDs:     []int{23, 1015, 1019},
+			DashboardUID:   "postgresql-instance-summary",
+			Title:          "PostgreSQL Instance Summary",
+			UseWhen:        "Connections and session state",
+			PanelIDs:       []int{23, 1015, 1019},
 			FallbackPrefix: "pg_",
 		},
 		IntentLocks: {
-			DashboardUID: "postgresql-instance-summary",
-			Title:        "PostgreSQL Instance Summary",
-			UseWhen:      "Locks, deadlocks, conflicts",
-			PanelIDs:     []int{61, 1071, 1073},
+			DashboardUID:   "postgresql-instance-summary",
+			Title:          "PostgreSQL Instance Summary",
+			UseWhen:        "Locks, deadlocks, conflicts",
+			PanelIDs:       []int{61, 1071, 1073},
 			FallbackPrefix: "pg_",
 		},
 		IntentWAL: {
-			DashboardUID: "postgresql-instance-summary",
-			Title:        "PostgreSQL Instance Summary",
-			UseWhen:      "Write/WAL pressure — no dedicated WAL panel; use txn/disk panels + pg_*wal* fallback",
-			PanelIDs:     []int{1057, 1049, 1033, 1027},
+			DashboardUID:   "postgresql-instance-summary",
+			Title:          "PostgreSQL Instance Summary",
+			UseWhen:        "Write/WAL pressure — no dedicated WAL panel; use txn/disk panels + pg_*wal* fallback",
+			PanelIDs:       []int{1057, 1049, 1033, 1027},
 			FallbackPrefix: "pg_",
 		},
 		IntentSlowQueries: {
-			DashboardUID: "postgresql-instance-summary",
-			Title:        "PostgreSQL Instance Summary",
-			UseWhen:      "Slow queries and query volume",
-			PanelIDs:     []int{1013, 1021},
+			DashboardUID:   "postgresql-instance-summary",
+			Title:          "PostgreSQL Instance Summary",
+			UseWhen:        "Slow queries and query volume",
+			PanelIDs:       []int{1013, 1021},
 			FallbackPrefix: "pg_",
 		},
 		IntentOverview: {
-			DashboardUID: "postgresql-instance-overview",
-			Title:        "PostgreSQL Instances Overview",
-			UseWhen:      "Fleet-wide PostgreSQL comparison",
-			PanelIDs:     []int{1065, 1077, 1079},
+			DashboardUID:   "postgresql-instance-overview",
+			Title:          "PostgreSQL Instances Overview",
+			UseWhen:        "Fleet-wide PostgreSQL comparison",
+			PanelIDs:       []int{1065, 1077, 1079},
 			FallbackPrefix: "pg_",
 		},
 		IntentAvailability: {
-			DashboardUID: "postgresql-instance-summary",
-			Title:        "PostgreSQL Instance Summary",
-			UseWhen:      "Use postgresql_up instant check",
-			PanelIDs:     []int{23},
+			DashboardUID:   "postgresql-instance-summary",
+			Title:          "PostgreSQL Instance Summary",
+			UseWhen:        "Use postgresql_up instant check",
+			PanelIDs:       []int{23},
 			FallbackPrefix: "postgresql_up",
 		},
 	},
 	EngineMongoDB: {
 		IntentWorkload: {
-			DashboardUID: "mongodb-instance-summary",
-			Title:        "MongoDB Instance Summary",
-			UseWhen:      "General MongoDB workload",
-			PanelIDs:     []int{15, 38, 1005, 1014, 337, 341},
+			DashboardUID:   "mongodb-instance-summary",
+			Title:          "MongoDB Instance Summary",
+			UseWhen:        "General MongoDB workload",
+			PanelIDs:       []int{15, 38, 1005, 1014, 337, 341},
 			FallbackPrefix: "mongodb_",
 		},
 		IntentConnections: {
-			DashboardUID: "mongodb-instance-summary",
-			Title:        "MongoDB Instance Summary",
-			UseWhen:      "Connections",
-			PanelIDs:     []int{38},
+			DashboardUID:   "mongodb-instance-summary",
+			Title:          "MongoDB Instance Summary",
+			UseWhen:        "Connections",
+			PanelIDs:       []int{38},
 			FallbackPrefix: "mongodb_",
 		},
 		IntentLatency: {
-			DashboardUID: "mongodb-instance-summary",
-			Title:        "MongoDB Instance Summary",
-			UseWhen:      "Operation latency",
-			PanelIDs:     []int{1007, 1014},
+			DashboardUID:   "mongodb-instance-summary",
+			Title:          "MongoDB Instance Summary",
+			UseWhen:        "Operation latency",
+			PanelIDs:       []int{1007, 1014},
 			FallbackPrefix: "mongodb_",
 		},
 		IntentReplication: {
-			DashboardUID: "mongodb-instance-summary",
-			Title:        "MongoDB Instance Summary",
-			UseWhen:      "Replica set state",
-			PanelIDs:     []int{1016, 1018, 1020},
+			DashboardUID:   "mongodb-instance-summary",
+			Title:          "MongoDB Instance Summary",
+			UseWhen:        "Replica set state",
+			PanelIDs:       []int{1016, 1018, 1020},
 			FallbackPrefix: "mongodb_",
 		},
 		IntentOverview: {
-			DashboardUID: "mongodb-instance-overview",
-			Title:        "MongoDB Instances Overview",
-			UseWhen:      "Fleet-wide MongoDB comparison",
-			PanelIDs:     []int{36, 38, 40},
+			DashboardUID:   "mongodb-instance-overview",
+			Title:          "MongoDB Instances Overview",
+			UseWhen:        "Fleet-wide MongoDB comparison",
+			PanelIDs:       []int{36, 38, 40},
 			FallbackPrefix: "mongodb_",
 		},
 		IntentAvailability: {
-			DashboardUID: "mongodb-instance-summary",
-			Title:        "MongoDB Instance Summary",
-			UseWhen:      "Use mongodb_up instant check",
-			PanelIDs:     []int{38},
+			DashboardUID:   "mongodb-instance-summary",
+			Title:          "MongoDB Instance Summary",
+			UseWhen:        "Use mongodb_up instant check",
+			PanelIDs:       []int{38},
 			FallbackPrefix: "mongodb_up",
 		},
 	},
@@ -240,82 +240,82 @@ var observabilityRoutes = map[Engine]map[Intent]observabilityRoute{
 			FallbackPrefix: "redis_",
 		},
 		IntentConnections: {
-			DashboardUID: "valkey-clients",
-			Title:        "Valkey Clients",
-			UseWhen:      "Connected/blocked clients",
-			PanelIDs:     []int{627, 30, 66, 67},
+			DashboardUID:   "valkey-clients",
+			Title:          "Valkey Clients",
+			UseWhen:        "Connected/blocked clients",
+			PanelIDs:       []int{627, 30, 66, 67},
 			FallbackPrefix: "redis_",
 		},
 		IntentLatency: {
-			DashboardUID: "valkey-overview",
-			Title:        "Valkey Overview",
-			UseWhen:      "Command latency",
-			PanelIDs:     []int{629, 632},
+			DashboardUID:   "valkey-overview",
+			Title:          "Valkey Overview",
+			UseWhen:        "Command latency",
+			PanelIDs:       []int{629, 632},
 			FallbackPrefix: "redis_",
 		},
 		IntentSlowQueries: {
-			DashboardUID: "valkey-slowlog",
-			Title:        "Valkey Slowlog",
-			UseWhen:      "Slow command log",
-			PanelIDs:     []int{99, 100, 101, 102},
+			DashboardUID:   "valkey-slowlog",
+			Title:          "Valkey Slowlog",
+			UseWhen:        "Slow command log",
+			PanelIDs:       []int{99, 100, 101, 102},
 			FallbackPrefix: "redis_",
 		},
 		IntentReplication: {
-			DashboardUID: "valkey-replication",
-			Title:        "Valkey Replication",
-			UseWhen:      "Replica offsets and resyncs",
-			PanelIDs:     []int{23, 53, 62, 63, 65},
+			DashboardUID:   "valkey-replication",
+			Title:          "Valkey Replication",
+			UseWhen:        "Replica offsets and resyncs",
+			PanelIDs:       []int{23, 53, 62, 63, 65},
 			FallbackPrefix: "redis_",
 		},
 		IntentNetwork: {
-			DashboardUID: "valkey-network",
-			Title:        "Valkey Network",
-			UseWhen:      "Network throughput",
-			PanelIDs:     []int{628, 629},
+			DashboardUID:   "valkey-network",
+			Title:          "Valkey Network",
+			UseWhen:        "Network throughput",
+			PanelIDs:       []int{628, 629},
 			FallbackPrefix: "redis_",
 		},
 		IntentMemory: {
-			DashboardUID: "valkey-memory",
-			Title:        "Valkey Memory",
-			UseWhen:      "Memory usage and evictions",
-			PanelIDs:     []int{31, 25, 8, 626},
+			DashboardUID:   "valkey-memory",
+			Title:          "Valkey Memory",
+			UseWhen:        "Memory usage and evictions",
+			PanelIDs:       []int{31, 25, 8, 626},
 			FallbackPrefix: "redis_",
 		},
 		IntentAvailability: {
-			DashboardUID: "valkey-overview",
-			Title:        "Valkey Overview",
-			UseWhen:      "Use redis_up instant check (PMM uses redis_exporter for Valkey)",
-			PanelIDs:     []int{16},
+			DashboardUID:   "valkey-overview",
+			Title:          "Valkey Overview",
+			UseWhen:        "Use redis_up instant check (PMM uses redis_exporter for Valkey)",
+			PanelIDs:       []int{16},
 			FallbackPrefix: "redis_up",
 		},
 	},
 	EngineNode: {
 		IntentCPUMemory: {
-			DashboardUID: "node-instance-summary",
-			Title:        "Node Summary",
-			UseWhen:      "Host CPU and memory",
-			PanelIDs:     []int{2, 29, 33, 57},
+			DashboardUID:   "node-instance-summary",
+			Title:          "Node Summary",
+			UseWhen:        "Host CPU and memory",
+			PanelIDs:       []int{2, 29, 33, 57},
 			FallbackPrefix: "node_",
 		},
 		IntentDiskIO: {
-			DashboardUID: "node-instance-summary",
-			Title:        "Node Summary",
-			UseWhen:      "Disk I/O and space",
-			PanelIDs:     []int{51, 61, 38},
+			DashboardUID:   "node-instance-summary",
+			Title:          "Node Summary",
+			UseWhen:        "Disk I/O and space",
+			PanelIDs:       []int{51, 61, 38},
 			FallbackPrefix: "node_",
 		},
 		IntentNetwork: {
-			DashboardUID: "node-instance-summary",
-			Title:        "Node Summary",
-			UseWhen:      "Network traffic and errors",
-			PanelIDs:     []int{21, 22, 52, 53},
+			DashboardUID:   "node-instance-summary",
+			Title:          "Node Summary",
+			UseWhen:        "Network traffic and errors",
+			PanelIDs:       []int{21, 22, 52, 53},
 			FallbackPrefix: "node_",
 		},
 		IntentOverview: {
-			DashboardUID: "node-instance-summary",
-			Title:        "Node Summary",
-			UseWhen:      "General node health",
-			PanelIDs:     []int{2, 6, 21, 23},
+			DashboardUID:   "node-instance-summary",
+			Title:          "Node Summary",
+			UseWhen:        "General node health",
+			PanelIDs:       []int{2, 6, 21, 23},
 			FallbackPrefix: "node_",
 		},
 	},

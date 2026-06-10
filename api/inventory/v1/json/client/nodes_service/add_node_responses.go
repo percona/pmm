@@ -101,7 +101,6 @@ func (o *AddNodeOK) GetPayload() *AddNodeOKBody {
 }
 
 func (o *AddNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddNodeOKBody)
 
 	// response payload
@@ -175,7 +174,6 @@ func (o *AddNodeDefault) GetPayload() *AddNodeDefaultBody {
 }
 
 func (o *AddNodeDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddNodeDefaultBody)
 
 	// response payload
@@ -191,7 +189,6 @@ AddNodeBody add node body
 swagger:model AddNodeBody
 */
 type AddNodeBody struct {
-
 	// container
 	Container *AddNodeParamsBodyContainer `json:"container,omitempty"`
 
@@ -384,7 +381,6 @@ func (o *AddNodeBody) ContextValidate(ctx context.Context, formats strfmt.Regist
 }
 
 func (o *AddNodeBody) contextValidateContainer(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Container != nil {
 
 		if swag.IsZero(o.Container) { // not required
@@ -409,7 +405,6 @@ func (o *AddNodeBody) contextValidateContainer(ctx context.Context, formats strf
 }
 
 func (o *AddNodeBody) contextValidateGeneric(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Generic != nil {
 
 		if swag.IsZero(o.Generic) { // not required
@@ -434,7 +429,6 @@ func (o *AddNodeBody) contextValidateGeneric(ctx context.Context, formats strfmt
 }
 
 func (o *AddNodeBody) contextValidateRemote(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Remote != nil {
 
 		if swag.IsZero(o.Remote) { // not required
@@ -459,7 +453,6 @@ func (o *AddNodeBody) contextValidateRemote(ctx context.Context, formats strfmt.
 }
 
 func (o *AddNodeBody) contextValidateRemoteAzure(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.RemoteAzure != nil {
 
 		if swag.IsZero(o.RemoteAzure) { // not required
@@ -484,7 +477,6 @@ func (o *AddNodeBody) contextValidateRemoteAzure(ctx context.Context, formats st
 }
 
 func (o *AddNodeBody) contextValidateRemoteRDS(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.RemoteRDS != nil {
 
 		if swag.IsZero(o.RemoteRDS) { // not required
@@ -531,7 +523,6 @@ AddNodeDefaultBody add node default body
 swagger:model AddNodeDefaultBody
 */
 type AddNodeDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -601,9 +592,7 @@ func (o *AddNodeDefaultBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *AddNodeDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -623,7 +612,6 @@ func (o *AddNodeDefaultBody) contextValidateDetails(ctx context.Context, formats
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -652,7 +640,6 @@ AddNodeDefaultBodyDetailsItems0 add node default body details items0
 swagger:model AddNodeDefaultBodyDetailsItems0
 */
 type AddNodeDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -664,7 +651,6 @@ type AddNodeDefaultBodyDetailsItems0 struct {
 func (o *AddNodeDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -702,7 +688,6 @@ func (o *AddNodeDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o AddNodeDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -766,7 +751,6 @@ AddNodeOKBody add node OK body
 swagger:model AddNodeOKBody
 */
 type AddNodeOKBody struct {
-
 	// container
 	Container *AddNodeOKBodyContainer `json:"container,omitempty"`
 
@@ -959,7 +943,6 @@ func (o *AddNodeOKBody) ContextValidate(ctx context.Context, formats strfmt.Regi
 }
 
 func (o *AddNodeOKBody) contextValidateContainer(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Container != nil {
 
 		if swag.IsZero(o.Container) { // not required
@@ -984,7 +967,6 @@ func (o *AddNodeOKBody) contextValidateContainer(ctx context.Context, formats st
 }
 
 func (o *AddNodeOKBody) contextValidateGeneric(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Generic != nil {
 
 		if swag.IsZero(o.Generic) { // not required
@@ -1009,7 +991,6 @@ func (o *AddNodeOKBody) contextValidateGeneric(ctx context.Context, formats strf
 }
 
 func (o *AddNodeOKBody) contextValidateRemote(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Remote != nil {
 
 		if swag.IsZero(o.Remote) { // not required
@@ -1034,7 +1015,6 @@ func (o *AddNodeOKBody) contextValidateRemote(ctx context.Context, formats strfm
 }
 
 func (o *AddNodeOKBody) contextValidateRemoteAzureDatabase(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.RemoteAzureDatabase != nil {
 
 		if swag.IsZero(o.RemoteAzureDatabase) { // not required
@@ -1059,7 +1039,6 @@ func (o *AddNodeOKBody) contextValidateRemoteAzureDatabase(ctx context.Context, 
 }
 
 func (o *AddNodeOKBody) contextValidateRemoteRDS(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.RemoteRDS != nil {
 
 		if swag.IsZero(o.RemoteRDS) { // not required
@@ -1106,7 +1085,6 @@ AddNodeOKBodyContainer ContainerNode represents a Docker container.
 swagger:model AddNodeOKBodyContainer
 */
 type AddNodeOKBodyContainer struct {
-
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -1174,7 +1152,6 @@ AddNodeOKBodyGeneric GenericNode represents a bare metal server or virtual machi
 swagger:model AddNodeOKBodyGeneric
 */
 type AddNodeOKBodyGeneric struct {
-
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -1239,7 +1216,6 @@ AddNodeOKBodyRemote RemoteNode represents generic remote Node. It's a node where
 swagger:model AddNodeOKBodyRemote
 */
 type AddNodeOKBodyRemote struct {
-
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -1295,7 +1271,6 @@ AddNodeOKBodyRemoteAzureDatabase RemoteAzureDatabaseNode represents remote Azure
 swagger:model AddNodeOKBodyRemoteAzureDatabase
 */
 type AddNodeOKBodyRemoteAzureDatabase struct {
-
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -1351,7 +1326,6 @@ AddNodeOKBodyRemoteRDS RemoteRDSNode represents remote RDS Node. Agents can't ru
 swagger:model AddNodeOKBodyRemoteRDS
 */
 type AddNodeOKBodyRemoteRDS struct {
-
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -1410,7 +1384,6 @@ AddNodeParamsBodyContainer add node params body container
 swagger:model AddNodeParamsBodyContainer
 */
 type AddNodeParamsBodyContainer struct {
-
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
@@ -1472,7 +1445,6 @@ AddNodeParamsBodyGeneric add node params body generic
 swagger:model AddNodeParamsBodyGeneric
 */
 type AddNodeParamsBodyGeneric struct {
-
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
@@ -1531,7 +1503,6 @@ AddNodeParamsBodyRemote add node params body remote
 swagger:model AddNodeParamsBodyRemote
 */
 type AddNodeParamsBodyRemote struct {
-
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
@@ -1584,7 +1555,6 @@ AddNodeParamsBodyRemoteAzure add node params body remote azure
 swagger:model AddNodeParamsBodyRemoteAzure
 */
 type AddNodeParamsBodyRemoteAzure struct {
-
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
@@ -1637,7 +1607,6 @@ AddNodeParamsBodyRemoteRDS add node params body remote RDS
 swagger:model AddNodeParamsBodyRemoteRDS
 */
 type AddNodeParamsBodyRemoteRDS struct {
-
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 

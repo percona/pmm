@@ -102,7 +102,6 @@ func (o *GetReportOK) GetPayload() *GetReportOKBody {
 }
 
 func (o *GetReportOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetReportOKBody)
 
 	// response payload
@@ -176,7 +175,6 @@ func (o *GetReportDefault) GetPayload() *GetReportDefaultBody {
 }
 
 func (o *GetReportDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetReportDefaultBody)
 
 	// response payload
@@ -192,7 +190,6 @@ GetReportBody ReportRequest defines filtering of metrics report for db server or
 swagger:model GetReportBody
 */
 type GetReportBody struct {
-
 	// period start from
 	// Format: date-time
 	PeriodStartFrom strfmt.DateTime `json:"period_start_from,omitempty"`
@@ -317,9 +314,7 @@ func (o *GetReportBody) ContextValidate(ctx context.Context, formats strfmt.Regi
 }
 
 func (o *GetReportBody) contextValidateLabels(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Labels); i++ {
-
 		if o.Labels[i] != nil {
 
 			if swag.IsZero(o.Labels[i]) { // not required
@@ -339,7 +334,6 @@ func (o *GetReportBody) contextValidateLabels(ctx context.Context, formats strfm
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -368,7 +362,6 @@ GetReportDefaultBody get report default body
 swagger:model GetReportDefaultBody
 */
 type GetReportDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -438,9 +431,7 @@ func (o *GetReportDefaultBody) ContextValidate(ctx context.Context, formats strf
 }
 
 func (o *GetReportDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -460,7 +451,6 @@ func (o *GetReportDefaultBody) contextValidateDetails(ctx context.Context, forma
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -489,7 +479,6 @@ GetReportDefaultBodyDetailsItems0 get report default body details items0
 swagger:model GetReportDefaultBodyDetailsItems0
 */
 type GetReportDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -501,7 +490,6 @@ type GetReportDefaultBodyDetailsItems0 struct {
 func (o *GetReportDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -539,7 +527,6 @@ func (o *GetReportDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o GetReportDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -603,7 +590,6 @@ GetReportOKBody ReportReply is list of reports per quieryids, hosts etc.
 swagger:model GetReportOKBody
 */
 type GetReportOKBody struct {
-
 	// total rows
 	TotalRows int64 `json:"total_rows,omitempty"`
 
@@ -676,9 +662,7 @@ func (o *GetReportOKBody) ContextValidate(ctx context.Context, formats strfmt.Re
 }
 
 func (o *GetReportOKBody) contextValidateRows(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Rows); i++ {
-
 		if o.Rows[i] != nil {
 
 			if swag.IsZero(o.Rows[i]) { // not required
@@ -698,7 +682,6 @@ func (o *GetReportOKBody) contextValidateRows(ctx context.Context, formats strfm
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -727,7 +710,6 @@ GetReportOKBodyRowsItems0 Row define metrics for selected dimention.
 swagger:model GetReportOKBodyRowsItems0
 */
 type GetReportOKBodyRowsItems0 struct {
-
 	// rank
 	Rank int64 `json:"rank,omitempty"`
 
@@ -853,24 +835,19 @@ func (o *GetReportOKBodyRowsItems0) ContextValidate(ctx context.Context, formats
 }
 
 func (o *GetReportOKBodyRowsItems0) contextValidateMetrics(ctx context.Context, formats strfmt.Registry) error {
-
 	for k := range o.Metrics {
-
 		if val, ok := o.Metrics[k]; ok {
 			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *GetReportOKBodyRowsItems0) contextValidateSparkline(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Sparkline); i++ {
-
 		if o.Sparkline[i] != nil {
 
 			if swag.IsZero(o.Sparkline[i]) { // not required
@@ -890,7 +867,6 @@ func (o *GetReportOKBodyRowsItems0) contextValidateSparkline(ctx context.Context
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -919,7 +895,6 @@ GetReportOKBodyRowsItems0MetricsAnon Metric cell.
 swagger:model GetReportOKBodyRowsItems0MetricsAnon
 */
 type GetReportOKBodyRowsItems0MetricsAnon struct {
-
 	// stats
 	Stats *GetReportOKBodyRowsItems0MetricsAnonStats `json:"stats,omitempty"`
 }
@@ -976,7 +951,6 @@ func (o *GetReportOKBodyRowsItems0MetricsAnon) ContextValidate(ctx context.Conte
 }
 
 func (o *GetReportOKBodyRowsItems0MetricsAnon) contextValidateStats(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Stats != nil {
 
 		if swag.IsZero(o.Stats) { // not required
@@ -1023,7 +997,6 @@ GetReportOKBodyRowsItems0MetricsAnonStats Stat is statistics of specific metric.
 swagger:model GetReportOKBodyRowsItems0MetricsAnonStats
 */
 type GetReportOKBodyRowsItems0MetricsAnonStats struct {
-
 	// rate
 	Rate float32 `json:"rate,omitempty"`
 
@@ -1083,7 +1056,6 @@ GetReportOKBodyRowsItems0SparklineItems0 Point contains values that represents a
 swagger:model GetReportOKBodyRowsItems0SparklineItems0
 */
 type GetReportOKBodyRowsItems0SparklineItems0 struct {
-
 	// The serial number of the chart point from the largest time in the time interval to the lowest time in the time range.
 	Point int64 `json:"point,omitempty"`
 
@@ -1355,7 +1327,6 @@ GetReportParamsBodyLabelsItems0 ReportMapFieldEntry allows to pass labels/diment
 swagger:model GetReportParamsBodyLabelsItems0
 */
 type GetReportParamsBodyLabelsItems0 struct {
-
 	// key
 	Key string `json:"key,omitempty"`
 

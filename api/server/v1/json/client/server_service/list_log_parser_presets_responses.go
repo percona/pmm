@@ -102,7 +102,6 @@ func (o *ListLogParserPresetsOK) GetPayload() *ListLogParserPresetsOKBody {
 }
 
 func (o *ListLogParserPresetsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListLogParserPresetsOKBody)
 
 	// response payload
@@ -176,7 +175,6 @@ func (o *ListLogParserPresetsDefault) GetPayload() *ListLogParserPresetsDefaultB
 }
 
 func (o *ListLogParserPresetsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListLogParserPresetsDefaultBody)
 
 	// response payload
@@ -192,7 +190,6 @@ ListLogParserPresetsDefaultBody list log parser presets default body
 swagger:model ListLogParserPresetsDefaultBody
 */
 type ListLogParserPresetsDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -262,9 +259,7 @@ func (o *ListLogParserPresetsDefaultBody) ContextValidate(ctx context.Context, f
 }
 
 func (o *ListLogParserPresetsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -284,7 +279,6 @@ func (o *ListLogParserPresetsDefaultBody) contextValidateDetails(ctx context.Con
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -397,7 +391,6 @@ ListLogParserPresetsDefaultBodyDetailsItems0 `Any` contains an arbitrary seriali
 swagger:model ListLogParserPresetsDefaultBodyDetailsItems0
 */
 type ListLogParserPresetsDefaultBodyDetailsItems0 struct {
-
 	// A URL/resource name that uniquely identifies the type of the serialized
 	// protocol buffer message. This string must contain at least
 	// one "/" character. The last segment of the URL's path must represent
@@ -436,7 +429,6 @@ type ListLogParserPresetsDefaultBodyDetailsItems0 struct {
 func (o *ListLogParserPresetsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// A URL/resource name that uniquely identifies the type of the serialized
 		// protocol buffer message. This string must contain at least
 		// one "/" character. The last segment of the URL's path must represent
@@ -501,7 +493,6 @@ func (o *ListLogParserPresetsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o ListLogParserPresetsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// A URL/resource name that uniquely identifies the type of the serialized
 		// protocol buffer message. This string must contain at least
 		// one "/" character. The last segment of the URL's path must represent
@@ -592,7 +583,6 @@ ListLogParserPresetsOKBody list log parser presets OK body
 swagger:model ListLogParserPresetsOKBody
 */
 type ListLogParserPresetsOKBody struct {
-
 	// presets
 	Presets []*ListLogParserPresetsOKBodyPresetsItems0 `json:"presets"`
 }
@@ -656,9 +646,7 @@ func (o *ListLogParserPresetsOKBody) ContextValidate(ctx context.Context, format
 }
 
 func (o *ListLogParserPresetsOKBody) contextValidatePresets(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Presets); i++ {
-
 		if o.Presets[i] != nil {
 
 			if swag.IsZero(o.Presets[i]) { // not required
@@ -678,7 +666,6 @@ func (o *ListLogParserPresetsOKBody) contextValidatePresets(ctx context.Context,
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -707,7 +694,6 @@ ListLogParserPresetsOKBodyPresetsItems0 LogParserPreset is one row in PostgreSQL
 swagger:model ListLogParserPresetsOKBodyPresetsItems0
 */
 type ListLogParserPresetsOKBodyPresetsItems0 struct {
-
 	// id
 	ID string `json:"id,omitempty"`
 
