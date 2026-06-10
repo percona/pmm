@@ -61,6 +61,7 @@ func TestQueryInvestigationUsageEvents(t *testing.T) {
 			InvestigationID: investigationID,
 			Model:           "gpt-4.1",
 			TotalTokens:     &total,
+			MetadataJSON:    []byte("{}"),
 		}))
 	}
 
