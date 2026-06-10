@@ -164,6 +164,7 @@ var (
 		(*AddAnnotationResponse)(nil), // 1: management.v1.AddAnnotationResponse
 	}
 )
+
 var file_management_v1_annotation_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type

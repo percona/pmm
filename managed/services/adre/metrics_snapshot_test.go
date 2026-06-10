@@ -47,6 +47,7 @@ func (m *mockVMAPI) Alerts(context.Context) (v1.AlertsResult, error) { panic("un
 func (m *mockVMAPI) AlertManagers(context.Context) (v1.AlertManagersResult, error) {
 	panic("unexpected AlertManagers")
 }
+
 func (m *mockVMAPI) CleanTombstones(context.Context) error           { panic("unexpected CleanTombstones") }
 func (m *mockVMAPI) Config(context.Context) (v1.ConfigResult, error) { panic("unexpected Config") }
 func (m *mockVMAPI) DeleteSeries(context.Context, []string, time.Time, time.Time) error {
