@@ -27,7 +27,7 @@ type Engine string
 type Intent string
 
 const (
-	EngineMySQL      Engine = "mysql"
+	EngineMySQL      Engine = "mysql" //nolint:revive
 	EnginePostgreSQL Engine = "postgresql"
 	EngineMongoDB    Engine = "mongodb"
 	EngineValkey     Engine = "valkey"
@@ -67,11 +67,11 @@ type observabilityRoute struct {
 var observabilityRoutes = map[Engine]map[Intent]observabilityRoute{
 	EngineMySQL: {
 		IntentWorkload: {
-			DashboardUID:   "mysql-instance-summary",
+			DashboardUID:   "mysql-instance-summary", //nolint:goconst
 			Title:          "MySQL Instance Summary",
 			UseWhen:        "General instance workload, connections, slow queries, host CPU/disk",
 			PanelIDs:       []int{8, 92, 48, 337, 341},
-			FallbackPrefix: "mysql_",
+			FallbackPrefix: "mysql_", //nolint:goconst
 		},
 		IntentConnections: {
 			DashboardUID:   "mysql-instance-summary",
@@ -135,11 +135,11 @@ var observabilityRoutes = map[Engine]map[Intent]observabilityRoute{
 	},
 	EnginePostgreSQL: {
 		IntentWorkload: {
-			DashboardUID:   "postgresql-instance-summary",
-			Title:          "PostgreSQL Instance Summary",
+			DashboardUID:   "postgresql-instance-summary", //nolint:goconst
+			Title:          "PostgreSQL Instance Summary", //nolint:goconst
 			UseWhen:        "General PostgreSQL workload",
 			PanelIDs:       []int{23, 1025, 1057, 337, 341},
-			FallbackPrefix: "pg_",
+			FallbackPrefix: "pg_", //nolint:goconst
 		},
 		IntentConnections: {
 			DashboardUID:   "postgresql-instance-summary",
@@ -186,11 +186,11 @@ var observabilityRoutes = map[Engine]map[Intent]observabilityRoute{
 	},
 	EngineMongoDB: {
 		IntentWorkload: {
-			DashboardUID:   "mongodb-instance-summary",
-			Title:          "MongoDB Instance Summary",
+			DashboardUID:   "mongodb-instance-summary", //nolint:goconst
+			Title:          "MongoDB Instance Summary", //nolint:goconst
 			UseWhen:        "General MongoDB workload",
 			PanelIDs:       []int{15, 38, 1005, 1014, 337, 341},
-			FallbackPrefix: "mongodb_",
+			FallbackPrefix: "mongodb_", //nolint:goconst
 		},
 		IntentConnections: {
 			DashboardUID:   "mongodb-instance-summary",
@@ -237,7 +237,7 @@ var observabilityRoutes = map[Engine]map[Intent]observabilityRoute{
 			Secondary: []secondaryRoute{
 				{DashboardUID: "valkey-load", UseWhen: "Command rate drill-down"},
 			},
-			FallbackPrefix: "redis_",
+			FallbackPrefix: "redis_", //nolint:goconst
 		},
 		IntentConnections: {
 			DashboardUID:   "valkey-clients",
@@ -378,7 +378,7 @@ func ParseIntent(raw string) (Intent, error) {
 }
 
 // LookupRoute returns the curated route for engine+intent.
-func LookupRoute(engine Engine, intent Intent) (observabilityRoute, error) {
+func LookupRoute(engine Engine, intent Intent) (observabilityRoute, error) { //nolint:revive
 	byIntent, ok := observabilityRoutes[engine]
 	if !ok {
 		return observabilityRoute{}, fmt.Errorf("no routes for engine %q", engine)

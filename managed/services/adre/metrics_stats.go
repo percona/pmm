@@ -70,11 +70,11 @@ func computeSeriesStats(values []float64) SeriesStats {
 		Min:    sorted[0],
 		Max:    sorted[len(sorted)-1],
 		Mean:   mean,
-		Median: percentileSorted(sorted, 0.50),
-		P25:    percentileSorted(sorted, 0.25),
-		P75:    percentileSorted(sorted, 0.75),
-		P95:    percentileSorted(sorted, 0.95),
-		P99:    percentileSorted(sorted, 0.99),
+		Median: percentileSorted(sorted, 0.50), //nolint:mnd
+		P25:    percentileSorted(sorted, 0.25), //nolint:mnd
+		P75:    percentileSorted(sorted, 0.75), //nolint:mnd
+		P95:    percentileSorted(sorted, 0.95), //nolint:mnd
+		P99:    percentileSorted(sorted, 0.99), //nolint:mnd
 	}
 }
 
@@ -114,7 +114,7 @@ func findChangePoints(timestamps []time.Time, values []float64, topN int) []Chan
 		delta := cur - prev
 		deltaPct := 0.0
 		if prev != 0 {
-			deltaPct = (delta / math.Abs(prev)) * 100
+			deltaPct = (delta / math.Abs(prev)) * 100 //nolint:mnd
 		} else if cur != 0 {
 			deltaPct = 100
 		}
@@ -127,7 +127,7 @@ func findChangePoints(timestamps []time.Time, values []float64, topN int) []Chan
 		topN = len(candidates)
 	}
 	out := make([]ChangePoint, 0, topN)
-	for i := 0; i < topN; i++ {
+	for i := range topN {
 		c := candidates[i]
 		out = append(out, ChangePoint{
 			Bucket:   timestamps[c.idx].UTC().Format(time.RFC3339),
@@ -177,7 +177,7 @@ func findAnomaliesTopN(timestamps []time.Time, values []float64, threshold float
 		topN = len(candidates)
 	}
 	out := make([]Anomaly, 0, topN)
-	for i := 0; i < topN; i++ {
+	for i := range topN {
 		c := candidates[i]
 		out = append(out, Anomaly{
 			Bucket: timestamps[c.idx].UTC().Format(time.RFC3339),

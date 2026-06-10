@@ -77,7 +77,7 @@ func (h *Handlers) requireAdmin(w http.ResponseWriter, r *http.Request) (string,
 	return login, true
 }
 
-// --- response shapes (secrets masked) ---
+// --- response shapes (secrets masked) ---.
 
 type deploymentModelView struct {
 	Name          string `json:"name"`
@@ -183,11 +183,13 @@ func (h *Handlers) PutDeploymentConfig(w http.ResponseWriter, r *http.Request) {
 	}
 	// Validate it parses as YAML before persisting.
 	var probe any
-	if err := yaml.Unmarshal([]byte(body.ConfigYAML), &probe); err != nil {
+	err := yaml.Unmarshal([]byte(body.ConfigYAML), &probe)
+	if err != nil {
 		writeJSONError(w, http.StatusBadRequest, "config.yaml is not valid YAML: "+err.Error())
 		return
 	}
-	if err := models.SaveAdreHolmesConfig(h.db, body.ConfigYAML, login); err != nil {
+	err = models.SaveAdreHolmesConfig(h.db, body.ConfigYAML, login)
+	if err != nil {
 		h.l.Errorf("SaveAdreHolmesConfig: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Failed to save config.yaml")
 		return
@@ -228,7 +230,8 @@ func (h *Handlers) PutDeploymentModels(w http.ResponseWriter, r *http.Request) {
 		// Extra params must be a YAML mapping (e.g. "temperature: 1") so the renderer can merge them.
 		if strings.TrimSpace(m.ExtraParams) != "" {
 			probe := map[string]any{}
-			if err := yaml.Unmarshal([]byte(m.ExtraParams), &probe); err != nil {
+			err := yaml.Unmarshal([]byte(m.ExtraParams), &probe)
+			if err != nil {
 				writeJSONError(w, http.StatusBadRequest, "model "+name+": extra params must be valid YAML key: value pairs: "+err.Error())
 				return
 			}
@@ -252,7 +255,8 @@ func (h *Handlers) DeleteDeploymentModel(w http.ResponseWriter, r *http.Request,
 	if !ok {
 		return
 	}
-	if err := models.DeleteAdreModel(h.db, name); err != nil {
+	err := models.DeleteAdreModel(h.db, name)
+	if err != nil {
 		h.l.Errorf("DeleteAdreModel: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Failed to delete model")
 		return
@@ -280,8 +284,8 @@ func (h *Handlers) PutDeploymentProvisioning(w http.ResponseWriter, r *http.Requ
 		return
 	}
 	prov.PMMURL = strings.TrimSpace(body.PMMURL)
-	prov.RestartRequired = true // PMM_URL lives in .env → needs a Holmes restart
-	if err := models.SaveAdreProvisioning(h.db, prov); err != nil {
+	prov.RestartRequired = true                                     // PMM_URL lives in .env → needs a Holmes restart
+	if err := models.SaveAdreProvisioning(h.db, prov); err != nil { //nolint:noinlineerr
 		h.l.Errorf("SaveAdreProvisioning: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Failed to save PMM URL")
 		return
@@ -344,7 +348,8 @@ func (h *Handlers) DeleteDeploymentSkill(w http.ResponseWriter, r *http.Request,
 	if !ok {
 		return
 	}
-	if err := models.DeleteAdreSkill(h.db, name); err != nil {
+	err := models.DeleteAdreSkill(h.db, name)
+	if err != nil {
 		h.l.Errorf("DeleteAdreSkill: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Failed to delete skill")
 		return
@@ -360,12 +365,13 @@ func (h *Handlers) PostDeploymentProvision(w http.ResponseWriter, r *http.Reques
 	if !ok {
 		return
 	}
-	if _, err := h.provisioner().EnsureProvisioned(incomingAuthContext(r), h.resolvePMMURL()); err != nil {
+	if _, err := h.provisioner().EnsureProvisioned(incomingAuthContext(r), h.resolvePMMURL()); err != nil { //nolint:contextcheck,noinlineerr
 		h.l.Errorf("EnsureProvisioned: %v", err)
 		writeJSONError(w, http.StatusBadGateway, "Provisioning failed: "+err.Error())
 		return
 	}
-	if err := h.applyRender("provisioned"); err != nil {
+	err := h.applyRender("provisioned")
+	if err != nil {
 		writeJSONError(w, http.StatusInternalServerError, "Render failed: "+err.Error())
 		return
 	}
@@ -380,10 +386,11 @@ func (h *Handlers) PostDeploymentApply(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Ensure secrets exist so the rendered .env is complete.
-	if _, err := h.provisioner().EnsureProvisioned(incomingAuthContext(r), h.resolvePMMURL()); err != nil {
+	if _, err := h.provisioner().EnsureProvisioned(incomingAuthContext(r), h.resolvePMMURL()); err != nil { //nolint:contextcheck,noinlineerr
 		h.l.Warnf("EnsureProvisioned during apply: %v", err)
 	}
-	if err := h.applyRender("applied"); err != nil {
+	err := h.applyRender("applied")
+	if err != nil {
 		writeJSONError(w, http.StatusInternalServerError, "Render failed: "+err.Error())
 		return
 	}
@@ -398,7 +405,7 @@ func (h *Handlers) PostDeploymentApply(w http.ResponseWriter, r *http.Request) {
 
 // applyRender renders to disk and records render status; keeps restart_required set (pre-Phase-4).
 func (h *Handlers) applyRender(status string) error {
-	if err := h.renderer().Render(); err != nil {
+	if err := h.renderer().Render(); err != nil { //nolint:noinlineerr
 		_ = h.saveProvStatus("error: "+err.Error(), true)
 		return err
 	}
@@ -455,7 +462,7 @@ func validSkillNameAPI(name string) bool {
 		return false
 	}
 	for _, c := range name {
-		if !(c >= 'a' && c <= 'z') && !(c >= 'A' && c <= 'Z') && !(c >= '0' && c <= '9') && c != '-' && c != '_' {
+		if (c < 'a' || c > 'z') && (c < 'A' || c > 'Z') && (c < '0' || c > '9') && c != '-' && c != '_' {
 			return false
 		}
 	}
@@ -469,7 +476,7 @@ func validModelName(name string) bool {
 		return false
 	}
 	for _, c := range name {
-		if !(c >= 'a' && c <= 'z') && !(c >= 'A' && c <= 'Z') && !(c >= '0' && c <= '9') && c != '.' && c != '-' && c != '_' {
+		if (c < 'a' || c > 'z') && (c < 'A' || c > 'Z') && (c < '0' || c > '9') && c != '.' && c != '-' && c != '_' {
 			return false
 		}
 	}
@@ -482,7 +489,7 @@ func decodeJSON(w http.ResponseWriter, r *http.Request, v any) bool {
 		writeJSONError(w, http.StatusBadRequest, "failed to read request body")
 		return false
 	}
-	if err := json.Unmarshal(body, v); err != nil {
+	if err := json.Unmarshal(body, v); err != nil { //nolint:noinlineerr
 		writeJSONError(w, http.StatusBadRequest, "invalid JSON body")
 		return false
 	}

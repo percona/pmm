@@ -17,11 +17,12 @@ package deployment
 
 import (
 	"fmt"
+	"maps"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/pkg/errors"
+	"github.com/pkg/errors" //nolint:depguard
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 	"gopkg.in/yaml.v3"
@@ -57,7 +58,7 @@ func NewRenderer(db *reform.DB, dir string, l *logrus.Entry) *Renderer {
 // Render writes .env, model_list.yaml, config.yaml and skills/ from the DB. Writes are atomic
 // (temp file + rename) so Holmes never reads a half-written file.
 func (r *Renderer) Render() error {
-	if err := os.MkdirAll(r.dir, dirMode); err != nil {
+	if err := os.MkdirAll(r.dir, dirMode); err != nil { //nolint:noinlineerr
 		return errors.Wrapf(err, "failed to create config dir %q", r.dir)
 	}
 
@@ -78,10 +79,10 @@ func (r *Renderer) Render() error {
 		return err
 	}
 
-	if err := r.renderEnv(prov); err != nil {
+	if err := r.renderEnv(prov); err != nil { //nolint:noinlineerr
 		return err
 	}
-	if err := r.renderModelList(mdls); err != nil {
+	if err := r.renderModelList(mdls); err != nil { //nolint:noinlineerr
 		return err
 	}
 	// Inject the minted PMM service-account token where config.yaml references it (the Grafana-token
@@ -90,13 +91,14 @@ func (r *Renderer) Render() error {
 	// Never overwrite an existing config.yaml with an empty one — an empty config.yaml strips all
 	// PMM toolsets from Holmes. A fresh setup must populate config.yaml before it is rendered.
 	if strings.TrimSpace(configYAML) != "" {
-		if err := writeFileAtomic(filepath.Join(r.dir, "config.yaml"), []byte(configYAML), configFileMode); err != nil {
+		err := writeFileAtomic(filepath.Join(r.dir, "config.yaml"), []byte(configYAML), configFileMode)
+		if err != nil {
 			return errors.Wrap(err, "failed to render config.yaml")
 		}
 	} else {
 		r.l.Warn("ADRE config.yaml is empty in DB; leaving any existing config.yaml on disk untouched")
 	}
-	if err := r.renderSkills(skills); err != nil {
+	if err := r.renderSkills(skills); err != nil { //nolint:noinlineerr
 		return err
 	}
 	return nil
@@ -106,9 +108,9 @@ func (r *Renderer) renderEnv(p *models.AdreProvisioning) error {
 	// Bootstrap env consumed as the holmesgpt compose env_file at container (re)start.
 	var sb strings.Builder
 	sb.WriteString("# Rendered by PMM — bootstrap env for HolmesGPT (do not edit by hand).\n")
-	sb.WriteString(fmt.Sprintf("PMM_URL=%s\n", p.PMMURL))
-	sb.WriteString(fmt.Sprintf("PMM_API_TOKEN=%s\n", p.PMMSAToken))
-	sb.WriteString(fmt.Sprintf("HOLMES_API_KEY=%s\n", p.HolmesAPIKey))
+	fmt.Fprintf(&sb, "PMM_URL=%s\n", p.PMMURL)
+	fmt.Fprintf(&sb, "PMM_API_TOKEN=%s\n", p.PMMSAToken)
+	fmt.Fprintf(&sb, "HOLMES_API_KEY=%s\n", p.HolmesAPIKey)
 	return errors.Wrap(writeFileAtomic(filepath.Join(r.dir, ".env"), []byte(sb.String()), envFileMode), "failed to render .env")
 }
 
@@ -129,9 +131,7 @@ func (r *Renderer) renderModelList(mdls []*models.AdreModel) error {
 			if err := yaml.Unmarshal([]byte(m.ExtraParams), &extra); err != nil { //nolint:noinlineerr
 				return errors.Wrapf(err, "model %q: invalid extra params YAML", m.Name)
 			}
-			for k, v := range extra {
-				entry[k] = v
-			}
+			maps.Copy(entry, extra)
 		}
 		ml[m.Name] = entry
 	}
@@ -144,7 +144,7 @@ func (r *Renderer) renderModelList(mdls []*models.AdreModel) error {
 
 func (r *Renderer) renderSkills(skills []*models.AdreSkill) error {
 	skillsDir := filepath.Join(r.dir, "skills")
-	if err := os.MkdirAll(skillsDir, dirMode); err != nil {
+	if err := os.MkdirAll(skillsDir, dirMode); err != nil { //nolint:noinlineerr
 		return errors.Wrap(err, "failed to create skills dir")
 	}
 
@@ -156,7 +156,8 @@ func (r *Renderer) renderSkills(skills []*models.AdreSkill) error {
 		}
 		want[s.Name] = struct{}{}
 		dir := filepath.Join(skillsDir, s.Name)
-		if err := os.MkdirAll(dir, dirMode); err != nil {
+		err := os.MkdirAll(dir, dirMode)
+		if err != nil {
 			return errors.Wrapf(err, "failed to create skill dir %q", s.Name)
 		}
 		if err := writeFileAtomic(filepath.Join(dir, "SKILL.md"), []byte(s.Body), configFileMode); err != nil { //nolint:noinlineerr
@@ -192,10 +193,12 @@ func validSkillName(name string) bool {
 
 func writeFileAtomic(path string, data []byte, perm os.FileMode) error {
 	tmp := path + ".tmp"
-	if err := os.WriteFile(tmp, data, perm); err != nil {
+	err := os.WriteFile(tmp, data, perm)
+	if err != nil {
 		return err
 	}
-	if err := os.Rename(tmp, path); err != nil {
+	err = os.Rename(tmp, path)
+	if err != nil {
 		_ = os.Remove(tmp)
 		return err
 	}

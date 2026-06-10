@@ -57,15 +57,16 @@ func QueryInvestigationUsageEvents(db *reform.DB, investigationID string) ([]Inv
 	var out []InvestigationUsageEvent
 	for rows.Next() {
 		var ev InvestigationUsageEvent
-		if err := rows.Scan(
+		err := rows.Scan(
 			&ev.ID, &ev.CreatedAt, &ev.Feature, &ev.Model,
 			&ev.TotalTokens, &ev.CachedTokens, &ev.TotalCost, &ev.LatencyMs,
-		); err != nil {
+		)
+		if err != nil {
 			return nil, err
 		}
 		out = append(out, ev)
 	}
-	if err := rows.Err(); err != nil {
+	if err := rows.Err(); err != nil { //nolint:noinlineerr
 		return nil, err
 	}
 	return out, nil

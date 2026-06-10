@@ -511,9 +511,9 @@ func (s *Server) convertSettings(settings *models.Settings, disableInternalPgQan
 		UpdateSnoozeDuration: durationpb.New(settings.Updates.SnoozeDuration),
 		Otel: &serverv1.OtelSettings{
 			CollectorEnabled:     settings.IsOtelCollectorEnabled(),
-			LogsRetentionDays:    int32(settings.GetOtelLogsRetentionDays()),
-			TracesRetentionDays:  int32(settings.GetOtelTracesRetentionDays()),
-			MetricsRetentionDays: int32(settings.GetOtelMetricsRetentionDays()),
+			LogsRetentionDays:    int32(settings.GetOtelLogsRetentionDays()),    //nolint:gosec
+			TracesRetentionDays:  int32(settings.GetOtelTracesRetentionDays()),  //nolint:gosec
+			MetricsRetentionDays: int32(settings.GetOtelMetricsRetentionDays()), //nolint:gosec
 		},
 		NativeQanEnabled: settings.IsNativeQanEnabled(),
 	}

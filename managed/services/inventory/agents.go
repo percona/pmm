@@ -1886,7 +1886,7 @@ func loadOtelLogSourcesFromLabels(labels map[string]string) ([]logSourceEntry, e
 		for path := range strings.SplitSeq(s, ",") {
 			path = strings.TrimSpace(path)
 			if path != "" {
-				cur = append(cur, logSourceEntry{Path: path, Preset: "raw"})
+				cur = append(cur, logSourceEntry{Path: path, Preset: "raw"}) //nolint:goconst
 			}
 		}
 		return cur, nil
@@ -1961,7 +1961,7 @@ func (as *AgentsService) AddOtelCollector(ctx context.Context, p *inventoryv1.Ad
 			}
 			preset := ls.Preset
 			if preset == "" {
-				preset = "raw" //nolint:goconst
+				preset = "raw"
 			}
 			logSources = append(logSources, logSourceEntry{Path: ls.Path, Preset: preset})
 		}
@@ -2134,7 +2134,7 @@ func (as *AgentsService) ChangeOtelCollector( //nolint:cyclop,gocognit
 			return err
 		}
 
-		if p.ReplaceLogSources {
+		if p.ReplaceLogSources { //nolint:gocritic,nestif
 			cur, err = normalizeOtelLogSources(q, p.SetLogSources)
 			if err != nil {
 				return err

@@ -27,12 +27,12 @@ func TestComputeSeriesStats(t *testing.T) {
 	t.Parallel()
 
 	stats := computeSeriesStats([]float64{10, 20, 30, 40, 100})
-	assert.Equal(t, 10.0, stats.Min)
-	assert.Equal(t, 100.0, stats.Max)
+	assert.Equal(t, 10.0, stats.Min)  //nolint:testifylint
+	assert.Equal(t, 100.0, stats.Max) //nolint:testifylint
 	assert.InDelta(t, 40.0, stats.Mean, 0.001)
-	assert.Equal(t, 30.0, stats.Median)
-	assert.Equal(t, 20.0, stats.P25)
-	assert.Equal(t, 40.0, stats.P75)
+	assert.Equal(t, 30.0, stats.Median) //nolint:testifylint
+	assert.Equal(t, 20.0, stats.P25)    //nolint:testifylint
+	assert.Equal(t, 40.0, stats.P75)    //nolint:testifylint
 }
 
 func TestFindChangePoints(t *testing.T) {

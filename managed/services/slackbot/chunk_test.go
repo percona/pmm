@@ -36,7 +36,7 @@ func TestChunkForSlack(t *testing.T) {
 
 	// Long, newline-delimited report → multiple chunks, each within Slack's limit.
 	var sb strings.Builder
-	for i := 0; i < 600; i++ {
+	for range 600 {
 		sb.WriteString("line of investigation output that is reasonably long to fill space\n")
 	}
 	long := sb.String()

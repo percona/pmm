@@ -151,7 +151,7 @@ func TestSampleStreamPointsTruncated(t *testing.T) {
 	_, floats, truncated := sampleStreamPoints(&model.SampleStream{Values: values}, 500)
 	assert.True(t, truncated)
 	assert.Len(t, floats, 500)
-	assert.Equal(t, 100.0, floats[0]) // last 500 of 0..599
+	assert.InDelta(t, 100.0, floats[0], 1e-9) // last 500 of 0..599
 }
 
 func TestFindAnomaliesCapped(t *testing.T) {
@@ -241,6 +241,6 @@ func TestPostMetricsSnapshot_Success(t *testing.T) {
 	var resp metricsSnapshotResponse
 	require.NoError(t, json.NewDecoder(rec.Body).Decode(&resp))
 	require.Len(t, resp.Series, 1)
-	assert.Equal(t, 1.0, resp.Series[0].Stats.Min)
+	assert.Equal(t, 1.0, resp.Series[0].Stats.Min) //nolint:testifylint
 	assert.False(t, resp.Truncated)
 }

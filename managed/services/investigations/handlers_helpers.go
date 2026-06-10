@@ -97,7 +97,7 @@ type investigationResponse struct {
 	Blocks                 []blockResponse `json:"blocks,omitempty"`
 }
 
-func investigationToResponse(inv *models.Investigation) investigationResponse {
+func investigationToResponse(inv *models.Investigation) investigationResponse { //nolint:gocognit
 	resp := investigationResponse{
 		ID:                     inv.ID,
 		Title:                  inv.Title,

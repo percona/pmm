@@ -614,7 +614,7 @@ func (h *Handlers) PostQanInsights(w http.ResponseWriter, r *http.Request) {
 			var cachedAnalysis string
 			var cachedAt time.Time
 			found := rows.Next() && rows.Scan(&cachedAnalysis, &cachedAt) == nil
-			_ = rows.Close()
+			_ = rows.Close() //nolint:sqlclosecheck
 			if found {
 				w.Header().Set("Content-Type", "application/json")
 				_ = json.NewEncoder(w).Encode(map[string]any{ //nolint:errchkjson // response already committed

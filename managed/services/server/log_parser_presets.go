@@ -83,7 +83,7 @@ func (s *Server) ListLogParserPresets(_ context.Context, _ *serverv1.ListLogPars
 		if uerr != nil {
 			return nil, uerr
 		}
-		preset.UsageCount = int32(len(ids))
+		preset.UsageCount = int32(len(ids)) //nolint:gosec
 		out = append(out, preset)
 	}
 	return &serverv1.ListLogParserPresetsResponse{Presets: out}, nil

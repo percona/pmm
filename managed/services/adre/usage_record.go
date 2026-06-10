@@ -45,7 +45,7 @@ type UsageRecordInput struct {
 }
 
 // RecordHolmesUsage inserts a holmes_usage_events row and updates linked entities.
-func RecordHolmesUsage(ctx context.Context, in UsageRecordInput) (int64, error) { //nolint:gocognit,cyclop
+func RecordHolmesUsage(ctx context.Context, in UsageRecordInput) (int64, error) { //nolint:gocognit,unparam
 	if in.DB == nil {
 		return 0, nil
 	}
@@ -92,7 +92,8 @@ func RecordHolmesUsage(ctx context.Context, in UsageRecordInput) (int64, error) 
 			ms := int32(in.LatencyMs) //nolint:gosec
 			ev.LatencyMs = &ms
 		}
-		if err := tx.Save(ev); err != nil {
+		err := tx.Save(ev)
+		if err != nil {
 			return err
 		}
 		eventID = ev.ID

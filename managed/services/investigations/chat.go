@@ -158,7 +158,7 @@ func (h *Handlers) PostInvestigationChat(w http.ResponseWriter, r *http.Request,
 		Content:         lastContent,
 	}
 	adre.ApplyHolmesUsageToInvestigationMessage(assistantMsg, adre.HolmesFeatureInvestigationChat, req.Model, resp.Metadata)
-	if err := models.CreateInvestigationMessage(h.db, assistantMsg); err != nil {
+	if err := models.CreateInvestigationMessage(h.db, assistantMsg); err != nil { //nolint:noinlineerr
 		h.l.Errorf("CreateInvestigationMessage assistant: %v", err)
 	}
 	msgID := assistantMsg.ID

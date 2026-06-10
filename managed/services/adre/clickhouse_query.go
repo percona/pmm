@@ -21,6 +21,7 @@ import (
 	"database/sql"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -55,9 +56,9 @@ var (
 	clickHouseMapDoubleQuoteKey = regexp.MustCompile(`(?i)(ResourceAttributes|LogAttributes|ScopeAttributes|InstrumentationScopeAttributes)\["([^"]+)"\]`)
 	// Holmes bash escaping for jq --arg / "{{ query }}" becomes '"key"' or '"'"' in SQL.
 	clickHouseHolmesQuotedSingleton = regexp.MustCompile(`'"([^']+)"'`)
-	// LLMs (esp. non-frontier models) sometimes drop the space in datetime literals,
+	// LLMs (esp. Non-frontier models) sometimes drop the space in datetime literals,
 	// e.g. '2026-06-0408:10:08' instead of '2026-06-04 08:10:08', which ClickHouse rejects
-	// with "Cannot convert string ... to type DateTime" (code 53). There is no valid format
+	// with "Cannot convert string ... To type DateTime" (code 53). There is no valid format
 	// where YYYY-MM-DD is immediately followed by HH:MM:SS, so re-inserting the space is safe.
 	clickHouseDateTimeMissingSpace = regexp.MustCompile(`(\d{4}-\d{2}-\d{2})(\d{2}:\d{2}:\d{2})`)
 )
@@ -97,7 +98,7 @@ func (h *Handlers) PostClickHouseQuery(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req clickHouseQueryRequest
-	if err := json.Unmarshal(body, &req); err != nil {
+	if err := json.Unmarshal(body, &req); err != nil { //nolint:noinlineerr
 		writeJSONError(w, http.StatusBadRequest, "invalid JSON body")
 		return
 	}
@@ -165,12 +166,12 @@ func (h *Handlers) PostClickHouseQuery(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	_ = json.NewEncoder(w).Encode(resp)
+	_ = json.NewEncoder(w).Encode(resp) //nolint:errchkjson
 }
 
 func (h *Handlers) clickHouseDB(database string) (*sql.DB, bool) {
 	switch strings.ToLower(strings.TrimSpace(database)) {
-	case "pmm":
+	case "pmm": //nolint:goconst
 		if h.clickhouse.PMM == nil {
 			return nil, false
 		}
@@ -194,17 +195,17 @@ func queryFingerprint(query string) string {
 func validateClickHouseQuery(database, query string, maxRows int) (string, error) {
 	db := strings.ToLower(strings.TrimSpace(database))
 	if db != "pmm" && db != "otel" {
-		return "", fmt.Errorf("database must be pmm or otel")
+		return "", errors.New("database must be pmm or otel")
 	}
 
 	q := normalizeClickHouseQuerySQL(query)
 	q = strings.TrimSuffix(q, ";")
 	q = strings.TrimSpace(q)
 	if q == "" {
-		return "", fmt.Errorf("query is empty")
+		return "", errors.New("query is empty")
 	}
 	if strings.Contains(q, ";") {
-		return "", fmt.Errorf("multiple statements are not allowed")
+		return "", errors.New("multiple statements are not allowed")
 	}
 
 	upper := strings.ToUpper(q)
@@ -215,15 +216,15 @@ func validateClickHouseQuery(database, query string, maxRows int) (string, error
 	}
 	for _, pat := range forbiddenSQLPatterns {
 		if pat.MatchString(q) {
-			return "", fmt.Errorf("forbidden SQL pattern")
+			return "", errors.New("forbidden SQL pattern")
 		}
 	}
 
 	if !strings.HasPrefix(upper, "SELECT") && !strings.HasPrefix(upper, "WITH") {
-		return "", fmt.Errorf("only SELECT queries are allowed")
+		return "", errors.New("only SELECT queries are allowed")
 	}
 	if strings.HasPrefix(upper, "WITH") && !regexp.MustCompile(`(?i)\bSELECT\b`).MatchString(q) {
-		return "", fmt.Errorf("WITH queries must contain SELECT")
+		return "", errors.New("WITH queries must contain SELECT")
 	}
 
 	tables, err := extractClickHouseTables(q)
@@ -231,10 +232,11 @@ func validateClickHouseQuery(database, query string, maxRows int) (string, error
 		return "", err
 	}
 	if len(tables) == 0 {
-		return "", fmt.Errorf("query must reference a table in FROM or JOIN")
+		return "", errors.New("query must reference a table in FROM or JOIN")
 	}
 	for _, t := range tables {
-		if err := validateClickHouseTable(db, t); err != nil {
+		err := validateClickHouseTable(db, t)
+		if err != nil {
 			return "", err
 		}
 	}
@@ -278,7 +280,7 @@ func normalizeClickHouseQuerySQL(query string) string {
 	return strings.TrimSpace(q)
 }
 
-func extractClickHouseTables(query string) ([]string, error) {
+func extractClickHouseTables(query string) ([]string, error) { //nolint:unparam
 	matches := tableRefPattern.FindAllStringSubmatch(query, -1)
 	if len(matches) == 0 {
 		return nil, nil
@@ -286,7 +288,7 @@ func extractClickHouseTables(query string) ([]string, error) {
 	seen := make(map[string]struct{})
 	var out []string
 	for _, m := range matches {
-		if len(m) < 2 {
+		if len(m) < 2 { //nolint:mnd
 			continue
 		}
 		name := strings.ToLower(strings.TrimSpace(m[1]))
@@ -324,10 +326,10 @@ func validateClickHouseTable(database, table string) error {
 }
 
 func enforceClickHouseLimit(query string, maxRows int) (string, error) {
-	if m := limitPattern.FindStringSubmatch(query); len(m) == 2 {
+	if m := limitPattern.FindStringSubmatch(query); len(m) == 2 { //nolint:mnd
 		n, err := strconv.Atoi(m[1])
 		if err != nil {
-			return "", fmt.Errorf("invalid LIMIT value")
+			return "", errors.New("invalid LIMIT value")
 		}
 		if n > maxRows {
 			return "", fmt.Errorf("LIMIT %d exceeds max_rows %d", n, maxRows)

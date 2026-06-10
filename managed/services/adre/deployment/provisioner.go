@@ -20,7 +20,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 
-	"github.com/pkg/errors"
+	"github.com/pkg/errors" //nolint:depguard
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
@@ -88,7 +88,8 @@ func (p *Provisioner) EnsureProvisioned(ctx context.Context, pmmURL string) (*mo
 	}
 
 	if changed {
-		if err := models.SaveAdreProvisioning(p.db, prov); err != nil {
+		err := models.SaveAdreProvisioning(p.db, prov)
+		if err != nil {
 			return nil, err
 		}
 	}
@@ -97,8 +98,8 @@ func (p *Provisioner) EnsureProvisioned(ctx context.Context, pmmURL string) (*mo
 
 // generateAPIKey returns a 256-bit base64 random key.
 func generateAPIKey() (string, error) {
-	b := make([]byte, 32) //nolint:mnd
-	if _, err := rand.Read(b); err != nil {
+	b := make([]byte, 32)                   //nolint:mnd
+	if _, err := rand.Read(b); err != nil { //nolint:noinlineerr
 		return "", errors.Wrap(err, "failed to generate API key")
 	}
 	return base64.RawStdEncoding.EncodeToString(b), nil

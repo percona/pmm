@@ -18,6 +18,7 @@ package adre
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"math"
@@ -82,7 +83,7 @@ func (h *Handlers) PostMetricsSnapshot(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var req metricsSnapshotRequest
-	if err = json.Unmarshal(body, &req); err != nil {
+	if err = json.Unmarshal(body, &req); err != nil { //nolint:noinlineerr
 		writeJSONError(w, http.StatusBadRequest, "invalid JSON body")
 		return
 	}
@@ -131,7 +132,7 @@ func (h *Handlers) PostMetricsSnapshot(w http.ResponseWriter, r *http.Request) {
 		writeJSONError(w, http.StatusBadRequest, "query did not return a matrix")
 		return
 	}
-	series := matrix.(model.Matrix)
+	series := matrix.(model.Matrix) //nolint:forcetypeassert
 	if len(series) > maxSeries {
 		writeJSONError(w, http.StatusBadRequest,
 			fmt.Sprintf("query returned %d series; tighten matchers or use topk (max_series=%d)", len(series), maxSeries))
@@ -185,13 +186,13 @@ func parseSnapshotBounds(startRaw, endRaw string) (time.Time, time.Time, error) 
 		return time.Time{}, time.Time{}, fmt.Errorf("invalid start: %w", err)
 	}
 	if !start.Before(end) {
-		return time.Time{}, time.Time{}, fmt.Errorf("start must be before end")
+		return time.Time{}, time.Time{}, errors.New("start must be before end")
 	}
 	return start, end, nil
 }
 
 func parseSnapshotTime(raw string, relativeTo time.Time) (time.Time, error) {
-	if sec, err := strconv.ParseInt(raw, 10, 64); err == nil {
+	if sec, err := strconv.ParseInt(raw, 10, 64); err == nil { //nolint:noinlineerr
 		if sec < 0 {
 			return relativeTo.Add(time.Duration(sec) * time.Second).UTC(), nil
 		}

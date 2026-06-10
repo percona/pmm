@@ -22,7 +22,7 @@ import (
 	"io/fs"
 	"strings"
 
-	"github.com/pkg/errors"
+	"github.com/pkg/errors" //nolint:depguard
 	"gopkg.in/reform.v1"
 	"gopkg.in/yaml.v3"
 
@@ -45,7 +45,7 @@ var defaultConfigYAML string
 
 // grafanaTokenPlaceholder marks where the minted PMM service-account token is injected into
 // config.yaml at render time (the prometheus/metrics and grafana/dashboards toolsets).
-const grafanaTokenPlaceholder = "__PMM_GRAFANA_TOKEN__"
+const grafanaTokenPlaceholder = "__PMM_GRAFANA_TOKEN__" //nolint:gosec
 
 // SeedDefaultConfig seeds adre_holmes_config with the shipped default config.yaml when empty (first run).
 func SeedDefaultConfig(db *reform.DB) error {
@@ -72,14 +72,15 @@ func frontmatterDescription(content string) string {
 		return ""
 	}
 	rest := s[len("---"):]
-	end := strings.Index(rest, "\n---")
-	if end < 0 {
+	before, _, ok := strings.Cut(rest, "\n---")
+	if !ok {
 		return ""
 	}
 	var fm struct {
 		Description string `yaml:"description"`
 	}
-	if err := yaml.Unmarshal([]byte(rest[:end]), &fm); err != nil {
+	err := yaml.Unmarshal([]byte(before), &fm)
+	if err != nil {
 		return ""
 	}
 	return strings.TrimSpace(fm.Description)

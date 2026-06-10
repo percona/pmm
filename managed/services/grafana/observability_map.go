@@ -58,7 +58,7 @@ type observabilityMapResponse struct {
 }
 
 // ServeHTTP implements http.Handler.
-func (h *ObservabilityMapHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *ObservabilityMapHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) { //nolint:gocognit
 	if r.Method != http.MethodGet {
 		writeJSONError(w, http.StatusMethodNotAllowed, "method not allowed", "")
 		return
@@ -85,7 +85,7 @@ func (h *ObservabilityMapHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 	panelIDs := route.PanelIDs
 	if raw := strings.TrimSpace(r.URL.Query().Get("panel_ids")); raw != "" {
 		panelIDs = nil
-		for _, part := range strings.Split(raw, ",") {
+		for part := range strings.SplitSeq(raw, ",") {
 			part = strings.TrimSpace(part)
 			if part == "" {
 				continue

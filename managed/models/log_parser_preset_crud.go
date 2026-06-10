@@ -74,14 +74,14 @@ func NormalizeLogParserOperatorYAML(operatorYAML string) string {
 // dedentOperatorYAML removes common leading indentation (TrimSpace only strips the first line).
 func dedentOperatorYAML(s string) string {
 	lines := strings.Split(s, "\n")
-	min := -1
+	min := -1 //nolint:predeclared,revive
 	for _, line := range lines {
 		if strings.TrimSpace(line) == "" {
 			continue
 		}
 		indent := len(line) - len(strings.TrimLeft(line, " \t"))
 		if min == -1 || indent < min {
-			min = indent
+			min = indent //nolint:revive
 		}
 	}
 	if min <= 0 {
@@ -105,7 +105,7 @@ func dedentOperatorYAML(s string) string {
 func quoteUnquotedRegexLines(s string) string {
 	return logParserRegexFieldLineRe.ReplaceAllStringFunc(s, func(line string) string {
 		sub := logParserRegexFieldLineRe.FindStringSubmatch(line)
-		if len(sub) != 3 {
+		if len(sub) != 3 { //nolint:mnd
 			return line
 		}
 		prefix, value := sub[1], strings.TrimSpace(sub[2])
@@ -207,7 +207,7 @@ func CreateLogParserPreset(q *reform.Querier, name, description, operatorYAML st
 		return nil, err
 	}
 	operatorYAML, err := normalizeAndValidateLogParserOperatorYAML(operatorYAML)
-	if err != nil { //nolint:noinlineerr
+	if err != nil {
 		return nil, err
 	}
 	existing, err := FindLogParserPresetByName(q, name)

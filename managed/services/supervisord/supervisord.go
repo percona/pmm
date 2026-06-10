@@ -184,7 +184,8 @@ func (s *Service) UpdateConfiguration(settings *models.Settings) error {
 	defer s.supervisordConfigsM.Unlock()
 
 	s.ensureOtelClickHouseSchemas(settings)
-	if werr := s.writeOtelCollectorConfigFile(settings); werr != nil {
+	werr := s.writeOtelCollectorConfigFile(settings)
+	if werr != nil {
 		s.l.Warnf("Failed to write OTEL collector YAML: %s.", werr)
 	}
 
@@ -255,10 +256,12 @@ func (s *Service) ensureOtelClickHouseSchemas(settings *models.Settings) {
 		Path:   "/default",
 	}
 	dsn := chURI.String()
-	if err := otel.EnsureOtelSchema(ctx, dsn, settings.GetOtelLogsRetentionDays()); err != nil {
+	err := otel.EnsureOtelSchema(ctx, dsn, settings.GetOtelLogsRetentionDays())
+	if err != nil {
 		s.l.Warnf("Failed to ensure OTEL logs ClickHouse schema: %s.", err)
 	}
-	if err := otel.EnsureOtelTracesMetricsAndServiceMapTables(ctx, dsn, settings.GetOtelTracesRetentionDays(), settings.GetOtelMetricsRetentionDays()); err != nil {
+	err = otel.EnsureOtelTracesMetricsAndServiceMapTables(ctx, dsn, settings.GetOtelTracesRetentionDays(), settings.GetOtelMetricsRetentionDays())
+	if err != nil {
 		s.l.Warnf("Failed to ensure OTEL traces/metrics/service map ClickHouse schema: %s.", err)
 	}
 }
@@ -267,8 +270,9 @@ func (s *Service) writeOtelCollectorConfigFile(settings *models.Settings) error 
 	addr := envvars.GetEnv("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
 	username := envvars.GetEnv("PMM_CLICKHOUSE_USER", defaultClickhouseUser)
 	password := envvars.GetEnv("PMM_CLICKHOUSE_PASSWORD", defaultClickhousePassword)
-	yaml := buildOtelCollectorConfigYAML(addr, username, password, settings.GetOtelLogsRetentionDays(), settings.GetOtelTracesRetentionDays(), settings.GetOtelMetricsRetentionDays())
-	if err := os.MkdirAll(filepath.Dir(otelCollectorConfigPath), 0o755); err != nil { //nolint:mnd
+	yaml := buildOtelCollectorConfigYAML(addr, username, password, settings.GetOtelLogsRetentionDays(), settings.GetOtelTracesRetentionDays(), settings.GetOtelMetricsRetentionDays()) //nolint:lll
+	err := os.MkdirAll(filepath.Dir(otelCollectorConfigPath), 0o755)                                                                                                                   //nolint:gosec,lll,mnd
+	if err != nil {
 		return errors.Wrap(err, "mkdir otelcol")
 	}
 	return errors.WithStack(os.WriteFile(otelCollectorConfigPath, []byte(yaml), 0o644)) //nolint:gosec,mnd

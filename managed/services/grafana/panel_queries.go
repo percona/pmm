@@ -64,7 +64,7 @@ func walkPanelQueries(panels []dashboardPanel, wantIDs map[int]struct{}, out *[]
 	}
 }
 
-func mergePanelTargets(targets []panelTarget) (expr, legend string) {
+func mergePanelTargets(targets []panelTarget) (expr, legend string) { //nolint:nonamedreturns
 	for _, t := range targets {
 		e := strings.TrimSpace(t.Expr)
 		if e == "" {

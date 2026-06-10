@@ -71,7 +71,7 @@ type Section struct {
 }
 
 // FormatInvestigationReport calls Holmes Chat to convert raw markdown into structured JSON.
-// metadata is the Holmes response metadata for usage tracking (may be nil).
+// Metadata is the Holmes response metadata for usage tracking (may be nil).
 func FormatInvestigationReport(ctx context.Context, client *adre.Client, settings *models.Settings, rawMarkdown string) ([]byte, json.RawMessage, error) {
 	ctx, cancel := context.WithTimeout(ctx, formatReportTimeout)
 	defer cancel()

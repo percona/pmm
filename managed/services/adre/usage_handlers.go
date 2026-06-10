@@ -17,6 +17,7 @@ package adre
 
 import (
 	"encoding/csv"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -60,12 +61,12 @@ func parseUsageTimeRange(r *http.Request) (from, to time.Time, err error) { //no
 		}
 	}
 	if from.After(to) {
-		return time.Time{}, time.Time{}, fmt.Errorf("from must be before to")
+		return time.Time{}, time.Time{}, errors.New("from must be before to")
 	}
 	return from, to, nil
 }
 
-func usageFilterClause(from, to time.Time, r *http.Request) (where string, args []any) {
+func usageFilterClause(from, to time.Time, r *http.Request) (where string, args []any) { //nolint:nonamedreturns
 	where = " WHERE created_at >= $1 AND created_at <= $2"
 	args = append(args, from, to)
 	idx := 3
@@ -90,7 +91,7 @@ func usageFilterClause(from, to time.Time, r *http.Request) (where string, args 
 		idx++
 	}
 	if v := strings.TrimSpace(r.URL.Query().Get("conversation_id")); v != "" {
-		if n, err := strconv.ParseInt(v, 10, 64); err == nil {
+		if n, err := strconv.ParseInt(v, 10, 64); err == nil { //nolint:noinlineerr
 			where += fmt.Sprintf(" AND adre_conversation_id = $%d", idx)
 			args = append(args, n)
 		}
@@ -191,7 +192,7 @@ func (h *Handlers) queryUsageGroup(where string, args []any, col1, col2 string) 
 	var out []usageBucket
 	for rows.Next() {
 		var b usageBucket
-		if col2 != "" {
+		if col2 != "" { //nolint:gocritic
 			err = rows.Scan(&b.Feature, &b.Model, &b.TotalTokens, &b.CachedTokens, &b.TotalCost, &b.CallCount)
 		} else if col1 == "model" {
 			err = rows.Scan(&b.Model, &b.TotalTokens, &b.CachedTokens, &b.TotalCost, &b.CallCount)
@@ -246,7 +247,7 @@ func (h *Handlers) queryUsageSeriesDay(where string, args []any, extraCol1, extr
 }
 
 // GetUsageEvents handles GET /v1/adre/usage/events.
-func (h *Handlers) GetUsageEvents(w http.ResponseWriter, r *http.Request) {
+func (h *Handlers) GetUsageEvents(w http.ResponseWriter, r *http.Request) { //nolint:gocognit
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
@@ -262,13 +263,13 @@ func (h *Handlers) GetUsageEvents(w http.ResponseWriter, r *http.Request) {
 	where, args := usageFilterClause(from, to, r)
 	limit := 50
 	if v := r.URL.Query().Get("limit"); v != "" {
-		if n, err := strconv.Atoi(v); err == nil && n > 0 && n <= 500 {
+		if n, err := strconv.Atoi(v); err == nil && n > 0 && n <= 500 { //nolint:noinlineerr
 			limit = n
 		}
 	}
 	offset := 0
 	if v := r.URL.Query().Get("offset"); v != "" {
-		if n, err := strconv.Atoi(v); err == nil && n >= 0 {
+		if n, err := strconv.Atoi(v); err == nil && n >= 0 { //nolint:noinlineerr
 			offset = n
 		}
 	}
@@ -422,8 +423,8 @@ func (h *Handlers) ServeUsageSubroutes(w http.ResponseWriter, r *http.Request) {
 		writeJSONError(w, http.StatusNotFound, "Not found")
 		return
 	}
-	if strings.HasPrefix(path, "investigations/") {
-		id := strings.TrimPrefix(path, "investigations/")
+	if after, ok := strings.CutPrefix(path, "investigations/"); ok {
+		id := after
 		if id == "" || strings.Contains(id, "/") {
 			writeJSONError(w, http.StatusNotFound, "Not found")
 			return

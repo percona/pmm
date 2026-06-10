@@ -575,7 +575,7 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 		}
 	}
 
-	if err := validateOtelSettingsParams(params); err != nil {
+	if err := validateOtelSettingsParams(params); err != nil { //nolint:noinlineerr
 		return err
 	}
 
@@ -592,13 +592,16 @@ func validateOtelSettingsParams(params *ChangeSettingsParams) error {
 		}
 		return nil
 	}
-	if err := checkRetention("otel_logs_retention_days", params.OtelLogsRetentionDays); err != nil {
+	err := checkRetention("otel_logs_retention_days", params.OtelLogsRetentionDays)
+	if err != nil {
 		return err
 	}
-	if err := checkRetention("otel_traces_retention_days", params.OtelTracesRetentionDays); err != nil {
+	err = checkRetention("otel_traces_retention_days", params.OtelTracesRetentionDays)
+	if err != nil {
 		return err
 	}
-	if err := checkRetention("otel_metrics_retention_days", params.OtelMetricsRetentionDays); err != nil {
+	err = checkRetention("otel_metrics_retention_days", params.OtelMetricsRetentionDays)
+	if err != nil {
 		return err
 	}
 	return nil

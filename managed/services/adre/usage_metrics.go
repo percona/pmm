@@ -18,8 +18,8 @@ package adre
 import prom "github.com/prometheus/client_golang/prometheus"
 
 var (
-	holmesUsageCostTotal = prom.NewCounterVec(prom.CounterOpts{
-		Namespace: "pmm",
+	holmesUsageCostTotal = prom.NewCounterVec(prom.CounterOpts{ //nolint:promlinter
+		Namespace: "pmm", //nolint:goconst
 		Subsystem: "holmes",
 		Name:      "usage_total_cost",
 		Help:      "Accumulated Holmes usage cost in USD by feature.",

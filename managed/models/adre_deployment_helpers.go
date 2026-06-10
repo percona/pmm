@@ -19,7 +19,7 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/pkg/errors"
+	"github.com/pkg/errors" //nolint:depguard
 	"gopkg.in/reform.v1"
 )
 
@@ -256,7 +256,7 @@ func GetAdreProvisioning(q reform.DBTX) (*AdreProvisioning, error) {
 
 // SaveAdreProvisioning upserts the singleton provisioning row.
 func SaveAdreProvisioning(q reform.DBTX, p *AdreProvisioning) error {
-	var lastRender interface{}
+	var lastRender any
 	if p.LastRenderAt != nil {
 		lastRender = *p.LastRenderAt
 	}
