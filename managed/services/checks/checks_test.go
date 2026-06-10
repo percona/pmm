@@ -336,6 +336,14 @@ func TestStartChecks(t *testing.T) {
 	})
 }
 
+func TestNewInitializesRunContext(t *testing.T) {
+	t.Parallel()
+	// New must initialize runCtx so StartChecks never passes a nil context
+	// when invoked before Run records the service lifecycle context.
+	s := New(nil, nil, nil, nil)
+	require.NotNil(t, s.runCtx)
+}
+
 func TestFilterChecks(t *testing.T) {
 	t.Parallel()
 

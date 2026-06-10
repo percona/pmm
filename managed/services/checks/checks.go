@@ -94,6 +94,11 @@ type Service struct {
 	startDelay      time.Duration
 	customCheckFile string // For testing
 
+	runCtxM sync.Mutex
+	// runCtx is the service lifecycle context recorded by Run. It bounds
+	// asynchronous work started via StartChecks so it is cancelled on shutdown.
+	runCtx context.Context //nolint:containedctx
+
 	am       sync.Mutex
 	advisors []check.Advisor
 	checks   map[string]check.Check // Checks extracted from advisors and stored by name.
@@ -134,6 +139,7 @@ func New(
 		l:               l,
 		startDelay:      defaultStartDelay,
 		customCheckFile: os.Getenv(envCheckFile),
+		runCtx:          context.Background(),
 
 		mChecksExecuted: prom.NewCounterVec(prom.CounterOpts{
 			Namespace: prometheusNamespace,
@@ -170,6 +176,10 @@ func New(
 func (s *Service) Run(ctx context.Context) {
 	s.l.Info("Starting...")
 	defer s.l.Info("Done.")
+
+	s.runCtxM.Lock()
+	s.runCtx = ctx
+	s.runCtxM.Unlock()
 
 	s.UpdateAdvisorsList(ctx)
 	settings, err := models.GetSettings(s.db)
@@ -275,8 +285,11 @@ func (s *Service) StartChecks(checkNames []string) error {
 		return services.ErrAdvisorsDisabled
 	}
 
+	s.runCtxM.Lock()
+	ctx := s.runCtx
+	s.runCtxM.Unlock()
+
 	go func() {
-		ctx := context.Background()
 		s.UpdateAdvisorsList(ctx)
 		err := s.run(ctx, "", checkNames)
 		if err != nil {
