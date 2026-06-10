@@ -38,12 +38,11 @@ function isLogBlock(title?: string, content?: string): boolean {
 export const MarkdownBlock: FC<{ block: InvestigationBlock }> = ({ block }) => {
   const data = block.dataJson as { content?: string } | undefined;
   const rawContent = data?.content ?? '';
-  const content = useMemo(() => {
-    if (isLogBlock(block.title, rawContent)) {
-      return sortLogLinesOldestFirst(rawContent);
-    }
-    return rawContent;
-  }, [block.title, rawContent]);
+  const isLog = useMemo(() => isLogBlock(block.title, rawContent), [block.title, rawContent]);
+  const content = useMemo(
+    () => (isLog ? sortLogLinesOldestFirst(rawContent) : rawContent),
+    [isLog, rawContent]
+  );
   return (
     <Card variant="outlined" sx={{ mb: 2, bgcolor: 'action.hover', borderLeft: 4, borderLeftColor: 'grey.400' }}>
       {block.title && (
@@ -54,15 +53,35 @@ export const MarkdownBlock: FC<{ block: InvestigationBlock }> = ({ block }) => {
         </CardContent>
       )}
       <CardContent>
-        <Typography component="div" variant="body2">
-          <Markdown
-            remarkPlugins={[remarkGfm]}
-            rehypePlugins={[rehypeRaw]}
-            components={getMarkdownComponents(content)}
+        {isLog ? (
+          // Logs are line-oriented: render verbatim in a monospace block so each entry stays on
+          // its own line (Markdown would collapse the single newlines into spaces).
+          <Typography
+            component="pre"
+            variant="body2"
+            sx={{
+              fontFamily: 'Roboto Mono, monospace',
+              fontSize: '0.8rem',
+              lineHeight: 1.5,
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word',
+              overflowX: 'auto',
+              m: 0,
+            }}
           >
             {content}
-          </Markdown>
-        </Typography>
+          </Typography>
+        ) : (
+          <Typography component="div" variant="body2">
+            <Markdown
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeRaw]}
+              components={getMarkdownComponents(content)}
+            >
+              {content}
+            </Markdown>
+          </Typography>
+        )}
       </CardContent>
     </Card>
   );

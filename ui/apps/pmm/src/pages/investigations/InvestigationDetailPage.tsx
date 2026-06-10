@@ -332,6 +332,11 @@ const InvestigationDetailPage: FC = () => {
     );
   }
 
+  // The block-based report already contains a "Summary" section plus root cause / resolution, so the
+  // scalar summary cards are only shown as a fallback when there are no report blocks (avoids the
+  // duplicate "Summary" at the top and "Detailed summary" at the bottom).
+  const hasReportBlocks = (inv.blocks?.length ?? 0) > 0;
+
   const timeFrom = inv.timeFrom ?? (inv as { time_from?: string }).time_from;
   const timeTo = inv.timeTo ?? (inv as { time_to?: string }).time_to;
   const timeRange =
@@ -496,8 +501,8 @@ const InvestigationDetailPage: FC = () => {
           </>
         );
       })()}
-      {/* Summary */}
-      {inv.summary && (
+      {/* Summary (fallback only — superseded by the Summary report block when present) */}
+      {inv.summary && !hasReportBlocks && (
         <>
           <Typography variant="h6" sx={{ mb: 1 }}>
             Summary
@@ -642,8 +647,8 @@ const InvestigationDetailPage: FC = () => {
         </>
       )}
 
-      {/* Detailed summary */}
-      {(inv.summaryDetailed || inv.rootCauseSummary || inv.resolutionSummary) && (
+      {/* Detailed summary (fallback only — superseded by the report blocks when present) */}
+      {!hasReportBlocks && (inv.summaryDetailed || inv.rootCauseSummary || inv.resolutionSummary) && (
         <>
           <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
             Detailed summary
