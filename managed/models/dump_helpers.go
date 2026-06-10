@@ -71,12 +71,14 @@ func (p *CreateDumpParams) Validate() error {
 
 // CreateDump creates a dump using the specified parameters.
 func CreateDump(q *reform.Querier, params CreateDumpParams) (*Dump, error) {
-	if err := params.Validate(); err != nil {
+	err := params.Validate()
+	if err != nil {
 		return nil, errors.Wrap(err, "invalid dump creation params")
 	}
 
 	id := uuid.New().String()
-	if err := checkUniqueDumpID(q, id); err != nil {
+	err = checkUniqueDumpID(q, id)
+	if err != nil {
 		return nil, err
 	}
 
@@ -90,7 +92,8 @@ func CreateDump(q *reform.Querier, params CreateDumpParams) (*Dump, error) {
 		IgnoreLoad:   params.IgnoreLoad,
 		Encrypted:    params.Encrypted,
 	}
-	if err := q.Insert(dump); err != nil {
+	err = q.Insert(dump)
+	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
@@ -188,11 +191,13 @@ func UpdateDumpStatus(q *reform.Querier, id string, status DumpStatus) error {
 
 // DeleteDump removes dump by ID.
 func DeleteDump(q *reform.Querier, id string) error {
-	if _, err := FindDumpByID(q, id); err != nil {
+	_, err := FindDumpByID(q, id)
+	if err != nil {
 		return err
 	}
 
-	if err := q.Delete(&Dump{ID: id}); err != nil {
+	err = q.Delete(&Dump{ID: id})
+	if err != nil {
 		return errors.Wrapf(err, "failed to delete dump by id '%s'", id)
 	}
 	return nil
@@ -214,7 +219,8 @@ func CreateDumpLog(q *reform.Querier, params CreateDumpLogParams) (*DumpLog, err
 		Data:      params.Data,
 		LastChunk: params.LastChunk,
 	}
-	if err := q.Insert(log); err != nil {
+	err := q.Insert(log)
+	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 	return log, nil

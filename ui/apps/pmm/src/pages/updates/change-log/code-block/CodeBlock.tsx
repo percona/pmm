@@ -15,6 +15,7 @@ export const CodeBlock: FC<PropsWithChildren> = ({ children }) => {
             theme.palette.mode === 'dark'
               ? theme.palette.text.primary
               : theme.palette.action.hover,
+          overflowX: 'auto',
         },
         (theme) =>
           isSingleLine

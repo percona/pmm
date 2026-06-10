@@ -41,7 +41,7 @@ func TestSettings(t *testing.T) {
 	t.Run("GetSettings", func(t *testing.T) {
 		res, err := serverClient.Default.ServerService.GetSettings(nil)
 		require.NoError(t, err)
-		assert.True(t, res.Payload.Settings.TelemetryEnabled)
+		assert.False(t, res.Payload.Settings.TelemetryEnabled)
 		assert.True(t, res.Payload.Settings.AdvisorEnabled)
 		expected := &server.GetSettingsOKBodySettingsMetricsResolutions{
 			Hr: "5s",
@@ -224,7 +224,7 @@ func TestSettings(t *testing.T) {
 
 				resg, err := serverClient.Default.ServerService.GetSettings(nil)
 				require.NoError(t, err)
-				assert.True(t, resg.Payload.Settings.TelemetryEnabled)
+				assert.False(t, resg.Payload.Settings.TelemetryEnabled)
 				assert.False(t, resg.Payload.Settings.AdvisorEnabled)
 			})
 
@@ -243,7 +243,7 @@ func TestSettings(t *testing.T) {
 
 				resg, err := serverClient.Default.ServerService.GetSettings(nil)
 				require.NoError(t, err)
-				assert.True(t, resg.Payload.Settings.TelemetryEnabled)
+				assert.False(t, resg.Payload.Settings.TelemetryEnabled)
 				assert.True(t, resg.Payload.Settings.AdvisorEnabled)
 
 				t.Run("EnableAdvisorsWhileItIsEnabled", func(t *testing.T) {
@@ -258,7 +258,7 @@ func TestSettings(t *testing.T) {
 
 					resg, err := serverClient.Default.ServerService.GetSettings(nil)
 					require.NoError(t, err)
-					assert.True(t, resg.Payload.Settings.TelemetryEnabled)
+					assert.False(t, resg.Payload.Settings.TelemetryEnabled)
 					assert.True(t, resg.Payload.Settings.AdvisorEnabled)
 				})
 
@@ -732,7 +732,9 @@ func TestSettings(t *testing.T) {
 						}
 						b, err = io.ReadAll(resp.Body)
 						require.NoError(t, err)
-						resp.Body.Close() //nolint:errcheck
+						t.Cleanup(func() {
+							assert.NoError(t, resp.Body.Close())
+						})
 
 						if get == "" {
 							require.Equal(t, 400, resp.StatusCode, "response:\n%s", b)
@@ -766,7 +768,9 @@ func TestSettings(t *testing.T) {
 						}
 						b, err = io.ReadAll(resp.Body)
 						require.NoError(t, err)
-						resp.Body.Close() //nolint:errcheck
+						t.Cleanup(func() {
+							assert.NoError(t, resp.Body.Close())
+						})
 						assert.Equal(t, 200, resp.StatusCode, "response:\n%s", b)
 
 						p.Settings.MetricsResolutions.LR = ""

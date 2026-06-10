@@ -74,7 +74,7 @@ func scrapeConfigForClickhouse(mr time.Duration, pmmServerNodeName string) *conf
 		MetricsPath:    "/metrics",
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{{
-				Targets: []string{"127.0.0.1:9363"},
+				Targets: []string{models.LocalhostAddr + ":9363"},
 				Labels:  map[string]string{"instance": pmmServerNodeName},
 			}},
 		},
@@ -89,7 +89,7 @@ func scrapeConfigForGrafana(interval time.Duration, pmmServerNodeName string) *c
 		MetricsPath:    "/graph/metrics",
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{{
-				Targets: []string{"127.0.0.1:3000"},
+				Targets: []string{models.LocalhostAddr + ":3000"},
 				Labels:  map[string]string{"instance": pmmServerNodeName},
 			}},
 		},
@@ -104,7 +104,7 @@ func scrapeConfigForPMMManaged(interval time.Duration, pmmServerNodeName string)
 		MetricsPath:    "/debug/metrics",
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{{
-				Targets: []string{"127.0.0.1:7773"},
+				Targets: []string{models.LocalhostAddr + ":7773"},
 				Labels:  map[string]string{"instance": pmmServerNodeName},
 			}},
 		},
@@ -119,7 +119,7 @@ func scrapeConfigForQANAPI2(interval time.Duration, pmmServerNodeName string) *c
 		MetricsPath:    "/debug/metrics",
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{{
-				Targets: []string{"127.0.0.1:9933"},
+				Targets: []string{models.LocalhostAddr + ":9933"},
 				Labels:  map[string]string{"instance": pmmServerNodeName},
 			}},
 		},
@@ -135,7 +135,7 @@ func scrapeConfigForNomadServer(resolution time.Duration, pmmServerNodeName stri
 		Scheme:         "https",
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{{
-				Targets: []string{"127.0.0.1:4646"},
+				Targets: []string{models.LocalhostAddr + ":4646"},
 				Labels:  map[string]string{"instance": pmmServerNodeName},
 			}},
 		},

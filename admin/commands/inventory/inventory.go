@@ -99,6 +99,8 @@ type ChangeCommand struct {
 }
 
 // ChangeAgentCommand is used by Kong for CLI flags and commands.
+//
+//nolint:lll
 type ChangeAgentCommand struct {
 	NodeExporter          ChangeAgentNodeExporterCommand          `cmd:"" help:"Change node_exporter configuration (only passed flags will be changed)"`
 	MysqldExporter        ChangeAgentMysqldExporterCommand        `cmd:"" help:"Change mysqld_exporter configuration (only passed flags will be changed)"`
@@ -111,13 +113,13 @@ type ChangeAgentCommand struct {
 	ValkeyExporter        ChangeAgentValkeyExporterCommand        `cmd:"" help:"Change valkey_exporter configuration (only passed flags will be changed)"`
 	NomadAgent            ChangeAgentNomadAgentCommand            `cmd:"" help:"Change nomad_agent configuration (only passed flags will be changed)"`
 
-	QANMySQLPerfSchemaAgent         ChangeAgentQANMySQLPerfSchemaAgentCommand         `cmd:"" name:"qan-mysql-perfschema-agent" help:"Change QAN MySQL perf schema agent configuration (only passed flags will be changed)"`                //nolint:lll
-	QANMySQLSlowlogAgent            ChangeAgentQANMySQLSlowlogAgentCommand            `cmd:"" name:"qan-mysql-slowlog-agent" help:"Change QAN MySQL slowlog agent configuration (only passed flags will be changed)"`                       //nolint:lll
-	QANMongoDBProfilerAgent         ChangeAgentQANMongoDBProfilerAgentCommand         `cmd:"" name:"qan-mongodb-profiler-agent" help:"Change QAN MongoDB profiler agent configuration (only passed flags will be changed)"`                 //nolint:lll
-	QANMongoDBMongologAgent         ChangeAgentQANMongoDBMongologAgentCommand         `cmd:"" name:"qan-mongodb-mongolog-agent" help:"Change QAN MongoDB mongolog agent configuration (only passed flags will be changed)"`                 //nolint:lll
-	QANPostgreSQLPgStatementsAgent  ChangeAgentQANPostgreSQLPgStatementsAgentCommand  `cmd:"" name:"qan-postgresql-pgstatements-agent" help:"Change QAN PostgreSQL pgstatements agent configuration (only passed flags will be changed)"`   //nolint:lll
-	QANPostgreSQLPgStatMonitorAgent ChangeAgentQANPostgreSQLPgStatMonitorAgentCommand `cmd:"" name:"qan-postgresql-pgstatmonitor-agent" help:"Change QAN PostgreSQL pgstatmonitor agent configuration (only passed flags will be changed)"` //nolint:lll
-	RTAMongoDBAgent                 ChangeAgentRTAMongoDBAgentCommand                 `cmd:"" name:"rta-mongodb-agent" help:"Change Real-Time Analytics MongoDB agent configuration (only passed flags will be changed)"`                   //nolint:lll
+	QANMySQLPerfSchemaAgent         ChangeAgentQANMySQLPerfSchemaAgentCommand         `cmd:"" name:"qan-mysql-perfschema-agent" help:"Change QAN MySQL perf schema agent configuration (only passed flags will be changed)"`
+	QANMySQLSlowlogAgent            ChangeAgentQANMySQLSlowlogAgentCommand            `cmd:"" name:"qan-mysql-slowlog-agent" help:"Change QAN MySQL slowlog agent configuration (only passed flags will be changed)"`
+	QANMongoDBProfilerAgent         ChangeAgentQANMongoDBProfilerAgentCommand         `cmd:"" name:"qan-mongodb-profiler-agent" help:"Change QAN MongoDB profiler agent configuration (only passed flags will be changed)"`
+	QANMongoDBMongologAgent         ChangeAgentQANMongoDBMongologAgentCommand         `cmd:"" name:"qan-mongodb-mongolog-agent" help:"Change QAN MongoDB mongolog agent configuration (only passed flags will be changed)"`
+	QANPostgreSQLPgStatementsAgent  ChangeAgentQANPostgreSQLPgStatementsAgentCommand  `cmd:"" name:"qan-postgresql-pgstatements-agent" help:"Change QAN PostgreSQL pgstatements agent configuration (only passed flags will be changed)"`
+	QANPostgreSQLPgStatMonitorAgent ChangeAgentQANPostgreSQLPgStatMonitorAgentCommand `cmd:"" name:"qan-postgresql-pgstatmonitor-agent" help:"Change QAN PostgreSQL pgstatmonitor agent configuration (only passed flags will be changed)"`
+	RTAMongoDBAgent                 ChangeAgentRTAMongoDBAgentCommand                 `cmd:"" name:"rta-mongodb-agent" help:"Change Real-Time Analytics MongoDB agent configuration (only passed flags will be changed)"`
 }
 
 // formatTypeValue checks acceptable type value and variations contains input and returns type value.

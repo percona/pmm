@@ -60,7 +60,8 @@ type Service struct {
 	baseURL          *url.URL
 	client           *http.Client
 
-	params *models.VictoriaMetricsParams
+	params   *models.VictoriaMetricsParams
+	chParams *models.ClickHouseParams
 
 	l         *logrus.Entry
 	reloadCh  chan struct{}
@@ -68,7 +69,16 @@ type Service struct {
 }
 
 // NewVictoriaMetrics creates new VictoriaMetrics service.
-func NewVictoriaMetrics(scrapeConfigPath string, db *reform.DB, params *models.VictoriaMetricsParams, haService haService) (*Service, error) {
+func NewVictoriaMetrics(
+	scrapeConfigPath string,
+	db *reform.DB,
+	params *models.VictoriaMetricsParams,
+	chParams *models.ClickHouseParams,
+	haService haService,
+) (*Service, error) {
+	if chParams == nil {
+		return nil, fmt.Errorf("ClickHouse params is required")
+	}
 	u, err := url.Parse(params.URL())
 	if err != nil {
 		return nil, err
@@ -80,6 +90,7 @@ func NewVictoriaMetrics(scrapeConfigPath string, db *reform.DB, params *models.V
 		baseURL:          u,
 		client:           &http.Client{}, // TODO instrument with utils/irt; see vmalert package https://jira.percona.com/browse/PMM-7229
 		params:           params,
+		chParams:         chParams,
 		l:                logrus.WithField("component", "victoriametrics"),
 		reloadCh:         make(chan struct{}, 1),
 		haService:        haService,
@@ -94,10 +105,12 @@ func (svc *Service) Run(ctx context.Context) {
 	svc.l.Info("Starting...")
 	defer svc.l.Info("Done.")
 
-	if err := dir.CreateDataDir(victoriametricsDir, dirPerm); err != nil {
+	err := dir.CreateDataDir(victoriametricsDir, dirPerm)
+	if err != nil {
 		svc.l.Error(err)
 	}
-	if err := dir.CreateDataDir(victoriametricsDataDir, dirPerm); err != nil {
+	err = dir.CreateDataDir(victoriametricsDataDir, dirPerm)
+	if err != nil {
 		svc.l.Error(err)
 	}
 
@@ -124,7 +137,8 @@ func (svc *Service) Run(ctx context.Context) {
 			}
 
 			nCtx, cancel := context.WithTimeout(ctx, configurationUpdateTimeout)
-			if err := svc.updateConfiguration(nCtx); err != nil {
+			err := svc.updateConfiguration(nCtx)
+			if err != nil {
 				svc.l.Errorf("Failed to update configuration, will retry: %+v.", err)
 				svc.RequestConfigurationUpdate()
 			}
@@ -261,15 +275,22 @@ func (svc *Service) validateConfig(ctx context.Context, cfg []byte) error {
 	if err != nil {
 		return err
 	}
+	defer func() {
+		err = f.Close()
+		if err != nil {
+			svc.l.Debug(err)
+		}
+		err = os.Remove(f.Name())
+		if err != nil {
+			svc.l.Debug(err)
+		}
+	}()
 	if _, err = f.Write(cfg); err != nil {
 		return err
 	}
-	defer func() {
-		_ = f.Close()
-		_ = os.Remove(f.Name())
-	}()
 
-	args := []string{"-promscrape.config.dryRun=true", "-promscrape.config", f.Name()}
+	args := make([]string, 0, 4) //nolint:mnd
+	args = append(args, "-promscrape.config.dryRun=true", "-promscrape.config", f.Name())
 	cmd := exec.CommandContext(ctx, "victoriametrics", args...) //nolint:gosec
 	pdeathsig.Set(cmd, unix.SIGKILL)
 
@@ -320,10 +341,12 @@ func (svc *Service) configAndReload(ctx context.Context, b []byte) error {
 	var restore bool
 	defer func() {
 		if restore {
-			if err = os.WriteFile(svc.scrapeConfigPath, oldCfg, fi.Mode()); err != nil {
+			err = os.WriteFile(svc.scrapeConfigPath, oldCfg, fi.Mode()) //nolint:gosec
+			if err != nil {
 				svc.l.Error(err)
 			}
-			if err = svc.reload(ctx); err != nil {
+			err = svc.reload(ctx)
+			if err != nil {
 				svc.l.Error(err)
 			}
 		}
@@ -435,7 +458,7 @@ func scrapeConfigForVMAlert(interval time.Duration, pmmServerNodeName string) *c
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{
 				{
-					Targets: []string{"127.0.0.1:8880"},
+					Targets: []string{models.LocalhostAddr + ":8880"},
 					Labels:  map[string]string{"instance": pmmServerNodeName},
 				},
 			},

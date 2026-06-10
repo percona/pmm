@@ -387,7 +387,8 @@ func GetPlatformAddress() (string, error) {
 		return defaultPlatformAddress, nil
 	}
 
-	if _, err := url.Parse(address); err != nil {
+	_, err := url.Parse(address)
+	if err != nil {
 		return "", fmt.Errorf("invalid Percona Platform address: %w", err)
 	}
 

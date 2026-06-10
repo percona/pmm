@@ -161,7 +161,8 @@ func (cmd *AddMongoDBCommand) RunCmd() (commands.Result, error) {
 	}
 
 	if cmd.CredentialsSource != "" {
-		if err := cmd.GetCredentials(); err != nil {
+		err := cmd.GetCredentials()
+		if err != nil {
 			return nil, fmt.Errorf("failed to retrieve credentials from %s: %w", cmd.CredentialsSource, err)
 		}
 	}
@@ -198,7 +199,7 @@ func (cmd *AddMongoDBCommand) RunCmd() (commands.Result, error) {
 				AuthenticationMechanism:       cmd.AuthenticationMechanism,
 				AuthenticationDatabase:        cmd.AuthenticationDatabase,
 
-				MetricsMode: cmd.MetricsModeFlags.MetricsMode.EnumValue(),
+				MetricsMode: cmd.MetricsMode.EnumValue(),
 
 				EnableAllCollectors: cmd.EnableAllCollectors,
 				DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),

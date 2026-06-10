@@ -450,7 +450,8 @@ func (a *Agent) GetEnvironmentVariableNames() ([]string, error) {
 	}
 
 	var names []string
-	if err := json.Unmarshal(a.EnvironmentVariables, &names); err != nil {
+	err := json.Unmarshal(a.EnvironmentVariables, &names)
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to unmarshal shared environment variable names")
 	}
 	return names, nil
@@ -844,7 +845,7 @@ func (a *Agent) ExporterURL(q *reform.Querier) (string, error) {
 	username := pointer.GetString(a.Username)
 	password := pointer.GetString(a.Password)
 
-	host := "127.0.0.1"
+	host := LocalhostAddr
 	if !a.ExporterOptions.PushMetrics {
 		node, err := FindNodeByID(q, *a.RunsOnNodeID)
 		if err != nil {

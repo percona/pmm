@@ -72,7 +72,8 @@ func (s *RemovalService) DeleteArtifact(storage Storage, artifactID string, remo
 	}
 
 	for _, ri := range restoreItems {
-		if err = models.RemoveRestoreHistoryItem(s.db.Querier, ri.ID); err != nil {
+		err = models.RemoveRestoreHistoryItem(s.db.Querier, ri.ID)
+		if err != nil {
 			return err
 		}
 	}
@@ -97,7 +98,8 @@ func (s *RemovalService) DeleteArtifact(storage Storage, artifactID string, remo
 		}
 
 		if artifact.Vendor == string(models.MongoDBServiceType) && artifact.Mode == models.PITR {
-			if err = s.deleteArtifactPITRChunks(context.Background(), storage, location, artifact, nil); err != nil {
+			err = s.deleteArtifactPITRChunks(context.Background(), storage, location, artifact, nil)
+			if err != nil {
 				s.l.WithError(err).Error("couldn't delete artifact PITR chunks")
 				return
 			}
@@ -135,7 +137,8 @@ func (s *RemovalService) TrimPITRArtifact(storage Storage, artifactID string, fi
 			if err != nil {
 				s.l.Error("Couldn't trim artifact files. Restoring is not guaranteed for files outside of retention policy limit.")
 				// We need to release PITR artifact in case of error, otherwise it will be blocked for restoring.
-				if err = s.releaseArtifact(artifactID, oldStatus); err != nil {
+				err = s.releaseArtifact(artifactID, oldStatus)
+				if err != nil {
 					s.l.WithError(err).Errorf("couldn't unlock artifact %q", artifactID)
 					return
 				}
@@ -186,7 +189,7 @@ func (s *RemovalService) lockArtifact(artifactID string, lockingStatus models.Ba
 		err      error
 	)
 
-	errTx := s.db.InTransactionContext(s.db.Querier.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
+	errTx := s.db.InTransactionContext(s.db.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
 		artifact, err = models.FindArtifactByID(tx.Querier, artifactID)
 		if err != nil {
 			return err
@@ -211,9 +214,10 @@ func (s *RemovalService) lockArtifact(artifactID string, lockingStatus models.Ba
 				"artifact is used by currently running restore operation.", artifact.ID)
 		}
 
-		if _, err := models.UpdateArtifact(tx.Querier, artifact.ID, models.UpdateArtifactParams{
+		_, err = models.UpdateArtifact(tx.Querier, artifact.ID, models.UpdateArtifactParams{
 			Status: lockingStatus.Pointer(),
-		}); err != nil {
+		})
+		if err != nil {
 			return err
 		}
 
@@ -234,7 +238,8 @@ func (s *RemovalService) releaseArtifact(artifactID string, setStatus models.Bac
 			setStatus, artifactID)
 	}
 
-	if err := s.setArtifactStatus(artifactID, setStatus); err != nil {
+	err := s.setArtifactStatus(artifactID, setStatus)
+	if err != nil {
 		return err
 	}
 	return nil
@@ -242,9 +247,10 @@ func (s *RemovalService) releaseArtifact(artifactID string, setStatus models.Bac
 
 // setArtifactStatus sets provided artifact status. Write error logs if status cannot be set.
 func (s *RemovalService) setArtifactStatus(artifactID string, status models.BackupStatus) error {
-	if _, err := models.UpdateArtifact(s.db.Querier, artifactID, models.UpdateArtifactParams{
+	_, err := models.UpdateArtifact(s.db.Querier, artifactID, models.UpdateArtifactParams{
 		Status: status.Pointer(),
-	}); err != nil {
+	})
+	if err != nil {
 		s.l.WithError(err).Errorf("failed to set status %q for artifact %q", status, artifactID)
 		return err
 	}
@@ -267,7 +273,8 @@ func (s *RemovalService) deleteArtifactFiles(ctx context.Context, storage Storag
 		folderName := artifact.Name + "/"
 
 		s.l.Debugf("Deleting folder %s.", folderName)
-		if err := storage.RemoveRecursive(ctx, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, folderName); err != nil {
+		err := storage.RemoveRecursive(ctx, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, folderName)
+		if err != nil {
 			return errors.Wrapf(err, "failed to remove folder %s of artifact %s", folderName, artifact.ID)
 		}
 
@@ -283,13 +290,15 @@ func (s *RemovalService) deleteArtifactFiles(ctx context.Context, storage Storag
 				// To avoid such a situation we need to append a slash.
 				folderName := path.Join(artifact.Folder, file.Name) + "/"
 				s.l.Debugf("Deleting folder %s.", folderName)
-				if err := storage.RemoveRecursive(ctx, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, folderName); err != nil {
+				err := storage.RemoveRecursive(ctx, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, folderName)
+				if err != nil {
 					return errors.Wrapf(err, "failed to remove folder %s of artifact %s", folderName, artifact.ID)
 				}
 			} else {
 				fileName := path.Join(artifact.Folder, file.Name)
 				s.l.Debugf("Deleting file %s.", fileName)
-				if err := storage.Remove(ctx, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, fileName); err != nil {
+				err := storage.Remove(ctx, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, fileName)
+				if err != nil {
 					return errors.Wrapf(err, "failed to remove file %s of artifact %s", file.Name, artifact.ID)
 				}
 			}
@@ -326,7 +335,8 @@ func (s *RemovalService) deleteArtifactPITRChunks(
 	for _, chunk := range chunks {
 		s.l.Debugf("Deleting %s.", chunk.FName)
 
-		if err := storage.Remove(ctx, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, chunk.FName); err != nil {
+		err := storage.Remove(ctx, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, chunk.FName)
+		if err != nil {
 			return errors.Wrapf(err, "failed to remove pitr chunk '%s' (%v) from storage", chunk.FName, chunk)
 		}
 	}
