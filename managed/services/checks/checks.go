@@ -188,13 +188,14 @@ func (s *Service) Run(ctx context.Context) {
 		return
 	}
 
+	s.tm.Lock()
 	s.rareTicker = time.NewTicker(settings.SaaS.AdvisorRunIntervals.RareInterval)
-	defer s.rareTicker.Stop()
-
 	s.standardTicker = time.NewTicker(settings.SaaS.AdvisorRunIntervals.StandardInterval)
-	defer s.standardTicker.Stop()
-
 	s.frequentTicker = time.NewTicker(settings.SaaS.AdvisorRunIntervals.FrequentInterval)
+	s.tm.Unlock()
+
+	defer s.rareTicker.Stop()
+	defer s.standardTicker.Stop()
 	defer s.frequentTicker.Stop()
 
 	// delay for the first run to allow all agents to connect
@@ -1649,10 +1650,16 @@ func (s *Service) updateAdvisors(advisors []check.Advisor) {
 // UpdateIntervals updates advisor checks restart timer intervals.
 func (s *Service) UpdateIntervals(rare, standard, frequent time.Duration) {
 	s.tm.Lock()
+	defer s.tm.Unlock()
+	// Tickers are created by Run; if it has not started on this node (e.g. not
+	// the leader), there is nothing to reset - Run reads the new intervals from
+	// the persisted settings when it starts.
+	if s.rareTicker == nil || s.standardTicker == nil || s.frequentTicker == nil {
+		return
+	}
 	s.rareTicker.Reset(rare)
 	s.standardTicker.Reset(standard)
 	s.frequentTicker.Reset(frequent)
-	s.tm.Unlock()
 
 	s.l.Infof("Intervals are changed: rare %s, standard %s, frequent %s", rare, standard, frequent)
 }

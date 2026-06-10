@@ -344,6 +344,16 @@ func TestNewInitializesRunContext(t *testing.T) {
 	require.NotNil(t, s.runCtx)
 }
 
+func TestUpdateIntervalsBeforeRun(t *testing.T) {
+	t.Parallel()
+	// UpdateIntervals must not panic when Run has not created the tickers yet
+	// (e.g. a settings change on a node that is not the leader).
+	s := New(nil, nil, nil, nil)
+	assert.NotPanics(t, func() {
+		s.UpdateIntervals(time.Hour, time.Minute, time.Second)
+	})
+}
+
 func TestFilterChecks(t *testing.T) {
 	t.Parallel()
 
