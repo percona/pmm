@@ -139,6 +139,10 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				continue
 			}
 		case "PMM_ENABLE_TELEMETRY":
+			if v == "" {
+				// Empty means "not configured"
+				continue
+			}
 			b, err := strconv.ParseBool(v)
 			if err != nil {
 				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))

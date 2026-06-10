@@ -146,13 +146,13 @@ func TestServer(t *testing.T) {
 			assert.Nil(t, s.envSettings.EnableTelemetry)
 		})
 
-		t.Run("InvalidValue", func(t *testing.T) {
+		t.Run("EmptyValue", func(t *testing.T) {
 			s := newServer(t)
+			// An empty value means "not configured", fallback to default value
 			errs := s.UpdateSettingsFromEnv(context.TODO(), []string{
 				"PMM_ENABLE_TELEMETRY=",
 			})
-			require.Len(t, errs, 1)
-			require.EqualError(t, errs[0], `invalid value "" for environment variable "PMM_ENABLE_TELEMETRY"`)
+			require.Empty(t, errs)
 			assert.Nil(t, s.envSettings.EnableTelemetry)
 		})
 
