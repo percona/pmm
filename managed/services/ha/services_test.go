@@ -350,6 +350,43 @@ func TestServices_Wait(t *testing.T) {
 	})
 }
 
+func TestServices_NoDoubleDoneOnStopThenStartError(t *testing.T) {
+	t.Parallel()
+
+	s := newServices()
+	svc := &mockLeaderService{id: "svc"}
+	require.NoError(t, s.Add(svc))
+
+	// Simulate StartAllServices having registered and counted the service.
+	s.rw.Lock()
+	s.running[svc.id] = svc
+	s.wg.Add(1)
+	s.rw.Unlock()
+
+	// Leadership is lost: StopAllServices claims the service and balances the
+	// WaitGroup.
+	s.StopAllServices()
+
+	// The service's Start then returns an error, so its goroutine removes it.
+	// removeService must not decrement the WaitGroup again; otherwise the
+	// counter goes negative and panics.
+	assert.NotPanics(t, func() {
+		s.removeService(svc.id)
+	})
+
+	// WaitGroup is balanced: Wait returns promptly.
+	done := make(chan struct{})
+	go func() {
+		s.Wait()
+		close(done)
+	}()
+	select {
+	case <-done:
+	case <-time.After(time.Second):
+		t.Fatal("Wait did not return; WaitGroup accounting is unbalanced")
+	}
+}
+
 type mockLeaderService struct {
 	id          string
 	started     bool

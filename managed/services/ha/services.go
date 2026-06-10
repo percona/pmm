@@ -74,13 +74,13 @@ func (s *services) StartAllServices(ctx context.Context) {
 	for id, service := range s.all {
 		if _, ok := s.running[id]; !ok {
 			s.running[id] = service
+			s.wg.Add(1)
 			toStart = append(toStart, startItem{svc: service, id: id})
 		}
 	}
 	s.rw.Unlock()
 
 	for _, service := range toStart {
-		s.wg.Add(1)
 		go func(svc LeaderService, svcID string) {
 			s.l.Infoln("Starting", svcID)
 			err := svc.Start(ctx)
@@ -122,7 +122,12 @@ func (s *services) Wait() {
 // removeService removes a service from the registry of running services.
 func (s *services) removeService(id string) {
 	s.rw.Lock()
+	_, ok := s.running[id]
 	delete(s.running, id)
 	s.rw.Unlock()
-	s.wg.Done()
+	// Only decrement for a service we actually removed
+	// to avoid negative counter and panic.
+	if ok {
+		s.wg.Done()
+	}
 }
