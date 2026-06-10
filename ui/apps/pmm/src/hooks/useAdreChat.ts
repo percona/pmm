@@ -424,7 +424,7 @@ export function useAdreChat(options: UseAdreChatOptions = {}) {
         streamStartTimeRef.current = null;
       }
     },
-    [conversationId, enqueueSnackbar, refreshConversations, loadMessagesFor]
+    [conversationId, enqueueSnackbar, refreshConversations, loadMessagesFor, sessionStorageKey]
   );
 
   const allMessages: (ChatMessage & { streaming?: boolean })[] = [

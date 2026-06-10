@@ -18,7 +18,7 @@ export const QanTablesTab: FC = () => {
     [state]
   );
   const { data: exData, isLoading: exLoading } = useQanExamples(exampleParams, !!state.queryId);
-  const tables = exData?.examples?.[0]?.tables ?? [];
+  const tables = useMemo(() => exData?.examples?.[0]?.tables ?? [], [exData]);
 
   const schemaParams = useMemo(
     () => ({

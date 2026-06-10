@@ -64,10 +64,10 @@ const AdreUsagePage: FC = () => {
   });
 
   const totals = summaryQuery.data?.totals;
-  const series = summaryQuery.data?.series ?? [];
+  const series = useMemo(() => summaryQuery.data?.series ?? [], [summaryQuery.data]);
   const byFeature = summaryQuery.data?.byFeature ?? summaryQuery.data?.by_feature ?? [];
   const byModel = summaryQuery.data?.byModel ?? summaryQuery.data?.by_model ?? [];
-  const events = eventsQuery.data?.events ?? [];
+  const events = useMemo(() => eventsQuery.data?.events ?? [], [eventsQuery.data]);
 
   const dailyCostSeries = useMemo(() => {
     if (!summaryQuery.data) {
@@ -86,10 +86,11 @@ const AdreUsagePage: FC = () => {
   const daysWithCost = dailyCostSeries.filter((s) => s.totalCost > 0).length;
   const showCostChart = dailyCostSeries.length > 0;
   const costSeriesRef = useRef<HTMLDivElement>(null);
+  const firstCostBucket = dailyCostSeries[0]?.bucket;
 
   useEffect(() => {
     costSeriesRef.current?.scrollTo({ top: 0 });
-  }, [preset, featureFilter, dailyCostSeries.length, dailyCostSeries[0]?.bucket]);
+  }, [preset, featureFilter, dailyCostSeries.length, firstCostBucket]);
 
   const exportCsv = () => {
     const url = `/v1/adre/usage/events?from=${encodeURIComponent(range.from)}&to=${encodeURIComponent(range.to)}&format=csv&limit=500${featureFilter !== ALL_FEATURES ? `&feature=${encodeURIComponent(featureFilter)}` : ''}`;

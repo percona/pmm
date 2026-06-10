@@ -5,7 +5,7 @@ import { Page } from 'components/page';
 import { useSettings } from 'contexts/settings';
 import { PMM_NEW_NAV_GRAFANA_PATH, PMM_SETTINGS_URL } from 'lib/constants';
 import { QanLayout } from './components/QanLayout';
-import { QanPanelProvider } from './hooks/useQanPanelState';
+import { QanPanelProvider } from './hooks/QanPanelProvider';
 
 const QanPage: FC = () => {
   const { settings } = useSettings();

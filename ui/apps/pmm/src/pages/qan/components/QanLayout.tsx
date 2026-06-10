@@ -6,7 +6,7 @@ import { QanFilterDrawer } from './QanFilterDrawer';
 import { QanListing } from './QanListing';
 import { QanSectionTab } from './QanSectionTab';
 import { useQanPanelActions, useQanPanelState } from '../hooks/useQanPanelState';
-import { QanFiltersDrawerProvider } from '../hooks/useQanFiltersDrawer';
+import { QanFiltersDrawerProvider } from '../hooks/QanFiltersDrawerProvider';
 
 export const QanLayout: FC<PropsWithChildren> = ({ children }) => {
   const { querySelected, totals } = useQanPanelState();
