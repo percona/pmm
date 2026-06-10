@@ -74,7 +74,6 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
-	uieventsv1 "github.com/percona/pmm/api/uievents/v1"
 	userv1 "github.com/percona/pmm/api/user/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents"
@@ -101,7 +100,6 @@ import (
 	"github.com/percona/pmm/managed/services/server"
 	"github.com/percona/pmm/managed/services/supervisord"
 	"github.com/percona/pmm/managed/services/telemetry"
-	"github.com/percona/pmm/managed/services/telemetry/uievents"
 	"github.com/percona/pmm/managed/services/user"
 	"github.com/percona/pmm/managed/services/versioncache"
 	"github.com/percona/pmm/managed/services/victoriametrics"
@@ -228,7 +226,6 @@ type gRPCServerDeps struct {
 	schedulerService          *scheduler.Service
 	supervisord               *supervisord.Service
 	server                    *server.Server
-	uieventsService           *uievents.Service
 	versionCache              *versioncache.Service
 	vmdb                      *victoriametrics.Service
 	vmalert                   *vmalert.Service
@@ -312,8 +309,6 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	dumpv1beta1.RegisterDumpServiceServer(gRPCServer, managementdump.New(deps.db, deps.grafanaClient, deps.dumpService))
 
 	userv1.RegisterUserServiceServer(gRPCServer, user.NewUserService(deps.db, deps.grafanaClient))
-
-	uieventsv1.RegisterUIEventsServiceServer(gRPCServer, deps.uieventsService)
 
 	hav1beta1.RegisterHAServiceServer(gRPCServer, ha.NewHAServer(deps.ha))
 
@@ -425,8 +420,6 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		dumpv1beta1.RegisterDumpServiceHandler,
 
 		rtav1.RegisterRealtimeAnalyticsServiceHandler,
-
-		uieventsv1.RegisterUIEventsServiceHandler,
 
 		userv1.RegisterUserServiceHandler,
 
@@ -973,15 +966,8 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		l.Fatalf("Could not create telemetry client: %s", err)
 	}
 
-	uieventsService := uievents.New()
-	uieventsService.ScheduleCleanup(ctx)
-
-	telemetryExtensions := map[telemetry.ExtensionType]telemetry.Extension{
-		telemetry.UIEventsExtension: uieventsService,
-	}
-
 	dus := distribution.NewService(distributionInfoFilePath, osInfoFilePath, l)
-	telemetry, err := telemetry.NewService(db, platformClient, version.Version, dus, cfg.Config.Services.Telemetry, telemetryExtensions)
+	telemetry, err := telemetry.NewService(db, platformClient, version.Version, dus, cfg.Config.Services.Telemetry)
 	if err != nil {
 		l.Fatalf("Could not create telemetry service: %s", err)
 	}
@@ -1206,7 +1192,6 @@ func main() { //nolint:gocognit,maintidx,cyclop
 				settings:                  settings,
 				supervisord:               supervisord,
 				templatesService:          alertingService,
-				uieventsService:           uieventsService,
 				versionCache:              versionCache,
 				vmalert:                   vmalert,
 				vmClient:                  &vmClient,
