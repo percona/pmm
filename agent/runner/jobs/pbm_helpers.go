@@ -188,7 +188,8 @@ func execPBMCommand(ctx context.Context, dsn string, to any, args ...string) err
 		// try to parse pbm error message
 		if len(b) != 0 {
 			var pbmErr pbmError
-			if e := json.Unmarshal(b, &pbmErr); e == nil {
+			e := json.Unmarshal(b, &pbmErr)
+			if e == nil {
 				return errors.New(pbmErr.Error)
 			}
 		}
@@ -201,7 +202,8 @@ func execPBMCommand(ctx context.Context, dsn string, to any, args ...string) err
 func retrieveLogs(ctx context.Context, dsn string, event string) ([]pbmLogEntry, error) {
 	var logs []pbmLogEntry
 
-	if err := execPBMCommand(ctx, dsn, &logs, "logs", "--event="+event, "--tail=0"); err != nil {
+	err := execPBMCommand(ctx, dsn, &logs, "logs", "--event="+event, "--tail=0")
+	if err != nil {
 		return nil, err
 	}
 
@@ -245,7 +247,8 @@ func isShardedCluster(ctx context.Context, dsn string) (bool, error) {
 
 func getPBMStatus(ctx context.Context, dsn string) (*pbmStatus, error) {
 	var status pbmStatus
-	if err := execPBMCommand(ctx, dsn, &status, "status"); err != nil {
+	err := execPBMCommand(ctx, dsn, &status, "status")
+	if err != nil {
 		return nil, errors.Wrap(err, "pbm status error")
 	}
 	return &status, nil
@@ -326,7 +329,8 @@ func findPITRRestoreName(ctx context.Context, dsn string, restoreInfo *pbmRestor
 		case <-ticker.C:
 			checks++
 			var list []pbmListRestore
-			if err := execPBMCommand(ctx, dsn, &list, "list", "--restore"); err != nil {
+			err := execPBMCommand(ctx, dsn, &list, "list", "--restore")
+			if err != nil {
 				return "", errors.Wrapf(err, "pbm status error")
 			}
 			entry := findPITRRestore(list, restoreInfoPITRTime.Unix(), restoreInfo.StartedAt)
@@ -446,10 +450,11 @@ func writePBMConfigFile(conf *PBMConfig) (string, error) {
 	bytes, err := yaml.Marshal(&conf)
 	if err != nil {
 		tmp.Close() //nolint:errcheck
-		return "", errors.Wrap(err, "failed to marshall pbm configuration")
+		return "", errors.Wrap(err, "failed to marshal pbm configuration")
 	}
 
-	if _, err := tmp.Write(bytes); err != nil {
+	_, err = tmp.Write(bytes)
+	if err != nil {
 		tmp.Close() //nolint:errcheck
 		return "", errors.Wrap(err, "failed to write pbm configuration file")
 	}

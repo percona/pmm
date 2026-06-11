@@ -187,7 +187,8 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 	}
 
 	if len(b) != 0 && target != nil {
-		if err = json.Unmarshal(b, target); err != nil {
+		err = json.Unmarshal(b, target)
+		if err != nil {
 			return errors.WithStack(err)
 		}
 	}
@@ -407,7 +408,8 @@ func (c *Client) getAnonymousRoleFromSettings(ctx context.Context, l *logrus.Ent
 
 func (c *Client) getFrontendSettings(ctx context.Context) (frontendSettingsFull, error) {
 	var settings frontendSettingsFull
-	if err := c.do(ctx, http.MethodGet, "/api/frontend/settings", "", nil, nil, &settings); err != nil {
+	err := c.do(ctx, http.MethodGet, "/api/frontend/settings", "", nil, nil, &settings)
+	if err != nil {
 		return frontendSettingsFull{}, err
 	}
 
@@ -539,10 +541,11 @@ func (c *Client) GetCurrentUserOrgs(ctx context.Context, authHeaders http.Header
 
 func (c *Client) getRoleForServiceToken(ctx context.Context, token string) (role, error) {
 	header := http.Header{}
-	header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+	header.Add("Authorization", "Bearer "+token)
 
 	var k map[string]any
-	if err := c.do(ctx, http.MethodGet, "/api/auth/serviceaccount", "", header, nil, &k); err != nil {
+	err := c.do(ctx, http.MethodGet, "/api/auth/serviceaccount", "", header, nil, &k)
+	if err != nil {
 		return none, err
 	}
 
@@ -562,7 +565,8 @@ type serviceAccountSearch struct {
 func (c *Client) getServiceAccountIDFromName(ctx context.Context, nodeName string, authHeaders http.Header) (int, error) {
 	var res serviceAccountSearch
 	serviceAccountName := grafana.SanitizeSAName(fmt.Sprintf("%s-%s", pmmServiceAccountName, nodeName))
-	if err := c.do(ctx, http.MethodGet, "/api/serviceaccounts/search", fmt.Sprintf("query=%s", serviceAccountName), authHeaders, nil, &res); err != nil {
+	err := c.do(ctx, http.MethodGet, "/api/serviceaccounts/search", "query="+serviceAccountName, authHeaders, nil, &res)
+	if err != nil {
 		return 0, err
 	}
 	for _, serviceAccount := range res.ServiceAccounts {
@@ -739,7 +743,8 @@ func (c *Client) CreateAlertRule(ctx context.Context, folderUID, groupName, inte
 		return err
 	}
 
-	if err := c.do(ctx, "POST", fmt.Sprintf("/api/ruler/grafana/api/v1/rules/%s", folderUID), "", authHeaders, body, nil); err != nil {
+	err = c.do(ctx, "POST", "/api/ruler/grafana/api/v1/rules/"+folderUID, "", authHeaders, body, nil)
+	if err != nil {
 		if cErr, ok := errors.Cause(err).(*clientError); ok { //nolint:errorlint
 			return status.Error(codes.InvalidArgument, cErr.ErrorMessage)
 		}
@@ -919,7 +924,8 @@ func (c *Client) createServiceToken(ctx context.Context, serviceAccountID int, n
 
 func (c *Client) serviceTokenExists(ctx context.Context, serviceAccountID int, nodeName string, authHeaders http.Header) (bool, error) {
 	var tokens []serviceToken
-	if err := c.do(ctx, "GET", fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, nil, &tokens); err != nil {
+	err := c.do(ctx, "GET", fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, nil, &tokens)
+	if err != nil {
 		return false, err
 	}
 
@@ -937,14 +943,16 @@ func (c *Client) serviceTokenExists(ctx context.Context, serviceAccountID int, n
 
 func (c *Client) deletePMMAgentServiceToken(ctx context.Context, serviceAccountID int, nodeName string, authHeaders http.Header) error {
 	var tokens []serviceToken
-	if err := c.do(ctx, "GET", fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, nil, &tokens); err != nil {
+	err := c.do(ctx, "GET", fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, nil, &tokens)
+	if err != nil {
 		return err
 	}
 
 	serviceTokenName := fmt.Sprintf("%s-%s", pmmServiceTokenName, nodeName)
 	for _, token := range tokens {
 		if strings.HasPrefix(token.Name, grafana.SanitizeSAName(serviceTokenName)) {
-			if err := c.do(ctx, "DELETE", fmt.Sprintf("/api/serviceaccounts/%d/tokens/%d", serviceAccountID, token.ID), "", authHeaders, nil, nil); err != nil {
+			err := c.do(ctx, "DELETE", fmt.Sprintf("/api/serviceaccounts/%d/tokens/%d", serviceAccountID, token.ID), "", authHeaders, nil, nil)
+			if err != nil {
 				return err
 			}
 
@@ -1028,7 +1036,8 @@ func (c *Client) findAnnotations(ctx context.Context, from, to time.Time, author
 	}.Encode()
 
 	var response []annotation
-	if err := c.do(ctx, http.MethodGet, "/api/annotations", params, headers, nil, &response); err != nil {
+	err := c.do(ctx, http.MethodGet, "/api/annotations", params, headers, nil, &response)
+	if err != nil {
 		return nil, err
 	}
 
@@ -1048,7 +1057,8 @@ type grafanaHealthResponse struct {
 // IsReady calls Grafana API to check its status.
 func (c *Client) IsReady(ctx context.Context) error {
 	var status grafanaHealthResponse
-	if err := c.do(ctx, http.MethodGet, "/api/health", "", nil, nil, &status); err != nil {
+	err := c.do(ctx, http.MethodGet, "/api/health", "", nil, nil, &status)
+	if err != nil {
 		return fmt.Errorf("grafana health check failed: %w", err)
 	}
 
@@ -1082,7 +1092,8 @@ func (c *Client) GetCurrentUserAccessToken(ctx context.Context) (string, error) 
 	headers.Set("Cookie", strings.Join(cookies, "; "))
 
 	var user currentUser
-	if err := c.do(ctx, http.MethodGet, "/graph/percona-api/user/oauth-token", "", headers, nil, &user); err != nil {
+	err := c.do(ctx, http.MethodGet, "/graph/percona-api/user/oauth-token", "", headers, nil, &user)
+	if err != nil {
 		var e *clientError
 		if errors.As(err, &e) && e.ErrorMessage == "Failed to get token" && e.Code == http.StatusInternalServerError {
 			return "", ErrFailedToGetToken

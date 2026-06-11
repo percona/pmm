@@ -278,7 +278,8 @@ func (s *Service) StartChecks(checkNames []string) error {
 	go func() {
 		ctx := context.Background()
 		s.UpdateAdvisorsList(ctx)
-		if err := s.run(ctx, "", checkNames); err != nil {
+		err := s.run(ctx, "", checkNames)
+		if err != nil {
 			s.l.Errorf("Failed to execute advisor checks: %+v.", err)
 		}
 	}()
@@ -805,7 +806,8 @@ func (s *Service) executeMySQLShowQuery(ctx context.Context, query check.Query, 
 		return nil, fmt.Errorf("failed to prepare result: %w", err)
 	}
 	defer func() {
-		if err = s.db.Delete(r); err != nil {
+		err = s.db.Delete(r)
+		if err != nil {
 			s.l.Warnf("Failed to delete action result %s: %s.", r.ID, err)
 		}
 	}()
@@ -827,7 +829,8 @@ func (s *Service) executeMySQLSelectQuery(ctx context.Context, query check.Query
 		return "", fmt.Errorf("failed to prepare result: %w", err)
 	}
 	defer func() {
-		if err = s.db.Delete(r); err != nil {
+		err = s.db.Delete(r)
+		if err != nil {
 			s.l.Warnf("Failed to delete action result %s: %s.", r.ID, err)
 		}
 	}()
@@ -853,7 +856,8 @@ func (s *Service) executePostgreSQLShowQuery(ctx context.Context, target service
 		return "", fmt.Errorf("failed to prepare result: %w", err)
 	}
 	defer func() {
-		if err = s.db.Delete(r); err != nil {
+		err = s.db.Delete(r)
+		if err != nil {
 			s.l.Warnf("Failed to delete action result %s: %s.", r.ID, err)
 		}
 	}()
@@ -901,7 +905,8 @@ func (s *Service) executePostgreSQLSelectQueryForSingleDB(ctx context.Context, q
 		return "", fmt.Errorf("failed to prepare result: %w", err)
 	}
 	defer func() {
-		if err = s.db.Delete(r); err != nil {
+		err = s.db.Delete(r)
+		if err != nil {
 			s.l.Warnf("Failed to delete action result %s: %s.", r.ID, err)
 		}
 	}()
@@ -924,7 +929,8 @@ func (s *Service) executeMongoDBGetParameterQuery(ctx context.Context, target se
 		return "", fmt.Errorf("failed to prepare result: %w", err)
 	}
 	defer func() {
-		if err = s.db.Delete(r); err != nil {
+		err = s.db.Delete(r)
+		if err != nil {
 			s.l.Warnf("Failed to delete action result %s: %s.", r.ID, err)
 		}
 	}()
@@ -947,7 +953,8 @@ func (s *Service) executeMongoDBBuildInfoQuery(ctx context.Context, target servi
 		return "", fmt.Errorf("failed to prepare result: %w", err)
 	}
 	defer func() {
-		if err = s.db.Delete(r); err != nil {
+		err = s.db.Delete(r)
+		if err != nil {
 			s.l.Warnf("Failed to delete action result %s: %s.", r.ID, err)
 		}
 	}()
@@ -969,7 +976,8 @@ func (s *Service) executeMongoDBGetCmdLineOptsQuery(ctx context.Context, target 
 		return "", fmt.Errorf("failed to prepare result: %w", err)
 	}
 	defer func() {
-		if err = s.db.Delete(r); err != nil {
+		err = s.db.Delete(r)
+		if err != nil {
 			s.l.Warnf("Failed to delete action result %s: %s.", r.ID, err)
 		}
 	}()
@@ -992,7 +1000,8 @@ func (s *Service) executeMongoDBReplSetGetStatusQuery(ctx context.Context, targe
 		return "", fmt.Errorf("failed to prepare result: %w", err)
 	}
 	defer func() {
-		if err = s.db.Delete(r); err != nil {
+		err = s.db.Delete(r)
+		if err != nil {
 			s.l.Warnf("Failed to delete action result %s: %s.", r.ID, err)
 		}
 	}()
@@ -1015,7 +1024,8 @@ func (s *Service) executeMongoDBGetDiagnosticQuery(ctx context.Context, target s
 		return "", fmt.Errorf("failed to prepare result: %w", err)
 	}
 	defer func() {
-		if err = s.db.Delete(r); err != nil {
+		err = s.db.Delete(r)
+		if err != nil {
 			s.l.Warnf("Failed to delete action result %s: %s.", r.ID, err)
 		}
 	}()

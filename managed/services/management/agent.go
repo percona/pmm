@@ -17,7 +17,6 @@ package management
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
@@ -273,7 +272,7 @@ func (s *ManagementService) ListAgentVersions(ctx context.Context, _ *management
 
 		serverVersion, err := version.Parse(version.PMMVersion)
 		if err != nil {
-			return errors.Wrap(err, fmt.Sprintf("could not parse the server version: %s", version.PMMVersion))
+			return errors.Wrap(err, "could not parse the server version: "+version.PMMVersion)
 		}
 
 		for _, agent := range agents {

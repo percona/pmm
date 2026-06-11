@@ -48,11 +48,11 @@ type Sender struct {
 }
 
 // Start starts but doesn't wait until it exits.
-func (s *Sender) Start() error {
+func (s *Sender) Start() {
 	s.m.Lock()
 	defer s.m.Unlock()
 	if s.running {
-		return nil
+		return
 	}
 
 	// create new channels over which we will communicate to...
@@ -71,7 +71,6 @@ func (s *Sender) Start() error {
 	})
 
 	s.running = true
-	return nil
 }
 
 // Stop stops running sender.
@@ -123,7 +122,7 @@ func start(ctx context.Context, wg *sync.WaitGroup, reportChan <-chan *report.Re
 	}
 }
 
-// Writer write QAN report.
+// Writer writes QAN report.
 type Writer interface {
 	Write(r *report.Report) error
 }
