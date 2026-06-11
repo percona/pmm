@@ -41,7 +41,7 @@ func TestSettings(t *testing.T) {
 	t.Run("GetSettings", func(t *testing.T) {
 		res, err := serverClient.Default.ServerService.GetSettings(nil)
 		require.NoError(t, err)
-		assert.False(t, res.Payload.Settings.TelemetryEnabled)
+		assert.True(t, res.Payload.Settings.TelemetryEnabled)
 		assert.True(t, res.Payload.Settings.AdvisorEnabled)
 		expected := &server.GetSettingsOKBodySettingsMetricsResolutions{
 			Hr: "5s",
@@ -224,7 +224,7 @@ func TestSettings(t *testing.T) {
 
 				resg, err := serverClient.Default.ServerService.GetSettings(nil)
 				require.NoError(t, err)
-				assert.False(t, resg.Payload.Settings.TelemetryEnabled)
+				assert.True(t, resg.Payload.Settings.TelemetryEnabled)
 				assert.False(t, resg.Payload.Settings.AdvisorEnabled)
 			})
 
@@ -243,7 +243,7 @@ func TestSettings(t *testing.T) {
 
 				resg, err := serverClient.Default.ServerService.GetSettings(nil)
 				require.NoError(t, err)
-				assert.False(t, resg.Payload.Settings.TelemetryEnabled)
+				assert.True(t, resg.Payload.Settings.TelemetryEnabled)
 				assert.True(t, resg.Payload.Settings.AdvisorEnabled)
 
 				t.Run("EnableAdvisorsWhileItIsEnabled", func(t *testing.T) {
@@ -258,7 +258,7 @@ func TestSettings(t *testing.T) {
 
 					resg, err := serverClient.Default.ServerService.GetSettings(nil)
 					require.NoError(t, err)
-					assert.False(t, resg.Payload.Settings.TelemetryEnabled)
+					assert.True(t, resg.Payload.Settings.TelemetryEnabled)
 					assert.True(t, resg.Payload.Settings.AdvisorEnabled)
 				})
 
