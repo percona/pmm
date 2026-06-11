@@ -33,7 +33,7 @@ jobs:
     permissions:
       contents: read
       checks: write
-
+      pull-requests: write
     env:
       PMM_ENCRYPTION_KEY_PATH: pmm-encryption.key
 
