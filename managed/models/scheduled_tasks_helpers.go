@@ -172,7 +172,8 @@ func (p CreateScheduledTaskParams) Validate() error {
 // CreateScheduledTask creates scheduled task.
 // Must be performed in transaction.
 func CreateScheduledTask(q *reform.Querier, params CreateScheduledTaskParams) (*ScheduledTask, error) {
-	if err := params.Validate(); err != nil {
+	err := params.Validate()
+	if err != nil {
 		return nil, err
 	}
 
@@ -181,12 +182,14 @@ func CreateScheduledTask(q *reform.Querier, params CreateScheduledTaskParams) (*
 		return nil, err
 	}
 
-	if err := checkUniqueScheduledTaskName(q, newName); err != nil {
+	err = checkUniqueScheduledTaskName(q, newName)
+	if err != nil {
 		return nil, errors.Wrapf(err, "couldn't create task with name %s", newName)
 	}
 
 	id := uuid.New().String()
-	if err := checkUniqueScheduledTaskID(q, id); err != nil {
+	err = checkUniqueScheduledTaskID(q, id)
+	if err != nil {
 		return nil, err
 	}
 
@@ -199,7 +202,8 @@ func CreateScheduledTask(q *reform.Querier, params CreateScheduledTaskParams) (*
 		Type:           params.Type,
 		Data:           params.Data,
 	}
-	if err := q.Insert(task); err != nil {
+	err = q.Insert(task)
+	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 	return task, nil
@@ -230,7 +234,8 @@ func (p *ChangeScheduledTaskParams) Validate() error {
 // ChangeScheduledTask updates existing scheduled task.
 // Must be performed in transaction.
 func ChangeScheduledTask(q *reform.Querier, id string, params ChangeScheduledTaskParams) (*ScheduledTask, error) {
-	if err := params.Validate(); err != nil {
+	err := params.Validate()
+	if err != nil {
 		return nil, err
 	}
 
@@ -266,7 +271,7 @@ func ChangeScheduledTask(q *reform.Querier, id string, params ChangeScheduledTas
 		}
 
 		if newName != oldName {
-			err := checkUniqueScheduledTaskName(q, newName)
+			err = checkUniqueScheduledTaskName(q, newName)
 			if err != nil {
 				return nil, errors.Wrapf(err, "couldn't change task name to %s", newName)
 			}
@@ -283,7 +288,8 @@ func ChangeScheduledTask(q *reform.Querier, id string, params ChangeScheduledTas
 		row.Error = *params.Error
 	}
 
-	if err := q.Update(row); err != nil {
+	err = q.Update(row)
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to update scheduled task")
 	}
 

@@ -92,11 +92,13 @@ func (s *BackupService) StartBackup(ctx context.Context, req *backupv1.StartBack
 		return nil, status.Errorf(codes.InvalidArgument, "Exceeded max retry interval %s.", maxRetryInterval)
 	}
 
-	if err := isFolderSafe(req.Folder); err != nil {
+	err := isFolderSafe(req.Folder)
+	if err != nil {
 		return nil, err
 	}
 
-	if err := isNameSafe(req.Name); err != nil {
+	err = isNameSafe(req.Name)
+	if err != nil {
 		return nil, err
 	}
 
@@ -147,11 +149,13 @@ func (s *BackupService) ScheduleBackup(ctx context.Context, req *backupv1.Schedu
 		return nil, status.Errorf(codes.InvalidArgument, "Exceeded max retry interval %s.", maxRetryInterval)
 	}
 
-	if err := isFolderSafe(req.Folder); err != nil {
+	err := isFolderSafe(req.Folder)
+	if err != nil {
 		return nil, err
 	}
 
-	if err := isNameSafe(req.Name); err != nil {
+	err = isNameSafe(req.Name)
+	if err != nil {
 		return nil, err
 	}
 
@@ -577,7 +581,8 @@ func (s *BackupService) DeleteArtifact(ctx context.Context, req *backupv1.Delete
 
 	storage := backup.GetStorageForLocation(location)
 
-	if err := s.removalSVC.DeleteArtifact(storage, req.ArtifactId, req.RemoveFiles); err != nil {
+	err = s.removalSVC.DeleteArtifact(storage, req.ArtifactId, req.RemoveFiles)
+	if err != nil {
 		return nil, err
 	}
 	return &backupv1.DeleteArtifactResponse{}, nil
@@ -668,11 +673,13 @@ func convertTaskToScheduledBackup(task *models.ScheduledTask,
 	scheduledBackup.Folder = commonBackupData.Folder
 
 	var err error
-	if scheduledBackup.DataModel, err = convertDataModel(commonBackupData.DataModel); err != nil {
+	scheduledBackup.DataModel, err = convertDataModel(commonBackupData.DataModel)
+	if err != nil {
 		return nil, err
 	}
 
-	if scheduledBackup.Mode, err = convertModelToBackupMode(commonBackupData.Mode); err != nil {
+	scheduledBackup.Mode, err = convertModelToBackupMode(commonBackupData.Mode)
+	if err != nil {
 		return nil, err
 	}
 
@@ -851,7 +858,8 @@ func convertArtifact(
 	locationModels map[string]*models.BackupLocation,
 ) (*backupv1.Artifact, error) {
 	createdAt := timestamppb.New(a.CreatedAt)
-	if err := createdAt.CheckValid(); err != nil {
+	err := createdAt.CheckValid()
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to convert timestamp")
 	}
 

@@ -86,7 +86,8 @@ func openPMMDBConnection(config DSConfigPMMDB, l *logrus.Entry) (*sql.DB, error)
 	db.SetMaxIdleConns(defaultMaxIdleConns)
 	db.SetMaxOpenConns(defaultMaxOpenConns)
 
-	if err := db.Ping(); err != nil {
+	err = db.Ping() //nolint:noctx
+	if err != nil {
 		l.Warnf("PMM DB is not reachable at [%s]: %s", config.DSN.Host, err)
 	}
 
