@@ -111,10 +111,12 @@ func (res *listResult) String() string {
 func convertTabs(template string) (string, error) {
 	var buf bytes.Buffer
 	w := tabwriter.NewWriter(&buf, 4, 4, 8, ' ', tabwriter.TabIndent)
-	if _, err := io.WriteString(w, template); err != nil {
+	_, err := io.WriteString(w, template)
+	if err != nil {
 		return "", err
 	}
-	if err := w.Flush(); err != nil {
+	err = w.Flush()
+	if err != nil {
 		return "", err
 	}
 	return buf.String(), nil

@@ -16,7 +16,6 @@ package jobs
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -101,7 +100,8 @@ func (j *MongoDBRestoreJob) DSN() string {
 func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 	defer j.jobLogger.sendLog(send, "", true)
 
-	if _, err := exec.LookPath(pbmBin); err != nil {
+	_, err := exec.LookPath(pbmBin)
+	if err != nil {
 		return errors.Wrapf(err, "lookpath: %s", pbmBin)
 	}
 
@@ -221,7 +221,7 @@ func (j *MongoDBRestoreJob) startRestore(ctx context.Context, backupName string)
 			if j.pitrTimestamp.Unix() == 0 {
 				err = execPBMCommand(ctx, j.dbURL, &restoreOutput, "restore", backupName)
 			} else {
-				err = execPBMCommand(ctx, j.dbURL, &restoreOutput, "restore", fmt.Sprintf(`--time=%s`, j.pitrTimestamp.Format("2006-01-02T15:04:05")))
+				err = execPBMCommand(ctx, j.dbURL, &restoreOutput, "restore", "--time="+j.pitrTimestamp.Format("2006-01-02T15:04:05"))
 			}
 
 			if err != nil {

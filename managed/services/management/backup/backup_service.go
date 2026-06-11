@@ -358,7 +358,8 @@ func (s *BackupService) ChangeScheduledBackup(ctx context.Context, req *backupv1
 	}
 
 	if disablePITR {
-		if err := s.backupService.SwitchMongoPITR(ctx, serviceID, false); err != nil {
+		err := s.backupService.SwitchMongoPITR(ctx, serviceID, false)
+		if err != nil {
 			s.l.WithError(err).Error("failed to disable PITR")
 		}
 	}
@@ -408,7 +409,8 @@ func (s *BackupService) RemoveScheduledBackup(ctx context.Context, req *backupv1
 	}
 
 	if disablePITR {
-		if err = s.backupService.SwitchMongoPITR(ctx, task.Data.MongoDBBackupTask.ServiceID, false); err != nil {
+		err = s.backupService.SwitchMongoPITR(ctx, task.Data.MongoDBBackupTask.ServiceID, false)
+		if err != nil {
 			s.l.WithError(err).Error("failed to disable PITR")
 		}
 	}

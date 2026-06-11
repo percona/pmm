@@ -81,7 +81,8 @@ func (m *MongoDB) Run(ctx context.Context) {
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 
 	prof = profiler.New(m.mongoDSN, m.l, m, m.agentID, m.maxQueryLength)
-	if err := prof.Start(); err != nil {
+	err := prof.Start()
+	if err != nil {
 		m.l.Errorf("can't run profiler, reason: %v", err)
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STOPPING}
 		return

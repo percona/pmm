@@ -221,7 +221,8 @@ func (s *RestoreService) RestoreBackup(ctx context.Context, req *backupv1.Restor
 		}
 
 		if disablePITR {
-			if err := s.backupService.SwitchMongoPITR(ctx, serviceID, false); err != nil {
+			err := s.backupService.SwitchMongoPITR(ctx, serviceID, false)
+			if err != nil {
 				s.l.WithError(err).Error("failed to disable PITR")
 			}
 		}
@@ -268,7 +269,8 @@ func convertRestoreHistoryItem(
 	var finishedAt *timestamppb.Timestamp
 	if i.FinishedAt != nil {
 		finishedAt = timestamppb.New(*i.FinishedAt)
-		if err := finishedAt.CheckValid(); err != nil {
+		err := finishedAt.CheckValid()
+		if err != nil {
 			return nil, errors.Wrap(err, "failed to convert finishedAt timestamp")
 		}
 	}
@@ -276,7 +278,8 @@ func convertRestoreHistoryItem(
 	var pitrTimestamp *timestamppb.Timestamp
 	if i.PITRTimestamp != nil {
 		pitrTimestamp = timestamppb.New(*i.PITRTimestamp)
-		if err := pitrTimestamp.CheckValid(); err != nil {
+		err := pitrTimestamp.CheckValid()
+		if err != nil {
 			return nil, errors.Wrap(err, "failed to convert PITR timestamp")
 		}
 	}

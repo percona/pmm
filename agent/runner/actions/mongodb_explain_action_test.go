@@ -392,7 +392,8 @@ func prepareData(ctx context.Context, client *mongo.Client, database, collection
 	if count < limit {
 		for i := range limit {
 			doc := primitive.M{"f1": i, "f2": fmt.Sprintf("text_%5d", limit-i)}
-			if _, err := client.Database(database).Collection(collection).InsertOne(ctx, doc); err != nil {
+			_, err := client.Database(database).Collection(collection).InsertOne(ctx, doc)
+			if err != nil {
 				return err
 			}
 		}

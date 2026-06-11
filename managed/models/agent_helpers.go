@@ -236,31 +236,34 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 	var args []any
 	idx := 1
 	if filters.PMMAgentID != "" {
-		if _, err := FindAgentByID(q, filters.PMMAgentID); err != nil {
+		_, err := FindAgentByID(q, filters.PMMAgentID)
+		if err != nil {
 			return nil, err
 		}
-		conditions = append(conditions, fmt.Sprintf("pmm_agent_id = %s", q.Placeholder(idx)))
+		conditions = append(conditions, "pmm_agent_id = "+q.Placeholder(idx))
 		args = append(args, filters.PMMAgentID)
 		idx++
 	}
 	if filters.NodeID != "" {
-		if _, err := FindNodeByID(q, filters.NodeID); err != nil {
+		_, err := FindNodeByID(q, filters.NodeID)
+		if err != nil {
 			return nil, err
 		}
-		conditions = append(conditions, fmt.Sprintf("node_id = %s", q.Placeholder(idx)))
+		conditions = append(conditions, "node_id = "+q.Placeholder(idx))
 		args = append(args, filters.NodeID)
 		idx++
 	}
 	if filters.ServiceID != "" {
-		if _, err := FindServiceByID(q, filters.ServiceID); err != nil {
+		_, err := FindServiceByID(q, filters.ServiceID)
+		if err != nil {
 			return nil, err
 		}
-		conditions = append(conditions, fmt.Sprintf("service_id = %s", q.Placeholder(idx)))
+		conditions = append(conditions, "service_id = "+q.Placeholder(idx))
 		args = append(args, filters.ServiceID)
 		idx++
 	}
 	if filters.AgentType != nil {
-		conditions = append(conditions, fmt.Sprintf("agent_type = %s", q.Placeholder(idx)))
+		conditions = append(conditions, "agent_type = "+q.Placeholder(idx))
 		args = append(args, *filters.AgentType)
 		idx++
 	}
@@ -270,21 +273,21 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 		idx++
 	}
 	if filters.IgnoreNomad {
-		conditions = append(conditions, fmt.Sprintf("agent_type != %s", q.Placeholder(idx)))
+		conditions = append(conditions, "agent_type != "+q.Placeholder(idx))
 		args = append(args, NomadAgentType)
 		idx++
 	}
 
 	if filters.Disabled != nil {
-		conditions = append(conditions, fmt.Sprintf("disabled = %s", q.Placeholder(idx)))
+		conditions = append(conditions, "disabled = "+q.Placeholder(idx))
 		args = append(args, pointer.Get(filters.Disabled))
 	}
 
 	var whereClause string
 	if len(conditions) != 0 {
-		whereClause = fmt.Sprintf("WHERE %s", strings.Join(conditions, " AND "))
+		whereClause = "WHERE " + strings.Join(conditions, " AND ")
 	}
-	structs, err := q.SelectAllFrom(AgentTable, fmt.Sprintf("%s ORDER BY agent_id", whereClause), args...)
+	structs, err := q.SelectAllFrom(AgentTable, whereClause+" ORDER BY agent_id", args...)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -523,7 +526,7 @@ func FindAgentsForScrapeConfig(q *reform.Querier, pmmAgentID *string, pushMetric
 		conditions []string
 	)
 	if pmmAgentID != nil {
-		conditions = append(conditions, fmt.Sprintf("pmm_agent_id = %s", q.Placeholder(1)))
+		conditions = append(conditions, "pmm_agent_id = "+q.Placeholder(1))
 		args = append(args, pointer.GetString(pmmAgentID))
 	}
 
@@ -625,11 +628,13 @@ func ExtractPmmAgentID(agent *Agent) (string, error) {
 
 // createPMMAgentWithID creates PMMAgent with given ID.
 func createPMMAgentWithID(q *reform.Querier, id, runsOnNodeID string, customLabels map[string]string) (*Agent, error) {
-	if err := checkUniqueAgentID(q, id); err != nil {
+	err := checkUniqueAgentID(q, id)
+	if err != nil {
 		return nil, err
 	}
 
-	if _, err := FindNodeByID(q, runsOnNodeID); err != nil {
+	_, err = FindNodeByID(q, runsOnNodeID)
+	if err != nil {
 		return nil, err
 	}
 
@@ -641,11 +646,13 @@ func createPMMAgentWithID(q *reform.Querier, id, runsOnNodeID string, customLabe
 		AgentType:    PMMAgentType,
 		RunsOnNodeID: &runsOnNodeID,
 	}
-	if err := agent.SetCustomLabels(customLabels); err != nil {
+	err = agent.SetCustomLabels(customLabels)
+	if err != nil {
 		return nil, err
 	}
 
-	if err := q.Insert(agent); err != nil {
+	err = q.Insert(agent)
+	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
@@ -725,7 +732,8 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 	var pmmAgentID *string
 	runsOnNodeID := new(params.RunsOnNodeID)
 	id := uuid.New().String()
-	if err := checkUniqueAgentID(q, id); err != nil {
+	err := checkUniqueAgentID(q, id)
+	if err != nil {
 		return nil, err
 	}
 	// with push metrics we have to detect pmm_agent_id for external exporter.
@@ -746,10 +754,12 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 		runsOnNodeID = nil
 	}
 
-	if _, err := FindNodeByID(q, params.RunsOnNodeID); err != nil {
+	_, err = FindNodeByID(q, params.RunsOnNodeID)
+	if err != nil {
 		return nil, err
 	}
-	if _, err := FindServiceByID(q, params.ServiceID); err != nil {
+	_, err = FindServiceByID(q, params.ServiceID)
+	if err != nil {
 		return nil, err
 	}
 
@@ -777,12 +787,14 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 		},
 		TLSSkipVerify: params.TLSSkipVerify,
 	}
-	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
+	err = row.SetCustomLabels(params.CustomLabels)
+	if err != nil {
 		return nil, err
 	}
 
 	encryptedAgent := EncryptAgent(*row)
-	if err := q.Insert(&encryptedAgent); err != nil {
+	err = q.Insert(&encryptedAgent)
+	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 	return new(DecryptAgent(encryptedAgent)), nil
@@ -1123,11 +1135,13 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 
 	if params.CustomLabels != nil {
 		if len(*params.CustomLabels) == 0 {
-			if err = row.SetCustomLabels(nil); err != nil {
+			err = row.SetCustomLabels(nil)
+			if err != nil {
 				return nil, err
 			}
 		} else {
-			if err = row.SetCustomLabels(*params.CustomLabels); err != nil {
+			err = row.SetCustomLabels(*params.CustomLabels)
+			if err != nil {
 				return nil, err
 			}
 		}

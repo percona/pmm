@@ -148,7 +148,7 @@ func (s *ManagementService) UnregisterNode(ctx context.Context, req *managementv
 		return nil, err
 	}
 
-	if e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+	e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		mode := models.RemoveRestrict
 		if req.Force {
 			mode = models.RemoveCascade
@@ -180,7 +180,8 @@ func (s *ManagementService) UnregisterNode(ctx context.Context, req *managementv
 			}
 		}
 		return models.RemoveNode(tx.Querier, node.NodeID, mode)
-	}); e != nil {
+	})
+	if e != nil {
 		return nil, e
 	}
 

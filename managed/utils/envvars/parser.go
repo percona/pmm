@@ -315,7 +315,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				continue
 			}
 
-			warns = append(warns, fmt.Sprintf("unknown environment variable %s", env))
+			warns = append(warns, "unknown environment variable "+env)
 		}
 	}
 
@@ -363,7 +363,8 @@ func GetPlatformAddress() (string, error) {
 		return defaultPlatformAddress, nil
 	}
 
-	if _, err := url.Parse(address); err != nil {
+	_, err := url.Parse(address)
+	if err != nil {
 		return "", fmt.Errorf("invalid Percona Platform address: %w", err)
 	}
 

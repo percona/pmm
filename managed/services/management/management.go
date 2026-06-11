@@ -28,7 +28,8 @@ import (
 )
 
 func nodeID(tx *reform.TX, nodeID, nodeName string, addNodeParams *managementv1.AddNodeParams, address string) (string, error) {
-	if err := validateNodeParamsOneOf(nodeID, nodeName, addNodeParams); err != nil {
+	err := validateNodeParamsOneOf(nodeID, nodeName, addNodeParams)
+	if err != nil {
 		return "", err
 	}
 	switch {

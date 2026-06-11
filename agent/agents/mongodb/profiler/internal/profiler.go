@@ -16,7 +16,6 @@ package profiler
 
 import (
 	"context"
-	"fmt"
 	"runtime/pprof"
 	"sync"
 	"time"
@@ -85,10 +84,7 @@ func (p *profiler) Start() error {
 
 	// create sender which sends qan reports and start it
 	p.sender = sender.New(reportChan, p.w, p.logger)
-	err = p.sender.Start()
-	if err != nil {
-		return err
-	}
+	p.sender.Start()
 
 	f := func(client *mongo.Client, logger *logrus.Entry, dbName string) *monitor {
 		return NewMonitor(client, dbName, p.aggregator, logger)
@@ -206,7 +202,7 @@ func createSession(dsn string, agentID string) (*mongo.Client, error) {
 		SetDirect(true).
 		SetReadPreference(readpref.Nearest()).
 		SetSocketTimeout(mgoTimeoutSessionSocket).
-		SetAppName(fmt.Sprintf("QAN-mongodb-profiler-%s", agentID))
+		SetAppName("QAN-mongodb-profiler-" + agentID)
 
 	client, err := mongo.Connect(ctx, opts)
 	if err != nil {

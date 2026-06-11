@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - "documentation/**"
+      - "!documentation/api/**"
   workflow_dispatch:
     inputs:
       ref:

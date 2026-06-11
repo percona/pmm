@@ -29,11 +29,13 @@ func CreateDataDir(path string, perm os.FileMode) error {
 	// store the first encountered error, but continue as far as possible
 	var storedErr error
 
-	if err := os.MkdirAll(path, perm); err != nil {
+	err := os.MkdirAll(path, perm)
+	if err != nil {
 		storedErr = errors.Wrapf(err, "cannot create path %q", path)
 	}
 
-	if err := os.Chmod(path, perm); err != nil && storedErr == nil {
+	err = os.Chmod(path, perm)
+	if err != nil && storedErr == nil {
 		storedErr = errors.Wrapf(err, "cannot chmod path %q", path)
 	}
 
