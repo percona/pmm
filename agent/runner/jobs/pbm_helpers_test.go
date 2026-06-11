@@ -18,6 +18,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -124,6 +125,109 @@ func TestCreatePBMConfig(t *testing.T) {
 			assert.Equal(t, test.output, res)
 		})
 	}
+}
+
+func TestIsTransientPBMDescribeError(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		name string
+		err  error
+		want bool
+	}{
+		{
+			name: "no such file",
+			err:  errors.New(`get file 2024-01-01T00:00:00Z/rs0/metadata.json: no such file`),
+			want: true,
+		},
+		{
+			name: "file is empty",
+			err:  errors.New("get file foo: file is empty"),
+			want: true,
+		},
+		{
+			name: "backup meta not found",
+			err:  errors.New("get backup meta: not found"),
+			want: true,
+		},
+		{
+			name: "real failure",
+			err:  errors.New("permission denied"),
+			want: false,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.want, isTransientPBMDescribeError(tc.err))
+		})
+	}
+}
+
+func TestDescribeTerminalError(t *testing.T) {
+	t.Parallel()
+
+	done, err := describeTerminalError(describeInfo{Status: pbmStatusDone}, "backup")
+	require.NoError(t, err)
+	assert.True(t, done)
+
+	done, err = describeTerminalError(describeInfo{Status: pbmStatusCanceled}, "backup")
+	require.EqualError(t, err, "backup was canceled")
+	assert.True(t, done)
+
+	done, err = describeTerminalError(describeInfo{Status: pbmStatusError, Error: "oplog has insufficient range"}, "backup")
+	require.EqualError(t, err, "oplog has insufficient range")
+	assert.True(t, done)
+
+	done, err = describeTerminalError(describeInfo{Status: "running"}, "backup")
+	require.NoError(t, err)
+	assert.False(t, done)
+}
+
+func TestSnapshotTerminalError(t *testing.T) {
+	t.Parallel()
+
+	done, err := snapshotTerminalError(&pbmSnapshot{Status: pbmStatusDone}, "backup")
+	require.NoError(t, err)
+	assert.True(t, done)
+
+	done, err = snapshotTerminalError(&pbmSnapshot{Status: pbmStatusError, Error: "storage unavailable"}, "backup")
+	require.EqualError(t, err, "storage unavailable")
+	assert.True(t, done)
+
+	done, err = snapshotTerminalError(&pbmSnapshot{Status: "running"}, "backup")
+	require.NoError(t, err)
+	assert.False(t, done)
+}
+
+func TestFindPBMSnapshot(t *testing.T) {
+	t.Parallel()
+
+	status := &pbmStatus{}
+	status.Backups.Snapshot = []pbmSnapshot{
+		{Name: "2024-01-01T00:00:00Z", Status: pbmStatusDone},
+		{Name: "2024-01-02T00:00:00Z", Status: pbmStatusError, Error: "failed"},
+	}
+
+	assert.Nil(t, findPBMSnapshot(status, "missing"))
+	require.NotNil(t, findPBMSnapshot(status, "2024-01-02T00:00:00Z"))
+}
+
+func TestGroupDescribeErrors(t *testing.T) {
+	t.Parallel()
+
+	err := groupDescribeErrors(describeInfo{
+		Status: pbmStatusPartlyDone,
+		ReplSets: []replSet{{
+			Name:   "rs0",
+			Status: pbmStatusPartlyDone,
+			Nodes: []node{{
+				Name:   "node1",
+				Status: pbmStatusError,
+				Error:  "copy failed",
+			}},
+		}},
+	})
+	require.EqualError(t, err, "replset: rs0, node: node1, error: copy failed")
 }
 
 func TestFindPITRRestore(t *testing.T) {
