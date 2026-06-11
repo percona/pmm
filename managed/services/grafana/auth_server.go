@@ -63,7 +63,11 @@ var rules = map[string]role{
 	"/qan.v1.CollectorService.":                 viewer,
 	"/qan.v1.QANService.":                       viewer,
 
+	// Alerting: viewers may list templates (GET /v1/alerting/templates);
+	// creating rules requires editor. Template writes (create/update/delete)
+	// share read paths, so they are method-qualified in methodRules.
 	"/v1/alerting":                    viewer,
+	"/v1/alerting/rules":              editor,
 	"/v1/advisors":                    editor,
 	"/v1/advisors/checks:":            editor,
 	"/v1/advisors/failedServices":     editor,
@@ -124,6 +128,19 @@ var rules = map[string]role{
 	// "/auth_request"  has auth_request disabled in nginx config
 
 	// "/" is a special case in this code
+}
+
+// methodRules maps "METHOD original-URL-prefix" to the minimal required role.
+// Entries take precedence over rules and let operations that share a path but
+// use different HTTP methods require different roles.
+var methodRules = map[string]role{
+	// Alerting template writes must require editor. CreateTemplate (POST)
+	// shares its path with ListTemplates (GET, viewer in rules); Update (PUT)
+	// and Delete (DELETE) live under it. Qualify by method so viewers keep
+	// read access while writes are denied.
+	http.MethodPost + " /v1/alerting/templates":    editor,
+	http.MethodPut + " /v1/alerting/templates/":    editor,
+	http.MethodDelete + " /v1/alerting/templates/": editor,
 }
 
 var lbacPrefixes = []string{
@@ -331,7 +348,7 @@ func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWr
 
 	jsonFilters, err := json.Marshal(filters)
 	if err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("failed to marshal LBAC filters: %w", err)
 	}
 
 	rw.Header().Set(lbacHeaderName, base64.StdEncoding.EncodeToString(jsonFilters))
@@ -454,6 +471,28 @@ func nextPrefix(path string) string {
 	return path[:i+1]
 }
 
+// resolveRule returns the minimal role required for the given HTTP method and
+// cleaned path, together with the matched rule prefix. It walks path prefixes
+// from longest to shortest; a method-specific rule (keyed by "METHOD prefix")
+// takes precedence over a path-only rule at the same prefix, so read and write
+// operations that share a path can require different roles. The bool is false
+// when no rule matches, in which case the caller falls back to grafanaAdmin.
+func resolveRule(method, cleanedPath string) (role, string, bool) {
+	prefix := cleanedPath
+	for {
+		if r, ok := methodRules[method+" "+prefix]; ok {
+			return r, prefix, true
+		}
+		if r, ok := rules[prefix]; ok {
+			return r, prefix, true
+		}
+		if prefix == "/" {
+			return none, prefix, false
+		}
+		prefix = nextPrefix(prefix)
+	}
+}
+
 func isLocalAgentConnection(req *http.Request) bool {
 	ip := strings.Split(req.RemoteAddr, ":")[0]
 	// pmmAgent := req.Header.Get("Pmm-Agent-Id")
@@ -482,20 +521,11 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 		}
 	}
 
-	// find the longest prefix present in rules
-	prefix := cleanedPath
-	for prefix != "/" {
-		if _, ok := rules[prefix]; ok {
-			break
-		}
-		prefix = nextPrefix(prefix)
-	}
-
-	// fallback to Grafana admin if there is no explicit rule
-	minRole, ok := rules[prefix]
+	minRole, prefix, ok := resolveRule(req.Method, cleanedPath)
 	if ok {
 		l = l.WithField("prefix", prefix)
 	} else {
+		// fallback to Grafana admin if there is no explicit rule
 		l.Warn("No explicit rule, falling back to Grafana admin.")
 		minRole = grafanaAdmin
 	}
@@ -596,7 +626,8 @@ func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders 
 	authUser, err := s.c.getAuthUser(ctx, authHeaders, l)
 	if err != nil {
 		l.Warnf("%s", err)
-		if cErr, ok := errors.Cause(err).(*clientError); ok { //nolint:errorlint
+		var cErr *clientError
+		if errors.As(err, &cErr) {
 			code := codes.Internal
 			if cErr.Code == 401 || cErr.Code == 403 {
 				code = codes.Unauthenticated

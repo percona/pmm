@@ -62,6 +62,31 @@ func TestNextPrefix(t *testing.T) {
 	}
 }
 
+func TestResolveRule(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		method   string
+		path     string
+		wantRole role
+	}{
+		// Alerting: only listing templates is viewable; writes need editor.
+		{http.MethodGet, "/v1/alerting/templates", viewer},        // ListTemplates
+		{http.MethodPost, "/v1/alerting/templates", editor},       // CreateTemplate
+		{http.MethodPut, "/v1/alerting/templates/foo", editor},    // UpdateTemplate
+		{http.MethodDelete, "/v1/alerting/templates/foo", editor}, // DeleteTemplate
+		{http.MethodPost, "/v1/alerting/rules", editor},           // CreateRule
+	} {
+		t.Run(fmt.Sprintf("%s %s", tc.method, tc.path), func(t *testing.T) {
+			t.Parallel()
+
+			got, _, ok := resolveRule(tc.method, tc.path)
+			require.True(t, ok)
+			assert.Equal(t, tc.wantRole, got)
+		})
+	}
+}
+
 func TestAuthServerAuthenticate(t *testing.T) {
 	t.Parallel()
 
