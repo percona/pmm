@@ -175,8 +175,9 @@ get_system(){
         OS_NAME="$(lsb_release -sc)"
         PACKAGE_MANAGER="deb"
     elif [ -f /etc/os-release ]; then
+        # shellcheck source=/dev/null
         . /etc/os-release
-        if [[ "$ID" == "amzn" && "$VERSION_ID" == "2023" ]]; then
+        if [ "$ID" = "amzn" ] && [ "$VERSION_ID" = "2023" ]; then
             OS_NAME="amzn2023"
             PACKAGE_MANAGER="rpm"
         fi
@@ -453,8 +454,8 @@ ARCH=
 PACKAGE_MANAGER=
 SUBMODULE_BRANCH="v3"
 INSTALL=0
-RPM_RELEASE=8
-DEB_RELEASE=8
+RPM_RELEASE=1
+DEB_RELEASE=1
 
 if [ -n "$pmm_release" ]; then
     RPM_RELEASE="$RPM_RELEASE.$pmm_release"

@@ -19,6 +19,7 @@ package dir
 import (
 	"os"
 	"path/filepath"
+	"slices"
 
 	"github.com/pkg/errors"
 )
@@ -28,11 +29,13 @@ func CreateDataDir(path string, perm os.FileMode) error {
 	// store the first encountered error, but continue as far as possible
 	var storedErr error
 
-	if err := os.MkdirAll(path, perm); err != nil {
+	err := os.MkdirAll(path, perm)
+	if err != nil {
 		storedErr = errors.Wrapf(err, "cannot create path %q", path)
 	}
 
-	if err := os.Chmod(path, perm); err != nil && storedErr == nil {
+	err = os.Chmod(path, perm)
+	if err != nil && storedErr == nil {
 		storedErr = errors.Wrapf(err, "cannot chmod path %q", path)
 	}
 
@@ -43,15 +46,6 @@ func CreateDataDir(path string, perm os.FileMode) error {
 // File name is joined with provided path.
 func FindFilesWithExtensions(path string, extensions ...string) ([]string, error) {
 	var paths []string
-	match := func(ext string) bool {
-		for _, e := range extensions {
-			if e == ext {
-				return true
-			}
-		}
-		return false
-	}
-
 	entries, err := os.ReadDir(path)
 	if err != nil {
 		return nil, err
@@ -61,7 +55,7 @@ func FindFilesWithExtensions(path string, extensions ...string) ([]string, error
 		if entry.IsDir() {
 			continue
 		}
-		if ext := filepath.Ext(entry.Name()); len(ext) > 0 && match(ext[1:]) {
+		if ext := filepath.Ext(entry.Name()); len(ext) > 0 && slices.Contains(extensions, ext[1:]) {
 			paths = append(paths, filepath.Join(path, entry.Name()))
 		}
 	}

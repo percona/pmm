@@ -29,7 +29,9 @@ import (
 
 func TestPGStatMonitorStructs(t *testing.T) {
 	sqlDB := tests.OpenTestPostgreSQL(t)
-	defer sqlDB.Close() //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, sqlDB.Close())
+	})
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	majorVersion, _ := tests.PostgreSQLVersion(t, sqlDB)
@@ -38,18 +40,18 @@ func TestPGStatMonitorStructs(t *testing.T) {
 	}
 
 	_, err := db.Exec("CREATE EXTENSION IF NOT EXISTS pg_stat_monitor SCHEMA public")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	defer func() {
 		_, err = db.Exec("DROP EXTENSION pg_stat_monitor")
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	}()
 
 	m := setup(t, db, false, false)
 	settings, err := m.getSettings()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	normalizedQuery, err := settings.getNormalizedQueryValue()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	current, cache, err := m.monitorCache.getStatMonitorExtended(context.TODO(), db.Querier, normalizedQuery, truncate.GetDefaultMaxQueryLength())
 

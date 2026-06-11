@@ -107,6 +107,15 @@ Choose your deployment approach:
               labels:
                 app: pmm-client
             spec:
+              initContainers:
+                - name: set-tmp-permissions
+                  image: busybox
+                  command: ["sh", "-c", "chown -R 1002:0 /usr/local/percona/pmm/tmp"]
+                  securityContext:
+                    runAsUser: 0
+                  volumeMounts:
+                    - name: pmm-client-storage
+                      mountPath: /usr/local/percona/pmm/tmp            
               containers:
                 - name: pmm-client
                   image: percona/pmm-client:3
@@ -139,8 +148,14 @@ Choose your deployment approach:
                   persistentVolumeClaim:
                     claimName: pmm-client-pvc
         ```
-        !!! warning alert alert-warning "Security note"
-            The `PMM_AGENT_SERVER_INSECURE_TLS=1` setting disables TLS certificate verification. For production environments, configure proper TLS certificates and remove this setting.
+        !!! warning alert alert-warning "Security and configuration"
+            - The `PMM_AGENT_SERVER_INSECURE_TLS=1` setting disables TLS certificate verification. For production environments, configure proper TLS certificates and remove this setting.
+            - If disk metrics appear missing or incorrect, your container may not expose `/proc/mounts` at the default path. Add `PMM_AGENT_SETUP_PROC_MOUNTS_PATH` to the `env` section to point PMM Client to the correct location:
+
+            ```yaml
+            - name: PMM_AGENT_SETUP_PROC_MOUNTS_PATH
+              value: /path/to/proc/mounts
+            ```
 
     6. Deploy PMM Client pod and configure the [pmm-agent](../../use/commands/pmm-agent.md) in Setup mode to connect to PMM Server:
 
@@ -331,7 +346,7 @@ Choose your deployment approach:
 To confirm your node is being monitored:
 {.power-number}
 
-1. Go to the main menu and select **Operating System (OS) > Overview**.
+1. Go to the main menu and select **Operating system > Overview**.
 
 2. In the **Node Names** drop-down menu, select the node you recently registered.
 

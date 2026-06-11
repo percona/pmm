@@ -77,6 +77,8 @@ func (sc *selectorCache) set(selector, sql string) {
 
 var sCache = newSelectorCache()
 
+var promParser = parser.NewParser(parser.Options{})
+
 var funcMap = template.FuncMap{
 	"inc":         func(i int) int { return i + 1 },
 	"StringsJoin": strings.Join,
@@ -225,7 +227,8 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 
 	var queryBuffer bytes.Buffer
 
-	if err := tmplQueryReport.Execute(&queryBuffer, tmplArgs); err != nil {
+	err = tmplQueryReport.Execute(&queryBuffer, tmplArgs)
+	if err != nil {
 		return nil, fmt.Errorf("cannot execute tmplQueryReport: %w", err)
 	}
 
@@ -316,25 +319,25 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	group string, column string, isTotal bool,
 ) ([]*qanpbv1.Point, error) {
 	// Align to minutes
-	periodStartToSec = periodStartToSec / 60 * 60
-	periodStartFromSec = periodStartFromSec / 60 * 60
+	periodStartToSec = periodStartToSec / 60 * 60     //nolint:mnd
+	periodStartFromSec = periodStartFromSec / 60 * 60 //nolint:mnd
 
 	// If time range is bigger then two hour - amount of sparklines points = 120 to avoid huge data in response.
 	// Otherwise amount of sparklines points is equal to minutes in time range to not mess up calculation.
 	amountOfPoints := int64(optimalAmountOfPoint)
 	timePeriod := periodStartToSec - periodStartFromSec
 	// reduce amount of point if period less then 2h.
-	if timePeriod < int64((minFullTimeFrame).Seconds()) {
+	if timePeriod < int64(minFullTimeFrame.Seconds()) {
 		// minimum point is 1 minute
-		amountOfPoints = timePeriod / 60
+		amountOfPoints = timePeriod / 60 //nolint:mnd
 	}
 
 	// how many full minutes we can fit into given amount of points.
-	minutesInPoint := (periodStartToSec - periodStartFromSec) / 60 / amountOfPoints
+	minutesInPoint := (periodStartToSec - periodStartFromSec) / 60 / amountOfPoints //nolint:mnd
 	// we need aditional point to show this minutes
-	remainder := ((periodStartToSec - periodStartFromSec) / 60) % amountOfPoints
+	remainder := ((periodStartToSec - periodStartFromSec) / 60) % amountOfPoints //nolint:mnd
 	amountOfPoints += remainder / minutesInPoint
-	timeFrame := minutesInPoint * 60
+	timeFrame := minutesInPoint * 60 //nolint:mnd
 
 	arg := map[string]any{
 		"dimension_val":     dimensionVal,
@@ -381,7 +384,8 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	var results []*qanpbv1.Point
 	var queryBuffer bytes.Buffer
 
-	if err := tmplQueryReportSparklines.Execute(&queryBuffer, tmplArgs); err != nil {
+	err = tmplQueryReportSparklines.Execute(&queryBuffer, tmplArgs)
+	if err != nil {
 		return nil, fmt.Errorf("cannot execute tmplQueryReportSparklines: %w", err)
 	}
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
@@ -530,7 +534,12 @@ var (
 )
 
 // SelectFilters selects dimension and their values, and also keys and values of labels.
-func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, periodStartToSec int64, mainMetricName string, dimensions, labels map[string][]string) (*qanpbv1.GetFilteredMetricsNamesResponse, error) { //nolint:lll
+func (r *Reporter) SelectFilters(
+	ctx context.Context,
+	periodStartFromSec, periodStartToSec int64,
+	mainMetricName string,
+	dimensions, labels map[string][]string,
+) (*qanpbv1.GetFilteredMetricsNamesResponse, error) {
 	if !isValidMetricColumn(mainMetricName) {
 		return nil, fmt.Errorf("invalid main metric name %s", mainMetricName)
 	}
@@ -608,7 +617,8 @@ func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec,
 
 	var queryBuffer bytes.Buffer
 
-	if err := tmplQueryFilter.Execute(&queryBuffer, tmplArgs); err != nil {
+	err = tmplQueryFilter.Execute(&queryBuffer, tmplArgs)
+	if err != nil {
 		return nil, 0, fmt.Errorf("cannot execute tmplQueryFilter %s: %w", queryBuffer.String(), err)
 	}
 
@@ -627,7 +637,8 @@ func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec,
 		label.mainMetricPerSec /= float32(durationSec)
 		labels = append(labels, &label)
 	}
-	if err = rows.Err(); err != nil {
+	err = rows.Err()
+	if err != nil {
 		return nil, 0, fmt.Errorf("failed to select for QueryFilter %s: %w", queryBuffer.String(), err)
 	}
 
@@ -642,7 +653,8 @@ func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec,
 			}
 			totalMainMetricPerSec = labelTotal.mainMetricPerSec / float32(durationSec)
 		}
-		if err = rows.Err(); err != nil {
+		err = rows.Err()
+		if err != nil {
 			return nil, 0, fmt.Errorf("failed to select total for QueryFilter %s: %w", queryBuffer.String(), err)
 		}
 	}
@@ -684,7 +696,8 @@ func (r *Reporter) queryLabels(ctx context.Context, periodStartFromSec, periodSt
 		LbacFilter: lbacFilter,
 	}
 
-	if err := queryLabelsTmpl.Execute(&queryBuffer, tmplArgs); err != nil {
+	err = queryLabelsTmpl.Execute(&queryBuffer, tmplArgs)
+	if err != nil {
 		return nil, fmt.Errorf("cannot execute queryLabelsTmpl: %w", err)
 	}
 
@@ -703,7 +716,8 @@ func (r *Reporter) queryLabels(ctx context.Context, periodStartFromSec, periodSt
 		}
 		labels = append(labels, &label)
 	}
-	if err = rows.Err(); err != nil {
+	err = rows.Err()
+	if err != nil {
 		return nil, fmt.Errorf("failed to select for QueryFilter %s: %w", queryLabels, err)
 	}
 
@@ -763,7 +777,8 @@ func parseFilters(filters []string) ([]string, error) {
 	}
 
 	var parsed []string
-	if err := json.Unmarshal(decoded, &parsed); err != nil {
+	err = json.Unmarshal(decoded, &parsed)
+	if err != nil {
 		return nil, fmt.Errorf("failed to parse JSON: %w", err)
 	}
 
@@ -799,7 +814,7 @@ func headersToLbacFilter(ctx context.Context) (string, error) {
 			continue
 		}
 
-		m, err := parser.ParseMetricSelector(selector)
+		m, err := promParser.ParseMetricSelector(selector)
 		if err != nil {
 			l.Errorf("Failed to parse metric selector: %v", err)
 			continue

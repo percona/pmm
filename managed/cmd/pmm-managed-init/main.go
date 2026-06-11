@@ -37,10 +37,10 @@ func main() {
 	}
 	envSettings, errs, warns := envvars.ParseEnvVars(os.Environ())
 	for _, warn := range warns {
-		logrus.Warnf("Configuration warning: %s.", warn)
+		logrus.Warnf("Configuration warning: %s", warn)
 	}
 	for _, err := range errs {
-		logrus.Errorf("Configuration error: %s.", err)
+		logrus.Errorf("Configuration error: %s", err)
 	}
 	if len(errs) != 0 {
 		os.Exit(1)
@@ -62,7 +62,8 @@ func main() {
 		pmmConfigParams["AgentConfigFilePath"] = "/srv/pmm-agent/config/pmm-agent.yaml"
 	}
 
-	if err := supervisord.SavePMMConfig(pmmConfigParams); err != nil {
+	err = supervisord.SavePMMConfig(pmmConfigParams)
+	if err != nil {
 		logrus.Errorf("PMM Server configuration error: %s.", err)
 		os.Exit(1)
 	}

@@ -54,7 +54,6 @@ This project is built from several repositories:
 * [Percona-Lab/jenkins-pipelines](https://github.com/Percona-Lab/jenkins-pipelines)
 
 ### QA, Testing and Documentation
-* [percona/pmm-ui-tests](https://github.com/percona/pmm-ui-tests)
 * [percona/pmm-qa](https://github.com/percona/pmm-qa)
 * [percona/documentation](https://github.com/percona/pmm/tree/main/documentation)
 
@@ -62,7 +61,7 @@ This project is built from several repositories:
 
 You can review the PMM API definition [here](https://percona-pmm.readme.io/).
 
-It is generated from our `.proto` [files](./api/) using a special [OpenAPI v2 tool](https://github.com/grpc-ecosystem/grpc-gateway/tree/master/protoc-gen-openapiv2) and additional API documentation source files which are located in the `docs/api/` directory. The
+It is generated from our `.proto` [files](./api/) using a special [OpenAPI v2 tool](https://github.com/grpc-ecosystem/grpc-gateway/tree/master/protoc-gen-openapiv2) and additional API documentation source files which are located in the `documentation/api/` directory. The
 content and structure of these is formatted using [Markdown markup language](https://www.markdownguide.org/) and published on
 [ReadMe.com](https://readme.com/).
 
@@ -163,9 +162,9 @@ Please refer to [readme](https://github.com/percona/pmm-qa#readme) for details o
 ## Submitting a Pull Request
 
 Before proceeding with your first pull request, we highly recommend you to read the following documents:
-- [Working with Git and GitHub](docs/process/GIT_AND_GITHUB.md)
-- [Tech stack](docs/process/tech_stack.md)
-- [Best practices](docs/process/best_practices.md)
+- [Working with Git and GitHub](dev/docs/process/GIT_AND_GITHUB.md)
+- [Tech stack](dev/docs/process/tech_stack.md)
+- [Best practices](dev/docs/process/best_practices.md)
 
 Once your PR is created, please do the following:
 * prepare your PR for review

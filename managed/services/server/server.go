@@ -105,7 +105,8 @@ type Params struct {
 // NewServer returns new server for Server service.
 func NewServer(params *Params) (*Server, error) {
 	path := "/srv"
-	if _, err := os.Stat(path); err != nil {
+	_, err := os.Stat(path)
+	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 	path = filepath.Join(path, "pmm-update.json")
@@ -171,7 +172,7 @@ func (s *Server) Version(_ context.Context, req *serverv1.VersionRequest) (*serv
 			case "panic-error":
 				panic(errors.New("panic-error"))
 			case "panic-fmterror":
-				panic(fmt.Errorf("panic-fmterror"))
+				panic(errors.New("panic-fmterror"))
 			default:
 				panic(req.Dummy)
 			}
@@ -198,7 +199,8 @@ func (s *Server) Version(_ context.Context, req *serverv1.VersionRequest) (*serv
 
 		DistributionMethod: s.telemetryService.DistributionMethod(),
 	}
-	if t, err := version.Time(); err == nil {
+	t, err := version.Time()
+	if err == nil {
 		res.Managed.Timestamp = timestamppb.New(t)
 	}
 
@@ -225,7 +227,8 @@ func (s *Server) Readiness(ctx context.Context, req *serverv1.ReadinessRequest) 
 		"vmalert":         s.vmalert,
 		"qan":             s.qanClient,
 	} {
-		if err := svc.IsReady(ctx); err != nil {
+		err := svc.IsReady(ctx)
+		if err != nil {
 			s.l.Errorf("%s readiness check failed: %+v", n, err)
 			notReady = true
 		}
@@ -266,7 +269,8 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverv1.CheckUpdatesReq
 	}
 
 	if req.Force {
-		if err := s.updater.ForceCheckUpdates(ctx); err != nil {
+		err := s.updater.ForceCheckUpdates(ctx)
+		if err != nil {
 			return nil, err
 		}
 	}
@@ -372,7 +376,8 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverv1.StartUpdateReque
 	}
 
 	authToken := uuid.New().String()
-	if err := s.writeUpdateAuthToken(authToken); err != nil {
+	err = s.writeUpdateAuthToken(authToken)
+	if err != nil {
 		return nil, err
 	}
 
@@ -384,7 +389,8 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverv1.StartUpdateReque
 
 // UpdateStatus returns PMM Server update status.
 func (s *Server) UpdateStatus(ctx context.Context, req *serverv1.UpdateStatusRequest) (*serverv1.UpdateStatusResponse, error) {
-	if _, err := os.Stat(s.pmmUpdateAuthFile); err != nil && os.IsNotExist(err) {
+	_, err := os.Stat(s.pmmUpdateAuthFile)
+	if err != nil && os.IsNotExist(err) {
 		return &serverv1.UpdateStatusResponse{
 			Done: true,
 		}, nil
@@ -444,7 +450,8 @@ func (s *Server) writeUpdateAuthToken(token string) error {
 		return errors.WithStack(err)
 	}
 	defer func() {
-		if err = f.Close(); err != nil {
+		err = f.Close()
+		if err != nil {
 			s.l.Error(err)
 		}
 	}()
@@ -462,7 +469,8 @@ func (s *Server) readUpdateAuthToken() (string, error) {
 		return "", errors.WithStack(err)
 	}
 	defer func() {
-		if err = f.Close(); err != nil {
+		err = f.Close()
+		if err != nil {
 			s.l.Error(err)
 		}
 	}()
@@ -572,7 +580,8 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 	metricsRes := req.MetricsResolutions
 
 	if req.SshKey != nil {
-		if err := s.validateSSHKey(ctx, *req.SshKey); err != nil {
+		err := s.validateSSHKey(ctx, *req.SshKey)
+		if err != nil {
 			return err
 		}
 	}
@@ -600,7 +609,10 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 	}
 
 	if !canUpdateDurationSetting(metricsRes.GetHr().AsDuration(), s.envSettings.MetricsResolutions.HR) {
-		return status.Error(codes.FailedPrecondition, "High resolution for metrics is set via PMM_METRICS_RESOLUTION_HR (or PMM_METRICS_RESOLUTION) environment variable.") //nolint:lll
+		return status.Error(
+			codes.FailedPrecondition,
+			"High resolution for metrics is set via PMM_METRICS_RESOLUTION_HR (or PMM_METRICS_RESOLUTION) environment variable.",
+		)
 	}
 
 	if !canUpdateDurationSetting(metricsRes.GetMr().AsDuration(), s.envSettings.MetricsResolutions.MR) {
@@ -626,7 +638,8 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSettingsRequest) (*serverv1.ChangeSettingsResponse, error) {
 	s.envRW.RLock()
 	defer s.envRW.RUnlock()
-	if err := s.validateChangeSettingsRequest(ctx, req); err != nil {
+	err := s.validateChangeSettingsRequest(ctx, req)
+	if err != nil {
 		return nil, err
 	}
 
@@ -634,7 +647,8 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	var disableInternalPgQan bool
 	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
-		if oldSettings, err = models.GetSettings(tx); err != nil {
+		oldSettings, err = models.GetSettings(tx)
+		if err != nil {
 			return errors.WithStack(err)
 		}
 
@@ -681,7 +695,8 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 
 		// absent value means "do not change"
 		if req.SshKey != nil {
-			if err = s.writeSSHKey(pointer.GetString(req.SshKey)); err != nil {
+			err = s.writeSSHKey(pointer.GetString(req.SshKey))
+			if err != nil {
 				s.l.Error(errors.WithStack(err))
 				return status.Errorf(codes.Internal, "failed to write SSH key: %s", err.Error())
 			}
@@ -701,7 +716,8 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	if errTX != nil {
 		return nil, errTX
 	}
-	if err := s.UpdateConfigurations(ctx); err != nil {
+	err = s.UpdateConfigurations(ctx)
+	if err != nil {
 		return nil, err
 	}
 
@@ -710,14 +726,16 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		s.checksService.UpdateIntervals(
 			newSettings.SaaS.AdvisorRunIntervals.RareInterval,
 			newSettings.SaaS.AdvisorRunIntervals.StandardInterval,
-			newSettings.SaaS.AdvisorRunIntervals.FrequentInterval)
+			newSettings.SaaS.AdvisorRunIntervals.FrequentInterval,
+		)
 	}
 
 	// When Advisor is moved from disabled to enabled state, force checks download and execution.
 	var advisorsStarted bool
 	if !oldSettings.IsAdvisorsEnabled() && newSettings.IsAdvisorsEnabled() {
 		advisorsStarted = true
-		if err := s.checksService.StartChecks(nil); err != nil {
+		err := s.checksService.StartChecks(nil)
+		if err != nil {
 			s.l.Error(err)
 		}
 	}
@@ -742,16 +760,15 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 }
 
 func (s *Server) getInternalPgQANAgent(q *reform.Querier) (*models.Agent, error) {
-	agentType := models.QANPostgreSQLPgStatementsAgentType
 	agents, err := models.FindAgents(q, models.AgentFilters{
 		PMMAgentID: models.PMMServerAgentID,
-		AgentType:  &agentType,
+		AgentType:  new(models.QANPostgreSQLPgStatementsAgentType),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to find agents: %w", err)
 	}
 	if len(agents) == 0 {
-		return nil, fmt.Errorf("internal pgQAN agent not found")
+		return nil, errors.New("internal pgQAN agent not found")
 	}
 	return agents[0], nil
 }
@@ -771,7 +788,7 @@ func (s *Server) handleInternalQANToggle(ctx context.Context, q *reform.Querier,
 		return false, fmt.Errorf("failed to get QAN agent: %w", err)
 	}
 	if internalQanAgent == nil {
-		return false, fmt.Errorf("internal QAN agent not found")
+		return false, errors.New("internal QAN agent not found")
 	}
 
 	newAgent, err := models.ChangeAgent(q, internalQanAgent.AgentID, &models.ChangeAgentParams{
@@ -792,16 +809,19 @@ func (s *Server) UpdateConfigurations(ctx context.Context) error {
 		return fmt.Errorf("failed to get settings: %w", err)
 	}
 
-	if err := s.nomad.UpdateConfiguration(settings); err != nil {
+	err = s.nomad.UpdateConfiguration(settings)
+	if err != nil {
 		return fmt.Errorf("failed to update nomad configuration: %w", err)
 	}
-	if err := s.supervisord.UpdateConfiguration(settings); err != nil {
+	err = s.supervisord.UpdateConfiguration(settings)
+	if err != nil {
 		return fmt.Errorf("failed to update supervisord configuration: %w", err)
 	}
 	s.vmdb.RequestConfigurationUpdate()
 	s.vmalert.RequestConfigurationUpdate()
 
-	if err := s.agentsState.UpdateAgentsState(ctx); err != nil {
+	err = s.agentsState.UpdateAgentsState(ctx)
+	if err != nil {
 		return fmt.Errorf("failed to update agents state: %w", err)
 	}
 	return nil
@@ -831,12 +851,14 @@ func (s *Server) writeSSHKey(sshKey string) error {
 		return errors.WithStack(err)
 	}
 	sshDirPath := path.Join(usr.HomeDir, ".ssh")
-	if err = os.MkdirAll(sshDirPath, 0o700); err != nil { //nolint:mnd
+	err = os.MkdirAll(sshDirPath, 0o700) //nolint:mnd
+	if err != nil {
 		return errors.WithStack(err)
 	}
 
 	keysPath := path.Join(sshDirPath, "authorized_keys")
-	if err = os.WriteFile(keysPath, []byte(sshKey), 0o600); err != nil { //nolint:mnd
+	err = os.WriteFile(keysPath, []byte(sshKey), 0o600) //nolint:mnd
+	if err != nil {
 		return errors.WithStack(err)
 	}
 	return nil

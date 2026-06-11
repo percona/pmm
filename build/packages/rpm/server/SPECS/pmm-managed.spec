@@ -73,8 +73,8 @@ cp -pa ./managed/data/alerting-templates/*.yml %{buildroot}/usr/local/percona/al
 %{_sbindir}/pmm-managed-init
 %{_sbindir}/pmm-managed-starlark
 %{_datadir}/%{name}
-%attr(-, pmm, pmm) %{_datadir}/pmm-ui
-%attr(-, pmm, pmm) %{_datadir}/percona-dashboards/panels/pmm-compat-app
+%attr(-, pmm, root) %{_datadir}/pmm-ui
+%attr(-, pmm, root) %{_datadir}/percona-dashboards/panels/pmm-compat-app
 %attr(0644, pmm, root) /usr/local/percona/advisors/*.yml
 %attr(0644, pmm, root) /usr/local/percona/checks/*.yml
 %attr(0644, pmm, root) /usr/local/percona/alerting-templates/*.yml

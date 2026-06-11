@@ -17,6 +17,7 @@ package management
 
 import (
 	"context"
+	"maps"
 	"strings"
 
 	"github.com/AlekSi/pointer"
@@ -125,12 +126,8 @@ func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *advisorsv1.
 	failedChecks := make([]*advisorsv1.CheckResult, 0, len(results))
 	for _, result := range results {
 		labels := make(map[string]string, len(result.Target.Labels)+len(result.Result.Labels))
-		for k, v := range result.Result.Labels {
-			labels[k] = v
-		}
-		for k, v := range result.Target.Labels {
-			labels[k] = v
-		}
+		maps.Copy(labels, result.Result.Labels)
+		maps.Copy(labels, result.Target.Labels)
 
 		failedChecks = append(failedChecks, &advisorsv1.CheckResult{
 			Summary:     result.Result.Summary,

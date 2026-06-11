@@ -57,7 +57,8 @@ func NewVictoriaMetricsParams(basePath string, vmURL string) (*VictoriaMetricsPa
 		BaseConfigPath: basePath,
 		url:            URL,
 	}
-	if err := vmp.UpdateParams(); err != nil {
+	err = vmp.UpdateParams()
+	if err != nil {
 		return vmp, err
 	}
 
@@ -66,7 +67,8 @@ func NewVictoriaMetricsParams(basePath string, vmURL string) (*VictoriaMetricsPa
 
 // UpdateParams - reads configuration file and updates corresponding flags.
 func (vmp *VictoriaMetricsParams) UpdateParams() error {
-	if err := vmp.loadVMAlertParams(); err != nil {
+	err := vmp.loadVMAlertParams()
+	if err != nil {
 		return errors.Wrap(err, "cannot update VMAlertFlags config param")
 	}
 
@@ -86,7 +88,8 @@ func (vmp *VictoriaMetricsParams) loadVMAlertParams() error {
 		return nil
 	}
 	var cfg config.Config
-	if err = yaml.Unmarshal(buf, &cfg); err != nil {
+	err = yaml.Unmarshal(buf, &cfg)
+	if err != nil {
 		return errors.Wrap(err, "cannot unmarshal baseConfigPath for VMAlertFlags")
 	}
 	vmalertFlags := make([]string, 0, len(vmp.VMAlertFlags))
@@ -103,7 +106,7 @@ func (vmp *VictoriaMetricsParams) loadVMAlertParams() error {
 
 // ExternalVM returns true if VictoriaMetrics is configured to run externally.
 func (vmp *VictoriaMetricsParams) ExternalVM() bool {
-	return vmp.url.Hostname() != "127.0.0.1"
+	return !internalAddr(vmp.url.Hostname())
 }
 
 // URL returns the base URL for VictoriaMetrics.

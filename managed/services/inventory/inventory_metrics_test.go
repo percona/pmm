@@ -43,7 +43,9 @@ func TestNewInventoryMetricsCollector(t *testing.T) {
 		require.NoError(t, err)
 		resp, err := client.Do(req)
 		require.NoError(t, err)
-		defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
+		t.Cleanup(func() {
+			assert.NoError(t, resp.Body.Close())
+		})
 
 		body, err := io.ReadAll(resp.Body)
 		require.NoError(t, err)
@@ -106,24 +108,30 @@ func TestNewInventoryMetricsCollector(t *testing.T) {
 			pmm_managed_inventory_services{node_id="N1",service_id="C1",service_type="proxysql"} 1
 		`
 
-		if err := testutil.CollectAndCompare(
+		err := testutil.CollectAndCompare(
 			inventoryCollector,
 			strings.NewReader(expectedAgentMetrics),
-			"pmm_managed_inventory_agents"); err != nil {
+			"pmm_managed_inventory_agents",
+		)
+		if err != nil {
 			t.Errorf("Unexpected collecting result:\n%s", err)
 		}
 
-		if err := testutil.CollectAndCompare(
+		err = testutil.CollectAndCompare(
 			inventoryCollector,
 			strings.NewReader(expectedNodeMetrics),
-			"pmm_managed_inventory_nodes"); err != nil {
+			"pmm_managed_inventory_nodes",
+		)
+		if err != nil {
 			t.Errorf("Unexpected collecting result:\n%s", err)
 		}
 
-		if err := testutil.CollectAndCompare(
+		err = testutil.CollectAndCompare(
 			inventoryCollector,
 			strings.NewReader(expectedServiceMetrics),
-			"pmm_managed_inventory_services"); err != nil {
+			"pmm_managed_inventory_services",
+		)
+		if err != nil {
 			t.Errorf("Unexpected collecting result:\n%s", err)
 		}
 	})

@@ -42,7 +42,8 @@ func TestRunExplain(t *testing.T) {
 						QueryID:   "3923dace316a86643fcf87cb45e0558a",
 					},
 				},
-			})
+			},
+		)
 		require.NoError(t, err)
 		require.NotEmpty(t, explainActionOK.Payload.MysqlExplain.ActionID)
 
@@ -72,13 +73,14 @@ func TestRunMongoDBExplain(t *testing.T) {
 					Query:     `{"ns":"test.coll","op":"query","query":{"k":{"$lte":{"$numberInt":"1"}}}}`,
 				},
 			},
-		})
+		},
+	)
 	require.NoError(t, err)
 	require.NotEmpty(t, explainActionOK.Payload.MongodbExplain.ActionID)
 
 	var actionOK *actions.GetActionOK
 
-	for i := 0; i < 6; i++ {
+	for range 6 {
 		var err error
 		actionOK, err = client.Default.ActionsService.GetAction(&actions.GetActionParams{
 			Context:  pmmapitests.Context,
@@ -95,26 +97,26 @@ func TestRunMongoDBExplain(t *testing.T) {
 	}
 	assert.True(t, actionOK.Payload.Done)
 
-	want := map[string]interface{}{
-		"winningPlan": map[string]interface{}{
+	want := map[string]any{
+		"winningPlan": map[string]any{
 			"stage": "EOF",
 		},
-		"rejectedPlans": []interface{}{},
-		"plannerVersion": map[string]interface{}{
+		"rejectedPlans": []any{},
+		"plannerVersion": map[string]any{
 			"$numberInt": "1",
 		},
 		"namespace":      "test.coll",
 		"indexFilterSet": bool(false),
-		"parsedQuery": map[string]interface{}{
-			"k": map[string]interface{}{
-				"$lte": map[string]interface{}{
+		"parsedQuery": map[string]any{
+			"k": map[string]any{
+				"$lte": map[string]any{
 					"$numberInt": "1",
 				},
 			},
 		},
 	}
-	m := make(map[string]interface{})
+	m := make(map[string]any)
 	err = json.Unmarshal([]byte(actionOK.Payload.Output), &m)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, want, m["queryPlanner"])
 }

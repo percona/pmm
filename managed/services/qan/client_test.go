@@ -20,7 +20,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -43,7 +42,7 @@ func TestClient(t *testing.T) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
 	ctx := logger.Set(t.Context(), t.Name())
 	defer func() {
-		assert.NoError(t, sqlDB.Close())
+		require.NoError(t, sqlDB.Close())
 		assert.Equal(t, 18, reformL.Requests())
 	}()
 
@@ -59,7 +58,7 @@ func TestClient(t *testing.T) {
 		&models.Agent{
 			AgentID:      "217907dc-d34d-4e2e-aa84-a1b765d49853",
 			AgentType:    models.PMMAgentType,
-			RunsOnNodeID: pointer.ToString("cc663f36-18ca-40a1-aea9-c6310bb4738d"),
+			RunsOnNodeID: new("cc663f36-18ca-40a1-aea9-c6310bb4738d"),
 		},
 
 		&models.Service{
@@ -67,18 +66,18 @@ func TestClient(t *testing.T) {
 			ServiceType:  models.MySQLServiceType,
 			ServiceName:  "test-mysql",
 			NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
-			Address:      pointer.ToString("5.6.7.8"),
-			Port:         pointer.ToUint16(3306),
+			Address:      new("5.6.7.8"),
+			Port:         new(uint16(3306)),
 			CustomLabels: []byte(`{"_service_label": "bar"}`),
 		},
 
 		&models.Agent{
 			AgentID:      "75bb30d3-ef4a-4147-97a8-621a996611dd",
 			AgentType:    models.QANMySQLPerfSchemaAgentType,
-			PMMAgentID:   pointer.ToString("217907dc-d34d-4e2e-aa84-a1b765d49853"),
-			ServiceID:    pointer.ToString("014647c3-b2f5-44eb-94f4-d943260a968c"),
+			PMMAgentID:   new("217907dc-d34d-4e2e-aa84-a1b765d49853"),
+			ServiceID:    new("014647c3-b2f5-44eb-94f4-d943260a968c"),
 			CustomLabels: []byte(`{"_agent_label": "baz"}`),
-			ListenPort:   pointer.ToUint16(12345),
+			ListenPort:   new(uint16(12345)),
 		},
 
 		&models.Service{
@@ -86,18 +85,18 @@ func TestClient(t *testing.T) {
 			ServiceType:  models.PostgreSQLServiceType,
 			ServiceName:  "test-postgresql",
 			NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
-			Address:      pointer.ToString("5.6.7.8"),
-			Port:         pointer.ToUint16(5432),
+			Address:      new("5.6.7.8"),
+			Port:         new(uint16(5432)),
 			CustomLabels: []byte(`{"_service_label": "bar"}`),
 		},
 
 		&models.Agent{
 			AgentID:      "29e14468-d479-4b4d-bfb7-4ac2fb865bac",
 			AgentType:    models.QANPostgreSQLPgStatementsAgentType,
-			PMMAgentID:   pointer.ToString("217907dc-d34d-4e2e-aa84-a1b765d49853"),
-			ServiceID:    pointer.ToString("9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1"),
+			PMMAgentID:   new("217907dc-d34d-4e2e-aa84-a1b765d49853"),
+			ServiceID:    new("9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1"),
 			CustomLabels: []byte(`{"_agent_label": "postgres-baz"}`),
-			ListenPort:   pointer.ToUint16(12345),
+			ListenPort:   new(uint16(12345)),
 		},
 
 		&models.Service{
@@ -105,18 +104,18 @@ func TestClient(t *testing.T) {
 			ServiceType:  models.MongoDBServiceType,
 			ServiceName:  "test-mongodb",
 			NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
-			Address:      pointer.ToString("5.6.7.8"),
-			Port:         pointer.ToUint16(27017),
+			Address:      new("5.6.7.8"),
+			Port:         new(uint16(27017)),
 			CustomLabels: []byte(`{"_service_label": "mongo-bar"}`),
 		},
 
 		&models.Agent{
 			AgentID:      "b153f0d8-34e4-4635-9184-499161b4d12c",
 			AgentType:    models.QANMongoDBProfilerAgentType,
-			PMMAgentID:   pointer.ToString("217907dc-d34d-4e2e-aa84-a1b765d49853"),
-			ServiceID:    pointer.ToString("1fce2502-ecc7-46d4-968b-18d7907f2543"),
+			PMMAgentID:   new("217907dc-d34d-4e2e-aa84-a1b765d49853"),
+			ServiceID:    new("1fce2502-ecc7-46d4-968b-18d7907f2543"),
 			CustomLabels: []byte(`{"_agent_label": "mongodb-baz"}`),
-			ListenPort:   pointer.ToUint16(12345),
+			ListenPort:   new(uint16(12345)),
 		},
 	} {
 		require.NoError(t, db.Insert(str), "%+v", str)
@@ -132,7 +131,7 @@ func TestClient(t *testing.T) {
 			db: db,
 			l:  logrus.WithField("test", t.Name()),
 		}
-		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeOf(&qanpb.CollectRequest{}).String())).Return(&qanpb.CollectResponse{}, nil)
+		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeFor[*qanpb.CollectRequest]().String())).Return(&qanpb.CollectResponse{}, nil)
 		metricsBuckets := []*agentv1.MetricsBucket{
 			{
 				Common: &agentv1.MetricsBucket_Common{
@@ -218,7 +217,7 @@ func TestClient(t *testing.T) {
 			db: db,
 			l:  logrus.WithField("test", t.Name()),
 		}
-		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeOf(&qanpb.CollectRequest{}).String())).Return(&qanpb.CollectResponse{}, nil)
+		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeFor[*qanpb.CollectRequest]().String())).Return(&qanpb.CollectResponse{}, nil)
 		metricsBuckets := []*agentv1.MetricsBucket{
 			{
 				Common: &agentv1.MetricsBucket_Common{
@@ -284,7 +283,7 @@ func TestClient(t *testing.T) {
 			db: db,
 			l:  logrus.WithField("test", t.Name()),
 		}
-		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeOf(&qanpb.CollectRequest{}).String())).Return(&qanpb.CollectResponse{}, nil)
+		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeFor[*qanpb.CollectRequest]().String())).Return(&qanpb.CollectResponse{}, nil)
 		metricsBuckets := []*agentv1.MetricsBucket{
 			{
 				Common: &agentv1.MetricsBucket_Common{
@@ -419,7 +418,7 @@ func TestClient(t *testing.T) {
 			db: db,
 			l:  logrus.WithField("test", t.Name()),
 		}
-		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeOf(&qanpb.CollectRequest{}).String())).Return(&qanpb.CollectResponse{}, nil)
+		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeFor[*qanpb.CollectRequest]().String())).Return(&qanpb.CollectResponse{}, nil)
 		metricsBuckets := []*agentv1.MetricsBucket{
 			{
 				Common: &agentv1.MetricsBucket_Common{
@@ -440,7 +439,7 @@ func TestClientPerformance(t *testing.T) {
 	reformL := sqlmetrics.NewReform("test", "test", t.Logf)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
 	defer func() {
-		assert.NoError(t, sqlDB.Close())
+		require.NoError(t, sqlDB.Close())
 	}()
 
 	for _, str := range []reform.Struct{
@@ -449,18 +448,18 @@ func TestClientPerformance(t *testing.T) {
 			ServiceType:  models.MySQLServiceType,
 			ServiceName:  "test-mysql",
 			NodeID:       "pmm-server",
-			Address:      pointer.ToString("5.6.7.8"),
-			Port:         pointer.ToUint16(3306),
+			Address:      new("5.6.7.8"),
+			Port:         new(uint16(3306)),
 			CustomLabels: []byte(`{"_service_label": "bar"}`),
 		},
 
 		&models.Agent{
 			AgentID:      "6b74c6bf-642d-43f0-bee1-0faddd1a2e28",
 			AgentType:    models.QANMySQLPerfSchemaAgentType,
-			ServiceID:    pointer.ToString("0d350868-4d85-4884-b972-dff130129c23"),
-			PMMAgentID:   pointer.ToString("pmm-server"),
+			ServiceID:    new("0d350868-4d85-4884-b972-dff130129c23"),
+			PMMAgentID:   new("pmm-server"),
 			CustomLabels: []byte(`{"_agent_label": "baz"}`),
-			ListenPort:   pointer.ToUint16(12345),
+			ListenPort:   new(uint16(12345)),
 		},
 	} {
 		require.NoError(t, db.Insert(str), "%+v", str)
@@ -469,7 +468,7 @@ func TestClientPerformance(t *testing.T) {
 	ctx := logger.Set(t.Context(), t.Name())
 	c := &mockQanCollectorClient{}
 	c.Test(t)
-	c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeOf(&qanpb.CollectRequest{}).String())).Return(&qanpb.CollectResponse{}, nil)
+	c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeFor[*qanpb.CollectRequest]().String())).Return(&qanpb.CollectResponse{}, nil)
 	defer c.AssertExpectations(t)
 
 	reformL.Reset()

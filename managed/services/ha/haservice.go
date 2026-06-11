@@ -169,7 +169,8 @@ var _ io.Writer = (*memberlistLogWriter)(nil)
 func setupRaftStorage(nodeID string, l *logrus.Entry) (*raftboltdb.BoltStore, *raftboltdb.BoltStore, *raft.FileSnapshotStore, error) {
 	// Create the Raft data directory for this node
 	raftDir := filepath.Join(defaultRaftDataDir, nodeID)
-	if err := os.MkdirAll(raftDir, defaultRaftDataDirPerm); err != nil {
+	err := os.MkdirAll(raftDir, defaultRaftDataDirPerm)
+	if err != nil {
 		return nil, nil, nil, fmt.Errorf("failed to create Raft data directory: %w", err)
 	}
 	l.Infof("Using Raft data directory: %s", raftDir)
@@ -183,7 +184,8 @@ func setupRaftStorage(nodeID string, l *logrus.Entry) (*raftboltdb.BoltStore, *r
 	// Create BoltDB-based stable store
 	stableStore, err := raftboltdb.NewBoltStore(filepath.Join(raftDir, "raft-stable.db"))
 	if err != nil {
-		if cerr := logStore.Close(); cerr != nil {
+		cerr := logStore.Close()
+		if cerr != nil {
 			l.Errorf("failed to close logStore after stableStore error: %v", cerr)
 		}
 		return nil, nil, nil, fmt.Errorf("failed to create BoltDB stable store: %w", err)
@@ -192,10 +194,12 @@ func setupRaftStorage(nodeID string, l *logrus.Entry) (*raftboltdb.BoltStore, *r
 	// Create file-based snapshot store
 	snapshotStore, err := raft.NewFileSnapshotStore(raftDir, defaultSnapshotRetention, os.Stderr)
 	if err != nil {
-		if cerr := logStore.Close(); cerr != nil {
+		cerr := logStore.Close()
+		if cerr != nil {
 			l.Errorf("failed to close logStore after snapshotStore error: %v", cerr)
 		}
-		if cerr := stableStore.Close(); cerr != nil {
+		cerr = stableStore.Close()
+		if cerr != nil {
 			l.Errorf("failed to close stableStore after snapshotStore error: %v", cerr)
 		}
 		return nil, nil, nil, fmt.Errorf("failed to create file snapshot store: %w", err)
@@ -277,7 +281,8 @@ func (s *Service) Run(ctx context.Context) error {
 		tcpAddr,
 		defaultRaftRetries,
 		defaultTransportTimeout,
-		nil)
+		nil,
+	)
 	if err != nil {
 		return err
 	}
@@ -290,12 +295,14 @@ func (s *Service) Run(ctx context.Context) error {
 
 	defer func() {
 		if logStore != nil {
-			if closeErr := logStore.Close(); closeErr != nil {
+			closeErr := logStore.Close()
+			if closeErr != nil {
 				s.l.Errorf("error closing log store: %v", closeErr)
 			}
 		}
 		if stableStore != nil {
-			if closeErr := stableStore.Close(); closeErr != nil {
+			closeErr := stableStore.Close()
+			if closeErr != nil {
 				s.l.Errorf("error closing stable store: %v", closeErr)
 			}
 		}
@@ -355,7 +362,8 @@ func (s *Service) Run(ctx context.Context) error {
 				},
 			},
 		}
-		if err := s.raftNode.BootstrapCluster(cfg).Error(); err != nil {
+		err := s.raftNode.BootstrapCluster(cfg).Error()
+		if err != nil {
 			// Cluster might already be bootstrapped with persistent storage
 			if !errors.Is(err, raft.ErrCantBootstrap) {
 				return fmt.Errorf("failed to bootstrap Raft cluster: %w", err)
@@ -437,7 +445,8 @@ func (s *Service) reconcileRaftWithMemberlist(ctx context.Context) {
 
 	// Fetch the current Raft cluster configuration.
 	configFuture := s.raftNode.GetConfiguration()
-	if err := configFuture.Error(); err != nil {
+	err := configFuture.Error()
+	if err != nil {
 		s.l.Errorf("failed to get raft configuration for reconciliation: %v", err)
 		return
 	}
@@ -462,7 +471,8 @@ func (s *Service) reconcileRaftWithMemberlist(ctx context.Context) {
 		serverID := string(server.ID)
 		if _, exists := memberMap[serverID]; !exists {
 			s.l.Warnf("Removing stale node %s from Raft (not in memberlist)", serverID)
-			if err := s.raftNode.RemoveServer(server.ID, 0, defaultServerOpTimeout).Error(); err != nil {
+			err := s.raftNode.RemoveServer(server.ID, 0, defaultServerOpTimeout).Error()
+			if err != nil {
 				s.l.Errorf("Failed to remove stale server %s from Raft: %v", serverID, err)
 			} else {
 				s.l.Infof("Successfully removed stale node %s from Raft cluster", serverID)
@@ -479,7 +489,8 @@ func (s *Service) reconcileRaftWithMemberlist(ctx context.Context) {
 			hostname := s.lookupFQDN(ctx, member.Addr.String())
 			serverAddress := raft.ServerAddress(fmt.Sprintf("%s:%d", hostname, s.params.RaftPort))
 			s.l.Infof("Adding missing node %s to Raft (in memberlist but not in Raft)", member.Name)
-			if err := s.raftNode.AddVoter(raft.ServerID(member.Name), serverAddress, 0, defaultServerOpTimeout).Error(); err != nil {
+			err := s.raftNode.AddVoter(raft.ServerID(member.Name), serverAddress, 0, defaultServerOpTimeout).Error()
+			if err != nil {
 				s.l.Errorf("Failed to add server %s to Raft: %v", member.Name, err)
 			} else {
 				s.l.Infof("Successfully added node %s to Raft cluster with address: %s", member.Name, serverAddress)
@@ -567,7 +578,7 @@ func (s *Service) AddLeaderService(leaderService LeaderService) {
 // This method should only be called by the leader node.
 func (s *Service) BroadcastMessage(message []byte) error {
 	if !s.params.Enabled {
-		return fmt.Errorf("HA is disabled")
+		return errors.New("HA is disabled")
 	}
 
 	s.rw.RLock()
@@ -575,7 +586,8 @@ func (s *Service) BroadcastMessage(message []byte) error {
 
 	future := s.raftNode.Apply(message, defaultApplyTimeout)
 
-	if err := future.Error(); err != nil {
+	err := future.Error()
+	if err != nil {
 		return fmt.Errorf("failed to apply log to raft: %w", err)
 	}
 	return nil

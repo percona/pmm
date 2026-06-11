@@ -25,6 +25,7 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/duration"
 )
 
 // addValkey adds a new Valkey service and an accompanying "Valkey Exporter agent".
@@ -71,8 +72,9 @@ func (s *ManagementService) addValkey(ctx context.Context, req *managementv1.Add
 			TLS:           req.Tls,
 			TLSSkipVerify: req.TlsSkipVerify,
 			ExporterOptions: models.ExporterOptions{
-				ExposeExporter: req.ExposeExporter,
-				PushMetrics:    isPushMode(req.MetricsMode),
+				ExposeExporter:    req.ExposeExporter,
+				PushMetrics:       isPushMode(req.MetricsMode),
+				ConnectionTimeout: duration.OptionalFromProto(req.ConnectionTimeout),
 			},
 			ValkeyOptions: models.ValkeyOptionsFromRequest(req),
 		})
@@ -80,11 +82,13 @@ func (s *ManagementService) addValkey(ctx context.Context, req *managementv1.Add
 			return err
 		}
 		if !req.SkipConnectionCheck {
-			if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 
-			if err = s.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+			err = s.sib.GetInfoFromService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 		}

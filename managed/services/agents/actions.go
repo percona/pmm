@@ -47,6 +47,15 @@ func NewActionsService(qanClient qanClient, r *Registry) *ActionsService {
 	}
 }
 
+func (s *ActionsService) sendActionRequest(pmmAgentID string, req agentv1.ServerRequestPayload) error {
+	agent, err := s.r.get(pmmAgentID)
+	if err != nil {
+		return err
+	}
+	_, err = agent.channel.SendAndWaitResponse(req)
+	return err
+}
+
 // StartMySQLExplainAction starts MySQL EXPLAIN Action on pmm-agent.
 func (s *ActionsService) StartMySQLExplainAction(
 	ctx context.Context,
@@ -82,11 +91,6 @@ func (s *ActionsService) StartMySQLExplainAction(
 	}
 	schema = sc.Schema
 
-	agent, err := s.r.get(pmmAgentID)
-	if err != nil {
-		return err
-	}
-
 	aRequest := &agentv1.StartActionRequest{
 		ActionId: id,
 		Params: &agentv1.StartActionRequest_MysqlExplainParams{
@@ -107,12 +111,16 @@ func (s *ActionsService) StartMySQLExplainAction(
 		Timeout: defaultActionTimeout,
 	}
 
-	_, err = agent.channel.SendAndWaitResponse(aRequest)
-	return err
+	return s.sendActionRequest(pmmAgentID, aRequest)
 }
 
 // StartMySQLShowCreateTableAction starts mysql-show-create-table action on pmm-agent.
-func (s *ActionsService) StartMySQLShowCreateTableAction(_ context.Context, id, pmmAgentID, dsn, table string, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error { //nolint:lll
+func (s *ActionsService) StartMySQLShowCreateTableAction(
+	_ context.Context,
+	id, pmmAgentID, dsn, table string,
+	files map[string]string,
+	tdp *models.DelimiterPair, tlsSkipVerify bool,
+) error {
 	aRequest := &agentv1.StartActionRequest{
 		ActionId: id,
 		Params: &agentv1.StartActionRequest_MysqlShowCreateTableParams{
@@ -130,16 +138,15 @@ func (s *ActionsService) StartMySQLShowCreateTableAction(_ context.Context, id, 
 		Timeout: defaultActionTimeout,
 	}
 
-	agent, err := s.r.get(pmmAgentID)
-	if err != nil {
-		return err
-	}
-	_, err = agent.channel.SendAndWaitResponse(aRequest)
-	return err
+	return s.sendActionRequest(pmmAgentID, aRequest)
 }
 
 // StartMySQLShowTableStatusAction starts mysql-show-table-status action on pmm-agent.
-func (s *ActionsService) StartMySQLShowTableStatusAction(_ context.Context, id, pmmAgentID, dsn, table string, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error { //nolint:lll
+func (s *ActionsService) StartMySQLShowTableStatusAction(
+	_ context.Context, id, pmmAgentID, dsn, table string,
+	files map[string]string,
+	tdp *models.DelimiterPair, tlsSkipVerify bool,
+) error {
 	aRequest := &agentv1.StartActionRequest{
 		ActionId: id,
 		Params: &agentv1.StartActionRequest_MysqlShowTableStatusParams{
@@ -157,16 +164,15 @@ func (s *ActionsService) StartMySQLShowTableStatusAction(_ context.Context, id, 
 		Timeout: defaultActionTimeout,
 	}
 
-	agent, err := s.r.get(pmmAgentID)
-	if err != nil {
-		return err
-	}
-	_, err = agent.channel.SendAndWaitResponse(aRequest)
-	return err
+	return s.sendActionRequest(pmmAgentID, aRequest)
 }
 
 // StartMySQLShowIndexAction starts mysql-show-index action on pmm-agent.
-func (s *ActionsService) StartMySQLShowIndexAction(_ context.Context, id, pmmAgentID, dsn, table string, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error { //nolint:lll
+func (s *ActionsService) StartMySQLShowIndexAction(
+	_ context.Context, id, pmmAgentID, dsn, table string,
+	files map[string]string,
+	tdp *models.DelimiterPair, tlsSkipVerify bool,
+) error {
 	aRequest := &agentv1.StartActionRequest{
 		ActionId: id,
 		Params: &agentv1.StartActionRequest_MysqlShowIndexParams{
@@ -184,12 +190,7 @@ func (s *ActionsService) StartMySQLShowIndexAction(_ context.Context, id, pmmAge
 		Timeout: defaultActionTimeout,
 	}
 
-	agent, err := s.r.get(pmmAgentID)
-	if err != nil {
-		return err
-	}
-	_, err = agent.channel.SendAndWaitResponse(aRequest)
-	return err
+	return s.sendActionRequest(pmmAgentID, aRequest)
 }
 
 // StartPostgreSQLShowCreateTableAction starts postgresql-show-create-table action on pmm-agent.
@@ -205,12 +206,7 @@ func (s *ActionsService) StartPostgreSQLShowCreateTableAction(_ context.Context,
 		Timeout: defaultActionTimeout,
 	}
 
-	agent, err := s.r.get(pmmAgentID)
-	if err != nil {
-		return err
-	}
-	_, err = agent.channel.SendAndWaitResponse(aRequest)
-	return err
+	return s.sendActionRequest(pmmAgentID, aRequest)
 }
 
 // StartPostgreSQLShowIndexAction starts postgresql-show-index action on pmm-agent.
@@ -226,12 +222,7 @@ func (s *ActionsService) StartPostgreSQLShowIndexAction(_ context.Context, id, p
 		Timeout: defaultActionTimeout,
 	}
 
-	agent, err := s.r.get(pmmAgentID)
-	if err != nil {
-		return err
-	}
-	_, err = agent.channel.SendAndWaitResponse(aRequest)
-	return err
+	return s.sendActionRequest(pmmAgentID, aRequest)
 }
 
 // StartMongoDBExplainAction starts MongoDB query explain action on pmm-agent.
@@ -252,16 +243,15 @@ func (s *ActionsService) StartMongoDBExplainAction(_ context.Context, id, pmmAge
 		Timeout: defaultActionTimeout,
 	}
 
-	agent, err := s.r.get(pmmAgentID)
-	if err != nil {
-		return err
-	}
-	_, err = agent.channel.SendAndWaitResponse(aRequest)
-	return err
+	return s.sendActionRequest(pmmAgentID, aRequest)
 }
 
 // StartMySQLQueryShowAction starts MySQL SHOW query action on pmm-agent.
-func (s *ActionsService) StartMySQLQueryShowAction(_ context.Context, id, pmmAgentID, dsn, query string, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error { //nolint:lll
+func (s *ActionsService) StartMySQLQueryShowAction(
+	_ context.Context, id, pmmAgentID, dsn, query string,
+	files map[string]string,
+	tdp *models.DelimiterPair, tlsSkipVerify bool,
+) error {
 	aRequest := &agentv1.StartActionRequest{
 		ActionId: id,
 		Params: &agentv1.StartActionRequest_MysqlQueryShowParams{
@@ -279,16 +269,15 @@ func (s *ActionsService) StartMySQLQueryShowAction(_ context.Context, id, pmmAge
 		Timeout: defaultQueryActionTimeout,
 	}
 
-	agent, err := s.r.get(pmmAgentID)
-	if err != nil {
-		return err
-	}
-	_, err = agent.channel.SendAndWaitResponse(aRequest)
-	return err
+	return s.sendActionRequest(pmmAgentID, aRequest)
 }
 
 // StartMySQLQuerySelectAction starts MySQL SELECT query action on pmm-agent.
-func (s *ActionsService) StartMySQLQuerySelectAction(_ context.Context, id, pmmAgentID, dsn, query string, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error { //nolint:lll
+func (s *ActionsService) StartMySQLQuerySelectAction(
+	_ context.Context, id, pmmAgentID, dsn, query string,
+	files map[string]string,
+	tdp *models.DelimiterPair, tlsSkipVerify bool,
+) error {
 	aRequest := &agentv1.StartActionRequest{
 		ActionId: id,
 		Params: &agentv1.StartActionRequest_MysqlQuerySelectParams{
@@ -306,12 +295,7 @@ func (s *ActionsService) StartMySQLQuerySelectAction(_ context.Context, id, pmmA
 		Timeout: defaultQueryActionTimeout,
 	}
 
-	agent, err := s.r.get(pmmAgentID)
-	if err != nil {
-		return err
-	}
-	_, err = agent.channel.SendAndWaitResponse(aRequest)
-	return err
+	return s.sendActionRequest(pmmAgentID, aRequest)
 }
 
 // StartPostgreSQLQueryShowAction starts PostgreSQL SHOW query action on pmm-agent.
@@ -326,12 +310,7 @@ func (s *ActionsService) StartPostgreSQLQueryShowAction(_ context.Context, id, p
 		Timeout: defaultQueryActionTimeout,
 	}
 
-	agent, err := s.r.get(pmmAgentID)
-	if err != nil {
-		return err
-	}
-	_, err = agent.channel.SendAndWaitResponse(aRequest)
-	return err
+	return s.sendActionRequest(pmmAgentID, aRequest)
 }
 
 // StartPostgreSQLQuerySelectAction starts PostgreSQL SELECT query action on pmm-agent.
@@ -347,12 +326,7 @@ func (s *ActionsService) StartPostgreSQLQuerySelectAction(_ context.Context, id,
 		Timeout: defaultQueryActionTimeout,
 	}
 
-	agent, err := s.r.get(pmmAgentID)
-	if err != nil {
-		return err
-	}
-	_, err = agent.channel.SendAndWaitResponse(aRequest)
-	return err
+	return s.sendActionRequest(pmmAgentID, aRequest)
 }
 
 // StartMongoDBQueryGetParameterAction starts MongoDB getParameter query action on pmm-agent.
@@ -372,12 +346,7 @@ func (s *ActionsService) StartMongoDBQueryGetParameterAction(_ context.Context, 
 		Timeout: defaultQueryActionTimeout,
 	}
 
-	agent, err := s.r.get(pmmAgentID)
-	if err != nil {
-		return err
-	}
-	_, err = agent.channel.SendAndWaitResponse(aRequest)
-	return err
+	return s.sendActionRequest(pmmAgentID, aRequest)
 }
 
 // StartMongoDBQueryBuildInfoAction starts MongoDB buildInfo query action on pmm-agent.
@@ -397,16 +366,15 @@ func (s *ActionsService) StartMongoDBQueryBuildInfoAction(_ context.Context, id,
 		Timeout: defaultQueryActionTimeout,
 	}
 
-	agent, err := s.r.get(pmmAgentID)
-	if err != nil {
-		return err
-	}
-	_, err = agent.channel.SendAndWaitResponse(aRequest)
-	return err
+	return s.sendActionRequest(pmmAgentID, aRequest)
 }
 
 // StartMongoDBQueryGetCmdLineOptsAction starts MongoDB getCmdLineOpts query action on pmm-agent.
-func (s *ActionsService) StartMongoDBQueryGetCmdLineOptsAction(_ context.Context, id, pmmAgentID, dsn string, files map[string]string, tdp *models.DelimiterPair) error { //nolint:lll
+func (s *ActionsService) StartMongoDBQueryGetCmdLineOptsAction(
+	_ context.Context, id, pmmAgentID, dsn string,
+	files map[string]string,
+	tdp *models.DelimiterPair,
+) error {
 	aRequest := &agentv1.StartActionRequest{
 		ActionId: id,
 		Params: &agentv1.StartActionRequest_MongodbQueryGetcmdlineoptsParams{
@@ -422,16 +390,15 @@ func (s *ActionsService) StartMongoDBQueryGetCmdLineOptsAction(_ context.Context
 		Timeout: defaultQueryActionTimeout,
 	}
 
-	agent, err := s.r.get(pmmAgentID)
-	if err != nil {
-		return err
-	}
-	_, err = agent.channel.SendAndWaitResponse(aRequest)
-	return err
+	return s.sendActionRequest(pmmAgentID, aRequest)
 }
 
 // StartMongoDBQueryReplSetGetStatusAction starts MongoDB replSetGetStatus query action on pmm-agent.
-func (s *ActionsService) StartMongoDBQueryReplSetGetStatusAction(_ context.Context, id, pmmAgentID, dsn string, files map[string]string, tdp *models.DelimiterPair) error { //nolint:lll
+func (s *ActionsService) StartMongoDBQueryReplSetGetStatusAction(
+	_ context.Context, id, pmmAgentID, dsn string,
+	files map[string]string,
+	tdp *models.DelimiterPair,
+) error {
 	aRequest := &agentv1.StartActionRequest{
 		ActionId: id,
 		Params: &agentv1.StartActionRequest_MongodbQueryReplsetgetstatusParams{
@@ -447,16 +414,15 @@ func (s *ActionsService) StartMongoDBQueryReplSetGetStatusAction(_ context.Conte
 		Timeout: defaultQueryActionTimeout,
 	}
 
-	agent, err := s.r.get(pmmAgentID)
-	if err != nil {
-		return err
-	}
-	_, err = agent.channel.SendAndWaitResponse(aRequest)
-	return err
+	return s.sendActionRequest(pmmAgentID, aRequest)
 }
 
 // StartMongoDBQueryGetDiagnosticDataAction starts MongoDB getDiagnosticData query action on pmm-agent.
-func (s *ActionsService) StartMongoDBQueryGetDiagnosticDataAction(_ context.Context, id, pmmAgentID, dsn string, files map[string]string, tdp *models.DelimiterPair) error { //nolint:lll
+func (s *ActionsService) StartMongoDBQueryGetDiagnosticDataAction(
+	_ context.Context, id, pmmAgentID, dsn string,
+	files map[string]string,
+	tdp *models.DelimiterPair,
+) error {
 	aRequest := &agentv1.StartActionRequest{
 		ActionId: id,
 		Params: &agentv1.StartActionRequest_MongodbQueryGetdiagnosticdataParams{
@@ -472,12 +438,7 @@ func (s *ActionsService) StartMongoDBQueryGetDiagnosticDataAction(_ context.Cont
 		Timeout: defaultQueryActionTimeout,
 	}
 
-	agent, err := s.r.get(pmmAgentID)
-	if err != nil {
-		return err
-	}
-	_, err = agent.channel.SendAndWaitResponse(aRequest)
-	return err
+	return s.sendActionRequest(pmmAgentID, aRequest)
 }
 
 // StartPTSummaryAction starts pt-summary action on pmm-agent.
@@ -491,12 +452,7 @@ func (s *ActionsService) StartPTSummaryAction(_ context.Context, id, pmmAgentID 
 		Timeout: defaultPtActionTimeout,
 	}
 
-	agent, err := s.r.get(pmmAgentID)
-	if err != nil {
-		return err
-	}
-	_, err = agent.channel.SendAndWaitResponse(aRequest)
-	return err
+	return s.sendActionRequest(pmmAgentID, aRequest)
 }
 
 // StartPTPgSummaryAction starts pt-pg-summary action on the pmm-agent.
@@ -514,17 +470,11 @@ func (s *ActionsService) StartPTPgSummaryAction(_ context.Context, id, pmmAgentI
 		Timeout: defaultPtActionTimeout,
 	}
 
-	pmmAgent, err := s.r.get(pmmAgentID)
-	if err != nil {
-		return err
-	}
-	_, err = pmmAgent.channel.SendAndWaitResponse(actionRequest)
-	return err
+	return s.sendActionRequest(pmmAgentID, actionRequest)
 }
 
 // StartPTMongoDBSummaryAction starts pt-mongodb-summary action on the pmm-agent.
 func (s *ActionsService) StartPTMongoDBSummaryAction(_ context.Context, id, pmmAgentID, address string, port uint16, username, password string) error {
-	// Action request data that'll be sent to agent
 	actionRequest := &agentv1.StartActionRequest{
 		ActionId: id,
 		// Proper params that'll will be passed to the command on the agent's side, even empty, othervise request's marshal fail.
@@ -539,13 +489,7 @@ func (s *ActionsService) StartPTMongoDBSummaryAction(_ context.Context, id, pmmA
 		Timeout: defaultPtActionTimeout,
 	}
 
-	// Agent which the action request will be sent to, got by the provided ID
-	pmmAgent, err := s.r.get(pmmAgentID)
-	if err != nil {
-		return err
-	}
-	_, err = pmmAgent.channel.SendAndWaitResponse(actionRequest)
-	return err
+	return s.sendActionRequest(pmmAgentID, actionRequest)
 }
 
 // StartPTMySQLSummaryAction starts pt-mysql-summary action on the pmm-agent.
@@ -566,21 +510,10 @@ func (s *ActionsService) StartPTMySQLSummaryAction(_ context.Context, id, pmmAge
 		Timeout: defaultPtActionTimeout,
 	}
 
-	pmmAgent, err := s.r.get(pmmAgentID)
-	if err != nil {
-		return err
-	}
-	_, err = pmmAgent.channel.SendAndWaitResponse(actionRequest)
-	return err
+	return s.sendActionRequest(pmmAgentID, actionRequest)
 }
 
 // StopAction stops action with given id.
-func (s *ActionsService) StopAction(_ context.Context, actionID string) error {
-	// TODO Seems that we have a bug here, we passing actionID to the method that expects pmmAgentID
-	agent, err := s.r.get(actionID)
-	if err != nil {
-		return err
-	}
-	_, err = agent.channel.SendAndWaitResponse(&agentv1.StopActionRequest{ActionId: actionID})
-	return err
+func (s *ActionsService) StopAction(_ context.Context, pmmAgentID, actionID string) error {
+	return s.sendActionRequest(pmmAgentID, &agentv1.StopActionRequest{ActionId: actionID})
 }

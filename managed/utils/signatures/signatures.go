@@ -43,7 +43,8 @@ func Verify(l *logrus.Entry, file string, signatures, publicKeys []string) error
 	var err error
 	for _, sign := range signatures {
 		for _, key := range publicKeys {
-			if err = check.Verify([]byte(file), key, sign); err == nil {
+			err = check.Verify([]byte(file), key, sign)
+			if err == nil {
 				l.Debugf("Key %q matches signature %q.", key, sign)
 				return nil
 			}

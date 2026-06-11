@@ -21,7 +21,7 @@ import (
 	"database/sql"
 	"net/url"
 
-	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
+	telemetryv1 "github.com/percona/platform/gen/telemetry/generic"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
@@ -85,7 +85,8 @@ func openGrafanaDBConnection(config DSConfigGrafanaDB, l *logrus.Entry) (*sql.DB
 	db.SetMaxIdleConns(defaultMaxIdleConns)
 	db.SetMaxOpenConns(defaultMaxOpenConns)
 
-	if err := db.Ping(); err != nil {
+	err = db.Ping() //nolint:noctx
+	if err != nil {
 		l.Warnf("Grafana DB is not reachable [%s]: %s", config.DSN.Host, err)
 	}
 

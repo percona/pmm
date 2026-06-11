@@ -67,15 +67,15 @@ var rules = map[string]role{
 	"/v1/advisors":                    editor,
 	"/v1/advisors/checks:":            editor,
 	"/v1/advisors/failedServices":     editor,
-	"/v1/actions/":                    viewer,
+	"/v1/actions":                     viewer,
 	"/v1/actions:":                    viewer,
 	"/v1/backups":                     admin,
 	"/v1/dumps":                       admin,
 	"/v1/accesscontrol":               admin,
 	"/v1/ha":                          viewer,
-	"/v1/inventory/":                  admin,
+	"/v1/inventory":                   admin,
 	"/v1/inventory/services:getTypes": viewer,
-	"/v1/management/":                 admin,
+	"/v1/management":                  admin,
 	"/v1/management/Jobs":             viewer,
 	"/v1/server/AWSInstance":          none, // special case - used before Grafana can be accessed
 	"/v1/server/updates":              viewer,
@@ -84,8 +84,10 @@ var rules = map[string]role{
 	"/v1/server/settings":             admin,
 	"/v1/server/settings/readonly":    viewer,
 	"/v1/platform:":                   admin,
-	"/v1/platform/":                   viewer,
+	"/v1/platform":                    viewer,
 	"/v1/users":                       viewer,
+	"/v1/users/current":               none,
+	"/v1/users/current/orgs":          none,
 
 	// must be available without authentication for health checking
 	"/v1/server/readyz":            none,
@@ -116,6 +118,7 @@ var rules = map[string]role{
 	"/v1/realtimeanalytics/sessions:start": admin,
 	"/v1/realtimeanalytics/sessions:stop":  admin,
 	"/v1/realtimeanalytics/sessions":       viewer,
+	"/v1/realtimeanalytics/services":       viewer,
 	"/v1/realtimeanalytics/queries:search": viewer,
 
 	// "/auth_request"  has auth_request disabled in nginx config
@@ -230,7 +233,8 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		s.l.Debugf("Request:\n%s", b)
 	}
 
-	if err := extractOriginalRequest(req); err != nil {
+	err := extractOriginalRequest(req)
+	if err != nil {
 		s.l.Warnf("Failed to parse request: %s.", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		return
@@ -242,13 +246,13 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	ctx, cancel := context.WithTimeout(req.Context(), authenticationTimeout)
 	defer cancel()
 
-	authUser, err := s.authenticate(ctx, req, l)
-	if err != nil {
+	authUser, authErr := s.authenticate(ctx, req, l)
+	if authErr != nil {
 		// copy grpc-gateway behavior: set correct codes, set both "error" and "message"
 		m := map[string]any{
-			"code":    int(err.code),
-			"error":   err.message,
-			"message": err.message,
+			"code":    int(authErr.code),
+			"error":   authErr.message,
+			"message": authErr.message, //nolint:goconst
 		}
 		s.returnError(rw, m, l)
 		return
@@ -259,14 +263,15 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		userID = authUser.userID
 	}
 
-	if err := s.maybeAddLBACFilters(ctx, rw, req, userID, l); err != nil {
+	errF := s.maybeAddLBACFilters(ctx, rw, req, userID, l)
+	if errF != nil {
 		// copy grpc-gateway behavior: set correct codes, set both "error" and "message"
 		m := map[string]any{
 			"code":    int(codes.Internal),
 			"error":   "Internal server error.",
 			"message": "Internal server error.",
 		}
-		l.Errorf("Failed to add VMProxy filters: %s", err)
+		l.Errorf("Failed to add VMProxy filters: %s", errF)
 
 		s.returnError(rw, m, l)
 		return
@@ -280,7 +285,8 @@ func (s *AuthServer) returnError(rw http.ResponseWriter, msg map[string]any, l *
 	rw.Header().Set("Content-Type", "application/json")
 
 	rw.WriteHeader(authenticationErrorCode)
-	if err := json.NewEncoder(rw).Encode(msg); err != nil {
+	err := json.NewEncoder(rw).Encode(msg)
+	if err != nil {
 		l.Warnf("%s", err)
 	}
 }
@@ -289,6 +295,7 @@ func (s *AuthServer) returnError(rw http.ResponseWriter, msg map[string]any, l *
 // In case the request is not proxied through VMProxy, this is a no-op.
 func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWriter, req *http.Request, userID int, l *logrus.Entry) error {
 	if !s.shallAddLBACFilters(req) {
+		l.Debugf("Skipping LBAC filters for non-proxied request.")
 		return nil
 	}
 
@@ -307,7 +314,10 @@ func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWr
 	}
 
 	if userID <= 0 {
-		return ErrInvalidUserID
+		// Anonymous users don't have a numeric user ID and cannot have LBAC roles.
+		// Skip adding filters and allow the request to proceed.
+		l.Debugf("Skipping LBAC filters for anonymous user.")
+		return nil
 	}
 
 	filters, err := s.getLBACFilters(ctx, userID)
