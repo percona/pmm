@@ -324,7 +324,8 @@ func mySQLBackupSoftwareInstalledAndCompatible(svm map[models.SoftwareName]strin
 			svm[models.XtrabackupSoftwareName], svm[models.XbcloudSoftwareName])
 	}
 
-	if err := mysqlAndXtrabackupCompatibilityError(svm[models.MysqldSoftwareName], svm[models.XtrabackupSoftwareName]); err != nil {
+	err := mysqlAndXtrabackupCompatibilityError(svm[models.MysqldSoftwareName], svm[models.XtrabackupSoftwareName])
+	if err != nil {
 		return err
 	}
 
