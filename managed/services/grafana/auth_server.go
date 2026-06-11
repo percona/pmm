@@ -531,7 +531,7 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 	}
 
 	if minRole == none {
-		l.Debugf("Minimal required role is %q, granting access without checking Grafana.", minRole)
+		l.Debugf("Minimal required role is %s, granting access without checking Grafana.", minRole)
 		return nil, nil
 	}
 
@@ -564,11 +564,11 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 	}
 
 	if minRole <= user.role {
-		l.Debugf("Minimal required role is %q, granting access.", minRole)
+		l.Debugf("Minimal required role is %s, granting access.", minRole)
 		return user, nil
 	}
 
-	l.Warnf("Minimal required role is %q.", minRole)
+	l.Warnf("Minimal required role is %s, denying access.", minRole)
 	return nil, &authError{code: codes.PermissionDenied, message: "Access denied."}
 }
 
