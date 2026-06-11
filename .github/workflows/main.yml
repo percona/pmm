@@ -32,7 +32,6 @@ jobs:
 
     permissions:
       contents: read
-      checks: write
       pull-requests: write
     env:
       PMM_ENCRYPTION_KEY_PATH: pmm-encryption.key
@@ -120,9 +119,10 @@ jobs:
       - name: Run code linters
         uses: reviewdog/action-golangci-lint@c76cceaaab89abe74e649d2e34c6c9adc26662d2 # v2.10.0
         with:
+          if: ${{ github.event_name == 'pull_request' }}
           github_token: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
           go_version_file: ${{ github.workspace }}/go.mod
-          reporter: ${{ github.event_name == 'pull_request' && 'github-pr-review' || 'github-check' }}
+          reporter: github-pr-review
           fail_level: error
           cache: false
           golangci_lint_flags: "-c=.golangci.yml"
