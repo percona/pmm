@@ -18,6 +18,7 @@ package agentlocal
 import (
 	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -33,12 +34,11 @@ import (
 )
 
 // SetTransport configures transport for accessing local pmm-agent API.
-func SetTransport(ctx context.Context, debug bool, port uint32) {
+func SetTransport(debug bool, port uint32) {
 	// use JSON APIs over HTTP/1.1
 	transport := httptransport.New(fmt.Sprintf("%s:%d", Localhost, port), "/", []string{"http"})
 	transport.SetLogger(logrus.WithField("component", "agentlocal-transport"))
 	transport.SetDebug(debug)
-	transport.Context = ctx
 
 	// disable HTTP/2
 	httpTransport := transport.Transport.(*http.Transport) //nolint:forcetypeassert
@@ -62,10 +62,10 @@ const (
 )
 
 // ErrNotSetUp is returned by GetStatus when pmm-agent is running, but not set up.
-var ErrNotSetUp = fmt.Errorf("pmm-agent is running, but not set up")
+var ErrNotSetUp = errors.New("pmm-agent is running, but not set up")
 
 // ErrNotConnected is returned by GetStatus when pmm-agent is running and set up, but not connected to PMM Server.
-var ErrNotConnected = fmt.Errorf("pmm-agent is not connected to PMM Server")
+var ErrNotConnected = errors.New("pmm-agent is not connected to PMM Server")
 
 // Status represents pmm-agent status.
 type Status struct {

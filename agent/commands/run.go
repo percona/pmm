@@ -136,6 +136,14 @@ func prepareConfig(l *logrus.Entry) (*config.Storage, string) {
 		l.Fatalf("Failed to load configuration: %s.", err)
 	}
 
+	if configFilepath != "" {
+		cfg := configStorage.Get()
+		err := config.SaveToFile(configFilepath, cfg, "")
+		if err != nil {
+			l.Warnf("Failed to save updated config: %s", err)
+		}
+	}
+
 	return configStorage, configFilepath
 }
 

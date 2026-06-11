@@ -92,6 +92,12 @@ const (
 	pgStatMonitorVersion21PG15
 	pgStatMonitorVersion21PG16
 	pgStatMonitorVersion21PG17
+	pgStatMonitorVersion23PG13
+	pgStatMonitorVersion23PG14
+	pgStatMonitorVersion23PG15
+	pgStatMonitorVersion23PG16
+	pgStatMonitorVersion23PG17
+	pgStatMonitorVersion23PG18
 )
 
 const (
@@ -146,7 +152,15 @@ func areSettingsTextValues(q *reform.Querier) (bool, error) {
 	return false, nil
 }
 
-func newPgStatMonitorQAN(q *reform.Querier, dbCloser io.Closer, agentID string, disableCommentsParsing, disableQueryExamples bool, maxQueryLength int32, l *logrus.Entry) (*PGStatMonitorQAN, error) { //nolint:lll
+func newPgStatMonitorQAN(
+	q *reform.Querier,
+	dbCloser io.Closer,
+	agentID string,
+	disableCommentsParsing,
+	disableQueryExamples bool,
+	maxQueryLength int32,
+	l *logrus.Entry,
+) (*PGStatMonitorQAN, error) {
 	return &PGStatMonitorQAN{
 		q:                      q,
 		dbCloser:               dbCloser,
@@ -166,13 +180,16 @@ func getPGVersion(q *reform.Querier) (pgVersion, error) {
 	if err != nil {
 		return pgVersion(0), err
 	}
-	v = version.ParsePostgreSQLVersion(v)
-
-	parsed, err := strconv.ParseFloat(v, 64)
+	major, minor := version.ParsePostgreSQLVersion(v)
+	if minor == "" {
+		minor = "0"
+	}
+	parsed, err := strconv.ParseFloat(fmt.Sprintf("%s.%s", major, minor), 64)
 
 	return pgVersion(parsed), err
 }
 
+//nolint:mnd,cyclop
 func getPGMonitorVersion(q *reform.Querier) (pgStatMonitorVersion, pgStatMonitorPrerelease, error) {
 	var result string
 	err := q.QueryRow(fmt.Sprintf("SELECT /* %s */ pg_stat_monitor_version()", queryTag)).Scan(&result)
@@ -191,6 +208,21 @@ func getPGMonitorVersion(q *reform.Querier) (pgStatMonitorVersion, pgStatMonitor
 
 	var version pgStatMonitorVersion
 	switch {
+	case vPGSM.Core().GreaterThanOrEqual(v23):
+		switch {
+		case vPG >= 18:
+			version = pgStatMonitorVersion23PG18
+		case vPG >= 17:
+			version = pgStatMonitorVersion23PG17
+		case vPG >= 16:
+			version = pgStatMonitorVersion23PG16
+		case vPG >= 15:
+			version = pgStatMonitorVersion23PG15
+		case vPG >= 14:
+			version = pgStatMonitorVersion23PG14
+		default:
+			version = pgStatMonitorVersion23PG13
+		}
 	case vPGSM.Core().GreaterThanOrEqual(v21):
 		switch {
 		case vPG >= 17:
@@ -274,7 +306,8 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 	// add current stat monitor to cache so they are not send as new on first iteration with incorrect timestamps
 	var running bool
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
-	if current, _, err := m.monitorCache.getStatMonitorExtended(ctx, m.q, normalizedQuery, m.maxQueryLength); err == nil {
+	current, _, err := m.monitorCache.getStatMonitorExtended(ctx, m.q, normalizedQuery, m.maxQueryLength)
+	if err == nil {
 		m.monitorCache.refresh(current)
 		m.l.Debugf("Got %d initial stat monitor.", len(current))
 		running = true
@@ -357,6 +390,21 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 	}
 }
 
+// Changes returns channel that should be read until it is closed.
+func (m *PGStatMonitorQAN) Changes() <-chan agents.Change {
+	return m.changes
+}
+
+// Describe implements prometheus.Collector.
+func (m *PGStatMonitorQAN) Describe(ch chan<- *prometheus.Desc) { //nolint:revive
+	// This method is needed to satisfy interface.
+}
+
+// Collect implement prometheus.Collector.
+func (m *PGStatMonitorQAN) Collect(ch chan<- prometheus.Metric) { //nolint:revive
+	// This method is needed to satisfy interface.
+}
+
 func (m *PGStatMonitorQAN) resetWaitTime(t *time.Timer, waitTime time.Duration) {
 	start := time.Now()
 	m.l.Debugf("Scheduling next collection in %s at %s.", waitTime, start.Add(waitTime).Format("15:04:05"))
@@ -394,7 +442,8 @@ func getPGSM20Settings(q *reform.Querier) (settings, error) {
 		var setting pgsm20Settings
 		err = rows.Scan(
 			&setting.Name,
-			&setting.Setting)
+			&setting.Setting,
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -512,7 +561,7 @@ func (m *PGStatMonitorQAN) getNewBuckets(ctx context.Context, periodLengthSecs u
 
 // makeBuckets uses current state of pg_stat_monitor table and accumulated previous state
 // to make metrics buckets.
-func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*pgStatMonitorExtended) []*agentv1.MetricsBucket {
+func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*pgStatMonitorExtended) []*agentv1.MetricsBucket { //nolint:gocognit
 	res := make([]*agentv1.MetricsBucket, 0, len(current))
 
 	for bucketStartTime, bucket := range current {
@@ -564,12 +613,12 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 				},
 				Postgresql: &agentv1.MetricsBucket_PostgreSQL{},
 			}
-			if currentPSM.pgStatMonitor.CmdType >= 0 &&
-				currentPSM.pgStatMonitor.CmdType < int32(len(commandTypeToText)) { //nolint:gosec // len(commandTypeToText) is not expected to overflow int32
-				mb.Postgresql.CmdType = commandTypeToText[currentPSM.pgStatMonitor.CmdType]
+			if currentPSM.CmdType >= 0 &&
+				currentPSM.CmdType < int32(len(commandTypeToText)) { //nolint:gosec // len(commandTypeToText) is not expected to overflow int32
+				mb.Postgresql.CmdType = commandTypeToText[currentPSM.CmdType]
 			} else {
 				mb.Postgresql.CmdType = commandTextNotAvailable
-				m.l.Warnf("failed to translate command type '%d' into text", currentPSM.pgStatMonitor.CmdType)
+				m.l.Warnf("failed to translate command type '%d' into text", currentPSM.CmdType)
 			}
 
 			mb.Postgresql.TopQueryid = pointer.GetString(currentPSM.TopQueryID)
@@ -638,6 +687,16 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 				{float32(currentPSM.WalFpi - prevPSM.WalFpi), &mb.Postgresql.MWalFpiSum, &mb.Postgresql.MWalFpiCnt},
 				{float32(currentPSM.WalRecords - prevPSM.WalRecords), &mb.Postgresql.MWalRecordsSum, &mb.Postgresql.MWalRecordsCnt},
 				{float32(currentPSM.WalBytes - prevPSM.WalBytes), &mb.Postgresql.MWalBytesSum, &mb.Postgresql.MWalBytesCnt},
+				{float32(currentPSM.WalBuffersFull - prevPSM.WalBuffersFull), &mb.Postgresql.MWalBuffersFullSum, &mb.Postgresql.MWalBuffersFullCnt},
+
+				{
+					float32(currentPSM.ParallelWorkersToLaunch - prevPSM.ParallelWorkersToLaunch),
+					&mb.Postgresql.MParallelWorkersToLaunchSum, &mb.Postgresql.MParallelWorkersToLaunchCnt,
+				},
+				{
+					float32(currentPSM.ParallelWorkersLaunched - prevPSM.ParallelWorkersLaunched),
+					&mb.Postgresql.MParallelWorkersLaunchedSum, &mb.Postgresql.MParallelWorkersLaunchedCnt,
+				},
 
 				// convert milliseconds to seconds
 				{float32(currentPSM.TotalExecTime-prevPSM.TotalExecTime) / 1000, &mb.Common.MQueryTimeSum, &mb.Common.MQueryTimeCnt},
@@ -649,8 +708,6 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 				// convert microseconds to seconds
 				{float32(cpuSysTime) / 1000000, &mb.Postgresql.MCpuSysTimeSum, &mb.Postgresql.MCpuSysTimeCnt},
 				{float32(cpuUserTime) / 1000000, &mb.Postgresql.MCpuUserTimeSum, &mb.Postgresql.MCpuUserTimeCnt},
-
-				{float32(currentPSM.WalBytes - prevPSM.WalBytes), &mb.Postgresql.MWalBytesSum, &mb.Postgresql.MWalBytesCnt},
 			} {
 				if p.value != 0 {
 					*p.sum = p.value
@@ -731,21 +788,6 @@ func getHistogramRangesArray(vPGSM pgStatMonitorVersion) []*agentv1.HistogramIte
 		{Range: "(10000 - 31622)"},
 		{Range: "(31622 - 100000)"},
 	}
-}
-
-// Changes returns channel that should be read until it is closed.
-func (m *PGStatMonitorQAN) Changes() <-chan agents.Change {
-	return m.changes
-}
-
-// Describe implements prometheus.Collector.
-func (m *PGStatMonitorQAN) Describe(ch chan<- *prometheus.Desc) { //nolint:revive
-	// This method is needed to satisfy interface.
-}
-
-// Collect implement prometheus.Collector.
-func (m *PGStatMonitorQAN) Collect(ch chan<- prometheus.Metric) { //nolint:revive
-	// This method is needed to satisfy interface.
 }
 
 // check interfaces.

@@ -26,6 +26,7 @@ type InventoryCommand struct { //nolint:revive
 	List   ListCommand   `cmd:"" help:"List inventory commands"`
 	Add    AddCommand    `cmd:"" help:"Add to inventory commands"`
 	Remove RemoveCommand `cmd:"" help:"Remove from inventory commands"`
+	Change ChangeCommand `cmd:"" help:"Change inventory commands"`
 }
 
 // ListCommand is used by Kong for CLI flags and commands.
@@ -62,7 +63,8 @@ type AddAgentCommand struct {
 	QANPostgreSQLPgStatementsAgent  AddAgentQANPostgreSQLPgStatementsAgentCommand  `cmd:"" name:"qan-postgresql-pgstatements-agent" help:"Add QAN PostgreSQL Stat Statements Agent to inventory"`
 	QANPostgreSQLPgStatMonitorAgent AddAgentQANPostgreSQLPgStatMonitorAgentCommand `cmd:"" name:"qan-postgresql-pgstatmonitor-agent" help:"Add QAN PostgreSQL Stat Monitor Agent to inventory"`
 
-	RDSExporter AddAgentRDSExporterCommand `cmd:"" help:"Add rds_exporter to inventory"`
+	RDSExporter     AddAgentRDSExporterCommand     `cmd:"" help:"Add rds_exporter to inventory"`
+	RTAMongoDBAgent AddAgentRTAMongoDBAgentCommand `cmd:"" name:"rta-mongodb-agent" help:"Add Real-Time Analytics MongoDB agent to inventory"`
 }
 
 // AddNodeCommand is used by Kong for CLI flags and commands.
@@ -89,6 +91,35 @@ type RemoveCommand struct {
 	Agent   RemoveAgentCommand   `cmd:"" help:"Remove agent from inventory"`
 	Node    RemoveNodeCommand    `cmd:"" help:"Remove node from inventory"`
 	Service RemoveServiceCommand `cmd:"" help:"Remove service from inventory"`
+}
+
+// ChangeCommand is used by Kong for CLI flags and commands.
+type ChangeCommand struct {
+	Agent ChangeAgentCommand `cmd:"" help:"Change agent configuration"`
+}
+
+// ChangeAgentCommand is used by Kong for CLI flags and commands.
+//
+//nolint:lll
+type ChangeAgentCommand struct {
+	NodeExporter          ChangeAgentNodeExporterCommand          `cmd:"" help:"Change node_exporter configuration (only passed flags will be changed)"`
+	MysqldExporter        ChangeAgentMysqldExporterCommand        `cmd:"" help:"Change mysqld_exporter configuration (only passed flags will be changed)"`
+	MongodbExporter       ChangeAgentMongodbExporterCommand       `cmd:"" help:"Change mongodb_exporter configuration (only passed flags will be changed)"`
+	PostgresExporter      ChangeAgentPostgresExporterCommand      `cmd:"" help:"Change postgres_exporter configuration (only passed flags will be changed)"`
+	ProxysqlExporter      ChangeAgentProxysqlExporterCommand      `cmd:"" help:"Change proxysql_exporter configuration (only passed flags will be changed)"`
+	ExternalExporter      ChangeAgentExternalExporterCommand      `cmd:"" help:"Change external exporter configuration (only passed flags will be changed)"`
+	RdsExporter           ChangeAgentRDSExporterCommand           `cmd:"" help:"Change rds_exporter configuration (only passed flags will be changed)"`
+	AzureDatabaseExporter ChangeAgentAzureDatabaseExporterCommand `cmd:"" help:"Change azure_database_exporter configuration (only passed flags will be changed)"`
+	ValkeyExporter        ChangeAgentValkeyExporterCommand        `cmd:"" help:"Change valkey_exporter configuration (only passed flags will be changed)"`
+	NomadAgent            ChangeAgentNomadAgentCommand            `cmd:"" help:"Change nomad_agent configuration (only passed flags will be changed)"`
+
+	QANMySQLPerfSchemaAgent         ChangeAgentQANMySQLPerfSchemaAgentCommand         `cmd:"" name:"qan-mysql-perfschema-agent" help:"Change QAN MySQL perf schema agent configuration (only passed flags will be changed)"`
+	QANMySQLSlowlogAgent            ChangeAgentQANMySQLSlowlogAgentCommand            `cmd:"" name:"qan-mysql-slowlog-agent" help:"Change QAN MySQL slowlog agent configuration (only passed flags will be changed)"`
+	QANMongoDBProfilerAgent         ChangeAgentQANMongoDBProfilerAgentCommand         `cmd:"" name:"qan-mongodb-profiler-agent" help:"Change QAN MongoDB profiler agent configuration (only passed flags will be changed)"`
+	QANMongoDBMongologAgent         ChangeAgentQANMongoDBMongologAgentCommand         `cmd:"" name:"qan-mongodb-mongolog-agent" help:"Change QAN MongoDB mongolog agent configuration (only passed flags will be changed)"`
+	QANPostgreSQLPgStatementsAgent  ChangeAgentQANPostgreSQLPgStatementsAgentCommand  `cmd:"" name:"qan-postgresql-pgstatements-agent" help:"Change QAN PostgreSQL pgstatements agent configuration (only passed flags will be changed)"`
+	QANPostgreSQLPgStatMonitorAgent ChangeAgentQANPostgreSQLPgStatMonitorAgentCommand `cmd:"" name:"qan-postgresql-pgstatmonitor-agent" help:"Change QAN PostgreSQL pgstatmonitor agent configuration (only passed flags will be changed)"`
+	RTAMongoDBAgent                 ChangeAgentRTAMongoDBAgentCommand                 `cmd:"" name:"rta-mongodb-agent" help:"Change Real-Time Analytics MongoDB agent configuration (only passed flags will be changed)"`
 }
 
 // formatTypeValue checks acceptable type value and variations contains input and returns type value.

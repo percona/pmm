@@ -30,6 +30,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/lib/pq"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -39,14 +40,16 @@ import (
 )
 
 const (
-	connectionEndpoint = "/agent.v1.AgentService/Connect"
+	connectionEndpointV2 = "/agent.Agent/Connect"
+	connectionEndpoint   = "/agent.v1.AgentService/Connect"
+	rtaCollectEndpoint   = "/realtimeanalytics.v1.CollectorService/Collect"
 )
 
 // rules maps original URL prefix to minimal required role.
 var rules = map[string]role{
 	// TODO https://jira.percona.com/browse/PMM-4420
-	"/agent.Agent/Connect": admin, // compatibility for v2 agents
-	connectionEndpoint:     admin,
+	connectionEndpointV2: admin, // compatibility for v2 agents
+	connectionEndpoint:   admin,
 
 	"/inventory.":                               admin,
 	"/management.":                              admin,
@@ -64,14 +67,15 @@ var rules = map[string]role{
 	"/v1/advisors":                    editor,
 	"/v1/advisors/checks:":            editor,
 	"/v1/advisors/failedServices":     editor,
-	"/v1/actions/":                    viewer,
+	"/v1/actions":                     viewer,
 	"/v1/actions:":                    viewer,
 	"/v1/backups":                     admin,
 	"/v1/dumps":                       admin,
 	"/v1/accesscontrol":               admin,
-	"/v1/inventory/":                  admin,
+	"/v1/ha":                          viewer,
+	"/v1/inventory":                   admin,
 	"/v1/inventory/services:getTypes": viewer,
-	"/v1/management/":                 admin,
+	"/v1/management":                  admin,
 	"/v1/management/Jobs":             viewer,
 	"/v1/server/AWSInstance":          none, // special case - used before Grafana can be accessed
 	"/v1/server/updates":              viewer,
@@ -80,8 +84,10 @@ var rules = map[string]role{
 	"/v1/server/settings":             admin,
 	"/v1/server/settings/readonly":    viewer,
 	"/v1/platform:":                   admin,
-	"/v1/platform/":                   viewer,
+	"/v1/platform":                    viewer,
 	"/v1/users":                       viewer,
+	"/v1/users/current":               none,
+	"/v1/users/current/orgs":          none,
 
 	// must be available without authentication for health checking
 	"/v1/server/readyz":            none,
@@ -107,6 +113,14 @@ var rules = map[string]role{
 	"/v1/version": viewer, // redirects to /v1/server/version
 	"/logs.zip":   admin,  // redirects to /v1/server/logs.zip
 
+	// Real-Time Analytics endpoints.
+	rtaCollectEndpoint:                     admin,
+	"/v1/realtimeanalytics/sessions:start": admin,
+	"/v1/realtimeanalytics/sessions:stop":  admin,
+	"/v1/realtimeanalytics/sessions":       viewer,
+	"/v1/realtimeanalytics/services":       viewer,
+	"/v1/realtimeanalytics/queries:search": viewer,
+
 	// "/auth_request"  has auth_request disabled in nginx config
 
 	// "/" is a special case in this code
@@ -118,7 +132,8 @@ var lbacPrefixes = []string{
 	// "/graph/api/v1/labels", // Note: this path appears not to be used in Grafana
 	"/prometheus/api/v1/",
 	"/v1/qan/",
-	"/graph/api/datasources/proxy/1/api/v1/", // https://github.com/grafana/grafana/blob/146c3120a79e71e9a4836ddf1e1dc104854c7851/public/app/core/utils/query.ts#L35
+	// https://github.com/grafana/grafana/blob/146c3120a79e71e9a4836ddf1e1dc104854c7851/public/app/core/utils/query.ts#L35
+	"/graph/api/datasources/proxy/1/api/v1/",
 }
 
 const lbacHeaderName = "X-Proxy-Filter"
@@ -129,8 +144,11 @@ const lbacHeaderName = "X-Proxy-Filter"
 // as this code is reserved for auth_request.
 const authenticationErrorCode = 401
 
-// cacheInvalidationPeriod is and period when cache for grafana response should be invalidated.
-const cacheInvalidationPeriod = 3 * time.Second
+const (
+	// Note: cacheInvalidationInterval is used to invalidate cache for grafana responses.
+	cacheInvalidationInterval = 3 * time.Second
+	authenticationTimeout     = 3 * time.Second
+)
 
 // clientError contains authentication error response details.
 type authError struct {
@@ -183,7 +201,8 @@ func NewAuthServer(c clientInterface, db *reform.DB) *AuthServer {
 
 // Run runs cache invalidator which removes expired cache items.
 func (s *AuthServer) Run(ctx context.Context) {
-	t := time.NewTicker(cacheInvalidationPeriod)
+	t := time.NewTicker(cacheInvalidationInterval)
+	defer t.Stop()
 
 	for {
 		select {
@@ -194,7 +213,7 @@ func (s *AuthServer) Run(ctx context.Context) {
 			now := time.Now()
 			s.rw.Lock()
 			for key, item := range s.cache {
-				if now.Add(-cacheInvalidationPeriod).After(item.created) {
+				if now.Add(-cacheInvalidationInterval).After(item.created) {
 					delete(s.cache, key)
 				}
 			}
@@ -214,7 +233,8 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		s.l.Debugf("Request:\n%s", b)
 	}
 
-	if err := extractOriginalRequest(req); err != nil {
+	err := extractOriginalRequest(req)
+	if err != nil {
 		s.l.Warnf("Failed to parse request: %s.", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		return
@@ -223,17 +243,16 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	l := s.l.WithField("req", fmt.Sprintf("%s %s", req.Method, req.URL.Path))
 	// TODO l := logger.Get(ctx) once we have it after https://jira.percona.com/browse/PMM-4326
 
-	// fail-safe
-	ctx, cancel := context.WithTimeout(req.Context(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(req.Context(), authenticationTimeout)
 	defer cancel()
 
-	authUser, err := s.authenticate(ctx, req, l)
-	if err != nil {
+	authUser, authErr := s.authenticate(ctx, req, l)
+	if authErr != nil {
 		// copy grpc-gateway behavior: set correct codes, set both "error" and "message"
 		m := map[string]any{
-			"code":    int(err.code),
-			"error":   err.message,
-			"message": err.message,
+			"code":    int(authErr.code),
+			"error":   authErr.message,
+			"message": authErr.message, //nolint:goconst
 		}
 		s.returnError(rw, m, l)
 		return
@@ -244,14 +263,15 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		userID = authUser.userID
 	}
 
-	if err := s.maybeAddLBACFilters(ctx, rw, req, userID, l); err != nil {
+	errF := s.maybeAddLBACFilters(ctx, rw, req, userID, l)
+	if errF != nil {
 		// copy grpc-gateway behavior: set correct codes, set both "error" and "message"
 		m := map[string]any{
 			"code":    int(codes.Internal),
 			"error":   "Internal server error.",
 			"message": "Internal server error.",
 		}
-		l.Errorf("Failed to add VMProxy filters: %s", err)
+		l.Errorf("Failed to add VMProxy filters: %s", errF)
 
 		s.returnError(rw, m, l)
 		return
@@ -265,7 +285,8 @@ func (s *AuthServer) returnError(rw http.ResponseWriter, msg map[string]any, l *
 	rw.Header().Set("Content-Type", "application/json")
 
 	rw.WriteHeader(authenticationErrorCode)
-	if err := json.NewEncoder(rw).Encode(msg); err != nil {
+	err := json.NewEncoder(rw).Encode(msg)
+	if err != nil {
 		l.Warnf("%s", err)
 	}
 }
@@ -274,6 +295,7 @@ func (s *AuthServer) returnError(rw http.ResponseWriter, msg map[string]any, l *
 // In case the request is not proxied through VMProxy, this is a no-op.
 func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWriter, req *http.Request, userID int, l *logrus.Entry) error {
 	if !s.shallAddLBACFilters(req) {
+		l.Debugf("Skipping LBAC filters for non-proxied request.")
 		return nil
 	}
 
@@ -292,7 +314,10 @@ func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWr
 	}
 
 	if userID <= 0 {
-		return ErrInvalidUserID
+		// Anonymous users don't have a numeric user ID and cannot have LBAC roles.
+		// Skip adding filters and allow the request to proceed.
+		l.Debugf("Skipping LBAC filters for anonymous user.")
+		return nil
 	}
 
 	filters, err := s.getLBACFilters(ctx, userID)
@@ -344,7 +369,14 @@ func (s *AuthServer) getLBACFilters(ctx context.Context, userID int) ([]string, 
 			return models.AssignDefaultRole(tx, userID)
 		})
 		if err != nil {
-			return nil, err
+			// Handle race condition: if another concurrent request already assigned the default role,
+			// we'll get a duplicate key error. In this case, just go fetch the roles.
+			var pgErr *pq.Error
+			if errors.As(err, &pgErr) && pgErr.Code == "23505" && pgErr.Constraint == "user_roles_pkey" {
+				s.l.Debugf("Default role already assigned to user ID %d by another request", userID)
+			} else {
+				return nil, err
+			}
 		}
 
 		// Reload roles
@@ -424,9 +456,10 @@ func nextPrefix(path string) string {
 
 func isLocalAgentConnection(req *http.Request) bool {
 	ip := strings.Split(req.RemoteAddr, ":")[0]
-	pmmAgent := req.Header.Get("Pmm-Agent-Id")
+	// pmmAgent := req.Header.Get("Pmm-Agent-Id")
 	path := req.Header.Get("X-Original-Uri")
-	if ip == "127.0.0.1" && pmmAgent == "pmm-server" && path == connectionEndpoint {
+	if ip == "127.0.0.1" &&
+		(path == connectionEndpoint || path == rtaCollectEndpoint) {
 		return true
 	}
 
@@ -474,9 +507,16 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 
 	var user *authUser
 	if isLocalAgentConnection(req) {
-		user = &authUser{
-			role:   rules[connectionEndpoint],
-			userID: 0,
+		if req.Header.Get("X-Original-Uri") == connectionEndpoint {
+			user = &authUser{
+				role:   rules[connectionEndpoint],
+				userID: 0,
+			}
+		} else {
+			user = &authUser{
+				role:   rules[rtaCollectEndpoint],
+				userID: 0,
+			}
 		}
 	} else {
 		var authErr *authError

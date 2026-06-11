@@ -12,12 +12,7 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-// Package models provides the data models for the managed package.
-//
 
-// Package models provides functionality for handling database models and related tasks.
-//
-//nolint:lll
 package models
 
 import (
@@ -27,11 +22,17 @@ import (
 	"net"
 	"net/url"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
+	"time"
 
+	"github.com/AlekSi/pointer"
+	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
+	"go.yaml.in/yaml/v3"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -59,6 +60,8 @@ const (
 	VerifyCaSSLMode string = "verify-ca"
 	// VerifyFullSSLMode represent verify-full PostgreSQL ssl mode.
 	VerifyFullSSLMode string = "verify-full"
+	// DefaultSnoozeDuration represents duration for which an update is snoozed (default = 7 days).
+	DefaultSnoozeDuration time.Duration = 7 * 24 * time.Hour
 )
 
 // DefaultAgentEncryptionColumnsV3 since 3.0.0 contains all tables and it's columns to be encrypted in PMM Server DB.
@@ -80,6 +83,8 @@ var DefaultAgentEncryptionColumnsV3 = []encryption.Table{
 }
 
 // databaseSchema maps schema version from schema_migrations table (id column) to a slice of DDL queries.
+//
+//nolint:lll
 var databaseSchema = [][]string{
 	1: {
 		`CREATE TABLE schema_migrations (
@@ -1149,6 +1154,37 @@ var databaseSchema = [][]string{
 	112: {
 		`UPDATE agents SET disabled = true WHERE agent_type = 'qan-postgresql-pgstatements-agent' AND service_id = (SELECT service_id FROM services WHERE service_name = 'pmm-server-postgresql' LIMIT 1);`,
 	},
+	113: {
+		// Reset product tour for new navigation
+		`UPDATE user_flags SET tour_done = false;
+
+		ALTER TABLE user_flags
+			ADD COLUMN snoozed_at TIMESTAMP,
+			ADD COLUMN snooze_count INTEGER NOT NULL DEFAULT 0;
+
+		UPDATE settings
+			SET settings = settings || '{"updates": {"snooze_duration": ` + strconv.FormatInt(DefaultSnoozeDuration.Nanoseconds(), 10) + `}}'
+			WHERE settings->'updates' IS NULL
+			OR settings->'updates'->'snooze_duration' IS NULL`,
+	},
+	114: {
+		`ALTER TABLE agents ADD COLUMN environment_variables TEXT`,
+	},
+	115: {
+		`ALTER TABLE agents ADD COLUMN is_connected BOOLEAN NOT NULL DEFAULT false`,
+		`ALTER TABLE nodes ADD COLUMN is_pmm_server_node BOOLEAN NOT NULL DEFAULT false`,
+	},
+	116: {
+		`ALTER TABLE agents ADD COLUMN rta_options JSONB`,
+		`UPDATE agents SET rta_options = '{}'::jsonb`,
+	},
+	117: {
+		`DROP TABLE IF EXISTS percona_sso_details`,
+	},
+	118: {
+		`ALTER TABLE dumps ADD COLUMN encrypted boolean NOT NULL DEFAULT false`,
+		`UPDATE dumps SET encrypted = false`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
@@ -1187,8 +1223,8 @@ func OpenDB(params SetupDBParams) (*sql.DB, error) {
 	}
 
 	db.SetConnMaxLifetime(0)
-	db.SetMaxIdleConns(5)
-	db.SetMaxOpenConns(10)
+	db.SetMaxIdleConns(5)  //nolint:mnd
+	db.SetMaxOpenConns(10) //nolint:mnd
 
 	return db, nil
 }
@@ -1214,6 +1250,8 @@ type SetupDBParams struct {
 	SSLCAPath        string
 	SSLKeyPath       string
 	SSLCertPath      string
+	HANodeID         string
+	HAPeers          []string
 	SetupFixtures    SetupFixturesMode
 	MigrationVersion *int
 }
@@ -1227,10 +1265,21 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 
 	db := reform.NewDB(sqlDB, postgresql.Dialect, logger)
 	errCV := checkVersion(ctx, db)
-	if pErr, ok := errCV.(*pq.Error); ok && pErr.Code == "28000" { //nolint:errorlint
-		// invalid_authorization_specification	(see https://www.postgresql.org/docs/current/errcodes-appendix.html)
-		if err := initWithRoot(params); err != nil {
-			return nil, errors.Wrapf(err, "couldn't connect to database with provided credentials. Tried to create user and database. Error: %s", errCV)
+	var pErr *pq.Error
+	if errors.As(errCV, &pErr) && (pErr.Code == "28000" || pErr.Code == "28P01") {
+		// 28000: invalid_authorization_specification (role does not exist, e.g. with trust auth)
+		// 28P01: invalid_password - with password-based auth (md5/scram-sha-256), PostgreSQL returns this
+		//        even when the role doesn't exist at all, to prevent user enumeration.
+		// See https://www.postgresql.org/docs/current/errcodes-appendix.html
+		//
+		// In HA mode the external PostgreSQL must be pre-provisioned; auto-provisioning via the
+		// embedded superuser password file is not available and must not be attempted.
+		if params.HANodeID != "" {
+			return nil, fmt.Errorf("cannot auto-provision database in HA mode: %w", errCV)
+		}
+		err := initWithRoot(params)
+		if err != nil {
+			return nil, err
 		}
 		errCV = checkVersion(ctx, db)
 	}
@@ -1239,7 +1288,8 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		return nil, errCV
 	}
 
-	if err := migrateDB(db, params); err != nil {
+	err := migrateDB(db, params)
+	if err != nil {
 		return nil, err
 	}
 
@@ -1330,46 +1380,63 @@ func checkVersion(ctx context.Context, db reform.DBTXContext) error {
 	return nil
 }
 
-// initWithRoot tries to create given user and database under default postgres role.
+// initWithRoot tries to create the user and the database.
 func initWithRoot(params SetupDBParams) error {
 	if params.Logf != nil {
 		params.Logf("Creating database %s and role %s", params.Name, params.Username)
 	}
-	// we use empty password/db and postgres user for creating database
-	db, err := OpenDB(SetupDBParams{Address: params.Address, Username: "postgres"})
+
+	// Read postgres password from the secure file
+	passwordFile := "/srv/.postgres_password" //nolint:gosec
+	passwordBytes, err := os.ReadFile(passwordFile)
 	if err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("failed to read postgres password from %s: %w", passwordFile, err)
+	}
+
+	// we use postgres user for creating database
+	db, err := OpenDB(SetupDBParams{Address: params.Address, Username: "postgres", Password: string(passwordBytes)})
+	if err != nil {
+		return fmt.Errorf("failed to open the database: %w", err)
 	}
 	defer db.Close() //nolint:errcheck
 
 	var countDatabases int
 	err = db.QueryRow(`SELECT COUNT(*) FROM pg_database WHERE datname = $1`, params.Name).Scan(&countDatabases)
 	if err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("failed to select records from the database: %w", err)
 	}
 
 	if countDatabases == 0 {
 		_, err = db.Exec(fmt.Sprintf(`CREATE DATABASE "%s"`, params.Name))
 		if err != nil {
-			return errors.WithStack(err)
+			return fmt.Errorf("failed to create database %s: %w", params.Name, err)
 		}
 	}
 
 	var countRoles int
 	err = db.QueryRow(`SELECT COUNT(*) FROM pg_roles WHERE rolname=$1`, params.Username).Scan(&countRoles)
 	if err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("failed to select records from the database: %w", err)
 	}
 
 	if countRoles == 0 {
 		_, err = db.Exec(fmt.Sprintf(`CREATE USER "%s" LOGIN PASSWORD '%s'`, params.Username, params.Password))
 		if err != nil {
-			return errors.WithStack(err)
+			return fmt.Errorf("failed to create user %s: %w", params.Username, err)
 		}
 
 		_, err = db.Exec(`GRANT ALL PRIVILEGES ON DATABASE $1 TO $2`, params.Name, params.Username)
 		if err != nil {
-			return errors.WithStack(err)
+			return fmt.Errorf("failed to grant privileges to user %s on database %s: %w", params.Username, params.Name, err)
+		}
+	} else {
+		// Role exists but authentication failed (e.g. pg_hba.conf switched from trust to
+		// scram-sha-256 during an upgrade, leaving the role with no usable password hash).
+		// initWithRoot is only ever called after a 28000/28P01 auth error, so resetting the
+		// password to the currently configured value is OK.
+		_, err = db.Exec(fmt.Sprintf(`ALTER USER "%s" WITH PASSWORD '%s'`, params.Username, params.Password))
+		if err != nil {
+			return fmt.Errorf("failed to update password for user %s: %w", params.Username, err)
 		}
 	}
 	return nil
@@ -1380,7 +1447,8 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 	var currentVersion int
 	errDB := db.QueryRow("SELECT id FROM schema_migrations ORDER BY id DESC LIMIT 1").Scan(&currentVersion)
 	// undefined_table (see https://www.postgresql.org/docs/current/errcodes-appendix.html)
-	if pErr, ok := errDB.(*pq.Error); ok && pErr.Code == "42P01" { //nolint:errorlint
+	var pErr *pq.Error
+	if errors.As(errDB, &pErr) && pErr.Code == "42P01" {
 		errDB = nil
 	}
 	if errDB != nil {
@@ -1406,7 +1474,8 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 			queries = append(queries, fmt.Sprintf(`INSERT INTO schema_migrations (id) VALUES (%d)`, version))
 			for _, q := range queries {
 				q = strings.TrimSpace(q)
-				if _, err := tx.Exec(q); err != nil {
+				_, err := tx.Exec(q)
+				if err != nil {
 					return errors.Wrapf(err, "failed to execute statement:\n%s", q)
 				}
 			}
@@ -1426,11 +1495,16 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 		if err != nil {
 			return err
 		}
-		if err = SaveSettings(tx, s); err != nil {
+		err = SaveSettings(tx, s)
+		if err != nil {
 			return err
 		}
 
-		err = setupPMMServerAgents(tx.Querier, params)
+		if params.HANodeID != "" {
+			err = setupPMMServerHAAgents(tx.Querier, params)
+		} else {
+			err = setupPMMServerAgents(tx.Querier, params)
+		}
 		if err != nil {
 			return err
 		}
@@ -1439,11 +1513,102 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 	})
 }
 
+type agentConfig struct {
+	ID string `yaml:"id"`
+}
+
+func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
+	agentID := uuid.New().String()
+	nodeID := uuid.New().String()
+
+	// create PMM Server Node and associated Agents in HA mode
+	logrus.Infof("Setting up PMM Server agents in HA mode, Node ID: %s", params.HANodeID)
+
+	file, err := os.Open(AgentConfigFilePath)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = file.Close()
+	}()
+
+	var agentConfig agentConfig
+	err = yaml.NewDecoder(file).Decode(&agentConfig)
+	if err != nil {
+		return fmt.Errorf("could not parse agent config file %s: %w", AgentConfigFilePath, err)
+	}
+
+	if agentConfig.ID == "" {
+		return fmt.Errorf("the agent ID is empty in config file %s", AgentConfigFilePath)
+	}
+
+	if agentConfig.ID != PMMServerAgentID {
+		// check if the agent with such ID already exists
+		agent, err := FindAgentByID(q, agentConfig.ID)
+		if err == nil {
+			logrus.Infof("PMM Agent with ID %s already exists, skipping creation", agentConfig.ID)
+			PMMServerAgentID = agentConfig.ID
+			PMMServerNodeID = pointer.Get(agent.RunsOnNodeID)
+			return nil
+		}
+	}
+
+	args := []string{
+		"setup",
+		"--config-file", AgentConfigFilePath,
+		"--server-address", "127.0.0.1:8443",
+		"--id", agentID,
+		"--skip-registration",
+		"--server-insecure-tls",
+	}
+	cmd := exec.Command("pmm-agent", args...) //nolint:gosec
+	logrus.Debugf("Running: pmm-agent %s", strings.Join(cmd.Args, " "))
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("error setting up pmm-agent: %w: %s", err, output)
+	}
+
+	labels := map[string]string{
+		"cluster":     "pmm",
+		"environment": "pmm",
+	}
+
+	node, err := createNodeWithID(q, nodeID, GenericNodeType, &CreateNodeParams{
+		NodeName:        params.HANodeID,
+		Address:         LocalhostAddr,
+		CustomLabels:    labels,
+		IsPMMServerNode: true,
+	})
+	if err != nil {
+		logrus.Errorf("Failed to create a node with ID %s: %s", nodeID, err)
+		return err
+	}
+
+	agent, err := createPMMAgentWithID(q, agentID, node.NodeID, labels)
+	if err != nil {
+		return err
+	}
+
+	_, err = CreateNodeExporter(q, agent.AgentID, labels, false, false, []string{}, nil, "")
+	if err != nil {
+		return err
+	}
+
+	// set PMMServerAgentID and PMMServerNodeID to generated values in HA setup
+	PMMServerAgentID = agent.AgentID
+	logrus.Infof("Set PMMServerAgentID to: %s", PMMServerAgentID)
+	PMMServerNodeID = node.NodeID
+	logrus.Infof("Set PMMServerNodeID to: %s", PMMServerNodeID)
+
+	return nil
+}
+
 func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 	// create PMM Server Node and associated Agents
 	node, err := createNodeWithID(q, PMMServerNodeID, GenericNodeType, &CreateNodeParams{
-		NodeName: "pmm-server",
-		Address:  "127.0.0.1",
+		NodeName:        "pmm-server",
+		Address:         LocalhostAddr,
+		IsPMMServerNode: true,
 	})
 	if err != nil {
 		if status.Code(err) == codes.AlreadyExists {
@@ -1452,25 +1617,31 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 		}
 		return err
 	}
-	if _, err = createPMMAgentWithID(q, PMMServerAgentID, node.NodeID, nil); err != nil {
+
+	_, err = createPMMAgentWithID(q, PMMServerAgentID, node.NodeID, nil)
+	if err != nil {
 		return err
 	}
-	if _, err = CreateNodeExporter(q, PMMServerAgentID, nil, false, false, []string{}, nil, ""); err != nil {
+	_, err = CreateNodeExporter(q, PMMServerAgentID, nil, false, false, []string{}, nil, "")
+	if err != nil {
 		return err
 	}
+
 	address, port, err := parsePGAddress(params.Address)
 	if err != nil {
 		return err
 	}
 	if params.Address != DefaultPostgreSQLAddr {
-		if node, err = CreateNode(q, RemoteNodeType, &CreateNodeParams{
+		node, err = CreateNode(q, RemoteNodeType, &CreateNodeParams{
 			NodeName: PMMServerPostgreSQLNodeName,
 			Address:  address,
-		}); err != nil {
+		})
+		if err != nil {
 			return err
 		}
 	} else {
-		params.Name = "" // using postgres database in order to get metrics from entrypoint extension setup for QAN.
+		// Using postgres database in order to get metrics from entrypoint extension setup for QAN.
+		params.Name = ""
 	}
 
 	// create PostgreSQL Service and associated Agents
@@ -1533,7 +1704,7 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 // parsePGAddress parses PostgreSQL address into address:port; if no port specified returns default port number.
 func parsePGAddress(address string) (string, uint16, error) {
 	if !strings.Contains(address, ":") {
-		return address, 5432, nil
+		return address, 5432, nil //nolint:mnd
 	}
 	address, portStr, err := net.SplitHostPort(address)
 	if err != nil {

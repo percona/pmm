@@ -25,7 +25,7 @@ import (
 
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/pkg/errors"
-	reaper "github.com/ramr/go-reaper"
+	"github.com/ramr/go-reaper"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 
@@ -33,16 +33,16 @@ import (
 )
 
 var helpText = `
-PMM 2.x Client Docker container.
+PMM 3.x Client Docker container.
 
 It runs pmm-agent as a process with PID 1.
 It is configured entirely by environment variables. Arguments or flags are not used.
 
 The following environment variables are recognized by the Docker entrypoint:
 * PMM_AGENT_SETUP            - if true, 'pmm-agent setup' is called before 'pmm-agent run'.
-* PMM_AGENT_PRERUN_FILE      - if non-empty, runs given file with 'pmm-agent run' running in the background.
-* PMM_AGENT_PRERUN_SCRIPT    - if non-empty, runs given shell script content with 'pmm-agent run' running in the background.
-* PMM_AGENT_SIDECAR          - if true, 'pmm-agent' will be restarted in case of it's failed.
+* PMM_AGENT_PRERUN_FILE      - if non-empty, runs given file while 'pmm-agent run' is running in the background.
+* PMM_AGENT_PRERUN_SCRIPT    - if non-empty, runs given shell script content while 'pmm-agent run' is running in the background.
+* PMM_AGENT_SIDECAR          - if true, 'pmm-agent' will be restarted in case it fails.
 * PMM_AGENT_SIDECAR_SLEEP    - time to wait before restarting pmm-agent if PMM_AGENT_SIDECAR is true. 1 second by default.
 
 Additionally, the many environment variables are recognized by pmm-agent itself.
@@ -83,18 +83,20 @@ func runPmmAgent(ctx context.Context, commandLineArgs []string, restartPolicy re
 		var exitCode int
 		l.Infof("Starting 'pmm-agent %s'...", strings.Join(commandLineArgs, " "))
 		cmd := commandPmmAgent(commandLineArgs)
-		if err := cmd.Start(); err != nil {
+		err := cmd.Start()
+		if err != nil {
 			l.Errorf("Can't run: '%s', Error: %s", commandLineArgs, err)
 			exitCode = -1
 		} else {
 			pmmAgentProcessID = cmd.Process.Pid
-			if err := cmd.Wait(); err != nil {
-				exitError, ok := err.(*exec.ExitError) //nolint:errorlint
-				if !ok {
+			err := cmd.Wait()
+			if err != nil {
+				var exitErr *exec.ExitError
+				if !errors.As(err, &exitErr) {
 					l.Errorf("Can't get exit code for '%s'. err: %s", pmmAgentFullCommand, err)
 					exitCode = -1
 				} else {
-					exitCode = exitError.ExitCode()
+					exitCode = exitErr.ExitCode()
 				}
 			}
 		}
@@ -127,8 +129,11 @@ func sendSIGKILLwithTimeout(process *os.Process, timeout int, l *logrus.Entry) *
 	})
 }
 
-func main() {
-	go reaper.Reap()
+func main() { //nolint:gocognit
+	config := reaper.MakeConfig()
+	config.Debug = false
+	reaper.RunForked(config)
+
 	kingpin.Parse()
 
 	var status int
@@ -149,13 +154,14 @@ func main() {
 		if pmmAgentProcessID != 0 {
 			l.Info("Graceful shutdown for pmm-agent...")
 			// graceful shutdown for pmm-agent
-			if err := syscall.Kill(pmmAgentProcessID, syscall.SIGTERM); err != nil {
+			err := syscall.Kill(pmmAgentProcessID, syscall.SIGTERM)
+			if err != nil {
 				l.Warn("Failed to send SIGTERM, command must have exited:", err)
 			}
 			pmmAgentProcess, _ := os.FindProcess(pmmAgentProcessID) // always succeeds even process is not exist
 			preSIGKILLtimeout := 10
 			timer := sendSIGKILLwithTimeout(pmmAgentProcess, preSIGKILLtimeout, l)
-			_, err := pmmAgentProcess.Wait()
+			_, err = pmmAgentProcess.Wait()
 			if err != nil {
 				l.Warn("Failed to finish pmm-agent")
 			}
@@ -195,7 +201,8 @@ func main() {
 		}
 		if *pmmAgentSidecar {
 			l.Info("Stopping pmm-agent...")
-			if err := agent.Process.Signal(syscall.SIGTERM); err != nil {
+			err := agent.Process.Signal(syscall.SIGTERM)
+			if err != nil {
 				l.Fatal("Failed to kill pmm-agent: ", err)
 			}
 		}
@@ -215,10 +222,12 @@ func main() {
 			cmd := exec.CommandContext(ctx, *pmmAgentPrerunFile) //nolint:gosec
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
-			if err := cmd.Run(); err != nil {
-				if exitError, ok := err.(*exec.ExitError); ok { //nolint:errorlint
-					status = exitError.ExitCode()
-					l.Infof("Prerun file exited with %d", exitError.ExitCode())
+			err = cmd.Run()
+			if err != nil {
+				var exitErr *exec.ExitError
+				if errors.As(err, &exitErr) {
+					status = exitErr.ExitCode()
+					l.Infof("Prerun file exited with %d", status)
 				}
 			}
 		}
@@ -228,17 +237,19 @@ func main() {
 			cmd := exec.CommandContext(ctx, "/bin/sh", "-c", *pmmAgentPrerunScript) //nolint:gosec
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
-			if err := cmd.Run(); err != nil {
-				var exitError *exec.ExitError
-				if errors.As(err, &exitError) {
-					status = exitError.ExitCode()
-					l.Infof("Prerun shell script exited with %d", exitError.ExitCode())
+			err = cmd.Run()
+			if err != nil {
+				var exitErr *exec.ExitError
+				if errors.As(err, &exitErr) {
+					status = exitErr.ExitCode()
+					l.Infof("Prerun shell script exited with %d", status)
 				}
 			}
 		}
 
 		l.Info("Stopping pmm-agent...")
-		if err := agent.Process.Signal(syscall.SIGTERM); err != nil {
+		err = agent.Process.Signal(syscall.SIGTERM)
+		if err != nil {
 			l.Infof("Failed to term pmm-agent: %s", err)
 		}
 
@@ -248,10 +259,10 @@ func main() {
 
 		err = agent.Wait()
 		if err != nil {
-			var exitError *exec.ExitError
-			if errors.As(err, &exitError) {
-				status = exitError.ExitCode()
-				l.Infof("Prerun pmm-agent exited with %d", exitError.ExitCode())
+			var exitErr *exec.ExitError
+			if errors.As(err, &exitErr) {
+				status = exitErr.ExitCode()
+				l.Infof("Prerun pmm-agent exited with %d", status)
 			} else {
 				l.Warnf("Can't get exit code for pmm-agent. Error code: %s", err)
 			}

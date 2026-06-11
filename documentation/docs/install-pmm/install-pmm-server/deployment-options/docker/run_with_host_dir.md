@@ -64,7 +64,7 @@ docker volume create pmm-data
 ```
 2. Copy data from host directory to the volume:
 ```sh
-  docker run --rm -v /path/on/host:/source -v pmm-data:/target alpine cp -a /source/. /target/
+docker run --rm -v /path/on/host:/source -v pmm-data:/target alpine cp -a /source/. /target/
 ```
 
 3. Update your container to use the volume instead of the host directory. 

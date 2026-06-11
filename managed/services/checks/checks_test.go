@@ -23,8 +23,6 @@ import (
 
 	"github.com/AlekSi/pointer"
 	_ "github.com/ClickHouse/clickhouse-go/v2"
-	"github.com/percona/saas/pkg/check"
-	"github.com/percona/saas/pkg/common"
 	metrics "github.com/prometheus/client_golang/api"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/sirupsen/logrus"
@@ -34,6 +32,8 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/pi/check"
+	"github.com/percona/pmm/managed/pi/common"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/version"
@@ -63,7 +63,7 @@ func TestLoadBuiltinAdvisors(t *testing.T) {
 		checks, err := s.GetAdvisors()
 		require.NoError(t, err)
 		assert.Empty(t, checks)
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		ctx, cancel := context.WithTimeout(t.Context(), 10*time.Second)
 		defer cancel()
 
 		dChecks, err := s.loadBuiltinAdvisors(ctx)
@@ -79,11 +79,11 @@ func TestLoadBuiltinAdvisors(t *testing.T) {
 
 	t.Run("advisors are loaded with telemetry disabled", func(t *testing.T) {
 		_, err := models.UpdateSettings(db.Querier, &models.ChangeSettingsParams{
-			EnableTelemetry: pointer.ToBool(false),
+			EnableTelemetry: new(false),
 		})
 		require.NoError(t, err)
 
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		ctx, cancel := context.WithTimeout(t.Context(), 10*time.Second)
 		defer cancel()
 
 		dChecks, err := s.loadBuiltinAdvisors(ctx)
@@ -108,7 +108,7 @@ func TestUpdateAdvisorsList(t *testing.T) {
 		s := New(db, nil, vmClient, clickhouseDB)
 		s.customCheckFile = testChecksFile
 
-		s.UpdateAdvisorsList(context.Background())
+		s.UpdateAdvisorsList(t.Context())
 
 		advisors, err := s.GetAdvisors()
 		require.NoError(t, err)
@@ -120,7 +120,6 @@ func TestUpdateAdvisorsList(t *testing.T) {
 		require.Equal(t, "Dev Advisor", advisor.Summary)
 		require.Equal(t, "Advisor used for developing checks", advisor.Description)
 		require.Equal(t, "development", advisor.Category)
-		require.Empty(t, advisor.Tiers)
 		require.Len(t, advisor.Checks, 1)
 
 		checkNames := make([]string, 0, len(advisor.Checks))
@@ -145,7 +144,7 @@ func TestDisableChecks(t *testing.T) {
 		s := New(db, nil, vmClient, clickhouseDB)
 		s.customCheckFile = testChecksFile
 
-		s.UpdateAdvisorsList(context.Background())
+		s.UpdateAdvisorsList(t.Context())
 
 		checks, err := s.GetChecks()
 		require.NoError(t, err)
@@ -174,7 +173,7 @@ func TestDisableChecks(t *testing.T) {
 		s := New(db, nil, vmClient, clickhouseDB)
 		s.customCheckFile = testChecksFile
 
-		s.UpdateAdvisorsList(context.Background())
+		s.UpdateAdvisorsList(t.Context())
 
 		checks, err := s.GetChecks()
 		require.NoError(t, err)
@@ -206,7 +205,7 @@ func TestDisableChecks(t *testing.T) {
 		s := New(db, nil, vmClient, clickhouseDB)
 		s.customCheckFile = testChecksFile
 
-		s.UpdateAdvisorsList(context.Background())
+		s.UpdateAdvisorsList(t.Context())
 
 		err := s.DisableChecks([]string{"unknown_check"})
 		require.Error(t, err)
@@ -229,7 +228,7 @@ func TestEnableChecks(t *testing.T) {
 		s := New(db, nil, vmClient, clickhouseDB)
 		s.customCheckFile = testChecksFile
 
-		s.UpdateAdvisorsList(context.Background())
+		s.UpdateAdvisorsList(t.Context())
 
 		checks, err := s.GetChecks()
 		require.NoError(t, err)
@@ -260,7 +259,7 @@ func TestChangeInterval(t *testing.T) {
 		s := New(db, nil, vmClient, clickhouseDB)
 		s.customCheckFile = testChecksFile
 
-		s.UpdateAdvisorsList(context.Background())
+		s.UpdateAdvisorsList(t.Context())
 
 		checks, err := s.GetChecks()
 		require.NoError(t, err)
@@ -281,7 +280,7 @@ func TestChangeInterval(t *testing.T) {
 		}
 
 		t.Run("preserve intervals on restarts", func(t *testing.T) {
-			err = s.runChecksGroup(context.Background(), "")
+			err = s.runChecksGroup(t.Context(), "")
 			require.NoError(t, err)
 
 			checks, err := s.GetChecks()
@@ -306,19 +305,19 @@ func TestStartChecks(t *testing.T) {
 		s := New(db, nil, vmClient, clickhouseDB)
 		s.customCheckFile = testChecksFile
 
-		err := s.runChecksGroup(context.Background(), "unknown")
-		assert.EqualError(t, err, "unknown check interval: unknown")
+		err := s.runChecksGroup(t.Context(), "unknown")
+		require.EqualError(t, err, "unknown check interval: unknown")
 	})
 
 	t.Run("advisors enabled", func(t *testing.T) {
 		s := New(db, nil, vmClient, clickhouseDB)
 
 		s.customCheckFile = testChecksFile
-		s.UpdateAdvisorsList(context.Background())
+		s.UpdateAdvisorsList(t.Context())
 		assert.NotEmpty(t, s.advisors)
 		assert.NotEmpty(t, s.checks)
 
-		err := s.runChecksGroup(context.Background(), "")
+		err := s.runChecksGroup(t.Context(), "")
 		require.NoError(t, err)
 	})
 
@@ -328,12 +327,12 @@ func TestStartChecks(t *testing.T) {
 		settings, err := models.GetSettings(db)
 		require.NoError(t, err)
 
-		settings.SaaS.Enabled = pointer.ToBool(false)
+		settings.SaaS.Enabled = new(false)
 		err = models.SaveSettings(db, settings)
 		require.NoError(t, err)
 
-		err = s.runChecksGroup(context.Background(), "")
-		assert.ErrorIs(t, err, services.ErrAdvisorsDisabled)
+		err = s.runChecksGroup(t.Context(), "")
+		require.ErrorIs(t, err, services.ErrAdvisorsDisabled)
 	})
 }
 
@@ -436,8 +435,6 @@ func TestMinPMMAgents(t *testing.T) {
 	s := New(nil, nil, vmClient, clickhouseDB)
 
 	for _, test := range tests {
-		test := test
-
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, test.minVersion, s.minPMMAgentVersion(test.check))
@@ -457,8 +454,8 @@ func setup(t *testing.T, db *reform.DB, serviceName, nodeID, pmmAgentVersion str
 	mysql, err := models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 		ServiceName: serviceName,
 		NodeID:      nodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(3306),
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(3306)),
 	})
 	require.NoError(t, err)
 
@@ -532,8 +529,6 @@ func TestFindTargets(t *testing.T) {
 		}
 
 		for _, test := range tests {
-			test := test
-
 			t.Run(test.name, func(t *testing.T) {
 				t.Parallel()
 
@@ -582,7 +577,7 @@ func TestGetFailedChecks(t *testing.T) {
 	t.Run("no failed check for service", func(t *testing.T) {
 		s := New(db, nil, vmClient, clickhouseDB)
 
-		results, err := s.GetChecksResults(context.Background(), "test_svc")
+		results, err := s.GetChecksResults(t.Context(), "test_svc")
 		assert.Empty(t, results)
 		require.NoError(t, err)
 	})
@@ -634,7 +629,7 @@ func TestGetFailedChecks(t *testing.T) {
 		s := New(db, nil, vmClient, clickhouseDB)
 		s.alertsRegistry.set(checkResults)
 
-		response, err := s.GetChecksResults(context.Background(), "")
+		response, err := s.GetChecksResults(t.Context(), "")
 		require.NoError(t, err)
 		assert.ElementsMatch(t, checkResults, response)
 	})
@@ -686,7 +681,7 @@ func TestGetFailedChecks(t *testing.T) {
 		s := New(db, nil, vmClient, clickhouseDB)
 		s.alertsRegistry.set(checkResults)
 
-		response, err := s.GetChecksResults(context.Background(), "test_svc1")
+		response, err := s.GetChecksResults(t.Context(), "test_svc1")
 		require.NoError(t, err)
 		require.Len(t, response, 1)
 		assert.Equal(t, checkResults[0], response[0])
@@ -698,13 +693,13 @@ func TestGetFailedChecks(t *testing.T) {
 		settings, err := models.GetSettings(db)
 		require.NoError(t, err)
 
-		settings.SaaS.Enabled = pointer.ToBool(false)
+		settings.SaaS.Enabled = new(false)
 		err = models.SaveSettings(db, settings)
 		require.NoError(t, err)
 
-		results, err := s.GetChecksResults(context.Background(), "test_svc")
+		results, err := s.GetChecksResults(t.Context(), "test_svc")
 		assert.Nil(t, results)
-		assert.ErrorIs(t, err, services.ErrAdvisorsDisabled)
+		require.ErrorIs(t, err, services.ErrAdvisorsDisabled)
 	})
 }
 
@@ -771,7 +766,6 @@ func TestFillQueryPlaceholders(t *testing.T) {
 	}
 
 	for _, tt := range cases {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -781,7 +775,7 @@ func TestFillQueryPlaceholders(t *testing.T) {
 				assert.Equal(t, tt.expected, actual)
 			} else {
 				require.Error(t, err)
-				assert.ErrorContains(t, err, tt.errString)
+				require.ErrorContains(t, err, tt.errString)
 			}
 		})
 	}

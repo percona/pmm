@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"maps"
 	"os"
 	"path/filepath"
 	"sort"
@@ -30,8 +31,6 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/percona/saas/pkg/alert"
-	"github.com/percona/saas/pkg/common"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -43,6 +42,8 @@ import (
 	alerting "github.com/percona/pmm/api/alerting/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/pi/alert"
+	"github.com/percona/pmm/managed/pi/common"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/dir"
 )
@@ -104,9 +105,7 @@ func (s *Service) GetTemplates() map[string]models.Template {
 	defer s.rw.RUnlock()
 
 	res := make(map[string]models.Template, len(s.templates))
-	for n, r := range s.templates {
-		res[n] = r
-	}
+	maps.Copy(res, s.templates)
 	return res
 }
 
@@ -231,7 +230,8 @@ func (s *Service) loadTemplatesFromUserFiles(ctx context.Context) ([]*models.Tem
 		}
 
 		for _, t := range templates {
-			if err = validateUserTemplate(&t); err != nil {
+			err = validateUserTemplate(&t)
+			if err != nil {
 				s.l.Warnf("%s %s", path, err)
 				continue
 			}
@@ -289,7 +289,8 @@ func validateUserTemplate(t *alert.Template) error {
 		params[p.Name] = value
 	}
 
-	if _, err := fillExprWithParams(t.Expr, params); err != nil {
+	_, err := fillExprWithParams(t.Expr, params)
+	if err != nil {
 		return err
 	}
 
@@ -409,27 +410,29 @@ func (s *Service) CreateTemplate(ctx context.Context, req *alerting.CreateTempla
 
 	templates, err := alert.Parse(strings.NewReader(req.Yaml), pParams)
 	if err != nil {
-		s.l.Errorf("failed to parse rule template form request: +%v", err)
+		s.l.Errorf("failed to parse rule template form request: %+v", err)
 		return nil, status.Errorf(codes.InvalidArgument, "Failed to parse rule template: %v.", err)
 	}
 
 	uniqueNames := make(map[string]struct{}, len(templates))
 	for _, t := range templates {
 		if _, ok := uniqueNames[t.Name]; ok {
-			return nil, status.Errorf(codes.InvalidArgument, "Template with name '%s' declared more that once.", t.Name)
+			return nil, status.Errorf(codes.InvalidArgument, "Template with name '%s' declared more than once.", t.Name)
 		}
 		uniqueNames[t.Name] = struct{}{}
-		if err = validateUserTemplate(&t); err != nil {
+		err = validateUserTemplate(&t)
+		if err != nil {
 			return nil, status.Errorf(codes.InvalidArgument, "%s.", err)
 		}
 	}
 
 	errTx := s.db.InTransaction(func(tx *reform.TX) error {
 		for _, t := range templates {
-			if _, err = models.CreateTemplate(tx.Querier, &models.CreateTemplateParams{
+			_, err = models.CreateTemplate(tx.Querier, &models.CreateTemplateParams{
 				Template: &t,
 				Source:   models.UserAPISource,
-			}); err != nil {
+			})
+			if err != nil {
 				return err
 			}
 		}
@@ -462,7 +465,7 @@ func (s *Service) UpdateTemplate(ctx context.Context, req *alerting.UpdateTempla
 
 	templates, err := alert.Parse(strings.NewReader(req.Yaml), parseParams)
 	if err != nil {
-		s.l.Errorf("failed to parse rule template form request: +%v", err)
+		s.l.Errorf("failed to parse rule template form request: %+v", err)
 		return nil, status.Error(codes.InvalidArgument, "Failed to parse rule template.")
 	}
 
@@ -472,7 +475,8 @@ func (s *Service) UpdateTemplate(ctx context.Context, req *alerting.UpdateTempla
 
 	tmpl := templates[0]
 
-	if err = validateUserTemplate(&tmpl); err != nil {
+	err = validateUserTemplate(&tmpl)
+	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "%s.", err)
 	}
 
@@ -542,7 +546,8 @@ func convertTemplate(l *logrus.Entry, template models.Template) (*alerting.Templ
 	}
 
 	t.CreatedAt = timestamppb.New(template.CreatedAt)
-	if err = t.CreatedAt.CheckValid(); err != nil {
+	err = t.CreatedAt.CheckValid()
+	if err != nil {
 		return nil, err
 	}
 
@@ -627,7 +632,8 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		return nil, err
 	}
 
-	if err := validateParameters(sourceTemplate.Params, paramsValues); err != nil {
+	err = validateParameters(sourceTemplate.Params, paramsValues)
+	if err != nil {
 		return nil, err
 	}
 
@@ -659,13 +665,15 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 
 	// Copy annotations form template
 	annotations := make(map[string]string)
-	if err = transformMaps(ta, annotations, paramsValues.AsStringMap()); err != nil {
+	err = transformMaps(ta, annotations, paramsValues.AsStringMap())
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to fill template annotations placeholders")
 	}
 
 	labels := make(map[string]string)
 	// Copy labels form template
-	if err = transformMaps(req.CustomLabels, labels, paramsValues.AsStringMap()); err != nil {
+	err = transformMaps(req.CustomLabels, labels, paramsValues.AsStringMap())
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to fill rule labels placeholders")
 	}
 
@@ -675,7 +683,8 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 	}
 
 	// Add rule labels
-	if err = transformMaps(tl, labels, paramsValues.AsStringMap()); err != nil {
+	err = transformMaps(tl, labels, paramsValues.AsStringMap())
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to fill template labels placeholders")
 	}
 
@@ -758,7 +767,8 @@ func transformMaps(src map[string]string, dest map[string]string, data map[strin
 		if err != nil {
 			return err
 		}
-		if err = t.Execute(&buf, data); err != nil {
+		err = t.Execute(&buf, data)
+		if err != nil {
 			return err
 		}
 		dest[k] = buf.String()
@@ -789,7 +799,8 @@ func fillExprWithParams(expr string, values map[string]string) (string, error) {
 	if err != nil {
 		return "", errors.Wrap(err, "failed to parse expression")
 	}
-	if err = t.Execute(&buf, values); err != nil {
+	err = t.Execute(&buf, values)
+	if err != nil {
 		return "", errors.Wrap(err, "failed to fill expression placeholders")
 	}
 	return buf.String(), nil

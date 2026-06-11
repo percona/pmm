@@ -1,10 +1,10 @@
 %global debug_package   %{nil}
-%global commit          0fd020e57635b448100f7300fe89f596bd12daa2
+%global commit          24b0b104382a6d04955d1232f937645050450b7e
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 %define build_timestamp %(date -u +"%y%m%d%H%M")
-%define release         111
-%define grafana_version 11.6.3
-%define full_pmm_version 2.0.0
+%define release         116
+%define grafana_version 12.4.4
+%define full_pmm_version 3.0.0
 %define full_version    v%{grafana_version}-%{full_pmm_version}
 %define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
 
@@ -22,9 +22,6 @@ Source0:        https://github.com/percona/grafana/archive/%{commit}.tar.gz
 ExclusiveArch:  %{ix86} x86_64 %{arm}
 
 BuildRequires: fontconfig
-%if 0%{?rhel} < 9
-BuildRequires: nodejs-grunt-cli
-%endif
 
 %description
 Grafana is an open source, feature rich metrics dashboard and graph editor for
@@ -34,9 +31,7 @@ Graphite, InfluxDB & OpenTSDB.
 %setup -q -n grafana-%{commit}
 rm -rf Godeps
 sed -i "s/unknown-dev/%{grafana_version}/" pkg/build/git.go
-%if 0%{?rhel} >= 9
-    sudo npm install -g grunt-cli
-%endif
+sudo npm install -g grunt-cli
 
 %build
 mkdir -p _build/src
@@ -54,10 +49,10 @@ cp -rpav public %{buildroot}%{_datadir}/grafana
 cp -rpav tools %{buildroot}%{_datadir}/grafana
 
 install -d -p %{buildroot}%{_sbindir}
-cp bin/linux-amd64/grafana-server %{buildroot}%{_sbindir}/
-cp bin/linux-amd64/grafana %{buildroot}%{_sbindir}/
+cp bin/linux/amd64/grafana-server %{buildroot}%{_sbindir}/
+cp bin/linux/amd64/grafana %{buildroot}%{_sbindir}/
 install -d -p %{buildroot}%{_bindir}
-cp bin/linux-amd64/grafana-cli %{buildroot}%{_bindir}/
+cp bin/linux/amd64/grafana-cli %{buildroot}%{_bindir}/
 
 install -d -p %{buildroot}%{_sysconfdir}/grafana
 cp conf/sample.ini %{buildroot}%{_sysconfdir}/grafana/grafana.ini
@@ -65,13 +60,13 @@ mv conf/ldap.toml %{buildroot}%{_sysconfdir}/grafana/
 install -d -p %{buildroot}%{_sharedstatedir}/grafana
 
 %files
-%defattr(-, pmm, pmm, -)
+%defattr(-, pmm, root, -)
 %{_datadir}/grafana
 %doc CHANGELOG.md README.md
 %license LICENSE
-%attr(0755, pmm, pmm) %{_sbindir}/grafana
-%attr(0755, pmm, pmm) %{_sbindir}/grafana-server
-%attr(0755, pmm, pmm) %{_bindir}/grafana-cli
+%attr(0755, pmm, root) %{_sbindir}/grafana
+%attr(0755, pmm, root) %{_sbindir}/grafana-server
+%attr(0755, pmm, root) %{_bindir}/grafana-cli
 %{_sysconfdir}/grafana/grafana.ini
 %{_sysconfdir}/grafana/ldap.toml
 %dir %{_sharedstatedir}/grafana
@@ -82,7 +77,22 @@ getent passwd pmm >/dev/null || echo "User pmm does not exist. Please create it 
 exit 0
 
 %changelog
-* Wed July 09 2025 Ioana Maniga <ioana.maniga@ext.percona.com> - 11.6.3-1
+* Tue Jun 02 2026 Matej Kubinec <matej.kubinec@ext.percona.com> - 12.4.4-1
+- PMM-14213 Upgrade Grafana to v12.4.4
+
+* Thu May 14 2026 Fábio Silva <ffjs1993@gmail.com> - 12.4.3
+- PMM-14213 Upgrade Grafana to v12.4.2
+
+* Mon Mar 30 2026 Matej Kubinec <matej.kubinec@ext.percona.com> - 11.6.14-1
+- PMM-14959 Grafana 11.6.14
+
+* Thu Mar 12 2026 Matej Kubinec <matej.kubinec@ext.percona.com> - 11.6.13-1
+- PMM-14829 Grafana 11.6.13
+
+* Mon Mar 02 2026 Matej Kubinec <matej.kubinec@ext.percona.com> - 11.6.12-1
+- PMM-14829 Grafana 11.6.12
+
+* Wed Jul 09 2025 Ioana Maniga <ioana.maniga@ext.percona.com> - 11.6.3-1
 - PMM-14015 Grafana 11.6.3
 
 * Thu May 22 2025 Matej Kubinec <matej.kubinec@ext.percona.com> - 11.6.1-1

@@ -23,7 +23,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -93,11 +92,13 @@ func (s *BackupService) StartBackup(ctx context.Context, req *backupv1.StartBack
 		return nil, status.Errorf(codes.InvalidArgument, "Exceeded max retry interval %s.", maxRetryInterval)
 	}
 
-	if err := isFolderSafe(req.Folder); err != nil {
+	err := isFolderSafe(req.Folder)
+	if err != nil {
 		return nil, err
 	}
 
-	if err := isNameSafe(req.Name); err != nil {
+	err = isNameSafe(req.Name)
+	if err != nil {
 		return nil, err
 	}
 
@@ -148,11 +149,13 @@ func (s *BackupService) ScheduleBackup(ctx context.Context, req *backupv1.Schedu
 		return nil, status.Errorf(codes.InvalidArgument, "Exceeded max retry interval %s.", maxRetryInterval)
 	}
 
-	if err := isFolderSafe(req.Folder); err != nil {
+	err := isFolderSafe(req.Folder)
+	if err != nil {
 		return nil, err
 	}
 
-	if err := isNameSafe(req.Name); err != nil {
+	err = isNameSafe(req.Name)
+	if err != nil {
 		return nil, err
 	}
 
@@ -344,7 +347,7 @@ func (s *BackupService) ChangeScheduledBackup(ctx context.Context, req *backupv1
 		}
 
 		if req.Enabled != nil {
-			params.Disable = pointer.ToBool(!*req.Enabled)
+			params.Disable = new(!*req.Enabled)
 			if scheduledTask.Type == models.ScheduledMongoDBBackupTask && !*req.Enabled {
 				disablePITR = data.Mode == models.PITR
 			}
@@ -359,7 +362,8 @@ func (s *BackupService) ChangeScheduledBackup(ctx context.Context, req *backupv1
 	}
 
 	if disablePITR {
-		if err := s.backupService.SwitchMongoPITR(ctx, serviceID, false); err != nil {
+		err := s.backupService.SwitchMongoPITR(ctx, serviceID, false)
+		if err != nil {
 			s.l.WithError(err).Error("failed to disable PITR")
 		}
 	}
@@ -395,7 +399,7 @@ func (s *BackupService) RemoveScheduledBackup(ctx context.Context, req *backupv1
 
 		for _, artifact := range artifacts {
 			_, err := models.UpdateArtifact(tx.Querier, artifact.ID, models.UpdateArtifactParams{
-				ScheduleID: pointer.ToString(""),
+				ScheduleID: new(""),
 			})
 			if err != nil {
 				return err
@@ -409,7 +413,8 @@ func (s *BackupService) RemoveScheduledBackup(ctx context.Context, req *backupv1
 	}
 
 	if disablePITR {
-		if err = s.backupService.SwitchMongoPITR(ctx, task.Data.MongoDBBackupTask.ServiceID, false); err != nil {
+		err = s.backupService.SwitchMongoPITR(ctx, task.Data.MongoDBBackupTask.ServiceID, false)
+		if err != nil {
 			s.l.WithError(err).Error("failed to disable PITR")
 		}
 	}
@@ -445,7 +450,7 @@ func (s *BackupService) GetLogs(_ context.Context, req *backupv1.GetLogsRequest)
 		Offset: int(req.Offset),
 	}
 	if req.Limit > 0 {
-		filter.Limit = pointer.ToInt(int(req.Limit))
+		filter.Limit = new(int(req.Limit))
 	}
 
 	jobLogs, err := models.FindJobLogs(s.db.Querier, filter)
@@ -576,7 +581,8 @@ func (s *BackupService) DeleteArtifact(ctx context.Context, req *backupv1.Delete
 
 	storage := backup.GetStorageForLocation(location)
 
-	if err := s.removalSVC.DeleteArtifact(storage, req.ArtifactId, req.RemoveFiles); err != nil {
+	err = s.removalSVC.DeleteArtifact(storage, req.ArtifactId, req.RemoveFiles)
+	if err != nil {
 		return nil, err
 	}
 	return &backupv1.DeleteArtifactResponse{}, nil
@@ -667,11 +673,13 @@ func convertTaskToScheduledBackup(task *models.ScheduledTask,
 	scheduledBackup.Folder = commonBackupData.Folder
 
 	var err error
-	if scheduledBackup.DataModel, err = convertDataModel(commonBackupData.DataModel); err != nil {
+	scheduledBackup.DataModel, err = convertDataModel(commonBackupData.DataModel)
+	if err != nil {
 		return nil, err
 	}
 
-	if scheduledBackup.Mode, err = convertModelToBackupMode(commonBackupData.Mode); err != nil {
+	scheduledBackup.Mode, err = convertModelToBackupMode(commonBackupData.Mode)
+	if err != nil {
 		return nil, err
 	}
 
@@ -850,14 +858,16 @@ func convertArtifact(
 	locationModels map[string]*models.BackupLocation,
 ) (*backupv1.Artifact, error) {
 	createdAt := timestamppb.New(a.CreatedAt)
-	if err := createdAt.CheckValid(); err != nil {
+	err := createdAt.CheckValid()
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to convert timestamp")
 	}
 
 	l, ok := locationModels[a.LocationID]
 	if !ok {
 		return nil, errors.Errorf(
-			"failed to convert artifact with id '%s': no location id '%s' in the map", a.ID, a.LocationID)
+			"failed to convert artifact with id '%s': no location id '%s' in the map", a.ID, a.LocationID,
+		)
 	}
 
 	var serviceName string

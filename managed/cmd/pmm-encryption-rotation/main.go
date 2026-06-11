@@ -26,6 +26,7 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	encryptionService "github.com/percona/pmm/managed/services/encryption"
+	"github.com/percona/pmm/managed/utils/encryption"
 	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/version"
 )
@@ -37,39 +38,11 @@ func main() {
 
 	logger.SetupGlobalLogger()
 
-	logrus.Infof("PMM Encryption Rotation Tools version: %s", version.Version)
-
-	sqlDB, err := models.OpenDB(setupParams())
-	if err != nil {
-		logrus.Error(err)
-		os.Exit(codeDBConnectionFailed)
-	}
-
-	statusCode, err := encryptionService.RotateEncryptionKey(sqlDB, "pmm-managed")
-	sqlDB.Close() //nolint:errcheck
-	if err != nil {
-		logrus.Error(err)
-		os.Exit(statusCode)
-	}
-}
-
-type flags struct {
-	Address     string `name:"postgres-addr" default:"${address}" help:"PostgreSQL address with port"`
-	DBName      string `name:"postgres-name" default:"pmm-managed" help:"PostgreSQL database name"`
-	DBUsername  string `name:"postgres-username" default:"pmm-managed" help:"PostgreSQL database username name"`
-	DBPassword  string `name:"postgres-password" default:"pmm-managed" help:"PostgreSQL database password"`
-	SSLMode     string `name:"postgres-ssl-mode" default:"${disable_sslmode}" help:"PostgreSQL SSL mode" enum:"${disable_sslmode}, ${require_sslmode},${verify_sslmode}, ${verify_full_sslmode}"` //nolint:lll
-	SSLCAPath   string `name:"postgres-ssl-ca-path" help:"PostgreSQL SSL CA root certificate path" type:"path"`
-	SSLKeyPath  string `name:"postgres-ssl-key-path" help:"PostgreSQL SSL key path" type:"path"`
-	SSLCertPath string `name:"postgres-ssl-cert-path" help:"PostgreSQL SSL certificate path" type:"path"`
-}
-
-func setupParams() models.SetupDBParams {
 	var opts flags
 	kong.Parse(
 		&opts,
 		kong.Name("encryption-rotation"),
-		kong.Description(fmt.Sprintf("Version %s", version.Version)), //nolint:perfsprint
+		kong.Description("Version "+version.Version),
 		kong.UsageOnError(),
 		kong.ConfigureHelp(kong.HelpOptions{
 			Compact:             true,
@@ -84,6 +57,45 @@ func setupParams() models.SetupDBParams {
 		},
 	)
 
+	if opts.GenerateKey {
+		e := &encryption.Encryption{}
+		key, err := e.GenerateKey()
+		if err != nil {
+			logrus.Errorf("Failed to generate key: %v", err)
+			os.Exit(1)
+		}
+		fmt.Print(key) //nolint:forbidigo
+		os.Exit(0)
+	}
+
+	sqlDB, err := models.OpenDB(setupParams(opts))
+	if err != nil {
+		logrus.Error(err)
+		os.Exit(codeDBConnectionFailed)
+	}
+
+	statusCode, err := encryptionService.RotateEncryptionKey(sqlDB, "pmm-managed")
+	sqlDB.Close() //nolint:errcheck
+	if err != nil {
+		logrus.Error(err)
+		os.Exit(statusCode)
+	}
+}
+
+//nolint:lll
+type flags struct {
+	Address     string `name:"postgres-addr" default:"${address}" help:"PostgreSQL address with port"`
+	DBName      string `name:"postgres-name" default:"pmm-managed" help:"PostgreSQL database name"`
+	DBUsername  string `name:"postgres-username" default:"pmm-managed" help:"PostgreSQL database username name"`
+	DBPassword  string `name:"postgres-password" default:"pmm-managed" help:"PostgreSQL database password"`
+	SSLMode     string `name:"postgres-ssl-mode" default:"${disable_sslmode}" help:"PostgreSQL SSL mode" enum:"${disable_sslmode}, ${require_sslmode},${verify_sslmode}, ${verify_full_sslmode}"`
+	SSLCAPath   string `name:"postgres-ssl-ca-path" help:"PostgreSQL SSL CA root certificate path" type:"path"`
+	SSLKeyPath  string `name:"postgres-ssl-key-path" help:"PostgreSQL SSL key path" type:"path"`
+	SSLCertPath string `name:"postgres-ssl-cert-path" help:"PostgreSQL SSL certificate path" type:"path"`
+	GenerateKey bool   `name:"generate-key" help:"Only generate a new encryption key and print to stdout"`
+}
+
+func setupParams(opts flags) models.SetupDBParams {
 	return models.SetupDBParams{
 		Address:     opts.Address,
 		Name:        opts.DBName,

@@ -168,6 +168,38 @@ func (m *AddMongoDBServiceParams) validate(all bool) error {
 
 	// no validation rules for ExposeExporter
 
+	// no validation rules for RtaMongodbAgent
+
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = AddMongoDBServiceParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := AddMongoDBServiceParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
 	if len(errors) > 0 {
 		return AddMongoDBServiceParamsMultiError(errors)
 	}
@@ -235,7 +267,8 @@ func (e AddMongoDBServiceParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AddMongoDBServiceParamsValidationError{}
@@ -386,6 +419,35 @@ func (m *MongoDBServiceResult) validate(all bool) error {
 		}
 	}
 
+	if all {
+		switch v := interface{}(m.GetRtaMongodbAgent()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MongoDBServiceResultValidationError{
+					field:  "RtaMongodbAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MongoDBServiceResultValidationError{
+					field:  "RtaMongodbAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetRtaMongodbAgent()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return MongoDBServiceResultValidationError{
+				field:  "RtaMongodbAgent",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return MongoDBServiceResultMultiError(errors)
 	}
@@ -453,7 +515,8 @@ func (e MongoDBServiceResultValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = MongoDBServiceResultValidationError{}

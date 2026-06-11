@@ -18,7 +18,6 @@ package models_test
 import (
 	"testing"
 
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
@@ -82,7 +81,7 @@ func TestRoleHelpers(t *testing.T) {
 		defer teardown(t)
 
 		err := models.AssignRoles(tx, userID, []int{0})
-		require.True(t, errors.Is(err, models.ErrRoleNotFound))
+		require.ErrorIs(t, err, models.ErrRoleNotFound)
 	})
 
 	//nolint:paralleltest

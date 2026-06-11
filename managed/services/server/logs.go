@@ -35,6 +35,7 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/sys/unix"
 
+	"github.com/percona/pmm/managed/models"
 	pprofUtils "github.com/percona/pmm/managed/utils/pprof"
 	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/utils/pdeathsig"
@@ -116,17 +117,20 @@ func (l *Logs) Zip(ctx context.Context, w io.Writer, pprofConfig *PprofConfig, l
 		if err != nil {
 			return errors.Wrap(err, "failed to create zip file header")
 		}
-		if _, err = f.Write(file.Data); err != nil {
+		_, err = f.Write(file.Data)
+		if err != nil {
 			return errors.Wrap(err, "failed to write zip file data")
 		}
 	}
 
-	if err := addAdminSummary(ctx, zw); err != nil {
+	err := addAdminSummary(ctx, zw)
+	if err != nil {
 		// do not let it break the whole archive
 		log.WithField("d", time.Since(start).Seconds()).Errorf("addAdminSummary: %+v", err)
 	}
 
-	if err := zw.Close(); err != nil {
+	err = zw.Close()
+	if err != nil {
 		return errors.Wrap(err, "failed to close zip file")
 	}
 	return nil
@@ -177,7 +181,7 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig, logReadLines
 		"/etc/supervisord.d/vmalert.ini",
 		"/etc/supervisord.d/vmproxy.ini",
 
-		"/usr/local/percona/pmm/config/pmm-agent.yaml",
+		models.AgentConfigFilePath,
 	} {
 		b, m, err := readFile(f)
 		files = append(files, fileContent{
@@ -222,9 +226,7 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig, logReadLines
 	if pprofConfig != nil {
 		filesSync := &sync.Mutex{}
 		var wg sync.WaitGroup
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			traceBytes, err := pprofUtils.Trace(ctx, pprofConfig.TraceDuration)
 			filesSync.Lock()
 			files = append(files, fileContent{
@@ -233,11 +235,9 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig, logReadLines
 				Err:  err,
 			})
 			filesSync.Unlock()
-		}()
+		})
 
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			profileBytes, err := pprofUtils.Profile(ctx, pprofConfig.ProfileDuration)
 			filesSync.Lock()
 			files = append(files, fileContent{
@@ -246,11 +246,9 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig, logReadLines
 				Err:  err,
 			})
 			filesSync.Unlock()
-		}()
+		})
 
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			heapBytes, err := pprofUtils.Heap(true)
 			filesSync.Lock()
 			files = append(files, fileContent{
@@ -259,7 +257,7 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig, logReadLines
 				Err:  err,
 			})
 			filesSync.Unlock()
-		}()
+		})
 
 		wg.Wait()
 	}
@@ -314,7 +312,7 @@ func readLog(name string, maxLines int) ([]byte, time.Time, error) {
 	}
 
 	res := []byte{}
-	r.Do(func(v interface{}) {
+	r.Do(func(v any) {
 		if v != nil {
 			res = append(res, v.([]byte)...) //nolint:forcetypeassert
 		}
@@ -367,7 +365,8 @@ func readFile(name string) ([]byte, time.Time, error) {
 		return nil, m, errors.WithStack(err)
 	}
 
-	if fi, err := os.Stat(name); err == nil {
+	fi, err := os.Stat(name)
+	if err == nil {
 		m = fi.ModTime()
 	}
 	return b, m, nil
@@ -415,7 +414,8 @@ func addAdminSummary(ctx context.Context, zw *zip.Writer) error {
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	if err := sf.Close(); err != nil {
+	err = sf.Close()
+	if err != nil {
 		return errors.WithStack(err)
 	}
 	defer os.Remove(sf.Name()) //nolint:errcheck
@@ -424,7 +424,8 @@ func addAdminSummary(ctx context.Context, zw *zip.Writer) error {
 	pdeathsig.Set(cmd, unix.SIGKILL)
 	cmd.Stdout = os.Stderr // stdout to stderr
 	cmd.Stderr = os.Stderr
-	if err = cmd.Run(); err != nil {
+	err = cmd.Run()
+	if err != nil {
 		return errors.Wrap(err, "cannot run pmm-admin summary")
 	}
 
@@ -449,12 +450,14 @@ func addAdminSummary(ctx context.Context, zw *zip.Writer) error {
 			return errors.WithStack(err)
 		}
 
-		if _, err = io.Copy(fw, fr); err != nil { //nolint:gosec
+		_, err = io.Copy(fw, fr) //nolint:gosec
+		if err != nil {
 			fr.Close() //nolint:errcheck
 			return errors.WithStack(err)
 		}
 
-		if err = fr.Close(); err != nil {
+		err = fr.Close()
+		if err != nil {
 			return errors.WithStack(err)
 		}
 	}

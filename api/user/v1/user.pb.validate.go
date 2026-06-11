@@ -122,7 +122,8 @@ func (e GetUserRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = GetUserRequestValidationError{}
@@ -164,6 +165,37 @@ func (m *GetUserResponse) validate(all bool) error {
 	// no validation rules for AlertingTourCompleted
 
 	// no validation rules for SnoozedPmmVersion
+
+	if all {
+		switch v := interface{}(m.GetSnoozedAt()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, GetUserResponseValidationError{
+					field:  "SnoozedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, GetUserResponseValidationError{
+					field:  "SnoozedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetSnoozedAt()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetUserResponseValidationError{
+				field:  "SnoozedAt",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for SnoozeCount
 
 	if len(errors) > 0 {
 		return GetUserResponseMultiError(errors)
@@ -230,7 +262,8 @@ func (e GetUserResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = GetUserResponseValidationError{}
@@ -344,7 +377,8 @@ func (e UpdateUserRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = UpdateUserRequestValidationError{}
@@ -386,6 +420,37 @@ func (m *UpdateUserResponse) validate(all bool) error {
 	// no validation rules for AlertingTourCompleted
 
 	// no validation rules for SnoozedPmmVersion
+
+	if all {
+		switch v := interface{}(m.GetSnoozedAt()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, UpdateUserResponseValidationError{
+					field:  "SnoozedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, UpdateUserResponseValidationError{
+					field:  "SnoozedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetSnoozedAt()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdateUserResponseValidationError{
+				field:  "SnoozedAt",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for SnoozeCount
 
 	if len(errors) > 0 {
 		return UpdateUserResponseMultiError(errors)
@@ -454,7 +519,8 @@ func (e UpdateUserResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = UpdateUserResponseValidationError{}
@@ -554,7 +620,8 @@ func (e ListUsersRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ListUsersRequestValidationError{}
@@ -690,7 +757,8 @@ func (e ListUsersResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ListUsersResponseValidationError{}
@@ -795,7 +863,8 @@ func (e ListUsersResponse_UserDetailValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ListUsersResponse_UserDetailValidationError{}

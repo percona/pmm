@@ -16,7 +16,6 @@ package commands
 
 import (
 	"archive/zip"
-	"context"
 	"os"
 	"path/filepath"
 	"testing"
@@ -29,21 +28,20 @@ import (
 )
 
 func TestSummary(t *testing.T) {
-	agentlocal.SetTransport(context.TODO(), true, agentlocal.DefaultPMMAgentListenPort)
+	agentlocal.SetTransport(true, agentlocal.DefaultPMMAgentListenPort)
 
-	f, err := os.CreateTemp("", "pmm-admin-test-summary")
+	f, err := os.CreateTemp(t.TempDir(), "pmm-admin-test-summary-*.zip")
 	require.NoError(t, err)
 	filename := f.Name()
-	t.Log(filename)
+	t.Logf("Using temp file: %s", filename)
 
-	defer os.Remove(filename) //nolint:errcheck
-	assert.NoError(t, f.Close())
+	require.NoError(t, f.Close())
 
 	t.Run("Summary default", func(t *testing.T) {
 		cmd := &SummaryCommand{
 			Filename: filename,
 		}
-		res, err := cmd.RunCmdWithContext(context.TODO(), &flags.GlobalFlags{})
+		res, err := cmd.RunCmdWithContext(t.Context(), &flags.GlobalFlags{})
 		require.NoError(t, err)
 		expected := &summaryResult{
 			Filename: filename,
@@ -56,7 +54,7 @@ func TestSummary(t *testing.T) {
 			Filename:   filename,
 			SkipServer: true,
 		}
-		res, err := cmd.RunCmdWithContext(context.TODO(), &flags.GlobalFlags{})
+		res, err := cmd.RunCmdWithContext(t.Context(), &flags.GlobalFlags{})
 		require.NoError(t, err)
 		expected := &summaryResult{
 			Filename: filename,
@@ -74,7 +72,7 @@ func TestSummary(t *testing.T) {
 			SkipServer: true,
 			Pprof:      true,
 		}
-		res, err := cmd.RunCmdWithContext(context.TODO(), &flags.GlobalFlags{})
+		res, err := cmd.RunCmdWithContext(t.Context(), &flags.GlobalFlags{})
 		require.NoError(t, err)
 		expected := &summaryResult{
 			Filename: filename,
@@ -82,7 +80,7 @@ func TestSummary(t *testing.T) {
 
 		// Check there is a pprof dir with data inside the zip file
 		reader, err := zip.OpenReader(filename)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, expected, res)
 
 		hasPprofDir := false

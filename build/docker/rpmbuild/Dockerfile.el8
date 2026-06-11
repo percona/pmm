@@ -1,3 +1,8 @@
+# keep that format for easier search
+ARG GO_VERSION
+
+FROM golang:$GO_VERSION AS golang
+
 FROM oraclelinux:8-slim
 
 RUN microdnf install -y dnf
@@ -20,20 +25,14 @@ RUN dnf update -y && \
     bison rpm-build \
     rsync \
     krb5-devel \
-    wget && \
+    wget gzip && \
     dnf install -y --enablerepo=ol8_codeready_builder glibc-static && \
-    dnf clean all && rm -rf /var/cache/dnf /var/cache/yum
+    dnf clean all && rm -rf /var/cache/dnf
 
-# keep that format for easier search
-ENV GO_VERSION=1.24.7
-ENV GO_RELEASER_VERSION=2.9.0
+# Copy Go from official golang image to avoid QEMU extraction issues
+COPY --from=golang /usr/local/go /usr/local/go
 
-RUN if [ `uname -m` == "x86_64" ]; then ARCH=amd64; else ARCH=arm64; fi && \
-    curl -fSsL -o /tmp/golang.tar.gz https://dl.google.com/go/go${GO_VERSION}.linux-${ARCH}.tar.gz && \
-    curl -fSsL -o /tmp/goreleaser.rpm https://github.com/goreleaser/goreleaser/releases/download/v${GO_RELEASER_VERSION}/goreleaser-${GO_RELEASER_VERSION}-1.`uname -m`.rpm && \
-    tar -C /usr/local -xzf /tmp/golang.tar.gz && \
-    dnf install -y /tmp/goreleaser.rpm && \
-    rm /tmp/golang.tar.gz /tmp/goreleaser.rpm
+ENV GO_VERSION=${GO_VERSION}
 
 RUN update-alternatives --install "/usr/bin/go" "go" "/usr/local/go/bin/go" 0
 RUN update-alternatives --set go /usr/local/go/bin/go

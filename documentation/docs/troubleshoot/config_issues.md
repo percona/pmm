@@ -20,14 +20,21 @@ You can get PMM Server logs with either of these methods:
 
 In a browser, visit `https://<address-of-your-pmm-server>/logs.zip`.
 
+This downloads a bundle containing PMM Server and PMM Client log files from `/srv/logs/` inside the container. 
+
+To control how many lines are included, add the `line-count` parameter to the URL:
+
+- specific line count: `https://<address-of-your-pmm-server>/logs.zip?line-count=10000`
+- full logs (all lines): `https://<address-of-your-pmm-server>/logs.zip?line-count=-1`
+
 **From Help menu**
 
-To obtain the logs from the **Help** menu:
+To obtain the logs:
 {.power-number}
 
-1. Select <i class="uil uil-question-circle"></i> **Help** → <i class="uil uil-download-alt"></i> **PMM Logs**.
+1. From the main menu, choose **Help > PMM Logs > Export logs**.
 
-2. Click **PMM Logs** to retrieve PMM diagnostics data which can be examined and shared with our support team should you need help.
+2. Save the downloaded file to share with our support team if needed.
 
 ## Connection difficulties
 
@@ -54,3 +61,56 @@ will give:
 When adding clients to the PMM Server, you use the `admin` user. However, if you change the password for the admin user from the PMM UI, then the clients will not be able to access PMM due to authentication issues. Also, Grafana will lock out the admin user due to multiple unsuccessful login attempts.
 
 In such a scenario, use [Service Accounts](../api/authentication.md#service-accounts-authentication) for authentication. You can use Service Accounts as a replacement for basic authentication and API keys.
+
+### Server startup issues
+
+#### PMM Server inaccessible after Docker restart on macOS Sequoia
+
+After restarting Docker, PMM dashboard returns *500 Internal Server Error*.
+
+##### Root cause
+
+On macOS Sequoia 15.7.1 with Docker Desktop 4.49.0, PostgreSQL and Grafana may fail to start or not be able to be gracefully stopped, therefore transitioning to a FATAL state.
+
+To verify, run the following command that checks service status. If both `postgresql` and `grafana` display their status as `BACKOFF` or `FATAL`, this confirms the issue:
+
+```bash
+docker exec pmm-server supervisorctl status
+```
+
+##### Solution
+
+- upgrade Docker Desktop to a newer version or downgrade it to v4.48.0 (test with your specific setup)
+- consider using PMM Server on Linux or cloud environments for production
+
+## Log file locations
+
+PMM Server stores all component logs in the `/srv/logs/` directory inside the container.
+
+To see which log files are available, run:
+
+=== "Docker"
+
+    ```bash
+    docker exec pmm-server ls /srv/logs/
+    ```
+
+=== "Podman"
+
+    ```bash
+    podman exec pmm-server ls /srv/logs/
+    ```
+
+To follow a log file in real time, use `tail -f`. For example, to monitor QAN API logs:
+
+=== "Docker"
+
+    ```bash
+    docker exec pmm-server tail -f /srv/logs/qan-api2.log
+    ```
+
+=== "Podman"
+
+    ```bash
+    podman exec pmm-server tail -f /srv/logs/qan-api2.log
+    ```

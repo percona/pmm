@@ -373,6 +373,23 @@
                       "valkey_options": {
                         "type": "object",
                         "x-order": 40
+                      },
+                      "rta_options": {
+                        "description": "RTAOptions holds Real-Time Query Analytics agent options.",
+                        "type": "object",
+                        "properties": {
+                          "collect_interval": {
+                            "description": "Query collect interval (default 2s is set by server).",
+                            "type": "string",
+                            "x-order": 0
+                          }
+                        },
+                        "x-order": 41
+                      },
+                      "connection_timeout": {
+                        "description": "Connection timeout for exporter (if set).",
+                        "type": "string",
+                        "x-order": 42
                       }
                     }
                   },
@@ -776,6 +793,11 @@
                         "description": "Instance ID for cloud providers (e.g. AWS RDS).",
                         "type": "string",
                         "x-order": 17
+                      },
+                      "is_pmm_server_node": {
+                        "description": "True if this node is a PMM Server node (HA mode).",
+                        "type": "boolean",
+                        "x-order": 18
                       }
                     }
                   },
@@ -999,6 +1021,11 @@
                         "type": "string"
                       },
                       "x-order": 8
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -1059,6 +1086,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 10
                     }
                   },
                   "x-order": 1
@@ -1318,6 +1350,11 @@
                       "description": "Instance ID for cloud providers (e.g. AWS RDS).",
                       "type": "string",
                       "x-order": 17
+                    },
+                    "is_pmm_server_node": {
+                      "description": "True if this node is a PMM Server node (HA mode).",
+                      "type": "boolean",
+                      "x-order": 18
                     }
                   },
                   "x-order": 0
@@ -1895,6 +1932,23 @@
                             "valkey_options": {
                               "type": "object",
                               "x-order": 40
+                            },
+                            "rta_options": {
+                              "description": "RTAOptions holds Real-Time Query Analytics agent options.",
+                              "type": "object",
+                              "properties": {
+                                "collect_interval": {
+                                  "description": "Query collect interval (default 2s is set by server).",
+                                  "type": "string",
+                                  "x-order": 0
+                                }
+                              },
+                              "x-order": 41
+                            },
+                            "connection_timeout": {
+                              "description": "Connection timeout for exporter (if set).",
+                              "type": "string",
+                              "x-order": 42
                             }
                           }
                         },
@@ -2232,6 +2286,11 @@
                         "type": "string"
                       },
                       "x-order": 32
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 33
                     }
                   },
                   "x-order": 0
@@ -2495,6 +2554,24 @@
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 32
+                    },
+                    "environment_variable_names": {
+                      "description": "Environment variable names to pass to the exporter.\nValues will be resolved from pmm-agent's environment when starting the exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 33
+                    },
+                    "rta_mongodb_agent": {
+                      "description": "If true, adds Real-Time Analytics agent for the provided service.",
+                      "type": "boolean",
+                      "x-order": 34
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 35
                     }
                   },
                   "x-order": 1
@@ -2756,6 +2833,11 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 32
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 33
                     }
                   },
                   "x-order": 2
@@ -2959,6 +3041,11 @@
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 21
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 22
                     }
                   },
                   "x-order": 3
@@ -3494,6 +3581,11 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 33
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 34
                     }
                   },
                   "x-order": 6
@@ -3704,6 +3796,11 @@
                       "description": "Custom password for exporter endpoint /metrics.",
                       "type": "string",
                       "x-order": 23
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 24
                     }
                   },
                   "x-order": 7
@@ -3963,6 +4060,11 @@
                             "type": "string"
                           },
                           "x-order": 22
+                        },
+                        "connection_timeout": {
+                          "description": "Connection timeout for exporter (if set).",
+                          "type": "string",
+                          "x-order": 23
                         }
                       },
                       "x-order": 1
@@ -4398,7 +4500,7 @@
                           "x-order": 13
                         },
                         "enable_all_collectors": {
-                          "description": "Enable All collectors.",
+                          "description": "Enable all collectors.",
                           "type": "boolean",
                           "x-order": 14
                         },
@@ -4448,6 +4550,19 @@
                             }
                           },
                           "x-order": 18
+                        },
+                        "environment_variable_names": {
+                          "description": "Environment variable names passed to the exporter.",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "x-order": 19
+                        },
+                        "connection_timeout": {
+                          "description": "Connection timeout for exporter (if set).",
+                          "type": "string",
+                          "x-order": 20
                         }
                       },
                       "x-order": 1
@@ -4635,6 +4750,99 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "rta_mongodb_agent": {
+                      "description": "RTAMongoDBAgent runs within pmm-agent and sends MongoDB Real-Time Query Analytics data to the PMM Server.",
+                      "type": "object",
+                      "properties": {
+                        "agent_id": {
+                          "description": "Unique agent identifier.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "pmm_agent_id": {
+                          "description": "The pmm-agent identifier which runs this instance.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "disabled": {
+                          "description": "Desired Agent status: enabled (false) or disabled (true).",
+                          "type": "boolean",
+                          "x-order": 2
+                        },
+                        "service_id": {
+                          "description": "Service identifier.",
+                          "type": "string",
+                          "x-order": 3
+                        },
+                        "username": {
+                          "description": "MongoDB username for getting profiler data.",
+                          "type": "string",
+                          "x-order": 4
+                        },
+                        "tls": {
+                          "description": "Use TLS for database connections.",
+                          "type": "boolean",
+                          "x-order": 5
+                        },
+                        "tls_skip_verify": {
+                          "description": "Skip TLS certificate and hostname validation.",
+                          "type": "boolean",
+                          "x-order": 6
+                        },
+                        "custom_labels": {
+                          "description": "Custom user-assigned labels.",
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "x-order": 7
+                        },
+                        "rta_options": {
+                          "description": "RTAOptions holds Real-Time Query Analytics agent options.",
+                          "type": "object",
+                          "properties": {
+                            "collect_interval": {
+                              "description": "Query collect interval (default 2s is set by server).",
+                              "type": "string",
+                              "x-order": 0
+                            }
+                          },
+                          "x-order": 8
+                        },
+                        "status": {
+                          "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                          "type": "string",
+                          "default": "AGENT_STATUS_UNSPECIFIED",
+                          "enum": [
+                            "AGENT_STATUS_UNSPECIFIED",
+                            "AGENT_STATUS_STARTING",
+                            "AGENT_STATUS_INITIALIZATION_ERROR",
+                            "AGENT_STATUS_RUNNING",
+                            "AGENT_STATUS_WAITING",
+                            "AGENT_STATUS_STOPPING",
+                            "AGENT_STATUS_DONE",
+                            "AGENT_STATUS_UNKNOWN"
+                          ],
+                          "x-order": 9
+                        },
+                        "log_level": {
+                          "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                          "type": "string",
+                          "title": "Log level for exporters",
+                          "default": "LOG_LEVEL_UNSPECIFIED",
+                          "enum": [
+                            "LOG_LEVEL_UNSPECIFIED",
+                            "LOG_LEVEL_FATAL",
+                            "LOG_LEVEL_ERROR",
+                            "LOG_LEVEL_WARN",
+                            "LOG_LEVEL_INFO",
+                            "LOG_LEVEL_DEBUG"
+                          ],
+                          "x-order": 10
+                        }
+                      },
+                      "x-order": 4
                     }
                   },
                   "x-order": 1
@@ -4859,6 +5067,11 @@
                             }
                           },
                           "x-order": 17
+                        },
+                        "connection_timeout": {
+                          "description": "Connection timeout for exporter (if set).",
+                          "type": "string",
+                          "x-order": 18
                         }
                       },
                       "x-order": 1
@@ -5267,6 +5480,11 @@
                             }
                           },
                           "x-order": 15
+                        },
+                        "connection_timeout": {
+                          "description": "Connection timeout for exporter (if set).",
+                          "type": "string",
+                          "x-order": 16
                         }
                       },
                       "x-order": 1
@@ -5411,6 +5629,22 @@
                           "description": "Skip TLS certificate and hostname verification.",
                           "type": "boolean",
                           "x-order": 12
+                        },
+                        "status": {
+                          "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                          "type": "string",
+                          "default": "AGENT_STATUS_UNSPECIFIED",
+                          "enum": [
+                            "AGENT_STATUS_UNSPECIFIED",
+                            "AGENT_STATUS_STARTING",
+                            "AGENT_STATUS_INITIALIZATION_ERROR",
+                            "AGENT_STATUS_RUNNING",
+                            "AGENT_STATUS_WAITING",
+                            "AGENT_STATUS_STOPPING",
+                            "AGENT_STATUS_DONE",
+                            "AGENT_STATUS_UNKNOWN"
+                          ],
+                          "x-order": 13
                         }
                       },
                       "x-order": 1
@@ -5467,6 +5701,17 @@
                           "description": "Group name of external service.",
                           "type": "string",
                           "x-order": 7
+                        },
+                        "address": {
+                          "description": "Access address (DNS name or IP).",
+                          "type": "string",
+                          "x-order": 8
+                        },
+                        "port": {
+                          "description": "Access port.",
+                          "type": "integer",
+                          "format": "int64",
+                          "x-order": 9
                         }
                       },
                       "x-order": 0
@@ -5560,6 +5805,22 @@
                           "description": "Skip TLS certificate and hostname verification.",
                           "type": "boolean",
                           "x-order": 12
+                        },
+                        "status": {
+                          "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                          "type": "string",
+                          "default": "AGENT_STATUS_UNSPECIFIED",
+                          "enum": [
+                            "AGENT_STATUS_UNSPECIFIED",
+                            "AGENT_STATUS_STARTING",
+                            "AGENT_STATUS_INITIALIZATION_ERROR",
+                            "AGENT_STATUS_RUNNING",
+                            "AGENT_STATUS_WAITING",
+                            "AGENT_STATUS_STOPPING",
+                            "AGENT_STATUS_DONE",
+                            "AGENT_STATUS_UNKNOWN"
+                          ],
+                          "x-order": 13
                         }
                       },
                       "x-order": 1
@@ -5987,6 +6248,11 @@
                             "type": "string"
                           },
                           "x-order": 22
+                        },
+                        "connection_timeout": {
+                          "description": "Connection timeout for exporter (if set).",
+                          "type": "string",
+                          "x-order": 23
                         }
                       },
                       "x-order": 3
@@ -6333,6 +6599,11 @@
                             }
                           },
                           "x-order": 17
+                        },
+                        "connection_timeout": {
+                          "description": "Connection timeout for exporter (if set).",
+                          "type": "string",
+                          "x-order": 18
                         }
                       },
                       "x-order": 6
@@ -6619,6 +6890,11 @@
                             }
                           },
                           "x-order": 14
+                        },
+                        "connection_timeout": {
+                          "description": "Connection timeout for exporter (if set).",
+                          "type": "string",
+                          "x-order": 15
                         }
                       },
                       "x-order": 1
@@ -6814,6 +7090,11 @@
                     "DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL"
                   ],
                   "x-order": 24
+                },
+                "connection_timeout": {
+                  "description": "Connection timeout for exporter (if set).",
+                  "type": "string",
+                  "x-order": 25
                 }
               }
             }

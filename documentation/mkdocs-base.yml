@@ -9,7 +9,7 @@ site_url: ""
 use_directory_urls: false
 repo_name: percona/pmm
 repo_url: https://github.com/percona/pmm/
-edit_uri: edit/v3-doc-prod/documentation/docs/
+edit_uri: edit/v3/documentation/docs/
 
 theme:
   name: material
@@ -46,9 +46,9 @@ theme:
     - navigation.top
     - content.tabs.link
     - content.code.copy
+    - content.images.zoom
     - navigation.tracking
-    - content.action.edit
-#    - content.action.view
+    - content.action.view
 
 extra_css:
   - https://unicons.iconscout.com/release/v4.0.8/css/line.css
@@ -58,11 +58,15 @@ extra_css:
   - css/osano.css
   - css/pmm.css
   - css/extra.css
+  - css/rating.css
+  - css/kapa.css
 
 extra_javascript:
-  - js/promptremover.js
+  - js/extra.js
   - js/consent.js
   - js/version-select.js
+  - js/rating.js
+  - js/kapa.js
 
 markdown_extensions:
   attr_list: {}
@@ -100,7 +104,9 @@ markdown_extensions:
 plugins:
   search:
     separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
-  git-revision-date: {}
+  git-revision-date-localized:
+    enable_creation_date: true
+    enabled: !ENV [ENABLED_GIT_REVISION_DATE, True]  
   meta-descriptions:
     export_csv: false
     quiet: false
@@ -171,7 +177,6 @@ nav:
                         - Overview: install-pmm/install-pmm-server/deployment-options/virtual/index.md
                         - Download OVA: install-pmm/install-pmm-server/deployment-options/virtual/download_ova.md
                         - Deploy on VirtualBox: install-pmm/install-pmm-server/deployment-options/virtual/virtualbox.md
-                        - Deploy on VMware (deprecated): install-pmm/install-pmm-server/deployment-options/virtual/vmware.md
                   - Install on AWS Marketplace:
                         - Planning: install-pmm/install-pmm-server/deployment-options/aws/plan_aws.md
                         - Deployment: install-pmm/install-pmm-server/deployment-options/aws/deploy_aws.md
@@ -194,12 +199,14 @@ nav:
               - Install with Package Manager: install-pmm/install-pmm-client/package_manager.md
               - Install from binaries: install-pmm/install-pmm-client/binary_package.md
               - Install on Docker: install-pmm/install-pmm-client/docker.md
+              - Install on Kubernetes: install-pmm/install-pmm-client/kubernetes.md
           - Configure monitoring:
               - Database monitoring:
                   - Overview: install-pmm/install-pmm-client/connect-database/index.md
                   - MySQL: install-pmm/install-pmm-client/connect-database/mysql/mysql.md
                   - MongoDB: install-pmm/install-pmm-client/connect-database/mongodb.md
                   - PostgreSQL: install-pmm/install-pmm-client/connect-database/postgresql.md
+                  - Valkey/Redis: install-pmm/install-pmm-client/connect-database/valkey-redis.md
               - Cloud services monitoring:
                   - AWS: install-pmm/install-pmm-client/connect-database/aws.md
                   - Azure: install-pmm/install-pmm-client/connect-database/azure.md
@@ -212,7 +219,14 @@ nav:
                   - ProxySQL: install-pmm/install-pmm-client/connect-database/proxysql.md
               - External services monitoring:
                   - Connect external instance: install-pmm/install-pmm-client/connect-database/external.md
-      - Install PMM in HA mode: install-pmm/HA.md
+      - Install PMM in HA mode: 
+        - Compare HA options: install-pmm/HA.md
+        - Docker HA: install-pmm/HA-docker.md
+        - Kubernetes Single-Instance: install-pmm/HA-kubernetes-single-instance.md
+        - Kubernetes Cluster: 
+            - Understand PMM HA Cluster: install-pmm/HA-clustered.md
+            - Install PMM HA Cluster: install-pmm/install-HA-clustered.md
+
   - Use:
       - use/using-pmm.md
       - PMM user interface:
@@ -236,13 +250,17 @@ nav:
               - Annotate: use/dashboards-panels/annotate/annotate.md
       - Query Analytics:
           - use/qan/index.md
-          - use/qan/mysql.md
-          - use/qan/qan_mongo.md
-          - use/qan/share_link.md
-          - Panels on QAN dashboard:
-              - use/qan/panels/overview.md
-              - use/qan/panels/filters.md
-              - use/qan/panels/details.md
+          - Stored metrics: 
+            - use/qan/QAN-stored-metrics.md
+            - Panels on QAN dashboard:
+                - Overview panel: use/qan/panels/overview.md
+                - Filters panel: use/qan/panels/filters.md
+                - Details panel: use/qan/panels/details.md
+            - use/qan/mysql.md
+            - use/qan/qan_mongo.md
+          - Real-time analytics: use/qan/QAN-realtime-analytics.md           
+
+
       - Percona Advisors:
           - Advisor details: advisors/advisors.md
           - Develop custom advisors: advisors/develop-advisor-checks.md
@@ -335,7 +353,6 @@ nav:
                       - advisors/checks/mongodb-chunk-imbalance.md
                       - advisors/checks/mongodb-oplog-sizing.md
                       - advisors/checks/mongo-replication-lag.md
-                      - advisors/checks/mongodb-replication-lag.md
                       - advisors/checks/performance-pg-stale-replication-slot.md
               - Security advisors:
                   - CVE security checks:
@@ -401,16 +418,14 @@ nav:
       - configure-pmm/configure.md
       - configure-pmm/metrics_res.md
       - configure-pmm/advanced_settings.md
-      - configure-pmm/ssh.md
+      - install-pmm/install-pmm-server/deployment-options/virtual/ssh.md
+
       - Security in PMM:
           - admin/security/index.md
           - admin/security/ssl_encryption.md
           - admin/security/grafana_cookies.md
           - admin/security/data_encryption.md
-      - Percona Platform:
-          - configure-pmm/percona_platform/integrate_with_percona_platform.md
-          - configure-pmm/percona_platform/check_percona_platform.md
-          - configure-pmm/percona_platform/account-info.md
+          - admin/security/client_config_encryption.md
   - Administer:
       - admin/index.md
       - Manage users:
@@ -439,7 +454,6 @@ nav:
           - Upgrade PMM Server in K8s:
               - pmm-upgrade/upgrade_helm.md
           - pmm-upgrade/migrating_from_pmm_2.md
-          - pmm-upgrade/migrating_from_vmware.md
           - pmm-upgrade/upgrade_aws.md
       - Upgrade PMM Client: pmm-upgrade/upgrade_client.md
   - Uninstall:
@@ -454,6 +468,7 @@ nav:
       - troubleshoot/checklist.md
       - troubleshoot/upgrade_issues.md
       - troubleshoot/config_issues.md
+      - troubleshoot/exporter_issues.md
       - troubleshoot/alerting_issues.md
       - troubleshoot/qan_issues.md
       - troubleshoot/plugin_issues.md
@@ -461,6 +476,12 @@ nav:
       - troubleshoot/data_issues.md
   - Release notes:
       - Release notes index: release-notes/index.md
+      - "PMM 3.8.0 (2026-05-28)": release-notes/3.8.0.md
+      - "PMM 3.7.1 (2026-04-30)": release-notes/3.7.1.md
+      - "PMM 3.7.0 (2026-04-01)": release-notes/3.7.0.md
+      - "PMM 3.6.0 (2026-02-05)": release-notes/3.6.0.md 
+      - "PMM 3.5.0 (2025-11-19)": release-notes/3.5.0.md     
+      - "PMM 3.4.1 (2025-10-13)": release-notes/3.4.1.md
       - "PMM 3.4.0 (2025-09-15)": release-notes/3.4.0.md
       - "PMM 3.3.1 (2025-07-30)": release-notes/3.3.1.md
       - "PMM 3.3.0 (2025-07-09)": release-notes/3.3.0.md
@@ -481,9 +502,14 @@ nav:
               - api/index.md
               - api/authentication.md
           - PMM commands:
-              - use/commands/index.md
-              - use/commands/pmm-admin.md
-              - use/commands/pmm-agent.md
+              - About PMM commands: use/commands/index.md
+              - pmm-admin:
+                - pmm-admin overview: use/commands/pmm-admin/pmm-admin.md
+                - Add database services: use/commands/pmm-admin/add.md
+                - Manage inventory: use/commands/pmm-admin/inventory.md
+                - Configuration commands: use/commands/pmm-admin/config.md
+                - Status and diagnostics: use/commands/pmm-admin/status.md
+              - pmm-agent: use/commands/pmm-agent.md
       - PMM dashboards:
           - Insight:
               - reference/dashboards/dashboard-home.md
@@ -492,7 +518,6 @@ nav:
               - reference/dashboards/dashboard-victoriametrics-agents-overview.md
           - Environments:
               - reference/dashboards/dashboard-env-overview.md
-              - reference/dashboards/dashboard-environment-summary.md
           - Kubernetes:
               - reference/dashboards/kubernetes_cluster_summary.md
               - reference/dashboards/kubernetes_monitor_operators.md
@@ -528,11 +553,9 @@ nav:
               - reference/dashboards/dashboard-mysql-group-replication-summary.md
               - reference/dashboards/dashboard-mysql-table-details.md
               - reference/dashboards/dashboard-mysql-user-details.md
-              - reference/dashboards/dashboard-mysql-tokudb-details.md
           - MongoDB dashboards:
-              - reference/dashboards/dashboard-mongodb-experimental_collection_overview.md
-              - reference/dashboards/dashboard-mongodb-experimental_collection_details.md
-              - reference/dashboards/dashboard-mongodb-experimental_oplog.md
+              - reference/dashboards/dashboard-mongodb-collection_overview.md
+              - reference/dashboards/dashboard-mongodb-oplog-details.md
               - reference/dashboards/dashboard-mongodb-cluster-summary.md
               - reference/dashboards/dashboard-mongodb-instance-summary.md
               - reference/dashboards/dashboard-mongodb-instances-overview.md
@@ -542,24 +565,34 @@ nav:
               - reference/dashboards/dashboard-mongodb-inmemory-details.md
               - reference/dashboards/dashboard-mongodb-mmapv1-details.md
               - reference/dashboards/dashboard-mongodb-wiredtiger-details.md
-              - reference/dashboards/dashboard-mongodb-PBM-details.md
+              - reference/dashboards/dashboard-mongodb-backup-details.md
           - PostgreSQL dashboards:
-              - reference/dashboards/dashboard-postgresql-checkpoints-buffers-wal-usage.md
               - reference/dashboards/dashboard-postgresql-instance-summary.md
               - reference/dashboards/dashboard-postgresql-instances-compare.md
               - reference/dashboards/dashboard-postgresql-instances-overview.md
               - reference/dashboards/dashboard-postgresql-instances-overview-extended.md
-              - reference/dashboards/dashboard-postgresql-patroni-details.md
               - reference/dashboards/dashboard-postgresql-replication.md
               - reference/dashboards/dashboard-postgresql-topqueries.md
           - ProxySQL dashboards:
               - reference/dashboards/dashboard-proxysql-instance-summary.md
+          - Valkey/Redis dashboards:
+              - Overview: reference/dashboards/dashboard-valkey-redis-overview.md
+              - Clients: reference/dashboards/dashboard-valkey-redis-clients.md
+              - Cluster Details: reference/dashboards/dashboard-valkey-redis-cluster-details.md
+              - Command Detail: reference/dashboards/dashboard-valkey-redis-command-detail.md
+              - Load: reference/dashboards/dashboard-valkey-redis-load.md
+              - Memory: reference/dashboards/dashboard-valkey-redis-memory.md
+              - Network: reference/dashboards/dashboard-valkey-redis-network.md
+              - Persistence Details: reference/dashboards/dashboard-valkey-redis-persistence-details.md
+              - Replication: reference/dashboards/dashboard-valkey-redis-replication.md
+              - Slowlog: reference/dashboards/dashboard-valkey-redis-slowlog.md
           - HA dashboards:
+              - reference/dashboards/dashboard-ha-health-overview.md
               - reference/dashboards/dashboard-pxc-galera-node-summary.md
-              - reference/dashboards/dashboard-pxc-galera-cluster-summary.md
-              - reference/dashboards/dashboard-pxc-galera-cluster-summary-experimental.md
               - reference/dashboards/dashboard-pxc-galera-nodes-compare.md
+              - reference/dashboards/dashboard-pxc-galera-cluster-summary.md
               - reference/dashboards/dashboard-haproxy-instance-summary.md
+      - reference/labels-reference.md
       - reference/nomad.md
       - reference/glossary.md
       - reference/faq.md

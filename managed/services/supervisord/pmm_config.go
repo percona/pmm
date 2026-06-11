@@ -13,7 +13,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package supervisord provides facilities for working with Supervisord.
 package supervisord
 
 import (
@@ -22,7 +21,10 @@ import (
 	"text/template"
 
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 )
+
+const wwrPermissions = 0o664
 
 // SavePMMConfig renders and saves pmm config.
 func SavePMMConfig(params map[string]any) error {
@@ -30,15 +32,18 @@ func SavePMMConfig(params map[string]any) error {
 	if err != nil {
 		return err
 	}
-	if err := saveConfig(pmmConfig, cfg); err != nil {
+	err = saveConfig(pmmConfig, cfg)
+	if err != nil {
 		return errors.Wrapf(err, "failed to save pmm config")
 	}
+	logrus.Info("pmm.ini configuration has been updated.")
 	return nil
 }
 
 func marshalConfig(params map[string]any) ([]byte, error) {
 	var buf bytes.Buffer
-	if err := pmmTemplate.Execute(&buf, params); err != nil {
+	err := pmmTemplate.Execute(&buf, params)
+	if err != nil {
 		return nil, errors.Wrapf(err, "failed to render pmm template")
 	}
 	return buf.Bytes(), nil
@@ -66,17 +71,20 @@ func saveConfig(path string, cfg []byte) (err error) {
 		if err == nil {
 			return
 		}
-		if resErr := os.WriteFile(path, oldCfg, 0o664); resErr != nil { //nolint:gosec
+		resErr := os.WriteFile(path, oldCfg, wwrPermissions) //nolint:gosec
+		if resErr != nil {
 			err = errors.Wrap(err, errors.Wrap(resErr, "failed to restore config").Error())
 		}
 	}()
 
-	if err = os.WriteFile(path, cfg, 0o664); err != nil { //nolint:gosec
+	err = os.WriteFile(path, cfg, wwrPermissions)
+	if err != nil {
 		err = errors.Wrap(err, "failed to write new config")
 	}
 	return err
 }
 
+// TODO: remove [unix_http_server] and [supervisorctl] as they duplicate supervisord.conf.
 var pmmTemplate = template.Must(template.New("").Option("missingkey=error").Parse(`[unix_http_server]
 chmod = 0700
 username = dummy
@@ -179,7 +187,7 @@ redirect_stderr = true
 
 [program:pmm-agent]
 priority = 15
-command = /usr/sbin/pmm-agent --config-file=/usr/local/percona/pmm/config/pmm-agent.yaml --paths-tempdir=/srv/pmm-agent/tmp --paths-nomad-data-dir=/srv/nomad/data
+command = /usr/sbin/pmm-agent --config-file={{ .AgentConfigFilePath }} --paths-tempdir=/srv/pmm-agent/tmp --paths-nomad-data-dir=/srv/nomad/data
 autorestart = true
 autostart = false
 startretries = 1000

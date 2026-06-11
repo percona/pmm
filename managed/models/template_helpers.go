@@ -18,12 +18,12 @@ package models
 import (
 	"time"
 
-	"github.com/AlekSi/pointer"
-	"github.com/percona/saas/pkg/alert"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
+
+	"github.com/percona/pmm/managed/pi/alert"
 )
 
 func checkUniqueTemplateName(q *reform.Querier, name string) error {
@@ -85,11 +85,13 @@ type CreateTemplateParams struct {
 // CreateTemplate creates rule template.
 func CreateTemplate(q *reform.Querier, params *CreateTemplateParams) (*Template, error) {
 	template := params.Template
-	if err := template.Validate(); err != nil {
+	err := template.Validate()
+	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "Invalid rule template: %v.", err)
 	}
 
-	if err := checkUniqueTemplateName(q, template.Name); err != nil {
+	err = checkUniqueTemplateName(q, template.Name)
+	if err != nil {
 		return nil, err
 	}
 
@@ -98,7 +100,8 @@ func CreateTemplate(q *reform.Querier, params *CreateTemplateParams) (*Template,
 		return nil, status.Errorf(codes.InvalidArgument, "Failed to convert template: %v.", err)
 	}
 
-	if err = q.Insert(row); err != nil {
+	err = q.Insert(row)
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to create rule template")
 	}
 
@@ -123,7 +126,8 @@ func ChangeTemplate(q *reform.Querier, params *ChangeTemplateParams) (*Template,
 	}
 
 	template := params.Template
-	if err := template.Validate(); err != nil {
+	err = template.Validate()
+	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "Invalid rule template: %v.", err)
 	}
 
@@ -146,15 +150,18 @@ func ChangeTemplate(q *reform.Querier, params *ChangeTemplateParams) (*Template,
 	row.Severity = Severity(template.Severity)
 	row.Yaml = yaml
 
-	if err = row.SetLabels(template.Labels); err != nil {
+	err = row.SetLabels(template.Labels)
+	if err != nil {
 		return nil, err
 	}
 
-	if err = row.SetAnnotations(template.Annotations); err != nil {
+	err = row.SetAnnotations(template.Annotations)
+	if err != nil {
 		return nil, err
 	}
 
-	if err = q.Update(row); err != nil {
+	err = q.Update(row)
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to update rule template")
 	}
 
@@ -168,7 +175,8 @@ func RemoveTemplate(q *reform.Querier, name string) error {
 		return err
 	}
 
-	if err = q.Delete(&Template{Name: name}); err != nil {
+	err = q.Delete(&Template{Name: name})
+	if err != nil {
 		return errors.Wrap(err, "failed to delete rule template")
 	}
 	return nil
@@ -198,11 +206,13 @@ func ConvertTemplate(template *alert.Template, source Source) (*Template, error)
 		Yaml:     yaml,
 	}
 
-	if err := res.SetLabels(template.Labels); err != nil {
+	err = res.SetLabels(template.Labels)
+	if err != nil {
 		return nil, err
 	}
 
-	if err := res.SetAnnotations(template.Annotations); err != nil {
+	err = res.SetAnnotations(template.Annotations)
+	if err != nil {
 		return nil, err
 	}
 
@@ -228,15 +238,15 @@ func ConvertParamsDefinitions(params []alert.Parameter) (AlertExprParamsDefiniti
 				if err != nil {
 					return nil, errors.Wrap(err, "failed to parse param value")
 				}
-				fp.Default = pointer.ToFloat64(def)
+				fp.Default = new(def)
 			}
 
 			if len(param.Range) != 0 {
-				min, max, err := param.GetRangeForFloat()
+				pMin, pMax, err := param.GetRangeForFloat()
 				if err != nil {
 					return nil, errors.Wrap(err, "failed to parse param range")
 				}
-				fp.Min, fp.Max = pointer.ToFloat64(min), pointer.ToFloat64(max)
+				fp.Min, fp.Max = new(pMin), new(pMax)
 			}
 
 			p.FloatParam = &fp

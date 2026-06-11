@@ -29,6 +29,7 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
+	"github.com/percona/pmm/utils/logger"
 )
 
 const (
@@ -64,13 +65,13 @@ type Response struct {
 // Channel encapsulates two-way communication channel between pmm-managed and pmm-agent.
 //
 // All exported methods are thread-safe.
-type Channel struct { //nolint:maligned
+type Channel struct {
 	s agentv1.AgentService_ConnectClient
 	l *logrus.Entry
 
 	mRecv, mSend prometheus.Counter
 
-	lastSentRequestID uint32
+	lastSentRequestID atomic.Uint32
 
 	sendM sync.Mutex
 
@@ -166,7 +167,7 @@ func (c *Channel) Send(resp *AgentResponse) {
 // Response and error will be both nil if channel is closed.
 // It is no-op once channel is closed (see Wait).
 func (c *Channel) SendAndWaitResponse(payload agentv1.AgentRequestPayload) (agentv1.ServerResponsePayload, error) { //nolint:ireturn,nolintlint
-	id := atomic.AddUint32(&c.lastSentRequestID, 1)
+	id := c.lastSentRequestID.Add(1)
 	ch := c.subscribe(id)
 
 	c.send(&agentv1.AgentMessage{
@@ -192,9 +193,9 @@ func (c *Channel) send(msg *agentv1.AgentMessage) {
 	if c.l.Logger.IsLevelEnabled(logrus.DebugLevel) {
 		// do not use default compact representation for large/complex messages
 		if size := proto.Size(msg); size < 100 {
-			c.l.Debugf("Sending message (%d bytes): %s.", size, msg)
+			c.l.Debugf("Sending message (%d bytes): %s.", size, logger.RedactMessage(msg))
 		} else {
-			c.l.Debugf("Sending message (%d bytes):\n%s\n", size, prototext.Format(msg))
+			c.l.Debugf("Sending message (%d bytes):\n%s\n", size, prototext.Format(logger.RedactMessage(msg)))
 		}
 	}
 
@@ -227,9 +228,9 @@ func (c *Channel) runReceiver() {
 		if c.l.Logger.IsLevelEnabled(logrus.DebugLevel) {
 			// do not use default compact representation for large/complex messages
 			if size := proto.Size(msg); size < 100 {
-				c.l.Debugf("Received message (%d bytes): %s.", size, msg)
+				c.l.Debugf("Received message (%d bytes): %s.", size, logger.RedactMessage(msg))
 			} else {
-				c.l.Debugf("Received message (%d bytes):\n%s\n", size, prototext.Format(msg))
+				c.l.Debugf("Received message (%d bytes):\n%s\n", size, prototext.Format(logger.RedactMessage(msg)))
 			}
 		}
 

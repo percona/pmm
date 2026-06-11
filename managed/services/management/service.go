@@ -119,7 +119,7 @@ func (s *ManagementService) AddService(ctx context.Context, req *managementv1.Ad
 }
 
 // ListServices returns a filtered list of Services with some attributes from Agents and Nodes.
-func (s *ManagementService) ListServices(ctx context.Context, req *managementv1.ListServicesRequest) (*managementv1.ListServicesResponse, error) {
+func (s *ManagementService) ListServices(ctx context.Context, req *managementv1.ListServicesRequest) (*managementv1.ListServicesResponse, error) { //nolint:gocognit
 	filters := models.ServiceFilters{
 		NodeID:        req.NodeId,
 		ServiceType:   services.ProtoToModelServiceType(req.ServiceType),
@@ -132,6 +132,7 @@ func (s *ManagementService) ListServices(ctx context.Context, req *managementv1.
 		or proxysql_up{job=~".*_hr$"}
 		or haproxy_backend_status{state="UP"}
 		or redis_up{job=~".*_hr$"}
+		or up{service_type='external'}
 	`
 	result, _, err := s.vmClient.Query(ctx, query, time.Now())
 	if err != nil {
@@ -257,7 +258,7 @@ func (s *ManagementService) ListServices(ctx context.Context, req *managementv1.
 }
 
 // RemoveService removes a Service along with its Agents.
-func (s *ManagementService) RemoveService(ctx context.Context, req *managementv1.RemoveServiceRequest) (*managementv1.RemoveServiceResponse, error) {
+func (s *ManagementService) RemoveService(ctx context.Context, req *managementv1.RemoveServiceRequest) (*managementv1.RemoveServiceResponse, error) { //nolint:gocognit
 	err := s.validateRequest(req)
 	if err != nil {
 		return nil, err
@@ -329,7 +330,8 @@ func (s *ManagementService) RemoveService(ctx context.Context, req *managementv1
 			}
 
 			if len(pmmAgentIDs) <= 1 {
-				if err = models.RemoveNode(tx.Querier, node.NodeID, models.RemoveCascade); err != nil {
+				err = models.RemoveNode(tx.Querier, node.NodeID, models.RemoveCascade)
+				if err != nil {
 					return err
 				}
 			}

@@ -15,7 +15,7 @@
 %define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
 
 # the line below is sed'ed by build/bin/build-server-rpm to set a correct version
-%define full_pmm_version 2.0.0
+%define full_pmm_version 3.0.0
 
 Name:           percona-qan-api2
 Version:        %{version}
@@ -27,8 +27,8 @@ URL:            https://%{provider}
 Source0:        https://%{provider}/archive/%{commit}/%{repo}-%{shortcommit}.tar.gz
 
 %description
-Percona Query Analytics (QAN) API v2 is part of Percona Monitoring and Management (PMM).
-See PMM docs for more information - https://docs.percona.com/percona-monitoring-and-management/using/query-analytics.html.
+Query Analytics (QAN) API v2 is part of Percona Monitoring and Management (PMM).
+See PMM docs for more information - https://docs.percona.com/percona-monitoring-and-management/3/use/qan/index.html.
 
 
 %prep

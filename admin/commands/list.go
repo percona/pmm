@@ -111,10 +111,12 @@ func (res *listResult) String() string {
 func convertTabs(template string) (string, error) {
 	var buf bytes.Buffer
 	w := tabwriter.NewWriter(&buf, 4, 4, 8, ' ', tabwriter.TabIndent)
-	if _, err := io.WriteString(w, template); err != nil {
+	_, err := io.WriteString(w, template)
+	if err != nil {
 		return "", err
 	}
-	if err := w.Flush(); err != nil {
+	err = w.Flush()
+	if err != nil {
 		return "", err
 	}
 	return buf.String(), nil
@@ -136,7 +138,7 @@ func (cmd *ListCommand) RunCmd() (Result, error) {
 	}
 
 	servicesRes, err := client.Default.ServicesService.ListServices(&services.ListServicesParams{
-		NodeID:  pointer.ToString(cmd.NodeID),
+		NodeID:  new(cmd.NodeID),
 		Context: Ctx,
 	})
 	if err != nil {
@@ -287,8 +289,8 @@ func getMetricsMode(s bool) string {
 }
 
 func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent {
-	pmmAgentIDs := make(map[string]struct{})
-	agentsList := []listResultAgent{}
+	pmmAgentIDs := make(map[string]struct{}, len(agentsRes.Payload.PMMAgent))
+	agentsList := make([]listResultAgent, 0, len(agentsRes.Payload.PMMAgent))
 
 	agentsList = append(agentsList, pmmAgents(agentsRes, nodeID, pmmAgentIDs)...)
 	agentsList = append(agentsList, nodeExporters(agentsRes, pmmAgentIDs)...)
@@ -307,6 +309,7 @@ func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent
 	agentsList = append(agentsList, externalExporters(agentsRes, nodeID)...)
 	agentsList = append(agentsList, vmAgents(agentsRes, pmmAgentIDs)...)
 	agentsList = append(agentsList, nomadAgents(agentsRes, pmmAgentIDs)...)
+	agentsList = append(agentsList, rtaMongodbAgents(agentsRes, pmmAgentIDs)...)
 
 	return agentsList
 }
@@ -598,5 +601,23 @@ func nodeExporters(agentsRes *agents.ListAgentsOK, pmmAgentIDs map[string]struct
 			})
 		}
 	}
+	return agentsList
+}
+
+func rtaMongodbAgents(agentsRes *agents.ListAgentsOK, pmmAgentIDs map[string]struct{}) []listResultAgent {
+	var agentsList []listResultAgent
+
+	for _, a := range agentsRes.Payload.RtaMongodbAgent {
+		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
+			agentsList = append(agentsList, listResultAgent{
+				AgentType: types.AgentTypeRTAMongoDBAgent,
+				AgentID:   a.AgentID,
+				ServiceID: a.ServiceID,
+				Status:    getStatus(a.Status),
+				Disabled:  a.Disabled,
+			})
+		}
+	}
+
 	return agentsList
 }

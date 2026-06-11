@@ -1,0 +1,91 @@
+---
+services:
+  pmm-server:
+    profiles:
+      - pmm
+    image: "${PMM_SERVER_IMAGE:?Fatal: .env file is not provided}"
+    platform: linux/amd64
+    container_name: pmm-server
+    hostname: pmm-server
+    env_file:
+      - .env
+    # enable for delve
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+
+    # see https://github.com/golang/go/wiki/LinuxKernelSignalVectorBug#what-to-do
+    ulimits:
+      memlock: 67108864
+
+    ports:
+      - ${PMM_PORT_HTTPS:-443}:8443
+      # For headless delve
+      - ${PMM_PORT_DELVE:-2345}:2345
+      # PG
+      - ${PMM_PORT_PG:-5432}:5432
+      # VM
+      - ${PMM_PORT_VM:-9090}:9090
+      # CH
+      - ${PMM_PORT_CH_TCP:-9000}:9000
+      - ${PMM_PORT_CH_HTTP:-8123}:8123
+    volumes:
+      - ./:/root/go/src/github.com/percona/pmm
+      - ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro
+      - ./managed/testdata/updater/:/home/pmm/.config/systemd/user/
+      # clickhouse config for backup/restore
+      - ./dev/clickhouse-config.xml:/etc/clickhouse-server/config.xml:ro
+      # caching
+      - go-modules:/root/go/pkg/mod
+      - go-cache:/root/.cache
+      - pmm-data:/srv
+      # custom advisor files
+      - ./managed/data/advisors/:/usr/local/percona/advisors/
+      - ./managed/data/checks/:/usr/local/percona/checks/
+      - ./managed/data/alerting-templates/:/usr/local/percona/alerting-templates/
+      # nginx config overrides
+      - ./build/ansible/roles/nginx/files/conf.d/pmm.conf:/etc/nginx/conf.d/pmm.conf:ro
+
+  mail-server:
+    profiles:
+      - mail-server
+    image: axllent/mailpit
+    container_name: mail-server
+    hostname: mail-server
+    ports:
+      - ${PMM_PORT_MAIL_SERVER_UI:-8025}:8025 # Web UI - http://localhost:8025
+
+  renderer:
+    profiles:
+      - renderer
+    image: grafana/grafana-image-renderer:latest
+    environment:
+      - RENDERING_VERBOSE_LOGGING=true
+      - RENDERING_DUMPIO=true
+      - IGNORE_HTTPS_ERRORS=true
+      - LOG_LEVEL=debug
+    ports:
+      - ${PMM_PORT_RENDERER:-8081}:8081
+
+  watchtower:
+    profiles:
+      - watchtower
+    image: ${WATCHTOWER_IMAGE:-perconalab/watchtower}
+    container_name: watchtower
+    hostname: watchtower
+    environment:
+      - WATCHTOWER_HTTP_LISTEN_PORT
+      - WATCHTOWER_HTTP_API_UPDATE
+      - WATCHTOWER_HTTP_API_TOKEN=${PMM_WATCHTOWER_TOKEN}
+      - WATCHTOWER_NO_RESTART
+    volumes:
+      - ${WATCHTOWER_DOCKER_PATH:-/var/run/docker.sock}:/var/run/docker.sock
+
+volumes:
+  go-modules:
+    name: go-modules
+  go-cache:
+    name: go-cache
+  pmm-data:
+    name: pmm-data

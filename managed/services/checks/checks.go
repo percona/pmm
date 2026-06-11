@@ -34,7 +34,6 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/percona/saas/pkg/check"
 	"github.com/pkg/errors"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	prom "github.com/prometheus/client_golang/prometheus"
@@ -45,6 +44,7 @@ import (
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/pi/check"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/utils/pdeathsig"
 	"github.com/percona/pmm/utils/sqlrows"
@@ -197,11 +197,9 @@ func (s *Service) Run(ctx context.Context) {
 
 	var wg sync.WaitGroup
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		s.runChecksLoop(ctx)
-	}()
+	})
 
 	wg.Wait()
 }
@@ -280,7 +278,8 @@ func (s *Service) StartChecks(checkNames []string) error {
 	go func() {
 		ctx := context.Background()
 		s.UpdateAdvisorsList(ctx)
-		if err := s.run(ctx, "", checkNames); err != nil {
+		err := s.run(ctx, "", checkNames)
+		if err != nil {
 			s.l.Errorf("Failed to execute advisor checks: %+v.", err)
 		}
 	}()
@@ -289,7 +288,8 @@ func (s *Service) StartChecks(checkNames []string) error {
 }
 
 func (s *Service) run(ctx context.Context, intervalGroup check.Interval, checkNames []string) error {
-	if err := intervalGroup.Validate(); err != nil {
+	err := intervalGroup.Validate()
+	if err != nil {
 		return err
 	}
 
@@ -600,10 +600,29 @@ func (s *Service) filterChecks(checks map[string]check.Check, group check.Interv
 	return res
 }
 
+// getActiveUserServiceTypes returns a set of service types that have at least one user-added service.
+func (s *Service) getActiveUserServiceTypes() (map[models.ServiceType]struct{}, error) {
+	serviceTypes, err := models.FindActiveUserServiceTypes(s.db.Querier)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	result := make(map[models.ServiceType]struct{}, len(serviceTypes))
+	for _, st := range serviceTypes {
+		result[st] = struct{}{}
+	}
+	return result, nil
+}
+
 // executeChecks runs checks for all reachable services. If intervalGroup specified only checks from that group will be
 // executed. If checkNames specified then only matched checks will be executed.
 func (s *Service) executeChecks(ctx context.Context, intervalGroup check.Interval, checkNames []string) ([]services.CheckResult, error) {
 	disabledChecks, err := s.GetDisabledChecks()
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	activeServiceTypes, err := s.getActiveUserServiceTypes()
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -615,17 +634,32 @@ func (s *Service) executeChecks(ctx context.Context, intervalGroup check.Interva
 	}
 	mySQLChecks, postgreSQLChecks, mongoDBChecks := groupChecksByDB(s.l, checks)
 
-	mySQLChecks = s.filterChecks(mySQLChecks, intervalGroup, disabledChecks, checkNames)
-	mySQLCheckResults := s.executeChecksForTargetType(ctx, models.MySQLServiceType, mySQLChecks)
-	res = append(res, mySQLCheckResults...)
+	// Execute MySQL checks only if MySQL services exist
+	if _, hasMySQL := activeServiceTypes[models.MySQLServiceType]; hasMySQL {
+		mySQLChecks = s.filterChecks(mySQLChecks, intervalGroup, disabledChecks, checkNames)
+		mySQLCheckResults := s.executeChecksForTargetType(ctx, models.MySQLServiceType, mySQLChecks)
+		res = append(res, mySQLCheckResults...)
+	} else {
+		s.l.Info("Skipping MySQL advisor checks: no MySQL services in inventory")
+	}
 
-	postgreSQLChecks = s.filterChecks(postgreSQLChecks, intervalGroup, disabledChecks, checkNames)
-	postgreSQLCheckResults := s.executeChecksForTargetType(ctx, models.PostgreSQLServiceType, postgreSQLChecks)
-	res = append(res, postgreSQLCheckResults...)
+	// Execute PostgreSQL checks only if PostgreSQL services exist
+	if _, hasPostgreSQL := activeServiceTypes[models.PostgreSQLServiceType]; hasPostgreSQL {
+		postgreSQLChecks = s.filterChecks(postgreSQLChecks, intervalGroup, disabledChecks, checkNames)
+		postgreSQLCheckResults := s.executeChecksForTargetType(ctx, models.PostgreSQLServiceType, postgreSQLChecks)
+		res = append(res, postgreSQLCheckResults...)
+	} else {
+		s.l.Info("Skipping PostgreSQL advisor checks: no PostgreSQL services in inventory")
+	}
 
-	mongoDBChecks = s.filterChecks(mongoDBChecks, intervalGroup, disabledChecks, checkNames)
-	mongoDBCheckResults := s.executeChecksForTargetType(ctx, models.MongoDBServiceType, mongoDBChecks)
-	res = append(res, mongoDBCheckResults...)
+	// Execute MongoDB checks only if MongoDB services exist
+	if _, hasMongoDB := activeServiceTypes[models.MongoDBServiceType]; hasMongoDB {
+		mongoDBChecks = s.filterChecks(mongoDBChecks, intervalGroup, disabledChecks, checkNames)
+		mongoDBCheckResults := s.executeChecksForTargetType(ctx, models.MongoDBServiceType, mongoDBChecks)
+		res = append(res, mongoDBCheckResults...)
+	} else {
+		s.l.Info("Skipping MongoDB advisor checks: no MongoDB services in inventory")
+	}
 
 	return res, nil
 }
@@ -751,11 +785,12 @@ func (s *Service) executeCheck(ctx context.Context, target services.Target, c ch
 			})
 
 		default:
-			return nil, fmt.Errorf("unknown check type")
+			return nil, errors.New("unknown check type")
 		}
 	}
 
-	if err := eg.Wait(); err != nil {
+	err := eg.Wait()
+	if err != nil {
 		return nil, fmt.Errorf("check query failed: %w", err)
 	}
 
@@ -773,12 +808,14 @@ func (s *Service) executeMySQLShowQuery(ctx context.Context, query check.Query, 
 		return nil, fmt.Errorf("failed to prepare result: %w", err)
 	}
 	defer func() {
-		if err = s.db.Delete(r); err != nil {
+		err = s.db.Delete(r)
+		if err != nil {
 			s.l.Warnf("Failed to delete action result %s: %s.", r.ID, err)
 		}
 	}()
 
-	if err = s.agentsRegistry.StartMySQLQueryShowAction(ctx, r.ID, target.AgentID, target.DSN, query.Query, target.Files, target.TDP, target.TLSSkipVerify); err != nil {
+	err = s.agentsRegistry.StartMySQLQueryShowAction(ctx, r.ID, target.AgentID, target.DSN, query.Query, target.Files, target.TDP, target.TLSSkipVerify)
+	if err != nil {
 		return nil, fmt.Errorf("failed to start mySQL show action: %w", err)
 	}
 	res, err := s.waitForResult(ctx, r.ID)
@@ -795,12 +832,17 @@ func (s *Service) executeMySQLSelectQuery(ctx context.Context, query check.Query
 		return "", fmt.Errorf("failed to prepare result: %w", err)
 	}
 	defer func() {
-		if err = s.db.Delete(r); err != nil {
+		err = s.db.Delete(r)
+		if err != nil {
 			s.l.Warnf("Failed to delete action result %s: %s.", r.ID, err)
 		}
 	}()
 
-	if err = s.agentsRegistry.StartMySQLQuerySelectAction(ctx, r.ID, target.AgentID, target.DSN, query.Query, target.Files, target.TDP, target.TLSSkipVerify); err != nil { //nolint:lll
+	err = s.agentsRegistry.StartMySQLQuerySelectAction(
+		ctx, r.ID, target.AgentID,
+		target.DSN, query.Query, target.Files, target.TDP, target.TLSSkipVerify,
+	)
+	if err != nil {
 		return "", fmt.Errorf("failed to start mySQL select action: %w", err)
 	}
 	res, err := s.waitForResult(ctx, r.ID)
@@ -817,11 +859,13 @@ func (s *Service) executePostgreSQLShowQuery(ctx context.Context, target service
 		return "", fmt.Errorf("failed to prepare result: %w", err)
 	}
 	defer func() {
-		if err = s.db.Delete(r); err != nil {
+		err = s.db.Delete(r)
+		if err != nil {
 			s.l.Warnf("Failed to delete action result %s: %s.", r.ID, err)
 		}
 	}()
-	if err = s.agentsRegistry.StartPostgreSQLQueryShowAction(ctx, r.ID, target.AgentID, target.DSN); err != nil {
+	err = s.agentsRegistry.StartPostgreSQLQueryShowAction(ctx, r.ID, target.AgentID, target.DSN)
+	if err != nil {
 		return "", fmt.Errorf("failed to start postgreSQL show action: %w", err)
 	}
 
@@ -836,7 +880,8 @@ func (s *Service) executePostgreSQLSelectQuery(ctx context.Context, query check.
 	var allDBs bool
 	var err error
 	if value, ok := query.Parameters[check.AllDBs]; ok {
-		if allDBs, err = strconv.ParseBool(value); err != nil {
+		allDBs, err = strconv.ParseBool(value)
+		if err != nil {
 			return nil, fmt.Errorf("failed to parse 'all_dbs' query parameter: %w", err)
 		}
 	}
@@ -851,7 +896,8 @@ func (s *Service) executePostgreSQLSelectQuery(ctx context.Context, query check.
 	}
 	res := make(map[string]string, len(targets))
 	for dbName, t := range targets {
-		if res[dbName], err = s.executePostgreSQLSelectQueryForSingleDB(ctx, query, t); err != nil {
+		res[dbName], err = s.executePostgreSQLSelectQueryForSingleDB(ctx, query, t)
+		if err != nil {
 			return nil, errors.WithStack(err)
 		}
 	}
@@ -865,12 +911,14 @@ func (s *Service) executePostgreSQLSelectQueryForSingleDB(ctx context.Context, q
 		return "", fmt.Errorf("failed to prepare result: %w", err)
 	}
 	defer func() {
-		if err = s.db.Delete(r); err != nil {
+		err = s.db.Delete(r)
+		if err != nil {
 			s.l.Warnf("Failed to delete action result %s: %s.", r.ID, err)
 		}
 	}()
 
-	if err = s.agentsRegistry.StartPostgreSQLQuerySelectAction(ctx, r.ID, target.AgentID, target.DSN, query.Query); err != nil {
+	err = s.agentsRegistry.StartPostgreSQLQuerySelectAction(ctx, r.ID, target.AgentID, target.DSN, query.Query)
+	if err != nil {
 		return "", fmt.Errorf("failed to start postgreSQL select action: %w", err)
 	}
 
@@ -888,12 +936,14 @@ func (s *Service) executeMongoDBGetParameterQuery(ctx context.Context, target se
 		return "", fmt.Errorf("failed to prepare result: %w", err)
 	}
 	defer func() {
-		if err = s.db.Delete(r); err != nil {
+		err = s.db.Delete(r)
+		if err != nil {
 			s.l.Warnf("Failed to delete action result %s: %s.", r.ID, err)
 		}
 	}()
 
-	if err = s.agentsRegistry.StartMongoDBQueryGetParameterAction(ctx, r.ID, target.AgentID, target.DSN, target.Files, target.TDP); err != nil {
+	err = s.agentsRegistry.StartMongoDBQueryGetParameterAction(ctx, r.ID, target.AgentID, target.DSN, target.Files, target.TDP)
+	if err != nil {
 		return "", fmt.Errorf("failed to start mongoDB getParameter action: %w", err)
 	}
 
@@ -911,11 +961,13 @@ func (s *Service) executeMongoDBBuildInfoQuery(ctx context.Context, target servi
 		return "", fmt.Errorf("failed to prepare result: %w", err)
 	}
 	defer func() {
-		if err = s.db.Delete(r); err != nil {
+		err = s.db.Delete(r)
+		if err != nil {
 			s.l.Warnf("Failed to delete action result %s: %s.", r.ID, err)
 		}
 	}()
-	if err = s.agentsRegistry.StartMongoDBQueryBuildInfoAction(ctx, r.ID, target.AgentID, target.DSN, target.Files, target.TDP); err != nil {
+	err = s.agentsRegistry.StartMongoDBQueryBuildInfoAction(ctx, r.ID, target.AgentID, target.DSN, target.Files, target.TDP)
+	if err != nil {
 		return "", fmt.Errorf("failed to start mongoDB buildInfo action: %w", err)
 	}
 
@@ -933,12 +985,14 @@ func (s *Service) executeMongoDBGetCmdLineOptsQuery(ctx context.Context, target 
 		return "", fmt.Errorf("failed to prepare result: %w", err)
 	}
 	defer func() {
-		if err = s.db.Delete(r); err != nil {
+		err = s.db.Delete(r)
+		if err != nil {
 			s.l.Warnf("Failed to delete action result %s: %s.", r.ID, err)
 		}
 	}()
 
-	if err = s.agentsRegistry.StartMongoDBQueryGetCmdLineOptsAction(ctx, r.ID, target.AgentID, target.DSN, target.Files, target.TDP); err != nil {
+	err = s.agentsRegistry.StartMongoDBQueryGetCmdLineOptsAction(ctx, r.ID, target.AgentID, target.DSN, target.Files, target.TDP)
+	if err != nil {
 		return "", fmt.Errorf("failed to start mongoDB getCmdLineOpts action: %w", err)
 	}
 
@@ -956,12 +1010,14 @@ func (s *Service) executeMongoDBReplSetGetStatusQuery(ctx context.Context, targe
 		return "", fmt.Errorf("failed to prepare result: %w", err)
 	}
 	defer func() {
-		if err = s.db.Delete(r); err != nil {
+		err = s.db.Delete(r)
+		if err != nil {
 			s.l.Warnf("Failed to delete action result %s: %s.", r.ID, err)
 		}
 	}()
 
-	if err = s.agentsRegistry.StartMongoDBQueryReplSetGetStatusAction(ctx, r.ID, target.AgentID, target.DSN, target.Files, target.TDP); err != nil {
+	err = s.agentsRegistry.StartMongoDBQueryReplSetGetStatusAction(ctx, r.ID, target.AgentID, target.DSN, target.Files, target.TDP)
+	if err != nil {
 		return "", fmt.Errorf("failed to start mongoDB replSetGetStatus action: %w", err)
 	}
 
@@ -979,12 +1035,14 @@ func (s *Service) executeMongoDBGetDiagnosticQuery(ctx context.Context, target s
 		return "", fmt.Errorf("failed to prepare result: %w", err)
 	}
 	defer func() {
-		if err = s.db.Delete(r); err != nil {
+		err = s.db.Delete(r)
+		if err != nil {
 			s.l.Warnf("Failed to delete action result %s: %s.", r.ID, err)
 		}
 	}()
 
-	if err = s.agentsRegistry.StartMongoDBQueryGetDiagnosticDataAction(ctx, r.ID, target.AgentID, target.DSN, target.Files, target.TDP); err != nil {
+	err = s.agentsRegistry.StartMongoDBQueryGetDiagnosticDataAction(ctx, r.ID, target.AgentID, target.DSN, target.Files, target.TDP)
+	if err != nil {
 		return "", fmt.Errorf("failed to start mongoDB getDiagnosticData action: %w", err)
 	}
 
@@ -1109,6 +1167,7 @@ func (s *Service) executeClickhouseSelectQuery(ctx context.Context, checkQuery c
 	}
 
 	query = "SELECT " + query
+
 	rows, err := s.clickhouseDB.QueryContext(ctx, query)
 	if err != nil {
 		return "", fmt.Errorf("failed to execute query: %w", err)
@@ -1144,7 +1203,8 @@ func convertVMValue(value model.Value) ([]byte, error) {
 	}
 
 	var data []map[string]any
-	if err = json.Unmarshal(b, &data); err != nil {
+	err = json.Unmarshal(b, &data)
+	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
@@ -1221,7 +1281,8 @@ func fillQueryPlaceholders(query string, data queryPlaceholders) (string, error)
 	}
 
 	var b strings.Builder
-	if err = tm.Execute(&b, data); err != nil {
+	err = tm.Execute(&b, data)
+	if err != nil {
 		return "", fmt.Errorf("failed to fill query placeholders: %w", err)
 	}
 

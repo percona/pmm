@@ -15,6 +15,7 @@
 package cache
 
 import (
+	"maps"
 	"reflect"
 	"testing"
 	"time"
@@ -81,9 +82,7 @@ func TestCache(t *testing.T) {
 		_ = c.Get(actual)
 
 		expected := make(map[int64]*someType)
-		for k, v := range set1 {
-			expected[k] = v
-		}
+		maps.Copy(expected, set1)
 		expected[6] = &someType{}
 		expected[7] = &someType{}
 
@@ -110,9 +109,7 @@ func TestCache(t *testing.T) {
 		_ = c.Get(actual)
 
 		expected := make(map[int64]*someType)
-		for k, v := range set2 {
-			expected[k] = v
-		}
+		maps.Copy(expected, set2)
 
 		assert.True(t, reflect.DeepEqual(actual, expected))
 		assert.Equal(t, uint(6), stats.Current)
@@ -146,20 +143,20 @@ func TestCacheErrors(t *testing.T) {
 		t.Parallel()
 		var err error
 		_, err = New(100, time.Second*100, 100, logrus.WithField("test", t.Name()))
-		assert.Error(t, err)
+		require.Error(t, err)
 
 		_, err = New([]float64{}, time.Second*100, 100, logrus.WithField("test", t.Name()))
-		assert.Error(t, err)
+		require.Error(t, err)
 
 		_, err = New(struct{}{}, time.Second*100, 100, logrus.WithField("test", t.Name()))
-		assert.Error(t, err)
+		require.Error(t, err)
 	})
 
 	t.Run("WrongTypeOnRefresh", func(t *testing.T) {
 		t.Parallel()
 		c, _ := New(make(map[int]int), time.Second*100, 100, logrus.WithField("test", t.Name()))
 		err := c.Set(map[int]string{1: "some string"})
-		assert.Error(t, err)
+		require.Error(t, err)
 	})
 
 	t.Run("WrongTypeOnGet", func(t *testing.T) {
@@ -167,6 +164,6 @@ func TestCacheErrors(t *testing.T) {
 		c, _ := New(make(map[int]int), time.Second*100, 100, logrus.WithField("test", t.Name()))
 		dest := make(map[int]string)
 		err := c.Get(dest)
-		assert.Error(t, err)
+		require.Error(t, err)
 	})
 }

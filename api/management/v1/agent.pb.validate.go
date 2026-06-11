@@ -330,6 +330,64 @@ func (m *UniversalAgent) validate(all bool) error {
 		}
 	}
 
+	if all {
+		switch v := interface{}(m.GetRtaOptions()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, UniversalAgentValidationError{
+					field:  "RtaOptions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, UniversalAgentValidationError{
+					field:  "RtaOptions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetRtaOptions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UniversalAgentValidationError{
+				field:  "RtaOptions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, UniversalAgentValidationError{
+					field:  "ConnectionTimeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, UniversalAgentValidationError{
+					field:  "ConnectionTimeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UniversalAgentValidationError{
+				field:  "ConnectionTimeout",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return UniversalAgentMultiError(errors)
 	}
@@ -395,7 +453,8 @@ func (e UniversalAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = UniversalAgentValidationError{}
@@ -501,7 +560,8 @@ func (e ListAgentsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ListAgentsRequestValidationError{}
@@ -637,7 +697,8 @@ func (e ListAgentsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ListAgentsResponseValidationError{}
@@ -745,7 +806,8 @@ func (e AgentVersionsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AgentVersionsValidationError{}
@@ -847,7 +909,8 @@ func (e ListAgentVersionsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ListAgentVersionsRequestValidationError{}
@@ -983,7 +1046,8 @@ func (e ListAgentVersionsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ListAgentVersionsResponseValidationError{}
@@ -1090,7 +1154,8 @@ func (e UniversalAgent_MySQLOptionsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = UniversalAgent_MySQLOptionsValidationError{}
@@ -1203,7 +1268,8 @@ func (e UniversalAgent_AzureOptionsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = UniversalAgent_AzureOptionsValidationError{}
@@ -1318,7 +1384,8 @@ func (e UniversalAgent_MongoDBOptionsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = UniversalAgent_MongoDBOptionsValidationError{}
@@ -1429,7 +1496,8 @@ func (e UniversalAgent_PostgreSQLOptionsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = UniversalAgent_PostgreSQLOptionsValidationError{}
@@ -1532,7 +1600,8 @@ func (e UniversalAgent_ValkeyOptionsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = UniversalAgent_ValkeyOptionsValidationError{}

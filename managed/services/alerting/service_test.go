@@ -16,7 +16,6 @@
 package alerting
 
 import (
-	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -36,7 +35,7 @@ const (
 )
 
 func TestCollect(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
@@ -91,7 +90,7 @@ func TestCollect(t *testing.T) {
 
 func TestTemplateValidation(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
+	ctx := t.Context()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
@@ -143,7 +142,7 @@ templates:
 			Yaml: templateWithMissingParam,
 		})
 		assert.Nil(t, resp)
-		assert.EqualError(t, err, "rpc error: code = InvalidArgument desc = failed to fill expression "+
+		require.EqualError(t, err, "rpc error: code = InvalidArgument desc = failed to fill expression "+
 			"placeholders: template: :4:5: executing \"\" at <.threshold>: map has no entry for key \"threshold\".")
 	})
 
@@ -238,7 +237,7 @@ templates:
 			Yaml: templateWithMissingParam,
 		})
 		assert.Nil(t, resp)
-		assert.EqualError(t, err, "rpc error: code = InvalidArgument desc = failed to fill expression "+
+		require.EqualError(t, err, "rpc error: code = InvalidArgument desc = failed to fill expression "+
 			"placeholders: template: :4:5: executing \"\" at <.threshold>: map has no entry for key \"threshold\".")
 	})
 }

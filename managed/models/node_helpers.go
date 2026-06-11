@@ -57,7 +57,7 @@ func checkUniqueNodeName(q *reform.Querier, name string) error {
 		return errors.WithStack(err)
 	}
 
-	return status.Errorf(codes.AlreadyExists, "Node with name %q already exists.", name)
+	return status.Errorf(codes.AlreadyExists, "Node with name %s already exists.", name)
 }
 
 // CheckUniqueNodeAddressRegion checks for uniqueness of instance address and region.
@@ -100,7 +100,7 @@ func FindNodes(q *reform.Querier, filters NodeFilters) ([]*Node, error) {
 		whereClause = "WHERE node_type = $1"
 		args = append(args, *filters.NodeType)
 	}
-	structs, err := q.SelectAllFrom(NodeTable, fmt.Sprintf("%s ORDER BY node_id", whereClause), args...)
+	structs, err := q.SelectAllFrom(NodeTable, whereClause+" ORDER BY node_id", args...)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -174,31 +174,34 @@ func FindNodeByName(q *reform.Querier, name string) (*Node, error) {
 
 // CreateNodeParams contains parameters for creating Nodes.
 type CreateNodeParams struct {
-	NodeName      string
-	MachineID     *string
-	Distro        string
-	NodeModel     string
-	AZ            string
-	ContainerID   *string
-	ContainerName *string
-	CustomLabels  map[string]string
-	Address       string
-	InstanceID    string
-	Region        *string
-	Password      *string
+	NodeName        string
+	MachineID       *string
+	Distro          string
+	NodeModel       string
+	AZ              string
+	ContainerID     *string
+	ContainerName   *string
+	CustomLabels    map[string]string
+	Address         string
+	InstanceID      string
+	Region          *string
+	Password        *string
+	IsPMMServerNode bool
 }
 
 // createNodeWithID creates a Node with given ID.
 func createNodeWithID(q *reform.Querier, id string, nodeType NodeType, params *CreateNodeParams) (*Node, error) {
-	if err := checkUniqueNodeID(q, id); err != nil {
+	err := checkUniqueNodeID(q, id)
+	if err != nil {
 		return nil, err
 	}
 
-	if err := checkUniqueNodeName(q, params.NodeName); err != nil {
+	err = checkUniqueNodeName(q, params.NodeName)
+	if err != nil {
 		return nil, err
 	}
 
-	// do not check that machine-id is unique: https://jira.percona.com/browse/PMM-4196
+	// do not check that machine-id is unique: https://perconadev.atlassian.net/browse/PMM-4196
 
 	if nodeType == RemoteRDSNodeType {
 		if strings.Contains(params.InstanceID, ".") {
@@ -206,32 +209,36 @@ func createNodeWithID(q *reform.Querier, id string, nodeType NodeType, params *C
 		}
 	}
 
-	if _, err := CheckUniqueNodeAddressRegion(q, params.Address, params.Region); err != nil {
+	_, err = CheckUniqueNodeAddressRegion(q, params.Address, params.Region)
+	if err != nil {
 		return nil, err
 	}
 
 	// Trim trailing \n received from broken 2.0.0 clients.
-	// See https://jira.percona.com/browse/PMM-4720
+	// See https://perconadev.atlassian.net/browse/PMM-4720
 	machineID := pointer.ToStringOrNil(strings.TrimSpace(pointer.GetString(params.MachineID)))
 
 	node := &Node{
-		NodeID:        id,
-		NodeType:      nodeType,
-		NodeName:      params.NodeName,
-		MachineID:     machineID,
-		Distro:        params.Distro,
-		NodeModel:     params.NodeModel,
-		AZ:            params.AZ,
-		ContainerID:   params.ContainerID,
-		ContainerName: params.ContainerName,
-		InstanceID:    params.InstanceID,
-		Address:       params.Address,
-		Region:        params.Region,
+		NodeID:          id,
+		NodeType:        nodeType,
+		NodeName:        params.NodeName,
+		MachineID:       machineID,
+		Distro:          params.Distro,
+		NodeModel:       params.NodeModel,
+		AZ:              params.AZ,
+		ContainerID:     params.ContainerID,
+		ContainerName:   params.ContainerName,
+		InstanceID:      params.InstanceID,
+		Address:         params.Address,
+		Region:          params.Region,
+		IsPMMServerNode: params.IsPMMServerNode,
 	}
-	if err := node.SetCustomLabels(params.CustomLabels); err != nil {
+	err = node.SetCustomLabels(params.CustomLabels)
+	if err != nil {
 		return nil, err
 	}
-	if err := q.Insert(node); err != nil {
+	err = q.Insert(node)
+	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
@@ -245,7 +252,7 @@ func CreateNode(q *reform.Querier, nodeType NodeType, params *CreateNodeParams) 
 }
 
 // RemoveNode removes single Node.
-func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error {
+func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error { //nolint:gocognit
 	n, err := FindNodeByID(q, id)
 	if err != nil {
 		return err
@@ -267,7 +274,8 @@ func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error {
 		case RemoveCascade:
 			for _, str := range structs {
 				agentID := str.(*Agent).AgentID //nolint:forcetypeassert
-				if _, err = RemoveAgent(q, agentID, RemoveCascade); err != nil {
+				_, err = RemoveAgent(q, agentID, RemoveCascade)
+				if err != nil {
 					return err
 				}
 			}
@@ -288,7 +296,8 @@ func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error {
 		case RemoveCascade:
 			for _, str := range structs {
 				agentID := str.(*Agent).AgentID //nolint:forcetypeassert
-				if _, err = RemoveAgent(q, agentID, RemoveCascade); err != nil {
+				_, err = RemoveAgent(q, agentID, RemoveCascade)
+				if err != nil {
 					return err
 				}
 			}
@@ -309,7 +318,8 @@ func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error {
 		case RemoveCascade:
 			for _, str := range structs {
 				serviceID := str.(*Service).ServiceID //nolint:forcetypeassert
-				if err = RemoveService(q, serviceID, RemoveCascade); err != nil {
+				err = RemoveService(q, serviceID, RemoveCascade)
+				if err != nil {
 					return err
 				}
 			}

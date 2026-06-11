@@ -16,7 +16,7 @@ PMM Telemetry is based on data collected by various PMM components and stored in
 !!! note alert alert-primary ""
     When PMM is installed, telemetry is not sent immediately. Before the first telemetry report is generated, PMM provides users with a 24-hour grace period to disable telemetry.
 
-To see the metrics being collected by telemetry, from the [main menu](../reference/ui/ui_components.md#1-main-menu) navigate to **PMM Configuration** > :material-cog-outline: **Settings** > **Advanced Settings** > **Telemetry** and hover over the exclamation mark.
+To see the metrics being collected by telemetry, from the [main menu](../reference/ui/ui_components.md#1-main-menu) navigate to **Configuration > Settings > Advanced settings > Telemetry** and hover over the exclamation mark.
 
 ![!image](../images/PMM_Settings_Advanced_Settings_Telemetry.png)
 
@@ -33,7 +33,7 @@ The landing page for this service, [check.percona.com](https://check.percona.com
 
 Grafana’s [anonymous usage statistics](https://grafana.com/docs/grafana/latest/administration/configuration/#reporting-enabled) is not managed by PMM. To activate it, you must change the PMM Server container configuration after each update.
 
-As well as via the **PMM Settings** page, you can also disable telemetry with the `-e DISABLE_TELEMETRY=1` option in your docker run statement for the PMM Server.
+You can also disable telemetry with the `-e DISABLE_TELEMETRY=1` option in your docker run statement for the PMM Server.
 
 For information on the various config parameters for telemetry, see the [config file](https://github.com/percona/pmm/blob/main/managed/services/telemetry/config.default.yml).
 
@@ -47,7 +47,7 @@ Advisors are sets of checks grouped by functionality that run a range of databas
 
 The findings are reported on the **Advisors > Advisor Insights** page, and an overview is displayed on the Home dashboard.
 
-The Advisors option is enabled by default. Checks are re-fetched and rerun at intervals.
+The Advisors toggle is enabled by default. When enabled, you can configure how often checks run using the **Rare**, **Standard**, and **Frequent** interval fields in the same section.
 
 See [Working with Advisor checks](../advisors/advisors.md).
 
@@ -61,22 +61,21 @@ By default, Query Analytics (QAN) does not display queries from PMM Server's int
 
 Enable this setting to troubleshoot PMM Server performance issues, monitor resource usage in [High Availability (HA) deployments](../install-pmm/HA.md), or verify that applications aren't misusing the default `postgres` database.
 
-When enabled, navigate to **Dashboards > Query Analytics** and filter by the `pmm-server-postgresql` service to view PMM Server queries. 
+When enabled, open **Query Analytics (QAN)** from the main menu, then filter by the `pmm-server-postgresql` service to view PMM Server queries. 
 
-You'll see queries related to PMM's inventory, settings, advisor checks, alerts, backups, and authentication. These queries are typically lightweight—any spikes in volume, latency, or unexpected entries may indicate performance issues or database misuse.
+You'll see queries related to PMM's inventory, settings, advisor checks, alerts, backups, and authentication. These queries are typically lightweight so any spikes in volume, latency, or unexpected entries may indicate performance issues or database misuse.
 
 !!! warning
     The default `postgres` database should only be used by PMM's internal operations. Applications should always use dedicated databases.
-
 
 ## Backup Management
 
 Enables [Backup Management](../backup/index.md) option and reveals the **Backup** page from where you can:
 
-- Create and restore MongoDB and MySQL backups
-- Automate backup scheduling
-- Set retention policies
-- Monitor your backup and restore activity
+- create and restore MongoDB and MySQL backups
+- automate backup scheduling
+- set retention policies
+- monitor your backup and restore activity
 
 ## Public Address
 

@@ -1,10 +1,14 @@
 # Labels for access control
-Label-based access control in PMM allows you to precisely manage which monitoring data users can access based on their roles and responsibilities. 
 
-This feature is essential for organizations with multiple teams, compliance requirements, or where different users need different levels of visibility.
+In PMM, labels are key/value pairs attached to every monitored service, node, and agent, such as `environment=production`, `service_type=mysql`, or `cluster=eu-west`. You can use these labels to control which monitoring data each user can see.
 
-## How LBAC works
-Access control in PMM uses Prometheus label selectors to filter metrics and Query Analytics data.
+When you create a role and assign it to a user, you specify which label values that user is allowed to access. PMM then filters dashboards and Query Analytics so that user only sees data from services that match those labels. A DBA responsible for production MySQL databases, for example, could be restricted to `environment=production` and `service_type=mysql`, with no visibility into staging or other database types.
+
+To see the standard labels PMM assigns automatically and learn how to add custom labels when adding a service, see [Labels reference](../../../reference/labels-reference.md).
+
+## How label-based access control works
+
+Label-based access control (LBAC) restricts what each user can see by matching the labels on their role against the labels on monitored services. When a user opens a dashboard or Query Analytics, PMM automatically filters the data to show only the services whose labels match the user's role.
 
 Here's how it works: 
 {.power-number}
@@ -37,28 +41,24 @@ You can add standard or custom labels while adding a service to monitoring in PM
     To set the labels via the user interface:
     {.power-number}
 
-    1. From the **Main** menu, go to **PMM Configuration > PMM Services > Add Service**.
+    1. From the main menu, go to **Inventory > Add service**.
 
     2. Select the service you want to monitor.
 
     3. Complete the required connection details. 
 
-    4. Enter standard labels via the input section `Labels`.
-
-    5. Enter custom labels via section `Custom labels`.
-
-    ![PMM Inventory - Add Service](../../../images/lbac/PMM_access_control_add_labels_services.png)
+    4. In the **Labels** section, enter standard and custom labels.
 
 === "Using pmm-admin"
 
-    You can also add standard and custom labels using [pmm-admin](../../../use/commands/pmm-admin.md).
+    You can also add standard and custom labels using [pmm-admin](../../../use/commands/pmm-admin/pmm-admin.md).
 
 ## Modifying existing labels
 PMM allows modifying certain standard labels after a service is created:
 
 - `environment`
 - `cluster`
--  `replication_set`
+- `replication_set`
 - `external_group`
 
 For other standard labels that cannot be modified directly, you must remove the service and re-add it with the desired labels.

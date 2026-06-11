@@ -17,6 +17,7 @@ package agents
 
 import (
 	"context"
+	"fmt"
 	"runtime/pprof"
 	"strings"
 	"time"
@@ -34,6 +35,8 @@ import (
 	"github.com/percona/pmm/managed/services/agents/channel"
 	"github.com/percona/pmm/utils/logger"
 )
+
+const defaultAgentPingInterval = 10 * time.Second
 
 // Handler handles agent requests.
 type Handler struct {
@@ -61,7 +64,7 @@ func NewHandler(db *reform.DB, qanClient qanClient, vmdb prometheusService, regi
 }
 
 // Run takes over pmm-agent gRPC stream and runs it until completion.
-func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error {
+func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error { //nolint:gocognit
 	disconnectReason := "unknown"
 
 	ctx := stream.Context()
@@ -80,7 +83,7 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error {
 
 	h.state.RequestStateUpdate(ctx, agent.id)
 
-	ticker := time.NewTicker(10 * time.Second)
+	ticker := time.NewTicker(defaultAgentPingInterval)
 	defer ticker.Stop()
 	for {
 		select {
@@ -102,7 +105,7 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error {
 			if req == nil {
 				disconnectReason = "done"
 				err = agent.channel.Wait()
-				h.r.unregister(agent.id, disconnectReason)
+				h.r.unregister(ctx, agent.id, disconnectReason)
 				if err != nil {
 					l.Error(errors.WithStack(err))
 				}
@@ -120,7 +123,8 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error {
 
 			case *agentv1.StateChangedRequest:
 				pprof.Do(ctx, pprof.Labels("request", "StateChangedRequest"), func(ctx context.Context) {
-					if err := h.stateChanged(ctx, p); err != nil {
+					err := h.stateChanged(ctx, p)
+					if err != nil {
 						l.Errorf("%+v", err)
 					}
 
@@ -132,7 +136,8 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error {
 
 			case *agentv1.QANCollectRequest:
 				pprof.Do(ctx, pprof.Labels("request", "QANCollectRequest"), func(ctx context.Context) {
-					if err := h.qanClient.Collect(ctx, p.MetricsBucket); err != nil {
+					err := h.qanClient.Collect(ctx, p.MetricsBucket)
+					if err != nil {
 						l.Errorf("%+v", err)
 					}
 
@@ -171,17 +176,24 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error {
 
 func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedRequest) error {
 	var PMMAgentID string
+	var portsChanged bool
+	l := logger.Get(ctx).WithField("component", "agents/handler")
 
-	errTX := h.db.InTransaction(func(tx *reform.TX) error {
+	errTX := h.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var agentIDs []string
 		var err error
-		req.AgentId = strings.TrimPrefix(req.AgentId, "/agent_id/")
-		PMMAgentID, agentIDs, err = h.r.roster.get(req.AgentId)
+		sAgentID := strings.TrimPrefix(req.AgentId, "/agent_id/")
+		PMMAgentID, agentIDs, err = h.r.roster.get(sAgentID)
 		if err != nil {
 			return err
 		}
 
 		for _, agentID := range agentIDs {
+			// Check if port changed before updating
+			if checkPortChanged(tx.Querier, agentID, req.ListenPort) {
+				portsChanged = true
+			}
+
 			err := updateAgentStatus(
 				ctx,
 				tx.Querier,
@@ -189,7 +201,8 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedReq
 				req.Status,
 				req.ListenPort,
 				pointer.ToStringOrNil(req.ProcessExecPath),
-				pointer.ToStringOrNil(req.Version))
+				pointer.ToStringOrNil(req.Version),
+			)
 			if err != nil {
 				return err
 			}
@@ -200,7 +213,19 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedReq
 		return errTX
 	}
 
-	h.vmdb.RequestConfigurationUpdate()
+	// For port changes, force immediate synchronous config update to prevent
+	// VictoriaMetrics from scraping stale ports (PMM-14267)
+	if portsChanged {
+		l.Debug("Listen port changed, forcing immediate VictoriaMetrics configuration update")
+		err := h.vmdb.ForceConfigurationUpdate(ctx)
+		if err != nil {
+			return fmt.Errorf("failed to force configuration update: %w", err)
+		}
+	} else {
+		// Normal async update
+		h.vmdb.RequestConfigurationUpdate()
+	}
+
 	agent, err := models.FindAgentByID(h.db.Querier, PMMAgentID)
 	if err != nil {
 		return err
@@ -213,6 +238,19 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedReq
 	return nil
 }
 
+// checkPortChanged checks if the agent's listen port is changing.
+func checkPortChanged(q *reform.Querier, agentID string, newPort uint32) bool {
+	agent, err := models.FindAgentByID(q, agentID)
+	if err != nil {
+		// Can't determine, assume no change
+		return false
+	}
+	oldPort := pointer.GetUint16(agent.ListenPort)
+	newPort16 := uint16(newPort) //nolint:gosec
+	// Port changed if old port exists and is different from new port
+	return oldPort != 0 && oldPort != newPort16
+}
+
 func updateAgentStatus(
 	ctx context.Context,
 	q *reform.Querier,
@@ -222,11 +260,10 @@ func updateAgentStatus(
 	processExecPath *string,
 	version *string,
 ) error {
-	l := logger.Get(ctx)
+	l := logger.Get(ctx).WithField("component", "agents/handler")
 	l.Debugf("updateAgentStatus: %s %s %d", agentID, status, listenPort)
 
-	agent := &models.Agent{AgentID: agentID}
-	err := q.Reload(agent)
+	agent, err := models.FindAgentByID(q, agentID)
 
 	// agent can be already deleted, but we still can receive status message from pmm-agent.
 	if errors.Is(err, reform.ErrNoRows) {
@@ -237,7 +274,7 @@ func updateAgentStatus(
 		l.Warnf("Failed to select Agent by ID for (%s, %s).", agentID, status)
 	}
 	if err != nil {
-		return errors.Wrap(err, "failed to select Agent by ID")
+		return fmt.Errorf("failed to select Agent by ID: %w", err)
 	}
 
 	if agent.Disabled {
@@ -249,12 +286,15 @@ func updateAgentStatus(
 
 	agent.Status = status.String()
 	agent.ProcessExecPath = processExecPath
-	agent.ListenPort = pointer.ToUint16(uint16(listenPort)) //nolint:gosec // port is uint16
+	agent.ListenPort = new(uint16(listenPort)) //nolint:gosec // port is uint16
 	if version != nil {
 		agent.Version = version
 	}
-	if err = q.Update(agent); err != nil {
-		return errors.Wrap(err, "failed to update Agent")
+
+	err = models.UpdateAgent(q, agent)
+	if err != nil {
+		return fmt.Errorf("failed to update Agent: %w", err)
 	}
+
 	return nil
 }

@@ -100,33 +100,34 @@ func updateToSelect(matches []string) string {
 	matches = matches[1:]
 	matches[0], matches[1] = matches[1], matches[0]
 	format := []string{"SELECT %s", " FROM %s", " WHERE %s"}
-	result := ""
+	var result strings.Builder
 	for i, match := range matches {
 		if match != "" {
-			result += fmt.Sprintf(format[i], match)
+			fmt.Fprintf(&result, format[i], match)
 		}
 	}
-	return result
+	return result.String()
 }
 
 func deleteToSelect(matches []string) string {
 	if strings.Contains(matches[2], "join") {
-		return fmt.Sprintf("SELECT 1 FROM %s", matches[2])
+		return "SELECT 1 FROM " + matches[2]
 	}
-	return fmt.Sprintf("SELECT * FROM %s", matches[2])
+	return "SELECT * FROM " + matches[2] //nolint:unqueryvet
 }
 
 func insertToSelect(matches []string) string {
 	fields := strings.Split(matches[2], ",")
 	values := strings.Split(matches[3], ",")
 	if len(fields) == len(values) {
-		query := fmt.Sprintf("SELECT * FROM %s WHERE ", matches[1])
+		var query strings.Builder
+		fmt.Fprintf(&query, "SELECT * FROM %s WHERE ", matches[1]) //nolint:unqueryvet
 		sep := ""
-		for i := 0; i < len(fields); i++ {
-			query += fmt.Sprintf(`%s%s=%s`, sep, strings.TrimSpace(fields[i]), values[i])
+		for i := range fields {
+			fmt.Fprintf(&query, `%s%s=%s`, sep, strings.TrimSpace(fields[i]), values[i])
 			sep = " and "
 		}
-		return query
+		return query.String()
 	}
 	return fmt.Sprintf("SELECT * FROM %s LIMIT 1", matches[1])
 }

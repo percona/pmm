@@ -17,6 +17,7 @@ package pgstatmonitor
 import (
 	"context"
 	"fmt"
+	"maps"
 	"sync"
 	"time"
 
@@ -62,6 +63,8 @@ func newStatMonitorCache(l *logrus.Entry) *statMonitorCache {
 
 // getStatMonitorExtended returns the current state of pg_stat_monitor table with extended information (database, username)
 // and the previous cashed state grouped by bucket start time.
+//
+//nolint:gocognit
 func (ssc *statMonitorCache) getStatMonitorExtended(
 	ctx context.Context,
 	q *reform.Querier,
@@ -78,9 +81,7 @@ func (ssc *statMonitorCache) getStatMonitorExtended(
 	ssc.rw.RLock()
 	current := make(map[time.Time]map[string]*pgStatMonitorExtended)
 	cache := make(map[time.Time]map[string]*pgStatMonitorExtended)
-	for k, v := range ssc.items {
-		cache[k] = v
-	}
+	maps.Copy(cache, ssc.items)
 	ssc.rw.RUnlock()
 
 	// load all databases and usernames first as we can't use querier while iterating over rows below
@@ -123,7 +124,8 @@ func (ssc *statMonitorCache) getStatMonitorExtended(
 	defer rows.Close() //nolint:errcheck
 
 	for ctx.Err() == nil {
-		if err = q.NextRow(row, rows); err != nil {
+		err = q.NextRow(row, rows)
+		if err != nil {
 			if errors.Is(err, reform.ErrNoRows) {
 				err = nil
 			}
@@ -172,7 +174,7 @@ func (ssc *statMonitorCache) getStatMonitorExtended(
 			}
 			if err != nil {
 				// Either real syntax error in the query or pg_stat_monitor truncated the query and it causes the syntax error.
-				if c.pgStatMonitor.Elevel != 0 {
+				if c.Elevel != 0 {
 					c.IsQueryTruncated = false
 					ssc.l.Warnf("generating fingerprint failed for query with id %v: %v", c.QueryID, err)
 				} else {

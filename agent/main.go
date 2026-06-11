@@ -32,7 +32,7 @@ func main() {
 	logger.SetupGlobalLogger()
 
 	// check that command-line flags and environment variables are correct,
-	// parse command, but do try not load config file
+	// parse command, but do not load config file
 	var cfg config.Config
 	app, _ := config.Application(&cfg)
 	kingpin.CommandLine = app

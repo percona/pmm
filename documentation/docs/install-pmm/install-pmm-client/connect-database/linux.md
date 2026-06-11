@@ -4,9 +4,9 @@
 
 PMM Client supports collecting system metrics from various Linux distributions:
 
-- Red Hat/CentOS/Oracle Linux 8 and 9
+- Red Hat/CentOS/Oracle Linux 8, 9 and 10
 - Amazon Linux 2023 (native support added in PMM 3.2.0)
-- Debian 11 (Bullseye) and 12 (Bookworm)
+- Debian 11 (Bullseye), 12 (Bookworm) and 13 (Trixie)
 - Ubuntu 22.04 (Jammy) and 24.04 (Noble)
 
 ## Add Linux monitoring
@@ -22,7 +22,7 @@ pmm-admin config --server-url=https://admin:admin@pmm-server-ip:443
 To view collected Linux metrics:
 {.power-number}
 
-1. Go to the **Operating System (OS) > Overview** dashboard.
+1. Go to the **Operating system > Overview** dashboard.
 2. Select your node from the **Node Names** dropdown menu.
 3. Explore additional OS-specific dashboards for more detailed metrics:
     - **OS > Node Summary**

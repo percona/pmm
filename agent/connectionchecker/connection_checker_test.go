@@ -148,7 +148,7 @@ func TestConnectionChecker(t *testing.T) {
 				Type:    inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
 			},
-			expectedErr: `pq: password authentication failed for user "pmm-agent"`,
+			expectedErr: `pq: password authentication failed for user "pmm-agent"( \(\w+\))?`,
 		},
 		{
 			name: "PostgreSQL timeout",
@@ -237,7 +237,6 @@ func TestConnectionChecker(t *testing.T) {
 	}
 
 	for _, tt := range testCases {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 

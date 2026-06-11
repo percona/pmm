@@ -72,7 +72,8 @@ func (res *statusResult) String() string {
 
 func newStatusResult(status *agentlocal.Status) *statusResult {
 	// hide username and password from PMM Server URL - if we have it at all
-	if u, err := url.Parse(status.ServerURL); err == nil {
+	u, err := url.Parse(status.ServerURL)
+	if err == nil {
 		u.User = nil
 		status.ServerURL = u.String()
 	}
@@ -128,7 +129,7 @@ func (cmd *StatusCommand) RunCmd() (Result, error) {
 				return newStatusResult(status), nil
 			}
 
-			return nil, errors.Errorf("Failed to get PMM Agent status from local pmm-agent: %s.", err) //nolint:golint,revive
+			return nil, errors.Errorf("Failed to get PMM Agent status from local pmm-agent: %s.", err) //nolint:revive
 		default:
 			time.Sleep(1 * time.Second)
 		}

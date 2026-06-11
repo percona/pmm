@@ -10,7 +10,7 @@ PMM introduced the option to create PITR Backups for MongoDB in version 2.23, as
 Percona Backup for MongoDB is a distributed, low-impact solution for achieving consistent backups of MongoDB sharded clusters and replica sets.
 Restoring PITR backups is available for backups based on pbm ≤ 2.0.1. To restore PITR backups, make sure you have pbm ≥ 2.0.1 installed.
 
- Percona Backup for MongoDB supports [Percona Server for MongoDB](https://www.percona.com/software/mongodb/percona-server-for-mongodb) and MongoDB Community ≤ 3.6, with [MongoDB Replication](https://docs.mongodb.com/manual/replication/) enabled. For more information, see the [Percona Backup for MongoDB documentation](https://docs.percona.com/percona-backup-mongodb/installation.html).
+ Percona Backup for MongoDB supports [Percona Server for MongoDB](https://docs.percona.com/percona-server-for-mongodb/) and MongoDB Community ≤ 3.6, with [MongoDB Replication](https://docs.mongodb.com/manual/replication/) enabled. For more information, see the [Percona Backup for MongoDB documentation](https://docs.percona.com/percona-backup-mongodb/installation.html).
 
 ## How does it work?
 
@@ -24,8 +24,8 @@ You can use the available oplog slices in your storage to restore a backup to an
 Before creating a backup, make sure to check the [MongoDB backup prerequisites](mongo_prerequisites.md).
 {.power-number}
 
-1. Go to <i class="uil uil-history"></i> **Backup > All Backups**.
-2. Click <i class="uil uil-plus-square"></i> **Create Backup**.
+1. Go to <i class="uil uil-history"></i> **Backup > All backups**.
+2. Click <i class="uil uil-plus-square"></i> **Create backup**.
 3. Select the **Schedule Backup** option in the **Create Scheduled backup** window.
 4. Enter a unique name for this backup.
 5. Choose the service to back up from the **Service name** drop-down menu. This automatically populates the **DB Technology** field.
@@ -61,12 +61,8 @@ If you want to be notified of any MongoDB backups that fail, you can create an a
 
 The PITR oplog is available a few minutes (10 by default) after your PITR job has run for the first time. To see the corresponding PITR artifact, check out the list under **Backup > All Backups**.
 
-![!](../../images/PMM_Backup_Management-MongoDB-PITR-Inventory.jpg)
-
 ## PITR and other scheduled backups
 
-Make sure to disable any other scheduled backup jobs before creating a PITR backup. PMM displays an error message if you try to enable PITR while other scheduled backup jobs are active:
-
-![!](../../images/PMM_Backup_Management-MongoDB-PITR-Enable-Error.jpg)
+Make sure to disable any other scheduled backup jobs before creating a PITR backup. PMM displays an error message if you try to enable PITR while other scheduled backup jobs are active.
 
 This constraint applies at the service level. You can still have PITR enabled for one service while having regular scheduled backup jobs for other services.

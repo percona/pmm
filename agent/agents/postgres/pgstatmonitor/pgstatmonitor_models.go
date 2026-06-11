@@ -27,6 +27,7 @@ import (
 )
 
 var (
+	v23 = version.Must(version.NewVersion("2.3.0"))
 	v21 = version.Must(version.NewVersion("2.1.0"))
 	v20 = version.Must(version.NewVersion("2.0.0"))
 	v11 = version.Must(version.NewVersion("1.1.0"))
@@ -99,15 +100,19 @@ type pgStatMonitor struct {
 	WalRecords      int64
 	WalFpi          int64
 	WalBytes        int64
+	WalBuffersFull  int64
+
+	ParallelWorkersToLaunch int64
+	ParallelWorkersLaunched int64
 
 	// reform related fields
-	pointers []interface{}
+	pointers []any
 	view     reform.View
 }
 
 type field struct {
 	info    parse.FieldInfo
-	pointer interface{}
+	pointer any
 }
 
 func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStatMonitor, reform.View) { //nolint:ireturn
@@ -179,7 +184,7 @@ func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStat
 		fields = append(fields, field{info: parse.FieldInfo{Name: "QueryID", Type: "string", Column: "queryid"}, pointer: &s.QueryID})
 	}
 
-	if vPGSM >= pgStatMonitorVersion21PG17 {
+	if vPGSM == pgStatMonitorVersion21PG17 || vPGSM >= pgStatMonitorVersion23PG17 {
 		fields = append(fields,
 			field{info: parse.FieldInfo{Name: "SharedBlkReadTime", Type: "float64", Column: "shared_blk_read_time"}, pointer: &s.SharedBlkReadTime},
 			field{info: parse.FieldInfo{Name: "SharedBlkWriteTime", Type: "float64", Column: "shared_blk_write_time"}, pointer: &s.SharedBlkWriteTime},
@@ -226,6 +231,13 @@ func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStat
 		}
 	}
 
+	if vPGSM >= pgStatMonitorVersion23PG18 {
+		fields = append(fields,
+			field{info: parse.FieldInfo{Name: "WalBuffersFull", Type: "int64", Column: "wal_buffers_full"}, pointer: &s.WalBuffersFull},
+			field{info: parse.FieldInfo{Name: "ParrallelWorkersToLaunch", Type: "int64", Column: "parallel_workers_to_launch"}, pointer: &s.ParallelWorkersToLaunch},
+			field{info: parse.FieldInfo{Name: "ParallelWorkersLaunched", Type: "int64", Column: "parallel_workers_launched"}, pointer: &s.ParallelWorkersLaunched})
+	}
+
 	if vPGSM >= pgStatMonitorVersion08 && vPGSM < pgStatMonitorVersion20PG12 {
 		fields = append(fields,
 			field{info: parse.FieldInfo{Name: "BucketStartTimeString", Type: "string", Column: "bucket_start_time"}, pointer: &s.BucketStartTimeString},
@@ -236,7 +248,7 @@ func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStat
 			field{info: parse.FieldInfo{Name: "UserName", Type: "string", Column: "username"}, pointer: &s.UserName})
 	}
 
-	s.pointers = make([]interface{}, len(fields))
+	s.pointers = make([]any, len(fields))
 	pgStatMonitorDefaultView := &pgStatMonitorAllViewType{
 		s: parse.StructInfo{
 			Type:         "pgStatMonitor",
@@ -260,7 +272,7 @@ func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStat
 
 type pgStatMonitorAllViewType struct {
 	s     parse.StructInfo
-	z     []interface{}
+	z     []any
 	c     []string
 	vPGSM pgStatMonitorVersion
 	vPG   pgVersion
@@ -289,7 +301,7 @@ func (v *pgStatMonitorAllViewType) NewStruct() reform.Struct { //nolint:ireturn
 
 // String returns a string representation of this struct or record.
 func (s pgStatMonitor) String() string {
-	res := make([]string, 51)
+	res := make([]string, 54) //nolint:mnd
 	res[0] = "Bucket: " + reform.Inspect(s.Bucket, true)
 	res[1] = "BucketStartTime: " + reform.Inspect(s.BucketStartTime, true)
 	res[2] = "UserID: " + reform.Inspect(s.UserID, true)
@@ -341,13 +353,16 @@ func (s pgStatMonitor) String() string {
 	res[48] = "WalRecords: " + reform.Inspect(s.WalRecords, true)
 	res[49] = "WalFpi: " + reform.Inspect(s.WalFpi, true)
 	res[50] = "WalBytes: " + reform.Inspect(s.WalBytes, true)
+	res[51] = "WalBuffersFull: " + reform.Inspect(s.WalBuffersFull, true)
+	res[52] = "ParrallelWorkersToLaunch: " + reform.Inspect(s.ParallelWorkersToLaunch, true)
+	res[53] = "ParallelWorkersLaunched: " + reform.Inspect(s.ParallelWorkersLaunched, true)
 	return strings.Join(res, ", ")
 }
 
 // Values returns a slice of struct or record field values.
 // Returned interface{} values are never untyped nils.
-func (s *pgStatMonitor) Values() []interface{} {
-	values := make([]interface{}, len(s.pointers))
+func (s *pgStatMonitor) Values() []any {
+	values := make([]any, len(s.pointers))
 	for i, pointer := range s.pointers {
 		values[i] = reflect.ValueOf(pointer).Interface()
 	}
@@ -356,7 +371,7 @@ func (s *pgStatMonitor) Values() []interface{} {
 
 // Pointers returns a slice of pointers to struct or record fields.
 // Returned interface{} values are never untyped nils.
-func (s *pgStatMonitor) Pointers() []interface{} {
+func (s *pgStatMonitor) Pointers() []any {
 	return s.pointers
 }
 

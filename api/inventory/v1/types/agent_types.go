@@ -16,8 +16,6 @@
 // Package types contains various entities types.
 package types
 
-import "fmt"
-
 // this list should be in sync with inventory/agents.pb.go.
 const (
 	AgentTypePMMAgent                        = "AGENT_TYPE_PMM_AGENT"
@@ -38,6 +36,7 @@ const (
 	AgentTypeRDSExporter                     = "AGENT_TYPE_RDS_EXPORTER"
 	AgentTypeExternalExporter                = "AGENT_TYPE_EXTERNAL_EXPORTER"
 	AgentTypeAzureDatabaseExporter           = "AGENT_TYPE_AZURE_DATABASE_EXPORTER"
+	AgentTypeRTAMongoDBAgent                 = "AGENT_TYPE_RTA_MONGODB_AGENT"
 )
 
 var agentTypeNames = map[string]string{
@@ -60,13 +59,14 @@ var agentTypeNames = map[string]string{
 	AgentTypeRDSExporter:                     "rds_exporter",
 	AgentTypeExternalExporter:                "external-exporter",
 	AgentTypeAzureDatabaseExporter:           "azure_database_exporter",
+	AgentTypeRTAMongoDBAgent:                 "rta_mongodb_agent",
 }
 
 // AgentTypeName returns human friendly agent type to be used in reports.
 func AgentTypeName(t string) string {
 	res := agentTypeNames[t]
 	if res == "" {
-		panic(fmt.Sprintf("no nice string for Agent Type %s", t))
+		panic("no nice string for Agent Type " + t)
 	}
 
 	return res

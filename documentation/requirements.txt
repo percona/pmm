@@ -5,11 +5,11 @@ mkdocs-macros-plugin
 mkdocs-exclude
 markdown-include
 mkdocs-material
+pygments<2.20
 mkdocs-with-pdf
-mkdocs-git-revision-date-plugin
+mkdocs-git-revision-date-localized-plugin
 mkdocs-material-extensions
 mkdocs-bootstrap-tables-plugin
 mkdocs-section-index
-mkdocs-htmlproofer-plugin
 mkdocs-meta-descriptions-plugin
 mike

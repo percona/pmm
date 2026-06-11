@@ -7,30 +7,27 @@ You can manage roles in PMM by editing or deleting a role.
 To edit access roles:
 {.power-number}
 
-1. From [main menu](../../../reference/ui/ui_components.md), go to **PMM Configuration > Settings > Advanced Settings** and enable the **Access Roles** option.
+1. From the [main menu](../../../reference/ui/ui_components.md), go to **Configuration > Settings > Advanced settings** then enable **Access control**.
 
-2. Go to **Administration > Users and access > Access Roles**.
+2. Go to **Users and access > Access roles**.
 
-3. On the role you want to edit, click the **ellipsis (three vertical dots) > edit role** in the **Options** column. The **Edit** role page opens.
-
-    ![PMM Access Control - Edit role](../../../images/lbac/PMM_access_control_edit_role.png)
-
+3. In the **Options** column, click the ellipsis (three vertical dots) next to the role you want to edit, then select **Edit** to open the **Edit role** page.
 4. Make the required changes to the role.
 
-5. Click **Save Changes**.
+5. Click **Save changes**.
 
 ## Set a role as default
 
-When a user signs in to PMM for the first time and the user has no role assigned, the user is automatically assigned the *Default* role. For administrators, the default role provides a convenient way to configure default permissions for new users.
+When a user signs in to PMM for the first time and the user has no role assigned, the user is automatically assigned the **Default** role. For administrators, the default role provides a convenient way to configure default permissions for new users.
 
 To set a role as default, do the following:
 {.power-number}
 
-1. From [main menu](../../../reference/ui/ui_components.md), go to **PMM Configuration > Settings > Advanced Settings** and enable the **Access Roles** option.
+1. From [main menu](../../../reference/ui/ui_components.md), go to **Configuration > Settings > Advanced Settings** and enable the **Access control** option.
 
-2. Go to **Administration > Users and access > Access Roles**.
+2. Go to **Users and access > Access roles**.
 
-3. On the role you want to set as default, click the **ellipsis (three vertical dots) → set as default** in the **Options** column.
+3. On the **Options** column, click the ellipsis (three vertical dots) next to the role you want to set, then select **Set as default**.
 
 
 ## Remove roles
@@ -38,8 +35,9 @@ To set a role as default, do the following:
 To remove access roles, do the following:
 {.power-number}
 
-1. From [main menu](../../../reference/ui/ui_components.md), go to **PMM Configuration > Settings > Advanced Settings** and enable the **Access Roles** option.
-   
-2. On the role you want to remove, click the **ellipsis (three vertical dots) > Delete** in the **Options** column. Delete role pop-up opens.
+1. From [main menu](../../../reference/ui/ui_components.md), go to **Configuration > Settings > Advanced Settings** and enable the **Access control** option.
 
-3. Click **Confirm** and delete the role.
+2. Go to **Users and access > Access roles**.
+
+3. In the **Options** column, click the ellipsis (three vertical dots) next to the role you want to remove, then select **Delete**. 
+4. Click **Confirm and delete role**.

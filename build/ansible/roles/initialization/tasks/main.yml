@@ -54,7 +54,10 @@
       host: 127.0.0.1
       port: 5432
       timeout: 150
-    when: lookup('env','GF_DATABASE_URL') == '' and lookup('env','GF_DATABASE_HOST') == '' and lookup('env','PMM_DISABLE_BUILTIN_POSTGRES') == ''
+    when:
+      - lookup('env','GF_DATABASE_URL') == ''
+      - lookup('env','GF_DATABASE_HOST') == ''
+      - lookup('env','PMM_DISABLE_BUILTIN_POSTGRES') == ''
 
   - name: Create Grafana DB
     block:
@@ -63,6 +66,8 @@
           name: grafana
           login_user: postgres
           state: present
+        environment:
+          PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
       - name: Create grafana user in postgres
         postgresql_user:
@@ -73,8 +78,12 @@
           expires: infinity
           login_user: postgres
           state: present
-        when: not ansible_check_mode
-    when: lookup('env','GF_DATABASE_URL') == '' and lookup('env','GF_DATABASE_HOST') == '' and need_initialization
+        environment:
+          PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
+    when:
+      - lookup('env','GF_DATABASE_URL') == ''
+      - lookup('env','GF_DATABASE_HOST') == ''
+      - need_initialization
 
   - name: Upgrade/Install dashboards
     include_role:
@@ -86,10 +95,6 @@
       state: directory
       mode: 0775
     when: need_upgrade
-
-  # Note: we want to leave this for some time until we achieve stable builds
-  - name: Output pmm-managed logs
-    shell: sleep 10 && tail -n 300 /srv/logs/pmm-managed.log
 
   - name: Wait for PMM to be ready
     ansible.builtin.uri:
@@ -105,7 +110,10 @@
   - name: Initialize admin password for AMI if needed
     include_role:
       name: init-admin-password-ami
-    when: need_initialization and is_ami
+    when:
+      - need_initialization
+      - is_ami
+
   when: need_initialization or need_upgrade
 
 - name: Disable maintenance mode

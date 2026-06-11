@@ -75,7 +75,8 @@ func (p *Parser) Start(context.Context) error {
 			p.docsChan,
 			p.aggregator,
 			p.doneChan,
-			p.logger)
+			p.logger,
+		)
 	})
 
 	p.running = true
@@ -102,7 +103,14 @@ func (p *Parser) Name() string {
 	return "parser"
 }
 
-func start(ctx context.Context, wg *sync.WaitGroup, docsChan <-chan proto.SystemProfile, aggregator *aggregator.Aggregator, doneChan <-chan struct{}, logger *logrus.Entry) {
+func start(
+	ctx context.Context,
+	wg *sync.WaitGroup,
+	docsChan <-chan proto.SystemProfile,
+	aggregator *aggregator.Aggregator,
+	doneChan <-chan struct{},
+	logger *logrus.Entry,
+) {
 	// signal WaitGroup when goroutine finished
 	defer wg.Done()
 

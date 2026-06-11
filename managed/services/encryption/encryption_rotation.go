@@ -111,7 +111,7 @@ func pmmServerStatus(status string) bool {
 }
 
 func pmmServerStatusWithRetries(status string) bool {
-	for i := 0; i < retries; i++ {
+	for range retries {
 		if !pmmServerStatus(status) {
 			logrus.Infoln("Retry...")
 			time.Sleep(interval)
@@ -143,7 +143,8 @@ func rotateEncryptionKey(db *reform.DB, dbName string) error {
 		logrus.Infof("DB %s is being encrypted", dbName)
 		err = models.EncryptDB(tx, dbName, models.DefaultAgentEncryptionColumnsV3)
 		if err != nil {
-			if e := encryption.RestoreOldEncryptionKey(); e != nil {
+			e := encryption.RestoreOldEncryptionKey()
+			if e != nil {
 				return errors.Wrap(err, e.Error())
 			}
 			return err

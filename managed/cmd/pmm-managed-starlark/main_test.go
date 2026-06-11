@@ -24,11 +24,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/percona/saas/pkg/check"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
+	"github.com/percona/pmm/managed/pi/check"
 	"github.com/percona/pmm/managed/services/checks"
 )
 
@@ -41,7 +41,7 @@ const (
 	memoryConsumingScriptStderr = "out of memory"
 )
 
-var validQueryActionResult = []map[string]interface{}{
+var validQueryActionResult = []map[string]any{
 	{"Value": "5.7.30-33-log", "Variable_name": "version"},
 	{"Value": "Percona Server (GPL), Release 33, Revision 6517692", "Variable_name": "version_comment"},
 	{"Value": "x86_64", "Variable_name": "version_compile_machine"},
@@ -105,7 +105,7 @@ func TestStarlarkSandbox(t *testing.T) { //nolint:tparallel
 		},
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
+	ctx, cancel := context.WithTimeout(t.Context(), 120*time.Second)
 	t.Cleanup(cancel)
 	// since we run the binary as a child process to test it we need to build it first.
 	command := exec.CommandContext(ctx, "make", "-C", "../..", "release-starlark")

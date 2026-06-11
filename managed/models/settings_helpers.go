@@ -34,13 +34,15 @@ var ErrTxRequired = errors.New("TxRequired")
 // GetSettings returns current PMM Server settings.
 func GetSettings(q reform.DBTX) (*Settings, error) {
 	var b []byte
-	if err := q.QueryRow("SELECT settings FROM settings").Scan(&b); err != nil {
+	err := q.QueryRow("SELECT settings FROM settings").Scan(&b)
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to select settings")
 	}
 
 	var s Settings
 
-	if err := json.Unmarshal(b, &s); err != nil {
+	err = json.Unmarshal(b, &s) //nolint:musttag
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to unmarshal settings")
 	}
 	s.fillDefaults()
@@ -100,6 +102,9 @@ type ChangeSettingsParams struct {
 
 	// List of items in format 'db.table.column' to be encrypted.
 	EncryptedItems []string
+
+	// Duration for which an update is snoozed
+	UpdateSnoozeDuration time.Duration
 }
 
 // SetPMMServerID should be run on start up to generate unique PMM Server ID.
@@ -116,7 +121,7 @@ func SetPMMServerID(q reform.DBTX) error {
 }
 
 // UpdateSettings updates only non-zero, non-empty values.
-func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, error) { //nolint:cyclop
+func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, error) { //nolint:gocognit,cyclop,unparam
 	err := ValidateSettings(params)
 	if err != nil {
 		return nil, NewInvalidArgumentError("%s", err.Error())
@@ -129,7 +134,8 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 		}
 
 		var r Role
-		if err := findRole(tx, *params.DefaultRoleID, &r); err != nil {
+		err := findRole(tx, *params.DefaultRoleID, &r)
+		if err != nil {
 			return nil, err
 		}
 	}
@@ -141,6 +147,10 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 
 	if params.EnableUpdates != nil {
 		settings.Updates.Enabled = params.EnableUpdates
+	}
+
+	if params.UpdateSnoozeDuration != 0 {
+		settings.Updates.SnoozeDuration = params.UpdateSnoozeDuration
 	}
 
 	if params.EnableTelemetry != nil {
@@ -263,7 +273,8 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 			continue
 		}
 
-		if _, err := validators.ValidateMetricResolution(v.dur); err != nil {
+		_, err := validators.ValidateMetricResolution(v.dur)
+		if err != nil {
 			switch err.(type) { //nolint:errorlint
 			case validators.DurationNotAllowedError:
 				return errors.Errorf("%s: should be a natural number of seconds", v.fieldName)
@@ -288,7 +299,8 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 			continue
 		}
 
-		if _, err := validators.ValidateAdvisorRunInterval(v.dur); err != nil {
+		_, err := validators.ValidateAdvisorRunInterval(v.dur)
+		if err != nil {
 			switch err.(type) { //nolint:errorlint
 			case validators.DurationNotAllowedError:
 				return errors.Errorf("%s: should be a natural number of seconds", v.fieldName)
@@ -301,7 +313,8 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 	}
 
 	if params.DataRetention != 0 {
-		if _, err := validators.ValidateDataRetention(params.DataRetention); err != nil {
+		_, err := validators.ValidateDataRetention(params.DataRetention)
+		if err != nil {
 			switch err.(type) { //nolint:errorlint
 			case validators.DurationNotAllowedError:
 				return errors.New("data_retention: should be a natural number of days")
@@ -313,7 +326,8 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 		}
 	}
 
-	if err := validators.ValidateAWSPartitions(params.AWSPartitions); err != nil {
+	err := validators.ValidateAWSPartitions(params.AWSPartitions)
+	if err != nil {
 		return err
 	}
 

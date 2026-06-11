@@ -28,8 +28,8 @@ import (
 
 // AddScrapeConfigs - adds agents scrape configuration to given scrape config,
 // pmm_agent_id and push_metrics used for filtering.
-func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //nolint:cyclop,maintidx
-	globalResolutions *models.MetricsResolutions, pmmAgentID *string, pushMetrics bool,
+func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //nolint:gocognit,cyclop,maintidx
+	globalResolutions *models.MetricsResolutions, pmmAgentID *string, pushMetrics bool, skipExternalAgents bool,
 ) error {
 	agents, err := models.FindAgentsForScrapeConfig(q, pmmAgentID, pushMetrics)
 	if err != nil {
@@ -73,8 +73,9 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 		var paramsHost string
 		var paramPMMAgentVersion *version.Parsed
 		var pmmAgent *models.Agent
+		var pmmAgentNode *models.Node
 		if agent.PMMAgentID != nil {
-			// extract node address through pmm-agent
+			// find a related pmm-agent to get the node address (runs_on_node_id)
 			pmmAgent, err = models.FindAgentByID(q, *agent.PMMAgentID)
 			if err != nil {
 				return errors.WithStack(err)
@@ -85,25 +86,34 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 			}
 		}
 		switch {
-		// special case for push metrics mode,
-		// vmagent scrapes it from localhost.
 		case pushMetrics:
-			paramsHost = "127.0.0.1"
+			paramsHost = models.LocalhostAddr
 		case agent.PMMAgentID != nil:
-			pmmAgentNode := &models.Node{NodeID: pointer.GetString(pmmAgent.RunsOnNodeID)}
-			if err = q.Reload(pmmAgentNode); err != nil {
+			pmmAgentNode = &models.Node{NodeID: pointer.GetString(pmmAgent.RunsOnNodeID)}
+			err = q.Reload(pmmAgentNode)
+			if err != nil {
 				return errors.WithStack(err)
 			}
 			paramsHost = pmmAgentNode.Address
 		case agent.RunsOnNodeID != nil:
 			externalExporterNode := &models.Node{NodeID: pointer.GetString(agent.RunsOnNodeID)}
-			if err = q.Reload(externalExporterNode); err != nil {
+			err = q.Reload(externalExporterNode)
+			if err != nil {
 				return errors.WithStack(err)
 			}
 			paramsHost = externalExporterNode.Address
 		default:
 			l.Warnf("It's not possible to get host, skipping scrape config for %s.", agent)
 
+			continue
+		}
+
+		// In HA mode, skip generating scrape config for agents that run on other PMM Server nodes.
+		// These agents listen on 127.0.0.1 and are unreachable from this PMM instance.
+		// We check the node where the pmm-agent runs (not the service node).
+		if !pushMetrics && pmmAgentNode != nil && pmmAgentNode.NodeID != models.PMMServerNodeID && pmmAgentNode.IsPMMServerNode {
+			l.Debugf("Skip the scrape config for %s agent %s running on remote PMM Server node %s in HA mode",
+				agent.AgentType, agent.AgentID, pmmAgentNode.NodeName)
 			continue
 		}
 
@@ -185,8 +195,13 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 			continue
 		case models.QANPostgreSQLPgStatementsAgentType, models.QANPostgreSQLPgStatMonitorAgentType:
 			continue
-
+		case models.RTAMongoDBAgentType:
+			continue
 		case models.RDSExporterType:
+			if skipExternalAgents && pointer.GetString(agent.RunsOnNodeID) == models.PMMServerNodeID {
+				l.Debugf("Skip the scrape config for RDSExporter %s running on PMM Server in HA non-leader mode", agent.AgentID)
+				continue
+			}
 			rdsParams = append(rdsParams, &scrapeConfigParams{
 				host:              paramsHost,
 				node:              paramsNode,
@@ -197,6 +212,10 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 			continue
 
 		case models.ExternalExporterType:
+			if skipExternalAgents && pointer.GetString(agent.RunsOnNodeID) == models.PMMServerNodeID {
+				l.Debugf("Skip the scrape config for ExternalExporter %s running on PMM Server in HA non-leader mode", agent.AgentID)
+				continue
+			}
 			scfgs, err = scrapeConfigsForExternalExporter(&mr, &scrapeConfigParams{
 				host:              paramsHost,
 				node:              paramsNode,
@@ -248,10 +267,19 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 }
 
 // AddInternalServicesToScrape adds internal services metrics to scrape targets.
-func AddInternalServicesToScrape(cfg *config.Config, s models.MetricsResolutions) {
-	cfg.ScrapeConfigs = append(cfg.ScrapeConfigs,
-		scrapeConfigForGrafana(s.MR),
-		scrapeConfigForPMMManaged(s.MR),
-		scrapeConfigForQANAPI2(s.MR),
-		scrapeConfigForClickhouse(s.MR))
+func addInternalServicesToScrape(s models.MetricsResolutions, svc *Service, pmmServerNodeName string) []*config.ScrapeConfig {
+	cfg := make([]*config.ScrapeConfig, 0, 4) //nolint:mnd
+	cfg = append(
+		cfg,
+		scrapeConfigForGrafana(s.MR, pmmServerNodeName),
+		scrapeConfigForPMMManaged(s.MR, pmmServerNodeName),
+		scrapeConfigForQANAPI2(s.MR, pmmServerNodeName),
+	)
+
+	if svc.chParams.ExternalClickHouse() {
+		svc.l.Warnf("Skip internal ClickHouse scrape config, ClickHouse is configured to run externally.")
+		return cfg
+	}
+
+	return append(cfg, scrapeConfigForClickhouse(s.MR, pmmServerNodeName))
 }

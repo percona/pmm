@@ -79,7 +79,8 @@ func ReceiveAgentConnectMetadata(stream grpc.ServerStream) (*AgentConnectMetadat
 	var mp uint64
 	if mpS := getValue(md, mdAgentMetricsPort); mpS != "" {
 		var err error
-		if mp, err = strconv.ParseUint(mpS, 10, 16); err != nil {
+		mp, err = strconv.ParseUint(mpS, 10, 16)
+		if err != nil {
 			return nil, status.Errorf(codes.DataLoss, "ReceiveAgentConnectMetadata: %s: %s", mdAgentMetricsPort, err)
 		}
 	}
@@ -98,7 +99,8 @@ func SendServerConnectMetadata(stream grpc.ServerStream, md *ServerConnectMetada
 	header := metadata.Pairs(
 		mdAgentNodeID, md.AgentRunsOnNodeID,
 		mdNodeName, md.NodeName,
-		mdServerVersion, md.ServerVersion)
+		mdServerVersion, md.ServerVersion,
+	)
 
 	// always return gRPC error or nil
 	err := stream.SendHeader(header)

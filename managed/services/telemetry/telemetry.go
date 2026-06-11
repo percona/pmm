@@ -23,10 +23,11 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	pmmv1 "github.com/percona/saas/gen/telemetry/events/pmm"
-	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
+	pmmv1 "github.com/percona/platform/gen/telemetry/events/pmm"
+	telemetryv1 "github.com/percona/platform/gen/telemetry/generic"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
@@ -34,6 +35,8 @@ import (
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/platform"
+	"github.com/percona/pmm/utils/logger"
+	"github.com/percona/pmm/version"
 )
 
 const (
@@ -55,8 +58,6 @@ type Service struct {
 	sendCh              chan *telemetryv1.GenericReport
 	dataSourcesMap      map[DataSourceName]DataSource
 
-	extensions map[ExtensionType]Extension
-
 	dus distributionUtilService
 }
 
@@ -65,15 +66,35 @@ var (
 	_ DataSourceLocator = (*Service)(nil)
 )
 
+// getLogger returns a copy of global logger instance with reconfigured formatter.
+func getLogger() *logrus.Entry {
+	loggerCopy := logrus.New()
+	loggerCopy.SetOutput(logrus.StandardLogger().Out)
+	formatter := logger.GetLoggerFormatter()
+	// DisableQuote is needed to make gathered telemetry metrics
+	// multiline formatted and more readable in log.
+	formatter.DisableQuote = true
+	loggerCopy.SetFormatter(formatter)
+	for _, hooks := range logrus.StandardLogger().Hooks {
+		for _, hook := range hooks {
+			loggerCopy.AddHook(hook)
+		}
+	}
+	loggerCopy.SetLevel(logrus.StandardLogger().Level)
+	loggerCopy.SetReportCaller(logrus.StandardLogger().ReportCaller)
+
+	return loggerCopy.WithField("component", "telemetry")
+}
+
 // NewService creates a new service.
 func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string,
-	dus distributionUtilService, config ServiceConfig, extensions map[ExtensionType]Extension,
+	dus distributionUtilService, config ServiceConfig,
 ) (*Service, error) {
 	if config.SaasHostname == "" {
 		return nil, errors.New("empty host")
 	}
 
-	l := logrus.WithField("component", "telemetry")
+	l := getLogger()
 
 	registry, err := NewDataSourceRegistry(config, l)
 	if err != nil {
@@ -89,7 +110,6 @@ func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string,
 		dsRegistry:   registry,
 		dus:          dus,
 		sendCh:       make(chan *telemetryv1.GenericReport, sendChSize),
-		extensions:   extensions,
 	}
 
 	s.sDistributionMethod, s.tDistributionMethod, s.os = dus.GetDistributionMethodAndOS()
@@ -103,7 +123,7 @@ func (s *Service) LocateTelemetryDataSource(name string) (DataSource, error) {
 	return s.dsRegistry.LocateTelemetryDataSource(name)
 }
 
-// Run start sending telemetry to SaaS.
+// Run sends telemetry.
 func (s *Service) Run(ctx context.Context) {
 	if !s.config.Enabled {
 		s.l.Warn("service is disabled, skip Run")
@@ -114,32 +134,35 @@ func (s *Service) Run(ctx context.Context) {
 	defer ticker.Stop()
 
 	doSend := func() {
-		var settings *models.Settings
-		err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-			var e error
-			if settings, e = models.GetSettings(tx); e != nil {
-				return e
-			}
-			return nil
-		})
+		settings, err := models.GetSettings(s.db)
 		if err != nil {
-			s.l.Debugf("Failed to retrieve settings: %s.", err)
+			s.l.Errorf("Failed to retrieve settings: %s.", err)
 			return
 		}
+
 		if !settings.IsTelemetryEnabled() {
-			s.l.Info("Disabled via settings.")
+			s.l.Info("Telemetry is disabled via settings.")
 			return
 		}
 
 		report := s.prepareReport(ctx)
 
-		s.l.Debugf("\nTelemetry captured:\n%s\n", s.Format(report))
-
-		if s.config.Reporting.Send {
-			s.sendCh <- report
-		} else {
-			s.l.Info("Sending telemetry is disabled.")
+		if s.l.Logger.IsLevelEnabled(logrus.DebugLevel) {
+			s.l.Debugf("\nTelemetry captured:\n%s\n", s.Format(report))
 		}
+
+		if !s.config.Reporting.Send {
+			s.l.Info("Sending telemetry is disabled.")
+			return
+		}
+
+		p, err := version.Parse(s.pmmVersion)
+		// do not send telemetry if this is a feature build, match only clean release versions like "3.7.1"
+		if err != nil || p.Rest != "" {
+			return
+		}
+
+		s.sendCh <- report
 	}
 
 	if s.config.Reporting.SendOnStart {
@@ -210,7 +233,7 @@ func (s *Service) processSendCh(ctx context.Context) {
 	}
 }
 
-func (s *Service) prepareReport(ctx context.Context) *telemetryv1.GenericReport {
+func (s *Service) prepareReport(ctx context.Context) *telemetryv1.GenericReport { //nolint:gocognit
 	initializedDataSources := make(map[DataSourceName]DataSource)
 	telemetryMetric, _ := s.makeMetric(ctx)
 	var totalTime time.Duration
@@ -230,23 +253,6 @@ func (s *Service) prepareReport(ctx context.Context) *telemetryv1.GenericReport 
 	}
 
 	for _, telemetry := range s.config.telemetry {
-		if telemetry.Extension != "" {
-			extension, ok := s.extensions[telemetry.Extension]
-			if !ok {
-				s.l.Errorf("telemetry extension [%s] is not supported", telemetry.Extension)
-				continue
-			}
-
-			metrics, err := extension.FetchMetrics(ctx, telemetry)
-			if err != nil {
-				s.l.Debugf("failed while calling extension [%s]:%s", telemetry.Extension, err)
-				continue
-			}
-			telemetryMetric.Metrics = append(telemetryMetric.Metrics, metrics...)
-
-			continue
-		}
-
 		// locate DS in initialized state
 		ds := initializedDataSources[DataSourceName(telemetry.Source)]
 		if ds == nil {
@@ -312,6 +318,9 @@ func (s *Service) prepareReport(ctx context.Context) *telemetryv1.GenericReport 
 func (s *Service) locateDataSources(telemetryConfig []Config) map[DataSourceName]DataSource {
 	dataSources := make(map[DataSourceName]DataSource)
 	for _, telemetry := range telemetryConfig {
+		if telemetry.Source == "" {
+			continue
+		}
 		ds, err := s.LocateTelemetryDataSource(telemetry.Source)
 		if err != nil {
 			s.l.Debugf("Failed to lookup telemetry datasource for [%s]:[%s]", telemetry.Source, telemetry.ID)
@@ -325,20 +334,15 @@ func (s *Service) locateDataSources(telemetryConfig []Config) map[DataSourceName
 
 func (s *Service) makeMetric(ctx context.Context) (*telemetryv1.GenericReport, error) {
 	var settings *models.Settings
-	useServerID := false
-	err := s.db.InTransaction(func(tx *reform.TX) error {
+	err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var e error
-		if settings, e = models.GetSettings(tx); e != nil {
+		settings, e = models.GetSettings(tx)
+		if e != nil {
 			return e
 		}
 
-		if _, err := models.GetPerconaSSODetails(ctx, s.db.Querier); err == nil {
-			useServerID = true
-		} else if settings.Telemetry.UUID == "" {
-			settings.Telemetry.UUID, e = generateUUID()
-			if e != nil {
-				return e
-			}
+		if settings.Telemetry.UUID == "" {
+			settings.Telemetry.UUID = uuid.NewString()
 			return models.SaveSettings(tx, settings)
 		}
 		return nil
@@ -347,12 +351,7 @@ func (s *Service) makeMetric(ctx context.Context) (*telemetryv1.GenericReport, e
 		return nil, err
 	}
 
-	var serverID string
-	if useServerID {
-		serverID = settings.PMMServerID
-	} else {
-		serverID = settings.Telemetry.UUID
-	}
+	serverID := settings.Telemetry.UUID
 
 	_, distMethod, _ := s.dus.GetDistributionMethodAndOS()
 
@@ -367,15 +366,6 @@ func (s *Service) makeMetric(ctx context.Context) (*telemetryv1.GenericReport, e
 			{Key: "DistributionMethod", Value: distMethod.String()},
 		},
 	}, nil
-}
-
-func generateUUID() (string, error) {
-	uuid, err := uuid.NewRandom()
-	if err != nil {
-		return "", errors.Wrap(err, "can't generate UUID")
-	}
-
-	return uuid.String(), nil
 }
 
 func (s *Service) send(ctx context.Context, report *telemetryv1.ReportRequest) error {
@@ -399,7 +389,8 @@ func (s *Service) send(ctx context.Context, report *telemetryv1.ReportRequest) e
 		<-retryCtx.Done()
 		retryCancel()
 
-		if err = ctx.Err(); err != nil {
+		err = ctx.Err()
+		if err != nil {
 			s.l.Debugf("Will not retry sending v2 event: %s.", err)
 			return err
 		}
@@ -409,6 +400,7 @@ func (s *Service) send(ctx context.Context, report *telemetryv1.ReportRequest) e
 // Format returns the formatted representation of the provided server metric.
 func (s *Service) Format(report *telemetryv1.GenericReport) string {
 	var builder strings.Builder
+	builder.Grow(proto.Size(report))
 	for _, m := range report.Metrics {
 		builder.WriteString(m.Key)
 		builder.WriteString(": ")

@@ -24,14 +24,14 @@ import (
 	"time"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/percona/saas/pkg/check"
-	"github.com/percona/saas/pkg/starlark"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.starlark.net/resolve"
 	"golang.org/x/sys/unix"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
+	"github.com/percona/pmm/managed/pi/check"
+	"github.com/percona/pmm/managed/pi/starlark"
 	"github.com/percona/pmm/managed/services/checks"
 	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/version"
@@ -129,13 +129,15 @@ func runChecks(l *logrus.Entry, data *checks.StarlarkScriptData) ([]check.Result
 				if !ok {
 					return nil, errors.Errorf("unexpected query result type: %T", dbQr)
 				}
-				if dbRes[dbName], err = unmarshalQueryResult(s); err != nil {
+				dbRes[dbName], err = unmarshalQueryResult(s)
+				if err != nil {
 					return nil, err
 				}
 			}
 			res[i] = dbRes
 		case string: // used for all other databases
-			if res[i], err = unmarshalQueryResult(qr); err != nil {
+			res[i], err = unmarshalQueryResult(qr)
+			if err != nil {
 				return nil, err
 			}
 		default:

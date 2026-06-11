@@ -17,13 +17,6 @@
       - clickhouse-common-static-{{ clickhouse_version }}
     state: installed
     enablerepo: clickhouse
-  ignore_errors: "{{ ansible_check_mode }}" # We don't have clickhouse repo when we run ansible with --check
-
-- name: Generate SSL certificates
-  command: openssl req -newkey rsa:2048 -days 1095 -nodes -x509 -extensions v3_req -config /etc/nginx/ssl/certificate.conf -keyout /etc/clickhouse-server/server.key -out /etc/clickhouse-server/server.crt
-  args:
-    creates: /etc/clickhouse-server/server.key
-  no_log: true
 
 - name: Change ownership of clickhouse directories
   file:
@@ -48,9 +41,67 @@
     group: root
     mode: 0664
   loop:
-    - config.xml
-    - users.xml
     - dhparam.pem
+    - low-memory-config.xml
+    - default-config.xml
+    - low-memory-users.xml
+    - default-users.xml
+    - switch-config.sh
+
+- name: Set executable permissions for switch-config.sh
+  file:
+    path: /etc/clickhouse-server/switch-config.sh
+    mode: 0755
+
+- name: Create symlink for switch-config.sh
+  file:
+    src: /etc/clickhouse-server/switch-config.sh
+    dest: "/opt/switch-config.sh"
+    owner: pmm
+    group: root
+    state: link
+    force: yes
+
+# Gather file stats for config.xml and users.xml before using them in conditionals
+- name: Stat config.xml
+  stat:
+    path: /etc/clickhouse-server/config.xml
+  register: config_xml_stat
+
+- name: Stat users.xml
+  stat:
+    path: /etc/clickhouse-server/users.xml
+  register: users_xml_stat
+
+- name: Remove config.xml if it exists and is not a symlink
+  file:
+    path: /etc/clickhouse-server/config.xml
+    state: absent
+  when: config_xml_stat.stat.exists and not config_xml_stat.stat.islnk
+
+- name: Remove users.xml if it exists and is not a symlink
+  file:
+    path: /etc/clickhouse-server/users.xml
+    state: absent
+  when: users_xml_stat.stat.exists and not users_xml_stat.stat.islnk
+
+- name: Create symlink for config.xml to default-config.xml
+  file:
+    src: /etc/clickhouse-server/default-config.xml
+    dest: /etc/clickhouse-server/config.xml
+    state: link
+    owner: pmm
+    group: root
+    force: yes
+
+- name: Create symlink for users.xml to default-users.xml
+  file:
+    src: /etc/clickhouse-server/default-users.xml
+    dest: /etc/clickhouse-server/users.xml
+    state: link
+    owner: pmm
+    group: root
+    force: yes
 
 # We need to remove capabilities because we run PMM in an unprivileged container
 - name: Remove cap_ipc_lock from clickhouse binary

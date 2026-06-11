@@ -16,7 +16,7 @@
 package models
 
 import (
-	"fmt"
+	"time"
 
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
@@ -35,6 +35,8 @@ type UpdateUserParams struct {
 	Tour              *bool
 	AlertingTour      *bool
 	SnoozedPMMVersion *string
+	SnoozedAt         *time.Time
+	SnoozeCount       *int
 }
 
 // GetOrCreateUser returns user and optionally creates it, if not in database yet.
@@ -61,7 +63,7 @@ func GetOrCreateUser(q *reform.Querier, userID int) (*UserDetails, error) {
 }
 
 // ErrUserAlreadyExists is returned when a user already exists in db.
-var ErrUserAlreadyExists = fmt.Errorf("UserAlreadyExists")
+var ErrUserAlreadyExists = errors.New("UserAlreadyExists")
 
 // CreateUser create a new user with given parameters.
 func CreateUser(q *reform.Querier, params *CreateUserParams) (*UserDetails, error) {
@@ -83,7 +85,8 @@ func CreateUser(q *reform.Querier, params *CreateUserParams) (*UserDetails, erro
 
 	// Add user entry
 	row = &UserDetails{ID: params.UserID}
-	if err := q.Insert(row); err != nil {
+	err = q.Insert(row)
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to create user")
 	}
 
@@ -110,8 +113,15 @@ func UpdateUser(q *reform.Querier, params *UpdateUserParams) (*UserDetails, erro
 	if params.SnoozedPMMVersion != nil {
 		row.SnoozedPMMVersion = *params.SnoozedPMMVersion
 	}
+	if params.SnoozedAt != nil {
+		row.SnoozedAt = params.SnoozedAt
+	}
+	if params.SnoozeCount != nil {
+		row.SnoozeCount = *params.SnoozeCount
+	}
 
-	if err = q.Update(row); err != nil {
+	err = q.Update(row)
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to update user")
 	}
 
