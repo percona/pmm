@@ -229,7 +229,7 @@ func createSession(ctx context.Context, dsn string, agentID string) (*mongo.Clie
 		SetDirect(true).
 		SetReadPreference(readpref.Nearest()).
 		SetSocketTimeout(mgoTimeoutSessionSocket).
-		SetAppName(fmt.Sprintf("QAN-mongodb-mongolog-%s", agentID))
+		SetAppName("QAN-mongodb-mongolog-" + agentID)
 
 	client, err := mongo.Connect(ctxWithTimeout, opts)
 	if err != nil {
