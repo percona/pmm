@@ -38,7 +38,8 @@ func nodeID(tx *reform.TX, nodeID, nodeName string, addNodeParams *managementv1.
 		if err != nil {
 			return "", err
 		}
-		if err = validateExistingNodeType(node); err != nil {
+		err = validateExistingNodeType(node)
+		if err != nil {
 			return "", err
 		}
 		return node.NodeID, err
@@ -47,7 +48,8 @@ func nodeID(tx *reform.TX, nodeID, nodeName string, addNodeParams *managementv1.
 		if err != nil {
 			return "", err
 		}
-		if err = validateExistingNodeType(node); err != nil {
+		err = validateExistingNodeType(node)
+		if err != nil {
 			return "", err
 		}
 		return node.NodeID, err

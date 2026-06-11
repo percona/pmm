@@ -84,9 +84,12 @@ func (m *Metrics) Get(ctx context.Context, periodStartFromSec, periodStartToSec 
 		Totals:          totals,
 	}
 	var queryBuffer bytes.Buffer
-	if tmpl, err := template.New("queryMetricsTmpl").Funcs(funcMap).Parse(queryMetricsTmpl); err != nil {
+	tmpl, err := template.New("queryMetricsTmpl").Funcs(funcMap).Parse(queryMetricsTmpl)
+	if err != nil {
 		log.Fatalln(err)
-	} else if err = tmpl.Execute(&queryBuffer, tmplArgs); err != nil {
+	}
+	err = tmpl.Execute(&queryBuffer, tmplArgs)
+	if err != nil {
 		log.Fatalln(err)
 	}
 	var results []M
@@ -546,7 +549,8 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 
 	var results []*qanv1.Point
 	var queryBuffer bytes.Buffer
-	if err := tmplMetricsSparklines.Execute(&queryBuffer, tmplArgs); err != nil {
+	err := tmplMetricsSparklines.Execute(&queryBuffer, tmplArgs)
+	if err != nil {
 		return nil, errors.Wrap(err, "cannot execute tmplMetricsSparklines")
 	}
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
@@ -647,7 +651,8 @@ func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, peri
 	}
 
 	var queryBuffer bytes.Buffer
-	if err := tmplQueryExample.Execute(&queryBuffer, tmplArgs); err != nil {
+	err := tmplQueryExample.Execute(&queryBuffer, tmplArgs)
+	if err != nil {
 		return nil, errors.Wrap(err, "cannot execute queryExampleTmpl")
 	}
 	query, queryArgs, err := sqlx.Named(queryBuffer.String(), arg)
@@ -747,7 +752,8 @@ func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, periodStartFrom
 	}
 
 	var queryBuffer bytes.Buffer
-	if err := tmplObjectDetailsLabels.Execute(&queryBuffer, arg); err != nil {
+	err := tmplObjectDetailsLabels.Execute(&queryBuffer, arg)
+	if err != nil {
 		return nil, errors.Wrap(err, "cannot execute tmplObjectDetailsLabels")
 	}
 	res := qanv1.GetLabelsResponse{}
@@ -857,7 +863,8 @@ func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, periodStartFrom
 		}
 		labels["cmd_type"][row.CmdType] = struct{}{}
 	}
-	if err = rows.Err(); err != nil {
+	err = rows.Err()
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to select labels dimensions")
 	}
 
@@ -948,9 +955,13 @@ func (m *Metrics) SelectHistogram(ctx context.Context, periodStartFromSec, perio
 		Labels:     escapeColonsInMap(labels),
 	}
 	var queryBuffer bytes.Buffer
-	if tmpl, err := template.New("histogramTmpl").Funcs(funcMap).Parse(histogramTmpl); err != nil {
+	tmpl, err := template.New("histogramTmpl").Funcs(funcMap).Parse(histogramTmpl)
+	if err != nil {
 		log.Fatalln(err)
-	} else if err = tmpl.Execute(&queryBuffer, tmplArgs); err != nil {
+	}
+
+	err = tmpl.Execute(&queryBuffer, tmplArgs)
+	if err != nil {
 		log.Fatalln(err)
 	}
 
@@ -1219,9 +1230,12 @@ func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromS
 
 	res := &qanv1.GetSelectedQueryMetadataResponse{}
 	var queryBuffer bytes.Buffer
-	if tmpl, err := template.New("selectedQueryMetadataTmpl").Funcs(funcMap).Parse(selectedQueryMetadataTmpl); err != nil {
+	tmpl, err := template.New("selectedQueryMetadataTmpl").Funcs(funcMap).Parse(selectedQueryMetadataTmpl)
+	if err != nil {
 		return res, errors.Wrap(err, cannotPrepare)
-	} else if err = tmpl.Execute(&queryBuffer, tmplArgs); err != nil {
+	}
+	err = tmpl.Execute(&queryBuffer, tmplArgs)
+	if err != nil {
 		return res, errors.Wrap(err, cannotExecute)
 	}
 

@@ -278,7 +278,8 @@ func readSourceWriteDestination(ctx context.Context, t *testing.T, errChan chan 
 		}
 		lines = append(lines, scanner.Text())
 	}
-	if err := scanner.Err(); err != nil {
+	err = scanner.Err()
+	if err != nil {
 		errChan <- err
 		return
 	}
@@ -300,7 +301,7 @@ func readSourceWriteDestination(ctx context.Context, t *testing.T, errChan chan 
 			return
 		default:
 		}
-		_, err := writer.WriteString(line + "\n")
+		_, err = writer.WriteString(line + "\n")
 		if err != nil {
 			errChan <- err
 			return
@@ -313,7 +314,8 @@ func readSourceWriteDestination(ctx context.Context, t *testing.T, errChan chan 
 		time.Sleep(delay)
 	}
 
-	if err := scanner.Err(); err != nil {
+	err = scanner.Err()
+	if err != nil {
 		errChan <- err
 		return
 	}
