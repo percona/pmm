@@ -84,6 +84,7 @@ func TestHAServer_ListNodes_HADisabled(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, resp)
 	assert.Empty(t, resp.Nodes)
+	assert.Equal(t, int32(0), resp.ExpectedNodes)
 }
 
 func TestHAServer_ListNodes_NilMemberlist(t *testing.T) {
@@ -104,6 +105,57 @@ func TestHAServer_ListNodes_NilMemberlist(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, resp)
 	assert.Empty(t, resp.Nodes)
+	assert.Equal(t, int32(1), resp.ExpectedNodes)
+}
+
+func TestHAServer_ListNodes_ExpectedNodes(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name          string
+		nodes         []string
+		expectedNodes int32
+	}{
+		{
+			name:          "no peers configured defaults to 1",
+			nodes:         nil,
+			expectedNodes: 1,
+		},
+		{
+			name:          "single peer configured",
+			nodes:         []string{"node-1"},
+			expectedNodes: 1,
+		},
+		{
+			name:          "multiple peers configured",
+			nodes:         []string{"node-1", "node-2", "node-3"},
+			expectedNodes: 3,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			service := &Service{
+				params: &models.HAParams{
+					Enabled: true,
+					Nodes:   tt.nodes,
+				},
+				memberlist: nil,
+				rw:         sync.RWMutex{},
+			}
+
+			server := NewHAServer(service)
+
+			resp, err := server.ListNodes(t.Context(), &hav1beta1.ListNodesRequest{})
+
+			require.NoError(t, err)
+			require.NotNil(t, resp)
+			assert.Empty(t, resp.Nodes)
+			assert.Equal(t, tt.expectedNodes, resp.ExpectedNodes)
+		})
+	}
 }
 
 func TestMemberlistStateToString(t *testing.T) {

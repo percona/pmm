@@ -51,13 +51,19 @@ func (s *HAServer) ListNodes(_ context.Context, _ *hav1beta1.ListNodesRequest) (
 		return &hav1beta1.ListNodesResponse{Nodes: []*hav1beta1.HANode{}}, nil
 	}
 
+	// Default to 1 for single-node deployment where no peers are configured.
+	expectedNodes := max(len(s.service.params.Nodes), 1)
+
 	s.service.rw.RLock()
 	memberlist := s.service.memberlist
 	raftNode := s.service.raftNode
 	s.service.rw.RUnlock()
 
 	if memberlist == nil {
-		return &hav1beta1.ListNodesResponse{Nodes: []*hav1beta1.HANode{}}, nil
+		return &hav1beta1.ListNodesResponse{
+			Nodes:         []*hav1beta1.HANode{},
+			ExpectedNodes: int32(expectedNodes),
+		}, nil
 	}
 
 	_, leaderID := raftNode.LeaderWithID()
@@ -79,7 +85,10 @@ func (s *HAServer) ListNodes(_ context.Context, _ *hav1beta1.ListNodesRequest) (
 		})
 	}
 
-	return &hav1beta1.ListNodesResponse{Nodes: nodes}, nil
+	return &hav1beta1.ListNodesResponse{
+		Nodes:         nodes,
+		ExpectedNodes: int32(expectedNodes),
+	}, nil
 }
 
 // memberlistStateToString converts memberlist state to a string representation.

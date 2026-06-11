@@ -297,6 +297,8 @@ func (m *ListNodesResponse) validate(all bool) error {
 
 	}
 
+	// no validation rules for ExpectedNodes
+
 	if len(errors) > 0 {
 		return ListNodesResponseMultiError(errors)
 	}
