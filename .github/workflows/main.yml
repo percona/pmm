@@ -30,6 +30,10 @@ jobs:
     name: Checks
     runs-on: ubuntu-22.04
 
+    permissions:
+      contents: read
+      checks: write
+
     env:
       PMM_ENCRYPTION_KEY_PATH: pmm-encryption.key
 
@@ -118,7 +122,7 @@ jobs:
         with:
           github_token: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
           go_version_file: ${{ github.workspace }}/go.mod
-          reporter: github-pr-review
+          reporter: ${{ github.event_name == 'pull_request' && 'github-pr-review' || 'github-check' }}
           fail_level: error
           cache: false
           golangci_lint_flags: "-c=.golangci.yml"
