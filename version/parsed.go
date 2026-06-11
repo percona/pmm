@@ -48,19 +48,23 @@ func Parse(s string) (*Parsed, error) {
 
 	res := &Parsed{Rest: m[4]}
 	var err error
-	if res.Major, err = strconv.Atoi(m[1]); err != nil {
+	res.Major, err = strconv.Atoi(m[1])
+	if err != nil {
 		return nil, err
 	}
-	if res.Minor, err = strconv.Atoi(m[2]); err != nil {
+	res.Minor, err = strconv.Atoi(m[2])
+	if err != nil {
 		return nil, err
 	}
-	if res.Patch, err = strconv.Atoi(m[3]); err != nil {
+	res.Patch, err = strconv.Atoi(m[3])
+	if err != nil {
 		return nil, err
 	}
 
 	r := fetchRest.FindStringSubmatch(res.Rest)
 	if len(r) != 0 {
-		if res.NumRest, err = strconv.Atoi(r[1]); err != nil {
+		res.NumRest, err = strconv.Atoi(r[1])
+		if err != nil {
 			return nil, err
 		}
 	}

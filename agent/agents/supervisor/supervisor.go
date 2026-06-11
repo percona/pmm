@@ -311,14 +311,15 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentv1.SetSta
 		agent.cancel()
 		<-agent.done
 
-		if err := s.portsRegistry.Release(agent.listenPort); err != nil {
+		err := s.portsRegistry.Release(agent.listenPort)
+		if err != nil {
 			s.l.Errorf("Failed to release port: %s.", err)
 		}
 
 		delete(s.agentProcesses, agentID)
 
 		agentTmp := filepath.Join(s.cfg.Get().Paths.TempDir, strings.ToLower(agent.requestedState.Type.String()), agentID)
-		err := os.RemoveAll(agentTmp)
+		err = os.RemoveAll(agentTmp)
 		if err != nil {
 			s.l.Warnf("Failed to cleanup directory '%s': %s", agentTmp, err.Error())
 		}

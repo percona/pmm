@@ -82,7 +82,8 @@ func mongodbExporterConfig(node *models.Node, service *models.Service, exporter 
 		res.RedactWords = redactWords(exporter)
 	}
 
-	if err := ensureAuthParams(exporter, res, pmmAgentVersion, v2_28_00, false); err != nil {
+	err = ensureAuthParams(exporter, res, pmmAgentVersion, v2_28_00, false)
+	if err != nil {
 		return nil, err
 	}
 

@@ -52,7 +52,8 @@ func NewClickHouseParams(addr, dbName, dbUsername, dbPassword string) (*ClickHou
 	if host == "" {
 		return nil, fmt.Errorf("invalid addr %q: empty host", addr)
 	}
-	if _, err := strconv.ParseUint(port, 10, 16); err != nil {
+	_, err = strconv.ParseUint(port, 10, 16)
+	if err != nil {
 		return nil, fmt.Errorf("invalid port in addr %q: %w", addr, err)
 	}
 	if dbName == "" {
