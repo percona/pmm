@@ -24,7 +24,6 @@ import (
 	"time"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -58,7 +57,7 @@ func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
 		}
 
 		// log gRPC errors as warning, not errors, even if they are wrapped
-		_, gRPCError := status.FromError(errors.Cause(err))
+		_, gRPCError := status.FromError(err)
 		switch {
 		case err == nil:
 			if dur < time.Second {

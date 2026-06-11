@@ -17,13 +17,13 @@
 package main
 
 import (
+	"errors"
 	"net"
 	"net/http"
 	"net/url"
 	"strconv"
 
 	"github.com/alecthomas/kong"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/version"
