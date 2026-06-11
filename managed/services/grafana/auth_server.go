@@ -20,6 +20,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httputil"
@@ -31,7 +32,6 @@ import (
 	"unicode/utf8"
 
 	"github.com/lib/pq"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"gopkg.in/reform.v1"
@@ -434,10 +434,10 @@ func extractOriginalRequest(req *http.Request) error {
 		return errors.New("empty X-Original-Uri")
 	}
 	if origURI[0] != '/' {
-		return errors.Errorf("unexpected X-Original-Uri: %q", origURI)
+		return fmt.Errorf("unexpected X-Original-Uri: %s", origURI)
 	}
 	if !utf8.ValidString(origURI) {
-		return errors.Errorf("invalid X-Original-Uri: %q", origURI)
+		return fmt.Errorf("invalid X-Original-Uri: %s", origURI)
 	}
 
 	req.Method = origMethod
