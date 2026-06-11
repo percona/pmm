@@ -166,7 +166,8 @@ func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 	var err error
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 
-	if current, _, err = m.getStatStatementsExtended(ctx); err == nil {
+	current, _, err = m.getStatStatementsExtended(ctx)
+	if err == nil {
 		err = m.statementsCache.Set(current)
 		if err == nil {
 			m.l.Debugf("Got %d initial stat statements.", len(current))
@@ -239,7 +240,8 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(
 
 	current := make(statementsMap, m.statementsCache.cache.Len())
 	prev := make(statementsMap, m.statementsCache.cache.Len())
-	if err := m.statementsCache.Get(prev); err != nil {
+	err = m.statementsCache.Get(prev)
+	if err != nil {
 		return nil, nil, err
 	}
 
@@ -315,7 +317,8 @@ func (m *PGStatStatementsQAN) getNewBuckets(ctx context.Context, periodStart tim
 		len(buckets), len(current), periodStart.Format("15:04:05"), periodLengthSecs)
 
 	// merge prev and current in cache
-	if err = m.statementsCache.Set(current); err != nil {
+	err = m.statementsCache.Set(current)
+	if err != nil {
 		return nil, err
 	}
 	m.l.Debugf("statStatementsCache: %s", m.statementsCache.cache.Stats())
