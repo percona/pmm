@@ -66,7 +66,8 @@ func NewVictoriaMetricsParams(basePath string, vmURL string) (*VictoriaMetricsPa
 
 // UpdateParams - reads configuration file and updates corresponding flags.
 func (vmp *VictoriaMetricsParams) UpdateParams() error {
-	if err := vmp.loadVMAlertParams(); err != nil {
+	err := vmp.loadVMAlertParams()
+	if err != nil {
 		return errors.Wrap(err, "cannot update VMAlertFlags config param")
 	}
 
@@ -103,7 +104,7 @@ func (vmp *VictoriaMetricsParams) loadVMAlertParams() error {
 
 // ExternalVM returns true if VictoriaMetrics is configured to run externally.
 func (vmp *VictoriaMetricsParams) ExternalVM() bool {
-	return vmp.url.Hostname() != "127.0.0.1"
+	return !internalAddr(vmp.url.Hostname())
 }
 
 // URL returns the base URL for VictoriaMetrics.

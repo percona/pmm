@@ -72,7 +72,7 @@ type service struct {
 func (s *Service) findServiceForUpdate() (*service, error) {
 	results := &service{CheckAfter: minCheckInterval}
 
-	if err := s.db.InTransaction(func(tx *reform.TX) error {
+	err := s.db.InTransaction(func(tx *reform.TX) error {
 		filter := models.FindServicesSoftwareVersionsFilter{Limit: new(1)}
 		servicesVersions, err := models.FindServicesSoftwareVersions(
 			tx.Querier,
@@ -83,13 +83,13 @@ func (s *Service) findServiceForUpdate() (*service, error) {
 			return err
 		}
 		if len(servicesVersions) == 0 {
-			// there are no entries in the cache, so perform next check later
+
 			results.CheckAfter = serviceCheckInterval
 
 			return nil
 		}
 		if servicesVersions[0].NextCheckAt.After(time.Now()) {
-			// wait until next service check time
+
 			results.CheckAfter = time.Until(servicesVersions[0].NextCheckAt) + minCheckInterval
 
 			return nil
@@ -105,7 +105,7 @@ func (s *Service) findServiceForUpdate() (*service, error) {
 
 		results.ServiceType = service.ServiceType
 		swList := agents.GetRequiredBackupSoftwareList(service.ServiceType)
-		// Stop if no software specified for the service type.
+
 		if len(swList) == 0 {
 			return nil
 		}
@@ -124,15 +124,17 @@ func (s *Service) findServiceForUpdate() (*service, error) {
 
 		// shift the next check time for this service, so, in case of versions fetch error,
 		// it will not loop in trying, but will continue with other services.
-		if _, err := models.UpdateServiceSoftwareVersions(
+		_, err = models.UpdateServiceSoftwareVersions(
 			tx.Querier, servicesVersions[0].ServiceID,
 			models.UpdateServiceSoftwareVersionsParams{NextCheckAt: new(time.Now().UTC().Add(serviceCheckShortInterval))},
-		); err != nil {
+		)
+		if err != nil {
 			return err
 		}
 
 		return nil
-	}); err != nil {
+	})
+	if err != nil {
 		return nil, err
 	}
 
@@ -183,13 +185,14 @@ func (s *Service) updateVersionsForNextService() (time.Duration, error) {
 		})
 	}
 
-	if _, err := models.UpdateServiceSoftwareVersions(
+	_, err = models.UpdateServiceSoftwareVersions(
 		s.db.Querier, serviceForUpdate.ServiceID,
 		models.UpdateServiceSoftwareVersionsParams{
 			NextCheckAt:      new(time.Now().UTC().Add(serviceCheckInterval)),
 			SoftwareVersions: svs,
 		},
-	); err != nil {
+	)
+	if err != nil {
 		return minCheckInterval, err
 	}
 

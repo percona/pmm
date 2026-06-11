@@ -53,9 +53,9 @@ func TestAccessControlService(t *testing.T) {
 	teardown := func(t *testing.T) {
 		t.Helper()
 
-		_, err := db.Querier.DeleteFrom(models.RoleTable, "")
+		_, err := db.DeleteFrom(models.RoleTable, "")
 		require.NoError(t, err)
-		_, err = db.Querier.DeleteFrom(models.UserDetailsTable, "")
+		_, err = db.DeleteFrom(models.UserDetailsTable, "")
 		require.NoError(t, err)
 	}
 

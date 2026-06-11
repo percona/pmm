@@ -41,7 +41,8 @@ func SavePMMConfig(params map[string]any) error {
 
 func marshalConfig(params map[string]any) ([]byte, error) {
 	var buf bytes.Buffer
-	if err := pmmTemplate.Execute(&buf, params); err != nil {
+	err := pmmTemplate.Execute(&buf, params)
+	if err != nil {
 		return nil, errors.Wrapf(err, "failed to render pmm template")
 	}
 	return buf.Bytes(), nil
@@ -69,7 +70,8 @@ func saveConfig(path string, cfg []byte) (err error) {
 		if err == nil {
 			return
 		}
-		if resErr := os.WriteFile(path, oldCfg, wwrPermissions); resErr != nil { //nolint:gosec
+		resErr := os.WriteFile(path, oldCfg, wwrPermissions) //nolint:gosec
+		if resErr != nil {
 			err = errors.Wrap(err, errors.Wrap(resErr, "failed to restore config").Error())
 		}
 	}()

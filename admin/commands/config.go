@@ -119,8 +119,8 @@ func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) ([]string, bool) {
 		res = append(res, "--force")
 	}
 
-	if cmd.MetricsModeFlags.MetricsMode != "" {
-		res = append(res, fmt.Sprintf("--metrics-mode=%s", cmd.MetricsModeFlags.MetricsMode))
+	if cmd.MetricsMode != "" {
+		res = append(res, fmt.Sprintf("--metrics-mode=%s", cmd.MetricsMode))
 	}
 
 	if len(cmd.DisableCollectors) != 0 {

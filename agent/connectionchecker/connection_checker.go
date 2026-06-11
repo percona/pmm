@@ -108,7 +108,13 @@ func (cc *ConnectionChecker) sqlPing(ctx context.Context, db *sql.DB) error {
 	return err
 }
 
-func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn string, files *agentv1.TextFiles, tlsSkipVerify bool, id uint32) *agentv1.CheckConnectionResponse { //nolint:lll
+func (cc *ConnectionChecker) checkMySQLConnection(
+	ctx context.Context,
+	dsn string,
+	files *agentv1.TextFiles,
+	tlsSkipVerify bool,
+	id uint32,
+) *agentv1.CheckConnectionResponse {
 	var res agentv1.CheckConnectionResponse
 	var err error
 
@@ -221,7 +227,8 @@ func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn str
 
 	if !serverInfo.ArbiterOnly {
 		resp := client.Database("admin").RunCommand(ctx, bson.D{{Key: "getDiagnosticData", Value: 1}})
-		if err = resp.Err(); err != nil {
+		err = resp.Err()
+		if err != nil {
 			cc.l.Debugf("checkMongoDBConnection: failed to runCommand getDiagnosticData: %s", err)
 			res.Error = err.Error()
 			return &res

@@ -1085,20 +1085,19 @@ func (m *Metrics) SchemaByQueryID(ctx context.Context, serviceID, queryID string
 	queryCtx, cancel := context.WithTimeout(ctx, queryTimeout)
 	defer cancel()
 
-	rows, err := m.db.QueryxContext(queryCtx, query, args...)
-	if err != nil {
-		return nil, errors.Wrap(err, cannotExecute)
+	row := m.db.QueryRowxContext(queryCtx, query, args...)
+	rowErr := row.Err()
+	if rowErr != nil {
+		return nil, errors.Wrap(rowErr, cannotExecute)
 	}
-	defer rows.Close() //nolint:errcheck
 
 	res := &qanv1.SchemaByQueryIDResponse{}
-	for rows.Next() {
-		err = rows.Scan(&res.Schema)
-		if err != nil {
-			return res, errors.Wrap(err, "failed to scan query")
+	err = row.Scan(&res.Schema)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return res, nil
 		}
-
-		return res, nil //nolint:staticcheck
+		return res, errors.Wrap(err, "failed to scan query")
 	}
 
 	return res, nil
@@ -1132,39 +1131,34 @@ func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, qu
 	queryCtx, cancel := context.WithTimeout(ctx, queryTimeout)
 	defer cancel()
 
-	rows, err := m.db.QueryxContext(queryCtx, query, args...)
-	if err != nil {
-		return res, errors.Wrap(err, cannotExecute)
+	row := m.db.QueryRowxContext(queryCtx, query, args...)
+	rowErr := row.Err()
+	if rowErr != nil {
+		return res, errors.Wrap(rowErr, cannotExecute)
 	}
-	defer rows.Close() //nolint:errcheck
 
 	var fingerprint, example string
-	for rows.Next() {
-		err = rows.Scan(
-			&res.ExplainFingerprint,
-			&fingerprint,
-			&example,
-			&res.PlaceholdersCount,
-		)
-		if err != nil {
-			return res, errors.Wrap(err, "failed to scan query")
+	err = row.Scan(
+		&res.ExplainFingerprint,
+		&fingerprint,
+		&example,
+		&res.PlaceholdersCount,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return res, errors.New("query_id doesnt exists")
 		}
-
-		if example != "" {
-			res.ExplainFingerprint = example
-			res.PlaceholdersCount = 0
-
-			return res, nil
-		}
-
-		if res.ExplainFingerprint == "" {
-			res.ExplainFingerprint = fingerprint
-		}
-
-		return res, nil //nolint:staticcheck
+		return res, errors.Wrap(err, "failed to scan query")
 	}
 
-	return res, errors.New("query_id doesnt exists")
+	if example != "" {
+		res.ExplainFingerprint = example
+		res.PlaceholdersCount = 0
+	} else if res.ExplainFingerprint == "" {
+		res.ExplainFingerprint = fingerprint
+	}
+
+	return res, nil
 }
 
 const selectedQueryMetadataTmpl = `
@@ -1295,7 +1289,7 @@ func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromS
 }
 
 func prepareMetadataProperty(metadata map[string]struct{}) string {
-	res := []string{}
+	res := make([]string, 0, len(metadata))
 	for k := range metadata {
 		res = append(res, k)
 	}
