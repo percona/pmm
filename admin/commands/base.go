@@ -206,7 +206,7 @@ func ValidateEnvironmentVariableNames(varNames []string) ([]string, error) {
 	for _, name := range varNames {
 		name = strings.TrimSpace(name)
 		if name == "" {
-			return nil, fmt.Errorf("environment variable name cannot be empty")
+			return nil, errors.New("environment variable name cannot be empty")
 		}
 
 		if !validNamePattern.MatchString(name) {

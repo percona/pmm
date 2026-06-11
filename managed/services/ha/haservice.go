@@ -577,7 +577,7 @@ func (s *Service) AddLeaderService(leaderService LeaderService) {
 // This method should only be called by the leader node.
 func (s *Service) BroadcastMessage(message []byte) error {
 	if !s.params.Enabled {
-		return fmt.Errorf("HA is disabled")
+		return errors.New("HA is disabled")
 	}
 
 	s.rw.RLock()

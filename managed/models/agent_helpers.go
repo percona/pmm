@@ -240,7 +240,7 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 		if err != nil {
 			return nil, err
 		}
-		conditions = append(conditions, fmt.Sprintf("pmm_agent_id = %s", q.Placeholder(idx)))
+		conditions = append(conditions, "pmm_agent_id = "+q.Placeholder(idx))
 		args = append(args, filters.PMMAgentID)
 		idx++
 	}
@@ -249,7 +249,7 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 		if err != nil {
 			return nil, err
 		}
-		conditions = append(conditions, fmt.Sprintf("node_id = %s", q.Placeholder(idx)))
+		conditions = append(conditions, "node_id = "+q.Placeholder(idx))
 		args = append(args, filters.NodeID)
 		idx++
 	}
@@ -258,12 +258,12 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 		if err != nil {
 			return nil, err
 		}
-		conditions = append(conditions, fmt.Sprintf("service_id = %s", q.Placeholder(idx)))
+		conditions = append(conditions, "service_id = "+q.Placeholder(idx))
 		args = append(args, filters.ServiceID)
 		idx++
 	}
 	if filters.AgentType != nil {
-		conditions = append(conditions, fmt.Sprintf("agent_type = %s", q.Placeholder(idx)))
+		conditions = append(conditions, "agent_type = "+q.Placeholder(idx))
 		args = append(args, *filters.AgentType)
 		idx++
 	}
@@ -273,21 +273,21 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 		idx++
 	}
 	if filters.IgnoreNomad {
-		conditions = append(conditions, fmt.Sprintf("agent_type != %s", q.Placeholder(idx)))
+		conditions = append(conditions, "agent_type != "+q.Placeholder(idx))
 		args = append(args, NomadAgentType)
 		idx++
 	}
 
 	if filters.Disabled != nil {
-		conditions = append(conditions, fmt.Sprintf("disabled = %s", q.Placeholder(idx)))
+		conditions = append(conditions, "disabled = "+q.Placeholder(idx))
 		args = append(args, pointer.Get(filters.Disabled))
 	}
 
 	var whereClause string
 	if len(conditions) != 0 {
-		whereClause = fmt.Sprintf("WHERE %s", strings.Join(conditions, " AND "))
+		whereClause = "WHERE " + strings.Join(conditions, " AND ")
 	}
-	structs, err := q.SelectAllFrom(AgentTable, fmt.Sprintf("%s ORDER BY agent_id", whereClause), args...)
+	structs, err := q.SelectAllFrom(AgentTable, whereClause+" ORDER BY agent_id", args...)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -526,7 +526,7 @@ func FindAgentsForScrapeConfig(q *reform.Querier, pmmAgentID *string, pushMetric
 		conditions []string
 	)
 	if pmmAgentID != nil {
-		conditions = append(conditions, fmt.Sprintf("pmm_agent_id = %s", q.Placeholder(1)))
+		conditions = append(conditions, "pmm_agent_id = "+q.Placeholder(1))
 		args = append(args, pointer.GetString(pmmAgentID))
 	}
 
