@@ -23,19 +23,19 @@ This project is built from several repositories:
 
 #### Backends
 
-* [percona/pmm-managed](https://github.com/percona/pmm/tree/v3/managed) manages configuration of PMM server components (VictoriaMetrics, Grafana, etc.) and exposes API for that. APIs are used by [pmm-admin](https://github.com/percona/pmm/tree/v3/admin)
-* [percona/qan-api](https://github.com/percona/pmm/tree/v3/qan-api2) query analytics API
+* [percona/pmm-managed](https://github.com/percona/pmm/tree/main/managed) manages configuration of PMM server components (VictoriaMetrics, Grafana, etc.) and exposes API for that. APIs are used by [pmm-admin](https://github.com/percona/pmm/tree/main/admin)
+* [percona/qan-api](https://github.com/percona/pmm/tree/main/qan-api2) query analytics API
 
 #### Frontends
 
 * [percona/grafana](https://github.com/percona/grafana) user interface for PMM (Grafana-based)
-* [percona/ui](https://github.com/percona/pmm/tree/v3/ui) user interface for PMM (own)
-* [percona/dashboards](https://github.com/percona/pmm/tree/v3/dashboards) PMM dashboards for database monitoring
+* [percona/ui](https://github.com/percona/pmm/tree/main/ui) user interface for PMM (own)
+* [percona/dashboards](https://github.com/percona/pmm/tree/main/dashboards) PMM dashboards for database monitoring
 
 ### PMM Client
 
-* [percona/pmm-agent](https://github.com/percona/pmm/tree/v3/agent) monitoring agent for PMM. Runs exporters, and VMAgent that collects data from exporters and send to VictoriaMetrics
-* [percona/pmm-admin](https://github.com/percona/pmm/tree/v3/admin) admin tool for PMM to manage service that should be monitored by PMM
+* [percona/pmm-agent](https://github.com/percona/pmm/tree/main/agent) monitoring agent for PMM. Runs exporters, and VMAgent that collects data from exporters and send to VictoriaMetrics
+* [percona/pmm-admin](https://github.com/percona/pmm/tree/main/admin) admin tool for PMM to manage service that should be monitored by PMM
 * [percona/node_exporter](https://github.com/percona/node_exporter) exports machine's metrics
 * [percona/mysqld_exporter](https://github.com/percona/mysqld_exporter) exports MySQL server's metrics
 * [percona/mongodb_exporter](https://github.com/percona/mongodb_exporter) exports MongoDB server's metrics
@@ -136,7 +136,7 @@ Exporters by themselves are independent applications, so each of them contains i
 
 ### UI
 
-See [Grafana Dashboards Contribution Guide](https://github.com/percona/pmm/tree/v3/dashboards/CONTRIBUTING.md).
+See [Grafana Dashboards Contribution Guide](https://github.com/percona/pmm/tree/main/dashboards/CONTRIBUTING.md).
 
 ## Tests
 

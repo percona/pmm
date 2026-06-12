@@ -25,7 +25,6 @@ full_pmm_version=${full_pmm_version//\//-}
 # TODO Maybe it makes sense to use variable from job here
 if [[ ${pmm_branch} =~ release-* || \
       ${pmm_branch} =~ pmm-3.* || \
-      ${pmm_branch} == v3 || \
       ${pmm_branch} == "main" ]]; then
     full_pmm_version=${pmm_base_version}
 fi
