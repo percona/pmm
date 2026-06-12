@@ -54,7 +54,7 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
     initialState,
     emptyState,
     enableRowHoverAction = false,
-    rowHoverAction = () => { },
+    rowHoverAction = () => {},
     muiTableBodyRowProps,
     muiTableProps,
     muiTableHeadProps,
@@ -170,12 +170,12 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
         sx: mergeSx(
           isRangeInput
             ? {
-              minWidth: 0,
-              width: '100%',
-              mx: 0,
-              '& .MuiInputAdornment-positionEnd': { display: 'none' },
-              '& .MuiOutlinedInput-root': { paddingRight: 0 },
-            }
+                minWidth: 0,
+                width: '100%',
+                mx: 0,
+                '& .MuiInputAdornment-positionEnd': { display: 'none' },
+                '& .MuiOutlinedInput-root': { paddingRight: 0 },
+              }
             : {},
           consumer?.sx
         ),
@@ -299,9 +299,9 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
               }),
             },
             '& .MuiTableCell-head:has(.MuiCheckbox-root), & .MuiTableCell-head:has([aria-label="Expand all"])':
-            {
-              paddingTop: '18px',
-            },
+              {
+                paddingTop: '18px',
+              },
             '& .MuiTableCell-body': {
               typography: 'body1',
             },
@@ -321,9 +321,9 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
               transform: 'none',
             },
             '& .MuiTableCell-head:has(.Mui-TableHeadCell-Content-Actions .MuiIconButton-root:hover)':
-            {
-              backgroundColor: theme.palette.action.hover,
-            },
+              {
+                backgroundColor: theme.palette.action.hover,
+              },
           }),
           consumer?.sx
         ),
@@ -408,8 +408,8 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
           (theme: Theme) => ({
             ...(!isDetailPanel &&
               enableRowHoverAction && {
-              cursor: 'pointer',
-            }),
+                cursor: 'pointer',
+              }),
             '&:hover td': {
               backgroundColor: theme.palette.primary.hover,
             },
