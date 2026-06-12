@@ -119,7 +119,8 @@ func (s *Service) Run(ctx context.Context) { //nolint:gocognit
 			continue
 		}
 
-		if err := cmd.Start(); err != nil {
+		err = cmd.Start()
+		if err != nil {
 			s.l.Errorf("%s: Start failed: %s", cmdLine, err)
 			time.Sleep(time.Second)
 			continue
@@ -161,11 +162,13 @@ func (s *Service) Run(ctx context.Context) { //nolint:gocognit
 			s.eventsM.Unlock()
 		}
 
-		if err := scanner.Err(); err != nil {
+		err = scanner.Err()
+		if err != nil {
 			s.l.Errorf("Scanner: %s", err)
 		}
 
-		if err := cmd.Wait(); err != nil {
+		err = cmd.Wait()
+		if err != nil {
 			s.l.Errorf("%s: wait failed: %s", cmdLine, err)
 		}
 	}
@@ -215,7 +218,8 @@ func (s *Service) UpdateConfiguration(settings *models.Settings) error {
 			err = e
 			continue
 		}
-		if _, e = s.saveConfigAndReload(tmpl.Name(), b); e != nil {
+		_, e = s.saveConfigAndReload(tmpl.Name(), b)
+		if e != nil {
 			s.l.Errorf("Failed to save/reload: %s.", e)
 			err = e
 			continue

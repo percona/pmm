@@ -182,7 +182,8 @@ func UpdateDumpStatus(q *reform.Querier, id string, status DumpStatus) error {
 
 	dump.Status = status
 
-	if err = q.Update(dump); err != nil {
+	err = q.Update(dump)
+	if err != nil {
 		return errors.Wrap(err, "failed to update dump status")
 	}
 

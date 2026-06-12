@@ -105,7 +105,8 @@ func ReadFromSource(src string) (*Credentials, error) {
 		return nil, fmt.Errorf("%w", err)
 	}
 
-	if err := json.Unmarshal([]byte(content), &creds); err != nil {
+	err = json.Unmarshal([]byte(content), &creds)
+	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
 

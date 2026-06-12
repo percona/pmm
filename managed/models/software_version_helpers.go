@@ -133,7 +133,8 @@ func UpdateServiceSoftwareVersions(
 	serviceID string,
 	params UpdateServiceSoftwareVersionsParams,
 ) (*ServiceSoftwareVersions, error) {
-	if err := params.Validate(); err != nil {
+	err := params.Validate()
+	if err != nil {
 		return nil, err
 	}
 
@@ -150,7 +151,8 @@ func UpdateServiceSoftwareVersions(
 		row.SoftwareVersions = params.SoftwareVersions
 	}
 
-	if err := q.Update(row); err != nil {
+	err = q.Update(row)
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to update service software versions")
 	}
 
@@ -193,11 +195,13 @@ func FindServicesSoftwareVersions(
 	var tail strings.Builder
 	idx := 1
 
+	var err error
 	if filter.ServiceType != nil {
-		if err := ValidateServiceType(*filter.ServiceType); err != nil {
+		err = ValidateServiceType(*filter.ServiceType)
+		if err != nil {
 			return nil, errors.WithStack(err)
 		}
-		_, err := fmt.Fprintf(&tail, "WHERE service_type = %s ", q.Placeholder(idx))
+		_, err = fmt.Fprintf(&tail, "WHERE service_type = %s ", q.Placeholder(idx))
 		if err != nil {
 			return nil, errors.WithStack(err)
 		}
@@ -212,7 +216,7 @@ func FindServicesSoftwareVersions(
 	}
 
 	if filter.Limit != nil {
-		_, err := fmt.Fprintf(&tail, "LIMIT %s", q.Placeholder(idx))
+		_, err = fmt.Fprintf(&tail, "LIMIT %s", q.Placeholder(idx))
 		if err != nil {
 			return nil, errors.WithStack(err)
 		}

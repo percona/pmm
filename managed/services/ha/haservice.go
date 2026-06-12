@@ -169,7 +169,8 @@ var _ io.Writer = (*memberlistLogWriter)(nil)
 func setupRaftStorage(nodeID string, l *logrus.Entry) (*raftboltdb.BoltStore, *raftboltdb.BoltStore, *raft.FileSnapshotStore, error) {
 	// Create the Raft data directory for this node
 	raftDir := filepath.Join(defaultRaftDataDir, nodeID)
-	if err := os.MkdirAll(raftDir, defaultRaftDataDirPerm); err != nil {
+	err := os.MkdirAll(raftDir, defaultRaftDataDirPerm)
+	if err != nil {
 		return nil, nil, nil, fmt.Errorf("failed to create Raft data directory: %w", err)
 	}
 	l.Infof("Using Raft data directory: %s", raftDir)

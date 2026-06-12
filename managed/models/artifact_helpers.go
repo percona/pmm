@@ -219,12 +219,13 @@ func (p *CreateArtifactParams) Validate() error {
 
 // CreateArtifact creates artifact entry in DB.
 func CreateArtifact(q *reform.Querier, params CreateArtifactParams) (*Artifact, error) {
-	if err := params.Validate(); err != nil {
+	err := params.Validate()
+	if err != nil {
 		return nil, err
 	}
 
 	id := uuid.New().String()
-	_, err := FindArtifactByID(q, id)
+	_, err = FindArtifactByID(q, id)
 	switch {
 	case err == nil:
 		return nil, errors.Errorf("artifact with id '%s' already exists", id)
@@ -233,7 +234,8 @@ func CreateArtifact(q *reform.Querier, params CreateArtifactParams) (*Artifact, 
 		return nil, errors.WithStack(err)
 	}
 
-	if err := checkUniqueArtifactName(q, params.Name); err != nil {
+	err = checkUniqueArtifactName(q, params.Name)
+	if err != nil {
 		return nil, err
 	}
 
@@ -257,7 +259,8 @@ func CreateArtifact(q *reform.Querier, params CreateArtifactParams) (*Artifact, 
 		row.Type = ScheduledArtifactType
 	}
 
-	if err := q.Insert(row); err != nil {
+	err = q.Insert(row)
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to insert artifact")
 	}
 
@@ -303,7 +306,8 @@ func UpdateArtifact(q *reform.Querier, artifactID string, params UpdateArtifactP
 		row.Folder = *params.Folder
 	}
 
-	if err := q.Update(row); err != nil {
+	err = q.Update(row)
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to update backup artifact")
 	}
 
