@@ -475,19 +475,20 @@ func nextPrefix(path string) string {
 // cleaned path, together with the matched rule prefix. It walks path prefixes
 // from longest to shortest; a method-specific rule (keyed by "METHOD prefix")
 // takes precedence over a path-only rule at the same prefix, so read and write
-// operations that share a path can require different roles. The bool is false
-// when no rule matches, in which case the caller falls back to grafanaAdmin.
-func resolveRule(method, cleanedPath string) (role, string, bool) {
+// operations that share a path can require different roles. When no rule
+// matches it logs a warning and falls back to grafanaAdmin.
+func resolveRule(method, cleanedPath string, l *logrus.Entry) (role, string) {
 	prefix := cleanedPath
 	for {
 		if r, ok := methodRules[method+" "+prefix]; ok {
-			return r, prefix, true
+			return r, prefix
 		}
 		if r, ok := rules[prefix]; ok {
-			return r, prefix, true
+			return r, prefix
 		}
 		if prefix == "/" {
-			return none, prefix, false
+			l.Warn("No explicit rule, falling back to Grafana admin.")
+			return grafanaAdmin, prefix
 		}
 		prefix = nextPrefix(prefix)
 	}
@@ -521,13 +522,8 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 		}
 	}
 
-	minRole, prefix, ok := resolveRule(req.Method, cleanedPath)
-	if ok {
-		l = l.WithField("prefix", prefix)
-	} else {
-		l.Warn("No explicit rule, falling back to Grafana admin.")
-		minRole = grafanaAdmin
-	}
+	minRole, prefix := resolveRule(req.Method, cleanedPath, l)
+	l = l.WithField("prefix", prefix)
 
 	if minRole == none {
 		l.Debugf("Minimal required role is %s, granting access without checking Grafana.", minRole)
@@ -625,7 +621,7 @@ func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders 
 	authUser, err := s.c.getAuthUser(ctx, authHeaders, l)
 	if err != nil {
 		l.Warnf("%s", err)
-		cErr ,ok := errors.AsType[*clientError](err)
+		cErr, ok := errors.AsType[*clientError](err)
 		if ok {
 			code := codes.Internal
 			if cErr.Code == 401 || cErr.Code == 403 {

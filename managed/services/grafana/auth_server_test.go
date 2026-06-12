@@ -76,12 +76,13 @@ func TestResolveRule(t *testing.T) {
 		{http.MethodPut, "/v1/alerting/templates/foo", editor},    // UpdateTemplate
 		{http.MethodDelete, "/v1/alerting/templates/foo", editor}, // DeleteTemplate
 		{http.MethodPost, "/v1/alerting/rules", editor},           // CreateRule
+		// No matching rule falls back to grafanaAdmin.
+		{http.MethodGet, "/v1/unknown", grafanaAdmin},
 	} {
 		t.Run(fmt.Sprintf("%s %s", tc.method, tc.path), func(t *testing.T) {
 			t.Parallel()
 
-			got, _, ok := resolveRule(tc.method, tc.path)
-			require.True(t, ok)
+			got, _ := resolveRule(tc.method, tc.path, logrus.WithField("test", t.Name()))
 			assert.Equal(t, tc.wantRole, got)
 		})
 	}
