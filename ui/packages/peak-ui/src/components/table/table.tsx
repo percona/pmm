@@ -7,7 +7,11 @@ import {
 } from '@mui/icons-material';
 import { Alert, AlertProps, Box, Theme } from '@mui/material';
 import visuallyHidden from '@mui/utils/visuallyHidden';
-import { MaterialReactTable, MRT_VisibilityState, useMaterialReactTable } from 'material-react-table';
+import {
+  MaterialReactTable,
+  MRT_VisibilityState,
+  useMaterialReactTable,
+} from 'material-react-table';
 import { useEffect } from 'react';
 import { mergeSx } from '@/utils';
 import { ICONS_OPACITY } from './table.constants';
@@ -50,7 +54,7 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
     initialState,
     emptyState,
     enableRowHoverAction = false,
-    rowHoverAction = () => { },
+    rowHoverAction = () => {},
     muiTableBodyRowProps,
     muiTableProps,
     muiTableHeadProps,
@@ -171,12 +175,12 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
         sx: mergeSx(
           isRangeInput
             ? {
-              minWidth: 0,
-              width: '100%',
-              mx: 0,
-              '& .MuiInputAdornment-positionEnd': { display: 'none' },
-              '& .MuiOutlinedInput-root': { paddingRight: 0 },
-            }
+                minWidth: 0,
+                width: '100%',
+                mx: 0,
+                '& .MuiInputAdornment-positionEnd': { display: 'none' },
+                '& .MuiOutlinedInput-root': { paddingRight: 0 },
+              }
             : {},
           consumer?.sx
         ),
@@ -260,10 +264,7 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
           const resolved = typeof consumer === 'function' ? consumer(args) : consumer;
           return {
             ...resolved,
-            sx: mergeSx(
-              hideExpandAllIcon ? { '& button': { display: 'none' } } : {},
-              resolved?.sx
-            ),
+            sx: mergeSx(hideExpandAllIcon ? { '& button': { display: 'none' } } : {}, resolved?.sx),
           };
         },
       },
@@ -295,9 +296,9 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
               }),
             },
             '& .MuiTableCell-head:has(.MuiCheckbox-root), & .MuiTableCell-head:has([aria-label="Expand all"])':
-            {
-              paddingTop: '18px',
-            },
+              {
+                paddingTop: '18px',
+              },
             '& .MuiTableCell-body': {
               typography: 'body1',
             },
@@ -317,9 +318,9 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
               transform: 'none',
             },
             '& .MuiTableCell-head:has(.Mui-TableHeadCell-Content-Actions .MuiIconButton-root:hover)':
-            {
-              backgroundColor: theme.palette.action.hover,
-            },
+              {
+                backgroundColor: theme.palette.action.hover,
+              },
           }),
           consumer?.sx
         ),
@@ -327,9 +328,7 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
     },
     muiTableHeadProps: ({ table }) => {
       const consumer =
-        typeof muiTableHeadProps === 'function'
-          ? muiTableHeadProps({ table })
-          : muiTableHeadProps;
+        typeof muiTableHeadProps === 'function' ? muiTableHeadProps({ table }) : muiTableHeadProps;
       return {
         ...consumer,
         sx: mergeSx(
@@ -340,7 +339,8 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
     },
     muiBottomToolbarProps: {
       sx: {
-        backgroundColor: 'transparent', boxShadow: 'none',
+        backgroundColor: 'transparent',
+        boxShadow: 'none',
         '& label': {
           transform: 'none !important',
         },
@@ -348,13 +348,16 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
     },
     muiTableBodyProps: ({ table }) => {
       const consumer =
-        typeof muiTableBodyProps === 'function'
-          ? muiTableBodyProps({ table })
-          : muiTableBodyProps;
+        typeof muiTableBodyProps === 'function' ? muiTableBodyProps({ table }) : muiTableBodyProps;
       return {
         ...consumer,
         sx: mergeSx(
-          (theme: Theme) => ({ '& tr': { backgroundColor: `${theme.palette.background.paper} !important`, minHeight: 'unset' } }),
+          (theme: Theme) => ({
+            '& tr': {
+              backgroundColor: `${theme.palette.background.paper} !important`,
+              minHeight: 'unset',
+            },
+          }),
           consumer?.sx
         ),
       };
@@ -402,8 +405,8 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
           (theme: Theme) => ({
             ...(!isDetailPanel &&
               enableRowHoverAction && {
-              cursor: 'pointer',
-            }),
+                cursor: 'pointer',
+              }),
             '&:hover td': {
               backgroundColor: theme.palette.primary.hover,
             },
@@ -421,11 +424,7 @@ function Table<T extends Record<string, any>>(props: TableProps<T>) {
     },
   });
 
-  return (
-    <MaterialReactTable
-      table={table}
-    />
-  );
+  return <MaterialReactTable table={table} />;
 }
 
 export default Table;
