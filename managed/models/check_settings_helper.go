@@ -82,7 +82,8 @@ func ChangeCheckSettings(q *reform.Querier, name string, interval Interval) (*Ch
 
 	row.Interval = interval
 
-	if err := q.Update(row); err != nil {
+	err = q.Update(row)
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to update check setting")
 	}
 

@@ -172,7 +172,7 @@ func (s *Server) Version(_ context.Context, req *serverv1.VersionRequest) (*serv
 			case "panic-error":
 				panic(errors.New("panic-error"))
 			case "panic-fmterror":
-				panic(fmt.Errorf("panic-fmterror"))
+				panic(errors.New("panic-fmterror"))
 			default:
 				panic(req.Dummy)
 			}
@@ -199,7 +199,8 @@ func (s *Server) Version(_ context.Context, req *serverv1.VersionRequest) (*serv
 
 		DistributionMethod: s.telemetryService.DistributionMethod(),
 	}
-	if t, err := version.Time(); err == nil {
+	t, err := version.Time()
+	if err == nil {
 		res.Managed.Timestamp = timestamppb.New(t)
 	}
 
@@ -375,7 +376,8 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverv1.StartUpdateReque
 	}
 
 	authToken := uuid.New().String()
-	if err := s.writeUpdateAuthToken(authToken); err != nil {
+	err = s.writeUpdateAuthToken(authToken)
+	if err != nil {
 		return nil, err
 	}
 
@@ -645,7 +647,8 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	var disableInternalPgQan bool
 	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
-		if oldSettings, err = models.GetSettings(tx); err != nil {
+		oldSettings, err = models.GetSettings(tx)
+		if err != nil {
 			return errors.WithStack(err)
 		}
 
@@ -765,7 +768,7 @@ func (s *Server) getInternalPgQANAgent(q *reform.Querier) (*models.Agent, error)
 		return nil, fmt.Errorf("failed to find agents: %w", err)
 	}
 	if len(agents) == 0 {
-		return nil, fmt.Errorf("internal pgQAN agent not found")
+		return nil, errors.New("internal pgQAN agent not found")
 	}
 	return agents[0], nil
 }
@@ -785,7 +788,7 @@ func (s *Server) handleInternalQANToggle(ctx context.Context, q *reform.Querier,
 		return false, fmt.Errorf("failed to get QAN agent: %w", err)
 	}
 	if internalQanAgent == nil {
-		return false, fmt.Errorf("internal QAN agent not found")
+		return false, errors.New("internal QAN agent not found")
 	}
 
 	newAgent, err := models.ChangeAgent(q, internalQanAgent.AgentID, &models.ChangeAgentParams{
@@ -806,16 +809,19 @@ func (s *Server) UpdateConfigurations(ctx context.Context) error {
 		return fmt.Errorf("failed to get settings: %w", err)
 	}
 
-	if err := s.nomad.UpdateConfiguration(settings); err != nil {
+	err = s.nomad.UpdateConfiguration(settings)
+	if err != nil {
 		return fmt.Errorf("failed to update nomad configuration: %w", err)
 	}
-	if err := s.supervisord.UpdateConfiguration(settings); err != nil {
+	err = s.supervisord.UpdateConfiguration(settings)
+	if err != nil {
 		return fmt.Errorf("failed to update supervisord configuration: %w", err)
 	}
 	s.vmdb.RequestConfigurationUpdate()
 	s.vmalert.RequestConfigurationUpdate()
 
-	if err := s.agentsState.UpdateAgentsState(ctx); err != nil {
+	err = s.agentsState.UpdateAgentsState(ctx)
+	if err != nil {
 		return fmt.Errorf("failed to update agents state: %w", err)
 	}
 	return nil
@@ -845,12 +851,14 @@ func (s *Server) writeSSHKey(sshKey string) error {
 		return errors.WithStack(err)
 	}
 	sshDirPath := path.Join(usr.HomeDir, ".ssh")
-	if err = os.MkdirAll(sshDirPath, 0o700); err != nil { //nolint:mnd
+	err = os.MkdirAll(sshDirPath, 0o700) //nolint:mnd
+	if err != nil {
 		return errors.WithStack(err)
 	}
 
 	keysPath := path.Join(sshDirPath, "authorized_keys")
-	if err = os.WriteFile(keysPath, []byte(sshKey), 0o600); err != nil { //nolint:mnd
+	err = os.WriteFile(keysPath, []byte(sshKey), 0o600) //nolint:mnd
+	if err != nil {
 		return errors.WithStack(err)
 	}
 	return nil

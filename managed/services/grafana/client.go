@@ -334,7 +334,8 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header, l *lo
 
 	// works only with Basic auth
 	var s []any
-	if err := c.do(ctx, http.MethodGet, "/api/user/orgs", "", authHeaders, nil, &s); err != nil {
+	err = c.do(ctx, http.MethodGet, "/api/user/orgs", "", authHeaders, nil, &s)
+	if err != nil {
 		return authUser{
 			role:   none,
 			userID: userID,
@@ -541,7 +542,7 @@ func (c *Client) GetCurrentUserOrgs(ctx context.Context, authHeaders http.Header
 
 func (c *Client) getRoleForServiceToken(ctx context.Context, token string) (role, error) {
 	header := http.Header{}
-	header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+	header.Add("Authorization", "Bearer "+token)
 
 	var k map[string]any
 	err := c.do(ctx, http.MethodGet, "/api/auth/serviceaccount", "", header, nil, &k)
@@ -591,7 +592,8 @@ func (c *Client) getNotPMMAgentTokenCountForServiceAccount(ctx context.Context, 
 	}
 
 	var tokens []serviceToken
-	if err := c.do(ctx, http.MethodGet, fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, nil, &tokens); err != nil {
+	err = c.do(ctx, http.MethodGet, fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, nil, &tokens)
+	if err != nil {
 		return 0, err
 	}
 
@@ -618,7 +620,8 @@ func (c *Client) testCreateUser(ctx context.Context, login string, role role, au
 		return 0, errors.WithStack(err)
 	}
 	var m map[string]any
-	if err = c.do(ctx, "POST", "/api/admin/users", "", authHeaders, b, &m); err != nil {
+	err = c.do(ctx, "POST", "/api/admin/users", "", authHeaders, b, &m)
+	if err != nil {
 		return 0, err
 	}
 	userID := int(m["id"].(float64)) //nolint:forcetypeassert
@@ -635,7 +638,8 @@ func (c *Client) testCreateUser(ctx context.Context, login string, role role, au
 	if err != nil {
 		return 0, errors.WithStack(err)
 	}
-	if err = c.do(ctx, "PATCH", "/api/org/users/"+strconv.Itoa(userID), "", authHeaders, b, nil); err != nil {
+	err = c.do(ctx, "PATCH", "/api/org/users/"+strconv.Itoa(userID), "", authHeaders, b, nil)
+	if err != nil {
 		return 0, err
 	}
 	return userID, nil
@@ -734,7 +738,8 @@ func (c *Client) CreateAlertRule(ctx context.Context, folderUID, groupName, inte
 		group.Interval = interval
 	}
 
-	if err = validateDurations(group.Interval, rule.For); err != nil {
+	err = validateDurations(group.Interval, rule.For)
+	if err != nil {
 		return err
 	}
 
@@ -743,7 +748,8 @@ func (c *Client) CreateAlertRule(ctx context.Context, folderUID, groupName, inte
 		return err
 	}
 
-	if err := c.do(ctx, "POST", fmt.Sprintf("/api/ruler/grafana/api/v1/rules/%s", folderUID), "", authHeaders, body, nil); err != nil {
+	err = c.do(ctx, "POST", "/api/ruler/grafana/api/v1/rules/"+folderUID, "", authHeaders, body, nil)
+	if err != nil {
 		if cErr, ok := errors.Cause(err).(*clientError); ok { //nolint:errorlint
 			return status.Error(codes.InvalidArgument, cErr.ErrorMessage)
 		}
@@ -878,7 +884,8 @@ func (c *Client) createServiceAccount(ctx context.Context, role role, nodeName s
 	}
 
 	var m map[string]any
-	if err = c.do(ctx, "POST", "/api/serviceaccounts", "", authHeaders, b, &m); err != nil {
+	err = c.do(ctx, "POST", "/api/serviceaccounts", "", authHeaders, b, &m)
+	if err != nil {
 		return 0, err
 	}
 
@@ -886,7 +893,8 @@ func (c *Client) createServiceAccount(ctx context.Context, role role, nodeName s
 
 	// orgId is ignored during creating service account and default is -1
 	// orgId should be set to 1
-	if err = c.do(ctx, "PATCH", fmt.Sprintf("/api/serviceaccounts/%d", serviceAccountID), "", authHeaders, []byte("{\"orgId\": 1}"), &m); err != nil {
+	err = c.do(ctx, "PATCH", fmt.Sprintf("/api/serviceaccounts/%d", serviceAccountID), "", authHeaders, []byte("{\"orgId\": 1}"), &m)
+	if err != nil {
 		return 0, err
 	}
 
@@ -912,7 +920,8 @@ func (c *Client) createServiceToken(ctx context.Context, serviceAccountID int, n
 	}
 
 	var m map[string]any
-	if err = c.do(ctx, "POST", fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, b, &m); err != nil {
+	err = c.do(ctx, "POST", fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, b, &m)
+	if err != nil {
 		return 0, "", err
 	}
 	serviceTokenID := int(m["id"].(float64)) //nolint:forcetypeassert
@@ -1016,7 +1025,8 @@ func (c *Client) CreateAnnotation(ctx context.Context, tags []string, from time.
 		Message string `json:"message"`
 	}
 
-	if err := c.do(ctx, "POST", "/api/annotations", "", headers, b, &response); err != nil {
+	err = c.do(ctx, "POST", "/api/annotations", "", headers, b, &response)
+	if err != nil {
 		return "", errors.Wrap(err, "failed to create annotation")
 	}
 
