@@ -40,7 +40,7 @@
     "@mui/icons-material": "^7.3.7",
     "@mui/material": "^7.3.7",
     "@mui/utils": "^7.3.7",
-    "@mui/x-date-pickers": "^7.15.0",
+    "@mui/x-date-pickers": "^7.29.4",
     "@rollup/plugin-commonjs": "^29.0.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-terser": "^0.4.4",
