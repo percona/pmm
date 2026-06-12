@@ -1277,7 +1277,8 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		if params.HANodeID != "" {
 			return nil, fmt.Errorf("cannot auto-provision database in HA mode: %w", errCV)
 		}
-		if err := initWithRoot(params); err != nil {
+		err := initWithRoot(params)
+		if err != nil {
 			return nil, err
 		}
 		errCV = checkVersion(ctx, db)
@@ -1287,7 +1288,8 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		return nil, errCV
 	}
 
-	if err := migrateDB(db, params); err != nil {
+	err := migrateDB(db, params)
+	if err != nil {
 		return nil, err
 	}
 
@@ -1445,7 +1447,8 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 	var currentVersion int
 	errDB := db.QueryRow("SELECT id FROM schema_migrations ORDER BY id DESC LIMIT 1").Scan(&currentVersion)
 	// undefined_table (see https://www.postgresql.org/docs/current/errcodes-appendix.html)
-	if pErr, ok := errDB.(*pq.Error); ok && pErr.Code == "42P01" { //nolint:errorlint
+	var pErr *pq.Error
+	if errors.As(errDB, &pErr) && pErr.Code == "42P01" {
 		errDB = nil
 	}
 	if errDB != nil {
@@ -1471,7 +1474,8 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 			queries = append(queries, fmt.Sprintf(`INSERT INTO schema_migrations (id) VALUES (%d)`, version))
 			for _, q := range queries {
 				q = strings.TrimSpace(q)
-				if _, err := tx.Exec(q); err != nil {
+				_, err := tx.Exec(q)
+				if err != nil {
 					return errors.Wrapf(err, "failed to execute statement:\n%s", q)
 				}
 			}
@@ -1491,7 +1495,8 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 		if err != nil {
 			return err
 		}
-		if err = SaveSettings(tx, s); err != nil {
+		err = SaveSettings(tx, s)
+		if err != nil {
 			return err
 		}
 
@@ -1570,7 +1575,7 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 
 	node, err := createNodeWithID(q, nodeID, GenericNodeType, &CreateNodeParams{
 		NodeName:        params.HANodeID,
-		Address:         "127.0.0.1",
+		Address:         LocalhostAddr,
 		CustomLabels:    labels,
 		IsPMMServerNode: true,
 	})
@@ -1584,7 +1589,8 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 		return err
 	}
 
-	if _, err = CreateNodeExporter(q, agent.AgentID, labels, false, false, []string{}, nil, ""); err != nil {
+	_, err = CreateNodeExporter(q, agent.AgentID, labels, false, false, []string{}, nil, "")
+	if err != nil {
 		return err
 	}
 
@@ -1601,7 +1607,7 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 	// create PMM Server Node and associated Agents
 	node, err := createNodeWithID(q, PMMServerNodeID, GenericNodeType, &CreateNodeParams{
 		NodeName:        "pmm-server",
-		Address:         "127.0.0.1",
+		Address:         LocalhostAddr,
 		IsPMMServerNode: true,
 	})
 	if err != nil {
@@ -1612,10 +1618,12 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 		return err
 	}
 
-	if _, err = createPMMAgentWithID(q, PMMServerAgentID, node.NodeID, nil); err != nil {
+	_, err = createPMMAgentWithID(q, PMMServerAgentID, node.NodeID, nil)
+	if err != nil {
 		return err
 	}
-	if _, err = CreateNodeExporter(q, PMMServerAgentID, nil, false, false, []string{}, nil, ""); err != nil {
+	_, err = CreateNodeExporter(q, PMMServerAgentID, nil, false, false, []string{}, nil, "")
+	if err != nil {
 		return err
 	}
 

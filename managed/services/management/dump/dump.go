@@ -181,7 +181,8 @@ func (s *Service) ListDumps(_ context.Context, _ *dumpv1beta1.ListDumpsRequest) 
 // DeleteDump deletes a dump based on the provided context and request.
 func (s *Service) DeleteDump(_ context.Context, req *dumpv1beta1.DeleteDumpRequest) (*dumpv1beta1.DeleteDumpResponse, error) {
 	for _, id := range req.DumpIds {
-		if err := s.dumpService.DeleteDump(id); err != nil {
+		err := s.dumpService.DeleteDump(id)
+		if err != nil {
 			return nil, err
 		}
 	}
@@ -260,7 +261,8 @@ func (s *Service) UploadDump(_ context.Context, req *dumpv1beta1.UploadDumpReque
 	defer sftpClient.Close() //nolint:errcheck
 
 	for _, filePath := range filePaths {
-		if err = s.uploadFile(sftpClient, filePath, req.SftpParameters.Directory); err != nil {
+		err = s.uploadFile(sftpClient, filePath, req.SftpParameters.Directory)
+		if err != nil {
 			return nil, errors.Wrap(err, "failed to upload file on SFTP server")
 		}
 	}
@@ -282,11 +284,13 @@ func (s *Service) uploadFile(client *sftp.Client, localFilePath, remoteDir strin
 		return errors.Wrap(err, "failed to open dump file")
 	}
 	defer func() {
-		if err := f.Close(); err != nil {
+		err := f.Close()
+		if err != nil {
 			s.l.Errorf("Failed to close file: %+v", err)
 		}
 	}()
-	if _, err = bufio.NewReader(f).WriteTo(nf); err != nil {
+	_, err = bufio.NewReader(f).WriteTo(nf)
+	if err != nil {
 		return errors.Wrap(err, "failed to write dump file on SFTP server")
 	}
 

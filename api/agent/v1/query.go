@@ -238,7 +238,8 @@ func makeInterface(value *QueryActionValue) (any, error) {
 		// See https://jira.percona.com/browse/SAAS-107.
 		return string(v.Bytes), nil
 	case *QueryActionValue_Timestamp:
-		if err := v.Timestamp.CheckValid(); err != nil {
+		err := v.Timestamp.CheckValid()
+		if err != nil {
 			return nil, err
 		}
 		return v.Timestamp.AsTime(), nil
@@ -320,7 +321,8 @@ func unmarshalActionQueryDocsResult(docs []*QueryActionMap) ([]map[string]any, e
 // UnmarshalActionQueryResult returns deserialized form of query Action result, both SQL and documents.
 func UnmarshalActionQueryResult(b []byte) ([]map[string]any, error) {
 	var res QueryActionResult
-	if err := proto.Unmarshal(b, &res); err != nil {
+	err := proto.Unmarshal(b, &res)
+	if err != nil {
 		return nil, err
 	}
 

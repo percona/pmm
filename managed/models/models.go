@@ -132,7 +132,8 @@ func getLabels(b []byte) (map[string]string, error) {
 		return nil, nil //nolint:nilnil
 	}
 	m := make(map[string]string)
-	if err := json.Unmarshal(b, &m); err != nil {
+	err := json.Unmarshal(b, &m)
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to decode custom labels")
 	}
 	return m, nil
@@ -140,7 +141,8 @@ func getLabels(b []byte) (map[string]string, error) {
 
 // getLabels serializes model's Prometheus labels.
 func setLabels(m map[string]string, res *[]byte) error {
-	if err := prepareLabels(m, false); err != nil {
+	err := prepareLabels(m, false)
+	if err != nil {
 		return err
 	}
 
@@ -180,7 +182,8 @@ func jsonScan(v, src any) error {
 		return errors.Errorf("expected []byte or string, got %T (%q)", src, src)
 	}
 
-	if err := json.Unmarshal(b, v); err != nil {
+	err := json.Unmarshal(b, v)
+	if err != nil {
 		return errors.Wrap(err, "failed to unmarshal JSON column")
 	}
 	return nil

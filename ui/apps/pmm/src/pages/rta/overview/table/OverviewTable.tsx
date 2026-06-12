@@ -75,6 +75,7 @@ const OverviewTable: FC<Props> = ({
         state={{ columnFilters, sorting }}
         onColumnFiltersChange={setColumnFilters}
         onSortingChange={setSorting}
+        enableStickyHeader
         enableGlobalFilter={false}
         enableHiding={false}
         enableRowHoverAction
@@ -88,6 +89,14 @@ const OverviewTable: FC<Props> = ({
           // default 'betweenInclusive' filter fails on values like '1.50', discarding the row that has 1.5 seconds
           timeRangeFilterFn: (row, id, filterValue) =>
             filterElapsedTime(row as MRT_Row<QueryData>, id, filterValue),
+        }}
+        muiTableContainerProps={{
+          sx: {
+            flex: 1,
+            borderRadius: 2,
+            border: '1px solid',
+            borderColor: 'divider',
+          },
         }}
         muiTableBodyRowProps={({ row }) => ({
           onMouseEnter: onRowHover,

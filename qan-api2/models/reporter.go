@@ -227,7 +227,8 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 
 	var queryBuffer bytes.Buffer
 
-	if err := tmplQueryReport.Execute(&queryBuffer, tmplArgs); err != nil {
+	err = tmplQueryReport.Execute(&queryBuffer, tmplArgs)
+	if err != nil {
 		return nil, fmt.Errorf("cannot execute tmplQueryReport: %w", err)
 	}
 
@@ -383,7 +384,8 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	var results []*qanpbv1.Point
 	var queryBuffer bytes.Buffer
 
-	if err := tmplQueryReportSparklines.Execute(&queryBuffer, tmplArgs); err != nil {
+	err = tmplQueryReportSparklines.Execute(&queryBuffer, tmplArgs)
+	if err != nil {
 		return nil, fmt.Errorf("cannot execute tmplQueryReportSparklines: %w", err)
 	}
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
@@ -615,7 +617,8 @@ func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec,
 
 	var queryBuffer bytes.Buffer
 
-	if err := tmplQueryFilter.Execute(&queryBuffer, tmplArgs); err != nil {
+	err = tmplQueryFilter.Execute(&queryBuffer, tmplArgs)
+	if err != nil {
 		return nil, 0, fmt.Errorf("cannot execute tmplQueryFilter %s: %w", queryBuffer.String(), err)
 	}
 
@@ -634,7 +637,8 @@ func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec,
 		label.mainMetricPerSec /= float32(durationSec)
 		labels = append(labels, &label)
 	}
-	if err = rows.Err(); err != nil {
+	err = rows.Err()
+	if err != nil {
 		return nil, 0, fmt.Errorf("failed to select for QueryFilter %s: %w", queryBuffer.String(), err)
 	}
 
@@ -649,7 +653,8 @@ func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec,
 			}
 			totalMainMetricPerSec = labelTotal.mainMetricPerSec / float32(durationSec)
 		}
-		if err = rows.Err(); err != nil {
+		err = rows.Err()
+		if err != nil {
 			return nil, 0, fmt.Errorf("failed to select total for QueryFilter %s: %w", queryBuffer.String(), err)
 		}
 	}
@@ -691,7 +696,8 @@ func (r *Reporter) queryLabels(ctx context.Context, periodStartFromSec, periodSt
 		LbacFilter: lbacFilter,
 	}
 
-	if err := queryLabelsTmpl.Execute(&queryBuffer, tmplArgs); err != nil {
+	err = queryLabelsTmpl.Execute(&queryBuffer, tmplArgs)
+	if err != nil {
 		return nil, fmt.Errorf("cannot execute queryLabelsTmpl: %w", err)
 	}
 
@@ -710,7 +716,8 @@ func (r *Reporter) queryLabels(ctx context.Context, periodStartFromSec, periodSt
 		}
 		labels = append(labels, &label)
 	}
-	if err = rows.Err(); err != nil {
+	err = rows.Err()
+	if err != nil {
 		return nil, fmt.Errorf("failed to select for QueryFilter %s: %w", queryLabels, err)
 	}
 
@@ -770,7 +777,8 @@ func parseFilters(filters []string) ([]string, error) {
 	}
 
 	var parsed []string
-	if err := json.Unmarshal(decoded, &parsed); err != nil {
+	err = json.Unmarshal(decoded, &parsed)
+	if err != nil {
 		return nil, fmt.Errorf("failed to parse JSON: %w", err)
 	}
 

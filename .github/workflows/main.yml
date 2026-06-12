@@ -30,6 +30,9 @@ jobs:
     name: Checks
     runs-on: ubuntu-22.04
 
+    permissions:
+      contents: read
+      pull-requests: write
     env:
       PMM_ENCRYPTION_KEY_PATH: pmm-encryption.key
 
@@ -115,6 +118,7 @@ jobs:
 
       - name: Run code linters
         uses: reviewdog/action-golangci-lint@c76cceaaab89abe74e649d2e34c6c9adc26662d2 # v2.10.0
+        if: ${{ github.event_name == 'pull_request' }}
         with:
           github_token: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
           go_version_file: ${{ github.workspace }}/go.mod
@@ -149,7 +153,7 @@ jobs:
 
     steps:
       - name: Slack Notification
-        uses: rtCamp/action-slack-notify@e31e87e03dd19038e411e38ae27cbad084a90661 # v2.3.3
+        uses: rtCamp/action-slack-notify@33ca3be66c6f378fe1610fd1d5258632dbed5e58 # v2.4.0
 
   workflow_failure:
     if: ${{ failure() }}
@@ -167,4 +171,4 @@ jobs:
 
     steps:
       - name: Slack Notification
-        uses: rtCamp/action-slack-notify@e31e87e03dd19038e411e38ae27cbad084a90661 # v2.3.3
+        uses: rtCamp/action-slack-notify@33ca3be66c6f378fe1610fd1d5258632dbed5e58 # v2.4.0

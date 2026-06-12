@@ -451,7 +451,8 @@ LOOP:
 
 			case *agentv1.StartActionRequest:
 				responsePayload = &agentv1.StartActionResponse{}
-				if err := c.handleStartActionRequest(p); err != nil {
+				err := c.handleStartActionRequest(p)
+				if err != nil {
 					status = convertAgentErrorToGrpcStatus(err)
 					break
 				}
@@ -468,7 +469,8 @@ LOOP:
 
 			case *agentv1.StartJobRequest:
 				var resp agentv1.StartJobResponse
-				if err := c.handleStartJobRequest(p); err != nil {
+				err := c.handleStartJobRequest(p)
+				if err != nil {
 					resp.Error = err.Error()
 				}
 				responsePayload = &resp
@@ -485,7 +487,8 @@ LOOP:
 				responsePayload = &agentv1.GetVersionsResponse{Versions: c.handleVersionsRequest(p)}
 			case *agentv1.PBMSwitchPITRRequest:
 				var resp agentv1.PBMSwitchPITRResponse
-				if err := c.handlePBMSwitchRequest(ctx, p, req.ID); err != nil {
+				err := c.handlePBMSwitchRequest(ctx, p, req.ID)
+				if err != nil {
 					resp.Error = err.Error()
 				}
 				responsePayload = &resp
@@ -512,7 +515,8 @@ LOOP:
 			break LOOP
 		}
 	}
-	if err := c.channel.Wait(); err != nil {
+	err := c.channel.Wait()
+	if err != nil {
 		c.l.Debugf("Channel closed: %s.", err)
 		return
 	}
@@ -521,13 +525,13 @@ LOOP:
 
 func (c *Client) handleStartActionRequest(p *agentv1.StartActionRequest) error {
 	timeout := p.Timeout.AsDuration()
-	if err := p.Timeout.CheckValid(); err != nil {
+	err := p.Timeout.CheckValid()
+	if err != nil {
 		timeout = 0
 	}
 
 	cfg := c.cfg.Get()
 	var action actions.Action
-	var err error
 	switch params := p.Params.(type) {
 	case *agentv1.StartActionRequest_MysqlExplainParams:
 		action, err = actions.NewMySQLExplainAction(p.ActionId, timeout, params.MysqlExplainParams)
@@ -652,7 +656,8 @@ func (c *Client) handleStartActionRequest(p *agentv1.StartActionRequest) error {
 }
 
 func (c *Client) handleStartJobRequest(p *agentv1.StartJobRequest) error {
-	if err := p.Timeout.CheckValid(); err != nil {
+	err := p.Timeout.CheckValid()
+	if err != nil {
 		return err
 	}
 	timeout := p.Timeout.AsDuration()
@@ -865,7 +870,8 @@ func createChannelToAgentService(dialCtx context.Context, conn *grpc.ClientConn,
 	streamCtx, streamCancel := context.WithCancel(context.Background())
 	teardown := func() {
 		streamCancel()
-		if err := conn.Close(); err != nil {
+		err := conn.Close()
+		if err != nil {
 			l.Debugf("Connection closed: %s.", err)
 			return
 		}
