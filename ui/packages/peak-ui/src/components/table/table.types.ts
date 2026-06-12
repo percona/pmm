@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 import { AlertProps } from '@mui/material';
-import { MRT_Row, type MRT_RowData, type MRT_TableOptions } from 'material-react-table';
+import { type MRT_Row, type MRT_RowData, type MRT_TableOptions } from 'material-react-table';
 
 export interface TableProps<T extends MRT_RowData> extends MRT_TableOptions<T> {
   noDataMessage?: string;
