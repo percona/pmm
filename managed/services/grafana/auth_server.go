@@ -525,7 +525,6 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 	if ok {
 		l = l.WithField("prefix", prefix)
 	} else {
-		// fallback to Grafana admin if there is no explicit rule
 		l.Warn("No explicit rule, falling back to Grafana admin.")
 		minRole = grafanaAdmin
 	}
