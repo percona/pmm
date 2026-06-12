@@ -220,9 +220,9 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
         ),
       };
     },
-    muiTopToolbarProps: () => {
+    muiTopToolbarProps: (args) => {
       const resolvedTopToolbarProps =
-        typeof muiTopToolbarProps === 'function' ? undefined : muiTopToolbarProps;
+        typeof muiTopToolbarProps === 'function' ? muiTopToolbarProps(args) : muiTopToolbarProps;
       const { sx: muiTopToolbarPropsSx = {}, ...muiTopToolbarRestProps } =
         resolvedTopToolbarProps || {};
       return {
