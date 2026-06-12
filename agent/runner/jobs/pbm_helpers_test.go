@@ -16,11 +16,11 @@ package jobs
 
 import (
 	"context"
+	"errors"
 	"os"
 	"testing"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -43,7 +43,7 @@ func newTestDescribePollConfig(t *testing.T, opts ...func(*pbmDescribePollConfig
 	cfg := pbmDescribePollConfig{
 		l:               logrus.New(),
 		dsn:             "mongodb://localhost",
-		operation:       "backup",
+		operation:       pbmCmdBackup,
 		targetName:      "2024-01-01T00:00:00Z",
 		startedAt:       time.Now(),
 		describeRetries: &retries,
@@ -207,6 +207,43 @@ func TestIsTransientPBMDescribeError(t *testing.T) {
 	}
 }
 
+func TestOperationIsRunning(t *testing.T) {
+	t.Parallel()
+
+	backupCfg := pbmDescribePollConfig{
+		operation:  pbmCmdBackup,
+		targetName: "backup-1",
+	}
+	status := &pbmStatus{}
+	status.Running.Type = pbmCmdBackup
+	status.Running.Name = "backup-1"
+	assert.True(t, backupCfg.operationIsRunning(status))
+
+	restoreCfg := pbmDescribePollConfig{operation: pbmCmdRestore}
+	status.Running.Type = pbmCmdRestore
+	assert.True(t, restoreCfg.operationIsRunning(status))
+
+	customCfg := pbmDescribePollConfig{
+		isRunning: func(*pbmStatus) bool { return true },
+	}
+	assert.True(t, customCfg.operationIsRunning(status))
+}
+
+func TestSnapshotForTarget(t *testing.T) {
+	t.Parallel()
+
+	cfg := pbmDescribePollConfig{
+		operation:  pbmCmdBackup,
+		targetName: "snap-1",
+	}
+	status := &pbmStatus{}
+	status.Backups.Snapshot = []pbmSnapshot{{Name: "snap-1"}}
+	assert.NotNil(t, cfg.snapshotForTarget(status))
+
+	cfg.operation = pbmCmdRestore
+	assert.Nil(t, cfg.snapshotForTarget(status))
+}
+
 func TestIsPBMBackupRunning(t *testing.T) {
 	t.Parallel()
 
@@ -243,7 +280,7 @@ func TestRetryDescribeCommand(t *testing.T) {
 	retries := 1
 	cfg := pbmDescribePollConfig{
 		l:               logrus.New(),
-		operation:       "backup",
+		operation:       pbmCmdBackup,
 		describeRetries: &retries,
 	}
 
@@ -255,10 +292,10 @@ func TestRetryDescribeCommand(t *testing.T) {
 func TestDescribeFailureError(t *testing.T) {
 	t.Parallel()
 
-	err := describeFailureError(describeInfo{Status: pbmStatusError}, "backup")
+	err := describeFailureError(describeInfo{Status: pbmStatusError}, pbmCmdBackup)
 	require.EqualError(t, err, "backup failed")
 
-	err = describeFailureError(describeInfo{Status: pbmStatusError, Error: "oplog gap"}, "backup")
+	err = describeFailureError(describeInfo{Status: pbmStatusError, Error: "oplog gap"}, pbmCmdBackup)
 	require.EqualError(t, err, "oplog gap")
 }
 
@@ -616,23 +653,23 @@ func TestWritePBMConfigFile(t *testing.T) {
 func TestDescribeTerminalError(t *testing.T) {
 	t.Parallel()
 
-	done, err := describeTerminalError(describeInfo{Status: pbmStatusDone}, "backup")
+	done, err := describeTerminalError(describeInfo{Status: pbmStatusDone}, pbmCmdBackup)
 	require.NoError(t, err)
 	assert.True(t, done)
 
-	done, err = describeTerminalError(describeInfo{Status: pbmStatusCanceled}, "backup")
+	done, err = describeTerminalError(describeInfo{Status: pbmStatusCanceled}, pbmCmdBackup)
 	require.EqualError(t, err, "backup was canceled")
 	assert.True(t, done)
 
-	done, err = describeTerminalError(describeInfo{Status: pbmStatusError, Error: "oplog has insufficient range"}, "backup")
+	done, err = describeTerminalError(describeInfo{Status: pbmStatusError, Error: "oplog has insufficient range"}, pbmCmdBackup)
 	require.EqualError(t, err, "oplog has insufficient range")
 	assert.True(t, done)
 
-	done, err = describeTerminalError(describeInfo{Status: pbmStatusPartlyDone, Error: "partial"}, "backup")
+	done, err = describeTerminalError(describeInfo{Status: pbmStatusPartlyDone, Error: "partial"}, pbmCmdBackup)
 	require.EqualError(t, err, "partial")
 	assert.True(t, done)
 
-	done, err = describeTerminalError(describeInfo{Status: "running"}, "backup")
+	done, err = describeTerminalError(describeInfo{Status: "running"}, pbmCmdBackup)
 	require.NoError(t, err)
 	assert.False(t, done)
 }
@@ -640,23 +677,23 @@ func TestDescribeTerminalError(t *testing.T) {
 func TestSnapshotTerminalError(t *testing.T) {
 	t.Parallel()
 
-	done, err := snapshotTerminalError(&pbmSnapshot{Status: pbmStatusDone}, "backup")
+	done, err := snapshotTerminalError(&pbmSnapshot{Status: pbmStatusDone}, pbmCmdBackup)
 	require.NoError(t, err)
 	assert.True(t, done)
 
-	done, err = snapshotTerminalError(&pbmSnapshot{Status: pbmStatusCanceled}, "backup")
+	done, err = snapshotTerminalError(&pbmSnapshot{Status: pbmStatusCanceled}, pbmCmdBackup)
 	require.EqualError(t, err, "backup was canceled")
 	assert.True(t, done)
 
-	done, err = snapshotTerminalError(&pbmSnapshot{Status: pbmStatusError, Error: "storage unavailable"}, "backup")
+	done, err = snapshotTerminalError(&pbmSnapshot{Status: pbmStatusError, Error: "storage unavailable"}, pbmCmdBackup)
 	require.EqualError(t, err, "storage unavailable")
 	assert.True(t, done)
 
-	done, err = snapshotTerminalError(&pbmSnapshot{Status: pbmStatusError}, "backup")
+	done, err = snapshotTerminalError(&pbmSnapshot{Status: pbmStatusError}, pbmCmdBackup)
 	require.EqualError(t, err, "backup failed")
 	assert.True(t, done)
 
-	done, err = snapshotTerminalError(&pbmSnapshot{Status: "running"}, "backup")
+	done, err = snapshotTerminalError(&pbmSnapshot{Status: "running"}, pbmCmdBackup)
 	require.NoError(t, err)
 	assert.False(t, done)
 }
