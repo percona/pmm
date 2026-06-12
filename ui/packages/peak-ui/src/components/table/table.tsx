@@ -228,7 +228,7 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
       return {
         ...muiTopToolbarRestProps,
         sx: mergeSx(
-          () => ({
+          {
             backgroundColor: 'transparent',
             '& > .MuiBox-root': {
               alignItems: 'center',
@@ -241,7 +241,7 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
                 marginRight: 'auto',
               },
             },
-          }),
+          },
           muiTopToolbarPropsSx
         ),
       };
@@ -379,7 +379,7 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
     columns: customColumns,
     data,
     state: {
-      columnVisibility: { ...columnVisibility, ...columnVisibilityState },
+      columnVisibility: { ...columnVisibility, ...(columnVisibilityState ?? {}) },
       ...restOfState,
     },
     initialState: {
