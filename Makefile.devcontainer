@@ -65,11 +65,10 @@ ui-setup:                            ## Install UI dependencies
 	cd ui && yarn install
 
 run-ui: ui-setup                     ## Start vite dev server for UI with HMR
-	cp /etc/nginx/conf.d/pmm.conf /etc/nginx/conf.d/pmm.conf.bak
-	sed -i 's|alias /usr/share/pmm-ui;|proxy_pass http://127.0.0.1:5173;|' /etc/nginx/conf.d/pmm.conf
-	sed -i '/try_files .* break;/c\      proxy_http_version 1.1;\n      proxy_set_header Upgrade $$http_upgrade;\n      proxy_set_header Connection "upgrade";\n      proxy_set_header Host $$host;\n      proxy_set_header X-Real-IP $$remote_addr;' /etc/nginx/conf.d/pmm.conf
-	supervisorctl signal HUP nginx
-	trap 'mv /etc/nginx/conf.d/pmm.conf.bak /etc/nginx/conf.d/pmm.conf; supervisorctl signal HUP nginx' EXIT; \
+	mv /srv/grafana/plugins/pmm-compat-app /srv/grafana/plugins/pmm-compat-app.bak; \
+	ln -sfn $(CURDIR)/ui/apps/pmm-compat/dist /srv/grafana/plugins/pmm-compat-app; \
+	supervisorctl restart grafana; \
+	trap 'rm -f /srv/grafana/plugins/pmm-compat-app; mv /srv/grafana/plugins/pmm-compat-app.bak /srv/grafana/plugins/pmm-compat-app; supervisorctl restart grafana' EXIT; \
 	cd ui && yarn dev
 
 run-ui-build: ui-setup               ## Build UI and deploy to system dirs
@@ -80,6 +79,10 @@ run-ui-build: ui-setup               ## Build UI and deploy to system dirs
 	cp -r ui/apps/pmm-compat/dist /usr/share/percona-dashboards/panels/pmm-compat-app
 	cp -r ui/apps/pmm-compat/dist /srv/grafana/plugins/pmm-compat-app
 	supervisorctl restart grafana
+
+link-pmm-compat-plugin:
+	rm -rf /srv/grafana/plugins/pmm-compat
+	lns -sfn $(CURDIR)/ui/apps/pmm-compat/dist /srv/grafana/plugins/pmm-compat
 
 # TODO https://jira.percona.com/browse/PMM-3484, see maincover_test.go
 # run-race-cover: install-race    ## Run pmm-managed with race detector and collect coverage information.
