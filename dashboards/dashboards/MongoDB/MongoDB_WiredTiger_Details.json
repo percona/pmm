@@ -3370,7 +3370,7 @@
         "to": "now"
     },
     "timepicker": {},
-    "timezone": "browser",
+    "timezone": "",
     "title": "MongoDB WiredTiger Details",
     "uid": "mongodb-wiredtiger",
     "version": 5
