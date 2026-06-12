@@ -118,8 +118,8 @@ jobs:
 
       - name: Run code linters
         uses: reviewdog/action-golangci-lint@c76cceaaab89abe74e649d2e34c6c9adc26662d2 # v2.10.0
+        if: ${{ github.event_name == 'pull_request' }}
         with:
-          if: ${{ github.event_name == 'pull_request' }}
           github_token: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
           go_version_file: ${{ github.workspace }}/go.mod
           reporter: github-pr-review
