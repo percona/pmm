@@ -306,7 +306,8 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 	// add current stat monitor to cache so they are not send as new on first iteration with incorrect timestamps
 	var running bool
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
-	if current, _, err := m.monitorCache.getStatMonitorExtended(ctx, m.q, normalizedQuery, m.maxQueryLength); err == nil {
+	current, _, err := m.monitorCache.getStatMonitorExtended(ctx, m.q, normalizedQuery, m.maxQueryLength)
+	if err == nil {
 		m.monitorCache.refresh(current)
 		m.l.Debugf("Got %d initial stat monitor.", len(current))
 		running = true

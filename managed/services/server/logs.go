@@ -117,7 +117,8 @@ func (l *Logs) Zip(ctx context.Context, w io.Writer, pprofConfig *PprofConfig, l
 		if err != nil {
 			return errors.Wrap(err, "failed to create zip file header")
 		}
-		if _, err = f.Write(file.Data); err != nil {
+		_, err = f.Write(file.Data)
+		if err != nil {
 			return errors.Wrap(err, "failed to write zip file data")
 		}
 	}
@@ -364,7 +365,8 @@ func readFile(name string) ([]byte, time.Time, error) {
 		return nil, m, errors.WithStack(err)
 	}
 
-	if fi, err := os.Stat(name); err == nil {
+	fi, err := os.Stat(name)
+	if err == nil {
 		m = fi.ModTime()
 	}
 	return b, m, nil
@@ -412,7 +414,8 @@ func addAdminSummary(ctx context.Context, zw *zip.Writer) error {
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	if err := sf.Close(); err != nil {
+	err = sf.Close()
+	if err != nil {
 		return errors.WithStack(err)
 	}
 	defer os.Remove(sf.Name()) //nolint:errcheck
@@ -421,7 +424,8 @@ func addAdminSummary(ctx context.Context, zw *zip.Writer) error {
 	pdeathsig.Set(cmd, unix.SIGKILL)
 	cmd.Stdout = os.Stderr // stdout to stderr
 	cmd.Stderr = os.Stderr
-	if err = cmd.Run(); err != nil {
+	err = cmd.Run()
+	if err != nil {
 		return errors.Wrap(err, "cannot run pmm-admin summary")
 	}
 
@@ -446,12 +450,14 @@ func addAdminSummary(ctx context.Context, zw *zip.Writer) error {
 			return errors.WithStack(err)
 		}
 
-		if _, err = io.Copy(fw, fr); err != nil { //nolint:gosec
+		_, err = io.Copy(fw, fr) //nolint:gosec
+		if err != nil {
 			fr.Close() //nolint:errcheck
 			return errors.WithStack(err)
 		}
 
-		if err = fr.Close(); err != nil {
+		err = fr.Close()
+		if err != nil {
 			return errors.WithStack(err)
 		}
 	}

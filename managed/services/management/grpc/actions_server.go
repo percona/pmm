@@ -685,11 +685,13 @@ func (s *actionsServer) prepareServiceAction(serviceID, pmmAgentID, database str
 			return err
 		}
 
-		if pmmAgentID, err = models.FindPmmAgentIDToRunActionOrJob(pmmAgentID, agents); err != nil {
+		pmmAgentID, err = models.FindPmmAgentIDToRunActionOrJob(pmmAgentID, agents)
+		if err != nil {
 			return err
 		}
 
-		if dsn, _, err = models.FindDSNByServiceIDandPMMAgentID(tx.Querier, serviceID, pmmAgentID, database); err != nil {
+		dsn, _, err = models.FindDSNByServiceIDandPMMAgentID(tx.Querier, serviceID, pmmAgentID, database)
+		if err != nil {
 			return err
 		}
 
@@ -720,12 +722,14 @@ func (s *actionsServer) prepareServiceActionWithFiles(
 			return err
 		}
 
-		if pmmAgentID, err = models.FindPmmAgentIDToRunActionOrJob(pmmAgentID, pmmAgents); err != nil {
+		pmmAgentID, err = models.FindPmmAgentIDToRunActionOrJob(pmmAgentID, pmmAgents)
+		if err != nil {
 			return err
 		}
 
 		var agent *models.Agent
-		if dsn, agent, err = models.FindDSNByServiceIDandPMMAgentID(tx.Querier, serviceID, pmmAgentID, database); err != nil {
+		dsn, agent, err = models.FindDSNByServiceIDandPMMAgentID(tx.Querier, serviceID, pmmAgentID, database)
+		if err != nil {
 			return err
 		}
 

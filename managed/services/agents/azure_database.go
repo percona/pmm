@@ -86,7 +86,8 @@ func azureDatabaseExporterConfig(
 		ResourceTypes string
 	}{exporter.AzureOptions, resourceTypes}
 
-	if err = t.Execute(&config, options); err != nil {
+	err = t.Execute(&config, options)
+	if err != nil {
 		return nil, err
 	}
 
