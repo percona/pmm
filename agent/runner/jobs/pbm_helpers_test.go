@@ -15,13 +15,50 @@
 package jobs
 
 import (
+	"context"
+	"os"
 	"testing"
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+func withFastPBMDescribePoll(t *testing.T) {
+	t.Helper()
+
+	old := pbmDescribePollInterval
+	pbmDescribePollInterval = time.Millisecond
+	t.Cleanup(func() {
+		pbmDescribePollInterval = old
+	})
+}
+
+func newTestDescribePollConfig(t *testing.T, opts ...func(*pbmDescribePollConfig)) pbmDescribePollConfig {
+	t.Helper()
+
+	retries := maxDescribeCommandRetries
+	cfg := pbmDescribePollConfig{
+		l:               logrus.New(),
+		dsn:             "mongodb://localhost",
+		operation:       "backup",
+		targetName:      "2024-01-01T00:00:00Z",
+		startedAt:       time.Now(),
+		describeRetries: &retries,
+		fetchDescribe: func(context.Context) (describeInfo, error) {
+			return describeInfo{Status: pbmStatusDone}, nil
+		},
+		isRunning: func(*pbmStatus) bool {
+			return false
+		},
+	}
+	for _, opt := range opts {
+		opt(&cfg)
+	}
+	return cfg
+}
 
 func TestCreatePBMConfig(t *testing.T) {
 	s3Config := S3LocationConfig{
@@ -130,6 +167,8 @@ func TestCreatePBMConfig(t *testing.T) {
 func TestIsTransientPBMDescribeError(t *testing.T) {
 	t.Parallel()
 
+	assert.False(t, isTransientPBMDescribeError(nil))
+
 	for _, tc := range []struct {
 		name string
 		err  error
@@ -151,6 +190,11 @@ func TestIsTransientPBMDescribeError(t *testing.T) {
 			want: true,
 		},
 		{
+			name: "get snapshot size",
+			err:  errors.New("get snapshot size: missed file"),
+			want: true,
+		},
+		{
 			name: "real failure",
 			err:  errors.New("permission denied"),
 			want: false,
@@ -161,6 +205,412 @@ func TestIsTransientPBMDescribeError(t *testing.T) {
 			assert.Equal(t, tc.want, isTransientPBMDescribeError(tc.err))
 		})
 	}
+}
+
+func TestIsPBMBackupRunning(t *testing.T) {
+	t.Parallel()
+
+	status := &pbmStatus{}
+	status.Running.Type = pbmCmdBackup
+	status.Running.Name = "backup-1"
+
+	assert.True(t, isPBMBackupRunning(status, "backup-1"))
+	assert.False(t, isPBMBackupRunning(status, "backup-2"))
+	assert.False(t, isPBMBackupRunning(&pbmStatus{}, "backup-1"))
+}
+
+func TestIsPBMRestoreRunning(t *testing.T) {
+	t.Parallel()
+
+	status := &pbmStatus{}
+	status.Running.Type = pbmCmdRestore
+	assert.True(t, isPBMRestoreRunning(status))
+	assert.False(t, isPBMRestoreRunning(&pbmStatus{}))
+}
+
+func TestShouldRetryDescribeFailure(t *testing.T) {
+	t.Parallel()
+
+	transientErr := errors.New("no such file")
+	assert.True(t, shouldRetryDescribeFailure(transientErr, time.Now()))
+	assert.False(t, shouldRetryDescribeFailure(transientErr, time.Now().Add(-pbmDescribeStartupGrace)))
+	assert.False(t, shouldRetryDescribeFailure(errors.New("permission denied"), time.Now()))
+}
+
+func TestRetryDescribeCommand(t *testing.T) {
+	t.Parallel()
+
+	retries := 1
+	cfg := pbmDescribePollConfig{
+		l:               logrus.New(),
+		operation:       "backup",
+		describeRetries: &retries,
+	}
+
+	assert.True(t, retryDescribeCommand(cfg, errors.New("temporary")))
+	assert.Equal(t, 0, retries)
+	assert.False(t, retryDescribeCommand(cfg, errors.New("temporary")))
+}
+
+func TestDescribeFailureError(t *testing.T) {
+	t.Parallel()
+
+	err := describeFailureError(describeInfo{Status: pbmStatusError}, "backup")
+	require.EqualError(t, err, "backup failed")
+
+	err = describeFailureError(describeInfo{Status: pbmStatusError, Error: "oplog gap"}, "backup")
+	require.EqualError(t, err, "oplog gap")
+}
+
+func TestGroupDescribeErrors_AllBranches(t *testing.T) {
+	t.Parallel()
+
+	err := groupDescribeErrors(describeInfo{})
+	require.EqualError(t, err, "operation failed")
+
+	err = groupDescribeErrors(describeInfo{Error: "top level"})
+	require.EqualError(t, err, "top level")
+
+	err = groupDescribeErrors(describeInfo{
+		ReplSets: []replSet{{Name: "rs0", Error: "rs failed"}},
+	})
+	require.EqualError(t, err, "replset: rs0, error: rs failed")
+}
+
+func TestGroupPartlyDoneErrors(t *testing.T) {
+	t.Parallel()
+
+	err := groupPartlyDoneErrors(describeInfo{
+		Status: pbmStatusPartlyDone,
+		ReplSets: []replSet{{
+			Name:   "rs0",
+			Status: pbmStatusPartlyDone,
+			Nodes: []node{{
+				Name:   "node1",
+				Status: pbmStatusError,
+				Error:  "copy failed",
+			}},
+		}},
+	})
+	require.EqualError(t, err, "replset: rs0, node: node1, error: copy failed")
+}
+
+func TestPollPBMDescribeOnce(t *testing.T) {
+	t.Parallel()
+
+	t.Run("describe done", func(t *testing.T) {
+		t.Parallel()
+		done, err := pollPBMDescribeOnce(context.Background(), newTestDescribePollConfig(t))
+		require.NoError(t, err)
+		assert.True(t, done)
+	})
+
+	t.Run("describe in progress", func(t *testing.T) {
+		t.Parallel()
+		cfg := newTestDescribePollConfig(t, func(c *pbmDescribePollConfig) {
+			c.fetchDescribe = func(context.Context) (describeInfo, error) {
+				return describeInfo{Status: "running"}, nil
+			}
+		})
+		done, err := pollPBMDescribeOnce(context.Background(), cfg)
+		require.NoError(t, err)
+		assert.False(t, done)
+	})
+
+	t.Run("describe canceled", func(t *testing.T) {
+		t.Parallel()
+		cfg := newTestDescribePollConfig(t, func(c *pbmDescribePollConfig) {
+			c.fetchDescribe = func(context.Context) (describeInfo, error) {
+				return describeInfo{Status: pbmStatusCanceled}, nil
+			}
+		})
+		done, err := pollPBMDescribeOnce(context.Background(), cfg)
+		require.EqualError(t, err, "backup was canceled")
+		assert.True(t, done)
+	})
+
+	t.Run("describe partly done", func(t *testing.T) {
+		t.Parallel()
+		cfg := newTestDescribePollConfig(t, func(c *pbmDescribePollConfig) {
+			c.fetchDescribe = func(context.Context) (describeInfo, error) {
+				return describeInfo{
+					Status: pbmStatusPartlyDone,
+					ReplSets: []replSet{{
+						Name:   "rs0",
+						Status: pbmStatusPartlyDone,
+						Nodes: []node{{
+							Name:   "node1",
+							Status: pbmStatusError,
+							Error:  "failed node",
+						}},
+					}},
+				}, nil
+			}
+		})
+		done, err := pollPBMDescribeOnce(context.Background(), cfg)
+		require.EqualError(t, err, "replset: rs0, node: node1, error: failed node")
+		assert.True(t, done)
+	})
+
+	t.Run("status fetch error", func(t *testing.T) {
+		t.Parallel()
+		cfg := newTestDescribePollConfig(t, func(c *pbmDescribePollConfig) {
+			c.fetchDescribe = func(context.Context) (describeInfo, error) {
+				return describeInfo{}, errors.New("describe failed")
+			}
+			c.fetchStatus = func(context.Context, string) (*pbmStatus, error) {
+				return nil, errors.New("status unavailable")
+			}
+		})
+		done, err := pollPBMDescribeOnce(context.Background(), cfg)
+		require.ErrorContains(t, err, "failed to get pbm status")
+		assert.False(t, done)
+	})
+
+	t.Run("running backup with transient describe error", func(t *testing.T) {
+		t.Parallel()
+		cfg := newTestDescribePollConfig(t, func(c *pbmDescribePollConfig) {
+			c.fetchDescribe = func(context.Context) (describeInfo, error) {
+				return describeInfo{}, errors.New("no such file")
+			}
+			c.fetchStatus = func(context.Context, string) (*pbmStatus, error) {
+				status := &pbmStatus{}
+				status.Running.Type = pbmCmdBackup
+				status.Running.Name = c.targetName
+				return status, nil
+			}
+			c.isRunning = func(status *pbmStatus) bool {
+				return isPBMBackupRunning(status, c.targetName)
+			}
+		})
+		done, err := pollPBMDescribeOnce(context.Background(), cfg)
+		require.NoError(t, err)
+		assert.False(t, done)
+	})
+
+	t.Run("running backup retries describe command", func(t *testing.T) {
+		t.Parallel()
+		retries := maxDescribeCommandRetries
+		cfg := newTestDescribePollConfig(t, func(c *pbmDescribePollConfig) {
+			c.startedAt = time.Now().Add(-pbmDescribeStartupGrace)
+			c.describeRetries = &retries
+			c.fetchDescribe = func(context.Context) (describeInfo, error) {
+				return describeInfo{}, errors.New("permission denied")
+			}
+			c.fetchStatus = func(context.Context, string) (*pbmStatus, error) {
+				status := &pbmStatus{}
+				status.Running.Type = pbmCmdBackup
+				status.Running.Name = c.targetName
+				return status, nil
+			}
+			c.isRunning = func(status *pbmStatus) bool {
+				return isPBMBackupRunning(status, c.targetName)
+			}
+		})
+		done, err := pollPBMDescribeOnce(context.Background(), cfg)
+		require.NoError(t, err)
+		assert.False(t, done)
+		assert.Equal(t, maxDescribeCommandRetries-1, retries)
+	})
+
+	t.Run("snapshot done when describe fails", func(t *testing.T) {
+		t.Parallel()
+		cfg := newTestDescribePollConfig(t, func(c *pbmDescribePollConfig) {
+			c.fetchDescribe = func(context.Context) (describeInfo, error) {
+				return describeInfo{}, errors.New("no such file")
+			}
+			c.startedAt = time.Now().Add(-pbmDescribeStartupGrace)
+			c.fetchStatus = func(context.Context, string) (*pbmStatus, error) {
+				status := &pbmStatus{}
+				status.Backups.Snapshot = []pbmSnapshot{{
+					Name:   c.targetName,
+					Status: pbmStatusDone,
+				}}
+				return status, nil
+			}
+			c.findSnapshot = func(status *pbmStatus) *pbmSnapshot {
+				return findPBMSnapshot(status, c.targetName)
+			}
+		})
+		done, err := pollPBMDescribeOnce(context.Background(), cfg)
+		require.NoError(t, err)
+		assert.True(t, done)
+	})
+
+	t.Run("snapshot terminal error", func(t *testing.T) {
+		t.Parallel()
+		cfg := newTestDescribePollConfig(t, func(c *pbmDescribePollConfig) {
+			c.fetchDescribe = func(context.Context) (describeInfo, error) {
+				return describeInfo{}, errors.New("no such file")
+			}
+			c.startedAt = time.Now().Add(-pbmDescribeStartupGrace)
+			c.fetchStatus = func(context.Context, string) (*pbmStatus, error) {
+				status := &pbmStatus{}
+				status.Backups.Snapshot = []pbmSnapshot{{
+					Name:   c.targetName,
+					Status: pbmStatusError,
+					Error:  "storage error",
+				}}
+				return status, nil
+			}
+			c.findSnapshot = func(status *pbmStatus) *pbmSnapshot {
+				return findPBMSnapshot(status, c.targetName)
+			}
+		})
+		done, err := pollPBMDescribeOnce(context.Background(), cfg)
+		require.EqualError(t, err, "storage error")
+		assert.True(t, done)
+	})
+
+	t.Run("startup grace for transient error", func(t *testing.T) {
+		t.Parallel()
+		cfg := newTestDescribePollConfig(t, func(c *pbmDescribePollConfig) {
+			c.fetchDescribe = func(context.Context) (describeInfo, error) {
+				return describeInfo{}, errors.New("file is empty")
+			}
+			c.fetchStatus = func(context.Context, string) (*pbmStatus, error) {
+				return &pbmStatus{}, nil
+			}
+		})
+		done, err := pollPBMDescribeOnce(context.Background(), cfg)
+		require.NoError(t, err)
+		assert.False(t, done)
+	})
+
+	t.Run("uses default status fetcher", func(t *testing.T) {
+		t.Parallel()
+
+		oldFetcher := pbmStatusFetcher
+		pbmStatusFetcher = func(context.Context, string) (*pbmStatus, error) {
+			return &pbmStatus{}, nil
+		}
+		t.Cleanup(func() {
+			pbmStatusFetcher = oldFetcher
+		})
+
+		retries := 0
+		cfg := newTestDescribePollConfig(t, func(c *pbmDescribePollConfig) {
+			c.startedAt = time.Now().Add(-pbmDescribeStartupGrace)
+			c.describeRetries = &retries
+			c.fetchStatus = nil
+			c.fetchDescribe = func(context.Context) (describeInfo, error) {
+				return describeInfo{}, errors.New("permission denied")
+			}
+		})
+		done, err := pollPBMDescribeOnce(context.Background(), cfg)
+		require.ErrorContains(t, err, "failed to get backup status")
+		assert.False(t, done)
+	})
+
+	t.Run("retries after startup grace when retries remain", func(t *testing.T) {
+		t.Parallel()
+		retries := 2
+		cfg := newTestDescribePollConfig(t, func(c *pbmDescribePollConfig) {
+			c.startedAt = time.Now().Add(-pbmDescribeStartupGrace)
+			c.describeRetries = &retries
+			c.fetchDescribe = func(context.Context) (describeInfo, error) {
+				return describeInfo{}, errors.New("file is empty")
+			}
+			c.fetchStatus = func(context.Context, string) (*pbmStatus, error) {
+				return &pbmStatus{}, nil
+			}
+		})
+		done, err := pollPBMDescribeOnce(context.Background(), cfg)
+		require.NoError(t, err)
+		assert.False(t, done)
+		assert.Equal(t, 1, retries)
+	})
+
+	t.Run("running backup with exhausted retries returns error", func(t *testing.T) {
+		t.Parallel()
+		retries := 0
+		cfg := newTestDescribePollConfig(t, func(c *pbmDescribePollConfig) {
+			c.startedAt = time.Now().Add(-pbmDescribeStartupGrace)
+			c.describeRetries = &retries
+			c.fetchDescribe = func(context.Context) (describeInfo, error) {
+				return describeInfo{}, errors.New("permission denied")
+			}
+			c.fetchStatus = func(context.Context, string) (*pbmStatus, error) {
+				status := &pbmStatus{}
+				status.Running.Type = pbmCmdBackup
+				status.Running.Name = c.targetName
+				return status, nil
+			}
+			c.isRunning = func(status *pbmStatus) bool {
+				return isPBMBackupRunning(status, c.targetName)
+			}
+		})
+		done, err := pollPBMDescribeOnce(context.Background(), cfg)
+		require.ErrorContains(t, err, "failed to get backup status")
+		assert.False(t, done)
+	})
+
+	t.Run("describe failure without running backup", func(t *testing.T) {
+		t.Parallel()
+		retries := 0
+		cfg := newTestDescribePollConfig(t, func(c *pbmDescribePollConfig) {
+			c.startedAt = time.Now().Add(-pbmDescribeStartupGrace)
+			c.describeRetries = &retries
+			c.fetchDescribe = func(context.Context) (describeInfo, error) {
+				return describeInfo{}, errors.New("permission denied")
+			}
+			c.fetchStatus = func(context.Context, string) (*pbmStatus, error) {
+				return &pbmStatus{}, nil
+			}
+		})
+		done, err := pollPBMDescribeOnce(context.Background(), cfg)
+		require.ErrorContains(t, err, "failed to get backup status")
+		assert.False(t, done)
+	})
+}
+
+func TestWaitForPBMDescribe(t *testing.T) {
+	withFastPBMDescribePoll(t)
+
+	t.Run("completes when describe reports done", func(t *testing.T) {
+		err := waitForPBMDescribe(context.Background(), newTestDescribePollConfig(t))
+		require.NoError(t, err)
+	})
+
+	t.Run("returns describe error", func(t *testing.T) {
+		cfg := newTestDescribePollConfig(t, func(c *pbmDescribePollConfig) {
+			c.fetchDescribe = func(context.Context) (describeInfo, error) {
+				return describeInfo{Status: pbmStatusCanceled}, nil
+			}
+		})
+		err := waitForPBMDescribe(context.Background(), cfg)
+		require.EqualError(t, err, "backup was canceled")
+	})
+
+	t.Run("context canceled", func(t *testing.T) {
+		ctx, cancel := context.WithCancel(context.Background())
+		cancel()
+		err := waitForPBMDescribe(ctx, newTestDescribePollConfig(t, func(c *pbmDescribePollConfig) {
+			c.fetchDescribe = func(context.Context) (describeInfo, error) {
+				return describeInfo{Status: "running"}, nil
+			}
+		}))
+		require.ErrorIs(t, err, context.Canceled)
+	})
+}
+
+func TestWritePBMConfigFile(t *testing.T) {
+	t.Parallel()
+
+	conf, err := createPBMConfig(&BackupLocationConfig{
+		Type: FilesystemBackupLocationType,
+		FilesystemStorageConfig: &FilesystemBackupLocationConfig{
+			Path: "/tmp/pbm",
+		},
+	}, "artifact", false)
+	require.NoError(t, err)
+
+	path, err := writePBMConfigFile(conf)
+	require.NoError(t, err)
+	t.Cleanup(func() {
+		require.NoError(t, os.Remove(path))
+	})
+	require.FileExists(t, path)
 }
 
 func TestDescribeTerminalError(t *testing.T) {
@@ -178,6 +628,10 @@ func TestDescribeTerminalError(t *testing.T) {
 	require.EqualError(t, err, "oplog has insufficient range")
 	assert.True(t, done)
 
+	done, err = describeTerminalError(describeInfo{Status: pbmStatusPartlyDone, Error: "partial"}, "backup")
+	require.EqualError(t, err, "partial")
+	assert.True(t, done)
+
 	done, err = describeTerminalError(describeInfo{Status: "running"}, "backup")
 	require.NoError(t, err)
 	assert.False(t, done)
@@ -190,8 +644,16 @@ func TestSnapshotTerminalError(t *testing.T) {
 	require.NoError(t, err)
 	assert.True(t, done)
 
+	done, err = snapshotTerminalError(&pbmSnapshot{Status: pbmStatusCanceled}, "backup")
+	require.EqualError(t, err, "backup was canceled")
+	assert.True(t, done)
+
 	done, err = snapshotTerminalError(&pbmSnapshot{Status: pbmStatusError, Error: "storage unavailable"}, "backup")
 	require.EqualError(t, err, "storage unavailable")
+	assert.True(t, done)
+
+	done, err = snapshotTerminalError(&pbmSnapshot{Status: pbmStatusError}, "backup")
+	require.EqualError(t, err, "backup failed")
 	assert.True(t, done)
 
 	done, err = snapshotTerminalError(&pbmSnapshot{Status: "running"}, "backup")
@@ -228,6 +690,19 @@ func TestGroupDescribeErrors(t *testing.T) {
 		}},
 	})
 	require.EqualError(t, err, "replset: rs0, node: node1, error: copy failed")
+}
+
+func TestFindPITRRestoreSkipsInvalidEntries(t *testing.T) {
+	t.Parallel()
+
+	startedAt, err := time.Parse(time.RFC3339Nano, "2022-10-11T14:53:20.000000000Z")
+	require.NoError(t, err)
+
+	list := []pbmListRestore{
+		{Name: "invalid-name", Type: "pitr", PITR: 1000000000},
+		{Name: "2022-10-11T14:53:20.000000001Z", Type: "snapshot", Snapshot: "snap"},
+	}
+	assert.Nil(t, findPITRRestore(list, 1000000000, startedAt))
 }
 
 func TestFindPITRRestore(t *testing.T) {

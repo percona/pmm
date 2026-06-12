@@ -269,16 +269,23 @@ func getPBMStatus(ctx context.Context, dsn string) (*pbmStatus, error) {
 }
 
 type pbmDescribePollConfig struct {
-	l                 logrus.FieldLogger
-	dsn               string
-	operation         string
-	targetName        string
-	startedAt         time.Time
-	describeRetries   *int
-	fetchDescribe     func(context.Context) (describeInfo, error)
-	isRunning         func(*pbmStatus) bool
-	findSnapshot      func(*pbmStatus) *pbmSnapshot
+	l               logrus.FieldLogger
+	dsn             string
+	operation       string
+	targetName      string
+	startedAt       time.Time
+	describeRetries *int
+	fetchDescribe   func(context.Context) (describeInfo, error)
+	fetchStatus     func(context.Context, string) (*pbmStatus, error)
+	isRunning       func(*pbmStatus) bool
+	findSnapshot    func(*pbmStatus) *pbmSnapshot
 }
+
+// pbmDescribePollInterval is used by waitForPBMDescribe; tests may override it.
+var pbmDescribePollInterval = statusCheckInterval
+
+// pbmStatusFetcher fetches PBM status; tests may override it.
+var pbmStatusFetcher = getPBMStatus
 
 func waitForPBMBackup(ctx context.Context, l logrus.FieldLogger, dsn string, name string) error {
 	l.Infof("waiting for pbm backup: %s", name)
@@ -306,7 +313,7 @@ func waitForPBMBackup(ctx context.Context, l logrus.FieldLogger, dsn string, nam
 }
 
 func waitForPBMDescribe(ctx context.Context, cfg pbmDescribePollConfig) error {
-	ticker := time.NewTicker(statusCheckInterval)
+	ticker := time.NewTicker(pbmDescribePollInterval)
 	defer ticker.Stop()
 
 	for {
@@ -332,7 +339,12 @@ func pollPBMDescribeOnce(ctx context.Context, cfg pbmDescribePollConfig) (bool, 
 		return describeTerminalError(info, cfg.operation)
 	}
 
-	status, statusErr := getPBMStatus(ctx, cfg.dsn)
+	fetchStatus := cfg.fetchStatus
+	if fetchStatus == nil {
+		fetchStatus = pbmStatusFetcher
+	}
+
+	status, statusErr := fetchStatus(ctx, cfg.dsn)
 	if statusErr != nil {
 		return false, errors.Wrap(statusErr, "failed to get pbm status")
 	}
