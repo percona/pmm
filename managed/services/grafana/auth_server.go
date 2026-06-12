@@ -63,8 +63,7 @@ var rules = map[string]role{
 	"/qan.v1.CollectorService.":                 viewer,
 	"/qan.v1.QANService.":                       viewer,
 
-	// Alerting: viewers may list templates (GET /v1/alerting/templates);
-	// creating rules requires editor. Template writes (create/update/delete)
+	// Viewers may list templates; creating rules needs editor. Template writes
 	// share read paths, so they are method-qualified in methodRules.
 	"/v1/alerting":                    viewer,
 	"/v1/alerting/rules":              editor,
@@ -130,14 +129,11 @@ var rules = map[string]role{
 	// "/" is a special case in this code
 }
 
-// methodRules maps "METHOD original-URL-prefix" to the minimal required role.
-// Entries take precedence over rules and let operations that share a path but
-// use different HTTP methods require different roles.
+// methodRules maps "METHOD url-prefix" to the minimal role. Entries take precedence
+// over rules, letting operations on a shared path differ by HTTP method.
 var methodRules = map[string]role{
-	// Alerting template writes must require editor. CreateTemplate (POST)
-	// shares its path with ListTemplates (GET, viewer in rules); Update (PUT)
-	// and Delete (DELETE) live under it. Qualify by method so viewers keep
-	// read access while writes are denied.
+	// Template writes need editor; they share paths with the viewer-readable
+	// list (POST) or sit under it (PUT/DELETE), so they're qualified by method.
 	http.MethodPost + " /v1/alerting/templates":    editor,
 	http.MethodPut + " /v1/alerting/templates/":    editor,
 	http.MethodDelete + " /v1/alerting/templates/": editor,
@@ -271,7 +267,7 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 			"error":   authErr.message,
 			"message": authErr.message, //nolint:goconst
 		}
-		s.returnError(rw, m, l)
+		s.returnError(rw, httpStatusForAuthError(authErr.code), m, l)
 		return
 	}
 
@@ -290,18 +286,27 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		}
 		l.Errorf("Failed to add VMProxy filters: %s", errF)
 
-		s.returnError(rw, m, l)
+		s.returnError(rw, authenticationErrorCode, m, l)
 		return
 	}
 }
 
-func (s *AuthServer) returnError(rw http.ResponseWriter, msg map[string]any, l *logrus.Entry) {
-	// nginx completely ignores auth_request subrequest response body.
-	// We respond with 401 (authenticationErrorCode); our nginx configuration then sends
-	// the same request as a normal request to the same location and returns response body to the client.
+// httpStatusForAuthError maps an authError code to the HTTP status nginx receives.
+// PermissionDenied uses 403 so nginx denies outright; the 401 re-run is a GET and would
+// wrongly pass method-specific rules. Authentication and internal errors stay 401.
+func httpStatusForAuthError(code codes.Code) int {
+	if code == codes.PermissionDenied {
+		return http.StatusForbidden
+	}
+	return authenticationErrorCode
+}
+
+func (s *AuthServer) returnError(rw http.ResponseWriter, status int, msg map[string]any, l *logrus.Entry) {
+	// nginx ignores the auth_request subrequest body: on 401 it re-runs the request to
+	// /auth_request to fetch this body; on 403 it serves a static body via error_page 403.
 	rw.Header().Set("Content-Type", "application/json")
 
-	rw.WriteHeader(authenticationErrorCode)
+	rw.WriteHeader(status)
 	err := json.NewEncoder(rw).Encode(msg)
 	if err != nil {
 		l.Warnf("%s", err)
@@ -471,12 +476,10 @@ func nextPrefix(path string) string {
 	return path[:i+1]
 }
 
-// resolveRule returns the minimal role required for the given HTTP method and
-// cleaned path, together with the matched rule prefix. It walks path prefixes
-// from longest to shortest; a method-specific rule (keyed by "METHOD prefix")
-// takes precedence over a path-only rule at the same prefix, so read and write
-// operations that share a path can require different roles. When no rule
-// matches it logs a warning and falls back to grafanaAdmin.
+// resolveRule returns the minimal role for the given method and path, plus the matched
+// prefix. It walks prefixes longest-to-shortest; a method-specific rule ("METHOD prefix")
+// beats a path-only rule at the same prefix, so read and write on a shared path can differ.
+// With no match it logs a warning and falls back to grafanaAdmin.
 func resolveRule(method, cleanedPath string, l *logrus.Entry) (role, string) {
 	prefix := cleanedPath
 	for {
