@@ -9,6 +9,7 @@ import { Alert, AlertProps, Box, Theme } from '@mui/material';
 import visuallyHidden from '@mui/utils/visuallyHidden';
 import {
   MaterialReactTable,
+  MRT_RowData,
   MRT_VisibilityState,
   useMaterialReactTable,
 } from 'material-react-table';
@@ -35,8 +36,7 @@ const NoDataAlertMessage = ({ message, ...rest }: { message: string } & AlertPro
   );
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function Table<T extends Record<string, any>>(props: TableProps<T>) {
+function Table<T extends MRT_RowData>(props: TableProps<T>) {
   const {
     data,
     columns,
