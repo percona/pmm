@@ -25,11 +25,11 @@ require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/envoyproxy/protoc-gen-validate v1.3.3
 	github.com/go-co-op/gocron v1.37.0
-	github.com/go-openapi/errors v0.22.7
+	github.com/go-openapi/errors v0.22.8
 	github.com/go-openapi/runtime v0.32.1
-	github.com/go-openapi/strfmt v0.26.2
+	github.com/go-openapi/strfmt v0.26.3
 	github.com/go-openapi/swag v0.26.0
-	github.com/go-openapi/validate v0.25.2
+	github.com/go-openapi/validate v0.26.0
 	github.com/go-sql-driver/mysql v1.10.0
 	github.com/gogo/status v1.1.1
 	github.com/golang-migrate/migrate/v4 v4.19.1
@@ -173,13 +173,13 @@ require (
 	github.com/go-git/go-git/v5 v5.19.1 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
-	github.com/go-openapi/analysis v0.25.0 // indirect
+	github.com/go-openapi/analysis v0.25.2 // indirect
 	github.com/go-openapi/inflect v0.21.5 // indirect
 	github.com/go-openapi/jsonpointer v0.23.1 // indirect
-	github.com/go-openapi/jsonreference v0.21.5 // indirect
-	github.com/go-openapi/loads v0.23.3 // indirect
+	github.com/go-openapi/jsonreference v0.21.6 // indirect
+	github.com/go-openapi/loads v0.23.4 // indirect
 	github.com/go-openapi/runtime/server-middleware v0.30.0 // indirect
-	github.com/go-openapi/spec v0.22.4 // indirect
+	github.com/go-openapi/spec v0.22.5 // indirect
 	github.com/go-openapi/swag/cmdutils v0.26.0 // indirect
 	github.com/go-openapi/swag/conv v0.26.0 // indirect
 	github.com/go-openapi/swag/fileutils v0.26.0 // indirect
