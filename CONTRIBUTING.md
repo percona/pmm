@@ -31,6 +31,7 @@ This project is built from several repositories:
 * [percona/grafana](https://github.com/percona/grafana) user interface for PMM (Grafana-based)
 * [percona/ui](https://github.com/percona/pmm/tree/v3/ui) user interface for PMM (own)
 * [percona/dashboards](https://github.com/percona/pmm/tree/v3/dashboards) PMM dashboards for database monitoring
+* [percona/percona-ui](https://github.com/percona/percona-ui) shared Percona user interface component library
 
 ### PMM Client
 
@@ -137,6 +138,7 @@ Exporters by themselves are independent applications, so each of them contains i
 ### UI
 
 See [Grafana Dashboards Contribution Guide](https://github.com/percona/pmm/tree/v3/dashboards/CONTRIBUTING.md).
+See [PMM UI Contribution Guide](https://github.com/percona/pmm/blob/v3/ui/CONTRIBUTING.md).
 
 ## Tests
 
