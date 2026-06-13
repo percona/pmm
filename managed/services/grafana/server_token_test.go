@@ -17,7 +17,9 @@ package grafana
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -73,10 +75,31 @@ func TestMintServerServiceToken(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
 
-	var gotAuth string
+	var gotAuth, saName, tokenName string
+	nameOf := func(r *http.Request) string {
+		var body struct {
+			Name string `json:"name"`
+		}
+		b, _ := io.ReadAll(r.Body)
+		_ = json.Unmarshal(b, &body)
+		return body.Name
+	}
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		gotAuth = r.Header.Get("Authorization")
-		serviceAccountMux(t, "glsa_minted")(w, r)
+		switch {
+		case r.Method == http.MethodPost && r.URL.Path == "/api/serviceaccounts":
+			saName = nameOf(r)
+			_, _ = fmt.Fprint(w, `{"id":7}`)
+		case r.Method == http.MethodPatch && r.URL.Path == "/api/serviceaccounts/7":
+			_, _ = fmt.Fprint(w, `{}`)
+		case r.Method == http.MethodGet && r.URL.Path == "/api/serviceaccounts/7/tokens":
+			_, _ = fmt.Fprint(w, `[]`)
+		case r.Method == http.MethodPost && r.URL.Path == "/api/serviceaccounts/7/tokens":
+			tokenName = nameOf(r)
+			_, _ = fmt.Fprint(w, `{"id":1,"key":"glsa_minted"}`)
+		default:
+			w.WriteHeader(http.StatusNotFound)
+		}
 	}))
 	defer ts.Close()
 
@@ -85,6 +108,8 @@ func TestMintServerServiceToken(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "glsa_minted", token)
 	assert.Equal(t, "Basic YWRtaW46YWRtaW4=", gotAuth) // admin:admin
+	assert.Equal(t, "pmm-managed-sa", saName)
+	assert.Equal(t, "pmm-managed-st", tokenName)
 }
 
 func TestServerAuthorization(t *testing.T) {
