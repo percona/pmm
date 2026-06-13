@@ -52,7 +52,6 @@ import (
 	"google.golang.org/grpc/backoff"
 	channelz "google.golang.org/grpc/channelz/service"
 	"google.golang.org/grpc/credentials/insecure"
-
 	// Installing the gzip encoding registers it as an available compressor.
 	// GRPC will automatically negotiate and use gzip if the client supports it.
 	_ "google.golang.org/grpc/encoding/gzip"
