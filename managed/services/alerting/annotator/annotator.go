@@ -66,9 +66,8 @@ type webhookAlert struct {
 	Fingerprint string            `json:"fingerprint"`
 }
 
-// ServeHTTP receives a Grafana webhook notification and annotates the affected panels.
-// It always responds 200 for a well-formed payload (logging per-alert errors) so Grafana does
-// not retry-storm; only a malformed body yields 400.
+// ServeHTTP receives a Grafana webhook notification and annotates the affected panels. A
+// well-formed payload always returns 200 (per-alert errors are logged); a malformed body, 400.
 func (s *Service) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
 		http.Error(rw, "method not allowed", http.StatusMethodNotAllowed)
@@ -128,10 +127,9 @@ func (s *Service) processAlert(ctx context.Context, a webhookAlert) error {
 	return err
 }
 
-// buildTags derives annotation tags from the alert labels. The service_name and node_name values
-// are added as bare tags so the built-in "PMM Annotations" dashboard layer (matchAny on
-// $service_name / $node_name) scopes the annotation to the affected service. When neither is
-// present, the generic "pmm_annotation" tag is used so the annotation still shows globally.
+// buildTags derives annotation tags. service_name/node_name are added as bare tags so the
+// built-in "PMM Annotations" layer scopes the annotation to that service; without them the
+// global "pmm_annotation" tag is used.
 func buildTags(a webhookAlert, fpTag string) []string {
 	tags := []string{"pmm_alert", fpTag}
 

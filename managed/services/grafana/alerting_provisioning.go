@@ -35,14 +35,13 @@ type embeddedContactPoint struct {
 	DisableResolveMessage bool           `json:"disableResolveMessage"`
 }
 
-// EnsureAlertAnnotationsContactPoint idempotently provisions a webhook contact point pointing at
-// webhookURL and a continue=true notification-policy route that delivers all alerts to it, so PMM
-// can turn alert notifications into Grafana annotations. It uses the Grafana provisioning API with
-// the X-Disable-Provenance header so the resources remain editable in the Grafana UI, and the
-// continue=true route preserves delivery to any other (user-defined) receivers.
+// EnsureAlertAnnotationsContactPoint idempotently provisions a webhook contact point at webhookURL
+// and a continue=true policy route delivering all alerts to it. Provenance is disabled so the
+// resources stay UI-editable, and continue=true preserves delivery to other receivers.
 func (c *Client) EnsureAlertAnnotationsContactPoint(ctx context.Context, webhookURL string) error {
+	// X-Disable-Provenance keeps the resources editable in the Grafana UI. The Authorization
+	// header is added by doWithServerAuth.
 	headers := make(http.Header)
-	headers.Set("Authorization", adminAuthorization())
 	headers.Set("X-Disable-Provenance", "true")
 
 	err := c.ensureAnnotationsContactPoint(ctx, headers, webhookURL)
@@ -54,7 +53,7 @@ func (c *Client) EnsureAlertAnnotationsContactPoint(ctx context.Context, webhook
 
 func (c *Client) ensureAnnotationsContactPoint(ctx context.Context, headers http.Header, webhookURL string) error {
 	var existing []embeddedContactPoint
-	err := c.do(ctx, http.MethodGet, "/api/v1/provisioning/contact-points", "", headers, nil, &existing)
+	err := c.doWithServerAuth(ctx, http.MethodGet, "/api/v1/provisioning/contact-points", "", headers, nil, &existing)
 	if err != nil {
 		return fmt.Errorf("failed to list contact points: %w", err)
 	}
@@ -76,7 +75,7 @@ func (c *Client) ensureAnnotationsContactPoint(ctx context.Context, headers http
 	if err != nil {
 		return fmt.Errorf("failed to marshal contact point: %w", err)
 	}
-	err = c.do(ctx, http.MethodPost, "/api/v1/provisioning/contact-points", "", headers, b, nil)
+	err = c.doWithServerAuth(ctx, http.MethodPost, "/api/v1/provisioning/contact-points", "", headers, b, nil)
 	if err != nil {
 		return fmt.Errorf("failed to create contact point: %w", err)
 	}
@@ -84,11 +83,10 @@ func (c *Client) ensureAnnotationsContactPoint(ctx context.Context, headers http
 }
 
 // ensureAnnotationsPolicyRoute adds a continue=true child route for our receiver to the root
-// notification policy. The tree is read into a generic map and written back so unrelated
-// (user-configured) fields are preserved.
+// policy, read-modify-writing as a generic map to preserve user-configured fields.
 func (c *Client) ensureAnnotationsPolicyRoute(ctx context.Context, headers http.Header) error {
 	var tree map[string]any
-	err := c.do(ctx, http.MethodGet, "/api/v1/provisioning/policies", "", headers, nil, &tree)
+	err := c.doWithServerAuth(ctx, http.MethodGet, "/api/v1/provisioning/policies", "", headers, nil, &tree)
 	if err != nil {
 		return fmt.Errorf("failed to get notification policy tree: %w", err)
 	}
@@ -115,7 +113,7 @@ func (c *Client) ensureAnnotationsPolicyRoute(ctx context.Context, headers http.
 	if err != nil {
 		return fmt.Errorf("failed to marshal notification policy tree: %w", err)
 	}
-	err = c.do(ctx, http.MethodPut, "/api/v1/provisioning/policies", "", headers, b, nil)
+	err = c.doWithServerAuth(ctx, http.MethodPut, "/api/v1/provisioning/policies", "", headers, b, nil)
 	if err != nil {
 		return fmt.Errorf("failed to update notification policy tree: %w", err)
 	}

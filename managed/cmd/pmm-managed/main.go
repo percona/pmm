@@ -986,6 +986,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	grafanaClient := grafana.NewClient(*grafanaAddrF)
 	prom.MustRegister(grafanaClient)
+	grafanaClient.SetServerTokenStore(grafana.NewServerTokenStore(db))
 
 	nomadClientConfig := &models.NomadClient{
 		GCInterval:            *nomadGCIntervalF,

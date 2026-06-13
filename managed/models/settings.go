@@ -119,6 +119,10 @@ type Settings struct {
 
 	// Contains all encrypted tables in format 'db.table.column'.
 	EncryptedItems []string `json:"encrypted_items"`
+
+	// PMMServiceToken holds the encrypted Grafana service-account token used for
+	// server-initiated Grafana API calls (e.g. alert annotations, alerting provisioning).
+	PMMServiceToken string `json:"pmm_service_token"`
 }
 
 // IsAlertingEnabled returns true if alerting is enabled.

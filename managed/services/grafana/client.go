@@ -28,6 +28,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	gapi "github.com/grafana/grafana-api-golang-client"
@@ -63,6 +64,11 @@ type Client struct {
 	addr string
 	http *http.Client
 	irtm prom.Collector
+
+	// serverTokens persists the server-side service-account token; nil falls back to admin basic-auth.
+	serverTokens  ServerTokenStore
+	serverTokenMu sync.RWMutex
+	serverToken   string
 }
 
 // NewClient creates a new client for given Grafana address.
@@ -703,6 +709,123 @@ func (c *Client) DeleteServiceAccount(ctx context.Context, nodeName string, forc
 	return warning, err
 }
 
+// serverServiceAccountName names the dedicated server-side service account.
+const serverServiceAccountName = "pmm-server"
+
+// SetServerTokenStore sets where the server service-account token is persisted.
+func (c *Client) SetServerTokenStore(store ServerTokenStore) {
+	c.serverTokenMu.Lock()
+	c.serverTokens = store
+	c.serverTokenMu.Unlock()
+}
+
+// serverAuthorization returns the Authorization header for server-initiated calls: the
+// service-account token, or admin basic-auth when no store is configured.
+func (c *Client) serverAuthorization(ctx context.Context) (string, error) {
+	c.serverTokenMu.RLock()
+	store := c.serverTokens
+	token := c.serverToken
+	c.serverTokenMu.RUnlock()
+
+	if store == nil {
+		return adminAuthorization(), nil
+	}
+	if token != "" {
+		return "Bearer " + token, nil
+	}
+	return c.refreshServerToken(ctx, false)
+}
+
+// refreshServerToken returns the Authorization header, loading the persisted token or (if
+// forceMint or none stored) minting and persisting a new one.
+func (c *Client) refreshServerToken(ctx context.Context, forceMint bool) (string, error) {
+	c.serverTokenMu.Lock()
+	defer c.serverTokenMu.Unlock()
+
+	store := c.serverTokens
+	if store == nil {
+		return adminAuthorization(), nil
+	}
+
+	if !forceMint {
+		if c.serverToken != "" {
+			return "Bearer " + c.serverToken, nil
+		}
+		stored, err := store.Load(ctx)
+		if err != nil {
+			return "", err
+		}
+		if stored != "" {
+			c.serverToken = stored
+			return "Bearer " + stored, nil
+		}
+	}
+
+	token, err := c.mintServerServiceToken(ctx)
+	if err != nil {
+		return "", err
+	}
+	err = store.Save(ctx, token)
+	if err != nil {
+		return "", err
+	}
+	c.serverToken = token
+	return "Bearer " + token, nil
+}
+
+// mintServerServiceToken mints a fresh "pmm-server" Admin service-account token via admin basic-auth.
+func (c *Client) mintServerServiceToken(ctx context.Context) (string, error) {
+	headers := make(http.Header)
+	headers.Set("Authorization", adminAuthorization())
+
+	serviceAccountID, err := c.createServiceAccount(ctx, admin, serverServiceAccountName, true, headers)
+	if err != nil {
+		return "", err
+	}
+	_, token, err := c.createServiceToken(ctx, serviceAccountID, serverServiceAccountName, true, headers)
+	if err != nil {
+		return "", err
+	}
+	return token, nil
+}
+
+// doWithServerAuth does a request with the server token, refreshing it once on an auth error.
+// Authorization is set here; the caller may pre-populate other headers (e.g. X-Disable-Provenance).
+func (c *Client) doWithServerAuth(ctx context.Context, method, path, rawQuery string, headers http.Header, body []byte, target any) error {
+	if headers == nil {
+		headers = make(http.Header)
+	}
+
+	authz, err := c.serverAuthorization(ctx)
+	if err != nil {
+		return err
+	}
+	headers.Set("Authorization", authz)
+
+	err = c.do(ctx, method, path, rawQuery, headers, body, target)
+	if !isUnauthorized(err) {
+		return err
+	}
+
+	authz, err = c.refreshServerToken(ctx, true)
+	if err != nil {
+		return err
+	}
+	headers.Set("Authorization", authz)
+	return c.do(ctx, method, path, rawQuery, headers, body, target)
+}
+
+func isUnauthorized(err error) bool {
+	if err == nil {
+		return false
+	}
+	var cErr *clientError
+	if errors.As(err, &cErr) {
+		return cErr.Code == http.StatusUnauthorized || cErr.Code == http.StatusForbidden
+	}
+	return false
+}
+
 // CreateAlertRule creates Grafana alert rule.
 func (c *Client) CreateAlertRule(ctx context.Context, folderUID, groupName, interval string, rule *services.Rule) error {
 	authHeaders, err := auth.GetHeadersFromContext(ctx)
@@ -1074,9 +1197,8 @@ func (c *Client) findAnnotations(ctx context.Context, from, to time.Time, author
 	return response, nil
 }
 
-// adminAuthorization returns the Authorization header value for server-initiated Grafana calls.
-// TEMPORARY: prototype credential using Grafana admin basic auth from env; to be replaced by a
-// dedicated service-account token.
+// adminAuthorization returns an admin basic-auth header from env, used to mint the server token
+// and as a fallback when no token store is set.
 func adminAuthorization() string {
 	user := envvars.GetEnv("GF_SECURITY_ADMIN_USER", "admin")
 	password := envvars.GetEnv("GF_SECURITY_ADMIN_PASSWORD", "admin")
@@ -1097,14 +1219,11 @@ func (c *Client) CreateAlertAnnotation(ctx context.Context, tags []string, start
 		return 0, errors.Wrap(err, "failed to marshal request")
 	}
 
-	headers := make(http.Header)
-	headers.Add("Authorization", adminAuthorization())
-
 	var response struct {
 		ID      int    `json:"id"`
 		Message string `json:"message"`
 	}
-	err = c.do(ctx, http.MethodPost, "/api/annotations", "", headers, b, &response)
+	err = c.doWithServerAuth(ctx, http.MethodPost, "/api/annotations", "", nil, b, &response)
 	if err != nil {
 		return 0, errors.Wrap(err, "failed to create annotation")
 	}
@@ -1121,10 +1240,7 @@ func (c *Client) SetAlertAnnotationEnd(ctx context.Context, id int, end time.Tim
 		return errors.Wrap(err, "failed to marshal request")
 	}
 
-	headers := make(http.Header)
-	headers.Add("Authorization", adminAuthorization())
-
-	err = c.do(ctx, http.MethodPatch, fmt.Sprintf("/api/annotations/%d", id), "", headers, b, nil)
+	err = c.doWithServerAuth(ctx, http.MethodPatch, fmt.Sprintf("/api/annotations/%d", id), "", nil, b, nil)
 	if err != nil {
 		return errors.Wrap(err, "failed to update annotation")
 	}
@@ -1134,9 +1250,6 @@ func (c *Client) SetAlertAnnotationEnd(ctx context.Context, id int, end time.Tim
 // FindAlertAnnotationID returns the id of the most recent annotation matching all given tags
 // within the time range, or 0 if none is found.
 func (c *Client) FindAlertAnnotationID(ctx context.Context, tags []string, from, to time.Time) (int, error) {
-	headers := make(http.Header)
-	headers.Add("Authorization", adminAuthorization())
-
 	params := url.Values{
 		"from": []string{strconv.FormatInt(from.UnixNano()/int64(time.Millisecond), 10)},
 		"to":   []string{strconv.FormatInt(to.UnixNano()/int64(time.Millisecond), 10)},
@@ -1145,7 +1258,7 @@ func (c *Client) FindAlertAnnotationID(ctx context.Context, tags []string, from,
 	}.Encode()
 
 	var response []annotation
-	err := c.do(ctx, http.MethodGet, "/api/annotations", params, headers, nil, &response)
+	err := c.doWithServerAuth(ctx, http.MethodGet, "/api/annotations", params, nil, nil, &response)
 	if err != nil {
 		return 0, errors.Wrap(err, "failed to find annotations")
 	}
