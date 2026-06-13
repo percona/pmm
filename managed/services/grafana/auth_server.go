@@ -557,7 +557,7 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 	l = l.WithField("role", user.role.String())
 
 	if user.role == grafanaAdmin {
-		l.Debugf("Grafana admin, allowing access.")
+		l.Debugf("Grafana admin, granting access.")
 		return user, nil
 	}
 
@@ -567,7 +567,7 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 	}
 
 	l.Warnf("Minimal required role is %s, denying access.", minRole)
-	return nil, &authError{code: codes.PermissionDenied, message: "Access denied."}
+	return nil, &authError{code: codes.PermissionDenied, message: "Access denied"}
 }
 
 func cleanPath(p string) (string, error) {

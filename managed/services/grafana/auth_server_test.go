@@ -145,7 +145,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 				if minRole <= role {
 					assert.Nil(t, res)
 				} else {
-					assert.Equal(t, &authError{code: codes.PermissionDenied, message: "Access denied."}, res)
+					assert.Equal(t, &authError{code: codes.PermissionDenied, message: "Access denied"}, res)
 				}
 			})
 		}
