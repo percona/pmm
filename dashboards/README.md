@@ -62,13 +62,13 @@ The list of featured dashboards:
 - Valkey/Redis Slowlog
 
 
-These dashboards are part of [Percona Monitoring and Management](https://www.percona.com/doc/percona-monitoring-and-management/2.x/index.html).
+These dashboards are part of [Percona Monitoring and Management](https://docs.percona.com/percona-monitoring-and-management/).
 
-See a live demonstration at <https://pmmdemo.percona.com>.
+See a live demo at <https://pmmdemo.percona.com>.
 
 ## Reusing dashboards outside of PMM
 
-Dashboards can be converted to be used on a dedicated prometheus instance.
+Dashboards can be converted to be used on a dedicated Prometheus instance.
 
 Example:
 
