@@ -46,6 +46,10 @@ const (
 )
 
 // rules maps original URL prefix to minimal required role.
+// In case of multiple matches, the longest prefix wins. The prefix is matched
+// against the original URL path, not the cleaned one. The prefix must end with a slash,
+// dot, or colon, so that "/v1/inventory" does not match "/v1/inventoryX".
+// If several methods share the same path, they must be distinguished by methodRules.
 var rules = map[string]role{
 	// TODO https://jira.percona.com/browse/PMM-4420
 	connectionEndpointV2: admin, // compatibility for v2 agents
@@ -63,8 +67,6 @@ var rules = map[string]role{
 	"/qan.v1.CollectorService.":                 viewer,
 	"/qan.v1.QANService.":                       viewer,
 
-	// Viewers may list templates; creating rules needs editor. Template writes
-	// share read paths, so they are method-qualified in methodRules.
 	"/v1/alerting":                    viewer,
 	"/v1/alerting/rules":              editor,
 	"/v1/advisors":                    editor,
