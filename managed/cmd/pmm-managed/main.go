@@ -52,6 +52,7 @@ import (
 	"google.golang.org/grpc/backoff"
 	channelz "google.golang.org/grpc/channelz/service"
 	"google.golang.org/grpc/credentials/insecure"
+
 	// Installing the gzip encoding registers it as an available compressor.
 	// GRPC will automatically negotiate and use gzip if the client supports it.
 	_ "google.golang.org/grpc/encoding/gzip"
@@ -79,6 +80,7 @@ import (
 	"github.com/percona/pmm/managed/services/agents"
 	agentgrpc "github.com/percona/pmm/managed/services/agents/grpc"
 	"github.com/percona/pmm/managed/services/alerting"
+	"github.com/percona/pmm/managed/services/alerting/annotator"
 	"github.com/percona/pmm/managed/services/backup"
 	"github.com/percona/pmm/managed/services/checks"
 	"github.com/percona/pmm/managed/services/config" //nolint:staticcheck
@@ -354,6 +356,7 @@ type http1ServerDeps struct {
 	logs               *server.Logs
 	authServer         *grafana.AuthServer
 	currentUserHandler http.Handler
+	annotatorHandler   http.Handler
 }
 
 // runHTTP1Server runs grpc-gateway and other HTTP 1.1 APIs (like auth_request and logs.zip)
@@ -437,6 +440,9 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	mux.Handle("/auth_request", deps.authServer)
 	mux.Handle("/v1/users/current/orgs", deps.currentUserHandler)
 	mux.Handle("/v1/users/current", deps.currentUserHandler)
+	// No-proxy endpoint (nginx does not proxy /internal/) that receives Grafana
+	// alerting webhook notifications and turns them into annotations.
+	mux.Handle("/internal/webhook", deps.annotatorHandler)
 	mux.Handle("/", proxyMux)
 
 	server := &http.Server{ //nolint:gosec
@@ -1113,6 +1119,28 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		}()
 	}
 
+	// Provision the webhook contact point + notification-policy route used to turn alert
+	// notifications into annotations. Retries in the background until Grafana is reachable.
+	go func() {
+		webhookURL := "http://" + http1Addr + "/internal/webhook"
+		const delay = 5 * time.Second
+		for {
+			err := grafanaClient.EnsureAlertAnnotationsContactPoint(ctx, webhookURL)
+			if err == nil {
+				l.Info("Alert annotations contact point provisioned.")
+				return
+			}
+			l.Warnf("Failed to provision alert annotations contact point, retrying in %s: %s", delay, err)
+
+			sleepCtx, sleepCancel := context.WithTimeout(ctx, delay)
+			<-sleepCtx.Done()
+			sleepCancel()
+			if ctx.Err() != nil {
+				return
+			}
+		}
+	}()
+
 	settings, err := models.GetSettings(sqlDB)
 	if err != nil {
 		l.Fatalf("Failed to get settings: %+v.", err)
@@ -1210,6 +1238,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 			logs:               logs,
 			authServer:         authServer,
 			currentUserHandler: user.NewCurrentHTTPHandler(grafanaClient),
+			annotatorHandler:   annotator.New(grafanaClient),
 		})
 	})
 

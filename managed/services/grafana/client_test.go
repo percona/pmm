@@ -17,7 +17,9 @@ package grafana
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -658,5 +660,104 @@ func TestClient(t *testing.T) {
 	t.Run("IsReady", func(t *testing.T) {
 		err := c.IsReady(ctx)
 		require.NoError(t, err)
+	})
+}
+
+func TestAlertAnnotations(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	const wantAuth = "Basic YWRtaW46YWRtaW4=" // admin:admin
+
+	t.Run("CreateAlertAnnotation", func(t *testing.T) {
+		t.Parallel()
+
+		var gotMethod, gotPath, gotAuth string
+		var gotBodyBytes []byte
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			gotMethod, gotPath, gotAuth = r.Method, r.URL.Path, r.Header.Get("Authorization")
+			gotBodyBytes, _ = io.ReadAll(r.Body)
+			_, _ = fmt.Fprint(w, `{"id":42,"message":"Annotation added"}`)
+		}))
+		defer ts.Close()
+
+		c := NewClient(strings.TrimPrefix(ts.URL, "http://"))
+		start := time.Unix(1700000000, 0)
+		id, err := c.CreateAlertAnnotation(ctx, []string{"mysql", "fingerprint:abc"}, start, "MySQL down")
+		require.NoError(t, err)
+		assert.Equal(t, 42, id)
+		assert.Equal(t, http.MethodPost, gotMethod)
+		assert.Equal(t, "/api/annotations", gotPath)
+		assert.Equal(t, wantAuth, gotAuth)
+
+		var gotBody annotation
+		require.NoError(t, json.Unmarshal(gotBodyBytes, &gotBody))
+		assert.Equal(t, []string{"mysql", "fingerprint:abc"}, gotBody.Tags)
+		assert.Equal(t, "MySQL down", gotBody.Text)
+		assert.Equal(t, start.UnixMilli(), gotBody.TimeInt)
+		assert.Zero(t, gotBody.TimeEndInt)
+	})
+
+	t.Run("SetAlertAnnotationEnd", func(t *testing.T) {
+		t.Parallel()
+
+		var gotMethod, gotPath, gotAuth string
+		var gotBodyBytes []byte
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			gotMethod, gotPath, gotAuth = r.Method, r.URL.Path, r.Header.Get("Authorization")
+			gotBodyBytes, _ = io.ReadAll(r.Body)
+			_, _ = fmt.Fprint(w, `{"message":"Annotation patched"}`)
+		}))
+		defer ts.Close()
+
+		c := NewClient(strings.TrimPrefix(ts.URL, "http://"))
+		end := time.Unix(1700000600, 0)
+		err := c.SetAlertAnnotationEnd(ctx, 42, end)
+		require.NoError(t, err)
+		assert.Equal(t, http.MethodPatch, gotMethod)
+		assert.Equal(t, "/api/annotations/42", gotPath)
+		assert.Equal(t, wantAuth, gotAuth)
+
+		var gotBody annotation
+		require.NoError(t, json.Unmarshal(gotBodyBytes, &gotBody))
+		assert.Equal(t, end.UnixMilli(), gotBody.TimeEndInt)
+		assert.Zero(t, gotBody.TimeInt)
+	})
+
+	t.Run("FindAlertAnnotationID", func(t *testing.T) {
+		t.Parallel()
+
+		var gotMethod, gotPath, gotType string
+		var gotTags []string
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			gotMethod, gotPath = r.Method, r.URL.Path
+			gotTags = r.URL.Query()["tags"]
+			gotType = r.URL.Query().Get("type")
+			_, _ = fmt.Fprint(w, `[{"id":7},{"id":8}]`)
+		}))
+		defer ts.Close()
+
+		c := NewClient(strings.TrimPrefix(ts.URL, "http://"))
+		id, err := c.FindAlertAnnotationID(ctx, []string{"fingerprint:abc"}, time.Unix(1700000000, 0), time.Unix(1700000600, 0))
+		require.NoError(t, err)
+		assert.Equal(t, 7, id)
+		assert.Equal(t, http.MethodGet, gotMethod)
+		assert.Equal(t, "/api/annotations", gotPath)
+		assert.Equal(t, []string{"fingerprint:abc"}, gotTags)
+		assert.Equal(t, "annotation", gotType)
+	})
+
+	t.Run("FindAlertAnnotationID returns 0 when none found", func(t *testing.T) {
+		t.Parallel()
+
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			_, _ = fmt.Fprint(w, `[]`)
+		}))
+		defer ts.Close()
+
+		c := NewClient(strings.TrimPrefix(ts.URL, "http://"))
+		id, err := c.FindAlertAnnotationID(ctx, []string{"x"}, time.Unix(1, 0), time.Unix(2, 0))
+		require.NoError(t, err)
+		assert.Zero(t, id)
 	})
 }

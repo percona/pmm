@@ -18,6 +18,7 @@ package grafana
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	stderrors "errors"
 	"fmt"
@@ -39,6 +40,7 @@ import (
 
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/auth"
+	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/managed/utils/irt"
 	"github.com/percona/pmm/utils/grafana"
 )
@@ -977,11 +979,14 @@ func (c *Client) deleteServiceAccount(ctx context.Context, serviceAccountID int,
 
 // Annotation contains grafana annotation response.
 type annotation struct {
-	Time time.Time `json:"-"`
-	Tags []string  `json:"tags,omitempty"`
-	Text string    `json:"text,omitempty"`
+	ID      int       `json:"id,omitempty"`
+	Time    time.Time `json:"-"`
+	TimeEnd time.Time `json:"-"`
+	Tags    []string  `json:"tags,omitempty"`
+	Text    string    `json:"text,omitempty"`
 
-	TimeInt int64 `json:"time,omitempty"`
+	TimeInt    int64 `json:"time,omitempty"`
+	TimeEndInt int64 `json:"timeEnd,omitempty"`
 }
 
 // encode annotation before sending request.
@@ -991,6 +996,12 @@ func (a *annotation) encode() {
 		t = a.Time.UnixNano() / int64(time.Millisecond)
 	}
 	a.TimeInt = t
+
+	var te int64
+	if !a.TimeEnd.IsZero() {
+		te = a.TimeEnd.UnixNano() / int64(time.Millisecond)
+	}
+	a.TimeEndInt = te
 }
 
 // decode annotation after receiving response.
@@ -1000,6 +1011,12 @@ func (a *annotation) decode() {
 		t = time.Unix(0, a.TimeInt*int64(time.Millisecond))
 	}
 	a.Time = t
+
+	var te time.Time
+	if a.TimeEndInt != 0 {
+		te = time.Unix(0, a.TimeEndInt*int64(time.Millisecond))
+	}
+	a.TimeEnd = te
 }
 
 // CreateAnnotation creates annotation with given text and tags ("pmm_annotation" is added automatically)
@@ -1055,6 +1072,87 @@ func (c *Client) findAnnotations(ctx context.Context, from, to time.Time, author
 		response[i] = r
 	}
 	return response, nil
+}
+
+// adminAuthorization returns the Authorization header value for server-initiated Grafana calls.
+// TEMPORARY: prototype credential using Grafana admin basic auth from env; to be replaced by a
+// dedicated service-account token.
+func adminAuthorization() string {
+	user := envvars.GetEnv("GF_SECURITY_ADMIN_USER", "admin")
+	password := envvars.GetEnv("GF_SECURITY_ADMIN_PASSWORD", "admin")
+	return "Basic " + base64.StdEncoding.EncodeToString([]byte(user+":"+password))
+}
+
+// CreateAlertAnnotation creates a point annotation for a fired alert and returns its Grafana id.
+func (c *Client) CreateAlertAnnotation(ctx context.Context, tags []string, start time.Time, text string) (int, error) {
+	request := &annotation{
+		Tags: tags,
+		Text: text,
+		Time: start,
+	}
+	request.encode()
+
+	b, err := json.Marshal(request)
+	if err != nil {
+		return 0, errors.Wrap(err, "failed to marshal request")
+	}
+
+	headers := make(http.Header)
+	headers.Add("Authorization", adminAuthorization())
+
+	var response struct {
+		ID      int    `json:"id"`
+		Message string `json:"message"`
+	}
+	err = c.do(ctx, http.MethodPost, "/api/annotations", "", headers, b, &response)
+	if err != nil {
+		return 0, errors.Wrap(err, "failed to create annotation")
+	}
+	return response.ID, nil
+}
+
+// SetAlertAnnotationEnd turns an existing annotation into a region by setting its end time.
+func (c *Client) SetAlertAnnotationEnd(ctx context.Context, id int, end time.Time) error {
+	request := &annotation{TimeEnd: end}
+	request.encode()
+
+	b, err := json.Marshal(request)
+	if err != nil {
+		return errors.Wrap(err, "failed to marshal request")
+	}
+
+	headers := make(http.Header)
+	headers.Add("Authorization", adminAuthorization())
+
+	err = c.do(ctx, http.MethodPatch, fmt.Sprintf("/api/annotations/%d", id), "", headers, b, nil)
+	if err != nil {
+		return errors.Wrap(err, "failed to update annotation")
+	}
+	return nil
+}
+
+// FindAlertAnnotationID returns the id of the most recent annotation matching all given tags
+// within the time range, or 0 if none is found.
+func (c *Client) FindAlertAnnotationID(ctx context.Context, tags []string, from, to time.Time) (int, error) {
+	headers := make(http.Header)
+	headers.Add("Authorization", adminAuthorization())
+
+	params := url.Values{
+		"from": []string{strconv.FormatInt(from.UnixNano()/int64(time.Millisecond), 10)},
+		"to":   []string{strconv.FormatInt(to.UnixNano()/int64(time.Millisecond), 10)},
+		"type": []string{"annotation"},
+		"tags": tags,
+	}.Encode()
+
+	var response []annotation
+	err := c.do(ctx, http.MethodGet, "/api/annotations", params, headers, nil, &response)
+	if err != nil {
+		return 0, errors.Wrap(err, "failed to find annotations")
+	}
+	if len(response) == 0 {
+		return 0, nil
+	}
+	return response[0].ID, nil
 }
 
 type grafanaHealthResponse struct {
