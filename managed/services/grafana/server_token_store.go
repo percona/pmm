@@ -19,6 +19,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
@@ -55,7 +56,11 @@ func (s *dbServerTokenStore) Load(_ context.Context) (string, error) {
 	}
 	token, err := encryption.Decrypt(settings.PMMServiceToken)
 	if err != nil {
-		return "", fmt.Errorf("failed to decrypt Grafana service token: %w", err)
+		// Decrypt failure (e.g. after an encryption-key rotation) is non-fatal: report no token
+		// so the caller mints a fresh one and persists it with the current key.
+		logrus.WithField("component", "grafana/server-token").
+			Warnf("Failed to decrypt the Grafana service token, minting a new one: %s", err)
+		return "", nil
 	}
 	return token, nil
 }

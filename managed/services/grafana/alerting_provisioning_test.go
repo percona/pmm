@@ -16,7 +16,6 @@
 package grafana
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -31,7 +30,7 @@ import (
 
 func TestEnsureAlertAnnotationsContactPoint(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
+	ctx := t.Context()
 
 	const webhookURL = "http://127.0.0.1:7772/internal/webhook"
 
