@@ -416,7 +416,7 @@ func (s *Service) supervisorctl(args ...string) ([]byte, error) { //nolint:unpar
 	pdeathsig.Set(cmd, unix.SIGKILL)
 	b, err := cmd.Output()
 	if err != nil {
-		return nil, fmt.Errorf("%s failed: %w", cmdLine, err)
+		return b, fmt.Errorf("%s failed: %w", cmdLine, err)
 	}
 	return b, nil
 }

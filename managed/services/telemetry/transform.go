@@ -93,7 +93,7 @@ func transformExportValues(config *Config, metrics []*telemetryv1.GenericReport_
 	}
 
 	if config.Transform.Type != StripValuesTransform {
-		return nil, fmt.Errorf("unspported transformation type [%s], it must be [%s]", config.Transform.Type, StripValuesTransform)
+		return nil, fmt.Errorf("unsupported transformation type [%s], it must be [%s]", config.Transform.Type, StripValuesTransform)
 	}
 
 	if config.Source != string(dsEnvVars) {

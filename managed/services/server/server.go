@@ -653,6 +653,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	var newSettings, oldSettings *models.Settings
 	var disableInternalPgQan bool
 	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		var err error
 		oldSettings, err = models.GetSettings(tx)
 		if err != nil {
 			return fmt.Errorf("failed to get server settings: %w", err)

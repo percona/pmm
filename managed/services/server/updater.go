@@ -481,15 +481,15 @@ func (up *Updater) UpdateLog(offset uint32) ([]string, uint32, error) {
 	for {
 		line, err = reader.ReadString('\n')
 		if err != nil {
-			if err == io.EOF {
+			if errors.Is(err, io.EOF) {
 				return lines, newOffset, nil
 			}
 			// return already read lines even with error
 			return lines, newOffset, fmt.Errorf("failed to read line from log file %s: %w", pmmInitLog, err)
 		}
-		newOffset += uint32(len(line))
+		newOffset += uint32(len(line)) //nolint:gosec
 		if newOffset-offset > up.gRPCMessageMaxSize {
-			return lines, newOffset - uint32(len(line)), nil
+			return lines, newOffset - uint32(len(line)), nil //nolint:gosec
 		}
 		lines = append(lines, strings.TrimSuffix(line, "\n"))
 	}

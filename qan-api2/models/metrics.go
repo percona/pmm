@@ -1157,7 +1157,7 @@ func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, qu
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return res, errors.New("query_id doesn't exists")
+			return res, errors.New("query_id doesn't exist")
 		}
 		return res, fmt.Errorf("failed to scan query: %w", err)
 	}
@@ -1276,7 +1276,7 @@ func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromS
 		err = rows.Scan(row...)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
-				return nil, fmt.Errorf("query_id doesn't exists: %w", err)
+				return nil, fmt.Errorf("query_id doesn't exist: %w", err)
 			}
 			return nil, fmt.Errorf("failed to scan query: %w", err)
 		}
