@@ -20,6 +20,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httputil"
@@ -31,7 +32,6 @@ import (
 	"unicode/utf8"
 
 	"github.com/lib/pq"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"gopkg.in/reform.v1"
@@ -331,7 +331,7 @@ func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWr
 
 	jsonFilters, err := json.Marshal(filters)
 	if err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("failed to marshal LBAC filters: %w", err)
 	}
 
 	rw.Header().Set(lbacHeaderName, base64.StdEncoding.EncodeToString(jsonFilters))
@@ -417,10 +417,10 @@ func extractOriginalRequest(req *http.Request) error {
 		return errors.New("empty X-Original-Uri")
 	}
 	if origURI[0] != '/' {
-		return errors.Errorf("unexpected X-Original-Uri: %q", origURI)
+		return fmt.Errorf("unexpected X-Original-Uri: %q", origURI)
 	}
 	if !utf8.ValidString(origURI) {
-		return errors.Errorf("invalid X-Original-Uri: %q", origURI)
+		return fmt.Errorf("invalid X-Original-Uri: %q", origURI)
 	}
 
 	req.Method = origMethod
@@ -596,7 +596,8 @@ func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders 
 	authUser, err := s.c.getAuthUser(ctx, authHeaders, l)
 	if err != nil {
 		l.Warnf("%s", err)
-		if cErr, ok := errors.Cause(err).(*clientError); ok { //nolint:errorlint
+		cErr, ok := errors.AsType[*clientError](err)
+		if ok {
 			code := codes.Internal
 			if cErr.Code == 401 || cErr.Code == 403 {
 				code = codes.Unauthenticated

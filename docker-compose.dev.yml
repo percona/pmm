@@ -30,6 +30,7 @@ services:
       # CH
       - ${PMM_PORT_CH_TCP:-9000}:9000
       - ${PMM_PORT_CH_HTTP:-8123}:8123
+      - 3000:3000
     volumes:
       - ./:/root/go/src/github.com/percona/pmm
       - ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro
