@@ -543,7 +543,7 @@ func TestClient(t *testing.T) {
 		})
 
 		for _, role := range []role{viewer, editor, admin} {
-			t.Run(fmt.Sprintf("Basic auth %s", role.String()), func(t *testing.T) {
+			t.Run("Basic auth "+role.String(), func(t *testing.T) {
 				login := fmt.Sprintf("basic-%s-%d", role, time.Now().Nanosecond())
 				userID, err := c.testCreateUser(ctx, login, role, authHeaders)
 				require.NoError(t, err)
@@ -567,7 +567,7 @@ func TestClient(t *testing.T) {
 				assert.Equal(t, role.String(), actualRole.String())
 			})
 
-			t.Run(fmt.Sprintf("Service token auth %s", role.String()), func(t *testing.T) {
+			t.Run("Service token auth "+role.String(), func(t *testing.T) {
 				name, err := stringsgen.GenerateRandomString(256)
 				require.NoError(t, err)
 				nodeName := fmt.Sprintf("%s-%s", name, role)
@@ -588,7 +588,7 @@ func TestClient(t *testing.T) {
 				}()
 
 				serviceTokenAuthHeaders := http.Header{}
-				serviceTokenAuthHeaders.Set("Authorization", fmt.Sprintf("Bearer %s", serviceToken))
+				serviceTokenAuthHeaders.Set("Authorization", "Bearer "+serviceToken)
 				u, err := c.getAuthUser(ctx, serviceTokenAuthHeaders, l)
 				require.NoError(t, err)
 				actualRole := u.role

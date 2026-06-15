@@ -17,51 +17,54 @@ import Button from '@mui/material/Button';
 import { ServicesAutocompleteInput } from '../components/services-autocomplete-input';
 import { AutoRefreshSelect } from './auto-refresh-select';
 
+const EMPTY_QUERIES: QueryData[] = [];
+
 const RealtimeOverviewPage: FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const serviceIds = searchParams.getAll('serviceIds');
   const [fetching, setFetching] = useState(serviceIds.length > 0);
   const [refreshInterval, setRefreshInterval] = useState(2000);
-  const { data: queries = [], refetch } = useRealtimeQueries(
+  const { data: queries, refetch } = useRealtimeQueries(
     { serviceIds },
     {
       enabled: fetching,
       refetchInterval: refreshInterval,
     }
   );
-  const [selectedQueryIndex, setSelectedQueryIndex] = useState<number>();
+  const tableQueries = queries ?? EMPTY_QUERIES;
+  // Synced from the table after filters; details-pane arrows use this list, not the full API result.
+  const [navigableQueries, setNavigableQueries] = useState<QueryData[]>([]);
   const [selectedQuery, setSelectedQuery] = useState<QueryData>();
   // We need to store the previous fetching state to restore it when the details pane is closed
   const previousFetchingState = useRef<boolean>(fetching);
   const { data: sessions = [], isLoading } = useRealtimeSessions();
 
-  const handleQueryChange = (query: QueryData, index: number) => {
+  const selectedQueryIndex = selectedQuery
+    ? navigableQueries.findIndex(
+        (query) => query.queryId === selectedQuery.queryId
+      )
+    : -1;
+
+  const handleQuerySelected = (query: QueryData) => {
     setSelectedQuery(query);
-    setSelectedQueryIndex(index);
     previousFetchingState.current = fetching;
     setFetching(false);
   };
 
   const handleCloseDetails = () => {
     setSelectedQuery(undefined);
-    setSelectedQueryIndex(undefined);
     setFetching(previousFetchingState.current);
   };
 
-  const handleNextQuery = () => {
-    const idx = (selectedQueryIndex || 0) + 1;
-    if (idx >= queries.length) {
+  const handleAdjacentQuery = (offset: -1 | 1) => {
+    if (selectedQueryIndex < 0) {
       return;
     }
-    handleQueryChange(queries[idx], idx);
-  };
-
-  const handlePreviousQuery = () => {
-    const idx = (selectedQueryIndex || 0) - 1;
-    if (idx < 0) {
+    const nextIndex = selectedQueryIndex + offset;
+    if (nextIndex < 0 || nextIndex >= navigableQueries.length) {
       return;
     }
-    handleQueryChange(queries[idx], idx);
+    handleQuerySelected(navigableQueries[nextIndex]);
   };
 
   const handleServiceIdsChange = (newServiceIds: string[]) => {
@@ -93,8 +96,9 @@ const RealtimeOverviewPage: FC = () => {
   return (
     <RealtimePage>
       <OverviewTable
-        queries={queries || []}
-        onQuerySelected={handleQueryChange}
+        queries={tableQueries}
+        onQuerySelected={handleQuerySelected}
+        onNavigableQueriesChange={setNavigableQueries}
         actions={() => (
           <Stack
             direction="row"
@@ -176,10 +180,13 @@ const RealtimeOverviewPage: FC = () => {
       <DetailsPane
         query={selectedQuery}
         onClose={handleCloseDetails}
-        isFirstQuery={selectedQueryIndex === 0}
-        isLastQuery={selectedQueryIndex === queries.length - 1}
-        onNext={handleNextQuery}
-        onPrevious={handlePreviousQuery}
+        isFirstQuery={selectedQueryIndex <= 0}
+        isLastQuery={
+          selectedQueryIndex < 0 ||
+          selectedQueryIndex >= navigableQueries.length - 1
+        }
+        onNext={() => handleAdjacentQuery(1)}
+        onPrevious={() => handleAdjacentQuery(-1)}
       />
     </RealtimePage>
   );

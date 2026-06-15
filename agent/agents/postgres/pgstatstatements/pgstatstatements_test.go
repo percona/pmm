@@ -395,7 +395,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		)`, tableName))
 		require.NoError(t, err)
 		defer func() {
-			_, err := db.Exec(fmt.Sprintf(`DROP TABLE %s`, tableName))
+			_, err := db.Exec("DROP TABLE " + tableName)
 			require.NoError(t, err)
 		}()
 		m := setup(t, db)

@@ -152,7 +152,15 @@ func areSettingsTextValues(q *reform.Querier) (bool, error) {
 	return false, nil
 }
 
-func newPgStatMonitorQAN(q *reform.Querier, dbCloser io.Closer, agentID string, disableCommentsParsing, disableQueryExamples bool, maxQueryLength int32, l *logrus.Entry) (*PGStatMonitorQAN, error) { //nolint:lll
+func newPgStatMonitorQAN(
+	q *reform.Querier,
+	dbCloser io.Closer,
+	agentID string,
+	disableCommentsParsing,
+	disableQueryExamples bool,
+	maxQueryLength int32,
+	l *logrus.Entry,
+) (*PGStatMonitorQAN, error) {
 	return &PGStatMonitorQAN{
 		q:                      q,
 		dbCloser:               dbCloser,
@@ -298,7 +306,8 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 	// add current stat monitor to cache so they are not send as new on first iteration with incorrect timestamps
 	var running bool
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
-	if current, _, err := m.monitorCache.getStatMonitorExtended(ctx, m.q, normalizedQuery, m.maxQueryLength); err == nil {
+	current, _, err := m.monitorCache.getStatMonitorExtended(ctx, m.q, normalizedQuery, m.maxQueryLength)
+	if err == nil {
 		m.monitorCache.refresh(current)
 		m.l.Debugf("Got %d initial stat monitor.", len(current))
 		running = true

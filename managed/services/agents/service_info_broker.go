@@ -244,7 +244,8 @@ func updateServiceVersion(ctx context.Context, q *reform.Querier, resp agentv1.A
 
 	l.Debugf("Updating service version: %s.", version)
 	service.Version = &version
-	if err := q.Update(service); err != nil {
+	err := q.Update(service)
+	if err != nil {
 		return errors.Wrap(err, "failed to update service version")
 	}
 

@@ -84,9 +84,12 @@ func (m *Metrics) Get(ctx context.Context, periodStartFromSec, periodStartToSec 
 		Totals:          totals,
 	}
 	var queryBuffer bytes.Buffer
-	if tmpl, err := template.New("queryMetricsTmpl").Funcs(funcMap).Parse(queryMetricsTmpl); err != nil {
+	tmpl, err := template.New("queryMetricsTmpl").Funcs(funcMap).Parse(queryMetricsTmpl)
+	if err != nil {
 		log.Fatalln(err)
-	} else if err = tmpl.Execute(&queryBuffer, tmplArgs); err != nil {
+	}
+	err = tmpl.Execute(&queryBuffer, tmplArgs)
+	if err != nil {
 		log.Fatalln(err)
 	}
 	var results []M
@@ -546,7 +549,8 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 
 	var results []*qanv1.Point
 	var queryBuffer bytes.Buffer
-	if err := tmplMetricsSparklines.Execute(&queryBuffer, tmplArgs); err != nil {
+	err := tmplMetricsSparklines.Execute(&queryBuffer, tmplArgs)
+	if err != nil {
 		return nil, errors.Wrap(err, "cannot execute tmplMetricsSparklines")
 	}
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
@@ -647,7 +651,8 @@ func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, peri
 	}
 
 	var queryBuffer bytes.Buffer
-	if err := tmplQueryExample.Execute(&queryBuffer, tmplArgs); err != nil {
+	err := tmplQueryExample.Execute(&queryBuffer, tmplArgs)
+	if err != nil {
 		return nil, errors.Wrap(err, "cannot execute queryExampleTmpl")
 	}
 	query, queryArgs, err := sqlx.Named(queryBuffer.String(), arg)
@@ -747,7 +752,8 @@ func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, periodStartFrom
 	}
 
 	var queryBuffer bytes.Buffer
-	if err := tmplObjectDetailsLabels.Execute(&queryBuffer, arg); err != nil {
+	err := tmplObjectDetailsLabels.Execute(&queryBuffer, arg)
+	if err != nil {
 		return nil, errors.Wrap(err, "cannot execute tmplObjectDetailsLabels")
 	}
 	res := qanv1.GetLabelsResponse{}
@@ -857,7 +863,8 @@ func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, periodStartFrom
 		}
 		labels["cmd_type"][row.CmdType] = struct{}{}
 	}
-	if err = rows.Err(); err != nil {
+	err = rows.Err()
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to select labels dimensions")
 	}
 
@@ -948,9 +955,13 @@ func (m *Metrics) SelectHistogram(ctx context.Context, periodStartFromSec, perio
 		Labels:     escapeColonsInMap(labels),
 	}
 	var queryBuffer bytes.Buffer
-	if tmpl, err := template.New("histogramTmpl").Funcs(funcMap).Parse(histogramTmpl); err != nil {
+	tmpl, err := template.New("histogramTmpl").Funcs(funcMap).Parse(histogramTmpl)
+	if err != nil {
 		log.Fatalln(err)
-	} else if err = tmpl.Execute(&queryBuffer, tmplArgs); err != nil {
+	}
+
+	err = tmpl.Execute(&queryBuffer, tmplArgs)
+	if err != nil {
 		log.Fatalln(err)
 	}
 
@@ -1085,20 +1096,19 @@ func (m *Metrics) SchemaByQueryID(ctx context.Context, serviceID, queryID string
 	queryCtx, cancel := context.WithTimeout(ctx, queryTimeout)
 	defer cancel()
 
-	rows, err := m.db.QueryxContext(queryCtx, query, args...)
-	if err != nil {
-		return nil, errors.Wrap(err, cannotExecute)
+	row := m.db.QueryRowxContext(queryCtx, query, args...)
+	rowErr := row.Err()
+	if rowErr != nil {
+		return nil, errors.Wrap(rowErr, cannotExecute)
 	}
-	defer rows.Close() //nolint:errcheck
 
 	res := &qanv1.SchemaByQueryIDResponse{}
-	for rows.Next() {
-		err = rows.Scan(&res.Schema)
-		if err != nil {
-			return res, errors.Wrap(err, "failed to scan query")
+	err = row.Scan(&res.Schema)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return res, nil
 		}
-
-		return res, nil //nolint:staticcheck
+		return res, errors.Wrap(err, "failed to scan query")
 	}
 
 	return res, nil
@@ -1132,39 +1142,34 @@ func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, qu
 	queryCtx, cancel := context.WithTimeout(ctx, queryTimeout)
 	defer cancel()
 
-	rows, err := m.db.QueryxContext(queryCtx, query, args...)
-	if err != nil {
-		return res, errors.Wrap(err, cannotExecute)
+	row := m.db.QueryRowxContext(queryCtx, query, args...)
+	rowErr := row.Err()
+	if rowErr != nil {
+		return res, errors.Wrap(rowErr, cannotExecute)
 	}
-	defer rows.Close() //nolint:errcheck
 
 	var fingerprint, example string
-	for rows.Next() {
-		err = rows.Scan(
-			&res.ExplainFingerprint,
-			&fingerprint,
-			&example,
-			&res.PlaceholdersCount,
-		)
-		if err != nil {
-			return res, errors.Wrap(err, "failed to scan query")
+	err = row.Scan(
+		&res.ExplainFingerprint,
+		&fingerprint,
+		&example,
+		&res.PlaceholdersCount,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return res, errors.New("query_id doesnt exists")
 		}
-
-		if example != "" {
-			res.ExplainFingerprint = example
-			res.PlaceholdersCount = 0
-
-			return res, nil
-		}
-
-		if res.ExplainFingerprint == "" {
-			res.ExplainFingerprint = fingerprint
-		}
-
-		return res, nil //nolint:staticcheck
+		return res, errors.Wrap(err, "failed to scan query")
 	}
 
-	return res, errors.New("query_id doesnt exists")
+	if example != "" {
+		res.ExplainFingerprint = example
+		res.PlaceholdersCount = 0
+	} else if res.ExplainFingerprint == "" {
+		res.ExplainFingerprint = fingerprint
+	}
+
+	return res, nil
 }
 
 const selectedQueryMetadataTmpl = `
@@ -1225,9 +1230,12 @@ func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromS
 
 	res := &qanv1.GetSelectedQueryMetadataResponse{}
 	var queryBuffer bytes.Buffer
-	if tmpl, err := template.New("selectedQueryMetadataTmpl").Funcs(funcMap).Parse(selectedQueryMetadataTmpl); err != nil {
+	tmpl, err := template.New("selectedQueryMetadataTmpl").Funcs(funcMap).Parse(selectedQueryMetadataTmpl)
+	if err != nil {
 		return res, errors.Wrap(err, cannotPrepare)
-	} else if err = tmpl.Execute(&queryBuffer, tmplArgs); err != nil {
+	}
+	err = tmpl.Execute(&queryBuffer, tmplArgs)
+	if err != nil {
 		return res, errors.Wrap(err, cannotExecute)
 	}
 
@@ -1295,7 +1303,7 @@ func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromS
 }
 
 func prepareMetadataProperty(metadata map[string]struct{}) string {
-	res := []string{}
+	res := make([]string, 0, len(metadata))
 	for k := range metadata {
 		res = append(res, k)
 	}

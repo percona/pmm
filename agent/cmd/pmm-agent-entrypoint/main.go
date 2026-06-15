@@ -83,12 +83,14 @@ func runPmmAgent(ctx context.Context, commandLineArgs []string, restartPolicy re
 		var exitCode int
 		l.Infof("Starting 'pmm-agent %s'...", strings.Join(commandLineArgs, " "))
 		cmd := commandPmmAgent(commandLineArgs)
-		if err := cmd.Start(); err != nil {
+		err := cmd.Start()
+		if err != nil {
 			l.Errorf("Can't run: '%s', Error: %s", commandLineArgs, err)
 			exitCode = -1
 		} else {
 			pmmAgentProcessID = cmd.Process.Pid
-			if err := cmd.Wait(); err != nil {
+			err := cmd.Wait()
+			if err != nil {
 				var exitErr *exec.ExitError
 				if !errors.As(err, &exitErr) {
 					l.Errorf("Can't get exit code for '%s'. err: %s", pmmAgentFullCommand, err)
@@ -152,13 +154,14 @@ func main() { //nolint:gocognit
 		if pmmAgentProcessID != 0 {
 			l.Info("Graceful shutdown for pmm-agent...")
 			// graceful shutdown for pmm-agent
-			if err := syscall.Kill(pmmAgentProcessID, syscall.SIGTERM); err != nil {
+			err := syscall.Kill(pmmAgentProcessID, syscall.SIGTERM)
+			if err != nil {
 				l.Warn("Failed to send SIGTERM, command must have exited:", err)
 			}
 			pmmAgentProcess, _ := os.FindProcess(pmmAgentProcessID) // always succeeds even process is not exist
 			preSIGKILLtimeout := 10
 			timer := sendSIGKILLwithTimeout(pmmAgentProcess, preSIGKILLtimeout, l)
-			_, err := pmmAgentProcess.Wait()
+			_, err = pmmAgentProcess.Wait()
 			if err != nil {
 				l.Warn("Failed to finish pmm-agent")
 			}
@@ -198,7 +201,8 @@ func main() { //nolint:gocognit
 		}
 		if *pmmAgentSidecar {
 			l.Info("Stopping pmm-agent...")
-			if err := agent.Process.Signal(syscall.SIGTERM); err != nil {
+			err := agent.Process.Signal(syscall.SIGTERM)
+			if err != nil {
 				l.Fatal("Failed to kill pmm-agent: ", err)
 			}
 		}
@@ -218,7 +222,8 @@ func main() { //nolint:gocognit
 			cmd := exec.CommandContext(ctx, *pmmAgentPrerunFile) //nolint:gosec
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
-			if err := cmd.Run(); err != nil {
+			err = cmd.Run()
+			if err != nil {
 				var exitErr *exec.ExitError
 				if errors.As(err, &exitErr) {
 					status = exitErr.ExitCode()
@@ -232,7 +237,8 @@ func main() { //nolint:gocognit
 			cmd := exec.CommandContext(ctx, "/bin/sh", "-c", *pmmAgentPrerunScript) //nolint:gosec
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
-			if err := cmd.Run(); err != nil {
+			err = cmd.Run()
+			if err != nil {
 				var exitErr *exec.ExitError
 				if errors.As(err, &exitErr) {
 					status = exitErr.ExitCode()
@@ -242,7 +248,8 @@ func main() { //nolint:gocognit
 		}
 
 		l.Info("Stopping pmm-agent...")
-		if err := agent.Process.Signal(syscall.SIGTERM); err != nil {
+		err = agent.Process.Signal(syscall.SIGTERM)
+		if err != nil {
 			l.Infof("Failed to term pmm-agent: %s", err)
 		}
 
