@@ -21,6 +21,8 @@ import (
 	"fmt"
 	"strings"
 
+	"golang.org/x/sync/errgroup"
+
 	qanpb "github.com/percona/pmm/api/qan/v1"
 	"github.com/percona/pmm/qan-api2/models"
 )
@@ -138,6 +140,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.GetReportRequest) (*q
 	resp.Offset = in.Offset
 	resp.Limit = in.Limit
 
+	resp.Rows = make([]*qanpb.Row, len(results))
 	for i, res := range results {
 		numQueries := interfaceToFloat32(res["num_queries"])
 		//nolint:forcetypeassert
@@ -157,32 +160,44 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.GetReportRequest) (*q
 			row.Fingerprint = "TOTAL"
 		}
 
-		// The row with index 0 is total.
-		isTotal := i == 0
-
-		sparklines, err := s.rm.SelectSparklines(
-			ctx,
-			row.Dimension,
-			periodStartFromSec,
-			periodStartToSec,
-			dimensions,
-			labels,
-			group,
-			mainMetric,
-			isTotal,
-		)
-		if err != nil {
-			return nil, err
-		}
-		row.Sparkline = sparklines
 		for _, c := range columns {
 			stats := makeStats(c, total, res, numQueries, periodDurationSec)
 			row.Metrics[c] = &qanpb.Metric{
 				Stats: stats,
 			}
 		}
-		resp.Rows = append(resp.Rows, row)
+		resp.Rows[i] = row
 	}
+
+	// Fetch sparklines for all rows concurrently instead of one query per row in series.
+	g, gCtx := errgroup.WithContext(ctx)
+	g.SetLimit(models.MaxParallelQueries)
+	for i, row := range resp.Rows {
+		isTotal := i == 0 // the row with index 0 is total.
+		g.Go(func() error {
+			sparklines, err := s.rm.SelectSparklines(
+				gCtx,
+				row.Dimension,
+				periodStartFromSec,
+				periodStartToSec,
+				dimensions,
+				labels,
+				group,
+				mainMetric,
+				isTotal,
+			)
+			if err != nil {
+				return err
+			}
+			row.Sparkline = sparklines
+			return nil
+		})
+	}
+	err = g.Wait()
+	if err != nil {
+		return nil, err
+	}
+
 	return resp, nil
 }
 
