@@ -616,7 +616,7 @@ func checkArtifactMode(artifact *models.Artifact, pitrTimestamp time.Time) error
 			return fmt.Errorf("point in time recovery is only available for Logical data model: %w", ErrIncompatibleArtifactMode)
 		}
 	} else if pitrTimestamp.Unix() != 0 {
-		return fmt.Errorf("artifact of type '%s' cannot be use to restore to point in time: %w", artifact.Mode, ErrIncompatibleArtifactMode)
+		return fmt.Errorf("artifact of type '%s' cannot be used to restore to point in time: %w", artifact.Mode, ErrIncompatibleArtifactMode)
 	}
 
 	return nil

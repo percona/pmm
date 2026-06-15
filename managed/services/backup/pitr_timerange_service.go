@@ -165,10 +165,7 @@ func (s *PBMPITRService) ListPITRTimeranges(ctx context.Context, storage Storage
 		return nil, nil
 	}
 
-	t, err := getTimelines(oplogs), nil
-	if err != nil {
-		return nil, fmt.Errorf("get PITR timeranges for backup '%s': %w", artifact.Name, err)
-	}
+	t := getTimelines(oplogs)
 	if len(t) != 0 {
 		timelines = append(timelines, t)
 	}

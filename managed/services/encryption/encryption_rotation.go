@@ -145,7 +145,7 @@ func rotateEncryptionKey(db *reform.DB, dbName string) error {
 		if err != nil {
 			e := encryption.RestoreOldEncryptionKey()
 			if e != nil {
-				return fmt.Errorf(e.Error()+": %w", err)
+				return fmt.Errorf("%w: %w", e, err)
 			}
 			return err
 		}

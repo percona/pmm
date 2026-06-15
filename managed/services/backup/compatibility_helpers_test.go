@@ -342,7 +342,8 @@ func TestMongoDBBackupSoftwareInstalledAndCompatible(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			err := mongoDBBackupSoftwareInstalledAndCompatible(test.input)
 			if test.err != nil {
-				require.Equal(t, err.Error(), test.err.Error())
+				require.Error(t, err)
+				require.Equal(t, test.err.Error(), err.Error())
 			} else {
 				require.NoError(t, err)
 			}

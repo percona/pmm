@@ -683,7 +683,7 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 		return err
 	}
 	if e := resp.(*agentv1.StartJobResponse).Error; e != "" { //nolint:forcetypeassert
-		return fmt.Errorf("failed to start MonogDB restore backup job: %s", e)
+		return fmt.Errorf("failed to start MongoDB restore backup job: %s", e)
 	}
 
 	return nil
