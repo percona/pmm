@@ -105,7 +105,8 @@ func ReadFromSource(src string) (*Credentials, error) {
 		return nil, fmt.Errorf("%w", err)
 	}
 
-	if err := json.Unmarshal([]byte(content), &creds); err != nil {
+	err = json.Unmarshal([]byte(content), &creds)
+	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
 
@@ -206,7 +207,7 @@ func ValidateEnvironmentVariableNames(varNames []string) ([]string, error) {
 	for _, name := range varNames {
 		name = strings.TrimSpace(name)
 		if name == "" {
-			return nil, fmt.Errorf("environment variable name cannot be empty")
+			return nil, errors.New("environment variable name cannot be empty")
 		}
 
 		if !validNamePattern.MatchString(name) {

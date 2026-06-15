@@ -41,7 +41,8 @@ func ExtractTables(query string) ([]string, error) {
 	}
 
 	var jsonTree string
-	if jsonTree, err = pgquery.ParseToJSON(query); err != nil {
+	jsonTree, err = pgquery.ParseToJSON(query)
+	if err != nil {
 		err = errors.Wrap(err, "error on parsing sql query")
 		return nil, err
 	}

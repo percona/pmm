@@ -120,7 +120,6 @@ type Config struct {
 	Query     string           `yaml:"query"`
 	Summary   string           `yaml:"summary"`
 	Transform *ConfigTransform `yaml:"transform"`
-	Extension ExtensionType    `yaml:"extension"`
 	Data      []ConfigData
 }
 
@@ -169,14 +168,6 @@ type ReportingConfig struct {
 //go:embed config.default.yml
 var defaultConfig string
 
-// ExtensionType represents the type of telemetry extension.
-type ExtensionType string
-
-const (
-	// UIEventsExtension is a constant for the UI events telemetry extension.
-	UIEventsExtension = ExtensionType("UIEventsExtension")
-)
-
 // Init initializes telemetry config.
 func (c *ServiceConfig) Init(l *logrus.Entry) error {
 	c.l = l
@@ -189,11 +180,13 @@ func (c *ServiceConfig) Init(l *logrus.Entry) error {
 	}
 	c.telemetry = telemetry
 
-	if d, err := time.ParseDuration(os.Getenv(envReportingInterval)); err == nil && d > 0 {
+	d, err := time.ParseDuration(os.Getenv(envReportingInterval))
+	if err == nil && d > 0 {
 		l.Warnf("Interval changed to %s.", d)
 		c.Reporting.Interval = d
 	}
-	if d, err := time.ParseDuration(os.Getenv(envReportingRetryBackoff)); err == nil && d > 0 {
+	d, err = time.ParseDuration(os.Getenv(envReportingRetryBackoff))
+	if err == nil && d > 0 {
 		l.Warnf("Retry backoff changed to %s.", d)
 		c.Reporting.RetryBackoff = d
 	}

@@ -287,7 +287,8 @@ func (r *Runner) handleJob(ctx context.Context, job jobs.Job) {
 		defer r.removeCancel(jobID)
 
 		l.Debug("Acquiring tokens for a job.")
-		if err := r.acquire(ctx, token); err != nil {
+		err := r.acquire(ctx, token)
+		if err != nil {
 			l.Errorf("Failed to acquire token for a job: %v", err)
 			r.sendJobsMessage(&agentv1.JobResult{
 				JobId:     job.ID(),
@@ -317,7 +318,7 @@ func (r *Runner) handleJob(ctx context.Context, job jobs.Job) {
 		defer r.removeStarted(jobID)
 		l.Info("Job started.")
 
-		err := job.Run(nCtx, r.sendJobsMessage)
+		err = job.Run(nCtx, r.sendJobsMessage)
 		if err != nil {
 			r.sendJobsMessage(&agentv1.JobResult{
 				JobId:     job.ID(),
@@ -358,7 +359,8 @@ func (r *Runner) handleAction(ctx context.Context, action actions.Action) {
 		defer r.removeCancel(actionID)
 
 		l.Debug("Acquiring tokens for an action.")
-		if err := r.acquire(ctx, instanceID); err != nil {
+		err := r.acquire(ctx, instanceID)
+		if err != nil {
 			l.Errorf("Failed to acquire token for an action: %v", err)
 			r.sendActionsMessage(&agentv1.ActionResultRequest{
 				ActionId: actionID,

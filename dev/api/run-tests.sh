@@ -28,6 +28,7 @@ pmm-api() {
     -e AWS_ACCESS_KEY \
     -e AWS_SECRET_KEY \
     -e PMM_ENABLE_ACCESS_CONTROL=1 \
+    -e PMM_ENABLE_TELEMETRY=0 \
     -v pmm-data:/srv \
     "${PMM_SERVER_IMAGE:-perconalab/pmm-server:3-dev-latest}"
 

@@ -311,14 +311,15 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentv1.SetSta
 		agent.cancel()
 		<-agent.done
 
-		if err := s.portsRegistry.Release(agent.listenPort); err != nil {
+		err := s.portsRegistry.Release(agent.listenPort)
+		if err != nil {
 			s.l.Errorf("Failed to release port: %s.", err)
 		}
 
 		delete(s.agentProcesses, agentID)
 
 		agentTmp := filepath.Join(s.cfg.Get().Paths.TempDir, strings.ToLower(agent.requestedState.Type.String()), agentID)
-		err := os.RemoveAll(agentTmp)
+		err = os.RemoveAll(agentTmp)
 		if err != nil {
 			s.l.Warnf("Failed to cleanup directory '%s': %s", agentTmp, err.Error())
 		}
@@ -787,9 +788,9 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStat
 		processParams.Path = "sleep"
 	case inventoryv1.AgentType_AGENT_TYPE_VM_AGENT:
 		templateParams["server_insecure"] = cfg.Server.InsecureTLS
-		templateParams["server_url"] = fmt.Sprintf("https://%s", cfg.Server.Address)
+		templateParams["server_url"] = "https://" + cfg.Server.Address
 		if cfg.Server.WithoutTLS {
-			templateParams["server_url"] = fmt.Sprintf("http://%s", cfg.Server.Address)
+			templateParams["server_url"] = "http://" + cfg.Server.Address
 		}
 		templateParams["server_password"] = cfg.Server.Password
 		templateParams["server_username"] = cfg.Server.Username

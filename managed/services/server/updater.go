@@ -191,7 +191,8 @@ func (up *Updater) StartUpdate(ctx context.Context, newImageName string) error {
 	}
 
 	restartWatchtower := false
-	if _, e := os.Stat(pmmEnvfilePath); e == nil {
+	_, e := os.Stat(pmmEnvfilePath)
+	if e == nil {
 		watchtowerImageName := strings.Replace(newImageName, "pmm-server-fb", "pmm-watchtower-fb", 1) // for FB images
 		watchtowerImageName = strings.Replace(watchtowerImageName, "3-dev-latest", "dev-latest", 1)   // for dev images
 		watchtowerImageName = strings.Replace(watchtowerImageName, "pmm-server", "watchtower", 1)
@@ -214,7 +215,8 @@ func (up *Updater) StartUpdate(ctx context.Context, newImageName string) error {
 		return errors.Wrap(e, "failed to check environment variables file")
 	}
 
-	if err := up.sendRequestToWatchtower(ctx, newImageName, restartWatchtower); err != nil {
+	err = up.sendRequestToWatchtower(ctx, newImageName, restartWatchtower)
+	if err != nil {
 		up.running = false
 		up.l.WithError(err).Error("Failed to trigger update")
 		return err
@@ -340,7 +342,8 @@ func (up *Updater) latestAvailableFromVersionService(ctx context.Context) ([]*ve
 	defer resp.Body.Close() //nolint:errcheck
 
 	var metadataResponse MetadataResponse
-	if err := json.NewDecoder(resp.Body).Decode(&metadataResponse); err != nil {
+	err = json.NewDecoder(resp.Body).Decode(&metadataResponse)
+	if err != nil {
 		up.l.WithError(err).Error("Failed to decode response")
 		return nil, nil, errors.Wrap(err, "failed to decode response")
 	}
@@ -466,7 +469,8 @@ func (up *Updater) UpdateLog(offset uint32) ([]string, uint32, error) {
 	}
 	defer f.Close() //nolint:errcheck,gosec,nolintlint
 
-	if _, err = f.Seek(int64(offset), io.SeekStart); err != nil {
+	_, err = f.Seek(int64(offset), io.SeekStart)
+	if err != nil {
 		return nil, 0, errors.WithStack(err)
 	}
 
@@ -603,7 +607,8 @@ func (up *Updater) getReleaseNotesText(ctx context.Context, version version.Pars
 	}
 	defer resp.Body.Close() //nolint:errcheck
 	var rnResponse ReleaseNotesResponse
-	if err := json.NewDecoder(resp.Body).Decode(&rnResponse); err != nil {
+	err = json.NewDecoder(resp.Body).Decode(&rnResponse)
+	if err != nil {
 		up.l.WithError(err).Error("Failed to decode response")
 		return "", errors.Wrap(err, "failed to decode response")
 	}

@@ -174,7 +174,7 @@ func TestServerClientConnection(t *testing.T) {
 
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, connectionEndpoint, nil)
 		require.NoError(t, err)
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", serviceToken))
+		req.Header.Set("Authorization", "Bearer "+serviceToken)
 
 		_, authError := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
 		assert.Nil(t, authError)

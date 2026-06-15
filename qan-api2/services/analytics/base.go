@@ -17,7 +17,7 @@ package analytics
 
 import (
 	"context"
-	"fmt"
+	"errors"
 
 	"github.com/jmoiron/sqlx"
 
@@ -43,7 +43,7 @@ func NewService(db *sqlx.DB, rm models.Reporter, mm models.Metrics) *Service {
 func (s *Service) HealthCheck(ctx context.Context, _ *qanpb.HealthCheckRequest) (*qanpb.HealthCheckResponse, error) {
 	// Use DB ping as readiness check
 	if s.db == nil {
-		return nil, fmt.Errorf("DB not initialized")
+		return nil, errors.New("DB not initialized")
 	}
 	err := s.db.PingContext(ctx)
 	if err != nil {

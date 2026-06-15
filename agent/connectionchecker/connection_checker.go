@@ -153,7 +153,8 @@ func (cc *ConnectionChecker) checkMySQLConnection(
 	db := sql.OpenDB(connector)
 	defer db.Close() //nolint:errcheck
 
-	if err = cc.sqlPing(ctx, db); err != nil {
+	err = cc.sqlPing(ctx, db)
+	if err != nil {
 		if errors.As(err, &x509.HostnameError{}) {
 			res.Error = errors.Wrap(err,
 				"mysql ssl certificate is misconfigured, make sure the certificate includes the requested hostname/IP in CN or subjectAltName fields").Error()
@@ -195,7 +196,8 @@ func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn str
 	}
 	defer client.Disconnect(ctx) //nolint:errcheck
 
-	if err = client.Ping(ctx, nil); err != nil {
+	err = client.Ping(ctx, nil)
+	if err != nil {
 		cc.l.Debugf("checkMongoDBConnection: failed to Ping: %s", err)
 		res.Error = err.Error()
 		return &res
@@ -259,7 +261,8 @@ func (cc *ConnectionChecker) checkPostgreSQLConnection(ctx context.Context, dsn 
 	db := sql.OpenDB(c)
 	defer db.Close() //nolint:errcheck
 
-	if err = cc.sqlPing(ctx, db); err != nil {
+	err = cc.sqlPing(ctx, db)
+	if err != nil {
 		res.Error = err.Error()
 	}
 
@@ -320,7 +323,8 @@ func (cc *ConnectionChecker) checkProxySQLConnection(ctx context.Context, dsn st
 	db := sql.OpenDB(connector)
 	defer db.Close() //nolint:errcheck
 
-	if err = cc.sqlPing(ctx, db); err != nil {
+	err = cc.sqlPing(ctx, db)
+	if err != nil {
 		res.Error = err.Error()
 	}
 
