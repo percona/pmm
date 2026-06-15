@@ -66,7 +66,7 @@ func (s *Service) Load() error {
 	if present {
 		_, err := os.Stat(configPath)
 		if errors.Is(err, os.ErrNotExist) {
-			return fmt.Errorf("config file [%s] doesn't exit: %w", configPath, err)
+			return fmt.Errorf("config file [%s] doesn't exist: %w", configPath, err)
 		}
 	} else {
 		s.l.Debugf("[%s] is not set, using default location [%s]", envConfigPath, defaultConfigPath)
