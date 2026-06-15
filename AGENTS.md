@@ -227,6 +227,8 @@ All long-running daemons expose on `127.0.0.1`:
 |--------|---------|
 | `make env-up` | Start development container (PMM Server) |
 | `make env-up-rebuild` | Rebuild development container from scratch |
+| `make run-ui` | Inside devcontainer: Vite HMR for the main PMM UI |
+| `make run-qan-ui` | Inside devcontainer: webpack + livereload for the QAN Grafana plugin |
 | `make gen` | Generate all code (protobuf, reform, mocks, format) |
 | `make check` | Run linters (buf, golangci-lint, go-sumtype) |
 | `make format` | Format code (gofumpt, goimports, gci) |

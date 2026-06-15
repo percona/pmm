@@ -45,12 +45,12 @@ export default defineConfig({
     proxy: hasNginxCerts
       ? {
           '/v1': {
-            target: 'https://localhost:8443',
+            target: 'https://localhost:443',
             secure: false,
             changeOrigin: true,
           },
           '/graph': {
-            target: 'https://localhost:8443',
+            target: 'https://localhost:443',
             secure: false,
             changeOrigin: true,
           },

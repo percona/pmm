@@ -53,6 +53,9 @@ services:
       - ./managed/data/alerting-templates/:/usr/local/percona/alerting-templates/
       # nginx config overrides
       - ./build/ansible/roles/nginx/files/conf.d/pmm.conf:/etc/nginx/conf.d/pmm.conf:ro
+      # percona-ui
+      # - ../percona-ui:/root/go/src/github.com/percona/percona-ui
+
   
   mail-server:
     profiles:
