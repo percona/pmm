@@ -37,7 +37,7 @@ const (
 	maxRestoreChecks    = 100
 
 	maxDescribeCommandRetries = 5
-	// PBM waits up to ~33s for backup metadata; allow extra margin for describe-backup.
+	// PBM waits up to ~33s for backup metadata. Allow extra margin for describe-backup.
 	pbmDescribeStartupGrace = 60 * time.Second
 
 	pbmCmdBackup  = "backup"
@@ -271,42 +271,51 @@ func getPBMStatus(ctx context.Context, dsn string) (*pbmStatus, error) {
 }
 
 type pbmDescribePollConfig struct {
-	l               logrus.FieldLogger
-	dsn             string
-	operation       string
-	targetName      string
-	startedAt       time.Time
-	describeRetries *int
-	fetchDescribe   func(context.Context) (describeInfo, error)
-	fetchStatus     func(context.Context, string) (*pbmStatus, error)
-	isRunning       func(*pbmStatus) bool
-	findSnapshot    func(*pbmStatus) *pbmSnapshot
+	l                logrus.FieldLogger
+	dsn              string
+	operation        string
+	targetName       string
+	startedAt        time.Time
+	pollInterval     time.Duration
+	describeRetries  int
+	fetchDescribe    func(context.Context) (describeInfo, error)
+	fetchStatus      func(context.Context, string) (*pbmStatus, error)
+	fetchRestoreList func(context.Context) ([]pbmListRestore, error)
+	isRunning        func(*pbmStatus) bool
+	findSnapshot     func(*pbmStatus) *pbmSnapshot
 }
 
-// pbmDescribePollInterval is used by waitForPBMDescribe.
-var pbmDescribePollInterval = statusCheckInterval
+func (cfg *pbmDescribePollConfig) describePollInterval() time.Duration {
+	if cfg.pollInterval > 0 {
+		return cfg.pollInterval
+	}
+	return statusCheckInterval
+}
+
+func newDescribePollConfig(l logrus.FieldLogger, dsn, operation, targetName string, fetchDescribe func(context.Context) (describeInfo, error)) *pbmDescribePollConfig {
+	return &pbmDescribePollConfig{
+		l:               l,
+		dsn:             dsn,
+		operation:       operation,
+		targetName:      targetName,
+		startedAt:       time.Now(),
+		describeRetries: maxDescribeCommandRetries,
+		fetchDescribe:   fetchDescribe,
+	}
+}
 
 func waitForPBMBackup(ctx context.Context, l logrus.FieldLogger, dsn string, name string) error {
 	l.Infof("waiting for pbm backup: %s", name)
 
-	describeRetries := maxDescribeCommandRetries
-	return waitForPBMDescribe(ctx, pbmDescribePollConfig{
-		l:               l,
-		dsn:             dsn,
-		operation:       pbmCmdBackup,
-		targetName:      name,
-		startedAt:       time.Now(),
-		describeRetries: &describeRetries,
-		fetchDescribe: func(ctx context.Context) (describeInfo, error) {
-			var info describeInfo
-			err := execPBMCommand(ctx, dsn, &info, "describe-backup", name)
-			return info, err
-		},
-	})
+	return waitForPBMDescribe(ctx, newDescribePollConfig(l, dsn, pbmCmdBackup, name, func(ctx context.Context) (describeInfo, error) {
+		var info describeInfo
+		err := execPBMCommand(ctx, dsn, &info, "describe-backup", name)
+		return info, err
+	}))
 }
 
-func waitForPBMDescribe(ctx context.Context, cfg pbmDescribePollConfig) error {
-	ticker := time.NewTicker(pbmDescribePollInterval)
+func waitForPBMDescribe(ctx context.Context, cfg *pbmDescribePollConfig) error {
+	ticker := time.NewTicker(cfg.describePollInterval())
 	defer ticker.Stop()
 
 	for {
@@ -326,65 +335,95 @@ func waitForPBMDescribe(ctx context.Context, cfg pbmDescribePollConfig) error {
 	}
 }
 
-func pollPBMDescribeOnce(ctx context.Context, cfg pbmDescribePollConfig) (bool, error) {
+func pollPBMDescribeOnce(ctx context.Context, cfg *pbmDescribePollConfig) (bool, error) {
 	info, describeErr := cfg.fetchDescribe(ctx)
 	if describeErr == nil {
-		*cfg.describeRetries = maxDescribeCommandRetries
+		cfg.describeRetries = maxDescribeCommandRetries
 		return describeTerminalError(info, cfg.operation)
 	}
 
-	fetchStatus := cfg.fetchStatus
-	if fetchStatus == nil {
-		fetchStatus = getPBMStatus
-	}
-
-	status, statusErr := fetchStatus(ctx, cfg.dsn)
+	status, statusErr := cfg.getPBMStatus(ctx)
 	if statusErr != nil {
 		return false, errors.Wrap(statusErr, "failed to get pbm status")
 	}
 
 	if cfg.operationIsRunning(status) {
-		if shouldRetryDescribeFailure(describeErr, cfg.startedAt) {
-			cfg.l.Debugf("describe-%s transient error while %s is running: %s", cfg.operation, cfg.operation, describeErr)
-			return false, nil
-		}
-		if retryDescribeCommand(cfg, describeErr) {
-			return false, nil
-		}
-		// PBM reports the operation is still running; keep polling.
+		cfg.logAndRetryDescribeFailure(describeErr, true)
 		return false, nil
 	}
 
-	if snapshot := cfg.snapshotForTarget(status); snapshot != nil {
-		done, err := snapshotTerminalError(snapshot, cfg.operation)
-		if done {
-			return true, err
-		}
+	if done, err := cfg.statusFallback(ctx, status); done {
+		return true, err
 	}
 
-	if shouldRetryDescribeFailure(describeErr, cfg.startedAt) {
-		return false, nil
-	}
-	if retryDescribeCommand(cfg, describeErr) {
+	if cfg.logAndRetryDescribeFailure(describeErr, false) {
 		return false, nil
 	}
 
 	return false, errors.Wrapf(describeErr, "failed to get %s status", cfg.operation)
 }
 
-func shouldRetryDescribeFailure(err error, startedAt time.Time) bool {
-	return isTransientPBMDescribeError(err) && time.Since(startedAt) < pbmDescribeStartupGrace
+func (cfg *pbmDescribePollConfig) getPBMStatus(ctx context.Context) (*pbmStatus, error) {
+	if cfg.fetchStatus != nil {
+		return cfg.fetchStatus(ctx, cfg.dsn)
+	}
+	return getPBMStatus(ctx, cfg.dsn)
 }
 
-func retryDescribeCommand(cfg pbmDescribePollConfig, err error) bool {
-	if *cfg.describeRetries <= 0 {
+func (cfg *pbmDescribePollConfig) logAndRetryDescribeFailure(describeErr error, running bool) bool {
+	if shouldRetryDescribeFailure(describeErr, cfg.startedAt) {
+		if running {
+			cfg.l.Debugf("describe-%s transient error while %s is running: %s", cfg.operation, cfg.operation, describeErr)
+		}
+		return true
+	}
+	return cfg.retryDescribeCommand(describeErr)
+}
+
+func (cfg *pbmDescribePollConfig) retryDescribeCommand(err error) bool {
+	if cfg.describeRetries <= 0 {
 		return false
 	}
-	*cfg.describeRetries--
+	cfg.describeRetries--
 	cfg.l.Warnf("describe-%s failed and will retry: %s", cfg.operation, err)
 	return true
 }
 
+func (cfg *pbmDescribePollConfig) statusFallback(ctx context.Context, status *pbmStatus) (bool, error) {
+	if snapshot := cfg.snapshotForTarget(status); snapshot != nil {
+		return terminalStatusError(snapshot.Status, snapshot.Error, cfg.operation)
+	}
+
+	if cfg.operation != pbmCmdRestore {
+		return false, nil
+	}
+
+	list, err := cfg.fetchRestoreListOrDefault(ctx)
+	if err != nil {
+		cfg.l.Debugf("failed to get restore list for fallback: %s", err)
+		return false, nil
+	}
+	if restore := findPBMListRestore(list, cfg.targetName); restore != nil {
+		return terminalStatusError(restore.Status, restore.Error, cfg.operation)
+	}
+	return false, nil
+}
+
+func (cfg *pbmDescribePollConfig) fetchRestoreListOrDefault(ctx context.Context) ([]pbmListRestore, error) {
+	if cfg.fetchRestoreList != nil {
+		return cfg.fetchRestoreList(ctx)
+	}
+	var list []pbmListRestore
+	err := execPBMCommand(ctx, cfg.dsn, &list, "list", "--restore")
+	return list, err
+}
+
+func shouldRetryDescribeFailure(err error, startedAt time.Time) bool {
+	return isTransientPBMDescribeError(err) && time.Since(startedAt) < pbmDescribeStartupGrace
+}
+
+// isTransientPBMDescribeError reports whether describe-backup/restore may fail
+// temporarily while PBM metadata is not ready yet.
 func isTransientPBMDescribeError(err error) bool {
 	if err == nil {
 		return false
@@ -397,21 +436,17 @@ func isTransientPBMDescribeError(err error) bool {
 		strings.Contains(msg, "missed file")
 }
 
-func (cfg pbmDescribePollConfig) operationIsRunning(status *pbmStatus) bool {
+func (cfg *pbmDescribePollConfig) operationIsRunning(status *pbmStatus) bool {
 	if cfg.isRunning != nil {
 		return cfg.isRunning(status)
 	}
-	switch cfg.operation {
-	case pbmCmdBackup:
-		return isPBMBackupRunning(status, cfg.targetName)
-	case pbmCmdRestore:
-		return isPBMRestoreRunning(status, cfg.targetName)
-	default:
+	if cfg.operation != pbmCmdBackup && cfg.operation != pbmCmdRestore {
 		return false
 	}
+	return status.Running.Type == cfg.operation && status.Running.Name == cfg.targetName
 }
 
-func (cfg pbmDescribePollConfig) snapshotForTarget(status *pbmStatus) *pbmSnapshot {
+func (cfg *pbmDescribePollConfig) snapshotForTarget(status *pbmStatus) *pbmSnapshot {
 	if cfg.findSnapshot != nil {
 		return cfg.findSnapshot(status)
 	}
@@ -421,49 +456,53 @@ func (cfg pbmDescribePollConfig) snapshotForTarget(status *pbmStatus) *pbmSnapsh
 	return nil
 }
 
-func isPBMBackupRunning(status *pbmStatus, name string) bool {
-	return status.Running.Type == pbmCmdBackup && status.Running.Name == name
-}
-
-func isPBMRestoreRunning(status *pbmStatus, name string) bool {
-	return status.Running.Type == pbmCmdRestore && status.Running.Name == name
-}
-
 func findPBMSnapshot(status *pbmStatus, name string) *pbmSnapshot {
-	for i := range status.Backups.Snapshot {
-		if status.Backups.Snapshot[i].Name == name {
-			return &status.Backups.Snapshot[i]
-		}
+	i := slices.IndexFunc(status.Backups.Snapshot, func(s pbmSnapshot) bool {
+		return s.Name == name
+	})
+	if i < 0 {
+		return nil
 	}
-	return nil
+	return &status.Backups.Snapshot[i]
+}
+
+func findPBMListRestore(list []pbmListRestore, name string) *pbmListRestore {
+	i := slices.IndexFunc(list, func(r pbmListRestore) bool {
+		return r.Name == name
+	})
+	if i < 0 {
+		return nil
+	}
+	return &list[i]
 }
 
 func describeTerminalError(info describeInfo, operation string) (bool, error) {
 	switch info.Status {
-	case pbmStatusDone:
-		return true, nil
-	case pbmStatusCanceled:
-		return true, errors.Errorf("%s was canceled", operation)
 	case pbmStatusError:
 		return true, describeFailureError(info, operation)
 	case pbmStatusPartlyDone:
 		return true, groupDescribeErrors(info)
 	default:
-		return false, nil
+		return terminalStatusError(info.Status, info.Error, operation)
 	}
 }
 
-func snapshotTerminalError(snapshot *pbmSnapshot, operation string) (bool, error) {
-	switch snapshot.Status {
+func terminalStatusError(status, errMsg, operation string) (bool, error) {
+	switch status {
 	case pbmStatusDone:
 		return true, nil
 	case pbmStatusCanceled:
 		return true, errors.Errorf("%s was canceled", operation)
 	case pbmStatusError:
-		if snapshot.Error != "" {
-			return true, errors.New(snapshot.Error)
+		if errMsg != "" {
+			return true, errors.New(errMsg)
 		}
 		return true, errors.Errorf("%s failed", operation)
+	case pbmStatusPartlyDone:
+		if errMsg != "" {
+			return true, errors.New(errMsg)
+		}
+		return true, errors.Errorf("%s partly completed", operation)
 	default:
 		return false, nil
 	}
@@ -550,25 +589,15 @@ func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dsn string, re
 
 	l.Infof("waiting for pbm restore: %s", name)
 
-	describeRetries := maxDescribeCommandRetries
-	return waitForPBMDescribe(ctx, pbmDescribePollConfig{
-		l:               l,
-		dsn:             dsn,
-		operation:       pbmCmdRestore,
-		targetName:      name,
-		startedAt:       time.Now(),
-		describeRetries: &describeRetries,
-		fetchDescribe: func(ctx context.Context) (describeInfo, error) {
-			var info describeInfo
-			var describeErr error
-			if backupType == "physical" {
-				describeErr = execPBMCommand(ctx, dsn, &info, "describe-restore", name, "--config="+confFile)
-			} else {
-				describeErr = execPBMCommand(ctx, dsn, &info, "describe-restore", name)
-			}
-			return info, describeErr
-		},
-	})
+	return waitForPBMDescribe(ctx, newDescribePollConfig(l, dsn, pbmCmdRestore, name, func(ctx context.Context) (describeInfo, error) {
+		var info describeInfo
+		if backupType == "physical" {
+			err := execPBMCommand(ctx, dsn, &info, "describe-restore", name, "--config="+confFile)
+			return info, err
+		}
+		err := execPBMCommand(ctx, dsn, &info, "describe-restore", name)
+		return info, err
+	}))
 }
 
 func pbmConfigure(ctx context.Context, l logrus.FieldLogger, params pbmConfigParams) error {
