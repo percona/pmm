@@ -53,6 +53,7 @@ const (
 	AgentType_AGENT_TYPE_AZURE_DATABASE_EXPORTER            AgentType = 15
 	AgentType_AGENT_TYPE_NOMAD_AGENT                        AgentType = 16
 	AgentType_AGENT_TYPE_RTA_MONGODB_AGENT                  AgentType = 19
+	AgentType_AGENT_TYPE_RTA_MYSQL_AGENT                    AgentType = 20
 )
 
 // Enum value maps for AgentType.
@@ -78,6 +79,7 @@ var (
 		15: "AGENT_TYPE_AZURE_DATABASE_EXPORTER",
 		16: "AGENT_TYPE_NOMAD_AGENT",
 		19: "AGENT_TYPE_RTA_MONGODB_AGENT",
+		20: "AGENT_TYPE_RTA_MYSQL_AGENT",
 	}
 	AgentType_value = map[string]int32{
 		"AGENT_TYPE_UNSPECIFIED":                        0,
@@ -100,6 +102,7 @@ var (
 		"AGENT_TYPE_AZURE_DATABASE_EXPORTER":            15,
 		"AGENT_TYPE_NOMAD_AGENT":                        16,
 		"AGENT_TYPE_RTA_MONGODB_AGENT":                  19,
+		"AGENT_TYPE_RTA_MYSQL_AGENT":                    20,
 	}
 )
 
@@ -12349,7 +12352,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x12RemoveAgentRequest\x12\"\n" +
 	"\bagent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\aagentId\x12\x14\n" +
 	"\x05force\x18\x02 \x01(\bR\x05force\"\x15\n" +
-	"\x13RemoveAgentResponse*\xd0\x05\n" +
+	"\x13RemoveAgentResponse*\xf0\x05\n" +
 	"\tAgentType\x12\x1a\n" +
 	"\x16AGENT_TYPE_UNSPECIFIED\x10\x00\x12\x18\n" +
 	"\x14AGENT_TYPE_PMM_AGENT\x10\x01\x12\x17\n" +
@@ -12371,7 +12374,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x17AGENT_TYPE_RDS_EXPORTER\x10\v\x12&\n" +
 	"\"AGENT_TYPE_AZURE_DATABASE_EXPORTER\x10\x0f\x12\x1a\n" +
 	"\x16AGENT_TYPE_NOMAD_AGENT\x10\x10\x12 \n" +
-	"\x1cAGENT_TYPE_RTA_MONGODB_AGENT\x10\x132\x83\t\n" +
+	"\x1cAGENT_TYPE_RTA_MONGODB_AGENT\x10\x13\x12\x1e\n" +
+	"\x1aAGENT_TYPE_RTA_MYSQL_AGENT\x10\x142\x83\t\n" +
 	"\rAgentsService\x12\x9c\x01\n" +
 	"\n" +
 	"ListAgents\x12\x1f.inventory.v1.ListAgentsRequest\x1a .inventory.v1.ListAgentsResponse\"K\x92A,\x12\vList Agents\x1a\x1dReturns a list of all Agents.\x82\xd3\xe4\x93\x02\x16\x12\x14/v1/inventory/agents\x12\x9f\x01\n" +
@@ -12513,7 +12517,6 @@ var (
 		(*common.StringMap)(nil),                            // 112: common.StringMap
 	}
 )
-
 var file_inventory_v1_agents_proto_depIdxs = []int32{
 	68,  // 0: inventory.v1.PMMAgent.custom_labels:type_name -> inventory.v1.PMMAgent.CustomLabelsEntry
 	108, // 1: inventory.v1.VMAgent.status:type_name -> inventory.v1.AgentStatus

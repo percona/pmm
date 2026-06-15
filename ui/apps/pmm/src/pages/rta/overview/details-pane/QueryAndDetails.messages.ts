@@ -6,6 +6,8 @@ export const Messages = {
     databaseName: 'Database name',
     collection: 'Collection',
     operation: 'Operation',
+    command: 'Command',
+    state: 'State',
     username: 'User name',
     dbInstanceAddress: 'DB instance address',
     clientAppName: 'Client app name',
@@ -23,6 +25,10 @@ export const Messages = {
     collection: 'The MongoDB collection targeted by this operation',
     operation:
       'The type of action the database is performing, such as query, insert, update, or command.',
+    command:
+      'The type of command the connection is executing, such as Query or Execute.',
+    state:
+      'The current state of the statement, such as "Sending data" or "Sorting result".',
     username: 'The database user who started this operation.',
     clientAddress:
       'The IP address and port of the application sending this query.',

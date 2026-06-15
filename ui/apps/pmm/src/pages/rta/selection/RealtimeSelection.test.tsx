@@ -42,6 +42,7 @@ const setupMocks = () => {
   vi.mocked(realtimeApi.getRunningSessions).mockResolvedValue([]);
   vi.mocked(realtimeApi.getAvailableServices).mockResolvedValue({
     mongodb: [],
+    mysql: [],
   });
 };
 
@@ -208,6 +209,7 @@ describe('RealtimeSelection', () => {
       });
       vi.mocked(realtimeApi.getAvailableServices).mockResolvedValue({
         mongodb: [TEST_VERSIONED_MONGO_SERVICE],
+        mysql: [],
       });
 
       renderComponent();

@@ -179,6 +179,148 @@ var _ interface {
 	ErrorName() string
 } = QueryMongoDBDataValidationError{}
 
+// Validate checks the field values on QueryMySQLData with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *QueryMySQLData) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on QueryMySQLData with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in QueryMySQLDataMultiError,
+// or nil if none found.
+func (m *QueryMySQLData) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *QueryMySQLData) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for DbInstanceAddress
+
+	// no validation rules for ClientHost
+
+	// no validation rules for DatabaseName
+
+	// no validation rules for Command
+
+	// no validation rules for State
+
+	// no validation rules for Username
+
+	if all {
+		switch v := interface{}(m.GetOperationStartTime()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, QueryMySQLDataValidationError{
+					field:  "OperationStartTime",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, QueryMySQLDataValidationError{
+					field:  "OperationStartTime",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetOperationStartTime()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return QueryMySQLDataValidationError{
+				field:  "OperationStartTime",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return QueryMySQLDataMultiError(errors)
+	}
+
+	return nil
+}
+
+// QueryMySQLDataMultiError is an error wrapping multiple validation errors
+// returned by QueryMySQLData.ValidateAll() if the designated constraints
+// aren't met.
+type QueryMySQLDataMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m QueryMySQLDataMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m QueryMySQLDataMultiError) AllErrors() []error { return m }
+
+// QueryMySQLDataValidationError is the validation error returned by
+// QueryMySQLData.Validate if the designated constraints aren't met.
+type QueryMySQLDataValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e QueryMySQLDataValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e QueryMySQLDataValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e QueryMySQLDataValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e QueryMySQLDataValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e QueryMySQLDataValidationError) ErrorName() string { return "QueryMySQLDataValidationError" }
+
+// Error satisfies the builtin error interface
+func (e QueryMySQLDataValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sQueryMySQLData.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = QueryMySQLDataValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = QueryMySQLDataValidationError{}
+
 // Validate checks the field values on QueryData with the rules defined in the
 // proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
@@ -307,6 +449,47 @@ func (m *QueryData) validate(all bool) error {
 			if err := v.Validate(); err != nil {
 				return QueryDataValidationError{
 					field:  "MongoDbPayload",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *QueryData_MySqlPayload:
+		if v == nil {
+			err := QueryDataValidationError{
+				field:  "Payload",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetMySqlPayload()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, QueryDataValidationError{
+						field:  "MySqlPayload",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, QueryDataValidationError{
+						field:  "MySqlPayload",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMySqlPayload()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return QueryDataValidationError{
+					field:  "MySqlPayload",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}

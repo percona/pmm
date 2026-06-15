@@ -34,6 +34,7 @@ enum AgentType {
   AGENT_TYPE_AZURE_DATABASE_EXPORTER = 15;
   AGENT_TYPE_NOMAD_AGENT = 16;
   AGENT_TYPE_RTA_MONGODB_AGENT = 19;
+  AGENT_TYPE_RTA_MYSQL_AGENT = 20;
 }
 
 // PMMAgent runs on Generic or Container Node.

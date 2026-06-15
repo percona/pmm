@@ -7,7 +7,7 @@ export const Messages = {
   startButton: 'Start session',
   documentation: 'Documentation',
   feedback: 'Provide feedback',
-  noMongoServices: 'No MongoDB services found',
+  noMongoServices: 'No services found',
   startSuccess: 'Real-Time Query Analysis started successfully',
   startError: 'Failed to start Real-Time Query Analysis',
 };

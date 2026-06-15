@@ -17,13 +17,12 @@ import { DOCS_URLS } from 'lib/constants';
 import { RealtimeSession } from 'types/rta.types';
 import { createRealtimeOverviewUrl } from 'utils/link.utils';
 import { RealtimeSelectionForm } from '../components/selection-form';
-import { ServiceType } from 'types/services.types';
 
 export const RealtimeSelection: FC = () => {
   const { user } = useUser();
   const navigate = useNavigate();
-  // TODO: Add other service types when available
-  const { isLoading } = useAvailableServices([ServiceType.mongodb]);
+  // No service type filter - return all services that support Real-Time Analytics.
+  const { isLoading } = useAvailableServices();
   const { data: sessions, isLoading: isLoadingSessions } =
     useRealtimeSessions();
 

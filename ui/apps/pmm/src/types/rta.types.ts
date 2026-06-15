@@ -49,7 +49,9 @@ export interface RawQueryData {
   queryCollectTime: string;
   clientAddress: string;
   queryRawJson: string;
-  mongoDbPayload: QueryMongoDBData;
+  // Only one of the payloads is set depending on the service type.
+  mongoDbPayload?: QueryMongoDBData;
+  mySqlPayload?: QueryMySQLData;
 }
 
 export type QueryData = Exclude<RawQueryData, 'queryExecutionDuration'> & {
@@ -67,7 +69,17 @@ export interface QueryMongoDBData {
   collection?: string;
 }
 
-// TODO: Add other service types when available
+export interface QueryMySQLData {
+  dbInstanceAddress: string;
+  clientHost: string;
+  databaseName: string;
+  command: string;
+  state: string;
+  username: string;
+  operationStartTime?: string;
+}
+
 export interface AvailableServicesResponse {
   mongodb: VersionedService[];
+  mysql: VersionedService[];
 }

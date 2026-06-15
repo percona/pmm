@@ -20,28 +20,25 @@ const GridItem = ({ children }: { children: React.ReactNode }) => (
   </Grid>
 );
 
-const QueryAndDetails: FC<Props> = ({
-  queryData: {
+const QueryAndDetails: FC<Props> = ({ queryData }) => {
+  const {
     queryText,
     queryId,
     queryExecutionDurationMs,
     queryCollectTime,
     serviceName,
     clientAddress,
-    mongoDbPayload: {
-      planSummary,
-      databaseName,
-      collection,
-      operation,
-      username,
-      dbInstanceAddress,
-      clientAppName,
-      operationStartTime,
-    },
-  },
-}) => {
+    mongoDbPayload,
+    mySqlPayload,
+  } = queryData;
+
   const { user } = useUser();
   const timezone = user?.preferences?.timezone || 'UTC';
+
+  // Only one of the payloads is set depending on the service type.
+  // Fields below are common to all supported databases.
+  const payload = mongoDbPayload ?? mySqlPayload;
+  const isMySQL = !!mySqlPayload;
 
   const formattedQueryExecutionDuration = queryExecutionDurationMs
     ? formatDuration(
@@ -99,7 +96,7 @@ const QueryAndDetails: FC<Props> = ({
               tooltip={Messages.tooltips.dbInstanceAddress}
             >
               <BigNumberMetric
-                mainText={dbInstanceAddress}
+                mainText={payload?.dbInstanceAddress}
                 size="small"
                 dataTestId="db-instance-address-value"
               />
@@ -123,7 +120,7 @@ const QueryAndDetails: FC<Props> = ({
               tooltip={Messages.tooltips.databaseName}
             >
               <BigNumberMetric
-                mainText={databaseName}
+                mainText={payload?.databaseName}
                 size="small"
                 dataTestId="database-name-value"
               />
@@ -147,81 +144,119 @@ const QueryAndDetails: FC<Props> = ({
               tooltip={Messages.tooltips.username}
             >
               <BigNumberMetric
-                mainText={username}
+                mainText={payload?.username}
                 size="small"
                 dataTestId="username-value"
               />
             </DetailsMetric>
           </GridItem>
-          <GridItem>
-            <DetailsMetric
-              title={Messages.titles.collection}
-              tooltip={Messages.tooltips.collection}
-            >
-              <BigNumberMetric
-                mainText={collection}
-                size="small"
-                dataTestId="collection-value"
-              />
-            </DetailsMetric>
-          </GridItem>
-          <GridItem>
-            <DetailsMetric
-              title={Messages.titles.operation}
-              tooltip={Messages.tooltips.operation}
-            >
-              <BigNumberMetric
-                mainText={operation}
-                size="small"
-                dataTestId="operation-value"
-              />
-            </DetailsMetric>
-          </GridItem>
-          <GridItem>
-            <DetailsMetric
-              title={Messages.titles.planSummary}
-              tooltip={Messages.tooltips.planSummary}
-            >
-              <BigNumberMetric
-                mainText={planSummary.replace(/,/g, ',\n')}
-                props={{
-                  mainText: {
-                    overflow: 'visible',
-                    textOverflow: 'clip',
-                    whiteSpace: 'pre',
-                  },
-                }}
-                size="small"
-                dataTestId="plan-summary-value"
-              />
-            </DetailsMetric>
-          </GridItem>
-          <GridItem>
-            <DetailsMetric
-              title={Messages.titles.clientAppName}
-              tooltip={Messages.tooltips.clientAppName}
-            >
-              <BigNumberMetric
-                mainText={clientAppName}
-                size="small"
-                dataTestId="client-app-name-value"
-              />
-            </DetailsMetric>
-          </GridItem>
-          <GridItem>
-            <DetailsMetric
-              title={Messages.titles.operationStartTime}
-              tooltip={Messages.tooltips.operationStartTime}
-            >
-              <BigNumberMetric
-                mainText={format(new Date(operationStartTime), TIME_FORMAT, {
-                  in: tz(timezone),
-                })}
-                size="small"
-                dataTestId="operation-start-time-value"
-              />
-            </DetailsMetric>
-          </GridItem>
+          {mongoDbPayload && (
+            <>
+              <GridItem>
+                <DetailsMetric
+                  title={Messages.titles.collection}
+                  tooltip={Messages.tooltips.collection}
+                >
+                  <BigNumberMetric
+                    mainText={mongoDbPayload.collection}
+                    size="small"
+                    dataTestId="collection-value"
+                  />
+                </DetailsMetric>
+              </GridItem>
+              <GridItem>
+                <DetailsMetric
+                  title={Messages.titles.operation}
+                  tooltip={Messages.tooltips.operation}
+                >
+                  <BigNumberMetric
+                    mainText={mongoDbPayload.operation}
+                    size="small"
+                    dataTestId="operation-value"
+                  />
+                </DetailsMetric>
+              </GridItem>
+              <GridItem>
+                <DetailsMetric
+                  title={Messages.titles.planSummary}
+                  tooltip={Messages.tooltips.planSummary}
+                >
+                  <BigNumberMetric
+                    mainText={mongoDbPayload.planSummary?.replace(/,/g, ',\n')}
+                    props={{
+                      mainText: {
+                        overflow: 'visible',
+                        textOverflow: 'clip',
+                        whiteSpace: 'pre',
+                      },
+                    }}
+                    size="small"
+                    dataTestId="plan-summary-value"
+                  />
+                </DetailsMetric>
+              </GridItem>
+              <GridItem>
+                <DetailsMetric
+                  title={Messages.titles.clientAppName}
+                  tooltip={Messages.tooltips.clientAppName}
+                >
+                  <BigNumberMetric
+                    mainText={mongoDbPayload.clientAppName}
+                    size="small"
+                    dataTestId="client-app-name-value"
+                  />
+                </DetailsMetric>
+              </GridItem>
+            </>
+          )}
+          {mySqlPayload && (
+            <>
+              <GridItem>
+                <DetailsMetric
+                  title={Messages.titles.command}
+                  tooltip={Messages.tooltips.command}
+                >
+                  <BigNumberMetric
+                    mainText={mySqlPayload.command}
+                    size="small"
+                    dataTestId="command-value"
+                  />
+                </DetailsMetric>
+              </GridItem>
+              <GridItem>
+                <DetailsMetric
+                  title={Messages.titles.state}
+                  tooltip={Messages.tooltips.state}
+                >
+                  <BigNumberMetric
+                    mainText={mySqlPayload.state}
+                    size="small"
+                    dataTestId="state-value"
+                  />
+                </DetailsMetric>
+              </GridItem>
+            </>
+          )}
+          {payload?.operationStartTime && (
+            <GridItem>
+              <DetailsMetric
+                title={Messages.titles.operationStartTime}
+                tooltip={Messages.tooltips.operationStartTime}
+              >
+                <BigNumberMetric
+                  mainText={format(
+                    new Date(payload.operationStartTime),
+                    TIME_FORMAT,
+                    {
+                      in: tz(timezone),
+                    }
+                  )}
+                  size="small"
+                  dataTestId="operation-start-time-value"
+                />
+              </DetailsMetric>
+            </GridItem>
+          )}
           <GridItem>
             <DetailsMetric
               title={Messages.titles.dataCaptureTime}
@@ -246,7 +281,7 @@ const QueryAndDetails: FC<Props> = ({
         }}
       >
         <SyntaxHighlighter
-          language="mongodb"
+          language={isMySQL ? 'sql' : 'mongodb'}
           showLineNumbers={true}
           showCopyButton
           content={queryText}

@@ -597,6 +597,9 @@ type SearchQueriesOKBodyQueriesItems0 struct {
 
 	// mongo db payload
 	MongoDBPayload *SearchQueriesOKBodyQueriesItems0MongoDBPayload `json:"mongo_db_payload,omitempty"`
+
+	// my sql payload
+	MySQLPayload *SearchQueriesOKBodyQueriesItems0MySQLPayload `json:"my_sql_payload,omitempty"`
 }
 
 // Validate validates this search queries OK body queries items0
@@ -608,6 +611,10 @@ func (o *SearchQueriesOKBodyQueriesItems0) Validate(formats strfmt.Registry) err
 	}
 
 	if err := o.validateMongoDBPayload(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMySQLPayload(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -652,11 +659,38 @@ func (o *SearchQueriesOKBodyQueriesItems0) validateMongoDBPayload(formats strfmt
 	return nil
 }
 
+func (o *SearchQueriesOKBodyQueriesItems0) validateMySQLPayload(formats strfmt.Registry) error {
+	if swag.IsZero(o.MySQLPayload) { // not required
+		return nil
+	}
+
+	if o.MySQLPayload != nil {
+		if err := o.MySQLPayload.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("my_sql_payload")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("my_sql_payload")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this search queries OK body queries items0 based on the context it is used
 func (o *SearchQueriesOKBodyQueriesItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateMongoDBPayload(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateMySQLPayload(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -681,6 +715,30 @@ func (o *SearchQueriesOKBodyQueriesItems0) contextValidateMongoDBPayload(ctx con
 			ce := new(errors.CompositeError)
 			if stderrors.As(err, &ce) {
 				return ce.ValidateName("mongo_db_payload")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *SearchQueriesOKBodyQueriesItems0) contextValidateMySQLPayload(ctx context.Context, formats strfmt.Registry) error {
+	if o.MySQLPayload != nil {
+
+		if swag.IsZero(o.MySQLPayload) { // not required
+			return nil
+		}
+
+		if err := o.MySQLPayload.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("my_sql_payload")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("my_sql_payload")
 			}
 
 			return err
@@ -781,6 +839,83 @@ func (o *SearchQueriesOKBodyQueriesItems0MongoDBPayload) MarshalBinary() ([]byte
 // UnmarshalBinary interface implementation
 func (o *SearchQueriesOKBodyQueriesItems0MongoDBPayload) UnmarshalBinary(b []byte) error {
 	var res SearchQueriesOKBodyQueriesItems0MongoDBPayload
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+SearchQueriesOKBodyQueriesItems0MySQLPayload QueryMySQLData holds MySQL-specific Real-Time Analytics query information.
+swagger:model SearchQueriesOKBodyQueriesItems0MySQLPayload
+*/
+type SearchQueriesOKBodyQueriesItems0MySQLPayload struct {
+	// MySQL instance address(host:port) that processing the query.
+	DBInstanceAddress string `json:"db_instance_address,omitempty"`
+
+	// Host the client connection comes from.
+	ClientHost string `json:"client_host,omitempty"`
+
+	// Database (schema) name the connection is using.
+	DatabaseName string `json:"database_name,omitempty"`
+
+	// Processlist command (for example "Query", "Execute").
+	Command string `json:"command,omitempty"`
+
+	// Current state of the statement (for example "Sending data", "Sorting result").
+	State string `json:"state,omitempty"`
+
+	// MySQL user name associated with the query.
+	Username string `json:"username,omitempty"`
+
+	// The start time of the statement.
+	// Format: date-time
+	OperationStartTime strfmt.DateTime `json:"operation_start_time,omitempty"`
+}
+
+// Validate validates this search queries OK body queries items0 my SQL payload
+func (o *SearchQueriesOKBodyQueriesItems0MySQLPayload) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateOperationStartTime(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *SearchQueriesOKBodyQueriesItems0MySQLPayload) validateOperationStartTime(formats strfmt.Registry) error {
+	if swag.IsZero(o.OperationStartTime) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("my_sql_payload"+"."+"operation_start_time", "body", "date-time", o.OperationStartTime.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this search queries OK body queries items0 my SQL payload based on context it is used
+func (o *SearchQueriesOKBodyQueriesItems0MySQLPayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *SearchQueriesOKBodyQueriesItems0MySQLPayload) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *SearchQueriesOKBodyQueriesItems0MySQLPayload) UnmarshalBinary(b []byte) error {
+	var res SearchQueriesOKBodyQueriesItems0MySQLPayload
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
