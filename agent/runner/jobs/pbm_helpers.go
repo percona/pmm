@@ -49,6 +49,8 @@ const (
 	pbmStatusPartlyDone = "partlyDone"
 )
 
+var errPBMOperationFailed = errors.New("operation failed")
+
 type pbmSeverity int
 
 type describeInfo struct {
@@ -281,11 +283,8 @@ type pbmDescribePollConfig struct {
 	findSnapshot    func(*pbmStatus) *pbmSnapshot
 }
 
-// pbmDescribePollInterval is used by waitForPBMDescribe; tests may override it.
+// pbmDescribePollInterval is used by waitForPBMDescribe.
 var pbmDescribePollInterval = statusCheckInterval
-
-// pbmStatusFetcher fetches PBM status; tests may override it.
-var pbmStatusFetcher = getPBMStatus
 
 func waitForPBMBackup(ctx context.Context, l logrus.FieldLogger, dsn string, name string) error {
 	l.Infof("waiting for pbm backup: %s", name)
@@ -311,15 +310,16 @@ func waitForPBMDescribe(ctx context.Context, cfg pbmDescribePollConfig) error {
 	defer ticker.Stop()
 
 	for {
+		done, err := pollPBMDescribeOnce(ctx, cfg)
+		if err != nil {
+			return err
+		}
+		if done {
+			return nil
+		}
+
 		select {
 		case <-ticker.C:
-			done, err := pollPBMDescribeOnce(ctx, cfg)
-			if err != nil {
-				return err
-			}
-			if done {
-				return nil
-			}
 		case <-ctx.Done():
 			return ctx.Err()
 		}
@@ -335,7 +335,7 @@ func pollPBMDescribeOnce(ctx context.Context, cfg pbmDescribePollConfig) (bool, 
 
 	fetchStatus := cfg.fetchStatus
 	if fetchStatus == nil {
-		fetchStatus = pbmStatusFetcher
+		fetchStatus = getPBMStatus
 	}
 
 	status, statusErr := fetchStatus(ctx, cfg.dsn)
@@ -351,6 +351,8 @@ func pollPBMDescribeOnce(ctx context.Context, cfg pbmDescribePollConfig) (bool, 
 		if retryDescribeCommand(cfg, describeErr) {
 			return false, nil
 		}
+		// PBM reports the operation is still running; keep polling.
+		return false, nil
 	}
 
 	if snapshot := cfg.snapshotForTarget(status); snapshot != nil {
@@ -469,7 +471,7 @@ func snapshotTerminalError(snapshot *pbmSnapshot, operation string) (bool, error
 
 func describeFailureError(info describeInfo, operation string) error {
 	err := groupDescribeErrors(info)
-	if err != nil && err.Error() != "operation failed" {
+	if err != nil && !errors.Is(err, errPBMOperationFailed) {
 		return err
 	}
 	return errors.Errorf("%s failed", operation)
@@ -720,13 +722,9 @@ func groupDescribeErrors(info describeInfo) error {
 	}
 
 	if len(errMsgs) == 0 {
-		return errors.New("operation failed")
+		return errPBMOperationFailed
 	}
 	return errors.New(strings.Join(errMsgs, "; "))
-}
-
-func groupPartlyDoneErrors(info describeInfo) error {
-	return groupDescribeErrors(info)
 }
 
 // pbmGetSnapshotTimestamp returns time the backup restores target db to.
