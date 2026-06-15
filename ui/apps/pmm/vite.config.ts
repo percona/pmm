@@ -28,11 +28,12 @@ export default defineConfig({
       '@mui/material',
       '@mui/system',
       '@mui/styled-engine',
+      '@mui/utils',
     ],
   },
   optimizeDeps: {
     // Uncomment when using yarn link for @percona/percona-ui locally
-    exclude: ['@percona/percona-ui'],
+    // exclude: ['@percona/percona-ui'],
     force: true,
   },
   server: {
