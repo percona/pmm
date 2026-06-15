@@ -214,7 +214,8 @@ func (j *MySQLBackupJob) backup(ctx context.Context) (rerr error) {
 			errBackupBuffer.String(), outBuffer.String(), errCloudBuffer.String())
 	}
 
-	if err := xtrabackupCmd.Start(); err != nil {
+	err = xtrabackupCmd.Start()
+	if err != nil {
 		cancel()
 		return wrapError(err)
 	}
@@ -238,7 +239,8 @@ func (j *MySQLBackupJob) backup(ctx context.Context) (rerr error) {
 	xbcloudCmd.Stdin = xtrabackupStdout
 	xbcloudCmd.Stdout = &outBuffer
 	xbcloudCmd.Stderr = &errCloudBuffer
-	if err := xbcloudCmd.Start(); err != nil {
+	err = xbcloudCmd.Start()
+	if err != nil {
 		cancel()
 		return wrapError(err)
 	}

@@ -37,7 +37,7 @@ func RestoreSettingsDefaults(t *testing.T) {
 	res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 		Body: server.ChangeSettingsBody{
 			EnableAdvisor:   new(true),
-			EnableTelemetry: new(false),
+			EnableTelemetry: new(true),
 			EnableAlerting:  new(true),
 			EnableUpdates:   new(true),
 			MetricsResolutions: &server.ChangeSettingsParamsBodyMetricsResolutions{
@@ -58,7 +58,7 @@ func RestoreSettingsDefaults(t *testing.T) {
 		Context: pmmapitests.Context,
 	})
 	require.NoError(t, err)
-	assert.False(t, res.Payload.Settings.TelemetryEnabled)
+	assert.True(t, res.Payload.Settings.TelemetryEnabled)
 	assert.True(t, res.Payload.Settings.AdvisorEnabled)
 	expectedResolutions := &server.ChangeSettingsOKBodySettingsMetricsResolutions{
 		Hr: "5s",

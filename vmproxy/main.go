@@ -18,7 +18,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"net"
 	"net/http"
 	"net/url"
@@ -46,7 +45,7 @@ func main() {
 	kong.Parse(
 		&opts,
 		kong.Name("vmproxy"),
-		kong.Description(fmt.Sprintf("Version %s", version.Version)),
+		kong.Description("Version "+version.Version),
 		kong.UsageOnError(),
 		kong.ConfigureHelp(kong.HelpOptions{
 			Compact:             true,

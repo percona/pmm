@@ -17,7 +17,7 @@ package management
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"strings"
 	"time"
 
@@ -33,7 +33,7 @@ import (
 func (s *ManagementService) AddAnnotation(ctx context.Context, req *managementv1.AddAnnotationRequest) (*managementv1.AddAnnotationResponse, error) {
 	headers, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return nil, fmt.Errorf("cannot get headers from metadata")
+		return nil, errors.New("cannot get headers from metadata")
 	}
 	// get authorization from headers.
 	authorizationHeaders := headers.Get("Authorization")
@@ -70,7 +70,7 @@ func (s *ManagementService) AddAnnotation(ctx context.Context, req *managementv1
 
 	for _, tag := range tags {
 		if len(tag) > 100 {
-			msg := fmt.Sprintf("tag length cannot exceed 100 characters, tag: %s", tag)
+			msg := "tag length cannot exceed 100 characters, tag: " + tag
 			return nil, status.Error(codes.InvalidArgument, msg)
 		}
 	}

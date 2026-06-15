@@ -112,11 +112,11 @@ func (cmd *AddExternalServerlessCommand) RunCmd() (commands.Result, error) {
 
 	serviceName := cmd.Name
 	if serviceName == "" {
-		serviceName = fmt.Sprintf("%s-external", address)
+		serviceName = address + "-external"
 	}
 
 	if cmd.MetricsPath != "" && !strings.HasPrefix(cmd.MetricsPath, "/") {
-		cmd.MetricsPath = fmt.Sprintf("/%s", cmd.MetricsPath)
+		cmd.MetricsPath = "/" + cmd.MetricsPath
 	}
 
 	if cmd.CredentialsSource != "" {
