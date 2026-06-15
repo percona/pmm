@@ -390,7 +390,6 @@ func isTransientPBMDescribeError(err error) bool {
 	msg := strings.ToLower(err.Error())
 	return strings.Contains(msg, "no such file") ||
 		strings.Contains(msg, "file is empty") ||
-		strings.Contains(msg, "not found") ||
 		strings.Contains(msg, "get backup meta") ||
 		strings.Contains(msg, "get snapshot size") ||
 		strings.Contains(msg, "missed file")
@@ -404,7 +403,7 @@ func (cfg pbmDescribePollConfig) operationIsRunning(status *pbmStatus) bool {
 	case pbmCmdBackup:
 		return isPBMBackupRunning(status, cfg.targetName)
 	case pbmCmdRestore:
-		return isPBMRestoreRunning(status)
+		return isPBMRestoreRunning(status, cfg.targetName)
 	default:
 		return false
 	}
@@ -424,8 +423,8 @@ func isPBMBackupRunning(status *pbmStatus, name string) bool {
 	return status.Running.Type == pbmCmdBackup && status.Running.Name == name
 }
 
-func isPBMRestoreRunning(status *pbmStatus) bool {
-	return status.Running.Type == pbmCmdRestore
+func isPBMRestoreRunning(status *pbmStatus, name string) bool {
+	return status.Running.Type == pbmCmdRestore && status.Running.Name == name
 }
 
 func findPBMSnapshot(status *pbmStatus, name string) *pbmSnapshot {

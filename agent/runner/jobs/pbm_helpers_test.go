@@ -195,6 +195,11 @@ func TestIsTransientPBMDescribeError(t *testing.T) {
 			want: true,
 		},
 		{
+			name: "generic not found",
+			err:  errors.New("authentication failed: user not found"),
+			want: false,
+		},
+		{
 			name: "real failure",
 			err:  errors.New("permission denied"),
 			want: false,
@@ -219,9 +224,15 @@ func TestOperationIsRunning(t *testing.T) {
 	status.Running.Name = "backup-1"
 	assert.True(t, backupCfg.operationIsRunning(status))
 
-	restoreCfg := pbmDescribePollConfig{operation: pbmCmdRestore}
+	restoreCfg := pbmDescribePollConfig{
+		operation:  pbmCmdRestore,
+		targetName: "restore-1",
+	}
 	status.Running.Type = pbmCmdRestore
+	status.Running.Name = "restore-1"
 	assert.True(t, restoreCfg.operationIsRunning(status))
+	status.Running.Name = "restore-2"
+	assert.False(t, restoreCfg.operationIsRunning(status))
 
 	customCfg := pbmDescribePollConfig{
 		isRunning: func(*pbmStatus) bool { return true },
@@ -261,8 +272,11 @@ func TestIsPBMRestoreRunning(t *testing.T) {
 
 	status := &pbmStatus{}
 	status.Running.Type = pbmCmdRestore
-	assert.True(t, isPBMRestoreRunning(status))
-	assert.False(t, isPBMRestoreRunning(&pbmStatus{}))
+	status.Running.Name = "restore-1"
+
+	assert.True(t, isPBMRestoreRunning(status, "restore-1"))
+	assert.False(t, isPBMRestoreRunning(status, "restore-2"))
+	assert.False(t, isPBMRestoreRunning(&pbmStatus{}, "restore-1"))
 }
 
 func TestShouldRetryDescribeFailure(t *testing.T) {
