@@ -732,7 +732,9 @@ func TestSettings(t *testing.T) {
 						}
 						b, err = io.ReadAll(resp.Body)
 						require.NoError(t, err)
-						resp.Body.Close() //nolint:errcheck
+						t.Cleanup(func() {
+							assert.NoError(t, resp.Body.Close())
+						})
 
 						if get == "" {
 							require.Equal(t, 400, resp.StatusCode, "response:\n%s", b)
@@ -765,8 +767,10 @@ func TestSettings(t *testing.T) {
 							t.Logf("Response:\n%s", b)
 						}
 						b, err = io.ReadAll(resp.Body)
-						assert.NoError(t, err)
-						resp.Body.Close() //nolint:errcheck
+						require.NoError(t, err)
+						t.Cleanup(func() {
+							assert.NoError(t, resp.Body.Close())
+						})
 						assert.Equal(t, 200, resp.StatusCode, "response:\n%s", b)
 
 						p.Settings.MetricsResolutions.LR = ""

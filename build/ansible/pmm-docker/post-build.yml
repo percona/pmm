@@ -27,7 +27,6 @@
         - /var/log/clickhouse-keeper
         - /var/log/nginx
         - /var/lib/pgsql
-        - /var/lib/rpm
         - /var/cache/dnf
         - /var/cache/yum
         - /usr/local/percona/pmm/config/pmm-agent.yaml
@@ -75,3 +74,11 @@
         owner: pmm
         group: root
         mode: 0755
+
+    - name: Empty VictoriaMetrics scrape config
+      copy:
+        content: ""
+        dest: /etc/victoriametrics-promscrape.yml
+        owner: pmm
+        group: root
+        mode: 0664

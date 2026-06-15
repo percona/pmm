@@ -230,7 +230,7 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 				QANMysqlPerfschema: cmd.QuerySource == MysqlQuerySourcePerfSchema,
 
 				SkipConnectionCheck:    cmd.SkipConnectionCheck,
-				DisableCommentsParsing: !cmd.CommentsParsingFlags.CommentsParsingEnabled(),
+				DisableCommentsParsing: !cmd.CommentsParsingEnabled(),
 				MaxQueryLength:         cmd.MaxQueryLength,
 				DisableQueryExamples:   cmd.DisableQueryExamples,
 
@@ -241,7 +241,7 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 				TLSCert:                   tlsCert,
 				TLSKey:                    tlsKey,
 				TablestatsGroupTableLimit: tablestatsGroupTableLimit,
-				MetricsMode:               cmd.MetricsModeFlags.MetricsMode.EnumValue(),
+				MetricsMode:               cmd.MetricsMode.EnumValue(),
 				DisableCollectors:         commands.ParseDisableCollectors(cmd.DisableCollectors),
 				LogLevel:                  cmd.LogLevel.EnumValue(),
 				ConnectionTimeout:         commands.DurationString(cmd.ConnectionTimeout),

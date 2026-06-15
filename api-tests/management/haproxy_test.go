@@ -70,7 +70,7 @@ func TestAddHAProxy(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Haproxy: &services.GetServiceOKBodyHaproxy{
@@ -86,7 +86,7 @@ func TestAddHAProxy(t *testing.T) {
 			Context:   pmmapitests.Context,
 			ServiceID: new(serviceID),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyExternalExporterItems0{
 			{
 				AgentID:            listAgents.Payload.ExternalExporter[0].AgentID,
@@ -146,7 +146,7 @@ func TestAddHAProxy(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Haproxy: &services.GetServiceOKBodyHaproxy{
@@ -204,7 +204,7 @@ func TestAddHAProxy(t *testing.T) {
 			NodeID:  nodeID,
 			Context: pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, node)
 		assert.Equal(t, nodes.GetNodeOKBody{
 			Remote: &nodes.GetNodeOKBodyRemote{
@@ -221,7 +221,7 @@ func TestAddHAProxy(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Haproxy: &services.GetServiceOKBodyHaproxy{
@@ -237,7 +237,7 @@ func TestAddHAProxy(t *testing.T) {
 			Context:   pmmapitests.Context,
 			ServiceID: new(serviceID),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyExternalExporterItems0{
 			{
 				AgentID:      listAgents.Payload.ExternalExporter[0].AgentID,

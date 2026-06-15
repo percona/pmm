@@ -112,15 +112,16 @@ func (cmd *AddExternalServerlessCommand) RunCmd() (commands.Result, error) {
 
 	serviceName := cmd.Name
 	if serviceName == "" {
-		serviceName = fmt.Sprintf("%s-external", address)
+		serviceName = address + "-external"
 	}
 
 	if cmd.MetricsPath != "" && !strings.HasPrefix(cmd.MetricsPath, "/") {
-		cmd.MetricsPath = fmt.Sprintf("/%s", cmd.MetricsPath)
+		cmd.MetricsPath = "/" + cmd.MetricsPath
 	}
 
 	if cmd.CredentialsSource != "" {
-		if err := cmd.GetCredentials(); err != nil {
+		err := cmd.GetCredentials()
+		if err != nil {
 			return nil, fmt.Errorf("failed to retrieve credentials from %s: %w", cmd.CredentialsSource, err)
 		}
 	}

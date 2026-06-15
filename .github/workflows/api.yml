@@ -6,7 +6,7 @@ on:
       - v3
     paths:
       - "api/**"
-      - "docs/api/**"
+      - "documentation/api/**"
 
   workflow_dispatch:
 
@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
       - name: Detect PMM version and API ID
         run: |
@@ -31,11 +31,11 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: API
-        uses: readmeio/rdme@e29567f6c0b211ee8b6110c2cbe12bec53ca378f # v10.8.0
+        uses: readmeio/rdme@7b543cfd89e3b8f7a99759b04f38df8887a38b7c # v10.9.1
         with:
           rdme: openapi upload ./api/swagger/swagger.json --useSpecVersion --slug=pmm-api.json --key=${{ secrets.README_TOKEN }}
 
       - name: Markdown docs
-        uses: readmeio/rdme@e29567f6c0b211ee8b6110c2cbe12bec53ca378f # v10.8.0
+        uses: readmeio/rdme@7b543cfd89e3b8f7a99759b04f38df8887a38b7c # v10.9.1
         with:
-          rdme: reference upload docs/api/ --branch=${{ env.VERSION }}  --key=${{ secrets.README_TOKEN }}
+          rdme: reference upload documentation/api/ --branch=${{ env.VERSION }}  --key=${{ secrets.README_TOKEN }}

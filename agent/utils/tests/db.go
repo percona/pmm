@@ -29,8 +29,9 @@ func waitForTestDataLoad(tb testing.TB, db *sql.DB) {
 
 	var count int
 	var err error
-	for i := 0; i < 30; i++ {
-		if err = db.QueryRow("SELECT /* pmm-agent-tests:waitForTestDataLoad */ COUNT(*) FROM city").Scan(&count); err == nil {
+	for range 30 {
+		err = db.QueryRow("SELECT /* pmm-agent-tests:waitForTestDataLoad */ COUNT(*) FROM city").Scan(&count) //nolint:noctx
+		if err == nil {
 			return
 		}
 

@@ -1218,10 +1218,9 @@ func TestExternalService(t *testing.T) {
 		})
 		require.NoError(t, err)
 		assert.NotNil(t, noFilterServicesList)
-		assert.GreaterOrEqual(t, len(noFilterServicesList.Payload.Mysql), 0)
-		assert.GreaterOrEqual(t, len(noFilterServicesList.Payload.Mongodb), 0)
+		// No filter returns the shared inventory; parallel tests may add other
+		// service types, so only assert on what this test guarantees.
 		assert.NotEmpty(t, noFilterServicesList.Payload.Postgresql)
-		assert.GreaterOrEqual(t, len(noFilterServicesList.Payload.Proxysql), 0)
 		assert.NotEmpty(t, noFilterServicesList.Payload.External)
 		assert.Conditionf(t, containsExternalWithGroup(noFilterServicesList.Payload.External, "redis"), "list does not contain external group %s", "redis")
 

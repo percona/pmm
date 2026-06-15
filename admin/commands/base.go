@@ -105,7 +105,8 @@ func ReadFromSource(src string) (*Credentials, error) {
 		return nil, fmt.Errorf("%w", err)
 	}
 
-	if err := json.Unmarshal([]byte(content), &creds); err != nil {
+	err = json.Unmarshal([]byte(content), &creds)
+	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
 
@@ -146,9 +147,10 @@ func ParseTemplate(text string) *template.Template {
 }
 
 // RenderTemplate renders given template with given data and returns result as string.
-func RenderTemplate(t *template.Template, data interface{}) string {
+func RenderTemplate(t *template.Template, data any) string {
 	var buf bytes.Buffer
-	if err := t.Execute(&buf, data); err != nil {
+	err := t.Execute(&buf, data)
+	if err != nil {
 		logrus.Panicf("Failed to render response.\n%s.\nTemplate data: %#v.\nPlease report this bug.", err, data)
 	}
 
@@ -205,7 +207,7 @@ func ValidateEnvironmentVariableNames(varNames []string) ([]string, error) {
 	for _, name := range varNames {
 		name = strings.TrimSpace(name)
 		if name == "" {
-			return nil, fmt.Errorf("environment variable name cannot be empty")
+			return nil, errors.New("environment variable name cannot be empty")
 		}
 
 		if !validNamePattern.MatchString(name) {

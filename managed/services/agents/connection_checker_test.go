@@ -33,7 +33,10 @@ func TestConnectionRequestUsesExporterConnectionTimeout(t *testing.T) {
 
 	sqlDB, mock, err := sqlmock.New()
 	require.NoError(t, err)
-	defer sqlDB.Close() //nolint:errcheck
+	t.Cleanup(func() {
+		_ = mock.ExpectClose()
+		assert.NoError(t, sqlDB.Close())
+	})
 
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	mock.ExpectQuery(`SELECT .+ FROM "agents" WHERE .+ LIMIT 1`).
@@ -82,7 +85,6 @@ func TestConnectionRequestDialTimeoutRoundsWholeSecondTimeoutsUp(t *testing.T) {
 			agentType:   models.PostgresExporterType,
 		},
 	} {
-		tc := tc
 		t.Run(string(tc.serviceType), func(t *testing.T) {
 			t.Parallel()
 
@@ -121,7 +123,10 @@ func TestConnectionRequestDialTimeoutPostgreSQLCloudDefaults(t *testing.T) {
 
 		sqlDB, mock, err := sqlmock.New()
 		require.NoError(t, err)
-		defer sqlDB.Close() //nolint:errcheck
+		t.Cleanup(func() {
+			_ = mock.ExpectClose()
+			assert.NoError(t, sqlDB.Close())
+		})
 
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		nodeColumns := []string{

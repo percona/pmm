@@ -20,6 +20,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"io"
 	"strings"
 	"text/tabwriter"
 	"time"
@@ -166,7 +167,7 @@ func prepareValues(values []string) []any {
 }
 
 func (a *mysqlExplainAction) explainDefault(ctx context.Context, tx *sql.Tx) ([]byte, error) {
-	rows, err := tx.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", a.params.Query), prepareValues(a.params.Values)...)
+	rows, err := tx.QueryContext(ctx, "EXPLAIN /* pmm-agent */ "+a.params.Query, prepareValues(a.params.Values)...)
 	if err != nil {
 		if strings.Contains(err.Error(), errNoDatabaseSelectedCode) {
 			return nil, errors.Wrap(err, errNoDatabaseSelectedMessage)
@@ -185,19 +186,35 @@ func (a *mysqlExplainAction) explainDefault(ctx context.Context, tx *sql.Tx) ([]
 
 	var buf bytes.Buffer
 	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.Debug)
-	w.Write([]byte(strings.Join(columns, "\t"))) //nolint:errcheck
-	for _, dataRow := range dataRows {
-		row := "\n"
-		for _, d := range dataRow {
-			v := "NULL"
-			if d != nil {
-				v = fmt.Sprint(d)
-			}
-			row += v + "\t"
-		}
-		w.Write([]byte(row)) //nolint:errcheck
+	_, wErr := io.WriteString(w, strings.Join(columns, "\t"))
+	if wErr != nil {
+		return nil, wErr
 	}
-	if err = w.Flush(); err != nil {
+	for _, dataRow := range dataRows {
+		_, wErr = w.Write([]byte{'\n'})
+		if wErr != nil {
+			return nil, wErr
+		}
+		for _, d := range dataRow {
+			if d != nil {
+				_, wErr = io.WriteString(w, fmt.Sprint(d))
+				if wErr != nil {
+					return nil, wErr
+				}
+			} else {
+				_, wErr = io.WriteString(w, "NULL")
+				if wErr != nil {
+					return nil, wErr
+				}
+			}
+			_, wErr = w.Write([]byte{'\t'})
+			if wErr != nil {
+				return nil, wErr
+			}
+		}
+	}
+	err = w.Flush()
+	if err != nil {
 		return nil, err
 	}
 
@@ -206,7 +223,7 @@ func (a *mysqlExplainAction) explainDefault(ctx context.Context, tx *sql.Tx) ([]
 
 func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byte, error) {
 	var b []byte
-	err := tx.QueryRowContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ FORMAT=JSON %s", a.params.Query), prepareValues(a.params.Values)...).Scan(&b)
+	err := tx.QueryRowContext(ctx, "EXPLAIN /* pmm-agent */ FORMAT=JSON "+a.params.Query, prepareValues(a.params.Values)...).Scan(&b)
 	if err != nil {
 		if strings.Contains(err.Error(), errNoDatabaseSelectedCode) {
 			return nil, errors.Wrap(err, errNoDatabaseSelectedMessage)
@@ -214,8 +231,9 @@ func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byt
 		return nil, err
 	}
 
-	var m map[string]interface{}
-	if err = json.Unmarshal(b, &m); err != nil {
+	var m map[string]any
+	err = json.Unmarshal(b, &m)
+	if err != nil {
 		return nil, err
 	}
 
@@ -227,14 +245,15 @@ func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byt
 	}
 	defer rows.Close() //nolint:errcheck
 
-	var warnings []map[string]interface{}
+	var warnings []map[string]any
 	for rows.Next() {
 		var level, message string
 		var code int
-		if err = rows.Scan(&level, &code, &message); err != nil {
+		err = rows.Scan(&level, &code, &message)
+		if err != nil {
 			continue
 		}
-		warnings = append(warnings, map[string]interface{}{
+		warnings = append(warnings, map[string]any{
 			"Level":   level,
 			"Code":    code,
 			"Message": message,
@@ -249,7 +268,7 @@ func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byt
 }
 
 func (a *mysqlExplainAction) explainTraditionalJSON(ctx context.Context, tx *sql.Tx) ([]byte, error) {
-	rows, err := tx.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", a.params.Query), prepareValues(a.params.Values)...)
+	rows, err := tx.QueryContext(ctx, "EXPLAIN /* pmm-agent */ "+a.params.Query, prepareValues(a.params.Values)...)
 	if err != nil {
 		if strings.Contains(err.Error(), errNoDatabaseSelectedCode) {
 			return nil, errors.Wrap(err, errNoDatabaseSelectedMessage)

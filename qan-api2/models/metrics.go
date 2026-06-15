@@ -59,7 +59,7 @@ func NewMetrics(db *sqlx.DB) Metrics {
 func (m *Metrics) Get(ctx context.Context, periodStartFromSec, periodStartToSec int64, filter, group string,
 	dimensions, labels map[string][]string, totals bool,
 ) ([]M, error) {
-	arg := map[string]interface{}{
+	arg := map[string]any{
 		"period_start_from": periodStartFromSec,
 		"period_start_to":   periodStartToSec,
 	}
@@ -84,9 +84,12 @@ func (m *Metrics) Get(ctx context.Context, periodStartFromSec, periodStartToSec 
 		Totals:          totals,
 	}
 	var queryBuffer bytes.Buffer
-	if tmpl, err := template.New("queryMetricsTmpl").Funcs(funcMap).Parse(queryMetricsTmpl); err != nil {
+	tmpl, err := template.New("queryMetricsTmpl").Funcs(funcMap).Parse(queryMetricsTmpl)
+	if err != nil {
 		log.Fatalln(err)
-	} else if err = tmpl.Execute(&queryBuffer, tmplArgs); err != nil {
+	}
+	err = tmpl.Execute(&queryBuffer, tmplArgs)
+	if err != nil {
 		log.Fatalln(err)
 	}
 	var results []M
@@ -519,7 +522,7 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 	amountOfPoints += remainder / minutesInPoint
 	timeFrame := minutesInPoint * secondsPerMinute
 
-	arg := map[string]interface{}{
+	arg := map[string]any{
 		"period_start_from": periodStartFromSec,
 		"period_start_to":   periodStartToSec,
 	}
@@ -546,7 +549,8 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 
 	var results []*qanv1.Point
 	var queryBuffer bytes.Buffer
-	if err := tmplMetricsSparklines.Execute(&queryBuffer, tmplArgs); err != nil {
+	err := tmplMetricsSparklines.Execute(&queryBuffer, tmplArgs)
+	if err != nil {
 		return nil, errors.Wrap(err, "cannot execute tmplMetricsSparklines")
 	}
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
@@ -626,7 +630,7 @@ var tmplQueryExample = template.Must(template.New("queryExampleTmpl").Funcs(func
 func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, periodStartTo time.Time, filter,
 	group string, limit uint32, dimensions, labels map[string][]string,
 ) (*qanv1.GetQueryExampleResponse, error) {
-	arg := map[string]interface{}{
+	arg := map[string]any{
 		"filter":            filter,
 		"group":             group,
 		"period_start_to":   periodStartTo,
@@ -647,7 +651,8 @@ func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, peri
 	}
 
 	var queryBuffer bytes.Buffer
-	if err := tmplQueryExample.Execute(&queryBuffer, tmplArgs); err != nil {
+	err := tmplQueryExample.Execute(&queryBuffer, tmplArgs)
+	if err != nil {
 		return nil, errors.Wrap(err, "cannot execute queryExampleTmpl")
 	}
 	query, queryArgs, err := sqlx.Named(queryBuffer.String(), arg)
@@ -739,7 +744,7 @@ type queryRowsLabels struct {
 func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, periodStartFrom, periodStartTo time.Time, filter,
 	group string,
 ) (*qanv1.GetLabelsResponse, error) {
-	arg := map[string]interface{}{
+	arg := map[string]any{
 		"filter":            filter,
 		"group":             group,
 		"period_start_to":   periodStartTo,
@@ -747,7 +752,8 @@ func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, periodStartFrom
 	}
 
 	var queryBuffer bytes.Buffer
-	if err := tmplObjectDetailsLabels.Execute(&queryBuffer, arg); err != nil {
+	err := tmplObjectDetailsLabels.Execute(&queryBuffer, arg)
+	if err != nil {
 		return nil, errors.Wrap(err, "cannot execute tmplObjectDetailsLabels")
 	}
 	res := qanv1.GetLabelsResponse{}
@@ -857,7 +863,8 @@ func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, periodStartFrom
 		}
 		labels["cmd_type"][row.CmdType] = struct{}{}
 	}
-	if err = rows.Err(); err != nil {
+	err = rows.Err()
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to select labels dimensions")
 	}
 
@@ -890,7 +897,7 @@ func (m *Metrics) GetFingerprintByQueryID(ctx context.Context, queryID string) (
 	defer cancel()
 
 	var fingerprint string
-	err := m.db.GetContext(queryCtx, &fingerprint, fingerprintByQueryID, []interface{}{queryID}...)
+	err := m.db.GetContext(queryCtx, &fingerprint, fingerprintByQueryID, []any{queryID}...)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return "", fmt.Errorf("QueryxContext error:%v", err) //nolint:errorlint
 	}
@@ -934,7 +941,7 @@ ORDER BY period_start DESC;
 func (m *Metrics) SelectHistogram(ctx context.Context, periodStartFromSec, periodStartToSec int64,
 	dimensions, labels map[string][]string, queryID string,
 ) (*qanv1.GetHistogramResponse, error) {
-	arg := map[string]interface{}{
+	arg := map[string]any{
 		"period_start_from": periodStartFromSec,
 		"period_start_to":   periodStartToSec,
 		"queryid":           queryID,
@@ -948,9 +955,13 @@ func (m *Metrics) SelectHistogram(ctx context.Context, periodStartFromSec, perio
 		Labels:     escapeColonsInMap(labels),
 	}
 	var queryBuffer bytes.Buffer
-	if tmpl, err := template.New("histogramTmpl").Funcs(funcMap).Parse(histogramTmpl); err != nil {
+	tmpl, err := template.New("histogramTmpl").Funcs(funcMap).Parse(histogramTmpl)
+	if err != nil {
 		log.Fatalln(err)
-	} else if err = tmpl.Execute(&queryBuffer, tmplArgs); err != nil {
+	}
+
+	err = tmpl.Execute(&queryBuffer, tmplArgs)
+	if err != nil {
 		log.Fatalln(err)
 	}
 
@@ -1025,7 +1036,7 @@ WHERE service_id = :service_id AND example = :query LIMIT 1;
 
 // QueryExists check if query value in request exists by example in clickhouse.
 func (m *Metrics) QueryExists(ctx context.Context, serviceID, query string) (bool, error) {
-	arg := map[string]interface{}{
+	arg := map[string]any{
 		"service_id": serviceID,
 		"query":      query,
 	}
@@ -1064,7 +1075,7 @@ WHERE service_id = :service_id AND queryid = :query_id LIMIT 1;`
 
 // SchemaByQueryID returns schema for given queryID and serviceID.
 func (m *Metrics) SchemaByQueryID(ctx context.Context, serviceID, queryID string) (*qanv1.SchemaByQueryIDResponse, error) {
-	arg := map[string]interface{}{
+	arg := map[string]any{
 		"service_id": serviceID,
 		"query_id":   queryID,
 	}
@@ -1085,20 +1096,19 @@ func (m *Metrics) SchemaByQueryID(ctx context.Context, serviceID, queryID string
 	queryCtx, cancel := context.WithTimeout(ctx, queryTimeout)
 	defer cancel()
 
-	rows, err := m.db.QueryxContext(queryCtx, query, args...)
-	if err != nil {
-		return nil, errors.Wrap(err, cannotExecute)
+	row := m.db.QueryRowxContext(queryCtx, query, args...)
+	rowErr := row.Err()
+	if rowErr != nil {
+		return nil, errors.Wrap(rowErr, cannotExecute)
 	}
-	defer rows.Close() //nolint:errcheck
 
 	res := &qanv1.SchemaByQueryIDResponse{}
-	for rows.Next() {
-		err = rows.Scan(&res.Schema)
-		if err != nil {
-			return res, errors.Wrap(err, "failed to scan query")
+	err = row.Scan(&res.Schema)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return res, nil
 		}
-
-		return res, nil //nolint:staticcheck
+		return res, errors.Wrap(err, "failed to scan query")
 	}
 
 	return res, nil
@@ -1110,7 +1120,7 @@ WHERE service_id = :service_id AND queryid = :query_id LIMIT 1;
 
 // ExplainFingerprintByQueryID get explain fingerprint and placeholders count for given queryid.
 func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, queryID string) (*qanv1.ExplainFingerprintByQueryIDResponse, error) {
-	arg := map[string]interface{}{
+	arg := map[string]any{
 		"service_id": serviceID,
 		"query_id":   queryID,
 	}
@@ -1132,39 +1142,34 @@ func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, qu
 	queryCtx, cancel := context.WithTimeout(ctx, queryTimeout)
 	defer cancel()
 
-	rows, err := m.db.QueryxContext(queryCtx, query, args...)
-	if err != nil {
-		return res, errors.Wrap(err, cannotExecute)
+	row := m.db.QueryRowxContext(queryCtx, query, args...)
+	rowErr := row.Err()
+	if rowErr != nil {
+		return res, errors.Wrap(rowErr, cannotExecute)
 	}
-	defer rows.Close() //nolint:errcheck
 
 	var fingerprint, example string
-	for rows.Next() {
-		err = rows.Scan(
-			&res.ExplainFingerprint,
-			&fingerprint,
-			&example,
-			&res.PlaceholdersCount,
-		)
-		if err != nil {
-			return res, errors.Wrap(err, "failed to scan query")
+	err = row.Scan(
+		&res.ExplainFingerprint,
+		&fingerprint,
+		&example,
+		&res.PlaceholdersCount,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return res, errors.New("query_id doesnt exists")
 		}
-
-		if example != "" {
-			res.ExplainFingerprint = example
-			res.PlaceholdersCount = 0
-
-			return res, nil
-		}
-
-		if res.ExplainFingerprint == "" {
-			res.ExplainFingerprint = fingerprint
-		}
-
-		return res, nil //nolint:staticcheck
+		return res, errors.Wrap(err, "failed to scan query")
 	}
 
-	return res, errors.New("query_id doesnt exists")
+	if example != "" {
+		res.ExplainFingerprint = example
+		res.PlaceholdersCount = 0
+	} else if res.ExplainFingerprint == "" {
+		res.ExplainFingerprint = fingerprint
+	}
+
+	return res, nil
 }
 
 const selectedQueryMetadataTmpl = `
@@ -1198,7 +1203,7 @@ WHERE period_start >= :period_start_from AND period_start <= :period_start_to
 func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromSec, periodStartToSec int64, filter, group string,
 	dimensions, labels map[string][]string, totals bool,
 ) (*qanv1.GetSelectedQueryMetadataResponse, error) {
-	arg := map[string]interface{}{
+	arg := map[string]any{
 		"period_start_from": periodStartFromSec,
 		"period_start_to":   periodStartToSec,
 	}
@@ -1225,9 +1230,12 @@ func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromS
 
 	res := &qanv1.GetSelectedQueryMetadataResponse{}
 	var queryBuffer bytes.Buffer
-	if tmpl, err := template.New("selectedQueryMetadataTmpl").Funcs(funcMap).Parse(selectedQueryMetadataTmpl); err != nil {
+	tmpl, err := template.New("selectedQueryMetadataTmpl").Funcs(funcMap).Parse(selectedQueryMetadataTmpl)
+	if err != nil {
 		return res, errors.Wrap(err, cannotPrepare)
-	} else if err = tmpl.Execute(&queryBuffer, tmplArgs); err != nil {
+	}
+	err = tmpl.Execute(&queryBuffer, tmplArgs)
+	if err != nil {
 		return res, errors.Wrap(err, cannotExecute)
 	}
 
@@ -1295,7 +1303,7 @@ func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromS
 }
 
 func prepareMetadataProperty(metadata map[string]struct{}) string {
-	res := []string{}
+	res := make([]string, 0, len(metadata))
 	for k := range metadata {
 		res = append(res, k)
 	}

@@ -53,13 +53,13 @@ type pgStatStatements struct {
 	LocalBlkWriteTime  float64
 
 	// reform related fields
-	pointers []interface{}
+	pointers []any
 	view     reform.View
 }
 
 type field struct {
 	info    parse.FieldInfo
-	pointer interface{}
+	pointer any
 }
 
 func newPgStatMonitorStructs(vPGSS semver.Version) (*pgStatStatements, reform.View) { //nolint:ireturn
@@ -103,7 +103,7 @@ func newPgStatMonitorStructs(vPGSS semver.Version) (*pgStatStatements, reform.Vi
 			field{info: parse.FieldInfo{Name: "LocalBlkWriteTime", Type: "float64", Column: "local_blk_write_time"}, pointer: &s.LocalBlkWriteTime})
 	}
 
-	s.pointers = make([]interface{}, len(fields))
+	s.pointers = make([]any, len(fields))
 	pgStatStatementsDefaultView := &pgStatStatementsAllViewType{
 		s: parse.StructInfo{
 			Type:         "pgStatStatements",
@@ -127,7 +127,7 @@ func newPgStatMonitorStructs(vPGSS semver.Version) (*pgStatStatements, reform.Vi
 
 type pgStatStatementsAllViewType struct {
 	s     parse.StructInfo
-	z     []interface{}
+	z     []any
 	c     []string
 	vPGSS semver.Version
 }
@@ -155,8 +155,8 @@ func (v *pgStatStatementsAllViewType) NewStruct() reform.Struct { //nolint:iretu
 
 // Values returns a slice of struct or record field values.
 // Returned interface{} values are never untyped nils.
-func (s *pgStatStatements) Values() []interface{} {
-	values := make([]interface{}, len(s.pointers))
+func (s *pgStatStatements) Values() []any {
+	values := make([]any, len(s.pointers))
 	for i, pointer := range s.pointers {
 		values[i] = reflect.ValueOf(pointer).Interface()
 	}
@@ -165,7 +165,7 @@ func (s *pgStatStatements) Values() []interface{} {
 
 // Pointers returns a slice of pointers to struct or record fields.
 // Returned interface{} values are never untyped nils.
-func (s *pgStatStatements) Pointers() []interface{} {
+func (s *pgStatStatements) Pointers() []any {
 	return s.pointers
 }
 

@@ -46,15 +46,19 @@ func TestCreateDataDir(t *testing.T) {
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			defer os.Remove(tc.path) //nolint:errcheck
+			if tc.path != "" {
+				t.Cleanup(func() {
+					assert.NoError(t, os.Remove(tc.path))
+				})
+			}
 
 			err := CreateDataDir(tc.path, tc.perm)
 			if tc.err != "" {
-				assert.EqualError(t, err, tc.err)
+				require.EqualError(t, err, tc.err)
 				return
 			}
 
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			stat, err := os.Stat(tc.path)
 			require.NoError(t, err)
 			assert.True(t, stat.IsDir())
@@ -114,7 +118,7 @@ func TestFindFilesWithExtensions(t *testing.T) {
 			t.Parallel()
 
 			files, err := FindFilesWithExtensions(tmpDir, tc.extensions...)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Len(t, files, tc.expected)
 		})
 	}
