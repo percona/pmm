@@ -18,6 +18,7 @@ package models
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"net"
 	"net/url"
@@ -30,7 +31,6 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.yaml.in/yaml/v3"
 	"google.golang.org/grpc/codes"
@@ -1219,7 +1219,7 @@ func OpenDB(params SetupDBParams) (*sql.DB, error) {
 
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to create a connection pool to PostgreSQL")
+		return nil, fmt.Errorf("failed to create a connection pool to PostgreSQL: %w", err)
 	}
 
 	db.SetConnMaxLifetime(0)
@@ -1452,7 +1452,7 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 		errDB = nil
 	}
 	if errDB != nil {
-		return errors.WithStack(errDB)
+		return errDB
 	}
 
 	latestVersion := len(databaseSchema) - 1 // skip item 0
@@ -1476,7 +1476,7 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 				q = strings.TrimSpace(q)
 				_, err := tx.Exec(q)
 				if err != nil {
-					return errors.Wrapf(err, "failed to execute statement:\n%s", q)
+					return fmt.Errorf("failed to execute statement:\n%s: %w", q, err)
 				}
 			}
 		}
