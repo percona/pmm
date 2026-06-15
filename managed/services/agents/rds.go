@@ -35,6 +35,7 @@ type rdsInstance struct {
 	Instance               string         `yaml:"instance"`
 	AWSAccessKey           string         `yaml:"aws_access_key,omitempty"`
 	AWSSecretKey           string         `yaml:"aws_secret_key,omitempty"`
+	AWSRoleARN             string         `yaml:"aws_role_arn,omitempty"`
 	DisableBasicMetrics    bool           `yaml:"disable_basic_metrics"`
 	DisableEnhancedMetrics bool           `yaml:"disable_enhanced_metrics"`
 	Labels                 model.LabelSet `yaml:"labels,omitempty"`
@@ -83,6 +84,7 @@ func rdsExporterConfig(pairs map[*models.Node]*models.Agent, redactMode redactMo
 			Instance:               node.InstanceID,
 			AWSAccessKey:           exporter.AWSOptions.AWSAccessKey,
 			AWSSecretKey:           exporter.AWSOptions.AWSSecretKey,
+			AWSRoleARN:             exporter.AWSOptions.AWSRoleARN,
 			Labels:                 labels,
 			DisableBasicMetrics:    exporter.AWSOptions.RDSBasicMetricsDisabled,
 			DisableEnhancedMetrics: exporter.AWSOptions.RDSEnhancedMetricsDisabled,

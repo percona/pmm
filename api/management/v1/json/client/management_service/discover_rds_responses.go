@@ -190,11 +190,14 @@ DiscoverRDSBody discover RDS body
 swagger:model DiscoverRDSBody
 */
 type DiscoverRDSBody struct {
-	// AWS Access key. Optional.
+	// AWS Access key. Optional. Used as source credentials when aws_role_arn is set.
 	AWSAccessKey string `json:"aws_access_key,omitempty"`
 
-	// AWS Secret key. Optional.
+	// AWS Secret key. Optional. Used as source credentials when aws_role_arn is set.
 	AWSSecretKey string `json:"aws_secret_key,omitempty"`
+
+	// AWS IAM role ARN to assume before discovering RDS instances. Optional.
+	AWSRoleArn string `json:"aws_role_arn,omitempty"`
 }
 
 // Validate validates this discover RDS body

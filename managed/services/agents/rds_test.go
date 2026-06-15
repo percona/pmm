@@ -51,6 +51,7 @@ func TestRDSExporterConfig(t *testing.T) {
 		AWSOptions: models.AWSOptions{
 			AWSAccessKey:            "access_key1",
 			AWSSecretKey:            "secret_key1",
+			AWSRoleARN:              "arn:aws:iam::123456789012:role/PmmRdsReadRole",
 			RDSBasicMetricsDisabled: true,
 		},
 	}
@@ -101,6 +102,7 @@ instances:
       instance: rds-mysql56
       aws_access_key: access_key1
       aws_secret_key: secret_key1
+      aws_role_arn: arn:aws:iam::123456789012:role/PmmRdsReadRole
       disable_basic_metrics: true
       disable_enhanced_metrics: false
       labels:

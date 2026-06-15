@@ -42,6 +42,14 @@ import (
 	"github.com/percona/pmm/utils/logger"
 )
 
+type failingCredentialsProvider struct {
+	err error
+}
+
+func (p failingCredentialsProvider) Retrieve(context.Context) (aws.Credentials, error) {
+	return aws.Credentials{}, p.err
+}
+
 func TestRDSService(t *testing.T) {
 	// logrus.SetLevel(logrus.DebugLevel)
 
@@ -125,6 +133,21 @@ func TestRDSService(t *testing.T) {
 			}
 			actual := listRegions([]string{"aws", "aws-cn", "aws-us-gov", "aws-iso", "aws-iso-b"})
 			assert.Equal(t, expected, actual)
+		})
+
+		t.Run("AssumeRoleCredentialsError", func(t *testing.T) {
+			roleARN := "arn:aws:iam::123456789012:role/PmmRdsReadOnlyRole"
+			cfg := aws.Config{
+				Credentials: failingCredentialsProvider{err: fmt.Errorf("sts assume role denied")},
+			}
+
+			err := validateRDSAWSCredentials(t.Context(), cfg, roleARN)
+
+			tests.AssertGRPCError(
+				t,
+				status.New(codes.InvalidArgument, "Failed to assume AWS IAM role \"arn:aws:iam::123456789012:role/PmmRdsReadOnlyRole\": sts assume role denied"),
+				err,
+			)
 		})
 
 		t.Run("InvalidClientTokenId", func(t *testing.T) {
@@ -270,6 +293,7 @@ func TestRDSService(t *testing.T) {
 			Password:           "password",
 			AwsAccessKey:       accessKey,
 			AwsSecretKey:       secretKey,
+			AwsRoleArn:         "arn:aws:iam::123456789012:role/PmmRdsReadRole",
 			RdsExporter:        true,
 			QanMysqlPerfschema: true,
 			CustomLabels: map[string]string{
@@ -306,6 +330,7 @@ func TestRDSService(t *testing.T) {
 						PmmAgentId:   "pmm-server",
 						NodeId:       "00000000-0000-4000-8000-000000000005",
 						AwsAccessKey: "EXAMPLE_ACCESS_KEY",
+						AwsRoleArn:   "arn:aws:iam::123456789012:role/PmmRdsReadRole",
 						Status:       inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 					},
 					Mysql: &inventoryv1.MySQLService{
@@ -362,6 +387,7 @@ func TestRDSService(t *testing.T) {
 			Password:                  "password",
 			AwsAccessKey:              accessKey,
 			AwsSecretKey:              secretKey,
+			AwsRoleArn:                "arn:aws:iam::123456789012:role/PmmRdsReadRole",
 			RdsExporter:               true,
 			QanPostgresqlPgstatements: true,
 			CustomLabels: map[string]string{
@@ -400,6 +426,7 @@ func TestRDSService(t *testing.T) {
 						PmmAgentId:   "pmm-server",
 						NodeId:       "00000000-0000-4000-8000-00000000000a",
 						AwsAccessKey: "EXAMPLE_ACCESS_KEY",
+						AwsRoleArn:   "arn:aws:iam::123456789012:role/PmmRdsReadRole",
 						Status:       inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 					},
 					Postgresql: &inventoryv1.PostgreSQLService{

@@ -41,6 +41,7 @@ func TestRDSExporterChangeAgent(t *testing.T) {
 				Enable:                 new(true),
 				AWSAccessKey:           new("AKIAIOSFODNN7EXAMPLE"),
 				AWSSecretKey:           new("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"),
+				AWSRoleArn:             new("arn:aws:iam::123456789012:role/PmmRdsReadRole"),
 				DisableBasicMetrics:    new(false),
 				DisableEnhancedMetrics: new(true),
 				PushMetrics:            new(true),
@@ -60,6 +61,7 @@ func TestRDSExporterChangeAgent(t *testing.T) {
 					"enable": true,
 					"aws_access_key": "AKIAIOSFODNN7EXAMPLE",
 					"aws_secret_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+					"aws_role_arn": "arn:aws:iam::123456789012:role/PmmRdsReadRole",
 					"disable_basic_metrics": false,
 					"disable_enhanced_metrics": true,
 					"enable_push_metrics": true,
@@ -129,6 +131,7 @@ func TestRDSExporterChangeAgent(t *testing.T) {
 			"--enable",
 			"--aws-access-key=AKIATEST123",
 			"--aws-secret-key=secretkey123",
+			"--aws-role-arn=arn:aws:iam::123456789012:role/PmmRdsReadRole",
 			"--disable-basic-metrics",
 			"--disable-enhanced-metrics",
 			"--push-metrics",
@@ -153,6 +156,7 @@ func TestRDSExporterChangeAgent(t *testing.T) {
 				"enable": true,
 				"aws_access_key": "AKIATEST123",
 				"aws_secret_key": "secretkey123",
+				"aws_role_arn": "arn:aws:iam::123456789012:role/PmmRdsReadRole",
 				"disable_basic_metrics": true,
 				"disable_enhanced_metrics": true,
 				"enable_push_metrics": true,
@@ -188,6 +192,7 @@ Configuration changes applied:
   - enabled agent
   - updated AWS access key
   - updated AWS secret key
+  - updated AWS role ARN
   - disabled basic metrics
   - disabled enhanced metrics
   - enabled push metrics
