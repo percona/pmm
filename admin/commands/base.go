@@ -19,6 +19,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -28,7 +29,6 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -228,7 +228,7 @@ func ReadFile(filePath string) (string, error) {
 
 	content, err := os.ReadFile(filepath.Clean(filePath))
 	if err != nil {
-		return "", errors.Wrapf(err, "cannot load file in path %q", filePath)
+		return "", fmt.Errorf("cannot load file in path %q: %w", filePath, err)
 	}
 
 	return string(content), nil
