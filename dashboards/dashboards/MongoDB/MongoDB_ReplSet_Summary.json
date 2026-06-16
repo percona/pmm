@@ -581,7 +581,7 @@
             "type": "stat"
         },
         {
-            "description": "Total logical data size (data + indexes) across user databases on the replica set primary. Excludes admin, local, and config databases. Requires the dbstats collector (enable all collectors on the MongoDB exporter).",
+            "description": "Shows how much space your data and indexes currently occupy on the replica set primary, excluding system databases (admin, local, config). Requires the dbstats collector on the MongoDB exporter. To enable it, see [Add database services](https://per.co.na/pmm/pmm-admin-add).",
             "fieldConfig": {
                 "defaults": {
                     "color": {
