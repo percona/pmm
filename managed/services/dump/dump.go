@@ -290,7 +290,7 @@ func (s *Service) persistLogs(dumpID string, r io.Reader) error {
 	for scanner.Scan() {
 		nErr := s.saveLogChunk(dumpID, chunkN.Add(1)-1, scanner.Text(), false)
 		if nErr != nil {
-			s.l.Warnf("failed to read pmm-dump logs: %v", err)
+			s.l.Warnf("Failed to read pmm-dump logs: %v", nErr)
 			return nErr
 		}
 	}
