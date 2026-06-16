@@ -324,7 +324,8 @@ func waitDescribe(ctx context.Context, cfg *describePoller) error {
 	defer ticker.Stop()
 
 	for {
-		if err := ctx.Err(); err != nil {
+		err := ctx.Err()
+		if err != nil {
 			return err
 		}
 
@@ -615,13 +616,14 @@ func findPITRRestoreName(ctx context.Context, dsn string, restoreInfo *pbmRestor
 
 	checks := 0
 	for {
-		if err := ctx.Err(); err != nil {
+		err = ctx.Err()
+		if err != nil {
 			return "", err
 		}
 
 		checks++
 		var list []pbmListRestore
-		err := execPBMCommand(ctx, dsn, &list, "list", "--restore")
+		err = execPBMCommand(ctx, dsn, &list, "list", "--restore")
 		if err != nil {
 			return "", errors.Wrapf(err, "pbm status error")
 		}
