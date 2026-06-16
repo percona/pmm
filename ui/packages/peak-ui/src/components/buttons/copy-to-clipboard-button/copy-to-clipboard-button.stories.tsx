@@ -5,7 +5,7 @@ import CopyToClipboardButton from './CopyToClipboardButton';
 import { CopyToClipboardButtonProps } from './CopyToClipboardButton.types';
 
 const meta: Meta<CopyToClipboardButtonProps> = {
-  title: 'Inputs/CopyToClipboardButton',
+  title: 'Inputs/Copy to Clipboard',
   component: CopyToClipboardButton,
   tags: ['autodocs'],
   parameters: {
