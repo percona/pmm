@@ -1,0 +1,9 @@
+import type { ReactNode } from 'react';
+import type { BoxProps } from '@mui/material/Box';
+
+export type CodeBlockProps = Omit<BoxProps<'pre'>, 'component' | 'children'> & {
+  children: ReactNode;
+  copyable?: boolean;
+  showCopyButtonText?: boolean;
+  value?: string;
+};
