@@ -52,4 +52,33 @@ describe('CodeBlock', () => {
 
     await waitFor(() => expect(writeText).toHaveBeenCalledWith('raw-command'));
   });
+
+  it('renders plain text when no language is provided', () => {
+    render(<CodeBlock>SELECT * FROM users;</CodeBlock>);
+    expect(screen.getByText('SELECT * FROM users;')).toBeInTheDocument();
+  });
+
+  it('syntax-highlights into tokens when a language is provided', async () => {
+    render(<CodeBlock language="sql">SELECT * FROM users;</CodeBlock>);
+
+    // After the highlighter lazy-loads, content is split into per-token spans.
+    const keyword = await screen.findByText('SELECT');
+    expect(keyword.tagName).toBe('SPAN');
+    expect(keyword.closest('pre')).toBeInTheDocument();
+  });
+
+  it('keeps copying the raw source even when highlighted', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.assign(navigator, { clipboard: { writeText } });
+
+    render(
+      <CodeBlock language="sql" copyable>
+        SELECT 1;
+      </CodeBlock>
+    );
+    await screen.findByText('SELECT');
+    fireEvent.click(screen.getByRole('button'));
+
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith('SELECT 1;'));
+  });
 });
