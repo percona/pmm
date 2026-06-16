@@ -351,7 +351,7 @@ func validateFilePath(path string) error {
 
 	if path != r {
 		return fmt.Errorf("actual file path doesn't match expected, that may be caused by symlinks "+
-			"of path traversal, expected path: %s, actual: %s", path, r)
+			"or path traversal, expected path: %s, actual: %s", path, r)
 	}
 
 	return nil
