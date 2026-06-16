@@ -66,10 +66,8 @@ func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
 				l.Warnf("%s done in %s (quite long).", prefix, dur)
 			}
 		case gRPCError:
-			// %+v for inner stacktraces produced by errors.WithStack(err)
 			l.Warnf("%s done in %s with gRPC error: %+v", prefix, dur, err)
 		default:
-			// %+v for inner stacktraces produced by errors.WithStack(err)
 			l.Errorf("%s done in %s with unexpected error: %+v", prefix, dur, err)
 			err = status.Error(codes.Internal, "Internal server error.")
 		}
