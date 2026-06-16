@@ -92,7 +92,8 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 		errTX = s.db.InTransactionContext(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
 			var err error
 
-			if err = services.CheckArtifactOverlapping(tx.Querier, params.ServiceID, params.LocationID, params.Folder); err != nil {
+			err = services.CheckArtifactOverlapping(tx.Querier, params.ServiceID, params.LocationID, params.Folder)
+			if err != nil {
 				return err
 			}
 
@@ -133,7 +134,8 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 					return errors.New("the only supported backups mode for mongoDB is snapshot and PITR")
 				}
 
-				if err = services.CheckMongoDBBackupPreconditions(tx.Querier, params.Mode, svc.Cluster, svc.ServiceID, params.ScheduleID); err != nil {
+				err = services.CheckMongoDBBackupPreconditions(tx.Querier, params.Mode, svc.Cluster, svc.ServiceID, params.ScheduleID)
+				if err != nil {
 					return err
 				}
 
@@ -155,7 +157,7 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 			}
 
 			if artifact == nil {
-				if artifact, err = models.CreateArtifact(tx.Querier, models.CreateArtifactParams{
+				artifact, err = models.CreateArtifact(tx.Querier, models.CreateArtifactParams{
 					Name:       name,
 					Vendor:     string(svc.ServiceType),
 					DBVersion:  dbVersion,
@@ -166,18 +168,25 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 					Status:     models.PendingBackupStatus,
 					ScheduleID: params.ScheduleID,
 					Folder:     params.Folder,
-				}); err != nil {
+				})
+				if err != nil {
 					return err
 				}
 			} else {
-				if artifact, err = models.UpdateArtifact(tx.Querier, artifact.ID, models.UpdateArtifactParams{
+				artifact, err = models.UpdateArtifact(tx.Querier, artifact.ID, models.UpdateArtifactParams{
 					Status: models.PendingBackupStatus.Pointer(),
-				}); err != nil {
+				})
+				if err != nil {
 					return err
 				}
 			}
 
-			if job, dbConfig, err = s.prepareBackupJob(tx.Querier, svc, artifact.ID, jobType, params.Mode, params.DataModel, params.Retries, params.RetryInterval); err != nil { //nolint:lll
+			job, dbConfig, err = s.prepareBackupJob(
+				tx.Querier, svc, artifact.ID,
+				jobType, params.Mode, params.DataModel, params.Retries,
+				params.RetryInterval,
+			)
+			if err != nil {
 				return err
 			}
 			return nil
@@ -258,7 +267,8 @@ type restoreJobParams struct {
 
 // RestoreBackup starts restore backup job.
 func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID string, pitrTimestamp time.Time) (string, error) {
-	if err := s.checkArtifactModePreconditions(ctx, artifactID, pitrTimestamp); err != nil {
+	err := s.checkArtifactModePreconditions(ctx, artifactID, pitrTimestamp)
+	if err != nil {
 		return "", err
 	}
 
@@ -266,13 +276,14 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 	if err != nil {
 		return "", err
 	}
-	if err := s.compatibilityService.CheckArtifactCompatibility(artifactID, targetDBVersion); err != nil {
+	err = s.compatibilityService.CheckArtifactCompatibility(artifactID, targetDBVersion)
+	if err != nil {
 		return "", err
 	}
 
 	var params restoreJobParams
 	var restoreID string
-	if errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+	errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 		service, err := models.FindServiceByID(tx.Querier, serviceID)
 		if err != nil {
@@ -378,11 +389,13 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 		}
 
 		return nil
-	}); errTx != nil {
+	})
+	if errTx != nil {
 		return "", errTx
 	}
 
-	if err := s.startRestoreJob(&params); err != nil {
+	err = s.startRestoreJob(&params)
+	if err != nil {
 		return "", err
 	}
 
@@ -555,7 +568,8 @@ func (s *Service) checkArtifactModePreconditions(ctx context.Context, artifactID
 				"https://docs.percona.com/percona-monitoring-and-management/get-started/backup/backup_mongo.html", artifactID)
 	}
 
-	if err := checkArtifactMode(artifact, pitrTimestamp); err != nil {
+	err = checkArtifactMode(artifact, pitrTimestamp)
+	if err != nil {
 		return err
 	}
 

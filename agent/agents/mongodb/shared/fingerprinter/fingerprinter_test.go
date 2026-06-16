@@ -17,7 +17,6 @@ package fingerprinter
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"testing"
 	"time"
@@ -75,7 +74,7 @@ func createSession(dsn string, agentID string) (*mongo.Client, error) {
 		SetDirect(true).
 		SetReadPreference(readpref.Nearest()).
 		SetSocketTimeout(mgoTimeoutSessionSocket).
-		SetAppName(fmt.Sprintf("QAN-mongodb-profiler-%s", agentID))
+		SetAppName("QAN-mongodb-profiler-" + agentID)
 
 	client, err := mongo.Connect(ctx, opts)
 	if err != nil {
@@ -114,7 +113,7 @@ func TestProfilerFingerprinter(t *testing.T) {
 		})
 
 		// Enable profilling all queries (2, slowms = 0)
-		res := client.Database("admin").RunCommand(ctx, primitive.D{{"profile", 2}, {"slowms", 0}})
+		res := client.Database("admin").RunCommand(ctx, primitive.D{{Key: "profile", Value: 2}, {Key: "slowms", Value: 0}})
 		require.NoError(t, res.Err())
 
 		database := client.Database(dbName)

@@ -34,13 +34,15 @@ var ErrTxRequired = errors.New("TxRequired")
 // GetSettings returns current PMM Server settings.
 func GetSettings(q reform.DBTX) (*Settings, error) {
 	var b []byte
-	if err := q.QueryRow("SELECT settings FROM settings").Scan(&b); err != nil {
+	err := q.QueryRow("SELECT settings FROM settings").Scan(&b)
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to select settings")
 	}
 
 	var s Settings
 
-	if err := json.Unmarshal(b, &s); err != nil {
+	err = json.Unmarshal(b, &s) //nolint:musttag
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to unmarshal settings")
 	}
 	s.fillDefaults()
@@ -132,7 +134,8 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 		}
 
 		var r Role
-		if err := findRole(tx, *params.DefaultRoleID, &r); err != nil {
+		err := findRole(tx, *params.DefaultRoleID, &r)
+		if err != nil {
 			return nil, err
 		}
 	}
@@ -270,7 +273,8 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 			continue
 		}
 
-		if _, err := validators.ValidateMetricResolution(v.dur); err != nil {
+		_, err := validators.ValidateMetricResolution(v.dur)
+		if err != nil {
 			switch err.(type) { //nolint:errorlint
 			case validators.DurationNotAllowedError:
 				return errors.Errorf("%s: should be a natural number of seconds", v.fieldName)
@@ -295,7 +299,8 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 			continue
 		}
 
-		if _, err := validators.ValidateAdvisorRunInterval(v.dur); err != nil {
+		_, err := validators.ValidateAdvisorRunInterval(v.dur)
+		if err != nil {
 			switch err.(type) { //nolint:errorlint
 			case validators.DurationNotAllowedError:
 				return errors.Errorf("%s: should be a natural number of seconds", v.fieldName)
@@ -308,7 +313,8 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 	}
 
 	if params.DataRetention != 0 {
-		if _, err := validators.ValidateDataRetention(params.DataRetention); err != nil {
+		_, err := validators.ValidateDataRetention(params.DataRetention)
+		if err != nil {
 			switch err.(type) { //nolint:errorlint
 			case validators.DurationNotAllowedError:
 				return errors.New("data_retention: should be a natural number of days")
@@ -320,7 +326,8 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 		}
 	}
 
-	if err := validators.ValidateAWSPartitions(params.AWSPartitions); err != nil {
+	err := validators.ValidateAWSPartitions(params.AWSPartitions)
+	if err != nil {
 		return err
 	}
 

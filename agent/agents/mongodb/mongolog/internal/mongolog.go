@@ -100,16 +100,19 @@ func (l *Mongolog) Start(ctx context.Context) error {
 		l.logger.Warningln(err)
 	}
 
+	logsPathWithPrefix := path.Join(l.logFilePrefix, logsPath)
+	reader, err := filereader.NewContinuousFileReader(logsPathWithPrefix, l.logger)
+	if err != nil {
+		return err
+	}
+
 	// create aggregator which collects documents and aggregates them into qan report
 	l.aggregator = aggregator.New(time.Now(), l.agentID, l.logger, l.maxQueryLength)
 	reportChan := l.aggregator.Start() //nolint:contextcheck // PMM-13947
 
 	// create sender which sends qan reports and start it
 	l.sender = sender.New(reportChan, l.w, l.logger)
-	err = l.sender.Start() //nolint:contextcheck // PMM-13947
-	if err != nil {
-		return err
-	}
+	l.sender.Start() //nolint:contextcheck // PMM-13947
 
 	// create new channel over which
 	// we will tell goroutine it should close
@@ -118,18 +121,13 @@ func (l *Mongolog) Start(ctx context.Context) error {
 	// start a goroutine and Add() it to WaitGroup
 	// so we could later Wait() for it to finish
 	l.wg = &sync.WaitGroup{}
-	l.wg.Add(2)
+	l.wg.Add(2) //nolint:mnd
 
 	// create ready sync.Cond so we could know when goroutine actually started getting data from db
 	ready := sync.NewCond(&sync.Mutex{})
 	ready.L.Lock()
 	defer ready.L.Unlock()
 
-	logsPathWithPrefix := path.Join(l.logFilePrefix, logsPath)
-	reader, err := filereader.NewContinuousFileReader(logsPathWithPrefix, l.logger)
-	if err != nil {
-		return err
-	}
 	// create monitors service which we use to periodically scan server for new/removed databases
 	l.monitor = NewMonitor(logsPathWithPrefix, reader, l.logger)
 
@@ -159,6 +157,9 @@ func (l *Mongolog) Stop() error {
 
 	// wait for goroutine to exit
 	l.wg.Wait()
+
+	l.aggregator.Stop()
+	l.sender.Stop()
 
 	// set state to "not running"
 	l.running = false
@@ -228,7 +229,7 @@ func createSession(ctx context.Context, dsn string, agentID string) (*mongo.Clie
 		SetDirect(true).
 		SetReadPreference(readpref.Nearest()).
 		SetSocketTimeout(mgoTimeoutSessionSocket).
-		SetAppName(fmt.Sprintf("QAN-mongodb-mongolog-%s", agentID))
+		SetAppName("QAN-mongodb-mongolog-" + agentID)
 
 	client, err := mongo.Connect(ctxWithTimeout, opts)
 	if err != nil {

@@ -188,7 +188,8 @@ func roundFloat(upTime float32, numAfterDot int) float32 {
 func (s *Server) Reload(ctx context.Context, req *agentlocal.ReloadRequest) (*agentlocal.ReloadResponse, error) { //nolint:revive
 	// sync errors with setup command
 
-	if _, err := s.cfg.Reload(s.l); err != nil {
+	_, err := s.cfg.Reload(s.l)
+	if err != nil {
 		return nil, status.Error(codes.FailedPrecondition, "Failed to reload configuration: "+err.Error())
 	}
 
@@ -290,7 +291,8 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 	}))
 
 	debugPageHandler := http.HandlerFunc(func(rw http.ResponseWriter, _ *http.Request) {
-		if _, err := rw.Write(debugPage.Bytes()); err != nil {
+		_, err := rw.Write(debugPage.Bytes())
+		if err != nil {
 			l.Warn(err)
 		}
 	})
@@ -311,9 +313,13 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithBlock(),
+		grpc.WithDefaultCallOptions(
+			// Wait for connection to be ready before sending RPC calls
+			grpc.WaitForReady(true),
+		),
 	}
-	if err := agentlocal.RegisterAgentLocalServiceHandlerFromEndpoint(ctx, proxyMux, grpcAddress, opts); err != nil {
+	err = agentlocal.RegisterAgentLocalServiceHandlerFromEndpoint(ctx, proxyMux, grpcAddress, opts)
+	if err != nil {
 		l.Panic(err)
 	}
 
@@ -331,7 +337,8 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 	}
 	go func() {
 		l.Info("Started.")
-		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+		err := server.ListenAndServe()
+		if !errors.Is(err, http.ErrServerClosed) {
 			l.Panic(err)
 		}
 		l.Info("Stopped.")
@@ -341,7 +348,8 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 
 	// try to stop server gracefully, then not
 	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
-	if err := server.Shutdown(ctx); err != nil { //nolint:contextcheck
+	err = server.Shutdown(ctx) //nolint:contextcheck
+	if err != nil {
 		l.Errorf("Failed to shutdown gracefully: %s", err)
 	}
 	cancel()
@@ -381,7 +389,7 @@ func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) { //nolint:revi
 				return
 			}
 		}
-		err := addData(zipWriter, fmt.Sprintf("%s.log", id), agentFileBuffer.Bytes())
+		err := addData(zipWriter, id+".log", agentFileBuffer.Bytes())
 		if err != nil {
 			logrus.Error(err)
 			http.Error(w, fmt.Sprintf("Cannot write to zip file err: %s", err), http.StatusInternalServerError)

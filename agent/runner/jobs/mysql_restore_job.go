@@ -93,11 +93,13 @@ func (j *MySQLRestoreJob) Run(ctx context.Context, send Send) error {
 		return errors.New("S3 config is not set")
 	}
 
-	if err := j.binariesInstalled(); err != nil {
+	err := j.binariesInstalled()
+	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	if _, _, err := mySQLUserAndGroupIDs(); err != nil {
+	_, _, err = mySQLUserAndGroupIDs()
+	if err != nil {
 		return errors.WithStack(err)
 	}
 
@@ -106,7 +108,8 @@ func (j *MySQLRestoreJob) Run(ctx context.Context, send Send) error {
 		return errors.Wrap(err, "cannot create temporary directory")
 	}
 	defer func() {
-		if err := os.RemoveAll(tmpDir); err != nil {
+		err := os.RemoveAll(tmpDir)
+		if err != nil {
 			j.l.WithError(err).Warn("failed to remove temporary directory")
 		}
 	}()
@@ -117,7 +120,8 @@ func (j *MySQLRestoreJob) Run(ctx context.Context, send Send) error {
 	}
 	j.l.Debugf("Using MySQL service name: %s", mySQLServiceName)
 
-	if err := j.restoreMySQLFromS3(ctx, tmpDir); err != nil {
+	err = j.restoreMySQLFromS3(ctx, tmpDir)
+	if err != nil {
 		return errors.WithStack(err)
 	}
 
@@ -126,16 +130,19 @@ func (j *MySQLRestoreJob) Run(ctx context.Context, send Send) error {
 		return errors.WithStack(err)
 	}
 	if active {
-		if err := stopMySQL(ctx, mySQLServiceName); err != nil {
+		err = stopMySQL(ctx, mySQLServiceName)
+		if err != nil {
 			return errors.WithStack(err)
 		}
 	}
 
-	if err := restoreBackup(ctx, tmpDir, mySQLDirectory); err != nil {
+	err = restoreBackup(ctx, tmpDir, mySQLDirectory)
+	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	if err := startMySQL(ctx, mySQLServiceName); err != nil {
+	err = startMySQL(ctx, mySQLServiceName)
+	if err != nil {
 		return errors.WithStack(err)
 	}
 
@@ -151,19 +158,23 @@ func (j *MySQLRestoreJob) Run(ctx context.Context, send Send) error {
 }
 
 func (j *MySQLRestoreJob) binariesInstalled() error {
-	if _, err := exec.LookPath(xtrabackupBin); err != nil {
+	_, err := exec.LookPath(xtrabackupBin)
+	if err != nil {
 		return errors.Wrapf(err, "lookpath: %s", xtrabackupBin)
 	}
 
-	if _, err := exec.LookPath(xbcloudBin); err != nil {
+	_, err = exec.LookPath(xbcloudBin)
+	if err != nil {
 		return errors.Wrapf(err, "lookpath: %s", xbcloudBin)
 	}
 
-	if _, err := exec.LookPath(xbstreamBin); err != nil {
+	_, err = exec.LookPath(xbstreamBin)
+	if err != nil {
 		return errors.Wrapf(err, "lookpath: %s", xbstreamBin)
 	}
 
-	if _, err := exec.LookPath(qpressBin); err != nil {
+	_, err = exec.LookPath(qpressBin)
+	if err != nil {
 		return errors.Wrapf(err, "lookpath: %s", qpressBin)
 	}
 
@@ -239,12 +250,14 @@ func (j *MySQLRestoreJob) restoreMySQLFromS3(ctx context.Context, targetDirector
 		return errors.Wrapf(err, "stderr: %s\n stdout: %s\n", stderr.String(), stdout.String()) //nolint:revive
 	}
 
-	if err := xbcloudCmd.Start(); err != nil {
+	err = xbcloudCmd.Start()
+	if err != nil {
 		cancel()
 		return errors.Wrap(wrapError(err), "xbcloud start failed")
 	}
 	defer func() {
-		if err := xbcloudCmd.Wait(); err != nil {
+		err := xbcloudCmd.Wait()
+		if err != nil {
 			cancel()
 			if rerr != nil {
 				rerr = errors.Wrapf(rerr, "xbcloud wait error: %s", err)
@@ -254,12 +267,14 @@ func (j *MySQLRestoreJob) restoreMySQLFromS3(ctx context.Context, targetDirector
 		}
 	}()
 
-	if err := xbstreamCmd.Start(); err != nil {
+	err = xbstreamCmd.Start()
+	if err != nil {
 		cancel()
 		return errors.Wrap(wrapError(err), "xbstream start failed")
 	}
 	defer func() {
-		if err := xbstreamCmd.Wait(); err != nil {
+		err := xbstreamCmd.Wait()
+		if err != nil {
 			cancel()
 			if rerr != nil {
 				rerr = errors.Wrapf(rerr, "xbstream wait error: %s", err)
@@ -277,13 +292,14 @@ func mySQLActive(ctx context.Context, mySQLServiceName string) (bool, error) {
 	defer cancel()
 
 	cmd := exec.CommandContext(ctx, "systemctl", "is-active", "--quiet", mySQLServiceName)
-	if err := cmd.Start(); err != nil {
+	err := cmd.Start()
+	if err != nil {
 		return false, errors.Wrap(err, "starting systemctl is-active command failed")
 	}
 
 	// systemctl is-active returns an exit code 0 if service is active, or non-zero otherwise
 	var exitError *exec.ExitError
-	err := cmd.Wait()
+	err = cmd.Wait()
 	switch {
 	case err == nil:
 		return true, nil
@@ -299,7 +315,8 @@ func stopMySQL(ctx context.Context, mySQLServiceName string) error {
 	defer cancel()
 
 	cmd := exec.CommandContext(ctx, "systemctl", "stop", mySQLServiceName)
-	if err := cmd.Start(); err != nil {
+	err := cmd.Start()
+	if err != nil {
 		return errors.Wrap(err, "starting systemctl stop command failed")
 	}
 
@@ -311,7 +328,8 @@ func startMySQL(ctx context.Context, mySQLServiceName string) error {
 	defer cancel()
 
 	cmd := exec.CommandContext(ctx, "systemctl", "start", mySQLServiceName)
-	if err := cmd.Start(); err != nil {
+	err := cmd.Start()
+	if err != nil {
 		return errors.Wrap(err, "starting systemctl start command failed")
 	}
 
@@ -378,21 +396,23 @@ func restoreBackup(ctx context.Context, backupDirectory, mySQLDirectory string) 
 	// Setting default value in case the base MySQL folder have been lost.
 	mysqlDirPermissions := os.FileMode(0o750)
 
-	if output, err := exec.CommandContext( //nolint:gosec
+	output, err := exec.CommandContext( //nolint:gosec
 		ctx,
 		xtrabackupBin,
 		"--decompress",
 		"--target-dir="+backupDirectory,
-	).CombinedOutput(); err != nil {
+	).CombinedOutput()
+	if err != nil {
 		return errors.Wrapf(err, "failed to decompress, output: %s", string(output))
 	}
 
-	if output, err := exec.CommandContext( //nolint:gosec
+	output, err = exec.CommandContext( //nolint:gosec
 		ctx,
 		xtrabackupBin,
 		"--prepare",
 		"--target-dir="+backupDirectory,
-	).CombinedOutput(); err != nil {
+	).CombinedOutput()
+	if err != nil {
 		return errors.Wrapf(err, "failed to prepare, output: %s", string(output))
 	}
 
@@ -406,18 +426,20 @@ func restoreBackup(ctx context.Context, backupDirectory, mySQLDirectory string) 
 			return errors.Wrap(err, "failed to get MySQL base directory permissions")
 		}
 		postfix := ".old" + strconv.FormatInt(time.Now().Unix(), 10)
-		if err := os.Rename(mySQLDirectory, mySQLDirectory+postfix); err != nil {
+		err = os.Rename(mySQLDirectory, mySQLDirectory+postfix)
+		if err != nil {
 			return errors.WithStack(err)
 		}
 	}
 
-	if output, err := exec.CommandContext( //nolint:gosec
+	output, err = exec.CommandContext( //nolint:gosec
 		ctx,
 		xtrabackupBin,
 		"--copy-back",
 		"--datadir="+mySQLDirectory,
 		"--target-dir="+backupDirectory,
-	).CombinedOutput(); err != nil {
+	).CombinedOutput()
+	if err != nil {
 		return errors.Wrapf(err, "failed to copy back, output: %s", string(output))
 	}
 
@@ -425,14 +447,16 @@ func restoreBackup(ctx context.Context, backupDirectory, mySQLDirectory string) 
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	if err := chownRecursive(mySQLDirectory, uid, gid); err != nil {
+	err = chownRecursive(mySQLDirectory, uid, gid)
+	if err != nil {
 		return errors.WithStack(err)
 	}
 
 	// Set such permissions as original directory has before restoring.
 	// If original directory was absent, we set predefined permissions.
 	// Permissions inside DB's main directory are managed by xtrabackup utility, and we don't change them.
-	if err := os.Chmod(mySQLDirectory, mysqlDirPermissions); err != nil {
+	err = os.Chmod(mySQLDirectory, mysqlDirPermissions)
+	if err != nil {
 		return errors.Wrap(err, "failed to change permissions for MySQL base directory")
 	}
 

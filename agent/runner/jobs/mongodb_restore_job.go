@@ -16,7 +16,6 @@ package jobs
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -101,7 +100,8 @@ func (j *MongoDBRestoreJob) DSN() string {
 func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 	defer j.jobLogger.sendLog(send, "", true)
 
-	if _, err := exec.LookPath(pbmBin); err != nil {
+	_, err := exec.LookPath(pbmBin)
+	if err != nil {
 		return errors.Wrapf(err, "lookpath: %s", pbmBin)
 	}
 
@@ -128,12 +128,14 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 		forceResync:    true,
 		dsn:            j.dbURL,
 	}
-	if err := pbmConfigure(ctx, j.l, configParams); err != nil {
+	err = pbmConfigure(ctx, j.l, configParams)
+	if err != nil {
 		return errors.Wrap(err, "failed to configure pbm")
 	}
 
 	rCtx, cancel := context.WithTimeout(ctx, resyncTimeout)
-	if err := waitForPBMNoRunningOperations(rCtx, j.l, j.dbURL); err != nil {
+	err = waitForPBMNoRunningOperations(rCtx, j.l, j.dbURL)
+	if err != nil {
 		cancel()
 		return errors.Wrap(err, "failed to wait pbm configuration completion")
 	}
@@ -166,7 +168,8 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 		}
 	}()
 
-	if err := waitForPBMRestore(ctx, j.l, j.dbURL, restoreOut, snapshot.Type, confFile); err != nil {
+	err = waitForPBMRestore(ctx, j.l, j.dbURL, restoreOut, snapshot.Type, confFile)
+	if err != nil {
 		j.jobLogger.sendLog(send, err.Error(), false)
 		return errors.Wrap(err, "failed to wait backup restore completion")
 	}
@@ -221,7 +224,7 @@ func (j *MongoDBRestoreJob) startRestore(ctx context.Context, backupName string)
 			if j.pitrTimestamp.Unix() == 0 {
 				err = execPBMCommand(ctx, j.dbURL, &restoreOutput, "restore", backupName)
 			} else {
-				err = execPBMCommand(ctx, j.dbURL, &restoreOutput, "restore", fmt.Sprintf(`--time=%s`, j.pitrTimestamp.Format("2006-01-02T15:04:05")))
+				err = execPBMCommand(ctx, j.dbURL, &restoreOutput, "restore", "--time="+j.pitrTimestamp.Format("2006-01-02T15:04:05"))
 			}
 
 			if err != nil {
