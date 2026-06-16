@@ -14,6 +14,7 @@ export type NodeStatus = 'alive' | 'suspect' | 'dead' | 'left' | 'unknown';
 
 export interface GetHANodesResponse {
   nodes: GetHANodeResponse[];
+  expectedNodes: number;
 }
 
 export interface GetHANodeResponse {

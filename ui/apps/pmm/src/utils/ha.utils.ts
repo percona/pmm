@@ -1,17 +1,21 @@
 import { GetHANodeResponse, HAHealth } from 'types/ha.types';
 
-export const getHAHealth = (nodes: GetHANodeResponse[]): HAHealth => {
-  const nonAliveCount = nodes.filter((node) => node.status !== 'alive').length;
+export const getHAHealth = (
+  nodes: GetHANodeResponse[],
+  expectedNodes: number
+): HAHealth => {
+  const nonAliveCount =
+    expectedNodes - nodes.filter((node) => node.status === 'alive').length;
 
-  if (nonAliveCount === nodes.length) {
+  if (nonAliveCount === expectedNodes) {
     return 'down';
   }
 
-  if (nonAliveCount >= 2 * (nodes.length / 3.0)) {
+  if (nonAliveCount >= 2 * (expectedNodes / 3.0)) {
     return 'critical';
   }
 
-  if (nonAliveCount >= nodes.length / 3.0) {
+  if (nonAliveCount >= expectedNodes / 3.0) {
     return 'degraded';
   }
 

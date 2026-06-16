@@ -1,6 +1,8 @@
 import { GetHANodeResponse, NodeRole } from 'types/ha.types';
 import { getHAHealth } from './ha.utils';
 
+const expectedNodes = 3;
+
 describe('ha.utils', () => {
   it('should return "healthy" if all alive', () => {
     const nodes: GetHANodeResponse[] = [
@@ -9,7 +11,7 @@ describe('ha.utils', () => {
       { nodeName: 'pmm-ha-2', role: NodeRole.follower, status: 'alive' },
     ];
 
-    const health = getHAHealth(nodes);
+    const health = getHAHealth(nodes, expectedNodes);
 
     expect(health).toBe('healthy');
   });
@@ -21,7 +23,7 @@ describe('ha.utils', () => {
       { nodeName: 'pmm-ha-2', role: NodeRole.follower, status: 'dead' },
     ];
 
-    const health = getHAHealth(nodes);
+    const health = getHAHealth(nodes, expectedNodes);
 
     expect(health).toBe('down');
   });
@@ -33,7 +35,7 @@ describe('ha.utils', () => {
       { nodeName: 'pmm-ha-2', role: NodeRole.follower, status: 'suspect' },
     ];
 
-    const health = getHAHealth(nodes);
+    const health = getHAHealth(nodes, expectedNodes);
 
     expect(health).toBe('down');
   });
@@ -45,7 +47,7 @@ describe('ha.utils', () => {
       { nodeName: 'pmm-ha-2', role: NodeRole.follower, status: 'left' },
     ];
 
-    const health = getHAHealth(nodes);
+    const health = getHAHealth(nodes, expectedNodes);
 
     expect(health).toBe('down');
   });
@@ -57,7 +59,7 @@ describe('ha.utils', () => {
       { nodeName: 'pmm-ha-2', role: NodeRole.follower, status: 'unknown' },
     ];
 
-    const health = getHAHealth(nodes);
+    const health = getHAHealth(nodes, expectedNodes);
 
     expect(health).toBe('down');
   });
@@ -69,7 +71,7 @@ describe('ha.utils', () => {
       { nodeName: 'pmm-ha-2', role: NodeRole.follower, status: 'dead' },
     ];
 
-    const health = getHAHealth(nodes);
+    const health = getHAHealth(nodes, expectedNodes);
 
     expect(health).toBe('degraded');
   });
@@ -81,7 +83,7 @@ describe('ha.utils', () => {
       { nodeName: 'pmm-ha-2', role: NodeRole.follower, status: 'dead' },
     ];
 
-    const health = getHAHealth(nodes);
+    const health = getHAHealth(nodes, expectedNodes);
 
     expect(health).toBe('critical');
   });
