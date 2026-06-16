@@ -56,7 +56,7 @@ export function useNavigableRows<T extends Record<string, any>>({
   const onChangeRef = useRef(onChange);
   useEffect(() => {
     onChangeRef.current = onChange;
-  });
+  }, [onChange]);
 
   const computeRows = useCallback((): T[] => {
     const table = tableInstanceRef.current;
