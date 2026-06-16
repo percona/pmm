@@ -91,7 +91,7 @@ func (j *MySQLRestoreJob) DSN() string {
 // Run executes backup restore steps.
 func (j *MySQLRestoreJob) Run(ctx context.Context, send Send) error {
 	if j.locationConfig.S3Config == nil {
-		return errors.New("S3 config is not set")
+		return errors.New("s3 config is not set")
 	}
 
 	err := j.binariesInstalled()
@@ -261,7 +261,7 @@ func (j *MySQLRestoreJob) restoreMySQLFromS3(ctx context.Context, targetDirector
 		if err != nil {
 			cancel()
 			if rerr != nil {
-				rerr = fmt.Errorf("xbcloud wait error=%v: %w", err, rerr)
+				rerr = errors.Join(rerr, fmt.Errorf("xbcloud wait failed: %w", err))
 			} else {
 				rerr = fmt.Errorf("xbcloud wait failed: %w", wrapError(err))
 			}
@@ -278,7 +278,7 @@ func (j *MySQLRestoreJob) restoreMySQLFromS3(ctx context.Context, targetDirector
 		if err != nil {
 			cancel()
 			if rerr != nil {
-				rerr = fmt.Errorf("xbstream wait error=%v: %w", err, rerr)
+				rerr = errors.Join(rerr, fmt.Errorf("xbstream wait failed: %w", err))
 			} else {
 				rerr = fmt.Errorf("xbstream wait failed: %w", wrapError(err))
 			}

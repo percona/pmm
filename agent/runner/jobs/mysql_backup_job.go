@@ -211,14 +211,14 @@ func (j *MySQLBackupJob) backup(ctx context.Context) (rerr error) {
 	}
 
 	wrapError := func(err error) error {
-		return fmt.Errorf("xtrabackup err: %s\n xbcloud out: %s\n xbcloud err: %s\nerr: %w",
+		return fmt.Errorf("xtrabackup stderr: %s\n xbcloud stdout: %s\n xbcloud stderr: %s\nerr: %w",
 			errBackupBuffer.String(), outBuffer.String(), errCloudBuffer.String(), err)
 	}
 
 	err = xtrabackupCmd.Start()
 	if err != nil {
 		cancel()
-		return wrapError(err)
+		return fmt.Errorf("xtrabackup start failed: %w", wrapError(err))
 	}
 
 	defer func() {
@@ -226,9 +226,9 @@ func (j *MySQLBackupJob) backup(ctx context.Context) (rerr error) {
 		if err != nil {
 			cancel()
 			if rerr != nil {
-				rerr = fmt.Errorf("xtrabackup wait error=%v: %w", err, rerr)
+				rerr = errors.Join(rerr, fmt.Errorf("xtrabackup wait failed: %w", err))
 			} else {
-				rerr = wrapError(err)
+				rerr = fmt.Errorf("xtrabackup wait failed: %w", wrapError(err))
 			}
 		}
 	}()
@@ -243,7 +243,7 @@ func (j *MySQLBackupJob) backup(ctx context.Context) (rerr error) {
 	err = xbcloudCmd.Start()
 	if err != nil {
 		cancel()
-		return wrapError(err)
+		return fmt.Errorf("xbcloud start failed: %w", wrapError(err))
 	}
 
 	defer func() {
@@ -251,9 +251,9 @@ func (j *MySQLBackupJob) backup(ctx context.Context) (rerr error) {
 		if err != nil {
 			cancel()
 			if rerr != nil {
-				rerr = fmt.Errorf("xbcloud wait error=%v: %w", err, rerr)
+				rerr = errors.Join(rerr, fmt.Errorf("xbcloud wait failed: %w", err))
 			} else {
-				rerr = wrapError(err)
+				rerr = fmt.Errorf("xbcloud wait failed: %w", wrapError(err))
 			}
 		}
 	}()
