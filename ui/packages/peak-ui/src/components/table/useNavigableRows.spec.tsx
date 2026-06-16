@@ -57,7 +57,10 @@ function NavigableTableHarness({
   );
 }
 
-const renderHarness = (props?: { scope?: NavigableRowsScope; onChange?: (rows: TestRow[]) => void }) =>
+const renderHarness = (props?: {
+  scope?: NavigableRowsScope;
+  onChange?: (rows: TestRow[]) => void;
+}) =>
   render(
     <ThemeContextProvider themeOptions={baseThemeOptions}>
       <NavigableTableHarness {...props} />
@@ -98,9 +101,7 @@ describe('useNavigableRows', () => {
           <button
             type="button"
             data-testid="apply-filter"
-            onClick={() =>
-              tableProps.onColumnFiltersChange([{ id: 'group', value: 'edge' }])
-            }
+            onClick={() => tableProps.onColumnFiltersChange([{ id: 'group', value: 'edge' }])}
           >
             Filter
           </button>
@@ -183,9 +184,7 @@ describe('useNavigableRows', () => {
           <button
             type="button"
             data-testid="apply-filter"
-            onClick={() =>
-              tableProps.onColumnFiltersChange([{ id: 'group', value: 'edge' }])
-            }
+            onClick={() => tableProps.onColumnFiltersChange([{ id: 'group', value: 'edge' }])}
           >
             Filter
           </button>

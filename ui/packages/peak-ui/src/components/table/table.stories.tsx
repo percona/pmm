@@ -691,7 +691,7 @@ export const WithDetailsPaneNavigation: Story = {
           'A common pattern: click a row to open a details pane that has prev/next arrows. The arrows must walk the rows the user actually sees after filtering and sorting, **not** the raw `data` array.',
           '',
           'Two Peak Design hooks make this reusable without hand-wiring the table instance:',
-          '- **`useNavigableRows`** owns the table\'s filter/sort state and returns `navigableRows` (the filtered + sorted rows, across all pages by default) plus `tableProps` to spread onto `<Table>`. It emits `onChange` whenever that list changes, and exposes `refresh()` to recompute right before opening the pane on a row click. Use `scope: \'currentPage\'` to navigate only the visible page.',
+          "- **`useNavigableRows`** owns the table's filter/sort state and returns `navigableRows` (the filtered + sorted rows, across all pages by default) plus `tableProps` to spread onto `<Table>`. It emits `onChange` whenever that list changes, and exposes `refresh()` to recompute right before opening the pane on a row click. Use `scope: 'currentPage'` to navigate only the visible page.",
           '- **`useDetailsPaneNavigation`** turns that list plus the current selection into `next` / `previous` actions and `isFirst` / `isLast` flags. If the selection is filtered out, navigation disables itself instead of jumping to an unrelated row.',
           '',
           'Try it: filter by Status or Environment, then open a row and use the arrows — navigation stays within the filtered set.',
@@ -743,12 +743,7 @@ export const WithDetailsPaneNavigation: Story = {
                 </Tooltip>
                 <Tooltip title="Next">
                   <span>
-                    <IconButton
-                      size="small"
-                      aria-label="Next"
-                      disabled={isLast}
-                      onClick={next}
-                    >
+                    <IconButton size="small" aria-label="Next" disabled={isLast} onClick={next}>
                       <ChevronRightIcon />
                     </IconButton>
                   </span>
