@@ -19,12 +19,12 @@ package pprof
 import (
 	"bytes"
 	"context"
+	"errors"
+	"fmt"
 	"runtime"
 	"runtime/pprof"
 	"runtime/trace"
 	"time"
-
-	"github.com/pkg/errors"
 )
 
 // Profile responds with the pprof-formatted cpu profile.
@@ -74,7 +74,7 @@ func Heap(gc bool) ([]byte, error) {
 
 	p := pprof.Lookup(profile)
 	if p == nil {
-		return nil, errors.Errorf("profile cannot be found: %s", profile)
+		return nil, fmt.Errorf("profile cannot be found: %q", profile)
 	}
 
 	if gc {
