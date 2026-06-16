@@ -36,7 +36,7 @@ func GetSettings(q reform.DBTX) (*Settings, error) {
 	var b []byte
 	err := q.QueryRow("SELECT settings FROM settings").Scan(&b)
 	if err != nil {
-		return nil, errors.New("failed to select settings")
+		return nil, fmt.Errorf("failed to select settings: %w", err)
 	}
 
 	var s Settings
