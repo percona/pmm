@@ -32,12 +32,12 @@ func newTestPoller(t *testing.T, opts ...func(*describePoller)) *describePoller 
 	t.Helper()
 
 	cfg := &describePoller{
-		l:               logrus.New(),
-		dsn:             "mongodb://localhost",
-		operation:       pbmCmdBackup,
+		l:         logrus.New(),
+		dsn:       "mongodb://localhost",
+		operation: pbmCmdBackup,
 		name:      "2024-01-01T00:00:00Z",
-		startedAt:       time.Now(),
-		retries: maxDescribeRetries,
+		startedAt: time.Now(),
+		retries:   maxDescribeRetries,
 		fetchDescribe: func(context.Context) (describeInfo, error) {
 			return describeInfo{Status: pbmStatusDone}, nil
 		},
@@ -209,8 +209,8 @@ func TestOpRunning(t *testing.T) {
 	t.Parallel()
 
 	backupCfg := &describePoller{
-		operation:  pbmCmdBackup,
-		name: "backup-1",
+		operation: pbmCmdBackup,
+		name:      "backup-1",
 	}
 	status := &pbmStatus{}
 	status.Running.Type = pbmCmdBackup
@@ -218,8 +218,8 @@ func TestOpRunning(t *testing.T) {
 	assert.True(t, backupCfg.opRunning(status))
 
 	restoreCfg := &describePoller{
-		operation:  pbmCmdRestore,
-		name: "restore-1",
+		operation: pbmCmdRestore,
+		name:      "restore-1",
 	}
 	status.Running.Type = pbmCmdRestore
 	status.Running.Name = "restore-1"
@@ -240,8 +240,8 @@ func TestTargetSnapshot(t *testing.T) {
 	t.Parallel()
 
 	cfg := &describePoller{
-		operation:  pbmCmdBackup,
-		name: "snap-1",
+		operation: pbmCmdBackup,
+		name:      "snap-1",
 	}
 	status := &pbmStatus{}
 	status.Backups.Snapshot = []pbmSnapshot{{Name: "snap-1"}}
@@ -268,7 +268,7 @@ func TestRetryTransient(t *testing.T) {
 	t.Run("completion grace after operation finished", func(t *testing.T) {
 		t.Parallel()
 		cfg := &describePoller{
-			startedAt:           time.Now().Add(-2 * time.Hour),
+			startedAt:  time.Now().Add(-2 * time.Hour),
 			finishedAt: time.Now().Add(-1 * time.Minute),
 		}
 		assert.True(t, retryTransient(transientErr, cfg, false))
@@ -281,9 +281,9 @@ func TestRetryDescribeCmd(t *testing.T) {
 	t.Parallel()
 
 	cfg := &describePoller{
-		l:               logrus.New(),
-		operation:       pbmCmdBackup,
-		retries: 1,
+		l:         logrus.New(),
+		operation: pbmCmdBackup,
+		retries:   1,
 	}
 
 	assert.True(t, cfg.retryDescribeCmd(errors.New("temporary")))

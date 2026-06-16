@@ -40,7 +40,7 @@ const (
 	// PBM waits up to ~33s for backup metadata. Allow extra margin for describe-backup.
 	describeStartupGrace = 60 * time.Second
 	// After the operation stops, status/list metadata can lag behind describe failures.
-	describeCompletionGrace = 5 * time.Minute
+	describeCompletionGrace     = 5 * time.Minute
 	describeRunningWarnInterval = 5 * time.Minute
 
 	pbmCmdBackup  = "backup"
@@ -274,20 +274,20 @@ func getPBMStatus(ctx context.Context, dsn string) (*pbmStatus, error) {
 }
 
 type describePoller struct {
-	l               logrus.FieldLogger
-	dsn             string
-	operation       string
-	name            string
-	startedAt       time.Time
-	finishedAt      time.Time
-	lastRunningWarn time.Time
-	pollEvery       time.Duration
-	retries         int
-	fetchDescribe   func(context.Context) (describeInfo, error)
-	fetchStatus     func(context.Context, string) (*pbmStatus, error)
+	l                logrus.FieldLogger
+	dsn              string
+	operation        string
+	name             string
+	startedAt        time.Time
+	finishedAt       time.Time
+	lastRunningWarn  time.Time
+	pollEvery        time.Duration
+	retries          int
+	fetchDescribe    func(context.Context) (describeInfo, error)
+	fetchStatus      func(context.Context, string) (*pbmStatus, error)
 	fetchRestoreList func(context.Context) ([]pbmListRestore, error)
-	isRunning       func(*pbmStatus) bool
-	findSnapshot    func(*pbmStatus) *pbmSnapshot
+	isRunning        func(*pbmStatus) bool
+	findSnapshot     func(*pbmStatus) *pbmSnapshot
 }
 
 func (cfg *describePoller) interval() time.Duration {
