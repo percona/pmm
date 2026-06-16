@@ -1313,7 +1313,7 @@
             "type": "stat"
         },
         {
-            "description": "Total logical data size (data + indexes) across all shard primaries in the cluster. Excludes admin, local, and config databases. Requires the dbstats collector.",
+            "description": "Shows how much space your data and indexes currently occupy across all shard primaries in the cluster, excluding system databases (admin, local, config) and config server metadata. Requires the dbstats collector on the MongoDB exporter. To enable it, see [Add database services](https://per.co.na/pmm/pmm-admin-add).",
             "fieldConfig": {
                 "defaults": {
                     "color": {
