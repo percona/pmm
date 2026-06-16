@@ -458,7 +458,7 @@ func (s *Server) writeUpdateAuthToken(token string) error {
 
 	err = json.NewEncoder(f).Encode(a) //nolint:gosec
 	if err != nil {
-		return fmt.Errorf("failed to encode auth token to json: %w", err)
+		return fmt.Errorf("failed to encode auth token to JSON: %w", err)
 	}
 	return nil
 }
@@ -482,7 +482,7 @@ func (s *Server) readUpdateAuthToken() (string, error) {
 	var a pmmUpdateAuth
 	err = json.NewDecoder(f).Decode(&a)
 	if err != nil {
-		return "", fmt.Errorf("failed to decode auth token from json: %w", err)
+		return "", fmt.Errorf("failed to decode auth token from JSON: %w", err)
 	}
 	return a.AuthToken, nil
 }
