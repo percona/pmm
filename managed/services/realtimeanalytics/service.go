@@ -150,6 +150,8 @@ func (s *Service) ListServices(ctx context.Context, req *rtav1.ListServicesReque
 		switch apiSvc := apiSvc.(type) {
 		case *inventoryv1.MongoDBService:
 			res.Mongodb = append(res.Mongodb, apiSvc)
+		case *inventoryv1.MySQLService:
+			res.Mysql = append(res.Mysql, apiSvc)
 		// Add other service types once RTA is supported for them
 		default:
 			return nil, fmt.Errorf("unhandled inventory Service type %T", apiSvc)
@@ -157,6 +159,10 @@ func (s *Service) ListServices(ctx context.Context, req *rtav1.ListServicesReque
 	}
 
 	slices.SortStableFunc(res.Mongodb, func(a, b *inventoryv1.MongoDBService) int {
+		return strings.Compare(a.ServiceName, b.ServiceName)
+	})
+
+	slices.SortStableFunc(res.Mysql, func(a, b *inventoryv1.MySQLService) int {
 		return strings.Compare(a.ServiceName, b.ServiceName)
 	})
 
@@ -309,6 +315,12 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 			models.MongoDBExporterType,
 			models.QANMongoDBProfilerAgentType,
 			models.QANMongoDBMongologAgentType,
+		}
+	case models.MySQLServiceType:
+		agentTypes = []models.AgentType{
+			models.MySQLdExporterType,
+			models.QANMySQLPerfSchemaAgentType,
+			models.QANMySQLSlowlogAgentType,
 		}
 		// Add other service types once RTA is supported for them
 	default:
@@ -615,6 +627,8 @@ func getRTAAgentTypeForServiceType(serviceType models.ServiceType) (models.Agent
 	switch serviceType {
 	case models.MongoDBServiceType:
 		return models.RTAMongoDBAgentType, nil
+	case models.MySQLServiceType:
+		return models.RTAMySQLAgentType, nil
 	default:
 		return "", fmt.Errorf("service of type %s does not support Real-Time Analytics", serviceType)
 	}

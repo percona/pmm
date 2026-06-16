@@ -166,3 +166,25 @@ export const TEST_MONGO_DB_QUERY_DATA: QueryData = {
     username: 'username',
   },
 };
+
+export const TEST_MYSQL_QUERY_DATA: QueryData = {
+  serviceId: 'service-2',
+  serviceName: 'Service 2',
+  queryId: 'query-2',
+  queryText: 'SELECT * FROM my_table WHERE status = "active"',
+  queryExecutionDuration: '10s',
+  queryCollectTime: '2021-01-01T00:00:00Z',
+  clientAddress: '127.0.0.1',
+  queryRawJson: '{"current_statement": "SELECT * FROM my_table"}',
+  mySqlPayload: {
+    dbInstanceAddress: '127.0.0.1',
+    programName: 'mysql',
+    databaseName: 'database-name',
+    command: 'Query',
+    state: 'Sending data',
+    username: 'username',
+    rowsExamined: 100,
+    rowsSent: 10,
+    fullScan: true,
+  },
+};

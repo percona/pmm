@@ -1,5 +1,11 @@
 import { type MRT_Row } from 'material-react-table';
-import { QueryData } from 'types/rta.types';
+import { QueryData, RawQueryData } from 'types/rta.types';
+import { CodeLanguage } from 'types/util.types';
+
+// queryLanguage returns the syntax-highlighting language for a query
+// based on which database-specific payload it carries.
+export const queryLanguage = (query: RawQueryData): CodeLanguage =>
+  query.mySqlPayload ? 'sql' : 'mongodb';
 
 export const filterElapsedTime = (
   row: MRT_Row<QueryData>,
