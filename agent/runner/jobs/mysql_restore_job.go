@@ -261,7 +261,7 @@ func (j *MySQLRestoreJob) restoreMySQLFromS3(ctx context.Context, targetDirector
 		if err != nil {
 			cancel()
 			if rerr != nil {
-				rerr = fmt.Errorf("xbcloud wait error=%w: %w", err, rerr)
+				rerr = fmt.Errorf("xbcloud wait error=%v: %w", err, rerr)
 			} else {
 				rerr = fmt.Errorf("xbcloud wait failed: %w", wrapError(err))
 			}
