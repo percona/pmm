@@ -16,7 +16,6 @@ export const grafanaApi = axios.create({
 const DEFAULT_ERROR_MESSAGE = 'Something went wrong';
 const MAX_ERROR_MESSAGE_LENGTH = 120;
 let apiErrorInterceptor: number | null = null;
-let grafanaApiErrorInterceptor: number | null = null;
 
 const onApiError = (error: AxiosError<{ message?: string }>) => {
   if (
@@ -55,12 +54,6 @@ export const addApiErrorInterceptor = () => {
     );
   }
 
-  if (grafanaApiErrorInterceptor === null) {
-    grafanaApiErrorInterceptor = grafanaApi.interceptors.response.use(
-      (response) => response,
-      onApiError
-    );
-  }
 };
 
 export const removeApiErrorInterceptor = () => {
@@ -69,8 +62,4 @@ export const removeApiErrorInterceptor = () => {
     apiErrorInterceptor = null;
   }
 
-  if (grafanaApiErrorInterceptor !== null) {
-    grafanaApi.interceptors.response.eject(grafanaApiErrorInterceptor);
-    grafanaApiErrorInterceptor = null;
-  }
 };
