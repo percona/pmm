@@ -159,7 +159,7 @@ export const InstallClientPage = () => {
     setGenError(null);
     setGenLoading(true);
     try {
-      const res = await createNodeInstallToken(technology, 0);
+      const res = await createNodeInstallToken(technology);
       setToken(res.token);
       const expires = res.expiresAt
         ? new Date(res.expiresAt)

@@ -5,9 +5,6 @@ export interface CreateNodeInstallTokenResponse {
   expiresAt: string;
 }
 
-// Hard cap mirrors the previous server-side cap (15 min). Tokens longer than this
-// shouldn't be in someone's terminal scrollback — re-run "Generate token" instead.
-const MAX_TTL_SECONDS = 15 * 60;
 const DEFAULT_TTL_SECONDS = 15 * 60;
 
 const SUPPORTED_TECHNOLOGIES = new Set([
@@ -75,15 +72,9 @@ const randomTokenSuffix = (): string => {
  */
 export async function createNodeInstallToken(
   technology: string,
-  ttlSeconds = 0
 ): Promise<CreateNodeInstallTokenResponse> {
   if (!SUPPORTED_TECHNOLOGIES.has(technology)) {
     throw new Error(`unsupported technology "${technology}"`);
-  }
-
-  let ttl = ttlSeconds > 0 ? ttlSeconds : DEFAULT_TTL_SECONDS;
-  if (ttl > MAX_TTL_SECONDS) {
-    ttl = MAX_TTL_SECONDS;
   }
 
   const saName = `${SA_NAME_PREFIX}-${technology}`;
@@ -98,11 +89,11 @@ export async function createNodeInstallToken(
   // UUID-suffixed token name keeps concurrent calls from colliding on Grafana's
   // per-SA unique-name constraint (Grafana returns 409 otherwise).
   const tokenName = `${TOKEN_NAME_PREFIX}-${technology}-${randomTokenSuffix()}`;
-  const key = await mintToken(saId, tokenName, ttl);
+  const key = await mintToken(saId, tokenName, DEFAULT_TTL_SECONDS);
 
   return {
     token: key,
-    expiresAt: new Date(Date.now() + ttl * 1000).toISOString(),
+    expiresAt: new Date(Date.now() + DEFAULT_TTL_SECONDS * 1000).toISOString(),
   };
 }
 
