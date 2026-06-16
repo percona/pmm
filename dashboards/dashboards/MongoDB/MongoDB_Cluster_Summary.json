@@ -1384,7 +1384,7 @@
             "type": "stat"
         },
         {
-            "description": "Total logical data size across all shard primaries over time.",
+            "description": "Plots the total size of data and indexes across all shard primaries over the selected time range. Use this to spot growth trends and plan capacity.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
