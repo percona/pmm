@@ -69,9 +69,9 @@ const randomTokenSuffix = (): string => {
  * Mints a short-lived Grafana service-account token for a PMM Client install command.
  *
  * Implementation note: this calls Grafana's serviceaccounts API directly through the
- * `/graph/api/` reverse proxy. The user must already be authenticated as a Grafana
- * Admin (Grafana rejects the create/mint requests with 403 otherwise) — that's the
- * same trust boundary the old backend endpoint had, just one hop shorter.
+ * `/graph/api/` reverse proxy. Grafana requires the **organization Admin** role for
+ * these endpoints — Editor and Viewer users get 403 on search/create/token calls
+ * (verified against `/graph/api/serviceaccounts/search` and `POST /graph/api/serviceaccounts`).
  */
 export async function createNodeInstallToken(
   technology: string,
