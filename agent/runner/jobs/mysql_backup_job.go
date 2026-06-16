@@ -226,7 +226,7 @@ func (j *MySQLBackupJob) backup(ctx context.Context) (rerr error) {
 		if err != nil {
 			cancel()
 			if rerr != nil {
-				rerr = fmt.Errorf("xtrabackup wait error=%w: %w", err, rerr)
+				rerr = fmt.Errorf("xtrabackup wait error=%v: %w", err, rerr)
 			} else {
 				rerr = wrapError(err)
 			}
