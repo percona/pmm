@@ -333,7 +333,7 @@ export const InstallClientPage = () => {
                 label="PMM host"
                 value={pmmHost}
                 onChange={handlePmmHostChange}
-                helperText="Usually leave as-is (this page's hostname)"
+                helperText="Usually leave as-is (this page's hostname). Do not include the protocol (http/https), paths or query parameters."
               />
               <TextField
                 fullWidth

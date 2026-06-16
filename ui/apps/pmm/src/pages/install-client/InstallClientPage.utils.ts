@@ -58,12 +58,37 @@ export const formatExpiresIn = (secondsLeft: number): string => {
 };
 
 /**
+ * Normalizes PMM host input to hostname or hostname:port.
+ * Strips protocol and path when the user pastes a full URL.
+ */
+const sanitizePmmHost = (input: string): string => {
+  const trimmed = input.trim();
+  if (!trimmed) {
+    return '';
+  }
+
+  try {
+    if (/^https?:\/\//i.test(trimmed)) {
+      return new URL(trimmed).host;
+    }
+  } catch {
+    // Fall through for malformed URLs.
+  }
+
+  return trimmed
+    .replace(/^https?:\/\//i, '')
+    .replace(/^\/\//, '')
+    .split(/[/?#]/)[0]
+    .trim();
+};
+
+/**
  * Builds PMM_SERVER_URL for install scripts. Token is percent-encoded in the userinfo.
  * `pmmHost` is hostname or hostname:port (defaults to current page host when empty).
  */
 export function buildPmmServerURL(pmmHost: string, token: string): string {
   const authority =
-    pmmHost.trim() ||
+    sanitizePmmHost(pmmHost) ||
     (typeof window !== 'undefined' ? window.location.host : 'localhost');
   const t = token.trim();
   if (!t) {

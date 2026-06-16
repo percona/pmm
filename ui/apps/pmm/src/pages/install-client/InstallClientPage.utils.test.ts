@@ -52,6 +52,24 @@ describe('buildPmmServerURL', () => {
       'https://service_token:a%3Ab%40c@h:1'
     );
   });
+
+  test('strips protocol from full URLs', () => {
+    expect(buildPmmServerURL('https://pmm.example.com:8443', 'tok')).toBe(
+      'https://service_token:tok@pmm.example.com:8443'
+    );
+    expect(buildPmmServerURL('http://pmm.example.com', 'tok')).toBe(
+      'https://service_token:tok@pmm.example.com'
+    );
+  });
+
+  test('strips path and query from pasted URLs', () => {
+    expect(buildPmmServerURL('https://pmm.example.com/graph/d/foo', 'tok')).toBe(
+      'https://service_token:tok@pmm.example.com'
+    );
+    expect(buildPmmServerURL('pmm.example.com:443/pmm-ui', 'tok')).toBe(
+      'https://service_token:tok@pmm.example.com:443'
+    );
+  });
 });
 
 describe('buildInstallCommand', () => {
