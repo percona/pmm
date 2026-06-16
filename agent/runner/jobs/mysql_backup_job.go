@@ -17,6 +17,7 @@ package jobs
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -24,7 +25,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -211,7 +211,7 @@ func (j *MySQLBackupJob) backup(ctx context.Context) (rerr error) {
 	}
 
 	wrapError := func(err error) error {
-		return fmt.Errorf("xtrabackup stderr: %s\n xbcloud stdout: %s\n xbcloud stderr: %s\n err: %w",
+		return fmt.Errorf("xtrabackup err: %s\n xbcloud out: %s\n xbcloud err: %s\nerr: %w",
 			errBackupBuffer.String(), outBuffer.String(), errCloudBuffer.String(), err)
 	}
 

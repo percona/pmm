@@ -36,7 +36,7 @@ func GetSettings(q reform.DBTX) (*Settings, error) {
 	var b []byte
 	err := q.QueryRow("SELECT settings FROM settings").Scan(&b)
 	if err != nil {
-		return nil, fmt.Errorf("failed to select settings: %w", err)
+		return nil, errors.New("failed to select settings")
 	}
 
 	var s Settings
@@ -281,7 +281,7 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 			case validators.MinDurationError:
 				return fmt.Errorf("%s: minimal resolution is 1s", v.fieldName)
 			default:
-				return fmt.Errorf("%s: unknown error for", v.fieldName)
+				return fmt.Errorf("%s: unknown error: %w", v.fieldName, err)
 			}
 		}
 	}
@@ -307,7 +307,7 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 			case validators.MinDurationError:
 				return fmt.Errorf("%s: minimal resolution is 1s", v.fieldName)
 			default:
-				return fmt.Errorf("%s: unknown error for", v.fieldName)
+				return fmt.Errorf("%s: unknown error: %w", v.fieldName, err)
 			}
 		}
 	}
@@ -321,7 +321,7 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 			case validators.MinDurationError:
 				return errors.New("data_retention: minimal resolution is 24h")
 			default:
-				return errors.New("data_retention: unknown error")
+				return fmt.Errorf("data_retention: unknown error: %w", err)
 			}
 		}
 	}
