@@ -449,7 +449,8 @@ func (a *Agent) GetEnvironmentVariableNames() ([]string, error) {
 	}
 
 	var names []string
-	if err := json.Unmarshal(a.EnvironmentVariables, &names); err != nil {
+	err := json.Unmarshal(a.EnvironmentVariables, &names)
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to unmarshal shared environment variable names")
 	}
 	return names, nil
@@ -493,7 +494,8 @@ func (a *Agent) UnifiedLabels() (map[string]string, error) {
 	}
 	maps.Copy(res, custom)
 
-	if err = prepareLabels(res, true); err != nil {
+	err = prepareLabels(res, true)
+	if err != nil {
 		return nil, err
 	}
 	return res, nil
@@ -843,7 +845,7 @@ func (a *Agent) ExporterURL(q *reform.Querier) (string, error) {
 	username := pointer.GetString(a.Username)
 	password := pointer.GetString(a.Password)
 
-	host := "127.0.0.1"
+	host := LocalhostAddr
 	if !a.ExporterOptions.PushMetrics {
 		node, err := FindNodeByID(q, *a.RunsOnNodeID)
 		if err != nil {
@@ -1033,7 +1035,8 @@ func (a *Agent) BuildWebConfigFile() (string, error) {
 	if err != nil {
 		return "", errors.Wrap(err, "Failed to parse webconfig template")
 	}
-	if err = tmpl.Execute(&configBuffer, hashedPassword); err != nil {
+	err = tmpl.Execute(&configBuffer, hashedPassword)
+	if err != nil {
 		return "", errors.Wrap(err, "Failed to execute webconfig template")
 	}
 

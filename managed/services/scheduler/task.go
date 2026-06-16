@@ -71,7 +71,8 @@ func (p *BackupTaskParams) Validate() error {
 		return errors.New("location id can't be empty")
 	}
 
-	if err := p.DataModel.Validate(); err != nil {
+	err := p.DataModel.Validate()
+	if err != nil {
 		return err
 	}
 
@@ -85,7 +86,8 @@ type mySQLBackupTask struct {
 
 // NewMySQLBackupTask create new task for mysql backup.
 func NewMySQLBackupTask(params *BackupTaskParams) (Task, error) { //nolint:ireturn,nolintlint
-	if err := params.Validate(); err != nil {
+	err := params.Validate()
+	if err != nil {
 		return nil, err
 	}
 
@@ -148,7 +150,8 @@ type mongoDBBackupTask struct {
 
 // NewMongoDBBackupTask create new task for mongo backup.
 func NewMongoDBBackupTask(params *BackupTaskParams) (Task, error) { //nolint:ireturn,nolintlint
-	if err := params.Validate(); err != nil {
+	err := params.Validate()
+	if err != nil {
 		return nil, err
 	}
 

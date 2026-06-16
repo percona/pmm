@@ -951,11 +951,6 @@ telemetry:
       - metric_name: "pxc_cluster_nodes_count"
         value: 1
 
-  # UI Events
-  - id: UIEvents
-    summary: "UI Events"
-    extension: UIEventsExtension
-
   - id: PostgresDBCount
     source: VM
     query: count by (service_id) (pg_stat_database_tup_fetched{service_name!="pmm-server-postgresql", datname!~"template.*|postgres", datid!="0"})
@@ -1055,3 +1050,12 @@ telemetry:
         column: "session_sec"
       - metric_name: "rta_agent_collect_interval"
         column: "collect_interval_sec"
+
+  # legacy promdb usage
+  - id: VMPromDBSeriesReadPerQuery
+    source: VM
+    query: sum(rate(vm_promdb_series_read_per_query_sum[24h])) / sum(rate(vm_promdb_series_read_per_query_count[24h]))
+    summary: "Average number of series read per query against Prometheus-native db on PMM Server for the last 24 hours"
+    data:
+      - metric_name: "vm_promdb_series_read_per_query_avg"
+        value: 1

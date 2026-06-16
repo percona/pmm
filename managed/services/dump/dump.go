@@ -147,28 +147,28 @@ func (s *Service) StartDump(params *Params) (string, error) {
 		"--dump-path="+getDumpFilePath(dump.ID, false))
 
 	if params.Token != "" {
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf(`--pmm-token=%s`, params.Token))
+		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--pmm-token="+params.Token)
 	}
 
 	if params.Cookie != "" {
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf(`--pmm-cookie=%s`, params.Cookie))
+		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--pmm-cookie="+params.Cookie)
 	}
 
 	if params.User != "" {
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf(`--pmm-user=%s`, params.User))
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf(`--pmm-pass=%s`, params.Password))
+		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--pmm-user="+params.User)
+		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--pmm-pass="+params.Password)
 	}
 
 	for _, instance := range instances {
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf("--instance=%s", instance))
+		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--instance="+instance)
 	}
 
 	if params.StartTime != nil {
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf("--start-ts=%s", params.StartTime.Format(time.RFC3339)))
+		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--start-ts="+params.StartTime.Format(time.RFC3339))
 	}
 
 	if params.EndTime != nil {
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf("--end-ts=%s", params.EndTime.Format(time.RFC3339)))
+		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--end-ts="+params.EndTime.Format(time.RFC3339))
 	}
 
 	if params.ExportQAN {
@@ -240,7 +240,8 @@ func (s *Service) DeleteDump(dumpID string) error {
 		return errors.Wrap(err, "failed to remove pmm-dump files")
 	}
 
-	if err = models.DeleteDump(s.db.Querier, dumpID); err != nil {
+	err = models.DeleteDump(s.db.Querier, dumpID)
+	if err != nil {
 		return errors.Wrap(err, "failed to delete dump")
 	}
 
@@ -257,11 +258,12 @@ func (s *Service) GetFilePathsForDumps(dumpIDs []string) (map[string]string, err
 	res := make(map[string]string, len(dumps))
 	for _, d := range dumps {
 		if d.Status != models.DumpStatusSuccess {
-			s.l.Warnf("Dump with id %s is in %s state. Skiping it.", d.ID, d.Status)
+			s.l.Warnf("Dump with id %s is in %s state. Skipping it.", d.ID, d.Status)
 			continue
 		}
 		filePath := getDumpFilePath(d.ID, d.Encrypted)
-		if err = validateFilePath(filePath); err != nil {
+		err = validateFilePath(filePath)
+		if err != nil {
 			return nil, errors.WithStack(err)
 		}
 
@@ -272,10 +274,11 @@ func (s *Service) GetFilePathsForDumps(dumpIDs []string) (map[string]string, err
 }
 
 func (s *Service) setDumpStatus(dumpID string, status models.DumpStatus) {
-	if err := s.db.InTransaction(func(t *reform.TX) error {
+	err := s.db.InTransaction(func(t *reform.TX) error {
 		return models.UpdateDumpStatus(t.Querier, dumpID, status)
-	}); err != nil {
-		s.l.Warnf("Failed to update dupm status: %+v", err)
+	})
+	if err != nil {
+		s.l.Warnf("Failed to update dump status: %+v", err)
 	}
 }
 
@@ -292,7 +295,8 @@ func (s *Service) persistLogs(dumpID string, r io.Reader) error {
 		}
 	}
 
-	if err = scanner.Err(); err != nil {
+	err = scanner.Err()
+	if err != nil {
 		s.l.Warnf("Failed to read pmm-dump logs: %+v", err)
 		nErr := s.saveLogChunk(dumpID, chunkN.Add(1)-1, err.Error(), false)
 		if nErr != nil {
@@ -309,12 +313,13 @@ func (s *Service) persistLogs(dumpID string, r io.Reader) error {
 }
 
 func (s *Service) saveLogChunk(dumpID string, chunkN uint32, text string, last bool) error {
-	if _, err := models.CreateDumpLog(s.db.Querier, models.CreateDumpLogParams{
+	_, err := models.CreateDumpLog(s.db.Querier, models.CreateDumpLogParams{
 		DumpID:    dumpID,
 		ChunkID:   atomic.AddUint32(&chunkN, 1) - 1,
 		Data:      text,
 		LastChunk: last,
-	}); err != nil {
+	})
+	if err != nil {
 		return errors.Wrap(err, "failed to save pmm-dump log chunk")
 	}
 
