@@ -150,7 +150,7 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 
 	if snapshot.Status == "error" { //nolint:goconst
 		j.jobLogger.sendLog(send, snapshot.Error, false)
-		return fmt.Errorf(snapshot.Error+": %w", ErrPBMArtifactProblem)
+		return fmt.Errorf("%s: %w", snapshot.Error, ErrPBMArtifactProblem)
 	}
 
 	defer j.agentsRestarter.RestartAgents()
@@ -233,7 +233,7 @@ func (j *MongoDBRestoreJob) startRestore(ctx context.Context, backupName string)
 					retryCount--
 					continue
 				}
-				return nil, errors.Join(err, fmt.Errorf("pbm restore error: %w", err))
+				return nil, fmt.Errorf("pbm restore error: %w", err)
 			}
 
 			restoreOutput.StartedAt = startTime
