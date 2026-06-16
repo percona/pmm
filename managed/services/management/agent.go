@@ -210,7 +210,7 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 			IsTlsCertificateKeySet:             agent.MongoDBOptions.TLSCertificateKey != "",
 			IsTlsCertificateKeyFilePasswordSet: agent.MongoDBOptions.TLSCertificateKeyFilePassword != "",
 		}
-	case models.MySQLdExporterType, models.QANMySQLSlowlogAgentType, models.QANMySQLPerfSchemaAgentType:
+	case models.MySQLdExporterType, models.QANMySQLSlowlogAgentType, models.QANMySQLPerfSchemaAgentType, models.RTAMySQLAgentType:
 		ua.MysqlOptions = &managementv1.UniversalAgent_MySQLOptions{
 			IsTlsKeySet: agent.MySQLOptions.TLSKey != "",
 		}

@@ -34,6 +34,7 @@ enum AgentType {
   AGENT_TYPE_AZURE_DATABASE_EXPORTER = 15;
   AGENT_TYPE_NOMAD_AGENT = 16;
   AGENT_TYPE_RTA_MONGODB_AGENT = 19;
+  AGENT_TYPE_RTA_MYSQL_AGENT = 20;
 }
 
 // PMMAgent runs on Generic or Container Node.
@@ -574,6 +575,32 @@ message RTAMongoDBAgent {
   LogLevel log_level = 11;
 }
 
+// RTAMySQLAgent runs within pmm-agent and sends MySQL Real-Time Query Analytics data to the PMM Server.
+message RTAMySQLAgent {
+  // Unique agent identifier.
+  string agent_id = 1;
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 2;
+  // Desired Agent status: enabled (false) or disabled (true).
+  bool disabled = 3;
+  // Service identifier.
+  string service_id = 4;
+  // MySQL username for getting the currently running queries.
+  string username = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Use TLS for database connections.
+  bool tls = 6;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 7;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 8;
+  // Real-Time Analytics options.
+  RTAOptions rta_options = 9;
+  // Actual Agent status.
+  AgentStatus status = 10;
+  // Log level for exporter.
+  LogLevel log_level = 11;
+}
+
 // QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
 message QANPostgreSQLPgStatementsAgent {
   // Unique randomly generated instance identifier.
@@ -805,6 +832,7 @@ message ListAgentsResponse {
   repeated NomadAgent nomad_agent = 16;
   repeated ValkeyExporter valkey_exporter = 17;
   repeated RTAMongoDBAgent rta_mongodb_agent = 19;
+  repeated RTAMySQLAgent rta_mysql_agent = 20;
 }
 
 // Get
@@ -835,6 +863,7 @@ message GetAgentResponse {
     NomadAgent nomad_agent = 16;
     ValkeyExporter valkey_exporter = 17;
     RTAMongoDBAgent rta_mongodb_agent = 19;
+    RTAMySQLAgent rta_mysql_agent = 20;
   }
 }
 

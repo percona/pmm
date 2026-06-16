@@ -153,6 +153,60 @@
                           }
                         },
                         "x-order": 8
+                      },
+                      "my_sql_payload": {
+                        "description": "QueryMySQLData holds MySQL-specific Real-Time Analytics query information.\nThe data is sourced from the sys.processlist view.",
+                        "type": "object",
+                        "properties": {
+                          "db_instance_address": {
+                            "description": "MySQL instance address(host:port) that processing the query.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "program_name": {
+                            "description": "Client program name connected to MySQL (program_name from sys.processlist).",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "database_name": {
+                            "description": "Database name (db from sys.processlist).",
+                            "type": "string",
+                            "x-order": 2
+                          },
+                          "command": {
+                            "description": "Command type the connection is executing (\"Query\", \"Execute\", etc).",
+                            "type": "string",
+                            "x-order": 3
+                          },
+                          "state": {
+                            "description": "State of the connection/thread (for example \"Sending data\").",
+                            "type": "string",
+                            "x-order": 4
+                          },
+                          "username": {
+                            "description": "MySQL user name associated with the query.",
+                            "type": "string",
+                            "x-order": 5
+                          },
+                          "rows_examined": {
+                            "description": "Number of rows examined by the statement so far.",
+                            "type": "string",
+                            "format": "int64",
+                            "x-order": 6
+                          },
+                          "rows_sent": {
+                            "description": "Number of rows sent by the statement so far.",
+                            "type": "string",
+                            "format": "int64",
+                            "x-order": 7
+                          },
+                          "full_scan": {
+                            "description": "Indicates whether the statement performed a full table scan.",
+                            "type": "boolean",
+                            "x-order": 8
+                          }
+                        },
+                        "x-order": 9
                       }
                     }
                   },
@@ -296,6 +350,83 @@
                     }
                   },
                   "x-order": 0
+                },
+                "mysql": {
+                  "type": "array",
+                  "items": {
+                    "description": "MySQLService represents a generic MySQL instance.",
+                    "type": "object",
+                    "properties": {
+                      "service_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "service_name": {
+                        "description": "Unique across all Services user-defined name.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "node_id": {
+                        "description": "Node identifier where this instance runs.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "address": {
+                        "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "port": {
+                        "description": "Access port.\nPort is required when the address present.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 4
+                      },
+                      "socket": {
+                        "description": "Access unix socket.\nAddress (and port) or socket is required.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "environment": {
+                        "description": "Environment name.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "cluster": {
+                        "description": "Cluster name.",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "replication_set": {
+                        "description": "Replication set name.",
+                        "type": "string",
+                        "x-order": 8
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 9
+                      },
+                      "version": {
+                        "description": "MySQL version.",
+                        "type": "string",
+                        "x-order": 10
+                      },
+                      "extra_dsn_params": {
+                        "description": "Extra parameters to be added to the DSN.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 11
+                      }
+                    }
+                  },
+                  "x-order": 1
                 }
               }
             }

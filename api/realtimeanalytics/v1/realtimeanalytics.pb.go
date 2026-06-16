@@ -7,19 +7,17 @@
 package realtimeanalyticsv1
 
 import (
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
-
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
+	v1 "github.com/percona/pmm/api/inventory/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-
-	v1 "github.com/percona/pmm/api/inventory/v1"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -133,6 +131,7 @@ func (x *ListServicesRequest) GetServiceType() v1.ServiceType {
 type ListServicesResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Mongodb       []*v1.MongoDBService   `protobuf:"bytes,1,rep,name=mongodb,proto3" json:"mongodb,omitempty"`
+	Mysql         []*v1.MySQLService     `protobuf:"bytes,2,rep,name=mysql,proto3" json:"mysql,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -170,6 +169,13 @@ func (*ListServicesResponse) Descriptor() ([]byte, []int) {
 func (x *ListServicesResponse) GetMongodb() []*v1.MongoDBService {
 	if x != nil {
 		return x.Mongodb
+	}
+	return nil
+}
+
+func (x *ListServicesResponse) GetMysql() []*v1.MySQLService {
+	if x != nil {
+		return x.Mysql
 	}
 	return nil
 }
@@ -638,9 +644,10 @@ const file_realtimeanalytics_v1_realtimeanalytics_proto_rawDesc = "" +
 	"\n" +
 	",realtimeanalytics/v1/realtimeanalytics.proto\x12\x14realtimeanalytics.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1binventory/v1/services.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a realtimeanalytics/v1/query.proto\x1a\x17validate/validate.proto\"S\n" +
 	"\x13ListServicesRequest\x12<\n" +
-	"\fservice_type\x18\x01 \x01(\x0e2\x19.inventory.v1.ServiceTypeR\vserviceType\"N\n" +
+	"\fservice_type\x18\x01 \x01(\x0e2\x19.inventory.v1.ServiceTypeR\vserviceType\"\x80\x01\n" +
 	"\x14ListServicesResponse\x126\n" +
-	"\amongodb\x18\x01 \x03(\v2\x1c.inventory.v1.MongoDBServiceR\amongodb\"\xac\x02\n" +
+	"\amongodb\x18\x01 \x03(\v2\x1c.inventory.v1.MongoDBServiceR\amongodb\x120\n" +
+	"\x05mysql\x18\x02 \x03(\v2\x1a.inventory.v1.MySQLServiceR\x05mysql\"\xac\x02\n" +
 	"\aSession\x12\x1d\n" +
 	"\n" +
 	"service_id\x18\x01 \x01(\tR\tserviceId\x12!\n" +
@@ -695,54 +702,53 @@ func file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP() []byte {
 	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescData
 }
 
-var (
-	file_realtimeanalytics_v1_realtimeanalytics_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes  = make([]protoimpl.MessageInfo, 11)
-	file_realtimeanalytics_v1_realtimeanalytics_proto_goTypes   = []any{
-		SessionStatus(0),              // 0: realtimeanalytics.v1.SessionStatus
-		(*ListServicesRequest)(nil),   // 1: realtimeanalytics.v1.ListServicesRequest
-		(*ListServicesResponse)(nil),  // 2: realtimeanalytics.v1.ListServicesResponse
-		(*Session)(nil),               // 3: realtimeanalytics.v1.Session
-		(*ListSessionsRequest)(nil),   // 4: realtimeanalytics.v1.ListSessionsRequest
-		(*ListSessionsResponse)(nil),  // 5: realtimeanalytics.v1.ListSessionsResponse
-		(*StartSessionRequest)(nil),   // 6: realtimeanalytics.v1.StartSessionRequest
-		(*StartSessionResponse)(nil),  // 7: realtimeanalytics.v1.StartSessionResponse
-		(*StopSessionRequest)(nil),    // 8: realtimeanalytics.v1.StopSessionRequest
-		(*StopSessionResponse)(nil),   // 9: realtimeanalytics.v1.StopSessionResponse
-		(*SearchQueriesRequest)(nil),  // 10: realtimeanalytics.v1.SearchQueriesRequest
-		(*SearchQueriesResponse)(nil), // 11: realtimeanalytics.v1.SearchQueriesResponse
-		v1.ServiceType(0),             // 12: inventory.v1.ServiceType
-		(*v1.MongoDBService)(nil),     // 13: inventory.v1.MongoDBService
-		(*timestamppb.Timestamp)(nil), // 14: google.protobuf.Timestamp
-		(*durationpb.Duration)(nil),   // 15: google.protobuf.Duration
-		(*QueryData)(nil),             // 16: realtimeanalytics.v1.QueryData
-	}
-)
-
+var file_realtimeanalytics_v1_realtimeanalytics_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_realtimeanalytics_v1_realtimeanalytics_proto_goTypes = []any{
+	(SessionStatus)(0),            // 0: realtimeanalytics.v1.SessionStatus
+	(*ListServicesRequest)(nil),   // 1: realtimeanalytics.v1.ListServicesRequest
+	(*ListServicesResponse)(nil),  // 2: realtimeanalytics.v1.ListServicesResponse
+	(*Session)(nil),               // 3: realtimeanalytics.v1.Session
+	(*ListSessionsRequest)(nil),   // 4: realtimeanalytics.v1.ListSessionsRequest
+	(*ListSessionsResponse)(nil),  // 5: realtimeanalytics.v1.ListSessionsResponse
+	(*StartSessionRequest)(nil),   // 6: realtimeanalytics.v1.StartSessionRequest
+	(*StartSessionResponse)(nil),  // 7: realtimeanalytics.v1.StartSessionResponse
+	(*StopSessionRequest)(nil),    // 8: realtimeanalytics.v1.StopSessionRequest
+	(*StopSessionResponse)(nil),   // 9: realtimeanalytics.v1.StopSessionResponse
+	(*SearchQueriesRequest)(nil),  // 10: realtimeanalytics.v1.SearchQueriesRequest
+	(*SearchQueriesResponse)(nil), // 11: realtimeanalytics.v1.SearchQueriesResponse
+	(v1.ServiceType)(0),           // 12: inventory.v1.ServiceType
+	(*v1.MongoDBService)(nil),     // 13: inventory.v1.MongoDBService
+	(*v1.MySQLService)(nil),       // 14: inventory.v1.MySQLService
+	(*timestamppb.Timestamp)(nil), // 15: google.protobuf.Timestamp
+	(*durationpb.Duration)(nil),   // 16: google.protobuf.Duration
+	(*QueryData)(nil),             // 17: realtimeanalytics.v1.QueryData
+}
 var file_realtimeanalytics_v1_realtimeanalytics_proto_depIdxs = []int32{
 	12, // 0: realtimeanalytics.v1.ListServicesRequest.service_type:type_name -> inventory.v1.ServiceType
 	13, // 1: realtimeanalytics.v1.ListServicesResponse.mongodb:type_name -> inventory.v1.MongoDBService
-	14, // 2: realtimeanalytics.v1.Session.start_time:type_name -> google.protobuf.Timestamp
-	15, // 3: realtimeanalytics.v1.Session.collect_interval:type_name -> google.protobuf.Duration
-	0,  // 4: realtimeanalytics.v1.Session.status:type_name -> realtimeanalytics.v1.SessionStatus
-	3,  // 5: realtimeanalytics.v1.ListSessionsResponse.sessions:type_name -> realtimeanalytics.v1.Session
-	3,  // 6: realtimeanalytics.v1.StartSessionResponse.session:type_name -> realtimeanalytics.v1.Session
-	16, // 7: realtimeanalytics.v1.SearchQueriesResponse.queries:type_name -> realtimeanalytics.v1.QueryData
-	1,  // 8: realtimeanalytics.v1.RealtimeAnalyticsService.ListServices:input_type -> realtimeanalytics.v1.ListServicesRequest
-	4,  // 9: realtimeanalytics.v1.RealtimeAnalyticsService.ListSessions:input_type -> realtimeanalytics.v1.ListSessionsRequest
-	6,  // 10: realtimeanalytics.v1.RealtimeAnalyticsService.StartSession:input_type -> realtimeanalytics.v1.StartSessionRequest
-	8,  // 11: realtimeanalytics.v1.RealtimeAnalyticsService.StopSession:input_type -> realtimeanalytics.v1.StopSessionRequest
-	10, // 12: realtimeanalytics.v1.RealtimeAnalyticsService.SearchQueries:input_type -> realtimeanalytics.v1.SearchQueriesRequest
-	2,  // 13: realtimeanalytics.v1.RealtimeAnalyticsService.ListServices:output_type -> realtimeanalytics.v1.ListServicesResponse
-	5,  // 14: realtimeanalytics.v1.RealtimeAnalyticsService.ListSessions:output_type -> realtimeanalytics.v1.ListSessionsResponse
-	7,  // 15: realtimeanalytics.v1.RealtimeAnalyticsService.StartSession:output_type -> realtimeanalytics.v1.StartSessionResponse
-	9,  // 16: realtimeanalytics.v1.RealtimeAnalyticsService.StopSession:output_type -> realtimeanalytics.v1.StopSessionResponse
-	11, // 17: realtimeanalytics.v1.RealtimeAnalyticsService.SearchQueries:output_type -> realtimeanalytics.v1.SearchQueriesResponse
-	13, // [13:18] is the sub-list for method output_type
-	8,  // [8:13] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	14, // 2: realtimeanalytics.v1.ListServicesResponse.mysql:type_name -> inventory.v1.MySQLService
+	15, // 3: realtimeanalytics.v1.Session.start_time:type_name -> google.protobuf.Timestamp
+	16, // 4: realtimeanalytics.v1.Session.collect_interval:type_name -> google.protobuf.Duration
+	0,  // 5: realtimeanalytics.v1.Session.status:type_name -> realtimeanalytics.v1.SessionStatus
+	3,  // 6: realtimeanalytics.v1.ListSessionsResponse.sessions:type_name -> realtimeanalytics.v1.Session
+	3,  // 7: realtimeanalytics.v1.StartSessionResponse.session:type_name -> realtimeanalytics.v1.Session
+	17, // 8: realtimeanalytics.v1.SearchQueriesResponse.queries:type_name -> realtimeanalytics.v1.QueryData
+	1,  // 9: realtimeanalytics.v1.RealtimeAnalyticsService.ListServices:input_type -> realtimeanalytics.v1.ListServicesRequest
+	4,  // 10: realtimeanalytics.v1.RealtimeAnalyticsService.ListSessions:input_type -> realtimeanalytics.v1.ListSessionsRequest
+	6,  // 11: realtimeanalytics.v1.RealtimeAnalyticsService.StartSession:input_type -> realtimeanalytics.v1.StartSessionRequest
+	8,  // 12: realtimeanalytics.v1.RealtimeAnalyticsService.StopSession:input_type -> realtimeanalytics.v1.StopSessionRequest
+	10, // 13: realtimeanalytics.v1.RealtimeAnalyticsService.SearchQueries:input_type -> realtimeanalytics.v1.SearchQueriesRequest
+	2,  // 14: realtimeanalytics.v1.RealtimeAnalyticsService.ListServices:output_type -> realtimeanalytics.v1.ListServicesResponse
+	5,  // 15: realtimeanalytics.v1.RealtimeAnalyticsService.ListSessions:output_type -> realtimeanalytics.v1.ListSessionsResponse
+	7,  // 16: realtimeanalytics.v1.RealtimeAnalyticsService.StartSession:output_type -> realtimeanalytics.v1.StartSessionResponse
+	9,  // 17: realtimeanalytics.v1.RealtimeAnalyticsService.StopSession:output_type -> realtimeanalytics.v1.StopSessionResponse
+	11, // 18: realtimeanalytics.v1.RealtimeAnalyticsService.SearchQueries:output_type -> realtimeanalytics.v1.SearchQueriesResponse
+	14, // [14:19] is the sub-list for method output_type
+	9,  // [9:14] is the sub-list for method input_type
+	9,  // [9:9] is the sub-list for extension type_name
+	9,  // [9:9] is the sub-list for extension extendee
+	0,  // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_realtimeanalytics_v1_realtimeanalytics_proto_init() }

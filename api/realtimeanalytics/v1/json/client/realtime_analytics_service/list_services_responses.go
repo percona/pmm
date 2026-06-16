@@ -101,6 +101,7 @@ func (o *ListServicesOK) GetPayload() *ListServicesOKBody {
 }
 
 func (o *ListServicesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListServicesOKBody)
 
 	// response payload
@@ -174,6 +175,7 @@ func (o *ListServicesDefault) GetPayload() *ListServicesDefaultBody {
 }
 
 func (o *ListServicesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListServicesDefaultBody)
 
 	// response payload
@@ -189,6 +191,7 @@ ListServicesDefaultBody list services default body
 swagger:model ListServicesDefaultBody
 */
 type ListServicesDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -258,7 +261,9 @@ func (o *ListServicesDefaultBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *ListServicesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -278,6 +283,7 @@ func (o *ListServicesDefaultBody) contextValidateDetails(ctx context.Context, fo
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -306,6 +312,7 @@ ListServicesDefaultBodyDetailsItems0 list services default body details items0
 swagger:model ListServicesDefaultBodyDetailsItems0
 */
 type ListServicesDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -317,6 +324,7 @@ type ListServicesDefaultBodyDetailsItems0 struct {
 func (o *ListServicesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -354,6 +362,7 @@ func (o *ListServicesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error 
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o ListServicesDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -417,8 +426,12 @@ ListServicesOKBody list services OK body
 swagger:model ListServicesOKBody
 */
 type ListServicesOKBody struct {
+
 	// mongodb
 	Mongodb []*ListServicesOKBodyMongodbItems0 `json:"mongodb"`
+
+	// mysql
+	Mysql []*ListServicesOKBodyMysqlItems0 `json:"mysql"`
 }
 
 // Validate validates this list services OK body
@@ -426,6 +439,10 @@ func (o *ListServicesOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateMongodb(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMysql(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -465,11 +482,45 @@ func (o *ListServicesOKBody) validateMongodb(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *ListServicesOKBody) validateMysql(formats strfmt.Registry) error {
+	if swag.IsZero(o.Mysql) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Mysql); i++ {
+		if swag.IsZero(o.Mysql[i]) { // not required
+			continue
+		}
+
+		if o.Mysql[i] != nil {
+			if err := o.Mysql[i].Validate(formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("listServicesOk" + "." + "mysql" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("listServicesOk" + "." + "mysql" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
 // ContextValidate validate this list services OK body based on the context it is used
 func (o *ListServicesOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateMongodb(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateMysql(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -480,7 +531,9 @@ func (o *ListServicesOKBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *ListServicesOKBody) contextValidateMongodb(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Mongodb); i++ {
+
 		if o.Mongodb[i] != nil {
 
 			if swag.IsZero(o.Mongodb[i]) { // not required
@@ -500,6 +553,36 @@ func (o *ListServicesOKBody) contextValidateMongodb(ctx context.Context, formats
 				return err
 			}
 		}
+
+	}
+
+	return nil
+}
+
+func (o *ListServicesOKBody) contextValidateMysql(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Mysql); i++ {
+
+		if o.Mysql[i] != nil {
+
+			if swag.IsZero(o.Mysql[i]) { // not required
+				return nil
+			}
+
+			if err := o.Mysql[i].ContextValidate(ctx, formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("listServicesOk" + "." + "mysql" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("listServicesOk" + "." + "mysql" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+
 	}
 
 	return nil
@@ -528,6 +611,7 @@ ListServicesOKBodyMongodbItems0 MongoDBService represents a generic MongoDB inst
 swagger:model ListServicesOKBodyMongodbItems0
 */
 type ListServicesOKBodyMongodbItems0 struct {
+
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -586,6 +670,80 @@ func (o *ListServicesOKBodyMongodbItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ListServicesOKBodyMongodbItems0) UnmarshalBinary(b []byte) error {
 	var res ListServicesOKBodyMongodbItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListServicesOKBodyMysqlItems0 MySQLService represents a generic MySQL instance.
+swagger:model ListServicesOKBodyMysqlItems0
+*/
+type ListServicesOKBodyMysqlItems0 struct {
+
+	// Unique randomly generated instance identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// Unique across all Services user-defined name.
+	ServiceName string `json:"service_name,omitempty"`
+
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Access address (DNS name or IP).
+	// Address (and port) or socket is required.
+	Address string `json:"address,omitempty"`
+
+	// Access port.
+	// Port is required when the address present.
+	Port int64 `json:"port,omitempty"`
+
+	// Access unix socket.
+	// Address (and port) or socket is required.
+	Socket string `json:"socket,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// MySQL version.
+	Version string `json:"version,omitempty"`
+
+	// Extra parameters to be added to the DSN.
+	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
+}
+
+// Validate validates this list services OK body mysql items0
+func (o *ListServicesOKBodyMysqlItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list services OK body mysql items0 based on context it is used
+func (o *ListServicesOKBodyMysqlItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListServicesOKBodyMysqlItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListServicesOKBodyMysqlItems0) UnmarshalBinary(b []byte) error {
+	var res ListServicesOKBodyMysqlItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -1,11 +1,13 @@
 import { CodeBlock } from 'components/code-block';
 import { FC } from 'react';
+import { CodeLanguage } from 'types/util.types';
 
 export interface Props {
   query: string;
+  language?: CodeLanguage;
 }
 
-const QueryCell: FC<Props> = ({ query }) => (
+const QueryCell: FC<Props> = ({ query, language = 'mongodb' }) => (
   <CodeBlock
     code={query
       .replace(/[\n\r\t]/g, '')
@@ -17,7 +19,7 @@ const QueryCell: FC<Props> = ({ query }) => (
         maxHeight: '50px',
       },
     }}
-    language="mongodb"
+    language={language}
   />
 );
 
