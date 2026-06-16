@@ -88,7 +88,7 @@ func (c *Client) RemoveRecursive(ctx context.Context, endpoint, accessKey, secre
 		}
 		for object := range mc.ListObjects(ctx, bucketName, options) {
 			if object.Err != nil {
-				return fmt.Errorf("failed to list objects in bucket %q: %w", bucketName, object.Err)
+				return fmt.Errorf("failed to list objects in bucket %s: %w", bucketName, object.Err)
 			}
 
 			objectsCh <- object
@@ -152,7 +152,7 @@ func (c *Client) List(ctx context.Context, endpoint, accessKey, secretKey, bucke
 
 	for object := range mc.ListObjects(ctx, bucketName, options) {
 		if object.Err != nil {
-			return nil, fmt.Errorf("failed to list objects in bucket %q: %w", bucketName, object.Err)
+			return nil, fmt.Errorf("failed to list objects in bucket %s: %w", bucketName, object.Err)
 		}
 		filename := object.Key
 		filename = strings.TrimPrefix(filename, options.Prefix)

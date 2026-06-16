@@ -42,9 +42,7 @@ func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
 		dur := time.Since(start)
 
 		if p := recover(); p != nil {
-			// Always log with %+v, even before re-panic - there can be inner stacktraces
-			// produced by panic(errors.WithStack(err)).
-			// Also always log debug.Stack() for all panics.
+			// Always log debug.Stack() for all panics.
 			l.Errorf("%s done in %s with panic: %+v\nStack: %s", prefix, dur, p, debug.Stack())
 
 			if l.Logger.GetLevel() == logrus.TraceLevel {
@@ -65,10 +63,8 @@ func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
 				l.Warnf("%s done in %s (quite long).", prefix, dur)
 			}
 		case gRPCError:
-			// %+v for inner stacktraces produced by errors.WithStack(err)
 			l.Warnf("%s done in %s with gRPC error: %+v", prefix, dur, err)
 		default:
-			// %+v for inner stacktraces produced by errors.WithStack(err)
 			l.Errorf("%s done in %s with unexpected error: %+v", prefix, dur, err)
 			err = status.Error(codes.Internal, "Internal server error.")
 		}
