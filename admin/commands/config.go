@@ -76,10 +76,10 @@ func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) ([]string, bool) {
 	res = append(res, fmt.Sprintf("--server-address=%s:%s", globals.ServerURL.Hostname(), port))
 
 	if globals.ServerURL.User != nil {
-		res = append(res, fmt.Sprintf("--server-username=%s", globals.ServerURL.User.Username()))
+		res = append(res, "--server-username="+globals.ServerURL.User.Username())
 		password, ok := globals.ServerURL.User.Password()
 		if ok {
-			res = append(res, fmt.Sprintf("--server-password=%s", password))
+			res = append(res, "--server-password="+password)
 		}
 	}
 
@@ -107,36 +107,36 @@ func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) ([]string, bool) {
 
 	res = append(res, "setup")
 	if cmd.NodeModel != "" {
-		res = append(res, fmt.Sprintf("--node-model=%s", cmd.NodeModel))
+		res = append(res, "--node-model="+cmd.NodeModel)
 	}
 	if cmd.Region != "" {
-		res = append(res, fmt.Sprintf("--region=%s", cmd.Region))
+		res = append(res, "--region="+cmd.Region)
 	}
 	if cmd.Az != "" {
-		res = append(res, fmt.Sprintf("--az=%s", cmd.Az))
+		res = append(res, "--az="+cmd.Az)
 	}
 	if cmd.Force {
 		res = append(res, "--force")
 	}
 
-	if cmd.MetricsModeFlags.MetricsMode != "" {
-		res = append(res, fmt.Sprintf("--metrics-mode=%s", cmd.MetricsModeFlags.MetricsMode))
+	if cmd.MetricsMode != "" {
+		res = append(res, fmt.Sprintf("--metrics-mode=%s", cmd.MetricsMode))
 	}
 
 	if len(cmd.DisableCollectors) != 0 {
-		res = append(res, fmt.Sprintf("--disable-collectors=%s", strings.Join(cmd.DisableCollectors, ",")))
+		res = append(res, "--disable-collectors="+strings.Join(cmd.DisableCollectors, ","))
 	}
 
 	if cmd.CustomLabels != "" {
-		res = append(res, fmt.Sprintf("--custom-labels=%s", cmd.CustomLabels))
+		res = append(res, "--custom-labels="+cmd.CustomLabels)
 	}
 
 	if cmd.BasePath != "" {
-		res = append(res, fmt.Sprintf("--paths-base=%s", cmd.BasePath))
+		res = append(res, "--paths-base="+cmd.BasePath)
 	}
 
 	if cmd.AgentPassword != "" {
-		res = append(res, fmt.Sprintf("--agent-password=%s", cmd.AgentPassword))
+		res = append(res, "--agent-password="+cmd.AgentPassword)
 	}
 
 	res = append(res, cmd.NodeAddress, cmd.NodeType, cmd.NodeName)

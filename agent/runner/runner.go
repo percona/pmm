@@ -110,11 +110,13 @@ func New(totalCapacity, tokenCapacity uint16) *Runner {
 
 // acquire acquires global and local semaphores.
 func (r *Runner) acquire(ctx context.Context, token string) error {
-	if err := r.acquireL(ctx, token); err != nil {
+	err := r.acquireL(ctx, token)
+	if err != nil {
 		return err
 	}
 
-	if err := r.gSem.Acquire(ctx, 1); err != nil {
+	err = r.gSem.Acquire(ctx, 1)
+	if err != nil {
 		r.releaseL(token)
 		return err
 	}
@@ -141,7 +143,8 @@ func (r *Runner) acquireL(ctx context.Context, token string) error {
 		}
 		r.lSemsM.Unlock()
 
-		if err := e.sem.Acquire(ctx, 1); err != nil {
+		err := e.sem.Acquire(ctx, 1)
+		if err != nil {
 			return err
 		}
 		e.count.Add(1)
@@ -284,7 +287,8 @@ func (r *Runner) handleJob(ctx context.Context, job jobs.Job) {
 		defer r.removeCancel(jobID)
 
 		l.Debug("Acquiring tokens for a job.")
-		if err := r.acquire(ctx, token); err != nil {
+		err := r.acquire(ctx, token)
+		if err != nil {
 			l.Errorf("Failed to acquire token for a job: %v", err)
 			r.sendJobsMessage(&agentv1.JobResult{
 				JobId:     job.ID(),
@@ -314,7 +318,7 @@ func (r *Runner) handleJob(ctx context.Context, job jobs.Job) {
 		defer r.removeStarted(jobID)
 		l.Info("Job started.")
 
-		err := job.Run(nCtx, r.sendJobsMessage)
+		err = job.Run(nCtx, r.sendJobsMessage)
 		if err != nil {
 			r.sendJobsMessage(&agentv1.JobResult{
 				JobId:     job.ID(),
@@ -355,7 +359,8 @@ func (r *Runner) handleAction(ctx context.Context, action actions.Action) {
 		defer r.removeCancel(actionID)
 
 		l.Debug("Acquiring tokens for an action.")
-		if err := r.acquire(ctx, instanceID); err != nil {
+		err := r.acquire(ctx, instanceID)
+		if err != nil {
 			l.Errorf("Failed to acquire token for an action: %v", err)
 			r.sendActionsMessage(&agentv1.ActionResultRequest{
 				ActionId: actionID,

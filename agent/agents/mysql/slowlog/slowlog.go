@@ -181,7 +181,8 @@ func (s *SlowLog) recheck(ctx context.Context) *slowLogInfo {
 
 	var grants string
 	row := db.QueryRowContext(ctx, "SHOW GRANTS")
-	if err := row.Scan(&grants); err != nil {
+	err = row.Scan(&grants)
+	if err != nil {
 		s.l.Errorf("Cannot scan db user privileges: %s", err)
 		return nil
 	}
@@ -191,7 +192,8 @@ func (s *SlowLog) recheck(ctx context.Context) *slowLogInfo {
 		return nil
 	}
 
-	if newInfo, err = s.getSlowLogInfo(ctx); err != nil {
+	newInfo, err = s.getSlowLogInfo(ctx)
+	if err != nil {
 		s.l.Error(err)
 		return nil
 	}
@@ -211,7 +213,8 @@ func (s *SlowLog) recheck(ctx context.Context) *slowLogInfo {
 	}
 	if size := fi.Size(); size > maxSize {
 		s.l.Infof("Rotating slowlog file: %d > %d.", size, maxSize)
-		if err = s.rotateSlowLog(ctx, newInfo.path); err != nil {
+		err = s.rotateSlowLog(ctx, newInfo.path)
+		if err != nil {
 			s.l.Error(err)
 		}
 	}
@@ -230,7 +233,8 @@ func (s *SlowLog) getSlowLogInfo(ctx context.Context) (*slowLogInfo, error) {
 	selectQuery := fmt.Sprintf("SELECT /* %s */ ", queryTag)
 	var path string
 	row := db.QueryRowContext(ctx, selectQuery+"@@slow_query_log_file")
-	if err := row.Scan(&path); err != nil {
+	err = row.Scan(&path)
+	if err != nil {
 		return nil, errors.Wrap(err, "cannot select @@slow_query_log_file")
 	}
 	if path == "" {
@@ -242,7 +246,8 @@ func (s *SlowLog) getSlowLogInfo(ctx context.Context) (*slowLogInfo, error) {
 	if !filepath.IsAbs(path) {
 		var dataDir string
 		row = db.QueryRowContext(ctx, selectQuery+"@@datadir")
-		if err := row.Scan(&dataDir); err != nil {
+		err = row.Scan(&dataDir)
+		if err != nil {
 			return nil, errors.Wrap(err, "cannot select @@datadir")
 		}
 		path = filepath.Join(dataDir, path)
@@ -254,7 +259,8 @@ func (s *SlowLog) getSlowLogInfo(ctx context.Context) (*slowLogInfo, error) {
 	// warn about disabled slowlog
 	var enabled int
 	row = db.QueryRowContext(ctx, selectQuery+"@@slow_query_log")
-	if err := row.Scan(&enabled); err != nil {
+	err = row.Scan(&enabled)
+	if err != nil {
 		s.l.Warnf("Cannot SELECT @@slow_query_log: %s.", err)
 	}
 	if enabled != 1 {
@@ -264,7 +270,8 @@ func (s *SlowLog) getSlowLogInfo(ctx context.Context) (*slowLogInfo, error) {
 	// slow_query_log_always_write_time is Percona-specific, use debug level, not warning
 	var outlierTime float64
 	row = db.QueryRowContext(ctx, selectQuery+"@@slow_query_log_always_write_time")
-	if err := row.Scan(&outlierTime); err != nil {
+	err = row.Scan(&outlierTime)
+	if err != nil {
 		s.l.Debugf("Cannot SELECT @@slow_query_log_always_write_time: %s.", err)
 	}
 
@@ -283,7 +290,8 @@ func (s *SlowLog) rotateSlowLog(ctx context.Context, slowLogPath string) error {
 	defer db.Close() //nolint:errcheck
 
 	old := slowLogPath + ".old"
-	if err = os.Remove(old); err != nil && !os.IsNotExist(err) {
+	err = os.Remove(old)
+	if err != nil && !os.IsNotExist(err) {
 		s.l.Warnf("Cannot remove previous old slowlog file: %s.", err)
 	}
 
@@ -292,7 +300,8 @@ func (s *SlowLog) rotateSlowLog(ctx context.Context, slowLogPath string) error {
 	// This problem is especially bad with MySQL in Docker - it locks completely even on small files.
 	//
 	// Reader will continue to read old file from open file descriptor until EOF.
-	if err = os.Rename(slowLogPath, old); err != nil {
+	err = os.Rename(slowLogPath, old)
+	if err != nil {
 		return errors.Wrap(err, "cannot rename old slowlog file")
 	}
 
@@ -338,7 +347,8 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 				continue
 			}
 
-			if err := parser.Err(); !errors.Is(err, io.EOF) {
+			err := parser.Err()
+			if !errors.Is(err, io.EOF) {
 				s.l.Warnf("Parser error: %v.", err)
 			}
 			close(events)

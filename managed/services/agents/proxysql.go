@@ -16,7 +16,6 @@
 package agents
 
 import (
-	"fmt"
 	"sort"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
@@ -70,8 +69,8 @@ func proxysqlExporterConfig(node *models.Node, service *models.Service, exporter
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
 		Env: []string{
-			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, models.DSNParams{DialTimeout: exporter.EffectiveDialTimeout(), Database: ""}, nil, pmmAgentVersion)),
-			fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.GetAgentPassword()),
+			"DATA_SOURCE_NAME=" + exporter.DSN(service, models.DSNParams{DialTimeout: exporter.EffectiveDialTimeout(), Database: ""}, nil, pmmAgentVersion),
+			"HTTP_AUTH=pmm:" + exporter.GetAgentPassword(),
 		},
 	}
 	if redactMode != exposeSecrets {

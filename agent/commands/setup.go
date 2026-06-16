@@ -16,12 +16,12 @@
 package commands
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 
@@ -65,7 +65,8 @@ func Setup() {
 		os.Exit(1)
 	}
 
-	if err := config.IsWritable(configFilepath); err != nil {
+	err = config.IsWritable(configFilepath)
+	if err != nil {
 		fmt.Printf("Config file %s is not writable: %v.\n", configFilepath, err)
 		os.Exit(1)
 	}
@@ -76,7 +77,8 @@ func Setup() {
 
 	cfg.ProcMountsPath = cfg.Setup.ProcMountsPath
 
-	if err = config.SaveToFile(configFilepath, cfg, "Updated by `pmm-agent setup`."); err != nil {
+	err = config.SaveToFile(configFilepath, cfg, "Updated by `pmm-agent setup`.")
+	if err != nil {
 		fmt.Printf("Failed to write configuration file %s: %s.\n", configFilepath, err)
 		os.Exit(1)
 	}
@@ -144,7 +146,8 @@ func register(cfg *config.Config, l *logrus.Entry) {
 	l.Debugf("Register error: %#v", err)
 	if err != nil {
 		msg := err.Error()
-		if e, _ := err.(*mservice.RegisterNodeDefault); e != nil { //nolint:errorlint
+		e, ok := errors.AsType[*mservice.RegisterNodeDefault](err)
+		if ok {
 			msg = e.Payload.Message + ""
 			switch e.Code() {
 			case http.StatusConflict:
@@ -176,8 +179,9 @@ func reload(l *logrus.Entry) {
 	// sync error handling with Reload API method
 	err := localReload()
 	l.Debugf("Reload error: %#v", err)
-	if err, _ := err.(*agent_local.ReloadDefault); err != nil && err.Code() == int(codes.FailedPrecondition) { //nolint:errorlint
-		fmt.Printf("Failed to reload configuration: %s.\n", err.Payload.Message)
+	reloadErr, ok := errors.AsType[*agent_local.ReloadDefault](err)
+	if ok && reloadErr.Code() == int(codes.FailedPrecondition) {
+		fmt.Printf("Failed to reload configuration: %s.\n", reloadErr.Payload.Message)
 		os.Exit(1)
 	}
 

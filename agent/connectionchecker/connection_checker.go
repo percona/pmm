@@ -108,7 +108,13 @@ func (cc *ConnectionChecker) sqlPing(ctx context.Context, db *sql.DB) error {
 	return err
 }
 
-func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn string, files *agentv1.TextFiles, tlsSkipVerify bool, id uint32) *agentv1.CheckConnectionResponse { //nolint:lll
+func (cc *ConnectionChecker) checkMySQLConnection(
+	ctx context.Context,
+	dsn string,
+	files *agentv1.TextFiles,
+	tlsSkipVerify bool,
+	id uint32,
+) *agentv1.CheckConnectionResponse {
 	var res agentv1.CheckConnectionResponse
 	var err error
 
@@ -147,7 +153,8 @@ func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn strin
 	db := sql.OpenDB(connector)
 	defer db.Close() //nolint:errcheck
 
-	if err = cc.sqlPing(ctx, db); err != nil {
+	err = cc.sqlPing(ctx, db)
+	if err != nil {
 		if errors.As(err, &x509.HostnameError{}) {
 			res.Error = errors.Wrap(err,
 				"mysql ssl certificate is misconfigured, make sure the certificate includes the requested hostname/IP in CN or subjectAltName fields").Error()
@@ -189,7 +196,8 @@ func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn str
 	}
 	defer client.Disconnect(ctx) //nolint:errcheck
 
-	if err = client.Ping(ctx, nil); err != nil {
+	err = client.Ping(ctx, nil)
+	if err != nil {
 		cc.l.Debugf("checkMongoDBConnection: failed to Ping: %s", err)
 		res.Error = err.Error()
 		return &res
@@ -221,7 +229,8 @@ func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn str
 
 	if !serverInfo.ArbiterOnly {
 		resp := client.Database("admin").RunCommand(ctx, bson.D{{Key: "getDiagnosticData", Value: 1}})
-		if err = resp.Err(); err != nil {
+		err = resp.Err()
+		if err != nil {
 			cc.l.Debugf("checkMongoDBConnection: failed to runCommand getDiagnosticData: %s", err)
 			res.Error = err.Error()
 			return &res
@@ -252,7 +261,8 @@ func (cc *ConnectionChecker) checkPostgreSQLConnection(ctx context.Context, dsn 
 	db := sql.OpenDB(c)
 	defer db.Close() //nolint:errcheck
 
-	if err = cc.sqlPing(ctx, db); err != nil {
+	err = cc.sqlPing(ctx, db)
+	if err != nil {
 		res.Error = err.Error()
 	}
 
@@ -313,7 +323,8 @@ func (cc *ConnectionChecker) checkProxySQLConnection(ctx context.Context, dsn st
 	db := sql.OpenDB(connector)
 	defer db.Close() //nolint:errcheck
 
-	if err = cc.sqlPing(ctx, db); err != nil {
+	err = cc.sqlPing(ctx, db)
+	if err != nil {
 		res.Error = err.Error()
 	}
 

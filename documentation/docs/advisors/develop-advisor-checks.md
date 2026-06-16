@@ -230,7 +230,7 @@ To develop custom checks for PMM:
 
 3. Log into Grafana with credentials **admin/admin**.
 
-4. Go to **PMM Configuration > Settings > Advanced Settings** and make sure the **Advisors** option is enabled.
+4. Go to **Configuration > Settings > Advanced settings** and make sure the **Advisors** option is enabled.
 
 5. Create `/srv/custom-checks.yml` inside the `pmm-server` container with the content of your check. Specify **dev** advisor in your check.
 

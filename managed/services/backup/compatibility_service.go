@@ -159,8 +159,9 @@ func (s *CompatibilityService) CheckSoftwareCompatibilityForService(ctx context.
 	}
 
 	if serviceModel.ServiceType == models.MongoDBServiceType {
-		if err := models.PMMAgentSupported(s.db.Querier, agentModel.AgentID, "get mongodb backup software versions",
-			pmmAgentMinVersionForMongoBackupSoftwareCheck); err != nil {
+		err := models.PMMAgentSupported(s.db.Querier, agentModel.AgentID, "get mongodb backup software versions",
+			pmmAgentMinVersionForMongoBackupSoftwareCheck)
+		if err != nil {
 			var agentNotSupportedError models.AgentNotSupportedError
 			if errors.As(err, &agentNotSupportedError) {
 				s.l.Warnf("Got versioner error message: %s.", err.Error())
@@ -179,7 +180,7 @@ func (s *CompatibilityService) FindArtifactCompatibleServices(
 	artifactID string,
 ) ([]*models.Service, error) {
 	var compatibleServices []*models.Service
-	if err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+	err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		artifactModel, err := models.FindArtifactByID(tx.Querier, artifactID)
 		if err != nil {
 			return err
@@ -224,7 +225,8 @@ func (s *CompatibilityService) FindArtifactCompatibleServices(
 		}
 
 		return nil
-	}); err != nil {
+	})
+	if err != nil {
 		return nil, err
 	}
 

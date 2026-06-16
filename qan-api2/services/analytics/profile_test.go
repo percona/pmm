@@ -549,7 +549,7 @@ func TestService_GetReport_AllLabels(t *testing.T) {
 	}
 
 	genDimensionvalues := func(dimKey string, amount int) []string {
-		arr := []string{}
+		arr := make([]string, 0, amount)
 		for i := range amount {
 			arr = append(arr, fmt.Sprintf("%s%d", dimKey, i))
 		}
