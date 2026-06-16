@@ -652,7 +652,7 @@
             "type": "stat"
         },
         {
-            "description": "Total logical data size (data + indexes) over time on the replica set primary.",
+            "description": "Plots the total size of data and indexes on the replica set primary over the selected time range. Use this to spot growth trends and plan capacity.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
