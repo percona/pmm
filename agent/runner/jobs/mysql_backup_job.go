@@ -251,7 +251,7 @@ func (j *MySQLBackupJob) backup(ctx context.Context) (rerr error) {
 		if err != nil {
 			cancel()
 			if rerr != nil {
-				rerr = fmt.Errorf("xbcloud wait error=%w: %w", err, rerr)
+				rerr = fmt.Errorf("xbcloud wait error=%v: %w", err, rerr)
 			} else {
 				rerr = wrapError(err)
 			}
