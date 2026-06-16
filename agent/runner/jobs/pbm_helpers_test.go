@@ -406,7 +406,7 @@ func TestPollDescribeOnce(t *testing.T) {
 		assert.False(t, done)
 	})
 
-	t.Run("running backup retries describe command", func(t *testing.T) {
+	t.Run("running backup does not consume retries", func(t *testing.T) {
 		t.Parallel()
 		cfg := newTestPoller(t, func(c *describePoller) {
 			c.startedAt = time.Now().Add(-describeStartupGrace)
@@ -424,7 +424,7 @@ func TestPollDescribeOnce(t *testing.T) {
 		done, err := pollDescribeOnce(context.Background(), cfg)
 		require.NoError(t, err)
 		assert.False(t, done)
-		assert.Equal(t, maxDescribeRetries-1, cfg.retries)
+		assert.Equal(t, maxDescribeRetries, cfg.retries)
 	})
 
 	t.Run("snapshot done when describe fails", func(t *testing.T) {

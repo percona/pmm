@@ -361,7 +361,7 @@ func pollDescribeOnce(ctx context.Context, cfg *describePoller) (bool, error) {
 
 	if running {
 		cfg.warnRunningDescribe(describeErr)
-		cfg.retryDescribeErr(describeErr, true)
+		cfg.logRunningDescribeErr(describeErr)
 		return false, nil
 	}
 
@@ -369,7 +369,7 @@ func pollDescribeOnce(ctx context.Context, cfg *describePoller) (bool, error) {
 		return true, err
 	}
 
-	if cfg.retryDescribeErr(describeErr, false) {
+	if cfg.retryDescribeErr(describeErr) {
 		return false, nil
 	}
 
@@ -416,15 +416,20 @@ func (cfg *describePoller) lastWarnAt() time.Time {
 	return cfg.startedAt
 }
 
-func (cfg *describePoller) retryDescribeErr(describeErr error, running bool) bool {
-	if retryTransient(describeErr, cfg, running) {
-		if running {
-			cfg.l.Debugf("%s transient error while %s %q is still running: %v",
-				cfg.describeCmd(), cfg.operation, cfg.name, describeErr)
-		} else {
-			cfg.l.Debugf("%s transient error while waiting for %s %q completion metadata: %v",
-				cfg.describeCmd(), cfg.operation, cfg.name, describeErr)
-		}
+func (cfg *describePoller) logRunningDescribeErr(describeErr error) {
+	if retryTransient(describeErr, cfg, true) {
+		cfg.l.Debugf("%s transient error while %s %q is still running: %v",
+			cfg.describeCmd(), cfg.operation, cfg.name, describeErr)
+		return
+	}
+	cfg.l.Debugf("%s error while %s %q is still running: %v",
+		cfg.describeCmd(), cfg.operation, cfg.name, describeErr)
+}
+
+func (cfg *describePoller) retryDescribeErr(describeErr error) bool {
+	if retryTransient(describeErr, cfg, false) {
+		cfg.l.Debugf("%s transient error while waiting for %s %q completion metadata: %v",
+			cfg.describeCmd(), cfg.operation, cfg.name, describeErr)
 		return true
 	}
 	return cfg.retryDescribeCmd(describeErr)
