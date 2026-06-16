@@ -37,6 +37,7 @@ export default [
       "@emotion/react",
       "@emotion/styled",
       "react-hook-form",
+      "prism-react-renderer",
     ],
   },
   {
