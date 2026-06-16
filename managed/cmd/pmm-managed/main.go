@@ -192,7 +192,8 @@ func addLogsHandler(mux *http.ServeMux, logs *server.Logs) {
 		rw.Header().Set(`Content-Disposition`, `attachment; filename="`+filename+`"`)
 
 		ctx = logger.Set(ctx, "logs")
-		if err := logs.Zip(ctx, rw, pprofConfig, int(lineCount)); err != nil {
+		err = logs.Zip(ctx, rw, pprofConfig, int(lineCount))
+		if err != nil {
 			l.Errorf("%+v", err)
 		}
 	})
@@ -453,7 +454,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 
 	<-ctx.Done()
 	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
-	if err := server.Shutdown(ctx); err != nil { //nolint:contextcheck
+	err = server.Shutdown(ctx)
+	if err != nil {
 		l.Errorf("Failed to shutdown gracefully: %s", err)
 	}
 	cancel()
@@ -515,7 +517,8 @@ func runDebugServer(ctx context.Context) {
 
 	<-ctx.Done()
 	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
-	if err := server.Shutdown(ctx); err != nil { //nolint:contextcheck
+	err = server.Shutdown(ctx) //nolint:contextcheck
+	if err != nil {
 		l.Errorf("Failed to shutdown gracefully: %s", err)
 	}
 	cancel()
@@ -564,14 +567,16 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 	}
 
 	deps.l.Infof("Checking VictoriaMetrics...")
-	if err = deps.vmdb.IsReady(ctx); err != nil {
+	err = deps.vmdb.IsReady(ctx)
+	if err != nil {
 		deps.l.Warnf("Failed to check VictoriaMetrics readiness: %+v.", err)
 		return false
 	}
 	deps.vmdb.RequestConfigurationUpdate()
 
 	deps.l.Infof("Checking VMAlert...")
-	if err = deps.vmalert.IsReady(ctx); err != nil {
+	err = deps.vmalert.IsReady(ctx)
+	if err != nil {
 		deps.l.Warnf("VMAlert problem: %+v.", err)
 		return false
 	}
@@ -801,7 +806,8 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	haService := ha.New(haParams)
 
 	cfg := config.NewService()
-	if err := cfg.Load(); err != nil {
+	err := cfg.Load()
+	if err != nil {
 		l.Panicf("Failed to load config: %+v", err)
 	}
 	// in order to reproduce postgres behaviour.

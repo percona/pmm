@@ -525,13 +525,13 @@ LOOP:
 
 func (c *Client) handleStartActionRequest(p *agentv1.StartActionRequest) error {
 	timeout := p.Timeout.AsDuration()
-	if err := p.Timeout.CheckValid(); err != nil {
+	err := p.Timeout.CheckValid()
+	if err != nil {
 		timeout = 0
 	}
 
 	cfg := c.cfg.Get()
 	var action actions.Action
-	var err error
 	switch params := p.Params.(type) {
 	case *agentv1.StartActionRequest_MysqlExplainParams:
 		action, err = actions.NewMySQLExplainAction(p.ActionId, timeout, params.MysqlExplainParams)

@@ -79,7 +79,8 @@ func DeleteRole(tx *reform.TX, roleID, replacementRoleID int) error {
 	q := tx.Querier
 
 	var role Role
-	if err := findRole(tx, roleID, &role); err != nil {
+	err := findRole(tx, roleID, &role)
+	if err != nil {
 		return err
 	}
 
@@ -93,11 +94,13 @@ func DeleteRole(tx *reform.TX, roleID, replacementRoleID int) error {
 		return ErrRoleIsDefaultRole
 	}
 
-	if err := replaceRole(tx, roleID, replacementRoleID); err != nil {
+	err = replaceRole(tx, roleID, replacementRoleID)
+	if err != nil {
 		return err
 	}
 
-	if err := q.Delete(&role); err != nil {
+	err = q.Delete(&role)
+	if err != nil {
 		if errors.Is(err, reform.ErrNoRows) {
 			return ErrRoleNotFound
 		}
@@ -117,7 +120,8 @@ func replaceRole(tx *reform.TX, roleID, newRoleID int) error {
 		return err
 	}
 
-	if err := findRole(tx, newRoleID, &Role{}); err != nil {
+	err := findRole(tx, newRoleID, &Role{})
+	if err != nil {
 		return err
 	}
 
@@ -190,14 +194,15 @@ func findRole(tx *reform.TX, roleID int, role *Role) error {
 // ChangeDefaultRole changes default role in the settings.
 func ChangeDefaultRole(tx *reform.TX, roleID int) error {
 	var role Role
-	if err := findRole(tx, roleID, &role); err != nil {
+	err := findRole(tx, roleID, &role)
+	if err != nil {
 		return err
 	}
 
 	var p ChangeSettingsParams
 	p.DefaultRoleID = &roleID
 
-	_, err := UpdateSettings(tx, &p)
+	_, err = UpdateSettings(tx, &p)
 
 	return err
 }
@@ -225,7 +230,7 @@ func GetUserRoles(q *reform.Querier, userID int) ([]Role, error) {
 	roles := []Role{}
 	for rows.Next() {
 		var role Role
-		err := rows.Scan(role.Pointers()...)
+		err = rows.Scan(role.Pointers()...)
 		if err != nil {
 			return nil, err
 		}
@@ -233,7 +238,8 @@ func GetUserRoles(q *reform.Querier, userID int) ([]Role, error) {
 		roles = append(roles, role)
 	}
 
-	if err := rows.Err(); err != nil {
+	err = rows.Err()
+	if err != nil {
 		return nil, err
 	}
 

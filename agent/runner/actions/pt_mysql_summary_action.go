@@ -100,7 +100,7 @@ func (a *ptMySQLSummaryAction) Run(ctx context.Context) ([]byte, error) {
 	tmpFile.Close() //nolint:errcheck
 
 	cmd := exec.CommandContext(ctx, a.command, "--defaults-file="+tmpFile.Name()) //nolint:gosec
-	cmd.Env = []string{fmt.Sprintf("PATH=%s", os.Getenv("PATH"))}
+	cmd.Env = []string{"PATH=" + os.Getenv("PATH")}
 	cmd.Dir = "/"
 	pdeathsig.Set(cmd, unix.SIGKILL)
 
@@ -121,7 +121,8 @@ func (a *ptMySQLSummaryAction) buildMyCnfConfig() (string, error) {
 		return "[client]\n", nil
 	}
 
-	if err := checkArgs(a.params.Host, a.params.Socket, a.params.Username, a.params.Password); err != nil {
+	err := checkArgs(a.params.Host, a.params.Socket, a.params.Username, a.params.Password)
+	if err != nil {
 		return "", fmt.Errorf("invalid parameters: %w", err)
 	}
 
@@ -158,7 +159,8 @@ func (a *ptMySQLSummaryAction) buildMyCnfConfig() (string, error) {
 		myCnfParams.Password = a.params.Password
 	}
 
-	if err = tmpl.Execute(&myCnfBuffer, myCnfParams); err != nil {
+	err = tmpl.Execute(&myCnfBuffer, myCnfParams)
+	if err != nil {
 		return "", fmt.Errorf("failed to execute myCnf template: %w", err)
 	}
 

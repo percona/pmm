@@ -105,7 +105,8 @@ func (a *mongodbQueryAdmincommandAction) Run(ctx context.Context) ([]byte, error
 	res := client.Database("admin").RunCommand(ctx, runCommand)
 
 	var doc map[string]any
-	if err = res.Decode(&doc); err != nil {
+	err = res.Decode(&doc)
+	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 

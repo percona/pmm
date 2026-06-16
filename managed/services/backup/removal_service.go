@@ -92,7 +92,8 @@ func (s *RemovalService) DeleteArtifact(storage Storage, artifactID string, remo
 			return
 		}
 
-		if err = s.deleteArtifactFiles(context.Background(), storage, location, artifact, len(artifact.MetadataList)); err != nil {
+		err = s.deleteArtifactFiles(context.Background(), storage, location, artifact, len(artifact.MetadataList))
+		if err != nil {
 			s.l.WithError(err).Error("couldn't delete artifact files")
 			return
 		}
@@ -150,22 +151,26 @@ func (s *RemovalService) TrimPITRArtifact(storage Storage, artifactID string, fi
 			return
 		}
 
-		if err = s.deleteArtifactFiles(context.Background(), storage, location, artifact, firstN); err != nil {
+		err = s.deleteArtifactFiles(context.Background(), storage, location, artifact, firstN)
+		if err != nil {
 			s.l.WithError(err).Error("couldn't delete artifact files")
 			return
 		}
 
-		if err = artifact.MetadataRemoveFirstN(s.db.Querier, uint32(firstN)); err != nil {
+		err = artifact.MetadataRemoveFirstN(s.db.Querier, uint32(firstN)) //nolint:gosec
+		if err != nil {
 			s.l.WithError(err).Error("couldn't delete artifact metadata")
 			return
 		}
 
-		if err = s.deleteArtifactPITRChunks(context.Background(), storage, location, artifact, artifact.MetadataList[0].RestoreTo); err != nil {
+		err = s.deleteArtifactPITRChunks(context.Background(), storage, location, artifact, artifact.MetadataList[0].RestoreTo)
+		if err != nil {
 			s.l.WithError(err).Error("couldn't delete artifact PITR chunks")
 			return
 		}
 
-		if err = s.releaseArtifact(artifactID, oldStatus); err != nil {
+		err = s.releaseArtifact(artifactID, oldStatus)
+		if err != nil {
 			s.l.WithError(err).Errorf("couldn't unlock artifact %q", artifactID)
 			return
 		}
