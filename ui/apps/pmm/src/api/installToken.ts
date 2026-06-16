@@ -38,6 +38,14 @@ interface GrafanaTokenResponse {
   key: string;
 }
 
+interface GrafanaServiceAccountToken {
+  id: number;
+  name: string;
+  expiration: string | null;
+  secondsUntilExpiration: number;
+  hasExpired?: boolean;
+}
+
 const randomTokenSuffix = (): string => {
   if (typeof crypto?.randomUUID === 'function') {
     return crypto.randomUUID();
@@ -85,6 +93,8 @@ export async function createNodeInstallToken(
     saId = await createServiceAccount(saName);
   }
 
+  await deleteExpiredTokens(saId);
+
   // UUID-suffixed token name keeps concurrent calls from colliding on Grafana's
   // per-SA unique-name constraint (Grafana returns 409 otherwise).
   const tokenName = `${TOKEN_NAME_PREFIX}-${technology}-${randomTokenSuffix()}`;
@@ -103,6 +113,40 @@ async function findServiceAccountIdByName(name: string): Promise<number | null> 
   );
   const match = res.data.serviceAccounts?.find((sa) => sa.name === name);
   return match ? match.id : null;
+}
+
+function isExpiredInstallToken(token: GrafanaServiceAccountToken): boolean {
+  if (!token.name.startsWith(`${TOKEN_NAME_PREFIX}-`)) {
+    return false;
+  }
+
+  if (token.hasExpired) {
+    return true;
+  }
+
+  return token.expiration != null && token.secondsUntilExpiration <= 0;
+}
+
+async function deleteExpiredTokens(serviceAccountId: number): Promise<void> {
+  let tokens: GrafanaServiceAccountToken[];
+  try {
+    const res = await grafanaApi.get<GrafanaServiceAccountToken[]>(
+      `/serviceaccounts/${serviceAccountId}/tokens`
+    );
+    tokens = res.data;
+  } catch {
+    // Housekeeping only — don't block minting if Grafana won't list tokens.
+    return;
+  }
+
+  const expired = tokens.filter(isExpiredInstallToken);
+  await Promise.allSettled(
+    expired.map((token) =>
+      grafanaApi.delete(
+        `/serviceaccounts/${serviceAccountId}/tokens/${token.id}`
+      )
+    )
+  );
 }
 
 async function createServiceAccount(name: string): Promise<number> {
