@@ -64,9 +64,7 @@ export function useNavigableRows<T extends Record<string, any>>({
       return data;
     }
     const rowModel =
-      scope === 'currentPage'
-        ? table.getRowModel()
-        : table.getPrePaginationRowModel();
+      scope === 'currentPage' ? table.getRowModel() : table.getPrePaginationRowModel();
     return rowModel.rows.map((row) => row.original);
   }, [data, scope]);
 
@@ -87,12 +85,9 @@ export function useNavigableRows<T extends Record<string, any>>({
   const tableProps: UseNavigableRowsTableProps<T> = {
     tableInstanceRef,
     state: { columnFilters, globalFilter, sorting },
-    onColumnFiltersChange: (updater) =>
-      setColumnFilters((prev) => resolveUpdater(updater, prev)),
-    onGlobalFilterChange: (updater) =>
-      setGlobalFilter((prev) => resolveUpdater(updater, prev)),
-    onSortingChange: (updater) =>
-      setSorting((prev) => resolveUpdater(updater, prev)),
+    onColumnFiltersChange: (updater) => setColumnFilters((prev) => resolveUpdater(updater, prev)),
+    onGlobalFilterChange: (updater) => setGlobalFilter((prev) => resolveUpdater(updater, prev)),
+    onSortingChange: (updater) => setSorting((prev) => resolveUpdater(updater, prev)),
   };
 
   return { navigableRows, tableProps, refresh };

@@ -23,9 +23,7 @@ export function useDetailsPaneNavigation<T extends Record<string, any>>({
   getRowId,
   onSelect,
 }: UseDetailsPaneNavigationOptions<T>): UseDetailsPaneNavigationResult {
-  const index = selected
-    ? rows.findIndex((row) => getRowId(row) === getRowId(selected))
-    : -1;
+  const index = selected ? rows.findIndex((row) => getRowId(row) === getRowId(selected)) : -1;
 
   const hasPrevious = index > 0;
   const hasNext = index >= 0 && index < rows.length - 1;
