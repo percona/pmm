@@ -96,7 +96,7 @@ func NewMySQLBackupTask(params *BackupTaskParams) (Task, error) { //nolint:iretu
 	}
 
 	if params.DataModel != models.PhysicalDataModel {
-		return nil, fmt.Errorf("unsupported backup data model for mySQL: %s", params.DataModel)
+		return nil, fmt.Errorf("unsupported backup data model for MySQL: %s", params.DataModel)
 	}
 
 	return &mySQLBackupTask{
