@@ -458,7 +458,7 @@ func (s *Server) writeUpdateAuthToken(token string) error {
 
 	err = json.NewEncoder(f).Encode(a) //nolint:gosec
 	if err != nil {
-		return fmt.Errorf("failed to encode auth token to json: %w", err)
+		return fmt.Errorf("failed to encode auth token to JSON: %w", err)
 	}
 	return nil
 }
