@@ -26,7 +26,7 @@ import (
 func TestValidation(t *testing.T) {
 	t.Parallel()
 
-	t.Run("mySQL task", func(t *testing.T) {
+	t.Run("MySQL task", func(t *testing.T) {
 		t.Parallel()
 
 		tests := []struct {
