@@ -288,7 +288,7 @@ func TestValidation(t *testing.T) {
 					DataModel:  models.LogicalDataModel,
 					Mode:       models.Incremental,
 				},
-				errMsg: "unsupported backup mode for mongoDB: incremental",
+				errMsg: "unsupported backup mode for MongoDB: incremental",
 			},
 			{
 				name: "no error on physical snapshot backups",
