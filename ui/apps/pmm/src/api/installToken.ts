@@ -38,6 +38,25 @@ interface GrafanaTokenResponse {
   key: string;
 }
 
+const randomTokenSuffix = (): string => {
+  if (typeof crypto?.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+
+  if (typeof crypto?.getRandomValues === 'function') {
+    const bytes = new Uint8Array(16);
+    crypto.getRandomValues(bytes);
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    const hex = [...bytes].map((b) => b.toString(16).padStart(2, '0')).join('');
+    return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+  }
+
+  // Unlikely: both APIs are unavailable outside a secure context. Collision
+  // resistance only needs to be good enough for Grafana token-name uniqueness.
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+}
+
 /**
  * Mints a short-lived Grafana service-account token for a PMM Client install command.
  *
@@ -68,7 +87,7 @@ export async function createNodeInstallToken(
 
   // UUID-suffixed token name keeps concurrent calls from colliding on Grafana's
   // per-SA unique-name constraint (Grafana returns 409 otherwise).
-  const tokenName = `${TOKEN_NAME_PREFIX}-${technology}-${crypto.randomUUID()}`;
+  const tokenName = `${TOKEN_NAME_PREFIX}-${technology}-${randomTokenSuffix()}`;
   const key = await mintToken(saId, tokenName, ttl);
 
   return {
