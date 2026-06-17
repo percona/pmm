@@ -1,7 +1,7 @@
 {
   "name": "@percona/percona-ui",
   "type": "module",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "private": false,
   "scripts": {
     "build": "rollup -c",
@@ -14,8 +14,7 @@
     "storybook:build": "storybook build",
     "test": "vitest run",
     "test:watch": "vitest",
-    "prepack": "pnpm build",
-    "chromatic": "npx chromatic --project-token=chpt_6335046776cee9d --build-script-name=storybook:build"
+    "prepack": "pnpm build"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -52,7 +51,6 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/react": "^18.2.15",
-    "chromatic": "^17.4.1",
     "date-fns": "^3.6.0",
     "eslint": "^9.39.4",
     "eslint-config-prettier": "^10.1.8",
