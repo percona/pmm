@@ -2,7 +2,7 @@ name: 'Percona Intelligence'
 on:
   push:
     branches:
-      - v3
+      - main
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
     paths:
