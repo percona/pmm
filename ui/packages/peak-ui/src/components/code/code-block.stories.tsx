@@ -2,16 +2,10 @@ import React from 'react';
 import { type Meta, type StoryObj } from '@storybook/react';
 import * as DocBlock from '@storybook/addon-docs/blocks';
 import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CodeBlock from './code-block';
 import type { CodeBlockProps } from './code-block.types';
-import { getThemeOptions } from '../../design';
 
 const CodeBlockComp = CodeBlock as React.ComponentType<CodeBlockProps>;
-
-const THEMES = ['base', 'pmm', 'sep'] as const;
-const MODES = ['light', 'dark'] as const;
 
 const SAMPLE = `helm install percona/percona-db \\
   --create-namespace \\
@@ -45,7 +39,6 @@ const meta: Meta<CodeBlockProps> = {
   },
   argTypes: {
     children: {
-      name: 'content',
       control: 'text',
       description: 'The code content to render. Use a string so it can be copied.',
     },
@@ -199,46 +192,4 @@ export const Overflowing: Story = {
     children:
       "kubectl get pods --all-namespaces -o jsonpath=\"{range .items[*]}{.metadata.name}{'\\t'}{.status.phase}{'\\n'}{end}\"",
   },
-};
-
-const ThemeCell = ({
-  themeName,
-  mode,
-}: {
-  themeName: (typeof THEMES)[number];
-  mode: (typeof MODES)[number];
-}) => {
-  const theme = createTheme(getThemeOptions(themeName)(mode));
-  return (
-    <ThemeProvider theme={theme}>
-      <Box sx={{ p: 2, backgroundColor: theme.palette.background.default }}>
-        <Typography variant="overline">
-          {themeName} · {mode}
-        </Typography>
-        <CodeBlockComp>{SAMPLE}</CodeBlockComp>
-      </Box>
-    </ThemeProvider>
-  );
-};
-
-export const Themes: Story = {
-  name: 'Themes',
-  parameters: {
-    layout: 'padded',
-    docs: {
-      description: {
-        story:
-          'The left accent bar uses the active theme’s brand color, so the block reflects the base / pmm / sep theme and the light / dark mode. Use the toolbar to switch, or compare them side by side here.',
-      },
-    },
-  },
-  render: () => (
-    <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-      {THEMES.flatMap((themeName) =>
-        MODES.map((mode) => (
-          <ThemeCell key={`${themeName}-${mode}`} themeName={themeName} mode={mode} />
-        ))
-      )}
-    </Box>
-  ),
 };

@@ -17,7 +17,6 @@ const preSx = (copyable: boolean, highlighted: boolean) => (theme: Theme) => ({
   fontSize: '0.875rem',
   lineHeight: 1.6,
   border: `1px solid ${theme.palette.dividers?.divider ?? theme.palette.divider}`,
-  borderLeft: `4px solid ${theme.palette.primary.main}`,
   borderRadius: theme.shape.borderRadius,
   padding: theme.spacing(2),
   paddingRight: copyable ? theme.spacing(7) : theme.spacing(2),

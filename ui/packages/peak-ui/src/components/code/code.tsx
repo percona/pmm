@@ -6,9 +6,9 @@ import type { CodeProps } from './code.types';
 const codeSx = (theme: Theme) => ({
   fontFamily: '"Roboto Mono", "Courier New", monospace',
   fontSize: '0.875em',
-  color: theme.palette.primary.main,
-  backgroundColor: theme.palette.primary.hover ?? theme.palette.action.hover,
-  border: `1px solid ${theme.palette.primary.outlinedBorder ?? theme.palette.divider}`,
+  color: theme.palette.text.primary,
+  backgroundColor: theme.palette.action.hover,
+  border: `1px solid ${theme.palette.dividers?.divider ?? theme.palette.divider}`,
   borderRadius: theme.shape.borderRadius,
   padding: '0.1em 0.3em',
   whiteSpace: 'break-spaces',
