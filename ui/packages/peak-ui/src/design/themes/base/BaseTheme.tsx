@@ -718,6 +718,21 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
       },
     },
     components: {
+      MuiCssBaseline: {
+        styleOverrides: {
+          code: {
+            fontFamily: '"Roboto Mono", "Courier New", monospace',
+            fontSize: '0.875em',
+            color: tokens.text.primary,
+            backgroundColor: tokens.action.hover,
+            border: `1px solid ${tokens.lines.divider}`,
+            borderRadius: '4px',
+            padding: '0.1em 0.3em',
+            whiteSpace: 'break-spaces',
+            wordBreak: 'break-word',
+          },
+        },
+      },
       MuiInputBase: {
         styleOverrides: {
           root: () => ({

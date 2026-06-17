@@ -1,19 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import Code from './code';
 import CodeBlock from './code-block';
-
-describe('Code', () => {
-  it('renders a semantic <code> element with its content', () => {
-    render(<Code content="npm install" />);
-    const el = screen.getByText('npm install');
-    expect(el.tagName).toBe('CODE');
-  });
-
-  it('forwards extra props such as data-testid', () => {
-    render(<Code content="x" data-testid="inline-code" />);
-    expect(screen.getByTestId('inline-code')).toBeInTheDocument();
-  });
-});
 
 describe('CodeBlock', () => {
   it('renders a semantic <pre><code> structure', () => {
