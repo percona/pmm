@@ -50,6 +50,7 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
     emptyFilterResultsMessage = 'No data found',
     hideExpandAllIcon,
     tableName,
+    tableInstanceRef,
     state,
     initialState,
     emptyState,
@@ -426,6 +427,16 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
       };
     },
   });
+
+  useEffect(() => {
+    if (!tableInstanceRef) {
+      return;
+    }
+    tableInstanceRef.current = table;
+    return () => {
+      tableInstanceRef.current = null;
+    };
+  }, [table, tableInstanceRef]);
 
   return <MaterialReactTable table={table} />;
 }
