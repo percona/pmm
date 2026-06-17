@@ -790,7 +790,7 @@
                             "refId": "M"
                         }
                     ],
-                    "title": "$service_name - Replica vs Master offsets",
+                    "title": "$service_name - Replica vs Primary offsets",
                     "type": "timeseries"
                 },
                 {
