@@ -19,17 +19,26 @@ describe('queryLanguage', () => {
 });
 
 describe('isTransactionControl', () => {
-  it.each(['COMMIT', 'commit', '  ROLLBACK  ', 'BEGIN', 'start transaction'])(
-    'flags transaction-control statement %j',
-    (text) => {
-      expect(isTransactionControl(withText(text))).toBe(true);
-    }
-  );
+  it.each([
+    'COMMIT',
+    'commit',
+    'COMMIT;',
+    'COMMIT WORK',
+    '  ROLLBACK  ',
+    'ROLLBACK;',
+    'BEGIN',
+    'start transaction',
+    'START  TRANSACTION',
+  ])('flags transaction-control statement %j', (text) => {
+    expect(isTransactionControl(withText(text))).toBe(true);
+  });
 
-  it.each(['SELECT 1', 'UPDATE sbtest1 SET k=k+1', 'COMMIT AND CHAIN'])(
-    'does not flag regular statement %j',
-    (text) => {
-      expect(isTransactionControl(withText(text))).toBe(false);
-    }
-  );
+  it.each([
+    'SELECT 1',
+    'UPDATE sbtest1 SET k=k+1',
+    'COMMIT AND CHAIN',
+    'INSERT INTO commits VALUES (1)',
+  ])('does not flag regular statement %j', (text) => {
+    expect(isTransactionControl(withText(text))).toBe(false);
+  });
 });

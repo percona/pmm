@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -39,6 +40,11 @@ const (
 	changesBufferSize = 10
 	// picosecondsPerNanosecond is used to convert MySQL picosecond latencies into Go durations.
 	picosecondsPerNanosecond = 1000
+	// minStatementLatencyPicoseconds is the minimum statement latency (10ms expressed in
+	// picoseconds) a statement must have run for before it is collected. It mirrors the
+	// MongoDB collector's 10ms floor (microsecs_running >= 10_000) and keeps high-volume,
+	// sub-millisecond statements from dominating each bucket.
+	minStatementLatencyPicoseconds = 10_000_000_000
 )
 
 // currentQueriesSQL fetches currently running queries from the sys schema.
@@ -48,14 +54,16 @@ const (
 // We select all columns so the complete row is preserved in the raw payload
 // (mirroring how the MongoDB RTA agent dumps the whole currentOp document), and
 // exclude background threads, idle ("Sleep") connections, the RTA agent's own
-// connection and rows without a current statement.
+// connection, rows without a current statement, and statements faster than the
+// minimum latency floor.
 const currentQueriesSQL = `
 SELECT *
 FROM sys.x$processlist
 WHERE conn_id IS NOT NULL
   AND conn_id <> CONNECTION_ID()
   AND current_statement IS NOT NULL
-  AND command NOT IN ('Sleep', 'Daemon')`
+  AND command NOT IN ('Sleep', 'Daemon')
+  AND statement_latency >= ?`
 
 // MySQLRTA extracts Real-Time Analytics data (currently running DB queries) from MySQL.
 type MySQLRTA struct {
@@ -122,7 +130,13 @@ func (m *MySQLRTA) Run(ctx context.Context) {
 
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 
+	// collectors tracks in-flight collection goroutines so we can wait for them
+	// before closing m.changes, avoiding a "send on closed channel" race on shutdown.
+	var collectors sync.WaitGroup
+
 	defer func() {
+		collectors.Wait()
+
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE}
 
 		close(m.changes)
@@ -161,7 +175,10 @@ func (m *MySQLRTA) Run(ctx context.Context) {
 			// Run collection in a separate goroutine to avoid blocking the main loop
 			// and allow timely execution of next ticks in case collection takes longer
 			// than the collect interval.
+			collectors.Add(1)
 			go func(curCtx context.Context) {
+				defer collectors.Done()
+
 				rtaQueryBucket, err := m.collectProcessList(curCtx)
 				if err != nil {
 					m.l.Warnf("processlist collection failed: %v", err)
@@ -186,7 +203,7 @@ func (m *MySQLRTA) collectProcessList(ctx context.Context) ([]*rtav1.QueryData, 
 	queryCtx, cancel := context.WithTimeout(ctx, mysqlQueryTimeout)
 	defer cancel()
 
-	rows, err := m.db.QueryContext(queryCtx, currentQueriesSQL)
+	rows, err := m.db.QueryContext(queryCtx, currentQueriesSQL, minStatementLatencyPicoseconds)
 	if err != nil {
 		return nil, fmt.Errorf("sys.x$processlist not available or permission denied: %w", err)
 	}
@@ -251,7 +268,14 @@ func scanRow(rows *sql.Rows, columns []string) (map[string]any, error) {
 	return row, nil
 }
 
-// coerceValue converts a raw column value into nil (NULL), int64, float64 or string.
+// coerceValue converts a raw column value into nil (NULL), int64, float64 or string
+// so the raw payload renders as human-readable JSON with native types.
+//
+// It is tuned for the sys.x$processlist columns, whose numeric columns are plain
+// integers/decimals. It will reinterpret any numeric-looking string as a number, so
+// it is not a general-purpose converter: zero-padded identifiers or values wider than
+// int64 would lose their original textual form. None of the processlist columns have
+// that shape, but keep this in mind before reusing the helper elsewhere.
 func coerceValue(b sql.RawBytes) any {
 	if b == nil {
 		return nil

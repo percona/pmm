@@ -91,8 +91,8 @@ func (s *Service) ListServices(ctx context.Context, req *rtav1.ListServicesReque
 			return nil, err
 		}
 	} else {
-		// No service type filter specified - return all services that support RTA.
-		// For the time being we only support MongoDB, so we can just filter by service type here.
+		// No service type filter specified - return all services that support RTA
+		// (currently MongoDB and MySQL), filtered by service type.
 		for _, modelServiceType := range services.ServiceTypes {
 			_, err := getRTAAgentTypeForServiceType(modelServiceType)
 			if err != nil {
@@ -137,7 +137,7 @@ func (s *Service) ListServices(ctx context.Context, req *rtav1.ListServicesReque
 
 		// PMM Agent that is linked to the requested service may be outdated and doesn't support RTA.
 		// In this case we cannot start RTA session for this service and should return an error.
-		if !isRtaFeatureSupported(*pmmAgents[0].Version) {
+		if !isRtaFeatureSupported(*pmmAgents[0].Version, svc.ServiceType) {
 			continue // skip services with unsupported pmm-agent version
 		}
 
@@ -364,7 +364,7 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 
 	// PMM Agent that is linked to the requested service may be outdated and doesn't support RTA.
 	// In this case we cannot start RTA session for this service and should return an error.
-	if !isRtaFeatureSupported(*pmmAgent.Version) {
+	if !isRtaFeatureSupported(*pmmAgent.Version, service.ServiceType) {
 		return nil, status.Errorf(codes.FailedPrecondition,
 			"Service %s has pmm-agent with version not supporting Real-Time Analytics.", service.ServiceID)
 	}
@@ -634,14 +634,27 @@ func getRTAAgentTypeForServiceType(serviceType models.ServiceType) (models.Agent
 	}
 }
 
-// isRtaFeatureSupported checks if the passed pmm-agent's version supporting RTA.
-func isRtaFeatureSupported(pmmAgentVersion string) bool {
+// rtaMinAgentVersion returns the minimum pmm-agent version that ships the RTA
+// collector for the given service type. Different database collectors landed in
+// different releases, so the gate must be per-service-type.
+func rtaMinAgentVersion(serviceType models.ServiceType) version.FeatureVersion {
+	switch serviceType {
+	case models.MySQLServiceType:
+		return version.MySQLRtaAgentSupportVersion
+	default:
+		return version.MongoDBRtaAgentSupportVersion
+	}
+}
+
+// isRtaFeatureSupported checks if the passed pmm-agent's version supports RTA for
+// the given service type.
+func isRtaFeatureSupported(pmmAgentVersion string, serviceType models.ServiceType) bool {
 	versionParsed, versionParseErr := version.Parse(pmmAgentVersion)
 	if versionParseErr != nil {
 		return false
 	}
 
-	return versionParsed.IsFeatureSupported(version.MongoDBRtaAgentSupportVersion)
+	return versionParsed.IsFeatureSupported(rtaMinAgentVersion(serviceType))
 }
 
 // check interfaces.

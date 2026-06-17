@@ -27,13 +27,13 @@ message QueryMongoDBData {
 }
 
 // QueryMySQLData holds MySQL-specific Real-Time Analytics query information.
-// The data is sourced from the sys.processlist view.
+// The data is sourced from the sys.x$processlist view.
 message QueryMySQLData {
   // MySQL instance address(host:port) that processing the query.
   string db_instance_address = 1;
-  // Client program name connected to MySQL (program_name from sys.processlist).
+  // Client program name connected to MySQL (program_name from sys.x$processlist).
   string program_name = 2;
-  // Database name (db from sys.processlist).
+  // Database name (db from sys.x$processlist).
   string database_name = 3;
   // Command type the connection is executing ("Query", "Execute", etc).
   string command = 4;

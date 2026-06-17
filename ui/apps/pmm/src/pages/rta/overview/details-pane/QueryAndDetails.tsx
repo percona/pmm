@@ -9,6 +9,7 @@ import BigNumberMetric from './BigNumberMetric';
 import { Messages } from './QueryAndDetails.messages';
 import { TIME_FORMAT } from 'lib/constants';
 import { useUser } from 'contexts/user';
+import { queryLanguage } from '../table/OverviewTable.utils';
 
 type Props = {
   queryData: QueryData;
@@ -32,8 +33,7 @@ const QueryAndDetails: FC<Props> = ({ queryData }) => {
     mySqlPayload,
   } = queryData;
 
-  const isMySQL = !!mySqlPayload;
-  const language = isMySQL ? 'sql' : 'mongodb';
+  const language = queryLanguage(queryData);
 
   // Fields common to all database types are resolved from whichever payload is present.
   const dbInstanceAddress =

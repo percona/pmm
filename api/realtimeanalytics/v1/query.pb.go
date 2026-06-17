@@ -134,14 +134,14 @@ func (x *QueryMongoDBData) GetPlanSummary() string {
 }
 
 // QueryMySQLData holds MySQL-specific Real-Time Analytics query information.
-// The data is sourced from the sys.processlist view.
+// The data is sourced from the sys.x$processlist view.
 type QueryMySQLData struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// MySQL instance address(host:port) that processing the query.
 	DbInstanceAddress string `protobuf:"bytes,1,opt,name=db_instance_address,json=dbInstanceAddress,proto3" json:"db_instance_address,omitempty"`
-	// Client program name connected to MySQL (program_name from sys.processlist).
+	// Client program name connected to MySQL (program_name from sys.x$processlist).
 	ProgramName string `protobuf:"bytes,2,opt,name=program_name,json=programName,proto3" json:"program_name,omitempty"`
-	// Database name (db from sys.processlist).
+	// Database name (db from sys.x$processlist).
 	DatabaseName string `protobuf:"bytes,3,opt,name=database_name,json=databaseName,proto3" json:"database_name,omitempty"`
 	// Command type the connection is executing ("Query", "Execute", etc).
 	Command string `protobuf:"bytes,4,opt,name=command,proto3" json:"command,omitempty"`
