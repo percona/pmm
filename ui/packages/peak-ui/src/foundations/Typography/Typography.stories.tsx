@@ -146,6 +146,37 @@ export const Body: Story = {
   render: (args) => <Typography variant={args.variant}>{args.children}</Typography>,
 };
 
+/* ── Inline code ─────────────────────────────────── */
+
+export const InlineCode: Story = {
+  name: 'Inline code',
+  tags: ['!dev'],
+  render: () => (
+    <div style={stackStyle}>
+      <div>
+        <span style={labelStyle}>body1 + code</span>
+        <Typography variant="body1">
+          Run <code>pnpm build</code> to compile the library, then import{' '}
+          <code>{'{ CodeBlock }'}</code> from <code>@percona/percona-ui</code>.
+        </Typography>
+      </div>
+      <div>
+        <span style={labelStyle}>body2 + code</span>
+        <Typography variant="body2">
+          Connect with <code>mongodb://admin:password@localhost:27017/?authSource=admin</code> to
+          access the database.
+        </Typography>
+      </div>
+      <div>
+        <span style={labelStyle}>caption + code</span>
+        <Typography variant="caption">
+          Requires <code>node &gt;= 18</code> and <code>pnpm &gt;= 9</code>.
+        </Typography>
+      </div>
+    </div>
+  ),
+};
+
 /* ── Component text styles ────────────────────────── */
 
 const componentVariants = ['button', 'menuText', 'inputText', 'inputLabel', 'helperText'] as const;
