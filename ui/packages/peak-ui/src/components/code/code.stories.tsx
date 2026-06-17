@@ -30,7 +30,7 @@ const meta: Meta<CodeProps> = {
     },
   },
   argTypes: {
-    children: {
+    content: {
       control: 'text',
       description: 'The code content to render inline.',
     },
@@ -40,7 +40,7 @@ const meta: Meta<CodeProps> = {
     },
   },
   args: {
-    children: 'pnpm install',
+    content: 'pnpm install',
   },
 };
 
@@ -60,8 +60,8 @@ export const InSentence: Story = {
   },
   render: () => (
     <Typography variant="body1">
-      Run <Code>pnpm build</Code> to compile the library, then import <Code>{'{ Code }'}</Code> from{' '}
-      <Code>@percona/percona-ui</Code>.
+      Run <Code content="pnpm build" /> to compile the library, then import{' '}
+      <Code content="{ Code }" /> from <Code content="@percona/percona-ui" />.
     </Typography>
   ),
 };
@@ -77,7 +77,7 @@ export const Wrapping: Story = {
   render: () => (
     <Box sx={{ maxWidth: 280 }}>
       <Typography variant="body2">
-        Connect with <Code>mongodb://admin:password@localhost:27017/?authSource=admin</Code>.
+        Connect with <Code content="mongodb://admin:password@localhost:27017/?authSource=admin" />.
       </Typography>
     </Box>
   ),

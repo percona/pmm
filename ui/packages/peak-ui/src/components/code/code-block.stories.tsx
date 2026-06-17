@@ -11,6 +11,12 @@ const SAMPLE = `helm install percona/percona-db \\
   --create-namespace \\
   --namespace percona`;
 
+const SQL_SAMPLE = `SELECT id, name, created_at
+FROM users
+WHERE status = 'active'
+ORDER BY created_at DESC
+LIMIT 10;`;
+
 const meta: Meta<CodeBlockProps> = {
   title: 'Data display/Code Block',
   component: CodeBlockComp,
@@ -38,7 +44,7 @@ const meta: Meta<CodeBlockProps> = {
     },
   },
   argTypes: {
-    children: {
+    content: {
       control: 'text',
       description: 'The code content to render. Use a string so it can be copied.',
     },
@@ -55,7 +61,7 @@ const meta: Meta<CodeBlockProps> = {
     value: {
       control: 'text',
       description:
-        'Overrides the text copied to the clipboard. Useful when children are not a plain string.',
+        'Overrides the text copied to the clipboard. Useful when the content is not a plain string.',
     },
     language: {
       control: 'text',
@@ -78,7 +84,7 @@ const meta: Meta<CodeBlockProps> = {
         'okaidia',
       ],
       description:
-        'Highlighting color scheme. Defaults to `github` (light mode) / `vsDark` (dark mode). Accepts a custom `PrismTheme` object too.',
+        'Highlighting color scheme. **Only applies when `language` is set.** Defaults to `github` (light mode) / `vsDark` (dark mode). Accepts a custom `PrismTheme` object too.',
     },
     sx: {
       control: false,
@@ -86,7 +92,7 @@ const meta: Meta<CodeBlockProps> = {
     },
   },
   args: {
-    children: SAMPLE,
+    content: SAMPLE,
     copyable: false,
     showCopyButtonText: false,
   },
@@ -102,7 +108,22 @@ const meta: Meta<CodeBlockProps> = {
 export default meta;
 type Story = StoryObj<CodeBlockProps>;
 
-export const Playground: Story = {};
+export const Playground: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Highlighted by default so the `colorScheme` control is visible — change it to see GitHub, Dracula, and the rest. Clear `language` to fall back to a plain block.',
+      },
+    },
+  },
+  args: {
+    content: SQL_SAMPLE,
+    language: 'sql',
+    colorScheme: 'github',
+    copyable: true,
+  },
+};
 
 export const Plain: Story = {
   parameters: {
@@ -136,12 +157,6 @@ export const CopyableWithLabel: Story = {
   args: { copyable: true, showCopyButtonText: true },
 };
 
-const SQL_SAMPLE = `SELECT id, name, created_at
-FROM users
-WHERE status = 'active'
-ORDER BY created_at DESC
-LIMIT 10;`;
-
 export const Highlighted: Story = {
   parameters: {
     docs: {
@@ -154,7 +169,7 @@ export const Highlighted: Story = {
   args: {
     language: 'sql',
     copyable: true,
-    children: SQL_SAMPLE,
+    content: SQL_SAMPLE,
   },
 };
 
@@ -171,9 +186,14 @@ export const ColorSchemes: Story = {
   render: (args) => (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       {(['github', 'dracula', 'nightOwl', 'oneDark'] as const).map((scheme) => (
-        <CodeBlockComp key={scheme} {...args} language="sql" colorScheme={scheme} copyable>
-          {`-- ${scheme}\n${SQL_SAMPLE}`}
-        </CodeBlockComp>
+        <CodeBlockComp
+          key={scheme}
+          {...args}
+          language="sql"
+          colorScheme={scheme}
+          copyable
+          content={`-- ${scheme}\n${SQL_SAMPLE}`}
+        />
       ))}
     </Box>
   ),
@@ -189,7 +209,7 @@ export const Overflowing: Story = {
   },
   args: {
     copyable: true,
-    children:
+    content:
       "kubectl get pods --all-namespaces -o jsonpath=\"{range .items[*]}{.metadata.name}{'\\t'}{.status.phase}{'\\n'}{end}\"",
   },
 };
