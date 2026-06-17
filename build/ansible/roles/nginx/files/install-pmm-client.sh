@@ -395,9 +395,7 @@ start_pmm_agent_nohup() {
 
   # Drop privileges to the pmm-agent system user when it exists (created by the
   # package's postinst). The systemd unit runs as that user too, so this keeps
-  # the nohup fallback from being a privilege regression vs. systemd. If the
-  # user is missing (very minimal images, broken postinst), fall back to root —
-  # the agent still works, just with a wider blast radius if it's ever exploited.
+  # the nohup fallback from being a privilege regression vs. systemd.
   local runner=()
   if id -u pmm-agent >/dev/null 2>&1 && command -v runuser >/dev/null 2>&1; then
     runner=(runuser -u pmm-agent --)
@@ -412,9 +410,7 @@ start_pmm_agent_nohup() {
 }
 
 # Make sure pmm-agent is up and listening on its local API before we hand off to
-# pmm-admin config/add. The script previously assumed the package's postinst had
-# already started the daemon via systemd; that breaks in containers (no systemd)
-# and on hosts where the service is masked or stopped.
+# pmm-admin config/add.
 ensure_pmm_agent_running() {
   if pmm_agent_listening; then
     log "pmm-agent already listening on ${PMM_AGENT_LISTEN_HOST}:${PMM_AGENT_LISTEN_PORT}."
@@ -454,19 +450,6 @@ ensure_pmm_agent_running() {
 # When stdin is not a terminal (e.g. curl ... | bash), prompts cannot be used for DB
 # credentials. Fail before pmm-admin config so we do not register the node and then fail on add.
 # Caller must have already invoked apply_generic_inputs.
-#
-# Contract with the PMM UI's "Prompt on node" credentials mode:
-#   The UI deliberately renders a TWO-STEP command in that mode:
-#     1) curl -fsSL[k] -o /tmp/install-pmm-client.sh '<url>'
-#     2) sudo -E bash /tmp/install-pmm-client.sh --pmm-server-url ... --tech ... [...]
-#   Step 2 reads the script from disk (not from a pipe), so stdin stays attached
-#   to the user's TTY through sudo, [ -t 0 ] is true, and prompt_if_empty /
-#   read -r -s in add_mysql / add_postgresql / add_mongodb / add_valkey can ask
-#   for DB user and password interactively — unless DB_USER / DB_PASSWORD (or
-#   per-tech MYSQL_* / …) are already set; sudo -E preserves those exports.
-#   This guard therefore never trips
-#   when the user followed the UI's prompt-mode command — it only protects the
-#   curl | bash pipeline from registering a half-configured node.
 require_db_creds_before_config_if_noninteractive() {
   if [ -t 0 ]; then
     return 0

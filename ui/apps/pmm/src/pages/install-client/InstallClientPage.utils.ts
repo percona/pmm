@@ -24,8 +24,6 @@ export const DEFAULT_DB_PORTS: Record<Technology, number> = {
 
 /**
  * Suggested PMM service name when the field is left empty in the wizard.
- * Mirrors default_db_service_name / service_name_disambiguator in install-pmm-client.sh.
- * `nodeName` is optional; the script uses the node hostname when unset.
  */
 export function suggestDbServiceName(
   technology: Technology,
@@ -120,10 +118,7 @@ export interface InstallCommandOptions {
 export const shellEscape = (value: string): string =>
   `'${value.replace(/'/g, `'\\''`)}'`;
 
-// Where prompt mode tells the user to drop the downloaded script. /tmp is the
-// only path we promise: it is universally writable and `bash <path>` works even
-// when /tmp is mounted noexec (no exec bit needed, only read). Documented in
-// one-step-ui-install.md; do not change without updating docs and tests.
+// Where prompt mode tells the user to drop the downloaded script.
 const DOWNLOADED_SCRIPT_PATH = '/tmp/install-pmm-client.sh';
 
 const curlDownloadFlags = (insecureTLS: boolean): string =>
@@ -149,12 +144,8 @@ const appendMysqlQuerySourceEnv = (
   envVars.push(`DB_QUERY_SOURCE=${shellEscape(opts.dbQuerySource)}`);
 };
 
-// buildPromptModeCommand renders a two-step "download then sudo -E bash" command
-// so the install script gets a real TTY on stdin. This is the only mode where
-// `read -r -s` in install-pmm-client.sh can ask for DB user/password, so this
-// branch must NEVER emit DB_USER / DB_PASSWORD or --db-user / --db-password —
-// the script will prompt for them. Other optional fields (host, port, service
-// name, MongoDB auth DB, PostgreSQL database) are still passed as flags so the
+// renders a two-step "download then sudo -E bash" command
+// so the install script gets a real TTY on stdin.
 // user only types two things.
 const buildPromptModeCommand = (opts: InstallCommandOptions): string => {
   const curl = `curl ${curlDownloadFlags(opts.insecureTLS)} -o ${shellEscape(
@@ -195,9 +186,7 @@ const buildPromptModeCommand = (opts: InstallCommandOptions): string => {
   appendMysqlQuerySourceFlag(opts, flags);
 
   // `sudo -E bash <path>` keeps stdin on the caller's TTY (same as plain sudo bash)
-  // while preserving the user's environment. install-pmm-client.sh maps
-  // DB_USER / DB_PASSWORD (and MYSQL_* / POSTGRESQL_* / …) before prompts; if
-  // those are already set, `prompt_if_empty` skips — so exports survive sudo.
+  // while preserving the user's environment.
   return [
     curl,
     `sudo -E bash ${shellEscape(DOWNLOADED_SCRIPT_PATH)} \\`,
@@ -210,9 +199,6 @@ export const buildInstallCommand = (opts: InstallCommandOptions): string => {
     return buildPromptModeCommand(opts);
   }
 
-  // -k is for the PMM Server certificate; emit it only when the user opted into
-  // insecure TLS. With a properly signed cert we want curl to verify normally
-  // (otherwise we'd be silently downgrading the security of every install).
   const curl = `curl ${curlDownloadFlags(opts.insecureTLS)} ${shellEscape(opts.installerUrl)}`;
 
   const envVars: string[] = [
