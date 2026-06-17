@@ -3,7 +3,7 @@ import { type Meta, type StoryObj } from '@storybook/react';
 import * as DocBlock from '@storybook/addon-docs/blocks';
 import Box from '@mui/material/Box';
 import CodeBlock from './code-block';
-import type { CodeBlockProps } from './code-block.types';
+import type { CodeBlockProps, CodeColorScheme } from './code-block.types';
 
 const CodeBlockComp = CodeBlock as React.ComponentType<CodeBlockProps>;
 
@@ -28,7 +28,7 @@ const meta: Meta<CodeBlockProps> = {
         component: [
           'Multi-line code block rendered as semantic `<pre><code>`. Theme-aware across light/dark and the base/pmm/sep themes. Pass `copyable` to show a copy button that reuses `CopyToClipboardButton`. Extends MUI `BoxProps`.',
           '',
-          'Set `language` to enable syntax highlighting (SQL, JS, YAML, …). Highlighting is powered by `prism-react-renderer`, loaded lazily and only when `language` is set — it is an **optional peer dependency**, so without it the block falls back to plain text. Pick a `colorScheme` (defaults to GitHub in light mode, VS Dark in dark mode).',
+          'Set `language` to enable syntax highlighting (SQL, JS, YAML, …). Highlighting is powered by `prism-react-renderer`. Pick a `colorScheme` (defaults to GitHub in light mode, VS Dark in dark mode).',
         ].join('\n'),
       },
       page: () => (
@@ -71,17 +71,26 @@ const meta: Meta<CodeBlockProps> = {
     colorScheme: {
       control: 'select',
       options: [
-        'github',
-        'vsLight',
-        'vsDark',
-        'oneLight',
-        'oneDark',
         'dracula',
+        'duotoneDark',
+        'duotoneLight',
+        'github',
+        'gruvboxMaterialDark',
+        'gruvboxMaterialLight',
+        'jettwaveDark',
+        'jettwaveLight',
         'nightOwl',
         'nightOwlLight',
         'oceanicNext',
-        'palenight',
         'okaidia',
+        'oneDark',
+        'oneLight',
+        'palenight',
+        'shadesOfPurple',
+        'synthwave84',
+        'ultramin',
+        'vsDark',
+        'vsLight',
       ],
       description:
         'Highlighting color scheme. **Only applies when `language` is set.** Defaults to `github` (light mode) / `vsDark` (dark mode). Accepts a custom `PrismTheme` object too.',
@@ -183,20 +192,44 @@ export const ColorSchemes: Story = {
       },
     },
   },
-  render: (args) => (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      {(['github', 'dracula', 'nightOwl', 'oneDark'] as const).map((scheme) => (
-        <CodeBlockComp
-          key={scheme}
-          {...args}
-          language="sql"
-          colorScheme={scheme}
-          copyable
-          content={`-- ${scheme}\n${SQL_SAMPLE}`}
-        />
-      ))}
-    </Box>
-  ),
+  render: (args) => {
+    const allSchemes: CodeColorScheme[] = [
+      'github',
+      'vsLight',
+      'ultramin',
+      'duotoneLight',
+      'gruvboxMaterialLight',
+      'jettwaveLight',
+      'nightOwlLight',
+      'oneLight',
+      'dracula',
+      'vsDark',
+      'duotoneDark',
+      'gruvboxMaterialDark',
+      'jettwaveDark',
+      'nightOwl',
+      'oceanicNext',
+      'okaidia',
+      'oneDark',
+      'palenight',
+      'shadesOfPurple',
+      'synthwave84',
+    ];
+    return (
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        {allSchemes.map((scheme) => (
+          <CodeBlockComp
+            key={scheme}
+            {...args}
+            language="sql"
+            colorScheme={scheme}
+            copyable
+            content={`-- ${scheme}\n${SQL_SAMPLE}`}
+          />
+        ))}
+      </Box>
+    );
+  },
 };
 
 export const Overflowing: Story = {

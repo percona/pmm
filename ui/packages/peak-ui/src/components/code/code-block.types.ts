@@ -3,17 +3,26 @@ import type { BoxProps } from '@mui/material/Box';
 import type { PrismTheme } from 'prism-react-renderer';
 
 export type CodeColorScheme =
-  | 'github'
-  | 'vsLight'
-  | 'vsDark'
-  | 'oneLight'
-  | 'oneDark'
   | 'dracula'
+  | 'duotoneDark'
+  | 'duotoneLight'
+  | 'github'
+  | 'gruvboxMaterialDark'
+  | 'gruvboxMaterialLight'
+  | 'jettwaveDark'
+  | 'jettwaveLight'
   | 'nightOwl'
   | 'nightOwlLight'
   | 'oceanicNext'
+  | 'okaidia'
+  | 'oneDark'
+  | 'oneLight'
   | 'palenight'
-  | 'okaidia';
+  | 'shadesOfPurple'
+  | 'synthwave84'
+  | 'ultramin'
+  | 'vsDark'
+  | 'vsLight';
 
 export type CodeBlockProps = Omit<BoxProps<'pre'>, 'component' | 'children'> & {
   content: ReactNode;
