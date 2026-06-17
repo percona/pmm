@@ -1,4 +1,4 @@
-import { FC, useRef, useState } from 'react';
+import { FC, useMemo, useRef, useState } from 'react';
 import {
   Navigate,
   Link as RouterLink,
@@ -7,6 +7,7 @@ import {
 import { RealtimePage } from '../components/rta-page';
 import { useRealtimeQueries, useRealtimeSessions } from 'hooks/api/useRealtime';
 import OverviewTable from './table/OverviewTable';
+import { isTransactionControl } from './table/OverviewTable.utils';
 import { DetailsPane } from './details-pane';
 import { QueryData } from 'types/rta.types';
 import { Icon } from 'components/icon';
@@ -14,6 +15,9 @@ import { Messages } from './RealtimeOverview.messages';
 import { createRealtimeSessionsUrl } from 'utils/link.utils';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Switch from '@mui/material/Switch';
+import Tooltip from '@mui/material/Tooltip';
 import { ServicesAutocompleteInput } from '../components/services-autocomplete-input';
 import { AutoRefreshSelect } from './auto-refresh-select';
 
@@ -31,7 +35,13 @@ const RealtimeOverviewPage: FC = () => {
       refetchInterval: refreshInterval,
     }
   );
-  const tableQueries = queries ?? EMPTY_QUERIES;
+  const [hideCommit, setHideCommit] = useState(false);
+  const tableQueries = useMemo(() => {
+    const allQueries = queries ?? EMPTY_QUERIES;
+    return hideCommit
+      ? allQueries.filter((query) => !isTransactionControl(query))
+      : allQueries;
+  }, [queries, hideCommit]);
   // Synced from the table after filters; details-pane arrows use this list, not the full API result.
   const [navigableQueries, setNavigableQueries] = useState<QueryData[]>([]);
   const [selectedQuery, setSelectedQuery] = useState<QueryData>();
@@ -126,6 +136,20 @@ const RealtimeOverviewPage: FC = () => {
                 refreshInterval={refreshInterval}
                 onRefreshIntervalChange={setRefreshInterval}
               />
+              <Tooltip title={Messages.hideCommitTooltip} arrow>
+                <FormControlLabel
+                  data-testid="overview-table-hide-commit-toggle"
+                  control={
+                    <Switch
+                      size="small"
+                      checked={hideCommit}
+                      onChange={(event) => setHideCommit(event.target.checked)}
+                    />
+                  }
+                  label={Messages.hideCommit}
+                  sx={{ whiteSpace: 'nowrap', mr: 0 }}
+                />
+              </Tooltip>
               <Button
                 data-testid={
                   fetching

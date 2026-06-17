@@ -7,6 +7,19 @@ import { CodeLanguage } from 'types/util.types';
 export const queryLanguage = (query: RawQueryData): CodeLanguage =>
   query.mySqlPayload ? 'sql' : 'mongodb';
 
+// Transaction-control statements that add little value to Real-Time Analytics
+// and can dominate the list under transactional workloads (e.g. sysbench).
+const TRANSACTION_CONTROL_STATEMENTS = new Set([
+  'COMMIT',
+  'ROLLBACK',
+  'BEGIN',
+  'START TRANSACTION',
+]);
+
+// isTransactionControl reports whether a query is a bare transaction-control statement.
+export const isTransactionControl = (query: RawQueryData): boolean =>
+  TRANSACTION_CONTROL_STATEMENTS.has(query.queryText.trim().toUpperCase());
+
 export const filterElapsedTime = (
   row: MRT_Row<QueryData>,
   id: string,
